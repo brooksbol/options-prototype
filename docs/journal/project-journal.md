@@ -298,3 +298,59 @@ Test state:
 - Should screenshots be stored in repo or outside repo?
 - Should `docs/README.md` remain, since root `README.md` now exists?
 - Should task plan be updated to formally include observation-cadence rules and Engineering Console milestones?
+
+---
+
+## Entry: Reasoning Subsystem Checkpoint — Observations for Future Reference
+
+**Date:** 2025-07-03
+
+**Context:** Learning Checkpoint after completing the reasoning subsystem (types, calculations, policy, delta matching, Decision Narrative). Three foundational principles were promoted to `docs/foundations/closed-loop-engineering.md`. Two observations are preserved here for future review.
+
+---
+
+### Observation 1: Reasoning Artifacts vs. Implementation State
+
+The Engineering Laboratory currently exposes two kinds of information:
+
+- **Implementation state** — which modules exist, what their status is, what the active policy configuration is.
+- **Reasoning artifacts** — why the system reached a specific conclusion (the Decision Narrative).
+
+These are conceptually distinct but we don't yet have enough evidence to determine whether they should be architecturally separated. Only one reasoning artifact exists (the Decision Narrative). When additional reasoning surfaces emerge (e.g., provider mapping explanations, yield comparison rationale, multi-criteria screening explanations), we'll have enough data to assess whether this distinction warrants structural separation or merely vocabulary distinction.
+
+**Status:** Continue observing. Revisit after provider work introduces a second narration surface.
+
+---
+
+### Observation 2: Structured Decision Traces
+
+The current Decision Narrative works by re-deriving the decision at the UI layer (scanning contracts, computing distances, detecting ties). This is correct and sufficient for Slice 1.
+
+Clear transition signals have been identified for when structured `DeltaDecision` objects should replace UI-layer derivation:
+
+1. Narrative inaccuracy (the narrative and the engine disagree)
+2. Non-reconstructable reasoning (the engine's logic outgrows what external observation can replicate)
+3. Multiple consumers (two or more components independently derive the same decision metadata)
+4. Richer traces needed (decision history across sweeps, statistical views of policy involvement)
+
+**Likely trigger:** Screening policy expansion (multi-criteria filtering) that makes the engine's logic non-reconstructable from outside.
+
+**Status:** Preserved for future reference. Do not implement until a triggering signal fires.
+
+---
+
+### Implementation state at this entry
+
+Completed:
+- T-01 through T-04 (scaffold, tests, types, calculations)
+- T-06 Policy engine + tests
+- T-08 Delta matching + tests
+- T-10 MarketDataProvider interface
+- T-04a Engineering Laboratory (Interactive Delta Probe + Decision Narrative + Tie-Breaker selector)
+
+Domain subsystem: fully implemented and observable.
+Provider subsystem: interface defined, mock implementation pending.
+
+Test state: 4 files, 59 tests passing. TypeScript compiles. Build succeeds.
+
+Browser state: Engineering Laboratory with interactive delta probe, scenario selector, tie-breaker control, decision narrative, metrics panel. Three engineering fixtures (Normal Market, Tie Scenario, Deep OTM).

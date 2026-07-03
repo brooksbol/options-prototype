@@ -15,6 +15,7 @@ This document describes component boundaries, data flow, interfaces, folder stru
 3. **Unidirectional data flow.** Data flows: Provider → Domain Types → UI Components.
 4. **Composition over inheritance.** Components are small, composable, and focused.
 5. **Testability by default.** Domain logic is pure functions. UI components accept data via props.
+6. **Observation without ownership.** The Engineering Laboratory derives observations from domain inputs and outputs. It does not own reasoning, gate decisions, or store state that influences domain behavior. If the Laboratory were removed, the system would behave identically.
 
 ---
 

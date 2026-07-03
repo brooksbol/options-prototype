@@ -76,6 +76,47 @@ Every refinement cycle produces two outputs:
 - Better software (immediate value).
 - Better understanding of the domain (compounding value).
 
+### Learning Checkpoints
+
+The engineering learning rate is the optimization target — not implementation velocity, not observation cadence, but the rate at which working software produces understanding that improves future decisions.
+
+Learning occurs naturally at subsystem boundaries: when individually-correct components are composed into a testable whole, the composition reveals properties that individual implementation could not predict.
+
+Implementation plans should identify these boundaries and place explicit learning checkpoints after them.
+
+At each checkpoint, the team asks:
+
+1. What did this subsystem teach us?
+2. Did it confirm or contradict our assumptions?
+3. Is the next planned work still the highest-learning-rate path?
+4. Does the Engineering Laboratory expose enough of this subsystem to produce useful evidence?
+5. If not, should the laboratory be adapted before continuing?
+
+A checkpoint produces one of three outcomes:
+
+- **Proceed** — subsystem is observable, no adaptation needed, next task is correct.
+- **Adapt** — the Engineering Laboratory needs a new experiment, fixture, or control to make the subsystem's behavior observable. Implement the adaptation before continuing.
+- **Redirect** — the evidence suggests the plan itself needs revision (escalate to Architect review).
+
+The Engineering Laboratory is an explicit participant in every checkpoint. It is the shared medium through which the team observes evidence. A subsystem that is correct but not observable in the laboratory has not yet produced learning — it has only produced code.
+
+Laboratory adaptations are normal, expected, and small. They are not scope expansion. They are the mechanism by which implementation becomes evidence.
+
+### Documentation Follows Learning
+
+Implementation creates software. Learning creates documentation.
+
+Not every implementation task warrants a documentation update. Documentation changes are justified when a Learning Checkpoint produces new understanding that changes the team's shared mental model of the project.
+
+Heuristics for when documentation should change:
+
+- **Project Journal:** When a checkpoint produces understanding worth preserving for context recovery. Not when implementation merely progresses.
+- **README:** When the operational understanding of the repository changes (new capabilities, new developer workflows, new entry points). Not for internal implementation details.
+- **Architecture / Specifications:** When implementation produces evidence that changes the architecture, methodology, or design. Not when implementation follows existing specifications without surprise.
+- **Task Plan:** When learning changes the implementation hypothesis. Not when tasks are merely completed.
+
+The Documentation Drift Assessment is a standard question at every checkpoint: "Has this learning changed what a new team member should understand about the project?" If yes, update. If no, explicitly record "no changes required" and continue.
+
 ---
 
 ## Loop 2: Financial Control Loop
