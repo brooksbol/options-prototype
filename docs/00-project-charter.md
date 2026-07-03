@@ -110,6 +110,28 @@ Each slice is independently deployable working software.
 
 ---
 
+## Planned Future Capabilities
+
+### Implementation Status Dashboard
+
+A self-documenting dashboard exposed from inside the running application. Similar to the GIA prototype's introspection capability.
+
+**Purpose:** Make the system's implementation state observable without requiring external documentation review.
+
+**Should expose:**
+- Domain modules and their implementation status
+- UI components and their wiring state
+- Providers (active, planned)
+- Calculations (implemented, tested, pending)
+- Policies (active, configurable, planned)
+- Test coverage summary
+- Current slice status and planned future work
+- References to relevant spec documents
+
+**Not part of Slice 1.** Recorded here so the architecture preserves room for it. The component map (`05a-component-map.md`) and the task structure (`06-tasks.md`) are already structured in a way that could feed such a dashboard.
+
+---
+
 ## Technology (Slice 1)
 
 - React
