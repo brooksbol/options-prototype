@@ -367,3 +367,4 @@ Power:
               Time: 7/3/26, 5:55 PM
               UserVisible: 0
 
+Kiro terminal: Verify which shell the integrated terminal is using (bash vs. zsh). On this machine, the terminal defaulted to bash. Toolchain functioned correctly after bootstrap, so this is an IDE preference rather than an installation issue.
