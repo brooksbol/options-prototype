@@ -7,7 +7,7 @@ import {
   assignmentProbability,
 } from "./domain/calculations";
 import { findClosestToDelta } from "./domain/delta";
-import { DEFAULT_DELTA_POLICY } from "./domain/policy";
+import { DEFAULT_DELTA_POLICY, type DeltaTieBreaker } from "./domain/policy";
 import type { OptionContract } from "./domain/types";
 import { ALL_SCENARIOS } from "./engineering/probeData";
 import "./App.css";
@@ -18,17 +18,30 @@ import "./App.css";
  * Desktop-first two-column layout:
  *   Left sidebar: status, modules, policy (always visible)
  *   Main area: interactive probe table + metrics
+ *
+ * Policy is an active experimental variable:
+ *   - Target delta: adjustable
+ *   - Tie-breaker: selectable
+ *   Both feed into findClosestToDelta and produce observable outcomes.
  */
+
+const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
+  "PreferOTM",
+  "PreferITM",
+  "PreferHigherStrike",
+  "PreferLowerStrike",
+];
 
 function App() {
   const [targetDelta, setTargetDelta] = useState(DEFAULT_DELTA_POLICY.targetDelta);
+  const [tieBreaker, setTieBreaker] = useState<DeltaTieBreaker>(DEFAULT_DELTA_POLICY.tieBreaker);
   const [scenarioIndex, setScenarioIndex] = useState(0);
 
   const scenario = ALL_SCENARIOS[scenarioIndex];
   const highlighted = findClosestToDelta(
     scenario.contracts,
     targetDelta,
-    DEFAULT_DELTA_POLICY.tieBreaker
+    tieBreaker
   );
 
   return (
@@ -74,7 +87,12 @@ function App() {
               <dt>Target Δ</dt>
               <dd>{targetDelta.toFixed(2)}</dd>
               <dt>Tie-Breaker</dt>
-              <dd>{DEFAULT_DELTA_POLICY.tieBreaker}</dd>
+              <dd className={tieBreaker !== DEFAULT_DELTA_POLICY.tieBreaker ? "policy-override" : ""}>
+                {tieBreaker}
+                {tieBreaker !== DEFAULT_DELTA_POLICY.tieBreaker && (
+                  <span className="policy-default-hint"> (default: {DEFAULT_DELTA_POLICY.tieBreaker})</span>
+                )}
+              </dd>
             </dl>
           </section>
         </aside>
@@ -109,12 +127,30 @@ function App() {
                     }}
                   />
                 </label>
+                <label className="probe-label">
+                  Tie-Breaker:
+                  <select
+                    value={tieBreaker}
+                    onChange={(e) => setTieBreaker(e.target.value as DeltaTieBreaker)}
+                  >
+                    {TIE_BREAKER_OPTIONS.map((tb) => (
+                      <option key={tb} value={tb}>{tb}</option>
+                    ))}
+                  </select>
+                </label>
               </div>
             </div>
 
             <p className="probe-context">
               {scenario.description} | Underlying: ${scenario.underlyingPrice} | DTE: {scenario.dte}
             </p>
+
+            <DecisionNarrative
+              contracts={scenario.contracts}
+              targetDelta={targetDelta}
+              tieBreaker={tieBreaker}
+              selected={highlighted}
+            />
 
             <div className="probe-content">
               <div className="probe-table-container">
@@ -246,6 +282,75 @@ function MetricsDisplay({
         </tr>
       </tbody>
     </table>
+  );
+}
+
+function DecisionNarrative({
+  contracts,
+  targetDelta,
+  tieBreaker,
+  selected,
+}: {
+  contracts: OptionContract[];
+  targetDelta: number;
+  tieBreaker: DeltaTieBreaker;
+  selected: OptionContract | null;
+}) {
+  if (!selected || contracts.length === 0) {
+    return <p className="decision-narrative">No contracts available.</p>;
+  }
+
+  // Derive distances for all contracts
+  const distances = contracts.map((c) => ({
+    contract: c,
+    distance: Math.abs(Math.abs(c.delta) - targetDelta),
+  }));
+
+  // Find minimum distance
+  const minDistance = Math.min(...distances.map((d) => d.distance));
+
+  // Find all contracts at minimum distance (candidates)
+  const candidates = distances.filter((d) => Math.abs(d.distance - minDistance) < 1e-10);
+
+  let narrative: string;
+
+  if (candidates.length === 1) {
+    // Clear winner — no tie
+    const winner = candidates[0];
+    narrative = `Selected $${winner.contract.strike} ${winner.contract.type} — closest to target delta ${targetDelta.toFixed(2)} with distance ${winner.distance.toFixed(4)}. No tie detected.`;
+  } else {
+    // Tie detected
+    const candidateList = candidates
+      .map((c) => `$${c.contract.strike} ${c.contract.type}`)
+      .join(" and ");
+
+    let reason: string;
+    switch (tieBreaker) {
+      case "PreferOTM":
+        reason = selected.type === "CALL"
+          ? "it has the higher strike (more OTM for calls)"
+          : "it has the lower strike (more OTM for puts)";
+        break;
+      case "PreferITM":
+        reason = selected.type === "CALL"
+          ? "it has the lower strike (more ITM for calls)"
+          : "it has the higher strike (more ITM for puts)";
+        break;
+      case "PreferHigherStrike":
+        reason = "it has the higher strike";
+        break;
+      case "PreferLowerStrike":
+        reason = "it has the lower strike";
+        break;
+    }
+
+    narrative = `Tie detected: ${candidateList} both distance ${minDistance.toFixed(4)} from target delta ${targetDelta.toFixed(2)}. Policy ${tieBreaker} selected $${selected.strike} ${selected.type} because ${reason}.`;
+  }
+
+  return (
+    <p className={`decision-narrative ${candidates.length > 1 ? "narrative-tie" : "narrative-clear"}`}>
+      {narrative}
+    </p>
   );
 }
 
