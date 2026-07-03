@@ -1,122 +1,184 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import {
+  midPrice,
+  premiumPerContract,
+  annualizedYield,
+  moneyness,
+  assignmentProbability,
+} from "./domain/calculations";
+import type { OptionContract } from "./domain/types";
+import "./App.css";
+
+/**
+ * Engineering Console — T-04a
+ *
+ * Temporary observability surface. Replaced by end-user UI in later tasks.
+ * Shows implementation status, domain modules, and calculation probes.
+ */
+
+const SAMPLE_CONTRACT: OptionContract = {
+  type: "CALL",
+  strike: 550,
+  bid: 3.40,
+  ask: 3.60,
+  delta: 0.32,
+  openInterest: 8420,
+  volume: 2150,
+};
+
+const SAMPLE_UNDERLYING_PRICE = 545.2;
+const SAMPLE_DTE = 14;
 
 function App() {
-  const [count, setCount] = useState(0)
+  // Calculation probes using domain functions
+  const mid = midPrice(SAMPLE_CONTRACT.bid, SAMPLE_CONTRACT.ask);
+  const premium = premiumPerContract(mid);
+  const yield_ = annualizedYield(mid, SAMPLE_UNDERLYING_PRICE, SAMPLE_DTE);
+  const mny = moneyness(SAMPLE_CONTRACT.strike, SAMPLE_UNDERLYING_PRICE, SAMPLE_CONTRACT.type);
+  const assignProb = assignmentProbability(SAMPLE_CONTRACT.delta);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+    <div className="console">
+      <header className="console-header">
+        <h1>Options Prototype</h1>
+        <span className="console-badge">Engineering Console</span>
+      </header>
+
+      <section className="console-section">
+        <h2>Implementation Status</h2>
+        <table className="status-table">
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Description</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="status-complete">
+              <td>T-01</td>
+              <td>Project scaffold</td>
+              <td>complete</td>
+            </tr>
+            <tr className="status-complete">
+              <td>T-02</td>
+              <td>Test framework</td>
+              <td>complete</td>
+            </tr>
+            <tr className="status-complete">
+              <td>T-03</td>
+              <td>Domain types</td>
+              <td>complete</td>
+            </tr>
+            <tr className="status-complete">
+              <td>T-04</td>
+              <td>Calculation library</td>
+              <td>complete</td>
+            </tr>
+            <tr className="status-pending">
+              <td>T-05</td>
+              <td>Calculation tests</td>
+              <td>pending</td>
+            </tr>
+            <tr className="status-pending">
+              <td>T-06</td>
+              <td>Policy engine</td>
+              <td>pending</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
+      <section className="console-section">
+        <h2>Domain Modules</h2>
+        <table className="module-table">
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Path</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>types</td>
+              <td><code>src/domain/types.ts</code></td>
+              <td>implemented</td>
+            </tr>
+            <tr>
+              <td>calculations</td>
+              <td><code>src/domain/calculations.ts</code></td>
+              <td>implemented</td>
+            </tr>
+            <tr>
+              <td>policy</td>
+              <td><code>src/domain/policy.ts</code></td>
+              <td>planned</td>
+            </tr>
+            <tr>
+              <td>delta</td>
+              <td><code>src/domain/delta.ts</code></td>
+              <td>planned</td>
+            </tr>
+            <tr>
+              <td>provider</td>
+              <td><code>src/domain/provider.ts</code></td>
+              <td>planned</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <section className="console-section">
+        <h2>Calculation Probes</h2>
+        <p className="probe-context">
+          Sample: {SAMPLE_CONTRACT.type} strike ${SAMPLE_CONTRACT.strike}, underlying ${SAMPLE_UNDERLYING_PRICE}, {SAMPLE_DTE} DTE
+        </p>
+        <table className="probe-table">
+          <thead>
+            <tr>
+              <th>Calculation</th>
+              <th>Business Rule</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Mid Price</td>
+              <td>BR-1</td>
+              <td>${mid.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Premium per Contract</td>
+              <td>BR-2</td>
+              <td>${premium.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Annualized Yield</td>
+              <td>BR-3</td>
+              <td>{yield_.toFixed(2)}%</td>
+            </tr>
+            <tr>
+              <td>Moneyness</td>
+              <td>BR-4</td>
+              <td>{mny}</td>
+            </tr>
+            <tr>
+              <td>Assignment Probability</td>
+              <td>BR-5</td>
+              <td>{(assignProb * 100).toFixed(0)}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section className="console-section">
+        <h2>Sample Domain Object</h2>
+        <pre className="json-display">
+          {JSON.stringify(SAMPLE_CONTRACT, null, 2)}
+        </pre>
+      </section>
+    </div>
+  );
 }
 
-export default App
+export default App;
