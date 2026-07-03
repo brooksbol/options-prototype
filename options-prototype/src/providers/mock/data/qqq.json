@@ -1,0 +1,90 @@
+{
+  "underlying": {
+    "symbol": "QQQ",
+    "name": "Invesco QQQ Trust",
+    "price": 475.80
+  },
+  "expirations": [
+    {
+      "daysFromNow": 7,
+      "calls": [
+        { "strike": 466, "bid": 10.50, "ask": 10.70, "delta": 0.87, "openInterest": 9800, "volume": 2600 },
+        { "strike": 468, "bid": 8.90, "ask": 9.10, "delta": 0.81, "openInterest": 7200, "volume": 1900 },
+        { "strike": 470, "bid": 7.30, "ask": 7.50, "delta": 0.73, "openInterest": 8100, "volume": 2100 },
+        { "strike": 472, "bid": 5.70, "ask": 5.90, "delta": 0.63, "openInterest": 9400, "volume": 2400 },
+        { "strike": 474, "bid": 4.20, "ask": 4.40, "delta": 0.52, "openInterest": 10800, "volume": 2800 },
+        { "strike": 476, "bid": 2.90, "ask": 3.10, "delta": 0.41, "openInterest": 13500, "volume": 3600 },
+        { "strike": 478, "bid": 1.85, "ask": 2.05, "delta": 0.30, "openInterest": 8900, "volume": 2200 },
+        { "strike": 480, "bid": 1.05, "ask": 1.25, "delta": 0.21, "openInterest": 7600, "volume": 1800 },
+        { "strike": 482, "bid": 0.52, "ask": 0.68, "delta": 0.13, "openInterest": 6400, "volume": 1400 },
+        { "strike": 484, "bid": 0.22, "ask": 0.36, "delta": 0.07, "openInterest": 5500, "volume": 1100 }
+      ],
+      "puts": [
+        { "strike": 466, "bid": 0.25, "ask": 0.39, "delta": -0.07, "openInterest": 5800, "volume": 1200 },
+        { "strike": 468, "bid": 0.55, "ask": 0.71, "delta": -0.14, "openInterest": 6700, "volume": 1500 },
+        { "strike": 470, "bid": 1.08, "ask": 1.26, "delta": -0.22, "openInterest": 7800, "volume": 1800 },
+        { "strike": 472, "bid": 1.85, "ask": 2.05, "delta": -0.32, "openInterest": 9100, "volume": 2200 },
+        { "strike": 474, "bid": 2.90, "ask": 3.10, "delta": -0.43, "openInterest": 10400, "volume": 2600 },
+        { "strike": 476, "bid": 4.15, "ask": 4.35, "delta": -0.55, "openInterest": 13000, "volume": 3400 },
+        { "strike": 478, "bid": 5.60, "ask": 5.80, "delta": -0.66, "openInterest": 8500, "volume": 2000 },
+        { "strike": 480, "bid": 7.20, "ask": 7.40, "delta": -0.76, "openInterest": 7200, "volume": 1600 },
+        { "strike": 482, "bid": 8.90, "ask": 9.10, "delta": -0.84, "openInterest": 6100, "volume": 1300 },
+        { "strike": 484, "bid": 10.70, "ask": 10.90, "delta": -0.91, "openInterest": 5200, "volume": 1000 }
+      ]
+    },
+    {
+      "daysFromNow": 14,
+      "calls": [
+        { "strike": 466, "bid": 11.30, "ask": 11.50, "delta": 0.84, "openInterest": 12200, "volume": 3200 },
+        { "strike": 468, "bid": 9.80, "ask": 10.00, "delta": 0.78, "openInterest": 9400, "volume": 2500 },
+        { "strike": 470, "bid": 8.30, "ask": 8.50, "delta": 0.71, "openInterest": 10100, "volume": 2600 },
+        { "strike": 472, "bid": 6.85, "ask": 7.05, "delta": 0.63, "openInterest": 11500, "volume": 3000 },
+        { "strike": 474, "bid": 5.45, "ask": 5.65, "delta": 0.54, "openInterest": 12800, "volume": 3300 },
+        { "strike": 476, "bid": 4.15, "ask": 4.35, "delta": 0.44, "openInterest": 16200, "volume": 4400 },
+        { "strike": 478, "bid": 3.05, "ask": 3.25, "delta": 0.35, "openInterest": 11200, "volume": 2800 },
+        { "strike": 480, "bid": 2.12, "ask": 2.30, "delta": 0.27, "openInterest": 9600, "volume": 2300 },
+        { "strike": 482, "bid": 1.38, "ask": 1.56, "delta": 0.19, "openInterest": 8100, "volume": 1900 },
+        { "strike": 484, "bid": 0.82, "ask": 0.98, "delta": 0.13, "openInterest": 7000, "volume": 1500 }
+      ],
+      "puts": [
+        { "strike": 466, "bid": 0.78, "ask": 0.94, "delta": -0.12, "openInterest": 7600, "volume": 1700 },
+        { "strike": 468, "bid": 1.28, "ask": 1.46, "delta": -0.18, "openInterest": 8500, "volume": 2000 },
+        { "strike": 470, "bid": 1.92, "ask": 2.10, "delta": -0.25, "openInterest": 9600, "volume": 2300 },
+        { "strike": 472, "bid": 2.70, "ask": 2.90, "delta": -0.33, "openInterest": 11000, "volume": 2700 },
+        { "strike": 474, "bid": 3.62, "ask": 3.82, "delta": -0.42, "openInterest": 12400, "volume": 3100 },
+        { "strike": 476, "bid": 4.70, "ask": 4.90, "delta": -0.52, "openInterest": 15600, "volume": 4100 },
+        { "strike": 478, "bid": 5.95, "ask": 6.15, "delta": -0.62, "openInterest": 10800, "volume": 2600 },
+        { "strike": 480, "bid": 7.35, "ask": 7.55, "delta": -0.71, "openInterest": 9200, "volume": 2100 },
+        { "strike": 482, "bid": 8.90, "ask": 9.10, "delta": -0.79, "openInterest": 7800, "volume": 1800 },
+        { "strike": 484, "bid": 10.60, "ask": 10.80, "delta": -0.86, "openInterest": 6700, "volume": 1400 }
+      ]
+    },
+    {
+      "daysFromNow": 30,
+      "calls": [
+        { "strike": 466, "bid": 13.00, "ask": 13.20, "delta": 0.81, "openInterest": 15400, "volume": 4000 },
+        { "strike": 468, "bid": 11.50, "ask": 11.70, "delta": 0.76, "openInterest": 12000, "volume": 3100 },
+        { "strike": 470, "bid": 10.05, "ask": 10.25, "delta": 0.70, "openInterest": 11500, "volume": 2900 },
+        { "strike": 472, "bid": 8.65, "ask": 8.85, "delta": 0.63, "openInterest": 13100, "volume": 3400 },
+        { "strike": 474, "bid": 7.30, "ask": 7.50, "delta": 0.56, "openInterest": 14200, "volume": 3700 },
+        { "strike": 476, "bid": 6.00, "ask": 6.20, "delta": 0.48, "openInterest": 19000, "volume": 5200 },
+        { "strike": 478, "bid": 4.80, "ask": 5.00, "delta": 0.40, "openInterest": 13800, "volume": 3500 },
+        { "strike": 480, "bid": 3.75, "ask": 3.95, "delta": 0.33, "openInterest": 11500, "volume": 2800 },
+        { "strike": 482, "bid": 2.82, "ask": 3.00, "delta": 0.26, "openInterest": 9800, "volume": 2300 },
+        { "strike": 484, "bid": 2.05, "ask": 2.23, "delta": 0.20, "openInterest": 8500, "volume": 1900 }
+      ],
+      "puts": [
+        { "strike": 466, "bid": 1.72, "ask": 1.90, "delta": -0.16, "openInterest": 10200, "volume": 2300 },
+        { "strike": 468, "bid": 2.28, "ask": 2.46, "delta": -0.21, "openInterest": 11100, "volume": 2600 },
+        { "strike": 470, "bid": 2.92, "ask": 3.10, "delta": -0.27, "openInterest": 12000, "volume": 2800 },
+        { "strike": 472, "bid": 3.65, "ask": 3.85, "delta": -0.34, "openInterest": 13400, "volume": 3200 },
+        { "strike": 474, "bid": 4.50, "ask": 4.70, "delta": -0.42, "openInterest": 14500, "volume": 3500 },
+        { "strike": 476, "bid": 5.45, "ask": 5.65, "delta": -0.50, "openInterest": 18400, "volume": 5000 },
+        { "strike": 478, "bid": 6.50, "ask": 6.70, "delta": -0.58, "openInterest": 13200, "volume": 3300 },
+        { "strike": 480, "bid": 7.65, "ask": 7.85, "delta": -0.65, "openInterest": 11000, "volume": 2600 },
+        { "strike": 482, "bid": 8.90, "ask": 9.10, "delta": -0.72, "openInterest": 9500, "volume": 2200 },
+        { "strike": 484, "bid": 10.25, "ask": 10.45, "delta": -0.78, "openInterest": 8200, "volume": 1800 }
+      ]
+    }
+  ]
+}
