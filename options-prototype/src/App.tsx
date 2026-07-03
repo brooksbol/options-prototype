@@ -5,14 +5,16 @@ import {
   moneyness,
   assignmentProbability,
 } from "./domain/calculations";
+import { DEFAULT_DELTA_POLICY } from "./domain/policy";
 import type { OptionContract } from "./domain/types";
 import "./App.css";
 
 /**
- * Engineering Console — T-04a
+ * Engineering Console — T-04a (updated T-06)
  *
  * Temporary observability surface. Replaced by end-user UI in later tasks.
- * Shows implementation status, domain modules, and calculation probes.
+ * Shows implementation status, domain modules, calculation probes,
+ * active policy configuration, and sample domain objects.
  */
 
 const SAMPLE_CONTRACT: OptionContract = {
@@ -71,17 +73,22 @@ function App() {
             </tr>
             <tr className="status-complete">
               <td>T-04</td>
-              <td>Calculation library</td>
+              <td>Calculation library + tests</td>
+              <td>complete</td>
+            </tr>
+            <tr className="status-complete">
+              <td>T-06</td>
+              <td>Policy engine + tests</td>
+              <td>complete</td>
+            </tr>
+            <tr className="status-complete">
+              <td>T-08</td>
+              <td>Delta matching + tests</td>
               <td>complete</td>
             </tr>
             <tr className="status-pending">
-              <td>T-05</td>
-              <td>Calculation tests</td>
-              <td>pending</td>
-            </tr>
-            <tr className="status-pending">
-              <td>T-06</td>
-              <td>Policy engine</td>
+              <td>T-10</td>
+              <td>MarketDataProvider interface</td>
               <td>pending</td>
             </tr>
           </tbody>
@@ -112,17 +119,42 @@ function App() {
             <tr>
               <td>policy</td>
               <td><code>src/domain/policy.ts</code></td>
-              <td>planned</td>
+              <td>implemented</td>
             </tr>
             <tr>
               <td>delta</td>
               <td><code>src/domain/delta.ts</code></td>
-              <td>planned</td>
+              <td>implemented</td>
             </tr>
             <tr>
               <td>provider</td>
               <td><code>src/domain/provider.ts</code></td>
               <td>planned</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section className="console-section">
+        <h2>Active Policy</h2>
+        <table className="probe-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Value</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Target Delta</td>
+              <td>{DEFAULT_DELTA_POLICY.targetDelta}</td>
+              <td>DEFAULT_DELTA_POLICY</td>
+            </tr>
+            <tr>
+              <td>Tie-Breaker</td>
+              <td>{DEFAULT_DELTA_POLICY.tieBreaker}</td>
+              <td>DEFAULT_DELTA_POLICY</td>
             </tr>
           </tbody>
         </table>
