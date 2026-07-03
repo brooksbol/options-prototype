@@ -112,23 +112,24 @@ Each slice is independently deployable working software.
 
 ## Planned Future Capabilities
 
-### Implementation Status Dashboard
+### Engineering Laboratory
 
-A self-documenting dashboard exposed from inside the running application. Similar to the GIA prototype's introspection capability.
+A self-documenting engineering laboratory exposed from inside the running application. Evolved from the GIA prototype's introspection capability.
 
-**Purpose:** Make the system's implementation state observable without requiring external documentation review.
+**Purpose:** Produce evidence through controlled experiments. Make the system's reasoning, implementation state, and decision behavior observable without requiring external documentation review.
 
 **Should expose:**
+- Laboratory experiments (interactive probes against engineering fixtures)
 - Domain modules and their implementation status
-- UI components and their wiring state
-- Providers (active, planned)
-- Calculations (implemented, tested, pending)
+- Decision traces (why the system reached a conclusion)
+- Calculations with live inputs and observable outputs
 - Policies (active, configurable, planned)
+- Providers (active, planned)
 - Test coverage summary
 - Current slice status and planned future work
 - References to relevant spec documents
 
-**Not part of Slice 1.** Recorded here so the architecture preserves room for it. The component map (`05a-component-map.md`) and the task structure (`06-tasks.md`) are already structured in a way that could feed such a dashboard.
+**Partially implemented in Slice 1** as an interactive delta probe with engineering fixtures. The laboratory is expected to evolve with each slice, producing progressively richer observations.
 
 ---
 

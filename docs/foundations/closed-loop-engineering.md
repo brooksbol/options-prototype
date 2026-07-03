@@ -135,7 +135,7 @@ Introspection makes the gap between specification and implementation visible to 
 
 ### Relationship to the Engineering Loop
 
-The introspection dashboard is a feedback mechanism for the Engineering Loop itself. When a developer completes a task, the application confirms (or contradicts) that claim. This reduces the cost of review and makes refinement decisions data-driven.
+The Engineering Laboratory is a feedback mechanism for the Engineering Loop itself. When a developer completes a task, the laboratory confirms (or contradicts) that claim through live experiments. When a developer changes a policy parameter, the laboratory produces observable evidence of the consequence. This reduces the cost of review and makes refinement decisions data-driven.
 
 ---
 
@@ -223,3 +223,22 @@ This is not a coincidence. Systems that mirror their own structure are easier to
 4. **Observability is a first-class concern.** If you cannot observe it, you cannot control it. This applies equally to market data, implementation state, and engineering process.
 
 5. **The project is its own best argument.** If the methodology works, the software will demonstrate it. If it doesn't, the software will reveal that too. Either outcome is valuable.
+## Observation Cadence
+
+Closed-loop engineering is optimized for **observation cadence**, not merely implementation cadence.
+
+Working software is necessary but not sufficient. The system should produce observable evidence as early and as frequently as practical.
+
+When end-user functionality is not yet available, implementation should be exposed through engineering-facing instrumentation such as:
+
+- Engineering consoles
+- Raw domain objects
+- JSON views
+- Calculation probes
+- Policy state
+- Traceability views
+- Implementation status dashboards
+
+These are not temporary debugging aids. They are instruments that shorten the time between implementation and learning.
+
+The goal is that every meaningful implementation slice produces observable evidence, allowing humans and AI to review reality rather than assumptions.
