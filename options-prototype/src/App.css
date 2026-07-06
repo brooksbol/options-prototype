@@ -336,3 +336,406 @@
   border-left-color: #f2c94c;
   color: #e0d8b0;
 }
+
+/* Tab navigation */
+
+.console-tabs {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.tab-btn {
+  background: transparent;
+  border: 1px solid #333;
+  border-radius: 4px 4px 0 0;
+  color: #888;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.tab-btn.tab-active {
+  background: #1a1a2e;
+  color: #6fcf97;
+  border-bottom-color: #1a1a2e;
+}
+
+/* Massive Chain View */
+
+.massive-chain-view {
+  padding: 16px 24px;
+}
+
+.massive-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.massive-header h2 {
+  font-size: 18px;
+  color: #ffffff;
+  margin: 0;
+}
+
+.massive-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.underlying-fixed {
+  font-family: "SF Mono", "Fira Code", monospace;
+  color: #6fcf97;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.control-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #b0b0b0;
+}
+
+.control-select,
+.control-input {
+  background: #0d0d1a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #e0e0e0;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.massive-status {
+  font-size: 12px;
+  margin-bottom: 16px;
+  padding: 6px 10px;
+  background: #0d0d1a;
+  border-radius: 4px;
+  border-left: 3px solid #333;
+}
+
+.status-loading { color: #f2c94c; }
+.status-error { color: #eb5757; }
+.status-ok { color: #6fcf97; }
+
+.massive-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.massive-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.massive-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Options Table (shared with components) */
+
+.options-table-container {
+  overflow-x: auto;
+}
+
+.table-title {
+  font-size: 13px;
+  color: #b0b0b0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px 0;
+}
+
+.options-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.options-table th {
+  text-align: left;
+  padding: 5px 6px;
+  border-bottom: 1px solid #333;
+  color: #666;
+  font-weight: normal;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  cursor: help;
+}
+
+.options-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #1f1f3a;
+  white-space: nowrap;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 11px;
+}
+
+.moneyness-badge {
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+/* Metrics Panel (shared with components) */
+
+.metrics-panel {
+  background: #0d0d1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+
+.metrics-panel-empty {
+  opacity: 0.6;
+}
+
+.metrics-title {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 10px 0;
+}
+
+.metrics-placeholder {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.metrics-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  font-size: 12px;
+  margin: 0;
+}
+
+.metrics-list dt {
+  color: #888;
+}
+
+.metrics-list dd {
+  margin: 0;
+  text-align: right;
+  color: #e0e0e0;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.metrics-highlight {
+  color: #6fcf97;
+  font-weight: 600;
+}
+
+/* Reference Data View */
+
+.reference-view {
+  padding: 16px 24px;
+}
+
+.reference-header {
+  margin-bottom: 12px;
+}
+
+.reference-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.reference-title-row h2 {
+  font-size: 16px;
+  color: #ffffff;
+  margin: 0;
+}
+
+.reference-badge {
+  background: #2d3a4a;
+  color: #7ec8e3;
+}
+
+.reference-provenance {
+  background: #0d0d1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 16px;
+}
+
+.provenance-list {
+  display: flex;
+  gap: 6px 20px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  margin: 0;
+}
+
+.provenance-list dt {
+  color: #666;
+}
+
+.provenance-list dd {
+  margin: 0 16px 0 0;
+  color: #e0e0e0;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 11px;
+}
+
+.reference-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.reference-status {
+  font-size: 12px;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  background: #0d0d1a;
+  border-radius: 4px;
+  border-left: 3px solid #333;
+}
+
+.reference-content {
+  display: grid;
+  grid-template-columns: 180px 1fr 180px;
+  gap: 16px;
+  align-items: start;
+}
+
+.reference-metrics-left,
+.reference-metrics-right {
+  position: sticky;
+  top: 16px;
+}
+
+.reference-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  min-width: 0;
+}
+
+.reference-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Reference Data — 3 column with accordion center */
+
+.reference-content {
+  display: grid;
+  grid-template-columns: 180px 1fr 180px;
+  gap: 12px;
+  align-items: start;
+  max-height: calc(100vh - 180px);
+}
+
+.reference-metrics-left,
+.reference-metrics-right {
+  position: sticky;
+  top: 0;
+}
+
+.reference-accordion {
+  overflow-y: auto;
+  max-height: calc(100vh - 180px);
+  min-width: 0;
+  border: 1px solid #333;
+  border-radius: 6px;
+}
+
+.reference-controls-inline {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* Accordion */
+
+.accordion-section {
+  border-bottom: 1px solid #2a2a3e;
+}
+
+.accordion-section:last-child {
+  border-bottom: none;
+}
+
+.accordion-active {
+  background: #0d0d1a;
+}
+
+.accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: #e0e0e0;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.accordion-header:hover {
+  background: #1f1f3a;
+}
+
+.accordion-arrow {
+  font-size: 10px;
+  color: #666;
+  width: 12px;
+}
+
+.accordion-date {
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 12px;
+  color: #e0e0e0;
+}
+
+.accordion-count {
+  margin-left: auto;
+  font-size: 10px;
+  color: #666;
+}
+
+.accordion-body {
+  padding: 0 8px 12px;
+}
+
+.accordion-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}

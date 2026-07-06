@@ -10,20 +10,20 @@ import { findClosestToDelta } from "./domain/delta";
 import { DEFAULT_DELTA_POLICY, type DeltaTieBreaker } from "./domain/policy";
 import type { OptionContract } from "./domain/types";
 import { ALL_SCENARIOS } from "./engineering/probeData";
+import { MassiveChainView } from "./components/MassiveChainView";
+import { ReferenceDataView } from "./components/ReferenceDataView";
 import "./App.css";
 
 /**
- * Engineering Laboratory — Interactive Delta Probe
+ * Engineering Laboratory — Interactive Delta Probe + Provider Views
  *
- * Desktop-first two-column layout:
- *   Left sidebar: status, modules, policy (always visible)
- *   Main area: interactive probe table + metrics
- *
- * Policy is an active experimental variable:
- *   - Target delta: adjustable
- *   - Tie-breaker: selectable
- *   Both feed into findClosestToDelta and produce observable outcomes.
+ * Tab-based navigation:
+ *   - Laboratory: engineering fixtures + interactive probe
+ *   - Reference Data: observed market fixtures (Fidelity XLE)
+ *   - Massive API: real provider data spike
  */
+
+type ViewMode = "laboratory" | "reference" | "massive";
 
 const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
   "PreferOTM",
@@ -33,6 +33,7 @@ const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
 ];
 
 function App() {
+  const [view, setView] = useState<ViewMode>("laboratory");
   const [targetDelta, setTargetDelta] = useState(DEFAULT_DELTA_POLICY.targetDelta);
   const [tieBreaker, setTieBreaker] = useState<DeltaTieBreaker>(DEFAULT_DELTA_POLICY.tieBreaker);
   const [scenarioIndex, setScenarioIndex] = useState(0);
@@ -48,9 +49,33 @@ function App() {
     <div className="console">
       <header className="console-header">
         <h1>Options Prototype</h1>
-        <span className="console-badge">Engineering Laboratory</span>
+        <nav className="console-tabs">
+          <button
+            className={`tab-btn ${view === "laboratory" ? "tab-active" : ""}`}
+            onClick={() => setView("laboratory")}
+          >
+            Laboratory
+          </button>
+          <button
+            className={`tab-btn ${view === "reference" ? "tab-active" : ""}`}
+            onClick={() => setView("reference")}
+          >
+            Reference Data
+          </button>
+          <button
+            className={`tab-btn ${view === "massive" ? "tab-active" : ""}`}
+            onClick={() => setView("massive")}
+          >
+            Massive API
+          </button>
+        </nav>
       </header>
 
+      {view === "massive" ? (
+        <MassiveChainView />
+      ) : view === "reference" ? (
+        <ReferenceDataView />
+      ) : (
       <div className="console-layout">
         <aside className="console-sidebar">
           <section className="sidebar-section">
@@ -176,6 +201,7 @@ function App() {
           </section>
         </main>
       </div>
+      )}
     </div>
   );
 }

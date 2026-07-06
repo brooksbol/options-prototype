@@ -24,6 +24,7 @@ import type {
 import spyData from "./data/spy.json";
 import qqqData from "./data/qqq.json";
 import iwmData from "./data/iwm.json";
+import xleData from "./data/xle.json";
 
 interface RawContract {
   strike: number;
@@ -49,7 +50,7 @@ interface RawETFData {
   expirations: RawExpiration[];
 }
 
-const ALL_DATA: RawETFData[] = [spyData, qqqData, iwmData];
+const ALL_DATA: RawETFData[] = [spyData, qqqData, iwmData, xleData];
 
 function computeExpirationDate(daysFromNow: number): string {
   const date = new Date();

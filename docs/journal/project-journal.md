@@ -354,3 +354,153 @@ Provider subsystem: interface defined, mock implementation pending.
 Test state: 4 files, 59 tests passing. TypeScript compiles. Build succeeds.
 
 Browser state: Engineering Laboratory with interactive delta probe, scenario selector, tie-breaker control, decision narrative, metrics panel. Three engineering fixtures (Normal Market, Tie Scenario, Deep OTM).
+
+---
+
+## Entry: Massive API Provider Spike — Feasibility Result
+
+**Date:** 2025-07-03 (evening)
+
+**Context:** Bounded Sunday-night spike to validate whether the Massive (formerly Polygon.io) options chain snapshot API can supply real data through our canonical domain types.
+
+---
+
+### Result: Technically viable, commercially gated
+
+**What worked:**
+- API key correctly read from `VITE_MASSIVE_API_KEY`
+- Browser successfully makes CORS request to `api.polygon.io` (no CORS block)
+- Massive returns structured JSON (not a network error or CORS rejection)
+- Authentication with API key in query parameter works as documented
+
+**What failed:**
+- HTTP 403: "You are not entitled to this data. Please upgrade your plan."
+- The options chain snapshot endpoint (`/v3/snapshot/options/{underlying}`) requires a paid Options plan
+- The free tier provides only options contract *reference data* (metadata), not market data (quotes, greeks, OI)
+
+**What this means:**
+- CORS risk: **retired** (browser can reach the API)
+- Authentication pattern: **validated** (key in query string works)
+- Response format mapping: **validated in code** (mapping functions are written and type-checked against documented response shape)
+- Actual data delivery: **blocked by plan tier**
+
+---
+
+### Provider classification
+
+| Provider | Status |
+|----------|--------|
+| Massive (free) | Not viable — options snapshot endpoint gated |
+| Massive (Starter ~$29/mo) | Viable — 15-min delayed, includes snapshot with greeks |
+| Tradier (sandbox) | Pending — account approval in progress, delayed data + CORS, but no greeks in sandbox |
+| Yahoo/yfinance | Viable for price data but no delta; requires Python proxy or computation |
+
+---
+
+### Decisions made
+
+- Do not build more Massive integration until a paid plan is approved or Tradier becomes available
+- Preserve the spike code — it is architecturally correct and will work immediately when entitlements are available
+- The mock provider remains the primary data source for continued development
+
+---
+
+### Mapping code validated (ready for activation)
+
+The `massiveClient.ts` mapping handles:
+- `details.contract_type` → `"CALL" | "PUT"` ✓
+- `details.strike_price` → `strike` ✓
+- `last_quote.bid/ask` → `bid/ask` ✓
+- `greeks.delta` → `delta` ✓
+- `open_interest` → `openInterest` ✓
+- `day.volume` → `volume` ✓
+- Filters out contracts without delta or pricing ✓
+
+When a paid plan is activated, the spike will produce working data with zero code changes.
+
+---
+
+### Corrections and reflections (appended same entry)
+
+**Corrected framing:**
+
+The key insight is not "no free provider offers options delta through a browser-accessible API."
+
+The key insight is: **the architecture successfully isolated the uncertainty at the provider boundary.** The spike retired CORS, authentication, mapping, and browser-access uncertainties in a single experiment. The only remaining question is commercial (data entitlement), not architectural. That's evidence that the provider abstraction was correctly designed.
+
+**Corrected confidence:**
+
+The existing spike is *expected* to work immediately upon upgrade, with final validation occurring after the first successful paid response. We have not yet observed the paid response shape matching the documented schema — only that it's very likely based on documentation consistency.
+
+**Engineering Observation:**
+
+The provider spike validated the value of feasibility-first development. Rather than completing all remaining application work before attempting an external integration, the team intentionally attacked the highest remaining uncertainty. The resulting implementation retired multiple uncertainties (browser access, authentication, CORS, provider boundary) in a single experiment and reduced the remaining question to a commercial decision about data entitlement. Working software again proved to be the fastest mechanism for producing reliable architectural knowledge.
+
+**Meta-observation:**
+
+This project is no longer primarily about options chain visualization. The options domain is the substrate on which a repeatable engineering methodology is being discovered and validated. The practices emerging — learning checkpoints, uncertainty burndown, documentation thresholds, feasibility-first sequencing, evidence-driven architecture — are becoming portable. The software produces features; the process produces engineering practices. Both are outputs. The practices may ultimately be the more durable contribution.
+
+---
+
+## Entry: First Reference Fixture — XLE from Fidelity
+
+**Date:** 2025-07-05
+
+**Context:** The Engineering Laboratory now contains two categories of fixture data. This entry documents the introduction of the first reference fixture and the distinction between fixture types.
+
+---
+
+### What happened
+
+XLE (Energy Select Sector SPDR Fund) options chain data was manually captured from Fidelity's options chain screen on 2026-07-02 at 4:10 PM ET. The raw capture is preserved in `docs/reference-data/xle-fidelity-2026-07-02.md`. The normalized fixture lives at `src/providers/mock/data/xle.json`.
+
+This is the project's first **reference fixture** — data observed from a real brokerage screen rather than synthetically generated.
+
+---
+
+### Two categories of fixture
+
+| Category | Purpose | Modifiable | Source |
+|----------|---------|------------|--------|
+| **Engineering Fixtures** | Exercise specific domain behaviors (ties, edge cases, extremes) | Yes — designed and redesigned freely | `src/engineering/probeData.ts` |
+| **Reference Fixtures** | Validate domain model against observed market reality | No — represents an observed snapshot | `src/providers/mock/data/xle.json` + `docs/reference-data/` |
+
+Engineering fixtures are *behavior-designed*: each one is constructed to expose a particular property of the reasoning engine.
+
+Reference fixtures are *provenance-preserving*: they trace back to a specific observation at a specific time from a specific source. They should not be modified to improve experiments — their value comes from faithfully representing what was actually observed.
+
+---
+
+### Key finding: canonical domain model represented Fidelity XLE data without modification
+
+All fields required by `OptionContract` (type, strike, bid, ask, delta, openInterest, volume) mapped directly from the Fidelity capture. No domain type changes were required. Delta precision (4 decimal places) was preserved. Wide bid/ask spreads ($1.09 on the 51.5 Jul 10 put) are structurally valid within the model.
+
+This validates ADR-001 (Domain First) and the provider boundary abstraction.
+
+---
+
+### Normalization decision: zero-market rows
+
+Four rows in the Jul 24 expiration (strikes 51.5 and 52.5, both calls and puts) had all-zero bid/ask and zero liquidity. These were excluded from the reference fixture.
+
+Rows with all-zero bid/ask and zero liquidity may still represent listed contracts, but they are not useful for the current income-screening workflow. The reference fixture excludes them because they violate the current bid < ask invariant and would produce meaningless premium/yield calculations.
+
+This is a provider-boundary normalization decision, not a domain limitation. The domain model could represent a zero-bid/zero-ask contract — but the screening workflow has no use for one.
+
+---
+
+### Observations
+
+- XLE weekly options have significantly lower liquidity than SPY — wider spreads, lower OI, zero intraday volume on many strikes. This is realistic for sector ETFs.
+- All captured contracts had zero volume (capture was after close on a quiet day). Volume = 0 is valid and preserved.
+- The distinction between engineering fixtures and reference fixtures is worth preserving in project vocabulary but not yet promoted to architecture (only one reference fixture exists).
+
+---
+
+### Implementation state at this entry
+
+- XLE added to MockMarketDataProvider (4 underlyings: SPY, QQQ, IWM, XLE)
+- 5 expirations, 48 calls, 48 puts (4 rows excluded as zero-market)
+- 118 tests passing
+- TypeScript compiles
+- Build succeeds

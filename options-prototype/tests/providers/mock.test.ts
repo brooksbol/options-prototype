@@ -24,12 +24,13 @@ describe("MockMarketDataProvider", () => {
       }
     });
 
-    it("includes SPY, QQQ, and IWM", async () => {
+    it("includes SPY, QQQ, IWM, and XLE", async () => {
       const underlyings = await provider.getUnderlyings();
       const symbols = underlyings.map((u) => u.symbol);
       expect(symbols).toContain("SPY");
       expect(symbols).toContain("QQQ");
       expect(symbols).toContain("IWM");
+      expect(symbols).toContain("XLE");
     });
   });
 
@@ -136,8 +137,8 @@ describe("MockMarketDataProvider", () => {
       expect(chain.underlying.price).toBeGreaterThan(0);
     });
 
-    it("works for all three underlyings", async () => {
-      for (const symbol of ["SPY", "QQQ", "IWM"]) {
+    it("works for all underlyings", async () => {
+      for (const symbol of ["SPY", "QQQ", "IWM", "XLE"]) {
         const expirations = await provider.getExpirations(symbol);
         expect(expirations.length).toBeGreaterThanOrEqual(3);
         const chain = await provider.getOptionsChain(symbol, expirations[0].date);
@@ -145,5 +146,54 @@ describe("MockMarketDataProvider", () => {
         expect(chain.puts.length).toBeGreaterThanOrEqual(8);
       }
     });
+  });
+});
+
+describe("XLE reference fixture", () => {
+  it("has 5 expirations", async () => {
+    const expirations = await provider.getExpirations("XLE");
+    expect(expirations.length).toBe(5);
+  });
+
+  it("underlying price is 53.22", async () => {
+    const expirations = await provider.getExpirations("XLE");
+    const chain = await provider.getOptionsChain("XLE", expirations[0].date);
+    expect(chain.underlying.price).toBe(53.22);
+  });
+
+  it("first expiration has 10 calls and 10 puts", async () => {
+    const expirations = await provider.getExpirations("XLE");
+    const chain = await provider.getOptionsChain("XLE", expirations[0].date);
+    expect(chain.calls.length).toBe(10);
+    expect(chain.puts.length).toBe(10);
+  });
+
+  it("Jul 24 expiration has 8 calls (two zero-market rows excluded from source)", async () => {
+    const expirations = await provider.getExpirations("XLE");
+    // Jul 24 is the 3rd expiration (index 2)
+    const chain = await provider.getOptionsChain("XLE", expirations[2].date);
+    expect(chain.calls.length).toBe(8);
+    expect(chain.puts.length).toBe(8);
+  });
+
+  it("preserves realistic delta values from Fidelity capture", async () => {
+    const expirations = await provider.getExpirations("XLE");
+    const chain = await provider.getOptionsChain("XLE", expirations[0].date);
+    // First call (strike 51, deep ITM) should have high delta
+    const deepItm = chain.calls.find((c) => c.strike === 51.0);
+    expect(deepItm).toBeDefined();
+    expect(deepItm!.delta).toBeCloseTo(0.932, 3);
+    // ATM call (strike 53) should have ~0.57 delta
+    const atm = chain.calls.find((c) => c.strike === 53.0);
+    expect(atm).toBeDefined();
+    expect(atm!.delta).toBeCloseTo(0.5681, 3);
+  });
+
+  it("has wider bid/ask spreads than synthetic fixtures (realistic for lower-liquidity ETF)", async () => {
+    const expirations = await provider.getExpirations("XLE");
+    const chain = await provider.getOptionsChain("XLE", expirations[0].date);
+    // XLE is less liquid than SPY — expect some spreads > $0.20
+    const wideSpread = chain.calls.some((c) => (c.ask - c.bid) > 0.20);
+    expect(wideSpread).toBe(true);
   });
 });

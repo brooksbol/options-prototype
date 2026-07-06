@@ -163,6 +163,38 @@ Recommended reading:
 
 ---
 
+# Configuration
+
+The project now includes an optional external data provider (Massive/Polygon.io) for real market data validation.
+
+## Environment Variables
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `VITE_MASSIVE_API_KEY` | For provider spike only | API key for Massive (formerly Polygon.io) options data |
+
+## Setup
+
+1. Copy the example environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+2. Edit `.env.local` and add your API key:
+
+```
+VITE_MASSIVE_API_KEY=your_actual_api_key
+```
+
+## Important
+
+- `.env.local` must **not** be committed to the repository. It is already in `.gitignore`.
+- The mock provider works without any API key. External provider configuration is only needed for the real-data translation spike.
+- If no API key is configured, the application runs normally using mock data.
+
+---
+
 # Development
 
 Bootstrap:

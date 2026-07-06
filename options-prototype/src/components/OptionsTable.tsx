@@ -42,14 +42,14 @@ export function OptionsTable({
       <table className="options-table">
         <thead>
           <tr>
-            <th>Strike</th>
-            <th>Bid</th>
-            <th>Ask</th>
-            <th>Mid</th>
-            <th>Delta</th>
-            <th>OI</th>
-            <th>Volume</th>
-            <th>Mny</th>
+            <th title="The price at which the option holder may buy (call) or sell (put) the underlying">Strike</th>
+            <th title="Highest price a buyer is willing to pay for this contract">Bid</th>
+            <th title="Lowest price a seller is willing to accept for this contract">Ask</th>
+            <th title="Mid price: (Bid + Ask) / 2 — estimated fill price (BR-1)">Mid</th>
+            <th title="Rate of change of option price per $1 move in underlying. Approximates probability of expiring in-the-money.">Delta</th>
+            <th title="Open Interest: total number of outstanding contracts not yet settled">OI</th>
+            <th title="Number of contracts traded during the current session">Volume</th>
+            <th title="Moneyness: ITM (in-the-money), ATM (at-the-money), OTM (out-of-the-money) relative to underlying price (BR-4)">Mny</th>
           </tr>
         </thead>
         <tbody>
