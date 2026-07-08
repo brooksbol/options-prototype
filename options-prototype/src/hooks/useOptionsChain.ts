@@ -47,7 +47,8 @@ const INITIAL_STATE: OptionsChainState = {
 };
 
 export function useOptionsChain(
-  provider: MarketDataProvider
+  provider: MarketDataProvider,
+  options?: { initialSymbol?: string; initialExpiration?: string }
 ): UseOptionsChainResult {
   const [state, setState] = useState<OptionsChainState>(INITIAL_STATE);
 
@@ -65,14 +66,19 @@ export function useOptionsChain(
           return;
         }
 
-        const firstSymbol = underlyings[0].symbol;
-        const expirations = await provider.getExpirations(firstSymbol);
+        // Use initial symbol if provided and valid, otherwise first
+        const preferredSymbol = options?.initialSymbol;
+        const selectedSymbol = (preferredSymbol && underlyings.some((u) => u.symbol === preferredSymbol))
+          ? preferredSymbol
+          : underlyings[0].symbol;
+
+        const expirations = await provider.getExpirations(selectedSymbol);
         if (cancelled) return;
 
         if (expirations.length === 0) {
           setState({
             underlyings,
-            selectedSymbol: firstSymbol,
+            selectedSymbol,
             expirations: [],
             selectedExpiration: "",
             chain: null,
@@ -82,15 +88,20 @@ export function useOptionsChain(
           return;
         }
 
-        const firstExpiration = expirations[0].date;
-        const chain = await provider.getOptionsChain(firstSymbol, firstExpiration);
+        // Use initial expiration if provided and valid, otherwise first
+        const preferredExpiration = options?.initialExpiration;
+        const selectedExpiration = (preferredExpiration && expirations.some((e) => e.date === preferredExpiration))
+          ? preferredExpiration
+          : expirations[0].date;
+
+        const chain = await provider.getOptionsChain(selectedSymbol, selectedExpiration);
         if (cancelled) return;
 
         setState({
           underlyings,
-          selectedSymbol: firstSymbol,
+          selectedSymbol,
           expirations,
-          selectedExpiration: firstExpiration,
+          selectedExpiration,
           chain,
           loading: false,
           error: null,

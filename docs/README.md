@@ -171,7 +171,9 @@ The project now includes an optional external data provider (Massive/Polygon.io)
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `VITE_MASSIVE_API_KEY` | For provider spike only | API key for Massive (formerly Polygon.io) options data |
+| `VITE_MASSIVE_API_KEY` | For Massive provider only | API key for Massive (formerly Polygon.io) options data |
+| `VITE_TRADIER_API_KEY` | For Tradier provider only | Sandbox access token for Tradier delayed options data |
+| `VITE_TRADIER_API_ACCOUNT_NUMBER` | For Tradier provider only | Tradier sandbox account number |
 
 ## Setup
 

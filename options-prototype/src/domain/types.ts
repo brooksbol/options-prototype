@@ -35,6 +35,24 @@ export interface OptionsChain {
   expiration: Expiration;
   calls: OptionContract[];
   puts: OptionContract[];
+  /** Provider-level data quality metadata. */
+  dataQuality?: DataQuality;
+}
+
+/**
+ * Data quality metadata attached by the provider.
+ * Indicates whether key fields were populated from the source
+ * or defaulted due to provider limitations.
+ */
+export interface DataQuality {
+  /** Whether the provider supplied meaningful delta values. */
+  greeksAvailable: boolean;
+  /** Human-readable description of any data limitations. */
+  limitations?: string;
+  /** Where the data came from: "api" (fresh fetch) or "cache" (locally cached). */
+  dataSource?: "api" | "cache";
+  /** If cached, age in seconds since the data was fetched. */
+  cacheAgeSeconds?: number;
 }
 
 export type Moneyness = "ITM" | "ATM" | "OTM";

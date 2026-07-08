@@ -12,6 +12,9 @@ import type { OptionContract } from "./domain/types";
 import { ALL_SCENARIOS } from "./engineering/probeData";
 import { MassiveChainView } from "./components/MassiveChainView";
 import { ReferenceDataView } from "./components/ReferenceDataView";
+import { RecommendationLab } from "./components/RecommendationLab";
+import { CsvImportLab } from "./components/CsvImportLab";
+import { loadWorkspace, updateWorkspace } from "./workspace/workspace";
 import "./App.css";
 
 /**
@@ -23,7 +26,7 @@ import "./App.css";
  *   - Massive API: real provider data spike
  */
 
-type ViewMode = "laboratory" | "reference" | "massive";
+type ViewMode = "laboratory" | "reference" | "recommendation" | "csvimport" | "massive";
 
 const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
   "PreferOTM",
@@ -33,7 +36,17 @@ const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
 ];
 
 function App() {
-  const [view, setView] = useState<ViewMode>("laboratory");
+  const [view, setView] = useState<ViewMode>(() => {
+    const ws = loadWorkspace();
+    const saved = ws.activeTab as ViewMode;
+    if (["laboratory", "reference", "recommendation", "csvimport", "massive"].includes(saved)) return saved;
+    return "recommendation";
+  });
+
+  const changeView = (v: ViewMode) => {
+    setView(v);
+    updateWorkspace({ activeTab: v });
+  };
   const [targetDelta, setTargetDelta] = useState(DEFAULT_DELTA_POLICY.targetDelta);
   const [tieBreaker, setTieBreaker] = useState<DeltaTieBreaker>(DEFAULT_DELTA_POLICY.tieBreaker);
   const [scenarioIndex, setScenarioIndex] = useState(0);
@@ -52,19 +65,31 @@ function App() {
         <nav className="console-tabs">
           <button
             className={`tab-btn ${view === "laboratory" ? "tab-active" : ""}`}
-            onClick={() => setView("laboratory")}
+            onClick={() => changeView("laboratory")}
           >
             Laboratory
           </button>
           <button
             className={`tab-btn ${view === "reference" ? "tab-active" : ""}`}
-            onClick={() => setView("reference")}
+            onClick={() => changeView("reference")}
           >
-            Reference Data
+            Options Chain
+          </button>
+          <button
+            className={`tab-btn ${view === "recommendation" ? "tab-active" : ""}`}
+            onClick={() => changeView("recommendation")}
+          >
+            Recommendation Lab
+          </button>
+          <button
+            className={`tab-btn ${view === "csvimport" ? "tab-active" : ""}`}
+            onClick={() => changeView("csvimport")}
+          >
+            CSV Import Lab
           </button>
           <button
             className={`tab-btn ${view === "massive" ? "tab-active" : ""}`}
-            onClick={() => setView("massive")}
+            onClick={() => changeView("massive")}
           >
             Massive API
           </button>
@@ -75,6 +100,10 @@ function App() {
         <MassiveChainView />
       ) : view === "reference" ? (
         <ReferenceDataView />
+      ) : view === "recommendation" ? (
+        <RecommendationLab />
+      ) : view === "csvimport" ? (
+        <CsvImportLab />
       ) : (
       <div className="console-layout">
         <aside className="console-sidebar">

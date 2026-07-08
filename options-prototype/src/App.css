@@ -242,6 +242,54 @@
   font-weight: 600;
 }
 
+/* Moneyness region backgrounds — subtle orientation wash */
+
+.region-deep-itm {
+  background: rgba(60, 100, 140, 0.12);
+}
+
+.region-itm {
+  background: rgba(60, 100, 140, 0.06);
+}
+
+.region-atm {
+  background: rgba(200, 160, 50, 0.08);
+}
+
+.region-otm {
+  background: rgba(80, 160, 100, 0.06);
+}
+
+.region-deep-otm {
+  background: rgba(80, 160, 100, 0.12);
+}
+
+/* ATM boundary — the visual contour line */
+
+.atm-boundary-row td {
+  border-bottom: 2px solid rgba(220, 170, 50, 0.7);
+  padding-bottom: 6px;
+}
+
+.atm-boundary-row + tr td {
+  padding-top: 6px;
+}
+
+/* Highlighted row overrides region background */
+
+.row-highlighted.region-deep-itm,
+.row-highlighted.region-itm,
+.row-highlighted.region-atm,
+.row-highlighted.region-otm,
+.row-highlighted.region-deep-otm {
+  background: #1a3a2a;
+}
+
+.row-highlighted td {
+  color: #6fcf97;
+  font-weight: 600;
+}
+
 .row-highlighted td:last-child {
   font-size: 12px;
   color: #6fcf97;
@@ -433,6 +481,10 @@
 .status-loading { color: #f2c94c; }
 .status-error { color: #eb5757; }
 .status-ok { color: #6fcf97; }
+.status-warning {
+  color: #f2c94c;
+  border-left-color: #f2c94c;
+}
 
 .massive-content {
   display: grid;
@@ -455,7 +507,7 @@
 /* Options Table (shared with components) */
 
 .options-table-container {
-  overflow-x: auto;
+  min-width: 0;
 }
 
 .table-title {
@@ -474,7 +526,7 @@
 
 .options-table th {
   text-align: left;
-  padding: 5px 6px;
+  padding: 4px 4px;
   border-bottom: 1px solid #333;
   color: #666;
   font-weight: normal;
@@ -486,7 +538,7 @@
 }
 
 .options-table td {
-  padding: 4px 6px;
+  padding: 3px 4px;
   border-bottom: 1px solid #1f1f3a;
   white-space: nowrap;
   font-family: "SF Mono", "Fira Code", monospace;
@@ -554,7 +606,8 @@
 /* Reference Data View */
 
 .reference-view {
-  padding: 16px 24px;
+  padding: 12px 16px;
+  width: 100%;
 }
 
 .reference-header {
@@ -577,6 +630,16 @@
 .reference-badge {
   background: #2d3a4a;
   color: #7ec8e3;
+}
+
+.tradier-badge {
+  background: #3a2d4a;
+  color: #c87ee3;
+}
+
+.quality-degraded {
+  color: #f2c94c;
+  font-style: italic;
 }
 
 .reference-provenance {
@@ -624,7 +687,7 @@
 
 .reference-content {
   display: grid;
-  grid-template-columns: 180px 1fr 180px;
+  grid-template-columns: 200px 1fr 200px;
   gap: 16px;
   align-items: start;
 }
@@ -693,19 +756,27 @@
   background: #0d0d1a;
 }
 
+.accordion-active > .accordion-header {
+  background: #0d0d1a;
+  border-bottom: 1px solid #2a2a3e;
+}
+
 .accordion-header {
   width: 100%;
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: transparent;
+  background: #1a1a2e;
   border: none;
   color: #e0e0e0;
   font-size: 12px;
   font-family: inherit;
   cursor: pointer;
   text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .accordion-header:hover {
@@ -737,5 +808,533 @@
 .accordion-tables {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* Recommendation Lab */
+
+.rec-lab {
+  padding: 16px 24px;
+  width: 100%;
+}
+
+.rec-section {
+  margin-bottom: 24px;
+}
+
+.rec-section-title {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #2a2a3e;
+}
+
+/* Recommendation Cards */
+
+.rec-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.rec-card {
+  background: #0d0d1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.rec-card-empty {
+  opacity: 0.5;
+}
+
+.rec-card-title {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 8px 0;
+}
+
+.rec-card-hero {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.rec-card-contract {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.rec-card-yield {
+  font-size: 24px;
+  font-weight: 700;
+  color: #6fcf97;
+}
+
+.rec-card-yield-label {
+  font-size: 11px;
+  font-weight: 400;
+  color: #888;
+}
+
+.rec-card-empty-msg {
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+}
+
+.rec-card-metrics {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 16px;
+  font-size: 12px;
+  margin: 0 0 14px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #2a2a3e;
+}
+
+.rec-card-metrics dt {
+  color: #666;
+}
+
+.rec-card-metrics dd {
+  margin: 0;
+  text-align: right;
+  color: #e0e0e0;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.rec-card-rationale {
+  font-size: 11px;
+}
+
+.rec-card-rationale h4 {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #555;
+  margin: 0 0 4px 0;
+}
+
+.rec-card-rationale-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 12px;
+  margin: 0;
+}
+
+.rec-card-rationale-list dt {
+  color: #555;
+  font-size: 11px;
+}
+
+.rec-card-rationale-list dd {
+  margin: 0;
+  text-align: right;
+  color: #999;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 11px;
+}
+
+/* Policy Controls */
+
+.rec-policy-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Evidence Tables */
+
+.rec-evidence-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.rec-evidence-header .rec-section-title {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.rec-evidence-toggle {
+  font-size: 11px;
+  color: #7ec8e3;
+  background: transparent;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 3px 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.rec-evidence-toggle:hover {
+  background: #1f1f3a;
+}
+
+.rec-evidence-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Diagnostics */
+
+.rec-diagnostics-list {
+  display: flex;
+  gap: 4px 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  margin: 0;
+}
+
+.rec-diagnostics-list dt {
+  color: #666;
+}
+
+.rec-diagnostics-list dd {
+  margin: 0 16px 0 0;
+  color: #e0e0e0;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 11px;
+}
+
+/* CSV Import Lab */
+
+.csv-lab {
+  padding: 16px 24px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.csv-section {
+  margin-bottom: 16px;
+}
+
+.csv-upload-row {
+  display: flex;
+  align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+.csv-file-input {
+  font-size: 12px;
+  color: #e0e0e0;
+}
+
+.csv-fixtures-label {
+  font-size: 11px;
+  color: #666;
+  margin-left: 8px;
+}
+
+.csv-file-info {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #888;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+/* Document Summary Card */
+
+.csv-summary-card {
+  background: #0d0d1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.csv-summary-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.csv-summary-type {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.csv-summary-confidence {
+  font-size: 12px;
+  color: #6fcf97;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.csv-summary-details {
+  display: flex;
+  gap: 4px 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  margin: 0 0 8px 0;
+}
+
+.csv-summary-details dt {
+  color: #666;
+}
+
+.csv-summary-details dd {
+  margin: 0 12px 0 0;
+  color: #e0e0e0;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.csv-summary-trailer {
+  font-size: 11px;
+  color: #888;
+  margin: 8px 0 0 0;
+  font-style: italic;
+}
+
+/* Import Preview */
+
+.csv-import-preview {
+  background: #0d0d1a;
+  border: 1px solid #2d4a3e;
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+
+.csv-import-action {
+  font-size: 13px;
+  color: #e0e0e0;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.csv-import-check {
+  color: #6fcf97;
+  font-size: 14px;
+}
+
+.csv-import-stats {
+  display: flex;
+  gap: 4px 16px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  margin: 0 0 8px 0;
+}
+
+.csv-import-stats dt { color: #666; }
+.csv-import-stats dd { margin: 0 12px 0 0; color: #e0e0e0; font-family: "SF Mono", "Fira Code", monospace; }
+
+.csv-import-ok {
+  font-size: 11px;
+  color: #6fcf97;
+  margin: 4px 0 0 0;
+}
+
+.csv-import-warn {
+  font-size: 11px;
+  color: #f2c94c;
+  margin: 4px 0 0 0;
+}
+
+/* Collapsible sections */
+
+.csv-advanced-section {
+  border-top: 1px solid #2a2a3e;
+  padding-top: 12px;
+}
+
+.csv-collapsible {
+  border-bottom: 1px solid #1f1f3a;
+}
+
+.csv-collapsible:last-child {
+  border-bottom: none;
+}
+
+.csv-collapsible-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px;
+  background: transparent;
+  border: none;
+  color: #b0b0b0;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.csv-collapsible-header:hover {
+  color: #e0e0e0;
+}
+
+.csv-collapsible-arrow {
+  font-size: 10px;
+  color: #666;
+  width: 12px;
+}
+
+.csv-collapsible-body {
+  padding: 4px 0 12px 20px;
+}
+
+/* Trailer list */
+
+.csv-trailer-list {
+  font-size: 11px;
+  color: #888;
+}
+
+.csv-trailer-item {
+  margin: 2px 0;
+}
+
+/* Classification rows */
+
+.csv-class-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+  padding: 3px 0;
+}
+
+.csv-class-parser-name {
+  color: #e0e0e0;
+  min-width: 160px;
+}
+
+.csv-class-parser-conf {
+  color: #6fcf97;
+  font-family: "SF Mono", "Fira Code", monospace;
+  min-width: 40px;
+}
+
+.csv-class-reason {
+  color: #999;
+  background: #1f1f3a;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.csv-class-matched {
+  color: #6fcf97;
+}
+
+.csv-class-missing {
+  color: #f2c94c;
+}
+
+/* Document Structure */
+
+.csv-structure-list {
+  display: flex;
+  gap: 4px 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  margin: 0;
+}
+
+.csv-structure-list dt {
+  color: #666;
+}
+
+.csv-structure-list dd {
+  margin: 0 12px 0 0;
+  color: #e0e0e0;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+/* Headers */
+
+.csv-headers {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.csv-header-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: #1f1f3a;
+  color: #7ec8e3;
+  border-radius: 3px;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+/* Raw table */
+
+.csv-raw-table-wrap {
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+
+.csv-raw-table {
+  font-size: 10px !important;
+}
+
+.csv-raw-table td,
+.csv-raw-table th {
+  font-size: 10px !important;
+  padding: 2px 4px !important;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Diagnostics */
+
+.csv-diagnostics {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.csv-diag {
+  font-size: 11px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.csv-diag-info { background: rgba(60, 100, 140, 0.1); color: #7ec8e3; }
+.csv-diag-warning { background: rgba(200, 160, 50, 0.1); color: #f2c94c; }
+.csv-diag-error { background: rgba(200, 60, 60, 0.1); color: #eb5757; }
+
+.csv-diag-level {
+  font-size: 9px;
+  text-transform: uppercase;
+  font-weight: 600;
+  min-width: 50px;
+}
+
+.csv-diag-row {
+  font-size: 10px;
+  color: #666;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.csv-diag-empty {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
 }

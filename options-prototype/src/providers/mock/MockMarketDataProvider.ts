@@ -106,6 +106,7 @@ export class MockMarketDataProvider implements MarketDataProvider {
         expiration: { date: expirationDate, dte: 0 },
         calls: [],
         puts: [],
+        dataQuality: { greeksAvailable: true },
       });
     }
 
@@ -130,6 +131,7 @@ export class MockMarketDataProvider implements MarketDataProvider {
         },
         calls: mapContracts(fallback.calls, "CALL"),
         puts: mapContracts(fallback.puts, "PUT"),
+        dataQuality: { greeksAvailable: true },
       });
     }
 
@@ -145,6 +147,7 @@ export class MockMarketDataProvider implements MarketDataProvider {
       },
       calls: mapContracts(matchedExp.calls, "CALL"),
       puts: mapContracts(matchedExp.puts, "PUT"),
+      dataQuality: { greeksAvailable: true },
     });
   }
 }

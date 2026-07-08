@@ -3,31 +3,34 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { ReferenceDataView } from "../../src/components/ReferenceDataView";
 
 describe("ReferenceDataView", () => {
-  it("renders the Reference Data heading", async () => {
+  it("renders the Options Chain heading", async () => {
     render(<ReferenceDataView />);
-    expect(screen.getByText("Reference Data")).toBeTruthy();
+    expect(screen.getByText("Options Chain")).toBeTruthy();
   });
 
-  it("shows Fidelity Capture badge", async () => {
+  it("shows Reference Fixtures badge for mock provider", async () => {
     render(<ReferenceDataView />);
-    expect(screen.getByText("Fidelity Capture")).toBeTruthy();
+    expect(screen.getByText("Reference Fixtures")).toBeTruthy();
   });
 
-  it("displays XLE provenance information", async () => {
+  it("shows provider selector with Mock selected", async () => {
+    render(<ReferenceDataView />);
+    const elements = screen.getAllByText("Mock");
+    expect(elements.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("shows XLE symbol in provenance after loading", async () => {
     render(<ReferenceDataView />);
     await waitFor(() => {
-      expect(screen.getByText("XLE — Energy Select Sector SPDR Fund")).toBeTruthy();
+      expect(screen.getByText("XLE")).toBeTruthy();
     });
   });
 
-  it("displays source as Fidelity Investments", async () => {
+  it("shows Fidelity source for XLE", async () => {
     render(<ReferenceDataView />);
-    expect(screen.getByText("Fidelity Investments")).toBeTruthy();
-  });
-
-  it("displays quote time", async () => {
-    render(<ReferenceDataView />);
-    expect(screen.getByText("2026-07-02 4:10 PM ET")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText("Fidelity 2026-07-02")).toBeTruthy();
+    });
   });
 
   it("loads XLE and displays underlying price", async () => {
@@ -66,7 +69,7 @@ describe("ReferenceDataView", () => {
     });
   });
 
-  it("has a highlighted row in calls table", async () => {
+  it("has a highlighted row in the tables", async () => {
     const { container } = render(<ReferenceDataView />);
     await waitFor(() => {
       const highlighted = container.querySelectorAll(".row-highlighted");

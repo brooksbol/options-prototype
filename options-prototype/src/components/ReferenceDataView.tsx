@@ -1,27 +1,68 @@
 /**
- * ReferenceDataView — displays curated reference fixtures captured from reality.
+ * ReferenceDataView — displays options chain data from selectable providers.
  *
  * Layout: 3-column
  *   Left: Highlighted Call metrics (fixed height)
  *   Center: Accordion of all expirations, scrollable, height-matched to sidebars
  *   Right: Highlighted Put metrics (fixed height)
  *
- * The accordion replaces the expiration dropdown — all expirations are
- * visible as collapsible sections with date headers.
+ * Provider selector allows switching between:
+ *   - Mock (reference fixtures)
+ *   - Tradier Sandbox (live delayed data)
+ *   - Massive (future, currently gated)
+ *
+ * The same UI components, hooks, and domain logic operate regardless of provider.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useOptionsChain } from "../hooks/useOptionsChain";
 import { useTargetDelta } from "../hooks/useTargetDelta";
 import { findClosestToDelta } from "../domain/delta";
 import { MockMarketDataProvider } from "../providers/mock/MockMarketDataProvider";
+import { TradierProvider } from "../providers/tradier/TradierProvider";
+import { isTradierConfigured, requireTradierConfig } from "../config/tradier";
 import { DeltaInput } from "./DeltaInput";
+import { UnderlyingSelector } from "./UnderlyingSelector";
 import { OptionsTable } from "./OptionsTable";
 import { MetricsPanel } from "./MetricsPanel";
+import type { MarketDataProvider } from "../domain/provider";
 import type { DeltaTieBreaker } from "../domain/policy";
-import type { Expiration, OptionsChain } from "../domain/types";
+import type { Expiration, OptionsChain as OptionsChainType, OptionContract } from "../domain/types";
 
-const provider = new MockMarketDataProvider();
+// --- Provider Registry ---
+
+type ProviderKey = "mock" | "tradier";
+
+interface ProviderOption {
+  key: ProviderKey;
+  label: string;
+  badge: string;
+  available: boolean;
+  create: () => MarketDataProvider;
+}
+
+function getTradierAvailability(): boolean {
+  return isTradierConfigured();
+}
+
+const PROVIDER_OPTIONS: ProviderOption[] = [
+  {
+    key: "mock",
+    label: "Mock",
+    badge: "Reference Fixtures",
+    available: true,
+    create: () => new MockMarketDataProvider(),
+  },
+  {
+    key: "tradier",
+    label: "Tradier Sandbox",
+    badge: "Live Delayed",
+    available: getTradierAvailability(),
+    create: () => new TradierProvider(requireTradierConfig()),
+  },
+];
+
+// --- Component ---
 
 const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
   "PreferOTM",
@@ -32,7 +73,7 @@ const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
 
 interface ChainsByExpiration {
   expiration: Expiration;
-  chain: OptionsChain;
+  chain: OptionsChainType;
 }
 
 function formatExpirationHeader(exp: Expiration): string {
@@ -43,36 +84,103 @@ function formatExpirationHeader(exp: Expiration): string {
   return `${month} ${day}, ${year} — ${exp.dte} DTE`;
 }
 
+/**
+ * Filter contracts to N strikes centered around ATM.
+ * Returns all if count is 0.
+ */
+function filterStrikes(
+  contracts: OptionContract[],
+  underlyingPrice: number,
+  count: number
+): OptionContract[] {
+  if (count === 0 || contracts.length <= count) return contracts;
+
+  // Sort by strike to find ATM center
+  const sorted = [...contracts].sort((a, b) => a.strike - b.strike);
+
+  // Find the index closest to the underlying price
+  let atmIndex = 0;
+  let minDist = Math.abs(sorted[0].strike - underlyingPrice);
+  for (let i = 1; i < sorted.length; i++) {
+    const dist = Math.abs(sorted[i].strike - underlyingPrice);
+    if (dist < minDist) {
+      minDist = dist;
+      atmIndex = i;
+    }
+  }
+
+  // Take count strikes centered around ATM
+  const half = Math.floor(count / 2);
+  let start = Math.max(0, atmIndex - half);
+  let end = start + count;
+  if (end > sorted.length) {
+    end = sorted.length;
+    start = Math.max(0, end - count);
+  }
+
+  return sorted.slice(start, end);
+}
+
 export function ReferenceDataView() {
+  const [providerKey, setProviderKey] = useState<ProviderKey>("mock");
+
+  const provider = useMemo(() => {
+    const opt = PROVIDER_OPTIONS.find((p) => p.key === providerKey);
+    return opt?.create() ?? new MockMarketDataProvider();
+  }, [providerKey]);
+
+  const activeProviderOption = PROVIDER_OPTIONS.find((p) => p.key === providerKey)!;
+
   const { state, selectUnderlying } = useOptionsChain(provider);
   const { policy, setTargetDelta, setTieBreaker } = useTargetDelta();
   const [chains, setChains] = useState<ChainsByExpiration[]>([]);
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
   const [activeDate, setActiveDate] = useState<string>("");
+  const [chainsLoading, setChainsLoading] = useState(false);
+  const [strikesCount, setStrikesCount] = useState(10);
 
-  // Default to XLE on mount
+  // Set default underlying once on mount or provider change (not on every symbol update)
+  const [hasInitialized, setHasInitialized] = useState(false);
+
   useEffect(() => {
-    if (
-      state.underlyings.length > 0 &&
-      state.selectedSymbol !== "XLE" &&
-      !state.loading
-    ) {
-      selectUnderlying("XLE");
+    // Reset initialization when provider changes
+    setHasInitialized(false);
+  }, [providerKey]);
+
+  useEffect(() => {
+    if (hasInitialized) return;
+    if (state.underlyings.length === 0 || state.loading) return;
+
+    const defaultSymbol = providerKey === "mock" ? "XLE" : "SPY";
+    if (state.selectedSymbol !== defaultSymbol) {
+      selectUnderlying(defaultSymbol);
     }
-  }, [state.underlyings, state.selectedSymbol, state.loading, selectUnderlying]);
+    setHasInitialized(true);
+  }, [state.underlyings, state.selectedSymbol, state.loading, providerKey, selectUnderlying, hasInitialized]);
 
-  // Load all chains for all expirations
+  // Load chains for available expirations (limit to first 5 for live providers)
   useEffect(() => {
-    if (state.expirations.length === 0) return;
+    if (state.expirations.length === 0 || !state.selectedSymbol) return;
+
+    let cancelled = false;
+    const maxExpirations = providerKey === "mock" ? state.expirations.length : 5;
+    const expsToLoad = state.expirations.slice(0, maxExpirations);
 
     async function loadAll() {
+      setChainsLoading(true);
       const results: ChainsByExpiration[] = [];
-      for (const exp of state.expirations) {
-        const chain = await provider.getOptionsChain(state.selectedSymbol, exp.date);
-        results.push({ expiration: exp, chain });
+      for (const exp of expsToLoad) {
+        if (cancelled) return;
+        try {
+          const chain = await provider.getOptionsChain(state.selectedSymbol, exp.date);
+          results.push({ expiration: exp, chain });
+        } catch {
+          // Skip failed expirations
+        }
       }
+      if (cancelled) return;
       setChains(results);
-      // Expand first expiration by default
+      setChainsLoading(false);
       if (results.length > 0) {
         setExpandedDates(new Set([results[0].expiration.date]));
         setActiveDate(results[0].expiration.date);
@@ -80,14 +188,19 @@ export function ReferenceDataView() {
     }
 
     loadAll();
-  }, [state.expirations, state.selectedSymbol]);
+    return () => { cancelled = true; };
+  }, [state.expirations, state.selectedSymbol, provider, providerKey]);
 
-  // Find highlighted contracts for the active (expanded) expiration
+  // Data quality check
   const activeChainData = chains.find((c) => c.expiration.date === activeDate);
-  const highlightedCall = activeChainData
+  const greeksAvailable = activeChainData?.chain.dataQuality?.greeksAvailable ?? true;
+  const dataLimitations = activeChainData?.chain.dataQuality?.limitations;
+
+  // Find highlighted contracts — only meaningful when Greeks are available
+  const highlightedCall = (activeChainData && greeksAvailable)
     ? findClosestToDelta(activeChainData.chain.calls, policy.targetDelta, policy.tieBreaker)
     : null;
-  const highlightedPut = activeChainData
+  const highlightedPut = (activeChainData && greeksAvailable)
     ? findClosestToDelta(activeChainData.chain.puts, policy.targetDelta, policy.tieBreaker)
     : null;
 
@@ -105,14 +218,47 @@ export function ReferenceDataView() {
   }
 
   const { loading, error } = state;
+  const isLoading = loading || chainsLoading;
 
   return (
     <div className="reference-view">
       <header className="reference-header">
         <div className="reference-title-row">
-          <h2>Reference Data</h2>
-          <span className="console-badge reference-badge">Fidelity Capture</span>
+          <h2>Options Chain</h2>
+          <span className={`console-badge ${providerKey === "mock" ? "reference-badge" : "tradier-badge"}`}>
+            {activeProviderOption.badge}
+          </span>
           <div className="reference-controls-inline">
+            {/* Provider selector */}
+            <div className="control-group">
+              <label className="control-label">
+                Provider:
+                <select
+                  value={providerKey}
+                  onChange={(e) => {
+                    setChains([]);
+                    setProviderKey(e.target.value as ProviderKey);
+                  }}
+                  className="control-select"
+                >
+                  {PROVIDER_OPTIONS.map((p) => (
+                    <option key={p.key} value={p.key} disabled={!p.available}>
+                      {p.label}{!p.available ? " (no key)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            {/* Underlying selector */}
+            {state.underlyings.length > 0 && (
+              <UnderlyingSelector
+                underlyings={state.underlyings}
+                selected={state.selectedSymbol}
+                onSelect={selectUnderlying}
+              />
+            )}
+
             <DeltaInput value={policy.targetDelta} onChange={setTargetDelta} />
             <div className="control-group">
               <label className="control-label">
@@ -128,28 +274,69 @@ export function ReferenceDataView() {
                 </select>
               </label>
             </div>
+            <div className="control-group">
+              <label className="control-label">
+                Strikes:
+                <select
+                  value={strikesCount}
+                  onChange={(e) => setStrikesCount(Number(e.target.value))}
+                  className="control-select"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                  <option value={0}>All</option>
+                </select>
+              </label>
+            </div>
           </div>
         </div>
         <div className="reference-provenance">
           <dl className="provenance-list">
             <dt>Symbol</dt>
-            <dd>XLE — Energy Select Sector SPDR Fund</dd>
-            <dt>Source</dt>
-            <dd>Fidelity Investments</dd>
-            <dt>Quote Time</dt>
-            <dd>2026-07-02 4:10 PM ET</dd>
+            <dd>{state.selectedSymbol || "—"}</dd>
+            <dt>Provider</dt>
+            <dd>{activeProviderOption.label}</dd>
             <dt>Underlying</dt>
             <dd>${activeChainData?.chain.underlying.price.toFixed(2) ?? "—"}</dd>
+            <dt>Expirations</dt>
+            <dd>{chains.length} loaded</dd>
+            {providerKey === "mock" && (
+              <>
+                <dt>Source</dt>
+                <dd>{state.selectedSymbol === "XLE" ? "Fidelity 2026-07-02" : "Synthetic fixture"}</dd>
+              </>
+            )}
+            {providerKey === "tradier" && (
+              <>
+                <dt>Data</dt>
+                <dd>15-min delayed (sandbox)</dd>
+                <dt>Source</dt>
+                <dd>{activeChainData?.chain.dataQuality?.dataSource === "cache"
+                  ? `Cache (${activeChainData.chain.dataQuality.cacheAgeSeconds ?? 0}s old)`
+                  : "API (fresh)"}</dd>
+                <dt>Greeks</dt>
+                <dd className={greeksAvailable ? "" : "quality-degraded"}>
+                  {greeksAvailable ? "Available" : "Unavailable — delta recommendations disabled"}
+                </dd>
+              </>
+            )}
           </dl>
         </div>
       </header>
 
       {/* Status */}
-      {loading && <p className="reference-status status-loading">Loading reference data...</p>}
+      {isLoading && <p className="reference-status status-loading">Loading from {activeProviderOption.label}...</p>}
       {error && <p className="reference-status status-error">Error: {error}</p>}
+      {!isLoading && !greeksAvailable && dataLimitations && (
+        <p className="reference-status status-warning">
+          {dataLimitations} Delta-based contract highlighting is disabled.
+        </p>
+      )}
 
       {/* 3-column layout: Call Metrics | Accordion Chain | Put Metrics */}
-      {chains.length > 0 && !loading && (
+      {chains.length > 0 && !isLoading && (
         <div className="reference-content">
           <div className="reference-metrics-left">
             <MetricsPanel
@@ -188,14 +375,14 @@ export function ReferenceDataView() {
                     <div className="accordion-body">
                       <div className="accordion-tables">
                         <OptionsTable
-                          contracts={chain.calls}
+                          contracts={filterStrikes(chain.calls, chain.underlying.price, strikesCount)}
                           underlyingPrice={chain.underlying.price}
                           highlightedStrike={callHighlight}
                           sortDirection="asc"
                           title="Calls"
                         />
                         <OptionsTable
-                          contracts={chain.puts}
+                          contracts={filterStrikes(chain.puts, chain.underlying.price, strikesCount)}
                           underlyingPrice={chain.underlying.price}
                           highlightedStrike={putHighlight}
                           sortDirection="desc"
