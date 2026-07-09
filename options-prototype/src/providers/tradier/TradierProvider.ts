@@ -33,6 +33,8 @@ const DEFAULT_TTL_MS = 60 * 1000; // 60 seconds
 export class ResponseCache {
   private store = new Map<string, CacheEntry<unknown>>();
   private ttlMs: number;
+  private _hits = 0;
+  private _misses = 0;
 
   constructor(ttlMs: number = DEFAULT_TTL_MS) {
     this.ttlMs = ttlMs;
@@ -40,14 +42,19 @@ export class ResponseCache {
 
   get<T>(key: string): { data: T; ageMs: number } | null {
     const entry = this.store.get(key);
-    if (!entry) return null;
+    if (!entry) {
+      this._misses++;
+      return null;
+    }
 
     const ageMs = Date.now() - entry.timestamp;
     if (ageMs > this.ttlMs) {
       this.store.delete(key);
+      this._misses++;
       return null;
     }
 
+    this._hits++;
     return { data: entry.data as T, ageMs };
   }
 
@@ -70,6 +77,19 @@ export class ResponseCache {
   get size(): number {
     return this.store.size;
   }
+
+  get hits(): number {
+    return this._hits;
+  }
+
+  get misses(): number {
+    return this._misses;
+  }
+
+  resetStats(): void {
+    this._hits = 0;
+    this._misses = 0;
+  }
 }
 
 // --- Configuration ---
@@ -78,7 +98,20 @@ const SUPPORTED_UNDERLYINGS: Omit<Underlying, "price">[] = [
   { symbol: "SPY", name: "SPDR S&P 500 ETF Trust" },
   { symbol: "QQQ", name: "Invesco QQQ Trust" },
   { symbol: "IWM", name: "iShares Russell 2000 ETF" },
+  { symbol: "DIA", name: "SPDR Dow Jones Industrial Average ETF" },
   { symbol: "XLE", name: "Energy Select Sector SPDR Fund" },
+  { symbol: "XLF", name: "Financial Select Sector SPDR Fund" },
+  { symbol: "XLV", name: "Health Care Select Sector SPDR Fund" },
+  { symbol: "XLU", name: "Utilities Select Sector SPDR Fund" },
+  { symbol: "XLI", name: "Industrial Select Sector SPDR Fund" },
+  { symbol: "XLP", name: "Consumer Staples Select Sector SPDR Fund" },
+  { symbol: "XLY", name: "Consumer Discretionary Select Sector SPDR Fund" },
+  { symbol: "XLK", name: "Technology Select Sector SPDR Fund" },
+  { symbol: "XLB", name: "Materials Select Sector SPDR Fund" },
+  { symbol: "XLRE", name: "Real Estate Select Sector SPDR Fund" },
+  { symbol: "XLC", name: "Communication Services Select Sector SPDR Fund" },
+  { symbol: "TLT", name: "iShares 20+ Year Treasury Bond ETF" },
+  { symbol: "GLD", name: "SPDR Gold Shares" },
 ];
 
 // --- Tradier Response Types (internal only) ---
@@ -152,6 +185,11 @@ function computeDte(expirationDate: string): number {
 export class TradierProvider implements MarketDataProvider {
   private config: TradierConfig;
   private cache: ResponseCache;
+  private rateLimitUsed: number | null = null;
+  private rateLimitAvailable: number | null = null;
+  private rateLimitAllowed: number | null = null;
+  /** Local count of actual API calls made (not cache hits). */
+  private apiCallCount = 0;
 
   constructor(config: TradierConfig, ttlMs?: number) {
     this.config = config;
@@ -190,6 +228,16 @@ export class TradierProvider implements MarketDataProvider {
       },
     });
 
+    this.apiCallCount++;
+
+    // Capture rate-limit headers from every response (may be unavailable due to CORS)
+    const used = response.headers.get("X-Ratelimit-Used");
+    const available = response.headers.get("X-Ratelimit-Available");
+    const allowed = response.headers.get("X-Ratelimit-Allowed");
+    if (used != null) this.rateLimitUsed = parseInt(used, 10);
+    if (available != null) this.rateLimitAvailable = parseInt(available, 10);
+    if (allowed != null) this.rateLimitAllowed = parseInt(allowed, 10);
+
     if (!response.ok) {
       const text = await response.text();
       throw new Error(
@@ -209,6 +257,46 @@ export class TradierProvider implements MarketDataProvider {
     const data = await fetcher();
     this.cache.set(cacheKey, data);
     return { data, fromCache: false, ageMs: 0 };
+  }
+
+  /**
+   * Batch quote lookup — single API call for multiple symbols.
+   * Populates per-symbol cache entries (quotes:SYMBOL) so that
+   * subsequent getOptionsChain() calls hit cache for the quote leg.
+   *
+   * Access-pattern optimization for broad scans (Opportunity Lab).
+   */
+  async getQuotes(symbols: string[]): Promise<Map<string, number>> {
+    const upperSymbols = symbols.map((s) => s.toUpperCase());
+    const symbolList = upperSymbols.join(",");
+    const batchCacheKey = `quotes:batch:${symbolList}`;
+
+    const priceMap = new Map<string, number>();
+
+    try {
+      const { data } = await this.cachedFetch(batchCacheKey, () =>
+        this.fetchJson<TradierQuotesResponse>("/markets/quotes", { symbols: symbolList, greeks: "false" })
+      );
+
+      const quotes = ensureArray(data.quotes?.quote);
+
+      for (const q of quotes) {
+        if (q.symbol && q.last != null) {
+          priceMap.set(q.symbol, q.last);
+
+          // Populate per-symbol cache entries used by getOptionsChain()
+          const perSymbolKey = `quotes:${q.symbol}`;
+          const perSymbolResponse: TradierQuotesResponse = {
+            quotes: { quote: q },
+          };
+          this.cache.set(perSymbolKey, perSymbolResponse);
+        }
+      }
+    } catch (err) {
+      console.error("TradierProvider.getQuotes batch failed:", err);
+    }
+
+    return priceMap;
   }
 
   async getUnderlyings(): Promise<Underlying[]> {
@@ -350,6 +438,7 @@ export class TradierProvider implements MarketDataProvider {
     if (bid === 0 && ask === 0) return null;
     const delta = opt.greeks?.delta ?? null;
     const effectiveDelta = delta ?? 0;
+    const iv = opt.greeks?.mid_iv ?? undefined;
 
     return {
       type: opt.option_type === "call" ? "CALL" : "PUT",
@@ -359,6 +448,19 @@ export class TradierProvider implements MarketDataProvider {
       delta: effectiveDelta,
       openInterest: opt.open_interest ?? 0,
       volume: opt.volume ?? 0,
+      iv: iv != null ? iv : undefined,
+    };
+  }
+
+  getCacheStats() {
+    return {
+      hits: this.cache.hits,
+      misses: this.cache.misses,
+      size: this.cache.size,
+      apiCalls: this.apiCallCount,
+      rateLimitUsed: this.rateLimitUsed,
+      rateLimitAvailable: this.rateLimitAvailable,
+      rateLimitAllowed: this.rateLimitAllowed,
     };
   }
 }

@@ -84,6 +84,8 @@ Current capabilities include:
 - Live domain calculations
 - Decision Narratives explaining why contracts are selected
 - Observation of policy behavior under controlled conditions
+- **Recommendation Lab** — single-symbol deep evaluation (microscope)
+- **Opportunity Lab** — curated ETF universe comparison (radar)
 
 The Laboratory derives observations from the domain engine.
 

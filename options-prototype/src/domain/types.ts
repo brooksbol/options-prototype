@@ -28,6 +28,8 @@ export interface OptionContract {
   delta: number; // 0 to 1 for calls, -1 to 0 for puts
   openInterest: number;
   volume: number;
+  /** Implied volatility (mid). Optional — not all providers supply this. */
+  iv?: number;
 }
 
 export interface OptionsChain {

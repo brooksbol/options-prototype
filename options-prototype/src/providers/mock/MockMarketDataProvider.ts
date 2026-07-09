@@ -74,6 +74,19 @@ function mapContracts(
 }
 
 export class MockMarketDataProvider implements MarketDataProvider {
+  getQuotes(symbols: string[]): Promise<Map<string, number>> {
+    const priceMap = new Map<string, number>();
+    for (const symbol of symbols) {
+      const data = ALL_DATA.find(
+        (d) => d.underlying.symbol === symbol.toUpperCase()
+      );
+      if (data) {
+        priceMap.set(data.underlying.symbol, data.underlying.price);
+      }
+    }
+    return Promise.resolve(priceMap);
+  }
+
   getUnderlyings(): Promise<Underlying[]> {
     const underlyings = ALL_DATA.map((d) => ({
       symbol: d.underlying.symbol,
@@ -149,5 +162,9 @@ export class MockMarketDataProvider implements MarketDataProvider {
       puts: mapContracts(matchedExp.puts, "PUT"),
       dataQuality: { greeksAvailable: true },
     });
+  }
+
+  getCacheStats() {
+    return { hits: 0, misses: 0, size: 0, apiCalls: 0, rateLimitUsed: null, rateLimitAvailable: null, rateLimitAllowed: null };
   }
 }

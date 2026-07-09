@@ -45,6 +45,9 @@ export interface Workspace {
   chainTieBreaker: DeltaTieBreaker;
   chainStrikesCount: number;
   chainMaxDte: number;
+
+  // Opportunity Lab
+  opportunityTargetDelta: number;
 }
 
 const DEFAULT_WORKSPACE: Workspace = {
@@ -64,6 +67,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   chainTieBreaker: "PreferOTM",
   chainStrikesCount: 10,
   chainMaxDte: 45,
+  opportunityTargetDelta: 0.30,
 };
 
 /**

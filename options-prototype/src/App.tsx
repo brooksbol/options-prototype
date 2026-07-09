@@ -14,6 +14,7 @@ import { MassiveChainView } from "./components/MassiveChainView";
 import { ReferenceDataView } from "./components/ReferenceDataView";
 import { RecommendationLab } from "./components/RecommendationLab";
 import { CsvImportLab } from "./components/CsvImportLab";
+import { OpportunityLab } from "./components/OpportunityLab";
 import { loadWorkspace, updateWorkspace } from "./workspace/workspace";
 import "./App.css";
 
@@ -26,7 +27,7 @@ import "./App.css";
  *   - Massive API: real provider data spike
  */
 
-type ViewMode = "laboratory" | "reference" | "recommendation" | "csvimport" | "massive";
+type ViewMode = "laboratory" | "reference" | "recommendation" | "opportunity" | "csvimport" | "massive";
 
 const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
   "PreferOTM",
@@ -39,7 +40,7 @@ function App() {
   const [view, setView] = useState<ViewMode>(() => {
     const ws = loadWorkspace();
     const saved = ws.activeTab as ViewMode;
-    if (["laboratory", "reference", "recommendation", "csvimport", "massive"].includes(saved)) return saved;
+    if (["laboratory", "reference", "recommendation", "opportunity", "csvimport", "massive"].includes(saved)) return saved;
     return "recommendation";
   });
 
@@ -82,6 +83,12 @@ function App() {
             Recommendation Lab
           </button>
           <button
+            className={`tab-btn ${view === "opportunity" ? "tab-active" : ""}`}
+            onClick={() => changeView("opportunity")}
+          >
+            Opportunity Lab
+          </button>
+          <button
             className={`tab-btn ${view === "csvimport" ? "tab-active" : ""}`}
             onClick={() => changeView("csvimport")}
           >
@@ -102,6 +109,8 @@ function App() {
         <ReferenceDataView />
       ) : view === "recommendation" ? (
         <RecommendationLab />
+      ) : view === "opportunity" ? (
+        <OpportunityLab onSelectSymbol={() => changeView("recommendation")} />
       ) : view === "csvimport" ? (
         <CsvImportLab />
       ) : (

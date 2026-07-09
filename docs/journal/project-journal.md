@@ -612,3 +612,291 @@ Engineering strategy: rather than building upstream laboratories immediately, te
 - When should conviction/watchlist become implementable?
 - Is the opportunity scanner the next instrument to build after evidence integration?
 - How do different cadences (monthly conviction, daily opportunity, intraday contracts) manifest architecturally?
+
+---
+
+## 2026-07-03 — Opportunity Lab: First Radar Instrument
+
+### What
+
+Built the first working slice of **Opportunity Lab** — a "radar" instrument that scans a curated ETF universe and surfaces opportunity evidence for comparative evaluation.
+
+### Why
+
+The existing Recommendation Lab is a microscope (one symbol, deep). The project needed a complementary instrument that answers "where should I look next?" across the curated universe.
+
+### What it does
+
+- Static curated universe of 15 sector ETFs (XLE, XLF, XLV, etc.)
+- Sequential evaluation using existing TradierProvider (respects cache TTL, avoids rate-limit flooding)
+- Derives per-symbol: price, capital/contract, nearest expiration, call/put yield at target delta
+- Simple status classification: interesting / monitor / ineligible / data_missing
+- Sorted by status priority then yield descending
+- Click-to-drill navigates into Recommendation Lab with selected symbol
+
+### Architecture decisions
+
+- No parallel fetching (sequential to respect Tradier rate limits)
+- Simple threshold-based classification (no composite scoring)
+- Reuses provider singleton pattern — cache survives tab navigation
+- Pure derivation function (`deriveOpportunityRow`) is independently testable
+
+### Files added
+
+- `src/opportunity/types.ts` — OpportunityRow, CURATED_UNIVERSE, OpportunityPolicy
+- `src/opportunity/evaluate.ts` — evaluateSymbol (async), deriveOpportunityRow (pure), classifyOpportunity
+- `src/components/OpportunityLab.tsx` — full page component
+- `tests/opportunity/evaluate.test.ts` — 15 tests for derivation logic
+
+### Open questions resolved
+
+- "Should the curated ETF universe be a first-class domain concept now?" → Yes, as a static constant. Dynamic discovery deferred.
+- "Is the opportunity scanner the next instrument to build?" → Yes, built as Opportunity Lab.
+
+### What this is NOT
+
+- Not a scoring engine
+- Not a layered pipeline
+- Not an automated scanner with notifications
+- Not a watchlist or conviction editor
+
+It is an observation instrument. It produces evidence for the human to act on.
+
+---
+
+## 2026-07-03 — Domain Discovery: Multiple Evaluation Axes
+
+### Origin
+
+The Opportunity Lab inline explanation panel was built to answer "why does this yield look like that?"
+
+During review, we noticed the panel is actually explaining two distinct concerns:
+
+1. **Mechanics** — why the yield exists (IV, premium, strike, DTE, annualization)
+2. **Participation** — what it costs to enter the trade (capital per contract)
+
+These are independent. A high-yield opportunity and an accessible opportunity are not the same thing.
+
+### The emerging question
+
+We suspect there is a third axis forming that we cannot yet name.
+
+It answers something like:
+
+> "Does this opportunity fit the operating model of the overlay?"
+
+This is distinct from:
+- highest yield (mechanics)
+- cheapest entry (participation)
+- yield per dollar (efficiency ratio)
+
+Factors that may eventually contribute:
+- Capital commitment per position
+- Desired number of concurrent positions
+- Diversification constraints
+- Assignment cadence
+- Reserve policy
+- Treasury liquidity
+- Dry powder
+
+### What we considered and rejected (for now)
+
+We initially considered calling this concept "Deployment Efficiency" — yield normalized by capital.
+
+After further discussion, we believe that may be premature. The question is not a ratio. It appears to be an operational fit assessment — more like "does this trade work within the constraints of how I operate?" than "which trade gives the best bang for the buck?"
+
+The options overlay may be behaving more like an operating system than a calculator.
+
+### Architectural hypothesis
+
+Return and operational fit appear to be independent evaluation concerns.
+
+If this holds, the system will eventually need to distinguish:
+- Opportunity mechanics (does this yield exist?)
+- Participation requirements (can I afford this?)
+- Operational suitability (does this fit how I deploy capital?)
+
+We do NOT yet know the shape of the third axis.
+
+### Decision
+
+- Do not introduce new metrics or scores.
+- Do not modify the domain model.
+- Do not create a composite "deployment efficiency" ratio.
+- Preserve this as an open question.
+- Let working software continue to produce evidence.
+
+### Pattern observed
+
+This is another instance of the project's core methodology:
+
+```
+Working software → Interaction → Observation → Domain understanding → Maybe architecture
+```
+
+The explanation panel was built to make yield less opaque. It accidentally surfaced a boundary between two evaluation concerns that were previously invisible. That boundary may become architecturally significant — but we don't yet know its shape.
+
+### Open questions
+
+- Is operational suitability a single axis or a composite of constraints?
+- Does it emerge from the investor's policy (external) or from the strategy's mechanics (internal)?
+- Will comparison mode (XLK vs XLE) clarify the shape, or does it need its own instrument?
+- Is "capital quantum" (the discrete unit of participation) a useful domain concept, or just a column?
+
+---
+
+## 2026-07-03 — Domain Discovery: Policy as Evidence-Generating
+
+### Origin
+
+Observed the Opportunity Lab at two different target delta settings:
+
+- Δ = 0.10 → 7 interesting / 8 monitor, yields 3–18%, lower capital, conservative posture
+- Δ = 0.50 → 15 interesting / 0 monitor, yields 30–100%, higher capital, aggressive posture
+
+### What we expected
+
+The dropdown to filter results.
+
+### What actually happened
+
+The entire opportunity landscape changed.
+
+Not just the numbers — the *shape* of the results. Different counts, different status distributions, different capital requirements, different ETFs becoming or losing significance.
+
+### Key insight
+
+The target delta dropdown is not a filter. It is an experiment.
+
+Changing policy generates a new observation of the same market. The underlying evidence (chains, strikes, premiums) did not change. The *visible opportunity surface* changed because the policy selected different contracts.
+
+This means:
+
+**Policy is evidence-generating.**
+
+### Implications
+
+1. **Opportunity Lab is not scanning ETFs.** It is scanning *ETFs under the current policy*. The instrument shows the opportunity landscape as shaped by investor policy.
+
+2. **Some ETFs remain attractive across policy regimes.** XLK appears near the top at both Δ = 0.10 and Δ = 0.50. That is a qualitatively different kind of "interesting" than an ETF that only appears attractive under aggressive policy. This is stability across policy — a concept we don't yet have a name for.
+
+3. **Policy sweep is a natural next experiment.** Fix the symbol, vary the delta from 0.10 to 0.50, observe the yield response curve. This is not an options chain — it is a *policy response curve*. It shows how one underlying responds to changing investor posture.
+
+4. **The prototype may be evolving from a market analyzer to a policy laboratory.** The market becomes the fixed environment. The thing being experimented on is the operating policy itself.
+
+### Analogy
+
+Topographic map. The mountains don't change. The contour interval determines what the human perceives. Policy is the contour interval.
+
+### What this means architecturally (hypothesis, not committed)
+
+If this insight holds, the system's primary job is not "find the best ETF."
+
+It is: "make the consequences of policy visible."
+
+That reframes:
+- The Opportunity Lab as a **policy consequence visualizer**
+- The Recommendation Lab as a **single-symbol policy executor**
+- Future instruments as **policy comparators** or **policy response surfaces**
+
+### What we are NOT doing
+
+- Not building a policy sweep UI yet.
+- Not introducing "policy stability" as a metric.
+- Not creating policy-comparative displays.
+- Not naming the concept of "attractiveness across regimes" yet.
+
+### Decision
+
+Preserve this observation. Do not act on it architecturally. Let the next working slice produce further evidence of whether this framing holds.
+
+### Pattern
+
+```
+Working software → Policy knob interaction → Surprise observation → Domain reframing
+```
+
+The software was built to show which ETFs are interesting. It accidentally revealed that *policy itself* is the thing worth studying.
+
+This is the third time the project has followed this exact pattern:
+1. CSV import → discovered parser classification as a domain concept
+2. Explanation panel → discovered Mechanics vs Participation as independent axes
+3. Delta dropdown → discovered policy as evidence-generating
+
+Each time, the software produced understanding that was not in the specification.
+
+---
+
+## 2026-07-03 — Methodology: Three Kinds of Knowledge
+
+### Origin
+
+Attempted to introduce an "Objectives" layer above Operating Model in the domain hierarchy. Applied the test: "Can the layer below be mechanically derived from this layer?" The answer was no — objectives like "smooth income" and "operational resilience" influence human judgment but do not enable deterministic computation.
+
+This exposed a general principle that the project has been applying implicitly.
+
+### The principle
+
+**Do not elevate rationale into architecture until it becomes computable.**
+
+### Three kinds of knowledge in this system
+
+| Kind | Definition | Where it belongs | Example |
+|------|-----------|-----------------|---------|
+| Computable | Can be mechanically derived from inputs | Architecture / domain model | deployable capital = total × (1 - reserve) |
+| Declarative | User-supplied inputs the system consumes | Configuration / policy | target delta = 0.30, total capital = $50k |
+| Philosophical | Explains why the system exists; influences judgment | Documentation / journals | equilibrium, stewardship, smooth income |
+
+### The test
+
+When a concept feels important enough to formalize, ask:
+
+> "What computation does the system perform using this as input?"
+
+If the answer is clear and deterministic → it may belong in the domain model.
+
+If the answer requires human judgment to bridge the gap → it belongs in documentation, not architecture.
+
+### Why this matters
+
+Prematurely formalizing philosophical concepts creates:
+- Types that can't justify their fields
+- Abstractions that don't derive anything
+- Configuration surfaces that overwhelm users with knobs that should be derived
+
+### Retroactive validation
+
+This principle explains several prior decisions:
+
+| Concept | Kind | Disposition |
+|---------|------|------------|
+| Dry powder | Philosophical → not yet computable | Captured in journal, not built |
+| Eventing | Architectural pattern | Rejected — no computation justified it |
+| Conviction | Philosophical | Captured, not formalized |
+| Capital Quantum | Observation → potentially computable | Captured, pending operating model |
+| Objectives layer | Philosophical | Captured in journal, not elevated to architecture |
+| Operating Model | Declarative + computable | Hypothesis: inputs derive policy parameters |
+| Target delta | Declarative | Implemented as policy knob |
+| Annualized yield | Computable | Implemented in domain model |
+
+### Decision
+
+Record this as a standing methodology rule. Apply it as a gate before introducing new abstractions.
+
+### Relationship to closed-loop engineering
+
+This is a refinement of the project's core methodology:
+
+```
+Observation → Hypothesis → Test → Maybe architecture
+```
+
+The new refinement adds a specific test at the "Maybe architecture" gate:
+
+```
+Is it computable? → Architecture
+Is it declarative? → Configuration
+Is it philosophical? → Documentation
+```
+
+This prevents the common failure mode of prototype projects: reifying every insight into code.
