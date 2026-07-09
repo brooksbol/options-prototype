@@ -1822,6 +1822,14 @@
   border-left: 3px solid #7ec8e3;
   margin: 0 4px 4px;
   border-radius: 0 4px 4px 0;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.opp-explain-left {
+  flex: 1;
+  min-width: 0;
 }
 
 .opp-explain-narrative {
@@ -1892,4 +1900,94 @@
 
 .opp-explain-capital {
   color: #6fcf97;
+}
+
+
+/* Policy Response Curve */
+
+.opp-sweep {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+.opp-sweep h4 {
+  font-size: 11px;
+  color: #7ec8e3;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px;
+}
+
+.opp-sweep-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.opp-sweep-table th {
+  text-align: left;
+  padding: 3px 6px;
+  color: #666;
+  font-weight: normal;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid #222;
+}
+
+.opp-sweep-table td {
+  padding: 3px 6px;
+  color: #b0b0b0;
+  border-bottom: 1px solid rgba(30, 30, 50, 0.5);
+}
+
+.opp-sweep-active {
+  background: rgba(126, 200, 227, 0.08);
+}
+
+.opp-sweep-active td {
+  color: #e0e0e0;
+  font-weight: 600;
+}
+
+
+/* Delta Sweep chart */
+
+.opp-sweep-chart {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.opp-sweep-details {
+  margin-top: 8px;
+}
+
+.opp-sweep-details summary {
+  font-size: 10px;
+  color: #666;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+}
+
+.opp-sweep-details summary:hover {
+  color: #7ec8e3;
+}
+
+
+/* Sparkline */
+
+.opp-sparkline-cell {
+  padding: 2px 4px;
+  vertical-align: middle;
+}
+
+.opp-sparkline {
+  display: block;
+}
+
+.opp-sparkline-empty {
+  color: #444;
+  font-size: 10px;
 }

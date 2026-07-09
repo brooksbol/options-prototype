@@ -900,3 +900,176 @@ Is it philosophical? → Documentation
 ```
 
 This prevents the common failure mode of prototype projects: reifying every insight into code.
+
+---
+
+## 2026-07-03 — Domain Discovery: Policy Response Signatures
+
+### Origin
+
+Added a "Delta Sweep" chart to the Opportunity Lab expansion panel — an inline SVG line chart showing call and put yield at 9 target delta values (0.10 through 0.50) for a single ETF, computed purely from cached chain data.
+
+### What the graph revealed immediately
+
+1. **The curves are not linear.** There are inflection points around Δ ≈ 0.35–0.40 where yield increases disproportionately. This means the policy-yield relationship has structure — it's not simply "more delta → proportionally more premium."
+
+2. **Calls and puts have different shapes.** The put curve often sits above the call curve, sometimes dramatically. This raises questions about skew, current market conditions, and whether this is persistent or situational.
+
+3. **The natural next question was overlay/comparison.** Within seconds of seeing one chart, the instinct was "show me another symbol on the same axes." That's the strongest signal that the graph is working as an instrument — it creates the next question naturally.
+
+### Emerging concept: Policy Response Signatures
+
+Different underlyings appear to have recognizably different policy-response shapes. This suggests that an ETF may have a characteristic "signature" — not just a single yield number, but a behavioral profile across policy space.
+
+If this holds:
+- XLK might have a steep, convex signature (highly policy-sensitive)
+- TLT might have a flat, shallow signature (policy-invariant)
+- XLE might sit somewhere between
+
+These aren't just different yields. They're different *behaviors*. And that's a different kind of evidence than anything the system has surfaced before.
+
+### What changed
+
+The Delta Sweep crossed from "experiment" to "instrument" in a single use. The graph answered questions in seconds that the table made the user work for. The separation became:
+
+- Graph = overview (where to look, what the shape is)
+- Table = microscope (why the numbers are what they are)
+
+Same pattern as: performance chart + profiler, stock chart + trade history.
+
+### Relationship to earlier discoveries
+
+| Discovery | What it revealed |
+|-----------|-----------------|
+| Policy as evidence-generating | Changing delta changes the landscape |
+| Delta sweep | The *shape* of that change is a characteristic of the underlying |
+| Policy response signatures | Underlyings may be classifiable by their policy behavior |
+
+### What we are NOT doing yet
+
+- Not overlaying multiple symbols on one chart (next natural experiment)
+- Not classifying signatures (premature)
+- Not naming signature types (steep, flat, convex — observational only)
+- Not building a comparison mode
+
+### Open questions
+
+- Do signatures persist across different market conditions (days, weeks)?
+- Does IV explain the shape, or is IV itself a consequence of the same underlying structure?
+- Is the put-above-call pattern universal or ETF-specific?
+- Would DTE as a second sweep axis reveal a surface rather than a curve?
+- Are signatures stable enough to be a useful classification dimension?
+
+---
+
+## 2026-07-03 — Instrument Boundaries Emerged from Capability Density
+
+### Context
+
+The Opportunity Lab began as a simple market scanner — a table of ETFs with price, yield, and status.
+
+Over multiple small iterations, independent capabilities were added:
+
+- Sortable columns
+- Inline explanation panels (yield decomposition)
+- Target delta dropdown (policy control)
+- Delta sweep table (policy response data)
+- Delta sweep chart (visual policy response)
+- Sparklines (behavioral signature at a glance)
+- Multi-row expansion (comparison)
+
+None of these individually attempted to redefine the workflow. Each was a small, reversible experiment. No architectural commitments were made.
+
+### What happened
+
+Collectively, these capabilities changed the user's cognitive process.
+
+The original workflow:
+
+```
+Options Chain → Recommendation Lab
+```
+
+The workflow that naturally emerged:
+
+```
+Opportunity Lab → Contract Workbench (current Recommendation Lab)
+```
+
+The user now arrives at Recommendation Lab having already:
+- Selected the underlying
+- Understood why it's interesting
+- Observed its policy-response behavior
+- Compared it against alternatives
+
+The decision "which underlying?" is complete before leaving Opportunity Lab.
+
+### The discovery
+
+The important observation is NOT the workflow itself.
+
+The discovery is that **workflow boundaries emerged organically as capability density increased**.
+
+No one designed "Opportunity Lab should be the analysis instrument and Recommendation Lab should be the execution instrument." That separation became obvious only after enough small capabilities accumulated in one place.
+
+### Architectural principle
+
+**"Capabilities reveal composition."**
+
+Rather than designing instruments top-down, small independent capabilities accumulated until natural instrument boundaries became self-evident. The system told us where the boundaries were — we didn't impose them.
+
+This is consistent with the project's methodology: working software reveals structure; premature architecture obscures it.
+
+### Recommendation Lab's evolving purpose
+
+Recommendation Lab is no longer where analysis begins. The user reaches it after selection.
+
+Its purpose is shifting from:
+
+> "Help me analyze this underlying."
+
+toward:
+
+> "Help me execute this opportunity well."
+
+Potential future execution concerns (examples, not requirements):
+- Liquidity quality
+- Bid/ask spread quality
+- Strike neighborhood exploration
+- Assignment consequences
+- Rolling mechanics
+- Position sizing relative to operating model
+
+### Emerging hypothesis: reasoning across time
+
+Policy sweeps observe how an opportunity responds to changing policy at a single point in time.
+
+Interaction history (not yet built) would observe how the user's reasoning evolves across time.
+
+These may eventually be different manifestations of a broader concept:
+
+> Reasoning across dimensions (policy space, time, comparison, lifecycle)
+
+This is speculative. Do not formalize. Capture only as a hypothesis for future observation.
+
+### Methodology note
+
+This entry is evidence for the "Three Kinds of Knowledge" principle recorded earlier:
+
+- The workflow boundary is now **computable** (Opportunity Lab handles analysis, Recommendation Lab handles execution)
+- The "reasoning across time" concept remains **philosophical** (no known computation)
+- The operating model characteristics remain **declarative** (user-stated, not yet derived)
+
+Each sits at the correct level. The system is not prematurely elevating philosophical ideas into architecture.
+
+### Pattern
+
+```
+Small capabilities → Capability density → Emergent boundaries → Instrument specialization
+```
+
+This is the fourth instance of working software revealing structure:
+1. CSV import → parser classification
+2. Explanation panel → Mechanics vs Participation axes
+3. Delta dropdown → policy as evidence-generating
+4. Capability accumulation → instrument boundary discovery
