@@ -5,9 +5,9 @@
 
 import { registerParser } from "../registry";
 import { fidelityOptionSummaryParser } from "./optionSummaryParser";
+import { fidelityPositionsParser } from "./positionsParser";
+import { fidelityActivityParser } from "./activityParser";
 import {
-  fidelityPositionsParser,
-  fidelityActivityParser,
   fidelityBalancesParser,
   fidelityOrdersParser,
 } from "./stubParsers";
@@ -20,5 +20,7 @@ registerParser(fidelityBalancesParser);
 registerParser(fidelityOrdersParser);
 
 export { fidelityOptionSummaryParser } from "./optionSummaryParser";
+export { fidelityPositionsParser } from "./positionsParser";
+export { fidelityActivityParser } from "./activityParser";
 export { parseOptionContract } from "./parseOptionContract";
 export { parseDollar, parsePercent, parseQuantity } from "./numericUtils";

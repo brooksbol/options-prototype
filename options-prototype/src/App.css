@@ -1338,3 +1338,234 @@
   color: #666;
   font-style: italic;
 }
+
+/* CSV Import Lab — Visual Hierarchy */
+
+.csv-identity {
+  background: #0d0d1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+
+.csv-identity-type {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+
+.csv-identity-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #888;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.csv-identity-confidence {
+  color: #6fcf97;
+}
+
+/* Trust — warning only */
+
+.csv-trust-warning {
+  background: rgba(200, 160, 50, 0.08);
+  border-left: 3px solid #f2c94c;
+  border-radius: 0 4px 4px 0;
+  padding: 8px 14px;
+}
+
+.csv-trust-item {
+  font-size: 12px;
+  color: #f2c94c;
+  margin: 2px 0;
+}
+
+/* Section headings */
+
+.csv-section-heading {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #666;
+  margin: 0 0 10px 0;
+}
+
+/* Document Contents */
+
+.csv-contents {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.csv-contents-group {
+  min-width: 180px;
+}
+
+.csv-contents-group h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #555;
+  margin: 0 0 6px 0;
+}
+
+.csv-contents-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 2px 0;
+  font-size: 12px;
+}
+
+.csv-contents-value {
+  font-family: "SF Mono", "Fira Code", monospace;
+  color: #e0e0e0;
+  font-weight: 600;
+  min-width: 24px;
+  text-align: right;
+}
+
+.csv-contents-label {
+  color: #888;
+}
+
+.csv-contents-total {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid #2a2a3e;
+}
+
+.csv-contents-detail {
+  font-size: 12px;
+  color: #999;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.csv-contents-contract {
+  font-size: 11px;
+  color: #7ec8e3;
+  font-family: "SF Mono", "Fira Code", monospace;
+  margin: 1px 0;
+}
+
+.csv-trailer-note {
+  font-size: 11px;
+  color: #555;
+  margin: 12px 0 0 0;
+  font-style: italic;
+}
+
+/* Import Preview */
+
+.csv-import-section {
+  background: rgba(111, 207, 151, 0.04);
+  border-left: 3px solid #6fcf97;
+  border-radius: 0 4px 4px 0;
+  padding: 8px 14px;
+}
+
+.csv-import-line {
+  font-size: 13px;
+  color: #e0e0e0;
+  margin: 0;
+}
+
+.csv-import-line::before {
+  content: "✓ ";
+  color: #6fcf97;
+  font-weight: 700;
+}
+
+.csv-import-unavailable {
+  color: #666;
+}
+
+.csv-import-unavailable::before {
+  content: "— ";
+  color: #666;
+}
+
+/* Advanced — subdued */
+
+.csv-advanced-heading {
+  color: #444 !important;
+  font-size: 10px !important;
+}
+
+.csv-advanced-section {
+  opacity: 0.8;
+  border-top: 1px solid #1f1f3a;
+  padding-top: 12px;
+  margin-top: 8px;
+}
+
+
+.csv-contents-empty {
+  font-size: 11px;
+  color: #555;
+  font-style: italic;
+}
+
+
+/* Source section */
+
+.csv-source-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.csv-source-fixtures {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.csv-source-fixtures-label {
+  font-size: 11px;
+  color: #555;
+}
+
+/* Identity — Source + Classification as distinct lines */
+
+.csv-identity-source,
+.csv-identity-classification {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.csv-identity-source-label {
+  color: #666;
+  font-size: 11px;
+  min-width: 90px;
+}
+
+.csv-identity-source-value {
+  color: #e0e0e0;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.csv-identity-file-meta {
+  color: #555;
+  font-size: 11px;
+  margin-left: 8px;
+}
+
+.csv-identity-class-value {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.csv-identity-class-none {
+  color: #888;
+  font-style: italic;
+}

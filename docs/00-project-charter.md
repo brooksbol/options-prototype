@@ -10,15 +10,18 @@ This is not a trading system. This is not a portfolio manager. This is an evalua
 
 ## Vision
 
-A single-page application where a user can:
+An options income decision support tool that helps evaluate covered-call and cash-secured-put strategies on ETFs. The system:
 
-1. Select an ETF underlying.
-2. Browse available expirations.
-3. View calls and puts with key metrics.
-4. Set a target delta to highlight contracts of interest.
-5. See calculated premium, annualized yield, moneyness, and approximate assignment probability.
+1. Connects to live delayed market data (Tradier Sandbox).
+2. Displays option chains with visual moneyness regions.
+3. Recommends contracts based on configurable delta policy.
+4. Explains why each recommendation was made.
+5. Imports Fidelity CSV exports as evidence (positions, strategies, activity).
+6. Provides an Engineering Laboratory for observing and testing domain logic.
 
-The tool makes the decision process observable — not automated.
+The tool makes the decision process observable and explainable — not automated.
+
+The system is evolving toward a layered decision pipeline where each stage (from underlying selection to contract evaluation) reduces uncertainty using different evidence and policy. This direction is under exploration but not yet committed as architecture.
 
 ---
 
@@ -84,29 +87,32 @@ Each actor completes before the next begins. No actor may exceed its responsibil
 
 ### Explicitly Out of Scope
 
-- Real or delayed market data.
 - Brokerage integration or order execution.
-- Portfolio tracking or position management.
-- Greeks beyond delta.
-- Multi-leg strategies.
-- Historical data or charting.
-- Authentication or user accounts.
-- Backend server.
-- Mobile layout.
+- Portfolio optimization or wealth management.
 - Trading bot or automation logic.
+- Prediction models.
+- Authentication or user accounts.
+- Mobile layout.
+- Multi-leg strategies.
+- Treasury analytics (maturity dates parsed but not analyzed).
+- Generic investment platform (domain remains options income).
 
 ---
 
 ## Roadmap
 
-| Slice | Focus | Data Source |
-|-------|-------|-------------|
-| 1 | Options chain viewer + calculations | Mock data |
-| 2 | Delayed market data integration | Yahoo Finance / Tradier |
-| 3 | Portfolio-level income tracking | TBD |
-| 4 | Strategy comparison & optimization | TBD |
+| Phase | Focus | Status |
+|-------|-------|--------|
+| Foundation | Domain model, calculations, policy, delta matching | Complete |
+| Live Data | Tradier provider, CORS validation, cache | Complete |
+| Engineering Lab | Interactive probes, decision narrative, visual regions | Complete |
+| Evidence Layer | Fidelity CSV parsers (Option Summary, Positions, Activity) | Complete |
+| Recommendation | Recommendation Lab with separate call/put delta, evidence window | Complete |
+| Evidence Integration | Connect portfolio evidence to contract evaluation (constraints) | Next |
+| Opportunity Scanner | Multi-symbol daily screening | Future (hypothesis) |
+| Upstream Evaluation | Eligibility, suitability layers | Future (hypothesis) |
 
-Each slice is independently deployable working software.
+Each phase produces independently deployable working software.
 
 ---
 

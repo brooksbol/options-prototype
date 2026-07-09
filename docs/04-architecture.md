@@ -271,3 +271,101 @@ Domain calculation tests can be written and run before any UI exists. This valid
 | US-4 (Puts table) | OptionsTable, calculations.ts, MarketDataProvider.getOptionsChain() |
 | US-5 (Target delta) | DeltaInput, useTargetDelta, delta.ts |
 | US-6 (Metrics) | MetricsPanel, calculations.ts |
+
+
+---
+
+## Architecture Evolution (Post-Slice 1)
+
+The sections above describe the original Slice 1 architecture. The system has evolved significantly. This section documents the current architectural state.
+
+---
+
+### Current System Overview
+
+The application now consists of multiple instruments (pages), multiple data providers, and an evidence import layer.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      React Application                           │
+│                                                                 │
+│  ┌──────────┐ ┌──────────────┐ ┌───────────────┐ ┌──────────┐ │
+│  │Laboratory│ │Options Chain │ │Recommendation │ │CSV Import│ │
+│  │  (probe) │ │  (accordion) │ │    Lab        │ │   Lab    │ │
+│  └────┬─────┘ └──────┬───────┘ └──────┬────────┘ └────┬─────┘ │
+│       │               │                │               │        │
+│       └───────────────┼────────────────┘               │        │
+│                       │                                │        │
+│         ┌─────────────▼─────────────┐    ┌────────────▼──────┐ │
+│         │   Market Data Providers    │    │  CSV Parser Layer  │ │
+│         │  (Mock, Tradier, Massive)  │    │  (Fidelity x3)    │ │
+│         └─────────────┬─────────────┘    └────────────────────┘ │
+│                       │                                         │
+│         ┌─────────────▼─────────────┐                          │
+│         │     Domain Layer           │                          │
+│         │  types, calculations,      │                          │
+│         │  policy, delta matching    │                          │
+│         └───────────────────────────┘                          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Market Data Providers
+
+| Provider | Status | Data | Cache |
+|----------|--------|------|-------|
+| MockMarketDataProvider | Active | Static JSON (SPY, QQQ, IWM, XLE) | N/A |
+| TradierProvider | Active | Live 15-min delayed (sandbox) | 60s TTL, keyed by request |
+| MassiveProvider | Spike only | Blocked by plan entitlement | N/A |
+
+All providers implement the async `MarketDataProvider` interface and return canonical domain types. Provider instances are module-level singletons so cache survives navigation.
+
+---
+
+### Evidence Layer (CSV Parsers)
+
+CSV parsers are understood as **evidence providers** — they contribute facts about portfolio state that will eventually inform the recommendation engine.
+
+| Parser | Status | Output Type |
+|--------|--------|-------------|
+| Fidelity Option Summary | Complete | `OptionSummaryRow[]` (strategy-oriented) |
+| Fidelity Positions | Complete | `HoldingRow[]` (holdings-oriented) |
+| Fidelity Activity | Complete | `ActivityRow[]` (event-oriented) |
+| Fidelity Balances | Stub (detection only) | — |
+| Fidelity Orders | Stub (detection only) | — |
+
+Architecture: Generic CSV Reader → Document Classifier → Export-Specific Parser → Typed Payload + Metadata
+
+---
+
+### Data Quality Awareness
+
+The `OptionsChain` type includes optional `DataQuality` metadata:
+
+```typescript
+interface DataQuality {
+  greeksAvailable: boolean;
+  limitations?: string;
+  dataSource?: "api" | "cache";
+  cacheAgeSeconds?: number;
+}
+```
+
+When Greeks are unavailable (e.g., Tradier sandbox during certain conditions), the recommendation engine suppresses delta-based highlighting and displays a warning. The system does not silently produce meaningless recommendations.
+
+---
+
+### Workspace Persistence
+
+User policy decisions (provider, underlying, target deltas, tie-breaker, strikes count, max DTE) persist to localStorage via a workspace abstraction (`src/workspace/workspace.ts`). The application restores the user's laboratory configuration on browser restart.
+
+---
+
+### Architectural Direction (Hypothesis — Not Committed)
+
+Recent design discussions suggest the system may evolve toward a layered evaluation pipeline where each stage reduces uncertainty using different evidence and policy. The existing Contract Evaluation (Recommendation Lab) would become one specialized stage.
+
+The preferred near-term engineering strategy is **consumer before producer**: teach the existing contract evaluation to consume richer evidence (portfolio constraints from Fidelity imports) before building upstream evaluation stages.
+
+This direction is documented in the Project Journal as an architectural hypothesis. It has not been committed as architecture because no implementation validates it yet.

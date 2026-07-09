@@ -69,20 +69,6 @@ function createStubParser(
   };
 }
 
-export const fidelityPositionsParser = createStubParser(
-  "fidelity_positions",
-  "Fidelity Positions",
-  ["symbol", "description", "quantity", "last price", "current value", "cost basis"],
-  "Positions"
-);
-
-export const fidelityActivityParser = createStubParser(
-  "fidelity_activity",
-  "Fidelity Activity",
-  ["run date", "action", "symbol", "security description", "quantity", "amount"],
-  "Activity"
-);
-
 export const fidelityBalancesParser = createStubParser(
   "fidelity_balances",
   "Fidelity Balances",

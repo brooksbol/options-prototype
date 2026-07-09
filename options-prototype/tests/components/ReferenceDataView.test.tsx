@@ -22,7 +22,8 @@ describe("ReferenceDataView", () => {
   it("shows XLE symbol in provenance after loading", async () => {
     render(<ReferenceDataView />);
     await waitFor(() => {
-      expect(screen.getByText("XLE")).toBeTruthy();
+      const elements = screen.getAllByText("XLE");
+      expect(elements.length).toBeGreaterThanOrEqual(1);
     });
   });
 

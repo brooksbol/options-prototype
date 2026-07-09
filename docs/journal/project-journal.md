@@ -504,3 +504,111 @@ This is a provider-boundary normalization decision, not a domain limitation. The
 - 118 tests passing
 - TypeScript compiles
 - Build succeeds
+
+---
+
+## Entry: Architectural Hypothesis — Layered Decision Pipeline
+
+**Date:** 2026-07-08
+
+**Context:** Whiteboard discussion exploring whether "underlying recommendation" is a distinct domain problem from "contract recommendation." The discussion produced significant conceptual insights that have NOT yet been validated by implementation.
+
+**Status: Hypothesis — not committed architecture.**
+
+---
+
+### Key discoveries
+
+#### 1. Evaluation is the primitive, not recommendation
+
+The strongest abstraction discovered:
+
+```
+Candidates + Evidence + Policy → Filter → Rank → Explain
+```
+
+"Recommendation" is a consumer of evaluation. The existing Recommendation Lab already implements this pattern — it evaluates contracts against evidence and policy — but wasn't named that way until now.
+
+#### 2. Layered uncertainty reduction
+
+The decision process appears to be a pipeline where each stage reduces uncertainty:
+
+```
+Conviction (investor policy)
+    ↓
+Eligibility (what can I trade?)
+    ↓
+Suitability (what fits my portfolio?)
+    ↓
+Opportunity (what's attractive right now?)
+    ↓
+Contract Evaluation (which specific contract?)
+```
+
+Each layer has different evidence, different policy, different cadence, different vocabulary.
+
+#### 3. Conviction is not data
+
+Four sub-problems were identified in "underlying selection":
+- **Eligibility** — account/capital constraints (computable)
+- **Suitability** — portfolio fit (computable from holdings)
+- **Opportunity** — premium attractiveness (market-driven, temporal)
+- **Conviction** — willingness to own (investor-stated, not derived)
+
+Conviction belongs to the investor as declared policy, not computed by the system.
+
+#### 4. Shared pattern, not shared implementation
+
+Each layer follows the same reasoning shape (filter → rank → explain) but with completely different domain knowledge. This is a shared pattern, not a case for a generic `Evaluator<T>` framework. Avoid premature abstraction.
+
+#### 5. Radar versus microscope
+
+Two conceptually distinct instruments:
+- **Opportunity Scanner** — broad, daily cadence, produces "today's interesting things"
+- **Contract Evaluation Lab** — deep, intraday cadence, produces specific contract recommendation
+
+These operate at different timescales and different granularities.
+
+#### 6. Consumer before producer
+
+Engineering strategy: rather than building upstream laboratories immediately, teach the existing Contract Evaluation Lab to consume richer evidence first (portfolio constraints, existing positions). This stabilizes interfaces before expanding architecture.
+
+---
+
+### What this does NOT mean
+
+- The project is NOT becoming "a generic evaluation platform"
+- The domain remains: options income decision support
+- The existing Recommendation Lab is NOT invalidated — it is contextualized as one stage
+- No implementation changes are required today
+- The layered pipeline is a mental model, not a software specification
+
+---
+
+### Implications for near-term work
+
+- The Fidelity CSV parsers are now understood as evidence providers for future evaluation
+- The next valuable work is connecting Fidelity evidence (positions, open options) to the Contract Evaluation Lab
+- The upstream layers (scanner, eligibility) remain future work
+- Architecture and domain should remain separate concepts
+
+---
+
+### Terminology established
+
+| Term | Meaning |
+|------|---------|
+| Evaluation | Architectural reasoning pattern (candidates + evidence + policy → ranked result) |
+| Recommendation | Application feature (the highlighted contract suggestion shown to the user) |
+| Evidence | Facts derived from market data, portfolio state, or Fidelity exports |
+| Policy | Investor-stated preferences and rules (target delta, conviction, allocation limits) |
+| Conviction | Investor belief about an underlying — not market-derived |
+
+---
+
+### Open questions
+
+- Should the curated ETF universe be a first-class domain concept now?
+- When should conviction/watchlist become implementable?
+- Is the opportunity scanner the next instrument to build after evidence integration?
+- How do different cadences (monthly conviction, daily opportunity, intraday contracts) manifest architecturally?

@@ -13,6 +13,8 @@
 
 import type { CsvDocument } from "./reader";
 import type { OptionSummaryRow } from "./fidelity/optionSummaryParser";
+import type { HoldingRow } from "./fidelity/positionsParser";
+import type { ActivityRow } from "./fidelity/activityParser";
 
 // --- Document Metadata ---
 
@@ -58,8 +60,8 @@ export interface DetectionResult {
  */
 export type ParsedPayload =
   | { type: "option_summary"; rows: OptionSummaryRow[] }
-  | { type: "holdings"; rows: unknown[] }     // placeholder until HoldingRow is defined
-  | { type: "activity"; rows: unknown[] }     // placeholder
+  | { type: "holdings"; rows: HoldingRow[] }
+  | { type: "activity"; rows: ActivityRow[] }
   | { type: "orders"; rows: unknown[] }       // placeholder
   | { type: "balances"; rows: unknown[] }     // placeholder
   | { type: "unknown"; rows: unknown[] };

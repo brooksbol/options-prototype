@@ -28,14 +28,23 @@ export interface Workspace {
   selectedSymbol: string;
   selectedExpiration: string;
 
-  // Policy
+  // Policy (Recommendation Lab)
   callTargetDelta: number;
   putTargetDelta: number;
   tieBreaker: DeltaTieBreaker;
 
-  // Display
+  // Display (Recommendation Lab)
   strikesCount: number;
   showFullEvidence: boolean;
+
+  // Options Chain page
+  chainProviderKey: string;
+  chainSymbol: string;
+  chainCallDelta: number;
+  chainPutDelta: number;
+  chainTieBreaker: DeltaTieBreaker;
+  chainStrikesCount: number;
+  chainMaxDte: number;
 }
 
 const DEFAULT_WORKSPACE: Workspace = {
@@ -48,6 +57,13 @@ const DEFAULT_WORKSPACE: Workspace = {
   tieBreaker: "PreferOTM",
   strikesCount: 10,
   showFullEvidence: false,
+  chainProviderKey: "mock",
+  chainSymbol: "XLE",
+  chainCallDelta: 0.30,
+  chainPutDelta: 0.30,
+  chainTieBreaker: "PreferOTM",
+  chainStrikesCount: 10,
+  chainMaxDte: 45,
 };
 
 /**

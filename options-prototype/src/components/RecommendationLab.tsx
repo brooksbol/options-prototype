@@ -37,10 +37,23 @@ import type { OptionContract, Expiration } from "../domain/types";
 
 type ProviderKey = "mock" | "tradier";
 
-const PROVIDER_OPTIONS: { key: ProviderKey; label: string; available: boolean; create: () => MarketDataProvider }[] = [
-  { key: "mock", label: "Mock", available: true, create: () => new MockMarketDataProvider() },
-  { key: "tradier", label: "Tradier Sandbox", available: isTradierConfigured(), create: () => new TradierProvider(requireTradierConfig()) },
+const PROVIDER_OPTIONS: { key: ProviderKey; label: string; available: boolean }[] = [
+  { key: "mock", label: "Mock", available: true },
+  { key: "tradier", label: "Tradier Sandbox", available: isTradierConfigured() },
 ];
+
+// Singleton provider instances — cache survives navigation between tabs
+const providerInstances: Record<string, MarketDataProvider> = {};
+function getProvider(key: ProviderKey): MarketDataProvider {
+  if (!providerInstances[key]) {
+    if (key === "tradier" && isTradierConfigured()) {
+      providerInstances[key] = new TradierProvider(requireTradierConfig());
+    } else {
+      providerInstances[key] = new MockMarketDataProvider();
+    }
+  }
+  return providerInstances[key];
+}
 
 const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = ["PreferOTM", "PreferITM", "PreferHigherStrike", "PreferLowerStrike"];
 
@@ -145,10 +158,7 @@ export function RecommendationLab() {
     return saved ?? (isTradierConfigured() ? "tradier" : "mock");
   });
 
-  const provider = useMemo(() => {
-    const opt = PROVIDER_OPTIONS.find((p) => p.key === providerKey && p.available);
-    return opt?.create() ?? new MockMarketDataProvider();
-  }, [providerKey]);
+  const provider = useMemo(() => getProvider(providerKey), [providerKey]);
 
   const { state, selectUnderlying, selectExpiration } = useOptionsChain(provider, {
     initialSymbol: workspace.selectedSymbol,

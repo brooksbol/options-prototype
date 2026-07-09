@@ -14,17 +14,16 @@
  * The same UI components, hooks, and domain logic operate regardless of provider.
  */
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useOptionsChain } from "../hooks/useOptionsChain";
-import { useTargetDelta } from "../hooks/useTargetDelta";
 import { findClosestToDelta } from "../domain/delta";
 import { MockMarketDataProvider } from "../providers/mock/MockMarketDataProvider";
 import { TradierProvider } from "../providers/tradier/TradierProvider";
 import { isTradierConfigured, requireTradierConfig } from "../config/tradier";
-import { DeltaInput } from "./DeltaInput";
 import { UnderlyingSelector } from "./UnderlyingSelector";
 import { OptionsTable } from "./OptionsTable";
 import { MetricsPanel } from "./MetricsPanel";
+import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import type { MarketDataProvider } from "../domain/provider";
 import type { DeltaTieBreaker } from "../domain/policy";
 import type { Expiration, OptionsChain as OptionsChainType, OptionContract } from "../domain/types";
@@ -38,28 +37,29 @@ interface ProviderOption {
   label: string;
   badge: string;
   available: boolean;
-  create: () => MarketDataProvider;
 }
 
 function getTradierAvailability(): boolean {
   return isTradierConfigured();
 }
 
+// Singleton provider instances — persist across component mounts so cache survives navigation
+const providerInstances: Record<string, MarketDataProvider> = {};
+
+function getProvider(key: ProviderKey): MarketDataProvider {
+  if (!providerInstances[key]) {
+    if (key === "tradier" && isTradierConfigured()) {
+      providerInstances[key] = new TradierProvider(requireTradierConfig());
+    } else {
+      providerInstances[key] = new MockMarketDataProvider();
+    }
+  }
+  return providerInstances[key];
+}
+
 const PROVIDER_OPTIONS: ProviderOption[] = [
-  {
-    key: "mock",
-    label: "Mock",
-    badge: "Reference Fixtures",
-    available: true,
-    create: () => new MockMarketDataProvider(),
-  },
-  {
-    key: "tradier",
-    label: "Tradier Sandbox",
-    badge: "Live Delayed",
-    available: getTradierAvailability(),
-    create: () => new TradierProvider(requireTradierConfig()),
-  },
+  { key: "mock", label: "Mock", badge: "Reference Fixtures", available: true },
+  { key: "tradier", label: "Tradier Sandbox", badge: "Live Delayed", available: getTradierAvailability() },
 ];
 
 // --- Component ---
@@ -122,22 +122,33 @@ function filterStrikes(
 }
 
 export function ReferenceDataView() {
-  const [providerKey, setProviderKey] = useState<ProviderKey>("mock");
+  const [ws] = useState(() => loadWorkspace());
 
-  const provider = useMemo(() => {
-    const opt = PROVIDER_OPTIONS.find((p) => p.key === providerKey);
-    return opt?.create() ?? new MockMarketDataProvider();
-  }, [providerKey]);
+  const [providerKey, setProviderKey] = useState<ProviderKey>(ws.chainProviderKey as ProviderKey || "mock");
+  const provider = useMemo(() => getProvider(providerKey), [providerKey]);
 
   const activeProviderOption = PROVIDER_OPTIONS.find((p) => p.key === providerKey)!;
 
-  const { state, selectUnderlying } = useOptionsChain(provider);
-  const { policy, setTargetDelta, setTieBreaker } = useTargetDelta();
+  const { state, selectUnderlying } = useOptionsChain(provider, { initialSymbol: ws.chainSymbol });
+  const [callDelta, setCallDelta] = useState(ws.chainCallDelta);
+  const [putDelta, setPutDelta] = useState(ws.chainPutDelta);
+  const [tieBreaker, setTieBreaker] = useState<DeltaTieBreaker>(ws.chainTieBreaker);
   const [chains, setChains] = useState<ChainsByExpiration[]>([]);
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
   const [activeDate, setActiveDate] = useState<string>("");
   const [chainsLoading, setChainsLoading] = useState(false);
-  const [strikesCount, setStrikesCount] = useState(10);
+  const [strikesCount, setStrikesCount] = useState(ws.chainStrikesCount);
+  const [maxDte, setMaxDte] = useState(ws.chainMaxDte);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Persist helpers
+  const persistProvider = useCallback((key: ProviderKey) => { setProviderKey(key); updateWorkspace({ chainProviderKey: key }); }, []);
+  const persistCallDelta = useCallback((v: number) => { if (v >= 0.01 && v <= 0.99) { setCallDelta(v); updateWorkspace({ chainCallDelta: v }); } }, []);
+  const persistPutDelta = useCallback((v: number) => { if (v >= 0.01 && v <= 0.99) { setPutDelta(v); updateWorkspace({ chainPutDelta: v }); } }, []);
+  const persistTieBreaker = useCallback((tb: DeltaTieBreaker) => { setTieBreaker(tb); updateWorkspace({ chainTieBreaker: tb }); }, []);
+  const persistStrikes = useCallback((n: number) => { setStrikesCount(n); updateWorkspace({ chainStrikesCount: n }); }, []);
+  const persistMaxDte = useCallback((n: number) => { setMaxDte(n); updateWorkspace({ chainMaxDte: n }); }, []);
+  const persistUnderlying = useCallback((symbol: string) => { selectUnderlying(symbol); updateWorkspace({ chainSymbol: symbol }); }, [selectUnderlying]);
 
   // Set default underlying once on mount or provider change (not on every symbol update)
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -158,13 +169,14 @@ export function ReferenceDataView() {
     setHasInitialized(true);
   }, [state.underlyings, state.selectedSymbol, state.loading, providerKey, selectUnderlying, hasInitialized]);
 
-  // Load chains for available expirations (limit to first 5 for live providers)
+  // Load chains for available expirations filtered by max DTE
   useEffect(() => {
     if (state.expirations.length === 0 || !state.selectedSymbol) return;
 
     let cancelled = false;
-    const maxExpirations = providerKey === "mock" ? state.expirations.length : 5;
-    const expsToLoad = state.expirations.slice(0, maxExpirations);
+    const expsToLoad = maxDte === 0
+      ? state.expirations
+      : state.expirations.filter((exp) => exp.dte <= maxDte);
 
     async function loadAll() {
       setChainsLoading(true);
@@ -189,19 +201,20 @@ export function ReferenceDataView() {
 
     loadAll();
     return () => { cancelled = true; };
-  }, [state.expirations, state.selectedSymbol, provider, providerKey]);
+  }, [state.expirations, state.selectedSymbol, provider, providerKey, maxDte, refreshTrigger]);
 
-  // Data quality check
+  // Data quality check — consider greeks available if ANY loaded chain has them
   const activeChainData = chains.find((c) => c.expiration.date === activeDate);
-  const greeksAvailable = activeChainData?.chain.dataQuality?.greeksAvailable ?? true;
-  const dataLimitations = activeChainData?.chain.dataQuality?.limitations;
+  const anyGreeksAvailable = chains.some((c) => c.chain.dataQuality?.greeksAvailable === true);
+  const greeksAvailable = anyGreeksAvailable || (activeChainData?.chain.dataQuality?.greeksAvailable ?? true);
+  const dataLimitations = !greeksAvailable ? (activeChainData?.chain.dataQuality?.limitations ?? "Greeks unavailable for this expiration.") : undefined;
 
   // Find highlighted contracts — only meaningful when Greeks are available
   const highlightedCall = (activeChainData && greeksAvailable)
-    ? findClosestToDelta(activeChainData.chain.calls, policy.targetDelta, policy.tieBreaker)
+    ? findClosestToDelta(activeChainData.chain.calls, callDelta, tieBreaker)
     : null;
   const highlightedPut = (activeChainData && greeksAvailable)
-    ? findClosestToDelta(activeChainData.chain.puts, policy.targetDelta, policy.tieBreaker)
+    ? findClosestToDelta(activeChainData.chain.puts, putDelta, tieBreaker)
     : null;
 
   function toggleExpiration(date: string) {
@@ -237,7 +250,7 @@ export function ReferenceDataView() {
                   value={providerKey}
                   onChange={(e) => {
                     setChains([]);
-                    setProviderKey(e.target.value as ProviderKey);
+                    persistProvider(e.target.value as ProviderKey);
                   }}
                   className="control-select"
                 >
@@ -255,17 +268,32 @@ export function ReferenceDataView() {
               <UnderlyingSelector
                 underlyings={state.underlyings}
                 selected={state.selectedSymbol}
-                onSelect={selectUnderlying}
+                onSelect={persistUnderlying}
               />
             )}
 
-            <DeltaInput value={policy.targetDelta} onChange={setTargetDelta} />
+            <div className="control-group">
+              <label className="control-label">
+                Call Δ:
+                <input type="number" min={0.01} max={0.99} step={0.01} value={callDelta}
+                  onChange={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) persistCallDelta(v); }}
+                  className="control-input" />
+              </label>
+            </div>
+            <div className="control-group">
+              <label className="control-label">
+                Put Δ:
+                <input type="number" min={0.01} max={0.99} step={0.01} value={putDelta}
+                  onChange={(e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) persistPutDelta(v); }}
+                  className="control-input" />
+              </label>
+            </div>
             <div className="control-group">
               <label className="control-label">
                 Tie-Breaker:
                 <select
-                  value={policy.tieBreaker}
-                  onChange={(e) => setTieBreaker(e.target.value as DeltaTieBreaker)}
+                  value={tieBreaker}
+                  onChange={(e) => persistTieBreaker(e.target.value as DeltaTieBreaker)}
                   className="control-select"
                 >
                   {TIE_BREAKER_OPTIONS.map((tb) => (
@@ -279,7 +307,7 @@ export function ReferenceDataView() {
                 Strikes:
                 <select
                   value={strikesCount}
-                  onChange={(e) => setStrikesCount(Number(e.target.value))}
+                  onChange={(e) => persistStrikes(Number(e.target.value))}
                   className="control-select"
                 >
                   <option value={5}>5</option>
@@ -287,6 +315,26 @@ export function ReferenceDataView() {
                   <option value={15}>15</option>
                   <option value={20}>20</option>
                   <option value={0}>All</option>
+                </select>
+              </label>
+            </div>
+            <div className="control-group">
+              <label className="control-label">
+                Max DTE:
+                <select
+                  value={maxDte}
+                  onChange={(e) => persistMaxDte(Number(e.target.value))}
+                  className="control-select"
+                >
+                  <option value={7}>7</option>
+                  <option value={14}>14</option>
+                  <option value={30}>30</option>
+                  <option value={45}>45</option>
+                  <option value={60}>60</option>
+                  <option value={90}>90</option>
+                  <option value={180}>180</option>
+                  <option value={365}>365</option>
+                  <option value={0}>Max</option>
                 </select>
               </label>
             </div>
@@ -323,6 +371,21 @@ export function ReferenceDataView() {
               </>
             )}
           </dl>
+          {providerKey === "tradier" && (
+            <button
+              className="rec-evidence-toggle"
+              style={{ marginLeft: 12 }}
+              onClick={() => {
+                const p = getProvider("tradier");
+                if (p instanceof TradierProvider) {
+                  p.refresh();
+                }
+                setRefreshTrigger((n) => n + 1);
+              }}
+            >
+              Refresh Data
+            </button>
+          )}
         </div>
       </header>
 

@@ -56,7 +56,7 @@ Expiration {
 
 ```
 OptionContract {
-  type: "call" | "put"
+  type: "CALL" | "PUT"
   strike: number
   bid: number
   ask: number
