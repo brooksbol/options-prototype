@@ -434,9 +434,13 @@ Classifies and parses brokerage documents (positions, activity, balances).
 ## Context Relationships
 
 ```
+Candidate Universe (496+ symbols, Yahoo + operator additions)
+        │
+        │ candidates (future: batch evaluation)
+        ▼
 Universe Management (Velvet Rope)
         │
-        │ approved registry (future: supplies universe)
+        │ admitted registry (future: supplies universe)
         ▼
 Opportunity Analysis (Opportunity Lab)
         │
@@ -445,6 +449,8 @@ Opportunity Analysis (Opportunity Lab)
 Options Evaluation (Recommendation Lab / Contract Workbench)
 
 CSV Import ──► Scenario Replay ──► Portfolio State ──► Overlay Feasibility
+
+Reference Data (SEC Explorer, FMP, API Ninjas) ──► Candidate Universe / Velvet Rope
 ```
 
 ---

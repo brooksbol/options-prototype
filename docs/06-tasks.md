@@ -619,9 +619,11 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 ### Universe Discovery (Crawler)
 
 - **SEC Explorer (human-in-the-loop Discovery) ✓** — operator browses SEC universe, sends candidates to Velvet Rope manually
+- **Candidate Universe module ✓** — 496-symbol Yahoo seed, provenance-aware, operator additions, browsable view. See `docs/universe/`
 - **SEC Explorer: inline evaluation (next)** — evaluate without navigation, display EvaluationNarrative inline, preserve browsing context. Evidence earned through Experiment 003/004.
 - **API Ninjas spike ✓** — proven viable but requires Business+ subscription for enumeration/search. See `docs/engineering-spikes/api-ninjas-etf-catalog.md`
-- Automated ETF universe scanning via API Ninjas or similar
+- **FMP spike ✓** — strongest single-symbol provider. Profile endpoint with `isEtf` flag, rich metadata. Enumeration paywalled. See `docs/engineering-spikes/fmp-etf-reference-data.md`
+- Automated ETF universe scanning via API Ninjas, FMP, or similar (requires paid tier)
 - Incremental crawl strategy with rate-limit budget
 - Re-evaluation scheduling
 - Candidate notification ("new ETF passed the Velvet Rope")

@@ -2414,7 +2414,7 @@ The heuristic fills some of these gaps imperfectly. The operator's knowledge fil
 
 ---
 
-## 2026-07-14 — Discovery Refinement: EvaluationSummary as Portable Institutional Opinion
+## 2026-07-13 — Discovery Refinement: EvaluationSummary as Portable Institutional Opinion
 
 ### Observation from operator use
 
@@ -2502,3 +2502,399 @@ The `EvaluationNarrative` IS the Interpretation layer's output. Making it portab
 ### Decision
 
 Record this as architectural learning. The next implementation iteration is clearly motivated. Proceed to update requirements and tasks for the inline-evaluation capability — then implement.
+
+---
+
+## 2026-07-13 — Experiment 004: SEC Catalog Boundary Discovery
+
+### What happened
+
+While using the SEC Securities Explorer, the operator searched for well-known ETFs:
+
+| Symbol | Present in SEC catalog? |
+|--------|------------------------|
+| XLE | ✗ Missing |
+| SPY | ✗ Missing |
+| SCHD | ✗ Missing |
+| QETH | ✓ Present |
+| QSOL | ✓ Present |
+| BITA | ✓ Present |
+| BRRR | ✓ Present |
+
+Searching by company name ("Energy") also failed to locate the Energy Select Sector SPDR ETF. Multiple well-known, highly-liquid ETFs are systematically absent.
+
+### What this reveals
+
+This is not a bug. It is a **Reference Data boundary discovery**.
+
+The SEC `company_tickers_exchange.json` file is **not** a canonical catalog of exchange-traded instruments. Its population appears to depend on SEC filing structure (CIK-based EDGAR reporting), resulting in systematic omission of many well-known ETFs.
+
+The dataset likely represents:
+- SEC reporting issuers
+- Exchange-listed companies
+- Some (but not all) exchange-traded products
+
+It does NOT represent:
+- A complete universe of exchange-traded instruments
+- An authoritative ETF catalog
+- A comprehensive options-eligible universe
+
+### Implicit assumption contradicted
+
+We assumed: `SEC company_tickers_exchange.json ≈ exchange-traded security catalog`
+
+Evidence: that assumption is false. The dataset has boundaries we did not previously understand.
+
+### Experiment 004 status
+
+| Field | Value |
+|-------|-------|
+| Hypothesis | The SEC file is not a canonical catalog of exchange-traded instruments |
+| Evidence | XLE, SPY, SCHD (major ETFs) absent; QETH, BRRR (newer crypto ETFs) present |
+| Assessment | **Hypothesis confirmed** — inclusion depends on SEC filing structure, not instrument listing |
+| Implication | No single provider should be assumed authoritative. Reference Data must be multi-provider. |
+
+### Architecture reinforced
+
+```
+Reality
+    ↓
+Reference Data (multi-provider, no single authority)
+    ↓
+Discovery
+    ↓
+Velvet Rope
+    ↓
+Opportunity Lab
+```
+
+The Discovery subsystem should **consume** catalogs from multiple providers rather than trusting any one source. Each provider exposes a different view of the universe. The complete picture emerges from comparison, not from any single dataset.
+
+### Future evidence to collect
+
+A comparison matrix across providers:
+
+| Symbol | SEC | ETFdb | justETF | API Ninjas | Tradier |
+|--------|-----|-------|---------|------------|---------|
+| SPY | ? | ✓ | ✓ | ✓ | ✓ |
+| XLE | ? | ✓ | ✓ | ✓ | ✓ |
+| SCHD | ? | ✓ | ✓ | ? | ✓ |
+| QETH | ✓ | ? | ? | ? | ? |
+| BRRR | ✓ | ? | ? | ? | ? |
+
+Do not attempt to build this yet. Collect evidence incrementally.
+
+### What we are NOT doing
+
+- Not removing the SEC Explorer (it remains valuable for what it does contain)
+- Not adding another provider yet
+- Not redesigning Discovery
+- Not assuming we know why the SEC dataset excludes these ETFs
+
+### What we ARE doing
+
+- Recording the boundary
+- Recognizing that multi-provider Reference Data is architecturally real, not hypothetical
+- Continuing to use the SEC Explorer for what it's good at (general securities, newer listings)
+- Allowing future interaction to reveal which additional provider fills the gap
+
+### Methodology validation
+
+This is the eighth instance of working software revealing something unexpected:
+
+1. CSV import → parser classification
+2. Explanation panel → Mechanics vs Participation
+3. Delta dropdown → policy as evidence-generating
+4. Capability accumulation → instrument boundaries
+5. Scenario replay → state transitions as object of study
+6. Velvet Rope evaluation → measurement method matters more than thresholds
+7. SCHD + XLK evidence → the unit of observation is the research question
+8. SEC Explorer use → **no single reference data source is complete**
+
+Each time: the software exposed a truth that was invisible before interaction.
+
+---
+
+## 2026-07-13 — Engineering Spike: FMP ETF Reference Data Provider
+
+### Why this was prioritized
+
+The SEC catalog proved incomplete (major ETFs missing). API Ninjas requires a paid tier for enumeration. FMP is the next candidate — testing whether it fills the coverage gap.
+
+### Key findings
+
+1. **Authentication works.** Starter/free plan key is functional.
+2. **Profile endpoint is rich.** `/stable/profile?symbol=X` returns 30+ fields including the critical `isEtf` boolean, price, market cap, industry, sector, identifiers.
+3. **Coverage is excellent.** SPY, XLE, SCHD, QQQ, TLT, QETH — all found with `isEtf: true`. These are exactly the symbols the SEC catalog was missing.
+4. **Search works.** Both name and symbol search are available on the current plan.
+5. **Full enumeration is paywalled.** `/stable/etf-list` returns 402. Automated Discovery still requires a paid tier.
+6. **ETF-specific enrichment endpoints are unavailable.** Holdings, expense ratio, sector weightings all return 404 on current plan.
+7. **No batch support.** One API call per symbol on current plan.
+
+### Verdict: VIABLE
+
+FMP is the strongest single-symbol provider tested. It fills the exact gap SEC leaves:
+- SEC provides the broad universe but misses major ETFs
+- FMP provides rich metadata for any known symbol with provider-supplied `isEtf` classification
+
+Together they partially support the human-in-the-loop Discovery workflow:
+1. SEC Explorer finds general securities (incomplete for ETFs)
+2. FMP validates/enriches known symbols: "Is this actually an ETF? What's its industry/sector?"
+3. Velvet Rope evaluates options market quality
+
+**Important limitation:** FMP validates symbols you already know to ask about. It does not make missing SEC symbols discoverable. SEC + FMP supports browsing one incomplete universe and validating known or independently discovered symbols. It does not yet provide complete ETF discovery.
+
+### Provider comparison summary
+
+| Need | SEC | API Ninjas | FMP |
+|------|-----|-----------|-----|
+| Broad universe | ✓ (9,300 but incomplete for ETFs) | ✗ (free) | ✗ (free) |
+| ETF classification | ✗ | ✗ | **✓ (isEtf flag)** |
+| Rich metadata | ✗ | ✗ | **✓** (industry, sector, price, marketCap) |
+| Known-symbol validation | N/A | ✓ (basic) | **✓ (rich)** |
+| Full ETF enumeration | ✗ | Paid | Paid |
+
+### Decision
+
+FMP is confirmed viable. No subscription upgrade needed for the current prototype phase. The combination of SEC Explorer (broad browsing) + FMP (validation/enrichment) + Tradier (options verification) covers the human-in-the-loop Discovery workflow without additional cost.
+
+Full findings in `docs/engineering-spikes/fmp-etf-reference-data.md`.
+
+---
+
+## 2026-07-13 — FMP Search as Exploratory Catalog: Characterization
+
+### Language corrections applied
+
+- "Authoritative ETF classification" → "provider-supplied ETF classification" (FMP's `isEtf` boolean is valuable evidence but not structurally verified)
+- "Fills the gap SEC left" → SEC + FMP supports browsing one incomplete universe and validating known symbols. It does not yet provide complete ETF discovery.
+- Date errors corrected (entries were mislabeled 2026-07-14)
+
+### FMP search-name characterization
+
+Tested keyword searches to determine whether FMP search can act as a second exploratory front door:
+
+| Query | Results | XLE/SPY/SCHD surfaced? | Useful for ETF discovery? |
+|-------|---------|------------------------|--------------------------|
+| "energy" | 50 | No (operating companies dominate) | Low — mostly non-ETFs |
+| "dividend" | 50 | No | Low — Canadian/OTC dominate top results |
+| "SPDR" | 50 | ✓ GLD appears; sector ETFs present | **High** — issuer search works well |
+| "Schwab" | 50 | ✓ SCHP, SCHH, SCHK visible | **High** — issuer search works well |
+| "Select Sector" | 50 | ✓ XLE appears at position 10 | **High** — fund-family search effective |
+| "treasury bond" | 50 | No (TLT not in results; international dominates) | Low — generic terms aren't specific enough |
+| "bitcoin" | 50 | No (crypto assets, not ETFs) | Low without `isEtf` filter |
+
+### Key findings
+
+1. **Issuer/fund-family searches work well** — "SPDR", "Schwab", "iShares", "Vanguard" likely surface their ETF families effectively.
+
+2. **Generic topic searches are noisy** — "energy", "dividend", "bitcoin" return mixed results (stocks, crypto, international, OTC) that would require `isEtf` profile verification as a second pass.
+
+3. **Results are capped at 50** — no pagination observed. If more than 50 exist, some are invisible.
+
+4. **Search does NOT surface SPY or SCHD by topic keyword** — you'd need to search "S&P 500" or "Schwab" to find them.
+
+5. **FMP search IS an exploratory front door, but only for issuer/fund-family queries.** It is not effective for topic-based ETF discovery without a second-pass `isEtf` filter.
+
+### Revised architecture understanding
+
+```
+SEC Explorer                    → Broad securities universe (incomplete for ETFs)
+FMP Search (issuer queries)     → Fund-family exploration (SPDR, Schwab, iShares...)
+FMP Profile                     → Known-symbol validation + isEtf classification
+Tradier                         → Options availability verification
+Velvet Rope                     → Options market quality evaluation
+```
+
+Each serves a distinct exploratory role. None alone provides complete ETF discovery. Together they support an increasingly effective human-in-the-loop workflow.
+
+### What remains unproven
+
+- Whether FMP search + isEtf filter can substitute for full enumeration
+- Whether the 50-result cap hides important ETFs
+- Whether international ETF symbols (with suffixes like `.L`, `.DE`) are relevant to this project
+- What FMP's paid tier actually adds versus the free search + profile combination
+
+### Decision
+
+The FMP spike is complete. Both SEC and FMP explorers are working instruments. The next Discovery improvement should focus on **operator workflow** (inline evaluation, context preservation) rather than additional providers. The human-in-the-loop Discovery loop is now functional: SEC browsing + FMP search + FMP profile validation + Velvet Rope evaluation.
+
+---
+
+## 2026-07-13 — Candidate Universe: First Slice Implemented
+
+### What was built
+
+The Candidate Universe module — the broadest layer of the institutional funnel. Seeded with 496 ETF symbols from Yahoo Finance's "Top ETFs" list (captured July 13, 2026).
+
+### Architecture realized
+
+```
+Candidate Universe (496 symbols)     ← THIS SLICE
+    ↓ (future: enrichment)
+    ↓ (future: Velvet Rope evaluation)
+Admitted Registry (~15-40)
+    ↓
+Opportunity Lab scan universe
+```
+
+### Key design decisions
+
+1. **Minimal model**: `{ symbol, sources[], addedAt }` — no speculative fields
+2. **Bundled constant**: Yahoo symbols are version-controlled TypeScript, not runtime-parsed CSV
+3. **Source provenance from day one**: `"yahoo_top_etfs_2026_07_13"` captures what and when
+4. **Operator additions via localStorage**: merge with bundled data, deduplicate by symbol
+5. **Merge semantics**: duplicate symbol → one record with merged sources[], earliest addedAt
+6. **No provider calls**: the Universe view is purely observational — zero API requests
+
+### Source transparency
+
+The UI explicitly communicates:
+- Yahoo Top ETFs is "an externally curated snapshot captured July 13, 2026"
+- "Not a complete ETF market universe"
+- "Inclusion does not imply institutional admission or suitability"
+- This is a candidate pool, not a recommended list
+
+### How the Yahoo source's curation bias is represented
+
+The Yahoo source is influenced by Morningstar ratings, fund quality, expenses, and momentum. This creates upstream selection bias toward established, rateable funds. The implementation:
+- Labels it as "externally curated" (not neutral/exhaustive)
+- Documents the bias in code comments and UI copy
+- Does NOT treat Yahoo's inclusion as institutional approval
+- Does NOT expose Morningstar ratings or Yahoo grades
+- Does NOT use source membership as an admission signal
+
+The governing principle remains: **Policy over prediction.** Source membership is evidence of external curation, not institutional suitability.
+
+### Files produced
+
+- `src/universe/types.ts` — CandidateSymbol type
+- `src/universe/sources/yahoo.ts` — 496 symbols + provenance constants
+- `src/universe/universe.ts` — load, merge, deduplicate, add
+- `src/universe/persistence.ts` — localStorage for operator additions
+- `src/components/UniverseView.tsx` — browsable page
+- `tests/universe/universe.test.ts` — 17 tests
+- `docs/universe/01-requirements.md` — 13 requirements (CU-1 through CU-13)
+- `docs/universe/02-design.md` — module structure, merge rules, persistence, UI
+
+### Test count
+
+26 test files, 429 tests passing, build clean.
+
+### What this enables (not yet built)
+
+- Batch Velvet Rope evaluation against the full 496-candidate pool
+- Source comparison (Yahoo vs. SEC vs. FMP coverage)
+- Operator can manually add symbols discovered via SEC Explorer or FMP
+- Future sources simply contribute additional CandidateSymbol[] entries
+- The `UniverseSource` switch (legacy_curated → velvet_rope) will eventually connect the admitted subset to Opportunity Lab
+
+---
+
+## 2026-07-13 — Architectural Discovery: Product Structure (SOXS Counterexample)
+
+### What happened
+
+SOXS (ProShares UltraPro Short Semiconductor 3x inverse daily-reset ETF) was evaluated by Velvet Rope. It passed almost every market-quality criterion — delta, liquidity, spreads, premium, open interest — and was rejected only on the experimental $2,000 minimum capital threshold.
+
+This surfaced a hidden assumption that has existed since the beginning of the prototype: **every admitted ETF is evaluated for the same operating model (the Wheel).**
+
+SOXS invalidates that assumption. Assignment of SOXS produces ownership of a leveraged inverse daily-resetting instrument. "Wait and write calls" is not a viable recovery posture — the structural decay characteristics make indefinite hold fundamentally different from holding XLE or XLF.
+
+### What was considered and deferred
+
+**Strategy Authorization Engine** — a governance layer that would authorize specific operating modes per instrument (Standard Wheel, Tactical Premium, Controlled Experiment, etc.).
+
+This was discussed and intentionally **parked** because:
+- Only one counterexample (SOXS) has emerged
+- A strategy taxonomy doesn't exist in the domain model
+- Authorization requires formalized strategy definitions that haven't been earned
+- The project methodology requires multiple data points before formalizing new architecture
+
+### What was earned
+
+**ProductStructure** — a factual classification value object representing structural characteristics of an instrument that affect how it behaves as an options underlying.
+
+```typescript
+interface ProductStructure {
+  leveraged: boolean;
+  leverageMultiple: number | null;  // 2, 3
+  inverse: boolean;
+  dailyReset: boolean;
+  activelyManaged: boolean;
+  singleStock: boolean;
+  commodityBacked: boolean;
+  fixedIncome: boolean;
+}
+```
+
+This is facts about the instrument — not judgments about what you're allowed to do with it.
+
+### The corrected model
+
+```
+Old implicit model:
+    Admitted → assignable → wheelable
+
+SOXS counterexample:
+    Market-quality admissible ≠ structurally suitable for passive assignment
+
+Corrected model:
+    Candidate Universe
+        ↓
+    Product Structure enrichment (facts)
+        ↓
+    Velvet Rope policy evaluation (including structural criteria)
+        ↓
+    Opportunity Lab
+```
+
+### Policy posture for structural concerns
+
+Rather than hard exclusion rules (`excludeLeveraged: true`), the initial posture should be conservative interpretation:
+
+```
+leveraged + inverse + daily reset
+    → structural caution
+    → manual_review (not reject)
+    → "assignment suitability unresolved" in the narrative
+```
+
+This lets the system surface evidence without pretending the policy question is settled. The operator can still override for controlled experiments.
+
+### The real acceptance test
+
+The advancement is NOT "SOXS gets rejected."
+
+It is: **Velvet Rope no longer evaluates SOXS as though it were structurally equivalent to XLE.**
+
+That distinction — between healthy market quality and assignment suitability — is the earned insight.
+
+### Parking lot: Strategy Authorization
+
+The following concept is recorded as a future architectural hypothesis, not an implementation target:
+
+- Per-instrument authorized operating modes (Standard Wheel, Tactical Premium, Research Only)
+- Strategy taxonomy
+- Strategy-specific policy evaluation
+- Contract selection conditioned on authorized strategy
+
+**When to revisit:** when 3+ instruments demonstrate that ProductStructure + manual_review is insufficient — i.e., when the operator repeatedly needs to make the *same* governance decision about structurally similar instruments and wishes the system had formalized it.
+
+### Methodology note
+
+This is the ninth instance of working software revealing the next question:
+
+1. CSV import → parser classification
+2. Explanation panel → Mechanics vs Participation
+3. Delta dropdown → policy as evidence-generating
+4. Capability accumulation → instrument boundaries
+5. Scenario replay → state transitions as object of study
+6. Velvet Rope evaluation → measurement method matters more than thresholds
+7. SCHD + XLK evidence → the unit of observation is the research question
+8. SEC Explorer use → no single reference data source is complete
+9. SOXS evaluation → **product structure must be classified before assignment suitability can be judged**
+
+### Decision
+
+Implement ProductStructure as enrichment in the next slice. Allow Velvet Rope to explain and react to structural facts conservatively. Do not build strategy authorization yet.

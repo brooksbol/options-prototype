@@ -72,7 +72,7 @@ No single provider covers all needs. The architecture should consume multiple so
 ### Provider Roles (Conceptual)
 
 ```
-SEC                  → "What securities exist?"
+SEC                  → "What SEC-reporting securities exist?" (NOT complete for ETFs)
 API Ninjas / FMP     → "What ETF metadata can we obtain programmatically?"
 Tradier              → "Does this ETF have listed options?"
 ETFdb / Yahoo        → "Human validation and completeness benchmark"
@@ -120,6 +120,33 @@ The first reference data source is now operational.
 - **Status:** Working. Experiment 003 active.
 
 This validates that the SEC catalog serves as useful reference data for Discovery even without automated classification. The operator's domain knowledge substitutes for what the data doesn't provide.
+
+### Critical Boundary Discovery (Experiment 004, July 2026)
+
+**The SEC dataset is NOT a complete exchange-traded instrument catalog.**
+
+Evidence: XLE, SPY, SCHD (major, highly-liquid ETFs) are systematically absent. Newer crypto ETFs (QETH, BRRR) are present.
+
+The population appears to depend on SEC EDGAR filing structure (CIK-based), not on exchange listing. This means:
+
+- The SEC Explorer is useful for what it **does** contain (companies, newer ETPs)
+- It is **not** suitable as the sole reference data source for ETF Discovery
+- Multi-provider Reference Data is architecturally necessary, not merely nice-to-have
+
+**Provider assessment updated:**
+
+| Provider | Role | Completeness for ETFs |
+|----------|------|----------------------|
+| SEC `company_tickers_exchange.json` | Identity + some ETPs | **Incomplete** — many major ETFs missing |
+| API Ninjas `/v1/etf` | Single-ticker lookup | Appears complete (SPY, XLE respond) |
+| API Ninjas `/v1/etflist` | Full enumeration | Unknown (requires paid tier) |
+| FMP `/stable/profile` | Single-symbol rich profile + `isEtf` flag | **Excellent** — SPY, XLE, SCHD, QQQ, TLT, QETH all present |
+| FMP `/stable/search-*` | Name/symbol search | Works on current plan |
+| FMP `/stable/etf-list` | Full ETF enumeration | Paywalled (402) |
+| Tradier | Options verification | Appears complete for optionable securities |
+| ETFdb | Human reference | Appears comprehensive |
+
+**Architectural implication:** Discovery must consume multiple catalogs. No single provider is authoritative. The union (or intersection) of providers may be needed depending on use case.
 
 ---
 
