@@ -16,6 +16,7 @@ import { RecommendationLab } from "./components/RecommendationLab";
 import { CsvImportLab } from "./components/CsvImportLab";
 import { OpportunityLab } from "./components/OpportunityLab";
 import { ScenarioReplay } from "./components/ScenarioReplay";
+import { EtfCatalogExplorer } from "./components/EtfCatalogExplorer";
 import { loadWorkspace, updateWorkspace } from "./workspace/workspace";
 import "./App.css";
 
@@ -28,7 +29,7 @@ import "./App.css";
  *   - Massive API: real provider data spike
  */
 
-type ViewMode = "laboratory" | "reference" | "recommendation" | "opportunity" | "csvimport" | "massive" | "scenario";
+type ViewMode = "laboratory" | "reference" | "recommendation" | "opportunity" | "csvimport" | "massive" | "scenario" | "etfcatalog";
 
 const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
   "PreferOTM",
@@ -41,7 +42,7 @@ function App() {
   const [view, setView] = useState<ViewMode>(() => {
     const ws = loadWorkspace();
     const saved = ws.activeTab as ViewMode;
-    if (["laboratory", "reference", "recommendation", "opportunity", "csvimport", "massive", "scenario"].includes(saved)) return saved;
+    if (["laboratory", "reference", "recommendation", "opportunity", "csvimport", "massive", "scenario", "etfcatalog"].includes(saved)) return saved;
     return "recommendation";
   });
 
@@ -102,6 +103,12 @@ function App() {
             Scenario Replay
           </button>
           <button
+            className={`tab-btn ${view === "etfcatalog" ? "tab-active" : ""}`}
+            onClick={() => changeView("etfcatalog")}
+          >
+            ETF Catalog
+          </button>
+          <button
             className={`tab-btn ${view === "massive" ? "tab-active" : ""}`}
             onClick={() => changeView("massive")}
           >
@@ -122,6 +129,8 @@ function App() {
         <CsvImportLab />
       ) : view === "scenario" ? (
         <ScenarioReplay />
+      ) : view === "etfcatalog" ? (
+        <EtfCatalogExplorer />
       ) : (
       <div className="console-layout">
         <aside className="console-sidebar">

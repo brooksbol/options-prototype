@@ -1684,3 +1684,108 @@ Specifically:
 - Which rejected symbols become interesting "near misses" worth watching?
 - When does volume become stable enough to promote from observational to soft?
 - What triggers the eventual cutover from legacy_curated to velvet_rope?
+
+---
+
+## 2026-07-13 — Engineering Spike: API Ninjas ETF Catalog Provider
+
+### Why this was prioritized before Velvet Rope implementation
+
+The Velvet Rope design assumes an ETF catalog exists. Before building admission logic that depends on catalog data, we needed to retire the integration risk: does API Ninjas actually work, what does it provide, and what does it cost?
+
+Principle: **retire data-integration risk before building dependent automation.**
+
+### What we learned
+
+1. **Authentication works.** The free-tier key successfully authenticates.
+
+2. **The free tier is severely limited for our use case.** Only single-ticker lookup is available. Premium fields (price, AUM, expense ratio, holdings) return placeholder strings instead of values.
+
+3. **Universe enumeration and search require a paid subscription** (Business/Professional/Annual — estimated $20-50/month). These are the endpoints needed for Discovery.
+
+4. **Critical fields are missing at any tier:** category/sector, issuer, leveraged/inverse flags, options availability, share volume. Leveraged/inverse can be inferred from names but not authoritatively.
+
+5. **No rate-limit feedback.** Unlike Tradier, API Ninjas doesn't return rate-limit headers. Quota enforcement is opaque.
+
+6. **CORS is permissive** (`allow-origin: *`) — browser calls work without a proxy.
+
+7. **Response time is ~1 second** per call — full enumeration of thousands of ETFs would require significant crawl time.
+
+### Suitability verdict
+
+- **For Velvet Rope first slice:** Not needed. The first slice evaluates a known 16-symbol registry using Tradier market data.
+- **For future Discovery Engine:** Conditionally viable. Requires paid tier. Would provide the enumeration capability but lacks options-availability data (must cross-reference with Tradier).
+- **For immediate prototype use:** Minimally useful. Tradier already provides everything needed for the current workflow.
+
+### Decision
+
+Proceed with Velvet Rope implementation using Tradier as the sole data source. API Ninjas subscription upgrade deferred until Discovery workstream begins. The spike has quantified the cost, capability, and limitations — no remaining unknowns.
+
+### Documentation
+
+Full findings in `docs/engineering-spikes/api-ninjas-etf-catalog.md`.
+
+---
+
+## 2026-07-13 — Architectural Refinement: Discovery Consumes Reference Data
+
+### Origin
+
+While researching ETF catalog providers (API Ninjas, Finnhub, FMP, SEC, ETFdb), we noticed that the original model of "Discovery finds ETFs" was incomplete.
+
+### Original model
+
+```
+API Provider → Discovery → Velvet Rope
+```
+
+### Refined model
+
+```
+Reference Data Sources → Canonical ETF Catalog → Discovery → Velvet Rope → Opportunity Lab
+```
+
+### Key insight
+
+Discovery is a **consumer** of canonical ETF reference data, not the **owner** of ETF identity.
+
+ETF identity (symbol, name, ISIN, exchange, product type) is reference data that:
+- Changes slowly (months/years)
+- Comes from authoritative sources (SEC, exchanges)
+- Should not be conflated with the faster-moving concerns of Discovery, admission, or evaluation
+
+### Different providers serve different roles
+
+- **SEC** answers: "What securities exist?"
+- **API Ninjas / FMP** answer: "What ETF metadata can we obtain programmatically?"
+- **Tradier** answers: "Does this ETF have listed options?"
+- **ETFdb / Yahoo** answer: "Human validation and completeness benchmark"
+
+No single provider replaces the others. The architecture should be multi-source.
+
+### Lifecycle separation observed
+
+| Concern | Lifecycle |
+|---------|-----------|
+| Reference Data | Months/years |
+| Discovery | Days/weeks |
+| Velvet Rope | Minutes/hours |
+| Opportunity Lab | Seconds/minutes |
+
+These are fundamentally different cadences. The architecture should preserve these distinctions without prematurely formalizing them into separate bounded contexts.
+
+### Emerging question: is Reference Data a bounded context?
+
+Possibly. But per project methodology, do not introduce a new bounded context until working software demonstrates the need. For now, document the conceptual distinction and let Discovery consume reference data directly.
+
+### Decision
+
+- Document this refinement in `docs/discovery/00-design-notes.md`
+- Do not introduce a Reference Data bounded context yet
+- Do not implement Discovery yet
+- Proceed with Velvet Rope first slice (which uses Tradier market data against a known registry)
+- When Discovery workstream begins, architect it as a catalog consumer, not a catalog owner
+
+### Relationship to prior learning
+
+This follows the same pattern observed throughout the project: the architecture evolves through successive refinement driven by research and interaction, not through upfront design. Each investigation (API Ninjas spike, provider research) reveals a more accurate decomposition.

@@ -619,6 +619,7 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 ### Universe Discovery (Crawler)
 
 - Automated ETF universe scanning via API Ninjas or similar
+- **Spike completed:** API Ninjas proven viable but requires Business+ subscription ($20-50/mo) for enumeration/search. See `docs/engineering-spikes/api-ninjas-etf-catalog.md`
 - Incremental crawl strategy with rate-limit budget
 - Re-evaluation scheduling
 - Candidate notification ("new ETF passed the Velvet Rope")

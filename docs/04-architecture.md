@@ -409,6 +409,8 @@ Determines which ETFs are admitted into the institutional universe for further e
 
 **Status:** Requirements and design complete. First slice ready for implementation.
 
+**Architectural note (July 2026):** Discovery (future) will consume a canonical ETF reference catalog from external providers rather than owning ETF identity. Reference Data may eventually emerge as a distinct bounded context. See `docs/discovery/00-design-notes.md`.
+
 ### 4. Scenario Replay (State Transition Laboratory)
 
 Document-driven temporal overlay laboratory. Exercises the causal chain from activity documents to portfolio state to overlay feasibility.
