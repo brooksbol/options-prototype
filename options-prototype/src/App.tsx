@@ -15,6 +15,7 @@ import { ReferenceDataView } from "./components/ReferenceDataView";
 import { RecommendationLab } from "./components/RecommendationLab";
 import { CsvImportLab } from "./components/CsvImportLab";
 import { OpportunityLab } from "./components/OpportunityLab";
+import { ScenarioReplay } from "./components/ScenarioReplay";
 import { loadWorkspace, updateWorkspace } from "./workspace/workspace";
 import "./App.css";
 
@@ -27,7 +28,7 @@ import "./App.css";
  *   - Massive API: real provider data spike
  */
 
-type ViewMode = "laboratory" | "reference" | "recommendation" | "opportunity" | "csvimport" | "massive";
+type ViewMode = "laboratory" | "reference" | "recommendation" | "opportunity" | "csvimport" | "massive" | "scenario";
 
 const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
   "PreferOTM",
@@ -40,7 +41,7 @@ function App() {
   const [view, setView] = useState<ViewMode>(() => {
     const ws = loadWorkspace();
     const saved = ws.activeTab as ViewMode;
-    if (["laboratory", "reference", "recommendation", "opportunity", "csvimport", "massive"].includes(saved)) return saved;
+    if (["laboratory", "reference", "recommendation", "opportunity", "csvimport", "massive", "scenario"].includes(saved)) return saved;
     return "recommendation";
   });
 
@@ -95,6 +96,12 @@ function App() {
             CSV Import Lab
           </button>
           <button
+            className={`tab-btn ${view === "scenario" ? "tab-active" : ""}`}
+            onClick={() => changeView("scenario")}
+          >
+            Scenario Replay
+          </button>
+          <button
             className={`tab-btn ${view === "massive" ? "tab-active" : ""}`}
             onClick={() => changeView("massive")}
           >
@@ -113,6 +120,8 @@ function App() {
         <OpportunityLab onSelectSymbol={() => changeView("recommendation")} />
       ) : view === "csvimport" ? (
         <CsvImportLab />
+      ) : view === "scenario" ? (
+        <ScenarioReplay />
       ) : (
       <div className="console-layout">
         <aside className="console-sidebar">

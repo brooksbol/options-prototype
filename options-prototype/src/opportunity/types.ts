@@ -57,12 +57,16 @@ export interface OpportunityRow {
   nearestDte: number | null;
   /** Delta of the contract closest to target delta (call side) */
   callDelta: number | null;
+  /** Strike of the selected call contract */
+  callStrike: number | null;
   /** Estimated mid price at target delta (call side) */
   callMid: number | null;
   /** Estimated annualized yield at target delta (call side) */
   callYield: number | null;
   /** Delta of the contract closest to target delta (put side) */
   putDelta: number | null;
+  /** Strike of the selected put contract */
+  putStrike: number | null;
   /** Estimated mid price at target delta (put side) */
   putMid: number | null;
   /** Estimated annualized yield at target delta (put side) */
@@ -75,6 +79,8 @@ export interface OpportunityRow {
   greeksAvailable: boolean;
   /** Implied volatility at target delta (average of call + put if both available) */
   iv: number | null;
+  /** Volume of the selected target-delta contracts (call + put combined) */
+  volume: number | null;
   /** Data source for this row */
   dataSource: "api" | "cache" | "unavailable";
 }
@@ -88,10 +94,16 @@ export interface OpportunityPolicy {
   minYieldThreshold: number;
   /** Maximum capital per contract (eligibility gate) */
   maxCapitalPerContract: number | null;
+  /** Minimum DTE for expiration selection */
+  minDte: number;
+  /** Maximum DTE for expiration selection (null = no upper bound) */
+  maxDte: number | null;
 }
 
 export const DEFAULT_OPPORTUNITY_POLICY: OpportunityPolicy = {
   targetDelta: 0.30,
   minYieldThreshold: 8.0, // 8% annualized minimum to be "interesting"
   maxCapitalPerContract: null, // no cap by default
+  minDte: 3,
+  maxDte: null, // no upper bound by default — picks nearest available
 };

@@ -48,6 +48,7 @@ export interface Workspace {
 
   // Opportunity Lab
   opportunityTargetDelta: number;
+  opportunityMaxDte: number | null;
 }
 
 const DEFAULT_WORKSPACE: Workspace = {
@@ -68,6 +69,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   chainStrikesCount: 10,
   chainMaxDte: 45,
   opportunityTargetDelta: 0.30,
+  opportunityMaxDte: null,
 };
 
 /**

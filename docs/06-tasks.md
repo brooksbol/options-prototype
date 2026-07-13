@@ -387,3 +387,277 @@ All tasks complete when:
 - `npm run dev` serves the application without errors.
 - All 6 user stories are manually verifiable.
 - No TypeScript compilation errors (`npx tsc --noEmit`).
+
+
+---
+
+## Velvet Rope — First Slice Tasks
+
+### Status: Ready for implementation
+
+Requirements: `docs/velvet-rope/01-requirements.md`
+Design: `docs/velvet-rope/02-design.md`
+Domain model: `docs/velvet-rope/00-domain-model.md`
+
+---
+
+### Phase VR-1: Domain Types and Policy
+
+#### VR-T01: Implement Velvet Rope domain types
+
+**Produces:** `src/velvet-rope/types.ts`
+
+**Steps:**
+1. Implement all types from `00-domain-model.md`: UniverseMember, AdmissionAuditRecord, EvaluationAttemptStatus, AdmissionOutcome, OperatorDisposition, EffectiveStatus, EvidenceProvenance, ExpirationSelectionResult, OptionSideEvidence, ContractEvidence, ContractSelectionStatus, CriterionResult, AdmissionPolicy, PolicyCriterion, ContractSelectionPolicy, EvaluationRun, VelvetRopeState.
+2. Verify TypeScript compiles.
+
+**Verification:** `npx tsc --noEmit` passes.
+
+**Traceability:** VR-1, VR-2, VR-10, VR-11, VR-12.
+
+---
+
+#### VR-T02: Implement default admission policy
+
+**Produces:** `src/velvet-rope/policy.ts`
+
+**Steps:**
+1. Define DEFAULT_ADMISSION_POLICY constant per design doc.
+2. Export policy creation utility (version stamping).
+
+**Verification:** TypeScript compiles. Policy importable.
+
+**Traceability:** VR-2, VR-3, VR-19.
+
+---
+
+### Phase VR-2: Evaluation Pipeline
+
+#### VR-T03: Implement expiration selection
+
+**Produces:** `selectExpiration()` in `src/velvet-rope/evaluate.ts`
+
+**Steps:**
+1. Filter expirations by policy DTE range.
+2. Pick longest within range (same logic as Opportunity Lab DTE behavior).
+3. Return ExpirationSelectionResult.
+
+**Verification:** Unit tests with various expiration lists.
+
+**Traceability:** VR-5 (step 1).
+
+---
+
+#### VR-T04: Implement contract selection for admission
+
+**Produces:** `selectAdmissionContract()` in `src/velvet-rope/evaluate.ts`
+
+**Steps:**
+1. Filter contracts: exclude zero-bid, exclude no-greeks (when policy requires).
+2. Apply delta range bounds from ContractSelectionPolicy.
+3. Reuse `findClosestToDelta` with policy tie-breaker.
+4. Return selected contract or appropriate selection status.
+
+**Verification:** Unit tests for each failure mode (no_contract_in_delta_range, greeks_unavailable, no_valid_quotes).
+
+**Traceability:** VR-5 (steps 3-4), VR-6.
+
+---
+
+#### VR-T05: Implement per-side criteria evaluation
+
+**Produces:** `evaluatePerSideCriteria()` in `src/velvet-rope/evaluate.ts`
+
+**Steps:**
+1. Evaluate OI, volume (observational), spread, yield against policy thresholds.
+2. Apply near-miss detection.
+3. Return CriterionResult[].
+
+**Verification:** Unit tests for pass, fail, near-miss, and observational outcomes.
+
+**Traceability:** VR-5 (step 5), VR-7, VR-8, VR-19.
+
+---
+
+#### VR-T06: Implement cross-side criteria and aggregation
+
+**Produces:** `evaluateCrossSideCriteria()` and `aggregateOutcome()` in `src/velvet-rope/aggregate.ts`
+
+**Steps:**
+1. Evaluate capital and greeks criteria.
+2. Implement aggregation rules: hard fail → reject, evidence gap → insufficient, near-miss → manual_review, all pass → admit.
+3. Apply sideRequirement logic.
+
+**Verification:** Unit tests for each outcome path. SPY fixture (passes market quality, fails capital).
+
+**Traceability:** VR-5 (steps 6-7), VR-7, VR-8.
+
+---
+
+#### VR-T07: Implement full evaluateSymbol pipeline
+
+**Produces:** `evaluateSymbol()` in `src/velvet-rope/evaluate.ts`
+
+**Steps:**
+1. Compose expiration selection → chain fetch → contract selection → criteria → aggregation.
+2. Create AdmissionAuditRecord with complete snapshots.
+3. Handle provider failure: return audit record with attemptStatus "provider_failed".
+4. Handle evidence gaps: return audit record with attemptStatus "evidence_incomplete".
+
+**Verification:** Integration tests using mock provider. Test provider failure non-overwrite semantics.
+
+**Traceability:** VR-4, VR-5, VR-9, VR-10, VR-11.
+
+---
+
+### Phase VR-3: Registry and Audit
+
+#### VR-T08: Implement registry operations
+
+**Produces:** `src/velvet-rope/registry.ts`
+
+**Steps:**
+1. Bootstrap: create 16 UniverseMembers from curated list + SPY.
+2. Effective status derivation from audit records + operator disposition.
+3. Stale detection (policy version comparison).
+4. Operator override application.
+5. Universe comparison (legacy vs. velvet rope).
+
+**Verification:** Unit tests for derivation rules, override precedence, stale detection.
+
+**Traceability:** VR-1, VR-12, VR-13, VR-14, VR-15.
+
+---
+
+#### VR-T09: Implement audit operations
+
+**Produces:** `src/velvet-rope/audit.ts`
+
+**Steps:**
+1. Create audit record (append to history).
+2. Query: latest successful evaluation per symbol.
+3. Query: latest attempt per symbol.
+4. Query: all records for a symbol (for audit view).
+5. Query: all records (filterable by outcome, status, symbol).
+
+**Verification:** Unit tests for query correctness, especially provider_failed non-overwrite.
+
+**Traceability:** VR-10, VR-11, VR-21.
+
+---
+
+#### VR-T10: Implement persistence
+
+**Produces:** `src/velvet-rope/persistence.ts`
+
+**Steps:**
+1. Implement VelvetRopeStore interface.
+2. LocalStorageVelvetRopeStore: load/save with schema version.
+3. Initialize from persisted state or bootstrap fresh.
+
+**Verification:** Unit test: save → load roundtrip preserves state.
+
+**Traceability:** VR-18.
+
+---
+
+### Phase VR-4: Page and Integration
+
+#### VR-T11: Build Velvet Rope page component
+
+**Produces:** `src/components/VelvetRope.tsx` and sub-components
+
+**Steps:**
+1. Registry section: member table, status badges, universe comparison.
+2. Audit section: filterable history table.
+3. Policy section: policy display, staleness, evaluate button.
+4. Expanded detail per symbol: full criteria breakdown, call/put evidence.
+5. Progressive evaluation display.
+6. Operator override UI.
+
+**Verification:** Manual interaction verification. Meets page information architecture from design doc.
+
+**Traceability:** VR-20, VR-21, VR-4, VR-13, VR-15.
+
+---
+
+#### VR-T12: Wire into App.tsx
+
+**Produces:** "Velvet Rope" tab in navigation.
+
+**Steps:**
+1. Add "velvetrope" to ViewMode union.
+2. Add tab button.
+3. Add view switch rendering.
+4. Persist activeTab to workspace.
+
+**Verification:** Tab navigable, persists across reloads.
+
+**Traceability:** VR-16 (parallel observation, not cutover).
+
+---
+
+#### VR-T13: Final verification
+
+**Produces:** Clean build.
+
+**Steps:**
+1. TypeScript passes (`npx tsc --noEmit`).
+2. All existing tests pass (338+).
+3. All new Velvet Rope tests pass.
+4. Production build succeeds (`npm run build`).
+5. Manual walkthrough of acceptance criteria.
+
+**Verification:** All 13 acceptance criteria from requirements doc satisfied.
+
+**Traceability:** All VR requirements.
+
+---
+
+## Deferred Workstreams
+
+### Universe Discovery (Crawler)
+
+- Automated ETF universe scanning via API Ninjas or similar
+- Incremental crawl strategy with rate-limit budget
+- Re-evaluation scheduling
+- Candidate notification ("new ETF passed the Velvet Rope")
+- Watch/Suspended/Revoked lifecycle states
+- Rolling-average observation criteria
+
+**Prerequisite:** Velvet Rope first slice proven useful through operator interaction.
+
+---
+
+### Opportunity Lab Cutover
+
+- Replace `CURATED_UNIVERSE` constant with registry query
+- UniverseSource switch from "legacy_curated" to "velvet_rope"
+- Reversible cutover mechanism
+- Validation: Opportunity Lab behavior unchanged for admitted symbols
+
+**Prerequisite:** Velvet Rope effective universe demonstrates credible behavior over multiple evaluation cycles.
+
+---
+
+### Cloud / Multi-User Persistence
+
+- Workspace ownership model
+- Durable audit storage (not localStorage)
+- Multi-device access
+- Conflict resolution for concurrent edits
+- Authentication and authorization
+
+**Prerequisite:** Domain model stable. Separate architectural design required.
+
+---
+
+### Scenario Replay — Second Slice
+
+- Additional scenario chains (full ladder, simultaneous assignments, etc.)
+- Incremental ingestion mode
+- Position checkpoint reconciliation
+- Real user activity CSV upload through production pipeline
+- Recommendation integration with projected state
+
+**Prerequisite:** First scenario replay slice validated through use.

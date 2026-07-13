@@ -36,15 +36,18 @@ export async function evaluateSymbol(
     nearestExpiration: null,
     nearestDte: null,
     callDelta: null,
+    callStrike: null,
     callMid: null,
     callYield: null,
     putDelta: null,
+    putStrike: null,
     putMid: null,
     putYield: null,
     status: "data_missing",
     statusReason: "Awaiting data",
     greeksAvailable: false,
     iv: null,
+    volume: null,
     dataSource: "unavailable",
   };
 
@@ -55,9 +58,25 @@ export async function evaluateSymbol(
       return { ...baseRow, statusReason: "No expirations available" };
     }
 
-    // Use nearest expiration with DTE >= 3 (avoid expiring-today issues)
-    const usable = expirations.filter((e) => e.dte >= 3);
-    const nearest = usable[0] ?? expirations[0];
+    // Select the best expiration for the policy's DTE preference.
+    // If maxDte is set, find the expiration closest to it (targeting that timeframe).
+    // If maxDte is null (Any), pick the nearest usable expiration.
+    const usable = expirations.filter((e) => e.dte >= policy.minDte);
+    let nearest: typeof expirations[0];
+
+    if (policy.maxDte != null && usable.length > 0) {
+      // Find the expiration closest to maxDte (prefer within range, but allow nearest if none in range)
+      const inRange = usable.filter((e) => e.dte <= policy.maxDte!);
+      if (inRange.length > 0) {
+        // Pick the one closest to maxDte (i.e., the longest within range — most time value)
+        nearest = inRange[inRange.length - 1];
+      } else {
+        // No expiration within range — fall back to the nearest usable
+        nearest = usable[0];
+      }
+    } else {
+      nearest = usable[0] ?? expirations[0];
+    }
 
     // Get chain
     const chain = await provider.getOptionsChain(symbol, nearest.date);
@@ -119,6 +138,11 @@ export function deriveOpportunityRow(
     ? (callIv + putIv) / 2
     : callIv ?? putIv;
 
+  // Volume of the selected contracts
+  const callVol = bestCall?.volume ?? 0;
+  const putVol = bestPut?.volume ?? 0;
+  const volume = (callVol + putVol) > 0 ? callVol + putVol : null;
+
   // Classify status
   const { status, reason } = classifyOpportunity(
     price, callYield, putYield, greeksAvailable, capitalPerContract, chain.calls.length + chain.puts.length, policy
@@ -132,15 +156,18 @@ export function deriveOpportunityRow(
     nearestExpiration: expirationDate,
     nearestDte: dte,
     callDelta: bestCall?.delta ?? null,
+    callStrike: bestCall?.strike ?? null,
     callMid,
     callYield,
     putDelta: bestPut ? Math.abs(bestPut.delta) : null,
+    putStrike: bestPut?.strike ?? null,
     putMid,
     putYield,
     status,
     statusReason: reason,
     greeksAvailable,
     iv,
+    volume,
     dataSource: dataSource as "api" | "cache" | "unavailable",
   };
 }

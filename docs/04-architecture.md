@@ -369,3 +369,84 @@ Recent design discussions suggest the system may evolve toward a layered evaluat
 The preferred near-term engineering strategy is **consumer before producer**: teach the existing contract evaluation to consume richer evidence (portfolio constraints from Fidelity imports) before building upstream evaluation stages.
 
 This direction is documented in the Project Journal as an architectural hypothesis. It has not been committed as architecture because no implementation validates it yet.
+
+
+---
+
+## Bounded Contexts (Updated July 2026)
+
+The system has evolved beyond a single-context architecture. The following bounded contexts are now recognized:
+
+### 1. Options Evaluation (Original Slice 1)
+
+The original domain: option chain analysis, delta matching, yield calculation, policy evaluation.
+
+**Contains:** domain types, calculations, delta matching, MarketDataProvider interface, Engineering Laboratory, Recommendation Lab.
+
+**Owns:** OptionContract, OptionsChain, Underlying, Expiration.
+
+### 2. Opportunity Analysis
+
+Broad comparative evaluation of ETF underlyings under configurable policy.
+
+**Contains:** Opportunity Lab, evaluation/derivation logic, policy sweep, delta sweep, sparklines.
+
+**Owns:** OpportunityRow, OpportunityPolicy, policy response curves.
+
+**Consumes:** MarketDataProvider, domain calculations, delta matching.
+
+### 3. Universe Management (Velvet Rope)
+
+Determines which ETFs are admitted into the institutional universe for further evaluation.
+
+**Contains:** Admission policy, evaluation pipeline, registry, append-only audit, operator overrides.
+
+**Owns:** UniverseMember, AdmissionAuditRecord, AdmissionPolicy, EvaluationRun.
+
+**Consumes:** MarketDataProvider, delta matching (contract selection reuses findClosestToDelta).
+
+**Documentation:** `docs/velvet-rope/`
+
+**Status:** Requirements and design complete. First slice ready for implementation.
+
+### 4. Scenario Replay (State Transition Laboratory)
+
+Document-driven temporal overlay laboratory. Exercises the causal chain from activity documents to portfolio state to overlay feasibility.
+
+**Contains:** Activity parsing, state projection, scenario manifests, replay UI.
+
+**Owns:** ActivityRow, PortfolioState, ScenarioStep, EvaluationRun (replay).
+
+**Consumes:** CSV parsing infrastructure, domain calculations.
+
+### 5. CSV Import / Document Classification
+
+Classifies and parses brokerage documents (positions, activity, balances).
+
+**Contains:** Parser registry, Fidelity-specific parsers, document detection.
+
+**Owns:** CsvDocument, ParsedDocument, parser detection results.
+
+---
+
+## Context Relationships
+
+```
+Universe Management (Velvet Rope)
+        │
+        │ approved registry (future: supplies universe)
+        ▼
+Opportunity Analysis (Opportunity Lab)
+        │
+        │ selected symbol + policy
+        ▼
+Options Evaluation (Recommendation Lab / Contract Workbench)
+
+CSV Import ──► Scenario Replay ──► Portfolio State ──► Overlay Feasibility
+```
+
+---
+
+## Storage Note
+
+All bounded contexts currently use localStorage for prototype persistence. The domain models are storage-agnostic. A future cloud/multi-user workstream will provide durable persistence without requiring domain model changes.

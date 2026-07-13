@@ -99,6 +99,22 @@ Each actor completes before the next begins. No actor may exceed its responsibil
 
 ---
 
+## Architectural Evolution (Updated July 2026)
+
+Through continued interaction with working software, the system has evolved from a single-context screening tool into a multi-context platform with distinct bounded contexts:
+
+- **Options Evaluation** — contract-level analysis (original Slice 1)
+- **Opportunity Analysis** — policy-shaped comparative evaluation across the ETF universe
+- **Universe Management (Velvet Rope)** — admission policy, registry, and institutional audit determining which ETFs enter the evaluation universe
+- **Scenario Replay** — document-driven state transition laboratory for overlay lifecycle observation
+- **CSV Import** — brokerage document classification and parsing
+
+See `docs/04-architecture.md` (Bounded Contexts section) for full context map.
+
+Key principle preserved throughout evolution: **History refines operation, not prophecy.** The system uses evidence to improve overlay operation — not to predict markets.
+
+---
+
 ## Roadmap
 
 | Phase | Focus | Status |
@@ -108,9 +124,13 @@ Each actor completes before the next begins. No actor may exceed its responsibil
 | Engineering Lab | Interactive probes, decision narrative, visual regions | Complete |
 | Evidence Layer | Fidelity CSV parsers (Option Summary, Positions, Activity) | Complete |
 | Recommendation | Recommendation Lab with separate call/put delta, evidence window | Complete |
-| Evidence Integration | Connect portfolio evidence to contract evaluation (constraints) | Next |
-| Opportunity Scanner | Multi-symbol daily screening | Future (hypothesis) |
-| Upstream Evaluation | Eligibility, suitability layers | Future (hypothesis) |
+| Opportunity Lab | Multi-symbol policy-based opportunity radar | Complete |
+| Scenario Replay | Document-driven state transition laboratory | Complete (first slice) |
+| Universe Management | Velvet Rope admission policy, registry, audit | Ready for implementation |
+| Evidence Integration | Connect portfolio evidence to contract evaluation (constraints) | Future |
+| Opportunity Lab Cutover | Replace curated universe with Velvet Rope registry | Future (after VR proven) |
+| Discovery Engine | Automated broad-universe ETF crawling | Future |
+| Cloud / Multi-User | Durable persistence, workspace ownership | Future (separate workstream) |
 
 Each phase produces independently deployable working software.
 

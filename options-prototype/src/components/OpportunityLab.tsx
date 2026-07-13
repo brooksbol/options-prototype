@@ -9,7 +9,7 @@
  * so the user sees results immediately rather than waiting for all 15.
  */
 
-import { useState, useEffect, useMemo, useCallback, Fragment } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { TradierProvider } from "../providers/tradier/TradierProvider";
 import { MockMarketDataProvider } from "../providers/mock/MockMarketDataProvider";
 import { isTradierConfigured, requireTradierConfig } from "../config/tradier";
@@ -34,6 +34,19 @@ function getProvider(key: string): MarketDataProvider {
   return providerInstances[key];
 }
 
+// --- Scan result cache (survives unmount/remount, not page reload) ---
+
+interface ScanCache {
+  targetDelta: number;
+  maxDte: number | null;
+  rows: OpportunityRow[];
+  sparklines: Map<string, PolicyResponsePoint[]>;
+  timestamp: number;
+}
+
+let lastScanCache: ScanCache | null = null;
+const SCAN_CACHE_TTL_MS = 60 * 1000; // 60 seconds — matches provider TTL
+
 // --- Sort types ---
 
 type SortKey =
@@ -46,6 +59,7 @@ type SortKey =
   | "callDelta"
   | "putDelta"
   | "iv"
+  | "volume"
   | "status";
 
 type SortDir = "asc" | "desc";
@@ -97,6 +111,10 @@ function compareRows(a: OpportunityRow, b: OpportunityRow, key: SortKey, dir: So
     case "iv":
       av = a.iv;
       bv = b.iv;
+      break;
+    case "volume":
+      av = a.volume;
+      bv = b.volume;
       break;
     case "status":
       av = STATUS_ORDER[a.status] ?? 9;
@@ -253,19 +271,27 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
   const providerKey = isTradierConfigured() ? "tradier" : "mock";
   const provider = useMemo(() => getProvider(providerKey), [providerKey]);
 
-  const [rows, setRows] = useState<OpportunityRow[]>([]);
-  const [scanProgress, setScanProgress] = useState(0);
-  const [scanning, setScanning] = useState(true);
+  // Check if we have a valid cached scan for this delta (survives tab navigation)
+  const cachedScan = lastScanCache && lastScanCache.targetDelta === (ws.opportunityTargetDelta ?? DEFAULT_OPPORTUNITY_POLICY.targetDelta) && lastScanCache.maxDte === (ws.opportunityMaxDte ?? DEFAULT_OPPORTUNITY_POLICY.maxDte) && (Date.now() - lastScanCache.timestamp) < SCAN_CACHE_TTL_MS ? lastScanCache : null;
+
+  const [rows, setRows] = useState<OpportunityRow[]>(cachedScan?.rows ?? []);
+  const [scanProgress, setScanProgress] = useState(cachedScan ? CURATED_UNIVERSE.length : 0);
+  const [scanning, setScanning] = useState(!cachedScan);
   const [cacheStats, setCacheStats] = useState<CacheStats>({ hits: 0, misses: 0, size: 0, apiCalls: 0, rateLimitUsed: null, rateLimitAvailable: null, rateLimitAllowed: null });
   const [scanCacheDelta, setScanCacheDelta] = useState<{ hits: number; misses: number; apiCalls: number }>({ hits: 0, misses: 0, apiCalls: 0 });
 
   // Target delta — persisted to workspace
   const [targetDelta, setTargetDelta] = useState<number>(ws.opportunityTargetDelta ?? DEFAULT_OPPORTUNITY_POLICY.targetDelta);
 
+  // DTE range — persisted to workspace (null = nearest available)
+  const [maxDte, setMaxDte] = useState<number | null>(ws.opportunityMaxDte ?? DEFAULT_OPPORTUNITY_POLICY.maxDte);
+
   const policy = useMemo<OpportunityPolicy>(() => ({
     ...DEFAULT_OPPORTUNITY_POLICY,
     targetDelta,
-  }), [targetDelta]);
+    minDte: 3,
+    maxDte,
+  }), [targetDelta, maxDte]);
 
   const handleDeltaChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = parseFloat(e.target.value);
@@ -273,12 +299,20 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
     updateWorkspace({ opportunityTargetDelta: val });
   }, []);
 
-  // Sort state
-  const [sortKey, setSortKey] = useState<SortKey>("status");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const handleDteChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value === "any" ? null : parseInt(e.target.value, 10);
+    setMaxDte(val);
+    updateWorkspace({ opportunityMaxDte: val });
+  }, []);
+
+  // Sort state — independent for each table
+  const [callSortKey, setCallSortKey] = useState<SortKey>("callYield");
+  const [callSortDir, setCallSortDir] = useState<SortDir>("desc");
+  const [putSortKey, setPutSortKey] = useState<SortKey>("putYield");
+  const [putSortDir, setPutSortDir] = useState<SortDir>("desc");
 
   // Sparkline data — sweep yields for every row (computed after scan from cache)
-  const [sparklineMap, setSparklineMap] = useState<Map<string, PolicyResponsePoint[]>>(new Map());
+  const [sparklineMap, setSparklineMap] = useState<Map<string, PolicyResponsePoint[]>>(cachedScan?.sparklines ?? new Map());
 
   // Expanded rows (for inline evidence panels — multiple allowed for comparison)
   const [expandedSymbols, setExpandedSymbols] = useState<Set<string>>(new Set());
@@ -326,7 +360,17 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
   // Progressive fetch: rows stream in as each symbol is evaluated.
   // Uses a local `cancelled` variable per effect invocation to handle
   // React strict mode double-mount without duplicate rows.
+  // Skips entirely if module-level scan cache is valid for this policy.
   useEffect(() => {
+    // If cached results are still valid, skip the scan
+    if (lastScanCache && lastScanCache.targetDelta === policy.targetDelta && lastScanCache.maxDte === policy.maxDte && (Date.now() - lastScanCache.timestamp) < SCAN_CACHE_TTL_MS) {
+      setRows(lastScanCache.rows);
+      setSparklineMap(lastScanCache.sparklines);
+      setScanProgress(CURATED_UNIVERSE.length);
+      setScanning(false);
+      return;
+    }
+
     let cancelled = false;
     setRows([]);
     setScanProgress(0);
@@ -341,13 +385,15 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
       if (cancelled) return;
 
       // Evaluate each symbol sequentially, streaming results
+      const results: OpportunityRow[] = [];
       for (let i = 0; i < CURATED_UNIVERSE.length; i++) {
         if (cancelled) return;
         const symbol = CURATED_UNIVERSE[i];
         const row = await evaluateSymbol(symbol, provider, policy);
         if (cancelled) return;
 
-        setRows((prev) => [...prev, row]);
+        results.push(row);
+        setRows([...results]);
         setScanProgress(i + 1);
 
         const current = provider.getCacheStats();
@@ -359,7 +405,11 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
         });
       }
 
-      if (!cancelled) setScanning(false);
+      if (!cancelled) {
+        setScanning(false);
+        // Store in module-level cache (sparklines computed separately)
+        lastScanCache = { targetDelta: policy.targetDelta, maxDte: policy.maxDte, rows: results, sparklines: new Map(), timestamp: Date.now() };
+      }
     }
 
     loadAll();
@@ -369,6 +419,8 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
   // Compute sparkline sweeps for all rows once scan completes (all chains cached)
   useEffect(() => {
     if (scanning || rows.length === 0) return;
+    // Skip if sparklines already loaded from cache
+    if (sparklineMap.size === rows.length) return;
 
     let cancelled = false;
 
@@ -381,7 +433,13 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
         if (cancelled) return;
         map.set(row.symbol, sweepDelta(chain, row.nearestDte));
       }
-      if (!cancelled) setSparklineMap(map);
+      if (!cancelled) {
+        setSparklineMap(map);
+        // Update module-level cache with sparklines
+        if (lastScanCache) {
+          lastScanCache.sparklines = map;
+        }
+      }
     }
 
     loadSparklines();
@@ -401,30 +459,55 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
     if (onSelectSymbol) onSelectSymbol(symbol);
   }, [onSelectSymbol, targetDelta]);
 
-  const handleSort = useCallback((key: SortKey) => {
-    setSortKey((prev) => {
+  const handleCallSort = useCallback((key: SortKey) => {
+    setCallSortKey((prev) => {
       if (prev === key) {
-        setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+        setCallSortDir((d) => (d === "asc" ? "desc" : "asc"));
         return key;
       }
-      const defaultDesc = key === "callYield" || key === "putYield" || key === "price" || key === "iv";
-      setSortDir(defaultDesc ? "desc" : "asc");
+      const defaultDesc = key === "callYield" || key === "putYield" || key === "price" || key === "iv" || key === "volume";
+      setCallSortDir(defaultDesc ? "desc" : "asc");
       return key;
     });
   }, []);
 
-  // Apply sort
-  const sorted = useMemo(() => {
-    return [...rows].sort((a, b) => compareRows(a, b, sortKey, sortDir));
-  }, [rows, sortKey, sortDir]);
+  const handlePutSort = useCallback((key: SortKey) => {
+    setPutSortKey((prev) => {
+      if (prev === key) {
+        setPutSortDir((d) => (d === "asc" ? "desc" : "asc"));
+        return key;
+      }
+      const defaultDesc = key === "callYield" || key === "putYield" || key === "price" || key === "iv" || key === "volume" || key === "capitalPerContract";
+      setPutSortDir(defaultDesc ? "desc" : "asc");
+      return key;
+    });
+  }, []);
+
+  // Apply sort — independent for each table
+  const callSorted = useMemo(() => {
+    return [...rows].sort((a, b) => compareRows(a, b, callSortKey, callSortDir));
+  }, [rows, callSortKey, callSortDir]);
+
+  const putSorted = useMemo(() => {
+    return [...rows].sort((a, b) => compareRows(a, b, putSortKey, putSortDir));
+  }, [rows, putSortKey, putSortDir]);
 
   const interestingCount = rows.filter((r) => r.status === "interesting").length;
   const monitorCount = rows.filter((r) => r.status === "monitor").length;
   const dataIssues = rows.filter((r) => r.status === "data_missing").length;
 
-  function sortIndicator(key: SortKey): string {
-    if (sortKey !== key) return "";
-    return sortDir === "asc" ? " ▲" : " ▼";
+  // Best yields for highlighting
+  const bestCallYield = rows.reduce((best, r) => r.callYield != null && r.callYield > best ? r.callYield : best, 0) || null;
+  const bestPutYield = rows.reduce((best, r) => r.putYield != null && r.putYield > best ? r.putYield : best, 0) || null;
+
+  function callSortIndicator(key: SortKey): string {
+    if (callSortKey !== key) return "";
+    return callSortDir === "asc" ? " ▲" : " ▼";
+  }
+
+  function putSortIndicator(key: SortKey): string {
+    if (putSortKey !== key) return "";
+    return putSortDir === "asc" ? " ▲" : " ▼";
   }
 
   return (
@@ -460,6 +543,22 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
                   <option value="0.45">0.45</option>
                   <option value="0.50">0.50</option>
                 </select>
+                | DTE:
+                <select
+                  className="opp-delta-select"
+                  value={maxDte == null ? "any" : String(maxDte)}
+                  onChange={handleDteChange}
+                  aria-label="Max DTE"
+                >
+                  <option value="7">&lt; 1 week</option>
+                  <option value="14">1–2 weeks</option>
+                  <option value="21">2–3 weeks</option>
+                  <option value="30">3–4 weeks</option>
+                  <option value="45">4–6 weeks</option>
+                  <option value="60">6–8 weeks</option>
+                  <option value="90">2–3 months</option>
+                  <option value="any">Any</option>
+                </select>
                 | Min yield: {policy.minYieldThreshold}%
               </span>
               <span className="opp-cache-stats">
@@ -475,183 +574,227 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
         </div>
       </header>
 
-      <div className="opp-table-wrap">
-        <table className="options-table opp-table">
-          <thead>
-            <tr>
-              <th className="opp-sortable" title="ETF ticker symbol" onClick={() => handleSort("symbol")}>Symbol{sortIndicator("symbol")}</th>
-              <th className="opp-sortable" title="Current underlying price (15-min delayed)" onClick={() => handleSort("price")}>Price{sortIndicator("price")}</th>
-              <th className="opp-sortable" title="Capital required for one cash-secured put contract (nearest ATM strike × 100)" onClick={() => handleSort("capitalPerContract")}>Capital/Contract{sortIndicator("capitalPerContract")}</th>
-              <th className="opp-sortable" title="Days to expiration for the nearest usable expiration (DTE ≥ 3)" onClick={() => handleSort("nearestDte")}>Nearest Exp{sortIndicator("nearestDte")}</th>
-              <th className="opp-sortable" title="Annualized yield at target delta for covered calls (premium ÷ underlying price, scaled to 365 days)" onClick={() => handleSort("callYield")}>Call Yield{sortIndicator("callYield")}</th>
-              <th className="opp-sortable" title="Annualized yield at target delta for cash-secured puts (premium ÷ strike, scaled to 365 days)" onClick={() => handleSort("putYield")}>Put Yield{sortIndicator("putYield")}</th>
-              <th className="opp-sortable" title="Delta of the call contract closest to the target delta" onClick={() => handleSort("callDelta")}>Call Δ{sortIndicator("callDelta")}</th>
-              <th className="opp-sortable" title="Delta of the put contract closest to the target delta (shown as absolute value)" onClick={() => handleSort("putDelta")}>Put Δ{sortIndicator("putDelta")}</th>
-              <th className="opp-sortable" title="Implied volatility at the target-delta contracts (mid IV, average of call and put)" onClick={() => handleSort("iv")}>IV{sortIndicator("iv")}</th>
-              <th title="Delta sweep sparkline — yield shape across target delta 0.10 to 0.50">Sweep</th>
-              <th className="opp-sortable" title="Opportunity status: interesting (yield ≥ threshold), monitor (below threshold), ineligible (capital limit exceeded), data missing (no greeks or options)" onClick={() => handleSort("status")}>Status{sortIndicator("status")}</th>
-              <th title="Plain-English reason for the status">Reason</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && scanning && (
-              <tr><td colSpan={13} style={{ textAlign: "center", color: "#888", padding: 20 }}>Loading...</td></tr>
-            )}
-            {sorted.map((row) => {
-              const isExpanded = expandedSymbols.has(row.symbol);
-              const explanation = isExpanded ? explainOpportunity(row) : null;
-              const sweepData = isExpanded ? sweepDataMap.get(row.symbol) ?? null : null;
-
-              return (
-                <Fragment key={row.symbol}>
-                  <tr className={`opp-row opp-row-${row.status}${isExpanded ? " opp-row-expanded" : ""}`} onClick={() => toggleExpand(row.symbol)}>
+      <div className="opp-tables-container">
+        {/* Covered Calls Table */}
+        <div className="opp-side-table">
+          <h3 className="opp-side-title">Covered Calls</h3>
+          <table className="options-table opp-table">
+            <thead>
+              <tr>
+                <th className="opp-sortable" title="ETF ticker symbol" onClick={() => handleCallSort("symbol")}>Symbol{callSortIndicator("symbol")}</th>
+                <th className="opp-sortable" title="Current underlying price" onClick={() => handleCallSort("price")}>Price{callSortIndicator("price")}</th>
+                <th title="Strike of the selected call contract">Strike</th>
+                <th title="Actual delta of the selected call contract">Δ</th>
+                <th title="Mid price of the selected call contract">Mid</th>
+                <th className="opp-sortable" title="Annualized yield (premium ÷ underlying price, scaled to 365 days)" onClick={() => handleCallSort("callYield")}>Yield{callSortIndicator("callYield")}</th>
+                <th className="opp-sortable" title="Implied volatility" onClick={() => handleCallSort("iv")}>IV{callSortIndicator("iv")}</th>
+                <th className="opp-sortable" title="Days to expiration" onClick={() => handleCallSort("nearestDte")}>DTE{callSortIndicator("nearestDte")}</th>
+                <th title="Delta sweep sparkline">Sweep</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.length === 0 && scanning && (
+                <tr><td colSpan={9} style={{ textAlign: "center", color: "#888", padding: 20 }}>Loading...</td></tr>
+              )}
+              {callSorted.map((row) => {
+                const isBestCall = row.callYield != null && row.callYield === bestCallYield;
+                return (
+                  <tr
+                    key={row.symbol}
+                    className={`opp-row opp-row-${row.status}${isBestCall ? " opp-row-best" : ""}${expandedSymbols.has(row.symbol) ? " opp-row-expanded" : ""}`}
+                    onClick={() => toggleExpand(row.symbol)}
+                  >
                     <td className="opp-symbol">
-                      <span
-                        className="opp-symbol-label"
-                        title={ETF_DESCRIPTIONS[row.symbol] ?? row.symbol}
-                        data-tooltip={ETF_DESCRIPTIONS[row.symbol] ?? row.symbol}
-                      >
+                      <span className="opp-symbol-label" title={ETF_DESCRIPTIONS[row.symbol] ?? row.symbol} data-tooltip={ETF_DESCRIPTIONS[row.symbol] ?? row.symbol}>
                         {row.symbol}
                       </span>
                     </td>
                     <td>{row.price != null ? `$${row.price.toFixed(2)}` : "—"}</td>
-                    <td>{row.capitalPerContract != null ? `$${row.capitalPerContract.toLocaleString()}` : "—"}</td>
-                    <td>{row.nearestDte != null ? `${row.nearestDte} DTE` : "—"}</td>
+                    <td>{row.callStrike != null ? `$${row.callStrike}` : "—"}</td>
+                    <td>{row.callDelta != null ? row.callDelta.toFixed(2) : "—"}</td>
+                    <td>{row.callMid != null ? `$${row.callMid.toFixed(2)}` : "—"}</td>
                     <td className={row.callYield && row.callYield >= policy.minYieldThreshold ? "opp-yield-good" : ""}>
                       {row.callYield != null ? `${row.callYield.toFixed(1)}%` : "—"}
                     </td>
+                    <td>{row.iv != null ? `${(row.iv * 100).toFixed(0)}%` : "—"}</td>
+                    <td>{row.nearestDte != null ? `${row.nearestDte}` : "—"}</td>
+                    <td className="opp-sparkline-cell">{sparklineMap.has(row.symbol) ? <Sparkline points={sparklineMap.get(row.symbol)!} /> : ""}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Cash-Secured Puts Table */}
+        <div className="opp-side-table">
+          <h3 className="opp-side-title">Cash-Secured Puts</h3>
+          <table className="options-table opp-table">
+            <thead>
+              <tr>
+                <th className="opp-sortable" title="ETF ticker symbol" onClick={() => handlePutSort("symbol")}>Symbol{putSortIndicator("symbol")}</th>
+                <th className="opp-sortable" title="Current underlying price" onClick={() => handlePutSort("price")}>Price{putSortIndicator("price")}</th>
+                <th title="Strike of the selected put contract">Strike</th>
+                <th title="Actual delta of the selected put contract (absolute)">Δ</th>
+                <th title="Mid price of the selected put contract">Mid</th>
+                <th className="opp-sortable" title="Annualized yield (premium ÷ strike, scaled to 365 days)" onClick={() => handlePutSort("putYield")}>Yield{putSortIndicator("putYield")}</th>
+                <th className="opp-sortable" title="Capital required (strike × 100)" onClick={() => handlePutSort("capitalPerContract")}>Capital{putSortIndicator("capitalPerContract")}</th>
+                <th className="opp-sortable" title="Days to expiration" onClick={() => handlePutSort("nearestDte")}>DTE{putSortIndicator("nearestDte")}</th>
+                <th title="Delta sweep sparkline">Sweep</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.length === 0 && scanning && (
+                <tr><td colSpan={9} style={{ textAlign: "center", color: "#888", padding: 20 }}>Loading...</td></tr>
+              )}
+              {putSorted.map((row) => {
+                const isBestPut = row.putYield != null && row.putYield === bestPutYield;
+                return (
+                  <tr
+                    key={row.symbol}
+                    className={`opp-row opp-row-${row.status}${isBestPut ? " opp-row-best" : ""}${expandedSymbols.has(row.symbol) ? " opp-row-expanded" : ""}`}
+                    onClick={() => toggleExpand(row.symbol)}
+                  >
+                    <td className="opp-symbol">
+                      <span className="opp-symbol-label" title={ETF_DESCRIPTIONS[row.symbol] ?? row.symbol} data-tooltip={ETF_DESCRIPTIONS[row.symbol] ?? row.symbol}>
+                        {row.symbol}
+                      </span>
+                    </td>
+                    <td>{row.price != null ? `$${row.price.toFixed(2)}` : "—"}</td>
+                    <td>{row.putStrike != null ? `$${row.putStrike}` : "—"}</td>
+                    <td>{row.putDelta != null ? row.putDelta.toFixed(2) : "—"}</td>
+                    <td>{row.putMid != null ? `$${row.putMid.toFixed(2)}` : "—"}</td>
                     <td className={row.putYield && row.putYield >= policy.minYieldThreshold ? "opp-yield-good" : ""}>
                       {row.putYield != null ? `${row.putYield.toFixed(1)}%` : "—"}
                     </td>
-                    <td>{row.callDelta != null ? row.callDelta.toFixed(2) : "—"}</td>
-                    <td>{row.putDelta != null ? row.putDelta.toFixed(2) : "—"}</td>
-                    <td>{row.iv != null ? `${(row.iv * 100).toFixed(0)}%` : "—"}</td>
+                    <td>{row.capitalPerContract != null ? `$${row.capitalPerContract.toLocaleString()}` : "—"}</td>
+                    <td>{row.nearestDte != null ? `${row.nearestDte}` : "—"}</td>
                     <td className="opp-sparkline-cell">{sparklineMap.has(row.symbol) ? <Sparkline points={sparklineMap.get(row.symbol)!} /> : ""}</td>
-                    <td><span className={`opp-status opp-status-${row.status}`}>{row.status}</span></td>
-                    <td className="opp-reason">{row.statusReason}</td>
-                    <td>
-                      {row.optionsAvailable && (
-                        <button className="opp-drill-btn" onClick={(e) => { e.stopPropagation(); handleDrill(row.symbol); }}>
-                          Evaluate →
-                        </button>
-                      )}
-                    </td>
                   </tr>
-                  {isExpanded && explanation && (
-                    <tr className="opp-explain-row">
-                      <td colSpan={13}>
-                        <div className="opp-explain-panel">
-                          <div className="opp-explain-left">
-                            <div className="opp-explain-narrative">
-                              {explanation.narrative.map((line, i) => (
-                                <p key={i}>{line}</p>
-                              ))}
-                            </div>
-                            <div className="opp-explain-details">
-                              {explanation.call && (
-                                <div className="opp-explain-side">
-                                  <h4>Covered Call</h4>
-                                  <table className="opp-explain-table">
-                                    <tbody>
-                                      <tr><td>Mid</td><td>${explanation.call.mid?.toFixed(2)}</td></tr>
-                                      <tr><td>Premium/contract</td><td>${explanation.call.premiumPerContract.toFixed(0)}</td></tr>
-                                      <tr><td>Collateral (price)</td><td>${explanation.call.collateral.toFixed(2)}</td></tr>
-                                      <tr><td>Raw yield</td><td>{(explanation.call.rawYield * 100).toFixed(2)}%</td></tr>
-                                      <tr><td>DTE</td><td>{explanation.dte}</td></tr>
-                                      <tr><td>Annualization (×)</td><td>{explanation.call.annualizationMultiplier.toFixed(1)}</td></tr>
-                                      <tr><td>Annualized yield</td><td>{explanation.call.annualizedYield.toFixed(1)}%</td></tr>
-                                      <tr><td>Delta</td><td>{explanation.call.delta?.toFixed(3) ?? "—"}</td></tr>
-                                      {explanation.call.iv != null && <tr><td>IV</td><td>{(explanation.call.iv * 100).toFixed(0)}%</td></tr>}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              )}
-                              {explanation.put && (
-                                <div className="opp-explain-side">
-                                  <h4>Cash-Secured Put</h4>
-                                  <table className="opp-explain-table">
-                                    <tbody>
-                                      <tr><td>Strike</td><td>${explanation.put.strike?.toFixed(2)}</td></tr>
-                                      <tr><td>Mid</td><td>${explanation.put.mid?.toFixed(2)}</td></tr>
-                                      <tr><td>Premium/contract</td><td>${explanation.put.premiumPerContract.toFixed(0)}</td></tr>
-                                      <tr><td>Collateral (strike)</td><td>${explanation.put.collateral.toFixed(2)}</td></tr>
-                                      <tr><td>Raw yield</td><td>{(explanation.put.rawYield * 100).toFixed(2)}%</td></tr>
-                                      <tr><td>DTE</td><td>{explanation.dte}</td></tr>
-                                      <tr><td>Annualization (×)</td><td>{explanation.put.annualizationMultiplier.toFixed(1)}</td></tr>
-                                      <tr><td>Annualized yield</td><td>{explanation.put.annualizedYield.toFixed(1)}%</td></tr>
-                                      <tr><td>Delta</td><td>{explanation.put.delta?.toFixed(3) ?? "—"}</td></tr>
-                                      {explanation.put.iv != null && <tr><td>IV</td><td>{(explanation.put.iv * 100).toFixed(0)}%</td></tr>}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              )}
-                            </div>
-                            <div className="opp-explain-context">
-                              <p className="opp-explain-annualization">{explanation.annualizationNote}</p>
-                              <p className="opp-explain-iv">{explanation.ivNote}</p>
-                              {explanation.capitalPerContract != null && (
-                                <p className="opp-explain-capital">
-                                  Capital per contract: ${explanation.capitalPerContract.toLocaleString()}
-                                  {explanation.capitalSource === "put_strike"
-                                    ? " (nearest put strike × 100)"
-                                    : " (underlying price × 100)"}
-                                  . This is the minimum capital unit required to participate in this opportunity.
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          {sweepData && sweepData.length > 0 && (
-                            <div className="opp-sweep">
-                              <h4>Delta Sweep</h4>
-                              <SweepChart points={sweepData} currentDelta={targetDelta} minYield={policy.minYieldThreshold} />
-                              <details className="opp-sweep-details">
-                                <summary>Details</summary>
-                                <table className="opp-sweep-table">
-                                  <thead>
-                                    <tr>
-                                      <th>Target Δ</th>
-                                      <th>Call Strike</th>
-                                      <th>Call Δ</th>
-                                      <th>Call Mid</th>
-                                      <th>Call Yield</th>
-                                      <th>Put Strike</th>
-                                      <th>Put Δ</th>
-                                      <th>Put Mid</th>
-                                      <th>Put Yield</th>
-                                      <th>Capital</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {sweepData.map((pt) => (
-                                      <tr key={pt.targetDelta} className={pt.targetDelta === targetDelta ? "opp-sweep-active" : ""}>
-                                        <td>{pt.targetDelta.toFixed(2)}</td>
-                                        <td>{pt.callStrike != null ? `$${pt.callStrike}` : "—"}</td>
-                                        <td>{pt.callActualDelta != null ? pt.callActualDelta.toFixed(3) : "—"}</td>
-                                        <td>{pt.callMid != null ? `$${pt.callMid.toFixed(2)}` : "—"}</td>
-                                        <td className={pt.callYield && pt.callYield >= policy.minYieldThreshold ? "opp-yield-good" : ""}>{pt.callYield != null ? `${pt.callYield.toFixed(1)}%` : "—"}</td>
-                                        <td>{pt.putStrike != null ? `$${pt.putStrike}` : "—"}</td>
-                                        <td>{pt.putActualDelta != null ? pt.putActualDelta.toFixed(3) : "—"}</td>
-                                        <td>{pt.putMid != null ? `$${pt.putMid.toFixed(2)}` : "—"}</td>
-                                        <td className={pt.putYield && pt.putYield >= policy.minYieldThreshold ? "opp-yield-good" : ""}>{pt.putYield != null ? `${pt.putYield.toFixed(1)}%` : "—"}</td>
-                                        <td>{pt.capitalPerContract != null ? `$${pt.capitalPerContract.toLocaleString()}` : "—"}</td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </details>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {/* Expansion panels (shown below both tables) */}
+      {rows.filter((row) => expandedSymbols.has(row.symbol)).map((row) => {
+        const explanation = explainOpportunity(row);
+        const sweepData = sweepDataMap.get(row.symbol) ?? null;
+        return (
+          <div key={row.symbol} className="opp-explain-standalone">
+            <div className="opp-explain-panel">
+              <div className="opp-explain-close" onClick={() => toggleExpand(row.symbol)}>
+                ✕ {row.symbol}
+                <button className="opp-drill-btn" style={{ marginLeft: 12 }} onClick={(e) => { e.stopPropagation(); handleDrill(row.symbol); }}>
+                  Evaluate →
+                </button>
+              </div>
+              <div className="opp-explain-left">
+                <div className="opp-explain-narrative">
+                  {explanation.narrative.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
+                </div>
+                <div className="opp-explain-details">
+                  {explanation.call && (
+                    <div className="opp-explain-side">
+                      <h4>Covered Call</h4>
+                      <table className="opp-explain-table">
+                        <tbody>
+                          <tr><td>Mid</td><td>${explanation.call.mid?.toFixed(2)}</td></tr>
+                          <tr><td>Premium/contract</td><td>${explanation.call.premiumPerContract.toFixed(0)}</td></tr>
+                          <tr><td>Collateral (price)</td><td>${explanation.call.collateral.toFixed(2)}</td></tr>
+                          <tr><td>Raw yield</td><td>{(explanation.call.rawYield * 100).toFixed(2)}%</td></tr>
+                          <tr><td>DTE</td><td>{explanation.dte}</td></tr>
+                          <tr><td>Annualization (×)</td><td>{explanation.call.annualizationMultiplier.toFixed(1)}</td></tr>
+                          <tr><td>Annualized yield</td><td>{explanation.call.annualizedYield.toFixed(1)}%</td></tr>
+                          <tr><td>Delta</td><td>{explanation.call.delta?.toFixed(3) ?? "—"}</td></tr>
+                          {explanation.call.iv != null && <tr><td>IV</td><td>{(explanation.call.iv * 100).toFixed(0)}%</td></tr>}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                  {explanation.put && (
+                    <div className="opp-explain-side">
+                      <h4>Cash-Secured Put</h4>
+                      <table className="opp-explain-table">
+                        <tbody>
+                          <tr><td>Strike</td><td>${explanation.put.strike?.toFixed(2)}</td></tr>
+                          <tr><td>Mid</td><td>${explanation.put.mid?.toFixed(2)}</td></tr>
+                          <tr><td>Premium/contract</td><td>${explanation.put.premiumPerContract.toFixed(0)}</td></tr>
+                          <tr><td>Collateral (strike)</td><td>${explanation.put.collateral.toFixed(2)}</td></tr>
+                          <tr><td>Raw yield</td><td>{(explanation.put.rawYield * 100).toFixed(2)}%</td></tr>
+                          <tr><td>DTE</td><td>{explanation.dte}</td></tr>
+                          <tr><td>Annualization (×)</td><td>{explanation.put.annualizationMultiplier.toFixed(1)}</td></tr>
+                          <tr><td>Annualized yield</td><td>{explanation.put.annualizedYield.toFixed(1)}%</td></tr>
+                          <tr><td>Delta</td><td>{explanation.put.delta?.toFixed(3) ?? "—"}</td></tr>
+                          {explanation.put.iv != null && <tr><td>IV</td><td>{(explanation.put.iv * 100).toFixed(0)}%</td></tr>}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+                <div className="opp-explain-context">
+                  <p className="opp-explain-annualization">{explanation.annualizationNote}</p>
+                  <p className="opp-explain-iv">{explanation.ivNote}</p>
+                  {explanation.capitalPerContract != null && (
+                    <p className="opp-explain-capital">
+                      Capital per contract: ${explanation.capitalPerContract.toLocaleString()}
+                      {explanation.capitalSource === "put_strike"
+                        ? " (nearest put strike × 100)"
+                        : " (underlying price × 100)"}
+                      . This is the minimum capital unit required to participate in this opportunity.
+                    </p>
+                  )}
+                </div>
+              </div>
+              {sweepData && sweepData.length > 0 && (
+                <div className="opp-sweep">
+                  <h4>Delta Sweep</h4>
+                  <SweepChart points={sweepData} currentDelta={targetDelta} minYield={policy.minYieldThreshold} />
+                  <details className="opp-sweep-details">
+                    <summary>Details</summary>
+                    <table className="opp-sweep-table">
+                      <thead>
+                        <tr>
+                          <th>Target Δ</th>
+                          <th>Call Strike</th>
+                          <th>Call Δ</th>
+                          <th>Call Mid</th>
+                          <th>Call Yield</th>
+                          <th>Put Strike</th>
+                          <th>Put Δ</th>
+                          <th>Put Mid</th>
+                          <th>Put Yield</th>
+                          <th>Capital</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sweepData.map((pt) => (
+                          <tr key={pt.targetDelta} className={pt.targetDelta === targetDelta ? "opp-sweep-active" : ""}>
+                            <td>{pt.targetDelta.toFixed(2)}</td>
+                            <td>{pt.callStrike != null ? `$${pt.callStrike}` : "—"}</td>
+                            <td>{pt.callActualDelta != null ? pt.callActualDelta.toFixed(3) : "—"}</td>
+                            <td>{pt.callMid != null ? `$${pt.callMid.toFixed(2)}` : "—"}</td>
+                            <td className={pt.callYield && pt.callYield >= policy.minYieldThreshold ? "opp-yield-good" : ""}>{pt.callYield != null ? `${pt.callYield.toFixed(1)}%` : "—"}</td>
+                            <td>{pt.putStrike != null ? `$${pt.putStrike}` : "—"}</td>
+                            <td>{pt.putActualDelta != null ? pt.putActualDelta.toFixed(3) : "—"}</td>
+                            <td>{pt.putMid != null ? `$${pt.putMid.toFixed(2)}` : "—"}</td>
+                            <td className={pt.putYield && pt.putYield >= policy.minYieldThreshold ? "opp-yield-good" : ""}>{pt.putYield != null ? `${pt.putYield.toFixed(1)}%` : "—"}</td>
+                            <td>{pt.capitalPerContract != null ? `$${pt.capitalPerContract.toLocaleString()}` : "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </details>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

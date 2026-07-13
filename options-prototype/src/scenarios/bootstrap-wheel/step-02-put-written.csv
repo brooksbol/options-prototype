@@ -1,0 +1,3 @@
+Run Date,Action,Symbol,Description,Type,Price ($),Quantity,Commission ($),Fees ($),Accrued Interest ($),Amount ($),Cash Balance ($),Settlement Date
+06-10-2026,YOU SOLD OPENING TRANSACTION PUT (XLU) UTILITIES SELECT SECTOR SPDR JUL 10 26 $44.5 (100 SHS) (Cash), -XLU260710P44.5,PUT (XLU) UTILITIES SELECT SECTOR SPDR JUL 10 26 $44.5 (100 SHS),Cash,0.85,-1,0.65,0.02,"",84.33,50084.33,06-11-2026
+06-01-2026,Electronic Funds Transfer Received (Cash),,No Description,Cash,"",0,"","","",50000,50000,""

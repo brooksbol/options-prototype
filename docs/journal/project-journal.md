@@ -1073,3 +1073,614 @@ This is the fourth instance of working software revealing structure:
 2. Explanation panel → Mechanics vs Participation axes
 3. Delta dropdown → policy as evidence-generating
 4. Capability accumulation → instrument boundary discovery
+
+---
+
+## 2026-07-04 — Guardrail: History Refines Operation, Not Prophecy
+
+### Context
+
+As discussion evolves toward historical evidence, pattern recognition, and eventual machine-assisted learning, it becomes necessary to explicitly articulate a boundary that was implicit in the project charter but insufficiently nuanced for the system's current maturity.
+
+The charter states: "Policy over prediction" and excludes "Prediction models."
+
+That was sufficient for the early prototype. It is no longer sufficient as the system approaches questions about history, patterns, and learning.
+
+### The boundary
+
+The project never set out to build a better predictor of future market prices.
+
+It set out to build a better options overlay.
+
+Historical evidence, autonomous observation, pattern recognition, and eventual machine-assisted learning must remain subordinate to that purpose.
+
+### The distinction
+
+A future-prediction system asks:
+
+- Where will this ETF trade next week?
+- Will price rise or fall?
+- What return will the underlying produce?
+
+The options overlay asks:
+
+- Should capital be deployed now?
+- Which underlying fits the overlay's current operating posture?
+- Which contract best expresses the current policy?
+- What assignment, expiration, or liquidity consequences follow?
+- Is this opportunity historically unusual?
+- How have similar contracts and response signatures actually resolved?
+- Would waiting preserve useful optionality?
+- Did prior decisions improve the behavior of the overlay as a whole?
+
+The project may use historical and statistical methods. Its objective is improved operation under uncertainty — not elimination of uncertainty through prediction.
+
+### Principle
+
+**History should refine operation, not prophecy.**
+
+### Aligned uses of historical evidence
+
+- Empirical assignment frequency by delta and DTE
+- Quoted versus realized premium
+- Fill quality and spread behavior
+- Duration of capital commitment
+- Policy performance across market regimes
+- Recurring response-signature patterns
+- Confidence and evidence-coverage indicators
+- Identification of attractive-looking patterns that historically disappointed
+- Evaluation of deliberate inaction or delayed deployment
+- Overall overlay cadence, diversification, and resilience
+
+### Unit of evaluation
+
+A profitable individual contract is not automatically a good overlay decision.
+
+A decision may produce profit while still being operationally poor if it:
+
+- Consumes an oversized capital quantum
+- Creates concentration
+- Disrupts expiration cadence
+- Eliminates useful dry powder
+- Prevents a more suitable deployment
+- Produces undesirable assignment consequences
+
+The eventual learning system should therefore evaluate both:
+
+1. Contract outcomes (did this specific position resolve well?)
+2. Overlay-level operating outcomes (did this decision improve the system's overall behavior?)
+
+### Guardrail for machine learning
+
+Any future model should be justified by the overlay decision it improves.
+
+Aligned output examples:
+
+- "Similar configurations historically had poor realized fills despite high quoted yields."
+- "This response signature has usually remained attractive for several observations, so waiting may preserve optionality."
+- "At this delta and DTE, assignment frequency was materially different from the delta approximation."
+- "This policy produced smoother capital turnover across prior cycles."
+
+Misaligned output example:
+
+- "The ETF is predicted to rise 1.7% next week."
+
+This may be technically possible but is not inherently aligned with the project's purpose. It risks turning the system into a directional market-prediction product.
+
+### Relationship to existing principles
+
+| Charter principle | This refinement |
+|------------------|-----------------|
+| "Policy over prediction" | Clarifies: history serves policy evaluation, not price forecasting |
+| "Not a trading bot" | Extends: not a prediction engine either |
+| "Observability over automation" | Consistent: historical evidence is shown, not hidden behind models |
+| "Three Kinds of Knowledge" | Historical pattern recognition may be computable (assignment frequency) or philosophical (regime similarity) — apply the test |
+
+### Decision
+
+Treat this as a standing scope and methodology guardrail. Future capabilities involving history, patterns, or learning must demonstrate alignment with overlay operation before implementation.
+
+Do not select machine-learning methods. Do not change architecture. This is a boundary, not a plan.
+
+---
+
+## 2026-07-04 — Architectural Learning: Overlays, Institutional State, and Decision Behavior
+
+### Origin
+
+A multi-part design discussion examined whether the current Recommendation Lab still represents the correct abstraction. The discussion evolved through several successive refinements driven by the project's methodology: observe working software, then refine understanding.
+
+### Key realizations
+
+#### 1. The unit of evaluation is the options overlay, not the ETF.
+
+We are not evaluating XLK. We are evaluating "a cash-secured put overlay on XLK at delta 0.40 with 2-week expiration cycles." The ETF is the substrate. The overlay is the mechanism. The policy shapes the mechanism. The institution decides whether the mechanism fits.
+
+This explains why the same ETF can be "interesting" as a covered call and "uninteresting" as a CSP — they are different overlays on the same substrate.
+
+#### 2. The ingress ladder remains the institutional rationale. Computable constraints derived from it may gradually become institutional state.
+
+The ingress ladder (Cash → Treasury → Options Overlay → Additional Cash Flow → Debt Reduction → Optionality → Independence) explains *why* the overlay exists. The ladder itself is not something the software computes — but it guides the evolution of the domain model by indicating which constraints eventually become relevant.
+
+#### 3. The next laboratory instrument should make decision behavior observable. Decision criteria should emerge from repeated observation rather than upfront design.
+
+We initially discussed enumerating "decision criteria" for a Decision Lab. On reflection, criteria are outputs of observation, not inputs to design. The DTE ladder was never designed — it emerged from interacting with an instrument that exposed it. Likewise, future criteria (sector concentration, assignment cadence, capital allocation) should emerge from observing actual decision behavior, not from brainstorming.
+
+#### 4. Institutional state should emerge incrementally as facts prove computationally consequential.
+
+"Institutional state" is better than "institution model." A model implies known shape. State implies accumulating facts as they prove necessary. Each piece earns its place by being observably consequential — not theoretically important.
+
+#### 5. Available deployable cash is the first identified piece of institutional state.
+
+It passes the computability test:
+- User-supplied (declarative)
+- Computationally meaningful (gates opportunity eligibility)
+- Dynamically changing (each deployment reduces available capital)
+- Participates in a closed feedback loop (capital → opportunity → decision → capital)
+
+It is the first institutional fact that is simultaneously declarative, constraining, and reactive.
+
+#### 6. The project methodology remains unchanged: build instruments, observe behavior, discover abstractions, then evolve the domain model.
+
+Rather than asking "What is the institution model?" the better question is "What software helps us discover the institution model?" This is consistent with every prior architectural discovery in the project.
+
+### Meta-observation
+
+**The architecture has not been evolving through redesign. It has been evolving through successive refinement driven by interaction with working software.**
+
+This is a subtle but powerful distinction. The project is not replacing ideas with new ones. It is allowing the software to reveal a more accurate decomposition of the problem over time.
+
+Every major shift fits this pattern:
+- Contract selection → overlay evaluation (revealed by Opportunity Lab policy controls)
+- Static yields → policy response signatures (revealed by delta sweep)
+- DTE as a filter → DTE as a ladder rung (revealed by DTE dropdown interaction)
+- Institution as a model → institutional state as emergent facts (revealed by this discussion)
+
+The principle: **architecture evolves through observation, not through redesign.**
+
+### Practical implications
+
+| Current state | Direction |
+|--------------|-----------|
+| Recommendation Lab | Evolve toward contract workbench (execution quality, not selection) |
+| Opportunity Lab | Continue as the primary analytical instrument |
+| Decision Lab (proposed) | Do not build yet — let decision behavior become observable first |
+| Institution model | Do not design — allow institutional state to emerge from use |
+| Available cash | First candidate for institutional state; smallest useful experiment |
+| Sample portfolio fixtures | Useful for exercising different institutional contexts without UI |
+
+### What we are NOT doing
+
+- Not redesigning the architecture
+- Not retiring the Recommendation Lab
+- Not building a Decision Lab
+- Not modeling the institution
+- Not enumerating decision criteria
+- Not formalizing the ingress ladder as architecture
+
+### What we ARE doing
+
+- Preserving the understanding
+- Continuing to build small, reversible instruments
+- Allowing the domain model to emerge from interaction
+- Applying the computability test before formalizing any concept
+- Recognizing that the project is converging on overlay operations rather than market analysis
+
+---
+
+## 2026-07-04 — Architectural Vision: Document-Driven Scenario Replay
+
+### Context
+
+After discovering that the Opportunity Lab is evaluating options overlays (not ETFs) and that institutional state should emerge incrementally from use, we identified the next laboratory instrument.
+
+### Core insight
+
+Portfolio state should be a **projection derived from an ordered activity history**, not a manually-authored fixture.
+
+The primary way the institution tells the software that something changed is by loading brokerage activity CSVs. Therefore, the laboratory should exercise that same ingress boundary.
+
+### The causal chain
+
+```
+Activity Documents
+        ↓
+Document Classification
+        ↓
+Row Parsing
+        ↓
+Canonical Activity Events
+        ↓
+Derived Portfolio State
+        ↓
+Changed Overlay Possibilities
+        ↓
+New Decision Required
+```
+
+### Scenario chains
+
+The primary engineering fixture becomes an ordered chain of cumulative activity documents. Each file contains prior history plus one new event.
+
+```
+01-bootstrap.csv        → $100k cash, no holdings
+02-put-written.csv      → CSP opened, cash committed
+03-put-assigned.csv     → shares acquired, cash consumed
+04-call-written.csv     → covered call opened, shares committed
+05-call-expired.csv     → shares released, premium retained
+```
+
+This tests transition behavior, not just final-state projection.
+
+### Two ingestion modes (future)
+
+- **Cumulative:** each CSV contains full history plus new entries (tests idempotent reconstruction)
+- **Incremental:** each CSV contains only new activity (tests append behavior)
+
+First slice uses cumulative only.
+
+### Reconciliation (future)
+
+Position documents may serve as checkpoints against activity-derived state. Disagreements are evidence, not errors.
+
+### Architectural boundary
+
+The same pipeline used for bundled scenarios should eventually support user-uploaded activity CSVs. Scenarios are controlled inputs exercising the production ingress path.
+
+### What we are building first
+
+One thin vertical slice:
+- One scenario, 5 steps, one symbol (XLU)
+- Hand-authored Fidelity-shaped fixtures
+- Activity parser → canonical events
+- State projector → portfolio state
+- Simple replay page: step forward, observe state transitions
+- Basic overlay implications (deployable cash, committed capital, CC/CSP feasibility)
+
+### What we are NOT building yet
+
+- 30 scenarios
+- Reconciliation engine
+- Branching timelines
+- Generalized manifest schema
+- Universal event model
+- Full recommendation integration
+- Incremental ingestion mode
+
+### Success criterion
+
+Working software in which the user can click through a short activity history and visibly watch documentary evidence produce events, state transitions, and new overlay possibilities.
+
+### Relationship to methodology
+
+This continues the pattern: build the instrument, observe behavior, discover what the second scenario needs to be. The institution model emerges from interaction, not from design.
+
+---
+
+## 2026-07-04 — First Observations from Scenario Replay Instrument
+
+### Context
+
+First interaction with the working Scenario Replay page. Single scenario (bootstrap-wheel, 5 steps, XLU). These are the observations that emerged from use.
+
+### What the page feels like
+
+It does not feel like a portfolio viewer. It feels like a replay instrument. The natural question is not "what is my portfolio?" but "what did this new document change?" That reframing happened immediately on first use.
+
+### State transitions are more interesting than static state
+
+The current portfolio state matters less than the transition itself. The natural questions:
+- What changed?
+- Why did it change?
+- What new decisions became possible?
+- Which previous decisions are no longer possible?
+
+The instrument is shifting toward studying **state transitions** rather than static state.
+
+### Feasibility wants explanations
+
+The simple "Available / Unavailable" feasibility indicators are useful but immediately create a "why?" question. The interesting content is not the boolean status — it's the reason:
+- "No callable shares currently exist"
+- "Deployable cash below minimum contract size"
+- "All shares committed to open calls"
+
+### The next decision is more interesting than the current state
+
+At "Put Assigned," the instinct is not to inspect holdings. It's to ask: what decision became possible? Covered call now possible. Additional CSP may not fit. Cash allocation changed. This is another instance of decision behavior becoming the object of study.
+
+### Timeline vs. steps
+
+The step buttons already communicate chronology. The page wants to be a temporal instrument, not a step-by-step wizard. Steps are implementation; time is the concept.
+
+### One scenario is correct
+
+Its purpose is not coverage. Its purpose is to teach us what the second scenario should be.
+
+### Emerging concept: State Transition Laboratory
+
+"Replay" describes what the page does. "State Transition" describes what we are studying. The scientific question the instrument is beginning to answer:
+
+> How does documentary evidence change institutional state and therefore change available decisions?
+
+### What this means
+
+The instrument is already producing observations after one use. That validates the methodology: build the smallest thing, observe, learn. The page should not be redesigned yet. It should be used, and additional observations should emerge naturally — exactly as they did with the Opportunity Lab through sorting, expansion panels, delta sweeps, and sparklines.
+
+### Pattern
+
+This is the fifth instance of the core loop:
+1. CSV import → parser classification
+2. Explanation panel → Mechanics vs Participation
+3. Delta dropdown → policy as evidence-generating
+4. Capability accumulation → instrument boundaries
+5. Scenario replay → state transitions as the object of study
+
+Each time, the software revealed what to study next before anyone designed it.
+
+---
+
+## 2026-07-10 — Architectural Discovery: Three Projections of the Institution
+
+### Origin
+
+Exported real data from the Personal Treasury account (Fidelity). Three CSV files were produced: Activity History, Positions, and Balances. Examining them together revealed that they are not redundant reports — they are three distinct projections of the same institution.
+
+### The three questions
+
+| Document | Question it answers | Nature |
+|----------|-------------------|--------|
+| Activity History | Why did the institution become what it is? | Causal history |
+| Positions | What does the institution currently own? | Snapshot projection |
+| Balances | What is the institution currently capable of doing? | Operational capacity |
+
+### Key discovery: Balances reveals operational cash distinctions
+
+Fidelity already distinguishes multiple forms of cash:
+- Available to Trade
+- Settled Cash
+- Available to Withdraw
+
+These are not interchangeable. They affect overlay decisions differently. Our current "Available Cash" abstraction is already too coarse.
+
+The architecture should not prematurely collapse these into one number. They should emerge as separate pieces of institutional state because the production system already models them separately.
+
+### Architectural implication
+
+```
+Activity CSV (authoritative causal history)
+        │
+        ▼
+Canonical Events
+        │
+        ▼
+Institutional State Projection
+        │               │
+        ▼               ▼
+Positions View    Balances View
+        │               │
+        └───────┬───────┘
+                ▼
+       Overlay Evaluation
+```
+
+The Activity CSV is the authoritative source. Positions and Balances are independent projections derivable from the same event history.
+
+### Validation strategy (future)
+
+This creates a powerful reconciliation approach:
+1. Replay activity history → project holdings → compare against Positions CSV
+2. Replay activity history → project balances → compare against Balances CSV
+
+If both projections reconcile with Fidelity's exports, the complete causal chain (event interpretation + state projection) is validated. This is much stronger than testing individual parsers.
+
+### Real account observations from the export
+
+The Personal Treasury account reveals:
+- 400 shares XLE (acquired through two separate put assignments at different strikes)
+- 74.829 shares SPYI (income ETF)
+- 2 open XLE puts (Jul 17 $57, Jul 24 $53)
+- 4 open XLE calls (Jul 31 $55 ×2, Aug 7 $54.5 ×2)
+- ~$24,390 money market (SPAXX)
+- ~$33,000 pending activity (EFT received)
+- Treasury belt: 20+ T-bills maturing weekly through December 2026
+- Multiple operational cash states (Available to Trade $32,690 vs Settled $7,690)
+
+This is a real overlay operation in progress — puts assigned, covered calls written against assigned shares, treasury belt providing cash flow, staggered maturities.
+
+### Methodology note
+
+This architecture was not invented. It emerged from examining how Fidelity itself organizes the same information. The production system already separates these three concerns. The project is converging toward the real domain structure rather than imposing an artificial one.
+
+### What we are NOT doing
+
+- Not building a Balances parser yet
+- Not building a reconciliation engine yet
+- Not collapsing the three projections into one model
+- Not expanding the Scenario Replay page yet
+
+### What this means for next steps
+
+- The existing Scenario Replay exercises the Activity → Events → State path correctly
+- Positions CSV becomes a future checkpoint/reconciliation document (as already hypothesized)
+- Balances CSV introduces a new projection (operational capacity) that the system should eventually understand
+- The distinction between "what you own" and "what you can do" is architecturally real and should be preserved
+
+---
+
+## 2026-07-10 — Discovery: Brokerage Policy Mediates Operational Capability
+
+### Origin
+
+Attempted to write a cash-secured put after initiating a $33,000 EFT. Account showed $32,690 Available to Trade and $33,000 pending. Inferred ~$65,000 buying power. Fidelity rejected the order:
+
+> "The Estimated Order Value exceeds your Cash Available to Trade."
+
+The pending deposit was explicitly excluded from satisfying the collateral requirement.
+
+### What this reveals
+
+Institutional cash alone does not determine capability. Brokerage policy mediates capability.
+
+The effective progression:
+
+```
+Institutional State (what the institution possesses)
+        ↓
+Brokerage Rules (what the brokerage permits)
+        ↓
+Operational Capability (what is actually possible)
+        ↓
+Decision
+```
+
+### Refinement of the capability model
+
+The concept of "available cash" is insufficient. Operational capability depends on multiple brokerage-specific states:
+
+| Cash state | Amount | CSP-eligible? |
+|-----------|--------|---------------|
+| Settled cash | $7,690 | Yes |
+| Available to Trade | $32,690 | Yes |
+| Pending EFT (unsettled) | $33,000 | No |
+| Total account cash | ~$57,390 | Partially |
+
+The same dollar amount has different operational capability depending on its settlement status and the brokerage's collateral policy.
+
+### Implications for the system
+
+1. The system cannot simply project "deployable cash" from activity history alone. It must account for settlement timing and brokerage rules.
+
+2. "Can I write this CSP?" is not answerable from cash balance alone. It requires knowing the collateral-eligible subset of cash.
+
+3. This is another layer between institutional state and operational capability that the domain was previously treating as transparent.
+
+4. The Balances CSV already distinguishes these states ("Available to Trade" vs "Settled Cash" vs "Available to Withdraw") — Fidelity is explicitly modeling this. Our system should eventually respect the same distinctions rather than collapsing them.
+
+### Relationship to prior discoveries
+
+| Discovery | What it revealed |
+|-----------|-----------------|
+| Three CSV projections | Positions ≠ Balances ≠ Activity |
+| This observation | Even within Balances, multiple capability states exist |
+| "Available Cash" as institutional state | Now known to be an oversimplification |
+
+### Computability assessment
+
+- **Settlement timing**: potentially computable (T+1 for equities, T+1 for options, EFT hold periods are policy-based)
+- **Brokerage collateral rules**: declarative (must be stated as constraints, not derived from first principles)
+- **Whether a specific order will be accepted**: only verifiable by the brokerage itself
+
+The system can *approximate* operational capability but cannot authoritatively determine it. The brokerage is the final arbiter.
+
+### What we are NOT doing
+
+- Not building a settlement tracking engine
+- Not modeling all Fidelity brokerage rules
+- Not changing the current state projector
+- Not pretending the system can replace the brokerage's own validation
+
+### What this means
+
+The laboratory should eventually distinguish:
+
+1. **Projected capability** — what the system believes is possible based on its model
+2. **Actual capability** — what the brokerage will actually permit
+
+Disagreement between them is evidence (of missing rules, settlement timing, or policy gaps) — not a bug.
+
+### Methodology note
+
+This was discovered through attempting a real production operation, not through design analysis. The brokerage's rejection message was the evidence. Once again, interaction with production systems revealed domain structure that would have been difficult to anticipate from first principles.
+
+---
+
+## 2026-07-13 — Domain Discovery: Universe Management as a Bounded Context
+
+### Origin
+
+The project has been operating with a hand-curated list of 15 ETFs since the Opportunity Lab was built. That list was explicitly described as "good enough" at the time.
+
+Through continued use of the Opportunity Lab, several observations made the curated list increasingly indefensible:
+
+- XLU surfaced as an unexpectedly strong opportunity only because it happened to be included. What else was being missed?
+- SPY demonstrated that excellent options markets can still be institutionally unsuitable (capital quantum).
+- We repeatedly asked whether lower-priced ETFs outside the current list could offer acceptable liquidity and premium.
+- The DTE ladder and delta sweep experiments revealed that ETF suitability is contextual to policy — not an inherent property.
+- The discussion of API Ninjas plus Tradier arose because discovery requires fundamentally different data and cadence from contract evaluation.
+
+The question shifted from "should we acknowledge this?" to "how small should the first computable slice be?"
+
+### What emerged
+
+Universe Management is a distinct bounded context containing three separable concepts:
+
+1. **Discovery** — find candidates from the broader ETF universe (deferred — requires crawler, separate data sources, different cadence)
+2. **Admission (Velvet Rope)** — evaluate candidates against an explicit, versioned policy using current market evidence
+3. **Registry** — store members, their evaluation history, and the institutional decision audit
+
+### Key domain learnings
+
+**Admission is contextual, not inherent.**
+An ETF does not "pass" or "fail" in absolute terms. It passes or fails relative to a specific policy, measured against specific evidence, at a specific point in time. This means admission decisions must capture the complete policy and evidence context to remain historically meaningful.
+
+**Rejected ETFs are institutional memory.**
+A rejected symbol is not garbage to be discarded. It is evidence: "under this policy, with this evidence, on this date, XYZ did not qualify because..." That history has value for understanding how the universe evolves and how policy changes affect the institutional boundary.
+
+**Discovery and admission have fundamentally different cadences.**
+Discovery is slow (days/weeks, crawling thousands of symbols). Admission is fast (seconds, evaluating a known registry against current market data). They should not be coupled in implementation.
+
+**Bootstrapped ≠ admitted.**
+The existing curated universe predates the Velvet Rope. "Bootstrapped" describes provenance (how a symbol entered the registry). It must not function as a permanent override of policy evaluation. Bootstrapped members should begin as unevaluated and earn their admission through the same policy evaluation as any other member.
+
+**Provider failure ≠ rejection.**
+If the system cannot reach the data provider, that is an infrastructure event — not an admission decision. Failed attempts must be recorded in the audit but must never overwrite the latest successful policy evaluation.
+
+**Volume is unstable single-observation evidence.**
+Daily option volume is strongly affected by time of day and may be zero early in the session for healthy markets. It should be recorded (observational) but not contribute to admission decisions until repeated observations demonstrate stability.
+
+### Architectural decisions
+
+- The first slice is **observational** — it operates in parallel with the legacy curated universe and does not yet govern Opportunity Lab
+- The Velvet Rope uses the same `findClosestToDelta` contract selection logic as Opportunity Lab (no conflicting interpretation of target delta)
+- The Velvet Rope's delta range is intentionally broader (0.15–0.50) because it asks "is this market viable?" not "which exact contract should I trade?"
+- localStorage persistence is transitional — the domain model is storage-agnostic
+- Audit records are append-only and never capped — rejected ETFs and failed attempts remain visible indefinitely
+- Automated broad-universe discovery is a separate future workstream
+- Cloud/multi-user persistence is a separate future workstream
+
+### Documentation produced
+
+- `docs/velvet-rope/00-domain-model.md` — corrected final domain model
+- `docs/velvet-rope/01-requirements.md` — 21 formal requirements (VR-1 through VR-21)
+- `docs/velvet-rope/02-design.md` — module structure, evaluation pipeline, persistence, page architecture
+
+### Relationship to prior methodology
+
+This follows the project's established pattern:
+
+```
+Instrument use → Observed limitation → Domain concept emerges → Model before implement
+```
+
+Specifically:
+- Opportunity Lab's curated list was useful but produced the question "what are we missing?"
+- Delta sweeps and DTE ladder experiments revealed that suitability is policy-contextual
+- The Scenario Replay instrument showed that institutional state changes through evidence
+- The Velvet Rope applies the same principle: the institutional universe changes through evidence (market data) evaluated against policy
+
+### What we are NOT doing
+
+- Not building a crawler yet
+- Not cutting over Opportunity Lab yet
+- Not building cloud persistence yet
+- Not modeling Watch/Suspended/Revoked lifecycle yet
+- Not implementing rolling averages or temporal observation patterns
+- Not coupling this to the cloud/multi-user workstream
+
+### Open questions for future observation
+
+- Will sandbox data quality allow meaningful admission decisions, or will most criteria produce "insufficient_evidence"?
+- Does the Velvet Rope effective universe actually differ from the curated list in useful ways?
+- Which rejected symbols become interesting "near misses" worth watching?
+- When does volume become stable enough to promote from observational to soft?
+- What triggers the eventual cutover from legacy_curated to velvet_rope?
