@@ -1789,3 +1789,716 @@ Possibly. But per project methodology, do not introduce a new bounded context un
 ### Relationship to prior learning
 
 This follows the same pattern observed throughout the project: the architecture evolves through successive refinement driven by research and interaction, not through upfront design. Each investigation (API Ninjas spike, provider research) reveals a more accurate decomposition.
+
+---
+
+## 2026-07-13 — Velvet Rope Thin Slice: Single-Symbol Evaluation Instrument
+
+### What was built
+
+The smallest working vertical slice of the Velvet Rope: a single-symbol evaluation page that evaluates one ETF against a fixed admission policy, records immutable audit records, and explains the result with full evidence breakdown.
+
+### Files produced
+
+- `src/velvet-rope/types.ts` — domain types (audit record, policy, evidence, criteria)
+- `src/velvet-rope/policy.ts` — fixed default admission policy (v1)
+- `src/velvet-rope/evaluate.ts` — full evaluation pipeline (expiration → contract selection → criteria → aggregation)
+- `src/velvet-rope/aggregate.ts` — outcome determination with precedence rules
+- `src/velvet-rope/persistence.ts` — storage-agnostic interface + localStorage implementation + audit queries
+- `src/components/VelvetRopePage.tsx` — single-symbol page with policy summary, evaluation, evidence display, and audit history
+- `tests/velvet-rope/evaluate.test.ts` — 20 tests (pipeline steps, failure modes, near-miss, SPY capital rejection)
+- `tests/velvet-rope/aggregate.test.ts` — 11 tests (all outcome paths, precedence rules)
+
+### What the instrument can do
+
+1. Enter any symbol, click Evaluate
+2. See the complete evaluation: expiration selected, call and put contracts found, per-side criteria assessed, capital evaluated
+3. Understand exactly why the symbol was admitted, rejected, or inconclusive
+4. See evidence provenance (cache vs network, delayed data, retrieval time)
+5. Reload the page — immutable audit history persists
+6. Re-evaluate — new audit record appended, never overwritten
+7. Provider failures create failed-attempt records without replacing successful evaluations
+
+### VR tasks partially satisfied
+
+This thin slice partially satisfies VR-T01 through VR-T10 from the full task plan:
+- VR-T01 (types): done
+- VR-T02 (policy): done (fixed, not editable)
+- VR-T03 (expiration selection): done
+- VR-T04 (contract selection): done
+- VR-T05 (per-side criteria): done
+- VR-T06 (cross-side + aggregation): done
+- VR-T07 (full pipeline): done (single symbol only)
+- VR-T08 (registry): NOT done (no multi-symbol registry yet)
+- VR-T09 (audit operations): done (append, query)
+- VR-T10 (persistence): done (localStorage)
+- VR-T11 (full page): partial (single symbol, not full registry)
+- VR-T12 (wire into App): done
+- VR-T13 (verification): done (369 tests, clean build)
+
+### What remains for the full first slice
+
+- Multi-symbol registry with batch evaluation
+- Universe comparison (legacy vs velvet rope)
+- Operator overrides
+- Stale-evaluation detection
+- Full audit view with filters
+- Policy staleness warnings
+
+### What the working software already teaches
+
+The instrument is ready for interaction. The next step is to evaluate several symbols (XLK, SPY, XLE, IWM, etc.) against live Tradier data and observe whether the admission model produces credible, explainable decisions. Observations from that interaction will guide the next expansion.
+
+---
+
+## 2026-07-13 — First Velvet Rope Interaction: Measurement vs. Policy
+
+### What happened
+
+Evaluated XLK against the default admission policy. Expected outcome: admit (XLK is a major sector ETF with active options). Actual outcome: **reject**.
+
+### Why it was rejected
+
+- Call OI: 29 (threshold: 50) — hard fail
+- Call spread: 30.7% (threshold: 15%) — hard fail
+- Put spread: 17.6% (threshold: 15%) — hard fail
+
+### Why this is surprising
+
+XLK is generally considered to have a healthy, liquid options market. The rejection doesn't match intuition.
+
+### What this reveals
+
+The evaluation selected one specific contract at the target delta:
+
+```
+Strike: $196
+Delta: 0.293
+OI: 29
+Bid: $2.79 / Ask: $3.80
+```
+
+This may simply be an unlucky strike. One strike over might have OI = 250 and a tighter spread. The admission decision is currently evaluating **one contract**, not a **neighborhood**.
+
+### Questions surfaced
+
+1. Should market quality be measured at a single target-delta contract, or across a strike neighborhood?
+2. Should spread be relative to mid (current), relative to bid, in absolute dollars, or averaged?
+3. Is the OI threshold (50) appropriate, or is this a measurement problem rather than a threshold problem?
+4. Would evaluating 3–5 contracts around the target delta give a more representative picture of market quality?
+
+### Decision
+
+Do not change the policy or measurement yet. Evaluate 10–20 more ETFs first. If several ETFs that are intuitively excellent options underlyings fail for the same single-contract reasons, that's evidence that the measurement method needs refinement — not the thresholds.
+
+### Observations about the instrument itself
+
+The instrument is working exactly as intended:
+- It produced a concrete, inspectable decision
+- The decision challenged our assumptions
+- The evidence is preserved in the audit trail
+- The question it raised ("measurement vs. policy?") is the right next question to investigate
+
+### UI improvement candidates (observed, not implemented)
+
+1. **Interpretation sentence** — "XLK failed because the selected 0.30-delta contracts did not satisfy market-quality policy despite acceptable capital and yield."
+2. **Color-coded criteria** — immediate visual distinction between pass (green), near-miss (yellow), hard fail (red)
+3. **Policy beside measurement** — show threshold alongside measured value explicitly
+4. **Diagnostic framing** — present rejection as a diagnosis (primary reason + contributing factors) rather than a flat list
+
+### Pattern
+
+This is the sixth instance of working software revealing the next question:
+1. CSV import → parser classification
+2. Explanation panel → Mechanics vs Participation
+3. Delta dropdown → policy as evidence-generating
+4. Capability accumulation → instrument boundaries
+5. Scenario replay → state transitions as object of study
+6. Velvet Rope → measurement method as the real question (not thresholds)
+
+---
+
+## 2026-07-13 — Methodology Refinement: Experimental Evidence Before Algorithm Change
+
+### Discovery
+
+The first Velvet Rope evaluation immediately revealed that the project is no longer primarily asking "what are the correct thresholds?" It is asking **"what is the correct way to measure options market quality?"**
+
+This is a fundamental shift. Thresholds are parameters. Measurement methodology is architecture.
+
+### Experiment 001: Single-Contract Market Quality
+
+| Field | Value |
+|-------|-------|
+| Hypothesis | A single target-delta contract adequately represents the market quality of an ETF |
+| Method | Evaluate one selected contract nearest the target delta (0.30) for OI, spread, yield |
+| Observation | XLK rejected despite being widely considered a liquid ETF. Selected call ($196, Δ=0.293) had OI=29, spread=30.7%. Adjacent strikes likely much better. |
+| Question | Does one selected contract adequately represent market quality? |
+| Status | **Unresolved — continue collecting evidence** |
+| Next step | Evaluate 10–20 representative ETFs, record patterns |
+
+### Principle established
+
+**Do not change the measurement algorithm until patterns emerge from multiple evaluations.**
+
+If multiple well-known liquid ETFs fail for the same single-contract reason, then the measurement methodology is wrong — not necessarily the thresholds.
+
+If only XLK fails and others pass, then it may be a genuine edge case (unlucky strike selection on that specific day/time).
+
+### Audit as experimental evidence
+
+The immutable audit trail has acquired a second purpose. Originally it was institutional memory ("when was this symbol admitted?"). Now it is also experimental evidence ("under this measurement method, what happened?").
+
+Future policy revisions become comparable:
+- Policy v1 (single contract): XLK rejected
+- Policy v2 (neighborhood measurement): XLK admitted
+
+This is not simply a software change. It is an improvement to the scientific measurement methodology.
+
+### Operator experience discovery
+
+The current page presents engineering evidence before operator understanding. The operator's question is: "Can I trust this ETF for my income strategy?" The software should answer that question first, then provide supporting evidence through progressive disclosure.
+
+This reveals a missing conceptual layer:
+
+```
+Outcome → Diagnostic Summary → Supporting Evidence → Raw Measurements
+```
+
+Instead of:
+
+```
+Outcome → Raw Measurements
+```
+
+The diagnostic summary is deterministic synthesis (not AI prose) — it interprets already-known criteria results into operator-facing language.
+
+### What this means for the architecture
+
+A new value object emerges: **EvaluationNarrative** — distinct from CriterionResult. CriterionResult is factual evidence. EvaluationNarrative communicates institutional meaning.
+
+```typescript
+interface EvaluationNarrative {
+  summary: string;
+  primaryReasons: string[];
+  strengths: string[];
+  cautions: string[];
+  confidence: "high" | "medium" | "low";
+}
+```
+
+This belongs in the design documentation as a progressive-disclosure layer, not in the evaluation algorithm.
+
+---
+
+## 2026-07-13 — Experiment 001: 11-ETF Evaluation Results
+
+### Data collected
+
+| ETF | Outcome | Primary Reason |
+|-----|---------|----------------|
+| XLK | reject | Thin selected call contract (OI=29, spread=30.7%) |
+| XLF | admit | Both sides satisfy liquidity policy |
+| XLU | manual_review | Borderline evidence (near-miss on one criterion) |
+| XLE | reject | Wide bid/ask spreads on selected contracts |
+| XLP | admit | Healthy |
+| XLB | admit | Healthy |
+| XLY | reject | Market-quality failure |
+| QQQ | manual_review | Capital-related policy pressure |
+| DIA | manual_review | Capital-related policy pressure |
+| TLT | manual_review | Mixed evidence |
+| GLD | reject | Market-quality failure |
+
+### Distribution
+
+- Admit: 3 (XLF, XLP, XLB)
+- Reject: 4 (XLK, XLE, XLY, GLD)
+- Manual Review: 4 (XLU, QQQ, DIA, TLT)
+- Insufficient Evidence: 0
+
+### Patterns observed
+
+1. **Rejections cluster on market quality (OI + spread), not yield or capital.** This strengthens the hypothesis that single-contract measurement may not represent true market quality.
+
+2. **XLE rejected despite being an active operational underlying.** This is strong evidence against the measurement method — XLE is empirically known to have adequate options liquidity.
+
+3. **Manual reviews split into two categories:**
+   - Market-quality borderline (XLU, TLT)
+   - Capital/institutional (QQQ, DIA)
+   These are genuinely different operator decisions, which validates the manual_review outcome.
+
+4. **Admits are all sector ETFs with moderate capital requirements** (XLF, XLP, XLB). No surprises.
+
+5. **The policy is discriminating, not simply too strict or too lenient.** All four outcome states are represented. This is healthy.
+
+### Hypothesis status update
+
+**Experiment 001: Single-Contract Market Quality**
+- Original hypothesis: one target-delta contract adequately represents market quality
+- Evidence: XLK and XLE (both known-liquid ETFs) rejected on OI/spread of the single selected contract
+- Assessment: **hypothesis weakening** — likely need neighborhood measurement
+- Next step: manually inspect ±1 strike from selected contract for XLK, XLE, XLY, GLD. If nearby strikes are healthy, the measurement methodology is confirmed as the issue.
+
+### Decision
+
+Do not change evaluation logic yet. The next improvement is operator experience (diagnostic summary), not measurement refinement. Implement VR-22 (EvaluationNarrative) so that the growing audit trail is immediately interpretable.
+
+---
+
+## 2026-07-13 — Experiment 002: Spread Measurement Semantics (SCHD)
+
+### Observation
+
+SCHD evaluated with the following profile:
+- Call OI: 1,157 ✓ (excellent)
+- Put OI: 1,222 ✓ (excellent)
+- Volume: healthy
+- Capital: fits policy ✓
+- Yield: exceeds policy ✓
+- Call spread: 25% ✗ (hard fail)
+- Put spread: 28.6% ✗ (hard fail)
+
+**Outcome: reject — solely on bid/ask spread.**
+
+### Why this matters
+
+Everything about SCHD says "healthy options market" except the relative spread measurement. The premiums are tiny:
+- Call: $0.35 × $0.45 (spread = $0.10)
+- Put: $0.30 × $0.40 (spread = $0.10)
+
+A $0.10 spread on a $0.40 option is 25% relative. The same $0.10 spread on a $3.00 option would be 3.3%.
+
+The relative spread measurement punishes low-premium contracts disproportionately — regardless of whether the market is actually illiquid.
+
+### Hypothesis shift
+
+| Experiment | Hypothesis | Status |
+|-----------|-----------|--------|
+| 001 | Single contract represents market quality | Weakening (XLK/XLE) |
+| 002 | Relative spread (spread/mid) represents execution quality | **Challenged by SCHD** |
+
+### The deeper question
+
+Yesterday's question: "Should we measure a neighborhood?"
+
+Today's question: **"What does spread actually mean?"**
+
+Specifically:
+- Does a 25% spread on a $0.40 option indicate the same execution risk as a 25% spread on a $5.00 option?
+- Should spread measurement be conditional on premium size?
+- Is absolute spread ($0.10) more meaningful than relative spread (25%) for low-premium contracts?
+- Should the system distinguish "genuinely illiquid" from "small premium with normal penny-increment spread"?
+
+### Possible measurement refinements (not implemented — hypotheses only)
+
+1. **Absolute spread threshold** — reject only if spread > $X (e.g., $0.50)
+2. **Conditional relative spread** — apply % threshold only when premium > some minimum
+3. **Composite measurement** — combine OI + volume + spread into a liquidity score
+4. **Minimum premium gate** — if premium is below some floor, spread criterion becomes observational
+
+### Decision
+
+Do not change the algorithm. This is the second experiment producing evidence that the measurement methodology (not the thresholds) may need refinement.
+
+Two experiments now point in the same direction:
+- Experiment 001: single-contract selection can pick an unrepresentative strike
+- Experiment 002: relative spread can produce misleading results on low-premium contracts
+
+Continue collecting evidence. If a third pattern emerges, the case for measurement methodology refinement will be strong.
+
+### Narrative quality validation
+
+The diagnostic summary (VR-22) proved its value immediately. The operator read:
+1. "SCHD rejected — insufficiently liquid"
+2. Checked strengths: OI excellent, yield good, capital fine
+3. Immediately identified: "only the spreads failed"
+4. Immediately questioned: "but the premiums are tiny — is relative spread fair?"
+
+This interaction took seconds. Without the narrative layer it would have required reading all criteria individually. The progressive disclosure hierarchy is working exactly as designed.
+
+### Wording refinement candidate
+
+Current summary for spread-based rejections:
+> "The selected options contracts appear insufficiently liquid under the current market-quality policy."
+
+Better (future):
+> "The selected contracts exhibit bid/ask spreads wider than the institution currently accepts for reliable premium generation."
+
+The distinction: the current wording accuses the ETF. The refined wording accuses the observed evidence under the policy. This preserves the possibility that the measurement, not the ETF, is the problem.
+
+---
+
+## 2026-07-13 — The Difference Between Measuring a Contract and Measuring a Market
+
+### The refinement
+
+The earlier summary — "the measurement methodology confuses 'bad evidence' with 'bad market'" — was almost right but imprecise.
+
+The corrected insight:
+
+**The current measurement methodology confuses the observed contract with the underlying market.**
+
+A 25% spread on a $0.40 SCHD option isn't bad evidence. It's perfectly valid evidence about that contract. The mistake is elevating that observation into a statement about SCHD's options market as a whole.
+
+Similarly, XLK's OI=29 at one strike is a true observation about one contract — not necessarily about XLK.
+
+### The emerging research question
+
+| Experiment | Question |
+|-----------|----------|
+| 001 | Can one contract represent an ETF? |
+| 002 | Can one measurement represent liquidity? |
+| 003 (emerging) | **What is the unit of observation for market quality?** |
+
+Possible answers to Experiment 003:
+- One contract
+- A neighborhood of contracts (±2 strikes)
+- An expiration (all contracts at one DTE)
+- A side (all calls, or all puts)
+- The ETF as a whole (aggregated across expirations)
+
+We don't know the answer yet. That's now the active research question.
+
+### Epistemological layers discovered
+
+The system has at least five layers between reality and policy:
+
+```
+Reality        — SCHD has an options market
+    ↓
+Observation    — Call: $0.35 × $0.45
+    ↓
+Measurement    — 25% relative spread
+    ↓
+Interpretation — Selected contract appears expensive to trade
+    ↓
+Policy         — Reject
+```
+
+The software currently jumps from Measurement to Policy. The diagnostic summary (VR-22) improved the Interpretation layer in the UI. The next architectural evolution may be strengthening the Interpretation layer in the *domain logic* — not just the presentation.
+
+This is the distinction between:
+- Improving how we **display** decisions (done — VR-22 narrative)
+- Improving how we **form** decisions (next — measurement scope / interpretation logic)
+
+### Why this matters architecturally
+
+This is not a parameter-tuning problem. It's a measurement-scope problem.
+
+Changing the OI threshold from 50 to 25 would be parameter tuning. It might accidentally fix XLK but wouldn't address the root cause.
+
+The root cause is: **the system measures one contract and treats it as a statement about a market.**
+
+Fixing that requires architectural change — not threshold adjustment.
+
+### Relationship to prior methodology
+
+This follows the project's established pattern:
+- Build something small
+- Observe behavior that challenges assumptions
+- Discover that the question itself needs refinement
+- Allow the architecture to evolve toward the better question
+
+Three weeks ago: "Which ETFs should we include?"
+Two weeks ago: "What policy should govern admission?"
+Last week: "What thresholds are correct?"
+Today: **"What is the correct unit of observation?"**
+
+Each question is deeper than the last. Each emerged from working software, not from design.
+
+### What we are NOT doing
+
+- Not changing the evaluation algorithm
+- Not introducing neighborhood measurement yet
+- Not modifying thresholds
+- Not adding a "minimum premium" gate
+
+### What we ARE doing
+
+- Recording this as a foundational insight for Velvet Rope
+- Continuing to use the current (imperfect) measurement to collect more evidence
+- Allowing Experiment 003 to take shape through further observations
+- Recognizing that when the measurement methodology does change, it will be an architectural decision (evidence-based) not a parameter tweak
+
+### Pattern count
+
+This is the seventh instance of working software revealing the next question:
+1. CSV import → parser classification
+2. Explanation panel → Mechanics vs Participation
+3. Delta dropdown → policy as evidence-generating
+4. Capability accumulation → instrument boundaries
+5. Scenario replay → state transitions as object of study
+6. Velvet Rope evaluation → measurement method matters more than thresholds
+7. SCHD + XLK evidence → **the unit of observation is the research question**
+
+---
+
+## 2026-07-13 — Foundational Principle: The Institutional Reasoning Stack
+
+### The principle
+
+**An institution should make decisions from interpretations, not directly from measurements. Measurements describe reality. Interpretations explain what those measurements mean. Policy governs actions based on those interpretations.**
+
+### Why this matters
+
+This is not an options concept. It is a reasoning concept. It explains why:
+- Threshold tuning felt unsatisfying (it was a policy change when the real problem was interpretation)
+- The page felt "engineering-heavy" before VR-22 (it showed measurements without interpretation)
+- The diagnostic summary improved UX (it added an interpretation layer to presentation)
+- The next architectural evolution is clear (add an interpretation layer to the *domain logic*)
+
+### The stack, fully articulated
+
+```
+Reality        — An ETF's options market exists in the world
+    ↓
+Observation    — Provider returns: bid=$0.35, ask=$0.45, OI=1157
+    ↓
+Measurement    — Computed: spread=25%, yield=18%, capital=$5,300
+    ↓
+Interpretation — Institutional belief: "spread is mechanically wide due to
+                 low premium, not due to illiquidity — OI and volume are healthy"
+    ↓
+Policy         — Institutional action: admit / reject / review
+```
+
+### How every bounded context maps to this stack
+
+| Layer | Bounded Context | Role |
+|-------|----------------|------|
+| Observation | Tradier Provider | Provides raw market data (bid, ask, OI, delta, volume) |
+| Measurement | Domain Calculations | Turns observations into quantities (spread%, yield, capital) |
+| Interpretation | Velvet Rope (future) / Opportunity Lab | Forms institutional beliefs about what measurements mean |
+| Policy | Velvet Rope / Admission Policy | Governs actions based on interpreted evidence |
+| Presentation | Diagnostic Narrative (VR-22) | Communicates interpretations to the operator |
+
+### What this explains about the project's evolution
+
+The project has been naturally ascending this stack:
+1. **Slice 1**: built the Observation and Measurement layers (providers, calculations, delta matching)
+2. **Opportunity Lab**: began surfacing Measurements to operators with progressively richer context
+3. **Velvet Rope**: attempted to go directly from Measurement to Policy — and immediately discovered the missing Interpretation layer
+4. **VR-22 (Diagnostic Summary)**: added Interpretation to the *presentation* — improved UX
+5. **Next**: add Interpretation to the *domain logic* — improve decisions
+
+### The architectural implication
+
+The current system has:
+```
+Observation → Measurement → Policy
+```
+
+The target architecture has:
+```
+Observation → Measurement → Interpretation → Policy
+```
+
+The Interpretation layer is where institutional knowledge lives:
+- "A 25% spread on a $0.40 option is not the same as a 25% spread on a $5.00 option"
+- "OI=29 at one strike doesn't mean the ETF lacks liquidity if adjacent strikes have OI=500"
+- "Volume=0 at 9:31am doesn't mean the market is dead"
+
+These are not parameter changes. They are **institutional beliefs about evidence**.
+
+### Prediction
+
+Velvet Rope was never fundamentally about admitting ETFs. It is the first application of an **institutional reasoning engine**. The ETF domain is the substrate. The reasoning architecture — evidence, measurement, interpretation, policy, audit — is the real system.
+
+Concepts like evidence provenance, confidence, interpretation, audit, and policy versioning keep appearing because they are reasoning primitives, not options primitives. They will eventually apply across Opportunity Lab, Scenario Replay, portfolio management, and potentially domains beyond investing.
+
+### What we are NOT doing
+
+- Not implementing an Interpretation layer yet
+- Not changing the evaluation algorithm
+- Not introducing an `Interpretation` type into the domain model
+- Not claiming the architecture is complete
+
+### What we ARE doing
+
+- Recording this as a foundational principle
+- Recognizing that the missing Interpretation layer explains our recent discomfort
+- Allowing Experiment 003 ("what is the unit of observation?") to continue producing evidence
+- Trusting that when the Interpretation layer is needed, its shape will emerge from continued interaction with working software — not from upfront design
+
+### Methodology note
+
+This principle was not designed. It was discovered by:
+1. Building a measurement-to-policy system
+2. Observing that it produced mechanically correct but institutionally wrong decisions
+3. Asking why
+4. Recognizing the missing layer
+
+That is the project's methodology working exactly as intended.
+
+---
+
+## 2026-07-13 — SEC Securities Explorer: Human-in-the-Loop Discovery
+
+### What was built
+
+A "SEC Explorer" page that loads the SEC exchange-listed securities universe (~9,300 records), allows searching/sorting/filtering/pagination, and provides a one-click path to send any symbol into the Velvet Rope evaluation pipeline.
+
+This is a human-in-the-loop prototype of future automated Discovery. The operator acts as the Discovery engine.
+
+### Experiment 003: Human-in-the-Loop Discovery
+
+| Field | Value |
+|-------|-------|
+| Hypothesis | A searchable general securities catalog plus human selection is sufficient to generate useful new Velvet Rope candidates before ETF classification and automated crawling exist |
+| Method | Operator browses the SEC exchange-listed universe, recognizes likely ETFs, sends selected symbols to Velvet Rope |
+| Status | **Active — ready for interaction** |
+
+### Questions to answer through use
+
+- Is the SEC universe practical to browse?
+- Do name and exchange search provide enough signal?
+- Is the likely-fund heuristic useful or misleading?
+- Does random/manual exploration surface new plausible ETF candidates?
+- What information does the operator immediately wish the catalog contained?
+- Does the transition into Velvet Rope feel natural?
+- What behavior would later be worth automating?
+
+### Technical details
+
+- **Source:** `https://www.sec.gov/files/company_tickers_exchange.json`
+- **Format:** `{fields: ["cik","name","ticker","exchange"], data: [[...], ...]}`
+- **Size:** ~467KB, ~9,300 records
+- **Exchanges:** NYSE, Nasdaq, CBOE, OTC, null
+- **CORS:** Blocked in browser — Vite dev proxy configured (`/sec-api/` → `sec.gov/files/`)
+- **Caching:** Session memory (no re-download per search/sort/page)
+- **Heuristic:** Name-based keyword + issuer pattern matching (clearly labeled "not verified")
+
+### Navigation contract
+
+```
+SEC Explorer → "Evaluate →" button
+    → workspace.pendingVelvetRopeSymbol = "SCHD"
+    → navigate to Velvet Rope tab
+    → Velvet Rope consumes intent on mount
+    → auto-evaluates the symbol
+    → clears the pending intent
+    → audit record created
+```
+
+### Relationship to architecture
+
+| Concept | This slice |
+|---------|-----------|
+| Discovery | Operator is the Discovery engine (manual selection) |
+| Reference Data | SEC catalog is the first reference data source (identity only) |
+| Velvet Rope | Existing evaluation pipeline, unchanged |
+| Heuristic | Name-based ETF detection — not authoritative, clearly labeled |
+
+### What the SEC catalog does NOT provide
+
+- Product type (ETF vs. stock vs. ETN)
+- Sector/category
+- AUM, expense ratio
+- Options availability
+- Leveraged/inverse classification
+
+The heuristic fills some of these gaps imperfectly. The operator's knowledge fills the rest. Future automation would require enrichment from additional providers.
+
+### Files produced
+
+- `src/providers/sec-catalog/types.ts` — SecSecurityReference, provider interface
+- `src/providers/sec-catalog/SecExchangeSecurityProvider.ts` — fetch, normalize, session cache
+- `src/providers/sec-catalog/likelyFundHeuristic.ts` — isLikelyFund, likelyFundReason
+- `src/components/SecExplorer.tsx` — page component
+- `tests/sec-catalog/secCatalog.test.ts` — 30 tests
+- `vite.config.ts` — SEC proxy added
+
+### Test count
+
+24 test files, 399 tests passing, build clean.
+
+---
+
+## 2026-07-14 — Discovery Refinement: EvaluationSummary as Portable Institutional Opinion
+
+### Observation from operator use
+
+After several sessions with the SEC Explorer, the operator's behavior revealed a clear pattern:
+
+1. The Explorer is not a screener — it is a **research instrument**. The operator asks questions ("show me crypto," "show me gold," "what's on CBOE?") rather than filtering to known targets.
+
+2. The current "Evaluate →" button navigates away from the Explorer. This **interrupts the exploration flow**. The operator evaluates one symbol, then must navigate back, losing position and mental context.
+
+3. The operator naturally wants to see the institutional opinion **inline** without leaving the catalog. The question is: "is this worth investigating further?" — not "show me every engineering detail."
+
+4. Progressive narrowing (9,304 → 837 → 131 → 2) is a natural Discovery behavior. The Explorer should support this without requiring page transitions.
+
+### Assessment: Is EvaluationSummary the next reusable abstraction?
+
+**Yes. The evidence is sufficient.**
+
+| Evidence | What it demonstrates |
+|----------|---------------------|
+| `EvaluationNarrative` already exists as a clean type | The abstraction was independently discovered by Velvet Rope |
+| The type contains no Velvet-Rope-specific fields | It's already portable |
+| SEC Explorer produces audit records via the same pipeline | The evaluation is already decoupled from the page |
+| Operator wants inline results without navigation | A summary is needed outside Velvet Rope's page |
+| The operator's question is "can I trust this?" not "show me the engineering" | Summary answers the first question; details answer the second |
+
+### The abstraction
+
+```typescript
+// Already exists in src/velvet-rope/narrative.ts
+interface EvaluationNarrative {
+  summary: string;
+  primaryReasons: string[];
+  strengths: string[];
+  cautions: string[];
+  confidence: "high" | "medium" | "low";
+}
+```
+
+This is a **portable institutional opinion**. It was born inside Velvet Rope but its natural scope is the Interpretation layer — consumable by any surface that needs to communicate an admission decision without exposing engineering evidence.
+
+### Architectural observations
+
+1. **Discovery has emerged as exploratory research** rather than automated crawling. The SEC Explorer validates this.
+
+2. **The Diagnostic Summary is not a Velvet-Rope-specific UI concern.** It is the Interpretation layer's output — portable across any consumer that needs institutional meaning.
+
+3. **Preserving exploration context is more valuable than immediate navigation.** The next iteration should allow inline evaluation without losing browsing position.
+
+4. **Explorer and Velvet Rope demonstrate healthy separation:**
+   - Explorer owns: exploration, discovery, question-asking
+   - Velvet Rope owns: interpretation, admission, engineering evidence, audit
+
+5. **Human-guided exploration is teaching the system what automation should optimize.** The patterns the operator follows (keyword search → heuristic filter → evaluate → inline opinion) are the exact steps a future crawler would automate.
+
+### What this means for next implementation
+
+The next small iteration should:
+1. Allow the operator to evaluate a symbol **without leaving the SEC Explorer**
+2. Display the `EvaluationNarrative` (outcome + summary + reasons) inline in the row
+3. Preserve browsing context (search, filter, page position)
+4. Keep "Open Full Analysis" as an optional deeper action (navigates to Velvet Rope)
+5. Show previously-evaluated symbols' outcomes when returning to the Explorer
+
+This does NOT require:
+- Duplicating Velvet Rope's evaluation pipeline (reuse it)
+- Duplicating the engineering evidence display (keep that in Velvet Rope)
+- Building a second audit mechanism (same audit trail)
+- Changing the evaluation algorithm
+
+### Relationship to the Institutional Reasoning Stack
+
+```
+Reality → Observation → Measurement → Interpretation → Policy
+```
+
+The `EvaluationNarrative` IS the Interpretation layer's output. Making it portable confirms that the Interpretation layer is a real architectural boundary — not just a presentation concern.
+
+### Deferred observations (not yet earned)
+
+- Ticker wildcard search (XL*, SP*) — observed need but not yet repeated enough
+- Heuristic reason display ("matched SPDR") — minor improvement, can wait
+- Discovery statistics panel (total/evaluated/admitted counts) — useful but not blocking
+- Row-level "last evaluated" indicator — requires state management for Explorer rows
+
+### Decision
+
+Record this as architectural learning. The next implementation iteration is clearly motivated. Proceed to update requirements and tasks for the inline-evaluation capability — then implement.

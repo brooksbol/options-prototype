@@ -401,9 +401,9 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-### Phase VR-1: Domain Types and Policy
+### Phase VR-1: Domain Types and Policy ✓ (thin slice complete)
 
-#### VR-T01: Implement Velvet Rope domain types
+#### VR-T01: Implement Velvet Rope domain types ✓
 
 **Produces:** `src/velvet-rope/types.ts`
 
@@ -417,7 +417,7 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-#### VR-T02: Implement default admission policy
+#### VR-T02: Implement default admission policy ✓
 
 **Produces:** `src/velvet-rope/policy.ts`
 
@@ -431,9 +431,9 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-### Phase VR-2: Evaluation Pipeline
+### Phase VR-2: Evaluation Pipeline ✓ (thin slice complete)
 
-#### VR-T03: Implement expiration selection
+#### VR-T03: Implement expiration selection ✓
 
 **Produces:** `selectExpiration()` in `src/velvet-rope/evaluate.ts`
 
@@ -448,7 +448,7 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-#### VR-T04: Implement contract selection for admission
+#### VR-T04: Implement contract selection for admission ✓
 
 **Produces:** `selectAdmissionContract()` in `src/velvet-rope/evaluate.ts`
 
@@ -464,7 +464,7 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-#### VR-T05: Implement per-side criteria evaluation
+#### VR-T05: Implement per-side criteria evaluation ✓
 
 **Produces:** `evaluatePerSideCriteria()` in `src/velvet-rope/evaluate.ts`
 
@@ -479,7 +479,7 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-#### VR-T06: Implement cross-side criteria and aggregation
+#### VR-T06: Implement cross-side criteria and aggregation ✓
 
 **Produces:** `evaluateCrossSideCriteria()` and `aggregateOutcome()` in `src/velvet-rope/aggregate.ts`
 
@@ -494,7 +494,7 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-#### VR-T07: Implement full evaluateSymbol pipeline
+#### VR-T07: Implement full evaluateSymbol pipeline ✓ (single symbol)
 
 **Produces:** `evaluateSymbol()` in `src/velvet-rope/evaluate.ts`
 
@@ -510,7 +510,7 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-### Phase VR-3: Registry and Audit
+### Phase VR-3: Registry and Audit (partial — audit done, registry deferred)
 
 #### VR-T08: Implement registry operations
 
@@ -529,7 +529,7 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-#### VR-T09: Implement audit operations
+#### VR-T09: Implement audit operations ✓ (append + query)
 
 **Produces:** `src/velvet-rope/audit.ts`
 
@@ -546,7 +546,7 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-#### VR-T10: Implement persistence
+#### VR-T10: Implement persistence ✓
 
 **Produces:** `src/velvet-rope/persistence.ts`
 
@@ -561,9 +561,9 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-### Phase VR-4: Page and Integration
+### Phase VR-4: Page and Integration (partial — single-symbol page done)
 
-#### VR-T11: Build Velvet Rope page component
+#### VR-T11: Build Velvet Rope page component ✓ (single symbol — full registry deferred)
 
 **Produces:** `src/components/VelvetRope.tsx` and sub-components
 
@@ -581,7 +581,7 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-#### VR-T12: Wire into App.tsx
+#### VR-T12: Wire into App.tsx ✓
 
 **Produces:** "Velvet Rope" tab in navigation.
 
@@ -597,7 +597,7 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ---
 
-#### VR-T13: Final verification
+#### VR-T13: Final verification ✓ (thin slice — 369 tests, clean build)
 
 **Produces:** Clean build.
 
@@ -618,8 +618,10 @@ Domain model: `docs/velvet-rope/00-domain-model.md`
 
 ### Universe Discovery (Crawler)
 
+- **SEC Explorer (human-in-the-loop Discovery) ✓** — operator browses SEC universe, sends candidates to Velvet Rope manually
+- **SEC Explorer: inline evaluation (next)** — evaluate without navigation, display EvaluationNarrative inline, preserve browsing context. Evidence earned through Experiment 003/004.
+- **API Ninjas spike ✓** — proven viable but requires Business+ subscription for enumeration/search. See `docs/engineering-spikes/api-ninjas-etf-catalog.md`
 - Automated ETF universe scanning via API Ninjas or similar
-- **Spike completed:** API Ninjas proven viable but requires Business+ subscription ($20-50/mo) for enumeration/search. See `docs/engineering-spikes/api-ninjas-etf-catalog.md`
 - Incremental crawl strategy with rate-limit budget
 - Re-evaluation scheduling
 - Candidate notification ("new ETF passed the Velvet Rope")

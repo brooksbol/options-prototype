@@ -17,6 +17,8 @@ import { CsvImportLab } from "./components/CsvImportLab";
 import { OpportunityLab } from "./components/OpportunityLab";
 import { ScenarioReplay } from "./components/ScenarioReplay";
 import { EtfCatalogExplorer } from "./components/EtfCatalogExplorer";
+import { VelvetRopePage } from "./components/VelvetRopePage";
+import { SecExplorer } from "./components/SecExplorer";
 import { loadWorkspace, updateWorkspace } from "./workspace/workspace";
 import "./App.css";
 
@@ -29,7 +31,7 @@ import "./App.css";
  *   - Massive API: real provider data spike
  */
 
-type ViewMode = "laboratory" | "reference" | "recommendation" | "opportunity" | "csvimport" | "massive" | "scenario" | "etfcatalog";
+type ViewMode = "laboratory" | "reference" | "recommendation" | "opportunity" | "csvimport" | "massive" | "scenario" | "etfcatalog" | "velvetrope" | "secexplorer";
 
 const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
   "PreferOTM",
@@ -42,7 +44,7 @@ function App() {
   const [view, setView] = useState<ViewMode>(() => {
     const ws = loadWorkspace();
     const saved = ws.activeTab as ViewMode;
-    if (["laboratory", "reference", "recommendation", "opportunity", "csvimport", "massive", "scenario", "etfcatalog"].includes(saved)) return saved;
+    if (["laboratory", "reference", "recommendation", "opportunity", "csvimport", "massive", "scenario", "etfcatalog", "velvetrope", "secexplorer"].includes(saved)) return saved;
     return "recommendation";
   });
 
@@ -109,6 +111,18 @@ function App() {
             ETF Catalog
           </button>
           <button
+            className={`tab-btn ${view === "velvetrope" ? "tab-active" : ""}`}
+            onClick={() => changeView("velvetrope")}
+          >
+            Velvet Rope
+          </button>
+          <button
+            className={`tab-btn ${view === "secexplorer" ? "tab-active" : ""}`}
+            onClick={() => changeView("secexplorer")}
+          >
+            SEC Explorer
+          </button>
+          <button
             className={`tab-btn ${view === "massive" ? "tab-active" : ""}`}
             onClick={() => changeView("massive")}
           >
@@ -131,6 +145,10 @@ function App() {
         <ScenarioReplay />
       ) : view === "etfcatalog" ? (
         <EtfCatalogExplorer />
+      ) : view === "velvetrope" ? (
+        <VelvetRopePage />
+      ) : view === "secexplorer" ? (
+        <SecExplorer onNavigateToVelvetRope={() => changeView("velvetrope")} />
       ) : (
       <div className="console-layout">
         <aside className="console-sidebar">

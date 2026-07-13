@@ -49,6 +49,9 @@ export interface Workspace {
   // Opportunity Lab
   opportunityTargetDelta: number;
   opportunityMaxDte: number | null;
+
+  // Velvet Rope navigation intent
+  pendingVelvetRopeSymbol: string | null;
 }
 
 const DEFAULT_WORKSPACE: Workspace = {
@@ -70,6 +73,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   chainMaxDte: 45,
   opportunityTargetDelta: 0.30,
   opportunityMaxDte: null,
+  pendingVelvetRopeSymbol: null,
 };
 
 /**

@@ -107,6 +107,58 @@ Completed 2026-07-13. Full results in `docs/engineering-spikes/api-ninjas-etf-ca
 
 ---
 
+## SEC Exchange-Listed Securities (Implemented 2026-07-13)
+
+The first reference data source is now operational.
+
+- **Source:** `https://www.sec.gov/files/company_tickers_exchange.json`
+- **Content:** ~9,300 exchange-listed securities (CIK, name, ticker, exchange)
+- **Limitations:** No product type, no ETF classification, no options info
+- **Role:** Human-in-the-loop Discovery — operator browses, selects candidates, sends to Velvet Rope
+- **Heuristic:** Name-based likely-fund detection (keywords + issuer patterns) — clearly labeled as unverified
+- **CORS:** Blocked — Vite dev proxy required
+- **Status:** Working. Experiment 003 active.
+
+This validates that the SEC catalog serves as useful reference data for Discovery even without automated classification. The operator's domain knowledge substitutes for what the data doesn't provide.
+
+---
+
+## Discovery Behavior Observed (July 2026)
+
+### The Explorer is a research instrument, not a screener
+
+Operator behavior reveals exploration patterns:
+- "Show me crypto" / "Show me gold" / "Show me dividend" — question-asking
+- Progressive narrowing: 9,304 → 837 → 131 → 2 — funnel behavior
+- Evaluation interrupts exploration when it requires navigation
+
+### Portable Institutional Opinion
+
+The `EvaluationNarrative` (created for Velvet Rope VR-22) has proven to be a **portable abstraction** — not a Velvet-Rope-specific concern.
+
+It represents the Interpretation layer's output: a deterministic synthesis of evaluation results into operator-facing language. Any surface that needs to communicate an admission decision can consume it without exposing engineering evidence.
+
+### Emerging separation of concerns
+
+| Surface | Owns |
+|---------|------|
+| SEC Explorer | Exploration, discovery, question-asking, browsing context |
+| Velvet Rope | Interpretation, admission, engineering evidence, full audit |
+| EvaluationNarrative | Portable institutional opinion (consumed by both) |
+
+### Next iteration (documented, not yet implemented)
+
+Inline evaluation within the SEC Explorer:
+- Evaluate without navigation
+- Display outcome + summary inline
+- Preserve browsing context
+- "Open Full Analysis" as optional deeper action
+- Show previously-evaluated outcomes on return
+
+This reuses the existing evaluation pipeline and audit trail — no duplication.
+
+---
+
 ## What Discovery Will Eventually Do
 
 When implementation begins, Discovery will:

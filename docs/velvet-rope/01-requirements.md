@@ -255,6 +255,33 @@ The Audit section shall display all audit records with columns including:
 
 Filters shall include: all analyzed, accepted, rejected, insufficient evidence, manual review, provider failed, overridden, status changed.
 
+### VR-22: Diagnostic Summary
+
+After every evaluation, the system shall generate a concise operator-facing diagnostic that:
+
+- States the admission decision in plain English
+- Identifies the one to three primary reasons for the outcome
+- Distinguishes strengths (criteria that passed clearly) from weaknesses (criteria that failed or nearly failed)
+- Separates operator interpretation from supporting evidence
+- Provides a confidence indicator (high/medium/low) based on evidence provenance
+
+The diagnostic summary shall be the first thing the operator sees after the outcome badge. Detailed engineering evidence (criteria tables, contract measurements, provenance) shall remain available through progressive disclosure below the summary.
+
+This requirement reflects a discovery from first interaction: operators need to understand the institutional meaning of a decision before inspecting the supporting measurements.
+
+The diagnostic is deterministic synthesis of existing evaluation results — not AI-generated prose.
+
+**Portability note (July 2026):** The EvaluationNarrative type produced by this requirement has proven to be a portable abstraction — not specific to the Velvet Rope page. It represents the Interpretation layer's output and may be consumed by any surface needing an institutional opinion (e.g., SEC Explorer inline evaluation, future batch reports). The evaluation pipeline and audit remain in Velvet Rope; the narrative is the portable summary.
+
+### VR-23: Experimental Evidence Tracking
+
+The audit trail shall serve a dual purpose:
+
+1. **Institutional memory** — when was this symbol admitted/rejected, under what policy?
+2. **Experimental evidence** — under this measurement methodology, what patterns emerge?
+
+Future policy revisions shall be comparable against prior evaluations. The system shall preserve enough context in each audit record to enable retrospective analysis of how measurement methodology changes affected outcomes.
+
 ---
 
 ## Acceptance Criteria

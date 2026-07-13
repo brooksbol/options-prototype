@@ -340,6 +340,85 @@ const DEFAULT_ADMISSION_POLICY: AdmissionPolicy = {
 
 ---
 
+## Diagnostic Layer (VR-22)
+
+### Concept
+
+A presentation layer between raw evaluation results and operator display. Synthesizes CriterionResult[] into operator-facing language.
+
+### Value Object: EvaluationNarrative
+
+```typescript
+interface EvaluationNarrative {
+  summary: string;          // e.g., "XLK failed admission due to insufficient call-side liquidity"
+  primaryReasons: string[]; // 1-3 most important failure/success factors
+  strengths: string[];      // criteria that passed clearly
+  cautions: string[];       // near-misses, soft failures, observational concerns
+  confidence: "high" | "medium" | "low";  // based on provenance
+}
+```
+
+### Derivation Rules
+
+- `summary`: one sentence combining outcome + primary reason
+- `primaryReasons`: hard failures first, then evidence gaps, then near-misses (max 3)
+- `strengths`: criteria with status "pass" that passed by significant margin
+- `cautions`: near-misses, soft failures, observational items of note
+- `confidence`:
+  - "high" = network evidence, recent
+  - "medium" = cached evidence, moderate age
+  - "low" = stale cache, mixed sources, or evidence-incomplete
+
+### Progressive Disclosure Hierarchy
+
+```
+1. Outcome badge (admit / reject / insufficient / review)
+2. Diagnostic summary (EvaluationNarrative)
+3. Supporting reasons (primaryReasons + strengths + cautions)
+4. [Expand] Detailed evidence
+5.   → Contract selection details
+6.   → Per-side criteria tables
+7.   → Cross-side criteria
+8.   → Evidence provenance
+```
+
+### Relationship to CriterionResult
+
+CriterionResult is **factual evidence** — what was measured, what the threshold was, whether it passed.
+
+EvaluationNarrative is **institutional interpretation** — what the evidence means for the operator's decision.
+
+Both are deterministic. Neither involves prediction or AI generation.
+
+---
+
+## Experimental Methodology
+
+### Approach
+
+The Velvet Rope operates as an experimental instrument. Evaluation results are treated as experimental observations, not just operational outputs.
+
+### Experiment Tracking
+
+Each evaluation policy version represents an experimental methodology. Changes to how evidence is measured (e.g., single contract → neighborhood) are methodology changes — not parameter tuning.
+
+The audit trail enables retrospective comparison:
+- Same symbol, different policy versions → measures methodology improvement
+- Same policy, different symbols → measures institutional universe
+
+### Current Open Experiment
+
+**Experiment 001: Single-Contract Market Quality**
+- Hypothesis: one target-delta contract represents market quality
+- Status: unresolved (XLK rejected; need 10-20 more evaluations)
+- Resolution criteria: if multiple liquid ETFs fail on single-contract OI/spread, measurement methodology needs refinement
+
+### Principle
+
+Do not change measurement algorithms until experimental evidence demonstrates the need. Threshold changes are parameter tuning. Measurement changes are architectural decisions requiring evidence.
+
+---
+
 ## Design Decisions
 
 | Decision | Rationale |
