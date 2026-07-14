@@ -3552,3 +3552,11 @@
   font-style: italic;
   margin: 6px 0 4px;
 }
+
+
+/* Opportunity Lab universe metadata */
+.opp-universe-meta {
+  font-size: 9px;
+  color: #666;
+  margin-left: 8px;
+}

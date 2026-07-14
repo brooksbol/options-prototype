@@ -6,31 +6,14 @@
  */
 
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { TradierProvider } from "../providers/tradier/TradierProvider";
-import { MockMarketDataProvider } from "../providers/mock/MockMarketDataProvider";
-import { isTradierConfigured, requireTradierConfig } from "../config/tradier";
 import { evaluateSymbolAdmission } from "../velvet-rope/evaluate";
 import { DEFAULT_ADMISSION_POLICY } from "../velvet-rope/policy";
 import { LocalStorageVelvetRopeStore, appendAuditRecord, getAuditHistory } from "../velvet-rope/persistence";
 import { synthesizeNarrative } from "../velvet-rope/narrative";
 import { categorizeCriteria } from "../velvet-rope/risk-categories";
 import type { AdmissionAuditRecord, VelvetRopeState, CriterionResult, OptionSideEvidence } from "../velvet-rope/types";
-import type { MarketDataProvider } from "../domain/provider";
+import { getProvider, isTradierConfigured } from "../providers";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
-
-// --- Provider singleton ---
-
-const providerInstances: Record<string, MarketDataProvider> = {};
-function getProvider(key: string): MarketDataProvider {
-  if (!providerInstances[key]) {
-    if (key === "tradier" && isTradierConfigured()) {
-      providerInstances[key] = new TradierProvider(requireTradierConfig());
-    } else {
-      providerInstances[key] = new MockMarketDataProvider();
-    }
-  }
-  return providerInstances[key];
-}
 
 // --- Store singleton ---
 

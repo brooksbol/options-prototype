@@ -20,3 +20,24 @@ export interface CandidateSymbol {
   /** ISO date — earliest known addition date */
   addedAt: string;
 }
+
+// --- Universe Descriptor ---
+
+export interface CandidateUniverseDescriptor {
+  /** Stable identifier for this universe composition */
+  id: string;
+  /** Human-readable name */
+  name: string;
+  /** Version tag (tracks source data vintage) */
+  version: string;
+  /** Total symbol count */
+  totalSymbols: number;
+  /** Origin description */
+  source: string;
+}
+
+export interface CandidateUniverseResult {
+  descriptor: CandidateUniverseDescriptor;
+  candidates: CandidateSymbol[];
+  symbols: string[];
+}

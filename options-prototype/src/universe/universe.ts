@@ -6,8 +6,8 @@
  * and preserves source provenance.
  */
 
-import type { CandidateSymbol } from "./types";
-import { YAHOO_TOP_ETFS, YAHOO_SOURCE_ID, YAHOO_CAPTURED_AT } from "./sources/yahoo";
+import type { CandidateSymbol, CandidateUniverseResult, CandidateUniverseDescriptor } from "./types";
+import { YAHOO_TOP_ETFS, YAHOO_SOURCE_ID, YAHOO_CAPTURED_AT, YAHOO_DISPLAY_NAME, YAHOO_DESCRIPTION } from "./sources/yahoo";
 import { loadOperatorAdditions, saveOperatorAdditions } from "./persistence";
 
 // --- Normalization ---
@@ -64,6 +64,26 @@ export function loadCandidateUniverse(): CandidateSymbol[] {
 
   // 3. Merge and deduplicate
   return mergeAndDeduplicate([...bundled, ...additions]);
+}
+
+/**
+ * Load the Candidate Universe with full descriptor metadata.
+ * This is the authoritative single entry point for all universe consumers.
+ */
+export function loadCandidateUniverseWithDescriptor(): CandidateUniverseResult {
+  const candidates = loadCandidateUniverse();
+  const descriptor: CandidateUniverseDescriptor = {
+    id: YAHOO_SOURCE_ID,
+    name: YAHOO_DISPLAY_NAME,
+    version: YAHOO_CAPTURED_AT,
+    totalSymbols: candidates.length,
+    source: YAHOO_DESCRIPTION,
+  };
+  return {
+    descriptor,
+    candidates,
+    symbols: candidates.map((c) => c.symbol),
+  };
 }
 
 // --- Add Operator Candidate ---

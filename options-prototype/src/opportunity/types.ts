@@ -7,7 +7,21 @@
 
 // --- Curated Universe ---
 
-export const CURATED_UNIVERSE: string[] = [
+/**
+ * Priority Watchlist — high-priority symbols for Quick Radar scans.
+ *
+ * These are NOT the authoritative candidate universe. The authoritative
+ * universe is loaded via loadCandidateUniverseWithDescriptor() from the
+ * universe service (currently Yahoo 496 + operator additions).
+ *
+ * This list serves as:
+ * - a priority seed for Quick Radar scans in Opportunity Lab
+ * - a regression-test fixture
+ * - a demo fixture
+ *
+ * It must not be used as a replacement for the shared candidate universe.
+ */
+export const PRIORITY_WATCHLIST: string[] = [
   "XLE", "XLF", "XLV", "XLU", "XLI",
   "XLP", "XLY", "XLK", "XLB", "XLRE",
   "XLC", "IWM", "DIA", "TLT", "GLD",

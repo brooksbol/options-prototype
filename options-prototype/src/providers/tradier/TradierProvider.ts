@@ -20,6 +20,7 @@ import type {
   DataQuality,
 } from "../../domain/types";
 import type { TradierConfig } from "../../config/tradier";
+import { getDurableCache, buildCacheKey, type CacheDataType, type DurableMarketCache } from "../../cache/durable-cache";
 
 // --- Cache ---
 
@@ -180,20 +181,39 @@ function computeDte(expirationDate: string): number {
   return Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 }
 
+// --- Cache Source Provenance ---
+
+export type CacheSource = "memory" | "durable" | "network";
+
 // --- Provider Implementation ---
 
 export class TradierProvider implements MarketDataProvider {
   private config: TradierConfig;
   private cache: ResponseCache;
+  private durableCache: DurableMarketCache;
   private rateLimitUsed: number | null = null;
   private rateLimitAvailable: number | null = null;
   private rateLimitAllowed: number | null = null;
   /** Local count of actual API calls made (not cache hits). */
   private apiCallCount = 0;
+  /** In-flight request deduplication map. Concurrent requests for the same key share one Promise. */
+  private inflight = new Map<string, Promise<unknown>>();
+  /** Cache source tracking for the last operation (for observability). */
+  lastCacheSource: CacheSource = "network";
+  /** Counts for observability. */
+  durableHits = 0;
+  memoryHits = 0;
+  networkCalls = 0;
 
   constructor(config: TradierConfig, ttlMs?: number) {
     this.config = config;
     this.cache = new ResponseCache(ttlMs);
+    this.durableCache = getDurableCache();
+  }
+
+  /** The environment identifier used for durable cache keys. */
+  private get cacheEnvironment(): string {
+    return this.config.baseUrl.includes("sandbox") ? "sandbox" : "live";
   }
 
   /**
@@ -248,15 +268,76 @@ export class TradierProvider implements MarketDataProvider {
     return response.json();
   }
 
-  private async cachedFetch<T>(cacheKey: string, fetcher: () => Promise<T>): Promise<{ data: T; fromCache: boolean; ageMs: number }> {
+  private async cachedFetch<T>(cacheKey: string, fetcher: () => Promise<T>): Promise<{ data: T; fromCache: boolean; ageMs: number; source: CacheSource }> {
+    // L1: Check in-memory cache first
     const cached = this.cache.get<T>(cacheKey);
     if (cached) {
-      return { data: cached.data, fromCache: true, ageMs: cached.ageMs };
+      this.lastCacheSource = "memory";
+      this.memoryHits++;
+      return { data: cached.data, fromCache: true, ageMs: cached.ageMs, source: "memory" };
     }
 
-    const data = await fetcher();
-    this.cache.set(cacheKey, data);
-    return { data, fromCache: false, ageMs: 0 };
+    // Deduplication: if an identical request is already in-flight, share its Promise
+    const existing = this.inflight.get(cacheKey);
+    if (existing) {
+      const data = await existing as T;
+      return { data, fromCache: false, ageMs: 0, source: "network" };
+    }
+
+    // Execute the fetch and register it as in-flight
+    const fetchPromise = fetcher().then((data) => {
+      this.cache.set(cacheKey, data);
+      this.inflight.delete(cacheKey);
+      return data;
+    }).catch((err) => {
+      this.inflight.delete(cacheKey);
+      throw err;
+    });
+
+    this.inflight.set(cacheKey, fetchPromise);
+    const data = await fetchPromise;
+    this.lastCacheSource = "network";
+    this.networkCalls++;
+    return { data, fromCache: false, ageMs: 0, source: "network" };
+  }
+
+  /**
+   * Write a domain-transformed result to the durable cache (L2).
+   * Called AFTER domain transformation so the scanner can read domain types directly.
+   */
+  private async writeDurable<T>(dataType: CacheDataType, symbol: string, expiration: string | null, payload: T): Promise<void> {
+    const durableKey = buildCacheKey("tradier", this.cacheEnvironment, dataType, symbol, expiration ?? undefined);
+    try {
+      const record = this.durableCache.createRecord(
+        durableKey, dataType, "tradier", this.cacheEnvironment,
+        symbol, expiration, payload
+      );
+      await this.durableCache.put(record);
+    } catch {
+      // Durable write failed — non-critical
+    }
+  }
+
+  /**
+   * Read domain-transformed data from durable cache (L2).
+   * Returns null if missing or expired.
+   */
+  private async readDurable<T>(dataType: CacheDataType, symbol: string, expiration: string | null): Promise<{ data: T; ageMs: number } | null> {
+    const durableKey = buildCacheKey("tradier", this.cacheEnvironment, dataType, symbol, expiration ?? undefined);
+    try {
+      const record = await this.durableCache.get<T>(durableKey);
+      if (record) {
+        const freshness = this.durableCache.freshness(record);
+        if (freshness === "fresh" || freshness === "stale_usable") {
+          this.durableHits++;
+          this.lastCacheSource = "durable";
+          return { data: record.payload, ageMs: Date.now() - record.retrievedAt };
+        }
+      }
+    } catch {
+      // IndexedDB unavailable
+    }
+    return null;
   }
 
   /**
@@ -330,13 +411,26 @@ export class TradierProvider implements MarketDataProvider {
     const upperSymbol = symbol.toUpperCase();
     const cacheKey = `expirations:${upperSymbol}`;
 
+    // Check L2 (durable) for domain-transformed data
+    const durable = await this.readDurable<Expiration[]>("expirations", upperSymbol, null);
+    if (durable) {
+      // Hydrate L1
+      this.cache.set(cacheKey, { expirations: { date: durable.data.map((e) => e.date) } });
+      return durable.data;
+    }
+
     try {
       const { data } = await this.cachedFetch(cacheKey, () =>
         this.fetchJson<TradierExpirationsResponse>("/markets/options/expirations", { symbol: upperSymbol })
       );
 
       const dates = ensureArray(data.expirations?.date);
-      return dates.map((date) => ({ date, dte: computeDte(date) }));
+      const result = dates.map((date) => ({ date, dte: computeDte(date) }));
+
+      // Write domain-transformed result to L2
+      await this.writeDurable("expirations", upperSymbol, null, result);
+
+      return result;
     } catch (err) {
       console.error(`TradierProvider.getExpirations(${symbol}) failed:`, err);
       return [];
@@ -351,8 +445,16 @@ export class TradierProvider implements MarketDataProvider {
     const chainCacheKey = `chain:${upperSymbol}:${expirationDate}`;
     const quoteCacheKey = `quotes:${upperSymbol}`;
 
+    // Check L2 (durable) for the full domain-transformed chain
+    const durableChain = await this.readDurable<OptionsChain>("chain", upperSymbol, expirationDate);
+    if (durableChain) {
+      // Hydrate L1 and return
+      this.cache.set(chainCacheKey, {}); // mark L1 as warm
+      return durableChain.data;
+    }
+
     try {
-      // Fetch chain and quote (both potentially cached)
+      // Fetch chain and quote (both potentially cached in L1)
       const [chainResult, quoteResult] = await Promise.all([
         this.cachedFetch(chainCacheKey, () =>
           this.fetchJson<TradierChainsResponse>("/markets/options/chains", {
@@ -408,7 +510,7 @@ export class TradierProvider implements MarketDataProvider {
           : "Tradier Sandbox does not provide Greeks. Delta values are defaulted to 0. Delta-based recommendations are not meaningful.",
       };
 
-      return {
+      const optionsChain: OptionsChain = {
         underlying: {
           symbol: upperSymbol,
           name: underlyingQuote?.description ?? knownUnderlying?.name ?? upperSymbol,
@@ -419,6 +521,11 @@ export class TradierProvider implements MarketDataProvider {
         puts,
         dataQuality,
       };
+
+      // Write domain-transformed chain to L2 (durable)
+      await this.writeDurable("chain", upperSymbol, expirationDate, optionsChain);
+
+      return optionsChain;
     } catch (err) {
       console.error(`TradierProvider.getOptionsChain(${symbol}, ${expirationDate}) failed:`, err);
       return {

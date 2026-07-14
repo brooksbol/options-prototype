@@ -3382,3 +3382,185 @@ The system now preserves this asymmetry in its evidence presentation rather than
 - A blanket rule such as "allow wider spreads farther out" would not capture what is happening. The discontinuity appears to be caused by where market participation concentrates, not by DTE alone.
 - Evidence presentation must distinguish an admitted operating point from the strongest failed operating point. This is now implemented.
 - The conclusion from XLC is not that Velvet Rope is too conservative — it is that XLC's useful option liquidity appears structurally concentrated outside the current weekly-heavy 7–45 DTE operating envelope.
+
+---
+
+## 2026-07-03 — Architectural Transition: From Labs to Operational Application
+
+### The Inflection
+
+The Options Prototype is no longer solely a collection of exploratory laboratories.
+
+Today it establishes its first explicit **operational application surface**: `/app/write`.
+
+This is the moment where the project transitions from "what can we learn?" to "what should we do?" — and it directly instantiates the Three Actor Model:
+
+- **Existing labs** remain as Explorer surfaces (Opportunity Lab, CSV Import Lab, SEC Explorer, FMP Explorer, Universe, etc.)
+- **Velvet Rope** remains as a Governor surface (institutional evaluation of any symbol)
+- **`/app/write`** becomes the first Operator surface ("What should I write today?")
+
+### What `/app/write` Is
+
+A single-page operational application that reconciles:
+
+- Portfolio state (authoritative, from brokerage exports or demo)
+- Candidate discovery (reusing Opportunity Lab scanning primitives)
+- Real-time market-data retrieval (Tradier, with caching)
+- Exact-contract selection and evaluation
+- Execution assessment (graded, not binary)
+- Portfolio constraints (cash for puts, free shares for calls)
+- Ranking
+- Audit evidence
+
+The operator does not navigate between Opportunity Lab, Velvet Rope, and CSV Import Lab. The application composes their capabilities internally.
+
+### Key Architectural Decisions
+
+**1. Portfolio state is an authoritative input contract.**
+
+The application requires a normalized `PortfolioSnapshot` before producing actionable recommendations. For Fidelity, this means both Option Summary (inventory authority) and Balances (cash authority) CSVs.
+
+**2. Fidelity is one source, not the domain boundary.**
+
+A `PortfolioSnapshotSource` abstraction supports multiple sources. Initial implementations: Fidelity CSV Snapshot and Demo Portfolio Snapshot. The downstream pipeline consumes normalized snapshots regardless of source.
+
+**3. Demo Mode is first-class.**
+
+Demo Mode produces a complete `PortfolioSnapshot` through the same source abstraction. The recommendation pipeline has no `if (demo)` branches. Market data still comes from the configured provider; only portfolio state comes from the demo fixture.
+
+**4. Cash authority is a direct assignment.**
+
+`deployableCash = availableToTradeAllSettled` from Fidelity's Balances file. No subtraction, no reconstruction, no brokerage-accounting recreation. Fidelity already did the math.
+
+**5. Exact contracts are the operational unit.**
+
+Historical symbol-level governance does not automatically reject a newly proposed contract. Evaluation operates on the exact contract being considered today.
+
+**6. Execution risk is graded, not binary.**
+
+Ordinary liquidity weakness is scored on a continuum. Only true hard-no conditions (no contract, zero bid, missing data, unsupported structure, extreme execution failure) remove a candidate from the primary list. The current 15% spread threshold becomes a preferred-quality reference, not a universal operational gate.
+
+**7. The application is designed for real-trade experimentation.**
+
+The goal is to get close enough to the practical go/no-go edge that controlled real trades can begin and actual execution evidence can be collected over time.
+
+### What This Enables
+
+- Same-day operational recommendations constrained by real portfolio state
+- Evidence gathering: recommendations surfaced, contracts written, contracts skipped, fills, spread evolution, outcomes
+- Progressive policy refinement based on actual execution evidence
+- Clear separation between exploratory learning (labs) and operational decision-making (application)
+
+### Parking Lot (Explicitly Not This Slice)
+
+- Lab URL reorganization
+- Lab retirement
+- Brokerage authentication or order submission
+- Roll/assignment/exit management
+- Tax-lot selection
+- Portfolio-wide optimization
+- Final expiration-class policy
+- Final DTE-dependent thresholds
+- Automated policy learning
+- Future broker integrations (beyond the source abstraction interface)
+
+### Relationship to Foundations
+
+This transition instantiates multiple foundational principles simultaneously:
+
+- **Three Actor Model** — Operator finally gets their own surface
+- **Capabilities Over Containers** — Opportunity scanning and governance evaluation survive as capabilities; their lab containers become secondary
+- **Policy Over Prediction** — The application applies explicit configurable policy, not predictive models
+- **Retire Uncertainty** — The primary uncertainty this slice retires: "Can the system produce a trustworthy same-day recommendation constrained by real portfolio state?"
+
+---
+
+## 2026-07-14 — Technical Debt: Canonical Evidence Provenance Not Yet Enforced
+
+### Context
+
+The session-gating corrective slice successfully:
+- Blocks market-sensitive acquisition during closed/non-trading sessions
+- Prevents coverage collapse by accepting cached evidence during closed sessions
+- Keeps recommendation provider-free
+
+However, the current implementation uses a **provisional shortcut** (`sessionClosed: boolean`) rather than true canonical evidence governance.
+
+### The Shortcut
+
+```typescript
+recommendPuts(..., { sessionClosed: true })
+```
+
+When `sessionClosed === true`, ANY cached record is treated as eligible regardless of age or provenance. This is operationally acceptable for the current prototype because:
+- The only provider is Tradier sandbox
+- Evidence is accumulated during known sessions
+- The operator can reason about what's cached
+
+But it is NOT correct canonical governance because it cannot:
+- Distinguish evidence from different trading sessions
+- Reject after-hours chains that may have been written before the gate was implemented
+- Verify that a record actually represents the governing canonical session
+- Handle the PREMARKET→REGULAR_OBSERVATION transition correctly (prior-session evidence should stop counting as current-session coverage once new evidence begins arriving)
+
+### Required Follow-Up (Not Implemented Now)
+
+**1. Cache records need canonical evidence provenance:**
+
+Every market-sensitive cache record should carry:
+- `evidenceSessionDate` — which trading session this evidence represents
+- `effectiveObservedAt` — the inferred market observation time
+- `isCanonical` — whether it was accepted as canonical during its session
+- `retrievalSessionState` — what market state existed at retrieval time
+
+The infrastructure for this exists in `src/market-session/evidence-provenance.ts` (EvidenceProvenance interface, buildEvidenceProvenance, shouldWriteCanonical) but is **not yet integrated into the provider write path or cache records**.
+
+**2. recommendPuts should receive a RecommendationEvidenceContext:**
+
+Instead of a boolean flag:
+```typescript
+interface RecommendationEvidenceContext {
+  sessionState: MarketSessionState;
+  canonicalSessionDate: string;
+  currentTradingSessionDate: string | null;
+}
+```
+
+The eligibility check becomes:
+```
+record is eligible when record.evidenceSessionDate === context.canonicalSessionDate && record.isCanonical
+```
+
+**3. Closed-session eligibility must verify canonicalSessionDate:**
+
+A record from July 10 should not satisfy recommendation eligibility when the canonical session is July 14 — even if the session is closed. The current `sessionClosed: true` shortcut would accept it.
+
+**4. After-hours evidence contamination:**
+
+Chain records written before the session gate was implemented may contain after-hours data (retrieved during CLOSED_CANONICAL without the gate). Once canonical provenance is enforced, these records will need:
+- Provenance-aware exclusion (if provenance is added retroactively as "unknown")
+- Or cache invalidation of records without provenance
+- Or a migration that marks pre-provenance records with a known-imprecise flag
+
+### Decision
+
+The shortcut remains acceptable for prototype validation. It will be replaced when:
+- The TradierProvider write path integrates `buildEvidenceProvenance`
+- Cache records carry `EvidenceProvenance` metadata
+- `recommendPuts` receives `RecommendationEvidenceContext` instead of a boolean
+- The session-transition from prior-session to current-session is modeled
+
+### Architectural Status
+
+| Component | Status |
+|-----------|--------|
+| MarketSessionPolicy (6-state classification) | ✅ Complete, tested |
+| TradingCalendar (holidays, early-close) | ✅ Complete, tested |
+| EvidenceProvenance types + buildEvidenceProvenance | ✅ Defined, tested in isolation |
+| shouldWriteCanonical gate logic | ✅ Defined, tested in isolation |
+| Provider write-path integration | ❌ Not integrated |
+| Cache records carry provenance | ❌ Not implemented |
+| recommendPuts canonical verification | ❌ Uses boolean shortcut |
+| Session-transition coverage reset | ❌ Not implemented |
+
+This is recorded as known technical debt, not as a bug or a blocked dependency.

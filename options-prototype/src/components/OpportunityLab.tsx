@@ -10,32 +10,17 @@
  */
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { TradierProvider } from "../providers/tradier/TradierProvider";
-import { MockMarketDataProvider } from "../providers/mock/MockMarketDataProvider";
-import { isTradierConfigured, requireTradierConfig } from "../config/tradier";
 import { evaluateSymbol } from "../opportunity/evaluate";
-import { CURATED_UNIVERSE, ETF_DESCRIPTIONS, DEFAULT_OPPORTUNITY_POLICY, type OpportunityRow, type OpportunityPolicy } from "../opportunity/types";
+import { PRIORITY_WATCHLIST, ETF_DESCRIPTIONS, DEFAULT_OPPORTUNITY_POLICY, type OpportunityRow, type OpportunityPolicy } from "../opportunity/types";
 import { explainOpportunity } from "../opportunity/explain";
 import { sweepDelta, type PolicyResponsePoint } from "../opportunity/sweep";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
-import type { MarketDataProvider, CacheStats } from "../domain/provider";
+import { getProvider, isTradierConfigured } from "../providers";
+import { loadCandidateUniverseWithDescriptor } from "../universe/universe";
+import type { CacheStats } from "../domain/provider";
 import { deriveAuditContext, type AuditContext, type ContractIdentity } from "../velvet-rope/audit-context";
 import { LocalStorageVelvetRopeStore } from "../velvet-rope/persistence";
 import type { VelvetRopeState } from "../velvet-rope/types";
-
-// --- Provider singleton ---
-
-const providerInstances: Record<string, MarketDataProvider> = {};
-function getProvider(key: string): MarketDataProvider {
-  if (!providerInstances[key]) {
-    if (key === "tradier" && isTradierConfigured()) {
-      providerInstances[key] = new TradierProvider(requireTradierConfig());
-    } else {
-      providerInstances[key] = new MockMarketDataProvider();
-    }
-  }
-  return providerInstances[key];
-}
 
 // --- Scan result cache (survives unmount/remount, not page reload) ---
 
@@ -274,6 +259,17 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
   const providerKey = isTradierConfigured() ? "tradier" : "mock";
   const provider = useMemo(() => getProvider(providerKey), [providerKey]);
 
+  // Shared universe with Quick Radar scan profile
+  const universe = useMemo(() => loadCandidateUniverseWithDescriptor(), []);
+  const QUICK_RADAR_BUDGET = 15;
+  // Priority: watchlist symbols first, then fill from universe
+  const scanSymbols = useMemo(() => {
+    const priority = new Set(PRIORITY_WATCHLIST);
+    const prioritized = PRIORITY_WATCHLIST.filter((s) => universe.symbols.includes(s));
+    const remaining = universe.symbols.filter((s) => !priority.has(s));
+    return [...prioritized, ...remaining].slice(0, QUICK_RADAR_BUDGET);
+  }, [universe]);
+
   // Load VR audit state for prior evaluation context (no API calls)
   const vrState = useMemo<VelvetRopeState>(() => new LocalStorageVelvetRopeStore().load(), []);
 
@@ -281,7 +277,7 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
   const cachedScan = lastScanCache && lastScanCache.targetDelta === (ws.opportunityTargetDelta ?? DEFAULT_OPPORTUNITY_POLICY.targetDelta) && lastScanCache.maxDte === (ws.opportunityMaxDte ?? DEFAULT_OPPORTUNITY_POLICY.maxDte) && (Date.now() - lastScanCache.timestamp) < SCAN_CACHE_TTL_MS ? lastScanCache : null;
 
   const [rows, setRows] = useState<OpportunityRow[]>(cachedScan?.rows ?? []);
-  const [scanProgress, setScanProgress] = useState(cachedScan ? CURATED_UNIVERSE.length : 0);
+  const [scanProgress, setScanProgress] = useState(cachedScan ? scanSymbols.length : 0);
   const [scanning, setScanning] = useState(!cachedScan);
   const [cacheStats, setCacheStats] = useState<CacheStats>({ hits: 0, misses: 0, size: 0, apiCalls: 0, rateLimitUsed: null, rateLimitAvailable: null, rateLimitAllowed: null });
   const [scanCacheDelta, setScanCacheDelta] = useState<{ hits: number; misses: number; apiCalls: number }>({ hits: 0, misses: 0, apiCalls: 0 });
@@ -372,7 +368,7 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
     if (lastScanCache && lastScanCache.targetDelta === policy.targetDelta && lastScanCache.maxDte === policy.maxDte && (Date.now() - lastScanCache.timestamp) < SCAN_CACHE_TTL_MS) {
       setRows(lastScanCache.rows);
       setSparklineMap(lastScanCache.sparklines);
-      setScanProgress(CURATED_UNIVERSE.length);
+      setScanProgress(scanSymbols.length);
       setScanning(false);
       return;
     }
@@ -387,14 +383,14 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
       const baseline = provider.getCacheStats();
 
       // Pre-warm quote cache with a single batch API call
-      await provider.getQuotes(CURATED_UNIVERSE);
+      await provider.getQuotes(scanSymbols);
       if (cancelled) return;
 
       // Evaluate each symbol sequentially, streaming results
       const results: OpportunityRow[] = [];
-      for (let i = 0; i < CURATED_UNIVERSE.length; i++) {
+      for (let i = 0; i < scanSymbols.length; i++) {
         if (cancelled) return;
-        const symbol = CURATED_UNIVERSE[i];
+        const symbol = scanSymbols[i];
         const row = await evaluateSymbol(symbol, provider, policy);
         if (cancelled) return;
 
@@ -523,9 +519,12 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
         <span className="console-badge" style={{ background: "#2d4a3e", color: "#6fcf97" }}>
           {providerKey === "tradier" ? "Live Delayed" : "Mock Data"}
         </span>
+        <span className="opp-universe-meta">
+          Universe: {universe.descriptor.name} ({universe.descriptor.totalSymbols}) · Profile: Quick Radar ({scanSymbols.length})
+        </span>
         <div className="opp-summary">
           {scanning ? (
-            <span className="opp-loading">Scanning {scanProgress}/{CURATED_UNIVERSE.length} symbols...</span>
+            <span className="opp-loading">Scanning {scanProgress}/{scanSymbols.length} symbols...</span>
           ) : (
             <>
               <span className="opp-stat opp-stat-interesting">{interestingCount} interesting</span>

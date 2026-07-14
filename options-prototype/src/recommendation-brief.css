@@ -1,0 +1,508 @@
+/* Wheelwright Recommendation Brief — Right-side drawer
+ *
+ * Compact for 900px viewport. Numbers dominate. Whitespace separates.
+ * Identity → Decision → Evidence → Provenance.
+ */
+@import "./theme-tokens.css";
+
+/* === DRAWER SHELL === */
+
+.rb-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 370px;
+  height: 100vh;
+  background: var(--wd-bg-base);
+  border-left: 1px solid var(--wd-border-strong);
+  overflow-y: auto;
+  padding: 14px 14px;
+  z-index: 100;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.5);
+  font-family: var(--wd-font-sans);
+}
+
+.rb-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--wd-text-secondary);
+  font-size: var(--wd-size-body);
+}
+
+.rb-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--wd-text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+  border-radius: 3px;
+}
+
+.rb-close:hover { color: var(--wd-text-primary); background: var(--wd-bg-hover); }
+
+/* === IDENTITY === */
+
+.rb-header {
+  margin-bottom: 0;
+}
+
+.rb-symbol {
+  font-size: 20px;
+  font-weight: var(--wd-weight-bold);
+  color: var(--wd-text-primary);
+  letter-spacing: 0.5px;
+}
+
+.rb-instrument-name {
+  font-size: var(--wd-size-body);
+  color: var(--wd-text-secondary);
+  margin-top: 1px;
+  line-height: 1.3;
+}
+
+.rb-contract {
+  font-size: var(--wd-size-body);
+  color: var(--wd-text-primary);
+  margin-top: 4px;
+  font-family: var(--wd-font-mono);
+  font-weight: var(--wd-weight-semi);
+}
+
+/* === DECISION SUMMARY === */
+
+.rb-decision-summary {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--wd-bg-raised);
+  border-radius: 6px;
+}
+
+.rb-action-label {
+  font-size: var(--wd-size-label);
+  font-weight: var(--wd-weight-bold);
+  color: var(--wd-accent-green);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.rb-action-contract {
+  font-size: 12px;
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-primary);
+  margin-top: 2px;
+  font-family: var(--wd-font-mono);
+}
+
+/* Decision hero: numbers-first */
+.rb-decision-hero {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.rb-hero-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.rb-hero-label {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.rb-hero-value {
+  font-size: var(--wd-size-value);
+  color: var(--wd-text-primary);
+  font-family: var(--wd-font-mono);
+  font-weight: var(--wd-weight-semi);
+}
+
+.rb-hero-primary .rb-hero-value {
+  font-size: var(--wd-size-hero);
+  font-weight: var(--wd-weight-bold);
+}
+
+.rb-hero-fit .rb-hero-value {
+  font-weight: var(--wd-weight-bold);
+  font-size: var(--wd-size-value);
+}
+
+.rb-fit-preferred_band .rb-hero-value { color: var(--wd-accent-green); }
+.rb-fit-admissible_range .rb-hero-value { color: var(--wd-accent-yellow); }
+.rb-fit-extended_fallback .rb-hero-value { color: var(--wd-accent-red); }
+
+.rb-basis {
+  color: var(--wd-accent-green) !important;
+}
+
+/* Rank block */
+.rb-rank-block {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--wd-border-subtle);
+}
+
+.rb-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rb-posture {
+  font-size: var(--wd-size-micro);
+  font-weight: var(--wd-weight-bold);
+  padding: 2px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.rb-posture-actionable { background: var(--wd-accent-green-bg); color: var(--wd-accent-green); }
+.rb-posture-edge { background: var(--wd-accent-yellow-bg); color: var(--wd-accent-yellow); }
+.rb-posture-wait { background: var(--wd-accent-red-bg); color: var(--wd-accent-red); }
+
+.rb-rank-primary {
+  font-size: var(--wd-size-body);
+  color: var(--wd-text-primary);
+  font-weight: var(--wd-weight-semi);
+}
+
+.rb-rank-secondary {
+  margin-top: 2px;
+}
+
+.rb-table-pos {
+  font-size: 10px;
+  color: var(--wd-text-secondary);
+}
+
+.rb-sort-context {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  font-style: italic;
+}
+
+.rb-rank-objective {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  margin-top: 3px;
+  font-style: italic;
+}
+
+/* === SECTIONS === */
+
+.rb-section {
+  margin-top: var(--wd-space-section);
+  padding-top: 0;
+  border-top: none;
+}
+
+.rb-section-title {
+  font-size: 10px;
+  color: var(--wd-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 8px;
+  font-weight: var(--wd-weight-semi);
+}
+
+/* === EXECUTION EVIDENCE === */
+
+.rb-evidence-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wd-space-item);
+}
+
+.rb-ev-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.rb-ev-label {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.rb-ev-value {
+  font-size: var(--wd-size-body);
+  color: var(--wd-text-primary);
+  font-family: var(--wd-font-mono);
+  font-weight: var(--wd-weight-semi);
+}
+
+.rb-ev-deviation {
+  font-size: 10px;
+  font-weight: var(--wd-weight-bold);
+  font-family: var(--wd-font-mono);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.rb-dev-preferred_band { color: var(--wd-accent-green); background: rgba(111, 207, 151, 0.08); }
+.rb-dev-admissible_range { color: var(--wd-accent-yellow); background: rgba(242, 201, 76, 0.08); }
+.rb-dev-extended_fallback { color: var(--wd-accent-red); background: rgba(235, 87, 87, 0.08); }
+
+.rb-warn { color: var(--wd-accent-yellow) !important; }
+
+/* === STRIKE NEIGHBORHOOD === */
+
+.rb-neighborhood-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--wd-size-label);
+  font-family: var(--wd-font-mono);
+}
+
+.rb-neighborhood-table th {
+  color: var(--wd-text-secondary);
+  font-weight: var(--wd-weight-semi);
+  text-align: left;
+  padding: 2px 3px;
+  border-bottom: 1px solid var(--wd-border-default);
+  font-size: var(--wd-size-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.rb-neighborhood-table td {
+  padding: 3px 3px;
+  color: var(--wd-text-primary);
+  font-weight: var(--wd-weight-normal);
+}
+
+.rb-nh-selected td {
+  color: var(--wd-text-primary);
+  background: var(--wd-accent-green-bg);
+  font-weight: var(--wd-weight-semi);
+}
+
+.rb-nh-strike-sel {
+  color: var(--wd-accent-green) !important;
+  font-weight: var(--wd-weight-bold);
+}
+
+/* Policy tags */
+.rb-tag {
+  font-size: 7px;
+  font-weight: var(--wd-weight-bold);
+  padding: 1px 3px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.rb-tag-selected { color: var(--wd-accent-green); background: var(--wd-accent-green-bg); }
+.rb-tag-delta { color: var(--wd-accent-yellow); background: var(--wd-accent-yellow-bg); }
+.rb-tag-hard { color: var(--wd-accent-red); background: var(--wd-accent-red-bg); }
+.rb-tag-execution { color: var(--wd-accent-yellow); background: var(--wd-accent-yellow-bg); }
+.rb-tag-soft { color: var(--wd-text-secondary); background: rgba(255, 255, 255, 0.03); }
+
+.rb-gap {
+  font-size: var(--wd-size-body);
+  color: var(--wd-accent-yellow);
+  font-style: italic;
+}
+
+/* === POSITION IMPACT === */
+
+.rb-impact-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wd-space-item);
+}
+
+.rb-impact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.rb-impact-label {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.rb-impact-row.rb-impact-emphasis .rb-impact-label {
+  color: var(--wd-text-secondary);
+}
+
+.rb-impact-val {
+  font-family: var(--wd-font-mono);
+  font-size: var(--wd-size-body);
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-primary);
+}
+
+.rb-impact-emphasis .rb-impact-val {
+  font-size: var(--wd-size-value);
+  font-weight: var(--wd-weight-bold);
+}
+
+.rb-impact-exposure {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rb-exposure-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.rb-exposure-chip {
+  font-size: var(--wd-size-micro);
+  color: var(--wd-accent-purple);
+  background: var(--wd-accent-purple-bg);
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+/* === PROVENANCE === */
+
+.rb-provenance {
+  opacity: 0.7;
+}
+
+.rb-prov-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  font-family: var(--wd-font-mono);
+}
+
+/* === TABLE ROW STATES === */
+
+.wd-candidate-table tbody tr {
+  cursor: pointer;
+  transition: background 0.08s;
+}
+
+/* Hover: subtle, clearly lighter than default */
+.wd-candidate-table tbody tr:hover {
+  background: var(--wd-bg-hover);
+}
+
+/* SELECTED: unmistakable persistent state */
+.wd-candidate-table tbody tr.wd-row-selected {
+  background: var(--wd-select-bg) !important;
+  box-shadow: inset 3px 0 0 var(--wd-select-rail);
+}
+
+.wd-candidate-table tbody tr.wd-row-selected td {
+  color: var(--wd-text-primary);
+}
+
+.wd-candidate-table tbody tr.wd-row-selected .wd-symbol {
+  color: #fff;
+}
+
+/* Keyboard focus on selected row: additive */
+.wd-candidate-table tbody tr.wd-row-selected:focus {
+  outline: 1px solid var(--wd-accent-green);
+  outline-offset: -1px;
+}
+
+/* Keyboard focus on non-selected row */
+.wd-candidate-table tbody tr:focus {
+  outline: 1px solid rgba(126, 200, 227, 0.5);
+  outline-offset: -1px;
+  background: var(--wd-accent-blue-bg);
+}
+
+/* Layout adjustment when drawer is open */
+.wd-with-drawer {
+  margin-right: 380px;
+}
+
+
+/* === EXECUTION HANDOFF === */
+
+.rb-handoff {
+  margin-top: var(--wd-space-section);
+  padding: 8px 10px;
+  background: var(--wd-bg-raised);
+  border-radius: 5px;
+  border: 1px solid var(--wd-border-default);
+}
+
+.rb-handoff-link {
+  display: inline-block;
+  font-size: var(--wd-size-body);
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-accent-green);
+  text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid var(--wd-accent-green);
+  border-radius: 4px;
+  background: var(--wd-accent-green-bg);
+  transition: background 0.12s;
+}
+
+.rb-handoff-link:hover {
+  background: rgba(111, 207, 151, 0.16);
+}
+
+.rb-handoff-verify {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.rb-handoff-verify-label {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  font-style: italic;
+}
+
+.rb-handoff-verify-item {
+  font-size: var(--wd-size-micro);
+  color: var(--wd-accent-yellow);
+  background: var(--wd-accent-yellow-bg);
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-weight: var(--wd-weight-semi);
+}
+
+.rb-handoff-unavailable {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 0.6;
+}
+
+.rb-handoff-label {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.rb-handoff-reason {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  font-style: italic;
+}

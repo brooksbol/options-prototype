@@ -69,13 +69,6 @@ function createStubParser(
   };
 }
 
-export const fidelityBalancesParser = createStubParser(
-  "fidelity_balances",
-  "Fidelity Balances",
-  ["account name", "account number", "account type", "available"],
-  "Balances"
-);
-
 export const fidelityOrdersParser = createStubParser(
   "fidelity_orders",
   "Fidelity Orders",
