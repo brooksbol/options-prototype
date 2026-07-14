@@ -1,18 +1,19 @@
 /**
- * Velvet Rope — Evaluation Pipeline
+ * Velvet Rope — Evaluation Pipeline (Multi-Expiration)
  *
- * Evaluates a single symbol against the admission policy using
- * the existing MarketDataProvider infrastructure.
+ * Evaluates a single symbol against the admission policy by examining
+ * ALL eligible expirations within the DTE range, selecting call/put
+ * pairs independently per expiration, and determining admission from
+ * the best operational rung.
  *
  * Pipeline:
- *   1. Select expiration within policy DTE range
- *   2. Fetch chain
- *   3. Select call contract (reuses findClosestToDelta)
- *   4. Select put contract
- *   5. Evaluate per-side criteria
- *   6. Evaluate cross-side criteria (capital)
- *   7. Aggregate outcome
- *   8. Produce AdmissionAuditRecord
+ *   1. Enumerate all expirations within policy DTE range
+ *   2. For each expiration: fetch chain, select call, select put
+ *   3. Evaluate per-side criteria for each pair
+ *   4. Evaluate cross-side criteria for each pair
+ *   5. Determine per-expiration outcome
+ *   6. Determine instrument admission from best expiration
+ *   7. Produce AdmissionAuditRecord with full expiration evidence
  */
 
 import type { MarketDataProvider } from "../domain/provider";
@@ -29,8 +30,11 @@ import type {
   ContractSelectionStatus,
   CriterionResult,
   EvaluationAttemptStatus,
+  ExpirationEvaluation,
+  ExpirationOutcome,
 } from "./types";
 import { aggregateOutcome } from "./aggregate";
+import { inferProductStructure, hasStructuralComplexity, type ProductStructure, CONVENTIONAL_STRUCTURE } from "./product-structure";
 
 // --- ID generation ---
 
@@ -40,28 +44,18 @@ function generateId(): string {
 
 // --- Expiration Selection ---
 
+/**
+ * Legacy single-expiration selector (preserved for backward compat in tests).
+ * Picks the longest DTE within range.
+ */
 export function selectExpiration(
   expirations: Expiration[],
   dteRange: { min: number; max: number }
 ): ExpirationSelectionResult {
-  const usable = expirations.filter((e) => e.dte >= dteRange.min);
-  const inRange = usable.filter((e) => e.dte <= dteRange.max);
+  const inRange = expirations.filter((e) => e.dte >= dteRange.min && e.dte <= dteRange.max);
 
   if (inRange.length > 0) {
-    // Pick longest within range (most time value, same as Opportunity Lab)
     const selected = inRange[inRange.length - 1];
-    return {
-      status: "selected",
-      selectedDate: selected.date,
-      selectedDte: selected.dte,
-      availableCount: expirations.length,
-      searchRange: dteRange,
-    };
-  }
-
-  if (usable.length > 0) {
-    // Fall back to nearest usable
-    const selected = usable[0];
     return {
       status: "selected",
       selectedDate: selected.date,
@@ -78,6 +72,18 @@ export function selectExpiration(
     availableCount: expirations.length,
     searchRange: dteRange,
   };
+}
+
+/**
+ * Returns all expirations within the policy DTE range, sorted ascending by DTE.
+ */
+export function selectEligibleExpirations(
+  expirations: Expiration[],
+  dteRange: { min: number; max: number }
+): Expiration[] {
+  return expirations
+    .filter((e) => e.dte >= dteRange.min && e.dte <= dteRange.max)
+    .sort((a, b) => a.dte - b.dte);
 }
 
 // --- Contract Selection ---
@@ -152,15 +158,18 @@ export function evaluatePerSideCriteria(
     `Open interest: ${contract.openInterest}`
   ));
 
-  // Volume (observational)
+  // Volume (observational) — truthful status
   const volThreshold = policy.minOptionVolume.value as number;
+  const volPasses = contract.volume >= volThreshold;
   results.push({
     criterion: "minOptionVolume",
-    status: contract.volume >= volThreshold ? "pass" : "pass", // always pass — observational
+    status: volPasses ? "pass" : "observed_below",
     measuredValue: contract.volume,
     threshold: String(volThreshold),
     severity: "observational",
-    explanation: `Volume: ${contract.volume} (observational — not counted for admission)`,
+    explanation: volPasses
+      ? `Volume: ${contract.volume} (observational)`
+      : `Volume: ${contract.volume} — below observational threshold of ${volThreshold} (non-gating)`,
   });
 
   // Bid/Ask Spread
@@ -175,18 +184,32 @@ export function evaluatePerSideCriteria(
     `Spread: ${contract.spreadPercent.toFixed(1)}% of mid`
   ));
 
-  // Yield
+  // Yield — suppress midpoint yield when spread fails hard criterion
   if (policy.minYieldAtTargetDelta.value != null) {
     const yieldThreshold = policy.minYieldAtTargetDelta.value as number;
-    results.push(evaluateNumericCriterion(
-      "minYieldAtTargetDelta",
-      contract.annualizedYield,
-      yieldThreshold,
-      policy.minYieldAtTargetDelta.severity,
-      ">=",
-      policy.nearMissPercent,
-      `Annualized yield: ${contract.annualizedYield.toFixed(1)}%`
-    ));
+    const spreadFails = contract.spreadPercent > spreadThreshold;
+
+    if (spreadFails) {
+      // Spread failed hard criterion — midpoint yield is unreliable
+      results.push({
+        criterion: "minYieldAtTargetDelta",
+        status: "unavailable",
+        measuredValue: null,
+        threshold: String(yieldThreshold),
+        severity: policy.minYieldAtTargetDelta.severity,
+        explanation: `Yield suppressed — bid/ask spread (${contract.spreadPercent.toFixed(1)}%) exceeds policy limit; midpoint is unreliable for yield calculation.`,
+      });
+    } else {
+      results.push(evaluateNumericCriterion(
+        "minYieldAtTargetDelta",
+        contract.annualizedYield,
+        yieldThreshold,
+        policy.minYieldAtTargetDelta.severity,
+        ">=",
+        policy.nearMissPercent,
+        `Annualized yield: ${contract.annualizedYield.toFixed(1)}%`
+      ));
+    }
   }
 
   return results;
@@ -201,7 +224,6 @@ export function evaluateCrossSideCriteria(
   const results: CriterionResult[] = [];
 
   if (putStrike == null) {
-    // Cannot evaluate capital without a put strike
     if (policy.maxCapitalPerContract.value != null) {
       results.push({
         criterion: "maxCapitalPerContract",
@@ -246,6 +268,35 @@ export function evaluateCrossSideCriteria(
   }
 
   return results;
+}
+
+// --- Structural Criteria ---
+
+export function evaluateStructuralCriteria(
+  structure: ProductStructure,
+  policy: AdmissionPolicy
+): CriterionResult[] {
+  if (!policy.structuralCaution.value) return [];
+  if (!hasStructuralComplexity(structure)) return [];
+
+  const complexities: string[] = [];
+  if (structure.leveraged) complexities.push(`leveraged${structure.leverageMultiple ? ` (${structure.leverageMultiple}x)` : ""}`);
+  if (structure.inverse) complexities.push("inverse");
+  if (structure.dailyReset) complexities.push("daily-reset");
+  if (structure.singleStock) complexities.push("single-stock");
+
+  const explanation = `Structural complexity detected: ${complexities.join(", ")}. ` +
+    `Current policy treats structurally complex instruments conservatively. ` +
+    `Inference: ${structure.inferenceSource} (${structure.confidence} confidence).`;
+
+  return [{
+    criterion: "structuralCaution",
+    status: "fail",
+    measuredValue: complexities.join(", "),
+    threshold: "conventional structure",
+    severity: policy.structuralCaution.severity,
+    explanation,
+  }];
 }
 
 // --- Numeric Criterion Helper ---
@@ -309,6 +360,83 @@ function buildContractEvidence(contract: OptionContract, underlyingPrice: number
   };
 }
 
+// --- Per-Expiration Evaluation ---
+
+/**
+ * Determine outcome for a single expiration's call/put pair.
+ * "pass" = all hard criteria satisfied on both required sides.
+ * "fail" = at least one hard criterion failed.
+ * "incomplete" = evidence gaps prevent conclusive evaluation.
+ */
+function determineExpirationOutcome(
+  callEvidence: OptionSideEvidence,
+  putEvidence: OptionSideEvidence,
+  crossCriteria: CriterionResult[],
+  policy: AdmissionPolicy
+): ExpirationOutcome {
+  // Side requirement check
+  if (policy.sideRequirement === "both") {
+    if (callEvidence.selectionStatus !== "selected" || putEvidence.selectionStatus !== "selected") {
+      return "incomplete";
+    }
+  } else if (policy.sideRequirement === "either") {
+    if (callEvidence.selectionStatus !== "selected" && putEvidence.selectionStatus !== "selected") {
+      return "incomplete";
+    }
+  }
+
+  const allCriteria: CriterionResult[] = [
+    ...callEvidence.criteria,
+    ...putEvidence.criteria,
+    ...crossCriteria,
+  ];
+
+  for (const cr of allCriteria) {
+    if (cr.severity === "observational") continue;
+    if (cr.status === "fail" && cr.severity === "hard") return "fail";
+    if (cr.status === "unavailable") return "incomplete";
+  }
+
+  return "pass";
+}
+
+/**
+ * Rank expiration evaluations for selection.
+ * Prioritizes: 1) hard-policy compliance, 2) distance from target delta,
+ * 3) market quality (lower spread), 4) DTE ascending as tie-breaker.
+ */
+function rankExpirationEvaluations(evaluations: ExpirationEvaluation[]): ExpirationEvaluation[] {
+  return [...evaluations].sort((a, b) => {
+    // Passing expirations first
+    const outcomeOrder = { pass: 0, incomplete: 1, fail: 2 };
+    const oa = outcomeOrder[a.outcome];
+    const ob = outcomeOrder[b.outcome];
+    if (oa !== ob) return oa - ob;
+
+    // Among same-outcome: prefer lower average spread
+    const spreadA = avgSpread(a);
+    const spreadB = avgSpread(b);
+    if (Math.abs(spreadA - spreadB) > 0.5) return spreadA - spreadB;
+
+    // Tie-break: lower DTE first (shorter expirations tend to have better liquidity)
+    return a.dte - b.dte;
+  });
+}
+
+function avgSpread(ev: ExpirationEvaluation): number {
+  let total = 0;
+  let count = 0;
+  if (ev.callEvidence.selectedContract) {
+    total += ev.callEvidence.selectedContract.spreadPercent;
+    count++;
+  }
+  if (ev.putEvidence.selectedContract) {
+    total += ev.putEvidence.selectedContract.spreadPercent;
+    count++;
+  }
+  return count > 0 ? total / count : 999;
+}
+
 // --- Main Evaluation Function ---
 
 export async function evaluateSymbolAdmission(
@@ -319,7 +447,6 @@ export async function evaluateSymbolAdmission(
   const attemptedAt = new Date().toISOString();
   const id = generateId();
 
-  // Base provenance (will be updated with actual retrieval info)
   const provenance: EvidenceProvenance = {
     provider: "tradier_sandbox",
     observedAt: null,
@@ -347,87 +474,189 @@ export async function evaluateSymbolAdmission(
       callEvidence: emptyCallEvidence,
       putEvidence: emptyPutEvidence,
       aggregatedCriteria: [],
+      productStructure: CONVENTIONAL_STRUCTURE,
       explanation: `Provider failed: ${err instanceof Error ? err.message : "unknown error"}`,
+      expirationEvaluations: [],
+      winningExpiration: null,
     };
   }
 
-  // Step 2: Select expiration
-  const expResult = selectExpiration(expirations, policy.expirationDteRange);
-  if (expResult.status === "no_usable_expiration") {
+  // Step 2: Find all eligible expirations
+  const eligible = selectEligibleExpirations(expirations, policy.expirationDteRange);
+
+  const expSelection: ExpirationSelectionResult = eligible.length > 0
+    ? { status: "selected", selectedDate: eligible[0].date, selectedDte: eligible[0].dte, availableCount: expirations.length, searchRange: policy.expirationDteRange }
+    : { status: "no_usable_expiration", selectedDate: null, selectedDte: null, availableCount: expirations.length, searchRange: policy.expirationDteRange };
+
+  if (eligible.length === 0) {
     return {
       id, symbol, attemptedAt,
       attemptStatus: "evidence_incomplete",
       outcome: "insufficient_evidence",
       policySnapshot: policy,
       evidenceProvenance: provenance,
-      expirationSelection: expResult,
+      expirationSelection: expSelection,
       callEvidence: emptyCallEvidence,
       putEvidence: emptyPutEvidence,
       aggregatedCriteria: [],
-      explanation: `No usable expiration found. ${expResult.availableCount} expirations available, none within DTE ${policy.expirationDteRange.min}–${policy.expirationDteRange.max}.`,
+      productStructure: CONVENTIONAL_STRUCTURE,
+      explanation: `No usable expiration found. ${expirations.length} expirations available, none within DTE ${policy.expirationDteRange.min}–${policy.expirationDteRange.max}.`,
+      expirationEvaluations: [],
+      winningExpiration: null,
     };
   }
 
-  // Step 3: Fetch chain
-  let chain;
-  try {
-    chain = await provider.getOptionsChain(symbol, expResult.selectedDate!);
-  } catch (err) {
-    return {
-      id, symbol, attemptedAt,
-      attemptStatus: "provider_failed",
-      outcome: null,
-      policySnapshot: policy,
-      evidenceProvenance: provenance,
-      expirationSelection: expResult,
-      callEvidence: emptyCallEvidence,
-      putEvidence: emptyPutEvidence,
-      aggregatedCriteria: [],
-      explanation: `Provider failed fetching chain: ${err instanceof Error ? err.message : "unknown error"}`,
-    };
+  // Step 3: Product Structure (instrument-level, evaluated once)
+  let productStructure: ProductStructure = CONVENTIONAL_STRUCTURE;
+
+  // Step 4: Evaluate each eligible expiration
+  const expirationEvaluations: ExpirationEvaluation[] = [];
+
+  for (const exp of eligible) {
+    let chain;
+    try {
+      chain = await provider.getOptionsChain(symbol, exp.date);
+    } catch (_err) {
+      expirationEvaluations.push({
+        date: exp.date,
+        dte: exp.dte,
+        outcome: "incomplete",
+        callEvidence: { side: "call", selectedContract: null, selectionStatus: "expiration_unavailable", criteria: [] },
+        putEvidence: { side: "put", selectedContract: null, selectionStatus: "expiration_unavailable", criteria: [] },
+        crossCriteria: [],
+        explanation: `Provider failed for ${exp.date}`,
+      });
+      continue;
+    }
+
+    // Update provenance from first successful chain
+    if (chain.dataQuality && expirationEvaluations.length === 0) {
+      provenance.source = chain.dataQuality.dataSource === "cache" ? "cache" : "network";
+      provenance.cacheAgeSeconds = chain.dataQuality.cacheAgeSeconds ?? null;
+    }
+
+    // Infer product structure from first chain (instrument-level)
+    if (expirationEvaluations.length === 0) {
+      productStructure = inferProductStructure(symbol, chain.underlying.name);
+    }
+
+    const underlyingPrice = chain.underlying.price;
+    const dte = exp.dte;
+
+    // Select contracts
+    const callSelection = selectAdmissionContract(chain.calls, policy, "call");
+    const putSelection = selectAdmissionContract(chain.puts, policy, "put");
+
+    // Build call evidence
+    let callEv: OptionSideEvidence;
+    if (callSelection.status === "selected" && callSelection.contract) {
+      const ce = buildContractEvidence(callSelection.contract, underlyingPrice, dte);
+      const criteria = evaluatePerSideCriteria(ce, policy);
+      callEv = { side: "call", selectedContract: ce, selectionStatus: "selected", criteria };
+    } else {
+      callEv = { side: "call", selectedContract: null, selectionStatus: callSelection.status, criteria: [] };
+    }
+
+    // Build put evidence
+    let putEv: OptionSideEvidence;
+    if (putSelection.status === "selected" && putSelection.contract) {
+      const pe = buildContractEvidence(putSelection.contract, underlyingPrice, dte);
+      const criteria = evaluatePerSideCriteria(pe, policy);
+      putEv = { side: "put", selectedContract: pe, selectionStatus: "selected", criteria };
+    } else {
+      putEv = { side: "put", selectedContract: null, selectionStatus: putSelection.status, criteria: [] };
+    }
+
+    // Cross-side criteria
+    const putStrike = putSelection.contract?.strike ?? null;
+    const crossCriteria = evaluateCrossSideCriteria(putStrike, policy);
+
+    // Determine expiration-level outcome
+    const expOutcome = determineExpirationOutcome(callEv, putEv, crossCriteria, policy);
+
+    // Build explanation
+    const failReasons: string[] = [];
+    for (const cr of [...callEv.criteria, ...putEv.criteria, ...crossCriteria]) {
+      if (cr.status === "fail" && cr.severity === "hard") {
+        failReasons.push(cr.explanation);
+      }
+    }
+    const expExplanation = expOutcome === "pass"
+      ? `${exp.date} (${dte} DTE): all hard criteria satisfied.`
+      : expOutcome === "fail"
+        ? `${exp.date} (${dte} DTE): ${failReasons.join("; ")}`
+        : `${exp.date} (${dte} DTE): evidence incomplete.`;
+
+    expirationEvaluations.push({
+      date: exp.date,
+      dte: exp.dte,
+      outcome: expOutcome,
+      callEvidence: callEv,
+      putEvidence: putEv,
+      crossCriteria,
+      explanation: expExplanation,
+    });
   }
 
-  // Update provenance from chain data quality
-  if (chain.dataQuality) {
-    provenance.source = chain.dataQuality.dataSource === "cache" ? "cache" : "network";
-    provenance.cacheAgeSeconds = chain.dataQuality.cacheAgeSeconds ?? null;
-  }
+  // Step 5: Rank evaluations and determine instrument admission
+  const ranked = rankExpirationEvaluations(expirationEvaluations);
+  const passing = ranked.filter((e) => e.outcome === "pass");
+  const winner = passing.length > 0 ? passing[0] : null;
 
-  const underlyingPrice = chain.underlying.price;
-  const dte = expResult.selectedDte!;
+  // Structural criteria (instrument-level, applied to final decision)
+  const structuralCriteria = evaluateStructuralCriteria(productStructure, policy);
 
-  // Step 4: Select contracts
-  const callSelection = selectAdmissionContract(chain.calls, policy, "call");
-  const putSelection = selectAdmissionContract(chain.puts, policy, "put");
+  // Determine the best expiration to use for the record's top-level evidence
+  const bestExp = winner ?? ranked[0];
 
-  // Step 5: Build side evidence
-  let callEvidence: OptionSideEvidence;
-  if (callSelection.status === "selected" && callSelection.contract) {
-    const ce = buildContractEvidence(callSelection.contract, underlyingPrice, dte);
-    const criteria = evaluatePerSideCriteria(ce, policy);
-    callEvidence = { side: "call", selectedContract: ce, selectionStatus: "selected", criteria };
+  // Build expiration selection result pointing to winning expiration
+  const finalExpSelection: ExpirationSelectionResult = {
+    status: "selected",
+    selectedDate: bestExp.date,
+    selectedDte: bestExp.dte,
+    availableCount: expirations.length,
+    searchRange: policy.expirationDteRange,
+  };
+
+  // Top-level criteria = best expiration's cross-side + structural
+  const allCrossCriteria = [...bestExp.crossCriteria, ...structuralCriteria];
+
+  // Determine instrument outcome
+  let outcome: AdmissionAuditRecord["outcome"];
+  let explanation: string;
+
+  if (winner) {
+    // At least one expiration passes all hard criteria
+    // Still need to check structural soft criteria
+    const { outcome: aggOutcome, explanation: aggExplanation } = aggregateOutcome(
+      winner.callEvidence,
+      winner.putEvidence,
+      allCrossCriteria,
+      policy
+    );
+    outcome = aggOutcome;
+    explanation = `Admitted using ${winner.date} (${winner.dte} DTE). ` +
+      `${expirationEvaluations.length} expiration${expirationEvaluations.length > 1 ? "s" : ""} evaluated` +
+      (expirationEvaluations.length > passing.length
+        ? `; ${expirationEvaluations.length - passing.length} failed liquidity policy.`
+        : ".");
+    if (aggOutcome === "manual_review") {
+      explanation += ` ${aggExplanation}`;
+    }
   } else {
-    callEvidence = { side: "call", selectedContract: null, selectionStatus: callSelection.status, criteria: [] };
+    // No expiration passes — reject
+    const incompleteCount = expirationEvaluations.filter((e) => e.outcome === "incomplete").length;
+    if (incompleteCount === expirationEvaluations.length) {
+      outcome = "insufficient_evidence";
+      explanation = `No admissible call/put pair found. ${expirationEvaluations.length} expiration${expirationEvaluations.length > 1 ? "s" : ""} evaluated; all had incomplete evidence.`;
+    } else {
+      outcome = "reject";
+      explanation = `No admissible call/put pair found across ${expirationEvaluations.length} expiration${expirationEvaluations.length > 1 ? "s" : ""} from ${policy.expirationDteRange.min}–${policy.expirationDteRange.max} DTE.`;
+    }
   }
 
-  let putEvidence: OptionSideEvidence;
-  if (putSelection.status === "selected" && putSelection.contract) {
-    const pe = buildContractEvidence(putSelection.contract, underlyingPrice, dte);
-    const criteria = evaluatePerSideCriteria(pe, policy);
-    putEvidence = { side: "put", selectedContract: pe, selectionStatus: "selected", criteria };
-  } else {
-    putEvidence = { side: "put", selectedContract: null, selectionStatus: putSelection.status, criteria: [] };
-  }
-
-  // Step 6: Cross-side criteria (capital)
-  const putStrike = putSelection.contract?.strike ?? null;
-  const crossCriteria = evaluateCrossSideCriteria(putStrike, policy);
-
-  // Step 7: Aggregate
-  const { outcome, explanation } = aggregateOutcome(callEvidence, putEvidence, crossCriteria, policy);
-
-  // Determine attempt status
-  const hasEvidenceGaps = callEvidence.selectionStatus !== "selected" || putEvidence.selectionStatus !== "selected";
+  // Attempt status
+  const hasEvidenceGaps = bestExp.callEvidence.selectionStatus !== "selected" || bestExp.putEvidence.selectionStatus !== "selected";
   const attemptStatus: EvaluationAttemptStatus = hasEvidenceGaps && outcome === "insufficient_evidence"
     ? "evidence_incomplete"
     : "completed";
@@ -438,10 +667,13 @@ export async function evaluateSymbolAdmission(
     outcome,
     policySnapshot: policy,
     evidenceProvenance: provenance,
-    expirationSelection: expResult,
-    callEvidence,
-    putEvidence,
-    aggregatedCriteria: crossCriteria,
+    expirationSelection: finalExpSelection,
+    callEvidence: bestExp.callEvidence,
+    putEvidence: bestExp.putEvidence,
+    aggregatedCriteria: allCrossCriteria,
+    productStructure,
     explanation,
+    expirationEvaluations: ranked,
+    winningExpiration: winner ? { date: winner.date, dte: winner.dte } : null,
   };
 }

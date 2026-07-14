@@ -411,7 +411,7 @@ export class TradierProvider implements MarketDataProvider {
       return {
         underlying: {
           symbol: upperSymbol,
-          name: knownUnderlying?.name ?? upperSymbol,
+          name: underlyingQuote?.description ?? knownUnderlying?.name ?? upperSymbol,
           price: underlyingPrice,
         },
         expiration: { date: expirationDate, dte: computeDte(expirationDate) },

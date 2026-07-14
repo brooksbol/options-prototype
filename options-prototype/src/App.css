@@ -3201,3 +3201,354 @@
 .universe-pagination button:disabled { opacity: 0.3; cursor: default; }
 
 .universe-page-info { font-size: 11px; color: #666; }
+
+
+/* Selection Evidence */
+
+.vr-selection-evidence {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #222;
+  border-radius: 6px;
+  padding: 10px 14px;
+  background: rgba(10, 10, 20, 0.5);
+}
+
+.vr-selection-evidence h4 {
+  font-size: 10px;
+  color: #7ec8e3;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px;
+}
+
+.vr-selection-sides {
+  display: flex;
+  gap: 24px;
+}
+
+.vr-selection-side {
+  flex: 1;
+  min-width: 0;
+}
+
+.vr-selection-side h5 {
+  font-size: 10px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.vr-selection-table {
+  border-collapse: collapse;
+  font-size: 11px;
+  font-family: "SF Mono", "Fira Code", monospace;
+  width: 100%;
+}
+
+.vr-selection-table td {
+  padding: 2px 8px 2px 0;
+  border-bottom: none;
+}
+
+.vr-selection-table td:first-child {
+  color: #666;
+  white-space: nowrap;
+}
+
+.vr-selection-table td:last-child {
+  color: #c8c8d4;
+}
+
+
+/* Selection Evidence highlighting */
+
+.vr-sel-fail td {
+  color: #eb5757 !important;
+  font-weight: 600;
+}
+
+.vr-sel-fail td:first-child {
+  color: #eb5757 !important;
+}
+
+.vr-sel-warn td {
+  color: #f2c94c !important;
+  font-weight: 600;
+}
+
+.vr-sel-warn td:first-child {
+  color: #f2c94c !important;
+}
+
+
+/* Opportunity Lab — VR Audit Context */
+
+.opp-vr-cell {
+  text-align: center;
+  padding: 2px 4px;
+}
+
+.opp-vr-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  cursor: help;
+  white-space: nowrap;
+}
+
+.opp-vr-none { color: #444; font-weight: normal; }
+.opp-vr-admit { background: rgba(111, 207, 151, 0.15); color: #6fcf97; }
+.opp-vr-reject { background: rgba(235, 87, 87, 0.15); color: #eb5757; }
+.opp-vr-review { background: rgba(242, 201, 76, 0.12); color: #f2c94c; }
+.opp-vr-unknown { background: rgba(100, 100, 100, 0.1); color: #888; }
+
+/* Qualified indicators (dimmed) */
+.opp-vr-qualified { opacity: 0.55; }
+.opp-vr-stale { opacity: 0.6; }
+
+.opp-vr-qualifier {
+  font-weight: 400;
+  font-size: 8px;
+  text-transform: lowercase;
+}
+
+
+/* Risk Categories */
+
+.vr-risk-categories {
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vr-risk-group {
+  border: 1px solid #222;
+  border-radius: 5px;
+  padding: 10px 12px;
+  background: rgba(10, 10, 20, 0.4);
+}
+
+.vr-risk-group-fail {
+  border-left: 3px solid #eb5757;
+}
+
+.vr-risk-group-pass {
+  border-left: 3px solid #6fcf97;
+}
+
+.vr-risk-label {
+  font-size: 10px;
+  color: #7ec8e3;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 4px;
+}
+
+.vr-risk-summary {
+  font-size: 12px;
+  color: #c8c8d4;
+  margin: 0 0 6px;
+  line-height: 1.5;
+}
+
+.vr-risk-details {
+  border-top: 1px solid #1a1a2e;
+  padding-top: 8px;
+  margin-top: 6px;
+}
+
+.vr-risk-item {
+  margin-bottom: 8px;
+}
+
+.vr-risk-item:last-child {
+  margin-bottom: 0;
+}
+
+.vr-risk-consequence {
+  font-size: 11px;
+  color: #b0b0b0;
+  margin: 0 0 3px;
+  line-height: 1.5;
+}
+
+.vr-risk-interpretation {
+  font-size: 11px;
+  color: #888;
+  margin: 0 0 3px;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.vr-risk-measurement {
+  font-size: 10px;
+  color: #666;
+  font-family: "SF Mono", "Fira Code", monospace;
+  margin: 0;
+}
+
+
+/* Velvet Rope — Institutional Memo Layout */
+
+.vr-positive-findings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.vr-positive-item {
+  font-size: 11px;
+  color: #6fcf97;
+  padding: 3px 8px;
+  background: rgba(111, 207, 151, 0.08);
+  border-radius: 3px;
+}
+
+/* Institutional Findings */
+
+.vr-findings {
+  margin-bottom: 12px;
+}
+
+.vr-findings-group {
+  margin-bottom: 10px;
+}
+
+.vr-findings-category {
+  font-size: 10px;
+  color: #eb5757;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 6px;
+}
+
+.vr-finding-card {
+  border: 1px solid #222;
+  border-left: 3px solid #eb5757;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: rgba(10, 10, 20, 0.4);
+}
+
+.vr-finding-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.vr-finding-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.vr-finding-disposition {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.vr-finding-fail { background: rgba(235, 87, 87, 0.15); color: #eb5757; }
+.vr-finding-near_miss { background: rgba(242, 201, 76, 0.12); color: #f2c94c; }
+
+.vr-finding-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vr-finding-row {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  align-items: baseline;
+}
+
+.vr-finding-label {
+  color: #666;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.vr-finding-value {
+  color: #c8c8d4;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.vr-finding-meaning {
+  color: #a0a0b0;
+  line-height: 1.4;
+}
+
+
+/* Raw JSON debug panel */
+.vr-raw-json {
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #a0a0b0;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #222;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 8px;
+  overflow-x: auto;
+  max-height: 600px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+
+/* Multi-expiration evidence */
+.vr-winning-exp {
+  font-size: 11px;
+  color: #6fcf97;
+  background: rgba(111, 207, 151, 0.08);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.vr-exp-table {
+  font-size: 11px;
+}
+
+.vr-exp-pass td {
+  background: rgba(111, 207, 151, 0.04);
+}
+
+.vr-exp-fail td {
+  background: rgba(235, 87, 87, 0.04);
+}
+
+
+/* Side-asymmetric caution badge */
+.vr-caution-item {
+  font-size: 11px;
+  color: #f2c94c;
+  padding: 3px 8px;
+  background: rgba(242, 201, 76, 0.08);
+  border-radius: 3px;
+}
+
+
+/* Evidence note (shown when no winning expiration) */
+.vr-evidence-note {
+  font-size: 10px;
+  color: #888;
+  font-style: italic;
+  margin: 6px 0 4px;
+}

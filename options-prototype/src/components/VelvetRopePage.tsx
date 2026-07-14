@@ -13,6 +13,7 @@ import { evaluateSymbolAdmission } from "../velvet-rope/evaluate";
 import { DEFAULT_ADMISSION_POLICY } from "../velvet-rope/policy";
 import { LocalStorageVelvetRopeStore, appendAuditRecord, getAuditHistory } from "../velvet-rope/persistence";
 import { synthesizeNarrative } from "../velvet-rope/narrative";
+import { categorizeCriteria } from "../velvet-rope/risk-categories";
 import type { AdmissionAuditRecord, VelvetRopeState, CriterionResult, OptionSideEvidence } from "../velvet-rope/types";
 import type { MarketDataProvider } from "../domain/provider";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
@@ -128,96 +129,196 @@ export function VelvetRopePage() {
       {/* Latest result */}
       {latestResult && (() => {
         const narrative = synthesizeNarrative(latestResult);
+        const riskCategories = categorizeCriteria(
+          latestResult.callEvidence,
+          latestResult.putEvidence,
+          latestResult.aggregatedCriteria,
+          latestResult.productStructure
+        );
+        const failingCategories = riskCategories.filter((c) => c.items.some((i) => i.criterion.status === "fail" || i.criterion.status === "near_miss"));
+        const passingCategories = riskCategories.filter((c) => c.items.every((i) => i.criterion.status === "pass" || i.criterion.severity === "observational"));
+
         return (
         <div className="vr-result">
+          {/* 1. Recommendation / Outcome */}
           <div className="vr-result-header">
             <h3>{latestResult.symbol}</h3>
             <OutcomeBadge outcome={latestResult.outcome} attemptStatus={latestResult.attemptStatus} />
+            {latestResult.winningExpiration && (
+              <span className="vr-winning-exp">
+                {latestResult.winningExpiration.date} ({latestResult.winningExpiration.dte} DTE)
+              </span>
+            )}
             <span className={`vr-confidence vr-confidence-${narrative.confidence}`}>
               {narrative.confidence} confidence
             </span>
           </div>
 
-          {/* Diagnostic Summary (VR-22) */}
-          <p className="vr-narrative-summary">{narrative.summary}</p>
+          {/* 2. Executive Summary — use multi-expiration explanation */}
+          <p className="vr-narrative-summary">{latestResult.explanation}</p>
 
-          {narrative.primaryReasons.length > 0 && (
-            <div className="vr-narrative-reasons">
-              <h4>Primary Reasons</h4>
-              <ul>
-                {narrative.primaryReasons.map((r, i) => <li key={i}>{r}</li>)}
-              </ul>
-            </div>
-          )}
-
+          {/* 3. Positive Findings */}
           {narrative.strengths.length > 0 && (
-            <div className="vr-narrative-strengths">
-              <h4>What Looked Good</h4>
-              <ul>
-                {narrative.strengths.map((s, i) => <li key={i}>{s}</li>)}
-              </ul>
+            <div className="vr-positive-findings">
+              {narrative.strengths.map((s, i) => {
+                const isAsymmetric = s.includes("insufficient") || s.includes("required");
+                return <span key={i} className={isAsymmetric ? "vr-caution-item" : "vr-positive-item"}>{isAsymmetric ? "⚠ " : "✓ "}{s}</span>;
+              })}
+              {!failingCategories.length && passingCategories.some((c) => c.category === "product_structure_risk") ? null : (
+                latestResult.productStructure.inferenceSource === "unknown" || !latestResult.productStructure.leveraged
+                  ? <span className="vr-positive-item">✓ Conventional product structure</span>
+                  : null
+              )}
             </div>
           )}
 
-          {narrative.cautions.length > 0 && (
-            <div className="vr-narrative-cautions">
-              <h4>Cautions</h4>
-              <ul>
-                {narrative.cautions.map((c, i) => <li key={i}>{c}</li>)}
-              </ul>
+          {/* 4. Institutional Findings (failing categories as individual cards) */}
+          {failingCategories.length > 0 && (
+            <div className="vr-findings">
+              {failingCategories.map((cat) => (
+                <div key={cat.category} className="vr-findings-group">
+                  <h4 className="vr-findings-category">{cat.categoryLabel}</h4>
+                  {cat.items
+                    .filter((i) => i.criterion.status !== "pass" && i.criterion.severity !== "observational")
+                    .map((item, idx) => (
+                      <div key={idx} className="vr-finding-card">
+                        <div className="vr-finding-header">
+                          <span className="vr-finding-name">{humanFindingName(item.criterion.criterion, item.criterion)}</span>
+                          <span className={`vr-finding-disposition vr-finding-${item.criterion.status}`}>
+                            {item.criterion.status === "fail" ? (item.criterion.severity === "hard" ? "Reject" : "Review") : "Near miss"}
+                          </span>
+                        </div>
+                        <div className="vr-finding-body">
+                          <div className="vr-finding-row">
+                            <span className="vr-finding-label">Observed</span>
+                            <span className="vr-finding-value">{formatMeasuredValue(item.criterion)}</span>
+                          </div>
+                          <div className="vr-finding-row">
+                            <span className="vr-finding-label">Meaning</span>
+                            <span className="vr-finding-meaning">{item.consequence.split(".")[0]}.</span>
+                          </div>
+                          <div className="vr-finding-row">
+                            <span className="vr-finding-label">Policy</span>
+                            <span className="vr-finding-value">{formatThreshold(item.criterion)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ))}
             </div>
           )}
 
-          {/* Detailed Evidence (progressive disclosure) */}
+          {/* 5. Supporting Evidence (collapsed) */}
           <details className="vr-evidence-details">
-            <summary>Evaluation Details</summary>
+            <summary>
+              {latestResult.winningExpiration
+                ? `Selected Admission Evidence — ${latestResult.expirationSelection.selectedDate} (${latestResult.expirationSelection.selectedDte} DTE)`
+                : `Best Available Evidence — ${latestResult.expirationSelection.selectedDate} (${latestResult.expirationSelection.selectedDte} DTE)`
+              }
+            </summary>
+            {!latestResult.winningExpiration && (
+              <p className="vr-evidence-note">Strongest failed pair shown for diagnosis; no expiration satisfied all hard admission criteria.</p>
+            )}
+            {(latestResult.callEvidence.selectedContract || latestResult.putEvidence.selectedContract) && (
+              <div className="vr-selection-sides" style={{ marginTop: 8 }}>
+                <SelectionEvidencePanel
+                  side="CALL"
+                  evidence={latestResult.callEvidence}
+                  expDate={latestResult.expirationSelection.selectedDate}
+                  dte={latestResult.expirationSelection.selectedDte}
+                  targetDelta={latestResult.policySnapshot.contractSelection.targetDelta}
+                />
+                <SelectionEvidencePanel
+                  side="PUT"
+                  evidence={latestResult.putEvidence}
+                  expDate={latestResult.expirationSelection.selectedDate}
+                  dte={latestResult.expirationSelection.selectedDte}
+                  targetDelta={latestResult.policySnapshot.contractSelection.targetDelta}
+                />
+              </div>
+            )}
+          </details>
 
-            {/* Expiration */}
+          {/* 5b. Expiration Evidence — all evaluated expirations */}
+          {latestResult.expirationEvaluations && latestResult.expirationEvaluations.length > 1 && (
+            <details className="vr-evidence-details">
+              <summary>Expiration Evidence ({latestResult.expirationEvaluations.length} evaluated)</summary>
+              <table className="options-table vr-exp-table" style={{ marginTop: 8 }}>
+                <thead>
+                  <tr>
+                    <th>Expiration</th>
+                    <th>DTE</th>
+                    <th>Outcome</th>
+                    <th>Call OI</th>
+                    <th>Call Spread</th>
+                    <th>Put OI</th>
+                    <th>Put Spread</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {latestResult.expirationEvaluations.map((ev) => (
+                    <tr key={ev.date} className={ev.outcome === "pass" ? "vr-exp-pass" : ev.outcome === "fail" ? "vr-exp-fail" : ""}>
+                      <td>{ev.date}{latestResult.winningExpiration?.date === ev.date ? " ★" : ""}</td>
+                      <td>{ev.dte}</td>
+                      <td>
+                        <span className={`vr-badge vr-badge-${ev.outcome === "pass" ? "completed" : ev.outcome === "fail" ? "provider_failed" : "evidence_incomplete"}`}>
+                          {ev.outcome}
+                        </span>
+                      </td>
+                      <td>{ev.callEvidence.selectedContract?.openInterest ?? "—"}</td>
+                      <td>{ev.callEvidence.selectedContract ? `${ev.callEvidence.selectedContract.spreadPercent.toFixed(0)}%` : "—"}</td>
+                      <td>{ev.putEvidence.selectedContract?.openInterest ?? "—"}</td>
+                      <td>{ev.putEvidence.selectedContract ? `${ev.putEvidence.selectedContract.spreadPercent.toFixed(0)}%` : "—"}</td>
+                      <td className="vr-audit-explanation">{ev.explanation.slice(ev.explanation.indexOf(":") + 2, 80)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+          )}
+
+          {/* 6. Diagnostics (collapsed) */}
+          <details className="vr-evidence-details">
+            <summary>Diagnostics</summary>
             <div className="vr-section">
-              <h4>Expiration Selection</h4>
               <p className="vr-detail">
-                {latestResult.expirationSelection.status === "selected"
-                  ? `${latestResult.expirationSelection.selectedDate} (${latestResult.expirationSelection.selectedDte} DTE) — ${latestResult.expirationSelection.availableCount} available`
-                  : `No usable expiration (${latestResult.expirationSelection.availableCount} available, range ${latestResult.expirationSelection.searchRange.min}–${latestResult.expirationSelection.searchRange.max})`
-                }
+                Expiration: {latestResult.expirationSelection.status === "selected"
+                  ? `${latestResult.expirationSelection.selectedDate} (${latestResult.expirationSelection.selectedDte} DTE)`
+                  : "None available"}
+                {" | "}Provider: {latestResult.evidenceProvenance.provider}
+                {" | "}Source: {latestResult.evidenceProvenance.source}
+                {latestResult.evidenceProvenance.cacheAgeSeconds != null && ` | Cache: ${latestResult.evidenceProvenance.cacheAgeSeconds}s`}
+                {latestResult.evidenceProvenance.delayedData && " | 15-min delayed"}
               </p>
             </div>
-
-          {/* Side evidence */}
-          <div className="vr-sides">
-            <SidePanel evidence={latestResult.callEvidence} />
-            <SidePanel evidence={latestResult.putEvidence} />
-          </div>
-
-          {/* Cross-side criteria */}
-          {latestResult.aggregatedCriteria.length > 0 && (
-            <div className="vr-section">
-              <h4>Cross-Side Criteria</h4>
-              <CriteriaTable criteria={latestResult.aggregatedCriteria} />
+            <div className="vr-sides">
+              <SidePanel evidence={latestResult.callEvidence} />
+              <SidePanel evidence={latestResult.putEvidence} />
             </div>
-          )}
+            {latestResult.aggregatedCriteria.length > 0 && (
+              <div className="vr-section">
+                <h4>Cross-Side Criteria</h4>
+                <CriteriaTable criteria={latestResult.aggregatedCriteria} />
+              </div>
+            )}
+          </details>
 
-          {/* Provenance */}
-          <div className="vr-section vr-provenance">
-            <h4>Evidence Provenance</h4>
-            <p className="vr-detail">
-              Provider: {latestResult.evidenceProvenance.provider} |
-              Source: {latestResult.evidenceProvenance.source} |
-              {latestResult.evidenceProvenance.cacheAgeSeconds != null && ` Cache age: ${latestResult.evidenceProvenance.cacheAgeSeconds}s |`}
-              {latestResult.evidenceProvenance.delayedData && " 15-min delayed |"}
-              Retrieved: {new Date(latestResult.evidenceProvenance.retrievedAt).toLocaleTimeString()}
-            </p>
-          </div>
+          {/* 7. Raw JSON (collapsed) */}
+          <details className="vr-evidence-details">
+            <summary>Raw Evaluation JSON</summary>
+            <pre className="vr-raw-json">{JSON.stringify(latestResult, null, 2)}</pre>
           </details>
         </div>
         );
       })()}
 
-      {/* Audit history */}
+      {/* Audit history (collapsed) */}
       {auditHistory.length > 0 && (
-        <div className="vr-section vr-audit">
-          <h4>Audit History — {symbol.toUpperCase()} ({auditHistory.length} {auditHistory.length === 1 ? "record" : "records"})</h4>
-          <table className="options-table vr-audit-table">
+        <details className="vr-evidence-details">
+          <summary>Audit History — {symbol.toUpperCase()} ({auditHistory.length} {auditHistory.length === 1 ? "record" : "records"})</summary>
+          <table className="options-table vr-audit-table" style={{ marginTop: 8 }}>
             <thead>
               <tr>
                 <th>Time</th>
@@ -241,7 +342,7 @@ export function VelvetRopePage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </details>
       )}
     </div>
   );
@@ -303,4 +404,104 @@ function CriteriaTable({ criteria }: { criteria: CriterionResult[] }) {
       </tbody>
     </table>
   );
+}
+
+// --- Selection Evidence Panel ---
+
+function SelectionEvidencePanel({ side, evidence, expDate, dte, targetDelta }: {
+  side: "CALL" | "PUT";
+  evidence: OptionSideEvidence;
+  expDate: string | null;
+  dte: number | null;
+  targetDelta: number;
+}) {
+  if (evidence.selectionStatus !== "selected" || !evidence.selectedContract) {
+    return (
+      <div className="vr-selection-side">
+        <h5>{side}</h5>
+        <p className="vr-detail vr-unavailable">
+          Not selected: {evidence.selectionStatus.replace(/_/g, " ")}
+        </p>
+      </div>
+    );
+  }
+
+  const c = evidence.selectedContract;
+
+  // Build a map of criterion → status for highlighting
+  const criterionStatus = new Map<string, "pass" | "fail" | "near_miss" | "unavailable" | "observed_below">();
+  for (const cr of evidence.criteria) {
+    criterionStatus.set(cr.criterion, cr.status);
+  }
+
+  function rowClass(criterion: string): string {
+    const status = criterionStatus.get(criterion);
+    if (status === "fail") return "vr-sel-fail";
+    if (status === "near_miss") return "vr-sel-warn";
+    return "";
+  }
+
+  return (
+    <div className="vr-selection-side">
+      <h5>{side}</h5>
+      <table className="vr-selection-table">
+        <tbody>
+          <tr><td>Expiration</td><td>{expDate ?? "—"} ({dte ?? "?"} DTE)</td></tr>
+          <tr><td>Strike</td><td>${c.strike}</td></tr>
+          <tr><td>Delta</td><td>{c.delta.toFixed(3)} (target {targetDelta})</td></tr>
+          <tr><td>Bid / Ask</td><td>${c.bid.toFixed(2)} / ${c.ask.toFixed(2)}</td></tr>
+          <tr><td>Mid</td><td>${c.mid.toFixed(2)}</td></tr>
+          <tr className={rowClass("maxBidAskSpreadPercent")}><td>Spread</td><td>{c.spreadPercent.toFixed(1)}%</td></tr>
+          <tr className={rowClass("minOpenInterest")}><td>Open Interest</td><td>{c.openInterest.toLocaleString()}</td></tr>
+          <tr><td>Volume</td><td>{c.volume.toLocaleString()}</td></tr>
+          {c.iv != null && <tr><td>IV</td><td>{(c.iv * 100).toFixed(0)}%</td></tr>}
+          <tr className={rowClass("minYieldAtTargetDelta")}><td>Yield</td><td>{c.annualizedYield.toFixed(1)}%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+
+// --- Risk Category Section ---
+
+// --- Finding Helpers ---
+
+function humanFindingName(criterion: string, _cr: CriterionResult): string {
+  switch (criterion) {
+    case "maxBidAskSpreadPercent": return "Wide Bid/Ask Spread";
+    case "minOpenInterest": return "Low Open Interest";
+    case "minOptionVolume": return "Low Volume";
+    case "maxCapitalPerContract": return "Capital Exceeds Limit";
+    case "minCapitalPerContract": return "Capital Below Minimum";
+    case "minYieldAtTargetDelta": return "Yield Below Target";
+    case "structuralCaution": return "Structural Complexity";
+    case "requireGreeks": return "Greeks Unavailable";
+    default: return criterion;
+  }
+}
+
+function formatMeasuredValue(cr: CriterionResult): string {
+  if (cr.measuredValue == null) return "—";
+  switch (cr.criterion) {
+    case "maxBidAskSpreadPercent": return `${Number(cr.measuredValue).toFixed(1)}%`;
+    case "minOpenInterest": return `${cr.measuredValue} contracts`;
+    case "maxCapitalPerContract":
+    case "minCapitalPerContract": return `$${Number(cr.measuredValue).toLocaleString()}`;
+    case "minYieldAtTargetDelta": return `${Number(cr.measuredValue).toFixed(1)}%`;
+    case "structuralCaution": return String(cr.measuredValue);
+    default: return String(cr.measuredValue);
+  }
+}
+
+function formatThreshold(cr: CriterionResult): string {
+  switch (cr.criterion) {
+    case "maxBidAskSpreadPercent": return `Maximum allowed: ${cr.threshold}%`;
+    case "minOpenInterest": return `Minimum required: ${cr.threshold}`;
+    case "maxCapitalPerContract": return `Maximum: $${Number(cr.threshold).toLocaleString()}`;
+    case "minCapitalPerContract": return `Minimum: $${Number(cr.threshold).toLocaleString()}`;
+    case "minYieldAtTargetDelta": return `Minimum target: ${cr.threshold}%`;
+    case "structuralCaution": return "Conventional structure expected";
+    default: return `Threshold: ${cr.threshold}`;
+  }
 }

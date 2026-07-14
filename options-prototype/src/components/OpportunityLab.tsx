@@ -19,6 +19,9 @@ import { explainOpportunity } from "../opportunity/explain";
 import { sweepDelta, type PolicyResponsePoint } from "../opportunity/sweep";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import type { MarketDataProvider, CacheStats } from "../domain/provider";
+import { deriveAuditContext, type AuditContext, type ContractIdentity } from "../velvet-rope/audit-context";
+import { LocalStorageVelvetRopeStore } from "../velvet-rope/persistence";
+import type { VelvetRopeState } from "../velvet-rope/types";
 
 // --- Provider singleton ---
 
@@ -270,6 +273,9 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
   const [ws] = useState(() => loadWorkspace());
   const providerKey = isTradierConfigured() ? "tradier" : "mock";
   const provider = useMemo(() => getProvider(providerKey), [providerKey]);
+
+  // Load VR audit state for prior evaluation context (no API calls)
+  const vrState = useMemo<VelvetRopeState>(() => new LocalStorageVelvetRopeStore().load(), []);
 
   // Check if we have a valid cached scan for this delta (survives tab navigation)
   const cachedScan = lastScanCache && lastScanCache.targetDelta === (ws.opportunityTargetDelta ?? DEFAULT_OPPORTUNITY_POLICY.targetDelta) && lastScanCache.maxDte === (ws.opportunityMaxDte ?? DEFAULT_OPPORTUNITY_POLICY.maxDte) && (Date.now() - lastScanCache.timestamp) < SCAN_CACHE_TTL_MS ? lastScanCache : null;
@@ -590,6 +596,7 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
                 <th className="opp-sortable" title="Implied volatility" onClick={() => handleCallSort("iv")}>IV{callSortIndicator("iv")}</th>
                 <th className="opp-sortable" title="Days to expiration" onClick={() => handleCallSort("nearestDte")}>DTE{callSortIndicator("nearestDte")}</th>
                 <th title="Delta sweep sparkline">Sweep</th>
+                <th title="Prior Velvet Rope audit context — historical, not a current judgment">VR</th>
               </tr>
             </thead>
             <tbody>
@@ -598,6 +605,10 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
               )}
               {callSorted.map((row) => {
                 const isBestCall = row.callYield != null && row.callYield === bestCallYield;
+                const callIdentity: ContractIdentity | null = (row.callStrike != null && row.nearestExpiration != null)
+                  ? { symbol: row.symbol, side: "call", expiration: row.nearestExpiration, strike: row.callStrike }
+                  : null;
+                const auditCtx = deriveAuditContext(row.symbol, callIdentity, null, vrState);
                 return (
                   <tr
                     key={row.symbol}
@@ -619,6 +630,7 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
                     <td>{row.iv != null ? `${(row.iv * 100).toFixed(0)}%` : "—"}</td>
                     <td>{row.nearestDte != null ? `${row.nearestDte}` : "—"}</td>
                     <td className="opp-sparkline-cell">{sparklineMap.has(row.symbol) ? <Sparkline points={sparklineMap.get(row.symbol)!} /> : ""}</td>
+                    <td className="opp-vr-cell"><AuditBadge ctx={auditCtx} /></td>
                   </tr>
                 );
               })}
@@ -641,6 +653,7 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
                 <th className="opp-sortable" title="Capital required (strike × 100)" onClick={() => handlePutSort("capitalPerContract")}>Capital{putSortIndicator("capitalPerContract")}</th>
                 <th className="opp-sortable" title="Days to expiration" onClick={() => handlePutSort("nearestDte")}>DTE{putSortIndicator("nearestDte")}</th>
                 <th title="Delta sweep sparkline">Sweep</th>
+                <th title="Prior Velvet Rope audit context — historical, not a current judgment">VR</th>
               </tr>
             </thead>
             <tbody>
@@ -649,6 +662,10 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
               )}
               {putSorted.map((row) => {
                 const isBestPut = row.putYield != null && row.putYield === bestPutYield;
+                const putIdentity: ContractIdentity | null = (row.putStrike != null && row.nearestExpiration != null)
+                  ? { symbol: row.symbol, side: "put", expiration: row.nearestExpiration, strike: row.putStrike }
+                  : null;
+                const auditCtx = deriveAuditContext(row.symbol, null, putIdentity, vrState);
                 return (
                   <tr
                     key={row.symbol}
@@ -670,6 +687,7 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
                     <td>{row.capitalPerContract != null ? `$${row.capitalPerContract.toLocaleString()}` : "—"}</td>
                     <td>{row.nearestDte != null ? `${row.nearestDte}` : "—"}</td>
                     <td className="opp-sparkline-cell">{sparklineMap.has(row.symbol) ? <Sparkline points={sparklineMap.get(row.symbol)!} /> : ""}</td>
+                    <td className="opp-vr-cell"><AuditBadge ctx={auditCtx} /></td>
                   </tr>
                 );
               })}
@@ -796,5 +814,47 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
         );
       })}
     </div>
+  );
+}
+
+
+// --- Audit Context Badge ---
+
+function AuditBadge({ ctx }: { ctx: AuditContext }) {
+  if (ctx.match === "not_evaluated") {
+    return <span className="opp-vr-badge opp-vr-none" title="No prior Velvet Rope evaluation exists for this symbol">—</span>;
+  }
+
+  const outcomeLabel = ctx.priorOutcome === "admit" ? "ADMIT"
+    : ctx.priorOutcome === "reject" ? "REJ"
+    : ctx.priorOutcome === "manual_review" ? "REV"
+    : "?";
+
+  const qualifier = ctx.match === "same_symbol" ? "prior"
+    : ctx.match === "exact_match_stale" ? "stale"
+    : "";
+
+  const detail = [
+    ctx.match === "same_symbol" ? "Prior evaluation — different contract" : ctx.match === "exact_match_stale" ? "Exact match — stale" : "Exact contract match",
+    ctx.evaluatedAt ? `Evaluated: ${new Date(ctx.evaluatedAt).toLocaleDateString()}` : "",
+    ctx.priorCallStrike != null ? `Call $${ctx.priorCallStrike} ${ctx.priorCallExpiration ?? ""}` : "",
+    ctx.priorPutStrike != null ? `Put $${ctx.priorPutStrike} ${ctx.priorPutExpiration ?? ""}` : "",
+    ctx.policyVersion ? `Policy: ${ctx.policyVersion}` : "",
+  ].filter(Boolean).join("\n");
+
+  const badgeClass = ctx.priorOutcome === "admit"
+    ? "opp-vr-admit"
+    : ctx.priorOutcome === "reject"
+    ? "opp-vr-reject"
+    : ctx.priorOutcome === "manual_review"
+    ? "opp-vr-review"
+    : "opp-vr-unknown";
+
+  const qualifierClass = ctx.match === "same_symbol" ? " opp-vr-qualified" : ctx.match === "exact_match_stale" ? " opp-vr-stale" : "";
+
+  return (
+    <span className={`opp-vr-badge ${badgeClass}${qualifierClass}`} title={detail}>
+      {qualifier ? <span className="opp-vr-qualifier">{qualifier} </span> : ""}{outcomeLabel}
+    </span>
   );
 }

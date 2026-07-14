@@ -39,6 +39,20 @@ export interface ExpirationSelectionResult {
   searchRange: { min: number; max: number };
 }
 
+// --- Per-Expiration Evaluation ---
+
+export type ExpirationOutcome = "pass" | "fail" | "incomplete";
+
+export interface ExpirationEvaluation {
+  date: string;
+  dte: number;
+  outcome: ExpirationOutcome;
+  callEvidence: OptionSideEvidence;
+  putEvidence: OptionSideEvidence;
+  crossCriteria: CriterionResult[];
+  explanation: string;
+}
+
 // --- Contract Evidence ---
 
 export interface ContractEvidence {
@@ -78,7 +92,7 @@ export type CriterionSeverity = "hard" | "soft" | "observational";
 
 export interface CriterionResult {
   criterion: string;
-  status: "pass" | "fail" | "unavailable" | "near_miss";
+  status: "pass" | "fail" | "unavailable" | "near_miss" | "observed_below";
   measuredValue: number | string | null;
   threshold: number | string;
   severity: CriterionSeverity;
@@ -114,10 +128,14 @@ export interface AdmissionPolicy {
   maxCapitalPerContract: PolicyCriterion;
   minCapitalPerContract: PolicyCriterion;
   minYieldAtTargetDelta: PolicyCriterion;
+  /** When true, leveraged/inverse/dailyReset triggers structural caution (soft) */
+  structuralCaution: PolicyCriterion;
   nearMissPercent: number;
 }
 
 // --- Audit Record ---
+
+import type { ProductStructure } from "./product-structure";
 
 export interface AdmissionAuditRecord {
   id: string;
@@ -128,10 +146,18 @@ export interface AdmissionAuditRecord {
   policySnapshot: AdmissionPolicy;
   evidenceProvenance: EvidenceProvenance;
   expirationSelection: ExpirationSelectionResult;
+  /** The winning (or best) expiration's call evidence — backward compat */
   callEvidence: OptionSideEvidence;
+  /** The winning (or best) expiration's put evidence — backward compat */
   putEvidence: OptionSideEvidence;
   aggregatedCriteria: CriterionResult[];
+  /** Structural classification of the instrument */
+  productStructure: ProductStructure;
   explanation: string;
+  /** All evaluated expirations with per-expiration evidence */
+  expirationEvaluations: ExpirationEvaluation[];
+  /** Which expiration was selected as the admitted operating point (null if none pass) */
+  winningExpiration: { date: string; dte: number } | null;
 }
 
 // --- Persisted State (thin slice) ---

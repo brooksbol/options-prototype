@@ -9,6 +9,7 @@
  */
 
 import type { AdmissionAuditRecord, CriterionResult, EvidenceProvenance } from "./types";
+import { hasStructuralComplexity, describeStructure, type ProductStructure } from "./product-structure";
 
 export interface EvaluationNarrative {
   /** One-sentence plain-English summary of the decision */
@@ -110,6 +111,11 @@ function buildSummary(
     }
 
     case "manual_review": {
+      // Check if structural complexity is the primary driver
+      const hasStructural = hasStructuralComplexity(record.productStructure);
+      if (hasStructural && softFails.some((f) => f.criterion === "structuralCaution")) {
+        return `${symbol} has a structurally complex product profile (${describeStructureShort(record.productStructure)}). Manual review recommended.`;
+      }
       if (nearMisses.length > 0 && softFails.length === 0) {
         return `${symbol} is borderline — one or more criteria are near the policy threshold and require operator review.`;
       }
@@ -163,7 +169,7 @@ function buildPrimaryReasons(
 
 // --- Strengths ---
 
-function buildStrengths(_record: AdmissionAuditRecord, passes: CriterionResult[]): string[] {
+function buildStrengths(record: AdmissionAuditRecord, passes: CriterionResult[]): string[] {
   const strengths: string[] = [];
 
   // Capital passing is notable
@@ -178,12 +184,30 @@ function buildStrengths(_record: AdmissionAuditRecord, passes: CriterionResult[]
     strengths.push("Premium yield exceeds the required minimum.");
   }
 
-  // OI passing
-  const oiPasses = passes.filter((p) => p.criterion === "minOpenInterest");
-  if (oiPasses.length === 2) {
+  // OI — side-aware messaging
+  const callOi = record.callEvidence.criteria.find((c) => c.criterion === "minOpenInterest");
+  const putOi = record.putEvidence.criteria.find((c) => c.criterion === "minOpenInterest");
+  const callOiPasses = callOi?.status === "pass";
+  const putOiPasses = putOi?.status === "pass";
+
+  if (callOiPasses && putOiPasses) {
     strengths.push("Both call and put open interest above threshold.");
-  } else if (oiPasses.length === 1) {
-    strengths.push("Open interest adequate on one side.");
+  } else if (callOiPasses && !putOiPasses) {
+    const callVal = callOi?.measuredValue ?? "—";
+    const putVal = putOi?.measuredValue ?? "—";
+    if (record.policySnapshot.sideRequirement === "both") {
+      strengths.push(`Call OI adequate (${callVal}); put OI insufficient (${putVal}) — both sides required.`);
+    } else {
+      strengths.push(`Call-side open interest adequate (${callVal}).`);
+    }
+  } else if (!callOiPasses && putOiPasses) {
+    const callVal = callOi?.measuredValue ?? "—";
+    const putVal = putOi?.measuredValue ?? "—";
+    if (record.policySnapshot.sideRequirement === "both") {
+      strengths.push(`Put OI adequate (${putVal}); call OI insufficient (${callVal}) — both sides required.`);
+    } else {
+      strengths.push(`Put-side open interest adequate (${putVal}).`);
+    }
   }
 
   // Spread passing
@@ -200,11 +224,20 @@ function buildStrengths(_record: AdmissionAuditRecord, passes: CriterionResult[]
 function buildCautions(nearMisses: CriterionResult[], softFails: CriterionResult[], record: AdmissionAuditRecord): string[] {
   const cautions: string[] = [];
 
+  // Structural observations (prioritized — most important context)
+  if (hasStructuralComplexity(record.productStructure)) {
+    const observations = describeStructure(record.productStructure);
+    cautions.push(...observations);
+    cautions.push("Current institutional policy treats structurally complex instruments conservatively.");
+  }
+
   for (const nm of nearMisses) {
+    if (nm.criterion === "structuralCaution") continue; // already handled above
     cautions.push(`${humanCriterionName(nm.criterion)} is near the policy threshold (${nm.measuredValue} vs ${nm.threshold}).`);
   }
 
   for (const sf of softFails) {
+    if (sf.criterion === "structuralCaution") continue; // already handled above
     cautions.push(`${humanCriterionName(sf.criterion)} below target (${sf.measuredValue} vs ${sf.threshold}).`);
   }
 
@@ -237,6 +270,7 @@ function humanCriterionName(criterion: string): string {
     minCapitalPerContract: "Minimum capital",
     minYieldAtTargetDelta: "Annualized yield",
     requireGreeks: "Greeks availability",
+    structuralCaution: "Product structure",
   };
   return map[criterion] ?? criterion;
 }
@@ -263,4 +297,15 @@ function describeCriterionFailure(cr: CriterionResult, record: AdmissionAuditRec
     default:
       return `${name}${side}: ${cr.measuredValue} vs threshold ${cr.threshold}.`;
   }
+}
+
+// --- Structural short description ---
+
+function describeStructureShort(structure: ProductStructure): string {
+  const parts: string[] = [];
+  if (structure.leveraged) parts.push(`${structure.leverageMultiple ?? ""}x leveraged`.trim());
+  if (structure.inverse) parts.push("inverse");
+  if (structure.dailyReset) parts.push("daily-reset");
+  if (structure.singleStock) parts.push("single-stock");
+  return parts.join(", ") || "complex structure";
 }

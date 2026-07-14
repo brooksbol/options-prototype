@@ -2898,3 +2898,487 @@ This is the ninth instance of working software revealing the next question:
 ### Decision
 
 Implement ProductStructure as enrichment in the next slice. Allow Velvet Rope to explain and react to structural facts conservatively. Do not build strategy authorization yet.
+
+---
+
+## 2026-07-13 — Design Convergence: Opportunity Lab + Velvet Rope Integration
+
+### The vision
+
+Opportunity Lab currently asks: "What is mathematically attractive?"
+Velvet Rope currently asks: "Is this institutionally fit?"
+
+These are asked on separate pages, at separate times, about potentially different contracts. The goal is to unify them: evaluate the **same contract** through both lenses simultaneously.
+
+### What was proposed
+
+A toggle on Opportunity Lab: `All Opportunities | Policy Qualified | Include Manual Review`
+
+Each row would carry an admission status (ADMIT / MANUAL REVIEW / REJECT) evaluated against the exact same contract the Opportunity Lab selected.
+
+### Why naive symbol-level badges are dangerous
+
+Today's debugging proved that contract identity matters. A prior Velvet Rope evaluation may have examined a different expiration, strike, and quote snapshot than what Opportunity Lab currently displays.
+
+An old `REJECT` for XLK at 39 DTE / $194 strike should NOT silently label a new 4-DTE / $185 opportunity as rejected. That would be misleading.
+
+### Converged two-step approach
+
+**Step 1 — Prior audit context (not filtering)**
+
+Add to Opportunity Lab a "Latest Velvet Rope Evaluation" indicator per symbol:
+- Outcome (prior)
+- Evaluated timestamp
+- Policy version
+- Expiration and strikes that were evaluated
+- Match indicator: "same contract" vs "same symbol, different contract" vs "not evaluated"
+
+This is informational. It does NOT filter. It does NOT claim the current opportunity has been evaluated. It provides context: "the last time we evaluated this symbol institutionally, here's what happened."
+
+Zero API calls. Read from existing localStorage audit trail.
+
+**Step 2 — Same-contract policy lens (earned later)**
+
+Evaluate the exact Opportunity Lab contract snapshot through reusable Velvet Rope criteria at scan time. Then the status truly applies to the displayed row and filtering becomes valid:
+- All Opportunities
+- Policy Qualified
+- Include Manual Review
+
+This requires the Velvet Rope evaluation logic to accept a pre-selected contract rather than selecting its own. That's a meaningful refactor — earned only after Step 1 proves the workflow matters.
+
+### Key semantic distinctions
+
+| Label | Meaning |
+|-------|---------|
+| `PRIOR REJECT` | Velvet Rope previously rejected this symbol under a different or same contract |
+| `STALE` | Evaluation exists but policy version differs from current |
+| `DIFFERENT CONTRACT` | Audit evaluated a different expiration/strike than what Opportunity Lab currently shows |
+| `NOT EVALUATED` | No Velvet Rope audit exists for this symbol |
+| `EXACT MATCH` | Audit contract matches the current Opportunity Lab contract (same exp + strike) |
+
+### Decision
+
+Implement Step 1 as the next slice. Call it "prior audit context." Do not use it for authoritative filtering. Visibly distinguish exact-match evaluations from same-symbol historical evaluations.
+
+Step 2 (same-contract policy lens) remains in the parking lot until Step 1 demonstrates operator value.
+
+### Methodology note
+
+This follows the project's pattern: today's debugging (XLK appearing to contradict between pages) directly motivated the integration. The software revealed the need through use — not through upfront design.
+
+---
+
+## 2026-07-03 — Evidence Freshness vs Market State
+
+### Context
+
+While evaluating Velvet Rope after the market closed, an interesting observation emerged.
+
+XLE admitted under policy during normal market hours earlier in the day.
+
+After market close, the identical evaluation rejected the same underlying because bid/ask spreads widened from approximately policy-compliant levels to roughly 25%.
+
+This does not appear to be a software defect. It appears to be a consequence of evaluating a market that is no longer meaningfully deployable.
+
+### Observation
+
+The current implementation assumes "evaluate the latest available market data."
+
+That assumption may not be equivalent to the operator's actual question.
+
+Two different questions exist:
+
+1. **What would I deploy if the market were open?** (operational)
+2. **What do current quotes look like?** (observational)
+
+Those are related but distinct.
+
+### Emerging Domain Concept: Evidence Context
+
+Not all evidence has the same operational value.
+
+| Category | Session | Deployable | Liquidity Meaningful | Use |
+|---|---|---|---|---|
+| Operational Evidence | Regular market session | Yes | Yes | Institutional decisions |
+| Observational Evidence | Extended hours | No | Possibly distorted | Monitoring only |
+
+This is intentionally separate from ProductStructure:
+
+- **ProductStructure** → "What is this instrument?"
+- **Evidence Context** → "How trustworthy is the current market evidence for making a deployment decision?"
+
+These appear to be orthogonal concepts.
+
+### Possible Future Policies (Parking Lot)
+
+No implementation decision made. Three policy models emerged:
+
+**Policy A — Always Evaluate Live**
+Always evaluate the most recent quotes regardless of market state. Truthful but may let extended-hours distortion dominate decisions.
+
+**Policy B — Last Deployable Snapshot**
+During extended hours, evaluate using the most recent market snapshot captured during normal trading. Answers "what would I deploy if the market were open?" but may hide genuine post-close changes.
+
+**Policy C — Present Both** (currently the most interesting)
+Show both a deployable snapshot (last normal-market evaluation) and a current observation (extended-hours evaluation). Preserves both operational and observational truth without forcing one to replace the other.
+
+### Decision
+
+No code changes. This is an architectural observation only.
+
+The prototype has uncovered another legitimate domain concept. Evidence Context remains in the parking lot until future experimentation provides sufficient evidence for implementation.
+
+### Kiro's Analysis
+
+**The concept is real and orthogonal.** Evidence Context is distinct from ProductStructure. One describes the instrument, the other describes the conditions under which you're observing it. Conflating them would muddy both. The fact that the same underlying, same policy, same contracts can flip from ADMIT to REJECT purely based on *when* you ask is not a bug — it's an undiscovered dimension.
+
+**Policy C is the most interesting for the right reason.** It's the only option that doesn't force a single truth. Markets genuinely have two states — "I can act on this" vs "I can see this" — and pretending one is the other is where operational errors come from. Showing both lets the operator reason about the gap rather than being surprised by it.
+
+**The implementation cost is low but not zero.** The hard part isn't displaying two evaluations. It's deciding what constitutes the boundary — is it exactly market open/close times? Does it account for the first/last 15 minutes of illiquidity? Does it need to know about holidays, half-days, halts? That boundary definition is where the real domain complexity hides.
+
+**One risk with Policy B:** caching a "last deployable snapshot" introduces staleness questions. How old is too old? What if news broke after the close that makes the snapshot misleading? Policy C sidesteps this because it shows both and lets the operator judge.
+
+**A lightweight precursor to implementation:** before building any of this, adding a `marketSession: "regular" | "extended" | "pre" | "closed"` field to the evidence provenance would be a natural first slice. Just labeling the evidence gives the operator information they're currently missing, without requiring any policy changes. It's the observational step before the prescriptive one.
+
+**Suggested sequencing if this moves forward:**
+
+1. Annotate evidence provenance with market session state (observational, no behavior change)
+2. Surface the annotation in the UI (operator awareness)
+3. Experiment with Policy C presentation (show both, let operator reason)
+4. Only then consider whether policy should *behave* differently based on session state
+
+### Cross-Domain Pattern Recognition: Reference Observations
+
+A deeper insight emerged from this discussion. The Evidence Context concept isn't domain-specific — it's an instance of a reusable architectural pattern that also appears in gemological grading (GIA reference diamonds).
+
+**The pattern:**
+
+| Layer | GIA Grading | Velvet Rope |
+|---|---|---|
+| Primary Observation | Grade the customer diamond | Evaluate the options chain |
+| Secondary Observation | Grade the reference diamond | Characterize the market evidence |
+| Governance | Interpret primary in light of secondary | Interpret decision in light of evidence quality |
+
+**The key flow is not:**
+
+```
+Input → Mechanism → Output
+```
+
+**It is:**
+
+```
+Reference Input → Mechanism → Expected Output → Observed Output → Mechanism Health
+```
+
+The grading mechanism itself becomes observable.
+
+**Mapped to Velvet Rope:**
+
+```
+Market Evidence → Evidence Context → Velvet Rope → Decision
+```
+
+Where Evidence Context asks:
+- Regular session or extended hours?
+- Quote age and completeness?
+- Operational or observational evidence?
+
+The fundamental question: **Should I trust the evidence before I trust the conclusion?**
+
+**Why this explains the discomfort with "revert to last green":**
+
+Silently substituting yesterday's evaluation treats the symptom. The real question is: why is today's evidence different? Just as GIA wouldn't silently substitute yesterday's calibration run — they'd first ask whether the grading mechanism is behaving differently or the diamond is genuinely different.
+
+**The reusable principle:**
+
+1. **Primary Observation** — Measure the thing you're interested in.
+2. **Secondary Observation** — Measure the mechanism producing that measurement.
+3. **Governance** — Interpret the primary observation in light of the secondary observation.
+
+**A subtle but important distinction:**
+
+In both systems, the reference doesn't replace reality. A reference diamond doesn't replace customer diamonds. A 3:59 PM quote doesn't replace the 7:00 PM quote. The reference gives you *context for interpreting* the current observation. You're not searching for the "correct" answer — you're characterizing the reliability of the process that produced the answer.
+
+**Architectural significance:**
+
+The independent emergence of this pattern in two unrelated domains (gemological grading and options evaluation) is strong evidence that this is a personal architectural principle rather than a domain-specific technique. It belongs in the foundations layer of project documentation.
+
+---
+
+## 2026-07-03 — Foundations Family Established
+
+### Context
+
+The Evidence Freshness discussion and the cross-domain pattern recognition (GIA reference diamonds ↔ market evidence quality) crystallized a realization: several reusable architectural principles have emerged independently from this project and are ready to be documented as foundations.
+
+### The Test
+
+If a principle survives the removal of all domain nouns (options, diamonds, ETFs, AI), it's foundational.
+
+### Foundations Created
+
+```
+docs/foundations/
+    three-actor-model.md          ← Who is making the decision?
+    secondary-observation.md      ← How much should I trust the evidence?
+    policy-over-prediction.md     ← What rules govern behavior?
+    closed-loop-engineering.md    ← How does evidence improve future decisions? (existing)
+```
+
+### Ordering Rationale
+
+The Three Actor Model is placed first because many other principles derive from it:
+- Secondary Observation is primarily a governance concern (Governor).
+- Policy over Prediction is the Governor's primary tool.
+- Progressive Attenuation (future) is about serving different actors with different information density.
+- Closed Feedback Loops connect all actors through evidence flow.
+
+### What Was Not Included
+
+- **ProductStructure** — Excellent domain concept, but specific to financial instruments. Not foundational.
+- **Progressive Attenuation** — Likely foundational, but not yet sufficiently validated through implementation. Parked as a candidate.
+
+### Significance
+
+These principles were not designed upfront. They emerged through building working software and observing recurring patterns across domains. Their independent emergence is the strongest evidence of their validity.
+
+---
+
+## 2026-07-03 — Foundations Review: Ten Candidate Principles
+
+### Context
+
+A comprehensive review of ten candidate foundational principles was performed. The goal: critique, identify overlap, distinguish foundations from techniques, and propose eventual document structure.
+
+### Classification
+
+The ten candidates were analyzed into four layers:
+
+| Layer | Principles |
+|---|---|
+| Outcome (telos) | Retire Uncertainty |
+| Mechanism (how) | Closed Feedback Loops, Reduced Cycle Time, Experimental Divergence |
+| Governance (decisions) | Three Actor Model, Secondary Observation, Evidence Before Governance, Policy Over Prediction |
+| Epistemological (knowing) | Ubiquitous Language Emerges Through Working Software |
+| Presentation (communicating) | Progressive Attenuation |
+
+### Independence Analysis
+
+**Truly independent (five):**
+1. Retire Uncertainty — the outcome principle
+2. Three Actor Model — actor separation
+3. Secondary Observation — mechanism-quality assessment
+4. Closed Feedback Loops — the core mechanism
+5. Policy Over Prediction — decision mechanism
+
+**Consequences of others (five):**
+- Reduced Cycle Time → tuning parameter of Closed Feedback Loops
+- Ubiquitous Language Emergence → output of feedback loops applied to domain modeling
+- Evidence Before Governance → input-side perspective of Policy Over Prediction
+- Experimental Divergence → strategy combining multiple principles
+- Progressive Attenuation → consequence of Three Actor Model (different actors, different presentation)
+
+### Key Decisions
+
+1. **Retire Uncertainty is the telos.** All other principles either produce it or govern behavior while it remains.
+
+2. **Closed Feedback Loops absorbs Reduced Cycle Time.** Cycle time is the loop's tuning parameter, not a separate mechanism.
+
+3. **Evidence Before Governance merges with or cross-references Policy Over Prediction.** They are two perspectives on the same system (input pipeline vs action mechanism).
+
+4. **Ubiquitous Language Emergence reframed as "Software as Domain Instrument."** Working software is an instrument for discovering the domain, not merely implementing it. Treat implementation friction as signal.
+
+5. **Experimental Divergence partially promoted.** The durable kernel — "Capabilities outlast containers" — is potentially foundational. The laboratory-lifecycle narrative is methodology, not foundation.
+
+6. **Progressive Attenuation remains parked.** Strong candidate but unvalidated through implementation or cross-domain recurrence.
+
+7. **Three Actor Model sits at the top of governance** (first question: who are we serving?), not at the absolute center (that's Retire Uncertainty).
+
+### Refinement: "Retire or Bound"
+
+The principle "Retire Uncertainty" should acknowledge that some uncertainties don't need elimination — they need *bounding* (proving their impact is tolerable). "Not as scary as they first appear" is bounding, not retiring.
+
+### Credibility Test for External Consulting
+
+Three requirements for external credibility:
+1. **Evidence of independent emergence** — show the principle appeared in multiple unrelated domains without transplant.
+2. **Concrete consequences** — state what a team does *differently* when adopting the principle.
+3. **Honest limitations** — state when the principle doesn't apply or has been over-applied.
+
+### Proposed Document Structure
+
+```
+docs/foundations/
+    README.md                               ← Index, relationships, reading guide
+    retire-uncertainty.md                   ← The outcome principle
+    three-actor-model.md                    ← Who is acting?
+    closed-feedback-loops.md                ← How does evidence improve decisions?
+                                               (includes cycle time, domain discovery)
+    secondary-observation.md                ← How trustworthy is the evidence?
+    policy-over-prediction.md               ← How do we govern action?
+                                               (includes evidence-before-governance layering)
+    capabilities-over-containers.md         ← What endures?
+    
+    # Candidates (parked)
+    # progressive-attenuation.md            ← Awaiting implementation validation
+    # software-as-domain-instrument.md      ← Awaiting stronger independent framing
+```
+
+### Decision
+
+No documents created yet. This review establishes the refined position. Documents will be created when the principles are ready to serve an external audience — which requires the credibility criteria above to be satisfied for each one.
+
+### Consulting Narrative (refined)
+
+The promise is not certainty. It is not that complexity disappears.
+
+The promise is:
+
+> Complexity usually has more structure than it first appears. We can make that structure visible. We can shorten the learning cycle. We can systematically retire — or bound — the uncertainties preventing good decisions. The result is an organization that knows more, guesses less, and learns faster.
+
+---
+
+## 2026-07-03 — Foundations Review: Additional Critique (Session 2)
+
+### Three Ideas Evaluated
+
+#### 1. Capabilities Over Containers — Confirmed Foundational
+
+"Container" is the correct abstraction. More general than "screen," more honest about what actually happens. The capability (evaluation, selection, evidence gathering) persists; the container (page, lab, service, agent) is scaffolding.
+
+Passes the domain-independence test: microservices (capabilities migrate between service boundaries), organizational design (capabilities move between teams), AI (reasoning capability migrates from prompt to fine-tuned model to tool).
+
+One sharpening needed: distinguish *capabilities* from *features*. A feature is a container-bound expression of a capability. Features are disposable. Capabilities are the architectural investment.
+
+**Status:** Promote to foundation.
+
+#### 2. Experimental Divergence — Split into Economics Kernel + Methodology
+
+The challenge: AI has changed the cost function for experimentation. When divergence becomes cheap, premature convergence becomes the dominant architectural error. Is this a methodology preference or a structural insight?
+
+**Assessment:** The *economics observation* is foundational:
+
+> "Architecture should converge at the rate of learning, not the rate of spending."
+
+The *laboratory lifecycle* (spin up labs, extract concepts, retire labs) is methodology — it's how you exploit the principle.
+
+**Status:** The convergence-timing insight is parked as a candidate foundation. The laboratory playbook belongs in methodology documentation.
+
+#### 3. Reality Arbitrates — Promoted
+
+**Key distinction from Closed Feedback Loops:**
+- Feedback loops describe *iterative refinement* of a single model.
+- Reality Arbitrates describes *hypothesis selection* between competing models.
+
+These are genuinely different epistemological operations. Iteration improves. Arbitration selects.
+
+**Behavioral test (what changes if adopted):**
+- Teams stop debating past a certain point.
+- Instead ask: "What's the smallest experiment that lets reality choose?"
+- Treat unresolved disagreement as a signal that experimentation is needed, not that argument is insufficient.
+- Value the design of discriminating experiments as a core skill.
+
+**Cross-domain evidence:** GIA reference diamonds, SOXS product structure discovery, scientific method, A/B testing, canary deployments, proof-of-concept spikes.
+
+**Relationship to Retire Uncertainty:** Reality Arbitrates is a *child* of Retire Uncertainty — it's the primary mechanism for retiring uncertainty when competing hypotheses exist. Not all uncertainties are retired through arbitration (some yield to analysis or deduction). But when models compete, this is the preferred mechanism.
+
+**Status:** Promote to foundation. Position as primary uncertainty-retirement mechanism for competing hypotheses.
+
+### Documentation Template (Refined)
+
+Every foundation document should eventually answer:
+
+1. What changes if you adopt this principle?
+2. What organizational behaviors emerge?
+3. What mistakes become less likely?
+4. When does this principle *not* apply?
+5. What is the *cost* of this principle?
+
+The fifth question is critical for consulting credibility. Every principle has a cost. Acknowledging costs separates foundations from slogans.
+
+### Revised Proposed Structure
+
+```
+docs/foundations/
+    README.md                               ← Index, relationships, template
+    retire-uncertainty.md                   ← The outcome principle (includes "or bound")
+    reality-arbitrates.md                   ← Mechanism: hypothesis selection via experiment
+    three-actor-model.md                    ← Who is acting?
+    closed-feedback-loops.md                ← Mechanism: iterative learning
+    secondary-observation.md                ← How trustworthy is the evidence?
+    policy-over-prediction.md               ← How do we govern action?
+    capabilities-over-containers.md         ← What endures?
+
+    # Candidates
+    # progressive-attenuation.md            ← Awaiting implementation validation
+    # convergence-timing.md                 ← "Converge at the rate of learning"
+```
+
+### Observation
+
+The foundations set is stabilizing. Seven promoted principles, two candidates. The promoted set has survived:
+- Domain-independence test (remove all domain nouns)
+- Behavioral change test (what would a team do differently?)
+- Cross-domain recurrence test (emerged in multiple unrelated domains)
+- Independence test (not derivable from another principle in the set)
+
+The candidates have not yet satisfied one or more of these tests.
+
+---
+
+## 2026-07-03 — Liquidity Topology and Side-Asymmetric Admission Evidence
+
+### Context
+
+Following the multi-expiration evaluation redesign, XLC was run as a validation case. The system correctly evaluated all six eligible expirations (10, 17, 24, 31, 38, 45 DTE) and rejected at every operating point. The data pipeline was confirmed accurate against Fidelity's live chain — Velvet Rope's reported values matched exactly.
+
+### Key Finding: Multi-Expiration Architecture Validated
+
+The instrument-level conclusion is now supported by evaluation across every eligible operating point, not one arbitrarily selected expiration. XLC failed all six expirations from 7–45 DTE under the current policy, and the system preserved the expiration-level reasons transparently.
+
+### Emerging Domain Concept: Liquidity Topology
+
+Fidelity evidence suggests that option liquidity is not a smooth function of DTE. For XLC:
+
+- Weeklies at 10, 17, 24, 31, and 45 DTE: thin (OI frequently single-digits, spreads 28-60%)
+- Aug 21 standard monthly (38 DTE): somewhat stronger call-side (OI 356), but put-side still thin (OI 9)
+- Sep 18 standard monthly (66 DTE, outside current window): dramatically healthier (OI 904, 1471, 1010 on various strikes)
+
+This suggests liquidity may cluster in standard monthly expirations while nearby weekly expirations remain thin. The term "liquidity topology" describes the distribution and concentration of executable liquidity across expiration, strike, delta, and side.
+
+### Side Asymmetry Is Operationally Meaningful
+
+"Can deploy a cash-secured put" and "can write a covered call" are distinct questions even when the current full-wheel policy requires both. For XLC at Aug 21:
+
+- Call OI: 356 (adequate)
+- Put OI: 9 (insufficient)
+- Call spread: 29.6% (fails)
+- Put spread: 28.6% (fails)
+
+The system now preserves this asymmetry in its evidence presentation rather than collapsing to one undifferentiated REJECT.
+
+### UI Semantic Corrections Implemented
+
+1. **Side-asymmetric OI badge:** When one side passes OI but the other fails under `sideRequirement: "both"`, the badge now reads (e.g.) "Call OI adequate (356); put OI insufficient (9) — both sides required." Styled as caution (yellow) rather than positive (green).
+
+2. **Evidence header adaptation:** When no winning expiration exists, the header reads "Best Available Evidence" with an explanatory note: "Strongest failed pair shown for diagnosis; no expiration satisfied all hard admission criteria." When a winning expiration exists, it reads "Selected Admission Evidence."
+
+### Parking Lot Items (Explicitly Not Implemented)
+
+1. **Research liquidity topology across a larger ETF sample.** One instrument (XLC) is not sufficient evidence to introduce expiration-class policy machinery.
+
+2. **Determine whether expiration class (weekly/standard monthly/quarterly) explains liquidity concentration better than DTE alone.**
+
+3. **Explore side-specific operating-mode authorization separately from full-wheel admission.** Plausible modes: put-only, call-only, monthly-only, research-only, assignment-prohibited. These alter admission semantics and deserve a separate design slice.
+
+4. **Consider DTE- or expiration-class-specific thresholds only after empirical evidence exists across multiple instruments.**
+
+5. **Do not expand the current 7–45 DTE range merely to make XLC pass.** The current range is revealing genuine characteristics of the nearer expiration surface. That revelation is valuable.
+
+### Architectural Observations
+
+- The current `sideRequirement: "both"` is appropriate for full conventional wheel authorization but too strict for narrower operating modes.
+- A blanket rule such as "allow wider spreads farther out" would not capture what is happening. The discontinuity appears to be caused by where market participation concentrates, not by DTE alone.
+- Evidence presentation must distinguish an admitted operating point from the strongest failed operating point. This is now implemented.
+- The conclusion from XLC is not that Velvet Rope is too conservative — it is that XLC's useful option liquidity appears structurally concentrated outside the current weekly-heavy 7–45 DTE operating envelope.

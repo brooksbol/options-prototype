@@ -34,6 +34,9 @@ export const DEFAULT_ADMISSION_POLICY: AdmissionPolicy = {
   // Income
   minYieldAtTargetDelta: { value: 5, severity: "soft" },
 
+  // Structural complexity
+  structuralCaution: { value: true, severity: "soft" },
+
   // Near-miss tolerance
   nearMissPercent: 15,
 };

@@ -53,11 +53,10 @@ describe("selectExpiration", () => {
     expect(result.selectedDte).toBe(28);
   });
 
-  it("falls back to nearest usable when none in range", () => {
+  it("returns no_usable_expiration when none in range", () => {
     const exps = [makeExpiration(3), makeExpiration(50), makeExpiration(90)];
     const result = selectExpiration(exps, range);
-    expect(result.status).toBe("selected");
-    expect(result.selectedDte).toBe(50); // nearest >= min (7), but 3 < 7 so skipped
+    expect(result.status).toBe("no_usable_expiration");
   });
 
   it("returns no_usable_expiration when all below minimum", () => {
@@ -168,16 +167,16 @@ describe("evaluatePerSideCriteria", () => {
     expect(oiResult!.status).toBe("near_miss");
   });
 
-  it("volume is always observational (never fails)", () => {
+  it("volume below threshold is observational (observed_below, non-gating)", () => {
     const evidence = makeContractEvidence({ volume: 0 });
     const results = evaluatePerSideCriteria(evidence, policy);
     const volResult = results.find((r) => r.criterion === "minOptionVolume");
     expect(volResult!.severity).toBe("observational");
-    expect(volResult!.status).toBe("pass");
+    expect(volResult!.status).toBe("observed_below");
   });
 
   it("yield below threshold is soft fail", () => {
-    const evidence = makeContractEvidence({ annualizedYield: 2.0 });
+    const evidence = makeContractEvidence({ annualizedYield: 2.0, spreadPercent: 5.0 });
     const results = evaluatePerSideCriteria(evidence, policy);
     const yieldResult = results.find((r) => r.criterion === "minYieldAtTargetDelta");
     expect(yieldResult!.status).toBe("fail");
