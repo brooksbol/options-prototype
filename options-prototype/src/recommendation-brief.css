@@ -506,3 +506,60 @@
   color: var(--wd-text-secondary);
   font-style: italic;
 }
+
+
+/* === CONFIRM SUBMITTED === */
+
+.rb-handoff-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rb-handoff-confirm {
+  font-size: var(--wd-size-label);
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-secondary);
+  background: none;
+  border: 1px solid var(--wd-border-default);
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s;
+}
+
+.rb-handoff-confirm:hover {
+  color: var(--wd-accent-green);
+  border-color: var(--wd-accent-green);
+}
+
+
+/* === PENDING EXPOSURE WARNING === */
+
+.rb-pending-warning {
+  margin-top: var(--wd-space-section);
+  padding: 6px 10px;
+  background: var(--wd-accent-yellow-bg);
+  border: 1px solid rgba(242, 201, 76, 0.2);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rb-pending-icon {
+  font-size: 12px;
+}
+
+.rb-pending-text {
+  font-size: var(--wd-size-body);
+  color: var(--wd-accent-yellow);
+  font-weight: var(--wd-weight-semi);
+}
+
+.rb-pending-detail {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  font-family: var(--wd-font-mono);
+}

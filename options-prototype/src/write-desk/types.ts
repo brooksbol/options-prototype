@@ -98,6 +98,12 @@ export interface PortfolioSnapshot {
   inventory: InventoryPosition[];
   existingCalls: OpenShortCall[];
   existingPuts: OpenShortPut[];
+  /**
+   * Authoritative deployable cash.
+   * When sourced from Fidelity balances CSV, this is "Available to trade (all settled)"
+   * which already accounts for open-order commitments. Do NOT subtract open-order
+   * reservations from this value — Fidelity has already done so.
+   */
   deployableCash: number | null;
   balanceContext: BalanceContext | null;
   provenance: PortfolioSnapshotProvenance;

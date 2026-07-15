@@ -3564,3 +3564,254 @@ The shortcut remains acceptable for prototype validation. It will be replaced wh
 | Session-transition coverage reset | ❌ Not implemented |
 
 This is recorded as known technical debt, not as a bug or a blocked dependency.
+
+
+---
+
+## 2026-07-03 — Architectural Consolidation Milestone
+
+### Context
+
+The Write Desk has reached a significant architectural milestone. The system now implements the full operational pipeline from evidence acquisition through broker handoff. This entry documents the consolidation review performed before continuing implementation.
+
+### What exists now
+
+The system consists of six clearly separated layers:
+
+1. **Portfolio Context** — Demo or Fidelity CSV import. Progressive disclosure.
+2. **Evidence Acquisition** — Session-aware, crawl-planned, rate-limited market data collection across the Yahoo 496 universe. IndexedDB persistence.
+3. **Evidence Store** — Durable cache with per-type TTLs, freshness semantics, canonical session validity.
+4. **Recommendation Engine (Wheelwright)** — Zero-provider-call recommendation generation. Deterministic function of cached evidence + policy + portfolio.
+5. **Write Desk** — Compact 3-band operational header + recommendation board + right-side drawer brief. The operator's primary workbench.
+6. **Broker Handoff** — WriteIntent construction + FidelityTradeLinkBuilder. Opens pre-populated Fidelity trade ticket in new tab.
+
+Key metrics:
+- 843 tests across 57 files
+- Full typecheck, build, and test suite passing
+- Yahoo 496 ETF universe scanned per session
+- Fidelity broker handoff empirically verified (trade ticket opens correctly)
+
+### What changed from the original architecture
+
+The original Slice 1 architecture described a simple options-chain viewer with mock data, delta matching, and metrics display. The system has evolved through several major transitions:
+
+| Original Concept | Current Reality |
+|-----------------|----------------|
+| MarketDataProvider (sync, mock) | Evidence Acquisition + Evidence Store (async, Tradier, IndexedDB) |
+| OptionsTable | Recommendation Board (sortable, selectable, policy-aware) |
+| MetricsPanel | Recommendation Brief (5-section drawer + broker handoff) |
+| useOptionsChain hook | acquireEvidence + recommendPuts (separated concerns) |
+| DeltaInput | Policy Strip (multi-parameter: delta, DTE, ranking mode) |
+| Single-page viewer | Multi-route operational application (/app/write) |
+| No broker concept | Full WriteIntent → FidelityTradeLinkBuilder pipeline |
+| No session awareness | 6-state market session model with evidence gating |
+| No persistence | IndexedDB durable cache surviving page reloads |
+| 15-symbol universe | 496-symbol universe with generation tracking |
+
+### New domain concepts introduced
+
+- **Wheelwright** — the recommendation craftsmanship layer (internal naming, not user-facing)
+- **WriteIntent** — broker-neutral order representation
+- **Recommendation Policy** — first-class domain object with contract selection, ranking, deployment
+- **Market Session Classification** — 6-state model governing evidence acquisition
+- **Progressive Disclosure** — collapsed operational summary vs. expanded portfolio detail
+- **Evidence Provenance** — canonical session identity for cached records (defined, not yet fully enforced)
+
+### Key decisions recorded (ADRs)
+
+1. Evidence Acquisition and Recommendation are separate concerns
+2. Wheelwright as the recommendation craftsmanship layer
+3. Recommendation rank independent of presentation sort
+4. Broker handoff via pre-populated trade ticket
+5. Progressive disclosure for portfolio context
+6. Right-side drawer for Recommendation Brief
+7. Session-aware evidence governance (provisional)
+8. Yahoo 496 as authoritative put universe
+9. Numbers-first typography
+10. Centralized theme tokens
+
+### Documentation produced
+
+- `07-architecture-current.md` — authoritative architecture document
+- `07a-component-map-current.md` — per-module responsibility map
+- `07b-diagrams.md` — data flow, operator workflow, Brief layout, viewport composition, session state machine
+- `07c-adrs.md` — 10 architecture decision records
+
+### Known technical debt
+
+| Item | Status |
+|------|--------|
+| Evidence provenance not enforced in provider write path | Defined, tested in isolation, not integrated |
+| `sessionClosed: boolean` shortcut in recommendPuts | Provisional — should use canonical session date verification |
+| Pre-provenance cache records may contain after-hours data | Requires migration or exclusion once provenance enforced |
+| Call recommendation engine (covered calls) | Minimal — uses scan-orchestrator, not Wheelwright |
+
+### What comes next (not committed)
+
+Candidates for future work (in no particular order):
+- Enforce evidence provenance in TradierProvider write path
+- Recommendation stability matrix (rank across multiple policies)
+- Background evidence acquisition
+- Contender deepening (top-30 challengers)
+- Historical recommendation ledger
+- Counterfactual analysis
+- Named operating profiles
+- Call-side Wheelwright engine
+
+### Open questions
+
+- Should the Fidelity adapter attempt to pre-populate quantity and account if those parameters are discovered?
+- When should evidence provenance enforcement move from "defined" to "enforced"?
+- Is 496 symbols the right universe size, or should the system support operator-defined subsets for faster iteration?
+
+
+---
+
+## 2026-07-15 — Backend Evidence Service Decision
+
+### Context
+
+The frontend-only evidence acquisition has reached the boundary of the architecture that was deliberately chosen for it.
+
+During live use, a series of crawl defects exposed fundamental incompatibility between browser lifecycle and long-lived background job execution:
+
+1. Persisted cursor at universe end while 363 symbols lacked chain evidence
+2. Scan planner classifying stale-expiration symbols as "provisionally rankable" without checking for chain existence
+3. Acquisition priority logic fetching only expirations per pass (never chains), requiring 12+ Rescans for convergence
+4. Application restart losing in-memory work queues while preserving durable state (cursor/generation)
+5. Stall detection marking incomplete generations as complete
+
+Each fix introduced its own edge cases. The pattern was clear: we were building increasingly sophisticated distributed-job infrastructure inside a browser tab.
+
+### What happened
+
+After fixing the immediate bugs (stale classification, priority ordering, chain-chasing), we stepped back and assessed whether further investment in browser crawl hardening was the right move.
+
+The analysis concluded:
+
+- The browser is acting as four things: UI, recommendation client, evidence database, and background job processor
+- The last two are the problem. Not because the code is wrong, but because a browser tab is fundamentally the wrong execution model for them
+- The domain model is proven: universe acquisition, session-aware governance, cache-backed recommendations, policy recomputation, broker handoff all work
+- The pain is evidence that the prototype has reached the limits of its intentional architecture
+
+### Decision
+
+Accept ADR: Move evidence acquisition from browser-owned crawl to a backend evidence service.
+
+Key boundary: Backend owns evidence lifecycle. Frontend owns recommendation and operator interaction. Wheelwright stays client-side for instant policy recomputation.
+
+The architectural move is NOT "add a backend." It is "move the evidence-acquisition subsystem into a stable execution environment and present the frontend with a coherent, conditionally retrievable snapshot."
+
+### What was produced
+
+- `08-adr-backend-evidence-service.md` — formal ADR with context, decision, consequences, alternatives
+- `09-backend-evidence-service-design.md` — 16-section design document (architecture, tech stack, SQLite schema, acquisition model, snapshot publication, API contract, client behavior, conditional GET semantics, migration path, shared contracts, observability, security, non-goals, testing, documentation reconciliation)
+- `09a-backend-diagrams.md` — 7 text-based diagrams (target architecture, worker flow, symbol lifecycle, publication timeline, conditional GET sequence, migration phases, frontend responsibility comparison)
+- `09b-migration-and-impact.md` — migration plan, documentation impact inventory, extraction friction points, open questions
+
+### Key insight
+
+The frontend-only crawler was not a failed architecture. It was a deliberate prototype architecture that validated the domain model and exposed the correct service boundary. The pain now being experienced is evidence that the prototype has served its purpose.
+
+### What comes next
+
+- Phase 0: Freeze frontend crawl investment. Document contracts.
+- Phase 1: Extract shared TypeScript types
+- Phase 2: Build backend evidence service (TypeScript, SQLite, continuous acquisition)
+- Phase 3: Frontend consumes backend snapshots behind feature flag
+- Phase 4: Backend becomes default
+- Phase 5: Remove frontend acquisition code
+
+### Important correction to "conditional GETs make it all go away"
+
+Conditional GETs do not eliminate acquisition complexity. They move delivery to the browser into a clean, cheap mechanism. The backend still has crawl state, generation tracking, retry, rate budgeting, session-aware validity, stall detection. The difference: those concerns now execute in a process that doesn't compete with HMR, tab closure, and React lifecycle.
+
+The most precise statement: **the browser may cache data; it should not own the job that creates and reconciles that data.**
+
+
+---
+
+## 2026-07-15 — Product Philosophy: Reactive vs Anticipatory
+
+### Context
+
+During live use, the operator had to click Rescan 12 times after returning from a 2-hour break. Each click advanced one internal acquisition pass of 40 symbols. The operator's mental model was "I want to see recommendations." The system's internal model was "please trigger my next batch."
+
+### Insight
+
+This isn't a UX bug. It's an architectural boundary being revealed.
+
+The system is currently **reactive**: the operator arrives, triggers acquisition, waits, then works.
+
+The correct product is **anticipatory**: evidence is continuously maintained, the operator arrives, and recommendations are immediately available.
+
+These are different products:
+- Product A: An evidence acquisition tool (the operator manages the crawl)
+- Product B: An operator decision console (evidence is already there)
+
+The Write Desk should be Product B.
+
+### The loop as a bridge
+
+Implemented a single-click full acquisition loop: one click runs passes until coverage is complete or a stopping condition is hit (session-blocked, rate-limited, stalled, safety limit of 20 passes). The UI updates progressively — recommendations improve after each pass. The operator never needs to click repeatedly.
+
+This solves the symptom (12 clicks → 1 click) but not the cause (evidence should already be fresh when you sit down). The cause requires the backend extraction.
+
+### Time orientation
+
+The backend changes the time orientation of the system:
+- Reactive: Operator arrives → acquire → recommend
+- Anticipatory: Maintain evidence → operator arrives → recommend
+
+Once evidence is continuously maintained, provenance becomes stronger. "Observed at 10:41:52" means "the service was watching." Not "the operator happened to be present."
+
+### Two states
+
+The clean architecture is:
+```
+Published Snapshot → Write Desk
+```
+
+Everything before publication belongs to the evidence service.
+Everything after publication belongs to the operator.
+
+### What changed
+
+- `handleScan` now loops until complete (max 20 passes, ~8 min at 1 req/sec)
+- Progressive UI updates: recommendations improve as coverage grows
+- Stopping conditions: NO_WORK_REQUIRED, STALLED, session-blocked, FAILED, zero progress
+- The Scan button label remains simple (no "pass 7 of 12" exposed)
+- One click = full acquisition. The implementation detail is hidden.
+
+### Implication
+
+The product philosophy is now consistent: the Write Desk is a decision surface, not a crawl controller. The single-click loop is the bridge. The backend extraction is the destination.
+
+
+---
+
+## 2026-07-15 — Backend Implementation Preferences Recorded
+
+### Context
+
+While the backend architecture and API boundary are well-defined (see `08-adr-backend-evidence-service.md` and `09-backend-evidence-service-design.md`), the earlier design documents proposed TypeScript/Node/SQLite as implementation technology. Recording updated implementation preferences based on operator familiarity and long-term maintainability.
+
+### Preferences recorded
+
+1. **Java / Spring Boot** — preferred over TypeScript/Node for the backend. Mature ecosystem, excellent scheduler/worker support, Spring Security for auth, familiar operational model.
+
+2. **Lightweight embedded database** — SQLite or H2. Zero-admin, transactional, easy backup. Avoid Postgres until scale demands it.
+
+3. **AWS** — preferred cloud due to familiarity. But cloud choice is an implementation concern, not architectural. Any JVM host works.
+
+4. **Evidence Service boundary reaffirmed** — the backend answers "what is true about the market?" The frontend answers "what should I write?" Wheelwright stays client-side initially.
+
+5. **Security from day one** — Spring Security, application-managed users, password hashing, session cookies, user-ownership boundaries on all user-specific data. Minimal roles (USER/ADMIN). Build enough that adding a second user doesn't require a redesign.
+
+### Relationship to prior design
+
+The API contract (snapshot endpoint, conditional GETs, ETag semantics) is language-agnostic. The shift from TypeScript to Java changes implementation, not architecture. The JSON snapshot schema becomes the shared contract between Java backend and TypeScript frontend.
+
+### Status
+
+Recorded as working assumptions in `10-backend-implementation-preferences.md`. Open to revision.

@@ -26,6 +26,8 @@ import { getTradingCalendar } from "../market-session/trading-calendar";
 import { FidelityUpload } from "./FidelityUpload";
 import { RecommendationBrief } from "./RecommendationBrief";
 import type { TablePositionContext } from "../write-desk/brief-builder";
+import { loadWorkingIntents, addPendingIntent, updatePendingIntent, createPendingIntent, type PendingIntent } from "../execution/pending-intent";
+import { buildWriteIntent } from "../execution/write-intent";
 import type { PortfolioSnapshot, PortfolioSourceType } from "../write-desk/types";
 import "../write-desk.css";
 import "../recommendation-brief.css";
@@ -53,6 +55,7 @@ export function WriteDesk() {
   const [policy, setPolicy] = useState(DEFAULT_RECOMMENDATION_POLICY);
   const [selectedCandidate, setSelectedCandidate] = useState<PutCandidate | null>(null);
   const [tablePosition, setTablePosition] = useState<TablePositionContext | null>(null);
+  const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>(() => loadWorkingIntents());
 
   const providerKey = isTradierConfigured() ? "tradier" : "mock";
   const provider = useMemo(() => getProvider(providerKey), [providerKey]);
@@ -127,7 +130,9 @@ export function WriteDesk() {
     }
   }, [source]);
 
-  // Scan handler
+  // Scan handler — runs acquisition passes in a loop until coverage is complete
+  // or a stopping condition is reached (session-blocked, rate-limited, all stalled).
+  // One click = full acquisition. The operator should never need to click repeatedly.
   const handleScan = useCallback(async () => {
     if (!snapshot || snapshot.readiness.status !== "READY" || !snapshot.deployableCash) return;
     setScanning(true);
@@ -140,25 +145,70 @@ export function WriteDesk() {
     setCallExcluded([]);
 
     try {
-      // Step 1: Evidence Acquisition (makes provider calls, populates cache)
-      const acqResult = await acquireEvidence(
-        universe.symbols,
-        provider,
-        { ...DEFAULT_PLANNER_CONFIG, provider: providerKey, environment: "sandbox", prioritySymbols: snapshot.inventory.map((p) => p.symbol) },
-        [], // no explicit coverage requests on first scan
-        (_phase, done, total) => setScanProgress({ done, total })
-      );
-
-      // Step 2: Recommendation (pure cache reads, zero provider calls)
+      const plannerConfig = { ...DEFAULT_PLANNER_CONFIG, provider: providerKey, environment: "sandbox", prioritySymbols: snapshot.inventory.map((p) => p.symbol) };
       const cache = getDurableCache();
       const sessionState = sessionClassification.state;
       const sessionClosed = sessionState === "CLOSED_CANONICAL" || sessionState === "NON_TRADING_DAY" || sessionState === "PREMARKET" || sessionState === "REGULAR_OPEN_DELAY";
+
+      let passCount = 0;
+      const MAX_PASSES = 20; // safety limit (~800 symbols at 40/pass)
+      let lastAcqResult: Awaited<ReturnType<typeof acquireEvidence>> | null = null;
+
+      // Acquisition loop: keep running passes until no more work or limit reached
+      while (passCount < MAX_PASSES) {
+        passCount++;
+        setScanProgress({ done: passCount, total: MAX_PASSES });
+
+        const acqResult = await acquireEvidence(
+          universe.symbols,
+          provider,
+          plannerConfig,
+          [],
+          (_phase, done, _total) => setScanProgress({ done: passCount * 40 + done, total: universe.symbols.length })
+        );
+        lastAcqResult = acqResult;
+
+        // Stopping conditions
+        if (acqResult.status === "NO_WORK_REQUIRED" || acqResult.status === "STALLED") break;
+        if (acqResult.status === "SKIPPED_SESSION_CLOSED" || acqResult.status === "SKIPPED_NON_TRADING" || acqResult.status === "SKIPPED_PREMARKET" || acqResult.status === "SKIPPED_OPEN_DELAY") break;
+        if (acqResult.status === "FAILED") break;
+        if (acqResult.refreshedSymbols.length === 0 && acqResult.deferred.length === 0) break;
+
+        // Update recommendations after each pass so the UI shows progressive results
+        const recResult = await recommendPuts(
+          universe.symbols,
+          snapshot.deployableCash,
+          cache,
+          { provider: providerKey, environment: "sandbox" },
+          policy,
+          { sessionClosed }
+        );
+        setPutCandidates(recResult.candidates);
+        setPutWaitCandidates(recResult.waitCandidates);
+        setPutCoverage({
+          status: recResult.coverage.symbolsMissingChain === 0 && recResult.coverageRequests.length === 0 ? "COMPLETE" : "BUILDING",
+          universeSize: universe.symbols.length,
+          covered: recResult.coverage.symbolsWithEvidence + recResult.coverage.confirmedAbsence,
+          fresh: recResult.coverage.symbolsWithEvidence,
+          staleUsable: 0,
+          missing: recResult.coverage.symbolsMissingChain,
+          confirmedAbsence: recResult.coverage.confirmedAbsence,
+          refreshedThisPass: acqResult.refreshedSymbols.length,
+          deferredThisPass: acqResult.deferred.length,
+        });
+        setPutIsProvisional(recResult.coverageRequests.length > 0);
+
+        // If coverage is complete, stop
+        if (recResult.coverage.symbolsMissingChain === 0 && recResult.coverageRequests.length === 0) break;
+      }
+
+      // Final recommendation computation
       const recResult = await recommendPuts(
         universe.symbols,
         snapshot.deployableCash,
         cache,
         { provider: providerKey, environment: "sandbox" },
-        DEFAULT_RECOMMENDATION_POLICY,
+        policy,
         { sessionClosed }
       );
 
@@ -172,22 +222,24 @@ export function WriteDesk() {
         staleUsable: 0,
         missing: recResult.coverage.symbolsMissingChain,
         confirmedAbsence: recResult.coverage.confirmedAbsence,
-        refreshedThisPass: acqResult.refreshedSymbols.length,
-        deferredThisPass: acqResult.deferred.length,
+        refreshedThisPass: lastAcqResult?.refreshedSymbols.length ?? 0,
+        deferredThisPass: lastAcqResult?.deferred.length ?? 0,
       });
       setPutIsProvisional(recResult.coverageRequests.length > 0);
-      setLastTelemetry({
-        passId: acqResult.telemetry.passId,
-        startedAt: acqResult.telemetry.startedAt,
-        completedAt: recResult.computedAt,
-        universe: { id: providerKey + ":sandbox", version: "yahoo-496-v1", totalSymbols: universe.symbols.length },
-        generation: { ...acqResult.telemetry.generation, coveredBefore: 0, coveredAfter: recResult.coverage.symbolsWithEvidence, remaining: recResult.coverage.symbolsMissingChain, status: recResult.coverageRequests.length === 0 ? "COMPLETE" : "BUILDING" },
-        pass: { selectedSymbols: acqResult.refreshedSymbols, completedSymbols: acqResult.refreshedSymbols, deferredSymbols: acqResult.deferred.map((d) => d.symbol), errors: acqResult.errors },
-        cache: { l1MemoryHits: 0, l2IndexedDBHits: 0, networkFetches: acqResult.telemetry.provider.marketSensitiveRequestsExecuted + acqResult.telemetry.provider.marketInsensitiveRequestsExecuted, staleHits: 0, indexedDBWrites: acqResult.telemetry.provider.canonicalWritesAccepted },
-        provider: { expirationCalls: acqResult.telemetry.provider.marketInsensitiveRequestsExecuted, chainCalls: acqResult.telemetry.provider.marketSensitiveRequestsExecuted, quoteCalls: 0, failures: acqResult.telemetry.provider.failures, rateLimitDeferrals: acqResult.telemetry.provider.requestsBlockedBySession },
-      });
+      if (lastAcqResult) {
+        setLastTelemetry({
+          passId: lastAcqResult.telemetry.passId,
+          startedAt: lastAcqResult.telemetry.startedAt,
+          completedAt: recResult.computedAt,
+          universe: { id: providerKey + ":sandbox", version: "yahoo-496-v1", totalSymbols: universe.symbols.length },
+          generation: { ...lastAcqResult.telemetry.generation },
+          pass: { selectedSymbols: lastAcqResult.refreshedSymbols, completedSymbols: lastAcqResult.refreshedSymbols, deferredSymbols: lastAcqResult.deferred.map((d) => d.symbol), errors: lastAcqResult.errors },
+          cache: { l1MemoryHits: 0, l2IndexedDBHits: 0, networkFetches: lastAcqResult.telemetry.provider.marketSensitiveRequestsExecuted + lastAcqResult.telemetry.provider.marketInsensitiveRequestsExecuted, staleHits: 0, indexedDBWrites: lastAcqResult.telemetry.provider.canonicalWritesAccepted },
+          provider: { expirationCalls: lastAcqResult.telemetry.provider.marketInsensitiveRequestsExecuted, chainCalls: lastAcqResult.telemetry.provider.marketSensitiveRequestsExecuted, quoteCalls: 0, failures: lastAcqResult.telemetry.provider.failures, rateLimitDeferrals: lastAcqResult.telemetry.provider.requestsBlockedBySession },
+        });
+      }
 
-      // Call scan
+      // Call scan (single pass — inventory is small)
       const callResult = await scanCalls(
         snapshot.inventory,
         provider,
@@ -217,7 +269,7 @@ export function WriteDesk() {
       setScanning(false);
       setScanProgress(null);
     }
-  }, [snapshot, provider]);
+  }, [snapshot, provider, policy]);
 
   return (
     <div className={`write-desk${selectedCandidate ? " wd-with-drawer" : ""}`}>
@@ -230,7 +282,16 @@ export function WriteDesk() {
           sessionClassification={sessionClassification}
           cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
           tablePosition={tablePosition}
+          pendingIntents={pendingIntents}
           onClose={() => setSelectedCandidate(null)}
+          onOrderConfirmed={(c) => {
+            const intent = buildWriteIntent({ candidate: c });
+            if (intent) {
+              const pending = createPendingIntent(intent);
+              addPendingIntent(pending);
+              setPendingIntents(loadWorkingIntents());
+            }
+          }}
         />
       )}
 
@@ -285,7 +346,7 @@ export function WriteDesk() {
       {/* ═══ BAND 2: Portfolio Summary (compact, with disclosure) ═══ */}
       {snapshot && snapshot.readiness.status === "READY" && (
         <div className="wd-band wd-band-portfolio">
-          <PortfolioSummaryBand snapshot={snapshot} />
+          <PortfolioSummaryBand snapshot={snapshot} pendingIntents={pendingIntents} onIntentResolve={(id, status) => { updatePendingIntent(id, status); setPendingIntents(loadWorkingIntents()); }} />
         </div>
       )}
 
@@ -498,9 +559,10 @@ export function WriteDesk() {
 
 // --- Portfolio Summary Band (compact, with disclosure for full detail) ---
 
-function PortfolioSummaryBand({ snapshot }: { snapshot: PortfolioSnapshot }) {
+function PortfolioSummaryBand({ snapshot, pendingIntents, onIntentResolve }: { snapshot: PortfolioSnapshot; pendingIntents: PendingIntent[]; onIntentResolve: (id: string, status: "filled" | "cancelled") => void }) {
   const callCapacity = snapshot.inventory.filter((p) => p.maxAdditionalContracts > 0);
   const noCapacity = snapshot.inventory.filter((p) => p.maxAdditionalContracts === 0);
+  const workingIntents = pendingIntents.filter((i) => i.status === "working");
 
   return (
     <>
@@ -522,7 +584,17 @@ function PortfolioSummaryBand({ snapshot }: { snapshot: PortfolioSnapshot }) {
             ))}
           </span>
         )}
-        {snapshot.existingPuts.length === 0 && callCapacity.length === 0 && (
+        {workingIntents.length > 0 && (
+          <span className="wd-psm-item">
+            <span className="wd-psm-label">Pending:</span>
+            {workingIntents.map((i) => (
+              <span key={i.id} className="wd-psm-chip wd-psm-chip-working">
+                {i.symbol} {i.expiration.slice(5)} ${i.strike} {i.optionType === "put" ? "P" : "C"}
+              </span>
+            ))}
+          </span>
+        )}
+        {snapshot.existingPuts.length === 0 && callCapacity.length === 0 && workingIntents.length === 0 && (
           <span className="wd-psm-item wd-psm-empty">No existing positions</span>
         )}
       </div>
@@ -616,6 +688,31 @@ function PortfolioSummaryBand({ snapshot }: { snapshot: PortfolioSnapshot }) {
               </div>
             )}
           </div>
+
+          {/* Pending Intents */}
+          {workingIntents.length > 0 && (
+            <div className="wd-detail-section">
+              <h4 className="wd-detail-heading">Pending Orders</h4>
+              <table className="wd-inventory-table">
+                <thead>
+                  <tr><th>Contract</th><th>Qty</th><th>Limit</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  {workingIntents.map((i) => (
+                    <tr key={i.id}>
+                      <td>{i.symbol} ${i.strike} {i.optionType === "put" ? "P" : "C"} {i.expiration.slice(5)}</td>
+                      <td>{i.quantity}</td>
+                      <td>{i.limitPrice != null ? `$${i.limitPrice.toFixed(2)}` : "—"}</td>
+                      <td className="wd-order-actions">
+                        <button className="wd-order-btn wd-order-fill" onClick={() => onIntentResolve(i.id, "filled")}>Filled</button>
+                        <button className="wd-order-btn wd-order-cancel" onClick={() => onIntentResolve(i.id, "cancelled")}>Cancel</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </details>
     </>

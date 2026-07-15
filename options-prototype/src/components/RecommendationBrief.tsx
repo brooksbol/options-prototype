@@ -10,6 +10,7 @@ import { buildWheelwrightBrief, type WheelwrightBriefViewModel, type TablePositi
 import { getDurableCache } from "../cache/durable-cache";
 import { buildWriteIntent } from "../execution/write-intent";
 import { buildFidelityTradeLink, type FidelityTradeLink } from "../execution/fidelity-trade-link";
+import { hasWorkingIntent, getWorkingIntentsForSymbol, type PendingIntent } from "../execution/pending-intent";
 import type { PutCandidate } from "../write-desk/scan-orchestrator";
 import type { PortfolioSnapshot } from "../write-desk/types";
 import type { RecommendationPolicy } from "../write-desk/recommend";
@@ -22,7 +23,9 @@ interface RecommendationBriefProps {
   sessionClassification: MarketSessionClassification;
   cacheEnvironment: { provider: string; environment: string };
   tablePosition: TablePositionContext | null;
+  pendingIntents: PendingIntent[];
   onClose: () => void;
+  onOrderConfirmed?: (candidate: PutCandidate) => void;
 }
 
 export function RecommendationBrief({
@@ -32,7 +35,9 @@ export function RecommendationBrief({
   sessionClassification,
   cacheEnvironment,
   tablePosition,
+  pendingIntents,
   onClose,
+  onOrderConfirmed,
 }: RecommendationBriefProps) {
   const [brief, setBrief] = useState<WheelwrightBriefViewModel | null>(null);
 
@@ -124,8 +129,23 @@ export function RecommendationBrief({
         </div>
       </section>
 
+      {/* === PENDING EXPOSURE WARNING === */}
+      {hasWorkingIntent(candidate.symbol, pendingIntents) && (
+        <div className="rb-pending-warning">
+          <span className="rb-pending-icon">⚠</span>
+          <span className="rb-pending-text">
+            {candidate.symbol} — pending broker order
+          </span>
+          {getWorkingIntentsForSymbol(candidate.symbol, pendingIntents).map((i) => (
+            <span key={i.id} className="rb-pending-detail">
+              ${i.strike} {i.optionType === "put" ? "P" : "C"} {i.expiration.slice(5)} × {i.quantity}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* === EXECUTION HANDOFF === */}
-      <FidelityHandoff candidate={candidate} />
+      <FidelityHandoff candidate={candidate} onOrderConfirmed={onOrderConfirmed} />
 
       {/* === EVIDENCE: Delta & Execution === */}
       <section className="rb-section rb-evidence">
@@ -255,7 +275,7 @@ export function RecommendationBrief({
 
 // --- Fidelity Handoff ---
 
-function FidelityHandoff({ candidate }: { candidate: PutCandidate }) {
+function FidelityHandoff({ candidate, onOrderConfirmed }: { candidate: PutCandidate; onOrderConfirmed?: (candidate: PutCandidate) => void }) {
   const intent = buildWriteIntent({ candidate });
   const link: FidelityTradeLink | null = intent ? buildFidelityTradeLink(intent) : null;
 
@@ -270,14 +290,24 @@ function FidelityHandoff({ candidate }: { candidate: PutCandidate }) {
 
   return (
     <div className="rb-handoff">
-      <a
-        className="rb-handoff-link"
-        href={link.url}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Open in Fidelity ↗
-      </a>
+      <div className="rb-handoff-actions">
+        <a
+          className="rb-handoff-link"
+          href={link.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Open in Fidelity ↗
+        </a>
+        {onOrderConfirmed && (
+          <button
+            className="rb-handoff-confirm"
+            onClick={() => onOrderConfirmed(candidate)}
+          >
+            Confirm Submitted
+          </button>
+        )}
+      </div>
       <div className="rb-handoff-verify">
         <span className="rb-handoff-verify-label">Verify before submitting:</span>
         {link.requiresVerification.map((field) => (

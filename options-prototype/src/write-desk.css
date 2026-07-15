@@ -1090,3 +1090,51 @@
   font-family: var(--wd-font-mono);
   margin-left: auto;
 }
+
+
+/* === OPEN ORDERS === */
+
+.wd-deploy-reserved {
+  font-size: var(--wd-size-label);
+  color: var(--wd-accent-yellow);
+  margin-left: 4px;
+}
+
+.wd-psm-chip-working {
+  color: var(--wd-accent-yellow);
+  background: var(--wd-accent-yellow-bg);
+}
+
+.wd-order-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.wd-order-btn {
+  font-size: var(--wd-size-micro);
+  padding: 1px 5px;
+  border-radius: 2px;
+  border: 1px solid var(--wd-border-default);
+  background: none;
+  cursor: pointer;
+  font-weight: var(--wd-weight-semi);
+}
+
+.wd-order-fill {
+  color: var(--wd-accent-green);
+  border-color: var(--wd-accent-green);
+}
+
+.wd-order-fill:hover {
+  background: var(--wd-accent-green-bg);
+}
+
+.wd-order-cancel {
+  color: var(--wd-text-secondary);
+  border-color: var(--wd-border-default);
+}
+
+.wd-order-cancel:hover {
+  color: var(--wd-accent-red);
+  border-color: var(--wd-accent-red);
+}

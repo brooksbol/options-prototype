@@ -13,12 +13,23 @@
  *   - DELAY_DRAIN
  *
  * Market-insensitive acquisition (expirations, metadata) is always permitted.
+ *
+ * RESTART-SAFE RECOVERY:
+ * Work is derived from set difference: universe - validCoveredSymbols.
+ * The crawl cursor is NOT the sole source of truth for remaining work.
+ * On every Rescan, the planner inspects the cache for ALL symbols —
+ * symbols with valid cached evidence are already covered regardless of cursor position.
+ *
+ * STALL DETECTION:
+ * A generation is STALLED when: status=BUILDING, remaining > 0, and zero work produced.
+ * This triggers a recovery pass that reclassifies the entire universe from cache state.
  */
 
 import type { MarketDataProvider } from "../domain/provider";
 import { getDurableCache, buildCacheKey } from "../cache/durable-cache";
 import { getCrawlState } from "../cache/crawl-state";
 import { buildScanPlan, type ScanPlannerConfig, DEFAULT_PLANNER_CONFIG } from "../cache/scan-planner";
+import { selectPrimaryExpiration, DEFAULT_PRIMARY_EXPIRATION_POLICY } from "../market-session/primary-expiration-policy";
 import { getMarketSessionPolicy, type MarketSessionState } from "../market-session/session-policy";
 import { classifyResourceSensitivity } from "../market-session/evidence-provenance";
 import type { CoverageRequest } from "./recommend";
@@ -33,6 +44,7 @@ export type AcquisitionStatus =
   | "SKIPPED_OPEN_DELAY"
   | "SKIPPED_NON_TRADING"
   | "NO_WORK_REQUIRED"
+  | "STALLED"
   | "FAILED";
 
 // --- Acquisition Result ---
@@ -61,6 +73,10 @@ export interface AcquisitionTelemetry {
     id: string | null;
     cursorBefore: number;
     cursorAfter: number;
+    coveredBefore: number;
+    coveredAfter: number;
+    remaining: number;
+    status: string;
   };
   plan: {
     totalSymbols: number;
@@ -129,7 +145,7 @@ export async function acquireEvidence(
   const fulfilled: CoverageRequest[] = [];
   const deferred: CoverageRequest[] = [];
 
-  // 1. Ensure crawl generation
+  // 1. Ensure crawl generation (preserves existing if universe matches)
   await crawl.ensureGeneration(
     plannerConfig.provider + ":" + plannerConfig.environment,
     "yahoo-496-v1",
@@ -137,7 +153,9 @@ export async function acquireEvidence(
   );
   const cursorBefore = crawl.current()?.cursor ?? 0;
 
-  // 2. Build scan plan
+  // 2. Build scan plan — THIS is the source of truth for remaining work.
+  //    The planner inspects the actual cache state for ALL symbols,
+  //    regardless of cursor position. This makes it restart-safe.
   onProgress?.("planning", 0, symbols.length);
   const plan = await buildScanPlan(symbols, cache, crawl, plannerConfig);
 
@@ -159,7 +177,32 @@ export async function acquireEvidence(
 
   const allWork = [...additionalWork, ...plan.scheduledWork].slice(0, plannerConfig.refreshBudget);
 
-  // 4. Execute work — applying session gate per resource type
+  // 4. STALL DETECTION: If the planner produced zero work but coverage is not complete,
+  //    report honestly. Do NOT mark the generation complete prematurely.
+  //    This state occurs when all symbols have some cached data but the planner
+  //    cannot produce actionable work (e.g., all remaining work is session-blocked,
+  //    or errors are within retry TTL).
+  const isStalled = allWork.length === 0
+    && plan.coverageStatus !== "COMPLETE"
+    && explicitRequests.length === 0;
+
+  // 5. If there IS work but the generation was previously marked complete or cursor is terminal,
+  //    reset state so acquisition can proceed.
+  if (allWork.length > 0) {
+    const gen = crawl.current();
+    if (gen) {
+      // Reset completion flag — we have new work to do
+      if (gen.completedAt) {
+        gen.completedAt = null;
+      }
+      // Reset terminal cursor so subsequent passes can advance
+      if (gen.cursor >= symbols.length) {
+        gen.cursor = 0;
+      }
+    }
+  }
+
+  // 6. Execute work — applying session gate per resource type
   let completed = 0;
   for (const work of allWork) {
     onProgress?.("acquiring", completed, allWork.length);
@@ -187,6 +230,25 @@ export async function acquireEvidence(
           await cache.put(cache.createRecord(absKey, "absence", plannerConfig.provider, plannerConfig.environment, work.symbol, null, { reason: "no expirations" }));
         } else {
           await cache.put(cache.createRecord(key, "expirations", plannerConfig.provider, plannerConfig.environment, work.symbol, null, expirations));
+
+          // Chain-chasing: immediately fetch primary chain if session permits.
+          // This avoids a wasted round-trip where we discover expirations in pass N
+          // but can't rank until pass N+1 fetches the chain.
+          if (marketSensitivePermitted) {
+            const primarySel = selectPrimaryExpiration(expirations as import("../domain/types").Expiration[], DEFAULT_PRIMARY_EXPIRATION_POLICY);
+            if (primarySel.selected) {
+              try {
+                marketSensitivePlanned++;
+                marketSensitiveExecuted++;
+                const chain = await provider.getOptionsChain(work.symbol, primarySel.selected.date);
+                const chainKey = buildCacheKey(plannerConfig.provider, plannerConfig.environment, "chain", work.symbol, primarySel.selected.date);
+                await cache.put(cache.createRecord(chainKey, "chain", plannerConfig.provider, plannerConfig.environment, work.symbol, primarySel.selected.date, chain));
+                canonicalWritesAccepted++;
+              } catch {
+                // Chain fetch failed — non-critical, will be retried in next pass
+              }
+            }
+          }
         }
         canonicalWritesAccepted++;
         refreshedSymbols.push(work.symbol);
@@ -224,18 +286,26 @@ export async function acquireEvidence(
     }
   }
 
-  // 5. Advance crawl cursor (only if not already complete and work was done)
+  // 7. Advance crawl cursor based on actual work completed (not budget)
   if (!crawl.isComplete() && completed > 0) {
-    const oldCursor = crawl.current()?.cursor ?? 0;
-    crawl.advanceCursor(Math.min(oldCursor + completed, symbols.length));
+    const currentCursor = crawl.current()?.cursor ?? 0;
+    crawl.advanceCursor(Math.min(currentCursor + completed, symbols.length));
   }
   await crawl.save();
 
   const cursorAfter = crawl.current()?.cursor ?? 0;
 
+  // 8. Determine final coverage from planner's authoritative classification
+  const coveredNow = plan.rankableFromCache + plan.provisionallyRankable + plan.confirmedAbsence;
+  const remainingNow = symbols.length - coveredNow;
+
   // Determine status
   let status: AcquisitionStatus;
-  if (!marketSensitivePermitted && marketSensitivePlanned > 0) {
+  if (isStalled) {
+    status = plan.rankableFromCache + plan.confirmedAbsence >= symbols.length
+      ? "NO_WORK_REQUIRED"
+      : "STALLED";
+  } else if (!marketSensitivePermitted && marketSensitivePlanned > 0) {
     status = skippedStatusForState(sessionClassification.state);
   } else if (failures > 0 && completed === 0) {
     status = "FAILED";
@@ -258,7 +328,15 @@ export async function acquireEvidence(
       passId,
       startedAt,
       completedAt: new Date().toISOString(),
-      generation: { id: crawl.current()?.id ?? null, cursorBefore, cursorAfter },
+      generation: {
+        id: crawl.current()?.id ?? null,
+        cursorBefore,
+        cursorAfter,
+        coveredBefore: coveredNow - completed,
+        coveredAfter: coveredNow,
+        remaining: remainingNow,
+        status: plan.coverageStatus,
+      },
       plan: {
         totalSymbols: symbols.length,
         rankableFromCache: plan.rankableFromCache,

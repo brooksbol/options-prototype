@@ -263,6 +263,30 @@ async function classifySymbol(
   // For planning purposes, assume at least one chain is needed
   // (detailed chain-level planning happens during execution)
   if (expFreshness === "stale_usable") {
+    // Expirations are stale but usable — still need to check if primary chain exists.
+    // A symbol is only provisionally rankable if it has BOTH expirations AND a chain.
+    const expPayload = expRecord!.payload as Expiration[];
+    const primarySelection = selectPrimaryExpiration(expPayload, DEFAULT_PRIMARY_EXPIRATION_POLICY);
+
+    if (primarySelection.selected) {
+      const primaryChainKey = buildCacheKey(config.provider, config.environment, "chain", symbol, primarySelection.selected.date);
+      const chainRecord = await cache.get(primaryChainKey);
+      const chainFreshness = cache.freshness(chainRecord);
+
+      if (chainFreshness === "missing" || chainFreshness === "expired") {
+        // Has stale expirations but no primary chain → needs chain fetch
+        return {
+          symbol,
+          status: "STALE_REQUIRES_REFRESH",
+          rankableNow: false,
+          refreshNeeded: [{ type: "chain", symbol, expiration: primarySelection.selected.date, reason: `Primary chain needed (${primarySelection.selected.dte} DTE, stale expirations)` }],
+          priorityReason: null,
+          crawlState: crawlSymbolState,
+        };
+      }
+    }
+
+    // Has stale expirations AND a valid chain → provisionally rankable
     return {
       symbol,
       status: "STALE_USABLE",
@@ -315,14 +339,18 @@ function prioritizeWork(
 ): RefreshWork[] {
   const prioritySet = new Set(prioritySymbols.map((s) => s.toUpperCase()));
 
-  return [...work].sort((a, b) => {
-    // 1. Priority symbols first
+  // Separate into chains and expirations
+  const chains = work.filter((w) => w.type === "chain");
+  const expirations = work.filter((w) => w.type === "expirations");
+  const other = work.filter((w) => w.type !== "chain" && w.type !== "expirations");
+
+  // Sort each group by priority
+  const sortByPriority = (a: RefreshWork, b: RefreshWork) => {
     const aPriority = prioritySet.has(a.symbol.toUpperCase());
     const bPriority = prioritySet.has(b.symbol.toUpperCase());
     if (aPriority && !bPriority) return -1;
     if (!aPriority && bPriority) return 1;
 
-    // 2. Missing before stale (uncovered symbols need evidence)
     const aPlan = symbolPlans.get(a.symbol);
     const bPlan = symbolPlans.get(b.symbol);
     const aIsMissing = aPlan?.status === "MISSING";
@@ -330,11 +358,13 @@ function prioritizeWork(
     if (aIsMissing && !bIsMissing) return -1;
     if (!aIsMissing && bIsMissing) return 1;
 
-    // 3. Expirations before chains (cheaper, unlocks more work)
-    if (a.type === "expirations" && b.type !== "expirations") return -1;
-    if (a.type !== "expirations" && b.type === "expirations") return 1;
-
-    // 4. Alphabetical deterministic tie-break
     return a.symbol.localeCompare(b.symbol);
-  });
+  };
+
+  chains.sort(sortByPriority);
+  expirations.sort(sortByPriority);
+
+  // Interleave: chains first (they produce rankable coverage), then expirations (discovery).
+  // This ensures each pass contributes both new rankings AND new discovery.
+  return [...other, ...chains, ...expirations];
 }
