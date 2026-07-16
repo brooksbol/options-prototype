@@ -1207,3 +1207,202 @@
   color: var(--wd-text-secondary);
   margin: 0 0 4px;
 }
+
+
+/* === EVIDENCE STATE INDICATOR === */
+
+.wd-evidence-indicator {
+  font-size: var(--wd-size-label);
+  font-family: var(--wd-font-mono);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+}
+
+.wd-evidence-dot {
+  font-size: 10px;
+}
+
+.wd-evidence-green { color: var(--wd-accent-green); }
+.wd-evidence-green .wd-evidence-dot { color: var(--wd-accent-green); }
+
+.wd-evidence-yellow { color: var(--wd-accent-yellow); }
+.wd-evidence-yellow .wd-evidence-dot { color: var(--wd-accent-yellow); }
+
+.wd-evidence-orange { color: var(--wd-accent-red); }
+.wd-evidence-orange .wd-evidence-dot { color: var(--wd-accent-red); }
+
+.wd-evidence-red { color: var(--wd-accent-red); }
+.wd-evidence-red .wd-evidence-dot { color: var(--wd-accent-red); }
+
+
+/* === COVERAGE BAR === */
+
+.wd-coverage-bar {
+  width: 100%;
+  height: 2px;
+  background: var(--wd-border-default);
+  border-radius: 1px;
+  overflow: hidden;
+  flex-basis: 100%;
+  order: 99; /* Push below the inline indicators */
+}
+
+.wd-coverage-bar-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.6s ease-out;
+}
+
+.wd-coverage-bar-green { background: var(--wd-accent-green); }
+.wd-coverage-bar-yellow { background: var(--wd-accent-yellow); }
+.wd-coverage-bar-orange { background: var(--wd-accent-red); }
+.wd-coverage-bar-red { background: var(--wd-accent-red); }
+
+
+/* === FUNNEL INFOGRAPHIC === */
+
+.wd-funnel {
+  margin: 2px 0 6px;
+}
+
+.wd-funnel-primary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wd-funnel-bar {
+  flex: 1;
+  display: flex;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--wd-border-default);
+  min-width: 60px;
+}
+
+.wd-funnel-bar-seg {
+  height: 100%;
+  transition: width 0.6s ease-out;
+  min-width: 0;
+}
+
+.wd-funnel-seg-eligible {
+  background: var(--wd-accent-green);
+}
+
+.wd-funnel-seg-optionable {
+  background: var(--wd-accent-blue);
+  opacity: 0.45;
+}
+
+.wd-funnel-seg-resolved {
+  background: var(--wd-text-disabled);
+  opacity: 0.3;
+}
+
+.wd-funnel-seg-pending {
+  background: var(--wd-accent-yellow);
+  opacity: 0.4;
+}
+
+.wd-funnel-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.wd-funnel-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.wd-funnel-stat-num {
+  font-family: var(--wd-font-mono);
+  font-weight: var(--wd-weight-bold);
+  color: var(--wd-text-primary);
+  font-size: 11px;
+}
+
+.wd-funnel-stat-label {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+}
+
+.wd-funnel-stat-optionable {
+  color: var(--wd-accent-blue);
+}
+
+.wd-funnel-stat-opportunities {
+  color: var(--wd-accent-green);
+}
+
+/* "Why only N?" disclosure */
+.wd-funnel-why {
+  margin-top: 2px;
+}
+
+.wd-funnel-why-summary {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.wd-funnel-why-summary:hover {
+  color: var(--wd-text-primary);
+}
+
+.wd-funnel-why-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  padding: 4px 0;
+}
+
+.wd-funnel-why-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: var(--wd-size-label);
+}
+
+.wd-funnel-why-count {
+  font-family: var(--wd-font-mono);
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-primary);
+  min-width: 20px;
+}
+
+.wd-funnel-why-reason {
+  color: var(--wd-text-secondary);
+}
+
+/* Yield suppressed indicator */
+.wd-yield-suppressed {
+  color: var(--wd-text-disabled);
+  cursor: help;
+  border-bottom: 1px dotted var(--wd-text-disabled);
+}
+
+
+/* Deferred section note */
+.wd-deferred-note {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  font-style: italic;
+  margin: 4px 0;
+}
+
+
+/* Evidence context note (mixed prior + current) */
+.wd-funnel-context-note {
+  font-size: var(--wd-size-label);
+  color: var(--wd-accent-yellow);
+  font-style: italic;
+  cursor: help;
+}

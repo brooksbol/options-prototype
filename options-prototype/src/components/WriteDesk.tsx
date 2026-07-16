@@ -8,23 +8,21 @@
  * execution assessment, and ranking into one operational workflow.
  */
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { navigateTo } from "../router";
 import { createDemoSnapshot } from "../write-desk/demo-snapshot";
-import { scanCalls, type PutCandidate, type CallCandidate, type CallInventoryItem } from "../write-desk/scan-orchestrator";
-import { DEFAULT_SCAN_CONFIG } from "../write-desk/scan-orchestrator";
-import { acquireEvidence } from "../write-desk/acquire-evidence";
+import { type PutCandidate } from "../write-desk/scan-orchestrator";
 import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type RecommendationPolicy } from "../write-desk/recommend";
-import { type ScanTelemetry } from "../write-desk/universe-scanner";
-import { DEFAULT_PLANNER_CONFIG } from "../cache/scan-planner";
+import type { RecommendationFunnel } from "../write-desk/recommend";
 import { getDurableCache } from "../cache/durable-cache";
-import { createScanAuditRecord, persistScanAudit, type ScanAuditRecord } from "../write-desk/scan-audit";
+import { deriveTrustState } from "../write-desk/trust-state";
 import { loadCandidateUniverseWithDescriptor } from "../universe/universe";
-import { getProvider, isTradierConfigured } from "../providers";
+import { isTradierConfigured } from "../providers";
 import { MarketSessionPolicy } from "../market-session/session-policy";
 import { getTradingCalendar } from "../market-session/trading-calendar";
 import { FidelityUpload } from "./FidelityUpload";
 import { RecommendationBrief } from "./RecommendationBrief";
+import { FunnelInfographic } from "./FunnelInfographic";
 import type { TablePositionContext } from "../write-desk/brief-builder";
 import { loadWorkingIntents, addPendingIntent, updatePendingIntent, createPendingIntent, type PendingIntent } from "../execution/pending-intent";
 import { buildWriteIntent } from "../execution/write-intent";
@@ -40,19 +38,14 @@ export function WriteDesk() {
   const [snapshot, setSnapshot] = useState<PortfolioSnapshot | null>(() =>
     source === "demo" ? createDemoSnapshot() : null
   );
-  const [fidelitySnapshot, setFidelitySnapshot] = useState<PortfolioSnapshot | null>(null);
-  const [scanning, setScanning] = useState(false);
-  const [scanProgress, setScanProgress] = useState<{ done: number; total: number } | null>(null);
   const [putCandidates, setPutCandidates] = useState<PutCandidate[]>([]);
+  const [fidelitySnapshot, setFidelitySnapshot] = useState<PortfolioSnapshot | null>(null);
   const [putWaitCandidates, setPutWaitCandidates] = useState<PutCandidate[]>([]);
   const [putCoverage, setPutCoverage] = useState<{ status: string; universeSize: number; covered: number; fresh: number; staleUsable: number; missing: number; confirmedAbsence: number; refreshedThisPass: number; deferredThisPass: number } | null>(null);
   const [putIsProvisional, setPutIsProvisional] = useState(true);
-  const [callCandidates, setCallCandidates] = useState<CallCandidate[]>([]);
-  const [callInventory, setCallInventory] = useState<CallInventoryItem[]>([]);
-  const [callExcluded, setCallExcluded] = useState<{ symbol: string; reason: string }[]>([]);
+  const [putFunnel, setPutFunnel] = useState<RecommendationFunnel | null>(null);
+  // Call candidates deferred — backend-driven call recommendations not yet built
   const [scanTimestamp, setScanTimestamp] = useState<string | null>(null);
-  const [lastAudit, setLastAudit] = useState<ScanAuditRecord | null>(null);
-  const [lastTelemetry, setLastTelemetry] = useState<ScanTelemetry | null>(null);
   const [policy, setPolicy] = useState(() => {
     const ws = loadWorkspace();
     return {
@@ -76,7 +69,6 @@ export function WriteDesk() {
   const [showCount, setShowCount] = useState(() => loadWorkspace().writeDeskShowCount);
 
   const providerKey = isTradierConfigured() ? "tradier" : "mock";
-  const provider = useMemo(() => getProvider(providerKey), [providerKey]);
 
   // Load the shared candidate universe (Yahoo 496 + operator additions)
   const universe = useMemo(() => loadCandidateUniverseWithDescriptor(), []);
@@ -98,6 +90,7 @@ export function WriteDesk() {
     setPutCandidates(recResult.candidates);
     setPutWaitCandidates(recResult.waitCandidates);
     setPutIsProvisional(recResult.coverageRequests.length > 0);
+    setPutFunnel(recResult.funnel);
   }, [snapshot, universe, providerKey]);
 
   // Market session classification (updates on render, not reactive to clock)
@@ -119,11 +112,7 @@ export function WriteDesk() {
     setPutCandidates([]);
     setPutWaitCandidates([]);
     setPutCoverage(null); setPutIsProvisional(true);
-    setCallCandidates([]);
-    setCallInventory([]);
-    setCallExcluded([]);
     setScanTimestamp(null);
-    setLastAudit(null);
   };
 
   // Fidelity upload callbacks
@@ -140,155 +129,152 @@ export function WriteDesk() {
       setPutCandidates([]);
       setPutWaitCandidates([]);
       setPutCoverage(null); setPutIsProvisional(true);
-      setCallCandidates([]);
-      setCallInventory([]);
-      setCallExcluded([]);
       setScanTimestamp(null);
-      setLastAudit(null);
     }
   }, [source]);
 
-  // Scan handler — runs acquisition passes in a loop until coverage is complete
-  // or a stopping condition is reached (session-blocked, rate-limited, all stalled).
-  // One click = full acquisition. The operator should never need to click repeatedly.
-  const handleScan = useCallback(async () => {
-    if (!snapshot || snapshot.readiness.status !== "READY" || !snapshot.deployableCash) return;
-    setScanning(true);
-    setScanProgress(null);
-    setPutCandidates([]);
-    setPutWaitCandidates([]);
-    setPutCoverage(null); setPutIsProvisional(true);
-    setCallCandidates([]);
-    setCallInventory([]);
-    setCallExcluded([]);
-    setScanTimestamp(new Date().toISOString()); // Set immediately so the candidate section renders
+  // --- Backend-owned acquisition: the browser observes, does not initiate ---
+  //
+  // EVIDENCE CONTEXTS (transitional architecture):
+  //
+  // 1. Backend Current Observation
+  //    Source: snapshotData.coverage, backend generation, process-lifetime EvidenceStore
+  //    Meaning: what the backend has resolved THIS process lifetime
+  //    Used for: evidence-state indicator, coverage bar, backend trust
+  //
+  // 2. Frontend Recommendation Projection
+  //    Source: IndexedDB cache (DurableMarketCache), TTL/session-based freshness
+  //    Meaning: all evidence the recommendation engine can use (may include prior-session records)
+  //    Used for: funnel counts, candidate population, opportunity count
+  //
+  // These are NOT necessarily the same population. During bootstrap, the backend may show
+  // 13/496 resolved while IndexedDB retains prior-session evidence making recommendations
+  // appear more complete. This is acceptable transitionally because:
+  //   - TTL freshness bounds how old evidence can be (chains: 30min stale max during active session)
+  //   - sessionClosed=true intentionally accepts all cached evidence (sealed evidence is valid)
+  //   - The funnel counts are internally consistent (one recommendPuts() invocation)
+  //
+  // Resolution: Phase 2 (frontend trust from backend metadata) will unify these contexts.
+  //
+  // The backend continuously acquires evidence. The frontend polls for updates
+  // and runs Wheelwright locally when new evidence arrives.
 
-    try {
-      const plannerConfig = { ...DEFAULT_PLANNER_CONFIG, provider: providerKey, environment: "sandbox", prioritySymbols: snapshot.inventory.map((p) => p.symbol) };
-      const cache = getDurableCache();
-      const sessionState = sessionClassification.state;
-      const sessionClosed = sessionState === "CLOSED_CANONICAL" || sessionState === "NON_TRADING_DAY" || sessionState === "PREMARKET" || sessionState === "REGULAR_OPEN_DELAY";
+  // Refresh Now — nudges the backend to prioritize work. Does NOT run browser acquisition.
+  const handleRefresh = useCallback(() => {
+    fetch("/api/evidence/refresh", { method: "POST" }).catch(() => {});
+  }, []);
 
-      let passCount = 0;
-      const MAX_PASSES = 20; // safety limit (~800 symbols at 40/pass)
-      let lastAcqResult: Awaited<ReturnType<typeof acquireEvidence>> | null = null;
+  // Evidence snapshot polling — merges backend evidence into IndexedDB, reruns Wheelwright
+  const handleNewEvidence = useCallback(async (snapshotData: any) => {
+    if (!snapshot || !snapshot.deployableCash) return;
+    const cache = getDurableCache();
 
-      // Acquisition loop: keep running passes until no more work or limit reached
-      while (passCount < MAX_PASSES) {
-        passCount++;
-        setScanProgress({ done: passCount, total: MAX_PASSES });
-
-        const acqResult = await acquireEvidence(
-          universe.symbols,
-          provider,
-          plannerConfig,
-          [],
-          (_phase, done, _total) => setScanProgress({ done: passCount * 40 + done, total: universe.symbols.length })
-        );
-        lastAcqResult = acqResult;
-
-        // Stopping conditions
-        if (acqResult.status === "NO_WORK_REQUIRED" || acqResult.status === "STALLED") break;
-        if (acqResult.status === "SKIPPED_SESSION_CLOSED" || acqResult.status === "SKIPPED_NON_TRADING" || acqResult.status === "SKIPPED_PREMARKET" || acqResult.status === "SKIPPED_OPEN_DELAY") break;
-        if (acqResult.status === "FAILED") break;
-        if (acqResult.refreshedSymbols.length === 0 && acqResult.deferred.length === 0) break;
-
-        // Update recommendations after each pass so the UI shows progressive results
-        const recResult = await recommendPuts(
-          universe.symbols,
-          snapshot.deployableCash,
-          cache,
-          { provider: providerKey, environment: "sandbox" },
-          policy,
-          { sessionClosed }
-        );
-        setPutCandidates(recResult.candidates);
-        setPutWaitCandidates(recResult.waitCandidates);
-        setPutCoverage({
-          status: recResult.coverage.symbolsMissingChain === 0 && recResult.coverageRequests.length === 0 ? "COMPLETE" : "BUILDING",
-          universeSize: universe.symbols.length,
-          covered: recResult.coverage.symbolsWithEvidence + recResult.coverage.confirmedAbsence,
-          fresh: recResult.coverage.symbolsWithEvidence,
-          staleUsable: 0,
-          missing: recResult.coverage.symbolsMissingChain,
-          confirmedAbsence: recResult.coverage.confirmedAbsence,
-          refreshedThisPass: acqResult.refreshedSymbols.length,
-          deferredThisPass: acqResult.deferred.length,
-        });
-        setPutIsProvisional(recResult.coverageRequests.length > 0);
-
-        // If coverage is complete, stop
-        if (recResult.coverage.symbolsMissingChain === 0 && recResult.coverageRequests.length === 0) break;
+    let merged = 0;
+    for (const sym of snapshotData.symbols ?? []) {
+      if (sym.status === "ready" && sym.chain) {
+        const { buildCacheKey } = await import("../cache/durable-cache");
+        const chainKey = buildCacheKey(providerKey, "sandbox", "chain", sym.symbol, sym.chain.expiration);
+        const chainRecord = cache.createRecord(chainKey, "chain", providerKey, "sandbox", sym.symbol, sym.chain.expiration, sym.chain);
+        await cache.put(chainRecord);
+        merged++;
       }
-
-      // Final recommendation computation
-      const recResult = await recommendPuts(
-        universe.symbols,
-        snapshot.deployableCash,
-        cache,
-        { provider: providerKey, environment: "sandbox" },
-        policy,
-        { sessionClosed }
-      );
-
-      setPutCandidates(recResult.candidates);
-      setPutWaitCandidates(recResult.waitCandidates);
-      setPutCoverage({
-        status: recResult.coverage.symbolsMissingChain === 0 && recResult.coverageRequests.length === 0 ? "COMPLETE" : "BUILDING",
-        universeSize: universe.symbols.length,
-        covered: recResult.coverage.symbolsWithEvidence + recResult.coverage.confirmedAbsence,
-        fresh: recResult.coverage.symbolsWithEvidence,
-        staleUsable: 0,
-        missing: recResult.coverage.symbolsMissingChain,
-        confirmedAbsence: recResult.coverage.confirmedAbsence,
-        refreshedThisPass: lastAcqResult?.refreshedSymbols.length ?? 0,
-        deferredThisPass: lastAcqResult?.deferred.length ?? 0,
-      });
-      setPutIsProvisional(recResult.coverageRequests.length > 0);
-      if (lastAcqResult) {
-        setLastTelemetry({
-          passId: lastAcqResult.telemetry.passId,
-          startedAt: lastAcqResult.telemetry.startedAt,
-          completedAt: recResult.computedAt,
-          universe: { id: providerKey + ":sandbox", version: "yahoo-496-v1", totalSymbols: universe.symbols.length },
-          generation: { ...lastAcqResult.telemetry.generation },
-          pass: { selectedSymbols: lastAcqResult.refreshedSymbols, completedSymbols: lastAcqResult.refreshedSymbols, deferredSymbols: lastAcqResult.deferred.map((d) => d.symbol), errors: lastAcqResult.errors },
-          cache: { l1MemoryHits: 0, l2IndexedDBHits: 0, networkFetches: lastAcqResult.telemetry.provider.marketSensitiveRequestsExecuted + lastAcqResult.telemetry.provider.marketInsensitiveRequestsExecuted, staleHits: 0, indexedDBWrites: lastAcqResult.telemetry.provider.canonicalWritesAccepted },
-          provider: { expirationCalls: lastAcqResult.telemetry.provider.marketInsensitiveRequestsExecuted, chainCalls: lastAcqResult.telemetry.provider.marketSensitiveRequestsExecuted, quoteCalls: 0, failures: lastAcqResult.telemetry.provider.failures, rateLimitDeferrals: lastAcqResult.telemetry.provider.requestsBlockedBySession },
-        });
+      if (sym.expirations && sym.expirations.length > 0) {
+        const { buildCacheKey } = await import("../cache/durable-cache");
+        const expKey = buildCacheKey(providerKey, "sandbox", "expirations", sym.symbol);
+        const expRecord = cache.createRecord(expKey, "expirations", providerKey, "sandbox", sym.symbol, null, sym.expirations);
+        await cache.put(expRecord);
       }
-
-      // Call scan (single pass — inventory is small)
-      const callResult = await scanCalls(
-        snapshot.inventory,
-        provider,
-        DEFAULT_SCAN_CONFIG,
-        (done, total) => setScanProgress({ done, total })
-      );
-      setCallCandidates(callResult.candidates);
-      setCallInventory(callResult.inventory);
-      setCallExcluded(callResult.excluded);
-
-      setScanTimestamp(new Date().toISOString());
-
-      // Audit
-      const audit = createScanAuditRecord(
-        snapshot,
-        recResult.candidates,
-        [],
-        callResult.candidates,
-        callResult.inventory,
-        callResult.excluded,
-        providerKey,
-        { version: DEFAULT_RECOMMENDATION_POLICY.version, targetDelta: DEFAULT_RECOMMENDATION_POLICY.contractSelection.targetDelta, dteRange: DEFAULT_RECOMMENDATION_POLICY.contractSelection.eligibleDteRange }
-      );
-      persistScanAudit(audit);
-      setLastAudit(audit);
-    } finally {
-      setScanning(false);
-      setScanProgress(null);
+      if (sym.status === "absent") {
+        const { buildCacheKey } = await import("../cache/durable-cache");
+        const absKey = buildCacheKey(providerKey, "sandbox", "absence", sym.symbol);
+        const absRecord = cache.createRecord(absKey, "absence", providerKey, "sandbox", sym.symbol, null, { reason: "no expirations" });
+        await cache.put(absRecord);
+      }
     }
-  }, [snapshot, provider, policy]);
+
+    // Update coverage from snapshot metadata
+    const coverage = snapshotData.coverage;
+    if (coverage) {
+      setPutCoverage({
+        status: coverage.pending === 0 && coverage.failed === 0 ? "COMPLETE" : "BUILDING",
+        universeSize: snapshotData.universe ?? 496,
+        covered: (coverage.ready ?? 0) + (coverage.absent ?? 0),
+        fresh: coverage.ready ?? 0,
+        staleUsable: 0,
+        missing: coverage.pending ?? 0,
+        confirmedAbsence: coverage.absent ?? 0,
+        refreshedThisPass: merged,
+        deferredThisPass: 0,
+      });
+    }
+
+    if (merged === 0 && putCandidates.length > 0) return; // No new chains and we already have results
+
+    // Recompute recommendations from updated cache
+    const sessionPolicy = new MarketSessionPolicy(getTradingCalendar());
+    const currentSession = sessionPolicy.classify(new Date());
+    const sessionClosed = currentSession.state === "CLOSED_CANONICAL" || currentSession.state === "NON_TRADING_DAY" || currentSession.state === "PREMARKET" || currentSession.state === "REGULAR_OPEN_DELAY";
+
+    const recResult = await recommendPuts(
+      universe.symbols,
+      snapshot.deployableCash,
+      cache,
+      { provider: providerKey, environment: "sandbox" },
+      policy,
+      { sessionClosed }
+    );
+
+    setPutCandidates(recResult.candidates);
+    setPutWaitCandidates(recResult.waitCandidates);
+    setPutIsProvisional(recResult.coverage.symbolsMissingChain > 0);
+    setPutFunnel(recResult.funnel);
+
+    if (!scanTimestamp) {
+      setScanTimestamp(new Date().toISOString());
+    }
+  }, [snapshot, policy, providerKey, universe, scanTimestamp, putCandidates.length]);
+
+  // Poll the backend snapshot every 30s with conditional HTTP (ETag/304)
+  const etagRef = useRef<string | null>(null);
+  const pollingRef = useRef(false);
+  const [evidenceMeta, setEvidenceMeta] = useState<{ generation: number; generatedAt: string; coverage: any } | null>(null);
+  const [lastPollResult, setLastPollResult] = useState<"200" | "304" | "error" | null>(null);
+
+  const pollSnapshot = useCallback(async () => {
+    if (pollingRef.current) return;
+    pollingRef.current = true;
+    try {
+      const headers: Record<string, string> = {};
+      if (etagRef.current) headers["If-None-Match"] = etagRef.current;
+      const res = await fetch("/api/evidence/snapshot", { headers });
+      if (res.status === 304) {
+        setLastPollResult("304");
+        return;
+      }
+      if (res.ok) {
+        const etag = res.headers.get("etag");
+        if (etag) etagRef.current = etag;
+        const data = await res.json();
+        setEvidenceMeta({ generation: data.generation, generatedAt: data.generatedAt, coverage: data.coverage });
+        setLastPollResult("200");
+        handleNewEvidence(data);
+      } else {
+        setLastPollResult("error");
+      }
+    } catch {
+      setLastPollResult("error");
+    } finally {
+      pollingRef.current = false;
+    }
+  }, [handleNewEvidence]);
+
+  // Start polling when portfolio is ready
+  useEffect(() => {
+    if (!snapshot || snapshot.readiness.status !== "READY") return;
+    pollSnapshot(); // Initial fetch
+    const interval = setInterval(pollSnapshot, 30_000);
+    return () => clearInterval(interval);
+  }, [snapshot?.readiness.status, pollSnapshot]);
 
   return (
     <div className={`write-desk${selectedCandidate ? " wd-with-drawer" : ""}`}>
@@ -374,18 +360,12 @@ export function WriteDesk() {
         <div className="wd-band wd-band-controls">
           <button
             className="wd-scan-btn"
-            onClick={handleScan}
-            disabled={scanning}
+            onClick={handleRefresh}
           >
-            {scanning
-              ? scanProgress
-                ? `${scanProgress.done}/${scanProgress.total}`
-                : "…"
-              : scanTimestamp ? "Rescan" : "Scan"
-            }
+            Refresh
           </button>
 
-          {scanTimestamp && (
+          {(scanTimestamp || putCandidates.length > 0) && (
             <PolicyStrip
               policy={policy}
               onChange={(updated) => {
@@ -402,12 +382,44 @@ export function WriteDesk() {
             />
           )}
 
-          {scanTimestamp && (
+          {evidenceMeta && (() => {
+            const sessionPolicy = new MarketSessionPolicy(getTradingCalendar());
+            const currentSession = sessionPolicy.classify(new Date());
+            const sessionClosed = currentSession.state === "CLOSED_CANONICAL" || currentSession.state === "NON_TRADING_DAY" || currentSession.state === "PREMARKET";
+            const indicator = deriveTrustState({
+              coverage: evidenceMeta.coverage,
+              universe: evidenceMeta.coverage ? (evidenceMeta.coverage.ready + evidenceMeta.coverage.absent + evidenceMeta.coverage.pending + (evidenceMeta.coverage.failed ?? 0)) : 496,
+              generatedAt: evidenceMeta.generatedAt,
+              serviceAvailable: lastPollResult !== "error",
+              sessionClosed,
+              isAcquiring: putCoverage ? putCoverage.missing > 0 : evidenceMeta.coverage?.pending > 0,
+            });
+            const covered = indicator.covered;
+            const universeCount = indicator.universe;
+            const coveragePct = universeCount > 0 ? (covered / universeCount) * 100 : 0;
+            return (
+              <>
+                <span className={`wd-evidence-indicator wd-evidence-${indicator.color}`} title={`Trust: ${indicator.trustLabel} · Generation: ${evidenceMeta.generation}`}>
+                  <span className="wd-evidence-dot">●</span>
+                  {" "}{indicator.trustLabel}
+                  {" · "}{covered}/{universeCount} covered
+                  {" · "}{indicator.freshnessLabel}
+                  {indicator.activity === "updating" && " · Updating"}
+                  {lastPollResult === "304" && " · ✓"}
+                </span>
+                <div className="wd-coverage-bar" title={`${covered} of ${universeCount} symbols covered (${coveragePct.toFixed(0)}%)`}>
+                  <div
+                    className={`wd-coverage-bar-fill wd-coverage-bar-${indicator.color}`}
+                    style={{ width: `${coveragePct}%` }}
+                  />
+                </div>
+              </>
+            );
+          })()}
+          {!evidenceMeta && scanTimestamp && (
             <span className="wd-scan-meta-inline">
               {new Date(scanTimestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-              {" · "}{providerKey}{providerKey === "tradier" ? " 15m" : ""}
               {" · "}{universe.descriptor.totalSymbols} ETFs
-              {putCoverage && putCoverage.status === "COMPLETE" && " · ✓"}
             </span>
           )}
         </div>
@@ -417,21 +429,10 @@ export function WriteDesk() {
       {snapshot && snapshot.readiness.status === "READY" && (
         <section className="wd-content">
             {/* Put Candidates */}
-            {scanTimestamp && (
+            {(scanTimestamp || evidenceMeta) && (
               <div className="wd-put-section">
                 <h3 className="wd-section-title">
-                  {putCoverage?.status === "COMPLETE"
-                    ? "Top 20 Puts — Cash-Secured"
-                    : "Put Candidates — Cash-Secured"
-                  }
-                  {putCoverage && (
-                    <span className={`wd-coverage-badge wd-coverage-${putCoverage.status.toLowerCase()}`}>
-                      {putCoverage.status === "COMPLETE"
-                        ? `${putCoverage.universeSize} of ${putCoverage.universeSize} covered`
-                        : `${putCoverage.covered} / ${putCoverage.universeSize} covered · ${putCoverage.status}`
-                      }
-                    </span>
-                  )}
+                  Put Candidates — Cash-Secured
                   <label className="wd-affordable-toggle">
                     <input type="checkbox" checked={showAffordableOnly} onChange={(e) => setShowAffordableOnly(e.target.checked)} />
                     <span>Affordable only</span>
@@ -447,14 +448,13 @@ export function WriteDesk() {
                   </label>
                 </h3>
 
+                {putFunnel && <FunnelInfographic funnel={putFunnel} showCount={showCount} backendResolved={evidenceMeta?.coverage ? (evidenceMeta.coverage.ready + evidenceMeta.coverage.absent) : undefined} />}
+
                 {putCandidates.length > 0 ? (
                   <>
                     {putIsProvisional && (
                       <p className="wd-provisional-note">
-                        {scanning
-                          ? `Provisional — ${putCoverage?.covered ?? 0} of ${putCoverage?.universeSize ?? 0} evaluable · acquisition running`
-                          : `Provisional leaders from ${putCoverage?.covered ?? 0} of ${putCoverage?.universeSize ?? 0} evaluated.`
-                        }
+                        Showing best from {putCoverage?.covered ?? 0} of {putCoverage?.universeSize ?? 496} evaluated · background acquisition continuing
                       </p>
                     )}
                     {(() => {
@@ -472,7 +472,7 @@ export function WriteDesk() {
                   </>
                 ) : (
                   <div className="wd-no-trade">
-                    {scanning ? (
+                    {putCoverage && putCoverage.missing > 0 ? (
                       <p className="wd-provisional-note">Acquiring evidence — recommendations will appear as symbols are evaluated...</p>
                     ) : (
                       <>
@@ -523,96 +523,18 @@ export function WriteDesk() {
               </details>
             )}
 
-            {/* Call Candidates */}
-            {scanTimestamp && (
+            {/* Call Candidates — deferred during backend acquisition migration */}
+            {(scanTimestamp || evidenceMeta) && (
               <div className="wd-call-section">
                 <h3 className="wd-section-title">Call Candidates — Covered</h3>
-                {callCandidates.length > 0 ? (
-                  <CallCandidateTable candidates={callCandidates} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c) => setSelectedCandidate(c as unknown as PutCandidate)} />
-                ) : (
-                  <CallInventoryPanel inventory={callInventory} />
-                )}
+                <p className="wd-deferred-note">
+                  Covered-call recommendations deferred during backend acquisition migration.
+                  Portfolio call capacity will be evaluated from backend-maintained evidence in a future slice.
+                </p>
               </div>
             )}
 
-            {/* Call Excluded (collapsed) */}
-            {callExcluded.length > 0 && (
-              <details className="wd-excluded-details">
-                <summary>Call Excluded ({callExcluded.length} symbols)</summary>
-                <ul className="wd-excluded-list">
-                  {callExcluded.map((e, i) => (
-                    <li key={i}><span className="wd-excluded-symbol">{e.symbol}</span> — {e.reason}</li>
-                  ))}
-                </ul>
-              </details>
-            )}
 
-            {/* Runtime Telemetry (verification panel) */}
-            {lastTelemetry && (
-              <details className="wd-excluded-details" open>
-                <summary>Runtime Telemetry — Pass {lastTelemetry.passId.slice(-8)}</summary>
-                <div className="wd-telemetry-grid">
-                  <div className="wd-telemetry-section">
-                    <strong>Universe</strong>
-                    <span>ID: {lastTelemetry.universe.id}</span>
-                    <span>Version: {lastTelemetry.universe.version}</span>
-                    <span>Total: {lastTelemetry.universe.totalSymbols}</span>
-                  </div>
-                  <div className="wd-telemetry-section">
-                    <strong>Generation</strong>
-                    <span>Cursor: {lastTelemetry.generation.cursorBefore} → {lastTelemetry.generation.cursorAfter}</span>
-                    <span>Covered: {lastTelemetry.generation.coveredBefore} → {lastTelemetry.generation.coveredAfter}</span>
-                    <span>Remaining: {lastTelemetry.generation.remaining}</span>
-                    <span>Status: {lastTelemetry.generation.status}</span>
-                  </div>
-                  <div className="wd-telemetry-section">
-                    <strong>Pass</strong>
-                    <span>Selected: {lastTelemetry.pass.selectedSymbols.length} symbols</span>
-                    <span>Completed: {lastTelemetry.pass.completedSymbols.length}</span>
-                    <span>Deferred: {lastTelemetry.pass.deferredSymbols.length}</span>
-                    <span>Errors: {lastTelemetry.pass.errors.length}{lastTelemetry.pass.errors.length > 0 ? ` (${lastTelemetry.pass.errors.join(", ")})` : ""}</span>
-                  </div>
-                  <div className="wd-telemetry-section">
-                    <strong>Cache</strong>
-                    <span>L1 Memory: {lastTelemetry.cache.l1MemoryHits}</span>
-                    <span>L2 IndexedDB: {lastTelemetry.cache.l2IndexedDBHits}</span>
-                    <span>Network: {lastTelemetry.cache.networkFetches}</span>
-                    <span>Stale reused: {lastTelemetry.cache.staleHits}</span>
-                    <span>IDB writes: {lastTelemetry.cache.indexedDBWrites}</span>
-                  </div>
-                  <div className="wd-telemetry-section">
-                    <strong>Provider</strong>
-                    <span>Expirations: {lastTelemetry.provider.expirationCalls}</span>
-                    <span>Chains: {lastTelemetry.provider.chainCalls}</span>
-                    <span>Quotes: {lastTelemetry.provider.quoteCalls}</span>
-                    <span>Failures: {lastTelemetry.provider.failures}</span>
-                  </div>
-                </div>
-                <details style={{ marginTop: 6 }}>
-                  <summary style={{ fontSize: 9, color: "#666" }}>Selected symbols</summary>
-                  <pre className="vr-raw-json" style={{ maxHeight: 120 }}>{lastTelemetry.pass.selectedSymbols.join(", ")}</pre>
-                </details>
-              </details>
-            )}
-
-            {/* Audit Evidence (collapsed) */}
-            {lastAudit && (
-              <details className="wd-excluded-details">
-                <summary>Scan Audit — {lastAudit.scannedAt.split("T")[1]?.slice(0, 8)}</summary>
-                <div className="wd-audit-summary">
-                  <span>Source: {lastAudit.portfolioSourceType}</span>
-                  <span>Provider: {lastAudit.marketProvider}{lastAudit.delayedData ? " (delayed)" : ""}</span>
-                  <span>Puts: {lastAudit.putCandidates.length} candidates, {lastAudit.putExcluded.length} excluded</span>
-                  <span>Calls: {lastAudit.callCandidates.length} candidates, {lastAudit.callExcluded.length} excluded</span>
-                  <span>Actionable: {lastAudit.actionableCount} | Edge: {lastAudit.edgeCount} | Wait: {lastAudit.waitCount}</span>
-                  <span>Policy: {lastAudit.scanConfigVersion}</span>
-                </div>
-                <details className="wd-excluded-details" style={{ marginTop: 8 }}>
-                  <summary>Raw Audit JSON</summary>
-                  <pre className="vr-raw-json">{JSON.stringify(lastAudit, null, 2)}</pre>
-                </details>
-              </details>
-            )}
         </section>
       )}
 
@@ -905,7 +827,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
             <td>${c.ask.toFixed(2)}</td>
             <td className={c.spreadPercent > 15 ? "wd-warn-value" : ""}>{c.spreadPercent.toFixed(0)}%</td>
             <td className={c.openInterest < 50 ? "wd-warn-value" : ""}>{c.openInterest}</td>
-            <td>{c.yieldAnnualized != null ? `${c.yieldAnnualized.toFixed(1)}%` : "—"}</td>
+            <td>{c.yieldAnnualized != null ? `${c.yieldAnnualized.toFixed(1)}%` : <span className="wd-yield-suppressed" title={`Yield suppressed — spread ${c.spreadPercent.toFixed(0)}% exceeds 30% reliability threshold`}>—</span>}</td>
             <td>{!c.affordable && <span className="wd-unaffordable-mark">$</span>}${c.cashRequired.toLocaleString()}</td>
             <td className={c.cashRemaining < 0 ? "wd-negative-value" : ""}>${c.cashRemaining.toLocaleString()}</td>
             <td>{c.assessment.score}</td>
@@ -917,108 +839,6 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
     </>
   );
 }
-
-// --- Call Candidate Table ---
-
-function CallCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelect }: { candidates: CallCandidate[]; selectedSymbol: string | null; selectedStrike: number | null; onSelect: (c: CallCandidate) => void }) {
-  const { sorted, handleSort, indicator, isRecommendationOrder, sortKey } = useSortableTable(candidates, "rank", "asc");
-
-  return (
-    <>
-      {!isRecommendationOrder && (
-        <div className="wd-sort-notice">
-          Viewing sorted by: <strong>{sortKey === "assessment" ? "Exec" : sortKey}</strong>
-          {" · "}
-          <button className="wd-sort-reset" onClick={() => handleSort("rank")}>Show recommendation order</button>
-        </div>
-      )}
-      <table className="wd-candidate-table">
-      <thead>
-        <tr>
-          <th className="wd-sortable" onClick={() => handleSort("rank")}>#{ indicator("rank")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("symbol")}>Symbol{indicator("symbol")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("expiration")}>Exp{indicator("expiration")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("dte")}>DTE{indicator("dte")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("strike")}>Strike{indicator("strike")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("delta")}>Δ{indicator("delta")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("bid")}>Bid{indicator("bid")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("ask")}>Ask{indicator("ask")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("spreadPercent")}>Spread{indicator("spreadPercent")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("openInterest")}>OI{indicator("openInterest")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("yieldAnnualized")}>Yield{indicator("yieldAnnualized")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("freeShares")}>Free Shares{indicator("freeShares")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("maxContracts")}>Contracts{indicator("maxContracts")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("premiumPerContract")}>Premium{indicator("premiumPerContract")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("assessment")}>Exec{indicator("assessment")}</th>
-          <th>Posture</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sorted.map((c) => (
-          <tr
-            key={`${c.symbol}-${c.expiration}-${c.strike}`}
-            className={`wd-posture-row wd-posture-${c.posture.toLowerCase()}${c.symbol === selectedSymbol && c.strike === selectedStrike ? " wd-row-selected" : ""}`}
-            onClick={() => onSelect(c)}
-            tabIndex={0}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(c); } }}
-          >
-            <td>{c.rank}</td>
-            <td className="wd-symbol">{c.symbol}</td>
-            <td>{c.expiration.slice(5)}</td>
-            <td>{c.dte}</td>
-            <td>${c.strike}{c.strikeAbovePrice ? " ↑" : ""}</td>
-            <td>{c.delta.toFixed(2)}</td>
-            <td>${c.bid.toFixed(2)}</td>
-            <td>${c.ask.toFixed(2)}</td>
-            <td className={c.spreadPercent > 15 ? "wd-warn-value" : ""}>{c.spreadPercent.toFixed(0)}%</td>
-            <td className={c.openInterest < 50 ? "wd-warn-value" : ""}>{c.openInterest}</td>
-            <td>{c.yieldAnnualized != null ? `${c.yieldAnnualized.toFixed(1)}%` : "—"}</td>
-            <td>{c.freeShares}</td>
-            <td>{c.maxContracts}</td>
-            <td>${c.premiumPerContract.toFixed(0)}</td>
-            <td>{c.assessment.score}</td>
-            <td><span className={`wd-posture-badge wd-posture-${c.posture.toLowerCase()}`}>{c.posture}</span></td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-    </>
-  );
-}
-
-// --- Call Inventory Panel (no-capacity state) ---
-
-function CallInventoryPanel({ inventory }: { inventory: CallInventoryItem[] }) {
-  if (inventory.length === 0) {
-    return <p className="wd-no-capacity">No owned positions found in portfolio.</p>;
-  }
-
-  const hasCapacity = inventory.some((item) => item.maxContracts > 0 && !item.reason);
-  if (hasCapacity) return null; // Candidates will be shown instead
-
-  return (
-    <div className="wd-call-inventory">
-      <p className="wd-no-capacity">No covered-call capacity currently exists.</p>
-      <table className="wd-inventory-table">
-        <thead>
-          <tr><th>Symbol</th><th>Owned</th><th>Encumbered</th><th>Free</th><th>Status</th></tr>
-        </thead>
-        <tbody>
-          {inventory.map((item) => (
-            <tr key={item.symbol} className="wd-row-unavailable">
-              <td>{item.symbol}</td>
-              <td>{item.sharesOwned}</td>
-              <td>{item.sharesEncumbered}</td>
-              <td>{item.sharesFree}</td>
-              <td className="wd-reason">{item.reason ?? "Available"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 
 // --- Session State Formatting ---
 
