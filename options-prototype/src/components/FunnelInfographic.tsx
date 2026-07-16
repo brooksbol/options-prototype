@@ -1,110 +1,110 @@
 /**
- * Funnel Infographic — Operator-facing micro telemetry.
+ * Opportunity Surface — macOS-style terminal partition infographic.
  *
- * Primary display: three numbers + proportional bar.
- * Answers in < 1 second:
- *   - How much of the universe has been evaluated?
- *   - How many have options?
- *   - How many opportunities do I have?
+ * Shows the complete universe as one fixed bar partitioned into
+ * mutually exclusive terminal outcomes. Every symbol belongs to
+ * exactly one segment. All segments sum to the monitored universe.
  *
- * Disclosure: "Why only N?" with operator-language exclusion reasons.
- * Diagnostics: pipeline stages for developer inspection.
+ * Visually compact: one bar + one legend line.
  */
 
 import type { RecommendationFunnel } from "../write-desk/recommend";
 
-interface FunnelInfographicProps {
+interface OpportunitySurfaceProps {
   funnel: RecommendationFunnel;
-  showCount: number;
-  /** Backend's current-generation resolved count (may differ from funnel.resolved if prior cache participates) */
+  /** Backend's current resolved count (for mixed-context indicator) */
   backendResolved?: number;
 }
 
-/** Map implementation exclusion reasons to operator language */
-function operatorReason(reason: string): string {
-  if (reason.includes("Non-optionable") || reason.includes("no listed")) return "No options listed";
-  if (reason.includes("No expiration in DTE")) return "No match in timeframe";
-  if (reason.includes("No contract in delta")) return "No match at target risk";
-  if (reason.includes("Hard-no") || reason.includes("execution quality")) return "Poor market quality";
-  if (reason.includes("Wait posture") || reason.includes("below EDGE")) return "Below threshold";
-  if (reason.includes("Missing chain")) return "Incomplete data";
-  if (reason.includes("Product structure")) return "Structural exclusion";
-  if (reason.includes("No qualifying")) return "No qualifying contract";
-  if (reason.includes("Pending")) return "Not yet evaluated";
-  return reason;
+/**
+ * Terminal partition: every symbol in the monitored universe
+ * belongs to exactly one of these mutually exclusive categories.
+ */
+interface Partition {
+  label: string;
+  count: number;
+  className: string;
 }
 
-export function FunnelInfographic({ funnel, showCount, backendResolved }: FunnelInfographicProps) {
-  const { monitored, resolved, optionable, pending, eligible } = funnel;
-  const isAcquiring = pending > 0;
-  const opportunities = eligible;
-  // Detect mixed context: funnel used prior cache beyond what the backend currently provides
-  const isMixedContext = backendResolved != null && backendResolved < resolved && isAcquiring;
+function buildPartition(funnel: RecommendationFunnel): Partition[] {
+  const { monitored, eligible, nonOptionable, pending, waitPosture, exclusions } = funnel;
 
-  // Bar proportions (of monitored)
-  const pctEligible = monitored > 0 ? (eligible / monitored) * 100 : 0;
-  const pctOptionableOther = monitored > 0 ? ((optionable - eligible) / monitored) * 100 : 0;
-  const pctResolved = monitored > 0 ? ((resolved - optionable) / monitored) * 100 : 0;
-  const pctPending = monitored > 0 ? (pending / monitored) * 100 : 0;
+  // Count actionable vs edge from candidates (funnel doesn't separate these yet,
+  // so we derive from exclusions: eligible = actionable + edge)
+  // For now, eligible is one segment. Future: split when funnel tracks it.
+
+  // Extract exclusion counts by operator category
+  const noOptions = nonOptionable;
+  const noTimeframe = exclusions.find(e => e.reason.includes("No expiration"))?.count ?? 0;
+  const noDeltaMatch = exclusions.find(e => e.reason.includes("No contract in delta") || e.reason.includes("delta range"))?.count ?? 0;
+  const poorMarket = exclusions.find(e => e.reason.includes("Hard-no") || e.reason.includes("execution quality"))?.count ?? 0;
+  const belowThreshold = waitPosture;
+  const missingData = exclusions.find(e => e.reason.includes("Missing chain"))?.count ?? 0;
+  const noContract = exclusions.find(e => e.reason.includes("No qualifying"))?.count ?? 0;
+  const productStructure = exclusions.find(e => e.reason.includes("Product structure"))?.count ?? 0;
+
+  // Combine filter reasons into one "filtered" bucket for display
+  const riskMismatch = noDeltaMatch + noTimeframe;
+  const qualityFiltered = poorMarket + noContract + productStructure;
+
+  const partitions: Partition[] = [];
+
+  if (eligible > 0) partitions.push({ label: "Opportunities", count: eligible, className: "wd-seg-eligible" });
+  if (belowThreshold > 0) partitions.push({ label: "Below threshold", count: belowThreshold, className: "wd-seg-threshold" });
+  if (riskMismatch > 0) partitions.push({ label: "No match", count: riskMismatch, className: "wd-seg-nomatch" });
+  if (qualityFiltered > 0) partitions.push({ label: "Poor market", count: qualityFiltered, className: "wd-seg-quality" });
+  if (noOptions > 0) partitions.push({ label: "No options", count: noOptions, className: "wd-seg-nooptions" });
+  if (pending > 0) partitions.push({ label: "Unresolved", count: pending, className: "wd-seg-pending" });
+  if (missingData > 0) partitions.push({ label: "Incomplete", count: missingData, className: "wd-seg-incomplete" });
+
+  // Ensure partitions sum to monitored (catch any unaccounted symbols)
+  const accounted = partitions.reduce((s, p) => s + p.count, 0);
+  const remainder = monitored - accounted;
+  if (remainder > 0) {
+    // Symbols that were evaluable but produced no candidate and aren't in any named exclusion
+    // (usually symbols that had chains but all contracts were in the wrong delta range or had no puts)
+    partitions.push({ label: "Other filtered", count: remainder, className: "wd-seg-other" });
+  }
+
+  return partitions;
+}
+
+export function FunnelInfographic({ funnel, backendResolved }: OpportunitySurfaceProps) {
+  const { monitored, pending } = funnel;
+  const partitions = buildPartition(funnel);
+  const isAcquiring = pending > 0;
+  const isMixedContext = backendResolved != null && backendResolved < (funnel.resolved) && isAcquiring;
 
   return (
-    <div className="wd-funnel" role="region" aria-label="Universe coverage">
-      {/* Primary: bar + 3 counts — one line */}
-      <div className="wd-funnel-primary">
-        <div
-          className="wd-funnel-bar"
-          role="progressbar"
-          aria-valuenow={resolved}
-          aria-valuemax={monitored}
-          aria-label={`${resolved} of ${monitored} evaluated`}
-        >
-          <div className="wd-funnel-bar-seg wd-funnel-seg-eligible" style={{ width: `${pctEligible}%` }} />
-          <div className="wd-funnel-bar-seg wd-funnel-seg-optionable" style={{ width: `${pctOptionableOther}%` }} />
-          <div className="wd-funnel-bar-seg wd-funnel-seg-resolved" style={{ width: `${pctResolved}%` }} />
-          {pctPending > 0 && (
-            <div className="wd-funnel-bar-seg wd-funnel-seg-pending" style={{ width: `${pctPending}%` }} />
-          )}
-        </div>
-        <div className="wd-funnel-stats">
-          <span className="wd-funnel-stat" title="Total ETFs in monitored universe">
-            <span className="wd-funnel-stat-num">{isAcquiring ? `${resolved}/${monitored}` : monitored}</span>
-            <span className="wd-funnel-stat-label">{isAcquiring ? "evaluated" : "universe"}</span>
-          </span>
-          <span className="wd-funnel-stat" title="ETFs with listed options">
-            <span className="wd-funnel-stat-num wd-funnel-stat-optionable">{optionable}</span>
-            <span className="wd-funnel-stat-label">optionable</span>
-          </span>
-          <span className="wd-funnel-stat" title="Actionable or edge recommendations available now">
-            <span className="wd-funnel-stat-num wd-funnel-stat-opportunities">{opportunities}</span>
-            <span className="wd-funnel-stat-label">opportunities</span>
-          </span>
-        </div>
+    <div className="wd-surface" role="img" aria-label={`Opportunity surface: ${funnel.eligible} of ${monitored} ETFs`}>
+      {/* Segmented bar */}
+      <div className="wd-surface-bar">
+        {partitions.map((p, i) => (
+          <div
+            key={i}
+            className={`wd-surface-seg ${p.className}`}
+            style={{ width: `${monitored > 0 ? (p.count / monitored) * 100 : 0}%` }}
+            title={`${p.count} ${p.label}`}
+          />
+        ))}
       </div>
 
-      {/* Disclosure: why only N? */}
-      {isMixedContext && (
-        <span className="wd-funnel-context-note" title="Recommendations include prior valid evidence plus current backend updates">
-          Prior valid + {backendResolved} current
-        </span>
-      )}
-      {funnel.exclusions.length > 0 && (
-        <details className="wd-funnel-why">
-          <summary className="wd-funnel-why-summary">
-            Why {opportunities}?
-          </summary>
-          <div className="wd-funnel-why-list">
-            {funnel.exclusions
-              .filter(e => e.count > 0)
-              .sort((a, b) => b.count - a.count)
-              .map((e, i) => (
-                <div key={i} className="wd-funnel-why-row">
-                  <span className="wd-funnel-why-count">{e.count}</span>
-                  <span className="wd-funnel-why-reason">{operatorReason(e.reason)}</span>
-                </div>
-              ))}
-          </div>
-        </details>
-      )}
+      {/* Compact legend */}
+      <div className="wd-surface-legend">
+        {partitions.filter(p => p.count > 0).map((p, i) => (
+          <span key={i} className="wd-surface-legend-item">
+            <span className={`wd-surface-swatch ${p.className}`} />
+            <span className="wd-surface-legend-count">{p.count}</span>
+            <span className="wd-surface-legend-label">{p.label}</span>
+          </span>
+        ))}
+        <span className="wd-surface-total">{monitored} ETFs</span>
+        {isMixedContext && (
+          <span className="wd-surface-context" title="Recommendations include prior valid evidence plus current backend updates">
+            Prior baseline + {backendResolved} current
+          </span>
+        )}
+      </div>
     </div>
   );
 }

@@ -1406,3 +1406,193 @@
   font-style: italic;
   cursor: help;
 }
+
+
+/* ═══════════════════════════════════════════════════════
+   RECOMPOSED LAYOUT — July 2026
+   Target: ~78px above first candidate row
+   ═══════════════════════════════════════════════════════ */
+
+/* Band 2: Operating Context */
+.wd-band-context {
+  padding: 3px 0 5px;
+  border-bottom: 1px solid var(--wd-border-default);
+  margin-bottom: 0;
+  gap: 8px;
+  font-size: var(--wd-size-label);
+}
+
+.wd-trust {
+  font-family: var(--wd-font-mono);
+  font-size: var(--wd-size-label);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.wd-trust-dot { font-size: 10px; }
+.wd-trust-green { color: var(--wd-accent-green); }
+.wd-trust-yellow { color: var(--wd-accent-yellow); }
+.wd-trust-orange { color: var(--wd-accent-red); }
+.wd-trust-red { color: var(--wd-accent-red); }
+
+.wd-position-chip {
+  font-size: var(--wd-size-label);
+  color: var(--wd-accent-purple);
+  background: var(--wd-accent-purple-bg);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: var(--wd-font-mono);
+}
+
+.wd-calls-deferred {
+  font-size: var(--wd-size-micro);
+  color: var(--wd-text-disabled);
+  font-style: italic;
+}
+
+/* Candidate Board */
+.wd-board {
+  margin-top: 4px;
+}
+
+.wd-board-header {
+  margin-bottom: 4px;
+}
+
+.wd-board-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.wd-board-title {
+  font-size: 13px;
+  font-weight: var(--wd-weight-bold);
+  color: var(--wd-text-primary);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.wd-board-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wd-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+}
+
+.wd-control-select {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--wd-border-default);
+  color: var(--wd-text-primary);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: var(--wd-size-label);
+  font-family: var(--wd-font-mono);
+  cursor: pointer;
+}
+
+.wd-control-select:hover { border-color: var(--wd-accent-green); }
+.wd-control-select:focus { outline: none; border-color: var(--wd-accent-green); }
+
+.wd-control-check {
+  gap: 3px;
+}
+
+.wd-control-check input {
+  width: 11px;
+  height: 11px;
+  accent-color: var(--wd-accent-green);
+  cursor: pointer;
+}
+
+.wd-acquiring-note {
+  font-size: var(--wd-size-label);
+  color: var(--wd-accent-yellow);
+  font-style: italic;
+  margin: 8px 0;
+}
+
+/* ═══ OPPORTUNITY SURFACE INFOGRAPHIC ═══ */
+
+.wd-surface {
+  margin: 4px 0 6px;
+}
+
+.wd-surface-bar {
+  display: flex;
+  height: 5px;
+  border-radius: 2.5px;
+  overflow: hidden;
+  background: var(--wd-border-default);
+}
+
+.wd-surface-seg {
+  height: 100%;
+  transition: width 0.5s ease-out;
+  min-width: 0;
+}
+
+.wd-seg-eligible { background: var(--wd-accent-green); }
+.wd-seg-threshold { background: #b8860b; opacity: 0.7; }
+.wd-seg-nomatch { background: #8b4513; opacity: 0.5; }
+.wd-seg-quality { background: #a0522d; opacity: 0.45; }
+.wd-seg-nooptions { background: var(--wd-text-disabled); opacity: 0.35; }
+.wd-seg-pending { background: var(--wd-accent-yellow); opacity: 0.5; }
+.wd-seg-incomplete { background: var(--wd-accent-yellow); opacity: 0.3; }
+.wd-seg-other { background: var(--wd-text-disabled); opacity: 0.2; }
+
+.wd-surface-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin-top: 3px;
+  font-size: var(--wd-size-label);
+}
+
+.wd-surface-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.wd-surface-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.wd-surface-legend-count {
+  font-family: var(--wd-font-mono);
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-primary);
+}
+
+.wd-surface-legend-label {
+  color: var(--wd-text-secondary);
+}
+
+.wd-surface-total {
+  margin-left: auto;
+  color: var(--wd-text-disabled);
+  font-family: var(--wd-font-mono);
+}
+
+.wd-surface-context {
+  font-size: var(--wd-size-micro);
+  color: var(--wd-accent-yellow);
+  font-style: italic;
+  cursor: help;
+}
