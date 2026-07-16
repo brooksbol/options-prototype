@@ -376,6 +376,7 @@ These items appear in the parking lot but have no prior formal document. They ar
 | 14 | Scenario Replay | Exploratory | Design doc when evidence snapshots exist |
 | 22 | Notification | Far future | Design doc when backend is operational |
 | 23 | Call Contract Quality | Exploratory | Adjacent to COO; design doc when call Wheelwright is planned |
+| 26 | Recommendation Set Analysis | Documented concept | `foundations/recommendation-set-analysis.md` ✅ |
 
 ---
 
@@ -405,6 +406,8 @@ These items appear in the parking lot but have no prior formal document. They ar
 | `foundations/three-actor-model.md` | Conceptual model |
 | `foundations/secondary-observation.md` | Observation philosophy |
 | `foundations/conditioned-operating-opportunity.md` | Lifecycle quality concept |
+| `foundations/market-priced-risk.md` | Market pricing as evidence |
+| `foundations/recommendation-set-analysis.md` | Population-level observation of ranked recommendations |
 
 ### Designed but not implemented
 

@@ -4092,3 +4092,37 @@ When the full backend evidence service replaces the browser IndexedDB (Phase 3-4
 - The only true cold start is a fresh SQLite database
 
 This further reinforces that the 27-minute bootstrap is a transient concern of the current hybrid architecture, not a permanent operational limitation.
+
+
+---
+
+## 2026-07-16 — Recommendation Set Analysis (Architectural Concept)
+
+### Observation
+
+During live use, the top recommendations included SMH, SOXX, and XSD — all semiconductor ETFs. Each was correctly ranked individually, but the concentration in one sector was a population-level characteristic that the system did not communicate.
+
+### Insight
+
+This is not a property of any individual recommendation. It's a property of the recommendation set as a whole.
+
+The concept: **Recommendation Set Analysis** — observing the ranked population and reporting its characteristics (concentration, diversity, dominant groups, clustering).
+
+### Architectural abstraction: Grouping Heuristic
+
+Rather than hardcoding "sector analysis," the architecture introduces a pluggable Grouping Heuristic. Any function that assigns recommendations to groups enables generic distribution/concentration observations.
+
+### Key principle
+
+The system observes ("3 of top 10 are semiconductors"). It does not prescribe ("diversify"). Consistent with evidence-over-interpretation philosophy.
+
+### Recorded at
+
+`docs/foundations/recommendation-set-analysis.md`
+
+### Relationship
+
+- Extends the "translate what the market is saying" research direction to "translate what the recommendation set is saying"
+- Contributes to Portfolio Context
+- Grouping heuristics include sector, industry, product structure, issuer, capital tier, DTE band, volatility regime
+- Some heuristics are immediately implementable (capital tier, DTE band); others require enrichment data (sector, industry)
