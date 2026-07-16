@@ -377,6 +377,7 @@ These items appear in the parking lot but have no prior formal document. They ar
 | 22 | Notification | Far future | Design doc when backend is operational |
 | 23 | Call Contract Quality | Exploratory | Adjacent to COO; design doc when call Wheelwright is planned |
 | 26 | Recommendation Set Analysis | Documented concept | `foundations/recommendation-set-analysis.md` ✅ |
+| 27 | State-Oriented Operator Console | Architectural principle | `foundations/state-oriented-console.md` ✅ |
 
 ---
 
@@ -408,6 +409,7 @@ These items appear in the parking lot but have no prior formal document. They ar
 | `foundations/conditioned-operating-opportunity.md` | Lifecycle quality concept |
 | `foundations/market-priced-risk.md` | Market pricing as evidence |
 | `foundations/recommendation-set-analysis.md` | Population-level observation of ranked recommendations |
+| `foundations/state-oriented-console.md` | Observable State vs Operational State; operator console principle |
 
 ### Designed but not implemented
 

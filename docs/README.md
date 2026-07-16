@@ -259,8 +259,12 @@ Deferred until later slices:
 
 # Long-Term Vision
 
-The long-term goal is an explainable financial control system that reasons about option-writing opportunities through explicit, observable feedback loops.
+The long-term architectural identity is an **evidence appliance** for options-income decision support.
 
-Equally important, this repository serves as a living experiment in AI-assisted engineering.
+An evidence appliance continuously maintains an authoritative model of the options opportunity environment. It operates independently of any browser session, understands when markets are open and closed, preserves valid evidence across restarts, and exposes the maintained state to operator clients wherever they are.
 
-The software is intended to demonstrate not only a financial model, but a methodology in which working software continuously accelerates organizational learning.
+Write Desk is one view into the appliance — the operator console. The Engineering Laboratory is another. Future views may include historical-analysis dashboards, mobile monitoring, or multi-operator access.
+
+The system began as a desktop prototype and is evolving toward this always-on appliance architecture. The conceptual foundations are documented in `docs/foundations/evidence-appliance.md`.
+
+Equally important, this repository serves as a living experiment in AI-assisted engineering. The software demonstrates both a financial model and a methodology in which working software continuously accelerates organizational learning.

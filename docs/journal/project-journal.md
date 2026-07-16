@@ -4126,3 +4126,170 @@ The system observes ("3 of top 10 are semiconductors"). It does not prescribe ("
 - Contributes to Portfolio Context
 - Grouping heuristics include sector, industry, product structure, issuer, capital tier, DTE band, volatility regime
 - Some heuristics are immediately implementable (capital tier, DTE band); others require enrichment data (sector, industry)
+
+
+---
+
+## 2026-07-16 — Background Acquisition Design Discussion
+
+### Question
+
+Should evidence acquisition become backend-owned — a continuously operating subsystem rather than a browser-initiated operation?
+
+### Answer
+
+Yes. The Write Desk should become an observer of continuously maintained evidence rather than the initiator of evidence acquisition.
+
+### Design produced
+
+`docs/14-background-acquisition-design.md` — covers:
+- Current architecture (browser owns acquisition, backend is passive proxy)
+- Target architecture (backend acquires continuously, browser observes)
+- Transitional architecture (feature-flagged, both modes available)
+- Recommended first slice (in-process acquisition loop + snapshot endpoint)
+- Browser/backend responsibility split after transition
+- Update delivery analysis (conditional HTTP polling recommended over SSE/WebSockets)
+- System-of-record recommendation (backend memory → backend SQLite)
+- Risks and open questions
+
+### Key decisions
+
+- **Conditional HTTP polling (30s)** preferred over SSE or WebSockets — evidence changes in discrete generations, not continuous streams
+- **Wheelwright stays client-side** — instant policy recomputation without server round-trips
+- **In-memory evidence for first slice** — SQLite in Phase 2
+- **Scan button becomes "Refresh Now"** or disappears entirely
+- **IndexedDB market evidence removed** after backend proves stable
+
+### Smallest step
+
+Add a background acquisition loop (setInterval) to the existing evidence-service. Reuse existing TradierAdapter, ResponseCache, RequestPacer. Store evidence in memory. Expose `GET /api/evidence/snapshot` with ETag. Browser polls every 30s with If-None-Match.
+
+The transformation: from "scan the market" to "observe a continuously maintained market."
+
+
+---
+
+## 2026-07-16 — State-Oriented Operator Console (Architectural Principle)
+
+### Principle
+
+> The operator console shows what IS. The diagnostic console shows what the system is DOING.
+
+### Context
+
+The discussion around eliminating Scan and implementing backend-owned acquisition revealed a broader principle: Write Desk should be state-oriented (market freshness, coverage, readiness) rather than process-oriented (scanning, passes, progress bars).
+
+### Observable State vs Operational State
+
+- **Observable State:** evidence freshness, coverage, recommendation readiness, session, health. Consumed by the operator for decisions. Scales to any universe size.
+- **Operational State:** scheduler activity, work queue, provider pacing, cache stats, request lifecycle. Consumed by engineers for diagnostics. Does not belong in the primary operator surface.
+
+### Key relationships
+
+- Backend-owned acquisition makes state-oriented UI natural (the browser genuinely doesn't know what pass the scheduler is on)
+- Evidence becomes the primary architectural asset (providers → evidence → policy → recommendations → decisions)
+- "Scan" is a transitional artifact — future actions are evidence-state actions ("is it current?") not acquisition actions ("start scanning")
+- State-oriented concepts scale (evidence freshness works at 500 or 50,000 symbols); process-oriented concepts don't ("scan complete" is unachievable at scale)
+
+### Recorded at
+
+`docs/foundations/state-oriented-console.md`
+
+
+---
+
+## 2026-07-16 — Evidence-State Semantics (Design Correction)
+
+### Corrections applied
+
+The initial state-indicator proposal had three imprecisions:
+
+1. **Freshness was measured by the newest symbol**, not the oldest evidence supporting displayed recommendations. One refreshed symbol could make an otherwise stale set appear "current." Corrected: freshness = oldest evidence age among displayed recommendations.
+
+2. **"Active" conflated trust with activity.** A scheduler can be idle (no work due) and healthy, or active while failing. Corrected: Trust (Current/Partially Current/Stale/Degraded/Unavailable) and Activity (Updating/none) are independent dimensions.
+
+3. **Coverage vocabulary was imprecise.** "Current" was used where "covered" was meant. Corrected: precise vocabulary (Covered, Ready, Absent, Evaluable, Pending, Failed) with explicit set relationships.
+
+### Key definitions
+
+- **Trust:** Can the operator rely on the visible recommendations?
+- **Activity:** Is the system currently improving evidence?
+- **Freshness:** Oldest observation among displayed recommendations (not newest anywhere)
+- **Covered:** Ready + Absent (resolved symbols)
+- **Current threshold:** ≤5 min during Regular Session; sealed evidence during closed sessions
+
+### State derivation
+
+Deterministic function of: displayed recommendation evidence ages, coverage fraction, failure rate, session state, sealed-session rules. Documented as pseudocode in the spec.
+
+### Recorded at
+
+`docs/15-evidence-state-semantics.md`
+
+
+---
+
+## 2026-07-16 — Evidence-State Semantics (Second Correction)
+
+### Corrections applied
+
+1. **Evaluable vs Eligible:** Separated evidence sufficiency (Evaluable — does Wheelwright have enough data?) from policy eligibility (Eligible — does it pass delta/DTE/affordability filters?). Policy changes alter eligibility, not evaluability.
+
+2. **Display Trust vs Population Context:** Two scopes. The collapsed indicator reflects the displayed rows (what the operator sees). The expanded view shows broader population quality. Changing the Show limit may change the collapsed trust state — this is correct.
+
+3. **Degraded examples:** Fixed inconsistency. Each example now includes an inferable reason. Degraded at "oldest 42m" is because evidence exceeds the 30m Regular Session threshold (provider was unreachable). Degraded at "24 failures" is because failure fraction exceeds 5%.
+
+4. **Thresholds as policy defaults:** All numeric thresholds (5m current, 30m stale, 95% coverage, 5% failure) explicitly labeled as configurable defaults that may vary by session state, evidence type, or operating mode. Not architectural constants.
+
+### Complete pipeline vocabulary
+
+Universe → Covered (Ready + Absent) + Pending + Failed
+Ready → Evaluable (evidence sufficient) → Eligible (passes policy) → Ranked (ordered) → Displayed (within Show limit)
+
+### Recorded at
+
+Updated `docs/15-evidence-state-semantics.md` (full rewrite with corrections)
+
+---
+
+## 2026-07-16 — Evidence Appliance: Governing Architectural Concept
+
+### What happened
+
+After implementing the session-aware acquisition guard, Write Desk recomposition design, recommendation funnel analysis, and observing the project's evolution over several weeks, we recognized that Wheelwright has crossed a threshold in its architectural identity.
+
+It is no longer a desktop application that scans option chains on demand. It is an always-on evidence appliance that continuously maintains an authoritative model of the options opportunity environment.
+
+### Why this matters
+
+The "evidence appliance" framing resolves an ambiguity the project carried since inception. The README described the engineering methodology (closed-loop learning) but didn't name what the *product* is architecturally. Every recent decision — backend-owned acquisition, session awareness, sealed evidence, persistence requirement, cloud deployment direction, Write Desk as operator console — follows naturally from this identity.
+
+### Key insight
+
+The browser is a viewport into the appliance, not the thing that starts or owns the system. You don't "refresh" a thermometer. You read it.
+
+### Architectural consequences captured
+
+- Single acquisition authority (one truth, one maintainer)
+- Persistence required (an appliance that loses state on restart has failed)
+- Session awareness as correctness (not feature)
+- Sealed evidence validity (wall-clock age ≠ staleness)
+- Cloud deployment as natural consequence (appliance should be always-on)
+- Frontend as observer/consumer (not owner)
+- Refresh as administrative diagnostic (not primary action)
+
+### Documents created/updated
+
+- Created: `docs/foundations/evidence-appliance.md`
+- Updated: `docs/README.md` (long-term vision)
+- Updated: `docs/21-write-desk-recomposition.md` (cross-reference)
+- Updated: `docs/20-session-aware-acquisition.md` (cross-reference)
+- Updated: `docs/14-background-acquisition-design.md` (cross-reference + status correction)
+
+### Maturity acknowledgment
+
+The concept is the architectural north star. The current implementation is partway there (in-memory store, local-only, incomplete session model). The document explicitly captures what's present, what's transitional, and what's required to fully realize the appliance.
+
+### Relationship to other foundations
+
+The evidence appliance is the system identity that the other governing principles (Policy over Prediction, State-Oriented Console, Secondary Observation, Closed-Loop Engineering) assume but did not independently name. The new document shows how they fit together as aspects of one coherent system.
