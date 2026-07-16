@@ -1176,3 +1176,34 @@
   cursor: pointer;
   accent-color: var(--wd-accent-green);
 }
+
+
+.wd-show-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 10px;
+  font-size: var(--wd-size-label);
+  font-weight: var(--wd-weight-normal);
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+}
+
+.wd-show-count-select {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--wd-border-default);
+  color: var(--wd-text-primary);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: var(--wd-size-label);
+  font-family: var(--wd-font-mono);
+  cursor: pointer;
+}
+
+.wd-show-count-select:hover { border-color: var(--wd-accent-green); }
+
+.wd-showing-count {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  margin: 0 0 4px;
+}

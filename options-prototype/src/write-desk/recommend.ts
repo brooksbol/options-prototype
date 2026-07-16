@@ -76,7 +76,7 @@ export const DEFAULT_RECOMMENDATION_POLICY: RecommendationPolicy = {
   executionAssessment: DEFAULT_EXECUTION_POLICY,
   ranking: {
     mode: "execution_first",
-    maxResults: 20,
+    maxResults: 100,
     includeEdge: true,
     includeWait: false,
   },

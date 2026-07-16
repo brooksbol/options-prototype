@@ -23,12 +23,10 @@ import {
   moneyness,
   assignmentProbability,
 } from "../domain/calculations";
-import { MockMarketDataProvider } from "../providers/mock/MockMarketDataProvider";
-import { TradierProvider } from "../providers/tradier/TradierProvider";
-import { isTradierConfigured, requireTradierConfig } from "../config/tradier";
 import { UnderlyingSelector } from "./UnderlyingSelector";
 import { OptionsTable } from "./OptionsTable";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
+import { getProvider as getSharedProvider, isTradierConfigured } from "../providers";
 import type { MarketDataProvider } from "../domain/provider";
 import type { DeltaTieBreaker } from "../domain/policy";
 import type { OptionContract, Expiration } from "../domain/types";
@@ -39,20 +37,11 @@ type ProviderKey = "mock" | "tradier";
 
 const PROVIDER_OPTIONS: { key: ProviderKey; label: string; available: boolean }[] = [
   { key: "mock", label: "Mock", available: true },
-  { key: "tradier", label: "Tradier Sandbox", available: isTradierConfigured() },
+  { key: "tradier", label: "Tradier (via backend)", available: isTradierConfigured() },
 ];
 
-// Singleton provider instances — cache survives navigation between tabs
-const providerInstances: Record<string, MarketDataProvider> = {};
 function getProvider(key: ProviderKey): MarketDataProvider {
-  if (!providerInstances[key]) {
-    if (key === "tradier" && isTradierConfigured()) {
-      providerInstances[key] = new TradierProvider(requireTradierConfig());
-    } else {
-      providerInstances[key] = new MockMarketDataProvider();
-    }
-  }
-  return providerInstances[key];
+  return getSharedProvider(key);
 }
 
 const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = ["PreferOTM", "PreferITM", "PreferHigherStrike", "PreferLowerStrike"];
@@ -401,10 +390,8 @@ export function RecommendationLab() {
             <button
               className="rec-evidence-toggle"
               onClick={() => {
-                if (provider instanceof TradierProvider) {
-                  provider.refresh(state.selectedSymbol, state.selectedExpiration);
-                  selectExpiration(state.selectedExpiration); // re-trigger load
-                }
+                // Re-trigger load by re-selecting the current expiration
+                selectExpiration(state.selectedExpiration);
               }}
             >
               Refresh Data

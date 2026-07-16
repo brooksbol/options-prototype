@@ -7,7 +7,7 @@
  *
  * Reuses existing infrastructure:
  *   - Candidate Universe for put symbols
- *   - TradierProvider for market data
+ *   - ProxyMarketDataProvider for market data (via backend Evidence Service)
  *   - selectEligibleExpirations and selectAdmissionContract from Velvet Rope
  *   - midPrice and annualizedYield from domain calculations
  */

@@ -29,6 +29,7 @@ import type { TablePositionContext } from "../write-desk/brief-builder";
 import { loadWorkingIntents, addPendingIntent, updatePendingIntent, createPendingIntent, type PendingIntent } from "../execution/pending-intent";
 import { buildWriteIntent } from "../execution/write-intent";
 import type { PortfolioSnapshot, PortfolioSourceType } from "../write-desk/types";
+import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import "../write-desk.css";
 import "../recommendation-brief.css";
 
@@ -52,11 +53,27 @@ export function WriteDesk() {
   const [scanTimestamp, setScanTimestamp] = useState<string | null>(null);
   const [lastAudit, setLastAudit] = useState<ScanAuditRecord | null>(null);
   const [lastTelemetry, setLastTelemetry] = useState<ScanTelemetry | null>(null);
-  const [policy, setPolicy] = useState(DEFAULT_RECOMMENDATION_POLICY);
+  const [policy, setPolicy] = useState(() => {
+    const ws = loadWorkspace();
+    return {
+      ...DEFAULT_RECOMMENDATION_POLICY,
+      contractSelection: {
+        ...DEFAULT_RECOMMENDATION_POLICY.contractSelection,
+        targetDelta: ws.writeDeskTargetDelta,
+        targetDte: ws.writeDeskTargetDte,
+        admissibleDeltaRange: { min: ws.writeDeskDeltaMin, max: ws.writeDeskDeltaMax },
+      },
+      ranking: {
+        ...DEFAULT_RECOMMENDATION_POLICY.ranking,
+        mode: ws.writeDeskRankingMode as typeof DEFAULT_RECOMMENDATION_POLICY.ranking.mode,
+      },
+    };
+  });
   const [selectedCandidate, setSelectedCandidate] = useState<PutCandidate | null>(null);
   const [tablePosition, setTablePosition] = useState<TablePositionContext | null>(null);
   const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>(() => loadWorkingIntents());
   const [showAffordableOnly, setShowAffordableOnly] = useState(false);
+  const [showCount, setShowCount] = useState(() => loadWorkspace().writeDeskShowCount);
 
   const providerKey = isTradierConfigured() ? "tradier" : "mock";
   const provider = useMemo(() => getProvider(providerKey), [providerKey]);
@@ -144,6 +161,7 @@ export function WriteDesk() {
     setCallCandidates([]);
     setCallInventory([]);
     setCallExcluded([]);
+    setScanTimestamp(new Date().toISOString()); // Set immediately so the candidate section renders
 
     try {
       const plannerConfig = { ...DEFAULT_PLANNER_CONFIG, provider: providerKey, environment: "sandbox", prioritySymbols: snapshot.inventory.map((p) => p.symbol) };
@@ -370,7 +388,17 @@ export function WriteDesk() {
           {scanTimestamp && (
             <PolicyStrip
               policy={policy}
-              onChange={(updated) => { setPolicy(updated); handleReRecommend(updated); }}
+              onChange={(updated) => {
+                setPolicy(updated);
+                handleReRecommend(updated);
+                updateWorkspace({
+                  writeDeskTargetDelta: updated.contractSelection.targetDelta,
+                  writeDeskTargetDte: updated.contractSelection.targetDte,
+                  writeDeskRankingMode: updated.ranking.mode,
+                  writeDeskDeltaMin: updated.contractSelection.admissibleDeltaRange.min,
+                  writeDeskDeltaMax: updated.contractSelection.admissibleDeltaRange.max,
+                });
+              }}
             />
           )}
 
@@ -408,27 +436,58 @@ export function WriteDesk() {
                     <input type="checkbox" checked={showAffordableOnly} onChange={(e) => setShowAffordableOnly(e.target.checked)} />
                     <span>Affordable only</span>
                   </label>
+                  <label className="wd-show-count">
+                    Show
+                    <select value={showCount} onChange={(e) => { const v = parseInt(e.target.value); setShowCount(v); updateWorkspace({ writeDeskShowCount: v }); }} className="wd-show-count-select">
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </label>
                 </h3>
 
                 {putCandidates.length > 0 ? (
                   <>
                     {putIsProvisional && (
-                      <p className="wd-provisional-note">Provisional leaders from {putCoverage?.covered ?? 0} of {putCoverage?.universeSize ?? 0} evaluated.</p>
+                      <p className="wd-provisional-note">
+                        {scanning
+                          ? `Provisional — ${putCoverage?.covered ?? 0} of ${putCoverage?.universeSize ?? 0} evaluable · acquisition running`
+                          : `Provisional leaders from ${putCoverage?.covered ?? 0} of ${putCoverage?.universeSize ?? 0} evaluated.`
+                        }
+                      </p>
                     )}
-                    <PutCandidateTable candidates={showAffordableOnly ? putCandidates.filter((c) => c.affordable) : putCandidates} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); }} />
+                    {(() => {
+                      const filtered = showAffordableOnly ? putCandidates.filter((c) => c.affordable) : putCandidates;
+                      const displayed = filtered.slice(0, showCount);
+                      return (
+                        <>
+                          {filtered.length > 0 && (
+                            <p className="wd-showing-count">Showing {displayed.length} of {filtered.length} eligible puts</p>
+                          )}
+                          <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); }} />
+                        </>
+                      );
+                    })()}
                   </>
                 ) : (
                   <div className="wd-no-trade">
-                    <p>
-                      {putIsProvisional
-                        ? `No actionable or edge put opportunities found in ${putCoverage?.covered ?? 0} of ${putCoverage?.universeSize ?? 0} symbols evaluated so far.`
-                        : "No actionable or edge put opportunities available across the full universe."
-                      }
-                    </p>
-                    {snapshot.deployableCash != null && snapshot.deployableCash < 3000 && (
-                      <p className="wd-wait-label">
-                        Deployable cash (${snapshot.deployableCash.toLocaleString()}) may be insufficient to secure any put in the universe. Minimum collateral is strike × 100.
-                      </p>
+                    {scanning ? (
+                      <p className="wd-provisional-note">Acquiring evidence — recommendations will appear as symbols are evaluated...</p>
+                    ) : (
+                      <>
+                        <p>
+                          {putIsProvisional
+                            ? `No actionable or edge put opportunities found in ${putCoverage?.covered ?? 0} of ${putCoverage?.universeSize ?? 0} symbols evaluated so far.`
+                            : "No actionable or edge put opportunities available across the full universe."
+                          }
+                        </p>
+                        {snapshot.deployableCash != null && snapshot.deployableCash < 3000 && (
+                          <p className="wd-wait-label">
+                            Deployable cash (${snapshot.deployableCash.toLocaleString()}) may be insufficient to secure any put in the universe. Minimum collateral is strike × 100.
+                          </p>
+                        )}
+                      </>
                     )}
                     {putWaitCandidates.length > 0 && (
                       <div className="wd-wait-evidence">
@@ -1050,8 +1109,46 @@ function PolicyStrip({ policy, onChange }: { policy: RecommendationPolicy; onCha
       </label>
 
       <label className="wd-policy-field">
-        Δ Range
-        <span className="wd-policy-value">{policy.contractSelection.admissibleDeltaRange.min}–{policy.contractSelection.admissibleDeltaRange.max}</span>
+        Δ Min
+        <select
+          value={policy.contractSelection.admissibleDeltaRange.min.toFixed(2)}
+          onChange={(e) => {
+            const val = parseFloat(e.target.value);
+            onChange({ ...policy, contractSelection: { ...policy.contractSelection, admissibleDeltaRange: { ...policy.contractSelection.admissibleDeltaRange, min: val } } });
+          }}
+          className="wd-policy-select"
+        >
+          <option value="0.05">0.05</option>
+          <option value="0.10">0.10</option>
+          <option value="0.15">0.15</option>
+          <option value="0.20">0.20</option>
+          <option value="0.25">0.25</option>
+          <option value="0.30">0.30</option>
+          <option value="0.35">0.35</option>
+          <option value="0.40">0.40</option>
+        </select>
+      </label>
+
+      <label className="wd-policy-field">
+        Δ Max
+        <select
+          value={policy.contractSelection.admissibleDeltaRange.max.toFixed(2)}
+          onChange={(e) => {
+            const val = parseFloat(e.target.value);
+            onChange({ ...policy, contractSelection: { ...policy.contractSelection, admissibleDeltaRange: { ...policy.contractSelection.admissibleDeltaRange, max: val } } });
+          }}
+          className="wd-policy-select"
+        >
+          <option value="0.20">0.20</option>
+          <option value="0.25">0.25</option>
+          <option value="0.30">0.30</option>
+          <option value="0.35">0.35</option>
+          <option value="0.40">0.40</option>
+          <option value="0.45">0.45</option>
+          <option value="0.50">0.50</option>
+          <option value="0.60">0.60</option>
+          <option value="0.70">0.70</option>
+        </select>
       </label>
     </div>
   );

@@ -7,6 +7,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
+      '/api': {
+        target: 'http://localhost:3100',
+        changeOrigin: true,
+      },
       '/sec-api': {
         target: 'https://www.sec.gov',
         changeOrigin: true,

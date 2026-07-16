@@ -52,6 +52,14 @@ export interface Workspace {
 
   // Velvet Rope navigation intent
   pendingVelvetRopeSymbol: string | null;
+
+  // Write Desk Policy
+  writeDeskTargetDelta: number;
+  writeDeskTargetDte: number;
+  writeDeskRankingMode: string;
+  writeDeskDeltaMin: number;
+  writeDeskDeltaMax: number;
+  writeDeskShowCount: number;
 }
 
 const DEFAULT_WORKSPACE: Workspace = {
@@ -74,6 +82,12 @@ const DEFAULT_WORKSPACE: Workspace = {
   opportunityTargetDelta: 0.30,
   opportunityMaxDte: null,
   pendingVelvetRopeSymbol: null,
+  writeDeskTargetDelta: 0.30,
+  writeDeskTargetDte: 21,
+  writeDeskRankingMode: "execution_first",
+  writeDeskDeltaMin: 0.15,
+  writeDeskDeltaMax: 0.50,
+  writeDeskShowCount: 20,
 };
 
 /**

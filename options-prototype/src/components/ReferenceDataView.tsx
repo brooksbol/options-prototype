@@ -17,13 +17,11 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useOptionsChain } from "../hooks/useOptionsChain";
 import { findClosestToDelta } from "../domain/delta";
-import { MockMarketDataProvider } from "../providers/mock/MockMarketDataProvider";
-import { TradierProvider } from "../providers/tradier/TradierProvider";
-import { isTradierConfigured, requireTradierConfig } from "../config/tradier";
 import { UnderlyingSelector } from "./UnderlyingSelector";
 import { OptionsTable } from "./OptionsTable";
 import { MetricsPanel } from "./MetricsPanel";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
+import { getProvider as getSharedProvider, isTradierConfigured } from "../providers";
 import type { MarketDataProvider } from "../domain/provider";
 import type { DeltaTieBreaker } from "../domain/policy";
 import type { Expiration, OptionsChain as OptionsChainType, OptionContract } from "../domain/types";
@@ -39,27 +37,13 @@ interface ProviderOption {
   available: boolean;
 }
 
-function getTradierAvailability(): boolean {
-  return isTradierConfigured();
-}
-
-// Singleton provider instances — persist across component mounts so cache survives navigation
-const providerInstances: Record<string, MarketDataProvider> = {};
-
 function getProvider(key: ProviderKey): MarketDataProvider {
-  if (!providerInstances[key]) {
-    if (key === "tradier" && isTradierConfigured()) {
-      providerInstances[key] = new TradierProvider(requireTradierConfig());
-    } else {
-      providerInstances[key] = new MockMarketDataProvider();
-    }
-  }
-  return providerInstances[key];
+  return getSharedProvider(key);
 }
 
 const PROVIDER_OPTIONS: ProviderOption[] = [
   { key: "mock", label: "Mock", badge: "Reference Fixtures", available: true },
-  { key: "tradier", label: "Tradier Sandbox", badge: "Live Delayed", available: getTradierAvailability() },
+  { key: "tradier", label: "Tradier (via backend)", badge: "Live Delayed", available: isTradierConfigured() },
 ];
 
 // --- Component ---
@@ -376,10 +360,6 @@ export function ReferenceDataView() {
               className="rec-evidence-toggle"
               style={{ marginLeft: 12 }}
               onClick={() => {
-                const p = getProvider("tradier");
-                if (p instanceof TradierProvider) {
-                  p.refresh();
-                }
                 setRefreshTrigger((n) => n + 1);
               }}
             >

@@ -4015,3 +4015,80 @@ Why does SPY tie up so much money?
 The system treats the options market as an oracle — not infallible, but one that has already performed immense computation. The system's role is translation: making that computation legible to the operator. The operator retains judgment. The system provides evidence.
 
 This reinforces the core philosophy: use objective market evidence to inform a human decision rather than replacing the human with a black-box algorithm.
+
+
+---
+
+## 2026-07-16 — Two-Layer Cache Discovery and Cold-Start Semantics
+
+### Observation
+
+After implementing the backend Evidence Proxy with in-process response cache and request pacing, a rescan completed in seconds rather than the expected 27+ minutes. Investigation revealed the fast path was NOT the new backend cache — it was the browser's existing IndexedDB DurableMarketCache, which survived the backend restart.
+
+### System behavior (current)
+
+The system has two cache layers:
+
+```
+Layer 1: Browser IndexedDB (DurableMarketCache)
+  - Survives: page reloads, navigation, Vite restarts, backend restarts
+  - Drives: acquisition planning ("do I need evidence from the network?")
+  - Serves: Wheelwright directly for recommendation computation
+  - TTLs: chains 5min fresh / 30min stale, expirations 6hr / 24hr
+
+Layer 2: Backend in-process ResponseCache
+  - Survives: within a single evidence-service process lifecycle only
+  - Eliminates: redundant upstream Tradier calls within short windows
+  - Resets: on evidence-service restart
+  - TTLs: chains 90s, quotes 60s, expirations 5min
+```
+
+### Important distinction: "cold" is not one thing
+
+| State | IndexedDB | Backend cache | Upstream calls needed | Expected time |
+|-------|-----------|---------------|----------------------|---------------|
+| System cold (bootstrap) | Empty | Empty | ~1,488 (all 496 × 3) | ~27 minutes |
+| Backend cold, browser warm | Populated | Empty | Few (only expired evidence) | Seconds to minutes |
+| Both warm (rescan within TTLs) | Populated | Populated | Zero to few | Seconds |
+| Normal next-day open | Stale (sealed) | Empty (restarted) | Varies by staleness | Minutes |
+
+The feared 27-minute cold scan is a rare bootstrap/recovery case, not the normal operator experience. The persistent frontend cache absorbs most of the cost even though direct provider access moved behind the backend.
+
+### Telemetry gap
+
+The current telemetry does not distinguish between:
+
+- Served from durable browser evidence (IndexedDB hit)
+- Served from backend response cache (proxy hit, no Tradier call)
+- Acquired from Tradier via backend (proxy miss, upstream call)
+- Confirmed absent (no options for this symbol)
+- Still pending
+
+Future telemetry should expose this provenance chain so the operator (or diagnostic tools) can see where evidence actually came from during a given scan.
+
+### Future: test mode for forced cold-start
+
+Record as a future capability: a test/diagnostic mode that bypasses the browser IndexedDB cache to force a true cold-start acquisition path. This would be useful for:
+
+- Measuring actual backend pacing behavior
+- Validating cold-start timing claims
+- Testing the progressive-rendering UX from zero evidence
+- Reproducing bootstrap scenarios without clearing all browser state manually
+
+Implementation options (not yet decided):
+- A "Clear evidence cache" button in Labs/Diagnostics
+- A URL parameter (`?cold=true`) that temporarily bypasses IndexedDB reads
+- A scan-planner option that forces all symbols to MISSING regardless of cache state
+
+Do not implement yet. Record for future use.
+
+### Implication for backend extraction
+
+When the full backend evidence service replaces the browser IndexedDB (Phase 3-4 of the migration plan), the cold-start characteristics change:
+
+- Backend SQLite becomes the durable store (survives process restarts)
+- Browser loses its durable evidence layer
+- The "backend cold" scenario disappears (SQLite persists)
+- The only true cold start is a fresh SQLite database
+
+This further reinforces that the 27-minute bootstrap is a transient concern of the current hybrid architecture, not a permanent operational limitation.

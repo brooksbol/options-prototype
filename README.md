@@ -34,6 +34,43 @@ Current implementation task:
 
 ---
 
+# Local Development
+
+## Quick Start
+
+From the workspace root:
+
+```bash
+./scripts/dev.sh
+```
+
+This starts the complete development environment:
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| evidence-service | 3100 | Backend evidence proxy (owns Tradier credential) |
+| options-prototype | 5173 | Frontend (Vite dev server) |
+
+The frontend proxies `/api/*` requests to the backend automatically.
+
+**Requirements:**
+- Node.js (via nvm)
+- `evidence-service/.env` must contain `TRADIER_API_KEY`
+
+**Press Ctrl+C** to stop both services.
+
+## Starting services independently
+
+```bash
+# Backend only
+cd evidence-service && npm run dev
+
+# Frontend only (requires backend running on :3100)
+cd options-prototype && npm run dev
+```
+
+---
+
 # Development Philosophy
 
 This repository intentionally follows a spec-driven engineering process.
