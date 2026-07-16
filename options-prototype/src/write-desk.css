@@ -1408,67 +1408,88 @@
 }
 
 
+
 /* ═══════════════════════════════════════════════════════
    RECOMPOSED LAYOUT — July 2026
-   Target: ~78px above first candidate row
+   Holistic operator console. Candidate board is the work.
+   Unified color vocabulary across infographic + table.
    ═══════════════════════════════════════════════════════ */
 
-/* Band 2: Operating Context */
+/* --- Semantic Color Vocabulary --- */
+/* Shared across opportunity surface segments AND table posture badges */
+
+.seg-opportunities { --seg-color: var(--wd-accent-green); }
+.seg-threshold { --seg-color: var(--wd-accent-yellow); }
+.seg-poor { --seg-color: var(--wd-accent-red); }
+.seg-nomatch { --seg-color: var(--wd-text-secondary); }
+.seg-nooptions { --seg-color: var(--wd-text-disabled); }
+.seg-pending { --seg-color: var(--wd-accent-blue); }
+.seg-incomplete { --seg-color: rgba(126, 200, 227, 0.5); }
+.seg-other { --seg-color: rgba(255, 255, 255, 0.06); }
+
+/* --- Band 2: Operating Context --- */
+
 .wd-band-context {
-  padding: 3px 0 5px;
+  padding: 4px 0 6px;
   border-bottom: 1px solid var(--wd-border-default);
-  margin-bottom: 0;
-  gap: 8px;
+  margin-bottom: 8px;
+  gap: 10px;
   font-size: var(--wd-size-label);
 }
 
 .wd-trust {
   font-family: var(--wd-font-mono);
-  font-size: var(--wd-size-label);
+  font-size: var(--wd-size-body);
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 
-.wd-trust-dot { font-size: 10px; }
+.wd-trust-dot { font-size: 11px; }
 .wd-trust-green { color: var(--wd-accent-green); }
+.wd-trust-green .wd-trust-dot { color: var(--wd-accent-green); }
 .wd-trust-yellow { color: var(--wd-accent-yellow); }
-.wd-trust-orange { color: var(--wd-accent-red); }
+.wd-trust-yellow .wd-trust-dot { color: var(--wd-accent-yellow); }
 .wd-trust-red { color: var(--wd-accent-red); }
+.wd-trust-red .wd-trust-dot { color: var(--wd-accent-red); }
 
 .wd-position-chip {
   font-size: var(--wd-size-label);
   color: var(--wd-accent-purple);
   background: var(--wd-accent-purple-bg);
-  padding: 1px 5px;
+  padding: 1px 6px;
   border-radius: 3px;
   font-family: var(--wd-font-mono);
 }
 
 .wd-calls-deferred {
-  font-size: var(--wd-size-micro);
+  font-size: var(--wd-size-label);
   color: var(--wd-text-disabled);
-  font-style: italic;
 }
 
-/* Candidate Board */
+/* --- CANDIDATE BOARD: One unified panel --- */
+
 .wd-board {
-  margin-top: 4px;
+  border: 1px solid var(--wd-border-default);
+  border-radius: 6px;
+  background: var(--wd-bg-surface);
+  overflow: hidden;
 }
 
 .wd-board-header {
-  margin-bottom: 4px;
+  padding: 10px 14px 0;
 }
 
 .wd-board-title-row {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: baseline;
+  gap: 16px;
   flex-wrap: wrap;
+  margin-bottom: 8px;
 }
 
 .wd-board-title {
-  font-size: 13px;
+  font-size: var(--wd-size-hero);
   font-weight: var(--wd-weight-bold);
   color: var(--wd-text-primary);
   margin: 0;
@@ -1478,7 +1499,7 @@
 .wd-board-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -1489,13 +1510,14 @@
   font-size: var(--wd-size-label);
   color: var(--wd-text-secondary);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .wd-control-select {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--wd-border-default);
   color: var(--wd-text-primary);
-  padding: 1px 4px;
+  padding: 2px 5px;
   border-radius: 3px;
   font-size: var(--wd-size-label);
   font-family: var(--wd-font-mono);
@@ -1503,10 +1525,10 @@
 }
 
 .wd-control-select:hover { border-color: var(--wd-accent-green); }
-.wd-control-select:focus { outline: none; border-color: var(--wd-accent-green); }
+.wd-control-select:focus { outline: none; border-color: var(--wd-accent-green); box-shadow: 0 0 0 1px rgba(111, 207, 151, 0.15); }
 
 .wd-control-check {
-  gap: 3px;
+  gap: 4px;
 }
 
 .wd-control-check input {
@@ -1516,83 +1538,138 @@
   cursor: pointer;
 }
 
-.wd-acquiring-note {
-  font-size: var(--wd-size-label);
-  color: var(--wd-accent-yellow);
-  font-style: italic;
-  margin: 8px 0;
+/* --- OPPORTUNITY SURFACE (integrated into board) --- */
+
+.wd-opp-surface {
+  padding: 0 14px 8px;
 }
 
-/* ═══ OPPORTUNITY SURFACE INFOGRAPHIC ═══ */
-
-.wd-surface {
-  margin: 4px 0 6px;
-}
-
-.wd-surface-bar {
+.wd-opp-bar {
   display: flex;
-  height: 5px;
-  border-radius: 2.5px;
+  height: 6px;
+  border-radius: 3px;
   overflow: hidden;
-  background: var(--wd-border-default);
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.wd-surface-seg {
+.wd-opp-seg {
   height: 100%;
+  background: var(--seg-color);
   transition: width 0.5s ease-out;
   min-width: 0;
 }
 
-.wd-seg-eligible { background: var(--wd-accent-green); }
-.wd-seg-threshold { background: #b8860b; opacity: 0.7; }
-.wd-seg-nomatch { background: #8b4513; opacity: 0.5; }
-.wd-seg-quality { background: #a0522d; opacity: 0.45; }
-.wd-seg-nooptions { background: var(--wd-text-disabled); opacity: 0.35; }
-.wd-seg-pending { background: var(--wd-accent-yellow); opacity: 0.5; }
-.wd-seg-incomplete { background: var(--wd-accent-yellow); opacity: 0.3; }
-.wd-seg-other { background: var(--wd-text-disabled); opacity: 0.2; }
+.wd-opp-seg.seg-threshold { opacity: 0.7; }
+.wd-opp-seg.seg-nomatch { opacity: 0.5; }
+.wd-opp-seg.seg-nooptions { opacity: 0.4; }
+.wd-opp-seg.seg-other { opacity: 0.3; }
 
-.wd-surface-legend {
+.wd-opp-legend {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 10px;
-  margin-top: 3px;
+  gap: 3px 12px;
+  margin-top: 5px;
   font-size: var(--wd-size-label);
+  line-height: 1.4;
 }
 
-.wd-surface-legend-item {
+.wd-opp-item {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-}
-
-.wd-surface-swatch {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-.wd-surface-legend-count {
-  font-family: var(--wd-font-mono);
-  font-weight: var(--wd-weight-semi);
-  color: var(--wd-text-primary);
-}
-
-.wd-surface-legend-label {
+  gap: 2px;
   color: var(--wd-text-secondary);
 }
 
-.wd-surface-total {
+.wd-opp-count {
+  font-family: var(--wd-font-mono);
+  font-weight: var(--wd-weight-semi);
+  color: var(--seg-color);
+}
+
+.wd-opp-item.seg-opportunities .wd-opp-count { color: var(--wd-accent-green); }
+.wd-opp-item.seg-threshold .wd-opp-count { color: var(--wd-accent-yellow); }
+.wd-opp-item.seg-poor .wd-opp-count { color: var(--wd-accent-red); }
+.wd-opp-item.seg-nomatch .wd-opp-count { color: var(--wd-text-secondary); }
+.wd-opp-item.seg-nooptions .wd-opp-count { color: var(--wd-text-disabled); }
+.wd-opp-item.seg-pending .wd-opp-count { color: var(--wd-accent-blue); }
+
+.wd-opp-total {
   margin-left: auto;
   color: var(--wd-text-disabled);
   font-family: var(--wd-font-mono);
 }
 
-.wd-surface-context {
+.wd-opp-mixed {
   font-size: var(--wd-size-micro);
   color: var(--wd-accent-yellow);
   font-style: italic;
-  cursor: help;
+}
+
+/* --- Showing count (metadata, inside board) --- */
+
+.wd-showing-count {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-disabled);
+  margin: 0;
+  padding: 0 14px 4px;
+}
+
+/* --- States inside board --- */
+
+.wd-acquiring-note {
+  font-size: var(--wd-size-body);
+  color: var(--wd-accent-yellow);
+  font-style: italic;
+  padding: 16px 14px;
+  margin: 0;
+}
+
+.wd-no-trade {
+  text-align: center;
+  padding: 24px 14px;
+  color: var(--wd-text-secondary);
+  font-size: var(--wd-size-body);
+}
+
+/* --- Table inside board panel --- */
+
+.wd-board .wd-candidate-table {
+  border-top: 1px solid var(--wd-border-default);
+}
+
+.wd-board .wd-candidate-table th {
+  background: rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* --- Posture badges (unified color vocabulary) --- */
+
+.wd-posture-badge {
+  font-size: var(--wd-size-micro);
+  font-weight: var(--wd-weight-bold);
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.wd-posture-actionable { background: var(--wd-accent-green-bg); color: var(--wd-accent-green); }
+.wd-posture-edge { background: var(--wd-accent-blue-bg); color: var(--wd-accent-blue); }
+.wd-posture-wait { background: var(--wd-accent-yellow-bg); color: var(--wd-accent-yellow); }
+.wd-posture-unavailable { background: rgba(60, 60, 70, 0.3); color: var(--wd-text-disabled); }
+
+/* Row tinting */
+.wd-posture-row.wd-posture-actionable td { background: rgba(111, 207, 151, 0.02); }
+.wd-posture-row.wd-posture-edge td { background: rgba(126, 200, 227, 0.02); }
+
+/* --- Deferred note --- */
+
+.wd-deferred-note {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-disabled);
+  font-style: italic;
+  padding: 0 14px 8px;
 }
