@@ -1,87 +1,98 @@
 /**
- * Opportunity Surface — Integrated board summary.
+ * Opportunity Breakdown — Two-level distribution within the candidate board.
  *
- * A thin segmented bar + one legend line that describes why the table
- * contains the rows it does. Part of the candidate board, not a separate widget.
+ * Level 1: Segmented bar showing the entire universe partitioned into outcomes.
+ * Level 2: Text breakdown distinguishing "not recommended" (policy) from "not available" (structural).
  *
- * Color semantics are shared with table posture badges:
- *   Green  = Actionable (opportunities)
- *   Blue   = Edge (opportunities)
- *   Amber  = Below threshold (watching)
- *   Red    = Poor market (execution unsafe)
- *   Gray   = No match (nothing in range)
- *   Slate  = No options (not applicable)
- *   Dim    = Unresolved (pending)
+ * Semantics shared with table posture badges:
+ *   Green  = Actionable
+ *   Blue   = Edge
+ *   Amber  = Below threshold (WAIT — not recommended)
+ *   Red    = Poor market (hard-no — execution unsafe)
+ *   Gray   = No match (no contract meeting policy)
+ *   Slate  = No options / incomplete (structurally unavailable)
  */
 
 import type { RecommendationFunnel } from "../write-desk/recommend";
 
-interface OpportunitySurfaceProps {
+interface Props {
   funnel: RecommendationFunnel;
   backendResolved?: number;
 }
 
-interface Segment {
-  label: string;
-  count: number;
-  cls: string;
-}
+export function FunnelInfographic({ funnel, backendResolved }: Props) {
+  const { monitored, eligible, actionable, edge, nonOptionable, pending, waitPosture, exclusions } = funnel;
 
-function buildSegments(funnel: RecommendationFunnel): Segment[] {
-  const { monitored, eligible, nonOptionable, pending, waitPosture, exclusions } = funnel;
-
-  const noTimeframe = exclusions.find(e => e.reason.includes("No expiration"))?.count ?? 0;
-  const noDelta = exclusions.find(e => e.reason.includes("delta"))?.count ?? 0;
+  // Extract specific exclusion counts
   const poorMarket = exclusions.find(e => e.reason.includes("Hard-no") || e.reason.includes("execution"))?.count ?? 0;
-  const missingData = exclusions.find(e => e.reason.includes("Missing chain"))?.count ?? 0;
+  const noDelta = exclusions.find(e => e.reason.includes("delta"))?.count ?? 0;
+  const noDte = exclusions.find(e => e.reason.includes("No expiration"))?.count ?? 0;
+  const noChain = exclusions.find(e => e.reason.includes("Missing chain"))?.count ?? 0;
   const noContract = exclusions.find(e => e.reason.includes("No qualifying"))?.count ?? 0;
   const productStructure = exclusions.find(e => e.reason.includes("Product structure"))?.count ?? 0;
 
-  const noMatch = noDelta + noTimeframe + noContract + productStructure;
-  const segments: Segment[] = [];
+  // Two-level grouping
+  const policyRejected = waitPosture + poorMarket + noDelta + noDte + noContract + productStructure;
+  const structurallyUnavailable = nonOptionable + noChain + pending;
+  const noMatch = noDelta + noDte + noContract + productStructure;
 
-  if (eligible > 0) segments.push({ label: "Opportunities", count: eligible, cls: "seg-opportunities" });
-  if (waitPosture > 0) segments.push({ label: "Below threshold", count: waitPosture, cls: "seg-threshold" });
-  if (poorMarket > 0) segments.push({ label: "Poor market", count: poorMarket, cls: "seg-poor" });
-  if (noMatch > 0) segments.push({ label: "No match", count: noMatch, cls: "seg-nomatch" });
-  if (nonOptionable > 0) segments.push({ label: "No options", count: nonOptionable, cls: "seg-nooptions" });
-  if (pending > 0) segments.push({ label: "Unresolved", count: pending, cls: "seg-pending" });
-  if (missingData > 0) segments.push({ label: "Incomplete", count: missingData, cls: "seg-incomplete" });
+  // Bar segments (proportional to monitored)
+  const segments = [
+    { count: actionable, cls: "seg-actionable", label: "Actionable" },
+    { count: edge, cls: "seg-edge", label: "Edge" },
+    { count: waitPosture, cls: "seg-wait", label: "Below threshold" },
+    { count: poorMarket, cls: "seg-poor", label: "Poor market" },
+    { count: noMatch, cls: "seg-nomatch", label: "No match" },
+    { count: nonOptionable, cls: "seg-nooptions", label: "No options" },
+    { count: noChain + pending, cls: "seg-pending", label: "Unresolved" },
+  ].filter(s => s.count > 0);
 
   // Catch unaccounted
   const accounted = segments.reduce((s, seg) => s + seg.count, 0);
   const remainder = monitored - accounted;
-  if (remainder > 0) segments.push({ label: "Other", count: remainder, cls: "seg-other" });
+  if (remainder > 0) segments.push({ count: remainder, cls: "seg-other", label: "Other" });
 
-  return segments;
-}
-
-export function FunnelInfographic({ funnel, backendResolved }: OpportunitySurfaceProps) {
-  const { monitored, pending } = funnel;
-  const segments = buildSegments(funnel);
   const isAcquiring = pending > 0;
   const isMixed = backendResolved != null && backendResolved < funnel.resolved && isAcquiring;
 
   return (
-    <div className="wd-opp-surface">
-      <div className="wd-opp-bar">
+    <div className="wd-breakdown">
+      {/* Segmented bar */}
+      <div className="wd-breakdown-bar">
         {segments.map((seg, i) => (
           <div
             key={i}
-            className={`wd-opp-seg ${seg.cls}`}
+            className={`wd-breakdown-seg ${seg.cls}`}
             style={{ width: `${monitored > 0 ? (seg.count / monitored) * 100 : 0}%` }}
             title={`${seg.count} ${seg.label}`}
           />
         ))}
       </div>
-      <div className="wd-opp-legend">
-        {segments.filter(s => s.count > 0).map((seg, i) => (
-          <span key={i} className={`wd-opp-item ${seg.cls}`}>
-            <span className="wd-opp-count">{seg.count}</span> {seg.label}
+
+      {/* Two-level text breakdown */}
+      <div className="wd-breakdown-text">
+        <span className="wd-breakdown-line wd-breakdown-recommended">
+          <strong>{eligible}</strong> Recommendations
+          {actionable > 0 && <span className="wd-breakdown-detail seg-actionable">{actionable} Actionable</span>}
+          {edge > 0 && <span className="wd-breakdown-detail seg-edge">{edge} Edge</span>}
+        </span>
+        {policyRejected > 0 && (
+          <span className="wd-breakdown-line wd-breakdown-rejected">
+            Not recommended:
+            {waitPosture > 0 && <span className="wd-breakdown-detail seg-wait">{waitPosture} Below threshold</span>}
+            {poorMarket > 0 && <span className="wd-breakdown-detail seg-poor">{poorMarket} Poor market</span>}
+            {noMatch > 0 && <span className="wd-breakdown-detail seg-nomatch">{noMatch} No match</span>}
           </span>
-        ))}
-        <span className="wd-opp-total">{monitored} ETFs</span>
-        {isMixed && <span className="wd-opp-mixed">Prior + {backendResolved} current</span>}
+        )}
+        {structurallyUnavailable > 0 && (
+          <span className="wd-breakdown-line wd-breakdown-unavailable">
+            Not available:
+            {nonOptionable > 0 && <span className="wd-breakdown-detail seg-nooptions">{nonOptionable} No options</span>}
+            {(noChain + pending) > 0 && <span className="wd-breakdown-detail seg-pending">{noChain + pending} Incomplete</span>}
+          </span>
+        )}
+        <span className="wd-breakdown-total">{monitored} ETFs</span>
+        {isMixed && <span className="wd-breakdown-mixed">Prior baseline + {backendResolved} current</span>}
       </div>
     </div>
   );

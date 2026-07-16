@@ -118,6 +118,10 @@ export interface RecommendationFunnel {
   evaluable: number;
   /** Symbols with at least one ACTIONABLE or EDGE candidate */
   eligible: number;
+  /** Of eligible: ACTIONABLE posture count */
+  actionable: number;
+  /** Of eligible: EDGE posture count */
+  edge: number;
   /** Candidates after ranking (may be capped by maxResults) */
   ranked: number;
   /** Candidates after display slice (Show limit) — set by caller */
@@ -186,6 +190,8 @@ export async function recommendPuts(
   let funnelEvaluable = 0;
   let funnelPending = 0;
   let funnelWaitPosture = 0;
+  let funnelActionable = 0;
+  let funnelEdge = 0;
   let exclNoEligibleDte = 0;
   let exclNoChain = 0;
   let exclNoDeltaInRange = 0;
@@ -368,6 +374,8 @@ export async function recommendPuts(
       if (best) {
         if (best.posture === "ACTIONABLE" || best.posture === "EDGE") {
           allCandidates.push(best);
+          if (best.posture === "ACTIONABLE") funnelActionable++;
+          else funnelEdge++;
         } else {
           allWait.push(best);
           funnelWaitPosture++;
@@ -413,6 +421,8 @@ export async function recommendPuts(
     pending: funnelPending,
     evaluable: funnelEvaluable,
     eligible: allCandidates.length,
+    actionable: funnelActionable,
+    edge: funnelEdge,
     ranked: topN.length,
     displayed: topN.length, // Caller will override with actual Show limit
     waitPosture: funnelWaitPosture,
