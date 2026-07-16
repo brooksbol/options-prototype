@@ -4293,3 +4293,49 @@ The concept is the architectural north star. The current implementation is partw
 ### Relationship to other foundations
 
 The evidence appliance is the system identity that the other governing principles (Policy over Prediction, State-Oriented Console, Secondary Observation, Closed-Loop Engineering) assume but did not independently name. The new document shows how they fit together as aspects of one coherent system.
+
+---
+
+## 2026-07-16 — Principles as Domain Model
+
+### What happened
+
+After the Write Desk recomposition, we recognized that the system's conceptual hierarchy doesn't begin at Policy — it begins at Principles. And Principles aren't just documentation explaining policies. They are the top layer of the domain model.
+
+The system should eventually reason in terms of Principles → Policies → Evidence → Recommendations → Execution → Learning.
+
+### Why this matters
+
+The distinction between "principle as documentation" and "principle as domain model" is architecturally significant:
+- Documentation: the principle is a comment attached to a threshold
+- Domain model: the principle is a first-class entity that recommendations trace to, outcomes are measured against, and the operator can reference
+
+This changes what historical analysis means. The highest question isn't "did delta 0.30 outperform 0.25?" (calibration). It's "did Preserve Optionality produce better institutional outcomes?" (governance).
+
+### Key insight
+
+This isn't investing-specific. The principles are domain-general abstractions for managing resources under uncertainty:
+- Preserve Optionality
+- Respect Uncertainty
+- Execute with Discipline
+- Earn Proportional Compensation
+- Avoid Concentration
+- Observe Before Acting
+- Sustain Institutional Behavior
+
+Options income is the first operating domain. The architecture should not be coupled to it.
+
+### Sequencing implication
+
+SQLite persistence is deferred. The governance model should be captured first because:
+- Persistence will store policy decisions and outcomes
+- Those records should carry principle context from the start
+- Retrofitting principle attribution onto existing records is much harder than including it from the beginning
+
+### Document created
+
+`docs/foundations/principles-governance-model.md`
+
+### Provenance
+
+This insight emerged from recognizing the similarity to PTS's institutional stewardship model, systems thinking, and the Morgan Housel framing: not "find better options" but "help the operator consistently make better decisions." Or: maintain the human in the loop while reducing the probability that the idiot gets into the loop.
