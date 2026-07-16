@@ -98,6 +98,36 @@ export interface CoverageRequest {
 
 // --- Recommendation Result ---
 
+export interface FunnelExclusion {
+  reason: string;
+  count: number;
+}
+
+export interface RecommendationFunnel {
+  /** Total symbols in the monitored universe */
+  monitored: number;
+  /** Symbols with resolved acquisition state (have evidence or confirmed absent) */
+  resolved: number;
+  /** Symbols with listed options (have expirations) */
+  optionable: number;
+  /** Symbols confirmed to have no qualifying options */
+  nonOptionable: number;
+  /** Symbols not yet resolved (pending/in-flight) */
+  pending: number;
+  /** Symbols with chain data that entered contract evaluation */
+  evaluable: number;
+  /** Symbols with at least one ACTIONABLE or EDGE candidate */
+  eligible: number;
+  /** Candidates after ranking (may be capped by maxResults) */
+  ranked: number;
+  /** Candidates after display slice (Show limit) — set by caller */
+  displayed: number;
+  /** WAIT-posture symbols (evaluated but below EDGE threshold) */
+  waitPosture: number;
+  /** Detailed exclusion counts */
+  exclusions: FunnelExclusion[];
+}
+
 export interface RecommendationResult {
   /** Ranked candidates (ACTIONABLE + optionally EDGE, capped at maxResults) */
   candidates: PutCandidate[];
@@ -113,6 +143,8 @@ export interface RecommendationResult {
     symbolsExcluded: number;
     confirmedAbsence: number;
   };
+  /** Full recommendation funnel with exact counts */
+  funnel: RecommendationFunnel;
   /** The exact policy used (for audit/reproducibility) */
   policySnapshot: RecommendationPolicy;
   /** Recommendation timestamp */
@@ -149,14 +181,45 @@ export async function recommendPuts(
   let symbolsExcluded = 0;
   let confirmedAbsence = 0;
 
+  // Funnel tracking
+  let funnelOptionable = 0;
+  let funnelEvaluable = 0;
+  let funnelPending = 0;
+  let funnelWaitPosture = 0;
+  let exclNoEligibleDte = 0;
+  let exclNoChain = 0;
+  let exclNoDeltaInRange = 0;
+  let exclHardNo = 0;
+  let exclProductStructure = 0;
+  let exclNoContracts = 0;
+
   const effectiveCash = deployableCash - policy.deployment.reserveAmount;
-  // When session is closed, canonical evidence remains valid regardless of TTL
+  // When session is closed, canonical evidence remains valid regardless of TTL.
+  // This implements sealed-evidence semantics: Friday's close remains valid through Monday.
   const useSessionValidity = options?.sessionClosed ?? false;
 
-  /** Check if a cache record is eligible for recommendation */
+  /**
+   * Check if a cache record is eligible for recommendation.
+   *
+   * Two modes:
+   *   - Active session: TTL-based freshness (fresh or stale_usable)
+   *   - Closed session: any record accepted (sealed evidence validity)
+   *
+   * LIMITATION (transitional): Closed-session mode accepts any cached record.
+   * It does not verify canonical session provenance because IndexedDB records
+   * currently lack session-date identity. This means a record from an older,
+   * non-canonical session could participate if it remains in the cache.
+   *
+   * This is acceptable transitionally because:
+   *   - IndexedDB is browser-local (single operator)
+   *   - Chain TTLs naturally expire old data during active sessions
+   *   - The intended fix is persistence with explicit seal/session metadata (Phase 5)
+   *
+   * Minimum provenance: record must exist.
+   */
   function isEligible(record: unknown): boolean {
     if (!record) return false;
-    if (useSessionValidity) return true; // canonical evidence valid during closed session
+    if (useSessionValidity) return true; // sealed evidence valid during closed session
     const freshness = cache.freshness(record as Parameters<typeof cache.freshness>[0]);
     return freshness === "fresh" || freshness === "stale_usable";
   }
@@ -176,6 +239,7 @@ export async function recommendPuts(
     const structure = inferProductStructure(symbol, "");
     if (hasStructuralComplexity(structure)) {
       symbolsExcluded++;
+      exclProductStructure++;
       continue;
     }
 
@@ -183,16 +247,21 @@ export async function recommendPuts(
     const expKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "expirations", symbol);
     const expRecord = await cache.get<Expiration[]>(expKey);
     if (!expRecord || !isEligible(expRecord)) {
-      // No expiration evidence — emit coverage request
+      // No expiration evidence — emit coverage request (pending/unresolved)
       coverageRequests.push({ symbol, expiration: null, reason: "No cached expirations", priority: "medium" });
+      funnelPending++;
       continue;
     }
+
+    // Symbol is optionable (has expirations in cache)
+    funnelOptionable++;
 
     const expirations = expRecord.payload;
     const eligible = selectEligibleExpirations(expirations, policy.contractSelection.eligibleDteRange);
     if (eligible.length === 0) {
       symbolsWithEvidence++;
       symbolsExcluded++;
+      exclNoEligibleDte++;
       continue;
     }
 
@@ -201,6 +270,8 @@ export async function recommendPuts(
     let bestActionable: PutCandidate | null = null;
     let bestEdge: PutCandidate | null = null;
     let bestWait: PutCandidate | null = null;
+    let symbolHadContractsInRange = false;
+    let symbolHadHardNoOnly = false;
 
     for (const exp of eligible) {
       interface CachedPut { type: string; strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number }
@@ -226,6 +297,9 @@ export async function recommendPuts(
         Math.abs(c.delta) <= admissibleDeltaRange.max
       );
 
+      if (inRange.length > 0) symbolHadContractsInRange = true;
+
+      let allHardNo = inRange.length > 0;
       for (const contract of inRange) {
         const mid = midPrice(contract.bid, contract.ask);
         const spread = contract.ask - contract.bid;
@@ -243,6 +317,7 @@ export async function recommendPuts(
         };
 
         if (isHardNo(evidence, policy.executionAssessment)) continue;
+        allHardNo = false;
 
         const assessment = assessExecution(evidence, policy.executionAssessment);
         const yieldAnnualized = spreadPct <= policy.executionAssessment.preferredSpreadPercent * 2
@@ -282,20 +357,34 @@ export async function recommendPuts(
             break;
         }
       }
+
+      if (allHardNo && inRange.length > 0) symbolHadHardNoOnly = true;
     }
 
     if (foundChain) {
       symbolsWithEvidence++;
+      funnelEvaluable++;
       const best = bestActionable ?? bestEdge ?? bestWait;
       if (best) {
         if (best.posture === "ACTIONABLE" || best.posture === "EDGE") {
           allCandidates.push(best);
         } else {
           allWait.push(best);
+          funnelWaitPosture++;
+        }
+      } else {
+        // Had chain but no qualifying candidate at all
+        if (!symbolHadContractsInRange) {
+          exclNoDeltaInRange++;
+        } else if (symbolHadHardNoOnly) {
+          exclHardNo++;
+        } else {
+          exclNoContracts++;
         }
       }
     } else {
       symbolsMissingChain++;
+      exclNoChain++;
     }
   }
 
@@ -303,6 +392,32 @@ export async function recommendPuts(
   const ranked = rankByPolicy(allCandidates, policy.ranking);
   const topN = ranked.slice(0, policy.ranking.maxResults);
   const waitRanked = rankByPolicy(allWait, policy.ranking).slice(0, 5);
+
+  // Build exclusions list
+  const exclusions: FunnelExclusion[] = [];
+  if (confirmedAbsence > 0) exclusions.push({ reason: "Non-optionable (no listed options)", count: confirmedAbsence });
+  if (exclProductStructure > 0) exclusions.push({ reason: "Product structure (leveraged/inverse)", count: exclProductStructure });
+  if (exclNoEligibleDte > 0) exclusions.push({ reason: "No expiration in DTE range", count: exclNoEligibleDte });
+  if (exclNoChain > 0) exclusions.push({ reason: "Missing chain data", count: exclNoChain });
+  if (exclNoDeltaInRange > 0) exclusions.push({ reason: "No contract in delta range", count: exclNoDeltaInRange });
+  if (exclHardNo > 0) exclusions.push({ reason: "Hard-no execution quality", count: exclHardNo });
+  if (funnelWaitPosture > 0) exclusions.push({ reason: "Wait posture (below EDGE threshold)", count: funnelWaitPosture });
+  if (exclNoContracts > 0) exclusions.push({ reason: "No qualifying contract", count: exclNoContracts });
+  if (funnelPending > 0) exclusions.push({ reason: "Pending (not yet resolved)", count: funnelPending });
+
+  const funnel: RecommendationFunnel = {
+    monitored: symbols.length,
+    resolved: symbols.length - funnelPending,
+    optionable: funnelOptionable,
+    nonOptionable: confirmedAbsence,
+    pending: funnelPending,
+    evaluable: funnelEvaluable,
+    eligible: allCandidates.length,
+    ranked: topN.length,
+    displayed: topN.length, // Caller will override with actual Show limit
+    waitPosture: funnelWaitPosture,
+    exclusions,
+  };
 
   return {
     candidates: topN,
@@ -315,6 +430,7 @@ export async function recommendPuts(
       symbolsExcluded,
       confirmedAbsence,
     },
+    funnel,
     policySnapshot: policy,
     computedAt: new Date().toISOString(),
   };
