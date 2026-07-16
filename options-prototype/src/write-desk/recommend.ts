@@ -231,8 +231,7 @@ export async function recommendPuts(
         const spread = contract.ask - contract.bid;
         const spreadPct = mid > 0 ? (spread / mid) * 100 : 100;
         const cashRequired = contract.strike * 100;
-
-        if (cashRequired > effectiveCash) continue;
+        const affordable = cashRequired <= effectiveCash;
 
         const evidence: ContractEvidence = {
           bid: contract.bid,
@@ -268,6 +267,7 @@ export async function recommendPuts(
           yieldAnnualized,
           assessment,
           posture: assessment.posture,
+          affordable,
         };
 
         switch (assessment.posture) {

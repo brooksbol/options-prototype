@@ -3887,3 +3887,131 @@ With multiple design documents produced in a single session (architecture consol
 ### Documentation state
 
 The project now has a trustworthy documentation inventory with clear authoritative homes for every concept. No orphaned ideas. No undocumented implementations. No duplicate specifications.
+
+
+---
+
+## 2026-07-15 — After-Hours Coverage Gap (Observed)
+
+### Context
+
+Operator loaded Fidelity portfolio after hours (Session Closed). Deployable cash: $1,652.64. Clicked Scan. System reported "No actionable or edge put opportunities found in 496 of 496 symbols evaluated."
+
+### Root cause
+
+Two interacting constraints:
+
+1. **Partial evidence:** Only 132 of 496 symbols have cached chain data (from the earlier open session). The remaining 364 are deferred because chain fetches are market-sensitive and blocked during CLOSED_CANONICAL. The system can only recommend from symbols it has evidence for.
+
+2. **Low capital:** $1,652 affords only puts with strikes ≤ $16 (collateral = strike × 100). The 132 cached symbols happen to be larger/more liquid ETFs with higher strikes — they were fetched earlier when capital was higher.
+
+The result: 0 affordable recommendations. Not because they don't exist in the universe, but because the symbols that *might* have cheap puts are in the 364 uncovered group.
+
+### Why this matters for the backend architecture
+
+This is a concrete example of the product gap the backend evidence service solves.
+
+**Current (reactive):** The operator opens the Write Desk after hours. 73% of the universe has no evidence. The system cannot recommend from what it hasn't seen. The operator sees "nothing" and can't know whether that means "nothing exists" or "I haven't looked."
+
+**Target (anticipatory):** The backend maintains full 496-symbol coverage continuously during the regular session. By session close, all chains are sealed canonical evidence. The operator opens the Write Desk at any time — after hours, next morning, weekend — and immediately sees the full ranked universe. If nothing is affordable at $1,652, the system shows that honestly across all 496 symbols. If a $14 put exists on some small thematic ETF, it appears.
+
+The key insight: **the after-hours experience should be the system's strongest moment, not its weakest.** All evidence is sealed. Nothing is changing. The full universe is evaluable. The recommendation is deterministic and complete. Instead, with browser-owned acquisition, after-hours is the *worst* experience because partial coverage from the day persists while the ability to complete it does not.
+
+### Implication for backend design
+
+The backend's publication contract should guarantee:
+
+> By session close, the latest published snapshot contains evidence for every universe symbol that has options (all recommendation-ready or confirmed absent).
+
+This means after-hours use of the Write Desk shows complete coverage from the closed session — the exact scenario where sealed canonical evidence is most valuable.
+
+### Affordability UX improvements (implemented this session)
+
+- Recommendation engine now always produces top-20 regardless of affordability
+- Unaffordable rows show a red `$` indicator on the Cash Req column
+- Negative values in the Remaining column render in red
+- "Affordable only" toggle filters the table
+- Cash-insufficiency explanation shown when deployable cash is very low
+
+
+---
+
+## 2026-07-15 — Market-Priced Risk Research Topic
+
+### Context
+
+While reviewing recommendations, a question arose: why do two contracts with the same yield carry fundamentally different risk characteristics? And why does the current system present them identically?
+
+### Insight
+
+The options market already performs continuous risk assessment. Implied volatility, skew, OI depth, structural characteristics, and liquidity are all encoded in pricing. Rather than building a proprietary risk model, the system could learn to *read* what the market is already communicating.
+
+This is consistent with "policy over prediction" — it's observation, not forecasting. The operator sees *why* a yield is high (elevated IV, structural complexity, thin liquidity) and decides whether to accept those characteristics.
+
+### Research direction
+
+Not a feature request. A research topic exploring whether observable market-pricing factors can improve recommendation context in the Brief. Key constraint: avoid arbitrary composite scores. Prefer market-derived evidence. The operator remains the decision-maker.
+
+### Recorded at
+
+`docs/foundations/market-priced-risk.md` — full research framing, architectural fit, data requirements, constraints, and maturity assessment.
+
+### Key gap identified
+
+Tradier sandbox often returns zero for Greeks/IV. Meaningful research into IV context, yield decomposition, and volatility percentiles may require a data source upgrade. This is a data access question, not an architectural one.
+
+
+---
+
+## 2026-07-15 — Reflection: Market as Oracle, System as Translator
+
+### The sentence that crystallized it
+
+> "Yield is the market's compression of multiple risk factors into a single price."
+
+The inverse operation — decomposing that compression back into legible evidence — is the research program.
+
+### Correction accepted
+
+My earlier explanation ("$72K collateral at 5% implies the market sees low assignment probability") was a hypothesis, not established fact. The correct framing: "One possible explanation is that the market is pricing a different probability distribution. Another may be liquidity, diversification, institutional participation, or structural characteristics. Determining which factors dominate is precisely the purpose of this research."
+
+The architecture must preserve that uncertainty. The research document has been updated.
+
+### The product vision that emerged
+
+Today the Brief says:
+```
+Yield: 60%
+```
+
+The future Brief says:
+```
+Yield: 60%
+
+The market appears to be pricing:
+  ✓ High implied volatility
+  ✓ Thin liquidity
+  ✓ Structural leverage
+  ✓ Elevated uncertainty
+```
+
+That's not a score. It's a translation.
+
+The operator then asks: "Am I comfortable being paid for *those* things?" That's what a decision support system should do.
+
+### How the thinking evolved (reconstructed)
+
+```
+Why does SPY tie up so much money?
+  → Is there a strike-to-yield ratio?
+  → Maybe it's about risk
+  → Maybe the market already knows
+  → The system's job is to explain what the market is saying,
+    not to invent its own theory of risk.
+```
+
+### Architectural position
+
+The system treats the options market as an oracle — not infallible, but one that has already performed immense computation. The system's role is translation: making that computation legible to the operator. The operator retains judgment. The system provides evidence.
+
+This reinforces the core philosophy: use objective market evidence to inform a human decision rather than replacing the human with a black-box algorithm.

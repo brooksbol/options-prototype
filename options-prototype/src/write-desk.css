@@ -1138,3 +1138,41 @@
   color: var(--wd-accent-red);
   border-color: var(--wd-accent-red);
 }
+
+
+/* === UNAFFORDABLE INDICATOR === */
+
+.wd-unaffordable-mark {
+  display: inline-block;
+  margin-right: 2px;
+  font-size: 8px;
+  font-weight: var(--wd-weight-bold);
+  color: var(--wd-accent-red);
+  vertical-align: super;
+  line-height: 1;
+}
+
+
+.wd-negative-value {
+  color: var(--wd-accent-red) !important;
+}
+
+
+.wd-affordable-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 12px;
+  font-size: var(--wd-size-label);
+  font-weight: var(--wd-weight-normal);
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.wd-affordable-toggle input {
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
+  accent-color: var(--wd-accent-green);
+}

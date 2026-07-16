@@ -65,6 +65,8 @@ export interface PutCandidate {
   yieldAnnualized: number | null;  // null if suppressed (unreliable spread)
   assessment: ExecutionAssessment;
   posture: ActionPosture;
+  /** Whether the operator has sufficient deployable cash for this contract */
+  affordable: boolean;
 }
 
 // --- Call Candidate ---
@@ -372,6 +374,7 @@ async function searchPutCandidates(
         yieldAnnualized,
         assessment,
         posture: assessment.posture,
+        affordable: true, // scan-orchestrator candidates are pre-filtered by cash
       };
 
       // Place in the correct tier, keeping best per tier

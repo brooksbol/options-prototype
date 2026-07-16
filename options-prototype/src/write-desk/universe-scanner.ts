@@ -455,6 +455,7 @@ async function evaluateSymbolFromCache(
         yieldAnnualized,
         assessment,
         posture: assessment.posture,
+        affordable: cashRequired <= deployableCash,
       };
 
       switch (assessment.posture) {

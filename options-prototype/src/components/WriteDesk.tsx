@@ -56,6 +56,7 @@ export function WriteDesk() {
   const [selectedCandidate, setSelectedCandidate] = useState<PutCandidate | null>(null);
   const [tablePosition, setTablePosition] = useState<TablePositionContext | null>(null);
   const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>(() => loadWorkingIntents());
+  const [showAffordableOnly, setShowAffordableOnly] = useState(false);
 
   const providerKey = isTradierConfigured() ? "tradier" : "mock";
   const provider = useMemo(() => getProvider(providerKey), [providerKey]);
@@ -333,8 +334,8 @@ export function WriteDesk() {
         </div>
       </div>
 
-      {/* Fidelity Upload (only when source=fidelity and not yet ready) */}
-      {source === "fidelity" && (!snapshot || snapshot.readiness.status !== "READY") && (
+      {/* Fidelity Upload (always shown in fidelity mode — compact when loaded) */}
+      {source === "fidelity" && (
         <div className="wd-band wd-band-upload">
           <FidelityUpload
             onSnapshotChange={handleFidelitySnapshotChange}
@@ -403,6 +404,10 @@ export function WriteDesk() {
                       }
                     </span>
                   )}
+                  <label className="wd-affordable-toggle">
+                    <input type="checkbox" checked={showAffordableOnly} onChange={(e) => setShowAffordableOnly(e.target.checked)} />
+                    <span>Affordable only</span>
+                  </label>
                 </h3>
 
                 {putCandidates.length > 0 ? (
@@ -410,7 +415,7 @@ export function WriteDesk() {
                     {putIsProvisional && (
                       <p className="wd-provisional-note">Provisional leaders from {putCoverage?.covered ?? 0} of {putCoverage?.universeSize ?? 0} evaluated.</p>
                     )}
-                    <PutCandidateTable candidates={putCandidates} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); }} />
+                    <PutCandidateTable candidates={showAffordableOnly ? putCandidates.filter((c) => c.affordable) : putCandidates} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); }} />
                   </>
                 ) : (
                   <div className="wd-no-trade">
@@ -420,6 +425,11 @@ export function WriteDesk() {
                         : "No actionable or edge put opportunities available across the full universe."
                       }
                     </p>
+                    {snapshot.deployableCash != null && snapshot.deployableCash < 3000 && (
+                      <p className="wd-wait-label">
+                        Deployable cash (${snapshot.deployableCash.toLocaleString()}) may be insufficient to secure any put in the universe. Minimum collateral is strike × 100.
+                      </p>
+                    )}
                     {putWaitCandidates.length > 0 && (
                       <div className="wd-wait-evidence">
                         <span className="wd-wait-label">Strongest WAIT among evaluated symbols:</span>
@@ -837,8 +847,8 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
             <td className={c.spreadPercent > 15 ? "wd-warn-value" : ""}>{c.spreadPercent.toFixed(0)}%</td>
             <td className={c.openInterest < 50 ? "wd-warn-value" : ""}>{c.openInterest}</td>
             <td>{c.yieldAnnualized != null ? `${c.yieldAnnualized.toFixed(1)}%` : "—"}</td>
-            <td>${c.cashRequired.toLocaleString()}</td>
-            <td>${c.cashRemaining.toLocaleString()}</td>
+            <td>{!c.affordable && <span className="wd-unaffordable-mark">$</span>}${c.cashRequired.toLocaleString()}</td>
+            <td className={c.cashRemaining < 0 ? "wd-negative-value" : ""}>${c.cashRemaining.toLocaleString()}</td>
             <td>{c.assessment.score}</td>
             <td><span className={`wd-posture-badge wd-posture-${c.posture.toLowerCase()}`}>{c.posture}</span></td>
           </tr>

@@ -140,8 +140,10 @@ describe("recommendPuts", () => {
     ]);
 
     // SPY strike 500 → $50,000 required, only $18,500 available
+    // Candidate still appears but is marked unaffordable
     const result = await recommendPuts(["SPY"], 18500, cache, cacheEnv());
-    expect(result.candidates.length).toBe(0);
+    expect(result.candidates.length).toBe(1);
+    expect(result.candidates[0].affordable).toBe(false);
     expect(result.coverage.symbolsWithEvidence).toBe(1);
   });
 
@@ -157,13 +159,16 @@ describe("recommendPuts", () => {
       deployment: { ...DEFAULT_RECOMMENDATION_POLICY.deployment, reserveAmount: 0 },
     });
     expect(noReserve.candidates.length).toBe(1);
+    expect(noReserve.candidates[0].affordable).toBe(true);
 
     // With $1000 reserve: $17,500 effective → unaffordable ($18,000 required)
+    // Candidate still appears but marked unaffordable
     const withReserve = await recommendPuts(["XLE"], 18500, cache, cacheEnv(), {
       ...DEFAULT_RECOMMENDATION_POLICY,
       deployment: { ...DEFAULT_RECOMMENDATION_POLICY.deployment, reserveAmount: 1000 },
     });
-    expect(withReserve.candidates.length).toBe(0);
+    expect(withReserve.candidates.length).toBe(1);
+    expect(withReserve.candidates[0].affordable).toBe(false);
   });
 
   it("confirmed absence symbols are skipped (not coverage requests)", async () => {

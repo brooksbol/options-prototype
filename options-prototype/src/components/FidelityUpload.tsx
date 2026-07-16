@@ -4,9 +4,12 @@
  * Provides two explicit file inputs (Option Summary + Balances),
  * classifies each uploaded file, validates it matches the expected slot,
  * and builds a PortfolioSnapshot when both are present and valid.
+ *
+ * PERSISTENCE: Uploaded CSV text is stored in localStorage so the snapshot
+ * survives route navigation and page reloads without re-uploading.
  */
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { parseCsv, detectDelimiter } from "../csv/reader";
 import { preprocessCsv } from "../csv/preprocess";
 import { classifyDocument } from "../csv/registry";
@@ -15,6 +18,11 @@ import type { OptionSummaryRow } from "../csv/fidelity/optionSummaryParser";
 import type { ParsedBalances } from "../csv/fidelity/balancesParser";
 import { buildFidelitySnapshot } from "../write-desk/fidelity-snapshot";
 import type { PortfolioSnapshot } from "../write-desk/types";
+
+// --- localStorage keys ---
+
+const LS_KEY_OS = "wheelwright:fidelity-csv:option-summary";
+const LS_KEY_BAL = "wheelwright:fidelity-csv:balances";
 
 // --- Slot State ---
 
@@ -39,12 +47,13 @@ export function FidelityUpload({ onSnapshotChange, onFileChange }: FidelityUploa
   const [optionSummarySlot, setOptionSummarySlot] = useState<FileSlotState>({ status: "empty", filename: null, error: null, timestamp: null });
   const [balancesSlot, setBalancesSlot] = useState<FileSlotState>({ status: "empty", filename: null, error: null, timestamp: null });
 
-  // Parsed data (kept in state so we can rebuild snapshot when either changes)
+  // Parsed data (kept in refs so we can rebuild snapshot when either changes)
   const optionSummaryDataRef = useRef<{ rows: OptionSummaryRow[]; filename: string; exportTimestamp: string | null } | null>(null);
   const balancesDataRef = useRef<{ balances: ParsedBalances; filename: string; exportTimestamp: string | null } | null>(null);
 
   const osInputRef = useRef<HTMLInputElement>(null);
   const balInputRef = useRef<HTMLInputElement>(null);
+  const restoredRef = useRef(false);
 
   // Attempt to rebuild the snapshot from current data
   const rebuildSnapshot = useCallback(() => {
@@ -66,54 +75,108 @@ export function FidelityUpload({ onSnapshotChange, onFileChange }: FidelityUploa
     }
   }, [onSnapshotChange]);
 
-  // Handle Option Summary upload
+  // --- Shared text processing (used by both fresh upload and localStorage restore) ---
+
+  const processOptionSummaryText = useCallback((text: string, filename: string): boolean => {
+    try {
+      const { csvContent, preambleLines } = preprocessCsv(text);
+      const delimiter = detectDelimiter(csvContent);
+      const doc = parseCsv(csvContent, delimiter);
+      const classification = classifyDocument(doc);
+
+      if (!classification.parser || classification.parser.id !== "fidelity_option_summary") {
+        return false;
+      }
+
+      const parsed = classification.parser.parse(doc, { filename, preambleLines });
+      if (parsed.payload.type !== "option_summary") return false;
+
+      const rows = parsed.payload.rows as OptionSummaryRow[];
+      const exportTimestamp = parsed.metadata.quoteDate ?? parsed.metadata.downloadTimestamp ?? null;
+
+      optionSummaryDataRef.current = { rows, filename, exportTimestamp };
+      setOptionSummarySlot({ status: "loaded", filename, error: null, timestamp: exportTimestamp });
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const processBalancesText = useCallback((text: string, filename: string): boolean => {
+    try {
+      const { csvContent, preambleLines } = preprocessCsv(text);
+      const delimiter = detectDelimiter(csvContent);
+      const doc = parseCsv(csvContent, delimiter);
+      const classification = classifyDocument(doc);
+
+      if (!classification.parser || classification.parser.id !== "fidelity_balances") {
+        return false;
+      }
+
+      const parsed = classification.parser.parse(doc, { filename, preambleLines });
+      if (parsed.payload.type !== "balances" || !parsed.payload.rows[0]) return false;
+
+      const balances = parsed.payload.rows[0] as unknown as ParsedBalances;
+      const exportTimestamp = parsed.metadata.downloadTimestamp ?? null;
+
+      balancesDataRef.current = { balances, filename, exportTimestamp };
+      setBalancesSlot({ status: "loaded", filename, error: null, timestamp: exportTimestamp });
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  // --- Restore from localStorage on mount ---
+
+  useEffect(() => {
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+
+    let restored = false;
+    try {
+      const osStored = localStorage.getItem(LS_KEY_OS);
+      const balStored = localStorage.getItem(LS_KEY_BAL);
+
+      if (osStored) {
+        const { text, filename } = JSON.parse(osStored);
+        if (processOptionSummaryText(text, filename)) restored = true;
+      }
+      if (balStored) {
+        const { text, filename } = JSON.parse(balStored);
+        if (processBalancesText(text, filename)) restored = true;
+      }
+    } catch {
+      // Silently ignore corrupt localStorage
+    }
+
+    if (restored) {
+      // Rebuild after both are processed
+      setTimeout(() => rebuildSnapshot(), 0);
+    }
+  }, [processOptionSummaryText, processBalancesText, rebuildSnapshot]);
+
+  // --- Handle fresh Option Summary upload ---
+
   const handleOptionSummaryFile = useCallback(async (file: File) => {
     setOptionSummarySlot({ status: "parsing", filename: file.name, error: null, timestamp: null });
     onFileChange();
 
     try {
       const text = await file.text();
-      const { csvContent, preambleLines } = preprocessCsv(text);
-      const delimiter = detectDelimiter(csvContent);
-      const doc = parseCsv(csvContent, delimiter);
-      const classification = classifyDocument(doc);
 
-      // Validate it's the Option Summary
-      if (!classification.parser || classification.parser.id !== "fidelity_option_summary") {
-        const detected = classification.parser?.label ?? "Unknown document";
+      if (processOptionSummaryText(text, file.name)) {
+        // Persist raw CSV text for restoration
+        localStorage.setItem(LS_KEY_OS, JSON.stringify({ text, filename: file.name }));
+        rebuildSnapshot();
+      } else {
         setOptionSummarySlot({
           status: "error",
           filename: file.name,
-          error: `This file was classified as "${detected}" — expected Fidelity Option Summary. Please upload the correct file.`,
+          error: "Could not classify as Fidelity Option Summary. Please upload the correct file.",
           timestamp: null,
         });
-        return;
       }
-
-      // Parse
-      const parsed = classification.parser.parse(doc, { filename: file.name, preambleLines });
-      if (parsed.payload.type !== "option_summary") {
-        setOptionSummarySlot({
-          status: "error",
-          filename: file.name,
-          error: "Parser produced unexpected payload type.",
-          timestamp: null,
-        });
-        return;
-      }
-
-      const rows = parsed.payload.rows as OptionSummaryRow[];
-      const exportTimestamp = parsed.metadata.quoteDate ?? parsed.metadata.downloadTimestamp ?? null;
-
-      optionSummaryDataRef.current = { rows, filename: file.name, exportTimestamp };
-      setOptionSummarySlot({
-        status: "loaded",
-        filename: file.name,
-        error: null,
-        timestamp: exportTimestamp,
-      });
-
-      rebuildSnapshot();
     } catch (err) {
       setOptionSummarySlot({
         status: "error",
@@ -122,56 +185,29 @@ export function FidelityUpload({ onSnapshotChange, onFileChange }: FidelityUploa
         timestamp: null,
       });
     }
-  }, [onFileChange, rebuildSnapshot]);
+  }, [onFileChange, processOptionSummaryText, rebuildSnapshot]);
 
-  // Handle Balances upload
+  // --- Handle fresh Balances upload ---
+
   const handleBalancesFile = useCallback(async (file: File) => {
     setBalancesSlot({ status: "parsing", filename: file.name, error: null, timestamp: null });
     onFileChange();
 
     try {
       const text = await file.text();
-      const { csvContent, preambleLines } = preprocessCsv(text);
-      const delimiter = detectDelimiter(csvContent);
-      const doc = parseCsv(csvContent, delimiter);
-      const classification = classifyDocument(doc);
 
-      // Validate it's Balances
-      if (!classification.parser || classification.parser.id !== "fidelity_balances") {
-        const detected = classification.parser?.label ?? "Unknown document";
+      if (processBalancesText(text, file.name)) {
+        // Persist raw CSV text for restoration
+        localStorage.setItem(LS_KEY_BAL, JSON.stringify({ text, filename: file.name }));
+        rebuildSnapshot();
+      } else {
         setBalancesSlot({
           status: "error",
           filename: file.name,
-          error: `This file was classified as "${detected}" — expected Fidelity Balances. Please upload the correct file.`,
+          error: "Could not classify as Fidelity Balances. Please upload the correct file.",
           timestamp: null,
         });
-        return;
       }
-
-      // Parse
-      const parsed = classification.parser.parse(doc, { filename: file.name, preambleLines });
-      if (parsed.payload.type !== "balances" || !parsed.payload.rows[0]) {
-        setBalancesSlot({
-          status: "error",
-          filename: file.name,
-          error: "Could not extract balance data from this file.",
-          timestamp: null,
-        });
-        return;
-      }
-
-      const balances = parsed.payload.rows[0] as unknown as ParsedBalances;
-      const exportTimestamp = parsed.metadata.downloadTimestamp ?? null;
-
-      balancesDataRef.current = { balances, filename: file.name, exportTimestamp };
-      setBalancesSlot({
-        status: "loaded",
-        filename: file.name,
-        error: null,
-        timestamp: exportTimestamp,
-      });
-
-      rebuildSnapshot();
     } catch (err) {
       setBalancesSlot({
         status: "error",
@@ -180,7 +216,7 @@ export function FidelityUpload({ onSnapshotChange, onFileChange }: FidelityUploa
         timestamp: null,
       });
     }
-  }, [onFileChange, rebuildSnapshot]);
+  }, [onFileChange, processBalancesText, rebuildSnapshot]);
 
   return (
     <div className="wd-fidelity-upload">
