@@ -72,15 +72,19 @@ It is:
 
 ### 1. Portfolio Context
 
-**Owns:** Portfolio snapshot, deployable cash, inventory, existing positions, readiness assessment.
+**Owns:** Portfolio snapshot, deployable cash, inventory, existing positions, pending intents, readiness assessment.
 
 **Sources:**
 - Demo snapshot (simulated portfolio for development)
-- Fidelity CSV upload (positions + activity)
+- Fidelity CSV upload (positions + balances)
 
 **Provides to downstream:** `PortfolioSnapshot` with deployable cash, call capacity, existing puts, readiness status, provenance.
 
-**Must not:** Make market data calls. Produce recommendations.
+**Cash model:** Fidelity's "Available to trade (all settled)" is authoritative for deployable cash. This value already accounts for open-order commitments (Fidelity subtracts reserved capital before reporting). The system does NOT subtract open-order reservations again.
+
+**Pending Intents:** Lightweight markers for submitted-but-unfilled orders. Used for **governance only** (duplicate-symbol awareness, pending exposure disclosure). NOT used for cash computation. Stored in localStorage.
+
+**Must not:** Make market data calls. Produce recommendations. Subtract open-order reservations from imported Fidelity cash.
 
 ---
 
@@ -221,6 +225,8 @@ interface WriteIntent {
 **Execution boundary:** The system constructs the proposed order and opens Fidelity's pre-populated trade ticket. Fidelity is responsible for preview, validation, confirmation, and submission. The system must not submit orders, interact with credentials, or mutate portfolio state based on opening the link.
 
 **Operator verification required:** Account, quantity, time in force, limit price, contract identity.
+
+**Post-handoff:** After confirming submission in Fidelity, the operator may optionally mark the recommendation as a Pending Intent. This records the symbol and contract for duplicate-symbol governance but does NOT affect deployable cash calculations (Fidelity's next balances export will reflect the reservation authoritatively).
 
 ---
 

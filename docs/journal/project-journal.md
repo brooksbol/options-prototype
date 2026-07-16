@@ -3815,3 +3815,75 @@ The API contract (snapshot endpoint, conditional GETs, ETag semantics) is langua
 ### Status
 
 Recorded as working assumptions in `10-backend-implementation-preferences.md`. Open to revision.
+
+
+---
+
+## 2026-07-15 — Conditioned Operating Opportunity Concept
+
+### Context
+
+During a design discussion about whether the Wheel's egress side (covered calls after assignment) could be evaluated structurally, a new domain concept emerged that's more precise than "Put/Call Quality Symmetry."
+
+### Insight
+
+A put recommendation creates a deterministic hypothetical ownership state (basis = strike - premium). The covered-call operating environment is conditioned on that specific basis — not on the instrument alone.
+
+The same instrument can have materially different call opportunity quality depending on which put strike is selected, because different strikes produce different bases, and the available call strikes above basis vary accordingly.
+
+Therefore, lifecycle quality is not a property of the instrument. It's a property of the path through the instrument.
+
+### Domain sequence identified
+
+```
+Instrument Structure → Contract Opportunity → Hypothetical Ownership State → Conditioned Operating Opportunity → Lifecycle Quality
+```
+
+### Key distinction
+
+- Instrument Structure: slow-moving, ETF-level (liquidity, spacing, frequency)
+- Contract Opportunity: today's specific put (Wheelwright's current output)
+- Ownership State: deterministic from the recommendation (basis, shares, assignment date)
+- Operating Opportunity: call environment evaluated FROM that basis using cached evidence
+- Lifecycle Quality: emergent assessment of the full path
+
+### Architectural fit
+
+Requires no new acquisition. Tradier chain data already includes both puts and calls. This is a new consumption pattern on existing cached evidence — consistent with zero-provider-call Wheelwright operation.
+
+### Decision
+
+Recorded as a design concept document. Will be evaluated first as explanatory evidence in the Recommendation Brief before any ranking integration. See `docs/foundations/conditioned-operating-opportunity.md`.
+
+
+---
+
+## 2026-07-15 — Parking Lot Reconciliation
+
+### Context
+
+With multiple design documents produced in a single session (architecture consolidation, backend extraction, implementation preferences, conditioned operating opportunity), a reconciliation pass was needed to ensure the 25-item project parking lot maps cleanly to existing documentation without duplication or contradiction.
+
+### What was produced
+
+`11-parking-lot-reconciliation.md` — full reconciliation report covering all 25 items with:
+- Existing document mapping
+- Current status (implemented / accepted-deferred / exploratory / superseded)
+- Duplicates and overlaps (none created)
+- Contradictions (2 found, both already documented)
+- Authoritative home for each item
+- Open decisions
+- Documentation inventory (35+ documents categorized)
+
+### Key findings
+
+- 8 items are already implemented in code
+- 4 items are accepted architectural direction (backend extraction)
+- 10 items are exploratory (no implementation planned yet)
+- No duplicate documents were created across all design work this session
+- The only contradiction requiring resolution (OpenOrder → PendingIntent) was resolved during implementation
+- The TypeScript→Java preference shift is intentional and documented
+
+### Documentation state
+
+The project now has a trustworthy documentation inventory with clear authoritative homes for every concept. No orphaned ideas. No undocumented implementations. No duplicate specifications.
