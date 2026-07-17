@@ -131,8 +131,8 @@ export class AcquisitionWorker {
     this.running = true;
     this.status.state = "starting";
 
-    // Initialize universe
-    const symbols = loadUniverse();
+    // Initialize universe from database (imports from CSV on first run)
+    const symbols = loadUniverse(this.store.getDb());
     this.store.initUniverse(symbols);
 
     console.log(`[worker] Started. Universe: ${symbols.length} symbols. Beginning acquisition.`);

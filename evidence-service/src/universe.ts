@@ -1,60 +1,57 @@
 /**
  * Candidate Universe — symbols the acquisition worker processes.
  *
- * Source: Yahoo Top ETFs (496 symbols, captured July 13, 2026).
- * This is a static copy of the frontend's universe for the transitional slice.
- * Future: shared package or backend-owned universe management.
+ * With SQLite persistence, the canonical universe lives in the database.
+ * On first run (empty database), the universe is seeded from the CSV.
+ * On subsequent runs, the universe is read directly from the database.
+ *
+ * The CSV seed file is the source of truth for the canonical symbol list.
+ * The database is the operational authority for what gets acquired.
  */
 
-// For the transitional slice, we load from the frontend source at startup.
-// This avoids duplicating the 496-symbol list.
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import type Database from "better-sqlite3";
+import { existsSync } from "node:fs";
+import { importUniverseFromCsv, getDefaultSeedPath } from "./db/universe-import.js";
 
-let cachedSymbols: string[] | null = null;
+/**
+ * Load the active universe from the database.
+ * If the database has no symbols, import from the canonical seed CSV.
+ */
+export function loadUniverse(db: Database.Database): string[] {
+  // Check if universe is already populated
+  const count = (db.prepare("SELECT COUNT(*) as cnt FROM symbols WHERE removed_at IS NULL").get() as any).cnt;
 
-export function loadUniverse(): string[] {
-  if (cachedSymbols) return cachedSymbols;
-
-  try {
-    // Read from the frontend source file
-    const filePath = resolve(process.cwd(), "../options-prototype/src/universe/sources/yahoo.ts");
-    const content = readFileSync(filePath, "utf-8");
-
-    // Extract the array from the TypeScript source
-    const match = content.match(/export const YAHOO_TOP_ETFS: string\[\] = \[([\s\S]*?)\];/);
-    if (!match) {
-      console.warn("[universe] Could not parse Yahoo universe from frontend source. Using fallback.");
-      return getFallbackUniverse();
+  if (count === 0) {
+    // First run: import from canonical seed
+    const seedPath = getDefaultSeedPath();
+    if (!existsSync(seedPath)) {
+      console.warn("[universe] No seed file found and database is empty. Using minimal fallback.");
+      return getFallbackUniverse(db);
     }
 
-    const symbols = match[1]
-      .split(",")
-      .map((s) => s.trim().replace(/"/g, "").replace(/'/g, ""))
-      .filter((s) => s.length > 0 && s.length < 10);
-
-    // Validate: canonical universe is 496 symbols. Log a warning if count differs.
-    if (symbols.length !== 496) {
-      console.warn(`[universe] Expected 496 symbols, parsed ${symbols.length}. Check yahoo.ts for changes.`);
-    }
-
-    // Deduplicate (defensive — would indicate source error)
-    const unique = [...new Set(symbols)];
-    if (unique.length !== symbols.length) {
-      console.warn(`[universe] Detected ${symbols.length - unique.length} duplicate symbols. Using deduplicated set of ${unique.length}.`);
-    }
-
-    cachedSymbols = unique;
-    console.log(`[universe] Loaded ${unique.length} symbols from Yahoo 496`);
-    return unique;
-  } catch {
-    console.warn("[universe] Could not read frontend universe file. Using fallback.");
-    return getFallbackUniverse();
+    console.log("[universe] Database empty. Importing canonical universe from seed CSV...");
+    const result = importUniverseFromCsv(db, seedPath, "yahoo_merged_2026_07", "Yahoo Merged ETFs");
+    console.log(`[universe] Imported ${result.totalInFile} symbols (${result.newSymbolsAdded} new) in ${result.durationMs}ms`);
   }
+
+  // Read active symbols from database
+  const rows = db.prepare("SELECT symbol FROM symbols WHERE removed_at IS NULL ORDER BY symbol").all() as any[];
+  const symbols = rows.map((r: any) => r.symbol);
+  console.log(`[universe] Loaded ${symbols.length} symbols from database`);
+  return symbols;
 }
 
-function getFallbackUniverse(): string[] {
-  // Small fallback for testing when frontend source isn't available
-  cachedSymbols = ["XLE", "XLF", "XLK", "XLU", "XLP", "QQQ", "SPY", "IWM", "DIA", "GLD"];
-  return cachedSymbols;
+function getFallbackUniverse(db: Database.Database): string[] {
+  const fallback = ["XLE", "XLF", "XLK", "XLU", "XLP", "QQQ", "SPY", "IWM", "DIA", "GLD"];
+  const now = new Date().toISOString();
+  const insert = db.prepare("INSERT OR IGNORE INTO symbols (symbol, added_at) VALUES (?, ?)");
+  const insertRes = db.prepare("INSERT OR IGNORE INTO symbol_resolution (symbol, resolution) VALUES (?, 'pending')");
+  const tx = db.transaction(() => {
+    for (const s of fallback) {
+      insert.run(s, now);
+      insertRes.run(s);
+    }
+  });
+  tx();
+  return fallback;
 }

@@ -317,6 +317,13 @@ export class SqliteEvidenceStore {
   }
 
   /**
+   * Get the underlying database connection (for universe queries).
+   */
+  getDb(): Database.Database {
+    return this.db;
+  }
+
+  /**
    * Close the database connection.
    */
   close(): void {
