@@ -424,7 +424,7 @@ export function WriteDesk() {
                   {trustIndicator.activity === "updating" && " · Updating"}
                 </span>
               )}
-              {putFunnel && <span className="wd-board-rec-count">{putFunnel.eligible} Recommendations</span>}
+              {putFunnel && <span className="wd-board-rec-count">{putFunnel.eligible} Recommendations · {putFunnel.outcomes.wait} Wait</span>}
             </div>
             {putFunnel && <FunnelInfographic funnel={putFunnel} backendResolved={evidenceMeta?.coverage ? (evidenceMeta.coverage.ready + evidenceMeta.coverage.absent) : undefined} />}
           </div>
@@ -432,7 +432,6 @@ export function WriteDesk() {
           {/* Unified sticky policy + table controls */}
           <div className="wd-unified-controls">
             <div className="wd-policy-controls">
-              <span className="wd-policy-profile">Routine CSP</span>
               <label className="wd-pol">Δ <select value={policy.contractSelection.targetDelta.toFixed(2)} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDelta: parseFloat(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDelta: parseFloat(e.target.value) }); }} className="wd-pol-select"><option value="0.15">0.15</option><option value="0.20">0.20</option><option value="0.25">0.25</option><option value="0.30">0.30</option><option value="0.35">0.35</option><option value="0.40">0.40</option><option value="0.45">0.45</option><option value="0.50">0.50</option></select></label>
               <label className="wd-pol">Δ Range <select value={`${policy.contractSelection.admissibleDeltaRange.min}-${policy.contractSelection.admissibleDeltaRange.max}`} onChange={(e) => { const [min, max] = e.target.value.split("-").map(Number); const updated = { ...policy, contractSelection: { ...policy.contractSelection, admissibleDeltaRange: { min, max } } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskDeltaMin: min, writeDeskDeltaMax: max }); }} className="wd-pol-select"><option value="0.10-0.50">0.10–0.50</option><option value="0.15-0.50">0.15–0.50</option><option value="0.20-0.45">0.20–0.45</option><option value="0.25-0.40">0.25–0.40</option></select></label>
               <label className="wd-pol">DTE <select value={policy.contractSelection.targetDte} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDte: parseInt(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDte: parseInt(e.target.value) }); }} className="wd-pol-select"><option value="7">7</option><option value="14">14</option><option value="21">21</option><option value="28">28</option><option value="35">35</option><option value="42">42</option><option value="45">45</option></select></label>
@@ -459,9 +458,7 @@ export function WriteDesk() {
                 const allRows = [...putCandidates, ...putWaitCandidates];
                 const filtered = showAffordableOnly ? allRows.filter(c => c.affordable) : allRows;
                 const displayed = Math.min(filtered.length, showCount);
-                const recCount = putCandidates.filter(c => !showAffordableOnly || c.affordable).length;
-                const waitCount = displayed - Math.min(recCount, displayed);
-                return <span className="wd-table-showing">Showing {displayed} rows · {Math.min(recCount, displayed)} recommendations{waitCount > 0 ? ` · ${waitCount} Wait` : ""}</span>;
+                return <span className="wd-table-showing">Showing {displayed} rows</span>;
               })()}
             </div>
           </div>
@@ -471,7 +468,7 @@ export function WriteDesk() {
             (() => {
               const allRows = [...putCandidates, ...putWaitCandidates];
               const filtered = showAffordableOnly ? allRows.filter((c) => c.affordable) : allRows;
-              const displayed = filtered.slice(0, showCount);
+              const displayed = filtered.slice(0, showCount).map((c, i) => ({ ...c, rank: i + 1 }));
               return <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); }} />;
             })()
           ) : (

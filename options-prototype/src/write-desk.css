@@ -1881,8 +1881,9 @@
 .wd-pol-select:focus { outline: none; border-color: var(--wd-accent-green); }
 
 .wd-pol-static {
-  color: var(--wd-text-disabled);
+  color: var(--wd-text-tertiary);
   font-family: var(--wd-font-mono);
+  font-size: var(--wd-size-label);
   white-space: nowrap;
 }
 
@@ -2012,6 +2013,7 @@
   border-bottom: 1px solid var(--wd-border-default);
   overflow-x: auto;
   flex-wrap: nowrap;
+  font-size: var(--wd-size-label);
 }
 
 .wd-policy-controls {
