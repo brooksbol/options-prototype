@@ -1995,3 +1995,131 @@
 
 .wd-posture-row.wd-posture-actionable td { background: rgba(66, 199, 122, 0.04); }
 .wd-posture-row.wd-posture-edge td { background: rgba(78, 161, 255, 0.04); }
+
+
+/* --- UNIFIED STICKY CONTROLS (policy + table) --- */
+
+.wd-unified-controls {
+  position: sticky;
+  top: 32px; /* below title bar */
+  z-index: 9;
+  background: var(--wd-bg-base);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-top: 1px solid var(--wd-border-default);
+  border-bottom: 1px solid var(--wd-border-default);
+  overflow-x: auto;
+  flex-wrap: nowrap;
+}
+
+.wd-policy-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.wd-controls-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--wd-border-strong);
+  flex-shrink: 0;
+  margin: 0 4px;
+}
+
+.wd-unified-controls .wd-table-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border-top: none;
+  padding: 0;
+}
+
+/* --- EVIDENCE INLINE (after board title) --- */
+
+.wd-evidence-inline {
+  font-size: var(--wd-size-label);
+  font-family: var(--wd-font-mono);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 12px;
+}
+
+/* --- WAIT ROW STYLING --- */
+
+.wd-posture-wait { background: rgba(214, 168, 59, 0.12); color: #D6A83B; }
+.wd-posture-row.wd-posture-wait td { background: rgba(214, 168, 59, 0.03); }
+
+/* --- PORTFOLIO POPOVERS --- */
+
+.wd-popover-trigger {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.wd-popover-trigger::after {
+  content: " ▾";
+  font-size: 8px;
+  opacity: 0.6;
+}
+
+.wd-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 100;
+  background: #1a1b26;
+  border: 1px solid var(--wd-border-strong);
+  border-radius: 6px;
+  padding: 10px 14px;
+  min-width: 200px;
+  max-width: 320px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  font-size: var(--wd-size-body);
+  color: var(--wd-text-primary);
+}
+
+.wd-popover-title {
+  font-size: var(--wd-size-body);
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-primary);
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--wd-border-default);
+}
+
+.wd-popover-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 2px 0;
+  font-size: var(--wd-size-label);
+}
+
+.wd-popover-label {
+  color: var(--wd-text-secondary);
+}
+
+.wd-popover-value {
+  color: var(--wd-text-primary);
+  font-family: var(--wd-font-mono);
+}
+
+.wd-popover-item {
+  padding: 3px 0;
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-primary);
+  font-family: var(--wd-font-mono);
+  border-bottom: 1px solid var(--wd-border-subtle);
+}
+
+.wd-popover-empty {
+  color: var(--wd-text-secondary);
+  font-style: italic;
+  font-size: var(--wd-size-label);
+}

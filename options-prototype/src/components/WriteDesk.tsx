@@ -287,6 +287,18 @@ export function WriteDesk() {
     });
   }, [evidenceMeta, lastPollResult, putCoverage]);
 
+  // Portfolio popover state (only one open at a time)
+  const [openPopover, setOpenPopover] = useState<string | null>(null);
+  const togglePopover = (id: string) => setOpenPopover(prev => prev === id ? null : id);
+  useEffect(() => {
+    if (!openPopover) return;
+    const escHandler = (e: KeyboardEvent) => { if (e.key === "Escape") setOpenPopover(null); };
+    const clickHandler = () => setOpenPopover(null);
+    document.addEventListener("keydown", escHandler);
+    const timer = setTimeout(() => document.addEventListener("click", clickHandler), 0);
+    return () => { clearTimeout(timer); document.removeEventListener("keydown", escHandler); document.removeEventListener("click", clickHandler); };
+  }, [openPopover]);
+
   return (
     <div className={`write-desk${selectedCandidate ? " wd-with-drawer" : ""}`}>
       {/* Recommendation Brief Drawer */}
@@ -315,29 +327,72 @@ export function WriteDesk() {
       <div className="wd-band wd-band-identity">
         <div className="wd-band-left">
           <h1 className="wd-title">Wheelwright</h1>
-          <select className="wd-source-select" value={source} onChange={(e) => handleSourceChange(e.target.value as PortfolioSourceType)}>
-            <option value="demo">Demo Portfolio</option>
-            <option value="fidelity">Fidelity Snapshot</option>
-          </select>
+          <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("portfolio"); }}>
+            {source === "demo" ? "Demo Portfolio" : "Fidelity Snapshot"}
+            {openPopover === "portfolio" && (
+              <div className="wd-popover" onClick={e => e.stopPropagation()}>
+                <div className="wd-popover-title">Portfolio</div>
+                <select className="wd-source-select" value={source} onChange={(e) => { handleSourceChange(e.target.value as PortfolioSourceType); setOpenPopover(null); }}>
+                  <option value="demo">Demo Portfolio</option>
+                  <option value="fidelity">Fidelity Snapshot</option>
+                </select>
+                <div className="wd-popover-row"><span className="wd-popover-label">Source</span><span className="wd-popover-value">{snapshot?.provenance.sourceLabel ?? "—"}</span></div>
+                {snapshot?.snapshotDate && <div className="wd-popover-row"><span className="wd-popover-label">Date</span><span className="wd-popover-value">{snapshot.snapshotDate}</span></div>}
+              </div>
+            )}
+          </span>
           {source === "demo" && <span className="wd-sim-badge">SIM</span>}
           {snapshot && snapshot.readiness.status === "READY" && snapshot.deployableCash != null && (
-            <span className="wd-deploy-inline">${snapshot.deployableCash.toLocaleString()} <span className="wd-deploy-label">deployable</span></span>
-          )}
-          {snapshot && snapshot.readiness.status === "READY" && snapshot.existingPuts.length > 0 && (
-            <span className="wd-position-chip">{snapshot.existingPuts.length} short put{snapshot.existingPuts.length > 1 ? "s" : ""}</span>
-          )}
-          <span className="wd-calls-deferred">Calls deferred</span>
-        </div>
-        <div className="wd-band-right">
-          {trustIndicator && (
-            <span className={`wd-trust wd-trust-${trustIndicator.color}`} title={`Generation: ${evidenceMeta?.generation}`}>
-              <span className="wd-trust-dot">●</span>
-              {trustIndicator.trustLabel}
-              {" · "}{trustIndicator.covered}/{trustIndicator.universe}
-              {" · "}{trustIndicator.freshnessLabel}
-              {trustIndicator.activity === "updating" && " · Updating"}
+            <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("cash"); }}>
+              ${snapshot.deployableCash.toLocaleString()} Deployable
+              {openPopover === "cash" && (
+                <div className="wd-popover" onClick={e => e.stopPropagation()}>
+                  <div className="wd-popover-title">Deployable Cash</div>
+                  <div className="wd-popover-row"><span className="wd-popover-label">Available</span><span className="wd-popover-value">${snapshot.deployableCash?.toLocaleString()}</span></div>
+                  <div className="wd-popover-row"><span className="wd-popover-label">Reserved by puts</span><span className="wd-popover-value">{snapshot.existingPuts.length > 0 ? `${snapshot.existingPuts.length} positions` : "None"}</span></div>
+                  <div className="wd-popover-row"><span className="wd-popover-label">Pending intents</span><span className="wd-popover-value">{pendingIntents.filter(i => i.status === "working").length}</span></div>
+                </div>
+              )}
             </span>
           )}
+          {snapshot && snapshot.readiness.status === "READY" && (
+            <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("puts"); }}>
+              {snapshot.existingPuts.length} Short Put{snapshot.existingPuts.length !== 1 ? "s" : ""}
+              {openPopover === "puts" && (
+                <div className="wd-popover" onClick={e => e.stopPropagation()}>
+                  <div className="wd-popover-title">Short Puts</div>
+                  {snapshot.existingPuts.length > 0 ? snapshot.existingPuts.map((p, i) => (
+                    <div key={i} className="wd-popover-item">{p.underlying} ${p.strike} {p.expiration.slice(5)}</div>
+                  )) : <div className="wd-popover-empty">No open short puts</div>}
+                </div>
+              )}
+            </span>
+          )}
+          <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("calls"); }}>
+            Calls Deferred
+            {openPopover === "calls" && (
+              <div className="wd-popover" onClick={e => e.stopPropagation()}>
+                <div className="wd-popover-title">Covered-Call Capacity</div>
+                <div className="wd-popover-empty">Call recommendations deferred during backend migration.</div>
+                {snapshot && snapshot.inventory.filter(p => p.maxAdditionalContracts > 0).map(p => (
+                  <div key={p.symbol} className="wd-popover-item">{p.symbol} · {p.sharesFree} free · {p.maxAdditionalContracts} contracts</div>
+                ))}
+              </div>
+            )}
+          </span>
+          <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("intents"); }}>
+            {pendingIntents.filter(i => i.status === "working").length === 0 ? "No Pending Intent" : `${pendingIntents.filter(i => i.status === "working").length} Pending Intent${pendingIntents.filter(i => i.status === "working").length > 1 ? "s" : ""}`}
+            {openPopover === "intents" && (
+              <div className="wd-popover" onClick={e => e.stopPropagation()}>
+                <div className="wd-popover-title">Pending Intents</div>
+                {pendingIntents.filter(i => i.status === "working").length > 0 ? pendingIntents.filter(i => i.status === "working").map(i => (
+                  <div key={i.id} className="wd-popover-item">{i.symbol} ${i.strike} {i.optionType === "put" ? "P" : "C"} {i.expiration.slice(5)}</div>
+                )) : <div className="wd-popover-empty">No pending intents</div>}
+              </div>
+            )}
+          </span>
+        </div>
+        <div className="wd-band-right">
           <span className="wd-session-inline">
             <span className={`wd-session-pip wd-session-${sessionClassification.state.toLowerCase()}`} />
             <span className="wd-session-text">{formatSessionState(sessionClassification.state)}</span>
@@ -345,22 +400,6 @@ export function WriteDesk() {
           <button className="wd-labs-link" onClick={() => navigateTo("/labs")}>Labs →</button>
         </div>
       </div>
-
-      {/* ═══ STICKY EDITABLE POLICY BAR ═══ */}
-      {snapshot && snapshot.readiness.status === "READY" && (
-        <div className="wd-policy-bar wd-sticky-policy">
-          <span className="wd-policy-profile">Routine CSP</span>
-          <label className="wd-pol">Δ <select value={policy.contractSelection.targetDelta.toFixed(2)} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDelta: parseFloat(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDelta: parseFloat(e.target.value) }); }} className="wd-pol-select"><option value="0.15">0.15</option><option value="0.20">0.20</option><option value="0.25">0.25</option><option value="0.30">0.30</option><option value="0.35">0.35</option><option value="0.40">0.40</option><option value="0.45">0.45</option><option value="0.50">0.50</option></select></label>
-          <label className="wd-pol">Δ Range <select value={`${policy.contractSelection.admissibleDeltaRange.min}-${policy.contractSelection.admissibleDeltaRange.max}`} onChange={(e) => { const [min, max] = e.target.value.split("-").map(Number); const updated = { ...policy, contractSelection: { ...policy.contractSelection, admissibleDeltaRange: { min, max } } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskDeltaMin: min, writeDeskDeltaMax: max }); }} className="wd-pol-select"><option value="0.10-0.50">0.10–0.50</option><option value="0.15-0.50">0.15–0.50</option><option value="0.20-0.45">0.20–0.45</option><option value="0.25-0.40">0.25–0.40</option></select></label>
-          <label className="wd-pol">DTE <select value={policy.contractSelection.targetDte} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDte: parseInt(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDte: parseInt(e.target.value) }); }} className="wd-pol-select"><option value="7">7</option><option value="14">14</option><option value="21">21</option><option value="28">28</option><option value="35">35</option><option value="42">42</option><option value="45">45</option></select></label>
-          <span className="wd-pol-static">DTE {policy.contractSelection.eligibleDteRange.min}–{policy.contractSelection.eligibleDteRange.max}</span>
-          <span className="wd-pol-static">Spread ≤{policy.executionAssessment.hardExcludeSpreadPercent}%</span>
-          <span className="wd-pol-static">OI &gt;0</span>
-          <span className="wd-pol-static">Actionable ≥{policy.executionAssessment.actionableFloor}</span>
-          <span className="wd-pol-static">Edge ≥{policy.executionAssessment.edgeFloor}</span>
-          <label className="wd-pol">Rank <select value={policy.ranking.mode} onChange={(e) => { const updated = { ...policy, ranking: { ...policy.ranking, mode: e.target.value as any } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskRankingMode: e.target.value }); }} className="wd-pol-select"><option value="execution_first">Execution</option><option value="balanced">Balanced</option><option value="yield_first">Yield</option><option value="capital_efficiency">Capital Eff.</option></select></label>
-        </div>
-      )}
 
       {/* Fidelity Upload (fidelity mode only) */}
       {source === "fidelity" && (
@@ -372,13 +411,39 @@ export function WriteDesk() {
       {/* ═══ CANDIDATE BOARD ═══ */}
       {snapshot && snapshot.readiness.status === "READY" && (scanTimestamp || evidenceMeta) && (
         <section className="wd-board">
-          {/* Board header */}
+          {/* Board title + evidence status */}
           <div className="wd-board-header">
             <div className="wd-board-title-row">
               <h2 className="wd-board-title">Cash-Secured Put Candidates</h2>
+              {trustIndicator && (
+                <span className={`wd-evidence-inline wd-trust-${trustIndicator.color}`}>
+                  <span className="wd-trust-dot">●</span>
+                  {" "}{trustIndicator.trustLabel}
+                  {" · "}{trustIndicator.covered}/{trustIndicator.universe}
+                  {" · "}{trustIndicator.freshnessLabel}
+                  {trustIndicator.activity === "updating" && " · Updating"}
+                </span>
+              )}
               {putFunnel && <span className="wd-board-rec-count">{putFunnel.eligible} Recommendations</span>}
             </div>
             {putFunnel && <FunnelInfographic funnel={putFunnel} backendResolved={evidenceMeta?.coverage ? (evidenceMeta.coverage.ready + evidenceMeta.coverage.absent) : undefined} />}
+          </div>
+
+          {/* Unified sticky policy + table controls */}
+          <div className="wd-unified-controls">
+            <div className="wd-policy-controls">
+              <span className="wd-policy-profile">Routine CSP</span>
+              <label className="wd-pol">Δ <select value={policy.contractSelection.targetDelta.toFixed(2)} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDelta: parseFloat(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDelta: parseFloat(e.target.value) }); }} className="wd-pol-select"><option value="0.15">0.15</option><option value="0.20">0.20</option><option value="0.25">0.25</option><option value="0.30">0.30</option><option value="0.35">0.35</option><option value="0.40">0.40</option><option value="0.45">0.45</option><option value="0.50">0.50</option></select></label>
+              <label className="wd-pol">Δ Range <select value={`${policy.contractSelection.admissibleDeltaRange.min}-${policy.contractSelection.admissibleDeltaRange.max}`} onChange={(e) => { const [min, max] = e.target.value.split("-").map(Number); const updated = { ...policy, contractSelection: { ...policy.contractSelection, admissibleDeltaRange: { min, max } } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskDeltaMin: min, writeDeskDeltaMax: max }); }} className="wd-pol-select"><option value="0.10-0.50">0.10–0.50</option><option value="0.15-0.50">0.15–0.50</option><option value="0.20-0.45">0.20–0.45</option><option value="0.25-0.40">0.25–0.40</option></select></label>
+              <label className="wd-pol">DTE <select value={policy.contractSelection.targetDte} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDte: parseInt(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDte: parseInt(e.target.value) }); }} className="wd-pol-select"><option value="7">7</option><option value="14">14</option><option value="21">21</option><option value="28">28</option><option value="35">35</option><option value="42">42</option><option value="45">45</option></select></label>
+              <span className="wd-pol-static">{policy.contractSelection.eligibleDteRange.min}–{policy.contractSelection.eligibleDteRange.max}</span>
+              <span className="wd-pol-static">≤{policy.executionAssessment.hardExcludeSpreadPercent}%</span>
+              <span className="wd-pol-static">OI&gt;0</span>
+              <span className="wd-pol-static">A≥{policy.executionAssessment.actionableFloor}</span>
+              <span className="wd-pol-static">E≥{policy.executionAssessment.edgeFloor}</span>
+              <label className="wd-pol">Rank <select value={policy.ranking.mode} onChange={(e) => { const updated = { ...policy, ranking: { ...policy.ranking, mode: e.target.value as any } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskRankingMode: e.target.value }); }} className="wd-pol-select"><option value="execution_first">Execution</option><option value="balanced">Balanced</option><option value="yield_first">Yield</option><option value="capital_efficiency">Capital Eff.</option></select></label>
+            </div>
+            <div className="wd-controls-divider" />
             <div className="wd-table-controls">
               <label className="wd-control wd-control-check">
                 <input type="checkbox" checked={showAffordableOnly} onChange={(e) => setShowAffordableOnly(e.target.checked)} />
@@ -390,23 +455,25 @@ export function WriteDesk() {
                   <option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option>
                 </select>
               </label>
-              {putCandidates.length > 0 && (() => {
-                const filtered = showAffordableOnly ? putCandidates.filter(c => c.affordable) : putCandidates;
+              {(() => {
+                const allRows = [...putCandidates, ...putWaitCandidates];
+                const filtered = showAffordableOnly ? allRows.filter(c => c.affordable) : allRows;
                 const displayed = Math.min(filtered.length, showCount);
-                return <span className="wd-table-showing">Showing {displayed} of {filtered.length}</span>;
+                const recCount = putCandidates.filter(c => !showAffordableOnly || c.affordable).length;
+                const waitCount = displayed - Math.min(recCount, displayed);
+                return <span className="wd-table-showing">Showing {displayed} rows · {Math.min(recCount, displayed)} recommendations{waitCount > 0 ? ` · ${waitCount} Wait` : ""}</span>;
               })()}
             </div>
           </div>
 
-          {/* Candidate table */}
-          {putCandidates.length > 0 ? (
-            <>
-              {(() => {
-                const filtered = showAffordableOnly ? putCandidates.filter((c) => c.affordable) : putCandidates;
-                const displayed = filtered.slice(0, showCount);
-                return <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); }} />;
-              })()}
-            </>
+          {/* Candidate table (ACTIONABLE + EDGE + WAIT) */}
+          {(putCandidates.length > 0 || putWaitCandidates.length > 0) ? (
+            (() => {
+              const allRows = [...putCandidates, ...putWaitCandidates];
+              const filtered = showAffordableOnly ? allRows.filter((c) => c.affordable) : allRows;
+              const displayed = filtered.slice(0, showCount);
+              return <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); }} />;
+            })()
           ) : (
             <div className="wd-no-trade">
               {putCoverage && putCoverage.missing > 0 ? (
@@ -423,91 +490,6 @@ export function WriteDesk() {
       {(!snapshot || snapshot.readiness.status !== "READY") && source !== "fidelity" && (
         <div className="wd-placeholder">
           <p>Select a portfolio source to begin.</p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// --- Portfolio Detail (disclosure content) ---
-
-function PortfolioDetail({ snapshot, pendingIntents, onIntentResolve }: { snapshot: PortfolioSnapshot; pendingIntents: PendingIntent[]; onIntentResolve: (id: string, status: "filled" | "cancelled") => void }) {
-  const callCapacity = snapshot.inventory.filter((p) => p.maxAdditionalContracts > 0);
-  const noCapacity = snapshot.inventory.filter((p) => p.maxAdditionalContracts === 0);
-  const workingIntents = pendingIntents.filter((i) => i.status === "working");
-
-  return (
-    <div className="wd-portfolio-detail-grid">
-      <div className="wd-detail-section">
-        <h4 className="wd-detail-heading">Call Capacity</h4>
-        {callCapacity.length > 0 ? (
-          <table className="wd-inventory-table">
-            <thead><tr><th>Symbol</th><th>Free</th><th>Contracts</th></tr></thead>
-            <tbody>
-              {callCapacity.map((p) => (
-                <tr key={p.symbol}><td>{p.symbol}</td><td>{p.sharesFree}</td><td className="wd-capacity-available">{p.maxAdditionalContracts}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="wd-no-capacity">No call capacity (deferred).</p>
-        )}
-        {noCapacity.length > 0 && (
-          <details className="wd-no-capacity-details">
-            <summary>{noCapacity.length} without capacity</summary>
-            <table className="wd-inventory-table">
-              <thead><tr><th>Symbol</th><th>Owned</th><th>Free</th><th>Reason</th></tr></thead>
-              <tbody>
-                {noCapacity.map((p) => (
-                  <tr key={p.symbol} className="wd-row-unavailable">
-                    <td>{p.symbol}</td><td>{p.sharesOwned}</td><td>{p.sharesFree}</td>
-                    <td className="wd-reason">{p.sharesEncumbered >= p.sharesOwned ? "Encumbered" : p.sharesFree < 100 ? "Below lot" : "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </details>
-        )}
-      </div>
-      <div className="wd-detail-section">
-        <h4 className="wd-detail-heading">Put Deployment</h4>
-        <div className="wd-cash-display">
-          <span className="wd-cash-amount">${snapshot.deployableCash?.toLocaleString() ?? "—"}</span>
-          <span className="wd-cash-label">Deployable</span>
-        </div>
-        {snapshot.existingPuts.length > 0 && (
-          <div className="wd-existing-puts">
-            {snapshot.existingPuts.map((p, i) => (
-              <span key={i} className="wd-existing-put-tag">{p.underlying} ${p.strike} {p.expiration.slice(5)}</span>
-            ))}
-          </div>
-        )}
-      </div>
-      <div className="wd-detail-section">
-        <h4 className="wd-detail-heading">Provenance</h4>
-        <div className="wd-prov-meta">
-          <span>Source: {snapshot.provenance.sourceLabel}</span>
-          {snapshot.snapshotDate && <span>Date: {snapshot.snapshotDate}</span>}
-        </div>
-      </div>
-      {workingIntents.length > 0 && (
-        <div className="wd-detail-section">
-          <h4 className="wd-detail-heading">Pending Orders</h4>
-          <table className="wd-inventory-table">
-            <thead><tr><th>Contract</th><th>Qty</th><th>Actions</th></tr></thead>
-            <tbody>
-              {workingIntents.map((i) => (
-                <tr key={i.id}>
-                  <td>{i.symbol} ${i.strike} {i.optionType === "put" ? "P" : "C"} {i.expiration.slice(5)}</td>
-                  <td>{i.quantity}</td>
-                  <td className="wd-order-actions">
-                    <button className="wd-order-btn wd-order-fill" onClick={() => onIntentResolve(i.id, "filled")}>Filled</button>
-                    <button className="wd-order-btn wd-order-cancel" onClick={() => onIntentResolve(i.id, "cancelled")}>Cancel</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       )}
     </div>

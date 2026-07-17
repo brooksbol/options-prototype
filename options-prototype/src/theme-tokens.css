@@ -19,10 +19,11 @@
   --wd-bg-selected-strong: rgba(111, 207, 151, 0.14);
 
   /* --- Text hierarchy --- */
-  --wd-text-primary: #e4e4ec;
-  --wd-text-secondary: #8a8a9a;
-  --wd-text-constrained: #7a7a8c;
-  --wd-text-disabled: #3e3e4a;
+  --wd-text-primary: #E5E7EB;
+  --wd-text-secondary: #A0A0A0;
+  --wd-text-tertiary: #888888;
+  --wd-text-constrained: #888888;
+  --wd-text-disabled: #777777;
 
   /* --- Semantic accent colors --- */
   --wd-accent-green: #6fcf97;
