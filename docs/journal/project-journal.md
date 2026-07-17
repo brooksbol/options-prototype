@@ -4339,3 +4339,31 @@ SQLite persistence is deferred. The governance model should be captured first be
 ### Provenance
 
 This insight emerged from recognizing the similarity to PTS's institutional stewardship model, systems thinking, and the Morgan Housel framing: not "find better options" but "help the operator consistently make better decisions." Or: maintain the human in the loop while reducing the probability that the idiot gets into the loop.
+
+---
+
+## 2026-07-16 — SQLite Persistence: Product Milestone
+
+### What happened
+
+Implemented SQLite as the authoritative evidence store. The Evidence Appliance now persists acquisition state durably. Service restarts recover in milliseconds instead of re-acquiring the entire universe.
+
+### Why this matters
+
+This is the first slice that permanently changes the product rather than answering a question. It marks the transition from Labs-first (retiring uncertainty) to product roadmap (retiring complexity).
+
+### Migration pattern chosen
+
+Lightweight parallel run via test oracle. The legacy in-memory store is retained as a behavioral reference implementation. SQLite is authoritative from day one because 11 deterministic tests prove equivalence before deployment. No runtime dual-writes needed.
+
+### Engineering heuristic captured
+
+> Choose the lightest migration mechanism that fully retires the relevant uncertainty.
+
+And for sequencing:
+
+> Choose the next architectural slice that retires the most consequential uncertainty and converts what we learn into a permanent reduction in system complexity.
+
+### What's next
+
+Universe expansion from 496 to 1,286 symbols — now a data import rather than a system redesign, because SQLite makes adding symbols an INSERT that preserves existing evidence.

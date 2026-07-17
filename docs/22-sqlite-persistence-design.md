@@ -410,3 +410,50 @@ The design maps precisely to the existing `EvidenceStore` interface, acquisition
 The `InMemoryEvidenceStore` remains in the codebase as a test oracle for behavioral equivalence verification.
 
 Ready for implementation.
+
+---
+
+## Retrospective: Legacy Displacement Pattern
+
+### What we chose and why
+
+Initially we discussed a traditional enterprise-style parallel run: dual-write production infrastructure, runtime divergence detection, phased authority inversion, and explicit legacy retirement after extended observation.
+
+After reviewing the existing codebase, we concluded that the legacy `EvidenceStore` was small (~200 lines), deterministic, and fully understood. There were no undocumented edge cases, no concurrent access patterns, no accumulated workarounds. The risk was not "reproducing mysterious legacy behavior" but proving three specific properties: durability, restart recovery, and behavioral equivalence.
+
+Therefore the project adopted a lighter-weight displacement pattern:
+
+1. Legacy implementation retained as the behavioral reference implementation (test oracle)
+2. SQLite implementation becomes the production authority from day one
+3. Behavioral equivalence proven through deterministic test suites (not runtime dual-writes)
+4. Restart recovery proven through explicit restart tests (not manual stop/start observation)
+5. Legacy implementation retired only after sufficient operational confidence
+
+This preserves the architectural principle of **parallel validation before legacy displacement** while avoiding unnecessary production complexity.
+
+### Engineering heuristic
+
+> **Choose the lightest migration mechanism that fully retires the relevant uncertainty.**
+
+Enterprise migration patterns are valuable, but they should be scaled to the actual risk being managed rather than copied mechanically. A 200-line Map doesn't warrant the same migration infrastructure as a 200,000-line legacy system with a decade of accumulated behavior.
+
+### What this slice accomplished
+
+This is the first slice in the project that permanently changes the product rather than merely answering a question. Previous work (Labs, Engineering Laboratory, recommendation analysis) retired uncertainty. This work retired complexity — specifically, the structural fragility of process-lifetime-only state.
+
+The project has transitioned from a Labs-first engineering process to a product roadmap informed by Labs.
+
+A useful distinction that emerged:
+
+- **Labs retire uncertainty.** They answer: "Do we understand this well enough to build it?"
+- **Products retire complexity.** They answer: "Can we permanently simplify the system by converting understanding into working infrastructure?"
+
+### Sequencing heuristic
+
+> **Choose the next architectural slice that retires the most consequential uncertainty and converts what we learn into a permanent reduction in system complexity.**
+
+This explains both *what* to build next and *why* to sequence it that way. SQLite preceded universe expansion because:
+- The uncertainty (does persistence work correctly?) was consequential at scale
+- The complexity retired (restart fragility) compounds with every universe expansion
+- The implementation was small, testable, and isolated
+- The product became permanently more capable (restart recovery) rather than merely better-understood
