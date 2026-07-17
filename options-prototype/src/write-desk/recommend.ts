@@ -98,38 +98,57 @@ export interface CoverageRequest {
 
 // --- Recommendation Result ---
 
-export interface FunnelExclusion {
-  reason: string;
-  count: number;
+/**
+ * Terminal Outcome — every symbol in the monitored universe belongs to
+ * exactly one of these mutually exclusive categories.
+ * All counts must sum to `monitored`.
+ */
+export interface TerminalOutcomes {
+  /** Score ≥ actionableFloor — recommended, execution quality supports acting */
+  actionable: number;
+  /** Score ≥ edgeFloor — recommended, marginal but plausible */
+  edge: number;
+  /** Score ≥ waitFloor but < edgeFloor — evaluated but below recommendation threshold */
+  wait: number;
+  /** Evaluated, all contracts failed hard-no (spread>80%, zero OI, zero bid) */
+  hardNo: number;
+  /** Has chain but no contract within admissible delta range */
+  noDeltaMatch: number;
+  /** Has expirations but none within eligible DTE range */
+  noDteMatch: number;
+  /** Confirmed no listed options */
+  nonOptionable: number;
+  /** Evidence incomplete or not yet resolved */
+  incomplete: number;
 }
 
 export interface RecommendationFunnel {
   /** Total symbols in the monitored universe */
   monitored: number;
-  /** Symbols with resolved acquisition state (have evidence or confirmed absent) */
-  resolved: number;
-  /** Symbols with listed options (have expirations) */
-  optionable: number;
-  /** Symbols confirmed to have no qualifying options */
-  nonOptionable: number;
-  /** Symbols not yet resolved (pending/in-flight) */
-  pending: number;
-  /** Symbols with chain data that entered contract evaluation */
+  /** Terminal outcomes — every symbol maps to exactly one */
+  outcomes: TerminalOutcomes;
+  /** Symbols evaluated with evidence (had chain data) */
   evaluable: number;
-  /** Symbols with at least one ACTIONABLE or EDGE candidate */
+  /** Total recommendations (actionable + edge) */
   eligible: number;
-  /** Of eligible: ACTIONABLE posture count */
-  actionable: number;
-  /** Of eligible: EDGE posture count */
-  edge: number;
-  /** Candidates after ranking (may be capped by maxResults) */
+  /** Candidates after ranking cap */
   ranked: number;
-  /** Candidates after display slice (Show limit) — set by caller */
-  displayed: number;
-  /** WAIT-posture symbols (evaluated but below EDGE threshold) */
+
+  // Legacy compatibility (remove in future)
+  resolved: number;
+  optionable: number;
+  nonOptionable: number;
+  pending: number;
+  actionable: number;
+  edge: number;
   waitPosture: number;
-  /** Detailed exclusion counts */
+  displayed: number;
   exclusions: FunnelExclusion[];
+}
+
+export interface FunnelExclusion {
+  reason: string;
+  count: number;
 }
 
 export interface RecommendationResult {
@@ -415,17 +434,28 @@ export async function recommendPuts(
 
   const funnel: RecommendationFunnel = {
     monitored: symbols.length,
+    outcomes: {
+      actionable: funnelActionable,
+      edge: funnelEdge,
+      wait: funnelWaitPosture,
+      hardNo: exclHardNo,
+      noDeltaMatch: exclNoDeltaInRange + exclNoContracts,
+      noDteMatch: exclNoEligibleDte,
+      nonOptionable: confirmedAbsence,
+      incomplete: funnelPending + exclNoChain + exclProductStructure,
+    },
+    evaluable: funnelEvaluable,
+    eligible: allCandidates.length,
+    ranked: topN.length,
+    // Legacy compatibility
     resolved: symbols.length - funnelPending,
     optionable: funnelOptionable,
     nonOptionable: confirmedAbsence,
     pending: funnelPending,
-    evaluable: funnelEvaluable,
-    eligible: allCandidates.length,
     actionable: funnelActionable,
     edge: funnelEdge,
-    ranked: topN.length,
-    displayed: topN.length, // Caller will override with actual Show limit
     waitPosture: funnelWaitPosture,
+    displayed: topN.length,
     exclusions,
   };
 

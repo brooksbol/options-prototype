@@ -314,7 +314,7 @@ export function WriteDesk() {
       {/* ═══ BAND 1: Identity · Portfolio · Session ═══ */}
       <div className="wd-band wd-band-identity">
         <div className="wd-band-left">
-          <h1 className="wd-title">Write Desk</h1>
+          <h1 className="wd-title">Wheelwright</h1>
           <select className="wd-source-select" value={source} onChange={(e) => handleSourceChange(e.target.value as PortfolioSourceType)}>
             <option value="demo">Demo Portfolio</option>
             <option value="fidelity">Fidelity Snapshot</option>
@@ -346,37 +346,19 @@ export function WriteDesk() {
         </div>
       </div>
 
-      {/* ═══ ACTIVE POLICY ═══ */}
+      {/* ═══ STICKY EDITABLE POLICY BAR ═══ */}
       {snapshot && snapshot.readiness.status === "READY" && (
-        <div className="wd-policy-bar">
-          <span className="wd-policy-summary">
-            <span className="wd-policy-id">{policy.version}</span>
-            <span className="wd-policy-params">
-              Δ {policy.contractSelection.targetDelta.toFixed(2)} · DTE {policy.contractSelection.targetDte} ({policy.contractSelection.eligibleDteRange.min}–{policy.contractSelection.eligibleDteRange.max}) · {policy.ranking.mode.replace("_", " ")}
-            </span>
-          </span>
-          <span className="wd-policy-governance">
-            Δ {policy.contractSelection.admissibleDeltaRange.min}–{policy.contractSelection.admissibleDeltaRange.max} · Spread ≤{policy.executionAssessment.hardExcludeSpreadPercent}% · OI &gt;0 · Actionable ≥{policy.executionAssessment.actionableFloor} · Edge ≥{policy.executionAssessment.edgeFloor}
-          </span>
-          <details className="wd-policy-detail-toggle">
-            <summary>Policy detail</summary>
-            <div className="wd-policy-detail-content">
-              <div className="wd-policy-detail-row">
-                <span className="wd-pdl">Target Δ</span>
-                <select value={policy.contractSelection.targetDelta.toFixed(2)} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDelta: parseFloat(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDelta: parseFloat(e.target.value) }); }} className="wd-control-select">
-                  <option value="0.15">0.15</option><option value="0.20">0.20</option><option value="0.25">0.25</option><option value="0.30">0.30</option><option value="0.35">0.35</option><option value="0.40">0.40</option><option value="0.45">0.45</option><option value="0.50">0.50</option>
-                </select>
-                <span className="wd-pdl">Target DTE</span>
-                <select value={policy.contractSelection.targetDte} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDte: parseInt(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDte: parseInt(e.target.value) }); }} className="wd-control-select">
-                  <option value="7">7</option><option value="14">14</option><option value="21">21</option><option value="28">28</option><option value="35">35</option><option value="42">42</option><option value="45">45</option>
-                </select>
-                <span className="wd-pdl">Rank</span>
-                <select value={policy.ranking.mode} onChange={(e) => { const updated = { ...policy, ranking: { ...policy.ranking, mode: e.target.value as any } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskRankingMode: e.target.value }); }} className="wd-control-select">
-                  <option value="execution_first">Execution First</option><option value="balanced">Balanced</option><option value="yield_first">Yield First</option><option value="capital_efficiency">Capital Efficiency</option>
-                </select>
-              </div>
-            </div>
-          </details>
+        <div className="wd-policy-bar wd-sticky-policy">
+          <span className="wd-policy-profile">Routine CSP</span>
+          <label className="wd-pol">Δ <select value={policy.contractSelection.targetDelta.toFixed(2)} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDelta: parseFloat(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDelta: parseFloat(e.target.value) }); }} className="wd-pol-select"><option value="0.15">0.15</option><option value="0.20">0.20</option><option value="0.25">0.25</option><option value="0.30">0.30</option><option value="0.35">0.35</option><option value="0.40">0.40</option><option value="0.45">0.45</option><option value="0.50">0.50</option></select></label>
+          <label className="wd-pol">Δ Range <select value={`${policy.contractSelection.admissibleDeltaRange.min}-${policy.contractSelection.admissibleDeltaRange.max}`} onChange={(e) => { const [min, max] = e.target.value.split("-").map(Number); const updated = { ...policy, contractSelection: { ...policy.contractSelection, admissibleDeltaRange: { min, max } } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskDeltaMin: min, writeDeskDeltaMax: max }); }} className="wd-pol-select"><option value="0.10-0.50">0.10–0.50</option><option value="0.15-0.50">0.15–0.50</option><option value="0.20-0.45">0.20–0.45</option><option value="0.25-0.40">0.25–0.40</option></select></label>
+          <label className="wd-pol">DTE <select value={policy.contractSelection.targetDte} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDte: parseInt(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDte: parseInt(e.target.value) }); }} className="wd-pol-select"><option value="7">7</option><option value="14">14</option><option value="21">21</option><option value="28">28</option><option value="35">35</option><option value="42">42</option><option value="45">45</option></select></label>
+          <span className="wd-pol-static">DTE {policy.contractSelection.eligibleDteRange.min}–{policy.contractSelection.eligibleDteRange.max}</span>
+          <span className="wd-pol-static">Spread ≤{policy.executionAssessment.hardExcludeSpreadPercent}%</span>
+          <span className="wd-pol-static">OI &gt;0</span>
+          <span className="wd-pol-static">Actionable ≥{policy.executionAssessment.actionableFloor}</span>
+          <span className="wd-pol-static">Edge ≥{policy.executionAssessment.edgeFloor}</span>
+          <label className="wd-pol">Rank <select value={policy.ranking.mode} onChange={(e) => { const updated = { ...policy, ranking: { ...policy.ranking, mode: e.target.value as any } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskRankingMode: e.target.value }); }} className="wd-pol-select"><option value="execution_first">Execution</option><option value="balanced">Balanced</option><option value="yield_first">Yield</option><option value="capital_efficiency">Capital Eff.</option></select></label>
         </div>
       )}
 
@@ -393,21 +375,27 @@ export function WriteDesk() {
           {/* Board header */}
           <div className="wd-board-header">
             <div className="wd-board-title-row">
-              <h2 className="wd-board-title">Put Candidates — Cash-Secured</h2>
-              <div className="wd-board-controls">
-                <label className="wd-control wd-control-check">
-                  <input type="checkbox" checked={showAffordableOnly} onChange={(e) => setShowAffordableOnly(e.target.checked)} />
-                  Affordable only
-                </label>
-                <label className="wd-control">
-                  Show
-                  <select value={showCount} onChange={(e) => { const v = parseInt(e.target.value); setShowCount(v); updateWorkspace({ writeDeskShowCount: v }); }} className="wd-control-select">
-                    <option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option>
-                  </select>
-                </label>
-              </div>
+              <h2 className="wd-board-title">Cash-Secured Put Candidates</h2>
+              {putFunnel && <span className="wd-board-rec-count">{putFunnel.eligible} Recommendations</span>}
             </div>
             {putFunnel && <FunnelInfographic funnel={putFunnel} backendResolved={evidenceMeta?.coverage ? (evidenceMeta.coverage.ready + evidenceMeta.coverage.absent) : undefined} />}
+            <div className="wd-table-controls">
+              <label className="wd-control wd-control-check">
+                <input type="checkbox" checked={showAffordableOnly} onChange={(e) => setShowAffordableOnly(e.target.checked)} />
+                Affordable only
+              </label>
+              <label className="wd-control">
+                Show
+                <select value={showCount} onChange={(e) => { const v = parseInt(e.target.value); setShowCount(v); updateWorkspace({ writeDeskShowCount: v }); }} className="wd-control-select">
+                  <option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option>
+                </select>
+              </label>
+              {putCandidates.length > 0 && (() => {
+                const filtered = showAffordableOnly ? putCandidates.filter(c => c.affordable) : putCandidates;
+                const displayed = Math.min(filtered.length, showCount);
+                return <span className="wd-table-showing">Showing {displayed} of {filtered.length}</span>;
+              })()}
+            </div>
           </div>
 
           {/* Candidate table */}
@@ -416,12 +404,7 @@ export function WriteDesk() {
               {(() => {
                 const filtered = showAffordableOnly ? putCandidates.filter((c) => c.affordable) : putCandidates;
                 const displayed = filtered.slice(0, showCount);
-                return (
-                  <>
-                    <p className="wd-showing-count">Showing {displayed.length} of {filtered.length} eligible</p>
-                    <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); }} />
-                  </>
-                );
+                return <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); }} />;
               })()}
             </>
           ) : (
