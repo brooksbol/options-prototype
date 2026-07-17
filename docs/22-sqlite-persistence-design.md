@@ -321,8 +321,92 @@ evidence-service/
 
 ---
 
+## Migration Pattern: Lightweight Parallel Run
+
+Rather than replacing the in-memory store and hoping for correctness, the migration uses the existing `EvidenceStore` as a **test oracle** — a reference implementation against which SQLite behavior is validated.
+
+### Why lightweight (not full enterprise parallel-run)
+
+The current in-memory store is ~200 lines with straightforward Map operations. There are no accumulated edge cases, no concurrent access patterns, no mysterious legacy behavior. The risk being managed is:
+
+1. Does SQLite lose data that the Map would have retained? (durability correctness)
+2. Does restart recovery produce a snapshot identical to what existed pre-restart? (the restart proof)
+3. Does a failed write corrupt state in a way the Map never could? (failure mode safety)
+
+These are all deterministically testable without runtime dual-writes.
+
+### Mechanism
+
+**The behavioral comparison lives in the test suite, not the runtime.**
+
+```typescript
+// Behavioral equivalence: same operations → same observable output
+describe("SqliteEvidenceStore matches InMemoryEvidenceStore", () => {
+  it("produces identical snapshot given identical operation sequence", () => {
+    const memory = new InMemoryEvidenceStore();
+    const sqlite = new SqliteEvidenceStore(":memory:");
+
+    // Apply identical operations
+    for (const store of [memory, sqlite]) {
+      store.initUniverse(["XLE", "XLF", "NOOPT"]);
+      store.setExpirations("XLE", expirations, now);
+      store.setChain("XLE", chain, now);
+      store.setExpirations("NOOPT", [], now); // absence
+      store.setFailure("XLF", "timeout");
+    }
+
+    // Compare normalized snapshots
+    expect(normalize(sqlite.buildSnapshot()))
+      .toEqual(normalize(memory.buildSnapshot()));
+  });
+});
+```
+
+**The restart proof is an explicit test scenario:**
+
+```typescript
+describe("restart recovery", () => {
+  it("rebuilds identical snapshot after service restart", () => {
+    const store1 = new SqliteEvidenceStore(tempFile);
+    // ... acquire evidence ...
+    const before = normalize(store1.buildSnapshot());
+    store1.close();
+
+    const store2 = new SqliteEvidenceStore(tempFile);
+    const after = normalize(store2.buildSnapshot());
+    expect(after).toEqual(before);
+  });
+});
+```
+
+### What this achieves
+
+- SQLite is authoritative from day one (tests prove equivalence before deployment)
+- No `DualWriteEvidenceStore` in production code
+- No runtime divergence debugging
+- No separate "authority inversion" deployment
+- The old `EvidenceStore` class is renamed to `InMemoryEvidenceStore` and retained as a test oracle
+- Behavioral comparison runs on every build
+- Restart proof runs on every build
+
+### Retirement criteria
+
+The `InMemoryEvidenceStore` test oracle is retired when all of these are demonstrated:
+
+- Normal-session behavioral equivalence
+- Sealed-session behavioral equivalence
+- Restart recovery (write → close → reopen → identical snapshot)
+- Failed-refresh preservation (prior success survives subsequent failure)
+- Universe expansion (add symbols without disrupting existing evidence)
+- Snapshot generation correctness (increments on publication, not on writes)
+- Work queue correctness after restart (only genuinely pending symbols)
+
+---
+
 ## Implementation Readiness
 
 The design maps precisely to the existing `EvidenceStore` interface, acquisition worker, and snapshot route. The implementation sequence preserves the current public API — the snapshot endpoint, acquisition worker, and frontend polling all continue to function identically. The change is internal: the Map is replaced by SQLite as the backing store, with the critical addition that state survives restarts.
+
+The `InMemoryEvidenceStore` remains in the codebase as a test oracle for behavioral equivalence verification.
 
 Ready for implementation.

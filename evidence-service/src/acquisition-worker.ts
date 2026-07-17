@@ -21,7 +21,8 @@
 
 import type { ServiceConfig } from "./config.js";
 import { TradierAdapter } from "./providers/tradier.js";
-import { getEvidenceStore, type EvidenceStore } from "./evidence-store.js";
+import { getEvidenceStore } from "./evidence-store.js";
+import type { SqliteEvidenceStore } from "./db/sqlite-evidence-store.js";
 import { loadUniverse } from "./universe.js";
 
 // --- Session Gate (emergency stopgap) ---
@@ -99,7 +100,7 @@ const BATCH_SIZE = 10;                  // Symbols per cycle
 
 export class AcquisitionWorker {
   private adapter: TradierAdapter;
-  private store: EvidenceStore;
+  private store: SqliteEvidenceStore;
   private running = false;
   private cycleActive = false;
   private idleLogged = false;
@@ -243,6 +244,7 @@ export class AcquisitionWorker {
 
       // Cycle summary (info level)
       const coverage = this.store.getCoverage();
+      this.store.publishSnapshot();
       console.log(`[worker] Cycle #${this.status.cycleCount} complete · ${batch.length} symbols · ${Date.now() - cycleStart}ms · coverage: ${coverage.ready}r/${coverage.absent}a/${coverage.pending}p · gen ${this.store.generation}`);
     } catch (err) {
       console.error("[worker] Cycle error:", err);

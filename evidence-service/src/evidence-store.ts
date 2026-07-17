@@ -272,9 +272,17 @@ function selectPrimaryExpiration(expirations: MarketExpiration[]): string | null
 
 // --- Singleton ---
 
-let instance: EvidenceStore | null = null;
+import { SqliteEvidenceStore } from "./db/sqlite-evidence-store.js";
 
-export function getEvidenceStore(): EvidenceStore {
-  if (!instance) instance = new EvidenceStore();
+let instance: SqliteEvidenceStore | null = null;
+
+export function getEvidenceStore(): SqliteEvidenceStore {
+  if (!instance) {
+    instance = new SqliteEvidenceStore();
+    console.log("[evidence-store] SQLite store initialized");
+  }
   return instance;
 }
+
+// Keep the in-memory class exported for test-oracle use
+export { EvidenceStore as InMemoryEvidenceStore };
