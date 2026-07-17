@@ -17,7 +17,7 @@ Principles → Policies → Evidence → Recommendations → Execution → Learn
 
 A Principle is a first-class architectural entity. Policies are operationalizations of Principles. Evidence is evaluated against Policies. Recommendations are explained by Policies which are justified by Principles. Outcomes are measured against Principles.
 
-This is not an investing-specific model. It is a model for how humans make decisions under uncertainty while managing finite resources. Options income is the first operating domain.
+This is not an investing-specific model. It is a model for how humans make decisions under uncertainty while managing finite resources. Options income is the first operational proving ground for this governance model.
 
 ---
 
@@ -175,7 +175,9 @@ Operationalizations:
 
 ### Sustain Institutional Behavior
 
-> The system exists to help a human consistently make better decisions — not to automate decision-making.
+> The system exists to help a human consistently make better decisions — not to automate decision-making. The system reduces cognitive load, not agency.
+
+Principles are intended to optimize institutional outcomes over long time horizons, not individual transaction outcomes. A principle that "underperformed this month" is not invalidated. The governance question is whether the principle produces better institutional outcomes over the full operating horizon — not whether it maximized the last trade.
 
 Operationalizations:
 - The operator remains in the loop for every execution decision
@@ -239,7 +241,13 @@ Not:
 
 > "Did delta 0.30 outperform delta 0.25?"
 
-The first is governance. The second is calibration. Both matter, but governance is the load-bearing question.
+The first is governance. The second is calibration. Both matter, but they are fundamentally different activities:
+
+**Calibration** — Is 15% still the right spread threshold? Are the policy parameters well-tuned for current market conditions? This adjusts parameters within a fixed governance frame.
+
+**Governance** — Is Execute with Discipline actually improving institutional outcomes? Are the principles themselves producing the institutional behavior we intend? This evaluates whether the governance frame itself is sound.
+
+The historical subsystem must support both, but they operate on different time horizons and produce different kinds of learning.
 
 ### Policy Calibration
 
@@ -355,3 +363,24 @@ They are as concrete as a Policy or an EvidenceRecord — they just operate at a
 4. **How many principles should exist?** Fewer is better. Each principle should be genuinely load-bearing. The current list of 7 may be correct or may contain consolidatable overlaps. Time and usage will reveal which are distinct.
 
 5. **Should the operator see principle names?** Eventually, probably. The "Why 49?" disclosure could group exclusions by principle rather than by mechanism. But the terminology should feel natural to a practitioner, not academic.
+
+6. **Future common object: PrincipleAssessment.** The architecture naturally suggests a common entity that becomes the shared vocabulary between recommendations, explanations, history, analytics, and operator coaching:
+
+    ```
+    PrincipleAssessment {
+      principle: PrincipleId
+      evidence: reference
+      satisfied: boolean
+      confidence: high | medium | low
+      explanation: string
+      outcome: reference (if known, post-execution)
+    }
+    ```
+
+    Not needed today. Worth noting because it becomes the lingua franca of the governance layer once principles are first-class runtime entities.
+
+---
+
+## Provenance
+
+This governance model draws on institutional stewardship thinking — particularly the observation that effective institutional systems optimize the institution over long time horizons rather than individual transactions. The architecture is intentionally reusable beyond options income because the underlying problem — humans making decisions under uncertainty with finite resources — is domain-general.
