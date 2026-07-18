@@ -74,7 +74,7 @@ describe("recommendation funnel — no hidden caps", () => {
     expect(result.candidates.length).toBe(60);
   });
 
-  it("maxResults caps output but does not affect eligibility", async () => {
+  it("maxResults no longer caps output — all eligible returned", async () => {
     const symbols: string[] = [];
     for (let i = 0; i < 25; i++) {
       const sym = `CAP${String(i).padStart(2, "0")}`;
@@ -82,17 +82,17 @@ describe("recommendation funnel — no hidden caps", () => {
       await populateSymbol(sym, [makeGoodPut(40 + i)]);
     }
 
-    // Default maxResults = 100 → shows all 25
+    // All 25 eligible regardless of maxResults
     const fullResult = await recommendPuts(symbols, 500_000, cache, cacheEnv());
     expect(fullResult.candidates.length).toBe(25);
 
-    // With maxResults = 10 → caps at 10 but same eligibility
+    // maxResults in policy is no longer enforced — all come through
     const cappedPolicy: RecommendationPolicy = {
       ...DEFAULT_RECOMMENDATION_POLICY,
       ranking: { ...DEFAULT_RECOMMENDATION_POLICY.ranking, maxResults: 10 },
     };
     const cappedResult = await recommendPuts(symbols, 500_000, cache, cacheEnv(), cappedPolicy);
-    expect(cappedResult.candidates.length).toBe(10);
+    expect(cappedResult.candidates.length).toBe(25); // no artificial cap
 
     // Both have same coverage stats
     expect(cappedResult.coverage.symbolsWithEvidence).toBe(fullResult.coverage.symbolsWithEvidence);

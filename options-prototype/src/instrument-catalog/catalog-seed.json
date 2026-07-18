@@ -10,7 +10,7 @@
       "productStructure": "LEVERAGED_DAILY_EQUITY_ETF",
       "structuralAttributes": {
         "leveraged": true,
-        "leverageMultiple": 3.0,
+        "leverageMultiple": 3,
         "exposureDirection": "LONG",
         "resetFrequency": "DAILY",
         "exposureMechanism": "MIXED_DERIVATIVES"
@@ -23,7 +23,8 @@
         "sourceType": "ISSUER_PRODUCT_PAGE",
         "confidence": "HIGH",
         "verificationStatus": "VERIFIED"
-      }
+      },
+ "description": "The fund seeks daily 3x leveraged investment results before fees and expenses, tracking Semiconductor. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
     },
     {
       "symbol": "USD",
@@ -33,7 +34,7 @@
       "productStructure": "LEVERAGED_DAILY_EQUITY_ETF",
       "structuralAttributes": {
         "leveraged": true,
-        "leverageMultiple": 2.0,
+        "leverageMultiple": 2,
         "exposureDirection": "LONG",
         "resetFrequency": "DAILY",
         "exposureMechanism": "MIXED_DERIVATIVES"
@@ -46,7 +47,8 @@
         "sourceType": "ISSUER_PRODUCT_PAGE",
         "confidence": "HIGH",
         "verificationStatus": "VERIFIED"
-      }
+      },
+      "description": "The fund seeks daily 2x leveraged investment results before fees and expenses, tracking Semiconductors. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
     },
     {
       "symbol": "TECL",
@@ -56,7 +58,7 @@
       "productStructure": "LEVERAGED_DAILY_EQUITY_ETF",
       "structuralAttributes": {
         "leveraged": true,
-        "leverageMultiple": 3.0,
+        "leverageMultiple": 3,
         "exposureDirection": "LONG",
         "resetFrequency": "DAILY",
         "exposureMechanism": "MIXED_DERIVATIVES"
@@ -69,7 +71,8 @@
         "sourceType": "ISSUER_PRODUCT_PAGE",
         "confidence": "HIGH",
         "verificationStatus": "VERIFIED"
-      }
+      },
+      "description": "The fund seeks daily 3x leveraged investment results before fees and expenses, tracking Technology. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
     },
     {
       "symbol": "TQQQ",
@@ -79,7 +82,7 @@
       "productStructure": "LEVERAGED_DAILY_EQUITY_ETF",
       "structuralAttributes": {
         "leveraged": true,
-        "leverageMultiple": 3.0,
+        "leverageMultiple": 3,
         "exposureDirection": "LONG",
         "resetFrequency": "DAILY",
         "exposureMechanism": "MIXED_DERIVATIVES"
@@ -92,7 +95,8 @@
         "sourceType": "ISSUER_PRODUCT_PAGE",
         "confidence": "HIGH",
         "verificationStatus": "VERIFIED"
-      }
+      },
+      "description": "The fund seeks three times (3x) the daily return of the Nasdaq-100 Index before fees and expenses. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
     },
     {
       "symbol": "UCO",
@@ -102,7 +106,7 @@
       "productStructure": "LEVERAGED_DAILY_COMMODITY_ETF",
       "structuralAttributes": {
         "leveraged": true,
-        "leverageMultiple": 2.0,
+        "leverageMultiple": 2,
         "exposureDirection": "LONG",
         "resetFrequency": "DAILY",
         "exposureMechanism": "FUTURES"
@@ -115,7 +119,8 @@
         "sourceType": "ISSUER_PRODUCT_PAGE",
         "confidence": "HIGH",
         "verificationStatus": "VERIFIED"
-      }
+      },
+      "description": "The fund seeks daily 2x leveraged investment results before fees and expenses, tracking Bloomberg Crude Oil. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
     },
     {
       "symbol": "QLD",
@@ -125,7 +130,7 @@
       "productStructure": "LEVERAGED_DAILY_EQUITY_ETF",
       "structuralAttributes": {
         "leveraged": true,
-        "leverageMultiple": 2.0,
+        "leverageMultiple": 2,
         "exposureDirection": "LONG",
         "resetFrequency": "DAILY",
         "exposureMechanism": "MIXED_DERIVATIVES"
@@ -138,7 +143,8 @@
         "sourceType": "ISSUER_PRODUCT_PAGE",
         "confidence": "HIGH",
         "verificationStatus": "VERIFIED"
-      }
+      },
+      "description": "The fund seeks daily 2x leveraged investment results before fees and expenses, tracking QQQ. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
     },
     {
       "symbol": "USO",
@@ -148,7 +154,7 @@
       "productStructure": "COMMODITY_FUTURES_ETF",
       "structuralAttributes": {
         "leveraged": false,
-        "leverageMultiple": 1.0,
+        "leverageMultiple": 1,
         "exposureDirection": "LONG",
         "resetFrequency": "NONE",
         "exposureMechanism": "FUTURES"
@@ -161,7 +167,8 @@
         "sourceType": "ISSUER_PRODUCT_PAGE",
         "confidence": "HIGH",
         "verificationStatus": "VERIFIED"
-      }
+      },
+      "description": "The fund tracks the performance of United States Oil. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
     },
     {
       "symbol": "SMH",
@@ -171,7 +178,7 @@
       "productStructure": "STANDARD_EQUITY_ETF",
       "structuralAttributes": {
         "leveraged": false,
-        "leverageMultiple": 1.0,
+        "leverageMultiple": 1,
         "exposureDirection": "LONG",
         "resetFrequency": "NONE",
         "exposureMechanism": "PHYSICAL_SECURITIES"
@@ -184,7 +191,8 @@
         "sourceType": "ISSUER_PRODUCT_PAGE",
         "confidence": "HIGH",
         "verificationStatus": "VERIFIED"
-      }
+      },
+      "description": "The fund tracks the performance of VanEck Semiconductor."
     },
     {
       "symbol": "SPMO",
@@ -194,7 +202,7 @@
       "productStructure": "STANDARD_EQUITY_ETF",
       "structuralAttributes": {
         "leveraged": false,
-        "leverageMultiple": 1.0,
+        "leverageMultiple": 1,
         "exposureDirection": "LONG",
         "resetFrequency": "NONE",
         "exposureMechanism": "PHYSICAL_SECURITIES"
@@ -207,7 +215,8 @@
         "sourceType": "ISSUER_PRODUCT_PAGE",
         "confidence": "HIGH",
         "verificationStatus": "VERIFIED"
-      }
+      },
+      "description": "The fund tracks the performance of S&P 500 Momentum."
     },
     {
       "symbol": "XLE",
@@ -217,7 +226,7 @@
       "productStructure": "STANDARD_EQUITY_ETF",
       "structuralAttributes": {
         "leveraged": false,
-        "leverageMultiple": 1.0,
+        "leverageMultiple": 1,
         "exposureDirection": "LONG",
         "resetFrequency": "NONE",
         "exposureMechanism": "PHYSICAL_SECURITIES"
@@ -230,7 +239,8 @@
         "sourceType": "ISSUER_PRODUCT_PAGE",
         "confidence": "HIGH",
         "verificationStatus": "VERIFIED"
-      }
+      },
+      "description": "The fund tracks the performance of State Street Energy Select Sector. The portfolio owns shares of energy-sector companies and does not obtain exposure through commodity futures."
     }
   ]
 }

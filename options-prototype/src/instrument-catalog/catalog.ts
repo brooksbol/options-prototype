@@ -18,6 +18,7 @@
  */
 
 import catalogData from "./catalog-seed.json";
+import { lookupLibraryDescription } from "./description-library";
 import type { GovernanceAnnotation, GovernanceStatus } from "../write-desk/scan-orchestrator";
 
 // --- Catalog Types ---
@@ -50,6 +51,7 @@ export interface CatalogRecord {
   structuralAttributes: CatalogStructuralAttributes;
   governance: CatalogGovernance;
   evidence: CatalogEvidence;
+  description?: string;
 }
 
 // --- Catalog Index ---
@@ -66,6 +68,21 @@ for (const instrument of (catalogData as any).instruments) {
  */
 export function lookupCatalog(symbol: string): CatalogRecord | null {
   return catalogIndex.get(symbol.toUpperCase()) ?? null;
+}
+
+/**
+ * Look up the canonical instrument description.
+ * Resolution order:
+ *   1. Description Library (covers full 1,280-ticker universe, independent of catalog membership)
+ *   2. Catalog record description field (fallback for catalog-only descriptions)
+ * Returns null if no description exists anywhere.
+ * This is presentation content only — it does not participate in policy evaluation.
+ */
+export function lookupDescription(symbol: string): string | null {
+  const libraryDesc = lookupLibraryDescription(symbol);
+  if (libraryDesc) return libraryDesc;
+  const record = catalogIndex.get(symbol.toUpperCase());
+  return record?.description ?? null;
 }
 
 /**

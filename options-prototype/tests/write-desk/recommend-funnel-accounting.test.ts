@@ -175,8 +175,8 @@ describe("funnel accounting — reconciliation", () => {
 
     const result = await recommendPuts(symbols, 500_000, cache, cacheEnv(), policy);
     expect(result.funnel.eligible).toBe(15); // All are eligible
-    expect(result.funnel.ranked).toBe(10); // Capped by maxResults
-    expect(result.candidates.length).toBe(10);
+    expect(result.funnel.ranked).toBe(15); // No artificial cap
+    expect(result.candidates.length).toBe(15);
   });
 
   it("yield is suppressed when spread > 2x preferred (30%) with explicit reason available", async () => {

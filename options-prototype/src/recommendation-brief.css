@@ -654,3 +654,14 @@
   background: rgba(136, 136, 136, 0.15);
   color: #888888;
 }
+
+
+/* === INSTRUMENT DESCRIPTION === */
+
+.rb-instrument-description {
+  font-size: 10px;
+  color: var(--wd-text-secondary, #A0A0A0);
+  line-height: 1.5;
+  margin: 4px 0 8px;
+  padding: 0;
+}

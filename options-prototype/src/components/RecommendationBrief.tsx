@@ -16,6 +16,7 @@ import type { PortfolioSnapshot } from "../write-desk/types";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
 import type { GovernanceAnnotation } from "../write-desk/scan-orchestrator";
+import { lookupDescription } from "../instrument-catalog/catalog";
 
 // --- Governance Explanation Helpers (deterministic, no LLM) ---
 
@@ -101,6 +102,12 @@ export function RecommendationBrief({
           ${brief.identity.strike} Put · {formatExpiration(brief.identity.expiration)} · {brief.identity.dte} DTE
         </div>
       </header>
+
+      {/* === INSTRUMENT DESCRIPTION (from catalog, presentation only) === */}
+      {(() => {
+        const desc = lookupDescription(brief.identity.symbol);
+        return desc ? <p className="rb-instrument-description">{desc}</p> : null;
+      })()}
 
       {/* === DECISION SUMMARY — dominates the drawer === */}
       <section className="rb-decision-summary">

@@ -556,7 +556,7 @@ export async function recommendPuts(
     actionable: funnelActionable,
     edge: funnelEdge,
     waitPosture: funnelWaitPosture,
-    displayed: topN.length,
+    displayed: ranked.length,
     exclusions,
   };
 
