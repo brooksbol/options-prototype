@@ -141,7 +141,7 @@ describe("Session validity — recommendPuts", () => {
       retrievedAt: now - 3600000,
       freshUntil: now - 3300000,
       staleUntil: now - 1800000,
-      payload: { puts: [{ type: "PUT", strike: 45, bid: 1.5, ask: 1.7, delta: -0.30, openInterest: 500, volume: 100 }] },
+      payload: { underlying: { symbol: "TEST", name: "Test Fund", price: 100 }, puts: [{ type: "PUT", strike: 45, bid: 1.5, ask: 1.7, delta: -0.30, openInterest: 500, volume: 100 }] },
     });
 
     // WITHOUT session validity: should NOT find evidence (TTL expired)
@@ -173,6 +173,7 @@ describe("Session validity — recommendPuts", () => {
     await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, "XLE", null, [{ date: "2026-08-03", dte: 21 }]));
     const chainKey = buildCacheKey("tradier", env, "chain", "XLE", "2026-08-03");
     await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, "XLE", "2026-08-03", {
+      underlying: { symbol: "XLE", name: "Energy Select Sector SPDR Fund", price: 92 },
       puts: [{ type: "PUT", strike: 45, bid: 1.5, ask: 1.7, delta: -0.30, openInterest: 500, volume: 100 }],
     }));
 
@@ -198,7 +199,7 @@ describe("Session validity — recommendPuts", () => {
     await cache.put(cache.createRecord(
       buildCacheKey("tradier", env, "chain", "XLE", "2026-08-03"),
       "chain", "tradier", env, "XLE", "2026-08-03",
-      { puts: [
+      { underlying: { symbol: "XLE", name: "Energy Select Sector SPDR Fund", price: 92 }, puts: [
         { type: "PUT", strike: 45, bid: 1.5, ask: 1.7, delta: -0.30, openInterest: 500, volume: 100 },
         { type: "PUT", strike: 48, bid: 2.0, ask: 2.3, delta: -0.40, openInterest: 300, volume: 80 },
       ] },

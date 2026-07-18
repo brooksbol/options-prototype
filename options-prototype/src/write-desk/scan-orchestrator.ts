@@ -45,6 +45,21 @@ export const DEFAULT_SCAN_CONFIG: ScanConfig = {
   maxCandidates: 20,
 };
 
+export type GovernanceStatus = "authorized" | "danger" | "review" | "unknown";
+
+export interface GovernanceAnnotation {
+  status: GovernanceStatus;
+  reason: string;
+  classification?: {
+    leveraged: boolean;
+    inverse: boolean;
+    dailyReset: boolean;
+    confidence: string;
+    source: string;
+  };
+  policyCode?: string;
+}
+
 // --- Put Candidate ---
 
 export interface PutCandidate {
@@ -67,6 +82,8 @@ export interface PutCandidate {
   posture: ActionPosture;
   /** Whether the operator has sufficient deployable cash for this contract */
   affordable: boolean;
+  /** Governance authorization status — independent of recommendation posture */
+  governance: GovernanceAnnotation;
 }
 
 // --- Call Candidate ---

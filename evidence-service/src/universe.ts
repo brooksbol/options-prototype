@@ -15,23 +15,23 @@ import { importUniverseFromCsv, getDefaultSeedPath } from "./db/universe-import.
 
 /**
  * Load the active universe from the database.
- * If the database has no symbols, import from the canonical seed CSV.
+ * Always ensures the canonical seed CSV is imported (idempotent).
  */
 export function loadUniverse(db: Database.Database): string[] {
-  // Check if universe is already populated
-  const count = (db.prepare("SELECT COUNT(*) as cnt FROM symbols WHERE removed_at IS NULL").get() as any).cnt;
-
-  if (count === 0) {
-    // First run: import from canonical seed
-    const seedPath = getDefaultSeedPath();
-    if (!existsSync(seedPath)) {
+  // Always import the canonical seed (idempotent — won't duplicate or reset)
+  const seedPath = getDefaultSeedPath();
+  if (existsSync(seedPath)) {
+    const result = importUniverseFromCsv(db, seedPath, "yahoo_merged_2026_07", "Yahoo Merged ETFs");
+    if (result.newSymbolsAdded > 0) {
+      console.log(`[universe] Imported ${result.newSymbolsAdded} new symbols from canonical seed (${result.totalInFile} total in file, ${result.existingPreserved} preserved)`);
+    }
+  } else {
+    // No seed file — check if DB has symbols
+    const count = (db.prepare("SELECT COUNT(*) as cnt FROM symbols WHERE removed_at IS NULL").get() as any).cnt;
+    if (count === 0) {
       console.warn("[universe] No seed file found and database is empty. Using minimal fallback.");
       return getFallbackUniverse(db);
     }
-
-    console.log("[universe] Database empty. Importing canonical universe from seed CSV...");
-    const result = importUniverseFromCsv(db, seedPath, "yahoo_merged_2026_07", "Yahoo Merged ETFs");
-    console.log(`[universe] Imported ${result.totalInFile} symbols (${result.newSymbolsAdded} new) in ${result.durationMs}ms`);
   }
 
   // Read active symbols from database

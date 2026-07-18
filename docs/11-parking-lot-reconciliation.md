@@ -458,3 +458,166 @@ These items appear in the parking lot but have no prior formal document. They ar
 - **1 architecture doc update recommended** — document Pending Intent as governance-only and Fidelity balances as authoritative cash
 
 **Note on temporary homes:** Six items (2, 4, 13, 14, 22, 23) are recorded in this file as their first written appearance. This document is an **index and status ledger**, not a permanent concept home. When any of these items crosses from exploratory to active design, it should move to a focused concept document and this report should link to it rather than contain the explanation.
+
+
+---
+
+## Instrument Classification Evidence Service
+
+**Added:** July 17, 2026
+**Status:** Parking lot — architectural direction established, not yet implemented
+**Relates to:** Item #1 (Instrument Governance), `velvet-rope/product-structure.ts`
+
+### Summary
+
+The current product-structure classification relies on deterministic name heuristics. This works as a bootstrap mechanism but conflates inference with evidence.
+
+The long-term architecture calls for a dedicated **Instrument Classification Evidence Service** whose sole responsibility is: "What is this instrument?"
+
+### Guiding Principle
+
+> Inference is a useful mechanism for discovering evidence. It is not a substitute for evidence.
+
+### Scope
+
+The service would maintain a canonical, versioned instrument catalog with evidence for:
+
+- Instrument type, sponsor, legal structure
+- Leverage, inverse exposure, daily reset
+- Covered-call, buffered, managed futures, commodity pool, single-stock
+- Evidence provenance, confidence, last verification
+
+### Architectural Role
+
+```
+Market Evidence + Instrument Evidence + Portfolio Evidence
+  → Evidence Engine → Policy Engine → Decision Engine → Explanation
+```
+
+Policy evaluates facts. It should not infer facts.
+
+### Current State
+
+The heuristic in `inferProductStructure()` now receives `underlying.name` from chain evidence and produces governance annotations (AUTHORIZED/DANGER/UNKNOWN). This is the correct bootstrap mechanism. The parking-lot item tracks the evolution from heuristic inference to canonical evidence catalog.
+
+### Dependencies
+
+- SQLite persistence (for durable catalog storage) ✓ implemented
+- Universe expansion (provides the full instrument set to classify) ✓ implemented
+- Governance annotation architecture (AUTHORIZED/DANGER/UNKNOWN) ✓ implemented
+
+### Not Yet Required
+
+- Structured provider metadata integration
+- Issuer metadata feeds
+- Operator review workflow for edge cases
+- Versioned catalog with change tracking
+
+
+---
+
+## Instrument Catalog Schema — Pilot (v1.0)
+
+**Added:** July 17, 2026
+**Status:** Pilot implementation — 10 manually validated instruments
+**Source:** First classification experiment using agentic analysis of issuer product pages
+
+### Schema Separation
+
+The pilot schema separates four independent concerns:
+
+| Concern | Fields | Purpose |
+|---------|--------|---------|
+| **Investment Classification** | `instrumentType`, `assetClass`, `investmentClassification`, `investmentStrategy` | What economic exposure the instrument provides |
+| **Product Structure** | `productStructure`, `structuralAttributes` (leveraged, multiple, direction, reset, mechanism) | How that exposure is constructed |
+| **Governance** | `governance.status`, `governance.policyCode` | What policy concludes about this structure |
+| **Evidence Provenance** | `evidence.sourceType`, `confidence`, `verificationStatus` | Why we believe the classification facts |
+
+### Governance States
+
+| Status | Meaning | Visual |
+|--------|---------|--------|
+| AUTHORIZED | Standard structure, permitted for standard CSP operation | No icon |
+| REVIEW | Non-standard structure, not dangerous but requires review | ⓘ muted |
+| DANGER | Structural complexity incompatible with standard operation | ⚠ yellow |
+| UNKNOWN | Classification not yet established | (deferred) |
+
+### Open Policy Question
+
+> Can the absence of dangerous name indicators authorize an instrument, or should it merely leave the structure unverified?
+
+The current heuristic treats "name provided, no patterns matched" as evidence of conventional structure (`inferenceSource: "name_heuristic"` passes governance). The catalog provides a more rigorous alternative for classified instruments. This policy boundary is not yet resolved for the ~1,200 instruments outside the pilot catalog.
+
+### Pilot Records
+
+SOXL, USD, TECL, TQQQ, UCO, QLD → DANGER (leveraged/daily products)
+USO → REVIEW (non-standard futures structure)
+SMH, SPMO, XLE → AUTHORIZED (standard equity ETFs)
+
+### Implementation
+
+- Seed: `src/instrument-catalog/catalog-seed.json`
+- Lookup: `src/instrument-catalog/catalog.ts`
+- Resolution order: catalog → name heuristic → unknown
+- Catalog evidence takes precedence over heuristic inference
+
+
+---
+
+## Lifecycle Quality Evidence — Derived Evidence Domain
+
+**Added:** July 17, 2026
+**Status:** Parking lot — architectural direction established
+**Depends on:** Instrument Catalog (stable), Historical Market Evidence, Execution Evidence
+
+### Summary
+
+Lifecycle Quality is a **derived evidence product** — not a raw observation service. It converts accumulated historical and execution observations into durable, structured evidence that the Policy Engine can consume without interpreting the full historical record.
+
+### Architectural Position
+
+```
+Instrument Catalog (static identity)
+  +
+Historical Market Evidence (what appeared tradable)
+  +
+Execution Evidence (what actually happened: fills, slippage, assignment, recovery)
+  ↓
+Lifecycle Quality Engine (derives structured evidence from observations)
+  ↓
+Lifecycle Quality Evidence (durable, structured, per-instrument)
+  +
+Current Market Evidence
+  ↓
+Policy Engine → Decision Engine → Explanation Engine
+```
+
+### Key Distinctions
+
+- **Catalog evidence** is static/slowly-changing (structural identity — from prospectus)
+- **Lifecycle quality evidence** is observational and accumulates over time (behavioral — from experience)
+- **Execution evidence** is distinct from market evidence (chains show what appeared tradable; fills show what happened)
+
+### Initial Dimensions (not collapsed into a single score)
+
+- Ingress quality (put entry liquidity, spread stability)
+- Egress quality (close/roll ease)
+- Assignment suitability (underlying ownership characteristics)
+- Lifecycle symmetry (put → assignment → call → exit completeness)
+- Execution confidence (fill quality relative to displayed quotes)
+- Observation count and window
+
+### Design Principles
+
+- Strategy-relative: an instrument may suit one operating mode and not another
+- Multi-dimensional: preserve separate dimensions rather than collapsing to a single score
+- Accumulative: evidence grows with operational experience
+- Derived: the engine produces structured evidence, not raw observations
+- Durable: once computed, lifecycle quality evidence is reusable across sessions
+
+### Relationship to Governance Principles
+
+Connects to the "Historical Learning" layer of the Principles governance model:
+> "Did our principles produce good institutional outcomes?"
+
+Lifecycle quality is the per-instrument accumulation of that learning.

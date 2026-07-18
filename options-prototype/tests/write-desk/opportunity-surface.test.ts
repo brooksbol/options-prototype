@@ -39,6 +39,7 @@ describe("opportunity surface — terminal partition reconciliation", () => {
     await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, symbol, null, [{ date: "2026-08-03", dte: 21 }]));
     const chainKey = buildCacheKey("tradier", env, "chain", symbol, "2026-08-03");
     await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, "2026-08-03", {
+      underlying: { symbol, name: `${symbol} Test Fund`, price: 100 },
       puts: [{ strike: 50, bid: 1.50, ask: 1.70, delta: -0.30, openInterest: 500, volume: 100 }],
     }));
   }
@@ -48,6 +49,7 @@ describe("opportunity surface — terminal partition reconciliation", () => {
     await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, symbol, null, [{ date: "2026-08-03", dte: 21 }]));
     const chainKey = buildCacheKey("tradier", env, "chain", symbol, "2026-08-03");
     await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, "2026-08-03", {
+      underlying: { symbol, name: `${symbol} Test Fund`, price: 100 },
       puts: [{ strike: 30, bid: 0.30, ask: 0.50, delta: -0.25, openInterest: 5, volume: 0 }],
     }));
   }

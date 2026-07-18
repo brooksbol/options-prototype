@@ -12,7 +12,7 @@ import { DEFAULT_EXECUTION_POLICY } from "./execution-policy";
 
 // --- Types ---
 
-export type ActionPosture = "ACTIONABLE" | "EDGE" | "WAIT" | "UNAVAILABLE" | "DATA_INCOMPLETE";
+export type ActionPosture = "ACTIONABLE" | "EDGE" | "WAIT" | "WIDE_SPREAD" | "UNAVAILABLE" | "DATA_INCOMPLETE";
 
 export interface QualityComponent {
   name: string;

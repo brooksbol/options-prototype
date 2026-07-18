@@ -19,6 +19,8 @@
 import type { Expiration } from "../domain/types";
 import { selectEligibleExpirations } from "../velvet-rope/evaluate";
 import { inferProductStructure, hasStructuralComplexity } from "../velvet-rope/product-structure";
+import type { ProductStructure } from "../velvet-rope/product-structure";
+import { lookupCatalog, governanceFromCatalog } from "../instrument-catalog/catalog";
 import { midPrice, annualizedYield } from "../domain/calculations";
 import { assessExecution, isHardNo, type ContractEvidence, type ActionPosture } from "./execution-assessment";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
@@ -76,7 +78,7 @@ export const DEFAULT_RECOMMENDATION_POLICY: RecommendationPolicy = {
   executionAssessment: DEFAULT_EXECUTION_POLICY,
   ranking: {
     mode: "execution_first",
-    maxResults: 100,
+    maxResults: 2000,
     includeEdge: true,
     includeWait: false,
   },
@@ -110,8 +112,12 @@ export interface TerminalOutcomes {
   edge: number;
   /** Score ≥ waitFloor but < edgeFloor — evaluated but below recommendation threshold */
   wait: number;
-  /** Evaluated, all contracts failed hard-no (spread>80%, zero OI, zero bid) */
-  hardNo: number;
+  /** All contracts had zero bid — dead/delisted market */
+  hardNoZeroBid: number;
+  /** All contracts had zero open interest — no market participation */
+  hardNoZeroOI: number;
+  /** All contracts had spread exceeding exclusion floor — unusable market structure */
+  hardNoWideSpread: number;
   /** Has chain but no contract within admissible delta range */
   noDeltaMatch: number;
   /** Has expirations but none within eligible DTE range */
@@ -120,6 +126,8 @@ export interface TerminalOutcomes {
   nonOptionable: number;
   /** Evidence incomplete or not yet resolved */
   incomplete: number;
+  /** Instrument classification unknown — required evidence unavailable, fail closed */
+  classificationUnknown: number;
 }
 
 export interface RecommendationFunnel {
@@ -156,6 +164,8 @@ export interface RecommendationResult {
   candidates: PutCandidate[];
   /** WAIT candidates (for explanatory display, not recommendations) */
   waitCandidates: PutCandidate[];
+  /** Wide-spread candidates (visible for monitoring, not recommended) */
+  wideSpreadCandidates: PutCandidate[];
   /** Evidence gaps the engine could not resolve locally */
   coverageRequests: CoverageRequest[];
   /** Coverage statistics from this recommendation pass */
@@ -197,6 +207,7 @@ export async function recommendPuts(
 ): Promise<RecommendationResult> {
   const allCandidates: PutCandidate[] = [];
   const allWait: PutCandidate[] = [];
+  const allWideSpread: PutCandidate[] = [];
   const coverageRequests: CoverageRequest[] = [];
   let symbolsEvaluated = 0;
   let symbolsWithEvidence = 0;
@@ -214,8 +225,9 @@ export async function recommendPuts(
   let exclNoEligibleDte = 0;
   let exclNoChain = 0;
   let exclNoDeltaInRange = 0;
-  let exclHardNo = 0;
-  let exclProductStructure = 0;
+  let exclHardNoZeroBid = 0;
+  let exclHardNoZeroOI = 0;
+  let exclHardNoWideSpread = 0;
   let exclNoContracts = 0;
 
   const effectiveCash = deployableCash - policy.deployment.reserveAmount;
@@ -260,13 +272,9 @@ export async function recommendPuts(
       continue;
     }
 
-    // Check product structure
-    const structure = inferProductStructure(symbol, "");
-    if (hasStructuralComplexity(structure)) {
-      symbolsExcluded++;
-      exclProductStructure++;
-      continue;
-    }
+    // NOTE: Product-structure check is deferred until chain evidence is available
+    // so that underlying.name can be supplied. See governance invariant:
+    // "Unknown evidence may restrict a decision, but it must never silently authorize one."
 
     // Get expirations from cache
     const expKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "expirations", symbol);
@@ -292,16 +300,19 @@ export async function recommendPuts(
 
     // Evaluate chains from cache
     let foundChain = false;
+    let instrumentName: string | null = null;
     let bestActionable: PutCandidate | null = null;
     let bestEdge: PutCandidate | null = null;
     let bestWait: PutCandidate | null = null;
+    let bestWideSpread: PutCandidate | null = null;
     let symbolHadContractsInRange = false;
     let symbolHadHardNoOnly = false;
+    let symbolHardNoReason: "zeroBid" | "zeroOI" | "wideSpread" | null = null;
 
     for (const exp of eligible) {
-      interface CachedPut { type: string; strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number }
+      interface CachedChain { puts: Array<{ type: string; strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number }>; underlying?: { name?: string; symbol?: string; price?: number } }
       const chainKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "chain", symbol, exp.date);
-      const chainRecord = await cache.get<{ puts: CachedPut[] }>(chainKey);
+      const chainRecord = await cache.get<CachedChain>(chainKey);
       if (!chainRecord || !isEligible(chainRecord)) {
         // Missing chain — emit coverage request for this specific expiration
         if (!foundChain) {
@@ -311,7 +322,13 @@ export async function recommendPuts(
       }
 
       foundChain = true;
-      const puts: CachedPut[] = chainRecord.payload.puts ?? [];
+
+      // Extract instrument name from chain underlying (first available wins)
+      if (!instrumentName && chainRecord.payload.underlying?.name) {
+        instrumentName = chainRecord.payload.underlying.name;
+      }
+
+      const puts = chainRecord.payload.puts ?? [];
 
       // Filter by admissible delta range
       const { admissibleDeltaRange, excludeZeroBid, requireGreeks } = policy.contractSelection;
@@ -341,7 +358,45 @@ export async function recommendPuts(
           delta: contract.delta,
         };
 
-        if (isHardNo(evidence, policy.executionAssessment)) continue;
+        // Hard-no check: zero bid and zero OI are true exclusions.
+        // Wide spread is annotated but not excluded (visibility principle).
+        const hardNoReason = isHardNo(evidence, policy.executionAssessment);
+        if (hardNoReason) {
+          if (evidence.bid <= 0) {
+            if (!symbolHardNoReason) symbolHardNoReason = "zeroBid";
+            continue;
+          }
+          if (evidence.openInterest === 0) {
+            if (!symbolHardNoReason) symbolHardNoReason = "zeroOI";
+            continue;
+          }
+          // Wide spread: let through as WIDE_SPREAD posture instead of excluding
+          const wideSpreadCandidate: PutCandidate = {
+            rank: 0,
+            symbol,
+            expiration: exp.date,
+            dte: exp.dte,
+            strike: contract.strike,
+            delta: contract.delta,
+            bid: contract.bid,
+            ask: contract.ask,
+            mid,
+            spreadPercent: spreadPct,
+            openInterest: contract.openInterest,
+            volume: contract.volume,
+            cashRequired,
+            cashRemaining: effectiveCash - cashRequired,
+            yieldAnnualized: null, // suppressed — spread unreliable
+            assessment: { score: 0, posture: "UNAVAILABLE", components: [], hardNoReason: hardNoReason, policyVersion: policy.executionAssessment.version },
+            posture: "WIDE_SPREAD" as any,
+            affordable,
+            governance: { status: "authorized", reason: "" },
+          };
+          if (!bestWideSpread || spreadPct < bestWideSpread.spreadPercent) {
+            bestWideSpread = wideSpreadCandidate;
+          }
+          continue;
+        }
         allHardNo = false;
 
         const assessment = assessExecution(evidence, policy.executionAssessment);
@@ -368,6 +423,7 @@ export async function recommendPuts(
           assessment,
           posture: assessment.posture,
           affordable,
+          governance: { status: "authorized", reason: "" }, // resolved after chain loop
         };
 
         switch (assessment.posture) {
@@ -389,8 +445,41 @@ export async function recommendPuts(
     if (foundChain) {
       symbolsWithEvidence++;
       funnelEvaluable++;
+
+      // GOVERNANCE: Classification resolution with precedence:
+      //   1. Canonical catalog record (highest confidence)
+      //   2. Deterministic name heuristic (fallback)
+      //   3. Unknown classification (no evidence available)
+      const catalogRecord = lookupCatalog(symbol);
+      let governance: GovernanceAnnotation;
+
+      if (catalogRecord) {
+        // Catalog takes precedence — canonical evidence
+        governance = governanceFromCatalog(catalogRecord);
+      } else {
+        // Fallback: name heuristic from chain evidence
+        const structure = inferProductStructure(symbol, instrumentName);
+        if (hasStructuralComplexity(structure)) {
+          governance = {
+            status: "danger",
+            reason: `Structural complexity: ${[structure.leveraged && `leveraged ${structure.leverageMultiple ?? ""}x`, structure.inverse && "inverse", structure.dailyReset && "daily-reset", structure.singleStock && "single-stock"].filter(Boolean).join(", ")}`,
+            classification: { leveraged: structure.leveraged, inverse: structure.inverse, dailyReset: structure.dailyReset, confidence: structure.confidence, source: structure.inferenceSource },
+          };
+        } else if (structure.confidence === "low" && structure.inferenceSource === "unknown") {
+          governance = {
+            status: "unknown",
+            reason: "Instrument classification could not be determined from available evidence",
+            classification: { leveraged: false, inverse: false, dailyReset: false, confidence: structure.confidence, source: structure.inferenceSource },
+          };
+        } else {
+          governance = { status: "authorized", reason: "Conventional structure confirmed" };
+        }
+      }
+
       const best = bestActionable ?? bestEdge ?? bestWait;
       if (best) {
+        // Attach governance to the candidate
+        best.governance = governance;
         if (best.posture === "ACTIONABLE" || best.posture === "EDGE") {
           allCandidates.push(best);
           if (best.posture === "ACTIONABLE") funnelActionable++;
@@ -399,12 +488,21 @@ export async function recommendPuts(
           allWait.push(best);
           funnelWaitPosture++;
         }
+      } else if (bestWideSpread) {
+        // No normal candidate but has a wide-spread contract — include for visibility
+        bestWideSpread.governance = governance;
+        allWideSpread.push(bestWideSpread);
       } else {
         // Had chain but no qualifying candidate at all
         if (!symbolHadContractsInRange) {
           exclNoDeltaInRange++;
         } else if (symbolHadHardNoOnly) {
-          exclHardNo++;
+          switch (symbolHardNoReason) {
+            case "zeroBid": exclHardNoZeroBid++; break;
+            case "zeroOI": exclHardNoZeroOI++; break;
+            case "wideSpread": exclHardNoWideSpread++; break;
+            default: exclHardNoWideSpread++; break; // fallback
+          }
         } else {
           exclNoContracts++;
         }
@@ -417,17 +515,17 @@ export async function recommendPuts(
 
   // Rank
   const ranked = rankByPolicy(allCandidates, policy.ranking);
-  const topN = ranked.slice(0, policy.ranking.maxResults);
-  const waitRanked = rankByPolicy(allWait, policy.ranking).slice(0, 5);
+  const waitRanked = rankByPolicy(allWait, policy.ranking);
 
   // Build exclusions list
   const exclusions: FunnelExclusion[] = [];
   if (confirmedAbsence > 0) exclusions.push({ reason: "Non-optionable (no listed options)", count: confirmedAbsence });
-  if (exclProductStructure > 0) exclusions.push({ reason: "Product structure (leveraged/inverse)", count: exclProductStructure });
   if (exclNoEligibleDte > 0) exclusions.push({ reason: "No expiration in DTE range", count: exclNoEligibleDte });
   if (exclNoChain > 0) exclusions.push({ reason: "Missing chain data", count: exclNoChain });
   if (exclNoDeltaInRange > 0) exclusions.push({ reason: "No contract in delta range", count: exclNoDeltaInRange });
-  if (exclHardNo > 0) exclusions.push({ reason: "Hard-no execution quality", count: exclHardNo });
+  if (exclHardNoZeroBid > 0) exclusions.push({ reason: "Hard-no: zero bid", count: exclHardNoZeroBid });
+  if (exclHardNoZeroOI > 0) exclusions.push({ reason: "Hard-no: zero open interest", count: exclHardNoZeroOI });
+  if (exclHardNoWideSpread > 0) exclusions.push({ reason: "Hard-no: spread exceeds floor", count: exclHardNoWideSpread });
   if (funnelWaitPosture > 0) exclusions.push({ reason: "Wait posture (below EDGE threshold)", count: funnelWaitPosture });
   if (exclNoContracts > 0) exclusions.push({ reason: "No qualifying contract", count: exclNoContracts });
   if (funnelPending > 0) exclusions.push({ reason: "Pending (not yet resolved)", count: funnelPending });
@@ -438,15 +536,18 @@ export async function recommendPuts(
       actionable: funnelActionable,
       edge: funnelEdge,
       wait: funnelWaitPosture,
-      hardNo: exclHardNo,
+      hardNoZeroBid: exclHardNoZeroBid,
+      hardNoZeroOI: exclHardNoZeroOI,
+      hardNoWideSpread: exclHardNoWideSpread + allWideSpread.length,
       noDeltaMatch: exclNoDeltaInRange + exclNoContracts,
       noDteMatch: exclNoEligibleDte,
       nonOptionable: confirmedAbsence,
-      incomplete: funnelPending + exclNoChain + exclProductStructure,
+      incomplete: funnelPending + exclNoChain,
+      classificationUnknown: 0, // No longer a terminal exclusion — visible with governance annotation
     },
     evaluable: funnelEvaluable,
     eligible: allCandidates.length,
-    ranked: topN.length,
+    ranked: ranked.length,
     // Legacy compatibility
     resolved: symbols.length - funnelPending,
     optionable: funnelOptionable,
@@ -460,8 +561,9 @@ export async function recommendPuts(
   };
 
   return {
-    candidates: topN,
+    candidates: ranked,
     waitCandidates: waitRanked,
+    wideSpreadCandidates: allWideSpread,
     coverageRequests,
     coverage: {
       symbolsEvaluated,

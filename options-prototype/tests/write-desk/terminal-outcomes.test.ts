@@ -16,7 +16,7 @@ import { resetDurableCache, getDurableCache } from "../../src/cache/durable-cach
 let testId = 0;
 
 function sumOutcomes(o: TerminalOutcomes): number {
-  return o.actionable + o.edge + o.wait + o.hardNo + o.noDeltaMatch + o.noDteMatch + o.nonOptionable + o.incomplete;
+  return o.actionable + o.edge + o.wait + o.hardNoZeroBid + o.hardNoZeroOI + o.hardNoWideSpread + o.noDeltaMatch + o.noDteMatch + o.nonOptionable + o.incomplete + o.classificationUnknown;
 }
 
 describe("terminal outcomes invariant", () => {
@@ -36,7 +36,7 @@ describe("terminal outcomes invariant", () => {
     const expKey = buildCacheKey("tradier", env, "expirations", symbol);
     await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, symbol, null, [{ date: "2026-08-03", dte: 21 }]));
     const chainKey = buildCacheKey("tradier", env, "chain", symbol, "2026-08-03");
-    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, "2026-08-03", {
+    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, "2026-08-03", { underlying: { symbol, name: `${symbol} Test Fund`, price: 100 },
       puts: [{ strike: 50, bid: 1.50, ask: 1.70, delta: -0.30, openInterest: 500, volume: 100 }],
     }));
   }
@@ -45,7 +45,7 @@ describe("terminal outcomes invariant", () => {
     const expKey = buildCacheKey("tradier", env, "expirations", symbol);
     await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, symbol, null, [{ date: "2026-08-03", dte: 21 }]));
     const chainKey = buildCacheKey("tradier", env, "chain", symbol, "2026-08-03");
-    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, "2026-08-03", {
+    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, "2026-08-03", { underlying: { symbol, name: `${symbol} Test Fund`, price: 100 },
       puts: [{ strike: 30, bid: 0.30, ask: 0.50, delta: -0.25, openInterest: 5, volume: 0 }],
     }));
   }
@@ -54,7 +54,7 @@ describe("terminal outcomes invariant", () => {
     const expKey = buildCacheKey("tradier", env, "expirations", symbol);
     await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, symbol, null, [{ date: "2026-08-03", dte: 21 }]));
     const chainKey = buildCacheKey("tradier", env, "chain", symbol, "2026-08-03");
-    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, "2026-08-03", {
+    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, "2026-08-03", { underlying: { symbol, name: `${symbol} Test Fund`, price: 100 },
       // bid=0.05, ask=1.00 → spread ~180%, will be hard-no
       puts: [{ strike: 30, bid: 0.05, ask: 1.00, delta: -0.30, openInterest: 100, volume: 10 }],
     }));
@@ -64,7 +64,7 @@ describe("terminal outcomes invariant", () => {
     const expKey = buildCacheKey("tradier", env, "expirations", symbol);
     await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, symbol, null, [{ date: "2026-08-03", dte: 21 }]));
     const chainKey = buildCacheKey("tradier", env, "chain", symbol, "2026-08-03");
-    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, "2026-08-03", {
+    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, "2026-08-03", { underlying: { symbol, name: `${symbol} Test Fund`, price: 100 },
       // delta -0.80 is outside admissible range (0.15-0.50)
       puts: [{ strike: 30, bid: 5.00, ask: 5.20, delta: -0.80, openInterest: 500, volume: 100 }],
     }));
@@ -134,7 +134,7 @@ describe("terminal outcomes invariant", () => {
     const o = result.funnel.outcomes;
     expect(o.actionable).toBe(1);
     expect(o.wait).toBe(1);
-    expect(o.hardNo).toBe(1);
+    expect(o.hardNoZeroBid + o.hardNoZeroOI + o.hardNoWideSpread).toBe(1);
     expect(o.noDeltaMatch).toBe(1);
     expect(o.noDteMatch).toBe(1);
     expect(o.nonOptionable).toBe(1);

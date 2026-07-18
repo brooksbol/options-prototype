@@ -1,0 +1,236 @@
+{
+  "schemaVersion": "1.0-pilot",
+  "description": "Pilot instrument catalog — 10 manually validated records from the first classification experiment. Not a permanently settled model.",
+  "instruments": [
+    {
+      "symbol": "SOXL",
+      "instrumentType": "ETF",
+      "assetClass": "EQUITY",
+      "investmentClassification": "SEMICONDUCTORS",
+      "productStructure": "LEVERAGED_DAILY_EQUITY_ETF",
+      "structuralAttributes": {
+        "leveraged": true,
+        "leverageMultiple": 3.0,
+        "exposureDirection": "LONG",
+        "resetFrequency": "DAILY",
+        "exposureMechanism": "MIXED_DERIVATIVES"
+      },
+      "governance": {
+        "status": "DANGER",
+        "policyCode": "LEVERAGED_DAILY_PRODUCT"
+      },
+      "evidence": {
+        "sourceType": "ISSUER_PRODUCT_PAGE",
+        "confidence": "HIGH",
+        "verificationStatus": "VERIFIED"
+      }
+    },
+    {
+      "symbol": "USD",
+      "instrumentType": "ETF",
+      "assetClass": "EQUITY",
+      "investmentClassification": "SEMICONDUCTORS",
+      "productStructure": "LEVERAGED_DAILY_EQUITY_ETF",
+      "structuralAttributes": {
+        "leveraged": true,
+        "leverageMultiple": 2.0,
+        "exposureDirection": "LONG",
+        "resetFrequency": "DAILY",
+        "exposureMechanism": "MIXED_DERIVATIVES"
+      },
+      "governance": {
+        "status": "DANGER",
+        "policyCode": "LEVERAGED_DAILY_PRODUCT"
+      },
+      "evidence": {
+        "sourceType": "ISSUER_PRODUCT_PAGE",
+        "confidence": "HIGH",
+        "verificationStatus": "VERIFIED"
+      }
+    },
+    {
+      "symbol": "TECL",
+      "instrumentType": "ETF",
+      "assetClass": "EQUITY",
+      "investmentClassification": "TECHNOLOGY",
+      "productStructure": "LEVERAGED_DAILY_EQUITY_ETF",
+      "structuralAttributes": {
+        "leveraged": true,
+        "leverageMultiple": 3.0,
+        "exposureDirection": "LONG",
+        "resetFrequency": "DAILY",
+        "exposureMechanism": "MIXED_DERIVATIVES"
+      },
+      "governance": {
+        "status": "DANGER",
+        "policyCode": "LEVERAGED_DAILY_PRODUCT"
+      },
+      "evidence": {
+        "sourceType": "ISSUER_PRODUCT_PAGE",
+        "confidence": "HIGH",
+        "verificationStatus": "VERIFIED"
+      }
+    },
+    {
+      "symbol": "TQQQ",
+      "instrumentType": "ETF",
+      "assetClass": "EQUITY",
+      "investmentClassification": "NASDAQ_100",
+      "productStructure": "LEVERAGED_DAILY_EQUITY_ETF",
+      "structuralAttributes": {
+        "leveraged": true,
+        "leverageMultiple": 3.0,
+        "exposureDirection": "LONG",
+        "resetFrequency": "DAILY",
+        "exposureMechanism": "MIXED_DERIVATIVES"
+      },
+      "governance": {
+        "status": "DANGER",
+        "policyCode": "LEVERAGED_DAILY_PRODUCT"
+      },
+      "evidence": {
+        "sourceType": "ISSUER_PRODUCT_PAGE",
+        "confidence": "HIGH",
+        "verificationStatus": "VERIFIED"
+      }
+    },
+    {
+      "symbol": "UCO",
+      "instrumentType": "ETF",
+      "assetClass": "COMMODITY",
+      "investmentClassification": "CRUDE_OIL",
+      "productStructure": "LEVERAGED_DAILY_COMMODITY_ETF",
+      "structuralAttributes": {
+        "leveraged": true,
+        "leverageMultiple": 2.0,
+        "exposureDirection": "LONG",
+        "resetFrequency": "DAILY",
+        "exposureMechanism": "FUTURES"
+      },
+      "governance": {
+        "status": "DANGER",
+        "policyCode": "LEVERAGED_DAILY_PRODUCT"
+      },
+      "evidence": {
+        "sourceType": "ISSUER_PRODUCT_PAGE",
+        "confidence": "HIGH",
+        "verificationStatus": "VERIFIED"
+      }
+    },
+    {
+      "symbol": "QLD",
+      "instrumentType": "ETF",
+      "assetClass": "EQUITY",
+      "investmentClassification": "NASDAQ_100",
+      "productStructure": "LEVERAGED_DAILY_EQUITY_ETF",
+      "structuralAttributes": {
+        "leveraged": true,
+        "leverageMultiple": 2.0,
+        "exposureDirection": "LONG",
+        "resetFrequency": "DAILY",
+        "exposureMechanism": "MIXED_DERIVATIVES"
+      },
+      "governance": {
+        "status": "DANGER",
+        "policyCode": "LEVERAGED_DAILY_PRODUCT"
+      },
+      "evidence": {
+        "sourceType": "ISSUER_PRODUCT_PAGE",
+        "confidence": "HIGH",
+        "verificationStatus": "VERIFIED"
+      }
+    },
+    {
+      "symbol": "USO",
+      "instrumentType": "ETF",
+      "assetClass": "COMMODITY",
+      "investmentClassification": "CRUDE_OIL",
+      "productStructure": "COMMODITY_FUTURES_ETF",
+      "structuralAttributes": {
+        "leveraged": false,
+        "leverageMultiple": 1.0,
+        "exposureDirection": "LONG",
+        "resetFrequency": "NONE",
+        "exposureMechanism": "FUTURES"
+      },
+      "governance": {
+        "status": "REVIEW",
+        "policyCode": "NON_STANDARD_FUTURES_STRUCTURE"
+      },
+      "evidence": {
+        "sourceType": "ISSUER_PRODUCT_PAGE",
+        "confidence": "HIGH",
+        "verificationStatus": "VERIFIED"
+      }
+    },
+    {
+      "symbol": "SMH",
+      "instrumentType": "ETF",
+      "assetClass": "EQUITY",
+      "investmentClassification": "SEMICONDUCTORS",
+      "productStructure": "STANDARD_EQUITY_ETF",
+      "structuralAttributes": {
+        "leveraged": false,
+        "leverageMultiple": 1.0,
+        "exposureDirection": "LONG",
+        "resetFrequency": "NONE",
+        "exposureMechanism": "PHYSICAL_SECURITIES"
+      },
+      "governance": {
+        "status": "AUTHORIZED",
+        "policyCode": "STANDARD_EQUITY_ETF"
+      },
+      "evidence": {
+        "sourceType": "ISSUER_PRODUCT_PAGE",
+        "confidence": "HIGH",
+        "verificationStatus": "VERIFIED"
+      }
+    },
+    {
+      "symbol": "SPMO",
+      "instrumentType": "ETF",
+      "assetClass": "EQUITY",
+      "investmentClassification": "US_LARGE_CAP_MOMENTUM",
+      "productStructure": "STANDARD_EQUITY_ETF",
+      "structuralAttributes": {
+        "leveraged": false,
+        "leverageMultiple": 1.0,
+        "exposureDirection": "LONG",
+        "resetFrequency": "NONE",
+        "exposureMechanism": "PHYSICAL_SECURITIES"
+      },
+      "governance": {
+        "status": "AUTHORIZED",
+        "policyCode": "STANDARD_EQUITY_ETF"
+      },
+      "evidence": {
+        "sourceType": "ISSUER_PRODUCT_PAGE",
+        "confidence": "HIGH",
+        "verificationStatus": "VERIFIED"
+      }
+    },
+    {
+      "symbol": "XLE",
+      "instrumentType": "ETF",
+      "assetClass": "EQUITY",
+      "investmentClassification": "ENERGY_EQUITY",
+      "productStructure": "STANDARD_EQUITY_ETF",
+      "structuralAttributes": {
+        "leveraged": false,
+        "leverageMultiple": 1.0,
+        "exposureDirection": "LONG",
+        "resetFrequency": "NONE",
+        "exposureMechanism": "PHYSICAL_SECURITIES"
+      },
+      "governance": {
+        "status": "AUTHORIZED",
+        "policyCode": "STANDARD_EQUITY_ETF"
+      },
+      "evidence": {
+        "sourceType": "ISSUER_PRODUCT_PAGE",
+        "confidence": "HIGH",
+        "verificationStatus": "VERIFIED"
+      }
+    }
+  ]
+}

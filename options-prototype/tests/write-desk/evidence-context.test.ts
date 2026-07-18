@@ -45,7 +45,7 @@ describe("evidence context — mixed generation behavior", () => {
       key: chainKey, dataType: "chain", provider: "tradier", environment: env,
       symbol, expiration: "2026-08-03", schemaVersion: "v1",
       retrievedAt: now - 60000, freshUntil: now + 240000, staleUntil: now + 1800000,
-      payload: { puts: [{ strike: 50, bid: 1.50, ask: 1.70, delta: -0.30, openInterest: 500, volume: 100 }] },
+      payload: { underlying: { symbol: "TEST", name: "Test Fund", price: 100 }, puts: [{ strike: 50, bid: 1.50, ask: 1.70, delta: -0.30, openInterest: 500, volume: 100 }] },
     });
   }
 
@@ -63,7 +63,7 @@ describe("evidence context — mixed generation behavior", () => {
       key: chainKey, dataType: "chain", provider: "tradier", environment: env,
       symbol, expiration: "2026-08-03", schemaVersion: "v1",
       retrievedAt: now - 600000, freshUntil: now - 300000, staleUntil: now + 600000,
-      payload: { puts: [{ strike: 45, bid: 1.20, ask: 1.40, delta: -0.28, openInterest: 400, volume: 80 }] },
+      payload: { underlying: { symbol: "TEST", name: "Test Fund", price: 100 }, puts: [{ strike: 45, bid: 1.20, ask: 1.40, delta: -0.28, openInterest: 400, volume: 80 }] },
     });
   }
 
@@ -81,7 +81,7 @@ describe("evidence context — mixed generation behavior", () => {
       key: chainKey, dataType: "chain", provider: "tradier", environment: env,
       symbol, expiration: "2026-08-03", schemaVersion: "v1",
       retrievedAt: now - 7200000, freshUntil: now - 6600000, staleUntil: now - 3600000,
-      payload: { puts: [{ strike: 40, bid: 1.00, ask: 1.20, delta: -0.25, openInterest: 300, volume: 60 }] },
+      payload: { underlying: { symbol: "TEST", name: "Test Fund", price: 100 }, puts: [{ strike: 40, bid: 1.00, ask: 1.20, delta: -0.25, openInterest: 300, volume: 60 }] },
     });
   }
 

@@ -1911,6 +1911,11 @@
   height: 100%;
   min-width: 1px;
   transition: width 0.4s ease-out;
+  border-right: 1px solid #0e0f16;
+}
+
+.wd-dist-seg:last-child {
+  border-right: none;
 }
 
 .wd-dist-total {
@@ -2062,11 +2067,14 @@
   position: relative;
   cursor: pointer;
   user-select: none;
+  font-size: 10px;
+  color: var(--wd-text-primary);
+  font-weight: var(--wd-weight-semi);
 }
 
 .wd-popover-trigger::after {
   content: " ▾";
-  font-size: 8px;
+  font-size: 10px;
   opacity: 0.6;
 }
 
@@ -2124,4 +2132,94 @@
   color: var(--wd-text-secondary);
   font-style: italic;
   font-size: var(--wd-size-label);
+}
+
+
+/* --- GOVERNANCE BADGES --- */
+
+.wd-gov-badge {
+  font-size: var(--wd-size-micro);
+  font-weight: var(--wd-weight-bold);
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.wd-gov-danger {
+  background: rgba(235, 87, 87, 0.15);
+  color: #E45C5C;
+}
+
+.wd-gov-unknown {
+  background: rgba(160, 82, 45, 0.15);
+  color: #A0522D;
+}
+
+
+/* Governance warning on ticker */
+.wd-gov-warn {
+  color: #FFFF00;
+  margin-right: 3px;
+  font-size: 10px;
+}
+
+
+/* Governance review icon on ticker */
+.wd-gov-review {
+  color: #888888;
+  margin-right: 3px;
+  font-size: 9px;
+}
+
+
+/* Show spinner */
+.wd-control-spinner {
+  width: 48px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--wd-border-default);
+  color: var(--wd-text-primary);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: var(--wd-size-label);
+  font-family: var(--wd-font-mono);
+  text-align: center;
+}
+
+.wd-control-spinner:hover { border-color: var(--wd-accent-green); }
+.wd-control-spinner:focus { outline: none; border-color: var(--wd-accent-green); }
+
+
+/* Danger ticker text color */
+.wd-symbol-danger {
+  color: #FFFF00 !important;
+}
+
+
+/* Download CSV button */
+.wd-download-btn {
+  background: none;
+  border: 1px solid var(--wd-border-default);
+  color: var(--wd-text-secondary);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 10px;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+.wd-download-btn:hover {
+  border-color: var(--wd-accent-green);
+  color: var(--wd-text-primary);
+}
+
+
+/* Wide spread posture */
+.wd-posture-wide_spread {
+  background: rgba(204, 85, 153, 0.12);
+  color: #CC5599;
+}
+
+.wd-posture-row.wd-posture-wide_spread td {
+  background: rgba(204, 85, 153, 0.02);
 }

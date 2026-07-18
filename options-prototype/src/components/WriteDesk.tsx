@@ -41,6 +41,7 @@ export function WriteDesk() {
   const [putCandidates, setPutCandidates] = useState<PutCandidate[]>([]);
   const [fidelitySnapshot, setFidelitySnapshot] = useState<PortfolioSnapshot | null>(null);
   const [putWaitCandidates, setPutWaitCandidates] = useState<PutCandidate[]>([]);
+  const [putWideSpreadCandidates, setPutWideSpreadCandidates] = useState<PutCandidate[]>([]);
   const [putCoverage, setPutCoverage] = useState<{ status: string; universeSize: number; covered: number; fresh: number; staleUsable: number; missing: number; confirmedAbsence: number; refreshedThisPass: number; deferredThisPass: number } | null>(null);
   const [putIsProvisional, setPutIsProvisional] = useState(true);
   const [putFunnel, setPutFunnel] = useState<RecommendationFunnel | null>(null);
@@ -66,12 +67,16 @@ export function WriteDesk() {
   const [tablePosition, setTablePosition] = useState<TablePositionContext | null>(null);
   const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>(() => loadWorkingIntents());
   const [showAffordableOnly, setShowAffordableOnly] = useState(false);
+  const [showDanger, setShowDanger] = useState(true);
+  const [showWideSpread, setShowWideSpread] = useState(false);
   const [showCount, setShowCount] = useState(() => loadWorkspace().writeDeskShowCount);
 
   const providerKey = isTradierConfigured() ? "tradier" : "mock";
 
-  // Load the shared candidate universe (Yahoo 496 + operator additions)
-  const universe = useMemo(() => loadCandidateUniverseWithDescriptor(), []);
+  // Universe: derived from backend snapshot (canonical), falls back to local file
+  const localUniverse = useMemo(() => loadCandidateUniverseWithDescriptor(), []);
+  const [backendSymbols, setBackendSymbols] = useState<string[] | null>(null);
+  const universeSymbols = backendSymbols ?? localUniverse.symbols;
 
   // Re-recommend: apply updated policy to existing cache (zero provider calls)
   const handleReRecommend = useCallback(async (updatedPolicy: typeof DEFAULT_RECOMMENDATION_POLICY) => {
@@ -80,7 +85,7 @@ export function WriteDesk() {
     const sessionState = sessionClassification.state;
     const sessionClosed = sessionState === "CLOSED_CANONICAL" || sessionState === "NON_TRADING_DAY" || sessionState === "PREMARKET" || sessionState === "REGULAR_OPEN_DELAY";
     const recResult = await recommendPuts(
-      universe.symbols,
+      universeSymbols,
       snapshot.deployableCash,
       cache,
       { provider: providerKey, environment: "sandbox" },
@@ -89,9 +94,10 @@ export function WriteDesk() {
     );
     setPutCandidates(recResult.candidates);
     setPutWaitCandidates(recResult.waitCandidates);
+    setPutWideSpreadCandidates(recResult.wideSpreadCandidates);
     setPutIsProvisional(recResult.coverageRequests.length > 0);
     setPutFunnel(recResult.funnel);
-  }, [snapshot, universe, providerKey]);
+  }, [snapshot, universeSymbols, providerKey]);
 
   // Market session classification (updates on render, not reactive to clock)
   const sessionClassification = useMemo(() => {
@@ -162,6 +168,13 @@ export function WriteDesk() {
   // Evidence snapshot polling — merges backend evidence into IndexedDB, reruns Wheelwright
   const handleNewEvidence = useCallback(async (snapshotData: any) => {
     if (!snapshot || !snapshot.deployableCash) return;
+
+    // Extract universe symbol list from backend snapshot (canonical authority)
+    const snapshotSymbols: string[] = (snapshotData.symbols ?? []).map((s: any) => s.symbol);
+    if (snapshotSymbols.length > 0) {
+      setBackendSymbols(snapshotSymbols);
+    }
+
     const cache = getDurableCache();
 
     let merged = 0;
@@ -211,7 +224,7 @@ export function WriteDesk() {
     const sessionClosed = currentSession.state === "CLOSED_CANONICAL" || currentSession.state === "NON_TRADING_DAY" || currentSession.state === "PREMARKET" || currentSession.state === "REGULAR_OPEN_DELAY";
 
     const recResult = await recommendPuts(
-      universe.symbols,
+      snapshotSymbols.length > 0 ? snapshotSymbols : universeSymbols,
       snapshot.deployableCash,
       cache,
       { provider: providerKey, environment: "sandbox" },
@@ -221,13 +234,14 @@ export function WriteDesk() {
 
     setPutCandidates(recResult.candidates);
     setPutWaitCandidates(recResult.waitCandidates);
+    setPutWideSpreadCandidates(recResult.wideSpreadCandidates);
     setPutIsProvisional(recResult.coverage.symbolsMissingChain > 0);
     setPutFunnel(recResult.funnel);
 
     if (!scanTimestamp) {
       setScanTimestamp(new Date().toISOString());
     }
-  }, [snapshot, policy, providerKey, universe, scanTimestamp, putCandidates.length]);
+  }, [snapshot, policy, providerKey, universeSymbols, scanTimestamp, putCandidates.length]);
 
   // Poll the backend snapshot every 30s with conditional HTTP (ETag/304)
   const etagRef = useRef<string | null>(null);
@@ -436,10 +450,14 @@ export function WriteDesk() {
               <label className="wd-pol">Δ Range <select value={`${policy.contractSelection.admissibleDeltaRange.min}-${policy.contractSelection.admissibleDeltaRange.max}`} onChange={(e) => { const [min, max] = e.target.value.split("-").map(Number); const updated = { ...policy, contractSelection: { ...policy.contractSelection, admissibleDeltaRange: { min, max } } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskDeltaMin: min, writeDeskDeltaMax: max }); }} className="wd-pol-select"><option value="0.10-0.50">0.10–0.50</option><option value="0.15-0.50">0.15–0.50</option><option value="0.20-0.45">0.20–0.45</option><option value="0.25-0.40">0.25–0.40</option></select></label>
               <label className="wd-pol">DTE <select value={policy.contractSelection.targetDte} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDte: parseInt(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDte: parseInt(e.target.value) }); }} className="wd-pol-select"><option value="7">7</option><option value="14">14</option><option value="21">21</option><option value="28">28</option><option value="35">35</option><option value="42">42</option><option value="45">45</option></select></label>
               <span className="wd-pol-static">{policy.contractSelection.eligibleDteRange.min}–{policy.contractSelection.eligibleDteRange.max}</span>
-              <span className="wd-pol-static">≤{policy.executionAssessment.hardExcludeSpreadPercent}%</span>
-              <span className="wd-pol-static">OI&gt;0</span>
-              <span className="wd-pol-static">A≥{policy.executionAssessment.actionableFloor}</span>
-              <span className="wd-pol-static">E≥{policy.executionAssessment.edgeFloor}</span>
+              <label className="wd-pol wd-control-check">
+                <input type="checkbox" checked={showDanger} onChange={(e) => setShowDanger(e.target.checked)} />
+                Show Danger
+              </label>
+              <label className="wd-pol wd-control-check">
+                <input type="checkbox" checked={showWideSpread} onChange={(e) => setShowWideSpread(e.target.checked)} />
+                Show Wide Spread
+              </label>
               <label className="wd-pol">Rank <select value={policy.ranking.mode} onChange={(e) => { const updated = { ...policy, ranking: { ...policy.ranking, mode: e.target.value as any } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskRankingMode: e.target.value }); }} className="wd-pol-select"><option value="execution_first">Execution</option><option value="balanced">Balanced</option><option value="yield_first">Yield</option><option value="capital_efficiency">Capital Eff.</option></select></label>
             </div>
             <div className="wd-controls-divider" />
@@ -450,15 +468,32 @@ export function WriteDesk() {
               </label>
               <label className="wd-control">
                 Show
-                <select value={showCount} onChange={(e) => { const v = parseInt(e.target.value); setShowCount(v); updateWorkspace({ writeDeskShowCount: v }); }} className="wd-control-select">
-                  <option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option>
-                </select>
+                <input type="number" min={0} max={universeSymbols.length} value={showCount} onChange={(e) => { const v = Math.max(0, Math.min(universeSymbols.length, parseInt(e.target.value) || 0)); setShowCount(v); updateWorkspace({ writeDeskShowCount: v }); }} className="wd-control-spinner" />
               </label>
               {(() => {
-                const allRows = [...putCandidates, ...putWaitCandidates];
-                const filtered = showAffordableOnly ? allRows.filter(c => c.affordable) : allRows;
+                const allRows = [...putCandidates, ...putWaitCandidates, ...(showWideSpread ? putWideSpreadCandidates : [])];
+                let filtered = showAffordableOnly ? allRows.filter(c => c.affordable) : allRows;
+                if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
                 const displayed = Math.min(filtered.length, showCount);
-                return <span className="wd-table-showing">Showing {displayed} rows</span>;
+                const downloadCsv = () => {
+                  const rows = filtered.slice(0, showCount);
+                  const header = "Rank,Symbol,Expiration,DTE,Strike,Delta,Bid,Ask,Spread%,OI,Yield%,CashRequired,Remaining,Exec,Posture,Governance";
+                  const csvRows = rows.map((c, i) => `${i+1},${c.symbol},${c.expiration},${c.dte},${c.strike},${Math.abs(c.delta).toFixed(2)},${c.bid.toFixed(2)},${c.ask.toFixed(2)},${c.spreadPercent.toFixed(1)},${c.openInterest},${c.yieldAnnualized != null ? c.yieldAnnualized.toFixed(1) : ""},${c.cashRequired},${c.cashRemaining},${c.assessment.score},${c.posture},${c.governance.status}`);
+                  const csv = [header, ...csvRows].join("\n");
+                  const blob = new Blob([csv], { type: "text/csv" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `wheelwright-candidates-${new Date().toISOString().slice(0,10)}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                };
+                return (
+                  <>
+                    <span className="wd-table-showing">Showing {displayed} rows</span>
+                    <button className="wd-download-btn" onClick={downloadCsv} title="Download CSV">⬇</button>
+                  </>
+                );
               })()}
             </div>
           </div>
@@ -466,8 +501,9 @@ export function WriteDesk() {
           {/* Candidate table (ACTIONABLE + EDGE + WAIT) */}
           {(putCandidates.length > 0 || putWaitCandidates.length > 0) ? (
             (() => {
-              const allRows = [...putCandidates, ...putWaitCandidates];
-              const filtered = showAffordableOnly ? allRows.filter((c) => c.affordable) : allRows;
+              const allRows = [...putCandidates, ...putWaitCandidates, ...(showWideSpread ? putWideSpreadCandidates : [])];
+              let filtered = showAffordableOnly ? allRows.filter((c) => c.affordable) : allRows;
+              if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
               const displayed = filtered.slice(0, showCount).map((c, i) => ({ ...c, rank: i + 1 }));
               return <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); }} />;
             })()
@@ -601,7 +637,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(c, { tablePosition: idx + 1, sortedBy: sortKey, sortLabel: sortLabels[sortKey] ?? sortKey }); } }}
           >
             <td>{c.rank}</td>
-            <td className="wd-symbol">{c.symbol}</td>
+            <td className={`wd-symbol${c.governance.status === "danger" ? " wd-symbol-danger" : ""}`}>{c.governance.status === "danger" && <span className="wd-gov-warn">⚠</span>}{c.governance.status === "review" && <span className="wd-gov-review">ⓘ</span>}{c.symbol}</td>
             <td>{c.expiration.slice(5)}</td>
             <td>{c.dte}</td>
             <td>${c.strike}</td>

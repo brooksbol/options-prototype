@@ -41,7 +41,7 @@ describe("recommendation funnel — no hidden caps", () => {
     const expKey = buildCacheKey("tradier", env, "expirations", symbol);
     await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, symbol, null, [{ date: expDate, dte }]));
     const chainKey = buildCacheKey("tradier", env, "chain", symbol, expDate);
-    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, expDate, { puts }));
+    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, expDate, { underlying: { symbol, name: `${symbol} Test Fund`, price: 100 }, puts }));
   }
 
   function makeGoodPut(strike: number): { strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number } {
@@ -219,6 +219,7 @@ describe("recommendation funnel — exclusion stages", () => {
     // OI=5, volume=0 → low scores for OI and volume
     // Composite score will be below edgeFloor (35)
     await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, "WEAK", "2026-08-03", {
+      underlying: { symbol: "WEAK", name: "WEAK Test Fund", price: 100 },
       puts: [{ strike: 30, bid: 0.30, ask: 0.50, delta: -0.25, openInterest: 5, volume: 0 }],
     }));
 
@@ -251,6 +252,7 @@ describe("recommendation funnel — yield null semantics", () => {
     await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, "WSPY", null, [{ date: "2026-08-03", dte: 21 }]));
     const chainKey = buildCacheKey("tradier", env, "chain", "WSPY", "2026-08-03");
     await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, "WSPY", "2026-08-03", {
+      underlying: { symbol: "WSPY", name: "WSPY Test Fund", price: 100 },
       puts: [{ strike: 50, bid: 1.00, ask: 1.50, delta: -0.30, openInterest: 500, volume: 100 }],
     }));
 
@@ -265,6 +267,7 @@ describe("recommendation funnel — yield null semantics", () => {
     await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, "GOOD", null, [{ date: "2026-08-03", dte: 21 }]));
     const chainKey = buildCacheKey("tradier", env, "chain", "GOOD", "2026-08-03");
     await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, "GOOD", "2026-08-03", {
+      underlying: { symbol: "GOOD", name: "GOOD Test Fund", price: 100 },
       puts: [{ strike: 50, bid: 1.50, ask: 1.70, delta: -0.30, openInterest: 500, volume: 100 }],
     }));
 
@@ -298,7 +301,7 @@ describe("recommendation funnel — policy sensitivity", () => {
     const expKey = buildCacheKey("tradier", env, "expirations", symbol);
     await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, symbol, null, [{ date: expDate, dte }]));
     const chainKey = buildCacheKey("tradier", env, "chain", symbol, expDate);
-    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, expDate, { puts }));
+    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, expDate, { underlying: { symbol, name: `${symbol} Test Fund`, price: 100 }, puts }));
   }
 
   it("wider delta range admits more symbols", async () => {

@@ -149,7 +149,7 @@ export function inferProductStructure(symbol: string, name: string | null): Prod
     commodityBacked,
     fixedIncome,
     activelyManaged,
-    inferenceSource: matchCount > 0 ? "name_heuristic" : "unknown",
+    inferenceSource: (name && name.length > 0) ? "name_heuristic" : "unknown",
     confidence,
   };
 }

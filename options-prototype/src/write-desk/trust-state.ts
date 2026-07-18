@@ -111,12 +111,31 @@ export function deriveTrustState(input: TrustDerivationInput): EvidenceStateIndi
     };
   }
 
-  // Regular session: use time-based freshness
+  // Regular session: determine trust from freshness and completeness
+
+  // If coverage is complete (nothing pending, no failures) and service is reachable,
+  // the evidence IS current — the backend has simply finished acquiring.
+  // Snapshot age doesn't indicate staleness when there's no new work to produce.
+  const isFullyCovered = coverage.pending === 0 && coverageFraction >= COVERAGE_THRESHOLD;
+
   const freshnessLabel = freshnessSeconds < 60
     ? `${freshnessSeconds}s ago`
     : freshnessSeconds < 3600
       ? `${Math.round(freshnessSeconds / 60)}m ago`
       : `${Math.round(freshnessSeconds / 3600)}h ago`;
+
+  if (isFullyCovered && !isAcquiring) {
+    return {
+      trust: "current",
+      trustLabel: "Current",
+      activity,
+      covered,
+      universe,
+      freshnessLabel,
+      freshnessSeconds,
+      color: "green",
+    };
+  }
 
   if (freshnessMs <= CURRENT_THRESHOLD_MS) {
     return {

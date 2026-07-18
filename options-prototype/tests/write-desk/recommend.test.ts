@@ -37,7 +37,7 @@ describe("recommendPuts", () => {
       { date: "2026-08-03", dte: 21 },
     ]));
     const chainKey = buildCacheKey("tradier", env, "chain", symbol, "2026-08-03");
-    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, "2026-08-03", { puts }));
+    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, "2026-08-03", { underlying: { symbol, name: `${symbol} Test Fund`, price: 100 }, puts }));
   }
 
   it("produces ranked candidates from cached evidence", async () => {
