@@ -15,22 +15,15 @@ The objective is to build an observable system that produces evidence.
 
 # Project Status
 
-| Phase | Status |
-|--------|--------|
-| Project Charter | ✅ Complete |
-| Environment | ✅ Complete |
-| Domain Model | ✅ Complete |
-| Requirements | ✅ Complete |
-| Architecture | ✅ Complete |
-| Design | ✅ Complete |
-| Component Map | ✅ Complete |
-| Tasks | ✅ Complete |
-| Implementation | 🚧 Slice 1 |
-
-Current implementation task:
-
-- ✅ T-01 Project Scaffold
-- ⏳ T-02 Domain Layer
+| Component | Status |
+|-----------|--------|
+| Frontend (options-prototype) | ✅ Operational |
+| TypeScript backend (evidence-service) | ✅ Operational (behavioral reference) |
+| Java backend (evidence-service-java) | 🚧 Scaffold — migration in progress |
+| Architecture documentation | ✅ Ratified |
+| Behavioral invariants | ✅ Ratified (18 total; 16 satisfied by TypeScript, 2 deferred to Java) |
+| Snapshot contract v1 | ✅ Frozen |
+| Retooling preparation | ✅ Complete |
 
 ---
 
@@ -48,7 +41,7 @@ This starts the complete development environment:
 
 | Service | Port | Purpose |
 |---------|------|---------|
-| evidence-service | 3100 | Backend evidence proxy (owns Tradier credential) |
+| evidence-service (TypeScript) | 3100 | Backend evidence appliance (active) |
 | options-prototype | 5173 | Frontend (Vite dev server) |
 
 The frontend proxies `/api/*` requests to the backend automatically.
@@ -62,11 +55,37 @@ The frontend proxies `/api/*` requests to the backend automatically.
 ## Starting services independently
 
 ```bash
-# Backend only
+# Backend only (TypeScript — current active implementation)
 cd evidence-service && npm run dev
 
 # Frontend only (requires backend running on :3100)
 cd options-prototype && npm run dev
+```
+
+## Java Backend (Migration Target)
+
+The Java backend at `evidence-service-java/` is the migration target for the TypeScript evidence service. It is currently a scaffold — the TypeScript backend remains the active behavioral reference.
+
+**Requirements:**
+- JDK 21 LTS (Temurin recommended)
+- Gradle Wrapper included (no global Gradle install required)
+
+```bash
+# Build and test (from evidence-service-java/)
+./gradlew build
+
+# Run (will conflict with TypeScript backend if both use port 3100)
+./gradlew bootRun
+```
+
+The Java backend declares its Java requirement via toolchain:
+
+```kotlin
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
 ```
 
 ---
@@ -100,29 +119,31 @@ Working software is the mechanism by which architectural hypotheses are tested a
 # Repository Structure
 
 ```
-README.md                     Repository entry point
+README.md                         Repository entry point
 
 docs/
-    00-project-charter.md
-    01-environment.md
-    02-domain.md
-    03-requirements.md
-    04-architecture.md
-    05-design.md
-    05a-component-map.md
-    06-tasks.md
+    foundations/                   Constitutional architecture documents
+    contracts/                    Versioned API contracts
+    journal/                      Append-only project journal
+    ...                           Architecture, design, and analysis docs
 
-    foundations/
-        closed-loop-engineering.md
+evidence-service/                 TypeScript backend (active behavioral reference)
+    src/                          Express server, acquisition worker, SQLite persistence
+    tests/                        Vitest behavioral and contract tests
+    data/                         SQLite database and seed files
 
-.kiro/
-    specs/
+evidence-service-java/            Java backend (migration target — scaffold)
+    src/main/java/                Spring Boot application
+    src/test/java/                JUnit 5 tests
+    build.gradle.kts              Gradle build (Kotlin DSL, Java 21 toolchain)
+    gradlew                       Gradle Wrapper (canonical build entry point)
 
-src/
-    (implementation)
+options-prototype/                React frontend (Vite, TypeScript)
+    src/                          Components, hooks, domain logic, recommendation engine
+    tests/                        Vitest frontend tests
 
-tests/
-    (implementation)
+scripts/
+    dev.sh                        Starts both backend and frontend for local dev
 ```
 
 ---
@@ -218,7 +239,39 @@ nvm use default
 
 ---
 
-## 5. Verify Toolchain
+## 5. Install Java 21 LTS (for Java backend)
+
+```bash
+brew install --cask temurin@21
+```
+
+Add to `~/.zshrc`:
+
+```bash
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+export PATH="$JAVA_HOME/bin:$PATH"
+```
+
+Reload:
+
+```bash
+source ~/.zshrc
+```
+
+Verify:
+
+```bash
+java -version
+javac -version
+```
+
+Expected: Temurin OpenJDK 21.x LTS.
+
+Note: The Java backend uses a Gradle Wrapper (`./gradlew`) so no global Gradle install is required.
+
+---
+
+## 6. Verify Toolchain
 
 ```bash
 git --version
@@ -226,6 +279,7 @@ brew --version
 nvm --version
 node --version
 npm --version
+java -version
 ```
 
 Verified versions:
@@ -235,6 +289,7 @@ Verified versions:
 - nvm 0.40.5
 - Node v24.18.0
 - npm 11.16.0
+- Java: Temurin 21.0.11 LTS
 
 ---
 
@@ -275,57 +330,53 @@ ssh -T git@github.com
 
 # Running the Project
 
-Install dependencies:
+## Full stack (recommended)
 
 ```bash
-npm install
+./scripts/dev.sh
 ```
 
-Start the development server:
+## Individual components
 
 ```bash
-npm run dev
-```
+# TypeScript backend tests
+cd evidence-service && npm test
 
-Run tests:
+# Java backend tests
+cd evidence-service-java && ./gradlew test
 
-```bash
-npm test
-```
-
-Type check:
-
-```bash
-npx tsc --noEmit
+# Frontend tests
+cd options-prototype && npm test
 ```
 
 ---
 
 # Current Scope
 
-Slice 1 implements:
+The system currently implements:
 
-- Mock option chain
-- ETF selector
-- Expiration selector
-- Calls table
-- Puts table
-- Delta policy highlighting
-- Premium calculations
-- Annualized yield calculations
+- Background evidence acquisition (self-scheduling, session-aware)
+- Durable SQLite persistence with failed-refresh preservation
+- Snapshot publication with ETag/conditional HTTP
+- Recommendation engine (Wheelwright) — deterministic, cache-backed, zero provider calls
+- Write Desk operator workbench with recommendation table and drawer
+- Broker handoff (Fidelity trade link construction)
+- Market session model (6-state, trading calendar, sealed evidence)
+- Instrument Catalog (10 governed records) and Description Library (1,280 tickers)
+- Engineering Laboratory for domain observation
 
 Out of scope:
 
-- Brokerage integration
-- Automated trading
+- Brokerage integration (API trading)
+- Automated order execution
 - Portfolio management
 - Prediction models
-- Real-time market data
+- Multi-user access
 
 ---
 
-# Future Direction
+# Evidence Appliance Vision
 
-The long-term vision is an autonomous, explainable financial control system capable of observing portfolio state, measuring equilibrium, and recommending policy adjustments through explicit closed-loop feedback rather than market prediction.
+Wheelwright is an always-on evidence appliance for policy-governed options-income decision support. The backend continuously maintains an authoritative model of the options opportunity environment. Consumers apply operator-configured policy, determine recommendation state, explain it, and support — but do not perform — execution.
 
-Working software is the primary mechanism for producing evidence that guides future architectural decisions.
+Working software is the primary mechanism for producing evidence that guides future architectural decisions. The system is governed by ratified architectural principles documented in `docs/foundations/`.
