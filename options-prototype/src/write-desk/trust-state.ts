@@ -97,7 +97,17 @@ export function deriveTrustState(input: TrustDerivationInput): EvidenceStateIndi
     };
   }
 
-  // Sealed session: evidence from canonical session is always current regardless of age
+  // Sealed session: the market is not in active observation.
+  // During sealed sessions, no better evidence is possible — evidence from the
+  // canonical session remains valid regardless of wall-clock age.
+  //
+  // KNOWN LIMITATION: This branch uses sessionClosed (current market state) but
+  // has no access to the canonical session date of the evidence itself. It cannot
+  // distinguish "sealed from today's close" from "sealed from Friday's close
+  // viewed on Monday." Resolving this requires the backend to expose the evidence
+  // validity epoch or canonical session identity — a Repair Unit 2 concern.
+  //
+  // Architectural finding: freshness age cannot establish evidence-session identity.
   if (sessionClosed) {
     return {
       trust: coverageFraction >= COVERAGE_THRESHOLD ? "current" : "partially_current",
@@ -113,30 +123,18 @@ export function deriveTrustState(input: TrustDerivationInput): EvidenceStateIndi
 
   // Regular session: determine trust from freshness and completeness
 
-  // If coverage is complete (nothing pending, no failures) and service is reachable,
-  // the evidence IS current — the backend has simply finished acquiring.
-  // Snapshot age doesn't indicate staleness when there's no new work to produce.
-  const isFullyCovered = coverage.pending === 0 && coverageFraction >= COVERAGE_THRESHOLD;
-
   const freshnessLabel = freshnessSeconds < 60
     ? `${freshnessSeconds}s ago`
     : freshnessSeconds < 3600
       ? `${Math.round(freshnessSeconds / 60)}m ago`
       : `${Math.round(freshnessSeconds / 3600)}h ago`;
 
-  if (isFullyCovered && !isAcquiring) {
-    return {
-      trust: "current",
-      trustLabel: "Current",
-      activity,
-      covered,
-      universe,
-      freshnessLabel,
-      freshnessSeconds,
-      color: "green",
-    };
-  }
+  // Coverage completeness
+  const isFullyCovered = coverage.pending === 0 && coverageFraction >= COVERAGE_THRESHOLD;
 
+  // During an active session, freshness and coverage are independent dimensions.
+  // Full coverage means the universe is resolved — it does not mean the evidence
+  // is current for this session. Evidence must also be recent.
   if (freshnessMs <= CURRENT_THRESHOLD_MS) {
     return {
       trust: coverageFraction >= COVERAGE_THRESHOLD ? "current" : "partially_current",
