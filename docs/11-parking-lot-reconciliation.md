@@ -34,6 +34,7 @@
 | 23 | Call Contract Quality | None formal | Exploratory | Adjacent to item 3 (COO) | No |
 | 24 | Wheelwright Naming | `07-architecture-current.md`, `07c-adrs.md` ADR-002 | Implemented (convention) | Architecture doc | No |
 | 25 | Score vs Classification | `foundations/conditioned-operating-opportunity.md` §Open Questions | Open design question | COO document | No |
+| 26 | Lifecycle Assessment Evidence Domain | None formal (discovered July 2026 retooling conversation) | Exploratory — domain concept identified | This file + future foundation doc | No |
 
 ---
 
@@ -353,6 +354,84 @@
 
 ---
 
+### Item 26: Lifecycle Assessment Evidence Domain
+
+**Existing documents:** None formal. Discovered during July 2026 backend retooling charter conversation.
+
+**Status:** Exploratory — domain concept identified. Not designed. Not implemented. Explicitly deferred in `docs/foundations/retooling-charter.md`.
+
+**Concept:**
+
+A policy-neutral evidence producer describing the quality of capital entering, residing in, and exiting an instrument. Follows the governance pattern: evidence describes the instrument; policy alone decides what the evidence means.
+
+Architecture:
+
+```text
+Lifecycle evidence producer
+        ↓
+Existing policy engine
+        ↓
+Recommendation state and explanation primitives
+```
+
+**Potential observables (future, not committed):**
+
+- Projected exit surfaces (call evidence at projected basis)
+- Ingress/egress relationship characterization
+- Historical premium persistence
+- Spread behavior over time
+- Assignment frequency and recovery behavior
+- Distribution schedules and NAV erosion
+- IV regime stability
+- Evidence confidence
+
+**Key architectural constraints:**
+
+- Lifecycle Assessment is an evidence producer, not a gate or a second policy engine
+- It must not classify instruments as symmetric/ingress-biased/egress-biased (that is policy)
+- It must not score or gate put recommendations (that is policy)
+- It follows the principle: evidence describes reality; policy decides what reality means
+
+**Relationship to other items:**
+
+- Subsumes and extends Item 23 (Call Contract Quality)
+- Informed by Item 3 (Conditioned Operating Opportunity)
+- Connects to Item 25 (Score vs Classification) — lifecycle quality is a candidate for this pattern
+
+**Immediate narrow scope (not Lifecycle Assessment):**
+
+A **Projected Call Surface** section in the recommendation drawer is an immediate, narrowly scoped feature that displays factual call evidence without implementing the broader Lifecycle Assessment domain. See design note below.
+
+**Decision needed:** When accumulated historical evidence and operational experience justify designing this as a formal evidence domain.
+
+**Recommended action:** No design document yet. Record here. Create `foundations/lifecycle-assessment.md` when the domain concept moves from exploratory to active design.
+
+---
+
+### Projected Call Surface (Immediate Scope)
+
+**Scope:** A section in the selected-put recommendation drawer that displays factual call evidence for the selected ticker and projected put-created basis.
+
+**Displays:**
+
+- Projected acquisition basis (strike − premium received)
+- Observable calls at or above that basis
+- Strike and expiration
+- Bid, ask, spread, and liquidity evidence
+- Premium yield relative to projected basis
+- Explicit states: no evidence, incomplete evidence, no qualifying calls
+
+**Must not:**
+
+- Classify the instrument (symmetric, ingress-biased, egress-constrained)
+- Score or gate the put recommendation
+- Become a second recommendation engine
+- Imply a completed Lifecycle Assessment domain
+
+**Relationship:** This is contextual evidence display. It is the first — and currently most valuable — observable that a future Lifecycle Assessment domain would produce. But it exists independently and does not require that domain to be designed.
+
+---
+
 ## Contradictions Identified
 
 | Area | Older thinking | Newer thinking | Resolution |
@@ -378,6 +457,7 @@ These items appear in the parking lot but have no prior formal document. They ar
 | 23 | Call Contract Quality | Exploratory | Adjacent to COO; design doc when call Wheelwright is planned |
 | 26 | Recommendation Set Analysis | Documented concept | `foundations/recommendation-set-analysis.md` ✅ |
 | 27 | State-Oriented Operator Console | Architectural principle | `foundations/state-oriented-console.md` ✅ |
+| 28 | Lifecycle Assessment Evidence Domain | Exploratory — domain concept | `foundations/lifecycle-assessment.md` when ready |
 
 ---
 
