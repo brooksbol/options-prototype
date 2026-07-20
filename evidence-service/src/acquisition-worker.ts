@@ -34,8 +34,16 @@ const US_MARKET_HOLIDAYS_2026 = new Set([
   "2026-06-19", "2026-07-03", "2026-09-07", "2026-11-26", "2026-12-25",
 ]);
 
+/** Early-close dates: options market closes at 13:15 ET (+ 15-min delay = 13:30 ET cutoff). */
+const US_EARLY_CLOSE_2026 = new Set([
+  "2026-11-27", // Day after Thanksgiving
+  "2026-12-24", // Christmas Eve
+]);
+
+const EARLY_CLOSE_WITH_DELAY = 13 * 60 + 30; // 13:30 ET (13:15 close + 15-min provider delay)
+
 /** Check if acquisition is permitted based on market session (minimal gate). */
-function isAcquisitionPermitted(now: Date = new Date()): { permitted: boolean; reason: string } {
+export function isAcquisitionPermitted(now: Date = new Date()): { permitted: boolean; reason: string } {
   // Convert to ET (approximate: UTC-4 for EDT Mar 8 – Nov 1, UTC-5 otherwise)
   const month = now.getUTCMonth() + 1;
   const day = now.getUTCDate();
@@ -58,15 +66,18 @@ function isAcquisitionPermitted(now: Date = new Date()): { permitted: boolean; r
     return { permitted: false, reason: `Exchange holiday (${dateStr})` };
   }
 
-  // Off-hours: permit only 09:30–16:15 ET (includes 15-min delay drain)
+  // Off-hours: permit only 09:30–close ET
   const marketOpen = 9 * 60 + 30;   // 09:30 ET
-  const marketCloseWithDelay = 16 * 60 + 15; // 16:15 ET (close + provider delay)
+  const marketCloseWithDelay = US_EARLY_CLOSE_2026.has(dateStr)
+    ? EARLY_CLOSE_WITH_DELAY           // 13:30 ET on early-close days
+    : 16 * 60 + 15;                    // 16:15 ET standard (close + provider delay)
 
   if (timeMinutes < marketOpen) {
     return { permitted: false, reason: `Pre-market (${hours}:${String(minutes).padStart(2, "0")} ET)` };
   }
   if (timeMinutes > marketCloseWithDelay) {
-    return { permitted: false, reason: `Market closed (${hours}:${String(minutes).padStart(2, "0")} ET)` };
+    const closeType = US_EARLY_CLOSE_2026.has(dateStr) ? "Early close" : "Market closed";
+    return { permitted: false, reason: `${closeType} (${hours}:${String(minutes).padStart(2, "0")} ET)` };
   }
 
   return { permitted: true, reason: "Regular session" };
