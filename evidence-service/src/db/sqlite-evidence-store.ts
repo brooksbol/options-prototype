@@ -183,8 +183,8 @@ export class SqliteEvidenceStore {
     const newCount = (existing?.failure_count ?? 0) + 1;
     if (newCount >= 3) {
       this.db.prepare(
-        "UPDATE symbol_resolution SET resolution = 'failed' WHERE symbol = ?"
-      ).run(symbol);
+        "UPDATE symbol_resolution SET resolution = 'failed', session_date = ? WHERE symbol = ?"
+      ).run(this.currentSessionDate(), symbol);
     }
 
     this._symbolsChangedSincePublish++;
@@ -200,17 +200,29 @@ export class SqliteEvidenceStore {
 
   /**
    * Get symbols that need work.
+   *
+   * Work is needed when:
+   *   1. Symbol is unresolved (pending or partial) — initial acquisition
+   *   2. Symbol resolution failed with < 3 attempts — retry
+   *   3. Symbol is resolved (ready or absent) but from a prior session date — refresh
+   *
+   * A completed acquisition queue is completion within a validity epoch, not a
+   * perpetual terminal state. When the current session date differs from the
+   * symbol's persisted session_date, the evidence is eligible for refresh.
    */
-  getWorkQueue(): string[] {
+  getWorkQueue(currentSessionDate?: string): string[] {
+    const sessionDate = currentSessionDate ?? this.currentSessionDate();
+
     const rows = this.db.prepare(`
       SELECT sr.symbol FROM symbol_resolution sr
       WHERE sr.resolution IN ('pending', 'partial')
-         OR (sr.resolution = 'failed' AND (
+         OR (sr.resolution = 'failed' AND sr.session_date = ? AND (
            SELECT failure_count FROM evidence e
            WHERE e.symbol = sr.symbol
            ORDER BY e.last_attempt_at DESC LIMIT 1
          ) < 3)
-    `).all() as any[];
+         OR (sr.resolution IN ('ready', 'absent', 'failed') AND (sr.session_date IS NULL OR sr.session_date != ?))
+    `).all(sessionDate, sessionDate) as any[];
     return rows.map(r => r.symbol);
   }
 
@@ -348,8 +360,18 @@ export class SqliteEvidenceStore {
     }
   }
 
+  private _sessionDateOverride: string | null = null;
+
+  /**
+   * Override the session date for testing. Pass null to restore default behavior.
+   */
+  setSessionDateOverride(sessionDate: string | null): void {
+    this._sessionDateOverride = sessionDate;
+  }
+
   private currentSessionDate(): string {
-    // Simplified: use today's date. Full session model integration comes in Phase 3.
+    if (this._sessionDateOverride) return this._sessionDateOverride;
+    // Behavioral parity with TypeScript: new Date().toISOString().split("T")[0]
     return new Date().toISOString().split("T")[0];
   }
 }

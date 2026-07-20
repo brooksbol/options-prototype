@@ -228,7 +228,7 @@ export class AcquisitionWorker {
         // Nothing to do — transition to idle (log only on first idle entry)
         if (!this.idleLogged) {
           const coverage = this.store.getCoverage();
-          console.log(`[worker] Bootstrap complete · ${coverage.ready + coverage.absent} resolved · ${coverage.ready} optionable · ${coverage.absent} non-optionable · gen ${this.store.generation}`);
+          console.log(`[worker] Epoch complete · ${coverage.ready + coverage.absent} resolved · ${coverage.ready} optionable · ${coverage.absent} non-optionable · gen ${this.store.generation}`);
           this.idleLogged = true;
         }
         this.status.state = "idle";
@@ -237,6 +237,9 @@ export class AcquisitionWorker {
         this.scheduleCycle(DELAY_IDLE_MS);
         return;
       }
+
+      // New work available — reset idle log so next completion is logged
+      this.idleLogged = false;
 
       // Process a batch
       const batch = workQueue.slice(0, BATCH_SIZE);
@@ -276,8 +279,13 @@ export class AcquisitionWorker {
     if (!ev) return;
 
     try {
-      if (ev.status === "pending" || (ev.status === "failed" && !ev.expirations)) {
-        // Need expirations first
+      if (ev.status === "pending" || ev.status === "failed"
+          || ev.status === "ready" || ev.status === "absent") {
+        // Need expirations: either first-time acquisition, retry after failure,
+        // or session refresh. For ready/absent/failed symbols, re-acquiring
+        // expirations determines whether the symbol is still optionable and selects
+        // the new primary expiration. Prior successful evidence is preserved until
+        // overwritten by a new success (INV-PERSIST-01).
         const result = await this.adapter.getExpirations(symbol);
         this.store.recordMetrics(result.cacheHit ? 0 : 1, result.cacheHit ? 1 : 0);
         this.store.setExpirations(symbol, result.expirations, result.retrievedAt);
@@ -289,7 +297,7 @@ export class AcquisitionWorker {
           await this.acquireChain(symbol, updated.primaryExpiration);
         }
       } else if (ev.status === "expirations_known" && ev.primaryExpiration) {
-        // Need chain
+        // Need chain (partial refresh: expirations already refreshed this session)
         await this.acquireChain(symbol, ev.primaryExpiration);
       }
     } catch (err) {
