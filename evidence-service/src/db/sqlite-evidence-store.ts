@@ -17,6 +17,18 @@ import { openDatabase } from "./connection.js";
 import type { MarketExpiration, MarketChain } from "../providers/tradier.js";
 import type { SymbolEvidence, SymbolStatus, EvidenceSnapshot } from "../evidence-store.js";
 
+// --- Prioritized Work Item ---
+
+export type UrgencyClass = "A" | "B" | "C" | "D";
+
+export interface PrioritizedWorkItem {
+  symbol: string;
+  urgencyClass: UrgencyClass;
+  chainAgeMs: number;
+  needsExpirations: boolean;
+  isPriorEpoch: boolean;
+}
+
 // --- Primary expiration selection (shared logic) ---
 
 function selectPrimaryExpiration(expirations: MarketExpiration[]): string | null {
@@ -203,12 +215,12 @@ export class SqliteEvidenceStore {
    *
    * Work is needed when:
    *   1. Symbol is unresolved (pending or partial) — initial acquisition
-   *   2. Symbol resolution failed with < 3 attempts — retry
-   *   3. Symbol is resolved (ready or absent) but from a prior session date — refresh
+   *   2. Symbol resolution failed with < 3 attempts within current epoch — retry
+   *   3. Symbol is resolved (ready or absent) but from a prior session date — epoch refresh
+   *   4. Symbol is ready and chain evidence age exceeds freshness target — rolling refresh
    *
    * A completed acquisition queue is completion within a validity epoch, not a
-   * perpetual terminal state. When the current session date differs from the
-   * symbol's persisted session_date, the evidence is eligible for refresh.
+   * perpetual terminal state.
    */
   getWorkQueue(currentSessionDate?: string): string[] {
     const sessionDate = currentSessionDate ?? this.currentSessionDate();
@@ -224,6 +236,198 @@ export class SqliteEvidenceStore {
          OR (sr.resolution IN ('ready', 'absent', 'failed') AND (sr.session_date IS NULL OR sr.session_date != ?))
     `).all(sessionDate, sessionDate) as any[];
     return rows.map(r => r.symbol);
+  }
+
+  /**
+   * Get the prioritized work queue for the tiered scheduler.
+   *
+   * Returns symbols ordered by urgency class:
+   *   Class A: Plausibly visible ready symbols with stale chain evidence
+   *   Class B: Background ready symbols (no qualifying puts OR chain age < target but > max)
+   *   Class C/D: Lifecycle work (pending, partial, failed, prior-epoch absent)
+   *
+   * Each entry includes its urgency class and chain age for scheduling decisions.
+   */
+  getPrioritizedWorkQueue(config: {
+    chainFreshnessTargetMs: number;
+    chainMaxAgeMs: number;
+    expirationFreshnessMs: number;
+    currentSessionDate?: string;
+  }): PrioritizedWorkItem[] {
+    const sessionDate = config.currentSessionDate ?? this.currentSessionDate();
+    const now = Date.now();
+    const results: PrioritizedWorkItem[] = [];
+
+    // Get all ready symbols with their evidence timestamps
+    const readySymbols = this.db.prepare(`
+      SELECT sr.symbol, sr.session_date, sr.primary_expiration,
+        (SELECT retrieved_at FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL ORDER BY e.retrieved_at DESC LIMIT 1) as chain_retrieved_at,
+        (SELECT retrieved_at FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'expirations' AND e.data IS NOT NULL ORDER BY e.retrieved_at DESC LIMIT 1) as exp_retrieved_at,
+        (SELECT data FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL ORDER BY e.retrieved_at DESC LIMIT 1) as chain_data,
+        (SELECT expiration FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL ORDER BY e.retrieved_at DESC LIMIT 1) as chain_expiration
+      FROM symbol_resolution sr
+      WHERE sr.resolution = 'ready'
+    `).all() as any[];
+
+    for (const row of readySymbols) {
+      const isPriorEpoch = row.session_date !== sessionDate;
+      const chainAge = row.chain_retrieved_at ? now - new Date(row.chain_retrieved_at).getTime() : Infinity;
+      const expAge = row.exp_retrieved_at ? now - new Date(row.exp_retrieved_at).getTime() : Infinity;
+
+      // Determine if stale enough to need work
+      if (!isPriorEpoch && chainAge < config.chainFreshnessTargetMs) {
+        continue; // Fresh — no work needed
+      }
+
+      // Classify: plausibly visible (Class A) or background (Class B)
+      const isPlausiblyVisible = isPriorEpoch
+        ? this.classifyFromChain(row.chain_data, row.chain_expiration) // provisional from prior data
+        : this.classifyFromChain(row.chain_data, row.chain_expiration); // current classification
+
+      const needsExpirations = expAge > config.expirationFreshnessMs;
+
+      if (isPlausiblyVisible) {
+        // Class A: past target OR prior epoch
+        const urgency = (isPriorEpoch || chainAge >= config.chainFreshnessTargetMs) ? "A" : "A";
+        results.push({ symbol: row.symbol, urgencyClass: "A", chainAgeMs: chainAge, needsExpirations, isPriorEpoch });
+      } else if (chainAge >= config.chainMaxAgeMs || isPriorEpoch) {
+        // Class B: past maximum age or prior epoch
+        results.push({ symbol: row.symbol, urgencyClass: "B", chainAgeMs: chainAge, needsExpirations, isPriorEpoch });
+      }
+      // Otherwise: background but within max age — skip for now
+    }
+
+    // Add absent symbols from prior epoch (Class D)
+    const absentPriorEpoch = this.db.prepare(`
+      SELECT symbol FROM symbol_resolution
+      WHERE resolution = 'absent' AND (session_date IS NULL OR session_date != ?)
+    `).all(sessionDate) as any[];
+    for (const row of absentPriorEpoch) {
+      results.push({ symbol: row.symbol, urgencyClass: "D", chainAgeMs: Infinity, needsExpirations: true, isPriorEpoch: true });
+    }
+
+    // Add lifecycle work (Class C): pending, partial, failed with retries remaining
+    const lifecycle = this.db.prepare(`
+      SELECT sr.symbol FROM symbol_resolution sr
+      WHERE sr.resolution IN ('pending', 'partial')
+         OR (sr.resolution = 'failed' AND sr.session_date = ? AND (
+           SELECT failure_count FROM evidence e
+           WHERE e.symbol = sr.symbol
+           ORDER BY e.last_attempt_at DESC LIMIT 1
+         ) < 3)
+    `).all(sessionDate) as any[];
+    for (const row of lifecycle) {
+      results.push({ symbol: row.symbol, urgencyClass: "C", chainAgeMs: Infinity, needsExpirations: true, isPriorEpoch: false });
+    }
+
+    // Sort by urgency: A (oldest first) → B past max (oldest first) → A approaching → B → C → D
+    results.sort((a, b) => {
+      // Priority 1: Class A past target — oldest chain first
+      const aIsOverdueA = a.urgencyClass === "A";
+      const bIsOverdueA = b.urgencyClass === "A";
+      if (aIsOverdueA && !bIsOverdueA) return -1;
+      if (!aIsOverdueA && bIsOverdueA) return 1;
+
+      // Priority 2: Class B past max age
+      const aIsBPastMax = a.urgencyClass === "B" && a.chainAgeMs >= config.chainMaxAgeMs;
+      const bIsBPastMax = b.urgencyClass === "B" && b.chainAgeMs >= config.chainMaxAgeMs;
+      if (aIsBPastMax && !bIsBPastMax && !bIsOverdueA) return -1;
+      if (bIsBPastMax && !aIsBPastMax && !aIsOverdueA) return 1;
+
+      // Within same class: oldest first (highest chainAgeMs)
+      if (a.urgencyClass === b.urgencyClass) {
+        return b.chainAgeMs - a.chainAgeMs; // descending age = oldest first
+      }
+
+      // Class order: A > B > C > D
+      const classOrder = { A: 0, B: 1, C: 2, D: 3 };
+      return classOrder[a.urgencyClass] - classOrder[b.urgencyClass];
+    });
+
+    return results;
+  }
+
+  /**
+   * Classify a symbol as plausibly visible from its persisted chain data.
+   *
+   * A symbol is plausibly visible if it has at least one put contract with:
+   *   - expiration DTE in [7, 45]
+   *   - |delta| in [0.15, 0.50]
+   *   - bid > 0
+   *   - openInterest > 0
+   *
+   * This is a conservative superset of the actual recommendation funnel.
+   * It cannot filter by affordability or execution scoring (frontend-owned).
+   */
+  classifyFromChain(chainDataJson: string | null, chainExpiration: string | null): boolean {
+    if (!chainDataJson || !chainExpiration) return false;
+
+    // Check DTE
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expDate = new Date(chainExpiration + "T12:00:00");
+    const dte = Math.round((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (dte < 7 || dte > 45) return false;
+
+    // Parse puts from chain JSON and check for qualifying contracts
+    // Chain shape: {"puts":[{"strike":...,"bid":...,"delta":...,"openInterest":...},...]}
+    try {
+      const putsStart = chainDataJson.indexOf('"puts":[');
+      if (putsStart < 0) return false;
+
+      const arrayStart = chainDataJson.indexOf('[', putsStart);
+      if (arrayStart < 0) return false;
+
+      // Scan for qualifying contracts without full JSON parse (performance)
+      // Look for patterns: bid > 0, |delta| in range, openInterest > 0
+      let depth = 0;
+      let objStart = -1;
+      for (let i = arrayStart; i < chainDataJson.length; i++) {
+        const c = chainDataJson[i];
+        if (c === '[' && depth === 0) { depth++; continue; }
+        if (c === '{') { if (depth === 1) objStart = i; depth++; }
+        else if (c === '}') {
+          depth--;
+          if (depth === 1 && objStart >= 0) {
+            const obj = chainDataJson.substring(objStart, i + 1);
+            if (this.isQualifyingPut(obj)) return true;
+            objStart = -1;
+          }
+        }
+        else if (c === ']' && depth === 1) break;
+      }
+    } catch {
+      return false;
+    }
+
+    return false;
+  }
+
+  private isQualifyingPut(contractJson: string): boolean {
+    const bid = this.extractNumber(contractJson, "bid");
+    if (bid <= 0) return false;
+
+    const delta = this.extractNumber(contractJson, "delta");
+    const absDelta = Math.abs(delta);
+    if (absDelta < 0.15 || absDelta > 0.50) return false;
+
+    const oi = this.extractNumber(contractJson, "openInterest");
+    if (oi <= 0) return false;
+
+    return true;
+  }
+
+  private extractNumber(json: string, key: string): number {
+    const pattern = `"${key}":`;
+    const idx = json.indexOf(pattern);
+    if (idx < 0) return 0;
+    let start = idx + pattern.length;
+    while (start < json.length && json[start] === ' ') start++;
+    if (start >= json.length || json[start] === 'n') return 0;
+    let end = start;
+    while (end < json.length && (json[end] === '-' || json[end] === '.' || (json[end] >= '0' && json[end] <= '9'))) end++;
+    if (end === start) return 0;
+    return parseFloat(json.substring(start, end)) || 0;
   }
 
   /**
@@ -367,6 +571,49 @@ export class SqliteEvidenceStore {
    */
   setSessionDateOverride(sessionDate: string | null): void {
     this._sessionDateOverride = sessionDate;
+  }
+
+  // --- Operational Priorities ---
+
+  /**
+   * Replace the entire operational priority set atomically.
+   * Symbols not in the new set are removed. New symbols are added.
+   * This is the authoritative Tier 1 membership for acquisition scheduling.
+   */
+  replaceOperationalPriorities(symbols: { symbol: string; sources: string[] }[]): void {
+    const now = new Date().toISOString();
+
+    const batch = this.db.transaction(() => {
+      // Clear existing priorities
+      this.db.prepare("DELETE FROM operational_priorities").run();
+
+      // Insert new set
+      const insert = this.db.prepare(
+        "INSERT OR REPLACE INTO operational_priorities (symbol, sources, asserted_at) VALUES (?, ?, ?)"
+      );
+      for (const entry of symbols) {
+        const normalized = entry.symbol.trim().toUpperCase();
+        if (!normalized) continue;
+        insert.run(normalized, JSON.stringify(entry.sources), now);
+      }
+    });
+    batch();
+  }
+
+  /**
+   * Get current operational priority symbols (Tier 1).
+   */
+  getOperationalPriorities(): string[] {
+    const rows = this.db.prepare("SELECT symbol FROM operational_priorities").all() as any[];
+    return rows.map(r => r.symbol);
+  }
+
+  /**
+   * Check if a symbol is in the operational priority set.
+   */
+  isOperationalPriority(symbol: string): boolean {
+    const row = this.db.prepare("SELECT 1 FROM operational_priorities WHERE symbol = ?").get(symbol.toUpperCase());
+    return !!row;
   }
 
   private currentSessionDate(): string {
