@@ -278,6 +278,7 @@ export class SqliteEvidenceStore {
     }
 
     return {
+      apiVersion: "1",
       generation: this.generation,
       generatedAt: this.generatedAt,
       universe: symbols.length,

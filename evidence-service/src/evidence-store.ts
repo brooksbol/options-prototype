@@ -28,6 +28,7 @@ export interface SymbolEvidence {
 // --- Snapshot Shape ---
 
 export interface EvidenceSnapshot {
+  apiVersion: "1";
   generation: number;
   generatedAt: string;
   universe: number;
@@ -195,6 +196,7 @@ export class EvidenceStore {
   buildSnapshot(): EvidenceSnapshot {
     const symbols = Array.from(this.evidence.values());
     const snapshot: EvidenceSnapshot = {
+      apiVersion: "1",
       generation: this._generation,
       generatedAt: this._generatedAt,
       universe: this.evidence.size,
@@ -217,6 +219,7 @@ export class EvidenceStore {
       (ev) => ev.status === "ready" || ev.status === "absent"
     );
     return {
+      apiVersion: "1",
       generation: this._generation,
       generatedAt: this._generatedAt,
       universe: this.evidence.size,
