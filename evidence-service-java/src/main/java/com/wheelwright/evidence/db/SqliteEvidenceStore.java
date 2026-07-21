@@ -386,6 +386,13 @@ public class SqliteEvidenceStore implements AutoCloseable {
         return symbols;
     }
 
+    /**
+     * Get the underlying connection (for universe import operations).
+     */
+    public Connection getConnection() {
+        return conn;
+    }
+
     @Override
     public void close() throws SQLException {
         if (conn != null && !conn.isClosed()) {
