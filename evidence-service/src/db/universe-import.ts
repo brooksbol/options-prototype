@@ -120,7 +120,11 @@ export function importUniverseFromCsv(
 
 /**
  * Get the default seed CSV path.
+ * Respects UNIVERSE_SEED_PATH env var for deployment and test control.
+ * Set to empty string to disable automatic seeding.
  */
 export function getDefaultSeedPath(): string {
+  const envPath = process.env.UNIVERSE_SEED_PATH;
+  if (envPath !== undefined) return envPath; // empty string = disable seeding
   return resolve(process.cwd(), "data/seeds/yahoo-merged-etf-tickers.csv");
 }

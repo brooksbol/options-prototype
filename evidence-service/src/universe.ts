@@ -18,13 +18,15 @@ import { importUniverseFromCsv, getDefaultSeedPath } from "./db/universe-import.
  * Always ensures the canonical seed CSV is imported (idempotent).
  */
 export function loadUniverse(db: Database.Database): string[] {
-  // Always import the canonical seed (idempotent — won't duplicate or reset)
+  // Import canonical seed if configured (idempotent — won't duplicate or reset)
   const seedPath = getDefaultSeedPath();
-  if (existsSync(seedPath)) {
+  if (seedPath && existsSync(seedPath)) {
     const result = importUniverseFromCsv(db, seedPath, "yahoo_merged_2026_07", "Yahoo Merged ETFs");
     if (result.newSymbolsAdded > 0) {
       console.log(`[universe] Imported ${result.newSymbolsAdded} new symbols from canonical seed (${result.totalInFile} total in file, ${result.existingPreserved} preserved)`);
     }
+  } else if (!seedPath) {
+    // Seeding explicitly disabled (UNIVERSE_SEED_PATH="")
   } else {
     // No seed file — check if DB has symbols
     const count = (db.prepare("SELECT COUNT(*) as cnt FROM symbols WHERE removed_at IS NULL").get() as any).cnt;

@@ -287,5 +287,10 @@ export function getEvidenceStore(): SqliteEvidenceStore {
   return instance;
 }
 
+/** Test-only: inject a pre-configured store instance. */
+export function _setStoreForTest(store: SqliteEvidenceStore | null): void {
+  instance = store;
+}
+
 // Keep the in-memory class exported for test-oracle use
 export { EvidenceStore as InMemoryEvidenceStore };

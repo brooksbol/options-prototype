@@ -124,9 +124,9 @@ export interface SchedulerTelemetry {
   /** Current session state from the gate */
   sessionState: string;
 
-  /** Total symbols eligible for each class */
+  /** Total symbols classified into each service class (excludes current-epoch terminal: confirmed absent and retry-exhausted failed) */
   eligible: { classA: number; classB: number; classC: number; classD: number };
-  /** Symbols currently overdue (past their freshness target) */
+  /** Symbols currently in the work queue (past freshness target, actionable now) */
   due: { classA: number; classB: number; classC: number; classD: number };
   /** Oldest evidence age in seconds for each class (null if no symbols in class) */
   oldestAgeSeconds: { classA: number | null; classB: number | null; classC: number | null; classD: number | null };
@@ -154,6 +154,7 @@ export interface SchedulerTelemetry {
 export class AcquisitionWorker {
   private adapter: TradierAdapter;
   private store: SqliteEvidenceStore;
+  private _clock: () => Date;
   private running = false;
   private cycleActive = false;
   private idleLogged = false;
@@ -208,10 +209,11 @@ export class AcquisitionWorker {
     failures: 0,
   };
 
-  constructor(config: ServiceConfig, schedulerConfig: SchedulerConfig = DEFAULT_SCHEDULER_CONFIG) {
+  constructor(config: ServiceConfig, schedulerConfig: SchedulerConfig = DEFAULT_SCHEDULER_CONFIG, clock: () => Date = () => new Date()) {
     this.adapter = new TradierAdapter(config);
     this.store = getEvidenceStore();
     this.schedulerConfig = schedulerConfig;
+    this._clock = clock;
   }
 
   start(): void {
@@ -272,7 +274,7 @@ export class AcquisitionWorker {
     if (!this.running || this.cycleActive) return;
 
     // Session gate
-    const session = isAcquisitionPermitted();
+    const session = isAcquisitionPermitted(this._clock());
     if (!session.permitted) {
       if (!this.sessionBlockLogged) {
         console.log(`[worker] Acquisition suspended · ${session.reason}`);
@@ -302,24 +304,20 @@ export class AcquisitionWorker {
       this.telemetry.sessionState = session.reason;
       this.telemetry.cycleCount = this.status.cycleCount;
 
+      // Eligible: total classified population (all symbols, regardless of freshness)
+      this.telemetry.eligible = this.store.getClassifiedPopulation();
+
+      // Due: symbols in the work queue that are past their freshness targets
       const classA = workQueue.filter(i => i.urgencyClass === "A");
       const classB = workQueue.filter(i => i.urgencyClass === "B");
       const classC = workQueue.filter(i => i.urgencyClass === "C");
       const classD = workQueue.filter(i => i.urgencyClass === "D");
 
-      this.telemetry.eligible = {
+      this.telemetry.due = {
         classA: classA.length,
         classB: classB.length,
         classC: classC.length,
         classD: classD.length,
-      };
-
-      // Due: symbols past their freshness target
-      this.telemetry.due = {
-        classA: classA.filter(i => i.chainAgeMs >= this.schedulerConfig.chainFreshnessTargetMs).length,
-        classB: classB.filter(i => i.chainAgeMs >= this.schedulerConfig.chainMaxAgeMs).length,
-        classC: classC.length, // all lifecycle work is "due"
-        classD: classD.length, // all prior-epoch absent is "due"
       };
 
       // Oldest age per class (in seconds)
@@ -559,4 +557,9 @@ export function getAcquisitionWorker(config: ServiceConfig): AcquisitionWorker {
     workerInstance = new AcquisitionWorker(config);
   }
   return workerInstance;
+}
+
+/** Test-only: inject a pre-configured worker instance. */
+export function _setWorkerForTest(worker: AcquisitionWorker | null): void {
+  workerInstance = worker;
 }

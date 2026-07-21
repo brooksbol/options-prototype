@@ -347,6 +347,78 @@ export class SqliteEvidenceStore {
   }
 
   /**
+   * Get the total classified population by urgency class.
+   *
+   * Unlike getPrioritizedWorkQueue (which returns only actionable work),
+   * this counts ALL symbols that belong to a service class regardless of
+   * whether they are currently due for refresh.
+   *
+   * Class partition:
+   *   A: Ready symbols with plausibly visible chain (qualifying puts in DTE/delta range)
+   *   B: Ready symbols without plausibly visible chain
+   *   C: Lifecycle work — pending, partial, current-epoch failed with retries, prior-epoch failed
+   *   D: Absent symbols from prior epoch (need re-verification)
+   *
+   * Intentionally excluded (no actionable work this epoch):
+   *   - Current-session absent symbols (confirmed absent, terminal until next epoch)
+   *   - Current-epoch failed symbols with exhausted retries (retry budget spent)
+   *
+   * Used for telemetry: `eligible` = classified population per class.
+   */
+  getClassifiedPopulation(config: {
+    currentSessionDate?: string;
+  } = {}): { classA: number; classB: number; classC: number; classD: number } {
+    const sessionDate = config.currentSessionDate ?? this.currentSessionDate();
+    let classA = 0;
+    let classB = 0;
+    let classC = 0;
+    let classD = 0;
+
+    // Count ready symbols by A/B classification
+    const readySymbols = this.db.prepare(`
+      SELECT
+        (SELECT data FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL ORDER BY e.retrieved_at DESC LIMIT 1) as chain_data,
+        (SELECT expiration FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL ORDER BY e.retrieved_at DESC LIMIT 1) as chain_expiration
+      FROM symbol_resolution sr
+      WHERE sr.resolution = 'ready'
+    `).all() as any[];
+
+    for (const row of readySymbols) {
+      if (this.classifyFromChain(row.chain_data, row.chain_expiration)) {
+        classA++;
+      } else {
+        classB++;
+      }
+    }
+
+    // Count absent symbols from prior epoch (Class D)
+    const absentCount = this.db.prepare(`
+      SELECT COUNT(*) as cnt FROM symbol_resolution
+      WHERE resolution = 'absent' AND (session_date IS NULL OR session_date != ?)
+    `).get(sessionDate) as any;
+    classD = absentCount?.cnt ?? 0;
+
+    // Count lifecycle work (Class C):
+    //   - pending (never resolved)
+    //   - partial (expirations known, chain pending)
+    //   - current-epoch failed with retries remaining (failure_count < 3)
+    //   - prior-epoch failed (retry budget renews in new epoch)
+    const lifecycleCount = this.db.prepare(`
+      SELECT COUNT(*) as cnt FROM symbol_resolution sr
+      WHERE sr.resolution IN ('pending', 'partial')
+         OR (sr.resolution = 'failed' AND sr.session_date = ? AND (
+           SELECT failure_count FROM evidence e
+           WHERE e.symbol = sr.symbol
+           ORDER BY e.last_attempt_at DESC LIMIT 1
+         ) < 3)
+         OR (sr.resolution = 'failed' AND (sr.session_date IS NULL OR sr.session_date != ?))
+    `).get(sessionDate, sessionDate) as any;
+    classC = lifecycleCount?.cnt ?? 0;
+
+    return { classA, classB, classC, classD };
+  }
+
+  /**
    * Classify a symbol as plausibly visible from its persisted chain data.
    *
    * A symbol is plausibly visible if it has at least one put contract with:
