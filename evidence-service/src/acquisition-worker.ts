@@ -116,6 +116,39 @@ const DELAY_SESSION_BLOCKED_MS = 300_000;
 const DELAY_IDLE_MS = 30_000;
 const BATCH_SIZE = 10;
 
+// --- Scheduler Telemetry (observational, captured during real cycles) ---
+
+export interface SchedulerTelemetry {
+  /** When the queue was last assessed */
+  lastAssessedAt: string | null;
+  /** Current session state from the gate */
+  sessionState: string;
+
+  /** Total symbols eligible for each class */
+  eligible: { classA: number; classB: number; classC: number; classD: number };
+  /** Symbols currently overdue (past their freshness target) */
+  due: { classA: number; classB: number; classC: number; classD: number };
+  /** Oldest evidence age in seconds for each class (null if no symbols in class) */
+  oldestAgeSeconds: { classA: number | null; classB: number | null; classC: number | null; classD: number | null };
+
+  /** Last dispatched symbol info */
+  lastDispatch: { symbol: string; serviceClass: string; workType: string; dispatchedAt: string } | null;
+  /** Cumulative dispatches by class */
+  dispatchesByClass: { classA: number; classB: number; classC: number; classD: number };
+
+  /** Service-debt state */
+  serviceDebt: { bJobsSinceService: number; cdJobsSinceService: number };
+  /** Cumulative floor-triggered dispatches */
+  floorDispatches: { classB: number; classCD: number };
+
+  /** Publication counters */
+  publications: { total: number; skippedNoChange: number; skippedCoalescing: number; lastChangedSymbols: number };
+
+  /** Cycle state */
+  cycleCount: number;
+  idleReason: string | null;
+}
+
 // --- Worker ---
 
 export class AcquisitionWorker {
@@ -128,10 +161,42 @@ export class AcquisitionWorker {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private schedulerConfig: SchedulerConfig;
   private dispatchedJobs = 0;
-  private lastBServiceJob = 0;    // last dispatchedJobs count when B was served
-  private lastCDServiceJob = 0;   // last dispatchedJobs count when C/D was served
+  private lastBServiceJob = 0;
+  private lastCDServiceJob = 0;
   private lastPublishAt = 0;
   private evidenceChangedSincePublish = false;
+  private changedSymbolsThisPublish = 0;
+
+  // Publication counters
+  private pubTotal = 0;
+  private pubSkippedNoChange = 0;
+  private pubSkippedCoalescing = 0;
+  private pubLastChangedSymbols = 0;
+
+  // Dispatch counters by class
+  private dispatchCountA = 0;
+  private dispatchCountB = 0;
+  private dispatchCountC = 0;
+  private dispatchCountD = 0;
+  private floorDispatchB = 0;
+  private floorDispatchCD = 0;
+
+  // Scheduler telemetry snapshot (captured during real cycles, read by status endpoint)
+  private telemetry: SchedulerTelemetry = {
+    lastAssessedAt: null,
+    sessionState: "unknown",
+    eligible: { classA: 0, classB: 0, classC: 0, classD: 0 },
+    due: { classA: 0, classB: 0, classC: 0, classD: 0 },
+    oldestAgeSeconds: { classA: null, classB: null, classC: null, classD: null },
+    lastDispatch: null,
+    dispatchesByClass: { classA: 0, classB: 0, classC: 0, classD: 0 },
+    serviceDebt: { bJobsSinceService: 0, cdJobsSinceService: 0 },
+    floorDispatches: { classB: 0, classCD: 0 },
+    publications: { total: 0, skippedNoChange: 0, skippedCoalescing: 0, lastChangedSymbols: 0 },
+    cycleCount: 0,
+    idleReason: null,
+  };
+
   private status: WorkerStatus = {
     state: "stopped",
     currentSymbol: null,
@@ -173,6 +238,15 @@ export class AcquisitionWorker {
 
   getStatus(): WorkerStatus {
     return { ...this.status };
+  }
+
+  /**
+   * Get the scheduler telemetry snapshot.
+   * This is an immutable copy of state captured during real scheduling cycles.
+   * It does NOT recompute scheduling decisions on demand.
+   */
+  getSchedulerTelemetry(): SchedulerTelemetry {
+    return { ...this.telemetry };
   }
 
   nudge(): void {
@@ -223,11 +297,65 @@ export class AcquisitionWorker {
       // Build prioritized work queue
       const workQueue = this.store.getPrioritizedWorkQueue(this.schedulerConfig);
 
+      // --- Capture telemetry from the real scheduling assessment ---
+      this.telemetry.lastAssessedAt = new Date().toISOString();
+      this.telemetry.sessionState = session.reason;
+      this.telemetry.cycleCount = this.status.cycleCount;
+
+      const classA = workQueue.filter(i => i.urgencyClass === "A");
+      const classB = workQueue.filter(i => i.urgencyClass === "B");
+      const classC = workQueue.filter(i => i.urgencyClass === "C");
+      const classD = workQueue.filter(i => i.urgencyClass === "D");
+
+      this.telemetry.eligible = {
+        classA: classA.length,
+        classB: classB.length,
+        classC: classC.length,
+        classD: classD.length,
+      };
+
+      // Due: symbols past their freshness target
+      this.telemetry.due = {
+        classA: classA.filter(i => i.chainAgeMs >= this.schedulerConfig.chainFreshnessTargetMs).length,
+        classB: classB.filter(i => i.chainAgeMs >= this.schedulerConfig.chainMaxAgeMs).length,
+        classC: classC.length, // all lifecycle work is "due"
+        classD: classD.length, // all prior-epoch absent is "due"
+      };
+
+      // Oldest age per class (in seconds)
+      this.telemetry.oldestAgeSeconds = {
+        classA: classA.length > 0 ? Math.round(classA[0].chainAgeMs / 1000) : null,
+        classB: classB.length > 0 ? Math.round(classB[0].chainAgeMs / 1000) : null,
+        classC: classC.length > 0 ? null : null, // lifecycle doesn't have meaningful chain age
+        classD: null,
+      };
+
+      this.telemetry.serviceDebt = {
+        bJobsSinceService: this.dispatchedJobs - this.lastBServiceJob,
+        cdJobsSinceService: this.dispatchedJobs - this.lastCDServiceJob,
+      };
+      this.telemetry.dispatchesByClass = {
+        classA: this.dispatchCountA,
+        classB: this.dispatchCountB,
+        classC: this.dispatchCountC,
+        classD: this.dispatchCountD,
+      };
+      this.telemetry.floorDispatches = { classB: this.floorDispatchB, classCD: this.floorDispatchCD };
+      this.telemetry.publications = {
+        total: this.pubTotal,
+        skippedNoChange: this.pubSkippedNoChange,
+        skippedCoalescing: this.pubSkippedCoalescing,
+        lastChangedSymbols: this.pubLastChangedSymbols,
+      };
+      this.telemetry.idleReason = null;
+      // --- End telemetry capture ---
+
       if (workQueue.length === 0) {
         if (!this.idleLogged) {
           console.log(`[worker] All evidence within targets · gen ${this.store.generation}`);
           this.idleLogged = true;
         }
+        this.telemetry.idleReason = "all_within_targets";
         this.status.state = "idle";
         this.status.lastCycleDurationMs = Date.now() - cycleStart;
         this.cycleActive = false;
@@ -246,6 +374,21 @@ export class AcquisitionWorker {
         this.status.currentSymbol = item.symbol;
         await this.acquireSymbolTiered(item);
         this.dispatchedJobs++;
+
+        // Dispatch classification telemetry
+        switch (item.urgencyClass) {
+          case "A": this.dispatchCountA++; break;
+          case "B": this.dispatchCountB++; break;
+          case "C": this.dispatchCountC++; break;
+          case "D": this.dispatchCountD++; break;
+        }
+        const workType = item.needsExpirations ? "full" : "chain-only";
+        this.telemetry.lastDispatch = {
+          symbol: item.symbol,
+          serviceClass: item.urgencyClass,
+          workType,
+          dispatchedAt: new Date().toISOString(),
+        };
       }
 
       this.status.currentSymbol = null;
@@ -298,6 +441,7 @@ export class AcquisitionWorker {
       batch.push(classB[0]);
       batchSymbols.add(classB[0].symbol);
       this.lastBServiceJob = this.dispatchedJobs;
+      this.floorDispatchB++;
     }
     if (cdDebt && classCD.length > 0) {
       const cdItem = classCD.find(i => !batchSymbols.has(i.symbol)) ?? classCD[0];
@@ -305,6 +449,7 @@ export class AcquisitionWorker {
         batch.push(cdItem);
         batchSymbols.add(cdItem.symbol);
         this.lastCDServiceJob = this.dispatchedJobs;
+        this.floorDispatchCD++;
       }
     }
 
@@ -332,7 +477,7 @@ export class AcquisitionWorker {
         this.store.recordMetrics(result.cacheHit ? 0 : 1, result.cacheHit ? 1 : 0);
         this.store.setExpirations(item.symbol, result.expirations, result.retrievedAt);
         this.status.symbolsAcquiredTotal++;
-        this.evidenceChangedSincePublish = true;
+        this.evidenceChangedSincePublish = true; this.changedSymbolsThisPublish++;
 
         const updated = this.store.get(item.symbol);
         if (updated && updated.status === "expirations_known" && updated.primaryExpiration) {
@@ -348,7 +493,7 @@ export class AcquisitionWorker {
           this.store.recordMetrics(result.cacheHit ? 0 : 1, result.cacheHit ? 1 : 0);
           this.store.setExpirations(item.symbol, result.expirations, result.retrievedAt);
           this.status.symbolsAcquiredTotal++;
-          this.evidenceChangedSincePublish = true;
+          this.evidenceChangedSincePublish = true; this.changedSymbolsThisPublish++;
 
           const updated = this.store.get(item.symbol);
           if (updated && updated.status === "expirations_known" && updated.primaryExpiration) {
@@ -363,7 +508,7 @@ export class AcquisitionWorker {
       const msg = err instanceof Error ? err.message : "Unknown error";
       this.store.setFailure(item.symbol, msg);
       this.status.failures++;
-      this.evidenceChangedSincePublish = true;
+      this.evidenceChangedSincePublish = true; this.changedSymbolsThisPublish++;
       await sleep(DELAY_AFTER_FAILURE_MS);
     }
   }
@@ -373,13 +518,16 @@ export class AcquisitionWorker {
     this.store.recordMetrics(result.cacheHit ? 0 : 2, result.cacheHit ? 1 : 0);
     this.store.setChain(symbol, result.chain, result.retrievedAt);
     this.status.symbolsAcquiredTotal++;
-    this.evidenceChangedSincePublish = true;
+    this.evidenceChangedSincePublish = true; this.changedSymbolsThisPublish++;
   }
 
   // --- Publication coalescing ---
 
   private publishIfDue(forceBeforeIdle: boolean): void {
-    if (!this.evidenceChangedSincePublish) return;
+    if (!this.evidenceChangedSincePublish) {
+      this.pubSkippedNoChange++;
+      return;
+    }
 
     const now = Date.now();
     const elapsed = now - this.lastPublishAt;
@@ -387,7 +535,13 @@ export class AcquisitionWorker {
     if (forceBeforeIdle || elapsed >= this.schedulerConfig.publicationCoalesceMs) {
       this.store.publishSnapshot();
       this.lastPublishAt = now;
+      this.pubTotal++;
+      this.pubLastChangedSymbols = this.changedSymbolsThisPublish;
+      this.changedSymbolsThisPublish = 0;
       this.evidenceChangedSincePublish = false;
+      console.log(`[worker] Published · gen ${this.store.generation} · changed ${this.pubLastChangedSymbols}`);
+    } else {
+      this.pubSkippedCoalescing++;
     }
   }
 }

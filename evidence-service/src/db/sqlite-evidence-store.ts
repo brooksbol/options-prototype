@@ -288,7 +288,6 @@ export class SqliteEvidenceStore {
 
       if (isPlausiblyVisible) {
         // Class A: past target OR prior epoch
-        const urgency = (isPriorEpoch || chainAge >= config.chainFreshnessTargetMs) ? "A" : "A";
         results.push({ symbol: row.symbol, urgencyClass: "A", chainAgeMs: chainAge, needsExpirations, isPriorEpoch });
       } else if (chainAge >= config.chainMaxAgeMs || isPriorEpoch) {
         // Class B: past maximum age or prior epoch

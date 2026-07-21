@@ -25,6 +25,7 @@ export function statusRouter(config: ServiceConfig): Router {
       environment: "sandbox",
       credentialConfigured: !!config.tradierApiKey && config.tradierApiKey !== "your_tradier_sandbox_token_here",
       scheduler: worker.getStatus(),
+      schedulerTelemetry: worker.getSchedulerTelemetry(),
       evidence: {
         generation: store.generation,
         generatedAt: store.generatedAt,
