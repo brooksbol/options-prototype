@@ -525,6 +525,13 @@ export function WriteDesk() {
           <p>Select a portfolio source to begin.</p>
         </div>
       )}
+
+      {/* Waiting for evidence — snapshot ready but backend hasn't responded yet */}
+      {snapshot && snapshot.readiness.status === "READY" && !scanTimestamp && !evidenceMeta && (
+        <div className="wd-no-trade">
+          <p className="wd-acquiring-note">Portfolio loaded — connecting to evidence service for option chain data...</p>
+        </div>
+      )}
     </div>
   );
 }

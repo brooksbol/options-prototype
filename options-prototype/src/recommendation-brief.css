@@ -433,7 +433,7 @@
 
 /* Layout adjustment when drawer is open */
 .wd-with-drawer {
-  margin-right: 380px;
+  max-width: 820px;
 }
 
 
