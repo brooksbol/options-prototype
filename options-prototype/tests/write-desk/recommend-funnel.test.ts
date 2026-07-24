@@ -274,8 +274,8 @@ describe("recommendation funnel — yield null semantics", () => {
     const result = await recommendPuts(["GOOD"], 500_000, cache, cacheEnv());
     expect(result.candidates.length).toBe(1);
     expect(result.candidates[0].yieldAnnualized).not.toBeNull();
-    // yield = (bid/strike) * (365/dte) * 100 = (1.50/50) * (365/21) * 100 ≈ 52.1%
-    expect(result.candidates[0].yieldAnnualized).toBeCloseTo(52.14, 0);
+    // yield = (mid/strike) * (365/dte) * 100 = (1.60/50) * (365/21) * 100 ≈ 55.6%
+    expect(result.candidates[0].yieldAnnualized).toBeCloseTo(55.62, 0);
   });
 });
 

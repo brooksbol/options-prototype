@@ -11,8 +11,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Verifies health and status endpoints respond correctly.
+ * Updated for full scheduler/telemetry response shape.
  */
-@SpringBootTest
+@SpringBootTest(properties = {
+    "evidence.db.path=:memory:",
+    "tradier.api-key=test-key"
+})
 @AutoConfigureMockMvc
 class StatusControllerTest {
 
@@ -24,7 +28,11 @@ class StatusControllerTest {
         mockMvc.perform(get("/api/status"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value("ok"))
-            .andExpect(jsonPath("$.apiVersion").value("1"));
+            .andExpect(jsonPath("$.provider").value("tradier"))
+            .andExpect(jsonPath("$.scheduler.state").exists())
+            .andExpect(jsonPath("$.schedulerTelemetry.sessionState").exists())
+            .andExpect(jsonPath("$.evidence.generation").exists())
+            .andExpect(jsonPath("$.pacer.queueDepth").exists());
     }
 
     @Test

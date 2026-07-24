@@ -118,8 +118,12 @@ export function RecommendationBrief({
 
         <div className="rb-decision-hero">
           <div className="rb-hero-row">
-            <span className="rb-hero-label">Bid</span>
-            <span className="rb-hero-value">${brief.decision.bid.toFixed(2)}</span>
+            <span className="rb-hero-label">Mid</span>
+            <span className="rb-hero-value">${brief.decision.mid.toFixed(2)}</span>
+          </div>
+          <div className="rb-hero-row rb-hero-primary">
+            <span className="rb-hero-label">Premium (1 ct)</span>
+            <span className="rb-hero-value">${brief.decision.premiumAtMid.toFixed(0)}</span>
           </div>
           <div className="rb-hero-row rb-hero-primary">
             <span className="rb-hero-label">Annualized</span>

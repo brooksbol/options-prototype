@@ -434,7 +434,7 @@ async function evaluateSymbolFromCache(
 
       const assessment = assessExecution(evidence, scanConfig.executionPolicy);
       const yieldAnnualized = spreadPct <= scanConfig.executionPolicy.preferredSpreadPercent * 2
-        ? annualizedYield(contract.bid, contract.strike, exp.dte)
+        ? annualizedYield(mid, contract.strike, exp.dte)
         : null;
 
       const candidate: PutCandidate = {

@@ -370,7 +370,7 @@ async function searchPutCandidates(
 
       // Yield — suppress when spread makes midpoint unreliable
       const yieldAnnualized = spreadPct <= config.executionPolicy.preferredSpreadPercent * 2
-        ? annualizedYield(contract.bid, contract.strike, exp.dte)
+        ? annualizedYield(mid, contract.strike, exp.dte)
         : null;
 
       const candidate: PutCandidate = {
@@ -542,7 +542,7 @@ export async function scanCalls(
         const underlyingPrice = chain.underlying.price;
 
         const yieldAnnualized = spreadPct <= config.executionPolicy.preferredSpreadPercent * 2
-          ? annualizedYield(contract.bid, underlyingPrice, exp.dte)
+          ? annualizedYield(mid, underlyingPrice, exp.dte)
           : null;
 
         const candidate: CallCandidate = {

@@ -144,6 +144,7 @@ export interface WheelwrightBriefViewModel {
     openInterest: number;
     volume: number;
     premiumAtBid: number;
+    premiumAtMid: number;
     yieldAnnualized: number | null;
     cashRequired: number;
     cashRemaining: number;
@@ -182,7 +183,7 @@ export async function buildWheelwrightBrief(
   );
 
   // Position impact
-  const premiumPerShare = candidate.bid;
+  const premiumPerShare = candidate.mid;
   const effectiveCostBasis = candidate.strike - premiumPerShare;
   const positionImpact: PutPositionImpact = {
     cashRequired: candidate.cashRequired,
@@ -237,6 +238,7 @@ export async function buildWheelwrightBrief(
       openInterest: candidate.openInterest,
       volume: candidate.volume,
       premiumAtBid: candidate.bid * 100,
+      premiumAtMid: candidate.mid * 100,
       yieldAnnualized: candidate.yieldAnnualized,
       cashRequired: candidate.cashRequired,
       cashRemaining: candidate.cashRemaining,
@@ -324,7 +326,7 @@ function buildNeighbor(
   const spread = put.ask - put.bid;
   const spreadPct = mid > 0 ? (spread / mid) * 100 : 100;
   const yld = spreadPct <= 30 && put.bid > 0 && selected.dte > 0
-    ? annualizedYield(put.bid, put.strike, selected.dte)
+    ? annualizedYield(mid, put.strike, selected.dte)
     : null;
 
   let tag: NeighborTag;

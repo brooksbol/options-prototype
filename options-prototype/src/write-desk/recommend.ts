@@ -401,7 +401,7 @@ export async function recommendPuts(
 
         const assessment = assessExecution(evidence, policy.executionAssessment);
         const yieldAnnualized = spreadPct <= policy.executionAssessment.preferredSpreadPercent * 2
-          ? annualizedYield(contract.bid, contract.strike, exp.dte)
+          ? annualizedYield(mid, contract.strike, exp.dte)
           : null;
 
         const candidate: PutCandidate = {
