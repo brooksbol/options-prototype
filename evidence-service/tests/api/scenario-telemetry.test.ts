@@ -44,6 +44,16 @@ function hoursAgo(hours: number): string {
   return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
 }
 
+/**
+ * Fixed clock during a regular market session (Tuesday 2026-07-21 at 11:00 ET).
+ * Ensures tests are deterministic regardless of when the suite runs.
+ */
+function marketHoursClock(): () => Date {
+  // EDT = UTC-4 in summer; 11:00 ET = 15:00 UTC
+  const date = new Date("2026-07-21T15:00:00.000Z");
+  return () => date;
+}
+
 // --- Scenario ---
 
 describe("API scenario: mixed population telemetry", () => {
@@ -63,7 +73,7 @@ describe("API scenario: mixed population telemetry", () => {
   });
 
   it("eligible and due diverge for fresh vs stale Class A symbols", async () => {
-    harness = await createHarness({ sessionDate: SESSION_DATE });
+    harness = await createHarness({ sessionDate: SESSION_DATE, clock: marketHoursClock() });
     const { store } = harness;
 
     store.initUniverse(["FRESH_A", "STALE_A"]);
@@ -89,7 +99,7 @@ describe("API scenario: mixed population telemetry", () => {
   });
 
   it("eligible and due diverge for fresh vs stale Class B symbols", async () => {
-    harness = await createHarness({ sessionDate: SESSION_DATE });
+    harness = await createHarness({ sessionDate: SESSION_DATE, clock: marketHoursClock() });
     const { store } = harness;
 
     store.initUniverse(["FRESH_B", "STALE_B"]);
@@ -115,7 +125,7 @@ describe("API scenario: mixed population telemetry", () => {
   });
 
   it("pending symbols appear as Class C in both eligible and due", async () => {
-    harness = await createHarness({ sessionDate: SESSION_DATE });
+    harness = await createHarness({ sessionDate: SESSION_DATE, clock: marketHoursClock() });
     const { store } = harness;
 
     store.initUniverse(["PENDING1", "PENDING2"]);
@@ -136,7 +146,7 @@ describe("API scenario: mixed population telemetry", () => {
   });
 
   it("prior-epoch absent symbols appear as Class D in both eligible and due", async () => {
-    harness = await createHarness({ sessionDate: SESSION_DATE });
+    harness = await createHarness({ sessionDate: SESSION_DATE, clock: marketHoursClock() });
     const { store } = harness;
 
     store.initUniverse(["ABSENT1"]);
@@ -160,7 +170,7 @@ describe("API scenario: mixed population telemetry", () => {
   });
 
   it("mixed population: eligible and due diverge across all classes", async () => {
-    harness = await createHarness({ sessionDate: SESSION_DATE });
+    harness = await createHarness({ sessionDate: SESSION_DATE, clock: marketHoursClock() });
     const { store } = harness;
 
     store.initUniverse(["FRESH_A", "STALE_A", "FRESH_B", "STALE_B", "PENDING", "PRIOR_ABSENT"]);
@@ -204,7 +214,7 @@ describe("API scenario: mixed population telemetry", () => {
   });
 
   it("current-session absent and retry-exhausted excluded from telemetry", async () => {
-    harness = await createHarness({ sessionDate: SESSION_DATE });
+    harness = await createHarness({ sessionDate: SESSION_DATE, clock: marketHoursClock() });
     const { store } = harness;
 
     store.initUniverse(["ABSENT_TODAY", "EXHAUSTED", "VISIBLE_A"]);
