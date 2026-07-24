@@ -68,23 +68,28 @@ public class EvidenceStoreConfig {
      * Start the worker after all beans are wired.
      */
     @Bean
-    public WorkerStarter workerStarter(AcquisitionWorker worker, SqliteEvidenceStore store) {
-        return new WorkerStarter(worker, store);
+    public WorkerStarter workerStarter(
+            AcquisitionWorker worker,
+            SqliteEvidenceStore store,
+            @Value("${universe.seed.path:./data/seeds/yahoo-merged-etf-tickers.csv}") String seedPath) {
+        return new WorkerStarter(worker, store, seedPath);
     }
 
     static class WorkerStarter {
         private final AcquisitionWorker worker;
         private final SqliteEvidenceStore store;
+        private final String seedPath;
 
-        WorkerStarter(AcquisitionWorker worker, SqliteEvidenceStore store) {
+        WorkerStarter(AcquisitionWorker worker, SqliteEvidenceStore store, String seedPath) {
             this.worker = worker;
             this.store = store;
+            this.seedPath = seedPath;
         }
 
         @PostConstruct
         public void start() {
             try {
-                List<String> universe = UniverseLoader.loadUniverse(store.getConnection());
+                List<String> universe = UniverseLoader.loadUniverse(store.getConnection(), seedPath);
                 worker.start(universe);
             } catch (Exception e) {
                 System.err.println("[startup] Failed to start worker: " + e.getMessage());

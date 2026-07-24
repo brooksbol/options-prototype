@@ -11,3 +11,8 @@ build/
 # JARs (except Gradle wrapper)
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
+
+# Data — runtime artifacts (SQLite, WAL, SHM)
+data/evidence.sqlite3
+data/evidence.sqlite3-wal
+data/evidence.sqlite3-shm
