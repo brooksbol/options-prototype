@@ -170,3 +170,112 @@ describe("buildFidelitySnapshot", () => {
     expect(snapshot.balanceContext!.cashAndCredits).toBe(22340);
   });
 });
+
+// --- PositionEconomics propagation ---
+
+describe("fidelity snapshot — position economics", () => {
+  function makeShareRowWithEconomics(
+    symbol: string,
+    quantity: number,
+    avgCost: number | null,
+    costBasis: number | null,
+    marketValue: number | null,
+    strategy = "CoveredCall" as const
+  ): OptionSummaryRow {
+    return {
+      symbol,
+      description: `${symbol} shares`,
+      strategy,
+      positionType: "share",
+      quantity,
+      bid: null, ask: null,
+      costBasis,
+      marketValue,
+      averageCost: avgCost,
+      totalGainLoss: null, totalGainLossPercent: null, last: null,
+      change: null, changePercent: null, marginRequirement: null,
+      option: null, rawRow: [],
+    };
+  }
+
+  it("carries averageCostPerShare, costBasis, and marketValue into economics", () => {
+    const input = makeInput({
+      optionSummaryRows: [
+        makeShareRowWithEconomics("XLE", 200, 55.93, 11186.00, 11620.00),
+      ],
+    });
+    const snapshot = buildFidelitySnapshot(input);
+    const xle = snapshot.inventory.find(p => p.symbol === "XLE");
+
+    expect(xle).toBeDefined();
+    expect(xle!.economics).not.toBeNull();
+    expect(xle!.economics!.averageCostPerShare).toBe(55.93);
+    expect(xle!.economics!.costBasis).toBe(11186.00);
+    expect(xle!.economics!.marketValue).toBe(11620.00);
+  });
+
+  it("produces null economics when all values are null", () => {
+    const input = makeInput({
+      optionSummaryRows: [
+        makeShareRowWithEconomics("XLE", 200, null, null, null),
+      ],
+    });
+    const snapshot = buildFidelitySnapshot(input);
+    const xle = snapshot.inventory.find(p => p.symbol === "XLE");
+
+    expect(xle).toBeDefined();
+    expect(xle!.economics).toBeNull();
+  });
+
+  it("partial economics (only averageCost present) still populates object", () => {
+    const input = makeInput({
+      optionSummaryRows: [
+        makeShareRowWithEconomics("XLE", 200, 55.93, null, null),
+      ],
+    });
+    const snapshot = buildFidelitySnapshot(input);
+    const xle = snapshot.inventory.find(p => p.symbol === "XLE");
+
+    expect(xle!.economics).not.toBeNull();
+    expect(xle!.economics!.averageCostPerShare).toBe(55.93);
+    expect(xle!.economics!.costBasis).toBeNull();
+    expect(xle!.economics!.marketValue).toBeNull();
+  });
+
+  it("repeated strategy rows use the row with maximum quantity for economics", () => {
+    // Fidelity repeats shares per strategy view — the builder takes max quantity
+    const input = makeInput({
+      optionSummaryRows: [
+        // CoveredCall view: 200 shares, basis $55.93
+        makeShareRowWithEconomics("XLE", 200, 55.93, 11186.00, 11620.00, "CoveredCall"),
+        // CashCoveredPut view: same 200 shares shown again, same economics
+        makeShareRowWithEconomics("XLE", 200, 55.93, 11186.00, 11620.00, "CashCoveredPut" as any),
+      ],
+    });
+    const snapshot = buildFidelitySnapshot(input);
+    const xle = snapshot.inventory.find(p => p.symbol === "XLE");
+
+    // Should not produce duplicate positions
+    const xlePositions = snapshot.inventory.filter(p => p.symbol === "XLE");
+    expect(xlePositions.length).toBe(1);
+    expect(xle!.sharesOwned).toBe(200); // not 400
+    expect(xle!.economics!.averageCostPerShare).toBe(55.93);
+  });
+
+  it("representative row selection is deterministic — larger quantity wins economics", () => {
+    // Two strategy views with different quantities (unusual but possible)
+    const input = makeInput({
+      optionSummaryRows: [
+        makeShareRowWithEconomics("XLE", 100, 50.00, 5000.00, 5800.00, "CoveredCall"),
+        makeShareRowWithEconomics("XLE", 200, 55.93, 11186.00, 11620.00, "UnpairedShares" as any),
+      ],
+    });
+    const snapshot = buildFidelitySnapshot(input);
+    const xle = snapshot.inventory.find(p => p.symbol === "XLE");
+
+    // 200 > 100, so the 200-share row's economics win
+    expect(xle!.sharesOwned).toBe(200);
+    expect(xle!.economics!.averageCostPerShare).toBe(55.93);
+    expect(xle!.economics!.costBasis).toBe(11186.00);
+  });
+});

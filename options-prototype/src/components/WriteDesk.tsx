@@ -11,8 +11,9 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { navigateTo } from "../router";
 import { createDemoSnapshot } from "../write-desk/demo-snapshot";
-import { type PutCandidate } from "../write-desk/scan-orchestrator";
+import { type PutCandidate, type CallCandidate } from "../write-desk/scan-orchestrator";
 import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type RecommendationPolicy } from "../write-desk/recommend";
+import { recommendCalls } from "../write-desk/recommend-calls";
 import type { RecommendationFunnel } from "../write-desk/recommend";
 import { getDurableCache } from "../cache/durable-cache";
 import { deriveTrustState } from "../write-desk/trust-state";
@@ -45,7 +46,9 @@ export function WriteDesk() {
   const [putCoverage, setPutCoverage] = useState<{ status: string; universeSize: number; covered: number; fresh: number; staleUsable: number; missing: number; confirmedAbsence: number; refreshedThisPass: number; deferredThisPass: number } | null>(null);
   const [putIsProvisional, setPutIsProvisional] = useState(true);
   const [putFunnel, setPutFunnel] = useState<RecommendationFunnel | null>(null);
-  // Call candidates deferred — backend-driven call recommendations not yet built
+  // Call candidates — driven by inventory + backend evidence
+  const [callCandidates, setCallCandidates] = useState<CallCandidate[]>([]);
+  const [callWaitCandidates, setCallWaitCandidates] = useState<CallCandidate[]>([]);
   const [scanTimestamp, setScanTimestamp] = useState<string | null>(null);
   const [policy, setPolicy] = useState(() => {
     const ws = loadWorkspace();
@@ -70,6 +73,8 @@ export function WriteDesk() {
   const [showDanger, setShowDanger] = useState(true);
   const [showWideSpread, setShowWideSpread] = useState(false);
   const [showCount, setShowCount] = useState(() => loadWorkspace().writeDeskShowCount);
+  const [putsCollapsed, setPutsCollapsed] = useState(() => loadWorkspace().writeDeskPutsCollapsed);
+  const [callsCollapsed, setCallsCollapsed] = useState(() => loadWorkspace().writeDeskCallsCollapsed);
 
   const providerKey = isTradierConfigured() ? "tradier" : "mock";
 
@@ -97,6 +102,18 @@ export function WriteDesk() {
     setPutWideSpreadCandidates(recResult.wideSpreadCandidates);
     setPutIsProvisional(recResult.coverageRequests.length > 0);
     setPutFunnel(recResult.funnel);
+    // Also re-recommend calls with updated policy
+    if (snapshot && snapshot.inventory.some(p => p.maxAdditionalContracts > 0)) {
+      const callResult = await recommendCalls(
+        snapshot.inventory,
+        cache,
+        { provider: providerKey, environment: "sandbox" },
+        updatedPolicy,
+        { sessionClosed }
+      );
+      setCallCandidates(callResult.candidates);
+      setCallWaitCandidates(callResult.waitCandidates);
+    }
   }, [snapshot, universeSymbols, providerKey]);
 
   // Market session classification (updates on render, not reactive to clock)
@@ -237,6 +254,19 @@ export function WriteDesk() {
     setPutWideSpreadCandidates(recResult.wideSpreadCandidates);
     setPutIsProvisional(recResult.coverage.symbolsMissingChain > 0);
     setPutFunnel(recResult.funnel);
+
+    // Recommend calls for held inventory (same cache, same policy)
+    if (snapshot.inventory.some(p => p.maxAdditionalContracts > 0)) {
+      const callResult = await recommendCalls(
+        snapshot.inventory,
+        cache,
+        { provider: providerKey, environment: "sandbox" },
+        policy,
+        { sessionClosed }
+      );
+      setCallCandidates(callResult.candidates);
+      setCallWaitCandidates(callResult.waitCandidates);
+    }
 
     if (!scanTimestamp) {
       setScanTimestamp(new Date().toISOString());
@@ -383,14 +413,18 @@ export function WriteDesk() {
             </span>
           )}
           <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("calls"); }}>
-            Calls Deferred
+            {callCandidates.length + callWaitCandidates.length > 0
+              ? `${callCandidates.length} Call${callCandidates.length !== 1 ? "s" : ""}`
+              : "No Calls"}
             {openPopover === "calls" && (
               <div className="wd-popover" onClick={e => e.stopPropagation()}>
                 <div className="wd-popover-title">Covered-Call Capacity</div>
-                <div className="wd-popover-empty">Call recommendations deferred during backend migration.</div>
-                {snapshot && snapshot.inventory.filter(p => p.maxAdditionalContracts > 0).map(p => (
-                  <div key={p.symbol} className="wd-popover-item">{p.symbol} · {p.sharesFree} free · {p.maxAdditionalContracts} contracts</div>
-                ))}
+                {snapshot && snapshot.inventory.filter(p => p.maxAdditionalContracts > 0).length === 0
+                  ? <div className="wd-popover-empty">No unencumbered 100-share positions</div>
+                  : snapshot && snapshot.inventory.filter(p => p.maxAdditionalContracts > 0).map(p => (
+                    <div key={p.symbol} className="wd-popover-item">{p.symbol} · {p.sharesFree} free · {p.maxAdditionalContracts} ct</div>
+                  ))
+                }
               </div>
             )}
           </span>
@@ -428,7 +462,17 @@ export function WriteDesk() {
           {/* Board title + evidence status */}
           <div className="wd-board-header">
             <div className="wd-board-title-row">
-              <h2 className="wd-board-title">Cash-Secured Put Candidates</h2>
+              <h2 className="wd-board-title">
+                <button
+                  className="wd-collapse-toggle"
+                  onClick={() => { setPutsCollapsed(!putsCollapsed); updateWorkspace({ writeDeskPutsCollapsed: !putsCollapsed }); }}
+                  aria-expanded={!putsCollapsed}
+                  aria-label={putsCollapsed ? "Expand puts section" : "Collapse puts section"}
+                >
+                  <span className={`wd-chevron${putsCollapsed ? " wd-chevron-collapsed" : ""}`}>▾</span>
+                </button>
+                Cash-Secured Put Candidates
+              </h2>
               {trustIndicator && (
                 <span className={`wd-evidence-inline wd-trust-${trustIndicator.color}`}>
                   <span className="wd-trust-dot">●</span>
@@ -443,6 +487,7 @@ export function WriteDesk() {
             {putFunnel && <FunnelInfographic funnel={putFunnel} backendResolved={evidenceMeta?.coverage ? (evidenceMeta.coverage.ready + evidenceMeta.coverage.absent) : undefined} />}
           </div>
 
+          {!putsCollapsed && (<>
           {/* Unified sticky policy + table controls */}
           <div className="wd-unified-controls">
             <div className="wd-policy-controls">
@@ -515,6 +560,41 @@ export function WriteDesk() {
                 <p>No actionable or edge put opportunities available across the evaluated universe.</p>
               )}
             </div>
+          )}
+          </>)}
+        </section>
+      )}
+
+      {/* ═══ CALL CANDIDATES ═══ */}
+      {snapshot && snapshot.readiness.status === "READY" && (scanTimestamp || evidenceMeta) && snapshot.inventory.some(p => p.maxAdditionalContracts > 0) && (
+        <section className="wd-board wd-call-board">
+          <div className="wd-board-header">
+            <div className="wd-board-title-row">
+              <h2 className="wd-board-title">
+                <button
+                  className="wd-collapse-toggle"
+                  onClick={() => { setCallsCollapsed(!callsCollapsed); updateWorkspace({ writeDeskCallsCollapsed: !callsCollapsed }); }}
+                  aria-expanded={!callsCollapsed}
+                  aria-label={callsCollapsed ? "Expand calls section" : "Collapse calls section"}
+                >
+                  <span className={`wd-chevron${callsCollapsed ? " wd-chevron-collapsed" : ""}`}>▾</span>
+                </button>
+                Covered-Call Candidates
+              </h2>
+              {callCandidates.length + callWaitCandidates.length > 0 && (
+                <span className="wd-board-rec-count">{callCandidates.length} Actionable · {callWaitCandidates.length} Wait</span>
+              )}
+            </div>
+          </div>
+
+          {!callsCollapsed && (
+            (callCandidates.length > 0 || callWaitCandidates.length > 0) ? (
+              <CallCandidateTable candidates={[...callCandidates, ...callWaitCandidates]} />
+            ) : (
+              <div className="wd-no-trade">
+                <p>No qualifying covered-call contracts found for held inventory.</p>
+              </div>
+            )
           )}
         </section>
       )}
@@ -663,6 +743,60 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
       </tbody>
     </table>
     </>
+  );
+}
+
+// --- Call Candidate Table ---
+
+function CallCandidateTable({ candidates }: { candidates: CallCandidate[] }) {
+  const { sorted, handleSort, indicator } = useSortableTable(candidates, "rank", "asc");
+
+  return (
+    <table className="wd-candidate-table">
+      <thead>
+        <tr>
+          <th className="wd-sortable" onClick={() => handleSort("rank")}>#{ indicator("rank")}</th>
+          <th className="wd-sortable" onClick={() => handleSort("symbol")}>Symbol{indicator("symbol")}</th>
+          <th className="wd-sortable" onClick={() => handleSort("expiration")}>Exp{indicator("expiration")}</th>
+          <th className="wd-sortable" onClick={() => handleSort("dte")}>DTE{indicator("dte")}</th>
+          <th className="wd-sortable" onClick={() => handleSort("strike")}>Strike{indicator("strike")}</th>
+          <th className="wd-sortable" onClick={() => handleSort("delta")}>Δ{indicator("delta")}</th>
+          <th className="wd-sortable" onClick={() => handleSort("bid")}>Bid{indicator("bid")}</th>
+          <th className="wd-sortable" onClick={() => handleSort("ask")}>Ask{indicator("ask")}</th>
+          <th className="wd-sortable" onClick={() => handleSort("spreadPercent")}>Spread{indicator("spreadPercent")}</th>
+          <th className="wd-sortable" onClick={() => handleSort("openInterest")}>OI{indicator("openInterest")}</th>
+          <th className="wd-sortable" onClick={() => handleSort("yieldAnnualized")}>Yield{indicator("yieldAnnualized")}</th>
+          <th>Shares</th>
+          <th>Cts</th>
+          <th className="wd-sortable" onClick={() => handleSort("assessment")}>Exec{indicator("assessment")}</th>
+          <th>Posture</th>
+        </tr>
+      </thead>
+      <tbody>
+        {sorted.map((c) => (
+          <tr
+            key={`${c.symbol}-${c.expiration}-${c.strike}`}
+            className={`wd-posture-row wd-posture-${c.posture.toLowerCase()}`}
+          >
+            <td>{c.rank}</td>
+            <td className="wd-symbol">{c.symbol}</td>
+            <td>{c.expiration.slice(5)}</td>
+            <td>{c.dte}</td>
+            <td>${c.strike}</td>
+            <td>{c.delta.toFixed(2)}</td>
+            <td>${c.bid.toFixed(2)}</td>
+            <td>${c.ask.toFixed(2)}</td>
+            <td className={c.spreadPercent > 15 ? "wd-warn-value" : ""}>{c.spreadPercent.toFixed(0)}%</td>
+            <td className={c.openInterest < 50 ? "wd-warn-value" : ""}>{c.openInterest}</td>
+            <td>{c.yieldAnnualized != null ? `${c.yieldAnnualized.toFixed(1)}%` : "—"}</td>
+            <td>{c.freeShares}</td>
+            <td>{c.maxContracts}</td>
+            <td>{c.assessment.score}</td>
+            <td><span className={`wd-posture-badge wd-posture-${c.posture.toLowerCase()}`}>{c.posture}</span></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 

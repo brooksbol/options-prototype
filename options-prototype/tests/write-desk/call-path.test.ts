@@ -42,7 +42,7 @@ function makeMockProvider(hasChain: boolean): MarketDataProvider {
 describe("scanCalls", () => {
   it("produces candidate for position with free shares", async () => {
     const inventory: InventoryPosition[] = [
-      { symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100, maxAdditionalContracts: 1 },
+      { symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100, maxAdditionalContracts: 1, economics: null },
     ];
 
     const result = await scanCalls(inventory, makeMockProvider(true));
@@ -55,7 +55,7 @@ describe("scanCalls", () => {
 
   it("reports fully encumbered positions as unavailable", async () => {
     const inventory: InventoryPosition[] = [
-      { symbol: "QQQ", sharesOwned: 300, sharesEncumbered: 300, sharesFree: 0, maxAdditionalContracts: 0 },
+      { symbol: "QQQ", sharesOwned: 300, sharesEncumbered: 300, sharesFree: 0, maxAdditionalContracts: 0, economics: null },
     ];
 
     const result = await scanCalls(inventory, makeMockProvider(true));
@@ -67,7 +67,7 @@ describe("scanCalls", () => {
 
   it("reports sub-100 positions as below lot size", async () => {
     const inventory: InventoryPosition[] = [
-      { symbol: "IWM", sharesOwned: 75, sharesEncumbered: 0, sharesFree: 75, maxAdditionalContracts: 0 },
+      { symbol: "IWM", sharesOwned: 75, sharesEncumbered: 0, sharesFree: 75, maxAdditionalContracts: 0, economics: null },
     ];
 
     const result = await scanCalls(inventory, makeMockProvider(true));
@@ -79,7 +79,7 @@ describe("scanCalls", () => {
 
   it("Fidelity XLE scenario: 400 owned, 400 encumbered = no capacity", async () => {
     const inventory: InventoryPosition[] = [
-      { symbol: "XLE", sharesOwned: 400, sharesEncumbered: 400, sharesFree: 0, maxAdditionalContracts: 0 },
+      { symbol: "XLE", sharesOwned: 400, sharesEncumbered: 400, sharesFree: 0, maxAdditionalContracts: 0, economics: null },
     ];
 
     const result = await scanCalls(inventory, makeMockProvider(true));
@@ -90,7 +90,7 @@ describe("scanCalls", () => {
 
   it("Demo XLE scenario: 200 owned, 100 encumbered = 1 contract", async () => {
     const inventory: InventoryPosition[] = [
-      { symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100, maxAdditionalContracts: 1 },
+      { symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100, maxAdditionalContracts: 1, economics: null },
     ];
 
     const result = await scanCalls(inventory, makeMockProvider(true));

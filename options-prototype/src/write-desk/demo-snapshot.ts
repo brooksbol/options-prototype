@@ -44,6 +44,7 @@ export function createDemoSnapshot(): PortfolioSnapshot {
         sharesEncumbered: 100,
         sharesFree: 100,
         maxAdditionalContracts: 1,
+        economics: { averageCostPerShare: 55.93, costBasis: 11186.00, marketValue: 11620.00 },
       },
       {
         symbol: "QQQ",
@@ -51,6 +52,7 @@ export function createDemoSnapshot(): PortfolioSnapshot {
         sharesEncumbered: 300,
         sharesFree: 0,
         maxAdditionalContracts: 0,
+        economics: { averageCostPerShare: 445.00, costBasis: 133500.00, marketValue: 141000.00 },
       },
       {
         symbol: "IWM",
@@ -58,6 +60,7 @@ export function createDemoSnapshot(): PortfolioSnapshot {
         sharesEncumbered: 0,
         sharesFree: 75,
         maxAdditionalContracts: 0, // below 100
+        economics: { averageCostPerShare: 198.50, costBasis: 14887.50, marketValue: 15300.00 },
       },
       {
         symbol: "SPYI",
@@ -65,6 +68,7 @@ export function createDemoSnapshot(): PortfolioSnapshot {
         sharesEncumbered: 0,
         sharesFree: 50,
         maxAdditionalContracts: 0, // below 100
+        economics: null,
       },
     ],
 

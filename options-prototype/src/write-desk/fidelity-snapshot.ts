@@ -106,18 +106,22 @@ function deriveInventory(rows: OptionSummaryRow[]): InventoryPosition[] {
   const shareRows = rows.filter((r) => r.positionType === "share" && r.quantity > 0);
 
   // Group by symbol (Fidelity may repeat shares across strategy views)
-  const symbolMap = new Map<string, { owned: number; encumbered: number }>();
+  const symbolMap = new Map<string, { owned: number; encumbered: number; avgCost: number | null; costBasis: number | null; marketValue: number | null }>();
 
   for (const row of shareRows) {
     const symbol = row.symbol.toUpperCase();
     const existing = symbolMap.get(symbol);
     if (!existing) {
-      symbolMap.set(symbol, { owned: row.quantity, encumbered: 0 });
+      symbolMap.set(symbol, { owned: row.quantity, encumbered: 0, avgCost: row.averageCost, costBasis: row.costBasis, marketValue: row.marketValue });
     }
     // Fidelity repeats share rows per strategy — use the maximum seen quantity
     // (not sum, since they represent the same shares viewed from different strategies)
     if (existing && row.quantity > existing.owned) {
       existing.owned = row.quantity;
+      // Take economics from the row with the most shares (canonical view)
+      existing.avgCost = row.averageCost;
+      existing.costBasis = row.costBasis;
+      existing.marketValue = row.marketValue;
     }
   }
 
@@ -149,6 +153,9 @@ function deriveInventory(rows: OptionSummaryRow[]): InventoryPosition[] {
       sharesEncumbered: Math.min(data.encumbered, data.owned),
       sharesFree,
       maxAdditionalContracts: Math.floor(sharesFree / 100),
+      economics: data.avgCost != null || data.costBasis != null || data.marketValue != null
+        ? { averageCostPerShare: data.avgCost, costBasis: data.costBasis, marketValue: data.marketValue }
+        : null,
     });
   }
 

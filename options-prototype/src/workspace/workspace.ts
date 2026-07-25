@@ -60,6 +60,10 @@ export interface Workspace {
   writeDeskDeltaMin: number;
   writeDeskDeltaMax: number;
   writeDeskShowCount: number;
+
+  // Write Desk Section State
+  writeDeskPutsCollapsed: boolean;
+  writeDeskCallsCollapsed: boolean;
 }
 
 const DEFAULT_WORKSPACE: Workspace = {
@@ -88,6 +92,8 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskDeltaMin: 0.15,
   writeDeskDeltaMax: 0.50,
   writeDeskShowCount: 20,
+  writeDeskPutsCollapsed: false,
+  writeDeskCallsCollapsed: false,
 };
 
 /**

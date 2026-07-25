@@ -16,6 +16,17 @@ export interface PortfolioSnapshotSourceDescriptor {
   filenames?: string[];
 }
 
+// --- Position Economics ---
+
+export interface PositionEconomics {
+  /** Average cost per share (broker-reported) */
+  averageCostPerShare: number | null;
+  /** Total cost basis for the position */
+  costBasis: number | null;
+  /** Current market value */
+  marketValue: number | null;
+}
+
 // --- Inventory ---
 
 export interface InventoryPosition {
@@ -24,6 +35,8 @@ export interface InventoryPosition {
   sharesEncumbered: number;
   sharesFree: number;
   maxAdditionalContracts: number;
+  /** Position economics from brokerage (null when unavailable, e.g. demo mode) */
+  economics: PositionEconomics | null;
 }
 
 // --- Existing Option Positions ---

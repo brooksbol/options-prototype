@@ -2223,3 +2223,35 @@
 .wd-posture-row.wd-posture-wide_spread td {
   background: rgba(204, 85, 153, 0.02);
 }
+
+/* === SECTION COLLAPSE === */
+
+.wd-collapse-toggle {
+  background: none;
+  border: none;
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+  padding: 0 4px;
+  font-size: 12px;
+  line-height: 1;
+  margin-right: 4px;
+  border-radius: 3px;
+  transition: color 0.15s;
+}
+
+.wd-collapse-toggle:hover {
+  color: var(--wd-text-primary);
+}
+
+.wd-chevron {
+  display: inline-block;
+  transition: transform 0.15s;
+}
+
+.wd-chevron-collapsed {
+  transform: rotate(-90deg);
+}
+
+.wd-call-board {
+  margin-top: var(--wd-space-section);
+}
