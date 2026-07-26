@@ -1,7 +1,35 @@
 # Project Parking Lot — Reconciliation Report
 
-**Date:** July 2026
-**Purpose:** Reconcile 25 parking-lot items against existing documentation. Identify status, overlaps, contradictions, and authoritative homes.
+> **HISTORICAL** — This document was the July 2026 reconciliation audit. The active parking lot is now maintained at `docs/parking-lot.md`. This file is retained for project learning history and detailed per-item analysis.
+
+**Date:** July 2026 (updated July 24, 2026)
+**Purpose:** Reconcile parking-lot items against existing documentation. Identify status, overlaps, contradictions, and authoritative homes.
+
+---
+
+## Status Update (July 24, 2026)
+
+Items that have changed status since the original reconciliation:
+
+| # | Item | Previous Status | Current Status | Evidence |
+|---|------|----------------|----------------|----------|
+| 4 | Put/Call Desk Asymmetry | Exploratory | **Active — Horizon A implemented** | Collapsible put/call sections in Write Desk |
+| 8 | Backend Evidence Service | Accepted, not implemented | **Substantially implemented (Java)** | `evidence-service-java/` — pending final retooling acceptance |
+| 9 | Backend Implementation Preferences | Recorded | **Followed** | Java 21, Spring Boot, SQLite — all implemented |
+| 11 | Continuous Acquisition | Bridge implemented | **Fully implemented (Java worker)** | Tiered A/B/C/D scheduler, anti-starvation |
+| 17 | Product-Structure Experiments | Designed, not implemented | **Partially implemented** | Governance annotations on recommendations (leveraged/inverse detection) |
+| 21 | Portfolio-State Maturity | Partially implemented | **Advanced** | PositionEconomics, call inventory, midpoint economics |
+| 23 | Call Contract Quality | Exploratory | **Active roadmap (Horizon B)** | `docs/23-calls-architecture.md` |
+
+New items added to parking lot:
+
+| # | Item | Status | Authoritative Home |
+|---|------|--------|-------------------|
+| 27 | Cloud deployment (Render) | Accepted post-retooling architecture | Needs doc (`24-cloud-deployment.md`) |
+| 28 | Prior-epoch failed scheduler gap | Documented, fix parked | `foundations/acquisition-scheduler-policy.md` |
+| 29 | Midpoint yield convention | Implemented | `07-architecture-current.md` §Midpoint Economics |
+| 30 | Calls execution handoff | Horizon B | `docs/23-calls-architecture.md` |
+| 31 | Four-engine conceptual architecture | Ratified | `07-architecture-current.md` §Conceptual Architecture |
 
 ---
 

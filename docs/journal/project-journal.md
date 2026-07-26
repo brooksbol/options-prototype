@@ -4367,3 +4367,139 @@ And for sequencing:
 ### What's next
 
 Universe expansion from 496 to 1,286 symbols — now a data import rather than a system redesign, because SQLite makes adding symbols an INSERT that preserves existing evidence.
+
+
+---
+
+## 2026-07-24 — Architecture Documentation Synchronization
+
+### Context
+
+The repository's authoritative architecture document (`07-architecture-current.md`) had drifted materially from the implemented system. It still described browser-owned acquisition with IndexedDB as the primary evidence store. The actual system now has:
+- Java backend (substantially implemented, pending final retooling acceptance)
+- Backend-owned acquisition with tiered scheduler (A/B/C/D freshness classes)
+- Covered-call recommendations from cached evidence (Horizon A restored)
+- Midpoint-based yield and premium economics
+- Position economics (basis data from Fidelity CSV)
+- Collapsible put/call sections in the Write Desk
+
+### What happened
+
+A Phase 1 documentation audit identified 10+ stale documents and 6 orphan knowledge items (concepts ratified in conversation but not yet in the repository). Phase 2 documentation synchronization began with:
+- Root README updated to reflect Java as the primary runtime
+- `docs/README.md` rewritten as a documentation navigation guide
+- `01-environment.md` updated to include Java 21 requirement
+- `07-architecture-current.md` rewritten to describe the current runtime architecture
+
+### Key architectural decisions now documented
+
+1. **Four-engine conceptual decomposition** (Evidence / Policy / Decision / Explanation) — ratified as a conceptual architecture, not four deployed services.
+
+2. **Scheduler telemetry as contract semantics** — `eligible` = total classified population per class; `due` = actionable subset. These are no longer just telemetry fields but architectural semantics of the scheduler.
+
+3. **Midpoint economics as policy convention** — the system distinguishes four levels: observed market data → midpoint valuation → indicative economics → executable pricing.
+
+4. **Calls Horizon A/B/C** — Horizon A (cache-based covered-call candidates for held unencumbered shares) is implemented. Horizons B (drawer, appreciation, history) and C (longitudinal, user identity) are planned but not built.
+
+5. **Prior-epoch failed scheduler gap** — documented as a known gap with explicit disposition: fix parked.
+
+### What was NOT changed
+
+- The retooling is NOT described as complete (Java acceptance pending)
+- The TypeScript backend is NOT described as retired (remains behavioral reference)
+- Calls are NOT described as a completed milestone (only Horizon A)
+- Cloud deployment is documented as accepted post-retooling architecture, not active work
+
+### Decisions / implications
+
+- The repository can now serve as a reliable source of truth for new contributors
+- Architecture drift is identified and correction is underway
+- The journal preserves that this synchronization was an intentional milestone, not incidental cleanup
+
+
+---
+
+## 2026-07-26 — Parking Lot Restructured as Canonical Roadmap
+
+### Context
+
+The project's parking-lot document (`11-parking-lot-reconciliation.md`) had been serving too many purposes: historical reconciliation report, implementation-status ledger, architecture index, concept notebook, and active roadmap. This made it possible for concepts to exist "somewhere in the file" without being reliably findable or trackable.
+
+An independent audit against conversation-derived knowledge identified concepts or decisions that were missing or materially incomplete in the repository.
+
+### What happened
+
+The parking lot was restructured:
+- Active items received stable IDs (PL-ARCH-*, PL-CALL-*, PL-EVID-*, PL-OPS-*, PL-POL-*, PL-UX-*, PL-PORT-*, PL-EXEC-*, PL-RESEARCH-*, PL-API-*)
+- Completed/superseded work moved to a Graduated/Closed index with explicit dispositions
+- Conversation-only concepts were recovered and given proper representation
+- Split/merge mappings documented for every disposition change
+- The original reconciliation report was preserved as historical context
+- A new `docs/parking-lot.md` became the canonical unprioritized roadmap
+
+### Recovered concepts
+
+1. Cash-Flow-Safe Recovery (exploratory thesis)
+2. Monthly Production Regime (future policy invariant)
+3. Portfolio Optimization Layer (future architectural layer)
+4. API Testability and Cacheability (accepted design principles)
+5. Historical Analysis expanded with provenance/backfill distinction
+6. Cloud Deployment stabilized with accepted constraints
+7. Post-Retooling Craftsmanship Review (sequencing protection)
+8. Calls Roadmap linked to Horizon A/B/C architecture doc
+9. Familiarity vs Favorites (separate concepts)
+10. Policy-Governance Scaling (future scaling question)
+
+### Governing principle
+
+Ideas come and go. Lost ideas are useless. The parking lot is an unprioritized roadmap where nothing silently disappears.
+
+### Decisions
+
+- No priority field. The parking lot does not prescribe sequence.
+- Intake discipline: new ideas get a stable ID immediately.
+- Merges preserve explicit mapping from original concept.
+- Nothing removed without a recorded disposition.
+
+
+---
+
+## 2026-07-26 — Architectural Discovery: The Repository as Theory, Not Merely Code
+
+### Context
+
+During the documentation synchronization effort, a review of the repository's knowledge hierarchy revealed that the `docs/` structure already embodies an implicit organizational model representing increasing certainty and decreasing mutability:
+
+```
+Discovery → Engineering Spike → Journal → Foundations → Architecture → Design → Contracts → Implementation
+```
+
+This is not an accident. It represents the project's actual epistemology.
+
+### The realization
+
+The project has quietly evolved beyond an options-trading application.
+
+Wheelwright is becoming a laboratory for engineering learning systems. The foundations documents — Closed-Loop Engineering, Policy Over Prediction, Secondary Observation, Three Actor Model, Principles Governance Model, Architectural Evolution Methodology — are not product documentation. They are constitutional documents describing how intelligent systems should learn, govern themselves, and evolve.
+
+The product demonstrates the principles. The principles are the durable intellectual property.
+
+### Recursive composition (undocumented)
+
+The Three Actor Model describes governance within a single bounded system. What remains undocumented is how bounded constitutional systems compose into larger constitutional systems — Three Actor systems themselves becoming actors within higher-order Three Actor systems. This recursive relationship was identified but is intentionally deferred until a focused Foundations evolution session.
+
+### The constitutional statement
+
+Wheelwright is the first instantiation of an emerging architectural philosophy, not the philosophy itself. The enduring value is not "an options engine" but a coherent body of thought about designing adaptive, governable learning systems. The software is experimental apparatus that validates — or falsifies — that philosophy.
+
+### Disposition
+
+- The realization is accepted now.
+- The Foundations layer is where broader ideas belong as they mature.
+- No immediate artifact is required.
+- When the project intentionally enters a Foundations evolution session, new constitutional documents (recursive governance, composition of bounded learning systems) become appropriate.
+- The repository continues to be organized around the product. The meta-insight lives at the foundations level and should remain mostly implicit until additional products or applications emerge.
+
+### What this means for documentation work
+
+Future architectural documentation should be evaluated not only against "does this make Wheelwright better?" but also against the higher-order question: "does this teach us something reusable about building bounded learning systems?" Knowledge that passes both tests should migrate into `docs/foundations/` rather than remaining in product-specific architecture documents.

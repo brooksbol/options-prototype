@@ -107,7 +107,8 @@ This directory contains the architectural documentation for the Wheelwright Evid
 
 | Document | Purpose |
 |----------|---------|
-| `11-parking-lot-reconciliation.md` | Deferred items and status |
+| `parking-lot.md` | **Canonical unprioritized roadmap** — all deferred ideas with stable IDs |
+| `11-parking-lot-reconciliation.md` | Historical: July 2026 reconciliation audit |
 | `07d-obsolete-docs.md` | Obsolescence assessment |
 | `journal/project-journal.md` | Append-only chronological memory |
 | `reference-data/xle-fidelity-2026-07-02.md` | Real options chain fixture |
