@@ -23,15 +23,18 @@ public class StatusController {
     private final AcquisitionWorker worker;
     private final RequestPacer pacer;
     private final ResponseCache cache;
+    private final String tradierApiKey;
 
     public StatusController(SqliteEvidenceStore store,
                            AcquisitionWorker worker,
                            RequestPacer pacer,
-                           ResponseCache cache) {
+                           ResponseCache cache,
+                           @org.springframework.beans.factory.annotation.Value("${tradier.api-key:}") String tradierApiKey) {
         this.store = store;
         this.worker = worker;
         this.pacer = pacer;
         this.cache = cache;
+        this.tradierApiKey = tradierApiKey;
     }
 
     @GetMapping("/api/status")
@@ -44,7 +47,7 @@ public class StatusController {
         result.put("status", "ok");
         result.put("provider", "tradier");
         result.put("environment", "sandbox");
-        result.put("credentialConfigured", true); // simplified — adapter validates at call time
+        result.put("credentialConfigured", tradierApiKey != null && !tradierApiKey.isBlank());
 
         // Scheduler status
         Map<String, Object> schedulerMap = new LinkedHashMap<>();
