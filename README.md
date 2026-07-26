@@ -9,7 +9,7 @@ This repository serves two purposes:
 
 The objective is **not** to build a trading bot.
 
-The objective is to build an observable system that produces evidence.
+The objective is to build an observable system that continuously produces evidence.
 
 ---
 
@@ -17,13 +17,14 @@ The objective is to build an observable system that produces evidence.
 
 | Component | Status |
 |-----------|--------|
-| Frontend (options-prototype) | ✅ Operational |
-| TypeScript backend (evidence-service) | ✅ Operational (behavioral reference) |
-| Java backend (evidence-service-java) | 🚧 Scaffold — migration in progress |
-| Architecture documentation | ✅ Ratified |
-| Behavioral invariants | ✅ Ratified (18 total; 16 satisfied by TypeScript, 2 deferred to Java) |
+| Frontend (options-prototype) | ✅ Operational — puts and calls |
+| Java backend (evidence-service-java) | ✅ Substantially implemented; final retooling acceptance pending |
+| TypeScript backend (evidence-service) | ⚠️ Behavioral reference — pending retirement after Java acceptance |
+| Architecture documentation | ✅ Ratified (synchronization in progress) |
+| Behavioral invariants | ✅ Ratified (18 total; 16 satisfied, 2 Java-deferred) |
 | Snapshot contract v1 | ✅ Frozen |
-| Retooling preparation | ✅ Complete |
+| Calls (Horizon A) | ✅ Restored — cache-based call recommendations |
+| Cloud deployment | 📋 Accepted architecture — post-retooling |
 
 ---
 
@@ -31,62 +32,38 @@ The objective is to build an observable system that produces evidence.
 
 ## Quick Start
 
-From the workspace root:
-
 ```bash
-./scripts/dev.sh
-```
+# Start the Java backend
+cd evidence-service-java
+export TRADIER_API_KEY=<your-key>
+./gradlew bootRun
 
-This starts the complete development environment:
+# In another terminal: start the frontend
+cd options-prototype
+npm run dev
+```
 
 | Service | Port | Purpose |
 |---------|------|---------|
-| evidence-service (TypeScript) | 3100 | Backend evidence appliance (active) |
+| evidence-service-java | 3100 | Backend evidence appliance |
 | options-prototype | 5173 | Frontend (Vite dev server) |
 
-The frontend proxies `/api/*` requests to the backend automatically.
-
-**Requirements:**
-- Node.js (via nvm)
-- `evidence-service/.env` must contain `TRADIER_API_KEY`
-
-**Press Ctrl+C** to stop both services.
-
-## Starting services independently
-
-```bash
-# Backend only (TypeScript — current active implementation)
-cd evidence-service && npm run dev
-
-# Frontend only (requires backend running on :3100)
-cd options-prototype && npm run dev
-```
-
-## Java Backend (Migration Target)
-
-The Java backend at `evidence-service-java/` is the migration target for the TypeScript evidence service. It is currently a scaffold — the TypeScript backend remains the active behavioral reference.
+The frontend proxies `/api/*` requests to the backend at `localhost:3100` automatically.
 
 **Requirements:**
 - JDK 21 LTS (Temurin recommended)
-- Gradle Wrapper included (no global Gradle install required)
+- Node.js (via nvm)
+- `TRADIER_API_KEY` environment variable
+
+## Alternative: TypeScript backend (behavioral reference)
+
+The TypeScript backend at `evidence-service/` remains the behavioral reference until retooling acceptance is complete. It can be started instead of the Java backend:
 
 ```bash
-# Build and test (from evidence-service-java/)
-./gradlew build
-
-# Run (will conflict with TypeScript backend if both use port 3100)
-./gradlew bootRun
+cd evidence-service && npm run dev
 ```
 
-The Java backend declares its Java requirement via toolchain:
-
-```kotlin
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-    }
-}
-```
+Both backends serve on port 3100 with identical API contracts. Only one should run at a time.
 
 ---
 
@@ -127,23 +104,23 @@ docs/
     journal/                      Append-only project journal
     ...                           Architecture, design, and analysis docs
 
-evidence-service/                 TypeScript backend (active behavioral reference)
-    src/                          Express server, acquisition worker, SQLite persistence
-    tests/                        Vitest behavioral and contract tests
-    data/                         SQLite database and seed files
-
-evidence-service-java/            Java backend (migration target — scaffold)
-    src/main/java/                Spring Boot application
-    src/test/java/                JUnit 5 tests
+evidence-service-java/            Java backend (Spring Boot, Java 21, SQLite)
+    src/main/java/                Application: worker, scheduler, controllers, store
+    src/test/java/                JUnit 5 tests (146 tests)
     build.gradle.kts              Gradle build (Kotlin DSL, Java 21 toolchain)
     gradlew                       Gradle Wrapper (canonical build entry point)
 
+evidence-service/                 TypeScript backend (behavioral reference, pending retirement)
+    src/                          Express server, acquisition worker, SQLite persistence
+    tests/                        Vitest behavioral and contract tests (144 tests)
+    data/                         SQLite database and canonical seed files
+
 options-prototype/                React frontend (Vite, TypeScript)
-    src/                          Components, hooks, domain logic, recommendation engine
-    tests/                        Vitest frontend tests
+    src/                          Components, recommendation engines, domain logic
+    tests/                        Vitest frontend tests (968 tests)
 
 scripts/
-    dev.sh                        Starts both backend and frontend for local dev
+    dev.sh                        Starts TypeScript legacy backend + frontend (behavioral reference during Java retooling)
 ```
 
 ---
@@ -152,14 +129,13 @@ scripts/
 
 Recommended reading order:
 
-1. Project Charter
-2. Closed-Loop Engineering
-3. Domain
-4. Requirements
-5. Architecture
-6. Design
-7. Component Map
-8. Tasks
+1. `docs/foundations/evidence-appliance.md` — System identity
+2. `docs/foundations/retooling-charter.md` — Migration governance
+3. `docs/07-architecture-current.md` — Current architecture
+4. `docs/foundations/backend-behavioral-invariants.md` — 18 ratified invariants
+5. `docs/contracts/evidence-snapshot-v1.md` — Frozen API contract
+6. `docs/foundations/closed-loop-engineering.md` — Engineering methodology
+7. `docs/00-project-charter.md` — Original vision
 
 ---
 
@@ -176,44 +152,22 @@ Verified on:
 xcode-select --install
 ```
 
-Verify:
-
-```bash
-git --version
-xcode-select -p
-```
-
----
-
 ## 2. Install Homebrew
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-For zsh:
-
-```bash
 echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
 eval "$(/opt/homebrew/bin/brew shellenv)"
 ```
 
-Verify:
-
-```bash
-brew --version
-```
-
----
-
-## 3. Install nvm
+## 3. Install nvm and Node.js
 
 ```bash
 brew install nvm
 mkdir -p ~/.nvm
 ```
 
-Add to `~/.zshrc`
+Add to `~/.zshrc`:
 
 ```bash
 export NVM_DIR="$HOME/.nvm"
@@ -221,25 +175,13 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$(brew --prefix nvm)/etc/bash_completion.d/nvm" ] && . "$(brew --prefix nvm)/etc/bash_completion.d/nvm"
 ```
 
-Reload:
-
 ```bash
 source ~/.zshrc
-```
-
----
-
-## 4. Install Node.js
-
-```bash
 nvm install --lts
 nvm alias default 'lts/*'
-nvm use default
 ```
 
----
-
-## 5. Install Java 21 LTS (for Java backend)
+## 4. Install Java 21 LTS
 
 ```bash
 brew install --cask temurin@21
@@ -252,102 +194,36 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
-Reload:
-
 ```bash
 source ~/.zshrc
 ```
 
-Verify:
+## 5. Verify Toolchain
 
 ```bash
-java -version
-javac -version
-```
-
-Expected: Temurin OpenJDK 21.x LTS.
-
-Note: The Java backend uses a Gradle Wrapper (`./gradlew`) so no global Gradle install is required.
-
----
-
-## 6. Verify Toolchain
-
-```bash
-git --version
-brew --version
-nvm --version
-node --version
-npm --version
-java -version
-```
-
-Verified versions:
-
-- Git 2.50.1
-- Homebrew 6.0.6
-- nvm 0.40.5
-- Node v24.18.0
-- npm 11.16.0
-- Java: Temurin 21.0.11 LTS
-
----
-
-# GitHub SSH Setup
-
-Generate a key:
-
-```bash
-ssh-keygen -t ed25519 -C "your-email@example.com"
-```
-
-Start the agent:
-
-```bash
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519
-```
-
-Copy the public key:
-
-```bash
-cat ~/.ssh/id_ed25519.pub
-```
-
-Add the key to GitHub:
-
-- Settings
-- SSH and GPG Keys
-- New SSH Key
-
-Verify:
-
-```bash
-ssh -T git@github.com
+git --version        # 2.50+
+node --version       # v24.x
+npm --version        # 11.x
+java -version        # Temurin 21.x
+./gradlew --version  # Gradle 9.x (from evidence-service-java/)
 ```
 
 ---
 
-# Running the Project
-
-## Full stack (recommended)
+# Running Tests
 
 ```bash
-./scripts/dev.sh
-```
-
-## Individual components
-
-```bash
-# TypeScript backend tests
-cd evidence-service && npm test
-
-# Java backend tests
+# Java backend (146 tests)
 cd evidence-service-java && ./gradlew test
 
-# Frontend tests
+# TypeScript backend (144 tests)
+cd evidence-service && npm test
+
+# Frontend (968 tests)
 cd options-prototype && npm test
 ```
+
+Total: **1,258 tests** across all three suites.
 
 ---
 
@@ -355,23 +231,25 @@ cd options-prototype && npm test
 
 The system currently implements:
 
-- Background evidence acquisition (self-scheduling, session-aware)
-- Durable SQLite persistence with failed-refresh preservation
-- Snapshot publication with ETag/conditional HTTP
-- Recommendation engine (Wheelwright) — deterministic, cache-backed, zero provider calls
-- Write Desk operator workbench with recommendation table and drawer
-- Broker handoff (Fidelity trade link construction)
-- Market session model (6-state, trading calendar, sealed evidence)
-- Instrument Catalog (10 governed records) and Description Library (1,280 tickers)
-- Engineering Laboratory for domain observation
+- **Evidence Appliance** — background acquisition (self-scheduling, session-aware, tiered A/B/C/D freshness)
+- **Durable SQLite persistence** — failed-refresh preservation, generation tracking, restart recovery
+- **Snapshot publication** — ETag/conditional HTTP (304), coherent evidence snapshots
+- **Put recommendations** (Wheelwright) — deterministic, cache-backed, zero provider calls
+- **Call recommendations** (Horizon A) — inventory-driven, cache-backed, for held unencumbered shares
+- **Write Desk** — collapsible put/call sections, sortable tables, policy controls
+- **Recommendation Brief** — put drawer with decision summary, evidence, neighborhood, governance
+- **Broker handoff** — Fidelity trade link construction (puts)
+- **Market session model** — 6-state classification, trading calendar, sealed evidence semantics
+- **Instrument governance** — product structure classification, leveraged/inverse detection
+- **Instrument Catalog** and Description Library (1,280 tickers)
+- **Position economics** — Fidelity CSV basis data preserved in portfolio snapshot
 
 Out of scope:
 
-- Brokerage integration (API trading)
-- Automated order execution
-- Portfolio management
-- Prediction models
+- Brokerage API integration (automated trading)
 - Multi-user access
+- Prediction models
+- Portfolio optimization
 
 ---
 
@@ -379,4 +257,17 @@ Out of scope:
 
 Wheelwright is an always-on evidence appliance for policy-governed options-income decision support. The backend continuously maintains an authoritative model of the options opportunity environment. Consumers apply operator-configured policy, determine recommendation state, explain it, and support — but do not perform — execution.
 
-Working software is the primary mechanism for producing evidence that guides future architectural decisions. The system is governed by ratified architectural principles documented in `docs/foundations/`.
+The system is governed by ratified architectural principles documented in `docs/foundations/`.
+
+---
+
+# GitHub SSH Setup
+
+```bash
+ssh-keygen -t ed25519 -C "your-email@example.com"
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+cat ~/.ssh/id_ed25519.pub
+# Add to GitHub → Settings → SSH and GPG Keys → New SSH Key
+ssh -T git@github.com
+```

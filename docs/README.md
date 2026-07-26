@@ -1,270 +1,128 @@
-# Options Prototype
+# Documentation Guide
 
-> A spec-driven prototype exploring whether an options income strategy can be engineered as a closed-loop financial control system.
+> For project overview, development setup, and current status, see the [root README](../README.md).
 
-This repository serves two complementary purposes:
-
-1. Explore a financial engineering hypothesis using working software.
-2. Develop and validate a closed-loop, AI-assisted engineering methodology.
-
-The objective is **not** to build a trading bot.
-
-The objective is to build an observable system that continuously produces evidence.
+This directory contains the architectural documentation for the Wheelwright Evidence Appliance.
 
 ---
 
-# Current Status
+## Reading Order
 
-The project is currently completing the **Reasoning Subsystem** and beginning the **Provider Subsystem**.
+### System Identity and Governance
 
-Completed:
+| Document | Purpose |
+|----------|---------|
+| `foundations/evidence-appliance.md` | What Wheelwright is — governing architectural concept |
+| `foundations/retooling-charter.md` | Governance for the TypeScript → Java migration |
+| `foundations/backend-behavioral-invariants.md` | 18 ratified invariants the system must satisfy |
+| `foundations/closed-loop-engineering.md` | Engineering methodology (four nested feedback loops) |
+| `foundations/policy-over-prediction.md` | Core design principle |
 
-- ✅ Project scaffold
-- ✅ Domain model
-- ✅ Calculation library
-- ✅ Policy engine
-- ✅ Delta matching engine
-- ✅ Engineering Laboratory
-- ✅ Interactive engineering fixtures
-- ✅ Decision Narrative
-- ✅ MarketDataProvider interface
+### Current Architecture
 
-Next:
+| Document | Purpose |
+|----------|---------|
+| `07-architecture-current.md` | Authoritative system architecture |
+| `07a-component-map-current.md` | Module responsibilities |
+| `07b-diagrams.md` | System data-flow diagrams |
+| `07c-adrs.md` | 10 Architecture Decision Records |
+| `contracts/evidence-snapshot-v1.md` | Frozen v1 API contract |
 
-- 🚧 Mock provider implementation
-- 🚧 Mock market data
-- 🚧 Provider integration into the Engineering Laboratory
+### Backend Design
 
----
+| Document | Purpose |
+|----------|---------|
+| `08-adr-backend-evidence-service.md` | ADR: move acquisition to backend |
+| `09-backend-evidence-service-design.md` | Backend design (16 sections) |
+| `10-backend-implementation-preferences.md` | Technology choices (Java, SQLite, cloud) |
+| `14-background-acquisition-design.md` | Acquisition worker architecture |
+| `20-session-aware-acquisition.md` | Session gate design |
+| `22-sqlite-persistence-design.md` | SQLite schema and persistence semantics |
+| `foundations/acquisition-scheduler-policy.md` | Tiered A/B/C/D freshness scheduling |
 
-# Engineering Philosophy
+### Scheduler and Evidence Semantics
 
-This project is built around a closed learning loop.
+| Document | Purpose |
+|----------|---------|
+| `15-evidence-state-semantics.md` | Trust, freshness, and validity vocabulary |
+| `19-funnel-architecture.md` | Recommendation funnel stages |
+| `21-write-desk-recomposition.md` | Evidence validity model and page architecture |
 
-```
-Question
-    ↓
-Specification
-    ↓
-Implementation
-    ↓
-Working Software
-    ↓
-Engineering Laboratory
-    ↓
-Evidence
-    ↓
-Learning
-    ↓
-Refinement
-```
+### Domain and Recommendation
 
-Working software is not the end product.
+| Document | Purpose |
+|----------|---------|
+| `00-project-charter.md` | Original vision and guiding principles |
+| `02-domain.md` | Core domain model and glossary |
+| `17-recommendation-funnel-analysis.md` | Why 49 of 496 — funnel behavior analysis |
+| `18-recommendation-vocabulary-review.md` | Vocabulary dimensional analysis |
 
-Working software is the mechanism that produces evidence.
+### Conceptual Foundations (not yet implemented)
 
-The optimization target is **engineering learning rate**.
+| Document | Purpose |
+|----------|---------|
+| `foundations/conditioned-operating-opportunity.md` | Lifecycle quality concept |
+| `foundations/market-priced-risk.md` | Research topic: market pricing as evidence |
+| `foundations/recommendation-set-analysis.md` | Population-level observation concept |
+| `foundations/three-actor-model.md` | Explorer / Governor / Operator separation |
+| `foundations/state-oriented-console.md` | Observable vs operational state |
+| `foundations/principles-governance-model.md` | Principles as domain model |
+| `foundations/secondary-observation.md` | Measurement reliability philosophy |
 
----
+### Universe and Velvet Rope (dormant, architecturally valid)
 
-# Engineering Laboratory
+| Document | Purpose |
+|----------|---------|
+| `universe/01-requirements.md` | Candidate universe requirements |
+| `universe/02-design.md` | Candidate universe design |
+| `velvet-rope/00-domain-model.md` | Admission domain model |
+| `velvet-rope/01-requirements.md` | Admission requirements |
+| `velvet-rope/02-design.md` | Admission design |
+| `velvet-rope/03-product-structure-requirements.md` | Structural classification |
+| `velvet-rope/04-product-structure-design.md` | Structural classification design |
 
-The application currently boots into the **Engineering Laboratory** rather than an end-user interface.
+### Engineering Spikes (reference)
 
-The Laboratory is an engineering instrument.
+| Document | Purpose |
+|----------|---------|
+| `engineering-spikes/api-ninjas-etf-catalog.md` | API Ninjas viability assessment |
+| `engineering-spikes/fmp-etf-reference-data.md` | FMP ETF data assessment |
 
-Its purpose is to expose the behavior of the reasoning subsystem while the application is under construction.
+### Historical (superseded, retained for learning context)
 
-Current capabilities include:
+| Document | Purpose | Successor |
+|----------|---------|-----------|
+| `03-requirements.md` | Slice 1 user stories | Write Desk (undocumented requirements) |
+| `04-architecture.md` | Slice 1 architecture | `07-architecture-current.md` |
+| `05-design.md` | Slice 1 implementation design | Current implementation |
+| `05a-component-map.md` | Slice 1 component map | `07a-component-map-current.md` |
+| `06-tasks.md` | Slice 1 implementation tasks | Completed |
+| `09b-migration-and-impact.md` | TS→TS migration phases | Java retooling superseded this |
+| `12-backend-thin-slice-proposal.md` | First backend extraction | Full Java backend |
+| `13-proxy-efficiency-analysis.md` | Legacy proxy performance | Proxy retired |
+| `16-bootstrap-throughput-design.md` | Cold-start throughput analysis | Redundant delays removed |
+| `16a-bootstrap-throughput-completion.md` | Throughput fix report | Completed |
 
-- Engineering fixtures
-- Interactive scenario selection
-- Adjustable target delta
-- Configurable tie-breaker policy
-- Live domain calculations
-- Decision Narratives explaining why contracts are selected
-- Observation of policy behavior under controlled conditions
-- **Recommendation Lab** — single-symbol deep evaluation (microscope)
-- **Opportunity Lab** — curated ETF universe comparison (radar)
+### Operational Reference
 
-The Laboratory derives observations from the domain engine.
-
-It does not own domain reasoning.
-
-As additional subsystems are completed, the Laboratory will evolve to observe them using the same approach.
-
----
-
-# Closed-Loop Development
-
-Implementation follows subsystem-oriented Learning Checkpoints.
-
-Rather than treating implementation as a linear task list, completed subsystems are paused, observed, and evaluated before the next subsystem begins.
-
-Typical cycle:
-
-```
-Implement subsystem
-        ↓
-Observe in Engineering Laboratory
-        ↓
-Produce evidence
-        ↓
-Learning Checkpoint
-        ↓
-Proceed / Adapt / Redirect
-```
-
-This allows working software to continuously validate both the architecture and the engineering process.
-
----
-
-# Repository Structure
-
-```
-README.md
-
-docs/
-    00-project-charter.md
-    01-environment.md
-    02-domain.md
-    03-requirements.md
-    04-architecture.md
-    05-design.md
-    05a-component-map.md
-    06-tasks.md
-
-    foundations/
-        closed-loop-engineering.md
-
-    journal/
-        project-journal.md
-
-scripts/
-
-options-prototype/
-    src/
-    tests/
-```
+| Document | Purpose |
+|----------|---------|
+| `11-parking-lot-reconciliation.md` | Deferred items and status |
+| `07d-obsolete-docs.md` | Obsolescence assessment |
+| `journal/project-journal.md` | Append-only chronological memory |
+| `reference-data/xle-fidelity-2026-07-02.md` | Real options chain fixture |
+| `discovery/00-design-notes.md` | Discovery architectural learning |
 
 ---
 
-# Documentation Reading Order
+## Document Status Conventions
 
-Recommended reading:
-
-1. Project Charter
-2. Closed-Loop Engineering
-3. Domain
-4. Requirements
-5. Architecture
-6. Design
-7. Component Map
-8. Tasks
-9. Project Journal
-
----
-
-# Configuration
-
-The project now includes an optional external data provider (Massive/Polygon.io) for real market data validation.
-
-## Environment Variables
-
-| Variable | Required | Purpose |
-|----------|----------|---------|
-| `VITE_MASSIVE_API_KEY` | For Massive provider only | API key for Massive (formerly Polygon.io) options data |
-| `VITE_TRADIER_API_KEY` | For Tradier provider only | Sandbox access token for Tradier delayed options data |
-| `VITE_TRADIER_API_ACCOUNT_NUMBER` | For Tradier provider only | Tradier sandbox account number |
-
-## Setup
-
-1. Copy the example environment file:
-
-```bash
-cp .env.example .env.local
-```
-
-2. Edit `.env.local` and add your API key:
-
-```
-VITE_MASSIVE_API_KEY=your_actual_api_key
-```
-
-## Important
-
-- `.env.local` must **not** be committed to the repository. It is already in `.gitignore`.
-- The mock provider works without any API key. External provider configuration is only needed for the real-data translation spike.
-- If no API key is configured, the application runs normally using mock data.
-
----
-
-# Development
-
-Bootstrap:
-
-```bash
-./scripts/dev.sh
-```
-
-Or manually:
-
-```bash
-npm install
-npm run dev
-```
-
-Run tests:
-
-```bash
-npm test
-```
-
-Type check:
-
-```bash
-npx tsc --noEmit
-```
-
-Build:
-
-```bash
-npm run build
-```
-
----
-
-# Current Scope
-
-Current implementation focuses on:
-
-- Canonical options domain model
-- Financial calculations
-- Policy evaluation
-- Delta matching
-- Engineering Laboratory
-- Provider abstraction
-
-Deferred until later slices:
-
-- Mock provider integration
-- ETF and expiration selection
-- Options chain UI
-- Live market data
-- Brokerage integration
-- Automated trading
-- Portfolio management
-
----
-
-# Long-Term Vision
-
-The long-term architectural identity is an **evidence appliance** for options-income decision support.
-
-An evidence appliance continuously maintains an authoritative model of the options opportunity environment. It operates independently of any browser session, understands when markets are open and closed, preserves valid evidence across restarts, and exposes the maintained state to operator clients wherever they are.
-
-Write Desk is one view into the appliance — the operator console. The Engineering Laboratory is another. Future views may include historical-analysis dashboards, mobile monitoring, or multi-operator access.
-
-The system began as a desktop prototype and is evolving toward this always-on appliance architecture. The conceptual foundations are documented in `docs/foundations/evidence-appliance.md`.
-
-Equally important, this repository serves as a living experiment in AI-assisted engineering. The software demonstrates both a financial model and a methodology in which working software continuously accelerates organizational learning.
+| Marker | Meaning |
+|--------|---------|
+| **Authoritative** | Describes the system as it currently exists |
+| **Ratified** | Accepted architectural decision or principle |
+| **Frozen** | Published contract — changes require versioning |
+| **Design** | Accepted design not yet fully implemented |
+| **Dormant** | Architecturally valid, not actively being built |
+| **Historical** | Superseded — retained for project learning history |
+| **Exploratory** | Concept under investigation, no implementation planned |
