@@ -148,3 +148,34 @@ When expirations are stale (> 6h), refresh uses 3 calls (expirations + chain + q
 - Background evidence is maintained slower, not abandoned
 - Failed refresh preserves prior successful evidence (INV-PERSIST-01)
 - Starvation prevention is bounded and deterministic
+
+---
+
+## Telemetry Semantics (Architectural Contract)
+
+The scheduler exposes two population metrics through the `/api/status` endpoint. These are architectural semantics, not merely diagnostic telemetry:
+
+| Field | Definition | Scope |
+|-------|-----------|-------|
+| `eligible` | Total classified population per class (regardless of freshness) | All symbols assigned to A, B, C, or D |
+| `due` | Actionable subset currently in the work queue (past freshness target) | Symbols that will be dispatched in the next cycle |
+
+**Invariant:** `due ≤ eligible` per class. The difference represents symbols that are classified but currently within their freshness target.
+
+**Intentional exclusions from `eligible`:**
+- Current-session absent symbols (confirmed absent, terminal this epoch)
+- Current-epoch failed symbols with exhausted retries (retry budget spent)
+
+These symbols have no actionable work remaining this epoch and are neither eligible nor due.
+
+**Known gap:** `getPrioritizedWorkQueue` omits prior-epoch failed symbols. These are counted in `eligible.classC` but never appear in `due.classC`. This is a documented pre-existing scheduler conformance gap. Disposition: fix parked.
+
+---
+
+## Prior-Epoch Failed Symbol Gap
+
+Prior-epoch failed symbols should receive fresh retry budgets in new epochs (their retries reset). The legacy `getWorkQueue` correctly includes them. The tiered `getPrioritizedWorkQueue` does not, because its lifecycle clause only matches `session_date = current` for failed symbols.
+
+**Impact:** Minimal in practice — symbols that fail 3 times typically have genuine provider issues (no options, delisted, etc.) and would likely fail again. The gap is most relevant for transient failures that happen to exhaust retries near session close.
+
+**Status:** Documented. Not yet corrected. Will be addressed when operational evidence demonstrates user-visible impact.

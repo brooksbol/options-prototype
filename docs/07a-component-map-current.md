@@ -1,7 +1,7 @@
-# Options Prototype — Component Responsibility Map
+# Component Responsibility Map
 
 **Status:** Authoritative as of July 2026
-**Supersedes:** `05a-component-map.md` (Slice 1 only)
+**Supersedes:** Prior version (browser-owned acquisition era)
 
 ---
 
@@ -13,271 +13,227 @@ Each component lists:
 - **Outputs** — what it produces
 - **Must not** — boundary constraints
 
----
-
-## Evidence Acquisition Layer
-
-### `src/write-desk/acquire-evidence.ts`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Orchestrate market evidence collection for the candidate universe. Session-gated. |
-| **Inputs** | Universe symbols, provider instance, planner config, coverage requests, progress callback. |
-| **Outputs** | `AcquisitionResult` — refreshed symbols, deferred symbols, errors, telemetry. |
-| **Must not** | Produce recommendations. Rank candidates. Read from UI state. |
-
-### `src/cache/scan-planner.ts`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Determine which symbols need fresh evidence based on cache state and generation progress. |
-| **Inputs** | Universe symbols, durable cache, crawl state, planner config. |
-| **Outputs** | Ordered list of symbols to refresh this pass. |
-| **Must not** | Make provider calls. Evaluate contracts. Produce recommendations. |
-
-### `src/cache/crawl-state.ts`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Durable generation and cursor tracking across page reloads and application restarts. |
-| **Inputs** | Universe size, current cursor position, generation metadata. |
-| **Outputs** | Persisted crawl state (IndexedDB). Cursor advancement. Generation rollover. |
-| **Must not** | Own cache TTL logic. Make provider calls. |
-
-### `src/write-desk/universe-scanner.ts`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Traverse the candidate universe in generation order, coordinating with the scan planner. |
-| **Inputs** | Universe, provider, scan config. |
-| **Outputs** | `ScanTelemetry` — pass-level metrics (symbols selected, completed, deferred, errors). |
-| **Must not** | Store recommendations. Own cache policy. |
+Components are organized by runtime boundary (Java backend vs browser frontend).
 
 ---
 
-## Evidence Store Layer
+## Java Backend (evidence-service-java)
 
-### `src/cache/durable-cache.ts`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | IndexedDB-backed cache with per-type TTLs. Key builder. Freshness classification. |
-| **Inputs** | Cache key, payload, data type. |
-| **Outputs** | `CacheRecord<T>`, freshness classification (`fresh`, `stale_usable`, `expired`, `missing`). |
-| **Must not** | Make provider calls. Evaluate market data. Know about recommendations. |
-
-### `src/market-session/evidence-provenance.ts`
+### `AcquisitionWorker`
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Define canonical evidence provenance. Gate logic for whether evidence should be written as canonical. |
-| **Inputs** | Session state, retrieval time, market data. |
-| **Outputs** | `EvidenceProvenance` metadata, `shouldWriteCanonical` decision. |
-| **Must not** | Read from cache. Make provider calls. *(Note: not yet integrated into write path.)* |
+| **Responsibility** | Self-scheduling background evidence acquisition. Single cycle in flight. Session-gated. |
+| **Inputs** | Universe symbols (from DB), scheduler config, session gate decision, provider adapter. |
+| **Outputs** | Evidence written to SQLite. Telemetry snapshot. Publication triggers. |
+| **Must not** | Produce recommendations. Rank candidates. Know about portfolio state. |
 
-### `src/market-session/coverage-semantics.ts`
+### `SessionGate`
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Multi-level coverage tracking (UNKNOWN → EXPIRATION_KNOWN → PRIMARY_EVALUATED → DEEP_EVALUATED). |
-| **Inputs** | Symbol, current coverage state. |
-| **Outputs** | Coverage level classification. |
-| **Must not** | Make provider calls. Own cache records. |
+| **Responsibility** | Determine whether acquisition is permitted at the current instant. |
+| **Inputs** | Clock (injectable). |
+| **Outputs** | `SessionDecision { permitted, reason }`. |
+| **Must not** | Make provider calls. Store state. Depend on evidence. |
+
+### `SqliteEvidenceStore`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Durable evidence persistence. Universe management. Work queue. Classification. |
+| **Inputs** | Symbol evidence (expirations, chains, failures). Universe seed. |
+| **Outputs** | Prioritized work queue. Classified population. Evidence snapshots. Generation counter. |
+| **Must not** | Make provider calls. Produce recommendations. |
+
+### `TradierAdapter`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Provider communication. Credential custody. Response normalization. |
+| **Inputs** | Symbol, expiration. API credential. |
+| **Outputs** | Normalized `MarketExpiration[]`, `MarketChain`. |
+| **Must not** | Store evidence. Know about scheduling. Leak Tradier response shapes. |
+
+### `RequestPacer`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Rate-limit compliance. Queue-based serialization of provider calls. |
+| **Inputs** | Callable tasks. Rate configuration (0.9 req/sec). |
+| **Outputs** | Paced execution. Queue depth and rejection metrics. |
+| **Must not** | Decide what to acquire. Know about evidence or scheduling. |
+
+### `SnapshotController`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Serve evidence snapshot with conditional HTTP (ETag/304). |
+| **Inputs** | HTTP request (optional If-None-Match header). Store state. |
+| **Outputs** | v1 JSON snapshot or 304 Not Modified. ETag header. |
+| **Must not** | Trigger acquisition. Modify evidence. |
+
+### `StatusController`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Expose scheduler state, telemetry, evidence meta, pacer/cache diagnostics. |
+| **Inputs** | Worker status. Scheduler telemetry. Store metrics. |
+| **Outputs** | JSON status response. |
+| **Must not** | Trigger acquisition. Modify state. |
+
+### `NudgeController`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Allow operator to request immediate cycle assessment. |
+| **Inputs** | POST request. |
+| **Outputs** | `{"status":"nudged"}`. Worker nudge side-effect. |
+| **Must not** | Bypass session gate. Guarantee cycle execution. |
 
 ---
 
-## Market Session Layer
+## Browser Frontend — Recommendation Layer
 
-### `src/market-session/session-policy.ts`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Classify current time into one of 6 market session states. Determine canonical session date and evidence acceptance. |
-| **Inputs** | Current `Date`, trading calendar. |
-| **Outputs** | `MarketSessionClassification` — state, canonical date, flags for evidence acceptance and prior-session validity. |
-| **Must not** | Make provider calls. Own cached data. Produce recommendations. |
-
-### `src/market-session/trading-calendar.ts`
+### `src/write-desk/recommend.ts` (`recommendPuts`)
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | US market 2026 calendar: holidays, early-close days, regular session times. |
-| **Inputs** | Date. |
-| **Outputs** | Whether day is trading day, session times, early-close status. |
-| **Must not** | Contain business logic beyond calendar facts. |
+| **Responsibility** | Generate ranked put candidates from cached evidence + policy + portfolio. |
+| **Inputs** | Universe symbols, deployable cash, durable cache, policy, session state. |
+| **Outputs** | Ranked `PutCandidate[]`, funnel metrics, coverage requests. |
+| **Must not** | Make provider calls. Modify cache. Know about UI state. |
 
-### `src/market-session/primary-expiration-policy.ts`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Determine the primary expiration to evaluate for a given symbol (nearest to target DTE 21 within eligible range). |
-| **Inputs** | Available expirations, target DTE, eligible range. |
-| **Outputs** | Selected primary expiration or null. |
-| **Must not** | Make provider calls. Know about ranking or recommendations. |
-
----
-
-## Recommendation Engine (Wheelwright)
-
-### `src/write-desk/recommend.ts`
+### `src/write-desk/recommend-calls.ts` (`recommendCalls`)
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Produce ranked put recommendations from cached evidence + portfolio + policy. The Wheelwright engine. |
-| **Inputs** | Universe symbols, deployable cash, durable cache, cache environment, recommendation policy, session context. |
-| **Outputs** | `RecommendationResult` — ranked `PutCandidate[]`, wait candidates, coverage state, coverage requests. |
-| **Must not** | Call providers. Fetch network data. Mutate cache. Interact with UI. |
+| **Responsibility** | Generate ranked call candidates for held inventory from cached evidence. |
+| **Inputs** | Inventory positions, durable cache, policy, session state. |
+| **Outputs** | Ranked `CallCandidate[]`, excluded list. |
+| **Must not** | Make provider calls. Modify cache. Evaluate positions without free shares. |
 
 ### `src/write-desk/brief-builder.ts`
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Build the Wheelwright Brief view model from cached evidence and recommendation. Pure function. |
-| **Inputs** | `PutCandidate`, policy, portfolio, session classification, cache, table position context. |
-| **Outputs** | `WheelwrightBriefViewModel` — identity, decision, delta fit, neighborhood, position impact, provenance. |
-| **Must not** | Call providers. Mutate state. Trigger acquisitions. |
+| **Responsibility** | Build the Wheelwright Recommendation Brief view model. |
+| **Inputs** | PutCandidate, policy, portfolio, session, cache, table position. |
+| **Outputs** | `WheelwrightBriefViewModel` — decision summary, evidence, neighborhood, impact, provenance. |
+| **Must not** | Make provider calls. Modify state. Produce side effects. |
+
+### `src/write-desk/execution-assessment.ts`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Score contract execution quality. Hard-no detection. Posture assignment. |
+| **Inputs** | Contract evidence (bid, ask, spread, OI, volume, delta). Policy thresholds. |
+| **Outputs** | `ExecutionAssessment { score, posture, components }`. |
+| **Must not** | Know about ranking. Know about affordability. Make provider calls. |
 
 ---
 
-## Broker Handoff Layer
+## Browser Frontend — Evidence Cache
 
-### `src/execution/write-intent.ts`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Construct a broker-neutral WriteIntent from a recommendation. Format Fidelity security IDs. |
-| **Inputs** | `PutCandidate`, optional quantity. |
-| **Outputs** | `WriteIntent` or null (if data insufficient). |
-| **Must not** | Call providers. Submit orders. Interact with broker systems. |
-
-### `src/execution/fidelity-trade-link.ts`
+### `src/cache/durable-cache.ts`
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Accept a WriteIntent and produce a pre-populated Fidelity trade-ticket URL. |
-| **Inputs** | `WriteIntent`. |
-| **Outputs** | `FidelityTradeLink` — URL string + verification requirements list. |
-| **Must not** | Submit orders. Interact with Fidelity credentials. Automate broker pages. Assume order acceptance. |
+| **Responsibility** | IndexedDB-backed cache with per-type TTLs. Freshness classification. |
+| **Inputs** | Cache records (populated from backend snapshot polling). |
+| **Outputs** | `CacheRecord<T>`, freshness classification (fresh, stale_usable, expired, missing). |
+| **Must not** | Make provider calls. Own evidence lifecycle. |
 
 ---
 
-## Write Desk (UI Layer)
+## Browser Frontend — Portfolio Context
 
-### `src/components/WriteDesk.tsx`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Main operator workbench. Composes 3-band header, candidate board, drawer. Orchestrates scan + recommend workflow. |
-| **Inputs** | User interactions, portfolio source selection. |
-| **Outputs** | Rendered operational interface. Triggers acquisition and recommendation. |
-| **Must not** | Own recommendation logic. Own evidence acquisition logic. Own broker submission. |
-
-### `src/components/RecommendationBrief.tsx`
+### `src/write-desk/fidelity-snapshot.ts`
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Right-side drawer showing decision-critical evidence for a selected recommendation. Includes broker handoff. |
-| **Inputs** | `PutCandidate`, policy, portfolio, session, cache environment, table position. |
-| **Outputs** | Rendered brief with identity, decision summary, execution evidence, strike neighborhood, position impact, provenance, Fidelity link. |
-| **Must not** | Call providers. Fetch from network. Own recommendation logic. Submit orders. |
+| **Responsibility** | Build normalized PortfolioSnapshot from Fidelity CSV data. |
+| **Inputs** | Parsed OptionSummaryRow[], ParsedBalances. |
+| **Outputs** | `PortfolioSnapshot` — inventory, cash, existing options, economics, readiness. |
+| **Must not** | Make market data calls. Produce recommendations. |
 
 ### `src/components/FidelityUpload.tsx`
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Fidelity CSV upload interface (positions + activity files). |
-| **Inputs** | File selection events. |
-| **Outputs** | `PortfolioSnapshot` via callback. |
-| **Must not** | Make market data calls. Produce recommendations. |
+| **Responsibility** | Two-file CSV upload UI. Slot management. localStorage persistence. |
+| **Inputs** | File uploads (Option Summary + Balances). |
+| **Outputs** | Parsed snapshot via callback. Slot state for UI display. |
+| **Must not** | Produce recommendations. Make market data calls. |
 
 ---
 
-## Portfolio Layer
+## Browser Frontend — Operator Workbench
 
-### `src/write-desk/demo-snapshot.ts`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Create a deterministic simulated portfolio for development use. |
-| **Inputs** | None (hardcoded). |
-| **Outputs** | `PortfolioSnapshot` with demo positions, cash, existing puts. |
-| **Must not** | Call providers. Vary between invocations. |
-
-### `src/write-desk/types.ts`
+### `src/components/WriteDesk.tsx`
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Define `PortfolioSnapshot`, `PortfolioSourceType`, related portfolio types. |
-| **Inputs** | None (type definitions). |
-| **Outputs** | Type system for portfolio state. |
-| **Must not** | Contain logic. Import React. |
+| **Responsibility** | Operator workflow orchestration. Evidence polling. Recommendation triggering. |
+| **Inputs** | Portfolio snapshot, backend evidence (via polling), policy state. |
+| **Outputs** | Rendered put/call tables, policy controls, drawer trigger, collapse state. |
+| **Must not** | Own recommendation logic. Make direct provider calls. |
+
+### `src/components/RecommendationBrief.tsx`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Right-side drawer for put recommendation inspection. |
+| **Inputs** | PutCandidate, policy, portfolio, session, cache environment. |
+| **Outputs** | Rendered brief (decision summary, evidence, neighborhood, governance, handoff). |
+| **Must not** | Make provider calls. Modify recommendations. Own broker submission. |
 
 ---
 
-## Universe Layer
+## Browser Frontend — Broker Handoff
 
-### `src/universe/sources/yahoo.ts`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Bundled Yahoo 496 ETF universe (seed data, captured July 13, 2026). |
-| **Inputs** | None (static). |
-| **Outputs** | `YAHOO_TOP_ETFS: string[]` — 496 symbols, alphabetically sorted. |
-| **Must not** | Make network calls. Change between invocations. |
-
-### `src/universe/universe.ts`
+### `src/execution/write-intent.ts`
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Merge and deduplicate candidate universe from all sources. |
-| **Inputs** | Yahoo source, priority watchlist. |
-| **Outputs** | Unified `CandidateSymbol[]` with source descriptor. |
-| **Must not** | Make provider calls. Own admission logic. |
+| **Responsibility** | Construct broker-neutral WriteIntent from recommendation. |
+| **Inputs** | Candidate, quantity, limit price. |
+| **Outputs** | `WriteIntent` domain object. |
+| **Must not** | Know about Fidelity. Submit orders. Mutate portfolio. |
+
+### `src/execution/fidelity-trade-link.ts`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Convert WriteIntent to Fidelity pre-populated trade ticket URL. |
+| **Inputs** | WriteIntent. |
+| **Outputs** | `FidelityTradeLink` — URL + metadata. |
+| **Must not** | Submit orders. Interact with credentials. Mutate portfolio state. |
 
 ---
 
-## Styling Layer
+## Browser Frontend — Workspace
 
-### `src/theme-tokens.css`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Centralized dark-theme palette. 3-tier text hierarchy + disabled. Typographic scale. Spacing tokens. |
-| **Outputs** | CSS custom properties consumed by all component CSS. |
-| **Must not** | Contain component-specific rules. |
-
-### `src/write-desk.css`
+### `src/workspace/workspace.ts`
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Write Desk operational surface styles. Band layout, table, controls, portfolio disclosure. |
-| **Consumes** | `theme-tokens.css` via `@import`. |
-
-### `src/recommendation-brief.css`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Recommendation Brief drawer styles. Decision summary, evidence, neighborhood, impact, provenance, handoff. |
-| **Consumes** | `theme-tokens.css` via `@import`. |
+| **Responsibility** | Persist operator preferences in localStorage. Schema evolution via merge. |
+| **Inputs** | Partial workspace updates. |
+| **Outputs** | Complete `Workspace` (policy knobs, collapse state, display preferences). |
+| **Must not** | Store market data. Store portfolio data. Make provider calls. |
 
 ---
 
-## Scan Orchestration
+## Legacy (browser-owned acquisition — pending removal)
 
-### `src/write-desk/scan-orchestrator.ts`
+The following components belong to the browser-owned acquisition era. They remain in the codebase but are no longer on the active runtime path. The Write Desk now consumes evidence from the backend via snapshot polling rather than acquiring directly.
 
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Define candidate types (`PutCandidate`, `CallCandidate`, `CallInventoryItem`). Coordinate call scanning. |
-| **Inputs** | Portfolio inventory, provider, scan config. |
-| **Outputs** | Typed candidate arrays. |
-| **Must not** | Own recommendation ranking for puts (that's Wheelwright's job). |
+- `src/write-desk/acquire-evidence.ts` — browser acquisition orchestrator
+- `src/cache/scan-planner.ts` — crawl planning
+- `src/cache/crawl-state.ts` — generation/cursor tracking
+- `src/write-desk/universe-scanner.ts` — universe traversal
+- `src/write-desk/scan-orchestrator.ts` — full scan (puts + calls via proxy)
+- `src/providers/proxy/ProxyMarketDataProvider.ts` — HTTP proxy to backend market routes
 
-### `src/write-desk/scan-audit.ts`
-
-| Property | Value |
-|----------|-------|
-| **Responsibility** | Create and persist scan audit records for operational traceability. |
-| **Inputs** | Snapshot, candidates, excluded, provider info, policy. |
-| **Outputs** | `ScanAuditRecord` persisted to localStorage. |
-| **Must not** | Influence recommendations. Make provider calls. |
+These will be removed during TypeScript backend retirement.

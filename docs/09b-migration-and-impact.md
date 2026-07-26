@@ -1,5 +1,7 @@
 # Backend Evidence Service — Migration Plan & Documentation Impact
 
+> **HISTORICAL** — This document described a phased TypeScript-to-TypeScript backend migration that was superseded by the Java retooling. The Java backend was implemented directly rather than following these phases. Retained for project learning history. See `docs/foundations/retooling-charter.md` for the governing migration approach.
+
 **Companion to:** `09-backend-evidence-service-design.md`
 
 ---

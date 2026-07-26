@@ -1,13 +1,19 @@
-# Options Prototype — Current Architecture
+# Wheelwright — Current Architecture
 
 **Status:** Authoritative as of July 2026
-**Supersedes:** The "Architecture Evolution" appendix in `04-architecture.md`
+**Supersedes:** Prior version of this document (browser-owned acquisition era)
+
+---
+
+## Implementation Status
+
+This document describes the current target architecture of Wheelwright. The Java backend is substantially implemented and is the primary runtime architecture. Final retooling acceptance remains pending; the TypeScript backend is retained as the behavioral reference until acceptance criteria are satisfied and retirement is approved.
 
 ---
 
 ## System Identity
 
-The Options Prototype is an operator console for same-day options contract writing decisions.
+Wheelwright is an always-on evidence appliance for policy-governed options-income decision support.
 
 It is not:
 - A screener
@@ -16,217 +22,226 @@ It is not:
 - A brokerage integration
 
 It is:
-- A decision-support workbench that acquires evidence, produces recommendations, and hands off execution to a broker
+- An evidence appliance that continuously maintains an authoritative model of the options opportunity environment
+- A decision-support workbench that presents evidence, produces recommendations, and hands off execution to a broker
+- A policy engine that applies explicit, auditable rules to observed evidence
 
 ---
 
-## Architectural Layers
+## Conceptual Architecture: Four Engines
+
+Conceptually, Wheelwright is organized into four architectural concerns. These are not four independently deployed runtime services — they represent distinct responsibilities that may coexist within the same process or be separated as the system evolves.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│   Portfolio Context                                         │
-│   (Fidelity CSV import, Demo snapshot, progressive disclosure)│
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│   Evidence Acquisition                                      │
-│   (Provider calls, session gating, crawl planning,          │
-│    generation tracking, IndexedDB persistence)              │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│   Evidence Store                                            │
-│   (Durable IndexedDB cache, TTL management,                 │
-│    canonical session evidence, provenance metadata)          │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│   Recommendation Engine (Wheelwright)                        │
-│   (Contract selection, execution assessment, ranking,       │
-│    deployment policy — zero provider calls)                  │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│   Write Desk (Operator Workbench)                           │
-│   (Compact operational header, recommendation board,        │
-│    recommendation brief, policy controls)                    │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│   Broker Handoff                                            │
-│   (WriteIntent, broker adapter, Fidelity trade link,        │
-│    operator verification, external tab handoff)              │
-│                                                             │
-├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-│                                                             │
-│   Broker Execution (External — Fidelity)                    │
-│   (Preview, validation, confirmation, submission)            │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────┐
+│  EVIDENCE ENGINE                                           │
+│  What is true about the market?                           │
+│                                                           │
+│  Maintains: chains, expirations, quotes, absence,         │
+│  freshness, session validity, coverage                    │
+└─────────────────────────┬─────────────────────────────────┘
+                          │
+┌─────────────────────────▼─────────────────────────────────┐
+│  POLICY ENGINE                                             │
+│  Given evidence, what rules govern our response?           │
+│                                                           │
+│  Applies: delta range, DTE range, execution thresholds,   │
+│  governance, product structure, affordability              │
+└─────────────────────────┬─────────────────────────────────┘
+                          │
+┌─────────────────────────▼─────────────────────────────────┐
+│  DECISION ENGINE                                           │
+│  Given policy results, what is recommended?                │
+│                                                           │
+│  Produces: ranked candidates, posture assignments,         │
+│  contract selection, yield computation                     │
+└─────────────────────────┬─────────────────────────────────┘
+                          │
+┌─────────────────────────▼─────────────────────────────────┐
+│  EXPLANATION ENGINE                                        │
+│  Why was this recommended?                                 │
+│                                                           │
+│  Produces: recommendation brief, neighborhood context,     │
+│  governance annotations, provenance, delta fit             │
+└───────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Current Runtime Architecture
+
+The current runtime architecture consists of a Java backend maintaining evidence and a browser frontend producing recommendations:
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  JAVA BACKEND (evidence-service-java)                         │
+│  Spring Boot · Java 21 · SQLite                              │
+│                                                              │
+│  Acquisition Worker (self-scheduling, session-aware)          │
+│    · Tiered scheduler (A/B/C/D freshness classes)            │
+│    · Anti-starvation floors                                  │
+│    · Publication coalescing                                  │
+│                                                              │
+│  Tradier Adapter → Tradier Sandbox (60 req/min, 15m delay)   │
+│  Request Pacer (0.9 req/sec) · Response Cache                │
+│                                                              │
+│  SQLite Evidence Store (durable, WAL mode)                   │
+│    · Symbol resolution · Evidence rows · Generations         │
+│                                                              │
+│  HTTP API:                                                   │
+│    GET /api/evidence/snapshot (ETag, 304)                    │
+│    GET /api/status (scheduler telemetry)                     │
+│    GET /api/health                                           │
+│    POST /api/evidence/refresh (nudge)                        │
+└──────────────────────────────┬───────────────────────────────┘
+                               │ HTTP (conditional GET, 30s poll)
+┌──────────────────────────────▼───────────────────────────────┐
+│  BROWSER (options-prototype)                                  │
+│                                                              │
+│  Portfolio Context (Fidelity CSV → PortfolioSnapshot)         │
+│                                                              │
+│  Evidence Cache (IndexedDB, populated from backend snapshot)  │
+│                                                              │
+│  Recommendation Engines:                                     │
+│    · recommendPuts() — universe-wide put candidates           │
+│    · recommendCalls() — inventory-driven call candidates      │
+│    (Both: zero provider calls, cache-only, deterministic)    │
+│                                                              │
+│  Write Desk (Operator Workbench)                             │
+│    · Collapsible Put and Call sections                        │
+│    · Sortable candidate tables                               │
+│    · Recommendation Brief (put drawer)                       │
+│    · Policy controls                                         │
+│                                                              │
+│  Broker Handoff (WriteIntent → Fidelity trade link)          │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Layer Responsibilities
 
-### 1. Portfolio Context
+### 1. Evidence Acquisition (Java Backend)
 
-**Owns:** Portfolio snapshot, deployable cash, inventory, existing positions, pending intents, readiness assessment.
+**Owns:** Provider communication, market evidence lifecycle, session-aware scheduling, durable persistence.
+
+**Key components:**
+- `AcquisitionWorker` — self-scheduling background loop
+- `SessionGate` — market-hours enforcement (injectable clock)
+- `SqliteEvidenceStore` — durable evidence persistence
+- `TradierAdapter` — provider normalization
+- `RequestPacer` — rate-limit compliance (0.9 req/sec)
+- `SnapshotController` — ETag/conditional HTTP publication
+- `StatusController` — scheduler telemetry exposure
+
+**Scheduler (tiered freshness):**
+
+| Class | Definition | Target |
+|-------|-----------|--------|
+| A | Ready symbols with qualifying puts | ≤ 15 min chain age |
+| B | Ready symbols without qualifying puts | Best-effort, 120 min urgency |
+| C | Lifecycle work (pending, partial, retriable) | Epoch retry policy |
+| D | Prior-epoch absent | Once per epoch |
+
+**Telemetry semantics (scheduler contract):**
+- `eligible` = total classified population per class (regardless of freshness)
+- `due` = actionable subset currently in work queue (past freshness target)
+
+**Known gap:** `getPrioritizedWorkQueue` omits prior-epoch failed symbols. Documented; fix parked.
+
+**Must not:** Produce recommendations. Rank candidates. Know about portfolio state.
+
+---
+
+### 2. Portfolio Context (Browser)
+
+**Owns:** Portfolio snapshot, deployable cash, inventory, existing positions, position economics, pending intents.
 
 **Sources:**
-- Demo snapshot (simulated portfolio for development)
-- Fidelity CSV upload (positions + balances)
+- Fidelity CSV upload (Option Summary + Balances)
+- Demo snapshot (development)
 
-**Provides to downstream:** `PortfolioSnapshot` with deployable cash, call capacity, existing puts, readiness status, provenance.
+**Provides:**
+- `PortfolioSnapshot` with inventory, cash, existing calls/puts, readiness
+- `InventoryPosition` with `economics: PositionEconomics | null`
 
-**Cash model:** Fidelity's "Available to trade (all settled)" is authoritative for deployable cash. This value already accounts for open-order commitments (Fidelity subtracts reserved capital before reporting). The system does NOT subtract open-order reservations again.
+**PositionEconomics:**
+```typescript
+interface PositionEconomics {
+  averageCostPerShare: number | null;
+  costBasis: number | null;
+  marketValue: number | null;
+}
+```
 
-**Pending Intents:** Lightweight markers for submitted-but-unfilled orders. Used for **governance only** (duplicate-symbol awareness, pending exposure disclosure). NOT used for cash computation. Stored in localStorage.
-
-**Must not:** Make market data calls. Produce recommendations. Subtract open-order reservations from imported Fidelity cash.
-
----
-
-### 2. Evidence Acquisition
-
-**Owns:** Market evidence collection, provider communication, session-aware scheduling.
-
-**Key modules:**
-- `acquire-evidence.ts` — orchestrates evidence collection
-- `scan-planner.ts` — determines which symbols need fresh data
-- `crawl-state.ts` — durable generation and cursor tracking
-- `universe-scanner.ts` — traverses the candidate universe
-
-**Responsibilities:**
-- Session-aware acquisition (blocks during closed sessions)
-- Crawl planning with cache-first strategy
-- Refresh scheduling via PrimaryExpirationPolicy
-- Provider abstraction (Tradier, Mock)
-- Network telemetry and rate-limit awareness
-- Generation tracking across page reloads
-
-**Must not:** Produce recommendations. Make ranking decisions. Interact with UI directly.
-
-**Provider:** TradierProvider (sandbox, 15-min delayed, 60 req/min rate limit).
+**Cash model:** Fidelity's "Available to trade (all settled)" is authoritative. The system does NOT subtract open-order reservations — Fidelity has already done so.
 
 ---
 
-### 3. Evidence Store
-
-**Owns:** Cached market evidence with freshness semantics.
-
-**Key modules:**
-- `durable-cache.ts` — IndexedDB-backed cache with TTL tiers
-- `evidence-provenance.ts` — canonical write gate logic (defined, not yet enforced in write path)
-- `coverage-semantics.ts` — multi-level coverage tracking
-
-**Data types cached:**
-- `quote` — underlying price, description
-- `expirations` — available expiration dates
-- `chain` — full option chain (puts, calls, underlying metadata)
-- `metadata` — instrument-level data
-- `absence` — confirmed no-options-available
-
-**TTL policy:**
-- Chain: 5 min fresh, 30 min stale (overridden by session validity during closed sessions)
-- Expirations: 6 hours fresh, 24 hours stale
-- Quote: 1 min fresh, 5 min stale
-
-**Session validity rule:** When the market session is closed, cached evidence from the canonical session date remains operationally valid regardless of wall-clock TTL.
-
-**Technical debt:** Canonical evidence provenance is defined but not yet enforced in the provider write path. A `sessionClosed: boolean` shortcut is used instead of full `evidenceSessionDate === canonicalSessionDate` verification.
-
----
-
-### 4. Recommendation Engine (Wheelwright)
+### 3. Recommendation Engines (Browser — Wheelwright)
 
 **Owns:** Recommendation generation as a deterministic function of cached evidence + policy + portfolio state.
 
-**Key modules:**
-- `recommend.ts` — core recommendation engine
-- `brief-builder.ts` — Wheelwright Brief view model builder
+#### Put Recommendations (`recommendPuts`)
 
-**Inputs (all from cache or runtime state):**
-- Cached chain evidence (from Evidence Store)
-- Portfolio snapshot (deployable cash, existing exposure)
-- Recommendation policy (contract selection, ranking, deployment)
-- Session classification (for eligibility gating)
+- Evaluates the full candidate universe (~1,286 symbols)
+- Reads chain evidence from IndexedDB cache (populated by backend snapshot)
+- Applies policy: delta range, DTE range, execution thresholds, governance
+- Produces ranked `PutCandidate[]` with posture (ACTIONABLE, EDGE, WAIT)
 
-**Outputs:**
-- Ranked `PutCandidate[]` — top 20 recommendations
-- `WheelwrightBriefViewModel` — decision-support artifact
+#### Call Recommendations (`recommendCalls`)
 
-**Invariant:** Zero provider calls. Recommendations are deterministic functions of their inputs.
+- Evaluates held inventory positions with `maxAdditionalContracts > 0`
+- Reads call contracts from the same cached chains
+- Applies the same shared policy (delta, DTE, execution quality)
+- Produces ranked `CallCandidate[]` with posture
 
-**Domain concept:** "Wheelwright" represents the recommendation craftsmanship layer — the final inspection bench before committing capital.
+**Invariant:** Zero provider calls. Same evidence + same policy = same recommendations.
+
+**Valuation convention (midpoint economics):**
+
+The recommendation engine distinguishes four levels of pricing:
+
+| Level | Definition | Example |
+|-------|-----------|---------|
+| **Observed market data** | Raw bid, ask, last from the provider | bid=$1.20, ask=$1.40 |
+| **Midpoint valuation** | Policy convention: `(bid + ask) / 2` | mid=$1.30 |
+| **Indicative economics** | Derived metrics using midpoint as the assumed fill | yield=38.9%, premium=$130/ct |
+| **Executable pricing** | Actual fill depends on market conditions at order time | Unknown until execution |
+
+The system uses midpoint valuation for all indicative economics:
+- Yield: `annualizedYield(mid, collateral, dte)`
+- Premium per contract: `mid × 100`
+- Assignment basis (puts): `strike - mid`
+- Call yield denominator: `underlyingPrice` (describes the option, not the position)
+
+Midpoint is a policy convention — it represents the operator's reasonable expectation when placing a limit order near the market center. It is neither the worst-case (bid) nor a guaranteed fill.
 
 ---
 
-### 5. Write Desk (Operator Workbench)
+### 4. Write Desk (Operator Workbench)
 
 **Owns:** Operator workflow, UI composition, interaction model.
 
-**Key modules:**
-- `WriteDesk.tsx` — main component (3-band header + candidate board)
-- `RecommendationBrief.tsx` — right-side drawer
-- `FidelityUpload.tsx` — portfolio import
+**Structure:**
+- **Header:** Title, source selector, deployable cash, session state, call capacity, pending intents
+- **Put section** (collapsible): Policy controls, funnel infographic, sortable candidate table
+- **Call section** (collapsible): Covered-call candidates for held inventory
+- **Recommendation Brief:** Right-side drawer (put only; call drawer is Horizon B)
 
-**Structure (3 compact bands + board):**
-1. **Band 1:** Title, source selector, deployable cash, readiness, session state
-2. **Band 2:** Portfolio summary (chips) + disclosure for full detail
-3. **Band 3:** Scan button, policy controls, scan telemetry
-4. **Candidate Board:** Recommendation table (sortable, selectable)
-5. **Recommendation Brief:** Right-side drawer (decision summary, evidence, neighborhood, impact, provenance, broker handoff)
-
-**Responsibilities:**
-- Operator workflow orchestration
-- Recommendation inspection (table + drawer)
-- Policy controls (delta, DTE, ranking mode)
-- Portfolio context (progressive disclosure)
-- Row selection, keyboard navigation
-- Broker handoff surface
+**Collapse state:** Persisted in `Workspace` (localStorage). Both sections default expanded.
 
 **Must not:** Acquire evidence. Execute trades. Own recommendation logic.
 
 ---
 
-### 6. Broker Handoff
+### 5. Broker Handoff
 
 **Owns:** Order intent construction and broker-specific URL generation.
 
-**Key modules:**
-- `write-intent.ts` — broker-neutral WriteIntent domain type
-- `fidelity-trade-link.ts` — Fidelity adapter
+**WriteIntent → Fidelity trade link → new tab.** The system opens a pre-populated ticket. The broker is responsible for preview, validation, confirmation, and submission.
 
-**WriteIntent shape:**
-```typescript
-interface WriteIntent {
-  underlyingSymbol: string;
-  contractSymbol: string;       // Fidelity format: -XLE260717P56.5
-  expiration: string;
-  optionType: "put" | "call";
-  strike: number;
-  action: "sell-to-open";
-  quantity: number;
-  orderType: "limit";
-  limitPrice: number;
-  timeInForce: "day";
-}
-```
-
-**Fidelity URL parameters (empirically verified):**
-- `ORDER_TYPE=O`
-- `ORDER_ACTION=SOPEN`
-- `LIMIT_STOP_PRICE=<price>`
-- `SECURITY_ID=<Fidelity option symbol>`
-- `trade=rocfly`
-
-**Execution boundary:** The system constructs the proposed order and opens Fidelity's pre-populated trade ticket. Fidelity is responsible for preview, validation, confirmation, and submission. The system must not submit orders, interact with credentials, or mutate portfolio state based on opening the link.
-
-**Operator verification required:** Account, quantity, time in force, limit price, contract identity.
-
-**Post-handoff:** After confirming submission in Fidelity, the operator may optionally mark the recommendation as a Pending Intent. This records the symbol and contract for duplicate-symbol governance but does NOT affect deployable cash calculations (Fidelity's next balances export will reflect the reservation authoritatively).
+**Currently implemented for:** Cash-secured puts only. Call handoff is Horizon B.
 
 ---
 
@@ -236,64 +251,60 @@ interface WriteIntent {
 interface RecommendationPolicy {
   version: string;
   contractSelection: ContractSelectionPolicy;
+  executionAssessment: ExecutionPolicy;
   ranking: RankingPolicy;
+  deployment: DeploymentPolicy;
 }
 ```
 
-**Contract Selection:**
-- Target delta (default 0.30)
-- Preferred delta band (0.25–0.35)
-- Admissible delta range (0.15–0.50)
-- Target DTE (21)
-- Eligible DTE range (7–45)
-- Execution exclusions (zero bid, extreme spread, zero OI)
+**Shared across puts and calls:**
+- Delta range (admissible: 0.15–0.50, target: 0.30)
+- DTE range (eligible: 7–45, target: 21)
+- Execution quality thresholds
+- Ranking mode
 
-**Ranking modes:**
-- Execution First — prioritizes liquidity and tight spreads
-- Balanced — composite of execution quality and yield
-- Capital Efficiency — maximizes premium per dollar of collateral
-- Yield First — maximizes annualized return
+**Delta interpretation:**
+- Puts: filter by `|delta|` (absolute value of negative delta)
+- Calls: filter by raw positive delta
+- Same numeric range (0.15–0.50) applies to both sides
 
-**Invariant:** Recommendation Rank and Presentation Sort are independent concepts. Changing column sort does not affect recommendation order.
+**Ranking modes:** Execution First, Balanced, Yield First, Capital Efficiency.
 
 ---
 
 ## Market Session Model
 
 **States (6):**
-1. `PREMARKET` — before market open
-2. `REGULAR_OPEN_DELAY` — market open but delayed data not yet meaningful
-3. `REGULAR_OBSERVATION` — active session, accepting evidence
+1. `PREMARKET` — before 09:30 ET
+2. `REGULAR_OPEN_DELAY` — market open, delayed data not yet meaningful
+3. `REGULAR_OBSERVATION` — active session
 4. `DELAY_DRAIN` — session closing, draining delayed quotes
-5. `CLOSED_CANONICAL` — session closed, evidence sealed
+5. `CLOSED_CANONICAL` — after 16:15 ET, evidence sealed
 6. `NON_TRADING_DAY` — weekend/holiday
 
-**Session gating:** Evidence acquisition is blocked during closed sessions. Recommendations use sealed canonical evidence.
+**Session gating:** Acquisition blocked during closed sessions (backend). Sealed canonical evidence remains valid for recommendations during closed sessions (frontend).
 
-**Trading calendar:** US market 2026 holidays and early-close days (1:15 PM ET for options).
+**Trading calendar:** 2026 US market holidays (10), early-close days (2). DST via simplified month/day heuristic.
+
+---
+
+## Evidence Snapshot Contract
+
+**Endpoint:** `GET /api/evidence/snapshot`
+
+**Conditional HTTP:** `If-None-Match` → `304 Not Modified` when generation unchanged.
+
+**ETag format:** `"gen-<N>"` (monotonically increasing).
+
+**Contract:** Frozen at v1. See `docs/contracts/evidence-snapshot-v1.md`.
 
 ---
 
 ## Candidate Universe
 
-**Authoritative source:** Yahoo 496 ETFs (captured July 13, 2026).
+**Canonical source:** Yahoo merged ETF list (1,286 symbols, imported from seed CSV on backend startup).
 
-**Supplementary:** PRIORITY_WATCHLIST (operator additions, non-authoritative).
-
-**Universe management:** The Yahoo 496 is the production put universe. Velvet Rope (admission gating) remains a future bounded context.
-
----
-
-## Design Principles
-
-1. **Policy over prediction.** The system applies configurable policy rather than predicting market direction.
-2. **Cache-backed recommendations.** Wheelwright never calls providers. All recommendations derive from cached evidence.
-3. **Deterministic recommendation generation.** Same inputs → same outputs. No randomness, no hidden state.
-4. **Recommendation rank independent of presentation sort.** The operator controls view order without affecting recommendation quality.
-5. **Progressive disclosure.** Essential context visible; full detail one interaction away.
-6. **Evidence before execution.** The system presents evidence and recommendations. The human decides.
-7. **Human confirmation before broker submission.** The system opens a pre-populated ticket. The broker confirms and submits.
-8. **Numbers are the product.** Numeric values dominate their labels visually. The operator's eye lands on values first.
+**Call universe:** Derived from `PortfolioSnapshot.inventory` — only held positions with ≥ 100 free shares.
 
 ---
 
@@ -301,49 +312,68 @@ interface RecommendationPolicy {
 
 | Component | Choice |
 |-----------|--------|
-| Framework | React 18+ with TypeScript (strict) |
-| Build | Vite |
-| Tests | Vitest (843+ tests across 57 files) |
-| Storage | IndexedDB (durable cache), localStorage (workspace) |
-| Provider | Tradier (sandbox, REST API, 15-min delayed) |
+| Backend | Java 21, Spring Boot 3.4, SQLite (JDBC) |
+| Frontend framework | React 18+ with TypeScript (strict) |
+| Frontend build | Vite |
+| Frontend tests | Vitest (968 tests) |
+| Backend tests | JUnit 5 (146 tests) |
+| Frontend storage | IndexedDB (evidence cache), localStorage (workspace) |
+| Backend storage | SQLite with WAL mode |
+| Provider | Tradier sandbox (REST, 15-min delayed, 60 req/min) |
 | Styling | CSS custom properties (centralized theme tokens) |
-| State | React useState/useCallback/useMemo (no external library) |
-| Routing | Lightweight pathname router (no library) |
+| State management | React hooks (no external library) |
 
 ---
 
-## Test Coverage
+## Design Principles
 
-| Layer | Tests | Approach |
-|-------|-------|----------|
-| Domain calculations | Unit | Pure functions, known inputs/outputs |
-| Recommendation engine | Unit | Deterministic policy evaluation |
-| Brief builder | Unit | View model construction, delta fit classification |
-| Fidelity adapter | Unit | URL construction, symbol formatting, edge cases |
-| Evidence provenance | Unit | Session gating, canonical write logic |
-| Market session | Unit | 6-state classification, calendar, holidays |
-| CSV parsers | Unit | Document detection, field extraction, edge cases |
-| Scan orchestrator | Integration | Cache reads, candidate ranking |
+1. **Evidence appliance.** The backend maintains evidence continuously and independently of any connected client.
+2. **Policy over prediction.** Explicit, auditable rules — not market forecasting.
+3. **Cache-backed recommendations.** Wheelwright never calls providers. All recommendations derive from cached evidence.
+4. **Deterministic recommendation generation.** Same inputs → same outputs.
+5. **Midpoint economics.** Yield and premium use midpoint valuation as the indicative fill price.
+6. **Failed refresh preserves successful evidence.** A failed acquisition never overwrites the last successful payload.
+7. **Session awareness is correctness.** Acquiring during closed sessions is a modeling failure.
+8. **Recommendation rank independent of presentation sort.** The operator controls view order without affecting recommendation quality.
+9. **Human confirmation before broker submission.** The system opens a ticket; the broker confirms.
+10. **Numbers are the product.** Numeric values dominate their labels visually.
+
+---
+
+## Calls Architecture (Horizon A — Implemented)
+
+The first slice of call recommendations restores covered-call candidates for held, unencumbered, quantized shares.
+
+**What exists:**
+- `recommendCalls()` reads call contracts from cached chains
+- Filters inventory for `maxAdditionalContracts > 0` (free shares ≥ 100)
+- Applies shared delta/DTE/execution policy
+- Produces ranked `CallCandidate[]`
+- Rendered in collapsible Call section of Write Desk
+
+**What is deferred (Horizon B/C):**
+- Call drawer (full recommendation brief)
+- Projected Call Surface (put drawer showing egress opportunity)
+- Appreciation geometry (basis vs strike vs current price)
+- Call execution handoff (Fidelity trade link for calls)
+- Historical lifecycle linkage
+- Put/call symmetry classification
+- Familiarity / instrument affinity
+- User-specific durable state
 
 ---
 
 ## Relationship to Prior Architecture
 
-The original Slice 1 architecture (`04-architecture.md`) described a simple options-chain viewer with mock data. That architecture remains historically accurate for the bootstrapping phase.
+This document supersedes the earlier version that described browser-owned acquisition with IndexedDB as the primary evidence store. Key evolution:
 
-This document describes the system that now exists: an operational write desk with evidence acquisition, cache-backed recommendations, and broker handoff.
+| Before (browser-owned) | Now (backend-owned) |
+|------------------------|---------------------|
+| Browser acquires from Tradier via proxy | Java backend acquires directly |
+| IndexedDB is system of record | SQLite is system of record; IndexedDB is a read cache |
+| Scan button triggers acquisition | Always-on worker, 30s polling from frontend |
+| `scanCalls()` via ProxyMarketDataProvider | `recommendCalls()` via cached evidence |
+| Puts only | Puts and Calls |
+| Bid-based yield | Midpoint-based yield |
 
-The following Slice 1 concepts have evolved:
-- `MarketDataProvider` → Evidence Acquisition + Evidence Store
-- `OptionsTable` → Recommendation Board (sortable, selectable, policy-aware)
-- `MetricsPanel` → Recommendation Brief (drawer with 5 sections + broker handoff)
-- `useOptionsChain` → `acquireEvidence` + `recommendPuts` (separated concerns)
-- `DeltaInput` → Policy Strip (multi-parameter control)
-
-The following concepts are new (no Slice 1 equivalent):
-- Wheelwright (recommendation engine as named domain concept)
-- WriteIntent / Broker Handoff
-- Market Session Model (6-state)
-- Evidence Provenance
-- Progressive Disclosure layout
-- Compact 3-band operational header
+The TypeScript backend (`evidence-service/`) remains the behavioral reference during Java retooling acceptance. It implements the same API contract and can be used interchangeably.

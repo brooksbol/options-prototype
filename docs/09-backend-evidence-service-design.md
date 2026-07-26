@@ -1,7 +1,9 @@
 # Backend Evidence Service — Design Document
 
+> **NOTE:** This document was written for the TypeScript implementation. The architecture and API design remain valid; the implementation technology changed to Java/Spring Boot. See `evidence-service-java/` for the current implementation.
+
 **Date:** July 2026
-**Status:** Proposed (not yet implemented)
+**Status:** Design valid; implemented in Java (not TypeScript as originally proposed)
 **Companion:** `08-adr-backend-evidence-service.md`
 
 ---
