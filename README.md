@@ -237,7 +237,7 @@ The system currently implements:
 - **Put recommendations** (Wheelwright) — deterministic, cache-backed, zero provider calls
 - **Call recommendations** (Horizon A) — inventory-driven, cache-backed, for held unencumbered shares
 - **Write Desk** — collapsible put/call sections, sortable tables, policy controls
-- **Recommendation Brief** — put drawer with decision summary, evidence, neighborhood, governance
+- **Recommendation Brief** — put drawer with decision summary, evidence, neighborhood, governance, Projected Call Surface
 - **Broker handoff** — Fidelity trade link construction (puts)
 - **Market session model** — 6-state classification, trading calendar, sealed evidence semantics
 - **Instrument governance** — product structure classification, leveraged/inverse detection

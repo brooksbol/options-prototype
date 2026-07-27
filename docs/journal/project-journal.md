@@ -4708,3 +4708,57 @@ The TypeScript backend achieves the retooling charter's acceptance criterion: "T
 - Database: `evidence-service/data/evidence.sqlite3`
 - Provider: Tradier sandbox
 - Proxy: Vite `/api` → `localhost:3100`
+
+---
+
+## Calls Horizon B — Projected Call Surface (Entry Point 1)
+
+**Date:** July 27, 2026
+
+### What was delivered
+
+The selected-put drawer now includes a Projected Call Surface section showing the conditioned call landscape from the proposed assignment basis.
+
+Operator question answered: "If this put assigns, what covered-call opportunities currently exist from the projected basis?"
+
+### Implementation
+
+- Shared domain computation: `loadConditionedCallEvidence()` (cache loader) + `assessConditionedCallSurface()` (pure domain function)
+- Integrated into `buildWheelwrightBrief` lifecycle — computes atomically with the rest of the brief
+- Uses canonical `effectiveCostBasis` from Position Impact (single source of truth)
+- Failure-contained: PCS exceptions caught, brief resolves with `projectedCallSurface: null`
+- Output is structured evidence: per-expiration assessment, aggregate counts, representative qualifying opportunities (bounded to 5), all applicable policy failure reasons, basis-relative geometry, explicit evidence availability and freshness
+
+### Rendered section
+
+- "IF ASSIGNED" conditional framing
+- Projected basis with derivation (strike − premium)
+- Policy-admissible call count and expirations evaluated
+- Representative contracts table: strike, exp, DTE, delta, bid, ask, mid yield from basis, distance above basis
+- Labeled "Representative policy-admissible contracts above projected basis"
+- Evidence freshness and provenance
+- Graceful states: unavailable, partial, empty
+
+### What is NOT included
+
+- No recommendation posture, ranking, or execution affordances
+- No quality score or classification
+- No existing-put entry point (requires UI surface design — next increment)
+- No appreciation geometry
+- No Fidelity execution handoff for calls
+
+### Design decisions
+
+- PCS is evidence, not a recommendation (no ACTIONABLE/WAIT/EDGE labels)
+- One computation, two entry points: proposed-put (projected-mid basis) delivered; existing-put (strike-only) planned
+- Basis confidence explicit: "projected-mid" means known premium derivation; "strike-only" means conservative assumption
+- Snapshot-at-open: PCS assessed once when drawer opens, not continuously updating
+- Calls below basis remain measurable in the domain output but are not displayed as qualifying
+
+### Tests
+
+- 13 domain tests (conditioned-call-surface.test.ts): evidence states, basis geometry, policy filtering, yield from basis, multi-expiration aggregation, failure reasons, freshness
+- 5 builder integration tests (brief-builder-pcs.test.ts): canonical basis, exception containment, unavailable state, empty surface, representative output
+- 5 component contract tests (ProjectedCallSurface.test.tsx): evidence-only labels, no execution affordances, basis source semantics
+
+Full suite: 1019 tests pass.

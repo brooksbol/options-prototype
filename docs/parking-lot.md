@@ -38,7 +38,7 @@
 
 | ID | Name | Maturity | Summary | Concept Home |
 |---|---|---|---|---|
-| `PL-CALL-01` | Calls Horizon B | Partially Delivered | Call drawer delivered. Next: Projected Call Surface (two entry points: proposed puts + existing puts). Remaining: appreciation geometry, call execution handoff. | `23-calls-architecture.md` |
+| `PL-CALL-01` | Calls Horizon B | Partially Delivered | Call drawer + Projected Call Surface (proposed-put entry point) delivered. Remaining: existing-put PCS entry point, appreciation geometry, call execution handoff. | `23-calls-architecture.md` |
 | `PL-CALL-02` | Calls Horizon C | Exploratory | Historical lifecycle linkage, independent call discovery (instruments not yet owned), longitudinal call intelligence, user-specific state, lifecycle quality in ranking. | `23-calls-architecture.md` |
 | `PL-CALL-03` | Familiarity vs Favorites | Seed | Familiarity is inferred from history/interaction. Favorites are explicit operator designation. Separate concepts that must not silently collapse. | None |
 

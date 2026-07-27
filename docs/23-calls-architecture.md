@@ -1,6 +1,6 @@
 # Covered-Call Architecture
 
-**Status:** Horizon A implemented; Horizon B in progress (call drawer delivered, Projected Call Surface next)
+**Status:** Horizon A implemented; Horizon B in progress (call drawer + Projected Call Surface delivered; existing-put entry point planned)
 **Date:** July 2026
 
 ---
@@ -99,65 +99,34 @@ Not included in this increment:
 - No Fidelity execution handoff (deferred)
 - No appreciation geometry visualization (deferred)
 
-### Projected Call Surface (Next — Planned)
+### Projected Call Surface (Delivered — Entry Point 1)
 
 A reusable conditioned-ownership computation that evaluates the covered-call landscape from a specific hypothetical or actual ownership state.
 
-#### Core computation
+This is the first implementation slice of the Conditioned Operating Opportunity concept (`docs/foundations/conditioned-operating-opportunity.md`). The foundation document defines the broader domain model and open design questions; this section describes the concrete delivered behavior.
 
-The Projected Call Surface is a single computation that accepts a normalized conditioned-ownership input:
+#### Implementation (proposed-put entry point)
 
-```
-assessConditionedCallSurface({
-  underlying,
-  assumedBasisPerShare,
-  shareQuantity,
-  basisSource,
-  origin,
-  cache,
-  policy
-}) → ConditionedCallSurface
-```
+The selected-put drawer includes a Projected Call Surface section after Position Impact. It answers: "If this put assigns, what covered-call opportunities currently exist from the projected basis?"
 
-The output describes the observable call environment from that ownership state using currently cached evidence. It is **evidence, not a recommendation.** It does not authorize or execute a trade.
+Delivered behavior:
+- Integrated into `buildWheelwrightBrief` lifecycle — computes atomically with the rest of the brief
+- Uses the canonical `effectiveCostBasis` from Position Impact (single source of truth)
+- Failure-contained: PCS exceptions do not prevent the ordinary put brief from rendering
+- Displays projected basis with derivation (strike − premium), policy-admissible call count, representative contracts table (max 5, sorted by delta proximity to target), bid/ask/mid yield from basis, strike distance above basis, evidence freshness
+- Labeled "Representative policy-admissible contracts above projected basis" — no recommendation posture, ranking, or execution affordances
+- "IF ASSIGNED" conditional framing makes the hypothetical nature explicit
+- Graceful states: unavailable (no evidence), partial (missing chains), empty (no qualifying calls above basis)
+- Snapshot-at-open semantics: assessed from evidence loaded with the brief, not continuously updating
 
-#### Two entry points
+Implementation:
+- `conditioned-call-surface.ts` — shared domain: `loadConditionedCallEvidence()` + `assessConditionedCallSurface()`
+- `brief-builder.ts` — integrates PCS into `WheelwrightBriefViewModel`
+- `RecommendationBrief.tsx` — `ProjectedCallSurfaceSection` renders the evidence
 
-The same computation serves two distinct operator questions:
+#### Remaining (existing-put entry point — Planned)
 
-**1. Put recommendation drawer (transition quality)**
-
-> "Should I enter this obligation? How gracefully does it transition into the covered-call side of the Wheel?"
-
-- Input: `PutCandidate` being inspected
-- Basis: `strike - midPrice` (known, specific contract)
-- Basis confidence: high — current midpoint-based projected basis
-- Origin: `"proposed-put"`
-- Displayed as: a section in the put Recommendation Brief
-
-This is Put/Call Symmetry evidence. It helps the operator evaluate whether a proposed put recommendation leads to a healthy continuing Wheel position if assigned.
-
-**2. Existing open short puts (assignment planning)**
-
-> "I already own this obligation. Show me the likely next phase."
-
-- Input: `OpenShortPut` from portfolio
-- Basis: `strike` (conservative assumption; actual premium received is not in the current data model)
-- Basis confidence: lower — original premium unavailable; must be explicitly labeled as an approximation
-- Origin: `"existing-put"`
-- Displayed as: accessible from the portfolio's existing short put positions
-
-This is planning evidence for an actual obligation, not a new recommendation.
-
-#### Important constraints
-
-- **Basis provenance must be explicit.** Do not silently present strike as the actual effective basis. When premium is unavailable, label it: "Basis assumption: put strike; original premium unavailable."
-- **The strike-vs-effective-basis difference is not immaterial.** In narrow strike ladders, it may change which call strikes clear the basis. Treat it as an approximation with stated provenance.
-- **Output is non-executable.** The Projected Call Surface describes what call opportunities currently exist. It is not a call recommendation. Actual execution requires held shares (which don't exist yet for put-conditioned cases).
-
-#### Relationship to Conditioned Operating Opportunity
-
-This is the first implementation slice of the Conditioned Operating Opportunity concept (`docs/foundations/conditioned-operating-opportunity.md`). The foundation document defines the broader domain model; this section defines the concrete implementation direction.
+The same conditioned-ownership computation exposed from existing open short puts in the imported portfolio. Uses `strike` as conservative basis assumption (original premium unavailable). Explicit provenance labeling. UI surface to be designed before implementation.
 
 ### Put/Call Symmetry (Evidence)
 
