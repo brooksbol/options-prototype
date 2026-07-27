@@ -4582,3 +4582,74 @@ Full suite: 67 files, 979 tests, all pass.
 The call drawer reuses `classifyDeltaFit` from the put brief builder and shares the same CSS infrastructure. The call neighborhood builder reads `chainRecord.payload.calls` (not puts) for the same expiration. This confirms the structural symmetry between put and call evidence consumption.
 
 The Calls recommendation path remains backend-independent: `recommendCalls()` and `buildCallBrief()` read only from IndexedDB. Backend retooling affects evidence freshness, not recommendation behavior.
+
+---
+
+## Calls Horizon B — Stale State and Empty-State Correctness Fix
+
+**Date:** July 21, 2026
+
+### Context
+
+After delivering the call inspection drawer (commit `67c304d`), live testing with a Fidelity portfolio snapshot exposed two correctness defects:
+
+1. **Stale recommendation state survived portfolio replacement.** Switching from demo to Fidelity source left the demo's call candidates and selected call drawer visible. The header badge showed "1 Call" from the prior portfolio. The operator saw a recommendation that no longer applied to their actual position.
+
+2. **Calls section disappeared entirely when no free capacity existed.** A Fidelity portfolio with all shares encumbered by existing short calls produced zero `maxAdditionalContracts > 0` positions. The rendering gate (`snapshot.inventory.some(p => p.maxAdditionalContracts > 0)`) suppressed the entire section, leaving the operator with no indication of why calls were absent.
+
+### Root causes
+
+1. `handleSourceChange` and `handleFidelityFileChange` only cleared put-related state. Call candidates, call wait candidates, selected call candidate, and selected put candidate were not reset on portfolio change. This was an omission from the original Calls implementation — puts had the same gap but it was less visible because put candidates are recomputed on the next poll cycle.
+
+2. The Calls section rendering had a hard visibility gate that required at least one inventory position with free capacity. When that condition was false, the section simply didn't render — no explanation, no operator feedback.
+
+### Invariant established
+
+**Selection validity:** A selected recommendation is valid only while it remains in the current recommendation set for the active portfolio and current evidence state.
+
+Clear both put and call selections when:
+- Portfolio source changes
+- Fidelity input files are replaced
+- Recommendation results are recomputed and the selected candidate's identity (symbol + expiration + strike) is absent from the new results
+
+### What was fixed
+
+- `handleSourceChange`: now clears all put/call candidates, selections, coverage, funnel, and scan state synchronously at the source-change boundary
+- `handleFidelityFileChange`: same comprehensive clearing
+- Selection validity after recomputation: both `handleNewEvidence` and `handleReRecommend` validate selected put/call against new results using identity matching
+- When no inventory has free capacity after recomputation, call state is explicitly cleared (defensive invariant)
+- Calls section always renders when the Write Desk is operationally ready; empty state is diagnosed by `deriveCallEmptyState()` which produces specific messages for each condition
+
+### Empty-state diagnostic rules
+
+Priority order:
+1. No inventory → "No held shares available for covered calls."
+2. Zero total shares → same message
+3. All shares encumbered → "Held shares are fully encumbered by existing short calls."
+4. Free shares below 100-share contract threshold → identifies largest position
+5. No evidence yet (no scan, no backend meta) → "Call evidence is not available yet."
+6. Evidence exists, policy didn't match → "No call contracts currently satisfy policy for held inventory."
+
+WAIT candidates are never misrepresented as "no calls" — the rendering logic shows the table (with WAIT rows) whenever callWaitCandidates is non-empty.
+
+### Tests
+
+17 new tests in `call-empty-state.test.ts`: 8 empty-state diagnosis, 5 selection-validity identity matching, 3 Fidelity encumbrance scenarios, 1 WAIT invariant documentation.
+
+Full suite: 68 files, 996 tests, all pass.
+
+### Architecture note
+
+The `deriveCallEmptyState` function was extracted into `src/write-desk/call-empty-state.ts` as a testable pure function. WriteDesk.tsx delegates to it, passing the normalized input (inventory, hasScanCompleted, hasEvidenceMeta) rather than raw component state.
+
+### ETag/recomputation-trigger root cause (additional finding)
+
+Investigation revealed a deeper issue: after portfolio source change, recommendations appeared empty not only because stale candidates weren't cleared, but because the backend snapshot's ETag hadn't changed. The frontend's conditional polling (`If-None-Match`) received 304 Not Modified, so `handleNewEvidence` was never called and recomputation never triggered.
+
+**Fix:** Reset `etagRef.current = null` in both `handleSourceChange` and `handleFidelityFileChange`. This forces the next poll to fetch fresh (200 response), triggering the full merge + recompute cycle.
+
+**Follow-up (PL-ARCH-05):** Portfolio-dependent recommendation recomputation should be independently triggerable from cached evidence. It should not depend on a changed backend ETag or new acquisition cycle. The ETag reset is a tactical operational fix; the architectural resolution is a standalone "recompute from cache" path.
+
+### Selection validity helper extraction
+
+The identity-matching logic (`candidateExistsInResults`) was extracted into `call-empty-state.ts` as a production helper. Both put and call validation in WriteDesk.tsx use this single helper (4 call sites). Tests invoke the production function directly — no test-local duplication.

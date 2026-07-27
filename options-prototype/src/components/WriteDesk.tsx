@@ -14,6 +14,7 @@ import { createDemoSnapshot } from "../write-desk/demo-snapshot";
 import { type PutCandidate, type CallCandidate } from "../write-desk/scan-orchestrator";
 import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type RecommendationPolicy } from "../write-desk/recommend";
 import { recommendCalls } from "../write-desk/recommend-calls";
+import { deriveCallEmptyState, candidateExistsInResults } from "../write-desk/call-empty-state";
 import type { RecommendationFunnel } from "../write-desk/recommend";
 import { getDurableCache } from "../cache/durable-cache";
 import { deriveTrustState } from "../write-desk/trust-state";
@@ -104,6 +105,15 @@ export function WriteDesk() {
     setPutWideSpreadCandidates(recResult.wideSpreadCandidates);
     setPutIsProvisional(recResult.coverageRequests.length > 0);
     setPutFunnel(recResult.funnel);
+
+    // Selection validity: clear put selection if absent from new results
+    setSelectedCandidate((prev) => {
+      if (!prev) return null;
+      const allPuts = [...recResult.candidates, ...recResult.waitCandidates, ...recResult.wideSpreadCandidates];
+      if (!candidateExistsInResults(prev, allPuts)) { setTablePosition(null); return null; }
+      return prev;
+    });
+
     // Also re-recommend calls with updated policy
     if (snapshot && snapshot.inventory.some(p => p.maxAdditionalContracts > 0)) {
       const callResult = await recommendCalls(
@@ -115,6 +125,17 @@ export function WriteDesk() {
       );
       setCallCandidates(callResult.candidates);
       setCallWaitCandidates(callResult.waitCandidates);
+
+      // Selection validity: clear call selection if absent from new results
+      setSelectedCallCandidate((prev) => {
+        if (!prev) return null;
+        const allCalls = [...callResult.candidates, ...callResult.waitCandidates];
+        return candidateExistsInResults(prev, allCalls) ? prev : null;
+      });
+    } else {
+      setCallCandidates([]);
+      setCallWaitCandidates([]);
+      setSelectedCallCandidate(null);
     }
   }, [snapshot, universeSymbols, providerKey]);
 
@@ -133,11 +154,20 @@ export function WriteDesk() {
       // Restore preserved Fidelity snapshot if available
       setSnapshot(fidelitySnapshot);
     }
-    // Invalidate prior results on source change
+    // Invalidate ALL prior results and selections on source change
     setPutCandidates([]);
     setPutWaitCandidates([]);
+    setPutWideSpreadCandidates([]);
+    setCallCandidates([]);
+    setCallWaitCandidates([]);
+    setSelectedCandidate(null);
+    setSelectedCallCandidate(null);
+    setTablePosition(null);
     setPutCoverage(null); setPutIsProvisional(true);
+    setPutFunnel(null);
     setScanTimestamp(null);
+    // Reset ETag to force a fresh evidence fetch on next poll cycle
+    etagRef.current = null;
   };
 
   // Fidelity upload callbacks
@@ -149,12 +179,21 @@ export function WriteDesk() {
   }, [source]);
 
   const handleFidelityFileChange = useCallback(() => {
-    // Invalidate prior Fidelity scan results when files change
+    // Invalidate all prior results and selections when Fidelity files change
     if (source === "fidelity") {
       setPutCandidates([]);
       setPutWaitCandidates([]);
+      setPutWideSpreadCandidates([]);
+      setCallCandidates([]);
+      setCallWaitCandidates([]);
+      setSelectedCandidate(null);
+      setSelectedCallCandidate(null);
+      setTablePosition(null);
       setPutCoverage(null); setPutIsProvisional(true);
+      setPutFunnel(null);
       setScanTimestamp(null);
+      // Reset ETag to force a fresh evidence fetch on next poll cycle
+      etagRef.current = null;
     }
   }, [source]);
 
@@ -257,6 +296,14 @@ export function WriteDesk() {
     setPutIsProvisional(recResult.coverage.symbolsMissingChain > 0);
     setPutFunnel(recResult.funnel);
 
+    // Selection validity: clear put selection if it no longer exists in results
+    setSelectedCandidate((prev) => {
+      if (!prev) return null;
+      const allPuts = [...recResult.candidates, ...recResult.waitCandidates, ...recResult.wideSpreadCandidates];
+      if (!candidateExistsInResults(prev, allPuts)) { setTablePosition(null); return null; }
+      return prev;
+    });
+
     // Recommend calls for held inventory (same cache, same policy)
     if (snapshot.inventory.some(p => p.maxAdditionalContracts > 0)) {
       const callResult = await recommendCalls(
@@ -268,6 +315,18 @@ export function WriteDesk() {
       );
       setCallCandidates(callResult.candidates);
       setCallWaitCandidates(callResult.waitCandidates);
+
+      // Selection validity: clear call selection if it no longer exists in results
+      setSelectedCallCandidate((prev) => {
+        if (!prev) return null;
+        const allCalls = [...callResult.candidates, ...callResult.waitCandidates];
+        return candidateExistsInResults(prev, allCalls) ? prev : null;
+      });
+    } else {
+      // No eligible inventory — clear any stale call state
+      setCallCandidates([]);
+      setCallWaitCandidates([]);
+      setSelectedCallCandidate(null);
     }
 
     if (!scanTimestamp) {
@@ -579,7 +638,7 @@ export function WriteDesk() {
       )}
 
       {/* ═══ CALL CANDIDATES ═══ */}
-      {snapshot && snapshot.readiness.status === "READY" && (scanTimestamp || evidenceMeta) && snapshot.inventory.some(p => p.maxAdditionalContracts > 0) && (
+      {snapshot && snapshot.readiness.status === "READY" && (scanTimestamp || evidenceMeta) && (
         <section className="wd-board wd-call-board">
           <div className="wd-board-header">
             <div className="wd-board-title-row">
@@ -605,7 +664,7 @@ export function WriteDesk() {
               <CallCandidateTable candidates={[...callCandidates, ...callWaitCandidates]} selectedSymbol={selectedCallCandidate?.symbol ?? null} selectedStrike={selectedCallCandidate?.strike ?? null} onSelect={(c) => { setSelectedCallCandidate(c); setSelectedCandidate(null); }} />
             ) : (
               <div className="wd-no-trade">
-                <p>No qualifying covered-call contracts found for held inventory.</p>
+                <p>{deriveCallEmptyStateMsg(snapshot, scanTimestamp, evidenceMeta)}</p>
               </div>
             )
           )}
@@ -814,6 +873,24 @@ function CallCandidateTable({ candidates, selectedSymbol, selectedStrike, onSele
       </tbody>
     </table>
   );
+}
+
+// --- Call Empty State Diagnosis ---
+
+/**
+ * Derive an evidence-based explanation for why no covered-call candidates are shown.
+ * Delegates to the extracted, testable call-empty-state module.
+ */
+function deriveCallEmptyStateMsg(
+  snapshot: PortfolioSnapshot,
+  scanTimestamp: string | null,
+  evidenceMeta: { generation: number; generatedAt: string; coverage: any } | null
+): string {
+  return deriveCallEmptyState({
+    inventory: snapshot.inventory,
+    hasScanCompleted: !!scanTimestamp,
+    hasEvidenceMeta: !!evidenceMeta,
+  });
 }
 
 // --- Session State Formatting ---

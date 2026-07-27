@@ -25,6 +25,7 @@
 | `PL-ARCH-02` | Overlay Policy | Exploratory | DTE laddering, simultaneous rungs, roll policy, take-profit — facets beyond current RecommendationPolicy. | Journal entries |
 | `PL-ARCH-03` | Security and User Accounts | Seed | Application-managed users, password hashing, session cookies, user-ownership boundaries. Depends on cloud deployment. | `10-backend-implementation-preferences.md` §5 |
 | `PL-ARCH-04` | Policy-Governance Scaling | Seed | How policy remains versioned, attributable, inspectable, testable as complexity grows. OPA discussed as example, not selected. Frame the problem, not the technology. | None |
+| `PL-ARCH-05` | Cache-Based Recommendation Trigger | Identified | Portfolio-dependent recommendation recomputation should be independently triggerable from cached evidence (IndexedDB). Must not depend on a changed backend ETag or new acquisition cycle. Currently works only via forced ETag reset. | None |
 
 ### UX / Operator Experience
 
