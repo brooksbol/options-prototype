@@ -37,9 +37,9 @@ import "../recommendation-brief.css";
 // --- Component ---
 
 export function WriteDesk() {
-  const [source, setSource] = useState<PortfolioSourceType>("demo");
+  const [source, setSource] = useState<PortfolioSourceType>(() => loadWorkspace().writeDeskSource as PortfolioSourceType || "demo");
   const [snapshot, setSnapshot] = useState<PortfolioSnapshot | null>(() =>
-    source === "demo" ? createDemoSnapshot() : null
+    (loadWorkspace().writeDeskSource || "demo") === "demo" ? createDemoSnapshot() : null
   );
   const [putCandidates, setPutCandidates] = useState<PutCandidate[]>([]);
   const [fidelitySnapshot, setFidelitySnapshot] = useState<PortfolioSnapshot | null>(null);
@@ -148,6 +148,7 @@ export function WriteDesk() {
   // When source changes, reset or load snapshot and clear results
   const handleSourceChange = (newSource: PortfolioSourceType) => {
     setSource(newSource);
+    updateWorkspace({ writeDeskSource: newSource });
     if (newSource === "demo") {
       setSnapshot(createDemoSnapshot());
     } else {
@@ -559,7 +560,7 @@ export function WriteDesk() {
             {putFunnel && <FunnelInfographic funnel={putFunnel} backendResolved={evidenceMeta?.coverage ? (evidenceMeta.coverage.ready + evidenceMeta.coverage.absent) : undefined} />}
           </div>
 
-          {!putsCollapsed && (<>
+          <div style={{ display: putsCollapsed ? 'none' : undefined }}>
           {/* Unified sticky policy + table controls */}
           <div className="wd-unified-controls">
             <div className="wd-policy-controls">
@@ -633,7 +634,7 @@ export function WriteDesk() {
               )}
             </div>
           )}
-          </>)}
+          </div>
         </section>
       )}
 
@@ -659,15 +660,15 @@ export function WriteDesk() {
             </div>
           </div>
 
-          {!callsCollapsed && (
-            (callCandidates.length > 0 || callWaitCandidates.length > 0) ? (
+          <div style={{ display: callsCollapsed ? 'none' : undefined }}>
+            {(callCandidates.length > 0 || callWaitCandidates.length > 0) ? (
               <CallCandidateTable candidates={[...callCandidates, ...callWaitCandidates]} selectedSymbol={selectedCallCandidate?.symbol ?? null} selectedStrike={selectedCallCandidate?.strike ?? null} onSelect={(c) => { setSelectedCallCandidate(c); setSelectedCandidate(null); }} />
             ) : (
               <div className="wd-no-trade">
                 <p>{deriveCallEmptyStateMsg(snapshot, scanTimestamp, evidenceMeta)}</p>
               </div>
-            )
-          )}
+            )}
+          </div>
         </section>
       )}
 

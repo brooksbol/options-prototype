@@ -64,6 +64,9 @@ export interface Workspace {
   // Write Desk Section State
   writeDeskPutsCollapsed: boolean;
   writeDeskCallsCollapsed: boolean;
+
+  // Write Desk Portfolio Source
+  writeDeskSource: string;
 }
 
 const DEFAULT_WORKSPACE: Workspace = {
@@ -94,6 +97,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskShowCount: 20,
   writeDeskPutsCollapsed: false,
   writeDeskCallsCollapsed: false,
+  writeDeskSource: "demo",
 };
 
 /**
