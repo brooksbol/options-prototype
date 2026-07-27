@@ -14,6 +14,12 @@ import type { PutCandidate } from "./scan-orchestrator";
 import type { PortfolioSnapshot } from "./types";
 import type { ContractSelectionPolicy, RecommendationPolicy } from "./recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
+import {
+  loadConditionedCallEvidence,
+  assessConditionedCallSurface,
+  type ConditionedOwnershipInput,
+  type ConditionedCallSurface,
+} from "./conditioned-call-surface";
 
 // --- Delta Fit ---
 
@@ -153,6 +159,7 @@ export interface WheelwrightBriefViewModel {
   deltaFit: DeltaFit;
   neighborhood: StrikeNeighborhood;
   positionImpact: PutPositionImpact;
+  projectedCallSurface: ConditionedCallSurface | null;
   provenance: WheelwrightProvenance;
   tablePosition: TablePositionContext | null;
 }
@@ -216,6 +223,37 @@ export async function buildWheelwrightBrief(
     capital_efficiency: "Capital Efficiency",
   };
 
+  // Projected Call Surface — contained; failure does not prevent brief rendering
+  let projectedCallSurface: ConditionedCallSurface | null = null;
+  try {
+    const pcsEvidence = await loadConditionedCallEvidence(
+      candidate.symbol,
+      cache,
+      cacheEnvironment,
+      policy.contractSelection.eligibleDteRange,
+      {
+        acceptingCanonicalEvidence: sessionClassification.acceptingCanonicalEvidence,
+        priorSessionOperationallyValid: sessionClassification.priorSessionOperationallyValid,
+      }
+    );
+    const pcsInput: ConditionedOwnershipInput = {
+      underlying: candidate.symbol,
+      assumedBasisPerShare: effectiveCostBasis,
+      shareQuantity: 100,
+      basisSource: "projected-mid",
+      origin: "proposed-put",
+      sourceExpiration: candidate.expiration,
+      sourceStrike: candidate.strike,
+    };
+    projectedCallSurface = assessConditionedCallSurface(pcsInput, pcsEvidence, {
+      contractSelection: policy.contractSelection,
+      executionAssessment: policy.executionAssessment,
+    });
+  } catch {
+    // PCS failure is contained — brief renders without it
+    projectedCallSurface = null;
+  }
+
   return {
     identity: {
       symbol: candidate.symbol,
@@ -247,6 +285,7 @@ export async function buildWheelwrightBrief(
     deltaFit,
     neighborhood,
     positionImpact,
+    projectedCallSurface,
     provenance,
     tablePosition,
   };

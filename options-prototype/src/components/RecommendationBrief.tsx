@@ -16,6 +16,7 @@ import type { PortfolioSnapshot } from "../write-desk/types";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
 import type { GovernanceAnnotation } from "../write-desk/scan-orchestrator";
+import type { ConditionedCallOpportunity, ConditionedCallSurface } from "../write-desk/conditioned-call-surface";
 import { lookupDescription } from "../instrument-catalog/catalog";
 
 // --- Governance Explanation Helpers (deterministic, no LLM) ---
@@ -363,6 +364,9 @@ export function RecommendationBrief({
         </div>
       </section>
 
+      {/* === PROJECTED CALL SURFACE === */}
+      <ProjectedCallSurfaceSection surface={brief.projectedCallSurface} effectiveCostBasis={brief.decision.effectiveCostBasis} strike={brief.identity.strike} />
+
       {/* === EVIDENCE PROVENANCE === */}
       <section className="rb-section rb-provenance">
         <h4 className="rb-section-title">Evidence Provenance</h4>
@@ -418,6 +422,111 @@ function FidelityHandoff({ candidate, onOrderConfirmed }: { candidate: PutCandid
       </div>
     </div>
   );
+}
+
+// --- Projected Call Surface Section ---
+
+function ProjectedCallSurfaceSection({ surface, effectiveCostBasis, strike }: {
+  surface: ConditionedCallSurface | null;
+  effectiveCostBasis: number;
+  strike: number;
+}) {
+  if (!surface) return null;
+
+  const premium = strike - effectiveCostBasis;
+
+  // Unavailable state
+  if (surface.evidenceState === "unavailable") {
+    return (
+      <section className="rb-section rb-pcs">
+        <h4 className="rb-section-title">Projected Call Surface</h4>
+        <div className="rb-pcs-conditional">IF ASSIGNED</div>
+        <p className="rb-gap">{surface.evidenceStateReason ?? "Call surface evidence not available"}</p>
+      </section>
+    );
+  }
+
+  // Partial state note
+  const partialNote = surface.evidenceState === "partial" ? surface.evidenceStateReason : null;
+
+  // Freshness label
+  const freshnessLabel = surface.evidenceFreshness === "current-session"
+    ? "Current-session evidence"
+    : surface.evidenceFreshness === "sealed-prior-session"
+      ? "Sealed prior-session evidence"
+      : surface.evidenceFreshness === "stale"
+        ? "Stale evidence"
+        : "Unknown freshness";
+
+  return (
+    <section className="rb-section rb-pcs">
+      <h4 className="rb-section-title">Projected Call Surface</h4>
+      <div className="rb-pcs-conditional">IF ASSIGNED</div>
+      <div className="rb-pcs-basis">
+        <span className="rb-pcs-basis-label">Projected basis:</span>
+        <span className="rb-pcs-basis-value">${effectiveCostBasis.toFixed(2)}</span>
+        <span className="rb-pcs-basis-derivation">(${strike} strike &minus; ${premium.toFixed(2)} premium)</span>
+      </div>
+
+      {partialNote && <p className="rb-pcs-partial">{partialNote}</p>}
+
+      {/* Summary */}
+      <div className="rb-pcs-summary">
+        <span>{surface.summary.totalCallsQualifying} policy-admissible call{surface.summary.totalCallsQualifying !== 1 ? "s" : ""} above basis</span>
+        <span className="rb-pcs-summary-detail">
+          {surface.summary.expirationsWithChains} expiration{surface.summary.expirationsWithChains !== 1 ? "s" : ""} evaluated
+          {surface.summary.totalCallsFailingPolicy > 0 && ` · ${surface.summary.totalCallsFailingPolicy} fail policy`}
+        </span>
+      </div>
+
+      {/* Representative opportunities table */}
+      {surface.representativeOpportunities.length > 0 ? (
+        <>
+          <div className="rb-pcs-table-label">Representative policy-admissible contracts above projected basis</div>
+          <table className="rb-pcs-table">
+            <thead>
+              <tr>
+                <th>Strike</th>
+                <th>Exp</th>
+                <th>DTE</th>
+                <th>&Delta;</th>
+                <th>Bid</th>
+                <th>Ask</th>
+                <th>Mid yield from basis</th>
+                <th>+Basis</th>
+              </tr>
+            </thead>
+            <tbody>
+              {surface.representativeOpportunities.map((opp: ConditionedCallOpportunity) => (
+                <tr key={`${opp.expiration}-${opp.strike}`}>
+                  <td>${opp.strike}</td>
+                  <td>{formatPcsExpiration(opp.expiration)}</td>
+                  <td>{opp.dte}</td>
+                  <td>{opp.delta.toFixed(2)}</td>
+                  <td>${opp.bid.toFixed(2)}</td>
+                  <td>${opp.ask.toFixed(2)}</td>
+                  <td>{opp.yieldFromBasis != null ? `${opp.yieldFromBasis.toFixed(1)}%` : "\u2014"}</td>
+                  <td>+${opp.strikeDistanceFromBasis.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      ) : (
+        <p className="rb-pcs-empty">No policy-admissible calls currently above projected basis.</p>
+      )}
+
+      {/* PCS provenance */}
+      <div className="rb-pcs-provenance">
+        {surface.evidenceMetadata.provider} · {freshnessLabel}
+      </div>
+    </section>
+  );
+}
+
+function formatPcsExpiration(iso: string): string {
+  const d = new Date(iso + "T12:00:00");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 // --- Helpers ---

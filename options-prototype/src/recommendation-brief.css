@@ -675,3 +675,98 @@
 .rb-loss .rb-impact-val {
   color: #ef5350;
 }
+
+/* === PROJECTED CALL SURFACE === */
+
+.rb-pcs {
+  border-top: 1px solid var(--wd-border-subtle, #333);
+}
+
+.rb-pcs-conditional {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--wd-text-secondary, #A0A0A0);
+  margin-bottom: 4px;
+}
+
+.rb-pcs-basis {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.rb-pcs-basis-label {
+  font-size: 11px;
+  color: var(--wd-text-secondary, #A0A0A0);
+}
+
+.rb-pcs-basis-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--wd-text-primary, #E0E0E0);
+}
+
+.rb-pcs-basis-derivation {
+  font-size: 10px;
+  color: var(--wd-text-tertiary, #777);
+}
+
+.rb-pcs-partial {
+  font-size: 10px;
+  color: var(--wd-warn, #FFA726);
+  margin: 4px 0;
+}
+
+.rb-pcs-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--wd-text-secondary, #A0A0A0);
+  margin-bottom: 8px;
+}
+
+.rb-pcs-summary-detail {
+  font-size: 10px;
+  color: var(--wd-text-tertiary, #777);
+}
+
+.rb-pcs-table-label {
+  font-size: 9px;
+  color: var(--wd-text-tertiary, #777);
+  margin-bottom: 4px;
+}
+
+.rb-pcs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+  margin-bottom: 8px;
+}
+
+.rb-pcs-table th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--wd-text-tertiary, #777);
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--wd-border-subtle, #333);
+}
+
+.rb-pcs-table td {
+  padding: 3px 4px;
+  color: var(--wd-text-secondary, #A0A0A0);
+}
+
+.rb-pcs-empty {
+  font-size: 11px;
+  color: var(--wd-text-tertiary, #777);
+  font-style: italic;
+}
+
+.rb-pcs-provenance {
+  font-size: 9px;
+  color: var(--wd-text-tertiary, #777);
+  margin-top: 4px;
+}
