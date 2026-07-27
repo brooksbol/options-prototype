@@ -4503,3 +4503,82 @@ Wheelwright is the first instantiation of an emerging architectural philosophy, 
 ### What this means for documentation work
 
 Future architectural documentation should be evaluated not only against "does this make Wheelwright better?" but also against the higher-order question: "does this teach us something reusable about building bounded learning systems?" Knowledge that passes both tests should migrate into `docs/foundations/` rather than remaining in product-specific architecture documents.
+
+---
+
+## Calls Horizon A — Retrospective Checkpoint
+
+**Written:** July 21, 2026
+**Nature:** Retrospective. This entry documents a milestone that occurred earlier but was not journaled at the time. Written to satisfy the project invariant that all significant state is durably reconstructible from the repository.
+
+### What was delivered
+
+Commit `4ff135c` restored covered-call candidate recommendations from the evidence cache:
+
+- `recommendCalls()` — pure cache-based engine (zero provider calls)
+- `CallCandidate` type with posture, yield, execution score
+- `CallCandidateTable` in Write Desk (sortable, collapsible section)
+- `PositionEconomics` on `InventoryPosition` (preserves Fidelity CSV basis data)
+- Shared policy controls: same delta range, DTE range, execution thresholds as puts
+- 17 new tests (9 recommendation, 3 delta policy, 5 economics propagation)
+
+### Key design decisions at that time
+
+- Yield denominator = `underlyingPrice` (describes option return), not `averageCostPerShare` (describes position)
+- Calls use raw positive delta; puts use absolute of negative — same numeric range
+- No call drawer in Horizon A (drawer deferred to evolve from use)
+- `PositionEconomics` as nested object (anticipates expansion without flat-field sprawl)
+- Shared policy controls (split later when evidence warrants divergence)
+
+### What was explicitly deferred
+
+Call drawer, Fidelity execution handoff, appreciation geometry, Projected Call Surface, historical lifecycle linkage, user identity, favorites/familiarity.
+
+### Why this matters
+
+Horizon A established that calls consume the same evidence architecture as puts, differ only in eligibility (shares vs cash), and can be recommended with zero additional provider calls. The frontend test count reached 968 with this commit.
+
+---
+
+## Calls Horizon B — Call Inspection Drawer
+
+**Date:** July 21, 2026
+
+### Context
+
+With Horizon A delivering actionable call candidates in the table, the next operator need is inspection: clicking a call row to see the same depth of intelligence available for put recommendations. This is the first Horizon B increment.
+
+### What was delivered
+
+- `call-brief-builder.ts` — pure view model builder, reads cached call chains
+- `CallBrief.tsx` — right-side drawer component (reuses `rb-*` CSS)
+- `CallCandidate.economics` — position economics propagated from inventory through the recommendation pipeline
+- Row click on `CallCandidateTable` opens drawer; Escape closes
+- Put and call drawers are mutually exclusive (selecting one deselects the other)
+
+Drawer sections:
+- Identity (symbol, instrument name, contract)
+- Decision summary (mid, premium, yield, max contracts, policy fit, strike vs price)
+- Position context (available shares, max contracts, underlying price, avg cost, unrealized gain/loss — graceful null when economics unavailable)
+- Execution evidence (delta fit with deviation, spread, OI, volume, bid/mid/ask)
+- Strike neighborhood (5 calls around selected, with policy tags)
+- Evidence provenance (provider, session date, session state, evidence status)
+
+### What is NOT included
+
+- No Fidelity execution handoff (deferred — next natural increment)
+- No appreciation geometry visualization
+- No Projected Call Surface in the put drawer
+- No historical lifecycle linkage
+
+### Tests
+
+11 new tests in `call-brief-builder.test.ts`: view model construction, neighborhood window extraction, tag classification, economics propagation (gain + loss), null economics degradation, provenance reflection, instrument name resolution, coverage gap handling.
+
+Full suite: 67 files, 979 tests, all pass.
+
+### Architecture note
+
+The call drawer reuses `classifyDeltaFit` from the put brief builder and shares the same CSS infrastructure. The call neighborhood builder reads `chainRecord.payload.calls` (not puts) for the same expiration. This confirms the structural symmetry between put and call evidence consumption.
+
+The Calls recommendation path remains backend-independent: `recommendCalls()` and `buildCallBrief()` read only from IndexedDB. Backend retooling affects evidence freshness, not recommendation behavior.

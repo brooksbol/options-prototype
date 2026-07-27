@@ -37,7 +37,7 @@
 
 | ID | Name | Maturity | Summary | Concept Home |
 |---|---|---|---|---|
-| `PL-CALL-01` | Calls Horizon B | Designed | Call drawer, Projected Call Surface, appreciation geometry (distance from projected acquisition basis to successive call opportunities), call execution handoff. | `23-calls-architecture.md` |
+| `PL-CALL-01` | Calls Horizon B | Partially Delivered | Call drawer delivered. Remaining: Projected Call Surface, appreciation geometry, call execution handoff. | `23-calls-architecture.md` |
 | `PL-CALL-02` | Calls Horizon C | Exploratory | Put-linked discovery, independent call discovery, longitudinal call intelligence, user-specific state. | `23-calls-architecture.md` |
 | `PL-CALL-03` | Familiarity vs Favorites | Seed | Familiarity is inferred from history/interaction. Favorites are explicit operator designation. Separate concepts that must not silently collapse. | None |
 

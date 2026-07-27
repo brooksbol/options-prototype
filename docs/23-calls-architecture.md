@@ -1,6 +1,6 @@
 # Covered-Call Architecture
 
-**Status:** Horizon A implemented; Horizon B/C planned
+**Status:** Horizon A implemented; Horizon B in progress (call drawer delivered)
 **Date:** July 2026
 
 ---
@@ -15,6 +15,10 @@ Wheelwright supports two option-writing strategies:
 | Covered calls | Inventory-specific chain evidence | Held shares ≥ 100 (free) | Share ownership |
 
 Both strategies consume the same backend-maintained evidence and apply the same shared policy controls. They differ in eligibility: puts require cash, calls require shares.
+
+### Backend Independence
+
+The Calls recommendation path is backend-independent at the recommendation layer. `recommendCalls()` reads exclusively from the IndexedDB durable cache — it never makes provider calls. The backend (Java Evidence Appliance) is responsible for acquiring and publishing evidence into that cache. Backend replacement (e.g., TypeScript → Java retooling) affects evidence acquisition and freshness, but does not change the Calls recommendation contract or behavior.
 
 ---
 
@@ -54,7 +58,6 @@ A position qualifies for call recommendations when:
 
 ### What is NOT in Horizon A
 
-- No call drawer (clicking a call row does nothing)
 - No call-specific execution handoff (Fidelity trade link)
 - No appreciation geometry
 - No Projected Call Surface in the put drawer
@@ -63,21 +66,34 @@ A position qualifies for call recommendations when:
 
 ---
 
-## Horizon B (Planned)
+## Horizon B (In Progress)
 
 **Scope:** Make calls good — richer intelligence, drawer, execution.
 
-### Call Drawer
+### Call Drawer (Delivered)
 
-A right-side drawer for call inspection, analogous to the put Recommendation Brief. Expected sections:
+A right-side drawer for call inspection, analogous to the put Recommendation Brief.
 
-- Decision summary (sell to open, premium, yield, max contracts)
-- Position context (owned shares, basis, unrealized gain, effective sale price if assigned)
-- Execution evidence (spread, OI, delta fit)
-- Strike neighborhood (calls around the selected strike)
-- Appreciation geometry (see below)
+Delivered sections:
+- Identity (symbol, instrument name, contract details)
+- Decision summary (sell to open, mid, premium per contract, annualized yield, max contracts, policy fit, strike vs price)
+- Position context (available shares, max contracts, underlying price, average cost per share, unrealized gain/loss — graceful null when economics unavailable)
+- Execution evidence (delta fit with deviation, spread, OI, volume, bid/mid/ask)
+- Strike neighborhood (5 calls around selected, with policy tags)
+- Evidence provenance (provider, session date, session state, evidence status)
 
-### Appreciation Geometry
+Implementation:
+- `call-brief-builder.ts` — pure view model builder (reads cached call chains)
+- `CallBrief.tsx` — drawer component
+- `CallCandidate.economics` — position economics propagated from inventory
+- Row click on `CallCandidateTable` opens drawer; Escape closes
+- Put and call drawers are mutually exclusive (selecting one deselects the other)
+
+Not included in this increment:
+- No Fidelity execution handoff (deferred)
+- No appreciation geometry visualization (deferred)
+
+### Appreciation Geometry (Planned)
 
 Displays the relationship between:
 - Current price
@@ -88,7 +104,7 @@ Displays the relationship between:
 
 This is payoff geometry — not a forecast. It answers: "If assigned at this strike, what are the economic consequences relative to my basis?"
 
-### Projected Call Surface
+### Projected Call Surface (Planned)
 
 A section in the **put** drawer showing the egress opportunity for a hypothetical assignment:
 
@@ -96,11 +112,11 @@ A section in the **put** drawer showing the egress opportunity for a hypothetica
 
 This is the first implementation of the Conditioned Operating Opportunity concept (`docs/foundations/conditioned-operating-opportunity.md`).
 
-### Call Execution Handoff
+### Call Execution Handoff (Planned)
 
 Fidelity trade link construction for covered calls. Similar to put handoff but with call-specific parameters.
 
-### Put/Call Symmetry (Evidence)
+### Put/Call Symmetry (Evidence) (Planned)
 
 Observable evidence about whether an instrument supports a coherent recurring lifecycle:
 - Are there liquid calls above the put assignment basis?
@@ -139,7 +155,8 @@ Calls currently derive from held inventory. Future: discover call opportunities 
 |----------|-----------|
 | Shared policy controls | Split later when evidence warrants divergence |
 | Yield = mid / underlyingPrice | Describes the option; basis describes the position (separate concerns) |
-| No call drawer in Horizon A | Drawer can evolve from use; calls ship first |
+| Call drawer as first Horizon B increment | Enables inspection before execution handoff; minimal standalone value |
 | `PositionEconomics` nested object | Anticipates future fields without repeated type expansion |
 | Call universe = held inventory | Puts scan the full universe; calls scan what you own |
 | No user identity yet | PortfolioSnapshot suffices until history requires persistence |
+| Recommendations are backend-independent | Cache-only reads; backend replacement affects freshness, not behavior |

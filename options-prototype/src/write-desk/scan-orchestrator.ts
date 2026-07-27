@@ -20,7 +20,7 @@ import { selectEligibleExpirations } from "../velvet-rope/evaluate";
 import { inferProductStructure, hasStructuralComplexity } from "../velvet-rope/product-structure";
 import { assessExecution, isHardNo, type ExecutionAssessment, type ActionPosture, type ContractEvidence } from "./execution-assessment";
 import { DEFAULT_EXECUTION_POLICY, type ExecutionPolicy } from "./execution-policy";
-import type { InventoryPosition } from "./types";
+import type { InventoryPosition, PositionEconomics } from "./types";
 
 // --- Scan Configuration ---
 
@@ -110,6 +110,8 @@ export interface CallCandidate {
   /** Whether strike is above current price */
   strikeAbovePrice: boolean;
   underlyingPrice: number;
+  /** Position economics from brokerage (null when unavailable, e.g. demo mode) */
+  economics: PositionEconomics | null;
 }
 
 // --- Call Inventory Result ---
@@ -566,6 +568,7 @@ export async function scanCalls(
           posture: assessment.posture,
           strikeAbovePrice: contract.strike > underlyingPrice,
           underlyingPrice,
+          economics: pos.economics ?? null,
         };
 
         if (!bestCandidate || assessment.score > bestCandidate.assessment.score) {

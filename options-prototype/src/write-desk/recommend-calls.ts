@@ -170,6 +170,7 @@ export async function recommendCalls(
         posture: assessment.posture,
         strikeAbovePrice: contract.strike > underlyingPrice,
         underlyingPrice,
+        economics: pos.economics ?? null,
       };
 
       if (assessment.posture === "ACTIONABLE" || assessment.posture === "EDGE") {

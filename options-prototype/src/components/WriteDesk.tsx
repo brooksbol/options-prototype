@@ -23,6 +23,7 @@ import { MarketSessionPolicy } from "../market-session/session-policy";
 import { getTradingCalendar } from "../market-session/trading-calendar";
 import { FidelityUpload } from "./FidelityUpload";
 import { RecommendationBrief } from "./RecommendationBrief";
+import { CallBrief } from "./CallBrief";
 import { FunnelInfographic } from "./FunnelInfographic";
 import type { TablePositionContext } from "../write-desk/brief-builder";
 import { loadWorkingIntents, addPendingIntent, updatePendingIntent, createPendingIntent, type PendingIntent } from "../execution/pending-intent";
@@ -68,6 +69,7 @@ export function WriteDesk() {
   });
   const [selectedCandidate, setSelectedCandidate] = useState<PutCandidate | null>(null);
   const [tablePosition, setTablePosition] = useState<TablePositionContext | null>(null);
+  const [selectedCallCandidate, setSelectedCallCandidate] = useState<CallCandidate | null>(null);
   const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>(() => loadWorkingIntents());
   const [showAffordableOnly, setShowAffordableOnly] = useState(false);
   const [showDanger, setShowDanger] = useState(true);
@@ -344,8 +346,8 @@ export function WriteDesk() {
   }, [openPopover]);
 
   return (
-    <div className={`write-desk${selectedCandidate ? " wd-with-drawer" : ""}`}>
-      {/* Recommendation Brief Drawer */}
+    <div className={`write-desk${selectedCandidate || selectedCallCandidate ? " wd-with-drawer" : ""}`}>
+      {/* Recommendation Brief Drawer (Puts) */}
       {selectedCandidate && snapshot && (
         <RecommendationBrief
           candidate={selectedCandidate}
@@ -364,6 +366,17 @@ export function WriteDesk() {
               setPendingIntents(loadWorkingIntents());
             }
           }}
+        />
+      )}
+
+      {/* Call Inspection Drawer */}
+      {selectedCallCandidate && (
+        <CallBrief
+          candidate={selectedCallCandidate}
+          policy={policy}
+          sessionClassification={sessionClassification}
+          cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
+          onClose={() => setSelectedCallCandidate(null)}
         />
       )}
 
@@ -550,7 +563,7 @@ export function WriteDesk() {
               let filtered = showAffordableOnly ? allRows.filter((c) => c.affordable) : allRows;
               if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
               const displayed = filtered.slice(0, showCount).map((c, i) => ({ ...c, rank: i + 1 }));
-              return <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); }} />;
+              return <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); setSelectedCallCandidate(null); }} />;
             })()
           ) : (
             <div className="wd-no-trade">
@@ -589,7 +602,7 @@ export function WriteDesk() {
 
           {!callsCollapsed && (
             (callCandidates.length > 0 || callWaitCandidates.length > 0) ? (
-              <CallCandidateTable candidates={[...callCandidates, ...callWaitCandidates]} />
+              <CallCandidateTable candidates={[...callCandidates, ...callWaitCandidates]} selectedSymbol={selectedCallCandidate?.symbol ?? null} selectedStrike={selectedCallCandidate?.strike ?? null} onSelect={(c) => { setSelectedCallCandidate(c); setSelectedCandidate(null); }} />
             ) : (
               <div className="wd-no-trade">
                 <p>No qualifying covered-call contracts found for held inventory.</p>
@@ -748,7 +761,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
 
 // --- Call Candidate Table ---
 
-function CallCandidateTable({ candidates }: { candidates: CallCandidate[] }) {
+function CallCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelect }: { candidates: CallCandidate[]; selectedSymbol: string | null; selectedStrike: number | null; onSelect: (c: CallCandidate) => void }) {
   const { sorted, handleSort, indicator } = useSortableTable(candidates, "rank", "asc");
 
   return (
@@ -776,7 +789,10 @@ function CallCandidateTable({ candidates }: { candidates: CallCandidate[] }) {
         {sorted.map((c) => (
           <tr
             key={`${c.symbol}-${c.expiration}-${c.strike}`}
-            className={`wd-posture-row wd-posture-${c.posture.toLowerCase()}`}
+            className={`wd-posture-row wd-posture-${c.posture.toLowerCase()}${c.symbol === selectedSymbol && c.strike === selectedStrike ? " wd-row-selected" : ""}`}
+            onClick={() => onSelect(c)}
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(c); } }}
           >
             <td>{c.rank}</td>
             <td className="wd-symbol">{c.symbol}</td>

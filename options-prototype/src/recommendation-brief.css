@@ -665,3 +665,13 @@
   margin: 4px 0 8px;
   padding: 0;
 }
+
+/* === CALL DRAWER: Gain/Loss coloring === */
+
+.rb-gain .rb-impact-val {
+  color: #4caf50;
+}
+
+.rb-loss .rb-impact-val {
+  color: #ef5350;
+}
