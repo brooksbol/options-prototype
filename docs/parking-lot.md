@@ -38,8 +38,8 @@
 
 | ID | Name | Maturity | Summary | Concept Home |
 |---|---|---|---|---|
-| `PL-CALL-01` | Calls Horizon B | Partially Delivered | Call drawer delivered. Remaining: Projected Call Surface, appreciation geometry, call execution handoff. | `23-calls-architecture.md` |
-| `PL-CALL-02` | Calls Horizon C | Exploratory | Put-linked discovery, independent call discovery, longitudinal call intelligence, user-specific state. | `23-calls-architecture.md` |
+| `PL-CALL-01` | Calls Horizon B | Partially Delivered | Call drawer delivered. Next: Projected Call Surface (two entry points: proposed puts + existing puts). Remaining: appreciation geometry, call execution handoff. | `23-calls-architecture.md` |
+| `PL-CALL-02` | Calls Horizon C | Exploratory | Historical lifecycle linkage, independent call discovery (instruments not yet owned), longitudinal call intelligence, user-specific state, lifecycle quality in ranking. | `23-calls-architecture.md` |
 | `PL-CALL-03` | Familiarity vs Favorites | Seed | Familiarity is inferred from history/interaction. Favorites are explicit operator designation. Separate concepts that must not silently collapse. | None |
 
 ### Evidence and Research
@@ -48,7 +48,7 @@
 |---|---|---|---|---|
 | `PL-EVID-01` | Historical Analysis and Evidence Provenance | Exploratory | Native prospective observation + selective backfill. Explicit source type, provenance, methodology, lineage, confidence. No silent mixing of native and backfilled evidence. | `foundations/policy-over-prediction.md` (guardrail) |
 | `PL-EVID-02` | Lifecycle Assessment Evidence Domain | Exploratory | Formal domain for lifecycle quality: ingress, operating, egress. Requires historical market evidence, execution evidence, and stable instrument/catalog identity. | Temporary home: `11-parking-lot-reconciliation.md` |
-| `PL-EVID-03` | Conditioned Operating Opportunity | Documented | Evaluating call environment conditioned on a specific put-created basis. First slice: Projected Call Surface. | `foundations/conditioned-operating-opportunity.md` |
+| `PL-EVID-03` | Conditioned Operating Opportunity | Documented | Evaluating call environment conditioned on a specific ownership basis. One computation, two entry points: proposed put recommendations (known mid-based basis) and existing open short puts (conservative strike-based basis). First slice: Projected Call Surface. | `foundations/conditioned-operating-opportunity.md` |
 | `PL-EVID-04` | Market-Priced Risk | Exploratory | Read what the market communicates via IV, skew, OI depth. Translation, not prediction. Requires data source with IV (Tradier sandbox lacks this). | `foundations/market-priced-risk.md` |
 | `PL-EVID-05` | Recommendation Set Analysis | Documented | Population-level observation of the ranked set (concentration, diversity, clustering). Pluggable grouping heuristics. | `foundations/recommendation-set-analysis.md` |
 | `PL-EVID-06` | Score vs Classification | Open question | Whether lifecycle quality should produce a single numeric score or a multi-dimensional classification. | `foundations/conditioned-operating-opportunity.md` §Open Questions |

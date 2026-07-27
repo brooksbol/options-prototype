@@ -1,6 +1,6 @@
 # Covered-Call Architecture
 
-**Status:** Horizon A implemented; Horizon B in progress (call drawer delivered)
+**Status:** Horizon A implemented; Horizon B in progress (call drawer delivered, Projected Call Surface next)
 **Date:** July 2026
 
 ---
@@ -34,6 +34,8 @@ The Calls recommendation path is backend-independent at the recommendation layer
 - Sortable table with symbol, expiration, DTE, strike, delta, bid/ask, spread, OI, yield, shares, contracts, exec, posture
 - `PositionEconomics` on `InventoryPosition` (averageCostPerShare, costBasis, marketValue)
 - Workspace-persisted collapse state
+- Call inspection drawer with position context, execution evidence, strike neighborhood, provenance
+- Evidence-based empty state when no executable calls exist
 
 ### Eligibility
 
@@ -60,15 +62,19 @@ A position qualifies for call recommendations when:
 
 - No call-specific execution handoff (Fidelity trade link)
 - No appreciation geometry
-- No Projected Call Surface in the put drawer
+- No Projected Call Surface
 - No historical lifecycle linkage
 - No favorites or instrument affinity
+
+### Scope boundary
+
+The Calls table remains scoped to **executable covered-call recommendations** for currently held, unencumbered inventory. It does not expand to include projected, contingent, or non-executable rows. Lifecycle evidence for contingent ownership states (from existing or proposed puts) is presented through dedicated evidence sections, not by expanding the executable table.
 
 ---
 
 ## Horizon B (In Progress)
 
-**Scope:** Make calls good — richer intelligence, drawer, execution.
+**Scope:** Richer intelligence, execution, and lifecycle transition evidence.
 
 ### Call Drawer (Delivered)
 
@@ -93,6 +99,80 @@ Not included in this increment:
 - No Fidelity execution handoff (deferred)
 - No appreciation geometry visualization (deferred)
 
+### Projected Call Surface (Next — Planned)
+
+A reusable conditioned-ownership computation that evaluates the covered-call landscape from a specific hypothetical or actual ownership state.
+
+#### Core computation
+
+The Projected Call Surface is a single computation that accepts a normalized conditioned-ownership input:
+
+```
+assessConditionedCallSurface({
+  underlying,
+  assumedBasisPerShare,
+  shareQuantity,
+  basisSource,
+  origin,
+  cache,
+  policy
+}) → ConditionedCallSurface
+```
+
+The output describes the observable call environment from that ownership state using currently cached evidence. It is **evidence, not a recommendation.** It does not authorize or execute a trade.
+
+#### Two entry points
+
+The same computation serves two distinct operator questions:
+
+**1. Put recommendation drawer (transition quality)**
+
+> "Should I enter this obligation? How gracefully does it transition into the covered-call side of the Wheel?"
+
+- Input: `PutCandidate` being inspected
+- Basis: `strike - midPrice` (known, specific contract)
+- Basis confidence: high — current midpoint-based projected basis
+- Origin: `"proposed-put"`
+- Displayed as: a section in the put Recommendation Brief
+
+This is Put/Call Symmetry evidence. It helps the operator evaluate whether a proposed put recommendation leads to a healthy continuing Wheel position if assigned.
+
+**2. Existing open short puts (assignment planning)**
+
+> "I already own this obligation. Show me the likely next phase."
+
+- Input: `OpenShortPut` from portfolio
+- Basis: `strike` (conservative assumption; actual premium received is not in the current data model)
+- Basis confidence: lower — original premium unavailable; must be explicitly labeled as an approximation
+- Origin: `"existing-put"`
+- Displayed as: accessible from the portfolio's existing short put positions
+
+This is planning evidence for an actual obligation, not a new recommendation.
+
+#### Important constraints
+
+- **Basis provenance must be explicit.** Do not silently present strike as the actual effective basis. When premium is unavailable, label it: "Basis assumption: put strike; original premium unavailable."
+- **The strike-vs-effective-basis difference is not immaterial.** In narrow strike ladders, it may change which call strikes clear the basis. Treat it as an approximation with stated provenance.
+- **Output is non-executable.** The Projected Call Surface describes what call opportunities currently exist. It is not a call recommendation. Actual execution requires held shares (which don't exist yet for put-conditioned cases).
+
+#### Relationship to Conditioned Operating Opportunity
+
+This is the first implementation slice of the Conditioned Operating Opportunity concept (`docs/foundations/conditioned-operating-opportunity.md`). The foundation document defines the broader domain model; this section defines the concrete implementation direction.
+
+### Put/Call Symmetry (Evidence)
+
+Put/Call Symmetry is **transition-quality evidence**, not an executable recommendation.
+
+It answers: "Does this instrument support a coherent recurring Wheel lifecycle from the proposed entry point?"
+
+Observable dimensions:
+- Are there liquid calls above the put-created basis?
+- Do qualifying calls exist within the same DTE cadence?
+- Is the call surface comparable in quality to the put surface?
+- Can the operator expect to write covered calls at an acceptable yield after assignment?
+
+This evidence is derived from the Projected Call Surface computation. It may eventually inform recommendation ranking (Horizon C), but initially appears only as operator-visible evidence in the put drawer.
+
 ### Appreciation Geometry (Planned)
 
 Displays the relationship between:
@@ -104,26 +184,9 @@ Displays the relationship between:
 
 This is payoff geometry — not a forecast. It answers: "If assigned at this strike, what are the economic consequences relative to my basis?"
 
-### Projected Call Surface (Planned)
-
-A section in the **put** drawer showing the egress opportunity for a hypothetical assignment:
-
-> "If this put assigns you shares at $55 basis, here are the observable covered-call opportunities from that basis."
-
-This is the first implementation of the Conditioned Operating Opportunity concept (`docs/foundations/conditioned-operating-opportunity.md`).
-
 ### Call Execution Handoff (Planned)
 
 Fidelity trade link construction for covered calls. Similar to put handoff but with call-specific parameters.
-
-### Put/Call Symmetry (Evidence) (Planned)
-
-Observable evidence about whether an instrument supports a coherent recurring lifecycle:
-- Are there liquid calls above the put assignment basis?
-- Do qualifying calls exist at the same expiration cadence?
-- Is the call surface comparable in quality to the put surface?
-
-This is structured evidence, not a single score.
 
 ---
 
@@ -147,6 +210,10 @@ When history requires persistence beyond a single session/CSV upload, the system
 
 Calls currently derive from held inventory. Future: discover call opportunities on instruments the operator doesn't yet own but might want to acquire for income purposes.
 
+### Lifecycle Quality in Ranking
+
+Projected Call Surface evidence may eventually influence put recommendation ranking — preferring instruments that transition gracefully into covered calls. This requires accumulated operational experience before introducing as a policy input.
+
 ---
 
 ## Architecture Decisions
@@ -157,6 +224,9 @@ Calls currently derive from held inventory. Future: discover call opportunities 
 | Yield = mid / underlyingPrice | Describes the option; basis describes the position (separate concerns) |
 | Call drawer as first Horizon B increment | Enables inspection before execution handoff; minimal standalone value |
 | `PositionEconomics` nested object | Anticipates future fields without repeated type expansion |
-| Call universe = held inventory | Puts scan the full universe; calls scan what you own |
+| Call table = held executable inventory only | Puts scan the full universe; calls scan what you own. Projected/contingent rows stay as evidence, not table rows. |
+| Projected Call Surface = one computation, two entry points | Proposed puts (known basis) and existing puts (conservative basis) share the same function signature. No duplicate implementations. |
+| PCS is evidence, not recommendation | The output describes the call landscape; it does not authorize or execute trades. Actual call execution requires held shares. |
+| Basis confidence must be explicit | When premium is unavailable (existing puts), label the approximation. Unknown Cannot Authorize. |
 | No user identity yet | PortfolioSnapshot suffices until history requires persistence |
 | Recommendations are backend-independent | Cache-only reads; backend replacement affects freshness, not behavior |

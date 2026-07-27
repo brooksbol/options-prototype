@@ -252,5 +252,27 @@ Only after live use should we decide whether Lifecycle Quality belongs in rankin
 | Brief integration | Sketched |
 | Policy implications | Identified but unresolved |
 | Scoring/classification model | Open |
-| Implementation plan | Not started — intentionally deferred |
+| Implementation plan | Directed — see `23-calls-architecture.md` §Projected Call Surface |
 | Evidence requirements | Met (existing chain data includes calls) |
+| Entry points identified | Two: proposed put recommendations + existing open short puts |
+| Computation shape | One function accepting normalized conditioned-ownership input |
+
+---
+
+## Implementation Direction (July 2026)
+
+The first concrete implementation is Projected Call Surface, documented in `23-calls-architecture.md` §Horizon B.
+
+Key design decisions made:
+
+1. **One computation, two callers.** The function accepts `(underlying, assumedBasisPerShare, shareQuantity, basisSource, origin)` rather than a specific candidate type.
+
+2. **Two entry points:**
+   - Put recommendation drawer: basis = strike - mid (known). Answers "how gracefully does this transition?"
+   - Existing open short puts: basis = strike (conservative). Answers "what does the next phase look like?"
+
+3. **Basis confidence is explicit.** When premium is unavailable, the output labels the approximation rather than presenting it as fact.
+
+4. **Output is evidence, not recommendation.** The computation describes the call landscape. It does not authorize trades or create executable rows.
+
+5. **The Calls table is not expanded.** Projected/contingent ownership states produce evidence sections, not table rows. The executable Calls table remains scoped to held unencumbered inventory.
