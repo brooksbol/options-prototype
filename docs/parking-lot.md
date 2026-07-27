@@ -24,7 +24,7 @@
 | `PL-ARCH-01` | Instrument Governance | Exploratory | Per-instrument authorized operating modes (Standard Wheel, Tactical Premium, etc.) beyond binary admission. | `velvet-rope/` docs |
 | `PL-ARCH-02` | Overlay Policy | Exploratory | DTE laddering, simultaneous rungs, roll policy, take-profit — facets beyond current RecommendationPolicy. | Journal entries |
 | `PL-ARCH-03` | Security and User Accounts | Seed | Application-managed users, password hashing, session cookies, user-ownership boundaries. Depends on cloud deployment. | `10-backend-implementation-preferences.md` §5 |
-| `PL-ARCH-04` | Policy-Governance Scaling | Seed | How policy remains versioned, attributable, inspectable, testable as complexity grows. OPA discussed as example, not selected. Frame the problem, not the technology. | None |
+| `PL-ARCH-04` | Policy-Governance Scaling | Seed | How policy remains versioned, attributable, inspectable, testable as complexity grows. The architectural concern is scaling governance if rule complexity outgrows the current model. No technology selected. | None |
 | `PL-ARCH-05` | Cache-Based Recommendation Trigger | Identified | Portfolio-dependent recommendation recomputation should be independently triggerable from cached evidence (IndexedDB). Must not depend on a changed backend ETag or new acquisition cycle. Currently works only via forced ETag reset. | None |
 
 ### UX / Operator Experience
@@ -33,14 +33,16 @@
 |---|---|---|---|---|
 | `PL-UX-01` | State-Oriented Operator Console | Documented | Observable state (what IS) vs operational state (what the system is DOING). Write Desk partially embodies this; full realization remains future work. | `foundations/state-oriented-console.md` |
 | `PL-UX-02` | Put/Call Desk Asymmetry | Active design question | Whether puts and calls ultimately require different evidence, ranking, presentation, workflows, or desk structures. Horizon A introduced shared-policy collapsible sections; deeper asymmetry unresolved. | `23-calls-architecture.md` |
+| `PL-UX-03` | Evidence Freshness and Provenance Language | Identified | "Current" is misleading for sealed prior-session evidence. Needs consistent operator-facing language distinguishing observation time, session validity, provenance, and usability across badges, banners, and drawers. No change to evidence-validity policy. | None |
 
 ### Calls
 
 | ID | Name | Maturity | Summary | Concept Home |
 |---|---|---|---|---|
-| `PL-CALL-01` | Calls Horizon B | Partially Delivered | Call drawer + Projected Call Surface (proposed-put entry point) delivered. Remaining: existing-put PCS entry point, appreciation geometry, call execution handoff. | `23-calls-architecture.md` |
+| `PL-CALL-01` | Calls Horizon B | Partially Delivered | Call drawer (with posture explanation, projected called-away economics, non-applicable governance omitted) + Projected Call Surface (proposed-put entry point) delivered. Remaining: existing-put call integration, appreciation geometry, Fidelity call execution handoff. | `23-calls-architecture.md` |
 | `PL-CALL-02` | Calls Horizon C | Exploratory | Historical lifecycle linkage, independent call discovery (instruments not yet owned), longitudinal call intelligence, user-specific state, lifecycle quality in ranking. | `23-calls-architecture.md` |
 | `PL-CALL-03` | Familiarity vs Favorites | Seed | Familiarity is inferred from history/interaction. Favorites are explicit operator designation. Separate concepts that must not silently collapse. | None |
+| `PL-CALL-04` | Call Inventory and Eligibility Observability | Near-term queued | The system computes portfolio capacity and exclusion state that the operator cannot fully inspect: existing short calls encumbering shares, per-symbol eligibility reasons, the relationship between held/encumbered/free shares and executable contracts, and truthful empty-state diagnostics. Does not include recommendation-policy changes, independent call discovery, or trade lifecycle. | `23-calls-architecture.md` |
 
 ### Evidence and Research
 
@@ -48,7 +50,7 @@
 |---|---|---|---|---|
 | `PL-EVID-01` | Historical Analysis and Evidence Provenance | Exploratory | Native prospective observation + selective backfill. Explicit source type, provenance, methodology, lineage, confidence. No silent mixing of native and backfilled evidence. | `foundations/policy-over-prediction.md` (guardrail) |
 | `PL-EVID-02` | Lifecycle Assessment Evidence Domain | Exploratory | Formal domain for lifecycle quality: ingress, operating, egress. Requires historical market evidence, execution evidence, and stable instrument/catalog identity. | Temporary home: `11-parking-lot-reconciliation.md` |
-| `PL-EVID-03` | Conditioned Operating Opportunity | Documented | Evaluating call environment conditioned on a specific ownership basis. One computation, two entry points: proposed put recommendations (known mid-based basis) and existing open short puts (conservative strike-based basis). First slice: Projected Call Surface. | `foundations/conditioned-operating-opportunity.md` |
+| `PL-EVID-03` | Conditioned Operating Opportunity | Partially Implemented | Evaluating call environment conditioned on a specific ownership basis. One computation, two entry points. Entry point 1 (proposed-put PCS) implemented in put drawer. Entry point 2 (existing-put) planned. | `foundations/conditioned-operating-opportunity.md` |
 | `PL-EVID-04` | Market-Priced Risk | Exploratory | Read what the market communicates via IV, skew, OI depth. Translation, not prediction. Requires data source with IV (Tradier sandbox lacks this). | `foundations/market-priced-risk.md` |
 | `PL-EVID-05` | Recommendation Set Analysis | Documented | Population-level observation of the ranked set (concentration, diversity, clustering). Pluggable grouping heuristics. | `foundations/recommendation-set-analysis.md` |
 | `PL-EVID-06` | Score vs Classification | Open question | Whether lifecycle quality should produce a single numeric score or a multi-dimensional classification. | `foundations/conditioned-operating-opportunity.md` §Open Questions |

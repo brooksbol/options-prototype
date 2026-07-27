@@ -1,6 +1,6 @@
 # Covered-Call Architecture
 
-**Status:** Horizon A implemented; Horizon B in progress (call drawer + Projected Call Surface delivered; existing-put entry point planned)
+**Status:** Horizon A implemented; Horizon B in progress (call drawer with decision evidence + proposed-put Projected Call Surface delivered; existing-put call integration and execution handoff remain)
 **Date:** July 2026
 
 ---

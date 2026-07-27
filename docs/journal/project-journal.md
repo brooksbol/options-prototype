@@ -4762,3 +4762,41 @@ Operator question answered: "If this put assigns, what covered-call opportunitie
 - 5 component contract tests (ProjectedCallSurface.test.tsx): evidence-only labels, no execution affordances, basis source semantics
 
 Full suite: 1019 tests pass.
+
+---
+
+## Architecture Checkpoint — Epistemic Integrity Principle Accepted
+
+**Date:** July 27, 2026
+
+### Decision
+
+The project has accepted **Epistemic Integrity** as a governing design principle for future foundation-document drafting.
+
+Working statement:
+
+> The system must not communicate greater certainty, freshness, completeness, or authorization than its evidence supports.
+
+### Relationship to existing principles
+
+Epistemic Integrity occupies a distinct position from existing foundations:
+
+- **Respect Uncertainty** governs whether to act (require evidence before action)
+- **Policy Over Prediction** governs reasoning method (policy, not forecasts)
+- **Secondary Observation** governs instrument calibration (verify the observation mechanism)
+- **Epistemic Integrity** governs communication (never imply more than evidence warrants)
+
+The first three constrain the system's decisions. Epistemic Integrity constrains the system's presentation of those decisions to the operator.
+
+### Examples already implemented
+
+- Unknown classification cannot authorize (not "authorized by default")
+- Sealed evidence labeled as sealed (not "current")
+- Projected economics labeled as projected (not "realized")
+- Modeled midpoint labeled as midpoint (not "execution price")
+- Non-applicable governance omitted (not fabricated as "authorized")
+- Partial evidence rendered as partial (not hidden or completed)
+
+### Next step
+
+A dedicated foundation document (`docs/foundations/epistemic-integrity.md`) will be authored in a separate reviewed increment. This journal entry records the acceptance decision; the foundation document will receive deliberate scrutiny of its language and scope.

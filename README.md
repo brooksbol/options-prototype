@@ -18,10 +18,11 @@ The objective is to build an observable system that continuously produces eviden
 | Component | Status |
 |-----------|--------|
 | Frontend (options-prototype) | ✅ Operational — puts and calls |
-| Java backend (evidence-service-java) | ✅ Substantially implemented; final retooling acceptance pending |
-| TypeScript backend (evidence-service) | ⚠️ Behavioral reference — pending retirement after Java acceptance |
-| Architecture documentation | ✅ Ratified (synchronization in progress) |
-| Behavioral invariants | ✅ Ratified (18 total; 16 satisfied, 2 Java-deferred) |
+| TypeScript backend (evidence-service) | ✅ Operational — live-market acceptance recorded July 27, 2026 |
+| Java backend (evidence-service-java) | ⚠️ Substantially implemented; live-market acceptance not yet performed |
+| Migration status | TypeScript remains operational until Java passes live-market validation and migration acceptance |
+| Architecture documentation | ✅ Ratified |
+| Behavioral invariants | ✅ Ratified (18 total; 16 satisfied, 2 pending Java completion) |
 | Snapshot contract v1 | ✅ Frozen |
 | Calls (Horizon A) | ✅ Restored — cache-based call recommendations |
 | Cloud deployment | 📋 Accepted architecture — post-retooling |
