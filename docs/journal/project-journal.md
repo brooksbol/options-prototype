@@ -4653,3 +4653,58 @@ Investigation revealed a deeper issue: after portfolio source change, recommenda
 ### Selection validity helper extraction
 
 The identity-matching logic (`candidateExistsInResults`) was extracted into `call-empty-state.ts` as a production helper. Both put and call validation in WriteDesk.tsx use this single helper (4 call sites). Tests invoke the production function directly — no test-local duplication.
+
+---
+
+## Live-Market Acceptance — TypeScript Backend
+
+**Date:** July 27, 2026
+**Session:** Regular market session (US equity)
+
+### Result: Acceptance criteria satisfied
+
+The TypeScript Evidence Appliance operated continuously during a live market session with no manual intervention. The frontend (Wheelwright Write Desk) produced actionable recommendations from live-acquired evidence.
+
+### Observations
+
+| Metric | Value |
+|--------|-------|
+| Generation at session start (sealed) | 1162 |
+| Generation after acquisition | 1435+ (advancing continuously) |
+| Symbols acquired | 5539+ (multiple service passes) |
+| Scheduler state | idle (all_within_targets) |
+| Session classification | Regular session |
+| Coverage | 941 ready, 345 absent, 0 pending, 0 failed |
+| Failures | 0 |
+| Class A dispatches | 3010+ |
+| Class B dispatches | 1243+ |
+| Publications | 273+ (183 skipped/no change — evidence stabilizing) |
+
+### Acceptance criteria verified
+
+1. ✅ Scheduler transitioned from `session_blocked` to active acquisition
+2. ✅ Generation advanced from sealed prior-session evidence to current-session evidence
+3. ✅ Session classification transitioned to "Regular session"
+4. ✅ Recommendations updated with live data without manual intervention
+5. ✅ Zero acquisition failures
+6. ✅ Put recommendations populated (127 Actionable / 27 Wait from Fidelity portfolio)
+7. ✅ Call recommendations correctly reflected portfolio encumbrance state
+8. ✅ Frontend polling merged evidence, recomputed recommendations
+
+### What this means
+
+The TypeScript backend achieves the retooling charter's acceptance criterion: "The operator's Write Desk experience is indistinguishable from today." The system acquires, stores, publishes, and serves evidence that the frontend consumes to produce actionable recommendations during a live market session.
+
+### Remaining gates
+
+- Java backend live-market acceptance: separate test, requires starting the Java process during a market session (the Java backend was suspended/stopped during this test)
+- TypeScript retirement: blocked on Java acceptance
+- Cloud deployment: sequenced after retooling acceptance
+
+### Runtime configuration for this test
+
+- Backend: TypeScript (`evidence-service`), `npm run dev`, port 3100
+- Frontend: `options-prototype`, `npm run dev`, port 5173
+- Database: `evidence-service/data/evidence.sqlite3`
+- Provider: Tradier sandbox
+- Proxy: Vite `/api` → `localhost:3100`
