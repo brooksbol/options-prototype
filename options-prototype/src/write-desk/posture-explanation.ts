@@ -66,24 +66,28 @@ export interface PostureExplanation {
     category: string;
     label: string;
   };
-  /** Governance observation (independent of execution score) */
+  /** Governance observation (independent of execution score; null when not applicable to this recommendation path) */
   governance: {
     status: string;
     hasRestriction: boolean;
     summary: string;
-  };
+  } | null;
 }
 
 // --- Builder ---
 
 /**
- * Build a PostureExplanation from the existing assessment, delta fit, and governance.
+ * Build a PostureExplanation from the existing assessment, delta fit, and optionally governance.
  * This is a pure transformation — no new computation, just restructuring for display.
+ *
+ * Governance is optional because it is not applicable to all recommendation paths.
+ * Held-inventory calls do not undergo product-admission governance.
+ * Passing null means "governance is not part of this recommendation path" — not "authorized."
  */
 export function buildPostureExplanation(
   assessment: ExecutionAssessment,
   deltaFit: DeltaFit,
-  governance: GovernanceAnnotation,
+  governance: GovernanceAnnotation | null,
   policy: ExecutionPolicy
 ): PostureExplanation {
   // Hard-no path
@@ -96,7 +100,7 @@ export function buildPostureExplanation(
       hardNoReasons: assessment.hardNoReason ? [assessment.hardNoReason] : ["Contract excluded by absolute policy gate"],
       contributors: [],
       deltaFit: buildDeltaFitSummary(deltaFit),
-      governance: buildGovernanceSummary(governance),
+      governance: governance ? buildGovernanceSummary(governance) : null,
     };
   }
 
@@ -112,7 +116,7 @@ export function buildPostureExplanation(
     hardNoReasons: [],
     contributors,
     deltaFit: buildDeltaFitSummary(deltaFit),
-    governance: buildGovernanceSummary(governance),
+    governance: governance ? buildGovernanceSummary(governance) : null,
   };
 }
 

@@ -474,7 +474,9 @@ export function PostureExplanationSection({ explanation }: { explanation: Postur
       {/* Additional observations — separate from execution score */}
       <div className="rb-pe-observations">
         <div className="rb-pe-obs-item">{deltaFit.label}</div>
-        <div className={`rb-pe-obs-item${governance.hasRestriction ? " rb-pe-obs-warn" : ""}`}>{governance.summary}</div>
+        {governance && (
+          <div className={`rb-pe-obs-item${governance.hasRestriction ? " rb-pe-obs-warn" : ""}`}>{governance.summary}</div>
+        )}
       </div>
     </div>
   );

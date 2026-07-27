@@ -15,6 +15,7 @@ import type { CallCandidate } from "./scan-orchestrator";
 import type { PositionEconomics } from "./types";
 import type { ContractSelectionPolicy, RecommendationPolicy } from "./recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
+import { buildPostureExplanation, type PostureExplanation } from "./posture-explanation";
 
 // --- Call Neighbor Tag ---
 
@@ -68,6 +69,37 @@ export interface CallPositionContext {
   unrealizedPerShare: number | null;
   /** Total unrealized gain/loss for free shares (null when basis unavailable) */
   unrealizedTotal: number | null;
+  /** Projected called-away economics (conditional on execution + assignment) */
+  projectedCalledAway: ProjectedCalledAway | null;
+}
+
+// --- Projected Called-Away Economics ---
+
+/**
+ * Projected economics if the call is written at modeled premium and shares are called away.
+ * Conditional on both execution and assignment. Not a realized outcome.
+ */
+export interface ProjectedCalledAway {
+  /** The premium assumption used */
+  premiumAssumption: "midpoint";
+  /** Modeled premium per share (mid) */
+  modeledPremiumPerShare: number;
+  /** Modeled premium per contract (mid × 100) */
+  modeledPremiumPerContract: number;
+  /** Strike + modeled premium per share */
+  projectedEffectiveSalePricePerShare: number;
+  /** Broker-reported cost basis per share (null when unavailable) */
+  costBasisPerShare: number | null;
+  /** Projected gain/loss per share relative to basis (null when basis unavailable) */
+  projectedGainPerShare: number | null;
+  /** Contracts represented by this deployment */
+  maximumContracts: number;
+  /** Shares covered at maximum deployment */
+  coveredSharesAtMaximumDeployment: number;
+  /** Total projected gain/loss at maximum deployment (null when basis unavailable) */
+  projectedTotalGainAtMaximumDeployment: number | null;
+  /** Why gain/loss cannot be calculated (null when it can) */
+  unavailableReason: string | null;
 }
 
 // --- Provenance ---
@@ -109,6 +141,7 @@ export interface CallBriefViewModel {
   deltaFit: DeltaFit;
   neighborhood: CallStrikeNeighborhood;
   positionContext: CallPositionContext;
+  postureExplanation: PostureExplanation;
   provenance: CallBriefProvenance;
 }
 
@@ -155,7 +188,16 @@ export async function buildCallBrief(
     underlyingPrice: candidate.underlyingPrice,
     unrealizedPerShare,
     unrealizedTotal,
+    projectedCalledAway: buildProjectedCalledAway(candidate, averageCost),
   };
+
+  // Posture explanation — reuses shared model; governance not applicable for held-inventory calls
+  const postureExplanation = buildPostureExplanation(
+    candidate.assessment,
+    deltaFit,
+    null, // Governance is not part of the call recommendation path
+    policy.executionAssessment
+  );
 
   // Provenance — derived from session classification (available data only)
   const evidenceStatus = sessionClassification.acceptingCanonicalEvidence
@@ -199,7 +241,47 @@ export async function buildCallBrief(
     deltaFit,
     neighborhood,
     positionContext,
+    postureExplanation,
     provenance,
+  };
+}
+
+// --- Projected Called-Away Economics Builder ---
+
+function buildProjectedCalledAway(
+  candidate: CallCandidate,
+  averageCost: number | null
+): ProjectedCalledAway | null {
+  // Cannot project without a valid modeled premium
+  if (candidate.mid <= 0) return null;
+
+  const modeledPremiumPerShare = candidate.mid;
+  const projectedEffectiveSalePricePerShare = candidate.strike + modeledPremiumPerShare;
+  const maximumContracts = candidate.maxContracts;
+  const coveredSharesAtMaximumDeployment = maximumContracts * 100;
+
+  let projectedGainPerShare: number | null = null;
+  let projectedTotalGainAtMaximumDeployment: number | null = null;
+  let unavailableReason: string | null = null;
+
+  if (averageCost != null) {
+    projectedGainPerShare = projectedEffectiveSalePricePerShare - averageCost;
+    projectedTotalGainAtMaximumDeployment = projectedGainPerShare * coveredSharesAtMaximumDeployment;
+  } else {
+    unavailableReason = "Position cost basis not available";
+  }
+
+  return {
+    premiumAssumption: "midpoint",
+    modeledPremiumPerShare,
+    modeledPremiumPerContract: modeledPremiumPerShare * 100,
+    projectedEffectiveSalePricePerShare,
+    costBasisPerShare: averageCost,
+    projectedGainPerShare,
+    maximumContracts,
+    coveredSharesAtMaximumDeployment,
+    projectedTotalGainAtMaximumDeployment,
+    unavailableReason,
   };
 }
 

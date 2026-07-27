@@ -63,7 +63,18 @@ describe("buildCallBrief", () => {
       maxContracts: 2,
       premiumPerContract: 130,
       yieldAnnualized: 38.9,
-      assessment: { score: 8, components: { spread: 3, openInterest: 3, volume: 2 }, posture: "ACTIONABLE" },
+      assessment: {
+        score: 75,
+        posture: "ACTIONABLE",
+        components: [
+          { name: "Spread", measured: 15.4, reference: 15, score: 99, weight: 0.40 },
+          { name: "Open Interest", measured: 300, reference: 50, score: 100, weight: 0.25 },
+          { name: "Volume", measured: 80, reference: 10, score: 100, weight: 0.15 },
+          { name: "Premium", measured: 1.20, reference: 0.10, score: 100, weight: 0.20 },
+        ],
+        hardNoReason: null,
+        policyVersion: "v1-provisional",
+      },
       posture: "ACTIONABLE",
       strikeAbovePrice: true,
       underlyingPrice: 58.0,
@@ -297,5 +308,173 @@ describe("buildCallBrief", () => {
     expect(brief.positionContext.unrealizedPerShare).toBeCloseTo(-4.00, 2);
     // Total: -4.00 * 200 = -800
     expect(brief.positionContext.unrealizedTotal).toBeCloseTo(-800, 0);
+  });
+
+  // --- Posture Explanation Tests ---
+
+  it("produces posture explanation with weighted_score derivation for ACTIONABLE", async () => {
+    await populateCallChain();
+    const candidate = makeCallCandidate();
+
+    const brief = await buildCallBrief(candidate, DEFAULT_RECOMMENDATION_POLICY, sessionClassification, cache, cacheEnv());
+
+    expect(brief.postureExplanation.posture).toBe("ACTIONABLE");
+    expect(brief.postureExplanation.derivation).toBe("weighted_score");
+    expect(brief.postureExplanation.score).toBe(75);
+    expect(brief.postureExplanation.scoreRange).not.toBeNull();
+    expect(brief.postureExplanation.scoreRange!.lowerInclusive).toBe(65);
+    expect(brief.postureExplanation.contributors.length).toBe(4);
+  });
+
+  it("produces posture explanation for EDGE call candidate", async () => {
+    await populateCallChain();
+    const candidate = makeCallCandidate({
+      assessment: {
+        score: 48,
+        posture: "EDGE",
+        components: [
+          { name: "Spread", measured: 25, reference: 15, score: 78, weight: 0.40 },
+          { name: "Open Interest", measured: 20, reference: 50, score: 40, weight: 0.25 },
+          { name: "Volume", measured: 5, reference: 10, score: 50, weight: 0.15 },
+          { name: "Premium", measured: 0.30, reference: 0.10, score: 100, weight: 0.20 },
+        ],
+        hardNoReason: null,
+        policyVersion: "v1-provisional",
+      },
+      posture: "EDGE",
+    });
+
+    const brief = await buildCallBrief(candidate, DEFAULT_RECOMMENDATION_POLICY, sessionClassification, cache, cacheEnv());
+
+    expect(brief.postureExplanation.posture).toBe("EDGE");
+    expect(brief.postureExplanation.score).toBe(48);
+    expect(brief.postureExplanation.scoreRange!.nextPosture).toBe("ACTIONABLE");
+    expect(brief.postureExplanation.scoreRange!.nextThreshold).toBe(65);
+  });
+
+  it("produces posture explanation for WAIT call candidate", async () => {
+    await populateCallChain();
+    const candidate = makeCallCandidate({
+      assessment: {
+        score: 25,
+        posture: "WAIT",
+        components: [
+          { name: "Spread", measured: 45, reference: 15, score: 33, weight: 0.40 },
+          { name: "Open Interest", measured: 5, reference: 50, score: 10, weight: 0.25 },
+          { name: "Volume", measured: 1, reference: 10, score: 10, weight: 0.15 },
+          { name: "Premium", measured: 0.15, reference: 0.10, score: 100, weight: 0.20 },
+        ],
+        hardNoReason: null,
+        policyVersion: "v1-provisional",
+      },
+      posture: "WAIT",
+    });
+
+    const brief = await buildCallBrief(candidate, DEFAULT_RECOMMENDATION_POLICY, sessionClassification, cache, cacheEnv());
+
+    expect(brief.postureExplanation.posture).toBe("WAIT");
+    expect(brief.postureExplanation.score).toBe(25);
+    expect(brief.postureExplanation.scoreRange!.nextPosture).toBe("EDGE");
+    expect(brief.postureExplanation.scoreRange!.nextThreshold).toBe(35);
+  });
+
+  it("call posture explanation has null governance (not applicable, not fabricated)", async () => {
+    await populateCallChain();
+    const candidate = makeCallCandidate();
+
+    const brief = await buildCallBrief(candidate, DEFAULT_RECOMMENDATION_POLICY, sessionClassification, cache, cacheEnv());
+
+    expect(brief.postureExplanation.governance).toBeNull();
+  });
+
+  it("removes rank metadata — not present in posture explanation", async () => {
+    await populateCallChain();
+    const candidate = makeCallCandidate();
+
+    const brief = await buildCallBrief(candidate, DEFAULT_RECOMMENDATION_POLICY, sessionClassification, cache, cacheEnv());
+
+    // The postureExplanation model has no rank or tablePosition fields
+    expect((brief.postureExplanation as any).rank).toBeUndefined();
+    expect((brief.postureExplanation as any).tablePosition).toBeUndefined();
+    expect((brief.postureExplanation as any).rankingObjective).toBeUndefined();
+  });
+
+  // --- Projected Called-Away Economics Tests ---
+
+  it("computes positive projected gain when strike + mid > basis", async () => {
+    await populateCallChain();
+    // strike=60, mid=1.30, basis=52.50
+    // effective sale = 60 + 1.30 = 61.30
+    // gain/share = 61.30 - 52.50 = 8.80
+    // maxContracts=2, covered=200
+    // total = 8.80 * 200 = 1760
+    const candidate = makeCallCandidate({ strike: 60, mid: 1.30, maxContracts: 2, economics: { averageCostPerShare: 52.50, costBasis: 10500, marketValue: 11600 } });
+
+    const brief = await buildCallBrief(candidate, DEFAULT_RECOMMENDATION_POLICY, sessionClassification, cache, cacheEnv());
+
+    const ca = brief.positionContext.projectedCalledAway!;
+    expect(ca).not.toBeNull();
+    expect(ca.premiumAssumption).toBe("midpoint");
+    expect(ca.modeledPremiumPerShare).toBeCloseTo(1.30, 2);
+    expect(ca.projectedEffectiveSalePricePerShare).toBeCloseTo(61.30, 2);
+    expect(ca.costBasisPerShare).toBeCloseTo(52.50, 2);
+    expect(ca.projectedGainPerShare).toBeCloseTo(8.80, 2);
+    expect(ca.maximumContracts).toBe(2);
+    expect(ca.coveredSharesAtMaximumDeployment).toBe(200);
+    expect(ca.projectedTotalGainAtMaximumDeployment).toBeCloseTo(1760, 0);
+    expect(ca.unavailableReason).toBeNull();
+  });
+
+  it("computes negative projected loss when strike + mid < basis", async () => {
+    await populateCallChain();
+    // strike=55, mid=0.50, basis=58.00
+    // effective sale = 55 + 0.50 = 55.50
+    // gain/share = 55.50 - 58.00 = -2.50
+    const candidate = makeCallCandidate({ strike: 55, mid: 0.50, maxContracts: 1, economics: { averageCostPerShare: 58.00, costBasis: 11600, marketValue: 11000 } });
+
+    const brief = await buildCallBrief(candidate, DEFAULT_RECOMMENDATION_POLICY, sessionClassification, cache, cacheEnv());
+
+    const ca = brief.positionContext.projectedCalledAway!;
+    expect(ca.projectedGainPerShare).toBeCloseTo(-2.50, 2);
+    expect(ca.coveredSharesAtMaximumDeployment).toBe(100);
+    expect(ca.projectedTotalGainAtMaximumDeployment).toBeCloseTo(-250, 0);
+  });
+
+  it("shows partial economics when basis is unavailable", async () => {
+    await populateCallChain();
+    const candidate = makeCallCandidate({ strike: 60, mid: 1.30, economics: null });
+
+    const brief = await buildCallBrief(candidate, DEFAULT_RECOMMENDATION_POLICY, sessionClassification, cache, cacheEnv());
+
+    const ca = brief.positionContext.projectedCalledAway!;
+    expect(ca).not.toBeNull();
+    // Sale price is computable even without basis
+    expect(ca.projectedEffectiveSalePricePerShare).toBeCloseTo(61.30, 2);
+    expect(ca.modeledPremiumPerShare).toBeCloseTo(1.30, 2);
+    // Gain/loss unavailable
+    expect(ca.costBasisPerShare).toBeNull();
+    expect(ca.projectedGainPerShare).toBeNull();
+    expect(ca.projectedTotalGainAtMaximumDeployment).toBeNull();
+    expect(ca.unavailableReason).toContain("cost basis");
+  });
+
+  it("returns null projectedCalledAway when mid is zero or negative", async () => {
+    await populateCallChain();
+    const candidate = makeCallCandidate({ mid: 0, bid: 0, ask: 0 });
+
+    const brief = await buildCallBrief(candidate, DEFAULT_RECOMMENDATION_POLICY, sessionClassification, cache, cacheEnv());
+
+    expect(brief.positionContext.projectedCalledAway).toBeNull();
+  });
+
+  it("covered shares use maxContracts × 100, not freeShares", async () => {
+    await populateCallChain();
+    // freeShares=300 but maxContracts=2 (e.g., some shares below quantization boundary after encumbrance)
+    const candidate = makeCallCandidate({ freeShares: 300, maxContracts: 2 });
+
+    const brief = await buildCallBrief(candidate, DEFAULT_RECOMMENDATION_POLICY, sessionClassification, cache, cacheEnv());
+
+    const ca = brief.positionContext.projectedCalledAway!;
+    expect(ca.coveredSharesAtMaximumDeployment).toBe(200); // 2 × 100, not 300
   });
 });

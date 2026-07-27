@@ -15,7 +15,8 @@
 
 import { useState, useEffect } from "react";
 import { getDurableCache } from "../cache/durable-cache";
-import { buildCallBrief, type CallBriefViewModel, type CallNeighborTag } from "../write-desk/call-brief-builder";
+import { buildCallBrief, type CallBriefViewModel, type CallNeighborTag, type ProjectedCalledAway } from "../write-desk/call-brief-builder";
+import { PostureExplanationSection } from "./RecommendationBrief";
 import type { CallCandidate } from "../write-desk/scan-orchestrator";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
@@ -112,15 +113,8 @@ export function CallBrief({
           </div>
         </div>
 
-        {/* Rank */}
-        <div className="rb-rank-block">
-          <div className="rb-rank-row">
-            <span className={`rb-posture rb-posture-${brief.identity.posture.toLowerCase()}`}>
-              {brief.identity.posture}
-            </span>
-            <span className="rb-rank-primary">Recommendation #{brief.identity.rank}</span>
-          </div>
-        </div>
+        {/* Posture Explanation */}
+        <PostureExplanationSection explanation={brief.postureExplanation} />
       </section>
 
       {/* === POSITION CONTEXT === */}
@@ -163,6 +157,9 @@ export function CallBrief({
           )}
         </div>
       </section>
+
+      {/* === PROJECTED CALLED-AWAY ECONOMICS === */}
+      <ProjectedCalledAwaySection calledAway={brief.positionContext.projectedCalledAway} />
 
       {/* === EXECUTION EVIDENCE === */}
       <section className="rb-section rb-evidence">
@@ -246,6 +243,66 @@ export function CallBrief({
         </div>
       </section>
     </div>
+  );
+}
+
+// --- Projected Called-Away Section ---
+
+function ProjectedCalledAwaySection({ calledAway }: { calledAway: ProjectedCalledAway | null }) {
+  if (!calledAway) {
+    return (
+      <section className="rb-section">
+        <h4 className="rb-section-title">If Called Away</h4>
+        <p className="rb-gap">Projected economics unavailable — no valid premium assumption.</p>
+      </section>
+    );
+  }
+
+  const { modeledPremiumPerShare, projectedEffectiveSalePricePerShare, costBasisPerShare, projectedGainPerShare, maximumContracts, coveredSharesAtMaximumDeployment, projectedTotalGainAtMaximumDeployment, unavailableReason } = calledAway;
+
+  return (
+    <section className="rb-section">
+      <h4 className="rb-section-title">If Called Away</h4>
+      <div className="rb-pcs-conditional">CONDITIONAL ON EXECUTION + ASSIGNMENT</div>
+      <div className="rb-impact-grid">
+        <div className="rb-impact-row">
+          <span className="rb-impact-label">Modeled premium/share</span>
+          <span className="rb-impact-val">${modeledPremiumPerShare.toFixed(2)} (midpoint)</span>
+        </div>
+        <div className="rb-impact-row rb-impact-emphasis">
+          <span className="rb-impact-label">Projected effective sale</span>
+          <span className="rb-impact-val">${projectedEffectiveSalePricePerShare.toFixed(2)}/share</span>
+        </div>
+        {costBasisPerShare != null && (
+          <div className="rb-impact-row">
+            <span className="rb-impact-label">Cost basis</span>
+            <span className="rb-impact-val">${costBasisPerShare.toFixed(2)}/share</span>
+          </div>
+        )}
+        {projectedGainPerShare != null ? (
+          <div className={`rb-impact-row rb-impact-emphasis${projectedGainPerShare >= 0 ? " rb-gain" : " rb-loss"}`}>
+            <span className="rb-impact-label">Projected gain/share</span>
+            <span className="rb-impact-val">{projectedGainPerShare >= 0 ? "+" : ""}${projectedGainPerShare.toFixed(2)}</span>
+          </div>
+        ) : (
+          <div className="rb-impact-row">
+            <span className="rb-impact-label">Projected gain/share</span>
+            <span className="rb-impact-val rb-pcs-empty">{unavailableReason}</span>
+          </div>
+        )}
+        <div className="rb-impact-row">
+          <span className="rb-impact-label">At maximum deployment</span>
+          <span className="rb-impact-val">{maximumContracts} ct · {coveredSharesAtMaximumDeployment} shares</span>
+        </div>
+        {projectedTotalGainAtMaximumDeployment != null && (
+          <div className={`rb-impact-row rb-impact-emphasis${projectedTotalGainAtMaximumDeployment >= 0 ? " rb-gain" : " rb-loss"}`}>
+            <span className="rb-impact-label">Projected total</span>
+            <span className="rb-impact-val">{projectedTotalGainAtMaximumDeployment >= 0 ? "+" : ""}${projectedTotalGainAtMaximumDeployment.toFixed(0)}</span>
+          </div>
+        )}
+      </div>
+      <div className="rb-pcs-provenance">Based on midpoint premium. Actual execution may differ.</div>
+    </section>
   );
 }
 
