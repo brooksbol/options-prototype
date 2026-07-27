@@ -20,6 +20,7 @@ import {
   type ConditionedOwnershipInput,
   type ConditionedCallSurface,
 } from "./conditioned-call-surface";
+import { buildPostureExplanation, type PostureExplanation } from "./posture-explanation";
 
 // --- Delta Fit ---
 
@@ -160,6 +161,7 @@ export interface WheelwrightBriefViewModel {
   neighborhood: StrikeNeighborhood;
   positionImpact: PutPositionImpact;
   projectedCallSurface: ConditionedCallSurface | null;
+  postureExplanation: PostureExplanation;
   provenance: WheelwrightProvenance;
   tablePosition: TablePositionContext | null;
 }
@@ -254,6 +256,14 @@ export async function buildWheelwrightBrief(
     projectedCallSurface = null;
   }
 
+  // Posture explanation — restructures existing assessment for transparent display
+  const postureExplanation = buildPostureExplanation(
+    candidate.assessment,
+    deltaFit,
+    candidate.governance,
+    policy.executionAssessment
+  );
+
   return {
     identity: {
       symbol: candidate.symbol,
@@ -286,6 +296,7 @@ export async function buildWheelwrightBrief(
     neighborhood,
     positionImpact,
     projectedCallSurface,
+    postureExplanation,
     provenance,
     tablePosition,
   };

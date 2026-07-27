@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { buildWheelwrightBrief, type WheelwrightBriefViewModel, type TablePositionContext, type NeighborTag } from "../write-desk/brief-builder";
+import type { PostureExplanation } from "../write-desk/posture-explanation";
 import { getDurableCache } from "../cache/durable-cache";
 import { buildWriteIntent } from "../execution/write-intent";
 import { buildFidelityTradeLink, type FidelityTradeLink } from "../execution/fidelity-trade-link";
@@ -150,26 +151,8 @@ export function RecommendationBrief({
           </div>
         </div>
 
-        {/* Rank vs Position */}
-        <div className="rb-rank-block">
-          <div className="rb-rank-row">
-            <span className={`rb-posture rb-posture-${brief.identity.posture.toLowerCase()}`}>
-              {brief.identity.posture}
-            </span>
-            <span className="rb-rank-primary">Recommendation #{brief.identity.rank}</span>
-          </div>
-          {brief.tablePosition && !isRecommendationSort(brief.tablePosition.sortedBy) && (
-            <div className="rb-rank-row rb-rank-secondary">
-              <span className="rb-table-pos">
-                Table Position #{brief.tablePosition.tablePosition}
-              </span>
-              <span className="rb-sort-context">
-                Sorted by {brief.tablePosition.sortLabel}
-              </span>
-            </div>
-          )}
-          <div className="rb-rank-objective">{brief.identity.rankingObjective}</div>
-        </div>
+        {/* Posture Explanation — replaces rank/table-position block */}
+        <PostureExplanationSection explanation={brief.postureExplanation} />
       </section>
 
       {/* === PENDING EXPOSURE WARNING === */}
@@ -424,6 +407,79 @@ function FidelityHandoff({ candidate, onOrderConfirmed }: { candidate: PutCandid
   );
 }
 
+// --- Posture Explanation Section ---
+
+export function PostureExplanationSection({ explanation }: { explanation: PostureExplanation }) {
+  const { posture, derivation, score, scoreRange, hardNoReasons, contributors, deltaFit, governance } = explanation;
+
+  return (
+    <div className="rb-posture-explanation">
+      {/* Posture badge + classification rule */}
+      <div className="rb-pe-header">
+        <span className={`rb-posture rb-posture-${posture.toLowerCase()}`}>{posture}</span>
+      </div>
+
+      {derivation === "hard_no" ? (
+        /* Hard-no path */
+        <div className="rb-pe-hard-no">
+          <div className="rb-pe-rule">Absolute exclusion:</div>
+          {hardNoReasons.map((reason, i) => (
+            <div key={i} className="rb-pe-hard-no-reason">{reason}</div>
+          ))}
+          <div className="rb-pe-hard-no-note">This contract was not assigned a normal execution posture.</div>
+        </div>
+      ) : (
+        /* Normal weighted-score path */
+        <>
+          <div className="rb-pe-score-block">
+            <div className="rb-pe-score-line">
+              <span className="rb-pe-score-label">Execution quality:</span>
+              <span className="rb-pe-score-value">{score} / 100</span>
+            </div>
+            {scoreRange && scoreRange.nextPosture && (
+              <div className="rb-pe-threshold">
+                {scoreRange.nextPosture} begins at {scoreRange.nextThreshold}
+              </div>
+            )}
+            {scoreRange && !scoreRange.nextPosture && (
+              <div className="rb-pe-threshold">
+                {posture} begins at {scoreRange.lowerInclusive}
+              </div>
+            )}
+          </div>
+
+          {/* Score contributors */}
+          <div className="rb-pe-contributors">
+            <div className="rb-pe-contributors-label">Score contributors</div>
+            {contributors.map((c) => (
+              <div key={c.name} className="rb-pe-contributor">
+                <div className="rb-pe-contrib-header">
+                  <span className="rb-pe-contrib-name">{c.name}</span>
+                  <span className="rb-pe-contrib-score">{c.componentScore} / 100</span>
+                  <span className="rb-pe-contrib-weight">weight {Math.round(c.weight * 100)}%</span>
+                </div>
+                <div className="rb-pe-contrib-detail">
+                  <span className="rb-pe-contrib-measured">{c.measuredLabel}</span>
+                  <span className="rb-pe-contrib-reference">{c.referenceLabel}</span>
+                </div>
+                <div className="rb-pe-contrib-bar">
+                  <div className="rb-pe-contrib-bar-fill" style={{ width: `${Math.min(c.componentScore, 100)}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Additional observations — separate from execution score */}
+      <div className="rb-pe-observations">
+        <div className="rb-pe-obs-item">{deltaFit.label}</div>
+        <div className={`rb-pe-obs-item${governance.hasRestriction ? " rb-pe-obs-warn" : ""}`}>{governance.summary}</div>
+      </div>
+    </div>
+  );
+}
+
 // --- Projected Call Surface Section ---
 
 function ProjectedCallSurfaceSection({ surface, effectiveCostBasis, strike }: {
@@ -535,10 +591,6 @@ function formatExpiration(iso: string): string {
   // "2026-07-31" → "Jul 31"
   const d = new Date(iso + "T12:00:00");
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-function isRecommendationSort(key: string): boolean {
-  return key === "rank";
 }
 
 function tagLabel(tag: NeighborTag): string {
