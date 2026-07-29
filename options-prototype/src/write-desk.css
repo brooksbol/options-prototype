@@ -2255,3 +2255,39 @@
 .wd-call-board {
   margin-top: var(--wd-space-section);
 }
+
+/* === Contingent Calls === */
+
+.wd-call-group-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--wd-text-secondary, #A0A0A0);
+  padding: 8px 10px 4px;
+}
+
+.wd-call-group-contingent {
+  margin-top: 12px;
+  border-top: 1px solid var(--wd-border-subtle, #333);
+  padding-top: 10px;
+  color: var(--wd-text-tertiary, #777);
+}
+
+.wd-contingent-table tbody tr {
+  opacity: 0.85;
+}
+
+.wd-contingent-source {
+  font-size: 9px;
+  color: var(--wd-text-tertiary, #777);
+}
+
+.wd-posture-projected {
+  background: var(--wd-border-subtle, #333);
+  color: var(--wd-text-secondary, #A0A0A0);
+}
+
+.wd-posture-row.wd-posture-projected {
+  border-left: 2px solid var(--wd-text-tertiary, #777);
+}

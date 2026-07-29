@@ -15,6 +15,8 @@ import { type PutCandidate, type CallCandidate } from "../write-desk/scan-orches
 import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type RecommendationPolicy } from "../write-desk/recommend";
 import { recommendCalls } from "../write-desk/recommend-calls";
 import { deriveCallEmptyState, candidateExistsInResults } from "../write-desk/call-empty-state";
+import { computeContingentCalls } from "../write-desk/contingent-calls";
+import { executableRowFromCandidate, type CallTableRow, type ContingentCallRow } from "../write-desk/call-table-row";
 import type { RecommendationFunnel } from "../write-desk/recommend";
 import { getDurableCache } from "../cache/durable-cache";
 import { deriveTrustState } from "../write-desk/trust-state";
@@ -25,6 +27,7 @@ import { getTradingCalendar } from "../market-session/trading-calendar";
 import { FidelityUpload } from "./FidelityUpload";
 import { RecommendationBrief } from "./RecommendationBrief";
 import { CallBrief } from "./CallBrief";
+import { ContingentCallBrief } from "./ContingentCallBrief";
 import { FunnelInfographic } from "./FunnelInfographic";
 import type { TablePositionContext } from "../write-desk/brief-builder";
 import { loadWorkingIntents, addPendingIntent, updatePendingIntent, createPendingIntent, type PendingIntent } from "../execution/pending-intent";
@@ -51,6 +54,7 @@ export function WriteDesk() {
   // Call candidates — driven by inventory + backend evidence
   const [callCandidates, setCallCandidates] = useState<CallCandidate[]>([]);
   const [callWaitCandidates, setCallWaitCandidates] = useState<CallCandidate[]>([]);
+  const [contingentCallRows, setContingentCallRows] = useState<ContingentCallRow[]>([]);
   const [scanTimestamp, setScanTimestamp] = useState<string | null>(null);
   const [policy, setPolicy] = useState(() => {
     const ws = loadWorkspace();
@@ -70,7 +74,7 @@ export function WriteDesk() {
   });
   const [selectedCandidate, setSelectedCandidate] = useState<PutCandidate | null>(null);
   const [tablePosition, setTablePosition] = useState<TablePositionContext | null>(null);
-  const [selectedCallCandidate, setSelectedCallCandidate] = useState<CallCandidate | null>(null);
+  const [selectedCallCandidate, setSelectedCallCandidate] = useState<CallTableRow | null>(null);
   const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>(() => loadWorkingIntents());
   const [showAffordableOnly, setShowAffordableOnly] = useState(false);
   const [showDanger, setShowDanger] = useState(true);
@@ -128,7 +132,7 @@ export function WriteDesk() {
 
       // Selection validity: clear call selection if absent from new results
       setSelectedCallCandidate((prev) => {
-        if (!prev) return null;
+        if (!prev || prev.availability !== "available-now") return prev;
         const allCalls = [...callResult.candidates, ...callResult.waitCandidates];
         return candidateExistsInResults(prev, allCalls) ? prev : null;
       });
@@ -136,6 +140,20 @@ export function WriteDesk() {
       setCallCandidates([]);
       setCallWaitCandidates([]);
       setSelectedCallCandidate(null);
+    }
+
+    // Compute contingent calls from existing short puts
+    if (snapshot && snapshot.existingPuts.length > 0) {
+      const contingentResult = await computeContingentCalls(
+        snapshot.existingPuts,
+        cache,
+        { provider: providerKey, environment: "sandbox" },
+        { contractSelection: updatedPolicy.contractSelection, executionAssessment: updatedPolicy.executionAssessment },
+        { sessionInfo: { acceptingCanonicalEvidence: sessionClassification.acceptingCanonicalEvidence, priorSessionOperationallyValid: sessionClassification.priorSessionOperationallyValid } }
+      );
+      setContingentCallRows(contingentResult.rows);
+    } else {
+      setContingentCallRows([]);
     }
   }, [snapshot, universeSymbols, providerKey]);
 
@@ -161,6 +179,7 @@ export function WriteDesk() {
     setPutWideSpreadCandidates([]);
     setCallCandidates([]);
     setCallWaitCandidates([]);
+    setContingentCallRows([]);
     setSelectedCandidate(null);
     setSelectedCallCandidate(null);
     setTablePosition(null);
@@ -187,6 +206,7 @@ export function WriteDesk() {
       setPutWideSpreadCandidates([]);
       setCallCandidates([]);
       setCallWaitCandidates([]);
+      setContingentCallRows([]);
       setSelectedCandidate(null);
       setSelectedCallCandidate(null);
       setTablePosition(null);
@@ -319,7 +339,7 @@ export function WriteDesk() {
 
       // Selection validity: clear call selection if it no longer exists in results
       setSelectedCallCandidate((prev) => {
-        if (!prev) return null;
+        if (!prev || prev.availability !== "available-now") return prev;
         const allCalls = [...callResult.candidates, ...callResult.waitCandidates];
         return candidateExistsInResults(prev, allCalls) ? prev : null;
       });
@@ -328,6 +348,20 @@ export function WriteDesk() {
       setCallCandidates([]);
       setCallWaitCandidates([]);
       setSelectedCallCandidate(null);
+    }
+
+    // Compute contingent calls from existing short puts
+    if (snapshot.existingPuts.length > 0) {
+      const contingentResult = await computeContingentCalls(
+        snapshot.existingPuts,
+        cache,
+        { provider: providerKey, environment: "sandbox" },
+        { contractSelection: policy.contractSelection, executionAssessment: policy.executionAssessment },
+        { sessionInfo: { acceptingCanonicalEvidence: sessionClassification.acceptingCanonicalEvidence, priorSessionOperationallyValid: sessionClassification.priorSessionOperationallyValid } }
+      );
+      setContingentCallRows(contingentResult.rows);
+    } else {
+      setContingentCallRows([]);
     }
 
     if (!scanTimestamp) {
@@ -430,10 +464,18 @@ export function WriteDesk() {
       )}
 
       {/* Call Inspection Drawer */}
-      {selectedCallCandidate && (
+      {selectedCallCandidate && selectedCallCandidate.availability === "available-now" && (
         <CallBrief
-          candidate={selectedCallCandidate}
+          candidate={selectedCallCandidate.candidate}
           policy={policy}
+          sessionClassification={sessionClassification}
+          cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
+          onClose={() => setSelectedCallCandidate(null)}
+        />
+      )}
+      {selectedCallCandidate && selectedCallCandidate.availability === "if-assigned" && (
+        <ContingentCallBrief
+          row={selectedCallCandidate}
           sessionClassification={sessionClassification}
           cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
           onClose={() => setSelectedCallCandidate(null)}
@@ -486,8 +528,8 @@ export function WriteDesk() {
             </span>
           )}
           <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("calls"); }}>
-            {callCandidates.length + callWaitCandidates.length > 0
-              ? `${callCandidates.length} Call${callCandidates.length !== 1 ? "s" : ""}`
+            {callCandidates.length + callWaitCandidates.length + contingentCallRows.length > 0
+              ? `${callCandidates.length + callWaitCandidates.length} Call${callCandidates.length + callWaitCandidates.length !== 1 ? "s" : ""}${contingentCallRows.length > 0 ? ` · ${contingentCallRows.length} projected` : ""}`
               : "No Calls"}
             {openPopover === "calls" && (
               <div className="wd-popover" onClick={e => e.stopPropagation()}>
@@ -654,15 +696,42 @@ export function WriteDesk() {
                 </button>
                 Covered-Call Candidates
               </h2>
-              {callCandidates.length + callWaitCandidates.length > 0 && (
-                <span className="wd-board-rec-count">{callCandidates.length} Actionable · {callWaitCandidates.length} Wait</span>
+              {(callCandidates.length + callWaitCandidates.length > 0 || contingentCallRows.length > 0) && (
+                <span className="wd-board-rec-count">
+                  {callCandidates.length + callWaitCandidates.length > 0 && `${callCandidates.length + callWaitCandidates.length} available now`}
+                  {callCandidates.length + callWaitCandidates.length > 0 && contingentCallRows.length > 0 && " · "}
+                  {contingentCallRows.length > 0 && `${contingentCallRows.length} if assigned`}
+                </span>
               )}
             </div>
           </div>
 
           <div style={{ display: callsCollapsed ? 'none' : undefined }}>
-            {(callCandidates.length > 0 || callWaitCandidates.length > 0) ? (
-              <CallCandidateTable candidates={[...callCandidates, ...callWaitCandidates]} selectedSymbol={selectedCallCandidate?.symbol ?? null} selectedStrike={selectedCallCandidate?.strike ?? null} onSelect={(c) => { setSelectedCallCandidate(c); setSelectedCandidate(null); }} />
+            {(callCandidates.length > 0 || callWaitCandidates.length > 0 || contingentCallRows.length > 0) ? (
+              <>
+                {/* Available now — executable calls */}
+                {(callCandidates.length > 0 || callWaitCandidates.length > 0) && (
+                  <>
+                    <div className="wd-call-group-label">Available now</div>
+                    <CallCandidateTable
+                      candidates={[...callCandidates, ...callWaitCandidates]}
+                      selectedRow={selectedCallCandidate}
+                      onSelect={(row) => { setSelectedCallCandidate(row); setSelectedCandidate(null); }}
+                    />
+                  </>
+                )}
+                {/* If assigned — contingent calls */}
+                {contingentCallRows.length > 0 && (
+                  <>
+                    <div className="wd-call-group-label wd-call-group-contingent">If assigned</div>
+                    <ContingentCallTable
+                      rows={contingentCallRows}
+                      selectedRow={selectedCallCandidate}
+                      onSelect={(row) => { setSelectedCallCandidate(row); setSelectedCandidate(null); }}
+                    />
+                  </>
+                )}
+              </>
             ) : (
               <div className="wd-no-trade">
                 <p>{deriveCallEmptyStateMsg(snapshot, scanTimestamp, evidenceMeta)}</p>
@@ -821,8 +890,10 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
 
 // --- Call Candidate Table ---
 
-function CallCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelect }: { candidates: CallCandidate[]; selectedSymbol: string | null; selectedStrike: number | null; onSelect: (c: CallCandidate) => void }) {
+function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates: CallCandidate[]; selectedRow: CallTableRow | null; onSelect: (row: CallTableRow) => void }) {
   const { sorted, handleSort, indicator } = useSortableTable(candidates, "rank", "asc");
+  const selectedSymbol = selectedRow?.availability === "available-now" ? selectedRow.symbol : null;
+  const selectedStrike = selectedRow?.availability === "available-now" ? selectedRow.strike : null;
 
   return (
     <table className="wd-candidate-table">
@@ -850,9 +921,9 @@ function CallCandidateTable({ candidates, selectedSymbol, selectedStrike, onSele
           <tr
             key={`${c.symbol}-${c.expiration}-${c.strike}`}
             className={`wd-posture-row wd-posture-${c.posture.toLowerCase()}${c.symbol === selectedSymbol && c.strike === selectedStrike ? " wd-row-selected" : ""}`}
-            onClick={() => onSelect(c)}
+            onClick={() => onSelect(executableRowFromCandidate(c))}
             tabIndex={0}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(c); } }}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(executableRowFromCandidate(c)); } }}
           >
             <td>{c.rank}</td>
             <td className="wd-symbol">{c.symbol}</td>
@@ -871,6 +942,64 @@ function CallCandidateTable({ candidates, selectedSymbol, selectedStrike, onSele
             <td><span className={`wd-posture-badge wd-posture-${c.posture.toLowerCase()}`}>{c.posture}</span></td>
           </tr>
         ))}
+      </tbody>
+    </table>
+  );
+}
+
+// --- Contingent Call Table ---
+
+function ContingentCallTable({ rows, selectedRow, onSelect }: { rows: ContingentCallRow[]; selectedRow: CallTableRow | null; onSelect: (row: CallTableRow) => void }) {
+  const selectedKey = selectedRow?.availability === "if-assigned"
+    ? `${selectedRow.symbol}-${selectedRow.expiration}-${selectedRow.strike}-${selectedRow.originatingPut.expiration}`
+    : null;
+
+  return (
+    <table className="wd-candidate-table wd-contingent-table">
+      <thead>
+        <tr>
+          <th>Symbol</th>
+          <th>Call Exp</th>
+          <th>DTE</th>
+          <th>Strike</th>
+          <th>Δ</th>
+          <th>Bid</th>
+          <th>Ask</th>
+          <th>Spread</th>
+          <th>OI</th>
+          <th>Yield (basis)</th>
+          <th>Basis</th>
+          <th>Source Put</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => {
+          const key = `${r.symbol}-${r.expiration}-${r.strike}-${r.originatingPut.expiration}`;
+          return (
+            <tr
+              key={key}
+              className={`wd-posture-row wd-posture-projected${key === selectedKey ? " wd-row-selected" : ""}`}
+              onClick={() => onSelect(r)}
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(r); } }}
+            >
+              <td className="wd-symbol">{r.symbol}</td>
+              <td>{r.expiration.slice(5)}</td>
+              <td>{r.dte}</td>
+              <td>${r.strike}</td>
+              <td>{r.delta.toFixed(2)}</td>
+              <td>${r.bid.toFixed(2)}</td>
+              <td>${r.ask.toFixed(2)}</td>
+              <td className={r.spreadPercent > 15 ? "wd-warn-value" : ""}>{r.spreadPercent.toFixed(0)}%</td>
+              <td className={r.openInterest < 50 ? "wd-warn-value" : ""}>{r.openInterest}</td>
+              <td>{r.yieldFromBasis != null ? `${r.yieldFromBasis.toFixed(1)}%` : "—"}</td>
+              <td>${r.conditionedBasis.toFixed(0)}</td>
+              <td className="wd-contingent-source">${r.originatingPut.strike} {r.originatingPut.expiration.slice(5)}</td>
+              <td><span className="wd-posture-badge wd-posture-projected">PROJECTED</span></td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
