@@ -172,3 +172,45 @@
 - Single source of truth for the dark-theme palette
 - Typography scale tokens (hero/value/body/label/micro) ensure consistency
 - Spacing tokens reduce pixel-counting across components
+
+---
+
+## ADR-011: Application-Scoped Portfolio Ingestion
+
+**Date:** July 2026
+**Status:** Accepted
+
+**Context:** Portfolio ingestion (Fidelity CSV import) currently lives inside the WriteDesk component. The raw CSV text persists in localStorage (application-accessible), but the parsed `PortfolioSnapshot`, validation state, provenance, and derived data are owned by WriteDesk's component state. When a second surface needs portfolio data (e.g., the Operator Console), it has no access without duplicating the import mechanism or lifting state.
+
+The current implementation gap: raw imports are technically durable (localStorage), but parsed portfolio state is page-local.
+
+**Decision:** Portfolio ingestion belongs to Wheelwright, not to an individual page or surface.
+
+Specifically:
+
+- Raw imported data, parsed datasets, provenance metadata, validation state, and derived `PortfolioSnapshot` are shared application state.
+- Import controls (file inputs, status indicators) may appear on one or more surfaces, but they consume and update shared state rather than owning independent copies.
+- Multiple Wheelwright surfaces observe one consistent imported portfolio.
+- A portfolio change on any surface is immediately visible to all other surfaces.
+- Historical portfolio observations (time-series data for NAV visualization) are a future shared dataset, architecturally distinct from the current point-in-time snapshot. Their acquisition mechanism, schema, and storage lifecycle are unresolved.
+
+**Rejected alternatives:**
+
+- Keep imports page-local and duplicate import UI per surface: violates single-source-of-truth; operator would re-upload the same files in multiple places.
+- Share only raw localStorage and re-parse independently per surface: wasteful; risks inconsistent parse results if parsers diverge; no shared validation state.
+
+**Consequences:**
+
+- Implementation must lift `PortfolioSnapshot` and related state out of the WriteDesk component into application-level shared infrastructure.
+- The existing `FidelityUpload` component becomes a consumer/updater of shared state rather than an owner.
+- Import provenance (source files, timestamps, validation warnings) is shared — every surface can display import freshness without re-inspecting localStorage.
+- Future data types (positions CSV, activity CSV, historical observations) participate in the same shared-ingestion model.
+- The specific frontend state mechanism (React Context, external store, module-level singleton) is an implementation choice, not an architectural decision. Any mechanism that provides consistent, observable, application-scoped state satisfies the ADR.
+
+**Unresolved (deliberately excluded):**
+
+- Frontend state technology selection
+- Portfolio-history CSV schema and acquisition contract
+- Historical-observation storage and lifecycle
+- Navigation structure between Wheelwright surfaces
+- Whether import UI appears on one surface or multiple surfaces simultaneously

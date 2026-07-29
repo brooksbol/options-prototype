@@ -75,6 +75,7 @@
 | `PL-OPS-02` | Post-Retooling Craftsmanship Review | Parked | Clean Code, maintainability, structural cleanup. After behavioral parity, not during. Must not cause premature stylistic refactoring during parity work. | None |
 | `PL-OPS-03` | Prior-Epoch Failed Scheduler Gap | Documented | `getPrioritizedWorkQueue` omits prior-epoch failed symbols. Fix when operational evidence shows user-visible impact. | `foundations/acquisition-scheduler-policy.md` |
 | `PL-OPS-04` | Notification and Background Awareness | Far future | Push notifications or indicators when evidence state changes significantly. Depends on cloud deployment. | None |
+| `PL-OPS-05` | ADR Coverage Review | Deferred | Repository-wide review to determine which major architectural decisions lack durable ADR rationale. Distinguish intentional decisions from incidental implementation evolution. Not exhaustive ADR production — identify gaps where retrospective ADRs would materially improve comprehension for future human and machine readers. After current Operator Console architecture work. | `07c-adrs.md` |
 
 ### Policy
 
