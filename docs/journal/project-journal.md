@@ -4800,3 +4800,79 @@ The first three constrain the system's decisions. Epistemic Integrity constrains
 ### Next step
 
 A dedicated foundation document (`docs/foundations/epistemic-integrity.md`) will be authored in a separate reviewed increment. This journal entry records the acceptance decision; the foundation document will receive deliberate scrutiny of its language and scope.
+
+---
+
+## Live-Market Acceptance — Java Backend
+
+**Date:** August 3, 2026
+**Session:** Regular market session (US equity)
+
+### Result: All retooling-charter acceptance criteria satisfied
+
+The Java Evidence Appliance operated during a live Regular session with the Fidelity-connected frontend. The operator validated that the experience is indistinguishable from the previously accepted TypeScript backend.
+
+### Telemetry
+
+| Metric | Value |
+|--------|-------|
+| Generation at start (persisted) | 4374 |
+| Generation after acquisition | 4412+ (advancing continuously) |
+| Symbols acquired this session | 456+ |
+| Cycles completed | 40+ |
+| Publications | 39 |
+| Provider calls dispatched | 836 |
+| Failures | 0 |
+| Session classification | Regular session |
+| Universe | 1306 |
+| Coverage ready | 960 (symbols with usable option-chain evidence) |
+| Coverage absent | 346 (symbols confirmed to have no tradeable options) |
+| Coverage pending | 0 |
+| Coverage failed | 0 |
+
+### Coverage semantics
+
+- `ready` (960): symbols with complete chain evidence (puts, calls, underlying price)
+- `absent` (346): symbols resolved as having no options — confirmed, not an error
+- `1306/1306` in the UI: the entire universe has been assessed/classified (ready + absent + pending + failed = universe)
+
+This means all 1306 universe members reached a resolved state. 960 have usable option evidence; 346 are confirmed to have no options.
+
+### Operator validation
+
+- Session: Regular Session
+- Evidence: Current
+- Coverage: 1306/1306 (full assessment)
+- Freshness: ~22 seconds
+- Recommendations: populated and visibly updating in real time as evidence changes
+- Indistinguishable from TypeScript backend behavior
+
+### Acceptance criteria
+
+| Criterion (from `retooling-charter.md`) | Evidence |
+|-----------------------------------------|----------|
+| Identical consumer behavior (snapshot shape, ETag/304) | 1306 symbols served with chains. ETag returns 304 for same generation, 200 for new. Frontend consumes identically. |
+| Evidence acquisition with correct session gating | "Regular session" → active acquisition. Prior Sunday observation → `session_blocked`. |
+| Failed refresh preserves successful evidence | Demonstrated by Java behavioral test: `SqliteEvidenceStoreTest.FailedRefreshPreservation.failureDoesNotOverwriteSuccessfulEvidence()` — injects `setFailure("XLE", "provider 503")` after ready state, asserts chain and expirations data remain intact. |
+| Behavioral invariants hold | 146 Java tests pass, including the preservation test above. |
+| Operator experience indistinguishable | Operator validated: same UI, same freshness, same recommendations, same real-time updates. |
+| Operator should not have to learn a new system | Same endpoints, same contracts, zero frontend changes required. |
+
+### Runtime configuration
+
+- Backend: Java (`evidence-service-java`), `./gradlew bootRun`, port 3100
+- Database: `evidence-service/data/evidence.sqlite3` (shared with TypeScript — persisted evidence inherited)
+- Frontend: `options-prototype`, `npm run dev`, port 5173
+- Provider: Tradier sandbox
+- API key: environment variable `TRADIER_API_KEY`
+- Universe seed: `evidence-service/data/seeds/yahoo-merged-etf-tickers.csv` (1306 symbols)
+
+### What this means
+
+Java retooling acceptance is complete. All six charter criteria are demonstrated — five by live observation and one (failed-refresh preservation) by deliberate behavioral test.
+
+### Remaining steps
+
+- TypeScript retirement: a separate subsequent step (delete `evidence-service/`, update scripts/docs)
+- Cloud deployment: sequenced after TypeScript retirement
+- The retooling charter's literal completion criterion (`find <backend-folder> -type f -name "*.ts"` returns no output) requires TypeScript removal, which is retirement — not acceptance
