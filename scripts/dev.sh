@@ -3,7 +3,7 @@
 # Development Startup — launches the complete local environment.
 #
 # Topology:
-#   Browser → options-prototype (Vite :5173) → /api proxy → evidence-service (:3100) → Tradier
+#   Browser → options-prototype (Vite :5173) → /api proxy → Java backend (:3100) → Tradier
 #
 # Usage:
 #   ./scripts/dev.sh          (from workspace root)
@@ -14,11 +14,19 @@
 set -euo pipefail
 
 WORKSPACE_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-BACKEND_DIR="$WORKSPACE_ROOT/evidence-service"
+BACKEND_DIR="$WORKSPACE_ROOT/evidence-service-java"
 FRONTEND_DIR="$WORKSPACE_ROOT/options-prototype"
 
 # --- Environment ---
 
+# Source root .env for credentials (untracked, operator-specific)
+if [ -f "$WORKSPACE_ROOT/.env" ]; then
+  set -a
+  source "$WORKSPACE_ROOT/.env"
+  set +a
+fi
+
+# Node (for frontend)
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 if [ -s "$NVM_DIR/nvm.sh" ]; then
   . "$NVM_DIR/nvm.sh"
@@ -26,21 +34,27 @@ elif [ -s "/opt/homebrew/opt/nvm/nvm.sh" ]; then
   . "/opt/homebrew/opt/nvm/nvm.sh"
 fi
 
-echo "=== Options Prototype — Development Environment ==="
+echo "=== Wheelwright — Development Environment ==="
+echo "Java: $(java --version 2>&1 | head -1)"
 echo "Node: $(node --version)"
-echo "npm:  $(npm --version)"
 echo ""
 
 # --- Preflight Checks ---
 
 if [ ! -d "$BACKEND_DIR" ]; then
-  echo "ERROR: evidence-service directory not found at $BACKEND_DIR"
+  echo "ERROR: evidence-service-java directory not found at $BACKEND_DIR"
   exit 1
 fi
 
 if [ ! -d "$FRONTEND_DIR" ]; then
   echo "ERROR: options-prototype directory not found at $FRONTEND_DIR"
   exit 1
+fi
+
+if [ -z "${TRADIER_API_KEY:-}" ]; then
+  echo "WARNING: TRADIER_API_KEY not set. Backend will start but cannot acquire evidence."
+  echo "         Copy .env.example to .env and add your credential."
+  echo ""
 fi
 
 # Kill any existing process on port 3100 (leftover from prior run)
@@ -51,12 +65,7 @@ if [ -n "$EXISTING_PID" ]; then
   sleep 1
 fi
 
-# Install dependencies if needed
-if [ ! -d "$BACKEND_DIR/node_modules" ]; then
-  echo "[backend] Installing dependencies..."
-  (cd "$BACKEND_DIR" && npm install)
-fi
-
+# Install frontend dependencies if needed
 if [ ! -d "$FRONTEND_DIR/node_modules" ]; then
   echo "[frontend] Installing dependencies..."
   (cd "$FRONTEND_DIR" && npm install)
@@ -79,13 +88,13 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
-# Start backend (evidence-service)
-echo "[backend] Starting evidence-service on :3100..."
-(cd "$BACKEND_DIR" && exec npm run dev 2>&1 | sed -u 's/^/[backend] /') &
+# Start backend (Java Evidence Appliance)
+echo "[backend] Starting Java Evidence Appliance on :3100..."
+(cd "$BACKEND_DIR" && exec ./gradlew bootRun --quiet 2>&1 | sed -u 's/^/[backend] /') &
 BACKEND_PID=$!
 
 # Give the backend a moment to bind the port
-sleep 2
+sleep 4
 
 # Start frontend (options-prototype)
 echo "[frontend] Starting Vite dev server..."
