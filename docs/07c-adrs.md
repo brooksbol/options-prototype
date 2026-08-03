@@ -214,3 +214,45 @@ Specifically:
 - Historical-observation storage and lifecycle
 - Navigation structure between Wheelwright surfaces
 - Whether import UI appears on one surface or multiple surfaces simultaneously
+
+---
+
+## ADR-012: Operator Console as Wheelwright Home Surface
+
+**Date:** July 2026
+**Status:** Accepted
+
+**Context:** Wheelwright's operational surface (currently implemented as `WriteDesk.tsx`) combines portfolio monitoring, recommendation discovery, contract selection, and execution support in a single table-oriented page. As the system matures, these responsibilities need distinct surfaces. The operator's first question upon arriving is not "what should I write?" but "where is my capital, what needs attention, and am I on track?" — a monitoring and orientation concern rather than a recommendation concern.
+
+The table-oriented portfolio display answers "what contracts do I own?" rather than the operationally meaningful "where is my capital committed over time and what requires attention?"
+
+**Decision:** The Operator Console becomes Wheelwright's primary home and landing surface.
+
+Specifically:
+
+- The Operator Console is the first operational surface the operator sees (after authentication, when implemented).
+- Its purpose is operator orientation: monitoring, urgency awareness, mission progress, and capacity assessment.
+- It represents the portfolio operationally — "encumbered capital over time" — rather than as an accounting-style position table. The primary temporal dimension is DTE.
+- It consumes application-scoped portfolio state (ADR-011) rather than owning its own import mechanism.
+- It incorporates the active situation model (`docs/25-situation-architecture.md`) to provide situation-aware context, health, and mission framing.
+- Recommendation, discovery, selection, and execution capabilities remain part of Wheelwright but are not the primary responsibility of the home surface. They will be accessible from a separate functional area.
+- The product name "Write Desk" is retired for new architecture and product terminology. Existing code identifiers may retain the old name until deliberate refactoring.
+
+**Rejected alternatives:**
+
+- Keep the current unified table page as the landing surface: conflates monitoring with action; operators spend cognitive effort determining portfolio state before reaching the work they came to do.
+- Add a dashboard alongside the existing page without changing the landing: creates redundancy; monitoring information would exist in two places with no clear primary.
+- Build the Console as a separate standalone application: unnecessary fragmentation; portfolio state and evidence infrastructure should be shared within one application boundary.
+
+**Consequences:**
+
+- A new route/surface must be created and registered as the application home.
+- The existing recommendation and execution functionality continues to exist as a distinct Wheelwright surface (not deleted, not merged into the Console).
+- Application-scoped state (ADR-011) becomes a prerequisite for implementation — both surfaces must share portfolio and evidence state.
+- The Console's information hierarchy, visualization design, health classification, and progressive disclosure are specified in a separate Operator Console architecture document (not this ADR).
+- Navigation between the Console and recommendation capabilities must be designed, but the navigation mechanism is deliberately deferred until implementation informs the right model.
+
+**Relationship to other decisions:**
+
+- **ADR-011** — The Console depends on application-scoped portfolio ingestion. It consumes shared state rather than owning imports.
+- **`docs/25-situation-architecture.md`** — The Console renders portfolio state through the lens of the active situation. Situation parameters (regime, objective, horizon) are visible on the Console. Health and urgency may be situation-informed.
