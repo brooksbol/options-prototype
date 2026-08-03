@@ -31,19 +31,22 @@ class WorkerParityTest {
         10, 20, 5000L
     );
 
+    // Dynamic future expiration (21 days from today) — avoids test rot when dates pass
+    private static final String FUTURE_EXPIRATION = java.time.LocalDate.now().plusDays(21).toString();
+
     // Chain JSON with qualifying puts (Class A)
-    private static final String QUALIFYING_CHAIN = """
-        {"symbol":"XLE","expiration":"2026-08-03","underlying":{"symbol":"XLE","name":"Energy","price":58.0},\
-        "puts":[{"strike":55,"bid":1.50,"ask":1.70,"delta":-0.28,"openInterest":520,"volume":110}],\
-        "calls":[{"strike":60,"bid":1.20,"ask":1.40,"delta":0.32,"openInterest":300,"volume":80}]}""";
+    private static final String QUALIFYING_CHAIN =
+        "{\"symbol\":\"XLE\",\"expiration\":\"" + FUTURE_EXPIRATION + "\",\"underlying\":{\"symbol\":\"XLE\",\"name\":\"Energy\",\"price\":58.0}," +
+        "\"puts\":[{\"strike\":55,\"bid\":1.50,\"ask\":1.70,\"delta\":-0.28,\"openInterest\":520,\"volume\":110}]," +
+        "\"calls\":[{\"strike\":60,\"bid\":1.20,\"ask\":1.40,\"delta\":0.32,\"openInterest\":300,\"volume\":80}]}";
 
     // Chain JSON with NO qualifying puts (Class B)
-    private static final String NONQUALIFYING_CHAIN = """
-        {"symbol":"BG","expiration":"2026-08-03","underlying":{"symbol":"BG","name":"Background","price":10.0},\
-        "puts":[{"strike":9,"bid":0,"ask":0.05,"delta":-0.10,"openInterest":0,"volume":0}],\
-        "calls":[]}""";
+    private static final String NONQUALIFYING_CHAIN =
+        "{\"symbol\":\"BG\",\"expiration\":\"" + FUTURE_EXPIRATION + "\",\"underlying\":{\"symbol\":\"BG\",\"name\":\"Background\",\"price\":10.0}," +
+        "\"puts\":[{\"strike\":9,\"bid\":0,\"ask\":0.05,\"delta\":-0.10,\"openInterest\":0,\"volume\":0}]," +
+        "\"calls\":[]}";
 
-    private static final String EXPIRATIONS_JSON = "[{\"date\":\"2026-08-03\",\"dte\":21}]";
+    private static final String EXPIRATIONS_JSON = "[{\"date\":\"" + FUTURE_EXPIRATION + "\",\"dte\":21}]";
 
     private static String minutesAgo(int min) {
         return Instant.now().minusSeconds(min * 60L).toString();
