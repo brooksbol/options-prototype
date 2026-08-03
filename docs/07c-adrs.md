@@ -256,3 +256,101 @@ Specifically:
 
 - **ADR-011** — The Console depends on application-scoped portfolio ingestion. It consumes shared state rather than owning imports.
 - **`docs/25-situation-architecture.md`** — The Console renders portfolio state through the lens of the active situation. Situation parameters (regime, objective, horizon) are visible on the Console. Health and urgency may be situation-informed.
+
+---
+
+## ADR-013: Position Monitoring Model
+
+**Date:** July 2026
+**Status:** Accepted
+
+**Context:** The Operator Console (ADR-012) needs to communicate the operational state of held positions on the DTE ladder. Conventional options dashboards use a single "health" classification that equates assignment risk with deterioration (red = ITM, green = far OTM). This is architecturally wrong for Wheelwright: assignment is an outcome, not a defect. A short put approaching assignment may be functioning exactly as intended. A covered call deep ITM near expiration may be excellent (effective exit above basis) or destructive (exit below basis) depending on economics that moneyness alone cannot determine.
+
+A single composite health score would violate Epistemic Integrity by encoding unsupported normative judgments as system-provided classification.
+
+**Decision:** Position monitoring decomposes into three independent dimensions with an explicit fact-to-interpretation boundary:
+
+### 1. Contract State (Observable Facts)
+
+Objective measurements requiring no interpretation:
+- Option type, strike, expiration, DTE, quantity
+- Encumbered capital
+- Current underlying price (when evidence available)
+- Moneyness (ITM/ATM/OTM)
+- Distance from strike (absolute and percentage)
+
+These are situation-independent and carry no implication of good or bad.
+
+### 2. Decision Pressure (Operational Interpretation)
+
+An assessment of whether resolution is approaching and operator awareness is warranted.
+
+Decision Pressure consumes observable inputs — primarily **resolution proximity** (a derived fact combining DTE and moneyness trajectory) — and interprets them as an increasing need for operator attention.
+
+The distinction matters:
+- "2 DTE, ITM by $3, assignment path probable" — derived fact (resolution proximity)
+- "This position warrants increasing operator awareness" — operational interpretation (decision pressure)
+
+Decision Pressure is derived from contract state using operational logic intrinsic to options lifecycle management. Its initial semantics are situation-independent. It does not require a situation-policy framework to function. Future concrete situations may provide additional interpretation or modified attention thresholds when demonstrated by actual operator requirements.
+
+Decision Pressure indicates "a decision point is approaching" — not "something is going wrong."
+
+### 3. Economic Consequence (Data-Dependent Assessment)
+
+What resolution means economically, calculated from available data:
+
+- For covered calls: effective exit price (strike + premium), gain/loss relative to cost basis
+- For short puts: shares acquired at strike, effective basis from premium (when known)
+- For both: encumbered capital released or transformed
+
+Economic Consequence requires inputs beyond contract state — particularly cost basis for calls and entry premium for puts. When these are unavailable, the assessment is explicitly partial or indeterminate rather than fabricated.
+
+Economic Consequence is arithmetic, not judgment. "$55.50 effective exit, +$2.20 versus basis" is a calculation. Whether that is desirable depends on context that this dimension does not supply.
+
+### Layering and Independence
+
+```
+Contract State (facts)
+    ↓
+Resolution Proximity (derived fact)
+    ↓
+Decision Pressure (operational interpretation)
+
+Contract State + Cost Basis (facts)
+    ↓
+Economic Consequence (arithmetic assessment)
+
+[Future] Situational Interpretation
+    ↑ consumes all of the above
+    ↑ does not produce or constrain them
+```
+
+Each dimension is independently useful. If `docs/25-situation-architecture.md` were removed, the Position Monitoring Model would still be complete and operational.
+
+Situations may later provide interpretive context (e.g., "assignment here serves the Bridge Income mission") on top of these primitives. The monitoring model creates primitives that situations can consume — it does not embed or require situation semantics.
+
+**Consequences:**
+
+- The DTE ladder tile can render resolution proximity and decision pressure without implying normative health judgment.
+- Economic consequence can be displayed when data is available without waiting for a situation framework.
+- No position is classified as inherently "bad" by the monitoring model — only as approaching resolution, requiring attention, or having specific economic outcomes.
+- "ITM near expiration" is never architecturally encoded as a defect.
+- The word "health" is not used as an architectural concept. Position monitoring uses the named dimensions instead.
+- Categorical thresholds for decision pressure (e.g., how many DTE constitute "approaching") remain unresolved and belong in a subsequent design artifact.
+- Visual encoding (colors, shapes, opacity) for these dimensions on the ladder is a design decision, not an architectural one.
+
+**Relationship to other decisions:**
+
+- **ADR-012** — The Console renders position monitoring on the DTE ladder.
+- **`docs/25-situation-architecture.md`** — Situations may later interpret monitoring primitives. The monitoring model does not depend on or assume situation semantics.
+- **Epistemic Integrity** — The model preserves the fact-to-interpretation boundary. Observations are not presented as judgments.
+
+**Explicitly not decided:**
+
+- Decision-pressure threshold values
+- Number of categorical states or their names
+- Visual encoding
+- How situations modify interpretation
+- Frontend implementation
+- How missing economic data is visually represented
+- Whether resolution proximity should be a separately named field in the data model or remain implicit in the decision-pressure derivation
