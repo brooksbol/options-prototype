@@ -11,12 +11,14 @@
 import { useRef, useState, useLayoutEffect, useCallback } from "react";
 import { hierarchy, treemap, treemapSquarify } from "d3-hierarchy";
 import { usePortfolio } from "../portfolio/use-portfolio";
+import { useObservations } from "../evidence/use-observations";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
 import { navigateTo } from "../router";
 import "../operator-console/operator-console.css";
 
 export function OperatorConsole() {
   const { source, snapshot, importStatus } = usePortfolio();
+  const observations = useObservations();
 
   if (!snapshot) {
     return (
@@ -33,7 +35,7 @@ export function OperatorConsole() {
     );
   }
 
-  const positions = deriveMonitoredPositions(snapshot);
+  const positions = deriveMonitoredPositions(snapshot, observations);
   const rungs = groupByExpiration(positions);
   const totalCapital = rungs.reduce((sum, r) => sum + r.totalCapital, 0);
 
