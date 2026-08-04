@@ -4971,3 +4971,54 @@ Validated during the open session:
 - Preserved observations on failed symbols remained available for the quotes endpoint
 - Moneyness input path computed correctly against live prices
 - Session gate would have blocked at 20:16 UTC (4:16 PM ET) — we stopped observing at 20:14 UTC, 2 minutes before the transition
+
+---
+
+## 2026-08-04 — Position Detail Modal and Temporal Lifecycle Discovery
+
+### What was built
+
+A position-detail modal accessible by clicking any treemap tile. Centered over the dimmed Console with:
+
+- Sticky contract identity header
+- Situational summary (plain-English contract narrative)
+- Contract measurements with inline concept explanations (ⓘ affordances)
+- Position economics (synthetic demo premium/fees/return-on-capital)
+- If Assigned section with full mechanical consequence projection (put → shares; call → cash)
+- Evidence provenance
+- Progressive learning: 5 concept definitions (moneyness, assignment, DTE, premium, cost-basis) each with generic explanation, contract-specific application, and Wheelwright system note
+
+### Architectural discovery: temporal/lifecycle projection
+
+Position Detail introduced the first explicit temporal model in Wheelwright beyond point-in-time observations:
+
+- **T₀ (Opening):** Premium received, fees, date opened — modeled via synthetic demo economics (architecture placeholder for Activity History ingestion)
+- **T₁ (Current):** Evidence observation of underlying price → moneyness, DTE countdown, acquisition state
+- **T₂ (Hypothetical future):** Assignment scenario → resulting inventory, cash, shares, cost basis, covered-call capacity, appreciation/loss classification
+
+This is not merely a detail popup — it's the first working demonstration of state across T₀ → T₁ → T₂. The explanation system makes each transition inspectable.
+
+**Durable principle:** Temporal/lifecycle concepts should be modeled for reuse outside Position Detail as Wheelwright expands historical ingestion and longitudinal analysis. The UI is a consumer of these semantics, not their owner.
+
+### Design decisions
+
+- **ProvenancedFact<T>** type system: every fact carries `observed | derived | demo | unavailable` provenance. Demo data is explicitly synthetic; real Fidelity paths show only actually-imported facts.
+- **Centralized concept definitions** (`src/concepts/`): product/domain content authored independently of React. Testable, reviewable, reusable. Three layers: generic → contract-specific → Wheelwright interpretation.
+- **Assignment scenarios** modeled as pure domain computation, not UI logic. Put/call symmetry: put-assignment converts cash → shares → call capacity; call-assignment converts shares → cash with appreciation/loss classification.
+- **"Absence from current projection ≠ absence from source domain"**: the modal designs toward the richer future experience using demo economics, rather than constraining the UX to today's incomplete Fidelity ingestion.
+
+### What was NOT built (intentionally)
+
+- Greeks (delta/gamma/theta) — requires chain-level endpoint
+- Bid/ask/spread — same dependency
+- Historical timeline/chart
+- Recommendation semantics
+- Activity History ingestion
+- Additional concept definitions beyond the first 5
+
+### Rough edges noted for future iteration
+
+- Some explanatory prose is too long (assignment in particular)
+- Modal may need to be slightly wider
+- "Capital $109,200" on a covered call is semantically questionable vs inventory economics
+- Demo strikes produce extreme moneyness values (intentionally useful as stress cases)

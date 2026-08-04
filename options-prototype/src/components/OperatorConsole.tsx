@@ -13,12 +13,16 @@ import { hierarchy, treemap, treemapSquarify } from "d3-hierarchy";
 import { usePortfolio } from "../portfolio/use-portfolio";
 import { useObservations } from "../evidence/use-observations";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
+import { buildPositionDetail, type PositionDetail } from "../portfolio/position-detail";
+import { generateDemoEconomics } from "../write-desk/demo-economics";
+import { PositionDetailModal } from "./PositionDetailModal";
 import { navigateTo } from "../router";
 import "../operator-console/operator-console.css";
 
 export function OperatorConsole() {
   const { source, snapshot, importStatus } = usePortfolio();
   const observations = useObservations();
+  const [selectedPosition, setSelectedPosition] = useState<MonitoredPosition | null>(null);
 
   if (!snapshot) {
     return (
@@ -68,7 +72,7 @@ export function OperatorConsole() {
           <div className="oc-region-ladder">
             <div className="oc-ladder">
               {rungs.map((rung) => (
-                <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} />
+                <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} onTileClick={setSelectedPosition} />
               ))}
             </div>
           </div>
@@ -79,13 +83,21 @@ export function OperatorConsole() {
       <footer className="oc-region-footer">
         <div className="oc-footer-placeholder">Status region</div>
       </footer>
+
+      {/* Position Detail Modal */}
+      {selectedPosition && snapshot && (
+        <PositionDetailModal
+          detail={buildDetailForPosition(selectedPosition, snapshot, source)}
+          onClose={() => setSelectedPosition(null)}
+        />
+      )}
     </div>
   );
 }
 
 // --- Expiration Rung ---
 
-function ExpirationRungRow({ rung, totalCapital }: { rung: ExpirationRung; totalCapital: number }) {
+function ExpirationRungRow({ rung, totalCapital, onTileClick }: { rung: ExpirationRung; totalCapital: number; onTileClick: (p: MonitoredPosition) => void }) {
   const rungPercent = totalCapital > 0 ? Math.round((rung.totalCapital / totalCapital) * 100) : 0;
 
   return (
@@ -97,7 +109,7 @@ function ExpirationRungRow({ rung, totalCapital }: { rung: ExpirationRung; total
         <span className="oc-rung-percent">{rungPercent}%</span>
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
-      <TreemapRung positions={rung.positions} />
+      <TreemapRung positions={rung.positions} onTileClick={onTileClick} />
     </div>
   );
 }
@@ -129,7 +141,7 @@ interface TreemapNode {
   value: number;
 }
 
-function TreemapRung({ positions }: { positions: MonitoredPosition[] }) {
+function TreemapRung({ positions, onTileClick }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
 
@@ -159,7 +171,7 @@ function TreemapRung({ positions }: { positions: MonitoredPosition[] }) {
       style={{ height: rungHeight, position: "relative" }}
     >
       {nodes.map((node) => (
-        <PositionTile key={node.position.id} node={node} />
+        <PositionTile key={node.position.id} node={node} onClick={() => onTileClick(node.position)} />
       ))}
     </div>
   );
@@ -224,7 +236,7 @@ function computeTreemapLayout(
 
 import { classifyMoneyness, formatMoneynessDisplay } from "../operator-console/moneyness-presentation";
 
-function PositionTile({ node }: { node: LayoutNode }) {
+function PositionTile({ node, onClick }: { node: LayoutNode; onClick: () => void }) {
   const { position, x0, y0, x1, y1 } = node;
   const w = x1 - x0;
   const h = y1 - y0;
@@ -248,7 +260,8 @@ function PositionTile({ node }: { node: LayoutNode }) {
   return (
     <div
       className={`oc-tile oc-tile-${position.type} oc-tile-state-${mState}`}
-      style={{ ...style, fontSize }}
+      style={{ ...style, fontSize, cursor: "pointer" }}
+      onClick={onClick}
     >
       <span className="oc-tile-badge">{position.type === "put" ? "PUT" : "CALL"}</span>
       <span className="oc-tile-symbol">{position.underlying}</span>
@@ -265,6 +278,23 @@ function PositionTile({ node }: { node: LayoutNode }) {
 }
 
 // --- Helpers ---
+
+function buildDetailForPosition(
+  position: MonitoredPosition,
+  snapshot: import("../write-desk/types").PortfolioSnapshot,
+  source: import("../write-desk/types").PortfolioSourceType,
+): PositionDetail {
+  const inventory = snapshot.inventory.find(
+    inv => inv.symbol.toUpperCase() === position.underlying.toUpperCase()
+  ) ?? null;
+
+  // Generate demo economics only for demo source
+  const demoEcon = source === "demo"
+    ? generateDemoEconomics(position.type, position.underlying, position.strike, position.quantity, position.dte)
+    : null;
+
+  return buildPositionDetail(position, inventory, snapshot.balanceContext, demoEcon);
+}
 
 function formatExpiration(iso: string): string {
   const d = new Date(iso + "T12:00:00");
