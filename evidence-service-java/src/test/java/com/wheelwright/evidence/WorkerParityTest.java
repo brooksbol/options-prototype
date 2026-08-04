@@ -32,7 +32,7 @@ class WorkerParityTest {
     );
 
     // Dynamic future expiration (21 days from today) — avoids test rot when dates pass
-    private static final String FUTURE_EXPIRATION = java.time.LocalDate.now().plusDays(21).toString();
+    private static final String FUTURE_EXPIRATION = java.time.LocalDate.now(java.time.ZoneOffset.UTC).plusDays(21).toString();
 
     // Chain JSON with qualifying puts (Class A)
     private static final String QUALIFYING_CHAIN =
@@ -137,8 +137,8 @@ class WorkerParityTest {
                 ps.executeUpdate();
             }
 
-            // Query with today's date (matches session_date of the other symbols)
-            String today = java.time.LocalDate.now().toString();
+            // Query with today's UTC date (matches session_date written by store's currentSessionDate)
+            String today = java.time.LocalDate.now(java.time.ZoneOffset.UTC).toString();
             var pop = store.getClassifiedPopulation(today);
             var queue = store.getPrioritizedWorkQueue(CONFIG, today);
 

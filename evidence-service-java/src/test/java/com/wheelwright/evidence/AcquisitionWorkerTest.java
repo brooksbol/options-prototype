@@ -34,7 +34,7 @@ class AcquisitionWorkerTest {
     );
 
     // Dynamic future expiration (21 days from today) — avoids test rot when dates pass
-    private static final String FUTURE_EXPIRATION = java.time.LocalDate.now().plusDays(21).toString();
+    private static final String FUTURE_EXPIRATION = java.time.LocalDate.now(java.time.ZoneOffset.UTC).plusDays(21).toString();
 
     // Chain JSON with qualifying puts (Class A)
     private static final String QUALIFYING_CHAIN =
@@ -127,10 +127,9 @@ class AcquisitionWorkerTest {
             // then querying with a different currentSessionDate
             store.setExpirations("NOOPT", "[]", "2026-07-17T14:00:00Z");
 
-            // Query as if today is 2026-07-21 (NOOPT was resolved on a prior date via DB state)
-            // The setExpirations wrote session_date as today's date (store default).
-            // To simulate prior-epoch, we query with a future session date.
-            String futureSession = java.time.LocalDate.now().plusDays(1).toString();
+            // Query with a session date guaranteed to differ from the one written by setExpirations.
+            // currentSessionDate() uses UTC; use UTC+2 days to avoid timezone-boundary coincidence.
+            String futureSession = java.time.LocalDate.now(java.time.ZoneOffset.UTC).plusDays(2).toString();
             var queue = store.getPrioritizedWorkQueue(CONFIG, futureSession);
             var item = queue.stream().filter(i -> "NOOPT".equals(i.symbol())).findFirst().orElse(null);
             assertNotNull(item);
