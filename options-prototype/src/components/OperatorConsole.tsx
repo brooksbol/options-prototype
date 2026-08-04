@@ -222,32 +222,14 @@ function computeTreemapLayout(
 
 // --- Position Tile ---
 
-/**
- * Demo visual state assignment.
- * Deterministic based on position id hash — exercises green/yellow/red
- * at realistic proportions. NOT a domain model concern.
- * Will be replaced by actual Position Monitoring semantics later.
- */
-type VisualState = "green" | "yellow" | "red";
-
-function assignDemoVisualState(position: MonitoredPosition): VisualState {
-  // Simple deterministic hash from position id
-  let hash = 0;
-  for (let i = 0; i < position.id.length; i++) {
-    hash = ((hash << 5) - hash + position.id.charCodeAt(i)) | 0;
-  }
-  const bucket = Math.abs(hash) % 10;
-  // ~50% green, ~30% yellow, ~20% red
-  if (bucket < 5) return "green";
-  if (bucket < 8) return "yellow";
-  return "red";
-}
+import { classifyMoneyness, formatMoneynessDisplay } from "../operator-console/moneyness-presentation";
 
 function PositionTile({ node }: { node: LayoutNode }) {
   const { position, x0, y0, x1, y1 } = node;
   const w = x1 - x0;
   const h = y1 - y0;
-  const visualState = assignDemoVisualState(position);
+  const mState = classifyMoneyness(position);
+  const mDisplay = formatMoneynessDisplay(position);
 
   const style: React.CSSProperties = {
     position: "absolute",
@@ -265,7 +247,7 @@ function PositionTile({ node }: { node: LayoutNode }) {
 
   return (
     <div
-      className={`oc-tile oc-tile-${position.type} oc-tile-state-${visualState}`}
+      className={`oc-tile oc-tile-${position.type} oc-tile-state-${mState}`}
       style={{ ...style, fontSize }}
     >
       <span className="oc-tile-badge">{position.type === "put" ? "PUT" : "CALL"}</span>
@@ -274,6 +256,7 @@ function PositionTile({ node }: { node: LayoutNode }) {
       {position.encumberedCapital != null && (
         <span className="oc-tile-capital">${(position.encumberedCapital / 1000).toFixed(1)}K</span>
       )}
+      {mDisplay && <span className="oc-tile-moneyness">{mDisplay}</span>}
       {position.quantity > 1 && (
         <span className="oc-tile-qty">×{position.quantity}</span>
       )}

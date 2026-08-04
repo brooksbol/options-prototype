@@ -233,18 +233,25 @@
 
 /* Remove old horizontal/stacked classes — all tiles are now vertical */
 
-/* --- Visual state borders (demo-seeded, full perimeter) --- */
-
-.oc-tile-state-green {
+/* --- Moneyness state borders --- */
+/* OTM: underlying safely away from strike */
+.oc-tile-state-otm {
   border-color: var(--wd-accent-green);
 }
 
-.oc-tile-state-yellow {
+/* ATM: underlying near the strike (within tolerance) */
+.oc-tile-state-atm {
   border-color: var(--wd-accent-yellow, #f2c94c);
 }
 
-.oc-tile-state-red {
+/* ITM: underlying has crossed the strike */
+.oc-tile-state-itm {
   border-color: var(--wd-accent-red, #e74c3c);
+}
+
+/* No observation available */
+.oc-tile-state-none {
+  border-color: var(--wd-border-default, #555);
 }
 
 /* --- Contract-type backgrounds (subtle tint, not competing with state borders) --- */
@@ -274,10 +281,6 @@
   color: var(--wd-text-primary);
 }
 
-.oc-tile-symbol-tiny {
-  font-size: 9px;
-}
-
 .oc-tile-strike {
   font-size: 0.9em;
   color: var(--wd-text-secondary);
@@ -292,6 +295,24 @@
 .oc-tile-qty {
   font-size: 0.8em;
   color: var(--wd-text-tertiary);
+}
+
+.oc-tile-moneyness {
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.oc-tile-state-otm .oc-tile-moneyness {
+  color: var(--wd-accent-green);
+}
+
+.oc-tile-state-atm .oc-tile-moneyness {
+  color: var(--wd-accent-yellow, #f2c94c);
+}
+
+.oc-tile-state-itm .oc-tile-moneyness {
+  color: var(--wd-accent-red, #e74c3c);
 }
 
 /* === Footer Region === */
