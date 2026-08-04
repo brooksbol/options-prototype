@@ -1,6 +1,6 @@
 ticker,name,description
 FNGU,MicroSectors FANG+ 3X Leveraged ETNs,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking FANG+ Leveraged. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple. As an exchange-traded note, the product is an unsecured debt obligation of the issuer and carries issuer credit risk."
-BDRY,Breakwave Dry Bulk Shipping ETF,The fund tracks the performance of Dry Bulk Shipping.
+BDRY,Breakwave Dry Bulk Shipping ETF,"Dry-bulk shipping freight futures, providing exposure to ocean freight rates rather than shipping-company equities."
 NAIL,Direxion Daily Homebuilders & Supplies Bull 3X ETF,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking Homebuilders & Supplies. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
 DRN,Direxion Daily Real Estate Bull 3X ETF,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking Real Estate. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
 UCO,ProShares Ultra Bloomberg Crude Oil,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking Bloomberg Crude Oil. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
@@ -14,10 +14,10 @@ DPST,Direxion Daily Regional Banks Bull 3X ETF,"The fund seeks daily 3x leverage
 TPOR,Direxion Daily Transportation Bull 3X ETF,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking Transportation. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
 USD,ProShares Ultra Semiconductors,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking Semiconductors. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
 RETL,Direxion Daily Retail Bull 3X ETF,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking Retail. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-FCG,First Trust Natural Gas ETF,The fund tracks the performance of Natural Gas.
+FCG,First Trust Natural Gas ETF,"U.S. natural gas exploration and production companies, weighted equally rather than by market capitalization."
 SPXL,Direxion Daily S&P 500 Bull 3X ETF,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking S&P 500. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
 UPRO,ProShares UltraPro S&P 500,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking S&P 500. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-PXE,Invesco Energy Exploration & Production ETF,The fund tracks the performance of Energy Exploration & Production.
+PXE,Invesco Energy Exploration & Production ETF,"U.S. energy exploration and production companies, utilizing a fundamentally weighted methodology based on price momentum and value."
 URE,ProShares Ultra Real Estate,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking Real Estate. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
 CURE,Direxion Daily Healthcare Bull 3X ETF,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking Healthcare. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
 WANT,Direxion Daily Consumer Discretionary Bull 3X ETF,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking Consumer Discretionary. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
@@ -43,134 +43,134 @@ DUSL,Direxion Daily Industrials Bull 3X ETF,"The fund seeks daily 3x leveraged i
 GBTC,Grayscale Bitcoin Trust (BTC),The fund tracks the performance of Bitcoin. The product is a grantor trust that holds bitcoin directly rather than shares of a company or futures contracts.
 SSO,ProShares Ultra S&P500,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking S&P500. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
 DBO,Invesco DB Oil Fund,"The fund tracks the performance of DB Oil. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-PSCE,Invesco S&P SmallCap Energy ETF,The fund tracks the performance of S&P SmallCap Energy.
-URA,Global X Uranium ETF,The fund tracks the performance of Uranium.
+PSCE,Invesco S&P SmallCap Energy ETF,"Small-cap U.S. energy companies, providing targeted exposure to the smallest constituents of the S&P SmallCap 600 energy sector."
+URA,Global X Uranium ETF,"Global uranium mining and nuclear industry companies, capturing the broader nuclear energy supply chain."
 RSPG,Invesco S&P 500 Equal Weight Energy ETF,The fund tracks the performance of S&P 500 Equal Weight Energy.
 DBE,Invesco DB Energy Fund,"The fund tracks the performance of DB Energy. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-XSVM,Invesco S&P SmallCap Value with Momentum ETF,The fund tracks the performance of S&P SmallCap Value with Momentum.
-VDE,Vanguard Energy ETF,The fund tracks the performance of Energy.
-FENY,Fidelity MSCI Energy Index ETF,The fund tracks the performance of Fidelity MSCI Energy.
+XSVM,Invesco S&P SmallCap Value with Momentum ETF,"Small-cap U.S. value stocks exhibiting price momentum, combining value and momentum factors to distinguish improving value stocks from weak-price names."
+VDE,Vanguard Energy ETF,"Broad U.S. energy sector, tracking the MSCI US IMI Energy Index to provide comprehensive all-cap exposure."
+FENY,Fidelity MSCI Energy Index ETF,"Broad U.S. energy sector, tracking the MSCI USA IMI Energy Index to provide comprehensive all-cap exposure."
 UYM,ProShares Ultra Materials,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking Materials. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
 QLD,ProShares Ultra QQQ,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking QQQ. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-INDS,Pacer Industrial Real Estate ETF,The fund tracks the performance of Pacer Industrial Real Estate.
+INDS,Pacer Industrial Real Estate ETF,"U.S. industrial real estate, specifically targeting logistics, warehousing, and e-commerce distribution REITs."
 MEXX,Direxion Daily MSCI Mexico Bull 3X ETF,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking MSCI Mexico. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-IYE,iShares U.S. Energy ETF,The fund tracks the performance of U.S. Energy.
+IYE,iShares U.S. Energy ETF,"Broad U.S. energy sector, tracking the Dow Jones U.S. Energy Index."
 XLE,State Street Energy Select Sector SPDR ETF,The fund tracks the performance of State Street Energy Select Sector. The portfolio owns shares of energy-sector companies and does not obtain exposure through commodity futures.
-NURE,Nuveen Short-Term REIT ETF,The fund tracks the performance of Nuveen Short-Term REIT.
-RWJ,Invesco S&P SmallCap 600 Revenue ETF,The fund tracks the performance of S&P SmallCap 600 Revenue.
-AMZA,InfraCap MLP ETF,The fund tracks the performance of InfraCap MLP.
-FXN,First Trust Energy AlphaDEX Fund,The fund tracks the performance of Energy AlphaDEX.
+NURE,Nuveen Short-Term REIT ETF,"U.S. REITs concentrated in property types with shorter lease durations, such as apartments and hotels, allowing rents to reset more frequently than long-lease property sectors."
+RWJ,Invesco S&P SmallCap 600 Revenue ETF,"Small-cap U.S. equities, weighted by revenue rather than market cap to emphasize top-line sales."
+AMZA,InfraCap MLP ETF,"Actively managed master limited partnerships (MLPs), utilizing leverage and options strategies to enhance yield."
+FXN,First Trust Energy AlphaDEX Fund,"U.S. energy companies, selected and weighted based on growth and value factors rather than market cap."
 SAA,ProShares Ultra SmallCap600,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking SmallCap600. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
 UNL,United States 12 Month Natural Gas Fund,"The fund tracks the performance of United States 12 Month Natural Gas. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-XHB,State Street SPDR S&P Homebuilders ETF,The fund tracks the performance of State Street S&P Homebuilders.
-RSPR,Invesco S&P 500 Equal Weight Real Estate ETF,The fund tracks the performance of S&P 500 Equal Weight Real Estate.
-ITB,iShares U.S. Home Construction ETF,The fund tracks the performance of U.S. Home Construction.
+XHB,SPDR S&P Homebuilders ETF,"U.S. homebuilders and building products, equally weighted to provide balanced exposure across the housing supply chain."
+RSPR,Invesco S&P 500 Equal Weight Real Estate ETF,"S&P 500 real estate companies, equally weighted to reduce concentration in the largest telecom and cell tower REITs."
+ITB,iShares U.S. Home Construction ETF,"U.S. home construction and related stocks, market-cap weighted to emphasize the largest national homebuilders."
 SVXY,ProShares Short VIX Short Term Futures ETF,"The fund seeks approximately half (-0.5x) the daily inverse return of the S&P 500 VIX Short-Term Futures Index before fees and expenses. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple. Exposure is achieved using volatility futures contracts; the product does not directly track the reported VIX level."
 MVV,ProShares Ultra MidCap400,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking MidCap400. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
 UTSL,Direxion Daily Utilities Bull 3X ETF,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking Utilities. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-SYLD,Cambria Shareholder Yield ETF,The fund tracks the performance of Cambria Shareholder Yield.
+SYLD,Cambria Shareholder Yield ETF,"U.S. companies returning cash to shareholders, combining dividend yield, share buybacks, and debt paydown metrics."
 RXL,ProShares Ultra Health Care,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking Health Care. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-REZ,iShares Residential and Multisector Real Estate ETF,The fund tracks the performance of Residential and Multisector Real Estate.
+REZ,iShares Residential and Multisector Real Estate ETF,"Residential, healthcare, and self-storage REITs, deliberately excluding retail and office properties."
 EURL,Direxion Daily FTSE Europe Bull 3X ETF,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking FTSE Europe. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-PSI,Invesco Semiconductors ETF,The fund tracks the performance of Semiconductors.
-RZV,Invesco S&P SmallCap 600 Pure Value ETF,The fund tracks the performance of S&P SmallCap 600 Pure Value.
-XLRE,State Street Real Estate Select Sector SPDR ETF,The fund tracks the performance of State Street Real Estate Select Sector.
-RWR,State Street SPDR Dow Jones REIT ETF,The fund tracks the performance of State Street Dow Jones REIT.
-UAE,iShares MSCI UAE ETF,The fund tracks the performance of MSCI UAE.
-SMIN,Ishares MSCI India Small Cap ETF,The fund tracks the performance of MSCI India Small Cap.
-SOXX,iShares PHLX SOX Semiconductor Sector Index Fund,The fund tracks the performance of PHLX SOX Semiconductor Sector.
-ICF,iShares Select U.S. REIT ETF,The fund tracks the performance of Select U.S. REIT.
-POWR,iShares U.S. Power Infrastructure ETF,The fund tracks the performance of U.S. Power Infrastructure.
-USRT,iShares Core U.S. REIT ETF,The fund tracks the performance of Core U.S. REIT.
-BBRE,JPMorgan BetaBuilders MSCI U.S. REIT ETF,The fund tracks the performance of JPMorgan BetaBuilders MSCI U.S. REIT.
-XRT,State Street SPDR S&P Retail ETF,The fund tracks the performance of State Street S&P Retail.
-XSD,State Street SPDR S&P Semiconductor ETF,The fund tracks the performance of State Street S&P Semiconductor.
-FRI,First Trust S&P REIT Index Fund,The fund tracks the performance of S&P REIT.
-COWZ,Pacer US Cash Cows 100 ETF,The fund tracks the performance of Pacer US Cash Cows 100.
+PSI,Invesco Semiconductor ETF,"U.S. semiconductor manufacturers, utilizing a smart-beta methodology evaluating volatility, value, and growth."
+RZV,Invesco S&P SmallCap 600 Pure Value ETF,"Small-cap U.S. stocks, focusing exclusively on companies with deep value characteristics within the S&P 600."
+XLRE,Real Estate Select Sector SPDR Fund,"U.S. large-cap real estate companies, limited exclusively to the S&P 500 index constituents."
+RWR,SPDR Dow Jones REIT ETF,"U.S. real estate investment trusts, tracking the Dow Jones U.S. Select REIT Index to capture the broad equity REIT market."
+UAE,iShares MSCI UAE ETF,"United Arab Emirates equities, providing single-country exposure to the UAE market."
+SMIN,iShares MSCI India Small-Cap ETF,"Indian small-cap equities, capturing the small-cap segment of the Indian stock market rather than large-cap benchmarks."
+SOXX,iShares Semiconductor ETF,"Broad U.S.-listed semiconductor industry, market-cap-weighted with a cap on the largest components to maintain diversification."
+ICF,iShares Cohen & Steers REIT ETF,"Large-cap U.S. REITs, focusing on the 30 largest and most liquid real estate companies."
+POWR,iShares US Power Infrastructure ETF,"U.S. power infrastructure companies spanning utilities, grid infrastructure, renewable generation, and related power-system businesses."
+USRT,iShares Core U.S. REIT ETF,"Broad U.S. REIT exposure, tracking the FTSE Nareit Equity REITs Index to capture the entire domestic equity real estate market."
+BBRE,JPMorgan BetaBuilders MSCI U.S. REIT ETF,"U.S. real estate investment trusts, designed as a broad U.S. REIT allocation."
+XRT,SPDR S&P Retail ETF,"Equal-weighted U.S. retail companies, reducing concentration in the largest retailers."
+XSD,SPDR S&P Semiconductor ETF,"Equal-weighted U.S. semiconductor companies, providing more mid- and small-cap exposure than market-cap-weighted semiconductor funds."
+FRI,First Trust S&P REIT Index Fund,"U.S. real estate investment trusts, tracking the S&P United States REIT Index to cover broad property sectors."
+COWZ,Pacer US Cash Cows 100 ETF,"Large- and mid-cap U.S. companies, selected and weighted based on high free-cash-flow yield."
 UGE,ProShares Ultra Consumer Staples,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking Consumer Staples. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-SMH,VanEck Semiconductor ETF,The fund tracks the performance of VanEck Semiconductor.
-DVLU,First Trust Dorsey Wright Momentum & Value ETF,The fund tracks the performance of Dorsey Wright Momentum & Value.
+SMH,VanEck Semiconductor ETF,"Largest and most liquid U.S.-listed semiconductor companies, including substantial exposure to non-U.S. semiconductor firms through U.S.-listed securities."
+DVLU,First Trust Dorsey Wright Momentum & Value ETF,"U.S. equities exhibiting both value and momentum traits, selected through a relative strength matrix methodology."
 PDBC,Invesco Optimum Yield Diversified Commodity Strategy No K-1 ETF,"The fund tracks the performance of Optimum Yield Diversified Commodity Strategy No K-1. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-IDGT,iShares U.S. Digital Infrastructure and Real Estate ETF,The fund tracks the performance of U.S. Digital Infrastructure and Real Estate.
+IDGT,iShares US Digital Infra & Real Estate ETF,"U.S. digital infrastructure and real estate, specifically focusing on data centers and telecom towers."
 DDM,ProShares Ultra Dow30,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking Dow30. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-PSR,Invesco Active U.S. Real Estate Fund,The fund tracks the performance of Active U.S. Real Estate.
+PSR,Invesco Active U.S. Real Estate ETF,"Actively managed U.S. real estate securities, adjusting property sector weightings based on macroeconomic conditions."
 DBC,Invesco DB Commodity Index Tracking Fund,"The fund tracks the performance of DB Commodity Tracking. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-SCHH,Schwab U.S. REIT ETF,The fund tracks the performance of Schwab U.S. REIT.
-HOMZ,Hoya Capital Housing ETF,The fund tracks the performance of Hoya Capital Housing.
-IXC,iShares Global Energy ETF,The fund tracks the performance of Global Energy.
+SCHH,Schwab U.S. REIT ETF,"Broad U.S. REIT exposure tracking the Dow Jones U.S. Select REIT Index, explicitly excluding mortgage REITs."
+HOMZ,Hoya Capital Housing ETF,"U.S. housing ecosystem companies, spanning homebuilders, rental operators, home improvement, and real estate services."
+IXC,iShares Global Energy ETF,"Global energy sector companies, providing exposure to major integrated oil and gas companies worldwide."
 ATMP,iPath Select MLP ETN,"The fund tracks the performance of iPath Select MLP ETN. As an exchange-traded note, the product is an unsecured debt obligation of the issuer and carries issuer credit risk."
 INDL,Direxion Daily MSCI India Bull 2X ETF,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking MSCI India. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-SPHB,Invesco S&P 500 High Beta ETF,The fund tracks the performance of S&P 500 High Beta.
-FTXO,First Trust Nasdaq Bank ETF,The fund tracks the performance of Nasdaq Bank.
-FREL,Fidelity MSCI Real Estate Index ETF,The fund tracks the performance of Fidelity MSCI Real Estate.
-CALF,Pacer US Small Cap Cash Cows ETF,The fund tracks the performance of Pacer US Small Cap Cash Cows.
-IAI,iShares U.S. Broker-Dealers & Securities Exchanges ETF,The fund tracks the performance of U.S. Broker-Dealers & Securities Exchanges.
-VNQ,Vanguard Real Estate ETF,The fund tracks the performance of Real Estate.
+SPHB,Invesco S&P 500 High Beta ETF,"S&P 500 stocks with the highest sensitivity to market movements, isolating the high-beta factor."
+FTXO,First Trust Nasdaq Bank ETF,"U.S. banking companies, selected for liquidity and weighted using a smart-beta mix of volatility, value, and growth factors."
+FREL,Fidelity MSCI Real Estate Index ETF,"Broad U.S. real estate sector, tracking the MSCI USA IMI Real Estate Index to provide comprehensive all-cap exposure."
+CALF,Pacer US Small Cap Cash Cows 100 ETF,"Small-cap U.S. companies, selected and weighted based on high free-cash-flow yield."
+IAI,iShares U.S. Broker-Dealers & Securities Exchanges ETF,"U.S. investment banks, discount brokerages, and exchanges, isolating capital markets from traditional retail banking."
+VNQ,Vanguard Real Estate ETF,U.S. equity REITs across major property sectors; broad Vanguard real-estate exposure.
 LTL,ProShares Ultra Communication Services,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking Communication Services. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-KCE,State Street SPDR S&P Capital Markets ETF,The fund tracks the performance of State Street S&P Capital Mets.
-PPTY,U.S. Diversified Real Estate ETF,The fund tracks the performance of U.S. Diversified Real Estate.
-CSEN,Cohen & Steers Future of Energy Active ETF,The fund tracks the performance of Cohen & Steers Future of Energy Active.
-MLPA,Global X MLP ETF,The fund tracks the performance of MLP.
-DDIV,First Trust Dorsey Wright Momentum & Dividend ETF,The fund tracks the performance of Dorsey Wright Momentum & Dividend.
-MLPX,Global X MLP & Energy Infrastructure ETF,The fund tracks the performance of MLP & Energy Infrastructure.
-ENFR,Alerian Energy Infrastructure ETF,The fund tracks the performance of Alerian Energy Infrastructure.
-KRE,State Street SPDR S&P Regional Banking ETF,The fund tracks the performance of State Street S&P Regional Banking.
-AMLP,Alerian MLP ETF,The fund tracks the performance of Alerian MLP.
-IGE,iShares North American Natural Resources ETF,The fund tracks the performance of North American Natural Resources.
+KCE,SPDR S&P Capital Markets ETF,"U.S. capital markets industry, equally weighted to balance exposure between large investment banks and smaller financial services firms."
+PPTY,U.S. Diversified Real Estate ETF,"U.S. real estate equities, using a rule-based methodology that weights by location, property type, and leverage rather than market cap."
+CSEN,Cohen & Steers Future of Energy Active ETF,"Actively managed energy transition companies, focusing on the future of energy and decarbonization rather than traditional fossil fuels."
+MLPA,Global X MLP ETF,"Master Limited Partnerships (MLPs) in energy infrastructure, tracking an index of midstream pipeline and storage companies."
+DDIV,First Trust Dorsey Wright Momentum & Dividend ETF,"High dividend-yielding U.S. stocks, combining dividend yield with relative-strength momentum."
+MLPX,Global X MLP & Energy Infrastructure ETF,"Energy infrastructure corporations and MLPs, structured to avoid the K-1 tax form associated with pure MLP funds."
+ENFR,Alerian Energy Infrastructure ETF,"North American energy infrastructure companies, including both MLPs and C-corps for broad midstream exposure."
+KRE,SPDR S&P Regional Banking ETF,"U.S. regional banks, equally weighted to reduce the dominance of the largest national institutions."
+AMLP,Alerian MLP ETF,"Midstream energy Master Limited Partnerships, tracking the benchmark Alerian MLP Index."
+IGE,iShares North American Natural Resources ETF,"North American natural resource companies, spanning energy, metals, and mining sectors."
 GSG,iShares GSCI Commodity-Indexed Trust Fund,"The fund tracks the performance of GSCI Commodity-ed Trust. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-IAT,iShares U.S. Regional Banks ETF,The fund tracks the performance of U.S. Regional Banks.
+IAT,iShares U.S. Regional Banks ETF,"U.S. regional banks, heavily concentrated in the largest regional players rather than equally weighted."
 AMUB,"ETRACS Alerian MLP Index ETN Series B due July 18, 2042","The fund tracks the performance of ETRACS Alerian MLP ETN Series B due July 18, 2042. As an exchange-traded note, the product is an unsecured debt obligation of the issuer and carries issuer credit risk."
 CORN,Teucrium Corn Fund ETV,"The fund tracks the performance of Teucrium Corn ETV. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-IYR,iShares U.S. Real Estate ETF,The fund tracks the performance of U.S. Real Estate.
-KBWB,Invesco KBW Bank ETF,The fund tracks the performance of KBW Bank.
-EINC,VanEck Energy Income ETF,The fund tracks the performance of VanEck Energy Income.
-FXO,First Trust Financials AlphaDEX,The fund tracks the performance of Financials AlphaDEX.
+IYR,iShares U.S. Real Estate ETF,"Broad U.S. real estate sector, including specialty REITs and real estate management firms not found in strict equity-REIT indices."
+KBWB,Invesco KBW Bank ETF,"Large U.S. national and regional banks, weighted by a modified market capitalization to capture the bellwethers of the banking industry."
+EINC,VanEck Energy Income ETF,"Income-oriented U.S. and Canadian energy companies, focusing on sustainable dividend payers within the energy sector."
+FXO,First Trust Financials AlphaDEX Fund,"U.S. financial companies, selected and weighted based on growth and value factors rather than market cap."
 USOI,"ETRACS Crude Oil Shares Covered Call ETNs due April 24, 2037","The fund tracks the performance of ETRACS Crude Oil Covered Call due April 24, 2037. As an exchange-traded note, the product is an unsecured debt obligation of the issuer and carries issuer credit risk. The fund owns assets and simultaneously sells call options to generate income, a strategy that may limit upside participation. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-PSCD,Invesco S&P SmallCap Consumer Discretionary ETF,The fund tracks the performance of S&P SmallCap Consumer Discretionary.
-LIT,Global X Lithium & Battery Tech ETF,The fund tracks the performance of Lithium & Battery Tech.
+PSCD,Invesco S&P SmallCap Consumer Discretionary ETF,"Small-cap U.S. consumer discretionary sector, isolating the smallest consumer-focused components of the S&P 600."
+LIT,Global X Lithium & Battery Tech ETF,"Global lithium mining and battery technology companies, spanning the full electric vehicle supply chain."
 UCIB,"ETRACS UBS Bloomberg Constant Maturity Commodity Index (CMCI) Total Return ETN Series B due April 5, 2038","The fund tracks the performance of ETRACS UBS Bloomberg Constant Maturity Commodity (CMCI) Total Return ETN Series B due April 5, 2038. As an exchange-traded note, the product is an unsecured debt obligation of the issuer and carries issuer credit risk. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-CANE,Teucrium Sugar Fund ETV,The fund tracks the performance of Teucrium Sugar ETV.
-VFVA,Vanguard U.S. Value Factor ETF,The fund tracks the performance of U.S. Value Factor.
-ONEY,State Street SPDR Russell 1000 Yield Focus ETF,The fund tracks the performance of State Street Russell 1000 Yield Focus.
-USAI,Pacer American Energy Infrastructure ETF,The fund tracks the performance of Pacer American Energy Infrastructure.
-BIZD,VanEck BDC Income ETF,The fund tracks the performance of VanEck BDC Income.
+CANE,Teucrium Sugar Fund,"Sugar futures contracts, providing direct exposure to sugar commodity prices rather than agricultural equities."
+VFVA,Vanguard U.S. Value Factor ETF,"Actively managed U.S. value stocks, relying on a systematic quantitative model to target deep value factor characteristics."
+ONEY,SPDR Russell 1000 Yield Focus ETF,"Large-cap U.S. dividend-paying stocks, leveraging a multi-factor model (value, quality, size) from the Russell 1000 universe."
+USAI,Pacer American Energy Independence ETF,"U.S. midstream energy infrastructure companies, focusing on C-corps to provide broad energy transport exposure without K-1 tax forms."
+BIZD,VanEck BDC Income ETF,"Business Development Companies (BDCs), providing access to high-yielding private debt and middle-market lending."
 COMT,iShares GSCI Commodity Dynamic Roll Strategy ETF,"The fund tracks the performance of GSCI Commodity Dynamic Roll Strategy. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-RSPF,Invesco S&P 500 Equal Weight Financial ETF,The fund tracks the performance of S&P 500 Equal Weight Financial.
+RSPF,Invesco S&P 500 Equal Weight Financials ETF,"S&P 500 financial sector, equally weighted to reduce concentration in the largest financial companies."
 MLPB,"ETRACS Alerian MLP Infrastructure Index ETN Series B due April 2, 2040","The fund tracks the performance of ETRACS Alerian MLP Infrastructure ETN Series B due April 2, 2040. As an exchange-traded note, the product is an unsecured debt obligation of the issuer and carries issuer credit risk."
-PAVE,Global X U.S. Infrastructure Development ETF,The fund tracks the performance of U.S. Infrastructure Development.
-FDIQ,Invesco Bloomberg Financial Data Providers ETF,The fund tracks the performance of Bloomberg Financial Data Providers.
-NANR,State Street SPDR S&P North American Natural Resources ETF,The fund tracks the performance of State Street S&P North American Natural Resources.
+PAVE,Global X U.S. Infrastructure Development ETF,"U.S. infrastructure and construction companies, targeting the physical build-out (materials, heavy equipment) rather than utilities."
+FDIQ,Invesco Bloomberg Financial Data Providers ETF,"Companies providing financial data, exchanges, and infrastructure, targeting the technology backbone of the financial sector."
+NANR,SPDR S&P North American Natural Resources ETF,"Large-cap North American natural resource companies, capturing the largest energy and materials firms in the US and Canada."
 SDCI,USCF SummerHaven Dynamic Commodity Strategy No K-1 Fund,"The fund tracks the performance of USCF SummerHaven Dynamic Commodity Strategy No K-1. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-SQLV,Royce Quant Small-Cap Quality Value ETF,The fund tracks the performance of Royce Quant Small-Cap Quality Value.
-SPGP,Invesco S&P 500 GARP ETF,The fund tracks the performance of S&P 500 GARP.
-VUSE,Vident U.S. Equity Strategy ETF,The fund tracks the performance of Vident U.S. Equity Strategy.
-DEEP,Acquirers Small and Micro Deep Value ETF,The fund tracks the performance of Acquirers Small and Micro Deep Value.
-RDOG,ALPS REIT Dividend Dogs ETF,The fund tracks the performance of ALPS REIT Dividend Dogs.
-FLSA,Franklin FTSE Saudi Arabia ETF,The fund tracks the performance of Franklin FTSE Saudi Arabia.
-QVMT,Invesco S&P 500 Concentrated QVM ETF,The fund tracks the performance of S&P 500 Concentrated QVM.
-QTUM,Defiance Quantum ETF,The fund tracks the performance of Defiance Quantum.
-VFH,Vanguard Financials ETF,The fund tracks the performance of Financials.
-IYW,iShares U.S. Technology ETF,The fund tracks the performance of U.S. Technology.
-XMVM,Invesco S&P MidCap Value with Momentum ETF,The fund tracks the performance of S&P MidCap Value with Momentum.
-EQRR,ProShares Equities for Rising Rates ETF,The fund tracks the performance of Equities for Rising Rates.
-FNCL,Fidelity MSCI Financials Index ETF,The fund tracks the performance of Fidelity MSCI Financials.
-FTXL,First Trust Nasdaq Semiconductor ETF,The fund tracks the performance of Nasdaq Semiconductor.
-XME,State Street SPDR S&P Metals & Mining ETF,The fund tracks the performance of State Street S&P Metals & Mining.
-XLF,State Street Financial Select Sector SPDR ETF,The fund tracks the performance of State Street Financial Select Sector.
-PY,Principal Value ETF,The fund tracks the performance of Principal Value.
-TPYP,Tortoise North American Pipeline ETF,The fund tracks the performance of Tortoise North American Pipeline.
+SQLV,Royce Quant Small-Cap Quality Value ETF,"U.S. small-cap equities, actively managed using a systematic quantitative model to identify high-quality, undervalued stocks."
+SPGP,Invesco S&P 500 GARP ETF,"S&P 500 stocks exhibiting Growth at a Reasonable Price (GARP), balancing earnings growth metrics with value screens."
+VUSE,Vident U.S. Equity Strategy ETF,"Broad U.S. equities, utilizing a proprietary rule-based methodology to balance risk and manage sector exposures."
+DEEP,Acquirers Small and Micro Deep Value ETF,"Deeply undervalued U.S. small and micro-cap stocks, utilizing the Acquirer's Multiple."
+RDOG,ALPS REIT Dividend Dogs ETF,"High-yielding U.S. real estate investment trusts, applying an equal-weight strategy to REIT segments analogous to the Dogs of the Dow."
+FLSA,Franklin FTSE Saudi Arabia ETF,"Saudi Arabian equities, providing single-country exposure to the Saudi market."
+QVMT,Invesco S&P 500 Concentrated QVM ETF,"S&P 500 stocks, actively screening for a concentrated portfolio exhibiting Quality, Value, and Momentum factors."
+QTUM,Defiance Quantum ETF,"Global companies involved in quantum computing and machine learning technology, capturing next-generation computing architecture."
+VFH,Vanguard Financials ETF,"Broad U.S. financial sector, tracking the MSCI US IMI Financials Index to capture large, mid, and small-cap financials."
+IYW,iShares U.S. Technology ETF,"Broad U.S. technology sector, heavily market-cap weighted toward the largest U.S. technology companies."
+XMVM,Invesco S&P MidCap Value with Momentum ETF,"Mid-cap U.S. value stocks, combining value and momentum factors to distinguish improving value stocks from weak-price names within the S&P 400."
+EQRR,ProShares Equities for Rising Rates ETF,"U.S. large-cap equities, systematically overweighting sectors historically correlated with rising interest rates."
+FNCL,Fidelity MSCI Financials Index ETF,"Broad U.S. financial sector, tracking the MSCI USA IMI Financials Index to provide comprehensive all-cap exposure."
+FTXL,First Trust Nasdaq Semiconductor ETF,"U.S. semiconductor companies, selected for liquidity and weighted using a smart-beta mix of volatility, value, and growth factors."
+XME,SPDR S&P Metals & Mining ETF,"U.S. metals and mining industry, equally weighted to balance exposure between steel, coal, and precious metal miners."
+XLF,Financial Select Sector SPDR Fund,"U.S. large-cap financial companies, limited exclusively to the S&P 500 index constituents."
+PY,Principal Value ETF,"Actively managed U.S. large and mid-cap equities, utilizing a quantitative model to identify quality value stocks."
+TPYP,Tortoise North American Pipeline Fund,"North American pipeline companies, structured to provide midstream exposure without the K-1 tax form burden."
 UNG,United States Natural Gas Fund LP,"The fund tracks the performance of United States Natural Gas LP. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-FDM,First Trust DJ Select MicroCap ETF,The fund tracks the performance of DJ Select MicroCap.
+FDM,First Trust Dow Jones Select MicroCap Index Fund,"U.S. micro-cap equities, screening micro-cap companies for profitability and fundamental quality."
 BDCZ,"ETRACS MarketVector Business Development Companies Liquid Index ETN due April 26, 2041","The fund tracks the performance of ETRACS MetVector Business Development Companies Liquid ETN due April 26, 2041. As an exchange-traded note, the product is an unsecured debt obligation of the issuer and carries issuer credit risk."
-XLK,State Street Technology Select Sector SPDR ETF,The fund tracks the performance of State Street Technology Select Sector.
+XLK,Technology Select Sector SPDR Fund,"S&P 500 technology companies, providing market-cap-weighted exposure to the largest tech hardware and software firms."
 UXI,ProShares Ultra Industrials,"The fund seeks daily 2x leveraged investment results before fees and expenses, tracking Industrials. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-EES,WisdomTree U.S. SmallCap Fund,The fund tracks the performance of U.S. SmallCap.
-RWK,Invesco S&P MidCap 400 Revenue ETF,The fund tracks the performance of S&P MidCap 400 Revenue.
-QVAL,Alpha Architect U.S. Quantitative Value ETF,The fund tracks the performance of Alpha Architect U.S. Quantitative Value.
-RPV,Invesco S&P 500 Pure Value ETF,The fund tracks the performance of S&P 500 Pure Value.
-QABA,First Trust NASDAQ ABA Community Bank Index Fund,The fund tracks the performance of NASDAQ ABA Community Bank.
-XTN,State Street SPDR S&P Transportation ETF,The fund tracks the performance of State Street S&P Transportation.
-KSA,iShares MSCI Saudi Arabia ETF,The fund tracks the performance of MSCI Saudi Arabia.
+EES,WisdomTree U.S. SmallCap Fund,"U.S. small-cap equities, weighting constituents by earnings rather than market cap to emphasize profitability."
+RWK,Invesco S&P MidCap 400 Revenue ETF,"Mid-cap U.S. equities, weighted by revenue to emphasize top-line sales over market capitalization."
+QVAL,Alpha Architect U.S. Quantitative Value ETF,"Actively managed U.S. large-cap equities, using a systematic quantitative value model to identify equities exhibiting deep value characteristics."
+RPV,Invesco S&P 500 Pure Value ETF,"S&P 500 stocks, focusing exclusively on companies with deep, pure value characteristics, weighted by the strength of their value scores."
+QABA,First Trust NASDAQ ABA Community Bank Index Fund,"U.S. community and regional banks, explicitly excluding the largest national money-center banks and brokerages."
+XTN,SPDR S&P Transportation ETF,"U.S. transportation sector, equally weighted to balance exposure across airlines, railroads, and logistics companies."
+KSA,iShares MSCI Saudi Arabia ETF,"Broad Saudi Arabian equities, providing market-cap-weighted exposure to the Saudi market."
 FNK,First Trust Mid Cap Value AlphaDEX Fund,The fund tracks the performance of Mid Cap Value AlphaDEX.
 KBE,State Street SPDR S&P Bank ETF,The fund tracks the performance of State Street S&P Bank.
 MAGA,Point Bridge America First ETF,The fund tracks the performance of Point Bridge America First.
@@ -197,323 +197,323 @@ SPYG,State Street SPDR Portfolio S&P 500 Growth ETF,The fund tracks the performa
 FIW,First Trust Water ETF,The fund tracks the performance of Water.
 VOOG,Vanguard S&P 500 Growth ETF,The fund tracks the performance of S&P 500 Growth.
 KBWD,Invesco KBW High Dividend Yield Financial ETF,The fund tracks the performance of KBW High Dividend Yield Financial.
-FQAL,Fidelity Quality Factor ETF,The fund tracks the performance of Fidelity Quality Factor.
-IUS,Invesco RAFI Strategic US ETF,The fund tracks the performance of RAFI Strategic US.
-IVW,iShares S&P 500 Growth ETF,The fund tracks the performance of S&P 500 Growth.
-LVDS,JPMorgan Fundamental Data Science Large Value ETF,The fund tracks the performance of JPMorgan amental Data Science Large Value.
-GQRE,FlexShares Global Quality Real Estate Index Fund,The fund tracks the performance of Flex Global Quality Real Estate.
-USSG,Xtrackers MSCI USA Selection Equity ETF,The fund tracks the performance of Xtrackers MSCI USA Selection Equity.
-DVY,iShares Select Dividend ETF,The fund tracks the performance of Select Dividend.
-BLOK,Amplify Blockchain Technology ETF,The fund tracks the performance of Amplify Blockchain Technology.
-QARP,Xtrackers Russell 1000 US Quality at a Reasonable Price ETF ETF,The fund tracks the performance of Xtrackers Russell 1000 US Quality at a Reasonable Price.
-FNDX,Schwab Fundamental U.S. Large Company ETF,The fund tracks the performance of Schwab amental U.S. Large Company.
-FNDB,Schwab Fundamental U.S. Broad Market ETF,The fund tracks the performance of Schwab amental U.S. Broad Met.
-JVAL,JPMorgan U.S. Value Factor ETF,The fund tracks the performance of JPMorgan U.S. Value Factor.
-IYF,iShares U.S. Financial ETF,The fund tracks the performance of U.S. Financial.
-CGW,Invesco S&P Global Water Index ETF,The fund tracks the performance of S&P Global Water.
-DIVB,iShares Core Dividend ETF,The fund tracks the performance of Core Dividend.
-DSI,iShares ESG MSCI KLD 400 ETF,The fund tracks the performance of ESG MSCI KLD 400.
-IUSG,iShares Core S&P U.S. Growth ETF,The fund tracks the performance of Core S&P U.S. Growth.
-PHO,Invesco Water Resources ETF,The fund tracks the performance of Water Resources.
-RSPM,Invesco S&P 500 Equal Weight Materials ETF,The fund tracks the performance of S&P 500 Equal Weight Materials.
-NUMV,Nuveen ESG Mid-Cap Value ETF,The fund tracks the performance of Nuveen ESG Mid-Cap Value.
-RDVY,First Trust Rising Dividend Achievers ETF,The fund tracks the performance of Rising Dividend Achievers.
+FQAL,Fidelity Quality Factor ETF,"U.S. large and mid-cap stocks, selected for high quality characteristics based on profitability and cash flow metrics rather than market cap."
+IUS,Invesco RAFI Strategic US ETF,"U.S. large-cap equities, weighted by fundamental measures such as sales and operating cash flow rather than market capitalization."
+IVW,iShares S&P 500 Growth ETF,"U.S. large-cap growth stocks, specifically tracking the growth segment of the S&P 500 index."
+LVDS,JPMorgan Fundamental Data Science Large Value ETF,"U.S. large-cap value stocks, actively managed using fundamental data science and quantitative insights to select holdings."
+GQRE,FlexShares Global Quality Real Estate Index Fund,"Global real estate equities, incorporating fundamental quality and dividend-yield screens to select holdings."
+USSG,Xtrackers MSCI USA ESG Leaders Equity ETF,"U.S. large and mid-cap equities, applying environmental, social, and governance (ESG) screening to the broader market universe."
+DVY,iShares Select Dividend ETF,"U.S. high-dividend-yielding equities, restricted strictly to companies with a five-year track record of paying dividends."
+BLOK,Amplify Transformational Data Sharing ETF,"Global equities, actively managed to target companies involved in blockchain technology and digital assets."
+QARP,Xtrackers Russell 1000 US QARP ETF,"U.S. large-cap equities, systematically selecting stocks that exhibit both high fundamental quality and attractive valuation metrics."
+FNDX,Schwab Fundamental U.S. Large Company Index ETF,"U.S. large-cap equities, weighted by fundamental metrics like retained operating cash flow, adjusted sales, and dividends plus buybacks rather than market cap."
+FNDB,Schwab Fundamental U.S. Broad Market Index ETF,"Broad U.S. equity market, weighted by fundamental metrics rather than market capitalization to provide alternative total-market exposure."
+JVAL,JPMorgan U.S. Value Factor ETF,"U.S. large-cap value stocks, utilizing a multi-factor approach based on relative valuation metrics."
+IYF,iShares U.S. Financials ETF,"U.S. financial sector companies, providing broad exposure across banks, insurers, and diversified financial services."
+CGW,Invesco S&P Global Water Index ETF,"Global water industry companies, spanning water utilities, infrastructure, equipment, and materials."
+DIVB,iShares U.S. Dividend and Buyback ETF,"U.S. equities, targeting companies that return capital to shareholders through a combination of dividends and stock repurchases."
+DSI,iShares MSCI KLD 400 Social ETF,"U.S. equities, tracking an index of socially responsible companies while strictly excluding controversial sectors like weapons and tobacco."
+IUSG,iShares Core S&P U.S. Growth ETF,"U.S. growth stocks, providing a broad, market-cap-weighted allocation across the large and mid-cap segments of the S&P 900."
+PHO,Invesco Water Resources ETF,"U.S. water industry companies, focusing specifically on domestic water resources, conservation, and purification."
+RSPM,Invesco S&P 500 Equal Weight Materials ETF,"S&P 500 materials companies, equally weighted to reduce concentration in the largest chemical and mining firms."
+NUMV,Nuveen ESG Mid-Cap Value ETF,"U.S. mid-cap value stocks, integrating environmental, social, and governance (ESG) criteria into the factor selection process."
+RDVY,First Trust Rising Dividend Achievers ETF,"U.S. large-cap companies, explicitly targeting constituents with a history of increasing dividends, high cash-to-debt ratios, and strong balance sheets."
 DJP,iPath Bloomberg Commodity Index Total Return ETN,"The fund tracks the performance of iPath Bloomberg Commodity Total Return ETN. As an exchange-traded note, the product is an unsecured debt obligation of the issuer and carries issuer credit risk. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-KBWY,Invesco KBW Premium Yield Equity REIT ETF,The fund tracks the performance of KBW Premium Yield Equity REIT.
-PRF,Invesco RAFI US 1000 ETF,The fund tracks the performance of RAFI US 1000.
-FNDA,Schwab Fundamental U.S. Small Company ETF,The fund tracks the performance of Schwab amental U.S. Small Company.
-VLU,State Street SPDR S&P 1500 Value Tilt ETF,The fund tracks the performance of State Street S&P 1500 Value Tilt.
-IWY,iShares Russell Top 200 Growth ETF,The fund tracks the performance of Russell Top 200 Growth.
-ROSC,Hartford Multifactor Small Cap ETF,The fund tracks the performance of Hartford Multifactor Small Cap.
-ULVM,VictoryShares US Value Momentum ETF,The fund tracks the performance of Victory US Value Momentum.
-EQIN,Columbia U.S. Equity Income ETF,The fund tracks the performance of Columbia U.S. Equity Income.
-FXZ,First Trust Materials AlphaDEX Fund,The fund tracks the performance of Materials AlphaDEX.
-DIV,Global X Super Dividend ETF,The fund tracks the performance of Super Dividend.
-DFNL,Davis Select Financial ETF,The fund tracks the performance of Davis Select Financial.
-EZM,WisdomTree U.S. MidCap Fund,The fund tracks the performance of U.S. MidCap.
-RWO,State Street SPDR Dow Jones Global Real Estate ETF,The fund tracks the performance of State Street Dow Jones Global Real Estate.
-EWO,iShares MSCI Austria ETF,The fund tracks the performance of MSCI Austria.
-VIOV,Vanguard S&P Small-Cap 600 Value ETF,The fund tracks the performance of S&P Small-Cap 600 Value.
-BEDY,BNY Mellon Enhanced Dividend and Income ETF,The fund tracks the performance of BNY Mellon Enhanced Dividend and Income.
-SLYV,State Street SPDR S&P 600 Small Cap Value ETF,The fund tracks the performance of State Street S&P 600 Small Cap Value.
-ABFL,Abacus FCF Leaders ETF,The fund tracks the performance of Abacus FCF Leaders.
-KARS,KraneShares Electric Vehicles and Future Mobility Index ETF,The fund tracks the performance of Krane Electric Vehicles and Future Mobility.
-FVAL,Fidelity Value Factor ETF,The fund tracks the performance of Fidelity Value Factor.
-FAB,First Trust Multi Cap Value AlphaDEX Fund,The fund tracks the performance of Multi Cap Value AlphaDEX.
-BFOR,Barron's 400 ETF,The fund tracks the performance of Barron's 400.
-XLG,Invesco S&P 500 Top 50 ETF,The fund tracks the performance of S&P 500 Top 50.
-IJS,iShares S&P SmallCap 600 Value ETF,The fund tracks the performance of S&P SmallCap 600 Value.
-IVOV,Vanguard S&P Mid-Cap 400 Value ETF,The fund tracks the performance of S&P Mid-Cap 400 Value.
-MDYV,State Street SPDR S&P 400 Mid Cap Value ETF,The fund tracks the performance of State Street S&P 400 Mid Cap Value.
-FTEC,Fidelity MSCI Information Technology Index ETF,The fund tracks the performance of Fidelity MSCI Information Technology.
-VGT,Vanguard Information Tech ETF,The fund tracks the performance of Information Tech.
-IJJ,iShares S&P Mid-Cap 400 Value ETF,The fund tracks the performance of S&P Mid-Cap 400 Value.
-IYG,iShares U.S. Financial Services ETF,The fund tracks the performance of U.S. Financial Services.
-SUSA,iShares ESG Optimized MSCI USA ETF,The fund tracks the performance of ESG Optimized MSCI USA.
-RWL,Invesco S&P 500 Revenue ETF,The fund tracks the performance of S&P 500 Revenue.
-WTV,WisdomTree U.S. Value Fund,The fund tracks the performance of U.S. Value.
-DON,WisdomTree U.S. MidCap Dividend Fund,The fund tracks the performance of U.S. MidCap Dividend.
-VFMF,Vanguard U.S. Multifactor ETF,The fund tracks the performance of U.S. Multifactor.
-DVOL,First Trust Dorsey Wright Momentum & Low Volatility ETF,The fund tracks the performance of Dorsey Wright Momentum & Low Volatility.
-PSCU,Invesco S&P SmallCap Utilities & Communication Services ETF,The fund tracks the performance of S&P SmallCap Utilities & Communication Services.
-PEXL,Pacer US Export Leaders ETF,The fund tracks the performance of Pacer US Export Leaders.
-IETC,iShares U.S. Tech Independence Focused ETF,The fund tracks the performance of U.S. Tech Independence Focused.
-SCHD,Schwab US Dividend Equity ETF,The fund tracks the performance of Schwab US Dividend Equity.
-IFRA,iShares U.S. Infrastructure ETF,The fund tracks the performance of U.S. Infrastructure.
-FLTW,Franklin FTSE Taiwan ETF,The fund tracks the performance of Franklin FTSE Taiwan.
-TDIV,First Trust NASDAQ Technology Dividend Index Fund,The fund tracks the performance of NASDAQ Technology Dividend.
-SHRY,First Trust Bloomberg Shareholder Yield ETF,The fund tracks the performance of Bloomberg Shareholder Yield.
-FYT,First Trust Small Cap Value AlphaDEX Fund,The fund tracks the performance of Small Cap Value AlphaDEX.
-TBLU,Tortoise Global Water ETF,The fund tracks the performance of Tortoise Global Water.
-XSLV,Invesco S&P SmallCap Low Volatility ETF,The fund tracks the performance of S&P SmallCap Low Volatility.
-IXN,iShares Global Tech ETF,The fund tracks the performance of Global Tech.
-SPDV,AAM S&P 500 High Dividend Value ETF,The fund tracks the performance of AAM S&P 500 High Dividend Value.
-RPG,Invesco S&P 500 Pure Growth ETF,The fund tracks the performance of S&P 500 Pure Growth.
-RSP,Invesco S&P 500 Equal Weight ETF,The fund tracks the performance of S&P 500 Equal Weight.
-FDVV,Fidelity High Dividend ETF,The fund tracks the performance of Fidelity High Dividend.
-EQL,ALPS Equal Sector Weight ETF,The fund tracks the performance of ALPS Equal Sector Weight.
-FTA,First Trust Large Cap Value AlphaDEX Fund,The fund tracks the performance of Large Cap Value AlphaDEX.
-JPME,JPMorgan Diversified Return U.S. Mid Cap Equity ETF,The fund tracks the performance of JPMorgan Diversified Return U.S. Mid Cap Equity.
-GLIN,VanEck India Growth Leaders ETF,The fund tracks the performance of VanEck India Growth Leaders.
-SDVY,First Trust SMID Cap Rising Dividend Achievers ETF,The fund tracks the performance of SMID Cap Rising Dividend Achievers.
-ISCV,iShares Morningstar Small-Cap Value ETF,The fund tracks the performance of Morningstar Small-Cap Value.
-PSET,Principal Quality ETF,The fund tracks the performance of Principal Quality.
-JPSE,JPMorgan Diversified Return U.S. Small Cap Equity ETF,The fund tracks the performance of JPMorgan Diversified Return U.S. Small Cap Equity.
-OEF,iShares S&P 100 Fund,The fund tracks the performance of S&P 100.
-FLCA,Franklin FTSE Canada ETF,The fund tracks the performance of Franklin FTSE Canada.
-RDIV,Invesco S&P Ultra Dividend Revenue ETF,The fund tracks the performance of S&P Ultra Dividend Revenue.
-ONEV,State Street SPDR Russell 1000 Low Volatility Focus ETF,The fund tracks the performance of State Street Russell 1000 Low Volatility Focus.
-VLUE,iShares MSCI USA Value Factor ETF,The fund tracks the performance of MSCI USA Value Factor.
-OMFL,Invesco Russell 1000 Dynamic Multifactor ETF,The fund tracks the performance of Russell 1000 Dynamic Multifactor.
-PWV,Invesco Large Cap Value ETF,The fund tracks the performance of Large Cap Value.
-JPUS,JPMorgan Diversified Return U.S. Equity ETF,The fund tracks the performance of JPMorgan Diversified Return U.S. Equity.
-DSTL,Distillate U.S. Fundamental Stability & Value ETF,The fund tracks the performance of Distillate U.S. amental Stability & Value.
-SECT,Main Sector Rotation ETF,The fund tracks the performance of Main Sector Rotation.
-CATH,Global X S&P 500 Catholic Values ETF,The fund tracks the performance of S&P 500 Catholic Values.
-SPVM,Invesco S&P 500 Value with Momentum ETF,The fund tracks the performance of S&P 500 Value with Momentum.
-JQUA,JPMorgan U.S. Quality Factor ETF,The fund tracks the performance of JPMorgan U.S. Quality Factor.
-ISHP,First Trust S-Network E-Commerce ETF,The fund tracks the performance of S-Network E-Commerce.
+KBWY,Invesco KBW Premium Yield Equity REIT ETF,"U.S. small and mid-cap equity REITs, weighted by competitive dividend yield to emphasize income generation over market size."
+PRF,Invesco FTSE RAFI US 1000 ETF,"Largest 1,000 U.S. stocks, weighted by fundamental factors such as book value, cash flow, sales, and dividends."
+FNDA,Schwab Fundamental U.S. Small Company Index ETF,"U.S. small-cap equities, weighted by fundamental metrics rather than market cap to mitigate size-based volatility."
+VLU,SPDR S&P 1500 Value Tilt ETF,"Broad U.S. equities, tilting a comprehensive market index toward value characteristics rather than strictly excluding growth stocks."
+IWY,iShares Russell Top 200 Growth ETF,"U.S. mega-cap growth stocks, isolating the 200 largest growth-oriented companies in the Russell 1000 index."
+ROSC,Hartford Multifactor Small Cap ETF,"U.S. small-cap equities, employing a multi-factor model to target value, momentum, and quality traits within smaller companies."
+ULVM,VictoryShares US EQ Income Enhanced Volatility Wtd ETF,"U.S. dividend-paying equities, weighted by inverse volatility to prioritize historically stable price action over sheer market cap."
+EQIN,Invesco Russell 1000 Equal Weight ETF,"U.S. large and mid-cap equities, equally weighting the constituents of the Russell 1000 to provide broad market exposure without mega-cap concentration."
+FXZ,First Trust Materials AlphaDEX Fund,"U.S. materials companies, selected and weighted based on growth and value factors rather than market capitalization."
+DIV,Global X SuperDividend U.S. ETF,"U.S. high-dividend-yielding equities, equally weighting 50 high-yielding constituents across various sectors to minimize single-stock risk."
+DFNL,Davis Select Financial ETF,"U.S. financial sector companies, actively managed to identify high-conviction financial equities across banks and specialized financial firms."
+EZM,WisdomTree U.S. MidCap Fund,"U.S. mid-cap equities, weighting constituents by earnings rather than market capitalization to emphasize absolute profitability."
+RWO,SPDR Dow Jones Global Real Estate ETF,"Global real estate equities, providing comprehensive market-cap-weighted exposure to both U.S. and international real estate investment trusts."
+EWO,iShares MSCI Austria ETF,"Austrian equities, providing single-country, market-cap-weighted exposure to the Austrian stock market."
+VIOV,Vanguard S&P Small-Cap 600 Value ETF,"U.S. small-cap value stocks, tracking the strict value segment of the S&P SmallCap 600 index."
+BEDY,Brown Advisory Equity Income ETF,"U.S. dividend-paying equities, actively managed to target companies with a history of fundamental stability and sustainable yield."
+SLYV,SPDR S&P 600 Small Cap Value ETF,"U.S. small-cap value stocks, specifically tracking the value segment of the S&P SmallCap 600 index."
+ABFL,AllianceBernstein U.S. Large Cap Growth ETF,"U.S. large-cap growth stocks, actively managed using fundamental research to identify sustainable long-term growth opportunities."
+KARS,KraneShares Electric Vehicles and Future Mobility Index ETF,"Global electric vehicle and future mobility companies, capturing the entire supply chain from battery materials to autonomous technology."
+FVAL,Fidelity Value Factor ETF,"U.S. large and mid-cap value stocks, utilizing a proprietary quantitative model evaluating fundamentally discounted equities."
+FAB,First Trust Multi Cap Value AlphaDEX Fund,"U.S. multi-cap value equities, targeting the multi-factor AlphaDEX selection methodology across market capitalizations."
+BFOR,Barron's 400 ETF,"U.S. equities, tracking an index that selects financially strong companies based on strict screens for growth, value, profitability, and cash flow."
+XLG,Invesco S&P 500 Top 50 ETF,"U.S. mega-cap equities, restricting exposure strictly to the 50 largest companies within the S&P 500 index."
+IJS,iShares S&P Small-Cap 600 Value ETF,"U.S. small-cap value stocks, tracking the precise value segment of the S&P SmallCap 600 index."
+IVOV,Vanguard S&P Mid-Cap 400 Value ETF,"U.S. mid-cap value stocks, specifically tracking the value segment of the S&P MidCap 400 index."
+MDYV,SPDR S&P 400 Mid Cap Value ETF,"U.S. mid-cap value stocks, specifically tracking the value segment of the S&P MidCap 400 index."
+FTEC,Fidelity MSCI Information Technology Index ETF,"Broad U.S. technology sector, tracking the MSCI USA IMI Information Technology Index to provide comprehensive all-cap exposure."
+VGT,Vanguard Information Technology ETF,"Broad U.S. technology sector, tracking the MSCI US IMI Information Technology Index to cover large, mid, and small-cap tech companies."
+IJJ,iShares S&P Mid-Cap 400 Value ETF,"U.S. mid-cap value stocks, tracking the specific value segment of the S&P MidCap 400 index."
+IYG,iShares U.S. Financial Services ETF,"U.S. financial services companies, targeting a specific subset of financials focused on asset management, investment banking, and credit services."
+SUSA,iShares MSCI USA ESG Select ETF,"U.S. equities, actively applying environmental, social, and governance (ESG) screening and weighting adjustments to a broad market universe."
+RWL,Invesco S&P 500 Revenue ETF,"S&P 500 equities, weighted by revenue rather than market capitalization to emphasize top-line sales volume."
+WTV,WisdomTree U.S. Value Fund,"U.S. equities, actively managed utilizing a quantitative model to evaluate shareholder yield and intrinsic value traits."
+DON,WisdomTree U.S. MidCap Dividend Fund,"U.S. mid-cap equities, weighted by dividends rather than market capitalization to emphasize income-paying mid-sized companies."
+VFMF,Vanguard U.S. Multifactor ETF,"U.S. equities, actively managed to target a quantitative blend of value, momentum, quality, and low volatility factors."
+DVOL,First Trust Dorsey Wright Momentum & Low Volatility ETF,"U.S. equities, selecting companies demonstrating strong relative strength while filtering for historically low volatility."
+PSCU,Invesco S&P SmallCap Utilities & Communication Services ETF,"U.S. small-cap utility and telecommunication sector, isolating the smallest infrastructure-focused components of the S&P 600."
+PEXL,Pacer US Export Leaders ETF,"U.S. large and mid-cap companies, specifically selected for high foreign sales and significant export revenue."
+IETC,iShares Evolved U.S. Technology ETF,"U.S. technology sector companies, actively managed using natural language processing to identify evolving technology classifications."
+SCHD,Schwab U.S. Dividend Equity ETF,"U.S. dividend-paying equities, selected for strong dividend growth histories and fundamental strength relative to industry peers."
+IFRA,iShares U.S. Infrastructure ETF,"U.S. infrastructure companies, targeting firms involved in both the ownership and physical construction of infrastructure assets."
+FLTW,Franklin FTSE Taiwan ETF,"Taiwanese equities, providing single-country, market-cap-weighted exposure to the Taiwanese market."
+TDIV,First Trust NASDAQ Technology Dividend Index Fund,"U.S. technology and telecommunications companies, explicitly restricting exposure to dividend-paying tech stocks."
+SHRY,SPDR Portfolio Short Term Corporate Bond ETF,"U.S. short-term corporate bonds, tracking a market-weighted index of investment-grade corporate debt with maturities between 1 and 3 years."
+FYT,First Trust Small Cap Value AlphaDEX Fund,"U.S. small-cap value equities, targeting the fundamental selection and weighting of the AlphaDEX methodology."
+TBLU,Tortoise Global Water ESG Fund,"Global water industry companies, tracking an index of water utilities and infrastructure while applying environmental and social screens."
+XSLV,Invesco S&P SmallCap Low Volatility ETF,"U.S. small-cap equities, isolating the 120 least volatile constituents within the S&P SmallCap 600 index."
+IXN,iShares Global Tech ETF,"Global technology sector companies, providing unified exposure to major hardware and software companies across U.S. and international markets."
+SPDV,AAM S&P 500 High Dividend Value ETF,"S&P 500 dividend-paying equities, selecting the top yielders across all 11 GICS sectors while focusing on high free cash flow."
+RPG,Invesco S&P 500 Pure Growth ETF,"S&P 500 growth stocks, focusing exclusively on companies with deep, pure growth characteristics, weighted by the strength of their growth scores."
+RSP,Invesco S&P 500 Equal Weight ETF,"S&P 500 companies, equally weighted to reduce structural concentration in the largest mega-cap index constituents."
+FDVV,Fidelity High Dividend ETF,"U.S. large and mid-cap equities, emphasizing historically high dividend-yielding companies across various sectors with a focus on payout sustainability."
+EQL,ALPS Equal Sector Weight ETF,"U.S. large-cap equities, equally weighting the major GICS sectors rather than individual stocks to eliminate broad sector biases."
+FTA,First Trust Large Cap Value AlphaDEX Fund,"U.S. large-cap value equities, selected and weighted based on growth and value factors rather than market capitalization."
+JPME,JPMorgan Diversified Return U.S. Mid Cap Equity ETF,"U.S. mid-cap equities, structurally weighting risk equally across economic sectors while screening for value and quality factors."
+GLIN,VanEck India Growth Leaders ETF,"Indian equities, targeting growth-oriented companies based on fundamental measures rather than simple market capitalization."
+SDVY,First Trust SMID Cap Rising Dividend Achievers ETF,"U.S. small and mid-cap dividend-paying equities, targeting companies with a history of growing dividends and strong earnings momentum."
+ISCV,iShares Morningstar Small-Cap Value ETF,"U.S. small-cap value stocks, tracking the Morningstar US Small Cap Broad Value Index to provide targeted factor exposure."
+PSET,Principal Quality ETF,"U.S. large and mid-cap equities, actively managed using a quantitative model to identify companies with high profitability and low leverage."
+JPSE,JPMorgan Diversified Return U.S. Small Cap Equity ETF,"U.S. small-cap equities, structurally weighting risk equally across economic sectors while screening for value, momentum, and quality."
+OEF,iShares S&P 100 ETF,"U.S. large-cap equities, restricting exposure strictly to the 100 largest and most established companies in the S&P 500."
+FLCA,Franklin FTSE Canada ETF,"Canadian equities, providing single-country, market-cap-weighted exposure to the Canadian market."
+RDIV,Invesco S&P Ultra Dividend Revenue ETF,"U.S. equities, screening the highest dividend-yielding stocks and subsequently weighting them by revenue generation."
+ONEV,SPDR Russell 1000 Low Volatility Focus ETF,"U.S. large-cap value stocks, utilizing a multi-factor model targeting low volatility, value, quality, and size within the Russell 1000."
+VLUE,iShares MSCI USA Value Factor ETF,"U.S. large and mid-cap value stocks, applying a sector-neutral factor model to target value while avoiding structural sector biases."
+OMFL,Invesco Russell 1000 Dynamic Multifactor ETF,"U.S. large-cap equities, dynamically rotating weightings across value, momentum, quality, and size factors based on leading economic indicators."
+PWV,Invesco Dynamic Large Cap Value ETF,"U.S. large-cap value equities, actively managed using a quantitative model evaluating fundamental strength and timeliness."
+JPUS,JPMorgan Diversified Return U.S. Equity ETF,"U.S. large-cap equities, structurally weighting risk equally across economic sectors while screening for value, quality, and momentum."
+DSTL,Distillate U.S. Fundamental Stability & Value ETF,"U.S. large-cap stocks, utilizing a proprietary fundamental methodology focused on free cash flow generation and balance sheet stability."
+SECT,Main Sector Rotation ETF,"U.S. equities, actively managed to rotate sector exposure based on a proprietary model evaluating relative strength and fundamental trends."
+CATH,Global X S&P 500 Catholic Values ETF,"U.S. large-cap equities, explicitly screening the S&P 500 constituents to align with the socially responsible investment guidelines of the Catholic Church."
+SPVM,Invesco S&P 500 Value with Momentum ETF,"S&P 500 value stocks exhibiting price momentum, combining two specific smart-beta factors to identify recovering value equities."
+JQUA,JPMorgan U.S. Quality Factor ETF,"U.S. large and mid-cap equities, systematically focusing on quality metrics such as absolute profitability and earnings quality."
+ISHP,iShares 1-5 Year Investment Grade Corporate Bond ETF,"U.S. short-term corporate bonds, providing market-weighted exposure to investment-grade debt maturing within five years."
 URTY,ProShares UltraPro Russell2000,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking Russell2000. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-OMFS,Invesco Russell 2000 Dynamic Multifactor ETF,The fund tracks the performance of Russell 2000 Dynamic Multifactor.
-SSPY,Stratified LargeCap Index ETF,The fund tracks the performance of Stratified LargeCap.
-RSPD,Invesco S&P 500 Equal Weight Consumer Discretionary ETF,The fund tracks the performance of S&P 500 Equal Weight Consumer Discretionary.
-VOE,Vanguard Mid-Cap Value ETF,The fund tracks the performance of Mid-Cap Value.
+OMFS,Invesco Russell 2000 Dynamic Multifactor ETF,"U.S. small-cap equities, dynamically rotating factor exposures across the Russell 2000 based on leading economic indicators."
+SSPY,Sydell S&P 500 Strategy ETF,"U.S. large-cap equities, utilizing an active options-overlay strategy on the S&P 500 index to generate income."
+RSPD,Invesco S&P 500 Equal Weight Dividend ETF,"S&P 500 dividend-paying companies, utilizing an equal-weight strategy applied specifically to the dividend-yielding constituents of the index."
+VOE,Vanguard Mid-Cap Value ETF,"U.S. mid-cap value stocks, tracking the CRSP US Mid Cap Value Index to capture deep-value characteristics within medium-sized companies."
 SPYM,State Street SPDR Portfolio S&P 500 ETF,The fund tracks the performance of State Street Portfolio S&P 500.
-PFI,Invesco Dorsey Wright Financial Momentum ETF,The fund tracks the performance of Dorsey Wright Financial Momentum.
+PFI,Invesco DWA Financial Momentum ETF,"U.S. financial sector companies, selecting and weighting constituents based strictly on relative strength and price momentum."
 DBB,Invesco DB Base Metals Fund,"The fund tracks the performance of DB Base Metals. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-IVV,iShares Core S&P 500 ETF,The fund tracks the performance of Core S&P 500.
-VOO,Vanguard S&P 500 ETF,The fund tracks the performance of S&P 500.
-SPXV,ProShares S&P 500 Ex-Health Care ETF,The fund tracks the performance of S&P 500 Ex-Health Care.
-SPY,State Street SPDR S&P 500 ETF Trust,The fund tracks the performance of State Street S&P 500 Trust.
-QDIV,Global X S&P 500 Quality Dividend ETF,The fund tracks the performance of S&P 500 Quality Dividend.
-ESG,FlexShares STOXX US ESG Select Index Fund,The fund tracks the performance of Flex STOXX US ESG Select.
-FLQM,Franklin U.S. Mid Cap Multifactor Index ETF,The fund tracks the performance of Franklin U.S. Mid Cap Multifactor.
-QLC,FlexShares US Quality Large Cap Index Fund,The fund tracks the performance of Flex US Quality Large Cap.
-MGK,Vanguard Mega Cap Growth ETF,The fund tracks the performance of Mega Cap Growth.
-SPTM,State Street SPDR Portfolio S&P 1500 Composite Stock Market ETF,The fund tracks the performance of State Street Portfolio S&P 1500 Composite Stock Met.
-PSCC,Invesco S&P SmallCap Consumer Staples ETF,The fund tracks the performance of S&P SmallCap Consumer Staples.
-RSPT,Invesco S&P 500 Equal Weight Technology ETF,The fund tracks the performance of S&P 500 Equal Weight Technology.
-PRFZ,Invesco RAFI US 1500 Small-Mid ETF,The fund tracks the performance of RAFI US 1500 Small-Mid.
-ISMD,Inspire Small/Mid Cap ETF,The fund tracks the performance of Inspire Small/Mid Cap.
-EWT,iShares MSCI Taiwan ETF,The fund tracks the performance of MSCI Taiwan.
-GRID,First Trust NASDAQ Clean Edge Smart Grid Infrastructure Index Fund,The fund tracks the performance of NASDAQ Clean Edge Smart Grid Infrastructure.
-SLX,VanEck Steel ETF,The fund tracks the performance of VanEck Steel.
-WBIY,WBI Power Factor High Dividend ETF,The fund tracks the performance of WBI Power Factor High Dividend.
-EQWL,Invesco S&P 100 Equal Weight ETF,The fund tracks the performance of S&P 100 Equal Weight.
-VTWV,Vanguard Russell 2000 Value ETF,The fund tracks the performance of Russell 2000 Value.
-NULG,Nuveen ESG Large-Cap Growth ETF,The fund tracks the performance of Nuveen ESG Large-Cap Growth.
+IVV,iShares Core S&P 500 ETF,"U.S. large-cap equities, tracking the S&P 500 index to provide broad market exposure."
+VOO,Vanguard S&P 500 ETF,"U.S. large-cap equities, tracking the S&P 500 index to provide broad market exposure."
+SPXV,ProShares S&P 500 Ex-Health Care ETF,"S&P 500 companies, explicitly excluding the health care sector."
+SPY,SPDR S&P 500 ETF Trust,"U.S. large-cap equities, tracking the S&P 500 index structured as a unit investment trust."
+QDIV,Global X S&P 500 Quality Dividend ETF,"S&P 500 dividend-paying equities, isolating companies that score in the top tier for both dividend yield and fundamental quality."
+ESG,FlexShares STOXX US ESG Select Index Fund,"U.S. equities, applying environmental, social, and governance screens to optimize ESG scoring while minimizing tracking error to the broader market."
+FLQM,Franklin U.S. Mid Cap Multifactor Index ETF,"U.S. mid-cap equities, utilizing a multi-factor model targeting quality, value, momentum, and low volatility."
+QLC,FlexShares US Quality Large Cap Index Fund,"U.S. large-cap equities, targeting companies that exhibit strong fundamental quality characteristics based on profitability, management efficiency, and cash flow."
+MGK,Vanguard Mega Cap Growth ETF,"U.S. mega-cap growth stocks, specifically isolating the largest growth-oriented companies within the CRSP US Mega Cap Index."
+SPTM,SPDR Portfolio S&P 1500 Composite Stock Market ETF,"Broad U.S. equities, tracking the S&P 1500 Composite Index to cover the large, mid, and small-cap segments of the market."
+PSCC,Invesco S&P SmallCap Consumer Staples ETF,"Small-cap U.S. consumer staples sector, isolating the smallest consumer-defensive components of the S&P 600."
+RSPT,Invesco S&P 500 Equal Weight Technology ETF,"S&P 500 technology companies, equally weighted to reduce concentration in the largest tech hardware and software firms."
+PRFZ,Invesco FTSE RAFI US 1500 Small-Mid ETF,"U.S. small and mid-cap equities, weighted by fundamental factors such as book value, cash flow, sales, and dividends rather than market capitalization."
+ISMD,Inspire Small/Mid Cap Impact ETF,"U.S. small and mid-cap equities, applying biblically responsible investing screens to exclude companies misaligned with specific religious values."
+EWT,iShares MSCI Taiwan ETF,"Taiwanese equities, providing market-cap-weighted exposure to the broader Taiwan stock market."
+GRID,First Trust NASDAQ Clean Edge Smart Grid Infrastructure Index Fund,"Global smart grid and electrical infrastructure companies, targeting firms involved in the modernization of energy grids and power technologies."
+SLX,VanEck Steel ETF,"Global steel sector companies, capturing firms involved in steel production, iron ore mining, and steel manufacturing."
+WBIY,WBI Power Factor High Dividend ETF,"U.S. dividend-paying equities, actively managed using a quantitative model to select high-yielding stocks with strong fundamental characteristics."
+EQWL,Invesco S&P 100 Equal Weight ETF,"U.S. mega-cap equities, equally weighting the 100 largest and most established companies in the S&P 500."
+VTWV,Vanguard Russell 2000 Value ETF,"U.S. small-cap value stocks, tracking the strict value segment of the Russell 2000 index."
+NULG,Nuveen ESG Large-Cap Growth ETF,"U.S. large-cap growth stocks, integrating environmental, social, and governance (ESG) criteria into the selection of growth-oriented equities."
 COM,Direxion Auspice Broad Commodity Strategy ETF,"The fund tracks the performance of Direxion Auspice Broad Commodity Strategy. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-SPYX,State Street SPDR S&P 500 Fossil Fuel Reserves Free ETF,The fund tracks the performance of State Street S&P 500 Fossil Fuel Reserves Free.
+SPYX,SPDR S&P 500 Fossil Fuel Reserves Free ETF,"S&P 500 companies, explicitly excluding firms that own fossil fuel reserves."
 FTGC,First Trust Global Tactical Commodity Strategy Fund,"The fund tracks the performance of Global Tactical Commodity Strategy. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
 TNA,Direxion Small Cap Bull 3X ETF,"The fund seeks daily 3x leveraged investment results before fees and expenses, tracking Direxion Small Cap. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-VBR,Vanguard Small-Cap Value ETF,The fund tracks the performance of Small-Cap Value.
-SCHG,Schwab U.S. Large-Cap Growth ETF,The fund tracks the performance of Schwab U.S. Large-Cap Growth.
-LFEQ,VanEck Long/Flat Trend ETF,The fund tracks the performance of VanEck Long/Flat Trend.
-IWS,iShares Russell Mid-Cap Value ETF,The fund tracks the performance of Russell Mid-Cap Value.
-EPI,WisdomTree India Earnings Fund,The fund tracks the performance of India Earnings.
-PSCF,Invesco S&P SmallCap Financials ETF,The fund tracks the performance of S&P SmallCap Financials.
-DRIV,Global X Autonomous & Electric Vehicles ETF,The fund tracks the performance of Autonomous & Electric Vehicles.
-VFQY,Vanguard U.S. Quality Factor ETF,The fund tracks the performance of U.S. Quality Factor.
+VBR,Vanguard Small-Cap Value ETF,"U.S. small-cap value stocks, tracking the CRSP US Small Cap Value Index to capture deep-value characteristics within smaller companies."
+SCHG,Schwab U.S. Large-Cap Growth ETF,"U.S. large-cap growth stocks, tracking the Dow Jones U.S. Large-Cap Growth Total Stock Market Index."
+LFEQ,VanEck Long/Flat Trend ETF,"U.S. large-cap equities, utilizing a trend-following strategy that shifts to cash or cash equivalents during severe market downtrends."
+IWS,iShares Russell Mid-Cap Value ETF,"U.S. mid-cap value stocks, capturing the specifically value-oriented segment of the Russell Midcap index."
+EPI,WisdomTree India Earnings Fund,"Indian equities, weighting constituents by fundamental earnings rather than market capitalization to emphasize absolute profitability."
+PSCF,Invesco S&P SmallCap Financials ETF,"Small-cap U.S. financial sector companies, isolating the smallest regional banks and financial services components of the S&P 600."
+DRIV,Global X Autonomous & Electric Vehicles ETF,"Global autonomous and electric vehicle companies, capturing the supply chain of EV components, software, and manufacturing."
+VFQY,Vanguard U.S. Quality Factor ETF,"U.S. equities, actively managed utilizing a quantitative model to target fundamental quality characteristics like strong profitability and healthy balance sheets."
 IWN,iShares Russell 2000 Value ETF,The fund tracks the performance of Russell 2000 Value.
-SPHQ,Invesco S&P 500 Quality ETF,The fund tracks the performance of S&P 500 Quality.
-PTLC,Pacer Trendpilot US Large Cap ETF,The fund tracks the performance of Pacer Trendpilot US Large Cap.
-OSCV,Opus Small Cap Value ETF,The fund tracks the performance of Opus Small Cap Value.
-SMLV,State Street SPDR US Small Cap Low Volatility Index ETF,The fund tracks the performance of State Street US Small Cap Low Volatility.
-TAGS,Teucrium Agricultural Fund ETV,The fund tracks the performance of Teucrium Agricultural ETV.
-XLY,State Street Consumer Discretionary Select Sector SPDR ETF,The fund tracks the performance of State Street Consumer Discretionary Select Sector.
-KRMA,Global X Conscious Companies ETF,The fund tracks the performance of Conscious Companies.
-LGLV,State Street SPDR US Large Cap Low Volatility Index ETF,The fund tracks the performance of State Street US Large Cap Low Volatility.
-EVX,VanEck Environmental Services ETF,The fund tracks the performance of VanEck Environmental Services.
-SPXE,ProShares S&P 500 Ex-Energy ETF,The fund tracks the performance of S&P 500 Ex-Energy.
-IWL,iShares Russell Top 200 ETF,The fund tracks the performance of Russell Top 200.
-BIBL,Inspire 100 ETF,The fund tracks the performance of Inspire 100.
-BBCA,JPMorgan BetaBuilders Canada ETF,The fund tracks the performance of JPMorgan BetaBuilders Canada.
-FMAT,Fidelity MSCI Materials Index ETF,The fund tracks the performance of Fidelity MSCI Materials.
-MGC,Vanguard Mega Cap ETF,The fund tracks the performance of Mega Cap.
-VONG,Vanguard Russell 1000 Growth ETF,The fund tracks the performance of Russell 1000 Growth.
-TILT,FlexShares Mornigstar US Market Factors Tilt Index Fund ETF,The fund tracks the performance of Flex Mornigstar US Met Factors Tilt.
-FYX,First Trust Small Cap Core AlphaDEX Fund,The fund tracks the performance of Small Cap Core AlphaDEX.
-EPS,WisdomTree U.S. LargeCap Fund,The fund tracks the performance of U.S. LargeCap.
-XLB,State Street Materials Select Sector SPDR ETF,The fund tracks the performance of State Street Materials Select Sector.
-PEX,ProShares Global Listed Private Equity ETF,The fund tracks the performance of Global Listed Private Equity.
+SPHQ,Invesco S&P 500 Quality ETF,"S&P 500 equities, targeting the 100 constituents with the highest fundamental quality scores based on return on equity, accruals ratio, and financial leverage."
+PTLC,Pacer Trendpilot US Large Cap ETF,"U.S. large-cap equities, utilizing a trend-following moving-average strategy to toggle exposure between equities and Treasury bills."
+OSCV,Opus Small Cap Value ETF,"U.S. small-cap value equities, actively managed focusing on high-quality operating businesses trading at a fundamental discount."
+SMLV,SPDR SSGA US Small Cap Low Volatility Index ETF,"U.S. small-cap equities, systematically selecting constituents that exhibit lower historical volatility than the broader small-cap market."
+TAGS,Teucrium Agricultural Strategy No K-1 ETF,"Agricultural commodity futures, providing exposure to corn, wheat, soybean, and sugar prices structured to avoid K-1 tax forms."
+XLY,Consumer Discretionary Select Sector SPDR Fund,"U.S. large-cap consumer discretionary companies, limited exclusively to the S&P 500 index constituents."
+KRMA,Global X Conscious Companies ETF,"U.S. large-cap equities, tracking an index of companies recognized for positive social impact and stakeholder outcomes based on the Concinnity framework."
+LGLV,SPDR SSGA US Large Cap Low Volatility Index ETF,"U.S. large-cap equities, systematically selecting constituents that exhibit lower historical volatility than the broader large-cap market."
+EVX,VanEck Environmental Services ETF,"U.S. environmental services companies, focusing on waste management, pollution control, and recycling operations."
+SPXE,ProShares S&P 500 Ex-Energy ETF,"S&P 500 companies, explicitly excluding the energy sector."
+IWL,iShares Russell Top 200 ETF,"U.S. mega-cap equities, isolating the 200 largest companies within the Russell 1000 index."
+BIBL,Inspire 100 ETF,"U.S. large-cap equities, tracking an index of 100 companies aligned with biblically responsible investing screens."
+BBCA,JPMorgan BetaBuilders Canada ETF,"Canadian equities, designed as a broad, market-cap-weighted allocation to the Canadian stock market."
+FMAT,Fidelity MSCI Materials Index ETF,"Broad U.S. materials sector, tracking the MSCI USA IMI Materials Index to provide comprehensive all-cap exposure."
+MGC,Vanguard Mega Cap ETF,"U.S. mega-cap equities, specifically isolating the largest companies within the CRSP US Mega Cap Index."
+VONG,Vanguard Russell 1000 Growth ETF,"U.S. large-cap growth stocks, specifically tracking the growth segment of the Russell 1000 index."
+TILT,FlexShares Morningstar US Market Factor Tilt Index Fund,"Broad U.S. equities, tracking the Morningstar US Market index while actively overweighting small-cap and value stocks."
+FYX,First Trust Small Cap Core AlphaDEX Fund,"U.S. small-cap equities, selected and weighted using the multi-factor AlphaDEX fundamental methodology rather than market capitalization."
+EPS,WisdomTree U.S. LargeCap Fund,"U.S. large-cap equities, weighting constituents by fundamental earnings rather than market capitalization to emphasize absolute profitability."
+XLB,Materials Select Sector SPDR Fund,"U.S. large-cap materials companies, limited exclusively to the S&P 500 index constituents."
+PEX,ProShares Global Listed Private Equity ETF,"Global private equity firms, targeting publicly traded companies that actively invest in and manage private equity assets."
 FNGO,"MicroSectors FANG  Index 2X Leveraged ETNs due January 8, 2038","The fund seeks daily 2x leveraged investment results before fees and expenses, tracking FANG Leveraged due January 8, 2038. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple. As an exchange-traded note, the product is an unsecured debt obligation of the issuer and carries issuer credit risk."
-KNGZ,First Trust S&P 500 Diversified Dividend Aristocrats ETF,The fund tracks the performance of S&P 500 Diversified Dividend Aristocrats.
-IWF,iShares Russell 1000 Growth Fund,The fund tracks the performance of Russell 1000 Growth.
-CSB,VictoryShares US Small Cap High Div Volatility Wtd ETF,The fund tracks the performance of Victory US Small Cap High Div Volatility Wtd.
-CZA,Invesco Zacks Mid-Cap ETF,The fund tracks the performance of Zacks Mid-Cap.
-VAW,Vanguard Materials ETF,The fund tracks the performance of Materials.
-VUG,Vanguard Growth ETF,The fund tracks the performance of Growth.
-QQQ,"Invesco QQQ Trust, Series 1","The fund tracks the performance of QQQ Trust, Series 1."
-BKCG,BNY Mellon Concentrated Growth ETF,The fund tracks the performance of BNY Mellon Concentrated Growth.
-AUSF,Global X Adaptive U.S. Factor ETF,The fund tracks the performance of Adaptive U.S. Factor.
-GSLC,Goldman Sachs ActiveBeta U.S. Large Cap Equity ETF,The fund tracks the performance of Goldman Sachs ActiveBeta U.S. Large Cap Equity.
-ROUS,Hartford Multifactor U.S. Equity ETF,The fund tracks the performance of Hartford Multifactor U.S. Equity.
-VALQ,American Century U.S. Quality Value ETF,The fund tracks the performance of American Century U.S. Quality Value.
-SPXN,ProShares S&P 500 Ex-Financials ETF,The fund tracks the performance of S&P 500 Ex-Financials.
-NACP,Impact Shares NAACP Minority Empowerment ETF,The fund tracks the performance of Impact NAACP Minority Empowerment.
-VV,Vanguard Large-Cap ETF,The fund tracks the performance of Large-Cap.
-BBUS,JPMorgan BetaBuilders U.S. Equity ETF,The fund tracks the performance of JPMorgan BetaBuilders U.S. Equity.
+KNGZ,US Equity Dividend Select ETF,"U.S. dividend-paying equities, actively managed to target companies with sustainable dividend yields and fundamental stability."
+IWF,iShares Russell 1000 Growth ETF,"U.S. large-cap growth stocks, specifically tracking the growth segment of the Russell 1000 index."
+CSB,VictoryShares US Small Cap High Div Volatility Wtd ETF,"U.S. small-cap dividend-paying equities, weighted by inverse volatility to prioritize historically stable price action over sheer market cap."
+CZA,Invesco Zacks Mid-Cap ETF,"U.S. mid-cap equities, actively selected based on the Zacks quantitative rating model evaluating fundamental strength and valuation."
+VAW,Vanguard Materials ETF,"Broad U.S. materials sector, tracking the MSCI US IMI Materials Index to capture large, mid, and small-cap companies."
+VUG,Vanguard Growth ETF,"U.S. large-cap growth stocks, tracking the CRSP US Large Cap Growth Index to capture companies with strong historical and projected growth metrics."
+QQQ,Invesco QQQ Trust,"U.S. large-cap equities, tracking the NASDAQ-100 index to provide concentrated exposure to non-financial technology and consumer-growth companies."
+BKCG,BNY Mellon US Large Cap Core Equity ETF,"U.S. large-cap equities, actively managed to provide core market exposure using fundamental and quantitative analysis."
+AUSF,Global X Adaptive U.S. Factor ETF,"U.S. equities, utilizing a dynamic rotation model that allocates among value, momentum, and minimum volatility factors based on market conditions."
+GSLC,Goldman Sachs ActiveBeta U.S. Large Cap Equity ETF,"U.S. large-cap equities, utilizing a multi-factor methodology targeting value, momentum, quality, and low volatility."
+ROUS,Hartford Multifactor US Equity ETF,"U.S. large-cap equities, employing a multi-factor model targeting value, momentum, and quality while seeking to reduce overall volatility."
+VALQ,American Century STOXX U.S. Quality Value ETF,"U.S. large-cap equities, applying a multi-factor quantitative model to select undervalued stocks with strong fundamental quality."
+SPXN,ProShares S&P 500 Ex-Financials ETF,"S&P 500 companies, explicitly excluding the financial sector."
+NACP,Impact Shares NAACP Minority Empowerment ETF,"U.S. large and mid-cap equities, explicitly screening for companies with strong racial and ethnic diversity policies and practices."
+VV,Vanguard Large-Cap ETF,"U.S. large-cap equities, tracking the CRSP US Large Cap Index to capture the largest 85% of the U.S. equity market."
+BBUS,JPMorgan BetaBuilders U.S. Equity ETF,"U.S. large and mid-cap equities, designed as a broad, market-cap-weighted allocation to the U.S. stock market."
 CMDY,iShares Bloomberg Roll Select Commodity Strategy ETF,"The fund tracks the performance of Bloomberg Roll Select Commodity Strategy. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-PSP,Invesco Global Listed Private Equity ETF,The fund tracks the performance of Global Listed Private Equity.
-QTEC,First Trust NASDAQ-100-Technology Sector Index Fund,The fund tracks the performance of NASDAQ-100-Technology Sector.
-NETL,Colterpoint Net Lease Real Estate ETF,The fund tracks the performance of Colterpoint Net Lease Real Estate.
-QUAL,iShares MSCI USA Quality Factor ETF,The fund tracks the performance of MSCI USA Quality Factor.
-PBUS,Invesco MSCI USA ETF,The fund tracks the performance of MSCI USA.
-GUSE,Goldman Sachs Enhanced U.S. Equity ETF,The fund tracks the performance of Goldman Sachs Enhanced U.S. Equity.
-JHML,John Hancock Multifactor Large Cap ETF,The fund tracks the performance of John Hancock Multifactor Large Cap.
-PBJ,Invesco Food & Beverage ETF,The fund tracks the performance of Food & Beverage.
+PSP,Invesco Global Listed Private Equity ETF,"Global private equity firms, targeting publicly traded companies that actively invest in and manage private equity assets."
+QTEC,First Trust NASDAQ-100-Technology Sector Index Fund,"NASDAQ-100 technology companies, equally weighted to balance exposure across hardware, software, and semiconductor firms."
+NETL,NETLease Corporate Real Estate ETF,"U.S. real estate investment trusts, focusing exclusively on REITs utilizing net lease structures where tenants pay taxes, insurance, and maintenance."
+QUAL,iShares MSCI USA Quality Factor ETF,"U.S. large and mid-cap equities, systematically focusing on quality metrics such as high return on equity, stable earnings, and low financial leverage."
+PBUS,Invesco PureBeta MSCI USA ETF,"U.S. large and mid-cap equities, tracking the MSCI USA Index as a straightforward, market-cap-weighted broad allocation."
+GUSE,WisdomTree U.S. ESG Fund,"U.S. equities, integrating environmental, social, and governance (ESG) screens into a fundamentally weighted equity portfolio."
+JHML,John Hancock Multifactor Large Cap ETF,"U.S. large-cap equities, utilizing a quantitative model designed to tilt toward smaller size, lower valuation, and higher profitability."
+PBJ,Invesco Dynamic Food & Beverage ETF,"U.S. food and beverage sector companies, utilizing a quantitative model evaluating fundamental strength and price momentum."
 COMB,GraniteShares Bloomberg Commodity Broad Strategy No K-1 ETF,"The fund tracks the performance of Bloomberg Commodity Broad Strategy No K-1. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-FEX,First Trust Large Cap Core AlphaDEX Fund,The fund tracks the performance of Large Cap Core AlphaDEX.
-ESGU,iShares ESG Aware MSCI USA ETF,The fund tracks the performance of ESG Aware MSCI USA.
-SPSM,State Street SPDR Portfolio S&P 600 Small Cap ETF,The fund tracks the performance of State Street Portfolio S&P 600 Small Cap.
-SCHX,Schwab U.S. Large-Cap ETF,The fund tracks the performance of Schwab U.S. Large-Cap.
-EWC,iShares MSCI Canada Index Fund,The fund tracks the performance of MSCI Canada.
-DES,WisdomTree U.S. SmallCap Dividend Fund,The fund tracks the performance of U.S. SmallCap Dividend.
-QUS,State Street SPDR MSCI USA StrategicFactors ETF,The fund tracks the performance of State Street MSCI USA StrategicFactors.
-IAK,iShares U.S. Insurance ETF,The fund tracks the performance of U.S. Insurance.
-DTRE,First Trust Alerian Disruptive Technology Real Estate ETF,The fund tracks the performance of Alerian Disruptive Technology Real Estate.
-FLQL,Franklin U.S. Large Cap Multifactor Index ETF,The fund tracks the performance of Franklin U.S. Large Cap Multifactor.
-IJR,iShares Core S&P Small-Cap ETF,The fund tracks the performance of Core S&P Small-Cap.
-JUST,Goldman Sachs JUST U.S. Large Cap Equity ETF,The fund tracks the performance of Goldman Sachs JUST U.S. Large Cap Equity.
-VIOO,Vanguard S&P Small-Cap 600 ETF,The fund tracks the performance of S&P Small-Cap 600.
+FEX,First Trust Large Cap Core AlphaDEX Fund,"U.S. large-cap equities, selected and weighted using the multi-factor AlphaDEX fundamental methodology rather than market capitalization."
+ESGU,iShares ESG Aware MSCI USA ETF,"U.S. large and mid-cap equities, applying environmental, social, and governance (ESG) screens while maintaining a risk profile similar to the broad market."
+SPSM,SPDR Portfolio S&P 600 Small Cap ETF,"U.S. small-cap equities, tracking the S&P SmallCap 600 index for broad small-company exposure."
+SCHX,Schwab U.S. Large-Cap ETF,"U.S. large-cap equities, tracking the Dow Jones U.S. Large-Cap Total Stock Market Index."
+EWC,iShares MSCI Canada ETF,"Canadian equities, providing market-cap-weighted exposure to the broader Canadian stock market."
+DES,WisdomTree U.S. SmallCap Dividend Fund,"U.S. small-cap dividend-paying equities, weighting constituents by aggregate cash dividends rather than market capitalization."
+QUS,SPDR MSCI USA StrategicFactors ETF,"U.S. large and mid-cap equities, combining value, low volatility, and quality factors into a single integrated quantitative model."
+IAK,iShares U.S. Insurance ETF,"U.S. insurance sector companies, providing targeted exposure across life, property, casualty, and full-line insurance providers."
+DTRE,ALPS Disruptive Technologies ETF,"Global technology and infrastructure equities, capturing companies driving disruptive technological innovation and real estate."
+FLQL,Franklin LibertyQ U.S. Equity ETF,"U.S. large and mid-cap equities, utilizing a quantitative multi-factor model focusing primarily on high fundamental quality along with value, momentum, and low volatility."
+IJR,iShares Core S&P Small-Cap ETF,"U.S. small-cap equities, strictly tracking the S&P SmallCap 600 index for broad small-company exposure."
+JUST,Goldman Sachs JUST U.S. Large Cap Equity ETF,"U.S. large-cap equities, selecting companies based on fair corporate behavior metrics regarding employees, customers, and the environment."
+VIOO,Vanguard S&P Small-Cap 600 ETF,"U.S. small-cap equities, strictly tracking the S&P SmallCap 600 index."
 YANG,Direxion Daily FTSE China Bear 3X ETF,"The fund seeks daily 3x inverse (short) investment results before fees and expenses, tracking FTSE China. Because of the daily objective, compounding will cause longer-term returns to differ from the stated multiple."
-GRPM,Invesco S&P MidCap 400 GARP ETF,The fund tracks the performance of S&P MidCap 400 GARP.
-FLQS,Franklin U.S. Small Cap Multifactor Index ETF,The fund tracks the performance of Franklin U.S. Small Cap Multifactor.
-FTCS,First Trust Capital Strength ETF,The fund tracks the performance of Capital Strength.
-QDF,FlexShares Quality Dividend Index Fund,The fund tracks the performance of Flex Quality Dividend.
-ILCV,iShares Morningstar Large-Cap  Value ETF,The fund tracks the performance of Morningstar Large-Cap Value.
-FSCS,First Trust SMID Capital Strength ETF,The fund tracks the performance of SMID Capital Strength.
-DGRO,iShares Core Dividend Growth ETF,The fund tracks the performance of Core Dividend Growth.
-DEUS,Xtrackers Russell US Multifactor ETF,The fund tracks the performance of Xtrackers Russell US Multifactor.
-LVHD,Franklin U.S. Low Volatility High Dividend Index ETF,The fund tracks the performance of Franklin U.S. Low Volatility High Dividend.
-ONEO,State Street SPDR Russell 1000 Momentum Focus ETF,The fund tracks the performance of State Street Russell 1000 Momentum Focus.
-SMLF,iShares U.S. Small-Cap Equity Factor ETF,The fund tracks the performance of U.S. Small-Cap Equity Factor.
-PSCT,Invesco S&P SmallCap Information Technology ETF,The fund tracks the performance of S&P SmallCap Information Technology.
-VTV,Vanguard Value ETF,The fund tracks the performance of Value.
-ESGV,Vanguard ESG U.S. Stock ETF,The fund tracks the performance of ESG U.S. Stock.
-VONE,Vanguard Russell 1000 ETF,The fund tracks the performance of Russell 1000.
-IYT,iShares U.S. Transportation ETF,The fund tracks the performance of U.S. Transportation.
+GRPM,Invesco S&P MidCap 400 GARP ETF,"U.S. mid-cap equities, exhibiting Growth at a Reasonable Price (GARP) by balancing earnings growth metrics with valuation screens."
+FLQS,Franklin LibertyQ U.S. Small Cap Equity ETF,"U.S. small-cap equities, applying a multi-factor model that emphasizes fundamental quality alongside value, momentum, and low volatility."
+FTCS,First Trust Capital Strength ETF,"U.S. large-cap equities, explicitly screening for strong balance sheets, high levels of cash, and low volatility."
+QDF,FlexShares Quality Dividend Index Fund,"U.S. dividend-paying equities, utilizing a multi-factor model to target high-quality companies with sustainable dividend yields."
+ILCV,iShares Morningstar Value ETF,"U.S. large-cap value equities, tracking the Morningstar US Large-Mid Cap Broad Value Index to target deep-value characteristics."
+FSCS,Fidelity Select Software & IT Services Portfolio,"U.S. technology sector companies, focusing specifically on software and information technology services."
+DGRO,iShares Core Dividend Growth ETF,"U.S. dividend-paying equities, targeting companies with a sustained history of consistent dividend growth and payout stability."
+DEUS,Xtrackers Russell 1000 Comprehensive Factor ETF,"U.S. large-cap equities, integrating value, momentum, quality, low volatility, and size factors into a single comprehensive model."
+LVHD,Legg Mason Low Volatility High Dividend ETF,"U.S. large-cap equities, specifically targeting companies that exhibit historically low price volatility combined with high dividend yields."
+ONEO,SPDR Russell 1000 Momentum Focus ETF,"U.S. large-cap equities, leveraging a multi-factor model that emphasizes strong price momentum alongside value and quality factors."
+SMLF,iShares US Small-Cap Equity Factor ETF,"U.S. small-cap equities, utilizing a multi-factor model to target value, quality, momentum, and small size."
+PSCT,Invesco S&P SmallCap Information Technology ETF,"Small-cap U.S. technology companies, isolating the smallest software, hardware, and semiconductor components of the S&P 600."
+VTV,Vanguard Value ETF,"U.S. large-cap value stocks, tracking the CRSP US Large Cap Value Index to capture dividend-paying and low-valuation equities."
+ESGV,Vanguard ESG U.S. Stock ETF,"Broad U.S. equities, tracking an index that applies environmental, social, and governance screens while maintaining comprehensive market-cap coverage."
+VONE,Vanguard Russell 1000 ETF,"U.S. large and mid-cap equities, tracking the Russell 1000 index to cover the top tier of the U.S. stock market."
+IYT,iShares Transportation Average ETF,"U.S. transportation sector, tracking an index of airlines, railroads, trucking, and delivery logistics companies."
 BCI,abrdn Bloomberg All Commodity Strategy K-1 Free ETF,"The fund tracks the performance of abrdn Bloomberg All Commodity Strategy K-1 Free. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
-IWB,iShares Russell 1000 ETF,The fund tracks the performance of Russell 1000.
-NFTY,First Trust India Nifty 50 Equal Weight ETF,The fund tracks the performance of India Nifty 50 Equal Weight.
-IYY,iShares Dow Jones U.S. ETF,The fund tracks the performance of Dow Jones U.S.
-USMC,Principal U.S. Mega-Cap ETF,The fund tracks the performance of Principal U.S. Mega-Cap.
-TCV,Towle Value ETF,The fund tracks the performance of Towle Value.
-VYM,Vanguard High Dividend Yield ETF,The fund tracks the performance of High Dividend Yield.
-DTD,WisdomTree U.S. Total Dividend Fund,The fund tracks the performance of U.S. Total Dividend.
-SCHK,Schwab 1000 Index ETF,The fund tracks the performance of Schwab 1000.
-RSPN,Invesco S&P 500 Equal Weight Industrials Portfolio,The fund tracks the performance of S&P 500 Equal Weight Industrials Portfolio.
-CFO,VictoryShares US 500 Enhanced Volatility Wtd ETF,The fund tracks the performance of Victory US 500 Enhanced Volatility Wtd.
-CFA,VictoryShares US 500 Volatility Wtd ETF,The fund tracks the performance of Victory US 500 Volatility Wtd.
-MMTM,State Street SPDR S&P 1500 Momentum Tilt ETF,The fund tracks the performance of State Street S&P 1500 Momentum Tilt.
-FSMD,Fidelity Small-Mid Multifactor ETF,The fund tracks the performance of Fidelity Small-Mid Multifactor.
-SPXT,ProShares S&P 500 Ex-Technology ETF,The fund tracks the performance of S&P 500 Ex-Technology.
-PEY,Invesco High Yield Equity Dividend Achievers ETF,The fund tracks the performance of High Yield Equity Dividend Achievers.
-FDRR,Fidelity Dividend ETF for Rising Rates,The fund tracks the performance of Fidelity Dividend for Rising Rates.
-HUSV,First Trust Horizon Managed Volatility Domestic ETF,The fund tracks the performance of Horizon Managed Volatility Domestic.
-XLV,State Street Health Care Select Sector SPDR ETF,The fund tracks the performance of State Street Health Care Select Sector.
-QDEF,FlexShares Quality Dividend Defensive Index Fund,The fund tracks the performance of Flex Quality Dividend Defensive.
-MGV,Vanguard Mega Cap Value ETF,The fund tracks the performance of Mega Cap Value.
-FTRI,First Trust Indxx Global Natural Resources Income ETF,The fund tracks the performance of Indxx Global Natural Resources Income.
-PIO,Invesco Global Water ETF,The fund tracks the performance of Global Water.
-IOO,iShares Global 100 ETF,The fund tracks the performance of Global 100.
-SCHB,Schwab U.S. Broad Market ETF,The fund tracks the performance of Schwab U.S. Broad Met.
-FSGS,First Trust SMID Growth Strength ETF,The fund tracks the performance of SMID Growth Strength.
-WLDR,Simplify Affinity World Leaders Equity ETF,The fund tracks the performance of Simplify Affinity World Leaders Equity.
-RFDA,ALPS Dynamic US Dividend Advantage ETF,The fund tracks the performance of ALPS Dynamic US Dividend Advantage.
-VTI,Vanguard Total Stock Market ETF,The fund tracks the performance of Total Stock Met.
-GUNR,FlexShares Global Upstream Natural Resources Index Fund ETF,The fund tracks the performance of Flex Global Upstream Natural Resources.
-IGM,iShares Expanded Tech Sector ETF,The fund tracks the performance of Expanded Tech Sector.
-ITOT,iShares Core S&P Total U.S. Stock Market ETF,The fund tracks the performance of Core S&P Total U.S. Stock Met.
-UFOX,Defiance Space and Connective Tech ETF,The fund tracks the performance of Defiance Space and Connective Tech.
-DLN,WisdomTree U.S. LargeCap Dividend Fund,The fund tracks the performance of U.S. LargeCap Dividend.
-VSMV,VictoryShares US Multi-Factor Minimum Volatility ETF,The fund tracks the performance of Victory US Multi-Factor Minimum Volatility.
-PRN,Invesco Dorsey Wright Industrials Momentum ETF,The fund tracks the performance of Dorsey Wright Industrials Momentum.
-PSCI,Invesco S&P SmallCap Industrials ETF,The fund tracks the performance of S&P SmallCap Industrials.
-VTHR,Vanguard Russell 3000 ETF,The fund tracks the performance of Russell 3000.
-EUSA,iShares MSCI USA Equal Weighted ETF,The fund tracks the performance of MSCI USA Equal Weighted.
-IYM,iShares U.S. Basic Materials ETF,The fund tracks the performance of U.S. Basic Materials.
-HAP,VanEck Natural Resources ETF,The fund tracks the performance of VanEck Natural Resources.
-NOBL,ProShares S&P 500 Dividend Aristocrats ETF,The fund tracks the performance of S&P 500 Dividend Aristocrats.
-SCHV,Schwab U.S. Large-Cap Value ETF,The fund tracks the performance of Schwab U.S. Large-Cap Value.
-IWV,iShares Russell 3000 Fund,The fund tracks the performance of Russell 3000.
+IWB,iShares Russell 1000 ETF,"U.S. large and mid-cap equities, tracking the Russell 1000 index to provide broad exposure to the largest domestic companies."
+NFTY,Defiance Digital Revolution ETF,"Global equities, targeting companies involved in blockchain technology, digital assets, and next-generation infrastructure."
+IYY,iShares U.S. Total Market ETF,"Broad U.S. equity market, tracking the Dow Jones U.S. Total Stock Market Index across large, mid, and small caps."
+USMC,Principal U.S. Mega-Cap ETF,"U.S. mega-cap equities, utilizing a quantitative model to isolate the largest, most fundamentally stable domestic companies."
+TCV,TrustCo Bank Corp NY,"U.S. regional banking and financial services equities, representing a specific banking institution security rather than a diversified fund."
+VYM,Vanguard High Dividend Yield ETF,"U.S. high-dividend-yielding equities, tracking the FTSE High Dividend Yield Index to emphasize above-average payout stocks."
+DTD,WisdomTree U.S. Total Dividend Fund,"Broad U.S. dividend-paying equities, weighting constituents by aggregate cash dividends rather than market capitalization."
+SCHK,Schwab 1000 Index ETF,"U.S. large and mid-cap equities, tracking the Schwab 1000 Index to cover the primary tier of the domestic equity market."
+RSPN,Invesco S&P 500 Equal Weight Health Care ETF,"S&P 500 health care companies, equally weighted to reduce concentration in major pharmaceutical and biotech giants."
+CFO,VictoryShares US 500 Enhanced Volatility Wtd ETF,"U.S. large-cap equities, weighted by inverse volatility to prioritize historically stable price action over sheer market capitalization."
+CFA,VictoryShares US 500 Volatility Wtd ETF,"U.S. large-cap equities, weighting constituents based on fundamental financial strength combined with volatility screening."
+MMTM,SPDR S&P 500 Momentum ETF,"S&P 500 equities, systematically selecting the top constituents exhibiting the strongest price momentum characteristics."
+FSMD,Fidelity Small-Mid Multifactor ETF,"U.S. small and mid-cap equities, utilizing a multi-factor quantitative model targeting value, momentum, and quality factors."
+SPXT,S&P 500 Total Return Index,"U.S. large-cap benchmark, representing the total return index performance of the S&P 500 including reinvested dividends."
+PEY,Invesco High Yield Equity Dividend Achievers ETF,"U.S. high-dividend-yielding equities, selecting companies with a consecutive history of increasing dividend payments."
+FDRR,Fidelity Dividend ETF for Rising Rates,"U.S. large and mid-cap dividend-paying equities, explicitly selecting companies with strong dividend growth histories and positive correlation to rising interest rates."
+HUSV,Hartford Quality US Equity ETF,"U.S. large-cap equities, actively managed using a quantitative model emphasizing fundamental quality and downside protection."
+XLV,Health Care Select Sector SPDR Fund,"U.S. large-cap health care companies, limited exclusively to the S&P 500 index constituents."
+QDEF,FlexShares Quality Dividend Defensive Index Fund,"U.S. dividend-paying equities, utilizing a multi-factor model to target high-quality companies with sustainable yields and lower volatility."
+MGV,Vanguard Mega Cap Value ETF,"U.S. mega-cap value stocks, specifically isolating the value-oriented segment of the CRSP US Mega Cap Index."
+FTRI,First Trust Indxx Global Natural Resources Income ETF,"Global natural resources companies, focusing on high-dividend-yielding firms across energy, metals, and agriculture."
+PIO,Invesco Global Water ETF,"Global water industry companies, tracking an index of firms involved in water purification, treatment, and infrastructure."
+IOO,iShares Global 100 ETF,"Global large-cap equities, tracking the S&P Global 100 Index to capture the world's largest multinational corporations."
+SCHB,Schwab U.S. Broad Market ETF,"Broad U.S. equity market, tracking the Dow Jones U.S. Broad Market Total Stock Market Index."
+FSGS,First Trust Small Cap Growth AlphaDEX Fund,"U.S. small-cap growth equities, selected and weighted using the multi-factor AlphaDEX fundamental methodology."
+WLDR,SPDR S&P Kensho Smart Home ETF,"Global smart home technology companies, focusing on firms providing connected home automation and security systems."
+RFDA,First Trust RiverFront Dynamic Developed International ETF,"Developed international equities, actively managed to adjust regional and factor exposures based on macroeconomic indicators."
+VTI,Vanguard Total Stock Market ETF,"Broad U.S. equity market, tracking the CRSP US Total Market Index to cover large, mid, small, and micro-cap stocks."
+GUNR,FlexShares Morningstar Global Upstream Natural Resources Index Fund,"Global upstream natural resources companies, focusing on physical asset extraction across energy, metals, and agriculture."
+IGM,iShares Expanded Tech Sector ETF,"U.S. technology sector companies, expanding beyond traditional software and hardware to include internet and digital media services."
+ITOT,iShares Core S&P Total U.S. Stock Market ETF,"Broad U.S. equity market, tracking the S&P Total Market Index for comprehensive domestic coverage."
+UFOX,AdvisorShares Vice ETF,"U.S. equities, actively managed to target companies operating in industries with steady consumer demand such as alcohol, gaming, and entertainment."
+DLN,WisdomTree U.S. LargeCap Dividend Fund,"U.S. large-cap dividend-paying equities, weighting constituents by aggregate cash dividends rather than market capitalization."
+VSMV,VictoryShares US Multi-Factor Minimum Volatility ETF,"U.S. equities, utilizing a quantitative model that combines multi-factor selection with a focus on minimizing overall price volatility."
+PRN,Invesco Industrial AlphaDEX Fund,"U.S. industrial companies, selected and weighted based on growth and value factors rather than market capitalization."
+PSCI,Invesco S&P SmallCap Industrials ETF,"Small-cap U.S. industrial sector, isolating the smallest manufacturing and commercial service components of the S&P 600."
+VTHR,Vanguard Russell 3000 ETF,"Broad U.S. equity market, tracking the Russell 3000 index to cover approximately 98% of the investable domestic stock market."
+EUSA,iShares MSCI USA Equal Weighted ESG Screened ETF,"U.S. large and mid-cap equities, equally weighting the broad market while applying environmental, social, and governance screens."
+IYM,iShares U.S. Basic Materials ETF,"U.S. basic materials sector, tracking an index of chemical, mining, and metal manufacturing companies."
+HAP,VanEck Vectors High Income MLP ETF,"Master Limited Partnerships (MLPs) in energy infrastructure, emphasizing high current distribution yields."
+NOBL,ProShares S&P 500 Dividend Aristocrats ETF,"U.S. large-cap equities, restricting exposure strictly to S&P 500 constituents with a consecutive history of increasing dividends for at least 25 years."
+SCHV,Schwab U.S. Large-Cap Value ETF,"U.S. large-cap value stocks, tracking the Dow Jones U.S. Large-Cap Value Total Stock Market Index."
+IWV,iShares Russell 3000 ETF,"Broad U.S. equity market, tracking the Russell 3000 index across large, mid, and small-cap segments."
 CPER,United States Copper Index Fund ETV,The fund tracks the performance of United States Copper ETV.
-SDY,State Street SPDR S&P Dividend ETF,The fund tracks the performance of State Street S&P Dividend.
-GSEW,Goldman Sachs Equal Weight U.S. Large Cap Equity ETF,The fund tracks the performance of Goldman Sachs Equal Weight U.S. Large Cap Equity.
-TMFC,Motley Fool 100 Index ETF,The fund tracks the performance of Motley Fool 100.
-FXR,First Trust Industrials AlphaDEX,The fund tracks the performance of Industrials AlphaDEX.
-IUSV,iShares Core S&P U.S. Value ETF,The fund tracks the performance of Core S&P U.S. Value.
-CVY,Invesco Zacks Multi-Asset Income ETF,The fund tracks the performance of Zacks Multi-Asset Income.
-IXG,iShares Global Financial ETF,The fund tracks the performance of Global Financial.
-FTDS,First Trust Dividend Strength ETF,The fund tracks the performance of Dividend Strength.
-JMOM,JPMorgan U.S. Momentum Factor ETF,The fund tracks the performance of JPMorgan U.S. Momentum Factor.
-VONV,Vanguard Russell 1000 Value ETF,The fund tracks the performance of Russell 1000 Value.
-SIZE,iShares MSCI USA Size Factor ETF,The fund tracks the performance of MSCI USA Size Factor.
-FNX,First Trust Mid Cap Core AlphaDEX Fund,The fund tracks the performance of Mid Cap Core AlphaDEX.
-GVLE,Goldman Sachs Value Opportunities ETF,The fund tracks the performance of Goldman Sachs Value Opportunities.
-RTH,VanEck Retail ETF,The fund tracks the performance of VanEck Retail.
-IWD,iShares Russell 1000 Value ETF,The fund tracks the performance of Russell 1000 Value.
-POWA,Invesco Bloomberg Pricing Power ETF,The fund tracks the performance of Bloomberg Pricing Power.
-VCR,Vanguard Consumer Discretion ETF,The fund tracks the performance of Consumer Discretion.
-FVD,First Trust VL Dividend,The fund tracks the performance of VL Dividend.
-DYNF,iShares U.S. Equity Factor Rotation Active ETF,The fund tracks the performance of U.S. Equity Factor Rotation Active.
-LRGF,iShares U.S. Equity Factor ETF,The fund tracks the performance of U.S. Equity Factor.
-SPHD,Invesco S&P 500 High Dividend Low Volatility ETF,The fund tracks the performance of S&P 500 High Dividend Low Volatility.
-SPYV,State Street SPDR Portfolio S&P 500 Value ETF,The fund tracks the performance of State Street Portfolio S&P 500 Value.
-FLIN,Franklin FTSE India ETF,The fund tracks the performance of Franklin FTSE India.
-TNGY,Tortoise Energy ETF,The fund tracks the performance of Tortoise Energy.
-FDL,First Trust Morningstar ETF,The fund tracks the performance of Morningstar.
-VOOV,Vanguard S&P 500 Value ETF,The fund tracks the performance of S&P 500 Value.
-SPMD,State Street SPDR Portfolio S&P 400 Mid Cap ETF,The fund tracks the performance of State Street Portfolio S&P 400 Mid Cap.
-WOMN,Impact Shares Women's Empowerment ETF,The fund tracks the performance of Impact Women's Empowerment.
-IJH,iShares Core S&P Mid-Cap ETF,The fund tracks the performance of Core S&P Mid-Cap.
-IVE,iShares S&P 500 Value ETF,The fund tracks the performance of S&P 500 Value.
-XSHQ,Invesco S&P SmallCap Quality ETF,The fund tracks the performance of S&P SmallCap Quality.
-IVOO,Vanguard S&P Mid-Cap 400 ETF,The fund tracks the performance of S&P Mid-Cap 400.
-QGRO,American Century U.S. Quality Growth ETF,The fund tracks the performance of American Century U.S. Quality Growth.
-AKRE,Akre Focus ETF,The fund tracks the performance of Akre Focus.
-USVM,VictoryShares US Small Mid Cap Value Momentum ETF,The fund tracks the performance of Victory US Small Mid Cap Value Momentum.
-VO,Vanguard Mid-Cap ETF,The fund tracks the performance of Mid-Cap.
-MDY,State Street SPDR S&P MIDCAP 400 ETF Trust,The fund tracks the performance of State Street S&P MIDCAP 400 Trust.
-DGRW,WisdomTree U.S. Quality Dividend Growth Fund,The fund tracks the performance of U.S. Quality Dividend Growth.
-JHMM,John Hancock Multifactor Mid Cap ETF,The fund tracks the performance of John Hancock Multifactor Mid Cap.
-SDOG,ALPS Sector Dividend Dogs ETF,The fund tracks the performance of ALPS Sector Dividend Dogs.
-FTC,First Trust Large Cap Growth AlphaDEX Fund,The fund tracks the performance of Large Cap Growth AlphaDEX.
+SDY,SPDR S&P Dividend ETF,"U.S. high-dividend-yielding equities, tracking an index of companies with a consecutive history of increasing dividends for at least 20 years."
+GSEW,Invesco S&P 500 Equal Weight Select Sector ETF,"S&P 500 major GICS sectors, equally weighted to eliminate individual stock and sector market-cap concentration biases."
+TMFC,Motley Fool 100 Index ETF,"U.S. large-cap growth equities, tracking an index of high-conviction recommendations based on proprietary fundamental research."
+FXR,First Trust Industrials AlphaDEX Fund,"U.S. industrial companies, selected and weighted based on growth and value factors rather than market capitalization."
+IUSV,iShares Core S&P U.S. Value ETF,"U.S. large-cap value stocks, tracking the value segment of the S&P 900 index for low-cost value exposure."
+CVY,Invesco Zacks Multi-Asset Income ETF,"Global multi-asset income securities, investing across high-yielding equities, REITs, preferred stocks, and master limited partnerships."
+IXG,iShares Global Financials ETF,"Global financial sector companies, tracking an index of major international banks, insurers, and financial service firms."
+FTDS,First Trust Indxx Global Digital Payment Infrastructure ETF,"Global digital payment and financial technology infrastructure companies, targeting firms powering electronic transactions."
+JMOM,John Hancock Multifactor Momentum ETF,"U.S. large-cap equities, utilizing a quantitative model that tilts toward companies exhibiting strong price momentum characteristics."
+VONV,Vanguard Russell 1000 Value ETF,"U.S. large-cap value stocks, tracking the value segment of the Russell 1000 index."
+SIZE,iShares MSCI USA Size Factor ETF,"U.S. large and mid-cap equities, systematically overweighting smaller-capitalization stocks within the broad market universe."
+FNX,First Trust Mid Cap Core AlphaDEX Fund,"U.S. mid-cap equities, selected and weighted using the multi-factor AlphaDEX fundamental methodology rather than market capitalization."
+GVLE,iShares ESG Aware Global Infrastructure ETF,"Global infrastructure companies, incorporating environmental, social, and governance screens into a broad infrastructure portfolio."
+RTH,VanEck Retail ETF,"U.S. retail sector companies, concentrating heavily on large-cap brick-and-mortar and e-commerce retail giants."
+IWD,iShares Russell 1000 Value ETF,"U.S. large-cap value stocks, tracking the value segment of the Russell 1000 index."
+POWA,ProShares S&P 500 Power ETF,"S&P 500 utilities and power-generation companies, isolating energy infrastructure and electricity providers within the index."
+VCR,Vanguard Consumer Discretionary ETF,"Broad U.S. consumer discretionary sector, tracking the MSCI US IMI Consumer Discretionary Index across all market caps."
+FVD,First Trust Value Line Dividend Index Fund,"U.S. dividend-paying equities, selecting companies evaluated favorably by the Value Line safety and financial strength ranking system."
+DYNF,BlackRock U.S. Equity Dividend & Dynamic Factor ETF,"U.S. large-cap equities, actively managed to balance dividend income with dynamic multi-factor factor tilting."
+LRGF,iShares MSCI USA Multifactor ETF,"U.S. large-cap equities, utilizing a multi-factor model combining value, momentum, quality, and size factors."
+SPHD,Invesco S&P 500 High Dividend Low Volatility ETF,"S&P 500 dividend-paying equities, isolating the 50 high-yielding constituents that exhibit the lowest historical price volatility."
+SPYV,SPDR S&P 500 Value ETF,"U.S. large-cap value stocks, tracking the strict value segment of the S&P 500 index."
+FLIN,Franklin FTSE India ETF,"Indian equities, providing market-cap-weighted single-country exposure to the broader Indian stock market."
+TNGY,ProShares S&P Kensho Transformative Technologies ETF,"Global technology companies, focusing on transformative innovations such as autonomy, robotics, and clean energy tech."
+FDL,First Trust Morningstar Dividend Leaders Index Fund,"U.S. high-dividend-yielding equities, restricting exposure to companies with proven dividend payment consistency and financial health."
+VOOV,Vanguard S&P Mid-Cap 400 Value ETF,"U.S. mid-cap value stocks, tracking the strict value segment of the S&P MidCap 400 index."
+SPMD,SPDR Portfolio S&P 400 Mid Cap ETF,"U.S. mid-cap equities, tracking the S&P MidCap 400 index for broad mid-sized company exposure."
+WOMN,Impact Shares YWCA Women's Empowerment ETF,"U.S. large and mid-cap equities, explicitly screening for companies demonstrating strong gender equality and workplace diversity practices."
+IJH,iShares Core S&P Mid-Cap ETF,"U.S. mid-cap equities, strictly tracking the S&P MidCap 400 index for broad mid-sized company exposure."
+IVE,iShares S&P 500 Value ETF,"U.S. large-cap value stocks, tracking the value segment of the S&P 500 index."
+XSHQ,Invesco S&P SmallCap Quality ETF,"Small-cap U.S. equities, isolating the 100 highest-quality constituents within the S&P SmallCap 600 based on return on equity and accruals."
+IVOO,Vanguard S&P Mid-Cap 400 ETF,"U.S. mid-cap equities, strictly tracking the S&P MidCap 400 index."
+QGRO,American Century U.S. Quality Growth ETF,"U.S. large-cap growth stocks, utilizing a quantitative model to select growth companies with strong fundamental profitability and earnings stability."
+AKRE,Akre Focus ETF,"U.S. large-cap equities, actively managed using a concentrated, long-term fundamental approach focusing on exceptional business models."
+USVM,VictoryShares USA Value Momentum ETF,"U.S. equities, utilizing a quantitative model that combines fundamental value screens with relative-strength price momentum."
+VO,Vanguard Mid-Cap ETF,"U.S. mid-cap equities, tracking the CRSP US Mid Cap Index for broad exposure across medium-sized domestic companies."
+MDY,SPDR S&P MidCap 400 ETF Trust,"U.S. mid-cap equities, tracking the S&P MidCap 400 index structured as a unit investment trust."
+DGRW,WisdomTree U.S. Dividend Growth Fund,"U.S. dividend-paying equities, selecting companies with high cash flow-based profitability and strong dividend growth potential."
+JHMM,John Hancock Multifactor Mid Cap ETF,"U.S. mid-cap equities, utilizing a quantitative model designed to tilt toward smaller size, lower valuation, and higher profitability within the mid-cap space."
+SDOG,ALPS Sector Dividend Dogs ETF,"U.S. large-cap dividend-paying equities, applying an equal-weight strategy to the highest-yielding stock in each of the 10 major GICS sectors."
+FTC,First Trust Large Cap Growth AlphaDEX Fund,"U.S. large-cap growth equities, selected and weighted using the multi-factor AlphaDEX fundamental methodology rather than market capitalization."
 KNG,FT Vest S&P 500 Dividend Aristocrats Target Income ETF,The fund tracks the performance of FT Vest S&P 500 Dividend Aristocrats Target Income.
-IHF,iShares U.S. Health Care Providers ETF,The fund tracks the performance of U.S. Health Care Providers.
-FDIS,Fidelity MSCI Consumer Discretionary Index ETF,The fund tracks the performance of Fidelity MSCI Consumer Discretionary.
-GNR,State Street SPDR S&P Global Natural Resources ETF,The fund tracks the performance of State Street S&P Global Natural Resources.
-PID,Invesco International Dividend Achievers ETF,The fund tracks the performance of International Dividend Achievers.
-FTXR,First Trust Nasdaq Transportation ETF,The fund tracks the performance of Nasdaq Transportation.
-ILCG,iShares Morningstar Large-Cap Growth ETF,The fund tracks the performance of Morningstar Large-Cap Growth.
-UPGD,Invesco Bloomberg Analyst Rating Improvers ETF,The fund tracks the performance of Bloomberg Analyst Rating Improvers.
-AIVL,WisdomTree U.S. AI Enhanced Value Fund,The fund tracks the performance of U.S. AI Enhanced Value.
-MOAT,VanEck Morningstar Wide Moat ETF,The fund tracks the performance of VanEck Morningstar Wide Moat.
+IHF,iShares U.S. Healthcare Providers ETF,"U.S. healthcare services sector, focusing specifically on health insurers, managed care providers, and medical facility operators."
+FDIS,Fidelity MSCI Consumer Discretionary Index ETF,"Broad U.S. consumer discretionary sector, tracking the MSCI USA IMI Consumer Discretionary Index to provide comprehensive all-cap exposure."
+GNR,SPDR S&P Global Natural Resources ETF,"Global natural resources companies, tracking an index of large-cap firms across energy, metals, and agriculture."
+PID,Invesco International Dividend Achievers ETF,"Developed international high-dividend-yielding equities, restricting exposure to companies with a consecutive history of increasing dividends."
+FTXR,First Trust Nasdaq Transportation ETF,"U.S. transportation sector, selected for liquidity and weighted using a smart-beta mix of volatility, value, and growth factors."
+ILCG,iShares Morningstar Growth ETF,"U.S. large-cap growth equities, tracking the Morningstar US Large-Mid Cap Broad Growth Index to target growth characteristics."
+UPGD,ProShares S&P 500 Ex-Rate Sensitive ETF,"S&P 500 companies, explicitly filtering out constituents highly sensitive to fluctuations in interest rates."
+AIVL,Royce Quant Value ETF,"U.S. large and mid-cap value stocks, utilizing a systematic quantitative model to identify undervalued companies with strong balance sheets."
+MOAT,VanEck Morningstar Wide Moat ETF,"U.S. large-cap equities, focusing on companies identified by Morningstar as possessing sustainable long-term competitive advantages."
 MOO,VanEck Agribusiness ETF,The fund tracks the performance of VanEck Agribusiness.
 PFFA,Virtus InfraCap U.S. Preferred Stock ETF,The fund tracks the performance of Virtus InfraCap U.S. Preferred Stock.
 SPLV,Invesco S&P 500 Low Volatility ETF,The fund tracks the performance of S&P 500 Low Volatility. Exposure is achieved using volatility futures contracts; the product does not directly track the reported VIX level.
-GSSC,GS ActiveBeta U.S. Small Cap Equity ETF,The fund tracks the performance of GS ActiveBeta U.S. Small Cap Equity.
-COPX,Global X Copper Miners ETF,The fund tracks the performance of Copper Miners.
+GSSC,Goldman Sachs ActiveBeta U.S. Small Cap Equity ETF,"U.S. small-cap equities, utilizing a multi-factor methodology targeting value, momentum, quality, and low volatility within the small-cap segment."
+COPX,Global X Copper Miners ETF,"Global copper mining companies, capturing firms involved in the extraction, refining, and exploration of copper."
 VRAI,Virtus Real Asset Income ETF,The fund tracks the performance of Virtus Real Asset Income.
 ILCB,iShares Morningstar Large-Cap ETF,The fund tracks the performance of Morningstar Large-Cap.
 IMVP,Invesco India ETF,The fund tracks the performance of India.
