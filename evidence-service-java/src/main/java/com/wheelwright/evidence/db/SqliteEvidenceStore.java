@@ -158,6 +158,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
         if (resolution == null) return;
 
         String now = Instant.now().toString();
+        String sessionDate = currentSessionDate();
         String resolutionStatus = resolution.get("resolution");
         String currentType = "pending".equals(resolutionStatus) ? "expirations" : "chain";
         String expiration = "chain".equals(currentType)
@@ -208,12 +209,17 @@ public class SqliteEvidenceStore implements AutoCloseable {
             }
         }
 
-        // Mark failed if threshold reached
+        // Mark failed if threshold reached or re-confirmed; update session_date
+        // to record the epoch of the most recent failure attempt.
+        // For recovery probes: this advances session_date to today, suppressing
+        // further probes this session. For same-session progression: session_date
+        // is already today (set by prior successful resolution), so this is a no-op.
         int newCount = (existingFailureCount >= 0 ? existingFailureCount : 0) + 1;
         if (newCount >= 3) {
             try (PreparedStatement ps = conn.prepareStatement(
-                    "UPDATE symbol_resolution SET resolution = 'failed' WHERE symbol = ?")) {
-                ps.setString(1, symbol);
+                    "UPDATE symbol_resolution SET resolution = 'failed', session_date = ? WHERE symbol = ?")) {
+                ps.setString(1, sessionDate);
+                ps.setString(2, symbol);
                 ps.executeUpdate();
             }
         }
@@ -544,7 +550,9 @@ public class SqliteEvidenceStore implements AutoCloseable {
      *   Class C: Lifecycle work (pending, partial, current-epoch retriable failed)
      *   Class D: Absent symbols from prior epoch
      *
-     * Preserves the known omission: prior-epoch failed symbols are NOT included.
+     * Prior-epoch failed symbols receive one recovery probe per new session.
+     * If the probe succeeds, normal lifecycle restores them. If it fails,
+     * session_date is updated to today, suppressing further probes this session.
      */
     public List<PrioritizedWorkItem> getPrioritizedWorkQueue(SchedulerConfig config) throws SQLException {
         return getPrioritizedWorkQueue(config, currentSessionDate());
@@ -610,7 +618,8 @@ public class SqliteEvidenceStore implements AutoCloseable {
             }
         }
 
-        // Add lifecycle work (Class C): pending, partial, current-epoch retriable failed
+        // Add lifecycle work (Class C): pending, partial, current-epoch retriable failed,
+        // AND prior-epoch failed symbols eligible for one recovery probe per new session.
         try (PreparedStatement ps = conn.prepareStatement("""
                 SELECT sr.symbol FROM symbol_resolution sr
                 WHERE sr.resolution IN ('pending', 'partial')
@@ -619,8 +628,10 @@ public class SqliteEvidenceStore implements AutoCloseable {
                      WHERE e.symbol = sr.symbol
                      ORDER BY e.last_attempt_at DESC LIMIT 1
                    ) < 3)
+                   OR (sr.resolution = 'failed' AND (sr.session_date IS NULL OR sr.session_date != ?))
             """)) {
             ps.setString(1, sessionDate);
+            ps.setString(2, sessionDate);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     results.add(new PrioritizedWorkItem(rs.getString("symbol"), "C", Long.MAX_VALUE, true, false));
@@ -899,9 +910,12 @@ public class SqliteEvidenceStore implements AutoCloseable {
 
     /**
      * Override the session date for testing. Pass null to restore default behavior.
-     * Package-private — test-only seam. Production code should not call this.
+     *
+     * Test seam: allows deterministic epoch control in tests that verify
+     * multi-session lifecycle behavior (e.g., recovery probes, prior-epoch
+     * classification). Not intended for production use.
      */
-    void setSessionDateOverride(String sessionDate) {
+    public void setSessionDateOverride(String sessionDate) {
         this.sessionDateOverride = sessionDate;
     }
 

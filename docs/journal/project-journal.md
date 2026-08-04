@@ -4914,3 +4914,60 @@ The retooling charter states completion when `find <backend-folder> -type f -nam
 ### Result
 
 Java is the sole evidence backend. The repository contains one backend implementation, one evidence store, one startup script, and one test suite for the evidence appliance.
+
+---
+
+## 2026-08-04 — Recovery Probe Policy for Prior-Epoch Failed Symbols
+
+### Context
+
+During live-market observation on Aug 4, we discovered that 196 symbols were permanently stranded at `failed` status. All shared the same failure reason: `"Tradier API key not configured"` — a transient credential misconfiguration from Aug 3 that was subsequently resolved.
+
+The existing scheduler excluded prior-epoch failed symbols from the work queue entirely. This was documented in code as a "known omission." The consequence: a single transient infrastructure outage could permanently remove valid symbols from future acquisition with no recovery path and no operator alert.
+
+### Policy Decision
+
+**Prior-epoch failed symbols receive exactly one recovery probe per new session.**
+
+Invariants:
+- Same-session failure suppression remains bounded by the existing 3-attempt threshold.
+- A failed symbol is NOT permanently disqualified.
+- A prior-epoch failed symbol receives exactly one recovery probe in each new session.
+- If the probe succeeds, the existing `setExpirations()` / `setChain()` lifecycle naturally restores it toward `partial` / `ready`.
+- If the probe fails, `session_date` advances to today, suppressing further probes for the rest of that session.
+- Prior failure history (`failure_count`) is preserved and incremented — never reset merely because the session changed.
+- The symbol becomes eligible for another single probe in the next session.
+
+### Implementation
+
+- Modified `getPrioritizedWorkQueue()` Class C SQL to include: `OR (sr.resolution = 'failed' AND (sr.session_date IS NULL OR sr.session_date != ?))`
+- Modified `setFailure()` to update `symbol_resolution.session_date` when `failure_count >= 3` (threshold reached or re-confirmed). This marks the probe's epoch without redefining `session_date` semantics for other resolution states.
+- No new schema columns. No exponential backoff. No reason-specific policy.
+
+### session_date Semantic Clarification
+
+`symbol_resolution.session_date` meaning by resolution state:
+- **ready / partial / absent**: session in which the symbol was last successfully resolved (set by `setExpirations()` / `setChain()`)
+- **failed**: session in which the failure threshold was reached or most recently re-confirmed (set by `setFailure()` at threshold)
+
+These meanings do not collide because the work queue reads `session_date` through resolution-state-specific SQL conditions.
+
+### Alternatives Considered
+
+- **Full epoch reset** (reset failure_count to 0 on each new session): rejected because it erases failure history and gives every failed symbol a fresh 3-attempt budget.
+- **Exponential backoff with new schema**: rejected as unnecessary complexity for the first increment.
+- **Reason-specific retry policy**: deferred — failure reasons are currently unstructured strings. The probe is unconditional; if conditions have changed, it succeeds naturally.
+
+### Operational Note
+
+The 196 stranded symbols from Aug 3 will self-heal on the next service restart (when the new session_date != their stored session_date). Each will receive one probe; if the credential is configured correctly, all 196 will return to `ready` within a single acquisition cycle (~10 minutes at 196 probes × 1 call/sec).
+
+### Live-Market Evidence (Aug 4)
+
+Validated during the open session:
+- Ready-symbol observations refreshed on ~15-minute cycles
+- Evidence generation advanced continuously (5360→5585 over ~80 minutes)
+- Prices moved with real market activity (IWM, GDX, SLV, EEM all observed price changes)
+- Preserved observations on failed symbols remained available for the quotes endpoint
+- Moneyness input path computed correctly against live prices
+- Session gate would have blocked at 20:16 UTC (4:16 PM ET) — we stopped observing at 20:14 UTC, 2 minutes before the transition
