@@ -376,6 +376,131 @@ public class SqliteEvidenceStore implements AutoCloseable {
         return "\"gen-" + getGeneration() + "\"";
     }
 
+    // --- Selective Quote Observations ---
+
+    /**
+     * Check whether all given symbols exist in the canonical universe.
+     * Returns the list of symbols NOT found (empty if all valid).
+     */
+    public List<String> findUnknownSymbols(List<String> symbols) throws SQLException {
+        List<String> unknown = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT 1 FROM symbols WHERE symbol = ? AND removed_at IS NULL")) {
+            for (String symbol : symbols) {
+                ps.setString(1, symbol);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        unknown.add(symbol);
+                    }
+                }
+                ps.clearParameters();
+            }
+        }
+        return unknown;
+    }
+
+    /**
+     * Get quote observations for specific symbols.
+     *
+     * Returns a list of maps, one per symbol, each containing:
+     * - symbol: uppercase ticker
+     * - price: Double or null (from chain.underlying.price in stored chain JSON)
+     * - observedAt: String or null (chain row retrieved_at — when price was successfully observed)
+     * - status: String (resolution mapped to snapshot vocabulary)
+     * - lastAttemptAt: String or null (chain row last_attempt_at)
+     * - failureCount: int (chain row failure_count)
+     *
+     * Observation fields (price, observedAt) come from the chain evidence row
+     * matching the symbol's primary expiration. A failed acquisition preserves
+     * the prior successful observation.
+     *
+     * Caller must ensure all symbols are in the canonical universe.
+     */
+    public List<Map<String, Object>> getQuoteObservations(List<String> symbols) throws SQLException {
+        List<Map<String, Object>> results = new ArrayList<>();
+
+        for (String symbol : symbols) {
+            Map<String, String> resolution = getResolution(symbol);
+            if (resolution == null) continue;
+
+            String status = mapResolutionToStatus(resolution.get("resolution"));
+            String primaryExpiration = resolution.get("primary_expiration");
+
+            Double price = null;
+            String observedAt = null;
+            String lastAttemptAt = null;
+            int failureCount = 0;
+
+            // Query chain evidence row for primary expiration
+            if (primaryExpiration != null) {
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "SELECT data, retrieved_at, last_attempt_at, failure_count FROM evidence WHERE symbol = ? AND evidence_type = 'chain' AND expiration = ?")) {
+                    ps.setString(1, symbol);
+                    ps.setString(2, primaryExpiration);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            String chainJson = rs.getString("data");
+                            observedAt = rs.getString("retrieved_at");
+                            lastAttemptAt = rs.getString("last_attempt_at");
+                            failureCount = rs.getInt("failure_count");
+
+                            // Extract underlying.price from chain JSON
+                            if (chainJson != null) {
+                                price = extractUnderlyingPrice(chainJson);
+                            }
+                        }
+                    }
+                }
+            }
+
+            Map<String, Object> entry = new LinkedHashMap<>();
+            entry.put("symbol", symbol);
+            entry.put("price", price);
+            entry.put("observedAt", observedAt);
+            entry.put("status", status);
+            entry.put("lastAttemptAt", lastAttemptAt);
+            entry.put("failureCount", failureCount);
+            results.add(entry);
+        }
+
+        return results;
+    }
+
+    /**
+     * Extract "underlying.price" from a chain JSON blob.
+     * Minimal parsing — finds "underlying":{..."price":<number>...}
+     */
+    private static Double extractUnderlyingPrice(String chainJson) {
+        // Find "underlying": then "price": within that object
+        int underlyingIdx = chainJson.indexOf("\"underlying\"");
+        if (underlyingIdx < 0) return null;
+
+        int priceIdx = chainJson.indexOf("\"price\"", underlyingIdx);
+        if (priceIdx < 0) return null;
+
+        // Find the colon after "price"
+        int colonIdx = chainJson.indexOf(':', priceIdx + 7);
+        if (colonIdx < 0) return null;
+
+        // Extract the number
+        int start = colonIdx + 1;
+        while (start < chainJson.length() && Character.isWhitespace(chainJson.charAt(start))) start++;
+
+        int end = start;
+        while (end < chainJson.length()) {
+            char c = chainJson.charAt(end);
+            if (c == ',' || c == '}' || c == ']' || Character.isWhitespace(c)) break;
+            end++;
+        }
+
+        if (end <= start) return null;
+        try {
+            return Double.parseDouble(chainJson.substring(start, end));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     /**
      * Get all active symbols.
      */
