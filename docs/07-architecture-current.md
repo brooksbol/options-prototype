@@ -7,7 +7,7 @@
 
 ## Implementation Status
 
-This document describes the current target architecture of Wheelwright. The Java backend is substantially implemented and is the primary runtime architecture. Final retooling acceptance remains pending; the TypeScript backend is retained as the behavioral reference until acceptance criteria are satisfied and retirement is approved.
+This document describes the current architecture of Wheelwright. The Java backend is the sole operational evidence appliance (live-market acceptance recorded August 3, 2026). The TypeScript backend has been retired.
 
 ---
 
@@ -376,4 +376,4 @@ This document supersedes the earlier version that described browser-owned acquis
 | Puts only | Puts and Calls |
 | Bid-based yield | Midpoint-based yield |
 
-The TypeScript backend (`evidence-service/`) remains the behavioral reference during Java retooling acceptance. It implements the same API contract and can be used interchangeably.
+The TypeScript backend (`evidence-service/`) has been retired after successful Java retooling acceptance (August 3, 2026). The Java backend is the sole evidence appliance.

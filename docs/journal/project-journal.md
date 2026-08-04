@@ -4876,3 +4876,41 @@ Java retooling acceptance is complete. All six charter criteria are demonstrated
 - TypeScript retirement: a separate subsequent step (delete `evidence-service/`, update scripts/docs)
 - Cloud deployment: sequenced after TypeScript retirement
 - The retooling charter's literal completion criterion (`find <backend-folder> -type f -name "*.ts"` returns no output) requires TypeScript removal, which is retirement — not acceptance
+
+---
+
+## TypeScript Backend Retirement
+
+**Date:** August 3, 2026
+
+### What happened
+
+The TypeScript evidence backend (`evidence-service/`) was removed from the repository after:
+
+1. Java live-market acceptance was recorded (commit `2a429d4`)
+2. Durable assets were relocated to Wheelwright-owned `data/` directory (commit `b96f701`)
+3. Java was verified to operate independently of the old directory (operational migration: stop → copy → restart → independence test)
+4. Test fixture date-rot was repaired (commit `00d2012`)
+
+### Retooling charter criterion
+
+The retooling charter states completion when `find <backend-folder> -type f -name "*.ts"` returns no output. With `evidence-service/` removed, no TypeScript source exists in the backend implementation scope.
+
+### What was preserved
+
+- Universe seed: relocated to `data/seeds/yahoo-merged-etf-tickers.csv` (git-tracked)
+- Evidence database: relocated to `data/evidence.sqlite3` (runtime, git-ignored)
+- API credential convention: root `.env` sourced by `scripts/dev.sh`
+- All evidence accumulated over the project's lifetime remains in the relocated SQLite store
+
+### What was removed
+
+- `evidence-service/src/` — 15 TypeScript source files
+- `evidence-service/tests/` — 18 test files (144 tests)
+- `evidence-service/package.json`, `package-lock.json`, `tsconfig.json`, `vitest.config.ts`
+- `evidence-service/.gitignore`
+- `evidence-service/data/test-import/`
+
+### Result
+
+Java is the sole evidence backend. The repository contains one backend implementation, one evidence store, one startup script, and one test suite for the evidence appliance.

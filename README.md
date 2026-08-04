@@ -18,9 +18,9 @@ The objective is to build an observable system that continuously produces eviden
 | Component | Status |
 |-----------|--------|
 | Frontend (options-prototype) | ✅ Operational — puts and calls |
-| TypeScript backend (evidence-service) | ✅ Operational — live-market acceptance recorded July 27, 2026 |
+| TypeScript backend (evidence-service) | Retired — removed after Java acceptance |
 | Java backend (evidence-service-java) | ✅ Operational — live-market acceptance recorded August 3, 2026 |
-| Migration status | Java accepted; TypeScript retirement is a separate subsequent step |
+| Migration status | Complete — Java is the sole evidence backend |
 | Architecture documentation | ✅ Ratified |
 | Behavioral invariants | ✅ Ratified (18 total; 16 satisfied, 2 pending Java completion) |
 | Snapshot contract v1 | ✅ Frozen |
@@ -56,15 +56,9 @@ The frontend proxies `/api/*` requests to the backend at `localhost:3100` automa
 - Node.js (via nvm)
 - `TRADIER_API_KEY` environment variable
 
-## Alternative: TypeScript backend (behavioral reference)
+## Alternative: TypeScript backend (retired)
 
-The TypeScript backend at `evidence-service/` remains the behavioral reference until retooling acceptance is complete. It can be started instead of the Java backend:
-
-```bash
-cd evidence-service && npm run dev
-```
-
-Both backends serve on port 3100 with identical API contracts. Only one should run at a time.
+The TypeScript backend has been retired after successful Java retooling acceptance (August 3, 2026). It is no longer present in the repository.
 
 ---
 
@@ -111,9 +105,9 @@ evidence-service-java/            Java backend (Spring Boot, Java 21, SQLite)
     build.gradle.kts              Gradle build (Kotlin DSL, Java 21 toolchain)
     gradlew                       Gradle Wrapper (canonical build entry point)
 
-evidence-service/                 TypeScript backend (behavioral reference, pending retirement)
-    src/                          Express server, acquisition worker, SQLite persistence
-    tests/                        Vitest behavioral and contract tests (144 tests)
+data/                             Wheelwright-owned durable assets
+    seeds/                        Canonical universe seed CSV
+    evidence.sqlite3              Runtime evidence store (not tracked)
     data/                         SQLite database and canonical seed files
 
 options-prototype/                React frontend (Vite, TypeScript)
@@ -215,16 +209,13 @@ java -version        # Temurin 21.x
 
 ```bash
 # Java backend (146 tests)
-cd evidence-service-java && ./gradlew test
+cd evidence-service-java && ./gradlew clean test
 
-# TypeScript backend (144 tests)
-cd evidence-service && npm test
-
-# Frontend (968 tests)
-cd options-prototype && npm test
+# Frontend (1051+ tests)
+cd options-prototype && npx vitest run
 ```
 
-Total: **1,258 tests** across all three suites.
+Total: **1,197+ tests** across both suites.
 
 ---
 
