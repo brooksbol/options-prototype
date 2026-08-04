@@ -104,8 +104,25 @@ function ExpirationRungRow({ rung, totalCapital }: { rung: ExpirationRung; total
 
 // --- Treemap Rung (d3-hierarchy packing) ---
 
-/** Fixed rung content height — preserves current vertical budget. */
-const RUNG_CONTENT_HEIGHT = 120;
+/**
+ * Minimum tile height for readable content (badge + symbol + detail line + padding).
+ * Minimum tile width estimate — used to compute how many rows are needed.
+ * A higher MIN_TILE_WIDTH means fewer tiles per row → more rows → taller rung.
+ */
+const MIN_TILE_HEIGHT = 90;
+const MIN_TILE_WIDTH = 200;
+
+/**
+ * Compute rung height from position count and container width.
+ * Ensures every tile gets at least MIN_TILE_HEIGHT pixels by
+ * estimating how many rows the treemap will produce.
+ */
+function computeRungHeight(positionCount: number, containerWidth: number): number {
+  if (positionCount === 0 || containerWidth === 0) return 60;
+  const tilesPerRow = Math.max(1, Math.floor(containerWidth / MIN_TILE_WIDTH));
+  const rows = Math.ceil(positionCount / tilesPerRow);
+  return Math.max(80, rows * MIN_TILE_HEIGHT);
+}
 
 interface TreemapNode {
   position: MonitoredPosition;
@@ -132,14 +149,14 @@ function TreemapRung({ positions }: { positions: MonitoredPosition[] }) {
     return () => observer.disconnect();
   }, [measure]);
 
-  // Build treemap layout when we have a measured width
-  const nodes = width > 0 ? computeTreemapLayout(positions, width, RUNG_CONTENT_HEIGHT) : [];
+  const rungHeight = computeRungHeight(positions.length, width);
+  const nodes = width > 0 ? computeTreemapLayout(positions, width, rungHeight) : [];
 
   return (
     <div
       ref={containerRef}
       className="oc-rung-treemap"
-      style={{ height: RUNG_CONTENT_HEIGHT, position: "relative" }}
+      style={{ height: rungHeight, position: "relative" }}
     >
       {nodes.map((node) => (
         <PositionTile key={node.position.id} node={node} />
@@ -161,17 +178,11 @@ function computeTreemapLayout(
   containerWidth: number,
   containerHeight: number
 ): LayoutNode[] {
-  const containerArea = containerWidth * containerHeight;
-
-  // --- Value compression + minimum enforcement ---
+  // --- Value compression ---
   // Raw capital values can span 36:1 ratios, causing the squarified algorithm
   // to produce slivers for mid-range tiles squeezed between giants.
-  // Strategy: compress via sqrt to narrow the ratio while preserving ordering,
-  // then clamp to a minimum that guarantees readable geometry.
-  //
-  // sqrt(109200) / sqrt(3000) ≈ 6:1 vs raw 36:1
-  // This preserves perceptual ranking without producing extreme slivers.
-  const MIN_TILE_AREA = 2500;
+  // sqrt compression narrows this to ~6:1 while preserving ordering.
+  // No minimum area enforcement needed — container is sized for content.
 
   // Raw values
   const rawValues = positions.map((p) =>
@@ -181,19 +192,10 @@ function computeTreemapLayout(
   // Compress: sqrt preserves ordering, narrows range
   const compressedValues = rawValues.map((v) => Math.sqrt(v));
 
-  // Compute minimum compressed value to guarantee MIN_TILE_AREA
-  const compressedTotal = compressedValues.reduce((s, v) => s + v, 0);
-  let minVal = (MIN_TILE_AREA / containerArea) * compressedTotal;
-  let clampedValues = compressedValues.map((v) => Math.max(v, minVal));
-  let clampedTotal = clampedValues.reduce((s, v) => s + v, 0);
-  // Second pass refines
-  minVal = (MIN_TILE_AREA / containerArea) * clampedTotal;
-  clampedValues = compressedValues.map((v) => Math.max(v, minVal));
-
   // Build a flat hierarchy: root → children (one per position)
   const children: TreemapNode[] = positions.map((p, i) => ({
     position: p,
-    value: clampedValues[i],
+    value: compressedValues[i],
   }));
 
   const root = hierarchy<{ children: TreemapNode[] } | TreemapNode>({ children })
@@ -256,63 +258,27 @@ function PositionTile({ node }: { node: LayoutNode }) {
     boxSizing: "border-box",
   };
 
-  // Progressive disclosure tiers.
-  // Principle: prefer compact reformatting before omission, never clip.
-  // Background carries put/call; border carries state; area carries capital magnitude.
-  // Text carries identity and numeric detail.
-  const tier = getTileTier(w, h);
+  // All tiles use vertical stacked layout — one data point per line.
+  // Font size scales with tile area to use available space proportionally.
+  const area = w * h;
+  const fontSize = area > 40000 ? 14 : area > 20000 ? 12 : area > 8000 ? 10 : 9;
 
   return (
     <div
-      className={`oc-tile oc-tile-${position.type} oc-tile-state-${visualState} oc-tile-tier-${tier}`}
-      style={style}
+      className={`oc-tile oc-tile-${position.type} oc-tile-state-${visualState}`}
+      style={{ ...style, fontSize }}
     >
-      {tier === "large" && (
-        <>
-          <span className="oc-tile-badge">{position.type === "put" ? "P" : "C"}</span>
-          <span className="oc-tile-symbol">{position.underlying}</span>
-          <span className="oc-tile-strike">${position.strike}</span>
-          {position.encumberedCapital != null && (
-            <span className="oc-tile-capital">${(position.encumberedCapital / 1000).toFixed(1)}K</span>
-          )}
-          {position.quantity > 1 && (
-            <span className="oc-tile-qty">×{position.quantity}</span>
-          )}
-        </>
+      <span className="oc-tile-badge">{position.type === "put" ? "PUT" : "CALL"}</span>
+      <span className="oc-tile-symbol">{position.underlying}</span>
+      <span className="oc-tile-strike">${position.strike}</span>
+      {position.encumberedCapital != null && (
+        <span className="oc-tile-capital">${(position.encumberedCapital / 1000).toFixed(1)}K</span>
       )}
-      {tier === "compact" && (
-        <>
-          <span className="oc-tile-symbol">{position.underlying}</span>
-          <span className="oc-tile-compact-detail">
-            ${position.strike}
-            {position.encumberedCapital != null && <> · ${(position.encumberedCapital / 1000).toFixed(1)}K</>}
-          </span>
-        </>
+      {position.quantity > 1 && (
+        <span className="oc-tile-qty">×{position.quantity}</span>
       )}
-      {tier === "small" && (
-        <span className="oc-tile-symbol">{position.underlying}</span>
-      )}
-      {tier === "tiny" && (
-        <span className="oc-tile-symbol oc-tile-symbol-tiny">{position.underlying}</span>
-      )}
-      {/* micro: no text — background/border carry all meaning */}
     </div>
   );
-}
-
-type TileTier = "large" | "compact" | "small" | "tiny" | "micro";
-
-function getTileTier(w: number, h: number): TileTier {
-  // Large: wide enough for full horizontal row
-  if (w >= 110 && h >= 32) return "large";
-  // Compact: enough height for two stacked lines, moderate width for short text
-  if (w >= 38 && h >= 34) return "compact";
-  // Small: enough for a single centered symbol
-  if (w >= 36 && h >= 20) return "small";
-  // Tiny: barely legible symbol
-  if (w >= 26 && h >= 14) return "tiny";
-  // Micro: too small for text
-  return "micro";
 }
 
 // --- Helpers ---

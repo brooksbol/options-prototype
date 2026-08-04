@@ -216,19 +216,22 @@
 
 .oc-tile {
   display: flex;
-  align-items: baseline;
-  gap: 4px;
-  padding: 3px 6px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 4px 7px;
   border-radius: 3px;
   overflow: hidden;
   /* Full perimeter border — state color applied via .oc-tile-state-* */
   border: 1.5px solid var(--wd-border-subtle, #555);
   /* Base background; contract-type classes override with tinted variant */
   background: var(--wd-bg-raised);
-  /* Content wraps within treemap-allocated rectangle */
-  flex-wrap: wrap;
-  align-content: flex-start;
+  line-height: 1.3;
+  text-align: center;
 }
+
+/* Remove old horizontal/stacked classes — all tiles are now vertical */
 
 /* --- Visual state borders (demo-seeded, full perimeter) --- */
 
@@ -257,7 +260,7 @@
 /* --- PUT/CALL badge uses its own color independent of state --- */
 
 .oc-tile-badge {
-  font-size: 7px;
+  font-size: 0.7em;
   font-weight: 700;
   letter-spacing: 0.03em;
 }
@@ -266,7 +269,7 @@
 .oc-tile-call .oc-tile-badge { color: var(--wd-accent-yellow, #f2c94c); }
 
 .oc-tile-symbol {
-  font-size: 11px;
+  font-size: 1.1em;
   font-weight: 600;
   color: var(--wd-text-primary);
 }
@@ -275,49 +278,19 @@
   font-size: 9px;
 }
 
-/* --- Tier-specific layout adjustments --- */
-
-/* Compact: stacked two-line form */
-.oc-tile-tier-compact {
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 1px;
-  padding: 2px 5px;
-}
-
-.oc-tile-compact-detail {
-  font-size: 9px;
-  color: var(--wd-text-secondary);
-  white-space: nowrap;
-}
-
-/* Small and tiny: center the symbol for legibility */
-.oc-tile-tier-small,
-.oc-tile-tier-tiny {
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-}
-
-/* Micro: intentionally empty — background/border carry meaning */
-.oc-tile-tier-micro {
-  /* No content rendered; tile is just a colored rectangle */
-}
-
 .oc-tile-strike {
-  font-size: 9px;
+  font-size: 0.9em;
   color: var(--wd-text-secondary);
 }
 
 .oc-tile-capital {
-  font-size: 9px;
+  font-size: 0.9em;
   font-weight: 500;
   color: var(--wd-text-secondary);
 }
 
 .oc-tile-qty {
-  font-size: 8px;
+  font-size: 0.8em;
   color: var(--wd-text-tertiary);
 }
 
