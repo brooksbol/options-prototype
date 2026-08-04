@@ -45,9 +45,9 @@ describe("createScanAuditRecord", () => {
     );
 
     expect(record.portfolioSourceType).toBe("demo");
-    expect(record.portfolioSnapshotId).toBe("demo-portfolio-v1");
+    expect(record.portfolioSnapshotId).toBe("demo-portfolio-v3");
     expect(record.accountId).toBe("DEMO-001");
-    expect(record.deployableCash).toBe(18500);
+    expect(record.deployableCash).toBe(45000);
   });
 
   it("captures market context", () => {

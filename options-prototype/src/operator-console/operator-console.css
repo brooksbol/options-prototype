@@ -1,0 +1,349 @@
+/**
+ * Operator Console — Layout Shell + Position Ladder
+ *
+ * Design heuristic: Above-the-fold bias.
+ * The primary operational picture should strongly prefer fitting within
+ * a reasonably sized desktop viewport (1440×900 target, test smaller too).
+ *
+ * This CSS defines the spatial skeleton with reserved regions.
+ * Placeholder regions have minimal styling — just enough to claim space.
+ */
+@import "../theme-tokens.css";
+
+/* === Shell Grid === */
+
+.oc-shell {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  background: var(--wd-bg-base);
+  color: var(--wd-text-primary);
+}
+
+/* === Header Region === */
+
+.oc-region-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--wd-border-subtle, #333);
+  flex-wrap: wrap;
+}
+
+.oc-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.oc-source {
+  font-size: 10px;
+  color: var(--wd-text-secondary);
+}
+
+.oc-summary {
+  font-size: 10px;
+  color: var(--wd-text-tertiary);
+}
+
+.oc-header-reserved {
+  font-size: 9px;
+  color: var(--wd-text-tertiary);
+  border: 1px dashed var(--wd-border-subtle, #444);
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+
+.oc-nav-link {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--wd-accent-green);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.oc-nav-link:hover {
+  text-decoration: underline;
+}
+
+/* === Body (sidebar + main) === */
+
+.oc-body {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  overflow: hidden;
+}
+
+/* === Sidebar Region === */
+
+.oc-region-sidebar {
+  border-right: 1px solid var(--wd-border-subtle, #333);
+  padding: 10px 12px;
+  overflow-y: auto;
+}
+
+.oc-sidebar-placeholder {
+  font-size: 9px;
+  color: var(--wd-text-tertiary);
+  border: 1px dashed var(--wd-border-default, #444);
+  padding: 8px;
+  border-radius: 2px;
+  text-align: center;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--wd-bg-surface);
+}
+
+/* === Main Content (upper + ladder) === */
+
+.oc-main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* === Upper Region (NAV/mission) === */
+
+.oc-region-upper {
+  height: 140px;
+  border-bottom: 1px solid var(--wd-border-subtle, #333);
+  padding: 8px 12px;
+  flex-shrink: 0;
+}
+
+.oc-upper-placeholder {
+  font-size: 9px;
+  color: var(--wd-text-tertiary);
+  border: 1px dashed var(--wd-border-default, #444);
+  padding: 8px;
+  border-radius: 2px;
+  text-align: center;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--wd-bg-surface);
+}
+
+/* === Ladder Region === */
+
+.oc-region-ladder {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 12px;
+}
+
+.oc-ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* === Rung === */
+
+.oc-rung {
+  padding: 8px 10px 10px;
+  border-radius: 3px;
+  background: var(--wd-bg-surface);
+}
+
+/* Alternating subtle backgrounds for rung differentiation */
+.oc-rung:nth-child(odd) {
+  background: var(--wd-bg-surface);
+}
+
+.oc-rung:nth-child(even) {
+  background: #1c1e2a;
+}
+
+/* Horizontal separator between rungs */
+.oc-rung + .oc-rung {
+  border-top: 1px solid var(--wd-border-subtle, #444);
+  margin-top: 4px;
+  padding-top: 10px;
+}
+
+.oc-rung-label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.oc-rung-date {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wd-text-primary);
+  min-width: 48px;
+}
+
+.oc-rung-dte {
+  font-size: 9px;
+  color: var(--wd-text-tertiary);
+  min-width: 32px;
+}
+
+.oc-rung-capital {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--wd-text-secondary);
+}
+
+.oc-rung-percent {
+  font-size: 9px;
+  color: var(--wd-text-tertiary);
+}
+
+.oc-rung-count {
+  font-size: 8px;
+  color: var(--wd-text-tertiary);
+  margin-left: auto;
+}
+
+/* === Tiles === */
+
+.oc-rung-treemap {
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.oc-tile {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  /* Full perimeter border — state color applied via .oc-tile-state-* */
+  border: 1.5px solid var(--wd-border-subtle, #555);
+  /* Base background; contract-type classes override with tinted variant */
+  background: var(--wd-bg-raised);
+  /* Content wraps within treemap-allocated rectangle */
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+/* --- Visual state borders (demo-seeded, full perimeter) --- */
+
+.oc-tile-state-green {
+  border-color: var(--wd-accent-green);
+}
+
+.oc-tile-state-yellow {
+  border-color: var(--wd-accent-yellow, #f2c94c);
+}
+
+.oc-tile-state-red {
+  border-color: var(--wd-accent-red, #e74c3c);
+}
+
+/* --- Contract-type backgrounds (subtle tint, not competing with state borders) --- */
+
+.oc-tile-put {
+  background: rgba(187, 134, 252, 0.08);
+}
+
+.oc-tile-call {
+  background: rgba(126, 200, 227, 0.10);
+}
+
+/* --- PUT/CALL badge uses its own color independent of state --- */
+
+.oc-tile-badge {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.oc-tile-put .oc-tile-badge { color: var(--wd-accent-green); }
+.oc-tile-call .oc-tile-badge { color: var(--wd-accent-yellow, #f2c94c); }
+
+.oc-tile-symbol {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--wd-text-primary);
+}
+
+.oc-tile-symbol-tiny {
+  font-size: 9px;
+}
+
+/* --- Tier-specific layout adjustments --- */
+
+/* Compact: stacked two-line form */
+.oc-tile-tier-compact {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  padding: 2px 5px;
+}
+
+.oc-tile-compact-detail {
+  font-size: 9px;
+  color: var(--wd-text-secondary);
+  white-space: nowrap;
+}
+
+/* Small and tiny: center the symbol for legibility */
+.oc-tile-tier-small,
+.oc-tile-tier-tiny {
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+}
+
+/* Micro: intentionally empty — background/border carry meaning */
+.oc-tile-tier-micro {
+  /* No content rendered; tile is just a colored rectangle */
+}
+
+.oc-tile-strike {
+  font-size: 9px;
+  color: var(--wd-text-secondary);
+}
+
+.oc-tile-capital {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--wd-text-secondary);
+}
+
+.oc-tile-qty {
+  font-size: 8px;
+  color: var(--wd-text-tertiary);
+}
+
+/* === Footer Region === */
+
+.oc-region-footer {
+  border-top: 1px solid var(--wd-border-subtle, #333);
+  padding: 4px 16px;
+}
+
+.oc-footer-placeholder {
+  font-size: 9px;
+  color: var(--wd-text-tertiary);
+  text-align: center;
+}
+
+/* === Empty state === */
+
+.oc-empty {
+  text-align: center;
+  padding: 48px;
+  color: var(--wd-text-tertiary);
+  grid-column: 1 / -1;
+}
+
+.oc-empty p {
+  margin: 6px 0;
+  font-size: 11px;
+}

@@ -5,41 +5,33 @@
  * Supports direct navigation, redirects, browser history, and refresh.
  *
  * Routes:
- *   /app/write  → operational application
- *   /app        → redirect to /app/write
- *   /           → redirect to /app/write
- *   /labs/*     → existing lab application (unchanged)
- *   anything else → existing lab application (backward compat)
+ *   /             → Operator Console (home)
+ *   /app          → Operator Console (home)
+ *   /app/write    → operational/recommendation surface
+ *   /labs/*       → existing lab application (unchanged)
+ *   anything else → Operator Console (home)
  */
 
-export type AppRoute = "write-desk" | "labs";
+export type AppRoute = "operator-console" | "write-desk" | "labs";
 
 /**
  * Determine the current route from the browser pathname.
- * Performs redirects via history.replaceState (no page reload).
  */
 export function resolveRoute(): AppRoute {
   const path = window.location.pathname;
 
-  // Exact match for the operational application
+  // Operational/recommendation surface
   if (path === "/app/write") {
     return "write-desk";
   }
 
-  // Redirect /app to /app/write
-  if (path === "/app" || path === "/app/") {
-    window.history.replaceState(null, "", "/app/write");
-    return "write-desk";
+  // Labs
+  if (path.startsWith("/labs")) {
+    return "labs";
   }
 
-  // Redirect root to /app/write
-  if (path === "/" || path === "") {
-    window.history.replaceState(null, "", "/app/write");
-    return "write-desk";
-  }
-
-  // Everything else → labs (existing app, unchanged)
-  return "labs";
+  // Everything else → Operator Console (home)
+  return "operator-console";
 }
 
 /**

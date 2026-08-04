@@ -7,7 +7,6 @@ import { resolveRoute } from "../src/router";
 
 describe("resolveRoute", () => {
   beforeEach(() => {
-    // Reset history state
     vi.spyOn(window.history, "replaceState").mockImplementation(() => {});
   });
 
@@ -19,22 +18,20 @@ describe("resolveRoute", () => {
     expect(resolveRoute()).toBe("write-desk");
   });
 
-  it("/app redirects to /app/write and resolves to write-desk", () => {
-    Object.defineProperty(window, "location", {
-      value: { pathname: "/app" },
-      writable: true,
-    });
-    expect(resolveRoute()).toBe("write-desk");
-    expect(window.history.replaceState).toHaveBeenCalledWith(null, "", "/app/write");
-  });
-
-  it("/ redirects to /app/write and resolves to write-desk", () => {
+  it("/ resolves to operator-console (home)", () => {
     Object.defineProperty(window, "location", {
       value: { pathname: "/" },
       writable: true,
     });
-    expect(resolveRoute()).toBe("write-desk");
-    expect(window.history.replaceState).toHaveBeenCalledWith(null, "", "/app/write");
+    expect(resolveRoute()).toBe("operator-console");
+  });
+
+  it("/app resolves to operator-console (home)", () => {
+    Object.defineProperty(window, "location", {
+      value: { pathname: "/app" },
+      writable: true,
+    });
+    expect(resolveRoute()).toBe("operator-console");
   });
 
   it("/labs resolves to labs", () => {
@@ -45,11 +42,11 @@ describe("resolveRoute", () => {
     expect(resolveRoute()).toBe("labs");
   });
 
-  it("unknown paths resolve to labs (backward compat)", () => {
+  it("unknown paths resolve to operator-console (home)", () => {
     Object.defineProperty(window, "location", {
       value: { pathname: "/some/other/path" },
       writable: true,
     });
-    expect(resolveRoute()).toBe("labs");
+    expect(resolveRoute()).toBe("operator-console");
   });
 });

@@ -12,9 +12,9 @@
 :root {
   /* --- Backgrounds --- */
   --wd-bg-base: #0e0f16;
-  --wd-bg-surface: rgba(14, 15, 24, 0.6);
-  --wd-bg-raised: rgba(22, 23, 36, 0.7);
-  --wd-bg-hover: rgba(255, 255, 255, 0.035);
+  --wd-bg-surface: #181a24;
+  --wd-bg-raised: #222433;
+  --wd-bg-hover: rgba(255, 255, 255, 0.06);
   --wd-bg-selected: rgba(111, 207, 151, 0.10);
   --wd-bg-selected-strong: rgba(111, 207, 151, 0.14);
 
@@ -43,9 +43,9 @@
   --wd-select-bg: var(--wd-bg-selected-strong);
 
   /* --- Borders (use sparingly) --- */
-  --wd-border-subtle: rgba(255, 255, 255, 0.04);
-  --wd-border-default: rgba(255, 255, 255, 0.08);
-  --wd-border-strong: rgba(255, 255, 255, 0.14);
+  --wd-border-subtle: rgba(255, 255, 255, 0.08);
+  --wd-border-default: rgba(255, 255, 255, 0.14);
+  --wd-border-strong: rgba(255, 255, 255, 0.22);
 
   /* --- Table --- */
   --wd-table-header: #9a9aaa;
