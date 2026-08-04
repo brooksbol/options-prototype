@@ -5022,3 +5022,45 @@ This is not merely a detail popup — it's the first working demonstration of st
 - Modal may need to be slightly wider
 - "Capital $109,200" on a covered call is semantically questionable vs inventory economics
 - Demo strikes produce extreme moneyness values (intentionally useful as stress cases)
+
+---
+
+## 2026-08-04 — Documentation Reconciliation
+
+### What happened
+
+Performed a repository-wide documentation audit against current implementation state. Compared all architecture documents (project charter through ADRs) against committed code. Identified material drift in three documents and executed Tier 1 reconciliation.
+
+### Documents reconciled
+
+- **docs/26-operator-console-architecture.md** — Status changed from "Design — not yet implemented" to reflect the working first slice. Implementation-gap table replaced with accurate status of what's proven vs deferred.
+- **docs/07-architecture-current.md** — Added selective `/api/evidence/quotes` endpoint, Observation Store, Position Monitoring composition, Operator Console, recovery-probe policy. Updated test counts. Removed stale "known gap" about prior-epoch failures.
+- **README.md** — Updated current scope, test counts, and endpoint inventory.
+
+### What was deliberately NOT promoted to architecture
+
+Several patterns and decisions from the recent implementation were explicitly kept exploratory:
+
+1. **Temporal/lifecycle model (T₀→T₁→T₂)** — Position Detail demonstrated opening state → current observation → assignment future. This is an important observation about what the system is beginning to need, not yet a ratified abstraction. If multiple consumers emerge needing lifecycle semantics (Activity History ingestion, longitudinal analysis), THEN it warrants architectural treatment.
+
+2. **Three-layer explanatory pattern: fact → domain concept → Wheelwright interpretation** — The `src/concepts/` framework demonstrates a reusable pattern where each measurement can be explored at three depths: the raw observed fact, a generic domain explanation of what the concept means, and how Wheelwright specifically computes or uses it. This is an emerging product/content architecture pattern, not yet an invariant.
+
+3. **Position-detail modal specifics** — Layout, sections, interaction model, and concept prose are product design evolving through visual feedback. Not architectural.
+
+4. **Demo economics / synthetic history** — Intentionally models what Activity History ingestion would eventually supply. The architecture should note that current Fidelity ingestion (Option Summary + Balances) is a temporary subset; History is expected to provide richer lifecycle/transaction data. The synthetic model is a design exploration mechanism, not a permanent architecture.
+
+5. **Presentation constants** — ATM tolerance (±1%), treemap tuning (MIN_TILE_HEIGHT, sqrt compression), assignment classification thresholds (±2%), variable font scaling — all are tuning parameters subject to change through visual feedback.
+
+### Principle applied
+
+> Absence from the current projection is not evidence of absence from the source domain.
+
+Today's incomplete Fidelity ingestion (two CSV types) should not constrain the architecture. The modal was designed toward the richer future model precisely because Activity History can supply premium, fees, transaction dates, and lifecycle events that Option Summary cannot.
+
+### Reconciliation principle
+
+For every document change, the test applied was:
+
+> If all conversation context vanished, could GitHub alone explain why Wheelwright looks and behaves this way?
+
+Where the answer was no, documentation was updated. Where exploratory work had not yet earned architectural permanence, it was preserved in this journal rather than promoted into normative documents.

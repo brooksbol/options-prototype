@@ -1,8 +1,8 @@
 # Operator Console Architecture
 
-**Status:** Design — not yet implemented
-**Date:** July 2026
-**Depends on:** ADR-011 (Application-Scoped Portfolio Ingestion), ADR-012 (Operator Console as Home Surface), `docs/25-situation-architecture.md`
+**Status:** First slice implemented (August 2026); design areas remain for future increments
+**Date:** July 2026 (design); August 2026 (first implementation)
+**Depends on:** ADR-011 (Application-Scoped Portfolio Ingestion), ADR-012 (Operator Console as Home Surface), ADR-013 (Position Monitoring Model)
 
 ---
 
@@ -200,31 +200,57 @@ Health is an important Console concept that appears on tiles and potentially in 
 
 ---
 
-## Current Implementation Gap
+## Implementation Status (August 2026)
 
-The target architecture differs from the current repository state:
+The first operational slice of the Operator Console is implemented and committed.
 
-| Architectural Requirement | Current State |
-|--------------------------|---------------|
-| Application-scoped portfolio state | Page-local in `WriteDesk.tsx` component state |
-| Application-scoped evidence/freshness | Page-local in `WriteDesk.tsx` (`evidenceMeta`, polling loop) |
-| Operator Console surface | Does not exist — only `WriteDesk` and `App` (labs) |
-| DTE ladder visualization | Not implemented |
-| Home route | Currently resolves to the existing operational page (`/app/write`) |
-| Situation rendering | Not implemented (situation architecture is durable but has no UI) |
-| Health classification | Not defined or implemented |
-| NAV historical data | No acquisition mechanism or display |
-| Shared import status area | Import UI exists in `FidelityUpload.tsx` but is page-local to WriteDesk |
+### What has been proven
 
-**Migration path (high-level, not an implementation plan):**
+| Architectural Requirement | Implementation Status |
+|--------------------------|----------------------|
+| Application-scoped portfolio state | ✅ Implemented — module-level singleton store (`portfolio-store.ts`) with `useSyncExternalStore`, self-hydrating from localStorage |
+| Application-scoped evidence observations | ✅ Implemented — `observation-store.ts` polls `GET /api/evidence/quotes?symbol=...`, subscriber-driven lifecycle |
+| Operator Console surface | ✅ Implemented — `OperatorConsole.tsx` at route `/` |
+| DTE ladder visualization | ✅ Implemented — expiration-native rungs with d3-hierarchy squarified treemap packing |
+| Home route | ✅ Implemented — `/` routes to Console, `/app/write` to existing operational surface |
+| Position Monitoring composition | ✅ Implemented — `Portfolio + Evidence Observations → deriveMonitoredPositions()` producing moneyness, DTE, capital, provenance |
+| Moneyness visualization | ✅ Implemented — OTM/ATM/ITM borders + signed percentage magnitude |
+| Tile inspection (click interaction) | ✅ Implemented — position-detail modal with progressive learning, assignment scenarios, concept explanations |
+| Shared import status | ✅ Implemented — both Console and Write Desk consume the same portfolio store |
 
-1. Lift portfolio and evidence state to application scope (implements ADR-011)
-2. Create the Console surface and register it as the home route
-3. Implement the DTE ladder from shared portfolio state
-4. Render situation context from shared situation state
-5. Connect capacity/exposure summary
-6. Add action transitions to existing recommendation capabilities
-7. Address NAV and health as their data contracts become available
+### What remains deferred
+
+| Architectural Requirement | Status |
+|--------------------------|--------|
+| Situation rendering | Not implemented — situation architecture is durable but has no Console UI |
+| Health classification | Not implemented — moneyness serves as the first Contract State dimension (ADR-013); Decision Pressure and full health semantics remain future work |
+| NAV / mission progress region | Placeholder geometry reserved; no historical data acquisition or display |
+| Capacity/exposure summary | Placeholder geometry reserved; not populated |
+| Sidebar content | Placeholder only |
+| Action transitions (Console → recommendation surface) | Basic navigation link exists; no context-preserving transition |
+
+### Key implementation decisions made during the first slice
+
+These emerged from iterative visual feedback and are working implementation choices, not ratified architectural invariants:
+
+- **Expiration-native rungs** (one rung per actual expiration date) rather than DTE calendar bands
+- **d3-hierarchy squarified treemap** for tile packing within each rung
+- **sqrt value compression** to narrow capital-ratio extremes while preserving ordering
+- **Content-driven rung height** computed from position count and container width
+- **Variable font size** scaling with tile area for proportional information density
+- **Put/call encoding via background tint** (cool blue for calls, warm purple for puts)
+- **State encoding via border color** (green = OTM, yellow = ATM, red = ITM) — answering only "where is the underlying relative to strike?"
+- **Progressive-learning concept definitions** centralized in `src/concepts/` for reusable explanatory content
+- **Synthetic demo economics** modeling future Activity History data to evaluate the intended UX
+
+### What the first slice explicitly does NOT ratify
+
+- Specific ATM tolerance (±1% is a presentation constant, subject to tuning)
+- Treemap geometry constants (MIN_TILE_HEIGHT, MIN_TILE_WIDTH values)
+- Position-detail modal layout specifics
+- Demo economics formulas
+- Concept explanation prose (product content, evolving)
+- Assignment consequence thresholds (±2% for appreciation/near-basis/below-basis classification)
 
 ---
 

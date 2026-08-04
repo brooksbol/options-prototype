@@ -90,6 +90,7 @@ The current runtime architecture consists of a Java backend maintaining evidence
 │                                                              │
 │  HTTP API:                                                   │
 │    GET /api/evidence/snapshot (ETag, 304)                    │
+│    GET /api/evidence/quotes?symbol=... (selective, ETag)     │
 │    GET /api/status (scheduler telemetry)                     │
 │    GET /api/health                                           │
 │    POST /api/evidence/refresh (nudge)                        │
@@ -98,16 +99,29 @@ The current runtime architecture consists of a Java backend maintaining evidence
 ┌──────────────────────────────▼───────────────────────────────┐
 │  BROWSER (options-prototype)                                  │
 │                                                              │
-│  Portfolio Context (Fidelity CSV → PortfolioSnapshot)         │
+│  Portfolio Store (application-scoped, self-hydrating)         │
+│    → PortfolioSnapshot from Fidelity CSV or Demo             │
+│    → useSyncExternalStore subscription model                 │
 │                                                              │
-│  Evidence Cache (IndexedDB, populated from backend snapshot)  │
+│  Observation Store (application-scoped, subscriber-driven)   │
+│    → Polls GET /api/evidence/quotes for portfolio symbols    │
+│    → Provides underlying prices for Position Monitoring      │
+│                                                              │
+│  Position Monitoring                                         │
+│    → Portfolio + Evidence → MonitoredPosition[]              │
+│    → Moneyness, DTE, capital, provenance                    │
+│                                                              │
+│  Operator Console (home surface — route /)                   │
+│    → Expiration-native DTE ladder (d3-hierarchy treemap)     │
+│    → Moneyness visualization (OTM/ATM/ITM)                  │
+│    → Position-detail modal (progressive learning)            │
 │                                                              │
 │  Recommendation Engines:                                     │
 │    · recommendPuts() — universe-wide put candidates           │
 │    · recommendCalls() — inventory-driven call candidates      │
 │    (Both: zero provider calls, cache-only, deterministic)    │
 │                                                              │
-│  Write Desk (Operator Workbench)                             │
+│  Write Desk (Operator Workbench — route /app/write)          │
 │    · Collapsible Put and Call sections                        │
 │    · Sortable candidate tables                               │
 │    · Recommendation Brief (put drawer)                       │
@@ -147,7 +161,7 @@ The current runtime architecture consists of a Java backend maintaining evidence
 - `eligible` = total classified population per class (regardless of freshness)
 - `due` = actionable subset currently in work queue (past freshness target)
 
-**Known gap:** `getPrioritizedWorkQueue` omits prior-epoch failed symbols. Documented; fix parked.
+**Recovery policy:** Prior-epoch failed symbols receive one bounded recovery probe per new session. If the probe succeeds, normal lifecycle restores the symbol toward ready. If it fails, `session_date` advances to today, suppressing further probes until the next session. Failure history (`failure_count`) is preserved and incremented — never reset.
 
 **Must not:** Produce recommendations. Rank candidates. Know about portfolio state.
 
@@ -315,8 +329,8 @@ interface RecommendationPolicy {
 | Backend | Java 21, Spring Boot 3.4, SQLite (JDBC) |
 | Frontend framework | React 18+ with TypeScript (strict) |
 | Frontend build | Vite |
-| Frontend tests | Vitest (968 tests) |
-| Backend tests | JUnit 5 (146 tests) |
+| Frontend tests | Vitest (1112 tests) |
+| Backend tests | JUnit 5 (173 tests) |
 | Frontend storage | IndexedDB (evidence cache), localStorage (workspace) |
 | Backend storage | SQLite with WAL mode |
 | Provider | Tradier sandbox (REST, 15-min delayed, 60 req/min) |

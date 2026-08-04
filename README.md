@@ -208,14 +208,14 @@ java -version        # Temurin 21.x
 # Running Tests
 
 ```bash
-# Java backend (146 tests)
+# Java backend (173 tests)
 cd evidence-service-java && ./gradlew clean test
 
-# Frontend (1051+ tests)
+# Frontend (1112 tests)
 cd options-prototype && npx vitest run
 ```
 
-Total: **1,197+ tests** across both suites.
+Total: **1,285+ tests** across both suites.
 
 ---
 
@@ -223,9 +223,12 @@ Total: **1,197+ tests** across both suites.
 
 The system currently implements:
 
-- **Evidence Appliance** — background acquisition (self-scheduling, session-aware, tiered A/B/C/D freshness)
+- **Evidence Appliance** — background acquisition (self-scheduling, session-aware, tiered A/B/C/D freshness, bounded recovery probes for prior-epoch failures)
 - **Durable SQLite persistence** — failed-refresh preservation, generation tracking, restart recovery
 - **Snapshot publication** — ETag/conditional HTTP (304), coherent evidence snapshots
+- **Selective quote observations** — `GET /api/evidence/quotes?symbol=...` for lightweight per-symbol price projection
+- **Operator Console** (home surface) — expiration-native DTE ladder with d3-hierarchy treemap, moneyness visualization (OTM/ATM/ITM + signed %), position-detail modal with progressive learning
+- **Position Monitoring** — Portfolio + Evidence composition producing moneyness, DTE, capital, and full observation provenance
 - **Put recommendations** (Wheelwright) — deterministic, cache-backed, zero provider calls
 - **Call recommendations** (Horizon A) — inventory-driven, cache-backed, for held unencumbered shares
 - **Write Desk** — collapsible put/call sections, sortable tables, policy controls
@@ -233,7 +236,7 @@ The system currently implements:
 - **Broker handoff** — Fidelity trade link construction (puts)
 - **Market session model** — 6-state classification, trading calendar, sealed evidence semantics
 - **Instrument governance** — product structure classification, leveraged/inverse detection
-- **Instrument Catalog** and Description Library (1,280 tickers)
+- **Instrument Catalog** and Description Library (1,280 tickers with domain-specific descriptions)
 - **Position economics** — Fidelity CSV basis data preserved in portfolio snapshot
 
 Out of scope:
