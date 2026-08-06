@@ -5064,3 +5064,102 @@ For every document change, the test applied was:
 > If all conversation context vanished, could GitHub alone explain why Wheelwright looks and behaves this way?
 
 Where the answer was no, documentation was updated. Where exploratory work had not yet earned architectural permanence, it was preserved in this journal rather than promoted into normative documents.
+
+
+---
+
+## 2026-08-06 — Three-Actor Reconciliation and Documentation Maintenance
+
+### Context
+
+After the Operator Console first slice was delivered and the Java backend reached live-market acceptance (August 3, 2026), a two-session Kiro architectural discussion was conducted to reconcile the project's governing architecture against recent conceptual work. The discussion covered configurable lenses, temporal framing, prior art, production accounting, epistemic integration, and the possible strategy-neutral kernel.
+
+The discussion was explicitly structured around the Three Actor Development Model: Principal (Brooks) setting direction, Architect (Kiro) analyzing and proposing, Implementation Engineer (Kiro) executing documentation changes.
+
+### What happened
+
+#### Session 1 (reached context limit)
+
+- Began top-down reconciliation of all governing documents against recent ideas
+- Initially conflated the Three Actor Development Model with runtime product surfaces (Explorer/Governor/Operator)
+- Corrected mid-session after Principal challenge
+- Established temporal vocabulary: NOW / MIGHT HAPPEN / HAS HAPPENED
+- Established that HAS HAPPENED is a temporal umbrella over multiple independent domains, not one architecture
+- Conducted prior-art reconnaissance across 8 products
+- Identified the Fidelity Activity History as a critical empirical gate
+- Session ended before producing the complete reconciliation report
+
+#### Session 2 (this session)
+
+- Cold-start reconstruction from GitHub (no prior session context available)
+- **Repeated the same Three Actor conflation error** — a fresh Kiro session, reading only the foundation document, again mapped Three Actor Model to Write Desk / Velvet Rope / Console
+- Principal corrected again with explicit boundary: the Three Actor Model refers to the development methodology, not runtime surfaces
+- This double failure became evidence of a documentation defect: one document carrying two meanings reliably causes confusion in cold-start reconstruction
+- Produced the full 8-part reconciliation report
+- Principal identified additional corrections (layered learning classification, Fidelity interpretation classification, PL-OPS-03 verification)
+- Verified PL-OPS-03 (prior-epoch failed scheduler gap) is resolved in Java implementation — 8 tests in `RecoveryProbeTest.java`, full recovery-probe lifecycle implemented
+- Produced documentation change plan organized as corrections vs evolution
+- Executed Stage 1 (factual maintenance) and Stage 2 (conceptual documentation)
+
+### What we learned
+
+#### 1. Cold-start reconstructibility is an acceptance test for documentation
+
+The most important methodology insight from this session:
+
+> A fresh Kiro session with no conversational context should be able to reconstruct the intended architecture from GitHub alone without making the mistakes this session made.
+
+When a cold-start reconstruction fails (produces incorrect interpretations), that failure is evidence of a documentation defect. The methodology's response is to improve the durable artifacts, not to blame the reader.
+
+This is now an explicit acceptance criterion for documentation changes.
+
+#### 2. One document should not carry two meanings
+
+The Three Actor Model foundation document contained both:
+- The development methodology (Principal / Architect / Implementation Engineer)
+- A domain-independent product design principle (Explorer / Governor / Operator)
+
+Two independent cold-start reconstructions conflated them. This is strong empirical evidence that the concepts need separate names and separate documents regardless of whether their content is "technically accurate" as combined.
+
+Resolution: split into `three-actor-model.md` (development methodology) and `cognitive-role-separation.md` (product design principle), with explicit cross-references and a Historical Note explaining the split provenance.
+
+#### 3. Factual maintenance is distinct from conceptual evolution
+
+Documentation changes were cleanly separated into:
+- **Stage 1 (corrections):** Stale state updated to match working software. Zero architectural risk.
+- **Stage 2 (evolution):** New vocabulary, split documents, discovery notes, parking-lot additions. Requires three-actor review.
+
+This separation made review tractable and preserved the distinction between "the repo is objectively wrong" and "our understanding has evolved."
+
+#### 4. Working software can outrun its documentation
+
+PL-OPS-03 and the scheduler foundation document described a problem that the Java implementation had already solved with a full recovery-probe mechanism and 8 dedicated tests. The reconciliation process discovered this by inspecting the actual implementation rather than trusting the documentation.
+
+Lesson: parking-lot items and foundation documents can become stale when implementation progresses without corresponding documentation updates. The reconciliation process itself is the mechanism for detecting and correcting this drift.
+
+### Decisions / implications
+
+- Three Actor Model split into two documents (executed)
+- Temporal capability vocabulary preserved in `docs/discovery/` below foundation authority (executed)
+- Prior-art findings captured as durable reference (executed)
+- PL-PORT-02 (Portfolio Production Accounting) registered as seed item blocked on Fidelity evidence gate (executed)
+- PL-OPS-03 graduated — resolved in working software (executed)
+- Cold-start reconstructibility established as acceptance test for documentation quality
+
+### Open questions
+
+1. Should `policy-over-prediction.md` and `secondary-observation.md` references to "Three Actor Model" (which discuss Explorer/Governor/Operator) be updated to reference `cognitive-role-separation.md` instead? Currently navigable via cross-reference but slightly imprecise.
+2. When should the Fidelity Activity History evidence gate be executed? (Principal decision — 15-minute empirical exercise that would unblock production accounting.)
+3. Is cloud deployment (PL-OPS-01, now unblocked) or the Fidelity evidence gate the higher-priority next step?
+
+### Artifacts produced
+
+| Artifact | Type | Location |
+|---|---|---|
+| Three Actor Development Model | Foundation (split) | `docs/foundations/three-actor-model.md` |
+| Cognitive Role Separation | Foundation (new) | `docs/foundations/cognitive-role-separation.md` |
+| Temporal Capability Vocabulary | Discovery note | `docs/discovery/01-temporal-capability-vocabulary.md` |
+| Prior-Art Findings | Discovery report | `docs/discovery/02-prior-art-findings.md` |
+| PL-PORT-02 | Parking-lot seed | `docs/parking-lot.md` |
+| Recovery Probe Policy | Foundation correction | `docs/foundations/acquisition-scheduler-policy.md` |
+| PL-OPS-03 graduation | Parking-lot maintenance | `docs/parking-lot.md` |

@@ -168,14 +168,28 @@ The scheduler exposes two population metrics through the `/api/status` endpoint.
 
 These symbols have no actionable work remaining this epoch and are neither eligible nor due.
 
-**Known gap:** `getPrioritizedWorkQueue` omits prior-epoch failed symbols. These are counted in `eligible.classC` but never appear in `due.classC`. This is a documented pre-existing scheduler conformance gap. Disposition: fix parked.
+**Resolved:** The Java backend's `getPrioritizedWorkQueue` includes prior-epoch failed symbols as Class C recovery probes. See §Recovery Probe Policy below.
 
 ---
 
-## Prior-Epoch Failed Symbol Gap
+## Recovery Probe Policy
 
-Prior-epoch failed symbols should receive fresh retry budgets in new epochs (their retries reset). The legacy `getWorkQueue` correctly includes them. The tiered `getPrioritizedWorkQueue` does not, because its lifecycle clause only matches `session_date = current` for failed symbols.
+Prior-epoch failed symbols receive one bounded recovery probe per new session.
 
-**Impact:** Minimal in practice — symbols that fail 3 times typically have genuine provider issues (no options, delisted, etc.) and would likely fail again. The gap is most relevant for transient failures that happen to exhaust retries near session close.
+**Mechanism:** `getPrioritizedWorkQueue` includes symbols where `resolution = 'failed'` AND `session_date != today`. This makes them eligible as Class C work items on the next trading day.
 
-**Status:** Documented. Not yet corrected. Will be addressed when operational evidence demonstrates user-visible impact.
+**Lifecycle:**
+
+1. Symbol reaches failure threshold (3 failures) on day N → suppressed for remainder of day N.
+2. Day N+1: symbol appears in work queue as Class C (prior-epoch, different session_date).
+3. If probe succeeds: normal lifecycle resumes (symbol becomes ready).
+4. If probe fails: `session_date` advances to today, suppressing further probes this session. `failure_count` increments (history preserved, never reset).
+5. Day N+2: symbol is again eligible for one probe (session_date != today).
+
+**Design properties:**
+- Bounded: at most one probe per failed symbol per session day.
+- Non-destructive: failure history accumulates; success restores normal lifecycle.
+- Self-suppressing: a failed probe on day N+1 does not produce repeated retries on day N+1.
+- Recoverable: transient outages that exhaust retries near session close are retried the next day.
+
+**Verification:** `RecoveryProbeTest.java` (8 tests) validates the full lifecycle including multi-symbol probes, suppression after failed probe, next-day re-eligibility, and failure-count preservation.

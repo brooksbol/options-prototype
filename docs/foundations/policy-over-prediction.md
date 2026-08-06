@@ -117,7 +117,7 @@ This is itself a closed feedback loop — the policy improves through use, but i
 
 ## Relationship to Other Principles
 
-**Three Actor Model** — Policy is the governor's primary tool. The explorer discovers; the governor applies policy; the operator executes within governed constraints.
+**Cognitive Role Separation** — Policy is the governor's primary tool. The explorer discovers; the governor applies policy; the operator executes within governed constraints.
 
 **Secondary Observation** — Policy should account for evidence quality. A policy that ignores mechanism health is applying rules to potentially unreliable evidence.
 

@@ -1,160 +1,177 @@
-# Three Actor Model
+# Three Actor Development Model
 
-## Purpose
-
-This document describes the principle of separating fundamentally different cognitive roles in any system that observes, decides, and acts. It is the most foundational architectural principle in this project because many other principles (including attenuation, policy governance, and feedback loops) derive from understanding *who* the system is serving at a given moment.
-
-This is not specific to options, diamonds, or software. It applies wherever a system must balance exploration, governance, and execution.
+**Date:** August 2026
+**Status:** Active development methodology
+**Related:** `cognitive-role-separation.md` (the domain-independent design principle this methodology applies)
 
 ---
 
-## Core Insight
+## Purpose
 
-Different actors optimize for different things.
+This document describes the development methodology by which Wheelwright is built: three cognitive roles collaborating to produce architectural learning and working software.
 
-Conflating them creates poor systems.
-
-An explorer optimizes for discovery and breadth. A governor optimizes for safety and policy compliance. An operator optimizes for reliable execution within constraints.
-
-When a single interface, a single workflow, or a single mental model tries to serve all three simultaneously, it serves none of them well. The explorer is burdened with governance concerns. The governor is distracted by operational details. The operator is overwhelmed by exploratory breadth.
+This is the specific meaning of "Three Actor Model" in Wheelwright project discussions, journal entries, and architectural sessions. It refers to the human + AI development relationship, not to runtime product surfaces or user personas.
 
 ---
 
 ## The Three Actors
 
-### Explorer
+### Principal
 
-**Question:** What is possible?
+**Question:** What should we build and why?
 
-**Optimizes for:** Discovery, breadth, optionality, learning rate.
+**Responsibilities:**
+- Sets direction and priorities
+- Owns principles and operating philosophy
+- Resolves architectural disputes when the Architect surfaces them
+- Makes governance decisions about what enters the architecture vs remains experimental
+- Evaluates whether working software produces the intended learning
+- Determines when to change direction at coherent stopping points
 
-**Characteristics:**
-- Wants to see many candidates.
-- Tolerates noise and ambiguity.
-- Values surprise and serendipity.
-- Does not need operational precision.
-- Cares about potential, not deployability.
+**In this project:** Brooks. Human. The decision-maker who authorizes architectural evolution and judges whether the system serves its intended purpose.
 
-### Governor
+### Architect
 
-**Question:** Should we proceed?
+**Question:** How should the system be structured to serve those goals?
 
-**Optimizes for:** Safety, policy compliance, institutional reasoning, risk characterization.
+**Responsibilities:**
+- Designs systems and maintains architectural coherence
+- Proposes structures, boundaries, and abstractions
+- Identifies consequences of design choices
+- Surfaces contradictions for Principal resolution
+- Maintains the relationship between principles, invariants, and implementation
+- Produces durable documentation of architectural decisions
 
-**Characteristics:**
-- Evaluates candidates against explicit policy.
-- Cares deeply about evidence quality and provenance.
-- Produces reasoned judgments, not mere pass/fail.
-- Operates independently of the explorer's enthusiasm.
-- Must explain *why*, not just *whether*.
+**In this project:** AI partner in architectural/design sessions. Proposes, analyzes, and documents but does not unilaterally decide.
 
-### Operator
+### Implementation Engineer
 
-**Question:** How do I execute?
+**Question:** How do I build this correctly?
 
-**Optimizes for:** Reliability, precision, efficiency, repeatability.
+**Responsibilities:**
+- Builds working software to specification
+- Reports evidence about what the implementation reveals
+- Asks clarifying questions when specifications are ambiguous
+- Verifies behavioral conformance against invariants
+- Produces tests that lock intended behavior
+- Identifies when implementation creates architectural pressure
 
-**Characteristics:**
-- Needs exactly the information required for action.
-- Values clarity and brevity.
-- Assumes governance has already occurred.
-- Cares about operational details (timing, mechanics, confirmation).
-- Tolerates no ambiguity in execution path.
-
----
-
-## The Principle
-
-**Every system should make explicit which actor it is serving at any given moment.**
-
-When the system knows who it is talking to, it can:
-- Present information at the right density.
-- Surface the right controls.
-- Hide irrelevant complexity.
-- Optimize the cognitive experience for the task at hand.
-
-When the system does not know (or pretends all actors are one), it produces interfaces that are simultaneously too noisy for operators, too restrictive for explorers, and too shallow for governors.
+**In this project:** AI partner in implementation sessions. Executes, verifies, and reports but does not redesign without escalation.
 
 ---
 
-## Manifestations in This Project
+## The Development Learning Loop
 
-| Actor | System | Role |
-|---|---|---|
-| Explorer | Opportunity Lab | Scan the universe of possibilities |
-| Governor | Velvet Rope | Evaluate against institutional policy |
-| Operator | Deployment (future) | Execute the admitted opportunity |
+The Three Actor Model is not a hierarchy. It is a learning loop:
 
-Each system has different:
-- Information density requirements
-- Decision support needs
-- Temporal characteristics
-- Success criteria
+```
+Principal sets direction
+    ↓
+Architect proposes structure
+    ↓
+Implementation Engineer builds working software
+    ↓
+Working software produces evidence
+    ↓
+Evidence surfaces to Architect (conformance, pressure, surprise)
+    ↓
+Architect surfaces findings to Principal (contradictions, opportunities, stopping points)
+    ↓
+Principal decides next direction
+```
 
----
-
-## Why Conflation Fails
-
-### Explorer + Governor (conflated)
-
-The screening system tries to both discover opportunities and evaluate them simultaneously. Result: either the explorer is constrained by premature governance, or the governor is overwhelmed by unfiltered candidates.
-
-### Governor + Operator (conflated)
-
-The governance system tries to also be the execution interface. Result: the operator sees institutional reasoning they don't need at execution time, and the governor's careful evaluation is rushed by operational urgency.
-
-### Explorer + Operator (conflated)
-
-The discovery system tries to also be the action interface. Result: the operator acts on insufficiently governed candidates, or the explorer is constrained to only actionable opportunities.
+Each cycle produces:
+- Working software (immediate)
+- Architectural understanding (compounding)
+- Methodology refinement (long-term)
 
 ---
 
-## The Separation Test
+## Why Three Roles, Not Two or One
 
-To determine whether a system properly separates actors, ask:
+### Without the Principal
 
-1. Can the explorer explore without triggering governance?
-2. Can the governor evaluate without being influenced by the explorer's enthusiasm?
-3. Can the operator execute without re-evaluating governance?
-4. Does each actor have exactly the information they need — no more, no less?
-5. Are handoffs between actors explicit and observable?
+The Architect and Engineer produce technically coherent software that may not serve any purpose. Direction drifts. Principles accumulate without governance review. The system becomes internally consistent but externally irrelevant.
 
-If any answer is no, the actors are conflated.
+### Without the Architect
 
----
+The Principal and Engineer produce working software without coherent structure. Each feature is implemented correctly in isolation but the system does not compose. Architectural debt accumulates invisibly.
 
-## Relationship to Other Principles
+### Without the Implementation Engineer
 
-**Secondary Observation** — The governor needs to trust the evidence before trusting the conclusion. Secondary observation is a governance concern.
-
-**Policy over Prediction** — Policy is the governor's tool. The explorer predicts; the governor governs; the operator executes within governed constraints.
-
-**Closed Feedback Loops** — Each actor produces evidence that feeds the others. The operator's execution results feed the governor's future evaluations. The governor's admissions feed the explorer's understanding of what passes policy.
-
-**Progressive Attenuation** — The same information, presented differently depending on which actor is currently being served. Nothing is hidden; density is adjusted.
+The Principal and Architect produce beautifully documented architecture that has never been tested against reality. Assumptions go unchallenged. The system exists only in documents.
 
 ---
 
-## The Naming Is Flexible
+## Relationship to Cognitive Role Separation
 
-The three actors have been expressed in many ways:
+This development methodology applies the same underlying insight as the Cognitive Role Separation principle (`cognitive-role-separation.md`):
 
-| Domain | Explorer | Governor | Operator |
-|---|---|---|---|
-| Generic | Explorer | Governor | Operator |
-| Scientific | Scientist | Reviewer | Technician |
-| Corporate | Strategist | Executive | Manager |
-| Military | Intelligence | Command | Operations |
-| This project | Opportunity Lab | Velvet Rope | Deployment |
+> Different cognitive roles optimize for different things. Conflating them produces poor outcomes.
 
-The names change. The separation does not.
+The design principle says: product surfaces should separate Explorer, Governor, and Operator concerns.
+
+The development methodology says: the system-building process should separate Principal, Architect, and Implementation Engineer concerns.
+
+Same insight, different application. They share a foundation but are not the same thing.
+
+---
+
+## Relationship to Closed-Loop Engineering
+
+The Three Actor Development Model is the governance structure within which Closed-Loop Engineering operates:
+
+- **Loop 1 (Engineering):** Implementation Engineer's domain — spec → implement → review → refine.
+- **Loop 4 (Organizational Learning):** Principal's domain — working software generates evidence that improves future decisions.
+- **Architectural review and evolution:** Architect's domain — surfaces findings, proposes structural changes, maintains coherence.
+
+The loops describe what happens. The actors describe who is responsible for each kind of decision within those loops.
+
+---
+
+## Disciplines
+
+### The Principal must not
+
+- Implement (even when it seems faster)
+- Design the mechanism (that's the Architect's job)
+- Ignore evidence from implementation that contradicts direction
+
+### The Architect must not
+
+- Decide direction unilaterally (that's the Principal's job)
+- Implement without specification (that's conflation)
+- Suppress findings that create inconvenient pressure
+
+### The Implementation Engineer must not
+
+- Redesign architecture during implementation (escalate instead)
+- Silently deviate from specification (report the pressure)
+- Treat working software as sufficient without verification against invariants
+
+---
+
+## The Cold-Start Test
+
+The Three Actor Model produces durable artifacts (documents, code, tests) that should allow any of the three roles to be replaced without catastrophic knowledge loss.
+
+A fresh Architect (new Kiro session) should be able to reconstruct the intended architecture from GitHub alone without repeating mistakes that prior sessions have already corrected.
+
+A fresh Implementation Engineer should be able to build the next task from existing specifications without needing conversational context.
+
+The Principal carries intent that may not be fully documented — but the discipline of explicit stopping points, journal entries, and parking-lot items reduces even that dependency.
+
+When a cold-start reconstruction fails (produces incorrect interpretations), that failure is evidence of a documentation defect, not a methodology failure. The methodology's response is to improve the durable artifacts.
 
 ---
 
 ## Domain Independence
 
-This principle survives the removal of all domain nouns.
+This methodology does not require options, AI, or any specific technology. It applies wherever:
 
-It does not require options, diamonds, ETFs, AI, or any specific technology. It applies wherever systems must balance the tension between discovering what is possible, deciding what is permissible, and executing what has been decided.
+- A human decision-maker (Principal) sets direction
+- A design intelligence (Architect) maintains structural coherence
+- A building capability (Engineer) produces working artifacts
+- The artifacts generate evidence that feeds back into all three roles
 
-That domain independence is what makes it foundational.
+The roles need not be filled by different people. They describe different cognitive modes. The discipline is in not conflating them — particularly in not allowing implementation urgency to override architectural coherence or architectural elegance to override Principal-determined direction.

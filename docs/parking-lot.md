@@ -31,7 +31,7 @@
 
 | ID | Name | Maturity | Summary | Concept Home |
 |---|---|---|---|---|
-| `PL-UX-01` | State-Oriented Operator Console | Documented | Observable state (what IS) vs operational state (what the system is DOING). Write Desk partially embodies this; full realization remains future work. | `foundations/state-oriented-console.md` |
+| `PL-UX-01` | State-Oriented Operator Console | Partially implemented | First slice delivered (August 2026): DTE ladder, moneyness visualization, position-detail modal, application-scoped portfolio store, observation store, home route. Remaining: capacity/exposure summary, situation rendering, NAV/mission progress, action transitions with context preservation. | `foundations/state-oriented-console.md`, `26-operator-console-architecture.md` |
 | `PL-UX-02` | Put/Call Desk Asymmetry | Active design question | Whether puts and calls ultimately require different evidence, ranking, presentation, workflows, or desk structures. Horizon A introduced shared-policy collapsible sections; deeper asymmetry unresolved. | `23-calls-architecture.md` |
 | `PL-UX-03` | Evidence Freshness and Provenance Language | Identified | "Current" is misleading for sealed prior-session evidence. Needs consistent operator-facing language distinguishing observation time, session validity, provenance, and usability across badges, banners, and drawers. No change to evidence-validity policy. | None |
 
@@ -39,7 +39,7 @@
 
 | ID | Name | Maturity | Summary | Concept Home |
 |---|---|---|---|---|
-| `PL-CALL-01` | Calls Horizon B | Partially Delivered | Call drawer (with posture explanation, projected called-away economics, non-applicable governance omitted) + Projected Call Surface (proposed-put entry point) delivered. Remaining: existing-put call integration, appreciation geometry, Fidelity call execution handoff. | `23-calls-architecture.md` |
+| `PL-CALL-01` | Calls Horizon B | Partially Delivered | Call drawer (identity, decision summary, position context, execution evidence, strike neighborhood, provenance) + Projected Call Surface (proposed-put entry point with representative contracts table) delivered. Remaining: existing-put PCS entry point, appreciation geometry, Fidelity call execution handoff. | `23-calls-architecture.md` |
 | `PL-CALL-02` | Calls Horizon C | Exploratory | Historical lifecycle linkage, independent call discovery (instruments not yet owned), longitudinal call intelligence, user-specific state, lifecycle quality in ranking. | `23-calls-architecture.md` |
 | `PL-CALL-03` | Familiarity vs Favorites | Seed | Familiarity is inferred from history/interaction. Favorites are explicit operator designation. Separate concepts that must not silently collapse. | None |
 | `PL-CALL-04` | Call Inventory and Eligibility Observability | Near-term queued | The system computes portfolio capacity and exclusion state that the operator cannot fully inspect: existing short calls encumbering shares, per-symbol eligibility reasons, the relationship between held/encumbered/free shares and executable contracts, and truthful empty-state diagnostics. Does not include recommendation-policy changes, independent call discovery, or trade lifecycle. | `23-calls-architecture.md` |
@@ -60,6 +60,7 @@
 | ID | Name | Maturity | Summary | Concept Home |
 |---|---|---|---|---|
 | `PL-PORT-01` | Portfolio-State Maturity | Partially implemented | Assignment transitions, richer encumbrance state, multi-account support, aggregation, stale-balance warnings, user-specific ownership state. Economics slice implemented; broader maturity remains. | `07-architecture-current.md`, `types.ts` |
+| `PL-PORT-02` | Portfolio Production Accounting | Seed (blocked on evidence gate) | Measure actual portfolio production per period across all income sources: option premium, dividends, interest, Treasury income. Must explicitly exclude principal movements (deposits, withdrawals, market appreciation/depreciation). Answers: "How much did my portfolio produce last month?" Distinct from PL-POL-02 (which is the policy/mandate that production matters); this is the measurement capability. Blocked on Fidelity Activity History inspection. | `discovery/01-temporal-capability-vocabulary.md` |
 
 ### Execution
 
@@ -73,7 +74,6 @@
 |---|---|---|---|---|
 | `PL-OPS-01` | Cloud Deployment (Evidence Appliance v1) | Accepted direction | Always-on backend on Render. Persistent SQLite. GitHub CI/CD. Independent of workstation. Sequenced after Java retooling acceptance. | `docs/24-cloud-deployment.md` |
 | `PL-OPS-02` | Post-Retooling Craftsmanship Review | Parked | Clean Code, maintainability, structural cleanup. After behavioral parity, not during. Must not cause premature stylistic refactoring during parity work. | None |
-| `PL-OPS-03` | Prior-Epoch Failed Scheduler Gap | Documented | `getPrioritizedWorkQueue` omits prior-epoch failed symbols. Fix when operational evidence shows user-visible impact. | `foundations/acquisition-scheduler-policy.md` |
 | `PL-OPS-04` | Notification and Background Awareness | Far future | Push notifications or indicators when evidence state changes significantly. Depends on cloud deployment. | None |
 | `PL-OPS-05` | ADR Coverage Review | Deferred | Repository-wide review to determine which major architectural decisions lack durable ADR rationale. Distinguish intentional decisions from incidental implementation evolution. Not exhaustive ADR production — identify gaps where retrospective ADRs would materially improve comprehension for future human and machine readers. After current Operator Console architecture work. | `07c-adrs.md` |
 
@@ -121,6 +121,7 @@ Items that have been implemented, superseded, or promoted to authoritative archi
 | #29 | Midpoint Yield Convention | Implemented | `07-architecture-current.md` §Midpoint Economics |
 | #31 | Four-Engine Decomposition | Promoted to ratified architecture | `07-architecture-current.md` §Conceptual Architecture |
 | #17 | Product-Structure (umbrella) | Split | Heuristic/governance: implemented. Catalog: `PL-RESEARCH-04`. Strategy auth: `PL-ARCH-01`. Workflow: `PL-RESEARCH-02`. |
+| `PL-OPS-03` | Prior-Epoch Failed Scheduler Gap | Implemented (Java) | `evidence-service-java/.../SqliteEvidenceStore.java` (recovery-probe clause in `getPrioritizedWorkQueue`), `RecoveryProbeTest.java` (8 tests) |
 
 ---
 
@@ -132,6 +133,7 @@ Items that have been implemented, superseded, or promoted to authoritative archi
 | Old #23 (Call Contract Quality) | Merged into | `PL-CALL-01` | Subsumed by broader Calls Horizon B |
 | Old #27 (Cloud deployment) | Stabilized as | `PL-OPS-01` | Constraints documented |
 | Old #28 (Prior-epoch failed gap) | Renamed | `PL-OPS-03` | Clarity |
+| `PL-OPS-03` | Graduated | Graduated/Closed Index | Java implementation includes recovery-probe mechanism with 8 tests. Foundation doc updated. |
 | Old #30 (Calls execution handoff) | Merged into | `PL-CALL-01` | Part of same milestone |
 | Old #17 (Product-Structure) | Split | Heuristic: graduated. Catalog: `PL-RESEARCH-04`. Strategy auth: `PL-ARCH-01`. Workflow: `PL-RESEARCH-02`. |
 | Old #21 (Portfolio-State Maturity) | Retained | `PL-PORT-01` | Economics implemented; broader maturity remains |

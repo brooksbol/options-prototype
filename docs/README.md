@@ -64,7 +64,8 @@ This directory contains the architectural documentation for the Wheelwright Evid
 | `foundations/conditioned-operating-opportunity.md` | Lifecycle quality concept |
 | `foundations/market-priced-risk.md` | Research topic: market pricing as evidence |
 | `foundations/recommendation-set-analysis.md` | Population-level observation concept |
-| `foundations/three-actor-model.md` | Explorer / Governor / Operator separation |
+| `foundations/three-actor-model.md` | Development methodology: Principal / Architect / Implementation Engineer |
+| `foundations/cognitive-role-separation.md` | Product design principle: Explorer / Governor / Operator separation |
 | `foundations/state-oriented-console.md` | Observable vs operational state |
 | `foundations/principles-governance-model.md` | Principles as domain model |
 | `foundations/secondary-observation.md` | Measurement reliability philosophy |

@@ -4,7 +4,7 @@
 
 This document describes the principle of measuring the mechanism that produces a measurement before trusting the measurement itself.
 
-It answers a different question than the Three Actor Model. Instead of "Who is acting?" it asks "How much should I trust what I'm observing?"
+It answers a different question than Cognitive Role Separation (`cognitive-role-separation.md`). Instead of "Who is the system serving?" it asks "How much should I trust what I'm observing?"
 
 ---
 
@@ -118,7 +118,7 @@ Each step produces evidence for whether the next step is warranted.
 
 ## Relationship to Other Principles
 
-**Three Actor Model** — Secondary observation is primarily a governance concern. The governor needs to trust evidence quality before making institutional decisions.
+**Cognitive Role Separation** — Secondary observation is primarily a governance concern. The governor needs to trust evidence quality before making institutional decisions.
 
 **Policy over Prediction** — Policy should incorporate evidence quality. "Reject because spreads are wide" is different from "Reject because spreads are wide *and the market is closed, so this may not reflect deployable conditions*."
 
