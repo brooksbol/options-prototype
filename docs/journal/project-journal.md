@@ -5274,3 +5274,55 @@ The assessor was run against the complete original 183-row Fidelity Activity His
 2. The stateless upload model works well for a first slice but cannot support month-over-month comparison or "how is August going so far?" without either persistence or re-uploading with each request.
 
 3. The `YOU SOLD EX-DIV DATE...` action pattern (03/31 VCSH sale in the original) is currently classified as ASSET_SALE, which is correct for the classifier. But the "EX-DIV DATE" annotation in the action text contains information (the sale was timed relative to a dividend date) that future lifecycle analysis might want to preserve. Not a problem today — just noted.
+
+
+---
+
+## 2026-08-07 — Yield Suppression Bug and Architectural Debt Discovery
+
+### Context
+
+Live-market observation: ITB Aug 21 2026 $97 put (14 DTE, delta 0.26, bid $0.70, ask $1.15, OI 5,011, volume 1,500) displayed yield as "—" despite being ACTIONABLE at execution score 70/100. The drawer also showed ANNUALIZED as "—". Fidelity independently confirmed the contract was live and tradable.
+
+### Root cause
+
+A spread-based yield suppression rule (`spreadPct <= preferredSpreadPercent * 2 ? compute : null`) was applying spread as a binary gate on yield visibility independent of the execution-quality model. ITB's relative spread was 48.6% (above the 30% threshold) because the premium is small relative to the $97 strike — but the market was extremely deep (5,011 OI, 1,500 volume).
+
+The execution-quality model already penalized the spread (25/100 score on that component) while allowing the other three components (OI, volume, premium) to compensate, producing an ACTIONABLE composite score of 70. The yield suppression gate then erased the economics entirely — double governance of the same evidence with contradictory conclusions.
+
+Additionally, `yieldAnnualized = null` propagated into ranking as `-1` or `0`, causing ACTIONABLE candidates with wide relative spreads to sort below candidates with lower actual yield but narrower spreads.
+
+### Fix
+
+Removed the spread-based yield suppression entirely. Yield is now always computed for all constructed candidates using the midpoint convention: `(mid / collateral) × (365 / dte) × 100`. `yieldAnnualized` changed from `number | null` to `number`. Ranking modes use actual numeric yield without null sentinels.
+
+Execution quality continues to govern market reliability (spread has 40% weight). Hard exclusion at 80% spread remains. The two domains (economics vs execution quality) are now independent.
+
+### Architectural debt exposed
+
+The fix required changes in **5 places** that independently encoded the same suppression rule:
+
+1. `recommend.ts` — **live** (primary put recommendation engine)
+2. `recommend-calls.ts` — **live** (primary call recommendation engine)
+3. `scan-orchestrator.ts` (put + call paths) — **dead code** (zero runtime callers; tests only)
+4. `universe-scanner.ts` — **dead code** (zero runtime callers; tests only)
+
+Plus a **6th location** in `brief-builder.ts` / `call-brief-builder.ts` (neighborhood yield computation) that caused a drawer blank-screen crash until fixed.
+
+**Key findings:**
+
+- 3 of 5 recommendation/scanning pipelines have no runtime callers. They are historical paths retained only because tests exercise them.
+- The live browser still owns substantial recommendation semantics: ranking, posture, policy application, economic interpretation.
+- This is described as "transitional" in the Retooling Charter but had no concrete parking-lot item tracking the transition target.
+- Duplicated policy across multiple independent pipelines is how a simple rule ends up needing correction in 5+ places.
+
+### Decisions
+
+- Fix the yield correctness defect now (this increment).
+- Do NOT attempt pipeline consolidation or recommendation-engine migration.
+- Record both debt items durably: `PL-ARCH-06` (recommendation engine ownership) and `PL-OPS-06` (dead pipeline retirement).
+- The architectural lesson: "transitional" without a recorded transition target is insufficient under the project's reconstructibility standard.
+
+### Principle clarified
+
+> Yield is an economic fact at Wheelwright's midpoint convention. Execution quality governs market reliability independently. No execution rule should suppress a computable economic value — the operator can see 24.9% annualized yield alongside a mediocre spread score and decide accordingly.

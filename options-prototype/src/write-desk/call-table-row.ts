@@ -41,7 +41,7 @@ export interface ExecutableCallRow {
   spreadPercent: number;
   openInterest: number;
   volume: number;
-  yieldAnnualized: number | null;
+  yieldAnnualized: number;
   posture: string;
   executionScore: number;
 }

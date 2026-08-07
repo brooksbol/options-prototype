@@ -206,7 +206,7 @@ The engine always produces the full eligible population. Presentation layers sli
 
 3. **`preferredDeltaBand` is declared but unused** — Neither scoring nor selection uses this band. Contract selection sorts by distance from `targetDelta` but doesn't score preference match.
 
-4. **Yield suppression at 30% is hardcoded relative to `preferredSpreadPercent`** — The 2× multiplier is embedded in the recommend function, not configurable separately.
+4. **Yield suppression removed (August 2026)** — The former 2× `preferredSpreadPercent` binary gate on yield visibility was removed. Yield is now always computed from the midpoint convention. Execution quality (where spread has 40% weight) communicates market reliability independently.
 
 5. **No per-symbol exclusion reason is surfaced to the operator** — The engine tracks aggregate exclusion counts but doesn't store per-symbol "why excluded" for drill-down.
 

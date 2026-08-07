@@ -97,7 +97,7 @@ export function CallBrief({
           <div className="rb-hero-row rb-hero-primary">
             <span className="rb-hero-label">Annualized</span>
             <span className="rb-hero-value">
-              {brief.decision.yieldAnnualized != null ? `${brief.decision.yieldAnnualized.toFixed(1)}%` : "\u2014"}
+              {`${brief.decision.yieldAnnualized.toFixed(1)}%`}
             </span>
           </div>
           <div className={`rb-hero-row rb-hero-fit rb-fit-${brief.deltaFit.category}`}>
@@ -225,7 +225,7 @@ export function CallBrief({
                   <td>${c.bid.toFixed(2)}</td>
                   <td>{c.spreadPercent.toFixed(0)}%</td>
                   <td>{c.openInterest.toLocaleString()}</td>
-                  <td>{c.yieldAnnualized != null ? `${c.yieldAnnualized.toFixed(1)}%` : "\u2014"}</td>
+                  <td>{`${c.yieldAnnualized.toFixed(1)}%`}</td>
                   <td><span className={`rb-tag rb-tag-${tagClass(c.tag)}`} title={tagTooltip(c.tag)}>{tagLabel(c.tag)}</span></td>
                 </tr>
               ))}

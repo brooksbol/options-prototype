@@ -245,9 +245,9 @@ describe("recommendation funnel — yield null semantics", () => {
     cache = getDurableCache();
   });
 
-  it("yield is null when spread exceeds 2x preferredSpreadPercent", async () => {
-    // preferredSpreadPercent = 15 → threshold = 30%
-    // bid=1.00, ask=1.50 → mid=1.25, spread=0.50, spreadPct=40% > 30%
+  it("yield is always computed regardless of spread (execution quality governs reliability)", async () => {
+    // bid=1.00, ask=1.50 → mid=1.25, spread=0.50, spreadPct=40%
+    // Yield = (1.25/50) * (365/21) * 100 ≈ 43.45%
     const expKey = buildCacheKey("tradier", env, "expirations", "WSPY");
     await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, "WSPY", null, [{ date: "2026-08-03", dte: 21 }]));
     const chainKey = buildCacheKey("tradier", env, "chain", "WSPY", "2026-08-03");
@@ -258,7 +258,7 @@ describe("recommendation funnel — yield null semantics", () => {
 
     const result = await recommendPuts(["WSPY"], 500_000, cache, cacheEnv());
     expect(result.candidates.length).toBe(1);
-    expect(result.candidates[0].yieldAnnualized).toBeNull();
+    expect(result.candidates[0].yieldAnnualized).toBeCloseTo(43.45, 0);
   });
 
   it("yield is calculated when spread is within 2x preferredSpreadPercent", async () => {

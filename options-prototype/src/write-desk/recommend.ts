@@ -386,7 +386,7 @@ export async function recommendPuts(
             volume: contract.volume,
             cashRequired,
             cashRemaining: effectiveCash - cashRequired,
-            yieldAnnualized: null, // suppressed — spread unreliable
+            yieldAnnualized: annualizedYield(mid, contract.strike, exp.dte),
             assessment: { score: 0, posture: "UNAVAILABLE", components: [], hardNoReason: hardNoReason, policyVersion: policy.executionAssessment.version },
             posture: "WIDE_SPREAD" as any,
             affordable,
@@ -400,9 +400,7 @@ export async function recommendPuts(
         allHardNo = false;
 
         const assessment = assessExecution(evidence, policy.executionAssessment);
-        const yieldAnnualized = spreadPct <= policy.executionAssessment.preferredSpreadPercent * 2
-          ? annualizedYield(mid, contract.strike, exp.dte)
-          : null;
+        const yieldAnnualized = annualizedYield(mid, contract.strike, exp.dte);
 
         const candidate: PutCandidate = {
           rank: 0,
@@ -599,26 +597,24 @@ function rankByPolicy(candidates: PutCandidate[], ranking: RankingPolicy): PutCa
     switch (ranking.mode) {
       case "execution_first":
         if (a.assessment.score !== b.assessment.score) return b.assessment.score - a.assessment.score;
-        return (b.yieldAnnualized ?? -1) - (a.yieldAnnualized ?? -1);
+        return b.yieldAnnualized - a.yieldAnnualized;
 
       case "yield_first": {
-        const ya = a.yieldAnnualized ?? -1;
-        const yb = b.yieldAnnualized ?? -1;
-        if (ya !== yb) return yb - ya;
+        if (a.yieldAnnualized !== b.yieldAnnualized) return b.yieldAnnualized - a.yieldAnnualized;
         return b.assessment.score - a.assessment.score;
       }
 
       case "capital_efficiency": {
-        const effA = a.yieldAnnualized != null ? a.yieldAnnualized / (a.cashRequired / 1000) : -1;
-        const effB = b.yieldAnnualized != null ? b.yieldAnnualized / (b.cashRequired / 1000) : -1;
+        const effA = a.yieldAnnualized / (a.cashRequired / 1000);
+        const effB = b.yieldAnnualized / (b.cashRequired / 1000);
         if (effA !== effB) return effB - effA;
         return b.assessment.score - a.assessment.score;
       }
 
       case "balanced":
       default: {
-        const scoreA = a.assessment.score + (a.yieldAnnualized ?? 0);
-        const scoreB = b.assessment.score + (b.yieldAnnualized ?? 0);
+        const scoreA = a.assessment.score + a.yieldAnnualized;
+        const scoreB = b.assessment.score + b.yieldAnnualized;
         return scoreB - scoreA;
       }
     }

@@ -1382,12 +1382,7 @@
   color: var(--wd-text-secondary);
 }
 
-/* Yield suppressed indicator */
-.wd-yield-suppressed {
-  color: var(--wd-text-disabled);
-  cursor: help;
-  border-bottom: 1px dotted var(--wd-text-disabled);
-}
+/* (yield-suppressed indicator removed — yield is always computed) */
 
 
 /* Deferred section note */

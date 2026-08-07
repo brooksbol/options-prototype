@@ -87,7 +87,7 @@ export interface NeighborContract {
   spreadPercent: number;
   openInterest: number;
   volume: number;
-  yieldAnnualized: number | null;
+  yieldAnnualized: number;
   isSelected: boolean;
   tag: NeighborTag;
 }
@@ -152,7 +152,7 @@ export interface WheelwrightBriefViewModel {
     volume: number;
     premiumAtBid: number;
     premiumAtMid: number;
-    yieldAnnualized: number | null;
+    yieldAnnualized: number;
     cashRequired: number;
     cashRemaining: number;
     effectiveCostBasis: number;
@@ -375,9 +375,9 @@ function buildNeighbor(
   const mid = midPrice(put.bid, put.ask);
   const spread = put.ask - put.bid;
   const spreadPct = mid > 0 ? (spread / mid) * 100 : 100;
-  const yld = spreadPct <= 30 && put.bid > 0 && selected.dte > 0
+  const yld = put.bid > 0 && selected.dte > 0
     ? annualizedYield(mid, put.strike, selected.dte)
-    : null;
+    : 0;
 
   let tag: NeighborTag;
 
@@ -405,7 +405,7 @@ function buildNeighbor(
       tag = "WIDE_SPREAD";
     } else if (put.openInterest < selected.openInterest * 0.5) {
       tag = "LOW_OI";
-    } else if (yld != null && selected.yieldAnnualized != null && yld < selected.yieldAnnualized) {
+    } else if (yld < selected.yieldAnnualized) {
       tag = "LOWER_YIELD";
     } else {
       tag = "LOWER_EXEC";

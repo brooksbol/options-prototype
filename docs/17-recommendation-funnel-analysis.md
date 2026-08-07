@@ -100,22 +100,24 @@ For each symbol, the engine evaluates ALL contracts across ALL eligible expirati
 
 ---
 
-## 5. Yield "—" Explanation
+## 5. Yield Semantics
 
-A yield value of `null` (displayed as "—") means **yield is suppressed because the bid-ask spread makes the midpoint unreliable**, NOT a divide-by-zero.
+Yield is **always computed** for every constructed candidate using the midpoint convention:
 
-The rule:
 ```
-if (spreadPercent > 2 × preferredSpreadPercent) → yield = null
+yieldAnnualized = (mid / collateral) × (365 / dte) × 100
 ```
 
-With `preferredSpreadPercent = 15`:
-- Spread ≤ 30% → yield calculated as `(bid / strike) × (365 / dte) × 100`
-- Spread > 30% → yield suppressed (displayed as "—")
+Where:
+- `mid = (bid + ask) / 2` (Wheelwright's midpoint valuation convention)
+- `collateral = strike` for puts, `underlyingPrice` for calls
+- `dte` = days to expiration
 
-The contract is still eligible (it passed hard-no and scored ≥ 35). The yield display is suppressed because annualizing a premium based on an unreliable midpoint would be misleading.
+This is an economic fact derived from the chosen price convention. It is not a fill guarantee.
 
-**It is not a divide-by-zero.** The formula handles zero guards separately (`if dte === 0 || collateral === 0 return 0`).
+**Execution quality** (spread, OI, volume, premium) separately communicates how attractive or reliable execution would be. A wide-spread contract may have high yield and poor execution quality — those are independent assessments answering different questions.
+
+**Historical note (August 2026):** Prior to this correction, yield was suppressed (set to null, displayed as "—") when spread exceeded 2× preferredSpreadPercent (30%). This was removed because it constituted double governance of spread: once through the execution-quality model (where spread has 40% weight) and again as a binary yield-visibility gate. The effect was that ACTIONABLE candidates with wide relative spreads but excellent OI/volume appeared to have no economics, distorting recommendation ranking.
 
 ---
 
@@ -213,8 +215,8 @@ File: `tests/write-desk/recommend-funnel.test.ts` — 17 tests:
 - Low execution score → WAIT posture → excluded from eligible, appears in waitCandidates
 
 **Yield semantics:**
-- Yield null when spread > 2× preferred (suppression, not error)
-- Yield calculated when spread within threshold
+- Yield always computed from midpoint convention: `(mid / collateral) × (365 / dte) × 100`
+- Execution quality (not yield visibility) communicates spread reliability
 
 **Policy sensitivity:**
 - Wider delta range admits more symbols

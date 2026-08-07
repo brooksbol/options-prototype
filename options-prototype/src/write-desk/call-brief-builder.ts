@@ -42,7 +42,7 @@ export interface CallNeighborContract {
   spreadPercent: number;
   openInterest: number;
   volume: number;
-  yieldAnnualized: number | null;
+  yieldAnnualized: number;
   isSelected: boolean;
   tag: CallNeighborTag;
 }
@@ -134,7 +134,7 @@ export interface CallBriefViewModel {
     openInterest: number;
     volume: number;
     premiumPerContract: number;
-    yieldAnnualized: number | null;
+    yieldAnnualized: number;
     maxContracts: number;
     strikeAbovePrice: boolean;
   };
@@ -358,9 +358,9 @@ function buildCallNeighbor(
   const mid = midPrice(call.bid, call.ask);
   const spread = call.ask - call.bid;
   const spreadPct = mid > 0 ? (spread / mid) * 100 : 100;
-  const yld = spreadPct <= 30 && call.bid > 0 && selected.dte > 0
+  const yld = call.bid > 0 && selected.dte > 0
     ? annualizedYield(mid, selected.underlyingPrice, selected.dte)
-    : null;
+    : 0;
 
   let tag: CallNeighborTag;
 
@@ -388,7 +388,7 @@ function buildCallNeighbor(
       tag = "WIDE_SPREAD";
     } else if (call.openInterest < selected.openInterest * 0.5) {
       tag = "LOW_OI";
-    } else if (yld != null && selected.yieldAnnualized != null && yld < selected.yieldAnnualized) {
+    } else if (yld < selected.yieldAnnualized) {
       tag = "LOWER_YIELD";
     } else {
       tag = "LOWER_EXEC";

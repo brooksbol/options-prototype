@@ -145,9 +145,7 @@ export async function recommendCalls(
       const assessment = assessExecution(evidence, policy.executionAssessment);
 
       // Yield: premium / underlying price (annualized)
-      const yieldAnnualized = spreadPct <= policy.executionAssessment.preferredSpreadPercent * 2
-        ? annualizedYield(mid, underlyingPrice, exp.dte)
-        : null;
+      const yieldAnnualized = annualizedYield(mid, underlyingPrice, exp.dte);
 
       const candidate: CallCandidate = {
         rank: 0,
@@ -216,23 +214,23 @@ function rankCallCandidates(
     switch (mode) {
       case "execution_first":
         if (a.assessment.score !== b.assessment.score) return b.assessment.score - a.assessment.score;
-        return (b.yieldAnnualized ?? -1) - (a.yieldAnnualized ?? -1);
+        return b.yieldAnnualized - a.yieldAnnualized;
 
       case "yield_first":
-        if ((a.yieldAnnualized ?? -1) !== (b.yieldAnnualized ?? -1))
-          return (b.yieldAnnualized ?? -1) - (a.yieldAnnualized ?? -1);
+        if (a.yieldAnnualized !== b.yieldAnnualized)
+          return b.yieldAnnualized - a.yieldAnnualized;
         return b.assessment.score - a.assessment.score;
 
       case "balanced": {
-        const scoreA = a.assessment.score + (a.yieldAnnualized ?? 0) * 0.5;
-        const scoreB = b.assessment.score + (b.yieldAnnualized ?? 0) * 0.5;
+        const scoreA = a.assessment.score + a.yieldAnnualized * 0.5;
+        const scoreB = b.assessment.score + b.yieldAnnualized * 0.5;
         return scoreB - scoreA;
       }
 
       case "capital_efficiency":
         // For calls: higher yield per share price = more efficient
-        const effA = (a.yieldAnnualized ?? 0) / (a.underlyingPrice || 1);
-        const effB = (b.yieldAnnualized ?? 0) / (b.underlyingPrice || 1);
+        const effA = a.yieldAnnualized / (a.underlyingPrice || 1);
+        const effB = b.yieldAnnualized / (b.underlyingPrice || 1);
         if (effA !== effB) return effB - effA;
         return b.assessment.score - a.assessment.score;
 

@@ -149,7 +149,7 @@ Operationalizations:
 
 Operationalizations:
 - Yield is meaningful only when execution quality supports it
-- Suppress unreliable yield calculations (spread > threshold)
+- Yield always computed from midpoint convention; execution quality communicates reliability separately
 - Rank by risk-adjusted return, not nominal premium
 - Capital efficiency matters (don't over-collateralize marginal yield)
 
@@ -197,7 +197,7 @@ Operationalizations:
 | `hardExcludeZeroOI` | Execute with Discipline | No — implied |
 | `preferredSpreadPercent: 15` | Execute with Discipline | Partially — named "preferred" |
 | `actionableFloor: 65` | Execute with Discipline | No — arbitrary-seeming threshold |
-| Yield suppression at 30% spread | Earn Proportional Compensation | Partially — documented as reliability guard |
+| Midpoint yield convention | Earn Proportional Compensation | Yes — yield always computed at midpoint; execution quality governs reliability |
 | One candidate per symbol | Avoid Concentration | No — implementation detail |
 | `deployableCash` requirement | Preserve Optionality | Partially — named "deployable" |
 | Session-aware acquisition | Observe Before Acting | Yes — documented in evidence-appliance |

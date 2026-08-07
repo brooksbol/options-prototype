@@ -53,19 +53,16 @@ describe("scanPuts — affordability", () => {
   });
 });
 
-describe("scanPuts — yield suppression", () => {
-  it("suppresses yield when spread is too wide for reliable midpoint", async () => {
-    // Spread: (5.00 - 0.50) / 2.75 midpoint = 163% — well above 2× preferred (30%)
-    const provider = makeMockProvider(50, 0.50, 5.00, 100, 50);
-    const result = await scanPuts(["TEST"], 18500, provider);
-    // This would be hard-excluded (spread > 80%), so use a less extreme case
-    // spread: (1.50 - 0.30) / 0.90 = 133% — above 2× preferred
+describe("scanPuts — yield always computed", () => {
+  it("computes yield regardless of spread (execution quality governs reliability)", async () => {
+    // Spread: (1.50 - 0.30) / 0.90 = 133% — wide spread but bid > 0
+    // This may be hard-excluded (spread > 80%) depending on the provider mock
     const provider2 = makeMockProvider(50, 0.30, 1.50, 100, 50);
     const result2 = await scanPuts(["TEST"], 18500, provider2);
 
     if (result2.candidates.length > 0) {
-      // If a candidate survived, its yield should be suppressed
-      expect(result2.candidates[0].yieldAnnualized).toBeNull();
+      // If a candidate survived hard-exclusion, yield must be populated
+      expect(result2.candidates[0].yieldAnnualized).toBeGreaterThan(0);
     }
   });
 

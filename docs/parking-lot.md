@@ -26,6 +26,7 @@
 | `PL-ARCH-03` | Security and User Accounts | Seed | Application-managed users, password hashing, session cookies, user-ownership boundaries. Depends on cloud deployment. | `10-backend-implementation-preferences.md` §5 |
 | `PL-ARCH-04` | Policy-Governance Scaling | Seed | How policy remains versioned, attributable, inspectable, testable as complexity grows. The architectural concern is scaling governance if rule complexity outgrows the current model. No technology selected. | None |
 | `PL-ARCH-05` | Cache-Based Recommendation Trigger | Identified | Portfolio-dependent recommendation recomputation should be independently triggerable from cached evidence (IndexedDB). Must not depend on a changed backend ETag or new acquisition cycle. Currently works only via forced ETag reset. | None |
+| `PL-ARCH-06` | Recommendation Engine Ownership | Identified | Recommendation generation, policy application, ranking, posture, and economic interpretation are currently browser-local (documented as transitional per Retooling Charter). No concrete migration path or durable ownership decision exists. Goal: determine whether recommendation logic moves to the backend (likely for multi-user, auditability, single-source-of-truth) or remains browser-local with explicit architectural rationale. Exposed by the yield-suppression bug fix: a policy rule needed correction in multiple independent frontend pipelines. | `foundations/retooling-charter.md` (transitional boundary) |
 
 ### UX / Operator Experience
 
@@ -76,6 +77,7 @@
 | `PL-OPS-02` | Post-Retooling Craftsmanship Review | Parked | Clean Code, maintainability, structural cleanup. After behavioral parity, not during. Must not cause premature stylistic refactoring during parity work. | None |
 | `PL-OPS-04` | Notification and Background Awareness | Far future | Push notifications or indicators when evidence state changes significantly. Depends on cloud deployment. | None |
 | `PL-OPS-05` | ADR Coverage Review | Deferred | Repository-wide review to determine which major architectural decisions lack durable ADR rationale. Distinguish intentional decisions from incidental implementation evolution. Not exhaustive ADR production — identify gaps where retrospective ADRs would materially improve comprehension for future human and machine readers. After current Operator Console architecture work. | `07c-adrs.md` |
+| `PL-OPS-06` | Dead Recommendation Pipeline Retirement | Identified | `scanPuts()`, `scanCalls()` (scan-orchestrator.ts) and `scanUniversePuts()` (universe-scanner.ts) have zero runtime callers — exercised only by tests. They independently implement recommendation/policy semantics duplicating the live `recommendPuts`/`recommendCalls` paths. Duplicated policy increases change blast radius and risks drift (demonstrated by the yield-suppression bug requiring correction in 5 places). Goal: remove dead paths or prove a concrete future use before retaining them. | None |
 
 ### Policy
 

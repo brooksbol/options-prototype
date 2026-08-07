@@ -179,18 +179,19 @@ describe("funnel accounting — reconciliation", () => {
     expect(result.candidates.length).toBe(15);
   });
 
-  it("yield is suppressed when spread > 2x preferred (30%) with explicit reason available", async () => {
-    // bid=1.00, ask=1.50 → mid=1.25, spread=0.50, spreadPct=40% > 30%
+  it("yield is computed even when spread > 30% (execution quality, not yield, governs spread)", async () => {
+    // bid=1.00, ask=1.50 → mid=1.25, spread=0.50, spreadPct=40%
+    // Yield should be computed: (1.25/50) * (365/21) * 100 ≈ 43.45%
     await populateSymbol("WSPY", [
       { strike: 50, bid: 1.00, ask: 1.50, delta: -0.30, openInterest: 500, volume: 100 },
     ]);
 
     const result = await recommendPuts(["WSPY"], 500_000, cache, cacheEnv());
     expect(result.candidates.length).toBe(1);
-    expect(result.candidates[0].yieldAnnualized).toBeNull();
-    // The candidate is still ACTIONABLE or EDGE despite suppressed yield
+    expect(result.candidates[0].yieldAnnualized).toBeCloseTo(43.45, 0);
+    // The candidate is still ACTIONABLE or EDGE — spread penalizes execution, not yield
     expect(["ACTIONABLE", "EDGE"]).toContain(result.candidates[0].posture);
-    // The spreadPercent is available for explicit reason
+    // Spread is visible for operator awareness
     expect(result.candidates[0].spreadPercent).toBeGreaterThan(30);
   });
 
@@ -217,9 +218,7 @@ describe("funnel accounting — reconciliation", () => {
     expect(c.assessment).toBeDefined();
     expect(c.assessment.score).toBeGreaterThan(0);
     expect(c.posture).toBeDefined();
-    // yieldAnnualized may be null — but only when spread > 30% (has explicit reason)
-    if (c.yieldAnnualized === null) {
-      expect(c.spreadPercent).toBeGreaterThan(30);
-    }
+    // yieldAnnualized is always computed for scored candidates
+    expect(c.yieldAnnualized).toBeGreaterThan(0);
   });
 });

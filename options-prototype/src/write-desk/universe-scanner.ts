@@ -433,9 +433,7 @@ async function evaluateSymbolFromCache(
       if (isHardNo(evidence, scanConfig.executionPolicy)) continue;
 
       const assessment = assessExecution(evidence, scanConfig.executionPolicy);
-      const yieldAnnualized = spreadPct <= scanConfig.executionPolicy.preferredSpreadPercent * 2
-        ? annualizedYield(mid, contract.strike, exp.dte)
-        : null;
+      const yieldAnnualized = annualizedYield(mid, contract.strike, exp.dte);
 
       const candidate: PutCandidate = {
         rank: 0,
@@ -492,9 +490,7 @@ function rankCandidates(candidates: PutCandidate[]): PutCandidate[] {
     const pb = POSTURE_ORDER[b.posture];
     if (pa !== pb) return pa - pb;
     if (a.assessment.score !== b.assessment.score) return b.assessment.score - a.assessment.score;
-    const ya = a.yieldAnnualized ?? -1;
-    const yb = b.yieldAnnualized ?? -1;
-    if (ya !== yb) return yb - ya;
+    if (a.yieldAnnualized !== b.yieldAnnualized) return b.yieldAnnualized - a.yieldAnnualized;
     return a.symbol.localeCompare(b.symbol);
   });
   return sorted.map((c, i) => ({ ...c, rank: i + 1 }));

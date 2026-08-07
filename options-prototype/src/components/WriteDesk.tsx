@@ -638,7 +638,7 @@ export function WriteDesk() {
                 const downloadCsv = () => {
                   const rows = filtered.slice(0, showCount);
                   const header = "Rank,Symbol,Expiration,DTE,Strike,Delta,Bid,Ask,Spread%,OI,Yield%,CashRequired,Remaining,Exec,Posture,Governance";
-                  const csvRows = rows.map((c, i) => `${i+1},${c.symbol},${c.expiration},${c.dte},${c.strike},${Math.abs(c.delta).toFixed(2)},${c.bid.toFixed(2)},${c.ask.toFixed(2)},${c.spreadPercent.toFixed(1)},${c.openInterest},${c.yieldAnnualized != null ? c.yieldAnnualized.toFixed(1) : ""},${c.cashRequired},${c.cashRemaining},${c.assessment.score},${c.posture},${c.governance.status}`);
+                  const csvRows = rows.map((c, i) => `${i+1},${c.symbol},${c.expiration},${c.dte},${c.strike},${Math.abs(c.delta).toFixed(2)},${c.bid.toFixed(2)},${c.ask.toFixed(2)},${c.spreadPercent.toFixed(1)},${c.openInterest},${c.yieldAnnualized.toFixed(1)},${c.cashRequired},${c.cashRemaining},${c.assessment.score},${c.posture},${c.governance.status}`);
                   const csv = [header, ...csvRows].join("\n");
                   const blob = new Blob([csv], { type: "text/csv" });
                   const url = URL.createObjectURL(blob);
@@ -875,7 +875,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
             <td>${c.ask.toFixed(2)}</td>
             <td className={c.spreadPercent > 15 ? "wd-warn-value" : ""}>{c.spreadPercent.toFixed(0)}%</td>
             <td className={c.openInterest < 50 ? "wd-warn-value" : ""}>{c.openInterest}</td>
-            <td>{c.yieldAnnualized != null ? `${c.yieldAnnualized.toFixed(1)}%` : <span className="wd-yield-suppressed" title={`Yield suppressed — spread ${c.spreadPercent.toFixed(0)}% exceeds 30% reliability threshold`}>—</span>}</td>
+            <td>{`${c.yieldAnnualized.toFixed(1)}%`}</td>
             <td>{!c.affordable && <span className="wd-unaffordable-mark">$</span>}${c.cashRequired.toLocaleString()}</td>
             <td className={c.cashRemaining < 0 ? "wd-negative-value" : ""}>${c.cashRemaining.toLocaleString()}</td>
             <td>{c.assessment.score}</td>
@@ -935,7 +935,7 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
             <td>${c.ask.toFixed(2)}</td>
             <td className={c.spreadPercent > 15 ? "wd-warn-value" : ""}>{c.spreadPercent.toFixed(0)}%</td>
             <td className={c.openInterest < 50 ? "wd-warn-value" : ""}>{c.openInterest}</td>
-            <td>{c.yieldAnnualized != null ? `${c.yieldAnnualized.toFixed(1)}%` : "—"}</td>
+            <td>{`${c.yieldAnnualized.toFixed(1)}%`}</td>
             <td>{c.freeShares}</td>
             <td>{c.maxContracts}</td>
             <td>{c.assessment.score}</td>

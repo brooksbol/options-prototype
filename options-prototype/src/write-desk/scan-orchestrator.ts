@@ -77,7 +77,7 @@ export interface PutCandidate {
   volume: number;
   cashRequired: number;
   cashRemaining: number;
-  yieldAnnualized: number | null;  // null if suppressed (unreliable spread)
+  yieldAnnualized: number;  // annualized midpoint yield (always computed for constructed candidates)
   assessment: ExecutionAssessment;
   posture: ActionPosture;
   /** Whether the operator has sufficient deployable cash for this contract */
@@ -104,7 +104,7 @@ export interface CallCandidate {
   freeShares: number;
   maxContracts: number;
   premiumPerContract: number;
-  yieldAnnualized: number | null;
+  yieldAnnualized: number;
   assessment: ExecutionAssessment;
   posture: ActionPosture;
   /** Whether strike is above current price */
@@ -370,10 +370,8 @@ async function searchPutCandidates(
         expEvidence.bestScore = assessment.score;
       }
 
-      // Yield — suppress when spread makes midpoint unreliable
-      const yieldAnnualized = spreadPct <= config.executionPolicy.preferredSpreadPercent * 2
-        ? annualizedYield(mid, contract.strike, exp.dte)
-        : null;
+      // Yield — annualized midpoint yield (always computed; execution quality governs reliability)
+      const yieldAnnualized = annualizedYield(mid, contract.strike, exp.dte);
 
       const candidate: PutCandidate = {
         rank: 0,
@@ -543,9 +541,7 @@ export async function scanCalls(
         const assessment = assessExecution(evidence, config.executionPolicy);
         const underlyingPrice = chain.underlying.price;
 
-        const yieldAnnualized = spreadPct <= config.executionPolicy.preferredSpreadPercent * 2
-          ? annualizedYield(mid, underlyingPrice, exp.dte)
-          : null;
+        const yieldAnnualized = annualizedYield(mid, underlyingPrice, exp.dte);
 
         const candidate: CallCandidate = {
           rank: 0,
@@ -625,10 +621,8 @@ function rankPutCandidates(candidates: PutCandidate[]): PutCandidate[] {
     if (pa !== pb) return pa - pb;
     // 2. Execution score (higher first)
     if (a.assessment.score !== b.assessment.score) return b.assessment.score - a.assessment.score;
-    // 3. Yield (higher first, null last)
-    const ya = a.yieldAnnualized ?? -1;
-    const yb = b.yieldAnnualized ?? -1;
-    if (ya !== yb) return yb - ya;
+    // 3. Yield (higher first)
+    if (a.yieldAnnualized !== b.yieldAnnualized) return b.yieldAnnualized - a.yieldAnnualized;
     // 4. Symbol (deterministic)
     return a.symbol.localeCompare(b.symbol);
   });
@@ -641,9 +635,7 @@ function rankCallCandidates(candidates: CallCandidate[]): CallCandidate[] {
     const pb = POSTURE_ORDER[b.posture];
     if (pa !== pb) return pa - pb;
     if (a.assessment.score !== b.assessment.score) return b.assessment.score - a.assessment.score;
-    const ya = a.yieldAnnualized ?? -1;
-    const yb = b.yieldAnnualized ?? -1;
-    if (ya !== yb) return yb - ya;
+    if (a.yieldAnnualized !== b.yieldAnnualized) return b.yieldAnnualized - a.yieldAnnualized;
     return a.symbol.localeCompare(b.symbol);
   });
   return sorted.map((c, i) => ({ ...c, rank: i + 1 }));
