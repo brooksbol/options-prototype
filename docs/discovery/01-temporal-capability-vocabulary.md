@@ -55,12 +55,14 @@ Wheelwright is weak here.
 - PendingIntent (records that an order was opened; not its outcome)
 - PositionEconomics (current cost basis from Fidelity; not how it got there)
 - Sealed evidence from prior sessions (market state, not operator actions)
+- **Transaction Evidence ingestion** (Fidelity Activity History parser — first slice delivered August 2026)
+- **Production Accounting** (monthly cash-basis production assessment — first backend slice delivered August 2026)
 
-**Missing:**
-- Transaction import (what trades were executed)
+**Remaining gaps:**
 - Lifecycle completion (which wheel cycles resolved and how)
-- Production accounting (how much income was generated per period)
 - Longitudinal learning (did our principles produce good outcomes)
+- Persistence / multi-month trend
+- Frontend presentation of production results
 
 ---
 
@@ -75,6 +77,7 @@ What trades were executed, at what prices, with what fees.
 - Source: Fidelity Activity History export
 - Domain model: accounting/ledger ontology (established prior art in Sharesight, Portfolio Performance)
 - Scope: all transaction types — options, equities, dividends, interest, Treasury events, deposits, withdrawals
+- **Status (August 2026):** First slice delivered. `FidelityActivityParser` + `TransactionClassifier` + `FidelityTransactionKind` enum parse and classify all 19 observed action patterns. Validated against complete 183-row export with zero unclassified July actions.
 
 ### 2. Lifecycle Reconstruction
 
@@ -83,15 +86,17 @@ Which wheel cycles completed: put → assignment → shares → call → resolut
 - Requires: transaction evidence (above) + linking logic
 - Domain model: semantic sequences built on top of raw transactions
 - Scope: wheel-specific (this is NOT strategy-agnostic)
+- **Status:** Not yet implemented. Transaction evidence now exists; linking logic is the next layer.
 
 ### 3. Production Accounting
 
-How much income was the portfolio produced in a period, decomposed by source.
+How much cash was the portfolio produced in a period, decomposed by source.
 
 - Requires: transaction evidence + period boundaries + principal-movement exclusion
 - Scope: all production sources (option premium, dividends, interest, Treasury income) — explicitly broader than options
 - Key distinction: production (income generated) vs principal (capital movements, market appreciation/depreciation)
 - This is the domain that answers: "How much can I withdraw this month without depleting capital?"
+- **Status (August 2026):** First backend slice delivered. `ProductionAssessor` + API endpoint + asymmetric realization + reconciliation. Validated against complete Fidelity export: July 2026 known production $3,686.93. Frontend presentation not yet built.
 
 ### 4. Longitudinal Learning
 
@@ -111,7 +116,7 @@ Lifecycle Reconstruction + Production Accounting
 Longitudinal Learning
 ```
 
-All four are blocked on the same empirical gate: inspecting what Fidelity Activity History actually provides.
+All four share a dependency on Fidelity Activity History, but their implementation can proceed independently. Transaction evidence and production accounting now have first slices (August 2026). Lifecycle reconstruction and longitudinal learning remain unimplemented.
 
 ---
 
@@ -147,9 +152,13 @@ Premature unification risks creating an overly complex "history engine" that ser
 
 ## Next Action
 
-The Fidelity evidence gate: export a real Activity History CSV covering a period with known option activity and inspect what the data actually contains. Evidence first, architecture second.
+The Fidelity evidence gate has been passed (August 2026). Transaction evidence and production accounting have first backend slices validated against the complete 183-row export.
 
-This is a 15-minute empirical exercise that would unblock or disqualify production accounting, lifecycle reconstruction, and the longitudinal learning path.
+Next directions (unordered, pending Principal decision):
+- Frontend presentation of the production assessment
+- Lifecycle reconstruction using the transaction evidence now available
+- Distribution-character resolution (requires Section 19 / 1099-DIV data)
+- Multi-month production trend (requires persistence or repeated upload)
 
 ---
 
@@ -157,8 +166,11 @@ This is a 15-minute empirical exercise that would unblock or disqualify producti
 
 | Aspect | Status |
 |---|---|
-| Vocabulary | Established (useful in two consecutive sessions) |
+| Vocabulary | Established and validated through implementation |
 | Temporal framing | Descriptive — accurately reflects repository capability distribution |
-| Four-domain decomposition | Analytically sound — distinct consumers, distinct dependencies |
+| Four-domain decomposition | Validated — transaction evidence and production now implemented independently |
 | Architectural authority | None — this is discovery documentation, not a ratified principle |
-| Implementation plan | None — blocked on Fidelity evidence gate |
+| Transaction evidence | First slice implemented (August 2026) |
+| Production accounting | First backend slice implemented (August 2026) |
+| Lifecycle reconstruction | Not yet implemented |
+| Longitudinal learning | Not yet implemented |

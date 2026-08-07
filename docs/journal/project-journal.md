@@ -5163,3 +5163,114 @@ Lesson: parking-lot items and foundation documents can become stale when impleme
 | PL-PORT-02 | Parking-lot seed | `docs/parking-lot.md` |
 | Recovery Probe Policy | Foundation correction | `docs/foundations/acquisition-scheduler-policy.md` |
 | PL-OPS-03 graduation | Parking-lot maintenance | `docs/parking-lot.md` |
+
+
+---
+
+## 2026-08-07 — PL-PORT-02 First Backend Slice: Portfolio Production Accounting
+
+### Context
+
+Following the architectural reconciliation (August 6), the Three Actors determined that the next highest-learning-rate direction was the Fidelity Activity History evidence gate — the empirical question of whether broker export data supports answering "How much did the portfolio produce last month?"
+
+The evidence gate was opened: a real 183-row Fidelity Activity History CSV was inspected and found sufficient for production accounting with documented limitations. Implementation proceeded immediately through four incremental commits (parser → classifier → decomposition → assessor+API), each reviewed and approved before the next.
+
+### What was built
+
+**Package:** `com.wheelwright.evidence.production`
+
+**Backend capability (stateless, no persistence):**
+- `FidelityActivityParser` — parses Fidelity's 13-column CSV (BOM, quoting, footer, reverse-chronological ordering)
+- `FidelityTransactionKind` — typed enum with 19 empirically observed patterns + UNCLASSIFIED
+- `TransactionClassifier` — pattern-matching adapter from raw action text to typed kind
+- `NormalizedTransaction` — classified broker record preserving raw action for audit
+- `EconomicDecomposer` — transforms one broker transaction into one-or-more economic components
+- `TreasuryBasisResolver` — chronological inventory tracking with ambiguity detection
+- `ProductionAssessor` — orchestrates the full pipeline: parse → classify → normalize → decompose → aggregate → reconcile
+- `ProductionController` — `POST /api/production/assess` (multipart CSV upload)
+- `ProductionResponse` — complete JSON response DTO
+
+### Semantic decisions encoded
+
+**Cash-Basis Portfolio Production:**
+Production is measured at the point cash is received or posted. Not accrual. Not mark-to-market. Answers: "How much cash did the portfolio produce last month that can be withdrawn without consuming principal?"
+
+**Asymmetric Realization:**
+- Realized appreciation (disposition above basis) → counts as Cash Production
+- Realized loss (disposition below basis) → tracked separately as Realized Capital Erosion
+- Losses do NOT reduce Cash Production; they are a parallel non-netted economic fact
+- Both dimensions are independently ≥ 0
+
+**Rationale:** A loss doesn't "undo" premium that was genuinely produced. And a gain above basis is genuinely available cash that was not consuming principal. The operator needs both facts to decide withdrawal, but they answer different questions.
+
+**Distribution Character:**
+- SPAXX: money-market income (DETERMINISTIC)
+- All other fund distributions: CHARACTER_UNCERTAIN (may contain return of capital)
+- Uncertain distributions contribute to `unresolvedPotentialProduction`, not `knownCashProduction`
+- No ETF-specific assumptions encoded — resolution requires external evidence (Section 19 notice or 1099-DIV)
+
+**Treasury Basis — Chronological Inventory, Not FIFO Policy:**
+- When only one lot exists at the time of a sale, lot assignment is evidence-determined (DETERMINISTIC)
+- When a sale consumes all available inventory, remaining lots are unambiguous
+- When multiple lots exist at time of a partial sale, basis is UNRESOLVED (lot-selection ambiguity)
+- The system does NOT silently apply FIFO. It distinguishes what the evidence proves from what a policy could choose.
+
+**Period Attribution:** Run Date (when Fidelity posts the transaction), not Settlement Date.
+
+**Source Coverage:** `FULLY_RECONCILED` requires that the evidence spans the full target month and all basis is resolvable. Partial coverage → `SOURCE_INCOMPLETE`.
+
+**FE/BE Responsibility Boundary:**
+The backend owns ALL production semantics: parsing, classification, decomposition, basis resolution, aggregation, reconciliation. The frontend (not yet built) will display the backend's authoritative result without reproducing any accounting logic. A CLI, mobile client, or test harness consuming the same API endpoint receives the same answer.
+
+### Empirical validation
+
+The assessor was run against the complete original 183-row Fidelity Activity History export (March 5 – August 3, 2026).
+
+**July 2026 assessment from complete export:**
+
+| Metric | Value |
+|---|---|
+| Known Cash Production | $3,686.93 |
+| Unresolved Potential Production | $160.08 |
+| Realized Capital Erosion | $0.00 |
+| Reconciliation Status | PRODUCTION_UNCERTAIN |
+
+**Known production breakdown:**
+- OPTION_PREMIUM: $3,483.02 (11 sell-to-open transactions)
+- MONEY_MARKET_INCOME: $142.11 (SPAXX monthly dividend)
+- TREASURY_DISCOUNT: $61.80 (7 T-bill redemptions with resolvable basis)
+
+**Unresolved items:**
+- SPYI distribution $39.66 — character uncertain (income vs ROC)
+- Treasury 912797TP2 $120.42 — ACAT-transferred basis unconfirmed
+
+**Findings:**
+- Zero unclassified actions in July (all 19 observed patterns recognized)
+- Complete export produced identical result to the sanitized test fixture
+- The 912797TN7 partial-lot case (sale before maturity consumed one lot) resolved correctly via chronological evidence
+- The 912797UP0 case (additional early purchase + sale not in fixture) also resolved identically because the sale consumed the earliest lot unambiguously
+
+### What remains
+
+**Not yet implemented:**
+- Frontend/operator presentation (Commit 5, separate increment)
+- Distribution-character resolution (requires Section 19 / 1099-DIV — not available in Activity History)
+- Transferred-asset basis resolution (requires external cost-basis data or explicit operator policy)
+- Persistence / multi-month trend (stateless in slice 1 — each upload computes independently)
+- Lifecycle reconstruction (put → assignment → shares → call)
+- Longitudinal learning
+- Production targets / withdrawal policy (PL-POL-02 — separate concern from measurement)
+
+**Explicitly deferred design decisions:**
+- Whether the production assessor should eventually be persistent (store assessments for trend)
+- Whether Activity History import should be automated vs manual upload
+- Whether equity sale gains (beyond the covered-call use case already handled) need richer basis tracking
+- What to do when SPYI distribution character IS eventually resolved (re-assess? manual override? policy?)
+
+### Architecture pressure observed
+
+1. The production package is fully self-contained within `evidence-service-java` — no dependency on the evidence acquisition code. This is consistent with INV-BOUND-01's spirit but raises the question of whether production accounting is conceptually part of the "evidence service" or a sibling concern.
+
+2. The stateless upload model works well for a first slice but cannot support month-over-month comparison or "how is August going so far?" without either persistence or re-uploading with each request.
+
+3. The `YOU SOLD EX-DIV DATE...` action pattern (03/31 VCSH sale in the original) is currently classified as ASSET_SALE, which is correct for the classifier. But the "EX-DIV DATE" annotation in the action text contains information (the sale was timed relative to a dividend date) that future lifecycle analysis might want to preserve. Not a problem today — just noted.

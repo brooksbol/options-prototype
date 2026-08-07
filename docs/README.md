@@ -88,6 +88,7 @@ This directory contains the architectural documentation for the Wheelwright Evid
 |----------|---------|
 | `engineering-spikes/api-ninjas-etf-catalog.md` | API Ninjas viability assessment |
 | `engineering-spikes/fmp-etf-reference-data.md` | FMP ETF data assessment |
+| `engineering-spikes/fidelity-activity-history.md` | Fidelity Activity History evidence gate — production accounting feasibility |
 
 ### Historical (superseded, retained for learning context)
 

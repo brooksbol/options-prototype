@@ -31,4 +31,6 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    systemProperty("runRealFile", System.getProperty("runRealFile") ?: "")
+    systemProperty("realFilePath", System.getProperty("realFilePath") ?: "")
 }

@@ -220,3 +220,22 @@ Production is measured at the point cash is received or posted (Run Date). Not a
 The Fidelity Activity History CSV is sufficient for a first production accounting implementation. The data is richer and more explicit about lifecycle events than anticipated. The main limitations (distribution character, transferred-asset basis) are known and can be surfaced transparently rather than requiring speculative resolution.
 
 The evidence gate is open.
+
+---
+
+## Implementation Validation (August 2026)
+
+The production assessor (`com.wheelwright.evidence.production`) was built and validated against the complete original 183-row Fidelity Activity History export (March 5 – August 3, 2026).
+
+**Results:**
+- 183 rows parsed without error
+- Zero unclassified actions in the July period (all 19 observed patterns recognized)
+- July 2026 known cash production: $3,686.93
+- Complete export produced identical result to the sanitized test fixture
+
+**Additional findings from implementation:**
+- Treasury CUSIP 912797TN7 exposed a partial-lot scenario: two lots purchased, one sold before maturity. The resolver correctly identified that chronology uniquely determines the remaining basis (the sale occurred when only one lot existed). No lot-selection policy assumption was needed.
+- Treasury CUSIP 912797UP0 had an additional early purchase + pre-maturity sale not in the initial fixture. After adding both to the fixture and running against the complete file, the July result was unchanged because the sale chronologically consumed the earliest lot unambiguously.
+- The `YOU SOLD EX-DIV DATE...` pattern (03/31 VCSH) classifies correctly as ASSET_SALE. The ex-div annotation is structural metadata in the action text that future lifecycle analysis might use but is not needed for production accounting.
+
+The evidence gate is not merely theoretically open — the production mechanism has been validated against the full unedited broker export.

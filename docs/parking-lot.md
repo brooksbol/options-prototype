@@ -60,7 +60,7 @@
 | ID | Name | Maturity | Summary | Concept Home |
 |---|---|---|---|---|
 | `PL-PORT-01` | Portfolio-State Maturity | Partially implemented | Assignment transitions, richer encumbrance state, multi-account support, aggregation, stale-balance warnings, user-specific ownership state. Economics slice implemented; broader maturity remains. | `07-architecture-current.md`, `types.ts` |
-| `PL-PORT-02` | Portfolio Production Accounting | Seed (blocked on evidence gate) | Measure actual portfolio production per period across all income sources: option premium, dividends, interest, Treasury income. Must explicitly exclude principal movements (deposits, withdrawals, market appreciation/depreciation). Answers: "How much did my portfolio produce last month?" Distinct from PL-POL-02 (which is the policy/mandate that production matters); this is the measurement capability. Blocked on Fidelity Activity History inspection. | `discovery/01-temporal-capability-vocabulary.md` |
+| `PL-PORT-02` | Portfolio Production Accounting | First backend slice delivered | Backend-authoritative monthly cash production assessment from Fidelity Activity History. Validated against complete 183-row export (July 2026: $3,686.93 known + $160.08 unresolved). Includes: parsing, classification, economic decomposition, Treasury basis resolution, asymmetric realization, reconciliation, API. Remaining: frontend presentation, distribution-character resolution, transferred-asset basis, persistence/multi-month, lifecycle reconstruction. | `discovery/01-temporal-capability-vocabulary.md`, `engineering-spikes/fidelity-activity-history.md` |
 
 ### Execution
 
