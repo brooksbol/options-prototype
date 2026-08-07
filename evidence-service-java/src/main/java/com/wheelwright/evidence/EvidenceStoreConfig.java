@@ -42,6 +42,11 @@ public class EvidenceStoreConfig {
             @Value("${tradier.base-url:https://sandbox.tradier.com/v1}") String baseUrl,
             ResponseCache cache,
             RequestPacer pacer) {
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new IllegalStateException(
+                "Tradier API key is required. Set TRADIER_API_KEY environment variable or tradier.api-key property. " +
+                "The application cannot acquire market evidence without a valid provider credential.");
+        }
         return new TradierAdapter(apiKey, baseUrl, cache, pacer);
     }
 
