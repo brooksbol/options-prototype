@@ -5399,3 +5399,49 @@ Added fail-fast startup validation in `EvidenceStoreConfig.java`: if `tradier.ap
 4. **The recovery mechanism worked exactly as designed once the operational precondition (valid credential + running worker) was satisfied.** No code change was needed for recovery; only environmental correction.
 
 5. **Distinguish "the mechanism is defective" from "the mechanism's preconditions are not met."** Multiple cycles of investigation were spent tracing a non-existent scheduler bug.
+
+
+---
+
+## 2026-08-07 — PL-PORT-02 Frontend Slice: First End-to-End Operator Flow
+
+### What was built
+
+Route `/app/production` — the first operator-facing surface for monthly Cash Production assessment.
+
+**Workflow:** Navigate to Cash Production (from Console link) → upload Fidelity Activity History CSV → backend assesses → UI presents the authoritative result.
+
+**Components:** `ProductionView.tsx` (route), `use-production-assessment.ts` (API hook), `production-types.ts` (DTO interfaces), `production.css` (styles).
+
+### Key design decisions
+
+**Raw-CSV localStorage persistence:**
+- On upload: raw CSV text stored under `wheelwright:production:activity-csv`
+- On mount: if stored CSV exists, re-submitted to backend and result displayed
+- Clear: removes stored data, returns to idle
+- This matches the existing FidelityUpload pattern (Option Summary + Balances CSVs)
+- No frontend parsing or accounting from stored text — backend remains sole authority
+- "restored from prior upload" indicator shown when result is from stored data
+
+**Unresolved-source presentation lesson:**
+The initial implementation showed only known production sources in the breakdown. This made the SPYI $39.66 distribution invisible — it was excluded from `knownCashProduction` and from `productionBreakdown` because its character is unconfirmed, but it DID occur and should be visible.
+
+Fix: added an "Unresolved Potential" section below the known breakdown, driven from `reconciliationIssues` entries with non-null `potentialImpact`. Uses issue `type` → generic label mapping (no accounting inference from description text). Both truths are preserved:
+- Known production by source (from `productionBreakdown`)
+- Unresolved items with quantified potential (from `reconciliationIssues`)
+
+**No accounting logic in React:**
+The browser uploads evidence and renders backend-derived facts. It does not classify transactions, resolve basis, decompose economics, compute production, determine reconciliation status, or infer distribution character. A CLI, mobile client, or test harness receiving the same API response would produce the same answers.
+
+### Architectural debt noted
+
+`src/imports/fidelity/parseActivity.ts` contains a full Fidelity Activity History parser with action classification in the frontend. This predates the backend production accounting work. It was explicitly NOT used for this feature (to preserve the FE/BE boundary), but its existence as browser-owned broker-parsing logic should be tracked. It relates to the broader `PL-ARCH-06` (Recommendation Engine Ownership) finding — the browser owns more domain logic than the destination architecture intends.
+
+### What remains
+
+- Distribution-character resolution (requires Section 19 / 1099-DIV data)
+- Transferred-asset basis resolution
+- Persistence / multi-month trend
+- Full transaction audit-trail drill-down
+- Lifecycle reconstruction
+- Production targets / withdrawal policy (PL-POL-02)

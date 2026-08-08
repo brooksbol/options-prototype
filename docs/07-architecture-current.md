@@ -127,6 +127,11 @@ The current runtime architecture consists of a Java backend maintaining evidence
 │    · Recommendation Brief (put drawer)                       │
 │    · Policy controls                                         │
 │                                                              │
+│  Cash Production (route /app/production)                     │
+│    · Fidelity Activity History CSV upload                    │
+│    · Backend-authoritative monthly production assessment     │
+│    · localStorage persistence of uploaded CSV                │
+│                                                              │
 │  Broker Handoff (WriteIntent → Fidelity trade link)          │
 └──────────────────────────────────────────────────────────────┘
 ```

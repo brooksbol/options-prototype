@@ -9,6 +9,7 @@ import { resolveRoute, type AppRoute } from "./router";
 import App from "./App";
 import { WriteDesk } from "./components/WriteDesk";
 import { OperatorConsole } from "./components/OperatorConsole";
+import { ProductionView } from "./production/ProductionView";
 
 export function Root() {
   const [route, setRoute] = useState<AppRoute>(resolveRoute);
@@ -28,6 +29,10 @@ export function Root() {
 
   if (route === "write-desk") {
     return <WriteDesk />;
+  }
+
+  if (route === "production") {
+    return <ProductionView />;
   }
 
   return <App />;

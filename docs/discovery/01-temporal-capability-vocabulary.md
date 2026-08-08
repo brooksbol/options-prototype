@@ -96,7 +96,7 @@ How much cash was the portfolio produced in a period, decomposed by source.
 - Scope: all production sources (option premium, dividends, interest, Treasury income) — explicitly broader than options
 - Key distinction: production (income generated) vs principal (capital movements, market appreciation/depreciation)
 - This is the domain that answers: "How much can I withdraw this month without depleting capital?"
-- **Status (August 2026):** First backend slice delivered. `ProductionAssessor` + API endpoint + asymmetric realization + reconciliation. Validated against complete Fidelity export: July 2026 known production $3,686.93. Frontend presentation not yet built.
+- **Status (August 2026):** First vertical slice delivered. Backend: `ProductionAssessor` + API endpoint + asymmetric realization + reconciliation. Frontend: `/app/production` with CSV upload, localStorage persistence, and authoritative result display. Validated against complete Fidelity export: July 2026 known production $3,686.93.
 
 ### 4. Longitudinal Learning
 
@@ -171,6 +171,6 @@ Next directions (unordered, pending Principal decision):
 | Four-domain decomposition | Validated — transaction evidence and production now implemented independently |
 | Architectural authority | None — this is discovery documentation, not a ratified principle |
 | Transaction evidence | First slice implemented (August 2026) |
-| Production accounting | First backend slice implemented (August 2026) |
+| Production accounting | First vertical slice delivered (backend + frontend, August 2026) |
 | Lifecycle reconstruction | Not yet implemented |
 | Longitudinal learning | Not yet implemented |

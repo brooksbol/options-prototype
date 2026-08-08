@@ -31,6 +31,7 @@ export function OperatorConsole() {
           <h1 className="oc-title">Wheelwright</h1>
           <span className="oc-source">{source === "fidelity" ? "Fidelity — no data loaded" : "Demo"}</span>
           <button className="oc-nav-link" onClick={() => navigateTo("/app/write")}>Recommendations →</button>
+          <button className="oc-nav-link" onClick={() => navigateTo("/app/production")}>Cash Production →</button>
         </header>
         <div className="oc-empty">
           <p>No portfolio data available.</p>
@@ -54,6 +55,7 @@ export function OperatorConsole() {
         </span>
         <div className="oc-header-reserved">Context region</div>
         <button className="oc-nav-link" onClick={() => navigateTo("/app/write")}>Recommendations →</button>
+        <button className="oc-nav-link" onClick={() => navigateTo("/app/production")}>Cash Production →</button>
       </header>
 
       <div className="oc-body">

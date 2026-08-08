@@ -12,7 +12,7 @@
  *   anything else → Operator Console (home)
  */
 
-export type AppRoute = "operator-console" | "write-desk" | "labs";
+export type AppRoute = "operator-console" | "write-desk" | "production" | "labs";
 
 /**
  * Determine the current route from the browser pathname.
@@ -23,6 +23,11 @@ export function resolveRoute(): AppRoute {
   // Operational/recommendation surface
   if (path === "/app/write") {
     return "write-desk";
+  }
+
+  // Production assessment
+  if (path === "/app/production") {
+    return "production";
   }
 
   // Labs
