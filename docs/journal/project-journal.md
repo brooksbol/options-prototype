@@ -5326,3 +5326,76 @@ Plus a **6th location** in `brief-builder.ts` / `call-brief-builder.ts` (neighbo
 ### Principle clarified
 
 > Yield is an economic fact at Wheelwright's midpoint convention. Execution quality governs market reliability independently. No execution rule should suppress a computable economic value — the operator can see 24.9% annualized yield alongside a mediocre spread score and decide accordingly.
+
+
+---
+
+## 2026-08-07 — Missing Marquee ETF Incident and Recovery
+
+### Observed symptom
+
+The Write Desk recommendation table (sorted by spread) showed only 45 candidates. SPY, QQQ, VOO, XLK, XLV, and XLY — six marquee, extremely tight-spread ETFs from the lowest-spread group in the universe — were absent. GLD, DIA, IVV, and IWM (also in the top-10 tightest) were present.
+
+### Initial false lead
+
+The first hypothesis was that Tradier sandbox returns zero delta for these instruments, causing the `requireGreeks` filter to exclude all their contracts. This was plausible but was never verified against actual persisted evidence. It was inference, not diagnosis.
+
+### Evidence from durable SQLite
+
+Direct inspection of the production SQLite database revealed:
+
+```
+SPY|failed|2026-08-03
+QQQ|failed|2026-08-03
+VOO|failed|2026-08-03
+XLK|failed|2026-08-03
+XLV|failed|2026-08-03
+XLY|failed|2026-08-03
+```
+
+All six symbols had `resolution = failed` with `session_date = 2026-08-03`. Their chain evidence rows showed `failure_count = 3` and `failure_reason = "Tradier API key not configured"`. No acquisition attempts had been recorded since August 3.
+
+### Timeline
+
+- **Aug 3 (Monday):** A transient period during the session where the Tradier API key was not present in the runtime environment. Some symbols acquired chains before the gap; ~196 symbols hit the failure threshold during that window.
+- **Aug 4-6 (Tue-Thu):** Backend was not running. Zero acquisitions occurred. No recovery probes could fire.
+- **Aug 7 (Friday) earlier:** Backend was restarted (old process found suspended on port 3100). That instance HAD credentials and successfully acquired 1,874 evidence rows for ready symbols. But it was subsequently suspended/stopped before all Class C recovery completed.
+- **Aug 7 investigation session:** A fresh backend restart without exporting `TRADIER_API_KEY` produced the misleading observation that "recovery probes fire but all fail." Adding credentials to the environment immediately resolved the issue.
+
+### Recovery verification
+
+With credentials restored, the recovery-probe mechanism operated exactly as designed:
+
+- The Class C SQL predicate correctly selected 196 prior-epoch failed symbols.
+- The anti-starvation floor dispatched Class C items at the configured interval.
+- When no Class A/B work existed (all ready symbols within freshness targets), the entire batch was Class C recovery work.
+- All six target symbols transitioned from `failed` to `ready` within ~8 minutes.
+- Total failed population: 196 → 44 and draining (remaining symbols have genuine provider issues — no options, delisted, etc.).
+
+### What was NOT defective
+
+- The recovery-probe mechanism (correct, passing 8 tests)
+- The anti-starvation floor (correct, firing at interval 20)
+- The `getPrioritizedWorkQueue` SQL (correct, selecting prior-epoch failed)
+- The `acquireSymbolTiered` dispatch (correct, entering lifecycle acquisition for failed symbols)
+- The scheduler design
+
+### Operational root cause
+
+The application could start successfully with an empty Tradier API key. It would begin acquisition cycles, and every provider call would fail with "Tradier API key not configured." This failure mode was silent at the application level — no startup error, no health-check failure, just accumulating `setFailure` calls on evidence rows.
+
+### Hardening (commit 9a31bc0)
+
+Added fail-fast startup validation in `EvidenceStoreConfig.java`: if `tradier.api-key` is blank or null, the Spring context fails to load with an actionable error message. This prevents the silent degradation mode.
+
+### Lessons
+
+1. **Absence of evidence is not evidence of absence — but it IS evidence of something.** SPY silently vanishing from the recommendation table was a stronger signal than any single diagnostic metric.
+
+2. **Inspect the durable evidence plane before theorizing about transient runtime state.** The SQLite database immediately showed `resolution = failed` — skipping the entire delta/requireGreeks hypothesis chain.
+
+3. **A system that starts successfully in a broken configuration is more dangerous than one that fails loudly.** The credential gap produced 196 stranded symbols over several days because the application appeared healthy.
+
+4. **The recovery mechanism worked exactly as designed once the operational precondition (valid credential + running worker) was satisfied.** No code change was needed for recovery; only environmental correction.
+
+5. **Distinguish "the mechanism is defective" from "the mechanism's preconditions are not met."** Multiple cycles of investigation were spent tracing a non-existent scheduler bug.
