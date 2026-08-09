@@ -173,6 +173,8 @@ function deriveExistingShortCalls(rows: OptionSummaryRow[]): OpenShortCall[] {
       strike: r.option!.strike,
       expiration: r.option!.expiration,
       quantity: Math.abs(r.quantity),
+      brokerOptionBasis: r.costBasis,
+      brokerOptionAverageCost: r.averageCost,
     }));
 }
 
@@ -187,6 +189,8 @@ function deriveExistingShortPuts(rows: OptionSummaryRow[]): OpenShortPut[] {
       strike: r.option!.strike,
       expiration: r.option!.expiration,
       quantity: Math.abs(r.quantity),
+      brokerOptionBasis: r.costBasis,
+      brokerOptionAverageCost: r.averageCost,
     }));
 }
 

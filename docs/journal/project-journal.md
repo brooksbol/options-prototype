@@ -5491,3 +5491,69 @@ Additionally, two documentation corrections were required:
 - These answer three successive questions: "What is my capital committed to?" → "What happens if these positions resolve?" → "Which resolutions deserve attention now?"
 - No situation semantics required. No historical data required. All from current import.
 - The `capacity-summary.ts` module establishes the pattern: reusable portfolio derivation as a pure function, separate from React, independently testable.
+
+---
+
+## 2026-08-09 — Mechanical Economic Consequence (Console Slice 3)
+
+### Context
+
+The Console's second slice (Capacity/Exposure sidebar) answered "what is my capital committed to?" The third question in the progression is "what happens if these positions resolve?" — ADR-013 Dimension 3, Economic Consequence.
+
+The accepted design invariant: show the transformation and preserve economic components. Do not collapse premium, appreciation/erosion, and principal movement into a single P/L number.
+
+### Critical Discovery: Option Summary Already Carries Premium
+
+The implementation plan originally assumed premium-enriched economics required Activity History linkage (matching open positions to historical opening transactions). Code inspection disproved this:
+
+The Fidelity Option Summary CSV reports `costBasis` and `averageCost` on each option position row. For short positions, these are negative values representing the credit received. The data was already parsed into `OptionSummaryRow` by `optionSummaryParser.ts` but **discarded** by `fidelity-snapshot.ts`'s derivation functions which only extracted symbol/strike/expiration/quantity.
+
+Fix: carry `brokerOptionBasis` and `brokerOptionAverageCost` through `OpenShortCall`/`OpenShortPut` into the consequence model. No Activity History join required.
+
+### What happened
+
+**New canonical model:** `assignment-consequence.ts` replaces the legacy `AssignmentScenario` types. One model for both real and demo data, differing only in provenance. Decomposed into:
+- Principal movement (cash ↔ shares at strike)
+- Capital appreciation/erosion (strike vs. broker share basis — calls only)
+- Broker option basis (observed fact, negative = credit)
+- Premium credit (derived: Math.abs(basis))
+- Analytical effective exit/basis (derived secondary: strike ± credit/share)
+- State transformation (inventory/encumbrance changes)
+
+**Epistemic invariants preserved:**
+- Negative Fidelity option basis preserved as the observed fact
+- Positive credit is a derived interpretation
+- Call appreciation/erosion explicitly excludes option credit
+- Put acquisition principal remains strike × shares (not premium-adjusted)
+- Analytical measures become unavailable rather than guessed when inputs are missing
+- No composite economic measure replaces the decomposed components
+
+**High-contrast modal rendering:**
+- Primary values: 15px bold monospace white
+- Appreciation: #4ade80 (vivid green)
+- Erosion: #f87171 (vivid red)
+- Analytical: cyan-accented block
+- Design direction captured: "High-contrast operational display. Dark does not mean dim."
+
+**Legacy retirement:** Removed `PositionOpeningEconomics`, `PutAssignmentScenario`, `CallAssignmentScenario`, `AssignmentScenario` types and the `buildAssignmentScenario` function. All replaced by the single canonical `AssignmentConsequence` model.
+
+### What we learned
+
+- The "Activity History dependency" for premium data was a misunderstanding. The Option Summary already reports broker cost basis per open option position.
+- Conservative naming matters: "broker-reported option basis" rather than "opening premium" because we haven't proven the field always equals original premium under partial closes, rolls, adjustments.
+- Decomposed economic components serve both the operator (clear reasoning about what happens) and future Decision Pressure (which can compose with consequence without turning consequence into a health score).
+- High-contrast operational display is the correct visual direction for a monitoring surface — subtlety is for decoration, not for operational information.
+
+### Decisions / implications
+
+- Console progression: Capacity/Exposure ✅ → Economic Consequence ✅ → Decision Pressure (next)
+- Decision Pressure can now compose: "this position has 2 DTE, is ITM, AND assignment would realize −$1,400 erosion" — all three facts available without historical data.
+- Activity History remains valuable for lifecycle reconstruction, auditability, rolls, and historical production — but it no longer blocks point-in-time open-position economics.
+- The design direction "High-contrast operational display" should propagate to future Console increments.
+- Three-state hero color encodes consequence STRUCTURE, not merely Math.sign(total):
+  - Green: capital appreciation + premium (unambiguously favorable)
+  - Amber: capital erosion exists but premium offsets to non-negative total (premium-rescued)
+  - Red: total remains negative after premium (net erosion)
+- Tile color (ITM/ATM/OTM) and modal hero color are intentionally independent dimensions.
+- Nearest Consequence sidebar aggregates per-position economics for the nearest rung, preserving the asymmetry: appreciation and erosion shown separately (never netted), premium as a subordinate component.
+- Premium is visually secondary (subdued green) — it does not compete with the primary appreciation/erosion/total signals.

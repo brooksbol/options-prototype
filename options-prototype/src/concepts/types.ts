@@ -13,14 +13,13 @@
  */
 
 import type { MonitoredPosition } from "../portfolio/position-monitoring";
-import type { PositionDetail, AssignmentScenario } from "../portfolio/position-detail";
+import type { PositionDetail } from "../portfolio/position-detail";
 import type { InventoryPosition } from "../write-desk/types";
 
 export interface ConceptContext {
   position: MonitoredPosition;
   detail?: PositionDetail;
   inventory?: InventoryPosition | null;
-  scenario?: AssignmentScenario;
 }
 
 export interface ConceptDefinition {

@@ -226,3 +226,170 @@
   margin: 4px 0 0 0;
   line-height: 1.4;
 }
+
+/* === Assignment Consequence — High-Contrast Operational Display === */
+/*
+ * Design direction: Dark does not mean dim. Primary numbers are immediately
+ * legible. Semantic color signals appreciation (green) or erosion (red).
+ * De-emphasis establishes hierarchy without making useful information hard to read.
+ */
+
+.pdm-consequence {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 12px;
+}
+
+.pdm-consequence-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pdm-cq-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid rgba(255, 255, 255, 0.15);
+}
+
+.pdm-cq-block-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #aaa;
+  margin-bottom: 2px;
+}
+
+.pdm-cq-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.pdm-cq-label {
+  font-size: 12px;
+  color: #ccc;
+}
+
+.pdm-cq-arrow {
+  font-size: 12px;
+  color: #888;
+}
+
+.pdm-cq-value-primary {
+  font-size: 15px;
+  font-weight: 700;
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+  color: #ffffff;
+}
+
+.pdm-cq-value-secondary {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+  color: #ddd;
+}
+
+.pdm-cq-detail {
+  font-size: 10px;
+  color: #aaa;
+}
+
+/* Semantic color: positive = appreciation / credit */
+.pdm-val-positive {
+  color: #4ade80 !important;
+}
+
+/* Semantic color: negative = erosion / loss */
+.pdm-val-negative {
+  color: #f87171 !important;
+}
+
+/* Analytical block — slightly subdued to show it's derived, not primary */
+.pdm-cq-analytical {
+  border-left-color: rgba(126, 200, 227, 0.4);
+  background: rgba(126, 200, 227, 0.03);
+}
+
+.pdm-cq-analytical .pdm-cq-block-label {
+  color: #7ec8e3;
+}
+
+/* State transformation block — muted but legible */
+.pdm-cq-state {
+  border-left-color: rgba(255, 255, 255, 0.08);
+  background: transparent;
+  padding: 6px 10px;
+}
+
+.pdm-cq-state .pdm-cq-block-label {
+  color: #888;
+}
+
+.pdm-cq-state-line {
+  font-size: 11px;
+  color: #bbb;
+  line-height: 1.4;
+}
+
+/* === Hero Total (call outcome / put effective basis) === */
+
+.pdm-cq-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 10px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  margin-bottom: 4px;
+}
+
+.pdm-cq-hero-label {
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #aaa;
+}
+
+.pdm-cq-hero-value {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+  letter-spacing: -0.02em;
+}
+
+.pdm-hero-positive {
+  color: #4ade80;
+}
+
+.pdm-hero-negative {
+  color: #f87171;
+}
+
+.pdm-hero-neutral {
+  color: #ffffff;
+}
+
+/* Fact labels within consequence blocks (replaces pdm-cq-label in new layout) */
+.pdm-cq-fact-label {
+  font-size: 11px;
+  color: #bbb;
+}
+
+/* Premium values: subdued green, visually secondary to hero outcome */
+.pdm-cq-premium {
+  color: #86efac !important;
+  opacity: 0.75;
+}
+
+/* Amber hero: capital erosion exists but premium offsets to non-negative total */
+.pdm-hero-amber {
+  color: #fbbf24;
+}

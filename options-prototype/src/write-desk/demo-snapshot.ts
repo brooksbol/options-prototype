@@ -178,21 +178,29 @@ function inv(symbol: string, owned: number, encumbered: number, avgCost: number,
 }
 
 function call(underlying: string, strike: number, expiration: string, quantity: number): OpenShortCall {
+  // Demo: simulate broker-reported option basis as a plausible credit
+  const syntheticPremiumPerShare = Math.round(strike * 0.02 * 100) / 100; // ~2% of strike
   return {
     symbol: `-${underlying}${expiration.replace(/-/g, "").slice(2)}C${strike}`,
     underlying,
     strike,
     expiration,
     quantity,
+    brokerOptionBasis: -(syntheticPremiumPerShare * 100 * quantity),
+    brokerOptionAverageCost: -syntheticPremiumPerShare,
   };
 }
 
 function put(underlying: string, strike: number, expiration: string, quantity: number): OpenShortPut {
+  // Demo: simulate broker-reported option basis as a plausible credit
+  const syntheticPremiumPerShare = Math.round(strike * 0.025 * 100) / 100; // ~2.5% of strike
   return {
     symbol: `-${underlying}${expiration.replace(/-/g, "").slice(2)}P${strike}`,
     underlying,
     strike,
     expiration,
     quantity,
+    brokerOptionBasis: -(syntheticPremiumPerShare * 100 * quantity),
+    brokerOptionAverageCost: -syntheticPremiumPerShare,
   };
 }

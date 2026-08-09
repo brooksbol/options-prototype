@@ -14,8 +14,9 @@ import { usePortfolio } from "../portfolio/use-portfolio";
 import { useObservations } from "../evidence/use-observations";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
 import { deriveCapacitySummary, type CapacitySummary } from "../portfolio/capacity-summary";
+import { deriveNearestConsequenceSummary, type NearestConsequenceSummary } from "../portfolio/consequence-summary";
 import { buildPositionDetail, type PositionDetail } from "../portfolio/position-detail";
-import { generateDemoEconomics } from "../write-desk/demo-economics";
+import type { OptionBasisInput } from "../portfolio/assignment-consequence";
 import { PositionDetailModal } from "./PositionDetailModal";
 import { navigateTo } from "../router";
 import "../operator-console/operator-console.css";
@@ -45,6 +46,7 @@ export function OperatorConsole() {
   const rungs = groupByExpiration(positions);
   const totalCapital = rungs.reduce((sum, r) => sum + r.totalCapital, 0);
   const capacity = deriveCapacitySummary(positions, rungs, snapshot);
+  const consequenceSummary = deriveNearestConsequenceSummary(rungs, snapshot);
 
   return (
     <div className="oc-shell">
@@ -64,6 +66,7 @@ export function OperatorConsole() {
         {/* Sidebar region — portfolio capacity facts */}
         <aside className="oc-region-sidebar">
           <CapacitySidebar capacity={capacity} />
+          {consequenceSummary && <ConsequenceSidebar summary={consequenceSummary} />}
         </aside>
 
         <div className="oc-main">
@@ -203,6 +206,64 @@ function CapacitySidebar({ capacity }: { capacity: CapacitySummary }) {
       {capacity.snapshotDate && (
         <div className="oc-cap-provenance">
           as of {formatExpiration(capacity.snapshotDate)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- Consequence Sidebar ---
+
+function ConsequenceSidebar({ summary }: { summary: NearestConsequenceSummary }) {
+  return (
+    <div className="oc-consequence">
+      <div className="oc-cq-header">
+        <span className="oc-cap-label">Nearest Consequence</span>
+        <span className="oc-cq-rung">{formatExpiration(summary.expiration)} · {summary.dte} DTE</span>
+      </div>
+
+      {/* Calls */}
+      {summary.calls && (
+        <div className="oc-cq-group">
+          <span className="oc-cq-group-label">Calls</span>
+          {summary.calls.totalAppreciation > 0 && (
+            <div className="oc-cq-line">
+              <span className="oc-cq-fact-label">Appreciation</span>
+              <span className="oc-cq-value oc-cq-positive">+${summary.calls.totalAppreciation.toLocaleString()}</span>
+            </div>
+          )}
+          {summary.calls.totalErosion > 0 && (
+            <div className="oc-cq-line">
+              <span className="oc-cq-fact-label">Erosion</span>
+              <span className="oc-cq-value oc-cq-negative">-${summary.calls.totalErosion.toLocaleString()}</span>
+            </div>
+          )}
+          {summary.calls.totalPremium > 0 && (
+            <div className="oc-cq-line">
+              <span className="oc-cq-fact-label">Premium</span>
+              <span className="oc-cq-value oc-cq-premium">+${summary.calls.totalPremium.toLocaleString()}</span>
+            </div>
+          )}
+          {summary.calls.indeterminateCount > 0 && (
+            <span className="oc-cq-indeterminate">{summary.calls.indeterminateCount} without basis</span>
+          )}
+        </div>
+      )}
+
+      {/* Puts */}
+      {summary.puts && (
+        <div className="oc-cq-group">
+          <span className="oc-cq-group-label">Puts</span>
+          <div className="oc-cq-line">
+            <span className="oc-cq-fact-label">Cash → equity</span>
+            <span className="oc-cq-value">${summary.puts.totalCashToEquity.toLocaleString()}</span>
+          </div>
+          {summary.puts.totalPremium > 0 && (
+            <div className="oc-cq-line">
+              <span className="oc-cq-fact-label">Premium</span>
+              <span className="oc-cq-value oc-cq-premium">+${summary.puts.totalPremium.toLocaleString()}</span>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -402,12 +463,30 @@ function buildDetailForPosition(
     inv => inv.symbol.toUpperCase() === position.underlying.toUpperCase()
   ) ?? null;
 
-  // Generate demo economics only for demo source
-  const demoEcon = source === "demo"
-    ? generateDemoEconomics(position.type, position.underlying, position.strike, position.quantity, position.dte)
-    : null;
+  // Resolve option basis from the matching position in the snapshot
+  let optionBasis: OptionBasisInput = { brokerOptionBasis: null, brokerOptionAverageCost: null };
 
-  return buildPositionDetail(position, inventory, snapshot.balanceContext, demoEcon);
+  if (position.type === "call") {
+    const match = snapshot.existingCalls.find(
+      c => c.underlying.toUpperCase() === position.underlying.toUpperCase()
+        && c.strike === position.strike
+        && c.expiration === position.expiration
+    );
+    if (match) {
+      optionBasis = { brokerOptionBasis: match.brokerOptionBasis, brokerOptionAverageCost: match.brokerOptionAverageCost };
+    }
+  } else {
+    const match = snapshot.existingPuts.find(
+      p => p.underlying.toUpperCase() === position.underlying.toUpperCase()
+        && p.strike === position.strike
+        && p.expiration === position.expiration
+    );
+    if (match) {
+      optionBasis = { brokerOptionBasis: match.brokerOptionBasis, brokerOptionAverageCost: match.brokerOptionAverageCost };
+    }
+  }
+
+  return buildPositionDetail(position, inventory, snapshot.balanceContext, optionBasis);
 }
 
 function formatExpiration(iso: string): string {

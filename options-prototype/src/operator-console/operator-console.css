@@ -438,3 +438,80 @@
   padding-top: 8px;
   margin-top: 4px;
 }
+
+/* === Consequence Sidebar (Nearest Rung) === */
+
+.oc-consequence {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--wd-border-subtle, rgba(255, 255, 255, 0.08));
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.oc-cq-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.oc-cq-rung {
+  font-size: 10px;
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+  color: var(--wd-text-secondary);
+}
+
+.oc-cq-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px 0;
+}
+
+.oc-cq-group-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--wd-text-secondary);
+}
+
+.oc-cq-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.oc-cq-fact-label {
+  font-size: 10px;
+  color: var(--wd-text-secondary);
+}
+
+.oc-cq-value {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+  color: #ffffff;
+}
+
+.oc-cq-positive {
+  color: #4ade80;
+}
+
+.oc-cq-negative {
+  color: #f87171;
+}
+
+.oc-cq-indeterminate {
+  font-size: 8px;
+  color: var(--wd-text-tertiary);
+  font-style: italic;
+}
+
+/* Premium: subdued green — secondary to appreciation/erosion signals */
+.oc-cq-premium {
+  color: #86efac;
+  opacity: 0.75;
+}

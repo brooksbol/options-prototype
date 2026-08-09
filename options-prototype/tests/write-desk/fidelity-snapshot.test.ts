@@ -279,3 +279,52 @@ describe("fidelity snapshot — position economics", () => {
     expect(xle!.economics!.costBasis).toBe(11186.00);
   });
 });
+
+// --- Broker option economics carrythrough ---
+
+describe("fidelity snapshot — broker option economics", () => {
+  it("carries broker option basis and average cost to short calls", () => {
+    const input = makeInput({
+      optionSummaryRows: [
+        makeShareRow("XLE", 200, "CoveredCall" as any),
+        {
+          ...makeOptionRow("XLE260731C55", "XLE", "CALL", 55, "2026-07-31", -2, "CoveredCall" as any),
+          costBasis: -256.65,
+          averageCost: -1.28,
+        },
+      ],
+    });
+    const snapshot = buildFidelitySnapshot(input);
+    expect(snapshot.existingCalls.length).toBe(1);
+    expect(snapshot.existingCalls[0].brokerOptionBasis).toBe(-256.65);
+    expect(snapshot.existingCalls[0].brokerOptionAverageCost).toBe(-1.28);
+  });
+
+  it("carries broker option basis and average cost to short puts", () => {
+    const input = makeInput({
+      optionSummaryRows: [
+        {
+          ...makeOptionRow("XLE260724P53", "XLE", "PUT", 53, "2026-07-24", -1, "CashCoveredPut" as any),
+          costBasis: -102.33,
+          averageCost: -1.02,
+        },
+      ],
+    });
+    const snapshot = buildFidelitySnapshot(input);
+    expect(snapshot.existingPuts.length).toBe(1);
+    expect(snapshot.existingPuts[0].brokerOptionBasis).toBe(-102.33);
+    expect(snapshot.existingPuts[0].brokerOptionAverageCost).toBe(-1.02);
+  });
+
+  it("passes null when option summary lacks cost basis", () => {
+    const input = makeInput({
+      optionSummaryRows: [
+        makeShareRow("XLE", 200, "CoveredCall" as any),
+        makeOptionRow("XLE260731C55", "XLE", "CALL", 55, "2026-07-31", -2, "CoveredCall" as any),
+      ],
+    });
+    const snapshot = buildFidelitySnapshot(input);
+    expect(snapshot.existingCalls[0].brokerOptionBasis).toBeNull();
+    expect(snapshot.existingCalls[0].brokerOptionAverageCost).toBeNull();
+  });
+});

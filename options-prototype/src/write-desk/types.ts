@@ -47,6 +47,10 @@ export interface OpenShortCall {
   strike: number;
   expiration: string;
   quantity: number;
+  /** Broker-reported option cost basis (negative = credit received). Null when unavailable. */
+  brokerOptionBasis: number | null;
+  /** Broker-reported average cost per contract (negative = credit/share). Null when unavailable. */
+  brokerOptionAverageCost: number | null;
 }
 
 export interface OpenShortPut {
@@ -55,6 +59,10 @@ export interface OpenShortPut {
   strike: number;
   expiration: string;
   quantity: number;
+  /** Broker-reported option cost basis (negative = credit received). Null when unavailable. */
+  brokerOptionBasis: number | null;
+  /** Broker-reported average cost per contract (negative = credit/share). Null when unavailable. */
+  brokerOptionAverageCost: number | null;
 }
 
 // --- Balance Context ---

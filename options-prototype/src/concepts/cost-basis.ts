@@ -7,72 +7,61 @@ export const costBasisConcept: ConceptDefinition = {
   generic:
     "Cost basis is the total amount invested in a security, including the purchase price and any fees. " +
     "For option-related positions, cost basis becomes particularly important when assignment occurs: " +
-    "for puts, the effective acquisition basis is the strike price minus the premium received per share. " +
+    "for puts, the analytical effective basis is the strike price minus the premium credit per share. " +
     "For calls, the cost basis of the underlying shares determines whether assignment at the strike " +
-    "represents appreciation, a near-break-even, or a capital loss.",
+    "represents appreciation or capital erosion.",
 
   specific: (ctx) => {
-    const { position, detail, inventory } = ctx;
+    const { position, detail } = ctx;
     if (!detail) return null;
+    const { consequence } = detail;
 
-    if (position.type === "put") {
-      const scenario = detail.assignmentScenario;
-      if (scenario.type !== "put") return null;
-
-      if (scenario.effectiveBasis.value != null) {
-        const provNote = scenario.effectiveBasis.provenance === "demo" ? " (demo)" : "";
+    if (position.type === "put" && consequence.type === "put") {
+      if (consequence.analyticalEffectiveBasis.value != null) {
         return (
           `If assigned, shares would be acquired at the $${position.strike.toFixed(2)} strike. ` +
-          `Accounting for the premium received, the effective acquisition basis would be ` +
-          `$${scenario.effectiveBasis.value.toFixed(2)} per share${provNote}. ` +
-          `This is the true cost of acquiring the position after premium income is considered.`
+          `Accounting for the premium credit received, the analytical effective basis would be ` +
+          `$${consequence.analyticalEffectiveBasis.value.toFixed(2)} per share. ` +
+          `This is Wheelwright's analytical measure — the broker will report acquisition at the strike price.`
         );
       }
       return (
         `If assigned, shares would be acquired at the $${position.strike.toFixed(2)} strike. ` +
-        `The effective acquisition basis (strike minus premium received) cannot be calculated ` +
-        `because premium information is not yet available.`
+        `The analytical effective basis (strike minus premium credit) cannot be calculated ` +
+        `because broker option basis is not available for this position.`
       );
-    } else {
-      // Call
-      const scenario = detail.assignmentScenario;
-      if (scenario.type !== "call") return null;
-
-      if (scenario.costBasisPerShare.value != null) {
-        const basis = scenario.costBasisPerShare.value;
-        const provNote = scenario.costBasisPerShare.provenance === "demo" ? " (demo)" : "";
+    } else if (position.type === "call" && consequence.type === "call") {
+      if (consequence.brokerShareBasis.value != null) {
+        const basis = consequence.brokerShareBasis.value;
         const diff = position.strike - basis;
         const diffStr = diff >= 0 ? `$${diff.toFixed(2)} above` : `$${Math.abs(diff).toFixed(2)} below`;
 
-        let classification = "";
-        if (scenario.callAwayClassification.value === "appreciation") {
-          classification = " Assignment at this strike would represent share appreciation.";
-        } else if (scenario.callAwayClassification.value === "below-basis") {
-          classification = " Assignment at this strike would represent a capital loss on the shares — the premium received may or may not offset this loss.";
-        } else if (scenario.callAwayClassification.value === "near-basis") {
-          classification = " Assignment at this strike is near the cost basis — the economic outcome is primarily the premium received.";
-        }
+        const classification = diff > basis * 0.02
+          ? " Assignment at this strike would represent share appreciation."
+          : diff < -(basis * 0.02)
+            ? " Assignment at this strike would represent capital erosion on the shares."
+            : " Assignment at this strike is near the cost basis.";
 
         return (
-          `The cost basis for the underlying shares is $${basis.toFixed(2)} per share${provNote}. ` +
+          `The broker-reported cost basis for the underlying shares is $${basis.toFixed(2)} per share. ` +
           `The $${position.strike.toFixed(2)} call strike is ${diffStr} cost basis.` +
           classification
         );
       }
       return (
         `The cost basis of the underlying shares is not currently available. ` +
-        `Without cost basis, the economic consequence of call assignment (appreciation vs capital loss) ` +
+        `Without cost basis, the capital appreciation or erosion at assignment ` +
         `cannot be determined.`
       );
     }
+    return null;
   },
 
   systemNote:
-    "Wheelwright distinguishes three call-away outcomes based on the relationship between " +
-    "strike price and cost basis: appreciation (strike > basis + 2%), near-basis (within ±2%), " +
-    "and below-basis (strike < basis − 2%). This classification matters because covered call " +
-    "writing can inadvertently lock in capital losses if the strike is below the acquisition cost. " +
-    "Premium received must then be weighed against the share-level loss to determine net economics.",
+    "Wheelwright presents capital appreciation/erosion and option premium as separate components " +
+    "rather than collapsing them into a single P/L number. This preserves the distinction between " +
+    "share-level gain/loss (driven by price movement) and premium production (driven by option writing). " +
+    "The analytical effective exit/basis is a secondary derived measure shown for decision support.",
 
   related: ["premium", "assignment", "encumbered-capital"],
 };

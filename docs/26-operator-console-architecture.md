@@ -226,7 +226,7 @@ The first operational slice of the Operator Console is implemented and committed
 | Situation rendering | Not implemented — situation architecture is durable but has no Console UI |
 | Health classification | Not implemented — moneyness serves as the first Contract State dimension (ADR-013); Decision Pressure and full health semantics remain future work |
 | NAV / mission progress region | Placeholder geometry reserved; no historical data acquisition or display |
-| Economic Consequence (ADR-013 dim 3) | Not implemented — mechanical assignment arithmetic (strike vs. broker basis) is next candidate; premium-enriched economics blocked pending position-to-Activity-History linkage |
+| Economic Consequence (ADR-013 dim 3) | ✅ Implemented — canonical `assignment-consequence.ts` derivation with decomposed components: principal movement, capital appreciation/erosion, broker option basis (observed), premium credit (derived), analytical effective exit/basis (derived secondary). Broker option basis sourced from Fidelity Option Summary CSV (not Activity History). Three-state hero color: green (appreciation), amber (premium-offset erosion), red (net erosion). Nearest Consequence sidebar aggregation. High-contrast modal rendering. |
 | Decision Pressure (ADR-013 dim 2) | Not implemented — current DTE + current moneyness magnitude are available inputs; threshold calibration and visual encoding remain design decisions |
 | Action transitions (Console → recommendation surface) | Basic navigation link exists; no context-preserving transition |
 

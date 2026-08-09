@@ -9,10 +9,15 @@
  *
  * Centered modal with dimmed Console backdrop. Sticky contract header.
  * Dismiss via backdrop click, Escape, or × button.
+ *
+ * Assignment Consequence section uses high-contrast operational styling:
+ * primary numbers are bright and immediately legible, semantic color
+ * signals appreciation (green) or erosion (red).
  */
 
 import { useEffect, useCallback, useState } from "react";
 import type { PositionDetail } from "../portfolio/position-detail";
+import type { CallAssignmentConsequence, PutAssignmentConsequence } from "../portfolio/assignment-consequence";
 import type { ConceptContext } from "../concepts/types";
 import { getConcept } from "../concepts/index";
 import { formatMoneynessDisplay, classifyMoneyness } from "../operator-console/moneyness-presentation";
@@ -63,11 +68,8 @@ export function PositionDetailModal({ detail, onClose }: Props) {
           {/* Contract Measurements */}
           <MeasurementsSection detail={detail} mDisplay={mDisplay} />
 
-          {/* Position Economics */}
-          <EconomicsSection detail={detail} />
-
-          {/* If Assigned */}
-          <AssignmentSection detail={detail} />
+          {/* Assignment Consequence (ADR-013 Dimension 3) */}
+          <ConsequenceSection detail={detail} />
 
           {/* Evidence & Provenance */}
           <ProvenanceSection detail={detail} />
@@ -132,139 +134,191 @@ function MeasurementsSection({ detail, mDisplay }: { detail: PositionDetail; mDi
   );
 }
 
-// --- Position Economics ---
+// --- Assignment Consequence (high-contrast) ---
 
-function EconomicsSection({ detail }: { detail: PositionDetail }) {
-  const econ = detail.economics;
-  const hasPremium = econ.premiumPerContract.value != null;
-
-  if (!hasPremium) {
-    return (
-      <section className="pdm-section">
-        <h3 className="pdm-section-title">Position Economics</h3>
-        <p className="pdm-unavailable">Premium and opening transaction data not yet available. This information would come from Activity History ingestion.</p>
-      </section>
-    );
-  }
-
-  const provTag = econ.premiumPerContract.provenance === "demo" ? " (demo)" : "";
+function ConsequenceSection({ detail }: { detail: PositionDetail }) {
+  const { consequence } = detail;
 
   return (
-    <section className="pdm-section">
-      <h3 className="pdm-section-title">Position Economics{provTag}</h3>
-      <dl className="pdm-measurements">
-        <MeasurementRow
-          label="Premium received"
-          value={`$${econ.premiumPerContract.value!.toFixed(2)} /contract`}
-          conceptId="premium"
-          detail={detail}
-        />
-        <MeasurementRow
-          label="Gross premium"
-          value={`$${econ.grossPremium.value!.toFixed(0)}`}
-        />
-        {econ.fees.value != null && econ.fees.value > 0 && (
-          <MeasurementRow label="Fees" value={`$${econ.fees.value.toFixed(2)}`} />
-        )}
-        <MeasurementRow label="Net premium" value={`$${econ.netPremium.value!.toFixed(0)}`} />
-        {econ.premiumReturnOnCapital.value != null && (
-          <MeasurementRow
-            label="Return on capital"
-            value={`${(econ.premiumReturnOnCapital.value * 100).toFixed(1)}%`}
-          />
-        )}
-        {econ.openedAt.value && (
-          <MeasurementRow label="Opened" value={econ.openedAt.value} />
-        )}
-      </dl>
-    </section>
-  );
-}
-
-// --- If Assigned ---
-
-function AssignmentSection({ detail }: { detail: PositionDetail }) {
-  const scenario = detail.assignmentScenario;
-
-  return (
-    <section className="pdm-section">
+    <section className="pdm-section pdm-consequence">
       <h3 className="pdm-section-title">
         If Assigned
         <ConceptToggle conceptId="assignment" detail={detail} />
       </h3>
 
-      {scenario.type === "put" ? (
-        <PutAssignmentContent scenario={scenario} detail={detail} />
+      {consequence.type === "call" ? (
+        <CallConsequenceContent consequence={consequence} detail={detail} />
       ) : (
-        <CallAssignmentContent scenario={scenario} detail={detail} />
+        <PutConsequenceContent consequence={consequence} detail={detail} />
       )}
     </section>
   );
 }
 
-function PutAssignmentContent({ scenario, detail }: { scenario: PositionDetail["assignmentScenario"] & { type: "put" }; detail: PositionDetail }) {
+function CallConsequenceContent({ consequence, detail }: { consequence: CallAssignmentConsequence; detail: PositionDetail }) {
+  // Compute the hero total: appreciation/erosion + premium credit
+  const appValue = consequence.totalAppreciationOrErosion.value;
+  const premValue = consequence.premiumCredit.value;
+  const hasTotal = appValue != null || premValue != null;
+  const heroTotal = (appValue ?? 0) + (premValue ?? 0);
+
+  // Three-state color semantic based on consequence STRUCTURE:
+  // Green: capital component >= 0 and total positive (appreciation + premium)
+  // Amber: capital component < 0 but premium offsets it (total >= 0)
+  // Red: total < 0 (premium insufficient to offset erosion)
+  let heroClass = "";
+  if (hasTotal) {
+    if (heroTotal < 0) {
+      heroClass = "pdm-hero-negative";
+    } else if (appValue != null && appValue < 0) {
+      heroClass = "pdm-hero-amber";
+    } else {
+      heroClass = "pdm-hero-positive";
+    }
+  }
+
   return (
-    <dl className="pdm-measurements">
-      <MeasurementRow label="Shares acquired" value={`${scenario.sharesAcquired} shares of ${detail.position.underlying}`} />
-      <MeasurementRow label="Purchase price" value={`$${scenario.assignmentPrice.toFixed(2)} /share`} />
-      <MeasurementRow label="Cash consumed" value={`$${scenario.grossCashConsumed.toLocaleString()}`} />
-      {scenario.premiumReceived.value != null && (
-        <MeasurementRow
-          label="Premium offset"
-          value={`$${scenario.premiumReceived.value.toFixed(0)}`}
-        />
+    <div className="pdm-consequence-grid">
+      {/* Hero Total — the first thing the eye lands on */}
+      {hasTotal && (
+        <div className="pdm-cq-hero">
+          <span className="pdm-cq-hero-label">Total if assigned</span>
+          <span className={`pdm-cq-hero-value ${heroClass}`}>
+            {heroTotal >= 0 ? "+" : ""}${Math.abs(heroTotal).toLocaleString()}
+          </span>
+        </div>
       )}
-      {scenario.effectiveBasis.value != null && (
-        <MeasurementRow
-          label="Effective basis"
-          value={`$${scenario.effectiveBasis.value.toFixed(2)} /share`}
-          conceptId="cost-basis"
-          detail={detail}
-        />
+
+      {/* Decomposition — explains why */}
+      <div className="pdm-cq-block">
+        <span className="pdm-cq-block-label">Decomposition</span>
+        {appValue != null && (
+          <div className="pdm-cq-line">
+            <span className="pdm-cq-fact-label">Capital {appValue >= 0 ? "appreciation" : "erosion"}</span>
+            <span className={`pdm-cq-value ${appValue >= 0 ? "pdm-cq-positive" : "pdm-cq-negative"}`}>
+              {appValue >= 0 ? "+" : "−"}${Math.abs(appValue).toLocaleString()}
+            </span>
+          </div>
+        )}
+        {premValue != null && (
+          <div className="pdm-cq-line">
+            <span className="pdm-cq-fact-label">Premium</span>
+            <span className="pdm-cq-value pdm-cq-premium">+${premValue.toLocaleString()}</span>
+          </div>
+        )}
+        {appValue == null && consequence.brokerShareBasis.value == null && (
+          <span className="pdm-cq-detail">Share basis unavailable — appreciation/erosion indeterminate</span>
+        )}
+      </div>
+
+      {/* Principal Movement — what changes */}
+      <div className="pdm-cq-block">
+        <span className="pdm-cq-block-label">Principal Movement</span>
+        <div className="pdm-cq-line">
+          <span className="pdm-cq-fact-label">{consequence.sharesRemoved} shares</span>
+          <span className="pdm-cq-arrow">→</span>
+          <span className="pdm-cq-value">${consequence.cashProceeds.toLocaleString()}</span>
+        </div>
+        <span className="pdm-cq-detail">
+          at ${consequence.salePricePerShare.toFixed(2)}/share
+          {consequence.brokerShareBasis.value != null && ` (basis $${consequence.brokerShareBasis.value.toFixed(2)})`}
+        </span>
+      </div>
+
+      {/* Analytical: Effective Exit */}
+      {consequence.effectiveExitPrice.value != null && (
+        <div className="pdm-cq-block pdm-cq-analytical">
+          <span className="pdm-cq-block-label">Analytical</span>
+          <div className="pdm-cq-line">
+            <span className="pdm-cq-fact-label">effective exit</span>
+            <span className="pdm-cq-value-secondary">${consequence.effectiveExitPrice.value.toFixed(2)}/share</span>
+          </div>
+          <span className="pdm-cq-detail">strike + credit/share (Wheelwright derivation)</span>
+        </div>
       )}
-      {scenario.resultingShares != null && (
-        <MeasurementRow label="Resulting shares" value={`${scenario.resultingShares} (${scenario.existingShares ?? 0} existing + ${scenario.sharesAcquired})`} />
-      )}
-      {scenario.additionalCallLots != null && scenario.additionalCallLots > 0 && (
-        <MeasurementRow label="New call lots" value={`+${scenario.additionalCallLots} (100-share lots for covered calls)`} />
-      )}
-    </dl>
+
+      {/* State Transformation */}
+      <div className="pdm-cq-block pdm-cq-state">
+        <span className="pdm-cq-block-label">State</span>
+        <span className="pdm-cq-state-line">{consequence.sharesLeavingInventory} shares leave inventory</span>
+        <span className="pdm-cq-state-line">Call encumbrance resolved ({consequence.callEncumbranceResolved} shares)</span>
+        {consequence.resultingShares != null && (
+          <span className="pdm-cq-state-line">Resulting: {consequence.resultingShares} shares of {detail.position.underlying}</span>
+        )}
+      </div>
+    </div>
   );
 }
 
-function CallAssignmentContent({ scenario, detail }: { scenario: PositionDetail["assignmentScenario"] & { type: "call" }; detail: PositionDetail }) {
+function PutConsequenceContent({ consequence, detail }: { consequence: PutAssignmentConsequence; detail: PositionDetail }) {
   return (
-    <dl className="pdm-measurements">
-      <MeasurementRow label="Shares called away" value={`${scenario.sharesCalledAway} shares of ${detail.position.underlying}`} />
-      <MeasurementRow label="Sale price" value={`$${scenario.salePrice.toFixed(2)} /share`} />
-      <MeasurementRow label="Gross proceeds" value={`$${scenario.grossProceeds.toLocaleString()}`} />
-      {scenario.premiumReceived.value != null && (
-        <MeasurementRow label="Premium received" value={`$${scenario.premiumReceived.value.toFixed(0)}`} />
+    <div className="pdm-consequence-grid">
+      {/* Hero: Effective Acquisition Basis */}
+      {consequence.analyticalEffectiveBasis.value != null ? (
+        <div className="pdm-cq-hero">
+          <span className="pdm-cq-hero-label">Effective basis if assigned</span>
+          <span className="pdm-cq-hero-value pdm-hero-neutral">
+            ${consequence.analyticalEffectiveBasis.value.toFixed(2)}/share
+          </span>
+        </div>
+      ) : (
+        <div className="pdm-cq-hero">
+          <span className="pdm-cq-hero-label">Acquisition price if assigned</span>
+          <span className="pdm-cq-hero-value pdm-hero-neutral">
+            ${consequence.acquisitionPricePerShare.toFixed(2)}/share
+          </span>
+        </div>
       )}
-      {scenario.costBasisPerShare.value != null && (
-        <MeasurementRow
-          label="Cost basis"
-          value={`$${scenario.costBasisPerShare.value.toFixed(2)} /share`}
-          conceptId="cost-basis"
-          detail={detail}
-        />
-      )}
-      {scenario.shareGainLoss.value != null && (
-        <MeasurementRow
-          label="Share gain/loss"
-          value={`${scenario.shareGainLoss.value >= 0 ? "+" : ""}$${scenario.shareGainLoss.value.toFixed(0)}`}
-        />
-      )}
-      {scenario.callAwayClassification.value != null && (
-        <MeasurementRow label="Classification" value={formatClassification(scenario.callAwayClassification.value)} />
-      )}
-      {scenario.remainingShares != null && (
-        <MeasurementRow label="Remaining shares" value={`${scenario.remainingShares}`} />
-      )}
-      {scenario.remainingCallLots != null && (
-        <MeasurementRow label="Remaining call capacity" value={`${scenario.remainingCallLots} lots`} />
-      )}
-    </dl>
+
+      {/* Decomposition — how effective basis is derived */}
+      <div className="pdm-cq-block">
+        <span className="pdm-cq-block-label">Decomposition</span>
+        <div className="pdm-cq-line">
+          <span className="pdm-cq-fact-label">Strike acquisition</span>
+          <span className="pdm-cq-value">${consequence.acquisitionPricePerShare.toFixed(2)}/share</span>
+        </div>
+        {consequence.premiumCreditPerShare.value != null && (
+          <div className="pdm-cq-line">
+            <span className="pdm-cq-fact-label">Premium offset</span>
+            <span className="pdm-cq-value pdm-cq-premium">−${consequence.premiumCreditPerShare.value.toFixed(2)}/share</span>
+          </div>
+        )}
+        {consequence.premiumCreditPerShare.value == null && (
+          <span className="pdm-cq-detail">Option basis unavailable — effective basis indeterminate</span>
+        )}
+      </div>
+
+      {/* Principal Movement */}
+      <div className="pdm-cq-block">
+        <span className="pdm-cq-block-label">Principal Movement</span>
+        <div className="pdm-cq-line">
+          <span className="pdm-cq-value">${consequence.cashConsumed.toLocaleString()}</span>
+          <span className="pdm-cq-arrow">→</span>
+          <span className="pdm-cq-fact-label">{consequence.sharesAcquired} shares</span>
+        </div>
+        {consequence.premiumCredit.value != null && (
+          <div className="pdm-cq-line">
+            <span className="pdm-cq-fact-label">Premium received</span>
+            <span className="pdm-cq-value pdm-cq-premium">+${consequence.premiumCredit.value.toLocaleString()}</span>
+          </div>
+        )}
+      </div>
+
+      {/* State Transformation */}
+      <div className="pdm-cq-block pdm-cq-state">
+        <span className="pdm-cq-block-label">State</span>
+        <span className="pdm-cq-state-line">Put obligation resolved (${consequence.putObligationResolved.toLocaleString()} cash released)</span>
+        <span className="pdm-cq-state-line">{consequence.sharesCreated} shares enter inventory</span>
+        {consequence.resultingTotalShares != null && (
+          <span className="pdm-cq-state-line">
+            Resulting: {consequence.resultingTotalShares} shares of {detail.position.underlying}
+            {consequence.existingSharesOfUnderlying != null && consequence.existingSharesOfUnderlying > 0
+              ? ` (${consequence.existingSharesOfUnderlying} existing + ${consequence.sharesCreated})`
+              : ""}
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -325,7 +379,6 @@ function ConceptToggle({ conceptId, detail }: { conceptId: string; detail: Posit
     position: detail.position,
     detail,
     inventory: detail.inventory,
-    scenario: detail.assignmentScenario,
   };
 
   const specificText = concept.specific(ctx);
@@ -368,12 +421,4 @@ function formatDate(iso: string): string {
 function formatTimestamp(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZoneName: "short" });
-}
-
-function formatClassification(c: "appreciation" | "near-basis" | "below-basis"): string {
-  switch (c) {
-    case "appreciation": return "Assignment with appreciation";
-    case "near-basis": return "Assignment near cost basis";
-    case "below-basis": return "Assignment below cost basis";
-  }
 }
