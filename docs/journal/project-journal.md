@@ -5445,3 +5445,49 @@ The browser uploads evidence and renders backend-derived facts. It does not clas
 - Full transaction audit-trail drill-down
 - Lifecycle reconstruction
 - Production targets / withdrawal policy (PL-POL-02)
+
+---
+
+## 2026-08-08 — Capacity/Exposure Sidebar (Console Slice 2)
+
+### Context
+
+The Operator Console's first slice delivered the DTE ladder with moneyness visualization. The sidebar, upper region, and footer remained placeholders. The Principal approved a Capacity/Exposure increment as the next Console step, with three critical semantic constraints:
+
+1. No synthetic ratios or composite metrics — only directly interpretable facts.
+2. No heterogeneous "Total Encumbered Capital" headline mixing strike-based put obligations with import-time covered equity.
+3. No "% of eligible AUM" — that denominator doesn't exist without a Situation policy.
+
+Additionally, two documentation corrections were required:
+- ADR-013: "moneyness trajectory" → "current moneyness magnitude" (no historical observations exist)
+- Doc-26: "eligible AUM" → qualified as a future Situation concept
+
+### What happened
+
+**Domain module:** Created `src/portfolio/capacity-summary.ts` — a pure function `deriveCapacitySummary()` that consumes already-derived `MonitoredPosition[]`, `ExpirationRung[]`, and `PortfolioSnapshot` to produce:
+- Put obligations (strike × 100 × qty, summed)
+- Covered equity (market-value-at-import for call-backing shares)
+- Deployable cash (Fidelity Available to Trade, passed through directly)
+- Nearest-rung exposure (disaggregated puts/calls in the first rung — relies on contractual DTE-ascending sort from `groupByExpiration()`)
+- Call-writing capacity (per-symbol free lots, sorted by lots descending, compact presentation with +N more truncation)
+- Provenance (snapshot date)
+
+**Sidebar component:** Replaced the placeholder `<div>Portfolio summary</div>` in the 180px sidebar with a `CapacitySidebar` component rendering all five fact categories. Each value carries its valuation-basis label. Unavailable states render gracefully (italic "No balances imported" etc.).
+
+**CSS:** Numbers-first typography per ADR-009. Monospace for values, uppercase tertiary for labels, italic for basis annotations.
+
+**Tests:** 15 unit tests covering all derivation paths including edge cases (empty portfolio, null deployableCash, calls without valuation, sort order).
+
+### What we learned
+
+- `totalAccountValue` is the only honest denominator for any future percentage, but we chose not to show percentages in this slice. The Principal explicitly rejected "capacity utilization" because `deployableCash` reflects broker-specific residual adjustments and cannot be cleanly reconstructed into an original capacity pool.
+- Put and call encumbrance are fundamentally different economic constraints measured on different bases. Disaggregation is the honest presentation.
+- "Nearest rung" is structurally meaningful (expiration-native) and doesn't require inventing a DTE threshold constant.
+- Call-writing capacity is inherently per-symbol and non-fungible. A total-lots count is acceptable as a secondary summary but must not imply cross-symbol interchangeability.
+
+### Decisions / implications
+
+- The Console progression is now: Capacity/Exposure ✅ → Mechanical Economic Consequence → Decision Pressure
+- These answer three successive questions: "What is my capital committed to?" → "What happens if these positions resolve?" → "Which resolutions deserve attention now?"
+- No situation semantics required. No historical data required. All from current import.
+- The `capacity-summary.ts` module establishes the pattern: reusable portfolio derivation as a pure function, separate from React, independently testable.

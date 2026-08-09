@@ -13,6 +13,7 @@ import { hierarchy, treemap, treemapSquarify } from "d3-hierarchy";
 import { usePortfolio } from "../portfolio/use-portfolio";
 import { useObservations } from "../evidence/use-observations";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
+import { deriveCapacitySummary, type CapacitySummary } from "../portfolio/capacity-summary";
 import { buildPositionDetail, type PositionDetail } from "../portfolio/position-detail";
 import { generateDemoEconomics } from "../write-desk/demo-economics";
 import { PositionDetailModal } from "./PositionDetailModal";
@@ -43,6 +44,7 @@ export function OperatorConsole() {
   const positions = deriveMonitoredPositions(snapshot, observations);
   const rungs = groupByExpiration(positions);
   const totalCapital = rungs.reduce((sum, r) => sum + r.totalCapital, 0);
+  const capacity = deriveCapacitySummary(positions, rungs, snapshot);
 
   return (
     <div className="oc-shell">
@@ -59,9 +61,9 @@ export function OperatorConsole() {
       </header>
 
       <div className="oc-body">
-        {/* Sidebar region — portfolio-level facts */}
+        {/* Sidebar region — portfolio capacity facts */}
         <aside className="oc-region-sidebar">
-          <div className="oc-sidebar-placeholder">Portfolio summary</div>
+          <CapacitySidebar capacity={capacity} />
         </aside>
 
         <div className="oc-main">
@@ -92,6 +94,116 @@ export function OperatorConsole() {
           detail={buildDetailForPosition(selectedPosition, snapshot, source)}
           onClose={() => setSelectedPosition(null)}
         />
+      )}
+    </div>
+  );
+}
+
+// --- Capacity Sidebar ---
+
+/** Maximum symbols shown inline before "+N more" truncation */
+const MAX_CALL_CAPACITY_SYMBOLS = 3;
+
+function CapacitySidebar({ capacity }: { capacity: CapacitySummary }) {
+  const [callLotsExpanded, setCallLotsExpanded] = useState(false);
+
+  return (
+    <div className="oc-capacity">
+      {/* Put Obligations */}
+      <div className="oc-cap-section">
+        <span className="oc-cap-label">Put Obligations</span>
+        <span className="oc-cap-value">${capacity.putObligations.toLocaleString()}</span>
+        <span className="oc-cap-basis">
+          {capacity.putPositionCount} position{capacity.putPositionCount !== 1 ? "s" : ""} · strike-based
+        </span>
+      </div>
+
+      {/* Deployable Cash */}
+      <div className="oc-cap-section">
+        <span className="oc-cap-label">Deployable Cash</span>
+        {capacity.deployableCash != null ? (
+          <>
+            <span className="oc-cap-value">${capacity.deployableCash.toLocaleString()}</span>
+            <span className="oc-cap-basis">residual put-writing headroom</span>
+          </>
+        ) : (
+          <span className="oc-cap-unavailable">No balances imported</span>
+        )}
+      </div>
+
+      {/* Covered Equity */}
+      <div className="oc-cap-section">
+        <span className="oc-cap-label">Covered Equity</span>
+        {capacity.callPositionCount > 0 ? (
+          <>
+            <span className="oc-cap-value">${capacity.coveredEquity.toLocaleString()}</span>
+            <span className="oc-cap-basis">
+              {capacity.callPositionCount} position{capacity.callPositionCount !== 1 ? "s" : ""} · at import
+            </span>
+          </>
+        ) : (
+          <span className="oc-cap-unavailable">No covered calls</span>
+        )}
+        {capacity.callsWithoutValuation > 0 && (
+          <span className="oc-cap-warning">
+            {capacity.callsWithoutValuation} call{capacity.callsWithoutValuation !== 1 ? "s" : ""} without valuation
+          </span>
+        )}
+      </div>
+
+      {/* Nearest Rung */}
+      {capacity.nearestRung && (
+        <div className="oc-cap-section oc-cap-section-bordered">
+          <span className="oc-cap-label">
+            Nearest Rung · {formatExpiration(capacity.nearestRung.expiration)} · {capacity.nearestRung.dte} DTE
+          </span>
+          {capacity.nearestRung.putExposure > 0 && (
+            <span className="oc-cap-detail">Puts: ${capacity.nearestRung.putExposure.toLocaleString()}</span>
+          )}
+          {capacity.nearestRung.callExposure > 0 && (
+            <span className="oc-cap-detail">Calls: ${capacity.nearestRung.callExposure.toLocaleString()}</span>
+          )}
+          <span className="oc-cap-basis">
+            {capacity.nearestRung.positionCount} position{capacity.nearestRung.positionCount !== 1 ? "s" : ""} resolving
+          </span>
+        </div>
+      )}
+
+      {/* Call-Writing Capacity */}
+      <div className="oc-cap-section oc-cap-section-bordered">
+        <span className="oc-cap-label">Free Call Lots</span>
+        {capacity.callCapacity.length > 0 ? (
+          <>
+            <span className="oc-cap-value">{capacity.totalFreeLots} lot{capacity.totalFreeLots !== 1 ? "s" : ""}</span>
+            <div className="oc-cap-symbols">
+              {(callLotsExpanded ? capacity.callCapacity : capacity.callCapacity.slice(0, MAX_CALL_CAPACITY_SYMBOLS)).map(entry => (
+                <span key={entry.symbol} className="oc-cap-symbol-entry">
+                  {entry.symbol} · {entry.additionalLots} lot{entry.additionalLots !== 1 ? "s" : ""}
+                </span>
+              ))}
+              {capacity.callCapacity.length > MAX_CALL_CAPACITY_SYMBOLS && (
+                <button
+                  className="oc-cap-more"
+                  onClick={() => setCallLotsExpanded(!callLotsExpanded)}
+                  aria-expanded={callLotsExpanded}
+                >
+                  {callLotsExpanded
+                    ? "Show less"
+                    : `+${capacity.callCapacity.length - MAX_CALL_CAPACITY_SYMBOLS} more`}
+                </button>
+              )}
+            </div>
+          </>
+        ) : (
+          <span className="oc-cap-unavailable">No free capacity</span>
+        )}
+      </div>
+
+      {/* Provenance */}
+      {capacity.snapshotDate && (
+        <div className="oc-cap-provenance">
+          as of {formatExpiration(capacity.snapshotDate)}
+        </div>
       )}
     </div>
   );

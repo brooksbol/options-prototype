@@ -285,7 +285,7 @@ These are situation-independent and carry no implication of good or bad.
 
 An assessment of whether resolution is approaching and operator awareness is warranted.
 
-Decision Pressure consumes observable inputs — primarily **resolution proximity** (a derived fact combining DTE and moneyness trajectory) — and interprets them as an increasing need for operator attention.
+Decision Pressure consumes observable inputs — primarily **resolution proximity** (a derived fact combining current DTE and current moneyness magnitude) — and interprets them as an increasing need for operator attention. Resolution proximity is a point-in-time assessment: how close is expiration (temporal) and how close is the underlying to the strike right now (spatial). No historical moneyness observations or trajectory analysis is implied.
 
 The distinction matters:
 - "2 DTE, ITM by $3, assignment path probable" — derived fact (resolution proximity)

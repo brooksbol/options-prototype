@@ -341,3 +341,100 @@
   margin: 6px 0;
   font-size: 11px;
 }
+
+/* === Capacity Sidebar === */
+
+.oc-capacity {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.oc-cap-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.oc-cap-section-bordered {
+  border-top: 1px solid var(--wd-border-subtle, rgba(255, 255, 255, 0.08));
+  padding-top: 10px;
+}
+
+.oc-cap-label {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--wd-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.oc-cap-value {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+  color: var(--wd-text-primary);
+  line-height: 1.2;
+}
+
+.oc-cap-basis {
+  font-size: 9px;
+  color: var(--wd-text-secondary);
+  font-style: italic;
+}
+
+.oc-cap-detail {
+  font-size: 11px;
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+  color: var(--wd-text-secondary);
+  line-height: 1.3;
+}
+
+.oc-cap-unavailable {
+  font-size: 10px;
+  color: var(--wd-text-secondary);
+  font-style: italic;
+}
+
+.oc-cap-warning {
+  font-size: 8px;
+  color: var(--wd-accent-yellow);
+}
+
+.oc-cap-symbols {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 2px;
+}
+
+.oc-cap-symbol-entry {
+  font-size: 10px;
+  font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+  color: var(--wd-text-secondary);
+}
+
+.oc-cap-more {
+  font-size: 9px;
+  color: var(--wd-accent-green-dim);
+  cursor: pointer;
+  padding: 2px 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  text-align: left;
+}
+
+.oc-cap-more:hover {
+  color: var(--wd-accent-green);
+  text-decoration: underline;
+}
+
+.oc-cap-provenance {
+  font-size: 9px;
+  color: var(--wd-text-secondary);
+  border-top: 1px solid var(--wd-border-subtle, rgba(255, 255, 255, 0.08));
+  padding-top: 8px;
+  margin-top: 4px;
+}

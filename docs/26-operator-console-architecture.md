@@ -117,8 +117,8 @@ Communicates the operator's current capital position at a glance.
 
 **Required information:**
 
-- Total encumbered capital
-- Encumbered as percentage of eligible AUM
+- Total encumbered capital (put obligations and covered-equity exposure, disaggregated by valuation basis)
+- Encumbered as percentage of totalAccountValue (broker-reported whole-account value; note: "eligible AUM" is a future Situation/policy concept — no eligibility denominator exists in the current portfolio model)
 - Unencumbered/available capacity (buying power, free shares)
 - Near-term obligations (capital at risk in the closest DTE rung)
 - Concentration signals (when one rung or symbol dominates disproportionately)
@@ -217,6 +217,7 @@ The first operational slice of the Operator Console is implemented and committed
 | Moneyness visualization | ✅ Implemented — OTM/ATM/ITM borders + signed percentage magnitude |
 | Tile inspection (click interaction) | ✅ Implemented — position-detail modal with progressive learning, assignment scenarios, concept explanations |
 | Shared import status | ✅ Implemented — both Console and Write Desk consume the same portfolio store |
+| Capacity/exposure summary | ✅ Implemented — `capacity-summary.ts` pure derivation + sidebar rendering: put obligations (strike-based), deployable cash (Fidelity residual), covered equity (market-value-at-import), nearest-rung exposure (disaggregated), call-writing capacity (per-symbol, compact) |
 
 ### What remains deferred
 
@@ -225,8 +226,8 @@ The first operational slice of the Operator Console is implemented and committed
 | Situation rendering | Not implemented — situation architecture is durable but has no Console UI |
 | Health classification | Not implemented — moneyness serves as the first Contract State dimension (ADR-013); Decision Pressure and full health semantics remain future work |
 | NAV / mission progress region | Placeholder geometry reserved; no historical data acquisition or display |
-| Capacity/exposure summary | Placeholder geometry reserved; not populated |
-| Sidebar content | Placeholder only |
+| Economic Consequence (ADR-013 dim 3) | Not implemented — mechanical assignment arithmetic (strike vs. broker basis) is next candidate; premium-enriched economics blocked pending position-to-Activity-History linkage |
+| Decision Pressure (ADR-013 dim 2) | Not implemented — current DTE + current moneyness magnitude are available inputs; threshold calibration and visual encoding remain design decisions |
 | Action transitions (Console → recommendation surface) | Basic navigation link exists; no context-preserving transition |
 
 ### Key implementation decisions made during the first slice
