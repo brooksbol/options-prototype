@@ -21,8 +21,8 @@ import { lookupCatalog, catalogSize } from "../../src/instrument-catalog/catalog
 let testId = 0;
 
 describe("instrument catalog — lookup", () => {
-  it("catalog contains 10 pilot instruments", () => {
-    expect(catalogSize()).toBe(10);
+  it("catalog contains 12 pilot instruments", () => {
+    expect(catalogSize()).toBe(12);
   });
 
   it("SOXL is in catalog with DANGER", () => {

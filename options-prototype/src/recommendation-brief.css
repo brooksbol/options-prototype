@@ -431,10 +431,7 @@
   background: var(--wd-accent-blue-bg);
 }
 
-/* Layout adjustment when drawer is open */
-.wd-with-drawer {
-  max-width: 820px;
-}
+/* Layout adjustment when drawer is open — see write-desk.css .wd-with-drawer */
 
 
 /* === EXECUTION HANDOFF === */
@@ -918,4 +915,127 @@
   color: var(--wd-text-tertiary, #777);
   margin-top: 6px;
   font-style: italic;
+}
+
+
+/* === Buy-Write Specific Styles === */
+
+.rb-erosion-warning {
+  background: rgba(255, 107, 107, 0.08);
+  border: 1px solid rgba(255, 107, 107, 0.25);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.rb-erosion-warning .rb-section-title {
+  color: #ff6b6b;
+  margin-bottom: 6px;
+}
+
+.rb-erosion-text {
+  font-size: var(--wd-size-body);
+  color: var(--wd-secondary-text);
+  line-height: 1.5;
+  margin: 0 0 8px 0;
+}
+
+.rb-erosion-net {
+  font-size: var(--wd-size-body);
+  font-weight: 600;
+  margin: 0;
+}
+
+.rb-erosion-net.rb-gain {
+  color: #6fcf97;
+}
+
+.rb-erosion-net.rb-loss {
+  color: #ff6b6b;
+}
+
+/* Buy-Write Fidelity Card */
+.rb-bw-fidelity-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  font-family: var(--wd-font-mono, "SF Mono", monospace);
+  font-size: 12px;
+}
+
+.rb-bw-card-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+}
+
+.rb-bw-card-label {
+  color: var(--wd-secondary-text);
+}
+
+.rb-bw-card-value {
+  color: var(--wd-text);
+  font-weight: 500;
+}
+
+.rb-bw-card-total {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 4px;
+  padding-top: 6px;
+  font-weight: 600;
+}
+
+.rb-bw-handoff-link {
+  margin-top: 8px;
+}
+
+.rb-bw-handoff-note {
+  font-size: 11px;
+  color: var(--wd-secondary-text);
+  margin: 6px 0 0 0;
+  line-height: 1.4;
+}
+
+/* Governance section in drawer */
+.rb-governance .rb-gov-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+}
+
+.rb-gov-badge.rb-gov-danger {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+}
+
+.rb-gov-badge.rb-gov-unknown {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+}
+
+.rb-gov-badge.rb-gov-review {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+}
+
+.rb-gov-reason {
+  font-size: var(--wd-size-body);
+  color: var(--wd-secondary-text);
+  margin: 0;
+  line-height: 1.4;
+}
+
+
+/* Governance taxonomy (secondary machine-readable evidence) */
+.rb-gov-taxonomy {
+  font-size: 10px;
+  font-family: var(--wd-font-mono, "SF Mono", monospace);
+  color: var(--wd-text-tertiary, #687386);
+  margin-top: 6px;
+  opacity: 0.7;
 }

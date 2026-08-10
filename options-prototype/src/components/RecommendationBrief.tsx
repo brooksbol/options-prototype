@@ -19,36 +19,14 @@ import type { MarketSessionClassification } from "../market-session/session-poli
 import type { GovernanceAnnotation } from "../write-desk/scan-orchestrator";
 import type { ConditionedCallOpportunity, ConditionedCallSurface } from "../write-desk/conditioned-call-surface";
 import { lookupDescription } from "../instrument-catalog/catalog";
+import {
+  governanceDangerTitle,
+  governanceDangerExplanation,
+  governanceTaxonomyLine,
+} from "../write-desk/governance-explanation";
 
-// --- Governance Explanation Helpers (deterministic, no LLM) ---
-
-function governanceDangerTitle(gov: GovernanceAnnotation): string {
-  const parts: string[] = [];
-  if (gov.classification?.leveraged) parts.push("Leveraged");
-  if (gov.classification?.inverse) parts.push("Inverse");
-  if (gov.classification?.dailyReset) parts.push("Daily-Reset");
-  if (parts.length === 0) return "Structural Complexity";
-  return `${parts.join(" ")} Product`;
-}
-
-function governanceDangerExplanation(gov: GovernanceAnnotation): string {
-  const c = gov.classification;
-  if (!c) return gov.reason;
-
-  if (c.leveraged && c.dailyReset && !c.inverse) {
-    return "This instrument seeks a multiple of an underlying benchmark's daily return and resets exposure each trading day. Daily reset and compounding can cause performance over longer periods to differ materially from the stated daily multiple. Assignment may create exposure unsuitable for the standard cash-secured-put lifecycle.";
-  }
-  if (c.inverse && c.dailyReset) {
-    return "This instrument seeks the inverse of an underlying benchmark's daily return and resets exposure each trading day. Holding inverse daily-reset products beyond the intended daily horizon can produce unexpected losses from compounding. Assignment creates inverse exposure unsuitable for standard covered strategies.";
-  }
-  if (c.leveraged && !c.dailyReset) {
-    return "This instrument provides leveraged exposure to an underlying benchmark. Leveraged products amplify both gains and losses. Assignment may create concentrated leveraged exposure unsuitable for the standard cash-secured-put lifecycle.";
-  }
-  if (c.inverse && !c.dailyReset) {
-    return "This instrument provides inverse exposure to an underlying benchmark. Assignment creates a position that profits from market decline, which conflicts with the standard income-oriented operating model.";
-  }
-  return gov.reason;
-}
+// --- Governance Explanation Helpers (delegated to shared module) ---
+// governanceDangerTitle and governanceDangerExplanation are now imported from governance-explanation.ts
 
 interface RecommendationBriefProps {
   candidate: PutCandidate;

@@ -14,6 +14,7 @@ import { createDemoSnapshot } from "../write-desk/demo-snapshot";
 import { type PutCandidate, type CallCandidate } from "../write-desk/scan-orchestrator";
 import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type RecommendationPolicy } from "../write-desk/recommend";
 import { recommendCalls } from "../write-desk/recommend-calls";
+import { recommendBuyWrites, type BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import { deriveCallEmptyState, candidateExistsInResults } from "../write-desk/call-empty-state";
 import { computeContingentCalls } from "../write-desk/contingent-calls";
 import { executableRowFromCandidate, type CallTableRow, type ContingentCallRow } from "../write-desk/call-table-row";
@@ -27,8 +28,10 @@ import { getTradingCalendar } from "../market-session/trading-calendar";
 import { FidelityUpload } from "./FidelityUpload";
 import { RecommendationBrief } from "./RecommendationBrief";
 import { CallBrief } from "./CallBrief";
+import { BuyWriteBrief } from "./BuyWriteBrief";
 import { ContingentCallBrief } from "./ContingentCallBrief";
 import { FunnelInfographic } from "./FunnelInfographic";
+import { CrossEntryStrip } from "./CrossEntryStrip";
 import type { TablePositionContext } from "../write-desk/brief-builder";
 import { loadWorkingIntents, addPendingIntent, updatePendingIntent, createPendingIntent, type PendingIntent } from "../execution/pending-intent";
 import { buildWriteIntent } from "../execution/write-intent";
@@ -55,6 +58,13 @@ export function WriteDesk() {
   const [callCandidates, setCallCandidates] = useState<CallCandidate[]>([]);
   const [callWaitCandidates, setCallWaitCandidates] = useState<CallCandidate[]>([]);
   const [contingentCallRows, setContingentCallRows] = useState<ContingentCallRow[]>([]);
+  // Buy-write candidates — universe-based, cash-constrained
+  const [buyWriteCandidates, setBuyWriteCandidates] = useState<BuyWriteCandidate[]>([]);
+  const [buyWriteWaitCandidates, setBuyWriteWaitCandidates] = useState<BuyWriteCandidate[]>([]);
+  const [buyWriteWideSpreadCandidates, setBuyWriteWideSpreadCandidates] = useState<BuyWriteCandidate[]>([]);
+  const [buyWriteOutcomes, setBuyWriteOutcomes] = useState<import("../write-desk/recommend-buy-writes").BuyWriteOutcomes | null>(null);
+  const [buyWritesCollapsed, setBuyWritesCollapsed] = useState(() => loadWorkspace().writeDeskBuyWritesCollapsed);
+  const [selectedBuyWriteCandidate, setSelectedBuyWriteCandidate] = useState<BuyWriteCandidate | null>(null);
   const [scanTimestamp, setScanTimestamp] = useState<string | null>(null);
   const [policy, setPolicy] = useState(() => {
     const ws = loadWorkspace();
@@ -155,6 +165,30 @@ export function WriteDesk() {
     } else {
       setContingentCallRows([]);
     }
+
+    // Recommend buy-writes (same universe as puts, reads call side of cache)
+    const bwResult = await recommendBuyWrites(
+      universeSymbols,
+      snapshot.deployableCash,
+      cache,
+      { provider: providerKey, environment: "sandbox" },
+      updatedPolicy,
+      { sessionClosed }
+    );
+    setBuyWriteCandidates(bwResult.candidates);
+    setBuyWriteWaitCandidates(bwResult.waitCandidates);
+    setBuyWriteWideSpreadCandidates(bwResult.wideSpreadCandidates);
+    setBuyWriteOutcomes(bwResult.outcomes);
+
+    // Selection validity: clear buy-write selection if absent from new results
+    setSelectedBuyWriteCandidate((prev) => {
+      if (!prev) return null;
+      const allBW = [...bwResult.candidates, ...bwResult.waitCandidates];
+      if (!allBW.some(c => c.symbol === prev.symbol && c.strike === prev.strike && c.expiration === prev.expiration)) {
+        return null;
+      }
+      return prev;
+    });
   }, [snapshot, universeSymbols, providerKey]);
 
   // Market session classification (updates on render, not reactive to clock)
@@ -364,6 +398,20 @@ export function WriteDesk() {
       setContingentCallRows([]);
     }
 
+    // Recommend buy-writes (same universe as puts, reads call side of cache)
+    const bwResult2 = await recommendBuyWrites(
+      snapshotSymbols.length > 0 ? snapshotSymbols : universeSymbols,
+      snapshot.deployableCash,
+      cache,
+      { provider: providerKey, environment: "sandbox" },
+      policy,
+      { sessionClosed }
+    );
+    setBuyWriteCandidates(bwResult2.candidates);
+    setBuyWriteWaitCandidates(bwResult2.waitCandidates);
+    setBuyWriteWideSpreadCandidates(bwResult2.wideSpreadCandidates);
+    setBuyWriteOutcomes(bwResult2.outcomes);
+
     if (!scanTimestamp) {
       setScanTimestamp(new Date().toISOString());
     }
@@ -440,7 +488,7 @@ export function WriteDesk() {
   }, [openPopover]);
 
   return (
-    <div className={`write-desk${selectedCandidate || selectedCallCandidate ? " wd-with-drawer" : ""}`}>
+    <div className={`write-desk${selectedCandidate || selectedCallCandidate || selectedBuyWriteCandidate ? " wd-with-drawer" : ""}`}>
       {/* Recommendation Brief Drawer (Puts) */}
       {selectedCandidate && snapshot && (
         <RecommendationBrief
@@ -479,6 +527,17 @@ export function WriteDesk() {
           sessionClassification={sessionClassification}
           cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
           onClose={() => setSelectedCallCandidate(null)}
+        />
+      )}
+
+      {/* Buy-Write Inspection Drawer */}
+      {selectedBuyWriteCandidate && (
+        <BuyWriteBrief
+          candidate={selectedBuyWriteCandidate}
+          policy={policy}
+          sessionClassification={sessionClassification}
+          cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
+          onClose={() => setSelectedBuyWriteCandidate(null)}
         />
       )}
 
@@ -569,6 +628,18 @@ export function WriteDesk() {
         <div className="wd-band wd-band-upload">
           <FidelityUpload onSnapshotChange={handleFidelitySnapshotChange} onFileChange={handleFidelityFileChange} />
         </div>
+      )}
+
+      {/* ═══ CROSS-ENTRY PRODUCTION STRIP ═══ */}
+      {snapshot && snapshot.readiness.status === "READY" && (scanTimestamp || evidenceMeta) && (putCandidates.length > 0 || buyWriteCandidates.length > 0) && (
+        <CrossEntryStrip
+          putCandidates={putCandidates}
+          buyWriteCandidates={buyWriteCandidates}
+          policy={policy}
+          maxRows={10}
+          onSelectPut={(c) => { setSelectedCandidate(c); setSelectedCallCandidate(null); setSelectedBuyWriteCandidate(null); }}
+          onSelectBuyWrite={(c) => { setSelectedBuyWriteCandidate(c); setSelectedCandidate(null); setSelectedCallCandidate(null); }}
+        />
       )}
 
       {/* ═══ CANDIDATE BOARD ═══ */}
@@ -735,6 +806,96 @@ export function WriteDesk() {
             ) : (
               <div className="wd-no-trade">
                 <p>{deriveCallEmptyStateMsg(snapshot, scanTimestamp, evidenceMeta)}</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ═══ BUY-WRITE CANDIDATES ═══ */}
+      {snapshot && snapshot.readiness.status === "READY" && (scanTimestamp || evidenceMeta) && (
+        <section className="wd-board wd-buy-write-board">
+          <div className="wd-board-header">
+            <div className="wd-board-title-row">
+              <h2 className="wd-board-title">
+                <button
+                  className="wd-collapse-toggle"
+                  onClick={() => { setBuyWritesCollapsed(!buyWritesCollapsed); updateWorkspace({ writeDeskBuyWritesCollapsed: !buyWritesCollapsed }); }}
+                  aria-expanded={!buyWritesCollapsed}
+                  aria-label={buyWritesCollapsed ? "Expand buy-writes section" : "Collapse buy-writes section"}
+                >
+                  <span className={`wd-chevron${buyWritesCollapsed ? " wd-chevron-collapsed" : ""}`}>▾</span>
+                </button>
+                Buy-Write Candidates
+              </h2>
+              {trustIndicator && (
+                <span className={`wd-evidence-inline wd-trust-${trustIndicator.color}`}>
+                  <span className="wd-trust-dot">●</span>
+                  {" "}{trustIndicator.trustLabel}
+                  {" · "}{trustIndicator.covered}/{trustIndicator.universe}
+                  {" · "}{trustIndicator.freshnessLabel}
+                  {trustIndicator.activity === "updating" && " · Updating"}
+                </span>
+              )}
+              {(buyWriteCandidates.length + buyWriteWaitCandidates.length > 0) && (
+                <span className="wd-board-rec-count">
+                  {buyWriteCandidates.length + buyWriteWaitCandidates.length} Recommendations
+                </span>
+              )}
+            </div>
+            <BuyWriteDistributionBar outcomes={buyWriteOutcomes} universeSize={universeSymbols.length} />
+          </div>
+
+          <div style={{ display: buyWritesCollapsed ? 'none' : undefined }}>
+            {(buyWriteCandidates.length > 0 || buyWriteWaitCandidates.length > 0 || buyWriteWideSpreadCandidates.length > 0) ? (
+              <>
+                <div className="wd-unified-controls">
+                  <div className="wd-policy-controls">
+                    <label className="wd-pol">Δ <select value={policy.contractSelection.targetDelta.toFixed(2)} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDelta: parseFloat(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDelta: parseFloat(e.target.value) }); }} className="wd-pol-select"><option value="0.15">0.15</option><option value="0.20">0.20</option><option value="0.25">0.25</option><option value="0.30">0.30</option><option value="0.35">0.35</option><option value="0.40">0.40</option><option value="0.45">0.45</option><option value="0.50">0.50</option></select></label>
+                    <label className="wd-pol">Δ Range <select value={`${policy.contractSelection.admissibleDeltaRange.min}-${policy.contractSelection.admissibleDeltaRange.max}`} onChange={(e) => { const [min, max] = e.target.value.split("-").map(Number); const updated = { ...policy, contractSelection: { ...policy.contractSelection, admissibleDeltaRange: { min, max } } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskDeltaMin: min, writeDeskDeltaMax: max }); }} className="wd-pol-select"><option value="0.10-0.50">0.10–0.50</option><option value="0.15-0.50">0.15–0.50</option><option value="0.20-0.45">0.20–0.45</option><option value="0.25-0.40">0.25–0.40</option></select></label>
+                    <label className="wd-pol">DTE <select value={policy.contractSelection.targetDte} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDte: parseInt(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDte: parseInt(e.target.value) }); }} className="wd-pol-select"><option value="7">7</option><option value="14">14</option><option value="21">21</option><option value="28">28</option><option value="35">35</option><option value="42">42</option><option value="45">45</option></select></label>
+                    <span className="wd-pol-static">{policy.contractSelection.eligibleDteRange.min}–{policy.contractSelection.eligibleDteRange.max}</span>
+                    <label className="wd-pol wd-control-check">
+                      <input type="checkbox" checked={showDanger} onChange={(e) => setShowDanger(e.target.checked)} />
+                      Show Danger
+                    </label>
+                    <label className="wd-pol wd-control-check">
+                      <input type="checkbox" checked={showWideSpread} onChange={(e) => setShowWideSpread(e.target.checked)} />
+                      Show Wide Spread
+                    </label>
+                    <label className="wd-pol">Rank <select value={policy.ranking.mode} onChange={(e) => { const updated = { ...policy, ranking: { ...policy.ranking, mode: e.target.value as any } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskRankingMode: e.target.value }); }} className="wd-pol-select"><option value="yield_first">Yield</option><option value="capital_efficiency">If Called</option><option value="execution_first">Execution</option></select></label>
+                  </div>
+                  <div className="wd-controls-divider" />
+                  <div className="wd-table-controls">
+                    <label className="wd-control wd-control-check">
+                      <input type="checkbox" checked={showAffordableOnly} onChange={(e) => setShowAffordableOnly(e.target.checked)} />
+                      Affordable only
+                    </label>
+                    <label className="wd-control">
+                      Show
+                      <input type="number" min={0} max={200} value={showCount} onChange={(e) => { const v = Math.max(0, Math.min(200, parseInt(e.target.value) || 0)); setShowCount(v); updateWorkspace({ writeDeskShowCount: v }); }} className="wd-control-spinner" />
+                    </label>
+                    {(() => {
+                      const allBW = [...buyWriteCandidates, ...buyWriteWaitCandidates, ...(showWideSpread ? buyWriteWideSpreadCandidates : [])];
+                      let filtered = showAffordableOnly ? allBW.filter(c => c.affordable) : allBW;
+                      if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
+                      const displayed = Math.min(filtered.length, showCount);
+                      return <span className="wd-table-showing">Showing {displayed} of {allBW.length}</span>;
+                    })()}
+                  </div>
+                </div>
+                <BuyWriteCandidateTable
+                  candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates, ...(showWideSpread ? buyWriteWideSpreadCandidates : [])]}
+                  selectedCandidate={selectedBuyWriteCandidate}
+                  showAffordableOnly={showAffordableOnly}
+                  showDanger={showDanger}
+                  showCount={showCount}
+                  onSelect={(c) => { setSelectedBuyWriteCandidate(c); setSelectedCandidate(null); setSelectedCallCandidate(null); }}
+                />
+              </>
+            ) : (
+              <div className="wd-no-trade">
+                <p>No actionable buy-write opportunities available. Requires cached call chain data and sufficient deployable cash.</p>
               </div>
             )}
           </div>
@@ -944,6 +1105,172 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
         ))}
       </tbody>
     </table>
+  );
+}
+
+// --- Buy-Write Distribution Bar ---
+
+function BuyWriteDistributionBar({ outcomes, universeSize }: {
+  outcomes: import("../write-desk/recommend-buy-writes").BuyWriteOutcomes | null;
+  universeSize: number;
+}) {
+  if (!outcomes || universeSize === 0) return null;
+
+  const segments = [
+    { label: "Actionable", count: outcomes.actionable, color: "#42C77A" },
+    { label: "EDGE", count: outcomes.edge, color: "#4EA1FF" },
+    { label: "Wait", count: outcomes.wait, color: "#D6A83B" },
+    { label: "Zero Bid", count: outcomes.hardNoZeroBid, color: "#E45C5C" },
+    { label: "Zero OI", count: outcomes.hardNoZeroOI, color: "#8B6914" },
+    { label: "Wide Spread", count: outcomes.hardNoWideSpread, color: "#CC5599" },
+    { label: "No Delta Match", count: outcomes.noDeltaMatch, color: "#9A78D1" },
+    { label: "No DTE Match", count: outcomes.noDteMatch, color: "#4CB7A5" },
+    { label: "No Options", count: outcomes.nonOptionable, color: "#687386" },
+    { label: "Incomplete", count: outcomes.incomplete, color: "#8993A4" },
+  ];
+
+  return (
+    <div className="wd-dist">
+      <div className="wd-dist-row">
+        <div className="wd-dist-bar">
+          {segments.map(seg => {
+            if (seg.count <= 0) return null;
+            return (
+              <div
+                key={seg.label}
+                className="wd-dist-seg"
+                style={{ width: `${(seg.count / universeSize) * 100}%`, backgroundColor: seg.color }}
+                title={`${seg.count} ${seg.label}`}
+              />
+            );
+          })}
+        </div>
+        <span className="wd-dist-total">{universeSize} ETFs</span>
+      </div>
+      <div className="wd-dist-key">
+        {segments.map(seg => {
+          if (seg.count <= 0) return null;
+          return (
+            <span key={seg.label} className="wd-dist-item">
+              <span className="wd-dist-dot" style={{ backgroundColor: seg.color }} />
+              <span className="wd-dist-count" style={{ color: seg.color }}>{seg.count}</span>
+              <span className="wd-dist-label">{seg.label}</span>
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// --- Buy-Write Candidate Table ---
+
+function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableOnly, showDanger, showCount, onSelect }: {
+  candidates: BuyWriteCandidate[];
+  selectedCandidate: BuyWriteCandidate | null;
+  showAffordableOnly: boolean;
+  showDanger: boolean;
+  showCount: number;
+  onSelect: (c: BuyWriteCandidate) => void;
+}) {
+  let filtered = showAffordableOnly ? candidates.filter(c => c.affordable) : candidates;
+  if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
+  const displayed = filtered.slice(0, showCount);
+
+  const { sorted, handleSort, indicator, isRecommendationOrder, sortKey } = useSortableTable(displayed, "rank", "asc");
+
+  const sortLabels: Record<string, string> = {
+    rank: "Recommendation",
+    symbol: "Symbol",
+    expiration: "Expiration",
+    dte: "DTE",
+    strike: "Strike",
+    delta: "Delta",
+    bid: "Bid",
+    ask: "Ask",
+    spreadPercent: "Spread",
+    openInterest: "OI",
+    underlyingPrice: "Price",
+    capitalRequired: "Capital",
+    cashRemaining: "Remaining",
+    premiumYieldAnnualized: "Yield",
+    totalReturnIfCalledPercent: "If Called",
+    appreciationPerShare: "Apprec",
+    assessment: "Exec",
+  };
+
+  return (
+    <>
+      {!isRecommendationOrder && (
+        <div className="wd-sort-notice">
+          Viewing sorted by: <strong>{sortLabels[sortKey] ?? sortKey}</strong>
+          {" · "}
+          <button className="wd-sort-reset" onClick={() => handleSort("rank")}>Show recommendation order</button>
+        </div>
+      )}
+      <table className="wd-candidate-table">
+        <thead>
+          <tr>
+            <th className="wd-sortable" onClick={() => handleSort("rank")}>#{indicator("rank")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("symbol")}>Symbol{indicator("symbol")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("underlyingPrice")}>Price{indicator("underlyingPrice")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("expiration")}>Exp{indicator("expiration")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("dte")}>DTE{indicator("dte")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("strike")}>Strike{indicator("strike")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("delta")}>Δ{indicator("delta")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("bid")}>Bid{indicator("bid")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("ask")}>Ask{indicator("ask")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("spreadPercent")}>Spread{indicator("spreadPercent")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("openInterest")}>OI{indicator("openInterest")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("premiumYieldAnnualized")}>Yield{indicator("premiumYieldAnnualized")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("appreciationPerShare")}>Apprec{indicator("appreciationPerShare")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("totalReturnIfCalledPercent")}>If Called{indicator("totalReturnIfCalledPercent")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("capitalRequired")}>Capital{indicator("capitalRequired")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("cashRemaining")}>Remaining{indicator("cashRemaining")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("assessment")}>Exec{indicator("assessment")}</th>
+            <th>Posture</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sorted.map((c) => (
+            <tr
+              key={`${c.symbol}-${c.expiration}-${c.strike}`}
+              className={`wd-posture-row wd-posture-${c.posture.toLowerCase()}${selectedCandidate && c.symbol === selectedCandidate.symbol && c.strike === selectedCandidate.strike && c.expiration === selectedCandidate.expiration ? " wd-row-selected" : ""}`}
+              onClick={() => onSelect(c)}
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(c); } }}
+            >
+              <td>{c.rank}</td>
+              <td className={`wd-symbol${c.governance.status === "danger" ? " wd-symbol-danger" : ""}`}>
+                {c.governance.status === "danger" && <span className="wd-gov-warn">⚠</span>}
+                {c.governance.status === "review" && <span className="wd-gov-review">ⓘ</span>}
+                {c.symbol}
+              </td>
+              <td>${c.underlyingPrice.toFixed(2)}</td>
+              <td>{c.expiration.slice(5)}</td>
+              <td>{c.dte}</td>
+              <td className={!c.strikeAbovePrice ? "wd-warn-value" : ""}>${c.strike}</td>
+              <td>{c.delta.toFixed(2)}</td>
+              <td>${c.bid.toFixed(2)}</td>
+              <td>${c.ask.toFixed(2)}</td>
+              <td className={c.spreadPercent > 15 ? "wd-warn-value" : ""}>{c.spreadPercent.toFixed(0)}%</td>
+              <td className={c.openInterest < 50 ? "wd-warn-value" : ""}>{c.openInterest}</td>
+              <td>{c.premiumYieldAnnualized.toFixed(1)}%</td>
+              <td className={c.appreciationPerShare < 0 ? "wd-negative-value" : ""}>
+                {c.appreciationPerShare >= 0 ? `+$${c.appreciationPerShare.toFixed(2)}` : `-$${Math.abs(c.appreciationPerShare).toFixed(2)}`}
+              </td>
+              <td className={c.totalReturnIfCalledPercent < 0 ? "wd-negative-value" : ""}>
+                {c.totalReturnIfCalledPercent.toFixed(1)}%
+              </td>
+              <td>{!c.affordable && <span className="wd-unaffordable-mark">$</span>}${c.capitalRequired.toLocaleString()}</td>
+              <td className={c.cashRemaining < 0 ? "wd-negative-value" : ""}>${c.cashRemaining.toLocaleString()}</td>
+              <td>{c.assessment.score}</td>
+              <td><span className={`wd-posture-badge wd-posture-${c.posture.toLowerCase()}`}>{c.posture}</span></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   );
 }
 

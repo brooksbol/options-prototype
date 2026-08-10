@@ -241,6 +241,54 @@
         "verificationStatus": "VERIFIED"
       },
       "description": "The fund tracks the performance of State Street Energy Select Sector. The portfolio owns shares of energy-sector companies and does not obtain exposure through commodity futures."
+    },
+    {
+      "symbol": "BNO",
+      "instrumentType": "ETF",
+      "assetClass": "COMMODITY",
+      "investmentClassification": "BRENT_CRUDE_OIL",
+      "productStructure": "COMMODITY_FUTURES_ETF",
+      "structuralAttributes": {
+        "leveraged": false,
+        "leverageMultiple": 1,
+        "exposureDirection": "LONG",
+        "resetFrequency": "NONE",
+        "exposureMechanism": "FUTURES"
+      },
+      "governance": {
+        "status": "REVIEW",
+        "policyCode": "NON_STANDARD_FUTURES_STRUCTURE"
+      },
+      "evidence": {
+        "sourceType": "ISSUER_PRODUCT_PAGE",
+        "confidence": "HIGH",
+        "verificationStatus": "VERIFIED"
+      },
+      "description": "The fund tracks the performance of Brent crude oil. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
+    },
+    {
+      "symbol": "UNG",
+      "instrumentType": "ETF",
+      "assetClass": "COMMODITY",
+      "investmentClassification": "NATURAL_GAS",
+      "productStructure": "COMMODITY_FUTURES_ETF",
+      "structuralAttributes": {
+        "leveraged": false,
+        "leverageMultiple": 1,
+        "exposureDirection": "LONG",
+        "resetFrequency": "NONE",
+        "exposureMechanism": "FUTURES"
+      },
+      "governance": {
+        "status": "REVIEW",
+        "policyCode": "NON_STANDARD_FUTURES_STRUCTURE"
+      },
+      "evidence": {
+        "sourceType": "ISSUER_PRODUCT_PAGE",
+        "confidence": "HIGH",
+        "verificationStatus": "VERIFIED"
+      },
+      "description": "The fund tracks the performance of natural gas. Exposure is obtained through futures contracts rather than physical holdings; therefore, contract rolls cause performance to differ from the spot commodity price."
     }
   ]
 }

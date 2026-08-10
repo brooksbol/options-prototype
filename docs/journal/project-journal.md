@@ -5685,3 +5685,491 @@ This is not an ADR. It does not ratify the Epistemic Pipeline as accepted archit
 The next step is to explore the four open questions. If the epistemic contract survives that investigation, the pipeline may become a foundational document alongside the Three Actor Model and Evidence Appliance.
 
 Until then, it remains a hypothesis — one supported by successful placement of every known concept and survival of ten falsification tests, but not yet subjected to scrutiny of its boundary conditions (admissibility, authority, normalization).
+
+
+---
+
+## 2026-08-10 — Buy-Write Board Feasibility Analysis and Capital Deployment Discussion
+
+### Context
+
+Put premiums had deteriorated by the time the operator reached the board. Excellent opportunities (like a recent EWY contract) were gone. The operator's practical choices became: deploy into mediocre puts, wait, or manually investigate alternative strategies outside Wheelwright.
+
+This exposed a capability gap: Wheelwright currently helps with cash-secured put discovery against idle cash and covered-call discovery against shares already owned, but it does not help with the third case — buying 100 shares specifically in order to sell a covered call against them (buy-write / "Buy Shares / Sell Call" in Fidelity terminology).
+
+The operator asked whether a puts-like Buy-Write recommendation board is feasible and architecturally natural with what Wheelwright already has.
+
+### Broader Capital Deployment Discussion (recorded here for future reference)
+
+The session also explored a higher-level observation: Wheelwright currently assumes idle capital should primarily be deployed through put-writing. In practice, the operator's actual question is "Where should my available capital be deployed right now?" — not "What put should I write?"
+
+This led to a discussion about whether "Capital Deployment" is a higher-level primitive than "Put Recommendations." Key observations:
+
+1. **The architecture already points in this direction.** The Situation Architecture (doc 25) envisions a "Unified Recommendation Surface" with puts and calls as portfolio actions. Conditioned Operating Opportunity models the put→call lifecycle. The Four Engines model is strategy-agnostic.
+
+2. **"Wait" as an explicit recommendation.** Rather than always presenting the highest-ranked candidate, Wheelwright could determine that zero deployable opportunities currently exist. That would be a better operational recommendation than encouraging deployment into mediocre contracts.
+
+3. **Deployable Opportunity as a potential concept.** A candidate becomes "deployable" only after satisfying all policy gates (buying power, governance, health, execution quality, spread/liquidity, Greeks, concentration, yield range). A unified surface would present opportunities regardless of strategy type.
+
+4. **Future evidence stream.** Periodically observing the recommendation surface throughout the trading day could answer questions like: Do attractive opportunities cluster near the open? How quickly do high-quality opportunities disappear? Does waiting historically improve deployment quality?
+
+5. **Policy-aware alerts.** Instead of notifying on a specific ticker, alerts would notify when *any* candidate becomes deployable.
+
+This broader direction is not being pursued immediately. The buy-write board is a concrete, bounded capability that can stand on its own.
+
+### Buy-Write Board Feasibility — Implementation Analysis
+
+Inspected: `recommend.ts`, `recommend-calls.ts`, `conditioned-call-surface.ts`, `execution-assessment.ts`, `scan-orchestrator.ts` (PutCandidate/CallCandidate types), `brief-builder.ts`, `durable-cache.ts`, `WriteDesk.tsx`.
+
+#### Q1: How much of the current put recommendation pipeline could be reused?
+
+~80% directly. The put engine's structure is almost exactly what a buy-write engine needs:
+- Universe iteration (same symbol list)
+- Cache reads (same durable cache, same keys — chain records already contain calls)
+- Expiration selection (`selectEligibleExpirations` — identical)
+- Governance/product-structure filtering (identical)
+- Execution assessment (strategy-agnostic: bid, ask, spread%, OI, volume, delta)
+- Posture assignment (same thresholds)
+- Ranking (same modes; capital_efficiency mode directly applicable)
+- Affordability check (different formula: `price × 100` instead of `strike × 100`, but same concept)
+
+What changes: reads the `calls` array instead of `puts`, and the collateral/yield denominator changes.
+
+#### Q2: How much of the existing Calls implementation and Projected Call Surface could be reused?
+
+The call evaluation loop in `recommendCalls()` is structurally transferable — delta filtering, closest-to-target selection, yield computation, execution assessment. The key difference is eligibility source: inventory-driven → cash-driven.
+
+`conditioned-call-surface.ts` provides even more direct overlap. It already:
+- Loads call chain evidence from durable cache
+- Filters by policy (delta range, DTE range, execution quality)
+- Computes `yieldFromBasis` (annualized yield from the conditioned ownership price)
+- Computes `strikeDistanceFromBasis` and `aboveBasis`
+- Classifies evidence freshness
+
+The main gap: conditioned-call-surface produces *evidence* (structured observations), not *recommendations* (ranked, postured candidates). Promoting this from evidence to recommendation is the core new work.
+
+#### Q3: Does the existing domain model support a buy-write recommendation type?
+
+No — neither `PutCandidate` nor `CallCandidate` captures buy-write economics. A new type is needed:
+
+- `PutCandidate` is put-specific: `cashRequired = strike × 100`, yield denominator is strike
+- `CallCandidate` is inventory-specific: assumes shares already owned, has `freeShares`, `maxContracts`
+
+A `BuyWriteCandidate` would need:
+- `capitalRequired = underlyingPrice × 100` (share purchase cost)
+- Call contract evidence (strike, delta, bid, ask, mid, spread, OI, volume)
+- Composite economics (premium yield, appreciation component, total economic return)
+- `affordable` based on deployable cash vs share purchase cost
+- The same execution assessment and governance as other candidates
+
+This is a new type but composes from existing primitives — no new abstractions required.
+
+#### Q4: What economic fields are needed?
+
+At minimum:
+- `underlyingPrice` — share acquisition cost per share
+- `capitalRequired` — `underlyingPrice × 100`
+- `callStrike` — sale price if assigned
+- `callPremium` (mid) — immediate income
+- `premiumYield` — annualized `callMid / underlyingPrice × (365/DTE) × 100`
+- `appreciationPerShare` — `callStrike - underlyingPrice` (positive = gain, negative = planned loss)
+- `appreciationPercent` — `appreciationPerShare / underlyingPrice × 100`
+- `totalReturnIfAssigned` — `callPremium + appreciationPerShare` (per share)
+- `totalReturnPercent` — annualized total return
+- `maxLossExposure` — `underlyingPrice - callPremium` (if shares go to zero)
+- `breakeven` — `underlyingPrice - callPremium` (share price where premium offsets decline)
+- `strikeAbovePrice` — boolean, critical signal (selling below acquisition = planned capital loss)
+
+The `strikeAbovePrice` flag is particularly important. A buy-write where the call strike is below the purchase price is accepting a guaranteed capital loss offset by premium. The operator must see this clearly.
+
+#### Q5: Does execution-quality machinery apply cleanly?
+
+Yes, completely. `assessExecution()` operates on `ContractEvidence`:
+```typescript
+interface ContractEvidence {
+  bid: number; ask: number; spreadPercent: number;
+  openInterest: number; volume: number; delta: number;
+}
+```
+This is strategy-agnostic. A call contract has all these fields. The hard-no checks (zero bid, zero OI, spread > 80%) and weighted scoring (spread, OI, volume, premium) apply identically.
+
+#### Q6: Are there data-provider or evidence gaps?
+
+No. The cached chain record structure is:
+```
+{ puts: [...], calls: [...], underlying: { name, symbol, price } }
+```
+
+The call side is already in cache from the same Tradier chain fetch. Underlying price is embedded. No additional provider calls, no new cache types, no new acquisition patterns.
+
+One nuance: the underlying price in chain evidence may be slightly stale (15-min delay on Tradier sandbox). This is the same limitation that already applies to call yield calculations in `recommendCalls()`. It's acceptable for recommendation ranking; the operator confirms exact pricing at execution time via broker.
+
+#### Q7: Architectural mismatch?
+
+No fundamental mismatch. The architecture cleanly supports this because:
+- Evidence acquisition is strategy-agnostic (already acquires both sides)
+- The funnel pattern (governance → quality → ranking) is strategy-agnostic
+- The cache key scheme supports it without modification
+- The execution assessment is strategy-agnostic
+- The Write Desk already hosts multiple collapsible sections
+
+The modest new complexity is:
+1. A new `recommendBuyWrites()` function (~150 lines, structurally parallel to `recommendCalls`)
+2. A new `BuyWriteCandidate` interface (~25 fields)
+3. Composite economics computation (new but simple arithmetic)
+4. A new collapsible table section in WriteDesk
+5. Eventually, a brief/drawer for buy-write inspection
+
+#### Q8: Smallest useful first increment?
+
+A `recommendBuyWrites()` engine function that:
+1. Scans the universe (same symbol list as puts)
+2. Reads call side of cached chains (already available)
+3. Applies shared policy (delta, DTE, execution quality)
+4. Computes composite economics (premium + appreciation)
+5. Applies affordability filter (`underlyingPrice × 100 ≤ deployableCash`)
+6. Applies governance (same product-structure checks)
+7. Produces ranked `BuyWriteCandidate[]` with posture
+8. Renders in a collapsible table in the Write Desk
+
+Deferred to later increments:
+- Buy-write brief/drawer
+- Fidelity "Buy Shares / Sell Call" handoff URL
+- Cross-strategy comparison (comparing buy-write vs put candidates)
+- Buy-write in the unified recommendation surface
+
+### What we learned
+
+1. The buy-write board is architecturally natural. It requires no new evidence, no new cache types, no new provider calls, no new backend changes.
+2. The implementation is a composition of existing primitives — not an extension of the architecture, but an application of it.
+3. The hardest design question is ranking comparability across strategy types (deferred — the board stands alone initially).
+4. The most operationally important new signal is `strikeAbovePrice` — it distinguishes "income + appreciation" from "income at the cost of planned capital loss."
+
+### Decisions / implications
+
+- Buy-write board is feasible as a relatively small extension (~200-300 lines of new engine code plus UI).
+- Should be treated as a new Write Desk section, parallel to Puts and Calls.
+- Cross-strategy unification (the broader Capital Deployment surface) is deferred — see parking lot.
+- No implementation started. This entry records the analysis only.
+
+
+## 2026-08-10 — Fidelity Buy Write Handoff Discovery (Complete)
+
+### Context
+
+Following the buy-write feasibility analysis, we investigated how to deep-link into Fidelity's "Buy Shares / Sell Call" strategy ticket — the same way the existing put recommendations hand off to Fidelity via URL parameters.
+
+The existing put handoff pattern:
+```
+https://digital.fidelity.com/ftgw/digital/trade-options?ORDER_TYPE=O&ORDER_ACTION=SOPEN&LIMIT_STOP_PRICE=3.5&SECURITY_ID=-FTXL260821P225&trade=rocfly
+```
+
+This pattern was originally discovered empirically: manually populating a single-leg put trade ticket on Fidelity, observing the resulting URL, and extracting the query parameters that pre-populate the order.
+
+### What happened
+
+#### Phase 1: URL and DOM Inspection
+
+1. **Attempted to reproduce the discovery method for Buy Write.** The operator navigated to the Fidelity trade-options page (both full page and float popup) and attempted to observe URL changes as strategy selections were made.
+
+2. **Discovered the URL does not change.** The captured entry URL was:
+   ```
+   https://digital.fidelity.com/ftgw/digital/trade-options?ACCOUNT=Z39411514&FULL_BANNER=Y&TIME_IN_FORCE=D&ORDER_TYPE=O&CURRENT_PAGE=TradeOption&DEST_TRADE=Y
+   ```
+   This is a generic entry point — none of the parameters encode strategy type, symbol, strike, expiration, or leg configuration. URL remains static regardless of strategy selection.
+
+3. **DOM inspection via Safari dev tools.** Key findings:
+   - The trade ticket is an **inline popup** (`<div class="float dialog-box" role="dialog">`), not an iframe.
+   - Inside is an **Angular 20 application**: `<options-trade-ticket ng-version="20.3.25">`.
+   - Strategy selection happens via internal buttons with `data-strategy="Buy Write"` attributes.
+   - Two leg rows: `leg-row-0` (Buy Stock, 100 shares) + `leg-row-1` (Sell To Open, contracts, Call, expiration, Strike).
+   - All state managed internally by the Angular component.
+
+#### Phase 2: Network Tab — API Payload Discovery
+
+4. **Inspected XHR requests during Buy Write order flow.** Filtered past analytics/telemetry noise (sitecatalyst, dmt.fidelity.com) and found the real trade API call:
+
+   **`POST /ftgw/digital/trade-options/api/mlo-verify`** (Multi-Leg Order verify)
+
+   Request payload (327 bytes):
+   ```json
+   {
+     "orderDetails": {
+       "acctNum": "Z39411514",
+       "tif": "D",
+       "netAmount": "57.54",
+       "aonCode": false,
+       "acctTypeCode": "C",
+       "reqTypeCode": "N",
+       "numOfLegs": "2",
+       "dbCrEvenCode": "DB",
+       "strategyType": "BW",
+       "leg1": { "action": "B", "type": "S", "qty": 100, "symbol": "XLE" },
+       "leg2": { "action": "SO", "type": "O", "qty": 1, "symbol": "XLE260821C58" },
+       "leg3": null,
+       "leg4": null
+     }
+   }
+   ```
+
+5. **Decoded the internal vocabulary:**
+
+   | Field | Value | Meaning |
+   |---|---|---|
+   | `strategyType` | `"BW"` | Buy Write |
+   | `numOfLegs` | `"2"` | Two-leg order |
+   | `dbCrEvenCode` | `"DB"` | Net Debit |
+   | `tif` | `"D"` | Day order |
+   | `netAmount` | `"57.54"` | Limit price (net debit per share) |
+   | `leg1.action` | `"B"` | Buy |
+   | `leg1.type` | `"S"` | Stock |
+   | `leg1.qty` | `100` | Shares |
+   | `leg1.symbol` | `"XLE"` | Underlying ticker |
+   | `leg2.action` | `"SO"` | Sell to Open |
+   | `leg2.type` | `"O"` | Option |
+   | `leg2.qty` | `1` | Contracts |
+   | `leg2.symbol` | `"XLE260821C58"` | Call contract (no leading dash) |
+
+   Note: The option symbol format for multi-leg API is `XLE260821C58` (no dash prefix), vs single-leg URL which uses `-XLE260821C58` (dash prefix for `SECURITY_ID`).
+
+#### Phase 3: URL Parameter Experimentation
+
+6. **Tested guessed URL params.** Tried both invented params (`STRATEGY=BW`, `LEG1_ACTION=B`, etc.) and the exact API field names (`strategyType=BW`). Result: all ignored. The page only reads the established single-leg params.
+
+7. **Confirmed symbol pre-population works.** `SECURITY_ID=XLE&trade=rocfly` successfully loads the symbol and quote on the trade page, but the page opens in single-leg mode with empty Action/Quantity/Expiration/Strike fields. No way to force it into Buy Write mode via URL.
+
+### What we learned
+
+1. **Fidelity's trade-options page supports URL pre-population for single-leg orders only.** The known params (`ORDER_TYPE`, `ORDER_ACTION`, `SECURITY_ID`, `LIMIT_STOP_PRICE`, `trade`) work for puts. Multi-leg strategies cannot be pre-populated via URL.
+
+2. **Fidelity's multi-leg order flow is API-based (`mlo-verify`), not URL-based.** The Angular SPA manages strategy state internally and submits via JSON POST. There is no equivalent URL scheme for multi-leg orders.
+
+3. **We cannot call `mlo-verify` from Wheelwright.** The request requires Fidelity's authenticated session cookies and CSRF tokens, CORS blocks cross-origin requests, and even if it succeeded, `mlo-verify` returns JSON (not a page redirect) — the Angular app renders the preview client-side.
+
+4. **The internal vocabulary is known and useful.** Even though we can't deep-link, knowing Fidelity's exact field names and option symbol format (`XLE260821C58`) informs the drawer's quick-reference card design.
+
+5. **Symbol pre-population via URL is confirmed working** — this provides meaningful time savings even without full pre-population.
+
+### Decisions / implications
+
+- **Buy-write Fidelity handoff: "Open in Fidelity" + quick-reference card.**
+  - Button opens: `https://digital.fidelity.com/ftgw/digital/trade-options?ORDER_TYPE=O&SECURITY_ID=XLE&trade=rocfly`
+  - Symbol is pre-loaded. Operator lands on trade page with the underlying already showing.
+  - Drawer displays a quick-reference card:
+    ```
+    Strategy:  Buy Write
+    Leg 1:     Buy 100 shares XLE
+    Leg 2:     Sell 1 XLE Aug 21 2026 $58 Call
+    Order:     Net Debit $57.54
+    ```
+  - Operator clicks Buy Write tab, fills legs using info from the card. ~3-4 clicks + one glance.
+
+- **Rejected alternatives:**
+  - Guessing URL params — experimentally confirmed they don't exist.
+  - Calling `mlo-verify` API directly — CORS, auth, and safety issues.
+  - Browser extension — technically possible but out of scope and different architecture.
+  - Waiting for Fidelity to expose a deep-link API — no evidence this is planned.
+
+- **This is operationally acceptable and does not block implementation.** The two-step handoff matches how multi-leg orders are executed today. The drawer eliminates the research→execution context switch.
+
+- **Future improvement path:** If Fidelity ever adds URL params for multi-leg strategies, the handoff can be upgraded in one place (`fidelity-trade-link.ts`). The `mlo-verify` vocabulary is documented here if a browser extension is ever pursued.
+
+### Open questions (resolved or deferred)
+
+- ~~Does Fidelity's URL scheme support Buy Write?~~ **No.** Experimentally confirmed.
+- ~~Can we call the internal API?~~ **No.** Auth/CORS/safety prevents it.
+- Browser extension path: technically viable, out of scope. Documented for potential future consideration.
+
+
+## 2026-08-10 — Regime Objective Function Discovery
+
+### Context
+
+During the Buy-Write implementation, a semantic question about table columns ("should TOTAL% show annualized return?") escalated into a fundamental architectural question: what is Wheelwright actually trying to optimize?
+
+The Cash Production accounting already treats realized capital appreciation from assignment as monthly production. That means premium alone is not the production signal — both premium and realized appreciation contribute to the operating objective.
+
+### What we discovered
+
+1. **"Sustainable monthly production" is the regime objective, not a principle.** The governing principles (Preserve Optionality, Earn Proportional Compensation, Policy over Prediction, etc.) constrain *how* the system pursues whatever objective the operating regime defines. In a different regime (e.g., capital preservation), the objective could change while the principles survive.
+
+2. **The existing architecture naturally accommodates this.** No governing principles need to be overturned. Buy-write as a second entry mechanism is exactly what Preserve Optionality, Closed-Loop Engineering, and the Evidence Appliance anticipated.
+
+3. **One implementation assumption needs loosening.** The current shared `RecommendationPolicy` (identical numeric delta/DTE for puts and calls) may be too concrete. The higher-level primitive supports shared concepts with independently calibrated parameters per entry mechanism.
+
+4. **No optimizer yet.** The architecture repeatedly says: expose evidence → observe outcomes → refine policy. A composite "Expected Production" ranking (`Premium + P(assignment) × Appreciation`) earns its way in through operating evidence, not theoretical formulas.
+
+5. **Delta is a tradeoff control for buy-writes, not just a risk parameter.** Higher delta increases premium but reduces appreciation room. The optimal delta for buy-write may differ from puts. This is evidence that entry-mechanism-specific calibration is needed — but should be learned, not assumed.
+
+### Reconciliation with governing principles
+
+- **Strongest alignment:** Policy over Prediction (articulate → apply → observe → refine is exactly what we're doing)
+- **Key confirmation:** Evidence Appliance + Closed-Loop Engineering (buy-write consumes same evidence with different interpretation; observation loop is working correctly)
+- **Implementation evolution needed:** Shared policy concepts remain good; numeric calibration may legitimately differ by strategy
+- **Future direction:** Historical learning → calibrated policy → transparent recommendation (never: historical learning → black-box forecast → trade)
+
+### Decisions / implications
+
+- Created `docs/foundations/regime-objective-function.md` as the governing document
+- Buy-write table columns corrected: YIELD (annualized premium production), IF CALLED (raw cycle return), with annualized in drawer only
+- Ranking modes: Yield (default, cash production), If Called (total cycle economics), Execution, Balanced
+- Future "Expected Production" ranking requires ~50 deployments of operating evidence before implementation
+- Delta policy for buy-writes is not assumed to match puts; left as a learning opportunity
+
+### What we learned
+
+The Buy-Write board is valuable not merely as another way to deploy cash. It gives Wheelwright a second observable entry mechanism into the same operating lifecycle, enabling comparisons (production rates, assignment frequency, NAV preservation) that cannot be made from a single strategy operating in isolation. The architecture was designed to accommodate exactly this kind of evolutionary learning.
+
+
+## 2026-08-10 — Production v0: Cross-Entry Experimental Instrument
+
+### Context
+
+With both CSP and Buy-Write boards operational, the next operator problem was: "Is there a better deal in the Put table or the Buy-Write table right now?" The two boards answer their questions independently but do not help the operator compare across entry mechanisms.
+
+### The experiment
+
+Implemented a cross-entry "Cash Deployment — Top by Production" strip that merges candidates from both boards and ranks them by an experimental Production v0 score.
+
+### Formula (explicitly provisional)
+
+```
+CSP:       experimentalCycleProduction = premiumReceived
+Buy-Write: experimentalCycleProduction = premiumReceived + delta × appreciationIfCalled
+
+ProductionV0 = experimentalCycleProduction / capitalDeployed × 30 / DTE
+```
+
+Result: **Experimental monthly production rate per dollar of deployed capital.**
+
+### Explicit assumptions (not hidden)
+
+1. Delta is used as a realization proxy, not asserted as assignment probability.
+2. Buy-Write appreciation is conditional (only realized if called away).
+3. Buy-Write downside while shares remain owned is NOT modeled.
+4. Execution quality remains a gate / independent evidence, not a production multiplier.
+5. Governance and affordability remain gates (filtered before scoring).
+6. This is NOT a prediction of realized return.
+
+### Architectural placement
+
+Production v0 is an **Operational Interpretation** — it synthesizes Level 1 evidence (premium, delta, appreciation, capital, DTE) through an explicitly stated interpretive hypothesis. It sits between Derived Facts and Recommendation in the candidate Epistemic Pipeline.
+
+### What this is designed to learn
+
+During live operation, the operator should notice:
+- Cases where the score agrees with intuition → the formula captures something real
+- Cases where the operator overrides → the formula is missing a dimension
+- Whether the score reliably points to the actual best deployment → formula may be sufficient
+- Whether it systematically favors one mechanism over another → calibration needed
+
+Each operator override is high-value evidence about what the eventual learned model needs.
+
+### What this is NOT
+
+- Not ratified recommendation policy
+- Not a learned model
+- Not a final Production Score
+- Not a claim about future outcomes
+- Not a replacement for the individual boards
+
+### Decisions
+
+- Accepted: Premium yield is a legitimate common measure across CSP and Buy-Write
+- Accepted: The cross-entry strip uses a display projection, not a new domain abstraction
+- Provisional: Production v0 formula is explicitly experimental and labeled as such
+- Gates: Governance, affordability, posture (ACTIONABLE+EDGE only), execution (above edgeFloor)
+- Show: Prod v0, Yield (sanity check), DTE, Δ, Capital, Remaining, Exec, Posture, Entry mechanism
+- Row click dispatches to the strategy-specific existing drawer
+
+
+## 2026-08-10 — Cross-Entry Production Comparison: Experimental Instrument and Architectural Discovery
+
+### Context
+
+With the Buy-Write board operational and both CSP and Buy-Write recommendation surfaces live, the next operator question became: "Is there a better deal in the Put table or the Buy-Write table right now?" This led to an experimental cross-entry instrument (Production v0) which, through real-data falsification, exposed deeper architectural questions about how to compare cash-entry mechanisms.
+
+### What was built
+
+**Production v0** — an experimental cross-entry ranking formula:
+- CSP: `premium / capital × 30/DTE` (monthly production rate)
+- Buy-Write: `(premium + delta × appreciation) / capital × 30/DTE`
+- Presented as a compact "Cash Deployment" strip above the individual boards
+- Includes full JSON diagnostic export for analysis
+
+### Real-data falsification
+
+Exported the actual 145-candidate live population (74 CSP, 71 Buy-Write) and analyzed:
+
+1. **All top 10 were Buy-Write.** Best CSP ranked #11 at 8.96% monthly.
+2. **Initial interpretation:** Buy-write opportunities are genuinely stronger today.
+3. **Controlled comparison (matched delta):** At the same delta (~0.39), the CSP $151 put produces MORE premium per dollar (15.89% monthly) than the BW $167 call (12.96% premium-only). CSP has a structural denominator advantage: `strike < spot` for OTM puts means less capital committed per dollar of premium.
+4. **Buy-Write dominance is entirely the appreciation term** (+6.13 points for EWY). Without it, CSP wins on premium production.
+5. **The formula structurally favors Buy-Write** because it adds conditional appreciation (a lifecycle consequence) to production for BW while ignoring the corresponding CSP lifecycle geometry (favorable entry discount if assigned).
+
+### Architectural discoveries
+
+**1. Production vs Lifecycle/Consequence separation**
+
+The most important finding: Prod v0 conflates two distinct economic concepts.
+- **Production** = cash received (premium). Immediate, certain.
+- **Lifecycle Consequence** = what happens to productive capital when the position resolves. Conditional, geometry-dependent.
+
+Buy-Write appreciation-if-called is lifecycle consequence, not production. CSP favorable-entry-if-assigned is also lifecycle consequence. Both are economically valuable; neither is immediate cash production.
+
+**2. Selector asymmetry**
+
+The CSP and Buy-Write engines select contracts using fundamentally different philosophies:
+- CSP: evaluates ALL admissible contracts, picks highest execution quality score
+- Buy-Write: picks the single contract closest to target delta
+
+Combined with target delta 0.50 against admissible max 0.40, Buy-Write functionally always selects the highest-available delta. This creates non-comparable selections.
+
+Additionally, the BW engine evaluates only one contract per expiration. If that contract is hard-no (e.g., wide spread), the entire expiration is abandoned even when excellent contracts exist at slightly lower delta.
+
+**3. Common capital-state model hypothesis**
+
+Through iterative refinement and falsification (OTM, ITM, all four boundary cases), a common state model emerged:
+
+CSP and Buy-Write are **inverse state machines** with the same vocabulary:
+- CSP: cash → {equity (exercised) | cash (expired)}
+- BW: equity → {cash (exercised) | equity (expired)}
+
+The option mechanism determines the transition rules; `{cash, equity}` are the states. Neither "put" nor "buy-write" appears in the state vocabulary.
+
+Minimal fact set surviving all four cases (OTM/ITM × CSP/BW):
+- Entry: capital_form, capital_committed, consideration_received, spot_at_entry, quantity
+- Geometry: exercise_boundary (strike), exercise_direction, distance_to_boundary, DTE
+- Termination: type (exercised/expired/closed), date, spot_at_termination, closing_cost
+- Result: capital_form_after, cash_released, residual_equity
+
+**4. Unresolved: encumbrance as a missing primitive**
+
+The model starts CSP and BW at different lifecycle moments (cash vs equity). This suggests a pre-deployment state may be needed, and that `capital_form + encumbrance` may be more primitive than `capital_form` alone. Cash securing a short put is not the same state as idle cash.
+
+**5. Governance coverage gap**
+
+The live catalog contains only 10 instruments (expanded to 12 with BNO/UNG fix). The remaining ~1,290 symbols rely on a name heuristic that doesn't gate commodity-futures structure. BNO, UNG, and potentially UGA/DBC/CPER pass as "authorized" when structural analysis suggests "review."
+
+### What is NOT ratified
+
+- The capital-state model is a **hypothesis under investigation**, not accepted architecture
+- The production/lifecycle separation is a **proposed decomposition**, not a ratified boundary
+- No "Production v1" formula exists
+- No selector normalization has been implemented
+- The encumbrance hypothesis is the latest unresolved question
+
+### Operational principle demonstrated
+
+**Implementation can be used deliberately as an instrument for architectural learning.** We did not need the Prod v0 formula to be correct before learning from it. Building it, looking at real data, and letting the data falsify our assumptions produced genuine architectural insight that would not have emerged from pure design discussion.
+
+The progression: implement → observe → falsify → discover deeper structure → preserve → iterate.
+
+### Decisions
+
+- Cross-entry strip relabeled as "Experimental Prod v0" with explicit caveat
+- BNO/UNG added to catalog with validated REVIEW governance
+- Selector asymmetry and delta-target contradiction documented for next session
+- Production vs lifecycle separation preserved as architectural hypothesis
+- Capital-state model preserved as architectural hypothesis
+- Neither hypothesis authorized for implementation
