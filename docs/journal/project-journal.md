@@ -5557,3 +5557,131 @@ Fix: carry `brokerOptionBasis` and `brokerOptionAverageCost` through `OpenShortC
 - Tile color (ITM/ATM/OTM) and modal hero color are intentionally independent dimensions.
 - Nearest Consequence sidebar aggregates per-position economics for the nearest rung, preserving the asymmetry: appreciation and erosion shown separately (never netted), premium as a subordinate component.
 - Premium is visually secondary (subdued green) — it does not compete with the primary appreciation/erosion/total signals.
+
+---
+
+## 2026-08-09 — Epistemic Pipeline Discovery (Architectural Hypothesis)
+
+**Status: Hypothesis under investigation. Not accepted architecture.**
+
+### Context
+
+After delivering Console slices 2 (Capacity/Exposure) and 3 (Mechanical Economic Consequence), the next candidate was Decision Pressure (ADR-013 Dimension 2). Before implementing, we conducted a top-down architectural reconciliation to verify the higher-level architecture still coherently explained the system.
+
+That reconciliation raised a deeper question than ADR-013 alone:
+
+> Did Capacity, MEC, and Decision Pressure reveal a new subsystem — or did they reveal that Wheelwright's existing conceptual architecture was missing an explicit epistemic layer between facts and recommendations?
+
+### The Fifth Engine Hypothesis (Rejected)
+
+Initial analysis identified a cluster of pure derivation modules (`position-monitoring.ts`, `capacity-summary.ts`, `assignment-consequence.ts`, `consequence-summary.ts`) that shared properties: side-effect free, consuming evidence + portfolio, producing operator-oriented state, not producing recommendations.
+
+The initial hypothesis was: "These form a new Monitoring/Assessment concern — a Fifth Engine alongside Evidence, Policy, Decision, and Explanation."
+
+This was rejected under independent architectural criticism because:
+
+1. The modules don't share a *domain* — they share an *epistemic position* (where they sit in the reasoning chain).
+2. Creating a new subsystem adds conceptual surface area; recognizing an existing layer reduces it.
+3. The architecture's own methodology warns against premature generalization from a single cluster of modules.
+4. A simpler model accommodates the same observations without new architectural primitives.
+
+### The Epistemic Pipeline (Candidate)
+
+The simpler model that emerged:
+
+```
+Reality (the market, the portfolio, time)
+    ↓
+Evidence (observations of reality, with provenance)
+    ↓
+Facts (canonical structured representations of evidence)
+    ↓
+Derived Facts (deterministic computations from facts)
+    ↓
+Operational Interpretation (structured meaning without prescription)
+    ↓                                              ↑
+    ↓                               Operator Intent enters here
+    ↓                                              ↓
+    └──────────────────────────→ Policy + Situation
+                                        ↓
+                                  Recommendation
+                                        ↓
+                                  Operator Decision
+                                        ↓
+                                     Execution
+                                        ↓
+                                   New Reality
+```
+
+This is not a runtime architecture (that's the Four Engines). It's not a development methodology (that's the Three Actor Model). It describes **how the system comes to know something** — the knowledge architecture.
+
+### Placement Exercise
+
+Every major Wheelwright concept was tested for single, unambiguous placement:
+
+| Layer | Inhabitants |
+|-------|------------|
+| Evidence | Underlying price quotes, option chains, session state observations, Fidelity CSV exports (Option Summary, Balances, Activity History) |
+| Facts | PortfolioSnapshot, MonitoredPosition (contract state), InventoryPosition, BalanceContext, broker option basis |
+| Derived Facts | Moneyness, Resolution Proximity, DTE, Encumbered Capital, Capacity Summary, MEC (principal movement, appreciation/erosion, premium credit, effective exit/basis), Consequence Summary, Cash Production assessment |
+| Operational Interpretation | Decision Pressure (future), three-state hero color (consequence structure classification) |
+| Policy + Situation | RecommendationPolicy, Situation (Bridge Income), execution assessment, Velvet Rope admission, monthly production target |
+| Recommendation | PutCandidate/CallCandidate (ranked, postured), Recommendation Brief |
+| Operator Decision | Human judgment (accept/reject/compare) |
+| Execution | WriteIntent → Fidelity trade link, PendingIntent lifecycle |
+
+Every concept found exactly one home. Surfaces (Console, Write Desk) are viewports spanning layers, not layers themselves.
+
+### Falsification Results
+
+Ten falsification tests were conducted. None broke the pipeline. Refinements discovered:
+
+1. **Meta-epistemic validity gate:** Evidence admissibility (session model, provenance, freshness) sits *before* the pipeline as a governance concern, not within it. The pipeline assumes evidence is valid once admitted.
+
+2. **Two input channels:** Reality produces Evidence (flowing rightward/downward). Operator Intent produces Policy (entering at the Policy layer). They converge at Recommendation.
+
+3. **Evidence → Facts includes normalization:** Provider-shaped evidence (duplicate Fidelity rows, raw CSV) becomes canonical facts through de-duplication and resolution — not trivial copying.
+
+4. **Regulatory derived facts:** Some derived facts (session state) govern upstream behavior (acquisition gating) rather than flowing downstream. They sit alongside the pipeline as regulatory infrastructure.
+
+5. **No-skip invariant applies per-path:** Different consumers (Console, Recommendation engine) construct their own derived facts from shared Facts. The discipline is per-reasoning-path, not a single global sequence.
+
+6. **Deterministic vs. interpretive classification:** OTM/ATM/ITM is a derived fact (cannot be wrong given the price). Decision Pressure is interpretation (can legitimately be calibrated). The distinguishing test: "Could this classification be meaningfully wrong?" If yes → interpretation. If no → derived fact.
+
+### Key Architectural Insights
+
+- **Modules share epistemic position, not a subsystem.** Capacity, MEC, and Resolution Proximity are all Derived Facts — not because they form a Monitoring Engine, but because they're the first concrete inhabitants of a layer that was always implicit.
+
+- **The architecture wasn't missing a concept; the documents hadn't made the layers explicit.** Policy over Prediction, ADR-013, and State-Oriented Console all described pieces of this hierarchy independently. The pipeline reconciles them.
+
+- **Derived Facts are a category, not a singleton.** Different reasoning paths construct different derived facts from the same underlying facts. The Console's derived facts and the Recommendation engine's derived facts (yield, execution quality) are independent.
+
+- **Evidence belongs to providers; Facts belong to Wheelwright.** The normalization boundary is where Wheelwright takes ownership of knowledge.
+
+### Remaining Open Questions (Not Resolved)
+
+1. **Evidence admissibility:** What exactly governs whether evidence enters the pipeline? Session model, provenance, confidence — these are meta-epistemic. Are they part of the architecture or metadata attached to Evidence?
+
+2. **Authority:** When sources disagree (broker vs. computed vs. manual override), who owns truth at each layer? The pipeline describes where knowledge lives but not who arbitrates it.
+
+3. **Normalization:** Should the Evidence → Facts transition be explicitly recognized as a non-trivial mechanism? Is "normalization" a named architectural concern or simply an implementation detail of fact creation?
+
+4. **Naming:** "Operational Interpretation" may not be the best name for its layer. The defining property may be "judgments that preserve operator agency" or "assessments that can legitimately be calibrated" — distinguishing them from facts which cannot be argued with.
+
+### Three Orthogonal Architectural Views
+
+If ratified, the Epistemic Pipeline would join two existing foundational views:
+
+- **Development Architecture** (Three Actor Model): How the system evolves.
+- **Knowledge Architecture** (Epistemic Pipeline): How the system comes to know something.
+- **Runtime Architecture** (Evidence Appliance, Four Engines): How the software is organized and executes.
+
+These answer different questions and should not be forced into a single hierarchy.
+
+### What This Entry Is Not
+
+This is not an ADR. It does not ratify the Epistemic Pipeline as accepted architecture. It preserves the reasoning, the evidence, and the unresolved questions so that a future Architect can reconstruct the discovery without re-litigating from first principles.
+
+The next step is to explore the four open questions. If the epistemic contract survives that investigation, the pipeline may become a foundational document alongside the Three Actor Model and Evidence Appliance.
+
+Until then, it remains a hypothesis — one supported by successful placement of every known concept and survival of ten falsification tests, but not yet subjected to scrutiny of its boundary conditions (admissibility, authority, normalization).
