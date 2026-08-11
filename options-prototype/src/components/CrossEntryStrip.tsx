@@ -8,13 +8,54 @@
  * The score is an explicit hypothesis for falsification during live operation.
  *
  * Clicking a row opens the strategy-specific drawer for full explanation.
+ * Column headers are sortable — operator can re-sort by any dimension for comparison.
  */
 
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { buildCrossEntryRows, buildCrossEntryExport, type CrossEntryRow } from "../write-desk/production-v0";
 import type { PutCandidate } from "../write-desk/scan-orchestrator";
 import type { BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import type { RecommendationPolicy } from "../write-desk/recommend";
+
+// --- Sortable Table Hook (same pattern as WriteDesk candidate tables) ---
+
+type SortDir = "asc" | "desc";
+
+function useCrossEntrySortable(items: CrossEntryRow[], defaultKey: string = "productionV0", defaultDir: SortDir = "desc") {
+  const [sortKey, setSortKey] = useState(defaultKey);
+  const [sortDir, setSortDir] = useState<SortDir>(defaultDir);
+
+  const handleSort = useCallback((key: string) => {
+    if (key === sortKey) {
+      setSortDir((d) => d === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      // Most numeric columns default to descending (highest first)
+      // Symbol and entryMechanism default to ascending (alphabetical)
+      setSortDir(key === "symbol" || key === "entryMechanism" ? "asc" : "desc");
+    }
+  }, [sortKey]);
+
+  const sorted = useMemo(() => {
+    return [...items].sort((a, b) => {
+      const aVal = (a as Record<string, unknown>)[sortKey];
+      const bVal = (b as Record<string, unknown>)[sortKey];
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+      const cmp = typeof aVal === "string" ? aVal.localeCompare(bVal as string) : (aVal as number) - (bVal as number);
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  }, [items, sortKey, sortDir]);
+
+  const indicator = (key: string) => sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
+
+  const isDefaultOrder = sortKey === defaultKey && sortDir === defaultDir;
+
+  return { sorted, handleSort, indicator, isDefaultOrder, sortKey };
+}
+
+// --- Component ---
 
 interface CrossEntryStripProps {
   putCandidates: PutCandidate[];
@@ -37,6 +78,8 @@ export function CrossEntryStrip({
     () => buildCrossEntryRows(putCandidates, buyWriteCandidates, maxRows),
     [putCandidates, buyWriteCandidates, maxRows]
   );
+
+  const { sorted, handleSort, indicator, isDefaultOrder, sortKey } = useCrossEntrySortable(rows);
 
   if (rows.length === 0) return null;
 
@@ -67,23 +110,30 @@ export function CrossEntryStrip({
         </span>
         <button className="wd-download-btn" onClick={handleExport} title="Export full cross-entry decomposition (JSON)">⬇</button>
       </div>
+      {!isDefaultOrder && (
+        <div className="wd-sort-notice">
+          Viewing sorted by: <strong>{sortKey === "productionV0" ? "Prod v0" : sortKey === "premiumYieldAnnualized" ? "Yield" : sortKey === "executionScore" ? "Exec" : sortKey === "capitalRequired" ? "Capital" : sortKey === "cashRemaining" ? "Remaining" : sortKey === "entryMechanism" ? "Entry" : sortKey}</strong>
+          {" · "}
+          <button className="wd-sort-reset" onClick={() => handleSort("productionV0")}>Show Prod v0 order</button>
+        </div>
+      )}
       <table className="wd-candidate-table wd-cross-entry-table">
         <thead>
           <tr>
-            <th>Entry</th>
-            <th>Symbol</th>
-            <th>Prod v0</th>
-            <th>Yield</th>
-            <th>DTE</th>
-            <th>Δ</th>
-            <th>Capital</th>
-            <th>Remaining</th>
-            <th>Exec</th>
-            <th>Posture</th>
+            <th className="wd-sortable" onClick={() => handleSort("entryMechanism")}>Entry{indicator("entryMechanism")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("symbol")}>Symbol{indicator("symbol")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("productionV0")}>Prod v0{indicator("productionV0")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("premiumYieldAnnualized")}>Yield{indicator("premiumYieldAnnualized")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("dte")}>DTE{indicator("dte")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("delta")}>Δ{indicator("delta")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("capitalRequired")}>Capital{indicator("capitalRequired")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("cashRemaining")}>Remaining{indicator("cashRemaining")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("executionScore")}>Exec{indicator("executionScore")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("posture")}>Posture{indicator("posture")}</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, idx) => (
+          {sorted.map((row) => (
             <tr
               key={`${row.entryMechanism}-${row.symbol}-${row.strike}-${row.expiration}`}
               className={`wd-posture-row wd-posture-${row.posture.toLowerCase()}`}

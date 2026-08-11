@@ -412,6 +412,16 @@ export function WriteDesk() {
     setBuyWriteWideSpreadCandidates(bwResult2.wideSpreadCandidates);
     setBuyWriteOutcomes(bwResult2.outcomes);
 
+    // Selection validity: clear buy-write selection if candidate identity changed or disappeared
+    setSelectedBuyWriteCandidate((prev) => {
+      if (!prev) return null;
+      const allBW = [...bwResult2.candidates, ...bwResult2.waitCandidates, ...bwResult2.wideSpreadCandidates];
+      if (!allBW.some(c => c.symbol === prev.symbol && c.expiration === prev.expiration && c.strike === prev.strike)) {
+        return null;
+      }
+      return prev;
+    });
+
     if (!scanTimestamp) {
       setScanTimestamp(new Date().toISOString());
     }

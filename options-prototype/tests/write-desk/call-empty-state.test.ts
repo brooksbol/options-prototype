@@ -157,6 +157,54 @@ describe("selection validity invariant (candidateExistsInResults)", () => {
   });
 });
 
+// --- Buy-Write Drawer Temporal Coherence Tests ---
+
+describe("buy-write drawer selection reconciliation (candidateExistsInResults)", () => {
+
+  // These tests prove the selection-validity invariant used during evidence refresh
+  // for Buy-Write candidates, matching the same lifecycle applied to puts and calls.
+  // Identity = symbol + expiration + strike. If any component changes, the drawer must close.
+
+  it("BW candidate retained when identity is unchanged after refresh", () => {
+    // BNO Aug 28 $54 stays selected when new results still contain it
+    const selected = { symbol: "BNO", expiration: "2026-08-28", strike: 54 };
+    const freshResults = [
+      { symbol: "BNO", expiration: "2026-08-28", strike: 54 },
+      { symbol: "EWY", expiration: "2026-08-28", strike: 177 },
+    ];
+    expect(candidateExistsInResults(selected, freshResults)).toBe(true);
+  });
+
+  it("BW drawer closes when expiration shifts (primary expiration change)", () => {
+    // BNO was selected at Aug 28 but primary expiration shifts to Sep 04
+    const selected = { symbol: "BNO", expiration: "2026-08-28", strike: 54 };
+    const freshResults = [
+      { symbol: "BNO", expiration: "2026-09-04", strike: 56 },
+      { symbol: "EWY", expiration: "2026-09-04", strike: 180 },
+    ];
+    expect(candidateExistsInResults(selected, freshResults)).toBe(false);
+  });
+
+  it("BW drawer closes when strike changes (different contract selected)", () => {
+    // Same symbol and expiration, but selector now picks a different strike
+    const selected = { symbol: "EWY", expiration: "2026-08-28", strike: 167 };
+    const freshResults = [
+      { symbol: "EWY", expiration: "2026-08-28", strike: 170 },
+    ];
+    expect(candidateExistsInResults(selected, freshResults)).toBe(false);
+  });
+
+  it("BW drawer closes when candidate disappears entirely", () => {
+    // Symbol no longer produces any BW candidate (hard-no, governance, etc.)
+    const selected = { symbol: "PSI", expiration: "2026-08-21", strike: 150 };
+    const freshResults = [
+      { symbol: "BNO", expiration: "2026-09-04", strike: 56 },
+      { symbol: "EWY", expiration: "2026-09-04", strike: 180 },
+    ];
+    expect(candidateExistsInResults(selected, freshResults)).toBe(false);
+  });
+});
+
 // --- Fidelity Encumbrance Integration Tests ---
 
 describe("Fidelity encumbrance scenarios", () => {

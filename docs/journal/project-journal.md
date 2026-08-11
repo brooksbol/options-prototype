@@ -6400,3 +6400,120 @@ This makes the research question:
 > Using only contemporaneously observable evidence, can Wheelwright govern capital deployment so that realized production remains robust across subsequently observed market environments while preserving productive capital?
 
 This preserves Wheelwright's deepest principle: we trade with evidence, not predictions.
+
+
+## 2026-08-11 — Live-Session Epistemic Findings: Freshness, Admissibility, and Temporal Coherence
+
+### Context
+
+The 2026-08-11 live market session produced a chain of provenance/freshness discoveries that expose fundamental gaps in how Wheelwright represents evidence validity to the operator. These were discovered empirically through live observation, not through design analysis.
+
+### Discovery 1: Open-Delay Acquisition (09:30–09:45 ET)
+
+**Observation:** At 09:37 ET, the Write Desk showed "Current · 1305/1305 · 32s ago" with a green trust indicator. Yet all visible market observations (prices, quotes, recommendation surface) appeared unchanged from the prior session's sealed evidence.
+
+**Root cause:** The backend `SessionGate` permits acquisition starting at 09:30 ET (market open). However, Tradier's sandbox data is delayed 15 minutes. Between 09:30–09:45, the worker fetches data from Tradier that reflects pre-market/prior-session state — not current regular-session activity. It writes this data with `retrieved_at = now` and `session_date = today`, then calls `publishSnapshot()` which sets `published_at = now` and increments generation.
+
+The frontend's trust derivation compares `Date.now() - generatedAt`. Since `generatedAt` was just set, freshness appears excellent. But the underlying market observations have not actually advanced.
+
+**Empirical confirmation:** At exactly 09:45 ET (open + 15min provider delay), the surface changed materially: prices moved, recommendation counts changed, rankings shifted. This precisely matches the provider-delay boundary.
+
+**Principle violated:** Freshness belongs to the market observation, not to the act of checking/reassessing it. A scheduler pass must never make stale evidence appear fresh.
+
+### Discovery 2: Progressive Hydration Creates Mixed-Age Populations (09:45–10:00+ ET)
+
+**Observation:** Between 09:45 and 09:52, eight of ten persistent Cross-Entry top-10 candidates displayed identical annualized yields to the tenth of a percent, while other parts of the surface (posture distribution, funnel counts) visibly changed.
+
+**Root cause:** After the session transitions to REGULAR_OBSERVATION at 09:45, the worker begins re-acquiring symbols with genuine regular-session data. But with ~960 ready symbols and batch processing, full re-acquisition takes 30+ minutes. At any given moment, the recommendation surface contains a MIX of:
+- Symbols freshly acquired with regular-session data
+- Symbols still showing the initial 09:30 stale acquisition (which satisfied IndexedDB `stale_usable` TTL)
+
+**SQLite evidence:** Direct timestamp inspection confirmed that at 09:52 ET, only GDX (of the tracked 8) had been re-acquired (at 09:47). BNO and USO were re-acquired at 09:52 (simultaneous with screenshot). SLV, PSI, QTUM, EWY were not re-acquired until 09:54–10:00. The identical yields were not "stable premiums" but the same underlying observation displayed twice.
+
+**At 10:06 ET:** Only 311 of ~960 ready symbols had post-09:45 admissible observations. The surface was still less than one-third hydrated with genuine regular-session evidence.
+
+### Discovery 3: Three Distinct Freshness Concepts Collapsed into One
+
+The current system conflates:
+
+| Concept | What it measures | Current representation |
+|---|---|---|
+| **Snapshot publication freshness** | When did the backend last publish? | `generatedAt` → "32s ago" |
+| **Per-symbol observation age** | When was THIS symbol's chain last fetched? | `retrieved_at` per evidence row — NOT exposed to operator |
+| **Market-observation admissibility** | Does this evidence reflect regular-session market activity? | Not modeled at all |
+
+These are orthogonal. Evidence retrieved at 09:44 is extremely young at 09:46 but does NOT contain regular-session observations. Age does not establish admissibility.
+
+### Discovery 4: Drawer Temporal Coherence Defect (BNO)
+
+**Observation:** The Cross-Entry strip showed BNO with 61.9% yield / 24 DTE / Sep 04 expiration. The open BNO drawer simultaneously showed 80.5% yield / 17 DTE / Aug 28 expiration / $50.02 price.
+
+**Root cause:** Buy-Write selection was NOT reconciled during evidence refresh. When the backend re-acquired BNO with a different primary expiration (08-28 → 09-04, because 08-21 crossed the 21-DTE proximity threshold), the recommendation engine produced a new candidate with different identity (different expiration, different strike). The candidate arrays were replaced. The Cross-Entry strip recomputed. But `selectedBuyWriteCandidate` retained the OLD object — the reconciliation check that exists for puts and calls was missing from the buy-write path in `handleNewEvidence`.
+
+**Execution safety implication:** The Fidelity handoff card in the drawer would have guided the operator to execute based on the stale candidate (wrong expiration, wrong strike, wrong net debit). While Fidelity's own ticket shows current market prices, the operator's mental model of what they're trading would be wrong.
+
+**Fix applied:** Added selection reconciliation for buy-write candidates in `handleNewEvidence`, matching the pattern already used for puts and calls. Identity = symbol + expiration + strike. If any component changes or the candidate disappears, selection clears and drawer closes.
+
+### Discovery 5: "Valid Recommendations from Incomplete Search"
+
+During progressive hydration, Wheelwright faces a choice:
+- Show nothing until fully hydrated (operationally useless for 30+ minutes)
+- Show everything including stale evidence (current behavior, deceptive)
+- Show only candidates derived from admissible evidence, with explicit coverage indicator
+
+The third option introduces an important semantic distinction:
+
+> "These recommendations are valid; this search is incomplete."
+
+This is epistemically honest and operationally useful. Candidate #1 is trustworthy even though we don't yet know whether it will remain #1 once all symbols have been examined. The operator can act on valid candidates while the search continues to expand.
+
+This requires distinguishing:
+- **Candidate validity** — is this specific recommendation derived from admissible, fresh evidence?
+- **Search completeness** — has the full opportunity surface been examined?
+
+The current "Current · 1305/1305" collapses both into one indicator and gets both wrong during hydration.
+
+### Architectural Principle Established
+
+> A recommendation surface has no meaningful global freshness unless the evidence population supporting it satisfies a coherent admissibility/freshness contract.
+
+### What Remains Unimplemented (Provisional Architecture)
+
+The following invariants were designed but NOT implemented:
+
+1. **Evidence admissibility:** During active session, only evidence retrieved after `sessionOpen + providerDelay` qualifies as admissible for recommendation.
+2. **Trust from admissible population:** Global trust label should reflect evidence admissibility state of the displayed population, not publication recency.
+3. **Progressive recommendation hydration:** Surface should present only candidates with admissible evidence, expanding as symbols are resolved.
+4. **SessionGate delay suppression:** Backend should not acquire before `open + providerDelay`.
+
+These await Principal authorization. The drawer coherence fix (Priority 1) was implemented independently because it is a bounded execution-safety correction that does not depend on the admissibility architecture.
+
+### Empirical Timeline (regression evidence)
+
+| Time (ET) | What happened | Correct label (proposed) |
+|---|---|---|
+| 09:30 | Worker begins, fetches stale delayed data | "Prior Session" |
+| 09:35 | Worker publishes generation from stale data; frontend shows "Current" | Should be: "Prior Session" |
+| 09:45 | Frontend transitions REGULAR_OBSERVATION; surface changes | "Hydrating · 0/960" |
+| 09:47 | First genuine regular-session chains (GDX) | "Hydrating · ~10/960" |
+| 09:52 | ~100 symbols refreshed; BNO/USO at exact boundary | "Hydrating · ~100/960" |
+| 10:00 | ~300 symbols refreshed | "Hydrating · 311/960" |
+| ~10:30 | Full universe refreshed | "Current" (genuinely) |
+
+### Relationship to CSP/BW Research
+
+The morning observation windows (09:45, 09:52, 10:04) are **invalid for population-level CSP/BW economic inference** because the recommendation population was composed from mixed-age evidence. The overnight sealed-evidence experiment (against 08-10 data) remains valid because it operated on uniformly sealed evidence.
+
+No CSP/BW conclusions were drawn from the contaminated observations.
+
+### What the Initial "Execution Maturation" Hypothesis Became
+
+The tentative hypothesis that "premiums stayed stable while execution quality improved during the opening" was retracted. The actual explanation is simpler: the yields were identical because they were computed from the same underlying chain observation — those symbols had not yet been re-acquired. No intraday market-behavior conclusion can be drawn from the mixed-hydration window.
+
+### Open Questions
+
+1. Should the admissibility gate live in the recommendation engine (frontend), the evidence store (backend), or both?
+2. What is the minimum admissible population size before Wheelwright becomes operationally useful during hydration?
+3. Should per-symbol evidence age be visible in the recommendation table (per-row indicator)?
+4. How does this interact with sealed-evidence validity during non-trading hours?
+5. Does the "valid recommendations from incomplete search" concept need to be exposed in the Prod v0 strip specifically, or is it a property of the entire recommendation surface?
