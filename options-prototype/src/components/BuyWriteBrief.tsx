@@ -112,9 +112,9 @@ export function BuyWriteBrief({
             </span>
           </div>
           <div className={`rb-hero-row rb-hero-primary${econ.totalGainPerShareIfAssigned < 0 ? " rb-loss" : " rb-gain"}`}>
-            <span className="rb-hero-label">Total If Assigned</span>
+            <span className="rb-hero-label">Total If Called Away</span>
             <span className="rb-hero-value">
-              {econ.totalGainPerShareIfAssigned >= 0 ? "+" : ""}${econ.totalGainPerShareIfAssigned.toFixed(2)}/sh &middot; {econ.totalReturnIfAssignedAnnualized.toFixed(1)}% ann.
+              {econ.totalGainPerShareIfAssigned >= 0 ? "+" : "-"}${Math.abs(econ.totalGainIfAssigned).toFixed(0)} ({econ.totalGainPerShareIfAssigned >= 0 ? "+" : ""}${econ.totalGainPerShareIfAssigned.toFixed(2)}/sh &middot; {econ.totalReturnIfAssignedAnnualized.toFixed(1)}% ann.)
             </span>
           </div>
           <div className={`rb-hero-row rb-hero-fit rb-fit-${brief.deltaFit.category}`}>
