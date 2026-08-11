@@ -6173,3 +6173,230 @@ The progression: implement → observe → falsify → discover deeper structure
 - Production vs lifecycle separation preserved as architectural hypothesis
 - Capital-state model preserved as architectural hypothesis
 - Neither hypothesis authorized for implementation
+
+
+## 2026-08-10 — CSP vs Buy-Write Matched-Pair Experiment (Sealed Evidence)
+
+### Context
+
+Following the Buy-Write board implementation and the Production v0 cross-entry instrument, the operator's fundamental question remained poorly answered: "Is the premium I sacrifice by choosing Buy-Write compensated by the conditional appreciation I gain?"
+
+Rather than continuing to rely on Prod v0's conflated formula, we ran a population-level matched-pair experiment directly on the sealed evidence from the 2026-08-10 session. The experiment compares CSP and Buy-Write candidates as separate economic components without collapsing them into a winner score.
+
+### Methodology
+
+**Evidence source:** Sealed 2026-08-10 session. SQLite evidence store. Expiration: 2026-08-21 (11 DTE from session date).
+
+**Matching criteria:**
+- Same symbol
+- Same expiration
+- Approximately matched absolute delta (max distance 0.08 from target)
+- Same hard eligibility floor (bid > 0, OI > 0, spread ≤ 80%)
+- Admissible delta range [0.15, 0.50]
+
+**Contract selection:** For each symbol, independently find the closest-to-target-delta eligible put and closest-to-target-delta eligible call. A "matched pair" exists when both sides produce a viable contract.
+
+**What this does NOT do:**
+- Does not use either recommendation engine's actual selected candidate (avoids selector contamination)
+- Does not apply governance, ranking, or posture filtering
+- Does not create a composite score or declare a winner
+
+**Limitations:**
+- Single session sample (one day, one market environment)
+- 11 DTE only (one expiration window)
+- Delta matching is approximate (median delta difference 0.038 at target 0.30)
+- Many symbols had viable options on only one side (34 put-only, 49 call-only at Δ0.30)
+- Does not address the conditional nature of BW appreciation (requires assignment/call-away)
+- Cannot speak to different market regimes from one observation
+
+### Population
+
+| Target Δ | Matched Pairs | Put-Only | Call-Only | Neither |
+|---|---|---|---|---|
+| 0.20 | 16 | — | — | — |
+| 0.25 | 24 | — | — | — |
+| 0.30 | 35 | 34 | 49 | 614 |
+| 0.35 | 39 | — | — | — |
+| 0.40 | 40 | — | — | — |
+
+### Findings
+
+#### 1. CSP produces more immediate premium per dollar in ~70-80% of matched pairs
+
+| Target Δ | CSP Rate > BW Rate | CSP Median Monthly | BW Median Monthly |
+|---|---|---|---|
+| 0.20 | 88% (14/16) | 2.58% | 2.10% |
+| 0.25 | 79% (19/24) | 2.48% | 1.88% |
+| 0.30 | 77% (27/35) | 3.20% | 2.85% |
+| 0.35 | 79% (31/39) | 3.52% | 3.19% |
+| 0.40 | 72% (29/40) | 4.51% | 4.23% |
+
+The CSP premium advantage narrows at higher deltas. At Δ0.30, the rate advantage distribution: median +0.35%, mean +0.63%, range [-2.11%, +4.47%].
+
+#### 2. BW appreciation opportunity is many multiples of the premium sacrifice
+
+At Δ0.30, in the 25 pairs where CSP premium exceeds BW premium AND BW has positive appreciation:
+
+- **Median appreciation/sacrifice ratio: 15.8×**
+- Mean: 25.6×
+- P25: 8.5×
+- P75: 29.0×
+- 91% of pairs have appreciation ≥ 3× the premium sacrificed
+
+The typical structure: BW sacrifices ~$0.20-0.50/share in premium to access ~$3-5/share in conditional appreciation.
+
+#### 3. BW total-if-called always exceeds CSP premium rate (conditional comparison)
+
+At Δ0.30: BW total-if-called monthly rate exceeds CSP premium monthly rate in 35/35 pairs (100%).
+- CSP median: 3.20%/month (certain)
+- BW total-if-called median: 11.33%/month (conditional on assignment)
+
+**Important caveat:** This compares a conditional lifecycle outcome (premium + appreciation, realized only if called away) against CSP's immediate certain premium. The 35/35 result reflects that OTM call appreciation swamps the modest premium difference. It does not establish that BW produces more realized production over time. That depends on call-away frequency, what happens when NOT called away, and multi-cycle dynamics.
+
+#### 4. Capital commitment is nearly identical
+
+BW/CSP capital ratio median: 1.023. BW requires ~2.3% more capital. Not a meaningful differentiator.
+
+#### 5. BW strike was above underlying price in 100% of pairs
+
+This is mechanical at Δ0.30 (OTM calls have strike > spot). No pairs where CSP dominates unconditionally (better premium AND BW has no appreciation).
+
+#### 6. Execution quality is mixed; call-side modestly favors BW
+
+- CSP median spread: 46.2%
+- BW median spread: 45.2%
+- BW tighter spread in 64% of pairs
+- BW median OI: 125 vs CSP median OI: 31
+
+### Refined Hypothesis
+
+On this observed surface, CSP generally offered modestly greater immediate premium efficiency, while Buy-Write traded some of that premium for substantially larger conditional appreciation capacity. The unresolved question is whether the probability and lifecycle cost of realizing that appreciation make the trade favorable over repeated wheel cycles.
+
+The decision is not "premium vs appreciation in equal-sized buckets." It is closer to: "give up a little certain production → acquire a lot of conditional upside capacity." Whether that trade is favorable depends on:
+
+1. How often the conditional upside is realized (call-away frequency)
+2. What happens when it is NOT realized (equity drawdown, trapped capital, subsequent call production)
+3. How quickly capital returns to deployable state under each mechanism
+4. Whether regime conditions make one mechanism structurally preferable
+
+### What This Does NOT Establish
+
+- Buy-Write is not proven superior to CSP
+- CSP is not proven superior to Buy-Write
+- The 15.8× ratio does not mean "always choose BW"
+- A single session cannot characterize regime-dependent behavior
+- Conditional returns are not realized returns
+- Production v0's formula is not validated or invalidated by this experiment
+
+### Market-Regime Research Agenda
+
+The eventual research question:
+
+> Under which market regimes does each entry mechanism produce the greatest sustainable realized production while preserving productive capital over repeated wheel lifecycles?
+
+#### Regimes to Study
+
+| Regime | Characteristics |
+|---|---|
+| Strong bull | Steady upward drift, low realized vol, IV compression |
+| Mild/sideways bull | Slow grind higher, moderate vol |
+| Flat/choppy | Range-bound, moderate to elevated vol |
+| Orderly bear | Steady decline, elevated IV |
+| Sharp selloff / high-vol shock | Rapid decline, vol spike, wide spreads |
+| Recovery | Rebound from lows, IV declining but still elevated |
+
+#### Hypotheses by Regime (mechanical inference, not proven)
+
+**Strong bull:** BW may benefit from frequent call-away (appreciation realized, capital recycles efficiently). CSP puts expire worthless, premium retained, capital returns quickly. Key question: does BW's higher per-cycle total offset any velocity difference?
+
+**Flat/choppy:** CSP likely dominates. Appreciation opportunity is small (OTM call near spot). Cash preservation during directionless periods is valuable. BW carries equity risk without proportionate appreciation reward.
+
+**Orderly bear:** BW has worse drawdown profile (immediate equity exposure from entry). CSP delays exposure (only impaired if assigned). But post-assignment, both hold impaired equity. Key question: is delayed entry meaningfully better when both eventually hold equity?
+
+**Sharp selloff:** Both strategies suffer. BW suffers immediately (mark-to-market). CSP may avoid the worst if puts expire before bottom, OR may assign into the middle of decline. Neither is safe.
+
+**Recovery:** Both benefit from holding equity. The question is basis quality — did CSP assignment produce a lower entry? Did BW's premium partially buffer the decline?
+
+**Critical regime-conditioned hypothesis:** Buy-Write may dominate specifically when positive drift is strong enough that call-away occurs efficiently, while CSP may dominate when drift is weak enough that preserving cash optionality is more valuable than carrying equity. If true, the answer is not "CSP vs BW" universally but a regime-conditioned entry policy.
+
+#### Outcomes Historical Simulation Must Measure
+
+Assignment/call-away frequency alone is insufficient. Complete lifecycle measurement requires:
+
+- Realized appreciation (actual, not conditional)
+- Drawdown while equity is held (mark-to-market loss from entry)
+- Time capital remains committed (days from entry to cash return)
+- Capital velocity (cycles per unit time)
+- Post-assignment/post-expiration capital state
+- Subsequent covered-call production from held equity
+- Realized NAV erosion
+- Complete multi-cycle cash production
+- Whether one mechanism creates a structurally better capital state for the NEXT deployment
+
+#### Simulation Ladder
+
+**Simulation 0A — Lifecycle Geometry (cheap/free):**
+- Data: underlying price histories only (Yahoo Finance, Tradier)
+- Method: hypothetical strikes at observed deltas, terminal-state resolution from actual price paths
+- Answers: assignment/call-away geometry, regime classification, time-to-recycle, capital state transitions
+- Cannot answer: actual premium production (no historical option prices)
+- Limitation: assumes delta-based resolution rules; actual option premium is absent
+
+**Simulation 0B/1 — Economic Replay (requires historical option data):**
+- Data: historical option chain/quote evidence with actual bid/ask/delta/IV
+- Method: replay Wheelwright's candidate selection against real historical surfaces
+- Answers: actual premium Wheelwright would have captured, real production comparison, genuine CSP-vs-BW economics by regime
+- Limitation: historical option data costs money (Tradier paid tier, or CBOE/IVolatility historical surfaces)
+- Required before making CSP-vs-BW production conclusions
+
+The distinction matters: Simulation 0A can test lifecycle mechanics and regime intuitions. Simulation 0B can answer the economic question. Black-Scholes reconstruction with assumed IV risks manufacturing the exact answer we're trying to discover.
+
+### Relationship to Production v0
+
+This experiment does not validate or replace Prod v0. Prod v0 attempted a composite score incorporating delta-weighted appreciation. This experiment deliberately avoids compositing and instead shows the independent dimensions:
+
+- Premium efficiency (CSP usually wins modestly)
+- Conditional upside capacity (BW always has more, by a large multiple)
+- The tradeoff ratio between them (typically 10-30×)
+
+A future cross-entry model, if one emerges, should be accountable to these empirical observations rather than derived from theory alone.
+
+### The Falsifiable Possibility
+
+It remains explicitly possible that sufficient evidence could eventually show one mechanism dominates enough regimes to demote or retire the other. CSP is not protected because it is historically central to Wheelwright. The evidence decides.
+
+### Open Questions
+
+1. What is the actual call-away frequency for BW at Δ0.30 in different regimes?
+2. What does the "not called away" branch look like for BW (drawdown, time trapped, subsequent production)?
+3. Does CSP assignment create a better or worse basis than BW for subsequent covered-call production?
+4. Is there a delta or DTE sweet spot where the BW tradeoff becomes most favorable?
+5. How much does IV regime (high vs low) affect the premium-sacrifice/appreciation ratio?
+6. Is the 15.8× ratio stable across market conditions or specific to this low-vol surface?
+7. What is the cheapest historical option data source sufficient for Simulation 0B?
+
+### Research Principles Established
+
+#### Production Robustness Across Market Environments
+
+The objective is not merely to maximize average production or maximize bull-market performance. Wheelwright should pursue **robust cash production across market environments** — including periods subsequently characterized as bull, bear, sideways/choppy, shock/selloff, and recovery — while preserving productive capital.
+
+We should explicitly investigate whether CSP, Buy-Write, different policies, or combinations thereof behave differently across those environments. It is entirely acceptable if the evidence eventually shows that different mechanisms are useful under different observed conditions, or that one mechanism is sufficiently dominant to demote another.
+
+"Make as much money in a bear market as in a bull market" is an aspirational robustness objective, not an assumption that equal production is always achievable. Historical evidence should tell us how close we can get and what capital consequences are required.
+
+#### Evidence, Not Prediction — No-Lookahead Invariant
+
+Historical simulation must obey a **no-lookahead invariant:**
+
+> A simulated deployment decision at time T may use only evidence that would actually have been observable at time T. Future prices, future volatility, subsequent regime classification, and other later information may be used only to evaluate the outcome of that decision.
+
+Bull/bear/sideways/shock/recovery classifications are therefore **retrospective analytical dimensions**, not privileged predictive inputs available to the simulated operator.
+
+We may retrospectively classify a deployment as having occurred before or during a period that ultimately proved bullish, bearish, sideways, shock-like, or recovery-oriented — and then compare outcomes across those groups. We must not give the simulated decision engine knowledge of that future classification.
+
+This makes the research question:
+
+> Using only contemporaneously observable evidence, can Wheelwright govern capital deployment so that realized production remains robust across subsequently observed market environments while preserving productive capital?
+
+This preserves Wheelwright's deepest principle: we trade with evidence, not predictions.

@@ -560,3 +560,138 @@ describe("recommendBuyWrites wide-spread collection", () => {
     expect(result.outcomes.hardNoWideSpread).toBe(1);
   });
 });
+
+
+// --- Premature-Elimination Fix Tests ---
+
+describe("recommendBuyWrites premature-elimination fix", () => {
+  let cache: DurableMarketCache;
+  let env: string;
+  const cacheEnv = () => ({ provider: "tradier", environment: env });
+
+  beforeEach(() => {
+    testId++;
+    env = `bw-pe-test-${testId}`;
+    resetDB();
+    resetDurableCache();
+    cache = getDurableCache();
+  });
+
+  async function populateChain(
+    symbol: string,
+    calls: Array<{ strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number }>,
+    underlyingPrice: number = 58.0,
+    expDate: string = "2026-08-21",
+    dte: number = 21
+  ) {
+    const expKey = buildCacheKey("tradier", env, "expirations", symbol);
+    await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, symbol, null, [{ date: expDate, dte }]));
+    const chainKey = buildCacheKey("tradier", env, "chain", symbol, expDate);
+    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, expDate, {
+      underlying: { symbol, name: `${symbol} Fund`, price: underlyingPrice },
+      calls,
+      puts: [],
+    }));
+  }
+
+  it("nearest-delta hard-no does NOT hide a viable adjacent contract", async () => {
+    // Contract at delta 0.30 (closest to target) has zero bid — hard-no.
+    // Contract at delta 0.38 is perfectly viable.
+    // Previously, the zero-bid at 0.30 would abandon the entire expiration.
+    await populateChain("HIDDEN", [
+      { strike: 60, bid: 0, ask: 1.50, delta: 0.30, openInterest: 0, volume: 0 },    // hard-no: zero bid
+      { strike: 58, bid: 1.80, ask: 2.10, delta: 0.38, openInterest: 250, volume: 60 }, // viable
+      { strike: 56, bid: 2.50, ask: 2.90, delta: 0.45, openInterest: 180, volume: 40 }, // viable
+    ]);
+
+    const result = await recommendBuyWrites(
+      ["HIDDEN"],
+      10000,
+      cache,
+      cacheEnv(),
+      DEFAULT_RECOMMENDATION_POLICY // target delta = 0.30
+    );
+
+    // The viable contract closest to target delta (0.38) should be selected
+    expect(result.candidates.length).toBe(1);
+    expect(result.candidates[0].symbol).toBe("HIDDEN");
+    expect(result.candidates[0].strike).toBe(58);
+    expect(result.candidates[0].delta).toBe(0.38);
+  });
+
+  it("nearest surviving delta still wins even when another surviving contract has better execution", async () => {
+    // Three contracts in admissible range:
+    // - delta 0.30: hard-no (zero OI)
+    // - delta 0.35: viable, moderate execution (OI=80, spread okay)
+    // - delta 0.45: viable, excellent execution (OI=500, tight spread)
+    // The fix should pick delta 0.35 (closest surviving to target), NOT delta 0.45 (best execution).
+    await populateChain("DELTAWINS", [
+      { strike: 62, bid: 0.90, ask: 1.10, delta: 0.30, openInterest: 0, volume: 0 },   // hard-no: zero OI
+      { strike: 60, bid: 1.20, ask: 1.50, delta: 0.35, openInterest: 80, volume: 20 },  // viable, moderate
+      { strike: 56, bid: 2.50, ask: 2.70, delta: 0.45, openInterest: 500, volume: 200 }, // viable, excellent execution
+    ]);
+
+    const result = await recommendBuyWrites(
+      ["DELTAWINS"],
+      10000,
+      cache,
+      cacheEnv(),
+      DEFAULT_RECOMMENDATION_POLICY // target delta = 0.30
+    );
+
+    expect(result.candidates.length).toBe(1);
+    // Delta 0.35 is closest to target (0.30) among survivors — it wins, not the better-execution 0.45
+    expect(result.candidates[0].strike).toBe(60);
+    expect(result.candidates[0].delta).toBe(0.35);
+  });
+
+  it("if every admissible contract is hard-no, existing no-candidate/wide-spread semantics remain", async () => {
+    // All contracts are hard-no:
+    // - one zero bid (true hard-no)
+    // - one wide spread > 80% (wide-spread collectible)
+    await populateChain("ALLBAD", [
+      { strike: 60, bid: 0, ask: 1.50, delta: 0.30, openInterest: 100, volume: 20 },   // hard-no: zero bid
+      { strike: 58, bid: 0.40, ask: 2.80, delta: 0.38, openInterest: 90, volume: 10 },  // hard-no: spread ~150%
+    ]);
+
+    const result = await recommendBuyWrites(
+      ["ALLBAD"],
+      10000,
+      cache,
+      cacheEnv(),
+      DEFAULT_RECOMMENDATION_POLICY
+    );
+
+    // No normal candidates
+    expect(result.candidates.length).toBe(0);
+    expect(result.waitCandidates.length).toBe(0);
+    // Wide-spread candidate collected (bid > 0, OI > 0, but spread is the hard-no)
+    expect(result.wideSpreadCandidates.length).toBe(1);
+    expect(result.wideSpreadCandidates[0].symbol).toBe("ALLBAD");
+    expect(result.wideSpreadCandidates[0].strike).toBe(58);
+    expect(result.wideSpreadCandidates[0].posture).toBe("WIDE_SPREAD");
+  });
+
+  it("no regression: single viable contract at target delta still produces candidate as before", async () => {
+    // Simple case: one contract, viable, at target delta — identical to prior behavior
+    await populateChain("NORMAL", [
+      { strike: 60, bid: 1.20, ask: 1.40, delta: 0.30, openInterest: 300, volume: 80 },
+    ]);
+
+    const result = await recommendBuyWrites(
+      ["NORMAL"],
+      10000,
+      cache,
+      cacheEnv(),
+      DEFAULT_RECOMMENDATION_POLICY
+    );
+
+    expect(result.candidates.length).toBe(1);
+    expect(result.candidates[0].symbol).toBe("NORMAL");
+    expect(result.candidates[0].strike).toBe(60);
+    expect(result.candidates[0].delta).toBe(0.30);
+    expect(result.candidates[0].posture).toBe("ACTIONABLE");
+    expect(result.candidates[0].underlyingPrice).toBe(58);
+    expect(result.candidates[0].capitalRequired).toBe(5800);
+  });
+});

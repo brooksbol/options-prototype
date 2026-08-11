@@ -270,9 +270,93 @@ export async function recommendBuyWrites(
       if (inRange.length === 0) continue;
       symbolHadContractsInRange = true;
 
-      // Find contract closest to target delta
+      // --- Premature-elimination fix ---
+      // Evaluate hard-no eligibility for ALL admissible contracts BEFORE selecting
+      // by delta. This prevents a single hard-no contract at target delta from
+      // hiding viable contracts at adjacent deltas within the same expiration.
       const targetDelta = policy.contractSelection.targetDelta;
-      const sorted = [...inRange].sort((a, b) =>
+
+      // Partition: separate eligible contracts from hard-no contracts
+      const eligible: typeof inRange = [];
+      const hardNoContracts: Array<{ contract: typeof inRange[0]; reason: string; spreadPct: number; mid: number }> = [];
+
+      for (const c of inRange) {
+        const cMid = midPrice(c.bid, c.ask);
+        const cSpread = c.ask - c.bid;
+        const cSpreadPct = cMid > 0 ? (cSpread / cMid) * 100 : 100;
+        const cEvidence: ContractEvidence = {
+          bid: c.bid,
+          ask: c.ask,
+          spreadPercent: cSpreadPct,
+          openInterest: c.openInterest,
+          volume: c.volume,
+          delta: c.delta,
+        };
+        const reason = isHardNo(cEvidence, policy.executionAssessment);
+        if (reason) {
+          hardNoContracts.push({ contract: c, reason, spreadPct: cSpreadPct, mid: cMid });
+        } else {
+          eligible.push(c);
+        }
+      }
+
+      // If no eligible contracts survive, handle hard-no/wide-spread collection
+      if (eligible.length === 0) {
+        // Track hard-no type from the contract closest to target delta (preserves existing diagnostics)
+        const closestHardNo = [...hardNoContracts].sort((a, b) =>
+          Math.abs(a.contract.delta - targetDelta) - Math.abs(b.contract.delta - targetDelta)
+        )[0];
+        if (closestHardNo) {
+          if (closestHardNo.contract.bid <= 0) {
+            symbolHardNoType = "zeroBid";
+          } else if (closestHardNo.contract.openInterest === 0) {
+            symbolHardNoType = "zeroOI";
+          } else {
+            symbolHardNoType = "wideSpread";
+          }
+        }
+        // Collect best wide-spread candidate (spread-only hard-no, bid > 0 and OI > 0)
+        for (const hn of hardNoContracts) {
+          if (hn.contract.bid > 0 && hn.contract.openInterest > 0) {
+            const wsEconomics = computeBuyWriteEconomics(underlyingPrice, hn.contract.strike, hn.mid, exp.dte);
+            const wsCandidate: BuyWriteCandidate = {
+              rank: 0,
+              symbol,
+              expiration: exp.date,
+              dte: exp.dte,
+              strike: hn.contract.strike,
+              delta: hn.contract.delta,
+              bid: hn.contract.bid,
+              ask: hn.contract.ask,
+              mid: hn.mid,
+              spreadPercent: hn.spreadPct,
+              openInterest: hn.contract.openInterest,
+              volume: hn.contract.volume,
+              underlyingPrice,
+              capitalRequired,
+              cashRemaining,
+              premiumYieldAnnualized: wsEconomics.premiumYieldAnnualized,
+              totalReturnIfAssignedAnnualized: wsEconomics.totalReturnIfAssignedAnnualized,
+              totalReturnIfCalledPercent: wsEconomics.totalReturnIfCalledPercent,
+              strikeAbovePrice: wsEconomics.strikeAbovePrice,
+              appreciationPerShare: wsEconomics.appreciationPerShare,
+              economics: wsEconomics,
+              assessment: { score: 0, posture: "WIDE_SPREAD", components: [], hardNoReason: hn.reason, policyVersion: policy.executionAssessment.version },
+              posture: "WIDE_SPREAD" as any,
+              affordable,
+              governance: { status: "authorized", reason: "" },
+            };
+            if (!bestWideSpread || hn.spreadPct < bestWideSpread.spreadPercent) {
+              bestWideSpread = wsCandidate;
+            }
+          }
+        }
+        continue;
+      }
+
+      // Eligible contracts exist — select closest to target delta among survivors
+      symbolAllHardNo = false;
+      const sorted = [...eligible].sort((a, b) =>
         Math.abs(a.delta - targetDelta) - Math.abs(b.delta - targetDelta)
       );
       const contract = sorted[0];
@@ -289,52 +373,6 @@ export async function recommendBuyWrites(
         volume: contract.volume,
         delta: contract.delta,
       };
-
-      // Hard-no check
-      const hardNoReason = isHardNo(evidence, policy.executionAssessment);
-      if (hardNoReason) {
-        if (evidence.bid <= 0) {
-          symbolHardNoType = "zeroBid";
-        } else if (evidence.openInterest === 0) {
-          symbolHardNoType = "zeroOI";
-        } else {
-          // Wide spread is the only hard-no — collect as inspectable wide-spread candidate
-          symbolHardNoType = "wideSpread";
-          const wsEconomics = computeBuyWriteEconomics(underlyingPrice, contract.strike, mid, exp.dte);
-          const wsCandidate: BuyWriteCandidate = {
-            rank: 0,
-            symbol,
-            expiration: exp.date,
-            dte: exp.dte,
-            strike: contract.strike,
-            delta: contract.delta,
-            bid: contract.bid,
-            ask: contract.ask,
-            mid,
-            spreadPercent: spreadPct,
-            openInterest: contract.openInterest,
-            volume: contract.volume,
-            underlyingPrice,
-            capitalRequired,
-            cashRemaining,
-            premiumYieldAnnualized: wsEconomics.premiumYieldAnnualized,
-            totalReturnIfAssignedAnnualized: wsEconomics.totalReturnIfAssignedAnnualized,
-            totalReturnIfCalledPercent: wsEconomics.totalReturnIfCalledPercent,
-            strikeAbovePrice: wsEconomics.strikeAbovePrice,
-            appreciationPerShare: wsEconomics.appreciationPerShare,
-            economics: wsEconomics,
-            assessment: { score: 0, posture: "WIDE_SPREAD", components: [], hardNoReason, policyVersion: policy.executionAssessment.version },
-            posture: "WIDE_SPREAD" as any,
-            affordable,
-            governance: { status: "authorized", reason: "" },
-          };
-          if (!bestWideSpread || spreadPct < bestWideSpread.spreadPercent) {
-            bestWideSpread = wsCandidate;
-          }
-        }
-        continue;
-      }
-      symbolAllHardNo = false;
 
       const assessment = assessExecution(evidence, policy.executionAssessment);
 
