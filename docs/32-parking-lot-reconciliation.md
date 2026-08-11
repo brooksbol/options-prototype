@@ -194,7 +194,7 @@ Promotion must not make the implementation work disappear.
 
 #### PL-EVID-01: Historical Analysis and Evidence Provenance
 
-**Disposition: Retain.** Foundational dependency for multiple items. The single largest unresolved architectural question. Urgency increases as operational history accumulates without capture.
+**Disposition: Retain.** Foundational dependency for multiple items. One of the largest unresolved architectural dependencies. Urgency increases as operational history accumulates without capture.
 
 ---
 
@@ -590,7 +590,7 @@ Historical and observational work requires explicit boundary discipline to prese
 
 **Core need:** An architecture for accumulating, storing, and analyzing observations over time. Must distinguish market observations, portfolio observations, Decision/recommendation observations, and reconstructed lifecycle evidence — with explicit provenance and ownership boundaries.
 
-**Status:** Unresolved. The single largest architectural dependency. Multiple items block on it.
+**Status:** Unresolved. One of the largest architectural dependencies. Multiple items block on it.
 
 ---
 
