@@ -74,14 +74,17 @@ export function CrossEntryStrip({
   onSelectPut,
   onSelectBuyWrite,
 }: CrossEntryStripProps) {
-  const rows = useMemo(
-    () => buildCrossEntryRows(putCandidates, buyWriteCandidates, maxRows),
-    [putCandidates, buyWriteCandidates, maxRows]
+  // Full eligible population (composition + eligibility filtering, no display cap)
+  const allRows = useMemo(
+    () => buildCrossEntryRows(putCandidates, buyWriteCandidates),
+    [putCandidates, buyWriteCandidates]
   );
 
-  const { sorted, handleSort, indicator, isDefaultOrder, sortKey } = useCrossEntrySortable(rows);
+  // Sort by active column (operator-controlled), THEN cap for display
+  const { sorted, handleSort, indicator, isDefaultOrder, sortKey } = useCrossEntrySortable(allRows);
+  const displayed = sorted.slice(0, maxRows);
 
-  if (rows.length === 0) return null;
+  if (allRows.length === 0) return null;
 
   const handleExport = () => {
     const payload = buildCrossEntryExport(putCandidates, buyWriteCandidates, {
@@ -133,7 +136,7 @@ export function CrossEntryStrip({
           </tr>
         </thead>
         <tbody>
-          {sorted.map((row) => (
+          {displayed.map((row) => (
             <tr
               key={`${row.entryMechanism}-${row.symbol}-${row.strike}-${row.expiration}`}
               className={`wd-posture-row wd-posture-${row.posture.toLowerCase()}`}

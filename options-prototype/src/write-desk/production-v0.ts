@@ -149,12 +149,12 @@ export function computeProductionV0ForBuyWrite(candidate: BuyWriteCandidate): Pr
  * Build a unified cross-entry row list from CSP and Buy-Write candidates.
  *
  * Filters: ACTIONABLE + EDGE only, affordable only, governance authorized/review only.
- * Sorted by Production v0 (descending).
+ * Returns the FULL eligible population sorted by Production v0 (descending).
+ * Display truncation (maxRows) is a presentation concern applied after active UI sort.
  */
 export function buildCrossEntryRows(
   putCandidates: PutCandidate[],
   buyWriteCandidates: BuyWriteCandidate[],
-  maxRows: number = 10
 ): CrossEntryRow[] {
   const rows: CrossEntryRow[] = [];
 
@@ -210,10 +210,10 @@ export function buildCrossEntryRows(
     });
   }
 
-  // Sort by Production v0 descending
+  // Sort by Production v0 descending (natural/default order)
   rows.sort((a, b) => b.productionV0 - a.productionV0);
 
-  return rows.slice(0, maxRows);
+  return rows;
 }
 
 
