@@ -169,7 +169,7 @@ export async function recommendBuyWrites(
   cache: DurableMarketCache,
   cacheEnvironment: { provider: string; environment: string },
   policy: RecommendationPolicy,
-  options?: { sessionClosed?: boolean }
+  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null }
 ): Promise<BuyWriteRecommendationResult> {
   const allCandidates: BuyWriteCandidate[] = [];
   const allWait: BuyWriteCandidate[] = [];
@@ -190,10 +190,18 @@ export async function recommendBuyWrites(
 
   const effectiveCash = deployableCash - policy.deployment.reserveAmount;
   const useSessionValidity = options?.sessionClosed ?? false;
+  const admissibilityBoundaryMs = options?.admissibilityBoundaryMs ?? null;
 
   function isEligible(record: unknown): boolean {
     if (!record) return false;
     if (useSessionValidity) return true;
+    // Admissibility gate: reject evidence retrieved before the boundary
+    if (admissibilityBoundaryMs != null) {
+      const rec = record as { retrievedAt?: number };
+      if (rec.retrievedAt != null && rec.retrievedAt < admissibilityBoundaryMs) {
+        return false;
+      }
+    }
     const freshness = cache.freshness(record as Parameters<typeof cache.freshness>[0]);
     return freshness === "fresh" || freshness === "stale_usable";
   }

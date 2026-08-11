@@ -176,6 +176,15 @@ export interface RecommendationResult {
     symbolsExcluded: number;
     confirmedAbsence: number;
   };
+  /** Evidence hydration: how much of the universe has admissible evidence */
+  evidenceHydration: {
+    /** Symbols with evidence that passed the admissibility gate */
+    admissible: number;
+    /** Symbols with evidence that was rejected by the admissibility gate (too old / pre-boundary) */
+    inadmissible: number;
+    /** Total symbols evaluated */
+    total: number;
+  };
   /** Full recommendation funnel with exact counts */
   funnel: RecommendationFunnel;
   /** The exact policy used (for audit/reproducibility) */
@@ -203,7 +212,7 @@ export async function recommendPuts(
   cache: DurableMarketCache,
   cacheEnvironment: { provider: string; environment: string },
   policy: RecommendationPolicy = DEFAULT_RECOMMENDATION_POLICY,
-  options?: { sessionClosed?: boolean }
+  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null }
 ): Promise<RecommendationResult> {
   const allCandidates: PutCandidate[] = [];
   const allWait: PutCandidate[] = [];
@@ -213,6 +222,8 @@ export async function recommendPuts(
   let symbolsWithEvidence = 0;
   let symbolsMissingChain = 0;
   let symbolsExcluded = 0;
+  let hydrationAdmissible = 0;
+  let hydrationInadmissible = 0;
   let confirmedAbsence = 0;
 
   // Funnel tracking
@@ -234,29 +245,28 @@ export async function recommendPuts(
   // When session is closed, canonical evidence remains valid regardless of TTL.
   // This implements sealed-evidence semantics: Friday's close remains valid through Monday.
   const useSessionValidity = options?.sessionClosed ?? false;
+  const admissibilityBoundaryMs = options?.admissibilityBoundaryMs ?? null;
 
   /**
    * Check if a cache record is eligible for recommendation.
    *
-   * Two modes:
-   *   - Active session: TTL-based freshness (fresh or stale_usable)
-   *   - Closed session: any record accepted (sealed evidence validity)
-   *
-   * LIMITATION (transitional): Closed-session mode accepts any cached record.
-   * It does not verify canonical session provenance because IndexedDB records
-   * currently lack session-date identity. This means a record from an older,
-   * non-canonical session could participate if it remains in the cache.
-   *
-   * This is acceptable transitionally because:
-   *   - IndexedDB is browser-local (single operator)
-   *   - Chain TTLs naturally expire old data during active sessions
-   *   - The intended fix is persistence with explicit seal/session metadata (Phase 5)
-   *
-   * Minimum provenance: record must exist.
+   * Three checks, in order:
+   *   1. Sealed session: any record accepted (sealed evidence validity)
+   *   2. Admissibility: record must have been retrieved after the session's
+   *      admissibility boundary (sessionOpen + providerDelay). This prevents
+   *      pre-regular-session/delayed-feed evidence from participating.
+   *   3. Freshness: record must be within TTL (fresh or stale_usable)
    */
   function isEligible(record: unknown): boolean {
     if (!record) return false;
     if (useSessionValidity) return true; // sealed evidence valid during closed session
+    // Admissibility gate: reject evidence retrieved before the boundary
+    if (admissibilityBoundaryMs != null) {
+      const rec = record as { retrievedAt?: number };
+      if (rec.retrievedAt != null && rec.retrievedAt < admissibilityBoundaryMs) {
+        return false;
+      }
+    }
     const freshness = cache.freshness(record as Parameters<typeof cache.freshness>[0]);
     return freshness === "fresh" || freshness === "stale_usable";
   }
@@ -280,11 +290,21 @@ export async function recommendPuts(
     const expKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "expirations", symbol);
     const expRecord = await cache.get<Expiration[]>(expKey);
     if (!expRecord || !isEligible(expRecord)) {
+      // Evidence missing or inadmissible — determine which for hydration tracking
+      if (expRecord && admissibilityBoundaryMs != null) {
+        const rec = expRecord as { retrievedAt?: number };
+        if (rec.retrievedAt != null && rec.retrievedAt < admissibilityBoundaryMs) {
+          hydrationInadmissible++;
+        }
+      }
       // No expiration evidence — emit coverage request (pending/unresolved)
       coverageRequests.push({ symbol, expiration: null, reason: "No cached expirations", priority: "medium" });
       funnelPending++;
       continue;
     }
+
+    // Symbol has admissible evidence — count it
+    hydrationAdmissible++;
 
     // Symbol is optionable (has expirations in cache)
     funnelOptionable++;
@@ -569,6 +589,11 @@ export async function recommendPuts(
       symbolsMissingChain,
       symbolsExcluded,
       confirmedAbsence,
+    },
+    evidenceHydration: {
+      admissible: hydrationAdmissible,
+      inadmissible: hydrationInadmissible,
+      total: symbols.length,
     },
     funnel,
     policySnapshot: policy,

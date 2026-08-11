@@ -51,7 +51,7 @@ export async function recommendCalls(
   cache: DurableMarketCache,
   cacheEnvironment: { provider: string; environment: string },
   policy: RecommendationPolicy,
-  options?: { sessionClosed?: boolean }
+  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null }
 ): Promise<CallRecommendationResult> {
   const allCandidates: CallCandidate[] = [];
   const allWait: CallCandidate[] = [];
@@ -60,10 +60,17 @@ export async function recommendCalls(
   // Only positions with free shares that can cover at least 1 contract
   const eligible = inventory.filter((p) => p.maxAdditionalContracts > 0);
   const useSessionValidity = options?.sessionClosed ?? false;
+  const admissibilityBoundaryMs = options?.admissibilityBoundaryMs ?? null;
 
   function isEligible(record: unknown): boolean {
     if (!record) return false;
     if (useSessionValidity) return true;
+    if (admissibilityBoundaryMs != null) {
+      const rec = record as { retrievedAt?: number };
+      if (rec.retrievedAt != null && rec.retrievedAt < admissibilityBoundaryMs) {
+        return false;
+      }
+    }
     const freshness = cache.freshness(record as Parameters<typeof cache.freshness>[0]);
     return freshness === "fresh" || freshness === "stale_usable";
   }

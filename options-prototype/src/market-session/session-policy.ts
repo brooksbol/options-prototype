@@ -210,6 +210,35 @@ export class MarketSessionPolicy {
     return this.providerDelayMs;
   }
 
+  /**
+   * Compute the evidence admissibility boundary for active-session recommendations.
+   *
+   * Evidence retrieved BEFORE this timestamp is not admissible for active-session
+   * recommendations because the provider's delayed feed had not yet advanced to
+   * reflect regular-session market activity.
+   *
+   * Returns null during non-trading hours or when no admissibility gate applies
+   * (closed/sealed sessions should use sealed-evidence semantics instead).
+   */
+  getAdmissibilityBoundary(now: Date = new Date()): number | null {
+    const classification = this.classify(now);
+
+    // No admissibility gate during sealed sessions — sealed evidence is valid by definition
+    if (classification.state === "CLOSED_CANONICAL" ||
+        classification.state === "NON_TRADING_DAY" ||
+        classification.state === "PREMARKET") {
+      return null;
+    }
+
+    // During REGULAR_OPEN_DELAY: boundary is sessionOpen + delay (future relative to now)
+    // During REGULAR_OBSERVATION or DELAY_DRAIN: boundary is sessionOpen + delay (past)
+    const tradingDate = classification.currentTradingSessionDate;
+    if (!tradingDate) return null;
+
+    const sessionOpen = this.calendar.sessionOpen(tradingDate);
+    return sessionOpen.getTime() + this.providerDelayMs;
+  }
+
   /** Get the profile */
   get sessionProfile(): MarketSessionProfile {
     return this.profile;

@@ -53,6 +53,12 @@ export interface TrustDerivationInput {
   sessionClosed: boolean;
   /** Whether backend is actively acquiring */
   isAcquiring: boolean;
+  /** Evidence hydration from the most recent recommendation pass (admissible evidence count) */
+  evidenceHydration?: {
+    admissible: number;
+    inadmissible: number;
+    total: number;
+  } | null;
 }
 
 export function deriveTrustState(input: TrustDerivationInput): EvidenceStateIndicator {
@@ -121,7 +127,15 @@ export function deriveTrustState(input: TrustDerivationInput): EvidenceStateIndi
     };
   }
 
-  // Regular session: determine trust from freshness and completeness
+  // Regular session: determine trust from evidence admissibility and search completeness.
+  //
+  // Three active-session states:
+  //   Searching  — admissible evidence coverage < 100% of relevant population
+  //   Complete   — 100% admissible AND all evidence within active freshness contract
+  //   Refreshing — 100% was achieved but some evidence has aged beyond freshness contract
+  //
+  // Candidate validity is structural (isEligible gate) and independent of these labels.
+  // These labels communicate SEARCH COMPLETENESS and EVIDENCE CURRENCY to the operator.
 
   const freshnessLabel = freshnessSeconds < 60
     ? `${freshnessSeconds}s ago`
@@ -129,12 +143,75 @@ export function deriveTrustState(input: TrustDerivationInput): EvidenceStateIndi
       ? `${Math.round(freshnessSeconds / 60)}m ago`
       : `${Math.round(freshnessSeconds / 3600)}h ago`;
 
-  // Coverage completeness
+  // Evidence hydration: determine search completeness from admissibility data
+  const hydration = input.evidenceHydration;
+  if (hydration && hydration.total > 0) {
+    const admissibleFraction = hydration.admissible / hydration.total;
+
+    if (admissibleFraction < 1.0) {
+      // Searching: not all symbols have admissible evidence yet
+      return {
+        trust: "partially_current",
+        trustLabel: "Searching",
+        activity,
+        covered: hydration.admissible,
+        universe: hydration.total,
+        freshnessLabel: `${hydration.admissible}/${hydration.total}`,
+        freshnessSeconds,
+        color: "yellow",
+      };
+    }
+
+    // 100% admissible — check whether all evidence is also within the active freshness contract
+    // Use snapshot publication freshness as a proxy for evidence currency.
+    // When the snapshot is recent AND all symbols are admissible, evidence is current.
+    if (freshnessMs <= CURRENT_THRESHOLD_MS) {
+      return {
+        trust: "current",
+        trustLabel: "Complete",
+        activity,
+        covered: hydration.admissible,
+        universe: hydration.total,
+        freshnessLabel: `${hydration.total}/${hydration.total} · ${freshnessLabel}`,
+        freshnessSeconds,
+        color: "green",
+      };
+    }
+
+    // All symbols admissible but snapshot is aging — evidence may be going stale
+    // Only claim "Refreshing" if we can positively observe acquisition activity.
+    // Otherwise, use a label that doesn't assert activity we cannot verify.
+    if (freshnessMs <= STALE_THRESHOLD_MS) {
+      const refreshLabel = activity === "updating" ? "Refreshing" : "Stale";
+      return {
+        trust: "stale_but_usable",
+        trustLabel: refreshLabel,
+        activity,
+        covered: hydration.admissible,
+        universe: hydration.total,
+        freshnessLabel,
+        freshnessSeconds,
+        color: "yellow",
+      };
+    }
+
+    // All symbols admissible but snapshot is very old — degraded
+    return {
+      trust: "degraded",
+      trustLabel: "Degraded",
+      activity,
+      covered: hydration.admissible,
+      universe: hydration.total,
+      freshnessLabel,
+      freshnessSeconds,
+      color: "orange",
+    };
+  }
+
+  // Fallback: no hydration data available (legacy/initial state before first recommendation pass)
+  // Use the old coverage + freshness logic as degraded fallback
   const isFullyCovered = coverage.pending === 0 && coverageFraction >= COVERAGE_THRESHOLD;
 
-  // During an active session, freshness and coverage are independent dimensions.
-  // Full coverage means the universe is resolved — it does not mean the evidence
-  // is current for this session. Evidence must also be recent.
   if (freshnessMs <= CURRENT_THRESHOLD_MS) {
     return {
       trust: coverageFraction >= COVERAGE_THRESHOLD ? "current" : "partially_current",

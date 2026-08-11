@@ -174,7 +174,16 @@ export class DurableMarketCache {
     return classifyFreshness(record);
   }
 
-  /** Build a cache record with TTLs computed from the data type. */
+  /** Build a cache record with TTLs computed from the data type.
+   *
+   * @param retrievedAtMs - Optional authoritative retrieval timestamp (epoch ms).
+   *   When provided, freshUntil/staleUntil are computed relative to this timestamp
+   *   rather than Date.now(). This preserves the backend's actual provider-retrieval
+   *   age when merging snapshot evidence into the frontend cache.
+   *
+   *   Without this, repeated snapshot merges would reset all TTLs to "now",
+   *   making the freshness contract meaningless during active polling.
+   */
   createRecord<T>(
     key: string,
     dataType: CacheDataType,
@@ -182,9 +191,10 @@ export class DurableMarketCache {
     environment: string,
     symbol: string,
     expiration: string | null,
-    payload: T
+    payload: T,
+    retrievedAtMs?: number
   ): CacheRecord<T> {
-    const now = Date.now();
+    const baseTime = retrievedAtMs ?? Date.now();
     const { freshMs, staleMs } = this.getTTLs(dataType);
     return {
       key,
@@ -194,9 +204,9 @@ export class DurableMarketCache {
       symbol: symbol.toUpperCase(),
       expiration,
       schemaVersion: "v1",
-      retrievedAt: now,
-      freshUntil: now + freshMs,
-      staleUntil: now + staleMs,
+      retrievedAt: baseTime,
+      freshUntil: baseTime + freshMs,
+      staleUntil: baseTime + staleMs,
       payload,
     };
   }

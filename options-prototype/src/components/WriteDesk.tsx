@@ -504,9 +504,9 @@ export function WriteDesk() {
   }, [openPopover]);
 
   return (
-    <div className={`write-desk${selectedCandidate || selectedCallCandidate || selectedBuyWriteCandidate ? " wd-with-drawer" : ""}`}>
-      {/* Recommendation Brief Drawer (Puts) */}
-      {selectedCandidate && snapshot && (
+    <div className="write-desk">
+      {/* Recommendation Brief Drawer — always present, shows selected candidate or empty state */}
+      {selectedCandidate && snapshot ? (
         <RecommendationBrief
           candidate={selectedCandidate}
           policy={policy}
@@ -525,10 +525,7 @@ export function WriteDesk() {
             }
           }}
         />
-      )}
-
-      {/* Call Inspection Drawer */}
-      {selectedCallCandidate && selectedCallCandidate.availability === "available-now" && (
+      ) : selectedCallCandidate && selectedCallCandidate.availability === "available-now" ? (
         <CallBrief
           candidate={selectedCallCandidate.candidate}
           policy={policy}
@@ -536,18 +533,14 @@ export function WriteDesk() {
           cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
           onClose={closeCallCandidate}
         />
-      )}
-      {selectedCallCandidate && selectedCallCandidate.availability === "if-assigned" && (
+      ) : selectedCallCandidate && selectedCallCandidate.availability === "if-assigned" ? (
         <ContingentCallBrief
           row={selectedCallCandidate}
           sessionClassification={sessionClassification}
           cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
           onClose={closeCallCandidate}
         />
-      )}
-
-      {/* Buy-Write Inspection Drawer */}
-      {selectedBuyWriteCandidate && (
+      ) : selectedBuyWriteCandidate ? (
         <BuyWriteBrief
           candidate={selectedBuyWriteCandidate}
           policy={policy}
@@ -555,6 +548,12 @@ export function WriteDesk() {
           cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
           onClose={closeBuyWriteCandidate}
         />
+      ) : (
+        <div className="rb-drawer rb-drawer-empty">
+          <div className="rb-drawer-empty-content">
+            <span className="rb-drawer-empty-hint">Select a candidate to inspect</span>
+          </div>
+        </div>
       )}
 
       {/* ═══ BAND 1: Identity · Portfolio · Session ═══ */}
