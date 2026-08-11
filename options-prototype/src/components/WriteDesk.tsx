@@ -9,9 +9,10 @@
  */
 
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
-import { createDemoSnapshot } from "../write-desk/demo-snapshot";
 import { useDrawerSelection } from "../hooks/useDrawerSelection";
 import { useSessionClassification } from "../hooks/useSessionClassification";
+import { usePortfolio } from "../portfolio/use-portfolio";
+import { setPortfolio, selectPortfolioSource } from "../portfolio/portfolio-store";
 import { type PutCandidate, type CallCandidate } from "../write-desk/scan-orchestrator";
 import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type RecommendationPolicy } from "../write-desk/recommend";
 import { recommendCalls } from "../write-desk/recommend-calls";
@@ -44,12 +45,9 @@ import "../recommendation-brief.css";
 // --- Component ---
 
 export function WriteDesk() {
-  const [source, setSource] = useState<PortfolioSourceType>(() => loadWorkspace().writeDeskSource as PortfolioSourceType || "demo");
-  const [snapshot, setSnapshot] = useState<PortfolioSnapshot | null>(() =>
-    (loadWorkspace().writeDeskSource || "demo") === "demo" ? createDemoSnapshot() : null
-  );
+  // Portfolio state from application-scoped Portfolio Store (ADR-011)
+  const { source, snapshot } = usePortfolio();
   const [putCandidates, setPutCandidates] = useState<PutCandidate[]>([]);
-  const [fidelitySnapshot, setFidelitySnapshot] = useState<PortfolioSnapshot | null>(null);
   const [putWaitCandidates, setPutWaitCandidates] = useState<PutCandidate[]>([]);
   const [putWideSpreadCandidates, setPutWideSpreadCandidates] = useState<PutCandidate[]>([]);
   const [putCoverage, setPutCoverage] = useState<{ status: string; universeSize: number; covered: number; fresh: number; staleUsable: number; missing: number; confirmedAbsence: number; refreshedThisPass: number; deferredThisPass: number } | null>(null);
@@ -203,16 +201,9 @@ export function WriteDesk() {
   // Market session classification (wall-clock-driven, reclassifies every 30s)
   const sessionClassification = useSessionClassification();
 
-  // When source changes, reset or load snapshot and clear results
+  // When source changes, select via Portfolio Store and clear results
   const handleSourceChange = (newSource: PortfolioSourceType) => {
-    setSource(newSource);
-    updateWorkspace({ writeDeskSource: newSource });
-    if (newSource === "demo") {
-      setSnapshot(createDemoSnapshot());
-    } else {
-      // Restore preserved Fidelity snapshot if available
-      setSnapshot(fidelitySnapshot);
-    }
+    selectPortfolioSource(newSource);
     // Invalidate ALL prior results and selections on source change
     setPutCandidates([]);
     setPutWaitCandidates([]);
@@ -224,17 +215,20 @@ export function WriteDesk() {
     setPutCoverage(null); setPutIsProvisional(true);
     setPutFunnel(null); setPutHydration(null);
     setScanTimestamp(null);
+    setBuyWriteCandidates([]);
+    setBuyWriteWaitCandidates([]);
+    setBuyWriteWideSpreadCandidates([]);
+    setBuyWriteOutcomes(null);
     // Reset ETag to force a fresh evidence fetch on next poll cycle
     etagRef.current = null;
   };
 
   // Fidelity upload callbacks
   const handleFidelitySnapshotChange = useCallback((newSnapshot: PortfolioSnapshot | null) => {
-    setFidelitySnapshot(newSnapshot);
-    if (source === "fidelity") {
-      setSnapshot(newSnapshot);
+    if (newSnapshot) {
+      setPortfolio("fidelity", newSnapshot);
     }
-  }, [source]);
+  }, []);
 
   const handleFidelityFileChange = useCallback(() => {
     // Invalidate all prior results and selections when Fidelity files change

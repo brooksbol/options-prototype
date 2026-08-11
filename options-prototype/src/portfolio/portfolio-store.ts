@@ -95,6 +95,64 @@ export function setPortfolio(source: PortfolioSourceType, snapshot: PortfolioSna
   notify();
 }
 
+/**
+ * Select the active portfolio source.
+ *
+ * - "demo": activates a demo snapshot immediately.
+ * - "fidelity": reconstructs a Fidelity snapshot from persisted CSV data.
+ *   If no persisted Fidelity data exists, snapshot becomes null.
+ *
+ * This is a declarative source selection — not a toggle primitive.
+ */
+export function selectPortfolioSource(source: PortfolioSourceType): void {
+  if (source === "demo") {
+    currentSource = "demo";
+    currentSnapshot = createDemoSnapshot();
+    updateWorkspace({ writeDeskSource: "demo" });
+    notify();
+    return;
+  }
+
+  // Fidelity: reconstruct from persisted CSV input
+  currentSource = "fidelity";
+  currentSnapshot = null;
+  updateWorkspace({ writeDeskSource: "fidelity" });
+
+  try {
+    const osStored = localStorage.getItem(LS_KEY_OS);
+    const balStored = localStorage.getItem(LS_KEY_BAL);
+
+    if (osStored && balStored) {
+      const { text: osText, filename: osFilename } = JSON.parse(osStored);
+      const { text: balText, filename: balFilename } = JSON.parse(balStored);
+
+      const osParsed = parseOptionSummaryText(osText);
+      const balParsed = parseBalancesText(balText);
+
+      if (osParsed && balParsed) {
+        currentSnapshot = buildFidelitySnapshot({
+          optionSummaryRows: osParsed.rows,
+          optionSummaryFilename: osFilename,
+          optionSummaryExportTimestamp: osParsed.exportTimestamp,
+          balances: balParsed.balances,
+          balancesFilename: balFilename,
+          balancesExportTimestamp: balParsed.exportTimestamp,
+        });
+        currentImportStatus = {
+          optionSummary: { filename: osFilename, exportTimestamp: osParsed.exportTimestamp, loadedAt: new Date().toISOString() },
+          balances: { filename: balFilename, exportTimestamp: balParsed.exportTimestamp, loadedAt: new Date().toISOString() },
+          readinessStatus: currentSnapshot.readiness.status,
+          validationWarnings: currentSnapshot.readiness.warnings,
+        };
+      }
+    }
+  } catch {
+    // Corrupt localStorage — snapshot remains null
+  }
+
+  notify();
+}
+
 export function setImportStatus(status: Partial<ImportStatus>): void {
   currentImportStatus = { ...currentImportStatus, ...status };
   notify();
@@ -204,3 +262,20 @@ function parseBalancesText(text: string): { balances: ParsedBalances; exportTime
 
 // --- Self-hydrate on module load ---
 hydrate();
+
+// --- Test Support ---
+
+/**
+ * Reset store to a known state. Test-only — not for production use.
+ */
+export function _resetForTesting(): void {
+  currentSource = "demo";
+  currentSnapshot = null;
+  currentImportStatus = {
+    optionSummary: null,
+    balances: null,
+    readinessStatus: null,
+    validationWarnings: [],
+  };
+  listeners.clear();
+}
