@@ -431,7 +431,25 @@
   background: var(--wd-accent-blue-bg);
 }
 
-/* Layout adjustment when drawer is open — see write-desk.css .wd-with-drawer */
+/* Drawer is always present — layout is permanently in drawer-open mode (write-desk.css) */
+
+/* Empty drawer state — always visible, provides spatial stability */
+.rb-drawer-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  border-left: 1px solid var(--wd-border-default);
+}
+
+.rb-drawer-empty-content {
+  text-align: center;
+}
+
+.rb-drawer-empty-hint {
+  color: var(--wd-text-tertiary);
+  font-size: var(--wd-size-small);
+}
 
 
 /* === EXECUTION HANDOFF === */

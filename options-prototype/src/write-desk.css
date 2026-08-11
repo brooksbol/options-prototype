@@ -6,17 +6,12 @@
 @import "./theme-tokens.css";
 
 .write-desk {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0 385px 0 12px;
   padding: 12px 20px;
   font-family: var(--wd-font-sans);
   color: var(--wd-text-primary);
   min-height: 100vh;
-}
-
-.write-desk.wd-with-drawer {
-  max-width: none;
-  margin: 0 385px 0 12px;
 }
 
 /* === HEADER === */
