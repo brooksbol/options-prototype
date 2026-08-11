@@ -6,126 +6,177 @@ This directory contains the architectural documentation for the Wheelwright Evid
 
 ---
 
-## Reading Order
+## Document Authority Model
 
-### System Identity and Governance
+Documents are classified by the *type* of authority they carry, not merely by importance. When two documents describe the same concern and conflict, the precedence rule applies.
 
-| Document | Purpose |
-|----------|---------|
-| `foundations/evidence-appliance.md` | What Wheelwright is — governing architectural concept |
-| `foundations/retooling-charter.md` | Governance for the TypeScript → Java migration |
-| `foundations/backend-behavioral-invariants.md` | 18 ratified invariants the system must satisfy |
-| `foundations/closed-loop-engineering.md` | Engineering methodology (four nested feedback loops) |
-| `foundations/policy-over-prediction.md` | Core design principle |
+| Type | Question It Answers | Precedence |
+|------|--------------------|-----------:|
+| **A. Governing / Current System Definition** | What is Wheelwright now? | 1 (wins all conflicts) |
+| **B. Ratified Decision / Accepted Design** | What was decided or designed, and why? | 2 (constrains evolution; yields to A when A has absorbed the consequence) |
+| **C. Canonical Project / Operational State** | What is the current state of this project concern? | Scoped — authoritative only for its project/operational concern |
+| **D. Reconciliation / Checkpoint Artifact** | How did we arrive at the current state? | Provenance only — never overrides A/B/C |
+| **E. Current Specialized Reference** | What does this bounded subsystem or topic look like? | 3 (informative; does not govern outside its scope) |
+| **F. Historical / Superseded** | What did we used to think? | None (never governs; learning context only) |
 
-### Current Architecture
+**Precedence rule:** Category A describes what Wheelwright *is*. Category B records what Wheelwright *decided*. Category C records current project/operational state. Category D explains how we arrived here. Category E is bounded reference. Category F is historical provenance.
 
-| Document | Purpose |
-|----------|---------|
-| `07-architecture-current.md` | Authoritative system architecture |
+---
+
+## Reading Paths
+
+### Minimum Safe Bootstrap (5 documents)
+
+Read these before doing any Wheelwright work. Produces safe operating competence in 30–60 minutes.
+
+| # | Document | Why |
+|---|----------|-----|
+| 1 | `docs/README.md` (this file) | Orientation. Document index. Authority model. |
+| 2 | `foundations/evidence-appliance.md` | What Wheelwright is. System identity. |
+| 3 | `07-architecture-current.md` | Current system. Four Engines. Boundaries. Surfaces. |
+| 4 | `07c-adrs.md` | Decisions that constrain changes. ADR-001 through ADR-013. |
+| 5 | `parking-lot.md` | What is active, deferred, and resolved. |
+
+**When this is insufficient:** If you're touching architecture, designing a new subsystem, or need to understand *why* something is the way it is — continue to the comprehensive path.
+
+### Comprehensive Architectural Orientation (13 documents)
+
+Everything in the bootstrap, plus:
+
+| # | Document | Why |
+|---|----------|-----|
+| 6 | `foundations/policy-over-prediction.md` | Core design principle governing all recommendation logic |
+| 7 | `foundations/principles-governance-model.md` | Principles as architectural entities |
+| 8 | `foundations/regime-objective-function.md` | Operating regime (cash-flow production, entry mechanisms) |
+| 9 | `foundations/acquisition-scheduler-policy.md` | How the backend acquires evidence (tiered A/B/C/D) |
+| 10 | `foundations/backend-behavioral-invariants.md` | 18 ratified invariants the system must satisfy |
+| 11 | `foundations/retooling-charter.md` | Migration governance (durable principles, boundaries) |
+| 12 | `25-situation-architecture.md` | Accepted direction for multi-situation operation |
+| 13 | `31-architectural-reconciliation.md` | Most recent architectural checkpoint |
+
+---
+
+## Complete Document Index
+
+### A. Governing / Current System Definition
+
+Documents a reader should use to answer: *What is Wheelwright now?* This is a deliberately small set. These win when other documents conflict with them.
+
+| Document | Role |
+|----------|------|
+| `07-architecture-current.md` | Primary system architecture |
 | `07a-component-map-current.md` | Module responsibilities |
 | `07b-diagrams.md` | System data-flow diagrams |
-| `07c-adrs.md` | 10 Architecture Decision Records |
-| `contracts/evidence-snapshot-v1.md` | Frozen v1 API contract |
+| `foundations/evidence-appliance.md` | System identity definition |
+| `foundations/policy-over-prediction.md` | Governing principle |
+| `foundations/cognitive-role-separation.md` | Governing principle (product surface design) |
+| `foundations/principles-governance-model.md` | Governing foundation (principles as domain model) |
+| `foundations/secondary-observation.md` | Governing principle (evidence trust) |
+| `foundations/state-oriented-console.md` | Governing principle (UI philosophy) |
+| `foundations/regime-objective-function.md` | Operating regime definition |
+| `foundations/acquisition-scheduler-policy.md` | Current acquisition behavior |
 
-### Backend Design
+### B. Ratified Decision / Accepted Design
 
-| Document | Purpose |
+Constrain future evolution. Describe what was decided and why. May be ahead of implementation.
+
+| Document | Substatus |
+|----------|-----------|
+| `07c-adrs.md` | Ratified decisions (ADR-001 through ADR-013, append-only) |
+| `08-adr-backend-evidence-service.md` | Ratified decision (backend extraction) |
+| `09-backend-evidence-service-design.md` | Ratified design; §3 and §10 are Historical |
+| `09a-backend-diagrams.md` | Ratified design; diagram 6 is Historical |
+| `14-background-acquisition-design.md` | Ratified design (acquisition architecture transition) |
+| `15-evidence-state-semantics.md` | Design specification (evidence vocabulary) |
+| `20-session-aware-acquisition.md` | Ratified design (session gate) |
+| `21-write-desk-recomposition.md` | Ratified design (evidence validity model) |
+| `22-sqlite-persistence-design.md` | Approved design (persistence schema) |
+| `23-calls-architecture.md` | Active design (Horizon A implemented, Horizon B in progress) |
+| `24-cloud-deployment.md` | Accepted direction |
+| `25-situation-architecture.md` | Accepted direction (Bridge Income first target) |
+| `26-operator-console-architecture.md` | Active design (partially implemented) |
+| `foundations/retooling-charter.md` | Ratified migration governance |
+| `foundations/backend-behavioral-invariants.md` | Ratified invariant catalog |
+| `foundations/closed-loop-engineering.md` | Ratified methodology |
+| `foundations/three-actor-model.md` | Ratified methodology |
+| `foundations/architectural-evolution-methodology.md` | Ratified methodology |
+| `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
+
+### C. Canonical Project / Operational State
+
+Authoritative for their specific project concern. Not system-definition documents.
+
+| Document | Domain |
+|----------|--------|
+| `parking-lot.md` | Canonical backlog |
+| `journal/project-journal.md` | Canonical chronology |
+| `contracts/evidence-snapshot-v1.md` | Frozen API contract (v1) |
+
+### D. Reconciliation / Checkpoint Artifacts
+
+Durable evidence of how we arrived at the current state. Ratified and important — but their consequences should be absorbed into A/B/C, not continuously synthesized alongside them.
+
+| Document | Role |
+|----------|------|
+| `30-architectural-baseline-inventory.md` | Extracted baseline checkpoint (August 2026) |
+| `31-architectural-reconciliation.md` | Ratified reconciliation record |
+| `32-parking-lot-reconciliation.md` | Ratified parking-lot disposition record |
+| `foundations/step4-conformance-assessment.md` | Retooling conformance checkpoint |
+
+### E. Current Specialized Reference
+
+Useful and correct within their bounded subject. Non-governing outside that scope.
+
+| Document | Subject |
 |----------|---------|
-| `08-adr-backend-evidence-service.md` | ADR: move acquisition to backend |
-| `09-backend-evidence-service-design.md` | Backend design (16 sections) |
-| `10-backend-implementation-preferences.md` | Technology choices (Java, SQLite, cloud) |
-| `14-background-acquisition-design.md` | Acquisition worker architecture |
-| `20-session-aware-acquisition.md` | Session gate design |
-| `22-sqlite-persistence-design.md` | SQLite schema and persistence semantics |
-| `foundations/acquisition-scheduler-policy.md` | Tiered A/B/C/D freshness scheduling |
-
-### Scheduler and Evidence Semantics
-
-| Document | Purpose |
-|----------|---------|
-| `15-evidence-state-semantics.md` | Trust, freshness, and validity vocabulary |
-| `19-funnel-architecture.md` | Recommendation funnel stages |
-| `21-write-desk-recomposition.md` | Evidence validity model and page architecture |
-
-### Domain and Recommendation
-
-| Document | Purpose |
-|----------|---------|
-| `00-project-charter.md` | Original vision and guiding principles |
-| `02-domain.md` | Core domain model and glossary |
-| `17-recommendation-funnel-analysis.md` | Why 49 of 496 — funnel behavior analysis |
+| `01-environment.md` | Development environment contract |
+| `02-domain.md` | Core domain model (partially incomplete) |
+| `10-backend-implementation-preferences.md` | Technology choices (adopted) |
+| `17-recommendation-funnel-analysis.md` | Funnel behavior explanation |
 | `18-recommendation-vocabulary-review.md` | Vocabulary dimensional analysis |
+| `19-funnel-architecture.md` | Funnel stage documentation |
+| `foundations/market-priced-risk.md` | Exploratory research topic |
+| `foundations/recommendation-set-analysis.md` | Exploratory architectural concept |
+| `development-machine.md` | Hardware spec |
+| `velvet-rope/*` | Universe admission domain model (dormant) |
+| `universe/*` | Candidate universe design (dormant) |
+| `engineering-spikes/*` | API feasibility assessments |
+| `discovery/*` | Design notes and vocabulary exploration |
+| `reference-data/*` | Real options chain fixture |
 
-### Conceptual Foundations (not yet implemented)
+### F. Historical / Superseded
 
-| Document | Purpose |
-|----------|---------|
-| `foundations/conditioned-operating-opportunity.md` | Lifecycle quality concept |
-| `foundations/market-priced-risk.md` | Research topic: market pricing as evidence |
-| `foundations/recommendation-set-analysis.md` | Population-level observation concept |
-| `foundations/three-actor-model.md` | Development methodology: Principal / Architect / Implementation Engineer |
-| `foundations/cognitive-role-separation.md` | Product design principle: Explorer / Governor / Operator separation |
-| `foundations/state-oriented-console.md` | Observable vs operational state |
-| `foundations/principles-governance-model.md` | Principles as domain model |
-| `foundations/secondary-observation.md` | Measurement reliability philosophy |
+Retained for project memory. Never governs. Each carries an inline `⚠️ HISTORICAL` marker with successor pointer.
 
-### Universe and Velvet Rope (dormant, architecturally valid)
-
-| Document | Purpose |
-|----------|---------|
-| `universe/01-requirements.md` | Candidate universe requirements |
-| `universe/02-design.md` | Candidate universe design |
-| `velvet-rope/00-domain-model.md` | Admission domain model |
-| `velvet-rope/01-requirements.md` | Admission requirements |
-| `velvet-rope/02-design.md` | Admission design |
-| `velvet-rope/03-product-structure-requirements.md` | Structural classification |
-| `velvet-rope/04-product-structure-design.md` | Structural classification design |
-
-### Engineering Spikes (reference)
-
-| Document | Purpose |
-|----------|---------|
-| `engineering-spikes/api-ninjas-etf-catalog.md` | API Ninjas viability assessment |
-| `engineering-spikes/fmp-etf-reference-data.md` | FMP ETF data assessment |
-| `engineering-spikes/fidelity-activity-history.md` | Fidelity Activity History evidence gate — production accounting feasibility |
-
-### Historical (superseded, retained for learning context)
-
-| Document | Purpose | Successor |
-|----------|---------|-----------|
-| `03-requirements.md` | Slice 1 user stories | Write Desk (undocumented requirements) |
-| `04-architecture.md` | Slice 1 architecture | `07-architecture-current.md` |
-| `05-design.md` | Slice 1 implementation design | Current implementation |
-| `05a-component-map.md` | Slice 1 component map | `07a-component-map-current.md` |
-| `06-tasks.md` | Slice 1 implementation tasks | Completed |
-| `09b-migration-and-impact.md` | TS→TS migration phases | Java retooling superseded this |
-| `12-backend-thin-slice-proposal.md` | First backend extraction | Full Java backend |
-| `13-proxy-efficiency-analysis.md` | Legacy proxy performance | Proxy retired |
-| `16-bootstrap-throughput-design.md` | Cold-start throughput analysis | Redundant delays removed |
-| `16a-bootstrap-throughput-completion.md` | Throughput fix report | Completed |
-
-### Operational Reference
-
-| Document | Purpose |
-|----------|---------|
-| `parking-lot.md` | **Canonical unprioritized roadmap** — all deferred ideas with stable IDs |
-| `11-parking-lot-reconciliation.md` | Historical: July 2026 reconciliation audit |
-| `07d-obsolete-docs.md` | Obsolescence assessment |
-| `journal/project-journal.md` | Append-only chronological memory |
-| `reference-data/xle-fidelity-2026-07-02.md` | Real options chain fixture |
-| `discovery/00-design-notes.md` | Discovery architectural learning |
+| Document | Superseded By |
+|----------|---------------|
+| `00-project-charter.md` | `foundations/evidence-appliance.md` + `07-architecture-current.md` |
+| `03-requirements.md` | Write Desk (requirements not separately documented) |
+| `04-architecture.md` | `07-architecture-current.md` |
+| `05-design.md` | Current implementation |
+| `05a-component-map.md` | `07a-component-map-current.md` |
+| `06-tasks.md` | Completed |
+| `07d-obsolete-docs.md` | Reconciliation docs 30–32 |
+| `09b-migration-and-impact.md` | Java retooling superseded this |
+| `11-parking-lot-reconciliation.md` | `32-parking-lot-reconciliation.md` |
+| `12-backend-thin-slice-proposal.md` | Full Java backend |
+| `13-proxy-efficiency-analysis.md` | Proxy retired |
+| `16-bootstrap-throughput-design.md` | Problem resolved |
+| `16a-bootstrap-throughput-completion.md` | Completed |
 
 ---
 
 ## Document Status Conventions
 
+These markers appear as inline `> **Status:**` lines near the top of individual documents.
+
 | Marker | Meaning |
 |--------|---------|
-| **Authoritative** | Describes the system as it currently exists |
-| **Ratified** | Accepted architectural decision or principle |
-| **Frozen** | Published contract — changes require versioning |
-| **Design** | Accepted design not yet fully implemented |
-| **Dormant** | Architecturally valid, not actively being built |
-| **Historical** | Superseded — retained for project learning history |
-| **Exploratory** | Concept under investigation, no implementation planned |
+| **Governing** | Defines the system as it currently exists (Category A) |
+| **Ratified** | Accepted architectural decision, principle, or methodology (Category B) |
+| **Frozen** | Published contract — changes require versioning (Category C) |
+| **Design** | Accepted design not yet fully implemented (Category B) |
+| **Accepted direction** | Ratified architectural direction, implementation pending (Category B) |
+| **Dormant** | Architecturally valid, not actively being built (Category E) |
+| **Exploratory** | Concept under investigation (Category E) |
+| **Historical** | Superseded — retained for project learning (Category F) |
