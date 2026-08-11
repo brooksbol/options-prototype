@@ -12,6 +12,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { navigateTo } from "../router";
 import { createDemoSnapshot } from "../write-desk/demo-snapshot";
 import { useDrawerSelection } from "../hooks/useDrawerSelection";
+import { useSessionClassification } from "../hooks/useSessionClassification";
 import { type PutCandidate, type CallCandidate } from "../write-desk/scan-orchestrator";
 import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type RecommendationPolicy } from "../write-desk/recommend";
 import { recommendCalls } from "../write-desk/recommend-calls";
@@ -200,11 +201,8 @@ export function WriteDesk() {
     });
   }, [snapshot, universeSymbols, providerKey]);
 
-  // Market session classification (updates on render, not reactive to clock)
-  const sessionClassification = useMemo(() => {
-    const policy = new MarketSessionPolicy(getTradingCalendar());
-    return policy.classify(new Date());
-  }, [scanTimestamp]); // re-classify when scan happens (captures current time)
+  // Market session classification (wall-clock-driven, reclassifies every 30s)
+  const sessionClassification = useSessionClassification();
 
   // When source changes, reset or load snapshot and clear results
   const handleSourceChange = (newSource: PortfolioSourceType) => {
