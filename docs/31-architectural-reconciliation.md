@@ -97,16 +97,23 @@
 
 **Discovery:** Observing the recommendation surface over time could answer questions like: Do opportunities cluster near the open? How quickly do high-quality opportunities disappear? Does waiting improve deployment quality?
 
-**Owning primitive(s):** Evidence Engine. This is temporal observation of the recommendation surface — recording what the Decision engines produce at various points in time. The observation itself is evidence (factual, timestamped, provenance-bearing). What you do with it later is analysis.
+**Owning primitive(s):** This requires careful placement. The recommendation surface is produced by the Decision Engine. A timestamped snapshot of that surface becomes a durable observation — factual, provenance-bearing, immutable. In that sense it shares characteristics with evidence. But its *source* is not the market evidence pipeline — it is Wheelwright's own Decision machinery.
 
-**Boundary coherence:** Clean.
-- The observation records recommendation-engine output (a derived fact) at a point in time.
-- It does not feed back into real-time recommendations.
-- It is additive evidence that could later inform Level 3 learned models (per Regime Objective Function).
+Assigning this to the Evidence Engine risks weakening a useful boundary. The Evidence Engine's responsibility is "What is true about the market?" — not "everything Wheelwright has ever persisted about anything." Recommendation-surface observations are derived from Decision output, not from provider acquisition.
 
-**Already anticipated?** Yes. Evidence Appliance §Historical Analysis: "Continuous durable evidence naturally creates the substrate for historical observation and analysis." The Regime Objective Function §Evidence Architecture explicitly describes Level 3 learned models built from operating history. PL-DEPLOY-02 names this specific application.
+The more precise framing:
+- The recommendation surface is produced by Decision.
+- A timestamped recommendation snapshot becomes a durable historical observation.
+- Preserving those observations for analysis is a **cross-cutting observational/history capability** — related to evidence in that it produces timestamped facts, but distinct from market-evidence acquisition in source and lifecycle.
+- Its final architectural ownership should remain unresolved until the Historical Analysis architecture is explicitly designed.
 
-**Classification:** **Implementation work.** The architecture already provides for historical evidence accumulation. Opportunity surface observation is a specific application of that general capability.
+This preserves the Evidence ≠ Recommendation boundary while recognizing that persisted recommendation history can become factual analytical evidence in the colloquial sense without belonging to the Evidence Engine in the architectural sense.
+
+**Boundary coherence:** Requires deliberate placement to preserve Evidence ≠ Recommendation. The observation *records* Decision output; it does not *feed* the Evidence Engine or alter its responsibility.
+
+**Already anticipated?** Yes. Evidence Appliance §Historical Analysis: "Continuous durable evidence naturally creates the substrate for historical observation and analysis." The Regime Objective Function §Evidence Architecture describes Level 3 learned models built from operating history. PL-DEPLOY-02 names this specific application. However, none of these documents resolve the ownership question of where historical recommendation observations architecturally live.
+
+**Classification:** **Implementation work with unresolved architectural ownership.** The capability is anticipated. The specific ownership — whether a History/Observation concern distinct from the Evidence Engine, or an extension of the Evidence Engine's remit — should be resolved when the Historical Analysis architecture is designed. Do not prematurely assign all durable observations to the Evidence Engine simply because they are evidence in the colloquial sense.
 
 ---
 
@@ -332,14 +339,16 @@ Puts, covered calls, and buy-writes are all answers to *that* question. The curr
 
 **Test against baseline:** The Four Engines decomposition describes a single Decision Engine. The Situation Architecture explicitly anticipates a unified surface. The Regime Objective Function names multiple entry mechanisms serving the same mission. But the current primary architecture document (`07-architecture-current.md`) describes `recommendPuts()` and `recommendCalls()` as separate engines with separate sections.
 
-**Finding:** The Four Engines already accommodate this. The Decision Engine conceptually produces "ranked candidates" — it does not inherently require strategy-separated outputs. The current implementation's separation is an artifact, not an architectural necessity. What's missing is:
+**Finding:** The Four Engines already accommodate this. The Decision Engine conceptually produces "ranked candidates" — it does not inherently require strategy-separated outputs. The current implementation's separation is an artifact, not an architectural necessity. What's missing is a **domain/composition concept**:
 
-- A **composition concern** above individual recommendation engines that assembles their outputs into a mission-relevant deployment view.
-- A **Deployment Opportunity** object that normalizes the output of different engines into a common shape suitable for cross-strategy comparison and mission-aware prioritization.
+- **Strategy-specific candidate** — a candidate produced by a particular recommendation mechanism (`PutCandidate`, `CallCandidate`, `BuyWriteCandidate`).
+- **Deployment Opportunity** — a normalized, situation-aware portfolio action suitable for comparison across mechanisms and prioritization against the active mission.
 
-These are the "Deployment Opportunity" concept already identified as an open question in the Regime Objective Function (§Open Questions #8) and the "Unified Recommendation Surface" already anticipated by the Situation Architecture.
+This is a valuable domain concept and composition concern. It does not imply a fifth engine or a new architectural service layer. The existing Decision Engine may perfectly well own strategy-specific production, normalization, composition, and mission-relative comparison internally. Whether a separate internal composition component emerges should be determined by implementation, not by the discovery of a useful noun.
 
-**Classification: Extended (anticipated).** The architecture points toward this. It's an extension that fulfills existing direction rather than contradicting it.
+The concept is already identified as an open question in the Regime Objective Function (§Open Questions #8: "Is there a first-class Deployment Opportunity between Derived Facts and Recommendation?") and anticipated by the Situation Architecture ("Unified Recommendation Surface").
+
+**Classification: Extended (anticipated, deliberately ambiguous in structural placement).** The architecture points toward this concept. It fulfills existing direction. Its internal structural realization within the Decision Engine should remain unresolved until implementation teaches us whether a separate composition component is necessary or whether it is simply a new output shape from the existing machinery.
 
 ---
 
@@ -403,7 +412,7 @@ Each finding is classified as: **Confirmed** (architecture is correct and curren
 | # | Finding | What needs adding | Impact |
 |---|---------|-------------------|--------|
 | F-12 | Operator Surfaces needs decomposition into Application Shell + Functional Surfaces | Name and specify the shared container that ADR-011 and ADR-012 already require | Low — makes implicit requirement explicit |
-| F-13 | A composition concern ("Deployment Opportunity" or equivalent) above individual recommendation engines | Assembles strategy-specific candidates into mission-aware deployment view | Medium — new concept, but anticipated by Situation Architecture and Regime Objective Function |
+| F-13 | A domain/composition concept ("Deployment Opportunity") normalizing strategy-specific candidates into mission-aware portfolio actions | Name and define the concept; structural realization within or adjacent to Decision Engine to be determined by implementation | Low-Medium — valuable domain concept, but does not require a new engine or service layer |
 | F-14 | The set of application-scoped concepts needs explicit enumeration | Portfolio, evidence/session, situation, navigation state — generalize ADR-011's pattern | Low — clarification of existing pattern |
 | F-15 | The primary architecture document needs to reflect buy-write as a recognized recommendation path | `07-architecture-current.md` currently describes only puts and calls | Low — documentation catch-up |
 | F-16 | The primary architecture document needs to reflect the operating regime and mission concept | Currently absent from `07-architecture-current.md` | Low — documentation catch-up |
@@ -429,8 +438,8 @@ Each finding is classified as: **Confirmed** (architecture is correct and curren
 | F-21 | The charter's characterization of Wheelwright as "an evaluation and screening tool" | `00-project-charter.md` opening paragraphs | System identity in `07-architecture-current.md`, Evidence Appliance foundation |
 | F-22 | The charter's "not a portfolio manager" framing | `00-project-charter.md` first paragraph | ADR-011 (application-scoped portfolio), ADR-012 (Console monitors portfolio state), ADR-013 (position monitoring decomposition) — the system actively manages portfolio awareness |
 | F-23 | The separate puts/calls architecture as a permanent structural commitment | `07-architecture-current.md` §Recommendation Engines describes them as separate engines | Situation Architecture's "Unified Recommendation Surface" and Regime Objective Function's shared-mission framing already anticipate convergence |
-| F-24 | Lab surfaces as operator-facing product destinations | 12 Lab tabs in App.tsx under `/labs` | Operational surfaces (Console, Write Desk, Production) have absorbed or superseded all Lab concepts; remaining utility is engineering/debug |
-| F-25 | The current 15-surface route inventory as the basis for application-shell design | Root.tsx (3 operational) + App.tsx (12 labs) = 15 navigable surfaces | The coherent application is 4 operational surfaces + a subordinate engineering area; shell design should target the end state, not normalize the current inventory |
+| F-24 | Lab surfaces as operator-facing product destinations | 12 Lab tabs in App.tsx under `/labs` | Operational surfaces (Console, Write Desk, Production) have absorbed or superseded all Lab concepts; remaining utility is engineering/debug; governance capability expression unresolved |
+| F-25 | The current 15-surface route inventory as the basis for application-shell design | Root.tsx (3 operational) + App.tsx (12 labs) = 15 navigable surfaces | The coherent application is 3 established operational surfaces + cross-cutting capabilities + a subordinate engineering area; shell design should target the end state, not normalize the current inventory |
 
 ---
 
@@ -445,12 +454,12 @@ No discovery violates an existing boundary, invariant, or principle. No discover
 What the reconciliation reveals is:
 
 1. **One missing structural concept** (Application Shell / shared operating context) that is already logically required by ADR-011 + ADR-012 but never named.
-2. **One anticipated composition concept** (Deployment Opportunity / unified surface) that fulfills existing architectural direction (Situation Architecture, Regime Objective Function) without contradicting anything.
+2. **One anticipated domain/composition concept** (Deployment Opportunity) that normalizes strategy-specific candidates into mission-aware portfolio actions, fulfilling existing architectural direction (Situation Architecture, Regime Objective Function). It is a domain concept, not a new engine or service layer — its structural realization within the Decision Engine should emerge from implementation.
 3. **One reframing** of Situation/Mission from peer-primitive to cross-cutting operating context — which is actually how the Situation Architecture already describes it; the baseline inventory just positioned it as parallel rather than cross-cutting.
 4. **Documentation drift** in the primary architecture document, which hasn't absorbed buy-write, operating regime, or the application-coherence implications of its own ADRs.
 5. **Naming/terminology debt** where "Write Desk" vocabulary obscures the evolved surface topology.
-6. **A vestigial product surface layer** (12 Lab UIs) whose concepts have been absorbed into the operational architecture but whose dedicated interfaces remain, creating navigation clutter, maintenance burden, drift risk, and product confusion. The coherent application is 4 operational surfaces, not 15.
-7. **One unrealized capability** (Velvet Rope / governance) that exists only as Lab scaffolding and should migrate into the operational architecture as the Governor surface.
+6. **A vestigial product surface layer** (12 Lab UIs) whose concepts have been absorbed into the operational architecture but whose dedicated interfaces remain, creating navigation clutter, maintenance burden, drift risk, and product confusion. The coherent application is 3 established operational surfaces with cross-cutting capabilities, not 15 historically accumulated destinations.
+7. **One surviving capability** (Velvet Rope / governance) whose Lab framing should be removed but whose mature user-facing expression is unresolved — it may be absorbed into the recommendation flow as automatic policy application, or it may eventually justify its own operator workflow, but that question must be answered by operational need rather than by promoting a Lab.
 
 The architecture has outrun its documentation. The documentation has not outrun the architecture. And the product surface inventory has not caught up with the architecture's maturation — it still exposes the development journey as navigation structure.
 
@@ -460,14 +469,14 @@ The architecture has outrun its documentation. The documentation has not outrun 
 
 These follow from the findings but should not be executed until the reconciliation is ratified.
 
-1. `07-architecture-current.md` — absorb buy-write, name operating regime, acknowledge application shell, note unified deployment as architectural direction, reflect 4-surface product topology
-2. New ADR or architecture section — Application Shell: enumerate application-scoped concepts, define shell vs functional-surface boundary, identify the 4 operational surfaces
+1. `07-architecture-current.md` — absorb buy-write, name operating regime, acknowledge application shell, note unified deployment as architectural direction, reflect 3-surface product topology with cross-cutting capabilities
+2. New ADR or architecture section — Application Shell: enumerate application-scoped concepts, define shell vs functional-surface boundary, identify the 3 established operational surfaces and the cross-cutting capabilities they share
 3. `00-project-charter.md` — demote to historical origin document; stop treating it as living definition
 4. `25-situation-architecture.md` — minor: acknowledge situation's cross-cutting nature explicitly (it already describes this; a clarifying sentence suffices)
 5. Parking lot reconciliation — apply the retain/reframe/merge/supersede/promote/delete rubric (separate exercise)
 6. Document authority map — formalize which docs are authoritative, historical, or superseded
-7. Lab retirement plan — sequence the removal/migration of Lab surfaces: remove 4 spike UIs immediately, supersede 4 Labs by confirming operational coverage, migrate Velvet Rope into operational architecture, establish engineering/debug boundary for retained tooling
-8. Route/navigation architecture — design the operational surface topology and transitions (4 surfaces + engineering area) before implementing the application shell
+7. Lab retirement plan — sequence the removal of Lab surfaces: remove 4 spike UIs, supersede 4 Labs by confirming operational coverage, preserve 3 engineering capabilities behind a subordinate boundary, resolve Velvet Rope governance capability expression through operational need discovery
+8. Route/navigation architecture — design the operational surface topology and transitions (3 surfaces + cross-cutting shell + engineering area) before implementing the application shell
 
 ---
 
@@ -675,7 +684,19 @@ The application has two routing worlds:
 
 **Would removing it lose capability?** Yes — it would remove the only UI for executing and inspecting admission evaluations.
 
-**Classification: Retain, but migrate into operational architecture.** Velvet Rope is not a "Lab" — it's an unrealized architectural capability (Governor role, per Cognitive Role Separation) that happens to be implemented only as a lab prototype. Its proper destination is either integration into the operational recommendation flow (as a governance gate) or a dedicated governance surface within the coherent application. It should not remain under `/labs` as if it were scaffolding.
+**Classification: Remove Lab framing; reconcile surviving Governor capabilities into operational architecture; user-facing expression unresolved.**
+
+Velvet Rope prototyped a governance capability (instrument admission against explicit policy). That capability concept survives — admission policy, product-structure governance, institutional suitability checks, registry state, and audit are all architecturally real (Cognitive Role Separation: Governor role).
+
+However, a surviving *capability* does not imply a surviving *user-facing destination*. The same test that retires the CSV Import Lab applies here: the operator should not need to visit a "Governance" page for Wheelwright to apply governance. Admission, product-structure filtering, and institutional suitability may simply be cross-cutting policy capabilities applied automatically while Wheelwright constructs its opportunity universe — analogous to how portfolio ingestion became part of the application rather than a separate page.
+
+The open questions are:
+
+1. Which capabilities prototyped by Velvet Rope are now implicit in normal Wheelwright operation (product-structure heuristic, governance catalog), and which are still genuinely missing (full evidence-based admission evaluation, registry, audit trail)?
+2. Is there an actual operator workflow requiring direct inspection, intervention, override, or audit of governance decisions?
+3. If yes, does that need a primary navigation destination, a progressive-disclosure panel, an admission/exclusion explanation in the brief, or an engineering/admin surface?
+
+These remain unresolved. The Lab UI should not survive, but the final product expression of governance is a design question to be answered by operational need — not by promoting a Lab into a navigation destination.
 
 ---
 
@@ -735,11 +756,11 @@ The application has two routing worlds:
 | Options Chain | **Superseded** | Raw chain inspection is a broker capability; Wheelwright adds policy-filtered value |
 | Recommendation Lab | **Superseded** | Write Desk + brief is the mature descendant; Lab creates drift risk |
 | Opportunity Lab | **Superseded** | Operational recommendation at full universe scale; Lab uses obsolete 15-symbol universe |
-| Universe View | **Engineering/debug only** | Useful for catalog maintenance; not an operator concern |
-| CSV Import Lab | **Migrate diagnostics; remove Lab** | Operational import exists; parsing details are engineering |
-| Scenario Replay | **Engineering/debug only** | Research instrument for lifecycle simulation; not operational |
+| Universe View | **Remove Lab UI; retain engineering capability** | Useful for catalog maintenance; not an operator concern |
+| CSV Import Lab | **Remove Lab UI; retain engineering diagnostics** | Operational import exists; parsing details are engineering |
+| Scenario Replay | **Remove Lab UI; retain engineering capability** | Research instrument for lifecycle simulation; not operational |
 | ETF Catalog Explorer | **Remove** | Spike UI for inadequate provider; learnings documented |
-| Velvet Rope | **Migrate into operational architecture** | Unrealized Governor capability; not scaffolding |
+| Velvet Rope | **Remove Lab framing; governance capability expression unresolved** | Governor capability survives but user-facing form is a design question, not a navigation promotion |
 | SEC Explorer | **Remove** | Research spike UI; learnings documented |
 | FMP Explorer | **Remove** | Research spike UI; learnings documented |
 | Massive API | **Remove** | Provider spike UI for abandoned provider |
@@ -748,21 +769,25 @@ The application has two routing worlds:
 
 From 12 Lab surfaces:
 - **0** retain as operator-facing Labs
-- **1** migrates into operational architecture as a first-class capability (Velvet Rope → governance surface)
-- **2** retained as engineering/debug tooling behind a subordinate boundary (Universe View, Scenario Replay)
-- **2** have engineering diagnostics worth preserving behind a debug surface (CSV parsing, universe browse)
-- **4** are cleanly removable (ETF Catalog, SEC Explorer, FMP Explorer, Massive API)
-- **4** are superseded by operational surfaces (Laboratory, Options Chain, Recommendation Lab, Opportunity Lab)
+- **4** superseded by operational surfaces (Laboratory, Options Chain, Recommendation Lab, Opportunity Lab)
+- **4** cleanly removable research/spike UIs (ETF Catalog, SEC Explorer, FMP Explorer, Massive API)
+- **3** remove Lab UI but preserve engineering capability behind a subordinate boundary (Universe View, CSV Import diagnostics, Scenario Replay)
+- **1** remove Lab framing; surviving governance capability's user-facing expression is unresolved (Velvet Rope)
 
 ### Implication for Application Shell / Navigation
 
 The desired coherent Wheelwright application consists of:
 
-**Operational surfaces (operator-facing):**
+**Operator-facing surfaces (established):**
 1. Operator Console (orientation, monitoring, capacity)
 2. Deployment / Recommendation surface (opportunity assessment, contract selection, execution handoff)
 3. Production (reconciliation, accounting)
-4. Governance (Velvet Rope matured — admission, registry, audit)
+
+**Cross-cutting capabilities within the application (not separate destinations):**
+- Governance / admission policy (product structure, institutional suitability) — applied automatically; user-facing expression unresolved
+- Portfolio context and provenance — application-scoped per ADR-011
+- Evidence / session state — application-scoped per Evidence Appliance
+- Situation / mission context — cross-cutting operating context
 
 **Engineering surface (developer-facing, deliberately subordinate):**
 - Universe browser
@@ -774,7 +799,7 @@ The desired coherent Wheelwright application consists of:
 - All provider spike UIs (ETF Catalog, SEC, FMP, Massive)
 - All superseded Labs (Laboratory, Options Chain, Recommendation Lab, Opportunity Lab)
 
-The application shell wraps the operational surfaces. Engineering tools are accessible but not part of the operator's mental model or navigation.
+The application shell wraps the operator-facing surfaces. Engineering tools are accessible but not part of the operator's mental model or navigation. Additional operator-facing surfaces may emerge when an actual operator workflow demonstrates the need — but the default is capability absorption into existing surfaces, not surface proliferation.
 
 ---
 
@@ -791,4 +816,47 @@ The hypothesis holds. The Labs were valuable discovery scaffolding. Their concep
 
 The concepts survived. The scaffolding should be retired.
 
-This finding feeds directly into Synthesis 1 (Application Shell). The application shell should not be designed to accommodate the current 15-surface route inventory. It should be designed around the 4 operational surfaces that constitute Wheelwright as a coherent product, with engineering tools accessible separately.
+### Labs Lifecycle Pattern
+
+The reconciliation reveals a recurring pattern in Wheelwright's development:
+
+1. We encountered an unknown.
+2. We built a Lab so we could see and manipulate it.
+3. We learned the domain behavior.
+4. The capability moved into the real product.
+5. The Lab remained behind.
+
+This is healthy development — Labs are instruments for learning. Their obsolescence is evidence of architectural maturation, not loss of capability.
+
+**Governing principle for Lab retirement:**
+
+> Labs are where we learned what Wheelwright needed to know and do. Mature Wheelwright should simply know and do those things. The disappearance of a Lab UI is evidence of architectural maturation, not loss of capability.
+
+Lab retirement should therefore be driven by **capability migration**, not page deletion. For every Lab:
+
+| Question | Purpose |
+|----------|---------|
+| What did this Lab teach us? | Identify the learning it produced |
+| What capability emerged from it? | Name the architectural concept that survived |
+| Where does that capability live now? | Locate it in the mature architecture |
+| Does an operator still need to manipulate or inspect it directly? | Test whether a user-facing surface is justified |
+| If not, can the Lab UI disappear completely? | Default is absorption, not preservation |
+| If engineers still need introspection, what is the smallest deliberate surface that preserves that ability? | Subordinate engineering boundary |
+
+This pattern also applies prospectively. Future exploratory work may produce new Labs. That is acceptable — provided Labs are understood as *temporary learning instruments* rather than *permanent product surfaces*. A Lab that persists beyond its learning phase is a signal that either the capability hasn't been absorbed or the absorption hasn't been acknowledged.
+
+### Implication for Application Shell Design
+
+This finding establishes a critical sequencing constraint:
+
+**Do not design a common header/nav around the current route inventory and then make all historical pages look consistent.**
+
+Instead:
+
+1. Determine what the mature application actually consists of (3 operational surfaces + cross-cutting capabilities).
+2. Design the shell around that end state.
+3. Let the route inventory collapse to match.
+
+The current 15-surface inventory is an artifact of development history. The application shell should express Wheelwright's architectural identity, not normalize its historical scaffolding.
+
+This finding feeds directly into Synthesis 1 (Application Shell). The application shell should not be designed to accommodate the current 15-surface route inventory. It should be designed around the 3 established operational surfaces that constitute Wheelwright as a coherent product, with cross-cutting capabilities shared throughout the shell, and engineering tools accessible separately.
