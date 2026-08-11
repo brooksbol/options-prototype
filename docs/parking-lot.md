@@ -30,7 +30,7 @@
 |---|---|---|---|
 | `PL-SHELL` | Application Coherence / Shell | Shared operating context, navigation, consistent evidence/session presentation, reactive recommendation trigger, context-preserving transitions, route topology (3 operational + engineering), vocabulary cleanup, Lab retirement. See `docs/32` §Application Coherence Initiative for sub-concerns. | Reconciliation F-12, ADR-011, ADR-012 |
 | `PL-DEPLOY` | Deployment Opportunity / Unified Surface | Domain/composition concept within Decision: normalize strategy-specific candidates into mission-aware portfolio actions. Remaining work: normalized representation, cross-strategy comparability, generalized collateral, "wait" semantics, unified surface design. Buy-write mechanism is the next concrete implementation step. | Reconciliation F-13, Situation Architecture, Regime Objective Function |
-| `PL-CLEANUP` | Active Holistic Cleanup | Remove vestigial scaffolding, dead pipelines, obsolete vocabulary. Implement reconciled surface topology. Align documentation with architecture. Sequenced after Application Shell design establishes the target. Absorbs former PL-OPS-02, PL-OPS-05, and Lab retirement implementation. | `docs/31`, `docs/32` |
+| `PL-CLEANUP` | Active Holistic Cleanup | Remove vestigial scaffolding, dead pipelines, obsolete vocabulary. Implement reconciled surface topology. Align documentation with architecture. Sequenced after Application Shell design establishes the target. Absorbs former PL-OPS-02, PL-OPS-05, and Lab retirement implementation. Scope is bounded to the current holistic-conformance initiative: documentation topology, Lab retirement, obsolete vocabulary, dead/duplicate structures, architectural conformance, and application-coherence work exposed by the August 2026 reconciliation. Not a permanent technical-debt bucket. | `docs/31`, `docs/32` |
 
 ### Implementation Work (Ratified Architecture)
 
@@ -53,6 +53,7 @@
 |---|---|---|---|
 | `PL-EVID-01` | Historical Evidence / Observation Architecture | Architecture for accumulating, storing, and analyzing observations over time. Must distinguish: market evidence history (Evidence Engine), portfolio observation history, Decision/recommendation history (ownership unresolved per reconciliation D-04), reconstructed lifecycle evidence, simulation artifacts. Foundational dependency for lifecycle assessment, opportunity observation, Level 3 models. | `foundations/policy-over-prediction.md` (guardrail), Historical/Observational family |
 | `PL-EVID-02` | Lifecycle Assessment Evidence Domain | Formal domain for lifecycle quality: ingress, operating, egress. Partially implemented (PCS EP1). Depends on PL-EVID-01. Absorbs former PL-EVID-06 (score vs classification sub-question). | `foundations/conditioned-operating-opportunity.md` |
+| `PL-DEPLOY-02` | Opportunity Surface Observation | Temporal observation of recommendation/deployment surface output. Cross-cutting history capability with unresolved architectural ownership. Closely coupled to Deployment Opportunity evolution and Historical/Observational architecture. Concrete use case: preserving decision context to compare how deployment logic versions interpret the same opportunity surface. Depends on PL-EVID-01 domain model and likely cloud deployment. | Journal entry 2026-08-10, Historical/Observational family |
 
 ### Infrastructure Prerequisites
 
@@ -68,6 +69,7 @@
 | `PL-EVID-04` | Market-Priced Risk | Needs IV data source (Tradier sandbox lacks IV) | `foundations/market-priced-risk.md` |
 | `PL-EVID-05` | Recommendation Set Analysis | Needs enrichment data (sector, industry classification) | `foundations/recommendation-set-analysis.md` |
 | `PL-RESEARCH-01` | Universe Discovery | Needs paid provider tier for enumeration | `universe/`, `engineering-spikes/` |
+| `PL-RESEARCH-04` | Instrument Catalog Evolution | Needs provider/data-source for programmatic enrichment (sector, issuer, structural classification). Prerequisite for set analysis grouping and richer governance. | Code + catalog generation scripts, Governance golden-data family |
 
 ### Exploratory / Far-Future Seeds
 
@@ -78,14 +80,12 @@
 | `PL-POL-01` | Cash-Flow-Safe Recovery | Premium production may defer/mitigate NAV erosion while preserving recovery potential. Exploratory thesis for a future situation. | None |
 | `PL-CALL-03` | Familiarity vs Favorites | Familiarity: inferred from history. Favorites: explicit designation. Separate concepts. Both depend on historical evidence and user accounts. | None |
 | `PL-OPS-04` | Notification / Background Awareness | Push notifications or indicators when evidence state changes significantly. Depends on cloud deployment. | None |
-| `PL-DEPLOY-02` | Opportunity Surface Observation | Temporal observation of recommendation surface output. Cross-cutting history capability with unresolved architectural ownership. Depends on PL-EVID-01 and likely cloud deployment. | Journal entry 2026-08-10 |
 
 ### Research Instruments (Engineering Boundary)
 
 | ID | Name | Summary | Concept Home |
 |---|---|---|---|
 | `PL-RESEARCH-03` | Scenario Replay | Activity document → state transitions → overlay implications. Engineering research instrument behind subordinate boundary. Not a product surface. | Journal entries |
-| `PL-RESEARCH-04` | Instrument Catalog Evolution | Programmatic enrichment: sector, issuer, structural classification. Prerequisite for set analysis grouping and richer governance. Part of Governance golden-data family. | Code + catalog generation scripts |
 
 ---
 
