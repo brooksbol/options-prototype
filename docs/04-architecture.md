@@ -1,5 +1,7 @@
 # Options Prototype — Slice 1 Architecture
 
+> ⚠️ **HISTORICAL** — Slice 1 architecture (single-page chain viewer). Superseded by `07-architecture-current.md`.
+
 ## Purpose
 
 Define the software architecture that implements the approved domain model (`02-domain.md`) and satisfies the requirements (`03-requirements.md`) for Slice 1.

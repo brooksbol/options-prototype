@@ -1,5 +1,7 @@
 # Options Prototype — Slice 1 Implementation Tasks
 
+> ⚠️ **HISTORICAL** — Slice 1 task list. All tasks completed July 2026.
+
 ## Purpose
 
 Ordered implementation tasks for Slice 1. Each task produces a verifiable artifact. Tasks are sequenced so that each builds on the previous, and the domain is validated before UI work begins.

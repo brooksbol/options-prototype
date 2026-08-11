@@ -6,6 +6,8 @@
 
 ## 1. Target Architecture — Data Flow
 
+> **Note:** The header label says "Node/Bun + SQLite." The actual implementation is Java/Spring Boot + SQLite. The conceptual architecture depicted is correct — only the runtime label is stale.
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                   BACKEND EVIDENCE SERVICE (Node/Bun + SQLite)           │
@@ -322,6 +324,8 @@ Browser                              Backend
 ---
 
 ## 6. Migration Phase Diagram
+
+> ⚠️ **HISTORICAL DIAGRAM** — This depicts the planned TypeScript-to-TypeScript phased extraction that was never executed. The Java retooling replaced it with a clean rewrite. Retained for project history.
 
 ```
 Phase 0          Phase 1          Phase 2          Phase 3          Phase 4/5

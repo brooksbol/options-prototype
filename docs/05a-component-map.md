@@ -1,5 +1,7 @@
 # Options Prototype — Slice 1 Component Map
 
+> ⚠️ **HISTORICAL** — Slice 1 component map. Superseded by `07a-component-map-current.md`.
+
 ## Purpose
 
 For every component and module in the system, document its responsibility, inputs, outputs, and constraints. This map ensures each piece has a single, well-defined role and makes boundary violations detectable during implementation review.

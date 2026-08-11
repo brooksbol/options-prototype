@@ -1,5 +1,7 @@
 # Options Prototype — Slice 1 Design
 
+> ⚠️ **HISTORICAL** — Slice 1 implementation design (MockMarketDataProvider, static JSON). Superseded by the current implementation and `07-architecture-current.md`.
+
 ## Purpose
 
 Translate the approved architecture (`04-architecture.md`) into implementation-level decisions. This document specifies concrete types, module APIs, component contracts, data shapes, and testing approach sufficient for an Implementation Engineer to produce working software without inventing requirements.

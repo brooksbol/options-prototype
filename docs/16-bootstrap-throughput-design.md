@@ -1,7 +1,9 @@
 # Cold-Bootstrap Throughput, Representative Coverage, and Coverage Visibility
 
+> ⚠️ **HISTORICAL** — The cold-start throughput problems analyzed here were resolved. See `16a-bootstrap-throughput-completion.md` for the fix report. The underlying architecture has since moved to backend-owned acquisition with tiered scheduling (`foundations/acquisition-scheduler-policy.md`).
+
 **Date:** July 2026
-**Status:** Design analysis — implementation pending review
+**Status:** Historical — problem resolved
 **Based on:** Measured runtime data from 10 cold-start cycles
 
 ---

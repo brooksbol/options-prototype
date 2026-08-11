@@ -1,5 +1,7 @@
 # Obsolete Documentation Assessment
 
+> ⚠️ **HISTORICAL** — This July 2026 obsolescence audit has been superseded by the August 2026 architectural reconciliation (`30-architectural-baseline-inventory.md`, `31-architectural-reconciliation.md`, `32-parking-lot-reconciliation.md`) which performs this function more comprehensively.
+
 **Date:** July 2026
 
 This document identifies which existing documentation is now partially or fully superseded by the current system architecture.

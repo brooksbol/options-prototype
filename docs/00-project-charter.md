@@ -1,5 +1,7 @@
 # Options Prototype — Project Charter
 
+> ⚠️ **HISTORICAL** — This is the original project origin document (July 2026). The system identity it describes ("lightweight options chain screening tool") has been superseded by the Evidence Appliance architecture. See `foundations/evidence-appliance.md` for current system identity and `07-architecture-current.md` for current architecture.
+
 ## Purpose
 
 Build a lightweight options chain screening tool that helps evaluate covered-call and cash-secured-put income strategies on ETFs. The tool calculates yield, highlights contracts by target delta, and provides observability into the options income decision process.

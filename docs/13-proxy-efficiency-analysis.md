@@ -1,7 +1,9 @@
 # Evidence Proxy — Acquisition Efficiency Analysis
 
+> ⚠️ **HISTORICAL** — The evidence proxy analyzed here has been retired. Backend-owned acquisition replaced browser-mediated proxy calls. See `07-architecture-current.md` §Evidence Engine.
+
 **Date:** July 2026
-**Status:** Analysis complete, implementation pending review
+**Status:** Historical — proxy retired
 
 ---
 

@@ -1,8 +1,10 @@
 # Bootstrap Throughput Correction — Completion Report
 
+> ⚠️ **HISTORICAL** — Fix report for browser-era cold-start throughput. The underlying acquisition architecture has since been replaced by backend-owned tiered scheduling (`foundations/acquisition-scheduler-policy.md`).
+
 **Date:** July 3, 2026
 **Based on:** `docs/16-bootstrap-throughput-design.md`
-**Status:** Implemented, verified, awaiting runtime measurement
+**Status:** Historical — completed; acquisition architecture subsequently replaced
 
 ---
 

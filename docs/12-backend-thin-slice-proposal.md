@@ -1,7 +1,9 @@
 # Backend Thin Slice Proposal
 
+> ⚠️ **HISTORICAL** — This was the first backend extraction proposal. Superseded by the full Java backend (`evidence-service-java/`). See `08-adr-backend-evidence-service.md` for the ratified decision and `09-backend-evidence-service-design.md` for the implemented design.
+
 **Date:** July 2026
-**Status:** Proposed — awaiting review before implementation
+**Status:** Historical — superseded by full Java backend
 **Purpose:** Move one meaningful, currently browser-owned operational responsibility behind an API boundary
 
 ---

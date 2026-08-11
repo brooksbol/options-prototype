@@ -102,6 +102,8 @@ Evidence age, session, provider, and coverage are displayed but do not require o
 
 ## 3. Technology Recommendation
 
+> ⚠️ **HISTORICAL SECTION** — This section recommended TypeScript/Node/Bun. The actual implementation used Java/Spring Boot per `foundations/retooling-charter.md`. The architectural concepts in this document remain valid; this technology-selection section does not.
+
 ### First implementation
 
 | Component | Choice | Rationale |
@@ -600,6 +602,8 @@ The browser does not need to understand crawl cursor position, job queue state, 
 ---
 
 ## 10. Migration Path
+
+> ⚠️ **HISTORICAL SECTION** — This section describes a phased TypeScript-to-TypeScript backend extraction that was never executed. The Java retooling replaced it with a clean rewrite. See `foundations/retooling-charter.md` for the actual migration governance.
 
 ### Phase 0: Freeze and Document
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document describes the engineering philosophy that underpins the Options Prototype and, more broadly, the spec-driven development methodology this project is helping establish.
+This document describes the engineering philosophy that underpins Wheelwright and, more broadly, the spec-driven development methodology this project is helping establish.
 
 This is not an implementation specification. It does not describe what to build or how to build it. It explains *why* the project is structured the way it is — and specifically, why it is structured as a system of nested feedback loops rather than a linear pipeline from specification to delivery.
 
@@ -195,7 +195,7 @@ The outermost loop. Cycles across slices, projects, and time.
 
 ### Key principle
 
-The goal of the project is not only to build the Options Prototype. It is to establish a repeatable, domain-first, spec-driven methodology that improves with each application. The Options Prototype is evidence — it proves (or disproves) that the methodology works.
+The goal of the project is not only to build Wheelwright. It is to establish a repeatable, domain-first, spec-driven methodology that improves with each application. Wheelwright is evidence — it proves (or disproves) that the methodology works.
 
 ### What it accumulates
 
