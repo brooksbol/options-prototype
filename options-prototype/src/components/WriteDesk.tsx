@@ -11,6 +11,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { navigateTo } from "../router";
 import { createDemoSnapshot } from "../write-desk/demo-snapshot";
+import { useDrawerSelection } from "../hooks/useDrawerSelection";
 import { type PutCandidate, type CallCandidate } from "../write-desk/scan-orchestrator";
 import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type RecommendationPolicy } from "../write-desk/recommend";
 import { recommendCalls } from "../write-desk/recommend-calls";
@@ -54,6 +55,7 @@ export function WriteDesk() {
   const [putCoverage, setPutCoverage] = useState<{ status: string; universeSize: number; covered: number; fresh: number; staleUsable: number; missing: number; confirmedAbsence: number; refreshedThisPass: number; deferredThisPass: number } | null>(null);
   const [putIsProvisional, setPutIsProvisional] = useState(true);
   const [putFunnel, setPutFunnel] = useState<RecommendationFunnel | null>(null);
+  const [putHydration, setPutHydration] = useState<{ admissible: number; inadmissible: number; total: number } | null>(null);
   // Call candidates — driven by inventory + backend evidence
   const [callCandidates, setCallCandidates] = useState<CallCandidate[]>([]);
   const [callWaitCandidates, setCallWaitCandidates] = useState<CallCandidate[]>([]);
@@ -64,7 +66,6 @@ export function WriteDesk() {
   const [buyWriteWideSpreadCandidates, setBuyWriteWideSpreadCandidates] = useState<BuyWriteCandidate[]>([]);
   const [buyWriteOutcomes, setBuyWriteOutcomes] = useState<import("../write-desk/recommend-buy-writes").BuyWriteOutcomes | null>(null);
   const [buyWritesCollapsed, setBuyWritesCollapsed] = useState(() => loadWorkspace().writeDeskBuyWritesCollapsed);
-  const [selectedBuyWriteCandidate, setSelectedBuyWriteCandidate] = useState<BuyWriteCandidate | null>(null);
   const [scanTimestamp, setScanTimestamp] = useState<string | null>(null);
   const [policy, setPolicy] = useState(() => {
     const ws = loadWorkspace();
@@ -82,9 +83,20 @@ export function WriteDesk() {
       },
     };
   });
-  const [selectedCandidate, setSelectedCandidate] = useState<PutCandidate | null>(null);
-  const [tablePosition, setTablePosition] = useState<TablePositionContext | null>(null);
-  const [selectedCallCandidate, setSelectedCallCandidate] = useState<CallTableRow | null>(null);
+  const {
+    selectedCandidate,
+    tablePosition,
+    selectedCallCandidate,
+    selectedBuyWriteCandidate,
+    selectDrawerCandidate,
+    clearAll: clearDrawerSelection,
+    clearCandidateIf,
+    clearCallCandidateIf,
+    clearBuyWriteCandidateIf,
+    closeCandidate,
+    closeCallCandidate,
+    closeBuyWriteCandidate,
+  } = useDrawerSelection<PutCandidate, CallTableRow, BuyWriteCandidate, TablePositionContext>();
   const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>(() => loadWorkingIntents());
   const [showAffordableOnly, setShowAffordableOnly] = useState(false);
   const [showDanger, setShowDanger] = useState(true);
@@ -106,26 +118,27 @@ export function WriteDesk() {
     const cache = getDurableCache();
     const sessionState = sessionClassification.state;
     const sessionClosed = sessionState === "CLOSED_CANONICAL" || sessionState === "NON_TRADING_DAY" || sessionState === "PREMARKET" || sessionState === "REGULAR_OPEN_DELAY";
+    const reRecSessionPolicy = new MarketSessionPolicy(getTradingCalendar());
+    const reRecAdmissibilityMs = reRecSessionPolicy.getAdmissibilityBoundary(new Date());
     const recResult = await recommendPuts(
       universeSymbols,
       snapshot.deployableCash,
       cache,
       { provider: providerKey, environment: "sandbox" },
       updatedPolicy,
-      { sessionClosed }
+      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs }
     );
     setPutCandidates(recResult.candidates);
     setPutWaitCandidates(recResult.waitCandidates);
     setPutWideSpreadCandidates(recResult.wideSpreadCandidates);
     setPutIsProvisional(recResult.coverageRequests.length > 0);
     setPutFunnel(recResult.funnel);
+    setPutHydration(recResult.evidenceHydration);
 
     // Selection validity: clear put selection if absent from new results
-    setSelectedCandidate((prev) => {
-      if (!prev) return null;
+    clearCandidateIf((prev) => {
       const allPuts = [...recResult.candidates, ...recResult.waitCandidates, ...recResult.wideSpreadCandidates];
-      if (!candidateExistsInResults(prev, allPuts)) { setTablePosition(null); return null; }
-      return prev;
+      return !candidateExistsInResults(prev, allPuts);
     });
 
     // Also re-recommend calls with updated policy
@@ -135,21 +148,21 @@ export function WriteDesk() {
         cache,
         { provider: providerKey, environment: "sandbox" },
         updatedPolicy,
-        { sessionClosed }
+        { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs }
       );
       setCallCandidates(callResult.candidates);
       setCallWaitCandidates(callResult.waitCandidates);
 
       // Selection validity: clear call selection if absent from new results
-      setSelectedCallCandidate((prev) => {
-        if (!prev || prev.availability !== "available-now") return prev;
+      clearCallCandidateIf((prev) => {
+        if (prev.availability !== "available-now") return false;
         const allCalls = [...callResult.candidates, ...callResult.waitCandidates];
-        return candidateExistsInResults(prev, allCalls) ? prev : null;
+        return !candidateExistsInResults(prev, allCalls);
       });
     } else {
       setCallCandidates([]);
       setCallWaitCandidates([]);
-      setSelectedCallCandidate(null);
+      closeCallCandidate();
     }
 
     // Compute contingent calls from existing short puts
@@ -173,7 +186,7 @@ export function WriteDesk() {
       cache,
       { provider: providerKey, environment: "sandbox" },
       updatedPolicy,
-      { sessionClosed }
+      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs }
     );
     setBuyWriteCandidates(bwResult.candidates);
     setBuyWriteWaitCandidates(bwResult.waitCandidates);
@@ -181,13 +194,9 @@ export function WriteDesk() {
     setBuyWriteOutcomes(bwResult.outcomes);
 
     // Selection validity: clear buy-write selection if absent from new results
-    setSelectedBuyWriteCandidate((prev) => {
-      if (!prev) return null;
+    clearBuyWriteCandidateIf((prev) => {
       const allBW = [...bwResult.candidates, ...bwResult.waitCandidates];
-      if (!allBW.some(c => c.symbol === prev.symbol && c.strike === prev.strike && c.expiration === prev.expiration)) {
-        return null;
-      }
-      return prev;
+      return !allBW.some(c => c.symbol === prev.symbol && c.strike === prev.strike && c.expiration === prev.expiration);
     });
   }, [snapshot, universeSymbols, providerKey]);
 
@@ -214,11 +223,9 @@ export function WriteDesk() {
     setCallCandidates([]);
     setCallWaitCandidates([]);
     setContingentCallRows([]);
-    setSelectedCandidate(null);
-    setSelectedCallCandidate(null);
-    setTablePosition(null);
+    clearDrawerSelection();
     setPutCoverage(null); setPutIsProvisional(true);
-    setPutFunnel(null);
+    setPutFunnel(null); setPutHydration(null);
     setScanTimestamp(null);
     // Reset ETag to force a fresh evidence fetch on next poll cycle
     etagRef.current = null;
@@ -241,11 +248,9 @@ export function WriteDesk() {
       setCallCandidates([]);
       setCallWaitCandidates([]);
       setContingentCallRows([]);
-      setSelectedCandidate(null);
-      setSelectedCallCandidate(null);
-      setTablePosition(null);
+      clearDrawerSelection();
       setPutCoverage(null); setPutIsProvisional(true);
-      setPutFunnel(null);
+      setPutFunnel(null); setPutHydration(null);
       setScanTimestamp(null);
       // Reset ETag to force a fresh evidence fetch on next poll cycle
       etagRef.current = null;
@@ -292,23 +297,27 @@ export function WriteDesk() {
 
     let merged = 0;
     for (const sym of snapshotData.symbols ?? []) {
+      // Parse the backend's authoritative retrieval timestamp for this symbol's evidence.
+      // This preserves actual provider-acquisition age rather than resetting to frontend merge time.
+      const backendRetrievedAtMs = sym.retrievedAt ? new Date(sym.retrievedAt).getTime() : undefined;
+
       if (sym.status === "ready" && sym.chain) {
         const { buildCacheKey } = await import("../cache/durable-cache");
         const chainKey = buildCacheKey(providerKey, "sandbox", "chain", sym.symbol, sym.chain.expiration);
-        const chainRecord = cache.createRecord(chainKey, "chain", providerKey, "sandbox", sym.symbol, sym.chain.expiration, sym.chain);
+        const chainRecord = cache.createRecord(chainKey, "chain", providerKey, "sandbox", sym.symbol, sym.chain.expiration, sym.chain, backendRetrievedAtMs);
         await cache.put(chainRecord);
         merged++;
       }
       if (sym.expirations && sym.expirations.length > 0) {
         const { buildCacheKey } = await import("../cache/durable-cache");
         const expKey = buildCacheKey(providerKey, "sandbox", "expirations", sym.symbol);
-        const expRecord = cache.createRecord(expKey, "expirations", providerKey, "sandbox", sym.symbol, null, sym.expirations);
+        const expRecord = cache.createRecord(expKey, "expirations", providerKey, "sandbox", sym.symbol, null, sym.expirations, backendRetrievedAtMs);
         await cache.put(expRecord);
       }
       if (sym.status === "absent") {
         const { buildCacheKey } = await import("../cache/durable-cache");
         const absKey = buildCacheKey(providerKey, "sandbox", "absence", sym.symbol);
-        const absRecord = cache.createRecord(absKey, "absence", providerKey, "sandbox", sym.symbol, null, { reason: "no expirations" });
+        const absRecord = cache.createRecord(absKey, "absence", providerKey, "sandbox", sym.symbol, null, { reason: "no expirations" }, backendRetrievedAtMs);
         await cache.put(absRecord);
       }
     }
@@ -335,6 +344,7 @@ export function WriteDesk() {
     const sessionPolicy = new MarketSessionPolicy(getTradingCalendar());
     const currentSession = sessionPolicy.classify(new Date());
     const sessionClosed = currentSession.state === "CLOSED_CANONICAL" || currentSession.state === "NON_TRADING_DAY" || currentSession.state === "PREMARKET" || currentSession.state === "REGULAR_OPEN_DELAY";
+    const admissibilityBoundaryMs = sessionPolicy.getAdmissibilityBoundary(new Date());
 
     const recResult = await recommendPuts(
       snapshotSymbols.length > 0 ? snapshotSymbols : universeSymbols,
@@ -342,7 +352,7 @@ export function WriteDesk() {
       cache,
       { provider: providerKey, environment: "sandbox" },
       policy,
-      { sessionClosed }
+      { sessionClosed, admissibilityBoundaryMs }
     );
 
     setPutCandidates(recResult.candidates);
@@ -350,13 +360,12 @@ export function WriteDesk() {
     setPutWideSpreadCandidates(recResult.wideSpreadCandidates);
     setPutIsProvisional(recResult.coverage.symbolsMissingChain > 0);
     setPutFunnel(recResult.funnel);
+    setPutHydration(recResult.evidenceHydration);
 
     // Selection validity: clear put selection if it no longer exists in results
-    setSelectedCandidate((prev) => {
-      if (!prev) return null;
+    clearCandidateIf((prev) => {
       const allPuts = [...recResult.candidates, ...recResult.waitCandidates, ...recResult.wideSpreadCandidates];
-      if (!candidateExistsInResults(prev, allPuts)) { setTablePosition(null); return null; }
-      return prev;
+      return !candidateExistsInResults(prev, allPuts);
     });
 
     // Recommend calls for held inventory (same cache, same policy)
@@ -366,22 +375,22 @@ export function WriteDesk() {
         cache,
         { provider: providerKey, environment: "sandbox" },
         policy,
-        { sessionClosed }
+        { sessionClosed, admissibilityBoundaryMs }
       );
       setCallCandidates(callResult.candidates);
       setCallWaitCandidates(callResult.waitCandidates);
 
       // Selection validity: clear call selection if it no longer exists in results
-      setSelectedCallCandidate((prev) => {
-        if (!prev || prev.availability !== "available-now") return prev;
+      clearCallCandidateIf((prev) => {
+        if (prev.availability !== "available-now") return false;
         const allCalls = [...callResult.candidates, ...callResult.waitCandidates];
-        return candidateExistsInResults(prev, allCalls) ? prev : null;
+        return !candidateExistsInResults(prev, allCalls);
       });
     } else {
       // No eligible inventory — clear any stale call state
       setCallCandidates([]);
       setCallWaitCandidates([]);
-      setSelectedCallCandidate(null);
+      closeCallCandidate();
     }
 
     // Compute contingent calls from existing short puts
@@ -405,7 +414,7 @@ export function WriteDesk() {
       cache,
       { provider: providerKey, environment: "sandbox" },
       policy,
-      { sessionClosed }
+      { sessionClosed, admissibilityBoundaryMs }
     );
     setBuyWriteCandidates(bwResult2.candidates);
     setBuyWriteWaitCandidates(bwResult2.waitCandidates);
@@ -413,13 +422,9 @@ export function WriteDesk() {
     setBuyWriteOutcomes(bwResult2.outcomes);
 
     // Selection validity: clear buy-write selection if candidate identity changed or disappeared
-    setSelectedBuyWriteCandidate((prev) => {
-      if (!prev) return null;
+    clearBuyWriteCandidateIf((prev) => {
       const allBW = [...bwResult2.candidates, ...bwResult2.waitCandidates, ...bwResult2.wideSpreadCandidates];
-      if (!allBW.some(c => c.symbol === prev.symbol && c.expiration === prev.expiration && c.strike === prev.strike)) {
-        return null;
-      }
-      return prev;
+      return !allBW.some(c => c.symbol === prev.symbol && c.expiration === prev.expiration && c.strike === prev.strike);
     });
 
     if (!scanTimestamp) {
@@ -482,8 +487,9 @@ export function WriteDesk() {
       serviceAvailable: lastPollResult !== "error",
       sessionClosed,
       isAcquiring: putCoverage ? putCoverage.missing > 0 : evidenceMeta.coverage?.pending > 0,
+      evidenceHydration: putHydration,
     });
-  }, [evidenceMeta, lastPollResult, putCoverage]);
+  }, [evidenceMeta, lastPollResult, putCoverage, putHydration]);
 
   // Portfolio popover state (only one open at a time)
   const [openPopover, setOpenPopover] = useState<string | null>(null);
@@ -509,7 +515,7 @@ export function WriteDesk() {
           cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
           tablePosition={tablePosition}
           pendingIntents={pendingIntents}
-          onClose={() => setSelectedCandidate(null)}
+          onClose={closeCandidate}
           onOrderConfirmed={(c) => {
             const intent = buildWriteIntent({ candidate: c });
             if (intent) {
@@ -528,7 +534,7 @@ export function WriteDesk() {
           policy={policy}
           sessionClassification={sessionClassification}
           cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
-          onClose={() => setSelectedCallCandidate(null)}
+          onClose={closeCallCandidate}
         />
       )}
       {selectedCallCandidate && selectedCallCandidate.availability === "if-assigned" && (
@@ -536,7 +542,7 @@ export function WriteDesk() {
           row={selectedCallCandidate}
           sessionClassification={sessionClassification}
           cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
-          onClose={() => setSelectedCallCandidate(null)}
+          onClose={closeCallCandidate}
         />
       )}
 
@@ -547,7 +553,7 @@ export function WriteDesk() {
           policy={policy}
           sessionClassification={sessionClassification}
           cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
-          onClose={() => setSelectedBuyWriteCandidate(null)}
+          onClose={closeBuyWriteCandidate}
         />
       )}
 
@@ -647,8 +653,8 @@ export function WriteDesk() {
           buyWriteCandidates={buyWriteCandidates}
           policy={policy}
           maxRows={10}
-          onSelectPut={(c) => { setSelectedCandidate(c); setSelectedCallCandidate(null); setSelectedBuyWriteCandidate(null); }}
-          onSelectBuyWrite={(c) => { setSelectedBuyWriteCandidate(c); setSelectedCandidate(null); setSelectedCallCandidate(null); }}
+          onSelectPut={(c) => { selectDrawerCandidate("put", { put: c }); }}
+          onSelectBuyWrite={(c) => { selectDrawerCandidate("buywrite", { buyWrite: c }); }}
         />
       )}
 
@@ -746,7 +752,7 @@ export function WriteDesk() {
               let filtered = showAffordableOnly ? allRows.filter((c) => c.affordable) : allRows;
               if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
               const displayed = filtered.slice(0, showCount).map((c, i) => ({ ...c, rank: i + 1 }));
-              return <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { setSelectedCandidate(c); setTablePosition(pos); setSelectedCallCandidate(null); }} />;
+              return <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { selectDrawerCandidate("put", { put: c, putPos: pos }); }} />;
             })()
           ) : (
             <div className="wd-no-trade">
@@ -797,7 +803,7 @@ export function WriteDesk() {
                     <CallCandidateTable
                       candidates={[...callCandidates, ...callWaitCandidates]}
                       selectedRow={selectedCallCandidate}
-                      onSelect={(row) => { setSelectedCallCandidate(row); setSelectedCandidate(null); }}
+                      onSelect={(row) => { selectDrawerCandidate("call", { call: row }); }}
                     />
                   </>
                 )}
@@ -808,7 +814,7 @@ export function WriteDesk() {
                     <ContingentCallTable
                       rows={contingentCallRows}
                       selectedRow={selectedCallCandidate}
-                      onSelect={(row) => { setSelectedCallCandidate(row); setSelectedCandidate(null); }}
+                      onSelect={(row) => { selectDrawerCandidate("call", { call: row }); }}
                     />
                   </>
                 )}
@@ -900,7 +906,7 @@ export function WriteDesk() {
                   showAffordableOnly={showAffordableOnly}
                   showDanger={showDanger}
                   showCount={showCount}
-                  onSelect={(c) => { setSelectedBuyWriteCandidate(c); setSelectedCandidate(null); setSelectedCallCandidate(null); }}
+                  onSelect={(c) => { selectDrawerCandidate("buywrite", { buyWrite: c }); }}
                 />
               </>
             ) : (
