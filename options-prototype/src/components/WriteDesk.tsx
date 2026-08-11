@@ -9,7 +9,6 @@
  */
 
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
-import { navigateTo } from "../router";
 import { createDemoSnapshot } from "../write-desk/demo-snapshot";
 import { useDrawerSelection } from "../hooks/useDrawerSelection";
 import { useSessionClassification } from "../hooks/useSessionClassification";
@@ -554,10 +553,9 @@ export function WriteDesk() {
         </div>
       )}
 
-      {/* ═══ BAND 1: Identity · Portfolio · Session ═══ */}
-      <div className="wd-band wd-band-identity">
+      {/* ═══ SURFACE CONTEXT: Portfolio · Capital · Positions ═══ */}
+      <div className="wd-band wd-band-context">
         <div className="wd-band-left">
-          <h1 className="wd-title">Wheelwright</h1>
           <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("portfolio"); }}>
             {source === "demo" ? "Demo Portfolio" : "Fidelity Snapshot"}
             {openPopover === "portfolio" && (
@@ -626,13 +624,6 @@ export function WriteDesk() {
               </div>
             )}
           </span>
-        </div>
-        <div className="wd-band-right">
-          <span className="wd-session-inline">
-            <span className={`wd-session-pip wd-session-${sessionClassification.state.toLowerCase()}`} />
-            <span className="wd-session-text">{formatSessionState(sessionClassification.state)}</span>
-          </span>
-          <button className="wd-labs-link" onClick={() => navigateTo("/labs")}>Labs →</button>
         </div>
       </div>
 
@@ -1365,14 +1356,4 @@ function deriveCallEmptyStateMsg(
 
 // --- Session State Formatting ---
 
-function formatSessionState(state: string): string {
-  switch (state) {
-    case "PREMARKET": return "Pre-Market";
-    case "REGULAR_OPEN_DELAY": return "Open Delay";
-    case "REGULAR_OBSERVATION": return "Regular Session";
-    case "DELAY_DRAIN": return "Closing";
-    case "CLOSED_CANONICAL": return "Closed";
-    case "NON_TRADING_DAY": return "Market Closed";
-    default: return state;
-  }
-}
+// --- (Session state formatting now in AppShell) ---

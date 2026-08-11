@@ -15,26 +15,19 @@
 .oc-shell {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  min-height: 100vh;
+  min-height: calc(100vh - 40px); /* account for AppShell header */
   background: var(--wd-bg-base);
   color: var(--wd-text-primary);
 }
 
-/* === Header Region === */
+/* === Surface Context Bar === */
 
-.oc-region-header {
+.oc-context-bar {
   display: flex;
   align-items: baseline;
   gap: 12px;
-  padding: 8px 16px;
+  padding: 6px 16px;
   border-bottom: 1px solid var(--wd-border-subtle, #333);
-  flex-wrap: wrap;
-}
-
-.oc-title {
-  font-size: 14px;
-  font-weight: 700;
-  margin: 0;
 }
 
 .oc-source {
@@ -45,28 +38,6 @@
 .oc-summary {
   font-size: 10px;
   color: var(--wd-text-tertiary);
-}
-
-.oc-header-reserved {
-  font-size: 9px;
-  color: var(--wd-text-tertiary);
-  border: 1px dashed var(--wd-border-subtle, #444);
-  padding: 2px 8px;
-  border-radius: 2px;
-}
-
-.oc-nav-link {
-  margin-left: auto;
-  font-size: 10px;
-  color: var(--wd-accent-green);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 2px 6px;
-}
-
-.oc-nav-link:hover {
-  text-decoration: underline;
 }
 
 /* === Body (sidebar + main) === */

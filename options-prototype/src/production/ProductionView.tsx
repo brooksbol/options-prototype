@@ -12,7 +12,6 @@
 import { useCallback, useRef, useEffect } from "react";
 import { useProductionAssessment } from "./use-production-assessment";
 import type { ProductionAssessmentResponse, ReconciliationIssue, ErosionEvent } from "./production-types";
-import { navigateTo } from "../router";
 import "./production.css";
 
 const LS_KEY = "wheelwright:production:activity-csv";
@@ -50,14 +49,6 @@ export function ProductionView() {
 
   return (
     <div className="prod-shell">
-      <header className="prod-header">
-        <h1 className="prod-title">Cash Production</h1>
-        <nav className="prod-nav">
-          <a href="/" onClick={(e) => { e.preventDefault(); navigateTo("/"); }}>Console</a>
-          <a href="/app/write" onClick={(e) => { e.preventDefault(); navigateTo("/app/write"); }}>Write Desk</a>
-        </nav>
-      </header>
-
       <section className="prod-upload">
         <label className="prod-upload-label">
           Fidelity Activity History CSV

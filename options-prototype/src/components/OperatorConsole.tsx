@@ -18,7 +18,6 @@ import { deriveNearestConsequenceSummary, type NearestConsequenceSummary } from 
 import { buildPositionDetail, type PositionDetail } from "../portfolio/position-detail";
 import type { OptionBasisInput } from "../portfolio/assignment-consequence";
 import { PositionDetailModal } from "./PositionDetailModal";
-import { navigateTo } from "../router";
 import "../operator-console/operator-console.css";
 
 export function OperatorConsole() {
@@ -29,12 +28,9 @@ export function OperatorConsole() {
   if (!snapshot) {
     return (
       <div className="oc-shell">
-        <header className="oc-region-header">
-          <h1 className="oc-title">Wheelwright</h1>
+        <div className="oc-context-bar">
           <span className="oc-source">{source === "fidelity" ? "Fidelity — no data loaded" : "Demo"}</span>
-          <button className="oc-nav-link" onClick={() => navigateTo("/app/write")}>Recommendations →</button>
-          <button className="oc-nav-link" onClick={() => navigateTo("/app/production")}>Cash Production →</button>
-        </header>
+        </div>
         <div className="oc-empty">
           <p>No portfolio data available.</p>
         </div>
@@ -50,17 +46,13 @@ export function OperatorConsole() {
 
   return (
     <div className="oc-shell">
-      {/* Header region — application/operator context */}
-      <header className="oc-region-header">
-        <h1 className="oc-title">Wheelwright</h1>
+      {/* Surface context bar — portfolio source and summary */}
+      <div className="oc-context-bar">
         <span className="oc-source">{source === "demo" ? "Demo Portfolio" : "Fidelity Snapshot"}</span>
         <span className="oc-summary">
           {positions.length} positions · ${totalCapital.toLocaleString()} encumbered
         </span>
-        <div className="oc-header-reserved">Context region</div>
-        <button className="oc-nav-link" onClick={() => navigateTo("/app/write")}>Recommendations →</button>
-        <button className="oc-nav-link" onClick={() => navigateTo("/app/production")}>Cash Production →</button>
-      </header>
+      </div>
 
       <div className="oc-body">
         {/* Sidebar region — portfolio capacity facts */}
