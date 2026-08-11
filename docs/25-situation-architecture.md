@@ -1,7 +1,7 @@
 # Situation-Based Operation
 
 **Status:** Architecture direction accepted; Bridge Income is the first implementation target
-**Date:** July 2026
+**Date:** August 2026
 
 ---
 
@@ -12,6 +12,17 @@ Wheelwright already embodies an implicit operating situation. The current system
 Rather than replacing this, we make it explicit.
 
 A **situation** is the operator's declared context that shapes how Wheelwright reasons about recommendations, explanations, and portfolio health. It adds context, constraints, and optimization priorities to existing capabilities. It does not replace the evidence acquisition, portfolio model, recommendation engine, or operator surfaces.
+
+### Architectural Role
+
+Situation operates as **cross-cutting context within the Application Shell**, not as a peer to the Four Engines or as a page-level input to one surface. It shapes how all operational surfaces behave:
+
+- The **Console** renders portfolio state through the lens of the active situation (e.g., decision pressure thresholds may be situation-informed).
+- The **Deployment surface** prioritizes recommendations against the mission (e.g., mission gap drives urgency).
+- **Production** assesses output against situation-defined targets (e.g., monthly $6,000 for Bridge Income).
+- **Explanation** frames recommendations in situational terms rather than generic metrics.
+
+This cross-cutting nature is why situation belongs in the Application Shell (shared operating context) rather than owned by any individual surface.
 
 ---
 
@@ -121,6 +132,7 @@ Under situation-based operation, the primary recommendation table contains portf
 
 - Sell Covered Call
 - Sell Cash-Secured Put
+- Buy-Write (purchase shares + sell covered call simultaneously)
 
 The table answers: "What actions belong in today's work queue?"
 
@@ -183,6 +195,7 @@ Each would introduce its own context, constraints, optimization priorities, and 
 | Execution assessment | Reusable. Spread, OI, volume scoring doesn't change per situation. |
 | Policy configuration | Becomes situation-derived rather than manually tuned. Delta/DTE targets may vary per situation. |
 | Operator Console (DTE ladder) | Renders the portfolio under any situation. Health classification may become situation-aware. |
+| Production surface | Situation-informed. Monthly production assessed against situation-defined targets. Bridge Income's cash-flow requirement gives Production its mission-relative dimension. |
 | Drawers and explainability | Explanation framing becomes situation-contextual. |
 | Epistemic Integrity | Unchanged. The system must never imply more certainty than evidence supports, regardless of situation. |
 

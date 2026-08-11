@@ -1,6 +1,6 @@
 # System Diagrams
 
-**Status:** Authoritative as of July 2026
+**Status:** Authoritative as of August 2026
 
 ---
 
@@ -19,25 +19,31 @@
 ┌──────────▼──────────────────────────┐    ┌───────▼────────────────┐
 │  JAVA BACKEND                        │    │  BROWSER                │
 │  (evidence-service-java)             │    │  (options-prototype)    │
-│                                      │    │                         │
-│  ┌────────────────────────────────┐  │    │  ┌─────────────────┐   │
-│  │  Acquisition Worker             │  │    │  │ CSV Parsers      │   │
-│  │  · Session gate                 │  │    │  │ · Option Summary │   │
-│  │  · Tiered scheduler (A/B/C/D)  │  │    │  │ · Balances       │   │
-│  │  · Anti-starvation floors      │  │    │  └────────┬────────┘   │
-│  │  · Publication coalescing      │  │    │           │             │
-│  └────────────┬───────────────────┘  │    │  ┌────────▼────────┐   │
-│               │ writes                │    │  │ Portfolio        │   │
-│  ┌────────────▼───────────────────┐  │    │  │ Snapshot         │   │
-│  │  SQLite Evidence Store          │  │    │  │ · Cash           │   │
-│  │  · Symbols + resolution         │  │    │  │ · Inventory      │   │
-│  │  · Chains + expirations         │  │    │  │ · Economics      │   │
-│  │  · Generations                  │  │    │  │ · Existing opts  │   │
+│                                      │    │  Application Shell      │
+│  ┌────────────────────────────────┐  │    │                         │
+│  │  Acquisition Worker             │  │    │  ┌─────────────────┐   │
+│  │  · Session gate                 │  │    │  │ CSV Parsers      │   │
+│  │  · Tiered scheduler (A/B/C/D)  │  │    │  │ · Option Summary │   │
+│  │  · Anti-starvation floors      │  │    │  │ · Balances       │   │
+│  │  · Publication coalescing      │  │    │  │ · Activity Hist. │   │
 │  └────────────┬───────────────────┘  │    │  └────────┬────────┘   │
-│               │ reads                 │    │           │             │
-│  ┌────────────▼───────────────────┐  │    │           │             │
+│               │ writes                │    │           │             │
+│  ┌────────────▼───────────────────┐  │    │  ┌────────▼────────┐   │
+│  │  SQLite Evidence Store          │  │    │  │ Portfolio Store   │   │
+│  │  · Symbols + resolution         │  │    │  │ (app-scoped)     │   │
+│  │  · Chains + expirations         │  │    │  │ · Cash           │   │
+│  │  · Generations                  │  │    │  │ · Inventory      │   │
+│  └────────────┬───────────────────┘  │    │  │ · Economics      │   │
+│               │ reads                 │    │  │ · Existing opts  │   │
+│  ┌────────────▼───────────────────┐  │    │  └────────┬────────┘   │
 │  │  Snapshot Publisher             │  │    │           │             │
 │  │  · ETag computation             │  │    │           │             │
+│  │  · Conditional HTTP (304)       │  │    │           │             │
+│  └────────────┬───────────────────┘  │    │           │             │
+│               │                       │    │           │             │
+│  ┌────────────┴───────────────────┐  │    │           │             │
+│  │  Quotes Publisher               │  │    │           │             │
+│  │  · Selective symbol quotes      │  │    │           │             │
 │  │  · Conditional HTTP (304)       │  │    │           │             │
 │  └────────────┬───────────────────┘  │    │           │             │
 └───────────────┼──────────────────────┘    │           │             │
@@ -45,29 +51,41 @@
                 │ GET /api/evidence/snapshot  │           │             │
                 │ (30s poll, If-None-Match)   │           │             │
                 │                            │           │             │
-                └───────────────────────────▶│           │             │
+                ├───────────────────────────▶│           │             │
+                │                            │  ┌───────▼─────────┐   │
+                │ GET /api/evidence/quotes    │  │ IndexedDB Cache   │   │
+                │ (portfolio symbols, poll)   │  │ (read cache from  │   │
+                │                            │  │  backend snapshot) │   │
+                └───────────────────────────▶│  └───────┬─────────┘   │
+                                             │          │              │
                                              │  ┌───────▼─────────┐   │
-                                             │  │ IndexedDB Cache   │   │
-                                             │  │ (read cache from  │   │
-                                             │  │  backend snapshot) │   │
+                                             │  │ Observation Store │   │
+                                             │  │ (portfolio quotes)│   │
                                              │  └───────┬─────────┘   │
                                              │          │              │
                                              │          │ + Portfolio   │
                                              │          │              │
+                                             │  ┌───────▼─────────────┐│
+                                             │  │ Decision Engine      ││
+                                             │  │ · recommendPuts()    ││
+                                             │  │ · recommendCalls()   ││
+                                             │  │ · recommendBuyWrites()│
+                                             │  │ (zero provider calls)││
+                                             │  └───────┬─────────────┘│
+                                             │          │              │
                                              │  ┌───────▼─────────┐   │
-                                             │  │ Wheelwright       │   │
-                                             │  │ · recommendPuts() │   │
-                                             │  │ · recommendCalls()│   │
-                                             │  │ (zero provider    │   │
-                                             │  │  calls)           │   │
+                                             │  │ Position         │   │
+                                             │  │ Monitoring       │   │
+                                             │  │ (ADR-013)        │   │
                                              │  └───────┬─────────┘   │
                                              │          │              │
                                              │  ┌───────▼─────────┐   │
-                                             │  │ Write Desk        │   │
-                                             │  │ · Put table       │   │
-                                             │  │ · Call table      │   │
-                                             │  │ · Brief drawer    │   │
-                                             │  │ · Policy controls │   │
+                                             │  │ Operator Surfaces │   │
+                                             │  │ · Console (/)     │   │
+                                             │  │ · Write Desk      │   │
+                                             │  │   (/app/write)    │   │
+                                             │  │ · Production      │   │
+                                             │  │   (/app/production)│  │
                                              │  └───────┬─────────┘   │
                                              │          │              │
                                              │  ┌───────▼─────────┐   │
@@ -136,7 +154,7 @@
 
 ---
 
-## 3. Recommendation Pipeline (Browser)
+## 3. Recommendation Pipeline (Browser — Decision Engine)
 
 ```
 Backend Snapshot (polled every 30s)
@@ -144,27 +162,34 @@ Backend Snapshot (polled every 30s)
         ▼
 IndexedDB Cache (populated from snapshot)
         │
-        ├───────────────────────────────────────────┐
-        │                                           │
-        ▼                                           ▼
-recommendPuts()                              recommendCalls()
-  · Universe (~1286 symbols)                   · Inventory positions
-  · Delta/DTE/execution policy                 · Free shares ≥ 100
-  · Affordability (cash)                       · Same delta/DTE policy
-  · Governance (product structure)             · No affordability gate
-        │                                           │
-        ▼                                           ▼
-Ranked PutCandidate[]                        Ranked CallCandidate[]
-  · ACTIONABLE / EDGE / WAIT                   · ACTIONABLE / EDGE / WAIT
-        │                                           │
-        └───────────────────┬───────────────────────┘
+        ├───────────────────────────────┬───────────────────────────┐
+        │                               │                           │
+        ▼                               ▼                           ▼
+recommendPuts()                  recommendCalls()          recommendBuyWrites()
+  · Universe (~1286 symbols)       · Inventory positions      · Universe symbols
+  · Delta/DTE/execution policy     · Free shares ≥ 100        · Underlying prices
+  · Affordability (cash)           · Same delta/DTE policy     · Call chains
+  · Governance (product structure) · No affordability gate     · Affordability (shares)
+        │                               │                           │
+        ▼                               ▼                           ▼
+Ranked PutCandidate[]            Ranked CallCandidate[]    Ranked BuyWriteCandidate[]
+  · ACTIONABLE / EDGE / WAIT       · ACTIONABLE / EDGE       · ACTIONABLE / EDGE / WAIT
+        │                               │                           │
+        └───────────────────┬───────────┴───────────────────────────┘
                             │
                             ▼
-                    Write Desk
+              Cross-Entry Composition (current: experimental)
+                · Unified comparison across paths
+                · Strategy-independent economics
+                            │
+                            ▼
+                    Write Desk (Deployment & Recommendation)
                     · Collapsible Puts section
                     · Collapsible Calls section
+                    · Collapsible Buy-Write section
+                    · Cross-entry comparison view
                     · Policy controls (shared)
-                    · Recommendation Brief (put drawer)
+                    · Recommendation Brief (put + buy-write drawers)
 ```
 
 ---
@@ -244,3 +269,58 @@ Browser                          Backend
   │  Body: { updated snapshot }    │
   │◀───────────────────────────────│
 ```
+
+---
+
+## 6. Application Surface Topology
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  APPLICATION SHELL (shared operating context)                    │
+│                                                                 │
+│  Cross-cutting state:                                           │
+│    · Portfolio context and provenance (ADR-011)                 │
+│    · Evidence session state and freshness                       │
+│    · Active situation/mission (when implemented)                │
+│    · Navigation and context-preserving transitions              │
+│                                                                 │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────┐  │
+│  │  CONSOLE          │  │  DEPLOYMENT /     │  │  PRODUCTION   │  │
+│  │  (home — /)       │  │  RECOMMENDATION   │  │  (/app/       │  │
+│  │                   │  │  (/app/write)     │  │   production) │  │
+│  │  · Orientation    │  │                   │  │              │  │
+│  │  · Position       │  │  · Opportunity    │  │  · Realized  │  │
+│  │    monitoring     │  │    assessment     │  │    income    │  │
+│  │  · DTE ladder     │  │  · Contract       │  │  · Monthly   │  │
+│  │  · Decision       │  │    selection      │  │    accounting│  │
+│  │    pressure       │  │  · Cross-entry    │  │  · Mission-  │  │
+│  │  · Capacity       │  │    comparison     │  │    relative  │  │
+│  │    assessment     │  │  · Brief /        │  │    progress  │  │
+│  │                   │  │    explanation    │  │    (future)  │  │
+│  │                   │  │  · Execution      │  │              │  │
+│  │                   │  │    handoff        │  │              │  │
+│  └──────────────────┘  └──────────────────┘  └──────────────┘  │
+│                                                                 │
+│  Operator Flow:  Orient ──→ Assess/Deploy ──→ Reconcile        │
+│                    ↑                              │              │
+│                    └──────────────────────────────┘              │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  ENGINEERING / DEBUG AREA (subordinate, not operator topology)   │
+│                                                                 │
+│  · Universe browser                                             │
+│  · Scenario replay (research)                                   │
+│  · Parsing diagnostics                                          │
+│  · Backend telemetry / scheduler status                         │
+│  · Legacy Lab surfaces (pending retirement)                     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Reading this diagram:**
+
+- The **Application Shell** is the shared container. It provides cross-cutting state, navigation, and presentation grammar to all operational surfaces.
+- The three **operational surfaces** are the established operator destinations. Each owns a distinct responsibility in the operator's workflow cycle.
+- The **operator flow** arrow illustrates the natural traversal: orientation (Console) → opportunity assessment and deployment (Write Desk) → production reconciliation → back to orientation.
+- The **engineering area** is deliberately subordinate. It provides developer/research tools but is not part of the operator's mental model or primary navigation.

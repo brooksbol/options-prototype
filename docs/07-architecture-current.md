@@ -1,6 +1,6 @@
 # Wheelwright — Current Architecture
 
-**Status:** Authoritative as of July 2026
+**Status:** Authoritative as of August 2026
 **Supersedes:** Prior version of this document (browser-owned acquisition era)
 
 ---
@@ -97,7 +97,7 @@ The current runtime architecture consists of a Java backend maintaining evidence
 └──────────────────────────────┬───────────────────────────────┘
                                │ HTTP (conditional GET, 30s poll)
 ┌──────────────────────────────▼───────────────────────────────┐
-│  BROWSER (options-prototype)                                  │
+│  BROWSER (options-prototype) — Application Shell              │
 │                                                              │
 │  Portfolio Store (application-scoped, self-hydrating)         │
 │    → PortfolioSnapshot from Fidelity CSV or Demo             │
@@ -109,32 +109,60 @@ The current runtime architecture consists of a Java backend maintaining evidence
 │                                                              │
 │  Position Monitoring                                         │
 │    → Portfolio + Evidence → MonitoredPosition[]              │
-│    → Moneyness, DTE, capital, provenance                    │
+│    → Moneyness, DTE, capital, resolution proximity           │
 │                                                              │
 │  Operator Console (home surface — route /)                   │
 │    → Expiration-native DTE ladder (d3-hierarchy treemap)     │
 │    → Moneyness visualization (OTM/ATM/ITM)                  │
 │    → Position-detail modal (progressive learning)            │
 │                                                              │
-│  Recommendation Engines:                                     │
+│  Decision Engine (strategy-specific recommendation paths):   │
 │    · recommendPuts() — universe-wide put candidates           │
 │    · recommendCalls() — inventory-driven call candidates      │
-│    (Both: zero provider calls, cache-only, deterministic)    │
+│    · recommendBuyWrites() — share-purchase + call candidates  │
+│    (All: zero provider calls, cache-only, deterministic)     │
 │                                                              │
-│  Write Desk (Operator Workbench — route /app/write)          │
-│    · Collapsible Put and Call sections                        │
+│  Write Desk (Deployment & Recommendation — route /app/write) │
+│    · Collapsible Put, Call, and Buy-Write sections            │
+│    · Cross-entry composition and comparison                  │
 │    · Sortable candidate tables                               │
-│    · Recommendation Brief (put drawer)                       │
+│    · Recommendation Brief (put + buy-write drawers)          │
 │    · Policy controls                                         │
 │                                                              │
-│  Cash Production (route /app/production)                     │
-│    · Fidelity Activity History CSV upload                    │
-│    · Backend-authoritative monthly production assessment     │
+│  Production (Accounting — route /app/production)             │
+│    · Activity History CSV upload (current ingestion)         │
+│    · Backend-authoritative monthly production accounting     │
 │    · localStorage persistence of uploaded CSV                │
 │                                                              │
 │  Broker Handoff (WriteIntent → Fidelity trade link)          │
 └──────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Application Shell
+
+Wheelwright's operational surfaces share a common application operating context — the Application Shell. This is not an independent surface but the structural container that holds cross-cutting concerns multiple surfaces need.
+
+**The Application Shell provides:**
+
+- Application-scoped portfolio state and provenance (ADR-011)
+- Evidence session state and freshness (shared across all surfaces)
+- Navigation between operational surfaces with context preservation (ADR-012)
+- Active situation/mission context (when implemented; see §Operating Regime and Situation)
+- Consistent layout grammar and interaction conventions
+
+**The Application Shell distinguishes:**
+
+- **Application-scoped state** — portfolio, evidence/session, situation — owned by the shell, observed by all surfaces.
+- **Surface-local state** — selections, filters, scroll position, expanded/collapsed UI — owned by individual surfaces and persisted only where the surface explicitly chooses to do so.
+
+This decomposition is the logical consequence of ADR-011 ("Multiple Wheelwright surfaces observe one consistent imported portfolio") and ADR-012 ("Application-scoped state becomes a prerequisite for implementation"). The shell makes those requirements structurally explicit.
+
+**Current implementation:**
+- `portfolio-store.ts` — module-level singleton, self-hydrating from localStorage, observable via `useSyncExternalStore`
+- `observation-store.ts` — subscriber-driven selective quote polling for portfolio symbols
+- Route-based navigation (`Root.tsx`) between Console, Write Desk, and Production
 
 ---
 
@@ -197,9 +225,11 @@ interface PositionEconomics {
 
 ---
 
-### 3. Recommendation Engines (Browser — Wheelwright)
+### 3. Recommendation (Browser — Decision Engine)
 
 **Owns:** Recommendation generation as a deterministic function of cached evidence + policy + portfolio state.
+
+The Decision Engine produces ranked candidates via three strategy-specific recommendation paths. Each path independently evaluates its candidate universe against cached evidence and shared policy. All paths share the same contract: zero provider calls, deterministic, cache-only.
 
 #### Put Recommendations (`recommendPuts`)
 
@@ -215,7 +245,17 @@ interface PositionEconomics {
 - Applies the same shared policy (delta, DTE, execution quality)
 - Produces ranked `CallCandidate[]` with posture
 
-**Invariant:** Zero provider calls. Same evidence + same policy = same recommendations.
+#### Buy-Write Recommendations (`recommendBuyWrites`)
+
+- Evaluates universe symbols where purchasing shares + writing a covered call constitutes a deployment opportunity
+- Reads underlying prices and call chains from cached evidence
+- Applies shared delta/DTE/execution policy with buy-write-specific economic consequence, including premium and conditional appreciation to strike in the current implementation
+- Produces ranked `BuyWriteCandidate[]` with posture
+- Affordability-gated by deployable cash required to acquire the underlying shares
+
+**Cross-entry composition:** The Write Desk can compose and compare opportunities across all three recommendation paths, enabling the operator to assess deployment options by unified economics rather than by entry mechanism alone. The specific comparison methodology is current implementation subject to evolution — it is not a ratified economic model.
+
+**Invariant:** Zero provider calls. Same evidence + same policy = same recommendations. This holds for all three paths independently.
 
 **Valuation convention (midpoint economics):**
 
@@ -238,29 +278,47 @@ Midpoint is a policy convention — it represents the operator's reasonable expe
 
 ---
 
-### 4. Write Desk (Operator Workbench)
+### 4. Write Desk (Deployment & Recommendation — route /app/write)
 
-**Owns:** Operator workflow, UI composition, interaction model.
+**Owns:** Operator workflow for opportunity assessment, contract selection, and execution handoff.
 
 **Structure:**
 - **Header:** Title, source selector, deployable cash, session state, call capacity, pending intents
 - **Put section** (collapsible): Policy controls, funnel infographic, sortable candidate table
 - **Call section** (collapsible): Covered-call candidates for held inventory
-- **Recommendation Brief:** Right-side drawer (put only; call drawer is Horizon B)
+- **Buy-Write section** (collapsible): Buy-write candidates with composite economics
+- **Cross-entry comparison:** Unified ranking across CSP and buy-write opportunities
+- **Recommendation Brief:** Right-side drawer (put and buy-write; call drawer is deferred)
 
-**Collapse state:** Persisted in `Workspace` (localStorage). Both sections default expanded.
+**Collapse state:** Persisted in `Workspace` (localStorage). Sections default expanded.
 
 **Must not:** Acquire evidence. Execute trades. Own recommendation logic.
 
 ---
 
-### 5. Broker Handoff
+### 5. Production (Accounting & Reconciliation — route /app/production)
+
+**Owns:** Production accounting, economic reconciliation of realized option income, and mission-relative output assessment.
+
+**Purpose:** The operator answers: "What has my portfolio actually produced? Am I on track?" This surface reconciles *realized* economic activity against production goals.
+
+**Current capability:** Backend-authoritative monthly production accounting and reconciliation from Fidelity Activity History evidence.
+
+**Architectural direction:** Assess production against situation-defined mission targets (e.g., Bridge Income's monthly cash-flow requirement). This awaits situation implementation.
+
+**Current ingestion:** Fidelity Activity History CSV upload with localStorage persistence. The CSV is the current mechanism for importing realized trade data; it is not the architectural identity of the surface.
+
+**Must not:** Produce recommendations. Acquire evidence. Own portfolio snapshot.
+
+---
+
+### 6. Broker Handoff
 
 **Owns:** Order intent construction and broker-specific URL generation.
 
 **WriteIntent → Fidelity trade link → new tab.** The system opens a pre-populated ticket. The broker is responsible for preview, validation, confirmation, and submission.
 
-**Currently implemented for:** Cash-secured puts only. Call handoff is Horizon B.
+**Currently implemented for:** Cash-secured puts. Buy-write and call-only handoff are deferred.
 
 ---
 
@@ -276,7 +334,7 @@ interface RecommendationPolicy {
 }
 ```
 
-**Shared across puts and calls:**
+**Shared across puts, calls, and buy-writes:**
 - Delta range (admissible: 0.15–0.50, target: 0.30)
 - DTE range (eligible: 7–45, target: 21)
 - Execution quality thresholds
@@ -359,6 +417,48 @@ interface RecommendationPolicy {
 
 ---
 
+## Operating Regime and Situation
+
+Wheelwright operates within a **cash-flow production regime**: the system exists to support an operator who consciously deploys capital into options positions to produce periodic income. This regime is documented in `foundations/regime-objective-function.md`.
+
+Within this regime, a **Situation** provides cross-cutting operating context that shapes how the entire application reasons about recommendations, explanations, portfolio health, and production targets. A situation contributes context, constraints, optimization priorities, and explanation framing — it is not a page-level input to one surface but a lens that shapes all operational surfaces.
+
+**Current state:** The system operates in an implicit default situation (Situation 0) that matches today's policy behavior. The first named situation — **Bridge Income** (monthly cash-flow production over a finite horizon) — is accepted architectural direction, not yet implemented.
+
+**Architectural relationship:**
+- Situation is cross-cutting context within the Application Shell, not a peer to the Four Engines.
+- The Decision Engine's recommendation paths become situation-informed when situations are implemented (same mechanics, situation-derived optimization targets).
+- The Console renders portfolio state through the lens of the active situation.
+- Production assesses output against situation-defined targets.
+- Explanation framing becomes situation-contextual.
+
+The full situation model is specified in `docs/25-situation-architecture.md`.
+
+---
+
+## Accepted Architectural Direction
+
+### Deployment Opportunity
+
+The reconciliation (August 2026) ratified **Deployment Opportunity** as a domain/composition concept within the Decision Engine.
+
+**Concept:** A Deployment Opportunity is a normalized, situation-aware portfolio action produced when the Decision Engine's strategy-specific outputs (put, call, buy-write candidates) are composed and evaluated against the active mission. It answers the operator's real question: "Given my portfolio, available capacity, evidence, and mission — what productive portfolio actions are available now?"
+
+**Ownership:** The Deployment Opportunity sits within the Decision Engine. It is not a fifth engine or a new service layer. Whether it manifests as a distinct internal composition component or as a new output shape from existing machinery is unresolved — the structural realization should emerge from implementation.
+
+**Current state:** The Write Desk's cross-entry composition and the buy-write path are embryonic expressions of this concept. A unified Deployment surface presenting opportunities organized by mission relevance (rather than by entry mechanism) is the anticipated evolution.
+
+**What is NOT decided:**
+- The normalized opportunity representation or schema
+- Cross-strategy comparability model
+- The final scoring/ranking methodology for cross-mechanism comparison
+- Whether the unified surface replaces or supplements the current strategy sections
+- Implementation timeline
+
+This direction fulfills the Situation Architecture's "Unified Recommendation Surface" anticipation and the Regime Objective Function's identification of multiple entry mechanisms serving one mission.
+
+---
+
 ## Calls Architecture (Horizon A — Implemented)
 
 The first slice of call recommendations restores covered-call candidates for held, unencumbered, quantized shares.
@@ -392,7 +492,7 @@ This document supersedes the earlier version that described browser-owned acquis
 | IndexedDB is system of record | SQLite is system of record; IndexedDB is a read cache |
 | Scan button triggers acquisition | Always-on worker, 30s polling from frontend |
 | `scanCalls()` via ProxyMarketDataProvider | `recommendCalls()` via cached evidence |
-| Puts only | Puts and Calls |
+| Puts only | Puts, Calls, and Buy-Writes |
 | Bid-based yield | Midpoint-based yield |
 
 The TypeScript backend (`evidence-service/`) has been retired after successful Java retooling acceptance (August 3, 2026). The Java backend is the sole evidence appliance.

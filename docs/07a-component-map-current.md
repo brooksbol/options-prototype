@@ -1,6 +1,6 @@
 # Component Responsibility Map
 
-**Status:** Authoritative as of July 2026
+**Status:** Authoritative as of August 2026
 **Supersedes:** Prior version (browser-owned acquisition era)
 
 ---
@@ -91,6 +91,15 @@ Components are organized by runtime boundary (Java backend vs browser frontend).
 | **Outputs** | `{"status":"nudged"}`. Worker nudge side-effect. |
 | **Must not** | Bypass session gate. Guarantee cycle execution. |
 
+### `QuotesController`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Serve selective quote evidence for requested symbols with conditional HTTP (ETag/304). Supports position monitoring by providing current underlying prices for portfolio symbols without requiring a full snapshot transfer. |
+| **Inputs** | HTTP request with `symbol` parameter(s), optional `If-None-Match` header. Store state. |
+| **Outputs** | JSON quote data for requested symbols, or 304 Not Modified. ETag header. |
+| **Must not** | Trigger acquisition. Modify evidence. Serve full snapshots (that is SnapshotController's responsibility). |
+
 ---
 
 ## Browser Frontend — Recommendation Layer
@@ -99,7 +108,7 @@ Components are organized by runtime boundary (Java backend vs browser frontend).
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Generate ranked put candidates from cached evidence + policy + portfolio. |
+| **Responsibility** | Generate ranked put candidates from cached evidence + policy + portfolio. Strategy-specific recommendation path within the Decision Engine. |
 | **Inputs** | Universe symbols, deployable cash, durable cache, policy, session state. |
 | **Outputs** | Ranked `PutCandidate[]`, funnel metrics, coverage requests. |
 | **Must not** | Make provider calls. Modify cache. Know about UI state. |
@@ -108,7 +117,7 @@ Components are organized by runtime boundary (Java backend vs browser frontend).
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Generate ranked call candidates for held inventory from cached evidence. |
+| **Responsibility** | Generate ranked call candidates for held inventory from cached evidence. Strategy-specific recommendation path within the Decision Engine. |
 | **Inputs** | Inventory positions, durable cache, policy, session state. |
 | **Outputs** | Ranked `CallCandidate[]`, excluded list. |
 | **Must not** | Make provider calls. Modify cache. Evaluate positions without free shares. |
@@ -168,6 +177,77 @@ Components are organized by runtime boundary (Java backend vs browser frontend).
 
 ---
 
+## Browser Frontend — Application Shell
+
+### `src/portfolio/portfolio-store.ts` (Portfolio Store)
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Application-scoped portfolio state. Self-hydrating singleton. Observable subscription model. |
+| **Inputs** | Parsed Fidelity CSV data, demo snapshot, localStorage hydration. |
+| **Outputs** | `PortfolioSnapshot` observable via `useSyncExternalStore`. Import provenance metadata. |
+| **Must not** | Make provider calls. Own recommendation logic. Depend on any specific surface. |
+
+### `src/evidence/observation-store.ts` (Observation Store)
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Subscriber-driven selective quote polling for portfolio symbols. Provides underlying prices for position monitoring. |
+| **Inputs** | Symbol set (from portfolio), polling interval, backend `GET /api/evidence/quotes`. |
+| **Outputs** | `ObservationState` — per-symbol quote observations (price, timestamp, acquisition status). |
+| **Must not** | Acquire full evidence snapshots. Own recommendation logic. Depend on any specific surface. |
+
+### `src/portfolio/position-monitoring.ts`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Derive current monitored-position state from portfolio + observations, including Contract State and Resolution Proximity semantics from ADR-013. |
+| **Inputs** | `PortfolioSnapshot`, `ObservationState`. |
+| **Outputs** | `MonitoredPosition[]` — moneyness, DTE, encumbered capital, resolution proximity, provenance. |
+| **Must not** | Make provider calls. Produce recommendations. Assign normative health judgments. |
+
+---
+
+## Browser Frontend — Decision Engine (Buy-Write Path)
+
+### `src/write-desk/recommend-buy-writes.ts` (`recommendBuyWrites`)
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Generate ranked buy-write candidates from cached evidence + policy + deployable cash, including current affordability gating based on cash required to acquire the underlying shares. Strategy-specific recommendation path within the Decision Engine, parallel to `recommendPuts` and `recommendCalls`. |
+| **Inputs** | Universe symbols, underlying prices (from evidence), call chains (from cache), deployable cash, policy, session state. |
+| **Outputs** | Ranked `BuyWriteCandidate[]` with posture, composite economics. |
+| **Must not** | Make provider calls. Modify cache. Own portfolio state. |
+
+### `src/write-desk/buy-write-brief-builder.ts`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Build the buy-write recommendation brief view model. Parallel to `brief-builder.ts` for puts. |
+| **Inputs** | `BuyWriteCandidate`, policy, portfolio, session, cache, table position. |
+| **Outputs** | Buy-write brief view model — composite economics, delta fit, governance, neighborhood, provenance. |
+| **Must not** | Make provider calls. Modify state. Produce side effects. |
+
+### `src/write-desk/production-v0.ts`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Current experimental cross-entry comparison scoring and normalized row construction. Computes a provisional production metric across CSP and buy-write candidates for unified ranking. This is experimental implementation expected to evolve — not the permanent economic model. |
+| **Inputs** | `PutCandidate[]`, `BuyWriteCandidate[]`, policy thresholds. |
+| **Outputs** | `CrossEntryRow[]` — normalized comparison rows with decomposed economics. `CrossEntryExportPayload` for diagnostic export. |
+| **Must not** | Make provider calls. Modify cache. Own recommendation logic. |
+
+### `src/write-desk/governance-explanation.ts`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Human-readable governance explanations for governance annotations. Shared across all recommendation drawers (put, call, buy-write). Explains policy decisions; does not make them. |
+| **Inputs** | Governance classification, product-structure metadata. |
+| **Outputs** | Structured explanation text. |
+| **Must not** | Make governance decisions. Modify state. Make provider calls. |
+
+---
+
 ## Browser Frontend — Operator Workbench
 
 ### `src/components/WriteDesk.tsx`
@@ -212,6 +292,32 @@ Components are organized by runtime boundary (Java backend vs browser frontend).
 
 ---
 
+## Browser Frontend — Operator Console
+
+### `src/components/OperatorConsole.tsx`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Operator orientation surface. Renders portfolio state through expiration-native DTE ladder and moneyness visualization. Implements ADR-012 (Console as home surface). |
+| **Inputs** | `MonitoredPosition[]` (from position monitoring), portfolio snapshot, observation state. |
+| **Outputs** | DTE ladder treemap, moneyness classification, position-detail modal, navigation to other surfaces. |
+| **Must not** | Own recommendation logic. Own portfolio import. Acquire evidence. |
+
+---
+
+## Browser Frontend — Production
+
+### `src/production/ProductionView.tsx`
+
+| Property | Value |
+|----------|-------|
+| **Responsibility** | Production accounting and economic reconciliation. Renders realized option income from activity history. |
+| **Inputs** | Fidelity Activity History CSV (uploaded by operator), backend production assessment. |
+| **Outputs** | Monthly production accounting, closed-position lifecycle summary, trend visualization. |
+| **Must not** | Own recommendation logic. Acquire evidence. Own portfolio snapshot. |
+
+---
+
 ## Browser Frontend — Workspace
 
 ### `src/workspace/workspace.ts`
@@ -236,4 +342,4 @@ The following components belong to the browser-owned acquisition era. They remai
 - `src/write-desk/scan-orchestrator.ts` — full scan (puts + calls via proxy)
 - `src/providers/proxy/ProxyMarketDataProvider.ts` — HTTP proxy to backend market routes
 
-These will be removed during TypeScript backend retirement.
+These are dead-pipeline artifacts retained from the TypeScript backend era. Removal is tracked as active conformance work (PL-OPS-06).
