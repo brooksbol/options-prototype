@@ -25,7 +25,7 @@ import type { ObservationState, AcquisitionStatus } from "../evidence/observatio
 
 // --- Types ---
 
-export type PositionType = "put" | "call";
+export type PositionType = "put" | "call" | "buy-write";
 
 export type CapitalValuationBasis =
   | "strike"               // Puts: strike × 100 × quantity
@@ -150,9 +150,12 @@ export function deriveMonitoredPositions(
 
     const evidence = resolveEvidence("call", call.underlying, call.strike, observations, generation);
 
+    // Determine if this is a buy-write (shares owned + call sold = covered, with known acquisition cost)
+    const isBuyWrite = inv != null && inv.sharesOwned >= 100 && inv.economics?.averageCostPerShare != null;
+
     positions.push({
       id: `call-${call.underlying}-${call.strike}-${call.expiration}`,
-      type: "call",
+      type: isBuyWrite ? "buy-write" : "call",
       underlying: call.underlying,
       strike: call.strike,
       expiration: call.expiration,

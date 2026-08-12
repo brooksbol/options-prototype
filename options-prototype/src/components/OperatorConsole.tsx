@@ -430,7 +430,7 @@ function PositionTile({ node, onClick }: { node: LayoutNode; onClick: () => void
       style={{ ...style, fontSize, cursor: "pointer" }}
       onClick={onClick}
     >
-      <span className="oc-tile-badge">{position.type === "put" ? "PUT" : "CALL"}</span>
+      <span className="oc-tile-badge">{position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL"}</span>
       <span className="oc-tile-symbol">{position.underlying}</span>
       <span className="oc-tile-strike">${position.strike}</span>
       {position.encumberedCapital != null && (
@@ -458,7 +458,7 @@ function buildDetailForPosition(
   // Resolve option basis from the matching position in the snapshot
   let optionBasis: OptionBasisInput = { brokerOptionBasis: null, brokerOptionAverageCost: null };
 
-  if (position.type === "call") {
+  if (position.type === "call" || position.type === "buy-write") {
     const match = snapshot.existingCalls.find(
       c => c.underlying.toUpperCase() === position.underlying.toUpperCase()
         && c.strike === position.strike

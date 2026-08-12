@@ -70,7 +70,7 @@ describe("moneyness computation", () => {
       const snapshot = makeSnapshot({ calls: [{ underlying: "XLE", strike: 55, expiration: "2026-08-08", quantity: 1 }] });
       const obs = makeObservations([{ symbol: "XLE", price: 60 }]);
       const positions = deriveMonitoredPositions(snapshot, obs, TODAY);
-      const call = positions.find(p => p.type === "call")!;
+      const call = positions.find(p => p.type === "call" || p.type === "buy-write")!;
       // (60 - 55) / 55 = 0.0909...
       expect(call.moneyness).toBeCloseTo(5 / 55, 6);
       expect(call.moneyness!).toBeGreaterThan(0); // ITM
@@ -80,7 +80,7 @@ describe("moneyness computation", () => {
       const snapshot = makeSnapshot({ calls: [{ underlying: "XLE", strike: 60, expiration: "2026-08-08", quantity: 1 }] });
       const obs = makeObservations([{ symbol: "XLE", price: 55 }]);
       const positions = deriveMonitoredPositions(snapshot, obs, TODAY);
-      const call = positions.find(p => p.type === "call")!;
+      const call = positions.find(p => p.type === "call" || p.type === "buy-write")!;
       // (55 - 60) / 60 = -0.0833...
       expect(call.moneyness).toBeCloseTo(-5 / 60, 6);
       expect(call.moneyness!).toBeLessThan(0); // OTM
@@ -90,7 +90,7 @@ describe("moneyness computation", () => {
       const snapshot = makeSnapshot({ calls: [{ underlying: "XLE", strike: 58, expiration: "2026-08-08", quantity: 1 }] });
       const obs = makeObservations([{ symbol: "XLE", price: 58 }]);
       const positions = deriveMonitoredPositions(snapshot, obs, TODAY);
-      const call = positions.find(p => p.type === "call")!;
+      const call = positions.find(p => p.type === "call" || p.type === "buy-write")!;
       expect(call.moneyness).toBe(0);
     });
   });
@@ -196,7 +196,7 @@ describe("moneyness computation", () => {
       const snapshot = makeSnapshot({ calls: [{ underlying: "QQQ", strike: 700, expiration: "2026-08-08", quantity: 1 }] });
       const obs = makeObservations([{ symbol: "QQQ", price: 698.41, status: "failed", lastAttemptAt: "2026-08-04T17:06:40Z", failureCount: 3 }]);
       const positions = deriveMonitoredPositions(snapshot, obs, TODAY);
-      const call = positions.find(p => p.type === "call")!;
+      const call = positions.find(p => p.type === "call" || p.type === "buy-write")!;
       expect(call.acquisitionStatus).toBe("failed");
       expect(call.lastAttemptAt).toBe("2026-08-04T17:06:40Z");
       expect(call.failureCount).toBe(3);
@@ -221,7 +221,7 @@ describe("moneyness computation", () => {
       const snapshot = makeSnapshot({ calls: [{ underlying: "QQQ", strike: 500, expiration: "2026-08-08", quantity: 2 }] });
       const obs = makeObservations([{ symbol: "QQQ", price: 700 }]);
       const positions = deriveMonitoredPositions(snapshot, obs, TODAY);
-      const call = positions.find(p => p.type === "call")!;
+      const call = positions.find(p => p.type === "call" || p.type === "buy-write")!;
       // (700 - 500) / 500 = 0.4
       expect(call.moneyness).toBeCloseTo(0.4, 6);
     });

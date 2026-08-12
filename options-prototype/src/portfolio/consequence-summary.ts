@@ -94,7 +94,7 @@ export function deriveNearestConsequenceSummary(
   }
 
   // Aggregate calls
-  const callPositions = positions.filter(p => p.type === "call");
+  const callPositions = positions.filter(p => p.type === "call" || p.type === "buy-write");
   let calls: CallConsequenceAggregate | null = null;
 
   if (callPositions.length > 0) {
@@ -187,7 +187,7 @@ export function deriveNearestConsequenceSummary(
  * Resolve option basis input for a position from the snapshot.
  */
 function resolveOptionBasis(position: MonitoredPosition, snapshot: PortfolioSnapshot): OptionBasisInput {
-  if (position.type === "call") {
+  if (position.type === "call" || position.type === "buy-write") {
     const match = snapshot.existingCalls.find(
       c => c.underlying.toUpperCase() === position.underlying.toUpperCase()
         && c.strike === position.strike

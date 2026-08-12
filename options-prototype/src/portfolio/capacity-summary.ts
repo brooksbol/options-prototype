@@ -110,7 +110,7 @@ export function deriveCapacitySummary(
   let callsWithoutValuation = 0;
 
   for (const pos of positions) {
-    if (pos.type === "call") {
+    if (pos.type === "call" || pos.type === "buy-write") {
       if (pos.capitalValuationBasis === "market-value-at-import" && pos.encumberedCapital != null) {
         coveredEquity += pos.encumberedCapital;
         callPositionCount++;
@@ -135,7 +135,7 @@ export function deriveCapacitySummary(
     for (const pos of first.positions) {
       if (pos.type === "put") {
         putExposure += pos.encumberedCapital ?? 0;
-      } else if (pos.type === "call" && pos.capitalValuationBasis === "market-value-at-import" && pos.encumberedCapital != null) {
+      } else if (pos.type === "call" || pos.type === "buy-write" && pos.capitalValuationBasis === "market-value-at-import" && pos.encumberedCapital != null) {
         callExposure += pos.encumberedCapital;
       }
     }

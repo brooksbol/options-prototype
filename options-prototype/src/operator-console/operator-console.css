@@ -245,6 +245,30 @@
 
 .oc-tile-put .oc-tile-badge { color: var(--wd-accent-green); }
 .oc-tile-call .oc-tile-badge { color: var(--wd-accent-yellow, #f2c94c); }
+.oc-tile-buy-write .oc-tile-badge { color: var(--wd-accent-blue, #4a9eff); }
+
+/* Buy-write tile: subtle blue tint */
+.oc-tile-buy-write {
+  background: rgba(74, 158, 255, 0.10);
+}
+
+/* Buy-write ITM: cycle completion likely — green, not red */
+.oc-tile-buy-write.oc-tile-state-itm {
+  border-color: var(--wd-accent-green, #42C77A);
+}
+.oc-tile-buy-write.oc-tile-state-itm .oc-tile-moneyness {
+  color: var(--wd-accent-green, #42C77A);
+}
+
+/* Buy-write OTM: shares retained, cycle not yet completing — neutral */
+.oc-tile-buy-write.oc-tile-state-otm {
+  border-color: var(--wd-border-default, #555);
+}
+
+/* Buy-write ATM: approaching completion */
+.oc-tile-buy-write.oc-tile-state-atm {
+  border-color: var(--wd-accent-blue, #4a9eff);
+}
 
 .oc-tile-symbol {
   font-size: 1.1em;
