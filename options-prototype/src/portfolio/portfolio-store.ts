@@ -217,18 +217,11 @@ function applyActivityProjection(): void {
   const checkpointDate = currentSnapshot.provenance?.optionSummaryExportTimestamp ?? null;
   const checkpoint = parseCheckpointTimestamp(checkpointDate);
 
-  // Diagnostic — remove after debugging
-  console.log("[ACTIVITY-PROJECTION] checkpoint source:", checkpointDate, "→ parsed:", checkpoint.toISOString());
-  console.log("[ACTIVITY-PROJECTION] activity rows:", currentActivityRows.length);
-
-  const { snapshot: projected, projectedEventCount, projectedSymbols } = projectActivityOverlay(
+  const { snapshot: projected } = projectActivityOverlay(
     currentSnapshot,
     currentActivityRows,
     checkpoint,
   );
-
-  console.log("[ACTIVITY-PROJECTION] projected:", projectedEventCount, "events, symbols:", projectedSymbols);
-  console.log("[ACTIVITY-PROJECTION] deployableCash: base=$" + currentSnapshot.deployableCash.toFixed(0) + " → projected=$" + projected.deployableCash.toFixed(0));
 
   currentSnapshot = projected;
 }

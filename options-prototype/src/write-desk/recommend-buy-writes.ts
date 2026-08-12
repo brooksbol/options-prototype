@@ -253,13 +253,6 @@ export async function recommendBuyWrites(
       continue;
     }
 
-    // --- TEMPORARY DIAGNOSTIC: USO trace (remove after debugging) ---
-    const _traceSymbol = symbol === "USO";
-    if (_traceSymbol) {
-      console.log(`[BW-TRACE] USO: expirations payload:`, expirations);
-      console.log(`[BW-TRACE] USO: eligible exps (DTE ${policy.contractSelection.eligibleDteRange.min}-${policy.contractSelection.eligibleDteRange.max}):`, eligibleExps);
-    }
-
     // Evaluate call chains
     let bestCandidate: BuyWriteCandidate | null = null;
     let bestWait: BuyWriteCandidate | null = null;
@@ -279,12 +272,6 @@ export async function recommendBuyWrites(
       const chainKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "chain", symbol, exp.date);
       const chainRecord = await cache.get<CachedChain>(chainKey);
       if (!chainRecord || !isEligible(chainRecord)) continue;
-
-      // --- TRACE ---
-      if (_traceSymbol) {
-        const fr = cache.freshness(chainRecord as any);
-        console.log(`[BW-TRACE] USO exp=${exp.date} dte=${exp.dte}: chain FOUND, freshness=${fr}, retrievedAt=${(chainRecord as any).retrievedAt}, price=$${chainRecord.payload.underlying?.price}, calls=${chainRecord.payload.calls?.length ?? 0}`);
-      }
 
       symbolFoundChain = true;
       const calls = chainRecord.payload.calls ?? [];
@@ -309,19 +296,12 @@ export async function recommendBuyWrites(
       const inRange = calls.filter((c) =>
         (!excludeZeroBid || c.bid > 0) &&
         (!requireGreeks || c.delta !== 0) &&
-        c.delta <= 1.0 // Data quality: reject corrupt greeks (delta cannot exceed 1.0 for calls)
+        c.delta <= 1.0 && // Data quality: reject corrupt greeks (delta cannot exceed 1.0 for calls)
+        !(c.strike > underlyingPrice && c.delta > 0.95) // Evidence validity: OTM call with delta > 0.95 is corrupt provider data
       );
 
       if (inRange.length === 0) continue;
       symbolHadContractsInRange = true;
-
-      // --- TRACE ---
-      if (_traceSymbol) {
-        console.log(`[BW-TRACE] USO exp=${exp.date}: ${inRange.length} calls pass market-quality filter (no delta restriction)`);
-        for (const c of inRange) {
-          console.log(`[BW-TRACE]   $${c.strike} d=${c.delta.toFixed(3)} bid=$${c.bid} ask=$${c.ask} OI=${c.openInterest}`);
-        }
-      }
 
       // --- Premature-elimination fix ---
       // Evaluate hard-no eligibility for ALL admissible contracts BEFORE selecting
@@ -427,20 +407,7 @@ export async function recommendBuyWrites(
         // This expiration offers no valid Buy-Write for this symbol.
         // (We still mark symbolAllHardNo = false because contracts existed.)
         symbolHadEligibleButNoFit = true;
-        if (_traceSymbol) {
-          console.log(`[BW-TRACE] USO exp=${exp.date}: ALL ${eligible.length} eligible strikes fail fitness (strike <= price $${underlyingPrice})`);
-          for (const c of eligible) console.log(`[BW-TRACE]   $${c.strike} <= $${underlyingPrice.toFixed(2)}`);
-        }
         continue;
-      }
-
-      // --- TRACE ---
-      if (_traceSymbol) {
-        console.log(`[BW-TRACE] USO exp=${exp.date}: ${fitStrikes.length} fit strikes (of ${eligible.length} eligible):`);
-        for (const c of fitStrikes) {
-          const m = (c.bid + c.ask) / 2;
-          console.log(`[BW-TRACE]   $${c.strike} d=${c.delta.toFixed(3)} mid=$${m.toFixed(2)} ap=+$${(c.strike - underlyingPrice).toFixed(2)}`);
-        }
       }
 
       // --- Evaluate ALL fit strikes: compute economics + execution for each ---
@@ -537,11 +504,6 @@ export async function recommendBuyWrites(
       }
 
       if (!expWinner) continue;
-
-      // --- TRACE ---
-      if (_traceSymbol) {
-        console.log(`[BW-TRACE] USO exp=${exp.date} WINNER: $${expWinner.contract.strike} d=${expWinner.contract.delta.toFixed(3)} Pv0=${expWinner.pv0.toFixed(1)}% FCH=$${expWinner.fullCycleHarvest.toFixed(2)} exec=${expWinner.assessment.score} posture=${expWinner.assessment.posture}`);
-      }
 
       // Build candidate from winner
       const contract = expWinner.contract;
