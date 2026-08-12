@@ -18,11 +18,13 @@ import type { OptionSummaryRow } from "../csv/fidelity/optionSummaryParser";
 import type { ParsedBalances } from "../csv/fidelity/balancesParser";
 import { buildFidelitySnapshot } from "../write-desk/fidelity-snapshot";
 import type { PortfolioSnapshot } from "../write-desk/types";
+import { setActivityCsv } from "../portfolio/portfolio-store";
 
 // --- localStorage keys ---
 
 const LS_KEY_OS = "wheelwright:fidelity-csv:option-summary";
 const LS_KEY_BAL = "wheelwright:fidelity-csv:balances";
+const LS_KEY_ACTIVITY = "wheelwright:fidelity-csv:activity";
 
 // --- Slot State ---
 
@@ -46,6 +48,7 @@ interface FidelityUploadProps {
 export function FidelityUpload({ onSnapshotChange, onFileChange }: FidelityUploadProps) {
   const [optionSummarySlot, setOptionSummarySlot] = useState<FileSlotState>({ status: "empty", filename: null, error: null, timestamp: null });
   const [balancesSlot, setBalancesSlot] = useState<FileSlotState>({ status: "empty", filename: null, error: null, timestamp: null });
+  const [activitySlot, setActivitySlot] = useState<FileSlotState>({ status: "empty", filename: null, error: null, timestamp: null });
 
   // Parsed data (kept in refs so we can rebuild snapshot when either changes)
   const optionSummaryDataRef = useRef<{ rows: OptionSummaryRow[]; filename: string; exportTimestamp: string | null } | null>(null);
@@ -53,6 +56,7 @@ export function FidelityUpload({ onSnapshotChange, onFileChange }: FidelityUploa
 
   const osInputRef = useRef<HTMLInputElement>(null);
   const balInputRef = useRef<HTMLInputElement>(null);
+  const actInputRef = useRef<HTMLInputElement>(null);
   const restoredRef = useRef(false);
 
   // Attempt to rebuild the snapshot from current data
@@ -137,6 +141,7 @@ export function FidelityUpload({ onSnapshotChange, onFileChange }: FidelityUploa
     try {
       const osStored = localStorage.getItem(LS_KEY_OS);
       const balStored = localStorage.getItem(LS_KEY_BAL);
+      const actStored = localStorage.getItem(LS_KEY_ACTIVITY);
 
       if (osStored) {
         const { text, filename } = JSON.parse(osStored);
@@ -145,6 +150,10 @@ export function FidelityUpload({ onSnapshotChange, onFileChange }: FidelityUploa
       if (balStored) {
         const { text, filename } = JSON.parse(balStored);
         if (processBalancesText(text, filename)) restored = true;
+      }
+      if (actStored) {
+        const { filename } = JSON.parse(actStored);
+        setActivitySlot({ status: "loaded", filename, error: null, timestamp: null });
       }
     } catch {
       // Silently ignore corrupt localStorage
@@ -218,6 +227,37 @@ export function FidelityUpload({ onSnapshotChange, onFileChange }: FidelityUploa
     }
   }, [onFileChange, processBalancesText, rebuildSnapshot]);
 
+  // --- Handle fresh Activity / History upload ---
+
+  const handleActivityFile = useCallback(async (file: File) => {
+    setActivitySlot({ status: "parsing", filename: file.name, error: null, timestamp: null });
+    onFileChange();
+
+    try {
+      const text = await file.text();
+      if (setActivityCsv(text, file.name)) {
+        setActivitySlot({ status: "loaded", filename: file.name, error: null, timestamp: null });
+        // Note: do NOT call rebuildSnapshot() — setActivityCsv() already projects
+        // onto the existing snapshot and notifies the store. rebuildSnapshot() would
+        // overwrite with a non-projected version.
+      } else {
+        setActivitySlot({
+          status: "error",
+          filename: file.name,
+          error: "Could not classify as Fidelity Activity/History. Please upload the correct file.",
+          timestamp: null,
+        });
+      }
+    } catch (err) {
+      setActivitySlot({
+        status: "error",
+        filename: file.name,
+        error: `Parse error: ${err instanceof Error ? err.message : "unknown"}`,
+        timestamp: null,
+      });
+    }
+  }, [onFileChange, rebuildSnapshot]);
+
   return (
     <div className="wd-fidelity-upload">
       <div className="wd-upload-header">
@@ -285,6 +325,37 @@ export function FidelityUpload({ onSnapshotChange, onFileChange }: FidelityUploa
           </div>
           {balancesSlot.error && (
             <p className="wd-slot-error">{balancesSlot.error}</p>
+          )}
+        </div>
+
+        {/* Activity / History Slot */}
+        <div className={`wd-upload-slot wd-slot-${activitySlot.status}`}>
+          <div className="wd-slot-header">
+            <span className="wd-slot-label">Activity</span>
+            <span className="wd-slot-description">History CSV — projects same-day executions onto the snapshot</span>
+          </div>
+          <div className="wd-slot-controls">
+            <input
+              ref={actInputRef}
+              type="file"
+              accept=".csv"
+              className="wd-file-input-hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleActivityFile(file);
+                e.target.value = "";
+              }}
+            />
+            <button
+              className="wd-upload-btn"
+              onClick={() => actInputRef.current?.click()}
+            >
+              {activitySlot.status === "loaded" ? "Replace" : "Choose CSV"}
+            </button>
+            <SlotStatusBadge slot={activitySlot} />
+          </div>
+          {activitySlot.error && (
+            <p className="wd-slot-error">{activitySlot.error}</p>
           )}
         </div>
       </div>

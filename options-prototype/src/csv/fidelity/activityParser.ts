@@ -29,6 +29,8 @@ export type ActivityEventType =
   | "expired"
   | "shares_bought_assignment"
   | "shares_sold_assignment"
+  | "shares_bought_direct"
+  | "shares_sold_direct"
   | "dividend"
   | "treasury"
   | "cash_movement"
@@ -91,6 +93,10 @@ function classifyAction(action: string): ActivityEventType {
   if (a.includes("REDEMPTION PAYOUT") && a.includes("TREAS")) return "treasury";
   if (a.includes("YOU BOUGHT") && a.includes("TREAS")) return "treasury";
   if (a.includes("YOU SOLD") && a.includes("TREAS")) return "treasury";
+
+  // Direct share purchases/sales (not from assignments, not treasury, not options)
+  if (a.includes("YOU BOUGHT") && !a.includes("OPENING TRANSACTION") && !a.includes("CLOSING TRANSACTION")) return "shares_bought_direct";
+  if (a.includes("YOU SOLD") && !a.includes("OPENING TRANSACTION") && !a.includes("CLOSING TRANSACTION") && !a.includes("ASSIGNED")) return "shares_sold_direct";
 
   // Cash movements
   if (a.includes("ELECTRONIC FUNDS TRANSFER")) return "cash_movement";

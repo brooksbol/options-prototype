@@ -14,14 +14,17 @@ import { createDemoSnapshot } from "../write-desk/demo-snapshot";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import type { OptionSummaryRow } from "../csv/fidelity/optionSummaryParser";
 import type { ParsedBalances } from "../csv/fidelity/balancesParser";
+import type { ActivityRow } from "../csv/fidelity/activityParser";
 import { preprocessCsv } from "../csv/preprocess";
 import { detectDelimiter, parseCsv } from "../csv/reader";
 import { classifyDocument } from "../csv/registry";
+import { projectActivityOverlay, parseCheckpointTimestamp } from "./activity-projection";
 
 // --- localStorage keys (shared with FidelityUpload for backward compat) ---
 
 const LS_KEY_OS = "wheelwright:fidelity-csv:option-summary";
 const LS_KEY_BAL = "wheelwright:fidelity-csv:balances";
+const LS_KEY_ACTIVITY = "wheelwright:fidelity-csv:activity";
 
 // --- Import Status ---
 
@@ -90,6 +93,10 @@ export function setPortfolio(source: PortfolioSourceType, snapshot: PortfolioSna
       readinessStatus: snapshot.readiness.status,
       validationWarnings: snapshot.readiness.warnings,
     };
+    // If Activity data exists, apply projection onto the new base snapshot
+    if (currentActivityRows && source === "fidelity") {
+      applyActivityProjection();
+    }
   }
   updateWorkspace({ writeDeskSource: source });
   notify();
@@ -158,6 +165,74 @@ export function setImportStatus(status: Partial<ImportStatus>): void {
   notify();
 }
 
+// --- Activity CSV ---
+
+let currentActivityRows: ActivityRow[] | null = null;
+
+/**
+ * Persist and apply an Activity CSV.
+ * Parses the text, stores it in localStorage, and rebuilds the snapshot with projection.
+ */
+export function setActivityCsv(text: string, filename: string): boolean {
+  const parsed = parseActivityText(text);
+  if (!parsed || parsed.length === 0) return false;
+
+  currentActivityRows = parsed;
+  localStorage.setItem(LS_KEY_ACTIVITY, JSON.stringify({ text, filename }));
+
+  // Rebuild snapshot with projection if base snapshot exists
+  if (currentSnapshot && currentSource === "fidelity") {
+    applyActivityProjection();
+  }
+
+  notify();
+  return true;
+}
+
+function parseActivityText(text: string): ActivityRow[] | null {
+  try {
+    const { csvContent, preambleLines } = preprocessCsv(text);
+    const delimiter = detectDelimiter(csvContent);
+    const doc = parseCsv(csvContent, delimiter);
+    const classification = classifyDocument(doc);
+
+    if (!classification.parser || classification.parser.id !== "fidelity_activity") return null;
+
+    const parsed = classification.parser.parse(doc, { preambleLines });
+    if (parsed.payload.type !== "activity") return null;
+
+    return parsed.payload.rows as ActivityRow[];
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Apply Activity projection onto the current snapshot.
+ * Called after both base snapshot and activity data are available.
+ */
+function applyActivityProjection(): void {
+  if (!currentSnapshot || !currentActivityRows) return;
+
+  const checkpointDate = currentSnapshot.provenance?.optionSummaryExportTimestamp ?? null;
+  const checkpoint = parseCheckpointTimestamp(checkpointDate);
+
+  // Diagnostic — remove after debugging
+  console.log("[ACTIVITY-PROJECTION] checkpoint source:", checkpointDate, "→ parsed:", checkpoint.toISOString());
+  console.log("[ACTIVITY-PROJECTION] activity rows:", currentActivityRows.length);
+
+  const { snapshot: projected, projectedEventCount, projectedSymbols } = projectActivityOverlay(
+    currentSnapshot,
+    currentActivityRows,
+    checkpoint,
+  );
+
+  console.log("[ACTIVITY-PROJECTION] projected:", projectedEventCount, "events, symbols:", projectedSymbols);
+  console.log("[ACTIVITY-PROJECTION] deployableCash: base=$" + currentSnapshot.deployableCash.toFixed(0) + " → projected=$" + projected.deployableCash.toFixed(0));
+
+  currentSnapshot = projected;
+}
+
 // --- Hydration (runs once on module import) ---
 
 function hydrate(): void {
@@ -217,6 +292,19 @@ function hydrate(): void {
       });
       currentImportStatus.readinessStatus = currentSnapshot.readiness.status;
       currentImportStatus.validationWarnings = currentSnapshot.readiness.warnings;
+
+      // Restore Activity CSV and apply projection
+      const actStored = localStorage.getItem(LS_KEY_ACTIVITY);
+      if (actStored) {
+        try {
+          const { text: actText } = JSON.parse(actStored);
+          const actRows = parseActivityText(actText);
+          if (actRows && actRows.length > 0) {
+            currentActivityRows = actRows;
+            applyActivityProjection();
+          }
+        } catch { /* ignore corrupt activity data */ }
+      }
     }
   } catch {
     // Corrupt localStorage — start empty
