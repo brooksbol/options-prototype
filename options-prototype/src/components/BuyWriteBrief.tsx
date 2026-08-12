@@ -117,6 +117,32 @@ export function BuyWriteBrief({
               {econ.totalGainPerShareIfAssigned >= 0 ? "+" : "-"}${Math.abs(econ.totalGainIfAssigned).toFixed(0)} ({econ.totalGainPerShareIfAssigned >= 0 ? "+" : ""}${econ.totalGainPerShareIfAssigned.toFixed(2)}/sh &middot; {econ.totalReturnIfAssignedAnnualized.toFixed(1)}% ann.)
             </span>
           </div>
+          {candidate.fullCycleHarvest != null && (
+            <div className="rb-hero-row rb-hero-primary">
+              <span className="rb-hero-label">Full-Cycle Harvest (v1)</span>
+              <span className="rb-hero-value">${candidate.fullCycleHarvest.toFixed(2)}/sh (δ × total)</span>
+            </div>
+          )}
+          {candidate.maxFCH != null && candidate.maxFCH > 0 && (
+            <div className="rb-hero-row">
+              <span className="rb-hero-label">v1 Diagnostic</span>
+              <span className="rb-hero-value">
+                max ${candidate.maxFCH.toFixed(2)} · sacrifice {candidate.fchSacrificePercent.toFixed(1)}%
+              </span>
+            </div>
+          )}
+          {candidate.selectionPv0 != null && (
+            <div className="rb-hero-row rb-hero-primary">
+              <span className="rb-hero-label">Production v0</span>
+              <span className="rb-hero-value">{candidate.selectionPv0.toFixed(1)}%/mo</span>
+            </div>
+          )}
+          {candidate.eligibleStrikeCount != null && candidate.eligibleStrikeCount > 0 && (
+            <div className="rb-hero-row">
+              <span className="rb-hero-label">Strike Selection</span>
+              <span className="rb-hero-value">{candidate.eligibleStrikeCount} evaluated · δ {candidate.evaluatedDeltaMin?.toFixed(2)}–{candidate.evaluatedDeltaMax?.toFixed(2)} · prem/tot {(candidate.premiumShare * 100).toFixed(0)}%</span>
+            </div>
+          )}
           <div className={`rb-hero-row rb-hero-fit rb-fit-${brief.deltaFit.category}`}>
             <span className="rb-hero-label">Policy Fit</span>
             <span className="rb-hero-value">{brief.deltaFit.label}</span>

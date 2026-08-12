@@ -297,6 +297,18 @@ export function WriteDesk() {
         const chainKey = buildCacheKey(providerKey, "sandbox", "chain", sym.symbol, sym.chain.expiration);
         const chainRecord = cache.createRecord(chainKey, "chain", providerKey, "sandbox", sym.symbol, sym.chain.expiration, sym.chain, backendRetrievedAtMs);
         await cache.put(chainRecord);
+
+        // Evidence coherence: remove stale chain records for other expirations.
+        // The backend serves one authoritative chain per symbol (the primaryExpiration).
+        // Any residual chains for other expirations are from prior sessions and must not
+        // participate in current recommendations alongside the fresh primary chain.
+        const allSymRecords = await cache.getBySymbol(sym.symbol);
+        for (const oldRecord of allSymRecords) {
+          if (oldRecord.dataType === "chain" && oldRecord.expiration !== sym.chain.expiration) {
+            await cache.delete(oldRecord.key);
+          }
+        }
+
         merged++;
       }
       if (sym.expirations && sym.expirations.length > 0) {
@@ -842,6 +854,7 @@ export function WriteDesk() {
               )}
             </div>
             <BuyWriteDistributionBar outcomes={buyWriteOutcomes} universeSize={universeSymbols.length} />
+            <BuyWriteDeltaDistribution candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates]} />
           </div>
 
           <div style={{ display: buyWritesCollapsed ? 'none' : undefined }}>
@@ -1103,6 +1116,64 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
         ))}
       </tbody>
     </table>
+  );
+}
+
+// --- Buy-Write Delta Distribution ---
+
+function BuyWriteDeltaDistribution({ candidates }: {
+  candidates: import("../write-desk/recommend-buy-writes").BuyWriteCandidate[];
+}) {
+  if (candidates.length === 0) return <div style={{ padding: "4px 12px", fontSize: "11px", color: "#666" }}>δ dist: awaiting candidates</div>;
+
+  const buckets = [
+    { label: "<.20", min: 0, max: 0.20 },
+    { label: ".20–.30", min: 0.20, max: 0.30 },
+    { label: ".30–.40", min: 0.30, max: 0.40 },
+    { label: ".40–.50", min: 0.40, max: 0.50 },
+    { label: ".50–.60", min: 0.50, max: 0.60 },
+    { label: ">.60", min: 0.60, max: 1.01 },
+  ];
+
+  const counts = buckets.map(b => candidates.filter(c => c.delta >= b.min && c.delta < b.max).length);
+  const maxCount = Math.max(...counts, 1);
+  const total = candidates.length;
+  const deltas = candidates.map(c => c.delta);
+  const mean = deltas.reduce((a, b) => a + b, 0) / deltas.length;
+  const median = [...deltas].sort((a, b) => a - b)[Math.floor(deltas.length / 2)];
+
+  return (
+    <div className="wd-delta-distribution" style={{ padding: "6px 12px 8px", fontSize: "11px", color: "#bbb", display: "flex", alignItems: "flex-end", gap: "3px" }}>
+      <span style={{ marginRight: "6px", whiteSpace: "nowrap", alignSelf: "center" }}>δ dist:</span>
+      {buckets.map((b, i) => {
+        const height = Math.max(4, (counts[i] / maxCount) * 24);
+        const pct = total > 0 ? Math.round(counts[i] / total * 100) : 0;
+        return (
+          <span
+            key={b.label}
+            title={`${b.label}: ${counts[i]} candidates (${pct}%)`}
+            style={{
+              display: "inline-flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "1px",
+            }}
+          >
+            <span style={{
+              display: "block",
+              width: "32px",
+              height: `${height}px`,
+              backgroundColor: counts[i] > 0 ? "#4a9eff" : "rgba(74, 158, 255, 0.15)",
+              borderRadius: "2px",
+            }} />
+            <span style={{ fontSize: "9px", color: "#888" }}>{b.label}</span>
+          </span>
+        );
+      })}
+      <span style={{ marginLeft: "10px", whiteSpace: "nowrap", alignSelf: "center" }}>
+        mean {mean.toFixed(2)} · med {median.toFixed(2)} · n={total}
+      </span>
+    </div>
   );
 }
 

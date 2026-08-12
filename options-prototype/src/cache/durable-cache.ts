@@ -174,6 +174,23 @@ export class DurableMarketCache {
     return classifyFreshness(record);
   }
 
+  /** Delete a record by key — removes from both L1 and L2. */
+  async delete(key: string): Promise<void> {
+    // L1
+    this.l1.delete(key);
+
+    // L2
+    try {
+      const db = await openDB();
+      const tx = db.transaction(STORE_NAME, "readwrite");
+      const store = tx.objectStore(STORE_NAME);
+      store.delete(key);
+      await idbComplete(tx);
+    } catch {
+      // IndexedDB unavailable — L1 removal still effective
+    }
+  }
+
   /** Build a cache record with TTLs computed from the data type.
    *
    * @param retrievedAtMs - Optional authoritative retrieval timestamp (epoch ms).

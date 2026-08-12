@@ -191,12 +191,13 @@ describe("buildCrossEntryRows", () => {
     expect(rows[0].productionV0).toBeGreaterThan(rows[1].productionV0);
   });
 
-  it("excludes unaffordable candidates", () => {
+  it("includes unaffordable candidates (affordability is a UI filter, not a data filter)", () => {
     const puts = [makePutCandidate({ affordable: false })];
     const bws = [makeBuyWriteCandidate({ affordable: false })];
 
     const rows = buildCrossEntryRows(puts, bws);
-    expect(rows.length).toBe(0);
+    // Unaffordable rows are included — the UI toggle controls visibility
+    expect(rows.length).toBe(2);
   });
 
   it("excludes WAIT posture", () => {

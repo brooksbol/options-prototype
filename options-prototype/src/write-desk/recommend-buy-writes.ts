@@ -118,6 +118,25 @@ export interface BuyWriteCandidate {
   affordable: boolean;
   /** Governance annotation */
   governance: GovernanceAnnotation;
+  // --- Strike Selection Diagnostics ---
+  /** Premium share of total-if-called (premium / totalGainPerShare, 0-1) */
+  premiumShare: number;
+  /** Appreciation share of total-if-called (appreciation / totalGainPerShare, 0-1) */
+  appreciationShare: number;
+  /** Number of eligible strikes that passed execution + fitness filters */
+  eligibleStrikeCount: number;
+  /** Minimum delta among evaluated strikes */
+  evaluatedDeltaMin: number;
+  /** Maximum delta among evaluated strikes */
+  evaluatedDeltaMax: number;
+  /** Production v0 for this strike (monthly rate %) */
+  selectionPv0: number;
+  /** Full-cycle harvest: δ × total-if-called per share (diagnostic) */
+  fullCycleHarvest: number;
+  /** Maximum FCH across all evaluated strikes (diagnostic) */
+  maxFCH: number;
+  /** Percent sacrifice from maximum FCH (0 = selected IS the maximum) */
+  fchSacrificePercent: number;
 }
 
 // --- Result ---
@@ -133,6 +152,8 @@ export interface BuyWriteOutcomes {
   noDteMatch: number;
   nonOptionable: number;
   incomplete: number;
+  /** Symbols with executable contracts but no positive-appreciation strike */
+  strategyUnfit: number;
 }
 
 export interface BuyWriteRecommendationResult {
@@ -187,6 +208,7 @@ export async function recommendBuyWrites(
   let outcomeNoDteMatch = 0;
   let outcomeNonOptionable = 0;
   let outcomeIncomplete = 0;
+  let outcomeStrategyUnfit = 0;
 
   const effectiveCash = deployableCash - policy.deployment.reserveAmount;
   const useSessionValidity = options?.sessionClosed ?? false;
@@ -231,6 +253,13 @@ export async function recommendBuyWrites(
       continue;
     }
 
+    // --- TEMPORARY DIAGNOSTIC: USO trace (remove after debugging) ---
+    const _traceSymbol = symbol === "USO";
+    if (_traceSymbol) {
+      console.log(`[BW-TRACE] USO: expirations payload:`, expirations);
+      console.log(`[BW-TRACE] USO: eligible exps (DTE ${policy.contractSelection.eligibleDteRange.min}-${policy.contractSelection.eligibleDteRange.max}):`, eligibleExps);
+    }
+
     // Evaluate call chains
     let bestCandidate: BuyWriteCandidate | null = null;
     let bestWait: BuyWriteCandidate | null = null;
@@ -240,6 +269,7 @@ export async function recommendBuyWrites(
     let symbolAllHardNo = true;
     let symbolHardNoType: "zeroBid" | "zeroOI" | "wideSpread" | null = null;
     let bestWideSpread: BuyWriteCandidate | null = null;
+    let symbolHadEligibleButNoFit = false;
 
     for (const exp of eligibleExps) {
       interface CachedChain {
@@ -249,6 +279,12 @@ export async function recommendBuyWrites(
       const chainKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "chain", symbol, exp.date);
       const chainRecord = await cache.get<CachedChain>(chainKey);
       if (!chainRecord || !isEligible(chainRecord)) continue;
+
+      // --- TRACE ---
+      if (_traceSymbol) {
+        const fr = cache.freshness(chainRecord as any);
+        console.log(`[BW-TRACE] USO exp=${exp.date} dte=${exp.dte}: chain FOUND, freshness=${fr}, retrievedAt=${(chainRecord as any).retrievedAt}, price=$${chainRecord.payload.underlying?.price}, calls=${chainRecord.payload.calls?.length ?? 0}`);
+      }
 
       symbolFoundChain = true;
       const calls = chainRecord.payload.calls ?? [];
@@ -266,17 +302,26 @@ export async function recommendBuyWrites(
       const affordable = capitalRequired <= effectiveCash;
       const cashRemaining = effectiveCash - capitalRequired;
 
-      // Filter calls by admissible delta range (calls use positive delta)
-      const { admissibleDeltaRange, excludeZeroBid, requireGreeks } = policy.contractSelection;
+      // Filter calls: market quality only (no delta range restriction for BW).
+      // Delta participates in Production v0 as an economic input, not as an eligibility gate.
+      // Strategy fitness (positive appreciation) is applied downstream.
+      const { excludeZeroBid, requireGreeks } = policy.contractSelection;
       const inRange = calls.filter((c) =>
         (!excludeZeroBid || c.bid > 0) &&
         (!requireGreeks || c.delta !== 0) &&
-        c.delta >= admissibleDeltaRange.min &&
-        c.delta <= admissibleDeltaRange.max
+        c.delta <= 1.0 // Data quality: reject corrupt greeks (delta cannot exceed 1.0 for calls)
       );
 
       if (inRange.length === 0) continue;
       symbolHadContractsInRange = true;
+
+      // --- TRACE ---
+      if (_traceSymbol) {
+        console.log(`[BW-TRACE] USO exp=${exp.date}: ${inRange.length} calls pass market-quality filter (no delta restriction)`);
+        for (const c of inRange) {
+          console.log(`[BW-TRACE]   $${c.strike} d=${c.delta.toFixed(3)} bid=$${c.bid} ask=$${c.ask} OI=${c.openInterest}`);
+        }
+      }
 
       // --- Premature-elimination fix ---
       // Evaluate hard-no eligibility for ALL admissible contracts BEFORE selecting
@@ -353,6 +398,15 @@ export async function recommendBuyWrites(
               posture: "WIDE_SPREAD" as any,
               affordable,
               governance: { status: "authorized", reason: "" },
+              premiumShare: 0,
+              appreciationShare: 0,
+              eligibleStrikeCount: 0,
+              evaluatedDeltaMin: 0,
+              evaluatedDeltaMax: 0,
+              selectionPv0: 0,
+              fullCycleHarvest: 0,
+              maxFCH: 0,
+              fchSacrificePercent: 0,
             };
             if (!bestWideSpread || hn.spreadPct < bestWideSpread.spreadPercent) {
               bestWideSpread = wsCandidate;
@@ -362,30 +416,139 @@ export async function recommendBuyWrites(
         continue;
       }
 
-      // Eligible contracts exist — select closest to target delta among survivors
+      // Eligible contracts exist — evaluate ALL strikes for strategy fitness + Pareto selection
       symbolAllHardNo = false;
-      const sorted = [...eligible].sort((a, b) =>
-        Math.abs(a.delta - targetDelta) - Math.abs(b.delta - targetDelta)
-      );
-      const contract = sorted[0];
 
-      const mid = midPrice(contract.bid, contract.ask);
-      const spread = contract.ask - contract.bid;
-      const spreadPct = mid > 0 ? (spread / mid) * 100 : 100;
+      // --- Strategy Fitness: require positive appreciation (strike > underlyingPrice) ---
+      const fitStrikes = eligible.filter((c) => c.strike > underlyingPrice);
 
-      const evidence: ContractEvidence = {
-        bid: contract.bid,
-        ask: contract.ask,
-        spreadPercent: spreadPct,
-        openInterest: contract.openInterest,
-        volume: contract.volume,
-        delta: contract.delta,
-      };
+      if (fitStrikes.length === 0) {
+        // Executable contracts exist but none have positive appreciation.
+        // This expiration offers no valid Buy-Write for this symbol.
+        // (We still mark symbolAllHardNo = false because contracts existed.)
+        symbolHadEligibleButNoFit = true;
+        if (_traceSymbol) {
+          console.log(`[BW-TRACE] USO exp=${exp.date}: ALL ${eligible.length} eligible strikes fail fitness (strike <= price $${underlyingPrice})`);
+          for (const c of eligible) console.log(`[BW-TRACE]   $${c.strike} <= $${underlyingPrice.toFixed(2)}`);
+        }
+        continue;
+      }
 
-      const assessment = assessExecution(evidence, policy.executionAssessment);
+      // --- TRACE ---
+      if (_traceSymbol) {
+        console.log(`[BW-TRACE] USO exp=${exp.date}: ${fitStrikes.length} fit strikes (of ${eligible.length} eligible):`);
+        for (const c of fitStrikes) {
+          const m = (c.bid + c.ask) / 2;
+          console.log(`[BW-TRACE]   $${c.strike} d=${c.delta.toFixed(3)} mid=$${m.toFixed(2)} ap=+$${(c.strike - underlyingPrice).toFixed(2)}`);
+        }
+      }
 
-      // Composite economics
-      const economics = computeBuyWriteEconomics(underlyingPrice, contract.strike, mid, exp.dte);
+      // --- Evaluate ALL fit strikes: compute economics + execution for each ---
+      interface EvaluatedStrike {
+        contract: typeof eligible[0];
+        mid: number;
+        spreadPct: number;
+        economics: BuyWriteCompositeEconomics;
+        assessment: import("./execution-assessment").ExecutionAssessment;
+        pv0: number;
+        premiumShare: number;
+        appreciationShare: number;
+        fullCycleHarvest: number;
+      }
+
+      const evaluated: EvaluatedStrike[] = [];
+      for (const c of fitStrikes) {
+        const cMid = midPrice(c.bid, c.ask);
+        const cSpread = c.ask - c.bid;
+        const cSpreadPct = cMid > 0 ? (cSpread / cMid) * 100 : 100;
+
+        const cEvidence: ContractEvidence = {
+          bid: c.bid,
+          ask: c.ask,
+          spreadPercent: cSpreadPct,
+          openInterest: c.openInterest,
+          volume: c.volume,
+          delta: c.delta,
+        };
+
+        const cAssessment = assessExecution(cEvidence, policy.executionAssessment);
+        const cEconomics = computeBuyWriteEconomics(underlyingPrice, c.strike, cMid, exp.dte);
+
+        // Production v0 for this strike (same formula as production-v0.ts)
+        const premiumDollars = cMid * 100;
+        const appreciationDollars = (c.strike - underlyingPrice) * 100;
+        const conditionalAppreciation = c.delta * appreciationDollars;
+        const cycleProduction = premiumDollars + conditionalAppreciation;
+        const cPv0 = capitalRequired > 0 && exp.dte > 0
+          ? (cycleProduction / capitalRequired) * (30 / exp.dte) * 100
+          : 0;
+
+        // Composition: premium and appreciation shares of total-if-called
+        const totalGain = cEconomics.totalGainPerShareIfAssigned;
+        const premShare = totalGain > 0 ? cEconomics.callPremiumPerShare / totalGain : 0;
+        const apShare = totalGain > 0 ? cEconomics.appreciationPerShare / totalGain : 0;
+
+        // Full-cycle harvest: delta × total-if-called per share
+        // Measures the assignment-weighted complete-cycle outcome.
+        // Distinct from Pv0: Pv0 treats premium as certain (correct for expected value);
+        // fullCycleHarvest weights the entire harvest by assignment likelihood (correct
+        // for selecting the strike that best combines outcome size with completion probability).
+        const fullCycleHarvest = c.delta * totalGain;
+
+        evaluated.push({
+          contract: c,
+          mid: cMid,
+          spreadPct: cSpreadPct,
+          economics: cEconomics,
+          assessment: cAssessment,
+          pv0: cPv0,
+          premiumShare: premShare,
+          appreciationShare: apShare,
+          fullCycleHarvest,
+        });
+      }
+
+      // --- Strike Selection: highest Production v0 among executable, valid strikes ---
+      // Within strategically valid Buy-Writes (positive appreciation, acceptable execution),
+      // Production v0 (premium + δ × appreciation) is the strike-selection objective.
+      // Higher Pv0 naturally favors: stronger premium, higher delta (assignment probability),
+      // and meaningful appreciation. FCH retained as diagnostic only.
+      const eligibleStrikeCount = evaluated.length;
+      const maxFCH = evaluated.length > 0 ? Math.max(...evaluated.map(e => e.fullCycleHarvest)) : 0;
+      const evaluatedDeltaMin = evaluated.length > 0 ? Math.min(...evaluated.map(e => e.contract.delta)) : 0;
+      const evaluatedDeltaMax = evaluated.length > 0 ? Math.max(...evaluated.map(e => e.contract.delta)) : 0;
+
+      let expWinner: EvaluatedStrike | null = null;
+
+      // Prefer ACTIONABLE (highest Pv0); fallback to EDGE; then WAIT.
+      const actionable = evaluated.filter(e => e.assessment.posture === "ACTIONABLE");
+      if (actionable.length > 0) {
+        expWinner = actionable.reduce((best, e) => e.pv0 > best.pv0 ? e : best);
+      } else {
+        const edge = evaluated.filter(e => e.assessment.posture === "EDGE");
+        if (edge.length > 0) {
+          expWinner = edge.reduce((best, e) => e.pv0 > best.pv0 ? e : best);
+        } else {
+          const wait = evaluated.filter(e => e.assessment.posture === "WAIT");
+          if (wait.length > 0) {
+            expWinner = wait.reduce((best, e) => e.pv0 > best.pv0 ? e : best);
+          }
+        }
+      }
+
+      if (!expWinner) continue;
+
+      // --- TRACE ---
+      if (_traceSymbol) {
+        console.log(`[BW-TRACE] USO exp=${exp.date} WINNER: $${expWinner.contract.strike} d=${expWinner.contract.delta.toFixed(3)} Pv0=${expWinner.pv0.toFixed(1)}% FCH=$${expWinner.fullCycleHarvest.toFixed(2)} exec=${expWinner.assessment.score} posture=${expWinner.assessment.posture}`);
+      }
+
+      // Build candidate from winner
+      const contract = expWinner.contract;
+      const mid = expWinner.mid;
+      const spreadPct = expWinner.spreadPct;
+      const assessment = expWinner.assessment;
+      const economics = expWinner.economics;
 
       const candidate: BuyWriteCandidate = {
         rank: 0,
@@ -413,14 +576,23 @@ export async function recommendBuyWrites(
         posture: assessment.posture,
         affordable,
         governance: { status: "authorized", reason: "" }, // resolved below
+        premiumShare: expWinner.premiumShare,
+        appreciationShare: expWinner.appreciationShare,
+        eligibleStrikeCount,
+        evaluatedDeltaMin,
+        evaluatedDeltaMax,
+        selectionPv0: expWinner.pv0,
+        fullCycleHarvest: expWinner.fullCycleHarvest,
+        maxFCH,
+        fchSacrificePercent: maxFCH > 0 ? ((maxFCH - expWinner.fullCycleHarvest) / maxFCH) * 100 : 0,
       };
 
       if (assessment.posture === "ACTIONABLE" || assessment.posture === "EDGE") {
-        if (!bestCandidate || assessment.score > bestCandidate.assessment.score) {
+        if (!bestCandidate || expWinner.fullCycleHarvest > (bestCandidate.fullCycleHarvest ?? 0)) {
           bestCandidate = candidate;
         }
       } else if (assessment.posture === "WAIT") {
-        if (!bestWait || assessment.score > bestWait.assessment.score) {
+        if (!bestWait || expWinner.fullCycleHarvest > (bestWait.fullCycleHarvest ?? 0)) {
           bestWait = candidate;
         }
       }
@@ -480,10 +652,15 @@ export async function recommendBuyWrites(
           case "wideSpread": outcomeHardNoWideSpread++; break;
           default: outcomeHardNoWideSpread++; break;
         }
+      } else if (symbolHadEligibleButNoFit) {
+        // Executable contracts existed but all had strike <= underlyingPrice
+        outcomeStrategyUnfit++;
       } else {
         outcomeNoDeltaMatch++; // fallback
       }
-      excluded.push({ symbol, reason: "No qualifying call contract for buy-write" });
+      excluded.push({ symbol, reason: symbolHadEligibleButNoFit
+        ? "No positive-appreciation call available (strategy unfit)"
+        : "No qualifying call contract for buy-write" });
     }
   }
 
@@ -509,6 +686,7 @@ export async function recommendBuyWrites(
       noDteMatch: outcomeNoDteMatch,
       nonOptionable: outcomeNonOptionable,
       incomplete: outcomeIncomplete,
+      strategyUnfit: outcomeStrategyUnfit,
     },
     computedAt: new Date().toISOString(),
   };

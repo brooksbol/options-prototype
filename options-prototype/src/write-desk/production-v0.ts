@@ -63,6 +63,12 @@ export interface CrossEntryRow {
   dte: number;
   strike: number;
   delta: number;
+  /** Option bid */
+  bid: number;
+  /** Option midpoint */
+  mid: number;
+  /** Option ask */
+  ask: number;
   /** Annualized premium yield (for sanity-check column) */
   premiumYieldAnnualized: number;
   /** Production v0 monthly rate */
@@ -158,10 +164,9 @@ export function buildCrossEntryRows(
 ): CrossEntryRow[] {
   const rows: CrossEntryRow[] = [];
 
-  // CSP candidates — ACTIONABLE + EDGE, affordable, not danger governance
+  // CSP candidates — ACTIONABLE + EDGE, not danger governance
   for (const c of putCandidates) {
     if (c.posture !== "ACTIONABLE" && c.posture !== "EDGE") continue;
-    if (!c.affordable) continue;
     if (c.governance.status === "danger") continue;
 
     const decomposition = computeProductionV0ForCSP(c);
@@ -172,6 +177,9 @@ export function buildCrossEntryRows(
       dte: c.dte,
       strike: c.strike,
       delta: Math.abs(c.delta),
+      bid: c.bid,
+      mid: c.mid,
+      ask: c.ask,
       premiumYieldAnnualized: c.yieldAnnualized,
       productionV0: decomposition.productionV0,
       decomposition,
@@ -184,10 +192,9 @@ export function buildCrossEntryRows(
     });
   }
 
-  // Buy-Write candidates — ACTIONABLE + EDGE, affordable, not danger governance
+  // Buy-Write candidates — ACTIONABLE + EDGE, not danger governance
   for (const c of buyWriteCandidates) {
     if (c.posture !== "ACTIONABLE" && c.posture !== "EDGE") continue;
-    if (!c.affordable) continue;
     if (c.governance.status === "danger") continue;
 
     const decomposition = computeProductionV0ForBuyWrite(c);
@@ -198,6 +205,9 @@ export function buildCrossEntryRows(
       dte: c.dte,
       strike: c.strike,
       delta: c.delta,
+      bid: c.bid,
+      mid: c.mid,
+      ask: c.ask,
       premiumYieldAnnualized: c.premiumYieldAnnualized,
       productionV0: decomposition.productionV0,
       decomposition,

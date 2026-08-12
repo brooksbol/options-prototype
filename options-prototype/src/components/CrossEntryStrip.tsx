@@ -43,7 +43,17 @@ function useCrossEntrySortable(items: CrossEntryRow[], defaultKey: string = "pro
       if (aVal == null && bVal == null) return 0;
       if (aVal == null) return 1;
       if (bVal == null) return -1;
-      const cmp = typeof aVal === "string" ? aVal.localeCompare(bVal as string) : (aVal as number) - (bVal as number);
+      let cmp: number;
+      if (typeof aVal === "string") {
+        cmp = aVal.localeCompare(bVal as string);
+      } else {
+        const na = Number(aVal);
+        const nb = Number(bVal);
+        if (isNaN(na) && isNaN(nb)) cmp = 0;
+        else if (isNaN(na)) cmp = -1;
+        else if (isNaN(nb)) cmp = 1;
+        else cmp = na - nb;
+      }
       return sortDir === "asc" ? cmp : -cmp;
     });
   }, [items, sortKey, sortDir]);
@@ -82,7 +92,9 @@ export function CrossEntryStrip({
 
   // Sort by active column (operator-controlled), THEN cap for display
   const { sorted, handleSort, indicator, isDefaultOrder, sortKey } = useCrossEntrySortable(allRows);
-  const displayed = sorted.slice(0, maxRows);
+  const [affordableOnly, setAffordableOnly] = useState(true);
+  const filtered = affordableOnly ? sorted.filter(r => r.cashRemaining >= 0) : sorted;
+  const displayed = filtered.slice(0, maxRows);
 
   if (allRows.length === 0) return null;
 
@@ -111,6 +123,10 @@ export function CrossEntryStrip({
         <span className="wd-cross-entry-note">
           Experimental cross-entry lens. Includes Buy-Write conditional appreciation; not a validated "best deployment" ranking.
         </span>
+        <label style={{ fontSize: "11px", marginLeft: "8px", cursor: "pointer", color: "#aaa" }}>
+          <input type="checkbox" checked={affordableOnly} onChange={() => setAffordableOnly(!affordableOnly)} style={{ marginRight: "4px" }} />
+          Affordable only
+        </label>
         <button className="wd-download-btn" onClick={handleExport} title="Export full cross-entry decomposition (JSON)">⬇</button>
       </div>
       {!isDefaultOrder && (
@@ -129,6 +145,9 @@ export function CrossEntryStrip({
             <th className="wd-sortable" onClick={() => handleSort("premiumYieldAnnualized")}>Yield{indicator("premiumYieldAnnualized")}</th>
             <th className="wd-sortable" onClick={() => handleSort("dte")}>DTE{indicator("dte")}</th>
             <th className="wd-sortable" onClick={() => handleSort("delta")}>Δ{indicator("delta")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("bid")}>Bid{indicator("bid")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("mid")}>Mid{indicator("mid")}</th>
+            <th className="wd-sortable" onClick={() => handleSort("ask")}>Ask{indicator("ask")}</th>
             <th className="wd-sortable" onClick={() => handleSort("capitalRequired")}>Capital{indicator("capitalRequired")}</th>
             <th className="wd-sortable" onClick={() => handleSort("cashRemaining")}>Remaining{indicator("cashRemaining")}</th>
             <th className="wd-sortable" onClick={() => handleSort("executionScore")}>Exec{indicator("executionScore")}</th>
@@ -163,6 +182,9 @@ export function CrossEntryStrip({
               <td>{row.premiumYieldAnnualized.toFixed(1)}%</td>
               <td>{row.dte}</td>
               <td>{row.delta.toFixed(2)}</td>
+              <td>${row.bid.toFixed(2)}</td>
+              <td>${row.mid.toFixed(2)}</td>
+              <td>${row.ask.toFixed(2)}</td>
               <td>${row.capitalRequired.toLocaleString()}</td>
               <td className={row.cashRemaining < 0 ? "wd-negative-value" : ""}>${row.cashRemaining.toLocaleString()}</td>
               <td>{row.executionScore}</td>
