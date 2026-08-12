@@ -6517,3 +6517,624 @@ The tentative hypothesis that "premiums stayed stable while execution quality im
 3. Should per-symbol evidence age be visible in the recommendation table (per-row indicator)?
 4. How does this interact with sealed-evidence validity during non-trading hours?
 5. Does the "valid recommendations from incomplete search" concept need to be exposed in the Prod v0 strip specifically, or is it a property of the entire recommendation surface?
+
+---
+
+## 2026-08-12 — Live Observation: Freshness Rollover Empties Deployment Surface
+
+### Context
+
+First live trading-day observation of the fully operational Wheelwright system after the evidence-store backend, session-aware acquisition, and freshness semantics were deployed. The operator was monitoring the Deployment page during the opening period on a regular-session trading day.
+
+### Empirical Timeline (Mountain Time)
+
+| Time | Observation |
+|------|-------------|
+| ~07:30 | REGULAR session opens. Deployment surfaces populated with recommendations from prior acquisition cycles. |
+| 07:45:25 | **Deployment surfaces suddenly emptied.** CSP shows "Searching · 1/1306, 0 Recommendations." Buy-Write shows "1/1306." Diagnostic population resets to 1,294 Incomplete. |
+| 07:45:57 | Progressive rebuilding visible. CSP at 9/1306, 2 recommendations recovered (EWW, EWZ). Diagnostic categories beginning to repopulate. |
+| ~07:46+ | Acquisition continues marching through universe symbol-by-symbol. |
+
+### Screenshot Evidence
+
+Two screenshots captured 32 seconds apart document the transition:
+
+**Screenshot 1 (07:45:57 state):** CSP "Searching · 9/1306 · 2 Recommendations · 0 Wait." Buy-Write similarly low count. Diagnostic bar shows 1 No Data Match, 11 No Options, 1,294 Incomplete. Two CSP recommendations visible (EWW, EWZ). The surface is clearly rebuilding from near-zero.
+
+**Screenshot 2 (07:45:25 state):** CSP "Searching · 1/1306 · 0 Recommendations." Buy-Write "1/1306." Diagnostic bar: 1 No Data Match, 11 No Options, 1,294 Incomplete. The surface is essentially empty. This is the moment of reset.
+
+### Key Observation
+
+The reset occurred at **exactly 07:45 MT** — precisely **15 minutes after the 07:30 REGULAR session open**. This timing is not coincidental.
+
+### Working Hypothesis
+
+At the 15-minute regular-session freshness boundary, the system invalidated the previously usable evidence/candidate projection en masse before enough replacement evidence had been acquired.
+
+The freshness enforcement is likely correct in principle — evidence from a prior session or from pre-open should not permanently satisfy regular-session freshness requirements. However, the continuity semantics are wrong:
+
+**Freshness expiration should create pressure to refresh evidence; it should not necessarily erase the operator's existing decision surface while replacement evidence is being acquired.**
+
+### Distinction from Prior Stale-Data Problem
+
+This is a different failure mode from the earlier observation (journal entry above) where stale delayed data was incorrectly labelled "Current":
+
+| Prior problem | This problem |
+|---------------|--------------|
+| Stale evidence was *accepted* as fresh | Fresh evidence *requirement* invalidates existing surface |
+| Wrong label: showed "Current" when stale | Correct enforcement: recognized evidence as stale |
+| Evidence too old, system didn't notice | System noticed correctly, but response too aggressive |
+
+The system may now be enforcing freshness correctly but with the wrong continuity semantics. It's the difference between "your evidence is stale, acquiring replacement" (graceful) and "your evidence is stale, surface deleted until replacement arrives" (disruptive).
+
+### Architectural Implications
+
+The operator's decision surface disappeared for what appears to be 30+ seconds (and likely much longer for the full universe of 1,306 symbols). During this window:
+
+- Zero actionable recommendations were available
+- The operator had no way to act on previously-valid opportunities
+- The system presented as if no opportunities existed in the market
+- Progressive rebuilding was visible but slow (~8 symbols in 32 seconds)
+
+At that rate, full reconstruction of the 1,306-symbol universe would take approximately **87 minutes** — the entire useful trading session.
+
+### Possible Root Causes (not yet confirmed)
+
+1. **Generation rollover:** A new evidence generation was created at the freshness boundary, and the recommendation engine only reads the current generation — which starts empty.
+2. **Bulk invalidation:** All evidence rows had their freshness flag cleared simultaneously when the session clock crossed the 15-minute mark.
+3. **Recommendation filter:** The recommendation engine's admissibility gate became stricter (e.g., requires evidence younger than N minutes from session start), rejecting all prior evidence in one pass.
+4. **Snapshot rebuild:** The SnapshotBuilder was triggered to produce a new snapshot, and the new snapshot starts from zero rather than carrying forward prior state.
+
+### What To Investigate
+
+1. What happens at the 15-minute freshness boundary in `SessionGate` or `AcquisitionWorker`?
+2. Does the evidence store mark all rows stale simultaneously, or does the recommendation engine filter them out?
+3. Is there a "carry forward until replaced" semantic that could preserve the surface during re-acquisition?
+4. Does the system eventually reach full population (1,306/1,306) and restore all valid recommendations?
+
+### Recommended Next Action
+
+Let the system continue running and observe whether:
+- The count marches all the way through 1,306
+- The complete candidate population returns
+- A similar reset occurs at the next freshness boundary (e.g., 30 minutes after open)
+
+If the population fully recovers once and does not reset again, this is a one-time generation rollover problem. If it recurs periodically, the freshness architecture needs a fundamental continuity redesign.
+
+### Relationship to Prior Work
+
+This observation connects directly to:
+- `docs/15-evidence-state-semantics.md` — freshness model
+- `docs/20-session-aware-acquisition.md` — session transition behavior
+- The "mixed-hydration" observation in the prior journal entry
+- The principle that **evidence age should create acquisition pressure, not surface destruction**
+
+### Pattern
+
+This is the continuation of the project's core loop: production observation reveals architectural behavior that design documents did not fully anticipate. The freshness model was designed to prevent stale evidence from polluting decisions. It succeeded at that — but introduced a new failure mode where correct enforcement produces an unacceptable operator experience.
+
+### Open Questions
+
+1. Is this a one-time event at session open, or does it recur at regular intervals?
+2. What is the actual freshness TTL that triggered the invalidation?
+3. Can a "last-known-good" projection be maintained for operator continuity while re-acquisition proceeds?
+4. Should the recommendation engine distinguish "no evidence exists" from "evidence exists but is being refreshed"?
+5. Is the 15-minute boundary hardcoded or configurable?
+6. How long does full population recovery actually take?
+
+
+---
+
+## 2025-08-12 — Capital Erosion in the Cross-Entry Ranking: Architectural Finding
+
+### Context
+
+During live operation of the "Cash Deployment — Experimental Prod v0" cross-entry strip, a Buy-Write candidate (PTIF) appeared as the #1 ranked deployment opportunity despite carrying a CAPITAL EROSION warning in the detail drawer. Investigation expanded to include two additional candidates (EWT, ARTY) that form a revealing empirical spectrum of below-strike construction severity.
+
+### What happened
+
+Traced the Production v0 implementation to understand whether capital erosion participates in ranking or only appears as advisory in the drawer.
+
+**Production v0 formula (Buy-Write):**
+```
+appreciationDollars = (callStrike - underlyingPrice) × 100
+conditionalAppreciationContribution = delta × appreciationDollars
+experimentalCycleProduction = premiumDollars + conditionalAppreciationContribution
+productionV0 = (experimentalCycleProduction / capitalDeployed) × (30 / DTE) × 100
+```
+
+When strike < acquisition price, the appreciation term goes negative, which mathematically penalizes the score. But the penalty is proportional to delta × erosion magnitude — often negligible.
+
+**`buildCrossEntryRows()` filters:**
+- Posture: ACTIONABLE or EDGE
+- Affordability: must be affordable
+- Governance: not "danger"
+- Capital erosion: **NOT checked**
+
+The `strikeAbovePrice` boolean (used by the drawer to trigger the CAPITAL EROSION warning) is never referenced in ranking or filtering logic.
+
+### Empirical observations — three-candidate spectrum
+
+| Candidate | Premium/sh | Below strike | Net if called | Premium consumed by loss | Premium yield (ann.) | Total-if-called (ann.) |
+|-----------|-----------|-------------|--------------|------------------------|---------------------|----------------------|
+| PTIF | $4.50 | $0.06 | $4.44 | ~1% | 165.8% | ~163% |
+| EWT | $2.55 | $0.14 | $2.41 | ~5% | — | — |
+| ARTY | $2.60 | $0.92 | $1.68 | ~35% | 138.9% | 89.7% |
+
+This continuum reveals the design problem cleanly without needing invented coefficients.
+
+### What we learned
+
+1. **Production v0 is not broken.** It answers the question it was designed to answer (expected monthly production rate), and it does incorporate erosion via the delta-weighted appreciation term. PTIF ranking #1 is mathematically correct within Production v0's stated hypothesis.
+
+2. **The missing layer is a deployment-selection policy above Production v0.** Production v0 measures production. Capital stewardship — what a deployment deliberately does to NAV — is a separate concern that the system currently expresses only as a drawer advisory, never as a ranking input.
+
+3. **Premium yield is increasingly misleading as the headline comparison metric for below-strike Buy-Writes.** ARTY's 138.9% premium yield describes the option attractiveness; the actual composite transaction yields 89.7% if called. The gap between those numbers is the erosion cost, and it grows dramatically across the spectrum.
+
+4. **The binary `strikeAbovePrice` flag is too coarse for policy.** Six cents of erosion (PTIF) and 92 cents of erosion (ARTY) are categorically different situations, but both produce `strikeAbovePrice === false`.
+
+5. **Delta-weighting and the capital-erosion warning answer different questions at different epistemic levels.** Delta-weighting says "how much of the conditional appreciation/loss enters expected production." The warning says "if assignment occurs, you are knowingly selling below acquisition cost." Both can be correct simultaneously. Making one impersonate the other loses information in both directions.
+
+6. **"Policy Fit: Preferred" adjacent to "⚠ CAPITAL EROSION" is contradictory to an operator.** The system has coherent mathematical reasons for both labels, but the UI doesn't communicate the distinction between production fit and capital-consequence awareness.
+
+### Rejected alternatives
+
+1. **Hard exclusion (strike < price → cannot enter top ten).** Too blunt. PTIF at 1% erosion is economically excellent. Excluding it would be dogmatic.
+
+2. **Multiplier/weight on the erosion term.** Buries a policy judgment inside a scoring coefficient with no principled derivation. Any coefficient would be reverse-engineered from "does the table look right today" — curve-fitting to a single screenshot.
+
+3. **Larger arithmetic penalty within Production v0.** Conflates two concepts the architecture is trying to keep separate: production measurement vs. capital stewardship.
+
+### Architectural direction (not yet ratified)
+
+The candidate should carry orthogonal facts:
+- **Production v0** = monthly production rate (unchanged)
+- **Capital consequence** = a richer annotation than the binary flag — possibly erosion magnitude, erosion-to-premium ratio, net-if-called economics, or a combination
+
+The cross-entry selection policy sits above both and expresses a preference ordering:
+> Prefer non-eroding deployments. Admit an eroding deployment into the top set only when its economic advantage over available non-eroding alternatives is sufficient to justify the erosion.
+
+"Sufficient to justify" is the policy question that remains open.
+
+### What needs to happen next
+
+1. **Do not change Production v0.** The formula is measuring what it claims to measure. The problem is not in the measurement.
+
+2. **Develop the capital-consequence primitive.** Richer than `strikeAbovePrice` (boolean), possibly a struct carrying erosion magnitude, erosion/premium ratio, net-if-called per share, and total-if-called annualized return.
+
+3. **Collect more empirical examples across the erosion spectrum** before ratifying the selection policy. The three candidates above (1%, 5%, 35% premium consumed) are a starting set. We need to observe where the character of the deployment changes — where an operator would stop wanting to see it ranked highly.
+
+4. **Resolve the UX contradiction.** "Policy Fit: Preferred" + "⚠ CAPITAL EROSION" needs either (a) a policy-fit model that accounts for capital consequence, or (b) explicit UI language explaining why both labels are simultaneously correct.
+
+5. **Distinguish three facts in the Buy-Write model:**
+   - Premium yield — how attractive the option is
+   - Total-if-called return — how attractive the composite transaction is if the call resolves through assignment
+   - Production v0 — probability-conditioned expected production
+
+   These are three different measurements. The system should not allow one to impersonate another in operator-facing ranking.
+
+### Relationship to prior work
+
+- `production-v0.ts` — the scoring formula (unchanged by this finding)
+- `recommend-buy-writes.ts` — `computeBuyWriteEconomics()`, `strikeAbovePrice`, `rankBuyWriteCandidates()`
+- `BuyWriteBrief.tsx` — capital erosion warning display
+- `CrossEntryStrip.tsx` — top-ten rendering and sort logic
+- `docs/15-evidence-state-semantics.md` — evidence lifecycle (related but different concern)
+
+### Pattern
+
+This is a characteristic Wheelwright architectural discovery: production observation reveals that a working system is answering the wrong question at the wrong layer. The fix is not "make the number bigger" but "add a new semantic dimension and a policy that reasons about both dimensions together." The empirical workbench (live candidates spanning the erosion spectrum) exists today and should drive policy derivation rather than theoretical coefficient selection.
+
+
+---
+
+## 2025-08-12 — Discovery #2: Production v0 Implicit ATM Bias
+
+### Context
+
+Immediately following the capital-erosion finding above. The three-candidate spectrum (PTIF, EWT, ARTY) revealed a second, arguably more fundamental observation about the Production v0 objective function's structural preferences.
+
+### The observation
+
+The empirical pattern across the observed Buy-Write recommendations suggests that Production v0 is systematically pulling recommendations toward ATM or slightly ITM call strikes. This appears to be a consequence of three reinforcing properties of the formula:
+
+1. **Premium is highest near ATM.** Options pricing concentrates extrinsic value near the money.
+2. **Short DTE amplifies the rate.** The `× 30/DTE` normalizer rewards short-dated contracts, which also tend to have the highest gamma and therefore the steepest premium gradient near ATM.
+3. **Delta-weighting of appreciation is modest.** A 0.30–0.35 delta means only ~30–35% of the appreciation headroom (or loss) enters the score. For an ATM call, appreciation is near zero anyway, so the penalty for being near/below the money is small.
+
+Combined effect: a high-premium, short-DTE, ATM-ish call maximizes the numerator (premium dominates, appreciation contribution is small) while minimizing the denominator pressure (capital is fixed at share price × 100). The system gravitates toward contracts that produce the most premium per cycle per dollar, regardless of whether that premium comes at the expense of upside participation or even principal.
+
+### ARTY as the revealing case
+
+ARTY illustrates this clearly:
+- Strike $75 vs. acquisition $75.92 → the system chose an ITM call
+- Premium: $2.60/share (high, because ITM)
+- Delta: 0.34 (implying ~34% probability of staying above strike — i.e., high assignment probability)
+- Appreciation: −$0.92/share (below-strike purchase)
+- Net if called: +$1.68/share
+
+The system is essentially saying: "The highest production rate available for ARTY comes from selling the $75 call, accepting the $0.92 capital sacrifice, because the $2.60 premium on a 9-DTE cycle annualizes spectacularly."
+
+That may be economically rational in isolation. But it reveals a strategic preference embedded in the formula: **Production v0 has no intrinsic preference for preserving upside optionality.** It treats a dollar of premium and a dollar of appreciation symmetrically (modulo the delta weight), and since premium is certain while appreciation is conditional, premium always wins the production race.
+
+### Two distinct findings — preserved separately
+
+1. **Capital consequence is orthogonal to Production v0 and needs explicit selection policy** rather than an arbitrary scoring penalty. (Documented in the entry above.)
+
+2. **Production v0 may have an implicit strategic preference for ATM-ish Buy-Writes.** This is a formula-level structural bias, not a data error or implementation bug. It needs empirical characterization before any change is made.
+
+These are related but independent. #1 is about what happens when the selected strike is below acquisition price. #2 is about why the formula tends to select strikes near the money in the first place. Solving #1 without understanding #2 would address a symptom.
+
+### The next experiment
+
+**Strike-surface analysis for one or more of the observed symbols:**
+
+For a given underlying (ARTY is ideal because the effect is large), inspect the full eligible call surface from slightly ITM through progressively OTM strikes for the same expiration. For each strike, record:
+
+- Strike price
+- Premium (mid)
+- Delta
+- Spread / execution quality
+- Premium yield (annualized)
+- Appreciation to strike (per share)
+- Total-if-called (per share and annualized)
+- Production v0
+- Posture
+
+This will reveal:
+- Whether the Production v0 score actually peaks at/near ATM
+- How quickly it falls as the strike moves OTM (buying more appreciation headroom)
+- Whether there's a natural "knee" where the system transitions from premium-dominated to appreciation-dominated economics
+- How execution quality (spread, OI) varies across the surface — ATM options typically have better liquidity, which may independently reinforce the ATM preference through posture filtering
+
+### Why this matters architecturally
+
+If Production v0 structurally peaks near ATM, then the cross-entry strip is not just "finding the best deployments" — it's expressing an implicit strategic philosophy: maximize immediate premium capture, accept limited or negative appreciation, deploy aggressively into short cycles.
+
+That may be a perfectly valid operator philosophy. But it should be a conscious choice, not an emergent artifact of a formula that was designed to measure production rate without asserting strategic preference.
+
+An alternative philosophy might be: "Accept somewhat lower premium yield in exchange for positive appreciation headroom, producing a deployment that both generates income and preserves or grows capital."
+
+Both are defensible. The system should eventually let the operator express which one they want, or at minimum make the implicit preference visible rather than hidden inside the ranking.
+
+### What we're NOT doing yet
+
+- Not changing Production v0
+- Not adding a penalty or weight
+- Not asserting that ATM preference is wrong
+- Not introducing a new ranking mode
+
+We are preserving the empirical question and designing the observation that will answer it. Policy follows evidence.
+
+### Relationship to prior findings
+
+- Builds directly on the capital-erosion entry above
+- Connects to the Production v0 design notes in `production-v0.ts` (explicit assumption #3: "Buy-Write downside while shares remain owned is NOT modeled")
+- The formula's assumption #1 ("Delta is used as a realization proxy, not asserted as assignment probability") is relevant — if delta were larger for ATM calls, the conditional appreciation penalty would be larger too, partially self-correcting. But delta near 0.30–0.35 means 65–70% of the erosion is "not counted."
+
+
+---
+
+## 2025-08-12 — ATM-Bias Hypothesis Falsified; Revised Diagnosis
+
+### Context
+
+Following the two earlier entries (capital-erosion finding and ATM-bias hypothesis), we performed a strike-surface analysis using evidence from the SQLite store. The goal was to confirm the ATM-bias hypothesis by demonstrating that the selector chose a near-money call despite available OTM alternatives with better appreciation.
+
+### What the evidence actually showed
+
+**ARTY** ($75.92 underlying, Aug 21, DTE 9):
+
+Admissible calls (delta 0.15–0.50):
+
+| Strike | Delta | Bid | Ask | Spread | OI | Verdict |
+|--------|-------|-----|-----|--------|----|---------|
+| $74 | 0.4317 | $0.80 | $5.80 | 152% | 3 | HARD_NO (spread) |
+| $75 | 0.3423 | $2.00 | $3.20 | 46% | 77 | ELIGIBLE |
+| $76 | 0.2611 | $0.20 | $5.00 | 185% | 6 | HARD_NO (spread) |
+| $77 | 0.1940 | $0.00 | $4.40 | — | 5 | HARD_NO (zero bid) |
+| $78 | 0.1601 | $0.00 | $4.10 | — | 2 | HARD_NO (zero bid) |
+
+The $75 call was the **only eligible strike**. The system had no alternative to select. This is not a formula preference — it is a liquidity constraint.
+
+**EWT** ($106.40 underlying, same expiration):
+
+4 eligible strikes survived execution filters:
+
+| Strike | Delta | Mid | Appreciation | Total-if-called | Selected? |
+|--------|-------|-----|-------------|-----------------|-----------|
+| $107 | 0.4778 | $2.02 | +$0.60 | +$2.62 | |
+| $108 | 0.4080 | $1.62 | +$1.60 | +$3.22 | |
+| $109 | 0.3410 | $1.23 | +$2.60 | +$3.82 | |
+| $110 | 0.2794 | $1.02 | +$3.60 | +$4.62 | ✓ (closest to 0.30) |
+
+The selector chose the **most OTM** eligible strike — +$3.60/sh appreciation, no erosion. This is the opposite of ATM bias.
+
+**PTF** ($110.19 underlying):
+
+Only $115 (delta 0.3108) survived. Strike is OTM by $4.81. No erosion.
+
+### Falsification
+
+The ATM-bias hypothesis — that Production v0's formula or the delta-targeting mechanism systematically gravitates toward ATM/ITM calls — is **not supported** by the current evidence.
+
+Where multiple eligible strikes exist (EWT), the closest-to-0.30-delta rule selects the most OTM eligible strike with positive appreciation. That's the desired behavior.
+
+Where only one eligible strike exists (ARTY), the system has no choice. The observed erosion is a consequence of illiquidity, not of an optimization preference.
+
+### Revised diagnosis
+
+The ARTY recommendation is genuinely defective. But the cause is not formula bias. It is:
+
+**The system lacks a strategy-fitness layer. A contract being the sole executable option within the admissible delta range does not make it a valid Buy-Write opportunity.**
+
+The pipeline currently equates:
+- tradeable contract (bid > 0, OI > 0, spread < 100%)
+- admissible delta (0.15–0.50)
+- closest to target delta (0.30)
+
+...with "this is a Buy-Write recommendation." But a valid Buy-Write, as we intend the strategy, seeks a **meaningful balance of call premium and positive share appreciation if assigned**. ARTY's sole available contract offers:
+
+- $2.60 premium
+- −$0.92 share depreciation if assigned
+- Net +$1.68 if called
+
+That is a profitable package, but it does not have the economic shape of the strategy we want to recommend.
+
+### What this means architecturally
+
+There are two distinct layers that currently live in the same place:
+
+1. **Market/contract eligibility** — can this contract be traded reasonably? (Execution quality, delta range, spread, liquidity.) The system does this well.
+
+2. **Strategy-level Buy-Write fitness** — does this tradeable contract, combined with the share purchase, actually constitute the kind of opportunity we want to recommend? The system does not do this at all.
+
+The correction is not to penalize, weight, or hide ARTY. It is to allow the system to conclude: "No suitable Buy-Write exists for ARTY right now."
+
+### What we are NOT doing
+
+- Not implementing `constructionConfidence` (proposed but rejected as premature)
+- Not ratifying Production v0 as the correct CSP-vs-BW comparison measure
+- Not changing the delta-targeting strike selector (it works correctly when alternatives exist)
+- Not assuming that simply requiring strike ≥ acquisition price fully defines a good Buy-Write
+- Not assuming Buy-Write will be competitive with CSP (that requires empirical evidence)
+
+### What needs to happen next
+
+1. Define what constitutes a strategically valid Buy-Write opportunity.
+2. Distinguish that definition from market/contract eligibility.
+3. Construct the best valid BW for each symbol (if one exists).
+4. Examine the resulting properly-constructed BW population.
+5. Then compare against CSPs and determine empirically whether BW is viable.
+
+### Relationship to prior entries
+
+The two earlier entries in this session (capital-erosion finding and ATM-bias hypothesis) are now understood as:
+- Capital-erosion finding: **confirmed** — the cross-entry strip does promote eroding candidates without appropriate gates.
+- ATM-bias hypothesis: **falsified** — the cause is not formula preference but absence of a strategy-fitness layer.
+
+The encouraging finding: when alternatives exist, the current selector produces exactly the kind of positive-appreciation BW construction we want (EWT $110, PTF $115). The system's *selection* works. What's missing is the *admission gate* that determines whether any valid selection exists at all.
+
+
+---
+
+## 2025-08-12 — 76% Dominated Selections; BW Increment 1 Plan
+
+### Context
+
+Following the UGA strike-neighborhood analysis, a universe-wide Pareto dominance study was performed across all symbols with 2+ valid Buy-Write strikes in the Aug 21 evidence. Dominance was defined on two axes: Production v0 and execution quality score.
+
+### Finding: 76% dominated selection rate
+
+Of 84 symbols with multiple valid strikes (positive appreciation, passing execution hard-no):
+
+- **64 (76%)**: Current system picks a dominated strike
+- **15 (18%)**: Current system picks a non-dominated strike
+- **5 (6%)**: No dominance exists among available strikes
+
+The current "closest to 0.30 delta" selector is structurally wrong whenever the chain provides choices. It systematically picks a more-OTM strike that has lower premium, worse execution quality, and lower Production v0 — while a slightly closer strike dominates on all measurable dimensions.
+
+### Root cause confirmed
+
+Delta proximity is not an optimization. It was designed for CSP (where delta IS the risk axis) and transplanted to Buy-Write without recognizing that BW has a two-dimensional optimization: premium vs. appreciation. The 0.30 target consistently overshoots into appreciation-heavy, execution-poor territory.
+
+### Examples
+
+**UGA** ($117.34): $120 (Pv0=10.7%, exec~78, ACTIONABLE, 50/50 composition) dominates $125 (Pv0=9.7%, exec~45, EDGE, 16/84 composition). System picks $125.
+
+**EWT** ($106.40): $107 (Pv0=6.9%, exec~62) dominates $108, $109, $110. System picks $110.
+
+**QQQ** ($698.41): All 31 strikes have exec=100. Production v0 monotonically decreases with distance. Pareto elimination alone would select the closest-to-ATM valid strike. This reveals that Pareto on {Pv0, exec} alone is not the final answer for liquid chains — a composition constraint will eventually be needed. But that's Increment 2.
+
+### Staged implementation plan
+
+**Increment 1** (this implementation):
+- Evaluate all eligible strikes per expiration (not just closest to target delta)
+- Strategy-fitness floor: require `strike > underlyingPrice` (positive appreciation)
+- Pareto-eliminate dominated strikes
+- Choose winner from non-dominated set by highest Pv0 among ACTIONABLE
+- Expose composition diagnostics (premiumShare, appreciationShare, eligibleStrikeCount, nonDominatedCount)
+- Add `strategyUnfit` outcome for symbols where all eligible strikes fail fitness
+- No composition gate yet
+
+**Increment 2** (deferred, evidence-driven):
+- Examine the composition frontier across the properly-constructed population
+- Determine where economically attractive BWs naturally cluster
+- Ratify a composition policy (what "meaningful balance" means numerically)
+- Add the final composition constraint
+
+**Increment 3** (deferred):
+- Rerun unified cross-entry board with properly-constructed BWs
+- Answer: do Buy-Writes actually compete with CSPs?
+- Do not design the result to make BW competitive — accept empirical outcome
+
+### What we know strongly enough to implement (Increment 1)
+
+1. Negative appreciation is not a valid BW construction
+2. All viable strikes must be evaluated (not just closest-to-target)
+3. Delta is a constraint/lens (admissible range), not the optimizer
+4. Dominated strikes should never win
+5. Execution quality must participate in selection
+6. The chosen BW needs both premium and appreciation components (exact ratio TBD)
+
+### What we don't know yet (deferred to Increment 2)
+
+- The exact composition threshold for "meaningful balance"
+- Whether 50%, 40%, or some other ratio defines the preferred operating envelope
+- How the non-dominated frontier looks across the full population
+- Whether Production v0 is the right axis for liquid chains where it just maximizes premium
+
+### Constraints
+
+- Do not commit without explicit approval
+- Do not introduce a composition gate (that's Increment 2)
+- Do not change the admissible delta range
+- Do not change execution assessment scoring
+- Do not change Production v0 formula
+- Preserve the buy-write board visibility (candidates still shown, with diagnostics)
+- Preserve the cross-entry strip (it will now receive better-constructed candidates)
+
+### Relationship to prior entries
+
+- "Capital Erosion" entry: confirmed → fitness floor handles this
+- "ATM Bias Hypothesis": falsified as a formula problem → but the delta-targeting selector IS the mechanical defect, just for a different reason (OTM bias, not ATM bias)
+- "Falsification" entry: correct diagnosis of missing fitness layer → now extended to include missing optimization
+
+
+---
+
+## 2025-08-12 — Evidence Incoherence: The Real Defect Beneath the BW Selection Work
+
+### Context
+
+After extensive Buy-Write strike-selection design work (fitness floor, Pareto elimination, FCH, plateau, and finally Pv0 selector), live validation repeatedly showed the browser producing different results than offline verification against the same backend. The discrepancy was initially attributed to stale IndexedDB data, then traced to its actual root cause.
+
+### The finding
+
+The frontend IndexedDB cache is an **independent durable evidence store with merge semantics**, not a faithful representation of one coherent backend generation.
+
+Specific failure observed with USO:
+- Backend snapshot (generation 7923) serves the **Sep 4 (DTE 23)** chain as `primaryExpiration`
+- Frontend IndexedDB still retains an **Aug 21 (DTE 9)** chain from a prior frontend-direct acquisition session
+- Both are keyed by `(provider, environment, "chain", symbol, expiration)` — different keys, both present
+- `recommendBuyWrites` scans eligible expirations [DTE 7–45], finds BOTH Aug 21 and Sep 4
+- The Aug 21 chain has different quotes than what the backend currently observes
+- Recommendations are therefore constructed from a **mixture of current backend state and prior-session residue**
+
+### Why this matters
+
+Every economic conclusion drawn from the live BW board today was operating on evidence of unknown provenance. The delta distributions, FCH calculations, and Pv0 comparisons between offline verification and live UI were comparing different underlying data without realizing it. We cannot validate Production v0, v1, or any strike-selection model until we can guarantee that the recommendation engine sees exactly one coherent evidence generation.
+
+### The architectural defect
+
+The frontend cache was designed for a world where the **browser itself** was the evidence acquisition agent (making provider calls directly). In that architecture, the browser writes chains into IndexedDB as it fetches them, and TTL/freshness governs what's usable.
+
+When the backend took over acquisition (the Java evidence service), the frontend began receiving snapshot data and merging it into the same IndexedDB namespace. But:
+1. The snapshot only carries one expiration per symbol (the primary)
+2. Old browser-acquired chains for other expirations remain in IndexedDB under different keys
+3. Nothing invalidates or replaces those old records when a new generation arrives
+4. Recommendation logic scans all eligible expirations and can read both current and stale records
+
+The result: the cache silently serves a mixed-generation, multi-temporal-provenance bag of evidence as if it were coherent.
+
+### Decisions
+
+1. **Pause all BW selection math.** The selector changes are staged but uncommitted. They cannot be validated until evidence coherence is guaranteed.
+2. **Fix the evidence contract first.** No further economic model changes until recommendations provably operate on one coherent generation.
+3. **Production v0/v1 and strike selection logic are frozen.** Do not change them while fixing this.
+
+### Requirements for the fix
+
+1. A recommendation evaluation must consume evidence from one coherent generation.
+2. Frontend durable cache records from prior generations must not silently participate in current recommendation construction.
+3. If the BW/CSP engine requires multiple expirations, the backend must expose those expirations coherently; IndexedDB must not supply missing expirations from historical residue.
+4. Browser storage should be treated as disposable/generation-bound presentation cache, not a second source of truth.
+5. Generation/provenance must be visible in diagnostics so we can prove every strike in one recommendation came from the same evidence generation.
+
+### Relationship to prior work
+
+- The "1 evaluated / 1 considered" observation for UGA was an early symptom of this same defect
+- Every live/offline comparison in this session was affected
+- The BW selection design work (fitness floor, evaluation of all strikes, Pv0 selector) is architecturally correct but cannot be validated until this is fixed
+- The prior journal entry about "evidence freshness" and session-aware acquisition (docs 15, 20) anticipated parts of this but didn't identify the multi-generation mix as the specific failure mode
+
+
+---
+
+## 2025-08-12 — Breakthrough: Delta as Emergent Property, Not Governance Constraint
+
+### Context
+
+After discovering that the admissible delta range [0.25, 0.40] was the actual cause of the live/offline discrepancy (not cache incoherence, not the selector formula), we removed the delta eligibility filter entirely from the Buy-Write pipeline as an experiment.
+
+The pipeline became:
+```
+all calls → bid > 0, usable greeks → positive appreciation (strike > price) →
+execution hard-no → compute Production v0 for every survivor →
+select highest Pv0 among ACTIONABLE (fallback EDGE)
+```
+
+Delta participates inside Pv0 (`premium + δ × appreciation`) as an economic input but does not constrain which contracts enter the competition.
+
+### What emerged
+
+Live BW selections without any delta constraint:
+
+| Symbol | Delta | Notes |
+|--------|-------|-------|
+| DBO | 0.48 | Selected by Pv0, $0.63 premium, positive appreciation |
+| PTF | 0.32 | Lower delta — liquidity-constrained, only viable option |
+| UGA | 0.42 | |
+| REMX | 0.37 | |
+| CNXT | 0.50 | |
+| XME | 0.44 | |
+| HACK | 0.46 | |
+| BNO | 0.51 | Above .50 — naturally selected |
+| USO | 0.41 | Previously capped at .37 by the delta range |
+| EWY | 0.53 | Highest observed — above .50 naturally |
+
+The distribution clusters roughly **0.37–0.53** with meaningful variation by symbol. It did not race to 0.80+ nor collapse to 0.30.
+
+### What this means
+
+1. **There may not be a correct Buy-Write delta range.** Delta is an explanatory attribute and probability input, not a governance constraint.
+
+2. **The strategy constraints that matter are**: positive appreciation, usable market, acceptable execution, and the Production v0 economic objective. Delta helps determine the economics and tells the operator about the resulting trade, but it should not decide which contracts are allowed to compete.
+
+3. **Symbol-specific outcomes are correct.** BNO at .51 and PTF at .32 are both valid — they reflect different underlying option surfaces, not a failure to converge. If everything had snapped to .50, it would suggest we'd merely replaced one arbitrary target with another.
+
+4. **The variation tells us the market has structure.** Some underlyings produce their Pv0 peak near .50, others near .37. This is real economic information: it reflects how premium, appreciation, and execution quality distribute across each symbol's strike surface.
+
+### The architectural lesson
+
+We spent most of the session trying to discover the right delta assumption. The important discovery is that the assumption itself was the problem.
+
+Every prior selector variant embedded a delta belief:
+- Original: target exactly .30
+- First revision: admissible [0.15, 0.50], closest to .30
+- Live policy: [0.25, 0.40]
+- FCH plateau: prefer highest delta within plateau (implicit .50 tendency)
+
+All of these artificially constrained the answer before the economics could speak. Removing the constraint lets Production v0 find the natural optimum for each symbol.
+
+### What we're NOT claiming yet
+
+- We are not claiming Production v0 is the final model
+- We are not claiming this BW population is competitive with CSPs
+- We are not claiming the absence of a delta constraint is the permanent policy
+- We have not yet examined outliers or pathological selections
+
+### What needs to happen next
+
+1. Characterize the full live BW population: delta distribution, Pv0 distribution, composition, execution, outliers
+2. Look for pathological selections (if any) that would motivate re-introducing a targeted constraint
+3. Compare BW vs CSP on the unified board
+4. If no pathologies emerge, this "delta as evidence, not governance" architecture may become Production v1
+
+### Relationship to prior entries
+
+- Falsifies the earlier hypothesis that the selector needed an explicit delta preference mechanism
+- Subsumes the FCH plateau experiment (useful for discovery, not needed as production selector)
+- Evidence coherence fix remains important independently (preventing cross-generation contamination)
+- The positive-appreciation fitness floor remains essential (prevents ARTY-style defective candidates)
+- The "evaluate all strikes" correction remains essential (prevents the original single-strike blindness)
