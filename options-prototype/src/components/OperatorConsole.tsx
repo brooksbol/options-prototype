@@ -17,6 +17,7 @@ import { deriveCapacitySummary, type CapacitySummary } from "../portfolio/capaci
 import { deriveNearestConsequenceSummary, type NearestConsequenceSummary } from "../portfolio/consequence-summary";
 import { buildPositionDetail, type PositionDetail } from "../portfolio/position-detail";
 import type { OptionBasisInput } from "../portfolio/assignment-consequence";
+import { lookupDescription } from "../instrument-catalog/catalog";
 import { PositionDetailModal } from "./PositionDetailModal";
 import "../operator-console/operator-console.css";
 
@@ -488,7 +489,10 @@ function buildDetailForPosition(
     }
   }
 
-  return buildPositionDetail(position, inventory, snapshot.balanceContext, optionBasis);
+  // Resolve instrument description from description library
+  const instrumentDescription = lookupDescription(position.underlying);
+
+  return buildPositionDetail(position, inventory, snapshot.balanceContext, optionBasis, instrumentDescription);
 }
 
 function formatExpiration(iso: string): string {

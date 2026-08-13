@@ -45,30 +45,38 @@ export function PositionDetailModal({ detail, onClose }: Props) {
 
   const mState = classifyMoneyness(position);
   const mDisplay = formatMoneynessDisplay(position);
-  const typeLabel = position.type === "put" ? "PUT" : "CALL";
+  const typeLabel = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BUY-WRITE" : "CALL";
 
   return (
     <div className="pdm-backdrop" onClick={handleBackdropClick}>
       <div className="pdm-modal" role="dialog" aria-modal="true">
-        {/* Sticky Header */}
+        {/* === IMPATIENT MODE: Identity + Consequence === */}
         <header className="pdm-header">
-          <span className="pdm-header-type">{typeLabel}</span>
-          <span className="pdm-header-symbol">{position.underlying}</span>
-          <span className="pdm-header-strike">${position.strike} strike</span>
-          <span className="pdm-header-exp">{formatDate(position.expiration)}</span>
-          <span className="pdm-header-dte">{position.dte} DTE</span>
-          {position.quantity > 1 && <span className="pdm-header-qty">×{position.quantity}</span>}
+          <div className="pdm-identity">
+            <span className="pdm-header-type">{typeLabel}</span>
+            <span className="pdm-header-symbol">{position.underlying}</span>
+            {detail.instrumentDescription && (
+              <span className="pdm-header-description">{detail.instrumentDescription}</span>
+            )}
+          </div>
+          <div className="pdm-contract">
+            <span className="pdm-header-strike">${position.strike}</span>
+            <span className="pdm-header-exp">{formatDate(position.expiration)}</span>
+            <span className="pdm-header-dte">{position.dte}d</span>
+            {position.quantity > 1 && <span className="pdm-header-qty">×{position.quantity}</span>}
+          </div>
           <button className="pdm-close" onClick={onClose} aria-label="Close">×</button>
         </header>
 
-        <div className="pdm-body">
-          {/* Situational Summary */}
-          <SituationalSummary detail={detail} mState={mState} />
+        {/* Immediate Economic Consequence — the answer */}
+        <ImmediateConsequence detail={detail} />
 
+        {/* === REFLECTIVE MODE: Detail underneath === */}
+        <div className="pdm-body">
           {/* Contract Measurements */}
           <MeasurementsSection detail={detail} mDisplay={mDisplay} />
 
-          {/* Assignment Consequence (ADR-013 Dimension 3) */}
+          {/* Full Assignment Consequence Decomposition */}
           <ConsequenceSection detail={detail} />
 
           {/* Evidence & Provenance */}
@@ -77,6 +85,87 @@ export function PositionDetailModal({ detail, onClose }: Props) {
       </div>
     </div>
   );
+}
+
+// --- Immediate Consequence (impatient mode) ---
+
+function ImmediateConsequence({ detail }: { detail: PositionDetail }) {
+  const { position, consequence, strikeToMarketConsequence } = detail;
+
+  // PUT: strike-to-market capital loss
+  if (position.type === "put") {
+    if (!strikeToMarketConsequence || strikeToMarketConsequence.capitalLoss.value == null) {
+      return (
+        <div className="pdm-impatient">
+          <span className="pdm-impatient-label">If assigned now</span>
+          <span className="pdm-impatient-unavailable">Market price unavailable</span>
+        </div>
+      );
+    }
+
+    const loss = strikeToMarketConsequence.capitalLoss.value;
+    const atPrice = strikeToMarketConsequence.atPrice;
+
+    if (loss === 0) {
+      return (
+        <div className="pdm-impatient pdm-impatient-safe">
+          <span className="pdm-impatient-label">If assigned now</span>
+          <span className="pdm-impatient-value">No capital loss</span>
+          <span className="pdm-impatient-context">
+            Underlying ${atPrice?.toFixed(2)} above ${position.strike} strike
+          </span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="pdm-impatient pdm-impatient-danger">
+        <span className="pdm-impatient-label">If assigned now</span>
+        <span className="pdm-impatient-value">Capital loss ${loss.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        <span className="pdm-impatient-context">
+          at ${atPrice?.toFixed(2)} · ${position.quantity * 100} shares · ${position.strike} strike
+        </span>
+      </div>
+    );
+  }
+
+  // CALL / BUY-WRITE: appreciation/erosion from assignment
+  if (consequence.type === "call") {
+    const appValue = consequence.totalAppreciationOrErosion.value;
+
+    if (appValue == null) {
+      return (
+        <div className="pdm-impatient">
+          <span className="pdm-impatient-label">If called away</span>
+          <span className="pdm-impatient-unavailable">Share cost basis unavailable</span>
+        </div>
+      );
+    }
+
+    if (appValue >= 0) {
+      return (
+        <div className="pdm-impatient pdm-impatient-safe">
+          <span className="pdm-impatient-label">If called away</span>
+          <span className="pdm-impatient-value">Appreciation +${appValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          <span className="pdm-impatient-context">
+            ${consequence.salePricePerShare} strike vs ${consequence.brokerShareBasis.value?.toFixed(2)} basis · {consequence.sharesRemoved} shares
+          </span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="pdm-impatient pdm-impatient-danger">
+        <span className="pdm-impatient-label">If called away</span>
+        <span className="pdm-impatient-value">Capital erosion ${Math.abs(appValue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        <span className="pdm-impatient-context">
+          ${consequence.salePricePerShare} strike vs ${consequence.brokerShareBasis.value?.toFixed(2)} basis · {consequence.sharesRemoved} shares
+        </span>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 // --- Situational Summary ---
