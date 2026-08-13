@@ -600,7 +600,7 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
             </thead>
             <tbody>
               {rows.length === 0 && scanning && (
-                <tr><td colSpan={9} style={{ textAlign: "center", color: "#888", padding: 20 }}>Loading...</td></tr>
+                <tr><td colSpan={9} style={{ textAlign: "center", color: "#999", padding: 20 }}>Loading...</td></tr>
               )}
               {callSorted.map((row) => {
                 const isBestCall = row.callYield != null && row.callYield === bestCallYield;
@@ -657,7 +657,7 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
             </thead>
             <tbody>
               {rows.length === 0 && scanning && (
-                <tr><td colSpan={9} style={{ textAlign: "center", color: "#888", padding: 20 }}>Loading...</td></tr>
+                <tr><td colSpan={9} style={{ textAlign: "center", color: "#999", padding: 20 }}>Loading...</td></tr>
               )}
               {putSorted.map((row) => {
                 const isBestPut = row.putYield != null && row.putYield === bestPutYield;

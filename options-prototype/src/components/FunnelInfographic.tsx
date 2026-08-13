@@ -28,12 +28,12 @@ const SEGMENTS: { key: keyof TerminalOutcomes; label: string; color: string }[] 
   { key: "edge", label: "EDGE", color: "#4EA1FF" },
   { key: "wait", label: "Wait", color: "#D6A83B" },
   { key: "hardNoZeroBid", label: "Zero Bid", color: "#E45C5C" },
-  { key: "hardNoZeroOI", label: "Zero OI", color: "#8B6914" },
+  { key: "hardNoZeroOI", label: "Zero OI", color: "#B8922E" },
   { key: "hardNoWideSpread", label: "Wide Spread", color: "#CC5599" },
   { key: "noDeltaMatch", label: "No Delta Match", color: "#9A78D1" },
   { key: "noDteMatch", label: "No DTE Match", color: "#4CB7A5" },
-  { key: "nonOptionable", label: "No Options", color: "#687386" },
-  { key: "classificationUnknown", label: "Unclassified", color: "#A0522D" },
+  { key: "nonOptionable", label: "No Options", color: "#8993A4" },
+  { key: "classificationUnknown", label: "Unclassified", color: "#B5714A" },
   { key: "incomplete", label: "Incomplete", color: "#8993A4" },
 ];
 

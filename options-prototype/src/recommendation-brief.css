@@ -662,12 +662,12 @@
 
 .rb-governance-review {
   background: rgba(136, 136, 136, 0.06);
-  border-left-color: #888888;
+  border-left-color: #999999;
 }
 
 .rb-gov-badge-review {
   background: rgba(136, 136, 136, 0.15);
-  color: #888888;
+  color: #999999;
 }
 
 
@@ -725,7 +725,7 @@
 
 .rb-pcs-basis-derivation {
   font-size: 10px;
-  color: var(--wd-text-tertiary, #777);
+  color: var(--wd-text-tertiary, #999);
 }
 
 .rb-pcs-partial {
@@ -745,12 +745,12 @@
 
 .rb-pcs-summary-detail {
   font-size: 10px;
-  color: var(--wd-text-tertiary, #777);
+  color: var(--wd-text-tertiary, #999);
 }
 
 .rb-pcs-table-label {
   font-size: 9px;
-  color: var(--wd-text-tertiary, #777);
+  color: var(--wd-text-tertiary, #999);
   margin-bottom: 4px;
 }
 
@@ -764,7 +764,7 @@
 .rb-pcs-table th {
   text-align: left;
   font-weight: 500;
-  color: var(--wd-text-tertiary, #777);
+  color: var(--wd-text-tertiary, #999);
   padding: 2px 4px;
   border-bottom: 1px solid var(--wd-border-subtle, #333);
 }
@@ -776,13 +776,13 @@
 
 .rb-pcs-empty {
   font-size: 11px;
-  color: var(--wd-text-tertiary, #777);
+  color: var(--wd-text-tertiary, #999);
   font-style: italic;
 }
 
 .rb-pcs-provenance {
   font-size: 9px;
-  color: var(--wd-text-tertiary, #777);
+  color: var(--wd-text-tertiary, #999);
   margin-top: 4px;
 }
 
@@ -821,7 +821,7 @@
 
 .rb-pe-threshold {
   font-size: 10px;
-  color: var(--wd-text-tertiary, #777);
+  color: var(--wd-text-tertiary, #999);
   margin-top: 2px;
 }
 
@@ -832,7 +832,7 @@
 .rb-pe-contributors-label {
   font-size: 9px;
   font-weight: 500;
-  color: var(--wd-text-tertiary, #777);
+  color: var(--wd-text-tertiary, #999);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 6px;
@@ -861,7 +861,7 @@
 
 .rb-pe-contrib-weight {
   font-size: 9px;
-  color: var(--wd-text-tertiary, #777);
+  color: var(--wd-text-tertiary, #999);
 }
 
 .rb-pe-contrib-detail {
@@ -877,7 +877,7 @@
 
 .rb-pe-contrib-reference {
   font-size: 9px;
-  color: var(--wd-text-tertiary, #777);
+  color: var(--wd-text-tertiary, #999);
 }
 
 .rb-pe-contrib-bar {
@@ -930,7 +930,7 @@
 
 .rb-pe-hard-no-note {
   font-size: 9px;
-  color: var(--wd-text-tertiary, #777);
+  color: var(--wd-text-tertiary, #999);
   margin-top: 6px;
   font-style: italic;
 }
@@ -1053,7 +1053,7 @@
 .rb-gov-taxonomy {
   font-size: 10px;
   font-family: var(--wd-font-mono, "SF Mono", monospace);
-  color: var(--wd-text-tertiary, #687386);
+  color: var(--wd-text-tertiary, #999999);
   margin-top: 6px;
   opacity: 0.7;
 }

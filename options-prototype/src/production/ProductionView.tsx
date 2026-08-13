@@ -1,97 +1,191 @@
 /**
  * Production Assessment View — /app/production
  *
- * Operator workflow:
- *   1. Upload Fidelity Activity History CSV
- *   2. Backend assesses requested/default month
- *   3. Wheelwright presents the authoritative answer
+ * Two structurally distinct views:
+ *   - Current month: operational production surface (what's happened, what's in flight,
+ *     where will the month end, what capacity remains)
+ *   - Historical months: reconciled actual results (what actually happened)
  *
- * No accounting logic in this component. The backend response is truth.
+ * Fidelity upload/snapshot management is an application-level concern
+ * handled by the global header. This page consumes globally-stored Activity CSV.
  */
 
-import { useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useProductionAssessment } from "./use-production-assessment";
+import { CurrentMonthView } from "./CurrentMonthView";
 import type { ProductionAssessmentResponse, ReconciliationIssue, ErosionEvent } from "./production-types";
 import "./production.css";
 
-const LS_KEY = "wheelwright:production:activity-csv";
+// Global Activity CSV key (shared with portfolio-store and FidelityUploadCompact)
+const LS_KEY_ACTIVITY = "wheelwright:fidelity-csv:activity";
+// Legacy key (from prior page-local upload) — check for migration
+const LS_KEY_LEGACY = "wheelwright:production:activity-csv";
+
+type MonthTab = "current" | string; // "current" or "YYYY-MM" for historical
 
 export function ProductionView() {
-  const { state, assess, reset } = useProductionAssessment();
-  const fileRef = useRef<HTMLInputElement>(null);
+  const { state: currentMonthState, assess: assessCurrentMonth } = useProductionAssessment();
+  const { state: historicalState, assess: assessHistorical } = useProductionAssessment();
   const hydratedRef = useRef(false);
 
-  // Hydrate from localStorage on mount
+  // Derive current month
+  const now = new Date();
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const currentMonthLabel = now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+  // Month navigation
+  const [selectedMonth, setSelectedMonth] = useState<MonthTab>("current");
+
+  // Derive previous months for navigation
+  const prevMonths = Array.from({ length: 3 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (i + 1), 1);
+    return {
+      key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+      label: d.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+    };
+  });
+
+  // Get CSV text from global storage
+  const getCsvText = useCallback((): string | null => {
+    const globalStored = localStorage.getItem(LS_KEY_ACTIVITY);
+    if (globalStored) {
+      try {
+        const parsed = JSON.parse(globalStored);
+        return parsed.text ?? parsed;
+      } catch {
+        return globalStored;
+      }
+    }
+    return localStorage.getItem(LS_KEY_LEGACY);
+  }, []);
+
+  // Auto-hydrate current month on mount
   useEffect(() => {
     if (hydratedRef.current) return;
     hydratedRef.current = true;
-    const stored = localStorage.getItem(LS_KEY);
-    if (stored) {
-      const file = new File([stored], "activity-history.csv", { type: "text/csv" });
-      assess(file);
+    const csvText = getCsvText();
+    if (csvText) {
+      const file = new File([csvText], "activity-history.csv", { type: "text/csv" });
+      assessCurrentMonth(file, currentMonthKey);
     }
-  }, [assess]);
+  }, [assessCurrentMonth, currentMonthKey, getCsvText]);
 
-  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    // Persist raw CSV text for route-navigation survival
-    const text = await file.text();
-    localStorage.setItem(LS_KEY, text);
-    assess(file);
-  }, [assess]);
+  // Assess a specific historical month
+  const handleSelectMonth = useCallback((monthKey: string) => {
+    setSelectedMonth(monthKey);
+    const csvText = getCsvText();
+    if (csvText) {
+      const file = new File([csvText], "activity-history.csv", { type: "text/csv" });
+      assessHistorical(file, monthKey);
+    }
+  }, [assessHistorical, getCsvText]);
 
-  const handleReset = useCallback(() => {
-    reset();
-    localStorage.removeItem(LS_KEY);
-    if (fileRef.current) fileRef.current.value = "";
-  }, [reset]);
+  const handleSelectCurrent = useCallback(() => {
+    setSelectedMonth("current");
+    // Re-assess current month if not already loaded
+    if (currentMonthState.status === "idle" || currentMonthState.status === "error") {
+      const csvText = getCsvText();
+      if (csvText) {
+        const file = new File([csvText], "activity-history.csv", { type: "text/csv" });
+        assessCurrentMonth(file, currentMonthKey);
+      }
+    }
+  }, [assessCurrentMonth, currentMonthKey, currentMonthState.status, getCsvText]);
+
+  const handleReassess = useCallback(() => {
+    const csvText = getCsvText();
+    if (!csvText) return;
+    const file = new File([csvText], "activity-history.csv", { type: "text/csv" });
+    if (selectedMonth === "current") {
+      assessCurrentMonth(file, currentMonthKey);
+    } else {
+      assessHistorical(file, selectedMonth);
+    }
+  }, [assessCurrentMonth, assessHistorical, currentMonthKey, getCsvText, selectedMonth]);
 
   return (
     <div className="prod-shell">
-      <section className="prod-upload">
-        <label className="prod-upload-label">
-          Fidelity Activity History CSV
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".csv"
-            onChange={handleFileChange}
-            disabled={state.status === "uploading"}
-            className="prod-file-input"
-          />
-        </label>
-        {state.status === "result" && !fileRef.current?.value && (
-          <span className="prod-restored-note">restored from prior upload</span>
-        )}
-        {state.status !== "idle" && (
-          <button onClick={handleReset} className="prod-reset-btn">Clear</button>
-        )}
-      </section>
+      {/* Month Navigation */}
+      <nav className="prod-month-nav">
+        <button
+          className={`prod-month-btn${selectedMonth === "current" ? " prod-month-active" : ""}`}
+          aria-current={selectedMonth === "current" ? "page" : undefined}
+          onClick={handleSelectCurrent}
+        >
+          {currentMonthLabel}
+        </button>
+        {prevMonths.map((m) => (
+          <button
+            key={m.key}
+            className={`prod-month-btn${selectedMonth === m.key ? " prod-month-active" : ""}`}
+            aria-current={selectedMonth === m.key ? "page" : undefined}
+            onClick={() => handleSelectMonth(m.key)}
+          >
+            {m.label}
+          </button>
+        ))}
+        <span className="prod-month-ellipsis" title="Earlier months will appear as historical data becomes available">···</span>
+      </nav>
 
-      {state.status === "uploading" && (
-        <div className="prod-loading">Assessing…</div>
+      {/* Current Month — Operational View */}
+      {selectedMonth === "current" && (
+        <>
+          {currentMonthState.status === "idle" && (
+            <div className="prod-empty">
+              <p>No Activity History available. Upload a Fidelity Activity CSV via the header to assess production.</p>
+            </div>
+          )}
+          {currentMonthState.status === "uploading" && (
+            <div className="prod-loading">Assessing current month…</div>
+          )}
+          {currentMonthState.status === "error" && (
+            <div className="prod-error">
+              <p>{currentMonthState.message}</p>
+              <button onClick={handleReassess} className="prod-retry-btn">Retry</button>
+            </div>
+          )}
+          {currentMonthState.status === "result" && (
+            <CurrentMonthView assessment={currentMonthState.data} />
+          )}
+        </>
       )}
 
-      {state.status === "error" && (
-        <div className="prod-error">{state.message}</div>
-      )}
-
-      {state.status === "result" && (
-        <ProductionResult data={state.data} />
+      {/* Historical Month — Reconciled Results */}
+      {selectedMonth !== "current" && (
+        <>
+          {historicalState.status === "idle" && (
+            <div className="prod-empty">
+              <p>No Activity History available for this month.</p>
+            </div>
+          )}
+          {historicalState.status === "uploading" && (
+            <div className="prod-loading">Assessing…</div>
+          )}
+          {historicalState.status === "error" && (
+            <div className="prod-error">
+              <p>{historicalState.message}</p>
+              <button onClick={handleReassess} className="prod-retry-btn">Retry</button>
+            </div>
+          )}
+          {historicalState.status === "result" && (
+            <ProductionResult data={historicalState.data} onReassess={handleReassess} />
+          )}
+        </>
       )}
     </div>
   );
 }
 
-// --- Result Display ---
+// --- Historical Result Display (unchanged domain semantics) ---
 
-function ProductionResult({ data }: { data: ProductionAssessmentResponse }) {
+function ProductionResult({ data, onReassess }: { data: ProductionAssessmentResponse; onReassess: () => void }) {
   return (
     <div className="prod-result">
-      {/* Hero: Period + Known Production + Status */}
       <section className="prod-hero">
-        <div className="prod-period">{data.periodDescription}</div>
+        <div className="prod-period">
+          {data.periodDescription}
+          <button className="prod-reassess-btn" onClick={onReassess} title="Re-assess from current Activity data">↻</button>
+        </div>
         <div className="prod-known">
           <span className="prod-known-label">Known Cash Production</span>
           <span className="prod-known-value">${data.knownCashProduction.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -99,7 +193,6 @@ function ProductionResult({ data }: { data: ProductionAssessmentResponse }) {
         <ReconciliationBadge status={data.reconciliationStatus} />
       </section>
 
-      {/* Unresolved + Erosion */}
       <section className="prod-dimensions">
         {data.unresolvedPotentialProduction > 0 && (
           <div className="prod-unresolved">
@@ -113,7 +206,6 @@ function ProductionResult({ data }: { data: ProductionAssessmentResponse }) {
         </div>
       </section>
 
-      {/* Source Breakdown */}
       <section className="prod-breakdown">
         <h3 className="prod-section-title">Known Production Sources</h3>
         <table className="prod-breakdown-table">
@@ -128,7 +220,6 @@ function ProductionResult({ data }: { data: ProductionAssessmentResponse }) {
         </table>
       </section>
 
-      {/* Unresolved Potential Sources */}
       {(() => {
         const unresolvedItems = data.reconciliationIssues.filter(i => i.potentialImpact != null && i.potentialImpact > 0);
         if (unresolvedItems.length === 0) return null;
@@ -156,7 +247,6 @@ function ProductionResult({ data }: { data: ProductionAssessmentResponse }) {
         );
       })()}
 
-      {/* Reconciliation Issues (if any) */}
       {data.reconciliationIssues.length > 0 && (
         <section className="prod-issues">
           <h3 className="prod-section-title">Reconciliation Issues</h3>
@@ -168,7 +258,6 @@ function ProductionResult({ data }: { data: ProductionAssessmentResponse }) {
         </section>
       )}
 
-      {/* Erosion Events (if any) */}
       {data.erosionEvents.length > 0 && (
         <section className="prod-erosion-events">
           <h3 className="prod-section-title">Capital Erosion Events</h3>
@@ -180,7 +269,6 @@ function ProductionResult({ data }: { data: ProductionAssessmentResponse }) {
         </section>
       )}
 
-      {/* Transaction Summary */}
       <section className="prod-summary">
         <h3 className="prod-section-title">Transaction Summary</h3>
         <div className="prod-summary-grid">

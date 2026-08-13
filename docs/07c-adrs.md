@@ -354,3 +354,68 @@ Situations may later provide interpretive context (e.g., "assignment here serves
 - Frontend implementation
 - How missing economic data is visually represented
 - Whether resolution proximity should be a separately named field in the data model or remain implicit in the decision-pressure derivation
+
+
+---
+
+## ADR-014: Production Recognition and Current-Month Semantics
+
+**Date:** August 2026
+**Status:** Accepted
+
+**Context:** Implementing the current-month Production view exposed a critical double-counting risk and required explicit decisions about when production is recognized, how forecasting relates to known production, and how capital resolution relates to deployable cash.
+
+**Decisions:**
+
+### Production recognition at receipt
+
+Option premium is recognized as production when the sell-to-open transaction occurs and the cash credit is received. Contract expiration is NOT the event that causes premium to become production. An open option represents continuing obligation/risk around already-recognized production, not deferred additional production.
+
+**Invariant:** One premium receipt contributes to Production exactly once.
+
+The Fidelity Activity transaction (processed by ProductionAssessor) and the Option Summary `brokerOptionBasis` are two evidence views of the same economic event. They must never independently create two production contributions.
+
+### Current-month versus historical distinction
+
+This distinction is structural, not implemented as month-specific conditionals:
+
+- **Current month (operational):** incomplete; answers what has been produced so far; exposes current economic consequences, unresolved evidence, and remaining capital/position resolution context. When the month becomes historical, this operational view is replaced by reconciled results.
+
+- **Historical month (reconciliatory):** answers what actually happened; presents reconciled actual results; does not preserve obsolete forecasts from when the month was still open.
+
+### Forecast semantics
+
+Wheelwright does not currently possess an authoritative month-end production forecasting primitive. Known production is not a forecast — displaying it as "forecast" would imply either no further production is expected, or that Wheelwright has prediction capability it lacks.
+
+Explicitly excluded from any future forecast model until governed:
+- Hypothetical future option deployments
+- Linear extrapolation of month-to-date premium
+- Assumed redeployment of resolving capital
+- Statistical trading-cadence assumptions
+- Arbitrary assignment probabilities
+- Fabricated future income
+
+### Capital resolution versus deployable cash
+
+Expiry-rung evidence authoritatively tells us when positions resolve. It does NOT tell us that capital becomes deployable:
+- Put expires worthless → collateral becomes deployable cash
+- Put assigned → cash becomes shares (form change, not release)
+- Covered call expires worthless → shares remain shares
+- Covered call assigned → shares become cash
+- Buy-write resolution is likewise outcome-dependent
+
+Therefore use "resolving" not "releasing" unless authoritative evidence proves actual cash release.
+
+**Invariant:** Production capacity is context for future production; it is not itself production. Resolving capital must never be automatically converted to forecast premium.
+
+### Production versus capital erosion
+
+Production earned and capital/NAV erosion incurred are separate concepts. They are never silently netted into a single metric. Both are displayed prominently and adjacently because their relationship tells the economic story of the month.
+
+**Consequences:**
+- `current-month-production.ts` derives forecastTotal = knownProduction (no additive premium from open positions)
+- In-flight positions are shown as obligation/risk context, not additional income
+- Capacity section uses "Resolving this month" terminology
+- Forecast shown as unavailable until a governed forecast primitive exists
+- Mission shown as unavailable until an authoritative monthly target primitive exists
+- 6 regression tests enforce the one-premium and resolution-is-not-cash invariants

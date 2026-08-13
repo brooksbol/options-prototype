@@ -65,6 +65,10 @@ export interface Workspace {
   writeDeskPutsCollapsed: boolean;
   writeDeskCallsCollapsed: boolean;
   writeDeskBuyWritesCollapsed: boolean;
+  writeDeskCrossEntryCollapsed: boolean;
+
+  // Write Desk Section Order (drag/reorder)
+  writeDeskSectionOrder: string[];
 
   // Write Desk Portfolio Source
   writeDeskSource: string;
@@ -99,6 +103,8 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskPutsCollapsed: false,
   writeDeskCallsCollapsed: false,
   writeDeskBuyWritesCollapsed: false,
+  writeDeskCrossEntryCollapsed: false,
+  writeDeskSectionOrder: ["cross-entry", "puts", "calls", "buy-writes"],
   writeDeskSource: "demo",
 };
 

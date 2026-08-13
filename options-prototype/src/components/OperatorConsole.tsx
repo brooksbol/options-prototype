@@ -28,9 +28,6 @@ export function OperatorConsole() {
   if (!snapshot) {
     return (
       <div className="oc-shell">
-        <div className="oc-context-bar">
-          <span className="oc-source">{source === "fidelity" ? "Fidelity — no data loaded" : "Demo"}</span>
-        </div>
         <div className="oc-empty">
           <p>No portfolio data available.</p>
         </div>
@@ -46,14 +43,6 @@ export function OperatorConsole() {
 
   return (
     <div className="oc-shell">
-      {/* Surface context bar — portfolio source and summary */}
-      <div className="oc-context-bar">
-        <span className="oc-source">{source === "demo" ? "Demo Portfolio" : "Fidelity Snapshot"}</span>
-        <span className="oc-summary">
-          {positions.length} positions · ${totalCapital.toLocaleString()} encumbered
-        </span>
-      </div>
-
       <div className="oc-body">
         {/* Sidebar region — portfolio capacity facts */}
         <aside className="oc-region-sidebar">
@@ -62,9 +51,30 @@ export function OperatorConsole() {
         </aside>
 
         <div className="oc-main">
-          {/* Upper region — reserved for mission/NAV */}
+          {/* Upper region — Mission / NAV: portfolio-level situational awareness */}
           <div className="oc-region-upper">
-            <div className="oc-upper-placeholder">Mission / NAV region</div>
+            <div className="oc-mission-grid">
+              <div className="oc-mission-cell oc-mission-placeholder">
+                <span className="oc-mission-label">Portfolio NAV</span>
+                <span className="oc-mission-unavailable">—</span>
+                <span className="oc-mission-hint">Not yet computed</span>
+              </div>
+              <div className="oc-mission-cell oc-mission-placeholder">
+                <span className="oc-mission-label">Monthly Production</span>
+                <span className="oc-mission-unavailable">—</span>
+                <span className="oc-mission-hint">Awaiting assessment</span>
+              </div>
+              <div className="oc-mission-cell oc-mission-placeholder">
+                <span className="oc-mission-label">Yield on Capital</span>
+                <span className="oc-mission-unavailable">—</span>
+                <span className="oc-mission-hint">Requires NAV baseline</span>
+              </div>
+              <div className="oc-mission-cell oc-mission-placeholder">
+                <span className="oc-mission-label">Capital at Risk</span>
+                <span className="oc-mission-unavailable">—</span>
+                <span className="oc-mission-hint">Requires position valuation</span>
+              </div>
+            </div>
           </div>
 
           {/* Position Monitoring — actual ladder */}

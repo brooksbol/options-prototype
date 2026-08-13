@@ -92,7 +92,7 @@ export function CrossEntryStrip({
 
   // Sort by active column (operator-controlled), THEN cap for display
   const { sorted, handleSort, indicator, isDefaultOrder, sortKey } = useCrossEntrySortable(allRows);
-  const [affordableOnly, setAffordableOnly] = useState(true);
+  const [affordableOnly, setAffordableOnly] = useState(false);
   const filtered = affordableOnly ? sorted.filter(r => r.cashRemaining >= 0) : sorted;
   const displayed = filtered.slice(0, maxRows);
 

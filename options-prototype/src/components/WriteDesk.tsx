@@ -12,7 +12,6 @@ import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useDrawerSelection } from "../hooks/useDrawerSelection";
 import { useSessionClassification } from "../hooks/useSessionClassification";
 import { usePortfolio } from "../portfolio/use-portfolio";
-import { setPortfolio, selectPortfolioSource } from "../portfolio/portfolio-store";
 import { type PutCandidate, type CallCandidate } from "../write-desk/scan-orchestrator";
 import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type RecommendationPolicy } from "../write-desk/recommend";
 import { recommendCalls } from "../write-desk/recommend-calls";
@@ -27,7 +26,6 @@ import { loadCandidateUniverseWithDescriptor } from "../universe/universe";
 import { isTradierConfigured } from "../providers";
 import { MarketSessionPolicy } from "../market-session/session-policy";
 import { getTradingCalendar } from "../market-session/trading-calendar";
-import { FidelityUpload } from "./FidelityUpload";
 import { RecommendationBrief } from "./RecommendationBrief";
 import { CallBrief } from "./CallBrief";
 import { BuyWriteBrief } from "./BuyWriteBrief";
@@ -37,8 +35,9 @@ import { CrossEntryStrip } from "./CrossEntryStrip";
 import type { TablePositionContext } from "../write-desk/brief-builder";
 import { loadWorkingIntents, addPendingIntent, updatePendingIntent, createPendingIntent, type PendingIntent } from "../execution/pending-intent";
 import { buildWriteIntent } from "../execution/write-intent";
-import type { PortfolioSnapshot, PortfolioSourceType } from "../write-desk/types";
+import type { PortfolioSnapshot } from "../write-desk/types";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
+import { useSectionOrder } from "../hooks/useSectionOrder";
 import "../write-desk.css";
 import "../recommendation-brief.css";
 
@@ -97,11 +96,26 @@ export function WriteDesk() {
   } = useDrawerSelection<PutCandidate, CallTableRow, BuyWriteCandidate, TablePositionContext>();
   const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>(() => loadWorkingIntents());
   const [showAffordableOnly, setShowAffordableOnly] = useState(false);
-  const [showDanger, setShowDanger] = useState(true);
+  const [showDanger, setShowDanger] = useState(false);
   const [showWideSpread, setShowWideSpread] = useState(false);
   const [showCount, setShowCount] = useState(() => loadWorkspace().writeDeskShowCount);
   const [putsCollapsed, setPutsCollapsed] = useState(() => loadWorkspace().writeDeskPutsCollapsed);
   const [callsCollapsed, setCallsCollapsed] = useState(() => loadWorkspace().writeDeskCallsCollapsed);
+  const [crossEntryCollapsed, setCrossEntryCollapsed] = useState(() => loadWorkspace().writeDeskCrossEntryCollapsed);
+
+  // Section ordering (drag/reorder)
+  const defaultSectionOrder = ["cross-entry", "puts", "calls", "buy-writes"];
+  const savedOrder = loadWorkspace().writeDeskSectionOrder;
+  // Ensure all known sections are present (handles migration from older saved orders)
+  const initialOrder = (() => {
+    if (!savedOrder || savedOrder.length === 0) return defaultSectionOrder;
+    const missing = defaultSectionOrder.filter(id => !savedOrder.includes(id));
+    return [...savedOrder, ...missing];
+  })();
+  const { order: sectionOrder, dragHandlers: sectionDragHandlers, dropTargetHandlers: sectionDropTargetHandlers, dragOverIndex } = useSectionOrder(
+    initialOrder,
+    (newOrder) => updateWorkspace({ writeDeskSectionOrder: newOrder }),
+  );
 
   const providerKey = isTradierConfigured() ? "tradier" : "mock";
 
@@ -200,53 +214,6 @@ export function WriteDesk() {
 
   // Market session classification (wall-clock-driven, reclassifies every 30s)
   const sessionClassification = useSessionClassification();
-
-  // When source changes, select via Portfolio Store and clear results
-  const handleSourceChange = (newSource: PortfolioSourceType) => {
-    selectPortfolioSource(newSource);
-    // Invalidate ALL prior results and selections on source change
-    setPutCandidates([]);
-    setPutWaitCandidates([]);
-    setPutWideSpreadCandidates([]);
-    setCallCandidates([]);
-    setCallWaitCandidates([]);
-    setContingentCallRows([]);
-    clearDrawerSelection();
-    setPutCoverage(null); setPutIsProvisional(true);
-    setPutFunnel(null); setPutHydration(null);
-    setScanTimestamp(null);
-    setBuyWriteCandidates([]);
-    setBuyWriteWaitCandidates([]);
-    setBuyWriteWideSpreadCandidates([]);
-    setBuyWriteOutcomes(null);
-    // Reset ETag to force a fresh evidence fetch on next poll cycle
-    etagRef.current = null;
-  };
-
-  // Fidelity upload callbacks
-  const handleFidelitySnapshotChange = useCallback((newSnapshot: PortfolioSnapshot | null) => {
-    if (newSnapshot) {
-      setPortfolio("fidelity", newSnapshot);
-    }
-  }, []);
-
-  const handleFidelityFileChange = useCallback(() => {
-    // Invalidate all prior results and selections when Fidelity files change
-    if (source === "fidelity") {
-      setPutCandidates([]);
-      setPutWaitCandidates([]);
-      setPutWideSpreadCandidates([]);
-      setCallCandidates([]);
-      setCallWaitCandidates([]);
-      setContingentCallRows([]);
-      clearDrawerSelection();
-      setPutCoverage(null); setPutIsProvisional(true);
-      setPutFunnel(null); setPutHydration(null);
-      setScanTimestamp(null);
-      // Reset ETag to force a fresh evidence fetch on next poll cycle
-      etagRef.current = null;
-    }
-  }, [source]);
 
   // --- Backend-owned acquisition: the browser observes, does not initiate ---
   //
@@ -494,17 +461,7 @@ export function WriteDesk() {
     });
   }, [evidenceMeta, lastPollResult, putCoverage, putHydration]);
 
-  // Portfolio popover state (only one open at a time)
-  const [openPopover, setOpenPopover] = useState<string | null>(null);
-  const togglePopover = (id: string) => setOpenPopover(prev => prev === id ? null : id);
-  useEffect(() => {
-    if (!openPopover) return;
-    const escHandler = (e: KeyboardEvent) => { if (e.key === "Escape") setOpenPopover(null); };
-    const clickHandler = () => setOpenPopover(null);
-    document.addEventListener("keydown", escHandler);
-    const timer = setTimeout(() => document.addEventListener("click", clickHandler), 0);
-    return () => { clearTimeout(timer); document.removeEventListener("keydown", escHandler); document.removeEventListener("click", clickHandler); };
-  }, [openPopover]);
+  // Portfolio popover state removed — portfolio info now lives in global header
 
   return (
     <div className="write-desk">
@@ -559,101 +516,49 @@ export function WriteDesk() {
         </div>
       )}
 
-      {/* ═══ SURFACE CONTEXT: Portfolio · Capital · Positions ═══ */}
-      <div className="wd-band wd-band-context">
-        <div className="wd-band-left">
-          <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("portfolio"); }}>
-            {source === "demo" ? "Demo Portfolio" : "Fidelity Snapshot"}
-            {openPopover === "portfolio" && (
-              <div className="wd-popover" onClick={e => e.stopPropagation()}>
-                <div className="wd-popover-title">Portfolio</div>
-                <select className="wd-source-select" value={source} onChange={(e) => { handleSourceChange(e.target.value as PortfolioSourceType); setOpenPopover(null); }}>
-                  <option value="demo">Demo Portfolio</option>
-                  <option value="fidelity">Fidelity Snapshot</option>
-                </select>
-                <div className="wd-popover-row"><span className="wd-popover-label">Source</span><span className="wd-popover-value">{snapshot?.provenance.sourceLabel ?? "—"}</span></div>
-                {snapshot?.snapshotDate && <div className="wd-popover-row"><span className="wd-popover-label">Date</span><span className="wd-popover-value">{snapshot.snapshotDate}</span></div>}
-              </div>
-            )}
-          </span>
-          {source === "demo" && <span className="wd-sim-badge">SIM</span>}
-          {snapshot && snapshot.readiness.status === "READY" && snapshot.deployableCash != null && (
-            <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("cash"); }}>
-              ${snapshot.deployableCash.toLocaleString()} Deployable
-              {openPopover === "cash" && (
-                <div className="wd-popover" onClick={e => e.stopPropagation()}>
-                  <div className="wd-popover-title">Deployable Cash</div>
-                  <div className="wd-popover-row"><span className="wd-popover-label">Available</span><span className="wd-popover-value">${snapshot.deployableCash?.toLocaleString()}</span></div>
-                  <div className="wd-popover-row"><span className="wd-popover-label">Reserved by puts</span><span className="wd-popover-value">{snapshot.existingPuts.length > 0 ? `${snapshot.existingPuts.length} positions` : "None"}</span></div>
-                  <div className="wd-popover-row"><span className="wd-popover-label">Pending intents</span><span className="wd-popover-value">{pendingIntents.filter(i => i.status === "working").length}</span></div>
-                </div>
-              )}
-            </span>
-          )}
-          {snapshot && snapshot.readiness.status === "READY" && (
-            <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("puts"); }}>
-              {snapshot.existingPuts.length} Short Put{snapshot.existingPuts.length !== 1 ? "s" : ""}
-              {openPopover === "puts" && (
-                <div className="wd-popover" onClick={e => e.stopPropagation()}>
-                  <div className="wd-popover-title">Short Puts</div>
-                  {snapshot.existingPuts.length > 0 ? snapshot.existingPuts.map((p, i) => (
-                    <div key={i} className="wd-popover-item">{p.underlying} ${p.strike} {p.expiration.slice(5)}</div>
-                  )) : <div className="wd-popover-empty">No open short puts</div>}
-                </div>
-              )}
-            </span>
-          )}
-          <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("calls"); }}>
-            {callCandidates.length + callWaitCandidates.length + contingentCallRows.length > 0
-              ? `${callCandidates.length + callWaitCandidates.length} Call${callCandidates.length + callWaitCandidates.length !== 1 ? "s" : ""}${contingentCallRows.length > 0 ? ` · ${contingentCallRows.length} projected` : ""}`
-              : "No Calls"}
-            {openPopover === "calls" && (
-              <div className="wd-popover" onClick={e => e.stopPropagation()}>
-                <div className="wd-popover-title">Covered-Call Capacity</div>
-                {snapshot && snapshot.inventory.filter(p => p.maxAdditionalContracts > 0).length === 0
-                  ? <div className="wd-popover-empty">No unencumbered 100-share positions</div>
-                  : snapshot && snapshot.inventory.filter(p => p.maxAdditionalContracts > 0).map(p => (
-                    <div key={p.symbol} className="wd-popover-item">{p.symbol} · {p.sharesFree} free · {p.maxAdditionalContracts} ct</div>
-                  ))
-                }
-              </div>
-            )}
-          </span>
-          <span className="wd-popover-trigger" onClick={(e) => { e.stopPropagation(); togglePopover("intents"); }}>
-            {pendingIntents.filter(i => i.status === "working").length === 0 ? "No Pending Intent" : `${pendingIntents.filter(i => i.status === "working").length} Pending Intent${pendingIntents.filter(i => i.status === "working").length > 1 ? "s" : ""}`}
-            {openPopover === "intents" && (
-              <div className="wd-popover" onClick={e => e.stopPropagation()}>
-                <div className="wd-popover-title">Pending Intents</div>
-                {pendingIntents.filter(i => i.status === "working").length > 0 ? pendingIntents.filter(i => i.status === "working").map(i => (
-                  <div key={i.id} className="wd-popover-item">{i.symbol} ${i.strike} {i.optionType === "put" ? "P" : "C"} {i.expiration.slice(5)}</div>
-                )) : <div className="wd-popover-empty">No pending intents</div>}
-              </div>
-            )}
-          </span>
-        </div>
-      </div>
-
-      {/* Fidelity Upload (fidelity mode only) */}
-      {source === "fidelity" && (
-        <div className="wd-band wd-band-upload">
-          <FidelityUpload onSnapshotChange={handleFidelitySnapshotChange} onFileChange={handleFidelityFileChange} />
-        </div>
-      )}
-
-      {/* ═══ CROSS-ENTRY PRODUCTION STRIP ═══ */}
-      {snapshot && snapshot.readiness.status === "READY" && (scanTimestamp || evidenceMeta) && (putCandidates.length > 0 || buyWriteCandidates.length > 0) && (
-        <CrossEntryStrip
-          putCandidates={putCandidates}
-          buyWriteCandidates={buyWriteCandidates}
-          policy={policy}
-          maxRows={10}
-          onSelectPut={(c) => { selectDrawerCandidate("put", { put: c }); }}
-          onSelectBuyWrite={(c) => { selectDrawerCandidate("buywrite", { buyWrite: c }); }}
-        />
-      )}
-
-      {/* ═══ CANDIDATE BOARD ═══ */}
+      {/* ═══ DEPLOYMENT TABLE SECTIONS (drag-reorderable) ═══ */}
       {snapshot && snapshot.readiness.status === "READY" && (scanTimestamp || evidenceMeta) && (
+        <div className="wd-sections-container">
+          {sectionOrder.map((sectionId) => (
+            <div
+              key={sectionId}
+              className={`wd-section-wrapper${dragOverIndex === sectionOrder.indexOf(sectionId) ? " wd-section-drop-target" : ""}`}
+              {...sectionDropTargetHandlers(sectionId)}
+            >
+              <span className="wd-section-drag-handle" title="Drag to reorder section" {...sectionDragHandlers(sectionId)}>⋮⋮</span>
+
+              {sectionId === "cross-entry" && (putCandidates.length > 0 || buyWriteCandidates.length > 0) && (
+        <section className="wd-board wd-cross-entry-board">
+          <div className="wd-board-header">
+            <div className="wd-board-title-row">
+              <h2 className="wd-board-title">
+                <button
+                  className="wd-collapse-toggle"
+                  onClick={() => { setCrossEntryCollapsed(!crossEntryCollapsed); updateWorkspace({ writeDeskCrossEntryCollapsed: !crossEntryCollapsed }); }}
+                  aria-expanded={!crossEntryCollapsed}
+                  aria-label={crossEntryCollapsed ? "Expand cross-entry section" : "Collapse cross-entry section"}
+                >
+                  <span className={`wd-chevron${crossEntryCollapsed ? " wd-chevron-collapsed" : ""}`}>▾</span>
+                </button>
+                Cash Deployment — Prod v0
+              </h2>
+              <span className="wd-board-rec-count">Experimental</span>
+            </div>
+          </div>
+          <div style={{ display: crossEntryCollapsed ? 'none' : undefined }}>
+            <CrossEntryStrip
+              putCandidates={putCandidates}
+              buyWriteCandidates={buyWriteCandidates}
+              policy={policy}
+              maxRows={10}
+              onSelectPut={(c) => { selectDrawerCandidate("put", { put: c }); }}
+              onSelectBuyWrite={(c) => { selectDrawerCandidate("buywrite", { buyWrite: c }); }}
+            />
+          </div>
+        </section>
+              )}
+
+              {sectionId === "puts" && (
         <section className="wd-board">
           {/* Board title + evidence status */}
           <div className="wd-board-header">
@@ -759,10 +664,9 @@ export function WriteDesk() {
           )}
           </div>
         </section>
-      )}
+              )}
 
-      {/* ═══ CALL CANDIDATES ═══ */}
-      {snapshot && snapshot.readiness.status === "READY" && (scanTimestamp || evidenceMeta) && (
+              {sectionId === "calls" && (
         <section className="wd-board wd-call-board">
           <div className="wd-board-header">
             <div className="wd-board-title-row">
@@ -820,10 +724,9 @@ export function WriteDesk() {
             )}
           </div>
         </section>
-      )}
+              )}
 
-      {/* ═══ BUY-WRITE CANDIDATES ═══ */}
-      {snapshot && snapshot.readiness.status === "READY" && (scanTimestamp || evidenceMeta) && (
+              {sectionId === "buy-writes" && (
         <section className="wd-board wd-buy-write-board">
           <div className="wd-board-header">
             <div className="wd-board-title-row">
@@ -854,7 +757,10 @@ export function WriteDesk() {
               )}
             </div>
             <BuyWriteDistributionBar outcomes={buyWriteOutcomes} universeSize={universeSymbols.length} />
-            <BuyWriteDeltaDistribution candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates]} />
+            <div style={{ display: "flex", gap: "12px", padding: "6px 12px 8px", flexWrap: "nowrap", overflow: "hidden", alignItems: "flex-end" }}>
+              <BuyWriteDeltaDistribution candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates]} />
+              <BuyWriteDescriptiveHistograms candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates]} />
+            </div>
           </div>
 
           <div style={{ display: buyWritesCollapsed ? 'none' : undefined }}>
@@ -911,6 +817,10 @@ export function WriteDesk() {
             )}
           </div>
         </section>
+              )}
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Placeholder when no portfolio ready */}
@@ -1124,7 +1034,7 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
 function BuyWriteDeltaDistribution({ candidates }: {
   candidates: import("../write-desk/recommend-buy-writes").BuyWriteCandidate[];
 }) {
-  if (candidates.length === 0) return <div style={{ padding: "4px 12px", fontSize: "11px", color: "#666" }}>δ dist: awaiting candidates</div>;
+  if (candidates.length === 0) return <span style={{ fontSize: "11px", color: "#999" }}>δ dist: awaiting candidates</span>;
 
   const buckets = [
     { label: "<.20", min: 0, max: 0.20 },
@@ -1143,10 +1053,10 @@ function BuyWriteDeltaDistribution({ candidates }: {
   const median = [...deltas].sort((a, b) => a - b)[Math.floor(deltas.length / 2)];
 
   return (
-    <div className="wd-delta-distribution" style={{ padding: "6px 12px 8px", fontSize: "11px", color: "#bbb", display: "flex", alignItems: "flex-end", gap: "3px" }}>
-      <span style={{ marginRight: "6px", whiteSpace: "nowrap", alignSelf: "center" }}>δ dist:</span>
+    <div className="wd-delta-distribution" style={{ fontSize: "11px", color: "#bbb", display: "flex", alignItems: "flex-end", gap: "3px" }}>
+      <span style={{ marginRight: "3px", whiteSpace: "nowrap", alignSelf: "center", color: "#999", fontWeight: 600, fontSize: "9px" }}>δ</span>
       {buckets.map((b, i) => {
-        const height = Math.max(4, (counts[i] / maxCount) * 24);
+        const height = Math.max(3, (counts[i] / maxCount) * 18);
         const pct = total > 0 ? Math.round(counts[i] / total * 100) : 0;
         return (
           <span
@@ -1161,17 +1071,147 @@ function BuyWriteDeltaDistribution({ candidates }: {
           >
             <span style={{
               display: "block",
-              width: "32px",
+              width: "20px",
               height: `${height}px`,
               backgroundColor: counts[i] > 0 ? "#4a9eff" : "rgba(74, 158, 255, 0.15)",
               borderRadius: "2px",
             }} />
-            <span style={{ fontSize: "9px", color: "#888" }}>{b.label}</span>
+            <span style={{ fontSize: "7px", color: "#999" }}>{b.label}</span>
           </span>
         );
       })}
-      <span style={{ marginLeft: "10px", whiteSpace: "nowrap", alignSelf: "center" }}>
-        mean {mean.toFixed(2)} · med {median.toFixed(2)} · n={total}
+      <span style={{ marginLeft: "4px", whiteSpace: "nowrap", alignSelf: "center", fontSize: "8px", color: "#999" }}>
+        μ{mean.toFixed(2)} · m{median.toFixed(2)}
+      </span>
+    </div>
+  );
+}
+
+// --- Buy-Write Descriptive Histograms (DTE, Capital, Bid, Yield) ---
+
+function BuyWriteDescriptiveHistograms({ candidates }: {
+  candidates: import("../write-desk/recommend-buy-writes").BuyWriteCandidate[];
+}) {
+  if (candidates.length === 0) return null;
+
+  return (
+    <>
+      <MiniHistogram
+        label="DTE"
+        values={candidates.map(c => c.dte)}
+        buckets={[
+          { label: "≤7", min: 0, max: 8 },
+          { label: "8–14", min: 8, max: 15 },
+          { label: "15–21", min: 15, max: 22 },
+          { label: "22–35", min: 22, max: 36 },
+          { label: "36–45", min: 36, max: 46 },
+          { label: ">45", min: 46, max: 9999 },
+        ]}
+        color="#4CB7A5"
+        unit="d"
+      />
+      <MiniHistogram
+        label="Capital"
+        values={candidates.map(c => c.capitalRequired)}
+        buckets={[
+          { label: "<2k", min: 0, max: 2000 },
+          { label: "2–5k", min: 2000, max: 5000 },
+          { label: "5–10k", min: 5000, max: 10000 },
+          { label: "10–20k", min: 10000, max: 20000 },
+          { label: "20–50k", min: 20000, max: 50000 },
+          { label: ">50k", min: 50000, max: Infinity },
+        ]}
+        color="#D6A83B"
+        unit="$"
+        formatStat={(v) => `$${(v / 1000).toFixed(1)}k`}
+      />
+      <MiniHistogram
+        label="Bid"
+        values={candidates.map(c => c.bid)}
+        buckets={[
+          { label: "<.50", min: 0, max: 0.50 },
+          { label: ".50–1", min: 0.50, max: 1.00 },
+          { label: "1–2", min: 1.00, max: 2.00 },
+          { label: "2–4", min: 2.00, max: 4.00 },
+          { label: "4–8", min: 4.00, max: 8.00 },
+          { label: ">8", min: 8.00, max: Infinity },
+        ]}
+        color="#9A78D1"
+        unit="$"
+        formatStat={(v) => `$${v.toFixed(2)}`}
+      />
+      <MiniHistogram
+        label="Yield"
+        values={candidates.map(c => c.premiumYieldAnnualized)}
+        buckets={[
+          { label: "<10", min: 0, max: 10 },
+          { label: "10–20", min: 10, max: 20 },
+          { label: "20–35", min: 20, max: 35 },
+          { label: "35–50", min: 35, max: 50 },
+          { label: "50–75", min: 50, max: 75 },
+          { label: "75–100", min: 75, max: 100 },
+          { label: ">100", min: 100, max: Infinity },
+        ]}
+        color="#42C77A"
+        unit="%"
+        formatStat={(v) => `${v.toFixed(0)}%`}
+      />
+    </>
+  );
+}
+
+// --- Mini Histogram (reusable inline bar chart) ---
+
+function MiniHistogram({ label, values, buckets, color, unit, formatStat }: {
+  label: string;
+  values: number[];
+  buckets: { label: string; min: number; max: number }[];
+  color: string;
+  unit?: string;
+  formatStat?: (v: number) => string;
+}) {
+  if (values.length === 0) return null;
+
+  const counts = buckets.map(b => values.filter(v => v >= b.min && v < b.max).length);
+  const maxCount = Math.max(...counts, 1);
+  const total = values.length;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mean = values.reduce((a, b) => a + b, 0) / total;
+  const median = sorted[Math.floor(total / 2)];
+  const fmt = formatStat ?? ((v: number) => `${v.toFixed(1)}${unit ?? ""}`);
+
+  return (
+    <div style={{ fontSize: "11px", color: "#bbb", display: "flex", alignItems: "flex-end", gap: "1px" }}>
+      <span style={{ marginRight: "3px", whiteSpace: "nowrap", alignSelf: "center", color: "#999", fontWeight: 600, fontSize: "9px" }}>
+        {label}
+      </span>
+      {buckets.map((b, i) => {
+        const height = Math.max(3, (counts[i] / maxCount) * 18);
+        const pct = total > 0 ? Math.round(counts[i] / total * 100) : 0;
+        return (
+          <span
+            key={b.label}
+            title={`${b.label}: ${counts[i]} (${pct}%)`}
+            style={{
+              display: "inline-flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "1px",
+            }}
+          >
+            <span style={{
+              display: "block",
+              width: "20px",
+              height: `${height}px`,
+              backgroundColor: counts[i] > 0 ? color : `${color}33`,
+              borderRadius: "2px",
+            }} />
+            <span style={{ fontSize: "7px", color: "#999" }}>{b.label}</span>
+          </span>
+        );
+      })}
+      <span style={{ marginLeft: "4px", whiteSpace: "nowrap", alignSelf: "center", fontSize: "8px", color: "#999" }}>
+        μ{fmt(mean)}
       </span>
     </div>
   );
@@ -1190,11 +1230,11 @@ function BuyWriteDistributionBar({ outcomes, universeSize }: {
     { label: "EDGE", count: outcomes.edge, color: "#4EA1FF" },
     { label: "Wait", count: outcomes.wait, color: "#D6A83B" },
     { label: "Zero Bid", count: outcomes.hardNoZeroBid, color: "#E45C5C" },
-    { label: "Zero OI", count: outcomes.hardNoZeroOI, color: "#8B6914" },
+    { label: "Zero OI", count: outcomes.hardNoZeroOI, color: "#B8922E" },
     { label: "Wide Spread", count: outcomes.hardNoWideSpread, color: "#CC5599" },
     { label: "No Delta Match", count: outcomes.noDeltaMatch, color: "#9A78D1" },
     { label: "No DTE Match", count: outcomes.noDteMatch, color: "#4CB7A5" },
-    { label: "No Options", count: outcomes.nonOptionable, color: "#687386" },
+    { label: "No Options", count: outcomes.nonOptionable, color: "#8993A4" },
     { label: "Incomplete", count: outcomes.incomplete, color: "#8993A4" },
   ];
 

@@ -21,9 +21,9 @@
   /* --- Text hierarchy --- */
   --wd-text-primary: #E5E7EB;
   --wd-text-secondary: #A0A0A0;
-  --wd-text-tertiary: #888888;
-  --wd-text-constrained: #888888;
-  --wd-text-disabled: #777777;
+  --wd-text-tertiary: #999999;
+  --wd-text-constrained: #999999;
+  --wd-text-disabled: #999999;
 
   /* --- Semantic accent colors --- */
   --wd-accent-green: #6fcf97;

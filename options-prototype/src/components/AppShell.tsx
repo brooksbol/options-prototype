@@ -6,9 +6,9 @@
  *   - Primary navigation (Console / Deployment / Production)
  *   - Active-surface indication
  *   - Session classification (wall-clock-driven)
+ *   - Global portfolio status + Fidelity upload (application-level concern)
  *
  * Does NOT own:
- *   - Portfolio state (surfaces consume portfolio-store or their own state for now)
  *   - Evidence polling or acquisition
  *   - Detailed evidence status
  *   - Surface-specific layout or content
@@ -18,6 +18,7 @@ import type { ReactNode } from "react";
 import { useSessionClassification } from "../hooks/useSessionClassification";
 import { navigateTo } from "../router";
 import type { AppRoute } from "../router";
+import { HeaderPortfolioStatus } from "./HeaderPortfolioStatus";
 import "./app-shell.css";
 
 interface AppShellProps {
@@ -68,6 +69,8 @@ export function AppShell({ route, children }: AppShellProps) {
             Production
           </button>
         </nav>
+
+        <HeaderPortfolioStatus />
 
         <div className="as-spacer" />
 

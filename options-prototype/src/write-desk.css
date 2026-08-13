@@ -2165,7 +2165,7 @@
 
 /* Governance review icon on ticker */
 .wd-gov-review {
-  color: #888888;
+  color: #999999;
   margin-right: 3px;
   font-size: 9px;
 }
@@ -2317,7 +2317,7 @@
 
 .wd-cross-entry-note {
   font-size: 10px;
-  color: var(--wd-text-tertiary, #687386);
+  color: var(--wd-text-tertiary, #999999);
   font-style: italic;
 }
 
@@ -2351,4 +2351,54 @@
 .wd-cross-entry-score {
   font-weight: var(--wd-weight-bold);
   color: var(--wd-text-primary);
+}
+
+
+/* === Section Drag/Reorder === */
+
+.wd-sections-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wd-section-wrapper {
+  position: relative;
+  transition: border-color 0.15s;
+  border: 2px solid transparent;
+  border-radius: 8px;
+}
+
+.wd-section-wrapper.wd-section-drop-target {
+  border-color: var(--wd-accent-blue);
+  background: var(--wd-accent-blue-bg);
+}
+
+.wd-section-wrapper.wd-section-dragging {
+  opacity: 0.5;
+}
+
+.wd-section-drag-handle {
+  position: absolute;
+  left: -18px;
+  top: 12px;
+  cursor: grab;
+  font-size: 12px;
+  color: var(--wd-text-disabled);
+  user-select: none;
+  padding: 4px 2px;
+  line-height: 1;
+  border-radius: 2px;
+  transition: color 0.1s, background 0.1s;
+  z-index: 5;
+}
+
+.wd-section-drag-handle:hover {
+  color: var(--wd-text-secondary);
+  background: var(--wd-bg-hover);
+}
+
+.wd-section-drag-handle:active {
+  cursor: grabbing;
+  color: var(--wd-accent-blue);
 }

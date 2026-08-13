@@ -2,7 +2,7 @@
 
 > The unprioritized roadmap. Every unfinished idea has a stable ID and explicit disposition. Nothing silently disappears.
 
-**Last reviewed:** August 11, 2026 (holistic reconciliation per `docs/32-parking-lot-reconciliation.md`)
+**Last reviewed:** August 13, 2026 (Production current-month increment closure per ADR-014)
 
 ---
 
@@ -41,7 +41,7 @@
 | `PL-ELIG` | Deployment Eligibility / Capacity Explanation | Transparency of why actions are available or unavailable: held/encumbered/free shares, executable contracts, collateral, exclusion reasons. General capability; call inventory observability is one case. | Evolved from PL-CALL-04 |
 | `PL-EVID-03` | Conditioned Operating Opportunity: EP2 | Second entry point (existing open short puts) for conditioned call-environment evaluation. Receives the "existing-position PCS" child from retired PL-CALL-01. | `foundations/conditioned-operating-opportunity.md` |
 | `PL-PORT-01` | Portfolio-State Maturity | Assignment transitions, richer encumbrance state, multi-account support (depends on PL-ARCH-03), aggregation, stale-balance warnings. Economics slice implemented; broader maturity remains. | `07-architecture-current.md` |
-| `PL-PORT-02` | Production Accounting (remaining) | Distribution-character resolution, transferred-asset basis, persistence/multi-month, full audit-trail drill-down, lifecycle reconstruction. | `/app/production`, engineering-spikes |
+| `PL-PORT-02` | Production Accounting (remaining) | Distribution-character resolution, transferred-asset basis, persistence/multi-month, full audit-trail drill-down, lifecycle reconstruction. Current-month operational view implemented (ADR-014). | `/app/production`, engineering-spikes, ADR-014 |
 | `PL-EXEC-01` | Trade Lifecycle Evolution | Full lifecycle beyond URL handoff: intended → submitted → working → filled → assigned → closed/rolled. Receives "call execution handoff" from retired PL-CALL-01. Connects to overlay strategy (roll/take-profit). | `src/execution/`, ADR-004 |
 | `PL-GOV-01` | Governance Catalog Gap | Live catalog covers only 12 instruments. Name heuristic doesn't gate commodity/futures structure. Suspected gaps: UGA, DBC, CPER. Needs pipeline from 105-ticker validation to live catalog. Correctness defect in golden data. | `catalog-seed.json`, Governance correctness family |
 | `PL-POL-04` | Policy Evolution / Governance Provenance | Full policy versioning, attribution, replay, inspectability, testability as complexity grows. Absorbs former PL-ARCH-04. | `07-architecture-current.md`, ADR-003, Governance provenance family |
@@ -51,6 +51,9 @@
 
 | ID | Name | Summary | Concept Home |
 |---|---|---|---|
+| `PL-PROD-MISSION` | Monthly Production Mission Primitive | An authoritative monthly production/withdrawal target does not yet exist. The UI placeholder is intentional. Needs: where the target comes from (operator input, derived from NAV, configured withdrawal rate), how it interacts with production accounting, whether it is portfolio-level or account-level. | ADR-014, Console mission/NAV placeholders |
+| `PL-PROD-NET` | Net Economic Result / Production-versus-Erosion | Should Wheelwright have a canonical net-economic-result primitive? Production and erosion tell different stories about the same month ($1,721 produced / $4,789 eroded). Is "net production after erosion" a valid metric? Is it production, mission-relative NAV consequence, or a separate domain concept? Do not invent semantics casually — resolve architecturally. | ADR-014, Production page August 2026 evidence |
+| `PL-PROD-FORECAST` | Production Forecasting Capability | Wheelwright currently has no governed model for predicting month-end production beyond known/booked amounts. Future work may include: deterministic scheduled income (money market, treasury maturity), conditional resolution outcomes with moneyness evidence, governed redeployment-yield assumptions. Each requires explicit architectural ratification. | ADR-014 |
 | `PL-EVID-01` | Historical Evidence / Observation Architecture | Architecture for accumulating, storing, and analyzing observations over time. Must distinguish: market evidence history (Evidence Engine), portfolio observation history, Decision/recommendation history (ownership unresolved per reconciliation D-04), reconstructed lifecycle evidence, simulation artifacts. Foundational dependency for lifecycle assessment, opportunity observation, Level 3 models. | `foundations/policy-over-prediction.md` (guardrail), Historical/Observational family |
 | `PL-EVID-02` | Lifecycle Assessment Evidence Domain | Formal domain for lifecycle quality: ingress, operating, egress. Partially implemented (PCS EP1). Depends on PL-EVID-01. Absorbs former PL-EVID-06 (score vs classification sub-question). | `foundations/conditioned-operating-opportunity.md` |
 | `PL-DEPLOY-02` | Opportunity Surface Observation | Temporal observation of recommendation/deployment surface output. Cross-cutting history capability with unresolved architectural ownership. Closely coupled to Deployment Opportunity evolution and Historical/Observational architecture. Concrete use case: preserving decision context to compare how deployment logic versions interpret the same opportunity surface. Depends on PL-EVID-01 domain model and likely cloud deployment. | Journal entry 2026-08-10, Historical/Observational family |

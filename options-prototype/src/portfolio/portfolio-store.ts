@@ -18,6 +18,7 @@ import type { ActivityRow } from "../csv/fidelity/activityParser";
 import { preprocessCsv } from "../csv/preprocess";
 import { detectDelimiter, parseCsv } from "../csv/reader";
 import { classifyDocument } from "../csv/registry";
+import "../csv/fidelity"; // ensure parsers are registered before hydration
 import { projectActivityOverlay, parseCheckpointTimestamp } from "./activity-projection";
 
 // --- localStorage keys (shared with FidelityUpload for backward compat) ---

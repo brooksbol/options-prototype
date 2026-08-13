@@ -81,10 +81,55 @@
 /* === Upper Region (NAV/mission) === */
 
 .oc-region-upper {
-  height: 140px;
+  min-height: 100px;
   border-bottom: 1px solid var(--wd-border-subtle, #333);
   padding: 8px 12px;
   flex-shrink: 0;
+}
+
+.oc-mission-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+  height: 100%;
+}
+
+.oc-mission-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 8px;
+  border-radius: 4px;
+  text-align: center;
+  gap: 4px;
+}
+
+.oc-mission-cell.oc-mission-placeholder {
+  border: 1px dashed var(--wd-border-default, #444);
+  background: var(--wd-bg-surface);
+  opacity: 0.7;
+}
+
+.oc-mission-label {
+  font-size: 9px;
+  font-weight: var(--wd-weight-semi, 600);
+  color: var(--wd-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.oc-mission-unavailable {
+  font-size: 20px;
+  font-weight: var(--wd-weight-bold, 700);
+  color: var(--wd-text-disabled);
+  font-family: var(--wd-font-mono);
+}
+
+.oc-mission-hint {
+  font-size: 8px;
+  color: var(--wd-text-disabled);
+  font-style: italic;
 }
 
 .oc-upper-placeholder {
