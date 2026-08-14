@@ -7138,3 +7138,86 @@ All of these artificially constrained the answer before the economics could spea
 - Evidence coherence fix remains important independently (preventing cross-generation contamination)
 - The positive-appreciation fitness floor remains essential (prevents ARTY-style defective candidates)
 - The "evaluate all strikes" correction remains essential (prevents the original single-strike blindness)
+
+
+---
+
+## 2026-08-14 — Strategy Expansion Architectural Reconciliation
+
+### Context
+
+Extended discussion (ChatGPT + Kiro) about whether and how Wheelwright should expand beyond its current strategy set (CSP, covered calls, buy-writes) to include rolling, protective puts, collars, and a fully-collateralized two-sided position. The discussion also explored a broader decision model, intraday opportunity observation, and the concept of a "Portfolio Evaluator."
+
+The goal was to preserve the architectural discoveries durably in GitHub rather than depending on conversation context.
+
+### What happened
+
+1. Kiro performed a top-down architectural reconciliation: read all foundations (17 docs), parking lot, both reconciliation documents (docs 11, 30, 31, 32), the Java acquisition pipeline, the TypeScript recommendation engines, and relevant journal entries.
+
+2. Kiro produced a reconciliation analysis classifying each discussion topic as: already documented, reinforcing existing architecture, genuinely new, or creating architectural tension.
+
+3. Principal independently reviewed the same architectural source material and provided corrections to the documentation proposal (9 points of refinement).
+
+4. The revised plan was approved and documentation was drafted.
+
+### What was already documented (no new work required)
+
+- **Policy over Prediction** — thoroughly established as Durable Principle #1 (retooling charter, `foundations/policy-over-prediction.md`)
+- **WAIT as first-class outcome** — explicitly stated in `foundations/principles-governance-model.md` under Respect Uncertainty
+- **Buy-write as operational strategy** — fully implemented, PL-CALL-05 graduated
+- **Unified Deployment Surface** — PL-DEPLOY accepted direction, Regime Objective Function Open Question #5
+- **Opportunity Surface Observation** — PL-DEPLOY-02 with ownership explicitly unresolved per reconciliation D-04
+- **Level 3 Learned Model concept** — Regime Objective Function §Evidence Architecture (three maturity levels with guardrails)
+
+### What is genuinely new
+
+1. **Strategy scope boundary and admission test:** "A strategy should earn admission by serving governed portfolio/capital transformations without requiring Wheelwright to become a conventional prediction/P&L optimizer." Neither the boundary nor the candidate/excluded lists existed in the repository.
+
+2. **Four-lens evaluation framework:** Problem/Role, Mechanics, Composition, Decision Criteria & Implementation. A methodology for managing strategy expansion.
+
+3. **Decision semantics for Deployment Opportunity:** "Eligibility and acceptability prune. Fitness ranks only what survives. Relative superiority is insufficient — the best opportunity on a bad board may still be WAIT." This refines the already-accepted Deployment Opportunity direction; it is not a new subsystem.
+
+4. **Absolute deployment threshold:** The existing execution scoring (ACTIONABLE/EDGE/WAIT) operates at contract level. The concept that the *entire opportunity surface* might fail to clear an absolute quality floor — producing a portfolio-level WAIT — is new.
+
+5. **Intraday opportunity observation experimental protocol:** High-water-mark tracking, observe-only discipline, per-strategy daily frontier, trade reconciliation concept. This is design content for PL-DEPLOY-02, not a new architectural primitive.
+
+### What creates architectural tension (not conflict, but requires resolution)
+
+- **Protective puts and collars vs. cash-flow production regime.** The current mission is "sustain realized production while preserving productive capacity." Protective strategies *spend* production capacity to purchase protection. They may fit Wheelwright, but their fitness requires Situation/Regime reasoning — not merely Policy-over-Prediction consistency. The four-lens analysis must answer: under what Situation does spending production capacity on protection become fit?
+
+- **Fully-collateralized two-sided position.** Economically coherent as independent CSP + CC on the same underlying, but the question of whether the architecture needs a first-class "composed position" concept is unresolved. May emerge naturally from independent Deployment recommendations.
+
+### Key synthesis
+
+> We are not discovering a new Portfolio Evaluator subsystem. We are discovering what "Deployment Opportunity" needs to grow up to mean.
+
+The Deployment Opportunity concept (PL-DEPLOY) already sits above CSP vs. buy-write. What we are adding to its semantics: portfolio need, strategy eligibility, acceptable consequences, strategy fitness, current opportunity quality, and WAIT as a deployment-level outcome.
+
+The "Portfolio Evaluator" discussed in the conversation is the mature Deployment surface — not a fourth operational topology. The existing three-surface model (Console / Deployment / Production) is preserved.
+
+### Decisions / implications
+
+- The decision model does not need its own foundation document. It refines PL-DEPLOY + Situation Architecture + Regime Objective Function.
+- The observation experiment does not need its own foundation document. It enriches PL-DEPLOY-02 scope.
+- The strategy scope boundary and evaluation framework do warrant a new exploratory foundation (`strategy-expansion-governance.md`), with explicit status: hypothesis under evaluation, not yet governing.
+- PL-DEPLOY-03 cannot be recycled (graduated/closed); the decision model enriches PL-DEPLOY instead.
+- Frontend observation seam is a plausible experimental approach but not an architectural ownership decision. The Evidence Appliance says the browser is a viewport.
+
+### Documentation produced
+
+| Document | Action |
+|---|---|
+| `docs/foundations/strategy-expansion-governance.md` | Created (exploratory) |
+| `docs/foundations/policy-over-prediction.md` | Extended (Strategy-Level Manifestation section) |
+| `docs/parking-lot.md` | Updated (PL-STRAT-01 added; PL-DEPLOY, PL-DEPLOY-02, PL-EVID-01 enriched) |
+| `docs/journal/project-journal.md` | This entry |
+
+### Open questions preserved for future work
+
+1. Fidelity permissions for candidate strategies (especially the two-sided position)
+2. Whether protective puts fit the cash-flow regime or require a capital-preservation situation
+3. Whether rolling is a strategy (with fitness evaluation) or a lifecycle operation (always available)
+4. Whether composed positions need a first-class architectural concept
+5. What determines "the board is too poor to deploy" (absolute threshold — must be discovered empirically)
+6. Architectural ownership of historical recommendation/opportunity observations (deliberately unresolved)
+7. How strategy-level fitness should be expressed (existing posture system operates at contract level)
