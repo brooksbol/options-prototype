@@ -137,6 +137,7 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `19-funnel-architecture.md` | Funnel stage documentation |
 | `foundations/market-priced-risk.md` | Exploratory research topic |
 | `foundations/recommendation-set-analysis.md` | Exploratory architectural concept |
+| `foundations/strategy-expansion-governance.md` | Exploratory strategy scope boundary and evaluation framework |
 | `development-machine.md` | Hardware spec |
 | `velvet-rope/*` | Universe admission domain model (dormant) |
 | `universe/*` | Candidate universe design (dormant) |
