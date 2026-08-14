@@ -315,6 +315,18 @@
   border-color: var(--wd-accent-blue, #4a9eff);
 }
 
+/* --- Call/Buy-write consequence coloring (strike vs share basis) --- */
+
+.oc-tile-consequence-appreciation {
+  background: rgba(111, 207, 151, 0.10);
+  border-color: var(--wd-accent-green, #6fcf97);
+}
+
+.oc-tile-consequence-erosion {
+  background: rgba(235, 87, 87, 0.08);
+  border-color: var(--wd-accent-red, #eb5757);
+}
+
 .oc-tile-symbol {
   font-size: 1.1em;
   font-weight: 600;

@@ -131,8 +131,18 @@
   color: var(--wd-accent-red);
 }
 
+.pdm-impatient-danger {
+  background: rgba(235, 87, 87, 0.08);
+  border-left: 3px solid var(--wd-accent-red);
+}
+
 .pdm-impatient-safe .pdm-impatient-value {
   color: var(--wd-accent-green);
+}
+
+.pdm-impatient-safe {
+  background: rgba(111, 207, 151, 0.08);
+  border-left: 3px solid var(--wd-accent-green);
 }
 
 .pdm-impatient-context {

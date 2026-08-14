@@ -42,6 +42,17 @@ export function OperatorConsole() {
   const capacity = deriveCapacitySummary(positions, rungs, snapshot);
   const consequenceSummary = deriveNearestConsequenceSummary(rungs, snapshot);
 
+  // Compute per-position consequence hint for call/buy-write tile coloring
+  const consequenceHints = new Map<string, "appreciation" | "erosion">();
+  for (const pos of positions) {
+    if (pos.type === "call" || pos.type === "buy-write") {
+      const inv = snapshot.inventory.find(i => i.symbol.toUpperCase() === pos.underlying.toUpperCase());
+      if (inv?.economics?.averageCostPerShare != null) {
+        consequenceHints.set(pos.id, pos.strike >= inv.economics.averageCostPerShare ? "appreciation" : "erosion");
+      }
+    }
+  }
+
   return (
     <div className="oc-shell">
       <div className="oc-body">
@@ -82,7 +93,7 @@ export function OperatorConsole() {
           <div className="oc-region-ladder">
             <div className="oc-ladder">
               {rungs.map((rung) => (
-                <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} onTileClick={setSelectedPosition} />
+                <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} onTileClick={setSelectedPosition} consequenceHints={consequenceHints} />
               ))}
             </div>
           </div>
@@ -275,7 +286,7 @@ function ConsequenceSidebar({ summary }: { summary: NearestConsequenceSummary })
 
 // --- Expiration Rung ---
 
-function ExpirationRungRow({ rung, totalCapital, onTileClick }: { rung: ExpirationRung; totalCapital: number; onTileClick: (p: MonitoredPosition) => void }) {
+function ExpirationRungRow({ rung, totalCapital, onTileClick, consequenceHints }: { rung: ExpirationRung; totalCapital: number; onTileClick: (p: MonitoredPosition) => void; consequenceHints: Map<string, "appreciation" | "erosion"> }) {
   const rungPercent = totalCapital > 0 ? Math.round((rung.totalCapital / totalCapital) * 100) : 0;
 
   return (
@@ -287,7 +298,7 @@ function ExpirationRungRow({ rung, totalCapital, onTileClick }: { rung: Expirati
         <span className="oc-rung-percent">{rungPercent}%</span>
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
-      <TreemapRung positions={rung.positions} onTileClick={onTileClick} />
+      <TreemapRung positions={rung.positions} onTileClick={onTileClick} consequenceHints={consequenceHints} />
     </div>
   );
 }
@@ -319,7 +330,7 @@ interface TreemapNode {
   value: number;
 }
 
-function TreemapRung({ positions, onTileClick }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void }) {
+function TreemapRung({ positions, onTileClick, consequenceHints }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; consequenceHints: Map<string, "appreciation" | "erosion"> }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
 
@@ -349,7 +360,7 @@ function TreemapRung({ positions, onTileClick }: { positions: MonitoredPosition[
       style={{ height: rungHeight, position: "relative" }}
     >
       {nodes.map((node) => (
-        <PositionTile key={node.position.id} node={node} onClick={() => onTileClick(node.position)} />
+        <PositionTile key={node.position.id} node={node} onClick={() => onTileClick(node.position)} consequenceHint={consequenceHints.get(node.position.id)} />
       ))}
     </div>
   );
@@ -414,7 +425,7 @@ function computeTreemapLayout(
 
 import { classifyMoneyness, formatMoneynessDisplay } from "../operator-console/moneyness-presentation";
 
-function PositionTile({ node, onClick }: { node: LayoutNode; onClick: () => void }) {
+function PositionTile({ node, onClick, consequenceHint }: { node: LayoutNode; onClick: () => void; consequenceHint?: "appreciation" | "erosion" }) {
   const { position, x0, y0, x1, y1 } = node;
   const w = x1 - x0;
   const h = y1 - y0;
@@ -435,9 +446,11 @@ function PositionTile({ node, onClick }: { node: LayoutNode; onClick: () => void
   const area = w * h;
   const fontSize = area > 40000 ? 14 : area > 20000 ? 12 : area > 8000 ? 10 : 9;
 
+  const consequenceClass = consequenceHint ? ` oc-tile-consequence-${consequenceHint}` : "";
+
   return (
     <div
-      className={`oc-tile oc-tile-${position.type} oc-tile-state-${mState}`}
+      className={`oc-tile oc-tile-${position.type} oc-tile-state-${mState}${consequenceClass}`}
       style={{ ...style, fontSize, cursor: "pointer" }}
       onClick={onClick}
     >
