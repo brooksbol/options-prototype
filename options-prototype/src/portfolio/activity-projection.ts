@@ -17,19 +17,55 @@ import type { InventoryPosition, OpenShortCall, OpenShortPut } from "../write-de
 
 // --- Temporal Boundary ---
 
+// --- Checkpoint Provenance ---
+
 /**
- * Parse the Option Summary quoteDate into a comparable timestamp.
- * Fidelity format: "Aug 12, 2026 4:00 PM ET" or similar.
- * Falls back to start-of-day if time cannot be parsed.
+ * Checkpoint precision level.
+ *
+ * Provenance-precision policy for reconciling Activity against a snapshot:
+ *   - "day": snapshot provenance has calendar-day granularity only. The snapshot
+ *     is authoritative for that entire date. Activity from the same or earlier
+ *     calendar day must NOT project (it's already incorporated or cannot be ordered).
+ *     Only activity from a strictly later calendar day advances the snapshot.
+ *   - "intraday": snapshot has a specific time. Activity occurring after that
+ *     timestamp may project (normal timestamp ordering).
+ *   - "none": no parseable provenance. Project everything (fallback).
+ */
+export type CheckpointPrecision = "day" | "intraday" | "none";
+
+export interface Checkpoint {
+  timestamp: Date;
+  precision: CheckpointPrecision;
+}
+
+/**
+ * Parse the Option Summary quoteDate into a Checkpoint with precision metadata.
+ *
+ * Fidelity provides export timestamps in several forms:
+ *   - Date only: "08/14/2026" → day precision
+ *   - Date + time: "Aug 12, 2026 4:00 PM ET" → intraday precision
+ *   - Absent/null → no checkpoint, project everything
  */
 export function parseCheckpointTimestamp(quoteDate: string | null | undefined): Date {
-  if (!quoteDate) return new Date(0); // No checkpoint — project everything
+  const checkpoint = parseCheckpoint(quoteDate);
+  return checkpoint.timestamp;
+}
+
+export function parseCheckpoint(quoteDate: string | null | undefined): Checkpoint {
+  if (!quoteDate) return { timestamp: new Date(0), precision: "none" };
+
+  const hasTime = /\d{1,2}:\d{2}/.test(quoteDate);
 
   // Try native Date parse (handles many formats)
   const parsed = new Date(quoteDate);
-  if (!isNaN(parsed.getTime())) return parsed;
+  if (!isNaN(parsed.getTime())) {
+    return {
+      timestamp: parsed,
+      precision: hasTime ? "intraday" : "day",
+    };
+  }
 
-  // Try extracting date portion
+  // Try extracting date portion: "Aug 12, 2026" or "Aug 12, 2026 4:00 PM ET"
   const dateMatch = quoteDate.match(/(\w+)\s+(\d+),?\s+(\d{4})/);
   if (dateMatch) {
     const monthNames: Record<string, number> = {
@@ -40,21 +76,25 @@ export function parseCheckpointTimestamp(quoteDate: string | null | undefined): 
     const day = parseInt(dateMatch[2]);
     const year = parseInt(dateMatch[3]);
 
-    // Try to extract time
     const timeMatch = quoteDate.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
-    let hours = 0;
-    let minutes = 0;
     if (timeMatch) {
-      hours = parseInt(timeMatch[1]);
-      minutes = parseInt(timeMatch[2]);
+      let hours = parseInt(timeMatch[1]);
+      const minutes = parseInt(timeMatch[2]);
       if (timeMatch[3]?.toUpperCase() === "PM" && hours < 12) hours += 12;
       if (timeMatch[3]?.toUpperCase() === "AM" && hours === 12) hours = 0;
+      return {
+        timestamp: new Date(year, month, day, hours, minutes),
+        precision: "intraday",
+      };
     }
 
-    return new Date(year, month, day, hours, minutes);
+    return {
+      timestamp: new Date(year, month, day),
+      precision: "day",
+    };
   }
 
-  return new Date(0); // Cannot parse — project everything
+  return { timestamp: new Date(0), precision: "none" };
 }
 
 /**
@@ -69,17 +109,36 @@ function activityTimestamp(row: ActivityRow): Date {
   return isNaN(d.getTime()) ? new Date(0) : d;
 }
 
+/** Extract the calendar date (YYYY-MM-DD) from a Date object in local time. */
+function calendarDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 /**
  * Determine if an Activity row should be projected (occurred after the checkpoint).
  *
- * Same-day logic: if Activity date equals checkpoint date AND we have intraday
- * checkpoint time, Activity rows are assumed to have occurred after market close
- * (conservative: they project). If the checkpoint is end-of-day, same-day activity
- * is NOT projected (it's already in the snapshot).
+ * Provenance-precision policy:
+ *   - "day" precision: the snapshot is authoritative for that calendar date.
+ *     Only activity from a strictly later calendar day projects.
+ *   - "intraday" precision: normal timestamp comparison. Activity after the
+ *     checkpoint timestamp projects.
+ *   - "none" precision: no checkpoint — project everything.
  */
-function isAfterCheckpoint(row: ActivityRow, checkpoint: Date): boolean {
+function isAfterCheckpoint(row: ActivityRow, checkpoint: Date, precision: CheckpointPrecision = "intraday"): boolean {
+  if (precision === "none") return true;
+
+  if (precision === "day") {
+    // Calendar-day authority: only strictly later dates project
+    if (!row.date) return false;
+    const checkpointDate = calendarDate(checkpoint);
+    return row.date > checkpointDate;
+  }
+
+  // Intraday: normal timestamp ordering
   const eventTime = activityTimestamp(row);
-  // Strict: event must be after checkpoint
   return eventTime.getTime() > checkpoint.getTime();
 }
 
@@ -94,16 +153,20 @@ export interface ProjectionResult {
 /**
  * Project Activity events onto an existing PortfolioSnapshot.
  *
- * Only events AFTER the checkpoint timestamp are applied.
- * Produces a new snapshot with additional inventory, calls, puts, and cash adjustments.
+ * Only events AFTER the checkpoint are applied. The checkpoint's precision
+ * determines the reconciliation policy:
+ *   - "day": activity from the same or earlier calendar day is excluded.
+ *   - "intraday": normal timestamp comparison.
+ *   - "none": project everything.
  */
 export function projectActivityOverlay(
   baseSnapshot: PortfolioSnapshot,
   activityRows: ActivityRow[],
   checkpointTimestamp: Date,
+  precision: CheckpointPrecision = "intraday",
 ): ProjectionResult {
   // Filter to post-checkpoint events only
-  const postCheckpoint = activityRows.filter(row => isAfterCheckpoint(row, checkpointTimestamp));
+  const postCheckpoint = activityRows.filter(row => isAfterCheckpoint(row, checkpointTimestamp, precision));
 
   if (postCheckpoint.length === 0) {
     return { snapshot: baseSnapshot, projectedEventCount: 0, projectedSymbols: [] };

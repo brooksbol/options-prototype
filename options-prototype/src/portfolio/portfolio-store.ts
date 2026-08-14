@@ -19,7 +19,7 @@ import { preprocessCsv } from "../csv/preprocess";
 import { detectDelimiter, parseCsv } from "../csv/reader";
 import { classifyDocument } from "../csv/registry";
 import "../csv/fidelity"; // ensure parsers are registered before hydration
-import { projectActivityOverlay, parseCheckpointTimestamp } from "./activity-projection";
+import { projectActivityOverlay, parseCheckpoint } from "./activity-projection";
 
 // --- localStorage keys (shared with FidelityUpload for backward compat) ---
 
@@ -216,12 +216,13 @@ function applyActivityProjection(): void {
   if (!currentSnapshot || !currentActivityRows) return;
 
   const checkpointDate = currentSnapshot.provenance?.optionSummaryExportTimestamp ?? null;
-  const checkpoint = parseCheckpointTimestamp(checkpointDate);
+  const checkpoint = parseCheckpoint(checkpointDate);
 
   const { snapshot: projected } = projectActivityOverlay(
     currentSnapshot,
     currentActivityRows,
-    checkpoint,
+    checkpoint.timestamp,
+    checkpoint.precision,
   );
 
   currentSnapshot = projected;
