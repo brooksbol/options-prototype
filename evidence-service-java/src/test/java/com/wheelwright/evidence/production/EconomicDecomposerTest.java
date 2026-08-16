@@ -205,9 +205,10 @@ class EconomicDecomposerTest {
     }
 
     @Test
-    @DisplayName("T-bill sold before maturity above cost → PRINCIPAL_MOVEMENT + PRODUCTION/REALIZED_APPRECIATION")
+    @DisplayName("T-bill sold before maturity → PRINCIPAL_MOVEMENT (discretionary, not lifecycle)")
     void tBillSoldAboveCost() {
-        // 912797TN7 sold 05/05: proceeds $992.89, cost $990.85 (first lot FIFO), gain $2.04
+        // 912797TN7 sold 05/05: proceeds $992.89 — discretionary sale, not a Wheelwright
+        // lifecycle resolution. Gain vs cost is portfolio P&L, not production.
         NormalizedTransaction tx = allTransactions.stream()
             .filter(t -> t.kind() == FidelityTransactionKind.ASSET_SALE &&
                         t.symbol().equals("912797TN7"))
@@ -215,17 +216,11 @@ class EconomicDecomposerTest {
 
         List<EconomicComponent> components = decomposer.decompose(tx, allTransactions);
 
-        assertEquals(2, components.size());
-
-        EconomicComponent principal = components.stream()
-            .filter(c -> c.type() == ComponentType.PRINCIPAL_MOVEMENT).findFirst().orElseThrow();
-        assertEquals(new BigDecimal("990.85"), principal.amount());
-
-        EconomicComponent gain = components.stream()
-            .filter(c -> c.type() == ComponentType.PRODUCTION).findFirst().orElseThrow();
-        assertEquals(ProductionSource.REALIZED_APPRECIATION, gain.source());
-        assertEquals(new BigDecimal("2.04"), gain.amount());
-        assertEquals(Confidence.DETERMINISTIC, gain.confidence());
+        assertEquals(1, components.size());
+        EconomicComponent principal = components.get(0);
+        assertEquals(ComponentType.PRINCIPAL_MOVEMENT, principal.type());
+        assertEquals(new BigDecimal("992.89"), principal.amount());
+        assertEquals(Confidence.DETERMINISTIC, principal.confidence());
     }
 
     // --- Principal movement tests ---

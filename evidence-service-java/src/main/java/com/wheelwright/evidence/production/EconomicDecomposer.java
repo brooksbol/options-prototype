@@ -67,10 +67,10 @@ public class EconomicDecomposer {
                     "Share acquisition via put assignment at $" + tx.price() + "/share")
             );
 
-            case ASSIGNED_CALL_STOCK_SALE -> decomposeDisposition(tx, allTransactions);
+            case ASSIGNED_CALL_STOCK_SALE -> decomposeLifecycleDisposition(tx, allTransactions);
 
-            // General asset transactions
-            case ASSET_SALE -> decomposeDisposition(tx, allTransactions);
+            // General asset transactions — discretionary sales have no lifecycle attribution
+            case ASSET_SALE -> decomposePortfolioSale(tx, allTransactions);
 
             case ASSET_PURCHASE, TREASURY_PURCHASE -> List.of(
                 new EconomicComponent(tx.id(), ComponentType.CAPITAL_DEPLOYMENT, null,
@@ -163,7 +163,14 @@ public class EconomicDecomposer {
         }
     }
 
-    private List<EconomicComponent> decomposeDisposition(NormalizedTransaction tx,
+    /**
+     * Decompose a lifecycle-attributed disposition (e.g., shares called away via assignment).
+     *
+     * Gains are PRODUCTION/REALIZED_APPRECIATION — the appreciation is causally attributable
+     * to the Wheelwright strategy that managed these shares through their lifecycle.
+     * Losses are CAPITAL_EROSION — the strategy resolution consumed principal.
+     */
+    private List<EconomicComponent> decomposeLifecycleDisposition(NormalizedTransaction tx,
                                                           List<NormalizedTransaction> allTransactions) {
         BigDecimal proceeds = tx.amount(); // positive (cash received from sale)
 
@@ -206,6 +213,34 @@ public class EconomicDecomposer {
         }
 
         return components;
+    }
+
+    /**
+     * Decompose a discretionary portfolio sale (ASSET_SALE).
+     *
+     * Discretionary sales have no Wheelwright lifecycle attribution. Regardless of
+     * whether the sale produces a gain or loss, the entire proceeds are a principal
+     * movement (capital converted from equity form to cash form). The gain or loss
+     * is a portfolio-level observation, not Wheelwright production or strategy erosion.
+     *
+     * This enforces the domain rule: Production is economic gain causally attributable
+     * to a Wheelwright strategy lifecycle. Realization alone is not sufficient.
+     *
+     * Note: this intentionally does not distinguish returned basis from non-attributed
+     * realized gain/loss. If portfolio-performance decomposition becomes a requirement,
+     * introduce a dedicated PORTFOLIO_REALIZATION component type rather than
+     * reclassifying these amounts as production.
+     */
+    private List<EconomicComponent> decomposePortfolioSale(NormalizedTransaction tx,
+                                                            List<NormalizedTransaction> allTransactions) {
+        BigDecimal proceeds = tx.amount(); // positive (cash received from sale)
+
+        return List.of(
+            new EconomicComponent(tx.id(), ComponentType.PRINCIPAL_MOVEMENT, null,
+                proceeds, Confidence.DETERMINISTIC,
+                "Portfolio sale of " + tx.symbol() + " at $" + tx.price() +
+                "/share — no Wheelwright lifecycle attribution; proceeds are principal movement")
+        );
     }
 
     /**
