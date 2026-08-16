@@ -2,7 +2,7 @@
 
 > The unprioritized roadmap. Every unfinished idea has a stable ID and explicit disposition. Nothing silently disappears.
 
-**Last reviewed:** August 14, 2026 (Strategy expansion reconciliation — PL-STRAT-01 added, PL-DEPLOY/PL-DEPLOY-02/PL-EVID-01 enriched)
+**Last reviewed:** August 16, 2026 (PL-TRAIN-01 added — Training Mode / Portfolio-Operations Simulator exploration)
 
 ---
 
@@ -84,12 +84,13 @@
 | `PL-CALL-03` | Familiarity vs Favorites | Familiarity: inferred from history. Favorites: explicit designation. Separate concepts. Both depend on historical evidence and user accounts. | None |
 | `PL-OPS-04` | Notification / Background Awareness | Push notifications or indicators when evidence state changes significantly. Depends on cloud deployment. | None |
 | `PL-STRAT-01` | Strategy Expansion Governance | Evaluation framework and scope boundary for strategies beyond CSP/CC/BW. Admission hypothesis: a strategy should serve governed portfolio/capital transformations and should not require predictive reasoning where present evidence, policy, and mechanical-consequence reasoning suffice. Candidates under study: rolling, protective puts, collars, fully-collateralized two-sided position. Currently out of scope absent reconsideration: credit spreads, diagonals, iron condors, butterflies, naked strategies. Four-lens evaluation framework. Rolling already has seeds in PL-EXEC-01 and PL-ARCH-02. | `foundations/strategy-expansion-governance.md` |
+| `PL-TRAIN-01` | Training Mode / Portfolio-Operations Simulator | Behavioral training environment: game capital + simulated/historical market, experience compression, sequential learning, decision-quality vs outcome-quality separation, operator resilience development. Subsumes and expands PL-RESEARCH-03. Simulation engine may eventually serve Real Money fitness evaluation (shared capability, not game-only). Three potential operating environments (Training / Live Simulation / Real Money) differing in evidence source, portfolio source, clock, and execution boundary. Extended concepts: agent war-gaming (autonomous operators as policy test subjects), WAIT as first-class deployment action, simulation-control-room / simulated-world boundary as potential architectural separation, multi-purpose scenario definitions. Architectural questions: injectable clock, simulated evidence feeds, execution boundary separation, operating-environment abstraction, agent harness infrastructure, scenario concept taxonomy. | `foundations/training-mode-exploration.md` |
 
 ### Research Instruments (Engineering Boundary)
 
 | ID | Name | Summary | Concept Home |
 |---|---|---|---|
-| `PL-RESEARCH-03` | Scenario Replay | Activity document → state transitions → overlay implications. Engineering research instrument behind subordinate boundary. Not a product surface. | Journal entries |
+| `PL-RESEARCH-03` | Scenario Replay | Activity document → state transitions → overlay implications. Engineering research instrument behind subordinate boundary. Not a product surface. Relationship to PL-TRAIN-01: scenario replay is a narrow engineering instrument; Training Mode is the broader product concept that could eventually consume and supersede it. | Journal entries |
 
 ---
 
