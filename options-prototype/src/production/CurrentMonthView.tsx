@@ -16,12 +16,13 @@
  *   - Forecast derivation → current-month-production.ts (this module composes)
  */
 
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { usePortfolio } from "../portfolio/use-portfolio";
 import { useObservations } from "../evidence/use-observations";
 import { deriveMonitoredPositions, groupByExpiration } from "../portfolio/position-monitoring";
 import { deriveCurrentMonthProduction, type CurrentMonthProductionSummary, type InFlightPosition } from "./current-month-production";
 import type { ProductionAssessmentResponse } from "./production-types";
+import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 
 interface Props {
   /** Backend assessment for the current month (null if not yet available) */
@@ -31,6 +32,28 @@ interface Props {
 export function CurrentMonthView({ assessment }: Props) {
   const { snapshot } = usePortfolio();
   const observations = useObservations();
+
+  // Mission target — first Situation Architecture primitive
+  const [missionTarget, setMissionTarget] = useState<number | null>(() => loadWorkspace().missionTarget);
+  const [editingTarget, setEditingTarget] = useState(false);
+  const [targetInput, setTargetInput] = useState("");
+
+  const handleTargetSave = useCallback(() => {
+    const parsed = parseFloat(targetInput.replace(/[$,]/g, ""));
+    if (!isNaN(parsed) && parsed > 0) {
+      setMissionTarget(parsed);
+      updateWorkspace({ missionTarget: parsed });
+    }
+    setEditingTarget(false);
+    setTargetInput("");
+  }, [targetInput]);
+
+  const handleTargetClear = useCallback(() => {
+    setMissionTarget(null);
+    updateWorkspace({ missionTarget: null });
+    setEditingTarget(false);
+    setTargetInput("");
+  }, []);
 
   const summary = useMemo(() => {
     const positions = snapshot ? deriveMonitoredPositions(snapshot, observations) : [];
@@ -63,9 +86,56 @@ export function CurrentMonthView({ assessment }: Props) {
 
             <div className="prod-metric prod-metric-mission">
               <span className="prod-metric-label">Mission</span>
-              <span className="prod-metric-value prod-metric-placeholder">—</span>
+              {editingTarget ? (
+                <span className="prod-mission-edit">
+                  <input
+                    className="prod-mission-input"
+                    type="text"
+                    placeholder="$6,000"
+                    value={targetInput}
+                    onChange={(e) => setTargetInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleTargetSave();
+                      if (e.key === "Escape") { setEditingTarget(false); setTargetInput(""); }
+                    }}
+                    autoFocus
+                  />
+                  <button className="prod-mission-btn" onClick={handleTargetSave}>Set</button>
+                  {missionTarget != null && (
+                    <button className="prod-mission-btn prod-mission-btn-clear" onClick={handleTargetClear}>Clear</button>
+                  )}
+                </span>
+              ) : missionTarget != null ? (
+                <span
+                  className="prod-metric-value prod-metric-editable"
+                  onClick={() => { setEditingTarget(true); setTargetInput(missionTarget.toString()); }}
+                  title="Click to change monthly target"
+                >
+                  ${missionTarget.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </span>
+              ) : (
+                <span
+                  className="prod-metric-value prod-metric-placeholder prod-metric-editable"
+                  onClick={() => setEditingTarget(true)}
+                  title="Set monthly production target"
+                >
+                  —
+                </span>
+              )}
             </div>
           </div>
+
+          {/* Mission remaining — descriptive only */}
+          {missionTarget != null && assessment && (
+            <div className="prod-mission-context">
+              <span className="prod-mission-remaining">
+                ${Math.max(0, missionTarget - summary.knownProduction).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} remaining
+              </span>
+              {summary.knownProduction >= missionTarget && (
+                <span className="prod-mission-met">Target met</span>
+              )}
+            </div>
+          )}
 
           {(summary.capitalErosion > 0 || summary.unresolvedProduction > 0) && (
             <div className="prod-current-secondary">

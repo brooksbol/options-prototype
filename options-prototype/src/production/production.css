@@ -757,3 +757,79 @@
   background: rgba(187, 134, 252, 0.12);
   color: var(--wd-accent-purple, #bb86fc);
 }
+
+/* --- Mission Target --- */
+
+.prod-metric-editable {
+  cursor: pointer;
+  border-bottom: 1px dashed var(--wd-text-secondary, #9aa5b8);
+  padding-bottom: 1px;
+}
+
+.prod-metric-editable:hover {
+  border-bottom-color: var(--wd-text-primary, #e4e8f0);
+}
+
+.prod-mission-edit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.prod-mission-input {
+  width: 80px;
+  padding: 2px 6px;
+  font-size: 13px;
+  font-family: var(--wd-font-mono, "JetBrains Mono", monospace);
+  background: var(--wd-surface-primary, #161b26);
+  border: 1px solid var(--wd-border, #3a4154);
+  color: var(--wd-text-primary, #e4e8f0);
+  border-radius: 3px;
+}
+
+.prod-mission-input:focus {
+  outline: none;
+  border-color: var(--wd-accent-blue, #4a9eff);
+}
+
+.prod-mission-btn {
+  padding: 2px 8px;
+  font-size: 10px;
+  background: var(--wd-surface-primary, #161b26);
+  border: 1px solid var(--wd-border, #3a4154);
+  color: var(--wd-text-secondary, #9aa5b8);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.prod-mission-btn:hover {
+  color: var(--wd-text-primary, #e4e8f0);
+  border-color: var(--wd-text-secondary, #9aa5b8);
+}
+
+.prod-mission-btn-clear {
+  color: var(--wd-text-disabled, #666);
+}
+
+.prod-mission-context {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--wd-border, #3a4154);
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.prod-mission-remaining {
+  font-size: 11px;
+  color: var(--wd-text-secondary, #9aa5b8);
+  font-family: var(--wd-font-mono, "JetBrains Mono", monospace);
+}
+
+.prod-mission-met {
+  font-size: 10px;
+  color: var(--wd-accent-green, #6fcf97);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 600;
+}

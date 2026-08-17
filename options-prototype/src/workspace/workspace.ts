@@ -72,6 +72,10 @@ export interface Workspace {
 
   // Write Desk Portfolio Source
   writeDeskSource: string;
+
+  // Mission Context (first Situation Architecture primitive)
+  /** Monthly production target in dollars. Null = not configured. */
+  missionTarget: number | null;
 }
 
 const DEFAULT_WORKSPACE: Workspace = {
@@ -106,6 +110,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskCrossEntryCollapsed: false,
   writeDeskSectionOrder: ["cross-entry", "puts", "calls", "buy-writes"],
   writeDeskSource: "demo",
+  missionTarget: null,
 };
 
 /**
