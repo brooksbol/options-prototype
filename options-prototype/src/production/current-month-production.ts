@@ -77,10 +77,21 @@ export interface CurrentMonthProductionSummary {
   /** Calendar month being assessed */
   month: string;
   monthLabel: string;
-  /** Known production (factual, from backend) */
+  /** Known production (factual, from backend) — all sources */
   knownProduction: number;
   /** Production source breakdown (from backend) */
   productionBreakdown: Record<string, number>;
+  /**
+   * Net Strategy Result: options-strategy-attributable production minus lifecycle erosion.
+   * = (OPTION_PREMIUM + REALIZED_APPRECIATION) − CAPITAL_EROSION
+   *
+   * Excludes structural income (SPAXX, Treasury discount, dividends) because those
+   * are not consequences of options strategy decisions. This isolates the net economic
+   * contribution of the strategy engine itself.
+   *
+   * Null when no assessment is available.
+   */
+  netStrategyResult: number | null;
   /** Forecast composition (known + in-flight) */
   forecast: ForecastComposition;
   /** Unresolved amounts */
@@ -162,6 +173,11 @@ export function deriveCurrentMonthProduction(
   const reconciliationIssues = assessment?.reconciliationIssues ?? [];
   const reconciliationStatus = assessment?.reconciliationStatus ?? "SOURCE_INCOMPLETE";
 
+  // Net Strategy Result: authoritative from backend.
+  // = (OPTION_PREMIUM + REALIZED_APPRECIATION) − CAPITAL_EROSION
+  // Excludes structural income. See ProductionAssessor.computeNetStrategyResult().
+  const netStrategyResult: number | null = assessment?.netStrategyResult ?? null;
+
   // In-flight positions: derive from snapshot (these provide risk context, not additional production)
   const inFlightPositions = deriveInFlightPositions(snapshot, today, monthEnd);
 
@@ -190,6 +206,7 @@ export function deriveCurrentMonthProduction(
     monthLabel,
     knownProduction,
     productionBreakdown,
+    netStrategyResult,
     forecast,
     unresolvedProduction,
     capitalErosion,

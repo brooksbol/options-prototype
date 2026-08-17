@@ -833,3 +833,33 @@
   letter-spacing: 0.3px;
   font-weight: 600;
 }
+
+/* --- Net Strategy Result --- */
+
+.prod-net-strategy {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--wd-border, #3a4154);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.prod-net-strategy-label {
+  font-size: 9px;
+  color: var(--wd-text-secondary, #9aa5b8);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.prod-net-strategy-value {
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--wd-font-mono, "JetBrains Mono", monospace);
+  color: var(--wd-text-primary, #e4e8f0);
+}
+
+.prod-net-strategy-negative {
+  color: var(--wd-accent-red, #ef6b6b);
+}

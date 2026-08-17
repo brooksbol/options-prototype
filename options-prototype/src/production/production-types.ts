@@ -13,6 +13,8 @@ export interface ProductionAssessmentResponse {
   knownCashProduction: number;
   unresolvedPotentialProduction: number;
   realizedCapitalErosion: number;
+  /** Net realized economic contribution of the options strategy engine */
+  netStrategyResult: number;
   productionBreakdown: Record<string, number>;
   erosionEvents: ErosionEvent[];
   transactionSummary: TransactionSummary;

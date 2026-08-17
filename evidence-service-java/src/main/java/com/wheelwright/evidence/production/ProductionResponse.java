@@ -18,6 +18,7 @@ public record ProductionResponse(
     BigDecimal knownCashProduction,
     BigDecimal unresolvedPotentialProduction,
     BigDecimal realizedCapitalErosion,
+    BigDecimal netStrategyResult,
     Map<String, BigDecimal> productionBreakdown,
     List<ErosionEventDto> erosionEvents,
     SummaryDto transactionSummary,

@@ -167,6 +167,7 @@ public class ProductionAssessor {
             knownProduction,
             unresolvedPotential,
             erosion,
+            computeNetStrategyResult(breakdown, erosion),
             breakdown,
             erosionEvents,
             new ProductionAssessment.TransactionSummary(included, excluded, uncertain, notApplicable),
@@ -251,4 +252,18 @@ public class ProductionAssessor {
     }
 
     private record AssessedEntry(NormalizedTransaction tx, List<EconomicComponent> components) {}
+
+    /**
+     * Compute Net Strategy Result: the net realized economic contribution of the
+     * options strategy engine.
+     *
+     * Only OPTION_PREMIUM and REALIZED_APPRECIATION are strategy-attributable production.
+     * Structural income (MONEY_MARKET_INCOME, TREASURY_DISCOUNT, DIVIDEND) is excluded
+     * because it is not a consequence of options strategy decisions.
+     */
+    private BigDecimal computeNetStrategyResult(Map<ProductionSource, BigDecimal> breakdown, BigDecimal erosion) {
+        BigDecimal strategyProduction = breakdown.getOrDefault(ProductionSource.OPTION_PREMIUM, BigDecimal.ZERO)
+            .add(breakdown.getOrDefault(ProductionSource.REALIZED_APPRECIATION, BigDecimal.ZERO));
+        return strategyProduction.subtract(erosion);
+    }
 }

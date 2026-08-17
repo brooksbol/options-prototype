@@ -190,4 +190,39 @@ class ProductionAssessorTest {
         ProductionAssessment result = assessor.assess(fixtureRows, YearMonth.of(2026, 7));
         assertTrue(result.unresolvedPotentialProduction().compareTo(BigDecimal.ZERO) >= 0);
     }
+
+    // --- Net Strategy Result ---
+
+    @Test
+    @DisplayName("netStrategyResult equals option premium when no appreciation or erosion")
+    void netStrategyResultPremiumOnly() {
+        ProductionAssessment result = assessor.assess(fixtureRows, YearMonth.of(2026, 7));
+        // July: premium $3483.02, no realized appreciation, no erosion
+        // Net Strategy Result = $3483.02 - $0 = $3483.02
+        assertEquals(new BigDecimal("3483.02"), result.netStrategyResult());
+    }
+
+    @Test
+    @DisplayName("INVARIANT: netStrategyResult excludes MONEY_MARKET_INCOME")
+    void netStrategyResultExcludesSpaxx() {
+        ProductionAssessment result = assessor.assess(fixtureRows, YearMonth.of(2026, 7));
+        // July knownProduction = $3686.93 (includes $142.11 SPAXX + $61.80 Treasury)
+        // Net Strategy Result must be less than knownCashProduction
+        assertTrue(result.netStrategyResult().compareTo(result.knownCashProduction()) < 0,
+            "Net Strategy Result must exclude structural income");
+        // Specifically: $3686.93 - $142.11 (SPAXX) - $61.80 (Treasury) = $3483.02
+        assertEquals(new BigDecimal("3483.02"), result.netStrategyResult());
+    }
+
+    @Test
+    @DisplayName("INVARIANT: netStrategyResult excludes TREASURY_DISCOUNT")
+    void netStrategyResultExcludesTreasury() {
+        ProductionAssessment result = assessor.assess(fixtureRows, YearMonth.of(2026, 7));
+        BigDecimal treasuryDiscount = result.productionBreakdown().get(ProductionSource.TREASURY_DISCOUNT);
+        assertNotNull(treasuryDiscount);
+        // If we added Treasury to netStrategyResult, it would be higher
+        assertTrue(result.netStrategyResult().compareTo(
+            result.netStrategyResult().add(treasuryDiscount)) < 0,
+            "Treasury discount must not be included in Net Strategy Result");
+    }
 }

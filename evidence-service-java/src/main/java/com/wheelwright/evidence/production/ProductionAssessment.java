@@ -26,6 +26,18 @@ public record ProductionAssessment(
     /** Sum of CAPITAL_EROSION components in the period (realized losses) */
     BigDecimal realizedCapitalErosion,
 
+    /**
+     * Net Strategy Result: the net realized economic contribution of the options
+     * strategy engine during this period.
+     *
+     * = (OPTION_PREMIUM + REALIZED_APPRECIATION) − CAPITAL_EROSION
+     *
+     * Excludes structural income (MONEY_MARKET_INCOME, TREASURY_DISCOUNT, DIVIDEND)
+     * because those are not consequences of options strategy decisions. This isolates
+     * the strategy engine's contribution from portfolio-wide productive activity.
+     */
+    BigDecimal netStrategyResult,
+
     /** Known production decomposed by source */
     Map<ProductionSource, BigDecimal> productionBreakdown,
 

@@ -76,6 +76,7 @@ public class ProductionController {
             a.knownCashProduction(),
             a.unresolvedPotentialProduction(),
             a.realizedCapitalErosion(),
+            a.netStrategyResult(),
             a.productionBreakdown().entrySet().stream()
                 .collect(Collectors.toMap(e -> e.getKey().name(), Map.Entry::getValue)),
             a.erosionEvents().stream().map(e -> new ProductionResponse.ErosionEventDto(

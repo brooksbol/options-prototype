@@ -153,6 +153,16 @@ export function CurrentMonthView({ assessment }: Props) {
               )}
             </div>
           )}
+
+          {/* Net Strategy Result — always visible when assessment exists */}
+          {summary.netStrategyResult != null && (
+            <div className="prod-net-strategy">
+              <span className="prod-net-strategy-label">Net Strategy Result</span>
+              <span className={`prod-net-strategy-value${summary.netStrategyResult < 0 ? " prod-net-strategy-negative" : ""}`}>
+                {summary.netStrategyResult < 0 ? "−" : ""}${Math.abs(summary.netStrategyResult).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+          )}
         </section>
 
         <section className="prod-current-capacity">
