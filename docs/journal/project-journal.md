@@ -7221,3 +7221,112 @@ The "Portfolio Evaluator" discussed in the conversation is the mature Deployment
 5. What determines "the board is too poor to deploy" (absolute threshold — must be discovered empirically)
 6. Architectural ownership of historical recommendation/opportunity observations (deliberately unresolved)
 7. How strategy-level fitness should be expressed (existing posture system operates at contract level)
+
+
+---
+
+## 2026-08-17 — Mission Concern Model and Situation Architecture Reconciliation
+
+### Context
+
+Production surface displays live data for August 2026:
+- Produced: $2,677.98 (source: Option Premium only)
+- Capital Erosion: $1,100.46
+- Net Strategy Result: $1,577.52
+
+Net Strategy Result (committed in 15127a7) immediately earned its visible space — it tells a materially different economic story from gross Production when erosion exists. The operator sees at a glance that $2,678 of premium generation cost $1,100 of capital erosion, yielding $1,578 as the net realized economic contribution of the options strategy engine during the period.
+
+Monthly production target ($6,000) is implemented (ce849bb) but not yet operator-configured.
+
+### What happened
+
+Extended exploration of what "Mission" means at the architectural level, triggered by live use of the Production surface. The discussion produced a provisional six-layer concern model:
+
+```
+Purpose      — why the operator uses Wheelwright (rarely changes)
+Objective    — direction of desired improvement (shapes evaluation)
+Constraints  — bounds expressing "enough" and "too much" (operator-configured)
+Policy       — rules governing acceptable actions (not overridable by urgency)
+Evidence     — what has actually happened (factual)
+Outlook      — what can responsibly be said about the unresolved future
+```
+
+This was then reconciled against the accepted Situation Architecture (doc 25) and Regime Objective Function.
+
+### Reconciliation findings
+
+| Layer | Classification | Notes |
+|---|---|---|
+| Purpose | Already represented (different words) | ≈ Situation's "Context" contribution + Operating Regime |
+| Objective | Refinement — adds trajectory | "Desired Outcomes" / "Operational Objectives" exist but are static; directional improvement over time is new |
+| Constraints | Already represented (same words) | Operating Envelope, Constraints sections in both doc 25 and Regime Obj |
+| Policy | Distributed, precedence implicit | Level 2 Policy (Regime Obj) + governance gates + PL-DEPLOY decision-semantics pruning |
+| Evidence | Core architecture | Level 1 (Regime Obj) + Evidence Engine + Production surface — thoroughly covered |
+| Outlook | Genuinely missing (deliberately) | No named concept; proto-instances exist (mission gap, If Called, decision pressure) |
+
+The six-layer model and doc 25's reasoning direction are **orthogonal**, not contradictory. Doc 25 is a decision pipeline (Situation → Candidate Selection). The six-layer model classifies *kinds of concerns*. They can coexist without merging.
+
+### Key findings
+
+1. **$6,000/month target participates at two abstraction levels simultaneously.** It is a purpose-expression (why I'm doing this) AND an operational constraint (the threshold of "enough"). Both views are valid. This does not require new vocabulary — it reflects the nature of fixed targets. The parking lot already says the target is "one concrete operator constraint within Mission, not the primary expression of success."
+
+2. **Qualified growth is a plausible legitimate long-term objective.** Period-over-period improvement in Net Strategy Result is the simplest first-order trajectory metric. It shapes how the system evaluates progress over time but must not become a per-trade scalar optimization target. Realization requires multi-month persistence (identified in PL-PROD-NET future work).
+
+3. **Mission/output pressure must never weaken deployment admissibility policy.** When the monthly target is unmet and the opportunity surface is too poor to deploy, the system must state both truths simultaneously — "requirement is unmet" AND "WAIT is still correct." Neither truth weakens the other. This is already encoded in PL-DEPLOY's decision semantics ("eligibility and acceptability prune; fitness ranks only survivors; the best opportunity on a bad board may still be WAIT") but was never stated as a named precedence relationship. The finding is narrow to deployment admissibility vs. mission pressure — not a universal "policy > constraints" generalization.
+
+4. **Linear calendar-pace extrapolation is invalid for opportunity-driven production.** "Day 17 of 31" is a calendar fact. Dividing production by elapsed days and projecting forward presumes uniform opportunity distribution — false for an options income strategy where production is lumpy, event-driven, and opportunity-contingent.
+
+5. **Outlook boundary proposed (provisional, three tiers):**
+   - O-1: Scheduled or committed future facts whose timing and relevant economics are already established by authoritative evidence. Example: a known Treasury maturity date and amount where basis and redemption economics are authoritative. O-1 is intended as the epistemically safest forward-looking category — only items for which Wheelwright possesses authoritative evidence sufficient to know the relevant future amount belong here.
+   - O-2: Conditional mechanical consequence — stated conditions, transparent arithmetic ("if assigned at this strike, $350 appreciation is realized"). Already exists in the architecture as "If Called" returns.
+   - O-3: Bounded interpretation of unresolved future state — genuinely new territory. Must decompose into observable evidence + explicit conditions + transparent arithmetic. Must not rely on unstated beliefs about market direction.
+   - Boundary test: can the statement decompose into observable evidence + explicit conditions + transparent arithmetic? If yes, it may qualify as Outlook. If it requires unstated beliefs about future market direction, it is prediction and remains excluded per Policy over Prediction.
+
+6. **Scalar forward-looking values are not categorically prohibited — they are governed.** A scalar is acceptable when: decomposable into constituent evidence, conditions explicitly stated, does not create deployment pressure against policy, and epistemic tier (O-1/O-2/O-3) is visible or inferrable. PL-PROD-FORECAST remains unresolved; its future outputs are constrained but not foreclosed.
+
+### Status of six-layer model
+
+**Provisional analytical lens, not ratified architecture.** The reconciliation shows it is mostly a re-expression of existing vocabulary (Purpose, Constraints, Evidence, Policy) with two contributions that add analytical content:
+- **Objective-as-direction** refines existing "Desired Outcomes" with trajectory semantics
+- **Outlook** names a genuinely missing concept that the architecture has been deliberately avoiding
+
+Whether Outlook deserves formal architectural status depends on whether PL-PROD-FORECAST or Situation Architecture advancement needs it. The concept is preserved here; the decision to ratify it is deferred. The six-layer model does not replace doc 25's reasoning direction — they operate at different levels of analysis.
+
+The proposed Outlook taxonomy touches existing Level 1 evidence, derived mechanical consequence, and the design space that could eventually lead toward governed Level 3 interpretation. Its final architectural placement is unresolved — it may span several existing epistemic layers, become an operator-facing composition, become a new architectural concept, or prove unnecessary as a single abstraction.
+
+### Human experiential grounding (this session)
+
+The live display of Net Strategy Result ($1,577.52 alongside $2,677.98 Produced and $1,100.46 Erosion) produced an immediate operator reaction: the derived metric earned its place because it told a different economic story than either component alone. This is an instance of human experiential grounding per the Three Actor Model — product evidence about comprehension effects beyond mathematical correctness.
+
+The $6,000 target also surfaced operator awareness that a "remaining" display could create deployment pressure. This is experiential evidence worth monitoring as the Mission primitive matures, not yet proof of a UI defect.
+
+### Epistemic grounding of this entry
+
+Accepted architectural claims were verified against repository authority:
+- Net Strategy Result semantics (PL-PROD-NET)
+- Situation Architecture reasoning direction and principles (doc 25)
+- PL-DEPLOY WAIT and admission-pruning semantics
+- Policy over Prediction consequence-governance model
+- PL-PROD-FORECAST unresolved state
+- Three Actor Model human experiential grounding (caa0ae4)
+
+Live operator observations are new evidence being made durable by this journal entry:
+- August 2026 production values ($2,677.98 / $1,100.46 / $1,577.52)
+- Principal's comprehension response that Net Strategy Result immediately earned its visible space
+- Concern that a Mission "remaining" value could create deployment pressure
+
+The repository is the durable source of truth after new learning is integrated; it is not the only source from which new learning can originate.
+
+### Governing principles confirmed
+
+- "Build one situation, then extract" (doc 25) continues to govern. The six-layer model is an analytical lens, not a framework to implement.
+- Policy over Prediction is not threatened by the Outlook concept. O-1 and O-2 operate within the architecture's existing evidence and mechanical-consequence models. O-3 requires the same governance discipline — decomposability, explicit conditions, transparency — that Policy over Prediction demands.
+
+### Decisions / implications
+
+- No code changes
+- No documentation changes to accepted architecture (doc 25, Regime Obj, Policy over Prediction)
+- Six-layer model preserved in this journal entry as a provisional analytical tool
+- Outlook taxonomy preserved as exploratory work, not ratified
+- PL-PROD-FORECAST remains unresolved — today's O-1/O-2/O-3 taxonomy organizes its design space without committing to a solution
+- No parking-lot items require disposition changes
