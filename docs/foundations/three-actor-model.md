@@ -30,6 +30,33 @@ This is the specific meaning of "Three Actor Model" in Wheelwright project discu
 
 **In this project:** Brooks. Human. The decision-maker who authorizes architectural evolution and judges whether the system serves its intended purpose.
 
+#### Principal Contributions Beyond Direction-Setting
+
+The Principal contributes three distinct contributions to the development learning loop:
+
+**Direction governance** — what matters and why. (The responsibilities enumerated above.)
+
+**Continuity and salience governance** — the Principal detects when globally important principles, prior learning, unresolved tensions, or durable architectural context have fallen out of active reasoning, and redirects the Architect or Implementation Engineer toward durable authority.
+
+- Human recollection is a trigger for reconstruction, not architectural authority. The Principal says, in effect: "I remember that this matters — go recover the authoritative version."
+- The durable source of truth remains the repository.
+- Repeated Principal reminders are evidence that durable artifacts should improve, reducing future dependency on human intervention.
+
+**Human experiential grounding** — the Principal is responsible for ensuring that authentic human cognitive, behavioral, and experiential evidence enters the development learning loop.
+
+- When the Principal is also a direct user or operator — as in Wheelwright today — the Principal can supply this evidence firsthand.
+- When the Principal is not the direct user, the responsibility becomes ensuring that authentic operator evidence is observed, surfaced, and considered rather than allowing AI actors to substitute modeled psychology for lived experience.
+- Human experiential evidence includes cognitive effects (anchoring, load, clarity, unintended inference), behavioral effects (deployment pressure, reluctance, attention allocation), emotional effects (urgency, frustration, relief), and comprehension effects (a metric immediately changing understanding, a hierarchy making arithmetic obvious). The signal is not limited to emotion.
+- The Principal's experiential response is evidence, not automatic authority over mechanism. The Architect interprets whether it reveals a framing problem, a policy conflict, a desirable pressure, or no defect at all.
+- The interpretation loop: product behavior → human experiential response → Principal surfaces it → Architect analyzes → durable finding if warranted → Implementation Engineer acts only after governance decision.
+
+**Reducibility asymmetry:** These two additional contributions behave differently over time:
+
+- Continuity and salience governance should decrease as documentation quality improves. Improved durable documentation and stronger AI reconstruction should reduce continuity interventions substantially.
+- Human experiential grounding remains irreducibly human regardless of documentation quality or AI capability. Repository reconstruction cannot tell the team what a human actually experiences while operating the product.
+
+This asymmetry is why the Principal role remains essential even as AI architectural capability improves. Better documentation and AI memory can reduce continuity interventions; they cannot eliminate the need for authentic human evidence about lived product experience.
+
 ### Architect
 
 **Question:** How should the system be structured to serve those goals?
