@@ -863,3 +863,84 @@
 .prod-net-strategy-negative {
   color: var(--wd-accent-red, #ef6b6b);
 }
+
+
+/* --- Mission Set Target Button (unconfigured state) --- */
+
+.prod-mission-set-btn {
+  font-family: var(--wd-font-sans, system-ui, sans-serif);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border: 1px dashed var(--wd-text-disabled, #666);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--wd-text-secondary, #9aa5b8);
+  cursor: pointer;
+  transition: color 0.1s, border-color 0.1s;
+}
+
+.prod-mission-set-btn:hover {
+  color: var(--wd-text-primary, #e4e8f0);
+  border-color: var(--wd-text-secondary, #9aa5b8);
+}
+
+/* --- Erosion Toggle & Detail --- */
+
+.prod-erosion-toggle {
+  font-family: var(--wd-font-mono, "JetBrains Mono", monospace);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--wd-accent-red, #ef6b6b);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.prod-erosion-toggle:hover {
+  text-decoration: underline;
+}
+
+.prod-erosion-caret {
+  font-size: 9px;
+  color: var(--wd-text-secondary, #9aa5b8);
+}
+
+.prod-erosion-detail {
+  list-style: none;
+  margin: 6px 0 0 0;
+  padding: 6px 0 0 0;
+  border-top: 1px solid var(--wd-border, #2d3548);
+}
+
+.prod-erosion-detail-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 2px 0;
+  font-size: 11px;
+}
+
+.prod-erosion-detail-context {
+  color: var(--wd-text-secondary, #9aa5b8);
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.prod-erosion-detail-desc {
+  color: var(--wd-text-secondary, #9aa5b8);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prod-erosion-detail-amount {
+  font-family: var(--wd-font-mono, "JetBrains Mono", monospace);
+  color: var(--wd-accent-red, #ef6b6b);
+  white-space: nowrap;
+}

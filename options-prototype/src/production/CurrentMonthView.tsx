@@ -24,6 +24,20 @@ import { deriveCurrentMonthProduction, type CurrentMonthProductionSummary, type 
 import type { ProductionAssessmentResponse } from "./production-types";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 
+/**
+ * Canonical recognized Production source taxonomy.
+ * Matches backend ProductionSource enum exactly.
+ * Rendered in stable order including $0.00 values so the operator
+ * can inspect production development throughout the month.
+ */
+const CANONICAL_PRODUCTION_SOURCES = [
+  "OPTION_PREMIUM",
+  "MONEY_MARKET_INCOME",
+  "TREASURY_DISCOUNT",
+  "DIVIDEND",
+  "REALIZED_APPRECIATION",
+] as const;
+
 interface Props {
   /** Backend assessment for the current month (null if not yet available) */
   assessment: ProductionAssessmentResponse | null;
@@ -37,6 +51,9 @@ export function CurrentMonthView({ assessment }: Props) {
   const [missionTarget, setMissionTarget] = useState<number | null>(() => loadWorkspace().missionTarget);
   const [editingTarget, setEditingTarget] = useState(false);
   const [targetInput, setTargetInput] = useState("");
+
+  // Erosion detail toggle
+  const [erosionExpanded, setErosionExpanded] = useState(false);
 
   const handleTargetSave = useCallback(() => {
     const parsed = parseFloat(targetInput.replace(/[$,]/g, ""));
@@ -114,13 +131,13 @@ export function CurrentMonthView({ assessment }: Props) {
                   ${missionTarget.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </span>
               ) : (
-                <span
-                  className="prod-metric-value prod-metric-placeholder prod-metric-editable"
+                <button
+                  className="prod-mission-set-btn"
                   onClick={() => setEditingTarget(true)}
                   title="Set monthly production target"
                 >
-                  —
-                </span>
+                  Set target
+                </button>
               )}
             </div>
           </div>
@@ -142,7 +159,14 @@ export function CurrentMonthView({ assessment }: Props) {
               {summary.capitalErosion > 0 && (
                 <div className="prod-current-erosion">
                   <span className="prod-erosion-label">Erosion</span>
-                  <span className="prod-erosion-value">${summary.capitalErosion.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  <button
+                    className="prod-erosion-toggle"
+                    onClick={() => setErosionExpanded(!erosionExpanded)}
+                    title={erosionExpanded ? "Hide erosion detail" : "Show erosion detail"}
+                  >
+                    ${summary.capitalErosion.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    <span className="prod-erosion-caret">{erosionExpanded ? "▾" : "▸"}</span>
+                  </button>
                 </div>
               )}
               {summary.unresolvedProduction > 0 && (
@@ -152,6 +176,19 @@ export function CurrentMonthView({ assessment }: Props) {
                 </div>
               )}
             </div>
+          )}
+
+          {/* Erosion event detail — expandable provenance */}
+          {erosionExpanded && assessment && assessment.erosionEvents.length > 0 && (
+            <ul className="prod-erosion-detail">
+              {assessment.erosionEvents.map((event, i) => (
+                <li key={i} className="prod-erosion-detail-row">
+                  <span className="prod-erosion-detail-context">{event.date} · {event.symbol}</span>
+                  <span className="prod-erosion-detail-desc">{event.description}</span>
+                  <span className="prod-erosion-detail-amount">${event.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                </li>
+              ))}
+            </ul>
           )}
 
           {/* Net Strategy Result — always visible when assessment exists */}
@@ -211,13 +248,6 @@ export function CurrentMonthView({ assessment }: Props) {
                 <td className="prod-comp-value">${summary.knownProduction.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 <td className="prod-comp-status prod-comp-known">Known</td>
               </tr>
-              {summary.forecast.resolvingPremium > 0 && (
-                <tr>
-                  <td className="prod-comp-label">Premium on {summary.forecast.resolvingPositionCount} resolving position{summary.forecast.resolvingPositionCount !== 1 ? "s" : ""} (already in known)</td>
-                  <td className="prod-comp-value">${summary.forecast.resolvingPremium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                  <td className="prod-comp-status prod-comp-context">Context</td>
-                </tr>
-              )}
               {summary.forecast.unknownPremiumCount > 0 && (
                 <tr>
                   <td className="prod-comp-label">{summary.forecast.unknownPremiumCount} resolving position{summary.forecast.unknownPremiumCount !== 1 ? "s" : ""} (premium unknown)</td>
@@ -236,21 +266,19 @@ export function CurrentMonthView({ assessment }: Props) {
           </table>
         </section>
 
-        {Object.keys(summary.productionBreakdown).length > 0 && (
-          <section className="prod-current-sources">
-            <h3 className="prod-section-title">Sources</h3>
-            <table className="prod-breakdown-table">
-              <tbody>
-                {Object.entries(summary.productionBreakdown).map(([source, amount]) => (
-                  <tr key={source}>
-                    <td className="prod-source-name">{formatSource(source)}</td>
-                    <td className="prod-source-amount">${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        )}
+        <section className="prod-current-sources">
+          <h3 className="prod-section-title">Sources</h3>
+          <table className="prod-breakdown-table">
+            <tbody>
+              {CANONICAL_PRODUCTION_SOURCES.map((source) => (
+                <tr key={source}>
+                  <td className="prod-source-name">{formatSource(source)}</td>
+                  <td className="prod-source-amount">${(summary.productionBreakdown[source] ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
 
         {summary.reconciliationIssues.length > 0 && (
           <section className="prod-current-recon">
