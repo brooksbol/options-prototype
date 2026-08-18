@@ -379,9 +379,9 @@ The Fidelity Activity transaction (processed by ProductionAssessor) and the Opti
 
 This distinction is structural, not implemented as month-specific conditionals:
 
-- **Current month (operational):** incomplete; answers what has been produced so far; exposes current economic consequences, unresolved evidence, and remaining capital/position resolution context. When the month becomes historical, this operational view is replaced by reconciled results.
+- **Current month (operational):** answers the intra-month cash-flow planning question: "How am I tracking this month?" Incomplete; exposes what has been produced so far, current economic consequences, unresolved evidence, and remaining capital/position resolution context. When the month becomes historical, this operational view is replaced by reconciled results.
 
-- **Historical month (reconciliatory):** answers what actually happened; presents reconciled actual results; does not preserve obsolete forecasts from when the month was still open.
+- **Historical month (reconciliatory):** answers the reconciled accounting question: "Exactly how much production occurred so I know how much to withdraw?" Presents reconciled actual results with penny accuracy and auditability; does not preserve obsolete forecasts from when the month was still open.
 
 ### Forecast semantics
 

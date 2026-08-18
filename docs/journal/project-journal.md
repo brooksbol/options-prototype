@@ -7330,3 +7330,85 @@ The repository is the durable source of truth after new learning is integrated; 
 - Outlook taxonomy preserved as exploratory work, not ratified
 - PL-PROD-FORECAST remains unresolved — today's O-1/O-2/O-3 taxonomy organizes its design space without committing to a solution
 - No parking-lot items require disposition changes
+
+
+---
+
+## 2026-08-18 — B2 Production Surface Live Observation and Reconciliation
+
+### Context
+
+Following the B1 Mission/Outlook reconciliation (f2b52f2) and the Three Actor Model amendment (caa0ae4), B2 opened as a Production UI / human experiential feedback workstream. Static diagnosis was completed and accepted. The Principal then used the Production surface normally and reported 25 observations over one extended session.
+
+A formal Three Actor reconciliation was performed: each observation reconciled against repository authority (ADR-014, doc 25, Regime Objective Function, Policy over Prediction, Console Architecture, parking lot), interpreted architecturally, and classified by epistemic status.
+
+### What the Principal taught us through live use
+
+**Direct implementation defects identified:**
+1. Mission configuration was undiscoverable — the unconfigured state showed only a clickable dash with no visible affordance. Fix prepared.
+2. Erosion ($1,100.46) showed only an aggregate with no way to inspect composition. The data (per-event breakdown) already exists in the API response and is already rendered in historical months. Fix prepared.
+3. "Premium on 8 resolving positions (already in known)" was not understood. Clarification exposed it as informational noise — once understood, it still didn't answer a useful operator question. Disposition: remove rather than merely re-label.
+
+**Strong experiential evidence:**
+- Forecast creates a felt absence. Operator question: "How am I tracking this month?" — intra-month cash-flow planning in Bridge regime, not a prediction request. Accuracy over precision explicitly stated.
+- The operator spontaneously constructed a forward-looking model using conditional mechanical consequence (buy-writes → expiring this month → potential appreciation if called), not extrapolation or prediction.
+- "Resolving this month" ($52,600) immediately triggered "how much premium can I generate from that?" — confirming ADR-014's tension: the invariant (resolving ≠ forecast production) is needed precisely because operators naturally reason this way.
+- Portfolio Operating Value is missing: "I don't know my total portfolio value in Wheelwright." Scoped smaller than Fidelity account; likely Wheelwright cash + wheel-owned share value.
+- Day X/Y ("Day 18/31") is strongly liked — concise temporal orientation and screenshot provenance. Positive experiential validation.
+- WAIT + unmet Mission did NOT create felt deployment pressure in this first observation (poor market, cash available, Mission short, no compulsion to force a trade). Weak/early positive evidence; hypothesis remains open for late-month high-gap conditions.
+- Sources section feels redundant with current single-source composition but may self-resolve when multiple income sources appear.
+- Visual ergonomics: the old AI-generated Console mock remains materially easier to read. Repeated observation. Priority unchanged (good data first; polish later).
+
+**Architectural observations (deferred, not rejected):**
+- Operator reasoning crosses accounting-period boundaries — resolution timing and production/deployment timing are distinct temporal scales. The operator named this spontaneously.
+- Future months (September) may contain meaningful conditional structure before realized production exists.
+- "Beyond month end" naturally suggests temporal drill-through ("click click click" following capital through time). Felt intuitive.
+- Current/historical months share ~80% structural similarity. Visual discontinuity was noticed. ADR-014's operational/reconciliatory semantic distinction is correct; layout continuity is a separate presentation question.
+- Console and Production may be different temporal projections of shared portfolio state. Three-surface topology remains ratified; the convergence observation is about underlying model, not surface merge.
+- Cross-strategy multiplicity (same ticker as CSP and BW simultaneously) perceived as correct behavior, confirming Deployment Opportunity direction.
+- Production is correctly event-driven, not tick-driven — no change expected at market open.
+
+### Higher-order clusters identified
+
+1. **Temporal Situation** — operator reasons across a temporal continuum with decreasing epistemic certainty, not within isolated monthly buckets. Existing ADR-014 binary (current/historical) may need a third temporal category rather than a generalized continuum. Deferred — does not advance Forecast.
+
+2. **Explainability as Interaction** — headline fact → inspectable derivation → source evidence. Existing architecture (ADR-005 Progressive Disclosure) already supports this; gap is implementation consistency. Erosion drill-down is the immediate example.
+
+3. **Portfolio Operating Value** — Wheelwright operating-capital anchor distinct from totalAccountValue. Connects to Eligible AUM (doc 25) and Console NAV region (reserved). New PL-PROD-VALUE created.
+
+4. **Strategy Dimension** — underlying × strategy already anticipated by Deployment Opportunity. Validated, no new work.
+
+5. **Visual Ergonomics** — standing evidence, explicitly low priority.
+
+### Production page charter clarified
+
+Current month: "How am I tracking this month?" — intra-month cash-flow operating question. Operator needs progressively useful information (production, sources, erosion, capacity, eventually Forecast) so monthly personal cash-flow planning can happen before month end.
+
+Historical month: "Exactly how much production occurred, down to the penny, so I know how much to withdraw?" — reconciled accounting question requiring penny-accuracy and auditability.
+
+These are the two distinct operational questions the Production surface answers. The current/historical semantic distinction from ADR-014 maps directly to these.
+
+### Production Sources direction
+
+Sources should display the canonical recognized source taxonomy (OPTION_PREMIUM, MONEY_MARKET_INCOME, TREASURY_DISCOUNT, DIVIDEND, REALIZED_APPRECIATION) including meaningful $0.00 entries where appropriate, giving the section stable structure across the month. The operator question is: "What production engines exist, and how much has each contributed?"
+
+### Decisions / implications
+
+- Three bounded near-term fixes identified (Mission affordance, Erosion drill-down, resolving-premium row removal) — deferred to Workstream 2
+- PL-PROD-FORECAST enriched with operator requirements (primary near-term objective)
+- PL-PROD-VALUE created (Portfolio Operating Value)
+- PL-PORT-02 absorbs deferred B2 findings (historical maturity, In-Flight, uncertainty lifecycle)
+- PL-PROD-MISSION enriched (discoverability fix, growth-rate evidence)
+- Temporal Situation / future-month views preserved as journal observation, not ratified architecture
+- Forecast design deferred to Workstream 2 after documentation reconciliation is complete
+- Visual ergonomics remains standing evidence at low priority
+- No architecture documents amended
+- No ADRs changed
+- Three-surface topology unchanged
+- "Build one situation, then extract" continues to govern
+
+### Workstream boundary
+
+This entry closes Workstream 1 (documentation reconciliation).
+Workstream 2 (implementation) begins only after Principal review and explicit authorization.
+Workstream 2 scope: Mission affordance, Erosion drill-down, resolving-premium row removal, Sources structural completion, Portfolio Operating Value, rudimentary value history, and Production Forecast.
