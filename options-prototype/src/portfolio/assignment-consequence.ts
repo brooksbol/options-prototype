@@ -95,6 +95,16 @@ export interface PutAssignmentConsequence {
   /** Analytical effective basis: strike - credit/share. Wheelwright analytical measure. */
   analyticalEffectiveBasis: ProvenancedFact<number | null>;
 
+  // --- Market vs effective basis reconciliation ---
+  /**
+   * Current market price minus analytical effective basis.
+   * Positive = market is above effective basis (assignment acquires below market).
+   * Negative = market is below effective basis (assignment acquires above market).
+   * Reconciles strike-relative capital loss with premium-adjusted position quality.
+   * Wheelwright analytical measure — does not alter or replace capital loss or premium.
+   */
+  marketVsEffectiveBasis: ProvenancedFact<number | null>;
+
   // --- State transformation ---
   /** Put obligation resolved: cash no longer reserved for this put */
   putObligationResolved: number;
@@ -206,6 +216,17 @@ export function derivePutAssignmentConsequence(
     analyticalEffectiveBasis = unavailable();
   }
 
+  // --- Market vs effective basis reconciliation ---
+  // Compares current underlying price to premium-adjusted acquisition cost.
+  // Requires both underlying price and analytical effective basis to be available.
+  // Does not alter or replace capital loss or premium — reconciles them.
+  let marketVsEffectiveBasis: ProvenancedFact<number | null>;
+  if (position.underlyingPrice != null && analyticalEffectiveBasis.value != null) {
+    marketVsEffectiveBasis = fact(position.underlyingPrice - analyticalEffectiveBasis.value, "derived");
+  } else {
+    marketVsEffectiveBasis = unavailable();
+  }
+
   // --- State transformation ---
   const existingSharesOfUnderlying = inventory?.sharesOwned ?? null;
   const resultingTotalShares = existingSharesOfUnderlying != null
@@ -219,6 +240,7 @@ export function derivePutAssignmentConsequence(
     acquisitionPricePerShare: position.strike,
     ...optionBasisFacts,
     analyticalEffectiveBasis,
+    marketVsEffectiveBasis,
     putObligationResolved: cashConsumed,
     sharesCreated: sharesAcquired,
     existingSharesOfUnderlying,

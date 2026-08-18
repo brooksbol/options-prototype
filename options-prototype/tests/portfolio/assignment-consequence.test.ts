@@ -358,3 +358,116 @@ describe("Hero Color Classification (consequence structure)", () => {
     // → RED
   });
 });
+
+// --- Market vs Effective Basis Reconciliation (Put) ---
+
+describe("Put Market vs Effective Basis", () => {
+  const fullOptionBasis: OptionBasisInput = {
+    brokerOptionBasis: -1149.31,
+    brokerOptionAverageCost: -11.49,
+  };
+
+  it("derives positive value when market is above effective basis (favorable)", () => {
+    // PSI case: strike $155, premium $11.49/share, underlying $145.86
+    // Effective basis = 155 - 11.49 = 143.51
+    // Market vs basis = 145.86 - 143.51 = +2.35
+    const position = makePutPosition({
+      underlying: "PSI",
+      strike: 155,
+      underlyingPrice: 145.86,
+      encumberedCapital: 15500,
+    });
+    const result = derivePutAssignmentConsequence(position, null, fullOptionBasis);
+
+    expect(result.analyticalEffectiveBasis.value).toBeCloseTo(143.51);
+    expect(result.marketVsEffectiveBasis.value).toBeCloseTo(2.35);
+    expect(result.marketVsEffectiveBasis.provenance).toBe("derived");
+  });
+
+  it("derives negative value when market is below effective basis (unfavorable)", () => {
+    // Strike $155, premium $11.49/share, underlying $140 (deep ITM)
+    // Effective basis = 155 - 11.49 = 143.51
+    // Market vs basis = 140 - 143.51 = -3.51
+    const position = makePutPosition({
+      underlying: "PSI",
+      strike: 155,
+      underlyingPrice: 140,
+      encumberedCapital: 15500,
+    });
+    const result = derivePutAssignmentConsequence(position, null, fullOptionBasis);
+
+    expect(result.marketVsEffectiveBasis.value).toBeCloseTo(-3.51);
+    expect(result.marketVsEffectiveBasis.provenance).toBe("derived");
+  });
+
+  it("derives zero when market equals effective basis exactly", () => {
+    // Strike $36, premium $1.02/share, underlying $34.98
+    // Effective basis = 36 - 1.02 = 34.98
+    // Market vs basis = 34.98 - 34.98 = 0
+    const smallBasis: OptionBasisInput = {
+      brokerOptionBasis: -102,
+      brokerOptionAverageCost: -1.02,
+    };
+    const position = makePutPosition({ underlyingPrice: 34.98 });
+    const result = derivePutAssignmentConsequence(position, null, smallBasis);
+
+    expect(result.marketVsEffectiveBasis.value).toBeCloseTo(0);
+  });
+
+  it("becomes unavailable when underlying price is missing", () => {
+    // No market price observation — strike $155 with PSI premium
+    const position = makePutPosition({
+      underlying: "PSI",
+      strike: 155,
+      underlyingPrice: null,
+      encumberedCapital: 15500,
+    });
+    const result = derivePutAssignmentConsequence(position, null, fullOptionBasis);
+
+    expect(result.analyticalEffectiveBasis.value).toBeCloseTo(143.51);
+    expect(result.marketVsEffectiveBasis.value).toBeNull();
+    expect(result.marketVsEffectiveBasis.provenance).toBe("unavailable");
+  });
+
+  it("becomes unavailable when option basis is missing", () => {
+    // No broker-reported premium
+    const noBasis: OptionBasisInput = { brokerOptionBasis: null, brokerOptionAverageCost: null };
+    const position = makePutPosition({ underlyingPrice: 34 });
+    const result = derivePutAssignmentConsequence(position, null, noBasis);
+
+    expect(result.analyticalEffectiveBasis.value).toBeNull();
+    expect(result.marketVsEffectiveBasis.value).toBeNull();
+    expect(result.marketVsEffectiveBasis.provenance).toBe("unavailable");
+  });
+
+  it("becomes unavailable when both inputs are missing", () => {
+    const noBasis: OptionBasisInput = { brokerOptionBasis: null, brokerOptionAverageCost: null };
+    const position = makePutPosition({ underlyingPrice: null });
+    const result = derivePutAssignmentConsequence(position, null, noBasis);
+
+    expect(result.marketVsEffectiveBasis.value).toBeNull();
+    expect(result.marketVsEffectiveBasis.provenance).toBe("unavailable");
+  });
+
+  it("does not alter capital loss semantics (reconciliation, not replacement)", () => {
+    // PSI case: capital loss remains strike-relative
+    // capitalLoss = (155 - 145.86) × 100 = $914 (computed elsewhere in strikeToMarketConsequence)
+    // marketVsEffectiveBasis = +$2.35/share (favorable)
+    // Both are true simultaneously — they answer different questions
+    const position = makePutPosition({
+      underlying: "PSI",
+      strike: 155,
+      underlyingPrice: 145.86,
+      encumberedCapital: 15500,
+    });
+    const result = derivePutAssignmentConsequence(position, null, fullOptionBasis);
+
+    // Strike-relative capital consumed is unchanged
+    expect(result.cashConsumed).toBe(15500);
+    expect(result.acquisitionPricePerShare).toBe(155);
+    // Premium is separate
+    expect(result.premiumCredit.value).toBeCloseTo(1149.31);
+    // Reconciliation provides a different perspective without netting
+    expect(result.marketVsEffectiveBasis.value).toBeCloseTo(2.35);
+  });
+});
