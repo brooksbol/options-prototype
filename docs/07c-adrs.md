@@ -355,6 +355,33 @@ Situations may later provide interpretive context (e.g., "assignment here serves
 - How missing economic data is visually represented
 - Whether resolution proximity should be a separately named field in the data model or remain implicit in the decision-pressure derivation
 
+**Amendment: Resolution Outlook (August 2026)**
+
+Resolution Outlook is an interpretation layer that uses Resolution Proximity and other governed current evidence to assess which resolution path appears likely. It exists to serve Operating Forecast (see `docs/foundations/policy-over-prediction.md` §Scope Clarification) and does not modify or replace the three monitoring dimensions above.
+
+```
+Resolution Proximity + governed current evidence
+                    ↓
+           Resolution Outlook
+      (which path appears likely)
+
+Resolution Outlook + Economic Consequence
+                    ↓
+            Production Outlook
+      (planning-grade economic estimate)
+```
+
+Resolution Outlook is an **evidence-grounded interpretation of likely future resolution**, expressed with uncertainty appropriate to the evidence. It answers: "Given what we observe right now, which resolution category does this position appear to belong to?" The answer is provisional, updates as evidence changes, and is explicitly honest when the evidence does not support a directional assessment.
+
+Resolution Outlook is distinct from:
+- **Resolution Proximity** — which describes how close resolution is (temporal + spatial), without claiming direction.
+- **Decision Pressure** — which interprets proximity as operator attention need, without claiming production consequence.
+- **Economic Consequence** — which computes what each resolution state means economically, without claiming which state will occur.
+
+Resolution Outlook consumes Resolution Proximity (and potentially other market-derived evidence as it matures) to form a directional assessment. Production Outlook then composes Resolution Outlook with Economic Consequence to produce a planning-grade estimate. This separation ensures that improvements to resolution classification and improvements to economic accounting evolve independently.
+
+The classification mechanism (how Wheelwright determines "sufficiently likely") is deliberately not specified here. The initial implementation will use a provisional policy that is observable and adjustable through operation. The architecture ratifies the interpretive layer, not any particular threshold or evidence input.
+
 
 ---
 
@@ -385,15 +412,27 @@ This distinction is structural, not implemented as month-specific conditionals:
 
 ### Forecast semantics
 
-Wheelwright does not currently possess an authoritative month-end production forecasting primitive. Known production is not a forecast — displaying it as "forecast" would imply either no further production is expected, or that Wheelwright has prediction capability it lacks.
+**Amendment (August 2026):** The Operating Forecast scope clarification in `docs/foundations/policy-over-prediction.md` establishes that evidence-grounded directional outlook for intra-month cash-flow planning is architecturally legitimate. The exclusions below are preserved and clarified.
 
-Explicitly excluded from any future forecast model until governed:
+The forecast primitive consumes Resolution Outlook (ADR-013 amendment) to form a planning-grade production estimate. It is a pro-forma composition: recognized production + likely production consequences of positions whose resolution direction is assessable from current evidence.
+
+**Permitted under Operating Forecast:**
+- Directional resolution assessment based on observable evidence (DTE, moneyness, market-derived measures) — provided the assessment is transparent, decomposable, and honest about uncertainty
+- Per-position classification into coarse resolution categories (e.g., likely expires, likely assigned, genuinely uncertain) using a provisional, observable policy
+- Use of Economic Consequence amounts from directionally assessable positions in forming a planning-grade outlook
+- Rounded, uncertainty-honest presentation (precision commensurate with evidence)
+
+**Remains excluded (these prohibitions are invariant):**
 - Hypothetical future option deployments
 - Linear extrapolation of month-to-date premium
 - Assumed redeployment of resolving capital
 - Statistical trading-cadence assumptions
-- Arbitrary assignment probabilities
+- Arbitrary assignment probabilities (probabilities asserted without grounding in observable, current evidence)
 - Fabricated future income
+
+The word "arbitrary" distinguishes the exclusion from the permission: a directional assessment grounded in "3 DTE, deeply ITM" is evidence-based interpretation; asserting "40% chance of assignment" without traceable evidence is arbitrary. The boundary is auditability — can the operator inspect the evidence that produced the classification?
+
+**Invariant preserved:** Production capacity is context for future production; it is not itself production. Resolving capital must never be automatically converted to forecast premium. Premium recognized at receipt must never be re-counted at expiration.
 
 ### Capital resolution versus deployable cash
 

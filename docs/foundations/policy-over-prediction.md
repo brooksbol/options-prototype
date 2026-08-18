@@ -195,4 +195,46 @@ This is the difference between policy/consequence reasoning and forecasting:
 - **Policy reasoning:** "Are all possible outcomes of this position acceptable given who we are and what we need?"
 - **Forecasting:** "Which outcome is most likely, and should we bet on it?"
 
-Wheelwright operates exclusively in the first mode. A strategy that requires the second mode fails the architectural admission test regardless of its mechanical sophistication.
+For deployment decisions, Wheelwright operates exclusively in the first mode. A strategy that requires the second mode to justify entering a position fails the architectural admission test regardless of its mechanical sophistication.
+
+---
+
+## Scope Clarification: Operating Forecast (August 2026)
+
+The strategy-level principle above governs **deployment decisions** — whether to enter or exit a position. For that purpose, policy/consequence reasoning remains the governing mode. Both resolution states must be acceptable before deployment; predicting which will occur is unnecessary and architecturally inadmissible as a basis for action.
+
+However, the Bridge Income operating regime creates a distinct cognitive problem: **intra-month cash-flow planning.** Once positions exist, the operator faces a different question:
+
+> "Given obligations I already hold and the evidence now available, what does the remainder of this month appear likely to look like?"
+
+This is not a deployment decision. It is an operating outlook that informs household cash-flow planning — whether expenses can be met and whether the month appears to be tracking adequately against the current Mission.
+
+### Decision Prediction versus Operating Forecast
+
+| | Decision Prediction | Operating Forecast |
+|---|---|---|
+| **Question** | "Should I enter this position?" | "How is this month shaping up?" |
+| **Scope** | Justifying action | Informing planning |
+| **Governing mode** | Policy over Prediction (all outcomes must be acceptable) | Evidence-grounded directional interpretation |
+| **Consequence of error** | Entered a position with unacceptable outcomes | Cash-flow planning estimate was imprecise |
+| **Recoverable?** | Potentially not (capital committed) | Yes (revise the estimate next observation) |
+| **Authority over action** | Inadmissible as deployment authority | None — planning information only |
+
+### Constraints on Operating Forecast
+
+Operating Forecast is legitimate only under these constraints:
+
+1. **Transparency.** Every directional interpretation must be traceable to observable evidence (DTE, moneyness, price, or market-derived measures). No opaque models.
+2. **Decomposability.** The forecast must decompose into identifiable per-position assessments that the operator can inspect and override mentally.
+3. **Non-authority.** The forecast never substitutes for deployment policy. A production shortfall is information, not a directive to deploy. WAIT remains a first-class action.
+4. **Uncertainty-honesty.** Positions whose resolution is genuinely uncertain must be represented as uncertain, not forced into a directional classification. Forecast precision must be commensurate with evidence quality.
+5. **Rolling revision.** The forecast is an assessment as of now, not a promise about month-end. It updates as evidence changes. This is a feature, not a failure.
+6. **ADR-014 invariants preserved.** Premium recognized at receipt is never re-counted. Resolving capital is never automatically converted to forecast production. No fabricated future income.
+7. **Observability.** Forecast policies and the classifications they produce should be recorded such that subsequent outcomes can evaluate whether the policy was adequate. This does not require building a feedback loop now — it requires not creating an ephemeral forecast that cannot later answer "was our policy good enough?"
+
+### What This Does Not Change
+
+- Deployment decisions remain governed by consequence acceptability, not predicted outcomes.
+- No strategy gains architectural admission by claiming its outcomes are predictable.
+- The Write Desk, Recommendation Policy, and Velvet Rope do not consume forecast output.
+- Forecast is an operating planning aid, not a governance input.
