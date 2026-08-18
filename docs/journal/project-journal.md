@@ -7412,3 +7412,81 @@ Sources should display the canonical recognized source taxonomy (OPTION_PREMIUM,
 This entry closes Workstream 1 (documentation reconciliation).
 Workstream 2 (implementation) begins only after Principal review and explicit authorization.
 Workstream 2 scope: Mission affordance, Erosion drill-down, resolving-premium row removal, Sources structural completion, Portfolio Operating Value, rudimentary value history, and Production Forecast.
+
+---
+
+## August 18, 2026 — Forecast Architecture: From V1 to V2 Exploration
+
+### Session summary
+
+This session began with a cold-start reconstruction, reconciled workstream sequencing (Operating Value is NOT a prerequisite for Forecast), conducted an industry survey, ratified architecture amendments, implemented V1 Production Forecast, and then discovered through live operation that V1's scope is too narrow.
+
+The subsequent exploration produced one of the most architecturally significant findings of the project: temporal quantization of strategy production and the dual-clock model.
+
+### Commits
+
+- `143a075` — Architecture amendments: Operating Forecast scope, Resolution Outlook, Epistemic Precision
+- `c6191db` — V1 Production Forecast: Resolution Outlook + Production Outlook + tests
+
+### Architecture ratified (committed)
+
+1. **Policy over Prediction scope clarification:** Deployment decisions remain governed by consequence acceptability. Operating Forecast is a separate, legitimate scope for planning-grade directional outlook. Seven explicit constraints.
+
+2. **Resolution Outlook:** Fourth interpretation layer in ADR-013. Composes Resolution Proximity + governed evidence → directional assessment of which resolution path appears likely. Classification mechanism deliberately unspecified.
+
+3. **ADR-014 Forecast semantics amendment:** Evidence-grounded directional assessment is permitted. "Arbitrary" probabilities remain prohibited. The boundary is auditability.
+
+4. **Epistemic Precision:** New governing principle. Output precision must be commensurate with evidence quality. Rounding and qualification are features, not compromises.
+
+### V1 Implementation (committed)
+
+- `resolution-outlook.ts` — classifies positions: likely-expires-otm / likely-assigned / uncertain
+- `production-outlook.ts` — recognized + likely consequence = base estimate (rounded)
+- `outlook-observations.ts` — records successive classifications for future evaluation
+- CurrentMonthView integration — Forecast metric shows rounded estimate, Outlook section shows resolution-complete breakdown
+- 39 focused tests covering all policy boundaries and ADR-014 invariants
+- Provisional parameters: 5 DTE temporal window, 3% moneyness buffer
+
+### V1 limitation discovered through live operation
+
+V1 correctly answers "what will the current position set produce?" but the operator immediately asked: "What about after all this capital cycles?" V1 has no concept of prospective redeployment.
+
+### Forecast V2 exploration — key findings
+
+See `docs/28-forecast-v2-exploration.md` for full record. Summary of durable discoveries:
+
+1. **Temporal quantization is real.** Strategy production arrives in discrete deployment events, not as a continuous flow. ADR-014 confirms.
+
+2. **Dual-clock model.** Production operates on cycles; Mission observes through monthly windows; Forecast bridges them.
+
+3. **Capital continuity and deployment productivity are separable uncertainties.** Continuity is relatively confident (Principal evidence); productivity is genuinely uncertain.
+
+4. **WAIT is locally first-class without being regime-terminal.** Scope distinction parallels Decision/Forecast.
+
+5. **ADR-014 recognition-at-receipt simplifies the forecast question.** The relevant question is "will another deployment event occur?" — not "how much yield accrues per day." Premium arrives in full at deployment regardless of when the contract expires.
+
+6. **Per-deployment immediate yield (~4-5% of capital) is more stable than annualized rates** across recent observations. But 3 observations is insufficient to establish reliability.
+
+### Rejected approaches (documented in 28-forecast-v2-exploration.md)
+
+- Continuous rate × time (linear extrapolation — ADR-014 prohibits)
+- Annualized productivity rate (heterogeneous 22-132%, artifact of DTE normalization)
+- Cycling capital × yield × remaining time (collapses to linear extrapolation for synchronized portfolios)
+- Average deployment batch as primitive (encodes accidental grouping)
+- Arbitrary participation fractions (fabricated parameter hiding uncertainty)
+
+### Remaining open questions (not resolved this session)
+
+- What productivity evidence to use for the prospective deployment estimate
+- Whether to present range or qualified point
+- How much of cycling capital to assume participates
+- Whether ADR-014 needs a brief clarifying note for capital-continuity assumption
+
+### Operating-model observation
+
+The Principal repeatedly needed to remind the AI actors to perform documentation reconciliation even though the operating model intends continuous documentation. This session's documentation sweep is corrective. Consider whether checkpoint machinery needs strengthening.
+
+### Workstream state
+
+- Workstream 2, Increment 3 (Production Forecast): V1 committed, V2 exploration complete, V2 implementation pending after documentation reconciliation and retrospective sweep
+- Portfolio Operating Value: deferred (confirmed as not a Forecast prerequisite)
