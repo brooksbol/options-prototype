@@ -144,9 +144,10 @@ export function setSymbols(symbols: string[]): void {
     isPolling = false; // Allow immediate re-poll after abort
   }
 
-  // If we have subscribers, poll immediately with new symbols
+  // If we have subscribers, poll immediately with new symbols and ensure interval is running
   if (listeners.size > 0 && normalized.length > 0) {
     poll();
+    maybeStartPolling();
   }
 }
 
@@ -157,8 +158,10 @@ function maybeStartPolling(): void {
   if (listeners.size === 0) return;
   if (currentSymbols.length === 0) return;
 
-  // Immediate first poll
-  poll();
+  // Immediate first poll (skipped if one is already in-flight from setSymbols)
+  if (!isPolling) {
+    poll();
+  }
 
   // Start interval
   pollIntervalId = setInterval(() => {
@@ -173,10 +176,11 @@ function stopPolling(): void {
     clearInterval(pollIntervalId);
     pollIntervalId = null;
   }
-  if (currentAbortController) {
-    currentAbortController.abort();
-    currentAbortController = null;
-  }
+  // Note: we do NOT abort in-flight requests here.
+  // The in-flight request will complete harmlessly and update state.
+  // Abort is reserved for symbol-set changes (in setSymbols) where the
+  // response would be stale. Unsubscribe merely stops the interval —
+  // it should not kill a request that is milliseconds from delivering data.
 }
 
 // --- Poll Execution ---
@@ -205,7 +209,9 @@ async function poll(): Promise<void> {
     const res = await fetch(url, { headers, signal: controller.signal });
 
     // Discard if symbol set changed while in-flight
-    if (requestSymbolKey !== currentSymbolKey) return;
+    if (requestSymbolKey !== currentSymbolKey) {
+      return;
+    }
 
     if (res.status === 304) {
       setState({ polling: false, lastPollResult: "304" });
@@ -269,11 +275,15 @@ async function poll(): Promise<void> {
  */
 export function _resetForTesting(): void {
   stopPolling();
+  // For tests, also abort any in-flight request to ensure clean state
+  if (currentAbortController) {
+    currentAbortController.abort();
+    currentAbortController = null;
+  }
   listeners.clear();
   currentSymbols = [];
   currentSymbolKey = "";
   currentETag = null;
-  currentAbortController = null;
   isPolling = false;
   currentState = {
     generation: null,

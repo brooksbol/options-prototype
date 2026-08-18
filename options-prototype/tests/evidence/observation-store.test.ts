@@ -396,3 +396,152 @@ describe("stable state identity", () => {
     unsub();
   });
 });
+
+describe("hard-refresh sequence (subscribe before symbols)", () => {
+  it("polls immediately when setSymbols is called after subscribe", async () => {
+    // This is the browser hard-refresh sequence:
+    // 1. Component renders → subscribe fires (symbols still empty)
+    // 2. useEffect fires → setSymbols populates symbols
+    const unsub = subscribe(() => {});
+    await vi.advanceTimersByTimeAsync(0);
+    expect(fetchCalls.length).toBe(0); // No symbols yet — no poll
+
+    // Symbols arrive (simulates useEffect firing after render)
+    setSymbols(["PSI", "XLE"]);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(fetchCalls.length).toBe(1); // Immediate poll
+    expect(fetchCalls[0].url).toContain("symbol=PSI");
+    expect(fetchCalls[0].url).toContain("symbol=XLE");
+
+    unsub();
+  });
+
+  it("establishes polling interval when setSymbols is called after subscribe", async () => {
+    // The interval must be established even when subscribe ran before symbols were set
+    const unsub = subscribe(() => {});
+    setSymbols(["PSI"]);
+    await vi.advanceTimersByTimeAsync(0);
+    resolveLatestFetch(200, {
+      generation: 100,
+      generatedAt: "2026-08-17T16:00:00Z",
+      quotes: [{ symbol: "PSI", observation: { price: 145.86, observedAt: "2026-08-17T16:00:00Z" }, acquisition: { status: "ready", lastAttemptAt: "2026-08-17T16:00:00Z", failureCount: 0 } }],
+    }, { etag: '"gen-100"' });
+    await vi.advanceTimersByTimeAsync(0);
+
+    // Verify interval fires at 30s
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(fetchCalls.length).toBe(2); // Initial + interval poll
+
+    unsub();
+  });
+
+  it("retries after initial poll failure when interval is established", async () => {
+    const unsub = subscribe(() => {});
+    setSymbols(["PSI"]);
+    await vi.advanceTimersByTimeAsync(0);
+
+    // First poll fails
+    rejectLatestFetch(new TypeError("Failed to fetch"));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(getObservations().lastPollResult).toBe("error");
+    expect(getObservations().observations.size).toBe(0);
+
+    // Interval should retry after 30s
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(fetchCalls.length).toBe(2); // Retry fired
+
+    // Retry succeeds
+    resolveLatestFetch(200, {
+      generation: 101,
+      generatedAt: "2026-08-17T16:00:30Z",
+      quotes: [{ symbol: "PSI", observation: { price: 145.86, observedAt: "2026-08-17T16:00:30Z" }, acquisition: { status: "ready", lastAttemptAt: "2026-08-17T16:00:30Z", failureCount: 0 } }],
+    }, { etag: '"gen-101"' });
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(getObservations().observations.size).toBe(1);
+    expect(getObservations().observations.get("PSI")?.price).toBe(145.86);
+
+    unsub();
+  });
+
+  it("does not double-poll when setSymbols triggers poll and maybeStartPolling would also poll", async () => {
+    // Ensure the fix doesn't cause two simultaneous polls
+    const unsub = subscribe(() => {});
+    setSymbols(["PSI"]);
+    await vi.advanceTimersByTimeAsync(0);
+
+    // Only one fetch should have been made, not two
+    expect(fetchCalls.length).toBe(1);
+
+    unsub();
+  });
+});
+
+describe("React StrictMode resilience (subscribe/unsubscribe/resubscribe)", () => {
+  it("in-flight poll survives unsubscribe+resubscribe cycle", async () => {
+    // Simulates React StrictMode: mount → unmount → remount
+    // The first mount triggers a poll. The unmount unsubscribes (clearing interval).
+    // The remount resubscribes. The in-flight poll must NOT be aborted.
+    setSymbols(["PSI", "XLE"]);
+
+    // First mount — subscribe triggers poll
+    const unsub1 = subscribe(() => {});
+    await vi.advanceTimersByTimeAsync(0);
+    expect(fetchCalls.length).toBe(1); // Poll started
+
+    // StrictMode unmount — unsubscribe
+    unsub1();
+    // Poll should still be in-flight (not aborted)
+
+    // StrictMode remount — resubscribe
+    const unsub2 = subscribe(() => {});
+    await vi.advanceTimersByTimeAsync(0);
+
+    // The in-flight poll should still resolve successfully
+    resolveLatestFetch(200, {
+      generation: 200,
+      generatedAt: "2026-08-18T19:09:06Z",
+      quotes: [
+        { symbol: "PSI", observation: { price: 145.37, observedAt: "2026-08-18T19:09:06Z" }, acquisition: { status: "ready", lastAttemptAt: "2026-08-18T19:09:06Z", failureCount: 0 } },
+        { symbol: "XLE", observation: { price: 58.99, observedAt: "2026-08-18T19:09:06Z" }, acquisition: { status: "ready", lastAttemptAt: "2026-08-18T19:09:06Z", failureCount: 0 } },
+      ],
+    }, { etag: '"gen-200"' });
+    await vi.advanceTimersByTimeAsync(0);
+
+    // Observations should be ingested
+    const state = getObservations();
+    expect(state.observations.size).toBe(2);
+    expect(state.observations.get("PSI")?.price).toBe(145.37);
+    expect(state.lastPollResult).toBe("200");
+
+    unsub2();
+  });
+
+  it("interval is re-established after StrictMode cycle", async () => {
+    setSymbols(["PSI"]);
+
+    const unsub1 = subscribe(() => {});
+    await vi.advanceTimersByTimeAsync(0);
+    resolveLatestFetch(200, {
+      generation: 200,
+      generatedAt: "2026-08-18T19:09:06Z",
+      quotes: [{ symbol: "PSI", observation: { price: 145.37, observedAt: "2026-08-18T19:09:06Z" }, acquisition: { status: "ready", lastAttemptAt: "2026-08-18T19:09:06Z", failureCount: 0 } }],
+    }, { etag: '"gen-200"' });
+    await vi.advanceTimersByTimeAsync(0);
+
+    // StrictMode unmount clears interval
+    unsub1();
+
+    // StrictMode remount re-establishes interval
+    const unsub2 = subscribe(() => {});
+    await vi.advanceTimersByTimeAsync(0);
+    // The remount's maybeStartPolling should establish the interval
+
+    // Advance 30s — interval should fire
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(fetchCalls.length).toBe(2); // Initial + interval
+
+    unsub2();
+  });
+});
