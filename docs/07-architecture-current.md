@@ -417,6 +417,26 @@ interface RecommendationPolicy {
 
 ---
 
+## Ownership and Authority Boundary
+
+The backend owns authoritative domain data, evidence lifecycle, persistence, acquisition, and substantive computational state. The frontend owns presentation, interaction, and transient UI state.
+
+### Governing constraints
+
+- **Backend authority.** The backend is the single source of truth for market evidence, production accounting, and any durable domain state. The browser consumes backend-published state; it does not independently maintain or persist domain evidence.
+- **No browser shadow evidence store.** Frontend state may exist to operate the interface (selections, filters, pending intents, UI mode). It must not create an independent persistence lifecycle for authoritative domain evidence. localStorage, sessionStorage, and IndexedDB must not hold market observations, production records, or other domain evidence that the backend owns.
+- **HTTP caching is transport optimization.** ETag, `If-None-Match`, `304 Not Modified`, and `Cache-Control` are legitimate transfer-efficiency mechanisms subordinate to backend authority. They do not constitute browser-owned evidence persistence.
+- **Computation placement.** Server-side computation is preferred for heavy, authoritative, reusable domain computation (production accounting, lifecycle assessment, governance evaluation). Frontend computation is appropriate for presentation-oriented derivations (recommendation ranking from cached evidence, UI-local formatting, interaction-local calculations). Existing browser-local recommendation placement is transitional where already documented as such (see PL-ARCH-06).
+- **Migration posture.** Movement toward this boundary should be deliberate — guided by the architecture and sequenced with infrastructure prerequisites (cloud deployment, recommendation engine ownership decision). It should not be mixed opportunistically into unrelated fixes.
+
+### Current transitional state
+
+The recommendation engines (`recommendPuts`, `recommendCalls`, `recommendBuyWrites`) currently execute in the browser against cached evidence snapshots. This is a documented transitional placement (PL-ARCH-06), not the architectural end state. The engines are deterministic pure functions — they do not acquire evidence, maintain state, or persist results. Their current browser placement does not violate the authority boundary because the backend remains the evidence authority and the browser merely computes a deterministic view of it.
+
+Portfolio state (Fidelity CSV) persists in localStorage as raw imported text. This is operator-provided input data (analogous to a file the user uploaded), not backend-maintained evidence. Its browser persistence is appropriate because the operator is its source, not the backend.
+
+---
+
 ## Operating Regime and Situation
 
 Wheelwright operates within a **cash-flow production regime**: the system exists to support an operator who consciously deploys capital into options positions to produce periodic income. This regime is documented in `foundations/regime-objective-function.md`.

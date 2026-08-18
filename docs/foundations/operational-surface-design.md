@@ -94,3 +94,58 @@ They do NOT apply to:
 - Engineering laboratories (exploration tooling behind the subordinate boundary)
 - Configuration/settings views
 - Documentation
+
+---
+
+## Compression over Concealment
+
+Operational density means keeping useful information simultaneously visible by making it spatially inexpensive — not merely hiding it behind interaction.
+
+### The distinction
+
+There are three ways to reduce the viewport footprint of information:
+
+**Concealment** — hiding information behind accordions, disclosure controls, tabs, scrolling, hover, or secondary screens. This reduces visible content but does not increase information density. The operator must take another action to see what was hidden.
+
+**Shrinking** — reducing font sizes, control sizes, or container dimensions. This may increase density but can damage readability.
+
+**Compression** — tighter padding, tighter line height, horizontal composition, aligned columns, inline labels, shared baselines, typography-driven hierarchy, and elimination of repeated chrome. This increases density while preserving or improving scanability.
+
+**Prefer compression over concealment.**
+
+Progressive disclosure remains appropriate for genuine cognitive-mode boundaries — information the operator needs only when switching from impatient mode to reflective mode, or from operational to audit/diagnostic. It is not appropriate as a substitute for spatial efficiency when information could remain visible at low cost.
+
+### The concealment test
+
+Before hiding information behind a disclosure control, ask:
+
+> Could this remain continuously visible at one line of spatial cost?
+
+If yes, compress rather than conceal. Use concealment only when the information genuinely belongs to a different cognitive mode or when compression cannot make it legible at acceptable spatial cost.
+
+### Spatial budget awareness
+
+Padding, borders, backgrounds, section gaps, card chrome, and repeated labels all consume a finite viewport budget. Each pixel of vertical space spent on non-information structure is a pixel unavailable for decision-relevant content.
+
+This does not mean eliminating whitespace. It means treating whitespace as a scarce resource that must justify its contribution to hierarchy, grouping, or readability — not as a default applied uniformly to all semantic boundaries.
+
+### Density and scanability are compatible
+
+High information density does not require sacrificing clarity. Financial operational interfaces routinely present dozens of facts simultaneously through:
+
+- consistent column alignment (positional semantics replace repeated labels);
+- predictable row structure (the eye learns where to find each fact);
+- typography-driven hierarchy (weight, size, and color establish importance);
+- grouping by proximity (related facts share a baseline or row);
+- compact group boundaries (separators that cost less than a data row);
+- numeric formatting consistency (monospace, consistent precision).
+
+The goal is **high semantic density with low cognitive friction** — many useful facts visible and usable simultaneously without the interface becoming incoherent.
+
+### Measuring density
+
+Judge operational surface density by:
+
+> How many decision-relevant facts can the operator perceive simultaneously without losing semantic clarity?
+
+Not by how compact the collapsed interface appears when information is hidden.
