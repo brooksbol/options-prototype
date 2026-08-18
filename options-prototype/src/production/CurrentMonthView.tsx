@@ -23,6 +23,9 @@ import { deriveMonitoredPositions, groupByExpiration } from "../portfolio/positi
 import { deriveCurrentMonthProduction, type CurrentMonthProductionSummary, type InFlightPosition } from "./current-month-production";
 import type { ProductionAssessmentResponse } from "./production-types";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
+import { classifyAllPositions } from "../forecast/resolution-outlook";
+import { deriveProductionOutlook, type ProductionOutlook } from "../forecast/production-outlook";
+import { recordOutlookObservations } from "../forecast/outlook-observations";
 
 /**
  * Canonical recognized Production source taxonomy.
@@ -78,6 +81,23 @@ export function CurrentMonthView({ assessment }: Props) {
     return deriveCurrentMonthProduction(assessment, snapshot, rungs);
   }, [assessment, snapshot, observations]);
 
+  // --- Production Outlook (V1 Operating Forecast) ---
+  const outlook = useMemo(() => {
+    const positions = snapshot ? deriveMonitoredPositions(snapshot, observations) : [];
+    if (positions.length === 0) return null;
+
+    const today = new Date();
+    const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const outlooks = classifyAllPositions(positions, monthEnd, today);
+
+    // Record observations for future evaluation
+    const monthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+    const posMap = new Map(positions.map(p => [p.id, { underlying: p.underlying }]));
+    recordOutlookObservations(outlooks, posMap, monthStr, today);
+
+    return deriveProductionOutlook(assessment, outlooks, positions, snapshot, today);
+  }, [assessment, snapshot, observations]);
+
   return (
     <div className="prod-current">
       {/* === LEFT COLUMN: Summary + Capacity + Composition + Sources + Recon + Provenance === */}
@@ -98,7 +118,13 @@ export function CurrentMonthView({ assessment }: Props) {
 
             <div className="prod-metric prod-metric-forecast">
               <span className="prod-metric-label">Forecast</span>
-              <span className="prod-metric-value prod-metric-placeholder">—</span>
+              {outlook && outlook.baseEstimateRounded > 0 ? (
+                <span className="prod-metric-value" title={`Base: $${outlook.baseEstimate.toLocaleString()} (recognized $${outlook.recognizedProduction.toLocaleString()} + likely $${outlook.likelyAdditional.toLocaleString()})`}>
+                  ≈ ${(outlook.baseEstimateRounded / 1000).toFixed(outlook.baseEstimateRounded % 1000 === 0 ? 0 : 1)}K
+                </span>
+              ) : (
+                <span className="prod-metric-value prod-metric-placeholder">—</span>
+              )}
             </div>
 
             <div className="prod-metric prod-metric-mission">
@@ -198,6 +224,42 @@ export function CurrentMonthView({ assessment }: Props) {
               <span className={`prod-net-strategy-value${summary.netStrategyResult < 0 ? " prod-net-strategy-negative" : ""}`}>
                 {summary.netStrategyResult < 0 ? "−" : ""}${Math.abs(summary.netStrategyResult).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
+            </div>
+          )}
+
+          {/* Production Outlook breakdown — V1 Operating Forecast */}
+          {outlook && (outlook.likelyContributions.length > 0 || outlook.uncertainCount > 0) && (
+            <div className="prod-outlook-detail">
+              <span className="prod-outlook-title">Outlook</span>
+              {outlook.likelyContributions.length > 0 && (
+                <div className="prod-outlook-likely">
+                  {outlook.likelyContributions.map((c) => (
+                    <div key={c.positionId} className="prod-outlook-row">
+                      <span className="prod-outlook-symbol">{c.underlying}</span>
+                      <span className="prod-outlook-cat">
+                        {c.type === "put" ? "likely assigned (shares)" : "likely called"}
+                      </span>
+                      <span className="prod-outlook-amount">
+                        {c.type === "put"
+                          ? "capital → shares"
+                          : c.computable ? `+$${c.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "?"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {outlook.uncertainCount > 0 && (
+                <div className="prod-outlook-uncertain">
+                  <span className="prod-outlook-uncertain-label">
+                    {outlook.uncertainCount} position{outlook.uncertainCount > 1 ? "s" : ""} uncertain
+                  </span>
+                  {outlook.uncertainUpside > 0 && (
+                    <span className="prod-outlook-uncertain-range">
+                      (up to +${outlook.uncertainUpside.toLocaleString(undefined, { maximumFractionDigits: 0 })} if assigned)
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </section>
