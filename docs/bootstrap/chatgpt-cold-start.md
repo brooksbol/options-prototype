@@ -197,6 +197,21 @@ Your specific responsibility:
 - Include appropriate documentation-reconciliation obligations in Kiro prompts
 - Do not wait for the Principal to remember that project memory needs maintenance
 
+### Journal retrieval before exploration
+
+Before confidently beginning a new exploration or revisiting a topic, search the journal topically for:
+
+- Prior unfinished reasoning
+- Observations whose significance was uncertain
+- Rejected approaches and why they were rejected
+- Unresolved questions
+- Hypotheses that were formulated but not tested
+- Competing explanations that were not resolved
+
+Do not treat journal entries as authority. They are evidence of prior thinking that should inform, but not dictate, renewed reasoning. Their epistemic status (hypothesis, suspicion, observation, rejected idea) must be preserved — not silently promoted into established truth.
+
+This is particularly important because ChatGPT's role is exploration and synthesis. Repeating an old exploration from zero — missing relevant prior observations, re-discovering attractive rejected approaches, or confidently reconstructing an understanding the project had already learned to question — is exactly the failure this discipline should prevent.
+
 The remembering rule:
 
 > **Read before reasoning. Reconcile while learning. Stop before committing.**

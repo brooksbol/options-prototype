@@ -81,6 +81,14 @@ Before substantive work, retrieve relevant:
 
 The depth of retrieval should be proportional to the scope and risk of the work.
 
+### Topical journal retrieval
+
+In addition to recent journal entries (for chronological context), search the journal **topically** for prior observations, unfinished reasoning, rejected approaches, and unresolved questions relevant to the current work.
+
+An unfinished observation from weeks ago may be more relevant to today's exploration than yesterday's implementation work. The journal is intellectual history, not merely a recent-activity log.
+
+Do not read journal entries as authority. Read them as potentially relevant prior thinking whose epistemic status must be preserved. Prior journal hypotheses may inform current reasoning but do not dictate it.
+
 ---
 
 ## Reconcile While Learning
@@ -92,6 +100,8 @@ At natural boundaries during substantive work, ask:
 But also:
 
 > **Is this durable yet?**
+
+**Durable does not mean authoritative or ratified.** An unresolved thought can deserve durable preservation if losing it would cause future actors to repeat meaningful reasoning, miss important evidence, rediscover an attractive rejected approach, confidently reconstruct an understanding the project had already learned to question, or lose useful context needed to resume an unfinished exploration. The journal exists precisely to hold durable-but-unratified intellectual state.
 
 Not every observation deserves promotion into authority. Work states are:
 
@@ -121,7 +131,7 @@ When project learning crosses a durability threshold, determine where it belongs
 | Canonical project state (Category C) | Parking-lot, journal, or contract changed |
 | Reconciliation artifact (Category D) | Checkpoint needed for provenance |
 | Specialized reference (Category E) | Bounded topic documented |
-| Journal entry | Why-state worth preserving for context recovery |
+| Journal entry | Why-state worth preserving for context recovery — including unfinished reasoning, unresolved questions, and hypotheses whose epistemic status is accurately labeled |
 | No documentation yet | Learning is too immature to persist |
 
 Do not create documents merely because documentation is possible. Documentation has a cost — future actors must distinguish active authority from accumulated reference.
@@ -140,6 +150,39 @@ The journal (`docs/journal/project-journal.md`) is:
 Use the journal when understanding changed in ways worth preserving for future context recovery. Do not journal routine implementation progress.
 
 Do not rewrite old entries to make history appear linear.
+
+#### The journal preserves unfinished intellectual state
+
+"Why-state" includes not only "why did we decide this?" but also:
+
+- Why are we uncertain?
+- What have we already considered?
+- What interesting hypothesis did we notice but not resolve?
+- What explanation looked plausible?
+- What did we try that changed our thinking?
+- What question remains unfinished?
+
+The journal can legitimately contain:
+
+- Hypotheses that later prove wrong
+- Competing explanations
+- Unresolved tensions
+- Operator intuitions awaiting evidence
+- Observations whose significance is unknown
+- Rejected reasoning worth remembering
+- Ideas that never become architecture
+
+The requirement is not that journal entries be correct. The requirement is that their **epistemic status be accurate**. "We suspect X" must remain a recorded suspicion, not silently become "X is true" because it appears in GitHub. Append-only history is valuable precisely because later entries can show observation → hypothesis → experiment → contradiction → revised understanding without rewriting the earlier thought.
+
+#### Durability threshold
+
+A useful test for journal inclusion:
+
+> Would losing this unfinished thought cause a future actor to repeat meaningful reasoning, miss important evidence, or confidently reconstruct an understanding the project has already learned to question?
+
+If yes, it is a strong candidate for journal preservation — regardless of whether the thought is finished, correct, or ever becomes architecture.
+
+Do not turn the journal into a transcript archive. Not every conversational thought deserves preservation. The threshold is meaningful intellectual work that would otherwise be lost.
 
 ### Reconciliation artifacts
 
@@ -160,6 +203,13 @@ Do not resurrect historical documents as governing sources merely because their 
 ### Persistence is not recall
 
 Writing knowledge into GitHub does not help if a new actor does not know that it must retrieve those things before reasoning forward.
+
+Two complementary failure modes exist:
+
+- **Failure A — Persistence without recall.** The repository already contains relevant knowledge, but the cold actor fails to retrieve it. The cold-start bootstrap infrastructure addresses this.
+- **Failure B — Recall without persistence.** The cold actor diligently searches the repository, but important prior thinking was never persisted there. No bootstrap procedure can retrieve knowledge that was left only in conversation history.
+
+Both actors share responsibility for preventing Failure B (persist what matters) and Failure A (retrieve what was persisted).
 
 ### Follow the Minimum Safe Bootstrap
 

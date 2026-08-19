@@ -215,6 +215,24 @@ Identify documentation checkpoints naturally during work rather than waiting for
 
 > "Are the docs caught up?"
 
+### Journal retrieval when investigating topics
+
+When investigating a topic where prior exploratory reasoning may materially affect interpretation, search the journal topically for:
+
+- Prior observations and unfinished reasoning
+- Hypotheses that were formulated but not resolved
+- Rejected approaches and their rejection rationale
+- Unresolved questions or tensions
+- Evidence that earlier understanding was later questioned
+
+Distinguish clearly between:
+
+- **Current authority** — what architecture and ADRs say now
+- **Current implementation truth** — what the code actually does
+- **Prior unfinished reasoning** — what the project previously noticed, explored, or questioned
+
+If prior journal reasoning bears on the current investigation, surface it as context and preserve its epistemic status. Do not promote journal hypotheses into architecture or implementation requirements. Do not suppress them either — a cold actor who misses relevant prior thinking may repeat meaningful intellectual work.
+
 You must still respect mode and authorization boundaries. Noticing that documentation needs reconciliation is not permission to edit during Exploration.
 
 ---

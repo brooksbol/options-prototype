@@ -7552,3 +7552,130 @@ The journal entry for August 11 (architectural reconciliation) documented: "Cold
 ### Acceptance test
 
 A cold actor receiving only "Bootstrap yourself for Wheelwright from GitHub" should be able to: find `docs/README.md` → find the AI Actor Cold-Start Bootstrap section → follow actor-specific instructions → find the shared protocol → follow the Minimum Safe Bootstrap reading path → begin substantive work without the Principal reconstructing context.
+
+---
+
+## August 19, 2026 — Cold-Start Experiment: Two Failure Modes and Unfinished Reasoning
+
+### Context
+
+Real cold-start testing with both ChatGPT and Kiro. Both actors successfully bootstrapped from the single instruction "Bootstrap yourself for Wheelwright from GitHub" — validating that the repository-native cold-start mechanism works.
+
+However, subsequent reasoning exposed a different failure mode. A cold actor can correctly read current architecture, ADRs, parking-lot state, and implementation and still repeat intellectual work that occurred in prior sessions — if significant unfinished exploratory reasoning was never preserved durably.
+
+### Meta-learning: Two complementary bootstrap failure modes
+
+**Failure A — Persistence without recall.** The repository already contains relevant knowledge, but the cold actor fails to retrieve it. The cold-start infrastructure (bootstrap documents, reading paths, authority model) primarily addresses this.
+
+**Failure B — Recall without persistence.** The cold actor diligently searches the repository, but important prior thinking was never persisted there. No bootstrap procedure can retrieve knowledge that was left only in conversation history.
+
+Today's experience exposed Failure B.
+
+### What we learned about the journal's role
+
+The project-memory protocol already described the journal as append-only chronological raw project memory preserving why-state. Today's experiment revealed that this needs stronger explicit interpretation.
+
+The journal does not need to contain only right answers.
+
+Architecture/ADRs carry an authority/correctness burden. The journal carries a fidelity and epistemic-status burden. It should accurately preserve significant things the project noticed, wondered about, hypothesized, tried, questioned, rejected, or had not finished thinking through — including ideas that later prove wrong.
+
+A useful everyday distinction:
+
+- **Architecture / ADR:** What have we decided?
+- **Parking lot:** What might we build or need to address?
+- **Journal:** What have we noticed, wondered about, tried, rejected, or not finished thinking through?
+
+This distinction is complementary to (not a replacement for) the repository's A–F authority model.
+
+### What we learned about topical retrieval
+
+"Recent" is insufficient for journal retrieval. An unfinished observation from weeks ago may be more relevant to today's exploration than yesterday's implementation work. Cold-start and substantive-work discipline should include topical search of the journal — not just reading the latest entries.
+
+### Protocol changes made
+
+The project-memory protocol, ChatGPT cold-start, and Kiro cold-start have been surgically updated to encode these learnings. The protocol now:
+
+- Explicitly permits unfinished reasoning in the journal
+- Requires epistemic-status accuracy rather than correctness
+- Defines a durability threshold for unfinished thought
+- Adds topical journal retrieval to Read Before Reasoning
+- Names the two failure modes
+- Distinguishes durable from authoritative/ratified
+
+---
+
+### Substantive unfinished observations preserved below
+
+The following observations emerged during today's exploratory reasoning. They meet the journal durability threshold: losing them would cause future actors to repeat meaningful reasoning or miss potentially important evidence.
+
+**Status: Exploratory. May later prove wrong. Not ratified architecture.**
+
+---
+
+### Observation: Contract State color and possible strategy-relative meaning
+
+**Epistemic status: Hypothesis — unresolved, may be wrong.**
+
+Generic color semantics in Position Monitoring:
+- Green = OTM (favorable)
+- Red = ITM (unfavorable)
+
+We noticed that this may be semantically wrong once strategy intent or operating context is considered.
+
+A buy-write appears potentially to carry disposition intent: if shares were deliberately acquired while simultaneously selling a call, an ITM call may represent the intended disposition becoming mechanically likely — rather than a negative condition.
+
+That raises the possibility that ITM could be favorable in some buy-write contexts rather than generically red.
+
+**Important caveats:**
+
+- This is exploratory, not ratified architecture
+- Current-state geometry (shares + short call) must not automatically be used to infer buy-write provenance
+- Conventional covered calls (shares acquired independently, call sold later) may not contain enough known intent to make the same interpretation
+- Existing Situation/Mission concepts and Position Monitoring (Contract State, Decision Pressure, Economic Consequence) may already own some or all of the needed semantics
+- No new intent primitive or color rule should be created from this observation alone
+
+**Preserved because:** A future actor revisiting Contract State color semantics should know this question was raised rather than confidently implementing generic green/red without considering whether strategy context could invert the meaning.
+
+---
+
+### Observation: Treemap vs. fixed geometry in Operator Console
+
+**Epistemic status: Experiential observation — cause unknown.**
+
+While revisiting Operator Console visualization, a constrained fixed-geometry experiment immediately felt better to the Principal than the treemap presentation.
+
+We do not yet know why.
+
+One plausible hypothesis: unpredictable treemap geometry — rather than dark mode itself — was the dominant UX problem. Treemaps produce different layouts as data changes, creating cognitive load from spatial instability.
+
+Other explanations remain possible:
+- Dark mode may still be a contributing factor
+- Information density differences between the two experiments
+- Familiarity/convention effects
+- The specific data being visualized
+
+**Preserved because:** A future actor working on Operator Console visualization should know that (a) fixed geometry was experientially preferred, and (b) the reason is not yet understood. This prevents confidently re-implementing treemap without questioning why it was previously found unsatisfying, and prevents over-generalizing "fixed geometry is always better" without understanding the mechanism.
+
+---
+
+### Observation: Fidelity Options Summary visual cues
+
+**Epistemic status: Inspiration/observation — not a requirement.**
+
+Fidelity's Options Summary page prompted useful observations about visual design qualities:
+
+- Information density (much data in small space without overwhelming)
+- Predictable geometry (layout does not change as data changes)
+- Numerical alignment (columns align on decimal points)
+- Localized rather than pervasive use of color (color marks exceptions or state changes, not every cell)
+
+There is no decision to reproduce Fidelity's UI. These are visual cues/inspiration worth remembering because they may help explain why some Wheelwright presentations feel easier or harder to operate.
+
+**Preserved because:** A future actor working on Operator Console or Position Monitoring presentation may find these observations useful for diagnosing why something feels wrong or right, without having to rediscover these qualities independently. They connect to the treemap/fixed-geometry observation above — predictable geometry and localized color appear in both.
+
+---
+
+### Relationship to project methodology
+
+This entry is itself an example of the refined journal discipline: preserving unfinished reasoning with accurate epistemic labeling. None of the observations above are decisions. None are architecture. They are intellectual breadcrumbs that prevent future repetition of meaningful exploratory work.
+
