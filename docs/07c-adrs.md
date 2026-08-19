@@ -307,6 +307,8 @@ Economic Consequence requires inputs beyond contract state — particularly cost
 
 Economic Consequence is arithmetic, not judgment. "$55.50 effective exit, +$2.20 versus basis" is a calculation. Whether that is desirable depends on context that this dimension does not supply.
 
+**Market-vs-Effective-Basis reconciliation (August 2026 addition):** For puts, assignment consequence includes a reconciliation measure: current underlying price minus analytical effective basis (strike − premium/share). This reconciles two truths that can coexist: a put may be assigned above market (capital loss relative to strike) while the premium-adjusted entry would still be below market. The measure is arithmetic, carries the same provenance discipline as other consequence facts, and does not alter capital-loss computation, Production accounting, or the decomposed model. It is an additional analytical fact, not a replacement for existing components.
+
 ### Layering and Independence
 
 ```
@@ -401,6 +403,14 @@ Option premium is recognized as production when the sell-to-open transaction occ
 **Invariant:** One premium receipt contributes to Production exactly once.
 
 The Fidelity Activity transaction (processed by ProductionAssessor) and the Option Summary `brokerOptionBasis` are two evidence views of the same economic event. They must never independently create two production contributions.
+
+### Lifecycle attribution for realized appreciation
+
+Realized appreciation (selling shares above cost basis) is Production only when the disposition is causally attributable to a governed Wheelwright strategy lifecycle event. In the current strategy set, that means assignment of a covered call or buy-write. A discretionary portfolio sale that happens to realize a gain is a capital-form change (PRINCIPAL_MOVEMENT), not strategy production.
+
+**Domain rule:** "Realized" is necessary but not sufficient. Production requires causal attribution to a governed strategy lifecycle event.
+
+This prevents inflation of monthly Production by generic portfolio gains that have no relationship to options strategy decisions. The backend ProductionAssessor enforces this by routing lifecycle dispositions (ASSIGNED_CALL_STOCK_SALE) through production/erosion decomposition while routing discretionary sales (ASSET_SALE) through principal-movement accounting only.
 
 ### Current-month versus historical distinction
 
