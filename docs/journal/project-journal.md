@@ -7679,3 +7679,668 @@ There is no decision to reproduce Fidelity's UI. These are visual cues/inspirati
 
 This entry is itself an example of the refined journal discipline: preserving unfinished reasoning with accurate epistemic labeling. None of the observations above are decisions. None are architecture. They are intellectual breadcrumbs that prevent future repetition of meaningful exploratory work.
 
+
+
+---
+
+## 2026-08-19 — Console Visual Architecture: Classification Fix + Three-Regime Experiment
+
+### Context
+
+Console tiles were displaying incorrect strategy labels (all covered calls swept into "BW") and used a treemap geometry that produced pathological slivers for small-capital positions. The original color treatment (green/red tile-wide borders based on moneyness) had been identified as architecturally incorrect — it made a position-wide health claim that ADR-013 does not support.
+
+### What happened (implementation)
+
+1. **CC/BW classification fixed.** Added `origin?: "buy-write" | null` to `OpenShortCall`. Activity projection detects same-day share purchase + call STO as proof of BW origin. Both inference sites replaced. Fidelity strategy field ("CoveredCall") does not distinguish CC from BW and is not promoted into provenance.
+
+2. **Demo portfolio rebuilt (v4).** Deliberate PUT/CC/BW diversity. Temporal rot solved by supplying synthetic spot prices from the scenario itself (Demo no longer polls live backend Evidence). Strikes constructed relative to scenario spots, ensuring coherent moneyness regardless of real market drift.
+
+3. **Console tile grammar redesigned.** Labeled fields (Strike, Spot, Moneyness, Capital). Neutral borders. Strategy identity as background tint + badge. Moneyness color confined to the field text.
+
+4. **Treemap replaced with constrained geometry (Alternative C).** Flex-wrap grid with fixed comfortable tile sizing. No four-mode degradation system. No pathological slivers.
+
+5. **Three-regime comparison planned (C/A/B).** URL parameter `?viz=c|a|b` for lightweight switching. Same data/semantics across all; only geometry and theme differ.
+
+### What we learned
+
+**Architectural findings:**
+- The old CC→BW misclassification was a provenance claim unsupported by evidence. Same-day transaction matching is the minimum truthful mechanism.
+- "Health" is not an architectural concept (ADR-013 invariant). The old green/red borders violated this.
+- The treemap's pathological geometry was likely the dominant UX problem — not dark mode alone.
+- Constrained fixed geometry immediately felt better (Principal's experiential reaction). Reason not yet understood.
+
+**Color/semantic findings:**
+- The problem with green/red was scope (tile-wide), not vocabulary (green/red themselves).
+- Green/yellow/red on moneyness text (field-scoped) is architecturally defensible.
+- **But moneyness color may not be strategy-independent.** A BW has implied disposition intent: ITM = cycle completing (favorable). A put has implied wheel intent: OTM = favorable. A conventional CC may not carry enough implied intent to assign favorable/unfavorable from moneyness alone.
+- This is an unresolved hypothesis, not ratified architecture.
+
+**Process finding:**
+- UX and graphic design are acknowledged weaknesses of the Principal. The collaboration model should be: Kiro proposes coherent visual treatments; Principal evaluates perceptually. Do not require the Principal to specify CSS parameters.
+
+### Decisions / implications
+
+- Expiration-native rung organization is architectural; treemap geometry is a visualization choice.
+- Demo mode is becoming a deliberately coherent scenario substrate (embryo of concepts that could someday support Training Mode — NOT in scope today).
+- Three visual regimes will be compared before settling the Console presentation.
+
+### Open questions
+
+- Does constrained geometry resolve enough problems that dark mode can stay? (Test by comparing C vs A.)
+- Is capital-as-area genuinely missed once it's gone? (Test by comparing B vs A.)
+- How exactly should moneyness color work for CC positions where intent is unknown? Neutral? Muted? Same as PUT?
+- Should the regime comparison inform a permanent design decision, or reveal that the answer is context-dependent (e.g., different scenarios/operator preferences)?
+
+### Status
+
+Exploratory visual design. No ratified architecture change beyond the classification fix (which is a correctness fix, not a visual design choice).
+
+
+---
+
+### Observation: Console as projection, not visualization
+
+**Epistemic status: Hypothesis — emerged from three-regime comparison (Aug 19, 2026)**
+
+During the A/B/C regime comparison, regime B (light + dense fixed rows) produced a reaction that pointed beyond the experiment's original scope:
+
+> "Maybe the Console isn't a visualization at all. Maybe it's a projection of the portfolio through a chosen operational axis."
+
+The operator's response to B was not "this is done" but "I want more density AND I want to be able to regroup." The Fidelity Options Summary screenshot reinforced this — Fidelity offers "Group by: Expiration / Underlying / Strategy" as a dropdown, changing how the same portfolio data is sliced.
+
+The hypothesis: **expiration-native organization is the default projection, not a permanent structural restriction.** The same position data, the same semantic fields, the same color semantics could be projected through:
+
+- Expiration: What resolves when? (current default)
+- Strategy: What am I committed to? (PUT cluster / CALL cluster / BW cluster)
+- Underlying: Where am I concentrated? (XLE positions together, regardless of strategy)
+
+This reframes "the expiration ladder" as one of several possible operational lenses rather than an architectural identity of the Console.
+
+**Relationship to treemap:** The treemap is now likely unnecessary. Capital-proportional area was useful information, but a compact bar/column within fixed-row geometry preserves that signal without distorting position readability. The experiment confirmed this — nobody missed the treemap in B.
+
+**What differs from Fidelity's grouping:** Fidelity groups brokerage records. Wheelwright would group interpreted portfolio state. Same interaction pattern, substantially different purpose. Wheelwright's positions carry strategy identity, moneyness semantics, consequence, and eventually Decision Pressure — none of which Fidelity provides.
+
+**Preserved because:** A future actor working on Console architecture should know that (a) the projection concept emerged from visual experimentation, (b) it was experientially preferred by the Principal, and (c) it has not been designed, ratified, or implemented beyond a single-axis prototype. It connects to the earlier expiration-ladder-is-architectural finding but extends it: the ladder is one projection of a more general capability.
+
+**NOT decided:** Whether Group By is the right interaction, how many axes are useful, whether they should be fully generic or fixed choices, whether this is a Console-level concept or an application-level concept, implementation timeline.
+
+
+---
+
+### Observation: Moneyness sparkline as Contract State trajectory
+
+**Epistemic status: Hypothesis — raised but not designed, Aug 19, 2026**
+
+During B2 inspection, the principal observed that the unused horizontal space in dense rows could potentially carry a moneyness sparkline.
+
+Key distinction from a spot/price sparkline: moneyness sparkline visualizes *the position's distance from its own strike over time*, not merely the underlying's price history. Two contracts on the same underlying with different strikes would have different sparklines. The natural zero-line is the strike boundary (0% moneyness), so a crossing through zero represents an actual Contract State boundary event.
+
+This would make it a visualization of the *history of Contract State* — how this particular contract's geometric relationship with the market has evolved.
+
+**Requirements unclear:**
+- Do we have sufficient historical observation data? (Evidence is acquired periodically but observation history is not currently persisted across sessions in a form designed for sparkline rendering.)
+- Would temporal sampling be meaningful given the acquisition cadence?
+- Does it add operator information beyond what a single-point moneyness value provides?
+- How does intent-aware interpretation (BW vs CC vs PUT) interact with trajectory visualization?
+
+**Preserved because:** A future actor evaluating what additional information belongs on position rows should know this concept was raised and its key distinction from a generic price chart was articulated. The concept connects naturally to Contract State (ADR-013 dimension 1) and could potentially become a component of Decision Pressure interpretation (dimension 2) once that is designed.
+
+---
+
+### Observation: Increasing confidence that treemap geometry is unnecessary
+
+**Epistemic status: Evolving hypothesis — strengthened by regime comparison, Aug 19, 2026**
+
+After comparing C (dark constrained cards) → A (light proportional) → B/B2 (light dense rows), the experiential evidence increasingly suggests that capital-as-area (the treemap's distinctive contribution) does not justify the costs it imposes:
+
+- Slivers for small-capital positions
+- Unpredictable geometry preventing consistent information grammar
+- Multiple degradation modes (full/standard/narrow/minimal)
+- Capital magnitude controlling communication space even though operational importance is uncorrelated with capital
+
+B2 demonstrates that capital can be preserved through a numeric value and a compact proportional bar without distorting the entire layout. Nobody has expressed missing the treemap.
+
+The treemap is not yet formally deprecated. This entry records that confidence has increased substantially and no experiential evidence has emerged in its favor during the comparison.
+
+---
+
+### Observation: ×N aggregation is architecturally safe
+
+**Epistemic status: Verified fact, Aug 19, 2026**
+
+Concern was raised that `×N` display might unsafely merge distinct contracts. Inspection confirms:
+
+- MonitoredPosition identity is `{type}-{underlying}-{strike}-{expiration}`
+- `quantity` on a MonitoredPosition comes directly from the portfolio snapshot's contract quantity
+- Two contracts with different strikes or different expirations are always separate positions with separate IDs
+- `×N` only appears when the portfolio snapshot itself reports N contracts of the same underlying/strike/expiration
+- This is correct behavior — the operator genuinely holds N identical contracts
+
+No fix required. The domain model already preserves contract identity.
+
+
+---
+
+## 2026-08-19 — Console B4: Column Headers, Collapsible Groups, Expanded Demo
+
+### Context
+
+B3 established dense table rows with explicit columns, Group By switching, intent-aware moneyness color, and tight vertical rhythm. B4 extends operability and validates the presentation at realistic scale.
+
+### What was implemented
+
+1. **Column headers.** A sticky header row aligned with the 8-column PositionTable grid (Type, Symbol, Strike, Spot, Qty, Moneyness, Capital, %). Styled quiet: 9px uppercase, muted tertiary color, 1px border-bottom separator. Sticks to the top of the ladder scroll container via `position: sticky; top: 0; z-index: 2`. The group-by dropdown scrolls away first, then headers lock — correct UX priority.
+
+2. **Collapsible group headers.** Each group (expiration rung, strategy group, underlying group) is now collapsible. Chevron indicator (▾) rotates -90° when collapsed. Click or keyboard (Enter/Space) toggles. Group body (PositionTable) unmounts when collapsed. Collapse state keyed by `${groupBy}-${label}` and clears on axis change. Subtle hover feedback on collapsible headers.
+
+3. **Demo expanded to ~2× scale (v5).** 36 positions (14 calls + 22 puts) across 5 expiration weeks, 26 underlying symbols. Multiple underlyings appear at 2–3 different expirations (URA, COPX, GDX, SLV, REMX, XME, ARKK). Several quantities >1 (up to 3). Account value scaled to $420K. Enough density that vertical scrolling is unavoidable and collapsing groups is operationally useful.
+
+4. **Independent scrolling validated.** The existing CSS architecture (oc-region-ladder: flex:1 + overflow-y:auto, oc-main: overflow:hidden, oc-region-upper: flex-shrink:0) correctly isolates the position ladder scroll from surrounding chrome. No changes needed — confirmed with enlarged demo.
+
+### Findings
+
+**Architectural:**
+- The sticky header works because `oc-region-ladder` is the scrolling ancestor. No additional scroll container was needed.
+- Collapsible groups are purely presentation state — no domain model change, no new persistence. The position data remains fully available regardless of visual collapse.
+- The group-by key scheme (`${axis}-${label}`) naturally handles axis switching without stale collapse state.
+
+**Demo observations:**
+- At 36 positions across 5 weeks, all three groupBy axes produce meaningful groups with non-trivial counts. "Underlying" mode produces many small groups — collapsing is useful there.
+- The 15% moneyness coherence boundary in the demo-coherence test proved to be exactly tight enough: the original URA $30 strike produced 15.0% moneyness (boundary hit). Adjusted to $31 (11.3%). The test discipline is working as intended — it catches temporal rot or implausible scenario construction.
+- Partially encumbered positions (XLE 500/400, SPY 300/200) preserve the "free call capacity" validation while maintaining realistic multi-expiration call geometry.
+
+**Open questions:**
+- Should the column header become selectable for sort? (Not in B4 scope — noted for potential B5.)
+- Is the chevron visual weight appropriate at scale, or should it be reduced further for large group counts?
+- Does collapse state deserve URL persistence (similar to `?viz=b`) for operator continuity across page loads?
+
+### Status
+
+Implementation complete. All 1384 tests pass. No commit authorized.
+
+
+
+---
+
+## 2026-08-19 — Console B4 Visual Corrections: Scroll, Typography, Density, Controls
+
+### Context
+
+First B4 implementation added column headers, collapsible groups, and expanded demo. Principal's visual review at 36-position scale exposed five correction needs: scroll isolation wasn't demonstrably working at scale, columns were cramped while viewport was underused, light-mode typography was low-contrast gray-on-white, no global expand/collapse interaction, and the header lacked structural presence.
+
+Fidelity Options Summary screenshots provided as reference for: header treatment, grouping interaction (Expand rows / Collapse rows), density-from-alignment, and coordinate-system clarity.
+
+### What was corrected
+
+1. **Scroll isolation restructured.** `oc-region-ladder` is now a non-scrolling flex container. New `oc-ladder-scroll` child owns `overflow-y: auto`. Group By bar stays fixed above the scroll boundary. Shell uses `height` (not `min-height`) to prevent the entire page from growing beyond viewport. Sidebar scrolls independently. Upper region stays fixed.
+
+2. **Column grid rebalanced.** From `26px 58px 54px 64px 22px 100px 50px 56px` (430px total, rest wasted) to `36px 72px 72px 80px 48px 130px 80px 1fr`. Last column is flexible — capital bar stretches with viewport. Row padding increased from 3px→4px and horizontal from 8px→12px for breathing room.
+
+3. **Black-on-white typography.** All neutral light-mode text pushed from gray-400/500 range (#9ca3af, #6b7280) to gray-700/800/900 range (#374151, #1f2937, #111318). Semantic colors (moneyness green/red/yellow, badge accents) remain distinct but deepened one step for contrast against white. Principle: "information surface closer to paper — strong typography, subtle structure, color reserved for meaning."
+
+4. **Expand All / Collapse All.** Compact text buttons alongside Group By dropdown, separated by a thin divider. Disabled state when already fully expanded or collapsed. Collapse All + expand one group is the intended large-portfolio interaction pattern.
+
+5. **Fidelity-style header borders.** Column header row now has `border-top` + `border-bottom` (gray-300 in light mode), subtle background tint (#f0f1f4), font-weight 600. Creates a visible coordinate system without boxing individual cells. "Headers establish the coordinate system. Rows remain visually light."
+
+### Design findings (experiential, not architectural)
+
+**Black-on-white is a strong preference, not a style choice.** The principal's reaction was clear: "I do not want the pale gray-on-white typography that modern web UIs often use." This is informed by actual use on an older monitor. Legibility outranks fashionable subtlety. The principle: *neutral information defaults toward high-contrast black; color is reserved for meaning.*
+
+**The B-family is becoming an information surface, not a UI.** The mental model is closer to paper, an instrument panel, or a Fidelity-style financial table than a SaaS dashboard. Dense, aligned, high-contrast, structurally quiet. Color signals exception or state, not decoration.
+
+**Fidelity's usefulness is specific.** Not copying their UI — using them as reference for: density-from-alignment, predictable geometry, grouping interaction patterns (expand/collapse), header-as-coordinate-system, and localized color. Their "Group by: Expiration" dropdown + "Expand rows / Collapse rows" links map directly to what Wheelwright now has.
+
+**Scale reveals truth.** The 18-position demo hid layout problems. The 36-position demo immediately exposed column cramping, scroll behavior, and the need for global collapse. Demo scale should always exceed the minimum needed to expose structural issues.
+
+### Open questions
+
+- Is the column grid final, or will proportional (percentage-based) columns feel better as more positions accumulate?
+- Should the Group By bar be visually grouped with the header row (both staying fixed as one unit)?
+- Does the capital bar (% proportional) earn its column at this width, or should that space go to another existing field?
+- How does this look at 1280px width? Need to test narrower viewport.
+
+### Status
+
+Implementation complete. 1384 tests pass. No commit authorized. Ready for visual inspection.
+
+
+
+---
+
+## 2026-08-19 — Console B5: Density and Grid Calibration
+
+### Context
+
+After B4 visual corrections (scroll isolation, black-on-white, column rebalancing), the principal observed that the Console is converging on a data grid because a data grid is extremely effective for this job. The differentiation is in semantics, projections, interpretation, and evidence — not exotic geometry.
+
+Fidelity's collapsed expiration rows serve as the density target: extremely compact, perfectly legible. The principal's observation: "We independently wandered toward some of the same solutions because Fidelity has spent decades learning how to put a lot of financial information on a screen without making it unusable."
+
+### What was implemented
+
+1. **Collapsed group density — two regimes.** Collapsed rungs now use index/list density: 0 internal padding, 3px label padding, no border-bottom between label sections, transparent background in light mode with a single hairline separator. Expanded groups retain the current dense-instrument rhythm with 12px separation at boundaries. The collapsed state feels like a portfolio index; expanded groups feel like data records.
+
+2. **Thin cell/grid borders.** Both header and data rows now have visible coordinate structure:
+   - Horizontal: `border-bottom` on every row (hairline #e8eaef in light mode)
+   - Vertical: `border-right` on every cell span (hairline #eef0f4 in light mode)
+   - Header: heavier borders (#d1d5db) at top/bottom and between cells
+   - Group boundaries remain stronger than ordinary cells
+   - Result: the grid itself supplies alignment, reducing dependence on whitespace
+
+3. **Full capital values.** Row capital changed from `$7.0K` / `$100.0K` to `$7,000` / `$100,000` using `toLocaleString()`. Column width expanded from 80px to 100px to accommodate. Group aggregate capital was already using `.toLocaleString()` — consistent.
+
+4. **Spot in blue.** Spot (observed market evidence) rendered in blue (#2563eb light / #60a5fa dark). Strike remains black (contractual fact). The distinction: Strike is a contract-defined constant; Spot is the live market observation that changes. Blue is a visual hypothesis for "observed evidence" — not a new architectural primitive.
+
+### Design findings
+
+**Epistemic status: experiential observations, not architectural decisions.**
+
+**Collapsed groups are a distinct information mode.** A collapsed group is essentially an index entry — symbol + aggregate capital + position count. It needs dramatically less vertical space than a contract record. The two-regime density pattern (compact-collapsed, dense-expanded) permits viewing the entire portfolio index in a single viewport while still accessing full contract records on demand.
+
+**The Console is a data grid, and that's correct.** The convergence toward regular tabular geometry is not a failure of visual creativity — it's evidence that the problem domain is well-served by predictable coordinate grids. Wheelwright's originality lives in what the grid contains (intent-aware moneyness, strategy classification, consequence arithmetic, evidence provenance) and how it can be projected (expiration / strategy / underlying axes), not in novel presentation geometry.
+
+**Light cell borders substitute for whitespace as alignment mechanism.** With visible column rules, the eye can track values across long row widths without needing generous column gaps. This permits higher density while potentially improving legibility — the grid supplies the coordinate system that padding previously had to create alone.
+
+**Full capital precision is affordable.** The treemap/card geometry that justified abbreviation ($7K, $100K) is gone. Full numbers ($7,000, $100,000) are easier to compare with brokerage/accounting values and eliminate the mental arithmetic of "K means thousands." The 100px column accommodates six-digit values comfortably.
+
+**Spot-blue as evidence vocabulary.** Blue for observed/live values has a natural semantic interpretation: "this is what the market is doing right now." It distinguishes evidence (moving, observed) from contract facts (static, defined at entry). This could eventually extend to other observed values, but for now it remains a presentation hypothesis confined to the Spot column.
+
+### Open questions
+
+- Is the cell-border weight (1px hairline) correct at all viewport sizes, or does it need responsive adjustment?
+- Should collapsed groups show any additional aggregate info (e.g., aggregate moneyness distribution, nearest-DTE indicator)?
+- Is the Spot-blue contrast sufficient on the older monitor in actual use?
+- Does the collapsed density achieve "~26 underlyings visible at once" in the current viewport? (Requires visual validation.)
+
+### Status
+
+Implementation complete. 1384 tests pass. Ready for visual inspection. No commit authorized.
+
+Next investigation (when authorized): moneyness-history data availability and existing charting dependencies, before any sparkline design or implementation.
+
+
+
+---
+
+## 2026-08-19 — CC/BW Classification Regression Fix + Architectural Lesson
+
+### Context
+
+When switching the Console from Demo to the real Fidelity portfolio, all buy-write positions appeared as ordinary covered calls (CALL). The Demo correctly distinguished BW from CC because its `bw()` helper directly sets `origin: "buy-write"` at construction time. The real Fidelity path failed silently.
+
+### Root Cause
+
+Two compounding failures in the Fidelity data path:
+
+**1. Option Summary has no provenance.** `deriveExistingShortCalls()` maps Fidelity CSV rows to `OpenShortCall` objects. The Option Summary CSV is a point-in-time state export with no concept of entry provenance. All calls get `origin: undefined`.
+
+**2. Activity projection only enriched NEW calls.** The `alreadyExists` guard in `projectActivityOverlay()` correctly prevents duplicate position creation for calls already present from the Option Summary. But it also prevented BW-origin tagging. Additionally, the temporal checkpoint filter excluded pre-checkpoint Activity rows from processing entirely — so even without the guard, the rows containing the purchase+STO evidence wouldn't have reached the detection code.
+
+### Fix
+
+Added `enrichBuyWriteOrigin()` function that scans ALL Activity rows (regardless of temporal checkpoint) specifically for same-day share-purchase + call-STO correlation. When evidence matches an existing call that lacks origin, it tags the call with `origin: "buy-write"`.
+
+This is architecturally distinct from the projection logic:
+- **Projection** mutates position state (adds/removes positions, changes quantities). It correctly respects the temporal checkpoint.
+- **Enrichment** adds provenance metadata to existing positions. It legitimately scans backward in Activity because it does not replay state mutations.
+
+### Architectural Lesson
+
+**Epistemic status: Ratifiable design finding.**
+
+> Snapshot state and historical provenance may come from different Fidelity artifacts. Current-state derivation may legitimately be enriched by older Activity evidence even when that Activity lies before the snapshot checkpoint, provided the enrichment is metadata/provenance and does not replay state mutation.
+
+This distinction matters because:
+- The Option Summary provides *what positions exist now* (state).
+- The Activity History provides *how positions were born* (provenance).
+- These are different epistemic contributions from different artifacts.
+- The temporal checkpoint governs state projection (what changed after the snapshot).
+- Provenance enrichment has no temporal boundary because origin is a historical fact about inception, not a state transition to project forward.
+
+A future actor encountering the `isAfterCheckpoint` filter should understand that it gates *position-state mutations* only. Provenance/metadata enrichment is explicitly excluded from that gate.
+
+### Real Portfolio Provenance Audit
+
+From the operator's loaded Activity CSV, the enrichment found same-day purchase evidence for:
+
+| Underlying | Expiration | Enriched to BW | Evidence |
+|---|---|---|---|
+| DBO | Aug 21 | Yes | Same-day "YOU BOUGHT" shares + "YOU SOLD OPENING TRANSACTION" call |
+| WEAT | Aug 21 | Yes | Same-day "YOU BOUGHT" shares + "YOU SOLD OPENING TRANSACTION" call |
+| BNO | Sep 4 | Yes | Same-day "YOU BOUGHT" shares + "YOU SOLD OPENING TRANSACTION" call |
+| EWY | Sep 4 | Yes | Same-day "YOU BOUGHT" shares + "YOU SOLD OPENING TRANSACTION" call |
+| GDXJ | Sep 4 | Yes | Same-day "YOU BOUGHT" shares + "YOU SOLD OPENING TRANSACTION" call |
+| BNO | Sep 11 | No (remains CALL) | No same-day purchase found — likely a roll or later call write |
+
+The Sep 11 BNO position remaining as CALL is correct: it proves the enrichment is selective and evidence-based, not blanket-classifying all calls on buy-write underlyings.
+
+### Consumer Verification
+
+All downstream consumers correctly handle the CC/BW distinction via the `type` field on `MonitoredPosition`:
+- Console position rows (badge: CALL vs BW)
+- Group By → Strategy (Covered Calls vs Buy-Writes)
+- Covered Equity / capacity accounting
+- Production current-month classification
+- Consequence summary (calls+BW aggregate)
+- Position detail modal (header: "COVERED CALL" vs "BUY-WRITE")
+- Forecast / resolution outlook
+
+No consumer required changes. The fix was entirely in the shared portfolio/domain ingestion layer.
+
+### Tests
+
+4 new focused tests added to `buy-write-origin.test.ts`:
+1. Call in Option Summary + same-day purchase in Activity → BW (enrichment)
+2. Call in Option Summary + no same-day purchase → remains CALL
+3. Multiple calls: only the one with matching purchase becomes BW
+4. Same underlying with different strikes preserves independent origin
+
+Full suite: 1388 tests pass (95 files).
+
+### Status
+
+Bug-fix complete. No commit authorized. No architectural document change required — the lesson is preserved here in the journal with accurate epistemic labeling. If this pattern recurs, it could be promoted to a design principle about checkpoint governance vs provenance enrichment.
+
+
+
+---
+
+## 2026-08-19 — B6: Moneyness Sparkline Prototype + Underlying-History Modeling Distinction
+
+### Context
+
+After the B5 dense-grid chassis was stable, the sparkline investigation determined: (1) no historical spot data exists anywhere in Wheelwright, (2) no charting library is present, (3) the existing OpportunityLab Sparkline is a hand-rolled 30-line inline SVG. The decision was made to use a similar hand-rolled SVG for a Demo-only prototype.
+
+### Important Modeling Distinction
+
+**Epistemic status: Design finding — caught before implementation produced an epistemically impossible Demo.**
+
+The initial proposal would have generated synthetic spot history seeded by `symbol + strike`. This is wrong.
+
+**Market history belongs to the underlying.** There is only one spot price series for URA, regardless of how many contracts exist on it. A `URA $35 put` and a `URA $32 put` must consume the same URA historical spot observations.
+
+**Moneyness history belongs to the contract** and is derived from that shared market history using the contract's own strike and option type:
+```
+call:  moneyness(t) = (spot(t) - strike) / strike
+put:   moneyness(t) = (strike - spot(t)) / strike
+```
+
+This is exactly why we chose moneyness sparkline rather than spot sparkline. Two contracts on the same underlying with different strikes can observe identical market behavior yet produce visually different moneyness trajectories — one might cross the zero-line while the other stays safely OTM.
+
+The correct model:
+```
+generateDemoSpotHistory(symbol, currentSpot)  → underlying-level, seeded by symbol alone
+deriveMoneynessHistory(spotHistory, strike, type)  → contract-level, using canonical formula
+```
+
+**Preserved because:** A future actor building production historical observation accumulation should reproduce this structure — the backend should store one price history per symbol, and moneyness should always be derived, never stored independently.
+
+### What was implemented
+
+1. **`moneyness-history.ts`** — `generateDemoSpotHistory(symbol, currentSpot)` produces a deterministic 26-point session history per underlying (seeded by symbol name, cached). `deriveMoneynessHistory(spotHistory, strike, type)` applies the canonical moneyness formula per contract.
+
+2. **`MoneynessSparkline.tsx`** — 60-line inline SVG component. Polyline trace (neutral color) + dashed zero-reference hairline at the strike boundary. Returns "—" when fewer than 3 points. Y-axis symmetric around zero. No axes, labels, tooltips, or chart chrome.
+
+3. **OperatorConsole PositionTable** — grid expanded from 8 to 9 columns: `Type | Symbol | Strike | Spot | Qty | Moneyness | Capital | % | Trend`. The numeric capital percentage is preserved (not replaced). The Trend column renders the sparkline for Demo source, "—" for Fidelity (no truthful history yet).
+
+4. **Demo ITM calls** — QQQ spot adjusted to $525 (vs $515 strike → +1.9% ITM), IWM to $220 (vs $215 → +2.3% ITM). All moneyness states now visually testable.
+
+### Design properties
+
+- Same sparkline regardless of grouping axis (expiration/strategy/underlying)
+- Collapsed rows render no sparkline (conditional rendering already in place)
+- No prediction, trend labels, arrows, or "improving/worsening" semantics
+- Row height unchanged — sparkline fits within existing ~18px
+- Fidelity source shows "—" honestly rather than fabricating history
+- Zero-line is the visual event boundary (crossing = underlying moved through strike)
+
+### Open questions
+
+- Is the synthetic session vol (0.35% daily, distributed across 26 steps) realistic enough to produce interesting trajectories?
+- Should the zero-line be dashed or solid?
+- Is 80×18px sufficient to perceive trajectory, or does it need to be wider?
+- Should we label the column "Trend" or something more precise like "Session" or "History"?
+
+### Status
+
+Implementation complete. 1388 tests pass. Ready for visual inspection at `?viz=b` in Demo mode. No commit authorized.
+
+
+
+---
+
+## 2026-08-19 — B6 Sparkline Treatment Gallery + Emerging UX Practice
+
+### Context
+
+The first moneyness sparkline prototype (neutral trace, far-right Trend column) proved the rendering mechanism works but exposed UX problems: traces were hard to interpret at small size, and placing the sparkline far from the moneyness value de-contextualizes it. Rather than iterating in-place, the decision was to build a bounded comparison gallery of materially different treatments.
+
+### Emerging UX Development Practice
+
+**Epistemic status: Operational observation — evaluating after first use.**
+
+When the problem is genuinely visual and the correct treatment is uncertain, do not prematurely specify one solution in prose. Instead:
+
+1. Build a bounded comparison gallery of materially different treatments.
+2. Show all treatments against identical representative data.
+3. Select, combine, or reject them visually before production integration.
+
+This separates "can we render it?" (mechanism, proven) from "does it communicate?" (design, requiring visual evaluation). The gallery avoids the failure mode of iterating through 6 rejected treatments in the production Console while accumulating drift.
+
+**Not yet elevated to architectural invariant.** Record as a prototyping/UX practice to evaluate after using it a few more times.
+
+### What was built
+
+**7 representative scenarios** covering:
+- OTM stable (put, no drama)
+- ITM stable (call, above strike throughout)
+- Approaching strike (put, drifting into danger)
+- Moving away from strike (call, assignment becoming unlikely)
+- Crossing OTM → ITM (buy-write, disposition approaching)
+- Crossing ITM → OTM (put, underlying recovering)
+- Nearly flat (call, minimal movement)
+
+**8 treatment hypotheses (A–H):**
+- **A:** Neutral trace + prominent zero line — shape-only, maximum simplicity
+- **B:** Trace segmented by contract state — red/green per segment, respecting intent semantics
+- **C:** Neutral trace over shaded OTM/ITM regions — context from background, not trace color
+- **D:** Full semantic trace (intent-aware color) — entire line in same color as numeric moneyness
+- **E:** Filled area from zero — emphasizes magnitude of distance from strike
+- **F:** Endpoint-emphasized (dot + faded trace) — current state dominates, history is faint context
+- **G:** Combined moneyness + sparkline cell — spatial locality, number and trace together
+- **H:** Gradient trace (recency emphasis) — older observations fade, recent emphasized
+
+**Gallery surface:** accessible at `/app/sparkline-gallery`, outside AppShell. Grid layout: scenarios as rows, treatments as columns, Console-row density preserved.
+
+### Design properties of the gallery
+
+- All treatments use identical data (comparison is between visualizations, not trajectories).
+- Color semantics respect the existing intent-aware model: PUT OTM=green/ITM=red, BW ITM=green/OTM=red, CALL=neutral.
+- Approximately 80×18px spatial budget per treatment (matching Console row height).
+- Treatment G explores the locality hypothesis — combining numeric moneyness with the sparkline.
+- No treatment introduces predictive or "improving/worsening" semantics.
+
+### Files changed
+
+- `src/operator-console/sparkline-gallery-data.ts` — 7 representative scenarios
+- `src/operator-console/SparklineTreatments.tsx` — 8 treatment components (A–H)
+- `src/operator-console/SparklineGallery.tsx` — gallery comparison surface
+- `src/router.ts` — added sparkline-gallery route
+- `src/Root.tsx` — wired gallery rendering
+
+### Status
+
+Gallery ready for visual inspection at `/app/sparkline-gallery`. 1388 tests pass. No production Console changes. No commit authorized.
+
+
+
+---
+
+## 2026-08-19 — Kreature: Continuous Observation Actor and Temporal Evidence Discovery
+
+### Epistemic status
+
+**Exploratory hypothesis.** This entry preserves reasoning from a substantial exploratory session. Nothing here is ratified architecture, accepted design, or implementation specification. It is unfinished intellectual work that crosses the durability threshold because losing it would cause future actors to repeat meaningful reasoning, miss the cross-cutting nature of the discovery, or rediscover the connection between sparklines and a broader temporal-evidence need.
+
+### Origin
+
+The moneyness sparkline investigation (B6) required historical spot data. Investigation found that Wheelwright currently retains **no historical quote series anywhere**:
+
+- Backend `SqliteEvidenceStore` overwrites/upserts evidence rows (latest observation only)
+- Frontend observation state holds current values only
+- IndexedDB cache holds current cached evidence only
+- No historical quote endpoint exists
+
+This data gap is documented in the B6 journal entry. But the significance extends well beyond sparklines.
+
+### Core concept: "Kreature is always watching"
+
+Kreature is a previously conceived (but never documented in GitHub) concept for continuous/ongoing observation of market conditions and noteworthy events.
+
+The key remembered statement:
+
+> **Kreature is always watching.**
+
+If Kreature is always watching, temporal evidence becomes naturally valuable:
+
+```
+observe → timestamp → retain → compare → notice
+```
+
+Without memory of observations, "always watching" can report only the present. It cannot truthfully answer questions such as:
+
+- Did this just cross the strike?
+- Has it been approaching the strike all morning?
+- Did this opportunity persist or merely flash?
+- Is this the highest premium observed today/this week?
+- How does current behavior compare with today's recent baseline?
+
+### The sparkline is one consumer, not the driver
+
+The moneyness sparkline exposed the missing historical-data capability. But sparklines are only **one consumer** of that capability. They are not architecturally privileged and do not own or drive the infrastructure.
+
+The broader temporal evidence capability would serve multiple consumers:
+
+- **Moneyness sparklines** — contract-relative trajectory over recent sessions
+- **Strike-crossing detection** — "the underlying just moved through your strike"
+- **Persistence measurement** — "this opportunity has been ACTIONABLE for 45 minutes"
+- **Intraday baselines** — "premium is 12% above today's session average"
+- **Highest/lowest observed values** — "best premium seen this week: $X.XX on Tuesday"
+- **Session summaries** — "the opportunity surface contained 11–15 ACTIONABLE candidates throughout today's session"
+- **Short-term anomaly detection** — unusual premium spikes, liquidity changes, spread widening
+- **Future temporal reasoning** not yet conceived
+
+None of these require infinite history. All require some bounded retention of raw observations.
+
+### Bounded raw retention — not indefinite accumulation
+
+We do not need ten years of raw observations.
+
+**MongoDB capped collections** serve as a useful *conceptual* analogy: bounded/circular storage where old data naturally disappears rather than requiring indefinite accumulation. This is not a technology recommendation — it describes the storage-engine-independent idea that raw observations have a finite useful life and should age out automatically.
+
+A few trading sessions (or another deliberately bounded horizon) may be sufficient initially for the consumers identified above. The exact retention period is not ratified. The principle is: **retain enough recent raw evidence to support current operational behaviors, then allow low-value observations to age out automatically.**
+
+### Multi-timescale memory model (Prometheus analogy)
+
+Not every useful historical fact requires indefinite retention of every raw observation.
+
+**Prometheus** provides a useful *conceptual* analogy for the data-model pattern (not a technology recommendation): raw high-resolution samples are retained briefly; longer-lived derived/accumulated metrics survive after raw data expires.
+
+Kreature/temporal evidence might eventually maintain compact accumulated or derived state such as:
+
+- Strike-crossing count
+- Time/minutes spent ITM vs OTM
+- Session high/low moneyness
+- Premium-spike count
+- Longest persistence of a condition
+- Count of ACTIONABLE episodes
+- Maximum observed opportunity quality
+- Distributions or recent summaries
+
+This suggests a possible multi-timescale memory model:
+
+```
+short-lived raw observations
+    → support sparklines, near-term comparisons, real-time detection
+
+longer-lived derived metrics / events / session summaries
+    → retain useful historical information after raw samples expire
+
+deliberately promoted durable artifacts
+    → retain only information worth keeping much longer
+```
+
+This is exploratory. No schema designed. No retention tiers ratified.
+
+### Separation of responsibility: "Kreature watches; Evidence remembers"
+
+An important architectural hypothesis emerged regarding ownership:
+
+Do not prematurely conclude: "Kreature owns the historical database."
+
+A cleaner possible distinction:
+
+> **Kreature is always watching; Evidence remembers what was observed.**
+
+Kreature may drive/consume observation and detection behavior — it is the *actor* that notices, compares, and reports. The Evidence Engine / backend domain owns authoritative acquisition, timestamping, retention, and historical evidence — it is the *store* that persists and serves.
+
+The Console (or any other surface) then consumes historical Evidence and derives contract-relative presentations (like moneyness history) for display.
+
+**This is a hypothesis about responsibility boundaries, not a ratified architectural rule.** It should be investigated against existing FE/BE separation, Evidence Engine ownership, and the Single Acquisition Authority principle before being documented as architecture. The existing parking-lot item PL-EVID-01 (Historical Evidence / Observation Architecture) already anticipates the need to resolve ownership of different observation domains — this hypothesis contributes to that resolution rather than replacing it.
+
+### Relationship to existing architecture
+
+| Existing Concept | Relationship |
+|---|---|
+| PL-EVID-01 (Historical Evidence Architecture) | Kreature provides a named domain actor and concrete consumers that motivate PL-EVID-01's design. The consumers above are inputs to that architecture's requirements. |
+| Evidence Appliance (§Historical Analysis) | "Continuous durable evidence naturally creates the substrate for historical observation and analysis." Temporal evidence is one realization of that vision. |
+| PL-DEPLOY-02 (Opportunity Surface Observation) | A specific application of temporal evidence — observing the recommendation/deployment surface output over time. Kreature's observation capability could serve this. |
+| Single Acquisition Authority | The backend already owns provider acquisition. Temporal retention is a natural extension of that authority — the backend already observes; it merely needs to remember. |
+| Console Architecture (NAV / Mission Progress region) | Architecturally reserved with "unresolved historical data dependencies." Temporal evidence contributes to resolving those dependencies. |
+| PL-PROD-VALUE (Portfolio Operating Value) | Notes "rudimentary historical observation if authoritative data permits." Another consumer. |
+
+### Conceptual mockup
+
+An early conceptual mockup of a possible Kreature observation surface was produced (not a specification):
+
+![Kreature observation surface mockup](assets/kreature-observation-surface-mockup.png)
+
+This mockup illustrates the *concept* of a continuous observation stream with categorized events, notable-opportunity highlighting, anomaly detection, and session summary. It is a visual hypothesis for how "always watching" might eventually manifest as an operator surface — **not** a design specification, wireframe, or implementation target.
+
+Key conceptual elements visible in the mockup:
+- Timestamped observation stream (chronological, append-only during session)
+- Event categorization (Opportunity, Anomaly, Info)
+- Persistence and extrema language ("persisted for 4 minutes," "highest observed this week")
+- Separation between observations and recommendations ("Observations are not recommendations")
+- Session-scoped awareness (market status, time remaining)
+- Summary sidebar (top opportunities, unusual events)
+
+### What is NOT decided
+
+- Schema for raw observation storage
+- Retention periods or tier boundaries
+- Technology choices (SQLite extension, separate store, in-memory ring buffer, etc.)
+- Whether Kreature is a backend concern, frontend concern, or both
+- Whether Kreature becomes a named product surface or remains an infrastructure concept
+- The exact boundary between "Evidence remembers" and "Kreature observes"
+- Whether existing acquisition cadence provides sufficient temporal resolution
+- Implementation timeline
+- Whether the mockup represents a desirable product direction
+
+### Preserved because
+
+A future actor investigating historical evidence architecture (PL-EVID-01) or temporal observation capability should know:
+
+1. The concept has a name (Kreature) and a governing metaphor ("always watching")
+2. The sparkline investigation exposed the missing capability but is not the primary consumer
+3. Bounded retention (not infinite accumulation) is the operating hypothesis
+4. Multi-timescale memory (raw → derived → promoted) is a plausible structural model
+5. Responsibility separation (observer vs store) should be investigated before implementation
+6. Multiple concrete consumers already exist conceptually
+7. The concept connects to several existing architectural reserved-spaces and parking-lot items
+
+Without this entry, a future actor might:
+- Treat sparkline history as a standalone visualization problem rather than one consumer of a cross-cutting capability
+- Invent an unbounded historical store without considering the bounded-retention concept
+- Conflate the observation actor with the storage owner
+- Miss the connection between temporal evidence and the already-documented PL-EVID-01, PL-DEPLOY-02, and Console NAV region
+
