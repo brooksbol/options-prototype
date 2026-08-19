@@ -944,3 +944,79 @@
   color: var(--wd-accent-red, #ef6b6b);
   white-space: nowrap;
 }
+
+
+/* === Forecast Modal (reuses pdm- chrome from position-detail-modal.css) === */
+
+.prod-forecast-modal {
+  max-width: 420px;
+}
+
+.prod-forecast-modal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wd-text-primary);
+}
+
+.prod-forecast-modal-body {
+  padding: 16px;
+}
+
+.prod-forecast-modal-method p {
+  font-size: 13px;
+  color: var(--wd-text-secondary);
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+
+.prod-forecast-modal-method p:last-child {
+  margin-bottom: 0;
+}
+
+/* === Forecast ⓘ button === */
+
+.prod-forecast-info-btn {
+  background: none;
+  border: none;
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+  vertical-align: middle;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.prod-forecast-info-btn:hover {
+  opacity: 1;
+  color: var(--wd-text-primary);
+}
+
+/* === Forecast Outlook Decomposition (inline, below hero) === */
+
+.prod-outlook-decomposition {
+  margin-top: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--wd-border-subtle);
+}
+
+.prod-outlook-decomposition .prod-outlook-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 2px 0;
+  font-size: 12px;
+}
+
+.prod-outlook-decomposition .prod-outlook-label {
+  color: var(--wd-text-secondary);
+}
+
+.prod-outlook-decomposition .prod-outlook-value {
+  color: var(--wd-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.prod-outlook-decomposition .prod-outlook-row-minor .prod-outlook-value {
+  color: var(--wd-text-secondary);
+}

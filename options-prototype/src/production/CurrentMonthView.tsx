@@ -16,7 +16,7 @@
  *   - Forecast derivation → current-month-production.ts (this module composes)
  */
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { usePortfolio } from "../portfolio/use-portfolio";
 import { useObservations } from "../evidence/use-observations";
 import { deriveMonitoredPositions, groupByExpiration } from "../portfolio/position-monitoring";
@@ -26,6 +26,9 @@ import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import { classifyAllPositions } from "../forecast/resolution-outlook";
 import { deriveProductionOutlook, type ProductionOutlook } from "../forecast/production-outlook";
 import { recordOutlookObservations } from "../forecast/outlook-observations";
+import { deriveProspectiveDeployment, type ProspectiveDeploymentOutlook } from "../forecast/prospective-deployment";
+import { getActivityRows } from "../portfolio/portfolio-store";
+import "../components/position-detail-modal.css";
 
 /**
  * Canonical recognized Production source taxonomy.
@@ -98,6 +101,45 @@ export function CurrentMonthView({ assessment }: Props) {
     return deriveProductionOutlook(assessment, outlooks, positions, snapshot, today);
   }, [assessment, snapshot, observations]);
 
+  // --- Prospective Deployment (V2 continuation estimate) ---
+  const prospective = useMemo(() => {
+    const today = new Date();
+    const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const activityRows = getActivityRows();
+
+    // Use the earliest resolution date from capacity rungs
+    const earliestResolution = summary.capacity.resolvingRungs.length > 0
+      ? summary.capacity.resolvingRungs[0].expiration
+      : null;
+
+    return deriveProspectiveDeployment(
+      activityRows,
+      summary.capacity.resolvingThisMonth,
+      earliestResolution,
+      monthEnd,
+      today,
+    );
+  }, [summary]);
+
+  // --- Combined Forecast (V1 + V2) ---
+  const forecastTotal = useMemo(() => {
+    if (!outlook) return null;
+    const base = outlook.baseEstimate + prospective.roughEstimate;
+    // Round to nearest $1K for headline
+    return Math.round(base / 1000) * 1000;
+  }, [outlook, prospective]);
+
+  // Forecast info popover toggle
+  const [forecastInfoOpen, setForecastInfoOpen] = useState(false);
+
+  // Escape key dismiss for forecast modal (matches Console PositionDetailModal idiom)
+  useEffect(() => {
+    if (!forecastInfoOpen) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setForecastInfoOpen(false); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [forecastInfoOpen]);
+
   return (
     <div className="prod-current">
       {/* === LEFT COLUMN: Summary + Capacity + Composition + Sources + Recon + Provenance === */}
@@ -117,9 +159,20 @@ export function CurrentMonthView({ assessment }: Props) {
             </div>
 
             <div className="prod-metric prod-metric-forecast">
-              <span className="prod-metric-label">Forecast</span>
-              {outlook && outlook.baseEstimateRounded > 0 ? (
-                <span className="prod-metric-value" title={`Base: $${outlook.baseEstimate.toLocaleString()} (recognized $${outlook.recognizedProduction.toLocaleString()} + likely $${outlook.likelyAdditional.toLocaleString()})`}>
+              <span className="prod-metric-label">Forecast
+                <button
+                  className="prod-forecast-info-btn"
+                  onClick={() => setForecastInfoOpen(!forecastInfoOpen)}
+                  title="Wheelwright's Simple Forecast"
+                  aria-label="Forecast explanation"
+                >&#9432;</button>
+              </span>
+              {forecastTotal && forecastTotal > 0 ? (
+                <span className="prod-metric-value">
+                  ≈ ${(forecastTotal / 1000).toFixed(0)}K
+                </span>
+              ) : outlook && outlook.baseEstimateRounded > 0 ? (
+                <span className="prod-metric-value">
                   ≈ ${(outlook.baseEstimateRounded / 1000).toFixed(outlook.baseEstimateRounded % 1000 === 0 ? 0 : 1)}K
                 </span>
               ) : (
@@ -227,39 +280,64 @@ export function CurrentMonthView({ assessment }: Props) {
             </div>
           )}
 
-          {/* Production Outlook breakdown — V1 Operating Forecast */}
-          {outlook && (outlook.likelyContributions.length > 0 || outlook.uncertainCount > 0) && (
-            <div className="prod-outlook-detail">
-              <span className="prod-outlook-title">Outlook</span>
-              {outlook.likelyContributions.length > 0 && (
-                <div className="prod-outlook-likely">
-                  {outlook.likelyContributions.map((c) => (
-                    <div key={c.positionId} className="prod-outlook-row">
-                      <span className="prod-outlook-symbol">{c.underlying}</span>
-                      <span className="prod-outlook-cat">
-                        {c.type === "put" ? "likely assigned (shares)" : "likely called"}
-                      </span>
-                      <span className="prod-outlook-amount">
-                        {c.type === "put"
-                          ? "capital → shares"
-                          : c.computable ? `+$${c.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "?"}
-                      </span>
-                    </div>
-                  ))}
+          {/* Forecast decomposition — compact aligned summary */}
+          {outlook && (
+            <div className="prod-outlook-decomposition">
+              <div className="prod-outlook-row">
+                <span className="prod-outlook-label">Produced so far</span>
+                <span className="prod-outlook-value">${outlook.recognizedProduction.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+              </div>
+              <div className="prod-outlook-row">
+                <span className="prod-outlook-label">Current positions</span>
+                <span className="prod-outlook-value">
+                  {outlook.likelyAdditional !== 0
+                    ? `~$${outlook.likelyAdditional.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                    : "~$0"}
+                </span>
+              </div>
+              {prospective.deploymentPlausible && (
+                <div className="prod-outlook-row">
+                  <span className="prod-outlook-label">Possible redeployment</span>
+                  <span className="prod-outlook-value">
+                    ~${(prospective.roughEstimate / 1000).toFixed(0)}K
+                  </span>
                 </div>
               )}
               {outlook.uncertainCount > 0 && (
-                <div className="prod-outlook-uncertain">
-                  <span className="prod-outlook-uncertain-label">
-                    {outlook.uncertainCount} position{outlook.uncertainCount > 1 ? "s" : ""} uncertain
+                <div className="prod-outlook-row prod-outlook-row-minor">
+                  <span className="prod-outlook-label">Uncertain</span>
+                  <span className="prod-outlook-value">
+                    {outlook.uncertainCount} position{outlook.uncertainCount > 1 ? "s" : ""}
                   </span>
-                  {outlook.uncertainUpside > 0 && (
-                    <span className="prod-outlook-uncertain-range">
-                      (up to +${outlook.uncertainUpside.toLocaleString(undefined, { maximumFractionDigits: 0 })} if assigned)
-                    </span>
-                  )}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Forecast ⓘ modal — same idiom as Console PositionDetailModal */}
+          {forecastInfoOpen && (
+            <div
+              className="pdm-backdrop"
+              onClick={(e) => { if (e.target === e.currentTarget) setForecastInfoOpen(false); }}
+            >
+              <div className="pdm-modal prod-forecast-modal" role="dialog" aria-modal="true" aria-label="Wheelwright's Simple Forecast">
+                <header className="pdm-header">
+                  <span className="prod-forecast-modal-title">Wheelwright's Simple Forecast</span>
+                  <button
+                    className="pdm-close"
+                    onClick={() => setForecastInfoOpen(false)}
+                    aria-label="Close"
+                  >&times;</button>
+                </header>
+                <div className="prod-forecast-modal-body">
+                  <div className="prod-forecast-modal-method">
+                    <p>Wheelwright starts with production already recognized this month — premium received, appreciation realized, any other booked cash.</p>
+                    <p>For positions nearing expiration, it looks at where the underlying sits relative to the strike and how little time remains. When the evidence points clearly toward assignment or expiration, Wheelwright includes the corresponding economic consequence.</p>
+                    <p>It then considers capital expected to cycle again before month-end. Because option premium is recognized when a new trade is opened, another deployment can add to this month's production even if the new contracts expire next month. Wheelwright uses the immediate premium yield observed across its actual deployment history as a rough guide.</p>
+                    <p>The result is deliberately rounded because this is a planning forecast, not an accounting result.</p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </section>

@@ -83,6 +83,10 @@ export function getImportStatus(): ImportStatus {
   return currentImportStatus;
 }
 
+export function getActivityRows(): ActivityRow[] | null {
+  return currentActivityRows;
+}
+
 // --- Mutations ---
 
 export function setPortfolio(source: PortfolioSourceType, snapshot: PortfolioSnapshot | null): void {
