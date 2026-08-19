@@ -7490,3 +7490,65 @@ The Principal repeatedly needed to remind the AI actors to perform documentation
 
 - Workstream 2, Increment 3 (Production Forecast): V1 committed, V2 exploration complete, V2 implementation pending after documentation reconciliation and retrospective sweep
 - Portfolio Operating Value: deferred (confirmed as not a Forecast prerequisite)
+
+
+---
+
+## August 19, 2026 — Cold-Start Infrastructure / Project-Memory Protocol
+
+### Context
+
+The most recent journal entry (August 18) explicitly noted: "The Principal repeatedly needed to remind the AI actors to perform documentation reconciliation even though the operating model intends continuous documentation."
+
+This is the bootstrap paradox in action:
+
+> **Persistence is not recall.**
+
+The project already treats GitHub as durable truth. Documentation, ADRs, architecture, journal, parking lot — all persist. But a new ChatGPT thread or Kiro session starts cold. It does not know it should retrieve project memory before reasoning forward. The Principal has been the sole synchronization mechanism between sessions.
+
+Two symmetrical obligations were identified:
+
+1. Write what must be remembered.
+2. Read what has already been remembered.
+
+The project needed infrastructure that teaches a cold actor how to bootstrap itself from a one-line instruction.
+
+### What we built
+
+Three artifacts in `docs/bootstrap/`:
+
+1. **`project-memory-protocol.md`** (Category B — Ratified Methodology) — Shared documentation-diligence and project-memory synchronization discipline. Central invariant: "What if there were no conversation history?" Memory loop: Observe → Learn → Decide what is durable → Reconcile → Persist → Retrieve → Reason → Observe.
+
+2. **`chatgpt-cold-start.md`** (Category E — Current Specialized Reference) — Reasoning partner bootstrap. ChatGPT's role: exploration, synthesis, architectural questioning, prompt formulation. Not the implementation authority.
+
+3. **`kiro-cold-start.md`** (Category E — Current Specialized Reference) — Repository-resident architect/implementation partner bootstrap. Kiro's role: architecture, implementation, code tracing, documentation reconciliation. Stronger project-memory obligation because it resides with the repository.
+
+Updated `docs/README.md` with an "AI Actor Cold-Start Bootstrap" section and added all three artifacts to the appropriate authority categories.
+
+### Why the actor prompts are intentionally different
+
+ChatGPT and Kiro have asymmetric responsibilities. ChatGPT helps the Principal reason, question, and formulate. Kiro investigates, builds, and reconciles. Collapsing them into one generic "AI instructions" file would lose the specificity that makes each effective in its role.
+
+### Why the protocol is shared
+
+Both actors participate in the same memory loop. The discipline of reading before reasoning, reconciling while learning, and stopping before committing applies universally. Actor-specific obligations are summarized in each bootstrap and detailed in the shared protocol.
+
+### Key design decisions
+
+- Bootstrap prompts are pointers into project memory, not project memory itself. They do not freeze architecture.
+- Domain concepts are listed as "reacquire from repository" rather than frozen definitions.
+- `docs/README.md` remains the sole authority for file lists, reading paths, and the A–F model. Bootstrap artifacts defer to it.
+- Authority classification deliberately prevents bootstrap prompts from masquerading as governing architecture (Category E, not A).
+- The project-memory protocol gets Category B (ratified methodology) because it genuinely governs how work is done, like `three-actor-model.md` and `closed-loop-engineering.md`.
+
+### Design lesson preserved
+
+An earlier draft of the project-memory protocol incorrectly treated historical files as potentially active authority. The current `docs/README.md` A–F model exposed that error immediately. This validates the design principle: bootstrap instructions must start from the current authority root rather than embedding a frozen historical file map.
+
+### Relationship to prior cold-start findings
+
+The journal entry for August 11 (architectural reconciliation) documented: "Cold-start reconstructibility is an acceptance test for documentation." The Three Actor Model's "Cold-Start Test" section already articulated the principle. This work makes the principle operational rather than aspirational.
+
+### Acceptance test
+
+A cold actor receiving only "Bootstrap yourself for Wheelwright from GitHub" should be able to: find `docs/README.md` → find the AI Actor Cold-Start Bootstrap section → follow actor-specific instructions → find the shared protocol → follow the Minimum Safe Bootstrap reading path → begin substantive work without the Principal reconstructing context.

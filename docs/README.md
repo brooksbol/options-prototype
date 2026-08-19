@@ -54,6 +54,18 @@ Everything in the bootstrap, plus:
 | 12 | `25-situation-architecture.md` | Accepted direction for multi-situation operation |
 | 13 | `31-architectural-reconciliation.md` | Most recent architectural checkpoint |
 
+### AI Actor Cold-Start Bootstrap
+
+For a completely new ChatGPT thread or Kiro session starting from scratch. A one-line instruction such as "Bootstrap yourself for Wheelwright from GitHub" should lead an actor here.
+
+| Document | Actor | Role |
+|----------|-------|------|
+| `bootstrap/chatgpt-cold-start.md` | ChatGPT | Reasoning partner bootstrap — role, authority retrieval, epistemic discipline |
+| `bootstrap/kiro-cold-start.md` | Kiro | Repository-resident architect/implementation partner bootstrap |
+| `bootstrap/project-memory-protocol.md` | Shared | Documentation diligence / project-memory synchronization protocol |
+
+**Lookup path:** Actor finds `docs/README.md` → reads this section → follows actor-specific bootstrap → follows shared protocol → follows Minimum Safe Bootstrap reading path above → begins substantive work.
+
 ---
 
 ## Complete Document Index
@@ -101,6 +113,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/three-actor-model.md` | Ratified methodology |
 | `foundations/architectural-evolution-methodology.md` | Ratified methodology |
 | `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
+| `bootstrap/project-memory-protocol.md` | Ratified methodology (documentation diligence / project memory) |
 
 ### C. Canonical Project / Operational State
 
@@ -138,6 +151,8 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `foundations/market-priced-risk.md` | Exploratory research topic |
 | `foundations/recommendation-set-analysis.md` | Exploratory architectural concept |
 | `foundations/strategy-expansion-governance.md` | Exploratory strategy scope boundary and evaluation framework |
+| `bootstrap/chatgpt-cold-start.md` | AI actor cold-start instructions (ChatGPT reasoning partner) |
+| `bootstrap/kiro-cold-start.md` | AI actor cold-start instructions (Kiro implementation partner) |
 | `development-machine.md` | Hardware spec |
 | `velvet-rope/*` | Universe admission domain model (dormant) |
 | `universe/*` | Candidate universe design (dormant) |
