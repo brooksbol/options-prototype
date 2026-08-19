@@ -144,6 +144,71 @@ function isAfterCheckpoint(row: ActivityRow, checkpoint: Date, precision: Checkp
 
 // --- Projection ---
 
+// --- BW Origin Enrichment ---
+
+/**
+ * Enrich existing short calls with buy-write origin provenance from Activity evidence.
+ *
+ * Scans ALL activity rows (regardless of temporal checkpoint) to detect same-day
+ * share purchase + call STO pairs. When evidence matches an existing call that
+ * lacks origin, it tags the call with origin: "buy-write".
+ *
+ * This does not mutate position state (quantity, economics, etc.) — it only
+ * adds provenance metadata that the Option Summary cannot provide.
+ *
+ * Deliberately uses the same detection logic as post-checkpoint projection:
+ * same-day share purchase with quantity >= call contract coverage.
+ */
+function enrichBuyWriteOrigin(existingCalls: OpenShortCall[], activityRows: ActivityRow[]): void {
+  if (activityRows.length === 0) return;
+
+  // Build lookup of same-day share purchases across ALL activity.
+  // Key: "DATE|SYMBOL", Value: total shares bought that day.
+  const sameDayPurchases = new Map<string, number>();
+  for (const row of activityRows) {
+    if (row.eventType === "shares_bought_direct") {
+      const sym = (row.symbol || "").toUpperCase();
+      if (!sym) continue;
+      const key = `${row.date}|${sym}`;
+      sameDayPurchases.set(key, (sameDayPurchases.get(key) ?? 0) + Math.abs(row.quantity));
+    }
+  }
+
+  if (sameDayPurchases.size === 0) return;
+
+  // Build lookup of sell-to-open CALL events by underlying+strike+expiration.
+  // We need the STO date to correlate with the purchase date.
+  const stoDateByPosition = new Map<string, string>();
+  for (const row of activityRows) {
+    if (row.eventType === "sell_to_open" && row.option?.type === "CALL") {
+      const underlying = row.option.underlying.toUpperCase();
+      const key = `${underlying}|${row.option.strike}|${row.option.expiration}`;
+      // Use the earliest STO date for this position (in case of multiple fills)
+      const existing = stoDateByPosition.get(key);
+      if (!existing || row.date < existing) {
+        stoDateByPosition.set(key, row.date);
+      }
+    }
+  }
+
+  // For each existing call without origin, check if activity evidence proves BW origin.
+  for (const call of existingCalls) {
+    if (call.origin === "buy-write") continue; // Already tagged
+
+    const posKey = `${call.underlying}|${call.strike}|${call.expiration}`;
+    const stoDate = stoDateByPosition.get(posKey);
+    if (!stoDate) continue; // No STO event found in activity — cannot determine origin
+
+    const purchaseKey = `${stoDate}|${call.underlying}`;
+    const sharesBoughtSameDay = sameDayPurchases.get(purchaseKey) ?? 0;
+    const sharesNeeded = call.quantity * 100;
+
+    if (sharesBoughtSameDay >= sharesNeeded) {
+      call.origin = "buy-write";
+    }
+  }
+}
+
 export interface ProjectionResult {
   snapshot: PortfolioSnapshot;
   projectedEventCount: number;
@@ -168,20 +233,44 @@ export function projectActivityOverlay(
   // Filter to post-checkpoint events only
   const postCheckpoint = activityRows.filter(row => isAfterCheckpoint(row, checkpointTimestamp, precision));
 
+  // Clone mutable state from snapshot
+  const inventory: InventoryPosition[] = baseSnapshot.inventory.map(p => ({ ...p }));
+  const existingCalls: OpenShortCall[] = baseSnapshot.existingCalls.map(c => ({ ...c }));
+  const existingPuts: OpenShortPut[] = [...baseSnapshot.existingPuts];
+  let deployableCash = baseSnapshot.deployableCash;
+
+  const projectedSymbols = new Set<string>();
+
+  // === BW Origin Enrichment ===
+  // Scan ALL activity (regardless of checkpoint) for provenance evidence.
+  // Origin tagging does not mutate position state — it adds metadata that the
+  // Option Summary cannot provide. This is separate from the projection logic below
+  // which correctly applies only post-checkpoint mutations.
+  enrichBuyWriteOrigin(existingCalls, activityRows);
+
   if (postCheckpoint.length === 0) {
-    return { snapshot: baseSnapshot, projectedEventCount: 0, projectedSymbols: [] };
+    // Even with no post-checkpoint events, the enrichment may have tagged origins.
+    const enrichedSnapshot: PortfolioSnapshot = {
+      ...baseSnapshot,
+      existingCalls,
+    };
+    return { snapshot: enrichedSnapshot, projectedEventCount: 0, projectedSymbols: [] };
   }
 
   // Sort chronologically (Activity CSV is newest-first)
   const chronological = [...postCheckpoint].sort((a, b) => a.date.localeCompare(b.date));
 
-  // Clone mutable state from snapshot
-  const inventory: InventoryPosition[] = baseSnapshot.inventory.map(p => ({ ...p }));
-  const existingCalls: OpenShortCall[] = [...baseSnapshot.existingCalls];
-  const existingPuts: OpenShortPut[] = [...baseSnapshot.existingPuts];
-  let deployableCash = baseSnapshot.deployableCash;
-
-  const projectedSymbols = new Set<string>();
+  // Build a lookup of same-day share purchases for BW origin detection (post-checkpoint only).
+  // Key: "DATE|SYMBOL", Value: total shares bought that day.
+  const sameDayPurchases = new Map<string, number>();
+  for (const row of chronological) {
+    if (row.eventType === "shares_bought_direct") {
+      const sym = (row.symbol || "").toUpperCase();
+      if (!sym) continue;
+      const key = `${row.date}|${sym}`;
+      sameDayPurchases.set(key, (sameDayPurchases.get(key) ?? 0) + Math.abs(row.quantity));
+    }
+  }
 
   for (const row of chronological) {
     switch (row.eventType) {
@@ -231,6 +320,13 @@ export function projectActivityOverlay(
           );
 
           if (!alreadyExists) {
+            // Detect buy-write origin: same-day share purchase for this underlying
+            // with quantity matching or exceeding the call contract coverage.
+            const purchaseKey = `${row.date}|${underlying}`;
+            const sharesBoughtSameDay = sameDayPurchases.get(purchaseKey) ?? 0;
+            const sharesNeeded = Math.abs(row.quantity) * 100;
+            const isBuyWriteOrigin = sharesBoughtSameDay >= sharesNeeded;
+
             existingCalls.push({
               symbol: row.symbol,
               underlying,
@@ -239,6 +335,7 @@ export function projectActivityOverlay(
               quantity: Math.abs(row.quantity),
               brokerOptionBasis: null,
               brokerOptionAverageCost: null,
+              origin: isBuyWriteOrigin ? "buy-write" : null,
             });
           }
 
