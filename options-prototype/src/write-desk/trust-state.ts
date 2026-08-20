@@ -156,7 +156,7 @@ export function deriveTrustState(input: TrustDerivationInput): EvidenceStateIndi
         activity,
         covered: hydration.admissible,
         universe: hydration.total,
-        freshnessLabel: `${hydration.admissible}/${hydration.total}`,
+        freshnessLabel: "",
         freshnessSeconds,
         color: "yellow",
       };

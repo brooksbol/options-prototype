@@ -367,7 +367,7 @@
 }
 
 .wd-scan-btn:hover:not(:disabled) {
-  background: rgba(111, 207, 151, 0.16);
+  background: rgba(22, 101, 52, 0.12);
 }
 
 .wd-scan-btn:disabled {
@@ -446,12 +446,12 @@
 .wd-posture-actionable { background: var(--wd-accent-green-bg); color: var(--wd-accent-green); }
 .wd-posture-edge { background: var(--wd-accent-yellow-bg); color: var(--wd-accent-yellow); }
 .wd-posture-wait { background: var(--wd-accent-red-bg); color: var(--wd-accent-red); }
-.wd-posture-unavailable { background: rgba(60, 60, 70, 0.3); color: var(--wd-text-disabled); }
-.wd-posture-data_incomplete { background: rgba(60, 60, 70, 0.3); color: var(--wd-text-disabled); }
+.wd-posture-unavailable { background: rgba(0, 0, 0, 0.04); color: var(--wd-text-disabled); }
+.wd-posture-data_incomplete { background: rgba(0, 0, 0, 0.04); color: var(--wd-text-disabled); }
 
 /* Posture row tinting */
-.wd-posture-row.wd-posture-actionable td { background: rgba(111, 207, 151, 0.015); }
-.wd-posture-row.wd-posture-edge td { background: rgba(242, 201, 76, 0.015); }
+.wd-posture-row.wd-posture-actionable td { background: rgba(22, 101, 52, 0.03); }
+.wd-posture-row.wd-posture-edge td { background: rgba(146, 64, 14, 0.03); }
 
 /* No-trade result */
 .wd-no-trade {
@@ -550,7 +550,7 @@
   border: 1px solid var(--wd-border-default);
   border-radius: 4px;
   padding: 8px 10px;
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .wd-slot-loaded {
@@ -829,8 +829,8 @@
   color: var(--wd-text-secondary);
   padding: 3px 8px;
   margin-bottom: 4px;
-  background: rgba(242, 201, 76, 0.04);
-  border: 1px solid rgba(242, 201, 76, 0.12);
+  background: var(--wd-accent-yellow-bg);
+  border: 1px solid rgba(146, 64, 14, 0.12);
   border-radius: 3px;
 }
 
@@ -1422,8 +1422,8 @@
 .seg-nomatch { --seg-color: var(--wd-text-secondary); }
 .seg-nooptions { --seg-color: var(--wd-text-disabled); }
 .seg-pending { --seg-color: var(--wd-accent-blue); }
-.seg-incomplete { --seg-color: rgba(126, 200, 227, 0.5); }
-.seg-other { --seg-color: rgba(255, 255, 255, 0.06); }
+.seg-incomplete { --seg-color: rgba(29, 78, 216, 0.4); }
+.seg-other { --seg-color: rgba(0, 0, 0, 0.06); }
 
 /* --- Band 2: Operating Context --- */
 
@@ -1512,7 +1512,7 @@
 }
 
 .wd-control-select {
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--wd-bg-surface);
   border: 1px solid var(--wd-border-default);
   color: var(--wd-text-primary);
   padding: 2px 5px;
@@ -1523,7 +1523,7 @@
 }
 
 .wd-control-select:hover { border-color: var(--wd-accent-green); }
-.wd-control-select:focus { outline: none; border-color: var(--wd-accent-green); box-shadow: 0 0 0 1px rgba(111, 207, 151, 0.15); }
+.wd-control-select:focus { outline: none; border-color: var(--wd-accent-green); box-shadow: 0 0 0 1px rgba(22, 101, 52, 0.15); }
 
 .wd-control-check {
   gap: 4px;
@@ -1547,7 +1547,7 @@
   height: 6px;
   border-radius: 3px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .wd-opp-seg {
@@ -1637,7 +1637,7 @@
 }
 
 .wd-board .wd-candidate-table th {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.04);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -1657,11 +1657,11 @@
 .wd-posture-actionable { background: var(--wd-accent-green-bg); color: var(--wd-accent-green); }
 .wd-posture-edge { background: var(--wd-accent-blue-bg); color: var(--wd-accent-blue); }
 .wd-posture-wait { background: var(--wd-accent-yellow-bg); color: var(--wd-accent-yellow); }
-.wd-posture-unavailable { background: rgba(60, 60, 70, 0.3); color: var(--wd-text-disabled); }
+.wd-posture-unavailable { background: rgba(0, 0, 0, 0.04); color: var(--wd-text-disabled); }
 
 /* Row tinting */
-.wd-posture-row.wd-posture-actionable td { background: rgba(111, 207, 151, 0.02); }
-.wd-posture-row.wd-posture-edge td { background: rgba(126, 200, 227, 0.02); }
+.wd-posture-row.wd-posture-actionable td { background: rgba(22, 101, 52, 0.03); }
+.wd-posture-row.wd-posture-edge td { background: rgba(29, 78, 216, 0.03); }
 
 /* --- Deferred note --- */
 
@@ -1749,7 +1749,7 @@
   height: 6px;
   border-radius: 3px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .wd-breakdown-seg {
@@ -1765,7 +1765,7 @@
 .seg-nomatch { --seg-color: var(--wd-text-secondary); }
 .seg-nooptions { --seg-color: var(--wd-text-disabled); }
 .seg-pending { --seg-color: var(--wd-accent-blue); opacity: 0.5; }
-.seg-other { --seg-color: rgba(255, 255, 255, 0.06); }
+.seg-other { --seg-color: rgba(0, 0, 0, 0.06); }
 
 .wd-breakdown-seg { background: var(--seg-color); }
 .wd-breakdown-seg.seg-wait { opacity: 0.7; }
@@ -1865,7 +1865,7 @@
 }
 
 .wd-pol-select {
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--wd-bg-surface);
   border: 1px solid var(--wd-border-default);
   color: var(--wd-text-primary);
   padding: 1px 4px;
@@ -1909,7 +1909,7 @@
   height: 100%;
   min-width: 1px;
   transition: width 0.4s ease-out;
-  border-right: 1px solid #0e0f16;
+  border-right: 1px solid var(--wd-bg-base);
 }
 
 .wd-dist-seg:last-child {
@@ -2081,13 +2081,13 @@
   top: calc(100% + 4px);
   left: 0;
   z-index: 100;
-  background: #1a1b26;
+  background: var(--wd-bg-surface);
   border: 1px solid var(--wd-border-strong);
   border-radius: 6px;
   padding: 10px 14px;
   min-width: 200px;
   max-width: 320px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   font-size: var(--wd-size-body);
   color: var(--wd-text-primary);
 }
@@ -2145,8 +2145,8 @@
 }
 
 .wd-gov-danger {
-  background: rgba(235, 87, 87, 0.15);
-  color: #E45C5C;
+  background: var(--wd-accent-red-bg);
+  color: var(--wd-accent-red);
 }
 
 .wd-gov-unknown {
@@ -2174,7 +2174,7 @@
 /* Show spinner */
 .wd-control-spinner {
   width: 48px;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--wd-bg-surface);
   border: 1px solid var(--wd-border-default);
   color: var(--wd-text-primary);
   padding: 1px 4px;
@@ -2296,7 +2296,7 @@
 .wd-cross-entry {
   margin-bottom: 16px;
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 0, 0, 0.02);
   border: 1px solid var(--wd-border-default);
   border-radius: 6px;
 }

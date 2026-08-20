@@ -36,7 +36,7 @@ export function OperatorConsole() {
 
   if (!snapshot) {
     return (
-      <div className={`oc-shell ${vizRegime !== "c" ? "oc-light" : ""}`}>
+      <div className="oc-shell">
         <div className="oc-empty">
           <p>No portfolio data available.</p>
         </div>

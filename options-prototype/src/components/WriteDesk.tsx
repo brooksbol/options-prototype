@@ -579,7 +579,7 @@ export function WriteDesk() {
                   <span className="wd-trust-dot">●</span>
                   {" "}{trustIndicator.trustLabel}
                   {" · "}{trustIndicator.covered}/{trustIndicator.universe}
-                  {" · "}{trustIndicator.freshnessLabel}
+                  {trustIndicator.freshnessLabel && ` · ${trustIndicator.freshnessLabel}`}
                   {trustIndicator.activity === "updating" && " · Updating"}
                 </span>
               )}
@@ -746,7 +746,7 @@ export function WriteDesk() {
                   <span className="wd-trust-dot">●</span>
                   {" "}{trustIndicator.trustLabel}
                   {" · "}{trustIndicator.covered}/{trustIndicator.universe}
-                  {" · "}{trustIndicator.freshnessLabel}
+                  {trustIndicator.freshnessLabel && ` · ${trustIndicator.freshnessLabel}`}
                   {trustIndicator.activity === "updating" && " · Updating"}
                 </span>
               )}

@@ -11,7 +11,7 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -20,7 +20,7 @@
 
 /* Modal container */
 .pdm-modal {
-  background: var(--wd-bg-base);
+  background: var(--wd-bg-surface);
   border: 1px solid var(--wd-border-default);
   border-radius: 8px;
   width: 100%;
@@ -28,7 +28,7 @@
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 /* Sticky header */
@@ -62,7 +62,7 @@
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--wd-bg-raised);
   color: var(--wd-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -132,7 +132,7 @@
 }
 
 .pdm-impatient-danger {
-  background: rgba(235, 87, 87, 0.08);
+  background: var(--wd-accent-red-bg);
   border-left: 3px solid var(--wd-accent-red);
 }
 
@@ -141,7 +141,7 @@
 }
 
 .pdm-impatient-safe {
-  background: rgba(111, 207, 151, 0.08);
+  background: var(--wd-accent-green-bg);
   border-left: 3px solid var(--wd-accent-green);
 }
 
@@ -158,7 +158,7 @@
   font-style: italic;
 }
 .pdm-close:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--wd-bg-hover);
   color: var(--wd-text-primary);
 }
 
@@ -202,7 +202,7 @@
   display: flex;
   align-items: baseline;
   padding: 4px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--wd-table-row-border);
 }
 
 .pdm-row:last-child {
@@ -318,7 +318,7 @@
  */
 
 .pdm-consequence {
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid var(--wd-border-default);
   padding-top: 12px;
 }
 
@@ -344,7 +344,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #aaa;
+  color: #374151;
 }
 
 .pdm-cq-hero-value {
@@ -365,7 +365,7 @@
 /* Inline secondary line (call: effective exit) */
 .pdm-cq-inline-secondary {
   font-size: 11px;
-  color: #bbb;
+  color: #1f2937;
   margin-top: 2px;
 }
 
@@ -374,7 +374,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--wd-border-subtle);
   padding-top: 6px;
 }
 
@@ -390,58 +390,58 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #888;
+  color: #374151;
   min-width: 100px;
   flex-shrink: 0;
 }
 
 .pdm-cq-row-content {
   font-size: 11px;
-  color: #ccc;
+  color: #1f2937;
   line-height: 1.4;
 }
 
 .pdm-cq-muted {
-  color: #888;
+  color: #374151;
 }
 
 /* Hero color states */
 .pdm-hero-positive {
-  color: #4ade80;
+  color: #166534;
 }
 
 .pdm-hero-negative {
-  color: #f87171;
+  color: #991b1b;
 }
 
 .pdm-hero-neutral {
-  color: #ffffff;
+  color: var(--wd-text-primary);
 }
 
 /* Amber hero: capital erosion exists but premium offsets to non-negative total */
 .pdm-hero-amber {
-  color: #fbbf24;
+  color: #92400e;
 }
 
 /* Sign-convention colors for inline values */
 .pdm-cq-positive {
-  color: #4ade80;
+  color: #166534;
 }
 
 .pdm-cq-negative {
-  color: #f87171;
+  color: #991b1b;
 }
 
 /* Premium values: subdued green, visually secondary to hero outcome */
 .pdm-cq-premium {
-  color: #86efac;
-  opacity: 0.8;
+  color: #15803d;
+  opacity: 0.85;
 }
 
 /* === Disclosure sections (measurements, provenance) === */
 
 .pdm-disclosure {
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--wd-border-subtle);
 }
 
 .pdm-disclosure-summary {
@@ -449,7 +449,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #888;
+  color: #1f2937;
   cursor: pointer;
   padding: 8px 0;
   list-style: none;
@@ -462,7 +462,7 @@
 
 .pdm-disclosure-summary::before {
   content: "▸ ";
-  color: #666;
+  color: #6b7280;
 }
 
 .pdm-disclosure[open] > .pdm-disclosure-summary::before {
@@ -470,7 +470,7 @@
 }
 
 .pdm-disclosure[open] > .pdm-disclosure-summary {
-  color: #aaa;
+  color: #1f2937;
 }
 
 .pdm-disclosure > dl,
@@ -479,223 +479,3 @@
 }
 
 
-/* === Light Mode (inherits from Console .oc-light context) === */
-
-.oc-light .pdm-backdrop {
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.oc-light .pdm-modal {
-  background: #ffffff;
-  border-color: #d1d5db;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
-}
-
-.oc-light .pdm-header {
-  background: #f8f9fb;
-  border-bottom-color: #e2e5ea;
-}
-
-.oc-light .pdm-header-type {
-  background: #eef0f4;
-  color: #374151;
-}
-
-.oc-light .pdm-header-symbol {
-  color: #111318;
-}
-
-.oc-light .pdm-header-description {
-  color: #4b5563;
-}
-
-.oc-light .pdm-header-strike,
-.oc-light .pdm-header-exp,
-.oc-light .pdm-header-dte,
-.oc-light .pdm-header-qty {
-  color: #374151;
-}
-
-.oc-light .pdm-close {
-  color: #6b7280;
-}
-
-.oc-light .pdm-close:hover {
-  background: rgba(0, 0, 0, 0.04);
-  color: #111318;
-}
-
-/* Impatient mode */
-.oc-light .pdm-impatient {
-  background: #f8f9fb;
-  border-bottom-color: #e2e5ea;
-}
-
-.oc-light .pdm-impatient-label {
-  color: #4b5563;
-}
-
-.oc-light .pdm-impatient-danger {
-  background: rgba(220, 38, 38, 0.04);
-  border-left-color: #dc2626;
-}
-
-.oc-light .pdm-impatient-danger .pdm-impatient-value {
-  color: #b91c1c;
-}
-
-.oc-light .pdm-impatient-safe {
-  background: rgba(22, 163, 74, 0.04);
-  border-left-color: #16a34a;
-}
-
-.oc-light .pdm-impatient-safe .pdm-impatient-value {
-  color: #15803d;
-}
-
-.oc-light .pdm-impatient-context {
-  color: #4b5563;
-}
-
-.oc-light .pdm-impatient-unavailable {
-  color: #6b7280;
-}
-
-/* Body */
-.oc-light .pdm-body {
-  background: #ffffff;
-}
-
-.oc-light .pdm-section-title {
-  color: #374151;
-}
-
-.oc-light .pdm-summary {
-  color: #1f2937;
-}
-
-/* Measurements */
-.oc-light .pdm-row {
-  border-bottom-color: #f0f1f4;
-}
-
-.oc-light .pdm-row-label {
-  color: #4b5563;
-}
-
-.oc-light .pdm-row-value {
-  color: #111318;
-}
-
-.oc-light .pdm-measurements-muted .pdm-row-value {
-  color: #4b5563;
-}
-
-/* Consequence section */
-.oc-light .pdm-consequence {
-  border-top-color: #e2e5ea;
-}
-
-.oc-light .pdm-cq-hero-label {
-  color: #6b7280;
-}
-
-.oc-light .pdm-cq-hero-value {
-  color: #111318;
-}
-
-.oc-light .pdm-hero-positive {
-  color: #15803d;
-}
-
-.oc-light .pdm-hero-negative {
-  color: #b91c1c;
-}
-
-.oc-light .pdm-hero-neutral {
-  color: #111318;
-}
-
-.oc-light .pdm-hero-amber {
-  color: #a16207;
-}
-
-.oc-light .pdm-cq-positive {
-  color: #15803d;
-}
-
-.oc-light .pdm-cq-negative {
-  color: #b91c1c;
-}
-
-.oc-light .pdm-cq-premium {
-  color: #16a34a;
-  opacity: 0.9;
-}
-
-.oc-light .pdm-cq-inline-secondary {
-  color: #4b5563;
-}
-
-.oc-light .pdm-cq-inline-reconciliation {
-  color: #1f2937;
-}
-
-.oc-light .pdm-cq-rows {
-  border-top-color: #eef0f4;
-}
-
-.oc-light .pdm-cq-row-label {
-  color: #6b7280;
-}
-
-.oc-light .pdm-cq-row-content {
-  color: #1f2937;
-}
-
-.oc-light .pdm-cq-muted {
-  color: #6b7280;
-}
-
-/* Disclosure sections */
-.oc-light .pdm-disclosure {
-  border-top-color: #eef0f4;
-}
-
-.oc-light .pdm-disclosure-summary {
-  color: #4b5563;
-}
-
-.oc-light .pdm-disclosure-summary::before {
-  color: #9ca3af;
-}
-
-.oc-light .pdm-disclosure[open] > .pdm-disclosure-summary {
-  color: #374151;
-}
-
-/* Concept panel */
-.oc-light .pdm-concept-panel {
-  background: #f8f9fb;
-  border-color: #e2e5ea;
-}
-
-.oc-light .pdm-concept-title {
-  color: #2563eb;
-}
-
-.oc-light .pdm-concept-generic {
-  color: #4b5563;
-}
-
-.oc-light .pdm-concept-specific {
-  color: #1f2937;
-}
-
-.oc-light .pdm-concept-system {
-  color: #6b7280;
-}
-
-.oc-light .pdm-concept-system summary {
-  color: #4b5563;
-}

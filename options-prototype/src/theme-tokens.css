@@ -1,5 +1,5 @@
 /**
- * Write Desk — Shared Theme Tokens
+ * Wheelwright — Shared Theme Tokens (Light)
  *
  * TEXT HIERARCHY (3 tiers + disabled):
  *   --wd-text-primary     → numbers, key values, decisions, headings
@@ -7,51 +7,75 @@
  *   --wd-text-disabled    → truly unavailable, deferred, hidden
  *
  * PRINCIPLE: Numbers are the product. Labels support numbers.
+ *
+ * Visual direction: Regime B Operator Console (light backgrounds, dark readable
+ * typography, restrained borders, semantic color reserved for meaning).
+ *
+ * SEMANTIC COLOR FAMILIES — each has text, fill (bg), and accent/border variants:
+ *   green  → favorable, actionable, selected, production
+ *   yellow → caution, edge, wait, in-progress
+ *   red    → danger, unfavorable, erosion, hard constraint
+ *   blue   → informational, evidence, observed data
+ *   purple → structural, exposure, buy-write strategy
+ *   put    → put strategy identity
  */
 
 :root {
   /* --- Backgrounds --- */
-  --wd-bg-base: #0e0f16;
-  --wd-bg-surface: #181a24;
-  --wd-bg-raised: #222433;
-  --wd-bg-hover: rgba(255, 255, 255, 0.06);
-  --wd-bg-selected: rgba(111, 207, 151, 0.10);
-  --wd-bg-selected-strong: rgba(111, 207, 151, 0.14);
+  --wd-bg-base: #f8f9fb;
+  --wd-bg-surface: #ffffff;
+  --wd-bg-raised: #f0f2f5;
+  --wd-bg-hover: rgba(0, 0, 0, 0.035);
+  --wd-bg-selected: rgba(22, 101, 52, 0.06);
+  --wd-bg-selected-strong: rgba(22, 101, 52, 0.10);
 
-  /* --- Text hierarchy --- */
-  --wd-text-primary: #E5E7EB;
-  --wd-text-secondary: #A0A0A0;
-  --wd-text-tertiary: #999999;
-  --wd-text-constrained: #999999;
-  --wd-text-disabled: #999999;
+  /* --- Text hierarchy (black; hierarchy via weight/size/spacing, not luminance) --- */
+  --wd-text-primary: #111827;
+  --wd-text-secondary: #1f2937;
+  --wd-text-tertiary: #374151;
+  --wd-text-constrained: #374151;
+  --wd-text-disabled: #6b7280;
 
-  /* --- Semantic accent colors --- */
-  --wd-accent-green: #6fcf97;
-  --wd-accent-green-dim: #5aab7d;
-  --wd-accent-green-bg: rgba(111, 207, 151, 0.08);
-  --wd-accent-yellow: #f2c94c;
-  --wd-accent-yellow-bg: rgba(242, 201, 76, 0.08);
-  --wd-accent-red: #eb5757;
-  --wd-accent-red-bg: rgba(235, 87, 87, 0.06);
-  --wd-accent-blue: #7ec8e3;
-  --wd-accent-blue-bg: rgba(126, 200, 227, 0.06);
-  --wd-accent-purple: #bb86fc;
-  --wd-accent-purple-bg: rgba(187, 134, 252, 0.06);
+  /* --- Semantic: Green (favorable / actionable / production) --- */
+  --wd-accent-green: #15803d;
+  --wd-accent-green-dim: #166534;
+  --wd-accent-green-bg: rgba(22, 101, 52, 0.07);
+  --wd-accent-green-border: #86efac;
+
+  /* --- Semantic: Yellow/Amber (caution / edge / wait) --- */
+  --wd-accent-yellow: #92400e;
+  --wd-accent-yellow-bg: rgba(146, 64, 14, 0.06);
+  --wd-accent-yellow-border: #fbbf24;
+
+  /* --- Semantic: Red (danger / unfavorable / erosion) --- */
+  --wd-accent-red: #b91c1c;
+  --wd-accent-red-bg: rgba(185, 28, 28, 0.05);
+  --wd-accent-red-border: #fca5a5;
+
+  /* --- Semantic: Blue (informational / evidence / observed) --- */
+  --wd-accent-blue: #1d4ed8;
+  --wd-accent-blue-bg: rgba(29, 78, 216, 0.05);
+  --wd-accent-blue-border: #93c5fd;
+
+  /* --- Semantic: Purple (structural / exposure / buy-write) --- */
+  --wd-accent-purple: #6d28d9;
+  --wd-accent-purple-bg: rgba(109, 40, 217, 0.05);
+  --wd-accent-purple-border: #c4b5fd;
 
   /* --- Selection --- */
   --wd-select-rail: var(--wd-accent-green);
   --wd-select-bg: var(--wd-bg-selected-strong);
 
   /* --- Borders (use sparingly) --- */
-  --wd-border-subtle: rgba(255, 255, 255, 0.08);
-  --wd-border-default: rgba(255, 255, 255, 0.14);
-  --wd-border-strong: rgba(255, 255, 255, 0.22);
+  --wd-border-subtle: #e5e7eb;
+  --wd-border-default: #d1d5db;
+  --wd-border-strong: #9ca3af;
 
   /* --- Table --- */
-  --wd-table-header: #9a9aaa;
+  --wd-table-header: #1f2937;
   --wd-table-cell: var(--wd-text-primary);
-  --wd-table-row-border: rgba(255, 255, 255, 0.03);
-  --wd-table-symbol: #f0f0f4;
+  --wd-table-row-border: #f3f4f6;
+  --wd-table-symbol: #111827;
 
   /* --- Typography --- */
   --wd-font-mono: "SF Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace;
