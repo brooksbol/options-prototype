@@ -148,6 +148,19 @@ public class SqliteEvidenceStore implements AutoCloseable {
             ps.setString(3, symbol);
             ps.executeUpdate();
         }
+
+        // Append spot observation to history (temporal evidence accumulation).
+        // Extracts underlying.price from the chain JSON — same method used by QuotesController.
+        Double price = extractUnderlyingPrice(chainJson);
+        if (price != null) {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "INSERT INTO spot_history (symbol, price, observed_at) VALUES (?, ?, ?)")) {
+                ps.setString(1, symbol);
+                ps.setDouble(2, price);
+                ps.setString(3, retrievedAt);
+                ps.executeUpdate();
+            }
+        }
     }
 
     /**
