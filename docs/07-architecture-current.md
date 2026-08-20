@@ -336,9 +336,11 @@ interface RecommendationPolicy {
 
 **Shared across puts, calls, and buy-writes:**
 - Delta range (admissible: 0.15–0.50, target: 0.30)
-- DTE range (eligible: 7–45, target: 21)
+- DTE range (eligible: 7–45, target: 21) — see note below
 - Execution quality thresholds
 - Ranking mode
+
+> **DTE range present-day semantics (August 2026):** The eligible DTE range (7–45) is applied by the recommendation engines as a filter on cached expiration lists. However, the backend acquires only one chain per symbol (the expiration nearest ~21 DTE). Consequently, the DTE range currently functions as an eligibility gate on pre-sampled evidence rather than a search space. For 93% of symbols (monthly-only) there is only one eligible expiration in the range regardless. For 64 weekly-capable symbols, the recommendation engine iterates all eligible expirations but finds cached chain data only at the primary expiration. This behavior is documented and investigated in `docs/21-primary-expiration-investigation.md`; a candidate future direction (`PL-EVID-07`) would make this a true search-space control.
 
 **Delta interpretation:**
 - Puts: filter by `|delta|` (absolute value of negative delta)

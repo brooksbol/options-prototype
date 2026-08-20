@@ -47,7 +47,7 @@ A position qualifies for call recommendations when:
 ### Contract selection
 
 - Same delta range as puts (admissible: 0.15–0.50, target: 0.30)
-- Same DTE range (eligible: 7–45, target: 21)
+- Same DTE range (eligible: 7–45, target: 21) — same present-day semantics as puts: eligibility gate on primary-expiration evidence, not a multi-expiration search (see `docs/21-primary-expiration-investigation.md`, `PL-EVID-07`)
 - Same execution quality thresholds
 - Closest-to-target-delta selection
 - Calls use raw positive delta (puts use absolute value of negative delta)

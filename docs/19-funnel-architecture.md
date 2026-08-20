@@ -127,6 +127,8 @@ For the observed completed run:
 | Acquisition State | Backend worker | No (automatic) |
 | Product Structure | Velvet Rope | No (governance rule) |
 | DTE Range | Policy: `eligibleDteRange` | Yes (future) |
+
+> **Present-day semantics note (August 2026):** The DTE range currently operates as an eligibility gate on evidence that was already sampled at approximately 21 DTE by the backend's `selectPrimaryExpiration()`. Because 93% of the universe (monthly-only symbols) has exactly one eligible expiration within 7–45 DTE, changing the range affects only whether that single expiration passes or fails the gate — it does not expand or contract a search space. For the 64 weekly-capable symbols, the recommendation engine iterates all eligible expirations but only finds cached chain data for the primary expiration selected by the backend. The range would become a true search-space control only if multi-expiration evidence acquisition were implemented (see `PL-EVID-07`).
 | Delta Range | Policy: `admissibleDeltaRange` | Yes (UI control) |
 | Hard-No Thresholds | Policy: `executionAssessment` | No (governance rule) |
 | Posture Thresholds | Policy: `actionableFloor`, `edgeFloor` | No (governance rule) |
