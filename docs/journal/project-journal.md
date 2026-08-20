@@ -8914,3 +8914,96 @@ The reconciliation exercise progressed through three candidate formulas:
 - `docs/parking-lot.md` §PL-PROD-VALUE — ratified status
 - `docs/26-operator-console-architecture.md` §Portfolio Trajectory Region — future consumer
 
+
+
+---
+
+## 2026-08-20 — Buy-Write Economic Investigation: Lot-Pairing Defect + Execution Drift
+
+### Context
+
+The Principal observed contradictions between the Console ladder (showing BW positions as green/favorable) and the position-detail popup (showing capital erosion if called away). Several BNO and GDXJ buy-write positions displayed this green-ladder / red-popup disagreement. The concern was whether Wheelwright recommends economically unfavorable buy-writes.
+
+### Primary Finding: Recommendation Policy Is Sound
+
+The buy-write recommendation engine (`recommend-buy-writes.ts`) enforces a hard constraint:
+
+```
+strike > underlyingPrice  (from cached Tradier chain evidence)
+```
+
+Every recommended buy-write has positive expected appreciation at recommendation time. Wheelwright cannot recommend a BW with strike ≤ the chain-embedded underlying price. The engine also explicitly classifies symbols as "strategy unfit" when no positive-appreciation strike exists.
+
+**The recommendation policy is not defective.** The observed erosion in the popup is caused by downstream factors.
+
+### Root Cause 1: Lot-Pairing Defect (Dominant for GDXJ)
+
+**Problem:** The popup's appreciation/erosion calculation uses `InventoryPosition.economics.averageCostPerShare` — a single blended average across ALL lots of a symbol. For multi-lot symbols (GDXJ: 200 shares across 2 calls), the blended average may be materially different from the lot-specific basis that was paired with a specific call at entry.
+
+**Example (GDXJ):**
+- Lot 1 acquired at ~$119.60 → paired with Sep 4 $120 call → true appreciation: +$40
+- Lot 2 acquired at ~$128.46 → paired with Sep 11 $129 call → true appreciation: +$54
+- Blended average: ~$124.03
+- Popup shows BOTH calls vs $124.03: the $120 call shows −$403 erosion (wrong for that lot)
+
+**Scope:** Every multi-lot symbol where lots were acquired at different prices. Affects popup economics only — does not affect the recommendation engine.
+
+**Classification:** Data-model limitation. The `InventoryPosition` model aggregates at the symbol level. No lot-level or call-to-lot pairing exists in the current architecture.
+
+### Root Cause 2: Execution Drift (Dominant for BNO)
+
+**Problem:** The recommendation uses Tradier's delayed chain-embedded price (~15-min delay). The operator executes at Fidelity's market price minutes later. If the underlying moves up between recommendation and execution, the actual fill exceeds the strike.
+
+**Example (BNO):**
+- Recommendation: chain price < $51, selected strike = $51, positive appreciation expected
+- Actual Fidelity fill: $51.42/share
+- Result: basis ($51.42) > strike ($51) → −$42 erosion at call-away
+
+**Epistemic status:** Strongly consistent with execution drift; not definitively proven from durable evidence (we have not reconstructed the exact recommendation timestamp or Fidelity fill from persisted records).
+
+**Economic significance:** Small (−$0.42/share on BNO = −$42 vs premium received of ~$284). The premium dominates. The net economics of the BW are likely still positive.
+
+### Moneyness Color vs Economic Consequence
+
+The ladder's green color for BW ITM means: "assignment is approaching — the designed exit is becoming likely." This is moneyness state (spot > strike), not economic consequence (strike vs basis). The popup's red means: "if assigned at this strike relative to your basis, you realize erosion."
+
+These measure different dimensions and can legitimately disagree without either being mathematically wrong. However, green BW + red consequence creates operator confusion because green implies "things are going well."
+
+The moneyness-color system remains explicitly labeled "exploratory hypothesis, not ratified architecture" in the code.
+
+### What Was NOT Found
+
+- No recommendation-policy defect (strike > price is enforced)
+- No formula errors in the popup arithmetic (calculations are mathematically correct given their inputs)
+- No intentional recommendation of erosion-producing trades
+- No evidence that basis reconstruction logic is broken (the blended average IS what Fidelity reports — the issue is using it for per-call attribution)
+
+### Decisions
+
+- No code changes in this session
+- Lot-pairing limitation documented as correctness defect for multi-lot popup economics
+- Execution drift documented as inherent property of non-automated execution with delayed evidence
+- Both are existing parking-lot concerns (PL-PORT-01 for lot attribution, PL-EXEC-01 for execution lifecycle)
+
+### Parking-Lot Annotations Needed
+
+- **PL-PORT-01**: Annotate with lot-level basis attribution as a specific sub-concern exposed by BW popup economics
+- **PL-EXEC-01**: Annotate with execution-drift awareness (breakeven fill price communication)
+
+### Future Consequence Columns
+
+The Principal directed consideration of two new ladder columns: "IF CALLED AWAY" (calls/BWs) and "IF ASSIGNED" (puts) showing the consequence currently visible only in the popup. These must:
+- Reuse the popup's canonical `assignment-consequence.ts` derivation
+- Expose epistemic uncertainty when basis is blended across multiple lots
+- NOT propagate knowingly ambiguous figures (e.g., GDXJ −$403) as if lot-specific truth
+
+Design of how ambiguous multi-lot cases render is required before implementation.
+
+### Cross-references
+
+- `src/write-desk/recommend-buy-writes.ts` — strategy fitness: `strike > underlyingPrice`
+- `src/portfolio/assignment-consequence.ts` — `deriveCallAssignmentConsequence()`: uses `averageCostPerShare`
+- `src/write-desk/fidelity-snapshot.ts` — `deriveInventory()`: symbol-level aggregation, max(quantity) rule
+- `src/operator-console/moneyness-color.ts` — BW: ITM = green (exploratory hypothesis)
+- `docs/23-calls-architecture.md` — Horizon B: appreciation geometry (planned, unimplemented)
+
