@@ -409,6 +409,9 @@
 .prod-current {
   display: grid;
   grid-template-columns: minmax(300px, 1fr) 2fr;
+  /* Bounded height: both columns scroll independently within viewport */
+  max-height: calc(100vh - 140px);
+  overflow: hidden;
   gap: 1px;
   background: var(--wd-border, #2d3548);
   border: 1px solid var(--wd-border, #2d3548);
@@ -422,6 +425,7 @@
   flex-direction: column;
   gap: 1px;
   background: var(--wd-border, #2d3548);
+  overflow-y: auto;
 }
 
 /* --- Hero / Primary Summary (top of left column) --- */

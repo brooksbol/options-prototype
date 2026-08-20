@@ -51,6 +51,14 @@ export interface OpenShortCall {
   brokerOptionBasis: number | null;
   /** Broker-reported average cost per contract (negative = credit/share). Null when unavailable. */
   brokerOptionAverageCost: number | null;
+  /**
+   * Entry origin when provable from transaction evidence.
+   * "buy-write" = share acquisition and call STO occurred in the same transaction context
+   * (same day, matching underlying and quantity).
+   * null/undefined = origin unknown; position is a generic covered call.
+   * This is provenance, not inference from coincident state.
+   */
+  origin?: "buy-write" | null;
 }
 
 export interface OpenShortPut {

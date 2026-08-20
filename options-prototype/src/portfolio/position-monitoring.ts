@@ -150,8 +150,9 @@ export function deriveMonitoredPositions(
 
     const evidence = resolveEvidence("call", call.underlying, call.strike, observations, generation);
 
-    // Determine if this is a buy-write (shares owned + call sold = covered, with known acquisition cost)
-    const isBuyWrite = inv != null && inv.sharesOwned >= 100 && inv.economics?.averageCostPerShare != null;
+    // Use provenance-based origin when available. Do not infer BW from coincident state.
+    // Only positions with proven same-day share+call transaction evidence are classified as buy-write.
+    const isBuyWrite = call.origin === "buy-write";
 
     positions.push({
       id: `call-${call.underlying}-${call.strike}-${call.expiration}`,

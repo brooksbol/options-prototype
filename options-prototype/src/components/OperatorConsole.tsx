@@ -8,8 +8,7 @@
  * No Decision Pressure, Economic Consequence, or situation interpretation.
  */
 
-import { useRef, useState, useLayoutEffect, useCallback } from "react";
-import { hierarchy, treemap, treemapSquarify } from "d3-hierarchy";
+import { useState, useCallback } from "react";
 import { usePortfolio } from "../portfolio/use-portfolio";
 import { useObservations } from "../evidence/use-observations";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
@@ -26,9 +25,16 @@ export function OperatorConsole() {
   const observations = useObservations();
   const [selectedPosition, setSelectedPosition] = useState<MonitoredPosition | null>(null);
 
+  // Visual regime experiment: ?viz=c (default), ?viz=a, ?viz=b
+  const vizRegime = new URLSearchParams(window.location.search).get("viz") || "c";
+  // Group by axis (used in regime B)
+  const [groupBy, setGroupBy] = useState<"expiration" | "strategy" | "underlying">("expiration");
+  // Collapsed groups (by label key) for regime B
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+
   if (!snapshot) {
     return (
-      <div className="oc-shell">
+      <div className={`oc-shell ${vizRegime !== "c" ? "oc-light" : ""}`}>
         <div className="oc-empty">
           <p>No portfolio data available.</p>
         </div>
@@ -42,19 +48,47 @@ export function OperatorConsole() {
   const capacity = deriveCapacitySummary(positions, rungs, snapshot);
   const consequenceSummary = deriveNearestConsequenceSummary(rungs, snapshot);
 
-  // Compute per-position consequence hint for call/buy-write tile coloring
-  const consequenceHints = new Map<string, "appreciation" | "erosion">();
-  for (const pos of positions) {
-    if (pos.type === "call" || pos.type === "buy-write") {
-      const inv = snapshot.inventory.find(i => i.symbol.toUpperCase() === pos.underlying.toUpperCase());
-      if (inv?.economics?.averageCostPerShare != null) {
-        consequenceHints.set(pos.id, pos.strike >= inv.economics.averageCostPerShare ? "appreciation" : "erosion");
-      }
+  // Alternative groupings for regime B
+  const groups: { label: string; sublabel?: string; positions: MonitoredPosition[]; totalCapital: number }[] = (() => {
+    if (vizRegime !== "b" || groupBy === "expiration") {
+      return rungs.map(r => ({
+        label: formatExpiration(r.expiration),
+        sublabel: `${r.dte} DTE  $${r.totalCapital.toLocaleString()}  ${totalCapital > 0 ? Math.round((r.totalCapital / totalCapital) * 100) : 0}%`,
+        positions: r.positions,
+        totalCapital: r.totalCapital,
+      }));
     }
-  }
+    if (groupBy === "strategy") {
+      const stratOrder: MonitoredPosition["type"][] = ["put", "call", "buy-write"];
+      const stratLabels: Record<string, string> = { put: "Cash-Secured Puts", call: "Covered Calls", "buy-write": "Buy-Writes" };
+      return stratOrder
+        .map(t => {
+          const p = positions.filter(pos => pos.type === t);
+          const cap = p.reduce((s, pos) => s + (pos.encumberedCapital ?? 0), 0);
+          return { label: stratLabels[t], positions: p, totalCapital: cap };
+        })
+        .filter(g => g.positions.length > 0);
+    }
+    // groupBy === "underlying"
+    const bySymbol = new Map<string, MonitoredPosition[]>();
+    for (const p of positions) {
+      const existing = bySymbol.get(p.underlying);
+      if (existing) existing.push(p); else bySymbol.set(p.underlying, [p]);
+    }
+    return [...bySymbol.entries()]
+      .map(([sym, ps]) => ({
+        label: sym,
+        positions: ps,
+        totalCapital: ps.reduce((s, p) => s + (p.encumberedCapital ?? 0), 0),
+      }))
+      .sort((a, b) => b.totalCapital - a.totalCapital);
+  })();
+
+  // Note: consequence hints are no longer rendered on tiles (ADR-013 dimension independence).
+  // Economic Consequence remains available in the position-detail modal.
 
   return (
-    <div className="oc-shell">
+    <div className={`oc-shell ${vizRegime !== "c" ? "oc-light" : ""}`}>
       <div className="oc-body">
         {/* Sidebar region — portfolio capacity facts */}
         <aside className="oc-region-sidebar">
@@ -89,20 +123,89 @@ export function OperatorConsole() {
             </div>
           </div>
 
-          {/* Position Monitoring — actual ladder */}
+          {/* Position Monitoring — ladder with regime-specific tile rendering */}
           <div className="oc-region-ladder">
-            <div className="oc-ladder">
-              {rungs.map((rung) => (
-                <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} onTileClick={setSelectedPosition} consequenceHints={consequenceHints} />
-              ))}
+            {vizRegime === "b" && (
+              <div className="oc-group-by-bar">
+                <span className="oc-group-by-label">Group by</span>
+                <select
+                  className="oc-group-by-select"
+                  value={groupBy}
+                  onChange={(e) => { setGroupBy(e.target.value as "expiration" | "strategy" | "underlying"); setCollapsedGroups(new Set()); }}
+                >
+                  <option value="expiration">Expiration</option>
+                  <option value="strategy">Strategy</option>
+                  <option value="underlying">Underlying</option>
+                </select>
+                <span className="oc-group-by-divider" />
+                <button
+                  className="oc-group-by-action"
+                  onClick={() => setCollapsedGroups(new Set())}
+                  disabled={collapsedGroups.size === 0}
+                >
+                  Expand all
+                </button>
+                <button
+                  className="oc-group-by-action"
+                  onClick={() => setCollapsedGroups(new Set(groups.map(g => `${groupBy}-${g.label}`)))}
+                  disabled={collapsedGroups.size === groups.length}
+                >
+                  Collapse all
+                </button>
+              </div>
+            )}
+            <div className="oc-ladder-scroll">
+              <div className={`oc-ladder ${vizRegime === "b" ? "oc-ladder-dense" : ""}`}>
+                {vizRegime === "b" && <PositionTableHeader />}
+                {vizRegime === "b" ? (
+                groups.map((group, i) => {
+                  const groupKey = `${groupBy}-${group.label}`;
+                  const isCollapsed = collapsedGroups.has(groupKey);
+                  const toggleCollapse = () => {
+                    setCollapsedGroups(prev => {
+                      const next = new Set(prev);
+                      if (next.has(groupKey)) next.delete(groupKey); else next.add(groupKey);
+                      return next;
+                    });
+                  };
+                  return (
+                    <div key={i} className={`oc-rung ${isCollapsed ? "oc-rung-collapsed" : ""}`}>
+                      <div
+                        className="oc-rung-label oc-rung-label-collapsible"
+                        onClick={toggleCollapse}
+                        role="button"
+                        aria-expanded={!isCollapsed}
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleCollapse(); } }}
+                      >
+                        <span className={`oc-rung-chevron ${isCollapsed ? "oc-rung-chevron-collapsed" : ""}`} aria-hidden="true">▾</span>
+                        <span className="oc-rung-date">{group.label}</span>
+                        {group.sublabel && <span className="oc-rung-dte">{group.sublabel}</span>}
+                        {!group.sublabel && <span className="oc-rung-capital">${group.totalCapital.toLocaleString()}</span>}
+                        <span className="oc-rung-count">{group.positions.length} position{group.positions.length !== 1 ? "s" : ""}</span>
+                      </div>
+                      {!isCollapsed && (
+                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} isDemoSource={source === "demo"} />
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                rungs.map((rung) => (
+                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={source === "demo"} />
+                ))
+              )}
+            </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom region — reserved */}
+      {/* Regime indicator (dev only) */}
       <footer className="oc-region-footer">
-        <div className="oc-footer-placeholder">Status region</div>
+        <div className="oc-footer-placeholder">
+          Regime {vizRegime.toUpperCase()} · {positions.length} positions · {rungs.length} rungs
+        </div>
       </footer>
 
       {/* Position Detail Modal */}
@@ -286,7 +389,7 @@ function ConsequenceSidebar({ summary }: { summary: NearestConsequenceSummary })
 
 // --- Expiration Rung ---
 
-function ExpirationRungRow({ rung, totalCapital, onTileClick, consequenceHints }: { rung: ExpirationRung; totalCapital: number; onTileClick: (p: MonitoredPosition) => void; consequenceHints: Map<string, "appreciation" | "erosion"> }) {
+function ExpirationRungRow({ rung, totalCapital, onTileClick, vizRegime, isDemoSource }: { rung: ExpirationRung; totalCapital: number; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean }) {
   const rungPercent = totalCapital > 0 ? Math.round((rung.totalCapital / totalCapital) * 100) : 0;
 
   return (
@@ -298,171 +401,237 @@ function ExpirationRungRow({ rung, totalCapital, onTileClick, consequenceHints }
         <span className="oc-rung-percent">{rungPercent}%</span>
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
-      <TreemapRung positions={rung.positions} onTileClick={onTileClick} consequenceHints={consequenceHints} />
+      {vizRegime === "b" ? (
+        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} isDemoSource={isDemoSource} />
+      ) : (
+        <PositionGrid positions={rung.positions} onTileClick={onTileClick} vizRegime={vizRegime} totalCapital={rung.totalCapital} />
+      )}
     </div>
   );
 }
 
 // --- Treemap Rung (d3-hierarchy packing) ---
 
-/**
- * Minimum tile height for readable content (badge + symbol + detail line + padding).
- * Minimum tile width estimate — used to compute how many rows are needed.
- * A higher MIN_TILE_WIDTH means fewer tiles per row → more rows → taller rung.
- */
-const MIN_TILE_HEIGHT = 90;
-const MIN_TILE_WIDTH = 200;
-
-/**
- * Compute rung height from position count and container width.
- * Ensures every tile gets at least MIN_TILE_HEIGHT pixels by
- * estimating how many rows the treemap will produce.
- */
-function computeRungHeight(positionCount: number, containerWidth: number): number {
-  if (positionCount === 0 || containerWidth === 0) return 60;
-  const tilesPerRow = Math.max(1, Math.floor(containerWidth / MIN_TILE_WIDTH));
-  const rows = Math.ceil(positionCount / tilesPerRow);
-  return Math.max(80, rows * MIN_TILE_HEIGHT);
-}
-
-interface TreemapNode {
-  position: MonitoredPosition;
-  value: number;
-}
-
-function TreemapRung({ positions, onTileClick, consequenceHints }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; consequenceHints: Map<string, "appreciation" | "erosion"> }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
-
-  const measure = useCallback(() => {
-    if (containerRef.current) {
-      const w = containerRef.current.clientWidth;
-      if (w !== width) setWidth(w);
-    }
-  }, [width]);
-
-  useLayoutEffect(() => {
-    measure();
-    const el = containerRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver(() => measure());
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [measure]);
-
-  const rungHeight = computeRungHeight(positions.length, width);
-  const nodes = width > 0 ? computeTreemapLayout(positions, width, rungHeight) : [];
-
+function PositionGrid({ positions, onTileClick, vizRegime, totalCapital }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; totalCapital: number }) {
   return (
-    <div
-      ref={containerRef}
-      className="oc-rung-treemap"
-      style={{ height: rungHeight, position: "relative" }}
-    >
-      {nodes.map((node) => (
-        <PositionTile key={node.position.id} node={node} onClick={() => onTileClick(node.position)} consequenceHint={consequenceHints.get(node.position.id)} />
-      ))}
+    <div className="oc-rung-grid">
+      {positions.map((position) => {
+        // Regime A: proportional width based on capital (with a floor)
+        const style: React.CSSProperties | undefined = vizRegime === "a" && totalCapital > 0 && position.encumberedCapital
+          ? { flex: `${Math.max(1, Math.sqrt(position.encumberedCapital / totalCapital) * 10)} 1 155px` }
+          : undefined;
+        return (
+          <PositionTile key={position.id} position={position} onClick={() => onTileClick(position)} style={style} />
+        );
+      })}
     </div>
   );
 }
 
-interface LayoutNode {
-  position: MonitoredPosition;
-  x0: number;
-  y0: number;
-  x1: number;
-  y1: number;
+/** Regime B: Column header row — aligned with PositionTable grid */
+function PositionTableHeader() {
+  return (
+    <div className="oc-row-header" role="row" aria-label="Column headers">
+      <span className="oc-row-header-cell">Type</span>
+      <span className="oc-row-header-cell">Symbol</span>
+      <span className="oc-row-header-cell">Strike</span>
+      <span className="oc-row-header-cell">Spot</span>
+      <span className="oc-row-header-cell oc-row-header-center">Qty</span>
+      <span className="oc-row-header-cell">Moneyness</span>
+      <span className="oc-row-header-cell oc-row-header-right">Capital</span>
+      <span className="oc-row-header-cell oc-row-header-right">%</span>
+    </div>
+  );
 }
 
-function computeTreemapLayout(
-  positions: MonitoredPosition[],
-  containerWidth: number,
-  containerHeight: number
-): LayoutNode[] {
-  // --- Value compression ---
-  // Raw capital values can span 36:1 ratios, causing the squarified algorithm
-  // to produce slivers for mid-range tiles squeezed between giants.
-  // sqrt compression narrows this to ~6:1 while preserving ordering.
-  // No minimum area enforcement needed — container is sized for content.
+/** Regime B: Dense fixed-geometry rows — Fidelity-inspired density */
+function PositionTable({ positions, onTileClick, totalCapital, isDemoSource }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; isDemoSource: boolean }) {
+  return (
+    <div className="oc-rung-table">
+      {positions.map((position) => {
+        const mState = classifyMoneyness(position);
+        const mDisplay = formatMoneynessDisplay(position);
+        const colorClass = moneynessColor(position.type, mState);
+        const badge = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
+        const capitalPct = totalCapital > 0 && position.encumberedCapital ? Math.round((position.encumberedCapital / totalCapital) * 100) : 0;
 
-  // Raw values
-  const rawValues = positions.map((p) =>
-    p.encumberedCapital != null && p.encumberedCapital > 0 ? p.encumberedCapital : 1
-  );
+        // Moneyness history: only available for Demo source
+        const moneynessPoints = isDemoSource && position.underlyingPrice != null
+          ? deriveMoneynessHistory(
+              generateDemoSpotHistory(position.underlying, position.underlyingPrice),
+              position.strike,
+              position.type,
+            )
+          : [];
 
-  // Compress: sqrt preserves ordering, narrows range
-  const compressedValues = rawValues.map((v) => Math.sqrt(v));
-
-  // Build a flat hierarchy: root → children (one per position)
-  const children: TreemapNode[] = positions.map((p, i) => ({
-    position: p,
-    value: compressedValues[i],
-  }));
-
-  const root = hierarchy<{ children: TreemapNode[] } | TreemapNode>({ children })
-    .sum((d) => ("value" in d ? d.value : 0));
-
-  const layout = treemap<{ children: TreemapNode[] } | TreemapNode>()
-    .size([containerWidth, containerHeight])
-    .tile(treemapSquarify)
-    .padding(2)
-    .round(true);
-
-  layout(root);
-
-  return (root.leaves() as unknown as Array<{ data: TreemapNode; x0: number; y0: number; x1: number; y1: number }>).map(
-    (leaf) => ({
-      position: leaf.data.position,
-      x0: leaf.x0,
-      y0: leaf.y0,
-      x1: leaf.x1,
-      y1: leaf.y1,
-    })
+        return (
+          <div key={position.id} className={`oc-row oc-row-${position.type}`} onClick={() => onTileClick(position)}>
+            <span className="oc-row-badge">{badge}</span>
+            <span className="oc-row-symbol">{position.underlying}</span>
+            <span className="oc-row-strike">${position.strike}</span>
+            <span className="oc-row-spot">{position.underlyingPrice != null ? `$${position.underlyingPrice.toFixed(2)}` : "—"}</span>
+            <span className="oc-row-contracts">{position.quantity}</span>
+            <span className="oc-row-moneyness-compound">
+              <MoneynessCellV4 points={moneynessPoints} type={position.type} currentMoneyness={position.moneyness} mDisplay={mDisplay} colorClass={colorClass} />
+            </span>
+            <span className="oc-row-capital">{position.encumberedCapital != null ? `$${position.encumberedCapital.toLocaleString()}` : "—"}</span>
+            <span className="oc-row-pct">{capitalPct > 0 ? `${capitalPct}%` : "—"}</span>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
 // --- Position Tile ---
 
 import { classifyMoneyness, formatMoneynessDisplay } from "../operator-console/moneyness-presentation";
+import { moneynessColor, type MoneynessColorClass } from "../operator-console/moneyness-color";
+import { generateDemoSpotHistory, deriveMoneynessHistory, type MoneynessPoint } from "../operator-console/moneyness-history";
 
-function PositionTile({ node, onClick, consequenceHint }: { node: LayoutNode; onClick: () => void; consequenceHint?: "appreciation" | "erosion" }) {
-  const { position, x0, y0, x1, y1 } = node;
-  const w = x1 - x0;
-  const h = y1 - y0;
+/**
+ * MoneynessCellV4 — compound cell: compact numeric + 90px semantic sparkline.
+ * V4 visual grammar: chart-dominant, segmented trace, moderate regions, strong zero.
+ */
+function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass }: {
+  points: MoneynessPoint[];
+  type: import("../portfolio/position-monitoring").PositionType;
+  currentMoneyness: number | null;
+  mDisplay: string | null;
+  colorClass: MoneynessColorClass;
+}) {
+  const textColorMap: Record<MoneynessColorClass, string> = {
+    favorable: "#15803d",
+    ambiguous: "#a16207",
+    unfavorable: "#b91c1c",
+    neutral: "#374151",
+  };
+  const textColor = textColorMap[colorClass];
+
+  // No history or no moneyness → just show numeric
+  if (points.length < 3 || currentMoneyness == null) {
+    return (
+      <span className={`oc-tile-mc-${colorClass}`} style={{ fontSize: "10px", fontWeight: 700 }}>
+        {mDisplay ?? "—"}
+      </span>
+    );
+  }
+
+  const SPARK_W = 90;
+  const SPARK_H = 16;
+  const PAD = 1;
+  const plotH = SPARK_H - PAD * 2;
+  const maxAbs = Math.max(...points.map(p => Math.abs(p.moneyness)), 0.005);
+  const zeroY = PAD + plotH / 2;
+
+  const sYScale = (m: number) => PAD + plotH / 2 - (m / maxAbs) * (plotH / 2);
+  const sXPos = (i: number) => PAD + (i / (points.length - 1)) * (SPARK_W - PAD * 2);
+
+  // Region colors (intent-aware)
+  const regionOpacity = 0.08;
+  const itmRegionColor = type === "put"
+    ? `rgba(220, 38, 38, ${regionOpacity})`
+    : type === "buy-write"
+      ? `rgba(22, 163, 74, ${regionOpacity})`
+      : `rgba(107, 114, 128, ${regionOpacity * 0.5})`;
+  const otmRegionColor = type === "put"
+    ? `rgba(22, 163, 74, ${regionOpacity})`
+    : type === "buy-write"
+      ? `rgba(220, 38, 38, ${regionOpacity})`
+      : `rgba(107, 114, 128, ${regionOpacity * 0.5})`;
+
+  // Segmented trace
+  const segments: { x1: number; y1: number; x2: number; y2: number; color: string }[] = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const x1 = sXPos(i);
+    const y1 = sYScale(points[i].moneyness);
+    const x2 = sXPos(i + 1);
+    const y2 = sYScale(points[i + 1].moneyness);
+    const midM = (points[i].moneyness + points[i + 1].moneyness) / 2;
+    const isAboveZero = midM > 0;
+    let color: string;
+    if (type === "put") {
+      color = isAboveZero ? "#dc2626" : "#16a34a";
+    } else if (type === "buy-write") {
+      color = isAboveZero ? "#16a34a" : "#dc2626";
+    } else {
+      color = "#6b7280";
+    }
+    segments.push({ x1, y1, x2, y2, color });
+  }
+
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}>
+      <span style={{ fontSize: "9px", fontWeight: 700, color: textColor, whiteSpace: "nowrap" }}>
+        {mDisplay}
+      </span>
+      <svg width={SPARK_W} height={SPARK_H} viewBox={`0 0 ${SPARK_W} ${SPARK_H}`} style={{ display: "block", flexShrink: 0 }}>
+        <rect x={0} y={0} width={SPARK_W} height={zeroY} fill={itmRegionColor} />
+        <rect x={0} y={zeroY} width={SPARK_W} height={SPARK_H - zeroY} fill={otmRegionColor} />
+        <line x1={PAD} y1={zeroY} x2={SPARK_W - PAD} y2={zeroY} stroke="#6b7280" strokeWidth="0.8" />
+        {segments.map((seg, i) => (
+          <line key={i} x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2} stroke={seg.color} strokeWidth="1.3" strokeLinecap="round" />
+        ))}
+      </svg>
+    </span>
+  );
+}
+
+/**
+ * Position Tile — fixed-height, predictable geometry.
+ *
+ * Every position gets the same vertical space and a comfortable minimum width.
+ * No four-mode degradation system. Content is consistent and readable.
+ * Capital is shown as a labeled value — geometry no longer controls readability.
+ */
+function PositionTile({ position, onClick, style }: { position: MonitoredPosition; onClick: () => void; style?: React.CSSProperties }) {
   const mState = classifyMoneyness(position);
   const mDisplay = formatMoneynessDisplay(position);
+  const colorClass = moneynessColor(position.type, mState);
 
-  const style: React.CSSProperties = {
-    position: "absolute",
-    left: x0,
-    top: y0,
-    width: w,
-    height: h,
-    boxSizing: "border-box",
-  };
-
-  // All tiles use vertical stacked layout — one data point per line.
-  // Font size scales with tile area to use available space proportionally.
-  const area = w * h;
-  const fontSize = area > 40000 ? 14 : area > 20000 ? 12 : area > 8000 ? 10 : 9;
-
-  const consequenceClass = consequenceHint ? ` oc-tile-consequence-${consequenceHint}` : "";
+  const badge = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
+  const qtyLabel = position.quantity > 1 ? ` ×${position.quantity}` : "";
 
   return (
     <div
-      className={`oc-tile oc-tile-${position.type} oc-tile-state-${mState}${consequenceClass}`}
-      style={{ ...style, fontSize, cursor: "pointer" }}
+      className={`oc-tile oc-tile-${position.type}`}
       onClick={onClick}
+      style={style}
     >
-      <span className="oc-tile-badge">{position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL"}</span>
-      <span className="oc-tile-symbol">{position.underlying}</span>
-      <span className="oc-tile-strike">${position.strike}</span>
-      {position.encumberedCapital != null && (
-        <span className="oc-tile-capital">${(position.encumberedCapital / 1000).toFixed(1)}K</span>
+      {/* Identity: badge + symbol + quantity */}
+      <span className="oc-tile-identity">
+        <span className="oc-tile-badge">{badge}</span>
+        <span className="oc-tile-symbol">{position.underlying}{qtyLabel}</span>
+      </span>
+
+      {/* Strike */}
+      <span className="oc-tile-field">
+        <span className="oc-tile-label">Strike</span>
+        <span className="oc-tile-value">${position.strike}</span>
+      </span>
+
+      {/* Spot */}
+      {position.underlyingPrice != null && (
+        <span className="oc-tile-field">
+          <span className="oc-tile-label">Spot</span>
+          <span className="oc-tile-value">${position.underlyingPrice.toFixed(2)}</span>
+        </span>
       )}
-      {mDisplay && <span className="oc-tile-moneyness">{mDisplay}</span>}
-      {position.quantity > 1 && (
-        <span className="oc-tile-qty">×{position.quantity}</span>
+
+      {/* Moneyness — intent-aware color */}
+      {mDisplay && (
+        <span className="oc-tile-field oc-tile-field-moneyness">
+          <span className="oc-tile-label">Moneyness</span>
+          <span className={`oc-tile-value oc-tile-moneyness oc-tile-mc-${colorClass}`}>{mDisplay}</span>
+        </span>
+      )}
+
+      {/* Capital */}
+      {position.encumberedCapital != null && (
+        <span className="oc-tile-field">
+          <span className="oc-tile-label">Capital</span>
+          <span className="oc-tile-value">${(position.encumberedCapital / 1000).toFixed(1)}K</span>
+        </span>
       )}
     </div>
   );

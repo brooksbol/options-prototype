@@ -14,6 +14,7 @@ import App from "./App";
 import { WriteDesk } from "./components/WriteDesk";
 import { OperatorConsole } from "./components/OperatorConsole";
 import { ProductionView } from "./production/ProductionView";
+import { SparklineGallery } from "./operator-console/SparklineGallery";
 
 export function Root() {
   const [route, setRoute] = useState<AppRoute>(resolveRoute);
@@ -30,6 +31,11 @@ export function Root() {
   // Labs remain outside the Application Shell — engineering tooling, not operator surface
   if (route === "labs") {
     return <App />;
+  }
+
+  // Sparkline gallery — temporary UX experiment, outside AppShell
+  if (route === "sparkline-gallery") {
+    return <SparklineGallery />;
   }
 
   // All operational surfaces render inside the shared Application Shell

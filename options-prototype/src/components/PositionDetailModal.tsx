@@ -45,7 +45,7 @@ export function PositionDetailModal({ detail, onClose }: Props) {
 
   const mState = classifyMoneyness(position);
   const mDisplay = formatMoneynessDisplay(position);
-  const typeLabel = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BUY-WRITE" : "CALL";
+  const typeLabel = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BUY-WRITE" : "COVERED CALL";
 
   return (
     <div className="pdm-backdrop" onClick={handleBackdropClick}>
@@ -178,18 +178,20 @@ function ImmediateConsequence({ detail }: { detail: PositionDetail }) {
 
 function SituationalSummary({ detail, mState }: { detail: PositionDetail; mState: string }) {
   const { position } = detail;
+  // Human-readable strategy name for prose
+  const strategyName = position.type === "put" ? "put" : position.type === "buy-write" ? "buy-write" : "covered call";
   let summary: string;
 
   if (position.moneyness == null) {
-    summary = `This ${position.type} on ${position.underlying} at the $${position.strike} strike expires in ${position.dte} days. No current market observation is available to determine moneyness.`;
+    summary = `This ${strategyName} on ${position.underlying} at the $${position.strike} strike expires in ${position.dte} days. No current market observation is available to determine moneyness.`;
   } else if (mState === "otm") {
     const pct = Math.abs(position.moneyness * 100).toFixed(1);
-    summary = `This ${position.type} is out of the money. The underlying ($${position.underlyingPrice?.toFixed(2)}) is ${pct}% away from the $${position.strike} strike. With ${position.dte} days remaining, assignment at expiration would require a ${position.type === "put" ? "decline" : "rise"} in ${position.underlying}.`;
+    summary = `This ${strategyName} is out of the money. The underlying ($${position.underlyingPrice?.toFixed(2)}) is ${pct}% away from the $${position.strike} strike. With ${position.dte} days remaining, assignment at expiration would require a ${position.type === "put" ? "decline" : "rise"} in ${position.underlying}.`;
   } else if (mState === "itm") {
     const pct = Math.abs(position.moneyness * 100).toFixed(1);
-    summary = `This ${position.type} is in the money. The underlying ($${position.underlyingPrice?.toFixed(2)}) has crossed the $${position.strike} strike by ${pct}%. If the position remained in this state at expiration, assignment would be expected.`;
+    summary = `This ${strategyName} is in the money. The underlying ($${position.underlyingPrice?.toFixed(2)}) has crossed the $${position.strike} strike by ${pct}%. If the position remained in this state at expiration, assignment would be expected.`;
   } else {
-    summary = `This ${position.type} is near the money. The underlying ($${position.underlyingPrice?.toFixed(2)}) is very close to the $${position.strike} strike. Small movements in ${position.underlying} over the remaining ${position.dte} days will determine whether it finishes in or out of the money.`;
+    summary = `This ${strategyName} is near the money. The underlying ($${position.underlyingPrice?.toFixed(2)}) is very close to the $${position.strike} strike. Small movements in ${position.underlying} over the remaining ${position.dte} days will determine whether it finishes in or out of the money.`;
   }
 
   return (

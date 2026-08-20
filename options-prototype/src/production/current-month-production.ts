@@ -231,15 +231,6 @@ function deriveInFlightPositions(
   const todayMs = today.getTime();
   const monthEndMs = monthEnd.getTime();
 
-  // Build inventory lookup for buy-write classification
-  const inventoryBySymbol = new Map<string, { sharesOwned: number; averageCostPerShare: number | null }>();
-  for (const inv of snapshot.inventory) {
-    inventoryBySymbol.set(inv.symbol.toUpperCase(), {
-      sharesOwned: inv.sharesOwned,
-      averageCostPerShare: inv.economics?.averageCostPerShare ?? null,
-    });
-  }
-
   for (const put of snapshot.existingPuts) {
     const expMs = new Date(put.expiration).getTime();
     const dte = Math.max(0, Math.ceil((expMs - todayMs) / 86_400_000));
@@ -271,9 +262,8 @@ function deriveInFlightPositions(
       ? Math.abs(call.brokerOptionBasis)
       : null;
 
-    // Classify as buy-write if operator owns 100+ shares with known cost basis
-    const inv = inventoryBySymbol.get(call.underlying.toUpperCase());
-    const isBuyWrite = inv != null && inv.sharesOwned >= 100 && inv.averageCostPerShare != null;
+    // Use provenance-based origin. Do not infer BW from coincident state.
+    const isBuyWrite = call.origin === "buy-write";
 
     positions.push({
       type: isBuyWrite ? "buy-write" : "call",

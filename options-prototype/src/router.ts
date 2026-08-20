@@ -12,7 +12,7 @@
  *   anything else → Operator Console (home)
  */
 
-export type AppRoute = "operator-console" | "write-desk" | "production" | "labs";
+export type AppRoute = "operator-console" | "write-desk" | "production" | "labs" | "sparkline-gallery";
 
 /**
  * Determine the current route from the browser pathname.
@@ -28,6 +28,11 @@ export function resolveRoute(): AppRoute {
   // Production assessment
   if (path === "/app/production") {
     return "production";
+  }
+
+  // Sparkline gallery (temporary UX experiment)
+  if (path === "/app/sparkline-gallery") {
+    return "sparkline-gallery";
   }
 
   // Labs

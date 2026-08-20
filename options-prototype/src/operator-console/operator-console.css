@@ -15,7 +15,7 @@
 .oc-shell {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  min-height: calc(100vh - 40px); /* account for AppShell header */
+  height: calc(100vh - 40px); /* fixed to viewport — no growing beyond screen */
   background: var(--wd-bg-base);
   color: var(--wd-text-primary);
 }
@@ -150,8 +150,17 @@
 
 .oc-region-ladder {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Scroll container for position rows — Group By bar stays above */
+.oc-ladder-scroll {
+  flex: 1;
   overflow-y: auto;
-  padding: 10px 12px;
+  padding: 0 12px 10px;
 }
 
 .oc-ladder {
@@ -223,109 +232,70 @@
   margin-left: auto;
 }
 
-/* === Tiles === */
+/* === Position Grid (Alt C: constrained geometry experiment) === */
 
-.oc-rung-treemap {
-  overflow: hidden;
-  border-radius: 2px;
+.oc-rung-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .oc-tile {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  padding: 4px 7px;
-  border-radius: 3px;
-  overflow: hidden;
-  /* Full perimeter border — state color applied via .oc-tile-state-* */
-  border: 1.5px solid var(--wd-border-subtle, #555);
-  /* Base background; contract-type classes override with tinted variant */
+  align-items: flex-start;
+  gap: 1px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  /* Neutral border — reserved for future Decision Pressure */
+  border: 1px solid var(--wd-border-subtle, #444);
   background: var(--wd-bg-raised);
-  line-height: 1.3;
-  text-align: center;
+  line-height: 1.35;
+  font-size: 11px;
+  cursor: pointer;
+  /* Fixed comfortable geometry — every position gets readable space */
+  min-width: 155px;
+  flex: 1 1 155px;
+  max-width: 240px;
 }
 
-/* Remove old horizontal/stacked classes — all tiles are now vertical */
-
-/* --- Moneyness state borders --- */
-/* OTM: underlying safely away from strike */
-.oc-tile-state-otm {
-  border-color: var(--wd-accent-green);
+.oc-tile:hover {
+  border-color: var(--wd-text-tertiary, #888);
 }
 
-/* ATM: underlying near the strike (within tolerance) */
-.oc-tile-state-atm {
-  border-color: var(--wd-accent-yellow, #f2c94c);
-}
-
-/* ITM: underlying has crossed the strike */
-.oc-tile-state-itm {
-  border-color: var(--wd-accent-red, #e74c3c);
-}
-
-/* No observation available */
-.oc-tile-state-none {
-  border-color: var(--wd-border-default, #555);
-}
-
-/* --- Contract-type backgrounds (subtle tint, not competing with state borders) --- */
+/* --- Strategy-identity backgrounds (subtle — moneyness is the scanning signal) --- */
 
 .oc-tile-put {
-  background: rgba(187, 134, 252, 0.08);
+  background: rgba(180, 100, 160, 0.12);
 }
 
 .oc-tile-call {
-  background: rgba(126, 200, 227, 0.10);
+  background: rgba(80, 160, 140, 0.12);
 }
 
-/* --- PUT/CALL badge uses its own color independent of state --- */
+.oc-tile-buy-write {
+  background: rgba(70, 120, 200, 0.14);
+}
+
+/* --- Identity line --- */
+
+.oc-tile-identity {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  width: 100%;
+  margin-bottom: 2px;
+}
 
 .oc-tile-badge {
-  font-size: 0.7em;
+  font-size: 0.75em;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
-.oc-tile-put .oc-tile-badge { color: var(--wd-accent-green); }
-.oc-tile-call .oc-tile-badge { color: var(--wd-accent-yellow, #f2c94c); }
-.oc-tile-buy-write .oc-tile-badge { color: var(--wd-accent-blue, #4a9eff); }
-
-/* Buy-write tile: subtle blue tint */
-.oc-tile-buy-write {
-  background: rgba(74, 158, 255, 0.10);
-}
-
-/* Buy-write ITM: cycle completion likely — green, not red */
-.oc-tile-buy-write.oc-tile-state-itm {
-  border-color: var(--wd-accent-green, #42C77A);
-}
-.oc-tile-buy-write.oc-tile-state-itm .oc-tile-moneyness {
-  color: var(--wd-accent-green, #42C77A);
-}
-
-/* Buy-write OTM: shares retained, cycle not yet completing — neutral */
-.oc-tile-buy-write.oc-tile-state-otm {
-  border-color: var(--wd-border-default, #555);
-}
-
-/* Buy-write ATM: approaching completion */
-.oc-tile-buy-write.oc-tile-state-atm {
-  border-color: var(--wd-accent-blue, #4a9eff);
-}
-
-/* --- Call/Buy-write consequence coloring (strike vs share basis) --- */
-
-.oc-tile-consequence-appreciation {
-  background: rgba(111, 207, 151, 0.10);
-  border-color: var(--wd-accent-green, #6fcf97);
-}
-
-.oc-tile-consequence-erosion {
-  background: rgba(235, 87, 87, 0.08);
-  border-color: var(--wd-accent-red, #eb5757);
-}
+.oc-tile-put .oc-tile-badge { color: #D08AB8; }
+.oc-tile-call .oc-tile-badge { color: #5CC8A0; }
+.oc-tile-buy-write .oc-tile-badge { color: #7AB0E8; }
 
 .oc-tile-symbol {
   font-size: 1.1em;
@@ -333,38 +303,53 @@
   color: var(--wd-text-primary);
 }
 
-.oc-tile-strike {
-  font-size: 0.9em;
-  color: var(--wd-text-secondary);
+/* --- Labeled fields --- */
+
+.oc-tile-field {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  width: 100%;
 }
 
-.oc-tile-capital {
-  font-size: 0.9em;
+.oc-tile-label {
+  font-size: 0.72em;
+  font-weight: 500;
+  color: var(--wd-text-tertiary, #6b7280);
+  min-width: 5.8em;
+}
+
+.oc-tile-value {
+  font-size: 0.92em;
   font-weight: 500;
   color: var(--wd-text-secondary);
 }
 
-.oc-tile-qty {
-  font-size: 0.8em;
-  color: var(--wd-text-tertiary);
-}
+/* --- Moneyness: intent-aware semantic color (scoped to field text) --- */
+/* favorable = strategy-implied favorable direction (green)
+   ambiguous = at the boundary, direction unknown (yellow)
+   unfavorable = strategy-implied unfavorable direction (red)
+   neutral = intent unknown, no strong color signal (muted) */
 
 .oc-tile-moneyness {
-  font-size: 0.7em;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
 }
 
-.oc-tile-state-otm .oc-tile-moneyness {
-  color: var(--wd-accent-green);
+.oc-tile-mc-favorable {
+  color: #4ADE80;
 }
 
-.oc-tile-state-atm .oc-tile-moneyness {
-  color: var(--wd-accent-yellow, #f2c94c);
+.oc-tile-mc-ambiguous {
+  color: #FACC15;
 }
 
-.oc-tile-state-itm .oc-tile-moneyness {
-  color: var(--wd-accent-red, #e74c3c);
+.oc-tile-mc-unfavorable {
+  color: #F87171;
+}
+
+.oc-tile-mc-neutral {
+  color: var(--wd-text-secondary, #9aa5b8);
 }
 
 /* === Footer Region === */
@@ -566,4 +551,498 @@
 .oc-cq-premium {
   color: #86efac;
   opacity: 0.75;
+}
+
+
+/* === Light Mode (Regimes A and B) === */
+
+.oc-light {
+  background: #f8f9fb;
+  color: #1a1d26;
+}
+
+.oc-light .oc-body {
+  background: #f8f9fb;
+}
+
+.oc-light .oc-region-sidebar {
+  background: #ffffff;
+  border-right-color: #e2e5ea;
+}
+
+.oc-light .oc-main {
+  background: #f8f9fb;
+}
+
+.oc-light .oc-region-ladder {
+  background: #f8f9fb;
+}
+
+.oc-light .oc-rung {
+  background: #ffffff;
+  border: 1px solid #e8eaef;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.oc-light .oc-rung-label {
+  border-bottom-color: #eef0f4;
+}
+
+.oc-light .oc-rung-date,
+.oc-light .oc-rung-capital {
+  color: #111318;
+}
+
+.oc-light .oc-rung-dte,
+.oc-light .oc-rung-percent,
+.oc-light .oc-rung-count {
+  color: #374151;
+}
+
+.oc-light .oc-tile {
+  background: #ffffff;
+  border-color: #e2e5ea;
+}
+
+.oc-light .oc-tile:hover {
+  border-color: #9ca3af;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.oc-light .oc-tile-put {
+  background: rgba(180, 100, 160, 0.06);
+}
+
+.oc-light .oc-tile-call {
+  background: rgba(60, 140, 120, 0.06);
+}
+
+.oc-light .oc-tile-buy-write {
+  background: rgba(50, 100, 180, 0.07);
+}
+
+.oc-light .oc-tile-symbol {
+  color: #1a1d26;
+}
+
+.oc-light .oc-tile-label {
+  color: #4b5563;
+}
+
+.oc-light .oc-tile-value {
+  color: #111318;
+}
+
+.oc-light .oc-tile-put .oc-tile-badge { color: #a855a0; }
+.oc-light .oc-tile-call .oc-tile-badge { color: #0d9068; }
+.oc-light .oc-tile-buy-write .oc-tile-badge { color: #2563eb; }
+
+/* Light mode moneyness — stronger contrast against white */
+.oc-light .oc-tile-mc-favorable { color: #15803d; }
+.oc-light .oc-tile-mc-ambiguous { color: #a16207; }
+.oc-light .oc-tile-mc-unfavorable { color: #b91c1c; }
+.oc-light .oc-tile-mc-neutral { color: #374151; }
+
+/* Light mode mission/placeholder */
+.oc-light .oc-mission-cell {
+  background: #ffffff;
+  border-color: #e2e5ea;
+}
+
+.oc-light .oc-mission-label { color: #374151; }
+.oc-light .oc-mission-unavailable { color: #6b7280; }
+.oc-light .oc-mission-hint { color: #6b7280; }
+
+.oc-light .oc-region-footer {
+  border-top-color: #e2e5ea;
+}
+
+.oc-light .oc-footer-placeholder { color: #6b7280; }
+
+/* Light sidebar overrides */
+.oc-light .oc-cap-label { color: #374151; }
+.oc-light .oc-cap-value { color: #111318; }
+.oc-light .oc-cap-basis { color: #4b5563; }
+
+/* === Regime B (B3): Dense Table Rows — Fidelity-inspired vertical rhythm === */
+/* Density comes from tight padding/line-height and alignment, not from small font.
+   Body text stays at 11px for legibility on older monitors. */
+
+.oc-rung-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.oc-row {
+  display: grid;
+  grid-template-columns: 36px 72px 72px 80px 48px 150px 100px 48px;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 11px;
+  line-height: 1.2;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.oc-row > span {
+  padding: 0 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.oc-row > span:last-child {
+  border-right: none;
+}
+
+.oc-row:hover {
+  background: var(--wd-bg-hover, rgba(255, 255, 255, 0.04));
+}
+
+.oc-light .oc-row {
+  border-bottom: 1px solid #e8eaef;
+}
+
+.oc-light .oc-row > span {
+  border-right-color: #eef0f4;
+}
+
+.oc-light .oc-row:hover {
+  background: #f5f6f8;
+}
+
+.oc-row-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.oc-row-put .oc-row-badge { color: #D08AB8; }
+.oc-row-call .oc-row-badge { color: #5CC8A0; }
+.oc-row-buy-write .oc-row-badge { color: #7AB0E8; }
+
+.oc-light .oc-row-put .oc-row-badge { color: #a855a0; }
+.oc-light .oc-row-call .oc-row-badge { color: #0d9068; }
+.oc-light .oc-row-buy-write .oc-row-badge { color: #2563eb; }
+
+.oc-row-symbol {
+  font-weight: 600;
+  color: var(--wd-text-primary);
+}
+
+.oc-light .oc-row-symbol { color: #111318; }
+
+.oc-row-strike,
+.oc-row-spot {
+  color: var(--wd-text-secondary);
+}
+
+.oc-row-spot {
+  color: #60a5fa; /* observed market evidence — blue */
+}
+
+.oc-light .oc-row-strike {
+  color: #1f2937;
+}
+
+.oc-light .oc-row-spot {
+  color: #2563eb; /* observed evidence — blue, darker for light background */
+}
+
+.oc-row-contracts {
+  font-size: 10px;
+  color: var(--wd-text-tertiary, #6b7280);
+  text-align: center;
+}
+
+.oc-light .oc-row-contracts { color: #374151; }
+
+.oc-row-moneyness {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Light-mode row moneyness */
+.oc-light .oc-row-moneyness.oc-tile-mc-favorable { color: #15803d; }
+.oc-light .oc-row-moneyness.oc-tile-mc-ambiguous { color: #a16207; }
+.oc-light .oc-row-moneyness.oc-tile-mc-unfavorable { color: #b91c1c; }
+.oc-light .oc-row-moneyness.oc-tile-mc-neutral { color: #374151; }
+
+.oc-row-capital {
+  color: var(--wd-text-secondary);
+  text-align: right;
+}
+
+.oc-light .oc-row-capital { color: #1f2937; }
+
+.oc-row-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1.5px;
+  overflow: hidden;
+}
+
+.oc-light .oc-row-bar {
+  background: #e5e7eb;
+}
+
+.oc-row-bar-fill {
+  height: 100%;
+  background: rgba(100, 160, 220, 0.4);
+  border-radius: 1.5px;
+}
+
+.oc-light .oc-row-bar-fill {
+  background: rgba(50, 100, 180, 0.3);
+}
+
+/* Group By control bar */
+.oc-group-by-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--wd-border-subtle, #333);
+}
+
+.oc-group-by-label {
+  font-size: 10px;
+  color: var(--wd-text-tertiary, #6b7280);
+}
+
+.oc-light .oc-group-by-label { color: #374151; }
+
+.oc-light .oc-group-by-bar {
+  border-bottom-color: #d1d5db;
+  background: #f0f1f4;
+}
+
+.oc-group-by-select {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--wd-border-subtle, #444);
+  background: var(--wd-bg-raised, #222433);
+  color: var(--wd-text-primary);
+  cursor: pointer;
+}
+
+.oc-light .oc-group-by-select {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #111318;
+}
+
+.oc-group-by-divider {
+  width: 1px;
+  height: 14px;
+  background: var(--wd-border-subtle, #444);
+  margin: 0 4px;
+}
+
+.oc-light .oc-group-by-divider {
+  background: #d1d5db;
+}
+
+.oc-group-by-action {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: none;
+  background: transparent;
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.oc-group-by-action:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--wd-text-primary);
+}
+
+.oc-group-by-action:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.oc-light .oc-group-by-action {
+  color: #374151;
+}
+
+.oc-light .oc-group-by-action:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
+  color: #111318;
+}
+
+/* Dense ladder: tighter rung padding, stronger group separation */
+.oc-ladder-dense .oc-rung {
+  padding: 4px 8px 6px;
+}
+
+.oc-ladder-dense .oc-rung + .oc-rung {
+  margin-top: 12px;
+}
+
+/* Collapsed rung: index/list density — minimal vertical footprint */
+.oc-ladder-dense .oc-rung-collapsed {
+  padding: 0 8px;
+  margin-top: 0 !important;
+}
+
+.oc-ladder-dense .oc-rung-collapsed + .oc-rung {
+  margin-top: 0;
+}
+
+.oc-ladder-dense .oc-rung + .oc-rung-collapsed {
+  margin-top: 0;
+}
+
+.oc-ladder-dense .oc-rung-collapsed .oc-rung-label {
+  margin-bottom: 0;
+  padding: 3px 4px;
+  border-bottom: none;
+}
+
+.oc-light .oc-rung-collapsed {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid #e8eaef;
+  margin-bottom: 0;
+}
+
+/* Expanded groups get a bit more breathing room at boundaries */
+.oc-ladder-dense .oc-rung:not(.oc-rung-collapsed) + .oc-rung:not(.oc-rung-collapsed) {
+  margin-top: 12px;
+}
+
+/* === Column Headers (Regime B) === */
+
+.oc-row-header {
+  display: grid;
+  grid-template-columns: 36px 72px 72px 80px 48px 150px 100px 48px;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wd-text-tertiary, #6b7280);
+  border-top: 1px solid var(--wd-border-subtle, #333);
+  border-bottom: 1px solid var(--wd-border-subtle, #333);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--wd-bg-surface, #1c1e2a);
+}
+
+.oc-row-header > span {
+  padding: 0 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.oc-row-header > span:last-child {
+  border-right: none;
+}
+
+.oc-light .oc-row-header {
+  color: #374151;
+  border-top-color: #d1d5db;
+  border-bottom-color: #d1d5db;
+  background: #f0f1f4;
+}
+
+.oc-light .oc-row-header > span {
+  border-right-color: #d1d5db;
+}
+
+.oc-row-header-center {
+  text-align: center;
+}
+
+.oc-row-header-right {
+  text-align: right;
+}
+
+/* === Collapsible Group Headers (Regime B) === */
+
+.oc-rung-label-collapsible {
+  cursor: pointer;
+  user-select: none;
+}
+
+.oc-rung-label-collapsible:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 3px;
+}
+
+.oc-light .oc-rung-label-collapsible:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.oc-rung-chevron {
+  font-size: 10px;
+  color: var(--wd-text-tertiary, #6b7280);
+  transition: transform 0.15s ease;
+  display: inline-block;
+  width: 12px;
+}
+
+.oc-rung-chevron-collapsed {
+  transform: rotate(-90deg);
+}
+
+.oc-light .oc-rung-chevron {
+  color: #4b5563;
+}
+
+
+/* === Moneyness Sparkline (B6) === */
+
+.oc-sparkline {
+  display: block;
+}
+
+.oc-sparkline-trace {
+  stroke: #9ca3af;
+  stroke-width: 1.2;
+  fill: none;
+}
+
+.oc-sparkline-zero {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 0.5;
+  stroke-dasharray: 2 2;
+}
+
+.oc-light .oc-sparkline-trace {
+  stroke: #374151;
+}
+
+.oc-light .oc-sparkline-zero {
+  stroke: #d1d5db;
+}
+
+.oc-sparkline-empty {
+  color: var(--wd-text-tertiary, #6b7280);
+  font-size: 10px;
+}
+
+.oc-light .oc-sparkline-empty {
+  color: #9ca3af;
+}
+
+.oc-row-pct {
+  font-size: 10px;
+  color: var(--wd-text-tertiary, #6b7280);
+  text-align: right;
+}
+
+.oc-light .oc-row-pct {
+  color: #374151;
+}
+
+.oc-row-moneyness-compound {
+  overflow: hidden;
 }
