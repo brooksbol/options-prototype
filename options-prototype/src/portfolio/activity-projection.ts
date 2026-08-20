@@ -13,7 +13,7 @@
 
 import type { PortfolioSnapshot } from "../write-desk/types";
 import type { ActivityRow } from "../csv/fidelity/activityParser";
-import type { InventoryPosition, OpenShortCall, OpenShortPut } from "../write-desk/types";
+import type { InventoryPosition, OpenShortCall, OpenShortPut, CallAcquisitionBasis } from "../write-desk/types";
 
 // --- Temporal Boundary ---
 
@@ -147,34 +147,42 @@ function isAfterCheckpoint(row: ActivityRow, checkpoint: Date, precision: Checkp
 // --- BW Origin Enrichment ---
 
 /**
- * Enrich existing short calls with buy-write origin provenance from Activity evidence.
+ * Enrich existing short calls with buy-write origin provenance AND acquisition basis
+ * from Activity evidence.
  *
  * Scans ALL activity rows (regardless of temporal checkpoint) to detect same-day
  * share purchase + call STO pairs. When evidence matches an existing call that
- * lacks origin, it tags the call with origin: "buy-write".
+ * lacks origin, it tags the call with origin: "buy-write" and attaches the
+ * Activity-derived acquisition basis with confidence classification.
+ *
+ * Attribution confidence tiers:
+ * - "unique": one-to-one mapping — the purchase evidence uniquely attributes to this call
+ *   (single purchase event, or all same-day fills at same price, or only one call on this day)
+ * - "batch": same-day purchase quantity supports multiple BW calls but individual
+ *   fill-to-call pairing is not provable — basis is batch-level VWAP
  *
  * This does not mutate position state (quantity, economics, etc.) — it only
- * adds provenance metadata that the Option Summary cannot provide.
- *
- * Deliberately uses the same detection logic as post-checkpoint projection:
- * same-day share purchase with quantity >= call contract coverage.
+ * adds provenance metadata and acquisition basis that the Option Summary cannot provide.
  */
 function enrichBuyWriteOrigin(existingCalls: OpenShortCall[], activityRows: ActivityRow[]): void {
   if (activityRows.length === 0) return;
 
-  // Build lookup of same-day share purchases across ALL activity.
-  // Key: "DATE|SYMBOL", Value: total shares bought that day.
-  const sameDayPurchases = new Map<string, number>();
+  // Build detailed lookup of same-day share purchases across ALL activity.
+  // Key: "DATE|SYMBOL", Value: array of individual purchase events (preserving per-row price).
+  interface PurchaseEvent { quantity: number; price: number | null; }
+  const sameDayPurchaseDetails = new Map<string, PurchaseEvent[]>();
   for (const row of activityRows) {
     if (row.eventType === "shares_bought_direct") {
       const sym = (row.symbol || "").toUpperCase();
       if (!sym) continue;
       const key = `${row.date}|${sym}`;
-      sameDayPurchases.set(key, (sameDayPurchases.get(key) ?? 0) + Math.abs(row.quantity));
+      const events = sameDayPurchaseDetails.get(key) ?? [];
+      events.push({ quantity: Math.abs(row.quantity), price: row.price });
+      sameDayPurchaseDetails.set(key, events);
     }
   }
 
-  if (sameDayPurchases.size === 0) return;
+  if (sameDayPurchaseDetails.size === 0) return;
 
   // Build lookup of sell-to-open CALL events by underlying+strike+expiration.
   // We need the STO date to correlate with the purchase date.
@@ -191,20 +199,81 @@ function enrichBuyWriteOrigin(existingCalls: OpenShortCall[], activityRows: Acti
     }
   }
 
-  // For each existing call without origin, check if activity evidence proves BW origin.
+  // Count how many BW-eligible calls share the same STO date + underlying.
+  // This is needed to determine unique vs batch attribution.
+  // First pass: tag origin. Second pass: determine confidence.
+
+  // Phase 1: Determine BW origin for each call (same logic as before).
+  const bwCandidates: { call: OpenShortCall; stoDate: string; purchaseKey: string }[] = [];
+
   for (const call of existingCalls) {
-    if (call.origin === "buy-write") continue; // Already tagged
+    if (call.origin === "buy-write" && call.acquisitionBasis) continue; // Already fully enriched
 
     const posKey = `${call.underlying}|${call.strike}|${call.expiration}`;
     const stoDate = stoDateByPosition.get(posKey);
-    if (!stoDate) continue; // No STO event found in activity — cannot determine origin
+    if (!stoDate) continue;
 
     const purchaseKey = `${stoDate}|${call.underlying}`;
-    const sharesBoughtSameDay = sameDayPurchases.get(purchaseKey) ?? 0;
+    const purchaseEvents = sameDayPurchaseDetails.get(purchaseKey);
+    if (!purchaseEvents) continue;
+
+    const totalSharesBought = purchaseEvents.reduce((sum, e) => sum + e.quantity, 0);
     const sharesNeeded = call.quantity * 100;
 
-    if (sharesBoughtSameDay >= sharesNeeded) {
+    if (totalSharesBought >= sharesNeeded) {
       call.origin = "buy-write";
+      bwCandidates.push({ call, stoDate, purchaseKey });
+    }
+  }
+
+  // Phase 2: Determine attribution confidence and attach acquisition basis.
+  // Group BW candidates by their purchase key (stoDate|symbol) to detect batch scenarios.
+  const candidatesByPurchaseKey = new Map<string, typeof bwCandidates>();
+  for (const candidate of bwCandidates) {
+    const group = candidatesByPurchaseKey.get(candidate.purchaseKey) ?? [];
+    group.push(candidate);
+    candidatesByPurchaseKey.set(candidate.purchaseKey, group);
+  }
+
+  for (const [purchaseKey, candidates] of candidatesByPurchaseKey) {
+    const purchaseEvents = sameDayPurchaseDetails.get(purchaseKey)!;
+    const totalSharesBought = purchaseEvents.reduce((sum, e) => sum + e.quantity, 0);
+
+    // Compute VWAP from purchase events (only events with non-null price)
+    const pricedEvents = purchaseEvents.filter(e => e.price != null && e.price > 0);
+    if (pricedEvents.length === 0) continue; // No price evidence — cannot attribute
+
+    const vwap = pricedEvents.reduce((sum, e) => sum + e.price! * e.quantity, 0)
+      / pricedEvents.reduce((sum, e) => sum + e.quantity, 0);
+
+    // Determine if all prices are effectively the same (uniform fill)
+    const allSamePrice = pricedEvents.length === 1
+      || pricedEvents.every(e => Math.abs(e.price! - pricedEvents[0].price!) < 0.001);
+
+    // Total BW call coverage on this day for this symbol
+    const totalCallCoverage = candidates.reduce((sum, c) => sum + c.call.quantity * 100, 0);
+
+    for (const candidate of candidates) {
+      const sharesForThisCall = candidate.call.quantity * 100;
+      const stoDate = candidate.stoDate;
+
+      // Unique attribution conditions:
+      // 1. Only one BW call on this day for this symbol, OR
+      // 2. All purchase fills have the same price (uniform execution), OR
+      // 3. Exactly one purchase event with quantity matching this single call's coverage
+      const isUnique =
+        candidates.length === 1 ||
+        allSamePrice ||
+        (pricedEvents.length === 1 && totalCallCoverage <= totalSharesBought);
+
+      const basis: CallAcquisitionBasis = {
+        pricePerShare: vwap,
+        shares: sharesForThisCall,
+        date: stoDate,
+        confidence: isUnique ? "unique" : "batch",
+      };
+
+      candidate.call.acquisitionBasis = basis;
     }
   }
 }
@@ -261,16 +330,24 @@ export function projectActivityOverlay(
   const chronological = [...postCheckpoint].sort((a, b) => a.date.localeCompare(b.date));
 
   // Build a lookup of same-day share purchases for BW origin detection (post-checkpoint only).
-  // Key: "DATE|SYMBOL", Value: total shares bought that day.
+  // Key: "DATE|SYMBOL", Value: array of purchase events (preserving per-row price).
+  interface PostCheckpointPurchase { quantity: number; price: number | null; }
   const sameDayPurchases = new Map<string, number>();
+  const sameDayPurchaseDetails = new Map<string, PostCheckpointPurchase[]>();
   for (const row of chronological) {
     if (row.eventType === "shares_bought_direct") {
       const sym = (row.symbol || "").toUpperCase();
       if (!sym) continue;
       const key = `${row.date}|${sym}`;
       sameDayPurchases.set(key, (sameDayPurchases.get(key) ?? 0) + Math.abs(row.quantity));
+      const events = sameDayPurchaseDetails.get(key) ?? [];
+      events.push({ quantity: Math.abs(row.quantity), price: row.price });
+      sameDayPurchaseDetails.set(key, events);
     }
   }
+
+  // Track newly projected BW calls for batch/unique confidence determination.
+  const projectedBwCalls: { call: OpenShortCall; purchaseKey: string; stoDate: string }[] = [];
 
   for (const row of chronological) {
     switch (row.eventType) {
@@ -327,7 +404,7 @@ export function projectActivityOverlay(
             const sharesNeeded = Math.abs(row.quantity) * 100;
             const isBuyWriteOrigin = sharesBoughtSameDay >= sharesNeeded;
 
-            existingCalls.push({
+            const newCall: OpenShortCall = {
               symbol: row.symbol,
               underlying,
               strike: row.option.strike,
@@ -336,7 +413,12 @@ export function projectActivityOverlay(
               brokerOptionBasis: null,
               brokerOptionAverageCost: null,
               origin: isBuyWriteOrigin ? "buy-write" : null,
-            });
+            };
+            existingCalls.push(newCall);
+
+            if (isBuyWriteOrigin) {
+              projectedBwCalls.push({ call: newCall, purchaseKey, stoDate: row.date });
+            }
           }
 
           // Encumber shares
@@ -400,6 +482,46 @@ export function projectActivityOverlay(
         // Cash movements and other events: do NOT adjust deployableCash.
         // The Balances CSV already reflects all same-day cash impacts.
         break;
+    }
+  }
+
+  // === Phase 2: Attach acquisition basis to projected BW calls ===
+  // Group by purchase key to determine unique vs batch confidence.
+  const projBwByKey = new Map<string, typeof projectedBwCalls>();
+  for (const candidate of projectedBwCalls) {
+    const group = projBwByKey.get(candidate.purchaseKey) ?? [];
+    group.push(candidate);
+    projBwByKey.set(candidate.purchaseKey, group);
+  }
+
+  for (const [purchaseKey, candidates] of projBwByKey) {
+    const purchaseEvents = sameDayPurchaseDetails.get(purchaseKey);
+    if (!purchaseEvents || purchaseEvents.length === 0) continue;
+
+    const pricedEvents = purchaseEvents.filter(e => e.price != null && e.price > 0);
+    if (pricedEvents.length === 0) continue;
+
+    const vwap = pricedEvents.reduce((sum, e) => sum + e.price! * e.quantity, 0)
+      / pricedEvents.reduce((sum, e) => sum + e.quantity, 0);
+
+    const allSamePrice = pricedEvents.length === 1
+      || pricedEvents.every(e => Math.abs(e.price! - pricedEvents[0].price!) < 0.001);
+
+    const totalSharesBought = purchaseEvents.reduce((sum, e) => sum + e.quantity, 0);
+    const totalCallCoverage = candidates.reduce((sum, c) => sum + c.call.quantity * 100, 0);
+
+    for (const candidate of candidates) {
+      const isUnique =
+        candidates.length === 1 ||
+        allSamePrice ||
+        (pricedEvents.length === 1 && totalCallCoverage <= totalSharesBought);
+
+      candidate.call.acquisitionBasis = {
+        pricePerShare: vwap,
+        shares: candidate.call.quantity * 100,
+        date: candidate.stoDate,
+        confidence: isUnique ? "unique" : "batch",
+      };
     }
   }
 

@@ -9007,3 +9007,414 @@ Design of how ambiguous multi-lot cases render is required before implementation
 - `src/operator-console/moneyness-color.ts` — BW: ITM = green (exploratory hypothesis)
 - `docs/23-calls-architecture.md` — Horizon B: appreciation geometry (planned, unimplemented)
 
+
+---
+
+## 2026-08-20 — Console Consequence Columns: Activity-Derived BW Lot Attribution
+
+### Context
+
+The buy-write economic investigation (earlier this day) established that the Console position ladder should display assignment consequence inline. Two problems blocked implementation:
+
+1. `deriveCallAssignmentConsequence()` used `InventoryPosition.economics.averageCostPerShare` — a symbol-level blended average. For multi-lot symbols (BNO: 200 shares / 2 calls, GDXJ: 200 shares / 2 calls), this produced materially incorrect per-call figures (e.g., GDXJ showing −$403 erosion when the true per-lot figure was +$40).
+
+2. The semantic separation between moneyness color and economic consequence needed to be made structural: green BW moneyness = lifecycle progress (designed exit becoming likely), not economic verdict. The consequence column IS the economic verdict.
+
+### Investigation Finding: Three CSVs Are Sufficient
+
+The Activity History CSV already contains the acquisition price evidence needed for per-call BW lot attribution. No Positions/Holdings CSV (fourth input) is required.
+
+**Evidence chain:** For each BW call, the existing `enrichBuyWriteOrigin` already correlates the call's STO date with a same-day share purchase. That purchase row carries `price` (per-share fill). This price IS the lot-specific acquisition basis — it was simply never captured.
+
+### Principal-Ratified Confidence Tiers
+
+The Principal rejected treating every same-day quantity match as "deterministic" and required honest confidence classification:
+
+| Tier | Name | Evidence Requirement |
+|------|------|---------------------|
+| **Unique** | Uniquely attributed | One-to-one mapping from Activity evidence (single purchase event, uniform fill, or only one call that day) |
+| **Batch** | Batch attributed | Same-day purchase supports multiple calls but individual fill-to-call pairing not provable (VWAP) |
+| **Blended** | Symbol-level only | No Activity attribution; Option Summary blended average (explicitly NOT call-specific) |
+| **Unavailable** | No basis | No economics available from any source |
+
+**Critical epistemic rule (ratified):** A symbol-level Option Summary `averageCostPerShare` does NOT become lot-specific merely because only one call lacks BW provenance. It remains symbol-level evidence unless independently attributed.
+
+### What Was Implemented
+
+**Data model:**
+- `CallAcquisitionBasis` type added to `OpenShortCall` — carries `pricePerShare`, `shares`, `date`, and `confidence: "unique" | "batch"`
+- This is separately provenanced evidence, NOT a rewrite of `InventoryPosition.economics`
+
+**Enrichment extension (`activity-projection.ts`):**
+- `enrichBuyWriteOrigin` now preserves per-row purchase details (price + quantity) instead of just summing
+- After origin tagging, groups BW candidates by purchase key, computes VWAP, determines unique vs batch confidence
+- Attaches `CallAcquisitionBasis` to each qualifying call
+
+**Consequence derivation precedence (`assignment-consequence.ts`):**
+1. `call.acquisitionBasis` (unique) → provenance `"activity-attributed"`
+2. `call.acquisitionBasis` (batch) → provenance `"batch-attributed"`
+3. `inventory.economics.averageCostPerShare` → provenance `"observed"` (symbol-level)
+4. None → provenance `"unavailable"`
+
+**Console "If Resolved" column:**
+- Unified column replaces the old `%` column
+- Calls/BWs: strict provenance-based rendering
+  - Unique → precise `+$N` or `−$N` (green/red)
+  - Batch → same with `ᵇ` marker (italic)
+  - Symbol-level blended → `—` (suppressed, title explains why)
+  - Unavailable → `—`
+- Puts: always shows `−$cashConsumed` (strike × shares, no epistemic issue)
+
+**Tests:** 12 new tests in `acquisition-basis-attribution.test.ts` covering all tiers and the GDXJ/BNO real-portfolio patterns.
+
+### How This Resolves the BNO/GDXJ Problem
+
+| Position | Before | After |
+|----------|--------|-------|
+| GDXJ $120 Sep 4 | −$403 (wrong, from blended $124.03) | +$40 (correct, from Activity-attributed $119.60) |
+| GDXJ $129 Sep 11 | +$497 (wrong, from blended $124.03) | +$54 (correct, from Activity-attributed $128.46) |
+| BNO $51 Sep 4 | −$42 (from blended — actually correct since BW fill was $51.42) | −$42 (same, now explicitly Activity-attributed with provenance) |
+| BNO $52 Sep 11 | +$100 (from blended — unproven) | `—` (suppressed — no Activity attribution, symbol-level basis not trusted as call-specific) |
+
+### Semantic Separation Preserved
+
+- **Green BW moneyness** = the underlying is moving toward the designed disposition state (call-away). Lifecycle progress signal.
+- **If Resolved column** = the economic verdict. What happens to capital if that resolution occurs.
+- These are independent dimensions. Green + negative consequence = "the designed exit is likely, but it produces erosion for this lot." That is honest reporting, not a contradiction.
+
+### What Was NOT Changed
+
+- `InventoryPosition.economics` remains untouched (observed Option Summary fact)
+- The popup still uses the same canonical `deriveCallAssignmentConsequence` (now with the same precedence — popup benefits from attribution too)
+- No additional CSV input required
+- No mutation of observed inventory evidence to satisfy inferred constraints
+- Moneyness color semantics unchanged
+
+### Architectural Principles Applied
+
+- **Observed evidence ≠ inferred relationship:** `acquisitionBasis` is separately provenanced from inventory
+- **Do not display fake precision:** symbol-level blended basis is suppressed in the column for multi-lot cases
+- **Epistemic Integrity (ADR-013):** the fact-to-interpretation boundary is preserved — arithmetic consequence, not judgment
+- **Three-CSV workflow preserved:** no Positions/Holdings CSV dependency introduced
+
+### Cross-references
+
+- `src/write-desk/types.ts` — `CallAcquisitionBasis` type, `OpenShortCall.acquisitionBasis`
+- `src/portfolio/activity-projection.ts` — `enrichBuyWriteOrigin()` extended
+- `src/portfolio/assignment-consequence.ts` — `deriveCallAssignmentConsequence()` precedence
+- `src/portfolio/position-detail.ts` — `FactProvenance` extended with `"activity-attributed"` and `"batch-attributed"`
+- `src/components/OperatorConsole.tsx` — `deriveConsequenceCell()`, "If Resolved" column
+- `tests/portfolio/acquisition-basis-attribution.test.ts` — 12 new tests
+- `docs/parking-lot.md` — PL-PORT-01 (lot-level basis attribution: this slice addresses the BW case)
+
+### Verification
+
+- 97 test files, 1,412 tests pass
+- No TypeScript errors
+- Demo mode shows consequence column with synthetic BW attribution
+- Fidelity mode will show attributed values for BWs where Activity CSV is loaded
+
+### Status
+
+Implementation complete. Not committed. Awaiting Principal review.
+
+---
+
+## 2026-08-20 — Console Consequence Columns: Semantic/UI Refinement
+
+### Context
+
+After the attribution mechanism was implemented, Principal review identified presentation-model corrections needed before commit. The investigation's hard work (canonical derivation, Activity-attributed basis with confidence tiers) was preserved. The presentation layer was restructured to properly separate the three temporal dimensions of position economics.
+
+### The Three-Column Semantic Model (Ratified)
+
+Each position row tells a three-part temporal story:
+
+| Temporal | Column | Semantics | Evidence Source |
+|----------|--------|-----------|-----------------|
+| **Past** | Premium Booked | Economic value already received for this contract | `abs(brokerOptionBasis)` from Option Summary |
+| **Present** | Moneyness / Sparkline | Current lifecycle state — where is the underlying relative to strike? | Evidence Service spot observations |
+| **Future conditional** | If Called Away / If Assigned | Capital consequence IF the resolution event occurs | Canonical assignment-consequence derivation |
+
+This separation is important enough to preserve durably. It prevents conflation of:
+- Past production (premium received) with future conditional consequence
+- Present lifecycle state (moneyness) with economic verdict
+- Cash-to-equity transformation (puts) with economic loss
+
+### Column Structure
+
+```
+TYPE | SYMBOL | STRIKE | SPOT | QTY | MONEYNESS | CAPITAL | PREMIUM | IF CALLED AWAY | IF ASSIGNED
+```
+
+For calls/BWs: Premium + If Called Away populated, If Assigned = —
+For puts: Premium + If Assigned populated, If Called Away = —
+
+### Key Semantic Corrections
+
+**1. Strategy-specific consequence columns (not unified)**
+
+"If Called Away" and "If Assigned" are different capital transformations:
+- Call-away: shares leave, cash arrives at strike. Appreciation/erosion relative to basis.
+- Put assignment: cash leaves, shares arrive at strike. State transformation, not loss.
+
+They must remain visibly distinct, not collapsed into "If Resolved."
+
+**2. Put assignment is cash→equity, not negative loss**
+
+Previous rendering: `−$5,700` (implies economic erosion)
+Corrected rendering: `$5,700 → eq` (communicates capital form conversion)
+
+Put assignment is a state transformation. The cash becomes equity at the strike price. Displaying it as a negative dollar figure incorrectly implies economic destruction.
+
+**3. Premium Booked = past/booked output**
+
+This is the premium already received when the contract was sold to open. It is:
+- Not a forecast
+- Not contingent on assignment or expiration
+- Not "Premium Earned" (the existing accounting model says "recognized at receipt" per ADR-014)
+
+It is the past economic output of writing this option. Visible alongside the future conditional consequence so the operator can assess net economics: "I received +$284 premium. If called away, I see −$42 erosion. Net: +$242."
+
+**4. Popup terminology consistency**
+
+Calls/BWs: "If Called Away" / "Total if called away"
+Puts: "If Assigned" / "Effective basis if assigned"
+
+Previously the popup used "If Assigned" / "Total if assigned" for calls — incorrect.
+
+**5. BW moneyness remains independent of economic consequence**
+
+Green BW moneyness = lifecycle progress (designed exit becoming likely). This is NOT modified by the consequence column. Both dimensions render independently and may legitimately be green + red simultaneously.
+
+### Attribution Epistemics Preserved
+
+The rendering contract from the attribution investigation is intact:
+- Unique Activity-attributed → precise unqualified figure
+- Batch-attributed → qualified figure with ᵇ marker
+- Symbol-level blended basis only → suppress (show —), do not present as call-specific truth
+- Unavailable → —
+
+### Example Row Narratives
+
+**BW (EWY, ITM +4.8%):** `BW | EWY | $185 | $189.50 | 1 | [sparkline] | $18,000 | +$750 | +$571 | —`
+- Premium of $750 already booked. If called away, $571 appreciation. Green moneyness = designed exit approaching.
+
+**BW (BNO, ITM but basis > strike):** `BW | BNO | $51 | $52.10 | 1 | [sparkline] | $5,100 | +$284 | −$42 | —`
+- Premium of $284 booked. If called away, −$42 erosion. But net is +$242. Green moneyness = lifecycle progress, red consequence = erosion. Both correct.
+
+**Put (URA, OTM):** `PUT | URA | $35 | $33.80 | 2 | [sparkline] | $7,000 | +$310 | — | $7,000 → eq`
+- Premium of $310 booked. If assigned, $7,000 cash converts to 200 shares. Not a loss.
+
+**CC (XLE, blended basis only):** `CALL | XLE | $60 | $59.20 | 2 | [sparkline] | $11,800 | +$257 | — | —`
+- Premium visible. If Called Away suppressed because basis is symbol-level blended (not proven call-specific).
+
+### Verification
+
+- 97 test files, 1,421 tests pass (21 in attribution test file)
+- No TypeScript errors
+- Grid: 10 columns at 702px total — fits comfortably on laptop viewport
+
+### Cross-references
+
+- `src/components/OperatorConsole.tsx` — `derivePremiumBookedCell()`, `deriveCalledAwayCell()`, `deriveAssignedCell()`
+- `src/components/PositionDetailModal.tsx` — terminology fix
+- `src/operator-console/operator-console.css` — 10-column grid
+- `tests/portfolio/acquisition-basis-attribution.test.ts` — 21 tests
+
+### Status
+
+Implementation complete. Not committed. Awaiting Principal visual review and commit authorization.
+
+---
+
+## 2026-08-20 — Console Consequence Columns: Final Presentation Model
+
+### Context
+
+Third iteration of the consequence column presentation. The attribution mechanism and canonical derivations are stable. This pass addresses density, semantics, and aggregation.
+
+### Ratified Console Density Rule
+
+**Position rows never wrap.** This is a Console design invariant, not a one-off CSS tweak. Each position occupies exactly one horizontal line at the target laptop viewport. Header labels may wrap (multi-word labels like "Premium Booked" and "If Called Away" naturally stack in their 9px uppercase form).
+
+### Row-Level Semantic Structure (Final)
+
+Each position row tells a three-part temporal story:
+
+| Dimension | Column(s) | Semantics |
+|-----------|-----------|-----------|
+| **Present** | Moneyness / Sparkline | Current lifecycle state — where is the underlying relative to strike? |
+| **Past** | Premium Booked | Economic value already received for writing this contract |
+| **Future conditional** | If Called Away / If Assigned | Capital consequence IF the resolution event occurs |
+
+Column layout:
+
+```
+TYPE | SYMBOL | STRIKE | SPOT | QTY | MONEYNESS | CAPITAL ‖ PREMIUM BOOKED | IF CALLED AWAY | IF ASSIGNED
+                                                          ↑ visual separator (economic region begins)
+```
+
+### Per-Rung Totals Row
+
+Each expiration group now ends with a compact totals row summarizing:
+
+| Column | Aggregation Rule |
+|--------|-----------------|
+| Capital | Sum of `encumberedCapital` across all positions in the rung |
+| Premium Booked | Sum of `abs(brokerOptionBasis)` for all positions with known basis |
+| If Called Away | Net sum (appreciation − erosion) of ONLY Activity-attributed/batch-attributed rows |
+
+**Epistemic rule for If Called Away total:**
+- Only rows with `"activity-attributed"` or `"batch-attributed"` provenance contribute
+- Rows with `"observed"` (symbol-level blended) or `"unavailable"` basis are EXCLUDED from the sum
+- If any row is excluded, the total is marked partial (`+$611 *`) with title explaining the exclusion
+- If ALL rows are excluded, the total shows `—`
+
+**No numeric total for If Assigned:** Put assignment cells represent heterogeneous acquisition outcomes (shares @ effective basis), not additive dollars. They cannot be meaningfully summed.
+
+### Put IF ASSIGNED Semantics
+
+Renders as shares + effective basis, matching popup semantics:
+
+```
+100 @ $54.12
+```
+
+Not `−$5,700` (implies loss) and not `$5,700 → eq` (implies cash transaction). The operator's question is: "If assigned, what will I own and at what effective cost?" — answered directly.
+
+Falls back to `100 @ $55.00` (strike) when premium basis is unavailable for effective-cost calculation.
+
+### Verification
+
+- 98 test files, 1,430 tests pass (30 new across 2 test files)
+- No TypeScript errors
+- No row wrapping at target viewport
+
+### Cross-references
+
+- `src/components/OperatorConsole.tsx` — `RungTotalsRow`, column layout
+- `src/operator-console/operator-console.css` — no-wrap invariant, totals row styling, economic-region separator
+- `tests/portfolio/rung-totals-derivation.test.ts` — 9 tests for aggregation logic
+- `tests/portfolio/acquisition-basis-attribution.test.ts` — 21 tests for attribution + semantics
+
+### Status
+
+Implementation complete. Not committed. Awaiting Principal visual review and commit authorization.
+
+---
+
+## 2026-08-20 — Real-Portfolio Reconciliation: Console Economics Validated Against Fidelity Source Evidence
+
+### Context
+
+End-to-end validation of the new Console economic columns against three independent artifacts from the real portfolio:
+1. Fidelity Option Summary CSV (current positions, strikes, option cost basis, symbol-level share average cost)
+2. Fidelity Activity History CSV (actual transactions: share purchases, option STOs, prices, dates, commissions/fees)
+3. Wheelwright Console CSV export (Premium Booked, If Called Away, If Assigned — the new columns)
+
+### Result
+
+**All 12 positions reconcile exactly.** The Console economics are grounded in Fidelity's transaction evidence and produce the intended results on the current real portfolio.
+
+### Premium Booked — 12/12 Reconciled
+
+Every open contract's Premium Booked matches both:
+- The magnitude of Fidelity's Option Summary option cost basis
+- The net transaction credit in Activity History (including commission/fees)
+
+| Position | Fidelity Option Cost Basis | Activity Net STO Credit | WW Premium Booked |
+|----------|---------------------------|------------------------|-------------------|
+| AIQ Aug 21 $57 Put | −$189.34 | +$189.34 | +$189.34 |
+| CORN Aug 21 $18 Put | −$39.34 | +$39.34 | +$39.34 |
+| EWY Aug 21 $150 Put | −$820.32 | +$820.32 | +$820.32 |
+| GSG Aug 21 $32 Put | −$112.34 | +$112.34 | +$112.34 |
+| REMX Aug 21 $68 Put | −$329.34 | +$329.34 | +$329.34 |
+| DBO Aug 21 $22 Call | −$41.34 | +$41.34 | +$41.34 |
+| WEAT Aug 21 $25 Call | −$19.34 | +$19.34 | +$19.34 |
+| BNO Sep 4 $51 Call | −$284.34 | +$284.34 | +$284.34 |
+| EWY Sep 4 $185 Call | −$956.32 | +$956.32 | +$956.32 |
+| GDXJ Sep 4 $120 Call | −$556.32 | +$556.32 | +$556.32 |
+| BNO Sep 11 $53 Call | −$242.34 | +$242.34 | +$242.34 |
+| GDXJ Sep 11 $129 Call | −$637.32 | +$637.32 | +$637.32 |
+
+Premium Booked is the actual net credit received when the option was sold to open. It is not current market value, not forecast production, not hypothetical profit.
+
+### Put If Assigned — 5/5 Reconciled
+
+Effective basis = strike − premiumBooked/100. All five puts match:
+
+| Put | Strike | Premium/share | Expected Effective Basis | WW |
+|-----|--------|--------------|------------------------|-----|
+| AIQ $57 | $57 | $1.8934 | $55.11 | 100 @ $55.11 |
+| CORN $18 | $18 | $0.3934 | $17.61 | 100 @ $17.61 |
+| EWY $150 | $150 | $8.2032 | $141.80 | 100 @ $141.80 |
+| GSG $32 | $32 | $1.1234 | $30.88 | 100 @ $30.88 |
+| REMX $68 | $68 | $3.2934 | $64.71 | 100 @ $64.71 |
+
+### BW If Called Away — 7/7 Reconciled
+
+Each BW's appreciation/erosion matches Activity-derived acquisition price × (strike − basis):
+
+| BW Position | Activity Acquisition | Strike | Expected | WW | Status |
+|-------------|---------------------|--------|----------|-----|--------|
+| DBO Aug 21 $22 | $21.05 | $22 | +$95 | +$95 | Exact |
+| WEAT Aug 21 $25 | $24.35 | $25 | +$65 | +$65 | Exact |
+| BNO Sep 4 $51 | $50.71 | $51 | +$29 | +$29 | Exact |
+| EWY Sep 4 $185 | $186.35 | $185 | −$135 | −$135 | Exact |
+| GDXJ Sep 4 $120 | $119.60 | $120 | +$40 | +$40 | Exact |
+| BNO Sep 11 $53 | $52.13 | $53 | +$87 | +$87 | Exact |
+| GDXJ Sep 11 $129 | $128.45 | $129 | +$55 | +$55 | Exact |
+
+### The Multi-Lot Cases: Why Activity Attribution Is Required
+
+**BNO** consists of two separate BW acquisitions:
+- Lot A: 100 @ $50.71 → $51 call (Aug 12) — appreciation +$29
+- Lot B: 100 @ $52.13 → $53 call (Aug 18) — appreciation +$87
+
+Fidelity's displayed symbol-level average (~$51.42) is not the economic basis of either specific call.
+
+**GDXJ** consists of two separate BW acquisitions:
+- Lot A: 100 @ $119.60 → $120 call (Aug 12) — appreciation +$40
+- Lot B: 100 @ $128.45 → $129 call (Aug 20) — appreciation +$55
+
+Fidelity's displayed symbol-level average (~$124.03) would produce −$403 for the $120 call — materially wrong.
+
+### The Original "Green But Red Popup" Mystery: Resolved
+
+The original investigation was triggered by BW positions appearing green on the ladder (lifecycle progress) but showing erosion in the popup. The evidence now shows:
+
+- **BNO $51:** appeared as −$42 erosion using blended $51.42. Actually +$29 using Activity-attributed $50.71.
+- **GDXJ $120:** appeared as −$403 erosion using blended $124.03. Actually +$40 using Activity-attributed $119.60.
+- **EWY $185:** −$135 is genuine. Acquisition was $186.35, above the $185 strike. Premium (+$956) dominates.
+
+The alarming discrepancies were artifacts of using the wrong level of basis evidence, not bad trades.
+
+### Architectural Conclusions
+
+1. **Activity-attributed per-call basis is necessary and correct** for multi-lot buy-writes.
+2. **Fidelity Option Summary symbol-average basis is observed evidence** — valuable as a symbol-level holding fact, but must NOT be silently promoted to per-call economic basis.
+3. **The three-CSV workflow is sufficient** for this economic attribution. No Positions/Holdings CSV needed.
+4. **observed symbol-level basis ≠ attributed call-specific basis** — the model separation implemented during this session is justified by real broker evidence.
+
+### What This Validates
+
+- Premium Booked semantics: past economic output, not forecast, not contingent
+- Put If Assigned semantics: acquisition outcome (shares + effective basis), not loss
+- BW If Called Away semantics: appreciation/erosion relative to Activity-attributed basis
+- Confidence tiers: unique attribution produces exact results; suppressing blended basis prevents false precision
+- Three-column temporal model: past (Premium Booked) / present (Moneyness) / future conditional (If Called Away / If Assigned)
+
+### Confidence Assessment
+
+| Column | Coverage | Status |
+|--------|----------|--------|
+| Premium Booked | 12/12 | Fully reconciled |
+| Put If Assigned | 5/5 | Fully reconciled |
+| BW If Called Away | 7/7 | Fully reconciled |
+| Activity multi-lot attribution | BNO + GDXJ | Empirically validated |
+| Three-CSV sufficiency | Current portfolio | Confirmed |
+
+### Status
+
+This validation materially increases confidence that the new Console economic columns are grounded in Fidelity's transaction evidence and produce the intended economics. Ready for commit authorization.

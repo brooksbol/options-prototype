@@ -18,7 +18,7 @@
  */
 
 import type { MonitoredPosition } from "./position-monitoring";
-import type { InventoryPosition } from "../write-desk/types";
+import type { InventoryPosition, CallAcquisitionBasis } from "../write-desk/types";
 import { type ProvenancedFact, type FactProvenance, fact, unavailable } from "./position-detail";
 
 // --- Types ---
@@ -125,8 +125,15 @@ export type AssignmentConsequence = CallAssignmentConsequence | PutAssignmentCon
  *
  * Consumes:
  * - MonitoredPosition (strike, quantity, underlying)
- * - InventoryPosition (broker share basis)
+ * - InventoryPosition (broker share basis — symbol-level blended average)
  * - OptionBasisInput (broker-reported option cost basis)
+ * - CallAcquisitionBasis (optional: Activity-derived per-call basis, preferred when available)
+ *
+ * Basis precedence:
+ * 1. Activity-attributed basis (unique confidence) → provenance "activity-attributed"
+ * 2. Activity-attributed basis (batch confidence) → provenance "batch-attributed"
+ * 3. Symbol-level InventoryPosition.economics.averageCostPerShare → provenance "observed"
+ * 4. None available → provenance "unavailable"
  *
  * Produces a decomposed consequence preserving all components independently.
  */
@@ -134,16 +141,29 @@ export function deriveCallAssignmentConsequence(
   position: MonitoredPosition,
   inventory: InventoryPosition | null,
   optionBasis: OptionBasisInput,
+  acquisitionBasis?: CallAcquisitionBasis | null,
 ): CallAssignmentConsequence {
   const sharesRemoved = position.quantity * 100;
   const cashProceeds = position.strike * sharesRemoved;
 
   // --- Broker share basis → appreciation/erosion ---
+  // Precedence: Activity-attributed > symbol-level blended > unavailable
   let brokerShareBasis: ProvenancedFact<number | null>;
   let appreciationPerShare: ProvenancedFact<number | null>;
   let totalAppreciationOrErosion: ProvenancedFact<number | null>;
 
-  if (inventory?.economics?.averageCostPerShare != null) {
+  if (acquisitionBasis != null) {
+    // Activity-derived per-call basis (strongest evidence)
+    const basis = acquisitionBasis.pricePerShare;
+    const provenance: FactProvenance = acquisitionBasis.confidence === "unique"
+      ? "activity-attributed"
+      : "batch-attributed";
+    brokerShareBasis = fact(basis, provenance);
+    const perShare = position.strike - basis;
+    appreciationPerShare = fact(perShare, "derived");
+    totalAppreciationOrErosion = fact(perShare * sharesRemoved, "derived");
+  } else if (inventory?.economics?.averageCostPerShare != null) {
+    // Symbol-level blended average (from Option Summary)
     const basis = inventory.economics.averageCostPerShare;
     brokerShareBasis = fact(basis, "observed");
     const perShare = position.strike - basis;

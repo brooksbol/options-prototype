@@ -23,7 +23,7 @@
  */
 
 import type { MonitoredPosition } from "./position-monitoring";
-import type { InventoryPosition, BalanceContext } from "../write-desk/types";
+import type { InventoryPosition, BalanceContext, CallAcquisitionBasis } from "../write-desk/types";
 import {
   type AssignmentConsequence,
   type OptionBasisInput,
@@ -33,7 +33,7 @@ import {
 
 // --- Provenance ---
 
-export type FactProvenance = "observed" | "derived" | "demo" | "unavailable";
+export type FactProvenance = "observed" | "derived" | "activity-attributed" | "batch-attributed" | "demo" | "unavailable";
 
 export interface ProvenancedFact<T> {
   value: T;
@@ -114,6 +114,7 @@ export function buildPositionDetail(
   balanceContext: BalanceContext | null,
   optionBasis: OptionBasisInput,
   instrumentDescription?: string | null,
+  acquisitionBasis?: CallAcquisitionBasis | null,
 ): PositionDetail {
   const missingFacts: string[] = [];
 
@@ -154,7 +155,7 @@ export function buildPositionDetail(
 
   // Assignment consequence (canonical model)
   const consequence = (position.type === "call" || position.type === "buy-write")
-    ? deriveCallAssignmentConsequence(position, inventory, optionBasis)
+    ? deriveCallAssignmentConsequence(position, inventory, optionBasis, acquisitionBasis)
     : derivePutAssignmentConsequence(position, inventory, optionBasis);
 
   return {

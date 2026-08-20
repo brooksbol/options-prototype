@@ -232,11 +232,12 @@ function MeasurementsContent({ detail, mDisplay }: { detail: PositionDetail; mDi
 
 function ConsequenceSection({ detail }: { detail: PositionDetail }) {
   const { consequence } = detail;
+  const sectionTitle = consequence.type === "call" ? "If Called Away" : "If Assigned";
 
   return (
     <section className="pdm-section pdm-consequence">
       <h3 className="pdm-section-title">
-        If Assigned
+        {sectionTitle}
         <ConceptToggle conceptId="assignment" detail={detail} />
       </h3>
 
@@ -273,10 +274,10 @@ function CallConsequenceContent({ consequence, detail }: { consequence: CallAssi
 
   return (
     <div className="pdm-cq-dense">
-      {/* Hero: Total if assigned */}
+      {/* Hero: Total if called away */}
       {hasTotal && (
         <div className="pdm-cq-hero-compact">
-          <span className="pdm-cq-hero-label">Total if assigned</span>
+          <span className="pdm-cq-hero-label">Total if called away</span>
           <span className={`pdm-cq-hero-value ${heroClass}`}>
             {heroTotal >= 0 ? "+" : ""}${Math.abs(heroTotal).toLocaleString()}
           </span>

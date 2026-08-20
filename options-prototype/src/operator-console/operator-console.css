@@ -471,7 +471,7 @@
 
 .oc-row {
   display: grid;
-  grid-template-columns: 36px 72px 72px 80px 48px 150px 100px 48px;
+  grid-template-columns: 36px 56px 56px 64px 76px 120px 76px 88px 96px 120px;
   align-items: center;
   padding: 4px 0;
   font-size: 11px;
@@ -479,11 +479,16 @@
   cursor: pointer;
   font-variant-numeric: tabular-nums;
   border-bottom: 1px solid var(--wd-table-row-border);
+  /* Console density invariant: position rows never wrap */
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .oc-row > span {
-  padding: 0 8px;
+  padding: 0 6px;
   border-right: 1px solid var(--wd-table-row-border);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .oc-row > span:last-child {
@@ -658,8 +663,8 @@
 
 .oc-row-header {
   display: grid;
-  grid-template-columns: 36px 72px 72px 80px 48px 150px 100px 48px;
-  align-items: center;
+  grid-template-columns: 36px 56px 56px 64px 76px 120px 76px 88px 96px 120px;
+  align-items: end;
   padding: 6px 0;
   font-size: 9px;
   font-weight: 600;
@@ -672,10 +677,12 @@
   top: 0;
   z-index: 2;
   background: var(--wd-bg-raised);
+  /* Headers may wrap to accommodate multi-word labels */
+  white-space: normal;
 }
 
 .oc-row-header > span {
-  padding: 0 8px;
+  padding: 0 6px;
   border-right: 1px solid var(--wd-border-subtle);
 }
 
@@ -690,6 +697,12 @@
 
 .oc-row-header-right {
   text-align: right;
+}
+
+/* Economic region separator in header row */
+.oc-row-header > span:nth-child(8) {
+  border-left: 2px solid var(--wd-table-row-border);
+  padding-left: 12px;
 }
 
 /* === Collapsible Group Headers (Regime B) === */
@@ -747,6 +760,97 @@
   font-size: 10px;
   color: var(--wd-text-tertiary);
   text-align: right;
+}
+
+/* Consequence columns (Premium Booked / If Called Away / If Assigned) */
+.oc-row-premium,
+.oc-row-called-away,
+.oc-row-assigned {
+  font-size: 11px;
+  font-family: var(--wd-font-mono);
+  text-align: right;
+}
+
+/* Visual separator: economic region begins at Premium Booked */
+.oc-row-premium {
+  border-left: 2px solid var(--wd-table-row-border) !important;
+  padding-left: 12px !important;
+}
+
+.oc-col-premium {
+  color: var(--wd-accent-green);
+  font-weight: 600;
+}
+
+.oc-col-positive {
+  color: var(--wd-accent-green);
+  font-weight: 600;
+}
+
+.oc-col-negative {
+  color: var(--wd-accent-red);
+  font-weight: 600;
+}
+
+.oc-col-batch {
+  font-style: italic;
+}
+
+.oc-col-assigned {
+  color: var(--wd-text-secondary);
+  font-weight: 500;
+}
+
+.oc-col-ambiguous,
+.oc-col-empty {
+  color: var(--wd-text-tertiary);
+  font-weight: 400;
+}
+
+/* === Rung Totals Row === */
+
+.oc-row-totals {
+  display: grid;
+  grid-template-columns: 36px 56px 56px 64px 76px 120px 76px 88px 96px 120px;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--wd-font-mono);
+  color: var(--wd-text-secondary);
+  border-top: 1px solid var(--wd-border-default);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.oc-row-totals > span {
+  padding: 0 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.oc-row-totals-label {
+  grid-column: 1 / 7;
+  text-align: right;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--wd-text-tertiary);
+  font-family: var(--wd-font-base);
+}
+
+.oc-row-totals .oc-col-positive {
+  color: var(--wd-accent-green);
+}
+
+.oc-row-totals .oc-col-negative {
+  color: var(--wd-accent-red);
+}
+
+.oc-row-totals .oc-col-partial {
+  color: var(--wd-text-tertiary);
+  font-style: italic;
 }
 
 

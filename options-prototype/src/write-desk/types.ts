@@ -41,6 +41,30 @@ export interface InventoryPosition {
 
 // --- Existing Option Positions ---
 
+/**
+ * Activity-derived acquisition basis for shares associated with a specific BW call.
+ *
+ * This is separately provenanced evidence — NOT a rewrite of InventoryPosition.economics.
+ * It represents the actual fill price from the Activity History purchase event that was
+ * temporally correlated with this call's sell-to-open.
+ *
+ * Confidence tiers:
+ * - "unique": one-to-one mapping from Activity evidence. The acquisition price is
+ *   unambiguously attributable to the shares backing this specific call.
+ * - "batch": same-day purchase quantity supports multiple BW calls, but individual
+ *   fill-to-call pairing is not provable. Price is the batch-level VWAP.
+ */
+export interface CallAcquisitionBasis {
+  /** Per-share acquisition cost (from Activity purchase evidence) */
+  pricePerShare: number;
+  /** Total shares in this attribution scope */
+  shares: number;
+  /** The correlation date (STO date = purchase date) */
+  date: string;
+  /** Attribution confidence */
+  confidence: "unique" | "batch";
+}
+
 export interface OpenShortCall {
   symbol: string;
   underlying: string;
@@ -59,6 +83,12 @@ export interface OpenShortCall {
    * This is provenance, not inference from coincident state.
    */
   origin?: "buy-write" | null;
+  /**
+   * Activity-derived acquisition basis for the shares associated with this call.
+   * Present only when Activity evidence proves BW origin AND captures the purchase price.
+   * This is per-call evidence, NOT the symbol-level blended average from Option Summary.
+   */
+  acquisitionBasis?: CallAcquisitionBasis | null;
 }
 
 export interface OpenShortPut {

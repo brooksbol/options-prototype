@@ -17,6 +17,7 @@ import { deriveCapacitySummary, type CapacitySummary } from "../portfolio/capaci
 import { deriveNearestConsequenceSummary, type NearestConsequenceSummary } from "../portfolio/consequence-summary";
 import { buildPositionDetail, type PositionDetail } from "../portfolio/position-detail";
 import type { OptionBasisInput } from "../portfolio/assignment-consequence";
+import { deriveCallAssignmentConsequence, derivePutAssignmentConsequence } from "../portfolio/assignment-consequence";
 import { lookupDescription } from "../instrument-catalog/catalog";
 import { PositionDetailModal } from "./PositionDetailModal";
 import "../operator-console/operator-console.css";
@@ -60,7 +61,7 @@ export function OperatorConsole() {
     if (vizRegime !== "b" || groupBy === "expiration") {
       return rungs.map(r => ({
         label: formatExpiration(r.expiration),
-        sublabel: `${r.dte} DTE  $${r.totalCapital.toLocaleString()}  ${totalCapital > 0 ? Math.round((r.totalCapital / totalCapital) * 100) : 0}%`,
+        sublabel: `${r.dte} DTE`,
         positions: r.positions,
         totalCapital: r.totalCapital,
       }));
@@ -132,6 +133,13 @@ export function OperatorConsole() {
                 >
                   Collapse all
                 </button>
+                <span className="oc-group-by-divider" />
+                <button
+                  className="oc-group-by-action"
+                  onClick={() => downloadPositionsCsv(positions, snapshot)}
+                >
+                  Download CSV
+                </button>
               </div>
             )}
             <div className="oc-ladder-scroll">
@@ -165,14 +173,14 @@ export function OperatorConsole() {
                         <span className="oc-rung-count">{group.positions.length} position{group.positions.length !== 1 ? "s" : ""}</span>
                       </div>
                       {!isCollapsed && (
-                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} />
+                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
                       )}
                     </div>
                   );
                 })
               ) : (
                 rungs.map((rung) => (
-                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} />
+                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
                 ))
               )}
             </div>
@@ -328,7 +336,7 @@ const MAX_CALL_CAPACITY_SYMBOLS = 3;
 
 // --- Expiration Rung ---
 
-function ExpirationRungRow({ rung, totalCapital, onTileClick, vizRegime, isDemoSource, spotHistory }: { rung: ExpirationRung; totalCapital: number; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap }) {
+function ExpirationRungRow({ rung, totalCapital, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
   const rungPercent = totalCapital > 0 ? Math.round((rung.totalCapital / totalCapital) * 100) : 0;
 
   return (
@@ -341,7 +349,7 @@ function ExpirationRungRow({ rung, totalCapital, onTileClick, vizRegime, isDemoS
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
       {vizRegime === "b" ? (
-        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} />
+        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
       ) : (
         <PositionGrid positions={rung.positions} onTileClick={onTileClick} vizRegime={vizRegime} totalCapital={rung.totalCapital} />
       )}
@@ -367,7 +375,223 @@ function PositionGrid({ positions, onTileClick, vizRegime, totalCapital }: { pos
   );
 }
 
-/** Regime B: Column header row — aligned with PositionTable grid */
+// --- CSV Download ---
+
+/**
+ * Export the current position ladder as CSV.
+ * Includes the same columns rendered in the table: Type, Symbol, Strike, Spot, Contracts,
+ * Moneyness, Capital, Premium Booked, Bonus If Called Away, If Assigned.
+ */
+function downloadPositionsCsv(
+  positions: MonitoredPosition[],
+  snapshot: import("../write-desk/types").PortfolioSnapshot,
+) {
+  const header = "Type,Symbol,Strike,Expiration,Spot,Contracts,Moneyness,Capital,Premium Booked,Bonus If Called Away,If Assigned";
+  const rows = positions.map(position => {
+    const type = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
+    const spot = position.underlyingPrice != null ? position.underlyingPrice.toFixed(2) : "";
+    const moneyness = position.moneyness != null ? (position.moneyness * 100).toFixed(1) + "%" : "";
+    const capital = position.encumberedCapital != null ? position.encumberedCapital.toString() : "";
+
+    // Premium
+    let premium = "";
+    if (position.type === "call" || position.type === "buy-write") {
+      const match = snapshot.existingCalls.find(c => c.underlying.toUpperCase() === position.underlying.toUpperCase() && c.strike === position.strike && c.expiration === position.expiration);
+      if (match?.brokerOptionBasis != null) premium = Math.abs(match.brokerOptionBasis).toFixed(2);
+    } else {
+      const match = snapshot.existingPuts.find(p => p.underlying.toUpperCase() === position.underlying.toUpperCase() && p.strike === position.strike && p.expiration === position.expiration);
+      if (match?.brokerOptionBasis != null) premium = Math.abs(match.brokerOptionBasis).toFixed(2);
+    }
+
+    // Called Away
+    let calledAway = "";
+    if (position.type === "call" || position.type === "buy-write") {
+      const cell = deriveCalledAwayCell(position, snapshot);
+      if (cell.className !== "oc-col-empty" && cell.className !== "oc-col-ambiguous") {
+        calledAway = cell.display.replace(/[+−$,ᵇ ]/g, "").trim();
+        if (cell.display.startsWith("−")) calledAway = "-" + calledAway;
+      }
+    }
+
+    // Assigned
+    let assigned = "";
+    if (position.type === "put") {
+      const cell = deriveAssignedCell(position, snapshot);
+      assigned = cell.display;
+    }
+
+    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${position.quantity},${moneyness},${capital},${premium},${calledAway},"${assigned}"`;
+  });
+
+  const csv = [header, ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `wheelwright-positions-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// --- Consequence Columns ---
+
+interface CellResult {
+  display: string;
+  className: string;
+  title: string;
+}
+
+const EMPTY_CELL: CellResult = { display: "—", className: "oc-col-empty", title: "" };
+
+/**
+ * Derive the PREMIUM BOOKED column for any position.
+ * Uses broker option basis (same evidence as popup and Production accounting).
+ * This is past/booked economic output — not a forecast, not contingent.
+ */
+function derivePremiumBookedCell(
+  position: MonitoredPosition,
+  snapshot: import("../write-desk/types").PortfolioSnapshot,
+): CellResult {
+  let brokerBasis: number | null = null;
+
+  if (position.type === "call" || position.type === "buy-write") {
+    const match = snapshot.existingCalls.find(
+      c => c.underlying.toUpperCase() === position.underlying.toUpperCase()
+        && c.strike === position.strike
+        && c.expiration === position.expiration
+    );
+    brokerBasis = match?.brokerOptionBasis ?? null;
+  } else {
+    const match = snapshot.existingPuts.find(
+      p => p.underlying.toUpperCase() === position.underlying.toUpperCase()
+        && p.strike === position.strike
+        && p.expiration === position.expiration
+    );
+    brokerBasis = match?.brokerOptionBasis ?? null;
+  }
+
+  if (brokerBasis == null) {
+    return { display: "—", className: "oc-col-empty", title: "Premium basis not available" };
+  }
+
+  // brokerBasis is negative (credit received) — display as positive premium booked
+  const premium = Math.abs(brokerBasis);
+  return {
+    display: `+$${premium.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+    className: "oc-col-premium",
+    title: `Premium booked: $${premium.toFixed(2)} (broker-reported option basis)`,
+  };
+}
+
+/**
+ * Derive the IF CALLED AWAY column for calls/buy-writes.
+ * Uses Activity-attributed basis with strict provenance rendering.
+ */
+function deriveCalledAwayCell(
+  position: MonitoredPosition,
+  snapshot: import("../write-desk/types").PortfolioSnapshot,
+): CellResult {
+  if (position.type === "put") return EMPTY_CELL;
+
+  const inventory = snapshot.inventory.find(
+    inv => inv.symbol.toUpperCase() === position.underlying.toUpperCase()
+  ) ?? null;
+
+  const matchingCall = snapshot.existingCalls.find(
+    c => c.underlying.toUpperCase() === position.underlying.toUpperCase()
+      && c.strike === position.strike
+      && c.expiration === position.expiration
+  );
+
+  const optionBasis: OptionBasisInput = {
+    brokerOptionBasis: matchingCall?.brokerOptionBasis ?? null,
+    brokerOptionAverageCost: matchingCall?.brokerOptionAverageCost ?? null,
+  };
+
+  const consequence = deriveCallAssignmentConsequence(position, inventory, optionBasis, matchingCall?.acquisitionBasis);
+
+  const provenance = consequence.brokerShareBasis.provenance;
+  const totalValue = consequence.totalAppreciationOrErosion.value;
+
+  if (provenance === "activity-attributed" && totalValue != null) {
+    const isPositive = totalValue >= 0;
+    return {
+      display: isPositive ? `+$${totalValue.toLocaleString()}` : `−$${Math.abs(totalValue).toLocaleString()}`,
+      className: isPositive ? "oc-col-positive" : "oc-col-negative",
+      title: `If called away: ${isPositive ? "appreciation" : "erosion"} of $${Math.abs(totalValue).toLocaleString()} (basis $${consequence.brokerShareBasis.value?.toFixed(2)}/sh, Activity-attributed)`,
+    };
+  }
+
+  if (provenance === "batch-attributed" && totalValue != null) {
+    const isPositive = totalValue >= 0;
+    return {
+      display: isPositive ? `+$${totalValue.toLocaleString()} ᵇ` : `−$${Math.abs(totalValue).toLocaleString()} ᵇ`,
+      className: isPositive ? "oc-col-positive oc-col-batch" : "oc-col-negative oc-col-batch",
+      title: `If called away: ${isPositive ? "appreciation" : "erosion"} of $${Math.abs(totalValue).toLocaleString()} (batch basis $${consequence.brokerShareBasis.value?.toFixed(2)}/sh — individual fill-to-call pairing not proven)`,
+    };
+  }
+
+  if (provenance === "observed") {
+    return {
+      display: "—",
+      className: "oc-col-ambiguous",
+      title: `Basis is symbol-level blended average ($${consequence.brokerShareBasis.value?.toFixed(2)}/sh) — not proven call-specific`,
+    };
+  }
+
+  return { display: "—", className: "oc-col-empty", title: "Share cost basis unavailable" };
+}
+
+/**
+ * Derive the IF ASSIGNED column for puts.
+ * Shows acquisition result: shares + effective basis per share.
+ * Reuses canonical derivePutAssignmentConsequence for effective basis.
+ */
+function deriveAssignedCell(
+  position: MonitoredPosition,
+  snapshot: import("../write-desk/types").PortfolioSnapshot,
+): CellResult {
+  if (position.type !== "put") return EMPTY_CELL;
+
+  const shares = position.quantity * 100;
+
+  // Resolve option basis from snapshot for effective basis calculation
+  const matchingPut = snapshot.existingPuts.find(
+    p => p.underlying.toUpperCase() === position.underlying.toUpperCase()
+      && p.strike === position.strike
+      && p.expiration === position.expiration
+  );
+
+  const optionBasis: OptionBasisInput = {
+    brokerOptionBasis: matchingPut?.brokerOptionBasis ?? null,
+    brokerOptionAverageCost: matchingPut?.brokerOptionAverageCost ?? null,
+  };
+
+  const inventory = snapshot.inventory.find(
+    inv => inv.symbol.toUpperCase() === position.underlying.toUpperCase()
+  ) ?? null;
+
+  const consequence = derivePutAssignmentConsequence(position, inventory, optionBasis);
+
+  // Prefer effective basis (strike - premium/share) when available
+  if (consequence.analyticalEffectiveBasis.value != null) {
+    const basis = consequence.analyticalEffectiveBasis.value;
+    return {
+      display: `${shares} @ $${basis.toFixed(2)}`,
+      className: "oc-col-assigned",
+      title: `If assigned: acquire ${shares} shares at effective basis $${basis.toFixed(2)}/share (strike $${position.strike} − premium $${(position.strike - basis).toFixed(2)}/share)`,
+    };
+  }
+
+  // Fallback: show shares at strike (no premium evidence for effective basis)
+  return {
+    display: `${shares} @ $${position.strike.toFixed(2)}`,
+    className: "oc-col-assigned",
+    title: `If assigned: acquire ${shares} shares at $${position.strike}/share (premium basis unavailable for effective cost)`,
+  };
+}
+
+/** Regime B: Column header row */
 function PositionTableHeader() {
   return (
     <div className="oc-row-header" role="row" aria-label="Column headers">
@@ -375,16 +599,18 @@ function PositionTableHeader() {
       <span className="oc-row-header-cell">Symbol</span>
       <span className="oc-row-header-cell">Strike</span>
       <span className="oc-row-header-cell">Spot</span>
-      <span className="oc-row-header-cell oc-row-header-center">Qty</span>
+      <span className="oc-row-header-cell oc-row-header-center">Contracts</span>
       <span className="oc-row-header-cell">Moneyness</span>
       <span className="oc-row-header-cell oc-row-header-right">Capital</span>
-      <span className="oc-row-header-cell oc-row-header-right">%</span>
+      <span className="oc-row-header-cell oc-row-header-right">Premium Booked</span>
+      <span className="oc-row-header-cell oc-row-header-right">Bonus If Called Away</span>
+      <span className="oc-row-header-cell oc-row-header-right">If Assigned</span>
     </div>
   );
 }
 
 /** Regime B: Dense fixed-geometry rows — Fidelity-inspired density */
-function PositionTable({ positions, onTileClick, totalCapital, isDemoSource, spotHistory }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; isDemoSource: boolean; spotHistory: SpotHistoryMap }) {
+function PositionTable({ positions, onTileClick, totalCapital, isDemoSource, spotHistory, snapshot }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
   return (
     <div className="oc-rung-table">
       {positions.map((position) => {
@@ -392,7 +618,6 @@ function PositionTable({ positions, onTileClick, totalCapital, isDemoSource, spo
         const mDisplay = formatMoneynessDisplay(position);
         const colorClass = moneynessColor(position.type, mState);
         const badge = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
-        const capitalPct = totalCapital > 0 && position.encumberedCapital ? Math.round((position.encumberedCapital / totalCapital) * 100) : 0;
 
         // Moneyness history: Demo uses synthetic, Fidelity uses real persisted spot observations
         let moneynessPoints: import("../operator-console/moneyness-history").MoneynessPoint[] = [];
@@ -413,6 +638,11 @@ function PositionTable({ positions, onTileClick, totalCapital, isDemoSource, spo
           }
         }
 
+        // Consequence columns (strategy-specific)
+        const premiumCell = derivePremiumBookedCell(position, snapshot);
+        const calledAwayCell = deriveCalledAwayCell(position, snapshot);
+        const assignedCell = deriveAssignedCell(position, snapshot);
+
         return (
           <div key={position.id} className={`oc-row oc-row-${position.type}`} onClick={() => onTileClick(position)}>
             <span className="oc-row-badge">{badge}</span>
@@ -424,10 +654,116 @@ function PositionTable({ positions, onTileClick, totalCapital, isDemoSource, spo
               <MoneynessCellV4 points={moneynessPoints} type={position.type} currentMoneyness={position.moneyness} mDisplay={mDisplay} colorClass={colorClass} />
             </span>
             <span className="oc-row-capital">{position.encumberedCapital != null ? `$${position.encumberedCapital.toLocaleString()}` : "—"}</span>
-            <span className="oc-row-pct">{capitalPct > 0 ? `${capitalPct}%` : "—"}</span>
+            <span className={`oc-row-premium ${premiumCell.className}`} title={premiumCell.title}>{premiumCell.display}</span>
+            <span className={`oc-row-called-away ${calledAwayCell.className}`} title={calledAwayCell.title}>{calledAwayCell.display}</span>
+            <span className={`oc-row-assigned ${assignedCell.className}`} title={assignedCell.title}>{assignedCell.display}</span>
           </div>
         );
       })}
+      <RungTotalsRow positions={positions} snapshot={snapshot} />
+    </div>
+  );
+}
+
+/**
+ * Per-rung totals row — sums Capital, Premium Booked, and If Called Away.
+ *
+ * Epistemic rule for If Called Away total:
+ * - Only sums rows with "activity-attributed" or "batch-attributed" provenance
+ * - If any call/BW row in the group has "observed" (blended) or "unavailable" basis,
+ *   the total is marked as partial (some rows excluded from the sum)
+ * - Put assignment is not included (heterogeneous acquisition outcomes, not additive dollars)
+ */
+function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
+  if (positions.length === 0) return null;
+
+  // Capital total
+  const capitalTotal = positions.reduce((sum, p) => sum + (p.encumberedCapital ?? 0), 0);
+
+  // Premium Booked total
+  let premiumTotal = 0;
+  let premiumCount = 0;
+  for (const position of positions) {
+    let brokerBasis: number | null = null;
+    if (position.type === "call" || position.type === "buy-write") {
+      const match = snapshot.existingCalls.find(
+        c => c.underlying.toUpperCase() === position.underlying.toUpperCase()
+          && c.strike === position.strike && c.expiration === position.expiration
+      );
+      brokerBasis = match?.brokerOptionBasis ?? null;
+    } else {
+      const match = snapshot.existingPuts.find(
+        p => p.underlying.toUpperCase() === position.underlying.toUpperCase()
+          && p.strike === position.strike && p.expiration === position.expiration
+      );
+      brokerBasis = match?.brokerOptionBasis ?? null;
+    }
+    if (brokerBasis != null) {
+      premiumTotal += Math.abs(brokerBasis);
+      premiumCount++;
+    }
+  }
+
+  // If Called Away total — epistemic-aware
+  const callBwPositions = positions.filter(p => p.type === "call" || p.type === "buy-write");
+  let calledAwayTotal = 0;
+  let calledAwayKnown = 0;
+  let calledAwaySuppressed = 0;
+
+  for (const position of callBwPositions) {
+    const inventory = snapshot.inventory.find(
+      inv => inv.symbol.toUpperCase() === position.underlying.toUpperCase()
+    ) ?? null;
+    const matchingCall = snapshot.existingCalls.find(
+      c => c.underlying.toUpperCase() === position.underlying.toUpperCase()
+        && c.strike === position.strike && c.expiration === position.expiration
+    );
+    const optionBasis: OptionBasisInput = {
+      brokerOptionBasis: matchingCall?.brokerOptionBasis ?? null,
+      brokerOptionAverageCost: matchingCall?.brokerOptionAverageCost ?? null,
+    };
+    const consequence = deriveCallAssignmentConsequence(position, inventory, optionBasis, matchingCall?.acquisitionBasis);
+    const provenance = consequence.brokerShareBasis.provenance;
+    const value = consequence.totalAppreciationOrErosion.value;
+
+    if ((provenance === "activity-attributed" || provenance === "batch-attributed") && value != null) {
+      calledAwayTotal += value;
+      calledAwayKnown++;
+    } else if (provenance === "observed" || provenance === "unavailable") {
+      calledAwaySuppressed++;
+    }
+  }
+
+  const isPartial = calledAwaySuppressed > 0;
+  const hasCalledAway = calledAwayKnown > 0;
+
+  // Format called-away total
+  let calledAwayDisplay = "—";
+  let calledAwayClass = "oc-col-empty";
+  if (hasCalledAway) {
+    const isPositive = calledAwayTotal >= 0;
+    calledAwayDisplay = isPositive
+      ? `+$${calledAwayTotal.toLocaleString()}`
+      : `−$${Math.abs(calledAwayTotal).toLocaleString()}`;
+    if (isPartial) {
+      calledAwayDisplay += " *";
+      calledAwayClass = "oc-col-partial";
+    } else {
+      calledAwayClass = isPositive ? "oc-col-positive" : "oc-col-negative";
+    }
+  }
+
+  return (
+    <div className="oc-row-totals">
+      <span className="oc-row-totals-label">Total</span>
+      <span style={{ textAlign: "right" }}>${capitalTotal.toLocaleString()}</span>
+      <span className="oc-col-premium" style={{ textAlign: "right" }}>
+        {premiumCount > 0 ? `+$${premiumTotal.toLocaleString()}` : "—"}
+      </span>
+      <span className={calledAwayClass} style={{ textAlign: "right" }} title={isPartial ? `${calledAwaySuppressed} position(s) excluded — basis not proven call-specific` : ""}>
+        {calledAwayDisplay}
+      </span>
+      <span />
     </div>
   );
 }
@@ -609,6 +945,9 @@ function buildDetailForPosition(
     if (match) {
       optionBasis = { brokerOptionBasis: match.brokerOptionBasis, brokerOptionAverageCost: match.brokerOptionAverageCost };
     }
+    // Resolve instrument description from description library
+    const instrumentDescription = lookupDescription(position.underlying);
+    return buildPositionDetail(position, inventory, snapshot.balanceContext, optionBasis, instrumentDescription, match?.acquisitionBasis);
   } else {
     const match = snapshot.existingPuts.find(
       p => p.underlying.toUpperCase() === position.underlying.toUpperCase()

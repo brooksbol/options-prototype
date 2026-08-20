@@ -300,6 +300,8 @@ function cc(underlying: string, strike: number, expiration: string, quantity: nu
 /** Buy-write — proven same-day acquisition + call */
 function bw(underlying: string, strike: number, expiration: string, quantity: number): OpenShortCall {
   const syntheticPremium = Math.round(strike * 0.022 * 100) / 100;
+  // Synthetic acquisition price: strike - $1.50 (typical BW has slight appreciation built in)
+  const acquisitionPrice = strike - 1.50;
   return {
     symbol: `-${underlying}${expiration.replace(/-/g, "").slice(2)}C${strike}`,
     underlying,
@@ -309,6 +311,12 @@ function bw(underlying: string, strike: number, expiration: string, quantity: nu
     brokerOptionBasis: -(syntheticPremium * 100 * quantity),
     brokerOptionAverageCost: -syntheticPremium,
     origin: "buy-write",
+    acquisitionBasis: {
+      pricePerShare: acquisitionPrice,
+      shares: quantity * 100,
+      date: expiration.replace(/-\d{2}$/, "-01"), // synthetic: approximate entry date
+      confidence: "unique",
+    },
   };
 }
 

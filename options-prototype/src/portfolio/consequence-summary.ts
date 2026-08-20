@@ -109,7 +109,12 @@ export function deriveNearestConsequenceSummary(
     for (const pos of callPositions) {
       const inventory = inventoryBySymbol.get(pos.underlying.toUpperCase()) ?? null;
       const optionBasis = resolveOptionBasis(pos, snapshot);
-      const consequence = deriveCallAssignmentConsequence(pos, inventory, optionBasis);
+      const matchingCall = snapshot.existingCalls.find(
+        c => c.underlying.toUpperCase() === pos.underlying.toUpperCase()
+          && c.strike === pos.strike
+          && c.expiration === pos.expiration
+      );
+      const consequence = deriveCallAssignmentConsequence(pos, inventory, optionBasis, matchingCall?.acquisitionBasis);
 
       // Appreciation/erosion
       if (consequence.totalAppreciationOrErosion.value != null) {

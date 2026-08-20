@@ -270,7 +270,12 @@ function computeAdditionalProduction(
 
   const inventory = inventoryBySymbol.get(position.underlying.toUpperCase()) ?? null;
   const optionBasis = resolveOptionBasis(position, snapshot);
-  const consequence = deriveCallAssignmentConsequence(position, inventory, optionBasis);
+  const matchingCall = snapshot.existingCalls.find(
+    c => c.underlying.toUpperCase() === position.underlying.toUpperCase()
+      && c.strike === position.strike
+      && c.expiration === position.expiration
+  );
+  const consequence = deriveCallAssignmentConsequence(position, inventory, optionBasis, matchingCall?.acquisitionBasis);
 
   if (consequence.totalAppreciationOrErosion.value == null) {
     return {
