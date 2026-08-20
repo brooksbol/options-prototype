@@ -8741,3 +8741,176 @@ This matches the Operational Surface Design principle: consequence first, decomp
 
 Implementation complete. Not committed. Awaiting Principal visual evaluation.
 
+
+
+---
+
+## 2026-08-20 — Portfolio Capital Reconciliation: Inventory Defect and Evidence Authority Discovery
+
+### Context
+
+The Portfolio Capital V1 reconciliation exercise compared the candidate formula (`cashAndCredits + Σ(inventory share market values)`) against the Fidelity Total Account Value. The reconciliation exposed two findings: an inventory reconstruction defect and an architectural insight about evidence authority.
+
+### The Reconciliation Numbers
+
+```
+Candidate Portfolio Capital:  $90,831.64
+  Cash and Credits:           $48,517.08
+  Share Market Values (6):    $42,314.56
+
+Fidelity Total Account Value: $116,300.23
+  Cash and Credits:           $48,517.08
+  Value of Investments:       $67,783.15
+  Identity holds:             ✓ (delta = $0)
+
+Residual: $25,468.59
+```
+
+### Finding 1: Inventory Undercount (BNO, GDXJ)
+
+The diagnostic reported 6 share components totaling $42,314.56. Cross-referencing against the Fidelity Positions export (independent validation):
+
+| Symbol | Diagnostic shares | Actual shares | Diagnostic MV | Actual MV |
+|--------|------------------|---------------|---------------|-----------|
+| BNO | 100 | 200 | $5,213 | $10,698 |
+| GDXJ | 100 | 200 | $11,624 | $25,828 |
+| Others | match | match | ≈ match | ≈ match |
+
+**Root cause:** `deriveInventory()` in `fidelity-snapshot.ts` used `max(quantity)` across repeated share rows per symbol. This was designed for the case where Fidelity repeats the same shares under multiple strategy views (e.g., 200 shares shown twice). It fails when Fidelity partitions shares into distinct covered lots (e.g., two 100-share rows, each paired with a different call contract).
+
+**Fix applied:** Defensive invariant after encumbrance counting:
+```
+owned = max(observed_owned, call_encumbered_shares)
+```
+If 2 call contracts × 100 = 200 encumbered, but max(share rows) = 100, correct ownership to 200. Do NOT scale market value or cost basis — different lots may have different bases. Economics remain as-observed from the visible row.
+
+**Tests added:** 6 new regression tests covering partitioned-lot correction (BNO/GDXJ pattern), full-holding repetition (XLE with excess calls), economics preservation, unpaired shares (no correction), and standard covered call (no correction needed). One pre-existing test updated to reflect corrected behavior.
+
+### Finding 2: Evidence Authority Separation
+
+The reconciliation revealed an architectural boundary that was implicit but now has concrete evidence:
+
+**Fidelity Option Summary** is a strategy-allocation view, not an authoritative holdings ledger. It shows positions through the lens of how shares are paired with option strategies. Share quantities depend on Fidelity's internal pairing semantics, which can partition the same holding differently.
+
+**Fidelity Positions export** is closer to an authoritative holdings ledger — it shows what the account actually owns regardless of strategy pairing.
+
+For Wheelwright's current input model, the Option Summary remains the primary source (it carries strategy relationships, option basis, encumbrance pairing). The Positions export was used only as independent validation evidence. The defensive invariant repairs the most common failure mode (partitioned lots) without requiring a new input file.
+
+**Documented but NOT implemented:** If a required quantity cannot be derived truthfully from the current inputs, adding Positions evidence would be a future consideration. But it is not the default response to this debugging exercise — prefer solving within existing inputs unless empirically blocked.
+
+### Finding 3: Residual Composition (Still Open)
+
+After the inventory fix, the expected residual composition is approximately:
+- Treasury bills: ~$22,896 (individual T-bill securities in Fidelity's "Value of Investments" but not in Option Summary inventory)
+- Short-option MTM: ~−$3,500 (liabilities Fidelity includes in Value of Investments)
+- Net expected residual: ~$19,396
+
+The actual residual ($25,468) exceeds this by ~$6,000. The inventory fix will change the Portfolio Capital number (increasing share market values for BNO and GDXJ) and thus change the residual. A re-run of the diagnostic after the fix is needed to determine the updated reconciliation state.
+
+The remaining unexplained amount after re-running will determine whether T-bills + option MTM fully explain the gap or whether another asset class is present.
+
+### Decisions
+
+- ~~Defensive inventory invariant: implemented and tested~~ **Reverted** — Principal rejected `owned = max(observed, encumbered)` as epistemically dishonest. It creates internally inconsistent records where `sharesOwned: 200` coexists with `marketValue` representing only 100 shares. The inference is correct as a lower bound but should not silently overwrite observed evidence.
+- Economics not scaled: correct principle, but moot since the ownership override was reverted
+- Option Summary remains the primary input (no new Positions CSV dependency)
+- Fidelity Positions export is validation evidence, not a Wheelwright input
+- Portfolio Capital V1 formula remains candidate — not ratified until re-run reconciliation closes satisfactorily
+- T-bills remain a known gap in the candidate formula (the Option Summary does not contain them)
+- **New finding:** The inventory model needs an explicit distinction between observed ownership (what Option Summary reports) and minimum required ownership (what the covered-call structure proves must exist). The current `InventoryPosition.sharesOwned` should remain observed evidence; the encumbrance-based inference belongs in validation/capacity logic, not in the ownership field.
+- Tests added documenting the known limitation rather than asserting a fix
+
+### Next Steps
+
+1. ~~Re-run `wheelwright.portfolioCapitalDiagnostic()` with the inventory fix applied~~ Deferred — the inventory fix was reverted
+2. Design an explicit observed-vs-inferred ownership representation (or determine that the inference belongs in capacity validation rather than `InventoryPosition`)
+3. Determine whether the Balances CSV "Value of Investments" can be decomposed enough to capture T-bills without adding a new evidence source
+4. Re-run reconciliation after the representation question is resolved
+5. If residual closes, ratify the V1 formula and proceed to persistence + trajectory chart
+
+
+
+---
+
+## 2026-08-20 — Portfolio Capital V1 Ratified: Aggregate Formula Empirically Verified
+
+### Context
+
+Following the inventory-reconstruction investigation (which exposed that Option Summary is a strategy-allocation view, not an authoritative holdings ledger), the Principal directed a fundamentally different approach: let Fidelity do the complicated holdings aggregation; Wheelwright applies one transparent semantic correction.
+
+### The Ratified V1 Formula
+
+```
+Portfolio Capital = Fidelity Total Account Value − aggregate short-option MTM
+```
+
+Because short-option MTM is negative (a liability), this adds back the liability:
+
+```
+Portfolio Capital = Fidelity Total Account Value + |open short-option liability|
+```
+
+### Empirical Verification (Aug 20, 2026)
+
+Using the real loaded Fidelity snapshot (Option Summary + Balances CSVs):
+
+```
+Fidelity Total Account Value:   $116,300.23
+Aggregate short-option MTM:     −$2,660.00  (12 positions)
+V1 Portfolio Capital:           $118,960.23
+
+Fidelity Cash and Credits:      $48,517.08
+Fidelity Value of Investments:  $67,783.15
+Fidelity accounting identity:   ✓ ($0 delta)
+```
+
+### Why This Formula Is Architecturally Correct
+
+1. **Fidelity already aggregates correctly.** Their Total Account Value includes cash, SPAXX/money-market, all equity holdings, individual Treasury bill securities, pending activity — everything in the account. We do not need to reconstruct these individually.
+
+2. **One semantic correction.** Wheelwright's accounting says open short-option obligations do not reduce the capital stock. Premium received is already cash within Fidelity's total. The option MTM liability is the only component Fidelity includes that Wheelwright excludes.
+
+3. **Three-CSV workflow preserved.** The formula requires only:
+   - `BalanceContext.totalAccountValue` (from Balances CSV)
+   - `PortfolioSnapshot.aggregateShortOptionMTM` (sum of `marketValue` for short options in Option Summary CSV)
+
+4. **No Positions/Holdings CSV dependency.** The Fidelity Positions export was used as independent validation evidence during investigation but is not a production input.
+
+5. **State-transition stability.** Writing a new option: premium goes to cash (Fidelity Total increases), option MTM is excluded (Wheelwright adds it back) — net effect on Portfolio Capital is premium only ✓. Assignment: cash and shares transform within Fidelity's total — no artificial jump ✓.
+
+### Investigation Path That Led Here
+
+The reconciliation exercise progressed through three candidate formulas:
+
+1. **Formula A (rejected):** `cashAndCredits + Σ(inventory share market values)` — failed because (a) cashAndCredits doesn't include SPAXX in the way we assumed, (b) T-bills are not in Option Summary inventory, (c) inventory reconstruction from Option Summary undercounts when Fidelity partitions shares into lots.
+
+2. **Formula B (rejected earlier):** `totalAccountValue` directly — trivially equals Fidelity's number, provides no semantic separation, and includes short-option MTM as a liability.
+
+3. **Aggregate formula (ratified):** `totalAccountValue − shortOptionMTM` — Fidelity aggregates; Wheelwright makes one transparent correction.
+
+### Discoveries Preserved (Not Implemented)
+
+- **Option Summary inventory limitation:** `deriveInventory()` uses `max(quantity)` across repeated share rows. When Fidelity partitions shares into distinct covered lots (BNO: 2×100 instead of 1×200), this undercounts. Documented in tests as a known limitation. Does NOT affect Portfolio Capital (which uses the aggregate formula, not per-share reconstruction).
+
+- **Evidence authority separation:** Option Summary owns strategy topology and encumbrance. It is not necessarily an authoritative total-holdings view. This distinction is documented but does not require implementation changes for Portfolio Capital.
+
+### Implementation
+
+- `PortfolioSnapshot.aggregateShortOptionMTM: number | null` — new field computed from Option Summary short-option `marketValue` sum
+- `portfolio-capital.ts` — pure derivation module: `derivePortfolioCapital()` + `reconcileAgainstFidelity()`
+- `portfolio-capital.test.ts` — 6 tests covering the aggregate formula
+- Temporary diagnostic scaffolding (`portfolio-capital-diagnostic.ts`, `window.wheelwright`) removed after verification
+
+### Remaining Work (Not This Slice)
+
+- Historical observation persistence (localStorage or backend)
+- Console trajectory chart rendering
+- Live vs stale update strategy
+- Contribution/withdrawal detection
+
+### Cross-references
+
+- `docs/foundations/portfolio-capital.md` — canonical authority (ratified)
+- `docs/parking-lot.md` §PL-PROD-VALUE — ratified status
+- `docs/26-operator-console-architecture.md` §Portfolio Trajectory Region — future consumer
+

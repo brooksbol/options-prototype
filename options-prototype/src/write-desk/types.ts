@@ -134,6 +134,13 @@ export interface PortfolioSnapshot {
    * reservations from this value — Fidelity has already done so.
    */
   deployableCash: number | null;
+  /**
+   * Aggregate mark-to-market value of all open short option positions (negative).
+   * From Fidelity Option Summary CSV: sum of marketValue for all option rows with quantity < 0.
+   * Used in Portfolio Capital derivation: PC = totalAccountValue − aggregateShortOptionMTM.
+   * Null when Option Summary data is unavailable or no short options exist.
+   */
+  aggregateShortOptionMTM: number | null;
   balanceContext: BalanceContext | null;
   provenance: PortfolioSnapshotProvenance;
   readiness: SnapshotReadiness;

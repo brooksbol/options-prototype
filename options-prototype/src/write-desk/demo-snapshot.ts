@@ -233,6 +233,7 @@ export function createDemoSnapshot(): PortfolioSnapshot {
     existingCalls,
     existingPuts,
     deployableCash: 55000,
+    aggregateShortOptionMTM: -8500, // synthetic: approximate demo option liability
     balanceContext: {
       availableToTrade: 55000,
       cashAndCredits: 85000,

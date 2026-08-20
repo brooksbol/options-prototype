@@ -47,6 +47,16 @@ export function buildFidelitySnapshot(input: FidelitySnapshotInput): PortfolioSn
   const existingCalls = deriveExistingShortCalls(input.optionSummaryRows);
   const existingPuts = deriveExistingShortPuts(input.optionSummaryRows);
 
+  // Aggregate short-option mark-to-market: sum of marketValue for all short option rows.
+  // This is negative (representing the cost-to-close / liability).
+  // Used by Portfolio Capital: PC = totalAccountValue − aggregateShortOptionMTM.
+  const shortOptionRows = input.optionSummaryRows.filter(
+    (r) => r.positionType === "option" && r.quantity < 0 && r.marketValue != null
+  );
+  const aggregateShortOptionMTM = shortOptionRows.length > 0
+    ? shortOptionRows.reduce((sum, r) => sum + r.marketValue!, 0)
+    : null;
+
   // Cash authority — direct assignment
   const deployableCash = input.balances.availableToTradeAllSettled
     ?? input.balances.availableToTrade;
@@ -93,6 +103,7 @@ export function buildFidelitySnapshot(input: FidelitySnapshotInput): PortfolioSn
     existingCalls,
     existingPuts,
     deployableCash,
+    aggregateShortOptionMTM,
     balanceContext,
     provenance,
     readiness,

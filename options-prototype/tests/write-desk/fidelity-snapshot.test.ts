@@ -328,3 +328,136 @@ describe("fidelity snapshot — broker option economics", () => {
     expect(snapshot.existingCalls[0].brokerOptionAverageCost).toBeNull();
   });
 });
+
+// --- Inventory ownership evidence limitations ---
+
+describe("fidelity snapshot — inventory ownership from Option Summary", () => {
+  it("uses max(quantity) for repeated share rows (Fidelity strategy-view repetition)", () => {
+    // Fidelity shows the same shares under multiple strategy views.
+    // max(200, 200) = 200 — correct when rows represent the same holding.
+    const input = makeInput({
+      optionSummaryRows: [
+        makeShareRow("XLE", 200, "CoveredCall"),
+        makeOptionRow("-XLE260731C55", "XLE", "CALL", 55, "2026-07-31", -2, "CoveredCall"),
+        makeShareRow("XLE", 200, "CoveredCall"),
+        makeOptionRow("-XLE260807C54", "XLE", "CALL", 54.5, "2026-08-07", -2, "CoveredCall"),
+      ],
+    });
+
+    const snapshot = buildFidelitySnapshot(input);
+    const xle = snapshot.inventory.find((p) => p.symbol === "XLE");
+
+    expect(xle).toBeDefined();
+    // max(200, 200) = 200 — Option Summary reports this as observed ownership
+    expect(xle!.sharesOwned).toBe(200);
+    // 4 calls × 100 = 400 encumbered, but capped at owned (200)
+    expect(xle!.sharesEncumbered).toBe(200);
+    expect(xle!.sharesFree).toBe(0);
+  });
+
+  it("known limitation: undercounts when Fidelity partitions shares into distinct lots", () => {
+    // BNO: 200 actual shares split into two 100-share covered lots.
+    // Option Summary shows two "Shares,100" rows. max(100,100) = 100.
+    // This is KNOWN INCORRECT — the actual ownership is 200.
+    // The limitation is documented; fix requires either:
+    //   (a) an explicit observed-vs-inferred ownership model, or
+    //   (b) additional evidence source (Positions CSV).
+    const input = makeInput({
+      optionSummaryRows: [
+        makeShareRow("BNO", 100, "CoveredCall"),
+        makeOptionRow("-BNO260904C51", "BNO", "CALL", 51, "2026-09-04", -1, "CoveredCall"),
+        makeShareRow("BNO", 100, "CoveredCall"),
+        makeOptionRow("-BNO260911C53", "BNO", "CALL", 53, "2026-09-11", -1, "CoveredCall"),
+      ],
+    });
+
+    const snapshot = buildFidelitySnapshot(input);
+    const bno = snapshot.inventory.find((p) => p.symbol === "BNO");
+
+    expect(bno).toBeDefined();
+    // KNOWN LIMITATION: reports 100 when actual is 200
+    expect(bno!.sharesOwned).toBe(100);
+    // Encumbered capped at owned
+    expect(bno!.sharesEncumbered).toBe(100);
+    // The covered-call structure implies 200 shares MUST exist (2 calls × 100)
+    // but deriveInventory() cannot distinguish this from repeated-same-shares
+  });
+
+  it("caps encumbered at observed owned (does not fabricate shares)", () => {
+    // When call encumbrance exceeds observed shares, encumbered is capped.
+    // This produces an impossible state (more calls than shares can cover)
+    // which downstream consumers should treat as evidence of incomplete ownership data.
+    const input = makeInput({
+      optionSummaryRows: [
+        makeShareRow("GDXJ", 100, "CoveredCall"),
+        makeOptionRow("-GDXJ260904C120", "GDXJ", "CALL", 120, "2026-09-04", -1, "CoveredCall"),
+        makeShareRow("GDXJ", 100, "CoveredCall"),
+        makeOptionRow("-GDXJ260911C129", "GDXJ", "CALL", 129, "2026-09-11", -1, "CoveredCall"),
+      ],
+    });
+
+    const snapshot = buildFidelitySnapshot(input);
+    const gdxj = snapshot.inventory.find((p) => p.symbol === "GDXJ");
+
+    expect(gdxj).toBeDefined();
+    expect(gdxj!.sharesOwned).toBe(100); // observed, not inferred
+    expect(gdxj!.sharesEncumbered).toBe(100); // capped at owned
+    expect(gdxj!.sharesFree).toBe(0);
+    // Note: actual short calls require 200 shares. This inventory record
+    // is epistemically incomplete — it represents what Option Summary reported,
+    // not what must exist for the calls to be covered.
+  });
+
+  it("handles standard covered call without limitation", () => {
+    // 200 shares visible, 2 calls = 200 encumbered. No ambiguity.
+    const input = makeInput({
+      optionSummaryRows: [
+        makeShareRow("XLE", 200, "CoveredCall"),
+        makeOptionRow("-XLE260731C55", "XLE", "CALL", 55, "2026-07-31", -2, "CoveredCall"),
+      ],
+    });
+
+    const snapshot = buildFidelitySnapshot(input);
+    const xle = snapshot.inventory.find((p) => p.symbol === "XLE");
+
+    expect(xle).toBeDefined();
+    expect(xle!.sharesOwned).toBe(200);
+    expect(xle!.sharesEncumbered).toBe(200);
+    expect(xle!.sharesFree).toBe(0);
+  });
+
+  it("handles unpaired shares correctly", () => {
+    const input = makeInput({
+      optionSummaryRows: [
+        makeShareRow("SPYI", 75, "UnpairedShares"),
+      ],
+    });
+
+    const snapshot = buildFidelitySnapshot(input);
+    const spyi = snapshot.inventory.find((p) => p.symbol === "SPYI");
+
+    expect(spyi).toBeDefined();
+    expect(spyi!.sharesOwned).toBe(75);
+    expect(spyi!.sharesEncumbered).toBe(0);
+    expect(spyi!.sharesFree).toBe(75);
+  });
+
+  it("handles mixed: calls within observed capacity", () => {
+    // 300 shares visible, 2 calls = 200 encumbered. No limitation triggered.
+    const input = makeInput({
+      optionSummaryRows: [
+        makeShareRow("EWY", 300, "CoveredCall"),
+        makeOptionRow("-EWY260904C185", "EWY", "CALL", 185, "2026-09-04", -2, "CoveredCall"),
+      ],
+    });
+
+    const snapshot = buildFidelitySnapshot(input);
+    const ewy = snapshot.inventory.find((p) => p.symbol === "EWY");
+
+    expect(ewy).toBeDefined();
+    expect(ewy!.sharesOwned).toBe(300);
+    expect(ewy!.sharesEncumbered).toBe(200);
+    expect(ewy!.sharesFree).toBe(100);
+    expect(ewy!.maxAdditionalContracts).toBe(1);
+  });
+});
