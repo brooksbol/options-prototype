@@ -1,7 +1,7 @@
 # Operator Console Architecture
 
-**Status:** First slice implemented (August 2026); design areas remain for future increments
-**Date:** July 2026 (design); August 2026 (first implementation)
+**Status:** First slice implemented (August 2026); design areas remain for future increments; top-region reconciled (August 20, 2026)
+**Date:** July 2026 (design); August 2026 (first implementation; top-region reconciliation)
 **Depends on:** ADR-011 (Application-Scoped Portfolio Ingestion), ADR-012 (Operator Console as Home Surface), ADR-013 (Position Monitoring Model)
 
 ---
@@ -125,23 +125,40 @@ Communicates the operator's current capital position at a glance.
 
 This region provides numbers and status — the ladder provides the spatial/temporal distribution.
 
-### NAV / Mission Progress
+### Portfolio Trajectory Region
 
-Architectural region for portfolio trajectory relative to the active situation's mission.
+*(Formerly "NAV / Mission Progress." Renamed August 2026 after Console reconciliation clarified the concept.)*
 
-**What it distinguishes:**
+Architectural region for the historical trajectory of Wheelwright's eventual canonical portfolio-capital/value primitive relative to the active situation's mission.
 
-- **Observed historical NAV** — actual account value over time (imported evidence)
-- **Mission/planned trajectory** — the target path defined by the situation (policy)
+**Reconciled architectural direction (August 2026):**
+
+The original Console mockup conceived this region as a trajectory chart — actual value over time, mission target line, acceptable operating envelope. The four placeholder dashboard cards that occupied this space in the initial implementation were an interim structural reservation, not the intended long-term expression.
+
+**Governing invariant:**
+
+> The point-in-time headline number and the historical time-series chart must use identical accounting definitions. These are the same primitive viewed at a single point versus over time. The rightmost/current observed point in the trajectory represents the same canonical quantity as the current headline.
+
+**What this region will eventually display:**
+
+- **Observed historical trajectory** — the canonical Wheelwright portfolio-capital/value quantity over time
+- **Mission/planned trajectory** — the target path defined by the active situation (policy, from Situation Architecture)
 - **Acceptable operating envelope** — boundaries within which operation is healthy (policy)
 
-**Current status:**
+**Blocking dependency:** `PL-PROD-VALUE` (Portfolio Capital / Operating Value). The underlying accounting primitive — what the quantity is, what assets are included, how state transitions are treated — must be resolved before this region can display truthful content.
 
-- Historical observation data: no acquisition mechanism or schema ratified. A Fidelity history CSV is a possible source pending inspection of actual exports.
-- Mission trajectory: a policy/situation concept, not market evidence. Defined by the active situation's objective and horizon.
-- Operating envelope: a policy concept defining acceptable deviation from trajectory.
+**Current implementation status (August 2026):**
 
-This region is architecturally reserved. Its data dependencies are unresolved. Implementation should begin with whatever historical data can be obtained and clearly labeled, and grow as data contracts solidify.
+The four placeholder cards ("Portfolio NAV", "Monthly Production", "Yield on Capital", "Capital at Risk") have been removed. The region is collapsed (zero height) and contributes no viewport consumption. It will earn screen space again when Wheelwright has a resolved capital primitive and historical observations to chart.
+
+**What this region does NOT own:**
+
+- Production metrics (owned by the Production surface)
+- Yield/efficiency ratios (depends on denominator resolution within PL-PROD-VALUE)
+- Situation definition (owned by Situation Architecture)
+- Real-time position state (owned by the position ladder)
+
+**Design evidence:** The original Wheelwright Console mockup (preserved in project assets) shows the trajectory chart spanning the full width of the top region above the DTE ladder, with the current value callout at the right edge.
 
 ### Action Transition
 
@@ -217,7 +234,7 @@ The first operational slice of the Operator Console is implemented and committed
 | Moneyness visualization | ✅ Implemented — OTM/ATM/ITM borders + signed percentage magnitude |
 | Tile inspection (click interaction) | ✅ Implemented — position-detail modal with progressive learning, assignment scenarios, concept explanations |
 | Shared import status | ✅ Implemented — both Console and Write Desk consume the same portfolio store |
-| Capacity/exposure summary | ✅ Implemented — `capacity-summary.ts` pure derivation + sidebar rendering: put obligations (strike-based), deployable cash (Fidelity residual), covered equity (market-value-at-import), nearest-rung exposure (disaggregated), call-writing capacity (per-symbol, compact) |
+| Capacity/exposure summary | ✅ Implemented — `capacity-summary.ts` pure derivation + unified Portfolio Snapshot sidebar: total encumbered capital (hero) with put/call decomposition, deployable cash, next resolution (merged nearest-rung + consequence), free call-writing capacity (per-symbol), provenance. Redesigned August 2026 from fragmented sections into coherent point-in-time orientation. |
 
 ### What remains deferred
 
@@ -225,7 +242,7 @@ The first operational slice of the Operator Console is implemented and committed
 |--------------------------|--------|
 | Situation rendering | Not implemented — situation architecture is durable but has no Console UI |
 | Health classification | Not implemented — moneyness serves as the first Contract State dimension (ADR-013); Decision Pressure and full health semantics remain future work |
-| NAV / mission progress region | Placeholder geometry reserved; no historical data acquisition or display |
+| NAV / mission progress region | Placeholder cards removed (August 2026 reconciliation). Region collapsed to zero height pending PL-PROD-VALUE resolution. Architectural direction: trajectory chart of the eventual canonical portfolio-capital quantity. See §Portfolio Trajectory Region above. |
 | Economic Consequence (ADR-013 dim 3) | ✅ Implemented — canonical `assignment-consequence.ts` derivation with decomposed components: principal movement, capital appreciation/erosion, broker option basis (observed), premium credit (derived), analytical effective exit/basis (derived secondary). Broker option basis sourced from Fidelity Option Summary CSV (not Activity History). Three-state hero color: green (appreciation), amber (premium-offset erosion), red (net erosion). Nearest Consequence sidebar aggregation. High-contrast modal rendering. |
 | Decision Pressure (ADR-013 dim 2) | Not implemented — current DTE + current moneyness magnitude are available inputs; threshold calibration and visual encoding remain design decisions |
 | Action transitions (Console → recommendation surface) | Basic navigation link exists; no context-preserving transition |

@@ -8587,3 +8587,157 @@ The sparkline comparison gallery remains at `/app/sparkline-gallery` as useful d
 - Default regime changed from C to B (one line in OperatorConsole.tsx)
 - No experimental machinery was deleted — all remains accessible for reference
 
+
+
+---
+
+## 2026-08-20 — Console Top-Panel and Left-Sidebar Reconciliation
+
+### Context
+
+The Console center/main region (position ladder) evolved substantially through the B-series work (B2–B6, August 19–20): real portfolio positions, dense fixed-geometry rows, Group By projections, real temporal sparklines backed by retained evidence, moneyness visualization, position drill-down, Regime B promoted as canonical. By comparison, the top panel and left sidebar had not been touched since the Console's first implementation — they were pre-B-series artifacts.
+
+The Principal's assessment: "The left and top panel on the Console page are crap right now."
+
+A full architectural purpose-audit was conducted across both regions.
+
+### Top Panel Finding: Placeholder Cards Are Not the Purpose
+
+The top region contained four placeholder "mission cards" (Portfolio NAV, Monthly Production, Yield on Capital, Capital at Risk) — all showing `—` with no data computation, consuming 100px of above-the-fold viewport for zero operational value.
+
+**Key discovery:** The original Console mockup conceived this region as a **portfolio trajectory chart** — observed value over time, mission target line, acceptable operating envelope. The four cards were a degenerate interim, not the architectural intent.
+
+**Reconciled direction:** The top region's architectural purpose is the eventual historical trajectory of Wheelwright's canonical portfolio-capital/value primitive. The placeholder cards are removed. The region collapses to zero height and earns screen space again when PL-PROD-VALUE resolves and historical observation exists.
+
+**Governing invariant documented:** The point-in-time headline number and the trajectory chart must use identical accounting definitions — they are the same primitive viewed at a point versus over time.
+
+### Portfolio Capital Sharpening (Working Hypotheses)
+
+The reconciliation confirmed why PL-PROD-VALUE matters and refined its content:
+
+- "Portfolio Capital" may be a better name than "Portfolio Operating Value" — it is a stock quantity
+- Important distinctions: Portfolio Capital (stock) vs Production (flow) vs Deployable/Eligible (capacity/state) vs Encumbered (commitment/state) vs Consequence (conditional) vs Fidelity Account Value (broker)
+- T-bills: likely included without per-instrument purpose categorization; inclusion ≠ deployability
+- State-transition stability: capital changing form within the boundary should not manufacture trajectory jumps
+- Open short-option MTM: unresolved, working hypothesis favors obligation/state accounting
+- Premium once received is asset stock; must not double-count
+- Portfolio Capital ≠ universal denominator; different questions use different denominators
+- Fidelity reconciliation: difference should be explainable, not mysterious
+- Asset boundary: "include strategy / exclude non-strategy" is too simplistic (T-bills prove this)
+
+**Epistemic status: All of the above are working hypotheses, not ratified accounting rules.**
+
+### Left Sidebar Audit (Provisional — Not Yet Implemented)
+
+The current sidebar contains: Put Obligations, Deployable Cash, Covered Equity, Nearest Rung, Free Call Lots, Provenance, plus Nearest Consequence (call appreciation/erosion/premium, put cash-to-equity/premium).
+
+**Problems identified:**
+- Mixes capacity with consequence without a clear hierarchy
+- Six disconnected sections rather than one coherent story
+- Some redundancy with what the position ladder already shows (nearest rung exposure visible in the first group when sorted by expiration)
+- No summary or headline — operator must read all sections to form a picture
+
+**Proposed direction (not ratified, not implemented):**
+1. Portfolio State (total encumbered, position count, deployable)
+2. Next Resolution (merged nearest-rung + consequence)
+3. Call-Writing Capacity
+4. Provenance (one line)
+
+The Principal explicitly directed that the sidebar reorganization should be evaluated visually after the top-panel cleanup rather than implemented immediately. The proposed hierarchy is documented as a working recommendation, not architecture.
+
+### Decisions
+
+- Top-panel placeholder cards: removed, region collapsed to zero height
+- Doc 26 updated: section renamed from "NAV / Mission Progress" to "Portfolio Trajectory Region"; reconciled direction, invariant, and blocking dependency documented
+- PL-PROD-VALUE updated: name evolution, Console trajectory as consumer, accounting-definition invariant, all working hypotheses preserved with explicit epistemic labeling
+- Sidebar: documented as provisional proposal, implementation deferred pending visual evaluation
+
+### What was NOT decided
+
+- Final name for the capital primitive (Portfolio Capital vs Portfolio Operating Value)
+- Exact asset-membership formula
+- T-bill treatment (favored direction but not ratified)
+- Short-option MTM treatment
+- Final sidebar composition
+- Whether any Production signal belongs on the Console
+- Whether a situation/regime indicator belongs on the Console
+
+### Cross-references
+
+- `docs/26-operator-console-architecture.md` — §Portfolio Trajectory Region (updated)
+- `docs/parking-lot.md` — PL-PROD-VALUE (updated)
+- `docs/25-situation-architecture.md` — future mission/envelope overlay supplier
+- `docs/foundations/operational-surface-design.md` — impatient vs reflective mode (applied)
+- `docs/foundations/state-oriented-console.md` — show what is, not what the system is doing (applied)
+- `docs/foundations/epistemic-precision.md` — don't display fake precision (applied: removed cards with no truthful content)
+
+
+
+---
+
+## 2026-08-20 — Console Left Rail Redesign: Portfolio Snapshot
+
+### Context
+
+Following the top-panel reconciliation (placeholder cards removed, trajectory region preserved architecturally), the Principal directed attention to the left sidebar: "The left and top panel on the Console page are crap right now." The sidebar was a pre-B-series artifact — six disconnected sections with no coherent hierarchy, mixing capacity facts and consequence facts without telling one story.
+
+### What was implemented
+
+The old `CapacitySidebar` + `ConsequenceSidebar` components were replaced with a unified `PortfolioSnapshot` component answering one question:
+
+> Where does the portfolio stand right now?
+
+**New hierarchy (top to bottom):**
+
+1. **Portfolio Snapshot** — section title establishing identity
+2. **Encumbered Capital** — hero number (put + call aggregate), with put/call decomposition rows beneath
+3. **Deployable Cash** — hero number (can the operator act?)
+4. **Next Resolution** — merged nearest-rung + consequence (what happens soonest? appreciation, erosion, cash→equity, premium)
+5. **Free Call Lots** — compact horizontal wrap with per-symbol breakdown
+6. **Provenance** — one line ("Portfolio as of Aug 20")
+
+**Visual treatment:**
+- Sidebar widened from 180px → 210px for readable numbers-first presentation
+- Hero values: 16px mono bold (Encumbered Capital, Deployable Cash)
+- Section values: 13px mono bold
+- Row values: 11px mono bold, right-aligned against left-aligned labels
+- Semantic color only for meaning: green (appreciation/premium), red (erosion)
+- No raw hex values — all from `--wd-font-mono`, `--wd-accent-green`, `--wd-accent-red`, etc.
+- Labels: 9px uppercase secondary (not gray/tertiary — readable black-spectrum)
+- Sections separated by subtle border + spacing, not by card chrome
+
+**What was removed:**
+- Separate "Put Obligations" / "Covered Equity" sections (absorbed into aggregate with decomposition rows)
+- Separate "Nearest Rung" section (merged with consequence into "Next Resolution")
+- "Calls: N without basis" indeterminate indicator (noise — the data simply doesn't appear if unavailable)
+- "residual put-writing headroom" label text (self-evident from context)
+- "strike-based" / "at import" valuation-basis annotations (belonged in reflective mode, not impatient-mode glance)
+
+**What was preserved:**
+- All underlying computations (`deriveCapacitySummary`, `deriveNearestConsequenceSummary`) unchanged
+- Call-lots expand/collapse interaction
+- Provenance date
+- Consequence semantics (appreciation vs erosion never netted, premium separate)
+
+### Design rationale
+
+The old sidebar answered six partial questions. The new sidebar tells one story in decision-priority order:
+- *How much is committed?* (Encumbered Capital — the headline)
+- *Can I deploy?* (Deployable Cash)
+- *What's about to happen?* (Next Resolution)
+- *Can I write calls?* (Free Call Lots)
+- *How fresh?* (Provenance)
+
+This matches the Operational Surface Design principle: consequence first, decomposition second. The ladder provides per-position decomposition; the sidebar provides portfolio-level orientation.
+
+### Verification
+
+- 1,388 tests pass (95 files)
+- No TypeScript errors
+- No new domain logic or computation changes
+- Files changed: `OperatorConsole.tsx`, `operator-console.css`
+
+### Status
+
+Implementation complete. Not committed. Awaiting Principal visual evaluation.
+

@@ -97,39 +97,12 @@ export function OperatorConsole() {
   return (
     <div className={`oc-shell ${vizRegime !== "c" ? "oc-light" : ""}`}>
       <div className="oc-body">
-        {/* Sidebar region — portfolio capacity facts */}
+        {/* Sidebar region — portfolio snapshot: point-in-time orientation */}
         <aside className="oc-region-sidebar">
-          <CapacitySidebar capacity={capacity} />
-          {consequenceSummary && <ConsequenceSidebar summary={consequenceSummary} />}
+          <PortfolioSnapshot capacity={capacity} consequenceSummary={consequenceSummary} positions={positions} />
         </aside>
 
         <div className="oc-main">
-          {/* Upper region — Mission / NAV: portfolio-level situational awareness */}
-          <div className="oc-region-upper">
-            <div className="oc-mission-grid">
-              <div className="oc-mission-cell oc-mission-placeholder">
-                <span className="oc-mission-label">Portfolio NAV</span>
-                <span className="oc-mission-unavailable">—</span>
-                <span className="oc-mission-hint">Not yet computed</span>
-              </div>
-              <div className="oc-mission-cell oc-mission-placeholder">
-                <span className="oc-mission-label">Monthly Production</span>
-                <span className="oc-mission-unavailable">—</span>
-                <span className="oc-mission-hint">Awaiting assessment</span>
-              </div>
-              <div className="oc-mission-cell oc-mission-placeholder">
-                <span className="oc-mission-label">Yield on Capital</span>
-                <span className="oc-mission-unavailable">—</span>
-                <span className="oc-mission-hint">Requires NAV baseline</span>
-              </div>
-              <div className="oc-mission-cell oc-mission-placeholder">
-                <span className="oc-mission-label">Capital at Risk</span>
-                <span className="oc-mission-unavailable">—</span>
-                <span className="oc-mission-hint">Requires position valuation</span>
-              </div>
-            </div>
-          </div>
-
           {/* Position Monitoring — ladder with regime-specific tile rendering */}
           <div className="oc-region-ladder">
             {vizRegime === "b" && (
@@ -226,173 +199,132 @@ export function OperatorConsole() {
   );
 }
 
-// --- Capacity Sidebar ---
+// --- Portfolio Snapshot (Left Rail) ---
 
-/** Maximum symbols shown inline before "+N more" truncation */
-const MAX_CALL_CAPACITY_SYMBOLS = 3;
-
-function CapacitySidebar({ capacity }: { capacity: CapacitySummary }) {
+function PortfolioSnapshot({ capacity, consequenceSummary, positions }: { capacity: CapacitySummary; consequenceSummary: NearestConsequenceSummary | null; positions: MonitoredPosition[] }) {
   const [callLotsExpanded, setCallLotsExpanded] = useState(false);
+  const totalEncumbered = capacity.putObligations + capacity.coveredEquity;
 
   return (
-    <div className="oc-capacity">
-      {/* Put Obligations */}
-      <div className="oc-cap-section">
-        <span className="oc-cap-label">Put Obligations</span>
-        <span className="oc-cap-value">${capacity.putObligations.toLocaleString()}</span>
-        <span className="oc-cap-basis">
-          {capacity.putPositionCount} position{capacity.putPositionCount !== 1 ? "s" : ""} · strike-based
+    <div className="oc-snapshot">
+      {/* Section 1: Portfolio State — the headline orientation */}
+      <div className="oc-snap-section">
+        <span className="oc-snap-section-title">Portfolio Snapshot</span>
+      </div>
+
+      <div className="oc-snap-section">
+        <span className="oc-snap-label">Encumbered Capital</span>
+        <span className="oc-snap-hero">${totalEncumbered.toLocaleString()}</span>
+        <span className="oc-snap-detail">
+          {capacity.putPositionCount + capacity.callPositionCount} positions · {positions.length} contracts
         </span>
       </div>
 
-      {/* Deployable Cash */}
-      <div className="oc-cap-section">
-        <span className="oc-cap-label">Deployable Cash</span>
+      <div className="oc-snap-row">
+        <span className="oc-snap-row-label">Puts</span>
+        <span className="oc-snap-row-value">${capacity.putObligations.toLocaleString()}</span>
+      </div>
+      <div className="oc-snap-row">
+        <span className="oc-snap-row-label">Calls</span>
+        <span className="oc-snap-row-value">${capacity.coveredEquity.toLocaleString()}</span>
+      </div>
+
+      {/* Section 2: Deployable — can the operator act? */}
+      <div className="oc-snap-section oc-snap-section-sep">
+        <span className="oc-snap-label">Deployable Cash</span>
         {capacity.deployableCash != null ? (
-          <>
-            <span className="oc-cap-value">${capacity.deployableCash.toLocaleString()}</span>
-            <span className="oc-cap-basis">residual put-writing headroom</span>
-          </>
+          <span className="oc-snap-hero">${capacity.deployableCash.toLocaleString()}</span>
         ) : (
-          <span className="oc-cap-unavailable">No balances imported</span>
+          <span className="oc-snap-unavailable">No balances imported</span>
         )}
       </div>
 
-      {/* Covered Equity */}
-      <div className="oc-cap-section">
-        <span className="oc-cap-label">Covered Equity</span>
-        {capacity.callPositionCount > 0 ? (
-          <>
-            <span className="oc-cap-value">${capacity.coveredEquity.toLocaleString()}</span>
-            <span className="oc-cap-basis">
-              {capacity.callPositionCount} position{capacity.callPositionCount !== 1 ? "s" : ""} · at import
-            </span>
-          </>
-        ) : (
-          <span className="oc-cap-unavailable">No covered calls</span>
-        )}
-        {capacity.callsWithoutValuation > 0 && (
-          <span className="oc-cap-warning">
-            {capacity.callsWithoutValuation} call{capacity.callsWithoutValuation !== 1 ? "s" : ""} without valuation
+      {/* Section 3: Next Resolution — what happens soonest? */}
+      {consequenceSummary && (
+        <div className="oc-snap-section oc-snap-section-sep">
+          <span className="oc-snap-label">Next Resolution</span>
+          <span className="oc-snap-detail">
+            {formatExpiration(consequenceSummary.expiration)} · {consequenceSummary.dte} DTE
           </span>
-        )}
-      </div>
 
-      {/* Nearest Rung */}
-      {capacity.nearestRung && (
-        <div className="oc-cap-section oc-cap-section-bordered">
-          <span className="oc-cap-label">
-            Nearest Rung · {formatExpiration(capacity.nearestRung.expiration)} · {capacity.nearestRung.dte} DTE
-          </span>
-          {capacity.nearestRung.putExposure > 0 && (
-            <span className="oc-cap-detail">Puts: ${capacity.nearestRung.putExposure.toLocaleString()}</span>
+          {consequenceSummary.calls && (
+            <div className="oc-snap-consequence">
+              {consequenceSummary.calls.totalAppreciation > 0 && (
+                <div className="oc-snap-row">
+                  <span className="oc-snap-row-label">Appreciation</span>
+                  <span className="oc-snap-row-value oc-snap-positive">+${consequenceSummary.calls.totalAppreciation.toLocaleString()}</span>
+                </div>
+              )}
+              {consequenceSummary.calls.totalErosion > 0 && (
+                <div className="oc-snap-row">
+                  <span className="oc-snap-row-label">Erosion</span>
+                  <span className="oc-snap-row-value oc-snap-negative">−${consequenceSummary.calls.totalErosion.toLocaleString()}</span>
+                </div>
+              )}
+              {consequenceSummary.calls.totalPremium > 0 && (
+                <div className="oc-snap-row">
+                  <span className="oc-snap-row-label">Premium</span>
+                  <span className="oc-snap-row-value oc-snap-premium">+${consequenceSummary.calls.totalPremium.toLocaleString()}</span>
+                </div>
+              )}
+            </div>
           )}
-          {capacity.nearestRung.callExposure > 0 && (
-            <span className="oc-cap-detail">Calls: ${capacity.nearestRung.callExposure.toLocaleString()}</span>
+
+          {consequenceSummary.puts && (
+            <div className="oc-snap-consequence">
+              <div className="oc-snap-row">
+                <span className="oc-snap-row-label">Cash → equity</span>
+                <span className="oc-snap-row-value">${consequenceSummary.puts.totalCashToEquity.toLocaleString()}</span>
+              </div>
+              {consequenceSummary.puts.totalPremium > 0 && (
+                <div className="oc-snap-row">
+                  <span className="oc-snap-row-label">Premium</span>
+                  <span className="oc-snap-row-value oc-snap-premium">+${consequenceSummary.puts.totalPremium.toLocaleString()}</span>
+                </div>
+              )}
+            </div>
           )}
-          <span className="oc-cap-basis">
-            {capacity.nearestRung.positionCount} position{capacity.nearestRung.positionCount !== 1 ? "s" : ""} resolving
-          </span>
         </div>
       )}
 
-      {/* Call-Writing Capacity */}
-      <div className="oc-cap-section oc-cap-section-bordered">
-        <span className="oc-cap-label">Free Call Lots</span>
-        {capacity.callCapacity.length > 0 ? (
-          <>
-            <span className="oc-cap-value">{capacity.totalFreeLots} lot{capacity.totalFreeLots !== 1 ? "s" : ""}</span>
-            <div className="oc-cap-symbols">
-              {(callLotsExpanded ? capacity.callCapacity : capacity.callCapacity.slice(0, MAX_CALL_CAPACITY_SYMBOLS)).map(entry => (
-                <span key={entry.symbol} className="oc-cap-symbol-entry">
-                  {entry.symbol} · {entry.additionalLots} lot{entry.additionalLots !== 1 ? "s" : ""}
-                </span>
-              ))}
-              {capacity.callCapacity.length > MAX_CALL_CAPACITY_SYMBOLS && (
-                <button
-                  className="oc-cap-more"
-                  onClick={() => setCallLotsExpanded(!callLotsExpanded)}
-                  aria-expanded={callLotsExpanded}
-                >
-                  {callLotsExpanded
-                    ? "Show less"
-                    : `+${capacity.callCapacity.length - MAX_CALL_CAPACITY_SYMBOLS} more`}
-                </button>
-              )}
-            </div>
-          </>
-        ) : (
-          <span className="oc-cap-unavailable">No free capacity</span>
-        )}
-      </div>
+      {/* Section 4: Call-Writing Capacity */}
+      {capacity.callCapacity.length > 0 && (
+        <div className="oc-snap-section oc-snap-section-sep">
+          <span className="oc-snap-label">Free Call Lots</span>
+          <span className="oc-snap-value">{capacity.totalFreeLots}</span>
+          <div className="oc-snap-symbols">
+            {(callLotsExpanded ? capacity.callCapacity : capacity.callCapacity.slice(0, MAX_CALL_CAPACITY_SYMBOLS)).map(entry => (
+              <span key={entry.symbol} className="oc-snap-symbol-entry">
+                {entry.symbol} <span className="oc-snap-symbol-lots">{entry.additionalLots}</span>
+              </span>
+            ))}
+            {capacity.callCapacity.length > MAX_CALL_CAPACITY_SYMBOLS && (
+              <button
+                className="oc-snap-more"
+                onClick={() => setCallLotsExpanded(!callLotsExpanded)}
+                aria-expanded={callLotsExpanded}
+              >
+                {callLotsExpanded
+                  ? "Show less"
+                  : `+${capacity.callCapacity.length - MAX_CALL_CAPACITY_SYMBOLS} more`}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Provenance */}
       {capacity.snapshotDate && (
-        <div className="oc-cap-provenance">
-          as of {formatExpiration(capacity.snapshotDate)}
+        <div className="oc-snap-provenance">
+          Portfolio as of {formatExpiration(capacity.snapshotDate)}
         </div>
       )}
     </div>
   );
 }
 
-// --- Consequence Sidebar ---
-
-function ConsequenceSidebar({ summary }: { summary: NearestConsequenceSummary }) {
-  return (
-    <div className="oc-consequence">
-      <div className="oc-cq-header">
-        <span className="oc-cap-label">Nearest Consequence</span>
-        <span className="oc-cq-rung">{formatExpiration(summary.expiration)} · {summary.dte} DTE</span>
-      </div>
-
-      {/* Calls */}
-      {summary.calls && (
-        <div className="oc-cq-group">
-          <span className="oc-cq-group-label">Calls</span>
-          {summary.calls.totalAppreciation > 0 && (
-            <div className="oc-cq-line">
-              <span className="oc-cq-fact-label">Appreciation</span>
-              <span className="oc-cq-value oc-cq-positive">+${summary.calls.totalAppreciation.toLocaleString()}</span>
-            </div>
-          )}
-          {summary.calls.totalErosion > 0 && (
-            <div className="oc-cq-line">
-              <span className="oc-cq-fact-label">Erosion</span>
-              <span className="oc-cq-value oc-cq-negative">-${summary.calls.totalErosion.toLocaleString()}</span>
-            </div>
-          )}
-          {summary.calls.totalPremium > 0 && (
-            <div className="oc-cq-line">
-              <span className="oc-cq-fact-label">Premium</span>
-              <span className="oc-cq-value oc-cq-premium">+${summary.calls.totalPremium.toLocaleString()}</span>
-            </div>
-          )}
-          {summary.calls.indeterminateCount > 0 && (
-            <span className="oc-cq-indeterminate">{summary.calls.indeterminateCount} without basis</span>
-          )}
-        </div>
-      )}
-
-      {/* Puts */}
-      {summary.puts && (
-        <div className="oc-cq-group">
-          <span className="oc-cq-group-label">Puts</span>
-          <div className="oc-cq-line">
-            <span className="oc-cq-fact-label">Cash → equity</span>
-            <span className="oc-cq-value">${summary.puts.totalCashToEquity.toLocaleString()}</span>
-          </div>
-          {summary.puts.totalPremium > 0 && (
-            <div className="oc-cq-line">
-              <span className="oc-cq-fact-label">Premium</span>
-              <span className="oc-cq-value oc-cq-premium">+${summary.puts.totalPremium.toLocaleString()}</span>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
+/** Maximum symbols shown inline before "+N more" truncation */
+const MAX_CALL_CAPACITY_SYMBOLS = 3;
 
 // --- Expiration Rung ---
 
