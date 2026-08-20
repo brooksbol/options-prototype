@@ -4,6 +4,7 @@ import com.wheelwright.evidence.SchedulerConfig;
 import java.sql.*;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * SQLite-backed evidence store — durable persistence for the evidence appliance.
@@ -161,6 +162,46 @@ public class SqliteEvidenceStore implements AutoCloseable {
                 ps.executeUpdate();
             }
         }
+    }
+
+    // --- Spot History Query ---
+
+    /**
+     * Get historical spot observations for the given symbols since a timestamp.
+     *
+     * Returns a map of symbol → list of {price, observedAt} ordered by time ascending.
+     * Only returns observations at or after the 'since' timestamp.
+     */
+    public Map<String, List<Map<String, Object>>> getSpotHistory(List<String> symbols, String since) throws SQLException {
+        Map<String, List<Map<String, Object>>> result = new LinkedHashMap<>();
+        for (String symbol : symbols) {
+            result.put(symbol, new ArrayList<>());
+        }
+
+        // Build IN clause
+        String placeholders = symbols.stream().map(s -> "?").collect(Collectors.joining(","));
+        String sql = "SELECT symbol, price, observed_at FROM spot_history WHERE symbol IN (" + placeholders + ") AND observed_at >= ? ORDER BY symbol, observed_at ASC";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            int idx = 1;
+            for (String symbol : symbols) {
+                ps.setString(idx++, symbol);
+            }
+            ps.setString(idx, since);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String sym = rs.getString("symbol");
+                    List<Map<String, Object>> list = result.get(sym);
+                    if (list != null) {
+                        Map<String, Object> obs = new LinkedHashMap<>();
+                        obs.put("price", rs.getDouble("price"));
+                        obs.put("observedAt", rs.getString("observed_at"));
+                        list.add(obs);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     /**

@@ -8,9 +8,10 @@
  * No Decision Pressure, Economic Consequence, or situation interpretation.
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { usePortfolio } from "../portfolio/use-portfolio";
 import { useObservations } from "../evidence/use-observations";
+import { useSpotHistory, type SpotHistoryMap } from "../evidence/use-spot-history";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
 import { deriveCapacitySummary, type CapacitySummary } from "../portfolio/capacity-summary";
 import { deriveNearestConsequenceSummary, type NearestConsequenceSummary } from "../portfolio/consequence-summary";
@@ -25,8 +26,9 @@ export function OperatorConsole() {
   const observations = useObservations();
   const [selectedPosition, setSelectedPosition] = useState<MonitoredPosition | null>(null);
 
-  // Visual regime experiment: ?viz=c (default), ?viz=a, ?viz=b
-  const vizRegime = new URLSearchParams(window.location.search).get("viz") || "c";
+  // Console visualization regime. B is the accepted production design.
+  // A and C are retained as development reference but no longer the default.
+  const vizRegime = new URLSearchParams(window.location.search).get("viz") || "b";
   // Group by axis (used in regime B)
   const [groupBy, setGroupBy] = useState<"expiration" | "strategy" | "underlying">("expiration");
   // Collapsed groups (by label key) for regime B
@@ -47,6 +49,11 @@ export function OperatorConsole() {
   const totalCapital = rungs.reduce((sum, r) => sum + r.totalCapital, 0);
   const capacity = deriveCapacitySummary(positions, rungs, snapshot);
   const consequenceSummary = deriveNearestConsequenceSummary(rungs, snapshot);
+
+  // Spot history for sparklines — real data for Fidelity, synthetic for Demo
+  const isDemoSource = source === "demo";
+  const underlyings = useMemo(() => [...new Set(positions.map(p => p.underlying))].sort(), [positions]);
+  const spotHistory = useSpotHistory(underlyings, !isDemoSource, observations.generation);
 
   // Alternative groupings for regime B
   const groups: { label: string; sublabel?: string; positions: MonitoredPosition[]; totalCapital: number }[] = (() => {
@@ -185,14 +192,14 @@ export function OperatorConsole() {
                         <span className="oc-rung-count">{group.positions.length} position{group.positions.length !== 1 ? "s" : ""}</span>
                       </div>
                       {!isCollapsed && (
-                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} isDemoSource={source === "demo"} />
+                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} />
                       )}
                     </div>
                   );
                 })
               ) : (
                 rungs.map((rung) => (
-                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={source === "demo"} />
+                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} />
                 ))
               )}
             </div>
@@ -389,7 +396,7 @@ function ConsequenceSidebar({ summary }: { summary: NearestConsequenceSummary })
 
 // --- Expiration Rung ---
 
-function ExpirationRungRow({ rung, totalCapital, onTileClick, vizRegime, isDemoSource }: { rung: ExpirationRung; totalCapital: number; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean }) {
+function ExpirationRungRow({ rung, totalCapital, onTileClick, vizRegime, isDemoSource, spotHistory }: { rung: ExpirationRung; totalCapital: number; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap }) {
   const rungPercent = totalCapital > 0 ? Math.round((rung.totalCapital / totalCapital) * 100) : 0;
 
   return (
@@ -402,7 +409,7 @@ function ExpirationRungRow({ rung, totalCapital, onTileClick, vizRegime, isDemoS
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
       {vizRegime === "b" ? (
-        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} isDemoSource={isDemoSource} />
+        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} />
       ) : (
         <PositionGrid positions={rung.positions} onTileClick={onTileClick} vizRegime={vizRegime} totalCapital={rung.totalCapital} />
       )}
@@ -445,7 +452,7 @@ function PositionTableHeader() {
 }
 
 /** Regime B: Dense fixed-geometry rows — Fidelity-inspired density */
-function PositionTable({ positions, onTileClick, totalCapital, isDemoSource }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; isDemoSource: boolean }) {
+function PositionTable({ positions, onTileClick, totalCapital, isDemoSource, spotHistory }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; isDemoSource: boolean; spotHistory: SpotHistoryMap }) {
   return (
     <div className="oc-rung-table">
       {positions.map((position) => {
@@ -455,14 +462,24 @@ function PositionTable({ positions, onTileClick, totalCapital, isDemoSource }: {
         const badge = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
         const capitalPct = totalCapital > 0 && position.encumberedCapital ? Math.round((position.encumberedCapital / totalCapital) * 100) : 0;
 
-        // Moneyness history: only available for Demo source
-        const moneynessPoints = isDemoSource && position.underlyingPrice != null
-          ? deriveMoneynessHistory(
-              generateDemoSpotHistory(position.underlying, position.underlyingPrice),
+        // Moneyness history: Demo uses synthetic, Fidelity uses real persisted spot observations
+        let moneynessPoints: import("../operator-console/moneyness-history").MoneynessPoint[] = [];
+        if (isDemoSource && position.underlyingPrice != null) {
+          moneynessPoints = deriveMoneynessHistory(
+            generateDemoSpotHistory(position.underlying, position.underlyingPrice),
+            position.strike,
+            position.type,
+          );
+        } else if (!isDemoSource) {
+          const realSpotSeries = spotHistory.get(position.underlying);
+          if (realSpotSeries && realSpotSeries.length >= 3) {
+            moneynessPoints = deriveMoneynessHistory(
+              realSpotSeries.map(obs => obs.price),
               position.strike,
               position.type,
-            )
-          : [];
+            );
+          }
+        }
 
         return (
           <div key={position.id} className={`oc-row oc-row-${position.type}`} onClick={() => onTileClick(position)}>

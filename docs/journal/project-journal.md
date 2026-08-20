@@ -8344,3 +8344,246 @@ Without this entry, a future actor might:
 - Conflate the observation actor with the storage owner
 - Miss the connection between temporal evidence and the already-documented PL-EVID-01, PL-DEPLOY-02, and Console NAV region
 
+
+
+---
+
+## 2026-08-19 — Temporal Evidence Investigation: Spot History for Moneyness Sparkline
+
+### Context
+
+The B-series Console sparkline is visually validated. Demo renders synthetic history; real Fidelity portfolio correctly shows "—" because no truthful historical observations exist. This investigation determines the smallest correct path to production sparkline data.
+
+### Hypothesis Under Test
+
+> Retain Spot history as Evidence; derive moneyness history as Contract State.
+> One underlying Spot series reused by every contract on that underlying.
+
+### Key Finding: The hypothesis is correct and well-supported
+
+The system already has a natural interception point where every fresh spot observation is simultaneously:
+- extracted from the provider (Tradier)
+- timestamped
+- about to be overwritten
+
+The only missing piece is a single `INSERT` alongside the existing `UPDATE`.
+
+
+### End-to-End Flow (Confirmed)
+
+```
+Tradier /markets/quotes → TradierAdapter → MarketChain.underlying.price
+  → AcquisitionWorker.acquireChain() → SqliteEvidenceStore.setChain()
+    → [INTERCEPTION POINT: INSERT INTO spot_history alongside existing UPSERT]
+  → QuotesController /api/evidence/quotes → frontend observation-store
+    → position-monitoring → Console moneyness
+```
+
+Every layer is latest-value-only. The interception point is `setChain()` — co-located with persistence logic so any acquisition path automatically accumulates.
+
+### Storage Assessment
+
+Even retaining every observation for every symbol (~1,300 symbols) for an entire year produces ~148 MB. For held symbols only (~20), it's 15 MB/year. This is genuinely tiny. Premature retention optimization would add complexity for negligible benefit.
+
+### The smallest coherent production slice
+
+1. Migration `002_spot_history.sql` — append-only table with descending time index
+2. `setChain()` side-effect INSERT
+3. `getSpotHistory(symbols, since)` query method
+4. `GET /api/evidence/history` endpoint
+5. `useSpotHistory` frontend hook
+6. `MoneynessCellV4` integration with real history
+
+~150 total lines of new code. No new dependencies. No new acquisition mechanism. No frontend history ownership.
+
+### Status
+
+Investigation complete. Hypothesis confirmed. Awaiting principal review before implementation.
+
+
+
+---
+
+## 2026-08-19 — End of Day: Temporal Evidence Collector Deployed
+
+### State at shutdown
+
+**Collector commit:** `50cc161` — `spot_history` table exists, migration applied, append logic in `setChain()` verified by 264 passing backend tests.
+
+**Current status:** `spot_history` is empty (0 rows). Market is closed (20:31 EDT). No observations will accumulate until the Evidence Service is started with the new code and the SessionGate opens at 09:30 ET tomorrow.
+
+**Migration-number note:** The live database has both `002_priorities.sql` (applied 2026-07-20, creates `operational_priorities`) and `002_spot_history.sql` (applied 2026-08-20, creates `spot_history`). Both are tracked by filename in `_migrations` — no runtime conflict. The `DatabaseManager.listMigrationFiles()` hardcoded array only lists `001_initial.sql` and `002_spot_history.sql`. The `002_priorities.sql` migration was applied by an earlier version and is not re-run. No cleanup needed tonight; address numbering if a third migration is ever added.
+
+### Tomorrow morning's first task
+
+1. Power on laptop.
+2. Start the Evidence Service with new code:
+   ```
+   cd ~/kiro/options/evidence-service-java
+   set -a && source ../.env && set +a
+   ./gradlew bootRun
+   ```
+3. Verify the service is responding: `curl http://localhost:3100/api/evidence/quotes?symbol=XLE`
+4. After ~09:45 ET, verify rows are accumulating: `sqlite3 data/evidence.sqlite3 "SELECT * FROM spot_history LIMIT 5;"`
+
+### Architectural intent (one sentence)
+
+Persist underlying spot observations as Evidence; derive per-contract moneyness history from spot + strike + option type; do not persist moneyness.
+
+### Status
+
+No more implementation tonight. Tomorrow becomes the first real temporal-evidence session.
+
+
+
+---
+
+## 2026-08-20 — PSI Lifecycle-Attribution Boundary: Observability Gap Exposed
+
+### Epistemic status
+
+**Exploration finding / unresolved product observation.** No defect. No design decision. No implementation authorized. Preserved because losing this reasoning would cause future actors to rediscover the lifecycle-attribution boundary question from scratch.
+
+### Triggering evidence
+
+After importing today's Fidelity Activity CSV containing:
+
+1. PSI put assignment (100 shares acquired at $155 strike)
+2. Operator's subsequent voluntary stock sale (~$139.60/share)
+
+The operator initially expected Capital Erosion to increase, reasoning that the whole PSI episode was economically loss-making (~$390 net loss after the $1,149.31 premium is considered). Erosion did not change. Production rose by the recent premium receipts but the PSI share loss was absent.
+
+### Confirmed: current behavior is correct under ADR-014
+
+Investigation traced the PSI stock sale through the full pipeline:
+
+| Step | Evidence |
+|---|---|
+| Fidelity action text | `"YOU SOLD PSI"` (not `"YOU SOLD ASSIGNED CALLS"`) |
+| TransactionClassifier | → `ASSET_SALE` (catch-all after specific patterns checked) |
+| EconomicDecomposer | → `decomposePortfolioSale()` → single `PRINCIPAL_MOVEMENT` component |
+| Production contribution | $0 to OPTION_PREMIUM, $0 to REALIZED_APPRECIATION, $0 to CAPITAL_EROSION |
+
+The PSI premium ($1,149.31) was correctly recognized in **July 2026** Production at the STO date. It appears exactly once.
+
+The PSI assignment (`YOU BOUGHT ASSIGNED PUTS`) is correctly classified as `CAPITAL_DEPLOYMENT`.
+
+The $1,100.46 erosion predates the PSI sale (recorded in the journal on August 17) and therefore PSI did not create it. Of this amount, $500.23 is verified as XLE assigned-call erosion (basis $11,500, proceeds $10,999.77 — confirmed from test fixture and EconomicDecomposerTest). The remaining $600.23 was not reconstructed during this investigation and remains explicitly unresolved. This is not material to the PSI finding.
+
+This behavior is explicitly tested:
+- `discretionarySaleBelowBasis_isNotErosion()` — proves discretionary losses are excluded from CAPITAL_EROSION
+- `decomposePortfolioSale()` code comment: "The gain or loss is a portfolio-level observation, not Wheelwright production or strategy erosion"
+
+### The distinction exposed
+
+**Strategy-attributed accounting ≠ total lifecycle P&L.**
+
+Net Strategy Result answers: "What is the net realized economic contribution of the governed options strategy engine?"
+
+It does NOT answer: "Did this Wheelwright-originated deployment ultimately make or lose money?"
+
+The architectural boundary: the moment the final exit becomes discretionary (operator sells shares voluntarily rather than being called away), economic consequence leaves strategy accounting. The system attributes only what it can causally trace to a governed lifecycle event.
+
+### The specific observability gap
+
+A Wheelwright-originated position can have its complete economic lifecycle cross both boundaries:
+
+```
+Governed:       STO put → premium recognized as Production (July)
+Governed:       Assignment → shares acquired as CAPITAL_DEPLOYMENT (August)
+Discretionary:  Operator sells shares → PRINCIPAL_MOVEMENT only (August)
+```
+
+Net Strategy Result sees: +$1,149.31 (July premium).
+Net Strategy Result does not see: -$1,540 (August share loss).
+True episode economics: approximately -$390.
+
+The operator's intuitive question — "did this deployment ultimately make or lose money?" — is not answered by any current Production metric. The individual components are visible (premium in July Production, share proceeds in the transaction audit trail as PRINCIPAL_MOVEMENT), but no metric composes them into an episode-level economic outcome.
+
+### The `PORTFOLIO_REALIZATION` anticipation
+
+The `EconomicDecomposer.decomposePortfolioSale()` code already contains a forward-looking comment:
+
+> "If portfolio-performance decomposition becomes a requirement, introduce a dedicated PORTFOLIO_REALIZATION component type rather than reclassifying these amounts as production."
+
+This demonstrates the architecture already sees the gap and has a named candidate solution direction. It is implementation evidence of anticipated future need — not a decided solution.
+
+### Disposition
+
+| Classification | Assessment |
+|---|---|
+| Implementation defect | No |
+| Classification defect | No |
+| Ingestion defect | No |
+| Presentation/explanation defect | No |
+| Architectural contradiction | No — ADR-014 is internally consistent |
+| Observability gap | **Yes** — a specific lifecycle pattern produces an episode whose full economic consequence is invisible to the strategy's self-assessment |
+| Operator-expectation mismatch | Yes — the operator reasonably expected erosion to reflect the episode loss |
+
+### What this is NOT
+
+- Not a request to change erosion semantics (Net Strategy Result has a clear causal-attribution meaning)
+- Not evidence that the current accounting is wrong (it is correct under its stated boundary)
+- Not a specification for `PORTFOLIO_REALIZATION` (that remains undesigned)
+- Not a ratified architectural direction
+
+### What this IS
+
+A durable observation that the lifecycle-attribution boundary, while internally consistent, creates a specific observability gap when Wheelwright-originated positions are exited discretionarily. The gap is most visible when the discretionary exit is economically motivated by the assignment consequence itself (the operator sold because the shares were underwater).
+
+Two separate concepts may eventually need distinct representation:
+1. **Strategy Net Result** (current) — causally attributed to governed lifecycle events
+2. **Episode Economic Outcome** (future, undesigned) — full economic consequence of a Wheelwright-originated deployment regardless of exit mechanism
+
+Whether the second concept deserves implementation depends on operator need observed over time.
+
+### Relationship to existing items
+
+- **ADR-014** — governs; this finding operates within its boundary, not against it
+- **PL-PROD-NET** — Net Strategy Result future work mentions "month-over-month change" but does not address episode-level outcome
+- **PL-EVID-02** (Lifecycle Assessment Evidence Domain) — the broadest existing concept that could eventually encompass episode-level economic assessment
+- **PL-EXEC-01** (Trade Lifecycle Evolution) — lifecycle tracking from intended → filled → assigned → closed could provide the provenance linkage needed for episode identification
+
+
+---
+
+## 2026-08-20 — Two Ratified Decisions: Real Temporal Sparklines + Regime B Promoted
+
+### Decision 1: Real temporal-history sparklines accepted
+
+**Status: Principal-approved production capability.**
+
+The Console now displays truthful moneyness sparklines derived from retained market observations for the real Fidelity portfolio. The architecture:
+
+- Backend Evidence Service retains underlying Spot observations in `spot_history` (append-only, one row per successful acquisition, ~15-min cadence for Class A symbols)
+- `GET /api/evidence/history?symbol=X&since=...` serves persisted observations
+- Frontend `useSpotHistory` hook fetches underlying-level history
+- Per-contract moneyness derived from shared spot series + strike + option type using the canonical formula
+- V4/90px compound cell: compact numeric moneyness + semantic segmented sparkline
+- Insufficient history (< 3 observations) shows "—" honestly
+- Demo continues using deterministic synthetic history
+
+First production session (Aug 20, 2026): XLE, EWY, GDXJ achieved 7 observations; BNO, DBO achieved 6; WEAT achieved 2 (Class B cadence, shows "—" as designed).
+
+### Decision 2: Regime B promoted to canonical Console
+
+**Status: Ratified. No longer experimental.**
+
+The dense light-mode grouped-row Console (Regime B) is promoted from `?viz=b` experimental parameter to the default Console implementation. The URL `localhost:5173/` now renders the B design directly.
+
+Regimes A and C remain accessible via `?viz=a` and `?viz=c` for development reference but are no longer the default and will not receive further design investment.
+
+The sparkline comparison gallery remains at `/app/sparkline-gallery` as useful development infrastructure.
+
+### Retained experimental machinery
+
+- `?viz=a` — proportional-width tiles (light mode)
+- `?viz=c` — fixed-tile dark mode (original)
+- `/app/sparkline-gallery` — treatment comparison surface
+- Synthetic Demo history generator — still used for Demo source
+
+### Removed/changed
+
+- Default regime changed from C to B (one line in OperatorConsole.tsx)
+- No experimental machinery was deleted — all remains accessible for reference
+

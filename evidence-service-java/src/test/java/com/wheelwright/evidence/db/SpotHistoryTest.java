@@ -112,6 +112,33 @@ class SpotHistoryTest {
         assertEquals(2, history.size());
     }
 
+    @Test
+    @DisplayName("getSpotHistory returns observations filtered by since timestamp")
+    void getSpotHistoryFiltersBySince() throws Exception {
+        store.setChain("XLE", CHAIN_TEMPLATE.formatted("XLE", "XLE", "59.50"), "2026-08-19T14:00:00Z");
+        store.setChain("XLE", CHAIN_TEMPLATE.formatted("XLE", "XLE", "59.80"), "2026-08-19T14:15:00Z");
+        store.setChain("XLE", CHAIN_TEMPLATE.formatted("XLE", "XLE", "60.10"), "2026-08-19T14:30:00Z");
+
+        // Query since 14:10 — should only get the last two
+        var result = store.getSpotHistory(List.of("XLE"), "2026-08-19T14:10:00Z");
+        assertEquals(2, result.get("XLE").size());
+        assertEquals(59.80, (Double) result.get("XLE").get(0).get("price"), 0.001);
+        assertEquals(60.10, (Double) result.get("XLE").get(1).get("price"), 0.001);
+    }
+
+    @Test
+    @DisplayName("getSpotHistory handles multiple symbols in one query")
+    void getSpotHistoryMultiSymbol() throws Exception {
+        store.setChain("XLE", CHAIN_TEMPLATE.formatted("XLE", "XLE", "59.50"), "2026-08-19T14:00:00Z");
+        store.setChain("EWY", CHAIN_TEMPLATE.formatted("EWY", "EWY", "178.00"), "2026-08-19T14:00:00Z");
+        store.setChain("XLE", CHAIN_TEMPLATE.formatted("XLE", "XLE", "59.80"), "2026-08-19T14:15:00Z");
+
+        var result = store.getSpotHistory(List.of("XLE", "EWY", "BNO"), "2026-08-19T13:00:00Z");
+        assertEquals(2, result.get("XLE").size());
+        assertEquals(1, result.get("EWY").size());
+        assertEquals(0, result.get("BNO").size()); // BNO has no observations
+    }
+
     // --- Helper ---
 
     private List<SpotRow> queryHistory(String symbol) throws SQLException {
