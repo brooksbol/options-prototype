@@ -42,6 +42,7 @@ const CHART_HEIGHT = 56;
 const MARGIN = { top: 14, right: 52, bottom: 8, left: 44 };
 
 const TIME_RANGES: { value: TimeRange; label: string }[] = [
+  { value: "1w", label: "1W" },
   { value: "1m", label: "1M" },
   { value: "3m", label: "3M" },
   { value: "6m", label: "6M" },
@@ -199,6 +200,13 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
   const x = (d: PortfolioCapitalObservation) => timeScale(getDate(d)) ?? 0;
   const y = (d: PortfolioCapitalObservation) => valueScale(getValue(d)) ?? 0;
 
+  // Period-specific moving average
+  const movingAvgData = useMemo(() => {
+    if (dataPoints.length < 3) return [];
+    const window = getMovingAverageWindow(dataPoints.length);
+    return computeMovingAverage(dataPoints, window);
+  }, [dataPoints]);
+
   const lastPoint = dataPoints[dataPoints.length - 1];
   const lastX = x(lastPoint);
   const lastY = y(lastPoint);
@@ -238,6 +246,17 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
           curve={curveMonotoneX}
           className="pt-capital-line"
         />
+
+        {/* Moving average — fine smooth dotted line */}
+        {movingAvgData.length >= 2 && (
+          <LinePath
+            data={movingAvgData}
+            x={x}
+            y={(d: PortfolioCapitalObservation) => valueScale(getValue(d)) ?? 0}
+            curve={curveMonotoneX}
+            className="pt-ma-line"
+          />
+        )}
 
         {/* Current observation endpoint */}
         <circle cx={lastX} cy={lastY} r={3} className="pt-current-dot" />
@@ -287,4 +306,40 @@ function formatCompact(value: number): string {
     return k % 1 === 0 ? `${k}K` : `${k.toFixed(1)}K`;
   }
   return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
+}
+
+/**
+ * Determine moving average window size based on data density.
+ * Shorter periods with fewer points get smaller windows.
+ */
+function getMovingAverageWindow(pointCount: number): number {
+  if (pointCount <= 4) return 2;
+  if (pointCount <= 8) return 3;
+  if (pointCount <= 15) return 4;
+  return 5;
+}
+
+/**
+ * Compute a simple moving average over the observations.
+ * Returns observations at the same timestamps but with smoothed values.
+ * Points with incomplete windows are excluded (MA starts after window-1 points).
+ */
+function computeMovingAverage(
+  data: PortfolioCapitalObservation[],
+  window: number,
+): PortfolioCapitalObservation[] {
+  if (data.length < window) return [];
+
+  const result: PortfolioCapitalObservation[] = [];
+  for (let i = window - 1; i < data.length; i++) {
+    let sum = 0;
+    for (let j = i - window + 1; j <= i; j++) {
+      sum += data[j].value;
+    }
+    result.push({
+      timestamp: data[i].timestamp,
+      value: sum / window,
+    });
+  }
+  return result;
 }

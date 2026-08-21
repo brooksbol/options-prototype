@@ -26,7 +26,7 @@ export interface PortfolioCapitalObservation {
   value: number;
 }
 
-export type TimeRange = "all" | "1y" | "6m" | "3m" | "1m";
+export type TimeRange = "all" | "1y" | "6m" | "3m" | "1m" | "1w";
 
 // --- localStorage Keys ---
 
@@ -110,6 +110,9 @@ export function filterByRange(
     case "1m":
       cutoff.setMonth(cutoff.getMonth() - 1);
       break;
+    case "1w":
+      cutoff.setDate(cutoff.getDate() - 7);
+      break;
   }
 
   const cutoffIso = cutoff.toISOString();
@@ -139,7 +142,7 @@ export function saveTimeRange(range: TimeRange): void {
 }
 
 function isValidTimeRange(value: string): value is TimeRange {
-  return value === "all" || value === "1y" || value === "6m" || value === "3m" || value === "1m";
+  return value === "all" || value === "1y" || value === "6m" || value === "3m" || value === "1m" || value === "1w";
 }
 
 // --- Test Support ---
