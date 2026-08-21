@@ -9544,3 +9544,95 @@ The durable architectural candidate, if later ratified, is approximately:
 ### Status
 
 Checkpoint preserved. No implementation requested. No canonical architecture changes. No new parking-lot item. No commit authorized.
+
+
+---
+
+## 2026-08-21 — Persistent Portfolio Context: Convergence Decision
+
+### Epistemic status
+
+Design decision / convergence. The capital-state triad is ratified for persistent shell residency. Ownership map settled. Implementation sequence defined. Geometry still deferred.
+
+### What happened
+
+The Portfolio Capital accounting workstream completed (commit `64ceca4`), removing the dependency that had paused this exploration. A full bottom-up census of all rendered information across all four application regions (Shell, Console, Deployment, Production) was performed against the current `main` branch.
+
+The census independently confirmed the capital-state triad without modification. Critically, confirmation came from *bottom-up evidence inspection* rather than forward-reasoning from the prior hypothesis:
+
+- **Deployable Cash** is the application's most-duplicated fact — rendered 4 times (shell trigger, shell dropdown, Console rail hero, Production "Deployable now"). The strongest duplication signal.
+- **Encumbered Capital** is an ownership anomaly — clearly cross-surface state living only on the Console rail. The surface-switch test confirms it would orient operators on Deployment and Production too.
+- **Portfolio Capital** is a ratified, implemented primitive (`portfolio-capital.ts`) with no visual home anywhere in the application.
+
+No new candidates for the triad emerged from Production or Deployment that the earlier Console-driven exploration had missed.
+
+### Settled decisions
+
+**Capital-state triad: ratified for persistent shell residency.**
+
+| Fact | Disposition |
+|------|------------|
+| Portfolio Capital | Persistent shell — render immediately, do not gate on trajectory chart |
+| Deployable Cash | Persistent shell — remove duplicate surface-local presentations |
+| Encumbered Capital | Persistent shell — relocate from Console rail |
+
+**Not a partition.** The three facts are related capital views, not a balance equation. Portfolio Capital contains more than Deployable + Encumbered (inventory market value, T-bills, pending activity fill the gap). The shell must communicate relationship without manufacturing arithmetic completeness.
+
+**Other facts — settled disposition:**
+
+| Fact | Owner | Reasoning |
+|------|-------|-----------|
+| Consequence decomposition | Console | Pure conditional analysis — fails surface-switch test |
+| Free Call Lots | Deployment | Capacity for a specific action (call writing), not portfolio identity |
+| Next Resolution | Console | Temporal monitoring, not universal portfolio context |
+| Position Count | Shell disclosure (already in dropdown) | Secondary — can be promoted later if composition has cheap space |
+| Provenance/freshness | Shell (already adequate) | Distinguish two epistemic dimensions: portfolio-snapshot freshness ≠ market/evidence readiness |
+
+**Console rail: baseline is "no rail."** Once the triad promotes to the shell and Free Call Lots moves to Deployment, the remaining rail content is:
+- Next Resolution date + DTE + consequence aggregate
+- Put/call encumbered decomposition
+
+The first expiration rung already inherently expresses "Next Resolution." Rung headers already carry DTE/capital/count. Position-level consequence is already available in rows and modals. The only genuinely unique rail content is the aggregate consequence for the nearest rung. That aggregate must prove it deserves 120–210px of permanent horizontal space. Starting from "no rail" as the baseline and adding back only information that earns its residency.
+
+### Freshness distinction
+
+The shell currently carries two trust indicators:
+- Portfolio-snapshot freshness (export timestamp in the portfolio trigger)
+- Evidence/market readiness (TierReadinessIndicator — tier-level acquisition freshness)
+
+These are different epistemic questions and should not blur into one generic signal. "Portfolio data is from this morning" and "evidence chains are 85% fresh" answer different operator concerns.
+
+### Implementation sequence (under PL-SHELL)
+
+1. Ratify the ownership map from this census.
+2. Design shell composition using the real current header (which already carries portfolio status, tier readiness, and session state).
+3. Implement the triad in the shell and remove duplicate presentations where they no longer add local meaning.
+4. Re-evaluate Console with the rail emptied, starting from "no rail" as the baseline.
+5. Reconcile Deployment and Production against the new global context.
+6. Update canonical architecture/docs — by that point we have both reasoning and implementation evidence.
+
+The Portfolio Capital trajectory chart remains a separate Console workstream (requires historical observation/persistence infrastructure). The shell only needs the current value, which is already ratified and implemented.
+
+### Convergence of prior workstreams
+
+This decision converges three previously separate threads:
+- Portfolio Capital accounting (completed: `64ceca4`, `foundations/portfolio-capital.md`)
+- Console left-rail redesign (experiment: `0ee1485`)
+- Application shell / global header evolution (ongoing: tier readiness indicator, portfolio status)
+
+All three now proceed as one PL-SHELL implementation stream. The census was the missing reconciliation step.
+
+### Cross-references
+
+- Journal entry 2026-08-21 (earlier) — initial checkpoint preserving the triad hypothesis and surface-switch test
+- `docs/parking-lot.md` §PL-SHELL — canonical backlog owner
+- `docs/foundations/portfolio-capital.md` — V1 semantics (triad member 1)
+- `docs/07-architecture-current.md` §Application Shell — existing shell definition
+- `options-prototype/src/portfolio/portfolio-capital.ts` — V1 implementation
+- `options-prototype/src/components/AppShell.tsx` — current shell structure
+- `options-prototype/src/components/OperatorConsole.tsx` — current Portfolio Snapshot rail
+- Commits: `64ceca4` (Portfolio Capital V1), `0ee1485` (Console rail redesign), `a03fc54` (tier readiness in shell)
+
+### Status
+
+Convergence decision captured. Ready for shell composition design. No implementation yet. No canonical architecture changes yet. PL-SHELL owns the converged stream.
