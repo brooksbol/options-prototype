@@ -9683,3 +9683,132 @@ PL-EVID-07 (Multi-Expiration / Weekly-Aware Evidence Acquisition) had been an op
 - **No new DTE fitness model introduced.** Existing execution-quality/delta-proximity logic applies uniformly across all expirations.
 - **Deferred:** Expiration viability persistence, liquidity topology characterization, acquisition optimization, scheduler tuning for multi-expiration load. These optimize the capability but were not prerequisites.
 - **Preserved:** The `preferMonthlyExpiration` field in primary-expiration-policy.ts remains unused/false — the concept it was placeholder for (single-expiration preference) was superseded by full-surface exposure.
+
+
+---
+
+## 2026-08-21 — Portfolio Capital Trajectory Discovery
+
+### Context
+
+The Portfolio Capital V1 accounting primitive was ratified (Aug 20, `64ceca4`) and the persistent capital-state triad was implemented in the application shell (Aug 21, `a2856d0`). With the current-value problem solved and the shell owning it persistently, the question naturally arose: what does the longitudinal expression of Portfolio Capital mean, and where does it belong?
+
+An early Wheelwright Console mockup had shown a "Portfolio Net Liquidation Value (NAV)" chart with actual history, a mission line, and an acceptable operating envelope. That mockup predates Portfolio Capital V1, the shell context convergence, the zero-rail Console restructuring, and the Bridge Income situation architecture. This investigation re-examined its intent against current architecture.
+
+### What happened
+
+A full cold-start investigation was conducted: reading the prescribed repository authority chain, inspecting commits `64ceca4`, `1890f40`, `a2856d0`, `d8b0e08`, `1695cff`, reviewing foundations (portfolio-capital, policy-over-prediction, epistemic-precision, regime-objective-function, evidence-appliance), Situation Architecture, Console Architecture §Portfolio Trajectory Region, Production accounting (backend EconomicDecomposer, ComponentType, ProductionSource), and the shell-capital-context implementation.
+
+A structured discovery report was produced, then subjected to three rounds of Principal correction that materially refined the concept.
+
+### Principal decisions (ratified)
+
+**1. Ownership: Application Header / Shell — not Console.**
+
+The trajectory is the longitudinal expression of the same Portfolio Capital primitive whose current value already lives in the persistent shell header. It persists across all operational surfaces (Console, Deployment, Production) because the question "how has my capital stock evolved?" is surface-independent.
+
+The earlier Console Architecture §Portfolio Trajectory Region reservation is superseded by this decision. Console can remain focused on positions and their temporal/mechanical state.
+
+**2. Two distinct longitudinal quantities, not one.**
+
+The header chart contains at least two separate series:
+
+- **Portfolio Capital** — the absolute capital-stock trajectory over time.
+- **Appreciation / Erosion** — a separate longitudinal line with semantic sign: green when appreciation dominates, red when erosion dominates.
+
+These are not the same measure viewed differently. They answer different operator questions sharing a temporal canvas.
+
+Do not collapse them. Do not substitute one for the other. Do not derive one from the other unless the accounting explicitly supports it.
+
+**3. Semantic sign on Appreciation/Erosion is not generic good/bad color.**
+
+The line's treatment (green/red) reflects whether the quantity itself is positive (appreciation) or negative (erosion) relative to its own zero basis. This is different from coloring the Portfolio Capital line red simply because it fell.
+
+**4. Adjustable time range with sticky state.**
+
+- The operator can change the displayed time range.
+- The application remembers the last selected time range (persistent application state).
+- If no prior selection exists, the default is All Time.
+- The exact menu of available ranges is not settled.
+
+### Discoveries that refined the concept
+
+**5. Withdrawal ≠ capital consumption.**
+
+A naive "mission path" declining by $6K/month would represent planned cash leaving the portfolio, not necessarily planned consumption of Portfolio Capital. If the portfolio produces $5K during the month and the operator withdraws $6K, only $1K of pre-existing capital was consumed. A mission path based purely on withdrawal schedule answers a cash-flow question, not a capital-preservation question.
+
+The more economically meaningful question is closer to: "Is the mission being funded without consuming Portfolio Capital faster than permitted?" That wording is not ratified, but the distinction between withdrawal and consumption is architecturally important.
+
+**6. Raw ΔPC is causally ambiguous.**
+
+A change in Portfolio Capital between two observations can reflect withdrawals, deposits, production, realized appreciation/erosion, unrealized market movement, or other effects. Two periods with identical ΔPC can tell completely different economic stories. Therefore the Portfolio Capital line alone cannot explain economic performance — which is why the Appreciation/Erosion line exists as a separate quantity.
+
+**7. The residual must not be named.**
+
+Between two Portfolio Capital observations:
+
+```
+Observed:    ΔPC = PC₂ − PC₁
+Explained:   Σ(classified events between t₁ and t₂)
+Residual:    ΔPC − Explained
+```
+
+The residual is a number. Calling it "unrealized market movement" is an interpretation that requires reconciliation evidence — proving that every other source of ΔPC change is captured and temporally aligned. Potential contaminants include: pending activity in Fidelity Total Account Value, timing differences between Balances and Activity exports, fees, unresolved distributions, T-bill valuation changes, settlement timing, and incomplete Activity History coverage.
+
+This project's discipline: don't name a residual until reconciliation proves what it is.
+
+### Unresolved questions (explicitly preserved)
+
+**Appreciation/Erosion temporal basis:** What changing the time range does to the A/E value is NOT established. The line could represent:
+- Cumulative A/E since inception, with the range merely changing the visible window
+- Cumulative A/E rebased to zero at the beginning of the selected range
+- Point-in-time A/E state
+- Period-by-period A/E rather than a cumulative series
+
+The range control and the accounting basis are separate questions. Do not conflate them.
+
+**Appreciation/Erosion accounting scope:** The line may or may not align exactly with the existing `REALIZED_APPRECIATION` / `CAPITAL_EROSION` production categories. Those concepts are relevant evidence, but the intended header line's scope is not yet defined.
+
+**Central unresolved question:**
+
+> What economic quantity can Wheelwright truthfully call Appreciation/Erosion through time, given the evidence it actually has?
+
+That needs to be answered before deciding temporal basis, accounting scope, or interaction with the time-range control.
+
+**Reconciliation exercise needed:** The next productive step is empirical — take two real Fidelity Balances CSV imports separated by a known period, the Activity History covering that period, run the Production assessment, sum classified flows, and compare against observed ΔPC. The gap is the empirical residual. Its size determines whether the current evidence decomposition is substantially complete or requires additional evidence sources.
+
+### What was NOT decided
+
+- The exact accounting derivation of Appreciation/Erosion
+- Whether A/E is realized-only, total (including unrealized), or something else
+- Whether the time range resets the A/E series or merely windows it
+- The set of available time ranges (1M, 3M, 6M, 1Y, All — or something else)
+- Visual encoding beyond two-line + semantic sign
+- Whether a mission line / policy envelope eventually appears alongside these two lines
+- Implementation approach for observation persistence
+- Chart library, layout, interaction design
+- Whether the decomposition explanation belongs visually on Production, behind the header trajectory, or elsewhere
+
+### What IS decided (durable)
+
+- Header/Shell owns the trajectory (not Console)
+- Two distinct longitudinal series (Portfolio Capital + Appreciation/Erosion)
+- Semantic sign on A/E (green = appreciation; red = erosion)
+- Adjustable time range with sticky application state, default All Time
+- Portfolio Capital at a point = same accounting as the trajectory's corresponding observation (governing invariant from `foundations/portfolio-capital.md`)
+- No forward prediction line without explicit policy justification
+- Residual must not be named without reconciliation evidence
+
+### Relationship to existing work
+
+- **PL-PROD-VALUE** remains the backlog owner. The trajectory chart is listed as remaining implementation work. This discovery refines what "trajectory chart" means but does not change the parking-lot item's ownership.
+- **Console Architecture §Portfolio Trajectory Region** is now architecturally superseded by the header/shell ownership decision. The Console does not own the trajectory. (Doc 26 should be updated when implementation proceeds.)
+- **foundations/portfolio-capital.md §Historical Trajectory** references "the trajectory displayed in the Console top-region chart." That reference needs eventual correction to reflect header ownership.
+- **Production** provides one explanatory layer (realized flows) but does not own the trajectory or the A/E line.
+- **Situation Architecture** may eventually supply mission/policy context (envelope, floor) but does not own the visualization.
+
+### Status
+
+Discovery checkpoint preserved. No implementation. No canonical architecture changes. No new parking-lot item (PL-PROD-VALUE already owns this). No commit authorized beyond this journal entry.
+
+Next step: empirical reconciliation exercise when the operator next has two temporally separated Balances CSVs and corresponding Activity History.
