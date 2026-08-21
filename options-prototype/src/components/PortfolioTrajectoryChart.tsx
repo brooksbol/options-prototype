@@ -1,21 +1,22 @@
 /**
- * Portfolio Trajectory Chart — persistent header visualization.
+ * Portfolio Trajectory Chart — persistent header instrument.
  *
- * Renders observed Portfolio Capital history as a compact area chart
- * in the application shell header using visx primitives.
+ * A flat, panoramic visualization showing the current Portfolio Capital fact
+ * and its longitudinal shape as one coherent piece of persistent portfolio context.
  *
- * Design principles:
- *   - Shows only truthful observed data (no interpolation, no inference)
- *   - Single observation renders as a point, not a manufactured line
- *   - Multiple observations render as connected segments with area fill
- *   - Line segments connect observations directly (linear, not smoothed)
- *     because smooth curves would imply knowledge between discrete observations
- *   - Y-axis auto-scales to data range with padding
- *   - Time-range control: All Time (default), 1Y, 6M, 3M, 1M — sticky
- *   - Reserve visual territory for future A/E line (not populated)
+ * Visual thesis:
+ *   - Wide + shallow rectangle (not a card, not a dashboard widget)
+ *   - Portfolio Capital line: neutral, confident, ~1.5px, linear between observations
+ *   - Subtle area wash beneath the line for visual weight
+ *   - No historical dots in resting state — the line carries the history
+ *   - Current/rightmost observation: small intentional point
+ *   - Time-range control: far right, adjacent to the temporal visualization
+ *   - Integrated into the shell chrome, not embedded in it
  *
- * Uses visx for: scales, path generation, area fill, responsive sizing.
- * Wheelwright owns: data semantics, time-range behavior, observation provenance.
+ * Deferred:
+ *   - Appreciation/Erosion line (accounting unresolved; visual territory reserved)
+ *   - Mission path / policy envelope
+ *   - Hover interaction / historical dot discovery
  *
  * See: docs/journal/project-journal.md — "Portfolio Capital Trajectory Discovery"
  */
@@ -40,9 +41,8 @@ import "./portfolio-trajectory.css";
 
 // --- Constants ---
 
-const CHART_HEIGHT = 32;
-const MARGIN = { top: 4, right: 2, bottom: 2, left: 2 };
-const POINT_RADIUS = 2.5;
+const CHART_HEIGHT = 56;
+const MARGIN = { top: 6, right: 8, bottom: 6, left: 8 };
 
 const TIME_RANGES: { value: TimeRange; label: string }[] = [
   { value: "1m", label: "1M" },
@@ -100,25 +100,29 @@ export function PortfolioTrajectoryChart() {
   // No data — empty state
   if (dataPoints.length === 0) {
     return (
-      <div className="pt-chart-region">
-        <TimeRangeControl selected={timeRange} onChange={handleRangeChange} />
-        <div className="pt-empty">
-          <span className="pt-empty-label">Portfolio Capital trajectory will appear after first Fidelity import</span>
+      <div className="pt-region">
+        <div className="pt-plot-area">
+          <div className="pt-empty">
+            <span className="pt-empty-label">Trajectory appears after first Fidelity import</span>
+          </div>
         </div>
+        <TimeRangeControl selected={timeRange} onChange={handleRangeChange} />
       </div>
     );
   }
 
   return (
-    <div className="pt-chart-region">
-      <TimeRangeControl selected={timeRange} onChange={handleRangeChange} />
-      <div className="pt-chart-container">
-        <ParentSize debounceTime={100}>
-          {({ width }) => (
-            <ChartSvg dataPoints={dataPoints} width={width} height={CHART_HEIGHT} />
-          )}
+    <div className="pt-region">
+      <div className="pt-plot-area">
+        <ParentSize debounceTime={80}>
+          {({ width }) =>
+            width > 10 ? (
+              <ChartSvg dataPoints={dataPoints} width={width} height={CHART_HEIGHT} />
+            ) : null
+          }
         </ParentSize>
       </div>
+      <TimeRangeControl selected={timeRange} onChange={handleRangeChange} />
     </div>
   );
 }
@@ -132,8 +136,6 @@ interface ChartSvgProps {
 }
 
 function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
-  if (width < 10) return null;
-
   const innerWidth = width - MARGIN.left - MARGIN.right;
   const innerHeight = height - MARGIN.top - MARGIN.bottom;
 
@@ -154,78 +156,66 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
     const values = dataPoints.map(getValue);
     const min = Math.min(...values);
     const max = Math.max(...values);
-    const padding = (max - min) * 0.1 || max * 0.02 || 1000;
+    const range = max - min;
+    const padding = range > 0 ? range * 0.12 : max * 0.02 || 1000;
     return scaleLinear({
       domain: [min - padding, max + padding],
       range: [innerHeight, 0],
     });
   }, [dataPoints, innerHeight]);
 
-  // Single point: render as a dot
+  // Single point: just show the current dot centered
   if (dataPoints.length === 1) {
-    const p = dataPoints[0];
-    const cx = MARGIN.left + (innerWidth / 2);
-    const cy = MARGIN.top + (innerHeight / 2);
+    const cx = MARGIN.left + innerWidth / 2;
+    const cy = MARGIN.top + innerHeight / 2;
 
     return (
-      <svg width={width} height={height} aria-label={`Portfolio Capital: $${formatValue(p.value)}`}>
-        <circle cx={cx} cy={cy} r={POINT_RADIUS} className="pt-point pt-point-current" />
+      <svg width={width} height={height} className="pt-svg">
+        <circle cx={cx} cy={cy} r={3} className="pt-current-dot" />
       </svg>
     );
   }
 
-  // x/y accessors for visx shapes
+  // x/y accessors
   const x = (d: PortfolioCapitalObservation) => timeScale(getDate(d)) ?? 0;
   const y = (d: PortfolioCapitalObservation) => valueScale(getValue(d)) ?? 0;
 
+  // Current point position
   const lastPoint = dataPoints[dataPoints.length - 1];
+  const lastX = x(lastPoint);
+  const lastY = y(lastPoint);
 
   return (
-    <svg
-      width={width}
-      height={height}
-      aria-label={`Portfolio Capital trajectory: ${dataPoints.length} observations, current $${formatValue(lastPoint.value)}`}
-    >
+    <svg width={width} height={height} className="pt-svg">
       <defs>
-        <linearGradient id="pt-area-gradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--wd-text-secondary)" stopOpacity={0.08} />
-          <stop offset="100%" stopColor="var(--wd-text-secondary)" stopOpacity={0.01} />
+        <linearGradient id="pt-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--wd-text-primary)" stopOpacity={0.06} />
+          <stop offset="100%" stopColor="var(--wd-text-primary)" stopOpacity={0.0} />
         </linearGradient>
       </defs>
 
       <Group left={MARGIN.left} top={MARGIN.top}>
-        {/* Area fill underneath the line */}
+        {/* Area fill — subtle weight beneath the line */}
         <AreaClosed
           data={dataPoints}
           x={x}
           y={y}
           yScale={valueScale}
           curve={curveLinear}
-          fill="url(#pt-area-gradient)"
+          fill="url(#pt-fill)"
         />
 
-        {/* Line connecting observations */}
+        {/* Portfolio Capital line — neutral, confident, structural */}
         <LinePath
           data={dataPoints}
           x={x}
           y={y}
           curve={curveLinear}
-          className="pt-line"
+          className="pt-capital-line"
         />
 
-        {/* Observation dots */}
-        {dataPoints.map((p, i) => {
-          const isCurrent = i === dataPoints.length - 1;
-          return (
-            <circle
-              key={p.timestamp}
-              cx={x(p)}
-              cy={y(p)}
-              r={isCurrent ? POINT_RADIUS : 1.5}
-              className={`pt-point ${isCurrent ? "pt-point-current" : ""}`}
-            />
-          );
-        })}
+        {/* Current observation — the only visible dot at rest */}
+        <circle cx={lastX} cy={lastY} r={3} className="pt-current-dot" />
       </Group>
     </svg>
   );
@@ -240,7 +230,7 @@ interface TimeRangeControlProps {
 
 function TimeRangeControl({ selected, onChange }: TimeRangeControlProps) {
   return (
-    <div className="pt-range-control">
+    <div className="pt-range">
       {TIME_RANGES.map(({ value, label }) => (
         <button
           key={value}
@@ -253,13 +243,4 @@ function TimeRangeControl({ selected, onChange }: TimeRangeControlProps) {
       ))}
     </div>
   );
-}
-
-// --- Helpers ---
-
-function formatValue(value: number): string {
-  if (value >= 10_000) {
-    return `${(value / 1000).toFixed(1)}K`;
-  }
-  return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
 }

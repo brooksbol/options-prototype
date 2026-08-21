@@ -1,60 +1,60 @@
-/* Portfolio Trajectory Chart — shell header region */
+/* Portfolio Trajectory — panoramic header instrument */
 @import "../theme-tokens.css";
 
-/* --- Chart Region (below header row, inside sticky shell chrome) --- */
+/* === Region: flat, wide, integrated into shell chrome === */
 
-.pt-chart-region {
+.pt-region {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 20px 2px;
+  align-items: stretch;
+  padding: 4px 20px 6px;
   background: var(--wd-bg-surface);
   border-bottom: 1px solid var(--wd-border-subtle);
-  min-height: 36px;
+  gap: 12px;
 }
 
-/* Constrain chart when Write Desk drawer is present */
-[data-route="write-desk"] .pt-chart-region {
+/* Constrain when Write Desk drawer is present */
+[data-route="write-desk"] .pt-region {
   margin-right: 385px;
 }
 
-/* --- SVG Chart --- */
+/* === Plot area: takes all available horizontal space === */
 
-.pt-chart-container {
+.pt-plot-area {
   flex: 1;
-  height: 32px;
+  height: 56px;
   position: relative;
+  min-width: 0;
 }
 
-.pt-chart-container svg {
+/* === SVG === */
+
+.pt-svg {
   display: block;
 }
 
-.pt-line {
+/* Portfolio Capital line — neutral, confident, structural */
+.pt-capital-line {
   fill: none;
   stroke: var(--wd-text-secondary);
-  stroke-width: 1.2;
+  stroke-width: 1.5;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
 
-.pt-point {
-  fill: var(--wd-text-disabled);
-  stroke: none;
-}
-
-.pt-point-current {
+/* Current observation dot — small, intentional, dark */
+.pt-current-dot {
   fill: var(--wd-text-primary);
+  stroke: var(--wd-bg-surface);
+  stroke-width: 1.5;
 }
 
-/* --- Empty State --- */
+/* === Empty state === */
 
 .pt-empty {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
+  height: 100%;
 }
 
 .pt-empty-label {
@@ -64,36 +64,36 @@
   font-style: italic;
 }
 
-/* --- Time Range Control --- */
+/* === Time range control: far right, vertical center === */
 
-.pt-range-control {
+.pt-range {
   display: flex;
-  gap: 1px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
   flex-shrink: 0;
-  background: var(--wd-border-subtle);
-  border-radius: 4px;
-  overflow: hidden;
 }
 
 .pt-range-btn {
   font-family: var(--wd-font-sans);
   font-size: 9px;
   font-weight: var(--wd-weight-semi);
-  padding: 3px 7px;
+  padding: 2px 6px;
   border: none;
-  background: var(--wd-bg-surface);
-  color: var(--wd-text-secondary);
+  background: none;
+  color: var(--wd-text-disabled);
   cursor: pointer;
-  transition: color 0.1s, background 0.1s;
+  transition: color 0.1s;
   letter-spacing: 0.3px;
+  text-align: right;
+  border-radius: 2px;
 }
 
 .pt-range-btn:hover {
-  background: var(--wd-bg-hover);
   color: var(--wd-text-primary);
 }
 
 .pt-range-btn.pt-range-active {
-  background: var(--wd-bg-selected);
-  color: var(--wd-accent-green);
+  color: var(--wd-text-primary);
+  background: var(--wd-bg-hover);
 }
