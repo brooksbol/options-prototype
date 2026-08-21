@@ -190,7 +190,7 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
     const min = Math.min(...values);
     const max = Math.max(...values);
     const range = max - min;
-    const padding = range > 0 ? range * 0.25 : max * 0.02 || 1000;
+    const padding = range > 0 ? range * 0.08 : max * 0.02 || 1000;
     return scaleLinear({
       domain: [min - padding, max + padding],
       range: [innerHeight, 0],
