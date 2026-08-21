@@ -1,23 +1,31 @@
 /**
  * Portfolio Trajectory Chart — persistent header visualization.
  *
- * Renders observed Portfolio Capital history as an SVG line/point chart
- * in the application shell header. Supports operator-adjustable time range
- * with sticky localStorage persistence.
+ * Renders observed Portfolio Capital history as a compact area chart
+ * in the application shell header using visx primitives.
  *
  * Design principles:
  *   - Shows only truthful observed data (no interpolation, no inference)
  *   - Single observation renders as a point, not a manufactured line
- *   - Multiple observations render as connected line segments
- *   - Observations are marked with dots to distinguish them from interpolation
+ *   - Multiple observations render as connected segments with area fill
+ *   - Line segments connect observations directly (linear, not smoothed)
+ *     because smooth curves would imply knowledge between discrete observations
  *   - Y-axis auto-scales to data range with padding
  *   - Time-range control: All Time (default), 1Y, 6M, 3M, 1M — sticky
  *   - Reserve visual territory for future A/E line (not populated)
+ *
+ * Uses visx for: scales, path generation, area fill, responsive sizing.
+ * Wheelwright owns: data semantics, time-range behavior, observation provenance.
  *
  * See: docs/journal/project-journal.md — "Portfolio Capital Trajectory Discovery"
  */
 
 import { useState, useMemo, useCallback } from "react";
+import { ParentSize } from "@visx/responsive";
+import { scaleTime, scaleLinear } from "@visx/scale";
+import { LinePath, AreaClosed } from "@visx/shape";
+import { curveLinear } from "@visx/curve";
+import { Group } from "@visx/group";
 import {
   loadHistory,
   filterByRange,
@@ -33,12 +41,8 @@ import "./portfolio-trajectory.css";
 // --- Constants ---
 
 const CHART_HEIGHT = 32;
-const CHART_PADDING_TOP = 4;
-const CHART_PADDING_BOTTOM = 2;
-const CHART_PADDING_LEFT = 0;
-const CHART_PADDING_RIGHT = 0;
-const POINT_RADIUS = 2;
-const CURRENT_POINT_RADIUS = 2.5;
+const MARGIN = { top: 4, right: 2, bottom: 2, left: 2 };
+const POINT_RADIUS = 2.5;
 
 const TIME_RANGES: { value: TimeRange; label: string }[] = [
   { value: "1m", label: "1M" },
@@ -48,13 +52,18 @@ const TIME_RANGES: { value: TimeRange; label: string }[] = [
   { value: "all", label: "All" },
 ];
 
+// --- Accessors ---
+
+const getDate = (d: PortfolioCapitalObservation) => new Date(d.timestamp);
+const getValue = (d: PortfolioCapitalObservation) => d.value;
+
 // --- Component ---
 
 export function PortfolioTrajectoryChart() {
   const [timeRange, setTimeRange] = useState<TimeRange>(loadTimeRange);
   const { snapshot } = usePortfolio();
 
-  // Current live Portfolio Capital (the rightmost point must equal the shell headline)
+  // Current live Portfolio Capital (rightmost point = shell headline)
   const currentPC = useMemo(() => {
     if (!snapshot) return null;
     const derivation = derivePortfolioCapital(snapshot);
@@ -68,17 +77,13 @@ export function PortfolioTrajectoryChart() {
     [history, timeRange],
   );
 
-  // Build the data points for rendering: filtered history + current live value
+  // Build data points: filtered history + current live value as rightmost
   const dataPoints = useMemo(() => {
     const points: PortfolioCapitalObservation[] = [...filteredHistory];
 
-    // Ensure the current live value appears as the rightmost point
-    // (it may already be in history if the same CSV is loaded, but if the
-    // operator hasn't re-imported, the current derivation is the freshest)
     if (currentPC != null) {
       const now = new Date().toISOString();
       const lastHistorical = points[points.length - 1];
-      // Only append if there isn't already a very recent observation
       if (!lastHistorical || lastHistorical.value !== currentPC) {
         points.push({ timestamp: now, value: currentPC });
       }
@@ -92,7 +97,7 @@ export function PortfolioTrajectoryChart() {
     saveTimeRange(range);
   }, []);
 
-  // No data at all — show empty state
+  // No data — empty state
   if (dataPoints.length === 0) {
     return (
       <div className="pt-chart-region">
@@ -107,115 +112,121 @@ export function PortfolioTrajectoryChart() {
   return (
     <div className="pt-chart-region">
       <TimeRangeControl selected={timeRange} onChange={handleRangeChange} />
-      <ChartSvg dataPoints={dataPoints} />
+      <div className="pt-chart-container">
+        <ParentSize debounceTime={100}>
+          {({ width }) => (
+            <ChartSvg dataPoints={dataPoints} width={width} height={CHART_HEIGHT} />
+          )}
+        </ParentSize>
+      </div>
     </div>
   );
 }
 
-// --- SVG Chart ---
+// --- SVG Chart (visx) ---
 
 interface ChartSvgProps {
   dataPoints: PortfolioCapitalObservation[];
+  width: number;
+  height: number;
 }
 
-function ChartSvg({ dataPoints }: ChartSvgProps) {
-  // We need a container width — use 100% via viewBox + preserveAspectRatio
-  const viewBoxWidth = 400;
-  const plotWidth = viewBoxWidth - CHART_PADDING_LEFT - CHART_PADDING_RIGHT;
-  const plotHeight = CHART_HEIGHT - CHART_PADDING_TOP - CHART_PADDING_BOTTOM;
+function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
+  if (width < 10) return null;
 
-  // Compute scales
-  const { xScale, yScale, yMin, yMax } = useMemo(() => {
-    const values = dataPoints.map((p) => p.value);
-    const minVal = Math.min(...values);
-    const maxVal = Math.max(...values);
+  const innerWidth = width - MARGIN.left - MARGIN.right;
+  const innerHeight = height - MARGIN.top - MARGIN.bottom;
 
-    // Add 5% padding to y range (or fixed minimum range if all values are equal)
-    const range = maxVal - minVal;
-    const padding = range > 0 ? range * 0.05 : maxVal * 0.02 || 1000;
-    const yMin = minVal - padding;
-    const yMax = maxVal + padding;
+  // Scales
+  const timeScale = useMemo(
+    () =>
+      scaleTime({
+        domain: [
+          Math.min(...dataPoints.map((d) => getDate(d).getTime())),
+          Math.max(...dataPoints.map((d) => getDate(d).getTime())),
+        ],
+        range: [0, innerWidth],
+      }),
+    [dataPoints, innerWidth],
+  );
 
-    // Time scale
-    const timestamps = dataPoints.map((p) => new Date(p.timestamp).getTime());
-    const tMin = Math.min(...timestamps);
-    const tMax = Math.max(...timestamps);
-    const tRange = tMax - tMin;
-
-    const xScale = (timestamp: string): number => {
-      if (tRange === 0) return CHART_PADDING_LEFT + plotWidth / 2;
-      const t = new Date(timestamp).getTime();
-      return CHART_PADDING_LEFT + ((t - tMin) / tRange) * plotWidth;
-    };
-
-    const yScale = (value: number): number => {
-      if (yMax === yMin) return CHART_PADDING_TOP + plotHeight / 2;
-      // SVG y is inverted (0 = top)
-      return CHART_PADDING_TOP + (1 - (value - yMin) / (yMax - yMin)) * plotHeight;
-    };
-
-    return { xScale, yScale, yMin, yMax };
-  }, [dataPoints, plotWidth, plotHeight]);
+  const valueScale = useMemo(() => {
+    const values = dataPoints.map(getValue);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const padding = (max - min) * 0.1 || max * 0.02 || 1000;
+    return scaleLinear({
+      domain: [min - padding, max + padding],
+      range: [innerHeight, 0],
+    });
+  }, [dataPoints, innerHeight]);
 
   // Single point: render as a dot
   if (dataPoints.length === 1) {
     const p = dataPoints[0];
-    const cx = xScale(p.timestamp);
-    const cy = yScale(p.value);
+    const cx = MARGIN.left + (innerWidth / 2);
+    const cy = MARGIN.top + (innerHeight / 2);
 
     return (
-      <svg
-        className="pt-chart-svg"
-        viewBox={`0 0 ${viewBoxWidth} ${CHART_HEIGHT}`}
-        preserveAspectRatio="none"
-        aria-label={`Portfolio Capital: $${formatValue(p.value)}`}
-      >
-        <circle
-          cx={cx}
-          cy={cy}
-          r={CURRENT_POINT_RADIUS}
-          className="pt-point pt-point-current"
-        />
+      <svg width={width} height={height} aria-label={`Portfolio Capital: $${formatValue(p.value)}`}>
+        <circle cx={cx} cy={cy} r={POINT_RADIUS} className="pt-point pt-point-current" />
       </svg>
     );
   }
 
-  // Multiple points: line + dots
-  const pathD = dataPoints
-    .map((p, i) => {
-      const x = xScale(p.timestamp);
-      const y = yScale(p.value);
-      return `${i === 0 ? "M" : "L"} ${x} ${y}`;
-    })
-    .join(" ");
+  // x/y accessors for visx shapes
+  const x = (d: PortfolioCapitalObservation) => timeScale(getDate(d)) ?? 0;
+  const y = (d: PortfolioCapitalObservation) => valueScale(getValue(d)) ?? 0;
 
   const lastPoint = dataPoints[dataPoints.length - 1];
 
   return (
     <svg
-      className="pt-chart-svg"
-      viewBox={`0 0 ${viewBoxWidth} ${CHART_HEIGHT}`}
-      preserveAspectRatio="none"
+      width={width}
+      height={height}
       aria-label={`Portfolio Capital trajectory: ${dataPoints.length} observations, current $${formatValue(lastPoint.value)}`}
     >
-      {/* Line connecting observations */}
-      <path d={pathD} className="pt-line" />
+      <defs>
+        <linearGradient id="pt-area-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--wd-text-secondary)" stopOpacity={0.08} />
+          <stop offset="100%" stopColor="var(--wd-text-secondary)" stopOpacity={0.01} />
+        </linearGradient>
+      </defs>
 
-      {/* Observation dots */}
-      {dataPoints.map((p, i) => {
-        const cx = xScale(p.timestamp);
-        const cy = yScale(p.value);
-        const isCurrent = i === dataPoints.length - 1;
-        return (
-          <circle
-            key={p.timestamp}
-            cx={cx}
-            cy={cy}
-            r={isCurrent ? CURRENT_POINT_RADIUS : POINT_RADIUS}
-            className={`pt-point ${isCurrent ? "pt-point-current" : ""}`}
-          />
-        );
-      })}
+      <Group left={MARGIN.left} top={MARGIN.top}>
+        {/* Area fill underneath the line */}
+        <AreaClosed
+          data={dataPoints}
+          x={x}
+          y={y}
+          yScale={valueScale}
+          curve={curveLinear}
+          fill="url(#pt-area-gradient)"
+        />
+
+        {/* Line connecting observations */}
+        <LinePath
+          data={dataPoints}
+          x={x}
+          y={y}
+          curve={curveLinear}
+          className="pt-line"
+        />
+
+        {/* Observation dots */}
+        {dataPoints.map((p, i) => {
+          const isCurrent = i === dataPoints.length - 1;
+          return (
+            <circle
+              key={p.timestamp}
+              cx={x(p)}
+              cy={y(p)}
+              r={isCurrent ? POINT_RADIUS : 1.5}
+              className={`pt-point ${isCurrent ? "pt-point-current" : ""}`}
+            />
+          );
+        })}
+      </Group>
     </svg>
   );
 }

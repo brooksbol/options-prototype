@@ -283,3 +283,32 @@ When end-user functionality is not yet available, implementation should be expos
 These are not temporary debugging aids. They are instruments that shorten the time between implementation and learning.
 
 The goal is that every meaningful implementation slice produces observable evidence, allowing humans and AI to review reality rather than assumptions.
+
+
+---
+
+## Ownership Boundary: Build vs Adopt
+
+When encountering a capability the system needs, distinguish between:
+
+- **Strategically specific capability** — Portfolio Capital accounting, Production semantics, recommendation policy, evidence reconciliation, situation reasoning, lifecycle economics. Wheelwright benefits from owning these over their lifecycle because their precise semantics are the product.
+
+- **Commodity infrastructure** — chart rendering primitives, date/time handling, layout algorithms, protocol clients, curve mathematics, responsive measurement. Mature solutions exist. Wheelwright does not benefit from maintaining bespoke implementations of solved problems.
+
+### The judgment
+
+The question is not only "Can we implement this cheaply?" but also "Is this something Wheelwright benefits from owning over its lifecycle?"
+
+With AI-assisted development, initial implementation cost is low. A small bespoke solution can be generated quickly. But lifecycle cost includes: edge cases, responsiveness, accessibility, browser behavior, interaction, tests, maintenance, visual refinement, accumulated requirements, and institutional knowledge explaining why we built our own version of a solved problem.
+
+### Thin slices and graduation
+
+A thin-slice bespoke implementation is appropriate when proving a concept quickly. If the concept survives and requirements accumulate, re-evaluate whether bespoke ownership remains justified. A thin-slice implementation should not automatically become permanent infrastructure merely because it already exists.
+
+### Default posture
+
+For strategically specific capabilities: build, own, and maintain.
+
+For commodity capabilities: survey existing mature options before expanding bespoke implementation. Adopt when quality, maintenance, bundle size, license, API stability, and architectural fit are acceptable.
+
+This is not a dependency approval process. It is engineering judgment applied at the appropriate moment.
