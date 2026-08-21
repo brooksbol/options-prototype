@@ -13,8 +13,6 @@ import { usePortfolio } from "../portfolio/use-portfolio";
 import { useObservations } from "../evidence/use-observations";
 import { useSpotHistory, type SpotHistoryMap } from "../evidence/use-spot-history";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
-import { deriveCapacitySummary, type CapacitySummary } from "../portfolio/capacity-summary";
-import { deriveNearestConsequenceSummary, type NearestConsequenceSummary } from "../portfolio/consequence-summary";
 import { buildPositionDetail, type PositionDetail } from "../portfolio/position-detail";
 import type { OptionBasisInput } from "../portfolio/assignment-consequence";
 import { deriveCallAssignmentConsequence, derivePutAssignmentConsequence } from "../portfolio/assignment-consequence";
@@ -48,8 +46,6 @@ export function OperatorConsole() {
   const positions = deriveMonitoredPositions(snapshot, observations);
   const rungs = groupByExpiration(positions);
   const totalCapital = rungs.reduce((sum, r) => sum + r.totalCapital, 0);
-  const capacity = deriveCapacitySummary(positions, rungs, snapshot);
-  const consequenceSummary = deriveNearestConsequenceSummary(rungs, snapshot);
 
   // Spot history for sparklines — real data for Fidelity, synthetic for Demo
   const isDemoSource = source === "demo";
@@ -98,11 +94,6 @@ export function OperatorConsole() {
   return (
     <div className={`oc-shell ${vizRegime !== "c" ? "oc-light" : ""}`}>
       <div className="oc-body">
-        {/* Sidebar region — portfolio snapshot: point-in-time orientation */}
-        <aside className="oc-region-sidebar">
-          <PortfolioSnapshot capacity={capacity} consequenceSummary={consequenceSummary} positions={positions} />
-        </aside>
-
         <div className="oc-main">
           {/* Position Monitoring — ladder with regime-specific tile rendering */}
           <div className="oc-region-ladder">
@@ -206,133 +197,6 @@ export function OperatorConsole() {
     </div>
   );
 }
-
-// --- Portfolio Snapshot (Left Rail) ---
-
-function PortfolioSnapshot({ capacity, consequenceSummary, positions }: { capacity: CapacitySummary; consequenceSummary: NearestConsequenceSummary | null; positions: MonitoredPosition[] }) {
-  const [callLotsExpanded, setCallLotsExpanded] = useState(false);
-  const totalEncumbered = capacity.putObligations + capacity.coveredEquity;
-
-  return (
-    <div className="oc-snapshot">
-      {/* Section 1: Portfolio State — the headline orientation */}
-      <div className="oc-snap-section">
-        <span className="oc-snap-section-title">Portfolio Snapshot</span>
-      </div>
-
-      <div className="oc-snap-section">
-        <span className="oc-snap-label">Encumbered Capital</span>
-        <span className="oc-snap-hero">${totalEncumbered.toLocaleString()}</span>
-        <span className="oc-snap-detail">
-          {capacity.putPositionCount + capacity.callPositionCount} positions · {positions.length} contracts
-        </span>
-      </div>
-
-      <div className="oc-snap-row">
-        <span className="oc-snap-row-label">Puts</span>
-        <span className="oc-snap-row-value">${capacity.putObligations.toLocaleString()}</span>
-      </div>
-      <div className="oc-snap-row">
-        <span className="oc-snap-row-label">Calls</span>
-        <span className="oc-snap-row-value">${capacity.coveredEquity.toLocaleString()}</span>
-      </div>
-
-      {/* Section 2: Deployable — can the operator act? */}
-      <div className="oc-snap-section oc-snap-section-sep">
-        <span className="oc-snap-label">Deployable Cash</span>
-        {capacity.deployableCash != null ? (
-          <span className="oc-snap-hero">${capacity.deployableCash.toLocaleString()}</span>
-        ) : (
-          <span className="oc-snap-unavailable">No balances imported</span>
-        )}
-      </div>
-
-      {/* Section 3: Next Resolution — what happens soonest? */}
-      {consequenceSummary && (
-        <div className="oc-snap-section oc-snap-section-sep">
-          <span className="oc-snap-label">Next Resolution</span>
-          <span className="oc-snap-detail">
-            {formatExpiration(consequenceSummary.expiration)} · {consequenceSummary.dte} DTE
-          </span>
-
-          {consequenceSummary.calls && (
-            <div className="oc-snap-consequence">
-              {consequenceSummary.calls.totalAppreciation > 0 && (
-                <div className="oc-snap-row">
-                  <span className="oc-snap-row-label">Appreciation</span>
-                  <span className="oc-snap-row-value oc-snap-positive">+${consequenceSummary.calls.totalAppreciation.toLocaleString()}</span>
-                </div>
-              )}
-              {consequenceSummary.calls.totalErosion > 0 && (
-                <div className="oc-snap-row">
-                  <span className="oc-snap-row-label">Erosion</span>
-                  <span className="oc-snap-row-value oc-snap-negative">−${consequenceSummary.calls.totalErosion.toLocaleString()}</span>
-                </div>
-              )}
-              {consequenceSummary.calls.totalPremium > 0 && (
-                <div className="oc-snap-row">
-                  <span className="oc-snap-row-label">Premium</span>
-                  <span className="oc-snap-row-value oc-snap-premium">+${consequenceSummary.calls.totalPremium.toLocaleString()}</span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {consequenceSummary.puts && (
-            <div className="oc-snap-consequence">
-              <div className="oc-snap-row">
-                <span className="oc-snap-row-label">Cash → equity</span>
-                <span className="oc-snap-row-value">${consequenceSummary.puts.totalCashToEquity.toLocaleString()}</span>
-              </div>
-              {consequenceSummary.puts.totalPremium > 0 && (
-                <div className="oc-snap-row">
-                  <span className="oc-snap-row-label">Premium</span>
-                  <span className="oc-snap-row-value oc-snap-premium">+${consequenceSummary.puts.totalPremium.toLocaleString()}</span>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Section 4: Call-Writing Capacity */}
-      {capacity.callCapacity.length > 0 && (
-        <div className="oc-snap-section oc-snap-section-sep">
-          <span className="oc-snap-label">Free Call Lots</span>
-          <span className="oc-snap-value">{capacity.totalFreeLots}</span>
-          <div className="oc-snap-symbols">
-            {(callLotsExpanded ? capacity.callCapacity : capacity.callCapacity.slice(0, MAX_CALL_CAPACITY_SYMBOLS)).map(entry => (
-              <span key={entry.symbol} className="oc-snap-symbol-entry">
-                {entry.symbol} <span className="oc-snap-symbol-lots">{entry.additionalLots}</span>
-              </span>
-            ))}
-            {capacity.callCapacity.length > MAX_CALL_CAPACITY_SYMBOLS && (
-              <button
-                className="oc-snap-more"
-                onClick={() => setCallLotsExpanded(!callLotsExpanded)}
-                aria-expanded={callLotsExpanded}
-              >
-                {callLotsExpanded
-                  ? "Show less"
-                  : `+${capacity.callCapacity.length - MAX_CALL_CAPACITY_SYMBOLS} more`}
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Provenance */}
-      {capacity.snapshotDate && (
-        <div className="oc-snap-provenance">
-          Portfolio as of {formatExpiration(capacity.snapshotDate)}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/** Maximum symbols shown inline before "+N more" truncation */
-const MAX_CALL_CAPACITY_SYMBOLS = 3;
 
 // --- Expiration Rung ---
 

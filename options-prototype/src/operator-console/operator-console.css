@@ -44,7 +44,7 @@
 
 .oc-body {
   display: grid;
-  grid-template-columns: 210px 1fr;
+  grid-template-columns: 1fr;
   overflow: hidden;
 }
 
