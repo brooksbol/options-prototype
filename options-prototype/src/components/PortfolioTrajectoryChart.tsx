@@ -230,10 +230,10 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
           x2="0" y2={MARGIN.top + innerHeight}
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0%" stopColor="var(--wd-accent-green)" />
-          <stop offset={`${openingYPercent}%`} stopColor="var(--wd-accent-green)" />
-          <stop offset={`${openingYPercent}%`} stopColor="var(--wd-accent-red)" />
-          <stop offset="100%" stopColor="var(--wd-accent-red)" />
+          <stop offset="0%" stopColor="#15803d" />
+          <stop offset={`${openingYPercent}%`} stopColor="#15803d" />
+          <stop offset={`${openingYPercent}%`} stopColor="#b91c1c" />
+          <stop offset="100%" stopColor="#b91c1c" />
         </linearGradient>
       </defs>
 
