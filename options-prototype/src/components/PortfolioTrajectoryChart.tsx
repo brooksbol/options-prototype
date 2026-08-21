@@ -28,7 +28,7 @@ import "./portfolio-trajectory.css";
 // --- Constants ---
 
 const CHART_HEIGHT = 64;
-const MARGIN = { top: 6, right: 4, bottom: 6, left: 44 };
+const MARGIN = { top: 4, right: 4, bottom: 4, left: 40 };
 
 const TIME_RANGES: { value: TimeRange; label: string }[] = [
   { value: "1w", label: "1W" },
@@ -105,9 +105,9 @@ export function PortfolioTrajectoryChart({ capitalContext }: PortfolioTrajectory
           </div>
         ) : (
           <ParentSize debounceTime={80}>
-            {({ width }) =>
+            {({ width, height }) =>
               width > 10 ? (
-                <ChartSvg dataPoints={dataPoints} width={width} height={CHART_HEIGHT} />
+                <ChartSvg dataPoints={dataPoints} width={width} height={height || CHART_HEIGHT} />
               ) : null
             }
           </ParentSize>
@@ -116,34 +116,7 @@ export function PortfolioTrajectoryChart({ capitalContext }: PortfolioTrajectory
 
       {/* Right: capital context + period change + range selector */}
       <div className="pt-context-panel">
-        {/* Capital state triad */}
-        {capitalContext && (
-          <div className="pt-capital-facts">
-            {capitalContext.portfolioCapital != null && (
-              <div className="pt-fact">
-                <span className="pt-fact-value">${formatCompact(capitalContext.portfolioCapital)}</span>
-                {periodChange && (
-                  <span className={`pt-fact-change ${periodChange.isPositive ? "pt-positive" : "pt-negative"}`}>
-                    {periodChange.isPositive ? "+" : ""}{periodChange.pct.toFixed(1)}%
-                  </span>
-                )}
-                <span className="pt-fact-label">Portfolio Capital</span>
-              </div>
-            )}
-            <div className="pt-fact">
-              <span className="pt-fact-value">
-                {capitalContext.deployableCash != null ? `$${formatCompact(capitalContext.deployableCash)}` : "—"}
-              </span>
-              <span className="pt-fact-label">Deployable</span>
-            </div>
-            <div className="pt-fact">
-              <span className="pt-fact-value">${formatCompact(capitalContext.encumberedCapital)}</span>
-              <span className="pt-fact-label">Encumbered</span>
-            </div>
-          </div>
-        )}
-
-        {/* Time range selector — vertical */}
+        {/* Range selector — immediately right of chart */}
         <div className="pt-range">
           {TIME_RANGES.map(({ value, label }) => (
             <button
@@ -156,6 +129,33 @@ export function PortfolioTrajectoryChart({ capitalContext }: PortfolioTrajectory
             </button>
           ))}
         </div>
+
+        {/* Capital state triad */}
+        {capitalContext && (
+          <div className="pt-capital-facts">
+            {capitalContext.portfolioCapital != null && (
+              <div className="pt-fact">
+                <span className="pt-fact-label">Portfolio Capital</span>
+                <span className="pt-fact-value">${formatCompact(capitalContext.portfolioCapital)}</span>
+                {periodChange && (
+                  <span className={`pt-fact-change ${periodChange.isPositive ? "pt-positive" : "pt-negative"}`}>
+                    {periodChange.isPositive ? "+" : ""}{periodChange.pct.toFixed(1)}%
+                  </span>
+                )}
+              </div>
+            )}
+            <div className="pt-fact">
+              <span className="pt-fact-label">Deployable</span>
+              <span className="pt-fact-value">
+                {capitalContext.deployableCash != null ? `$${formatCompact(capitalContext.deployableCash)}` : "—"}
+              </span>
+            </div>
+            <div className="pt-fact">
+              <span className="pt-fact-label">Encumbered</span>
+              <span className="pt-fact-value">${formatCompact(capitalContext.encumberedCapital)}</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
