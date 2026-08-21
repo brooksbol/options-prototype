@@ -7,7 +7,17 @@
   flex-direction: column;
 }
 
-/* === Shell Header (sticky/frozen) === */
+/* === Shell Chrome (sticky header + trajectory chart) === */
+
+.as-chrome {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--wd-bg-surface);
+}
+
+/* === Shell Header === */
 
 .as-header {
   display: flex;
@@ -17,9 +27,6 @@
   background: var(--wd-bg-surface);
   border-bottom: 1px solid var(--wd-border-subtle);
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
 }
 
 .as-title {

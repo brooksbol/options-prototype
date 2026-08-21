@@ -24,6 +24,7 @@ import { navigateTo } from "../router";
 import type { AppRoute } from "../router";
 import { HeaderPortfolioStatus } from "./HeaderPortfolioStatus";
 import { TierReadinessIndicator } from "./TierReadinessIndicator";
+import { PortfolioTrajectoryChart } from "./PortfolioTrajectoryChart";
 import "./app-shell.css";
 
 interface AppShellProps {
@@ -53,7 +54,8 @@ export function AppShell({ route, children }: AppShellProps) {
 
   return (
     <div className="app-shell">
-      <header className="as-header">
+      <div className="as-chrome">
+        <header className="as-header">
         <h1 className="as-title">Wheelwright</h1>
 
         <nav className="as-nav">
@@ -113,6 +115,9 @@ export function AppShell({ route, children }: AppShellProps) {
           <span>{formatSessionState(session.state)}</span>
         </span>
       </header>
+
+        <PortfolioTrajectoryChart />
+      </div>
 
       <div className="as-body">
         {children}

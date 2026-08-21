@@ -20,12 +20,35 @@ import { detectDelimiter, parseCsv } from "../csv/reader";
 import { classifyDocument } from "../csv/registry";
 import "../csv/fidelity"; // ensure parsers are registered before hydration
 import { projectActivityOverlay, parseCheckpoint } from "./activity-projection";
+import { derivePortfolioCapital } from "./portfolio-capital";
+import { recordObservation } from "./portfolio-capital-history";
 
 // --- localStorage keys (shared with FidelityUpload for backward compat) ---
 
 const LS_KEY_OS = "wheelwright:fidelity-csv:option-summary";
 const LS_KEY_BAL = "wheelwright:fidelity-csv:balances";
 const LS_KEY_ACTIVITY = "wheelwright:fidelity-csv:activity";
+
+// --- Portfolio Capital Observation Recording ---
+
+/**
+ * Record a Portfolio Capital observation from a successfully built Fidelity snapshot.
+ * Uses the Fidelity export timestamp as the observation time (when the data was true),
+ * falling back to current time if no export timestamp is available.
+ */
+function recordPortfolioCapitalObservation(snapshot: PortfolioSnapshot): void {
+  const derivation = derivePortfolioCapital(snapshot);
+  if (!derivation) return;
+
+  // Prefer the Fidelity export timestamp (when the data was true)
+  // over the import time (when the operator happened to upload)
+  const timestamp =
+    snapshot.provenance?.balancesExportTimestamp ??
+    snapshot.provenance?.optionSummaryExportTimestamp ??
+    new Date().toISOString();
+
+  recordObservation(timestamp, derivation.portfolioCapital);
+}
 
 // --- Import Status ---
 
@@ -98,6 +121,10 @@ export function setPortfolio(source: PortfolioSourceType, snapshot: PortfolioSna
       readinessStatus: snapshot.readiness.status,
       validationWarnings: snapshot.readiness.warnings,
     };
+    // Record Portfolio Capital observation for trajectory history
+    if (source === "fidelity") {
+      recordPortfolioCapitalObservation(snapshot);
+    }
     // If Activity data exists, apply projection onto the new base snapshot
     if (currentActivityRows && source === "fidelity") {
       applyActivityProjection();
@@ -291,6 +318,10 @@ function hydrate(): void {
       });
       currentImportStatus.readinessStatus = currentSnapshot.readiness.status;
       currentImportStatus.validationWarnings = currentSnapshot.readiness.warnings;
+
+      // Record observation on hydration (ensures history is seeded even if
+      // the operator imported before this feature existed; dedup prevents duplicates)
+      recordPortfolioCapitalObservation(currentSnapshot);
 
       // Restore Activity CSV and apply projection
       const actStored = localStorage.getItem(LS_KEY_ACTIVITY);

@@ -1,0 +1,95 @@
+/* Portfolio Trajectory Chart — shell header region */
+@import "../theme-tokens.css";
+
+/* --- Chart Region (below header row, inside sticky shell chrome) --- */
+
+.pt-chart-region {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 20px 4px;
+  background: var(--wd-bg-surface);
+  border-bottom: 1px solid var(--wd-border-subtle);
+  min-height: 56px;
+}
+
+/* --- SVG Chart --- */
+
+.pt-chart-svg {
+  flex: 1;
+  height: 52px;
+  display: block;
+}
+
+.pt-line {
+  fill: none;
+  stroke: var(--wd-text-secondary);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.pt-point {
+  fill: var(--wd-text-secondary);
+  stroke: var(--wd-bg-surface);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.pt-point-current {
+  fill: var(--wd-text-primary);
+  stroke: var(--wd-bg-surface);
+  stroke-width: 2;
+}
+
+/* --- Empty State --- */
+
+.pt-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+}
+
+.pt-empty-label {
+  font-family: var(--wd-font-sans);
+  font-size: 10px;
+  color: var(--wd-text-disabled);
+  font-style: italic;
+}
+
+/* --- Time Range Control --- */
+
+.pt-range-control {
+  display: flex;
+  gap: 1px;
+  flex-shrink: 0;
+  background: var(--wd-border-subtle);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.pt-range-btn {
+  font-family: var(--wd-font-sans);
+  font-size: 9px;
+  font-weight: var(--wd-weight-semi);
+  padding: 3px 7px;
+  border: none;
+  background: var(--wd-bg-surface);
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+  transition: color 0.1s, background 0.1s;
+  letter-spacing: 0.3px;
+}
+
+.pt-range-btn:hover {
+  background: var(--wd-bg-hover);
+  color: var(--wd-text-primary);
+}
+
+.pt-range-btn.pt-range-active {
+  background: var(--wd-bg-selected);
+  color: var(--wd-accent-green);
+}
