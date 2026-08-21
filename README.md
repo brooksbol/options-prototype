@@ -17,14 +17,14 @@ The objective is to build an observable system that continuously produces eviden
 
 | Component | Status |
 |-----------|--------|
-| Frontend (options-prototype) | ✅ Operational — puts and calls |
-| TypeScript backend (evidence-service) | Retired — removed after Java acceptance |
+| Frontend (options-prototype) | ✅ Operational — puts, calls, buy-writes |
 | Java backend (evidence-service-java) | ✅ Operational — live-market acceptance recorded August 3, 2026 |
 | Migration status | Complete — Java is the sole evidence backend |
 | Architecture documentation | ✅ Ratified |
-| Behavioral invariants | ✅ Ratified (18 total; 16 satisfied, 2 pending Java completion) |
+| Behavioral invariants | ✅ Ratified (18 total) |
 | Snapshot contract v1 | ✅ Frozen |
 | Calls (Horizon A) | ✅ Restored — cache-based call recommendations |
+| Multi-expiration evidence | ✅ Full eligible 7–45 DTE acquisition |
 | Cloud deployment | 📋 Accepted architecture — post-retooling |
 
 ---
@@ -55,10 +55,6 @@ The frontend proxies `/api/*` requests to the backend at `localhost:3100` automa
 - JDK 21 LTS (Temurin recommended)
 - Node.js (via nvm)
 - `TRADIER_API_KEY` environment variable
-
-## Alternative: TypeScript backend (retired)
-
-The TypeScript backend has been retired after successful Java retooling acceptance (August 3, 2026). It is no longer present in the repository.
 
 ---
 
@@ -101,21 +97,20 @@ docs/
 
 evidence-service-java/            Java backend (Spring Boot, Java 21, SQLite)
     src/main/java/                Application: worker, scheduler, controllers, store
-    src/test/java/                JUnit 5 tests (146 tests)
+    src/test/java/                JUnit 5 tests
     build.gradle.kts              Gradle build (Kotlin DSL, Java 21 toolchain)
     gradlew                       Gradle Wrapper (canonical build entry point)
 
 data/                             Wheelwright-owned durable assets
     seeds/                        Canonical universe seed CSV
-    evidence.sqlite3              Runtime evidence store (not tracked)
-    data/                         SQLite database and canonical seed files
+    evidence.sqlite3              Runtime evidence store (not tracked in Git)
 
 options-prototype/                React frontend (Vite, TypeScript)
     src/                          Components, recommendation engines, domain logic
-    tests/                        Vitest frontend tests (968 tests)
+    tests/                        Vitest frontend tests
 
 scripts/
-    dev.sh                        Starts TypeScript legacy backend + frontend (behavioral reference during Java retooling)
+    dev.sh                        Starts Java Evidence Appliance + Vite frontend
 ```
 
 ---
@@ -208,14 +203,14 @@ java -version        # Temurin 21.x
 # Running Tests
 
 ```bash
-# Java backend (173 tests)
+# Java backend
 cd evidence-service-java && ./gradlew clean test
 
-# Frontend (1112 tests)
+# Frontend
 cd options-prototype && npx vitest run
 ```
 
-Total: **1,285+ tests** across both suites.
+Both suites must pass before merging to main.
 
 ---
 
@@ -223,7 +218,7 @@ Total: **1,285+ tests** across both suites.
 
 The system currently implements:
 
-- **Evidence Appliance** — background acquisition (self-scheduling, session-aware, tiered A/B/C/D freshness, bounded recovery probes for prior-epoch failures)
+- **Evidence Appliance** — background acquisition (self-scheduling, session-aware, tiered A/B/C/D freshness, bounded recovery probes for prior-epoch failures, full 7–45 DTE multi-expiration acquisition)
 - **Durable SQLite persistence** — failed-refresh preservation, generation tracking, restart recovery
 - **Snapshot publication** — ETag/conditional HTTP (304), coherent evidence snapshots
 - **Selective quote observations** — `GET /api/evidence/quotes?symbol=...` for lightweight per-symbol price projection
@@ -231,9 +226,11 @@ The system currently implements:
 - **Position Monitoring** — Portfolio + Evidence composition producing moneyness, DTE, capital, and full observation provenance
 - **Put recommendations** (Wheelwright) — deterministic, cache-backed, zero provider calls
 - **Call recommendations** (Horizon A) — inventory-driven, cache-backed, for held unencumbered shares
-- **Write Desk** — collapsible put/call sections, sortable tables, policy controls
-- **Recommendation Brief** — put drawer with decision summary, evidence, neighborhood, governance, Projected Call Surface
+- **Buy-write recommendations** — share-acquisition + covered-call composite candidates, affordability-gated
+- **Write Desk** — collapsible put/call/buy-write sections, sortable tables, policy controls, cross-entry composition
+- **Recommendation Brief** — put and buy-write drawers with decision summary, evidence, neighborhood, governance, Projected Call Surface
 - **Broker handoff** — Fidelity trade link construction (puts)
+- **Production accounting** — backend-authoritative monthly reconciliation from Fidelity Activity History
 - **Market session model** — 6-state classification, trading calendar, sealed evidence semantics
 - **Instrument governance** — product structure classification, leveraged/inverse detection
 - **Instrument Catalog** and Description Library (1,280 tickers with domain-specific descriptions)
