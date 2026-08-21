@@ -164,7 +164,7 @@ export function OperatorConsole() {
                         <span className="oc-rung-count">{group.positions.length} position{group.positions.length !== 1 ? "s" : ""}</span>
                       </div>
                       {!isCollapsed && (
-                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
                       )}
                     </div>
                   );
@@ -213,7 +213,7 @@ function ExpirationRungRow({ rung, totalCapital, onTileClick, vizRegime, isDemoS
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
       {vizRegime === "b" ? (
-        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
       ) : (
         <PositionGrid positions={rung.positions} onTileClick={onTileClick} vizRegime={vizRegime} totalCapital={rung.totalCapital} />
       )}
@@ -455,77 +455,224 @@ function deriveAssignedCell(
   };
 }
 
-/** Regime B: Column header row */
-function PositionTableHeader() {
-  return (
-    <div className="oc-row-header" role="row" aria-label="Column headers">
-      <span className="oc-row-header-cell">Type</span>
-      <span className="oc-row-header-cell">Symbol</span>
-      <span className="oc-row-header-cell">Strike</span>
-      <span className="oc-row-header-cell">Spot</span>
-      <span className="oc-row-header-cell oc-row-header-center">Contracts</span>
-      <span className="oc-row-header-cell">Moneyness</span>
-      <span className="oc-row-header-cell oc-row-header-right">Capital</span>
-      <span className="oc-row-header-cell oc-row-header-right">Premium Booked</span>
-      <span className="oc-row-header-cell oc-row-header-right">Bonus If Called Away</span>
-      <span className="oc-row-header-cell oc-row-header-right">If Assigned</span>
-    </div>
+/**
+ * Derive SHARE BASIS column for calls/BW.
+ * Shows the per-share cost basis for the underlying shares backing this call.
+ * Uses Activity-attributed basis when available, falls back to symbol-level average.
+ * Puts show "—" (no owned-share basis relevant).
+ */
+function deriveShareBasisCell(
+  position: MonitoredPosition,
+  snapshot: import("../write-desk/types").PortfolioSnapshot,
+): CellResult {
+  if (position.type === "put") return EMPTY_CELL;
+
+  const matchingCall = snapshot.existingCalls.find(
+    c => c.underlying.toUpperCase() === position.underlying.toUpperCase()
+      && c.strike === position.strike
+      && c.expiration === position.expiration
   );
+
+  // Prefer Activity-attributed basis
+  if (matchingCall?.acquisitionBasis) {
+    const basis = matchingCall.acquisitionBasis.pricePerShare;
+    const conf = matchingCall.acquisitionBasis.confidence;
+    return {
+      display: `$${basis.toFixed(2)}`,
+      className: conf === "unique" ? "oc-col-basis" : "oc-col-basis oc-col-batch",
+      title: `Share basis: $${basis.toFixed(2)}/sh (${conf === "unique" ? "Activity-attributed" : "batch-attributed"})`,
+    };
+  }
+
+  // Fall back to symbol-level average
+  const inventory = snapshot.inventory.find(
+    inv => inv.symbol.toUpperCase() === position.underlying.toUpperCase()
+  );
+  if (inventory?.economics?.averageCostPerShare != null) {
+    return {
+      display: `$${inventory.economics.averageCostPerShare.toFixed(2)}`,
+      className: "oc-col-basis oc-col-observed",
+      title: `Share basis: $${inventory.economics.averageCostPerShare.toFixed(2)}/sh (symbol-level blended average)`,
+    };
+  }
+
+  return { display: "—", className: "oc-col-empty", title: "Share basis unavailable" };
 }
 
-/** Regime B: Dense fixed-geometry rows — Fidelity-inspired density */
-function PositionTable({ positions, onTileClick, totalCapital, isDemoSource, spotHistory, snapshot }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
-  return (
-    <div className="oc-rung-table">
-      {positions.map((position) => {
-        const mState = classifyMoneyness(position);
-        const mDisplay = formatMoneynessDisplay(position);
-        const colorClass = moneynessColor(position.type, mState);
-        const badge = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
+/**
+ * Derive EFFECTIVE EXIT column for calls/BW.
+ * Effective exit = strike + premium/share. The all-in sale price if called away.
+ * Puts show "—".
+ */
+function deriveEffectiveExitCell(
+  position: MonitoredPosition,
+  snapshot: import("../write-desk/types").PortfolioSnapshot,
+): CellResult {
+  if (position.type === "put") return EMPTY_CELL;
 
-        // Moneyness history: Demo uses synthetic, Fidelity uses real persisted spot observations
-        let moneynessPoints: import("../operator-console/moneyness-history").MoneynessPoint[] = [];
-        if (isDemoSource && position.underlyingPrice != null) {
-          moneynessPoints = deriveMoneynessHistory(
-            generateDemoSpotHistory(position.underlying, position.underlyingPrice),
-            position.strike,
-            position.type,
-          );
-        } else if (!isDemoSource) {
-          const realSpotSeries = spotHistory.get(position.underlying);
-          if (realSpotSeries && realSpotSeries.length >= 3) {
+  const matchingCall = snapshot.existingCalls.find(
+    c => c.underlying.toUpperCase() === position.underlying.toUpperCase()
+      && c.strike === position.strike
+      && c.expiration === position.expiration
+  );
+
+  const optionBasis: OptionBasisInput = {
+    brokerOptionBasis: matchingCall?.brokerOptionBasis ?? null,
+    brokerOptionAverageCost: matchingCall?.brokerOptionAverageCost ?? null,
+  };
+
+  // Premium per share from broker option average cost
+  if (optionBasis.brokerOptionAverageCost != null) {
+    const premiumPerShare = Math.abs(optionBasis.brokerOptionAverageCost);
+    const effectiveExit = position.strike + premiumPerShare;
+    return {
+      display: `$${effectiveExit.toFixed(2)}`,
+      className: "oc-col-eff-exit",
+      title: `Effective exit: $${effectiveExit.toFixed(2)}/sh (strike $${position.strike} + premium $${premiumPerShare.toFixed(2)}/sh)`,
+    };
+  }
+
+  return { display: "—", className: "oc-col-empty", title: "Premium per share unavailable for effective exit" };
+}
+
+/**
+ * Derive MKT VS EFF BASIS column for puts.
+ * Shows currentPrice − effectiveBasis (strike − premium/sh).
+ * Positive = market above effective acquisition cost (favorable assignment).
+ * Negative = market below effective acquisition cost.
+ * Calls/BW show "—".
+ */
+function deriveMktVsEffBasisCell(
+  position: MonitoredPosition,
+  snapshot: import("../write-desk/types").PortfolioSnapshot,
+): CellResult {
+  if (position.type !== "put") return EMPTY_CELL;
+  if (position.underlyingPrice == null) return { display: "—", className: "oc-col-empty", title: "No market price for comparison" };
+
+  const matchingPut = snapshot.existingPuts.find(
+    p => p.underlying.toUpperCase() === position.underlying.toUpperCase()
+      && p.strike === position.strike
+      && p.expiration === position.expiration
+  );
+
+  const optionBasis: OptionBasisInput = {
+    brokerOptionBasis: matchingPut?.brokerOptionBasis ?? null,
+    brokerOptionAverageCost: matchingPut?.brokerOptionAverageCost ?? null,
+  };
+
+  // Compute effective basis = strike - premium/share
+  if (optionBasis.brokerOptionAverageCost != null) {
+    const premiumPerShare = Math.abs(optionBasis.brokerOptionAverageCost);
+    const effectiveBasis = position.strike - premiumPerShare;
+    const diff = position.underlyingPrice - effectiveBasis;
+    const isPositive = diff >= 0;
+    return {
+      display: `${isPositive ? "+" : "−"}$${Math.abs(diff).toFixed(2)}`,
+      className: isPositive ? "oc-col-positive" : "oc-col-negative",
+      title: `Market ($${position.underlyingPrice.toFixed(2)}) vs effective basis ($${effectiveBasis.toFixed(2)}): ${isPositive ? "above" : "below"} by $${Math.abs(diff).toFixed(2)}`,
+    };
+  }
+
+  return { display: "—", className: "oc-col-empty", title: "Premium unavailable for effective basis comparison" };
+}
+
+/** Regime B: Column header row — now rendered as <thead> inside PositionTable */
+function PositionTableHeader() {
+  return null; // Header is rendered inside PositionTable <thead>
+}
+
+/** Regime B: Dense fixed-geometry rows using native <table> for proper column alignment */
+function PositionTable({ positions, onTileClick, totalCapital, allPositionsTotalCapital, isDemoSource, spotHistory, snapshot }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
+  return (
+    <table className="oc-position-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Symbol</th>
+          <th className="oc-th-right">Strike</th>
+          <th>Expiration</th>
+          <th className="oc-th-right">DTE</th>
+          <th className="oc-th-right">Spot</th>
+          <th className="oc-th-center">Contracts</th>
+          <th>Moneyness</th>
+          <th className="oc-th-right">Capital</th>
+          <th className="oc-th-right">Capital %</th>
+          <th className="oc-th-right">Share Basis</th>
+          <th className="oc-th-right">Premium Booked</th>
+          <th className="oc-th-right">Effective Exit</th>
+          <th className="oc-th-right">If Called Away</th>
+          <th className="oc-th-right">If Assigned</th>
+          <th className="oc-th-right">Market vs Basis</th>
+        </tr>
+      </thead>
+      <tbody>
+        {positions.map((position) => {
+          const mState = classifyMoneyness(position);
+          const mDisplay = formatMoneynessDisplay(position);
+          const colorClass = moneynessColor(position.type, mState);
+          const badge = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
+
+          // Moneyness history: Demo uses synthetic, Fidelity uses real persisted spot observations
+          let moneynessPoints: import("../operator-console/moneyness-history").MoneynessPoint[] = [];
+          if (isDemoSource && position.underlyingPrice != null) {
             moneynessPoints = deriveMoneynessHistory(
-              realSpotSeries.map(obs => obs.price),
+              generateDemoSpotHistory(position.underlying, position.underlyingPrice),
               position.strike,
               position.type,
             );
+          } else if (!isDemoSource) {
+            const realSpotSeries = spotHistory.get(position.underlying);
+            if (realSpotSeries && realSpotSeries.length >= 3) {
+              moneynessPoints = deriveMoneynessHistory(
+                realSpotSeries.map(obs => obs.price),
+                position.strike,
+                position.type,
+              );
+            }
           }
-        }
 
-        // Consequence columns (strategy-specific)
-        const premiumCell = derivePremiumBookedCell(position, snapshot);
-        const calledAwayCell = deriveCalledAwayCell(position, snapshot);
-        const assignedCell = deriveAssignedCell(position, snapshot);
+          // Consequence columns (strategy-specific)
+          const premiumCell = derivePremiumBookedCell(position, snapshot);
+          const calledAwayCell = deriveCalledAwayCell(position, snapshot);
+          const assignedCell = deriveAssignedCell(position, snapshot);
 
-        return (
-          <div key={position.id} className={`oc-row oc-row-${position.type}`} onClick={() => onTileClick(position)}>
-            <span className="oc-row-badge">{badge}</span>
-            <span className="oc-row-symbol">{position.underlying}</span>
-            <span className="oc-row-strike">${position.strike}</span>
-            <span className="oc-row-spot">{position.underlyingPrice != null ? `$${position.underlyingPrice.toFixed(2)}` : "—"}</span>
-            <span className="oc-row-contracts">{position.quantity}</span>
-            <span className="oc-row-moneyness-compound">
-              <MoneynessCellV4 points={moneynessPoints} type={position.type} currentMoneyness={position.moneyness} mDisplay={mDisplay} colorClass={colorClass} />
-            </span>
-            <span className="oc-row-capital">{position.encumberedCapital != null ? `$${position.encumberedCapital.toLocaleString()}` : "—"}</span>
-            <span className={`oc-row-premium ${premiumCell.className}`} title={premiumCell.title}>{premiumCell.display}</span>
-            <span className={`oc-row-called-away ${calledAwayCell.className}`} title={calledAwayCell.title}>{calledAwayCell.display}</span>
-            <span className={`oc-row-assigned ${assignedCell.className}`} title={assignedCell.title}>{assignedCell.display}</span>
-          </div>
-        );
-      })}
-      <RungTotalsRow positions={positions} snapshot={snapshot} />
-    </div>
+          // New expansion columns
+          const capitalPct = allPositionsTotalCapital > 0 && position.encumberedCapital != null
+            ? Math.round((position.encumberedCapital / allPositionsTotalCapital) * 100)
+            : null;
+
+          const shareBasisCell = deriveShareBasisCell(position, snapshot);
+          const effectiveExitCell = deriveEffectiveExitCell(position, snapshot);
+          const mktVsBasisCell = deriveMktVsEffBasisCell(position, snapshot);
+
+          return (
+            <tr key={position.id} className={`oc-trow oc-trow-${position.type}`} onClick={() => onTileClick(position)}>
+              <td className="oc-td-badge"><span className={`oc-badge oc-badge-${position.type}`}>{badge}</span></td>
+              <td className="oc-td-symbol">{position.underlying}</td>
+              <td className="oc-td-right">${position.strike}</td>
+              <td className="oc-td-exp">{formatExpiration(position.expiration)}</td>
+              <td className="oc-td-right">{position.dte}d</td>
+              <td className="oc-td-right">{position.underlyingPrice != null ? `$${position.underlyingPrice.toFixed(2)}` : "—"}</td>
+              <td className="oc-td-center">{position.quantity}</td>
+              <td className="oc-td-moneyness">
+                <MoneynessCellV4 points={moneynessPoints} type={position.type} currentMoneyness={position.moneyness} mDisplay={mDisplay} colorClass={colorClass} />
+              </td>
+              <td className="oc-td-right">{position.encumberedCapital != null ? `$${position.encumberedCapital.toLocaleString()}` : "—"}</td>
+              <td className="oc-td-right oc-td-secondary">{capitalPct != null ? `${capitalPct}%` : "—"}</td>
+              <td className={`oc-td-right ${shareBasisCell.className}`} title={shareBasisCell.title}>{shareBasisCell.display}</td>
+              <td className={`oc-td-right ${premiumCell.className}`} title={premiumCell.title}>{premiumCell.display}</td>
+              <td className={`oc-td-right ${effectiveExitCell.className}`} title={effectiveExitCell.title}>{effectiveExitCell.display}</td>
+              <td className={`oc-td-right ${calledAwayCell.className}`} title={calledAwayCell.title}>{calledAwayCell.display}</td>
+              <td className={`oc-td-right ${assignedCell.className}`} title={assignedCell.title}>{assignedCell.display}</td>
+              <td className={`oc-td-right ${mktVsBasisCell.className}`} title={mktVsBasisCell.title}>{mktVsBasisCell.display}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+      <tfoot>
+        <RungTotalsRow positions={positions} snapshot={snapshot} />
+      </tfoot>
+    </table>
   );
 }
 
@@ -618,17 +765,21 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
   }
 
   return (
-    <div className="oc-row-totals">
-      <span className="oc-row-totals-label">Total</span>
-      <span style={{ textAlign: "right" }}>${capitalTotal.toLocaleString()}</span>
-      <span className="oc-col-premium" style={{ textAlign: "right" }}>
+    <tr className="oc-trow-totals">
+      <td colSpan={8} className="oc-td-totals-label">Total</td>
+      <td className="oc-td-right">${capitalTotal.toLocaleString()}</td>
+      <td />
+      <td />
+      <td className={`oc-td-right oc-col-premium`}>
         {premiumCount > 0 ? `+$${premiumTotal.toLocaleString()}` : "—"}
-      </span>
-      <span className={calledAwayClass} style={{ textAlign: "right" }} title={isPartial ? `${calledAwaySuppressed} position(s) excluded — basis not proven call-specific` : ""}>
+      </td>
+      <td />
+      <td className={`oc-td-right ${calledAwayClass}`} title={isPartial ? `${calledAwaySuppressed} position(s) excluded — basis not proven call-specific` : ""}>
         {calledAwayDisplay}
-      </span>
-      <span />
-    </div>
+      </td>
+      <td />
+      <td />
+    </tr>
   );
 }
 
