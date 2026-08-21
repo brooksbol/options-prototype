@@ -85,6 +85,9 @@ public class AcquisitionWorker {
     private int openingTotalProviderCalls = 0;
     private boolean openingBurstComplete = false;
 
+    // --- Cycle timing instrumentation (overhead analysis) ---
+    private volatile CycleTimingStats cycleTimingStats = CycleTimingStats.EMPTY;
+
     // --- Observable State ---
     private volatile WorkerStatus status = new WorkerStatus(
         "stopped", null, 0, 0, null, null, null, 0
@@ -204,14 +207,20 @@ public class AcquisitionWorker {
 
         // Schedule next cycle
         try {
+            long tPostStart = System.currentTimeMillis();
             boolean hasMoreWork;
             if (posture.posture() == SessionGate.Posture.EXPIRATIONS_ONLY) {
                 hasMoreWork = hasExpirationsWork();
             } else {
                 hasMoreWork = !store.getPrioritizedWorkQueue(schedulerConfig).isEmpty();
             }
+            long tPostEnd = System.currentTimeMillis();
             long nextDelay = hasMoreWork ? 1000 : DELAY_IDLE_MS;
             status = status.withState(hasMoreWork ? "acquiring" : "idle");
+
+            // Record post-cycle overhead (the "hasMoreWork" query + reschedule delay)
+            recordPostCycleTiming(tPostEnd - tPostStart, nextDelay);
+
             scheduleCycle(nextDelay);
         } catch (Exception e) {
             scheduleCycle(DELAY_IDLE_MS);
@@ -319,11 +328,16 @@ public class AcquisitionWorker {
             System.out.printf("[worker] Opening burst started · %d symbols in opening set%n", openingSet.size());
         }
 
+        // --- Cycle timing instrumentation ---
+        long t0 = System.currentTimeMillis();
+
         // Build prioritized work queue
         List<PrioritizedWorkItem> workQueue = store.getPrioritizedWorkQueue(schedulerConfig);
+        long t1 = System.currentTimeMillis();
 
         // --- Capture telemetry ---
         ClassifiedPopulation eligible = store.getClassifiedPopulation();
+        long t2 = System.currentTimeMillis();
 
         List<PrioritizedWorkItem> classA = workQueue.stream().filter(i -> "A".equals(i.urgencyClass())).toList();
         List<PrioritizedWorkItem> classB = workQueue.stream().filter(i -> "B".equals(i.urgencyClass())).toList();
@@ -384,14 +398,21 @@ public class AcquisitionWorker {
                 }
             }
         }
+        long t3 = System.currentTimeMillis();
 
         status = status.withCurrentSymbol(null)
             .withLastCycleDurationMs(System.currentTimeMillis() - cycleStart);
         publishIfDue(false);
+        long t4 = System.currentTimeMillis();
+
         updateTelemetry(sessionState, cycleCount, eligible, due, oldestAge, idleReason);
 
         // Update opening-set hydration after each batch
         updateOpeningTelemetry();
+        long t5 = System.currentTimeMillis();
+
+        // Record cycle timing breakdown
+        recordCycleTiming(t0, t1, t2, t3, t4, t5, batch.size());
     }
 
     /**
@@ -506,14 +527,12 @@ public class AcquisitionWorker {
                     acquireSecondaryChains(item.symbol(), primary, expJson);
                 }
             } else if ("expirations_known".equals(evStatus) && ev.get("primaryExpiration") != null) {
-                // Partial: chain only
+                // Partial: chain only — complete resolution to ready
                 String primary = (String) ev.get("primaryExpiration");
                 acquireChain(item.symbol(), primary);
-                // Multi-expiration spike: fan out using stored expirations
-                String expJson = (String) ev.get("expirations");
-                if (expJson != null) {
-                    acquireSecondaryChains(item.symbol(), primary, expJson);
-                }
+                // No secondary fan-out here — this invocation did not fetch fresh
+                // expirations from the provider. Experimental provenance requires
+                // a fresh expiration list to precede secondary sampling.
             } else if ("ready".equals(evStatus) || "absent".equals(evStatus)) {
                 // Refresh
                 if (item.needsExpirations()) {
@@ -535,11 +554,9 @@ public class AcquisitionWorker {
                 } else if (ev.get("primaryExpiration") != null) {
                     String primary = (String) ev.get("primaryExpiration");
                     acquireChain(item.symbol(), primary);
-                    // Multi-expiration spike: fan out using stored expirations
-                    String expJson = (String) ev.get("expirations");
-                    if (expJson != null) {
-                        acquireSecondaryChains(item.symbol(), primary, expJson);
-                    }
+                    // No secondary fan-out on normal refresh — primary only.
+                    // Secondary chains are acquired once when a fresh expiration list
+                    // establishes the eligible set (call sites 1 and 3).
                 }
             }
         } catch (Exception err) {
@@ -649,6 +666,79 @@ public class AcquisitionWorker {
         } catch (Exception e) {
             // Telemetry should never crash the worker
             System.err.println("[worker] Opening telemetry error: " + e.getMessage());
+        }
+    }
+
+    // --- Cycle timing instrumentation ---
+
+    // Running averages (exponential moving average, alpha=0.1)
+    private double avgQueueBuildMs = 0;
+    private double avgClassifyMs = 0;
+    private double avgBatchDispatchMs = 0;
+    private double avgPublishMs = 0;
+    private double avgTelemetryMs = 0;
+    private double avgPostCycleQueryMs = 0;
+    private long scheduledDelayMs = 1000;
+    private int timingSamples = 0;
+
+    private void recordCycleTiming(long t0, long t1, long t2, long t3, long t4, long t5, int batchSize) {
+        long queueBuild = t1 - t0;
+        long classify = t2 - t1;
+        long batchDispatch = t3 - t2;
+        long publish = t4 - t3;
+        long telemetry = t5 - t4;
+
+        double alpha = timingSamples < 10 ? 0.5 : 0.1; // converge faster initially
+        avgQueueBuildMs = avgQueueBuildMs * (1 - alpha) + queueBuild * alpha;
+        avgClassifyMs = avgClassifyMs * (1 - alpha) + classify * alpha;
+        avgBatchDispatchMs = avgBatchDispatchMs * (1 - alpha) + batchDispatch * alpha;
+        avgPublishMs = avgPublishMs * (1 - alpha) + publish * alpha;
+        avgTelemetryMs = avgTelemetryMs * (1 - alpha) + telemetry * alpha;
+        timingSamples++;
+
+        cycleTimingStats = new CycleTimingStats(
+            (long) avgQueueBuildMs,
+            (long) avgClassifyMs,
+            (long) avgBatchDispatchMs,
+            (long) avgPublishMs,
+            (long) avgTelemetryMs,
+            (long) avgPostCycleQueryMs,
+            scheduledDelayMs,
+            timingSamples,
+            batchSize
+        );
+    }
+
+    private void recordPostCycleTiming(long queryMs, long nextDelay) {
+        double alpha = timingSamples < 10 ? 0.5 : 0.1;
+        avgPostCycleQueryMs = avgPostCycleQueryMs * (1 - alpha) + queryMs * alpha;
+        scheduledDelayMs = nextDelay;
+    }
+
+    public CycleTimingStats getCycleTimingStats() {
+        return cycleTimingStats;
+    }
+
+    /**
+     * Cycle timing breakdown — where does inter-batch overhead go?
+     * All times in milliseconds (exponential moving averages).
+     */
+    public record CycleTimingStats(
+        long avgQueueBuildMs,
+        long avgClassifyMs,
+        long avgBatchDispatchMs,
+        long avgPublishMs,
+        long avgTelemetryMs,
+        long avgPostCycleQueryMs,
+        long scheduledDelayMs,
+        int samples,
+        int lastBatchSize
+    ) {
+        public static final CycleTimingStats EMPTY = new CycleTimingStats(0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        /** Total measured overhead (everything except batch dispatch and scheduled delay) */
+        public long overheadMs() {
+            return avgQueueBuildMs + avgClassifyMs + avgPublishMs + avgTelemetryMs + avgPostCycleQueryMs;
         }
     }
 

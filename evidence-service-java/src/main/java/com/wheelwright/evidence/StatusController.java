@@ -128,6 +128,23 @@ public class StatusController {
             result.put("openingExperiment", openingMap);
         }
 
+        // Cycle timing instrumentation (overhead analysis)
+        var timing = worker.getCycleTimingStats();
+        if (timing.samples() > 0) {
+            Map<String, Object> timingMap = new LinkedHashMap<>();
+            timingMap.put("avgQueueBuildMs", timing.avgQueueBuildMs());
+            timingMap.put("avgClassifyMs", timing.avgClassifyMs());
+            timingMap.put("avgBatchDispatchMs", timing.avgBatchDispatchMs());
+            timingMap.put("avgPublishMs", timing.avgPublishMs());
+            timingMap.put("avgTelemetryMs", timing.avgTelemetryMs());
+            timingMap.put("avgPostCycleQueryMs", timing.avgPostCycleQueryMs());
+            timingMap.put("scheduledDelayMs", timing.scheduledDelayMs());
+            timingMap.put("overheadMs", timing.overheadMs());
+            timingMap.put("samples", timing.samples());
+            timingMap.put("lastBatchSize", timing.lastBatchSize());
+            result.put("cycleTiming", timingMap);
+        }
+
         return result;
     }
 
