@@ -21,7 +21,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { ParentSize } from "@visx/responsive";
 import { scaleTime, scaleLinear } from "@visx/scale";
-import { LinePath } from "@visx/shape";
+import { LinePath, AreaClosed } from "@visx/shape";
 import { curveMonotoneX } from "@visx/curve";
 import { Group } from "@visx/group";
 import {
@@ -39,7 +39,7 @@ import "./portfolio-trajectory.css";
 // --- Constants ---
 
 const CHART_HEIGHT = 56;
-const MARGIN = { top: 14, right: 52, bottom: 8, left: 44 };
+const MARGIN = { top: 14, right: 68, bottom: 8, left: 44 };
 
 const TIME_RANGES: { value: TimeRange; label: string }[] = [
   { value: "1w", label: "1W" },
@@ -211,30 +211,36 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
   const lastX = x(lastPoint);
   const lastY = y(lastPoint);
 
-  // Compute gradient stop position: the Y% where the opening value sits
-  // Green above this line, red below
+  // Opening value for this period (first point in the visible range)
   const openingValue = dataPoints[0].value;
-  const openingYPercent = useMemo(() => {
-    const yPos = valueScale(openingValue) ?? 0;
-    // Convert to percentage of innerHeight (0% = top, 100% = bottom)
-    return (yPos / innerHeight) * 100;
-  }, [openingValue, valueScale, innerHeight]);
+  const openingY = valueScale(openingValue) ?? 0;
+
+  // Period change
+  const periodChange = lastPoint.value - openingValue;
+  const periodChangePct = openingValue !== 0 ? (periodChange / openingValue) * 100 : 0;
+  const isPositive = periodChange >= 0;
+
+  // Build clip paths for green (above opening) and red (below opening) areas
+  // The area is bounded by the line on top/bottom and the opening level on the other side
+
+  // Build the line path as a string for area construction
+  const linePoints = dataPoints.map((d) => ({ px: x(d), py: y(d) }));
+
+  // Green area: region between line and opening level WHERE line is above opening
+  // Red area: region between line and opening level WHERE line is below opening
+  // We use a single closed path for each, clipped by the opening Y level
 
   return (
     <svg width={width} height={height} className="pt-svg">
       <defs>
-        {/* Vertical gradient: green above opening value, red below */}
-        <linearGradient
-          id="pt-line-gradient"
-          x1="0" y1={MARGIN.top}
-          x2="0" y2={MARGIN.top + innerHeight}
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0%" stopColor="#15803d" />
-          <stop offset={`${openingYPercent}%`} stopColor="#15803d" />
-          <stop offset={`${openingYPercent}%`} stopColor="#b91c1c" />
-          <stop offset="100%" stopColor="#b91c1c" />
-        </linearGradient>
+        {/* Clip above opening level — for green fill */}
+        <clipPath id="pt-clip-above">
+          <rect x={0} y={0} width={innerWidth} height={openingY} />
+        </clipPath>
+        {/* Clip below opening level — for red fill */}
+        <clipPath id="pt-clip-below">
+          <rect x={0} y={openingY} width={innerWidth} height={innerHeight - openingY} />
+        </clipPath>
       </defs>
 
       <Group left={MARGIN.left} top={MARGIN.top}>
@@ -262,16 +268,46 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
           );
         })}
 
-        {/* Portfolio Capital trajectory — green above open, red below */}
+        {/* Opening level reference line */}
+        <line
+          x1={0}
+          x2={innerWidth}
+          y1={openingY}
+          y2={openingY}
+          className="pt-opening-line"
+        />
+
+        {/* Green area fill (above opening) */}
+        <AreaClosed
+          data={dataPoints}
+          x={x}
+          y={y}
+          yScale={valueScale}
+          curve={curveMonotoneX}
+          fill="#15803d"
+          fillOpacity={0.08}
+          clipPath="url(#pt-clip-above)"
+        />
+
+        {/* Red area fill (below opening) */}
+        <AreaClosed
+          data={dataPoints}
+          x={x}
+          y={y}
+          yScale={valueScale}
+          curve={curveMonotoneX}
+          fill="#b91c1c"
+          fillOpacity={0.08}
+          clipPath="url(#pt-clip-below)"
+        />
+
+        {/* Portfolio Capital trajectory line — neutral */}
         <LinePath
           data={dataPoints}
           x={x}
           y={y}
           curve={curveMonotoneX}
-          stroke="url(#pt-line-gradient)"
-          strokeWidth={1.5}
-          strokeLinejoin="round"
-          strokeLinecap="round"
+          className="pt-capital-line"
         />
 
         {/* Moving average — fine smooth dotted line */}
@@ -288,13 +324,21 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
         {/* Current observation endpoint */}
         <circle cx={lastX} cy={lastY} r={3} className="pt-current-dot" />
 
-        {/* Endpoint value annotation */}
+        {/* Endpoint value + period change annotation */}
         <text
           x={lastX + 7}
-          y={lastY + 3}
+          y={lastY - 1}
           className="pt-endpoint-label"
         >
           ${formatCompact(lastPoint.value)}
+        </text>
+        <text
+          x={lastX + 7}
+          y={lastY + 10}
+          className="pt-change-label"
+          fill={isPositive ? "#15803d" : "#b91c1c"}
+        >
+          {isPositive ? "+" : ""}{periodChangePct.toFixed(1)}%
         </text>
       </Group>
     </svg>

@@ -61,6 +61,13 @@
   stroke-dasharray: 3 4;
 }
 
+/* Opening level reference — slightly more visible than other refs */
+.pt-opening-line {
+  stroke: var(--wd-border-subtle);
+  stroke-width: 0.5;
+  stroke-dasharray: 4 3;
+}
+
 /* Reference value labels — tiny, right-aligned */
 .pt-ref-label {
   font-family: var(--wd-font-mono);
@@ -75,6 +82,14 @@
   font-size: 9px;
   font-weight: var(--wd-weight-semi);
   fill: var(--wd-text-secondary);
+  dominant-baseline: middle;
+}
+
+/* Period change annotation (colored red/green) */
+.pt-change-label {
+  font-family: var(--wd-font-mono);
+  font-size: 8px;
+  font-weight: var(--wd-weight-semi);
   dominant-baseline: middle;
 }
 
