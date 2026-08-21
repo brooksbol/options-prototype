@@ -151,3 +151,47 @@ export function _clearHistoryForTesting(): void {
   localStorage.removeItem(LS_KEY_HISTORY);
   localStorage.removeItem(LS_KEY_TIME_RANGE);
 }
+
+// --- Historical Seed (one-time bootstrap from prior Fidelity CSVs) ---
+
+/**
+ * Seeds trajectory history from prior Fidelity CSV exports if no history exists.
+ * This runs once — after seeding, the regular observation recording takes over.
+ * Data was extracted from ~/Downloads Balances + Option Summary file pairs.
+ *
+ * Remove this function after the trajectory has been operating for a while
+ * and the seeded data is no longer the only history.
+ */
+function seedHistoryIfEmpty(): void {
+  const existing = localStorage.getItem(LS_KEY_HISTORY);
+  if (existing) {
+    try {
+      const parsed = JSON.parse(existing);
+      if (Array.isArray(parsed) && parsed.length > 1) return; // already has meaningful history
+    } catch { /* corrupt — re-seed */ }
+  }
+
+  const seed: PortfolioCapitalObservation[] = [
+    { timestamp: "2026-07-10T17:48:11.427Z", value: 120074.93 },
+    { timestamp: "2026-07-14T15:12:48.508Z", value: 121484.38 },
+    { timestamp: "2026-07-15T14:40:13.570Z", value: 122543.90 },
+    { timestamp: "2026-07-16T01:41:49.064Z", value: 122616.95 },
+    { timestamp: "2026-07-21T15:13:23.964Z", value: 123841.92 },
+    { timestamp: "2026-07-27T04:05:16.791Z", value: 126060.39 },
+    { timestamp: "2026-07-29T14:57:57.018Z", value: 122992.36 },
+    { timestamp: "2026-08-03T15:43:30.534Z", value: 123015.99 },
+    { timestamp: "2026-08-10T04:29:36.655Z", value: 122491.94 },
+    { timestamp: "2026-08-11T13:32:00.550Z", value: 118459.14 },
+    { timestamp: "2026-08-12T19:55:23.553Z", value: 118776.33 },
+    { timestamp: "2026-08-13T19:54:24.465Z", value: 118919.59 },
+    { timestamp: "2026-08-17T14:52:49.348Z", value: 120666.91 },
+    { timestamp: "2026-08-18T19:21:27.707Z", value: 118960.23 },
+    { timestamp: "2026-08-20T18:06:39.776Z", value: 120855.24 },
+    { timestamp: "2026-08-21T18:02:39.765Z", value: 121340.47 },
+  ];
+
+  localStorage.setItem(LS_KEY_HISTORY, JSON.stringify(seed));
+}
+
+// Run seed check on module load
+seedHistoryIfEmpty();
