@@ -229,7 +229,7 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
 
   // Moving average
   const movingAvgData = useMemo(() => {
-    if (dataPoints.length < 3) return [];
+    if (dataPoints.length < 2) return [];
     const window = getMovingAverageWindow(dataPoints.length);
     return computeMovingAverage(dataPoints, window);
   }, [dataPoints]);
@@ -335,14 +335,15 @@ function computeMovingAverage(
   data: PortfolioCapitalObservation[],
   window: number,
 ): PortfolioCapitalObservation[] {
-  if (data.length < window) return [];
+  if (data.length < 2) return [];
   const result: PortfolioCapitalObservation[] = [];
-  for (let i = window - 1; i < data.length; i++) {
+  for (let i = 0; i < data.length; i++) {
+    const start = Math.max(0, i - window + 1);
     let sum = 0;
-    for (let j = i - window + 1; j <= i; j++) {
+    for (let j = start; j <= i; j++) {
       sum += data[j].value;
     }
-    result.push({ timestamp: data[i].timestamp, value: sum / window });
+    result.push({ timestamp: data[i].timestamp, value: sum / (i - start + 1) });
   }
   return result;
 }
