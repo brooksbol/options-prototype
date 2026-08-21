@@ -9418,3 +9418,129 @@ The alarming discrepancies were artifacts of using the wrong level of basis evid
 ### Status
 
 This validation materially increases confidence that the new Console economic columns are grounded in Fidelity's transaction evidence and produce the intended economics. Ready for commit authorization.
+
+
+---
+
+## 2026-08-21 — Persistent Portfolio Context / Application-Shell Ownership
+
+### Epistemic status
+
+Design exploration / checkpoint. Not ratified architecture or implementation specification.
+
+### Origin
+
+Commit `0ee1485` redesigned the Operator Console left rail into a unified ~210px "Portfolio Snapshot." It combined encumbered capital (with put/call decomposition), position count, deployable cash, next resolution, selected mechanical consequence information, free call lots, and portfolio evidence provenance/freshness.
+
+The redesign worked well visually — it transformed a debug/telemetry-looking strip into coherent portfolio orientation.
+
+However, seeing the information composed together exposed a more important ownership question: much of this information may not actually belong to the Console. It is portfolio state, not Console-specific analysis.
+
+The experiment was therefore useful implementation evidence, not a mistake to undo.
+
+### Architectural distinction discovered
+
+The repository already establishes that portfolio, evidence/session, and eventually situation are application-scoped state owned at the Application Shell level (ADR-011, ADR-012, `07-architecture-current.md` §Application Shell, `25-situation-architecture.md`).
+
+But:
+
+> Application-scoped state ownership ≠ persistent visual residency in the shell.
+
+Shell-owned state can be available through selectors, dropdowns, disclosure, APIs, or surface consumption without permanently occupying header pixels.
+
+The live design question became: *What subset of application-scoped portfolio state deserves permanent visual residency independent of the active operational surface?*
+
+### Surface-switch test
+
+The working discriminator:
+
+> Would I still want this visible if I switched among Console, Deployment, and Production without changing the portfolio?
+
+A fact that passes this test is a candidate for persistent shell residency. A fact that fails may still be application-scoped data, but its *presentation* belongs to an operational surface.
+
+### Provisional classification
+
+**Strongest candidates form a capital-state triad:**
+
+| Fact | Test result | Reasoning |
+|------|-------------|-----------|
+| Portfolio Capital | Yes | "How much capital exists?" — identity regardless of surface |
+| Deployable Cash | Yes | "How much is available?" — gates action on every surface |
+| Encumbered Capital | Yes | "How much is committed?" — complement of deployable; completes the capital state |
+
+These three describe the portfolio's point-in-time capital state. They don't change meaning based on which surface is active.
+
+**Other facts:**
+
+| Fact | Test result | Reasoning |
+|------|-------------|-----------|
+| Position Count | Probably | Useful scale context, but absence wouldn't disorient |
+| Freshness/trust | Yes, compactly | Universal trust indicator; current compact trigger treatment may already suffice |
+| Next Resolution | Uncertain | Begins crossing from portfolio orientation into temporal monitoring |
+| Free Call Lots | Probably no | Capacity for a *specific* action (call writing); closer to Deployment than universal identity |
+| Consequence decomposition | No | Conditional analytical projection — Console-owned analysis |
+
+### Geometry deliberately unresolved
+
+Earlier exploration considered a two-row shell header. The refined position is that geometry should follow information hierarchy, not lead it.
+
+Intended sequence:
+
+1. Settle the persistent fact set (this checkpoint).
+2. Test whether the capital-state triad fits coherently in the existing one-row shell (possibly with a richer inline portfolio selector).
+3. Consider a second row only if one-row composition proves inadequate.
+4. Preserve vertical operational space — Console viewport is `calc(100vh - 40px)`, so every pixel of header height is borrowed from operational content.
+
+One-row vs two-row remains a UX hypothesis requiring implementation/visual evidence.
+
+### Console rail implication
+
+Do not assume the 210px Console Portfolio Snapshot rail should merely become narrower once persistent portfolio context moves to the shell.
+
+Once Portfolio Capital / Deployable / Encumbered leave Console-local presentation, re-evaluate whether the remaining rail earns permanent horizontal space at all.
+
+Possible future outcomes:
+
+- A compact Console-local band for temporal/consequence information above the ladder.
+- Consequence details relying more heavily on existing position/modal interaction.
+- Free Call Lots moving to Deployment.
+- Elimination of the rail entirely, returning full width to the expiration/position ladder.
+
+No disposition has been selected.
+
+### Dependency / stopping condition
+
+Composition work is intentionally paused because another active workstream is resolving the canonical Portfolio Capital accounting primitive and its Fidelity evidence contract (three-CSV workflow preservation, multi-lot attribution, etc.).
+
+This shell exploration should NOT redo that accounting investigation.
+
+**Checkpoint:**
+
+> Persistent visual residency is provisionally the capital-state triad (Portfolio Capital, Deployable Cash, Encumbered Capital). Geometry remains unresolved. Portfolio Capital accounting and its evidence contract should settle before shell composition is tested.
+
+**Resumption protocol:**
+
+When this work resumes, first ask whether the resolved Portfolio Capital semantics preserve the apparent relationship among the three triad members. If yes, proceed to composition testing. If the accounting reveals that the three are not as cleanly complementary as currently believed, reopen the classification before designing the shell.
+
+### Backlog/documentation ownership
+
+This exploration advances existing `PL-SHELL` (Application Coherence / Shell). No new parking-lot item needed.
+
+No canonical architecture change is warranted yet — this remains design exploration.
+
+The durable architectural candidate, if later ratified, is approximately:
+
+> Application-scoped state ownership does not automatically imply persistent visual residency. Persistent residency is reserved for facts that orient the operator independent of the active operational surface.
+
+### Cross-references
+
+- `docs/07-architecture-current.md` §Application Shell — existing shell definition
+- `docs/26-operator-console-architecture.md` §Capacity/Exposure Summary — current Console sidebar
+- `docs/foundations/portfolio-capital.md` — V1 semantics (the triad's first member)
+- `docs/parking-lot.md` §PL-SHELL — backlog owner
+- `docs/parking-lot.md` §PL-PROD-VALUE — blocking dependency
+- Commit `0ee1485` — the implementation evidence that exposed the ownership question
+
+### Status
+
+Checkpoint preserved. No implementation requested. No canonical architecture changes. No new parking-lot item. No commit authorized.
