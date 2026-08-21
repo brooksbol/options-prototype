@@ -32,13 +32,13 @@ import "./portfolio-trajectory.css";
 
 // --- Constants ---
 
-const CHART_HEIGHT = 52;
-const CHART_PADDING_TOP = 8;
-const CHART_PADDING_BOTTOM = 4;
+const CHART_HEIGHT = 32;
+const CHART_PADDING_TOP = 4;
+const CHART_PADDING_BOTTOM = 2;
 const CHART_PADDING_LEFT = 0;
 const CHART_PADDING_RIGHT = 0;
-const POINT_RADIUS = 3;
-const CURRENT_POINT_RADIUS = 4;
+const POINT_RADIUS = 2;
+const CURRENT_POINT_RADIUS = 2.5;
 
 const TIME_RANGES: { value: TimeRange; label: string }[] = [
   { value: "1m", label: "1M" },
@@ -96,18 +96,18 @@ export function PortfolioTrajectoryChart() {
   if (dataPoints.length === 0) {
     return (
       <div className="pt-chart-region">
+        <TimeRangeControl selected={timeRange} onChange={handleRangeChange} />
         <div className="pt-empty">
           <span className="pt-empty-label">Portfolio Capital trajectory will appear after first Fidelity import</span>
         </div>
-        <TimeRangeControl selected={timeRange} onChange={handleRangeChange} />
       </div>
     );
   }
 
   return (
     <div className="pt-chart-region">
-      <ChartSvg dataPoints={dataPoints} />
       <TimeRangeControl selected={timeRange} onChange={handleRangeChange} />
+      <ChartSvg dataPoints={dataPoints} />
     </div>
   );
 }

@@ -53,7 +53,7 @@ export function AppShell({ route, children }: AppShellProps) {
   const capitalContext = snapshot ? deriveShellCapitalContext(snapshot) : null;
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" data-route={route}>
       <div className="as-chrome">
         <header className="as-header">
         <h1 className="as-title">Wheelwright</h1>
