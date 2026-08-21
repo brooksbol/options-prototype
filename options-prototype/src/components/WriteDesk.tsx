@@ -21,7 +21,6 @@ import { computeContingentCalls } from "../write-desk/contingent-calls";
 import { executableRowFromCandidate, type CallTableRow, type ContingentCallRow } from "../write-desk/call-table-row";
 import type { RecommendationFunnel } from "../write-desk/recommend";
 import { getDurableCache } from "../cache/durable-cache";
-import { deriveTrustState } from "../write-desk/trust-state";
 import { loadCandidateUniverseWithDescriptor } from "../universe/universe";
 import { isTradierConfigured } from "../providers";
 import { MarketSessionPolicy } from "../market-session/session-policy";
@@ -444,23 +443,6 @@ export function WriteDesk() {
     return () => clearInterval(interval);
   }, [snapshot?.readiness.status, pollSnapshot]);
 
-  // Derive trust indicator for operating context
-  const trustIndicator = useMemo(() => {
-    if (!evidenceMeta) return null;
-    const sessionPolicy = new MarketSessionPolicy(getTradingCalendar());
-    const currentSession = sessionPolicy.classify(new Date());
-    const sessionClosed = currentSession.state === "CLOSED_CANONICAL" || currentSession.state === "NON_TRADING_DAY" || currentSession.state === "PREMARKET";
-    return deriveTrustState({
-      coverage: evidenceMeta.coverage,
-      universe: evidenceMeta.coverage ? (evidenceMeta.coverage.ready + evidenceMeta.coverage.absent + evidenceMeta.coverage.pending + (evidenceMeta.coverage.failed ?? 0)) : 496,
-      generatedAt: evidenceMeta.generatedAt,
-      serviceAvailable: lastPollResult !== "error",
-      sessionClosed,
-      isAcquiring: putCoverage ? putCoverage.missing > 0 : evidenceMeta.coverage?.pending > 0,
-      evidenceHydration: putHydration,
-    });
-  }, [evidenceMeta, lastPollResult, putCoverage, putHydration]);
-
   // Portfolio popover state removed — portfolio info now lives in global header
 
   return (
@@ -574,15 +556,6 @@ export function WriteDesk() {
                 </button>
                 Cash-Secured Put Candidates
               </h2>
-              {trustIndicator && (
-                <span className={`wd-evidence-inline wd-trust-${trustIndicator.color}`}>
-                  <span className="wd-trust-dot">●</span>
-                  {" "}{trustIndicator.trustLabel}
-                  {" · "}{trustIndicator.covered}/{trustIndicator.universe}
-                  {trustIndicator.freshnessLabel && ` · ${trustIndicator.freshnessLabel}`}
-                  {trustIndicator.activity === "updating" && " · Updating"}
-                </span>
-              )}
               {putFunnel && <span className="wd-board-rec-count">{putFunnel.eligible} Recommendations · {putFunnel.outcomes.wait} Wait</span>}
             </div>
             {putFunnel && <FunnelInfographic funnel={putFunnel} backendResolved={evidenceMeta?.coverage ? (evidenceMeta.coverage.ready + evidenceMeta.coverage.absent) : undefined} />}
@@ -741,15 +714,6 @@ export function WriteDesk() {
                 </button>
                 Buy-Write Candidates
               </h2>
-              {trustIndicator && (
-                <span className={`wd-evidence-inline wd-trust-${trustIndicator.color}`}>
-                  <span className="wd-trust-dot">●</span>
-                  {" "}{trustIndicator.trustLabel}
-                  {" · "}{trustIndicator.covered}/{trustIndicator.universe}
-                  {trustIndicator.freshnessLabel && ` · ${trustIndicator.freshnessLabel}`}
-                  {trustIndicator.activity === "updating" && " · Updating"}
-                </span>
-              )}
               {(buyWriteCandidates.length + buyWriteWaitCandidates.length > 0) && (
                 <span className="wd-board-rec-count">
                   {buyWriteCandidates.length + buyWriteWaitCandidates.length} Recommendations

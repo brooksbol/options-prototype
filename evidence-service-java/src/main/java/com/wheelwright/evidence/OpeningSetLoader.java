@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public class OpeningSetLoader {
 
-    private static final String DEFAULT_PATH = "./data/seeds/opening-set.txt";
+    private static final String DEFAULT_PATH = "../data/seeds/opening-set.txt";
 
     /**
      * Load the opening-relevant set from the configured file path.

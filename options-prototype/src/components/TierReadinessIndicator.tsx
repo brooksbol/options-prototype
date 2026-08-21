@@ -19,16 +19,39 @@ import type { TierReadiness } from "../hooks/useOpeningReadiness";
 
 interface Props {
   readiness: TierReadiness | null;
+  error?: boolean;
 }
 
-export function TierReadinessIndicator({ readiness }: Props) {
+export function TierReadinessIndicator({ readiness, error }: Props) {
+  // Backend unreachable
+  if (!readiness && error) {
+    return (
+      <span className="as-tier-readiness as-tier-yellow">
+        Evidence: offline
+      </span>
+    );
+  }
+
   if (!readiness) return null;
 
   const { opening, eligible, due, schedulerState } = readiness;
 
-  // Only show when the scheduler is active or idle (not when blocked overnight)
-  const isActive = schedulerState === "acquiring" || schedulerState === "idle";
-  if (!isActive && schedulerState !== "session_blocked") return null;
+  // Show a compact scheduler-state label when no tier data is available yet
+  if (schedulerState === "unknown") return null;
+  if (schedulerState === "stopped" || schedulerState === "starting") {
+    return (
+      <span className="as-tier-readiness as-tier-yellow">
+        Evidence: starting
+      </span>
+    );
+  }
+  if (schedulerState === "session_blocked") {
+    return (
+      <span className="as-tier-readiness as-tier-green">
+        Evidence: sealed
+      </span>
+    );
+  }
 
   const segments: string[] = [];
 

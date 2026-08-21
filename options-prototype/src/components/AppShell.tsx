@@ -42,7 +42,7 @@ function formatSessionState(state: string): string {
 
 export function AppShell({ route, children }: AppShellProps) {
   const session = useSessionClassification();
-  const { readiness: tierReadiness } = useOpeningReadiness(true);
+  const { readiness: tierReadiness, error: tierError } = useOpeningReadiness(true);
 
   return (
     <div className="app-shell">
@@ -75,7 +75,7 @@ export function AppShell({ route, children }: AppShellProps) {
 
         <HeaderPortfolioStatus />
 
-        <TierReadinessIndicator readiness={tierReadiness} />
+        <TierReadinessIndicator readiness={tierReadiness} error={tierError} />
 
         <div className="as-spacer" />
 
