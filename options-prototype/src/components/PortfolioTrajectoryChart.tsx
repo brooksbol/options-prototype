@@ -211,8 +211,32 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
   const lastX = x(lastPoint);
   const lastY = y(lastPoint);
 
+  // Compute gradient stop position: the Y% where the opening value sits
+  // Green above this line, red below
+  const openingValue = dataPoints[0].value;
+  const openingYPercent = useMemo(() => {
+    const yPos = valueScale(openingValue) ?? 0;
+    // Convert to percentage of innerHeight (0% = top, 100% = bottom)
+    return (yPos / innerHeight) * 100;
+  }, [openingValue, valueScale, innerHeight]);
+
   return (
     <svg width={width} height={height} className="pt-svg">
+      <defs>
+        {/* Vertical gradient: green above opening value, red below */}
+        <linearGradient
+          id="pt-line-gradient"
+          x1="0" y1={MARGIN.top}
+          x2="0" y2={MARGIN.top + innerHeight}
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0%" stopColor="var(--wd-accent-green)" />
+          <stop offset={`${openingYPercent}%`} stopColor="var(--wd-accent-green)" />
+          <stop offset={`${openingYPercent}%`} stopColor="var(--wd-accent-red)" />
+          <stop offset="100%" stopColor="var(--wd-accent-red)" />
+        </linearGradient>
+      </defs>
+
       <Group left={MARGIN.left} top={MARGIN.top}>
         {/* Faint horizontal reference lines */}
         {refLines.map((value) => {
@@ -238,13 +262,16 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
           );
         })}
 
-        {/* Portfolio Capital trajectory */}
+        {/* Portfolio Capital trajectory — green above open, red below */}
         <LinePath
           data={dataPoints}
           x={x}
           y={y}
           curve={curveMonotoneX}
-          className="pt-capital-line"
+          stroke="url(#pt-line-gradient)"
+          strokeWidth={1.5}
+          strokeLinejoin="round"
+          strokeLinecap="round"
         />
 
         {/* Moving average — fine smooth dotted line */}
