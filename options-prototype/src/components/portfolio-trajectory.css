@@ -1,13 +1,15 @@
 /* Portfolio Trajectory — panoramic header instrument */
 @import "../theme-tokens.css";
 
-/* === Region: flat, wide, integrated into shell chrome === */
+/* === Region: flex row — chart left, context panel right === */
 
 .pt-region {
-  position: relative;
-  padding: 0 20px 4px;
+  display: flex;
+  align-items: stretch;
+  padding: 4px 20px 6px;
   background: var(--wd-bg-surface);
   border-bottom: 1px solid var(--wd-border-subtle);
+  gap: 16px;
 }
 
 /* Constrain when Write Desk drawer is present */
@@ -15,12 +17,14 @@
   margin-right: 385px;
 }
 
-/* === Plot area: quarter width, left justified === */
+/* === Plot area: left side, takes available space === */
 
 .pt-plot-area {
-  height: 56px;
+  height: 64px;
   position: relative;
-  width: 25%;
+  min-width: 0;
+  flex: 1;
+  max-width: 40%;
 }
 
 /* === SVG === */
@@ -29,7 +33,7 @@
   display: block;
 }
 
-/* Portfolio Capital line — neutral, confident, structural */
+/* Portfolio Capital line — neutral, confident */
 .pt-capital-line {
   fill: none;
   stroke: var(--wd-text-secondary);
@@ -54,42 +58,23 @@
   stroke-linecap: round;
 }
 
-/* Reference lines — extremely faint, providing scale context */
+/* Reference lines */
 .pt-ref-line {
   stroke: var(--wd-border-subtle);
   stroke-width: 0.5;
   stroke-dasharray: 3 4;
 }
 
-/* Opening level reference — slightly more visible than other refs */
 .pt-opening-line {
   stroke: var(--wd-border-subtle);
   stroke-width: 0.5;
   stroke-dasharray: 4 3;
 }
 
-/* Reference value labels — tiny, right-aligned */
 .pt-ref-label {
   font-family: var(--wd-font-mono);
   font-size: 8px;
   fill: var(--wd-text-disabled);
-  dominant-baseline: middle;
-}
-
-/* Endpoint value annotation */
-.pt-endpoint-label {
-  font-family: var(--wd-font-mono);
-  font-size: 9px;
-  font-weight: var(--wd-weight-semi);
-  fill: var(--wd-text-secondary);
-  dominant-baseline: middle;
-}
-
-/* Period change annotation (colored red/green) */
-.pt-change-label {
-  font-family: var(--wd-font-mono);
-  font-size: 8px;
-  font-weight: var(--wd-weight-semi);
   dominant-baseline: middle;
 }
 
@@ -99,7 +84,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 56px;
+  height: 100%;
 }
 
 .pt-empty-label {
@@ -109,28 +94,82 @@
   font-style: italic;
 }
 
-/* === Time range control: horizontal, top-right of plot area === */
+/* === Context Panel: right side === */
+
+.pt-context-panel {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+/* Capital facts — stacked vertically */
+.pt-capital-facts {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.pt-fact {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+
+.pt-fact-value {
+  font-family: var(--wd-font-mono);
+  font-size: 13px;
+  font-weight: var(--wd-weight-bold);
+  color: var(--wd-text-primary);
+  white-space: nowrap;
+}
+
+.pt-fact-change {
+  font-family: var(--wd-font-mono);
+  font-size: 10px;
+  font-weight: var(--wd-weight-semi);
+  white-space: nowrap;
+}
+
+.pt-fact-change.pt-positive {
+  color: #15803d;
+}
+
+.pt-fact-change.pt-negative {
+  color: #b91c1c;
+}
+
+.pt-fact-label {
+  font-family: var(--wd-font-sans);
+  font-size: 8px;
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-disabled);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* === Time range control: vertical stack === */
 
 .pt-range {
-  position: absolute;
-  top: 4px;
-  left: calc(25% - 80px);
   display: flex;
-  gap: 2px;
-  z-index: 1;
+  flex-direction: column;
+  gap: 1px;
+  flex-shrink: 0;
 }
 
 .pt-range-btn {
   font-family: var(--wd-font-mono);
   font-size: 8px;
   font-weight: var(--wd-weight-semi);
-  padding: 1px 5px;
+  padding: 2px 6px;
   border: none;
   background: none;
   color: var(--wd-text-disabled);
   cursor: pointer;
   transition: color 0.1s;
   letter-spacing: 0.3px;
+  text-align: center;
   border-radius: 2px;
 }
 

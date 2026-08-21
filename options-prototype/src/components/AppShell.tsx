@@ -84,28 +84,6 @@ export function AppShell({ route, children }: AppShellProps) {
 
         <HeaderPortfolioStatus />
 
-        {/* Capital-state triad — persistent portfolio context */}
-        {capitalContext && (
-          <div className="as-capital-context">
-            {capitalContext.portfolioCapital != null && (
-              <span className="as-capital-fact">
-                <span className="as-capital-label">Portfolio</span>
-                <span className="as-capital-value">${formatCompact(capitalContext.portfolioCapital)}</span>
-              </span>
-            )}
-            <span className="as-capital-fact">
-              <span className="as-capital-label">Deployable</span>
-              <span className="as-capital-value">
-                {capitalContext.deployableCash != null ? `$${formatCompact(capitalContext.deployableCash)}` : "—"}
-              </span>
-            </span>
-            <span className="as-capital-fact">
-              <span className="as-capital-label">Encumbered</span>
-              <span className="as-capital-value">${formatCompact(capitalContext.encumberedCapital)}</span>
-            </span>
-          </div>
-        )}
-
         <TierReadinessIndicator readiness={tierReadiness} error={tierError} />
 
         <div className="as-spacer" />
@@ -116,7 +94,7 @@ export function AppShell({ route, children }: AppShellProps) {
         </span>
       </header>
 
-        <PortfolioTrajectoryChart />
+        <PortfolioTrajectoryChart capitalContext={capitalContext} />
       </div>
 
       <div className="as-body">
