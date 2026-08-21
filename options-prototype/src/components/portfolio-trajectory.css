@@ -15,12 +15,12 @@
   margin-right: 385px;
 }
 
-/* === Plot area: half width, left justified === */
+/* === Plot area: quarter width, left justified === */
 
 .pt-plot-area {
   height: 56px;
   position: relative;
-  width: 50%;
+  width: 25%;
 }
 
 /* === SVG === */
@@ -90,7 +90,7 @@
 .pt-range {
   position: absolute;
   top: 4px;
-  left: calc(50% - 80px);
+  left: calc(25% - 80px);
   display: flex;
   gap: 2px;
   z-index: 1;

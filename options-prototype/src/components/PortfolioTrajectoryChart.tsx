@@ -39,7 +39,7 @@ import "./portfolio-trajectory.css";
 // --- Constants ---
 
 const CHART_HEIGHT = 56;
-const MARGIN = { top: 14, right: 8, bottom: 8, left: 44 };
+const MARGIN = { top: 14, right: 52, bottom: 8, left: 44 };
 
 const TIME_RANGES: { value: TimeRange; label: string }[] = [
   { value: "1m", label: "1M" },
