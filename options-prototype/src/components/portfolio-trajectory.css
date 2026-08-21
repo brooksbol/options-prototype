@@ -10,30 +10,31 @@
   background: var(--wd-bg-surface);
   border-bottom: 1px solid var(--wd-border-subtle);
   gap: 16px;
+  overflow: visible;
 }
 
-/* Constrain when Write Desk drawer is present */
-[data-route="write-desk"] .pt-region {
-  margin-right: 385px;
-}
+/* Portfolio Context Bar spans full width on all surfaces */
 
 /* === Plot area: left side, fills vertical space === */
 
 .pt-plot-area {
-  height: 64px;
+  height: 76px;
   position: relative;
   min-width: 0;
   flex: 0 0 35%;
+  overflow: visible;
 }
 
 .pt-plot-area > div {
   height: 100% !important;
+  overflow: visible;
 }
 
 /* === SVG === */
 
 .pt-svg {
   display: block;
+  overflow: visible;
 }
 
 /* Portfolio Capital line — neutral, confident */
@@ -160,6 +161,93 @@
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
+
+/* === Crosshair interaction === */
+
+.pt-crosshair {
+  stroke: var(--wd-text-disabled);
+  stroke-width: 0.5;
+  stroke-dasharray: 2 2;
+}
+
+.pt-crosshair-dot {
+  fill: var(--wd-text-primary);
+  stroke: var(--wd-bg-surface);
+  stroke-width: 1.5;
+}
+
+.pt-crosshair-dot-ma {
+  fill: var(--wd-text-disabled);
+  stroke: var(--wd-bg-surface);
+  stroke-width: 1;
+}
+
+.pt-tooltip-fo {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.pt-tooltip {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--wd-border-subtle);
+  border-radius: 3px;
+  padding: 2px 5px;
+  width: fit-content;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+  line-height: 1.2;
+}
+
+.pt-tooltip-date {
+  font-family: var(--wd-font-sans);
+  font-size: 7px;
+  color: var(--wd-text-disabled);
+  font-weight: var(--wd-weight-semi);
+}
+
+.pt-tooltip-value {
+  font-family: var(--wd-font-mono);
+  font-size: 8px;
+  font-weight: var(--wd-weight-bold);
+  color: var(--wd-text-primary);
+}
+
+.pt-tooltip-ma {
+  font-family: var(--wd-font-mono);
+  font-size: 7px;
+  color: var(--wd-text-disabled);
+}
+
+/* Session pip and secondary value styles */
+
+.pt-fact-secondary {
+  font-size: 10px;
+  font-weight: var(--wd-weight-normal);
+  color: var(--wd-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pt-session-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.pt-session-pip.pt-session-regular_observation { background: #15803d; }
+.pt-session-pip.pt-session-delay_drain { background: #92400e; }
+.pt-session-pip.pt-session-closed_canonical { background: var(--wd-text-disabled); }
+.pt-session-pip.pt-session-premarket { background: #1d4ed8; }
+.pt-session-pip.pt-session-regular_open_delay { background: #92400e; }
+.pt-session-pip.pt-session-non_trading_day { background: var(--wd-text-disabled); }
 
 /* === Time range control: vertical stack === */
 

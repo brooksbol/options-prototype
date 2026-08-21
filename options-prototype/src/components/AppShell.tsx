@@ -23,25 +23,12 @@ import { deriveShellCapitalContext } from "../portfolio/shell-capital-context";
 import { navigateTo } from "../router";
 import type { AppRoute } from "../router";
 import { HeaderPortfolioStatus } from "./HeaderPortfolioStatus";
-import { TierReadinessIndicator } from "./TierReadinessIndicator";
 import { PortfolioTrajectoryChart } from "./PortfolioTrajectoryChart";
 import "./app-shell.css";
 
 interface AppShellProps {
   route: AppRoute;
   children: ReactNode;
-}
-
-function formatSessionState(state: string): string {
-  switch (state) {
-    case "PREMARKET": return "Pre-Market";
-    case "REGULAR_OPEN_DELAY": return "Open Delay";
-    case "REGULAR_OBSERVATION": return "Regular Session";
-    case "DELAY_DRAIN": return "Closing";
-    case "CLOSED_CANONICAL": return "Closed";
-    case "NON_TRADING_DAY": return "Market Closed";
-    default: return state;
-  }
 }
 
 export function AppShell({ route, children }: AppShellProps) {
@@ -84,17 +71,15 @@ export function AppShell({ route, children }: AppShellProps) {
 
         <HeaderPortfolioStatus />
 
-        <TierReadinessIndicator readiness={tierReadiness} error={tierError} />
-
         <div className="as-spacer" />
-
-        <span className="as-session">
-          <span className={`as-session-pip as-session-${session.state.toLowerCase()}`} />
-          <span>{formatSessionState(session.state)}</span>
-        </span>
       </header>
 
-        <PortfolioTrajectoryChart capitalContext={capitalContext} />
+        <PortfolioTrajectoryChart
+          capitalContext={capitalContext}
+          tierReadiness={tierReadiness}
+          tierError={tierError}
+          sessionState={session.state}
+        />
       </div>
 
       <div className="as-body">
