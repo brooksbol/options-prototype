@@ -9636,3 +9636,50 @@ All three now proceed as one PL-SHELL implementation stream. The census was the 
 ### Status
 
 Convergence decision captured. Ready for shell composition design. No implementation yet. No canonical architecture changes yet. PL-SHELL owns the converged stream.
+
+---
+
+## 2026-08-21 — Multi-Expiration DTE Surface: From Hypothesis to Production
+
+### Context
+
+PL-EVID-07 (Multi-Expiration / Weekly-Aware Evidence Acquisition) had been an open investigation since August 20, 2026. The hypothesis: the single-primary-expiration acquisition model (~21 DTE target) may be hiding executable opportunities at other expirations.
+
+### What happened
+
+1. **Contemporaneous experiment (64 symbols, all eligible expirations, same-session acquisition)** validated the hypothesis at cohort scale.
+
+2. **Key finding: the ~21-DTE primary selection sits in a liquidity trough.** The experiment showed dramatically different execution quality by DTE:
+   - 7 DTE: 24% ACTIONABLE+EDGE, median OI 118
+   - 21 DTE: 8% ACTIONABLE+EDGE, median OI 10
+   - 28 DTE (standard monthly): 44% ACTIONABLE+EDGE, median OI 1,152
+   - The surface is not smooth in DTE; it has categorical discontinuities associated with expiration class (monthly vs weekly).
+
+3. **Liquidity Topology validated.** The July 2026 hypothesis (from XLC, one instrument) was confirmed across 64 symbols: liquidity clusters at standard monthly expirations and nearest weeklies, with intermediate weeklies often structurally dead (zero OI, extreme spreads).
+
+4. **Architectural correction rejected "prefer monthly."** Rather than replacing one single-expiration heuristic with a better one, the resolution was to expose the full eligible DTE surface to Decision and let existing execution-quality logic find the best terrain per symbol.
+
+5. **Live validation proved Decision changes.** With the widened surface, 5/5 tested liquid weekly symbols selected a different expiration than the former ~21-DTE primary:
+   - DIA: 21→40 DTE, exec 21→33
+   - GLD: 21→40 DTE, exec 26→68
+   - SMH: 21→28 DTE, exec 6→61
+   - SOXL: 21→7 DTE, exec 15→72
+   - EEM: 21→28 DTE, exec 0→40
+
+   The variability is the point: different symbols have different liquidity topology, and the market decides through evidence rather than our acquisition heuristic deciding in advance.
+
+### What we learned
+
+- `selectPrimaryExpiration()` was an acquisition optimization that had accidentally become a Decision constraint.
+- The 7–45 DTE "eligible range" was semantically misleading — it implied a search space but was actually a pass/fail gate on a pre-selected point.
+- Existing execution-quality ranking (execution_first mode) naturally gravitates toward the best part of each symbol's expiration surface without needing a DTE-specific fitness model.
+- Monthly-only symbols (890) are effectively unchanged — they have one eligible expiration regardless.
+- The cost (~370 additional chains for 64 weekly-capable symbols) is modest and operationally feasible.
+
+### Decisions / implications
+
+- **PL-EVID-07: Resolved.** Full-surface acquisition implemented and validated.
+- **targetDte UI control: Removed.** It was inert (never consumed by recommendation engines) and semantically misleading. Replaced with truthful static label showing the eligible range.
+- **No new DTE fitness model introduced.** Existing execution-quality/delta-proximity logic applies uniformly across all expirations.
+- **Deferred:** Expiration viability persistence, liquidity topology characterization, acquisition optimization, scheduler tuning for multi-expiration load. These optimize the capability but were not prerequisites.
+- **Preserved:** The `preferMonthlyExpiration` field in primary-expiration-policy.ts remains unused/false — the concept it was placeholder for (single-expiration preference) was superseded by full-surface exposure.

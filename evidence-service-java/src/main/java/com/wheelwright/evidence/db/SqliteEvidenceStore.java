@@ -379,7 +379,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
             }
         }
 
-        // Get chain evidence (primary expiration only)
+        // Get chain evidence (primary expiration — backward compatible)
         String chainData = null;
         String chainRetrievedAt = null;
         try (PreparedStatement ps = conn.prepareStatement(
@@ -394,12 +394,16 @@ public class SqliteEvidenceStore implements AutoCloseable {
             }
         }
 
+        // Get ALL chains for multi-expiration surface publication
+        List<Map<String, String>> allChains = getAllChains(symbol);
+
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("symbol", symbol);
         result.put("status", status);
         result.put("expirations", expirationsData);
         result.put("primaryExpiration", primaryExpiration);
         result.put("chain", chainData);
+        result.put("chains", allChains);
         result.put("retrievedAt", chainRetrievedAt != null ? chainRetrievedAt : retrievedAt);
         result.put("failureReason", failureReason);
         result.put("failureCount", failureCount);

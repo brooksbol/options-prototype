@@ -34,3 +34,11 @@ tasks.withType<Test> {
     systemProperty("runRealFile", System.getProperty("runRealFile") ?: "")
     systemProperty("realFilePath", System.getProperty("realFilePath") ?: "")
 }
+
+// Multi-expiration surface analysis (experimental spike)
+tasks.register<JavaExec>("analyzeSurface") {
+    mainClass.set("com.wheelwright.evidence.MultiExpirationSurfaceAnalysis")
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir.parentFile  // Run from workspace root
+    args = (project.findProperty("analysisArgs") as? String)?.split(" ") ?: listOf()
+}

@@ -86,12 +86,35 @@ public class SnapshotBuilder {
             sb.append("\"primaryExpiration\":null,");
         }
 
-        // chain: parsed JSON object or null
+        // chain: primary chain (backward compatible)
         String chainData = (String) ev.get("chain");
         if (chainData != null && !chainData.isEmpty()) {
             sb.append("\"chain\":").append(chainData).append(",");
         } else {
             sb.append("\"chain\":null,");
+        }
+
+        // chains: all eligible-expiration chains for multi-DTE surface
+        @SuppressWarnings("unchecked")
+        List<Map<String, String>> allChains = (List<Map<String, String>>) ev.get("chains");
+        if (allChains != null && !allChains.isEmpty()) {
+            sb.append("\"chains\":[");
+            boolean firstChain = true;
+            for (Map<String, String> chainEntry : allChains) {
+                String cData = chainEntry.get("data");
+                String cExp = chainEntry.get("expiration");
+                String cRetrievedAt = chainEntry.get("retrievedAt");
+                if (cData == null || cData.isEmpty()) continue;
+                if (!firstChain) sb.append(",");
+                firstChain = false;
+                sb.append("{\"expiration\":").append(jsonString(cExp));
+                sb.append(",\"retrievedAt\":").append(jsonString(cRetrievedAt));
+                sb.append(",\"data\":").append(cData);
+                sb.append("}");
+            }
+            sb.append("],");
+        } else {
+            sb.append("\"chains\":null,");
         }
 
         // retrievedAt: string or null

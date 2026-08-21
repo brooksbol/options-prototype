@@ -522,17 +522,13 @@ public class AcquisitionWorker {
                 var updated = store.getEvidence(item.symbol());
                 if (updated != null && "expirations_known".equals(updated.get("status")) && updated.get("primaryExpiration") != null) {
                     String primary = (String) updated.get("primaryExpiration");
-                    acquireChain(item.symbol(), primary);
-                    // Multi-expiration spike: fan out to secondary expirations
-                    acquireSecondaryChains(item.symbol(), primary, expJson);
+                    acquireAllEligibleChains(item.symbol(), primary, expJson);
                 }
             } else if ("expirations_known".equals(evStatus) && ev.get("primaryExpiration") != null) {
-                // Partial: chain only — complete resolution to ready
+                // Partial: chain only — complete resolution with full surface
                 String primary = (String) ev.get("primaryExpiration");
-                acquireChain(item.symbol(), primary);
-                // No secondary fan-out here — this invocation did not fetch fresh
-                // expirations from the provider. Experimental provenance requires
-                // a fresh expiration list to precede secondary sampling.
+                String expJson = (String) ev.get("expirations");
+                acquireAllEligibleChains(item.symbol(), primary, expJson);
             } else if ("ready".equals(evStatus) || "absent".equals(evStatus)) {
                 // Refresh
                 if (item.needsExpirations()) {
@@ -547,16 +543,13 @@ public class AcquisitionWorker {
                     var updated = store.getEvidence(item.symbol());
                     if (updated != null && "expirations_known".equals(updated.get("status")) && updated.get("primaryExpiration") != null) {
                         String primary = (String) updated.get("primaryExpiration");
-                        acquireChain(item.symbol(), primary);
-                        // Multi-expiration spike: fan out to secondary expirations
-                        acquireSecondaryChains(item.symbol(), primary, expJson);
+                        acquireAllEligibleChains(item.symbol(), primary, expJson);
                     }
                 } else if (ev.get("primaryExpiration") != null) {
+                    // Normal refresh: acquire full eligible surface
                     String primary = (String) ev.get("primaryExpiration");
-                    acquireChain(item.symbol(), primary);
-                    // No secondary fan-out on normal refresh — primary only.
-                    // Secondary chains are acquired once when a fresh expiration list
-                    // establishes the eligible set (call sites 1 and 3).
+                    String expJson = (String) ev.get("expirations");
+                    acquireAllEligibleChains(item.symbol(), primary, expJson);
                 }
             }
         } catch (Exception err) {
@@ -581,19 +574,37 @@ public class AcquisitionWorker {
     }
 
     /**
-     * Multi-expiration fan-out: acquire chains for all eligible expirations
-     * beyond the primary. Used for weekly-capable symbols (those with >1
-     * eligible expiration in the 7-45 DTE window).
+     * Acquire chains for ALL eligible expirations within the 7-45 DTE window.
      *
-     * EXPERIMENTAL SPIKE — observational only. Does not affect symbol resolution,
-     * recommendation policy, or operator-facing behavior.
+     * The primary expiration is acquired via setChain() (updates resolution to ready).
+     * Additional eligible expirations are acquired via setChainForExpiration()
+     * (stores chain without affecting resolution lifecycle).
+     *
+     * For monthly-only symbols (1 eligible expiration), this acquires exactly one chain.
+     * For weekly-capable symbols, acquires the full eligible surface.
+     * Failures on individual expirations are non-fatal — logged and skipped.
      */
-    private void acquireSecondaryChains(String symbol, String primaryExpiration, String expirationsJson) {
-        List<String> eligible = SqliteEvidenceStore.getEligibleExpirations(expirationsJson);
-        if (eligible.size() <= 1) return; // Monthly-only — nothing to fan out
+    private void acquireAllEligibleChains(String symbol, String primaryExpiration, String expirationsJson) {
+        List<String> eligible = expirationsJson != null
+            ? SqliteEvidenceStore.getEligibleExpirations(expirationsJson)
+            : List.of(primaryExpiration);
 
+        // Always acquire the primary first (sets resolution to ready)
+        try {
+            var result = adapter.getOptionsChain(symbol, primaryExpiration);
+            store.recordMetrics(result.cacheHit() ? 0 : 2, result.cacheHit() ? 1 : 0);
+            store.setChain(symbol, marshalChain(result.chain()), result.retrievedAt());
+            status = status.withSymbolsAcquiredTotal(status.symbolsAcquiredTotal() + 1);
+            evidenceChangedSincePublish = true;
+            changedSymbolsThisPublish++;
+        } catch (Exception e) {
+            // Primary chain failure is fatal for this symbol — propagate
+            throw new RuntimeException("Primary chain failed: " + symbol + "/" + primaryExpiration, e);
+        }
+
+        // Acquire remaining eligible expirations
         for (String exp : eligible) {
-            if (exp.equals(primaryExpiration)) continue; // Already acquired as primary
+            if (exp.equals(primaryExpiration)) continue;
             if (!running) break;
 
             try {
@@ -604,10 +615,17 @@ public class AcquisitionWorker {
                 evidenceChangedSincePublish = true;
                 changedSymbolsThisPublish++;
             } catch (Exception e) {
-                // Log and continue — secondary chain failure is non-fatal
-                System.err.printf("[worker] Secondary chain failed: %s/%s — %s%n", symbol, exp, e.getMessage());
+                System.err.printf("[worker] Chain acquisition failed: %s/%s — %s%n", symbol, exp, e.getMessage());
             }
         }
+    }
+
+    /**
+     * @deprecated Use acquireAllEligibleChains instead. Retained temporarily for
+     * any callers outside acquireSymbolTiered.
+     */
+    private void acquireSecondaryChains(String symbol, String primaryExpiration, String expirationsJson) {
+        // Now subsumed by acquireAllEligibleChains — this method is no longer called
     }
 
     // --- Opening-set telemetry ---

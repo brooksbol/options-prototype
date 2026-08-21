@@ -260,17 +260,27 @@ export function WriteDesk() {
 
       if (sym.status === "ready" && sym.chain) {
         const { buildCacheKey } = await import("../cache/durable-cache");
-        const chainKey = buildCacheKey(providerKey, "sandbox", "chain", sym.symbol, sym.chain.expiration);
-        const chainRecord = cache.createRecord(chainKey, "chain", providerKey, "sandbox", sym.symbol, sym.chain.expiration, sym.chain, backendRetrievedAtMs);
-        await cache.put(chainRecord);
 
-        // Evidence coherence: remove stale chain records for other expirations.
-        // The backend serves one authoritative chain per symbol (the primaryExpiration).
-        // Any residual chains for other expirations are from prior sessions and must not
-        // participate in current recommendations alongside the fresh primary chain.
+        // Cache all chains from the multi-expiration surface
+        const chains = sym.chains ?? [{ expiration: sym.chain.expiration, data: sym.chain, retrievedAt: sym.retrievedAt }];
+        const currentExpirations = new Set<string>();
+
+        for (const chainEntry of chains) {
+          const chainData = chainEntry.data;
+          const chainExp = chainEntry.expiration ?? chainData?.expiration;
+          if (!chainData || !chainExp) continue;
+          currentExpirations.add(chainExp);
+
+          const chainRetrievedMs = chainEntry.retrievedAt ? new Date(chainEntry.retrievedAt).getTime() : backendRetrievedAtMs;
+          const chainKey = buildCacheKey(providerKey, "sandbox", "chain", sym.symbol, chainExp);
+          const chainRecord = cache.createRecord(chainKey, "chain", providerKey, "sandbox", sym.symbol, chainExp, chainData, chainRetrievedMs);
+          await cache.put(chainRecord);
+        }
+
+        // Remove stale chain records for expirations no longer in the current surface
         const allSymRecords = await cache.getBySymbol(sym.symbol);
         for (const oldRecord of allSymRecords) {
-          if (oldRecord.dataType === "chain" && oldRecord.expiration !== sym.chain.expiration) {
+          if (oldRecord.dataType === "chain" && !currentExpirations.has(oldRecord.expiration ?? "")) {
             await cache.delete(oldRecord.key);
           }
         }
@@ -568,8 +578,7 @@ export function WriteDesk() {
             <div className="wd-policy-controls">
               <label className="wd-pol">Δ <select value={policy.contractSelection.targetDelta.toFixed(2)} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDelta: parseFloat(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDelta: parseFloat(e.target.value) }); }} className="wd-pol-select"><option value="0.15">0.15</option><option value="0.20">0.20</option><option value="0.25">0.25</option><option value="0.30">0.30</option><option value="0.35">0.35</option><option value="0.40">0.40</option><option value="0.45">0.45</option><option value="0.50">0.50</option></select></label>
               <label className="wd-pol">Δ Range <select value={`${policy.contractSelection.admissibleDeltaRange.min}-${policy.contractSelection.admissibleDeltaRange.max}`} onChange={(e) => { const [min, max] = e.target.value.split("-").map(Number); const updated = { ...policy, contractSelection: { ...policy.contractSelection, admissibleDeltaRange: { min, max } } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskDeltaMin: min, writeDeskDeltaMax: max }); }} className="wd-pol-select"><option value="0.10-0.50">0.10–0.50</option><option value="0.15-0.50">0.15–0.50</option><option value="0.20-0.45">0.20–0.45</option><option value="0.25-0.40">0.25–0.40</option></select></label>
-              <label className="wd-pol">DTE <select value={policy.contractSelection.targetDte} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDte: parseInt(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDte: parseInt(e.target.value) }); }} className="wd-pol-select"><option value="7">7</option><option value="14">14</option><option value="21">21</option><option value="28">28</option><option value="35">35</option><option value="42">42</option><option value="45">45</option></select></label>
-              <span className="wd-pol-static">{policy.contractSelection.eligibleDteRange.min}–{policy.contractSelection.eligibleDteRange.max}</span>
+              <label className="wd-pol">DTE <span className="wd-pol-static">{policy.contractSelection.eligibleDteRange.min}–{policy.contractSelection.eligibleDteRange.max}</span></label>
               <label className="wd-pol wd-control-check">
                 <input type="checkbox" checked={showDanger} onChange={(e) => { setShowDanger(e.target.checked); updateWorkspace({ writeDeskShowDanger: e.target.checked }); }} />
                 Show Danger
@@ -735,8 +744,7 @@ export function WriteDesk() {
                   <div className="wd-policy-controls">
                     <label className="wd-pol">Δ <select value={policy.contractSelection.targetDelta.toFixed(2)} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDelta: parseFloat(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDelta: parseFloat(e.target.value) }); }} className="wd-pol-select"><option value="0.15">0.15</option><option value="0.20">0.20</option><option value="0.25">0.25</option><option value="0.30">0.30</option><option value="0.35">0.35</option><option value="0.40">0.40</option><option value="0.45">0.45</option><option value="0.50">0.50</option></select></label>
                     <label className="wd-pol">Δ Range <select value={`${policy.contractSelection.admissibleDeltaRange.min}-${policy.contractSelection.admissibleDeltaRange.max}`} onChange={(e) => { const [min, max] = e.target.value.split("-").map(Number); const updated = { ...policy, contractSelection: { ...policy.contractSelection, admissibleDeltaRange: { min, max } } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskDeltaMin: min, writeDeskDeltaMax: max }); }} className="wd-pol-select"><option value="0.10-0.50">0.10–0.50</option><option value="0.15-0.50">0.15–0.50</option><option value="0.20-0.45">0.20–0.45</option><option value="0.25-0.40">0.25–0.40</option></select></label>
-                    <label className="wd-pol">DTE <select value={policy.contractSelection.targetDte} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDte: parseInt(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDte: parseInt(e.target.value) }); }} className="wd-pol-select"><option value="7">7</option><option value="14">14</option><option value="21">21</option><option value="28">28</option><option value="35">35</option><option value="42">42</option><option value="45">45</option></select></label>
-                    <span className="wd-pol-static">{policy.contractSelection.eligibleDteRange.min}–{policy.contractSelection.eligibleDteRange.max}</span>
+                    <label className="wd-pol">DTE <span className="wd-pol-static">{policy.contractSelection.eligibleDteRange.min}–{policy.contractSelection.eligibleDteRange.max}</span></label>
                     <label className="wd-pol wd-control-check">
                       <input type="checkbox" checked={showDanger} onChange={(e) => { setShowDanger(e.target.checked); updateWorkspace({ writeDeskShowDanger: e.target.checked }); }} />
                       Show Danger
