@@ -39,7 +39,7 @@ import "./portfolio-trajectory.css";
 // --- Constants ---
 
 const CHART_HEIGHT = 56;
-const MARGIN = { top: 14, right: 56, bottom: 8, left: 8 };
+const MARGIN = { top: 14, right: 8, bottom: 8, left: 44 };
 
 const TIME_RANGES: { value: TimeRange; label: string }[] = [
   { value: "1m", label: "1M" },
@@ -219,9 +219,10 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
                 className="pt-ref-line"
               />
               <text
-                x={innerWidth + 6}
+                x={-6}
                 y={yPos + 3}
                 className="pt-ref-label"
+                textAnchor="end"
               >
                 ${formatCompact(value)}
               </text>

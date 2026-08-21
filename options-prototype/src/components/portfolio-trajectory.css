@@ -15,11 +15,12 @@
   margin-right: 385px;
 }
 
-/* === Plot area: full width === */
+/* === Plot area: half width, left justified === */
 
 .pt-plot-area {
   height: 56px;
   position: relative;
+  width: 50%;
 }
 
 /* === SVG === */
@@ -84,12 +85,12 @@
   font-style: italic;
 }
 
-/* === Time range control: horizontal, top-right corner, floating === */
+/* === Time range control: horizontal, top-right of plot area === */
 
 .pt-range {
   position: absolute;
   top: 4px;
-  right: 20px;
+  left: calc(50% - 80px);
   display: flex;
   gap: 2px;
   z-index: 1;
