@@ -16,9 +16,11 @@
 
 import type { ReactNode } from "react";
 import { useSessionClassification } from "../hooks/useSessionClassification";
+import { useOpeningReadiness } from "../hooks/useOpeningReadiness";
 import { navigateTo } from "../router";
 import type { AppRoute } from "../router";
 import { HeaderPortfolioStatus } from "./HeaderPortfolioStatus";
+import { TierReadinessIndicator } from "./TierReadinessIndicator";
 import "./app-shell.css";
 
 interface AppShellProps {
@@ -40,6 +42,7 @@ function formatSessionState(state: string): string {
 
 export function AppShell({ route, children }: AppShellProps) {
   const session = useSessionClassification();
+  const { readiness: tierReadiness } = useOpeningReadiness(true);
 
   return (
     <div className="app-shell">
@@ -71,6 +74,8 @@ export function AppShell({ route, children }: AppShellProps) {
         </nav>
 
         <HeaderPortfolioStatus />
+
+        <TierReadinessIndicator readiness={tierReadiness} />
 
         <div className="as-spacer" />
 

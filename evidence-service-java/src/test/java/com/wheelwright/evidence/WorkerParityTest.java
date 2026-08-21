@@ -465,7 +465,7 @@ class WorkerParityTest {
 
             var telemetry = worker.getSchedulerTelemetry();
             assertNotNull(telemetry.lastAssessedAt());
-            assertEquals("Regular session", telemetry.sessionState());
+            assertEquals("Regular observation", telemetry.sessionState());
             assertTrue(telemetry.cycleCount() > 0);
             assertEquals("all_within_targets", telemetry.idleReason());
             // Eligible should reflect the classified population

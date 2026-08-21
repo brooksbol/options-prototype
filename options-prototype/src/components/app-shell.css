@@ -110,6 +110,22 @@
   background: var(--wd-text-disabled);
 }
 
+/* --- Tier Readiness Indicator (opening experiment) --- */
+
+.as-tier-readiness {
+  font-size: 10px;
+  font-family: var(--wd-font-mono);
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+}
+.as-tier-green { color: var(--wd-accent-green); }
+.as-tier-yellow { color: var(--wd-accent-yellow); }
+
 /* --- Shell Body (surface content) --- */
 
 .as-body {

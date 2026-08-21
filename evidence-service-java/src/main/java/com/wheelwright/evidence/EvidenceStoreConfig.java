@@ -13,6 +13,7 @@ import jakarta.annotation.PostConstruct;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Spring configuration — wires the evidence service components.
@@ -51,6 +52,11 @@ public class EvidenceStoreConfig {
     }
 
     @Bean
+    public Set<String> openingSet() {
+        return OpeningSetLoader.load();
+    }
+
+    @Bean
     public SessionGate sessionGate() {
         return new SessionGate(Clock.systemUTC());
     }
@@ -65,8 +71,9 @@ public class EvidenceStoreConfig {
             TradierAdapter adapter,
             SqliteEvidenceStore store,
             SessionGate sessionGate,
-            SchedulerConfig config) {
-        return new AcquisitionWorker(adapter, store, sessionGate, config);
+            SchedulerConfig config,
+            Set<String> openingSet) {
+        return new AcquisitionWorker(adapter, store, sessionGate, config, openingSet);
     }
 
     /**

@@ -110,6 +110,24 @@ public class StatusController {
         pacerMap.put("rejected", pacerState.rejected());
         result.put("pacer", pacerMap);
 
+        // Opening-set experiment telemetry
+        var opening = worker.getOpeningTelemetry();
+        if (opening.setSize() > 0) {
+            Map<String, Object> openingMap = new LinkedHashMap<>();
+            openingMap.put("setSize", opening.setSize());
+            openingMap.put("currentCount", opening.currentCount());
+            openingMap.put("hydrationFraction", opening.hydrationFraction());
+            openingMap.put("burstStartAt", opening.burstStartAt());
+            openingMap.put("firstChainAt", opening.firstChainAt());
+            openingMap.put("hydration50At", opening.hydration50At());
+            openingMap.put("hydration80At", opening.hydration80At());
+            openingMap.put("hydration100At", opening.hydration100At());
+            openingMap.put("floorInterruptions", opening.floorInterruptions());
+            openingMap.put("totalProviderCalls", opening.totalProviderCalls());
+            openingMap.put("burstComplete", opening.burstComplete());
+            result.put("openingExperiment", openingMap);
+        }
+
         return result;
     }
 

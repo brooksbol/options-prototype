@@ -49,7 +49,7 @@ class SessionGateTest {
         void permitsAt1000ET() {
             var result = gate.isPermitted(etInstant("2026-07-15", 10, 0)); // Wednesday
             assertTrue(result.permitted());
-            assertEquals("Regular session", result.reason());
+            assertEquals("Regular observation", result.reason());
         }
 
         @Test
@@ -118,7 +118,7 @@ class SessionGateTest {
         void permitsAt1200OnBlackFriday() {
             var result = gate.isPermitted(etInstant("2026-11-27", 12, 0)); // Friday
             assertTrue(result.permitted());
-            assertEquals("Regular session", result.reason());
+            assertEquals("Regular observation", result.reason());
         }
 
         @Test
@@ -165,9 +165,20 @@ class SessionGateTest {
     class OffHours {
 
         @Test
-        @DisplayName("blocks acquisition at 09:00 ET (pre-market)")
-        void blocksPreMarket() {
+        @DisplayName("permits expirations-only acquisition at 09:00 ET (premarket preparation)")
+        void permitsExpirationsPreMarket() {
             var result = gate.isPermitted(etInstant("2026-07-15", 9, 0));
+            assertTrue(result.permitted());
+            assertTrue(result.reason().contains("Premarket preparation"));
+            // Posture-level check: only expirations, not full
+            var posture = gate.getPosture(etInstant("2026-07-15", 9, 0));
+            assertEquals(SessionGate.Posture.EXPIRATIONS_ONLY, posture.posture());
+        }
+
+        @Test
+        @DisplayName("blocks acquisition at 08:59 ET (before premarket prep)")
+        void blocksBeforePrepStart() {
+            var result = gate.isPermitted(etInstant("2026-07-15", 8, 59));
             assertFalse(result.permitted());
             assertTrue(result.reason().contains("Pre-market"));
         }

@@ -1,0 +1,79 @@
+# Opening-Relevant Evidence Experiment — Frozen Fixture
+#
+# Derived: August 21, 2026
+# Source: Wheelwright persisted chain evidence (evidence.sqlite3)
+# Method: Top 60 symbols by aggregate qualifying-put-contract volume
+#
+# Aggregation rule:
+#   For each symbol's most recent persisted chain (by retrieved_at):
+#   Sum volume across all put contracts where ALL of the following hold
+#   on the SAME contract (atomic evaluation, matching Class A criteria):
+#     - Chain DTE in [7, 45]
+#     - |delta| in [0.15, 0.50]
+#     - bid > 0
+#     - openInterest > 0
+#
+# This is a frozen experimental fixture. Do not recompute during the experiment.
+# The list tests whether priority sequencing improves decision readiness,
+# not whether the population is optimally chosen.
+#
+SPY
+IWM
+SOXL
+KBWB
+QQQ
+GDX
+QLD
+TQQQ
+GLD
+SLV
+VOOG
+DIA
+SMH
+PFF
+XLF
+XLRE
+SVXY
+XME
+XLP
+UCO
+VNQ
+USO
+GUSH
+EEM
+BNO
+SPMO
+TECL
+SPYG
+SPYM
+TNA
+YCS
+ITA
+XLB
+EWW
+EWG
+USD
+URTY
+DFEN
+FTXL
+IBB
+VGT
+VTI
+WEAT
+XLE
+DBO
+SOXX
+VEA
+VT
+XLK
+XOP
+ARKK
+ITOT
+CPER
+SCHG
+ECH
+FAS
+QYLD
+VCLT
+VPU
+YANG

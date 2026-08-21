@@ -11,8 +11,9 @@
  * Column headers are sortable — operator can re-sort by any dimension for comparison.
  */
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { buildCrossEntryRows, buildCrossEntryExport, type CrossEntryRow } from "../write-desk/production-v0";
+import { observeOpeningSetHydration } from "../write-desk/opening-set-observation";
 import type { PutCandidate } from "../write-desk/scan-orchestrator";
 import type { BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import type { RecommendationPolicy } from "../write-desk/recommend";
@@ -92,6 +93,14 @@ export function CrossEntryStrip({
     () => buildCrossEntryRows(putCandidates, buyWriteCandidates),
     [putCandidates, buyWriteCandidates]
   );
+
+  // Opening-set experiment observation (lightweight, no feedback into logic)
+  useEffect(() => {
+    if (allRows.length > 0) {
+      const symbols = new Set(allRows.map(r => r.symbol));
+      observeOpeningSetHydration(symbols, allRows.length);
+    }
+  }, [allRows]);
 
   // Sort by active column (operator-controlled), THEN cap for display
   const ws = loadWorkspace();

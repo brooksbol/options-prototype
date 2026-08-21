@@ -112,6 +112,73 @@ public class SqliteEvidenceStore implements AutoCloseable {
     }
 
     /**
+     * Record chain evidence for a symbol at an explicit expiration.
+     * Used by multi-expiration acquisition to store secondary chains
+     * without affecting symbol resolution state.
+     */
+    public void setChainForExpiration(String symbol, String expiration, String chainJson, String retrievedAt) throws SQLException {
+        Map<String, String> resolution = getResolution(symbol);
+        if (resolution == null) return;
+
+        String sessionDate = currentSessionDate();
+
+        try (PreparedStatement ps = conn.prepareStatement("""
+                INSERT INTO evidence (symbol, evidence_type, expiration, data, retrieved_at, session_date, last_attempt_at, attempt_result, failure_count)
+                VALUES (?, 'chain', ?, ?, ?, ?, ?, 'success', 0)
+                ON CONFLICT(symbol, evidence_type, expiration) DO UPDATE SET
+                    data = excluded.data,
+                    retrieved_at = excluded.retrieved_at,
+                    session_date = excluded.session_date,
+                    last_attempt_at = excluded.last_attempt_at,
+                    attempt_result = 'success',
+                    failure_count = 0,
+                    failure_reason = NULL
+            """)) {
+            ps.setString(1, symbol);
+            ps.setString(2, expiration);
+            ps.setString(3, chainJson);
+            ps.setString(4, retrievedAt);
+            ps.setString(5, sessionDate);
+            ps.setString(6, retrievedAt);
+            ps.executeUpdate();
+        }
+
+        // Append spot observation to history
+        Double price = extractUnderlyingPrice(chainJson);
+        if (price != null) {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "INSERT INTO spot_history (symbol, price, observed_at) VALUES (?, ?, ?)")) {
+                ps.setString(1, symbol);
+                ps.setDouble(2, price);
+                ps.setString(3, retrievedAt);
+                ps.executeUpdate();
+            }
+        }
+    }
+
+    /**
+     * Get all stored chain evidence rows for a symbol (all expirations).
+     * Returns a list of maps, each containing: expiration, data, retrievedAt.
+     */
+    public List<Map<String, String>> getAllChains(String symbol) throws SQLException {
+        List<Map<String, String>> chains = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT expiration, data, retrieved_at FROM evidence WHERE symbol = ? AND evidence_type = 'chain' AND data IS NOT NULL ORDER BY expiration")) {
+            ps.setString(1, symbol);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, String> chain = new LinkedHashMap<>();
+                    chain.put("expiration", rs.getString("expiration"));
+                    chain.put("data", rs.getString("data"));
+                    chain.put("retrievedAt", rs.getString("retrieved_at"));
+                    chains.add(chain);
+                }
+            }
+        }
+        return chains;
+    }
+
+    /**
      * Record chain evidence for a symbol.
      */
     public void setChain(String symbol, String chainJson, String retrievedAt) throws SQLException {
@@ -312,7 +379,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
             }
         }
 
-        // Get chain evidence
+        // Get chain evidence (primary expiration only)
         String chainData = null;
         String chainRetrievedAt = null;
         try (PreparedStatement ps = conn.prepareStatement(
@@ -953,7 +1020,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
      * Behavioral parity with TypeScript: new Date().toISOString().split("T")[0]
      * This is the UTC date, not the Eastern Time date.
      */
-    static String sessionDateFor(Instant instant) {
+    public static String sessionDateFor(Instant instant) {
         return instant.toString().split("T")[0];
     }
 
@@ -971,6 +1038,39 @@ public class SqliteEvidenceStore implements AutoCloseable {
      */
     public void setSessionDateOverride(String sessionDate) {
         this.sessionDateOverride = sessionDate;
+    }
+
+    /**
+     * Get all eligible expirations within the observation window (7-45 DTE).
+     * Returns expiration date strings sorted by DTE ascending.
+     * Used by multi-expiration acquisition to identify secondary chains to acquire.
+     */
+    public static List<String> getEligibleExpirations(String expirationsJson) {
+        if (expirationsJson == null || expirationsJson.equals("[]")) return List.of();
+
+        record Exp(String date, int dte) {}
+        List<Exp> expirations = new ArrayList<>();
+
+        String content = expirationsJson.trim();
+        if (content.startsWith("[")) content = content.substring(1);
+        if (content.endsWith("]")) content = content.substring(0, content.length() - 1);
+
+        for (String obj : splitJsonObjects(content)) {
+            String date = extractJsonString(obj, "date");
+            int dte = extractJsonInt(obj, "dte");
+            if (date != null && dte >= 0) {
+                expirations.add(new Exp(date, dte));
+            }
+        }
+
+        final int MIN_DTE = 7;
+        final int MAX_DTE = 45;
+
+        return expirations.stream()
+            .filter(e -> e.dte >= MIN_DTE && e.dte <= MAX_DTE)
+            .sorted(Comparator.comparingInt(Exp::dte))
+            .map(Exp::date)
+            .toList();
     }
 
     /**
@@ -1068,5 +1168,76 @@ public class SqliteEvidenceStore implements AutoCloseable {
         } catch (NumberFormatException e) {
             return -1;
         }
+    }
+
+    // --- Opening-Relevant Evidence Experiment support ---
+
+    /**
+     * Get symbols whose expirations are stale (older than the given threshold).
+     * Used during EXPIRATIONS_ONLY posture to pre-refresh reference data.
+     *
+     * Returns symbols that are 'ready' or 'absent' with expiration evidence
+     * older than freshnessThresholdMs, ordered by age (oldest first).
+     */
+    public List<String> getSymbolsNeedingExpirationRefresh(long freshnessThresholdMs) throws SQLException {
+        long now = System.currentTimeMillis();
+        List<Map.Entry<String, Long>> results = new ArrayList<>();
+
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT sr.symbol,
+                  (SELECT retrieved_at FROM evidence e
+                   WHERE e.symbol = sr.symbol AND e.evidence_type = 'expirations' AND e.data IS NOT NULL
+                   ORDER BY e.retrieved_at DESC LIMIT 1) as exp_retrieved_at
+                FROM symbol_resolution sr
+                WHERE sr.resolution IN ('ready', 'absent', 'partial')
+            """)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String symbol = rs.getString("symbol");
+                    String expRetrievedAt = rs.getString("exp_retrieved_at");
+
+                    long expAge = expRetrievedAt != null
+                        ? now - Instant.parse(expRetrievedAt).toEpochMilli()
+                        : Long.MAX_VALUE;
+
+                    if (expAge > freshnessThresholdMs) {
+                        results.add(Map.entry(symbol, expAge));
+                    }
+                }
+            }
+        }
+
+        // Sort by age descending (oldest/most stale first)
+        results.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
+        return results.stream().map(Map.Entry::getKey).collect(Collectors.toList());
+    }
+
+    /**
+     * Count how many symbols in the given set have current-session chain evidence.
+     * "Current session" means the chain's session_date matches the given sessionDate.
+     *
+     * Used for opening-set hydration tracking.
+     */
+    public int countCurrentSessionChains(Set<String> symbols, String sessionDate) throws SQLException {
+        if (symbols.isEmpty()) return 0;
+
+        int count = 0;
+        // Use individual lookups to avoid large IN clauses
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT COUNT(*) FROM evidence e
+                WHERE e.symbol = ? AND e.evidence_type = 'chain'
+                  AND e.data IS NOT NULL AND e.session_date = ?
+            """)) {
+            for (String symbol : symbols) {
+                ps.setString(1, symbol);
+                ps.setString(2, sessionDate);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        count++;
+                    }
+                }
+            }
+        }
+        return count;
     }
 }
