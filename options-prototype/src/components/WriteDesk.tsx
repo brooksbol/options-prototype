@@ -721,7 +721,7 @@ export function WriteDesk() {
               )}
             </div>
             <BuyWriteDistributionBar outcomes={buyWriteOutcomes} universeSize={universeSymbols.length} />
-            <div style={{ display: "flex", gap: "12px", padding: "6px 12px 8px", flexWrap: "nowrap", overflow: "hidden", alignItems: "flex-end" }}>
+            <div style={{ display: "flex", gap: "10px", padding: "6px 12px 8px", flexWrap: "wrap", alignItems: "flex-end" }}>
               <BuyWriteDeltaDistribution candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates]} />
               <BuyWriteDescriptiveHistograms candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates]} />
             </div>
@@ -1028,7 +1028,7 @@ function BuyWriteDeltaDistribution({ candidates }: {
   const median = [...deltas].sort((a, b) => a - b)[Math.floor(deltas.length / 2)];
 
   return (
-    <div className="wd-delta-distribution" style={{ fontSize: "11px", color: "#bbb", display: "flex", alignItems: "flex-end", gap: "3px" }}>
+    <div className="wd-delta-distribution" style={{ fontSize: "11px", color: "#bbb", display: "flex", alignItems: "flex-end", gap: "2px" }}>
       <span style={{ marginRight: "3px", whiteSpace: "nowrap", alignSelf: "center", color: "#999", fontWeight: 600, fontSize: "9px" }}>δ</span>
       {buckets.map((b, i) => {
         const height = Math.max(3, (counts[i] / maxCount) * 18);
@@ -1046,7 +1046,7 @@ function BuyWriteDeltaDistribution({ candidates }: {
           >
             <span style={{
               display: "block",
-              width: "20px",
+              width: "16px",
               height: `${height}px`,
               backgroundColor: counts[i] > 0 ? "#4a9eff" : "rgba(74, 158, 255, 0.15)",
               borderRadius: "2px",
@@ -1176,7 +1176,7 @@ function MiniHistogram({ label, values, buckets, color, unit, formatStat }: {
           >
             <span style={{
               display: "block",
-              width: "20px",
+              width: "16px",
               height: `${height}px`,
               backgroundColor: counts[i] > 0 ? color : `${color}33`,
               borderRadius: "2px",
