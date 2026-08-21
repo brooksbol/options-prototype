@@ -4,19 +4,16 @@
  * A flat, panoramic visualization showing the current Portfolio Capital fact
  * and its longitudinal shape as one coherent piece of persistent portfolio context.
  *
- * Visual thesis:
- *   - Wide + shallow rectangle (not a card, not a dashboard widget)
- *   - Portfolio Capital line: neutral, confident, ~1.5px, linear between observations
- *   - Subtle area wash beneath the line for visual weight
- *   - No historical dots in resting state — the line carries the history
+ * Visual design:
+ *   - Wide + shallow rectangle, generous internal breathing room
+ *   - Portfolio Capital line: neutral, confident, ~1.5px
+ *   - Restrained curve (monotoneX) — feels drawn rather than constructed from sticks
+ *   - No area fill (imperceptible at this scale)
+ *   - 1–2 faint horizontal reference lines with right-edge values for scale context
+ *   - Endpoint annotation (current value) at the rightmost point
+ *   - No historical dots at rest — the line carries the history
  *   - Current/rightmost observation: small intentional point
- *   - Time-range control: far right, adjacent to the temporal visualization
- *   - Integrated into the shell chrome, not embedded in it
- *
- * Deferred:
- *   - Appreciation/Erosion line (accounting unresolved; visual territory reserved)
- *   - Mission path / policy envelope
- *   - Hover interaction / historical dot discovery
+ *   - Range control: horizontal, top-right corner, floating above the plot
  *
  * See: docs/journal/project-journal.md — "Portfolio Capital Trajectory Discovery"
  */
@@ -24,8 +21,8 @@
 import { useState, useMemo, useCallback } from "react";
 import { ParentSize } from "@visx/responsive";
 import { scaleTime, scaleLinear } from "@visx/scale";
-import { LinePath, AreaClosed } from "@visx/shape";
-import { curveLinear } from "@visx/curve";
+import { LinePath } from "@visx/shape";
+import { curveMonotoneX } from "@visx/curve";
 import { Group } from "@visx/group";
 import {
   loadHistory,
@@ -42,7 +39,7 @@ import "./portfolio-trajectory.css";
 // --- Constants ---
 
 const CHART_HEIGHT = 56;
-const MARGIN = { top: 6, right: 8, bottom: 6, left: 8 };
+const MARGIN = { top: 14, right: 56, bottom: 8, left: 8 };
 
 const TIME_RANGES: { value: TimeRange; label: string }[] = [
   { value: "1m", label: "1M" },
@@ -63,24 +60,20 @@ export function PortfolioTrajectoryChart() {
   const [timeRange, setTimeRange] = useState<TimeRange>(loadTimeRange);
   const { snapshot } = usePortfolio();
 
-  // Current live Portfolio Capital (rightmost point = shell headline)
   const currentPC = useMemo(() => {
     if (!snapshot) return null;
     const derivation = derivePortfolioCapital(snapshot);
     return derivation?.portfolioCapital ?? null;
   }, [snapshot]);
 
-  // Load and filter history
   const history = useMemo(() => loadHistory(), [snapshot]);
   const filteredHistory = useMemo(
     () => filterByRange(history, timeRange),
     [history, timeRange],
   );
 
-  // Build data points: filtered history + current live value as rightmost
   const dataPoints = useMemo(() => {
     const points: PortfolioCapitalObservation[] = [...filteredHistory];
-
     if (currentPC != null) {
       const now = new Date().toISOString();
       const lastHistorical = points[points.length - 1];
@@ -88,7 +81,6 @@ export function PortfolioTrajectoryChart() {
         points.push({ timestamp: now, value: currentPC });
       }
     }
-
     return points;
   }, [filteredHistory, currentPC]);
 
@@ -97,22 +89,19 @@ export function PortfolioTrajectoryChart() {
     saveTimeRange(range);
   }, []);
 
-  // No data — empty state
   if (dataPoints.length === 0) {
     return (
       <div className="pt-region">
-        <div className="pt-plot-area">
-          <div className="pt-empty">
-            <span className="pt-empty-label">Trajectory appears after first Fidelity import</span>
-          </div>
+        <div className="pt-empty">
+          <span className="pt-empty-label">Trajectory appears after first Fidelity import</span>
         </div>
-        <TimeRangeControl selected={timeRange} onChange={handleRangeChange} />
       </div>
     );
   }
 
   return (
     <div className="pt-region">
+      <TimeRangeControl selected={timeRange} onChange={handleRangeChange} />
       <div className="pt-plot-area">
         <ParentSize debounceTime={80}>
           {({ width }) =>
@@ -122,12 +111,11 @@ export function PortfolioTrajectoryChart() {
           }
         </ParentSize>
       </div>
-      <TimeRangeControl selected={timeRange} onChange={handleRangeChange} />
     </div>
   );
 }
 
-// --- SVG Chart (visx) ---
+// --- SVG Chart ---
 
 interface ChartSvgProps {
   dataPoints: PortfolioCapitalObservation[];
@@ -139,7 +127,6 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
   const innerWidth = width - MARGIN.left - MARGIN.right;
   const innerHeight = height - MARGIN.top - MARGIN.bottom;
 
-  // Scales
   const timeScale = useMemo(
     () =>
       scaleTime({
@@ -157,65 +144,111 @@ function ChartSvg({ dataPoints, width, height }: ChartSvgProps) {
     const min = Math.min(...values);
     const max = Math.max(...values);
     const range = max - min;
-    const padding = range > 0 ? range * 0.12 : max * 0.02 || 1000;
+    // Generous padding — line floats in the field, doesn't ricochet between edges
+    const padding = range > 0 ? range * 0.3 : max * 0.02 || 1000;
     return scaleLinear({
       domain: [min - padding, max + padding],
       range: [innerHeight, 0],
     });
   }, [dataPoints, innerHeight]);
 
-  // Single point: just show the current dot centered
+  // Compute 2 reference lines (round to nearest $1K or $5K depending on range)
+  const refLines = useMemo(() => {
+    const values = dataPoints.map(getValue);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min;
+
+    // Choose step: $1K for ranges under $10K, $5K otherwise
+    const step = range < 10_000 ? 1000 : 5000;
+
+    const lower = Math.floor(min / step) * step;
+    const upper = Math.ceil(max / step) * step;
+
+    // Pick 2 lines that frame the data
+    const lines: number[] = [];
+    for (let v = lower; v <= upper; v += step) {
+      lines.push(v);
+    }
+
+    // Keep at most 2: one near bottom, one near top of data range
+    if (lines.length <= 2) return lines;
+    return [lines[0], lines[lines.length - 1]];
+  }, [dataPoints]);
+
+  // Single point
   if (dataPoints.length === 1) {
+    const p = dataPoints[0];
     const cx = MARGIN.left + innerWidth / 2;
     const cy = MARGIN.top + innerHeight / 2;
 
     return (
       <svg width={width} height={height} className="pt-svg">
         <circle cx={cx} cy={cy} r={3} className="pt-current-dot" />
+        <text
+          x={cx + 8}
+          y={cy + 3}
+          className="pt-endpoint-label"
+        >
+          ${formatCompact(p.value)}
+        </text>
       </svg>
     );
   }
 
-  // x/y accessors
   const x = (d: PortfolioCapitalObservation) => timeScale(getDate(d)) ?? 0;
   const y = (d: PortfolioCapitalObservation) => valueScale(getValue(d)) ?? 0;
 
-  // Current point position
   const lastPoint = dataPoints[dataPoints.length - 1];
   const lastX = x(lastPoint);
   const lastY = y(lastPoint);
 
   return (
     <svg width={width} height={height} className="pt-svg">
-      <defs>
-        <linearGradient id="pt-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--wd-text-primary)" stopOpacity={0.06} />
-          <stop offset="100%" stopColor="var(--wd-text-primary)" stopOpacity={0.0} />
-        </linearGradient>
-      </defs>
-
       <Group left={MARGIN.left} top={MARGIN.top}>
-        {/* Area fill — subtle weight beneath the line */}
-        <AreaClosed
-          data={dataPoints}
-          x={x}
-          y={y}
-          yScale={valueScale}
-          curve={curveLinear}
-          fill="url(#pt-fill)"
-        />
+        {/* Faint horizontal reference lines */}
+        {refLines.map((value) => {
+          const yPos = valueScale(value) ?? 0;
+          return (
+            <g key={value}>
+              <line
+                x1={0}
+                x2={innerWidth}
+                y1={yPos}
+                y2={yPos}
+                className="pt-ref-line"
+              />
+              <text
+                x={innerWidth + 6}
+                y={yPos + 3}
+                className="pt-ref-label"
+              >
+                ${formatCompact(value)}
+              </text>
+            </g>
+          );
+        })}
 
-        {/* Portfolio Capital line — neutral, confident, structural */}
+        {/* Portfolio Capital trajectory */}
         <LinePath
           data={dataPoints}
           x={x}
           y={y}
-          curve={curveLinear}
+          curve={curveMonotoneX}
           className="pt-capital-line"
         />
 
-        {/* Current observation — the only visible dot at rest */}
+        {/* Current observation endpoint */}
         <circle cx={lastX} cy={lastY} r={3} className="pt-current-dot" />
+
+        {/* Endpoint value annotation */}
+        <text
+          x={lastX + 7}
+          y={lastY + 3}
+          className="pt-endpoint-label"
+        >
+          ${formatCompact(lastPoint.value)}
+        </text>
       </Group>
     </svg>
   );
@@ -243,4 +276,14 @@ function TimeRangeControl({ selected, onChange }: TimeRangeControlProps) {
       ))}
     </div>
   );
+}
+
+// --- Helpers ---
+
+function formatCompact(value: number): string {
+  if (value >= 1000) {
+    const k = value / 1000;
+    return k % 1 === 0 ? `${k}K` : `${k.toFixed(1)}K`;
+  }
+  return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
 }
