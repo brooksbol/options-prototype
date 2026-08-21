@@ -59,9 +59,6 @@ export function HeaderPortfolioStatus() {
       >
         <span className={`as-portfolio-pip${isReady ? " as-pip-ready" : source === "fidelity" ? " as-pip-fidelity" : ""}`} />
         <span className="as-portfolio-label">{statusLabel}</span>
-        {isReady && snapshot.deployableCash != null && (
-          <span className="as-portfolio-cash">${snapshot.deployableCash.toLocaleString()}</span>
-        )}
         {isReady && exportTimestamp && (
           <span className="as-portfolio-freshness">{exportTimestamp}</span>
         )}

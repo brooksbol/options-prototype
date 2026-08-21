@@ -6,6 +6,7 @@
  *   - Primary navigation (Console / Deployment / Production)
  *   - Active-surface indication
  *   - Session classification (wall-clock-driven)
+ *   - Persistent portfolio capital context (capital-state triad)
  *   - Global portfolio status + Fidelity upload (application-level concern)
  *
  * Does NOT own:
@@ -17,6 +18,8 @@
 import type { ReactNode } from "react";
 import { useSessionClassification } from "../hooks/useSessionClassification";
 import { useOpeningReadiness } from "../hooks/useOpeningReadiness";
+import { usePortfolio } from "../portfolio/use-portfolio";
+import { deriveShellCapitalContext } from "../portfolio/shell-capital-context";
 import { navigateTo } from "../router";
 import type { AppRoute } from "../router";
 import { HeaderPortfolioStatus } from "./HeaderPortfolioStatus";
@@ -43,6 +46,10 @@ function formatSessionState(state: string): string {
 export function AppShell({ route, children }: AppShellProps) {
   const session = useSessionClassification();
   const { readiness: tierReadiness, error: tierError } = useOpeningReadiness(true);
+  const { snapshot } = usePortfolio();
+
+  // Capital-state triad — persistent portfolio context
+  const capitalContext = snapshot ? deriveShellCapitalContext(snapshot) : null;
 
   return (
     <div className="app-shell">
@@ -75,6 +82,28 @@ export function AppShell({ route, children }: AppShellProps) {
 
         <HeaderPortfolioStatus />
 
+        {/* Capital-state triad — persistent portfolio context */}
+        {capitalContext && (
+          <div className="as-capital-context">
+            {capitalContext.portfolioCapital != null && (
+              <span className="as-capital-fact">
+                <span className="as-capital-label">Portfolio</span>
+                <span className="as-capital-value">${formatCompact(capitalContext.portfolioCapital)}</span>
+              </span>
+            )}
+            <span className="as-capital-fact">
+              <span className="as-capital-label">Deployable</span>
+              <span className="as-capital-value">
+                {capitalContext.deployableCash != null ? `$${formatCompact(capitalContext.deployableCash)}` : "—"}
+              </span>
+            </span>
+            <span className="as-capital-fact">
+              <span className="as-capital-label">Encumbered</span>
+              <span className="as-capital-value">${formatCompact(capitalContext.encumberedCapital)}</span>
+            </span>
+          </div>
+        )}
+
         <TierReadinessIndicator readiness={tierReadiness} error={tierError} />
 
         <div className="as-spacer" />
@@ -90,4 +119,12 @@ export function AppShell({ route, children }: AppShellProps) {
       </div>
     </div>
   );
+}
+
+/** Format a dollar amount compactly: $119,960 → "119.9K", $42,500 → "42.5K", $1,200 → "1,200" */
+function formatCompact(value: number): string {
+  if (value >= 10_000) {
+    return `${(value / 1000).toFixed(1)}K`;
+  }
+  return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
 }
