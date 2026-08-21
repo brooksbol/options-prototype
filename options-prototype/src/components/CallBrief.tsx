@@ -20,6 +20,7 @@ import { PostureExplanationSection } from "./RecommendationBrief";
 import type { CallCandidate } from "../write-desk/scan-orchestrator";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
+import { lookupDescription } from "../instrument-catalog/catalog";
 
 // --- Props ---
 
@@ -72,6 +73,12 @@ export function CallBrief({
         </div>
       </header>
 
+      {/* === INSTRUMENT DESCRIPTION === */}
+      {(() => {
+        const desc = lookupDescription(brief.identity.symbol);
+        return desc ? <p className="rb-instrument-description">{desc}</p> : null;
+      })()}
+
       {/* === DECISION SUMMARY === */}
       <section className="rb-decision-summary">
         <div className="rb-action-label">SELL TO OPEN</div>
@@ -99,10 +106,6 @@ export function CallBrief({
             <span className="rb-hero-value">
               {`${brief.decision.yieldAnnualized.toFixed(1)}%`}
             </span>
-          </div>
-          <div className={`rb-hero-row rb-hero-fit rb-fit-${brief.deltaFit.category}`}>
-            <span className="rb-hero-label">Policy Fit</span>
-            <span className="rb-hero-value">{brief.deltaFit.label}</span>
           </div>
           <div className="rb-hero-row">
             <span className="rb-hero-label">Strike vs Price</span>

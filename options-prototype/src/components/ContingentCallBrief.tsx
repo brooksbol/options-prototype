@@ -16,6 +16,7 @@
 import { useEffect } from "react";
 import type { ContingentCallRow } from "../write-desk/call-table-row";
 import type { MarketSessionClassification } from "../market-session/session-policy";
+import { lookupDescription } from "../instrument-catalog/catalog";
 
 // --- Props ---
 
@@ -56,6 +57,12 @@ export function ContingentCallBrief({ row, sessionClassification, cacheEnvironme
           PROJECTED &middot; IF ASSIGNED
         </div>
       </header>
+
+      {/* === INSTRUMENT DESCRIPTION === */}
+      {(() => {
+        const desc = lookupDescription(row.symbol);
+        return desc ? <p className="rb-instrument-description">{desc}</p> : null;
+      })()}
 
       {/* === ASSIGNMENT CONTINGENCY === */}
       <section className="rb-section">

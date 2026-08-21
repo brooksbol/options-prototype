@@ -488,6 +488,7 @@ export function WriteDesk() {
           policy={policy}
           sessionClassification={sessionClassification}
           cacheEnvironment={{ provider: providerKey, environment: "sandbox" }}
+          pendingIntents={pendingIntents}
           onClose={closeBuyWriteCandidate}
         />
       ) : (

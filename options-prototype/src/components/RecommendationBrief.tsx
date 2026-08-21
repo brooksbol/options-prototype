@@ -89,6 +89,9 @@ export function RecommendationBrief({
         return desc ? <p className="rb-instrument-description">{desc}</p> : null;
       })()}
 
+      {/* === EXECUTION HANDOFF (immediately accessible) === */}
+      <FidelityHandoff candidate={candidate} onOrderConfirmed={onOrderConfirmed} />
+
       {/* === DECISION SUMMARY — dominates the drawer === */}
       <section className="rb-decision-summary">
         <div className="rb-action-label">SELL TO OPEN</div>
@@ -114,10 +117,6 @@ export function RecommendationBrief({
           <div className="rb-hero-row rb-hero-primary">
             <span className="rb-hero-label">Cash Required</span>
             <span className="rb-hero-value">${brief.decision.cashRequired.toLocaleString()}</span>
-          </div>
-          <div className={`rb-hero-row rb-hero-fit rb-fit-${brief.deltaFit.category}`}>
-            <span className="rb-hero-label">Policy Fit</span>
-            <span className="rb-hero-value">{brief.deltaFit.label}</span>
           </div>
           <div className="rb-hero-row rb-hero-primary">
             <span className="rb-hero-label">Cash After</span>
@@ -207,9 +206,6 @@ export function RecommendationBrief({
           </div>
         </section>
       )}
-
-      {/* === EXECUTION HANDOFF === */}
-      <FidelityHandoff candidate={candidate} onOrderConfirmed={onOrderConfirmed} />
 
       {/* === EVIDENCE: Delta & Execution === */}
       <section className="rb-section rb-evidence">

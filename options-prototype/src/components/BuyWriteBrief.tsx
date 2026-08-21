@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import { getDurableCache } from "../cache/durable-cache";
 import { buildBuyWriteBrief, type BuyWriteBriefViewModel, type BuyWriteNeighborTag } from "../write-desk/buy-write-brief-builder";
 import { PostureExplanationSection } from "./RecommendationBrief";
+import { hasWorkingIntent, getWorkingIntentsForSymbol, type PendingIntent } from "../execution/pending-intent";
 import type { BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
@@ -33,6 +34,7 @@ interface BuyWriteBriefProps {
   policy: RecommendationPolicy;
   sessionClassification: MarketSessionClassification;
   cacheEnvironment: { provider: string; environment: string };
+  pendingIntents?: PendingIntent[];
   onClose: () => void;
 }
 
@@ -43,6 +45,7 @@ export function BuyWriteBrief({
   policy,
   sessionClassification,
   cacheEnvironment,
+  pendingIntents = [],
   onClose,
 }: BuyWriteBriefProps) {
   const [brief, setBrief] = useState<BuyWriteBriefViewModel | null>(null);
@@ -84,6 +87,25 @@ export function BuyWriteBrief({
         const desc = lookupDescription(brief.identity.symbol);
         return desc ? <p className="rb-instrument-description">{desc}</p> : null;
       })()}
+
+      {/* === FIDELITY HANDOFF (immediately accessible) === */}
+      <section className="rb-section rb-section-handoff">
+        <div className="rb-bw-fidelity-card">
+          <div className="rb-bw-card-row"><span className="rb-bw-card-label">Strategy</span><span className="rb-bw-card-value">Buy Write</span></div>
+          <div className="rb-bw-card-row"><span className="rb-bw-card-label">Leg 1</span><span className="rb-bw-card-value">Buy {brief.fidelityCard.sharesQty} shares {brief.fidelityCard.symbol}</span></div>
+          <div className="rb-bw-card-row"><span className="rb-bw-card-label">Leg 2</span><span className="rb-bw-card-value">Sell 1 {brief.fidelityCard.symbol} {formatExpiration(brief.fidelityCard.callExpiration)} ${brief.fidelityCard.callStrike} Call</span></div>
+          <div className="rb-bw-card-row"><span className="rb-bw-card-label">Order</span><span className="rb-bw-card-value">Net Debit ${brief.fidelityCard.netDebitPerShare.toFixed(2)}</span></div>
+          <div className="rb-bw-card-row rb-bw-card-total"><span className="rb-bw-card-label">Estimated Total</span><span className="rb-bw-card-value">${brief.fidelityCard.netDebitTotal.toFixed(2)}</span></div>
+        </div>
+        <a
+          className="rb-handoff-link rb-bw-handoff-link"
+          href={brief.fidelityCard.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Open in Fidelity ↗
+        </a>
+      </section>
 
       {/* === DECISION SUMMARY === */}
       <section className="rb-decision-summary">
@@ -143,15 +165,26 @@ export function BuyWriteBrief({
               <span className="rb-hero-value">{candidate.eligibleStrikeCount} evaluated · δ {candidate.evaluatedDeltaMin?.toFixed(2)}–{candidate.evaluatedDeltaMax?.toFixed(2)} · prem/tot {(candidate.premiumShare * 100).toFixed(0)}%</span>
             </div>
           )}
-          <div className={`rb-hero-row rb-hero-fit rb-fit-${brief.deltaFit.category}`}>
-            <span className="rb-hero-label">Policy Fit</span>
-            <span className="rb-hero-value">{brief.deltaFit.label}</span>
-          </div>
         </div>
 
         {/* Posture Explanation */}
         <PostureExplanationSection explanation={brief.postureExplanation} />
       </section>
+
+      {/* === PENDING EXPOSURE WARNING === */}
+      {hasWorkingIntent(candidate.symbol, pendingIntents) && (
+        <div className="rb-pending-warning">
+          <span className="rb-pending-icon">⚠</span>
+          <span className="rb-pending-text">
+            {candidate.symbol} — pending broker order
+          </span>
+          {getWorkingIntentsForSymbol(candidate.symbol, pendingIntents).map((i) => (
+            <span key={i.id} className="rb-pending-detail">
+              ${i.strike} {i.optionType === "put" ? "P" : "C"} {i.expiration.slice(5)} × {i.quantity}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* === CAPITAL EROSION WARNING === */}
       {!econ.strikeAbovePrice && (
@@ -315,29 +348,6 @@ export function BuyWriteBrief({
             </tbody>
           </table>
         )}
-      </section>
-
-      {/* === FIDELITY HANDOFF === */}
-      <section className="rb-section">
-        <h4 className="rb-section-title">Execute in Fidelity</h4>
-        <div className="rb-bw-fidelity-card">
-          <div className="rb-bw-card-row"><span className="rb-bw-card-label">Strategy</span><span className="rb-bw-card-value">Buy Write</span></div>
-          <div className="rb-bw-card-row"><span className="rb-bw-card-label">Leg 1</span><span className="rb-bw-card-value">Buy {brief.fidelityCard.sharesQty} shares {brief.fidelityCard.symbol}</span></div>
-          <div className="rb-bw-card-row"><span className="rb-bw-card-label">Leg 2</span><span className="rb-bw-card-value">Sell 1 {brief.fidelityCard.symbol} {formatExpiration(brief.fidelityCard.callExpiration)} ${brief.fidelityCard.callStrike} Call</span></div>
-          <div className="rb-bw-card-row"><span className="rb-bw-card-label">Order</span><span className="rb-bw-card-value">Net Debit ${brief.fidelityCard.netDebitPerShare.toFixed(2)}</span></div>
-          <div className="rb-bw-card-row rb-bw-card-total"><span className="rb-bw-card-label">Estimated Total</span><span className="rb-bw-card-value">${brief.fidelityCard.netDebitTotal.toFixed(2)}</span></div>
-        </div>
-        <a
-          className="rb-handoff-link rb-bw-handoff-link"
-          href={brief.fidelityCard.url}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Open in Fidelity ↗
-        </a>
-        <p className="rb-bw-handoff-note">
-          Symbol will be pre-populated. Select "Buy Write" strategy and fill legs from the card above.
-        </p>
       </section>
 
       {/* === PROVENANCE === */}
