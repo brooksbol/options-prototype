@@ -70,6 +70,22 @@ export interface Workspace {
   // Write Desk Section Order (drag/reorder)
   writeDeskSectionOrder: string[];
 
+  // Write Desk Table State (sticky across navigation)
+  writeDeskAffordableOnly: boolean;
+  writeDeskShowDanger: boolean;
+  writeDeskShowWideSpread: boolean;
+  writeDeskCrossEntryAffordableOnly: boolean;
+
+  // Write Desk Table Sort State
+  writeDeskPutSortKey: string;
+  writeDeskPutSortDir: string;
+  writeDeskCallSortKey: string;
+  writeDeskCallSortDir: string;
+  writeDeskBuyWriteSortKey: string;
+  writeDeskBuyWriteSortDir: string;
+  writeDeskCrossEntrySortKey: string;
+  writeDeskCrossEntrySortDir: string;
+
   // Write Desk Portfolio Source
   writeDeskSource: string;
 
@@ -109,6 +125,18 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskBuyWritesCollapsed: false,
   writeDeskCrossEntryCollapsed: false,
   writeDeskSectionOrder: ["cross-entry", "puts", "calls", "buy-writes"],
+  writeDeskAffordableOnly: false,
+  writeDeskShowDanger: false,
+  writeDeskShowWideSpread: false,
+  writeDeskCrossEntryAffordableOnly: false,
+  writeDeskPutSortKey: "rank",
+  writeDeskPutSortDir: "asc",
+  writeDeskCallSortKey: "rank",
+  writeDeskCallSortDir: "asc",
+  writeDeskBuyWriteSortKey: "rank",
+  writeDeskBuyWriteSortDir: "asc",
+  writeDeskCrossEntrySortKey: "productionV0",
+  writeDeskCrossEntrySortDir: "desc",
   writeDeskSource: "demo",
   missionTarget: null,
 };

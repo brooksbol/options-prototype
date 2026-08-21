@@ -16,25 +16,28 @@ import { buildCrossEntryRows, buildCrossEntryExport, type CrossEntryRow } from "
 import type { PutCandidate } from "../write-desk/scan-orchestrator";
 import type { BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import type { RecommendationPolicy } from "../write-desk/recommend";
+import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 
 // --- Sortable Table Hook (same pattern as WriteDesk candidate tables) ---
 
 type SortDir = "asc" | "desc";
 
-function useCrossEntrySortable(items: CrossEntryRow[], defaultKey: string = "productionV0", defaultDir: SortDir = "desc") {
+function useCrossEntrySortable(items: CrossEntryRow[], defaultKey: string = "productionV0", defaultDir: SortDir = "desc", onSortChange?: (key: string, dir: SortDir) => void) {
   const [sortKey, setSortKey] = useState(defaultKey);
   const [sortDir, setSortDir] = useState<SortDir>(defaultDir);
 
   const handleSort = useCallback((key: string) => {
     if (key === sortKey) {
-      setSortDir((d) => d === "asc" ? "desc" : "asc");
+      const newDir = sortDir === "asc" ? "desc" : "asc";
+      setSortDir(newDir);
+      onSortChange?.(key, newDir);
     } else {
+      const newDir = key === "symbol" || key === "entryMechanism" ? "asc" : "desc";
       setSortKey(key);
-      // Most numeric columns default to descending (highest first)
-      // Symbol and entryMechanism default to ascending (alphabetical)
-      setSortDir(key === "symbol" || key === "entryMechanism" ? "asc" : "desc");
+      setSortDir(newDir);
+      onSortChange?.(key, newDir);
     }
-  }, [sortKey]);
+  }, [sortKey, sortDir, onSortChange]);
 
   const sorted = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -91,8 +94,12 @@ export function CrossEntryStrip({
   );
 
   // Sort by active column (operator-controlled), THEN cap for display
-  const { sorted, handleSort, indicator, isDefaultOrder, sortKey } = useCrossEntrySortable(allRows);
-  const [affordableOnly, setAffordableOnly] = useState(false);
+  const ws = loadWorkspace();
+  const { sorted, handleSort, indicator, isDefaultOrder, sortKey } = useCrossEntrySortable(
+    allRows, ws.writeDeskCrossEntrySortKey, ws.writeDeskCrossEntrySortDir as SortDir,
+    (key, dir) => updateWorkspace({ writeDeskCrossEntrySortKey: key, writeDeskCrossEntrySortDir: dir }),
+  );
+  const [affordableOnly, setAffordableOnly] = useState(() => loadWorkspace().writeDeskCrossEntryAffordableOnly);
   const filtered = affordableOnly ? sorted.filter(r => r.cashRemaining >= 0) : sorted;
   const displayed = filtered.slice(0, maxRows);
 
@@ -124,7 +131,7 @@ export function CrossEntryStrip({
           Experimental cross-entry lens. Includes Buy-Write conditional appreciation; not a validated "best deployment" ranking.
         </span>
         <label style={{ fontSize: "11px", marginLeft: "8px", cursor: "pointer", color: "#aaa" }}>
-          <input type="checkbox" checked={affordableOnly} onChange={() => setAffordableOnly(!affordableOnly)} style={{ marginRight: "4px" }} />
+          <input type="checkbox" checked={affordableOnly} onChange={() => { const next = !affordableOnly; setAffordableOnly(next); updateWorkspace({ writeDeskCrossEntryAffordableOnly: next }); }} style={{ marginRight: "4px" }} />
           Affordable only
         </label>
         <button className="wd-download-btn" onClick={handleExport} title="Export full cross-entry decomposition (JSON)">⬇</button>

@@ -95,9 +95,9 @@ export function WriteDesk() {
     closeBuyWriteCandidate,
   } = useDrawerSelection<PutCandidate, CallTableRow, BuyWriteCandidate, TablePositionContext>();
   const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>(() => loadWorkingIntents());
-  const [showAffordableOnly, setShowAffordableOnly] = useState(false);
-  const [showDanger, setShowDanger] = useState(false);
-  const [showWideSpread, setShowWideSpread] = useState(false);
+  const [showAffordableOnly, setShowAffordableOnly] = useState(() => loadWorkspace().writeDeskAffordableOnly);
+  const [showDanger, setShowDanger] = useState(() => loadWorkspace().writeDeskShowDanger);
+  const [showWideSpread, setShowWideSpread] = useState(() => loadWorkspace().writeDeskShowWideSpread);
   const [showCount, setShowCount] = useState(() => loadWorkspace().writeDeskShowCount);
   const [putsCollapsed, setPutsCollapsed] = useState(() => loadWorkspace().writeDeskPutsCollapsed);
   const [callsCollapsed, setCallsCollapsed] = useState(() => loadWorkspace().writeDeskCallsCollapsed);
@@ -597,11 +597,11 @@ export function WriteDesk() {
               <label className="wd-pol">DTE <select value={policy.contractSelection.targetDte} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDte: parseInt(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDte: parseInt(e.target.value) }); }} className="wd-pol-select"><option value="7">7</option><option value="14">14</option><option value="21">21</option><option value="28">28</option><option value="35">35</option><option value="42">42</option><option value="45">45</option></select></label>
               <span className="wd-pol-static">{policy.contractSelection.eligibleDteRange.min}–{policy.contractSelection.eligibleDteRange.max}</span>
               <label className="wd-pol wd-control-check">
-                <input type="checkbox" checked={showDanger} onChange={(e) => setShowDanger(e.target.checked)} />
+                <input type="checkbox" checked={showDanger} onChange={(e) => { setShowDanger(e.target.checked); updateWorkspace({ writeDeskShowDanger: e.target.checked }); }} />
                 Show Danger
               </label>
               <label className="wd-pol wd-control-check">
-                <input type="checkbox" checked={showWideSpread} onChange={(e) => setShowWideSpread(e.target.checked)} />
+                <input type="checkbox" checked={showWideSpread} onChange={(e) => { setShowWideSpread(e.target.checked); updateWorkspace({ writeDeskShowWideSpread: e.target.checked }); }} />
                 Show Wide Spread
               </label>
               <label className="wd-pol">Rank <select value={policy.ranking.mode} onChange={(e) => { const updated = { ...policy, ranking: { ...policy.ranking, mode: e.target.value as any } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskRankingMode: e.target.value }); }} className="wd-pol-select"><option value="execution_first">Execution</option><option value="balanced">Balanced</option><option value="yield_first">Yield</option><option value="capital_efficiency">Capital Eff.</option></select></label>
@@ -609,7 +609,7 @@ export function WriteDesk() {
             <div className="wd-controls-divider" />
             <div className="wd-table-controls">
               <label className="wd-control wd-control-check">
-                <input type="checkbox" checked={showAffordableOnly} onChange={(e) => setShowAffordableOnly(e.target.checked)} />
+                <input type="checkbox" checked={showAffordableOnly} onChange={(e) => { setShowAffordableOnly(e.target.checked); updateWorkspace({ writeDeskAffordableOnly: e.target.checked }); }} />
                 Affordable only
               </label>
               <label className="wd-control">
@@ -773,11 +773,11 @@ export function WriteDesk() {
                     <label className="wd-pol">DTE <select value={policy.contractSelection.targetDte} onChange={(e) => { const updated = { ...policy, contractSelection: { ...policy.contractSelection, targetDte: parseInt(e.target.value) } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskTargetDte: parseInt(e.target.value) }); }} className="wd-pol-select"><option value="7">7</option><option value="14">14</option><option value="21">21</option><option value="28">28</option><option value="35">35</option><option value="42">42</option><option value="45">45</option></select></label>
                     <span className="wd-pol-static">{policy.contractSelection.eligibleDteRange.min}–{policy.contractSelection.eligibleDteRange.max}</span>
                     <label className="wd-pol wd-control-check">
-                      <input type="checkbox" checked={showDanger} onChange={(e) => setShowDanger(e.target.checked)} />
+                      <input type="checkbox" checked={showDanger} onChange={(e) => { setShowDanger(e.target.checked); updateWorkspace({ writeDeskShowDanger: e.target.checked }); }} />
                       Show Danger
                     </label>
                     <label className="wd-pol wd-control-check">
-                      <input type="checkbox" checked={showWideSpread} onChange={(e) => setShowWideSpread(e.target.checked)} />
+                      <input type="checkbox" checked={showWideSpread} onChange={(e) => { setShowWideSpread(e.target.checked); updateWorkspace({ writeDeskShowWideSpread: e.target.checked }); }} />
                       Show Wide Spread
                     </label>
                     <label className="wd-pol">Rank <select value={policy.ranking.mode} onChange={(e) => { const updated = { ...policy, ranking: { ...policy.ranking, mode: e.target.value as any } }; setPolicy(updated); handleReRecommend(updated); updateWorkspace({ writeDeskRankingMode: e.target.value }); }} className="wd-pol-select"><option value="yield_first">Yield</option><option value="capital_efficiency">If Called</option><option value="execution_first">Execution</option></select></label>
@@ -785,7 +785,7 @@ export function WriteDesk() {
                   <div className="wd-controls-divider" />
                   <div className="wd-table-controls">
                     <label className="wd-control wd-control-check">
-                      <input type="checkbox" checked={showAffordableOnly} onChange={(e) => setShowAffordableOnly(e.target.checked)} />
+                      <input type="checkbox" checked={showAffordableOnly} onChange={(e) => { setShowAffordableOnly(e.target.checked); updateWorkspace({ writeDeskAffordableOnly: e.target.checked }); }} />
                       Affordable only
                     </label>
                     <label className="wd-control">
@@ -846,19 +846,22 @@ export function WriteDesk() {
 
 type SortDir = "asc" | "desc";
 
-function useSortableTable<T>(items: T[], defaultKey: string = "rank", defaultDir: SortDir = "asc") {
+function useSortableTable<T>(items: T[], defaultKey: string = "rank", defaultDir: SortDir = "asc", onSortChange?: (key: string, dir: SortDir) => void) {
   const [sortKey, setSortKey] = useState(defaultKey);
   const [sortDir, setSortDir] = useState<SortDir>(defaultDir);
 
   const handleSort = useCallback((key: string) => {
     if (key === sortKey) {
-      setSortDir((d) => d === "asc" ? "desc" : "asc");
+      const newDir = sortDir === "asc" ? "desc" : "asc";
+      setSortDir(newDir);
+      onSortChange?.(key, newDir);
     } else {
+      const newDir = key === "rank" ? "asc" : "desc";
       setSortKey(key);
-      // Rank defaults to ascending (1,2,3...); everything else defaults to descending
-      setSortDir(key === "rank" ? "asc" : "desc");
+      setSortDir(newDir);
+      onSortChange?.(key, newDir);
     }
-  }, [sortKey]);
+  }, [sortKey, sortDir, onSortChange]);
 
   const sorted = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -890,7 +893,11 @@ function useSortableTable<T>(items: T[], defaultKey: string = "rank", defaultDir
 // --- Put Candidate Table ---
 
 function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelect }: { candidates: PutCandidate[]; selectedSymbol: string | null; selectedStrike: number | null; onSelect: (c: PutCandidate, pos: TablePositionContext) => void }) {
-  const { sorted, handleSort, indicator, isRecommendationOrder, sortKey } = useSortableTable(candidates, "rank", "asc");
+  const ws = loadWorkspace();
+  const { sorted, handleSort, indicator, isRecommendationOrder, sortKey } = useSortableTable(
+    candidates, ws.writeDeskPutSortKey, ws.writeDeskPutSortDir as SortDir,
+    (key, dir) => updateWorkspace({ writeDeskPutSortKey: key, writeDeskPutSortDir: dir }),
+  );
 
   const sortLabels: Record<string, string> = {
     rank: "Recommendation",
@@ -973,7 +980,11 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
 // --- Call Candidate Table ---
 
 function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates: CallCandidate[]; selectedRow: CallTableRow | null; onSelect: (row: CallTableRow) => void }) {
-  const { sorted, handleSort, indicator } = useSortableTable(candidates, "rank", "asc");
+  const ws = loadWorkspace();
+  const { sorted, handleSort, indicator } = useSortableTable(
+    candidates, ws.writeDeskCallSortKey, ws.writeDeskCallSortDir as SortDir,
+    (key, dir) => updateWorkspace({ writeDeskCallSortKey: key, writeDeskCallSortDir: dir }),
+  );
   const selectedSymbol = selectedRow?.availability === "available-now" ? selectedRow.symbol : null;
   const selectedStrike = selectedRow?.availability === "available-now" ? selectedRow.strike : null;
 
@@ -1286,7 +1297,11 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
   if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
   const displayed = filtered.slice(0, showCount);
 
-  const { sorted, handleSort, indicator, isRecommendationOrder, sortKey } = useSortableTable(displayed, "rank", "asc");
+  const ws = loadWorkspace();
+  const { sorted, handleSort, indicator, isRecommendationOrder, sortKey } = useSortableTable(
+    displayed, ws.writeDeskBuyWriteSortKey, ws.writeDeskBuyWriteSortDir as SortDir,
+    (key, dir) => updateWorkspace({ writeDeskBuyWriteSortKey: key, writeDeskBuyWriteSortDir: dir }),
+  );
 
   const sortLabels: Record<string, string> = {
     rank: "Recommendation",
