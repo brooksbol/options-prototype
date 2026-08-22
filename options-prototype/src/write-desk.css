@@ -2217,6 +2217,12 @@
   color: var(--wd-text-primary);
 }
 
+.wd-download-above {
+  display: block;
+  margin: 4px 0 4px auto;
+  width: fit-content;
+}
+
 
 /* Wide spread posture */
 .wd-posture-wide_spread {
