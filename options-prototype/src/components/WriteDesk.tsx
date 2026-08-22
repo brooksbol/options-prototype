@@ -36,6 +36,7 @@ import { loadWorkingIntents, addPendingIntent, updatePendingIntent, createPendin
 import { buildWriteIntent } from "../execution/write-intent";
 import type { PortfolioSnapshot } from "../write-desk/types";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
+import { useMultiColumnSort } from "../write-desk/use-multi-column-sort";
 import { useSectionOrder } from "../hooks/useSectionOrder";
 import "../write-desk.css";
 import "../recommendation-brief.css";
@@ -819,48 +820,24 @@ export function WriteDesk() {
 
 type SortDir = "asc" | "desc";
 
+// Legacy adapter: wraps useMultiColumnSort to match the old useSortableTable interface
+// while providing multi-column sort capability via shift+click.
 function useSortableTable<T>(items: T[], defaultKey: string = "rank", defaultDir: SortDir = "asc", onSortChange?: (key: string, dir: SortDir) => void) {
-  const [sortKey, setSortKey] = useState(defaultKey);
-  const [sortDir, setSortDir] = useState<SortDir>(defaultDir);
+  const { sorted, handleSort: multiHandleSort, indicator, isDefaultOrder, primaryKey, columns } = useMultiColumnSort(
+    items,
+    [{ key: defaultKey, dir: defaultDir }],
+    [{ key: defaultKey, dir: defaultDir }],
+    onSortChange ? (cols) => onSortChange(cols[0]?.key ?? defaultKey, cols[0]?.dir ?? defaultDir) : undefined,
+  );
 
-  const handleSort = useCallback((key: string) => {
-    if (key === sortKey) {
-      const newDir = sortDir === "asc" ? "desc" : "asc";
-      setSortDir(newDir);
-      onSortChange?.(key, newDir);
-    } else {
-      const newDir = key === "rank" ? "asc" : "desc";
-      setSortKey(key);
-      setSortDir(newDir);
-      onSortChange?.(key, newDir);
-    }
-  }, [sortKey, sortDir, onSortChange]);
+  // Wrap handleSort to accept click events from <th> elements
+  const handleSort = useCallback((key: string, event?: React.MouseEvent) => {
+    multiHandleSort(key, { shiftKey: event?.shiftKey });
+  }, [multiHandleSort]);
 
-  const sorted = useMemo(() => {
-    return [...items].sort((a, b) => {
-      let aVal: unknown;
-      let bVal: unknown;
-      if (sortKey === "assessment") {
-        aVal = (a as Record<string, { score?: number }>).assessment?.score;
-        bVal = (b as Record<string, { score?: number }>).assessment?.score;
-      } else {
-        aVal = (a as Record<string, unknown>)[sortKey];
-        bVal = (b as Record<string, unknown>)[sortKey];
-      }
-      if (aVal == null && bVal == null) return 0;
-      if (aVal == null) return 1;
-      if (bVal == null) return -1;
-      const cmp = typeof aVal === "string" ? aVal.localeCompare(bVal as string) : (aVal as number) - (bVal as number);
-      return sortDir === "asc" ? cmp : -cmp;
-    });
-  }, [items, sortKey, sortDir]);
+  const isRecommendationOrder = isDefaultOrder;
 
-  const indicator = (key: string) => sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
-
-  /** Whether the table is currently showing recommendation order */
-  const isRecommendationOrder = sortKey === "rank" && sortDir === "asc";
-
-  return { sorted, handleSort, indicator, isRecommendationOrder, sortKey };
+  return { sorted, handleSort, indicator, isRecommendationOrder, sortKey: primaryKey, columns };
 }
 
 // --- Put Candidate Table ---
@@ -893,28 +870,29 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
     <>
       {!isRecommendationOrder && (
         <div className="wd-sort-notice">
-          Viewing sorted by: <strong>{sortKey === "assessment" ? "Exec" : sortKey}</strong>
+          Viewing sorted by: <strong>{columns.map(c => sortLabels[c.key] ?? c.key).join(" → ")}</strong>
           {" · "}
-          <button className="wd-sort-reset" onClick={() => handleSort("rank")}>Show recommendation order</button>
+          <button className="wd-sort-reset" onClick={(e) => handleSort("rank", e)}>Show recommendation order</button>
+          {columns.length < 3 && <span className="wd-sort-hint"> (shift+click header for secondary sort)</span>}
         </div>
       )}
       <table className="wd-candidate-table">
       <thead>
         <tr>
-          <th className="wd-sortable" onClick={() => handleSort("rank")}>#{ indicator("rank")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("symbol")}>Symbol{indicator("symbol")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("expiration")}>Exp{indicator("expiration")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("dte")}>DTE{indicator("dte")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("strike")}>Strike{indicator("strike")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("delta")}>Δ{indicator("delta")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("bid")}>Bid{indicator("bid")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("ask")}>Ask{indicator("ask")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("spreadPercent")}>Spread{indicator("spreadPercent")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("openInterest")}>OI{indicator("openInterest")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("yieldAnnualized")}>Yield{indicator("yieldAnnualized")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("cashRequired")}>Cash Req{indicator("cashRequired")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("cashRemaining")}>Remaining{indicator("cashRemaining")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("assessment")}>Exec{indicator("assessment")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("rank", e)}>#{ indicator("rank")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("symbol", e)}>Symbol{indicator("symbol")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("expiration", e)}>Exp{indicator("expiration")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("ask", e)}>Ask{indicator("ask")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("spreadPercent", e)}>Spread{indicator("spreadPercent")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("openInterest", e)}>OI{indicator("openInterest")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("yieldAnnualized", e)}>Yield{indicator("yieldAnnualized")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("cashRequired", e)}>Cash Req{indicator("cashRequired")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("cashRemaining", e)}>Remaining{indicator("cashRemaining")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("assessment", e)}>Exec{indicator("assessment")}</th>
           <th>Posture</th>
         </tr>
       </thead>
@@ -965,20 +943,20 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
     <table className="wd-candidate-table">
       <thead>
         <tr>
-          <th className="wd-sortable" onClick={() => handleSort("rank")}>#{ indicator("rank")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("symbol")}>Symbol{indicator("symbol")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("expiration")}>Exp{indicator("expiration")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("dte")}>DTE{indicator("dte")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("strike")}>Strike{indicator("strike")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("delta")}>Δ{indicator("delta")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("bid")}>Bid{indicator("bid")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("ask")}>Ask{indicator("ask")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("spreadPercent")}>Spread{indicator("spreadPercent")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("openInterest")}>OI{indicator("openInterest")}</th>
-          <th className="wd-sortable" onClick={() => handleSort("yieldAnnualized")}>Yield{indicator("yieldAnnualized")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("rank", e)}>#{ indicator("rank")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("symbol", e)}>Symbol{indicator("symbol")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("expiration", e)}>Exp{indicator("expiration")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("ask", e)}>Ask{indicator("ask")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("spreadPercent", e)}>Spread{indicator("spreadPercent")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("openInterest", e)}>OI{indicator("openInterest")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("yieldAnnualized", e)}>Yield{indicator("yieldAnnualized")}</th>
           <th>Shares</th>
           <th>Cts</th>
-          <th className="wd-sortable" onClick={() => handleSort("assessment")}>Exec{indicator("assessment")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("assessment", e)}>Exec{indicator("assessment")}</th>
           <th>Posture</th>
         </tr>
       </thead>
@@ -1300,31 +1278,32 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
     <>
       {!isRecommendationOrder && (
         <div className="wd-sort-notice">
-          Viewing sorted by: <strong>{sortLabels[sortKey] ?? sortKey}</strong>
+          Viewing sorted by: <strong>{columns.map(c => sortLabels[c.key] ?? c.key).join(" → ")}</strong>
           {" · "}
-          <button className="wd-sort-reset" onClick={() => handleSort("rank")}>Show recommendation order</button>
+          <button className="wd-sort-reset" onClick={(e) => handleSort("rank", e)}>Show recommendation order</button>
+          {columns.length < 3 && <span className="wd-sort-hint"> (shift+click header for secondary sort)</span>}
         </div>
       )}
       <table className="wd-candidate-table">
         <thead>
           <tr>
-            <th className="wd-sortable" onClick={() => handleSort("rank")}>#{indicator("rank")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("symbol")}>Symbol{indicator("symbol")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("underlyingPrice")}>Price{indicator("underlyingPrice")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("expiration")}>Exp{indicator("expiration")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("dte")}>DTE{indicator("dte")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("strike")}>Strike{indicator("strike")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("delta")}>Δ{indicator("delta")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("bid")}>Bid{indicator("bid")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("ask")}>Ask{indicator("ask")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("spreadPercent")}>Spread{indicator("spreadPercent")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("openInterest")}>OI{indicator("openInterest")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("premiumYieldAnnualized")}>Yield{indicator("premiumYieldAnnualized")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("appreciationPerShare")}>Apprec{indicator("appreciationPerShare")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("totalReturnIfCalledPercent")}>If Called{indicator("totalReturnIfCalledPercent")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("capitalRequired")}>Capital{indicator("capitalRequired")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("cashRemaining")}>Remaining{indicator("cashRemaining")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("assessment")}>Exec{indicator("assessment")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("rank", e)}>#{indicator("rank")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("symbol", e)}>Symbol{indicator("symbol")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("underlyingPrice", e)}>Price{indicator("underlyingPrice")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("expiration", e)}>Exp{indicator("expiration")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("ask", e)}>Ask{indicator("ask")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("spreadPercent", e)}>Spread{indicator("spreadPercent")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("openInterest", e)}>OI{indicator("openInterest")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("premiumYieldAnnualized", e)}>Yield{indicator("premiumYieldAnnualized")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("appreciationPerShare", e)}>Apprec{indicator("appreciationPerShare")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("totalReturnIfCalledPercent", e)}>If Called{indicator("totalReturnIfCalledPercent")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("capitalRequired", e)}>Capital{indicator("capitalRequired")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("cashRemaining", e)}>Remaining{indicator("cashRemaining")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("assessment", e)}>Exec{indicator("assessment")}</th>
             <th>Posture</th>
           </tr>
         </thead>

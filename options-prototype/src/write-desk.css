@@ -853,6 +853,12 @@
   color: #8fd8ab;
 }
 
+.wd-sort-hint {
+  font-size: var(--wd-size-micro);
+  color: var(--wd-text-disabled);
+  font-style: italic;
+}
+
 
 /* ═══════════════════════════════════════════════════════
    COMPACT BAND LAYOUT — Pre-table operational header

@@ -18,55 +18,23 @@ import type { PutCandidate } from "../write-desk/scan-orchestrator";
 import type { BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
+import { useMultiColumnSort, type SortDir } from "../write-desk/use-multi-column-sort";
 
-// --- Sortable Table Hook (same pattern as WriteDesk candidate tables) ---
-
-type SortDir = "asc" | "desc";
+// --- Sortable Table (delegates to shared multi-column hook) ---
 
 function useCrossEntrySortable(items: CrossEntryRow[], defaultKey: string = "productionV0", defaultDir: SortDir = "desc", onSortChange?: (key: string, dir: SortDir) => void) {
-  const [sortKey, setSortKey] = useState(defaultKey);
-  const [sortDir, setSortDir] = useState<SortDir>(defaultDir);
+  const { sorted, handleSort: multiHandleSort, indicator, isDefaultOrder, primaryKey } = useMultiColumnSort(
+    items,
+    [{ key: defaultKey, dir: defaultDir }],
+    [{ key: defaultKey, dir: defaultDir }],
+    onSortChange ? (cols) => onSortChange(cols[0]?.key ?? defaultKey, cols[0]?.dir ?? defaultDir) : undefined,
+  );
 
-  const handleSort = useCallback((key: string) => {
-    if (key === sortKey) {
-      const newDir = sortDir === "asc" ? "desc" : "asc";
-      setSortDir(newDir);
-      onSortChange?.(key, newDir);
-    } else {
-      const newDir = key === "symbol" || key === "entryMechanism" ? "asc" : "desc";
-      setSortKey(key);
-      setSortDir(newDir);
-      onSortChange?.(key, newDir);
-    }
-  }, [sortKey, sortDir, onSortChange]);
+  const handleSort = useCallback((key: string, event?: React.MouseEvent) => {
+    multiHandleSort(key, { shiftKey: event?.shiftKey });
+  }, [multiHandleSort]);
 
-  const sorted = useMemo(() => {
-    return [...items].sort((a, b) => {
-      const aVal = (a as Record<string, unknown>)[sortKey];
-      const bVal = (b as Record<string, unknown>)[sortKey];
-      if (aVal == null && bVal == null) return 0;
-      if (aVal == null) return 1;
-      if (bVal == null) return -1;
-      let cmp: number;
-      if (typeof aVal === "string") {
-        cmp = aVal.localeCompare(bVal as string);
-      } else {
-        const na = Number(aVal);
-        const nb = Number(bVal);
-        if (isNaN(na) && isNaN(nb)) cmp = 0;
-        else if (isNaN(na)) cmp = -1;
-        else if (isNaN(nb)) cmp = 1;
-        else cmp = na - nb;
-      }
-      return sortDir === "asc" ? cmp : -cmp;
-    });
-  }, [items, sortKey, sortDir]);
-
-  const indicator = (key: string) => sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
-
-  const isDefaultOrder = sortKey === defaultKey && sortDir === defaultDir;
-
-  return { sorted, handleSort, indicator, isDefaultOrder, sortKey };
+  return { sorted, handleSort, indicator, isDefaultOrder, sortKey: primaryKey };
 }
 
 // --- Component ---
@@ -149,25 +117,25 @@ export function CrossEntryStrip({
         <div className="wd-sort-notice">
           Viewing sorted by: <strong>{sortKey === "productionV0" ? "Prod v0" : sortKey === "premiumYieldAnnualized" ? "Yield" : sortKey === "executionScore" ? "Exec" : sortKey === "capitalRequired" ? "Capital" : sortKey === "cashRemaining" ? "Remaining" : sortKey === "entryMechanism" ? "Entry" : sortKey}</strong>
           {" · "}
-          <button className="wd-sort-reset" onClick={() => handleSort("productionV0")}>Show Prod v0 order</button>
+          <button className="wd-sort-reset" onClick={(e) => handleSort("productionV0", e)}>Show Prod v0 order</button>
         </div>
       )}
       <table className="wd-candidate-table wd-cross-entry-table">
         <thead>
           <tr>
-            <th className="wd-sortable" onClick={() => handleSort("entryMechanism")}>Entry{indicator("entryMechanism")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("symbol")}>Symbol{indicator("symbol")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("productionV0")}>Prod v0{indicator("productionV0")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("premiumYieldAnnualized")}>Yield{indicator("premiumYieldAnnualized")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("dte")}>DTE{indicator("dte")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("delta")}>Δ{indicator("delta")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("bid")}>Bid{indicator("bid")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("mid")}>Mid{indicator("mid")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("ask")}>Ask{indicator("ask")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("capitalRequired")}>Capital{indicator("capitalRequired")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("cashRemaining")}>Remaining{indicator("cashRemaining")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("executionScore")}>Exec{indicator("executionScore")}</th>
-            <th className="wd-sortable" onClick={() => handleSort("posture")}>Posture{indicator("posture")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("entryMechanism", e)}>Entry{indicator("entryMechanism")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("symbol", e)}>Symbol{indicator("symbol")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("productionV0", e)}>Prod v0{indicator("productionV0")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("premiumYieldAnnualized", e)}>Yield{indicator("premiumYieldAnnualized")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("mid", e)}>Mid{indicator("mid")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("ask", e)}>Ask{indicator("ask")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("capitalRequired", e)}>Capital{indicator("capitalRequired")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("cashRemaining", e)}>Remaining{indicator("cashRemaining")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("executionScore", e)}>Exec{indicator("executionScore")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("posture", e)}>Posture{indicator("posture")}</th>
           </tr>
         </thead>
         <tbody>
