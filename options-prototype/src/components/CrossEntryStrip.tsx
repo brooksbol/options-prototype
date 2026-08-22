@@ -12,13 +12,14 @@
  */
 
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { buildCrossEntryRows, buildCrossEntryExport, type CrossEntryRow } from "../write-desk/production-v0";
+import { buildCrossEntryRows, type CrossEntryRow } from "../write-desk/production-v0";
 import { observeOpeningSetHydration } from "../write-desk/opening-set-observation";
 import type { PutCandidate } from "../write-desk/scan-orchestrator";
 import type { BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import { useMultiColumnSort, type SortDir } from "../write-desk/use-multi-column-sort";
+import { downloadTableCsv } from "../write-desk/table-csv-export";
 
 // --- Sortable Table (delegates to shared multi-column hook) ---
 
@@ -82,24 +83,6 @@ export function CrossEntryStrip({
 
   if (allRows.length === 0) return null;
 
-  const handleExport = () => {
-    const payload = buildCrossEntryExport(putCandidates, buyWriteCandidates, {
-      targetDelta: policy.contractSelection.targetDelta,
-      admissibleDeltaRange: policy.contractSelection.admissibleDeltaRange,
-      eligibleDteRange: policy.contractSelection.eligibleDteRange,
-      executionActionableFloor: policy.executionAssessment.actionableFloor,
-      executionEdgeFloor: policy.executionAssessment.edgeFloor,
-    });
-    const json = JSON.stringify(payload, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `production-v0-export-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <section className="wd-cross-entry">
       <div className="wd-cross-entry-header">
@@ -111,7 +94,20 @@ export function CrossEntryStrip({
           <input type="checkbox" checked={affordableOnly} onChange={() => { const next = !affordableOnly; setAffordableOnly(next); updateWorkspace({ writeDeskCrossEntryAffordableOnly: next }); }} style={{ marginRight: "4px" }} />
           Affordable only
         </label>
-        <button className="wd-download-btn" onClick={handleExport} title="Export full cross-entry decomposition (JSON)">⬇</button>
+        <button className="wd-download-btn" onClick={() => {
+          downloadTableCsv(
+            sorted as unknown as Record<string, unknown>[],
+            [
+              { key: "entryMechanism", label: "Entry" }, { key: "symbol", label: "Symbol" },
+              { key: "productionV0", label: "Prod v0" }, { key: "premiumYieldAnnualized", label: "Yield%" },
+              { key: "dte", label: "DTE" }, { key: "delta", label: "Delta" },
+              { key: "bid", label: "Bid" }, { key: "mid", label: "Mid" }, { key: "ask", label: "Ask" },
+              { key: "capitalRequired", label: "Capital" }, { key: "cashRemaining", label: "Remaining" },
+              { key: "executionScore", label: "Exec" }, { key: "posture", label: "Posture" },
+            ],
+            `wheelwright-cross-entry-${new Date().toISOString().slice(0, 10)}.csv`
+          );
+        }} title="Download as CSV">⬇ CSV</button>
       </div>
       {!isDefaultOrder && (
         <div className="wd-sort-notice">
