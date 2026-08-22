@@ -844,7 +844,7 @@ function useSortableTable<T>(items: T[], defaultKey: string = "rank", defaultDir
 
 function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelect }: { candidates: PutCandidate[]; selectedSymbol: string | null; selectedStrike: number | null; onSelect: (c: PutCandidate, pos: TablePositionContext) => void }) {
   const ws = loadWorkspace();
-  const { sorted, handleSort, indicator, isRecommendationOrder, sortKey } = useSortableTable(
+  const { sorted, handleSort, indicator, isRecommendationOrder, sortKey, columns } = useSortableTable(
     candidates, ws.writeDeskPutSortKey, ws.writeDeskPutSortDir as SortDir,
     (key, dir) => updateWorkspace({ writeDeskPutSortKey: key, writeDeskPutSortDir: dir }),
   );
@@ -1249,7 +1249,7 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
   const displayed = filtered.slice(0, showCount);
 
   const ws = loadWorkspace();
-  const { sorted, handleSort, indicator, isRecommendationOrder, sortKey } = useSortableTable(
+  const { sorted, handleSort, indicator, isRecommendationOrder, sortKey, columns } = useSortableTable(
     displayed, ws.writeDeskBuyWriteSortKey, ws.writeDeskBuyWriteSortDir as SortDir,
     (key, dir) => updateWorkspace({ writeDeskBuyWriteSortKey: key, writeDeskBuyWriteSortDir: dir }),
   );
