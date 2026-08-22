@@ -37,6 +37,7 @@ import { buildWriteIntent } from "../execution/write-intent";
 import type { PortfolioSnapshot } from "../write-desk/types";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import { useMultiColumnSort } from "../write-desk/use-multi-column-sort";
+import { downloadTableCsv } from "../write-desk/table-csv-export";
 import { useSectionOrder } from "../hooks/useSectionOrder";
 import "../write-desk.css";
 import "../recommendation-brief.css";
@@ -924,6 +925,18 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
         ))}
       </tbody>
     </table>
+    <button className="wd-download-btn" onClick={() => downloadTableCsv(
+      sorted as Record<string, unknown>[],
+      [
+        { key: "rank", label: "#" }, { key: "symbol", label: "Symbol" }, { key: "expiration", label: "Exp" },
+        { key: "dte", label: "DTE" }, { key: "strike", label: "Strike" }, { key: "delta", label: "Delta" },
+        { key: "bid", label: "Bid" }, { key: "ask", label: "Ask" }, { key: "spreadPercent", label: "Spread%" },
+        { key: "openInterest", label: "OI" }, { key: "yieldAnnualized", label: "Yield%" },
+        { key: "cashRequired", label: "Cash Req" }, { key: "cashRemaining", label: "Remaining" },
+        { key: "assessment", label: "Exec" }, { key: "posture", label: "Posture" },
+      ],
+      `wheelwright-puts-${new Date().toISOString().slice(0, 10)}.csv`
+    )} title="Download as CSV">⬇ CSV</button>
     </>
   );
 }
@@ -940,10 +953,11 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
   const selectedStrike = selectedRow?.availability === "available-now" ? selectedRow.strike : null;
 
   return (
+    <>
     <table className="wd-candidate-table">
       <thead>
         <tr>
-          <th className="wd-sortable" onClick={(e) => handleSort("rank", e)}>#{ indicator("rank")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("rank", e)}>#{indicator("rank")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("symbol", e)}>Symbol{indicator("symbol")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("expiration", e)}>Exp{indicator("expiration")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
@@ -988,6 +1002,19 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
         ))}
       </tbody>
     </table>
+    <button className="wd-download-btn" onClick={() => downloadTableCsv(
+      sorted as Record<string, unknown>[],
+      [
+        { key: "rank", label: "#" }, { key: "symbol", label: "Symbol" }, { key: "expiration", label: "Exp" },
+        { key: "dte", label: "DTE" }, { key: "strike", label: "Strike" }, { key: "delta", label: "Delta" },
+        { key: "bid", label: "Bid" }, { key: "ask", label: "Ask" }, { key: "spreadPercent", label: "Spread%" },
+        { key: "openInterest", label: "OI" }, { key: "yieldAnnualized", label: "Yield%" },
+        { key: "freeShares", label: "Shares" }, { key: "maxContracts", label: "Cts" },
+        { key: "assessment", label: "Exec" }, { key: "posture", label: "Posture" },
+      ],
+      `wheelwright-calls-${new Date().toISOString().slice(0, 10)}.csv`
+    )} title="Download as CSV">⬇ CSV</button>
+    </>
   );
 }
 
@@ -1346,6 +1373,19 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
           ))}
         </tbody>
       </table>
+      <button className="wd-download-btn" onClick={() => downloadTableCsv(
+        sorted as Record<string, unknown>[],
+        [
+          { key: "rank", label: "#" }, { key: "symbol", label: "Symbol" }, { key: "underlyingPrice", label: "Price" },
+          { key: "expiration", label: "Exp" }, { key: "dte", label: "DTE" }, { key: "strike", label: "Strike" },
+          { key: "delta", label: "Delta" }, { key: "bid", label: "Bid" }, { key: "ask", label: "Ask" },
+          { key: "spreadPercent", label: "Spread%" }, { key: "openInterest", label: "OI" },
+          { key: "premiumYieldAnnualized", label: "Yield%" }, { key: "appreciationPerShare", label: "Apprec" },
+          { key: "totalReturnIfCalledPercent", label: "If Called%" }, { key: "capitalRequired", label: "Capital" },
+          { key: "cashRemaining", label: "Remaining" }, { key: "assessment", label: "Exec" }, { key: "posture", label: "Posture" },
+        ],
+        `wheelwright-buy-writes-${new Date().toISOString().slice(0, 10)}.csv`
+      )} title="Download as CSV">⬇ CSV</button>
     </>
   );
 }
@@ -1358,6 +1398,7 @@ function ContingentCallTable({ rows, selectedRow, onSelect }: { rows: Contingent
     : null;
 
   return (
+    <>
     <table className="wd-candidate-table wd-contingent-table">
       <thead>
         <tr>
@@ -1405,6 +1446,18 @@ function ContingentCallTable({ rows, selectedRow, onSelect }: { rows: Contingent
         })}
       </tbody>
     </table>
+    <button className="wd-download-btn" onClick={() => downloadTableCsv(
+      rows as unknown as Record<string, unknown>[],
+      [
+        { key: "symbol", label: "Symbol" }, { key: "expiration", label: "Call Exp" },
+        { key: "dte", label: "DTE" }, { key: "strike", label: "Strike" }, { key: "delta", label: "Delta" },
+        { key: "bid", label: "Bid" }, { key: "ask", label: "Ask" }, { key: "spreadPercent", label: "Spread%" },
+        { key: "openInterest", label: "OI" }, { key: "yieldFromBasis", label: "Yield(basis)" },
+        { key: "conditionedBasis", label: "Basis" },
+      ],
+      `wheelwright-contingent-calls-${new Date().toISOString().slice(0, 10)}.csv`
+    )} title="Download as CSV">⬇ CSV</button>
+    </>
   );
 }
 
