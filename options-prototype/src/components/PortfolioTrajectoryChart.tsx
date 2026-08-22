@@ -66,7 +66,8 @@ export function PortfolioTrajectoryChart({ capitalContext, tierReadiness, tierEr
     return derivation?.portfolioCapital ?? null;
   }, [snapshot]);
 
-  const history = useMemo(() => loadHistory(), [snapshot]);
+  // Load history — re-read whenever snapshot changes (new observation may have been recorded)
+  const history = useMemo(() => loadHistory(), [currentPC]);
   const filteredHistory = useMemo(
     () => filterByRange(history, timeRange),
     [history, timeRange],
