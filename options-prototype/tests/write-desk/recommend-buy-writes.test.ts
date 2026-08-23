@@ -768,22 +768,21 @@ describe("recommendBuyWrites evidence coherence", () => {
     //            The actual coherence enforcement happens at merge time, not query time.
     //            This test documents the failure mode — the merge-time fix prevents it.
 
-    // With both chains present, the engine evaluates both (this is the pre-fix behavior).
-    // We expect a candidate to be produced (from whichever expiration wins).
-    expect(result.candidates.length).toBe(1);
+    // With both chains present, the engine evaluates both and emits one candidate per expiration.
+    // Both expirations have valid candidates so both appear in the output.
+    expect(result.candidates.length).toBe(2);
 
-    // The candidate will come from Aug 21 (higher Pv0 due to DTE amplification).
-    // This demonstrates the coherence failure the merge-time fix prevents.
-    // After the fix, the merge would have deleted the Aug 21 record before
-    // the recommendation engine runs, so only Sep 4 would be available.
-    if (result.candidates[0].expiration === "2026-08-21") {
-      // This proves the incoherence: stale data from a non-primary expiration won.
-      // The merge-time deletion fix prevents this scenario in production.
-      expect(result.candidates[0].dte).toBe(9);
-    } else {
-      // If somehow Sep 4 wins, that's also acceptable (means Pv0 favored it)
-      expect(result.candidates[0].expiration).toBe("2026-09-04");
-    }
+    // Verify both expirations are present
+    const exps = result.candidates.map(c => c.expiration).sort();
+    expect(exps).toEqual(["2026-08-21", "2026-09-04"]);
+
+    // The Aug 21 candidate will have higher Pv0 due to DTE amplification.
+    // This demonstrates the coherence failure the merge-time fix prevents:
+    // without merge-time deletion, stale data from a non-primary expiration
+    // would appear alongside valid data. The merge-time fix prevents this in production.
+    const aug21 = result.candidates.find(c => c.expiration === "2026-08-21");
+    expect(aug21).toBeDefined();
+    expect(aug21!.dte).toBe(9);
   });
 
   it("after stale chain is deleted, only the authoritative expiration produces candidates", async () => {

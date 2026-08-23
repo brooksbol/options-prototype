@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html><body>
+<script>
+localStorage.setItem('wheelwright:portfolio-capital:history', '[{"timestamp":"2026-07-10T17:48:11.427Z","value":120074.93},{"timestamp":"2026-07-14T15:12:48.508Z","value":121484.38},{"timestamp":"2026-07-15T14:40:13.570Z","value":122543.9},{"timestamp":"2026-07-16T01:41:49.064Z","value":122616.95},{"timestamp":"2026-07-21T15:13:23.964Z","value":123841.92},{"timestamp":"2026-07-27T04:05:16.791Z","value":126060.39},{"timestamp":"2026-07-29T14:57:57.018Z","value":122992.36},{"timestamp":"2026-08-03T15:43:30.534Z","value":123015.99},{"timestamp":"2026-08-10T04:29:36.655Z","value":122491.94},{"timestamp":"2026-08-11T13:32:00.550Z","value":118459.14},{"timestamp":"2026-08-12T19:55:23.553Z","value":118776.33},{"timestamp":"2026-08-13T19:54:24.465Z","value":118919.59},{"timestamp":"2026-08-17T14:52:49.348Z","value":120666.91},{"timestamp":"2026-08-18T19:21:27.707Z","value":118960.23},{"timestamp":"2026-08-20T18:06:39.776Z","value":120855.24},{"timestamp":"2026-08-21T18:02:39.765Z","value":121340.47}]');
+document.getElementById('status').textContent = 'Done! History seeded with ' + JSON.parse(localStorage.getItem('wheelwright:portfolio-capital:history')).length + ' observations. Redirecting...';
+setTimeout(function() { window.location.href = 'http://localhost:5173'; }, 1500);
+</script>
+<p id="status">Seeding trajectory history...</p>
+</body></html>

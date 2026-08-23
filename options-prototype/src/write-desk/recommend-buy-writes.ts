@@ -253,16 +253,19 @@ export async function recommendBuyWrites(
       continue;
     }
 
-    // Evaluate call chains
-    let bestCandidate: BuyWriteCandidate | null = null;
-    let bestWait: BuyWriteCandidate | null = null;
+    // Evaluate call chains — one best candidate per eligible expiration
     let instrumentName: string | null = null;
     let symbolFoundChain = false;
     let symbolHadContractsInRange = false;
     let symbolAllHardNo = true;
     let symbolHardNoType: "zeroBid" | "zeroOI" | "wideSpread" | null = null;
-    let bestWideSpread: BuyWriteCandidate | null = null;
     let symbolHadEligibleButNoFit = false;
+    let symbolProducedCandidate = false;
+
+    // Collect per-expiration candidates before governance (applied once per symbol)
+    const symbolCandidates: BuyWriteCandidate[] = [];
+    const symbolWaitCandidates: BuyWriteCandidate[] = [];
+    const symbolWideSpreadCandidates: BuyWriteCandidate[] = [];
 
     for (const exp of eligibleExps) {
       interface CachedChain {
@@ -348,50 +351,50 @@ export async function recommendBuyWrites(
             symbolHardNoType = "wideSpread";
           }
         }
-        // Collect best wide-spread candidate (spread-only hard-no, bid > 0 and OI > 0)
-        for (const hn of hardNoContracts) {
-          if (hn.contract.bid > 0 && hn.contract.openInterest > 0) {
-            const wsEconomics = computeBuyWriteEconomics(underlyingPrice, hn.contract.strike, hn.mid, exp.dte);
-            const wsCandidate: BuyWriteCandidate = {
-              rank: 0,
-              symbol,
-              expiration: exp.date,
-              dte: exp.dte,
-              strike: hn.contract.strike,
-              delta: hn.contract.delta,
-              bid: hn.contract.bid,
-              ask: hn.contract.ask,
-              mid: hn.mid,
-              spreadPercent: hn.spreadPct,
-              openInterest: hn.contract.openInterest,
-              volume: hn.contract.volume,
-              underlyingPrice,
-              capitalRequired,
-              cashRemaining,
-              premiumYieldAnnualized: wsEconomics.premiumYieldAnnualized,
-              totalReturnIfAssignedAnnualized: wsEconomics.totalReturnIfAssignedAnnualized,
-              totalReturnIfCalledPercent: wsEconomics.totalReturnIfCalledPercent,
-              strikeAbovePrice: wsEconomics.strikeAbovePrice,
-              appreciationPerShare: wsEconomics.appreciationPerShare,
-              economics: wsEconomics,
-              assessment: { score: 0, posture: "WIDE_SPREAD", components: [], hardNoReason: hn.reason, policyVersion: policy.executionAssessment.version },
-              posture: "WIDE_SPREAD" as any,
-              affordable,
-              governance: { status: "authorized", reason: "" },
-              premiumShare: 0,
-              appreciationShare: 0,
-              eligibleStrikeCount: 0,
-              evaluatedDeltaMin: 0,
-              evaluatedDeltaMax: 0,
-              selectionPv0: 0,
-              fullCycleHarvest: 0,
-              maxFCH: 0,
-              fchSacrificePercent: 0,
-            };
-            if (!bestWideSpread || hn.spreadPct < bestWideSpread.spreadPercent) {
-              bestWideSpread = wsCandidate;
-            }
-          }
+        // Collect best wide-spread candidate for this expiration (spread-only hard-no, bid > 0 and OI > 0)
+        const wsCandidatesForExp = hardNoContracts
+          .filter(hn => hn.contract.bid > 0 && hn.contract.openInterest > 0)
+          .sort((a, b) => a.spreadPct - b.spreadPct);
+        if (wsCandidatesForExp.length > 0) {
+          const hn = wsCandidatesForExp[0];
+          const wsEconomics = computeBuyWriteEconomics(underlyingPrice, hn.contract.strike, hn.mid, exp.dte);
+          const wsCandidate: BuyWriteCandidate = {
+            rank: 0,
+            symbol,
+            expiration: exp.date,
+            dte: exp.dte,
+            strike: hn.contract.strike,
+            delta: hn.contract.delta,
+            bid: hn.contract.bid,
+            ask: hn.contract.ask,
+            mid: hn.mid,
+            spreadPercent: hn.spreadPct,
+            openInterest: hn.contract.openInterest,
+            volume: hn.contract.volume,
+            underlyingPrice,
+            capitalRequired,
+            cashRemaining,
+            premiumYieldAnnualized: wsEconomics.premiumYieldAnnualized,
+            totalReturnIfAssignedAnnualized: wsEconomics.totalReturnIfAssignedAnnualized,
+            totalReturnIfCalledPercent: wsEconomics.totalReturnIfCalledPercent,
+            strikeAbovePrice: wsEconomics.strikeAbovePrice,
+            appreciationPerShare: wsEconomics.appreciationPerShare,
+            economics: wsEconomics,
+            assessment: { score: 0, posture: "WIDE_SPREAD", components: [], hardNoReason: hn.reason, policyVersion: policy.executionAssessment.version },
+            posture: "WIDE_SPREAD" as any,
+            affordable,
+            governance: { status: "authorized", reason: "" },
+            premiumShare: 0,
+            appreciationShare: 0,
+            eligibleStrikeCount: 0,
+            evaluatedDeltaMin: 0,
+            evaluatedDeltaMax: 0,
+            selectionPv0: 0,
+            fullCycleHarvest: 0,
+            maxFCH: 0,
+            fchSacrificePercent: 0,
+          };
+          symbolWideSpreadCandidates.push(wsCandidate);
         }
         continue;
       }
@@ -549,18 +552,16 @@ export async function recommendBuyWrites(
         fchSacrificePercent: maxFCH > 0 ? ((maxFCH - expWinner.fullCycleHarvest) / maxFCH) * 100 : 0,
       };
 
+      // Emit the best candidate for this expiration directly (no cross-expiration collapse)
       if (assessment.posture === "ACTIONABLE" || assessment.posture === "EDGE") {
-        if (!bestCandidate || expWinner.fullCycleHarvest > (bestCandidate.fullCycleHarvest ?? 0)) {
-          bestCandidate = candidate;
-        }
+        symbolCandidates.push(candidate);
       } else if (assessment.posture === "WAIT") {
-        if (!bestWait || expWinner.fullCycleHarvest > (bestWait.fullCycleHarvest ?? 0)) {
-          bestWait = candidate;
-        }
+        symbolWaitCandidates.push(candidate);
       }
+      symbolProducedCandidate = true;
     }
 
-    // Resolve governance (same pattern as puts)
+    // Resolve governance (same pattern as puts) — applied once per symbol
     const catalogRecord = lookupCatalog(symbol);
     let governance: GovernanceAnnotation;
 
@@ -585,21 +586,29 @@ export async function recommendBuyWrites(
       }
     }
 
-    const best = bestCandidate ?? bestWait;
-    if (best) {
-      best.governance = governance;
-      if (best.posture === "ACTIONABLE" || best.posture === "EDGE") {
-        allCandidates.push(best);
-        if (best.posture === "ACTIONABLE") outcomeActionable++;
-        else outcomeEdge++;
-      } else {
-        allWait.push(best);
-        outcomeWait++;
+    // Emit all per-expiration candidates with governance applied
+    if (symbolCandidates.length > 0 || symbolWaitCandidates.length > 0) {
+      for (const c of symbolCandidates) {
+        c.governance = governance;
+        allCandidates.push(c);
       }
-    } else if (bestWideSpread) {
-      // No normal candidate but a wide-spread candidate exists — preserve for inspection
-      bestWideSpread.governance = governance;
-      allWideSpread.push(bestWideSpread);
+      for (const c of symbolWaitCandidates) {
+        c.governance = governance;
+        allWait.push(c);
+      }
+      // Outcome counters: per-symbol (for distribution bar funnel)
+      // A symbol counts once in the highest-posture tier it achieved
+      const hasActionable = symbolCandidates.some(c => c.posture === "ACTIONABLE");
+      const hasEdge = symbolCandidates.some(c => c.posture === "EDGE");
+      if (hasActionable) outcomeActionable++;
+      else if (hasEdge) outcomeEdge++;
+      else outcomeWait++;
+    } else if (symbolWideSpreadCandidates.length > 0) {
+      // No normal candidate at any expiration but wide-spread candidates exist
+      for (const c of symbolWideSpreadCandidates) {
+        c.governance = governance;
+        allWideSpread.push(c);
+      }
       outcomeHardNoWideSpread++;
     } else {
       // Determine why no candidate was produced
@@ -630,13 +639,19 @@ export async function recommendBuyWrites(
   const ranked = rankBuyWriteCandidates(allCandidates, policy.ranking.mode);
   const rankedWait = rankBuyWriteCandidates(allWait, policy.ranking.mode);
 
+  // Count unique symbols that contributed at least one candidate
+  const symbolsWithCands = new Set([
+    ...ranked.map(c => c.symbol),
+    ...rankedWait.map(c => c.symbol),
+  ]).size;
+
   return {
     candidates: ranked,
     waitCandidates: rankedWait,
     wideSpreadCandidates: allWideSpread,
     excluded,
     universeSize: symbols.length,
-    symbolsWithCandidates: ranked.length + rankedWait.length,
+    symbolsWithCandidates: symbolsWithCands,
     outcomes: {
       actionable: outcomeActionable,
       edge: outcomeEdge,
