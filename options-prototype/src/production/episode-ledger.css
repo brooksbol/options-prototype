@@ -1,0 +1,221 @@
+/**
+ * Episode Ledger — PL-PROD-EVENTS V2
+ *
+ * Density reference: Fidelity Options Summary
+ * Principle: high information-per-pixel
+ * Target: typical month scannable in one viewport at 100% zoom
+ */
+@import "../theme-tokens.css";
+
+.ep-ledger {
+  padding: 4px 8px;
+}
+
+/* --- Table --- */
+
+.ep-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Column sizing */
+.ep-col-date { width: 52px; }
+.ep-col-prim { width: 80px; }
+.ep-col-what { width: auto; }
+.ep-col-prod { width: 130px; }
+.ep-col-cap { width: 130px; }
+.ep-col-link { width: 80px; }
+.ep-col-disc { width: 20px; }
+
+/* Header */
+.ep-table thead th {
+  text-align: left;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--wd-text-disabled);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 4px 3px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  background: inherit;
+  z-index: 1;
+}
+
+/* --- Rows --- */
+
+.ep-row {
+  cursor: pointer;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.ep-row:hover {
+  background: var(--wd-bg-hover);
+}
+
+.ep-row-expanded {
+  background: var(--wd-bg-raised);
+}
+
+.ep-row td {
+  padding: 2px 4px 2px 0;
+  vertical-align: baseline;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* In-flight rows: subtle highlight */
+.ep-row-in_flight {
+  background: rgba(29, 78, 216, 0.02);
+}
+
+/* --- Cell styles --- */
+
+.ep-cell-date {
+  color: var(--wd-text-secondary);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.ep-cell-prim {
+  font-weight: 500;
+}
+
+.ep-prim {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0 3px;
+  border-radius: 2px;
+  vertical-align: baseline;
+}
+
+.ep-prim-csp {
+  color: var(--wd-accent-green-dim);
+  background: var(--wd-accent-green-bg);
+}
+
+.ep-prim-bw {
+  color: #6b21a8;
+  background: rgba(107, 33, 168, 0.06);
+}
+
+.ep-prim-cc {
+  color: var(--wd-accent-blue);
+  background: var(--wd-accent-blue-bg);
+}
+
+.ep-prim-call {
+  color: var(--wd-accent-blue);
+  background: var(--wd-accent-blue-bg);
+}
+
+.ep-prim-put {
+  color: var(--wd-accent-green-dim);
+  background: var(--wd-accent-green-bg);
+}
+
+.ep-underlying {
+  color: var(--wd-text-primary);
+  font-weight: 500;
+  font-size: 11px;
+}
+
+.ep-cell-what {
+  color: var(--wd-text-primary);
+}
+
+.ep-cell-prod {
+  color: var(--wd-accent-green-dim);
+  font-weight: 500;
+}
+
+.ep-cell-prod.ep-neg {
+  color: var(--wd-accent-red);
+}
+
+.ep-cell-cap {
+  color: var(--wd-text-secondary);
+  font-size: 10px;
+}
+
+.ep-cell-link {
+  font-size: 10px;
+  color: var(--wd-text-disabled);
+}
+
+.ep-link {
+  white-space: nowrap;
+}
+
+.ep-cell-disc {
+  text-align: center;
+}
+
+.ep-disc-btn {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--wd-text-disabled);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.ep-disc-btn:hover {
+  background: var(--wd-bg-hover);
+  color: var(--wd-text-primary);
+}
+
+/* --- Detail row --- */
+
+.ep-detail-row td {
+  padding: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ep-detail {
+  padding: 3px 4px 4px 56px;
+  font-size: 10px;
+  color: var(--wd-text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ep-detail-line {
+  display: flex;
+  gap: 8px;
+}
+
+.ep-detail-key {
+  min-width: 65px;
+  font-weight: 600;
+  color: var(--wd-text-disabled);
+}
+
+.ep-detail-val {
+  color: var(--wd-text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ep-detail-tx {
+  display: block;
+  font-size: 9px;
+  color: var(--wd-text-disabled);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 500px;
+}

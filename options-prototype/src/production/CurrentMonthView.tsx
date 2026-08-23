@@ -22,7 +22,7 @@ import { useObservations } from "../evidence/use-observations";
 import { deriveMonitoredPositions, groupByExpiration } from "../portfolio/position-monitoring";
 import { deriveCurrentMonthProduction, type CurrentMonthProductionSummary, type InFlightPosition } from "./current-month-production";
 import type { ProductionAssessmentResponse } from "./production-types";
-import { EconomicEventsPanel } from "./EconomicEventsPanel";
+import { EpisodeLedger } from "./EpisodeLedger";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import { classifyAllPositions } from "../forecast/resolution-outlook";
 import { deriveProductionOutlook, type ProductionOutlook } from "../forecast/production-outlook";
@@ -30,6 +30,7 @@ import { recordOutlookObservations } from "../forecast/outlook-observations";
 import { deriveProspectiveDeployment, type ProspectiveDeploymentOutlook } from "../forecast/prospective-deployment";
 import { getActivityRows } from "../portfolio/portfolio-store";
 import "../components/position-detail-modal.css";
+import "./episode-ledger.css";
 
 /**
  * Canonical recognized Production source taxonomy.
@@ -53,6 +54,12 @@ interface Props {
 export function CurrentMonthView({ assessment }: Props) {
   const { snapshot } = usePortfolio();
   const observations = useObservations();
+
+  // Current month key for episode ledger
+  const currentMonthKey = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  }, []);
 
   // Mission target — first Situation Architecture primitive
   const [missionTarget, setMissionTarget] = useState<number | null>(() => loadWorkspace().missionTarget);
@@ -479,10 +486,13 @@ export function CurrentMonthView({ assessment }: Props) {
           </section>
         )}
 
-        {/* Economic Events — chronological ledger (PL-PROD-EVENTS experiment) */}
-        {assessment && assessment.transactions.length > 0 && (
-          <EconomicEventsPanel transactions={assessment.transactions} />
-        )}
+        {/* Episode Ledger — V2 chronological wheel activity (PL-PROD-EVENTS) */}
+        <EpisodeLedger
+          activityRows={getActivityRows()}
+          snapshot={snapshot}
+          assessment={assessment}
+          targetMonth={currentMonthKey}
+        />
       </div>
     </div>
   );
