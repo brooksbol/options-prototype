@@ -22,6 +22,7 @@ import { useObservations } from "../evidence/use-observations";
 import { deriveMonitoredPositions, groupByExpiration } from "../portfolio/position-monitoring";
 import { deriveCurrentMonthProduction, type CurrentMonthProductionSummary, type InFlightPosition } from "./current-month-production";
 import type { ProductionAssessmentResponse } from "./production-types";
+import { EconomicEventsPanel } from "./EconomicEventsPanel";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import { classifyAllPositions } from "../forecast/resolution-outlook";
 import { deriveProductionOutlook, type ProductionOutlook } from "../forecast/production-outlook";
@@ -451,31 +452,38 @@ export function CurrentMonthView({ assessment }: Props) {
         </section>
       </div>
 
-      {/* === RIGHT COLUMN: In-Flight Positions === */}
-      {summary.inFlightPositions.length > 0 && (
-        <section className="prod-current-inflight">
-          <h3 className="prod-section-title">In-Flight Positions</h3>
-          <table className="prod-inflight-table">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Symbol</th>
-                <th>Strike</th>
-                <th>Exp</th>
-                <th>DTE</th>
-                <th>Qty</th>
-                <th>Premium</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {summary.inFlightPositions.map((pos, i) => (
-                <InFlightRow key={i} position={pos} />
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )}
+      {/* === RIGHT COLUMN: In-Flight Positions + Economic Events === */}
+      <div className="prod-current-right">
+        {summary.inFlightPositions.length > 0 && (
+          <section className="prod-current-inflight">
+            <h3 className="prod-section-title">In-Flight Positions</h3>
+            <table className="prod-inflight-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Symbol</th>
+                  <th>Strike</th>
+                  <th>Exp</th>
+                  <th>DTE</th>
+                  <th>Qty</th>
+                  <th>Premium</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {summary.inFlightPositions.map((pos, i) => (
+                  <InFlightRow key={i} position={pos} />
+                ))}
+              </tbody>
+            </table>
+          </section>
+        )}
+
+        {/* Economic Events — chronological ledger (PL-PROD-EVENTS experiment) */}
+        {assessment && assessment.transactions.length > 0 && (
+          <EconomicEventsPanel transactions={assessment.transactions} />
+        )}
+      </div>
     </div>
   );
 }

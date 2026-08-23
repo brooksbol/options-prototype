@@ -9812,3 +9812,103 @@ That needs to be answered before deciding temporal basis, accounting scope, or i
 Discovery checkpoint preserved. No implementation. No canonical architecture changes. No new parking-lot item (PL-PROD-VALUE already owns this). No commit authorized beyond this journal entry.
 
 Next step: empirical reconciliation exercise when the operator next has two temporally separated Balances CSVs and corresponding Activity History.
+
+
+---
+
+## 2026-08-22 — PL-PROD-EVENTS: Production Economic Event Ledger — Thin-Slice Experiment
+
+### Experimental question
+
+"Can the operator understand what economically meaningful things happened this month without reading the Fidelity CSV, while every displayed statement remains traceable to authoritative evidence?"
+
+### Answer
+
+Yes — with a clear ceiling. The experiment succeeded as a concept validation and exposed the next semantic boundary (lifecycle reconstruction) through direct observation rather than architectural hypothesis.
+
+### What was built (V1 — committed)
+
+A chronological Economic Events panel within the Production current-month view, derived entirely from existing `ProductionAssessmentResponse.transactions[]` — no new backend architecture, no persistence, no event store. Pure frontend presentation derivation from authoritative backend evidence.
+
+Implementation: `EconomicEventsPanel.tsx` integrated into `CurrentMonthView.tsx`, positioned below In-Flight Positions in the right column.
+
+### Experimental evolution (the reasoning path)
+
+This sequence is arguably more valuable than the V1 code itself — without it, a future cold start could easily rediscover "events table" and repeat the same experiment.
+
+1. **Raw transactions → economic events.** The initial hypothesis: filter `AssessedTransaction[]` to economically meaningful entries (INCLUDED role + UNCERTAIN), present chronologically. Implemented with date grouping, daily net calculation, per-component event derivation.
+
+2. **Events still felt like "a list of stuff."** First live observation revealed: raw OCC symbols (`-WEAT260821C25`) made the ledger unreadable; generic "Assigned"/"Expired" labels were ambiguous; gross disposition proceeds ($2,499.94) in the Amount column implied those were the economic result rather than unresolved cash flow; daily net added little value.
+
+3. **Semantic compression pass.** Corrected: operator-facing instrument identity (`WEAT · $25 Call`); economically meaningful lifecycle labels (`Called Away`, `Put Assigned`, `Put Expired`, `Call Expired`) derived from OCC symbol C/P indicator; unresolved dispositions shown amountless ("Disposition — economics unresolved"); daily net removed. This was the critical insight: the ledger is doing *semantic compression*, not CSV prettification.
+
+4. **The lifecycle boundary appeared naturally.** The corrected ledger could show "WEAT was called away" and separately "DBO was called away" but could NOT say "WEAT called away, cycle +$84.28" because that requires connecting the original put premium → assignment → shares → covered call → call-away across multiple transactions and potentially multiple months. This is precisely PL-PORT-02's lifecycle reconstruction work — now supported by observed evidence rather than architectural hypothesis.
+
+5. **Operator actually needs chronological wheel meaning.** The ledger answers "what happened" but the operator need is stronger: "how did wheel activity get the portfolio to today?" This requires: production/result per event, capital consequences (encumbered/released/deployed), episode awareness (linked partial/completed cycles), and conditional forward references ("if called, +$X more"). None of these are achievable without lifecycle reconstruction.
+
+6. **Dense one-line chronology with optional detail.** The final insight: Fidelity's Option Summary density is the right visual reference. Each event should be one compact row answering the quick-read story. Progressive disclosure (+) owns provenance/calculation/detail. High information-per-pixel is the principle. Density is a requirement, not an optimization.
+
+### Key architectural finding
+
+**Production recognition is period-scoped. Economic events are not.**
+
+An option sold in July whose collateral releases via August expiration is an economically meaningful August event despite contributing $0 to August Production. The ledger describes state transitions, some of which have zero production impact but significant capital consequences.
+
+### What V1 validated
+
+- Atomic economic events can be derived from existing `ProductionAssessor` evidence without new backend work
+- The distinction between "event ledger" and "Fidelity transaction history" survives implementation (semantic compression works)
+- Operator-facing instrument identity and lifecycle labels are derivable from OCC symbol parsing alone
+- Lifecycle notifications (expirations, assignments) should stand independently regardless of same-period production
+- The event panel belongs in the Production surface, positioned after In-Flight Positions
+
+### What V1 could not represent (observed pressure for PL-PORT-02)
+
+- Compound lifecycle narratives: "put sold → assigned → covered call → called away" as one story
+- Episode economics: "net lifecycle result = premium − erosion + appreciation"
+- Capital consequences: "collateral encumbered" / "collateral released" / "capital deployed"
+- Cross-month lifecycle continuity: premium recognized in July, resolution in August
+- Conditional forward economics: "if assigned, cost basis = $X"
+- Strategy primitive identification: "EWY CSP" vs "GDXJ BW" (needs enrichment beyond what transaction classification provides)
+
+### V2 design direction (findings, not ratified architecture)
+
+Discovered through live observation against the August fixture (PSI, DBO, WEAT, EWY, CORN, REMX, AIQ, GSG, GDXJ, etc.):
+
+1. One collapsed line tells the quick-read economic story per event
+2. Strict chronological ordering; episodes reference earlier/later dates, never group under opening date
+3. Show production/result AND capital consequence without operator arithmetic
+4. Open episodes may show deterministic conditional economics ("if called, +$X more")
+5. `+` progressive disclosure owns provenance/calculation/detail — collapsed row only answers the operator question
+6. Fidelity-style high information-per-pixel as explicit density requirement
+7. Typical month substantially scannable in one desktop viewport at 100% zoom
+8. V2 likely crosses into PL-PORT-02 lifecycle reconstruction — requires deliberate design before implementation
+
+V2 is a fresh design pass, not an incremental mutation of V1's `EconomicEventsPanel`.
+
+### Conceptual row examples (desired V2 semantics, not ratified schema)
+
+```
+AUG 07 | EWY CSP   | Opened              | +$X produced      | $15,000 encumbered | → AUG 21 | +
+AUG 21 | EWY CSP   | Put expired · done  | +$X episode       | $15,000 released   | —        | +
+AUG 20 | GDXJ BW   | Opened              | +$637 produced    | $12,845 deployed   | → SEP 11 | +
+AUG 21 | DBO BW    | Called away · done   | +$136 episode     | $2,200 released    | —        | +
+```
+
+### Layout/UX findings
+
+- The Production surface uses a two-column CSS grid bounded to viewport height with independent column scrolling
+- The right column needed `grid-template-rows: minmax(0, 1fr)` and `min-height: 0` on children for `overflow-y: auto` to activate (CSS grid/flex items default to `min-height: auto`)
+- Gap-as-border pattern on the right column created visual inconsistency — replaced with unified raised background
+- Duplicate `overflow: hidden` on the grid container was cleaned up
+
+### Files changed
+
+- `options-prototype/src/production/EconomicEventsPanel.tsx` — new component
+- `options-prototype/src/production/CurrentMonthView.tsx` — integration
+- `options-prototype/src/production/production.css` — layout + events styles
+- `docs/parking-lot.md` — PL-PROD-EVENTS added + V2 findings recorded
+
+### Status
+
+V1 committed as experimental checkpoint. V2 requires fresh design pass. No new backend architecture. No lifecycle reconstruction attempted. PL-PORT-02 lifecycle pressure now supported by observed evidence.
