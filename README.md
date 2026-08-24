@@ -56,6 +56,23 @@ The frontend proxies `/api/*` requests to the backend at `localhost:3100` automa
 - Node.js (via nvm)
 - `TRADIER_API_KEY` environment variable
 
+## Host Execution Requirement
+
+A Wheelwright evidence-service host must remain continuously executing during time-sensitive acquisition windows.
+
+The evidence service is an always-on appliance, not a tool invoked on demand. Its scheduler performs session-aware acquisition (Phase 1 expiration preparation, Phase 2 delay-window work, Phase 3 opening burst) according to market-session time boundaries. If the host suspends during these windows, scheduled work cannot fire and the operator arrives to find an unprepared board rather than mature evidence.
+
+**Local appliance (development laptop):**
+- System sleep during acquisition windows is not acceptable. Display sleep is fine.
+- macOS: enable "Prevent automatic sleeping on power adapter when the display is off" in System Settings → Energy. Alternatively, `caffeinate -s` provides process-bound sleep prevention.
+- Other hosts: equivalent mechanism to prevent OS suspension while the JVM is running.
+
+**Cloud appliance:**
+- Same invariant applies. Avoid scale-to-zero or platform suspension across acquisition windows.
+- The evidence service must execute continuously from at least 09:00 ET through 16:15 ET on trading days.
+
+**Diagnostic rule:** A running Wheelwright process does not prove continuous acquisition execution. If unexplained scheduler gaps are observed (e.g., expected work not performed on time), check host sleep/suspension history (`pmset -g log` on macOS) before diagnosing an application scheduling defect. Monday August 24, 2026 established this rule empirically: a 13-minute Phase 3 delay was caused entirely by macOS Maintenance Sleep, not by any Wheelwright defect.
+
 ---
 
 # Development Philosophy
