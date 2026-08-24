@@ -312,3 +312,36 @@ For strategically specific capabilities: build, own, and maintain.
 For commodity capabilities: survey existing mature options before expanding bespoke implementation. Adopt when quality, maintenance, bundle size, license, API stability, and architectural fit are acceptable.
 
 This is not a dependency approval process. It is engineering judgment applied at the appropriate moment.
+
+
+---
+
+## Experimental Record Discipline
+
+Engineering and product experiments are especially valuable project memory because the result alone is insufficient for future reasoning. We need the question, prior expectation, experimental conditions, observations, falsified hypotheses, confounders, interpretation, and next experiment. Otherwise the repository tells us what the code does but not why we trust it — or why we rejected an apparently reasonable alternative.
+
+### Practice
+
+Meaningful engineering/product experiments should be durably recorded in GitHub project memory, preferably contemporaneously:
+
+1. **Record the experimental question and design before or during execution** — not after seeing the result. This prevents unconscious revision of what we thought would happen.
+
+2. **Do not rewrite predictions after seeing results.** A falsified prediction is valuable precisely because it was wrong. Monday's incorrect two-minute capacity model teaches more than a retrospectively "correct" estimate would. Preserve failures intact.
+
+3. **Append observations, results, confounders, and conclusions** without modifying the original expectation or design section.
+
+4. **Distinguish observed facts from interpretation.** Facts are timestamps, counts, and measured durations. Interpretation is causal reasoning about those facts. Both are valuable; conflating them damages the record.
+
+5. **Record confounders explicitly.** An experiment that produces a clean negative result is more valuable than one where confounders prevent interpretation.
+
+6. **State what was not measured.** An unmeasured milestone (e.g., "boardUsableAt was not observed") is more honest than a fabricated timestamp. Record only what was actually observed.
+
+7. **Preserve successive observations as a series** rather than replacing earlier findings. Monday and Tuesday of the same experiment are two data points, not a rewrite.
+
+### Where to record
+
+The project journal (`docs/journal/project-journal.md`) is the natural home for experimental records. Design documents (like `docs/34-opening-relevant-evidence-experiment.md`) specify the hypothesis and protocol; the journal records what actually happened.
+
+### When to commit
+
+Experimental records should be committed to GitHub promptly so that cold-start reconstruction does not depend on conversation context, browser tabs, or session memory. A finding that exists only in a chat thread is not durable in the sense Wheelwright uses that word.

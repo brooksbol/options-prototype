@@ -9912,3 +9912,255 @@ AUG 21 | DBO BW    | Called away · done   | +$136 episode     | $2,200 released
 ### Status
 
 V1 committed as experimental checkpoint. V2 requires fresh design pass. No new backend architecture. No lifecycle reconstruction attempted. PL-PORT-02 lifecycle pressure now supported by observed evidence.
+
+---
+
+## 2026-08-24 — Opening-Relevant Evidence Experiment: First Live Observation
+
+### Context
+
+First live execution of the three-phase opening architecture (doc-34). The experiment tests whether preferentially acquiring evidence for a 60-symbol empirically-derived opening set materially advances decision readiness compared to undifferentiated Class A scheduling.
+
+### Observed Timeline (all timestamps UTC / Mountain / Eastern)
+
+| Event | UTC | MT | ET |
+|-------|-----|----|----|
+| Phase 1 start (EXPIRATIONS_ONLY) | ~13:00 | ~7:00 | ~9:00 |
+| All 1306 expirations refreshed | 13:32:22 | 7:32 | 9:32 |
+| Scheduler idle (expirations_satisfied) | ~13:32 | ~7:32 | ~9:32 |
+| Host enters sleep (macOS Maintenance Sleep) | 13:41 | 7:41 | 9:41 |
+| Phase 3 boundary (design: burst should start) | 13:45 | 7:45 | 9:45 |
+| DarkWake — scheduler fires briefly | 13:58 | 7:58 | 9:58 |
+| Opening burst start (recorded) | 13:58:44 | 7:58:44 | 9:58:44 |
+| Host re-sleeps | 13:59 | 7:59 | 9:59 |
+| User wakes machine | 14:05:07 | 8:05:07 | 10:05:07 |
+| Scheduler resumes | ~14:05 | ~8:05 | ~10:05 |
+| 50% hydration (30/60) | 14:07:47 | 8:07:47 | 10:07:47 |
+| 80% hydration (48/60) | 14:09:13 | 8:09:13 | 10:09:13 |
+| 100% hydration (60/60) | 14:10:19 | 8:10:19 | 10:10:19 |
+| Burst complete → normal A/B/C/D resumes | 14:10:19 | 8:10:19 | 10:10:19 |
+| Operator inspects Deployment surface | ~16:17 | ~10:17 | ~12:17 |
+
+### Mechanism Evidence (Machine-Observed)
+
+**Phase 1/2 (expirations-only):**
+- All 1306 universe symbols had expirations refreshed during Phases 1 and 2 (09:00–09:32 ET)
+- Opening-set symbols were prioritized first within the expirations-only phase
+- No chains or quotes acquired before Phase 3 (confirmed via SQLite evidence timestamps)
+- 149 acquisition cycles completed during the expirations-only window
+- The scheduler correctly entered idle polling (30s) after expirations were satisfied
+
+**Phase 3 (opening burst):**
+- Burst started at 13:58:44 UTC (recorded by telemetry)
+- 60/60 opening-set symbols reached current-session chain evidence at 14:10:19 UTC
+- Completion duration from burst start: **11 minutes 35 seconds**
+- 2 anti-starvation floor interruptions during burst
+- 482 total provider calls for the opening set across all phases
+- All dispatches during the burst were classified as Class C (lifecycle promotion from expirationsKnown → ready)
+
+**Post-burst steady state:**
+- Normal A/B/C/D scheduling resumed naturally (no manual transition)
+- Class A freshness maintained: 105/105 within 15-min target (checked at ~10:10 ET)
+- Class B: current, 0 due
+- Floor dispatches: B=0, CD=38 (healthy anti-starvation operation)
+- Zero failures throughout the entire session
+- By 10:50 ET: 496 ready, 662 expirationsKnown, 351 absent. Generation 13121.
+
+**Cycle timing (overhead analysis):**
+- Queue build: 49ms avg (EMA, 77 samples)
+- Classification: 29ms
+- Batch dispatch: 33,846ms avg (dominated by provider rate limit at 1.1s/call × 10 batch)
+- Publish: 0ms (coalesced)
+- Telemetry: 52ms
+- Post-cycle query: 62ms
+- Total overhead: 192ms per cycle
+
+### Finding #1: Phase 3 Start Delay — Environmental Confounder
+
+**Observation:** The opening burst started 13 minutes after the 09:45 ET boundary (at 09:58 instead of 09:45).
+
+**Evidence:** macOS `pmset -g log` shows:
+- `2026-08-24 07:41:24 -0600 Sleep` — Entering Maintenance Sleep (13:41 UTC, exactly when scheduler went idle)
+- `2026-08-24 07:58:21 -0600 DarkWake` — Brief maintenance wake (13:58 UTC, matches burst start)
+- `2026-08-24 07:59:06 -0600 Sleep` — Re-enters sleep
+- `2026-08-24 08:05:07 -0600 Wake` — UserActivity wake (14:05 UTC)
+
+**Conclusion:** The 13-minute delay is caused by the host machine sleeping. The JVM `ScheduledExecutorService` cannot fire while macOS is suspended. The scheduler correctly transitioned to FULL posture on the first available cycle after wake. **Not a Wheelwright defect.** This is an experimental-environment confounder.
+
+**Implication for future sessions:** Wheelwright must run on a machine that does not sleep during the observation window. The developer laptop is inadequate without power/sleep configuration changes.
+
+### Finding #2: Capacity Model Incorrect
+
+**Observation:** The design predicted ~120 provider calls (60 symbols × 2 calls each) completing in ~2 minutes. Actual: 482 calls completing in 11m35s.
+
+**Root cause:** The multi-expiration acquisition system (`acquireAllEligibleChains`) fetches chains for ALL eligible expirations in the 7–45 DTE window, not just the primary. SPY, for example, required 10 chain fetches (10 eligible weekly/monthly expirations). At the 0.9 req/sec pacer rate, 482 calls ÷ 54/min ≈ 8.9 minutes, plus overhead = 11.6 minutes. The math is actually correct for the actual call volume.
+
+**The design assumption error:** Doc-34 Section 5 estimated "2 calls (chain + quote)" per symbol. The multi-expiration surface acquisition (implemented after the doc was written) changed the per-symbol cost from 2 to 4–10+ depending on the symbol's expiration density.
+
+**Implication:** The opening burst architecture works as designed — the capacity model input was wrong. Fixing this requires either: (a) accepting the longer burst duration; (b) fetching only the primary chain during the opening burst and acquiring secondary expirations afterward; or (c) reducing the opening set size. This is an engineering decision, not a design failure.
+
+### Finding #3: Provenance Invariant — Investigated and Satisfied
+
+**Initial concern:** The frontend showed "60/60 fresh" while the backend showed more ready symbols, raising the question of whether backend "current" and frontend "admissible" could disagree.
+
+**Investigation:** End-to-end trace of SPY through all five provenance stages:
+1. SQLite: Today's chains correctly have `retrieved_at` from today and `session_date = '2026-08-24'`
+2. Chain payload: Does NOT contain its own `retrievedAt` (just normalized data)
+3. SnapshotBuilder: Publishes all chains with their row-level `retrieved_at`; old-session chains included but have expired expirations
+4. Frontend cache: Each chain is stored per-expiration with its `retrievedAt`; DTE-eligible expirations from today have today's timestamps
+5. Recommendation engine: DTE filter (7–45) excludes expired expirations; admissibility boundary (09:45 ET) accepts today's chains
+
+**Conclusion:** The invariant "When Wheelwright says chain evidence is current for session X, every downstream consumer must be able to identify that same chain evidence as current for session X using authoritative provenance" **is satisfied** for all DTE-eligible evidence. The initial appearance of a divergence was caused by `getAllChains()` returning historical chains for expired expirations that the recommendation engine's DTE filter correctly excludes.
+
+**The "60/60 fresh" observation:** Was a timing artifact — the frontend's 30-second snapshot poll had not yet received the newer generation with additional ready symbols. Not a provenance defect.
+
+### Operator Observation (Qualitative)
+
+**Timestamp:** ~10:17 AM MT / 12:17 PM ET (approximately 2½ hours after market open)
+
+**Assessment:** The Deployment surface (Write Desk, buy-writes view) is populated and decision-useful. 200+ actionable candidates across ~50 distinct symbols. An operator can confidently assess, compare, and decide to deploy or WAIT. The board is not empty, not noisy, and supports real decision-making.
+
+**Material finding — opportunity perishability observed:**
+- Friday sealed-market observation: EWY dominated the buy-write surface with 5 ACTIONABLE candidates spanning 7–35 DTE and annualized yields ~57–115%.
+- Monday live-market observation: EWY is completely absent from the current 200-row buy-write export.
+- The Deployment surface remains populated with other actionable opportunities. This is not merely lack of evidence or an empty board — the economically interesting surface genuinely changed.
+
+**Operator interpretation:** This reinforces why opening-current evidence matters. Friday's apparent best opportunity cannot safely be carried forward as Monday's deployment recommendation. The perishability of the opportunity is now observable rather than anecdotal. This is unusually good evidence for the reason this architecture exists.
+
+### Limitation: boardUsableAt Not Measured
+
+The experiment protocol specified recording when the operator judges the Deployment surface "decision-useful." Due to the host sleep confounder delaying the observation protocol start, and the operator not inspecting the board until ~10:17 MT, we know the board was decision-useful when inspected but do **not** know when it became decision-useful. 10:17 MT is not recorded as the usability milestone — it is the inspection time. The actual milestone is unmeasured for this session.
+
+### Assessment Against Acceptance Criteria (doc-34 §7)
+
+**Mechanism (partially assessed, confounded):**
+- The opening-relevant set achieved 100% current-session evidence (confirmed)
+- Whether it was "measurably earlier than baseline" is confounded by host sleep — the burst couldn't start until the machine woke
+- Without the sleep confounder, Phase 3 would have started at 09:45 ET; 100% completion would have been ~10:00 ET (11.6 min later). That's substantially earlier than the baseline "first achievable ~10:03" mentioned in the design doc. **Encouraging but not demonstrated under clean conditions.**
+
+**Outcome (partially assessed):**
+- The board was decision-useful when inspected (~2.5 hours post-open)
+- We cannot determine whether it was useful earlier because the inspection was late
+- The opportunity-perishability finding (EWY disappearance) provides strong indirect evidence that the architecture's purpose is valid
+
+**Non-regression (satisfied):**
+- Class A freshness: normal after burst
+- B/C/D anti-starvation: operating normally (38 floor dispatches, 0 failures)
+- No degradation of mid-session evidence quality
+- Generation advancing normally (13121 by inspection time)
+
+### Summary of Findings
+
+| Finding | Status | Severity | Follow-up |
+|---------|--------|----------|-----------|
+| Phase 3 start delay (13 min) | Environmental confounder (host sleep) | N/A for Wheelwright | Prevent sleep during observation window |
+| Capacity model wrong (120→482 calls, 2min→11.6min) | Genuine engineering result | Medium | Design decision needed on burst scope |
+| Provenance invariant | Investigated and satisfied | Resolved | None needed |
+| Deployment surface useful | Confirmed at inspection time | — | — |
+| Opportunity perishability | Strong positive evidence for architecture purpose | — | Preserve as product evidence |
+| boardUsableAt | Not successfully measured | Limitation | Retry in clean session |
+
+### Follow-up for Next Session
+
+1. **Prevent host sleep** during observation window (caffeinate, power settings, or always-on deployment)
+2. **Capacity model decision:** Accept 11-min burst, or restrict burst to primary-chain-only, or reduce set size?
+3. **Clean re-run:** With sleep prevention and operator present at 7:00 MT, measure the full protocol including boardUsableAt
+4. **EWY investigation (optional):** What caused EWY to disappear? Price movement, premium collapse, spread, or eligibility? Good test of Wheelwright's "what changed?" capability.
+
+
+---
+
+## 2026-08-24 (evening) — Tuesday Continuation Plan: Clean-Host Opening Test
+
+### Experimental Context
+
+Monday's opening-relevant evidence experiment (doc-34) produced three findings:
+
+1. **Host sleep confounder:** The Mac entered Maintenance Sleep at 07:41 MT, delaying Phase 3 by ~13 minutes. Confirmed via `pmset -g log`. Not a Wheelwright defect.
+2. **Capacity model falsified:** Design predicted ~120 provider calls / ~2 minutes. Actual: 482 calls / 11m35s due to multi-expiration acquisition. The two-minute prediction is dead.
+3. **Architecture works when allowed to execute:** Phase 1/2 expirations completed, opening priority eventually exhausted, A/B/C/D resumed normally. No failures.
+
+### Environmental Change
+
+The Mac's power settings have been changed to prevent system sleep while connected to power. The Wheelwright evidence service (PID 45127, started 2026-08-24 20:56 MT) remains running. No implementation changes made.
+
+### What Tuesday Tests
+
+**Primary question:** Does Wheelwright, operating as an unattended local evidence appliance, produce a fully prepared, decision-useful board before the operator arrives — without requiring operator interaction to trigger acquisition?
+
+This is a different question from Monday. Monday tested whether the acquisition architecture works correctly. Tuesday tests whether the deployment model (always-on local appliance) meets the operator's practical requirement.
+
+### Operator Acceptance Checkpoint
+
+**Time:** 7:48 MT / 9:48 ET (three minutes past Phase 3 boundary)
+
+**Desired state:** Fully hydrated and decision-ready. Not "acquisition underway." Not "almost done." The board should be ready for deployment assessment without visible catch-up activity.
+
+### Outcome Classification
+
+| What is observed at 7:48 MT | Classification |
+|---|---|
+| Opening set fully hydrated, board decision-useful | Appliance model succeeds — autonomous operation meets practical requirement |
+| Burst underway but not complete | Host problem solved, but capacity/critical-path does not yet meet operator requirement |
+| Acquisition only starts when operator interacts | Unattended-appliance behavior failed — investigate host/scheduler |
+| Evidence hydrated but board not useful | Evidence scheduling succeeded; problem lies downstream in recommendation/product readiness |
+
+### Timing Expectations (not acceptance criteria)
+
+Monday's single measurement: 482 calls, 11m35s from Phase 3 start to 100% opening-set hydration. If Tuesday replicates Monday's burst duration exactly, 100% hydration would be expected around 09:57 ET / 7:57 MT — nine minutes before the operator checkpoint.
+
+**This is a reference expectation, not a criterion.** Provider behavior, expiration surface geometry, and network conditions may vary. Tuesday should measure actual duration independently. The acceptance criterion is operator experience at the checkpoint, not raw burst timing.
+
+### Evidence Sources
+
+| Source | What it provides | Durability |
+|---|---|---|
+| `/api/status` openingExperiment | Milestone timestamps (burstStartAt, hydration50/80/100At, etc.) | Volatile (JVM memory) |
+| SQLite `evidence` table | `retrieved_at` and `session_date` for every acquisition | Durable |
+| SQLite `symbol_resolution` | `resolved_at` for symbol promotion timeline | Durable |
+| `pmset -g log` | Independent host sleep/wake evidence | System log |
+| Operator observation | Board usefulness at inspection time | Manual |
+
+Even if the JVM restarts overnight (losing volatile telemetry), the full acquisition timeline can be reconstructed from SQLite:
+
+```sql
+-- Phase 1 start
+SELECT MIN(retrieved_at) FROM evidence WHERE evidence_type='expirations' AND session_date='2026-08-25';
+
+-- Phase 3 start (first opening-set chain)
+SELECT MIN(retrieved_at) FROM evidence WHERE evidence_type='chain' AND session_date='2026-08-25'
+  AND symbol IN ('SPY','IWM','QQQ',...opening set...);
+
+-- Hydration curve
+SELECT symbol, MIN(retrieved_at) as first_chain
+FROM evidence WHERE evidence_type='chain' AND session_date='2026-08-25'
+  AND symbol IN (...opening set...)
+GROUP BY symbol ORDER BY first_chain;
+```
+
+### Observation Protocol (for Kiro cold start Tuesday)
+
+1. Query `/api/status` immediately — capture opening experiment telemetry and scheduler state
+2. Query SQLite to reconstruct overnight/morning timeline from durable evidence
+3. Check `pmset -g log` to confirm continuous host execution (no sleep events since Monday evening)
+4. Report findings to operator before board inspection
+5. Operator inspects Deployment surface and gives qualitative assessment
+6. Record operator judgment with timestamp
+7. Write journal entry preserving Monday and Tuesday as successive observations of the same experiment
+
+### Constraints
+
+- **No implementation changes** between Monday evening and Tuesday observation
+- **No scheduler tuning** to make Tuesday look better
+- **Do not fabricate boardUsableAt** — record only when usefulness is actually observed
+- **Preserve Monday's falsified predictions intact** — they are valuable experimental evidence
+- **Tuesday is a continuation**, not a replacement for Monday's record
+
+### What Happens After Tuesday
+
+Depending on the result:
+- If the appliance model works → the opening experiment may be ready for conclusion or extended observation
+- If capacity doesn't meet the checkpoint → a specific engineering decision is needed (reduce burst scope, accept longer burst, or redesign acquisition path)
+- If unattended operation fails → investigate why the host/JVM/scheduler didn't perform autonomously
+
+Do not pre-decide. Let the evidence classify the outcome.
