@@ -10164,3 +10164,71 @@ Depending on the result:
 - If unattended operation fails → investigate why the host/JVM/scheduler didn't perform autonomously
 
 Do not pre-decide. Let the evidence classify the outcome.
+
+
+---
+
+## 2026-08-24 — Post-Execution CSV Review: Buy-Write Capital-Erosion Check
+
+### Context
+
+Following the morning's buy-write deployments via Fidelity, the operator reviewed the Activity CSV to check for the execution-drift / capital-erosion failure mode previously discovered in the August 20 investigation.
+
+### Historical Correction
+
+The original investigation (Aug 20) initially identified BNO $51 as the canonical execution-drift case. Subsequent Activity-attribution analysis (Aug 20, later that session) **falsified** that conclusion: BNO's true lot-specific acquisition was $50.71 against the $51 strike, producing +$29 appreciation — not erosion. The apparent $51.42 was a blended multi-lot symbol-level average, not the lot paired with that call.
+
+**The confirmed historical execution-drift case is EWY Sep 4 $185:** acquisition at $186.35 against a $185 strike, producing −$135 of deterministic equity-leg capital erosion if called away. BNO remains valuable as the observation that exposed the concern and led to the lot-attribution investigation, but it is not itself an execution-drift failure.
+
+### Today's Observations: Six Buy-Write Executions
+
+| Symbol | Actual Share Fill | Call Strike | Equity if Called | Headroom ($/share) |
+|--------|------------------|-------------|-----------------|-------------------|
+| PDBC | $18.51 | $19 | +$49 | $0.49 |
+| BNO #1 | $53.05 | $54 | +$95 | $0.95 |
+| BNO #2 | $53.09 | $54 | +$91 | $0.91 |
+| GDX | $103.77 | $104 | +$23 | $0.23 |
+| SLV | $62.50 | $63 | +$50 | $0.50 |
+| COPX | ~$94.928 | $95 | ~+$7.20 | ~$0.07 |
+
+**Result:** 0 of 6 buy-writes acquired shares above the written call strike. All produce positive equity appreciation if called away. Aggregate equity appreciation at assignment: ~+$315. Net call premium received: ~$1,191.
+
+### COPX: Boundary Case
+
+COPX is the interesting observation. At approximately $94.93 acquisition vs $95 strike, it has only ~$0.07/share of capital-preservation headroom. Another $0.10 of adverse execution drift would have crossed the erosion boundary — the same class of failure confirmed in EWY.
+
+This is not a failure, but it demonstrates that real executions routinely approach the erosion boundary closely enough for the concern to remain operationally relevant.
+
+### What Today's Evidence Establishes
+
+- None of the six reviewed buy-writes embedded deterministic equity-leg capital erosion at execution time
+- The execution-drift failure mode did not manifest today
+- COPX confirms that the boundary is approached in normal operation, not only in theoretical edge cases
+
+### What Today's Evidence Does NOT Establish
+
+- Wheelwright's underlying-price observation at recommendation time for each trade
+- The original strike-to-observed-price headroom at recommendation time
+- How much headroom was consumed by market movement between recommendation and execution
+- Whether COPX was recommended with thin headroom (meaning the recommendation itself was marginal) or with adequate headroom that was consumed by execution drift
+- Eventual lifecycle result for any of these positions
+
+### Open Reconstruction Question (COPX)
+
+The useful future investigation — when PL-EXEC-01's breakeven-fill-price work is implemented — would reconstruct:
+
+1. What Tradier chain-embedded price did Wheelwright observe for COPX at recommendation time?
+2. Was the recommendation-time headroom substantially larger (e.g., $1+) with market movement consuming it?
+3. Or was the recommendation itself already near the boundary, meaning the policy's strike > price constraint was only barely satisfied?
+
+This reconstruction cannot be performed from today's Activity CSV alone. It requires correlating recommendation-time evidence with execution-time evidence — exactly the capability PL-EXEC-01's future work describes.
+
+### Relationship to Existing Work
+
+This observation strengthens PL-EXEC-01 without changing its engineering direction. The parking-lot item already identifies:
+- The mechanism (delayed Tradier price → fill at different market price)
+- The future work (communicate maximum capital-preserving fill price; post-execution reconciliation)
+
+Today's COPX evidence adds a concrete real-world near-miss supporting the urgency of that planned work.
+
+No new parking-lot item needed. No implementation changes.
