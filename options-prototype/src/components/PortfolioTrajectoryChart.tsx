@@ -395,6 +395,18 @@ function ChartWithTooltip({ dataPoints, movingAvgData, width, height }: ChartSvg
             />
           ))}
 
+          {/* Endpoint date labels — persistent start/end inspectability */}
+          {dataPoints.length >= 2 && (
+            <>
+              <text x={0} y={innerHeight + 11} className="pt-date-label">
+                {formatDateLabel(dataPoints[0].timestamp)}
+              </text>
+              <text x={innerWidth} y={innerHeight + 11} className="pt-date-label" textAnchor="end">
+                {formatDateLabel(lastPoint.timestamp)}
+              </text>
+            </>
+          )}
+
           {/* Crosshair on hover */}
           {hoveredPoint && (
             <g>
@@ -468,6 +480,11 @@ function formatCompact(value: number): string {
     return k % 1 === 0 ? `${k}K` : `${k.toFixed(1)}K`;
   }
   return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
+}
+
+function formatDateLabel(timestamp: string): string {
+  const d = new Date(timestamp);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 function getMovingAverageWindow(pointCount: number): number {

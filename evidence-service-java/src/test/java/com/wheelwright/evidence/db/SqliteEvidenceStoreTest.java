@@ -412,4 +412,120 @@ class SqliteEvidenceStoreTest {
             assertNull(SqliteEvidenceStore.selectPrimaryExpiration(null));
         }
     }
+
+    // --- Ready Preservation on Expirations Refresh ---
+
+    @Nested
+    @DisplayName("Ready preservation on expirations refresh")
+    class ReadyPreservation {
+
+        @Test
+        @DisplayName("ready + same primary + expirations refresh → remains ready")
+        void readyWithUsableChainPreservesReady() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("XLE"));
+                store.setExpirations("XLE", EXPIRATIONS_JSON, NOW);
+                store.setChain("XLE", CHAIN_JSON, NOW);
+
+                // Verify ready
+                assertEquals("ready", store.getEvidence("XLE").get("status"));
+
+                // Refresh expirations with same primary (simulates expirations-only cycle)
+                String laterTime = "2026-07-17T09:15:00Z";
+                store.setExpirations("XLE", EXPIRATIONS_JSON, laterTime);
+
+                // Must remain ready — chain evidence is still usable
+                Map<String, Object> ev = store.getEvidence("XLE");
+                assertEquals("ready", ev.get("status"));
+                assertEquals("2026-08-03", ev.get("primaryExpiration"));
+            }
+        }
+
+        @Test
+        @DisplayName("ready + primary changes to expiration with no chain → partial")
+        void readyWithNewPrimaryAndNoChainRegressesToPartial() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("XLE"));
+                store.setExpirations("XLE", EXPIRATIONS_JSON, NOW);
+                store.setChain("XLE", CHAIN_JSON, NOW);
+
+                // Verify ready
+                assertEquals("ready", store.getEvidence("XLE").get("status"));
+
+                // Refresh expirations where primary changes to a date with NO chain evidence
+                String newExpirations = """
+                    [{"date":"2026-09-15","dte":21},{"date":"2026-10-01","dte":37}]""";
+                store.setExpirations("XLE", newExpirations, "2026-07-17T09:15:00Z");
+
+                // Must regress to partial — no usable chain for new primary 2026-09-15
+                Map<String, Object> ev = store.getEvidence("XLE");
+                assertEquals("expirations_known", ev.get("status"));
+                assertEquals("2026-09-15", ev.get("primaryExpiration"));
+            }
+        }
+
+        @Test
+        @DisplayName("ready + primary changes to expiration with failed chain → partial")
+        void readyWithFailedChainRegressesToPartial() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("XLE"));
+                store.setExpirations("XLE", EXPIRATIONS_JSON, NOW);
+                store.setChain("XLE", CHAIN_JSON, NOW);
+
+                assertEquals("ready", store.getEvidence("XLE").get("status"));
+
+                // Simulate a failure on the primary chain (3 failures → failed state)
+                store.setFailure("XLE", "provider error");
+                store.setFailure("XLE", "provider error");
+                store.setFailure("XLE", "provider error");
+
+                // Refresh expirations — even though chain row exists, it is failed/not usable
+                store.setExpirations("XLE", EXPIRATIONS_JSON, "2026-07-17T09:15:00Z");
+
+                // Must regress to partial — the chain's attempt_result is 'failure'
+                Map<String, Object> ev = store.getEvidence("XLE");
+                assertEquals("expirations_known", ev.get("status"));
+            }
+        }
+
+        @Test
+        @DisplayName("pending symbol + expirations → partial (unchanged behavior)")
+        void pendingSymbolBecomesPartialAsUsual() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("XLE"));
+
+                // Verify pending
+                assertEquals("pending", store.getEvidence("XLE").get("status"));
+
+                // Set expirations
+                store.setExpirations("XLE", EXPIRATIONS_JSON, NOW);
+
+                // Must become partial (expirations_known)
+                Map<String, Object> ev = store.getEvidence("XLE");
+                assertEquals("expirations_known", ev.get("status"));
+                assertEquals("2026-08-03", ev.get("primaryExpiration"));
+            }
+        }
+
+        @Test
+        @DisplayName("ready + expirations refresh updates session metadata even when preserving ready")
+        void preservesReadyButUpdatesMetadata() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("XLE"));
+                store.setExpirations("XLE", EXPIRATIONS_JSON, NOW);
+                store.setChain("XLE", CHAIN_JSON, NOW);
+
+                // Refresh expirations at a later time
+                String laterTime = "2026-07-17T09:15:00Z";
+                store.setExpirations("XLE", EXPIRATIONS_JSON, laterTime);
+
+                // Still ready
+                assertEquals("ready", store.getEvidence("XLE").get("status"));
+
+                // But expirations evidence row should have updated retrieved_at
+                Map<String, Object> ev = store.getEvidence("XLE");
+                assertNotNull(ev.get("expirations"));
+            }
+        }
+    }
 }

@@ -90,6 +90,14 @@
   dominant-baseline: middle;
 }
 
+/* Endpoint date labels */
+.pt-date-label {
+  font-family: var(--wd-font-mono);
+  font-size: 8px;
+  fill: var(--wd-text-secondary);
+  dominant-baseline: hanging;
+}
+
 /* === Empty state === */
 
 .pt-empty {

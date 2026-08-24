@@ -87,7 +87,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
             ps.executeUpdate();
         }
 
-        // Determine if absent or partial
+        // Determine if absent or partial (or preserve ready)
         boolean isEmpty = expirationsJson.equals("[]");
 
         if (isEmpty) {
@@ -100,13 +100,35 @@ public class SqliteEvidenceStore implements AutoCloseable {
             }
         } else {
             String primary = selectPrimaryExpiration(expirationsJson);
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "UPDATE symbol_resolution SET resolution = 'partial', resolved_at = ?, session_date = ?, primary_expiration = ? WHERE symbol = ?")) {
-                ps.setString(1, retrievedAt);
-                ps.setString(2, sessionDate);
-                ps.setString(3, primary);
-                ps.setString(4, symbol);
-                ps.executeUpdate();
+
+            // Preserve ready resolution when the symbol already has usable chain evidence
+            // for the selected primary expiration. This prevents expirations-only refresh
+            // cycles from regressing ready symbols to partial unnecessarily.
+            // A chain is "usable" when: (a) a row exists for this expiration, (b) it has
+            // data (non-null), and (c) its last attempt was successful (not failed/stale).
+            Map<String, String> currentResolution = getResolution(symbol);
+            boolean isCurrentlyReady = currentResolution != null && "ready".equals(currentResolution.get("resolution"));
+
+            if (isCurrentlyReady && primary != null && hasUsableChain(symbol, primary)) {
+                // Preserve ready — only update session metadata and primary expiration
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "UPDATE symbol_resolution SET resolved_at = ?, session_date = ?, primary_expiration = ? WHERE symbol = ?")) {
+                    ps.setString(1, retrievedAt);
+                    ps.setString(2, sessionDate);
+                    ps.setString(3, primary);
+                    ps.setString(4, symbol);
+                    ps.executeUpdate();
+                }
+            } else {
+                // Regress to partial — chain acquisition needed
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "UPDATE symbol_resolution SET resolution = 'partial', resolved_at = ?, session_date = ?, primary_expiration = ? WHERE symbol = ?")) {
+                    ps.setString(1, retrievedAt);
+                    ps.setString(2, sessionDate);
+                    ps.setString(3, primary);
+                    ps.setString(4, symbol);
+                    ps.executeUpdate();
+                }
             }
         }
     }
@@ -1004,6 +1026,27 @@ public class SqliteEvidenceStore implements AutoCloseable {
                 result.put("resolved_at", rs.getString("resolved_at"));
                 result.put("session_date", rs.getString("session_date"));
                 return result;
+            }
+        }
+    }
+
+    /**
+     * Check whether a usable (successful, non-null data) chain evidence row exists
+     * for the given symbol and expiration. Used to determine whether an expirations
+     * refresh should preserve ready resolution or regress to partial.
+     *
+     * A chain is "usable" when:
+     * - A row exists for (symbol, 'chain', expiration)
+     * - The row has non-null data
+     * - The last attempt_result is 'success' (not 'failure')
+     */
+    private boolean hasUsableChain(String symbol, String expiration) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT 1 FROM evidence WHERE symbol = ? AND evidence_type = 'chain' AND expiration = ? AND data IS NOT NULL AND attempt_result = 'success'")) {
+            ps.setString(1, symbol);
+            ps.setString(2, expiration);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
             }
         }
     }

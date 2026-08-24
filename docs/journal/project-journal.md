@@ -10232,3 +10232,61 @@ This observation strengthens PL-EXEC-01 without changing its engineering directi
 Today's COPX evidence adds a concrete real-world near-miss supporting the urgency of that planned work.
 
 No new parking-lot item needed. No implementation changes.
+
+
+---
+
+## 2026-08-24 — Console Refinement + Runtime Evidence
+
+### Console Refinement Package (commit 7b241ef)
+
+Bounded Console implementation pass addressing five observations from live operation:
+
+1. **Portfolio Capital trajectory chart** — Height increased 76px → 110px, observation dots added to make individual data points visible, point-count label ("17 obs · ALL") added as low-prominence data-integrity cue.
+2. **OPENED column** — Activity-derived STO dates attributed to all position types via replay-based enrichment that correctly handles open-close-reopen cycles. Uses earliest fill date from the currently open lot (not the historically first STO).
+3. **Sortable columns** — Within-group sorting (10 sortable columns). Grouping structure preserved as primary organization; sort is secondary. Third click restores default DTE order.
+4. **Sparkline insufficient-history state** — Three rendering states: no moneyness (dash), 1-2 observations (muted baseline + dots), 3+ observations (full sparkline). Communicates "accumulating" rather than "broken."
+
+No changes to historical persistence architecture, scheduler behavior, portfolio accounting, or snapshot contract.
+
+### Portfolio Capital — Proven Derivation (Aug 24, 2026)
+
+Runtime verification from authoritative Fidelity source evidence:
+
+```
+Total Account Value   = $116,809.22   (Balances CSV)
+Short-option MTM      = −$5,009.00    (11 short option positions, Option Summary CSV)
+Portfolio Capital      = $116,809.22 − (−$5,009.00) = $121,818.22
+
+Fidelity export timestamp: 08/24/2026 10:46 AM ET
+Source files: Balances_for_Account_Z39411514-29.csv
+              Fidelity_Investment_Option_Summary_Z39411514_Aug-24-2026-2.csv
+```
+
+Observation: Portfolio Capital = $121,818.22 (displayed as $121.8K).
+Prior observation (Aug 21 seed): $121,340.47.
+Change: +$477.75. Causal decomposition not performed — recorded as observed change only.
+
+### EWY/GDXJ Lifecycle Stall — Root Cause Identified
+
+**Symptoms:** Two universe-member symbols with open portfolio positions stuck at `expirations_known` (DB: `partial`) since session start. Zero current-session spot observations. Chains last acquired Aug 21.
+
+**Root cause:** `setExpirations()` unconditionally regresses resolution from `ready` to `partial` when called with non-empty expirations. During the `EXPIRATIONS_ONLY` session posture (09:00–09:45 ET), `runExpirationsOnlyCycle` refreshes expirations for ready symbols. This regresses them to `partial`. Since chain acquisition is forbidden during EXPIRATIONS_ONLY posture, no follow-up occurs. The symbols become Class C (lifecycle work) in the FULL posture, competing with 175 other partial symbols for scarce C/D dispatch slots.
+
+**Contributing factor:** Class C dispatch uses `findFirst()` on an unordered SQL result set. With 176 competing items, specific symbols may wait hours or never be reached within a session.
+
+**Fundamental defect:** `setExpirations()` should not regress a `ready` symbol to `partial` when the existing chain remains valid. Refreshing expirations for an already-ready symbol should preserve the ready state unless the primary expiration materially changed (invalidating the existing chain).
+
+**Provider verification:** Both EWY and GDXJ have valid chains available from Tradier (170 and 150 contracts respectively) for their primary expiration 2026-09-11. The stall is not a provider issue.
+
+### Monitored-Position Observation Invariant — Ratified
+
+**Invariant:** Every symbol with an open monitored portfolio position must be observable by the Evidence Appliance, independent of recommendation/discovery universe membership.
+
+**Evidence:** 5 held portfolio symbols (GDZ, BNE, GDKC, XB3, PEBC) are not in the 1,286-symbol recommendation universe. The Evidence Appliance has never acquired them. Console moneyness sparklines are impossible for these positions.
+
+**Semantic distinction:** Recommendation eligibility (what Wheelwright might suggest opening) and portfolio observation (what Wheelwright currently monitors) are separate populations. A symbol may be irrelevant for new deployment discovery yet operationally mandatory because capital is already exposed to it.
+
+**Policy:** Required freshness/priority should derive from the monitoring obligation itself, not inherit recommendation-scheduling classes by convenience. Implementation mechanism not yet prescribed.
+
+**Recorded in:** PL-EVID-01 (Historical Evidence / Observation Architecture).
