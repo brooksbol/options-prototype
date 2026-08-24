@@ -80,6 +80,12 @@ export interface MonitoredPosition {
 
   /** Consecutive acquisition failures since last success */
   failureCount: number;
+
+  // --- Lifecycle ---
+
+  /** Authoritative date when the position was opened (STO date from Activity).
+   *  ISO date string (YYYY-MM-DD). Null when Activity evidence is unavailable. */
+  openedDate: string | null;
 }
 
 // --- Computation ---
@@ -127,6 +133,7 @@ export function deriveMonitoredPositions(
       encumberedCapital,
       capitalValuationBasis: "strike",
       capitalAsOf: snapshot.snapshotDate,
+      openedDate: put.openedDate ?? null,
       ...evidence,
     });
   }
@@ -165,6 +172,7 @@ export function deriveMonitoredPositions(
       encumberedCapital,
       capitalValuationBasis,
       capitalAsOf,
+      openedDate: call.openedDate ?? null,
       ...evidence,
     });
   }

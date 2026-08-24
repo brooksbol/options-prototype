@@ -89,6 +89,12 @@ export interface OpenShortCall {
    * This is per-call evidence, NOT the symbol-level blended average from Option Summary.
    */
   acquisitionBasis?: CallAcquisitionBasis | null;
+  /**
+   * Authoritative date when this position was opened (sell-to-open).
+   * Derived from Activity evidence Run Date. ISO date string (YYYY-MM-DD).
+   * Null when Activity evidence is unavailable or does not contain a matching STO event.
+   */
+  openedDate?: string | null;
 }
 
 export interface OpenShortPut {
@@ -101,6 +107,12 @@ export interface OpenShortPut {
   brokerOptionBasis: number | null;
   /** Broker-reported average cost per contract (negative = credit/share). Null when unavailable. */
   brokerOptionAverageCost: number | null;
+  /**
+   * Authoritative date when this position was opened (sell-to-open).
+   * Derived from Activity evidence Run Date. ISO date string (YYYY-MM-DD).
+   * Null when Activity evidence is unavailable or does not contain a matching STO event.
+   */
+  openedDate?: string | null;
 }
 
 // --- Balance Context ---

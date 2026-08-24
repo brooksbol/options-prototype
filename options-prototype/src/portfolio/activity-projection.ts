@@ -285,6 +285,92 @@ export interface ProjectionResult {
 }
 
 /**
+ * Enrich all existing positions with their opened date (sell-to-open date).
+ *
+ * Replays activity chronologically to find the STO event(s) that account for
+ * the currently open quantity. This correctly handles the open-close-reopen case:
+ * if a contract was opened, closed, and reopened at the same strike/expiration,
+ * OPENED reflects the reopening date, not the original historical open.
+ *
+ * For positions opened in a single fill, this returns that fill date.
+ * For positions built across multiple fills (without intervening closures),
+ * this returns the earliest contributing fill date.
+ *
+ * This is provenance enrichment — it does not mutate position state.
+ */
+function enrichOpenedDates(existingCalls: OpenShortCall[], existingPuts: OpenShortPut[], activityRows: ActivityRow[]): void {
+  if (activityRows.length === 0) return;
+
+  // Sort activity chronologically (Activity CSV is typically newest-first)
+  const chronological = [...activityRows].sort((a, b) => a.date.localeCompare(b.date));
+
+  // For each position identity, replay the STO/BTC/expired/assigned history
+  // to determine which STO events contribute to the currently open quantity.
+  // Key: "TYPE|UNDERLYING|STRIKE|EXPIRATION"
+  // Value: array of { date, quantity } for each STO contributing to the current open lot
+  const currentOpenStosByKey = new Map<string, string[]>();
+
+  // Track running net quantity per position key
+  const runningQty = new Map<string, number>();
+
+  for (const row of chronological) {
+    if (!row.option) continue;
+    const underlying = row.option.underlying.toUpperCase();
+    const type = row.option.type; // "CALL" or "PUT"
+    const key = `${type}|${underlying}|${row.option.strike}|${row.option.expiration}`;
+
+    if (row.eventType === "sell_to_open") {
+      const qty = Math.abs(row.quantity);
+      const current = runningQty.get(key) ?? 0;
+
+      if (current === 0) {
+        // Fresh open — reset the STO dates list
+        currentOpenStosByKey.set(key, [row.date]);
+      } else {
+        // Adding to an existing position — append this fill date
+        const dates = currentOpenStosByKey.get(key) ?? [];
+        dates.push(row.date);
+        currentOpenStosByKey.set(key, dates);
+      }
+      runningQty.set(key, current + qty);
+
+    } else if (row.eventType === "buy_to_close" || row.eventType === "expired" || row.eventType === "assigned") {
+      const qty = Math.abs(row.quantity);
+      const current = runningQty.get(key) ?? 0;
+      const newQty = Math.max(0, current - qty);
+      runningQty.set(key, newQty);
+
+      if (newQty === 0) {
+        // Position fully closed — clear the STO dates (next STO starts fresh)
+        currentOpenStosByKey.delete(key);
+      }
+    }
+  }
+
+  if (currentOpenStosByKey.size === 0) return;
+
+  // Apply to calls: use the earliest STO date from the current open lot
+  for (const call of existingCalls) {
+    if (call.openedDate) continue;
+    const key = `CALL|${call.underlying.toUpperCase()}|${call.strike}|${call.expiration}`;
+    const dates = currentOpenStosByKey.get(key);
+    if (dates && dates.length > 0) {
+      call.openedDate = dates[0]; // earliest fill in the current open batch
+    }
+  }
+
+  // Apply to puts
+  for (const put of existingPuts) {
+    if (put.openedDate) continue;
+    const key = `PUT|${put.underlying.toUpperCase()}|${put.strike}|${put.expiration}`;
+    const dates = currentOpenStosByKey.get(key);
+    if (dates && dates.length > 0) {
+      put.openedDate = dates[0]; // earliest fill in the current open batch
+    }
+  }
+}
+
+/**
  * Project Activity events onto an existing PortfolioSnapshot.
  *
  * Only events AFTER the checkpoint are applied. The checkpoint's precision
@@ -305,7 +391,7 @@ export function projectActivityOverlay(
   // Clone mutable state from snapshot
   const inventory: InventoryPosition[] = baseSnapshot.inventory.map(p => ({ ...p }));
   const existingCalls: OpenShortCall[] = baseSnapshot.existingCalls.map(c => ({ ...c }));
-  const existingPuts: OpenShortPut[] = [...baseSnapshot.existingPuts];
+  const existingPuts: OpenShortPut[] = baseSnapshot.existingPuts.map(p => ({ ...p }));
   let deployableCash = baseSnapshot.deployableCash;
 
   const projectedSymbols = new Set<string>();
@@ -317,11 +403,16 @@ export function projectActivityOverlay(
   // which correctly applies only post-checkpoint mutations.
   enrichBuyWriteOrigin(existingCalls, activityRows);
 
+  // === Opened Date Enrichment ===
+  // Scan ALL activity for STO events to populate authoritative opened dates.
+  enrichOpenedDates(existingCalls, existingPuts, activityRows);
+
   if (postCheckpoint.length === 0) {
-    // Even with no post-checkpoint events, the enrichment may have tagged origins.
+    // Even with no post-checkpoint events, the enrichment may have tagged origins/dates.
     const enrichedSnapshot: PortfolioSnapshot = {
       ...baseSnapshot,
       existingCalls,
+      existingPuts,
     };
     return { snapshot: enrichedSnapshot, projectedEventCount: 0, projectedSymbols: [] };
   }

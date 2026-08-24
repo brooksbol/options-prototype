@@ -18,7 +18,7 @@
 /* === Plot area: left side, fills vertical space === */
 
 .pt-plot-area {
-  height: 76px;
+  height: 110px;
   position: relative;
   min-width: 0;
   flex: 0 0 35%;
@@ -51,6 +51,14 @@
   fill: var(--wd-text-primary);
   stroke: var(--wd-bg-surface);
   stroke-width: 1.5;
+}
+
+/* Historical observation dots — subtle but visible */
+.pt-obs-dot {
+  fill: var(--wd-text-secondary);
+  fill-opacity: 0.5;
+  stroke: var(--wd-bg-surface);
+  stroke-width: 0.8;
 }
 
 /* Moving average — fine, smooth, dotted */
@@ -96,6 +104,19 @@
   font-size: 10px;
   color: var(--wd-text-disabled);
   font-style: italic;
+}
+
+/* Observation count — subtle development/operator affordance */
+.pt-point-count {
+  position: absolute;
+  bottom: 0;
+  left: 40px;
+  font-family: var(--wd-font-mono);
+  font-size: 7px;
+  color: var(--wd-text-disabled);
+  opacity: 0.6;
+  pointer-events: auto;
+  cursor: help;
 }
 
 /* === Context Panel: right side === */

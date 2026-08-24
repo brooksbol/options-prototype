@@ -20,6 +20,59 @@ import { lookupDescription } from "../instrument-catalog/catalog";
 import { PositionDetailModal } from "./PositionDetailModal";
 import "../operator-console/operator-console.css";
 
+// --- Sort Types ---
+
+type SortColumn =
+  | "symbol" | "strike" | "expiration" | "dte" | "spot" | "contracts"
+  | "moneyness" | "capital" | "capitalPct" | "shareBasis" | "premiumBooked"
+  | "effectiveExit" | "calledAway" | "assigned" | "mktVsBasis" | "opened";
+
+/**
+ * Sort positions by the given column. Operates on a shallow copy.
+ * Null/unavailable values sort to the end regardless of direction.
+ */
+function sortPositions(
+  positions: MonitoredPosition[],
+  column: SortColumn,
+  direction: "asc" | "desc",
+): MonitoredPosition[] {
+  const sorted = [...positions];
+  const dir = direction === "asc" ? 1 : -1;
+
+  sorted.sort((a, b) => {
+    const av = getSortValue(a, column);
+    const bv = getSortValue(b, column);
+
+    // Nulls always sort to end
+    if (av == null && bv == null) return 0;
+    if (av == null) return 1;
+    if (bv == null) return -1;
+
+    if (typeof av === "string" && typeof bv === "string") {
+      return av.localeCompare(bv) * dir;
+    }
+    return ((av as number) - (bv as number)) * dir;
+  });
+
+  return sorted;
+}
+
+function getSortValue(p: MonitoredPosition, column: SortColumn): string | number | null {
+  switch (column) {
+    case "symbol": return p.underlying;
+    case "strike": return p.strike;
+    case "expiration": return p.expiration;
+    case "dte": return p.dte;
+    case "spot": return p.underlyingPrice;
+    case "contracts": return p.quantity;
+    case "moneyness": return p.moneyness;
+    case "capital": return p.encumberedCapital;
+    case "capitalPct": return p.encumberedCapital; // sort by absolute capital (pct is proportional)
+    case "opened": return p.openedDate;
+    default: return null; // Derived columns (premiumBooked, etc.) handled via position fields
+  }
+}
+
 export function OperatorConsole() {
   const { source, snapshot, importStatus } = usePortfolio();
   const observations = useObservations();
@@ -32,6 +85,25 @@ export function OperatorConsole() {
   const [groupBy, setGroupBy] = useState<"expiration" | "strategy" | "underlying">("expiration");
   // Collapsed groups (by label key) for regime B
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  // Column sort state — applies within groups, not across them
+  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  const handleSort = useCallback((column: SortColumn) => {
+    if (sortColumn === column) {
+      // Same column: toggle direction, or clear on third click
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else {
+        // Clear sort — restore default DTE order
+        setSortColumn(null);
+        setSortDirection("asc");
+      }
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  }, [sortColumn, sortDirection]);
 
   if (!snapshot) {
     return (
@@ -164,7 +236,7 @@ export function OperatorConsole() {
                         <span className="oc-rung-count">{group.positions.length} position{group.positions.length !== 1 ? "s" : ""}</span>
                       </div>
                       {!isCollapsed && (
-                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
                       )}
                     </div>
                   );
@@ -250,7 +322,7 @@ function downloadPositionsCsv(
   positions: MonitoredPosition[],
   snapshot: import("../write-desk/types").PortfolioSnapshot,
 ) {
-  const header = "Type,Symbol,Strike,Expiration,Spot,Contracts,Moneyness,Capital,Premium Booked,Bonus If Called Away,If Assigned";
+  const header = "Type,Symbol,Strike,Expiration,Spot,Contracts,Moneyness,Capital,Premium Booked,Bonus If Called Away,If Assigned,Opened";
   const rows = positions.map(position => {
     const type = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
     const spot = position.underlyingPrice != null ? position.underlyingPrice.toFixed(2) : "";
@@ -284,7 +356,7 @@ function downloadPositionsCsv(
       assigned = cell.display;
     }
 
-    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${position.quantity},${moneyness},${capital},${premium},${calledAway},"${assigned}"`;
+    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${position.quantity},${moneyness},${capital},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""}`;
   });
 
   const csv = [header, ...rows].join("\n");
@@ -582,20 +654,40 @@ function PositionTableHeader() {
 }
 
 /** Regime B: Dense fixed-geometry rows using native <table> for proper column alignment */
-function PositionTable({ positions, onTileClick, totalCapital, allPositionsTotalCapital, isDemoSource, spotHistory, snapshot }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
+function PositionTable({ positions, onTileClick, totalCapital, allPositionsTotalCapital, isDemoSource, spotHistory, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
+
+  // Apply within-group sorting
+  const sortedPositions = sortColumn
+    ? sortPositions(positions, sortColumn, sortDirection ?? "asc")
+    : positions;
+
+  const renderSortHeader = (label: string, column: SortColumn, className?: string) => {
+    const isActive = sortColumn === column;
+    const arrow = isActive ? (sortDirection === "asc" ? " ↑" : " ↓") : "";
+    return (
+      <th
+        className={`${className ?? ""} oc-th-sortable ${isActive ? "oc-th-sorted" : ""}`}
+        onClick={() => onSort?.(column)}
+        title={`Sort by ${label}`}
+      >
+        {label}{arrow}
+      </th>
+    );
+  };
+
   return (
     <table className="oc-position-table">
       <thead>
         <tr>
           <th>Type</th>
-          <th>Symbol</th>
-          <th className="oc-th-right">Strike</th>
-          <th>Expiration</th>
-          <th className="oc-th-right">DTE</th>
-          <th className="oc-th-right">Spot</th>
-          <th className="oc-th-center">Contracts</th>
-          <th>Moneyness</th>
-          <th className="oc-th-right">Capital</th>
+          {renderSortHeader("Symbol", "symbol")}
+          {renderSortHeader("Strike", "strike", "oc-th-right")}
+          {renderSortHeader("Expiration", "expiration")}
+          {renderSortHeader("DTE", "dte", "oc-th-right")}
+          {renderSortHeader("Spot", "spot", "oc-th-right")}
+          {renderSortHeader("Contracts", "contracts", "oc-th-center")}
+          {renderSortHeader("Moneyness", "moneyness")}
+          {renderSortHeader("Capital", "capital", "oc-th-right")}
           <th className="oc-th-right">Capital %</th>
           <th className="oc-th-right">Share Basis</th>
           <th className="oc-th-right">Premium Booked</th>
@@ -603,10 +695,11 @@ function PositionTable({ positions, onTileClick, totalCapital, allPositionsTotal
           <th className="oc-th-right">If Called Away</th>
           <th className="oc-th-right">If Assigned</th>
           <th className="oc-th-right">Market vs Basis</th>
+          {renderSortHeader("Opened", "opened")}
         </tr>
       </thead>
       <tbody>
-        {positions.map((position) => {
+        {sortedPositions.map((position) => {
           const mState = classifyMoneyness(position);
           const mDisplay = formatMoneynessDisplay(position);
           const colorClass = moneynessColor(position.type, mState);
@@ -665,6 +758,7 @@ function PositionTable({ positions, onTileClick, totalCapital, allPositionsTotal
               <td className={`oc-td-right ${calledAwayCell.className}`} title={calledAwayCell.title}>{calledAwayCell.display}</td>
               <td className={`oc-td-right ${assignedCell.className}`} title={assignedCell.title}>{assignedCell.display}</td>
               <td className={`oc-td-right ${mktVsBasisCell.className}`} title={mktVsBasisCell.title}>{mktVsBasisCell.display}</td>
+              <td className="oc-td-opened">{position.openedDate ? formatOpenedDate(position.openedDate) : "—"}</td>
             </tr>
           );
         })}
@@ -808,11 +902,33 @@ function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass 
   };
   const textColor = textColorMap[colorClass];
 
-  // No history or no moneyness → just show numeric
-  if (points.length < 3 || currentMoneyness == null) {
+  // No moneyness at all → just dash
+  if (currentMoneyness == null) {
     return (
       <span className={`oc-tile-mc-${colorClass}`} style={{ fontSize: "10px", fontWeight: 700 }}>
         {mDisplay ?? "—"}
+      </span>
+    );
+  }
+
+  // Insufficient history (1-2 observations) → show numeric + restrained "accumulating" indicator
+  if (points.length < 3) {
+    return (
+      <span style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}>
+        <span style={{ fontSize: "9px", fontWeight: 700, color: textColor, whiteSpace: "nowrap" }}>
+          {mDisplay}
+        </span>
+        <svg width={90} height={16} viewBox="0 0 90 16" style={{ display: "block", flexShrink: 0, opacity: 0.4 }}>
+          {/* Muted zero-line baseline */}
+          <line x1={1} y1={8} x2={89} y2={8} stroke="#9ca3af" strokeWidth="0.5" strokeDasharray="2 3" />
+          {/* Dot(s) representing the few observations we have */}
+          {points.map((p, i) => {
+            const px = points.length === 1 ? 45 : 1 + (i / (points.length - 1)) * 88;
+            const py = 8 - (p.moneyness / 0.05) * 6; // scale loosely
+            const clampedY = Math.max(2, Math.min(14, py));
+            return <circle key={i} cx={px} cy={clampedY} r={1.8} fill="#9ca3af" />;
+          })}
+        </svg>
       </span>
     );
   }
@@ -981,6 +1097,11 @@ function buildDetailForPosition(
 }
 
 function formatExpiration(iso: string): string {
+  const d = new Date(iso + "T12:00:00");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function formatOpenedDate(iso: string): string {
   const d = new Date(iso + "T12:00:00");
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }

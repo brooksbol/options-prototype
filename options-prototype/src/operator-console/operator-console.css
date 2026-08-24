@@ -946,6 +946,20 @@
 .oc-th-right { text-align: right !important; }
 .oc-th-center { text-align: center !important; }
 
+/* Sortable column headers */
+.oc-th-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.1s;
+}
+.oc-th-sortable:hover {
+  color: var(--wd-text-primary);
+}
+.oc-th-sorted {
+  color: var(--wd-text-primary);
+  font-weight: var(--wd-weight-bold);
+}
+
 .oc-position-table tbody td,
 .oc-position-table tfoot td {
   padding: 4px 8px;
@@ -969,6 +983,7 @@
 
 .oc-td-symbol { font-weight: var(--wd-weight-bold); }
 .oc-td-exp { font-size: 10px; color: var(--wd-text-secondary); }
+.oc-td-opened { font-size: 10px; color: var(--wd-text-secondary); }
 
 .oc-td-totals-label {
   text-align: right;

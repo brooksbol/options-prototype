@@ -28,8 +28,8 @@ import "./portfolio-trajectory.css";
 
 // --- Constants ---
 
-const CHART_HEIGHT = 64;
-const MARGIN = { top: 4, right: 4, bottom: 4, left: 40 };
+const CHART_HEIGHT = 110;
+const MARGIN = { top: 6, right: 6, bottom: 14, left: 40 };
 
 const TIME_RANGES: { value: TimeRange; label: string }[] = [
   { value: "1w", label: "1W" },
@@ -116,13 +116,18 @@ export function PortfolioTrajectoryChart({ capitalContext, tierReadiness, tierEr
             <span className="pt-empty-label">Trajectory appears after first Fidelity import</span>
           </div>
         ) : (
-          <ParentSize debounceTime={80}>
-            {({ width }) =>
-              width > 10 ? (
-                <ChartWithTooltip dataPoints={dataPoints} movingAvgData={movingAvgDataForTooltip} width={width} height={76} />
-              ) : null
-            }
-          </ParentSize>
+          <>
+            <ParentSize debounceTime={80}>
+              {({ width }) =>
+                width > 10 ? (
+                  <ChartWithTooltip dataPoints={dataPoints} movingAvgData={movingAvgDataForTooltip} width={width} height={CHART_HEIGHT} />
+                ) : null
+              }
+            </ParentSize>
+            <span className="pt-point-count" title={`${history.length} total observations, ${dataPoints.length} in current range (${timeRange.toUpperCase()})`}>
+              {dataPoints.length} obs · {timeRange.toUpperCase()}
+            </span>
+          </>
         )}
       </div>
 
@@ -377,7 +382,18 @@ function ChartWithTooltip({ dataPoints, movingAvgData, width, height }: ChartSvg
           )}
 
           {/* Current point */}
-          <circle cx={lastX} cy={lastY} r={3} className="pt-current-dot" />
+          <circle cx={lastX} cy={lastY} r={3.5} className="pt-current-dot" />
+
+          {/* Observation dots — show each data point distinctly */}
+          {dataPoints.length <= 60 && dataPoints.slice(0, -1).map((d, i) => (
+            <circle
+              key={i}
+              cx={x(d)}
+              cy={y(d)}
+              r={2}
+              className="pt-obs-dot"
+            />
+          ))}
 
           {/* Crosshair on hover */}
           {hoveredPoint && (
