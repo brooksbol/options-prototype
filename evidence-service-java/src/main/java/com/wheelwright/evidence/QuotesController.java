@@ -24,7 +24,9 @@ import java.util.stream.Collectors;
  * - observation: the price fact we hold (preserved across failed refreshes)
  * - acquisition: current state of the acquisition machinery
  *
- * Symbols outside the canonical universe are rejected with 400.
+ * Symbols outside the canonical universe are included in the response with
+ * status "not_in_universe" and null observation. This allows portfolio monitoring
+ * to succeed for mixed symbol sets without poisoning observations for known symbols.
  */
 @RestController
 public class QuotesController {
@@ -55,22 +57,16 @@ public class QuotesController {
                 .sorted()
                 .collect(Collectors.toList());
 
-        // Validate: all symbols must be in canonical universe
+        // Partition: known vs unknown universe symbols.
+        // Serve observations for known symbols; report unknown symbols as "not_in_universe"
+        // without failing the entire request. This allows portfolio monitoring to work
+        // even when the portfolio contains symbols outside the recommendation universe.
         List<String> unknown = store.findUnknownSymbols(normalized);
-        if (!unknown.isEmpty()) {
-            StringBuilder errBody = new StringBuilder();
-            errBody.append("{\"error\":\"Symbols not in universe\",\"unknownSymbols\":[");
-            for (int i = 0; i < unknown.size(); i++) {
-                if (i > 0) errBody.append(",");
-                errBody.append("\"").append(unknown.get(i)).append("\"");
-            }
-            errBody.append("]}");
-            return ResponseEntity.badRequest()
-                    .header("Content-Type", "application/json")
-                    .body(errBody.toString());
-        }
+        List<String> known = normalized.stream()
+                .filter(s -> !unknown.contains(s))
+                .collect(Collectors.toList());
 
-        // Compute representation-correct ETag
+        // Compute representation-correct ETag (based on known symbols only)
         int generation = store.getGeneration();
         String fingerprint = computeSymbolFingerprint(normalized);
         String etag = "\"quotes-" + fingerprint + "-gen-" + generation + "\"";
@@ -87,9 +83,24 @@ public class QuotesController {
             }
         }
 
-        // Query observations
+        // Query observations for known symbols
         String generatedAt = store.getGeneratedAt();
-        List<Map<String, Object>> observations = store.getQuoteObservations(normalized);
+        List<Map<String, Object>> observations = known.isEmpty()
+                ? List.of()
+                : store.getQuoteObservations(known);
+
+        // Add unknown symbols as not_in_universe entries (no observation, clear status)
+        for (String sym : unknown) {
+            Map<String, Object> entry = new LinkedHashMap<>();
+            entry.put("symbol", sym);
+            entry.put("status", "not_in_universe");
+            entry.put("price", null);
+            entry.put("observedAt", null);
+            entry.put("lastAttemptAt", null);
+            entry.put("failureCount", 0);
+            observations = new ArrayList<>(observations);
+            observations.add(entry);
+        }
 
         // Build JSON response
         String payload = buildResponseJson(generation, generatedAt, observations);

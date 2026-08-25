@@ -172,22 +172,24 @@ class QuotesControllerTest {
     // --- Unknown symbol: 400 rejection ---
 
     @Test
-    void unknownSymbolReturns400() throws Exception {
+    void unknownSymbolReturnsNotInUniverseStatus() throws Exception {
         mockMvc.perform(get("/api/evidence/quotes").param("symbol", "ZZZZ"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Symbols not in universe"))
-                .andExpect(jsonPath("$.unknownSymbols[0]").value("ZZZZ"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.quotes[0].symbol").value("ZZZZ"))
+                .andExpect(jsonPath("$.quotes[0].observation").isEmpty())
+                .andExpect(jsonPath("$.quotes[0].acquisition.status").value("not_in_universe"));
     }
 
     @Test
-    void mixedKnownAndUnknownReturns400WithOffenders() throws Exception {
+    void mixedKnownAndUnknownServesKnownWithNotInUniverseForUnknown() throws Exception {
         mockMvc.perform(get("/api/evidence/quotes")
                         .param("symbol", "XLE")
                         .param("symbol", "BOGUS")
                         .param("symbol", "FAKE"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.unknownSymbols", hasItems("BOGUS", "FAKE")))
-                .andExpect(jsonPath("$.unknownSymbols", not(hasItem("XLE"))));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.quotes[?(@.symbol == 'XLE')].acquisition.status", hasItem("ready")))
+                .andExpect(jsonPath("$.quotes[?(@.symbol == 'BOGUS')].acquisition.status", hasItem("not_in_universe")))
+                .andExpect(jsonPath("$.quotes[?(@.symbol == 'FAKE')].acquisition.status", hasItem("not_in_universe")));
     }
 
     // --- Empty request: 400 ---

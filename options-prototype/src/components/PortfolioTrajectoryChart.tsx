@@ -159,6 +159,11 @@ export function PortfolioTrajectoryChart({ capitalContext, tierReadiness, tierEr
                     {periodChange.isPositive ? "+" : ""}{periodChange.pct.toFixed(1)}%
                   </span>
                 )}
+                {snapshot?.provenance?.balancesExportTimestamp && (
+                  <span className="pt-fact-provenance" title="Fidelity export timestamp — snapshot-derived, not live">
+                    {formatProvenance(snapshot.provenance.balancesExportTimestamp)}
+                  </span>
+                )}
               </div>
             )}
             <div className="pt-fact">
@@ -485,6 +490,11 @@ function formatCompact(value: number): string {
 function formatDateLabel(timestamp: string): string {
   const d = new Date(timestamp);
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function formatProvenance(timestamp: string): string {
+  const d = new Date(timestamp);
+  return "as of " + d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 }
 
 function getMovingAverageWindow(pointCount: number): number {

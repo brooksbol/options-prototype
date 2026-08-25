@@ -96,6 +96,15 @@ export function useObservations(): ObservationState {
     setSymbols(symbols);
   }, [symbols]);
 
+  // Ensure all portfolio symbols are in the backend's observable population.
+  // This is the bridge between portfolio monitoring demand and the Evidence Appliance's
+  // acquisition population. The backend doesn't know these are portfolio symbols — it just
+  // ensures they're acquirable. Idempotent: already-known symbols are no-ops.
+  useEffect(() => {
+    if (symbols.length === 0) return;
+    ensureObservable(symbols);
+  }, [symbols]);
+
   // For demo: use static demo observations. For fidelity: use live observation store.
   const liveState = useSyncExternalStore(
     isDemo ? subscribeDemoNoop : subscribe,
@@ -103,4 +112,24 @@ export function useObservations(): ObservationState {
   );
 
   return liveState;
+}
+
+/**
+ * POST portfolio symbols to /api/evidence/observe to ensure the backend
+ * can acquire them. Fire-and-forget — failures are non-fatal (the observation
+ * pipeline still works for known symbols via the QuotesController graceful path).
+ */
+let lastObserveKey = "";
+function ensureObservable(symbols: string[]): void {
+  const key = symbols.join(",");
+  if (key === lastObserveKey) return; // Already sent for this exact set
+  lastObserveKey = key;
+
+  fetch("/api/evidence/observe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ symbols }),
+  }).catch(() => {
+    // Non-fatal — observation still works for known symbols
+  });
 }

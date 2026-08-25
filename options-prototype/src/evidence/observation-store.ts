@@ -26,7 +26,8 @@ export type AcquisitionStatus =
   | "failed"
   | "pending"
   | "absent"
-  | "expirations_known";
+  | "expirations_known"
+  | "not_in_universe";
 
 export interface QuoteObservation {
   symbol: string;

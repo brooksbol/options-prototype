@@ -59,6 +59,59 @@ public class SqliteEvidenceStore implements AutoCloseable {
     // --- Evidence Recording ---
 
     /**
+     * Add symbols to the observable population as observation-demand-only.
+     * These symbols are acquirable by the AcquisitionWorker but are NOT included
+     * in the published evidence snapshot (and therefore not recommendation-eligible).
+     *
+     * Idempotent: already-known symbols are no-ops.
+     * Uses source_id = 'observation_demand' to distinguish from recommendation universe sources.
+     */
+    public void addObservationDemand(List<String> symbols) throws SQLException {
+        String now = Instant.now().toString();
+
+        // Ensure the observation_demand source exists
+        try (PreparedStatement ps = conn.prepareStatement(
+                "INSERT OR IGNORE INTO universe_sources (id, name, imported_at, symbol_count) VALUES ('observation_demand', 'Observation Demand', ?, 0)")) {
+            ps.setString(1, now);
+            ps.executeUpdate();
+        }
+
+        // Only process symbols not already in the symbols table.
+        // If a symbol is already known (from initUniverse or prior import), it is already
+        // acquirable and either recommendation-eligible (legacy) or observation-demand.
+        // We must not add observation_demand membership to an existing symbol because that
+        // would interfere with its legacy "no membership = recommendation-eligible" status.
+        List<String> genuinelyNew = findUnknownSymbols(symbols);
+        if (genuinelyNew.isEmpty()) return;
+
+        conn.setAutoCommit(false);
+        try (PreparedStatement insertSymbol = conn.prepareStatement(
+                    "INSERT OR IGNORE INTO symbols (symbol, added_at) VALUES (?, ?)");
+             PreparedStatement insertResolution = conn.prepareStatement(
+                    "INSERT OR IGNORE INTO symbol_resolution (symbol, resolution) VALUES (?, 'pending')");
+             PreparedStatement insertMembership = conn.prepareStatement(
+                    "INSERT OR IGNORE INTO symbol_membership (symbol, source_id) VALUES (?, 'observation_demand')")) {
+            for (String symbol : genuinelyNew) {
+                insertSymbol.setString(1, symbol);
+                insertSymbol.setString(2, now);
+                insertSymbol.executeUpdate();
+
+                insertResolution.setString(1, symbol);
+                insertResolution.executeUpdate();
+
+                insertMembership.setString(1, symbol);
+                insertMembership.executeUpdate();
+            }
+            conn.commit();
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.setAutoCommit(true);
+        }
+    }
+
+    /**
      * Record expirations for a symbol. Empty expirations = absence.
      */
     public void setExpirations(String symbol, String expirationsJson, String retrievedAt) throws SQLException {
@@ -657,7 +710,36 @@ public class SqliteEvidenceStore implements AutoCloseable {
     /**
      * Get all active symbols.
      */
+    /**
+     * Get all active symbols eligible for recommendation (snapshot publication).
+     * Excludes symbols that are observation-demand-only (no recommendation-universe membership).
+     * Symbols with NO membership records (legacy) are included for backward compatibility.
+     */
     public List<String> getAllSymbols() throws SQLException {
+        List<String> symbols = new ArrayList<>();
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("""
+                 SELECT s.symbol FROM symbols s
+                 WHERE s.removed_at IS NULL
+                   AND (
+                     -- Has at least one non-observation-demand source membership
+                     EXISTS (SELECT 1 FROM symbol_membership sm WHERE sm.symbol = s.symbol AND sm.source_id != 'observation_demand')
+                     -- OR has no membership records at all (legacy/initUniverse symbols)
+                     OR NOT EXISTS (SELECT 1 FROM symbol_membership sm WHERE sm.symbol = s.symbol)
+                   )
+                 """)) {
+            while (rs.next()) {
+                symbols.add(rs.getString("symbol"));
+            }
+        }
+        return symbols;
+    }
+
+    /**
+     * Get ALL active symbols regardless of membership source.
+     * Used by the acquisition worker (which services both recommendation and observation-demand symbols).
+     */
+    public List<String> getAllObservableSymbols() throws SQLException {
         List<String> symbols = new ArrayList<>();
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT symbol FROM symbols WHERE removed_at IS NULL")) {

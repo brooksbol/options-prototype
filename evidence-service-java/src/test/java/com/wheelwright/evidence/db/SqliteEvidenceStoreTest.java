@@ -528,4 +528,134 @@ class SqliteEvidenceStoreTest {
             }
         }
     }
+
+    // --- Observation Demand / Recommendation Universe Separation ---
+
+    @Nested
+    @DisplayName("Observation demand vs recommendation universe separation")
+    class ObservationDemandSeparation {
+
+        @Test
+        @DisplayName("observation-demand symbol becomes acquirable (exists in symbols + resolution)")
+        void observationDemandSymbolIsAcquirable() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("XLE")); // seed recommendation symbol
+
+                store.addObservationDemand(List.of("GDZ"));
+
+                // Symbol exists in the store and is queryable
+                Map<String, Object> ev = store.getEvidence("GDZ");
+                assertNotNull(ev, "Observation-demand symbol should exist in evidence store");
+                assertEquals("pending", ev.get("status"));
+
+                // It appears in the acquisition work queue (Class C: pending)
+                List<String> workQueue = store.getWorkQueue();
+                assertTrue(workQueue.contains("GDZ"), "Observation-demand symbol should be in the work queue");
+            }
+        }
+
+        @Test
+        @DisplayName("observation-demand-only symbol is NOT in getAllSymbols (not recommendation-eligible)")
+        void observationDemandOnlyExcludedFromSnapshot() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("XLE")); // recommendation universe
+
+                store.addObservationDemand(List.of("GDZ", "BNE"));
+
+                List<String> snapshotSymbols = store.getAllSymbols();
+                assertTrue(snapshotSymbols.contains("XLE"), "Recommendation symbol should be in snapshot");
+                assertFalse(snapshotSymbols.contains("GDZ"), "Observation-demand-only symbol must NOT be in snapshot");
+                assertFalse(snapshotSymbols.contains("BNE"), "Observation-demand-only symbol must NOT be in snapshot");
+            }
+        }
+
+        @Test
+        @DisplayName("existing recommendation-universe symbol remains in getAllSymbols")
+        void recommendationSymbolRemainsEligible() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("XLE", "SPY", "QQQ"));
+
+                // Add some observation demand (should not affect existing symbols)
+                store.addObservationDemand(List.of("GDZ"));
+
+                List<String> snapshotSymbols = store.getAllSymbols();
+                assertTrue(snapshotSymbols.contains("XLE"));
+                assertTrue(snapshotSymbols.contains("SPY"));
+                assertTrue(snapshotSymbols.contains("QQQ"));
+                assertEquals(3, snapshotSymbols.size(), "Only recommendation symbols in snapshot");
+            }
+        }
+
+        @Test
+        @DisplayName("dual membership: symbol with both observation_demand AND recommendation source stays in getAllSymbols")
+        void dualMembershipPreservesRecommendationEligibility() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("XLE"));
+
+                // XLE is already in the universe (legacy, no membership records).
+                // Now also add it as observation demand — it should still appear in snapshot.
+                store.addObservationDemand(List.of("XLE"));
+
+                List<String> snapshotSymbols = store.getAllSymbols();
+                assertTrue(snapshotSymbols.contains("XLE"),
+                    "Symbol with dual membership (legacy + observation_demand) must remain recommendation-eligible");
+            }
+        }
+
+        @Test
+        @DisplayName("repeated addObservationDemand is idempotent — no duplicates or corruption")
+        void observationDemandIdempotent() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("XLE"));
+
+                store.addObservationDemand(List.of("GDZ", "BNE"));
+                store.addObservationDemand(List.of("GDZ", "BNE")); // repeat
+                store.addObservationDemand(List.of("GDZ")); // partial repeat
+
+                // Still exactly one pending resolution per symbol
+                Map<String, Object> gdz = store.getEvidence("GDZ");
+                assertEquals("pending", gdz.get("status"));
+
+                // Still excluded from snapshot
+                List<String> snapshotSymbols = store.getAllSymbols();
+                assertFalse(snapshotSymbols.contains("GDZ"));
+                assertFalse(snapshotSymbols.contains("BNE"));
+
+                // Work queue doesn't have duplicates
+                List<String> workQueue = store.getWorkQueue();
+                long gdzCount = workQueue.stream().filter(s -> s.equals("GDZ")).count();
+                assertEquals(1, gdzCount, "No duplicate work queue entries");
+            }
+        }
+
+        @Test
+        @DisplayName("observation_demand source is registered in universe_sources")
+        void observationDemandSourceRegistered() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("XLE"));
+                store.addObservationDemand(List.of("GDZ"));
+
+                // Verify the source exists (query directly since no public API)
+                try (var ps = store.getConnection().prepareStatement(
+                        "SELECT id, name FROM universe_sources WHERE id = 'observation_demand'");
+                     var rs = ps.executeQuery()) {
+                    assertTrue(rs.next(), "observation_demand source must be registered");
+                    assertEquals("Observation Demand", rs.getString("name"));
+                }
+            }
+        }
+
+        @Test
+        @DisplayName("observation-demand symbol is observable via getAllObservableSymbols")
+        void observationDemandInObservableSet() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("XLE"));
+                store.addObservationDemand(List.of("GDZ"));
+
+                List<String> observable = store.getAllObservableSymbols();
+                assertTrue(observable.contains("XLE"), "Recommendation symbol is observable");
+                assertTrue(observable.contains("GDZ"), "Observation-demand symbol is observable");
+            }
+        }
+    }
 }
