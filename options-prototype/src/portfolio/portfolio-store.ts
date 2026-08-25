@@ -40,14 +40,15 @@ function recordPortfolioCapitalObservation(snapshot: PortfolioSnapshot): void {
   const derivation = derivePortfolioCapital(snapshot);
   if (!derivation) return;
 
-  // Prefer the Fidelity export timestamp (when the data was true)
-  // over the import time (when the operator happened to upload)
-  const timestamp =
+  // The observation is keyed to TODAY (the day the operator imported).
+  // Fidelity export timestamps are provenance — they tell us when the data was true,
+  // but the trajectory point represents "I took a reading on this calendar day."
+  const sourceTimestamp =
     snapshot.provenance?.balancesExportTimestamp ??
     snapshot.provenance?.optionSummaryExportTimestamp ??
     new Date().toISOString();
 
-  recordObservation(timestamp, derivation.portfolioCapital);
+  recordObservation(sourceTimestamp, derivation.portfolioCapital, new Date());
 }
 
 // --- Import Status ---
@@ -319,9 +320,9 @@ function hydrate(): void {
       currentImportStatus.readinessStatus = currentSnapshot.readiness.status;
       currentImportStatus.validationWarnings = currentSnapshot.readiness.warnings;
 
-      // Record observation on hydration (ensures history is seeded even if
-      // the operator imported before this feature existed; dedup prevents duplicates)
-      recordPortfolioCapitalObservation(currentSnapshot);
+      // Hydration does NOT create a new daily observation.
+      // Observations are created only by explicit operator import actions (setPortfolio).
+      // This prevents opening the app from silently manufacturing trajectory points.
 
       // Restore Activity CSV and apply projection
       const actStored = localStorage.getItem(LS_KEY_ACTIVITY);

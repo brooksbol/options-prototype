@@ -10425,3 +10425,98 @@ The architecture works. The remaining gap (3 minutes past the checkpoint) is a n
 3. **Perceptual layer** design (existing parking lot / architectural concept) — today's experiment provides a concrete design criterion
 4. **Do not optimize** burst duration unless it repeatedly collides with actual operator demand
 5. **Consider** whether the experiment is ready for formal conclusion or needs additional observations
+
+
+---
+
+## 2026-08-25 — Console Perceptual Legibility: Blur-Ability Experiments
+
+### Context
+
+The prior session's usability analysis concluded that the Operator Console contained substantial economic evidence but required conscious reading to extract. The question "How am I doing?" could not be answered by human vision alone — it required reading every number, performing mental arithmetic, and synthesizing across columns.
+
+The session began with a broader architectural investigation (morning decision workflow, assessment hierarchy, evaluative model) and converged on a much simpler practical question:
+
+> What does this screen already know that it currently makes the operator read instead of letting the operator see?
+
+### Key Architectural Discovery
+
+The Console does not presently need a synthetic assessment engine, portfolio-health score, or computed "How am I doing?" indicator.
+
+Instead, making existing authoritative evidence perceptually legible proved sufficient for much of the assessment synthesis. Human vision, when given adequately encoded signals, can compose the answer from multiple independent channels without software computing it.
+
+**Preserve this principle:** Prefer making authoritative evidence perceptually legible before synthesizing it into computed judgment.
+
+A health score requires defining and encoding "good" (thresholds, weighting, strategy semantics, mandate, aggregation). This iteration avoided prematurely introducing that machinery.
+
+### What Was Implemented
+
+Three primary position-level perceptual channels with deliberate hierarchy:
+
+**1. Moneyness (primary) — "Where am I?"**
+- Full moneyness `<td>` cell carries intent-aware background color (green/amber/red based on strategy type)
+- Intraday sparkline traces are time-proportional (x-axis = trading session 09:30–16:00 ET)
+- Sparkline region fills removed; the cell background IS the state signal
+- Trace terminates naturally at latest evidence (no endpoint dots)
+- Un-elapsed session time remains blank — communicates evidence coverage
+- The column forms a portfolio-wide red/amber/green field visible under blur
+
+**2. Delta (secondary) — "How strongly is the option leaning toward the intended outcome?"**
+- New compact column with intent-aware continuous gradient encoding
+- BW/CC: high delta → green (progressing toward call-away); low delta → red
+- CSP: low delta → green (low assignment pressure); high delta → red
+- Amber transition zone around 0.45–0.55 (no hard boundary)
+- Quadratic intensity scaling for perceptual dynamic range
+- Delta sourced from cached chain evidence via new `usePositionDeltas` hook
+
+**3. Economic Consequence (tertiary) — "What happens if it resolves?"**
+- Existing consequence cells (If Called Away, Market vs Basis, Premium Booked) gained background fills
+- Favorable = green at 22% opacity; adverse = red at 18%; unknown = no fill
+- These act as exception detectors — contradictions between moneyness/delta and consequence are immediately visible
+
+**Supporting:** Capital % proportional bars (neutral magnitude encoding, no good/bad semantics)
+
+### Visual Grammar Established
+
+The three channels compose without explicit software synthesis:
+
+- Moneyness → where am I relative to strike?
+- Delta → how strongly am I leaning toward the intended resolution?
+- Consequence → what happens economically if that resolution occurs?
+
+Example of visual contradiction (EWY): strong favorable moneyness + moderate delta alignment + adverse consequence. The channels independently say "getting there" + "moving toward resolution" + "resolving here would hurt." The operator perceives "this deserves attention" without any code computing that sentence.
+
+### Additional Changes
+
+**Column reordering:** Strike | Spot | Moneyness now adjacent — the price relationship reads left-to-right naturally.
+
+**Group-by bar frozen:** `app-shell.css` changed from `min-height: 100vh` to `height: 100vh` with `overflow: hidden` on `.as-body`, ensuring the group-by controls stay fixed while position rows scroll beneath.
+
+**Portfolio Capital daily-observation fix:** Observations are now keyed to the operator's local calendar day of import (not Fidelity export timestamp). Semantics: "On this day I took a reading." Hydration doesn't manufacture observations. 7 focused tests added.
+
+### Design Principles Established
+
+1. **Blur-test:** Important portfolio state should survive peripheral vision. Area/background encoding is substantially more effective than tiny colored text.
+
+2. **Human vision is the synthesizer:** Multiple independent visual channels can compose into operator understanding without aggregation machinery.
+
+3. **Channels can disagree:** A position can show favorable moneyness, strong delta alignment, AND adverse consequence. That contradiction IS the signal. Do not collapse it into a single score.
+
+4. **Evidence-presentation deficit vs reasoning deficit:** Before adding agents, scores, or synthesis machinery, first determine whether the operator simply needs existing evidence in a form human perception can use.
+
+5. **Perceptual hierarchy:** Not all signals should be equally loud. Moneyness (largest area) > Delta (compact column) > Consequence (cell backgrounds). Visual weight should correspond to information priority.
+
+### What Was Not Done
+
+- No assessment engine, health score, or "How am I doing?" indicator
+- No Situation/Mission rendering
+- No DTE urgency encoding (identified as the likely next perceptual dimension)
+- No changes to recommendation semantics, acquisition, or backend evidence
+- No additional Greeks beyond delta
+- No treemap restoration
+- No changes to Write Desk or Production surfaces
+
+### Milestone Disposition
+
+The Console is now a genuine operator cognitive surface, not merely a portfolio-state table. Future work should be driven by actual operational use — noticing what still forces the operator to click, compute, remember, or laboriously compare.
+

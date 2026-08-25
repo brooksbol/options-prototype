@@ -2,16 +2,26 @@
  * Portfolio Capital History — Observation Persistence
  *
  * Persists Portfolio Capital observations as a longitudinal series in localStorage.
- * Each observation is a (timestamp, value) pair recorded when the operator imports
- * Fidelity CSV data. The series grows over time as the operator repeatedly imports.
+ * Each observation represents one day's Portfolio Capital reading, recorded when
+ * the operator successfully imports Fidelity CSV data.
  *
- * This is the first piece of infrastructure for the header trajectory chart.
- * It records truthful observations without interpolation or inference.
+ * Semantic model (August 2026):
+ *   - One observation per operator-local calendar day.
+ *   - The observation is created by a successful CSV import, not by application startup.
+ *   - The observation identity is the LOCAL calendar day of import (not the Fidelity
+ *     export timestamp). Fidelity export timestamps are provenance — they tell us
+ *     when the underlying broker evidence was generated. The trajectory point represents
+ *     "the operator took a reading on this calendar day."
+ *   - Multiple imports on the same day update/replace that day's single observation.
+ *   - Hydration (opening the app) does NOT create observations.
+ *   - A dot on the trajectory chart means: "On this day, I imported and my Portfolio
+ *     Capital was $X."
  *
  * Design decisions:
  *   - localStorage (operator-provided data, same authority model as portfolio CSV)
- *   - Deduplication by timestamp (re-importing the same CSV doesn't create duplicates)
+ *   - Deduplication by local calendar date (one point per day, most recent import wins)
  *   - Sorted chronologically
+ *   - Timestamps stored as "YYYY-MM-DDT12:00:00" (local noon) for stable day identity
  *   - No maximum size limit initially (months of daily observations = small)
  *
  * See: docs/journal/project-journal.md — "Portfolio Capital Trajectory Discovery"
@@ -60,30 +70,49 @@ export function loadHistory(): PortfolioCapitalObservation[] {
 }
 
 /**
- * Record a new Portfolio Capital observation.
+ * Record a new Portfolio Capital observation for today's import.
  *
- * Deduplicates by timestamp: if an observation with the same timestamp already
- * exists, it is replaced (the operator may have re-imported with corrected data).
+ * Deduplicates by LOCAL calendar date: one observation per day.
+ * Multiple imports on the same day update/replace that day's point.
+ * The timestamp stored represents the calendar day at local noon
+ * (avoids UTC boundary issues shifting observations to adjacent dates).
  *
  * Returns the updated history.
  */
 export function recordObservation(
-  timestamp: string,
+  _sourceTimestamp: string,
   value: number,
+  importDate: Date = new Date(),
 ): PortfolioCapitalObservation[] {
   const history = loadHistory();
 
-  // Deduplicate: replace any existing observation at the same timestamp
-  const existingIndex = history.findIndex((o) => o.timestamp === timestamp);
+  // Calendar day identity: local YYYY-MM-DD
+  const dayKey = toLocalDateKey(importDate);
+  // Store as local noon ISO — stable sort order, avoids UTC date-shift
+  const dayTimestamp = dayKey + "T12:00:00";
+
+  // Deduplicate: replace any existing observation for the same calendar day
+  const existingIndex = history.findIndex((o) => toLocalDateKey(new Date(o.timestamp)) === dayKey);
   if (existingIndex >= 0) {
-    history[existingIndex] = { timestamp, value };
+    history[existingIndex] = { timestamp: dayTimestamp, value };
   } else {
-    history.push({ timestamp, value });
+    history.push({ timestamp: dayTimestamp, value });
     history.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
   }
 
   localStorage.setItem(LS_KEY_HISTORY, JSON.stringify(history));
   return history;
+}
+
+/**
+ * Extract local calendar date as YYYY-MM-DD string.
+ * Uses the operator's local timezone, not UTC.
+ */
+function toLocalDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 /**

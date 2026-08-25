@@ -12,6 +12,7 @@ import { useState, useCallback, useMemo } from "react";
 import { usePortfolio } from "../portfolio/use-portfolio";
 import { useObservations } from "../evidence/use-observations";
 import { useSpotHistory, type SpotHistoryMap } from "../evidence/use-spot-history";
+import { usePositionDeltas, type PositionDeltaMap } from "../operator-console/use-position-deltas";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
 import { buildPositionDetail, type PositionDetail } from "../portfolio/position-detail";
 import type { OptionBasisInput } from "../portfolio/assignment-consequence";
@@ -118,11 +119,13 @@ export function OperatorConsole() {
   const positions = deriveMonitoredPositions(snapshot, observations);
   const rungs = groupByExpiration(positions);
   const totalCapital = rungs.reduce((sum, r) => sum + r.totalCapital, 0);
+  const maxPositionCapital = Math.max(...positions.map(p => p.encumberedCapital ?? 0), 1);
 
   // Spot history for sparklines — real data for Fidelity, synthetic for Demo
   const isDemoSource = source === "demo";
   const underlyings = useMemo(() => [...new Set(positions.map(p => p.underlying))].sort(), [positions]);
   const spotHistory = useSpotHistory(underlyings, !isDemoSource, observations.generation);
+  const positionDeltas = usePositionDeltas(positions, observations.generation);
 
   // Alternative groupings for regime B
   const groups: { label: string; sublabel?: string; positions: MonitoredPosition[]; totalCapital: number }[] = (() => {
@@ -236,14 +239,14 @@ export function OperatorConsole() {
                         <span className="oc-rung-count">{group.positions.length} position{group.positions.length !== 1 ? "s" : ""}</span>
                       </div>
                       {!isCollapsed && (
-                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
                       )}
                     </div>
                   );
                 })
               ) : (
                 rungs.map((rung) => (
-                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
                 ))
               )}
             </div>
@@ -272,7 +275,7 @@ export function OperatorConsole() {
 
 // --- Expiration Rung ---
 
-function ExpirationRungRow({ rung, totalCapital, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
+function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDeltas, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
   const rungPercent = totalCapital > 0 ? Math.round((rung.totalCapital / totalCapital) * 100) : 0;
 
   return (
@@ -285,7 +288,7 @@ function ExpirationRungRow({ rung, totalCapital, onTileClick, vizRegime, isDemoS
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
       {vizRegime === "b" ? (
-        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
       ) : (
         <PositionGrid positions={rung.positions} onTileClick={onTileClick} vizRegime={vizRegime} totalCapital={rung.totalCapital} />
       )}
@@ -654,7 +657,7 @@ function PositionTableHeader() {
 }
 
 /** Regime B: Dense fixed-geometry rows using native <table> for proper column alignment */
-function PositionTable({ positions, onTileClick, totalCapital, allPositionsTotalCapital, isDemoSource, spotHistory, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
+function PositionTable({ positions, onTileClick, totalCapital, allPositionsTotalCapital, maxPositionCapital, positionDeltas, isDemoSource, spotHistory, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
 
   // Apply within-group sorting
   const sortedPositions = sortColumn
@@ -682,11 +685,12 @@ function PositionTable({ positions, onTileClick, totalCapital, allPositionsTotal
           <th>Type</th>
           {renderSortHeader("Symbol", "symbol")}
           {renderSortHeader("Strike", "strike", "oc-th-right")}
+          {renderSortHeader("Spot", "spot", "oc-th-right")}
+          {renderSortHeader("Moneyness", "moneyness")}
           {renderSortHeader("Expiration", "expiration")}
           {renderSortHeader("DTE", "dte", "oc-th-right")}
-          {renderSortHeader("Spot", "spot", "oc-th-right")}
+          <th className="oc-th-right">Delta</th>
           {renderSortHeader("Contracts", "contracts", "oc-th-center")}
-          {renderSortHeader("Moneyness", "moneyness")}
           {renderSortHeader("Capital", "capital", "oc-th-right")}
           <th className="oc-th-right">Capital %</th>
           <th className="oc-th-right">Share Basis</th>
@@ -720,6 +724,7 @@ function PositionTable({ positions, onTileClick, totalCapital, allPositionsTotal
                 realSpotSeries.map(obs => obs.price),
                 position.strike,
                 position.type,
+                realSpotSeries.map(obs => obs.observedAt),
               );
             }
           }
@@ -743,15 +748,88 @@ function PositionTable({ positions, onTileClick, totalCapital, allPositionsTotal
               <td className="oc-td-badge"><span className={`oc-badge oc-badge-${position.type}`}>{badge}</span></td>
               <td className="oc-td-symbol">{position.underlying}</td>
               <td className="oc-td-right">${position.strike}</td>
-              <td className="oc-td-exp">{formatExpiration(position.expiration)}</td>
-              <td className="oc-td-right">{position.dte}d</td>
               <td className="oc-td-right">{position.underlyingPrice != null ? `$${position.underlyingPrice.toFixed(2)}` : "—"}</td>
-              <td className="oc-td-center">{position.quantity}</td>
-              <td className="oc-td-moneyness">
+              <td className={`oc-td-moneyness oc-td-moneyness-${colorClass}`}>
                 <MoneynessCellV4 points={moneynessPoints} type={position.type} currentMoneyness={position.moneyness} mDisplay={mDisplay} colorClass={colorClass} />
               </td>
+              <td className="oc-td-exp">{formatExpiration(position.expiration)}</td>
+              <td className="oc-td-right">{position.dte}d</td>
+              {(() => {
+                const delta = positionDeltas.get(position.id) ?? null;
+                if (delta == null) {
+                  return <td className="oc-td-right oc-td-delta">—</td>;
+                }
+                // Intent-aware color intensity:
+                // BW: high delta = leaning toward call-away (green), low delta = not progressing (red)
+                // CSP: low |delta| = low assignment pressure (green), high |delta| = assignment pressure (red)
+                // Call: neutral (no intent-aware coloring)
+                //
+                // Gradient zones (continuous, no hard boundaries):
+                //   ~0.20–0.35: one pole
+                //   ~0.35–0.45: transitioning
+                //   ~0.45–0.55: amber / neutral zone
+                //   ~0.55–0.70: transitioning to other pole
+                //   ~0.70–1.00: strong other pole
+                let intensity = 0;
+                let hue: "green" | "red" | "amber" | "neutral" = "neutral";
+                if (position.type === "put") {
+                  // CSP: low delta = green (safe), high delta = red (assignment pressure)
+                  // Center of amber zone at ~0.45
+                  if (delta <= 0.35) {
+                    // Strong green zone
+                    const t = 1 - (delta - 0.10) / 0.25; // 0.10→1.0, 0.35→0.0
+                    intensity = 0.08 + Math.max(0, t) * t * 0.30;
+                    hue = "green";
+                  } else if (delta <= 0.55) {
+                    // Amber transition zone
+                    intensity = 0.12;
+                    hue = "amber";
+                  } else {
+                    // Red zone — increasing assignment pressure
+                    const t = Math.min(1, (delta - 0.55) / 0.35); // 0.55→0.0, 0.90→1.0
+                    intensity = 0.08 + t * t * 0.30;
+                    hue = "red";
+                  }
+                } else if (position.type === "buy-write") {
+                  // BW: high delta = green (leaning toward call-away), low delta = red (not progressing)
+                  // Center of amber zone at ~0.50
+                  if (delta >= 0.55) {
+                    // Green zone — progressing toward designed exit
+                    const t = Math.min(1, (delta - 0.55) / 0.35); // 0.55→0.0, 0.90→1.0
+                    intensity = 0.08 + t * t * 0.30;
+                    hue = "green";
+                  } else if (delta >= 0.40) {
+                    // Amber transition zone
+                    intensity = 0.12;
+                    hue = "amber";
+                  } else {
+                    // Red zone — not progressing toward call-away
+                    const t = 1 - delta / 0.40; // 0.0→1.0, 0.40→0.0
+                    intensity = 0.08 + Math.max(0, t) * t * 0.30;
+                    hue = "red";
+                  }
+                }
+                const bg = hue === "green"
+                  ? `rgba(22, 163, 74, ${intensity})`
+                  : hue === "red"
+                    ? `rgba(220, 38, 38, ${intensity})`
+                    : hue === "amber"
+                      ? `rgba(202, 138, 4, ${intensity})`
+                      : undefined;
+                return (
+                  <td className="oc-td-right oc-td-delta" style={bg ? { background: bg } : undefined}>
+                    {delta.toFixed(2)}
+                  </td>
+                );
+              })()}
+              <td className="oc-td-center">{position.quantity}</td>
               <td className="oc-td-right">{position.encumberedCapital != null ? `$${position.encumberedCapital.toLocaleString()}` : "—"}</td>
-              <td className="oc-td-right oc-td-secondary">{capitalPct != null ? `${capitalPct}%` : "—"}</td>
+              <td
+                className="oc-td-right oc-td-capital-pct"
+                style={capitalPct != null && position.encumberedCapital != null ? {
+                  background: `linear-gradient(to right, rgba(100, 116, 139, 0.18) ${Math.round((position.encumberedCapital / maxPositionCapital) * 100)}%, transparent ${Math.round((position.encumberedCapital / maxPositionCapital) * 100)}%)`,
+                } : undefined}
+              >{capitalPct != null ? `${capitalPct}%` : "—"}</td>
               <td className={`oc-td-right ${shareBasisCell.className}`} title={shareBasisCell.title}>{shareBasisCell.display}</td>
               <td className={`oc-td-right ${premiumCell.className}`} title={premiumCell.title}>{premiumCell.display}</td>
               <td className={`oc-td-right ${effectiveExitCell.className}`} title={effectiveExitCell.title}>{effectiveExitCell.display}</td>
@@ -860,7 +938,7 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
 
   return (
     <tr className="oc-trow-totals">
-      <td colSpan={8} className="oc-td-totals-label">Total</td>
+      <td colSpan={9} className="oc-td-totals-label">Total</td>
       <td className="oc-td-right">${capitalTotal.toLocaleString()}</td>
       <td />
       <td />
@@ -884,8 +962,9 @@ import { moneynessColor, type MoneynessColorClass } from "../operator-console/mo
 import { generateDemoSpotHistory, deriveMoneynessHistory, type MoneynessPoint } from "../operator-console/moneyness-history";
 
 /**
- * MoneynessCellV4 — compound cell: compact numeric + 90px semantic sparkline.
+ * MoneynessCellV4 — compound cell: compact numeric + semantic sparkline.
  * V4 visual grammar: chart-dominant, segmented trace, moderate regions, strong zero.
+ * Perceptual amplification (Aug 2026): larger geometry, stronger fills, endpoint marker.
  */
 function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass }: {
   points: MoneynessPoint[];
@@ -918,43 +997,43 @@ function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass 
         <span style={{ fontSize: "9px", fontWeight: 700, color: textColor, whiteSpace: "nowrap" }}>
           {mDisplay}
         </span>
-        <svg width={90} height={16} viewBox="0 0 90 16" style={{ display: "block", flexShrink: 0, opacity: 0.4 }}>
-          {/* Muted zero-line baseline */}
-          <line x1={1} y1={8} x2={89} y2={8} stroke="#9ca3af" strokeWidth="0.5" strokeDasharray="2 3" />
+        <svg width={160} height={24} viewBox="0 0 160 24" style={{ display: "block", flexShrink: 0, opacity: 0.5 }}>
+          {/* Strike boundary */}
+          <line x1={1} y1={12} x2={159} y2={12} stroke="#9ca3af" strokeWidth="1" strokeDasharray="3 3" />
           {/* Dot(s) representing the few observations we have */}
           {points.map((p, i) => {
-            const px = points.length === 1 ? 45 : 1 + (i / (points.length - 1)) * 88;
-            const py = 8 - (p.moneyness / 0.05) * 6; // scale loosely
-            const clampedY = Math.max(2, Math.min(14, py));
-            return <circle key={i} cx={px} cy={clampedY} r={1.8} fill="#9ca3af" />;
+            const px = points.length === 1 ? 80 : 1 + (i / (points.length - 1)) * 158;
+            const py = 12 - (p.moneyness / 0.05) * 8;
+            const clampedY = Math.max(3, Math.min(21, py));
+            return <circle key={i} cx={px} cy={clampedY} r={2.5} fill="#9ca3af" />;
           })}
         </svg>
       </span>
     );
   }
 
-  const SPARK_W = 90;
-  const SPARK_H = 16;
+  const SPARK_W = 160;
+  const SPARK_H = 24;
   const PAD = 1;
   const plotH = SPARK_H - PAD * 2;
   const maxAbs = Math.max(...points.map(p => Math.abs(p.moneyness)), 0.005);
   const zeroY = PAD + plotH / 2;
 
   const sYScale = (m: number) => PAD + plotH / 2 - (m / maxAbs) * (plotH / 2);
-  const sXPos = (i: number) => PAD + (i / (points.length - 1)) * (SPARK_W - PAD * 2);
+  const sXPos = (i: number) => PAD + points[i].t * (SPARK_W - PAD * 2);
 
-  // Region colors (intent-aware)
-  const regionOpacity = 0.08;
+  // Region colors (intent-aware) — amplified opacity for blur-visibility
+  const regionOpacity = 0.20;
   const itmRegionColor = type === "put"
     ? `rgba(220, 38, 38, ${regionOpacity})`
     : type === "buy-write"
       ? `rgba(22, 163, 74, ${regionOpacity})`
-      : `rgba(107, 114, 128, ${regionOpacity * 0.5})`;
+      : `rgba(107, 114, 128, ${regionOpacity * 0.4})`;
   const otmRegionColor = type === "put"
     ? `rgba(22, 163, 74, ${regionOpacity})`
     : type === "buy-write"
       ? `rgba(220, 38, 38, ${regionOpacity})`
-      : `rgba(107, 114, 128, ${regionOpacity * 0.5})`;
+      : `rgba(107, 114, 128, ${regionOpacity * 0.4})`;
 
   // Segmented trace
   const segments: { x1: number; y1: number; x2: number; y2: number; color: string }[] = [];
@@ -977,16 +1056,16 @@ function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass 
   }
 
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}>
+    <span style={{ display: "flex", alignItems: "center", gap: "3px", width: "100%" }}>
       <span style={{ fontSize: "9px", fontWeight: 700, color: textColor, whiteSpace: "nowrap" }}>
         {mDisplay}
       </span>
-      <svg width={SPARK_W} height={SPARK_H} viewBox={`0 0 ${SPARK_W} ${SPARK_H}`} style={{ display: "block", flexShrink: 0 }}>
-        <rect x={0} y={0} width={SPARK_W} height={zeroY} fill={itmRegionColor} />
-        <rect x={0} y={zeroY} width={SPARK_W} height={SPARK_H - zeroY} fill={otmRegionColor} />
-        <line x1={PAD} y1={zeroY} x2={SPARK_W - PAD} y2={zeroY} stroke="#6b7280" strokeWidth="0.8" />
+      <svg width="100%" height={SPARK_H} viewBox={`0 0 ${SPARK_W} ${SPARK_H}`} preserveAspectRatio="none" style={{ display: "block", flexShrink: 0, flex: 1 }}>
+        {/* Strike boundary — the zero line */}
+        <line x1={PAD} y1={zeroY} x2={SPARK_W - PAD} y2={zeroY} stroke="#6b7280" strokeWidth="1.2" />
+        {/* Trajectory trace */}
         {segments.map((seg, i) => (
-          <line key={i} x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2} stroke={seg.color} strokeWidth="1.3" strokeLinecap="round" />
+          <line key={i} x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2} stroke={seg.color} strokeWidth="2" strokeLinecap="round" />
         ))}
       </svg>
     </span>

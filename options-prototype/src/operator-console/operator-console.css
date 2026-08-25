@@ -781,16 +781,19 @@
 .oc-col-premium {
   color: var(--wd-accent-green);
   font-weight: 600;
+  background: rgba(22, 101, 52, 0.18);
 }
 
 .oc-col-positive {
   color: var(--wd-accent-green);
   font-weight: 600;
+  background: rgba(22, 101, 52, 0.22);
 }
 
 .oc-col-negative {
   color: var(--wd-accent-red);
   font-weight: 600;
+  background: rgba(185, 28, 28, 0.18);
 }
 
 .oc-col-batch {
@@ -857,6 +860,23 @@
 
 .oc-row-moneyness-compound {
   overflow: hidden;
+}
+
+/* Moneyness cell background — matches the sparkline's region fill exactly */
+.oc-td-moneyness-favorable {
+  background: rgba(22, 163, 74, 0.20);
+}
+
+.oc-td-moneyness-unfavorable {
+  background: rgba(220, 38, 38, 0.20);
+}
+
+.oc-td-moneyness-ambiguous {
+  background: rgba(202, 138, 4, 0.20);
+}
+
+.oc-td-moneyness-neutral {
+  /* No fill — intent unknown, no visual signal */
 }
 
 
@@ -974,6 +994,19 @@
 .oc-td-right { text-align: right; }
 .oc-td-center { text-align: center; }
 .oc-td-secondary { color: var(--wd-text-secondary); }
+
+.oc-td-capital-pct {
+  color: var(--wd-text-secondary);
+  font-size: 10px;
+  font-weight: var(--wd-weight-semi);
+  position: relative;
+}
+
+.oc-td-delta {
+  font-size: 10px;
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-secondary);
+}
 
 .oc-td-badge { font-family: var(--wd-font-sans); font-size: 9px; font-weight: var(--wd-weight-semi); }
 .oc-badge { padding: 1px 4px; border-radius: 2px; }

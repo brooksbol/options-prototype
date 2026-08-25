@@ -19,7 +19,7 @@ import type { PositionType } from "../portfolio/position-monitoring";
 // --- Types ---
 
 export interface MoneynessPoint {
-  /** Fractional session progress (0 = market open, 1 = market close) */
+  /** Fractional position within the trading session (0 = 09:30 ET, 1 = 16:00 ET) */
   t: number;
   /** Signed moneyness: same formula as position-monitoring.ts */
   moneyness: number;
@@ -166,21 +166,69 @@ export function generateDemoSpotHistory(symbol: string, currentSpot: number): nu
  *
  * Returns evenly-spaced MoneynessPoints with t in [0, 1].
  */
+/**
+ * Derive moneyness trajectory from spot history + strike.
+ *
+ * When timestamps are provided, x-positions are proportional to time within
+ * the trading session (09:30–16:00 ET). Un-elapsed future remains blank.
+ * When only prices are provided (Demo mode), falls back to evenly-spaced positions.
+ *
+ * Returns MoneynessPoints with t in [0, 1] representing position in the session.
+ */
 export function deriveMoneynessHistory(
   spotHistory: number[],
   strike: number,
   type: PositionType,
+  timestamps?: string[],
 ): MoneynessPoint[] {
   if (spotHistory.length === 0 || strike <= 0) return [];
 
-  const step = spotHistory.length > 1 ? 1 / (spotHistory.length - 1) : 0;
+  // If timestamps provided, use time-proportional positioning
+  if (timestamps && timestamps.length === spotHistory.length) {
+    // Trading session: 09:30–16:00 ET = 6.5 hours = 23400 seconds
+    // Convert each timestamp to fraction of session
+    const SESSION_START_MINUTES = 9 * 60 + 30; // 09:30 ET in minutes from midnight
+    const SESSION_END_MINUTES = 16 * 60;       // 16:00 ET in minutes from midnight
+    const SESSION_DURATION = SESSION_END_MINUTES - SESSION_START_MINUTES; // 390 minutes
 
+    return spotHistory.map((spot, i) => {
+      const moneyness = type === "put"
+        ? (strike - spot) / strike
+        : (spot - strike) / strike;
+
+      // Parse timestamp and convert to ET minutes from midnight
+      const date = new Date(timestamps[i]);
+      const etMinutes = getETMinutes(date);
+      const t = Math.max(0, Math.min(1, (etMinutes - SESSION_START_MINUTES) / SESSION_DURATION));
+
+      return { t, moneyness };
+    });
+  }
+
+  // Fallback: evenly spaced (Demo mode)
+  const step = spotHistory.length > 1 ? 1 / (spotHistory.length - 1) : 0;
   return spotHistory.map((spot, i) => {
     const moneyness = type === "put"
       ? (strike - spot) / strike
-      : (spot - strike) / strike; // call and buy-write use same formula
+      : (spot - strike) / strike;
     return { t: i * step, moneyness };
   });
+}
+
+/**
+ * Convert a Date to ET minutes from midnight.
+ * Approximates EDT (UTC-4) / EST (UTC-5) using the same heuristic as SessionGate.
+ */
+function getETMinutes(date: Date): number {
+  const month = date.getUTCMonth() + 1;
+  const day = date.getUTCDate();
+  const isEDT = (month > 3 && month < 11)
+    || (month === 3 && day >= 8)
+    || (month === 11 && day < 1);
+  const etOffsetHours = isEDT ? -4 : -5;
+  const etMs = date.getTime() + etOffsetHours * 3600_000;
+  const etDate = new Date(etMs);
+  return etDate.getUTCHours() * 60 + etDate.getUTCMinutes();
 }
 
 /**
