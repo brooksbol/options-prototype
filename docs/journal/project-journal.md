@@ -10290,3 +10290,138 @@ Change: +$477.75. Causal decomposition not performed — recorded as observed ch
 **Policy:** Required freshness/priority should derive from the monitoring obligation itself, not inherit recommendation-scheduling classes by convenience. Implementation mechanism not yet prescribed.
 
 **Recorded in:** PL-EVID-01 (Historical Evidence / Observation Architecture).
+
+
+---
+
+## 2026-08-25 — Opening-Relevant Evidence Experiment: Tuesday Clean-Host Observation
+
+### Experimental Context
+
+Continuation of the Monday opening experiment. Environmental change: Mac power settings configured to prevent system sleep on AC power. Wheelwright evidence service remained running overnight (PID 45127, started Sunday 20:56 MT). No implementation changes from Monday.
+
+**Primary question:** Does Wheelwright, operating as an unattended local evidence appliance, produce a fully prepared board before the operator arrives?
+
+**Operator acceptance checkpoint:** 7:48 MT / 9:48 ET. Desired state: fully hydrated and decision-ready.
+
+### Host Execution Evidence
+
+macOS `pmset -g log` confirms:
+- Last sleep/wake activity: Monday 2026-08-24 08:05:07 MT (UserWake)
+- Display off: Monday 17:34 MT
+- **No sleep events between Monday 17:34 MT and Tuesday 07:02 MT** (13.5 hours continuously executing)
+- Display on: Tuesday 07:02 MT (operator arrival)
+
+The power-settings change worked. The host remained continuously executing overnight.
+
+### Observed Timeline
+
+| Event | UTC | MT | ET |
+|-------|-----|----|----|
+| Phase 1 start (autonomous) | 13:02:50 | 7:02:50 | 9:02:50 |
+| Expirations satisfied | ~13:31 | ~7:31 | ~9:31 |
+| Phase 2 transition | 13:30+ | 7:30+ | 9:30+ |
+| Phase 3 / burst start | **13:45:19** | **7:45:19** | **9:45:19** |
+| First opening-set chain | 13:45:34 | 7:45:34 | 9:45:34 |
+| **7:48 MT checkpoint** | **13:48** | **7:48** | **9:48** |
+| 50% hydration (30/60) | 13:49:12 | 7:49:12 | 9:49:12 |
+| 80% hydration (48/60) | 13:49:48 | 7:49:48 | 9:49:48 |
+| 100% hydration (60/60) | **13:51:21** | **7:51:21** | **9:51:21** |
+| Operator confirms board useful | ~13:55 | ~7:55 | ~9:55 |
+
+### Mechanism Evidence
+
+**Phase transitions — all autonomous, no operator interaction required:**
+- Phase 1 started within 3 minutes of 09:00 ET boundary (5-min BLOCKED poll interval)
+- Phase 2 transitioned seamlessly (scheduler already actively cycling)
+- Phase 3 started **19 seconds** after 09:45 ET boundary (30s idle-poll interval)
+
+**Burst performance:**
+
+| Metric | Monday (warm-start) | Tuesday (steady-state) |
+|--------|--------------------|-----------------------|
+| Burst start | 9:58:44 ET (13 min late, sleep) | **9:45:19 ET** (19s after boundary) |
+| Duration to 100% | 11m 35s | **6m 02s** |
+| Provider calls | 482 | **180** |
+| Floor interruptions | 2 | 9 |
+| Calls per symbol | ~8 | ~3 |
+
+**Root cause of speed improvement:** On Monday, opening-set symbols were in `partial`/`expirationsKnown` state (they had never been fully acquired in the current session). The burst performed full lifecycle promotion: expirations + primary chain + secondary chains (~8 calls/symbol). On Tuesday, the same symbols were already `ready` from Monday's completed session. The burst only refreshed chain evidence (~3 calls/symbol).
+
+**Implication:** The 6-minute burst duration is representative of normal steady-state operation. Monday's 11.6 minutes was a first-day / cold-start cost that will not recur on subsequent trading days (unless the evidence store is cleared or new symbols are added to the opening set). The capacity model should use ~180 calls / ~6 minutes as the reference expectation, not Monday's 482 / 11.6 minutes.
+
+### Against the 7:48 MT Operator Checkpoint
+
+**At 7:48 MT:** Opening-set hydration was approximately 33% (20/60 symbols). The burst had been running for 2m41s of an eventual 6m02s duration.
+
+**100% reached at 7:51:21 MT** — 3 minutes 21 seconds after the checkpoint.
+
+**Strict outcome classification: #2** — "Burst underway but not complete. Host problem solved, but capacity/critical-path does not yet meet operator requirement."
+
+**However:** The margin is narrow (3 minutes), and the board was confirmed decision-useful when inspected at ~7:55 MT. The operator did not experience a catching-up state — the board appeared mature and settled.
+
+### Operator Observation
+
+**Timestamp:** ~7:55 MT / 9:55 ET
+
+**Assessment:** The Deployment surface is mature, populated, and settled. 227 BW recommendations visible. Does not feel like a system catching up. Useful for studying the opportunity surface.
+
+**Decision context:** With ~$51 deployable capital, the immediate deployment decision is mechanically WAIT. The board clearly exposes the distinction between market opportunity (abundant) and portfolio ability to act (currently constrained by capital).
+
+**boardUsableAt:** Not precisely measured. The board was confirmed useful at ~7:55 MT; the actual moment it first became useful was not observed. It was likely useful shortly after 7:51 (100% hydration) but could have been partially useful earlier since many symbols were already ready from Monday's session (859 ready at start of day).
+
+### Principal Disposition (from feedback)
+
+1. **Ratify** autonomous-phase behavior as successful
+2. **Do not optimize** Phase 3 yet
+3. **Repeat** this observation for additional mornings to establish steady-state distribution
+4. **Capture** actual first-use time rather than only the artificial checkpoint
+5. **Only open** performance work if normal operation repeatedly collides with actual operator demand
+6. The 7:48 checkpoint may itself be artificial — if the real operating ritual is 7:50–7:55, the system already meets the requirement
+
+### Architect Observation (from feedback)
+
+The Deployment surface is analytically rich but visually flat. Perceptual legibility is limited — the operator cannot glance at the board and immediately perceive:
+- Hydration state (was 33% at 7:48 but visually indistinguishable from 100%)
+- Shape of the opportunity set (where opportunity is concentrated)
+- Capital/affordability constraints at a glance
+
+This reinforces a previously discussed concept: a perceptual layer (tile/treemap-style spatial representation) above the existing analytical tables. The existing tables are the interrogation surface; the missing piece is the perception surface.
+
+**Design criterion from today's experiment:** At 7:48, could the operator have glanced at Deployment for two seconds and seen that the board was one-third hydrated and filling in? Currently no — that information was only available through telemetry. That gap defines the perceptual layer's job.
+
+### Assessment Against Acceptance Criteria
+
+**Autonomous operation:** ✅ Passed. All three phases executed at intended times without operator interaction.
+
+**7:48 MT fully-hydrated-and-decision-ready:** ❌ Not met (33% at checkpoint, 100% at 7:51:21). Missed by 3m21s.
+
+**Board decision-useful when inspected:** ✅ Confirmed at ~7:55 MT.
+
+**Non-regression:** ✅ A/B/C/D scheduling healthy post-burst. Zero failures. Generation advancing.
+
+### Comparison: Monday vs Tuesday
+
+| Dimension | Monday | Tuesday |
+|-----------|--------|---------|
+| Host awake? | ❌ Slept 7:41–8:05 MT | ✅ Continuously executing |
+| Phase 1 autonomous? | ✅ (7:00 ET) | ✅ (9:02 ET) |
+| Phase 3 on time? | ❌ 13 min late (sleep) | ✅ 19 sec late (poll) |
+| Burst duration | 11m 35s (cold start) | 6m 02s (steady state) |
+| Provider calls | 482 | 180 |
+| Board useful when inspected? | ✅ (~10:17 MT, late) | ✅ (~7:55 MT, prompt) |
+| Architectural defect found? | None | None |
+
+### Summary
+
+The opening-relevant evidence experiment has produced strong positive evidence for its core hypothesis: preferentially acquiring evidence for the opening set during the opening window makes the board materially useful sooner.
+
+The architecture works. The remaining gap (3 minutes past the checkpoint) is a narrow timing margin that may not require engineering work — it may be adequately addressed by adjusting the operator's arrival time expectation or by observing that the board is already partially useful before 100% completion.
+
+### Follow-up
+
+1. **Observe** 2–3 more mornings to establish steady-state burst distribution
+2. **Determine** whether 7:48 is the real operator requirement or merely the test checkpoint
+3. **Perceptual layer** design (existing parking lot / architectural concept) — today's experiment provides a concrete design criterion
+4. **Do not optimize** burst duration unless it repeatedly collides with actual operator demand
+5. **Consider** whether the experiment is ready for formal conclusion or needs additional observations
