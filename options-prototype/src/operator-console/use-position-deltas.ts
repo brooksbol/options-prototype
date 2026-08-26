@@ -39,6 +39,9 @@ export function usePositionDeltas(
 ): PositionDeltaMap {
   const [deltas, setDeltas] = useState<PositionDeltaMap>(EMPTY_MAP);
 
+  // Stable key: only re-run when the position SET changes (not reference)
+  const positionKey = positions.map(p => p.id).join(",");
+
   useEffect(() => {
     if (positions.length === 0) {
       setDeltas(EMPTY_MAP);
@@ -87,7 +90,7 @@ export function usePositionDeltas(
     lookup();
 
     return () => { cancelled = true; };
-  }, [positions, generation]);
+  }, [positionKey, generation]);
 
   return deltas;
 }
