@@ -76,6 +76,9 @@ export interface Workspace {
   writeDeskShowWideSpread: boolean;
   writeDeskCrossEntryAffordableOnly: boolean;
 
+  // Write Desk Cross Entry Show Count
+  writeDeskCrossEntryShowCount: number;
+
   // Write Desk Table Sort State
   writeDeskPutSortKey: string;
   writeDeskPutSortDir: string;
@@ -129,6 +132,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskShowDanger: false,
   writeDeskShowWideSpread: false,
   writeDeskCrossEntryAffordableOnly: false,
+  writeDeskCrossEntryShowCount: 10,
   writeDeskPutSortKey: "rank",
   writeDeskPutSortDir: "asc",
   writeDeskCallSortKey: "rank",

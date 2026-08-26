@@ -78,8 +78,9 @@ export function CrossEntryStrip({
     (key, dir) => updateWorkspace({ writeDeskCrossEntrySortKey: key, writeDeskCrossEntrySortDir: dir }),
   );
   const [affordableOnly, setAffordableOnly] = useState(() => loadWorkspace().writeDeskCrossEntryAffordableOnly);
+  const [showCount, setShowCount] = useState(() => loadWorkspace().writeDeskCrossEntryShowCount ?? maxRows);
   const filtered = affordableOnly ? sorted.filter(r => r.cashRemaining >= 0) : sorted;
-  const displayed = filtered.slice(0, maxRows);
+  const displayed = filtered.slice(0, showCount);
 
   if (allRows.length === 0) return null;
 
@@ -94,6 +95,11 @@ export function CrossEntryStrip({
           <input type="checkbox" checked={affordableOnly} onChange={() => { const next = !affordableOnly; setAffordableOnly(next); updateWorkspace({ writeDeskCrossEntryAffordableOnly: next }); }} style={{ marginRight: "4px" }} />
           Affordable only
         </label>
+        <label className="wd-control" style={{ marginLeft: "8px" }}>
+          Show
+          <input type="number" min={1} max={filtered.length || 50} value={showCount} onChange={(e) => { const v = Math.max(1, Math.min(filtered.length || 50, parseInt(e.target.value) || 10)); setShowCount(v); updateWorkspace({ writeDeskCrossEntryShowCount: v }); }} className="wd-control-spinner" />
+        </label>
+        <span className="wd-table-showing" style={{ marginLeft: "8px" }}>Showing {Math.min(displayed.length, filtered.length)} of {filtered.length}</span>
         <button className="wd-download-btn" onClick={() => {
           downloadTableCsv(
             sorted as unknown as Record<string, unknown>[],
