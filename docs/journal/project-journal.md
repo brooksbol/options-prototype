@@ -11237,3 +11237,54 @@ A single unstable React dependency caused symptoms indistinguishable from system
 - Fidelity portfolio: fully operational
 - Evidence Appliance: running, 955 ready symbols, regular observation
 - No architectural changes required to restore operability — one dependency fix was sufficient
+
+
+---
+
+## 2026-08-26 — DTE Production Surface / Capital Feedback Cadence
+
+### Context
+
+Restoring the full 7–45 DTE search surface (commit `3b199bc` removing the navigation freeze, plus the pre-existing multi-expiration acquisition from `ca56512`) exposed a previously invisible DTE production distribution. Prior to today, the Deployment tables showed only ~23 DTE candidates because the snapshot served only the primary chain. With full multi-expiration chains now reaching the frontend, the Cash Deployment and Buy-Write tables reveal the complete temporal opportunity surface for the first time.
+
+### Observations (Aug 26, 2026 regular session)
+
+| DTE | Candidates | Best Prod v0 | Character |
+|-----|-----------|-------------|-----------|
+| 7   | —         | 10.23%      | High production, very short cycle |
+| 9   | 67        | 11.47%      | Strongest observed Prod v0 |
+| 16  | —         | 8.30%       | Mid-range, approaching monthly |
+| 23  | 226       | 7.13%       | Most candidates (standard monthly), moderate production |
+
+Key distinction: **candidate density and production quality are separate dimensions.** The 23 DTE monthly concentration has the most qualifying contracts (deepest liquidity, widest OI), but today's highest-production candidates occur at shorter expirations.
+
+### Findings (discovery-grade, not policy)
+
+1. **DTE is a production + optionality + feedback-cadence dimension**, not merely a contract-selection parameter. Shorter DTE returns deployed capital to a natural decision point sooner — the operator regains the option to redeploy, adjust, or wait.
+
+2. **The Agile analogy:** "You're never more than a week or two away from an option for a course correction." DTE can be understood partly as the feedback cadence of deployed capital. Shorter deployments don't just produce income; they produce more frequent decision opportunities.
+
+3. **Connects to the August production-continuity observation:** Longer deployments can leave part of the month effectively idle from a new-production standpoint. A 23 DTE contract deployed on Aug 26 resolves Sep 18 — if the target is monthly production, there may be no time to redeploy for the remainder of September. A 9 DTE contract resolves Sep 4, leaving ~14 days for a subsequent deployment.
+
+4. **Provocative non-tradeoff:** Today's strongest Prod v0 opportunities occur in the same shorter-DTE region that also provides more frequent decision points. We might ordinarily expect to pay for optionality with lower production; today's surface does not show that tradeoff. This may not persist — it is an observation, not a law.
+
+5. **What this does NOT establish:** Nothing observed yet demonstrates that 7–9 DTE is inherently safer or more dangerous than 23 DTE. Assignment probability, erosion behavior, liquidity at egress, recovery from adverse movement, and gamma exposure all differ across the DTE spectrum. Those consequences remain empirical questions.
+
+### Preserved because
+
+- This records the moment DTE stopped looking like merely a contract-selection parameter and started looking like a production + optionality + feedback-cadence dimension.
+- The finding is that Wheelwright should observe the whole acceptable temporal surface and allow production and subsequent consequence to reveal whether useful cadence emerges empirically.
+- Do NOT turn this into "9 DTE is best." The finding is architectural: the system must not artificially collapse the DTE surface.
+
+### Future investigation
+
+- Accumulate the DTE production surface through time (multiple sessions, market conditions).
+- Eventually relate DTE not only to observed Prod v0 but to **realized consequence** across complete wheel turns (premium received → assignment/expiration → redeployment → net cycle outcome).
+- Observe whether the short-DTE production advantage persists or is session-specific.
+- Track whether frequent decision points actually produce better operator outcomes or merely more operator work.
+
+### Relationship to existing architecture
+
+- **PL-EVID-07 (Multi-Expiration Acquisition):** Resolved Aug 21. Today validates that resolution — without full-surface acquisition, this finding would have remained invisible.
+- **Cash Deployment / Prod v0:** The experimental cross-entry surface was the instrument that made this visible. Its value as an observational tool is now demonstrated.
+- **PL-COHERE-01:** The DTE finding does NOT create pressure for architectural change. It creates pressure for continued observation using existing capability. The full 7–45 DTE surface must survive architecture recovery (recorded as a behavioral invariant).
