@@ -67,6 +67,13 @@ export function AppShell({ route, children }: AppShellProps) {
           >
             Production
           </button>
+          <button
+            className="as-nav-link"
+            aria-current={route === "kreature" ? "page" : undefined}
+            onClick={() => navigateTo("/app/kreature")}
+          >
+            Kreature
+          </button>
         </nav>
 
         <HeaderPortfolioStatus />

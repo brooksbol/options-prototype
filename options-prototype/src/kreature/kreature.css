@@ -1,0 +1,377 @@
+/**
+ * Kreature V1 — Styles
+ *
+ * Design principles:
+ *   - Semantically raw, perceptually alive
+ *   - New evidence should visibly arrive (entrance animation)
+ *   - No fake motion — silence has meaning
+ *   - Dense, monospace-leaning for observation data
+ *   - Consistent with Wheelwright's established design tokens
+ */
+
+/* --- Page Layout --- */
+
+.kr-page {
+  padding: 16px 20px;
+  max-width: 1200px;
+}
+
+.kr-header {
+  margin-bottom: 20px;
+}
+
+.kr-title {
+  font-family: var(--wd-font-sans);
+  font-size: 16px;
+  font-weight: var(--wd-weight-bold);
+  color: var(--wd-text-primary);
+  margin: 0 0 2px 0;
+  letter-spacing: 0.5px;
+}
+
+.kr-subtitle {
+  font-family: var(--wd-font-sans);
+  font-size: 11px;
+  color: var(--wd-text-tertiary);
+  margin: 0;
+}
+
+.kr-empty {
+  font-family: var(--wd-font-sans);
+  font-size: 12px;
+  color: var(--wd-text-disabled);
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* --- Surfaces Container --- */
+
+.kr-surfaces {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.kr-surface-label {
+  font-family: var(--wd-font-sans);
+  font-size: 10px;
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 8px 0;
+}
+
+/* --- The Watch --- */
+
+.kr-watch {
+  border: 1px solid var(--wd-border-subtle);
+  border-radius: 4px;
+  background: var(--wd-bg-surface);
+  max-height: 320px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.kr-watch--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+}
+
+.kr-watch-empty-state {
+  font-family: var(--wd-font-sans);
+  font-size: 11px;
+  color: var(--wd-text-disabled);
+  font-style: italic;
+}
+
+.kr-watch-stream {
+  padding: 8px 0;
+}
+
+/* --- Watch Entry --- */
+
+.kr-watch-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 3px 12px;
+  font-family: var(--wd-font-mono);
+  font-size: 11px;
+  line-height: 1.6;
+  opacity: 1;
+}
+
+.kr-watch-entry:hover {
+  background: var(--wd-bg-hover);
+}
+
+/* Entrance animation — new evidence visibly arrives */
+.kr-watch-entry--entering {
+  animation: kr-observe-in 600ms ease-out both;
+}
+
+@keyframes kr-observe-in {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kr-watch-time {
+  color: var(--wd-text-tertiary);
+  font-size: 10px;
+  min-width: 62px;
+  flex-shrink: 0;
+}
+
+.kr-watch-symbol {
+  color: var(--wd-text-primary);
+  font-weight: var(--wd-weight-semi);
+  min-width: 44px;
+  flex-shrink: 0;
+}
+
+.kr-watch-price {
+  color: var(--wd-text-secondary);
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.kr-watch-arrow {
+  color: var(--wd-text-disabled);
+  flex-shrink: 0;
+}
+
+.kr-watch-contracts {
+  color: var(--wd-text-secondary);
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- The Notebook --- */
+
+.kr-notebook {
+  /* No border — lives in the page flow */
+}
+
+.kr-notebook--empty {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.kr-notebook-empty-state {
+  font-family: var(--wd-font-sans);
+  font-size: 12px;
+  color: var(--wd-text-disabled);
+}
+
+/* --- Coverage Strip --- */
+
+.kr-coverage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--wd-border-subtle);
+  border-radius: 4px;
+  background: var(--wd-bg-surface);
+  font-family: var(--wd-font-sans);
+  font-size: 11px;
+}
+
+.kr-coverage-count {
+  color: var(--wd-text-primary);
+  font-weight: var(--wd-weight-semi);
+}
+
+.kr-coverage-window {
+  color: var(--wd-text-secondary);
+}
+
+.kr-coverage-unobserved {
+  color: var(--wd-text-tertiary);
+  font-style: italic;
+  font-size: 10px;
+}
+
+/* --- Notebook Section --- */
+
+.kr-notebook-section {
+  /* Spacing handled by parent gap */
+}
+
+.kr-notebook-section-title {
+  font-family: var(--wd-font-sans);
+  font-size: 11px;
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-secondary);
+  margin: 0 0 8px 0;
+}
+
+/* --- Notebook Table --- */
+
+.kr-notebook-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--wd-font-mono);
+  font-size: 11px;
+}
+
+.kr-notebook-table thead {
+  border-bottom: 1px solid var(--wd-border-subtle);
+}
+
+.kr-notebook-table th {
+  font-family: var(--wd-font-sans);
+  font-size: 10px;
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  text-align: left;
+  padding: 4px 8px;
+}
+
+.kr-notebook-table td {
+  padding: 5px 8px;
+  vertical-align: baseline;
+  border-bottom: 1px solid var(--wd-border-subtle);
+}
+
+.kr-th-position { min-width: 180px; }
+.kr-th-observed { min-width: 120px; }
+.kr-th-range { min-width: 120px; }
+.kr-th-latest { min-width: 80px; }
+
+.kr-td-position {
+  font-family: var(--wd-font-sans);
+  font-size: 11px;
+  color: var(--wd-text-primary);
+  font-weight: var(--wd-weight-normal);
+}
+
+.kr-td-observed {
+  color: var(--wd-text-secondary);
+  font-size: 10px;
+}
+
+.kr-td-range {
+  color: var(--wd-text-primary);
+}
+
+.kr-td-latest {
+  color: var(--wd-text-primary);
+  font-weight: var(--wd-weight-semi);
+}
+
+/* Empty row (no observations) */
+.kr-envelope-row--empty td {
+  color: var(--wd-text-disabled);
+}
+
+
+/* --- Watch Truncation Notice --- */
+
+.kr-watch-truncated {
+  font-family: var(--wd-font-sans);
+  font-size: 10px;
+  color: var(--wd-text-disabled);
+  text-align: center;
+  padding: 4px 12px;
+  font-style: italic;
+}
+
+
+/* --- Tabs (Field / Watch switcher) --- */
+
+.kr-page--field {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  max-width: none;
+}
+
+.kr-header--compact {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 10px 16px;
+  flex-shrink: 0;
+}
+
+.kr-header--compact .kr-title {
+  font-size: 14px;
+  margin: 0;
+}
+
+.kr-header--compact .kr-subtitle {
+  font-size: 10px;
+  margin: 0;
+}
+
+.kr-tabs {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.kr-tab {
+  font-family: var(--wd-font-sans);
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--wd-border-subtle);
+  background: none;
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.kr-tab:hover {
+  border-color: var(--wd-border-default);
+  color: var(--wd-text-primary);
+}
+
+.kr-tab--active {
+  border-color: var(--wd-accent-green);
+  color: var(--wd-accent-green);
+  background: var(--wd-accent-green-bg);
+}
+
+.kr-watch-container {
+  flex: 1;
+  padding: 16px 20px;
+  overflow-y: auto;
+}
+
+
+/* --- Field Disabled State --- */
+
+.kr-field-disabled {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  font-family: var(--wd-font-sans);
+  font-size: 12px;
+  color: var(--wd-text-disabled);
+  text-align: center;
+  gap: 4px;
+}
+
+.kr-field-disabled p {
+  margin: 0;
+}

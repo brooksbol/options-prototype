@@ -12,13 +12,18 @@
  *   anything else → Operator Console (home)
  */
 
-export type AppRoute = "operator-console" | "write-desk" | "production" | "labs" | "sparkline-gallery";
+export type AppRoute = "operator-console" | "write-desk" | "production" | "kreature" | "labs" | "sparkline-gallery";
 
 /**
  * Determine the current route from the browser pathname.
  */
 export function resolveRoute(): AppRoute {
   const path = window.location.pathname;
+
+  // Kreature — temporal observation surface
+  if (path === "/app/kreature") {
+    return "kreature";
+  }
 
   // Operational/recommendation surface
   if (path === "/app/write") {

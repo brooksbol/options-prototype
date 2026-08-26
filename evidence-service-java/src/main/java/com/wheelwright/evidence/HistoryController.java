@@ -68,6 +68,35 @@ public class HistoryController {
                 .body(payload);
     }
 
+    /**
+     * Bulk spot history — GET /api/evidence/history/all
+     *
+     * Returns ALL spot observations for ALL symbols since a timestamp.
+     * Designed for consumers that need the full universe history (e.g., Kreature Field).
+     * No symbol list required — returns everything in one response.
+     *
+     * Query params:
+     *   since (optional) — ISO-8601 timestamp; defaults to ~14 hours ago
+     *
+     * Response shape: same as /api/evidence/history
+     *   { "histories": { "XLE": [{ "price": 64.56, "observedAt": "..." }, ...], ... } }
+     */
+    @GetMapping("/api/evidence/history/all")
+    public ResponseEntity<String> historyAll(
+            @RequestParam(name = "since", required = false) String since
+    ) throws SQLException {
+        String sinceValue = since != null ? since : Instant.now().minus(14, ChronoUnit.HOURS).toString();
+
+        Map<String, List<Map<String, Object>>> histories = store.getAllSpotHistory(sinceValue);
+
+        String payload = buildResponseJson(histories);
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .header("Cache-Control", "private, max-age=30")
+                .body(payload);
+    }
+
     private static String buildResponseJson(Map<String, List<Map<String, Object>>> histories) {
         StringBuilder sb = new StringBuilder(512);
         sb.append("{\"histories\":{");

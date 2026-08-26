@@ -347,6 +347,34 @@ public class SqliteEvidenceStore implements AutoCloseable {
     }
 
     /**
+     * Get ALL historical spot observations since a timestamp (full universe).
+     *
+     * Returns a map of symbol → list of {price, observedAt} ordered by time ascending.
+     * Unlike getSpotHistory(symbols, since), this does not require a symbol list —
+     * it returns all symbols that have observations in the window.
+     */
+    public Map<String, List<Map<String, Object>>> getAllSpotHistory(String since) throws SQLException {
+        Map<String, List<Map<String, Object>>> result = new LinkedHashMap<>();
+
+        String sql = "SELECT symbol, price, observed_at FROM spot_history WHERE observed_at >= ? ORDER BY symbol, observed_at ASC";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, since);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String sym = rs.getString("symbol");
+                    List<Map<String, Object>> list = result.computeIfAbsent(sym, k -> new ArrayList<>());
+                    Map<String, Object> obs = new LinkedHashMap<>();
+                    obs.put("price", rs.getDouble("price"));
+                    obs.put("observedAt", rs.getString("observed_at"));
+                    list.add(obs);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * Record a failure. Does NOT overwrite last successful data/retrieved_at.
      */
     public void setFailure(String symbol, String reason) throws SQLException {

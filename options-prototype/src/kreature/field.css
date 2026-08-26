@@ -1,0 +1,147 @@
+/**
+ * The Field — Kreature Laboratory Experiment 2
+ *
+ * Dark, immersive, minimal chrome. The field IS the page.
+ */
+
+.kr-field {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 500px;
+  background: #000000;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* --- Controls --- */
+
+.kr-field-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(15, 15, 25, 0.95);
+  border-bottom: 1px solid rgba(100, 120, 180, 0.15);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.kr-field-mode-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.kr-field-btn {
+  font-family: var(--wd-font-sans);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(100, 120, 180, 0.3);
+  background: transparent;
+  color: rgba(180, 200, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.kr-field-btn:hover {
+  border-color: rgba(140, 160, 220, 0.6);
+  color: rgba(200, 215, 255, 0.9);
+}
+
+.kr-field-btn--active {
+  border-color: rgba(140, 170, 255, 0.7);
+  color: rgba(220, 230, 255, 1.0);
+  background: rgba(80, 100, 180, 0.15);
+}
+
+.kr-field-replay-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kr-field-scrubber {
+  width: 120px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(100, 120, 180, 0.2);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.kr-field-scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(180, 200, 255, 0.8);
+  cursor: pointer;
+}
+
+.kr-field-time {
+  font-family: var(--wd-font-mono);
+  font-size: 10px;
+  color: rgba(140, 160, 220, 0.7);
+  min-width: 55px;
+}
+
+.kr-field-status {
+  margin-left: auto;
+  font-family: var(--wd-font-sans);
+  font-size: 10px;
+  color: rgba(140, 160, 200, 0.5);
+}
+
+/* --- Viewport --- */
+
+.kr-field-viewport {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 0; /* Allow flex shrink */
+}
+
+.kr-field-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+/* --- Detail Panel --- */
+
+.kr-field-detail {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 12px;
+  background: rgba(15, 18, 30, 0.9);
+  border: 1px solid rgba(100, 120, 180, 0.2);
+  border-radius: 4px;
+  font-family: var(--wd-font-mono);
+  font-size: 11px;
+  pointer-events: none;
+}
+
+.kr-field-detail-symbol {
+  color: rgba(220, 230, 255, 0.95);
+  font-weight: bold;
+}
+
+.kr-field-detail-price {
+  color: rgba(180, 200, 255, 0.8);
+}
+
+.kr-field-detail-change {
+  color: rgba(140, 170, 255, 0.7);
+}
+
+.kr-field-detail-obs {
+  color: rgba(120, 140, 180, 0.5);
+  font-size: 9px;
+}
