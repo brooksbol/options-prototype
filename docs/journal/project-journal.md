@@ -11186,3 +11186,54 @@ Wheelwright should become increasingly authoritative, reliable, and operationall
 ### Next action
 
 Reconcile current code against governing architecture. Produce a sequenced Architecture Recovery Plan identifying concrete migration seams, invariants, acceptance tests, and ADRs required. No code until the plan is inspected.
+
+
+---
+
+## 2026-08-26 — Console Navigation Freeze: RCA + 3AM Architecture Recovery Direction
+
+### Root Cause Analysis
+
+**Symptom:** Console ↔ Deployment navigation froze Chrome completely after loading Fidelity portfolio. Required force-quit. Reproduced in incognito.
+
+**Initial hypotheses (all falsified):**
+- 19 MB snapshot response overwhelming the browser (falsified: freeze persisted at 5MB)
+- IndexedDB write cascade during hydration (falsified: freeze persisted with L1-only memory writes)
+- Recommendation engine CPU saturation (falsified: freeze persisted with engines disabled)
+- WriteDesk lifecycle/cancellation (falsified: freeze persisted with WriteDesk as empty `<div>`)
+- Observation store polling (falsified: freeze persisted with observation store bypassed)
+
+**Actual root cause:** `usePositionDeltas` hook in `operator-console/use-position-deltas.ts` used `[positions, generation]` as a `useEffect` dependency. `positions` is the return value of `deriveMonitoredPositions()` — a **new array reference on every render**. This created an infinite loop: effect fires → `setDeltas()` → re-render → new `positions` array → effect fires → ∞. The loop consumed 100% of the main thread indefinitely.
+
+**Fix:** Derive a stable `positionKey` string from position IDs. Effect only re-runs when position set actually changes. Commit `3b199bc`.
+
+**Why did it manifest only on remount (not initial load)?** On first Console mount, `generation` is null and `positions` is stable (no observation updates yet). After visiting Deployment, the observation store has advanced (generation is now a number). When Console remounts, `observations.generation` is immediately non-null, triggering `deriveMonitoredPositions` with observation data, which creates a new array on each render cycle.
+
+### Diagnostic Lesson
+
+A single unstable React dependency caused symptoms indistinguishable from system-scale architecture failure. For several hours, every major runtime subsystem was suspected: evidence publication (19MB), browser storage (924MB IndexedDB), recommendation computation (966 symbols), frontend lifecycle, route management, and multi-expiration acquisition. The actual defect was 1 line in a 94-line hook.
+
+**Lesson:** Profile and isolate before treating architectural discomfort as demonstrated causation. Correlated load is not proven causation. Bisect to the specific component that breaks.
+
+### 3AM Discussion: Architecture Recovery Direction
+
+**Principal direction:** Wheelwright has crossed the prototype-to-institution boundary. The question is no longer "can we make this work?" (it works) but "can we trust this architecture to become an always-on institutional system?" The answer is "not yet" — but the path is clear.
+
+**Architect assessment:** The architecture is not fundamentally lost. The spine (Evidence Appliance, policy-over-prediction, deterministic recommendation, session-aware acquisition) is sound. But the implementation has grown around transitional seams — the browser reconstructs a large portion of the decision world that the architecture intends the backend to own. Today's diagnostic difficulty is the architectural warning: a local defect was entangled with almost every major subsystem.
+
+**Engineer assignment:** Survey the actual runtime flows against governing docs. Don't redesign yet. Return with the disagreements.
+
+**Sequencing decision:**
+- Band 1 (now): Architecture recovery — PL-COHERE-01 promoted to active
+- Band 2 (concurrent): Continue operating, learning, fixing correctness — don't structurally expand
+- Band 3 (after recovery): Resume feature roadmap, cloud, strategy expansion
+
+**Governing principle:** Boring Wheelwright, weird Kreature.
+
+### Operational Status After Fix
+
+- Console ↔ Deployment navigation: responsive
+- Deployment tables: full 7–45 DTE range (19MB multi-expiration snapshot works fine)
+- Fidelity portfolio: fully operational
+- Evidence Appliance: running, 955 ready symbols, regular observation
+- No architectural changes required to restore operability — one dependency fix was sufficient
