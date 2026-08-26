@@ -11133,3 +11133,56 @@ The separation is not deployment topology (that's unresolved). It is ownership a
 ### Future possibility (not decided, not designed)
 
 Wheelwright does not necessarily have to remain the only thing Kreature watches. Once Kreature is an observer rather than a Wheelwright feature, it could eventually observe other evidence sources. Wheelwright is its first observed universe, not necessarily its ontological parent.
+
+
+---
+
+## 2026-08-26 — Architecture Recovery Direction: Boring Wheelwright, Weird Kreature
+
+### Epistemic status
+
+**Principal direction. Not yet a plan or specification.** The diagnosis is grounded in implementation evidence from this session. The recovery outline is conceptually accepted but requires reconciliation against actual code state before becoming actionable.
+
+### Diagnosis
+
+The backend retooling succeeded, but the migration stopped at an intentionally transitional boundary. Product growth subsequently put more weight on that boundary. The fragility is concentrated from the backend/browser boundary upward — not in acquisition, persistence, or session-gating (which have survived real operating tests).
+
+Specifically, Deployment currently asks the browser to:
+- Ingest a ~19 MB snapshot
+- Maintain ~924 MB of persistent IndexedDB market cache
+- Perform thousands of cache operations with subtle reconciliation invariants
+- Run universe-wide recommendation computation (~1,300 symbols)
+- Own async computation whose lifecycle exceeds surface lifetime
+
+This is demonstrated operational debt, not theoretical debt.
+
+### Target responsibility boundaries
+
+| Layer | Owns | Lifecycle |
+|---|---|---|
+| Evidence Appliance | Acquire, normalize, persist market evidence | Always-on backend |
+| Policy / Decision Engine | Universe-scale recommendation computation from evidence + policy + portfolio | Backend, survives navigation |
+| Application API | Serve prepared operator state to the browser | Backend HTTP |
+| Thin Application Shell | Portfolio context, interaction, surface routing | Browser, bounded |
+| Operator Surfaces | Presentation-local state, rendering | Browser, ephemeral per mount |
+| Kreature | Ingest, remember, temporal cognition, laboratory physics, replay, perception | Independent observer, own lifecycle |
+
+### Recovery plan outline (7 steps)
+
+1. **Freeze and reconcile.** Document current-state flow (evidence → snapshot → cache → recommendation → Deployment) including ownership, lifecycle, payload/cache sizes. Where docs and code disagree, code wins.
+2. **Ratify target boundaries via ADR.** Backend recommendation is the leading target but requires explicit decision, not a performance-fix migration.
+3. **Eliminate browser as second market-data appliance.** Target: Deployment asks backend for decision state, not reconstructing the universe locally.
+4. **Migrate one seam at a time.** First candidate: Decision Engine. Shadow-run both sides, compare, switch authority, then delete.
+5. **Make lifecycle ownership explicit.** No page component owns work that continues after unmount.
+6. **Split Kreature completely.** Own persistence, temporal cognition, physics, replay. Consumes Wheelwright via stable read-only interface.
+7. **Only then optimize evidence delivery.** The 19 MB snapshot may shrink naturally once its consumers no longer need universe-scale raw evidence.
+
+### Governing phrase
+
+> Boring Wheelwright, weird Kreature.
+
+Wheelwright should become increasingly authoritative, reliable, and operationally bounded. Kreature gets to be the place where we invent universes.
+
+### Next action
+
+Reconcile current code against governing architecture. Produce a sequenced Architecture Recovery Plan identifying concrete migration seams, invariants, acceptance tests, and ADRs required. No code until the plan is inspected.
