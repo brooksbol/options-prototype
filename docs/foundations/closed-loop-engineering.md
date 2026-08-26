@@ -345,3 +345,47 @@ The project journal (`docs/journal/project-journal.md`) is the natural home for 
 ### When to commit
 
 Experimental records should be committed to GitHub promptly so that cold-start reconstruction does not depend on conversation context, browser tabs, or session memory. A finding that exists only in a chat thread is not durable in the sense Wheelwright uses that word.
+
+
+---
+
+## Experimental Isolation and Operational Discipline
+
+### Laboratory boundaries
+
+Wheelwright maintains experimental surfaces (e.g., Kreature Laboratory, Labs) alongside production-critical operator surfaces (Console, Deployment, Production). These operate under different failure-tolerance regimes:
+
+**Core operator surfaces** support real decision-making during market hours. Their availability is an operational requirement.
+
+**Experimental surfaces** test architectural hypotheses, perceptual instruments, and new capabilities. Their failure is acceptable learning.
+
+The governing principle:
+
+> Experimental surfaces must fail closed relative to core operator workflows.
+
+This means:
+
+1. A broken experiment should break only itself — not Console, Deployment, acquisition, or maintained evidence.
+2. Pressure discovered by an experimental consumer does not authorize changing its upstream producer contract. That is an architectural finding requiring Principal-level resolution.
+3. When experimental work exposes pressure on a load-bearing architectural boundary, stop and surface the boundary question before modifying it.
+
+### Market-hours discipline
+
+When the market is open and the operator depends on Wheelwright for decision support:
+
+1. **Restoring the operator comes before improving the architecture.** If a change breaks operational flow, revert first and diagnose later.
+2. **Do not make unbounded or insufficiently isolated changes to production-critical operator paths during an active operating session.** The specific files differ over time; the principle applies to whatever carries operational authority at any given moment.
+3. **Establish a known-good checkpoint before experiments.** Ensure a clean, tested, one-command path back to operational state before beginning laboratory work that could affect shared code.
+
+### Debugging discipline
+
+When investigating an incident:
+
+1. **Reproduce → isolate → compare with known-good → change one variable → verify.** This sequence is mandatory before reasoning about mechanisms.
+2. **Don't trust development/HMR state for validation.** Restart Vite + hard browser refresh (or incognito) when validating that a source change has taken effect.
+3. **Distinguish correlation from causation.** "The failure started after X" does not establish "X caused the failure." Perform the cheapest high-information isolation test (revert, incognito, known-good comparison) before committing to a causal theory.
+4. **Don't change multiple variables simultaneously.** Each attempted fix should be independently verifiable.
+
+### Ratified: August 26, 2026
+
+These standards were produced by an operational incident in which experimental debugging crossed into load-bearing Deployment infrastructure and caused a navigation freeze during market hours. The incident demonstrated that process discipline is as architecturally important as runtime boundaries.

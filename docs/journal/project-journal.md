@@ -10520,3 +10520,616 @@ Example of visual contradiction (EWY): strong favorable moneyness + moderate del
 
 The Console is now a genuine operator cognitive surface, not merely a portfolio-state table. Future work should be driven by actual operational use — noticing what still forces the operator to click, compute, remember, or laboriously compare.
 
+
+---
+
+## 2026-08-25 — Kreature V1: First Running Surface + Cognitive-Role Discovery
+
+### Epistemic status
+
+**Experimental learning.** The first Kreature surface was implemented and immediately produced a design insight that changed our understanding of Kreature's cognitive role. Nothing here is ratified architecture. The code remains intact as experiment evidence.
+
+### What was built
+
+Kreature V1 was implemented as a frontend-only page (`/app/kreature`) with two complementary surfaces:
+
+- **The Watch** — a living chronological stream of underlying observations, enriched with contract-relative moneyness for monitored positions. New evidence visibly appears (subtle entrance animation) as the Evidence Appliance acquires. Silence between observations is truthful — nothing appears unless Wheelwright actually saw something new.
+
+- **The Notebook** — a compact per-position table showing observation coverage, observed moneyness envelope (range), and latest state for each open contract.
+
+Architecture: purely frontend derivation from existing `GET /api/evidence/history` endpoint + portfolio context. No backend changes. No new acquisition mechanism. Reuses `useSpotHistory` (existing hook). 30-second dedup heuristic collapses multi-expiration amplification into representative observation moments. Five new files in `src/kreature/`.
+
+### What the experiment revealed
+
+**The Notebook largely duplicates Console-owned position monitoring.** The Console already makes contract state, moneyness, DTE, capital, consequence, and temporal traces (sparklines) perceptually legible for open positions. Putting per-position moneyness range in a slightly different table on a second page does not create new understanding.
+
+**The Watch establishes something the Console cannot:** the perceptual experience of Wheelwright observing. The live observation stream gives the actor *presence*. It makes temporal evidence visible as it happens rather than only retrospectively summarized. This feels categorically different from the Console's role.
+
+### Cognitive-role collision identified
+
+The experiment exposed a collision:
+
+- **Console** answers: *What is happening to my positions?*
+- **Kreature (as built)** also largely answers that same question for positions.
+
+The sharper framing that emerged:
+
+> **Kreature should probably answer: What has been happening in Wheelwright's world that I would otherwise miss?**
+
+That is a different cognitive role than position monitoring.
+
+### The design question for next exploration
+
+> **What is passing through Wheelwright over time that the Console does not already own?**
+
+Candidate observation domains (not yet validated):
+- The broader evidence surface (961 symbols being observed beyond the portfolio)
+- Opportunity emergence and disappearance on the deployment surface
+- Evidence availability changes (symbols entering/leaving ready state)
+- The rhythm of acquisition itself
+- Cross-symbol temporal patterns invisible to single-position views
+
+These are candidates, not instructions. The next experiment should start from the cognitive-role question, not from "show more symbols." A 961-symbol firehose could be acquisition telemetry rather than Kreature insight.
+
+### Disposition
+
+1. **The Watch:** Valuable. Establishes Kreature's actor presence. Keep, do not delete.
+2. **The Notebook:** Redundant with Console. Stop investing. Leave as experiment evidence but do not continue polishing. May eventually be removed or repurposed.
+3. **Code:** Leave V1 intact. The contrast between the two surfaces on the running page helps maintain awareness of why one feels redundant and the other doesn't.
+4. **Next work:** Starts from the cognitive-role question. No implementation authorized until the next exploration identifies what Kreature uniquely sees that other surfaces do not.
+
+### Preserved because
+
+A future actor investigating Kreature's product role should know:
+1. The first running surface immediately proved that per-position temporal summaries are Console territory.
+2. The live-observation stream ("The Watch") is the part that felt distinct and potentially valuable.
+3. Kreature's unique role is likely broader than position monitoring — it is temporal observation of Wheelwright's world.
+4. The question "what passes through Wheelwright that Console doesn't own?" is the right restart point.
+5. The multi-expiration dedup heuristic (30-second clustering) works correctly against real data but remains a provisional inference, not persisted provenance.
+
+### Hypothesis: Kreature's Epistemological Function (produced by V1 experiment)
+
+**Epistemic status:** Provisional hypothesis produced by operating the V1 surface and testing it against a real session (August 25, 2026 — $51 deployable capital, no meaningful deployment opportunity). Not ratified architecture. Should be tested through continued operation.
+
+**Key propositions:**
+
+1. Console and Deployment primarily answer known operator questions ("What is the state of what I own?" / "What can I do with available capital?").
+
+2. Kreature may address the *unknown-question problem* — surfacing things the operator didn't know to ask about.
+
+3. Its emerging purpose may be to make previously invisible temporal phenomena perceptible before those phenomena have names or known uses.
+
+4. Therefore, immediate actionability is not a necessary condition for a valuable Kreature observation. Today's $51-capital session is a counterexample to both obvious interpretations (position monitoring and deployment opportunity). Kreature could still have a reason to exist on a day when neither question produces value.
+
+5. "Maximum useful surprise" is an emerging design intuition, not a metric or requirement. It points toward: how often does Kreature make the operator stop and say "huh, I didn't know that"?
+
+6. The operator initially provides much of the pattern recognition. The instrument makes phenomena perceptible; the human notices significance.
+
+7. Repeated useful surprises may later graduate: raw observation → named temporal fact → formalized detector/finding. This maps to the three-layer model (observations → derived temporal facts → promoted findings) but now has a clearer *why*: we don't know which observations will produce useful surprise until we see them.
+
+8. This gives the scientific-instrument analogy real architectural relevance: Kreature may initially be an instrument for discovery rather than a system for answering predetermined questions. A telescope doesn't know what you'll discover with it.
+
+9. The hypothesis remains provisional and should be tested through continued operation of the actual surface.
+
+**Guiding sentence:**
+
+> Kreature's quality may not initially be measured by the precision of what it detects, but by whether making Wheelwright's temporal world perceptible causes the operator to discover questions that were not previously being asked.
+
+**What this changes:**
+
+- Stops the instinct to populate Kreature with known-useful metrics from other surfaces.
+- Suggests The Watch's value is not in the specific observations it shows, but in making temporal evidence *perceptible as it flows* — a place where unnamed patterns can become visible.
+- Future Kreature design should start from "what is passing through Wheelwright that no other surface makes legible?" rather than "what position/deployment facts should Kreature display?"
+- The next useful Kreature insight should come from operating the surface and noticing something, not from further speculative design.
+
+
+---
+
+## 2026-08-25 — Kreature Laboratory: Perceptual Instruments for Unknown Phenomena
+
+### Epistemic status
+
+**Exploratory ideation.** No design decisions. No implementation authorized. No architecture ratified. This entry preserves a creative direction that emerged from operating V1 and discovering that Kreature's value may be in making previously invisible temporal phenomena perceptible — not in answering known questions.
+
+### Origin
+
+After the V1 cognitive-role discovery (Kreature ≠ position monitoring, Kreature ≠ deployment opportunity), the question became:
+
+> What representations might cause patterns to become perceptible that we aren't currently looking for?
+
+This is fundamentally different from normal product design. We are not building answers to known questions. We are building instruments that might reveal questions we haven't yet formulated.
+
+### Governing Constraints
+
+**1. Arbitrary visual transformation; never arbitrary data.**
+
+Every dot, trail, fade, glyph, pulse, disappearance, sound, or movement must ultimately trace back to something Wheelwright actually observed. Enormous artistic freedom. No epistemic compromise.
+
+**2. Visualizations should preferentially expose properties of the observed world rather than artifacts of Wheelwright's acquisition machinery.**
+
+This is a critical contamination test. If a visualization primarily reveals scheduler tiers, polling cadence, expiration fan-out, multi-expiration amplification, or Class A/B/C/D service priority — it is showing us our own plumbing, not the market's behavior. The acquisition schedule may supply the *clock*, but market behavior should supply the *spectacle*.
+
+### Experiment Evaluation Criteria
+
+Each candidate experiment should be assessable against:
+
+| Criterion | Question |
+|---|---|
+| **Sense** | What previously invisible property are we trying to make perceptible? |
+| **Evidence** | What authoritative observations drive every visual element? |
+| **Transformation** | What arbitrary visual transformation are we applying? |
+| **Unknown** | What do we deliberately not know about what we're looking for? |
+| **Huh test** | Could this representation plausibly reveal something not already obvious on Console, Deployment, or another surface? |
+| **Machinery contamination** | Are we accidentally visualizing implementation artifacts (scheduler, polling, fan-out) and mistaking them for phenomena? |
+
+### Initial Candidate Experiments
+
+These are creative raw material, not a prioritized backlog:
+
+- **Rain** — observations as falling glyphs across the full universe. Requires encoding *change* in the evidence rather than mere arrival frequency, or it becomes a scheduler visualizer.
+- **Ghosts** — what was there but isn't anymore. Things fade rather than disappear. Absence becomes a phenomenon.
+- **Replay** — time-compressed session playback. A representation of *change* replayed at 60×, not 30,000 ticker updates flying past.
+- **The Sky** — every underlying as a persistent point in a field. Position encodes something stable; displacement encodes change. Watch the constellation move.
+- **The Pulse** — a waveform of the entire observation surface. Not VIX — literally the amount and character of change between successive evidence snapshots. Most days might have a recognizable heartbeat.
+- **Persistence** — things that keep showing up become visually more substantial. Fleeting phenomena are wisps. No prior decision about what "persistence" means — the visualization lets us discover whether it matters.
+- **The Weather** — a visual atmosphere generated from factual properties of the observed universe: dispersion, activity, change density. Some mornings might simply look different.
+- **Silence** — regions that normally produce observations but stop producing them become visible holes.
+- **Trails** — fading trajectories showing where things have been. Hundreds of tiny trails might reveal families of behavior.
+- **Echoes** — historical resemblance. Today's evolving surface beside visually similar prior sessions. Not prediction — pattern.
+- **The Edge** — only observations near boundaries (strike, liquidity, freshness, eligibility, capital constraint).
+- **Emergence/Death** — things materialize when first observable, dissolve when they cease.
+- **Chorus** — synchronized movement. If 40 unrelated observations change together, the field visibly moves as one.
+- **Loners** — something behaving unlike everything around it.
+- **Difference as Primitive** — don't show 961 symbols. Show the *delta* between two successive evidence surfaces. Most of the screen barely changes; a few regions tear, stretch, brighten, distort.
+- **Memory Depth** — a symbol that has behaved similarly for twenty observations acquires a long visual tail. Sudden departure from its own recent path bends sharply away from the tail.
+- **Coherence/Flock** — hundreds of particles whose direction derives from observed movement. Normally milling independently. Then suddenly a large portion flows together. You see the flock turn without needing a correlation statistic.
+
+### Key Insight: Spectacle as Analytical Work
+
+Visualization spectacle is not decoration. It performs analytical work that would otherwise require deciding beforehand what statistic to compute.
+
+> You don't need Kreature to say "cross-asset correlation increased." You see the flock turn.
+
+This is the fundamental argument for investing in perceptual instruments: they give human pattern recognition access to phenomena before those phenomena have been formally defined.
+
+### What This Is Not
+
+- Not a product roadmap
+- Not an architecture
+- Not a prioritized feature list
+- Not a commitment to build any specific experiment
+- Not evidence that any of these ideas will prove useful
+
+### What This Is
+
+A deliberate permission structure for experiments. A laboratory. The idea space should grow substantially larger before the engineer begins reducing it.
+
+### Next Steps
+
+Continue generating candidate perceptual experiments. Dimensions to explore further: change, persistence, absence, synchronization, topology, compression, recurrence, historical comparison, rhythm, boundary proximity, coherence, divergence, emergence, decay, scale transitions.
+
+Do not assess implementation cost initially. Let the idea space expand.
+
+
+---
+
+## 2026-08-25 — Kreature Laboratory: Classification and Temporal-Memory Pressure
+
+### Epistemic status
+
+**Exploratory classification + architectural pressure identification.** The laboratory candidate experiments were classified by phenomenon, evidence requirements, and contamination risk. The classification revealed convergent pressure toward temporal state memory. No architectural decisions ratified. No specific storage primitives prescribed.
+
+### The Laboratory Concept
+
+A deliberate permission structure for perceptual experiments. Each experiment attempts to make a previously invisible temporal property perceptible to the operator.
+
+**Governing constraints:**
+
+1. Arbitrary visual transformation; never arbitrary data. Every visual element traces to something Wheelwright actually observed.
+2. Visualizations should preferentially expose properties of the observed world rather than artifacts of Wheelwright's acquisition machinery.
+
+**Emerging principle:**
+
+> Don't mistake the behavior of the observer for the behavior of the observed.
+
+Any sense driven by observation count, frequency, or density is at high contamination risk — it may primarily visualize scheduler tiers, polling cadence, or expiration fan-out rather than market phenomena. Senses driven by observed values, changes in values, or relationships between values are safer.
+
+### Sensory Vocabulary (Six Phenomena)
+
+The 35+ candidate experiments reduce to approximately six fundamental phenomena we might give the operator a new sense for:
+
+| Phenomenon | What it makes perceptible |
+|---|---|
+| **Change** | What is moving, accelerating, stabilizing, or departing from its own history? |
+| **Relationship** | What is moving together, separating, clustering, or behaving independently? |
+| **Persistence** | What is fleeting versus what keeps happening? |
+| **Absence** | What disappeared, stopped happening, or failed to appear? |
+| **Recurrence** | What resembles something we've seen before, at another time or scale? |
+| **Boundary behavior** | What is interacting with meaningful edges or changing state? |
+
+Time compression, sonification, and spatial layout are **lenses and channels** through which any phenomenon can be perceived — not phenomena themselves.
+
+The structure is: **Phenomenon → Lens → Representation.**
+
+### Evidence Gap Analysis (Investigative — Not Architectural Prescription)
+
+Classification of what Wheelwright currently retains vs discards, assessed against what the laboratory experiments would need:
+
+| Currently retained | Form |
+|---|---|
+| Underlying spot price history | `spot_history` table: append-only, multi-session, 33K+ rows |
+| Latest chain evidence | `evidence` table: UPSERT (previous state destroyed each cycle) |
+| Latest symbol resolution | `symbol_resolution`: current state only (transitions invisible) |
+| Latest snapshot generation | Single-row counter |
+| Portfolio capital trajectory | localStorage daily points |
+
+| Currently discarded/ephemeral | What wishes it existed |
+|---|---|
+| Prior chain state (bid/ask/delta/OI at time T) | Change (premium movement), Recurrence (surface resemblance), Boundary (delta proximity) |
+| Recommendation surface at time T | Ghosts, Persistence (opportunity duration), Absence (candidate disappearance), Recurrence |
+| State transitions (when things changed) | Persistence (how long in a state), Emergence/Death, Absence |
+| Baseline/normal profiles | Absence (deviation from expected), Recurrence, the entire "expectation without prediction" concept |
+
+### The Major Discovery: Temporal State Memory
+
+The laboratory experiments independently and repeatedly converge on the same abstract wish:
+
+> **Kreature wants to know not merely what Wheelwright knows now, but what Wheelwright knew before.**
+
+Current Wheelwright is overwhelmingly a present-state machine. Evidence says what the latest chain is. Resolution says what state a symbol is in now. The Write Desk shows what the deployment surface looks like now. When present state changes, much of the previous world disappears.
+
+Kreature exerts pressure toward **temporal state memory** — the ability to ask questions of Wheelwright's past knowledge that were not formulated at the time the knowledge was current.
+
+This is the abstract pressure. It does NOT prescribe:
+- Raw chain retention vs. normalized observations vs. periodic snapshots
+- Event log vs. state snapshots vs. cold-storage provider responses
+- Single unified store vs. domain-separated temporal memory
+- Retention horizons or compression strategies
+
+The appropriate physical form remains unresolved under PL-EVID-01. The laboratory provides evidence that the pressure is real and convergent, not speculative.
+
+### Three Epistemic Classes of Temporal Memory
+
+The classification also revealed that "temporal memory" may contain fundamentally distinct epistemic classes:
+
+| Class | Example | Character |
+|---|---|---|
+| **Observed world** | "At 10:17 Tradier reported XLE bid $1.12" | Provider-originated fact with provenance |
+| **Derived Wheelwright state** | "At 10:17 XLE P65 was ACTIONABLE" | System interpretation of evidence against policy |
+| **Operator action** | "At 10:45 the operator deployed into XLE P65" | Institutional decision with economic consequence |
+
+These have different origins, different certainties, different lifecycles, and different consumers. Mixing them into a single undifferentiated "event store" would be a category error.
+
+Kreature might eventually look through time across all three:
+- "Here's what the market did."
+- "Here's what Wheelwright thought about what the market did."
+- "Here's what you did in response."
+
+This distinction should inform PL-EVID-01's eventual architecture without prematurely resolving it.
+
+### What Is NOT Concluded
+
+- No specific storage primitives are prescribed (not "retain all chains," not "build an event log," not "snapshot the surface")
+- No experiments are prioritized or authorized for implementation
+- The laboratory idea space should continue expanding
+- The contamination principle is not yet tested against a real experiment
+- The three-epistemic-class model is a hypothesis, not ratified architecture
+
+### Contamination Assessment (Preserved as Reference)
+
+High contamination risk (primarily shows acquisition machinery):
+- Observation frequency/count → reveals scheduler tiers
+- Evidence density → reveals Class A/B/C/D configuration
+- Observation freshness as brightness → shows scheduler priority
+- Arrival-rate pulse → shows batch size × cycle frequency
+
+Low contamination risk (shows the observed world):
+- Price/value change → market behavior independent of acquisition cadence
+- Co-movement direction → market relationship independent of observation order
+- What disappeared → market-determined (expiry, price movement)
+- Moneyness geometry → market-determined
+- Change replayed at compression → strips acquisition artifact, reveals value behavior
+
+### Next Steps
+
+- Continue expanding the laboratory idea space (dimensions: change, persistence, absence, synchronization, topology, compression, recurrence, historical comparison, rhythm, boundary proximity, coherence, divergence, emergence, decay, scale transitions)
+- Do not assess implementation cost initially
+- When choosing a first experiment, prefer senses that operate against existing evidence (spot_history) to defer the temporal-memory architecture question
+- The architectural question ("what kinds of memory?") will be better informed after operating one or two perceptual experiments and discovering what questions they actually generate
+- PL-EVID-01 is enriched by this laboratory's convergent pressure findings — update the parking-lot item accordingly
+
+
+### Architectural Boundary Pressure: Kreature's Temporal Agency (from V1 operation)
+
+**Epistemic status:** Boundary pressure identified through operation. Not yet architectural decision.
+
+Operating V1 exposed a structural mismatch: the frontend currently performs all temporal cognition (dedup, derivation, observation-cycle reconstruction, moneyness envelope, moment identification). This was appropriate for the experiment but reveals that Kreature-the-actor cannot depend on frontend lifetime.
+
+**The emerging boundary:**
+
+> Evidence acquires and remembers.
+> Kreature observes through time and forms temporal facts.
+> The frontend makes those facts perceptible.
+
+This refines the earlier hypothesis "Kreature watches; Evidence remembers" into a three-layer ownership model:
+
+| Layer | Responsibility | Lifecycle |
+|---|---|---|
+| Evidence Appliance | Mechanical acquisition + durable persistence | Backend, always-on |
+| Kreature (temporal cognition) | Observing through time, forming temporal facts, noticing | Backend or backend-adjacent, independent of browser |
+| Kreature Surface (perception) | Visual transformation, spectacle, making facts perceptible | Frontend, ephemeral by nature |
+
+**Why this pressure is real now:**
+
+- If Kreature is frontend-only, it cannot notice anything while the browser is closed
+- Persistence, recurrence, emergence/disappearance, and "unusual compared to prior sessions" all require temporal agency independent of browser session
+- Multiple future surfaces may need the same temporal facts
+- The frontend accumulates increasingly consequential heuristics (observation-cycle dedup) that properly belong to the actor, not the viewport
+
+**Key distinction:**
+
+> The page is the creature's eyes to us. It is not the creature.
+
+**What this does NOT prescribe:**
+
+- Not "create a Kreature microservice" — the actor can be a conceptual concern within the existing appliance
+- Not which temporal facts belong backend vs frontend
+- Not the storage form for temporal memory
+- Not whether raw observations, derived facts, promoted findings, or some combination constitute Kreature's backend responsibility
+
+**Relationship to PL-EVID-01:**
+
+This pressure converges with the laboratory's temporal-memory findings. The question "what kinds of memory do the senses wish they had?" is now joined by "whose memory is it — the browser's or the appliance's?" The answer appears to be: the appliance's. The browser transforms and renders; it does not own temporal cognition.
+
+The frontend should remain very powerful visually — Rain, Replay, Ghosts, strange transformations, and spectacle all belong there. But the browser should be transforming authoritative temporal state, not inventing the actor's memory locally.
+
+
+---
+
+## 2026-08-25 — Kreature Laboratory: d3-force Physics Substrate Spike
+
+### Epistemic status
+
+**Technical spike + emerging design language.** d3-force confirmed as suitable physics substrate. No physics laws designed. No implementation authorized. The interesting design surface is the *meaning* of physical parameters, not their numerical values.
+
+### Finding
+
+d3-force (velocity-Verlet particle simulation) is well-suited as the Kreature Field's physics engine. Custom forces are trivially defined as functions that modify node velocities. The library handles integration, spatial partitioning (Barnes-Hut quadtree for n-body), and composition of multiple forces. Performance at ~961 nodes is proven in production by multiple projects.
+
+Matter.js (rigid-body physics) is overkill — Kreature doesn't need collision geometry, friction, or restitution. d3-force starts closer to our actual problem: particles in space with information-derived forces.
+
+### The Emerging Architecture
+
+> d3-force provides the mechanics.
+> Wheelwright evidence provides the matter.
+> Kreature experiments define the laws.
+
+This means the interesting design surface is the *physics vocabulary* — what gives a node mass, what makes nodes attract or repel, how quickly relationships decay, whether gravity depends on recency/persistence/magnitude/direction — not the simulator itself.
+
+### Multi-Universe Concept
+
+The same evidence, replayed through different physics laws, would produce different visible constellations. This means the choice of physics itself is the experimental variable:
+
+| Universe | Law |
+|---|---|
+| A — co-movement gravity | Similar recent movement attracts |
+| B — persistence gravity | Durable behavior creates mass; similarity determines coupling |
+| C — surprise gravity | Departure from own history creates local distortion |
+| D — known-structure gravity | Sector/region relationships as control |
+
+Replaying the same session through each universe would be scientifically much more interesting than tuning one "correct" model.
+
+### Determinism Caution
+
+d3-force is reproducible under controlled conditions, but a live continuously-ticking simulation and a compressed replay will not automatically produce identical spatial results. For auditable replay, simulation time should eventually be tied to evidence time:
+
+> Every observation interval advances the universe by a known number of simulation ticks. Then 1× and 60× replay are merely different rendering speeds over the same simulation trajectory.
+
+This makes the universe epistemically honest: nothing moves unless Wheelwright observed something. Silence in evidence = stillness in the universe.
+
+### Preserved Caution
+
+> Don't let "behavioral similarity" collapse immediately into "correlation."
+
+Correlation is one possible gravity law, not the definition of Kreature gravity. The physics vocabulary — mass, gravity, temperature, momentum, decay — is becoming a Kreature language for transforming evidence into perception. That language deserves careful design, not premature implementation.
+
+### Integration Path (When Authorized)
+
+1. Replace current hash-based static `(x, y)` with d3-force node positions
+2. Initialize simulation with nodes at current positions (smooth transition)
+3. Register forces: centering + collision avoidance + evidence-derived custom force
+4. On each frame: tick simulation, render from `node.x, node.y`
+5. When observations arrive: recompute force parameters (behavioral similarity matrix)
+6. For replay: reset simulation, advance by evidence-ticks at compressed speed
+
+### Not Decided
+
+- Which physics law to try first
+- What "mass," "gravity," and "decay" should mean in Kreature terms
+- Whether to start with Universe A (co-movement) or something else
+- Performance strategy for pairwise computation (sampling, pre-computation, spatial partitioning)
+- Whether multiple simultaneous universes are rendered side-by-side or switchable
+
+
+---
+
+## 2026-08-26 — Incident: Kreature Debugging Excursion Into Operational Code
+
+### Epistemic status
+
+**Post-incident analysis.** Causal chain established through differential testing. Some low-level mechanism claims remain hypotheses (not profiled). Process and architectural lessons are the durable output.
+
+### What happened
+
+During active market hours, the Kreature Field experiment encountered performance issues (full-universe spot_history fetch overwhelming the browser). While debugging those issues, modifications were made to two load-bearing operational files:
+
+1. **SnapshotBuilder.java** — chain data excluded from snapshot response to reduce payload size
+2. **WriteDesk.tsx** — `handleNewEvidence` cache-merge logic simplified (stale-record cleanup removed, multi-expiration iteration replaced with single-chain write)
+
+These changes coincided with a navigation freeze: Console → Deployment → Console rendered the browser tab permanently unresponsive. The issue persisted across multiple attempted fixes, server restarts, and browser restarts.
+
+### What is established
+
+- HEAD (`5ee32d9`) worked correctly before the session
+- The SnapshotBuilder/WriteDesk modifications coincided with the failure onset
+- Reverting those two files via `git checkout HEAD` restored correct navigation behavior
+- Incognito testing confirmed the committed application itself is healthy against the same backend/dataset
+- The Kreature code (new files, isolated) did not cause the operational freeze
+
+**Classification:** Introduced regression in operational code during experimental debugging. Not a fundamental Kreature defect.
+
+### What is hypothesized but not profiled
+
+- The exact browser-internal mechanism of the freeze (IndexedDB I/O saturation, callback churn, serialization overhead, GC pressure, React scheduling starvation, or some combination)
+- Whether Vite HMR caching specifically caused the apparent persistence across some restart attempts, or whether incomplete restart procedures were the explanation
+
+### The process failure
+
+A laboratory experiment crossed into a load-bearing operational path without an explicit change boundary.
+
+Kreature began as isolated experimental work (new files only). When it encountered performance trouble, debugging spilled into SnapshotBuilder and WriteDesk — the authoritative snapshot contract and the Deployment computation/cache path. Several standards were breached simultaneously:
+
+1. **The snapshot contract was changed** as a side-effect of solving an unrelated consumer's problem
+2. **Load-bearing cache-maintenance behavior was simplified** without first identifying its invariants
+3. **A live-market operational path was altered** without a known-good rollback checkpoint or test
+4. **Multiple variables were changed simultaneously**, making causal isolation much harder during debugging
+
+### Architectural evidence produced
+
+The incident supplies concrete evidence about the current system's operational sensitivity:
+
+- A 19MB snapshot → thousands of browser IndexedDB writes → universe-wide recommendation computation against ~924MB of accumulated cache is an enormous data/computational burden sitting in the browser
+- The transitional placement of the recommendation engine (frontend, per retooling charter PL-ARCH-06) now carries demonstrated operational risk
+- Seemingly local changes to the cache-merge loop can render the entire application unresponsive — the path is far more sensitive than its code simplicity suggests
+- The snapshot contract's field set is a load-bearing interface, not a convenience — removing fields causes non-obvious downstream failures in persistent browser state
+
+### Engineering standards (durable)
+
+**1. Experimental surfaces must fail closed with respect to operational surfaces.**
+
+A broken Kreature should break Kreature. It should not motivate ad-hoc changes that can disable Console or Deployment. This means explicit dependency boundaries, rollback discipline, and potentially separate branches/worktrees or feature gates for laboratory work.
+
+**2. Do not make unbounded or insufficiently isolated changes to production-critical operator paths during an active operating session.**
+
+WriteDesk.tsx and SnapshotBuilder.java happen to be today's critical path. The principle is not file-specific — it applies to whatever carries operational authority at any given time.
+
+**3. The snapshot contract is a frozen interface.**
+
+Removing or nullifying fields causes downstream state corruption in persistent browser caches. Changes to the snapshot shape require explicit version transitions per the existing contract documentation, not ad-hoc performance fixes.
+
+**4. Cache-maintenance code is load-bearing performance infrastructure.**
+
+The stale-record cleanup loop in `handleNewEvidence` is not housekeeping — it bounds IndexedDB growth and maintains cache coherence. Removing it against a 924MB persistent store degrades the subsequent recommendation computation path.
+
+### Scaling pressures (evidenced, not resolved)
+
+The following are now concrete operational risks rather than theoretical concerns:
+
+- 19MB snapshot JSON parsed synchronously on browser main thread
+- ~924MB IndexedDB accumulated from multi-expiration chain caching
+- Non-cancellable recommendation engine running universe-wide against browser-local cache
+- No abort mechanism for `handleNewEvidence` when navigating away from Deployment
+
+These deserve a deliberate workstream (possibly under the retooling charter) rather than opportunistic fixes during unrelated experiments.
+
+### Remediation
+
+Immediate: `git checkout HEAD` on both files restored correct behavior. No data loss. No operational impact beyond ~30 minutes of degraded availability during market hours.
+
+Kreature experimental code (new files in `src/kreature/`, new bulk-history endpoint, nav button, route) remains intact and is harmless — isolated from operational paths.
+
+
+### Executive Summary (Principal)
+
+**What happened:** We started with a working Wheelwright, experimented with Kreature, hit a genuine Kreature performance problem, and then allowed debugging that experimental problem to cross into load-bearing Deployment infrastructure. Changes to SnapshotBuilder and WriteDesk broke assumptions around multi-expiration evidence and IndexedDB maintenance. Reverting those operational files to the known-good commit restored the application.
+
+**What we learned:** The most important discovery is not the particular IndexedDB bug. It is that the current browser-heavy architecture has a fragile operational boundary. Deployment currently asks the frontend to ingest a ~19 MB snapshot, maintain roughly 924 MB of persistent market cache, perform thousands of cache operations, and run recommendations across ~1,300 symbols. That works — but seemingly modest changes to that path can produce catastrophic operator-facing failure. This is concrete evidence supporting the longstanding direction that the backend should own authoritative data and computational heavy lifting; the browser should primarily be a viewport and interaction layer.
+
+We also learned something important about experimentation: Kreature needs a blast-radius boundary. A broken Kreature should break Kreature. Laboratory work should not require modifying the machinery that makes Console and Deployment operational. Experimental surfaces should fail closed relative to production surfaces.
+
+**What we did wrong:** We violated change isolation. Instead of treating the original Kreature crash as a bounded problem in the new experimental surface, we started changing SnapshotBuilder and WriteDesk during an active market session. In doing so, we changed both sides of a load-bearing contract at once and removed behavior — the multi-expiration handling/stale-cache cleanup — that we did not yet understand was an invariant. We then chased several speculative diagnoses before performing the cheapest high-information isolation tests.
+
+We also temporarily confused correlation with causation. "It started after Kreature" became "Kreature broke Wheelwright." Incognito and the eventual revert demonstrated the more precise story: the new Kreature surface had its own performance defect, while the Console/Deployment freeze was caused by subsequent attempts to fix things through operational code. Two failures with similar symptoms became conflated.
+
+Finally, our debugging discipline deteriorated under pressure. We changed several variables, trusted dev/HMR state too readily, and reasoned from plausible mechanisms before establishing a clean known-good/current-state comparison. The better sequence would have been: reproduce → isolate → compare with known-good → change one variable → verify.
+
+**The takeaway:** This was actually a productive failure. We learned that:
+
+- Wheelwright's operational core needs stronger boundaries than its laboratory.
+- Frontend caches and computation must not be capable of making ordinary navigation progressively unusable.
+- Snapshot/cache semantics are contracts with invariants, not convenient implementation details.
+- Experimental work must have a bounded blast radius and an immediate path back to known-good operation.
+- And when the market is open, restoring the operator comes before improving the architecture.
+
+Kreature didn't reveal just strange patterns in market evidence this morning. It accidentally stress-tested Wheelwright's architecture — and found a real weak spot.
+
+
+---
+
+## 2026-08-26 — Architectural Decision: Kreature as Independent Observer
+
+### Epistemic status
+
+**Architectural decision, earned through implementation evidence.** Multiple independent lines of evidence converged on this conclusion: V1 coupling exposed cognitive-role collision with Console; The Field required universe-scale data processing inappropriate for Wheelwright's frontend; the operational incident demonstrated that experimental debugging inside Wheelwright's operational boundary can disable core workflows; and the boundary discussion revealed that Kreature's exploratory purpose is fundamentally incompatible with Wheelwright's operational reliability requirements.
+
+### Decision
+
+**Kreature is its own creature. Wheelwright is one of the worlds it can observe.**
+
+Kreature is not a Wheelwright page, feature, or subsystem. It is an independent observer that consumes Wheelwright evidence through a defined interface.
+
+### Governing rule
+
+> **Kreature may observe Wheelwright. Kreature must not be capable of breaking Wheelwright.**
+
+### Relationship
+
+```
+Wheelwright
+  → produces authoritative evidence/state through a defined interface
+  → remains completely indifferent to whether Kreature exists
+
+Kreature
+  → consumes Wheelwright evidence via that interface
+  → maintains whatever temporal cognition/memory it eventually requires
+  → runs its own computational machinery (d3-force, replay, Field, laboratory)
+  → can crash, mutate, or become completely strange without affecting Wheelwright
+```
+
+### Why this is stronger than "fail closed"
+
+"Experimental surfaces must fail closed relative to core workflows" (ratified earlier today) is a process discipline. This decision is architectural:
+
+- Kreature does not share Wheelwright's process lifecycle
+- Kreature does not share Wheelwright's browser lifecycle (eventually)
+- Kreature does not share Wheelwright's frontend architecture
+- Kreature does not need to share Wheelwright's machine
+
+The separation is not deployment topology (that's unresolved). It is ownership and coupling. Wheelwright owns operational authority. Kreature owns exploratory observation. They communicate through a defined evidence boundary, not through shared code paths.
+
+### What this changes
+
+- The current `src/kreature/` directory inside `options-prototype` is transitional scaffolding, not the architectural end state
+- Kreature's eventual home may be a separate repository, separate application, separate process, or at minimum a completely isolated module boundary
+- The bulk history endpoint (`GET /api/evidence/history/all`) is a legitimate interface point — Wheelwright serving evidence to an external consumer
+- Kreature can develop its own dependencies (d3-force, canvas/WebGL, physics engines) without polluting Wheelwright's operational dependency tree
+- Kreature's performance characteristics (full-universe computation, replay, experimental rendering) do not constrain Wheelwright's frontend performance budget
+
+### What this does NOT decide
+
+- Deployment topology (same repo? separate repo? separate process? same browser?)
+- Whether the current transitional placement inside options-prototype continues during laboratory phase
+- Whether Kreature eventually needs its own backend (temporal memory/cognition independent of Wheelwright's Evidence Appliance)
+- Timeline for physical separation
+
+### Evidence that produced this decision
+
+1. **V1 Notebook redundancy** — Kreature-as-Wheelwright-page immediately collided with Console's cognitive role
+2. **The Field performance** — universe-scale observation required data volumes inappropriate for Wheelwright's frontend budget
+3. **Operational incident** — debugging a Kreature performance issue led to modifying SnapshotBuilder/WriteDesk, breaking navigation during market hours
+4. **"Experimental surfaces must fail closed"** — process discipline is necessary but insufficient; architectural separation prevents the discipline from being needed
+5. **Kreature's emerging purpose** — exploratory, strange, potentially chaotic. Wheelwright's purpose — reliable, authoritative, operationally boring. These require different failure regimes.
+
+### Future possibility (not decided, not designed)
+
+Wheelwright does not necessarily have to remain the only thing Kreature watches. Once Kreature is an observer rather than a Wheelwright feature, it could eventually observe other evidence sources. Wheelwright is its first observed universe, not necessarily its ontological parent.
