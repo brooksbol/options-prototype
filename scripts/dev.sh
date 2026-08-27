@@ -79,10 +79,48 @@ BACKEND_PID=""
 FRONTEND_PID=""
 
 cleanup() {
+  # Disable errexit inside the trap: a non-zero return from kill/wait on an
+  # already-dead process must NEVER abort cleanup before it reaps the backend.
+  # (This was the bug: `set -e` aborted cleanup at the frontend `wait` line,
+  # so the port-based backend reap below never ran and :3100 stayed held.)
+  set +e
+  trap - EXIT INT TERM  # prevent re-entrancy
+
   echo ""
   echo "Shutting down..."
-  [ -n "$FRONTEND_PID" ] && kill "$FRONTEND_PID" 2>/dev/null && wait "$FRONTEND_PID" 2>/dev/null
-  [ -n "$BACKEND_PID" ] && kill "$BACKEND_PID" 2>/dev/null && wait "$BACKEND_PID" 2>/dev/null
+
+  # Frontend (Vite): kill the tracked pipeline PID. No `wait` — a dead child's
+  # non-zero status is irrelevant and must not stop cleanup.
+  if [ -n "$FRONTEND_PID" ]; then
+    kill "$FRONTEND_PID" 2>/dev/null
+  fi
+  # Reap anything still bound to the Vite port for good measure.
+  local vite_pids
+  vite_pids=$(lsof -ti :5173 2>/dev/null)
+  [ -n "$vite_pids" ] && kill $vite_pids 2>/dev/null
+
+  # Backend: the tracked PID is the launching pipeline/gradlew, NOT the JVM that
+  # actually binds :3100. Gradle bootRun forks a separate JVM, so killing the
+  # launcher orphans the app JVM and leaves :3100 held (the bug this fixes).
+  if [ -n "$BACKEND_PID" ]; then
+    kill "$BACKEND_PID" 2>/dev/null
+  fi
+
+  # Authoritative reap: kill whatever actually holds :3100 (survives the gradle
+  # process tree). This is the line that guarantees the appliance is stopped.
+  local port_pids
+  port_pids=$(lsof -ti :3100 2>/dev/null)
+  if [ -n "$port_pids" ]; then
+    echo "[cleanup] Terminating backend JVM bound to :3100 (PID(s): $port_pids)"
+    kill $port_pids 2>/dev/null
+    sleep 2
+    port_pids=$(lsof -ti :3100 2>/dev/null)
+    if [ -n "$port_pids" ]; then
+      echo "[cleanup] Force-killing stubborn backend JVM on :3100 (PID(s): $port_pids)"
+      kill -9 $port_pids 2>/dev/null
+    fi
+  fi
+
   echo "Done."
 }
 
