@@ -11470,3 +11470,116 @@ Result is decisively positive vs the old scheduler, but the *steady-state* numbe
 
 ### Disposition
 No code, config, scheduler, pacer, universe, or A/B/C/D changes during this observation window. Working tree unchanged from the frozen pre-experiment state. Backend remains on Production, `session_blocked` post-close. Nothing committed. This entry is the durable evidence record; the architecture ruling that interprets it is still owed by the 3AM review.
+
+
+---
+
+## 2026-08-27 — 3AM Architecture Ruling: Universe Governance Direction
+
+### Epistemic status
+**Architecture direction / ruling record — NOT an experiment record.** This is the "3AM ruling" that the immediately-preceding Production experiment evidence entry said was still owed. It ratifies a set of *constraints and invariants* while deliberately holding the *positive policies* falsifiable. No runtime or code implementation was authorized by this ruling. The frozen baseline at GitHub `main` / `f7c0726` is unchanged. The governing epistemic discipline throughout: decide the constraints that bound the answer; do not ratify the answer before the instrument capable of falsifying it exists.
+
+### Context
+Followed directly from the Aug 27 Production capacity + simplified-scheduler experiment. That run's decisive finding reframed the problem: the scheduler is no longer the main villain; the ~26–28% chronically-stale tail is a *universe-composition* problem, not a scheduler-performance one (a ~28-min ideal full sweep against a 30-min Decision window means the known universe is simply larger than one authority can keep decision-fresh). This ruling is the architecture direction that interpretation produced.
+
+---
+
+### 1. Active vs known/discovery universe
+- The **active universe** is a **governed bounded resource**, distinct from the broader **known/discovery universe**. "Active" is not synonymous with "every symbol in the seed CSV."
+- Carrying capacity has a **hard maximum**.
+- Carrying capacity is measured in **DECISION SURFACES / provider work**, NOT ticker count. Monthly-only symbols (~1 surface) and multi-DTE / weekly-capable symbols (several surfaces) have materially different carrying costs; the unit that the sweep-time math actually constrains is surfaces (≈ provider requests per sweep), not symbols.
+- **No numeric cap (e.g. 700) is ratified tonight.** The value is empirical, to be sized from post-baseline data and chain-density.
+- The discovery universe is broader, cheaper, and slower; demotion is reversible into it; dormant symbols remain rediscoverable.
+
+### 2. Bulletproof (ratified meaning)
+Bulletproof is a **trust guarantee over the PROMISED DECISION SURFACE of the governed active universe**:
+- Every evidence surface required to rank an active symbol under current Decision criteria is within its validity contract.
+- Monitored positions satisfy their independent observation obligation.
+- Deployment can truthfully claim that **no materially eligible opportunity inside the governed active universe is excluded merely because its required evidence is stale.**
+
+**"One fresh chain per ticker" is explicitly rejected as sufficient** — a multi-DTE name could show a fresh short-DTE chain while the surface Deployment actually ranks is stale, recreating the DTE-22 collapse under a new label. The guarantee is surface-level, not one-chain-per-symbol.
+
+Bulletproof is achievable and measurable (100% of a bounded governed set) rather than asymptotic (a fraction of everything known).
+
+### 3. Universe membership constraints
+**Ratified (prohibitive form):** Membership ranking must be based on **persistent, backward-looking, evidence-derived opportunity usefulness.** **Peak premium and current-leaderboard position are PROHIBITED as sole admission criteria** (optimizing on them is volatility-chasing — a prediction machine wearing a policy mask — and produces regime lock-in).
+- **Structural tradeability is an admission gate** (liquid options, populated 7–45 DTE expirations, strikes near the delta band, spreads tight enough that the midpoint convention is not fiction).
+- Admission is ultimately **competitive and damped, with hysteresis** (beat the weakest incumbent by a margin, sustained — to prevent thrash on noise).
+- **Demotion is reversible** into a still-discoverable pool; dormant symbols remain eligible for requalification.
+
+**Specific positive usefulness metrics remain HYPOTHESES TO TEST, not ratified formulas:** consistency of qualification, spread stability, yield-floor persistence, etc. None is promoted to policy tonight. Ratifying one would decide the output of an instrument not yet built.
+
+### 4. Diversity / regime lock-in (UNRESOLVED — preserved)
+- The active universe must not become permanently locked to today's opportunity regime. Today's semiconductor / commodity leadership is evidence of *persistence*, not *permanence*.
+- A diversity/concentration constraint on the active *population* (not a per-symbol score) is required to prevent one correlated cluster from legitimately winning most slots on the merits and still being a bad active universe.
+- Simple static sector classification (e.g. GICS) may be insufficient: economically correlated instruments cross nominal categories (SMH, SOXX, individual chip names, leveraged chip ETFs = one economic cluster, four+ labels).
+- Candidate mechanisms discussed: external taxonomy/theme/reference data, OR evidence-derived correlation/co-movement (possibly from retained price history — which may share the retention prerequisite in §5). **No mechanism was selected.**
+
+### 5. Opportunity-history evidence plane — LOAD-BEARING PREREQUISITE (ratified)
+**Universe governance requires a durable opportunity-history evidence plane that Wheelwright DOES NOT CURRENTLY POSSESS.** (Confirmed against current schema: `evidence` is current-state, overwritten in place; `spot_history` is append-only price only; `symbol_resolution` is operational state; universe tables carry membership/source but no usefulness history. None retains Decision *outcomes*.)
+
+Membership must be **derived from retained historical Decision facts**, never from current-state cache or present-day leaderboard output.
+
+This extends the existing principle **"persist facts; derive trust"** one layer up, into the governance domain: **"persist opportunity facts; derive usefulness."** The plane therefore inherits the existing evidence-plane discipline.
+
+The retained plane must be **policy-neutral**:
+- immutable observations
+- provenance
+- **raw governed statistics** (retain the underlying economics of the best qualifying candidate — delta, midpoint premium, spread, collateral-normalized yield — as observed facts)
+- **NO stored membership/usefulness score as an authoritative fact** (persist the facts from which a score is derived, never the score itself — so the scoring *policy* stays replaceable against a fixed *fact* record)
+
+Potential per-surface facts were discussed (surface identity incl. DTE/session/epoch context; evaluated?; valid/fresh at evaluation?; produced ≥1 governed-qualifying candidate?; best-qualifying economics; timestamp) but **schema details remain unresolved.**
+
+### 6. NEW INVARIANT — evaluated-failure ≠ not-evaluated (ratified)
+A surface that was **evaluated and failed qualification** and a surface that was **not evaluated** are **different facts and must remain distinguishable.** Collapsing them introduces survivorship bias and incumbent lock-in *into the governance evidence itself* (a demoted symbol stops generating history, looks permanently unuseful, never earns readmission). Consistent with the appliance's existing treatment of absence as a recorded resolution outcome, not a gap.
+
+### 7. NEW INVARIANT — protected obligations are non-borrowable (ratified)
+Monitored-position observation and discovery/requalification are **protected acquisition-budget reservations.** The active-universe scheduler may **NOT silently borrow** those reserves.
+
+Conceptual budget:
+```
+    total acquisition capacity
+  - monitored-position obligation
+  - discovery/requalification reserve
+  - operational headroom
+  = active-universe decision-surface budget
+```
+If the promised active surface cannot fit inside the remaining capacity, Wheelwright must **shrink/demote the commitment or truthfully report degraded coverage.** It must NOT raid monitoring/discovery to manufacture a comforting coverage number (same honesty lesson as the removed "60/60 fresh").
+
+### 8. Monitored positions
+The monitored-position overlay **survives as an independent, protected obligation** because capital is already exposed. It is NOT merely another recommendation class. (Evidence: 8/8 held through the open session, one transient 7/8 self-recovered in ~2 min, dropped only when acquisition was blocked.)
+
+### 9. A/B/C/D — NO final ruling
+Strong hypothesis (NOT ratified):
+- A/B may remain **intraday priority semantics inside the active universe** (breadth-first already collapsed rigid A→B precedence to oldest-frontier-first with class as tiebreaker, and coverage improved — so the *priority* may survive, the *rigid ordering* may not).
+- C/D may prove to be **discovery/lifecycle states rather than opening-session service classes.**
+
+Today C/D received **zero dispatches** (A=443, B=1907, C=0, D=0) under breadth-first, which is *consistent with* the hypothesis but is **evidence from one regime and NOT sufficient to ratify it.** Tomorrow's frozen baseline observes existing behavior unchanged.
+
+### 10. Production vs Sandbox
+Production and Sandbox are **operating regimes, not merely different rate limits.** The 16:00–16:15 ET observation continuation is a **Sandbox delayed-data drain artifact** and should NOT be treated as desired Production session semantics (Production is real-time; there is no delayed stream to drain). Future provider profiles may parameterize **session semantics** as well as acquisition rates. No implementation tonight.
+
+### 11. Time-to-bulletproof
+The historical **7:48 target is no longer the architectural objective.** The operator-facing performance objective is the **minimum measured TIME-TO-BULLETPROOF after the opening bell** (could be 7:33, 7:38, 7:45, …). **Trustworthiness is the hard requirement; speed is optimized inside it.** The first 15 minutes may carry economic value if opening premium/opportunities decay rapidly — an empirical question, not an assumption.
+
+### 12. Ratified implementation sequence
+```
+    tomorrow baseline -> retain -> accumulate -> analyze -> govern
+```
+- **A. Tomorrow morning: NO CHANGES.** Observe `f7c0726` exactly as it is. Measure time-to-bulletproof and first-15-minute opening behavior over the frozen 954-symbol baseline (the "before governance" measurement).
+- **B. First implementation AFTER the baseline:** a **minimal, append-only, policy-neutral opportunity-history fact plane** emitted at the existing Decision-evaluation point. **Observe-only:** no Decision behavior change, no scheduler redesign, no universe pruning, no membership score, no hidden architecture refactor.
+- **C.** Keep the current scheduler/universe running while history accumulates. No pruning.
+- **D.** Analyze accumulated history offline to test membership hypotheses *before* any symbol is evicted.
+- **E.** Only after evidence exists: implement active/discovery governance and empirically size carrying capacity.
+
+### 13. Explicitly open (preserved as unresolved)
+- numerical carrying capacity
+- final A/B/C/D semantics
+- diversity/concentration mechanism
+- exact opportunity-history schema (incl. the evaluated-vs-not-evaluated encoding)
+- discovery cadence vs active-freshness budget tension (cold-start / discovery-starvation)
+- Production session semantics
+- ultimate membership usefulness metric
+
+### Disposition
+**No runtime/code implementation was authorized by this ruling.** No code, config, scheduler, pacer, or universe changes. Working tree unchanged from the frozen baseline `f7c0726`; Production remains the intended runtime profile. This entry is the durable architecture-direction record; it sits beside — and does not amend — the preceding Production experiment evidence record. Step B (the opportunity-history fact plane) is NOT to begin until explicitly authorized after review of tomorrow's opening baseline.
