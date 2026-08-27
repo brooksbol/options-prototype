@@ -212,8 +212,13 @@ export function derivePositionEnvelopes(
  * into a single representative observation (first in cluster).
  *
  * Assumes input is sorted chronologically ascending (as returned by the history API).
+ *
+ * Exported so the Operator Console sparkline path reasons in genuine observation
+ * moments rather than raw spot_history rows (multi-expiration acquisition writes
+ * one identical row per eligible expiration per cycle). Shared with Kreature so
+ * both consumers apply identical temporal dedup semantics.
  */
-function deduplicateObservations(observations: SpotObservation[]): SpotObservation[] {
+export function deduplicateObservations(observations: SpotObservation[]): SpotObservation[] {
   if (observations.length === 0) return [];
 
   const result: SpotObservation[] = [];

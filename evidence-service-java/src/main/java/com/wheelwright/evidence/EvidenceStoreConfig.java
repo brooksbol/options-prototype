@@ -33,8 +33,14 @@ public class EvidenceStoreConfig {
     }
 
     @Bean
-    public RequestPacer requestPacer() {
-        return new RequestPacer();
+    public RequestPacer requestPacer(
+            @Value("${tradier.rate-per-sec:0.9}") double ratePerSec) {
+        // Provider request rate. Default 0.9 req/sec (~54/min) is safe for the Tradier
+        // SANDBOX 60/min ceiling. Production allows 120/min (verified via X-Ratelimit-Allowed);
+        // set tradier.rate-per-sec / TRADIER_RATE_PER_SEC to a value WITH HEADROOM below that
+        // ceiling (e.g. ~1.6 = ~96/min) when running against production. Never set it to the
+        // full ceiling — leave margin for burstiness and the 429 backoff path.
+        return new RequestPacer(ratePerSec, 200);
     }
 
     @Bean

@@ -11423,3 +11423,50 @@ This connects Finding #1 and this finding architecturally without claiming a sha
 - `docs/36-temporal-contract-design-brief.md` — 3AM temporal-contract brief
 - `docs/21-primary-expiration-investigation.md` — PL-EVID-07 (source of amplification)
 - `docs/parking-lot.md` — PL-COHERE-01 (owner), PL-EVID-01 (observation identity)
+
+
+---
+
+## 2026-08-27 — Production Capacity + Simplified-Scheduler Experiment: Session-Close Evidence Record
+
+### Epistemic status
+**Empirical evidence record.** Measurements from a live Tradier-Production session under a deliberately frozen, simplified scheduler. NOT an architecture ruling. Interpretation (qualified universe, A/B/C/D semantics, opening policy, Production session semantics, time-to-bulletproof) is explicitly deferred to the wholesale architecture review ("3AM"). Recorded so the measurements are not lost to conversation history before that review.
+
+### Experimental conditions (frozen for the run)
+Tradier **Production** (real-time data, confirmed: newest spot ~1s old, `X-Ratelimit-Allowed: 120`). Pacer parameterized at ~96 req/min (paceMs=625). 30-min Decision validity unchanged. Simplified scheduler under test: 25-min normal refresh horizon (was 15); breadth-first stale-frontier ordering (oldest chain first across A/B; class only a tiebreaker); blanket multi-DTE surface obligation REMOVED (telemetry retained as diagnostic); monitored-position overlay retained. Universe: 954 ready symbols / 1,317 eligible (7–45 DTE) chains. No pruning. No code/config changes during the observation window; all sampling was read-only (`/api/status`, `sqlite3 -readonly`).
+
+### A. Direct measurements
+- **Intraday steady-state Decision coverage: ~64–67%** (regular session, 15:41–15:58 ET). NOT 70–73% — the earlier 70s were a post-sweep crest, not equilibrium. Do not read finer than a mid-60s band.
+- **Eligible-chain age (pre-close 15:58, total 1317):** <15m 32%, 15–25m 23%, 25–30m 17%, **>30m 28%.** The ~26–28% >30m tail caps intraday coverage.
+- **Provider health:** cumulative dispatches 2000→4526; **429s/rejections = 0 throughout; scheduler.failures = 0.** ~96/min observed as a safe Production operating point this session.
+- **Allocation efficiency:** keep TWO figures separate — **sweep-phase** (~47/48, ~98%, seen while the frontier is fresh/idle) vs **steady-state** (~27–35/48 intraday once A re-refreshes at the 25-min horizon resume). Authoritative rate = pacer paceMs=625; the "chains refreshed ≤5m" metric includes cache-hit re-persists and overstates provider rate late in the window (measurement artifact, not a rate breach).
+- **Monitored positions:** 8/8 for most of the open session; one transient 7/8 (15:41–15:44) that self-recovered by 15:46 (monitored floor working); dropped to 6/8 after the 16:15 acquisition block (expected — no acquisition to refresh held positions).
+- **A/B/C/D dispatch (cumulative, 16:16):** A=443, B=1907, C=0, **D=0.** Under breadth-first, dispatch is overwhelmingly Class B; C/D received ZERO servicing all session.
+- **Deployment temporal breadth (pre-close 15:58):** 11 distinct fresh DTEs spanning 6–42 (7,12,14,21,28,33,35,42 present); 640 symbols with ≥1 fresh eligible chain. NOTE: this is fresh-surface breadth, NOT a ranked Deployment candidate count.
+- **Post-close (16:00–16:14 ET, prices frozen, acquisition still running under the 16:15 rule):** coverage rose 69.6→~80% and plateaued. Structural ceiling ~80% even with frozen prices.
+- **Session-close transition (16:15 ET):** acquisition boundary transitioned correctly — scheduler.state→`session_blocked`, currentSymbol=None, dispatches froze at 4526, next cycle backed off 5 min, spot age grew (0.7→2.8 min), coverage began decaying (759→708). windowMs stayed 1,800,000.
+
+### Comparison baselines (established earlier this day)
+- OLD production scheduler: ~51% coverage plateau; ~26/48 useful chains/min (~54% allocation efficiency).
+- SIMPLIFIED production scheduler: ~64–67% intraday coverage (~80% post-close, frozen prices); near-98% sweep-phase efficiency, lower steady-state; monitored effectively current; 0 rejections/failures.
+Result is decisively positive vs the old scheduler, but the *steady-state* number is mid-60s, not 70s.
+
+### B. Observations
+- **Two coverage regimes:** ~65% intraday (moving prices constantly re-stale the frontier) vs ~80% post-close (frozen prices let the sweep catch up). The gap isolates the moving-target cost from the pure structural ceiling. The ~80% post-close figure is DIAGNOSTIC of capacity dynamics, not a target or a desired operating model.
+- **~28-min full eligible sweep vs 30-min Decision window** → even ideal frozen-price coverage tops out ~80%, not ~100%. The residual is structural (universe size), not allocation.
+- **The scheduler is no longer the main villain.** After simplification, the remaining shortfall is the stale tail — a universe-composition question, not a scheduler-performance one.
+- Monitored overlay is self-healing WHILE acquisition is permitted; its freshness is only maintainable during permitted acquisition.
+
+### Anomalies flagged (recorded, NOT fixed tonight)
+1. **Session-state reporting incoherence (reporting bug):** at the 16:15 block, `scheduler.state=session_blocked` while `schedulerTelemetry.sessionState` remained `Regular observation`. Cause: `updateTelemetry` only runs inside an acquisition cycle; the BLOCKED branch of `runCycle` returns before reaching it, leaving the telemetry session label stale. Acquisition behavior coherent; reporting incoherent. Do not silently normalize.
+2. **Session semantics carry a Sandbox assumption:** the 16:00–16:15 ET FULL continuation (`SessionGate.MARKET_CLOSE_WITH_DELAY = 16:15`) is a delayed-data drain window — meaningful for Sandbox's 15-min-delayed feed, meaningless for real-time Production data. The 16:15 cutoff should NOT be interpreted as the desired Production session boundary.
+
+### C. Unresolved questions for 3AM (interpretation deferred — no ruling)
+- **Qualified-universe governance** (the strengthened central question): do the chronically-stale-tail symbols deserve active intraday carrying cost at all? How do new entrants earn admission? How are dormant symbols periodically rediscovered/requalified? What does "bulletproof" mean over the *qualified* universe rather than every known ticker?
+- **A/B/C/D semantics** given C/D received zero open-session servicing under breadth-first — do C/D belong in the opening/intraday acquisition regime, or are they a different lifecycle state (periodic requalification, not an intraday tax)?
+- **Regime-parameterized behavior:** Sandbox vs Production differ in more than rate limit — delayed vs real-time changes what "open," "fresh," and "close" mean. May justify configuration-specific SESSION SEMANTICS in addition to different acquisition parameters.
+- **Time-to-bulletproof** as the operator-facing performance objective (vs the engineering coverage %).
+- What scheduler shape ultimately survives; whether ~96/min is the right sustained Production rate or headroom toward 120/min is economically useful.
+
+### Disposition
+No code, config, scheduler, pacer, universe, or A/B/C/D changes during this observation window. Working tree unchanged from the frozen pre-experiment state. Backend remains on Production, `session_blocked` post-close. Nothing committed. This entry is the durable evidence record; the architecture ruling that interprets it is still owed by the 3AM review.

@@ -474,9 +474,17 @@ function formatTierStatus(readiness: TierReadiness | null, sessionState: string)
     return "Sealed";
   }
   if (!readiness) return "—";
-  const o = readiness.opening;
-  if (!o) return "Ready";
-  return `${o.currentCount}/${o.setSize} fresh`;
+  // Report the weekly-capable 7-45 DTE decision-surface coverage rather than the
+  // former experimental opening-set "N/N fresh" claim (removed Aug 2026 recovery).
+  // Report monitored-position (held, capital-at-risk) freshness — an operator health
+  // signal. The multi-DTE "x/64" coverage is deliberately NOT shown in the primary
+  // header: 64 is the wrong denominator (only trade-relevant symbols earn a tight
+  // surface obligation), so it is diagnostic telemetry only, not an operator target.
+  // The Deployment board conveys the decision surface directly.
+  const m = readiness.monitoredPositions;
+  if (!m || m.total === 0) return "Ready";
+  if (m.degraded === 0) return `Positions ${m.total}/${m.total} current`;
+  return `Positions ${m.current}/${m.total} current`;
 }
 
 function formatCompact(value: number): string {

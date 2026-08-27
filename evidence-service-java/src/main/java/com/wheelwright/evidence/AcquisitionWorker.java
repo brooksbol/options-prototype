@@ -56,6 +56,8 @@ public class AcquisitionWorker {
     private int dispatchedJobs = 0;
     private int lastBServiceJob = 0;
     private int lastCDServiceJob = 0;
+    private int lastMonitoredServiceJob = 0;
+    private int floorDispatchMonitored = 0;
     private long lastPublishAt = 0;
     private boolean evidenceChangedSincePublish = false;
     private int changedSymbolsThisPublish = 0;
@@ -461,6 +463,22 @@ public class AcquisitionWorker {
 
         List<PrioritizedWorkItem> batch = new ArrayList<>();
         Set<String> batchSymbols = new HashSet<>();
+
+        // Monitored-position floor (PL-EVID-01) — highest-priority overlay obligation.
+        // Capital is already exposed to these symbols, so they get a guaranteed tight
+        // service cadence independent of recommendation class. The monitored set is small
+        // and bounded (the operator's open positions), so this costs little provider budget.
+        // Ordered oldest-first among due monitored items (queue is already oldest-first per class).
+        List<PrioritizedWorkItem> monitored = queue.stream().filter(PrioritizedWorkItem::isMonitored).toList();
+        boolean monitoredDebt = !monitored.isEmpty()
+            && (dispatchedJobs - lastMonitoredServiceJob) >= schedulerConfig.monitoredMinServiceInterval();
+        if (monitoredDebt) {
+            batch.add(monitored.get(0));
+            batchSymbols.add(monitored.get(0).symbol());
+            lastMonitoredServiceJob = dispatchedJobs;
+            floorDispatchMonitored++;
+        }
+
         List<PrioritizedWorkItem> classB = queue.stream().filter(i -> "B".equals(i.urgencyClass())).toList();
         List<PrioritizedWorkItem> classCD = queue.stream().filter(i -> "C".equals(i.urgencyClass()) || "D".equals(i.urgencyClass())).toList();
 
@@ -468,13 +486,16 @@ public class AcquisitionWorker {
         boolean cdDebt = !classCD.isEmpty() && (dispatchedJobs - lastCDServiceJob) >= schedulerConfig.classCDMinServiceInterval();
 
         if (bDebt) {
-            batch.add(classB.get(0));
-            batchSymbols.add(classB.get(0).symbol());
-            lastBServiceJob = dispatchedJobs;
-            floorDispatchB++;
-            // Track floor interruptions during opening burst
-            if (!openingBurstComplete && !openingSet.isEmpty()) {
-                openingFloorInterruptions++;
+            var bItem = classB.stream().filter(i -> !batchSymbols.contains(i.symbol())).findFirst().orElse(null);
+            if (bItem != null) {
+                batch.add(bItem);
+                batchSymbols.add(bItem.symbol());
+                lastBServiceJob = dispatchedJobs;
+                floorDispatchB++;
+                // Track floor interruptions during opening burst
+                if (!openingBurstComplete && !openingSet.isEmpty()) {
+                    openingFloorInterruptions++;
+                }
             }
         }
         if (cdDebt) {

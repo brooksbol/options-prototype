@@ -121,9 +121,20 @@ export function OperatorConsole() {
   const totalCapital = rungs.reduce((sum, r) => sum + r.totalCapital, 0);
   const maxPositionCapital = Math.max(...positions.map(p => p.encumberedCapital ?? 0), 1);
 
-  // Spot history for sparklines — real data for Fidelity, synthetic for Demo
+  // Spot history for sparklines — real data for Fidelity, synthetic for Demo.
+  //
+  // `positions` is a NEW array every render (deriveMonitoredPositions), so memoizing
+  // `underlyings` on `[positions]` still produced a new array reference every render,
+  // which made useSpotHistory's effect re-run (and cancel its in-flight fetch) on every
+  // render — a key contributor to sparklines vanishing on Console remount. Stabilize the
+  // symbol set by its CONTENT: derive a joined key and only produce a new array when the
+  // actual set of underlyings changes. (Same unstable-identity class as usePositionDeltas.)
   const isDemoSource = source === "demo";
-  const underlyings = useMemo(() => [...new Set(positions.map(p => p.underlying))].sort(), [positions]);
+  const underlyingsKey = [...new Set(positions.map(p => p.underlying))].sort().join(",");
+  const underlyings = useMemo(
+    () => (underlyingsKey === "" ? [] : underlyingsKey.split(",")),
+    [underlyingsKey],
+  );
   const spotHistory = useSpotHistory(underlyings, !isDemoSource, observations.generation);
   const positionDeltas = usePositionDeltas(positions, observations.generation);
 
@@ -718,13 +729,20 @@ function PositionTable({ positions, onTileClick, totalCapital, allPositionsTotal
               position.type,
             );
           } else if (!isDemoSource) {
+            // Reason in genuine observation MOMENTS, not raw spot_history rows.
+            // Multi-expiration acquisition writes one identical spot row per eligible
+            // expiration per cycle; those collapse to a single observation moment.
+            // Dedup (shared with Kreature) before deriving the trace, and gate on the
+            // count of distinct moments so a burst of identical rows can no longer pass
+            // the render threshold while producing a flat, invisible line.
             const realSpotSeries = spotHistory.get(position.underlying);
-            if (realSpotSeries && realSpotSeries.length >= 3) {
+            const moments = realSpotSeries ? deduplicateObservations(realSpotSeries) : [];
+            if (moments.length >= 3) {
               moneynessPoints = deriveMoneynessHistory(
-                realSpotSeries.map(obs => obs.price),
+                moments.map(obs => obs.price),
                 position.strike,
                 position.type,
-                realSpotSeries.map(obs => obs.observedAt),
+                moments.map(obs => obs.observedAt),
               );
             }
           }
@@ -960,6 +978,8 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
 import { classifyMoneyness, formatMoneynessDisplay } from "../operator-console/moneyness-presentation";
 import { moneynessColor, type MoneynessColorClass } from "../operator-console/moneyness-color";
 import { generateDemoSpotHistory, deriveMoneynessHistory, type MoneynessPoint } from "../operator-console/moneyness-history";
+import { deduplicateObservations } from "../kreature/observation-derivation";
+import { buildSparklineScale } from "../operator-console/sparkline-scale";
 
 /**
  * MoneynessCellV4 — compound cell: compact numeric + semantic sparkline.
@@ -1015,11 +1035,16 @@ function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass 
   const SPARK_W = 160;
   const SPARK_H = 24;
   const PAD = 1;
-  const plotH = SPARK_H - PAD * 2;
-  const maxAbs = Math.max(...points.map(p => Math.abs(p.moneyness)), 0.005);
-  const zeroY = PAD + plotH / 2;
 
-  const sYScale = (m: number) => PAD + plotH / 2 - (m / maxAbs) * (plotH / 2);
+  // Topology-preserving auto-fit: scale Y by the LOCAL RANGE of the moneyness window,
+  // not its absolute level. This guarantees the temporal shape is identical across
+  // strikes on the same underlying history (e.g. two BNO strikes must both show the
+  // same V), instead of far-OTM/ITM levels collapsing the trace to a flat line.
+  // Strike relationship stays conveyed by the numeric value, cell color, region shading,
+  // and the strike (zero) line when it falls within the fitted window.
+  const scale = buildSparklineScale(points.map(p => p.moneyness), PAD, SPARK_H - PAD);
+  const zeroY = scale.zeroY;
+  const sYScale = (m: number) => scale.yScale(m);
   const sXPos = (i: number) => PAD + points[i].t * (SPARK_W - PAD * 2);
 
   // Region colors (intent-aware) — amplified opacity for blur-visibility
@@ -1061,8 +1086,11 @@ function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass 
         {mDisplay}
       </span>
       <svg width="100%" height={SPARK_H} viewBox={`0 0 ${SPARK_W} ${SPARK_H}`} preserveAspectRatio="none" style={{ display: "block", flexShrink: 0, flex: 1 }}>
-        {/* Strike boundary — the zero line */}
-        <line x1={PAD} y1={zeroY} x2={SPARK_W - PAD} y2={zeroY} stroke="#6b7280" strokeWidth="1.2" />
+        {/* Strike boundary (zero line) — secondary context, drawn only when the strike
+            actually falls within the auto-fitted window so it never distorts the trace. */}
+        {scale.zeroInRange && (
+          <line x1={PAD} y1={zeroY} x2={SPARK_W - PAD} y2={zeroY} stroke="#6b7280" strokeWidth="1.2" />
+        )}
         {/* Trajectory trace */}
         {segments.map((seg, i) => (
           <line key={i} x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2} stroke={seg.color} strokeWidth="2" strokeLinecap="round" />

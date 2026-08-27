@@ -45,11 +45,17 @@ export function useSpotHistory(symbols: string[], enabled: boolean, generation: 
     const genChanged = generation !== lastGenRef.current;
     const symbolsChanged = symbolKey !== lastSymbolKeyRef.current;
 
-    // Only fetch if symbols changed or generation advanced
+    // Only fetch if symbols changed or generation advanced.
     if (!genChanged && !symbolsChanged) return;
 
-    lastGenRef.current = generation;
-    lastSymbolKeyRef.current = symbolKey;
+    // IMPORTANT: do NOT update lastGenRef / lastSymbolKeyRef here (before the fetch).
+    // Doing so caused sparklines to vanish on Console remount: if this effect run was
+    // cancelled by a rapid re-run (generation bumps every few seconds via polling, or a
+    // new symbols array reference), the in-flight fetch was discarded — but the refs had
+    // already been advanced, so the next run saw "no change" and early-returned without
+    // ever completing a fetch, leaving history stuck at EMPTY_MAP. The refs are only
+    // advanced AFTER a fetch actually completes, so a cancelled run never suppresses the
+    // next one. (Route navigation must not make an existing sparkline disappear.)
 
     let cancelled = false;
 
@@ -69,8 +75,12 @@ export function useSpotHistory(symbols: string[], enabled: boolean, generation: 
           }
         }
         setHistory(map);
+        // Mark this (symbols, generation) as satisfied only now that data is applied.
+        lastGenRef.current = generation;
+        lastSymbolKeyRef.current = symbolKey;
       } catch {
-        // Network error — preserve last known history rather than clearing
+        // Network error — preserve last known history rather than clearing.
+        // Refs intentionally left unadvanced so a later run retries this fetch.
       }
     }
 

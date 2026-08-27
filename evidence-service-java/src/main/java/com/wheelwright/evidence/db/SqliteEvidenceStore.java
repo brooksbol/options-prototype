@@ -112,6 +112,104 @@ public class SqliteEvidenceStore implements AutoCloseable {
     }
 
     /**
+     * Declare the current set of monitored (open-position) symbols (PL-EVID-01).
+     *
+     * Atomically REPLACES the monitored set: every symbol in {@code symbols} that
+     * exists in resolution is stamped monitored_at = now; every other symbol has
+     * monitored_at cleared. This means a position that closes (dropped from the
+     * posted set) stops being a monitored obligation on the next declaration.
+     *
+     * Only affects the monitoring overlay. Does NOT change any symbol's recommendation
+     * resolution/class. Symbols not yet known to the store are ignored here (they enter
+     * via addObservationDemand and can be monitored once they resolve).
+     */
+    public void setMonitoredSymbols(List<String> symbols) throws SQLException {
+        String now = Instant.now().toString();
+        Set<String> monitored = new HashSet<>();
+        for (String s : symbols) monitored.add(s.toUpperCase());
+
+        conn.setAutoCommit(false);
+        try {
+            // Clear all existing monitored markers
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("UPDATE symbol_resolution SET monitored_at = NULL WHERE monitored_at IS NOT NULL");
+            }
+            // Stamp the current monitored set
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE symbol_resolution SET monitored_at = ? WHERE symbol = ?")) {
+                for (String s : monitored) {
+                    ps.setString(1, now);
+                    ps.setString(2, s);
+                    ps.addBatch();
+                }
+                ps.executeBatch();
+            }
+            conn.commit();
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.setAutoCommit(true);
+        }
+    }
+
+    /**
+     * Decision Coverage — how much of the eligible opportunity space can currently
+     * participate in candidate generation.
+     *
+     * A symbol "can participate" if it has at least one currently-eligible (7-45 DTE)
+     * chain whose age is within {@code decisionWindowMs} (the frontend Decision validity
+     * window, chainStaleMs = 30 min during open sessions). Symbols whose eligible chains
+     * are all staler than that are INVISIBLE to candidate generation right now — a stale
+     * or unacquired symbol could hide a superior candidate from the ranked board.
+     *
+     * This is the honest completeness measure behind the operator's "best available"
+     * question. It is derived at query time from facts; nothing is stored.
+     *
+     * Denominator = ready symbols that have at least one eligible (7-45 DTE) chain at all
+     * (i.e. symbols that COULD contribute if fresh). Numerator = those with a fresh one.
+     *
+     * @param decisionWindowMs the Decision usability window (chain freshness ceiling)
+     */
+    public DecisionCoverage getDecisionCoverage(long decisionWindowMs) throws SQLException {
+        long now = System.currentTimeMillis();
+        int eligibleSymbols = 0;
+        int currentSymbols = 0;
+
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT sr.symbol,
+                  (SELECT MIN(retrieved_at) FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL
+                     AND e.expiration >= date('now', '+7 days') AND e.expiration <= date('now', '+45 days')) as oldest_eligible,
+                  (SELECT MAX(retrieved_at) FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL
+                     AND e.expiration >= date('now', '+7 days') AND e.expiration <= date('now', '+45 days')) as newest_eligible
+                FROM symbol_resolution sr
+                WHERE sr.resolution = 'ready'
+            """)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String newest = rs.getString("newest_eligible");
+                    if (newest == null) continue; // no eligible chain at all — not in the denominator
+                    eligibleSymbols++;
+                    long freshestAge = now - java.time.Instant.parse(newest).toEpochMilli();
+                    if (freshestAge <= decisionWindowMs) currentSymbols++;
+                }
+            }
+        }
+
+        return new DecisionCoverage(eligibleSymbols, currentSymbols, eligibleSymbols - currentSymbols);
+    }
+
+    /** Current monitored (open-position) symbols. */
+    public List<String> getMonitoredSymbols() throws SQLException {
+        List<String> result = new ArrayList<>();
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT symbol FROM symbol_resolution WHERE monitored_at IS NOT NULL ORDER BY symbol")) {
+            while (rs.next()) result.add(rs.getString("symbol"));
+        }
+        return result;
+    }
+
+    /**
      * Record expirations for a symbol. Empty expirations = absence.
      */
     public void setExpirations(String symbol, String expirationsJson, String retrievedAt) throws SQLException {
@@ -819,13 +917,35 @@ public class SqliteEvidenceStore implements AutoCloseable {
         long now = System.currentTimeMillis();
         List<PrioritizedWorkItem> results = new ArrayList<>();
 
-        // Get all ready symbols with their evidence timestamps
+        // Get all ready symbols with their evidence timestamps.
+        //
+        // Multi-DTE surface freshness (operational recovery, Aug 2026 — PL-COHERE-01 Finding #1):
+        //   chain_retrieved_at is the NEWEST chain row's timestamp — sufficient for
+        //   monthly-only symbols (one eligible expiration). But for weekly-capable
+        //   (multi-DTE) symbols, refreshing only the primary chain leaves the rest of
+        //   the eligible 7-45 DTE surface aging silently past Decision's validity window,
+        //   collapsing the Deployment board toward the primary expiration.
+        //
+        //   We additionally compute, PER SYMBOL, the age of the OLDEST currently-eligible
+        //   chain and the count of currently-eligible chains, where "eligible" is bounded
+        //   to expirations within 7-45 calendar days of now. This bound deliberately
+        //   EXCLUDES dead/expired historical rows (expiration < today), so stale backend
+        //   rows never force a symbol permanently due (see incident caution).
+        //
+        //   For multi-DTE symbols (eligible_chain_count > 1) the freshness decision uses
+        //   the oldest-eligible age, giving the full surface a real service obligation.
+        //   Monthly-only symbols retain their existing single-expiration servicing.
         try (PreparedStatement ps = conn.prepareStatement("""
                 SELECT sr.symbol, sr.session_date, sr.primary_expiration,
                   (SELECT retrieved_at FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL ORDER BY e.retrieved_at DESC LIMIT 1) as chain_retrieved_at,
                   (SELECT retrieved_at FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'expirations' AND e.data IS NOT NULL ORDER BY e.retrieved_at DESC LIMIT 1) as exp_retrieved_at,
                   (SELECT data FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL ORDER BY e.retrieved_at DESC LIMIT 1) as chain_data,
-                  (SELECT expiration FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL ORDER BY e.retrieved_at DESC LIMIT 1) as chain_expiration
+                  (SELECT expiration FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL ORDER BY e.retrieved_at DESC LIMIT 1) as chain_expiration,
+                  (SELECT MIN(retrieved_at) FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL
+                     AND e.expiration >= date('now', '+7 days') AND e.expiration <= date('now', '+45 days')) as oldest_eligible_retrieved_at,
+                  (SELECT COUNT(*) FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL
+                     AND e.expiration >= date('now', '+7 days') AND e.expiration <= date('now', '+45 days')) as eligible_chain_count,
+                  sr.monitored_at as monitored_at
                 FROM symbol_resolution sr
                 WHERE sr.resolution = 'ready'
             """)) {
@@ -837,29 +957,65 @@ public class SqliteEvidenceStore implements AutoCloseable {
                     String expRetrievedAt = rs.getString("exp_retrieved_at");
                     String chainData = rs.getString("chain_data");
                     String chainExpiration = rs.getString("chain_expiration");
+                    String oldestEligibleRetrievedAt = rs.getString("oldest_eligible_retrieved_at");
+                    int eligibleChainCount = rs.getInt("eligible_chain_count");
+                    boolean isMonitored = rs.getString("monitored_at") != null;
 
                     boolean isPriorEpoch = symSessionDate == null || !symSessionDate.equals(sessionDate);
-                    long chainAge = chainRetrievedAt != null
+                    long newestChainAge = chainRetrievedAt != null
                         ? now - java.time.Instant.parse(chainRetrievedAt).toEpochMilli()
                         : Long.MAX_VALUE;
+
+                    // Oldest currently-eligible chain age (multi-DTE surface age). Bounded to
+                    // 7-45 DTE, so dead/expired rows never contribute. Only meaningful when the
+                    // symbol has more than one eligible expiration.
+                    boolean isMultiDte = eligibleChainCount > 1 && oldestEligibleRetrievedAt != null;
+                    long oldestEligibleAge = isMultiDte
+                        ? now - java.time.Instant.parse(oldestEligibleRetrievedAt).toEpochMilli()
+                        : newestChainAge;
+
                     long expAge = expRetrievedAt != null
                         ? now - java.time.Instant.parse(expRetrievedAt).toEpochMilli()
                         : Long.MAX_VALUE;
 
-                    // Skip fresh current-epoch symbols
-                    if (!isPriorEpoch && chainAge < config.chainFreshnessTargetMs()) {
-                        continue;
-                    }
-
+                    // Recommendation class is needed for the due decision (surface obligation
+                    // is scoped to trade-relevant symbols), so classify first.
                     boolean isPlausiblyVisible = classifyFromChain(chainData, chainExpiration);
                     boolean needsExpirations = expAge > config.expirationFreshnessMs();
 
-                    if (isPlausiblyVisible) {
-                        results.add(new PrioritizedWorkItem(symbol, "A", chainAge, needsExpirations, isPriorEpoch));
-                    } else if (chainAge >= config.chainMaxAgeMs() || isPriorEpoch) {
-                        results.add(new PrioritizedWorkItem(symbol, "B", chainAge, needsExpirations, isPriorEpoch));
+                    // Due decision (production simplification experiment, Aug 2026):
+                    //   (1) Chain past the refresh target (now 25 min, near the Decision horizon).
+                    //   (2) Monitored position (PL-EVID-01) past the monitoring target — OVERLAY,
+                    //       capital at risk, observable regardless of recommendation class.
+                    // The blanket multi-DTE 25-min SURFACE obligation is REMOVED: at production
+                    // throughput the breadth-first sweep covers the full eligible surface without a
+                    // special cohort, and the surface obligation was consuming budget that starved
+                    // breadth. (multiDteSurface telemetry is retained as diagnostic only.)
+                    // A symbol is due if either obligation is unmet (or it is prior-epoch).
+                    boolean primaryDue = newestChainAge >= config.chainFreshnessTargetMs();
+                    boolean monitoredDue = isMonitored && newestChainAge >= config.monitoredFreshnessTargetMs();
+
+                    if (!isPriorEpoch && !primaryDue && !monitoredDue) {
+                        continue; // within all applicable targets — skip
                     }
-                    // Otherwise: background but within max age — skip
+
+                    // Sort key = newest-chain age. Ordering (below) favors advancing the STALE
+                    // FRONTIER (oldest admissible evidence first) so breadth is refreshed before
+                    // already-fresh evidence is re-fetched.
+                    long chainAge = newestChainAge;
+
+                    // The monitored overlay does NOT change the recommendation class. A monitored
+                    // symbol keeps its A/B classification; it is merely tagged so the dedicated
+                    // monitored anti-starvation floor can guarantee it a tight service cadence.
+                    if (isPlausiblyVisible) {
+                        results.add(new PrioritizedWorkItem(symbol, "A", chainAge, needsExpirations, isPriorEpoch, isMonitored));
+                    } else if (newestChainAge >= config.chainMaxAgeMs() || isPriorEpoch || monitoredDue || primaryDue) {
+                        // Class B when past max age, prior-epoch, monitored-due, or past the refresh
+                        // target. (primaryDue now admits ready-but-non-qualifying symbols to the
+                        // breadth sweep at the 25-min target, which is the point: cover breadth.)
+                        results.add(new PrioritizedWorkItem(symbol, "B", chainAge, needsExpirations, isPriorEpoch, isMonitored));
+                    }
+                    // Otherwise: within targets — skip
                 }
             }
         }
@@ -897,23 +1053,25 @@ public class SqliteEvidenceStore implements AutoCloseable {
         }
 
         // Sort by urgency
+        // Ordering — BREADTH-FIRST FRESHNESS (production simplification experiment, Aug 2026).
+        //
+        // The scarcity-era ordering put ALL Class A ahead of ALL Class B, so already-admissible
+        // Class-A chains were re-fetched (at the old 15-min target) ahead of genuinely staler
+        // breadth evidence — realizing only ~26 of ~48 available eligible-refreshes/min and
+        // pinning Decision coverage at ~51% even though production capacity was sufficient.
+        //
+        // New order: advance the STALE FRONTIER first — oldest chain age first, across A and B
+        // together, so evidence closest to falling out of the 30-min Decision window is refreshed
+        // before anything already comfortably fresh. Class A is only a tiebreaker when ages are
+        // effectively equal (likely-tradeable gets a gentle nudge, but never enough preference to
+        // starve breadth discovery). Lifecycle work (C/D, chainAgeMs = MAX_VALUE) sorts to the top
+        // because it grows the ready population (breadth) and is bounded by its own service floors.
         results.sort((a, b) -> {
-            boolean aIsA = "A".equals(a.urgencyClass());
-            boolean bIsA = "A".equals(b.urgencyClass());
-            if (aIsA && !bIsA) return -1;
-            if (!aIsA && bIsA) return 1;
-
-            boolean aIsBPastMax = "B".equals(a.urgencyClass()) && a.chainAgeMs() >= config.chainMaxAgeMs();
-            boolean bIsBPastMax = "B".equals(b.urgencyClass()) && b.chainAgeMs() >= config.chainMaxAgeMs();
-            if (aIsBPastMax && !bIsBPastMax && !bIsA) return -1;
-            if (bIsBPastMax && !aIsBPastMax && !aIsA) return 1;
-
-            if (a.urgencyClass().equals(b.urgencyClass())) {
-                return Long.compare(b.chainAgeMs(), a.chainAgeMs()); // oldest first
-            }
-
-            int classOrder = classOrder(a.urgencyClass()) - classOrder(b.urgencyClass());
-            return classOrder;
+            // Primary: oldest / most-stale chain first (the frontier).
+            int byAge = Long.compare(b.chainAgeMs(), a.chainAgeMs());
+            if (byAge != 0) return byAge;
+            // Tiebreaker: prefer likely-tradeable (Class A) when ages are equal.
+            return classOrder(a.urgencyClass()) - classOrder(b.urgencyClass());
         });
 
         return results;
@@ -977,6 +1135,94 @@ public class SqliteEvidenceStore implements AutoCloseable {
         }
 
         return new ClassifiedPopulation(classA, classB, classC, classD);
+    }
+
+    /**
+     * Multi-DTE surface coverage — how much of the weekly-capable (multi-expiration)
+     * decision surface is currently fresh enough to be usable by Decision.
+     *
+     * Operational-recovery instrumentation (Aug 2026 — PL-COHERE-01 Finding #1).
+     * Derived at query time from facts; nothing is stored (persist facts; derive trust).
+     *
+     * A "multi-DTE symbol" is a ready symbol with more than one currently-eligible
+     * (7-45 calendar-day) chain. Its surface is "current" when its OLDEST eligible chain
+     * is within {@code targetMs} (the multi-DTE surface service target, 25 min by default —
+     * inside Decision's 30-min validity window); otherwise it is "degraded" (some eligible
+     * expiration has aged out and the Deployment board will have collapsed toward the
+     * fresher expirations).
+     *
+     * Eligibility is bounded to 7-45 DTE, EXCLUDING dead/expired historical rows, so
+     * unpruned stale backend rows do not distort the count.
+     *
+     * @param targetMs the age ceiling below which a surface is considered current
+     */
+    public MultiDteSurfaceCoverage getMultiDteSurfaceCoverage(long targetMs) throws SQLException {
+        long now = System.currentTimeMillis();
+        int total = 0;
+        int current = 0;
+
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT sr.symbol,
+                  (SELECT COUNT(*) FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL
+                     AND e.expiration >= date('now', '+7 days') AND e.expiration <= date('now', '+45 days')) as eligible_chain_count,
+                  (SELECT MIN(retrieved_at) FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL
+                     AND e.expiration >= date('now', '+7 days') AND e.expiration <= date('now', '+45 days')) as oldest_eligible_retrieved_at
+                FROM symbol_resolution sr
+                WHERE sr.resolution = 'ready'
+            """)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int eligibleChainCount = rs.getInt("eligible_chain_count");
+                    if (eligibleChainCount <= 1) continue; // monthly-only — not a multi-DTE surface
+
+                    total++;
+                    String oldest = rs.getString("oldest_eligible_retrieved_at");
+                    if (oldest != null) {
+                        long oldestAge = now - java.time.Instant.parse(oldest).toEpochMilli();
+                        if (oldestAge <= targetMs) {
+                            current++;
+                        }
+                    }
+                }
+            }
+        }
+
+        return new MultiDteSurfaceCoverage(total, current, total - current);
+    }
+
+    /**
+     * Monitored-position coverage (PL-EVID-01). How many currently-monitored (open-position)
+     * symbols have current-enough evidence to monitor, vs. stale.
+     *
+     * "current" = the symbol's newest chain is within {@code targetMs}. Derived at query
+     * time from facts; nothing stored. Only 'ready' monitored symbols are counted as
+     * having chain evidence; a monitored symbol still resolving counts as stale (no chain).
+     *
+     * @param targetMs monitoring freshness ceiling below which a position is "current"
+     */
+    public MultiDteSurfaceCoverage getMonitoredCoverage(long targetMs) throws SQLException {
+        long now = System.currentTimeMillis();
+        int total = 0;
+        int current = 0;
+
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT sr.symbol,
+                  (SELECT MAX(retrieved_at) FROM evidence e WHERE e.symbol = sr.symbol AND e.evidence_type = 'chain' AND e.data IS NOT NULL) as newest_chain_at
+                FROM symbol_resolution sr
+                WHERE sr.monitored_at IS NOT NULL
+            """)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    total++;
+                    String newest = rs.getString("newest_chain_at");
+                    if (newest != null) {
+                        long age = now - java.time.Instant.parse(newest).toEpochMilli();
+                        if (age <= targetMs) current++;
+                    }
+                }
+            }
+        }
+        return new MultiDteSurfaceCoverage(total, current, total - current);
     }
 
     /**
@@ -1112,8 +1358,29 @@ public class SqliteEvidenceStore implements AutoCloseable {
 
     // --- Records ---
 
-    public record PrioritizedWorkItem(String symbol, String urgencyClass, long chainAgeMs, boolean needsExpirations, boolean isPriorEpoch) {}
+    public record PrioritizedWorkItem(String symbol, String urgencyClass, long chainAgeMs, boolean needsExpirations, boolean isPriorEpoch, boolean isMonitored) {
+        // Backward-compatible constructor (non-monitored) for existing callers/tests.
+        public PrioritizedWorkItem(String symbol, String urgencyClass, long chainAgeMs, boolean needsExpirations, boolean isPriorEpoch) {
+            this(symbol, urgencyClass, chainAgeMs, needsExpirations, isPriorEpoch, false);
+        }
+    }
     public record ClassifiedPopulation(int classA, int classB, int classC, int classD) {}
+
+    /**
+     * Multi-DTE (weekly-capable) surface coverage snapshot.
+     *   total    — ready symbols with >1 currently-eligible chain
+     *   current  — those whose full eligible surface is within the freshness target
+     *   degraded — those with at least one eligible expiration aged past the target
+     */
+    public record MultiDteSurfaceCoverage(int total, int current, int degraded) {}
+
+    /**
+     * Decision Coverage — completeness of the candidate-generation opportunity space.
+     *   eligibleSymbols — ready symbols with >=1 eligible (7-45 DTE) chain (could contribute)
+     *   currentSymbols  — those with >=1 eligible chain within the Decision window (can contribute NOW)
+     *   staleSymbols    — eligible symbols with no fresh eligible chain (invisible to candidate gen)
+     */
+    public record DecisionCoverage(int eligibleSymbols, int currentSymbols, int staleSymbols) {}
 
     @Override
     public void close() throws SQLException {

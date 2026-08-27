@@ -19,6 +19,15 @@ import java.util.Map;
 @RestController
 public class StatusController {
 
+    /**
+     * The Decision validity window used for the Decision Coverage measure. Mirrors the
+     * frontend's chain stale-usable ceiling (durable-cache chainStaleMs = 30 min during
+     * open sessions) — the window within which a chain can participate in candidate
+     * generation. Kept here as the backend's coverage-reporting reference; it does NOT
+     * change any frontend validity behavior.
+     */
+    private static final long DECISION_WINDOW_MS = 30 * 60 * 1000L;
+
     private final SqliteEvidenceStore store;
     private final AcquisitionWorker worker;
     private final RequestPacer pacer;
@@ -97,6 +106,37 @@ public class StatusController {
         evidenceMap.put("coverage", store.getCoverage());
         evidenceMap.put("universe", store.getAllSymbols().size());
         result.put("evidence", evidenceMap);
+
+        // Multi-DTE surface coverage (operational recovery — PL-COHERE-01 Finding #1).
+        // Reports whether the weekly-capable 7-45 DTE decision surface is being held
+        // fresh enough for Decision, so a collapsed board cannot masquerade as healthy.
+        var mdte = store.getMultiDteSurfaceCoverage(SchedulerConfig.DEFAULT.multiDteSurfaceTargetMs());
+        Map<String, Object> mdteMap = new LinkedHashMap<>();
+        mdteMap.put("total", mdte.total());
+        mdteMap.put("current", mdte.current());
+        mdteMap.put("degraded", mdte.degraded());
+        result.put("multiDteSurface", mdteMap);
+
+        // Monitored-position coverage (PL-EVID-01). Are the operator's held positions
+        // current enough to monitor? This is the decision/capital-at-risk obligation.
+        var mon = store.getMonitoredCoverage(SchedulerConfig.DEFAULT.monitoredFreshnessTargetMs());
+        Map<String, Object> monMap = new LinkedHashMap<>();
+        monMap.put("total", mon.total());
+        monMap.put("current", mon.current());
+        monMap.put("degraded", mon.degraded());
+        result.put("monitoredPositions", monMap);
+
+        // Decision Coverage — how much of the eligible opportunity space can currently
+        // participate in candidate generation (measured against Decision's validity window).
+        // This is the honest "best available?" completeness measure: if a material fraction
+        // of eligible symbols is stale, the Deployment board is NOT best-across-the-universe.
+        var cov = store.getDecisionCoverage(DECISION_WINDOW_MS);
+        Map<String, Object> covMap = new LinkedHashMap<>();
+        covMap.put("eligibleSymbols", cov.eligibleSymbols());
+        covMap.put("currentSymbols", cov.currentSymbols());
+        covMap.put("staleSymbols", cov.staleSymbols());
+        covMap.put("windowMs", DECISION_WINDOW_MS);
+        result.put("decisionCoverage", covMap);
 
         // Cache
         result.put("cache", cache.stats());

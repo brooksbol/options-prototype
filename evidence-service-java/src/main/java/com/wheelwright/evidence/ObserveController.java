@@ -65,9 +65,19 @@ public class ObserveController {
             store.addObservationDemand(unknown);
         }
 
+        // Record the full posted set as the current monitored-position set (PL-EVID-01).
+        // The observe demand from portfolio monitoring IS the "capital at risk" signal:
+        // these symbols get a monitoring service obligation (a scheduler floor) so their
+        // evidence stays current enough to monitor, independent of recommendation class.
+        // This atomically REPLACES the prior monitored set (closed positions stop being
+        // monitored on the next declaration). Newly-added unknown symbols become monitored
+        // once they resolve to a chain; already-known symbols are marked monitored now.
+        store.setMonitoredSymbols(normalized);
+
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("added", unknown);
         result.put("alreadyKnown", alreadyKnown);
+        result.put("monitored", normalized.size());
         result.put("totalRequested", normalized.size());
 
         return ResponseEntity.ok(result);

@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class WorkerParityTest {
 
     private static final SchedulerConfig CONFIG = new SchedulerConfig(
-        15 * 60 * 1000L, 120 * 60 * 1000L, 6 * 60 * 60 * 1000L,
-        10, 20, 5000L
+        25 * 60 * 1000L, 120 * 60 * 1000L, 6 * 60 * 60 * 1000L,
+        10, 20, 5000L, 15 * 60 * 1000L, 5, 25 * 60 * 1000L
     );
 
     // Dynamic future expiration (21 days from today) — avoids test rot when dates pass
@@ -76,14 +76,16 @@ class WorkerParityTest {
     class ClassifiedPopulationParity {
 
         @Test
-        @DisplayName("fresh A + stale A: eligible.A=2, due.A=1")
+        @DisplayName("fresh A + stale A: eligible.A=2, due.A=1 (stale = past the 25-min horizon)")
         void freshAndStaleClassA() throws Exception {
+            // CONTRACT: 25-min refresh horizon (production simplification). FRESH_A (5m) is
+            // eligible but not due; STALE_A must be >25m to be due.
             var store = new SqliteEvidenceStore(":memory:");
             store.initUniverse(List.of("FRESH_A", "STALE_A"));
             store.setExpirations("FRESH_A", EXPIRATIONS_JSON, minutesAgo(5));
             store.setChain("FRESH_A", QUALIFYING_CHAIN.replace("XLE", "FRESH_A"), minutesAgo(5));
-            store.setExpirations("STALE_A", EXPIRATIONS_JSON, minutesAgo(20));
-            store.setChain("STALE_A", QUALIFYING_CHAIN.replace("XLE", "STALE_A"), minutesAgo(20));
+            store.setExpirations("STALE_A", EXPIRATIONS_JSON, minutesAgo(30));
+            store.setChain("STALE_A", QUALIFYING_CHAIN.replace("XLE", "STALE_A"), minutesAgo(30));
 
             var pop = store.getClassifiedPopulation();
             var queue = store.getPrioritizedWorkQueue(CONFIG);
@@ -109,7 +111,12 @@ class WorkerParityTest {
 
             assertEquals(2, pop.classB());
             assertEquals(0, pop.classA());
-            assertEquals(1, queue.stream().filter(i -> "B".equals(i.urgencyClass())).count());
+            // BREADTH-FIRST (production simplification, Aug 2026): a ready symbol becomes due at
+            // the 25-min refresh target, not only at the 120-min B max age. FRESH_B (60 min) and
+            // STALE_B (3h) are BOTH now due — the whole ready universe is kept inside the Decision
+            // window, not just the qualifying-A subset. (Was: only STALE_B due under the old
+            // 15-min-A / 120-min-B scarcity model.)
+            assertEquals(2, queue.stream().filter(i -> "B".equals(i.urgencyClass())).count());
             store.close();
         }
 
@@ -142,14 +149,18 @@ class WorkerParityTest {
             var pop = store.getClassifiedPopulation(today);
             var queue = store.getPrioritizedWorkQueue(CONFIG, today);
 
-            // Matches TypeScript telemetry-semantics "mixed population" test exactly
+            // CLASSIFICATION (unchanged): A/B/C/D populations are still classified the same way.
             assertEquals(2, pop.classA());  // FRESH_A + STALE_A
             assertEquals(2, pop.classB());  // FRESH_B + STALE_B
             assertEquals(1, pop.classC());  // PENDING
             assertEquals(1, pop.classD());  // PRIOR_ABSENT
 
-            assertEquals(1, queue.stream().filter(i -> "A".equals(i.urgencyClass())).count()); // only STALE_A
-            assertEquals(1, queue.stream().filter(i -> "B".equals(i.urgencyClass())).count()); // only STALE_B
+            // DUE counts (production simplification, Aug 2026 — 25-min refresh target, breadth-first):
+            //   FRESH_A (5m): not due. STALE_A (20m): NOT due (20 < 25-min target) — was due at 15.
+            //   FRESH_B (60m) + STALE_B (3h): BOTH due at the 25-min target (breadth coverage).
+            //   PENDING (C) + PRIOR_ABSENT (D): due (lifecycle).
+            assertEquals(0, queue.stream().filter(i -> "A".equals(i.urgencyClass())).count());
+            assertEquals(2, queue.stream().filter(i -> "B".equals(i.urgencyClass())).count());
             assertEquals(1, queue.stream().filter(i -> "C".equals(i.urgencyClass())).count()); // PENDING
             assertEquals(1, queue.stream().filter(i -> "D".equals(i.urgencyClass())).count()); // PRIOR_ABSENT
 
@@ -192,42 +203,44 @@ class WorkerParityTest {
     class ServiceFloorBoundaries {
 
         @Test
-        @DisplayName("B past max age appears in prioritized queue alongside A")
+        @DisplayName("BREADTH-FIRST: stalest evidence ordered first, across A and B (production simplification)")
         void bPastMaxInQueue() throws Exception {
             var store = new SqliteEvidenceStore(":memory:");
-            store.initUniverse(List.of("A1", "A2", "B1", "C1"));
-            store.setExpirations("A1", EXPIRATIONS_JSON, minutesAgo(20));
-            store.setChain("A1", QUALIFYING_CHAIN.replace("XLE", "A1"), minutesAgo(20));
-            store.setExpirations("A2", EXPIRATIONS_JSON, minutesAgo(25));
-            store.setChain("A2", QUALIFYING_CHAIN.replace("XLE", "A2"), minutesAgo(25));
+            store.initUniverse(List.of("A2", "B1", "C1"));
+            // A2: qualifying (Class A), 40 min old — due (>25-min target).
+            store.setExpirations("A2", EXPIRATIONS_JSON, minutesAgo(40));
+            store.setChain("A2", QUALIFYING_CHAIN.replace("XLE", "A2"), minutesAgo(40));
+            // B1: non-qualifying (Class B), 3h old — much staler than A2.
             store.setExpirations("B1", EXPIRATIONS_JSON, hoursAgo(3));
             store.setChain("B1", NONQUALIFYING_CHAIN.replace("BG", "B1"), hoursAgo(3));
-            // C1 stays pending
+            // C1 stays pending (lifecycle).
 
             var queue = store.getPrioritizedWorkQueue(CONFIG);
 
-            // All classes present in queue
             assertTrue(queue.stream().anyMatch(i -> "A".equals(i.urgencyClass())));
             assertTrue(queue.stream().anyMatch(i -> "B".equals(i.urgencyClass())));
             assertTrue(queue.stream().anyMatch(i -> "C".equals(i.urgencyClass())));
 
-            // A comes before B (priority order)
-            int aIdx = -1, bIdx = -1;
+            // Breadth-first ordering: the STALEST evidence advances first, regardless of class.
+            // B1 (3h) must precede A2 (40m) — the scarcity-era "A always before B" rule is gone.
+            // (Class A is now only a tiebreaker when ages are effectively equal.)
+            int a2Idx = -1, b1Idx = -1;
             for (int i = 0; i < queue.size(); i++) {
-                if ("A".equals(queue.get(i).urgencyClass()) && aIdx < 0) aIdx = i;
-                if ("B".equals(queue.get(i).urgencyClass()) && bIdx < 0) bIdx = i;
+                if ("A2".equals(queue.get(i).symbol())) a2Idx = i;
+                if ("B1".equals(queue.get(i).symbol())) b1Idx = i;
             }
-            assertTrue(aIdx < bIdx, "A must precede B in priority order");
+            assertTrue(b1Idx < a2Idx, "stalest evidence (B1, 3h) must precede fresher A (A2, 40m)");
             store.close();
         }
 
         @Test
-        @DisplayName("queue contains all four classes when all are eligible")
+        @DisplayName("queue contains all four classes when all have due work (25-min horizon)")
         void allFourClasses() throws Exception {
+            // CONTRACT: A1 must be past the 25-min refresh horizon (not 15) to be a due Class A.
             var store = new SqliteEvidenceStore(":memory:");
             store.initUniverse(List.of("A1", "B1", "C1", "D1"));
-            store.setExpirations("A1", EXPIRATIONS_JSON, minutesAgo(20));
-            store.setChain("A1", QUALIFYING_CHAIN.replace("XLE", "A1"), minutesAgo(20));
+            store.setExpirations("A1", EXPIRATIONS_JSON, minutesAgo(30));
+            store.setChain("A1", QUALIFYING_CHAIN.replace("XLE", "A1"), minutesAgo(30));
             store.setExpirations("B1", EXPIRATIONS_JSON, hoursAgo(3));
             store.setChain("B1", NONQUALIFYING_CHAIN.replace("BG", "B1"), hoursAgo(3));
             // C1 stays pending

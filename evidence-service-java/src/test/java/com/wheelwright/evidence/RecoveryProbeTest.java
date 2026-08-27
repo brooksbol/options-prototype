@@ -35,7 +35,10 @@ class RecoveryProbeTest {
         86_400_000L, // expirationFreshnessMs (24 hours)
         10,          // classBMinServiceInterval
         10,          // classCDMinServiceInterval
-        5000L        // publicationCoalesceMs
+        5000L,       // publicationCoalesceMs
+        900_000L,    // monitoredFreshnessTargetMs (15 min)
+        5,           // monitoredMinServiceInterval
+        1_500_000L   // multiDteSurfaceTargetMs (25 min)
     );
 
     private SqliteEvidenceStore store;
