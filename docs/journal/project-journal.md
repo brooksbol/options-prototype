@@ -11365,3 +11365,61 @@ The first diagnosis this session was wrong (static-analysis claim contradicted b
 - `docs/21-primary-expiration-investigation.md` — PL-EVID-07
 - `docs/parking-lot.md` — PL-COHERE-01 (owner), PL-EVID-07, PL-ARCH-06, PL-EVID-01
 - Journal: 2026-08-11, 2026-08-12, 2026-08-21, 2026-08-26 (successive freshness/DTE observations that led here)
+
+
+---
+
+## 2026-08-27 — Console Sparklines: Temporal-Evidence Candidate Finding (related to Finding #1)
+
+### Epistemic status
+
+**Candidate architectural finding, established through end-to-end tracing against live evidence.** Recorded under PL-COHERE-01 as a *separate* candidate from Finding #1 — related by pattern and population, NOT assumed to share immediate cause. No code. No ratified direction.
+
+### Trigger
+
+Console screenshot: positions, current spot, moneyness values, DTE grouping all render correctly — but the moneyness-cell sparklines are conspicuously empty. A sparkline needs a time series, not just a current quote. So this smells like a temporal/historical evidence gap: current state reconstructed successfully, historical state did not. That is very close to Finding #1's pattern (locally-healthy current evidence ≠ complete decision/temporal evidence surface).
+
+### Trace (SLV, live)
+
+- **SQLite:** SLV has 574 spot_history rows total; a week of history persists across sessions (so NOT a persistence-loss issue). But the most recent 8 rows are all one 12-second burst at 13:46:24–13:46:36 UTC, all price 61.645, then a jump back to yesterday 19:19.
+- **History API** (`/api/evidence/history?symbol=SLV`, default since = now−12h): returns exactly those 8 rows.
+- **`useSpotHistory`:** faithfully sets Map with 8 observations.
+- **Console derivation (`OperatorConsole.tsx` ~713–726):** gate is `realSpotSeries.length >= 3`. SLV passes (8 ≥ 3). But the 8 rows are identical price at near-identical timestamps → `deriveMoneynessHistory` produces a flat, zero-width trace. Sparkline renders but shows nothing. The Console does NOT apply Kreature's 30s dedup, which would honestly collapse these to 1 moment.
+
+### Two distinct root causes
+
+**Cause A — observation identity unresolved at persistence.** `spot_history` gets one INSERT per `setChain`/`setChainForExpiration` (confirmed in `SqliteEvidenceStore`). Multi-expiration `acquireAllEligibleChains` writes 6–11 identical rows per cycle for a weekly symbol. The Console treats these as N real observations; they are 1 moment. This is exactly the risk flagged in `observation-derivation.ts` ("if the heuristic produces incorrect groupings, PL-EVID-01 should resolve observation identity at the persistence layer"). The empty sparklines are the first operator-visible consequence.
+
+**Cause B — weekly symbols not revisited since opening burst.** Same population and cadence gap as Finding #1. Their latest observation is ~90–110 min old.
+
+Population confirmation (12h window, raw rows vs distinct moments):
+- Monthly-only (DBO, REMX, WEAT): 7 raw = 7 moments, latest 15:25–15:31 → sparklines would work.
+- Weekly (SLV, XLE, GLD, QQQ, SPY, EWY, GDX, GDXJ, BNO, COPX, URA): 6–11 raw → **1 moment**, latest 13:46–14:07 → flat/empty.
+
+A and B compound: A means each visit yields 1 usable moment not N; B means visits are infrequent for exactly the multi-DTE population.
+
+### Relationship to Finding #1
+
+Same pattern (locally-healthy current ≠ complete surface), same population (64 weekly-capable symbols), same cadence factor (Cause B). Distinct mechanism: Finding #1 is a validity-gate mismatch (30-min TTL drops fresh chains); this is observation-identity + temporal density. Cousins, not the same bug.
+
+### The larger suspicion (meta-finding, not ratified)
+
+Simultaneously: current spot present, current portfolio present, "EVIDENCE 60/60 fresh" shown — yet historical sparkline absent AND Deployment multi-DTE degraded to 22. The 60/60 indicator is probably correct by its narrow definition ("current portfolio underlyings have acceptable current observations") but far narrower than an operator reads it. If so:
+
+> Wheelwright currently has no coherent system-level definition of evidence readiness. Each surface has its own implicit narrow notion; the global indicator reflects only one.
+
+This connects Finding #1 and this finding architecturally without claiming a shared bug — the common thread is the absence of a shared readiness contract across current-quote, temporal-history, and decision-surface evidence. Recorded as a suspicion for the next reconciliation pass, not ratified.
+
+### Disposition
+
+- Full trace in `docs/37-console-sparkline-temporal-evidence-finding.md`.
+- No code. Sparkline not fixed. `>= 3` gate, spot_history schema, history window, acquisition cadence, and the 60/60 indicator all unchanged.
+- Open questions carried to reconciliation: observation-identity ownership (PL-EVID-01), whether temporal density is a first-class acquisition obligation, the system-level readiness definition, and whether the render gate should count raw rows or distinct moments.
+
+### Cross-references
+
+- `docs/37-console-sparkline-temporal-evidence-finding.md` — full finding
+- `docs/35-evidence-decision-temporal-coherence.md` — Finding #1
+- `docs/36-temporal-contract-design-brief.md` — 3AM temporal-contract brief
+- `docs/21-primary-expiration-investigation.md` — PL-EVID-07 (source of amplification)
+- `docs/parking-lot.md` — PL-COHERE-01 (owner), PL-EVID-01 (observation identity)
