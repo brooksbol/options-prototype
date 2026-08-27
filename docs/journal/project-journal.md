@@ -11288,3 +11288,80 @@ Key distinction: **candidate density and production quality are separate dimensi
 - **PL-EVID-07 (Multi-Expiration Acquisition):** Resolved Aug 21. Today validates that resolution — without full-surface acquisition, this finding would have remained invisible.
 - **Cash Deployment / Prod v0:** The experimental cross-entry surface was the instrument that made this visible. Its value as an observational tool is now demonstrated.
 - **PL-COHERE-01:** The DTE finding does NOT create pressure for architectural change. It creates pressure for continued observation using existing capability. The full 7–45 DTE surface must survive architecture recovery (recorded as a behavioral invariant).
+
+
+---
+
+## 2026-08-27 — Evidence–Decision Temporal Coherence: The DTE-22 Collapse
+
+### Epistemic status
+
+**Architectural finding, established through end-to-end tracing against live evidence.** Recorded under PL-COHERE-01. Not ratified direction. No implementation authorized.
+
+### Trigger
+
+A cold-start observation: the Deployment (Write Desk) board showed only DTE 22 candidates, and the candidate count was ~132 vs the prior day's ~482. Initial (wrong) diagnosis claimed the frontend never consumed the backend `chains` array. That claim was falsified by the Principal: the same committed system had displayed the full 7–45 DTE surface the day before and passed acceptance. Persistence-without-recall is not the failure mode here — the code is present.
+
+### What the trace established
+
+Backend, snapshot, and frontend hydration are all correct at HEAD:
+
+- `AcquisitionWorker.acquireAllEligibleChains()` acquires every eligible expiration (SQLite: SPY/GLD/QQQ/IWM/XLF each hold ~18 chains).
+- `SqliteEvidenceStore.getEvidence()` publishes a `chains` array via `getAllChains()`. Live 19.7 MB snapshot: all 64 weekly-capable symbols fully hydrated (every eligible DTE 7–43 present with ~161 contracts/side); 891 monthly-only correctly single-DTE.
+- `WriteDesk.handleNewEvidence` DOES contain the `sym.chains` hydration loop, caches every expiration, stamps each with the backend's `retrievedAt`, and prunes stale expirations. (`useEvidenceSnapshot.ts` is unused dead code — the earlier red herring.)
+
+The boundary is `recommend.ts` `isEligible` (lines ~260–273). During an open session it applies two gates: admissibility (`retrievedAt >= sessionOpen + 15min providerDelay`) and freshness TTL (`fresh` <5min OR `stale_usable` <30min; `chainStaleMs = 30min` in `durable-cache.ts`). Chains present in cache but older than 30 minutes are dropped.
+
+### The smoking gun
+
+SPY's eligible chains (DTE 7–43) were all acquired in one back-to-back batch at 13:48:15–13:48:30 UTC. At observation (15:19 UTC) they were ~90 min old → all EXPIRED under the 30-min TTL. The scheduler had not re-acquired SPY since the cold-start burst (Class B `oldestAge` ~20.8h).
+
+### Corroboration (live SQLite)
+
+- 460–476 symbols had a chain refreshed in the last 30 min (churning) ≈ prior day's 482-candidate acceptance board.
+- 897 symbols had a chain after today's admissibility boundary (admissibility not the binding gate now; freshness is).
+- A few minutes after burst: 64 weekly symbols had >1 eligible fresh chain. 90 minutes later: 0.
+
+### Root structural cause
+
+> The backend refresh cadence (~5h full cycle, worsened by multi-expiration fan-out) and the frontend evidence-validity cadence (30-min chain TTL during open sessions) are incompatible.
+
+At any instant, only symbols refreshed within the last 30 min pass Decision. Multi-DTE weekly surfaces blink in and out as their batch ages past 30 min. Cold start is worst-case: whole universe acquired in one burst, then ages out together.
+
+### Why this matters
+
+It is a temporal-consistency contract mismatch between two internally-correct subsystems (Evidence Appliance vs Decision), and it fails **quietly** — presenting a healthy-looking DTE-22 board rather than reporting "N weekly surfaces currently inadmissible." PL-EVID-07 established that hiding non-primary expirations can materially alter the production frontier, so silent single-DTE collapse is now a correctness signal, not cosmetics.
+
+### Four findings preserved
+
+1. 7–45 DTE is a required Decision surface, not an optional enhancement.
+2. Evidence presence and Decision admissibility are distinct states.
+3. A validity policy cannot be chosen independently of acquisition/service-level policy.
+4. Degraded evidence coverage must be observable.
+
+### The 3AM question (for architecture, not patching)
+
+> What does "current enough to make a governed deployment decision" actually mean, and which subsystem owns guaranteeing that condition?
+
+Candidate implementations (longer validity interval, session-aware chain validity à la sealed evidence, scheduler prioritization of full eligible surfaces, backend-computed admissibility, or a combination) are implementations of the answer, not the answer. Explicitly rejected as the resolution: bumping `chainStaleMs` to a larger arbitrary number.
+
+### Candidate invariant (not ratified)
+
+> If Wheelwright claims to evaluate 7–45 DTE, the Evidence Appliance must either maintain that decision surface within its declared validity contract or explicitly report that the surface is degraded.
+
+### Disposition
+
+- Full finding recorded in `docs/35-evidence-decision-temporal-coherence.md`.
+- PL-COHERE-01 enriched with a reference to the finding.
+- No code changed. This is exactly the class of coherence mismatch PL-COHERE-01 was promoted to surface: two layers each internally correct whose composition silently defeats a ratified capability.
+
+### Process note
+
+The first diagnosis this session was wrong (static-analysis claim contradicted by observed behavior at the same commit). It was corrected by treating the prior day's live acceptance as authoritative evidence and re-tracing against the running system and durable SQLite rather than trusting a grep for a consumer under the wrong name. Recorded as a reminder: reconcile against observed runtime behavior before declaring a missing-feature diagnosis.
+
+### Cross-references
+
+- `docs/35-evidence-decision-temporal-coherence.md` — full finding
+- `docs/21-primary-expiration-investigation.md` — PL-EVID-07
+- `docs/parking-lot.md` — PL-COHERE-01 (owner), PL-EVID-07, PL-ARCH-06, PL-EVID-01
+- Journal: 2026-08-11, 2026-08-12, 2026-08-21, 2026-08-26 (successive freshness/DTE observations that led here)
