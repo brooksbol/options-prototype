@@ -26,6 +26,8 @@ import { assessExecution, isHardNo, type ContractEvidence, type ActionPosture } 
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
 import { type ExecutionPolicy, DEFAULT_EXECUTION_POLICY } from "./execution-policy";
 import type { PutCandidate } from "./scan-orchestrator";
+import type { ObservationSink } from "../opportunity-history/observation-sink";
+import type { WinnerEconomics } from "../opportunity-history/opportunity-fact";
 
 // --- Policy Types ---
 
@@ -212,8 +214,11 @@ export async function recommendPuts(
   cache: DurableMarketCache,
   cacheEnvironment: { provider: string; environment: string },
   policy: RecommendationPolicy = DEFAULT_RECOMMENDATION_POLICY,
-  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null }
+  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; observationSink?: ObservationSink }
 ): Promise<RecommendationResult> {
+  // Optional observe-only emission seam. When undefined (default, all existing callers/tests),
+  // every sink call below is skipped and Decision behavior is byte-identical.
+  const sink = options?.observationSink;
   const allCandidates: PutCandidate[] = [];
   const allWait: PutCandidate[] = [];
   const allWideSpread: PutCandidate[] = [];
@@ -279,6 +284,7 @@ export async function recommendPuts(
     const absRecord = await cache.get(absKey);
     if (absRecord && (cache.freshness(absRecord) === "fresh" || cache.freshness(absRecord) === "stale_usable")) {
       confirmedAbsence++;
+      sink?.symbol(symbol, { kind: "non_optionable" });
       continue;
     }
 
@@ -300,6 +306,7 @@ export async function recommendPuts(
       // No expiration evidence — emit coverage request (pending/unresolved)
       coverageRequests.push({ symbol, expiration: null, reason: "No cached expirations", priority: "medium" });
       funnelPending++;
+      sink?.symbol(symbol, { kind: "pending" });
       continue;
     }
 
@@ -315,6 +322,7 @@ export async function recommendPuts(
       symbolsWithEvidence++;
       symbolsExcluded++;
       exclNoEligibleDte++;
+      sink?.symbol(symbol, { kind: "no_dte" });
       continue;
     }
 
@@ -337,6 +345,16 @@ export async function recommendPuts(
         // Missing chain — emit coverage request for this specific expiration
         if (!foundChain) {
           coverageRequests.push({ symbol, expiration: exp.date, reason: `Missing chain for ${exp.date} (${exp.dte} DTE)`, priority: "medium" });
+        }
+        // Surface fact: distinguish "present but inadmissible/stale" from "absent".
+        if (sink) {
+          const present = chainRecord != null;
+          const retrievedAtMs = present ? (chainRecord as { retrievedAt?: number }).retrievedAt ?? null : null;
+          sink.surface({
+            symbol, expiration: exp.date, dte: exp.dte, strategy: "csp",
+            chainRetrievedAtMs: retrievedAtMs,
+            outcome: present ? { kind: "stale" } : { kind: "no_chain" },
+          });
         }
         continue;
       }
@@ -458,11 +476,21 @@ export async function recommendPuts(
       }
 
       if (allHardNo && inRange.length > 0) symbolHadHardNoOnly = true;
+
+      // OBSERVE-ONLY per-surface emission. Reads only local `inRange` + evidence; does NOT
+      // mutate any existing variable, funnel counter, or the per-symbol bests. When `sink`
+      // is undefined this whole block is skipped and Decision is byte-identical.
+      if (sink) {
+        emitSurfaceFact(sink, symbol, exp.date, exp.dte,
+          (chainRecord as { retrievedAt?: number }).retrievedAt ?? null,
+          inRange, policy);
+      }
     }
 
     if (foundChain) {
       symbolsWithEvidence++;
       funnelEvaluable++;
+      sink?.symbol(symbol, { kind: "has_evaluable_surfaces" });
 
       // GOVERNANCE: Classification resolution with precedence:
       //   1. Canonical catalog record (highest confidence)
@@ -599,6 +627,84 @@ export async function recommendPuts(
     policySnapshot: policy,
     computedAt: new Date().toISOString(),
   };
+}
+
+// --- Observe-only per-surface fact emission (read-only; never affects Decision) ---
+
+interface PutContractLike { strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number }
+
+/**
+ * Re-derive the per-surface (per-expiration) evaluation outcome from the already-computed
+ * `inRange` contracts, mirroring the engine's own classification so the emitted fact matches
+ * what Decision concluded for THIS surface. Pure/read-only: computes a local best; touches
+ * no engine state. Emits exactly one surface fact for this expiration.
+ *
+ * Winner-only economics (V1): records the best qualifying contract's raw economics.
+ */
+function emitSurfaceFact(
+  sink: ObservationSink,
+  symbol: string,
+  expiration: string,
+  dte: number,
+  chainRetrievedAtMs: number | null,
+  inRange: PutContractLike[],
+  policy: RecommendationPolicy
+): void {
+  if (inRange.length === 0) {
+    sink.surface({ symbol, expiration, dte, strategy: "csp", chainRetrievedAtMs, outcome: { kind: "no_delta_match" } });
+    return;
+  }
+
+  let localBest: { candidate: WinnerEconomics; score: number } | null = null;
+  let sawWideSpread: WinnerEconomics | null = null;
+  let sawZeroBid = false;
+  let sawZeroOI = false;
+
+  for (const c of inRange) {
+    const mid = midPrice(c.bid, c.ask);
+    const spread = c.ask - c.bid;
+    const spreadPct = mid > 0 ? (spread / mid) * 100 : 100;
+    const evidence: ContractEvidence = {
+      bid: c.bid, ask: c.ask, spreadPercent: spreadPct,
+      openInterest: c.openInterest, volume: c.volume, delta: c.delta,
+    };
+    const hardNo = isHardNo(evidence, policy.executionAssessment);
+    if (hardNo) {
+      if (c.bid <= 0) { sawZeroBid = true; continue; }
+      if (c.openInterest === 0) { sawZeroOI = true; continue; }
+      // wide spread — track best (tightest) as partial-winner economics
+      const w: WinnerEconomics = {
+        delta: c.delta, strike: c.strike, mid, spreadPercent: spreadPct,
+        openInterest: c.openInterest, volume: c.volume,
+        yieldAnnualized: annualizedYield(mid, c.strike, dte), posture: "WAIT",
+      };
+      if (!sawWideSpread || spreadPct < sawWideSpread.spreadPercent) sawWideSpread = w;
+      continue;
+    }
+    const assessment = assessExecution(evidence, policy.executionAssessment);
+    const posture = assessment.posture === "ACTIONABLE" || assessment.posture === "EDGE" || assessment.posture === "WAIT"
+      ? assessment.posture : "WAIT";
+    const w: WinnerEconomics = {
+      delta: c.delta, strike: c.strike, mid, spreadPercent: spreadPct,
+      openInterest: c.openInterest, volume: c.volume,
+      yieldAnnualized: annualizedYield(mid, c.strike, dte), posture,
+    };
+    if (!localBest || assessment.score > localBest.score) localBest = { candidate: w, score: assessment.score };
+  }
+
+  if (localBest) {
+    sink.surface({ symbol, expiration, dte, strategy: "csp", chainRetrievedAtMs,
+      outcome: { kind: "qualified", posture: localBest.candidate.posture, winner: localBest.candidate } });
+  } else if (sawWideSpread) {
+    sink.surface({ symbol, expiration, dte, strategy: "csp", chainRetrievedAtMs,
+      outcome: { kind: "wide_spread", winner: sawWideSpread } });
+  } else if (sawZeroBid) {
+    sink.surface({ symbol, expiration, dte, strategy: "csp", chainRetrievedAtMs, outcome: { kind: "hard_no_zero_bid" } });
+  } else if (sawZeroOI) {
+    sink.surface({ symbol, expiration, dte, strategy: "csp", chainRetrievedAtMs, outcome: { kind: "hard_no_zero_oi" } });
+  } else {
+    sink.surface({ symbol, expiration, dte, strategy: "csp", chainRetrievedAtMs, outcome: { kind: "no_delta_match" } });
+  }
 }
 
 // --- Ranking by Policy ---

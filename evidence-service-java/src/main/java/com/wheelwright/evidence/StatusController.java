@@ -33,17 +33,32 @@ public class StatusController {
     private final RequestPacer pacer;
     private final ResponseCache cache;
     private final String tradierApiKey;
+    private final String environment;
 
     public StatusController(SqliteEvidenceStore store,
                            AcquisitionWorker worker,
                            RequestPacer pacer,
                            ResponseCache cache,
-                           @org.springframework.beans.factory.annotation.Value("${tradier.api-key:}") String tradierApiKey) {
+                           @org.springframework.beans.factory.annotation.Value("${tradier.api-key:}") String tradierApiKey,
+                           @org.springframework.beans.factory.annotation.Value("${tradier.base-url:https://sandbox.tradier.com/v1}") String baseUrl) {
         this.store = store;
         this.worker = worker;
         this.pacer = pacer;
         this.cache = cache;
         this.tradierApiKey = tradierApiKey;
+        // Truthful runtime profile derived from the configured provider base-url.
+        // Do not hardcode: durable consumers (e.g. opportunity-history provenance) must not
+        // record a false "sandbox" label while running against Production.
+        this.environment = deriveEnvironment(baseUrl);
+    }
+
+    /** Derive the true provider profile from the base-url. */
+    static String deriveEnvironment(String baseUrl) {
+        if (baseUrl == null) return "unknown";
+        String u = baseUrl.toLowerCase();
+        if (u.contains("sandbox.tradier.com")) return "sandbox";
+        if (u.contains("api.tradier.com")) return "production";
+        return "unknown";
     }
 
     @GetMapping("/api/status")
@@ -55,7 +70,7 @@ public class StatusController {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", "ok");
         result.put("provider", "tradier");
-        result.put("environment", "sandbox");
+        result.put("environment", environment);
         result.put("credentialConfigured", tradierApiKey != null && !tradierApiKey.isBlank());
 
         // Scheduler status

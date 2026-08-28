@@ -1664,4 +1664,141 @@ public class SqliteEvidenceStore implements AutoCloseable {
         }
         return count;
     }
+
+    // --- Opportunity-History Fact Plane (observe-only, policy-neutral, idempotent) ---
+
+    /**
+     * Append one opportunity-history batch (epoch + its observations).
+     *
+     * Idempotent: all inserts are INSERT OR IGNORE on deterministic ids, so browser
+     * retries / remounts / multiple tabs / duplicate clients cannot create duplicate
+     * historical facts. Historical rows are never mutated. Runs in one transaction.
+     *
+     * This is observe-only: it records what Decision concluded. It stores raw policy-neutral
+     * facts (evaluation state + winner economics) — never a usefulness/membership score.
+     */
+    public void appendOpportunityHistory(EvaluationEpochRecord epoch,
+                                         List<SymbolObservationRecord> symbolObs,
+                                         List<SurfaceObservationRecord> surfaceObs) throws SQLException {
+        conn.setAutoCommit(false);
+        try {
+            try (PreparedStatement ps = conn.prepareStatement("""
+                    INSERT OR IGNORE INTO evaluation_epoch
+                      (epoch_id, started_at, policy_version, evidence_generation, session_date,
+                       session_posture, provider, environment, symbols_evaluated, emitter)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """)) {
+                ps.setString(1, epoch.epochId());
+                ps.setString(2, epoch.startedAt());
+                ps.setString(3, epoch.policyVersion());
+                if (epoch.evidenceGeneration() == null) ps.setNull(4, Types.INTEGER);
+                else ps.setInt(4, epoch.evidenceGeneration());
+                ps.setString(5, epoch.sessionDate());
+                ps.setString(6, epoch.sessionPosture());
+                ps.setString(7, epoch.provider());
+                ps.setString(8, epoch.environment());
+                ps.setInt(9, epoch.symbolsEvaluated());
+                ps.setString(10, epoch.emitter());
+                ps.executeUpdate();
+            }
+
+            try (PreparedStatement ps = conn.prepareStatement("""
+                    INSERT OR IGNORE INTO symbol_observation
+                      (observation_id, epoch_id, symbol, symbol_state, observed_at)
+                    VALUES (?, ?, ?, ?, ?)
+                """)) {
+                for (SymbolObservationRecord o : symbolObs) {
+                    ps.setString(1, o.observationId());
+                    ps.setString(2, o.epochId());
+                    ps.setString(3, o.symbol());
+                    ps.setString(4, o.symbolState());
+                    ps.setString(5, o.observedAt());
+                    ps.addBatch();
+                }
+                ps.executeBatch();
+            }
+
+            try (PreparedStatement ps = conn.prepareStatement("""
+                    INSERT OR IGNORE INTO surface_observation
+                      (observation_id, epoch_id, symbol, expiration, dte, strategy, evaluation_state,
+                       chain_retrieved_at, observed_at, best_delta, best_strike, best_mid,
+                       best_spread_pct, best_open_interest, best_volume, best_yield_annual, best_posture)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """)) {
+                for (SurfaceObservationRecord o : surfaceObs) {
+                    ps.setString(1, o.observationId());
+                    ps.setString(2, o.epochId());
+                    ps.setString(3, o.symbol());
+                    ps.setString(4, o.expiration());
+                    ps.setInt(5, o.dte());
+                    ps.setString(6, o.strategy());
+                    ps.setString(7, o.evaluationState());
+                    ps.setString(8, o.chainRetrievedAt());
+                    ps.setString(9, o.observedAt());
+                    setNullableDouble(ps, 10, o.bestDelta());
+                    setNullableDouble(ps, 11, o.bestStrike());
+                    setNullableDouble(ps, 12, o.bestMid());
+                    setNullableDouble(ps, 13, o.bestSpreadPct());
+                    setNullableInt(ps, 14, o.bestOpenInterest());
+                    setNullableInt(ps, 15, o.bestVolume());
+                    setNullableDouble(ps, 16, o.bestYieldAnnual());
+                    if (o.bestPosture() == null) ps.setNull(17, Types.VARCHAR);
+                    else ps.setString(17, o.bestPosture());
+                    ps.addBatch();
+                }
+                ps.executeBatch();
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.setAutoCommit(true);
+        }
+    }
+
+    /** Count rows in each opportunity-history table (observability / tests). */
+    public Map<String, Integer> getOpportunityHistoryCounts() throws SQLException {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        String[][] tables = {
+            {"epochs", "evaluation_epoch"},
+            {"symbolObservations", "symbol_observation"},
+            {"surfaceObservations", "surface_observation"},
+        };
+        try (Statement stmt = conn.createStatement()) {
+            for (String[] t : tables) {
+                try (ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM " + t[1])) {
+                    counts.put(t[0], rs.next() ? rs.getInt(1) : 0);
+                }
+            }
+        }
+        return counts;
+    }
+
+    private static void setNullableDouble(PreparedStatement ps, int idx, Double v) throws SQLException {
+        if (v == null) ps.setNull(idx, Types.REAL);
+        else ps.setDouble(idx, v);
+    }
+
+    private static void setNullableInt(PreparedStatement ps, int idx, Integer v) throws SQLException {
+        if (v == null) ps.setNull(idx, Types.INTEGER);
+        else ps.setInt(idx, v);
+    }
+
+    // --- Opportunity-history record types (transport between controller and store) ---
+
+    public record EvaluationEpochRecord(
+        String epochId, String startedAt, String policyVersion, Integer evidenceGeneration,
+        String sessionDate, String sessionPosture, String provider, String environment,
+        int symbolsEvaluated, String emitter) {}
+
+    public record SymbolObservationRecord(
+        String observationId, String epochId, String symbol, String symbolState, String observedAt) {}
+
+    public record SurfaceObservationRecord(
+        String observationId, String epochId, String symbol, String expiration, int dte,
+        String strategy, String evaluationState, String chainRetrievedAt, String observedAt,
+        Double bestDelta, Double bestStrike, Double bestMid, Double bestSpreadPct,
+        Integer bestOpenInterest, Integer bestVolume, Double bestYieldAnnual, String bestPosture) {}
 }

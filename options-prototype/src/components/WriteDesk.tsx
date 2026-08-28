@@ -16,6 +16,8 @@ import { type PutCandidate, type CallCandidate } from "../write-desk/scan-orches
 import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type RecommendationPolicy } from "../write-desk/recommend";
 import { recommendCalls } from "../write-desk/recommend-calls";
 import { recommendBuyWrites, type BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
+import { OpportunityAccumulator, type LastSeenMap } from "../opportunity-history/accumulator";
+import { emitOpportunityHistory } from "../opportunity-history/emit-client";
 import { deriveCallEmptyState, candidateExistsInResults } from "../write-desk/call-empty-state";
 import { computeContingentCalls } from "../write-desk/contingent-calls";
 import { executableRowFromCandidate, type CallTableRow, type ContingentCallRow } from "../write-desk/call-table-row";
@@ -125,6 +127,25 @@ export function WriteDesk() {
   const [backendSymbols, setBackendSymbols] = useState<string[] | null>(null);
   const universeSymbols = backendSymbols ?? localUniverse.symbols;
 
+  // Opportunity-history: persistent last-seen map for cross-poll cadence dedup.
+  // One instance across the component lifetime so unchanged-evidence re-evaluations
+  // are suppressed at the source (20 polls of one chain -> one fact).
+  const opportunityLastSeen = useRef<LastSeenMap>(new Map());
+
+  // TRUTHFUL runtime provider profile for opportunity-history provenance.
+  // NOTE: this is deliberately distinct from the cache-key namespace ("sandbox"), which is a
+  // transport detail. Durable history must record the real profile (production/sandbox) so we
+  // never persist false provenance. Sourced from /api/status (backend derives it from base-url).
+  const runtimeEnvironment = useRef<string>("unknown");
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/status")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled && d?.environment) runtimeEnvironment.current = d.environment; })
+      .catch(() => { /* provenance stays "unknown" until known — never a false label */ });
+    return () => { cancelled = true; };
+  }, []);
+
   // Re-recommend: apply updated policy to existing cache (zero provider calls)
   const handleReRecommend = useCallback(async (updatedPolicy: typeof DEFAULT_RECOMMENDATION_POLICY) => {
     if (!snapshot || !snapshot.deployableCash) return;
@@ -133,13 +154,22 @@ export function WriteDesk() {
     const sessionClosed = sessionState === "CLOSED_CANONICAL" || sessionState === "NON_TRADING_DAY" || sessionState === "PREMARKET" || sessionState === "REGULAR_OPEN_DELAY";
     const reRecSessionPolicy = new MarketSessionPolicy(getTradingCalendar());
     const reRecAdmissibilityMs = reRecSessionPolicy.getAdmissibilityBoundary(new Date());
+    // Opportunity-history observe-only emission (policy change forces a new epoch).
+    const reRecAcc = new OpportunityAccumulator({
+      policyVersion: updatedPolicy.version,
+      evidenceGeneration: evidenceMeta?.generation ?? null,
+      sessionDate: new Date().toISOString().slice(0, 10),
+      sessionPosture: sessionState,
+      provider: providerKey,
+      environment: runtimeEnvironment.current,
+    }, opportunityLastSeen.current);
     const recResult = await recommendPuts(
       universeSymbols,
       snapshot.deployableCash,
       cache,
       { provider: providerKey, environment: "sandbox" },
       updatedPolicy,
-      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs }
+      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, observationSink: reRecAcc }
     );
     setPutCandidates(recResult.candidates);
     setPutWaitCandidates(recResult.waitCandidates);
@@ -192,19 +222,24 @@ export function WriteDesk() {
       setContingentCallRows([]);
     }
 
-    // Recommend buy-writes (same universe as puts, reads call side of cache)
+    // Recommend buy-writes (same universe as puts, reads call side of cache).
+    // Shares the SAME accumulator so puts + buy-write facts land in one coherent epoch
+    // (same evidence generation, same Decision run).
     const bwResult = await recommendBuyWrites(
       universeSymbols,
       snapshot.deployableCash,
       cache,
       { provider: providerKey, environment: "sandbox" },
       updatedPolicy,
-      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs }
+      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, observationSink: reRecAcc }
     );
     setBuyWriteCandidates(bwResult.candidates);
     setBuyWriteWaitCandidates(bwResult.waitCandidates);
     setBuyWriteWideSpreadCandidates(bwResult.wideSpreadCandidates);
     setBuyWriteOutcomes(bwResult.outcomes);
+
+    // Emit the combined puts + buy-write observations for this Decision run (best-effort).
+    void emitOpportunityHistory(reRecAcc.build());
 
     // Selection validity: clear buy-write selection if absent from new results
     clearBuyWriteCandidateIf((prev) => {
@@ -327,13 +362,23 @@ export function WriteDesk() {
     const sessionClosed = currentSession.state === "CLOSED_CANONICAL" || currentSession.state === "NON_TRADING_DAY" || currentSession.state === "PREMARKET" || currentSession.state === "REGULAR_OPEN_DELAY";
     const admissibilityBoundaryMs = sessionPolicy.getAdmissibilityBoundary(new Date());
 
+    // Opportunity-history observe-only emission. The accumulator's cross-poll last-seen map
+    // suppresses unchanged-evidence re-evaluations, so this writes only when evidence advanced.
+    const newEvidenceAcc = new OpportunityAccumulator({
+      policyVersion: policy.version,
+      evidenceGeneration: (snapshotData as { generation?: number })?.generation ?? null,
+      sessionDate: new Date().toISOString().slice(0, 10),
+      sessionPosture: currentSession.state,
+      provider: providerKey,
+      environment: runtimeEnvironment.current,
+    }, opportunityLastSeen.current);
     const recResult = await recommendPuts(
       snapshotSymbols.length > 0 ? snapshotSymbols : universeSymbols,
       snapshot.deployableCash,
       cache,
       { provider: providerKey, environment: "sandbox" },
       policy,
-      { sessionClosed, admissibilityBoundaryMs }
+      { sessionClosed, admissibilityBoundaryMs, observationSink: newEvidenceAcc }
     );
 
     setPutCandidates(recResult.candidates);
@@ -388,19 +433,25 @@ export function WriteDesk() {
       setContingentCallRows([]);
     }
 
-    // Recommend buy-writes (same universe as puts, reads call side of cache)
+    // Recommend buy-writes (same universe as puts, reads call side of cache).
+    // Shares the SAME accumulator as puts so both strategies' facts land in one coherent
+    // epoch — the evidence used for future universe pruning represents Wheelwright
+    // opportunity usefulness ACROSS the strategies consuming these surfaces (no CSP-only bias).
     const bwResult2 = await recommendBuyWrites(
       snapshotSymbols.length > 0 ? snapshotSymbols : universeSymbols,
       snapshot.deployableCash,
       cache,
       { provider: providerKey, environment: "sandbox" },
       policy,
-      { sessionClosed, admissibilityBoundaryMs }
+      { sessionClosed, admissibilityBoundaryMs, observationSink: newEvidenceAcc }
     );
     setBuyWriteCandidates(bwResult2.candidates);
     setBuyWriteWaitCandidates(bwResult2.waitCandidates);
     setBuyWriteWideSpreadCandidates(bwResult2.wideSpreadCandidates);
     setBuyWriteOutcomes(bwResult2.outcomes);
+
+    // Emit combined puts + buy-write observations for this Decision run (best-effort).
+    void emitOpportunityHistory(newEvidenceAcc.build());
 
     // Selection validity: clear buy-write selection if candidate identity changed or disappeared
     clearBuyWriteCandidateIf((prev) => {

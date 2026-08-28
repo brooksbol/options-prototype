@@ -29,6 +29,9 @@ import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
 import type { ExecutionPolicy } from "./execution-policy";
 import type { RecommendationPolicy } from "./recommend";
 import type { GovernanceAnnotation } from "./scan-orchestrator";
+import type { ObservationSink } from "../opportunity-history/observation-sink";
+import type { WinnerEconomics } from "../opportunity-history/opportunity-fact";
+import type { SurfaceOutcomeKind } from "../opportunity-history/mapping";
 
 // --- Buy-Write Candidate ---
 
@@ -190,8 +193,11 @@ export async function recommendBuyWrites(
   cache: DurableMarketCache,
   cacheEnvironment: { provider: string; environment: string },
   policy: RecommendationPolicy,
-  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null }
+  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; observationSink?: ObservationSink }
 ): Promise<BuyWriteRecommendationResult> {
+  // Optional observe-only emission seam. Undefined (default, all existing callers/tests) =>
+  // byte-identical Decision behavior.
+  const sink = options?.observationSink;
   const allCandidates: BuyWriteCandidate[] = [];
   const allWait: BuyWriteCandidate[] = [];
   const allWideSpread: BuyWriteCandidate[] = [];
@@ -274,12 +280,42 @@ export async function recommendBuyWrites(
       }
       const chainKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "chain", symbol, exp.date);
       const chainRecord = await cache.get<CachedChain>(chainKey);
-      if (!chainRecord || !isEligible(chainRecord)) continue;
+      if (!chainRecord || !isEligible(chainRecord)) {
+        // Surface fact: present-but-inadmissible (stale) vs absent.
+        if (sink) {
+          const present = chainRecord != null;
+          const retrievedAtMs = present ? (chainRecord as { retrievedAt?: number }).retrievedAt ?? null : null;
+          sink.surface({
+            symbol, expiration: exp.date, dte: exp.dte, strategy: "buy_write",
+            chainRetrievedAtMs: retrievedAtMs,
+            outcome: present ? { kind: "stale" } : { kind: "no_chain" },
+          });
+        }
+        continue;
+      }
 
       symbolFoundChain = true;
       const calls = chainRecord.payload.calls ?? [];
       const underlyingPrice = chainRecord.payload.underlying?.price ?? 0;
-      if (underlyingPrice <= 0) continue;
+      if (underlyingPrice <= 0) {
+        // Evidence present but unusable (no underlying price) — record as no-delta-match
+        // (surface examined, produced no usable candidate). Read-only.
+        sink?.surface({
+          symbol, expiration: exp.date, dte: exp.dte, strategy: "buy_write",
+          chainRetrievedAtMs: (chainRecord as { retrievedAt?: number }).retrievedAt ?? null,
+          outcome: { kind: "no_delta_match" },
+        });
+        continue;
+      }
+
+      // OBSERVE-ONLY per-surface emission (buy-write). Read-only re-derivation from the
+      // chain's calls + underlyingPrice, mirroring the engine's fitness+execution logic.
+      // Does NOT mutate any engine state. Skipped entirely when sink is undefined.
+      if (sink) {
+        emitBuyWriteSurfaceFact(sink, symbol, exp.date, exp.dte,
+          (chainRecord as { retrievedAt?: number }).retrievedAt ?? null,
+          chainRecord.payload.calls ?? [], underlyingPrice, policy);
+      }
 
       if (!instrumentName && chainRecord.payload.underlying?.name) {
         instrumentName = chainRecord.payload.underlying.name;
@@ -667,6 +703,94 @@ export async function recommendBuyWrites(
     },
     computedAt: new Date().toISOString(),
   };
+}
+
+// --- Observe-only per-surface fact emission (buy-write; read-only; never affects Decision) ---
+
+interface CallContractLike { strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number }
+
+/**
+ * Re-derive the per-surface (per-expiration) buy-write evaluation outcome, mirroring the
+ * engine's fitness (positive appreciation) + execution logic, and emit exactly one surface
+ * fact for this expiration. Pure/read-only. Winner-only economics (V1).
+ */
+function emitBuyWriteSurfaceFact(
+  sink: ObservationSink,
+  symbol: string,
+  expiration: string,
+  dte: number,
+  chainRetrievedAtMs: number | null,
+  calls: CallContractLike[],
+  underlyingPrice: number,
+  policy: RecommendationPolicy
+): void {
+  const emit = (outcome: SurfaceOutcomeKind) =>
+    sink.surface({ symbol, expiration, dte, strategy: "buy_write", chainRetrievedAtMs, outcome });
+
+  const { excludeZeroBid, requireGreeks } = policy.contractSelection;
+  const inRange = calls.filter((c) =>
+    (!excludeZeroBid || c.bid > 0) &&
+    (!requireGreeks || c.delta !== 0) &&
+    c.delta <= 1.0 &&
+    !(c.strike > underlyingPrice && c.delta > 0.95)
+  );
+  if (inRange.length === 0) { emit({ kind: "no_delta_match" }); return; }
+
+  // Partition eligible vs hard-no (same as engine)
+  const eligible: CallContractLike[] = [];
+  let sawZeroBid = false, sawZeroOI = false;
+  let bestWideSpread: WinnerEconomics | null = null;
+  for (const c of inRange) {
+    const cMid = midPrice(c.bid, c.ask);
+    const cSpreadPct = cMid > 0 ? ((c.ask - c.bid) / cMid) * 100 : 100;
+    const ev: ContractEvidence = { bid: c.bid, ask: c.ask, spreadPercent: cSpreadPct, openInterest: c.openInterest, volume: c.volume, delta: c.delta };
+    if (isHardNo(ev, policy.executionAssessment)) {
+      if (c.bid <= 0) { sawZeroBid = true; continue; }
+      if (c.openInterest === 0) { sawZeroOI = true; continue; }
+      // wide spread — partial-winner economics (only meaningful if strike > price)
+      if (c.strike > underlyingPrice) {
+        const econ = computeBuyWriteEconomics(underlyingPrice, c.strike, cMid, dte);
+        const w: WinnerEconomics = { delta: c.delta, strike: c.strike, mid: cMid, spreadPercent: cSpreadPct, openInterest: c.openInterest, volume: c.volume, yieldAnnualized: econ.premiumYieldAnnualized, posture: "WAIT" };
+        if (!bestWideSpread || cSpreadPct < bestWideSpread.spreadPercent) bestWideSpread = w;
+      }
+      continue;
+    }
+    eligible.push(c);
+  }
+
+  if (eligible.length === 0) {
+    if (bestWideSpread) { emit({ kind: "wide_spread", winner: bestWideSpread }); return; }
+    if (sawZeroBid) { emit({ kind: "hard_no_zero_bid" }); return; }
+    if (sawZeroOI) { emit({ kind: "hard_no_zero_oi" }); return; }
+    emit({ kind: "no_delta_match" }); return;
+  }
+
+  // Strategy fitness: require positive appreciation (strike > underlyingPrice)
+  const fit = eligible.filter((c) => c.strike > underlyingPrice);
+  if (fit.length === 0) { emit({ kind: "strategy_unfit" }); return; }
+
+  // Winner: highest Production v0 among ACTIONABLE -> EDGE -> WAIT (mirrors engine)
+  let best: { winner: WinnerEconomics; pv0: number; posture: "ACTIONABLE" | "EDGE" | "WAIT" } | null = null;
+  const capitalRequired = underlyingPrice * 100;
+  for (const c of fit) {
+    const cMid = midPrice(c.bid, c.ask);
+    const cSpreadPct = cMid > 0 ? ((c.ask - c.bid) / cMid) * 100 : 100;
+    const ev: ContractEvidence = { bid: c.bid, ask: c.ask, spreadPercent: cSpreadPct, openInterest: c.openInterest, volume: c.volume, delta: c.delta };
+    const assessment = assessExecution(ev, policy.executionAssessment);
+    const posture = assessment.posture === "ACTIONABLE" || assessment.posture === "EDGE" || assessment.posture === "WAIT" ? assessment.posture : "WAIT";
+    const econ = computeBuyWriteEconomics(underlyingPrice, c.strike, cMid, dte);
+    const appreciationDollars = (c.strike - underlyingPrice) * 100;
+    const cycleProduction = cMid * 100 + c.delta * appreciationDollars;
+    const pv0 = capitalRequired > 0 && dte > 0 ? (cycleProduction / capitalRequired) * (30 / dte) * 100 : 0;
+    const w: WinnerEconomics = { delta: c.delta, strike: c.strike, mid: cMid, spreadPercent: cSpreadPct, openInterest: c.openInterest, volume: c.volume, yieldAnnualized: econ.premiumYieldAnnualized, posture };
+    // posture precedence then pv0 (mirror engine's ACTIONABLE-first selection)
+    const rank = (p: string) => (p === "ACTIONABLE" ? 0 : p === "EDGE" ? 1 : 2);
+    if (!best || rank(posture) < rank(best.posture) || (rank(posture) === rank(best.posture) && pv0 > best.pv0)) {
+      best = { winner: w, pv0, posture };
+    }
+  }
+  if (best) emit({ kind: "qualified", posture: best.posture, winner: best.winner });
+  else emit({ kind: "no_delta_match" });
 }
 
 // --- Composite Economics ---
