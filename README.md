@@ -147,12 +147,15 @@ scripts/
 Recommended reading order:
 
 1. `docs/foundations/evidence-appliance.md` — System identity
-2. `docs/foundations/retooling-charter.md` — Migration governance
-3. `docs/07-architecture-current.md` — Current architecture
-4. `docs/foundations/backend-behavioral-invariants.md` — 18 ratified invariants
-5. `docs/contracts/evidence-snapshot-v1.md` — Frozen API contract
-6. `docs/foundations/closed-loop-engineering.md` — Engineering methodology
-7. `docs/00-project-charter.md` — Original vision
+2. `docs/foundations/system-goal-hierarchy.md` — Goal hierarchy; machinery → widgets → decision quality → productive capital → household mission
+3. `docs/foundations/retooling-charter.md` — Migration governance
+4. `docs/07-architecture-current.md` — Current architecture
+5. `docs/foundations/backend-behavioral-invariants.md` — 18 ratified invariants
+6. `docs/contracts/evidence-snapshot-v1.md` — Frozen API contract
+7. `docs/foundations/closed-loop-engineering.md` — Engineering methodology
+8. `docs/00-project-charter.md` — Original vision
+
+`docs/foundations/system-goal-hierarchy.md` is a recurring orientation document, not merely bootstrap material. Revisit it before major new initiatives or local optimization work to restore the relationship between the immediate technical problem and the higher-level system goal.
 
 For current active work after completing the authority reading order, read `docs/39-constraint-identification-restart-plan.md` before proposing optimization changes.
 
@@ -176,7 +179,7 @@ xcode-select --install
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
+eval "$(brew --prefix homebrew shellenv)"
 ```
 
 ## 3. Install nvm and Node.js
