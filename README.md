@@ -27,6 +27,16 @@ The objective is to build an observable system that continuously produces eviden
 | Multi-expiration evidence | ✅ Full eligible 7–45 DTE acquisition |
 | Cloud deployment | 📋 Accepted architecture — post-retooling |
 
+## Active Investigation — Constraint Identification
+
+Before doing new optimization work, read:
+
+**`docs/39-constraint-identification-restart-plan.md`**
+
+Current governing position: **Herbie has not yet been identified.** The leading machine-level hypothesis is that Tradier is materially underutilized while eligible WIP waits. The next work is direct factory-floor measurement, not implementation. `docs/38-herbie-evidence-renewal-constraint.md` remains historical context; Doc 39 supplies the current epistemic correction and exact Kiro/Codex restart protocol.
+
+Kiro steering also points to this active investigation via `.kiro/steering/current-investigation.md`.
+
 ---
 
 # Local Development
@@ -143,6 +153,8 @@ Recommended reading order:
 5. `docs/contracts/evidence-snapshot-v1.md` — Frozen API contract
 6. `docs/foundations/closed-loop-engineering.md` — Engineering methodology
 7. `docs/00-project-charter.md` — Original vision
+
+For current active work after completing the authority reading order, read `docs/39-constraint-identification-restart-plan.md` before proposing optimization changes.
 
 ---
 
