@@ -11583,3 +11583,53 @@ The historical **7:48 target is no longer the architectural objective.** The ope
 
 ### Disposition
 **No runtime/code implementation was authorized by this ruling.** No code, config, scheduler, pacer, or universe changes. Working tree unchanged from the frozen baseline `f7c0726`; Production remains the intended runtime profile. This entry is the durable architecture-direction record; it sits beside — and does not amend — the preceding Production experiment evidence record. Step B (the opportunity-history fact plane) is NOT to begin until explicitly authorized after review of tomorrow's opening baseline.
+
+
+---
+
+## 2026-08-28 — Opportunity-History Fact Plane: Activated + Live Acceptance Verified
+
+### Epistemic status
+**Implementation milestone + live acceptance record.** Piece 1 of the ratified sequence (baseline → **retain** → accumulate → analyze → govern) is committed, deployed, and verified accumulating against live Production. Observe-only. No universe/scheduler/A-B-C-D change.
+
+### What shipped
+Commit `4370723` (rebased onto 5 intervening docs commits; pushed): `feat(opportunity-history): observe-only Decision-fact plane (Piece 1)`.
+
+Durable, append-only, idempotent, policy-neutral record of Decision-evaluation outcomes:
+- **Backend:** migration `004_opportunity_history.sql` (`evaluation_epoch` + `symbol_observation` + `surface_observation`); `SqliteEvidenceStore.appendOpportunityHistory` (INSERT OR IGNORE idempotency); `POST /api/opportunity-history`, `GET /api/opportunity-history/counts`; `StatusController` now reports the TRUE runtime profile derived from `tradier.base-url` (no longer hardcoded `sandbox`).
+- **Frontend:** `src/opportunity-history/` (fact types, deterministic identity, funnel→state mapping, optional `ObservationSink` seam, cadence-dedup accumulator, best-effort emit client); `recommendPuts` and `recommendBuyWrites` gained an OPTIONAL `observationSink` (undefined ⇒ byte-identical Decision, proven by tests); `WriteDesk` wires CSP + buy-write emission into ONE shared epoch per Decision run with truthful `environment` provenance and a persistent cross-poll last-seen map.
+
+Tests at commit: backend 306, frontend 1455, tsc clean. Includes byte-identical proofs for both engines, idempotency, durability, cadence dedup, and the corrected cost-derivation test.
+
+### Governing purpose (corrected wording)
+The plane is the instrument for: **identify the lowest-demonstrated-opportunity-cost workload to remove in pursuit of 90%+ governed-surface freshness.** The ~28% figure is a first-order capacity estimate, NOT a ratified pruning requirement.
+
+### Three pre-activation corrections (ruled and implemented)
+1. **Cost model corrected.** An epoch is an INCREMENTAL, evidence-driven batch — NOT a complete surface snapshot. Do not infer required-surface-count from one epoch. Historical **acquisition burden** = count of distinct evidence-input observations over a session/window; **maintained topology** = union of distinct expirations over a window. No cost field stored.
+2. **Buy-write emission added before activation** — CSP-only history would bias future pruning against buy-write-useful symbols. Both strategies now emit into one shared epoch (strategy-aware surface facts).
+3. **Truthful provenance** — do not persist `environment=sandbox` while running Production. Backend derives the real profile from base-url; frontend records it from `/api/status`.
+
+### Live acceptance (8/8 pass, verified by direct observation, not inference)
+| # | Check | Result |
+|---|---|---|
+| 1 | `/api/status` → production | PASS (backend + Vite proxy both) |
+| 2 | Migration 004 + endpoint health | PASS (applied 17:38:58Z; 3 tables; `/counts` responds) |
+| 3 | Both csp + buy_write persist | PASS (both strategies, shared epochs) |
+| 4 | Epochs carry truthful provenance | PASS (flipped sandbox→production at 17:46:40Z post hard-reload) |
+| 5 | Unchanged evidence → counts don't grow | PASS (counts flat across polls even as generation ticked) |
+| 6 | Fresh acquisitions → counts advance | PASS (grew through hydration to thousands of obs) |
+| 7 | Weekly burden/topology reconstructible; no epoch assumed complete | PASS (SPY complete-in-one-epoch AND FXI/UNG/LABD incremental-across-3-epochs both truthful) |
+| 8 | Provider/monitored/scheduler unchanged | PASS (0 rejections, 0 failures, 8/8 monitored, A/B/C/D shape unchanged) |
+
+### Stale-tab artifact (understood, bounded, not a defect)
+The 15 epochs between restart (17:39Z) and hard-reload (17:46:40Z) carry `environment=sandbox` because the open browser tab was running the pre-commit bundle (old hardcoded `"sandbox"`). The committed code, the Vite-served module, and the proxied `/api/status` were all correct throughout. After hard-reload, all epochs carry truthful `production`. The stale epochs are honestly labeled with what that bundle believed; they are not a data-integrity problem. Lesson (recurring): a dev-server restart does not reload an already-open tab — hard-reload is required for frontend changes to take effect. This is the same HMR stale-tab class noted in the 2026-08-26 incident.
+
+### Empirical validation of the corrected cost model
+- **Complete-in-one-epoch case:** SPY — 10 distinct expirations, all QUALIFIED_ACTIONABLE (csp), captured in a single epoch because all its chains shared one fresh retrieval burst. Topology = 10 surfaces; burden = 10 distinct evidence inputs (×2 strategies = 20 observations).
+- **Incremental-across-epochs case:** FXI/UNG (7 expirations across 3 epochs), LABD/XLY (6 across 3), BOIL (6 across 2) — no single epoch contains the complete surface; topology and burden are reconstructible ONLY by window union across epochs. This is the empirical proof that the false "one epoch = complete surface" assumption is NOT baked into the data.
+
+### Cadence dedup (check 5) detail
+Over a 45s window the backend generation advanced (e.g. 17116→17117) and the browser polled repeatedly, yet epoch/symbol/surface counts stayed flat (22 / 27908 / 2980). A generation bump alone does not manufacture facts — only a distinct evidence input per surface does. Source-side last-seen dedup suppresses unchanged re-evaluations, keeping write volume proportional to actual new evidence rather than UI polling.
+
+### Disposition
+Instrument is live and accumulating truthful Production history. Per operator instruction: **leave it alone.** Value now comes from accumulating ordinary operating history, not tweaking the measuring instrument. Separate, still-pending experiment prerequisites (NOT in this work): Production opening-session semantics repair (Sandbox 09:30–09:45 EXPIRATIONS_ONLY artifact) and the opening-measurement recorder (multiDteSurface triad). Class D remains untouched; the four D-policies remain distinct and unratified. Next phases (accumulate → analyze → govern) proceed only after sufficient history exists.
