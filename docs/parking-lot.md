@@ -2,7 +2,7 @@
 
 > The unprioritized roadmap. Every unfinished idea has a stable ID and explicit disposition. Nothing silently disappears.
 
-**Last reviewed:** August 26, 2026 (PL-COHERE-01 promoted to active; PL-ARCH-06 incident RCA corrected; 3AM architecture-recovery direction established)
+**Last reviewed:** August 28, 2026 (PL-GOV-02 added: universe candidate evaluation / admission workflow)
 
 ---
 
@@ -31,6 +31,7 @@
 | `PL-SHELL` | Application Coherence / Shell | Shared operating context, navigation, consistent evidence/session presentation, reactive recommendation trigger, context-preserving transitions, route topology (3 operational + engineering), vocabulary cleanup, Lab retirement. See `docs/32` §Application Coherence Initiative for sub-concerns. | Reconciliation F-12, ADR-011, ADR-012 |
 | `PL-DEPLOY` | Deployment Opportunity / Unified Surface | Domain/composition concept within Decision: normalize strategy-specific candidates into mission-aware portfolio actions. Remaining work: normalized representation, cross-strategy comparability, generalized collateral, "wait" semantics, unified surface design. Decision-semantics refinement (August 2026): eligibility and acceptability prune; fitness ranks only survivors; relative superiority is insufficient — the best opportunity on a bad board may still be WAIT. Absolute deployment threshold concept: deployment should occur only when the best opportunity clears an absolute quality floor, not merely because it is the best available. This deepens the already-accepted Deployment Opportunity direction through Situation Architecture and Regime Objective Function, which already anticipate a unified "where should this capital go?" reasoning model. | Reconciliation F-13, Situation Architecture, Regime Objective Function, `foundations/strategy-expansion-governance.md` |
 | `PL-CLEANUP` | Active Holistic Cleanup | Remove vestigial scaffolding, dead pipelines, obsolete vocabulary. Implement reconciled surface topology. Align documentation with architecture. Sequenced after Application Shell design establishes the target. Absorbs former PL-OPS-02, PL-OPS-05, and Lab retirement implementation. Scope is bounded to the current holistic-conformance initiative: documentation topology, Lab retirement, obsolete vocabulary, dead/duplicate structures, architectural conformance, and application-coherence work exposed by the August 2026 reconciliation. Not a permanent technical-debt bucket. | `docs/31`, `docs/32` |
+| `PL-GOV-02` | Universe Candidate Evaluation / Admission Workflow | Provide an operator workflow for submitting a batch of candidate symbols for governance evaluation and potential addition to Wheelwright's maintained universe. Process each candidate independently and produce an explicit disposition report: already maintained; admitted; not admitted because demonstrated quality is below policy; insufficient evidence; structurally/governance-ineligible; manual review required; or provider/processing failure (which is not a rejection). Candidate intake/discovery, governance evaluation, universe mutation, and audit/reporting remain separable responsibilities. Where an admission changes the maintained acquisition universe under a future workload/pruning policy, report the resulting mutation explicitly, including one-to-many displacement where applicable; do not assume a fixed symbol count or one-in/one-out replacement. The workflow may consume opportunity-history evidence and surface-derived maintenance burden, but this item does **not** define a usefulness score, acquisition-cost accounting field, or pruning policy; those semantics remain owned by the observation/evidence and eventual workload-policy work. Exact product expression (page/panel/screen) remains a design decision. | Governance family; `PL-GOV-EXPR`; `PL-ARCH-01`; `PL-RESEARCH-01`; `PL-RESEARCH-04`; opportunity-history observation work |
 
 ### Implementation Work (Ratified Architecture)
 
@@ -109,7 +110,7 @@
 | Governance golden data | What do we know about instrument structure/classification? | PL-RESEARCH-04 |
 | Governance provenance/scaling | How are decisions versioned, attributable, inspectable? | PL-POL-04 |
 | Governance correctness | Where is the live catalog incomplete or wrong? | PL-GOV-01 |
-| Governance operator expression | Does the operator need direct inspection/intervention? | PL-GOV-EXPR (unresolved) |
+| Governance operator expression | Does the operator need direct inspection/intervention? | PL-GOV-EXPR (unresolved), PL-GOV-02 (concrete candidate-evaluation workflow) |
 
 ### Historical / Observational Family
 
