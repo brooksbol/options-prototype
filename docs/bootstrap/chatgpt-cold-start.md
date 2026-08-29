@@ -39,8 +39,10 @@ When current project truth matters, inspect the repository rather than silently 
 Begin by reading:
 
 1. **`docs/README.md`** — Documentation authority root. A–F authority model. Current reading paths.
-2. Follow the **Minimum Safe Bootstrap** defined there (currently 5 documents).
+2. Follow the **Minimum Safe Bootstrap** defined there.
 3. Read `docs/bootstrap/project-memory-protocol.md` — shared retrieval and reconciliation discipline.
+
+When the bootstrap or task requires parking-lot state, treat the complete `docs/parking-lot*.md` sequence as **one logical parking lot**. Read `docs/parking-lot.md` and every numbered continuation currently present; do not stop after the original file.
 
 Do not assume this bootstrap prompt remains current regarding specific file lists or architectural details. The repository is the authority.
 

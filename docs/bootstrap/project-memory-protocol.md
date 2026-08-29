@@ -74,10 +74,12 @@ Before substantive work, retrieve relevant:
 - Current authority model (`docs/README.md`)
 - Governing architecture (Category A documents)
 - Ratified decisions and accepted designs (Category B, especially ADRs)
-- Canonical project state (parking lot, journal where relevant)
+- Canonical project state (the complete parking-lot continuation sequence, journal where relevant)
 - Specialized references relevant to the current scope
 - Implementation and tests when implementation truth matters
 - Recent commits when reconciliation may lag documentation
+
+**Parking-lot continuation rule:** `docs/parking-lot.md`, `docs/parking-lot-2.md`, and any later numbered continuation files are physical pages of **one logical canonical parking lot**. Any cold start, backlog scan, reconciliation, or search for related parking-lot material must inspect the complete `docs/parking-lot*.md` sequence. File boundaries do not create separate authority, governance, priority, or ID namespaces.
 
 The depth of retrieval should be proportional to the scope and risk of the work.
 
@@ -213,7 +215,7 @@ Both actors share responsibility for preventing Failure B (persist what matters)
 
 ### Follow the Minimum Safe Bootstrap
 
-Before any Wheelwright work, follow the current Minimum Safe Bootstrap defined in `docs/README.md`. Do not duplicate a frozen file list here — the reading path is owned by `docs/README.md` and evolves.
+Before any Wheelwright work, follow the current Minimum Safe Bootstrap defined in `docs/README.md`. Do not duplicate a frozen file list here — the reading path is owned by `docs/README.md` and evolves. Where that path refers to the parking lot, it means the complete continuation sequence, not only the original file.
 
 ### Retrospective sweeps
 
@@ -297,7 +299,7 @@ Useful classifications include:
 
 ## Parking-Lot Discipline
 
-Before adding parking-lot material, inspect related existing items. Determine whether they:
+Before adding parking-lot material, inspect related existing items across the **complete `docs/parking-lot*.md` continuation sequence**. Determine whether they:
 
 - Remain valid
 - Need reframing
@@ -309,6 +311,17 @@ Before adding parking-lot material, inspect related existing items. Determine wh
 - Should be removed
 
 Avoid backlog accretion. The parking lot is canonical unresolved project state, not an append-only wish list.
+
+### Physical continuation
+
+The parking lot may be split across numbered Markdown files solely for maintainability. This does not create multiple parking lots.
+
+- `docs/parking-lot.md` is the first physical page.
+- `docs/parking-lot-2.md` and later numbered files continue it.
+- Stable IDs are global across all pages.
+- Governance and disposition semantics are unchanged across pages.
+- New intake belongs in the latest continuation unless an existing item's original record must be reconciled.
+- Searches, cold starts, backlog reviews, and reconciliation sweeps must scan all pages.
 
 ---
 
@@ -334,7 +347,7 @@ Before substantial work is declared complete, ask:
 - What changed operationally?
 - Is the correct authority layer current?
 - Is journal why-state preserved where needed?
-- Is parking-lot state current?
+- Is the complete parking-lot continuation sequence current?
 - Are checkpoint conclusions absorbed into A/B/C?
 - Are implementation-only invariants missing from architecture?
 - Are historical documents accidentally being treated as active?

@@ -4,6 +4,12 @@
 
 This directory contains the architectural documentation for the Wheelwright Evidence Appliance.
 
+## Parking-Lot Continuation Rule — August 29, 2026
+
+The canonical parking lot may span physical continuation files. `docs/parking-lot.md`, `docs/parking-lot-2.md`, and any later numbered continuations are **one logical Category C backlog**. Every cold start, scan, search, backlog review, and reconciliation must inspect the complete `docs/parking-lot*.md` sequence. File boundaries are pagination only; stable IDs, governance, and dispositions are global.
+
+> **Authority note:** This continuation rule amends all references below that say only `parking-lot.md`; they mean the complete continuation sequence.
+
 ---
 
 ## Document Authority Model
@@ -35,7 +41,7 @@ Read these before doing any Wheelwright work. Produces safe operating competence
 | 2 | `foundations/evidence-appliance.md` | What Wheelwright is. System identity. |
 | 3 | `07-architecture-current.md` | Current system. Four Engines. Boundaries. Surfaces. |
 | 4 | `07c-adrs.md` | Decisions that constrain changes. ADR-001 through ADR-013. |
-| 5 | `parking-lot.md` | What is active, deferred, and resolved. |
+| 5 | Complete `parking-lot*.md` sequence | What is active, deferred, and resolved. Read the original plus every numbered continuation. |
 
 **When this is insufficient:** If you're touching architecture, designing a new subsystem, or need to understand *why* something is the way it is — continue to the comprehensive path.
 
@@ -114,6 +120,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/architectural-evolution-methodology.md` | Ratified methodology |
 | `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
 | `bootstrap/project-memory-protocol.md` | Ratified methodology (documentation diligence / project memory) |
+| `foundations/parking-lot-continuation-governance.md` | Ratified methodology (one logical parking lot across physical continuation files) |
 
 ### C. Canonical Project / Operational State
 
@@ -121,7 +128,7 @@ Authoritative for their specific project concern. Not system-definition document
 
 | Document | Domain |
 |----------|--------|
-| `parking-lot.md` | Canonical backlog |
+| `parking-lot.md` + numbered continuations | One canonical backlog expressed across physical pages |
 | `journal/project-journal.md` | Canonical chronology |
 | `contracts/evidence-snapshot-v1.md` | Frozen API contract (v1) |
 

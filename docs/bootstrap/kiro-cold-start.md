@@ -50,6 +50,8 @@ Follow the **Minimum Safe Bootstrap** reading path defined there. Then read:
 
 - `docs/bootstrap/project-memory-protocol.md` — shared retrieval and reconciliation discipline
 
+When reading canonical parking-lot state, treat all `docs/parking-lot*.md` files as **one logical parking lot**. Read the original and every numbered continuation currently present; file boundaries are pagination only.
+
 Determine from the authority model:
 
 - Which documents govern the current task (Category A)
@@ -145,7 +147,9 @@ When the Principal or ChatGPT presents an observation or hypothesis:
 
 ## Backlog Discipline
 
-Before adding parking-lot material, inspect related existing items (`docs/parking-lot.md`). Determine whether they remain valid, need reframing, were absorbed, were superseded, conflict with current architecture, should be promoted, or should be removed.
+Before adding parking-lot material, inspect related existing items across the complete `docs/parking-lot*.md` sequence. Determine whether they remain valid, need reframing, were absorbed, were superseded, conflict with current architecture, should be promoted, or should be removed.
+
+The parking-lot files are physical continuations of one canonical backlog. Stable IDs and dispositions are global across the sequence. Add new intake to the latest continuation unless reconciliation requires editing an earlier item's original record.
 
 Avoid backlog accretion.
 
@@ -205,7 +209,7 @@ During substantial authorized work, actively inspect whether affected durable ar
 
 - Governing/current architecture
 - Ratified decisions
-- Canonical project state (parking lot, journal)
+- Canonical project state (complete parking-lot continuation sequence, journal)
 - Component maps and diagrams
 - Focused designs
 - Tests and contracts
