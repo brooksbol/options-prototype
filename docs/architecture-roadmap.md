@@ -13,11 +13,13 @@ The strategic roadmap and architecture roadmap are distinct but continuously rec
 - `roadmap.md` asks: **What outcomes do we believe will create value, and what are we betting on?**
 - This document asks: **What structural capabilities/transitions appear necessary or desirable if those strategic beliefs survive contact with evidence?**
 
+A cross-cutting quality/differentiation lens asks a third kind of question without becoming a third roadmap hierarchy: **How good must a capability be, in which qualities, and where does Wheelwright intend to differentiate?** Those quality judgments may pressure both strategic and architectural direction.
+
 This is not a project plan, service decomposition, target-state diagram, or authorization to implement every pressure listed here.
 
 > **Explore freely; reconcile before committing.**
 
-Architecture may push upstream on strategy when implementation evidence exposes constraints or new possibilities. Strategy may push downstream on architecture when new Bets require capabilities the current system cannot coherently support.
+Architecture may push upstream on strategy when implementation evidence exposes constraints or new possibilities. Strategy may push downstream on architecture when new Bets require capabilities the current system cannot coherently support. Quality and differentiation choices may push in both directions.
 
 ---
 
@@ -71,9 +73,9 @@ The reconciliation repeatedly produced a distinct concern:
 
 Attention answers whether current state deserves operator reconsideration. Decision answers what governed alternatives exist and how they compare.
 
-**Candidate transition:** establish durable significance/attention semantics that can operate independently of browser lifetime without becoming a second recommendation engine.
+**Architectural pressure:** continuous observation/attention must eventually be supportable independently of an active browser where the strategic need requires it. The exact domain model, component boundary, persistence model, runtime ownership, or relationship to other observers is intentionally unresolved.
 
-**Kreature boundary:** Existing ratified/project-memory boundaries concerning Kreature remain constraints. This roadmap does not silently redefine Kreature as an embedded Wheelwright subsystem. Wheelwright may need continuous Attention capability; how that relates to an independent Kreature observer must be reconciled explicitly before implementation.
+**Kreature boundary:** Existing ratified/project-memory boundaries concerning Kreature remain governing constraints. This roadmap does not redefine Kreature as an embedded Wheelwright subsystem, nor does it require a separate Wheelwright Attention component. Reconciliation is required only when concrete work creates an actual architectural decision involving those boundaries.
 
 ## AR3 — From Strategy-Specific Recommendations Toward Governed Alternatives
 
@@ -191,7 +193,7 @@ Architectural consequences include:
 - continuous backend responsibilities independent of clients;
 - explicit health/degradation/recovery semantics;
 - backup/recovery;
-- appropriate durable decision/attention responsibilities;
+- appropriate durable decision/attention responsibilities where demonstrated necessary;
 - finite-provider-capacity governance.
 
 Provider scarcity remains a fact. Higher-level concerns may eventually expose decision relevance, but Evidence Acquisition remains authoritative over provider scheduling unless a future ratified decision changes that boundary.
@@ -214,6 +216,44 @@ The likely sequence is state → Attention → remote delivery → remote unders
 
 ---
 
+# Cross-Cutting Quality and Differentiation Pressure
+
+Architecture is not responsible merely for making roadmap capabilities exist. It must make strategically important quality promises true.
+
+Different capabilities may require different quality profiles. Reliability, accuracy, freshness, completeness, accessibility, reproducibility, explainability, provenance, latency, and efficiency are examples—not a mandatory taxonomy.
+
+Architecture decisions should therefore sometimes distinguish:
+
+- **fitness-for-purpose pressure** — what must be structurally true for a capability to be good enough now;
+- **differentiation pressure** — where structural investment is justified because excellence contributes materially to what makes Wheelwright distinctive;
+- **deferred excellence** — known improvements that remain intentionally unbuilt because current capability fitness is sufficient and another area deserves attention.
+
+This view helps prevent architecture from polishing enabling capabilities beyond their strategic value while leaving differentiating capabilities structurally weak.
+
+## Trustability as a system-wide architectural concern
+
+The emerging differentiating question is:
+
+> **Can the operator trust what is being shown?**
+
+Trustability is not a component and does not imply a new engine. Architecturally, it is an emergent property supported by the right combination of mechanisms for the capability at hand, potentially including:
+
+- authoritative evidence and state;
+- freshness/degradation semantics;
+- explicit insufficiency and uncertainty;
+- provenance;
+- deterministic computation;
+- reproducibility;
+- coherent explanation;
+- operational reliability;
+- trustworthy attention and trustworthy silence.
+
+This explains why several existing architectural choices that previously looked independent—durable authoritative evidence, derived trust, deterministic recommendation behavior, session-aware evidence, failure preservation, provenance, and accountable-human execution—form a coherent quality strategy rather than an accidental collection of preferences.
+
+Trustability may also push upstream: if a strategic capability cannot be made sufficiently trustworthy under current constraints, architecture should surface that limitation rather than conceal it behind presentation.
+
+---
+
 # Candidate Responsibility Model
 
 Strategic reconciliation repeatedly produced the following responsibility chain:
@@ -230,7 +270,7 @@ Strategic reconciliation repeatedly produced the following responsibility chain:
 
 This is a **responsibility model, not a service diagram**. It does not supersede the current Four Engines or authorize nine new components. Its purpose is to identify concerns that the current Four Engines may not fully express as Wheelwright evolves.
 
-Explanation, governance/provenance, continuity, and access operate across these concerns rather than necessarily becoming additional engines.
+Explanation, governance/provenance, continuity, access, and trustability operate across these concerns rather than necessarily becoming additional engines.
 
 # Reconciliation With the Current Four Engines
 
@@ -245,6 +285,22 @@ The strategic roadmap exposes pressure beyond its present conceptual endpoint:
 
 The architecture roadmap therefore records pressure to evolve the conceptual model without prematurely replacing it.
 
+# Good Enough and Architectural Timing
+
+Architecture should not assume that every visible pressure must be resolved immediately or completely.
+
+A current structure may be **good enough for the present operating context** even when a better future structure is understood. When that is true, the architecture roadmap should preserve the pressure without turning it into immediate implementation obligation.
+
+Useful stopping/revisit questions include:
+
+- Has the current architectural constraint stopped limiting the capability at the level that matters now?
+- Has another constraint become dominant?
+- Would further structural improvement materially change operator outcomes or learning?
+- Is the remaining gap part of an intended differentiator or only enabling refinement?
+- What future condition would make the deferred pressure important again?
+
+This is how the architecture roadmap remains directional without becoming a modernization backlog.
+
 # Simplicity Constraint
 
 None of the above implies microservices, event sourcing, distributed databases, or heavyweight infrastructure.
@@ -258,7 +314,9 @@ The Evidence Appliance boundary, deterministic policy/decision behavior, SQLite 
 1. This roadmap records architectural pressure and current intended evolution, not implementation authorization.
 2. Category A/B authority governs until explicitly changed.
 3. Strategic Bets may create architecture pressure; architecture findings may pressure Bets upstream.
-4. The Architect proposes structural interpretation. The Principal decides material direction changes.
-5. Implementation Engineer findings return as evidence through the Three Actor loop.
-6. Material changes to this roadmap should preserve why-state in a journal or reconciliation/checkpoint artifact.
-7. Occasional whole-roadmap drift review is useful, but reconciliation is primarily evidence-triggered rather than cadence-driven.
+4. Quality/differentiation expectations may create pressure across both roadmaps without implying a new component or hierarchy.
+5. The Architect proposes structural interpretation. The Principal decides material direction and differentiation changes.
+6. Implementation Engineer findings return as evidence through the Three Actor loop.
+7. A known architectural improvement may remain intentionally deferred when the current structure is good enough for the operating context.
+8. Material changes to this roadmap should preserve why-state in a journal or reconciliation/checkpoint artifact.
+9. Occasional whole-roadmap drift review is useful, but reconciliation is primarily evidence-triggered rather than cadence-driven.
