@@ -60,6 +60,17 @@ Everything in the bootstrap, plus:
 | 12 | `25-situation-architecture.md` | Accepted direction for multi-situation operation |
 | 13 | `31-architectural-reconciliation.md` | Most recent architectural checkpoint |
 
+### Strategic Roadmap / Operating Model
+
+Read these when evaluating strategic direction, proposing a material product capability, or reconciling strategy with architecture:
+
+| Document | Why |
+|----------|-----|
+| `roadmap.md` | Current Vision → Goals → Bets → Initiatives strategic roadmap |
+| `architecture-roadmap.md` | Current structural pressures and intended architectural evolution |
+| `foundations/strategy-architecture-reconciliation.md` | Governing method for exploration, reconciliation, and evidence-driven course correction |
+| `33-strategy-roadmap-checkpoint.md` | Provenance: how the first roadmap/operating-model baseline was derived and blessed |
+
 ### AI Actor Cold-Start Bootstrap
 
 For a completely new ChatGPT thread or Kiro session starting from scratch. A one-line instruction such as "Bootstrap yourself for Wheelwright from GitHub" should lead an actor here.
@@ -129,6 +140,8 @@ Authoritative for their specific project concern. Not system-definition document
 
 | Document | Domain |
 |----------|--------|
+| `roadmap.md` | Current strategic roadmap (Vision → Goals → Bets → Initiatives) |
+| `architecture-roadmap.md` | Current architecture-roadmap pressure and intended structural evolution |
 | `parking-lot.md` + numbered continuations | One canonical backlog expressed across physical pages |
 | `journal/project-journal.md` | Canonical chronology |
 | `contracts/evidence-snapshot-v1.md` | Frozen API contract (v1) |
@@ -142,6 +155,7 @@ Durable evidence of how we arrived at the current state. Ratified and important 
 | `30-architectural-baseline-inventory.md` | Extracted baseline checkpoint (August 2026) |
 | `31-architectural-reconciliation.md` | Ratified reconciliation record |
 | `32-parking-lot-reconciliation.md` | Ratified parking-lot disposition record |
+| `33-strategy-roadmap-checkpoint.md` | Ratified roadmap/operating-model baseline and normalization provenance (August 31, 2026) |
 | `foundations/step4-conformance-assessment.md` | Retooling conformance checkpoint |
 
 ### E. Current Specialized Reference
