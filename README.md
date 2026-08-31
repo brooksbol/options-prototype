@@ -181,15 +181,11 @@ xcode-select --install
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(brew --prefix homebrew shellenv)"
 ```
 
-## 3. Install Java 21
-
-```bash
-brew install --cask temurin@21
-```
-
-## 4. Install Node.js
+## 3. Install nvm and Node.js
 
 ```bash
 brew install nvm
@@ -200,60 +196,105 @@ Add to `~/.zshrc`:
 
 ```bash
 export NVM_DIR="$HOME/.nvm"
-[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"
+[ -s "$(brew --prefix nvm)/nvm.sh" ] && . "$(brew --prefix nvm)/nvm.sh"
+[ -s "$(brew --prefix nvm)/etc/bash_completion.d/nvm" ] && . "$(brew --prefix nvm)/etc/bash_completion.d/nvm"
 ```
 
-Then:
-
 ```bash
+source ~/.zshrc
 nvm install --lts
-nvm use --lts
+nvm alias default 'lts/*'
 ```
 
-## 5. Clone Repository
+## 4. Install Java 21 LTS
 
 ```bash
-git clone https://github.com/brooksbol/options-prototype.git
-cd options-prototype
+brew install --cask temurin@21
 ```
 
-## 6. Run Tests
+Add to `~/.zshrc`:
 
 ```bash
-cd evidence-service-java
-./gradlew test
-
-cd ../options-prototype
-npm install
-npm test
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
-## 7. Start Services
+```bash
+source ~/.zshrc
+```
+
+## 5. Verify Toolchain
 
 ```bash
-cd scripts
-./dev.sh
+git --version        # 2.50+
+node --version       # v24.x
+npm --version        # 11.x
+java -version        # Temurin 21.x
+./gradlew --version  # Gradle 9.x (from evidence-service-java/)
 ```
 
 ---
 
-# Branch and Commit Discipline
-
-`main` is the authoritative branch.
-
-Before starting work:
+# Running Tests
 
 ```bash
-git checkout main
-git pull --ff-only
+# Java backend
+cd evidence-service-java && ./gradlew clean test
+
+# Frontend
+cd options-prototype && npx vitest run
 ```
 
-After completing a coherent unit of work:
+Both suites must pass before merging to main.
+
+---
+
+# Current Scope
+
+The system currently implements:
+
+- **Evidence Appliance** — background acquisition (self-scheduling, session-aware, tiered A/B/C/D freshness, bounded recovery probes for prior-epoch failures, full 7–45 DTE multi-expiration acquisition)
+- **Durable SQLite persistence** — failed-refresh preservation, generation tracking, restart recovery
+- **Snapshot publication** — ETag/conditional HTTP (304), coherent evidence snapshots
+- **Selective quote observations** — `GET /api/evidence/quotes?symbol=...` for lightweight per-symbol price projection
+- **Operator Console** (home surface) — expiration-native DTE ladder with d3-hierarchy treemap, moneyness visualization (OTM/ATM/ITM + signed %), position-detail modal with progressive learning
+- **Position Monitoring** — Portfolio + Evidence composition producing moneyness, DTE, capital, and full observation provenance
+- **Put recommendations** (Wheelwright) — deterministic, cache-backed, zero provider calls
+- **Call recommendations** (Horizon A) — inventory-driven, cache-backed, for held unencumbered shares
+- **Buy-write recommendations** — share-acquisition + covered-call composite candidates, affordability-gated
+- **Write Desk** — collapsible put/call/buy-write sections, sortable tables, policy controls, cross-entry composition
+- **Recommendation Brief** — put and buy-write drawers with decision summary, evidence, neighborhood, governance, Projected Call Surface
+- **Broker handoff** — Fidelity trade link construction (puts)
+- **Production accounting** — backend-authoritative monthly reconciliation from Fidelity Activity History
+- **Market session model** — 6-state classification, trading calendar, sealed evidence semantics
+- **Instrument governance** — product structure classification, leveraged/inverse detection
+- **Instrument Catalog** and Description Library (1,280 tickers with domain-specific descriptions)
+- **Position economics** — Fidelity CSV basis data preserved in portfolio snapshot
+
+Out of scope:
+
+- Brokerage API integration (automated trading)
+- Multi-user access
+- Prediction models
+- Portfolio optimization
+
+---
+
+# Evidence Appliance Vision
+
+Wheelwright is an always-on evidence appliance for policy-governed options-income decision support. The backend continuously maintains an authoritative model of the options opportunity environment. Consumers apply operator-configured policy, determine recommendation state, explain it, and support — but do not perform — execution.
+
+The system is governed by ratified architectural principles documented in `docs/foundations/`.
+
+---
+
+# GitHub SSH Setup
 
 ```bash
-git add <files>
-git commit -m "<meaningful message>"
-git push origin main
+ssh-keygen -t ed25519 -C "your-email@example.com"
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+cat ~/.ssh/id_ed25519.pub
+# Add to GitHub → Settings → SSH and GPG Keys → New SSH Key
+ssh -T git@github.com
 ```
-
-Do not leave authoritative state only in chat history or a local working tree.
