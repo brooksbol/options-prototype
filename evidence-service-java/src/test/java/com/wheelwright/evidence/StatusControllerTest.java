@@ -32,7 +32,11 @@ class StatusControllerTest {
             .andExpect(jsonPath("$.scheduler.state").exists())
             .andExpect(jsonPath("$.schedulerTelemetry.sessionState").exists())
             .andExpect(jsonPath("$.evidence.generation").exists())
-            .andExpect(jsonPath("$.pacer.queueDepth").exists());
+            .andExpect(jsonPath("$.pacer.queueDepth").exists())
+            .andExpect(jsonPath("$.pacer.requestLimit").value(119))
+            .andExpect(jsonPath("$.pacer.windowMs").value(60000))
+            .andExpect(jsonPath("$.pacer.startsInWindow").exists())
+            .andExpect(jsonPath("$.pacer.backoffRemainingMs").exists());
     }
 
     @Test
@@ -40,5 +44,17 @@ class StatusControllerTest {
         mockMvc.perform(get("/api/health"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value("up"));
+    }
+
+    @Test
+    void providerMeasurementEndpointUsesCursorResponseShape() throws Exception {
+        mockMvc.perform(get("/api/measurement/provider-events")
+                .param("afterSequence", "0")
+                .param("limit", "25"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.eventsDropped").value(0))
+            .andExpect(jsonPath("$.recorderErrors").value(0))
+            .andExpect(jsonPath("$.inFlightCount").value(0))
+            .andExpect(jsonPath("$.events").isArray());
     }
 }

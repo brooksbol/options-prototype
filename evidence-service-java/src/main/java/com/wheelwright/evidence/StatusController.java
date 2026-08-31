@@ -4,6 +4,7 @@ import com.wheelwright.evidence.db.SqliteEvidenceStore;
 import com.wheelwright.evidence.provider.RequestPacer;
 import com.wheelwright.evidence.provider.ResponseCache;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
@@ -163,6 +164,11 @@ public class StatusController {
         pacerMap.put("dispatched", pacerState.dispatched());
         pacerMap.put("queued", pacerState.queued());
         pacerMap.put("rejected", pacerState.rejected());
+        pacerMap.put("requestLimit", pacerState.requestLimit());
+        pacerMap.put("windowMs", pacerState.windowMs());
+        pacerMap.put("startsInWindow", pacerState.startsInWindow());
+        pacerMap.put("nextAdmissionInMs", pacerState.nextAdmissionInMs());
+        pacerMap.put("backoffRemainingMs", pacerState.backoffRemainingMs());
         result.put("pacer", pacerMap);
 
         // Opening-set experiment telemetry
@@ -206,6 +212,17 @@ public class StatusController {
     @GetMapping("/api/health")
     public Map<String, String> health() {
         return Map.of("status", "up");
+    }
+
+    /**
+     * Measurement-only provider event stream. Cursor semantics prevent repeated
+     * event arrays in /api/status and make bounded-buffer loss explicit.
+     */
+    @GetMapping("/api/measurement/provider-events")
+    public Object providerMeasurementEvents(
+            @RequestParam(defaultValue = "0") long afterSequence,
+            @RequestParam(defaultValue = "1000") int limit) {
+        return pacer.getMeasurementEvents(afterSequence, limit);
     }
 
     private Map<String, Integer> classCountsMap(SchedulerTelemetry.ClassCounts counts) {

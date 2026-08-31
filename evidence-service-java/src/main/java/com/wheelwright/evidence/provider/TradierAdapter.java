@@ -119,25 +119,47 @@ public class TradierAdapter {
         return new ChainResult(chain, retrievedAt, false);
     }
 
+    /**
+     * Issue one uncached, read-only quote request for the explicitly enabled
+     * after-hours provider measurement harness.
+     *
+     * This deliberately performs no normalization, cache mutation, scheduler
+     * interaction, or evidence persistence. The returned value is only the
+     * response-body byte/character count so the harness never republishes the
+     * provider payload.
+     */
+    public int measureUncachedQuote(String symbol) throws Exception {
+        if (symbol == null || !symbol.matches("[A-Za-z][A-Za-z0-9.\\-]{0,9}")) {
+            throw new IllegalArgumentException("invalid measurement symbol");
+        }
+        String responseBody = pacer.submit(() -> fetchMeasurementQuote(symbol));
+        return responseBody.length();
+    }
+
     // --- Private HTTP methods ---
 
     private String fetchExpirations(String symbol) throws IOException, InterruptedException {
         String url = baseUrl + "/markets/options/expirations?symbol=" + symbol.toUpperCase() + "&includeAllRoots=true";
-        return httpRequest(url);
+        return httpRequest(url, "expirations");
     }
 
     private String fetchChain(String symbol, String expiration) throws IOException, InterruptedException {
         String url = baseUrl + "/markets/options/chains?symbol=" + symbol.toUpperCase()
             + "&expiration=" + expiration + "&greeks=true";
-        return httpRequest(url);
+        return httpRequest(url, "chain");
     }
 
     private String fetchQuote(String symbol) throws IOException, InterruptedException {
         String url = baseUrl + "/markets/quotes?symbols=" + symbol.toUpperCase();
-        return httpRequest(url);
+        return httpRequest(url, "quote");
     }
 
-    private String httpRequest(String url) throws IOException, InterruptedException {
+    private String fetchMeasurementQuote(String symbol) throws IOException, InterruptedException {
+        String url = baseUrl + "/markets/quotes?symbols=" + symbol.toUpperCase();
+        return httpRequest(url, "measurement-quote");
+    }
+
+    private String httpRequest(String url, String endpointClass) throws IOException, InterruptedException {
         if (apiKey == null || apiKey.isBlank()) {
             throw new ProviderError("Tradier API key not configured", 503);
         }
@@ -149,7 +171,28 @@ public class TradierAdapter {
             .GET()
             .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        Long sequence = pacer.currentMeasurementSequence();
+        if (sequence != null) {
+            pacer.measurementRecorder().httpStarted(sequence, System.nanoTime(), endpointClass);
+        }
+
+        HttpResponse<String> response;
+        try {
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException error) {
+            if (sequence != null) {
+                pacer.measurementRecorder().httpFailed(sequence, System.nanoTime(), error);
+            }
+            throw error;
+        }
+
+        if (sequence != null) {
+            pacer.measurementRecorder().httpCompleted(
+                sequence,
+                System.nanoTime(),
+                response.statusCode(),
+                rateLimitHeaders(response));
+        }
 
         if (response.statusCode() == 429) {
             throw new ProviderError("Rate limited by Tradier", 429, 60000L);
@@ -163,6 +206,17 @@ public class TradierAdapter {
         }
 
         return response.body();
+    }
+
+    /** Retain exact provider-returned rate-limit values; derive no capacity semantics here. */
+    private Map<String, List<String>> rateLimitHeaders(HttpResponse<?> response) {
+        Map<String, List<String>> retained = new LinkedHashMap<>();
+        response.headers().map().forEach((name, values) -> {
+            if (name.toLowerCase(Locale.ROOT).startsWith("x-ratelimit-")) {
+                retained.put(name, List.copyOf(values));
+            }
+        });
+        return retained;
     }
 
     // --- Normalization ---

@@ -100,6 +100,11 @@ class RequestPacerTest {
             pacer.submit(() -> "done");
 
             RequestPacer.PacerState state = pacer.getState();
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+            while (state.dispatched() < 1 && System.nanoTime() < deadline) {
+                Thread.sleep(1);
+                state = pacer.getState();
+            }
             assertEquals(1, state.dispatched());
             assertEquals(1, state.queued());
             assertEquals(0, state.queueDepth()); // drained
@@ -122,21 +127,41 @@ class RequestPacerTest {
     }
 
     @Test
-    void pacingIntroducesDelayBetweenRequests() throws Exception {
-        // Use a pacer with measurable interval
-        RequestPacer pacer = new RequestPacer(10, 50); // 100ms interval
+    void trailingWindowLedgerWaitsOnlyWhenBudgetIsConsumed() throws Exception {
+        RequestPacer pacer = new RequestPacer(2, 100, 50, new ProviderMeasurementRecorder());
         try {
             long start = System.currentTimeMillis();
 
-            // Submit two requests sequentially (not from cache)
             pacer.submit(() -> "first");
             pacer.submit(() -> "second");
+            long beforeThird = System.currentTimeMillis();
+            pacer.submit(() -> "third");
 
             long elapsed = System.currentTimeMillis() - start;
+            assertTrue(beforeThird - start < 50,
+                "first two starts should not receive an artificial spacing delay");
+            assertTrue(elapsed >= 80,
+                "third start must wait for the oldest ledger entry to expire; elapsed=" + elapsed);
+            var state = pacer.getState();
+            assertEquals(2, state.requestLimit());
+            assertEquals(100, state.windowMs());
+        } finally {
+            pacer.shutdown();
+        }
+    }
 
-            // Should have at least one interval of pacing (~100ms)
-            // Use a generous minimum to avoid flakiness
-            assertTrue(elapsed >= 50, "Expected pacing delay, but elapsed was " + elapsed + "ms");
+    @Test
+    void provider429AppliesAuthoritativeBackoffBeforeNextStart() throws Exception {
+        RequestPacer pacer = new RequestPacer(100, 1000, 10, new ProviderMeasurementRecorder());
+        try {
+            assertThrows(Exception.class, () -> pacer.submit(() -> {
+                throw new ProviderError("limited", 429, 80L);
+            }));
+            long start = System.currentTimeMillis();
+            pacer.submit(() -> "recovered");
+            long elapsed = System.currentTimeMillis() - start;
+            assertTrue(elapsed >= 60, "next start must honor provider backoff; elapsed=" + elapsed);
+            assertEquals(0, pacer.getState().backoffRemainingMs());
         } finally {
             pacer.shutdown();
         }
