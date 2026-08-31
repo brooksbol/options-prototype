@@ -26,7 +26,7 @@ Governing operating rule:
 - **Initiative** — something undertaken to test or realize a Bet.
 - **Experiment** — a bounded empirical test of a narrower hypothesis; experiments may sit beneath Initiatives/Bets without becoming durable policy.
 
-Architecture, requirements, and governing principles are not forced into the LVT merely because they are important.
+Architecture, requirements, quality expectations, differentiation choices, and governing principles are not forced into the LVT merely because they are important.
 
 ---
 
@@ -288,7 +288,7 @@ Wheelwright becomes an always-on durable appliance independent of the operator w
 - Separate continuous backend responsibilities from transient clients.
 - Establish health/degradation/recovery semantics.
 - Establish durable backup/recovery.
-- Establish continuously operating attention/observation capability consistent with existing Wheelwright/Kreature boundaries.
+- Establish continuously operating observation/attention capability consistent with current governing boundaries.
 
 **Architecture implications:**
 - Determine which decision responsibilities require a durable service boundary.
@@ -346,6 +346,39 @@ Wheelwright becomes an always-on durable appliance independent of the operator w
 
 ---
 
+# Cross-Cutting Quality and Differentiation Lens
+
+The LVT answers what outcomes and capabilities Wheelwright currently believes are worth pursuing. It does not imply that every capability deserves the same level of refinement.
+
+When useful, roadmap decisions should be reconciled through the quality/differentiation lens defined in `foundations/strategy-architecture-reconciliation.md`:
+
+- Which qualities determine whether this capability is useful?
+- What does **good enough for the current operating context** mean?
+- What would **good** look like beyond that stopping point?
+- Is excellence here strategically differentiating, or is the capability primarily enabling/commoditized?
+- What evidence supports the current assessment?
+- What condition would cause Wheelwright to return later and close more of the gap?
+
+Quality dimensions are capability-specific; no universal scorecard is required.
+
+## Emerging differentiator — Trustability
+
+A recurring strategic concern across Awareness, Choices, Consequences, Outcomes, Learning, Continuity, and Access is the operator's question:
+
+> **Can I trust what I'm seeing?**
+
+Trustability is currently treated as an emerging cross-cutting differentiator rather than a separate Goal. Depending on the capability, it may be supported by accuracy, freshness, completeness, explicit uncertainty, provenance, determinism, reproducibility, explainability, operational reliability, and the trustworthiness of both attention and silence.
+
+This is not solely a product concern and not solely an architecture concern. Product direction defines the trustworthy operator experience; architecture and implementation must make it true; operating evidence reveals where trust is weak.
+
+## Good enough as intentional timing
+
+A supported Bet or useful capability may still reach an intentional stopping point before all known improvement is exhausted.
+
+A **good-enough-now** judgment means the capability is sufficiently fit for the current operating context that the next increment of effort is better spent elsewhere. The remaining gap to good or excellent should remain understandable, together with material conditions that would cause Wheelwright to revisit it.
+
+This allows current work to stop successfully without pretending that no further improvement is possible.
+
 # Current Structural Reading
 
 This first normalized LVT contains **28 Bets plus one established strategic direction**. The number is descriptive, not a target.
@@ -354,12 +387,16 @@ The original broad 60-proposition exploration remains valuable. Reconciliation s
 
 Visible overlap across Goals is retained where the same concern has genuinely different strategic meaning. Examples include future optionality as both a property of choice (C4) and a consequence of choice (K3), WAIT (C1) and absolute acceptability (K7), and Attention (A3) with remote notification (X2). Future evidence may justify synthesis; no reduction target is imposed.
 
+The roadmap is one input to the operating question **what should we work on next?** That question also depends on current evidence, experiments, quality/fitness, differentiation intent, dependencies, architectural readiness, and the opportunity cost of continuing current work.
+
 # Roadmap Change Discipline
 
 1. Exploration is unconstrained by this tree.
 2. Material ideas are reconciled against both this roadmap and `architecture-roadmap.md` before commitment.
-3. Implementation evidence may create pressure upstream; it does not silently rewrite strategy.
-4. The Architect identifies relationships, contradictions, and pressure. The Principal decides changes in direction.
-5. Bets may strengthen, weaken, be rejected, be superseded, or be reframed.
-6. Goals are expected to be more stable than Bets; Vision more stable than Goals. Nothing is immutable.
-7. Changes to this current-state document should preserve why-state in the project journal or a reconciliation/checkpoint artifact.
+3. Material capability decisions may also require explicit quality/fitness and differentiation judgment.
+4. Implementation evidence may create pressure upstream; it does not silently rewrite strategy.
+5. The Architect identifies relationships, contradictions, pressure, and current adequacy. The Principal decides changes in direction and where Wheelwright intends to differentiate.
+6. Bets may strengthen, weaken, be rejected, be superseded, or be reframed.
+7. A supported capability may intentionally stop at good enough for the current context while further improvement remains deferred.
+8. Goals are expected to be more stable than Bets; Vision more stable than Goals. Nothing is immutable.
+9. Changes to this current-state document should preserve why-state in the project journal or a reconciliation/checkpoint artifact.
