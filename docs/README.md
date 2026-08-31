@@ -118,6 +118,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/closed-loop-engineering.md` | Ratified methodology |
 | `foundations/three-actor-model.md` | Ratified methodology |
 | `foundations/architectural-evolution-methodology.md` | Ratified methodology |
+| `foundations/strategy-architecture-reconciliation.md` | Ratified methodology (strategic roadmap ↔ architecture roadmap reconciliation, exploration freedom, and evidence-driven course correction) |
 | `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
 | `bootstrap/project-memory-protocol.md` | Ratified methodology (documentation diligence / project memory) |
 | `foundations/parking-lot-continuation-governance.md` | Ratified methodology (one logical parking lot across physical continuation files) |
