@@ -1,9 +1,9 @@
-# Operator-Intent Evidence Age / Acquisition-Tier Intake
+# Operator-Intent Evidence Age / Acquisition-Tier Discovery Record
 
 **Date:** September 1, 2026  
-**Status:** Principal-selected next workstream; design/reconciliation required before implementation  
-**Authority:** Category C — Canonical Project / Operational State intake  
-**Related:** `docs/roadmap.md` G6/N1 Decision-value-aware evidence acquisition; `docs/40-provider-admission-controller-findings-2026-08-31.md`; `docs/architecture-roadmap.md`; complete `docs/parking-lot*.md` sequence
+**Status:** Supporting discovery/intake evidence; canonical unresolved-work identity is `PL-EVID-AGE`  
+**Authority:** Category E — Current Specialized Reference / discovery record; does not replace canonical parking-lot intake  
+**Related:** `PL-EVID-AGE` in the complete `docs/parking-lot*.md` sequence; `docs/roadmap.md` G6/N1 Decision-value-aware evidence acquisition; `docs/40-provider-admission-controller-findings-2026-08-31.md`; `docs/architecture-roadmap.md`; `docs/foundations/idea-intake-reconciliation.md`
 
 ---
 
@@ -12,6 +12,8 @@
 The Principal has selected **operator-visible evidence Age on Deployment, followed by operator-intent-aware acquisition-tier design**, as the next Wheelwright workstream after the current regular-session constraint experiment.
 
 The September 1 live experiment should continue unchanged through its planned end. This decision does **not** authorize additional scheduler optimization before the Age capability is understood and observed in normal operator use.
+
+This document preserves the richer discovery record. The canonical stable intake identity is **`PL-EVID-AGE`**; roadmap and architectural placement remain subject to the standard reconciliation pipeline in `docs/foundations/idea-intake-reconciliation.md`.
 
 ---
 
@@ -141,7 +143,7 @@ This work appears to **strengthen and concretize** existing roadmap Bet **G6 / N
 
 This intake also deepens the roadmap's cross-cutting **Trustability** concern by making evidence age directly visible on a primary operator decision surface.
 
-At this point a wholly new strategic Bet is not presumed necessary. Kiro should reconcile this intake against `docs/roadmap.md`, `docs/architecture-roadmap.md`, the complete `docs/parking-lot*.md` sequence, and project-memory/journal evidence before deciding what durable roadmap or architecture changes are warranted.
+At this point a wholly new strategic Bet is not presumed necessary. Kiro should reconcile `PL-EVID-AGE` against `docs/roadmap.md`, `docs/architecture-roadmap.md`, the complete `docs/parking-lot*.md` sequence, and project-memory/journal evidence before deciding what durable roadmap or architecture changes are warranted.
 
 ---
 
@@ -164,7 +166,7 @@ The discussion should answer at least:
 
 ## Current authorization boundary
 
-Authorized next work: **3AM design/reconciliation of the Deployment Age capability and its relationship to probabilistic operator-demand tiers.**
+Authorized next work: **3AM design/reconciliation of `PL-EVID-AGE`, the Deployment Age capability, and its relationship to probabilistic operator-demand tiers.**
 
 Not yet authorized by this intake:
 
