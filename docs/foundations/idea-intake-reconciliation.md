@@ -21,6 +21,10 @@ The governing rule remains:
 
 > **Explore freely; reconcile before committing. Govern commitment, not curiosity.**
 
+A useful corollary is:
+
+> **Ideas may enter messily; they must not become project state messily.**
+
 ---
 
 ## 1. Discovery Does Not Modify the Roadmap
@@ -37,6 +41,16 @@ Discovery should distinguish, where possible:
 A discovery is not automatically a roadmap Bet, architectural decision, requirement, or implementation authorization.
 
 When a discovery is still too immature to survive outside the conversation, continue exploring. When losing it would force meaningful rediscovery or risk reconstructing the project incorrectly, it has crossed the durability threshold and enters intake.
+
+### Durability tie-breaker
+
+The durability threshold intentionally requires judgment; Wheelwright does not create parking-lot records for every conversational possibility.
+
+When uncertain, use this tie-breaker:
+
+> **If an idea is materially developed and losing it would cause meaningful rediscovery or reconstruction risk, prefer durable intake over loss. Do not create intake merely for undeveloped conversational possibilities.**
+
+This bias applies only at the discovery/intake boundary. It does not imply priority, strategic validity, architectural acceptance, or implementation authorization.
 
 ---
 
@@ -81,6 +95,18 @@ Ask:
 - Does it weaken, contradict, or supersede existing strategic direction?
 
 Prefer strengthening or refining existing roadmap structure when it already expresses the intent. Do not manufacture a new Bet merely because a new implementation idea exists.
+
+### Quality, fitness, and differentiation lens
+
+When material to the idea, strategic reconciliation must also apply the applicable quality / fitness / differentiation questions from the governing strategy-reconciliation method. Examples include:
+
+- What does good look like for this capability or outcome?
+- What is good enough for the intended operator/system purpose?
+- Which qualities materially determine fitness?
+- Is the capability differentiating, enabling infrastructure, or both in different layers?
+- What evidence would support continuing, stopping, or revisiting the direction?
+
+These questions are **conditional, not a mandatory questionnaire for every intake item**. Do not manufacture answers when quality or differentiation is immaterial to the disposition. Their purpose is to prevent roadmap placement alone from being mistaken for complete strategic reconciliation when the idea's value depends on qualitative fitness or differentiation.
 
 If current strategic direction changes materially, update `docs/roadmap.md`. If no roadmap change is warranted, record that conclusion in the intake disposition/reconciliation so future actors do not repeat the question.
 
@@ -152,7 +178,7 @@ Important distinctions:
 
 - **DISCOVERED**: meaningful idea exists, not yet durably normalized.
 - **INTAKE**: stable parking-lot identity exists; placement unresolved or under reconciliation.
-- **RECONCILED**: strategic and architectural relationships are explicit.
+- **RECONCILED**: strategic and architectural relationships are explicit **and the required Reconciliation Completion Record is durably exposed**.
 - **DECOMPOSED**: concrete implementation/experiment units and dependencies are understood.
 - **IMPLEMENTABLE**: authorized work has sufficiently resolved design/authority to build.
 
@@ -176,17 +202,26 @@ Do not force speculative answers merely to fill a template.
 
 ---
 
-## Reconciliation Completion Record
+## Reconciliation Completion Record — Required Observable Output
 
-When reconciliation is complete, the durable project state must make explicit:
+Reconciliation has a standard semantic return type. A `PL-*` concept is **not RECONCILED** until durable project state exposes a Reconciliation Completion Record containing all of the following:
 
-- strategic disposition: new Bet / strengthens existing Bet(s) / no roadmap change / rejected / other;
-- architectural disposition: new pressure / refines existing pressure / implementation defect / no architecture change / other;
-- parking-lot mapping: retained / merged / split / promoted / superseded / resolved / deferred;
-- why-state location when material;
-- next authorized mode: further exploration / experiment / design / implementation / no work.
+- **Intake:** the canonical `PL-*` identity;
+- **Strategic disposition:** new Bet / strengthens existing Bet(s) / no roadmap change / rejected / other explicit disposition;
+- **Architectural disposition:** new pressure / refines existing pressure / implementation defect / no architecture change / other explicit disposition;
+- **Parking-lot disposition/mapping:** retained / merged / split / promoted / superseded / resolved / deferred, including destination IDs when applicable;
+- **Why-state:** durable artifact/reference when material, or explicit `no additional record required`;
+- **Next authorized mode:** further exploration / experiment / design / implementation / no work.
 
-A future actor should not have to infer these mappings from a conversation.
+### Observable invariant
+
+> **A cold actor must be able to determine that reconciliation completed, and recover the complete disposition above, without reconstructing it from conversation or inferring it from scattered edits.**
+
+The storage format is intentionally flexible; the output contract is not. The completion record may live in the canonical parking-lot item, a reconciliation/checkpoint artifact, or another clearly referenced canonical location. If it lives elsewhere, the `PL-*` record must point to it unambiguously.
+
+Updating `roadmap.md`, updating `architecture-roadmap.md`, writing a journal entry, or creating implementation work does **not by itself** establish RECONCILED state. The completion record is the observable evidence that the reconciliation stage returned.
+
+Do not create a second reconciliation registry merely to satisfy this requirement. This is a required result attached to the existing canonical identity, not a new backlog or workflow database.
 
 ---
 
@@ -217,20 +252,30 @@ This prevents multiple competing backlogs.
 
 - Reconstructs existing concepts before proposing new ones.
 - Performs strategic and architectural reconciliation.
+- Produces or updates the required Reconciliation Completion Record before treating an item as RECONCILED.
 - Identifies mappings, contradictions, pressure, and required design work.
 - Does not treat implementation convenience as architecture.
 
 ### ChatGPT
 
 - Preserves discovery distinctions during discussion.
-- Notices when a durable intake boundary has been crossed.
+- Notices when a durable intake boundary has been crossed and applies the durability tie-breaker when needed.
 - Ensures new work enters through the canonical parking-lot identity before handing off to Kiro.
+- Checks that completed reconciliation exposes the required completion record rather than relying on implication.
 - Includes relevant intake IDs/artifacts in cold-start prompts.
 
 ### Codex
 
 - Implements or performs mechanical experiments only after the relevant work has been decomposed/authorized.
 - Does not invent roadmap or architectural placement from implementation mechanics.
+
+---
+
+## One Algorithm; Multiple Signposts
+
+This document owns the idea-intake and reconciliation procedure.
+
+README guidance, actor bootstrap files, Kiro steering, prompts, and other references may summarize the invariant and point here, but they must not evolve independent procedural variants. If a signpost conflicts with this methodology, this ratified methodology governs until explicitly superseded.
 
 ---
 
@@ -253,5 +298,7 @@ The actor must not substitute conversation memory for this repository state.
 When brevity is useful, the Wheelwright idea pipeline is:
 
 > **Explore → Intake (`PL-*`) → Reconcile Strategy → Reconcile Architecture → Preserve Why → Decompose → Authorize/Implement**
+
+Reconciliation is complete only when its standard completion record is durably observable from the canonical `PL-*` identity.
 
 If a future thread proposes a different intake path, this document governs unless explicitly superseded by a later ratified methodology.
