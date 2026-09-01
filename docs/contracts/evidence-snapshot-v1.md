@@ -138,6 +138,50 @@ A breaking change is:
 
 Non-breaking additions (new fields, additional telemetry) are permitted without version increment but should be documented.
 
+### Additive fields — Evidence Provenance (ADR-015, September 2026)
+
+Per ADR-015 (Evidence Provenance Authority and Preservation), the snapshot carries **subject-scoped** option-chain acquisition provenance. These are **additive, non-breaking** fields under INV-PUB-05 (no version increment); they are documented here as required by the contract's own rule and covered by compatibility tests.
+
+Each element of `symbols[].chains[]` gains a field describing the acquisition provenance of *that specific chain*:
+
+```jsonc
+"chains": [
+  {
+    "expiration": "2026-08-03",
+    "retrievedAt": "2026-08-03T14:30:00Z",
+    "chainAcquisitionProvenance": {           // ADDITIVE — subject: THIS chain only
+      "kind": "chain-acquired",
+      "acquiredAt": "2026-08-03T14:30:00Z"     // authoritative per-chain acquisition instant
+    },
+    "data": { /* MarketChain */ }
+  }
+]
+```
+
+The legacy/primary single `chain` gains a **distinctly named** sibling describing the primary chain specifically (a symbol can contain many chains, so the symbol-level name must not be ambiguous):
+
+```jsonc
+"chain": { /* MarketChain */ },
+"primaryExpiration": "2026-08-03",
+"primaryChainAcquisitionProvenance": {         // ADDITIVE — subject: the legacy primary chain
+  "kind": "chain-acquired",
+  "acquiredAt": "2026-08-03T14:30:00Z"
+}
+```
+
+Provenance value semantics:
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `chains[].chainAcquisitionProvenance` | object | Acquisition provenance of that chain element. `{ "kind": "chain-acquired", "acquiredAt": <ISO-8601> }` when the publisher has an authoritative per-chain acquisition time; `{ "kind": "unavailable" }` when a chain representation exists but its authoritative acquisition provenance cannot be established. |
+| `primaryChainAcquisitionProvenance` | object | Same, scoped to the legacy primary `chain`. For a `ready` symbol the publisher derives this from the primary-expiration chain row's authoritative `retrieved_at`; it is **not** `unavailable` merely because the legacy representation historically omitted a timestamp. |
+
+Rules (ADR-015):
+
+- `chainAcquisitionProvenance` / `primaryChainAcquisitionProvenance` describe **option-chain acquisition only**. They say nothing about the acquisition age of the underlying quote embedded in the composite chain (which may be a cached quote acquired up to ~60s **before** the chain) or about the composite as a whole.
+- `{ "kind": "unavailable" }` requires an existing chain subject whose authoritative acquisition provenance the publisher cannot establish. It is not emitted where there is no chain subject at all.
+- **Consumer compatibility:** an older snapshot that supplies a chain but omits these provenance fields is interpreted by consumers as `unavailable`. Consumers must never reconstruct provenance from `symbols[].retrievedAt`, cache TTL timestamps, or `Date.now()`.
+
 ---
 
 ## Consumer Compatibility

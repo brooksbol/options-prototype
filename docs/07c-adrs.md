@@ -468,3 +468,47 @@ Production earned and capital/NAV erosion incurred are separate concepts. They a
 - Forecast shown as unavailable until a governed forecast primitive exists
 - Mission shown as unavailable until an authoritative monthly target primitive exists
 - 6 regression tests enforce the one-premium and resolution-is-not-cash invariants
+
+
+---
+
+## ADR-015: Evidence Provenance Authority and Preservation
+
+**Date:** September 2026
+**Status:** Accepted
+
+> **Numbering note:** This ADR was drafted during the PL-EVID-AGE work under the working label "ADR-014." That number was already taken by *Production Recognition and Current-Month Semantics*. Per the append-only ADR log, the provenance decision is recorded here as **ADR-015**. References to "ADR-014" in earlier PL-EVID-AGE conversation mean this record.
+
+**Context:** Evidence timestamps originate as acquisition/receipt time in `TradierAdapter` (`Instant.now()`), are persisted per-`(symbol, evidence_type, expiration)` in SQLite with their own `retrieved_at`, and are carried per-expiration through the snapshot as `chains[].retrievedAt`. Two lossy transformations degrade provenance authority downstream:
+
+1. `SqliteEvidenceStore.getEvidence` emits a **symbol-level `retrievedAt` fallback** (`chainRetrievedAt != null ? chainRetrievedAt : retrievedAt`) that may be the *expirations* acquisition time rather than any chain's; the legacy single-`chain` shape carried no per-chain timestamp of its own in the published contract.
+2. The frontend cache collapses per-chain, symbol-level, and synthesized `Date.now()` values into a single `CacheRecord.retrievedAt` used for TTL mechanics.
+
+The PL-EVID-AGE (Deployment Evidence Age) work exposed that, under those conditions, a consumer was left to *infer* provenance authority from snapshot shape (`sym.chains` array vs legacy `sym.chain`) inside the React ingestion path — an evidence-domain authority decision executing in the browser. No provider/exchange *observation* timestamp exists anywhere; Wheelwright knows acquisition/receipt time only.
+
+ADR-013 (fact-to-interpretation boundary / Epistemic Integrity) and INV-PERSIST-03/04 ("persist facts; derive trust") are foundations but do not, on their own, govern the preservation of timestamp *authority* through normalization, caching, composition, fallback, and publication.
+
+**Decision:**
+
+1. **Upstream authority.** Authoritative evidence provenance is established upstream, at the evidence/publication boundary. Downstream consumers (frontend cache, recommendation/composition paths, presentation) may **preserve, compose, and present** provenance, but must **not infer or manufacture its authority** from normalization shape, fallback timestamps, cache timestamps, or synthesized clocks.
+2. **Authority survives transformation.** The semantic origin and authority of a timestamp survive normalization, caching, composition, fallback, and publication.
+3. **No silent promotion.** Operational or synthesized timestamps (cache TTL, symbol-level fallback, `Date.now()`) may run machinery but must never silently acquire evidentiary meaning.
+4. **Provenance has a subject.** A provenance claim must name *what* was acquired, not merely *when*. A container timestamp does not describe every material observation within a composite record. Published provenance fields are **named for the specific observation they describe** (e.g. option-chain acquisition), never as a generic `provenance` that could be read as covering a composite (chain + underlying quote + derived economics).
+5. **Composite provenance sufficiency.** Composite evidence must preserve enough component provenance to truthfully support the temporal claim actually being made.
+6. **Explicit absence, with a real subject.** When authoritative provenance for an existing subject genuinely cannot be established, it is represented explicitly as `{ "kind": "unavailable" }`, never reconstructed from a weaker timestamp. **Absence from an old representation does not imply absence of authority**: if the publisher can map a representation to its authoritative source record, it must publish the authoritative provenance. `unavailable` requires an existing subject (e.g. a chain representation) whose acquisition provenance the publisher cannot establish — it is not used where there is no subject at all (e.g. a symbol with no chain).
+
+**Authority levels:** The first application distinguishes only `kind: "chain-acquired"` vs `kind: "unavailable"`. No separate `authority` property is introduced unless a second authority level is later demonstrated.
+
+**Known limitation (recorded, not resolved):** The embedded underlying spot may come from a cached quote acquired **up to approximately 60 seconds before** the option chain (backend `QUOTE` TTL 60s), and its independent acquisition provenance is not retained in the current composite chain representation. This is why option-chain acquisition provenance **cannot** support the stronger future semantic "oldest economically material evidence age." Preserving quote provenance is future work.
+
+**Relationship to other decisions:**
+- **ADR-013 / Epistemic Integrity** — ADR-015 generalizes the fact-to-interpretation boundary to the *authority of evidence timestamps* across system boundaries.
+- **INV-PERSIST-03 / INV-PERSIST-04** — supporting foundations ("persist facts; derive trust"); ADR-015 sharpens what provenance must carry and where authority is owned.
+- **AR6 / PL-ARCH-06** — this is pressure/evidence toward "where authoritative decision context lives," but ADR-015 is deliberately narrower: it governs *who decides what facts are authoritative*, not *where all recommendation computation runs*. It does not authorize relocating the recommendation engines.
+
+**Boundary principle (concise):** The frontend may calculate *what to display* from authoritative facts; it must not decide *what facts are authoritative*.
+
+**Consequences:**
+- The evidence snapshot becomes self-describing about per-chain acquisition provenance via additive, subject-scoped fields (see `docs/contracts/evidence-snapshot-v1.md`): `chains[].chainAcquisitionProvenance` per element, and `primaryChainAcquisitionProvenance` alongside the legacy `chain`/`primaryExpiration`.
+- The frontend `sym.chains`-vs-`sym.chain` provenance heuristic is removed; the frontend consumes the explicit published provenance state. Older snapshots lacking the field are interpreted by consumers as `unavailable` (a consumer compatibility rule, not permission to synthesize).
+- PL-EVID-AGE is the first concrete application: an observational Deployment Age column presenting option-chain acquisition age, with provenance established upstream.
