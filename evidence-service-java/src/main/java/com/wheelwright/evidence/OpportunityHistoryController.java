@@ -4,6 +4,8 @@ import com.wheelwright.evidence.db.SqliteEvidenceStore;
 import com.wheelwright.evidence.db.SqliteEvidenceStore.EvaluationEpochRecord;
 import com.wheelwright.evidence.db.SqliteEvidenceStore.SymbolObservationRecord;
 import com.wheelwright.evidence.db.SqliteEvidenceStore.SurfaceObservationRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +13,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Opportunity-History endpoint — POST /api/opportunity-history
@@ -28,10 +32,40 @@ import java.util.Map;
  * POLICY-NEUTRAL: stores raw Decision/evidence facts (evaluation state + winner economics
  * under a recorded policy version). Never a usefulness/membership score.
  *
+ * HTTP BOUNDARY CONTRACT (PL-DEPLOY-02-DEF01): winner economics are transported as a NESTED
+ * `winner` object matching the frontend domain shape
+ * ({delta, strike, mid, spreadPercent, openInterest, volume, yieldAnnualized, posture}),
+ * mapped here into the flat persistence columns. Prior to this repair the DTO declared flat
+ * `bestX` fields that never matched the emitted nested object, so Jackson silently dropped all
+ * winner economics (they persisted as NULL). See docs/parking-lot-3.md PL-DEPLOY-02-DEF01.
+ *
+ * INGESTION INVARIANT (PL-DEPLOY-02-DEF01, semantic): an observation state whose semantics
+ * require winner economics must not be durably accepted as a valid complete observation when
+ * those economics are absent. This controller enforces that by rejecting a batch that carries
+ * a winner-required surface state with a missing/incomplete winner, and by making such
+ * contract violations observable (counter + log) rather than silently degrading.
+ *
  * GET /api/opportunity-history/counts — row counts for observability.
  */
 @RestController
 public class OpportunityHistoryController {
+
+    private static final Logger log = LoggerFactory.getLogger(OpportunityHistoryController.class);
+
+    /**
+     * Surface states whose semantics REQUIRE winner economics. Mirrors the frontend
+     * QUALIFYING_SURFACE_STATES (opportunity-fact.ts). Kept as an explicit constant so the
+     * ingestion invariant is enforced at the durable boundary independent of the emitter.
+     */
+    private static final Set<String> WINNER_REQUIRED_STATES = Set.of(
+        "QUALIFIED_ACTIONABLE",
+        "QUALIFIED_EDGE",
+        "EVALUATED_WAIT",
+        "EVALUATED_WIDE_SPREAD"
+    );
+
+    /** Observability: count of rejected batches due to a winner-required/economics-absent contract violation. */
+    private final AtomicLong contractViolations = new AtomicLong(0);
 
     private final SqliteEvidenceStore store;
 
@@ -63,11 +97,38 @@ public class OpportunityHistoryController {
         List<SurfaceObservationRecord> surfaceObs = new ArrayList<>();
         if (body.surfaceObservations != null) {
             for (SurfaceObs o : body.surfaceObservations) {
+                // Ingestion invariant: a winner-required state must carry complete winner economics.
+                // Never silently persist a winner-required surface as a "complete" row with null economics.
+                boolean winnerRequired = o.evaluationState != null
+                    && WINNER_REQUIRED_STATES.contains(o.evaluationState);
+                if (winnerRequired && !isCompleteWinner(o.winner)) {
+                    long n = contractViolations.incrementAndGet();
+                    log.warn("opportunity-history contract violation (#{}): winner-required state '{}' "
+                            + "for {} {} {} carried missing/incomplete winner economics; batch rejected "
+                            + "(epoch={})",
+                        n, o.evaluationState, o.strategy, o.symbol, o.expiration, epoch.epochId());
+                    return ResponseEntity.unprocessableEntity().body(Map.of(
+                        "error", "winner-required state missing winner economics",
+                        "evaluationState", o.evaluationState,
+                        "symbol", o.symbol == null ? "" : o.symbol,
+                        "expiration", o.expiration == null ? "" : o.expiration,
+                        "strategy", o.strategy == null ? "" : o.strategy,
+                        "contractViolations", n
+                    ));
+                }
+
+                WinnerDto w = o.winner;
                 surfaceObs.add(new SurfaceObservationRecord(
                     o.observationId, o.epochId, o.symbol, o.expiration, o.dte, o.strategy,
                     o.evaluationState, o.chainRetrievedAt, o.observedAt,
-                    o.bestDelta, o.bestStrike, o.bestMid, o.bestSpreadPct,
-                    o.bestOpenInterest, o.bestVolume, o.bestYieldAnnual, o.bestPosture));
+                    w == null ? null : w.delta,
+                    w == null ? null : w.strike,
+                    w == null ? null : w.mid,
+                    w == null ? null : w.spreadPercent,
+                    w == null ? null : w.openInterest,
+                    w == null ? null : w.volume,
+                    w == null ? null : w.yieldAnnualized,
+                    w == null ? null : w.posture));
             }
         }
 
@@ -84,6 +145,23 @@ public class OpportunityHistoryController {
     @GetMapping("/api/opportunity-history/counts")
     public ResponseEntity<Map<String, Integer>> counts() throws SQLException {
         return ResponseEntity.ok(store.getOpportunityHistoryCounts());
+    }
+
+    /**
+     * A winner is complete when the nested object is present and all economics fields the
+     * persistence schema records are non-null. Missing any required field is a contract
+     * violation for a winner-required state (never silently stored).
+     */
+    private static boolean isCompleteWinner(WinnerDto w) {
+        return w != null
+            && w.delta != null
+            && w.strike != null
+            && w.mid != null
+            && w.spreadPercent != null
+            && w.openInterest != null
+            && w.volume != null
+            && w.yieldAnnualized != null
+            && w.posture != null && !w.posture.isBlank();
     }
 
     // --- Request DTOs (Jackson-bound) ---
@@ -125,13 +203,27 @@ public class OpportunityHistoryController {
         public String evaluationState;
         public String chainRetrievedAt;
         public String observedAt;
-        public Double bestDelta;
-        public Double bestStrike;
-        public Double bestMid;
-        public Double bestSpreadPct;
-        public Integer bestOpenInterest;
-        public Integer bestVolume;
-        public Double bestYieldAnnual;
-        public String bestPosture;
+        /**
+         * Winner economics — nested object matching the frontend domain shape. Present iff the
+         * evaluationState is a qualifying/wait/wide-spread state; null otherwise (non-winner
+         * states persist null economics).
+         */
+        public WinnerDto winner;
+    }
+
+    /**
+     * Nested winner economics transported from the frontend. Field names match the frontend
+     * WinnerEconomics interface exactly (opportunity-fact.ts) so Jackson binds them; they are
+     * mapped into the flat persistence columns by the controller.
+     */
+    public static class WinnerDto {
+        public Double delta;
+        public Double strike;
+        public Double mid;
+        public Double spreadPercent;
+        public Integer openInterest;
+        public Integer volume;
+        public Double yieldAnnualized;
+        public String posture;
     }
 }

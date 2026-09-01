@@ -1781,6 +1781,44 @@ public class SqliteEvidenceStore implements AutoCloseable {
         return counts;
     }
 
+    /**
+     * Read back a single surface observation's persisted winner economics by observation_id.
+     * Bounded observability/verification helper (mirrors getOpportunityHistoryCounts). Returns
+     * null when the row does not exist. Winner-economics fields are null for non-winner states.
+     */
+    public SurfaceObservationRecord getSurfaceObservation(String observationId) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT observation_id, epoch_id, symbol, expiration, dte, strategy, evaluation_state,
+                       chain_retrieved_at, observed_at, best_delta, best_strike, best_mid,
+                       best_spread_pct, best_open_interest, best_volume, best_yield_annual, best_posture
+                  FROM surface_observation WHERE observation_id = ?
+            """)) {
+            ps.setString(1, observationId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                return new SurfaceObservationRecord(
+                    rs.getString("observation_id"), rs.getString("epoch_id"), rs.getString("symbol"),
+                    rs.getString("expiration"), rs.getInt("dte"), rs.getString("strategy"),
+                    rs.getString("evaluation_state"), rs.getString("chain_retrieved_at"),
+                    rs.getString("observed_at"),
+                    nullableDouble(rs, "best_delta"), nullableDouble(rs, "best_strike"),
+                    nullableDouble(rs, "best_mid"), nullableDouble(rs, "best_spread_pct"),
+                    nullableInt(rs, "best_open_interest"), nullableInt(rs, "best_volume"),
+                    nullableDouble(rs, "best_yield_annual"), rs.getString("best_posture"));
+            }
+        }
+    }
+
+    private static Double nullableDouble(ResultSet rs, String col) throws SQLException {
+        double v = rs.getDouble(col);
+        return rs.wasNull() ? null : v;
+    }
+
+    private static Integer nullableInt(ResultSet rs, String col) throws SQLException {
+        int v = rs.getInt(col);
+        return rs.wasNull() ? null : v;
+    }
+
     private static void setNullableDouble(PreparedStatement ps, int idx, Double v) throws SQLException {
         if (v == null) ps.setNull(idx, Types.REAL);
         else ps.setDouble(idx, v);
