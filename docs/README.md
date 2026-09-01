@@ -10,6 +10,14 @@ The canonical parking lot may span physical continuation files. `docs/parking-lo
 
 > **Authority note:** This continuation rule amends all references below that say only `parking-lot.md`; they mean the complete continuation sequence.
 
+## Material Idea Intake Rule — September 1, 2026
+
+All material new ideas use one canonical intake/reconciliation pipeline governed by `foundations/idea-intake-reconciliation.md`:
+
+> **Explore → Intake (`PL-*`) → Reconcile Strategy → Reconcile Architecture → Preserve Why → Decompose → Authorize/Implement**
+
+The complete `docs/parking-lot*.md` sequence is the system of record for unresolved idea identity and disposition. GitHub issues, standalone discovery documents, prompts, and conversations may support an idea but do not replace its canonical `PL-*` identity. A Principal decision that an item is next establishes sequencing; it does not bypass reconciliation or design gates.
+
 ---
 
 ## Document Authority Model
@@ -69,6 +77,7 @@ Read these when evaluating strategic direction, proposing a material product cap
 | `roadmap.md` | Current Vision → Goals → Bets → Initiatives strategic roadmap |
 | `architecture-roadmap.md` | Current structural pressures and intended architectural evolution |
 | `foundations/strategy-architecture-reconciliation.md` | Governing method for exploration, reconciliation, and evidence-driven course correction |
+| `foundations/idea-intake-reconciliation.md` | Governing pipeline for durable idea identity, strategic/architectural reconciliation, why-state preservation, and implementation decomposition |
 | `33-strategy-roadmap-checkpoint.md` | Provenance: how the first roadmap/operating-model baseline was derived and blessed |
 
 ### AI Actor Cold-Start Bootstrap
@@ -80,8 +89,9 @@ For a completely new ChatGPT thread or Kiro session starting from scratch. A one
 | `bootstrap/chatgpt-cold-start.md` | ChatGPT | Reasoning partner bootstrap — role, authority retrieval, epistemic discipline |
 | `bootstrap/kiro-cold-start.md` | Kiro | Repository-resident architect/implementation partner bootstrap |
 | `bootstrap/project-memory-protocol.md` | Shared | Documentation diligence / project-memory synchronization protocol |
+| `foundations/idea-intake-reconciliation.md` | Shared | Mandatory methodology whenever a material new idea is being considered or handed off |
 
-**Lookup path:** Actor finds `docs/README.md` → reads this section → follows actor-specific bootstrap → follows shared protocol → follows Minimum Safe Bootstrap reading path above → begins substantive work.
+**Lookup path:** Actor finds `docs/README.md` → reads this section → follows actor-specific bootstrap → follows shared protocol → follows Minimum Safe Bootstrap reading path above → begins substantive work. For a material new idea, the actor must also follow `foundations/idea-intake-reconciliation.md`.
 
 ---
 
@@ -130,6 +140,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/three-actor-model.md` | Ratified methodology |
 | `foundations/architectural-evolution-methodology.md` | Ratified methodology |
 | `foundations/strategy-architecture-reconciliation.md` | Ratified methodology (strategic roadmap ↔ architecture roadmap reconciliation, exploration freedom, and evidence-driven course correction) |
+| `foundations/idea-intake-reconciliation.md` | Ratified methodology (material idea discovery → canonical intake → strategic/architectural reconciliation → why-state → decomposition/authorization) |
 | `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
 | `bootstrap/project-memory-protocol.md` | Ratified methodology (documentation diligence / project memory) |
 | `foundations/parking-lot-continuation-governance.md` | Ratified methodology (one logical parking lot across physical continuation files) |
@@ -142,7 +153,7 @@ Authoritative for their specific project concern. Not system-definition document
 |----------|--------|
 | `roadmap.md` | Current strategic roadmap (Vision → Goals → Bets → Initiatives) |
 | `architecture-roadmap.md` | Current architecture-roadmap pressure and intended structural evolution |
-| `parking-lot.md` + numbered continuations | One canonical backlog expressed across physical pages |
+| `parking-lot.md` + numbered continuations | One canonical backlog and material-idea intake registry expressed across physical pages |
 | `journal/project-journal.md` | Canonical chronology |
 | `contracts/evidence-snapshot-v1.md` | Frozen API contract (v1) |
 
@@ -170,6 +181,7 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `17-recommendation-funnel-analysis.md` | Funnel behavior explanation |
 | `18-recommendation-vocabulary-review.md` | Vocabulary dimensional analysis |
 | `19-funnel-architecture.md` | Funnel stage documentation |
+| `41-operator-intent-evidence-age-intake.md` | Supporting discovery record for canonical intake `PL-EVID-AGE`; not a parallel backlog |
 | `foundations/market-priced-risk.md` | Exploratory research topic |
 | `foundations/recommendation-set-analysis.md` | Exploratory architectural concept |
 | `foundations/strategy-expansion-governance.md` | Exploratory strategy scope boundary and evaluation framework |
