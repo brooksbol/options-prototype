@@ -11946,3 +11946,51 @@ Corrected the contradiction with a **normal follow-up commit** — no rewrite of
 ### Scope discipline
 
 This correction does **not** overturn D1, D2, D3, the 2026-08-27 ruling, or PL-DEPLOY-02-DEF01. It fixes how the sequence was narrated. The PL-DEPLOY-02-DEF01 substance is unchanged. This entry was written alongside the DEF01 remediation work; the remediation commit is separate from and follows this documentation correction.
+
+
+---
+
+## 2026-09-01 — PL-DEPLOY-02-DEF01 repaired, deployed, verified live; economics-valid boundary established
+
+### Context
+
+Following the PL-DEPLOY-02-DEF01 documentation (`4398502`) and the D1–D3 chronology correction (`623487f`), the Principal authorized the bounded remediation → validation → production deploy → live verification → economics-valid boundary → arm-tomorrow's-capture path. This entry records the deploy and its authoritative provenance.
+
+### What shipped
+
+Commit `c5df959` — `fix(PL-DEPLOY-02-DEF01): preserve winner economics across opportunity-history HTTP boundary`.
+
+- **Backend only** (frontend nested `winner` shape preserved, unchanged): `OpportunityHistoryController.SurfaceObs` now carries a nested `WinnerDto` whose field names match the frontend `WinnerEconomics` exactly (`delta, strike, mid, spreadPercent, openInterest, volume, yieldAnnualized, posture`); the controller maps it into the existing flat persistence columns (DB stays flat internally). Prior to this, the DTO declared flat `bestX` fields Jackson never matched against the emitted nested object, so all winner economics silently persisted NULL.
+- **Ingestion invariant (PL-DEPLOY-02-DEF01, mechanism-neutral in the record, mechanism-chosen here):** a winner-required surface state (`QUALIFIED_ACTIONABLE`, `QUALIFIED_EDGE`, `EVALUATED_WAIT`, `EVALUATED_WIDE_SPREAD`) with a missing/incomplete `winner` is **rejected (HTTP 422)** and made observable (an `AtomicLong` counter + a WARN log), never silently stored as a complete economics-empty row. Non-winner states persist null economics unchanged.
+- `SqliteEvidenceStore.getSurfaceObservation` bounded read-back helper for independent verification.
+- New `OpportunityHistoryBoundaryTest`: 6 end-to-end tests POST real frontend-shaped nested-winner JSON through the controller (MockMvc) and read rows back via the store.
+
+Verification before deploy: backend **322** tests (0 fail, 1 skip), frontend **1487** tests (0 fail), production build exit 0. Committed and pushed (`4398502..c5df959`); no rewrite/force-push of `3ae5413`.
+
+### Deployment and the regime boundary
+
+No CI/cloud (per `docs/24`, accepted-not-live); "production" is the local always-on appliance. The Principal restarted the appliance via `scripts/dev.sh` onto the new bytecode. **Authoritative regime boundary: backend restarted PID 42874 → PID 51965 onto `c5df959`.** (The dev host's shell clock is skewed; backend-reported values are authoritative. Backend last real publication `generatedAt=2026-09-01T20:16:02.500127Z`, generation `20470`, environment `production`.) A brief acquisition warmup is expected; at capture time the backend showed `sessionState=unknown` and static generation — no real evidence had advanced yet.
+
+### Live production verification (independent of tests)
+
+Real HTTP POSTs through the deployed endpoint, read back via `sqlite3 -readonly`:
+
+- **Winner economics now persist across the HTTP boundary.** A `QUALIFIED_ACTIONABLE` nested-winner POST persisted all eight fields: `delta=-0.28 strike=88.0 mid=1.3 spread=3.5 oi=520 vol=110 yield=24.7 posture=ACTIONABLE`.
+- **Non-winner persists null.** An `EVALUATED_NO_DELTA_MATCH` row persisted NULL economics.
+- **Governed rejection is live.** A winner-required + `winner:null` POST returned **HTTP 422** (`contractViolations:1`) and was **not stored** (confirmed count 0); the backend emitted the expected WARN. This is the ingestion invariant working end-to-end in production.
+
+### Economics-valid accumulation boundary (BOUNDARY 1 — tonight, code/runtime provenance)
+
+- Deploy SHA `c5df959`; backend restart PID **51965**.
+- **Real economics-valid accumulation begins at the first real (non-sentinel) browser emission after the restart** — expected at/after tomorrow's opening bell (no real epoch had landed at deploy time).
+- **Sentinel exclusion (durable):** deploy verification wrote synthetic smoke rows to the production DB. Preserve (append-only), never analyze: epochs `ep_def01_smoke_c5df959` (policy `PL-DEPLOY-02-DEF01-smoke`) and `ep_smoke_min` (policy `smoke`); surface rows `so_def01_smoke_actionable`, `so_def01_smoke_nodelta`; symbol row `sy_def01_smoke`; all `symbol='__DEF01_SMOKE__'`. Rejected epoch `ep_def01_smoke_reject` left no surface row. Analysis exclusion predicate: `symbol <> '__DEF01_SMOKE__' AND policy_version NOT LIKE '%smoke%'`. Post-deploy counts (incl. sentinels): epochs `990`, symbolObservations `1,225,801`, surfaceObservations `62,406` (of which 62,404 are pre-fix NULL-economics rows + 2 sentinels).
+
+### Opening-bell corrected capture (BOUNDARY 2 — tomorrow, analysis-window start)
+
+Armed as documentation only (no analysis tonight): `docs/experiments/2026-09-02-opening-bell-corrected-capture/README.md`, with the full cold-reconstruct provenance manifest. **Analysis boundary: 2026-09-02, 09:30:00 ET / 07:30:00 MDT.** This is a **corrected economics-bearing opportunity-history capture**, explicitly **not** a first A/B/C/D experiment; A/B/C/D telemetry is context only and must not be promoted to operator-value/decision-frontier semantics.
+
+The two boundaries are kept deliberately distinct: (1) *when the instrument became truthful* (deploy/runtime provenance), and (2) *when the analysis window starts* (opening bell). Do not collapse them.
+
+### Disposition
+
+PL-DEPLOY-02-DEF01 remediation is shipped, verified live, and the economics-valid provenance boundary is durably recorded. Substantive `analyze`-step work remains gated on sufficient corrected accumulation and separate authorization. Pre-fix history remains partially valid per PL-DEPLOY-02-DEF01 (state-based questions only, within browser-observation windows).
