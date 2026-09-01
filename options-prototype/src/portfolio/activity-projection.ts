@@ -538,6 +538,10 @@ export function projectActivityOverlay(
               strike: row.option.strike,
               expiration: row.option.expiration,
               quantity: Math.abs(row.quantity),
+              // Broker cost basis unknown for a projected open (mirrors the
+              // sell_to_open CALL branch above). Required OpenShortPut fields.
+              brokerOptionBasis: null,
+              brokerOptionAverageCost: null,
             });
           }
 
@@ -563,7 +567,11 @@ export function projectActivityOverlay(
           }
         }
 
-        deployableCash += proceeds;
+        // Preserve unknown-cash passthrough: only accumulate when a cash base
+        // exists. Coercing null→0 would fabricate a concrete deployable figure.
+        if (deployableCash != null) {
+          deployableCash += proceeds;
+        }
         projectedSymbols.add(symbol);
         break;
       }

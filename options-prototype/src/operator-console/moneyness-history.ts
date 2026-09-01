@@ -138,9 +138,6 @@ export function generateDemoSpotHistory(symbol: string, currentSpot: number): nu
   const driftPerStep = (currentSpot - startingSpot) / (SESSION_POINTS - 1);
 
   for (let i = SESSION_POINTS - 2; i >= 0; i--) {
-    // Expected price at this point (linear interpolation from start to end)
-    const stepsFromEnd = (SESSION_POINTS - 1) - i;
-    const expectedDrift = driftPerStep * stepsFromEnd;
     // Box-Muller-ish noise
     const u1 = rng();
     const u2 = rng();

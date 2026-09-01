@@ -7,7 +7,6 @@
  * See: docs/15-evidence-state-semantics.md
  */
 
-import type { PutCandidate } from "./scan-orchestrator";
 
 // --- Trust States ---
 
@@ -210,7 +209,6 @@ export function deriveTrustState(input: TrustDerivationInput): EvidenceStateIndi
 
   // Fallback: no hydration data available (legacy/initial state before first recommendation pass)
   // Use the old coverage + freshness logic as degraded fallback
-  const isFullyCovered = coverage.pending === 0 && coverageFraction >= COVERAGE_THRESHOLD;
 
   if (freshnessMs <= CURRENT_THRESHOLD_MS) {
     return {

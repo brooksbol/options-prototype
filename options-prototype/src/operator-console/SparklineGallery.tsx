@@ -11,7 +11,7 @@
  * Access: /app/sparkline-gallery
  */
 
-import { GALLERY_SCENARIOS, type GalleryScenario } from "./sparkline-gallery-data";
+import { GALLERY_SCENARIOS } from "./sparkline-gallery-data";
 import {
   TreatmentA,
   TreatmentB,

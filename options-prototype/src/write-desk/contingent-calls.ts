@@ -12,13 +12,12 @@
 
 import type { DurableMarketCache } from "../cache/durable-cache";
 import type { OpenShortPut } from "./types";
-import type { ContractSelectionPolicy, RecommendationPolicy } from "./recommend";
+import type { ContractSelectionPolicy } from "./recommend";
 import type { ExecutionPolicy } from "./execution-policy";
 import {
   loadConditionedCallEvidence,
   assessConditionedCallSurface,
   type ConditionedOwnershipInput,
-  type ConditionedCallSurface,
 } from "./conditioned-call-surface";
 import { contingentRowFromOpportunity, type ContingentCallRow } from "./call-table-row";
 

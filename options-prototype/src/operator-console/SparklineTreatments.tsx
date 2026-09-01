@@ -236,7 +236,6 @@ export function TreatmentF({ points, type, currentMoneyness }: TreatmentProps) {
 export function TreatmentG({ points, type, currentMoneyness }: TreatmentProps) {
   if (points.length < 3) return <span>—</span>;
   const maxAbs = computeMaxAbs(points);
-  const zeroY = yScale(0, maxAbs);
 
   // Format numeric moneyness
   const state = currentMoneyness > 0.01 ? "itm" : currentMoneyness < -0.01 ? "otm" : "atm";

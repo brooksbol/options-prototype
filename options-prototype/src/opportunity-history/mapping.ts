@@ -16,7 +16,6 @@ import type {
   SurfaceEvaluationState,
   SymbolEvaluationState,
   WinnerEconomics,
-  OpportunityStrategy,
 } from "./opportunity-fact";
 import { QUALIFYING_SURFACE_STATES } from "./opportunity-fact";
 

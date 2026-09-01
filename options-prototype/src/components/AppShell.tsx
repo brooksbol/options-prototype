@@ -95,11 +95,3 @@ export function AppShell({ route, children }: AppShellProps) {
     </div>
   );
 }
-
-/** Format a dollar amount compactly: $119,960 → "119.9K", $42,500 → "42.5K", $1,200 → "1,200" */
-function formatCompact(value: number): string {
-  if (value >= 10_000) {
-    return `${(value / 1000).toFixed(1)}K`;
-  }
-  return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
-}

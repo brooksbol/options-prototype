@@ -56,7 +56,7 @@ interface PortfolioTrajectoryChartProps {
 
 // --- Component ---
 
-export function PortfolioTrajectoryChart({ capitalContext, tierReadiness, tierError, sessionState }: PortfolioTrajectoryChartProps) {
+export function PortfolioTrajectoryChart({ capitalContext, tierReadiness, sessionState }: PortfolioTrajectoryChartProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>(loadTimeRange);
   const { snapshot } = usePortfolio();
 

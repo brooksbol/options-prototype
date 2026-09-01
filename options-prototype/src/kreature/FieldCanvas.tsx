@@ -224,8 +224,8 @@ function drawTrail(
   sym: FieldSymbol,
   cx: number,
   cy: number,
-  w: number,
-  h: number
+  _w: number,
+  _h: number
 ) {
   const trail = sym.trail;
   if (trail.length < 2) return;
@@ -236,7 +236,6 @@ function drawTrail(
   ctx.beginPath();
 
   for (let i = 0; i < trail.length; i++) {
-    const progress = i / (trail.length - 1); // 0 = oldest, 1 = newest
     const displacement = trail[i];
 
     // Trail offset: displacement drives vertical position, slight horizontal spread

@@ -23,7 +23,7 @@
  */
 
 import type { ActivityRow } from "../csv/fidelity/activityParser";
-import type { PortfolioSnapshot, OpenShortPut, OpenShortCall } from "../write-desk/types";
+import type { PortfolioSnapshot } from "../write-desk/types";
 import type { AssessedTransaction, EconomicComponent } from "./production-types";
 
 // --- Public types ---

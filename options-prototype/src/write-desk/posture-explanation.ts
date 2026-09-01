@@ -155,7 +155,7 @@ function buildScoreRange(posture: ActionPosture, policy: ExecutionPolicy): Score
   }
 }
 
-function buildContributor(component: QualityComponent, policy: ExecutionPolicy): ScoreContributor {
+function buildContributor(component: QualityComponent, _policy: ExecutionPolicy): ScoreContributor {
   const measuredLabel = formatMeasuredLabel(component.name, component.measured);
   const referenceLabel = formatReferenceLabel(component.name, component.reference);
 

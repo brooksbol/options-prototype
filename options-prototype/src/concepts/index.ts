@@ -9,7 +9,6 @@ import type { ConceptDefinition } from "./types";
 import { moneynessConcept } from "./moneyness";
 import { assignmentConcept } from "./assignment";
 import { dteConcept } from "./dte";
-import { premiumConcept } from "./premium";
 import { costBasisConcept } from "./cost-basis";
 
 export type { ConceptDefinition, ConceptContext } from "./types";
@@ -19,7 +18,6 @@ export const ALL_CONCEPTS: ConceptDefinition[] = [
   moneynessConcept,
   assignmentConcept,
   dteConcept,
-  premiumConcept,
   costBasisConcept,
 ];
 

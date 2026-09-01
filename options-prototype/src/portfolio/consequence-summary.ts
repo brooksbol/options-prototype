@@ -18,8 +18,6 @@ import type { ExpirationRung } from "./position-monitoring";
 import type { InventoryPosition, PortfolioSnapshot } from "../write-desk/types";
 import {
   type OptionBasisInput,
-  type CallAssignmentConsequence,
-  type PutAssignmentConsequence,
   deriveCallAssignmentConsequence,
   derivePutAssignmentConsequence,
 } from "./assignment-consequence";

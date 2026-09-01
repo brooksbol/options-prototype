@@ -52,7 +52,6 @@ interface CrossEntryStripProps {
 export function CrossEntryStrip({
   putCandidates,
   buyWriteCandidates,
-  policy,
   maxRows = 10,
   onSelectPut,
   onSelectBuyWrite,

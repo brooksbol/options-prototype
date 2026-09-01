@@ -21,7 +21,7 @@
  *   - Statistical projections based on historical cadence
  */
 
-import type { PortfolioSnapshot, OpenShortPut, OpenShortCall } from "../write-desk/types";
+import type { PortfolioSnapshot } from "../write-desk/types";
 import type { ProductionAssessmentResponse } from "./production-types";
 import type { ExpirationRung } from "../portfolio/position-monitoring";
 
@@ -145,7 +145,6 @@ export function deriveCurrentMonthProduction(
 ): CurrentMonthProductionSummary {
   const year = today.getFullYear();
   const month = today.getMonth(); // 0-indexed
-  const monthStart = new Date(year, month, 1);
   const monthEnd = new Date(year, month + 1, 0); // last day of current month
   const monthStr = `${year}-${String(month + 1).padStart(2, "0")}`;
   const monthLabel = today.toLocaleDateString("en-US", { month: "long", year: "numeric" });

@@ -75,7 +75,7 @@ function getSortValue(p: MonitoredPosition, column: SortColumn): string | number
 }
 
 export function OperatorConsole() {
-  const { source, snapshot, importStatus } = usePortfolio();
+  const { source, snapshot } = usePortfolio();
   const observations = useObservations();
   const [selectedPosition, setSelectedPosition] = useState<MonitoredPosition | null>(null);
 
@@ -668,7 +668,7 @@ function PositionTableHeader() {
 }
 
 /** Regime B: Dense fixed-geometry rows using native <table> for proper column alignment */
-function PositionTable({ positions, onTileClick, totalCapital, allPositionsTotalCapital, maxPositionCapital, positionDeltas, isDemoSource, spotHistory, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
+function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, isDemoSource, spotHistory, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
 
   // Apply within-group sorting
   const sortedPositions = sortColumn
@@ -1047,19 +1047,6 @@ function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass 
   const sYScale = (m: number) => scale.yScale(m);
   const sXPos = (i: number) => PAD + points[i].t * (SPARK_W - PAD * 2);
 
-  // Region colors (intent-aware) — amplified opacity for blur-visibility
-  const regionOpacity = 0.20;
-  const itmRegionColor = type === "put"
-    ? `rgba(220, 38, 38, ${regionOpacity})`
-    : type === "buy-write"
-      ? `rgba(22, 163, 74, ${regionOpacity})`
-      : `rgba(107, 114, 128, ${regionOpacity * 0.4})`;
-  const otmRegionColor = type === "put"
-    ? `rgba(22, 163, 74, ${regionOpacity})`
-    : type === "buy-write"
-      ? `rgba(220, 38, 38, ${regionOpacity})`
-      : `rgba(107, 114, 128, ${regionOpacity * 0.4})`;
-
   // Segmented trace
   const segments: { x1: number; y1: number; x2: number; y2: number; color: string }[] = [];
   for (let i = 0; i < points.length - 1; i++) {
@@ -1165,7 +1152,7 @@ function PositionTile({ position, onClick, style }: { position: MonitoredPositio
 function buildDetailForPosition(
   position: MonitoredPosition,
   snapshot: import("../write-desk/types").PortfolioSnapshot,
-  source: import("../write-desk/types").PortfolioSourceType,
+  _source: import("../write-desk/types").PortfolioSourceType,
 ): PositionDetail {
   const inventory = snapshot.inventory.find(
     inv => inv.symbol.toUpperCase() === position.underlying.toUpperCase()

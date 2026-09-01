@@ -136,7 +136,7 @@ export function deriveCapacitySummary(
       if (pos.type === "put") {
         putExposure += pos.encumberedCapital ?? 0;
       } else if (pos.type === "call" || pos.type === "buy-write" && pos.capitalValuationBasis === "market-value-at-import" && pos.encumberedCapital != null) {
-        callExposure += pos.encumberedCapital;
+        callExposure += pos.encumberedCapital ?? 0;
       }
     }
 

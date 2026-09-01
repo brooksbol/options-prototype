@@ -35,7 +35,6 @@ import type { ProductionAssessmentResponse } from "../production/production-type
 import type { ResolutionOutlook, ResolutionCategory } from "./resolution-outlook";
 import {
   type OptionBasisInput,
-  type CallAssignmentConsequence,
   deriveCallAssignmentConsequence,
 } from "../portfolio/assignment-consequence";
 

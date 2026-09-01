@@ -145,7 +145,7 @@ export function deriveProspectiveDeployment(
   cyclingCapital: number,
   earliestResolutionDate: string | null,
   monthEnd: Date,
-  today: Date = new Date(),
+  _today: Date = new Date(),
 ): ProspectiveDeploymentOutlook {
   const assumptions: string[] = [];
 

@@ -16,13 +16,11 @@ import type { PutCandidate } from "../write-desk/scan-orchestrator";
 import type { PortfolioSnapshot } from "../write-desk/types";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
-import type { GovernanceAnnotation } from "../write-desk/scan-orchestrator";
 import type { ConditionedCallOpportunity, ConditionedCallSurface } from "../write-desk/conditioned-call-surface";
 import { lookupDescription } from "../instrument-catalog/catalog";
 import {
   governanceDangerTitle,
   governanceDangerExplanation,
-  governanceTaxonomyLine,
 } from "../write-desk/governance-explanation";
 
 // --- Governance Explanation Helpers (delegated to shared module) ---

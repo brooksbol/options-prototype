@@ -16,7 +16,7 @@
  * Pure function. No side effects.
  */
 
-import type { PortfolioSnapshot, InventoryPosition } from "../write-desk/types";
+import type { PortfolioSnapshot } from "../write-desk/types";
 
 // --- Types ---
 

@@ -20,7 +20,7 @@
  * classification, or health/attention signals.
  */
 
-import type { PortfolioSnapshot, OpenShortPut, OpenShortCall, InventoryPosition } from "../write-desk/types";
+import type { PortfolioSnapshot, InventoryPosition } from "../write-desk/types";
 import type { ObservationState, AcquisitionStatus } from "../evidence/observation-store";
 
 // --- Types ---
