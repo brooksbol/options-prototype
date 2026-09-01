@@ -11863,3 +11863,54 @@ Next discriminating experiment: **How is provider capacity distributed across ex
 ### Chronology preserved (evidence provenance)
 
 Age observation → semantic (D1) / surface (D2) / scheduler (D3) discoveries → this durable reconciliation → (future) discriminating A/B/C/D measurement → interpretation. Recording D1–D3 now, before the measurement, keeps the discoveries from appearing retrospectively derived from the experiment.
+
+
+---
+
+## 2026-09-01 — Opportunity-history economics-preservation defect (PL-DEPLOY-02-DEF01)
+
+### Context
+
+A fresh Kiro cold-start (bootstrapped from `main` @ `3ae5413`) was handed a prompt whose stated next step was a new A/B/C/D provider-capacity measurement. Reading repository memory corrected the conversational momentum: the A/B/C/D measurement had substantially already happened (2026-08-27 Production capacity + simplified-scheduler experiment: A=443, B=1907, C=0, D=0 under breadth-first), had already been interpreted (the 2026-08-27 3AM ruling), and — decisively — had already caused the project to choose a *different* next instrument: the opportunity-history fact plane (ratified sequence `baseline → retain → accumulate → analyze → govern`; Piece 1 shipped and accepted 2026-08-28). So the live question is not "measure A/B/C/D again" but "has the deliberately-accumulated evidence plane accumulated enough to justify entering `analyze`?"
+
+The Principal narrowed the task precisely: assess *whether accumulated history is sufficient to justify entering* `analyze` — not begin `analyze`. Read-only Exploration; no runtime/scheduler/retention/schema/instrumentation/acquisition changes.
+
+### What happened
+
+Read-only inspection (live Production backend `GET /api/opportunity-history/counts` + `sqlite3 -readonly` against `data/evidence.sqlite3`):
+
+- 988 epochs, 1,225,800 symbol observations, **62,404 surface observations**.
+- Span 2026-08-28 → 2026-09-01, but only **3 trading sessions** (Aug 28, 31, Sep 1; Aug 29–30 weekend). Environment 973 production / 15 sandbox (the 15 are the documented 2026-08-28 stale-tab artifact). **Emitter: 988 browser, 0 backend.**
+- `evaluation_state` is rich and survivorship-safe (EVALUATED_* vs NOT_EVALUATED_* both populated; QUALIFIED_ACTIONABLE 13,448 etc.); `chain_retrieved_at` populated on every row; csp/buy_write symmetric.
+- **Every winner-economics field is NULL across all 62,404 surface rows** — `best_delta/best_strike/best_mid/best_spread_pct/best_open_interest/best_volume/best_yield_annual/best_posture` — including on all 13,448 QUALIFIED_ACTIONABLE surfaces where the schema states economics MUST be present. Verified by aggregate NULL counts and a raw sample.
+
+Root cause, traced end-to-end in code: the frontend serializes winner economics as a **nested `winner` object** (`opportunity-fact.ts` `SurfaceObservation.winner`; assembled in `accumulator.ts`; `emit-client.ts` `JSON.stringify`s the batch verbatim), but the backend `OpportunityHistoryController.SurfaceObs` DTO declares **flat sibling fields** (`bestDelta`…`bestPosture`) and has no `winner` field. Jackson matches by name, finds no `bestX` keys, discards the unmatched nested object, and inserts NULL. `evaluation_state` and `chain_retrieved_at` survive only because those key names happen to match. Best-effort, error-swallowing emit (returns 2xx, row stored economics-empty) hid the mismatch since the plane shipped.
+
+Codex independently verified the same DB state and the same wire-path failure. Two-actor confirmation raised this from investigative hypothesis to **established defect.**
+
+### What we learned
+
+The important reframing: **this is not primarily an "insufficient accumulation" problem — it is a defective evidence instrument.** The plane preserves state facts but silently drops the economics that the 2026-08-27 ruling made load-bearing for membership/usefulness governance. The consequence is **silent corruption by omission** of fields later intended to support analysis — not merely malformed transport. ADR-015 is about provenance *authority* rather than economics, but the same architectural principle applies: **evidence facts that are supposed to survive a boundary cannot be silently lost.**
+
+Sharpened evidence-validity semantics (durable):
+- Existing pre-fix history is **partially valid, not corrupted wholesale.** Usable: evaluation_state, evaluated-vs-not-evaluated, chain identity, policy_version, session_posture, strategy, symbol, expiration, DTE. Not usable: winner delta/strike/midpoint/spread/OI/volume/yield/posture.
+- State-transition / qualification-frequency analysis is valid **only within explicit browser-observation windows.**
+- Acquisition burden must **not** be inferred from this plane alone.
+- **Further economics accumulation under the current implementation is invalid for the intended economics hypotheses** — it only creates more economics-empty rows.
+
+Browser-only emission (emitter=browser on all epochs) is reconciled **separately** as a known observation-continuity limitation, architecturally expected under B-1 (transitional until Decision migrates server-side per PL-ARCH-06) — not part of this defect. It independently reinforces the "scope state-based analysis to browser windows" rule.
+
+### Decisions / implications
+
+- New child intake `PL-DEPLOY-02-DEF01` under `PL-DEPLOY-02` (concept-home retained), cross-referenced `PL-EVID-01` (durable-history ownership) and `PL-ARCH-06` (emitter transition); related to ADR-015 by principle only. Classified as an **implementation defect violating the opportunity-history evidence-preservation contract/invariant**, not a new architectural concept.
+- **Candidate ingestion invariant (semantic, mechanism-neutral):** *an observation state whose semantics require winner economics must not be durably accepted as a valid complete observation when those economics are absent.* The remediation may later choose rejection, explicit invalid-state persistence, diagnostics, or another governed mechanism — that implementation choice is deliberately NOT frozen (avoid turning one error-handling mechanism into architectural truth prematurely).
+- **Remediation shape (design, not authorized):** prefer an explicit HTTP-boundary contract preserving the frontend's coherent nested `winner`, teaching the backend to accept a nested `WinnerDto` mapped into the existing flat DB columns (DB stays flat internally); validate end-to-end.
+- **No backfill:** exact historical winners are not reliably reconstructable (raw chain economics at those historical `chain_retrieved_at` instants are gone). After repair, establish a clear timestamped **"good data begins here"** epoch; never blur pre-fix and post-fix history for economics analysis. The economics-analysis provenance boundary is the **first validated post-fix emission.**
+
+### Evidence-state conclusion (durable stopping point)
+
+**The project cannot enter economics-based `analyze` because the shipped accumulation instrument silently fails to preserve the economics required by the ratified analysis questions. State-based history remains usable within observed browser windows.** This is the real stopping point before remediation design turns into implementation.
+
+### Disposition
+
+Documentation only: this journal entry + `PL-DEPLOY-02-DEF01` intake + its Reconciliation Completion Record (`docs/parking-lot-3.md`). No implementation, schema change, runtime change, re-emission, or backfill was performed or authorized. All inspection was read-only (`mode=ro`). Nothing committed — commit remains separately gated on explicit Principal authorization.
