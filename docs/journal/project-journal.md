@@ -11815,7 +11815,9 @@ Backend `./gradlew test` green (incl. 2 new provenance tests); full frontend sui
 
 ### Context
 
-Investigation prompted by the PL-EVID-AGE Age column: the operator observed that evidence freshness (Age) appeared weakly related to what looked interesting on Deployment. Rather than jump from that observation to scheduler design, we audited what the "colored line" and the Deployment surface actually mean today, and what the scheduler actually does. This is Exploration. Three distinct, repository-grounded discoveries emerged and are preserved here as durable why-state. They are established independently of — and chronologically prior to — the proposed A/B/C/D measurement (below), which has NOT yet been run.
+Investigation prompted by the PL-EVID-AGE Age column: the operator observed that evidence freshness (Age) appeared weakly related to what looked interesting on Deployment. Rather than jump from that observation to scheduler design, we audited what the "colored line" and the Deployment surface actually mean today, and what the scheduler actually does. This is Exploration. Three distinct, repository-grounded discoveries emerged and are preserved here as durable why-state.
+
+> **⚠️ Chronology correction (appended 2026-09-02):** The original wording below — that the A/B/C/D measurement "has NOT yet been run" and is "the proposed next / first discriminating measurement following D1–D3" — is **chronologically wrong** and is corrected here without rewriting the original text (append-only discipline). A/B/C/D dispatch was already measured in the 2026-08-27 Production experiment (A=443, B=1907, C=0, D=0), and the 2026-08-27 3AM ruling already interpreted that evidence and chose the opportunity-history fact plane as the next instrument (shipped 2026-08-28). The correct sequence is: **Aug 27 A/B/C/D experiment → ruling selects opportunity-history → Aug 28 instrument ships → Sep 1 Age + D1–D3 rediscover and sharpen the breadth-vs-decision-value questions → cold start recovers the prior experiment → inspection discovers the opportunity-history instrument defect (PL-DEPLOY-02-DEF01) → repair / corrected accumulation next.** Any A/B/C/D-class observation from here is a **new corrected/opening-session capture under the current runtime/evidence regime**, not a first experiment. Wherever the text below says "not yet run" or frames A/B/C/D as the next/first discriminating measurement, read it through this correction. See the 2026-09-02 correction journal entry.
 
 **Epistemic correction carried into this record:** we had been loosely calling the live colored line "Velvet Rope." That is wrong. The live colored line is **posture / execution assessment**. Velvet Rope proper is a separate, dormant, designed-not-live governance subsystem (`docs/cognitive-role-separation.md`; `docs/velvet-rope/*`). Do not conflate them.
 
@@ -11850,9 +11852,11 @@ Classification: result-surface completeness/truncation + control-asymmetry defec
 
 Also recorded: **Class A is only a put-relevance service-class proxy** (ready symbol with ≥1 put: bid>0, |δ|∈[0.15,0.50], OI>0 — `classifyFromChain`/`isQualifyingPut`). It knows nothing about Execution Score, spread quality, affordability, calls, buy-writes, portfolio state, or operator attention. It may overlap *one portion* of a decision frontier; it is **not** "the decision frontier." D2's 771 buy-write rows are the disproof of that equivalence.
 
-### Proposed next measurement (NOT yet run — stated as intent, not evidence)
+### Proposed measurement (see 2026-09-02 chronology correction above — NOT the first A/B/C/D experiment)
 
-Next discriminating experiment: **How is provider capacity distributed across existing scheduler service classes A/B/C/D, and what freshness does each receive?** Narrow, falsifiable sub-question: does the system currently spend freshness differently on put-relevant (A) vs breadth/discovery (B) evidence, or effectively identically (which would confirm the breadth-first ordering)? Measurable from shipped telemetry (`/api/status` per-class `eligible`/`due`/`oldestAgeSeconds`, `lastDispatch`, `floorDispatches`, `publications`; `/api/measurement/provider-events`), sampled over a session; one pre-check on whether a cumulative per-class dispatch counter exists (else sample). **A/B/C/D measure existing scheduler service classes only; they do NOT constitute an operator-value or decision-frontier model.** No acquisition-priority design; no runtime change.
+> **⚠️ Corrected framing (2026-09-02):** A/B/C/D was already measured on 2026-08-27; this is therefore not "the next / first discriminating experiment" but at most a **new corrected/opening-session capture under the current regime**. The capture *design* below remains technically valid; only its chronological framing is corrected.
+
+Capture design: **How is provider capacity distributed across existing scheduler service classes A/B/C/D, and what freshness does each receive?** Narrow, falsifiable sub-question: does the system currently spend freshness differently on put-relevant (A) vs breadth/discovery (B) evidence, or effectively identically (which would confirm the breadth-first ordering)? Measurable from shipped telemetry (`/api/status` per-class `eligible`/`due`/`oldestAgeSeconds`, `lastDispatch`, `floorDispatches`, `publications`; `/api/measurement/provider-events`), sampled over a session; one pre-check on whether a cumulative per-class dispatch counter exists (else sample). **A/B/C/D measure existing scheduler service classes only; they do NOT constitute an operator-value or decision-frontier model.** No acquisition-priority design; no runtime change.
 
 ### Relationship to existing durable state
 
@@ -11863,6 +11867,8 @@ Next discriminating experiment: **How is provider capacity distributed across ex
 ### Chronology preserved (evidence provenance)
 
 Age observation → semantic (D1) / surface (D2) / scheduler (D3) discoveries → this durable reconciliation → (future) discriminating A/B/C/D measurement → interpretation. Recording D1–D3 now, before the measurement, keeps the discoveries from appearing retrospectively derived from the experiment.
+
+> **⚠️ Corrected (2026-09-02):** the line above places an A/B/C/D measurement in the *future*, which is wrong — A/B/C/D was already measured 2026-08-27 and interpreted by the 2026-08-27 ruling. The correct project chronology is: Aug 27 A/B/C/D experiment → ruling selects opportunity-history → Aug 28 instrument ships → Sep 1 Age + D1–D3 sharpen the breadth-vs-decision questions → cold start recovers the prior experiment → inspection discovers the opportunity-history instrument defect (PL-DEPLOY-02-DEF01) → repair / corrected accumulation next. Also tightened per the same review: D2's "structurally invisible to the put-only Class A/B classifier" overstates — a buy-write symbol's underlying/chain evidence is not wholly invisible to A/B; what A/B does not represent is buy-write relevance, per-expiration candidate cardinality, buy-write economics/posture, affordability, and the resulting operator-facing decision population.
 
 
 ---
@@ -11914,3 +11920,29 @@ Browser-only emission (emitter=browser on all epochs) is reconciled **separately
 ### Disposition
 
 Documentation only: this journal entry + `PL-DEPLOY-02-DEF01` intake + its Reconciliation Completion Record (`docs/parking-lot-3.md`). No implementation, schema change, runtime change, re-emission, or backfill was performed or authorized. All inspection was read-only (`mode=ro`). Nothing committed — commit remains separately gated on explicit Principal authorization.
+
+
+---
+
+## 2026-09-02 — Chronology correction to the D1–D3 audit record (Codex review)
+
+### Context
+
+Codex independently reviewed current repository authority and caught a **historical inconsistency**, not a substantive error in the D1–D3 discoveries or the opportunity-history defect. Commit `3ae5413` (the D1–D3 audit record) narrated the A/B/C/D measurement as unrun and as the next/first discriminating experiment following D1–D3. That is a chronology error: A/B/C/D dispatch was **already measured** in the 2026-08-27 Production experiment (A=443, B=1907, C=0, D=0), and the 2026-08-27 3AM ruling already **interpreted** that evidence and **selected opportunity-history** as the next instrument. Left as-is, `3ae5413`'s text made current authority internally contradictory — exactly the kind of small contradiction that damages cold-start recoverability, which Wheelwright now weights heavily.
+
+### What happened
+
+Corrected the contradiction with a **normal follow-up commit** — no rewrite of `3ae5413`, no `--amend`, no force-push (public history is preserved; append-only journal discipline honored).
+
+- **`docs/parking-lot-3.md`** (Category C canonical state — edited in place): the audit-section intro, the `PL-SCHED-DRIFT` "proposed next measurement" clause, and the audit continuation-history row were corrected to state that A/B/C/D was already measured 2026-08-27 and superseded by the opportunity-history instrument, and that any A/B/C/D-class observation now would be a **new corrected/opening-session capture under the current runtime/evidence regime**, not a first/next experiment. Each edit is marked "(corrected/tightened Sep 2, 2026)".
+- **`docs/journal/project-journal.md`** (append-only — corrected via inline ⚠️ notes at the three contradictory points plus this entry): the D1–D3 Context, the "Proposed next measurement" heading/body, and the "Chronology preserved" section now carry correction notes; original text left intact beneath them.
+- **D2 wording tightened** (both files): "structurally invisible to the put-only Class A/B classifier" overstated. A buy-write symbol's underlying/chain evidence is **not wholly invisible** to A/B classification. What A/B does **not** represent is **buy-write relevance, per-expiration candidate cardinality, buy-write economics/posture, affordability, and the resulting operator-facing decision population.** The counterexample to "Class A = decision frontier" stands; the invisibility phrasing was too strong.
+- **Housekeeping while in the files:** removed two `---`/blank/`---` duplicate Markdown separators in `parking-lot-3.md` (PL-EVID-AGE and audit sections) and added its missing final newline.
+
+### Corrected canonical chronology
+
+> Aug 27 A/B/C/D experiment → 3AM ruling selects opportunity-history → Aug 28 opportunity-history instrument ships → Sep 1 Age + D1–D3 rediscover and sharpen the breadth-vs-decision-value questions → cold start recovers the prior experiment → inspection discovers the opportunity-history instrument defect (PL-DEPLOY-02-DEF01) → repair / corrected accumulation next.
+
+### Scope discipline
+
+This correction does **not** overturn D1, D2, D3, the 2026-08-27 ruling, or PL-DEPLOY-02-DEF01. It fixes how the sequence was narrated. The PL-DEPLOY-02-DEF01 substance is unchanged. This entry was written alongside the DEF01 remediation work; the remediation commit is separate from and follows this documentation correction.
