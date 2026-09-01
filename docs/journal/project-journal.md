@@ -11776,3 +11776,34 @@ Epistemic scope (kept precise per ADR-015 discipline): automated tests establish
 - Interactive in-browser smoke (visual Age column, click-sort, CSV download for puts/calls/contingent) not scriptable here; corroborated by 1484 passing tests + live snapshot contract + the observed Buy Writes export.
 - The `INEFFECTIVE_DYNAMIC_IMPORT` build warning on `durable-cache.ts` is pre-existing and unrelated; left as separate hygiene.
 - Quote-acquisition provenance / "oldest economically material evidence age" remain deferred under PL-EVID-AGE.
+
+
+---
+
+## 2026-09-01 — PL-EVID-AGE/ADR-015 post-release correction (review findings)
+
+Independent review after the release surfaced corrections. Age remains live; no rollback. This entry corrects the prior two 2026-09-01 entries where needed (append-only; earlier text left intact).
+
+### Corrections to earlier claims
+
+- **Retract "behavior-preserving" for one Commit B change.** The `activity-projection.ts` `deployableCash` change (guarding `deployableCash += proceeds` behind a null check) is an **intentional semantic correction**, not behavior-preserving cleanup. Previously, when the cash base was `null` (unknown — no Balances CSV), `null + proceeds` coerced unknown cash into a concrete number; the corrected code preserves `null` (unknown + known proceeds is still unknown). Follow-up tests added (`tests/portfolio/activity-projection-cash-semantics.test.ts`): null stays null; numeric increases by proceeds; inventory/share removal unchanged. No contradiction with existing domain semantics was found. The rest of Commit B (unused-symbol removals, missing import, dead-case removal, `?? 0` precedence guard, retired-remnant deletions) remains behavior-preserving.
+
+- **Precise smoke scope (do not overstate).** Backend/API smoke passed (live snapshot published subject-scoped provenance; sampled ready symbol had real per-chain `acquiredAt`; absent symbol published `null`, not `unavailable`). Automated tests establish Age rendering/sorting/CSV/ticker and all four CSV exports. **Interactive in-browser rendering/sorting/download smoke was NOT performed.** The exported **Buy Writes** CSV was independently observed with populated Age values — that artifact confirms Buy Writes specifically; tests (not the artifact) establish the other three CSVs.
+
+- **Authoritative experiment regime boundary.** Observer-recorded process start (not approximate recollection): **backend PID 42874 started 2026-09-01 13:24:23 MDT** (frontend PID 42899 at 13:24:26 MDT). Use 13:24:23 MDT as the authoritative pre/post-deployment boundary. Pre-boundary runtime = old loaded backend bytecode (`9c352c3`-era, no provenance publication); post-boundary runtime = `9576c3e`. Both restarted via `dev.sh`; brief acquisition warmup/interruption at the boundary is expected. The Sept 1 regular-session experiment must be analyzed as separate pre/post-deployment regimes.
+
+- **Commit composition.** Commit A (`88e8720`) is **mixed**: predominantly PL-EVID-AGE, but it carries some same-file pre-existing build-repair edits in five shared files (recommend.ts import/POSTURE_ORDER/dead-case, WriteDesk/recommend* casts). Commit B (`9576c3e`) contains **only** build-repair work, no Age semantics.
+
+- **Corrupted commit messages.** The pushed commit-message bodies for `88e8720` and `9576c3e` are garbled (repeated/interleaved fragments) — a message-authoring artifact; the committed trees are correct (verified by tests + build). Per governance, public history was **not** rewritten/force-pushed; this journal entry establishes the authoritative meaning of both commits.
+
+### New correction-pass finding: publisher timestamp validation
+
+The backend `chainAcquisitionProvenanceJson` previously promoted **any** non-empty string to `chain-acquired` without validating it as an instant. Real data is unaffected (backend always writes `Instant.now().toString()`), and the frontend consumer already degraded malformed values to `unavailable`, but the **publisher over-claimed**. Narrowest ADR-015 no-silent-promotion correction applied: the publisher now validates `Instant.parse` and emits `{kind:"unavailable"}` for null/empty/malformed values. Covered by two new `MultiExpirationTest` cases (non-parseable retrieved_at → unavailable; valid → chain-acquired).
+
+### Deferred (bounded follow-up under PL-EVID-AGE): required provenance on chain-derived types
+
+ADR-015 wants the type system to make provenance omission difficult for chain-derived objects. Currently `evidenceProvenance` is **optional** on chain-derived cache records, Deployment candidates, and conditioned-call evidence/opportunities; a missing value degrades safely to `unavailable` (so this is hardening, not a defect). Making it **required** on chain-derived types (non-chain cache records exempt) touches ~7 interfaces and ripples into ~100 test/fixture references — **material, not a small tightening**. Therefore deferred as a bounded PL-EVID-AGE follow-up, deliberately NOT included in this correction patch. Quote-acquisition provenance / "oldest economically material evidence age" also remain deferred under PL-EVID-AGE.
+
+### Verification
+
+Backend `./gradlew test` green (incl. 2 new provenance tests); full frontend suite 1487 passing (+3 activity-projection cash-semantics tests); `npm run build` exit 0.

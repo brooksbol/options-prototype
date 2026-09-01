@@ -1,5 +1,6 @@
 package com.wheelwright.evidence.db;
 
+import com.wheelwright.evidence.SnapshotBuilder;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
@@ -201,6 +202,54 @@ class MultiExpirationTest {
                 List<Map<String, String>> chains = (List<Map<String, String>>) ev.get("chains");
                 assertNotNull(chains);
                 assertEquals(1, chains.size());
+            }
+        }
+    }
+
+    // --- ADR-015: chain-acquisition provenance is `unavailable` when an existing
+    //     chain subject lacks an authoritative (parseable) acquisition time ---
+
+    @Nested
+    class ChainAcquisitionProvenanceUnavailable {
+
+        @Test
+        void existingChainWithNonParseableRetrievedAtPublishesUnavailable() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("SPY"));
+                store.setExpirations("SPY", MONTHLY_EXPIRATIONS, NOW);
+                // An existing chain subject, but its stored acquisition time is a
+                // malformed / non-ISO value. Per ADR-015 no-silent-promotion, the
+                // publisher must NOT emit chain-acquired for it.
+                store.setChain("SPY", chainFor("SPY", "2026-09-18"), "not-a-timestamp");
+
+                String json = SnapshotBuilder.buildSnapshotJson(store);
+
+                // The SPY symbol object exists and has a chain, so the subject is
+                // present — but provenance is unavailable, not fabricated.
+                int spyIdx = json.indexOf("\"symbol\":\"SPY\"");
+                assertTrue(spyIdx >= 0, "SPY symbol present in snapshot");
+                String spySlice = json.substring(spyIdx, Math.min(json.length(), spyIdx + 4000));
+                assertTrue(spySlice.contains("\"primaryChainAcquisitionProvenance\":{\"kind\":\"unavailable\"}"),
+                    "primary chain provenance should be unavailable for a non-parseable retrieved_at");
+                assertTrue(spySlice.contains("\"chainAcquisitionProvenance\":{\"kind\":\"unavailable\"}"),
+                    "per-chain provenance should be unavailable for a non-parseable retrieved_at");
+                assertFalse(spySlice.contains("\"kind\":\"chain-acquired\""),
+                    "must not fabricate chain-acquired from a malformed timestamp");
+            }
+        }
+
+        @Test
+        void existingChainWithValidRetrievedAtPublishesChainAcquired() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.initUniverse(List.of("SPY"));
+                store.setExpirations("SPY", MONTHLY_EXPIRATIONS, NOW);
+                store.setChain("SPY", chainFor("SPY", "2026-09-18"), NOW);
+
+                String json = SnapshotBuilder.buildSnapshotJson(store);
+                int spyIdx = json.indexOf("\"symbol\":\"SPY\"");
+                String spySlice = json.substring(spyIdx, Math.min(json.length(), spyIdx + 4000));
+                assertTrue(spySlice.contains("\"primaryChainAcquisitionProvenance\":{\"kind\":\"chain-acquired\",\"acquiredAt\":\"" + NOW + "\"}"),
+                    "valid retrieved_at should publish chain-acquired with the authoritative acquiredAt");
             }
         }
     }

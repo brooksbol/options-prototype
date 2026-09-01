@@ -178,10 +178,25 @@ public class SnapshotBuilder {
      * here — doing so would violate the ADR-015 no-silent-promotion rule.
      */
     private static String chainAcquisitionProvenanceJson(String chainRetrievedAt) {
-        if (chainRetrievedAt != null && !chainRetrievedAt.isEmpty()) {
+        // ADR-015 no-silent-promotion: only a parseable instant may be published
+        // as chain-acquired. A null/empty/malformed value yields unavailable
+        // rather than over-claiming authoritative acquisition provenance.
+        // (In practice retrieved_at is always Instant.now().toString(); this is a
+        // defensive truthfulness guard, mirroring the frontend consumer.)
+        if (isParseableInstant(chainRetrievedAt)) {
             return "{\"kind\":\"chain-acquired\",\"acquiredAt\":" + jsonString(chainRetrievedAt) + "}";
         }
         return "{\"kind\":\"unavailable\"}";
+    }
+
+    private static boolean isParseableInstant(String value) {
+        if (value == null || value.isEmpty()) return false;
+        try {
+            java.time.Instant.parse(value);
+            return true;
+        } catch (java.time.format.DateTimeParseException e) {
+            return false;
+        }
     }
 
     /**
