@@ -19,13 +19,12 @@
 import type { Expiration } from "../domain/types";
 import { selectEligibleExpirations } from "../velvet-rope/evaluate";
 import { inferProductStructure, hasStructuralComplexity } from "../velvet-rope/product-structure";
-import type { ProductStructure } from "../velvet-rope/product-structure";
 import { lookupCatalog, governanceFromCatalog } from "../instrument-catalog/catalog";
 import { midPrice, annualizedYield } from "../domain/calculations";
 import { assessExecution, isHardNo, type ContractEvidence, type ActionPosture } from "./execution-assessment";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
 import { type ExecutionPolicy, DEFAULT_EXECUTION_POLICY } from "./execution-policy";
-import type { PutCandidate } from "./scan-orchestrator";
+import type { PutCandidate, GovernanceAnnotation } from "./scan-orchestrator";
 import type { ObservationSink } from "../opportunity-history/observation-sink";
 import type { WinnerEconomics } from "../opportunity-history/opportunity-fact";
 
@@ -426,9 +425,10 @@ export async function recommendPuts(
             cashRemaining: effectiveCash - cashRequired,
             yieldAnnualized: annualizedYield(mid, contract.strike, exp.dte),
             assessment: { score: 0, posture: "UNAVAILABLE", components: [], hardNoReason: hardNoReason, policyVersion: policy.executionAssessment.version },
-            posture: "WIDE_SPREAD" as any,
+            posture: "WIDE_SPREAD",
             affordable,
             governance: { status: "authorized", reason: "" },
+            evidenceProvenance: chainRecord.evidenceProvenance,
           };
           if (!bestWideSpread || spreadPct < bestWideSpread.spreadPercent) {
             bestWideSpread = wideSpreadCandidate;
@@ -460,6 +460,9 @@ export async function recommendPuts(
           posture: assessment.posture,
           affordable,
           governance: { status: "authorized", reason: "" }, // resolved after chain loop
+          // PL-EVID-AGE: copy operator-facing chain-acquisition provenance from the
+          // cache record. Never reconstruct from cache TTL timestamps.
+          evidenceProvenance: chainRecord.evidenceProvenance,
         };
 
         switch (assessment.posture) {
@@ -546,8 +549,7 @@ export async function recommendPuts(
           switch (symbolHardNoReason) {
             case "zeroBid": exclHardNoZeroBid++; break;
             case "zeroOI": exclHardNoZeroOI++; break;
-            case "wideSpread": exclHardNoWideSpread++; break;
-            default: exclHardNoWideSpread++; break; // fallback
+            default: exclHardNoWideSpread++; break; // wide-spread handled as a separate posture
           }
         } else {
           exclNoContracts++;
@@ -713,8 +715,9 @@ const POSTURE_ORDER: Record<ActionPosture, number> = {
   ACTIONABLE: 0,
   EDGE: 1,
   WAIT: 2,
-  UNAVAILABLE: 3,
-  DATA_INCOMPLETE: 4,
+  WIDE_SPREAD: 3,
+  UNAVAILABLE: 4,
+  DATA_INCOMPLETE: 5,
 };
 
 function rankByPolicy(candidates: PutCandidate[], ranking: RankingPolicy): PutCandidate[] {

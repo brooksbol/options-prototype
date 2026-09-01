@@ -94,6 +94,19 @@ public class SnapshotBuilder {
             sb.append("\"chain\":null,");
         }
 
+        // ADR-015: subject-scoped provenance for the LEGACY PRIMARY chain, derived
+        // only from the primary chain row's authoritative retrieved_at (never the
+        // symbol-level fallback). `unavailable` when a primary chain exists but has
+        // no authoritative acquisition time; null-provenance when there is no
+        // primary chain subject at all.
+        String primaryChainRetrievedAt = (String) ev.get("primaryChainRetrievedAt");
+        if (chainData != null && !chainData.isEmpty()) {
+            sb.append("\"primaryChainAcquisitionProvenance\":")
+              .append(chainAcquisitionProvenanceJson(primaryChainRetrievedAt)).append(",");
+        } else {
+            sb.append("\"primaryChainAcquisitionProvenance\":null,");
+        }
+
         // chains: all eligible-expiration chains for multi-DTE surface
         @SuppressWarnings("unchecked")
         List<Map<String, String>> allChains = (List<Map<String, String>>) ev.get("chains");
@@ -109,6 +122,9 @@ public class SnapshotBuilder {
                 firstChain = false;
                 sb.append("{\"expiration\":").append(jsonString(cExp));
                 sb.append(",\"retrievedAt\":").append(jsonString(cRetrievedAt));
+                // ADR-015: subject-scoped provenance for THIS chain element. Derived
+                // only from the chain row's own authoritative retrieved_at.
+                sb.append(",\"chainAcquisitionProvenance\":").append(chainAcquisitionProvenanceJson(cRetrievedAt));
                 sb.append(",\"data\":").append(cData);
                 sb.append("}");
             }
@@ -146,6 +162,26 @@ public class SnapshotBuilder {
         }
 
         sb.append("}");
+    }
+
+    /**
+     * Produce subject-scoped option-chain acquisition provenance JSON (ADR-015).
+     *
+     * The subject is a specific option chain. Returns
+     * {@code {"kind":"chain-acquired","acquiredAt":<iso>}} when the chain row has
+     * an authoritative acquisition timestamp, else {@code {"kind":"unavailable"}}.
+     * This is only ever called for an existing chain subject; callers emit a
+     * null provenance (or omit it) when there is no chain at all.
+     *
+     * Authority note: the passed timestamp must be a chain row's own retrieved_at.
+     * Symbol-level fallback, cache, or synthesized timestamps must never be passed
+     * here — doing so would violate the ADR-015 no-silent-promotion rule.
+     */
+    private static String chainAcquisitionProvenanceJson(String chainRetrievedAt) {
+        if (chainRetrievedAt != null && !chainRetrievedAt.isEmpty()) {
+            return "{\"kind\":\"chain-acquired\",\"acquiredAt\":" + jsonString(chainRetrievedAt) + "}";
+        }
+        return "{\"kind\":\"unavailable\"}";
     }
 
     /**

@@ -17,9 +17,10 @@
 import { buildCacheKey, type DurableMarketCache } from "../cache/durable-cache";
 import { selectEligibleExpirations } from "../velvet-rope/evaluate";
 import { midPrice, annualizedYield } from "../domain/calculations";
-import { isHardNo, type ContractEvidence } from "./execution-assessment";
+import { type ContractEvidence } from "./execution-assessment";
 import type { ExecutionPolicy } from "./execution-policy";
 import type { ContractSelectionPolicy } from "./recommend";
+import type { EvidenceProvenance } from "./evidence-provenance";
 
 // ═══════════════════════════════════════════════════════════════════════
 // TYPES — Input
@@ -64,6 +65,13 @@ export interface ConditionedCallChainEvidence {
   chainAvailable: boolean;
   underlyingPrice: number | null;
   calls: CachedCallContract[];
+  /**
+   * Operator-facing evidence provenance (PL-EVID-AGE) copied from the source
+   * chain cache record. Threaded through to ConditionedCallOpportunity and
+   * ContingentCallRow so contingent rows can display truthful chain-acquisition
+   * age. Distinct from cache TTL timestamps; never reconstructed downstream.
+   */
+  evidenceProvenance?: EvidenceProvenance;
 }
 
 /**
@@ -109,6 +117,11 @@ export interface ConditionedCallOpportunity {
   satisfiesPolicy: boolean;
   /** All applicable failure reasons (empty if satisfies policy) */
   policyFailureReasons: string[];
+  /**
+   * Operator-facing evidence provenance (PL-EVID-AGE) carried from the chain
+   * evidence this opportunity was derived from. Observational only.
+   */
+  evidenceProvenance?: EvidenceProvenance;
 }
 
 export interface ConditionedExpirationAssessment {
@@ -224,6 +237,7 @@ export async function loadConditionedCallEvidence(
         chainAvailable: false,
         underlyingPrice: null,
         calls: [],
+        // No chain record → no operator-facing provenance (unavailable).
       });
     } else {
       chains.push({
@@ -232,6 +246,8 @@ export async function loadConditionedCallEvidence(
         chainAvailable: true,
         underlyingPrice: chainRecord.payload.underlying?.price ?? null,
         calls: chainRecord.payload.calls ?? [],
+        // PL-EVID-AGE: copy chain-acquisition provenance from the cache record.
+        evidenceProvenance: chainRecord.evidenceProvenance,
       });
     }
   }
@@ -247,8 +263,8 @@ export async function loadConditionedCallEvidence(
 }
 
 function determineFreshness(
-  cache: DurableMarketCache,
-  record: unknown,
+  _cache: DurableMarketCache,
+  _record: unknown,
   sessionInfo?: { acceptingCanonicalEvidence: boolean; priorSessionOperationallyValid: boolean }
 ): "current-session" | "sealed-prior-session" | "stale" | "unavailable" {
   if (!sessionInfo) return "sealed-prior-session"; // Conservative default
@@ -476,6 +492,8 @@ function evaluateContracts(
       aboveBasis,
       satisfiesPolicy: failures.length === 0,
       policyFailureReasons: failures,
+      // PL-EVID-AGE: carry chain-acquisition provenance from the chain evidence.
+      evidenceProvenance: chain.evidenceProvenance,
     });
   }
 

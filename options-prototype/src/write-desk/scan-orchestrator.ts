@@ -11,6 +11,7 @@
 import type { ExecutionAssessment, ActionPosture } from "./execution-assessment";
 import { DEFAULT_EXECUTION_POLICY, type ExecutionPolicy } from "./execution-policy";
 import type { PositionEconomics } from "./types";
+import type { EvidenceProvenance } from "./evidence-provenance";
 
 // --- Scan Configuration ---
 
@@ -74,6 +75,13 @@ export interface PutCandidate {
   affordable: boolean;
   /** Governance authorization status — independent of recommendation posture */
   governance: GovernanceAnnotation;
+  /**
+   * Operator-facing evidence provenance (PL-EVID-AGE): chain-acquisition age of
+   * the option-chain record this row was calculated from. Observational only —
+   * never an input to rank, posture, or governance. Copied from the cache record,
+   * never reconstructed from cache TTL timestamps.
+   */
+  evidenceProvenance?: EvidenceProvenance;
 }
 
 // --- Call Candidate ---
@@ -102,6 +110,11 @@ export interface CallCandidate {
   underlyingPrice: number;
   /** Position economics from brokerage (null when unavailable, e.g. demo mode) */
   economics: PositionEconomics | null;
+  /**
+   * Operator-facing evidence provenance (PL-EVID-AGE): chain-acquisition age of
+   * the option-chain record this row was calculated from. Observational only.
+   */
+  evidenceProvenance?: EvidenceProvenance;
 }
 
 // --- Call Inventory Result ---

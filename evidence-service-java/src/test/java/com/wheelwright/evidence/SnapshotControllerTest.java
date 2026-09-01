@@ -129,6 +129,25 @@ class SnapshotControllerTest {
             .andExpect(jsonPath("$.symbols[?(@.symbol == 'XLE')].chain.puts[0].openInterest", contains(520)));
     }
 
+    // --- ADR-015: subject-scoped chain-acquisition provenance ---
+
+    @Test
+    void readySymbolPublishesChainAcquisitionProvenance() throws Exception {
+        mockMvc.perform(get("/api/evidence/snapshot"))
+            .andExpect(jsonPath("$.symbols[?(@.symbol == 'XLE')].primaryChainAcquisitionProvenance.kind", contains("chain-acquired")))
+            .andExpect(jsonPath("$.symbols[?(@.symbol == 'XLE')].primaryChainAcquisitionProvenance.acquiredAt", contains(NOW)))
+            .andExpect(jsonPath("$.symbols[?(@.symbol == 'XLE')].chains[0].chainAcquisitionProvenance.kind", contains("chain-acquired")))
+            .andExpect(jsonPath("$.symbols[?(@.symbol == 'XLE')].chains[0].chainAcquisitionProvenance.acquiredAt", contains(NOW)));
+    }
+
+    @Test
+    void symbolsWithoutPrimaryChainHaveNullPrimaryChainProvenance() throws Exception {
+        mockMvc.perform(get("/api/evidence/snapshot"))
+            .andExpect(jsonPath("$.symbols[?(@.symbol == 'PARTIAL')].primaryChainAcquisitionProvenance", contains(nullValue())))
+            .andExpect(jsonPath("$.symbols[?(@.symbol == 'PENDING')].primaryChainAcquisitionProvenance", contains(nullValue())))
+            .andExpect(jsonPath("$.symbols[?(@.symbol == 'NOOPT')].primaryChainAcquisitionProvenance", contains(nullValue())));
+    }
+
     @Test
     void absentSymbolHasNullChain() throws Exception {
         mockMvc.perform(get("/api/evidence/snapshot"))

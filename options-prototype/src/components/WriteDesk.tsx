@@ -13,7 +13,7 @@ import { useDrawerSelection } from "../hooks/useDrawerSelection";
 import { useSessionClassification } from "../hooks/useSessionClassification";
 import { usePortfolio } from "../portfolio/use-portfolio";
 import { type PutCandidate, type CallCandidate } from "../write-desk/scan-orchestrator";
-import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type RecommendationPolicy } from "../write-desk/recommend";
+import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY } from "../write-desk/recommend";
 import { recommendCalls } from "../write-desk/recommend-calls";
 import { recommendBuyWrites, type BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import { OpportunityAccumulator, type LastSeenMap } from "../opportunity-history/accumulator";
@@ -34,11 +34,13 @@ import { ContingentCallBrief } from "./ContingentCallBrief";
 import { FunnelInfographic } from "./FunnelInfographic";
 import { CrossEntryStrip } from "./CrossEntryStrip";
 import type { TablePositionContext } from "../write-desk/brief-builder";
-import { loadWorkingIntents, addPendingIntent, updatePendingIntent, createPendingIntent, type PendingIntent } from "../execution/pending-intent";
+import { loadWorkingIntents, addPendingIntent, createPendingIntent, type PendingIntent } from "../execution/pending-intent";
 import { buildWriteIntent } from "../execution/write-intent";
 import type { PortfolioSnapshot } from "../write-desk/types";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import { useMultiColumnSort } from "../write-desk/use-multi-column-sort";
+import { AgeCell } from "../write-desk/AgeCell";
+import { formatAcquisitionAge, provenanceFromPublished, type EvidenceProvenance } from "../write-desk/evidence-provenance";
 import { downloadTableCsv } from "../write-desk/table-csv-export";
 import { useSectionOrder } from "../hooks/useSectionOrder";
 import "../write-desk.css";
@@ -53,9 +55,9 @@ export function WriteDesk() {
   const [putWaitCandidates, setPutWaitCandidates] = useState<PutCandidate[]>([]);
   const [putWideSpreadCandidates, setPutWideSpreadCandidates] = useState<PutCandidate[]>([]);
   const [putCoverage, setPutCoverage] = useState<{ status: string; universeSize: number; covered: number; fresh: number; staleUsable: number; missing: number; confirmedAbsence: number; refreshedThisPass: number; deferredThisPass: number } | null>(null);
-  const [putIsProvisional, setPutIsProvisional] = useState(true);
+  const [, setPutIsProvisional] = useState(true);
   const [putFunnel, setPutFunnel] = useState<RecommendationFunnel | null>(null);
-  const [putHydration, setPutHydration] = useState<{ admissible: number; inadmissible: number; total: number } | null>(null);
+  const [, setPutHydration] = useState<{ admissible: number; inadmissible: number; total: number } | null>(null);
   // Call candidates — driven by inventory + backend evidence
   const [callCandidates, setCallCandidates] = useState<CallCandidate[]>([]);
   const [callWaitCandidates, setCallWaitCandidates] = useState<CallCandidate[]>([]);
@@ -89,7 +91,6 @@ export function WriteDesk() {
     selectedCallCandidate,
     selectedBuyWriteCandidate,
     selectDrawerCandidate,
-    clearAll: clearDrawerSelection,
     clearCandidateIf,
     clearCallCandidateIf,
     clearBuyWriteCandidateIf,
@@ -298,8 +299,23 @@ export function WriteDesk() {
       if (sym.status === "ready" && sym.chain) {
         const { buildCacheKey } = await import("../cache/durable-cache");
 
-        // Cache all chains from the multi-expiration surface
-        const chains = sym.chains ?? [{ expiration: sym.chain.expiration, data: sym.chain, retrievedAt: sym.retrievedAt }];
+        // ── Deployment Age provenance (PL-EVID-AGE / ADR-015) ────────────────
+        // Operator-facing provenance is ESTABLISHED UPSTREAM by the publisher.
+        // The frontend only CONSUMES it — it does not decide authority from
+        // snapshot shape. Each chains[] element carries chainAcquisitionProvenance;
+        // the legacy primary chain carries primaryChainAcquisitionProvenance. An
+        // older snapshot lacking these fields is treated as `unavailable`; we
+        // never reconstruct provenance from symbol/cache/synthesized timestamps.
+        const legacyPrimaryProvenance = provenanceFromPublished(sym.primaryChainAcquisitionProvenance);
+
+        // Cache all chains from the multi-expiration surface. On the legacy
+        // single-chain path, carry the published primary-chain provenance.
+        const chains = sym.chains ?? [{
+          expiration: sym.chain.expiration,
+          data: sym.chain,
+          retrievedAt: sym.retrievedAt,
+          chainAcquisitionProvenance: sym.primaryChainAcquisitionProvenance,
+        }];
         const currentExpirations = new Set<string>();
 
         for (const chainEntry of chains) {
@@ -308,9 +324,16 @@ export function WriteDesk() {
           if (!chainData || !chainExp) continue;
           currentExpirations.add(chainExp);
 
+          // Consume the publisher-established provenance for THIS chain. Missing
+          // field → unavailable (never a fallback to a weaker timestamp).
+          const provenance = Array.isArray(sym.chains)
+            ? provenanceFromPublished(chainEntry.chainAcquisitionProvenance)
+            : legacyPrimaryProvenance;
+
+          // TTL mechanics may still use the symbol fallback — this is NOT Age.
           const chainRetrievedMs = chainEntry.retrievedAt ? new Date(chainEntry.retrievedAt).getTime() : backendRetrievedAtMs;
           const chainKey = buildCacheKey(providerKey, "sandbox", "chain", sym.symbol, chainExp);
-          const chainRecord = cache.createRecord(chainKey, "chain", providerKey, "sandbox", sym.symbol, chainExp, chainData, chainRetrievedMs);
+          const chainRecord = cache.createRecord(chainKey, "chain", providerKey, "sandbox", sym.symbol, chainExp, chainData, chainRetrievedMs, provenance);
           await cache.put(chainRecord);
         }
 
@@ -468,7 +491,7 @@ export function WriteDesk() {
   const etagRef = useRef<string | null>(null);
   const pollingRef = useRef(false);
   const [evidenceMeta, setEvidenceMeta] = useState<{ generation: number; generatedAt: string; coverage: any } | null>(null);
-  const [lastPollResult, setLastPollResult] = useState<"200" | "304" | "error" | null>(null);
+  const [, setLastPollResult] = useState<"200" | "304" | "error" | null>(null);
 
   const pollSnapshot = useCallback(async () => {
     if (pollingRef.current) return;
@@ -916,6 +939,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
     cashRequired: "Cash Required",
     cashRemaining: "Cash Remaining",
     assessment: "Exec",
+    age: "Age",
   };
 
   return (
@@ -928,8 +952,8 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
           {columns.length < 3 && <span className="wd-sort-hint"> (shift+click header for secondary sort)</span>}
         </div>
       )}
-      <button className="wd-download-btn wd-download-above" onClick={() => downloadTableCsv(
-        sorted as Record<string, unknown>[],
+      <button className="wd-download-btn wd-download-above" onClick={() => { const csvNow = Date.now(); downloadTableCsv(
+        sorted as unknown as Record<string, unknown>[],
         [
           { key: "rank", label: "#" }, { key: "symbol", label: "Symbol" }, { key: "expiration", label: "Exp" },
           { key: "dte", label: "DTE" }, { key: "strike", label: "Strike" }, { key: "delta", label: "Delta" },
@@ -937,9 +961,10 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
           { key: "openInterest", label: "OI" }, { key: "yieldAnnualized", label: "Yield%" },
           { key: "cashRequired", label: "Cash Req" }, { key: "cashRemaining", label: "Remaining" },
           { key: "assessment", label: "Exec" }, { key: "posture", label: "Posture" },
+          { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
         ],
         `wheelwright-puts-${new Date().toISOString().slice(0, 10)}.csv`
-      )} title="Download as CSV">⬇ CSV</button>
+      ); }} title="Download as CSV">⬇ CSV</button>
       <table className="wd-candidate-table">
       <thead>
         <tr>
@@ -958,6 +983,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
           <th className="wd-sortable" onClick={(e) => handleSort("cashRemaining", e)}>Remaining{indicator("cashRemaining")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("assessment", e)}>Exec{indicator("assessment")}</th>
           <th>Posture</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("age", e)} title="Chain-acquisition age of the evidence this row was calculated from">Age{indicator("age")}</th>
         </tr>
       </thead>
       <tbody>
@@ -984,6 +1010,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
             <td className={c.cashRemaining < 0 ? "wd-negative-value" : ""}>${c.cashRemaining.toLocaleString()}</td>
             <td>{c.assessment.score}</td>
             <td><span className={`wd-posture-badge wd-posture-${c.posture.toLowerCase()}`}>{c.posture}</span></td>
+            <td><AgeCell provenance={c.evidenceProvenance} /></td>
           </tr>
         ))}
       </tbody>
@@ -1005,8 +1032,8 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
 
   return (
     <>
-    <button className="wd-download-btn wd-download-above" onClick={() => downloadTableCsv(
-      sorted as Record<string, unknown>[],
+    <button className="wd-download-btn wd-download-above" onClick={() => { const csvNow = Date.now(); downloadTableCsv(
+      sorted as unknown as Record<string, unknown>[],
       [
         { key: "rank", label: "#" }, { key: "symbol", label: "Symbol" }, { key: "expiration", label: "Exp" },
         { key: "dte", label: "DTE" }, { key: "strike", label: "Strike" }, { key: "delta", label: "Delta" },
@@ -1014,9 +1041,10 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
         { key: "openInterest", label: "OI" }, { key: "yieldAnnualized", label: "Yield%" },
         { key: "freeShares", label: "Shares" }, { key: "maxContracts", label: "Cts" },
         { key: "assessment", label: "Exec" }, { key: "posture", label: "Posture" },
+        { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
       ],
       `wheelwright-calls-${new Date().toISOString().slice(0, 10)}.csv`
-    )} title="Download as CSV">⬇ CSV</button>
+    ); }} title="Download as CSV">⬇ CSV</button>
     <table className="wd-candidate-table">
       <thead>
         <tr>
@@ -1035,6 +1063,7 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
           <th>Cts</th>
           <th className="wd-sortable" onClick={(e) => handleSort("assessment", e)}>Exec{indicator("assessment")}</th>
           <th>Posture</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("age", e)} title="Chain-acquisition age of the evidence this row was calculated from">Age{indicator("age")}</th>
         </tr>
       </thead>
       <tbody>
@@ -1061,6 +1090,7 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
             <td>{c.maxContracts}</td>
             <td>{c.assessment.score}</td>
             <td><span className={`wd-posture-badge wd-posture-${c.posture.toLowerCase()}`}>{c.posture}</span></td>
+            <td><AgeCell provenance={c.evidenceProvenance} /></td>
           </tr>
         ))}
       </tbody>
@@ -1215,9 +1245,7 @@ function MiniHistogram({ label, values, buckets, color, unit, formatStat }: {
   const counts = buckets.map(b => values.filter(v => v >= b.min && v < b.max).length);
   const maxCount = Math.max(...counts, 1);
   const total = values.length;
-  const sorted = [...values].sort((a, b) => a - b);
   const mean = values.reduce((a, b) => a + b, 0) / total;
-  const median = sorted[Math.floor(total / 2)];
   const fmt = formatStat ?? ((v: number) => `${v.toFixed(1)}${unit ?? ""}`);
 
   return (
@@ -1327,7 +1355,7 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
   const displayed = filtered.slice(0, showCount);
 
   const ws = loadWorkspace();
-  const { sorted, handleSort, indicator, isRecommendationOrder, sortKey, columns } = useSortableTable(
+  const { sorted, handleSort, indicator, isRecommendationOrder, columns } = useSortableTable(
     displayed, ws.writeDeskBuyWriteSortKey, ws.writeDeskBuyWriteSortDir as SortDir,
     (key, dir) => updateWorkspace({ writeDeskBuyWriteSortKey: key, writeDeskBuyWriteSortDir: dir }),
   );
@@ -1350,6 +1378,7 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
     totalReturnIfCalledPercent: "If Called",
     appreciationPerShare: "Apprec",
     assessment: "Exec",
+    age: "Age",
   };
 
   return (
@@ -1362,8 +1391,8 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
           {columns.length < 3 && <span className="wd-sort-hint"> (shift+click header for secondary sort)</span>}
         </div>
       )}
-      <button className="wd-download-btn wd-download-above" onClick={() => downloadTableCsv(
-        sorted as Record<string, unknown>[],
+      <button className="wd-download-btn wd-download-above" onClick={() => { const csvNow = Date.now(); downloadTableCsv(
+        sorted as unknown as Record<string, unknown>[],
         [
           { key: "rank", label: "#" }, { key: "symbol", label: "Symbol" }, { key: "underlyingPrice", label: "Price" },
           { key: "expiration", label: "Exp" }, { key: "dte", label: "DTE" }, { key: "strike", label: "Strike" },
@@ -1372,9 +1401,10 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
           { key: "premiumYieldAnnualized", label: "Yield%" }, { key: "appreciationPerShare", label: "Apprec" },
           { key: "totalReturnIfCalledPercent", label: "If Called%" }, { key: "capitalRequired", label: "Capital" },
           { key: "cashRemaining", label: "Remaining" }, { key: "assessment", label: "Exec" }, { key: "posture", label: "Posture" },
+          { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
         ],
         `wheelwright-buy-writes-${new Date().toISOString().slice(0, 10)}.csv`
-      )} title="Download as CSV">⬇ CSV</button>
+      ); }} title="Download as CSV">⬇ CSV</button>
       <table className="wd-candidate-table">
         <thead>
           <tr>
@@ -1396,6 +1426,7 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
             <th className="wd-sortable" onClick={(e) => handleSort("cashRemaining", e)}>Remaining{indicator("cashRemaining")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("assessment", e)}>Exec{indicator("assessment")}</th>
             <th>Posture</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("age", e)} title="Chain-acquisition age of the evidence this row was calculated from">Age{indicator("age")}</th>
           </tr>
         </thead>
         <tbody>
@@ -1433,6 +1464,7 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
               <td className={c.cashRemaining < 0 ? "wd-negative-value" : ""}>${c.cashRemaining.toLocaleString()}</td>
               <td>{c.assessment.score}</td>
               <td><span className={`wd-posture-badge wd-posture-${c.posture.toLowerCase()}`}>{c.posture}</span></td>
+              <td><AgeCell provenance={c.evidenceProvenance} /></td>
             </tr>
           ))}
         </tbody>
@@ -1450,7 +1482,7 @@ function ContingentCallTable({ rows, selectedRow, onSelect }: { rows: Contingent
 
   return (
     <>
-    <button className="wd-download-btn wd-download-above" onClick={() => downloadTableCsv(
+    <button className="wd-download-btn wd-download-above" onClick={() => { const csvNow = Date.now(); downloadTableCsv(
       rows as unknown as Record<string, unknown>[],
       [
         { key: "symbol", label: "Symbol" }, { key: "expiration", label: "Call Exp" },
@@ -1458,9 +1490,10 @@ function ContingentCallTable({ rows, selectedRow, onSelect }: { rows: Contingent
         { key: "bid", label: "Bid" }, { key: "ask", label: "Ask" }, { key: "spreadPercent", label: "Spread%" },
         { key: "openInterest", label: "OI" }, { key: "yieldFromBasis", label: "Yield(basis)" },
         { key: "conditionedBasis", label: "Basis" },
+        { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
       ],
       `wheelwright-contingent-calls-${new Date().toISOString().slice(0, 10)}.csv`
-    )} title="Download as CSV">⬇ CSV</button>
+    ); }} title="Download as CSV">⬇ CSV</button>
     <table className="wd-candidate-table wd-contingent-table">
       <thead>
         <tr>
@@ -1477,6 +1510,7 @@ function ContingentCallTable({ rows, selectedRow, onSelect }: { rows: Contingent
           <th>Basis</th>
           <th>Source Put</th>
           <th>Status</th>
+          <th title="Chain-acquisition age of the call-chain evidence this projection was derived from">Age</th>
         </tr>
       </thead>
       <tbody>
@@ -1503,6 +1537,7 @@ function ContingentCallTable({ rows, selectedRow, onSelect }: { rows: Contingent
               <td>${r.conditionedBasis.toFixed(0)}</td>
               <td className="wd-contingent-source">${r.originatingPut.strike} {r.originatingPut.expiration.slice(5)}</td>
               <td><span className="wd-posture-badge wd-posture-projected">PROJECTED</span></td>
+              <td><AgeCell provenance={r.evidenceProvenance} /></td>
             </tr>
           );
         })}

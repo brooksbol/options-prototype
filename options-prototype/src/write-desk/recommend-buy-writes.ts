@@ -26,9 +26,9 @@ import { lookupCatalog, governanceFromCatalog } from "../instrument-catalog/cata
 import { midPrice, annualizedYield } from "../domain/calculations";
 import { assessExecution, isHardNo, type ContractEvidence, type ActionPosture } from "./execution-assessment";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
-import type { ExecutionPolicy } from "./execution-policy";
 import type { RecommendationPolicy } from "./recommend";
 import type { GovernanceAnnotation } from "./scan-orchestrator";
+import type { EvidenceProvenance } from "./evidence-provenance";
 import type { ObservationSink } from "../opportunity-history/observation-sink";
 import type { WinnerEconomics } from "../opportunity-history/opportunity-fact";
 import type { SurfaceOutcomeKind } from "../opportunity-history/mapping";
@@ -140,6 +140,14 @@ export interface BuyWriteCandidate {
   maxFCH: number;
   /** Percent sacrifice from maximum FCH (0 = selected IS the maximum) */
   fchSacrificePercent: number;
+  /**
+   * Operator-facing evidence provenance (PL-EVID-AGE): chain-acquisition age of
+   * the call-chain record this row was calculated from. Observational only.
+   * Note: buy-write economics also use the underlying spot folded into the chain
+   * record, whose independent acquisition time is not preserved — see the
+   * documented provenance limitation. This reflects chain acquisition age.
+   */
+  evidenceProvenance?: EvidenceProvenance;
 }
 
 // --- Result ---
@@ -266,7 +274,6 @@ export async function recommendBuyWrites(
     let symbolAllHardNo = true;
     let symbolHardNoType: "zeroBid" | "zeroOI" | "wideSpread" | null = null;
     let symbolHadEligibleButNoFit = false;
-    let symbolProducedCandidate = false;
 
     // Collect per-expiration candidates before governance (applied once per symbol)
     const symbolCandidates: BuyWriteCandidate[] = [];
@@ -429,6 +436,7 @@ export async function recommendBuyWrites(
             fullCycleHarvest: 0,
             maxFCH: 0,
             fchSacrificePercent: 0,
+            evidenceProvenance: chainRecord.evidenceProvenance,
           };
           symbolWideSpreadCandidates.push(wsCandidate);
         }
@@ -586,6 +594,8 @@ export async function recommendBuyWrites(
         fullCycleHarvest: expWinner.fullCycleHarvest,
         maxFCH,
         fchSacrificePercent: maxFCH > 0 ? ((maxFCH - expWinner.fullCycleHarvest) / maxFCH) * 100 : 0,
+        // PL-EVID-AGE: copy chain-acquisition provenance from the cache record.
+        evidenceProvenance: chainRecord.evidenceProvenance,
       };
 
       // Emit the best candidate for this expiration directly (no cross-expiration collapse)
@@ -594,7 +604,6 @@ export async function recommendBuyWrites(
       } else if (assessment.posture === "WAIT") {
         symbolWaitCandidates.push(candidate);
       }
-      symbolProducedCandidate = true;
     }
 
     // Resolve governance (same pattern as puts) — applied once per symbol

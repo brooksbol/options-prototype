@@ -55,6 +55,16 @@ function extractValue(item: Record<string, unknown>, key: string): unknown {
     const assessment = item.assessment as { score?: number } | undefined;
     return assessment?.score;
   }
+  if (key === "age") {
+    // PL-EVID-AGE: sort the Age column by the chain-acquisition timestamp.
+    // Age is the INVERSE of timestamp, so callers interpret "asc" as youngest
+    // first; the age-aware branch in the comparator handles that inversion and
+    // keeps `unavailable` provenance pinned to the end under BOTH directions.
+    const prov = item.evidenceProvenance as
+      | { kind?: string; acquiredAtMs?: number }
+      | undefined;
+    return prov && prov.kind === "chain-acquired" ? prov.acquiredAtMs : undefined;
+  }
   return item[key];
 }
 
@@ -132,6 +142,24 @@ export function useMultiColumnSort<T>(
       for (const { key, dir } of columns) {
         const aVal = extractValue(aRec, key);
         const bVal = extractValue(bRec, key);
+
+        if (key === "age") {
+          // Age semantics: column value is a chain-acquisition timestamp, but the
+          // column represents AGE, which is the inverse of timestamp order.
+          // "asc" = youngest first (largest timestamp first); "desc" = oldest
+          // first (smallest timestamp first). `unavailable` (undefined) is always
+          // pinned to the end regardless of direction.
+          const aMs = typeof aVal === "number" ? aVal : null;
+          const bMs = typeof bVal === "number" ? bVal : null;
+          if (aMs == null && bMs == null) continue; // tie → next column
+          if (aMs == null) return 1;   // unavailable last
+          if (bMs == null) return -1;  // unavailable last
+          if (aMs === bMs) continue;   // tie → next column
+          // Younger = larger timestamp. asc(age) = youngest first = larger ts first.
+          const youngestFirst = bMs - aMs;
+          return dir === "asc" ? youngestFirst : -youngestFirst;
+        }
+
         const cmp = compareValues(aVal, bVal);
         if (cmp !== 0) {
           return dir === "asc" ? cmp : -cmp;

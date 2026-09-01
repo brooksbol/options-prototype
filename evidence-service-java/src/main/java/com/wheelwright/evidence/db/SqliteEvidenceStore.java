@@ -605,6 +605,11 @@ public class SqliteEvidenceStore implements AutoCloseable {
         result.put("primaryExpiration", primaryExpiration);
         result.put("chain", chainData);
         result.put("chains", allChains);
+        // Authoritative acquisition time of the PRIMARY chain specifically (ADR-015).
+        // Distinct from the symbol-level `retrievedAt` fallback below: this is the
+        // primary-expiration chain row's own retrieved_at, or null when there is no
+        // primary chain. Never a fallback substitution.
+        result.put("primaryChainRetrievedAt", chainRetrievedAt);
         result.put("retrievedAt", chainRetrievedAt != null ? chainRetrievedAt : retrievedAt);
         result.put("failureReason", failureReason);
         result.put("failureCount", failureCount);

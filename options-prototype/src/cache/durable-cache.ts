@@ -77,9 +77,19 @@ export interface CacheRecord<T = unknown> {
   symbol: string;
   expiration: string | null;
   schemaVersion: string;
-  retrievedAt: number;       // epoch ms
+  retrievedAt: number;       // epoch ms — INTERNAL cache/TTL mechanics ONLY (may be a
+                             // symbol-level fallback or a synthesized Date.now()). This
+                             // field has NO operator-facing evidence-provenance authority.
   freshUntil: number;        // epoch ms
   staleUntil: number;        // epoch ms
+  /**
+   * Operator-facing evidence provenance (PL-EVID-AGE), established at snapshot
+   * ingestion from an AUTHORITATIVE per-chain timestamp only. Distinct from
+   * `retrievedAt`: absence here is the honest `unavailable` state, never a
+   * silent fallback to `retrievedAt`. Optional so non-chain records and legacy
+   * callers remain valid; consumers treat missing as `unavailable`.
+   */
+  evidenceProvenance?: EvidenceProvenance;
   payload: T;
 }
 
@@ -117,6 +127,7 @@ export function classifyFreshness(record: CacheRecord | null, now: number = Date
 // --- IndexedDB Store ---
 
 import { openDB, MARKET_STORE } from "./db";
+import type { EvidenceProvenance } from "../write-desk/evidence-provenance";
 
 const STORE_NAME = MARKET_STORE;
 
@@ -209,7 +220,8 @@ export class DurableMarketCache {
     symbol: string,
     expiration: string | null,
     payload: T,
-    retrievedAtMs?: number
+    retrievedAtMs?: number,
+    evidenceProvenance?: EvidenceProvenance
   ): CacheRecord<T> {
     const baseTime = retrievedAtMs ?? Date.now();
     const { freshMs, staleMs } = this.getTTLs(dataType);
@@ -220,6 +232,7 @@ export class DurableMarketCache {
       environment,
       symbol: symbol.toUpperCase(),
       expiration,
+      evidenceProvenance,
       schemaVersion: "v1",
       retrievedAt: baseTime,
       freshUntil: baseTime + freshMs,

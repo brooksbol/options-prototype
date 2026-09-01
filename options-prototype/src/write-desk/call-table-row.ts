@@ -18,6 +18,7 @@
 
 import type { CallCandidate } from "./scan-orchestrator";
 import type { ConditionedCallOpportunity } from "./conditioned-call-surface";
+import type { EvidenceProvenance } from "./evidence-provenance";
 
 // --- Discriminant ---
 
@@ -44,6 +45,8 @@ export interface ExecutableCallRow {
   yieldAnnualized: number;
   posture: string;
   executionScore: number;
+  /** Operator-facing evidence provenance (PL-EVID-AGE): chain-acquisition age. */
+  evidenceProvenance?: EvidenceProvenance;
 }
 
 // --- Contingent Call Row ---
@@ -79,6 +82,13 @@ export interface ContingentCallRow {
   volume: number;
   /** Yield from conditioned basis (not from underlying price) */
   yieldFromBasis: number | null;
+  /**
+   * Operator-facing evidence provenance (PL-EVID-AGE): chain-acquisition age of
+   * the conditioned call chain this projected row was derived from. The row
+   * itself is a projection conditioned on assignment; the provenance describes
+   * its input call-chain evidence, which is truthful and useful.
+   */
+  evidenceProvenance?: EvidenceProvenance;
 }
 
 // --- Union ---
@@ -105,6 +115,7 @@ export function executableRowFromCandidate(candidate: CallCandidate): Executable
     yieldAnnualized: candidate.yieldAnnualized,
     posture: candidate.posture,
     executionScore: candidate.assessment.score,
+    evidenceProvenance: candidate.evidenceProvenance,
   };
 }
 
@@ -131,5 +142,6 @@ export function contingentRowFromOpportunity(
     openInterest: opportunity.openInterest,
     volume: opportunity.volume,
     yieldFromBasis: opportunity.yieldFromBasis,
+    evidenceProvenance: opportunity.evidenceProvenance,
   };
 }

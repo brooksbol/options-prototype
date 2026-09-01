@@ -18,9 +18,8 @@
 import type { Expiration } from "../domain/types";
 import { selectEligibleExpirations } from "../velvet-rope/evaluate";
 import { midPrice, annualizedYield } from "../domain/calculations";
-import { assessExecution, isHardNo, type ContractEvidence, type ActionPosture } from "./execution-assessment";
+import { assessExecution, isHardNo, type ContractEvidence } from "./execution-assessment";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
-import type { ExecutionPolicy } from "./execution-policy";
 import type { CallCandidate } from "./scan-orchestrator";
 import type { InventoryPosition } from "./types";
 import type { RecommendationPolicy } from "./recommend";
@@ -176,6 +175,8 @@ export async function recommendCalls(
         strikeAbovePrice: contract.strike > underlyingPrice,
         underlyingPrice,
         economics: pos.economics ?? null,
+        // PL-EVID-AGE: copy chain-acquisition provenance from the cache record.
+        evidenceProvenance: chainRecord.evidenceProvenance,
       };
 
       if (assessment.posture === "ACTIONABLE" || assessment.posture === "EDGE") {
