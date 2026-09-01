@@ -11807,3 +11807,59 @@ ADR-015 wants the type system to make provenance omission difficult for chain-de
 ### Verification
 
 Backend `./gradlew test` green (incl. 2 new provenance tests); full frontend suite 1487 passing (+3 activity-projection cash-semantics tests); `npm run build` exit 0.
+
+
+---
+
+## 2026-09-01 — Colored-line / result-surface / scheduler audit: three durable discoveries (D1–D3)
+
+### Context
+
+Investigation prompted by the PL-EVID-AGE Age column: the operator observed that evidence freshness (Age) appeared weakly related to what looked interesting on Deployment. Rather than jump from that observation to scheduler design, we audited what the "colored line" and the Deployment surface actually mean today, and what the scheduler actually does. This is Exploration. Three distinct, repository-grounded discoveries emerged and are preserved here as durable why-state. They are established independently of — and chronologically prior to — the proposed A/B/C/D measurement (below), which has NOT yet been run.
+
+**Epistemic correction carried into this record:** we had been loosely calling the live colored line "Velvet Rope." That is wrong. The live colored line is **posture / execution assessment**. Velvet Rope proper is a separate, dormant, designed-not-live governance subsystem (`docs/cognitive-role-separation.md`; `docs/velvet-rope/*`). Do not conflate them.
+
+### D1 — Colored-line / posture semantic + CSS drift (observed)
+
+The Deployment "colored line" is `wd-posture-row wd-posture-<posture>`, driven by `ActionPosture` from `execution-assessment.ts` — an Execution-Score band about the *execution quality of one contract*, NOT instrument admission and NOT operator interest.
+
+Observed inconsistencies:
+- **CSS triple-definition:** `write-desk.css` defines the posture colors three times (≈L446 edge→yellow/wait→red; ≈L1663 edge→blue/wait→yellow; ≈L2002 "final spec" actionable→green/edge→blue/wait→amber + wide_spread→magenta + projected→gray). CSS last-wins renders the "final spec"; the earlier conflicting rules are latent hazards. Rendered result is correct by cascade accident, not by design.
+- **Vocabulary drift:** `ActionPosture` includes `WIDE_SPREAD` (rendered for puts/buy-writes), plus internal `UNAVAILABLE`/`DATA_INCOMPLETE` never rendered (`DATA_INCOMPLETE` is dead — assigned nowhere). Steering `domain-vocabulary` claims posture is only ACTIONABLE/EDGE/WAIT.
+- **Cross-strategy divergence:** puts and buy-writes surface a spread-only hard-no as a `WIDE_SPREAD` row; calls silently drop it (`recommend-calls.ts`: "Wide spread: skip for calls"). So "green/blue/amber/magenta/gray" is not a uniform semantic contract across the four Deployment tables.
+- **Governance is a separate mechanism:** admission-ish signal on Deployment today is `GovernanceAnnotation` (authorized/danger/review/unknown) from catalog + structure heuristic, rendered only on the symbol cell — independent of the posture line, and NOT the dormant Velvet Rope model.
+
+Classification: implementation-inconsistency + documentation-drift. Not characterized as a defect requiring immediate fix; recorded for reconciliation.
+
+### D2 — Deployment result-surface completeness / truncation (observed; kept separate from D1)
+
+From a live Buy Writes screenshot showing "Showing 200 of 771", traced to code:
+- **Cap asymmetry:** Buy Writes hard-caps the `Show` control at a literal `200` (`WriteDesk.tsx` ~L842, `min(200,...)`); puts use a universe-sized cap `universeSymbols.length` (~L676). Undocumented asymmetry.
+- **Denominator semantics:** the `771` is `allBW.length` — candidate **rows, not symbols**.
+- **Cardinality:** Buy Writes preserves candidates per **(symbol × eligible expiration)** (no cross-expiration collapse); puts collapse to best-per-symbol. That is why row count can exceed the symbol universe.
+- **Pre-filter population:** the 771 = ACTIONABLE+EDGE+WAIT (+WIDE_SPREAD when toggled), before affordability/danger filtering; the 200 slice truncates a post-funnel candidate population, not the universe.
+- **Consequence:** a large live operator-facing decision population (buy-writes across expirations) is **structurally invisible** to the put-only Class A/B scheduler classifier (see D3). This is the concrete counterexample to "Class A = the decision frontier."
+
+Classification: result-surface completeness/truncation + control-asymmetry defect. Distinct from D1.
+
+### D3 — Scheduler policy vs code breadth-first ordering drift (observed; consequential)
+
+- **Documented policy** (`foundations/acquisition-scheduler-policy.md`): strict priority cascade, "Overdue Class A always precedes over-age Class B."
+- **Implemented behavior** (`SqliteEvidenceStore.getPrioritizedWorkQueue`, Aug-2026 "breadth-first freshness" experiment, ~L1062–1081): orders **oldest-chain-age first across Class A and B together**, with Class A only a *tiebreaker* at equal age. Lifecycle C/D sorts to top via MAX_VALUE age.
+- **Interpretive weight (hypothesis, not conclusion):** if A+B are refreshed oldest-first with A as tiebreaker, then Age appearing independent of operator-visible candidate quality may be the **expected output of a currently-implemented uniform-breadth-freshness objective** — not a malfunction. This reframes the Age observation as a possible **clash between an older breadth-freshness objective and an emerging operator-decision-value objective**. Which objective is right is NOT concluded here; it is the reconciliation question.
+
+Also recorded: **Class A is only a put-relevance service-class proxy** (ready symbol with ≥1 put: bid>0, |δ|∈[0.15,0.50], OI>0 — `classifyFromChain`/`isQualifyingPut`). It knows nothing about Execution Score, spread quality, affordability, calls, buy-writes, portfolio state, or operator attention. It may overlap *one portion* of a decision frontier; it is **not** "the decision frontier." D2's 771 buy-write rows are the disproof of that equivalence.
+
+### Proposed next measurement (NOT yet run — stated as intent, not evidence)
+
+Next discriminating experiment: **How is provider capacity distributed across existing scheduler service classes A/B/C/D, and what freshness does each receive?** Narrow, falsifiable sub-question: does the system currently spend freshness differently on put-relevant (A) vs breadth/discovery (B) evidence, or effectively identically (which would confirm the breadth-first ordering)? Measurable from shipped telemetry (`/api/status` per-class `eligible`/`due`/`oldestAgeSeconds`, `lastDispatch`, `floorDispatches`, `publications`; `/api/measurement/provider-events`), sampled over a session; one pre-check on whether a cumulative per-class dispatch counter exists (else sample). **A/B/C/D measure existing scheduler service classes only; they do NOT constitute an operator-value or decision-frontier model.** No acquisition-priority design; no runtime change.
+
+### Relationship to existing durable state
+
+- `PL-EVID-AGE` (age/operator-intent tiers) + roadmap **G6/N1** (decision-value-aware acquisition) + **AR2** (Attention: change→significance→attention) are the strategic/architectural home for the *decision-value* thesis. D3 + the measurement reinforce them; they do not create a new Bet.
+- `PL-EVID-01` already ratified that monitored-position freshness "should derive from the monitoring obligation itself, not inherit recommendation-scheduling classes by convenience" — directly relevant to D3's finding that service classes are put-relevance proxies.
+- `PL-ARCH-06` (recommendation ownership), `PL-DEPLOY` (unified surface), `PL-CLEANUP`/`PL-OPS-06` (cleanup) are adjacencies for D1/D2 but none already records these specific findings.
+
+### Chronology preserved (evidence provenance)
+
+Age observation → semantic (D1) / surface (D2) / scheduler (D3) discoveries → this durable reconciliation → (future) discriminating A/B/C/D measurement → interpretation. Recording D1–D3 now, before the measurement, keeps the discoveries from appearing retrospectively derived from the experiment.
