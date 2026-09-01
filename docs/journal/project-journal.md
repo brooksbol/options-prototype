@@ -11725,3 +11725,54 @@ The architecture is now: acquisition event → authoritative provenance at publi
 - Implementation of the reworked slice is authorized separately, after the Principal reviews this durable state. No coding resumed on the strength of the architecture ratification alone.
 - Quote-acquisition provenance (and any true provider observation time) remains future work under PL-EVID-AGE, blocking the stronger Age semantic.
 - The 69 pre-existing build errors are a separate build-hygiene item of unknown authorship.
+
+
+---
+
+## 2026-09-01 — PL-EVID-AGE / ADR-015 shipped to production (before close); experiment regime boundary
+
+### Context
+
+Principal authorized the complete implementation→verification→commit→push→deploy→smoke path for PL-EVID-AGE / ADR-015, to be live before the ~14:00 MT close, explicitly overriding the live-session change restriction for this work.
+
+### What happened
+
+Implemented ADR-015 as designed: the backend now *publishes* subject-scoped option-chain acquisition provenance; the frontend *consumes* it and no longer infers authority from snapshot shape.
+
+- Backend (`SnapshotBuilder`, `SqliteEvidenceStore`): each `chains[]` element carries `chainAcquisitionProvenance`; ready symbols carry symbol-level `primaryChainAcquisitionProvenance` derived from the primary chain row's own `retrieved_at`; symbols with no chain subject emit `null` (not `unavailable`). Additive under INV-PUB-05.
+- Frontend: `provenanceFromPublished` maps the published provenance; the `sym.chains`/`sym.chain` authority heuristic was removed. Age column on all four Deployment tables + all four CSV exports; localized 5s ticker; observational only.
+
+Verification: backend `./gradlew test` green; full frontend suite 1484 passing; `npm run build` (tsc -b && vite build) exit 0.
+
+The prescribed `npm run build` was red on `main` from **69 pre-existing strict-config errors** unrelated to Age (verified zero introduced by this work via stash-compare). Per Principal ruling these were repaired as a mechanically separate commit: 9 real errors resolved from repository evidence (behavior-preserving), 2 retired-model remnants deleted (`concepts/premium.ts`, `write-desk/demo-economics.ts` — unmigrated remnants of the ADR-013 economics migration, runtime-unreachable), ~48 unused-symbol removals. No config weakening, no suppression.
+
+Commits (pushed to origin/main, `8fc0594..9576c3e`):
+- `c93f58f` — docs: ADR-015 + records
+- `88e8720` — Commit A: PL-EVID-AGE / ADR-015 Age feature
+- `9576c3e` — Commit B: pre-existing production-build repair (zero Age content)
+
+### Deployment and the experiment regime boundary
+
+There is no automated production deploy mechanism (no CI/cloud config; `docs/24` cloud is accepted-not-live). "Production" is the local always-on appliance host. The Age feature required the backend evidence appliance to be restarted onto the new bytecode (the running JVM predated the provenance publication). The Principal performed the restart via `dev.sh`.
+
+**Hard regime boundary: ~2026-09-01 13:24 MDT.** The September 1 regular-session experiment must NOT be analyzed as one homogeneous observation period:
+- Before ~13:24 MDT: old provider path, `9c352c3`-loaded bytecode, no provenance publication.
+- After ~13:24 MDT: `9576c3e` bytecode — provenance publication + the Commit B build-repair changes — plus a brief acquisition warmup gap at restart.
+
+This is distinct from, and additional to, the earlier unauthorized `9c352c3→8fc0594` docs-only pull discontinuity. This restart was Principal-authorized.
+
+### Smoke results (live, post-restart)
+
+`GET /api/evidence/snapshot` (generation 20289, coverage 955 ready / 351 absent): `primaryChainAcquisitionProvenance` present on all 1306 symbols, `chainAcquisitionProvenance` on every `chains[]` element (3472 total), 4427 `chain-acquired`, 0 `unavailable`. Sampled ready symbol showed real per-chain `acquiredAt` values (including a legitimately older secondary-expiration chain — the per-chain authority the design preserves); sampled absent symbol correctly published `null` provenance (no chain subject), not a fabricated `unavailable`.
+
+### Post-deployment operator-surface evidence
+
+An exported **Buy Writes** CSV from the running production surface was independently inspected: 200 rows, 19 columns, with `Age` as the final column populated across rows (e.g. `2m`, `3m`, `5m`, `10m`). This is real post-deployment export evidence, not a test.
+
+Epistemic scope (kept precise per ADR-015 discipline): automated tests establish the Age column for **all four** Deployment CSV exports; the observed artifact independently confirms **Buy Writes specifically**. Do not upgrade this into "all four production CSVs manually verified" — tests cover four, the artifact confirms one.
+
+### Open / follow-ups
+
+- Interactive in-browser smoke (visual Age column, click-sort, CSV download for puts/calls/contingent) not scriptable here; corroborated by 1484 passing tests + live snapshot contract + the observed Buy Writes export.
+- The `INEFFECTIVE_DYNAMIC_IMPORT` build warning on `durable-cache.ts` is pre-existing and unrelated; left as separate hygiene.
+- Quote-acquisition provenance / "oldest economically material evidence age" remain deferred under PL-EVID-AGE.
