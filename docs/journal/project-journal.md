@@ -11994,6 +11994,185 @@ The two boundaries are kept deliberately distinct: (1) *when the instrument beca
 ### Disposition
 
 PL-DEPLOY-02-DEF01 remediation is shipped, verified live, and the economics-valid provenance boundary is durably recorded. Substantive `analyze`-step work remains gated on sufficient corrected accumulation and separate authorization. Pre-fix history remains partially valid per PL-DEPLOY-02-DEF01 (state-based questions only, within browser-observation windows).
+
+
+---
+
+## 2026-09-02 — Provider availability tiers / degraded-mode failover (PL-PROV-FAILOVER)
+
+### Context
+
+The 2026-09-02 opening-bell corrected opportunity-history capture failed on **two independent blockers**, established by Codex's observers:
+
+1. **Production entitlement outage.** Tradier made the (unfunded) production account inactive. First production HTTP 401 at 2026-09-02T13:00:17.220Z (~09:00 ET, ~30 min pre-bell); the capture recorded 6,834 provider requests, all 401, 0 successful provider events, `symbolsAcquiredTotal=0`. Backend healthy; generations kept advancing despite zero successful acquisition.
+2. **Browser Decision emitter not operating.** Generation advanced 20470 → 20619 while opportunity-history counts stayed frozen at 990 / 1,225,801 / 62,406 — no real post-DEF01 browser epoch emitted. Chrome→Vite socket connectivity was present, proving connectivity ≠ active Decision emitter.
+
+There is no recoverable opening-bell corrected dataset for 2026-09-02. The Principal funded the account ($100 ACH, processed, up to one business day to reactivate); Codex established a separate read-only production-recovery observer (artifact `...T160525Z`, PID 51965, `c5df959`, still 401 at establishment). Recovery must be established from the runtime chain (continued 401 → first non-401 → first usable acquisition → advancing fresh chains → sustained), not from ACH/dashboard status.
+
+### What happened
+
+The Principal hypothesized that **Tradier sandbox access may continue to work while the unfunded/inactive production entitlement returns 401**. I ran an **authorized, one-shot, isolated, read-only** sandbox probe:
+
+- Used the commented SANDBOX profile credentials from `.env` **without modifying `.env` or the running appliance**; secrets never printed.
+- `GET sandbox.tradier.com/v1/markets/quotes?symbols=SPY` → **HTTP 200, usable quote payload** at ~2026-09-02T16:17:25.97Z.
+- Contemporaneous production comparison (read-only, ~16:17:26Z): backend healthy, `environment=production`, generation 20644, **newest provider event httpStatus = 401**.
+- No provider switch, no restart, no config/credential/scheduler/browser change; Codex's recovery observer (PIDs 80846/80847) undisturbed; `.env` mtime unchanged; git clean.
+
+### What we learned
+
+**Production and sandbox entitlements fail independently.** This is stronger than "sandbox still works": it is contemporaneous evidence that the provider boundary supports **environmental failover** — production 401 while sandbox authenticated and returned usable market data at the same time.
+
+Precise semantics (Principal framing, adopted):
+- **Failover validity ≠ evidence equivalence.** Sandbox can keep acquisition machinery, scheduler, UI, telemetry, and some observational workflows alive, but anything whose correctness depends on current production-quality evidence must know it is operating on **degraded** evidence. It must not masquerade as normal production.
+- Candidate availability tiers: **NORMAL** (production provider, production evidence) / **DEGRADED** (sandbox provider, explicitly non-production evidence) / **UNAVAILABLE** (neither provider can supply usable evidence). This gives the appliance an honest way to keep functioning during a production outage.
+- **Governing invariant:** *failover may preserve system operation, but it must never silently promote degraded evidence to production evidence.* Every snapshot/observation produced while failed over must carry environment/provenance all the way to the operator surface and the durable evidence plane; no mixing sandbox-derived evidence into a production capture as if homogeneous. This is ADR-015's discipline (provenance survives boundaries; no silent promotion) extended from timestamp-authority to **provider/environment authority**.
+- **Operational diagnostic benefit:** a sandbox failover today would also have helped **separate the two failures** — Wheelwright could have kept exercising the acquisition/evaluation pipeline (and the Decision emitter) while production entitlement was broken, telling us whether the rest of the machinery was alive. It would not validate production economics.
+
+Conservative bounds retained:
+- Production 401 + sandbox 200 supports "inactivity restriction applies to the production brokerage entitlement while sandbox remains available." (Had sandbox also failed, that would NOT prove a shared cause — sandbox creds could independently be invalid.)
+- Sandbox success is **access/authentication separation only** and is **not** used to diagnose the browser emitter: the running appliance remains on production, so its opportunity-history/emitter behavior stays confounded by the production outage. Blocker B remains a separate, unresolved concern.
+
+### Decisions / implications
+
+- Crossed the durability threshold: recorded as **`PL-PROV-FAILOVER`** (new intake + Reconciliation Completion Record, `docs/parking-lot-3.md`). Capability/architecture finding, **not** implementation.
+- New architectural pressure: a **provider-availability dimension** the current model lacks (the 6-state Market Session Model is about *sessions*, not provider availability; the provider boundary assumes one active provider). The tier model + no-silent-promotion invariant are pressure to reconcile — likely a future ADR (or an ADR-015-adjacent amendment) — **before** any implementation.
+- Explicitly **not** authorized: automatic switching, provider-selection implementation, session-model change, runtime change. The open questions are *what DEGRADED is allowed to do* and *how visibly/provenantly it must announce itself*.
+
+### Distinct evidence-state facts (kept separate)
+
+1. PL-DEPLOY-02-DEF01 winner-economics repair remains shipped and live; nothing here contradicts it.
+2. Production entitlement failure is independently demonstrated (401 evidence).
+3. Decision/browser emitter failure is independently demonstrated (frozen counts vs advancing generations) and remains unresolved — to be investigated separately, ideally after production recovers or under a labeled DEGRADED pipeline, so it is not measured through the entitlement confound.
+4. Provider-environment separation is now an **observed capability** (this entry), not a hypothesis.
+5. Production recovery is being observed by Codex without remediation; the recovery boundary has not yet occurred.
+
+### Disposition
+
+Documentation only: this journal entry + `PL-PROV-FAILOVER` intake + Reconciliation Completion Record. No implementation, no runtime change, no provider switch, no automatic failover. The one-shot probe changed no state (verified: appliance PID 51965 intact, recovery observer intact, `.env` unchanged, git clean). Codex retains execution ownership of the live production-recovery observation. Commit remains separately gated on Principal authorization.
+
+
+---
+
+## 2026-09-02 — PL-PROV-FAILOVER refined into automatic self-healing failover/failback (design)
+
+### Context
+
+Same-day amendment to the PL-PROV-FAILOVER capability finding, before its first commit. The Principal's design intent: degraded mode should require **no operator intervention and no server restart** — automatic `production → degraded → production`. This entry preserves the developed design; nothing is implemented, and the earlier static-capability formulation is amended in place (not committed-then-superseded).
+
+### Design intent (Principal)
+
+On confirmed production-provider unusability, Wheelwright should continue against the demonstrated sandbox as an explicitly degraded evidence regime; while degraded, periodically probe production; on sufficiently-demonstrated recovery, automatically fail back — with no operator action, restart, manual config, or manual provider switch.
+
+### Reconciled design (working, non-ratified vocabulary)
+
+**Two coupled axes, kept distinct:**
+- *Provider Acquisition Lifecycle (backend-internal, single-authority):* `PRODUCTION_ACTIVE → DEGRADED_SANDBOX → PRODUCTION_PROBING → PRODUCTION_ACTIVE`; `PRODUCTION_PROBING → DEGRADED_SANDBOX` on recovery-not-held; `→ ACQUISITION_SUSPENDED` when neither provider is usable. `PRODUCTION_PROBING` is the hysteresis state (renamed from the prompt's "RECOVERING" to avoid collision with the existing symbol-level Recovery Probe concept).
+- *Operator/evidence availability (published):* `NORMAL` / `DEGRADED` / `UNAVAILABLE`. `PRODUCTION_PROBING` maps to operator-facing `DEGRADED`, not a fourth operator state — the operator needs to know evidence is not production-authoritative; hysteresis internals are engineering telemetry.
+
+Axis A is provider-control (hysteresis/probing/single-authority); Axis B is evidence-trust (snapshot/provenance). Keeping them separate avoids leaking hysteresis into operator semantics or losing anti-flap machinery.
+
+### Principal refinements incorporated
+
+1. **Do not equate the architecture with today's 401.** The conceptual trigger is *confirmed production-provider unusability*, decided by a **governed failure taxonomy**. First demonstrated candidate: confirmed 401 entitlement/auth unavailability (the only observed mode). `429` stays ordinary throttling (pacer backoff) unless future evidence reclassifies it; timeouts, 5xx, stale/malformed payloads, market closure are NOT automatically equivalent and enter the predicate only via explicit reconciliation/evidence. Prevents hard-coding today's outage into the architecture.
+2. **Health representation, not a single boolean.** I6 is not "`/health` goes unhealthy when degraded." A DEGRADED appliance may be operationally healthy *as a degraded appliance*. The deeper invariant: *no health/status representation may allow process liveness to be mistaken for authoritative evidence availability.* Likely distinguish process/runtime health vs provider/acquisition health vs evidence-authority/availability state. Directly addresses the 2026-09-02 hazard (healthy + advancing generations while `symbolsAcquiredTotal=0`).
+
+### Invariants (proposed)
+
+I1 no silent promotion of degraded→production evidence (ADR-015 extended from timestamp-authority to provider/environment authority; provenance survives acquisition→transform→publish→present→durable). I2 single acquisition authority (probes are bounded availability tests, not a second authority, no authoritative writes). I3 environment provenance subject-scoped and mandatory on non-production evidence. I4 sandbox/production never one homogeneous population (environment boundary = hard regime boundary, like DEF01's "good data begins here"). I5 probe isolation (separate admission lane; no budget contamination or miscount). I6 health honesty (representational non-confusion). I7 failover/failback atomic (no snapshot straddles two authorities). I8 provider availability orthogonal to Market Session (composes; not merged; not a 7th session state).
+
+### Implementation truth grounding (OBSERVED)
+
+- `ProviderError(message, statusCode, retryAfterMs?)` is the failure vocabulary; the pacer special-cases only **429** (`providerBackoffUntilNs` backoff). 401 is not distinctly handled today.
+- `RequestPacer` is the single admission authority through which all provider HTTP flows — natural home for the isolated probe lane and single-authority guarantee.
+- `TradierAdapter` holds `baseUrl`/`apiKey` at construction — so automatic switching without restart requires a runtime-swappable provider binding.
+- `evaluation_epoch.environment` already exists in opportunity-history — the durable plane is partially prepared for environment tagging; the browser emitter would need to receive/label the active environment.
+
+### Distinctions preserved
+
+Observed: the concurrent prod-401/sandbox-200 result; the implementation-truth facts above. Inference: two axes are genuinely needed; a degraded pipeline would have separated Blocker A from B. Design: state names, atomicity, probe isolation, the mapping of PROBING→DEGRADED. Hypothesis/decision (thresholds experimental, structure required): entry predicate, sandbox precondition, failback predicate + hysteresis numbers, atomic boundary, sandbox-chain fate, degraded workflow constraints, operator legibility, neither-usable behavior. **Today's live Codex recovery observation is the natural experiment for the failback predicate; implementation deferred until it lands.**
+
+### Disposition
+
+Documentation only: PL-PROV-FAILOVER intake + Reconciliation Completion Record amended in `docs/parking-lot-3.md`; this journal entry. Warrants a future ADR (provider-availability tiering + failover/failback + no-silent-promotion-of-environment, citing ADR-015). No implementation, no runtime change, no provider switch; Codex's recovery observer undisturbed. Commit remains separately gated.
+
+
+---
+
+## 2026-09-02 — PL-PROV-FAILOVER: Codex implementation-reality findings; upgrade to three-concept model + Evidence Regime
+
+### Context
+
+Codex completed a read-only implementation-reality review of the failover/failback design while preserving the live production-reactivation experiment. Recovery had NOT occurred as of 2026-09-02T16:32:27Z (still HTTP 401, PID 51965, `c5df959`, no non-401, no usable acquisition, no fresh-chain advancement, no sustained recovery; observer still active, undisturbed). The findings materially change the architecture and are folded into the still-uncommitted PL-PROV-FAILOVER record (amended in place, not committed-then-superseded).
+
+### Material change: two-axis → three non-collapsed concepts
+
+The earlier design used two axes (Provider Acquisition Lifecycle + Evidence Availability). Codex's findings force a **third first-class concept**: **Evidence Regime** — a uniquely-identifiable interval of evidence authority established by an atomic provider transition (Regime A production → B sandbox/degraded → C production-after-recovery; A and C are both production but are *separate authority periods*). The decisive point: **failover must not be modeled as merely swapping an adapter or flipping an `environment` string** — it establishes a regime that must scope caches, durable evidence, and provenance. The three concepts (Provider Availability Lifecycle / Evidence Regime / Evidence Availability) are related but non-collapsed.
+
+### The twelve OBSERVED findings (each grounds an invariant)
+
+1. **Provider-wide outage contaminates symbol lifecycle** (→ new invariant I2). Provider errors record as per-symbol failures; 3 failures mark a symbol `failed`. Today: Ready 831 / Failed 124 / Absent 351 / worker failures 1,920 — a provider-wide failure misrepresented as many independent symbol failures. Recovery probing therefore cannot rely on the ordinary symbol queue drifting back into production (the outage ages symbols out of the queue).
+2. **Generation is not evidence-success identity** (→ I3). Failures publish snapshots and advance generation while `symbolsAcquiredTotal=0`. Recovery predicate must be usable normalized production evidence (fresh chains), not publication activity. Strengthens the health rule: liveness + publication activity ≠ usable acquisition.
+3. **Transition needs explicit regime identity** (→ Evidence Regime). Snapshot v1/quotes identify state via global generation/ETag, not the producing provider authority. Codex's strongest recommendation: a first-class Provider Authority / Evidence Regime identity (candidate attrs: active provider, environment, credential profile, regime ID, provider-lifecycle state, effective/transition timestamp, transition reason — shape NOT ratified).
+4. **Backend caches not regime-scoped** (→ I6). `ResponseCache` keys are type/symbol/expiration, no regime, no obvious clear/invalidate; naïve switch → sandbox served as production for the TTL.
+5. **Durable evidence not regime-scoped** (→ I7). `evidence`/`symbol_resolution`/`snapshot_state`/`spot_history` lack regime identity; naïve switch → overwrite production rows with sandbox, append sandbox spot-history indistinguishably, reuse timestamps across authorities.
+6. **Opportunity-history partially prepared** (→ I5). `evaluation_epoch` already stores provider+environment in epoch identity (preserve) — but backend trusts browser-supplied environment labels and surface identity relies on epoch relationship; provenance must originate from authoritative runtime/provider state (ADR-015 authority rule).
+7. **Frontend environment handling inconsistent** (→ I5/I7). Durable browser cache supports env-qualified keys, but Write Desk fetches env once at mount, hardcodes `"sandbox"` for some cache writes/recommendation reads, labels epochs from a separately-fetched env, and deletes obsolete chain records across all environments — a transition could yield a production-labelled epoch with evidence under sandbox namespace and cleanup deleting another regime's evidence.
+8. **Independent credential custody** (→ I13). One active `TRADIER_API_KEY`/`TRADIER_BASE_URL`; sandbox is a commented alternate under the same names. Failover needs both simultaneously addressable without mutating a shared slot; separately named/custodied profiles, separately constructed provider paths. Selecting authority must never mutate shared credential identity.
+9. **Single authority ≠ single adapter instance** (→ I4). One startup-bound adapter/cache/pacer/worker today (why switching implies restart). Preserve one active *authority* while allowing multiple provider *bindings*.
+10. **Probes need an isolated lane** (→ I8). A probe answers only "is production capable of usable normalized evidence again?" — no lifecycle mutation, no active-cache population, no ordinary generation, no durable write, not counted as acquisition, not a second authority.
+11. **Atomic transitions need in-flight fencing** (→ I9). Queued/in-flight old-regime requests must not persist as authoritative after the new regime is active; commit only if the acquisition's origin regime is valid at its commit boundary, or keep it explicitly tagged to the prior regime. A transition must not simply replace a pointer while old requests keep completing.
+12. **Status health needs multiple dimensions** (→ I11). `/api/status` can look operational while production acquisition is fully unavailable; distinguish runtime/process, provider availability/lifecycle, active regime, evidence availability/authority, recovery-probe state, redacted credential readiness — without one boolean carrying all meanings.
+
+### What we learned
+
+The reusable lesson: **provider-wide availability, symbol-specific evidence state, regime identity, and operator trust are four different things the current implementation conflates.** Today's outage made the conflation visible (a provider-wide 401 produced 124 "failed" symbols and an appliance that looked healthy with advancing generations while acquiring nothing usable). This is the same architectural family as ADR-015 (authority must not be inferred/promoted across boundaries), now extended from timestamp authority to **provider/environment/regime authority**. It also connects to the PL-DEPLOY-02-DEF01 discipline: a regime transition is a hard evidence boundary, exactly like "good data begins here."
+
+### Decisions / implications
+
+- PL-PROV-FAILOVER amended in place (intake cell + Reconciliation Record: three-concept model, Evidence Regime, invariants I1–I13, a "Codex implementation-reality findings" subsection, reordered/expanded 15-step decomposition). Still documentation-only, uncommitted.
+- Reinforces the **future-ADR** disposition: provider-availability + Evidence Regime + no-silent-promotion-of-environment/regime, citing ADR-015. The Evidence Regime concept in particular likely deserves explicit ratification before any implementation.
+- Implementation sequencing shifted: lifecycle-separation (I2) and regime identity now precede the state machine; recovery predicate must be usable-evidence-based, not generation-based.
+
+### Disposition
+
+Documentation only; no implementation, no runtime change, no provider switch, no observer disturbance. Codex retains execution ownership of the live production-recovery observation (recovery not yet occurred). Commit remains separately gated.
+
+
+---
+
+## 2026-09-02 — PL-PROV-FAILOVER: separation-of-concerns correction (regime identity is control/provenance, not domain state)
+
+### Context
+
+Same-day Principal correction to the PL-PROV-FAILOVER design. The Codex implementation-reality amendment correctly identified the hazards, but the remedy over-reached: it drifted toward treating provider/environment/**regime identity as pervasive application state** (threading it into caches, durable rows, and — implicitly — domain logic). That is architectural debt: every domain consumer coupled to provider topology, branching on production vs sandbox.
+
+### The correction (governing)
+
+> Provider/environment/regime identity is a provider-control and provenance concern. Wheelwright domain state consumes evidence **semantics/capabilities** — it must not branch on production vs sandbox.
+
+DEGRADED is appropriate as an operator-facing **trust** state. Propagating provider regime as pervasive application state is not.
+
+### Three layers with a hard interface
+
+- **L1 — Provider control plane** (owns regime identity as a branching fact): acquisition authority, provider bindings, availability lifecycle, atomic transitions, in-flight fencing, credential custody, recovery probes.
+- **L2 — Provenance + capability interface**: evidence is stamped with (a) provenance metadata (regime/environment/timestamps) carried ADR-015-style for audit and no-silent-promotion — a *ride-along* fact, not a branch input; and (b) an evidence-capability/trust vocabulary the domain consumes: `authority` (authoritative vs superseded), `trustClass` (`NORMAL`/`DEGRADED`/`UNAVAILABLE`), `executable` (may back a broker/executable action; sandbox ⇒ false), freshness/age.
+- **L3 — Wheelwright domain** (consumes capability, never source): Decision/recommendation, Console, Production, opportunity-history content. Branch on capability/trust only. Broker handoff disables on `executable==false`, not on `environment=="sandbox"`. The domain never learns *why* evidence is non-executable, only that it is.
+
+### What changed in the record
+
+- Added a "Separation of concerns" subsection that **governs** how the twelve Codex findings are applied, with a per-finding re-triage of which truly need source identity (control plane + provenance) vs which need only evidence authority/usability (domain).
+- **Evidence Regime scoped down**: it remains a real concept but is an L1 control identity + L2 provenance/storage-partition discriminator — **not** a domain-pervasive field. Invariants I6/I7 restated as storage-partition/authority concerns ("evidence must not cross an authority boundary ambiguously"), not "thread regime through the domain."
+- **Frontend finding (#7) simplified**: the fix is to **stop branching on hardcoded `"sandbox"` at all** and consume published capability/authority; environment on the durable record is authoritative backend provenance for segmentation/audit, not Decision branching.
+- Decomposition steps 3/7/11 rewritten accordingly (regime as control/provenance/partition; domain reads by authority; frontend stops branching on source).
+
+### Distinctions preserved
+
+The hazards Codex observed are real and unchanged (provider-wide failure contaminating symbol lifecycle; generation ≠ recovery; caches/durable not authority-partitioned; browser hardcoding sandbox; etc.). What changed is the **architectural remedy**: fix them at the control/provenance/storage layers and via evidence capability, **not** by spreading provider identity across the domain. This keeps the domain dependent on evidence authority/usability, which is the correct long-run coupling and avoids the debt.
+
+### Disposition
+
+Documentation only; PL-PROV-FAILOVER amended in place (still uncommitted). No implementation, no runtime change, no provider switch; Codex's recovery observer undisturbed (not queried this turn). Commit remains separately gated.
+
 ---
 ## 2026-09-02 — Tradier execution-bridge discovery + broker-modularity Principal requirement (3AM Design/Reconciliation)
 ### Context
@@ -12048,6 +12227,79 @@ Direct submission unauthorized. Credit spreads unadmitted. Generalized trade-sha
 ### Disposition
 Documentation-only (this journal entry). No implementation, no runtime change, no order submission, no commit. A bounded Tradier sandbox capability experiment has been *designed* (reported to Principal) but NOT executed. Commit and experiment execution remain separately gated on explicit Principal authorization.
 
+
+---
+
+## 2026-09-02 — PL-PROV-FAILOVER: final Principal reconciliation before commit review
+
+### Context
+
+Final architecture pass before commit authorization. Accepts the three-layer separation and Codex's directionally-correct implementation review, and tightens the design so provider identity does not become pervasive domain state. Documentation/reconciliation only; running appliance, provider config, credentials, and Codex's recovery observer untouched.
+
+### Final governing model (authoritative)
+
+- **Layer 1 — Provider control plane** owns provider mechanics and identity: bindings, production/sandbox/other upstreams, credential profiles/custody, availability, failover/failback, recovery probing, atomic authority transitions, in-flight fencing, provider-local caching, provider-specific pacing/backoff/transport. This layer legitimately knows "Tradier production/sandbox/future provider."
+- **Layer 2 — Evidence provenance + semantic boundary**: evidence leaving the provider boundary carries truthful backend-established provenance (audit, incident reconstruction, no-silent-promotion, historical segmentation, validation, export, current-selection-for-subject) and publishes the *minimal* semantic properties consumers actually need (current selection, freshness/age, trust/degraded, purpose-specific usability where genuinely required). Provider/regime identity **rides as provenance metadata; it is not a domain-policy input**. Vocabulary not yet ratified.
+- **Layer 3 — Domain + operator surfaces** consume semantic evidence properties and must **not branch on provider identity**. Wrong: `if environment=="sandbox" then disable broker handoff`. Right: `if this evidence is not eligible to support execution then disable broker handoff`. Narrowed invariant (supersedes any absolute "the domain never learns why"): **Decision and operational policy must not branch directly on provider identity; provider provenance remains available for display, audit, export, validation, incident reconstruction, opportunity-history provenance, and explicitly governed analysis.**
+
+### Key tightenings
+
+- **Do not overload `authority`.** Distinct questions (selected-for-subject? fresh? normal/degraded? observation-usable? decision-usable? execution-eligible? source? superseded?) are not one property. Use **subject-scoped current selection**, not a generic "authoritative" flag. Names unratified.
+- **Subject scope.** Mixed transitional populations are legitimate (newly-acquired degraded / retained pre-transition / none-usable / different age). No snapshot-wide flag may imply uniform status. Backend resolves current selection **per subject**; FE does not reconstruct it.
+- **Capability vocabulary provisional.** observation-/decision-/execution-usable and `authority`/`trustClass`/`executable`/freshness remain hypotheses until implementation pressure earns the minimum. No premature ontology. Requirement: domain depends on **semantic fitness for intended use, not provider identity**.
+- **DEGRADED is legitimate operator state.** UI may show DEGRADED without branching on causing mechanics; provider/source may appear in diagnostics but is not the Decision basis.
+- **Caching architecture.** Provider-local caching is **server-side**, one isolated cache per provider authority; invariant: cached provider responses never cross provider-authority boundaries ambiguously (mechanism TBD; not necessarily `regimeId` on every key). Frontend caching is **ordinary HTTP** (ETag/If-None-Match/304/Cache-Control); the FE cares only that the representation changed, never *why*.
+- **No frontend shadow database.** For each FE evidence/snapshot persistence: what requirement, is it FE-local, can HTTP satisfy it, should backend own it, can it be deleted — default deletion/reduction, not more elaborate keys.
+- **Backend owns current evidence selection.** FE receives the resolved current representation + legitimate envelope; it does not reconcile production/degraded/historical/retained populations.
+- **ETags/transitions.** Generation advancement is not evidence-success or recovery. Backend changes the validator when the current representation materially changes (an authority transition may change ETag even if some values match); FE needs no regime-qualified ETag logic.
+- **Cache-finding reframe.** Codex's finding stands, but the conclusion is "the cache is scoped more broadly than the provider authority it represents; fix ownership/isolation server-side," NOT "thread regime through application caching everywhere."
+- **Provenance mandatory (increased, not reduced).** ADR-015 no-silent-promotion extended to provider transitions: provenance survives acquisition boundaries; transitions explicit; old evidence not silently relabeled; degraded not silently presented as normal; backend-selected evidence traceable to source. The only narrowing: carrying provenance ≠ branching on provenance throughout the domain.
+
+### Preserved unchanged (control-plane, Layer 1)
+
+Provider-wide failure stays separate from symbol state (I2, one of the strongest incident findings); recovery is evidence-based not generation-based (I3); probe isolation, in-flight fencing, and independent credential custody remain valid L1 concerns; multi-dimensional honest health (process liveness ≠ evidence availability).
+
+### Future ADR
+
+Still warranted before implementing automatic failover/failback. Should ratify **durable responsibilities/invariants** (control-plane ownership; automatic failover/failback; single acquisition authority; isolated recovery probing; atomic/fenced transitions; provider-local cache isolation; backend-owned evidence selection; truthful provenance; no provider-identity branching in Decision/operational policy; purpose-appropriate evidence semantics; HTTP-oriented FE caching; no FE shadow evidence DB; truthful degraded/operator health) — **without freezing premature vocabulary or state names**.
+
+### Decomposition
+
+Revised to the point-19 dependency order (control-plane isolation → backend-owned selection → minimal derived semantics → HTTP representations → FE de-shadowing → then the automatic lifecycle). Explicitly not a work order.
+
+### Disposition
+
+PL-PROV-FAILOVER amended in place (still uncommitted). No implementation, no runtime/provider/credential change, no observer disturbance. Production still 401 with no usable acquisition per Codex; the natural recovery observation continues. Commit remains separately gated pending the exact working-tree accounting reported to the Principal.
+
+
+---
+
+## 2026-09-02 — PL-PROV-FAILOVER: canonical cleanup before commit (wording/invariant coherence + commit hygiene)
+
+### Context
+
+Final canonical cleanup of the uncommitted PL-PROV-FAILOVER reconciliation after a Codex read-only review. The architecture is accepted and unchanged; these are wording, invariant-consistency, and commit-hygiene corrections so the canonical parking-lot record is internally coherent and a cold actor need not hunt for a "supersedes" paragraph. Documentation only; running appliance, provider config, credentials, and Codex's recovery observer untouched.
+
+### Canonical corrections made (Codex's six findings)
+
+1. **Unrelated commit batch.** The working-tree journal contains a separate, valid entry — "Tradier execution-bridge discovery + broker-modularity Principal requirement (3AM)" — authored by a different session. It is NOT part of PL-PROV-FAILOVER. It sits physically **between** two PL-PROV-FAILOVER journal entries, so the failover commit will require **hunk-level partial staging** of the journal. The Tradier entry is preserved (not deleted/rewritten) and excluded from the failover commit.
+2. **Prematurely frozen vocabulary.** The canonical active summary now states, in-line, that all state/lifecycle/capability names are working NON-RATIFIED vocabulary; the durable requirements are semantic (subject-scoped current selection; truthful provenance; freshness where relevant; purpose-appropriate fitness only where implementation requires; operator-legible degraded status; no Decision branching on provider identity). `authority` is explicitly de-overloaded → subject-scoped current selection.
+3. **Over-broad provenance visibility.** "environment provenance visible on every surface" → "provenance retained truthfully and made available where it has legitimate diagnostic/evidentiary/analytical/historical/operator value"; ordinary operator surfaces need not display provider/environment/regime merely because provenance exists.
+4. **Incorrect snapshot-straddling invariant.** "no published snapshot straddles two authorities" is **withdrawn**; I10 restated as atomic/fenced authority transitions + subject-scoped selection (a current representation may contain subjects with different historical provenance, each unambiguous and provenance-bearing).
+5. **Invariant-reference errors.** Fixed stale references (single-authority I2→I4; atomic I7→I10; probe-isolation I5→I8) and added a **canonical named invariant set I1–I13** in the Final-architecture section as the authoritative home; numbers are a stable index into names. Verified all `I#` references in the record are now coherent.
+6. **Asymmetric provenance.** I5 rewritten: backend-established provenance is truthful for **all** evidence (production and degraded), since automatic failback creates multiple production authority periods; production is not provenance-free normality.
+
+### Preserved unchanged
+
+The three-layer separation; provider-local server-side cache isolation (mechanism deferred, not `regimeId`-everywhere); HTTP-oriented frontend caching; the no-frontend-shadow-database rule; backend-owned current evidence selection; provider-failure vs symbol-failure separation; usable-evidence-based recovery; probe isolation, transition fencing, credential-custody independence; truthful multi-dimensional health; provisional capability vocabulary; the point-19 decomposition dependency order; ADR-015 lineage (extended, not overextended into pervasive domain state).
+
+### Commit hygiene
+
+Both modified files (`docs/parking-lot-3.md`, `docs/journal/project-journal.md`) contain only 2026-09-02 material. `parking-lot-3.md` is wholly PL-PROV-FAILOVER. The journal contains five PL-PROV-FAILOVER entries plus the one unrelated Tradier execution-bridge entry, which must be excluded from the failover commit via partial staging. Earlier DEF01/chronology/boundary material is already committed at HEAD (`e5cea15`) and is not in the working-tree diff.
+
+### Disposition
+
+Documentation only; still uncommitted. No implementation, no runtime/provider/credential change, no observer disturbance. Commit remains gated pending Principal authorization and the exact commit-boundary review below/in-chat.
 
 ---
 ## 2026-09-02 — Tradier execution / broker-modularity: Codex-review corrections (design sharpened, hypotheses NOT ratified)
@@ -12128,6 +12380,28 @@ Documentation only: `PL-EXEC-01` cell (broker-modularity requirement) + these tw
 
 
 ---
+
+## 2026-09-02 — PL-PROV-FAILOVER: canonical active-item row simplified; fencing prerequisite made explicit
+
+### Context
+
+Final documentation-only correction after Codex's review and Principal direction. Two substantive corrections plus a re-resolution of the shared checkout. No architecture change; no staging; no runtime/observer/provider/credential contact.
+
+### Corrections
+
+1. **Working tree re-resolved.** `docs/parking-lot.md` is now modified by the separate **Tradier execution / broker-modularity** workstream (the `PL-EXEC-01` broker-modularity amendment referencing the Tradier execution-bridge journal entry). Confirmed it belongs to that thread, preserved untouched, and excluded entirely from the failover batch. This confirms the Principal's point that the shared checkout changed under the prior accounting — the boundary must be resolved from the live checkout, not remembered line numbers.
+2. **Canonical active-item row cleaned.** The `PL-PROV-FAILOVER` parking-lot summary previously carried the *superseded* provisional architecture (`authority`/`trustClass`/`executable`, the `PRODUCTION_ACTIVE/DEGRADED_SANDBOX/PRODUCTION_PROBING/ACQUISITION_SUSPENDED` lifecycle labels, `NORMAL/DEGRADED/UNAVAILABLE`, "domain never learns why") followed by later supersession clauses — a mini-history embedded in a canonical record. Rewritten to state the **current semantic answer only**: separation of concerns (provider identity confined to control-plane/provenance/storage; domain consumes semantic fitness, not source), subject-scoped current selection, symmetric truthful provenance, provisional capability vocabulary, mixed-historical-provenance validity, control-plane invariants, server-side isolated provider caching, HTTP-oriented FE, no-frontend-shadow-DB (as a migration target, not permission to remove IndexedDB while consumers depend on it), health honesty, ADR-015 lineage. The evolutionary history is preserved here in the journal (five PL-PROV-FAILOVER entries), not in the canonical row.
+3. **Fencing prerequisite made explicit.** The decomposition now states a hard prerequisite overriding the ordering: the provider lifecycle/transition state model may be designed first, but **no runtime provider-authority transition may be enabled until in-flight fencing (I9) is implemented and verified.** Designing before fencing is fine; activating a live transition before fencing is not.
+
+### Preserved (already-correct final architecture)
+
+Subject-scoped current selection; provider identity confined to control-plane/provenance/storage; no Decision/operational branching on provider identity; mixed historical provenance valid; symmetric provenance; provisional capability vocabulary; backend-owned current selection; FE consumes coherent HTTP representations/validators; no FE shadow evidence database as the target architecture (migration, not immediate removal).
+
+### Disposition
+
+Documentation only; not staged, not committed. `docs/parking-lot.md` and the unrelated Tradier journal entry are untouched and excluded from the failover batch. Production still 401 (745/745 observed responses per Codex), observer undisturbed. Commit remains gated on Principal authorization.
+
+---
 ## 2026-09-02 — Tradier execution / broker-modularity: documentation-hygiene addendum (narrow corrections before commit)
 ### Context
 Codex's final 3AM review accepted the architecture and experiment design at the design level and left only documentation hygiene. The Principal accepted all findings. This is a narrow correction pass — NOT a redesign. Everything from the two prior 2026-09-02 Tradier entries stands except the four items corrected below. Append-only discipline: earlier entries are preserved as written; this addendum records the corrections rather than rewriting them. No implementation, no experiment execution, no provider/network/browser interaction, no ADR-004 edit, no commit.
@@ -12167,3 +12441,29 @@ This workstream = the `PL-EXEC-01` cell in `docs/parking-lot.md` + the 2026-09-0
 
 ### Disposition
 Documentation only. No provider/network/browser interaction occurred during this correction pass. No staging, no commit.
+
+
+---
+
+## 2026-09-02 — PL-PROV-FAILOVER: two final canonical corrections; commit from stable cb87614 base
+
+### Context
+
+Closing the PL-PROV-FAILOVER documentation from the now-stable base after the separate 3AM Tradier execution / broker-modularity workstream committed and pushed as `cb87614` ("Reconcile broker-modular execution boundary"). Documentation only; commit landing this step; no implementation.
+
+### Two canonical corrections
+
+1. **Brittle count removed.** The canonical `PL-PROV-FAILOVER` active-item row no longer says "five PL-PROV-FAILOVER entries"; it refers to "the 2026-09-02 PL-PROV-FAILOVER journal entries."
+2. **Transient status removed from the canonical row.** The clause "production still 401 with no usable acquisition (Codex observer)" is removed from the durable current-architecture summary; the row now states only that the failback predicate is to be informed by an observed production-recovery trace, with live status tracked in the observation artifact/journal — no moving production-status statement in its place. (The single remaining dated "recovery had NOT occurred as of 16:32:27Z" line lives in the timestamped Codex-review provenance subsection, where a dated observation is appropriate; it is not a current-architecture claim.)
+
+### Six-vs-seven discrepancy resolved
+
+Against `cb87614`, the journal working-tree diff contains **exactly seven PL-PROV-FAILOVER entries and zero Tradier entries** (the two Tradier entries and the `docs/parking-lot.md` `PL-EXEC-01` edit are now committed in `cb87614`). The earlier "six failover headers" was a mid-flight snapshot taken before the seventh entry ("canonical active-item row simplified; fencing prerequisite made explicit") was written; the "seven" count is correct. The difference was base-dependent (which commit the diff was taken against) plus whether the interleaved Tradier entries were counted — not a lost or duplicated entry.
+
+### Semantic completeness verified
+
+The reconciliation still durably establishes: automatic production→degraded→production as intended capability; automatic recovery probing; provider identity as control-plane/provenance/storage (not domain branching); domain consumes semantic fitness not source; provider-side cache isolation; HTTP-oriented frontend + no shadow evidence DB (migration target, not immediate IndexedDB removal); subject-scoped current selection with mixed-historical-provenance validity; atomic/fenced authority transitions with the hard prerequisite that no runtime transition may be enabled until fencing is implemented and verified; generation ≠ evidence-success; probe isolation; health honesty; concrete provider identity available for provenance/audit/diagnostics; thresholds/interface vocabulary provisional.
+
+### Disposition
+
+Documentation batch staged and committed this step (parking-lot-3.md + the seven PL-PROV-FAILOVER journal entries). No implementation, no runtime/provider/credential change, no sandbox switch, no observer contact. Stops at the implementation-authorization boundary; degraded-mode implementation to restore useful operation today is the next Principal decision.
