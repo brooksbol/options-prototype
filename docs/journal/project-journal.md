@@ -11994,3 +11994,176 @@ The two boundaries are kept deliberately distinct: (1) *when the instrument beca
 ### Disposition
 
 PL-DEPLOY-02-DEF01 remediation is shipped, verified live, and the economics-valid provenance boundary is durably recorded. Substantive `analyze`-step work remains gated on sufficient corrected accumulation and separate authorization. Pre-fix history remains partially valid per PL-DEPLOY-02-DEF01 (state-based questions only, within browser-observation windows).
+---
+## 2026-09-02 — Tradier execution-bridge discovery + broker-modularity Principal requirement (3AM Design/Reconciliation)
+### Context
+A 3AM discovery/reconciliation thread (Principal + Kiro + ChatGPT, no implementation owner) investigated whether Tradier is valuable to Wheelwright beyond being the market-data provider — specifically as an operator-review **execution bridge**. Kiro bootstrapped from repository authority, reconstructed the current execution boundary, and verified Tradier capability against official Tradier documentation. The Principal then accepted the findings and added a sharpening architectural requirement: **the execution boundary must be broker-modular** — one coherent Wheelwright execution interface with broker-specific modules behind it, derived from the two concrete cases (Fidelity, Tradier), NOT a speculative generalized brokerage framework and NOT designed around hypothetical Merrill/E*TRADE APIs. This entry preserves the why-state; it is documentation-only and uncommitted. Mode was Exploration, then Design/Reconciliation with durable preservation explicitly authorized; implementation, `WriteIntent` generalization, any sandbox/real order, and direct submission remain unauthorized.
+
+### Epistemic separation maintained throughout
+- **Documented Tradier capability** (verified against docs.tradier.com / documentation.tradier.com, 2026-09-02).
+- **Experimentally demonstrated capability:** NONE yet — nothing has been run against sandbox.
+- **Inference about Wheelwright usefulness / proposed capability / unresolved hypothesis:** kept distinct below.
+Content from external Tradier documentation was rephrased for compliance with licensing restrictions.
+
+### Current execution boundary (implementation truth, reconstructed)
+- `src/execution/write-intent.ts` — `WriteIntent` is broker-neutral *in spirit* but narrow in fact: hardcodes `optionType:"put"`, `action:"sell-to-open"`, single-leg, `orderType:"limit"`, `timeInForce:"day"`, default qty 1. It is a CSP intent, not a general trade shape. It also embeds a **Fidelity** OCC/security-id formatter (`formatFidelitySecurityId`) — a broker-specific concern currently living inside the "neutral" intent module.
+- `src/execution/fidelity-trade-link.ts` — accepts only `sell-to-open`, emits a single `SECURITY_ID`, returns a `requiresVerification` list. Governed by ADR-004. Fidelity URL params (`ORDER_TYPE`, `ORDER_ACTION=SOPEN`, `LIMIT_STOP_PRICE`, `SECURITY_ID`, `trade=rocfly`) are **empirically observed, not a published Fidelity contract**.
+- `src/execution/pending-intent.ts` — operator-confirmed working/filled/cancelled marker for duplicate-symbol awareness only; explicitly not cash math.
+- ADR-004 already anticipates "multiple broker adapters possible in future (same WriteIntent, different URL builders)." So a broker-neutral-intent → broker-adapter seam already exists in principle; it is shallow, puts-only, and leaks Fidelity encoding into the intent layer.
+
+### Verified Tradier capability (documented)
+Order classes: `equity, option, multileg, combo, oto, oco, otoco`.
+- **combo** = one equity leg (`symbol`, `option_symbol=null`) + one or two option legs; net `debit`/`credit`/`even`/`market` pricing → brokerage-native **buy-write / covered call / protective put**.
+- **multileg** = up to **4** option legs, indexed `option_symbol[n]/side[n]/quantity[n]`, per-leg quantities, net credit/debit → **vertical put/call credit spreads** and arbitrary ≤4-leg structures.
+- **preview** = same order payload + `preview=true`; returns `cost`, `commission`, `fees`, `margin_change`, validation `result`; buying-power checks run against preview. Same complete shape as submission.
+- **Trade Link** (`web.tradier.com/tradelink`) pre-populates Tradier's own ticket; required params only `class` + `symbol`; parameter overview explicitly lists **equity, option, combo, multileg** (working multileg + combo example URLs shown). Operator reviews/submits.
+- **Sandbox** (`sandbox.tradier.com/v1`) supports the full trading API with paper money + delayed data.
+
+### Conservative boundary (unresolved — must be experiment, not assumption)
+- Trade Link's documented parameter set does **not** list `oto/oco/otoco`. Advanced-order reference describes OCO/OTOCO legs as "all equity" or "all option" with a single shared `option_symbol` — it does **not** document an advanced-order leg that is itself a `multileg` spread. So "open a put credit spread, then broker-natively bracket it with a linked BTC as one OTOCO" is NOT clearly supported by the docs. API-level advanced orders exist; composition over multileg triggers, and Trade Link exposure of advanced orders, are UNKNOWN and belong in sandbox experiment.
+- "Sandbox accepts request" ≠ "sandbox realistically models fills." Do not infer real execution quality from sandbox acceptance.
+
+### Principal requirement added: broker modularity
+> Wheelwright's execution boundary must be broker-modular: one coherent Wheelwright execution interface with broker-specific modules behind it. Adding a brokerage later should primarily require a broker module + capability/translation, not spreading broker-specific conditionals through Wheelwright. **Common interface does not require common capability** — a broker module must be able to answer "can I faithfully represent this intent, and if so, how?" and to say *unsupported* rather than forcing a false approximation. Direct API submission remains outside the authorized execution boundary; the existence of a broker API must not silently expand Wheelwright's execution authority.
+
+### Interpretations / hypotheses recorded (NOT ratified)
+- **Execution-bridge framing** is a deepening of ADR-004 + PL-EXEC-01, not new architecture. Tradier roles A (data provider), B (execution bridge), D (secondary/learning brokerage) can coexist; role C (direct auto-submit) is unauthorized and conflicts with governing identity.
+- **Tradier = one semantics, multiple transports** hypothesis appears supported by the docs: `Wheelwright intent → Tradier representation`, then (preview API = validation/economics) | (Trade Link = operator-submitted ticket) | (Trading API = direct submit, unauthorized). Translation, validation, and transport-selection are different responsibilities. Do not generalize beyond what these two brokers earn.
+- **Preview as broker-derived execution evidence** (account-/broker-specific, NOT generic Wheelwright economics): candidate evidence at the Decision→Execution boundary, reconciling K8 / O3 / AR7 / Trustability. A broker without preview must participate in the same interface without pretending to provide evidence it cannot.
+- **Buy-write** is the strongest concrete case to derive the interface from: `combo` may let the semantic buy-write survive the execution boundary intact (no operator decomposition/transcription). Today Fidelity buy-write handoff is not even built.
+- **Credit spreads:** Tradier `multileg` materially improves the *execution/feasibility* question (transcription risk is part of feasibility) but does NOT answer the *strategy-admission* question, which remains under PL-STRAT-01 four-lens discipline. Keep strategy and execution questions separate.
+- **WriteIntent evolution** is now under genuine (two-broker + several-shape) pressure, but the answer is deliberately unresolved: extend WriteIntent | slightly broader execution-intent | a few reusable leg/economic primitives | a larger abstraction now earned. AR3 discipline still applies — earn the abstraction from concrete cases; do not prejudge.
+
+### Durable disposition (proposed to Principal; nothing edited outside this journal yet)
+- ADR-004 — refine with a second concrete broker case + broker-modularity + capability-difference principle (future ADR work; not edited here).
+- PL-EXEC-01 — primary execution-lifecycle home; advanced-order/BTC composition remains explicitly unproven here.
+- PL-STRAT-01 — credit-spread admission stays here; feasibility improvement noted, admission not granted.
+- `docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md` — Tradier feasibility finding refines it.
+- roadmap C2 / K5 / K8 / O3 / L2 and architecture-roadmap AR3 / AR4 / AR7 — already substantially express this direction.
+- **Open question for Principal:** whether broker modularity needs a new PL identity or is adequately carried by ADR-004 + PL-EXEC-01 + architecture-roadmap intent. Kiro's assessment: the *execution-bridge* and *WriteIntent-evolution* concerns are already homed; the *broker-modularity extensibility requirement itself* (one interface, capability-preserving, N brokers) is stated in the roadmaps as pressure but is not crisply pinned to a single durable backlog identity. That is the one place existing authority may under-express the Principal requirement.
+
+### Non-decisions (explicit)
+Direct submission unauthorized. Credit spreads unadmitted. Generalized trade-shape / brokerage framework unratified. Future brokers are an extensibility *requirement*, not implementation scope. No sandbox or real order run. No `WriteIntent` change. Separate production-recovery/failover work untouched.
+
+### Disposition
+Documentation-only (this journal entry). No implementation, no runtime change, no order submission, no commit. A bounded Tradier sandbox capability experiment has been *designed* (reported to Principal) but NOT executed. Commit and experiment execution remain separately gated on explicit Principal authorization.
+
+
+---
+## 2026-09-02 — Tradier execution / broker-modularity: Codex-review corrections (design sharpened, hypotheses NOT ratified)
+### Context
+Codex completed an independent read-only implementation-reality review of the Tradier execution / broker-modularity reconciliation and experiment design (prior entry this date). The Principal accepted the review. Core direction is unchanged; several claims were imprecise and are corrected here. This is append-only correction — the earlier entry is preserved as the hypothesis it was; this entry records how implementation review sharpened it. Mode remains Design/Reconciliation with durable preservation authorized. No implementation, no experiment execution, no order, no `WriteIntent` change, no ADR-004 edit, no commit.
+
+### Durable disposition (revised)
+- **Broker modularity now lives in `PL-EXEC-01`** (concise Principal-worded requirement added to the cell), not a new PL identity and not an ADR-004 amendment. No genuinely independent unresolved concept was found that cannot live under PL-EXEC-01.
+- **ADR-004 unedited this pass.** Pressure recorded (Fidelity = one concrete handoff; Tradier = second concrete broker case; capability differences; broker mechanics must not leak). Not yet enough to freeze a successor interface. Whether ADR-004 later needs a narrow amendment / successor ADR / no change is left open, to be decided by experiment evidence.
+- **PL-STRAT-01 unchanged;** it continues to own credit-spread admission. No admission-status change.
+- **Roadmap / architecture-roadmap:** no change required — C2, K5, K8, O3, L2 and AR3/AR4/AR7 already express this direction. Prefer existing structure.
+
+### Corrected governing hypothesis
+Retire the phrase **"one semantics, multiple transports"** — it compressed distinct concerns (representation is broker-native order shape; preview is validation/evidence; Trade Link is operator handoff; Trading API is submission). Replacement hypothesis:
+> One Wheelwright execution intent may be translated into broker-specific representations and exposed through broker-supported interaction modes.
+Conceptual (NOT ratified interface) responsibilities, each distinct: Wheelwright execution intent → broker-native representation → (optional broker validation/preview) → (operator handoff) → (read-only lifecycle observation) → (direct submission, UNAUTHORIZED). Representation ≠ transport; preview ≠ submission; handoff ≠ submission; lifecycle observation ≠ submission; direct-submission authority does not follow from API availability.
+
+### Capability declaration kept provisional
+Do NOT ratify formal broker capability declaration (`capability-declare`) as an interface responsibility yet. The narrower durable invariant: **a broker module must refuse any representation/operation it cannot faithfully support.** Whether that becomes capability descriptors, per-operation support queries, typed unsupported results, adapter selection, or another mechanism is left to concrete Fidelity+Tradier pressure. No capability ontology.
+
+### Corrected Fidelity/Tradier evidence discipline
+Previous table conflated (1) broker documentation, (2) Wheelwright integration, (3) empirical verification. Corrected rule: **lack of Wheelwright integration is not evidence a broker lacks a capability; UNKNOWN stays UNKNOWN.** Corrected matrix (broker-documented | WW-integrated | empirically-verified):
+- Fidelity single-leg (CSP) handoff — integration-known-enough | implemented | current behavior observed.
+- Fidelity buy-write handoff — NOT established in this investigation | not implemented | not tested.
+- Fidelity multileg handoff — NOT established | not implemented | not tested.
+- Fidelity preview — NOT established | not implemented | not tested.
+- Tradier combo — documented | not integrated | experiment pending.
+- Tradier multileg — documented | not integrated | experiment pending.
+- Tradier preview — documented | not integrated | experiment pending.
+- Tradier Trade Link — documented | not integrated | experiment pending.
+Any later question depending on Fidelity's own combo/multileg/preview/advanced-order support must be researched explicitly, not inferred from current WW implementation.
+
+### Corrected `WriteIntent` implementation truth (precision fixes)
+- `optionType` field permits `"put" | "call"`; the put restriction is in `buildWriteIntent()` (hardcodes `"put"`), not the field definition. State precisely.
+- Builder input is only `PutCandidate` → the *construction pipeline* is CSP-shaped even though some fields are more general.
+- `action` permits only `"sell-to-open"` — a real structural restriction.
+- `contractSymbol` is already broker-contaminated: builder populates it via `formatFidelitySecurityId()` — a Fidelity encoding leak inside the "neutral" intent module (stronger boundary leak than earlier stated). Broker-native symbol formatting belongs behind the broker boundary.
+- `quantity` and `timeInForce` exist in the intent, but `buildFidelityTradeLink()` does NOT encode them into the URL (sets only ORDER_TYPE, ORDER_ACTION=SOPEN, LIMIT_STOP_PRICE, SECURITY_ID, trade=rocfly); operator is told to verify them. Field existence ≠ faithful handoff transmission.
+- Proposed handoff limit uses candidate **bid**, distinct from Wheelwright's governing **midpoint** recommendation valuation. Preserve this distinction.
+Durable finding (no redesign authorized): *the current execution-intent pipeline is narrower and more Fidelity/CSP-shaped than the desired broker-modular boundary.* Whether the smallest coherent evolution is extend-WriteIntent / broader execution-intent / composable leg concepts / separate intent forms / another abstraction is left to experiment. AR3 earned-abstraction discipline still applies.
+
+### Four pricing concepts kept separate (experiment must not silently substitute)
+1. Recommendation valuation (midpoint economics — ranking).
+2. Proposed order limit (currently candidate bid for the CSP path).
+3. Broker preview economics (broker-reported: est. debit/credit, margin, buying-power, commissions, fees, validation).
+4. Actual fill economics.
+Never substitute midpoint→limit, limit→preview, preview→fill, or fill→recommendation valuation. Especially load-bearing for buy-writes and net credit/debit spreads.
+
+### Preview-evidence epistemic boundary
+Tradier preview may become useful **broker-derived execution evidence**, but it is broker-/environment-/account-/permission-specific, time-sensitive, estimated, non-binding, and can differ sandbox vs production. Durable rule:
+> Broker preview evidence is broker-derived, context-bound execution evidence. It must not silently replace Wheelwright recommendation economics or be promoted beyond what the broker response actually establishes.
+Record sufficient contextual provenance (broker, environment, retrieval time, request/order shape, safely-representable account context, whether documented as estimate/validation/binding, relevant request params) WITHOUT persisting sensitive credential/account data. A broker without preview must participate in the same boundary without pretending to provide evidence it cannot. Aligns with ADR-015 provenance discipline.
+
+### Lifecycle observation ≠ submission authority (reclassified)
+Previous framing miscategorized broker order-status observation as merely "unauthorized transport." Correct: read-only lifecycle observation (working/filled/partially-filled/cancelled/rejected) is a **distinct authority** from submission/mutation. Direct submission stays unauthorized; that does not make future read-only lifecycle observation unauthorized — but any such capability still needs its own reconciliation + implementation authorization. Preserve the distinction so observation is not accidentally bound to submission.
+
+### Gated experiment (design only; NO phase authorized to execute)
+- **Phase 1 — Documentation verification + request-fixture construction** (design/doc work; no broker interaction): verify documented single-leg/combo/multileg/preview/Trade-Link/OTO/OCO/OTOCO; build buy-write, put-credit-spread, call-credit-spread fixtures; required fields; net-pricing semantics; leg limits; ambiguous/unsupported combinations; source provenance. Establishes documentation, not behavior.
+- **Phase 2 — Preview-only sandbox** (separate authorization required): combo buy-write, put credit spread, call credit spread — all `preview=true`, NO submission. Observe acceptance, leg preservation, sides, quantities, pricing semantics, validation, buying-power/margin, commissions/fees, warnings/errors, returned strategy/order semantics. Advanced-order preview only what preview can legitimately establish; do NOT infer acceptance/fill/post-fill/cancel-replace/contingent activation. Valid results include unsupported / preview-rejected / not-established-by-preview / requires-submission-experiment.
+- **Phase 3 — Trade Link visual verification** (separate authorization required; browser/provider interaction): ticket opens, all legs, sides, quantities, expiration/strike/type, net/limit price preserved, which fields need manual completion, operator review intact, operator remains submit authority. Do NOT submit. Tests handoff fidelity, not execution quality.
+- **Phase 4 — Sandbox submission/lifecycle** (NEW explicit authorization required; NOT authorized): paper submission, acceptance/rejection, working, simulated/partial fills, broker lifecycle read, cancel/replace, OTO/OCO/OTOCO behavior, contingent BTC/take-profit, whether advanced orders compose with combo/multileg, post-fill semantics. Sandbox fill ≠ production execution quality.
+- **Phase 5 — Production validation** (NOT authorized; may never be approved): only if a question is shown unanswerable outside production — identify it explicitly and stop for Principal decision. Nothing follows automatically from sandbox success.
+
+### Experiment-result classification discipline
+Every finding carries: Documented | Preview-observed | Sandbox-submission-observed | Production-observed | Unsupported | Unknown. These are recording classifications, not permanent domain types. No promotion (Documented↛verified; Preview-observed↛lifecycle-verified; Sandbox↛production).
+
+### Decision gates → earliest capable phase
+Documentation-describes-shape: P1. Preview-accepts / preview-preserves-legs / preview-gives-economics: P2. Trade-Link-faithful / Trade-Link-preserves-authorization: P3. Sandbox-accepts / lifecycle-states / cancel-replace / OTO-OCO-OTOCO-activate / precommitted-BTC: P4. Advanced compose with combo/multileg: P2 only if preview conclusively rejects, else P4. Sandbox-predicts-production: cannot be established. What-requires-production: after P1–P4, P5 only if separately authorized. Preserve UNKNOWN where evidence insufficient.
+
+### Non-decisions reaffirmed
+Direct submission unauthorized; no sandbox submission; no Trade Link interaction; credit spreads unadmitted (feasibility ≠ admission); no `WriteIntent` generalization; no generalized trade-shape framework; no generalized broker framework; no capability ontology; no ADR-004 amendment; no speculative future-broker (Merrill/E*TRADE) design; no production experiment; no interference with failover/recovery work or Codex's observer.
+
+### Working-tree isolation
+This Tradier/broker-modularity workstream = (a) the two 2026-09-02 Tradier journal entries and (b) the `PL-EXEC-01` cell edit in `docs/parking-lot.md`. It is SEPARATE from PL-PROV-FAILOVER (whose changes are in `docs/parking-lot-3.md` and its own journal entries). Kiro 1's failover cleanup entry already records that the Tradier journal entry sits between failover entries and must be hunk-partial-staged out of the failover commit. Preserved, not disturbed. No commit.
+
+### Disposition
+Documentation only: `PL-EXEC-01` cell (broker-modularity requirement) + these two journal entries. No implementation, no runtime change, no experiment execution, no order, no ADR-004 edit, no commit. Commit and experiment execution remain separately gated on explicit Principal authorization.
+
+
+---
+## 2026-09-02 — Tradier execution / broker-modularity: documentation-hygiene addendum (narrow corrections before commit)
+### Context
+Codex's final 3AM review accepted the architecture and experiment design at the design level and left only documentation hygiene. The Principal accepted all findings. This is a narrow correction pass — NOT a redesign. Everything from the two prior 2026-09-02 Tradier entries stands except the four items corrected below. Append-only discipline: earlier entries are preserved as written; this addendum records the corrections rather than rewriting them. No implementation, no experiment execution, no provider/network/browser interaction, no ADR-004 edit, no commit.
+
+### Correction 1 — PL-EXEC-01 cell compressed
+The `PL-EXEC-01` canonical parking-lot cell was overpacked. It now carries only the durable Principal requirement and essential boundaries; the detailed design hypotheses, experiment structure, ADR pressure, provenance discussion, and evidence-state detail remain here in the journal (their correct durable home). The journal carries the full reasoning; the parking-lot row carries the durable requirement + essential authority boundaries.
+
+### Correction 2 — Phase 1 access boundary tightened
+Phase 1 wording "no broker interaction" was too broad because it did not address public-documentation retrieval. Corrected Phase 1 boundary:
+> Use already-captured documentation only; no new network/provider access is authorized in this phase. Fresh retrieval of public Tradier documentation requires separate authorization while the live recovery-observer exclusion remains in force.
+Rationale: cleaning the durable design does not require new external access, and the live failover/recovery observer exclusion argues against unnecessary network activity now.
+
+### Correction 3 — Tradier source epistemics downgraded
+Until exact official page references are durably captured (a separately-authorized Phase 1 activity), the Tradier capability claims (order classes; `combo`; `multileg` ≤4 legs; net credit/debit/even pricing; preview returning cost/commission/fees/margin/validation; Trade Link supporting equity/option/combo/multileg; OTO/OCO/OTOCO existence; the conservative unknown of advanced-order composition over multileg legs) are recorded as:
+> reported as documentation-verified by the prior investigation; exact official source capture pending.
+No new documentation was fetched to make this correction.
+
+### Correction 4 — Fidelity empirical wording tightened
+The Fidelity single-leg (CSP) row's empirical column is corrected from "current behavior observed" to:
+> Integration implemented; URL construction covered by tests; broker-ticket acceptance rests on ADR-004's prior empirical observation.
+This does not imply a fresh broker-side verification.
+
+### Preserved unchanged (from the revised reconciliation)
+- intent / representation / preview / handoff / lifecycle observation / submission remain distinct conceptual responsibilities (not a ratified interface);
+- capability declaration remains provisional (narrow invariant only: a module must refuse what it cannot faithfully support);
+- the corrected `WriteIntent` analysis (optionType field vs put-hardcoded builder; PutCandidate-only input; sell-to-open restriction; `formatFidelitySecurityId()` leak into contractSymbol; quantity/TIF present but not encoded in the Fidelity URL; bid-based proposed limit vs midpoint recommendation valuation);
+- four distinct pricing concepts (recommendation valuation / proposed limit / broker preview economics / actual fill) — no silent substitution;
+- preview evidence remains broker-/environment-/account-/permission-specific, time-sensitive, estimated, non-binding, sandbox≠production, with contextual provenance but no sensitive account/credential persistence;
+- read-only lifecycle observation remains a separate authority from submission/mutation;
+- five separately-gated experiment phases (P1 docs/fixtures; P2 preview-only sandbox; P3 Trade Link visual; P4 sandbox submission/lifecycle; P5 production — P2+ each requires separate authorization; P4/P5 not authorized);
+- result classification (Documented | Preview-observed | Sandbox-submission-observed | Production-observed | Unsupported | Unknown), no cross-promotion; UNKNOWN preserved;
+- credit-spread feasibility remains separate from strategy admission (`PL-STRAT-01`);
+- no ADR-004 edit; no implementation; no experiment execution; no provider/browser/runtime interaction; no commit.
+
+### Working-tree isolation (unchanged)
+This workstream = the `PL-EXEC-01` cell in `docs/parking-lot.md` + the 2026-09-02 Tradier journal entries. Separate from PL-PROV-FAILOVER (`docs/parking-lot-3.md` + its failover journal entries). No failover content touched. No commit; final cross-workstream accounting to follow with Kiro 1 from the same working-tree state.
+
+### Disposition
+Documentation only. No provider/network/browser interaction occurred during this correction pass. No staging, no commit.
