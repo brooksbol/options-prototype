@@ -38,7 +38,7 @@ This mandate establishes **sequence and obligation**, not blanket authorization 
 The following work is authorized by this program without requiring a new idea-intake decision for each step:
 
 - documentation and authority reconciliation required to establish the program;
-- selection and configuration of analysis tooling for the untouched baseline, subject to the Constitution's disclosure and data-custody restrictions;
+- selection and configuration of analysis tooling for the untouched baseline, subject to this Program and the Baseline Charter's disclosure and data-custody restrictions;
 - read-only static, dependency, security, topology, architecture-coherence, test/evidence, and coupling/changeability analysis;
 - preservation and interpretation of baseline evidence;
 - construction of the initial Architecture & Quality Balanced Scorecard;
@@ -53,7 +53,7 @@ This mandate does **not** automatically authorize:
 - restructuring `AcquisitionWorker` while the active provider-admission/constraint investigation remains open;
 - deleting code before live/dead/redundant status is established and the deletion is properly reconciled;
 - introducing a new framework, service boundary, database, infrastructure platform, architectural pattern, or object ontology without demonstrated pressure and the normal architecture process;
-- uploading source or analysis results to a third-party service without Principal authorization where the Constitution requires it;
+- uploading source or analysis results to a third-party service without explicit Principal authorization;
 - promoting an observational metric directly to a CI gate; or
 - changing Category A product/system meaning, ratified ADRs, or behavioral invariants without their normal authority process.
 

@@ -596,3 +596,17 @@ The Principal's governing axiom captures the target:
 > **Make the right thing easy to do. Make what is right easy to know.**
 
 The standards/SCA work should be judged by that outcome. If Kiro can see the correct object shape, responsibility boundary, dependency direction, and validation rule directly from the repository — and if CI catches meaningful divergence before human review — then architecture stops being a recurring reconstruction exercise and becomes part of the system itself.
+
+---
+
+## 2026-09-03 — Technology Quality Constitution v1 Authority Reconciliation
+
+The Principal ratified `docs/foundations/technology-quality-constitution-v1.md` in commit `53b4734`. A subsequent Codex commit, `3f81727`, added useful baseline-execution controls directly to that ratified Constitution without obtaining amendment authority. The content was largely sound; the mutation was not legitimate. This was the first live test of the Constitution's own rule that evidence and assistant judgment inform while explicit authority governs change.
+
+The Principal authorized a forward reconciliation rather than history rewriting or a wholesale revert. Constitution v1 was restored byte-for-byte to the text ratified in `53b4734`. Baseline execution controls remain in the separately ratified Technology Quality Program and its required Baseline Charter. Program wording was corrected so those controls no longer depend on the removed Constitution additions.
+
+The documentation-index, Constitution-discoverability, and numbered-journal-continuation routing introduced by `3f81727` were substantively correct and are now explicitly ratified and retained. No production code, baseline execution, or remediation was part of this reconciliation.
+
+Durable governance learning:
+
+> **Useful judgment does not authorize mutation of ratified authority.**
