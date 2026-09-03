@@ -88,11 +88,12 @@ Read these when evaluating strategic direction, proposing a material product cap
 
 ### Technology Quality / Day-to-Day Architecture
 
-Read this when designing or reviewing implementation structure, evaluating technology condition, selecting engineering quality controls, or planning a technology-optimization intervention:
+Read these when designing or reviewing implementation structure, evaluating technology condition, selecting engineering quality controls, planning a technology-optimization intervention, or executing the Principal-mandated quality program:
 
 | Document | Why |
 |----------|-----|
 | `foundations/technology-quality-constitution-v1.md` | Ratified technology-quality principles, day-to-day architecture practice, operating model, and version-one baseline authorization |
+| `technology-quality-program-v1.md` | Principal-ratified and mandated execution program: backlog/journal reconciliation, untouched baseline, balanced scorecard, technology-optimization roadmap, interventions, fitness controls, and steady-state operation |
 
 ### AI Actor Cold-Start Bootstrap
 
@@ -168,6 +169,7 @@ Authoritative for their specific project concern. Not system-definition document
 |----------|--------|
 | `roadmap.md` | Current strategic roadmap (Vision → Goals → Bets → Initiatives) |
 | `architecture-roadmap.md` | Current architecture-roadmap pressure and intended structural evolution |
+| `technology-quality-program-v1.md` | Principal-ratified and mandated technology-quality program state and execution plan |
 | `parking-lot.md` + numbered continuations | One canonical backlog and material-idea intake registry expressed across physical pages |
 | `journal/project-journal.md` + numbered continuations | One canonical chronology expressed across physical continuation files |
 | `contracts/evidence-snapshot-v1.md` | Frozen API contract (v1) |
@@ -233,15 +235,11 @@ Retained for project memory. Never governs. Each carries an inline `⚠️ HISTO
 
 ## Document Status Conventions
 
-These markers appear as inline `> **Status:**` lines near the top of individual documents.
+Use explicit status markers. Avoid relying on file age or numbering to infer authority.
 
-| Marker | Meaning |
-|--------|---------|
-| **Governing** | Defines the system as it currently exists (Category A) |
-| **Ratified** | Accepted architectural decision, principle, or methodology (Category B) |
-| **Frozen** | Published contract — changes require versioning (Category C) |
-| **Design** | Accepted design not yet fully implemented (Category B) |
-| **Accepted direction** | Ratified architectural direction, implementation pending (Category B) |
-| **Dormant** | Architecturally valid, not actively being built (Category E) |
-| **Exploratory** | Concept under investigation (Category E) |
-| **Historical** | Superseded — retained for project learning (Category F) |
+- **Governing / Current System Definition** — Category A
+- **Ratified Decision / Accepted Design** — Category B
+- **Canonical Project / Operational State** — Category C
+- **Reconciliation / Checkpoint Artifact** — Category D
+- **Current Specialized Reference** — Category E
+- **Historical / Superseded** — Category F
