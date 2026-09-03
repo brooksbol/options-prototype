@@ -10,6 +10,12 @@ The canonical parking lot may span physical continuation files. `docs/parking-lo
 
 > **Authority note:** This continuation rule amends all references below that say only `parking-lot.md`; they mean the complete continuation sequence.
 
+## Project-Journal Continuation Rule — September 3, 2026
+
+The canonical project journal may span physical continuation files. `docs/journal/project-journal.md`, `docs/journal/project-journal-2.md`, and any later numbered continuations are **one logical Category C chronology**. Topical journal retrieval, context reconstruction, and chronological review must inspect the complete `docs/journal/project-journal*.md` sequence. File boundaries are pagination only; later continuations do not have lesser authority or durability.
+
+> **Authority note:** References below to the project journal mean the complete continuation sequence.
+
 ## Material Idea Intake Rule — September 1, 2026
 
 All material new ideas use one canonical intake/reconciliation pipeline governed by `foundations/idea-intake-reconciliation.md`:
@@ -80,6 +86,14 @@ Read these when evaluating strategic direction, proposing a material product cap
 | `foundations/idea-intake-reconciliation.md` | Governing pipeline for durable idea identity, strategic/architectural reconciliation, why-state preservation, and implementation decomposition |
 | `33-strategy-roadmap-checkpoint.md` | Provenance: how the first roadmap/operating-model baseline was derived and blessed |
 
+### Technology Quality / Day-to-Day Architecture
+
+Read this when designing or reviewing implementation structure, evaluating technology condition, selecting engineering quality controls, or planning a technology-optimization intervention:
+
+| Document | Why |
+|----------|-----|
+| `foundations/technology-quality-constitution-v1.md` | Ratified technology-quality principles, day-to-day architecture practice, operating model, and version-one baseline authorization |
+
 ### AI Actor Cold-Start Bootstrap
 
 For a completely new ChatGPT thread or Kiro session starting from scratch. A one-line instruction such as "Bootstrap yourself for Wheelwright from GitHub" should lead an actor here.
@@ -141,6 +155,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/architectural-evolution-methodology.md` | Ratified methodology |
 | `foundations/strategy-architecture-reconciliation.md` | Ratified methodology (strategic roadmap ↔ architecture roadmap reconciliation, exploration freedom, and evidence-driven course correction) |
 | `foundations/idea-intake-reconciliation.md` | Ratified methodology (material idea discovery → canonical intake → strategic/architectural reconciliation → why-state → decomposition/authorization) |
+| `foundations/technology-quality-constitution-v1.md` | Ratified methodology (technology-quality constitution, operating model, day-to-day architecture practice, and baseline authorization) |
 | `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
 | `bootstrap/project-memory-protocol.md` | Ratified methodology (documentation diligence / project memory) |
 | `foundations/parking-lot-continuation-governance.md` | Ratified methodology (one logical parking lot across physical continuation files) |
@@ -154,7 +169,7 @@ Authoritative for their specific project concern. Not system-definition document
 | `roadmap.md` | Current strategic roadmap (Vision → Goals → Bets → Initiatives) |
 | `architecture-roadmap.md` | Current architecture-roadmap pressure and intended structural evolution |
 | `parking-lot.md` + numbered continuations | One canonical backlog and material-idea intake registry expressed across physical pages |
-| `journal/project-journal.md` | Canonical chronology |
+| `journal/project-journal.md` + numbered continuations | One canonical chronology expressed across physical continuation files |
 | `contracts/evidence-snapshot-v1.md` | Frozen API contract (v1) |
 
 ### D. Reconciliation / Checkpoint Artifacts

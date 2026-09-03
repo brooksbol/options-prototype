@@ -81,6 +81,8 @@ Before substantive work, retrieve relevant:
 
 **Parking-lot continuation rule:** `docs/parking-lot.md`, `docs/parking-lot-2.md`, and any later numbered continuation files are physical pages of **one logical canonical parking lot**. Any cold start, backlog scan, reconciliation, or search for related parking-lot material must inspect the complete `docs/parking-lot*.md` sequence. File boundaries do not create separate authority, governance, priority, or ID namespaces.
 
+**Project-journal continuation rule:** `docs/journal/project-journal.md`, `docs/journal/project-journal-2.md`, and any later numbered continuation files are physical pages of **one logical canonical chronology**. Topical journal retrieval and chronological context reconstruction must inspect the complete `docs/journal/project-journal*.md` sequence. A continuation boundary is pagination, not an authority boundary.
+
 The depth of retrieval should be proportional to the scope and risk of the work.
 
 ### Topical journal retrieval
@@ -140,7 +142,7 @@ Do not create documents merely because documentation is possible. Documentation 
 
 ### Journal discipline
 
-The journal (`docs/journal/project-journal.md`) is:
+The journal (the complete `docs/journal/project-journal*.md` sequence) is:
 
 - Append-only
 - Chronological

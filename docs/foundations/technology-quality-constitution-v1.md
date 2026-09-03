@@ -260,6 +260,30 @@ The baseline belongs to one exact `main` commit SHA. Ongoing development does no
 
 If practical, choose the baseline SHA at a sensible checkpoint in the active provider investigation, but once chosen it remains frozen.
 
+The baseline must distinguish two identities:
+
+- **subject identity:** the immutable Wheelwright commit SHA being assessed; and
+- **harness identity:** the analysis tools, versions, rulesets, configuration, scripts, and environment used to assess it.
+
+Adding or changing analysis configuration must not silently change the subject being described as untouched. Run the baseline in an isolated checkout/worktree or equivalent external analysis environment. Use isolated build/test state where tools can interfere with one another, and designate one execution owner for scan and build/test activity within that environment.
+
+## Data handling and result custody
+
+Tool selection must explicitly state whether source or results leave the local environment. Upload to a third-party analysis service requires separate Principal authorization; baseline authorization alone does not authorize external disclosure.
+
+Credentials, environment files, runtime databases, browser state, provider artifacts, and other operational secrets/state are outside the baseline unless explicitly authorized. Scanners and collection scripts must exclude them deliberately rather than relying on accidental absence.
+
+Preserve enough evidence to reproduce and audit the assessment:
+
+- exact commands and environment assumptions;
+- subject SHA and harness identity;
+- raw result location, format, and integrity hash where practical;
+- interpretation derived separately from raw output;
+- tool failures, substitutions, and scope changes; and
+- retention/disposition for large or sensitive results.
+
+Raw results do not automatically belong in Git. Their custody should reflect size, sensitivity, reproducibility, and future review needs.
+
 ## Evidence streams
 
 Capture, with frontend/backend separation where useful:
@@ -307,6 +331,10 @@ Significant findings should be reconciled to one of:
 **delete / retain / repair locally / restructure / explicitly accept / investigate / defer with named dependency.**
 
 No scanner finding becomes a remediation task automatically.
+
+For each material finding, preserve independently where applicable: concrete evidence, affected scope, confidence, consequence/severity, architectural nature, disposition, and named dependency. Scanner severity is evidence; it is not automatically Wheelwright consequence or remediation priority.
+
+The baseline plan must define its materiality threshold. If coupling/changeability evidence uses repository history, it must also define the historical window or sampled initiatives so the assessment is reproducible rather than anecdotal.
 
 ## Exit criteria
 
