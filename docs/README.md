@@ -104,9 +104,10 @@ For a completely new ChatGPT thread or Kiro session starting from scratch. A one
 | `bootstrap/chatgpt-cold-start.md` | ChatGPT | Reasoning partner bootstrap — role, authority retrieval, epistemic discipline |
 | `bootstrap/kiro-cold-start.md` | Kiro | Repository-resident architect/implementation partner bootstrap |
 | `bootstrap/project-memory-protocol.md` | Shared | Documentation diligence / project-memory synchronization protocol |
+| `foundations/multi-actor-repeatability-temporal-synchronization.md` | Shared | Ratified temporal synchronization, convergence, and scoped execution-ownership methodology |
 | `foundations/idea-intake-reconciliation.md` | Shared | Mandatory methodology whenever a material new idea is being considered or handed off |
 
-**Lookup path:** Actor finds `docs/README.md` → reads this section → follows actor-specific bootstrap → follows shared protocol → follows Minimum Safe Bootstrap reading path above → begins substantive work. For a material new idea, the actor must also follow `foundations/idea-intake-reconciliation.md`.
+**Lookup path:** Actor finds `docs/README.md` → reads this section → follows actor-specific bootstrap → follows shared protocol → follows the multi-actor repeatability methodology → follows Minimum Safe Bootstrap reading path above → begins substantive work. For a material new idea, the actor must also follow `foundations/idea-intake-reconciliation.md`.
 
 ---
 
@@ -157,6 +158,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/strategy-architecture-reconciliation.md` | Ratified methodology (strategic roadmap ↔ architecture roadmap reconciliation, exploration freedom, and evidence-driven course correction) |
 | `foundations/idea-intake-reconciliation.md` | Ratified methodology (material idea discovery → canonical intake → strategic/architectural reconciliation → why-state → decomposition/authorization) |
 | `foundations/technology-quality-constitution-v1.md` | Ratified methodology (technology-quality constitution, operating model, day-to-day architecture practice, and baseline authorization) |
+| `foundations/multi-actor-repeatability-temporal-synchronization.md` | Ratified methodology (temporal synchronization, convergence, and scoped execution ownership extending project memory) |
 | `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
 | `bootstrap/project-memory-protocol.md` | Ratified methodology (documentation diligence / project memory) |
 | `foundations/parking-lot-continuation-governance.md` | Ratified methodology (one logical parking lot across physical continuation files) |
