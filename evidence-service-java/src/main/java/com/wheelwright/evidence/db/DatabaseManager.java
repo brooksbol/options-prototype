@@ -94,7 +94,7 @@ public class DatabaseManager {
 
     private static List<String> listMigrationFiles() {
         // Known migration files — add new entries here as migrations are created
-        String[] known = {"001_initial.sql", "002_spot_history.sql", "003_monitored_positions.sql", "004_opportunity_history.sql"};
+        String[] known = {"001_initial.sql", "002_spot_history.sql", "003_monitored_positions.sql", "004_opportunity_history.sql", "005_provider_provenance.sql", "006_correct_invented_legacy_provenance.sql"};
         List<String> files = new ArrayList<>();
         for (String f : known) {
             if (DatabaseManager.class.getClassLoader().getResource(MIGRATIONS_PATH + f) != null) {

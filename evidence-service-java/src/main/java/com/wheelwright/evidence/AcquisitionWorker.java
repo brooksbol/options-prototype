@@ -4,7 +4,14 @@ import com.wheelwright.evidence.db.SqliteEvidenceStore;
 import com.wheelwright.evidence.db.SqliteEvidenceStore.PrioritizedWorkItem;
 import com.wheelwright.evidence.db.SqliteEvidenceStore.ClassifiedPopulation;
 import com.wheelwright.evidence.provider.TradierAdapter;
+import com.wheelwright.evidence.provider.ProviderOutcome;
+import com.wheelwright.evidence.provider.ProviderAuthority;
+import com.wheelwright.evidence.provider.ProviderAuthorityManager;
+import com.wheelwright.evidence.provider.AcquisitionLease;
+import com.wheelwright.evidence.provider.RequestPacer;
+import com.wheelwright.evidence.provider.ObservationRecorder;
 
+import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
@@ -33,8 +40,27 @@ public class AcquisitionWorker {
     private static final long DELAY_IDLE_MS = 30_000;
     private static final int BATCH_SIZE = 10;
 
+    // --- PL-PROV-FAILOVER lifecycle thresholds (provisional / experimental) ---
+    // Confirmed provider-unusable signals required to consider failover. Provisional.
+    private static final long DEGRADE_SIGNAL_THRESHOLD = 5;
+    // Sustained representative production-probe successes required to fail back.
+    private static final int FAILBACK_STREAK_REQUIRED = 3;
+    // Representative probe symbol (liquid; well-formed in both environments).
+    private static final String PROBE_SYMBOL = "SPY";
+    // Max reschedule delay while not in normal production (keeps failback probing responsive).
+    private static final long DELAY_PROVIDER_PROBE_MS = 2000;
+
+    // Explicit recovery-probe cadence (PL-PROV-FAILOVER blocker: probe cadence must be
+    // explicit and tested, not "whenever a cycle happens to run"). While degraded/probing/
+    // suspended, a representative recovery probe is issued at most once per this interval,
+    // decoupling probe frequency from scheduler cycle frequency. Provisional/experimental.
+    private static final long DEFAULT_PROVIDER_PROBE_INTERVAL_MS = 30_000;
+
     // --- Dependencies ---
+    // Retained for backward compatibility (tests, telemetry). Live acquisition routes
+    // through leases from `providerManager` rather than this field directly.
     private final TradierAdapter adapter;
+    private final ProviderAuthorityManager providerManager;
     private final SqliteEvidenceStore store;
     private final SessionGate sessionGate;
     private final SchedulerConfig schedulerConfig;
@@ -68,6 +94,31 @@ public class AcquisitionWorker {
     private int pubSkippedCoalescing = 0;
     private int pubLastChangedSymbols = 0;
 
+    // Provider-availability signals (PL-PROV-FAILOVER constraint 3). Provider-WIDE
+    // unusability (e.g. confirmed 401) increments this instead of contaminating any
+    // symbol's lifecycle. Consumed by the provider-availability lifecycle, not by
+    // per-symbol failure accounting.
+    private volatile long providerUnusableSignals = 0;
+    private volatile String lastProviderUnusableReason = null;
+
+    // Provider-availability lifecycle tracking (PL-PROV-FAILOVER steps 6-8).
+    // Hysteresis correction: degrade requires SUSTAINED/CONSECUTIVE provider-unusable
+    // outcomes with NO intervening representative success. Any successful acquisition
+    // (a representative success — the provider clearly served usable evidence) RESETS the
+    // consecutive counter, so isolated/interleaved 401s can never accumulate across long
+    // spans into a spurious failover. This replaces the previous cumulative
+    // (providerUnusableSignals - baseline) trigger, which never reset on success.
+    private volatile long consecutiveProviderUnusable = 0;
+    private int productionProbeStreak = 0;          // consecutive representative successes
+    // Monotonic-clock timestamp of the last recovery probe (0 = never). Gates cadence so
+    // probes are issued at most once per the probe interval regardless of cycle rate.
+    private long lastProviderProbeAtNanos = 0;
+    // Injectable clock for deterministic cadence testing (defaults to System.nanoTime()).
+    private java.util.function.LongSupplier probeClockNanos = System::nanoTime;
+    // Effective probe interval (ms); overridable for tests via setProbeIntervalForTesting.
+    private volatile long providerProbeIntervalMs = DEFAULT_PROVIDER_PROBE_INTERVAL_MS;
+    private volatile String lastProbeDetail = null;
+
     // Dispatch counters by class
     private int dispatchCountA = 0;
     private int dispatchCountB = 0;
@@ -99,10 +150,16 @@ public class AcquisitionWorker {
 
     // --- Constructor ---
 
-    public AcquisitionWorker(TradierAdapter adapter, SqliteEvidenceStore store,
+    /**
+     * Primary constructor (PL-PROV-FAILOVER): acquisition routes through leases from
+     * the {@link ProviderAuthorityManager}, which owns the active authority + fence
+     * epoch. The {@code adapter} is retained for telemetry/back-compat.
+     */
+    public AcquisitionWorker(ProviderAuthorityManager providerManager, SqliteEvidenceStore store,
                              SessionGate sessionGate, SchedulerConfig schedulerConfig,
                              Set<String> openingSet) {
-        this.adapter = adapter;
+        this.providerManager = providerManager;
+        this.adapter = providerManager.active().adapter();
         this.store = store;
         this.sessionGate = sessionGate;
         this.schedulerConfig = schedulerConfig;
@@ -111,6 +168,34 @@ public class AcquisitionWorker {
         if (!this.openingSet.isEmpty()) {
             System.out.printf("[worker] Opening-relevant set: %d symbols (experiment active)%n", this.openingSet.size());
         }
+    }
+
+    /**
+     * Backward-compatible constructor (single adapter, no failover). Synthesizes a
+     * single-authority manager so acquisition still routes through a lease — the epoch
+     * never advances, so {@code validate()} is always true and behavior is unchanged.
+     * Used by existing tests and any single-provider deployment.
+     */
+    public AcquisitionWorker(TradierAdapter adapter, SqliteEvidenceStore store,
+                             SessionGate sessionGate, SchedulerConfig schedulerConfig,
+                             Set<String> openingSet) {
+        this(singleAuthorityManager(adapter), store, sessionGate, schedulerConfig, openingSet);
+    }
+
+    /**
+     * Build a single-authority (no-failover) manager for the legacy adapter constructor and
+     * mark it ACTIVE/settled. There is no sandbox, no epoch advancement, and no degraded-mode
+     * concept here, so production-availability VERIFICATION does not apply — behavior must be
+     * exactly as it was before failover existed (immediate acquisition under the sole authority).
+     * The failover-aware (manager-based) constructor path deliberately does NOT do this: it
+     * starts PRODUCTION_UNVERIFIED and validates via the control plane.
+     */
+    private static ProviderAuthorityManager singleAuthorityManager(TradierAdapter adapter) {
+        var mgr = new ProviderAuthorityManager(
+            new ProviderAuthority("prod", adapter.environmentLabel(), adapter, adapter.cache(), adapter.pacer()),
+            null);
+        mgr.markSingleAuthorityActiveForLegacy();
+        return mgr;
     }
 
     /** Backward-compatible constructor (experiment disabled) */
@@ -150,6 +235,67 @@ public class AcquisitionWorker {
     public SchedulerTelemetry getSchedulerTelemetry() { return telemetry; }
     public OpeningTelemetry getOpeningTelemetry() { return openingTelemetry; }
 
+    /**
+     * Count of provider-WIDE unusability signals observed (PL-PROV-FAILOVER constraint 3).
+     * Incremented when a provider call fails with a provider-unusable outcome (first
+     * classifier: confirmed HTTP 401) instead of contaminating any symbol's lifecycle.
+     * This is provider-availability telemetry, NOT per-symbol failure accounting.
+     */
+    public long getProviderUnusableSignals() { return providerUnusableSignals; }
+    public String getLastProviderUnusableReason() { return lastProviderUnusableReason; }
+
+    /** Provider-availability lifecycle projection for status (PL-PROV-FAILOVER step 9). */
+    public String getProviderLifecycle() { return providerManager.lifecycle().name(); }
+    public String getEvidenceAvailability() { return providerManager.evidenceAvailability(); }
+    public String getActiveEnvironment() { return providerManager.active().environment(); }
+    public boolean hasSandboxAuthority() { return providerManager.hasSandbox(); }
+    public String getLastProbeDetail() { return lastProbeDetail; }
+
+    /**
+     * Active-acquisition admission observer (PL-PROV-FAILOVER — regime-agnostic).
+     *
+     * Reports the pacer/admission state of whatever authority is CURRENTLY ACTIVE,
+     * addressed by ROLE ("active"), never by provider identity. This is the correct
+     * throughput surface while degraded: the fixed production pacer bean injected into
+     * StatusController measures the idle production authority, not the authority doing
+     * the work. Consumers read admission behavior (119-start/60s ledger, single-flight,
+     * backoff) without knowing or branching on production vs sandbox.
+     */
+    public RequestPacer.PacerState getActiveAuthorityPacerState() {
+        return providerManager.active().pacer().getState();
+    }
+
+    public String getActiveAuthorityId() { return providerManager.active().id(); }
+
+    /**
+     * Recovery-probe admission observer. The production authority is the failback probe
+     * authority whenever it is NOT the active authority. Exposing its pacer state proves
+     * (constraint 4) that recovery probes run on their OWN isolated pacer and do not
+     * consume the active authority's admission capacity — the two ledgers are distinct
+     * RequestPacer instances by construction (one per ProviderAuthority).
+     */
+    public RequestPacer.PacerState getProbeAuthorityPacerState() {
+        var active = providerManager.active();
+        var production = providerManager.production();
+        // While degraded/probing, production is the probe authority. While production is
+        // active, there is no separate probe authority (sandbox, if present, is idle).
+        if (active == production) {
+            return providerManager.hasSandbox()
+                ? providerManager.sandboxOrNull().pacer().getState()
+                : null;
+        }
+        return production.pacer().getState();
+    }
+
+    public String getProbeAuthorityId() {
+        var active = providerManager.active();
+        var production = providerManager.production();
+        if (active == production) {
+            return providerManager.hasSandbox() ? providerManager.sandboxOrNull().id() : null;
+        }
+        return production.id();
+    }
+
     public void nudge() {
         if (!running || cycleActive) return;
         if (nextCycle != null) nextCycle.cancel(false);
@@ -176,9 +322,61 @@ public class AcquisitionWorker {
                 sessionBlockLogged = true;
             }
             status = status.withState("session_blocked");
-            scheduleCycle(DELAY_SESSION_BLOCKED_MS);
+
+            // PL-PROV-FAILOVER: degraded mode is SELF-HEALING independently of market-session
+            // acquisition policy (invariant I12: provider availability is orthogonal to the
+            // Market Session Model). While BLOCKED we still evaluate the provider-availability
+            // control plane so a production recovery (or a re-degrade) is detected and acted on
+            // overnight/weekends/holidays — WITHOUT permitting any ordinary acquisition,
+            // expirations work, chain acquisition, store mutation, or publication. This is
+            // control-plane-only work: evaluateProviderLifecycle() runs non-writing probes and
+            // may switch the active authority, but writes no evidence. It is wrapped so a
+            // probe/transition error cannot disturb the blocked reschedule. cycleCount is NOT
+            // incremented and state stays "session_blocked": a recovery evaluation is not an
+            // acquisition cycle (telemetry integrity).
+            try {
+                evaluateProviderLifecycle();
+            } catch (Exception le) {
+                System.err.println("[provider] Lifecycle evaluation error: " + le.getMessage());
+            }
+
+            // Cadence while BLOCKED: recoveryProbeDue() (the injectable 30s gate) remains the
+            // SOLE authority on probe frequency. We only choose how often to WAKE and check it.
+            // Wake frequently (2s) whenever the control plane still has production to validate:
+            // that is EVERY state except a fully-settled PRODUCTION_ACTIVE whose evidence is
+            // already restored (productionEvidenceCurrent). This deliberately includes
+            // PRODUCTION_UNVERIFIED (startup validation) AND PRODUCTION_ACTIVE-but-not-restored
+            // (relapse-risk window), so a startup 401 is validated and a relapse is caught even
+            // while ordinary acquisition is BLOCKED. Only the settled state stays quiet at 300s.
+            long blockedDelay = providerManager.settledProduction()
+                ? DELAY_SESSION_BLOCKED_MS
+                : Math.min(DELAY_SESSION_BLOCKED_MS, DELAY_PROVIDER_PROBE_MS);
+            scheduleCycle(blockedDelay);
             return;
         }
+        // PL-PROV-FAILOVER: ordinary acquisition cannot run under an UNVERIFIED or SUSPENDED
+        // authority — production must first be ESTABLISHED by the control plane. This gate runs
+        // BEFORE any ordinary acquisition (unlike the post-acquisition lifecycle evaluation
+        // below) so a PRODUCTION_UNVERIFIED binding can never perform a production acquisition —
+        // and therefore can never set restoration state — before the representative-probe
+        // verification predicate has passed. While not established we do control-plane
+        // validation ONLY (non-writing probes; may establish/degrade/suspend), do NOT run
+        // expirations/chain/store/publish, do NOT increment cycleCount, and reschedule
+        // responsively so the 30s validation gate stays authoritative.
+        if (!providerManager.acquisitionAuthorityEstablished()) {
+            status = status.withState("provider_unverified");
+            try {
+                evaluateProviderLifecycle();
+            } catch (Exception le) {
+                System.err.println("[provider] Lifecycle evaluation error: " + le.getMessage());
+            }
+            long delay = providerManager.settledProduction()
+                ? DELAY_IDLE_MS
+                : Math.min(DELAY_IDLE_MS, DELAY_PROVIDER_PROBE_MS);
+            scheduleCycle(delay);
+            return;
+        }
+
         if (sessionBlockLogged) {
             System.out.printf("[worker] Acquisition resumed · %s%n", posture.reason());
             sessionBlockLogged = false;
@@ -200,6 +398,16 @@ public class AcquisitionWorker {
                 // FULL posture — normal acquisition with opening-burst priority
                 runFullCycle(posture.reason(), cycleCount, cycleStart);
             }
+
+            // Provider-availability lifecycle (PL-PROV-FAILOVER): after the acquisition
+            // work, evaluate whether to fail over to sandbox or fail back to production.
+            // Control-plane only; never writes evidence. Isolated so a probe/transition
+            // error cannot abort the acquisition cycle.
+            try {
+                evaluateProviderLifecycle();
+            } catch (Exception le) {
+                System.err.println("[provider] Lifecycle evaluation error: " + le.getMessage());
+            }
         } catch (Exception err) {
             System.err.println("[worker] Cycle error: " + err.getMessage());
             status = status.withFailures(status.failures() + 1);
@@ -218,6 +426,14 @@ public class AcquisitionWorker {
             }
             long tPostEnd = System.currentTimeMillis();
             long nextDelay = hasMoreWork ? 1000 : DELAY_IDLE_MS;
+            // PL-PROV-FAILOVER: until production is SETTLED (verified AND fresh evidence
+            // restored), keep cycles frequent so representative validation / failback stays
+            // responsive even when the (sandbox) work queue is momentarily empty. This uses the
+            // SAME settled-production predicate as the operator-facing projection and the BLOCKED
+            // path — PRODUCTION_ACTIVE-but-unrestored is NOT settled and still needs validation.
+            if (!providerManager.settledProduction()) {
+                nextDelay = Math.min(nextDelay, DELAY_PROVIDER_PROBE_MS);
+            }
             status = status.withState(hasMoreWork ? "acquiring" : "idle");
 
             // Record post-cycle overhead (the "hasMoreWork" query + reschedule delay)
@@ -524,121 +740,480 @@ public class AcquisitionWorker {
     // --- Tiered symbol acquisition ---
 
     private void acquireSymbolTiered(PrioritizedWorkItem item) {
+        // Constraint 2: acquire ONE atomic lease for this operation. Every provider
+        // call goes through lease.adapter(); every durable/status consequence is
+        // committed only while the lease is still valid (commitGuarded). A concurrent
+        // authority transition bumps the fence epoch, so an in-flight result is fenced
+        // out — never written, never published (invariants I9/I10).
+        final AcquisitionLease lease = providerManager.acquireLease();
+        // Shared authoritative observer: mark every provider call this operation makes as
+        // ACTIVE_ACQUISITION against the leased authority. The adapter refines the per-call
+        // kind (quote/expirations/chain). Purpose is independent of authority identity, so
+        // the observer can distinguish active-acquisition load from recovery-probe load even
+        // when they resolve to the same pacer.
+        // Scope opened ONCE per logical acquisition, keyed to the lease's logical operation id
+        // (review-3 #2): every HTTP request this acquisition issues shares that id, and so does
+        // the single terminal verdict recorded below.
+        lease.adapter().pacer().openPurposeScope(lease.operationId(),
+            ObservationRecorder.Purpose.ACTIVE_ACQUISITION, item.symbol(), lease.provenanceId(),
+            lease.fenceEpoch());
+        // Terminal-outcome bookkeeping (review-3 #3): exactly ONE terminal outcome per lease.
+        // terminal[0]: the terminal LogicalOutcome; committedPrimary[0]: whether the normalized,
+        // fenced, durable PRIMARY chain (usable evidence) was written under a current lease.
+        final ObservationRecorder.LogicalOutcome[] terminal = { null };
+        final boolean[] fenced = { false };
+        final boolean[] committedPrimary = { false };
+        final boolean[] backoffAfterFailure = { false };
         try {
             Map<String, Object> ev = store.getEvidence(item.symbol());
-            if (ev == null) return;
+            if (ev == null) {
+                // Missing/unexpected state — nothing to acquire. Honest terminal: ABORTED.
+                terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_ABORTED;
+                return;
+            }
 
             String evStatus = (String) ev.get("status");
 
             if ("pending".equals(evStatus) || "failed".equals(evStatus)) {
                 // Lifecycle: full acquisition
-                var result = adapter.getExpirations(item.symbol());
-                store.recordMetrics(result.cacheHit() ? 0 : 1, result.cacheHit() ? 1 : 0);
-                String expJson = marshalExpirations(result.expirations());
-                store.setExpirations(item.symbol(), expJson, result.retrievedAt());
-                status = status.withSymbolsAcquiredTotal(status.symbolsAcquiredTotal() + 1);
-                evidenceChangedSincePublish = true;
-                changedSymbolsThisPublish++;
+                var result = lease.adapter().getExpirations(item.symbol());
+                boolean committed = commitGuarded(lease, item.symbol(), "expirations", () -> {
+                    store.recordMetrics(result.cacheHit() ? 0 : 1, result.cacheHit() ? 1 : 0);
+                    store.setExpirations(item.symbol(), marshalExpirations(result.expirations()), result.retrievedAt(), lease.environment(), lease.provenanceId());
+                });
+                if (!committed) { fenced[0] = true; terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_FENCED; return; }
 
                 var updated = store.getEvidence(item.symbol());
                 if (updated != null && "expirations_known".equals(updated.get("status")) && updated.get("primaryExpiration") != null) {
                     String primary = (String) updated.get("primaryExpiration");
-                    acquireAllEligibleChains(item.symbol(), primary, expJson);
+                    committedPrimary[0] = acquireAllEligibleChains(lease, item.symbol(), primary, marshalExpirations(result.expirations()), fenced);
                 }
             } else if ("expirations_known".equals(evStatus) && ev.get("primaryExpiration") != null) {
                 // Partial: chain only — complete resolution with full surface
                 String primary = (String) ev.get("primaryExpiration");
                 String expJson = (String) ev.get("expirations");
-                acquireAllEligibleChains(item.symbol(), primary, expJson);
+                committedPrimary[0] = acquireAllEligibleChains(lease, item.symbol(), primary, expJson, fenced);
             } else if ("ready".equals(evStatus) || "absent".equals(evStatus)) {
                 // Refresh
                 if (item.needsExpirations()) {
-                    var result = adapter.getExpirations(item.symbol());
-                    store.recordMetrics(result.cacheHit() ? 0 : 1, result.cacheHit() ? 1 : 0);
-                    String expJson = marshalExpirations(result.expirations());
-                    store.setExpirations(item.symbol(), expJson, result.retrievedAt());
-                    status = status.withSymbolsAcquiredTotal(status.symbolsAcquiredTotal() + 1);
-                    evidenceChangedSincePublish = true;
-                    changedSymbolsThisPublish++;
+                    var result = lease.adapter().getExpirations(item.symbol());
+                    boolean committed = commitGuarded(lease, item.symbol(), "expirations", () -> {
+                        store.recordMetrics(result.cacheHit() ? 0 : 1, result.cacheHit() ? 1 : 0);
+                        store.setExpirations(item.symbol(), marshalExpirations(result.expirations()), result.retrievedAt(), lease.environment(), lease.provenanceId());
+                    });
+                    if (!committed) { fenced[0] = true; terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_FENCED; return; }
 
                     var updated = store.getEvidence(item.symbol());
                     if (updated != null && "expirations_known".equals(updated.get("status")) && updated.get("primaryExpiration") != null) {
                         String primary = (String) updated.get("primaryExpiration");
-                        acquireAllEligibleChains(item.symbol(), primary, expJson);
+                        committedPrimary[0] = acquireAllEligibleChains(lease, item.symbol(), primary, marshalExpirations(result.expirations()), fenced);
                     }
                 } else if (ev.get("primaryExpiration") != null) {
                     // Normal refresh: acquire full eligible surface
                     String primary = (String) ev.get("primaryExpiration");
                     String expJson = (String) ev.get("expirations");
-                    acquireAllEligibleChains(item.symbol(), primary, expJson);
+                    committedPrimary[0] = acquireAllEligibleChains(lease, item.symbol(), primary, expJson, fenced);
                 }
+            }
+            // Terminal verdict for the whole logical acquisition (review-4 #2: EVERY completed
+            // path yields exactly one honest terminal):
+            //   FENCED             — a transition discarded the result mid-op;
+            //   COMMITTED          — a normalized primary chain (usable evidence) was durably
+            //                        written under a current lease;
+            //   NO_USABLE_EVIDENCE — the op completed without a usable primary chain
+            //                        (expirations-only, absent, or an unhandled/absent state).
+            if (fenced[0]) {
+                terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_FENCED;
+            } else if (committedPrimary[0]) {
+                terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_COMMITTED;
+            } else {
+                terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_NO_USABLE_EVIDENCE;
             }
         } catch (Exception err) {
             String msg = err.getMessage() != null ? err.getMessage() : "Unknown error";
+
+            // PL-PROV-FAILOVER constraint 3: classify the outcome cause-safely so a
+            // provider-WIDE unusability (first classifier: confirmed HTTP 401) is NEVER
+            // projected into per-symbol lifecycle. Provider-unusable must not call
+            // store.setFailure() (which would increment failure_count and eventually flip
+            // resolution='failed' — the incident's symbol-contamination path, invariant I2).
+            ProviderOutcome outcome = ProviderOutcome.classify(err);
+            if (outcome == ProviderOutcome.PROVIDER_UNUSABLE) {
+                // Provider-control signal only: no durable symbol mutation, no per-symbol
+                // failure accounting. The provider-availability lifecycle owns this condition.
+                //
+                // AUTHORITY-FENCED control signaling (review-5 #1): the failure-streak counters
+                // belong to the CURRENT authority. A 401 completing under a STALE lease (a
+                // transition already landed) must NOT pollute the new authority's streak or
+                // trigger a spurious re-degrade — so the counter bump runs ONLY IF the lease is
+                // still current, inside the transition boundary. The completion stays observable
+                // via the terminal PROVIDER_UNUSABLE below regardless.
+                providerManager.signalProviderUnusableIfCurrent(lease, () -> {
+                    providerUnusableSignals++;        // cumulative telemetry (never resets)
+                    consecutiveProviderUnusable++;    // sustained-run trigger (resets on success)
+                    lastProviderUnusableReason = msg;
+                });
+                // Honest terminal for THIS logical acquisition (review-4 #2): the provider was
+                // unusable, so this acquisition produced no usable evidence. Observable whether
+                // or not the control counters were current-authority-applicable.
+                terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_PROVIDER_UNUSABLE;
+                return;
+            }
+
+            // Genuine per-symbol quality failure (or unclassified). Failure accounting is
+            // AUTHORITY-SENSITIVE (review-3 #5): store.setFailure + failure/changed-symbol
+            // counters must NOT corrupt current-authority semantics if a transition landed
+            // during this operation. Route the failure write + accounting through the manager's
+            // guarded boundary so a stale lease applies NEITHER. Three DISTINCT dispositions
+            // (review-5 #3), never conflated:
+            //   commitIfCurrent == false           -> FENCED (stale lease; nothing attempted)
+            //   guarded mutation throws (current)   -> PERSISTENCE_FAILED (write failed, NOT fencing)
+            //   guarded recording succeeds          -> REJECTED (per-subject quality failure recorded)
+            boolean failureApplied = false;
+            boolean persistenceFailed = false;
             try {
-                store.setFailure(item.symbol(), msg);
-            } catch (Exception e) { /* ignore */ }
-            status = status.withFailures(status.failures() + 1);
-            evidenceChangedSincePublish = true;
-            changedSymbolsThisPublish++;
+                failureApplied = providerManager.commitIfCurrent(lease, item.symbol(), "failure",
+                    () -> store.setFailure(item.symbol(), msg),
+                    () -> {
+                        status = status.withFailures(status.failures() + 1);
+                        evidenceChangedSincePublish = true;
+                        changedSymbolsThisPublish++;
+                    });
+            } catch (SQLException | RuntimeException persistErr) {
+                // The lease was CURRENT (commitIfCurrent only runs the mutation when current) but
+                // the durable write threw. This is a persistence failure, NOT fencing.
+                persistenceFailed = true;
+            }
+            if (persistenceFailed) {
+                terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_PERSISTENCE_FAILED;
+            } else if (failureApplied) {
+                terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_REJECTED;
+            } else {
+                terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_FENCED;
+            }
+            // The per-symbol failure backoff sleep is deferred to AFTER the terminal is recorded
+            // (below the finally) so the terminal disposition is observable immediately and is not
+            // hidden behind the backoff delay. Only after a genuinely RECORDED failure.
+            backoffAfterFailure[0] = failureApplied;
+        } finally {
+            // EXACTLY ONE terminal logical outcome per lease, correlated to the logical operation
+            // id (review-4 #2). Every exit path sets terminal[0]: COMMITTED (usable primary chain),
+            // NO_USABLE_EVIDENCE (completed without one), FENCED (transition mid-op), REJECTED
+            // (per-subject quality failure), PROVIDER_UNUSABLE (provider-wide condition), or
+            // ABORTED (missing/unexpected state). terminal[0] should never be null here; the
+            // null-guard is defensive only.
+            if (terminal[0] != null) {
+                providerManager.recordTerminalOutcome(lease, item.symbol(), terminal[0]);
+            }
+            lease.adapter().pacer().clearPurposeScope();
+        }
+        // Per-symbol failure backoff, AFTER the terminal disposition has been recorded/observed.
+        if (backoffAfterFailure[0]) {
             try { Thread.sleep(DELAY_AFTER_FAILURE_MS); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
         }
     }
 
-    private void acquireChain(String symbol, String expiration) throws Exception {
-        var result = adapter.getOptionsChain(symbol, expiration);
-        store.recordMetrics(result.cacheHit() ? 0 : 2, result.cacheHit() ? 1 : 0);
-        store.setChain(symbol, marshalChain(result.chain()), result.retrievedAt());
-        status = status.withSymbolsAcquiredTotal(status.symbolsAcquiredTotal() + 1);
-        evidenceChangedSincePublish = true;
-        changedSymbolsThisPublish++;
+    /**
+     * Provider-availability lifecycle evaluation (PL-PROV-FAILOVER steps 6-8), run once
+     * per acquisition cycle. Pure control-plane: it may switch the active authority and
+     * run non-writing probes, but performs NO store write, symbol-lifecycle change, or
+     * publication. Domain code never branches on provider identity — this is Layer 1.
+     */
+    private void evaluateProviderLifecycle() {
+        var lifecycle = providerManager.lifecycle();
+
+        // Case 1 — PRODUCTION_ACTIVE and evidence already restored (a fresh production primary
+        // chain committed under the current epoch). Ordinary acquisition is naturally exercising
+        // production, so provider health is supplied by acquisition outcomes: degrade only on a
+        // SUSTAINED consecutive run of provider-unusable acquisition outcomes (reset on any
+        // representative success). No control-plane probing needed here.
+        if (lifecycle == ProviderAuthorityManager.Lifecycle.PRODUCTION_ACTIVE
+                && providerManager.productionEvidenceCurrent()) {
+            if (consecutiveProviderUnusable >= DEGRADE_SIGNAL_THRESHOLD) {
+                degradeFromUnusableProduction();
+            }
+            return;
+        }
+
+        // Every other state means production is NOT confirmed to be supplying current usable
+        // evidence: PRODUCTION_UNVERIFIED (startup — never validated this process),
+        // PRODUCTION_ACTIVE-but-not-yet-restored (authority established but no qualifying fresh
+        // commit yet — the relapse-risk window while ordinary acquisition cannot exercise it),
+        // DEGRADED_SANDBOX / PRODUCTION_PROBING (serving sandbox, probing production), or
+        // ACQUISITION_SUSPENDED. In ALL of these the control plane must ACTIVELY validate
+        // production on the explicit cadence, because ordinary acquisition cannot (or has not
+        // yet) established production health. This is the single unified validation path.
+        if (!recoveryProbeDue()) {
+            return; // decouple probe cadence from cycle/wake rate
+        }
+        lastProviderProbeAtNanos = probeClockNanos.getAsLong();
+
+        boolean servingSandbox = providerManager.active() == providerManager.sandboxOrNull()
+            && providerManager.hasSandbox();
+
+        // If we are serving sandbox (degraded/suspended) confirm sandbox still usable so a
+        // suspended state can recover into degraded and a degraded state stays justified.
+        if ((lifecycle == ProviderAuthorityManager.Lifecycle.ACQUISITION_SUSPENDED)
+                && providerManager.hasSandbox()) {
+            var sp = providerManager.sandboxOrNull().probeRepresentative(PROBE_SYMBOL, providerManager.currentEpoch());
+            if (sp.usable()) {
+                providerManager.activateDegraded();
+                consecutiveProviderUnusable = 0;
+                servingSandbox = true;
+            }
+        }
+
+        // Representative validation of the PREFERRED production authority.
+        var prod = providerManager.production();
+        var probe = prod.probeRepresentative(PROBE_SYMBOL, providerManager.currentEpoch());
+        lastProbeDetail = "production: " + probe.detail();
+
+        if (probe.usable()) {
+            productionProbeStreak++;
+            // While serving sandbox, reflect the in-progress recovery as PROBING (hysteresis).
+            if (servingSandbox) {
+                providerManager.enterProbing();
+            }
+            if (productionProbeStreak >= FAILBACK_STREAK_REQUIRED) {
+                if (servingSandbox) {
+                    // Sandbox → production failback (increments the fence epoch).
+                    if (providerManager.activateProduction()) {
+                        System.out.printf("[provider] Production recovered (%d sustained representative successes) — PRODUCTION_ACTIVE (evidence still degraded until a fresh production commit).%n",
+                            productionProbeStreak);
+                    }
+                } else {
+                    // Production is the active binding but not yet active: UNVERIFIED (startup)
+                    // or ACQUISITION_SUSPENDED (production-bound, previously unusable, no usable
+                    // sandbox). Establish/recover production ACTIVE at the SAME epoch (initial/
+                    // retained authority, not a failback). This is the fix for the suspended
+                    // dead-end: establishProductionVerified() now accepts SUSPENDED too, so the
+                    // streak actually recovers instead of resetting forever. Evidence stays
+                    // DEGRADED until a fresh production primary commit restores NORMAL.
+                    if (providerManager.establishProductionVerified()) {
+                        System.out.printf("[provider] Production verified/recovered (%d sustained representative successes) — PRODUCTION_ACTIVE (evidence still degraded until a fresh production commit).%n",
+                            productionProbeStreak);
+                    }
+                }
+                productionProbeStreak = 0;
+                consecutiveProviderUnusable = 0;
+            }
+        } else {
+            // Production not usable. Reset the recovery streak and ensure we are on a VERIFIED
+            // fallback authority (or suspended). This handles BOTH startup-unusable and the
+            // relapse of a PRODUCTION_ACTIVE-but-not-yet-restored authority while ordinary
+            // acquisition cannot supply failure signals.
+            productionProbeStreak = 0;
+            if (servingSandbox) {
+                // Already serving sandbox: stay degraded (drop out of PROBING if we were in it).
+                providerManager.abandonProbing();
+            } else {
+                // Preferred (production) authority is active/unverified but unusable → move to a
+                // verified fallback, exactly like the acquisition-driven degrade path.
+                degradeFromUnusableProduction();
+            }
+        }
     }
 
     /**
-     * Acquire chains for ALL eligible expirations within the 7-45 DTE window.
+     * Move off an unusable production authority to a VERIFIED sandbox (DEGRADED_SANDBOX), or
+     * ACQUISITION_SUSPENDED when no sandbox exists / sandbox is also unusable. Shared by the
+     * acquisition-driven degrade (Case 1) and the control-plane validation path (startup and
+     * the PRODUCTION_ACTIVE-but-unrestored relapse window). Verifies sandbox is actually usable
+     * before failing over so we never present a fallback we have not validated.
+     */
+    private void degradeFromUnusableProduction() {
+        if (!providerManager.hasSandbox()) {
+            providerManager.suspend();
+            System.out.println("[provider] Production unusable and no sandbox authority — ACQUISITION_SUSPENDED.");
+            return;
+        }
+        var sandbox = providerManager.sandboxOrNull();
+        var probe = sandbox.probeRepresentative(PROBE_SYMBOL, providerManager.currentEpoch());
+        lastProviderProbeAtNanos = probeClockNanos.getAsLong();
+        lastProbeDetail = "sandbox: " + probe.detail();
+        if (probe.usable()) {
+            if (providerManager.activateDegraded()) {
+                consecutiveProviderUnusable = 0;
+                System.out.println("[provider] Production unusable; sandbox verified usable — DEGRADED_SANDBOX active.");
+            }
+        } else {
+            providerManager.suspend();
+            System.out.println("[provider] Production unusable and sandbox not usable — ACQUISITION_SUSPENDED.");
+        }
+    }
+
+    /**
+     * Explicit recovery-probe cadence gate (PL-PROV-FAILOVER). A probe is due when none
+     * has been issued yet, or at least {@link #PROVIDER_PROBE_INTERVAL_MS} has elapsed
+     * since the last one. Uses the injectable monotonic clock so cadence is deterministically
+     * testable. This is the ONLY place recovery-probe frequency is decided.
+     */
+    boolean recoveryProbeDue() {
+        long now = probeClockNanos.getAsLong();
+        if (lastProviderProbeAtNanos == 0) return true;
+        long elapsedMs = (now - lastProviderProbeAtNanos) / 1_000_000L;
+        return elapsedMs >= providerProbeIntervalMs;
+    }
+
+    /** Test seam: inject a deterministic monotonic clock for probe-cadence tests. */
+    void setProbeClockForTesting(java.util.function.LongSupplier nanos) {
+        this.probeClockNanos = nanos;
+    }
+
+    /** Test seam: set the last-probe timestamp (monotonic ns) to exercise cadence math. */
+    void setLastProbeAtNanosForTesting(long nanos) {
+        this.lastProviderProbeAtNanos = nanos;
+    }
+
+    /** Test seam: override the recovery-probe interval (ms) for deterministic timing tests. */
+    void setProbeIntervalForTesting(long ms) {
+        this.providerProbeIntervalMs = ms;
+    }
+
+    /** Test accessor: the effective recovery-probe interval (ms). */
+    long providerProbeIntervalMsForTesting() {
+        return providerProbeIntervalMs;
+    }
+
+    /** Test accessor: current consecutive provider-unusable run length. */
+    long consecutiveProviderUnusableForTesting() {
+        return consecutiveProviderUnusable;
+    }
+
+    /** Test accessor: the provider-authority manager (exposes the shared observer). */
+    ProviderAuthorityManager providerManagerForTesting() {
+        return providerManager;
+    }
+
+    /**
+     * Commit a store/status mutation only if the lease is still valid (its authority
+     * epoch has not been superseded by a transition). A stale lease discards the
+     * result: NO durable write, NO symbol-lifecycle change, NO generation/publish, NO
+     * acquisition accounting. Returns true if the mutation was applied.
+     *
+     * This is the single choke point enforcing constraint 2 / invariants I9/I10 for
+     * successful acquisitions. Provider calls have already happened by the time this is
+     * invoked; only their externally-meaningful consequences are gated here.
+     */
+    private boolean commitGuarded(AcquisitionLease lease, String subject, String operationKind,
+                                  StoreMutation mutation) throws SQLException {
+        // Non-restoration-qualifying commit (expirations, secondary chains, absent/failure,
+        // cache-hit primaries). Never establishes production evidence restoration.
+        return commitGuarded(lease, subject, operationKind, false, mutation);
+    }
+
+    /**
+     * Commit a store/status mutation only if the lease is still valid.
+     *
+     * @param qualifiesForRestoration TRUE only for an explicit FRESH (non-cache),
+     *        POST-TRANSITION PRIMARY production provider acquisition. This — and ONLY this —
+     *        may establish production-evidence restoration (PL-PROV-FAILOVER). The caller
+     *        computes this fact from the actual provider response; it is NOT inferred from the
+     *        {@code operationKind} string, provenance alone, a cache hit, or a secondary chain.
+     */
+    private boolean commitGuarded(AcquisitionLease lease, String subject, String operationKind,
+                                  boolean qualifiesForRestoration, StoreMutation mutation) throws SQLException {
+        // ATOMIC transition+commit (review-2/3): the SQL write AND every authority-sensitive
+        // post-SQL consequence (hysteresis reset, acquisition total, publication-dirty flag,
+        // changed-symbol count) run INSIDE the manager's transition synchronization boundary,
+        // so a stale lease applies NONE of them. Records an INTERMEDIATE STORE_MUTATION_APPLIED
+        // (not a terminal verdict — the single terminal outcome is recorded once per lease).
+        return providerManager.commitIfCurrent(lease, subject, operationKind, mutation::apply,
+            () -> {
+                consecutiveProviderUnusable = 0;   // representative success breaks the unusable run
+                status = status.withSymbolsAcquiredTotal(status.symbolsAcquiredTotal() + 1);
+                evidenceChangedSincePublish = true;
+                changedSymbolsThisPublish++;
+
+                // PL-PROV-FAILOVER restoration boundary: operational evidence restoration
+                // completes ONLY for an explicit fresh (non-cache), post-transition PRIMARY
+                // production provider commit under the CURRENT epoch. commitIfCurrent guarantees
+                // this effect runs only when the lease is current, so lease.fenceEpoch() is the
+                // current epoch here. Restoration is NOT inferred from operationKind, provenance
+                // alone, a cache hit, or a secondary chain — the caller passes the explicit fact.
+                if (qualifiesForRestoration && "production".equals(lease.environment())) {
+                    providerManager.markProductionEvidenceRestored(lease.fenceEpoch());
+                }
+            });
+    }
+
+    @FunctionalInterface
+    private interface StoreMutation { void apply() throws SQLException; }
+
+    /**
+     * Acquire chains for ALL eligible expirations within the 7-45 DTE window, through
+     * the given lease. All provider calls use lease.adapter(); all writes are
+     * commit-guarded so a mid-operation authority transition fences the result.
      *
      * The primary expiration is acquired via setChain() (updates resolution to ready).
-     * Additional eligible expirations are acquired via setChainForExpiration()
-     * (stores chain without affecting resolution lifecycle).
-     *
-     * For monthly-only symbols (1 eligible expiration), this acquires exactly one chain.
-     * For weekly-capable symbols, acquires the full eligible surface.
-     * Failures on individual expirations are non-fatal — logged and skipped.
+     * Additional eligible expirations are acquired via setChainForExpiration().
+     * Failures on individual (non-primary) expirations are non-fatal — logged, skipped.
      */
-    private void acquireAllEligibleChains(String symbol, String primaryExpiration, String expirationsJson) {
+    private boolean acquireAllEligibleChains(AcquisitionLease lease, String symbol,
+                                             String primaryExpiration, String expirationsJson,
+                                             boolean[] fenced) {
         List<String> eligible = expirationsJson != null
             ? SqliteEvidenceStore.getEligibleExpirations(expirationsJson)
             : List.of(primaryExpiration);
 
-        // Always acquire the primary first (sets resolution to ready)
+        // Always acquire the primary first (sets resolution to ready). A committed primary is
+        // the normalized, fenced, durable chain that constitutes USABLE EVIDENCE (review-3 #3).
         try {
-            var result = adapter.getOptionsChain(symbol, primaryExpiration);
-            store.recordMetrics(result.cacheHit() ? 0 : 2, result.cacheHit() ? 1 : 0);
-            store.setChain(symbol, marshalChain(result.chain()), result.retrievedAt());
-            status = status.withSymbolsAcquiredTotal(status.symbolsAcquiredTotal() + 1);
-            evidenceChangedSincePublish = true;
-            changedSymbolsThisPublish++;
+            var result = lease.adapter().getOptionsChain(symbol, primaryExpiration);
+            // This is THE primary chain. It qualifies to establish production-evidence
+            // restoration ONLY when it is a FRESH provider response (not a cache hit) — a
+            // cache hit may be pre-transition/pre-outage evidence and must never restore.
+            boolean qualifiesForRestoration = !result.cacheHit();
+            boolean committed = commitGuarded(lease, symbol, "chain", qualifiesForRestoration, () -> {
+                store.recordMetrics(result.cacheHit() ? 0 : 2, result.cacheHit() ? 1 : 0);
+                store.setChain(symbol, marshalChain(result.chain()), result.retrievedAt(), lease.environment(), lease.provenanceId());
+            });
+            if (!committed) { fenced[0] = true; return false; } // fenced — stop, primary not usable
         } catch (Exception e) {
-            // Primary chain failure is fatal for this symbol — propagate
+            // Primary chain failure is fatal for this symbol — propagate (cause preserved
+            // so ProviderOutcome.classify can still see a wrapped ProviderError, constraint 3).
             throw new RuntimeException("Primary chain failed: " + symbol + "/" + primaryExpiration, e);
         }
 
-        // Acquire remaining eligible expirations
+        // Acquire remaining eligible expirations (intermediate store mutations, not terminal)
         for (String exp : eligible) {
             if (exp.equals(primaryExpiration)) continue;
             if (!running) break;
 
             try {
-                var result = adapter.getOptionsChain(symbol, exp);
-                store.recordMetrics(result.cacheHit() ? 0 : 2, result.cacheHit() ? 1 : 0);
-                store.setChainForExpiration(symbol, exp, marshalChain(result.chain()), result.retrievedAt());
-                status = status.withSymbolsAcquiredTotal(status.symbolsAcquiredTotal() + 1);
-                evidenceChangedSincePublish = true;
-                changedSymbolsThisPublish++;
+                var result = lease.adapter().getOptionsChain(symbol, exp);
+                commitGuarded(lease, symbol, "chain", () -> {
+                    store.recordMetrics(result.cacheHit() ? 0 : 2, result.cacheHit() ? 1 : 0);
+                    store.setChainForExpiration(symbol, exp, marshalChain(result.chain()), result.retrievedAt(), lease.environment(), lease.provenanceId());
+                });
             } catch (Exception e) {
+                // Constraint 3 also applies to SECONDARY expirations: a provider-WIDE
+                // unusability (confirmed 401) surfacing on a secondary chain is NOT a
+                // per-symbol quality issue — it must feed the provider-availability
+                // control plane, not be silently swallowed as a per-expiration skip.
+                // Otherwise a production outage that first manifests on a secondary chain
+                // would be invisible to failover detection.
+                ProviderOutcome outcome = ProviderOutcome.classify(e);
+                if (outcome == ProviderOutcome.PROVIDER_UNUSABLE) {
+                    // AUTHORITY-FENCED (review-5 #1): a secondary-chain 401 completing under a
+                    // stale lease must not pollute the current authority's failure streak.
+                    final String reason = e.getMessage();
+                    providerManager.signalProviderUnusableIfCurrent(lease, () -> {
+                        providerUnusableSignals++;
+                        consecutiveProviderUnusable++;
+                        lastProviderUnusableReason = reason;
+                    });
+                    // Abandon the rest of this symbol's secondary surface — the provider
+                    // is unusable; continuing would just accumulate the same failure. The
+                    // PRIMARY chain already committed, so usable evidence stands (terminal
+                    // COMMITTED); the secondary-surface unusability is a control-plane signal.
+                    return true;
+                }
+                // Genuine per-expiration quality failure: non-fatal, logged, skipped.
                 System.err.printf("[worker] Chain acquisition failed: %s/%s — %s%n", symbol, exp, e.getMessage());
             }
         }
+        return true; // primary chain committed → usable evidence
     }
 
     /**

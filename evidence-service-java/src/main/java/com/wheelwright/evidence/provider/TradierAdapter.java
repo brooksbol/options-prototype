@@ -37,6 +37,24 @@ public class TradierAdapter {
         this.httpClient = HttpClient.newHttpClient();
     }
 
+    /** This adapter's isolated response cache (per provider authority). */
+    public ResponseCache cache() { return cache; }
+
+    /** This adapter's isolated request pacer (per provider authority). */
+    public RequestPacer pacer() { return pacer; }
+
+    /** The environment/provider base URL this adapter targets (no secrets). */
+    public String baseUrl() { return baseUrl; }
+
+    /** Truthful environment label derived from the base URL (no secrets). */
+    public String environmentLabel() {
+        if (baseUrl == null) return "unknown";
+        String u = baseUrl.toLowerCase(Locale.ROOT);
+        if (u.contains("sandbox.tradier.com")) return "sandbox";
+        if (u.contains("api.tradier.com")) return "production";
+        return "unknown";
+    }
+
     /**
      * Get expirations for a symbol.
      * Returns normalized MarketExpiration list with DTE calculated from today.
@@ -60,6 +78,7 @@ public class TradierAdapter {
         String retrievedAt = Instant.now().toString();
 
         // Fetch via pacer
+        pacer.setOperationKind("expirations");
         String responseBody = pacer.submit(() -> fetchExpirations(symbol));
 
         // Normalize
@@ -89,6 +108,7 @@ public class TradierAdapter {
         String retrievedAt = Instant.now().toString();
 
         // Fetch chain via pacer
+        pacer.setOperationKind("chain");
         String chainBody = pacer.submit(() -> fetchChain(symbol, expiration));
 
         // Get underlying quote (use cache if available)
@@ -103,6 +123,7 @@ public class TradierAdapter {
             price = (Double) quoteData.get("price");
             name = (String) quoteData.get("name");
         } else {
+            pacer.setOperationKind("quote");
             String quoteBody = pacer.submit(() -> fetchQuote(symbol));
             Map<String, Object> quoteInfo = normalizeQuote(quoteBody, symbol);
             price = (Double) quoteInfo.get("price");
@@ -135,6 +156,59 @@ public class TradierAdapter {
         String responseBody = pacer.submit(() -> fetchMeasurementQuote(symbol));
         return responseBody.length();
     }
+
+    /**
+     * Representative, NON-WRITING capability probe (PL-PROV-FAILOVER constraint 4).
+     *
+     * Validates that this provider authority can supply usable NORMALIZED evidence —
+     * quote + expirations + option chain for the expected subject/expiration, with sane
+     * payloads. It goes through this authority's pacer (isolated lane) but performs NO
+     * cache mutation, NO store write, NO symbol-lifecycle change, NO generation/publish,
+     * and NO acquisition accounting. It answers only: "is production capable of usable
+     * normalized evidence again?" A quote-only check is insufficient — full failback
+     * requires representative acquisition of all three.
+     *
+     * Returns {@link ProbeResult#usable()} true only when quote (positive price),
+     * expirations (>=1 eligible), and a chain for the nearest eligible expiration
+     * (>=1 contract) all normalize sanely. Any provider error or missing/insane payload
+     * yields usable=false (never throws for a provider condition).
+     */
+    public ProbeResult probeRepresentative(String symbol) {
+        if (symbol == null || !symbol.matches("[A-Za-z][A-Za-z0-9.\\-]{0,9}")) {
+            return new ProbeResult(false, "invalid probe symbol");
+        }
+        try {
+            // 1) Quote — must normalize to a positive price.
+            pacer.setOperationKind("quote");
+            String quoteBody = pacer.submit(() -> fetchQuote(symbol));
+            Map<String, Object> quote = normalizeQuote(quoteBody, symbol);
+            double price = quote.get("price") instanceof Double d ? d : 0.0;
+            if (price <= 0.0) return new ProbeResult(false, "quote price not positive");
+
+            // 2) Expirations — must have >=1 eligible expiration.
+            pacer.setOperationKind("expirations");
+            String expBody = pacer.submit(() -> fetchExpirations(symbol));
+            List<MarketExpiration> exps = normalizeExpirations(expBody);
+            if (exps.isEmpty()) return new ProbeResult(false, "no expirations");
+            String nearest = exps.get(0).date();
+
+            // 3) Chain — must normalize with >=1 contract for the nearest expiration.
+            pacer.setOperationKind("chain");
+            String chainBody = pacer.submit(() -> fetchChain(symbol, nearest));
+            MarketChain chain = normalizeChain(chainBody, symbol, nearest, symbol, price);
+            int contracts = (chain.puts() == null ? 0 : chain.puts().size())
+                          + (chain.calls() == null ? 0 : chain.calls().size());
+            if (contracts <= 0) return new ProbeResult(false, "chain has no contracts");
+
+            return new ProbeResult(true, "usable: quote+expirations+chain");
+        } catch (Exception e) {
+            // Any provider condition (401, timeout, malformed, etc.) → not usable.
+            return new ProbeResult(false, e.getMessage() != null ? e.getMessage() : "probe error");
+        }
+    }
+
+    /** Outcome of a representative capability probe (non-writing). */
+    public record ProbeResult(boolean usable, String detail) {}
 
     // --- Private HTTP methods ---
 
@@ -193,6 +267,11 @@ public class TradierAdapter {
                 response.statusCode(),
                 rateLimitHeaders(response));
         }
+
+        // Report the EXACT HTTP status (including success) to the shared observer path so the
+        // OPERATION_COMPLETED record carries the true status (review-4 #1). For non-2xx we still
+        // throw below (which the pacer maps), but the success status must not be dropped.
+        pacer.recordHttpStatusForCurrentRequest(response.statusCode());
 
         if (response.statusCode() == 429) {
             throw new ProviderError("Rate limited by Tradier", 429, 60000L);

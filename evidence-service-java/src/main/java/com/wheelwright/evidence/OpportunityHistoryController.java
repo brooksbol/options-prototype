@@ -79,10 +79,31 @@ public class OpportunityHistoryController {
             return ResponseEntity.badRequest().body(Map.of("error", "epoch is required"));
         }
 
+        // PROVENANCE BOUNDARY (PL-PROV-FAILOVER blocker #6, review 3): the provenance of an
+        // opportunity-history observation must be the EXACT provenance of the evidence the
+        // Decision evaluated. Inferring a single "epoch environment" from the CURRENT mutable
+        // evidence table is NOT authoritative — the current table may have advanced, mixed, or
+        // been overwritten since the Decision ran, and a global-epoch inference cannot be
+        // subject-accurate. Until exact per-subject/per-chain retrieval provenance is carried
+        // with the Decision result (immutable generation provenance or the chain retrieval
+        // identities already associated with the evaluated evidence), we persist 'unknown'
+        // rather than MANUFACTURE provenance. This never invents an environment and never
+        // teaches the frontend provider semantics.
+        //
+        // (The durable path — immutable generation provenance vs. subject/chain retrieval
+        // identities — is a design decision recorded for the architecture step, deliberately
+        // NOT hacked in here.)
+        // Both HALVES of the provenance pair are untrusted from the client (review-5 #2). Just
+        // as environment is backend-established 'unknown', the PROVIDER identity must be too —
+        // persisting a browser-asserted provider (e.g. "appliance"/"tradier") would preserve one
+        // half of an untrusted provenance pair. Until authoritative backend evidence provenance
+        // exists, BOTH are the explicit non-provenance value 'unknown'.
+        String evidenceProvider = "unknown";
+        String evidenceEnvironment = "unknown";
         EvaluationEpochRecord epoch = new EvaluationEpochRecord(
             body.epoch.epochId, body.epoch.startedAt, body.epoch.policyVersion,
             body.epoch.evidenceGeneration, body.epoch.sessionDate, body.epoch.sessionPosture,
-            body.epoch.provider, body.epoch.environment, body.epoch.symbolsEvaluated,
+            evidenceProvider, evidenceEnvironment, body.epoch.symbolsEvaluated,
             body.epoch.emitter == null ? "browser" : body.epoch.emitter
         );
 

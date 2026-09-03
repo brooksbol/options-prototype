@@ -213,14 +213,27 @@ public class SqliteEvidenceStore implements AutoCloseable {
      * Record expirations for a symbol. Empty expirations = absence.
      */
     public void setExpirations(String symbol, String expirationsJson, String retrievedAt) throws SQLException {
+        // Legacy (non-lease) path: no provider authority established this write, so its
+        // provenance is genuinely UNKNOWN. Do NOT assert 'production' — that is the same
+        // invention migration 006 corrects. Consumers surface unknown as {"kind":"unavailable"}.
+        setExpirations(symbol, expirationsJson, retrievedAt, "unknown", null);
+    }
+
+    /**
+     * Provenance-bearing variant (PL-PROV-FAILOVER): stamps the acquiring authority's
+     * environment + provenance id on the durable row so degraded (sandbox) evidence is
+     * never indistinguishable from production evidence.
+     */
+    public void setExpirations(String symbol, String expirationsJson, String retrievedAt,
+                               String environment, String provenanceId) throws SQLException {
         if (getResolution(symbol) == null) return;
 
         String sessionDate = currentSessionDate();
 
         // Upsert evidence row
         try (PreparedStatement ps = conn.prepareStatement("""
-                INSERT INTO evidence (symbol, evidence_type, expiration, data, retrieved_at, session_date, last_attempt_at, attempt_result, failure_count)
-                VALUES (?, 'expirations', '', ?, ?, ?, ?, 'success', 0)
+                INSERT INTO evidence (symbol, evidence_type, expiration, data, retrieved_at, session_date, last_attempt_at, attempt_result, failure_count, environment, provenance_id)
+                VALUES (?, 'expirations', '', ?, ?, ?, ?, 'success', 0, ?, ?)
                 ON CONFLICT(symbol, evidence_type, expiration) DO UPDATE SET
                     data = excluded.data,
                     retrieved_at = excluded.retrieved_at,
@@ -228,13 +241,17 @@ public class SqliteEvidenceStore implements AutoCloseable {
                     last_attempt_at = excluded.last_attempt_at,
                     attempt_result = 'success',
                     failure_count = 0,
-                    failure_reason = NULL
+                    failure_reason = NULL,
+                    environment = excluded.environment,
+                    provenance_id = excluded.provenance_id
             """)) {
             ps.setString(1, symbol);
             ps.setString(2, expirationsJson);
             ps.setString(3, retrievedAt);
             ps.setString(4, sessionDate);
             ps.setString(5, retrievedAt);
+            ps.setString(6, environment);
+            ps.setString(7, provenanceId);
             ps.executeUpdate();
         }
 
@@ -290,14 +307,21 @@ public class SqliteEvidenceStore implements AutoCloseable {
      * without affecting symbol resolution state.
      */
     public void setChainForExpiration(String symbol, String expiration, String chainJson, String retrievedAt) throws SQLException {
+        // Legacy (non-lease) path: provenance genuinely UNKNOWN — never assert 'production'.
+        setChainForExpiration(symbol, expiration, chainJson, retrievedAt, "unknown", null);
+    }
+
+    /** Provenance-bearing variant (PL-PROV-FAILOVER). */
+    public void setChainForExpiration(String symbol, String expiration, String chainJson, String retrievedAt,
+                                      String environment, String provenanceId) throws SQLException {
         Map<String, String> resolution = getResolution(symbol);
         if (resolution == null) return;
 
         String sessionDate = currentSessionDate();
 
         try (PreparedStatement ps = conn.prepareStatement("""
-                INSERT INTO evidence (symbol, evidence_type, expiration, data, retrieved_at, session_date, last_attempt_at, attempt_result, failure_count)
-                VALUES (?, 'chain', ?, ?, ?, ?, ?, 'success', 0)
+                INSERT INTO evidence (symbol, evidence_type, expiration, data, retrieved_at, session_date, last_attempt_at, attempt_result, failure_count, environment, provenance_id)
+                VALUES (?, 'chain', ?, ?, ?, ?, ?, 'success', 0, ?, ?)
                 ON CONFLICT(symbol, evidence_type, expiration) DO UPDATE SET
                     data = excluded.data,
                     retrieved_at = excluded.retrieved_at,
@@ -305,7 +329,9 @@ public class SqliteEvidenceStore implements AutoCloseable {
                     last_attempt_at = excluded.last_attempt_at,
                     attempt_result = 'success',
                     failure_count = 0,
-                    failure_reason = NULL
+                    failure_reason = NULL,
+                    environment = excluded.environment,
+                    provenance_id = excluded.provenance_id
             """)) {
             ps.setString(1, symbol);
             ps.setString(2, expiration);
@@ -313,6 +339,8 @@ public class SqliteEvidenceStore implements AutoCloseable {
             ps.setString(4, retrievedAt);
             ps.setString(5, sessionDate);
             ps.setString(6, retrievedAt);
+            ps.setString(7, environment);
+            ps.setString(8, provenanceId);
             ps.executeUpdate();
         }
 
@@ -336,7 +364,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
     public List<Map<String, String>> getAllChains(String symbol) throws SQLException {
         List<Map<String, String>> chains = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT expiration, data, retrieved_at FROM evidence WHERE symbol = ? AND evidence_type = 'chain' AND data IS NOT NULL ORDER BY expiration")) {
+                "SELECT expiration, data, retrieved_at, environment FROM evidence WHERE symbol = ? AND evidence_type = 'chain' AND data IS NOT NULL ORDER BY expiration")) {
             ps.setString(1, symbol);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -344,6 +372,8 @@ public class SqliteEvidenceStore implements AutoCloseable {
                     chain.put("expiration", rs.getString("expiration"));
                     chain.put("data", rs.getString("data"));
                     chain.put("retrievedAt", rs.getString("retrieved_at"));
+                    // Provider/environment provenance of THIS chain (PL-PROV-FAILOVER).
+                    chain.put("environment", rs.getString("environment"));
                     chains.add(chain);
                 }
             }
@@ -355,6 +385,13 @@ public class SqliteEvidenceStore implements AutoCloseable {
      * Record chain evidence for a symbol.
      */
     public void setChain(String symbol, String chainJson, String retrievedAt) throws SQLException {
+        // Legacy (non-lease) path: provenance genuinely UNKNOWN — never assert 'production'.
+        setChain(symbol, chainJson, retrievedAt, "unknown", null);
+    }
+
+    /** Provenance-bearing variant (PL-PROV-FAILOVER). */
+    public void setChain(String symbol, String chainJson, String retrievedAt,
+                         String environment, String provenanceId) throws SQLException {
         Map<String, String> resolution = getResolution(symbol);
         if (resolution == null) return;
 
@@ -362,8 +399,8 @@ public class SqliteEvidenceStore implements AutoCloseable {
         String sessionDate = currentSessionDate();
 
         try (PreparedStatement ps = conn.prepareStatement("""
-                INSERT INTO evidence (symbol, evidence_type, expiration, data, retrieved_at, session_date, last_attempt_at, attempt_result, failure_count)
-                VALUES (?, 'chain', ?, ?, ?, ?, ?, 'success', 0)
+                INSERT INTO evidence (symbol, evidence_type, expiration, data, retrieved_at, session_date, last_attempt_at, attempt_result, failure_count, environment, provenance_id)
+                VALUES (?, 'chain', ?, ?, ?, ?, ?, 'success', 0, ?, ?)
                 ON CONFLICT(symbol, evidence_type, expiration) DO UPDATE SET
                     data = excluded.data,
                     retrieved_at = excluded.retrieved_at,
@@ -371,7 +408,9 @@ public class SqliteEvidenceStore implements AutoCloseable {
                     last_attempt_at = excluded.last_attempt_at,
                     attempt_result = 'success',
                     failure_count = 0,
-                    failure_reason = NULL
+                    failure_reason = NULL,
+                    environment = excluded.environment,
+                    provenance_id = excluded.provenance_id
             """)) {
             ps.setString(1, symbol);
             ps.setString(2, expiration);
@@ -379,6 +418,8 @@ public class SqliteEvidenceStore implements AutoCloseable {
             ps.setString(4, retrievedAt);
             ps.setString(5, sessionDate);
             ps.setString(6, retrievedAt);
+            ps.setString(7, environment);
+            ps.setString(8, provenanceId);
             ps.executeUpdate();
         }
 
@@ -583,14 +624,16 @@ public class SqliteEvidenceStore implements AutoCloseable {
         // Get chain evidence (primary expiration — backward compatible)
         String chainData = null;
         String chainRetrievedAt = null;
+        String chainEnvironment = null;
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT data, retrieved_at FROM evidence WHERE symbol = ? AND evidence_type = 'chain' AND expiration = ?")) {
+                "SELECT data, retrieved_at, environment FROM evidence WHERE symbol = ? AND evidence_type = 'chain' AND expiration = ?")) {
             ps.setString(1, symbol);
             ps.setString(2, primaryExpiration != null ? primaryExpiration : "");
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     chainData = rs.getString("data");
                     chainRetrievedAt = rs.getString("retrieved_at");
+                    chainEnvironment = rs.getString("environment");
                 }
             }
         }
@@ -611,6 +654,11 @@ public class SqliteEvidenceStore implements AutoCloseable {
         // primary chain. Never a fallback substitution.
         result.put("primaryChainRetrievedAt", chainRetrievedAt);
         result.put("retrievedAt", chainRetrievedAt != null ? chainRetrievedAt : retrievedAt);
+        // Provider/environment provenance of the primary chain (PL-PROV-FAILOVER).
+        // Truthful source authority: "production" | "sandbox" | null (pre-provenance /
+        // no chain). The domain must NOT branch on this; it is provenance for
+        // audit/diagnostics and for the snapshot's environment-provenance field.
+        result.put("primaryChainEnvironment", chainEnvironment);
         result.put("failureReason", failureReason);
         result.put("failureCount", failureCount);
         result.put("lastAttemptAt", lastAttemptAt);
@@ -679,6 +727,11 @@ public class SqliteEvidenceStore implements AutoCloseable {
             return rs.next() ? rs.getInt("generation") : 0;
         }
     }
+
+    // (Removed environmentForGeneration inference — review-3 #6. Inferring a global epoch
+    // environment from the current mutable evidence table is not authoritative provenance for
+    // the evidence a Decision evaluated. Opportunity-history provenance is persisted 'unknown'
+    // until exact per-subject/per-chain retrieval provenance is carried with the Decision result.)
 
     /**
      * Get the last publication timestamp.

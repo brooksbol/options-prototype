@@ -154,6 +154,38 @@ public class StatusController {
         covMap.put("windowMs", DECISION_WINDOW_MS);
         result.put("decisionCoverage", covMap);
 
+        // Provider availability (PL-PROV-FAILOVER). Distinguishes process liveness /
+        // publication activity from AUTHORITATIVE EVIDENCE AVAILABILITY (invariant I11):
+        // the appliance can be "up" and advancing generations while acquiring nothing
+        // usable. evidenceAvailability is the operator-facing trust projection
+        // (NORMAL/DEGRADED/UNAVAILABLE); activeEnvironment names the current source
+        // authority for diagnostics/provenance (the domain does not branch on it).
+        Map<String, Object> providerAvailability = new LinkedHashMap<>();
+        providerAvailability.put("lifecycle", worker.getProviderLifecycle());
+        providerAvailability.put("evidenceAvailability", worker.getEvidenceAvailability());
+        providerAvailability.put("activeEnvironment", worker.getActiveEnvironment());
+        providerAvailability.put("sandboxConfigured", worker.hasSandboxAuthority());
+        providerAvailability.put("providerUnusableSignals", worker.getProviderUnusableSignals());
+        providerAvailability.put("lastProbe", worker.getLastProbeDetail());
+
+        // Regime-agnostic ACTIVE-ACQUISITION admission observer (PL-PROV-FAILOVER).
+        // The top-level "pacer" block below is bound to the fixed production instances
+        // and therefore does NOT measure throughput while degraded. This block reports
+        // the admission state of whatever authority is currently ACTIVE, addressed by
+        // role ("active") not by provider identity, so throughput can be verified
+        // independently of which environment is serving.
+        providerAvailability.put("activeAcquisition",
+            pacerObserver(worker.getActiveAuthorityId(), worker.getActiveAuthorityPacerState()));
+
+        // Recovery-probe admission observer. Proves the failback probe authority runs on
+        // its OWN isolated pacer (distinct RequestPacer instance) and does not consume
+        // active-acquisition admission capacity. Null when there is no separate probe
+        // authority (production active, no sandbox).
+        providerAvailability.put("recoveryProbe",
+            pacerObserver(worker.getProbeAuthorityId(), worker.getProbeAuthorityPacerState()));
+
+        result.put("providerAvailability", providerAvailability);
+
         // Cache
         result.put("cache", cache.stats());
 
@@ -223,6 +255,27 @@ public class StatusController {
             @RequestParam(defaultValue = "0") long afterSequence,
             @RequestParam(defaultValue = "1000") int limit) {
         return pacer.getMeasurementEvents(afterSequence, limit);
+    }
+
+    /**
+     * Regime-agnostic pacer/admission projection. Same field shape as the top-level
+     * pacer block, plus the authority role id so the observer is self-describing.
+     * Returns null when no such authority exists (e.g. no separate probe authority).
+     */
+    private Map<String, Object> pacerObserver(String authorityId, RequestPacer.PacerState state) {
+        if (state == null) return null;
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("authorityId", authorityId);
+        map.put("queueDepth", state.queueDepth());
+        map.put("dispatched", state.dispatched());
+        map.put("queued", state.queued());
+        map.put("rejected", state.rejected());
+        map.put("requestLimit", state.requestLimit());
+        map.put("windowMs", state.windowMs());
+        map.put("startsInWindow", state.startsInWindow());
+        map.put("nextAdmissionInMs", state.nextAdmissionInMs());
+        map.put("backoffRemainingMs", state.backoffRemainingMs());
+        return map;
     }
 
     private Map<String, Integer> classCountsMap(SchedulerTelemetry.ClassCounts counts) {

@@ -107,6 +107,16 @@ public class SnapshotBuilder {
             sb.append("\"primaryChainAcquisitionProvenance\":null,");
         }
 
+        // PL-PROV-FAILOVER: additive, subject-scoped PROVIDER/ENVIRONMENT provenance for
+        // the legacy primary chain. Truthfully identifies the source authority
+        // ("production" | "sandbox") so degraded evidence is never presented as
+        // production. null when no primary chain subject. This is provenance for
+        // trust/audit; the domain must not branch on it (Layer 3 consumes fitness, not
+        // source). Additive under INV-PUB-05 (no version increment).
+        String primaryChainEnvironment = (String) ev.get("primaryChainEnvironment");
+        sb.append("\"primaryChainEnvironmentProvenance\":")
+          .append(environmentProvenanceJson(chainData, primaryChainEnvironment)).append(",");
+
         // chains: all eligible-expiration chains for multi-DTE surface
         @SuppressWarnings("unchecked")
         List<Map<String, String>> allChains = (List<Map<String, String>>) ev.get("chains");
@@ -125,6 +135,8 @@ public class SnapshotBuilder {
                 // ADR-015: subject-scoped provenance for THIS chain element. Derived
                 // only from the chain row's own authoritative retrieved_at.
                 sb.append(",\"chainAcquisitionProvenance\":").append(chainAcquisitionProvenanceJson(cRetrievedAt));
+                // PL-PROV-FAILOVER: additive per-chain provider/environment provenance.
+                sb.append(",\"environmentProvenance\":").append(environmentProvenanceJson(cData, chainEntry.get("environment")));
                 sb.append(",\"data\":").append(cData);
                 sb.append("}");
             }
@@ -177,6 +189,24 @@ public class SnapshotBuilder {
      * Symbol-level fallback, cache, or synthesized timestamps must never be passed
      * here — doing so would violate the ADR-015 no-silent-promotion rule.
      */
+    /**
+     * PL-PROV-FAILOVER: subject-scoped provider/environment provenance for a chain.
+     * {@code {"kind":"provider-acquired","environment":"production|sandbox"}} when a
+     * chain subject exists with a known environment; {@code {"kind":"unavailable"}}
+     * when a chain exists but its environment is unknown (e.g. pre-provenance rows with
+     * a null environment — should not occur after migration 005 backfill); null-JSON
+     * when there is no chain subject at all. Never infers/promotes an environment.
+     */
+    private static String environmentProvenanceJson(String chainData, String environment) {
+        if (chainData == null || chainData.isEmpty()) {
+            return "null";
+        }
+        if (environment != null && !environment.isBlank()) {
+            return "{\"kind\":\"provider-acquired\",\"environment\":" + jsonString(environment) + "}";
+        }
+        return "{\"kind\":\"unavailable\"}";
+    }
+
     private static String chainAcquisitionProvenanceJson(String chainRetrievedAt) {
         // ADR-015 no-silent-promotion: only a parseable instant may be published
         // as chain-acquired. A null/empty/malformed value yields unavailable
