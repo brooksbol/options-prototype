@@ -46,6 +46,30 @@ When the bootstrap or task requires parking-lot state, treat the complete `docs/
 
 Do not assume this bootstrap prompt remains current regarding specific file lists or architectural details. The repository is the authority.
 
+### Cold-start authority provenance
+
+Before treating any repository artifact as mandatory for cold start, identify the current repository authority or Principal instruction that routes to it. Applicable platform instructions may also constrain the actor, but convention, memory, filename familiarity, or existence alone does not establish repository authority.
+
+A missing artifact is an observation, not a diagnosis. Treat a missing path as a repository routing defect only when current repository authority or a current Principal instruction actually references that artifact. Do not infer a broken cold-start chain from a `404`, absent conventional file, or remembered path without routing provenance.
+
+Before substantive reasoning, maintain a compact routing ledger for every artifact treated as mandatory:
+
+| Artifact treated as mandatory | Routed by | Status |
+|---|---|---|
+| `docs/README.md` | Principal/bootstrap instruction | Read / unresolved |
+| Actor-specific bootstrap | `docs/README.md` | Read / unresolved |
+| Shared protocols / governing documents | Current repository authority or Principal instruction | Read / unresolved |
+
+Do not add an artifact to the mandatory chain unless its `Routed by` entry can be stated explicitly.
+
+Before declaring cold start complete, attest that:
+
+- remote `main` has been verified and the current `SYNC SHA` is stated;
+- the authority root used is identified;
+- every mandatory routed artifact was read or is explicitly unresolved;
+- every unresolved mandatory reference is reported with its routing provenance;
+- no repository artifact was treated as mandatory solely from convention, memory, or assumption.
+
 ---
 
 ## Top-Down Reasoning When Architecture Matters
