@@ -962,3 +962,31 @@ PL-CLEANUP reached its governing stopping rule. Accidental change surface has be
 ### Next
 
 Post-cleanup quality measurement: re-run SCA against `51ee08f` and produce a before/after comparison versus the prior SCA baseline (measurement, not remediation). No further PL-CLEANUP work is authorized.
+
+---
+
+## 2026-09-04 — PL-CLEANUP post-cleanup SCA (Sonar) before/after — measurement complete
+
+### Status
+
+Measurement only; no remediation, no product-code change. Durable artifact: `docs/reference-data/sonar/pl-cleanup-sca-before-after-v1.md`.
+
+### What was measured
+
+A **retrospective paired frontend Sonar comparison** of the PL-CLEANUP change — created because the only prior recorded Sonar baseline was **Java-only** while PL-CLEANUP was frontend-heavy (a real coverage gap). Same SonarQube 25.9 / SonarScanner 8.1 / Sonar Way profile / scope (`src`) / exclusions, isolated worktrees; BEFORE `f289fa5` vs AFTER accepted `main` `53918071dad0e8229df19c4d872a3d5e83669980`.
+
+### Headline result
+
+Files 210→175, ncloc 39,705→34,199, bugs 26→20, code smells 553→436, total issues 579→456, cognitive complexity 5,078→4,129, tech debt 3,681→2,928 min. Ratings: Maintainability A and Security A unchanged; **Reliability remains D**; **duplication density rose 1.9%→2.1%**; **vulnerabilities remain 0**. No Sonar rule increased.
+
+### Conservative reading
+
+Reductions are **primarily attributable to deleted code** (proportional to ~5.5k ncloc / 35 files removed); **no surviving-code remediation is claimed** (no issue-level differencing performed). Residual findings are **not** a remediation backlog.
+
+### Separations preserved
+
+Historical **Java** Sonar experiment kept separate and **unchanged** (zero Java source changed across PL-CLEANUP — git-verified). oxlint / LOC / file counts recorded as **supplemental** only, explicitly not the SCA result.
+
+### Evidence / environment
+
+Raw paired-scan evidence preserved off-repo at `/tmp/sca-raw/`. Local SonarQube was reinitialized to restore analysis access (prior H2 backed up to `sonar.mv.db.bak-20260904-125142`); this touched only the local evaluation instance, never the repository.
