@@ -24,6 +24,10 @@ All material new ideas use one canonical intake/reconciliation pipeline governed
 
 The complete `docs/parking-lot*.md` sequence is the system of record for unresolved idea identity and disposition. GitHub issues, standalone discovery documents, prompts, and conversations may support an idea but do not replace its canonical `PL-*` identity. A Principal decision that an item is next establishes sequencing; it does not bypass reconciliation or design gates.
 
+## Defect Tracking Rule — September 4, 2026
+
+**GitHub Issues are the authoritative system of record for defects; the parking lot / roadmap remain authoritative for ideas, capabilities, discovery, and product direction.** Related defects and `PL-*` items may cross-link but are not double-booked as the same authoritative item. Filing a defect does not authorize remediation. Severity describes consequence; priority/sequencing is a separate Principal decision. The governing convention (including minimal `type` / `area` / `severity` classification) lives in `foundations/idea-intake-reconciliation.md` → "Defect Tracking."
+
 ---
 
 ## Document Authority Model
