@@ -990,3 +990,69 @@ Historical **Java** Sonar experiment kept separate and **unchanged** (zero Java 
 ### Evidence / environment
 
 Raw paired-scan evidence preserved off-repo at `/tmp/sca-raw/`. Local SonarQube was reinitialized to restore analysis access (prior H2 backed up to `sonar.mv.db.bak-20260904-125142`); this touched only the local evaluation instance, never the repository.
+
+---
+
+## 2026-09-04 — Post-PL-CLEANUP direction snapshot (current sequencing intuition)
+
+Small snapshot of what we currently think to do next and why. Not ratified architecture, not a strict waterfall, not a new operating/phase/governance model — just a current hypothesis that may change as we learn. No parking-lot semantics changed.
+
+- **PL-CLEANUP is complete.**
+- Current rough view of the major product concerns:
+  - **Economic Truth** — Portfolio + Production
+  - **Trustworthy Knowledge** — Evidence + Universe
+  - **Decision Quality** — Unified Deployment + strategy expansion
+  - **Lifecycle Management** — Trade Lifecycle + Kreature
+  - **Operator Discipline** — Behavioral HITL + morning workflow (cross-cutting the others)
+- Current working dependency intuition (approximate, not a waterfall):
+
+  ```
+  Economic Truth
+      ↓
+  Trustworthy Knowledge
+      ↓
+  Decision Quality
+      ↓
+  Lifecycle Management
+  ```
+  with **Operator Discipline cross-cutting** those concerns.
+
+- **Immediate implication:** we currently intend to explore **Portfolio + Production economic truth** next.
+- **Credit spreads** remain desirable, but they provide a useful *horizon* rather than the immediate implementation target.
+- Reasoning:
+
+  > Wheelwright should understand the economic object it is managing before substantially increasing the complexity of the economic objects it can create.
+
+- This does **not** mean "finish all accounting before credit spreads." We want to follow the dependency intuition and see how far it takes us. Work on economic truth should be driven by demonstrated needs, with future multi-leg/defined-risk strategies providing a useful forcing function.
+
+---
+
+## 2026-09-04 — Economic Truth discovery: "basis for what purpose?" (XLE) — settled why-state
+
+Light preservation of a settled discovery branch. Not ratified architecture, not a new accounting model, not an implementation plan. No product change authorized.
+
+### The XLE example
+
+- Fidelity **Activity History**: 200 XLE shares acquired through put assignment at **$57.50/share**, transaction amount **$11,500**.
+- A later Fidelity **position / Option Summary**: displayed **average cost $55.93**, cost-basis value **$11,186.35**.
+- At the **$55** disposition (call-away), the **transaction-acquisition-cost** view implies roughly **$500** of stock erosion; the **Fidelity-displayed-value** view implies roughly **$186**.
+- The **~$313.65** difference is **unexplained**.
+- We explicitly do **not** attribute the difference to option premium, rounding, tax-lot treatment, wash sales, or any other mechanism without evidence. (An earlier premium-reduced-basis hypothesis was withdrawn; the arithmetic did not support it, and Fidelity documents covered-call premium as adjusting the *sale price at assignment*, not held-share basis.)
+
+### The discovery question
+
+> Basis for what purpose?
+
+Current **hypothesis** (discovery, not ratified): economic truth may legitimately involve multiple basis-like quantities with different meanings and uses. The problem may therefore be **silent substitution between meanings**, not the existence of multiple numbers.
+
+### The semantic-substitution finding
+
+- Wheelwright's call-away consequence path can consume **either** an Activity-derived acquisition cost **or** a Fidelity-displayed average-cost/cost-basis value in the **same logical basis position**.
+- Downstream behavior treats those values as though they have the **same economic meaning**.
+- Wheelwright preserves useful **provenance** (where a value came from) but, in this path, does not preserve enough about **what the economic quantity means**.
+- Symmetry worth noting: on the **put side**, Wheelwright already distinguishes broker acquisition-at-strike from an analytical effective basis — evidence that the system already recognizes multiple legitimate economic views in at least one area.
+
+### Why this matters / next
+
+- **Do not fix the calculation yet.** We have not established which quantity belongs in which calculation.
+- The next domain question belongs partly with **accounting judgment**. Intended Jeff/CFO question: *"What does each of these numbers mean, and which belongs in which calculation — management economics, called-away decision support, realized strategy performance, and tax/accounting?"*
