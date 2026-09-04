@@ -16,7 +16,6 @@ import { RecommendationLab } from "./components/RecommendationLab";
 import { OpportunityLab } from "./components/OpportunityLab";
 import { EtfCatalogExplorer } from "./components/EtfCatalogExplorer";
 import { FmpExplorer } from "./components/FmpExplorer";
-import { VelvetRopePage } from "./components/VelvetRopePage";
 import { SecExplorer } from "./components/SecExplorer";
 import { loadWorkspace, updateWorkspace } from "./workspace/workspace";
 import "./App.css";
@@ -30,7 +29,7 @@ import "./App.css";
  *   - Massive API: real provider data spike
  */
 
-type ViewMode = "laboratory" | "reference" | "recommendation" | "opportunity" | "massive" | "etfcatalog" | "velvetrope" | "secexplorer" | "fmpexplorer";
+type ViewMode = "laboratory" | "reference" | "recommendation" | "opportunity" | "massive" | "etfcatalog" | "secexplorer" | "fmpexplorer";
 
 const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
   "PreferOTM",
@@ -43,7 +42,7 @@ function App() {
   const [view, setView] = useState<ViewMode>(() => {
     const ws = loadWorkspace();
     const saved = ws.activeTab as ViewMode;
-    if (["laboratory", "reference", "recommendation", "opportunity", "massive", "etfcatalog", "velvetrope", "secexplorer", "fmpexplorer"].includes(saved)) return saved;
+    if (["laboratory", "reference", "recommendation", "opportunity", "massive", "etfcatalog", "secexplorer", "fmpexplorer"].includes(saved)) return saved;
     return "recommendation";
   });
 
@@ -98,12 +97,6 @@ function App() {
             ETF Catalog
           </button>
           <button
-            className={`tab-btn ${view === "velvetrope" ? "tab-active" : ""}`}
-            onClick={() => changeView("velvetrope")}
-          >
-            Velvet Rope
-          </button>
-          <button
             className={`tab-btn ${view === "secexplorer" ? "tab-active" : ""}`}
             onClick={() => changeView("secexplorer")}
           >
@@ -134,10 +127,8 @@ function App() {
         <OpportunityLab onSelectSymbol={() => changeView("recommendation")} />
       ) : view === "etfcatalog" ? (
         <EtfCatalogExplorer />
-      ) : view === "velvetrope" ? (
-        <VelvetRopePage />
       ) : view === "secexplorer" ? (
-        <SecExplorer onNavigateToVelvetRope={() => changeView("velvetrope")} />
+        <SecExplorer />
       ) : view === "fmpexplorer" ? (
         <FmpExplorer />
       ) : (

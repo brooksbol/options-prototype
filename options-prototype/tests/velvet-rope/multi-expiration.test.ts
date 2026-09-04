@@ -10,17 +10,16 @@
  * - Full audit serialization with expiration-level evidence
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   selectEligibleExpirations,
-  selectAdmissionContract,
   evaluatePerSideCriteria,
   evaluateSymbolAdmission,
 } from "../../src/velvet-rope/evaluate";
 import { DEFAULT_ADMISSION_POLICY } from "../../src/velvet-rope/policy";
-import type { Expiration, OptionContract, OptionsChain, Underlying } from "../../src/domain/types";
-import type { MarketDataProvider } from "../../src/domain/provider";
-import type { ContractEvidence, AdmissionPolicy } from "../../src/velvet-rope/types";
+import { synthesizeNarrative } from "../../src/velvet-rope/narrative";
+import type { Expiration, OptionContract, OptionsChain } from "../../src/domain/types";
+import type { ContractEvidence, AdmissionEvidence } from "../../src/velvet-rope/types";
 
 // --- Helpers ---
 
@@ -80,15 +79,22 @@ function illiquidChain(expiration: Expiration, underlyingPrice = 50): OptionsCha
   };
 }
 
-function makeMockProvider(chainsByDate: Record<string, OptionsChain>, expirations: Expiration[]): MarketDataProvider {
+const FIXED_PROVENANCE = {
+  provider: "published-fixture",
+  observedAt: null,
+  retrievedAt: "2026-09-04T15:00:00.000Z",
+  source: "cache" as const,
+  cacheAgeSeconds: 20,
+  delayedData: false,
+};
+
+function makeEvidence(chainsByDate: Record<string, OptionsChain>, expirations: Expiration[]): AdmissionEvidence {
   return {
-    getUnderlyings: async () => [{ symbol: "TEST", name: "Test ETF", price: 50 }],
-    getQuotes: async () => new Map([["TEST", 50]]),
-    getExpirations: async () => expirations,
-    getOptionsChain: async (_symbol: string, date: string) => {
-      if (chainsByDate[date]) return chainsByDate[date];
-      throw new Error(`No chain for ${date}`);
-    },
+    expirations,
+    chainsByExpiration: chainsByDate,
+    provenance: FIXED_PROVENANCE,
+    attemptedAt: "2026-09-04T15:01:00.000Z",
+    auditId: "fixed-audit-id",
   };
 }
 
@@ -153,8 +159,7 @@ describe("evaluateSymbolAdmission — multi-expiration", () => {
       [exp45.date]: illiquidChain(exp45),
     };
 
-    const provider = makeMockProvider(chains, [exp14, exp30, exp45]);
-    const result = await evaluateSymbolAdmission("TEST", provider, policy);
+    const result = evaluateSymbolAdmission("TEST", makeEvidence(chains, [exp14, exp30, exp45]), policy);
 
     expect(result.outcome).toBe("admit");
     expect(result.winningExpiration).not.toBeNull();
@@ -171,8 +176,7 @@ describe("evaluateSymbolAdmission — multi-expiration", () => {
       [exp30.date]: illiquidChain(exp30),
     };
 
-    const provider = makeMockProvider(chains, [exp14, exp30]);
-    const result = await evaluateSymbolAdmission("TEST", provider, policy);
+    const result = evaluateSymbolAdmission("TEST", makeEvidence(chains, [exp14, exp30]), policy);
 
     expect(result.outcome).toBe("reject");
     expect(result.winningExpiration).toBeNull();
@@ -195,8 +199,7 @@ describe("evaluateSymbolAdmission — multi-expiration", () => {
       ],
     };
 
-    const provider = makeMockProvider({ [exp.date]: chain }, [exp]);
-    const result = await evaluateSymbolAdmission("TEST", provider, policy);
+    const result = evaluateSymbolAdmission("TEST", makeEvidence({ [exp.date]: chain }, [exp]), policy);
 
     expect(result.expirationEvaluations[0].outcome).toBe("incomplete");
     expect(result.outcome).toBe("insufficient_evidence");
@@ -222,8 +225,7 @@ describe("evaluateSymbolAdmission — multi-expiration", () => {
       },
     };
 
-    const provider = makeMockProvider(chains, [exp14, exp21]);
-    const result = await evaluateSymbolAdmission("TEST", provider, policy);
+    const result = evaluateSymbolAdmission("TEST", makeEvidence(chains, [exp14, exp21]), policy);
 
     expect(result.outcome).toBe("admit");
     // exp14 should win — lower spread and lower DTE
@@ -239,8 +241,7 @@ describe("evaluateSymbolAdmission — multi-expiration", () => {
       [exp30.date]: illiquidChain(exp30),
     };
 
-    const provider = makeMockProvider(chains, [exp14, exp30]);
-    const result = await evaluateSymbolAdmission("TEST", provider, policy);
+    const result = evaluateSymbolAdmission("TEST", makeEvidence(chains, [exp14, exp30]), policy);
 
     // Verify serializable (JSON round-trip)
     const serialized = JSON.parse(JSON.stringify(result));
@@ -269,12 +270,129 @@ describe("evaluateSymbolAdmission — multi-expiration", () => {
       [exp45.date]: illiquidChain(exp45),
     };
 
-    const provider = makeMockProvider(chains, [exp7, exp45]);
-    const result = await evaluateSymbolAdmission("TEST", provider, policy);
+    const result = evaluateSymbolAdmission("TEST", makeEvidence(chains, [exp7, exp45]), policy);
 
     expect(result.outcome).toBe("admit");
     // Must NOT select 45 DTE (which would reject)
     expect(result.winningExpiration!.dte).toBe(7);
+  });
+
+  it("preserves the fixed-evidence governance golden without acquiring or manufacturing provenance", () => {
+    const exp14 = makeExpiration(14);
+    const exp30 = makeExpiration(30);
+    const passing = healthyChain(exp14);
+    passing.underlying.name = "ProShares UltraPro Short Semiconductors";
+    const evidence = makeEvidence(
+      { [exp14.date]: passing, [exp30.date]: illiquidChain(exp30) },
+      [exp30, exp14],
+    );
+    const fetchSpy = vi.fn(() => { throw new Error("network acquisition is forbidden"); });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    try {
+      const result = evaluateSymbolAdmission("SOXS", evidence, policy);
+      const narrative = synthesizeNarrative(result);
+
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(result.evidenceProvenance).toBe(FIXED_PROVENANCE);
+      expect({
+        outcome: result.outcome,
+        attemptStatus: result.attemptStatus,
+        winningDte: result.winningExpiration?.dte,
+        expirationOutcomes: result.expirationEvaluations.map((item) => [item.dte, item.outcome]),
+        callCriteria: result.callEvidence.criteria.map((item) => [item.criterion, item.status]),
+        putCriteria: result.putEvidence.criteria.map((item) => [item.criterion, item.status]),
+        structure: result.productStructure,
+        explanation: result.explanation,
+        narrative,
+      }).toMatchInlineSnapshot(`
+        {
+          "attemptStatus": "completed",
+          "callCriteria": [
+            [
+              "minOpenInterest",
+              "pass",
+            ],
+            [
+              "minOptionVolume",
+              "pass",
+            ],
+            [
+              "maxBidAskSpreadPercent",
+              "pass",
+            ],
+            [
+              "minYieldAtTargetDelta",
+              "pass",
+            ],
+          ],
+          "expirationOutcomes": [
+            [
+              14,
+              "pass",
+            ],
+            [
+              30,
+              "fail",
+            ],
+          ],
+          "explanation": "Admitted using 2026-09-18 (14 DTE). 2 expirations evaluated; 1 failed liquidity policy. Soft fail: structuralCaution — Structural complexity detected: leveraged (3x), inverse, daily-reset. Current policy treats structurally complex instruments conservatively. Inference: name_heuristic (medium confidence).",
+          "narrative": {
+            "cautions": [
+              "Leveraged ETF (3x) — amplified exposure relative to underlying index",
+              "Inverse product — designed to move opposite to the underlying index",
+              "Daily-reset mechanism — compounding effects may cause significant value drift over holding periods longer than one day",
+              "Current institutional policy treats structurally complex instruments conservatively.",
+            ],
+            "confidence": "high",
+            "primaryReasons": [
+              "Product structure: leveraged (3x), inverse, daily-reset vs threshold conventional structure.",
+            ],
+            "strengths": [
+              "Capital requirement fits policy ($4,500).",
+              "Premium yield exceeds the required minimum.",
+              "Both call and put open interest above threshold.",
+              "Bid/ask spreads within policy on both sides.",
+            ],
+            "summary": "SOXS has a structurally complex product profile (3x leveraged, inverse, daily-reset). Manual review recommended.",
+          },
+          "outcome": "manual_review",
+          "putCriteria": [
+            [
+              "minOpenInterest",
+              "pass",
+            ],
+            [
+              "minOptionVolume",
+              "pass",
+            ],
+            [
+              "maxBidAskSpreadPercent",
+              "pass",
+            ],
+            [
+              "minYieldAtTargetDelta",
+              "pass",
+            ],
+          ],
+          "structure": {
+            "activelyManaged": false,
+            "commodityBacked": false,
+            "confidence": "medium",
+            "dailyReset": true,
+            "fixedIncome": false,
+            "inferenceSource": "name_heuristic",
+            "inverse": true,
+            "leverageMultiple": 3,
+            "leveraged": true,
+            "singleStock": false,
+          },
+          "winningDte": 14,
+        }
+      `);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
 

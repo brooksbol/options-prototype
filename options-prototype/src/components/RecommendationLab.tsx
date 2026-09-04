@@ -26,7 +26,7 @@ import {
 import { UnderlyingSelector } from "./UnderlyingSelector";
 import { OptionsTable } from "./OptionsTable";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
-import { getProvider as getSharedProvider, isTradierConfigured } from "../providers";
+import { MockMarketDataProvider } from "../providers/mock/MockMarketDataProvider";
 import type { MarketDataProvider } from "../domain/provider";
 import type { DeltaTieBreaker } from "../domain/policy";
 import type { OptionContract, Expiration } from "../domain/types";
@@ -37,12 +37,14 @@ type ProviderKey = "mock" | "tradier";
 
 const PROVIDER_OPTIONS: { key: ProviderKey; label: string; available: boolean }[] = [
   { key: "mock", label: "Mock", available: true },
-  { key: "tradier", label: "Tradier (via backend)", available: isTradierConfigured() },
 ];
 
-function getProvider(key: ProviderKey): MarketDataProvider {
-  return getSharedProvider(key);
+function getLegacyFixtureProvider(key: ProviderKey): MarketDataProvider {
+  void key;
+  return mockProvider;
 }
+
+const mockProvider = new MockMarketDataProvider();
 
 const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = ["PreferOTM", "PreferITM", "PreferHigherStrike", "PreferLowerStrike"];
 
@@ -141,13 +143,9 @@ export function RecommendationLab() {
   // Load persisted workspace once on mount
   const [workspace] = useState(() => loadWorkspace());
 
-  const [providerKey, setProviderKey] = useState<ProviderKey>(() => {
-    const saved = workspace.providerKey as ProviderKey;
-    if (saved === "tradier" && !isTradierConfigured()) return "mock";
-    return saved ?? (isTradierConfigured() ? "tradier" : "mock");
-  });
+  const [providerKey, setProviderKey] = useState<ProviderKey>("mock");
 
-  const provider = useMemo(() => getProvider(providerKey), [providerKey]);
+  const provider = useMemo(() => getLegacyFixtureProvider(providerKey), [providerKey]);
 
   const { state, selectUnderlying, selectExpiration } = useOptionsChain(provider, {
     initialSymbol: workspace.selectedSymbol,

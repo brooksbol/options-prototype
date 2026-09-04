@@ -188,18 +188,3 @@ describe("sorting", () => {
     expect(sorted[0].ticker).toBe("ZZZ");
   });
 });
-
-// --- Pending Velvet Rope Intent ---
-
-describe("pending Velvet Rope navigation intent", () => {
-  it("workspace field accepts a symbol", () => {
-    // This tests the type contract — the workspace must accept the field
-    const intent = { pendingVelvetRopeSymbol: "SCHD" };
-    expect(intent.pendingVelvetRopeSymbol).toBe("SCHD");
-  });
-
-  it("null clears the intent", () => {
-    const cleared = { pendingVelvetRopeSymbol: null };
-    expect(cleared.pendingVelvetRopeSymbol).toBeNull();
-  });
-});

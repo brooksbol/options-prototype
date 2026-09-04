@@ -136,6 +136,16 @@ export interface AdmissionPolicy {
 // --- Audit Record ---
 
 import type { ProductStructure } from "./product-structure";
+import type { Expiration, OptionsChain } from "../domain/types";
+
+/** Explicit, already-acquired evidence supplied to admission governance. */
+export interface AdmissionEvidence {
+  expirations: Expiration[];
+  chainsByExpiration: Readonly<Record<string, OptionsChain | null>>;
+  provenance: EvidenceProvenance;
+  attemptedAt: string;
+  auditId: string;
+}
 
 export interface AdmissionAuditRecord {
   id: string;

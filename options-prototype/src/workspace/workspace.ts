@@ -50,9 +50,6 @@ export interface Workspace {
   opportunityTargetDelta: number;
   opportunityMaxDte: number | null;
 
-  // Velvet Rope navigation intent
-  pendingVelvetRopeSymbol: string | null;
-
   // Write Desk Policy
   writeDeskTargetDelta: number;
   writeDeskTargetDte: number;
@@ -116,7 +113,6 @@ const DEFAULT_WORKSPACE: Workspace = {
   chainMaxDte: 45,
   opportunityTargetDelta: 0.30,
   opportunityMaxDte: null,
-  pendingVelvetRopeSymbol: null,
   writeDeskTargetDelta: 0.30,
   writeDeskTargetDte: 21,
   writeDeskRankingMode: "execution_first",

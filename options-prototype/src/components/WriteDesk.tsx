@@ -24,7 +24,6 @@ import { executableRowFromCandidate, type CallTableRow, type ContingentCallRow }
 import type { RecommendationFunnel } from "../write-desk/recommend";
 import { getDurableCache } from "../cache/durable-cache";
 import { loadCandidateUniverseWithDescriptor } from "../universe/universe";
-import { isTradierConfigured } from "../providers";
 import { MarketSessionPolicy } from "../market-session/session-policy";
 import { getTradingCalendar } from "../market-session/trading-calendar";
 import { RecommendationBrief } from "./RecommendationBrief";
@@ -121,7 +120,9 @@ export function WriteDesk() {
     (newOrder) => updateWorkspace({ writeDeskSectionOrder: newOrder }),
   );
 
-  const providerKey = isTradierConfigured() ? "tradier" : "mock";
+  // Stable cache/history namespace. The removed configuration helper always
+  // returned true, so this preserves the exact existing identity semantics.
+  const providerKey = "tradier";
 
   // Universe: derived from backend snapshot (canonical), falls back to local file
   const localUniverse = useMemo(() => loadCandidateUniverseWithDescriptor(), []);

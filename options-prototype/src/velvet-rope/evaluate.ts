@@ -7,8 +7,8 @@
  * the best operational rung.
  *
  * Pipeline:
- *   1. Enumerate all expirations within policy DTE range
- *   2. For each expiration: fetch chain, select call, select put
+ *   1. Enumerate supplied expirations within policy DTE range
+ *   2. For each expiration: read supplied chain, select call, select put
  *   3. Evaluate per-side criteria for each pair
  *   4. Evaluate cross-side criteria for each pair
  *   5. Determine per-expiration outcome
@@ -16,14 +16,12 @@
  *   7. Produce AdmissionAuditRecord with full expiration evidence
  */
 
-import type { MarketDataProvider } from "../domain/provider";
 import type { OptionContract, Expiration } from "../domain/types";
 import { findClosestToDelta } from "../domain/delta";
 import { midPrice, annualizedYield } from "../domain/calculations";
 import type {
   AdmissionPolicy,
   AdmissionAuditRecord,
-  EvidenceProvenance,
   ExpirationSelectionResult,
   OptionSideEvidence,
   ContractEvidence,
@@ -32,15 +30,10 @@ import type {
   EvaluationAttemptStatus,
   ExpirationEvaluation,
   ExpirationOutcome,
+  AdmissionEvidence,
 } from "./types";
 import { aggregateOutcome } from "./aggregate";
 import { inferProductStructure, hasStructuralComplexity, type ProductStructure, CONVENTIONAL_STRUCTURE } from "./product-structure";
-
-// --- ID generation ---
-
-function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
 
 // --- Expiration Selection ---
 
@@ -439,47 +432,21 @@ function avgSpread(ev: ExpirationEvaluation): number {
 
 // --- Main Evaluation Function ---
 
-export async function evaluateSymbolAdmission(
+/**
+ * Apply admission policy to explicit evidence. This function performs no I/O,
+ * reads no clock, creates no identity, and derives no provenance.
+ */
+export function evaluateSymbolAdmission(
   symbol: string,
-  provider: MarketDataProvider,
+  evidence: AdmissionEvidence,
   policy: AdmissionPolicy
-): Promise<AdmissionAuditRecord> {
-  const attemptedAt = new Date().toISOString();
-  const id = generateId();
-
-  const provenance: EvidenceProvenance = {
-    provider: "tradier_sandbox",
-    observedAt: null,
-    retrievedAt: attemptedAt,
-    source: "network",
-    cacheAgeSeconds: null,
-    delayedData: true,
-  };
+): AdmissionAuditRecord {
+  const { attemptedAt, auditId: id, provenance } = evidence;
 
   const emptyCallEvidence: OptionSideEvidence = { side: "call", selectedContract: null, selectionStatus: "expiration_unavailable", criteria: [] };
   const emptyPutEvidence: OptionSideEvidence = { side: "put", selectedContract: null, selectionStatus: "expiration_unavailable", criteria: [] };
 
-  // Step 1: Get expirations
-  let expirations: Expiration[];
-  try {
-    expirations = await provider.getExpirations(symbol);
-  } catch (err) {
-    return {
-      id, symbol, attemptedAt,
-      attemptStatus: "provider_failed",
-      outcome: null,
-      policySnapshot: policy,
-      evidenceProvenance: provenance,
-      expirationSelection: { status: "no_usable_expiration", selectedDate: null, selectedDte: null, availableCount: 0, searchRange: policy.expirationDteRange },
-      callEvidence: emptyCallEvidence,
-      putEvidence: emptyPutEvidence,
-      aggregatedCriteria: [],
-      productStructure: CONVENTIONAL_STRUCTURE,
-      explanation: `Provider failed: ${err instanceof Error ? err.message : "unknown error"}`,
-      expirationEvaluations: [],
-      winningExpiration: null,
-    };
-  }
+  const expirations = evidence.expirations;
 
   // Step 2: Find all eligible expirations
   const eligible = selectEligibleExpirations(expirations, policy.expirationDteRange);
@@ -513,10 +480,8 @@ export async function evaluateSymbolAdmission(
   const expirationEvaluations: ExpirationEvaluation[] = [];
 
   for (const exp of eligible) {
-    let chain;
-    try {
-      chain = await provider.getOptionsChain(symbol, exp.date);
-    } catch (_err) {
+    const chain = evidence.chainsByExpiration[exp.date];
+    if (!chain) {
       expirationEvaluations.push({
         date: exp.date,
         dte: exp.dte,
@@ -524,15 +489,9 @@ export async function evaluateSymbolAdmission(
         callEvidence: { side: "call", selectedContract: null, selectionStatus: "expiration_unavailable", criteria: [] },
         putEvidence: { side: "put", selectedContract: null, selectionStatus: "expiration_unavailable", criteria: [] },
         crossCriteria: [],
-        explanation: `Provider failed for ${exp.date}`,
+        explanation: `Evidence unavailable for ${exp.date}`,
       });
       continue;
-    }
-
-    // Update provenance from first successful chain
-    if (chain.dataQuality && expirationEvaluations.length === 0) {
-      provenance.source = chain.dataQuality.dataSource === "cache" ? "cache" : "network";
-      provenance.cacheAgeSeconds = chain.dataQuality.cacheAgeSeconds ?? null;
     }
 
     // Infer product structure from first chain (instrument-level)

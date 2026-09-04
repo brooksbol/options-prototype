@@ -21,7 +21,7 @@ import { UnderlyingSelector } from "./UnderlyingSelector";
 import { OptionsTable } from "./OptionsTable";
 import { MetricsPanel } from "./MetricsPanel";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
-import { getProvider as getSharedProvider, isTradierConfigured } from "../providers";
+import { MockMarketDataProvider } from "../providers/mock/MockMarketDataProvider";
 import type { MarketDataProvider } from "../domain/provider";
 import type { DeltaTieBreaker } from "../domain/policy";
 import type { Expiration, OptionsChain as OptionsChainType, OptionContract } from "../domain/types";
@@ -37,13 +37,15 @@ interface ProviderOption {
   available: boolean;
 }
 
-function getProvider(key: ProviderKey): MarketDataProvider {
-  return getSharedProvider(key);
+function getLegacyFixtureProvider(key: ProviderKey): MarketDataProvider {
+  void key;
+  return mockProvider;
 }
+
+const mockProvider = new MockMarketDataProvider();
 
 const PROVIDER_OPTIONS: ProviderOption[] = [
   { key: "mock", label: "Mock", badge: "Reference Fixtures", available: true },
-  { key: "tradier", label: "Tradier (via backend)", badge: "Live Delayed", available: isTradierConfigured() },
 ];
 
 // --- Component ---
@@ -108,8 +110,8 @@ function filterStrikes(
 export function ReferenceDataView() {
   const [ws] = useState(() => loadWorkspace());
 
-  const [providerKey, setProviderKey] = useState<ProviderKey>(ws.chainProviderKey as ProviderKey || "mock");
-  const provider = useMemo(() => getProvider(providerKey), [providerKey]);
+  const [providerKey, setProviderKey] = useState<ProviderKey>("mock");
+  const provider = useMemo(() => getLegacyFixtureProvider(providerKey), [providerKey]);
 
   const activeProviderOption = PROVIDER_OPTIONS.find((p) => p.key === providerKey)!;
 

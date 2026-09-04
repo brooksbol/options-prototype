@@ -2,7 +2,7 @@
  * SEC Securities Explorer — human-in-the-loop Discovery page.
  *
  * Loads the SEC exchange-listed universe, allows searching/sorting/filtering,
- * and provides a button to send a selected symbol to Velvet Rope for evaluation.
+ * and supports searching, sorting, and filtering the catalog.
  *
  * IMPORTANT: This dataset does NOT identify product type.
  * It is a general securities catalog, not an ETF master list.
@@ -12,7 +12,6 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { SecExchangeSecurityProvider } from "../providers/sec-catalog";
 import type { SecSecurityReference, SecurityCatalogResult } from "../providers/sec-catalog";
 import { isLikelyFund, likelyFundReason } from "../providers/sec-catalog/likelyFundHeuristic";
-import { updateWorkspace } from "../workspace/workspace";
 
 // --- Provider singleton ---
 
@@ -28,15 +27,9 @@ type SortDir = "asc" | "desc";
 const PAGE_SIZE = 50;
 const EXCHANGES = ["All", "NYSE", "Nasdaq", "CBOE", "OTC"];
 
-// --- Props ---
-
-interface SecExplorerProps {
-  onNavigateToVelvetRope?: () => void;
-}
-
 // --- Component ---
 
-export function SecExplorer({ onNavigateToVelvetRope }: SecExplorerProps) {
+export function SecExplorer() {
   const [result, setResult] = useState<SecurityCatalogResult | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -141,10 +134,6 @@ export function SecExplorer({ onNavigateToVelvetRope }: SecExplorerProps) {
     });
   }, []);
 
-  const handleSendToVelvetRope = useCallback((symbol: string) => {
-    updateWorkspace({ pendingVelvetRopeSymbol: symbol, activeTab: "velvetrope" });
-    if (onNavigateToVelvetRope) onNavigateToVelvetRope();
-  }, [onNavigateToVelvetRope]);
 
   function sortIndicator(key: SortKey): string {
     if (sortKey !== key) return "";
@@ -219,12 +208,11 @@ export function SecExplorer({ onNavigateToVelvetRope }: SecExplorerProps) {
                 <th className="opp-sortable" onClick={() => handleSort("exchange")}>Exchange{sortIndicator("exchange")}</th>
                 <th className="opp-sortable" onClick={() => handleSort("cik")}>CIK{sortIndicator("cik")}</th>
                 <th>Fund?</th>
-                <th></th>
               </tr>
             </thead>
             <tbody>
               {pageItems.map((sec) => (
-                <SecRow key={`${sec.cik}-${sec.ticker}`} sec={sec} onSend={handleSendToVelvetRope} />
+                <SecRow key={`${sec.cik}-${sec.ticker}`} sec={sec} />
               ))}
             </tbody>
           </table>
@@ -251,7 +239,7 @@ export function SecExplorer({ onNavigateToVelvetRope }: SecExplorerProps) {
 
 // --- Row component ---
 
-function SecRow({ sec, onSend }: { sec: SecSecurityReference; onSend: (symbol: string) => void }) {
+function SecRow({ sec }: { sec: SecSecurityReference }) {
   const fundReason = likelyFundReason(sec.name);
 
   return (
@@ -262,11 +250,6 @@ function SecRow({ sec, onSend }: { sec: SecSecurityReference; onSend: (symbol: s
       <td className="sec-cik">{sec.cik}</td>
       <td className="sec-fund-col">
         {fundReason ? <span className="sec-fund-badge" title={fundReason}>likely</span> : ""}
-      </td>
-      <td>
-        <button className="sec-evaluate-btn" onClick={() => onSend(sec.ticker)}>
-          Evaluate →
-        </button>
       </td>
     </tr>
   );

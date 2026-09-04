@@ -15,7 +15,7 @@ import { PRIORITY_WATCHLIST, ETF_DESCRIPTIONS, DEFAULT_OPPORTUNITY_POLICY, type 
 import { explainOpportunity } from "../opportunity/explain";
 import { sweepDelta, type PolicyResponsePoint } from "../opportunity/sweep";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
-import { getProvider, isTradierConfigured } from "../providers";
+import { MockMarketDataProvider } from "../providers/mock/MockMarketDataProvider";
 import { loadCandidateUniverseWithDescriptor } from "../universe/universe";
 import type { CacheStats } from "../domain/provider";
 import { deriveAuditContext, type AuditContext, type ContractIdentity } from "../velvet-rope/audit-context";
@@ -256,8 +256,7 @@ function SweepChart({ points, currentDelta, minYield }: { points: PolicyResponse
 
 export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
   const [ws] = useState(() => loadWorkspace());
-  const providerKey = isTradierConfigured() ? "tradier" : "mock";
-  const provider = useMemo(() => getProvider(providerKey), [providerKey]);
+  const provider = useMemo(() => new MockMarketDataProvider(), []);
 
   // Shared universe with Quick Radar scan profile
   const universe = useMemo(() => loadCandidateUniverseWithDescriptor(), []);
@@ -517,7 +516,7 @@ export function OpportunityLab({ onSelectSymbol }: OpportunityLabProps) {
       <header className="opp-header">
         <h2>Opportunity Lab</h2>
         <span className="console-badge" style={{ background: "#2d4a3e", color: "#6fcf97" }}>
-          {providerKey === "tradier" ? "Live Delayed" : "Mock Data"}
+          Mock Data
         </span>
         <span className="opp-universe-meta">
           Universe: {universe.descriptor.name} ({universe.descriptor.totalSymbols}) · Profile: Quick Radar ({scanSymbols.length})
