@@ -610,3 +610,30 @@ The documentation-index, Constitution-discoverability, and numbered-journal-cont
 Durable governance learning:
 
 > **Useful judgment does not authorize mutation of ratified authority.**
+
+
+---
+
+## 2026-09-03 — Technology-quality experiments graduate (strict Sonar + ArchUnit)
+
+### Context
+An overnight sequence of controlled experiments (SonarQube Community Build 25.9, isolated ArchUnit probe) tested how far commodity tooling can carry Wheelwright's Java design standard. The Principal decided to graduate the useful parts into the durable Technology Quality Program. Recorded as `docs/technology-quality-fitness-controls-v1.md` (Category C) + `docs/reference-data/sonar/wheelwright-clean-code-profile-delta-v1.md`.
+
+### What the experiments established (why-state)
+- **Three-layer quality model.** Strict Sonar = commodity/local structural quality (size, complexity, nesting, field/method pressure). ArchUnit = ratified architectural invariants (direction, cycles, boundary/construction confinement). Human/AI = design judgment (SRP substance, abstraction quality, IoC/seams, implicit state machines, semantic contracts).
+- **`DatabaseManager` is the preserved discriminator.** Neither strict Sonar nor ArchUnit saw its weak-IoC / hidden-infra-dependency / `DriverManager`+classloader resource discovery / `Instant.now()` / no-seam concerns. ArchUnit correctly said "in `db`, using JDBC — permitted." Those concerns are **not automated**. Do not claim they are.
+- **`AcquisitionWorker` showed complementarity.** Sonar: 58 fields, 53 methods, cognitive complexity 54, brain method. ArchUnit independently: orchestration constructs its own executor (a seam/boundary fact Sonar cannot express).
+- **`MultiExpirationSurfaceAnalysis` was the strongest evidence against hypothesis-fitting.** A *general* JDBC-boundary invariant (R4) found a violation there without the rule being built around it — and we had not nominated that class.
+
+### Governing standard for the middle layer
+> **Only automate architectural propositions we are prepared to defend independently of the code that happens to violate them.**
+An ArchUnit rule is executable architecture policy, not another lint. R4 (JDBC construction confined to persistence boundary) is a strong candidate. R5 (executor construction confined to composition boundary) is a strong candidate but blocked on ratifying Wheelwright's actual composition boundary. **R2a (`db → root` via `SchedulerConfig`) is explicitly NOT ratified** — it demonstrated that package topology ≠ conceptual architecture; the dependency is real but not shown to be wrong.
+
+### Fifth principle added at graduation — trend over build-killers
+Make quality visible/measurable/directionally improvable; prefer baselines, trends, new-vs-legacy debt distinction, and regression surfacing over turning every smell into a build failure. Graduating the strict profile does NOT make its ~559 rules gates; a ratified ArchUnit invariant does NOT automatically become a hard failure. Hard gates are reserved for a small ratified high-confidence class. Reconciles with Constitution: "No control becomes a hard gate merely because a tool ships with that rule enabled."
+
+### Disposition
+Durable now: the model, the operating principle, the strict-Sonar policy as reproducible delta config, ArchUnit as an approved mechanism, and the R4/R5/R2a dispositions. Not built: reproducible profile provisioning script, trend capture, any ArchUnit build integration, any enforcement mode. Experimental SonarQube instance + profile/projects kept intact until the durable mechanism can reproduce the evidence. No findings remediated; `DatabaseManager`/`AcquisitionWorker`/`MultiExpirationSurfaceAnalysis`/`SchedulerConfig` unchanged. Reconciled as the Constitution's Article VI fitness-function lifecycle and Program Workstream 9 / deliverable #11 — no new authority created, no `PL-SONAR` item (Program forbids it); cross-referenced to `PL-COHERE-01`.
+
+### Open Principal decisions carried forward
+Composition-boundary definition (unblocks R5); per-control enforcement mode (default: not a gate); durable ArchUnit vehicle (touches build files → separate authorized change); whether to stand up trend infrastructure now.

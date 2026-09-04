@@ -94,6 +94,7 @@ Read these when designing or reviewing implementation structure, evaluating tech
 |----------|-----|
 | `foundations/technology-quality-constitution-v1.md` | Ratified technology-quality principles, day-to-day architecture practice, operating model, and version-one baseline authorization |
 | `technology-quality-program-v1.md` | Principal-ratified and mandated execution program: backlog/journal reconciliation, untouched baseline, balanced scorecard, technology-optimization roadmap, interventions, fitness controls, and steady-state operation |
+| `technology-quality-fitness-controls-v1.md` | Ratified fitness-control set (graduation record): three-layer quality model, strict Sonar profile as reproducible policy, ArchUnit as approved architectural-invariant mechanism, trend-over-gates operating principle, and open Principal decisions |
 
 ### AI Actor Cold-Start Bootstrap
 
@@ -172,6 +173,7 @@ Authoritative for their specific project concern. Not system-definition document
 | `roadmap.md` | Current strategic roadmap (Vision → Goals → Bets → Initiatives) |
 | `architecture-roadmap.md` | Current architecture-roadmap pressure and intended structural evolution |
 | `technology-quality-program-v1.md` | Principal-ratified and mandated technology-quality program state and execution plan |
+| `technology-quality-fitness-controls-v1.md` | Ratified fitness-control set: three-layer quality model, strict Sonar profile (reproducible policy), ArchUnit invariant mechanism, trend-over-gates principle |
 | `parking-lot.md` + numbered continuations | One canonical backlog and material-idea intake registry expressed across physical pages |
 | `journal/project-journal.md` + numbered continuations | One canonical chronology expressed across physical continuation files |
 | `contracts/evidence-snapshot-v1.md` | Frozen API contract (v1) |
