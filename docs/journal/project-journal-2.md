@@ -788,3 +788,66 @@ P2 reached its intended boundary: the three preserved capabilities are relocated
 ### Next bounded increment
 
 **P3 — Governance Extraction + Legacy Provider Severance.** Separate governance judgment from evidence acquisition (feed Velvet Rope from the published evidence contract rather than `/api/market`), then retire the dead browser acquisition/provider path where proven safe. P3 must precede final Velvet Rope migration. Execution requires separate Principal authorization; not begun.
+
+
+---
+
+## 2026-09-04 — PL-CLEANUP Package 3 complete (Governance Extraction + Legacy Provider Severance)
+
+### Status
+
+**P3 — COMPLETE / ACCEPTED.** Second bounded package of the ratified PL-CLEANUP decomposition executed. Implementation/completion record only; no further cleanup authorized by it.
+
+### SHAs
+
+- **Baseline (accepted `main` before this record):** `d8905fa3dd48041a48424cb33346c6000d4cf206`
+- **P3 implementation commit:** `d8905fa3dd48041a48424cb33346c6000d4cf206` — `refactor(governance): separate admission judgment from acquisition`
+
+(The implementation commit is itself the accepted baseline this record is written against; verified remotely, not assumed.)
+
+### Governance-boundary change (ratified objective achieved)
+
+> Separate governance judgment from evidence acquisition.
+
+- `evaluateSymbolAdmission(...)` no longer accepts a `MarketDataProvider`; it accepts explicit `AdmissionEvidence` (verified in `velvet-rope/evaluate.ts` + `types.ts`).
+- Supplied evidence includes: expirations; chains keyed by expiration; explicit provenance; attempted timestamp; audit identity.
+- Governance evaluation is now synchronous and performs no network acquisition, provider calls, clock reads, random/audit-identity generation, or internal provenance manufacture (confirmed by the function contract's own documented invariant: "reads no clock, creates no identity, derives no provenance").
+- Preserved governance semantics: admission policy; expiration eligibility/ranking; contract selection; per-side criteria; product-structure inference; structural-complexity judgment; aggregation; audit-record semantics; deterministic narrative behavior.
+
+### Velvet Rope disposition
+
+- The obsolete historical Velvet Rope **Lab UI was retired** while its governance/domain capability was **preserved**.
+- Velvet Rope removed from the historical `/labs` host; SEC Explorer's exclusive `Evaluate → Velvet Rope` handoff removed; `pendingVelvetRopeSymbol` removed (its only producer/consumer belonged to that obsolete handoff/UI).
+- No replacement operator-facing governance workflow was created; unresolved governance-expression work (`PL-GOV-EXPR`) remains separate.
+
+### Provider / acquisition severance
+
+Accepted removals: `src/providers/proxy/ProxyMarketDataProvider.ts`, `src/providers/index.ts`, `src/write-desk/acquire-evidence.ts`, obsolete provider-driven session-gating tests, and obsolete synthetic stall assertions tied only to the removed acquisition path.
+
+Reverse-dependency evidence: `ProxyMarketDataProvider` was used only by the deleted provider factory; the factory's meaningful consumers were Velvet Rope, historical P1 Labs, and Deployment's stable provider-identity helper; Velvet Rope UI was retired; P1 Labs were isolated to existing mock fixtures rather than deleted; Deployment's prior always-true provider helper was replaced by the equivalent literal `"tradier"` identity; `acquireEvidence` had no production callers; removed stall assertions reconstructed local booleans rather than protecting surviving production behavior.
+
+Deliberately retained until P1 (still required by historical P1 surfaces; no longer implying a supported live browser acquisition path): `src/domain/provider.ts`, `src/providers/mock/MockMarketDataProvider.ts`, relevant mock fixtures, `src/hooks/useOptionsChain.ts`, `src/opportunity/evaluate.ts`, applicable tests.
+
+### Preserved identity / `/api/market` semantics
+
+- Current frontend source/tests contain **no** `/api/market` coupling (verified: zero matches); backend has no `/api/market` endpoint family; supported evidence publication remains under `/api/evidence/*`.
+- Deployment provider/cache identity remains `"tradier"`; existing `"sandbox"` environment identity unchanged; cache keys, opportunity-history provider identity, recommendation provenance, and recommendation behavior remain stable.
+- Historical documentation mentioning `/api/market` as prior-state context is retained as historical evidence, not rewritten away.
+
+### Transitional topology after P3
+
+- **Operator:** Console / Deployment / Production (unchanged).
+- **Engineering (`/engineering/*`):** still exactly Universe Inspection, CSV Diagnostics, Scenario Replay.
+- **Historical Labs (`/labs/*`):** still retained for the eight P1 deletion candidates — Laboratory / Delta Probe, ReferenceDataView / Options Chain, RecommendationLab, OpportunityLab, EtfCatalogExplorer, SecExplorer, FmpExplorer, MassiveChainView. **Velvet Rope is no longer among them.** `App.tsx` and the historical Lab host remain intentionally; P1 owns their final deletion/collapse.
+
+### Verification evidence
+
+Build passed. Full frontend suite passed: 109 files / 1,483 tests. Focused P3 suite passed: 17 files / 273 tests. Fixed-evidence golden test proves governance parity and zero network acquisition. Changed-file lint passed with no errors. `git diff --check` passed. P1 surface-presence check passed. Remote accepted `main` reverified after push. Repository-wide lint remains non-green **only** because of pre-existing accepted-`main` hook errors/warnings (especially `OperatorConsole.tsx`); these are pre-existing and are **not** converted into PL-CLEANUP work.
+
+### Natural stopping point
+
+P3 reached its intended boundary: governance judgment is decoupled from acquisition, the obsolete Velvet Rope UI and dead browser acquisition path are gone, and identity/provenance/recommendation behavior is unchanged. Historical Lab host and the eight P1 surfaces remain intact for P1.
+
+### Next bounded increment
+
+**P1 — Historical Lab / Spike Deletion.** Delete the eight superseded surfaces + exclusive supports and collapse the `App.tsx` Lab host, only after reverse-dependency evidence clears each. Execution requires separate Principal authorization; not begun.

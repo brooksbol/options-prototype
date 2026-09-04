@@ -366,8 +366,8 @@ This is not a generic technical-cleanup campaign. Every intervention must name t
 | Package | State | Note |
 |---|---|---|
 | **P2** — Minimal Engineering Capability Preservation | **COMPLETE / ACCEPTED** | Implementation commit `41d3239`. `/engineering/*` established with exactly the three preserved instruments; historical `/labs/*` host retained transitionally. See journal 2026-09-04 P2 completion record. |
-| **P3** — Governance Extraction + Legacy Provider Severance | **NEXT** | Must precede final Velvet Rope migration. |
-| **P1** — Historical Lab / Spike Deletion | pending P3 | Must precede final historical Lab-host removal. |
+| **P3** — Governance Extraction + Legacy Provider Severance | **COMPLETE / ACCEPTED** | Implementation commit `d8905fa`. `evaluateSymbolAdmission` now accepts explicit `AdmissionEvidence` (no provider, no network/clock/identity/provenance side effects); governance semantics preserved. Velvet Rope Lab UI retired (capability preserved); dead provider/acquisition path severed (`ProxyMarketDataProvider`, `providers/index.ts`, `acquire-evidence.ts`, `pendingVelvetRopeSymbol`). Deployment identity `"tradier"` and `"sandbox"` env unchanged. See journal 2026-09-04 P3 completion record. |
+| **P1** — Historical Lab / Spike Deletion | **NEXT** | Owns final deletion/collapse of the eight remaining historical Lab surfaces + `App.tsx` Lab host; Velvet Rope no longer among them. |
 | **P4** — Vocabulary / Coherence | pending P1 | — |
 
 The ratified execution order (**P2 → P3 → P1 → P4**), package definitions, exclusions, and exit criterion below are unchanged by this state update.
