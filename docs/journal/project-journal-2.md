@@ -906,3 +906,59 @@ P1 reached its intended boundary: the superseded historical Lab topology is gone
 ### Next bounded increment
 
 **P4 — Vocabulary / Coherence.** Residual coherence per the ratified P4 definition: WriteDesk→Deployment naming where it reduces ambiguity, move live types out of `scan-orchestrator.ts`, prune remaining `/labs` terminology and obsolete workspace/CSS, reconcile `PL-POSTURE-01`; explicitly no mechanical `wd-*` rename campaign. Execution requires separate Principal authorization; not begun.
+
+---
+
+## 2026-09-04 — PL-CLEANUP Package 4 complete + PL-CLEANUP closed (Vocabulary / Coherence)
+
+### Status
+
+**P4 — COMPLETE / ACCEPTED.** Fourth and final bounded package of the ratified PL-CLEANUP decomposition executed. With P4 accepted, **PL-CLEANUP is COMPLETE / ACCEPTED as a whole** against its ratified exit criterion. This is a closure record only; it authorizes no further cleanup and begins no new pass.
+
+### SHAs
+
+- **P4 baseline (accepted `main` before this package):** `00cf8be757c61cf10443c72ff995b6ffe5f004c1`
+- **P4 implementation commit / PL-CLEANUP closure SHA:** `51ee08f757ee28d742fc0715adf29a8b838ac6e8` — `refactor(cleanup): reconcile deployment vocabulary and ownership` (parent `00cf8be`). Verified remotely as accepted `main`; local `main` fast-forwarded to match; working tree clean.
+
+### P4 change result (ratified objective achieved)
+
+> Reconcile vocabulary/coherence after structural deletion established what remains genuinely live.
+
+- Public route/component vocabulary aligned to **Deployment**: `WriteDesk.tsx` exports `Deployment`; `AppRoute` uses `"deployment"`; `Root.tsx`/`AppShell.tsx` render and label Deployment. Operator navigation is **Console → Deployment → Production** (Kreature separately governed).
+- `/app/write` **retained** (deep links/history unaffected); resolves to the `deployment` route.
+- Stable persistence/cache/evidence/provenance identifiers **retained** — provider identity `"tradier"`, `"sandbox"` env, ETag `gen-*`, cache keys, opportunity-history identity, recommendation provenance unchanged.
+- `src/write-desk/scan-orchestrator.ts` **removed** (154 lines); live candidate/governance result types moved to `src/write-desk/candidate-types.ts` (93 lines); obsolete scan-era declarations removed.
+- `CsvImportLab.tsx` **renamed** to `CsvDiagnostics.tsx` (content-identical rename; import updated in `EngineeringApp.tsx`).
+- Bounded Lab/CSS residue reconciled: `write-desk.css` reduced; residual `/labs` terminology pruned from router doc/comments and workspace; obsolete workspace fields already removed in P1 not reintroduced.
+- **No** mechanical `wd-*` rename campaign; scope stayed bounded to ambiguity/fragility reduction.
+- Commit touched 41 files (+165 / −275), consistent with net accidental-change-surface reduction rather than feature change.
+
+### PL-CLEANUP exit-criterion verification (against `51ee08f`)
+
+The ratified exit criterion (`docs/parking-lot-3.md` §"Cleanup exit criterion") is satisfied on every clause:
+
+1. **Only the three approved engineering capabilities remain behind the engineering boundary** — met. `/engineering/*` exposes exactly Universe Inspection, CSV Diagnostics, Scenario Replay.
+2. **Governance evaluation no longer depends on legacy browser acquisition** — met (P3). `evaluateSymbolAdmission` consumes explicit `AdmissionEvidence`; no `/api/market` coupling.
+3. **The eight superseded Lab/spike surfaces and their exclusive dependencies are gone** — met (P1). Surfaces, `/labs` route, and the historical `App.tsx` host are absent.
+4. **`/api/market` and obsolete direct-provider coupling no longer enlarge ordinary change scope** — met. Backend returns 404 for `/api/market`; zero frontend references.
+5. **Operator behavior remains stable** — met (see verification below).
+
+> Zero Sonar findings and aesthetic perfection were explicitly NOT exit criteria; this closure does not claim them.
+
+### Verification evidence
+
+- **Principal browser smoke test:** PASS (Principal-performed, against Principal-restarted servers).
+- **Kiro runtime/API/topology verification** (SYNC SHA `51ee08f`, servers restarted by the Principal — not Kiro): backend `/api/health` and `/api/status` 200; evidence snapshot 200 with `ETag "gen-22922"` and correct `304` on conditional retrieval; `/api/evidence/quotes` 200; `/api/market` and `/api/market/quotes` return **404**; every operator/engineering render-target module transformed and served by Vite without error; operator topology Console → Deployment → Production confirmed in running code with no `/labs` navigation; `CsvDiagnostics.tsx` present and served, old `CsvImportLab.tsx` absent on disk. Verdict: **PASS WITH KNOWN EXISTING DEFECT(S)** — the only outstanding item is the pre-existing, separately-governed Kreature/Issue #10 render defect.
+- **Method limitation recorded honestly:** no browser-automation tool (Playwright/Puppeteer/headless Chromium) was available in Kiro's environment, so Kiro's runtime evidence is HTTP/route-resolution/module-transform based plus source at the exact SYNC SHA, not rendered-pixel/in-browser-console capture. The rendered-UI pass is the Principal's browser smoke test.
+
+### Scope discipline preserved
+
+GitHub Issue #9, GitHub Issue #10, and Kreature remain **explicitly outside** PL-CLEANUP and were not touched. The `/app/kreature` route still exists and its module transforms; its known render defect is an existing defect, not a P4 regression. No Sonar/lint remediation, dependency upgrade, backend/scheduler feature work, or new cleanup pass was performed.
+
+### Natural stopping point
+
+PL-CLEANUP reached its governing stopping rule. Accidental change surface has been reduced structurally (P1/P3 deletions) and semantically (P4 vocabulary/coherence), and the running system verifies stable. Wheelwright now reassesses readiness for the next product/infrastructure expansion.
+
+### Next
+
+Post-cleanup quality measurement: re-run SCA against `51ee08f` and produce a before/after comparison versus the prior SCA baseline (measurement, not remediation). No further PL-CLEANUP work is authorized.
