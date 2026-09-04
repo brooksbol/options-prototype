@@ -8,11 +8,12 @@
  *   /             → Operator Console (home)
  *   /app          → Operator Console (home)
  *   /app/write    → operational/recommendation surface
- *   /labs/*       → existing lab application (unchanged)
+ *   /engineering/* → subordinate engineering instruments
+ *   /labs/*        → transitional historical lab application
  *   anything else → Operator Console (home)
  */
 
-export type AppRoute = "operator-console" | "write-desk" | "production" | "kreature" | "labs" | "sparkline-gallery";
+export type AppRoute = "operator-console" | "write-desk" | "production" | "kreature" | "engineering" | "labs" | "sparkline-gallery";
 
 /**
  * Determine the current route from the browser pathname.
@@ -38,6 +39,11 @@ export function resolveRoute(): AppRoute {
   // Sparkline gallery (temporary UX experiment)
   if (path === "/app/sparkline-gallery") {
     return "sparkline-gallery";
+  }
+
+  // Subordinate engineering instruments (outside operator navigation)
+  if (path.startsWith("/engineering")) {
+    return "engineering";
   }
 
   // Labs

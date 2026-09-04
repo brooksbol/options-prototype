@@ -61,8 +61,9 @@ export function UniverseView() {
         <p className="universe-source-label">{YAHOO_DISPLAY_NAME}</p>
         <p className="universe-source-desc">{YAHOO_DESCRIPTION}</p>
         <p className="universe-disclaimer">
-          Candidate Universe contains symbols that may be evaluated by institutional policy.
-          Inclusion here does not imply admission, suitability, optionability, or deployability.
+          Adding a candidate here changes browser-local candidate state only. It does not admit
+          the symbol to Wheelwright&apos;s backend-maintained acquisition/evidence universe.
+          Inclusion here also does not imply suitability, optionability, or deployability.
         </p>
       </div>
 

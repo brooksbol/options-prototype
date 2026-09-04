@@ -2,7 +2,7 @@
  * Root component — route-level switch between Wheelwright surfaces.
  *
  * All operational surfaces are wrapped in AppShell (shared application chrome).
- * Labs remain outside the shell — they are engineering tooling, not operator surfaces.
+ * Engineering instruments and transitional Labs remain outside the operator shell.
  *
  * Listens to popstate for browser back/forward navigation.
  */
@@ -15,6 +15,7 @@ import { WriteDesk } from "./components/WriteDesk";
 import { OperatorConsole } from "./components/OperatorConsole";
 import { ProductionView } from "./production/ProductionView";
 import { SparklineGallery } from "./operator-console/SparklineGallery";
+import { EngineeringApp } from "./engineering/EngineeringApp";
 
 export function Root() {
   const [route, setRoute] = useState<AppRoute>(resolveRoute);
@@ -31,6 +32,11 @@ export function Root() {
   // Labs remain outside the Application Shell — engineering tooling, not operator surface
   if (route === "labs") {
     return <App />;
+  }
+
+  // Deliberate subordinate engineering boundary; never part of operator navigation
+  if (route === "engineering") {
+    return <EngineeringApp />;
   }
 
   // Sparkline gallery — temporary UX experiment, outside AppShell

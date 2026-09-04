@@ -1,12 +1,11 @@
 /**
- * CSV Import Lab — document model visibility laboratory.
+ * CSV Diagnostics — engineering introspection for the production/shared parser stack.
  *
  * Page narrative:
  *   1. IDENTITY — "What document is this?" (2-second verification)
  *   2. TRUST — warnings only when relevant (silence = success)
  *   3. DOCUMENT CONTENTS — "What did the parser find?" (grouped by concept)
- *   4. IMPORT PREVIEW — "What would importing do?" (one action statement)
- *   5. ADVANCED — engineering details (collapsed, secondary)
+ *   4. ADVANCED — engineering details (collapsed, secondary)
  */
 
 import { useState } from "react";
@@ -279,27 +278,13 @@ function DocumentContents({ parsed }: { parsed: ParsedDocument }) {
   }
 }
 
-// --- SECTION: Import Preview ---
-
-function ImportPreview({ parsed }: { parsed: ParsedDocument }) {
-  if (parsed.payload.type === "option_summary") {
-    return <p className="csv-import-line">Replace current Option Summary snapshot ({parsed.payload.rows.length} strategy rows)</p>;
-  }
-  if (parsed.payload.type === "holdings") {
-    return <p className="csv-import-line">Replace current Holdings snapshot ({parsed.payload.rows.length} positions)</p>;
-  }
-  if (parsed.payload.type === "activity") {
-    return <p className="csv-import-line">Import {parsed.payload.rows.length} activity events</p>;
-  }
-  return <p className="csv-import-line csv-import-unavailable">Import unavailable for this document type</p>;
-}
-
 // --- Main ---
 
-export function CsvImportLab() {
+export function CsvDiagnostics() {
   const [sourceKind, setSourceKind] = useState<"upload" | "fixture" | "">("");
   const [sourceName, setSourceName] = useState("");
   const [fileSize, setFileSize] = useState(0);
+  const [delimiter, setDelimiter] = useState(",");
   const [docKey, setDocKey] = useState(0);
   const [document, setDocument] = useState<CsvDocument | null>(null);
   const [classification, setClassification] = useState<ClassificationResult | null>(null);
@@ -307,6 +292,7 @@ export function CsvImportLab() {
 
   function processContent(content: string, kind: "upload" | "fixture", name: string) {
     const delimiter = detectDelimiter(content);
+    setDelimiter(delimiter);
     const lines = content.split(/\r?\n/);
     let csvStart = 0;
     for (let i = 0; i < Math.min(lines.length, 5); i++) {
@@ -368,7 +354,7 @@ export function CsvImportLab() {
               {sourceKind} — {sourceName}
             </span>
             <span className="csv-identity-file-meta">
-              {(fileSize / 1024).toFixed(1)} KB · {document!.rows.length} rows
+              {(fileSize / 1024).toFixed(1)} KB · {document!.rows.length} rows · delimiter {delimiter === "\t" ? "tab" : `“${delimiter}”`}
             </span>
           </div>
           <div className="csv-identity-classification">
@@ -427,13 +413,6 @@ export function CsvImportLab() {
           <div className="csv-contents-detail" style={{ marginTop: 4 }}>
             Headers: {document!.headers.slice(0, 8).join(", ")}{document!.headers.length > 8 ? "…" : ""}
           </div>
-        </section>
-      )}
-
-      {/* IMPORT PREVIEW */}
-      {parsed && parsed.payload.rows.length > 0 && (
-        <section className="csv-section csv-import-section">
-          <ImportPreview parsed={parsed} />
         </section>
       )}
 

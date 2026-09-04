@@ -13,14 +13,11 @@ import { ALL_SCENARIOS } from "./engineering/probeData";
 import { MassiveChainView } from "./components/MassiveChainView";
 import { ReferenceDataView } from "./components/ReferenceDataView";
 import { RecommendationLab } from "./components/RecommendationLab";
-import { CsvImportLab } from "./components/CsvImportLab";
 import { OpportunityLab } from "./components/OpportunityLab";
-import { ScenarioReplay } from "./components/ScenarioReplay";
 import { EtfCatalogExplorer } from "./components/EtfCatalogExplorer";
 import { FmpExplorer } from "./components/FmpExplorer";
 import { VelvetRopePage } from "./components/VelvetRopePage";
 import { SecExplorer } from "./components/SecExplorer";
-import { UniverseView } from "./components/UniverseView";
 import { loadWorkspace, updateWorkspace } from "./workspace/workspace";
 import "./App.css";
 
@@ -33,7 +30,7 @@ import "./App.css";
  *   - Massive API: real provider data spike
  */
 
-type ViewMode = "laboratory" | "reference" | "recommendation" | "opportunity" | "csvimport" | "massive" | "scenario" | "etfcatalog" | "velvetrope" | "secexplorer" | "fmpexplorer" | "universe";
+type ViewMode = "laboratory" | "reference" | "recommendation" | "opportunity" | "massive" | "etfcatalog" | "velvetrope" | "secexplorer" | "fmpexplorer";
 
 const TIE_BREAKER_OPTIONS: DeltaTieBreaker[] = [
   "PreferOTM",
@@ -46,7 +43,7 @@ function App() {
   const [view, setView] = useState<ViewMode>(() => {
     const ws = loadWorkspace();
     const saved = ws.activeTab as ViewMode;
-    if (["laboratory", "reference", "recommendation", "opportunity", "csvimport", "massive", "scenario", "etfcatalog", "velvetrope", "secexplorer", "fmpexplorer", "universe"].includes(saved)) return saved;
+    if (["laboratory", "reference", "recommendation", "opportunity", "massive", "etfcatalog", "velvetrope", "secexplorer", "fmpexplorer"].includes(saved)) return saved;
     return "recommendation";
   });
 
@@ -95,24 +92,6 @@ function App() {
             Opportunity Lab
           </button>
           <button
-            className={`tab-btn ${view === "universe" ? "tab-active" : ""}`}
-            onClick={() => changeView("universe")}
-          >
-            Universe
-          </button>
-          <button
-            className={`tab-btn ${view === "csvimport" ? "tab-active" : ""}`}
-            onClick={() => changeView("csvimport")}
-          >
-            CSV Import Lab
-          </button>
-          <button
-            className={`tab-btn ${view === "scenario" ? "tab-active" : ""}`}
-            onClick={() => changeView("scenario")}
-          >
-            Scenario Replay
-          </button>
-          <button
             className={`tab-btn ${view === "etfcatalog" ? "tab-active" : ""}`}
             onClick={() => changeView("etfcatalog")}
           >
@@ -153,10 +132,6 @@ function App() {
         <RecommendationLab />
       ) : view === "opportunity" ? (
         <OpportunityLab onSelectSymbol={() => changeView("recommendation")} />
-      ) : view === "csvimport" ? (
-        <CsvImportLab />
-      ) : view === "scenario" ? (
-        <ScenarioReplay />
       ) : view === "etfcatalog" ? (
         <EtfCatalogExplorer />
       ) : view === "velvetrope" ? (
@@ -165,8 +140,6 @@ function App() {
         <SecExplorer onNavigateToVelvetRope={() => changeView("velvetrope")} />
       ) : view === "fmpexplorer" ? (
         <FmpExplorer />
-      ) : view === "universe" ? (
-        <UniverseView />
       ) : (
       <div className="console-layout">
         <aside className="console-sidebar">

@@ -42,6 +42,14 @@ describe("resolveRoute", () => {
     expect(resolveRoute()).toBe("labs");
   });
 
+  it("/engineering and subordinate instruments resolve outside the operator shell", () => {
+    Object.defineProperty(window, "location", {
+      value: { pathname: "/engineering/scenario-replay" },
+      writable: true,
+    });
+    expect(resolveRoute()).toBe("engineering");
+  });
+
   it("unknown paths resolve to operator-console (home)", () => {
     Object.defineProperty(window, "location", {
       value: { pathname: "/some/other/path" },
