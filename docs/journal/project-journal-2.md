@@ -740,3 +740,51 @@ The Principal ratified the residual PL-SHELL decision that this re-baseline surf
 **Cleanup-round exit criterion (ratified):** cleanup is complete when the operator topology and engineering topology conform to the resolved boundary, obsolete paths no longer enlarge normal change scope, competing historical vocabulary no longer obscures current responsibilities, and the selected cleanup packages are closed — **not** when Sonar has zero findings or the codebase is aesthetically perfect. At that point cleaning stops and feature/infrastructure expansion is reassessed.
 
 **PL-CLEANUP status:** still **not rewritten**. The final `PL-CLEANUP` record and the `PL-SHELL` row reconciliation are deferred until the current-code per-Lab disposition pass returns. This journal entry is the durable provenance for both the re-baseline and this ratification.
+
+
+---
+
+## 2026-09-04 — PL-CLEANUP Package 2 complete (Minimal Engineering Capability Preservation)
+
+### Status
+
+**P2 — COMPLETE / ACCEPTED.** First bounded package of the ratified PL-CLEANUP decomposition executed. This is an implementation/completion record; no further cleanup is authorized by it.
+
+### SHAs
+
+- **Baseline (accepted `main` before this record):** `41d323927e3c3ebcebddf47dc7ce79241da41d32`
+- **P2 implementation commit:** `41d323927e3c3ebcebddf47dc7ce79241da41d32` — `refactor(engineering): extract preserved PL-CLEANUP P2 instruments`
+
+(The implementation commit is itself the accepted baseline this documentation record is written against; verified remotely, not assumed.)
+
+### Resulting topology
+
+**Operator application** — Console → Deployment → Production within the shared Application Shell (unchanged).
+
+**Engineering boundary** — `/engineering/*` now hosts exactly three preserved instruments, outside primary operator navigation:
+1. Universe Inspection / browser-local candidate maintenance
+2. CSV parsing/classification diagnostics
+3. Scenario Replay
+
+**Transitional historical Lab boundary** — `/labs/*` remains temporarily and still contains Velvet Rope, Laboratory / Delta Probe, ReferenceDataView / Options Chain, RecommendationLab, OpportunityLab, EtfCatalogExplorer, SecExplorer, FmpExplorer, MassiveChainView. This is intentionally transitional: **P3 must precede final Velvet Rope migration; P1 must precede final historical Lab-host removal.**
+
+### Verified implementation evidence
+
+- The three P2 capabilities were removed as active instruments from the historical Lab host; `/engineering/*` exposes exactly those three (verified in `router.ts` and `engineering/EngineeringApp.tsx`).
+- Universe maintenance explicitly states that browser-local additions do not alter the backend-maintained acquisition/evidence universe.
+- CSV Diagnostics uses the existing shared/production parser stack and no longer presents an import-preview workflow.
+- Scenario Replay parser/projector/diff behavior and fixtures remain unchanged.
+- Velvet Rope was untouched.
+- No P1, P3, or P4 work was performed.
+- Console, Deployment, Production, acquisition, recommendations, portfolio ingestion, accounting, governance, and provider/provenance behavior remained unchanged.
+- No operator module depends on the engineering host or engineering-only UI (import-direction constraint honored for the extracted instruments).
+- Build passed. Full frontend suite passed: 110 files / 1,491 tests. Focused P2 tests passed: 9 files / 134 tests. Changed-file lint passed. `git diff --check` passed.
+- Repository-wide lint remains non-green **only** because of pre-existing accepted-`main` `OperatorConsole.tsx` hook-order errors/warnings. These are pre-existing and are **not** PL-CLEANUP work; they are not converted into cleanup scope.
+
+### Natural stopping point
+
+P2 reached its intended boundary: the three preserved capabilities are relocated behind `/engineering/*`, operator behavior is unchanged, and the historical Lab host remains intact for P3/P1 to consume. No further extraction, deletion, or vocabulary work is in scope until the next package is authorized.
+
+### Next bounded increment
+
+**P3 — Governance Extraction + Legacy Provider Severance.** Separate governance judgment from evidence acquisition (feed Velvet Rope from the published evidence contract rather than `/api/market`), then retire the dead browser acquisition/provider path where proven safe. P3 must precede final Velvet Rope migration. Execution requires separate Principal authorization; not begun.

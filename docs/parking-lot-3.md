@@ -361,6 +361,17 @@ This is not a generic technical-cleanup campaign. Every intervention must name t
 
 **Execution order (dependency safety): P2 → P3 → P1 → P4.** The package numbers preserve investigation/decomposition history; the arrows are the execution order.
 
+**Package state (updated 2026-09-04):**
+
+| Package | State | Note |
+|---|---|---|
+| **P2** — Minimal Engineering Capability Preservation | **COMPLETE / ACCEPTED** | Implementation commit `41d3239`. `/engineering/*` established with exactly the three preserved instruments; historical `/labs/*` host retained transitionally. See journal 2026-09-04 P2 completion record. |
+| **P3** — Governance Extraction + Legacy Provider Severance | **NEXT** | Must precede final Velvet Rope migration. |
+| **P1** — Historical Lab / Spike Deletion | pending P3 | Must precede final historical Lab-host removal. |
+| **P4** — Vocabulary / Coherence | pending P1 | — |
+
+The ratified execution order (**P2 → P3 → P1 → P4**), package definitions, exclusions, and exit criterion below are unchanged by this state update.
+
 #### Package 2 — Minimal Engineering Capability Preservation (execute first)
 
 Establish **one** subordinate engineering boundary/host. Preserve exactly these three ratified engineering capabilities:
