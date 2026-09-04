@@ -26,7 +26,7 @@
  *   through an explicitly stated interpretive hypothesis.
  */
 
-import type { PutCandidate } from "./scan-orchestrator";
+import type { PutCandidate } from "./candidate-types";
 import type { BuyWriteCandidate } from "./recommend-buy-writes";
 
 // --- Production v0 Result ---

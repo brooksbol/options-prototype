@@ -14,7 +14,7 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { buildCrossEntryRows, type CrossEntryRow } from "../write-desk/production-v0";
 import { observeOpeningSetHydration } from "../write-desk/opening-set-observation";
-import type { PutCandidate } from "../write-desk/scan-orchestrator";
+import type { PutCandidate } from "../write-desk/candidate-types";
 import type { BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";

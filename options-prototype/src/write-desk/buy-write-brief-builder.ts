@@ -14,7 +14,7 @@ import type { BuyWriteCandidate, BuyWriteCompositeEconomics } from "./recommend-
 import type { RecommendationPolicy } from "./recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
 import { buildPostureExplanation, type PostureExplanation } from "./posture-explanation";
-import type { GovernanceAnnotation } from "./scan-orchestrator";
+import type { GovernanceAnnotation } from "./candidate-types";
 
 // --- Neighbor Contract (for strike neighborhood) ---
 

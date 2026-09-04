@@ -55,7 +55,7 @@ export function AppShell({ route, children }: AppShellProps) {
           </button>
           <button
             className="as-nav-link"
-            aria-current={route === "write-desk" ? "page" : undefined}
+            aria-current={route === "deployment" ? "page" : undefined}
             onClick={() => navigateTo("/app/write")}
           >
             Deployment

@@ -10,7 +10,7 @@
 
 import { buildCacheKey, type DurableMarketCache } from "../cache/durable-cache";
 import { midPrice, annualizedYield } from "../domain/calculations";
-import type { PutCandidate } from "./scan-orchestrator";
+import type { PutCandidate } from "./candidate-types";
 import type { PortfolioSnapshot } from "./types";
 import type { ContractSelectionPolicy, RecommendationPolicy } from "./recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";

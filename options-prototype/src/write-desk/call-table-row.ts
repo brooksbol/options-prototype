@@ -16,7 +16,7 @@
  * - drawer behavior (execution brief vs evidence brief)
  */
 
-import type { CallCandidate } from "./scan-orchestrator";
+import type { CallCandidate } from "./candidate-types";
 import type { ConditionedCallOpportunity } from "./conditioned-call-surface";
 import type { EvidenceProvenance } from "./evidence-provenance";
 

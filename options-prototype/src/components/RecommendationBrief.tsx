@@ -12,7 +12,7 @@ import { getDurableCache } from "../cache/durable-cache";
 import { buildWriteIntent } from "../execution/write-intent";
 import { buildFidelityTradeLink, type FidelityTradeLink } from "../execution/fidelity-trade-link";
 import { hasWorkingIntent, getWorkingIntentsForSymbol, type PendingIntent } from "../execution/pending-intent";
-import type { PutCandidate } from "../write-desk/scan-orchestrator";
+import type { PutCandidate } from "../write-desk/candidate-types";
 import type { PortfolioSnapshot } from "../write-desk/types";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";

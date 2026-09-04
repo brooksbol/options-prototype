@@ -32,7 +32,7 @@ export interface CandidateIdentity {
 
 /**
  * Determine whether a selected candidate still exists in a result set.
- * Used by WriteDesk to validate put and call selections after recomputation.
+ * Used by Deployment to validate put and call selections after recomputation.
  *
  * Identity = symbol + expiration + strike.
  */

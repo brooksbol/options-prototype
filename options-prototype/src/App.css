@@ -1,4 +1,4 @@
-/* Engineering Laboratory — Desktop-first two-column layout */
+/* Engineering instruments — shared retained styles */
 
 * {
   box-sizing: border-box;
@@ -1010,7 +1010,7 @@
   font-size: 11px;
 }
 
-/* CSV Import Lab */
+/* CSV Diagnostics */
 
 .csv-lab {
   padding: 16px 24px;
@@ -1339,7 +1339,7 @@
   font-style: italic;
 }
 
-/* CSV Import Lab — Visual Hierarchy */
+/* CSV Diagnostics — Visual Hierarchy */
 
 .csv-identity {
   background: #0d0d1a;

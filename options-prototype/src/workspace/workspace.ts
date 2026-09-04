@@ -16,7 +16,7 @@
 const STORAGE_KEY = "options-prototype:workspace";
 
 export interface Workspace {
-  // Write Desk Policy
+  // Deployment policy (persisted field names remain stable)
   writeDeskTargetDelta: number;
   writeDeskTargetDte: number;
   writeDeskRankingMode: string;
@@ -24,25 +24,25 @@ export interface Workspace {
   writeDeskDeltaMax: number;
   writeDeskShowCount: number;
 
-  // Write Desk Section State
+  // Deployment section state
   writeDeskPutsCollapsed: boolean;
   writeDeskCallsCollapsed: boolean;
   writeDeskBuyWritesCollapsed: boolean;
   writeDeskCrossEntryCollapsed: boolean;
 
-  // Write Desk Section Order (drag/reorder)
+  // Deployment section order (drag/reorder)
   writeDeskSectionOrder: string[];
 
-  // Write Desk Table State (sticky across navigation)
+  // Deployment table state (sticky across navigation)
   writeDeskAffordableOnly: boolean;
   writeDeskShowDanger: boolean;
   writeDeskShowWideSpread: boolean;
   writeDeskCrossEntryAffordableOnly: boolean;
 
-  // Write Desk Cross Entry Show Count
+  // Deployment cross-entry show count
   writeDeskCrossEntryShowCount: number;
 
-  // Write Desk Table Sort State
+  // Deployment table sort state
   writeDeskPutSortKey: string;
   writeDeskPutSortDir: string;
   writeDeskCallSortKey: string;
@@ -52,7 +52,7 @@ export interface Workspace {
   writeDeskCrossEntrySortKey: string;
   writeDeskCrossEntrySortDir: string;
 
-  // Write Desk Portfolio Source
+  // Deployment portfolio source
   writeDeskSource: string;
 
   // Mission Context (first Situation Architecture primitive)

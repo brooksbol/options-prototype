@@ -20,7 +20,7 @@ import { selectEligibleExpirations } from "../velvet-rope/evaluate";
 import { midPrice, annualizedYield } from "../domain/calculations";
 import { assessExecution, isHardNo, type ContractEvidence } from "./execution-assessment";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
-import type { CallCandidate } from "./scan-orchestrator";
+import type { CallCandidate } from "./candidate-types";
 import type { InventoryPosition } from "./types";
 import type { RecommendationPolicy } from "./recommend";
 

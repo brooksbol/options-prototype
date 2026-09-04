@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 
 /**
- * Drawer selection state management for WriteDesk.
+ * Drawer selection state management for Deployment.
  *
  * Invariant: at most one drawer selection may be active at a time.
  * Selecting a candidate from any surface clears every other selection atomically.

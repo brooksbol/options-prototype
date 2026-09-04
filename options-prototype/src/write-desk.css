@@ -43,22 +43,6 @@
   color: var(--wd-text-secondary);
 }
 
-.wd-labs-link {
-  background: none;
-  border: 1px solid var(--wd-border-default);
-  color: var(--wd-text-secondary);
-  padding: 3px 9px;
-  border-radius: 4px;
-  font-size: var(--wd-size-body);
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.wd-labs-link:hover {
-  color: var(--wd-text-primary);
-  border-color: var(--wd-border-strong);
-}
-
 /* === SOURCE BAR === */
 
 .wd-source-bar {
@@ -432,26 +416,6 @@
 .wd-warn-value {
   color: var(--wd-accent-yellow);
 }
-
-/* Posture badges */
-.wd-posture-badge {
-  font-size: var(--wd-size-micro);
-  font-weight: var(--wd-weight-bold);
-  padding: 1px 5px;
-  border-radius: 3px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.wd-posture-actionable { background: var(--wd-accent-green-bg); color: var(--wd-accent-green); }
-.wd-posture-edge { background: var(--wd-accent-yellow-bg); color: var(--wd-accent-yellow); }
-.wd-posture-wait { background: var(--wd-accent-red-bg); color: var(--wd-accent-red); }
-.wd-posture-unavailable { background: rgba(0, 0, 0, 0.04); color: var(--wd-text-disabled); }
-.wd-posture-data_incomplete { background: rgba(0, 0, 0, 0.04); color: var(--wd-text-disabled); }
-
-/* Posture row tinting */
-.wd-posture-row.wd-posture-actionable td { background: rgba(22, 101, 52, 0.03); }
-.wd-posture-row.wd-posture-edge td { background: rgba(146, 64, 14, 0.03); }
 
 /* No-trade result */
 .wd-no-trade {
@@ -1649,26 +1613,6 @@
   z-index: 1;
 }
 
-/* --- Posture badges (unified color vocabulary) --- */
-
-.wd-posture-badge {
-  font-size: var(--wd-size-micro);
-  font-weight: var(--wd-weight-bold);
-  padding: 1px 5px;
-  border-radius: 3px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.wd-posture-actionable { background: var(--wd-accent-green-bg); color: var(--wd-accent-green); }
-.wd-posture-edge { background: var(--wd-accent-blue-bg); color: var(--wd-accent-blue); }
-.wd-posture-wait { background: var(--wd-accent-yellow-bg); color: var(--wd-accent-yellow); }
-.wd-posture-unavailable { background: rgba(0, 0, 0, 0.04); color: var(--wd-text-disabled); }
-
-/* Row tinting */
-.wd-posture-row.wd-posture-actionable td { background: rgba(22, 101, 52, 0.03); }
-.wd-posture-row.wd-posture-edge td { background: rgba(29, 78, 216, 0.03); }
-
 /* --- Deferred note --- */
 
 .wd-deferred-note {
@@ -1999,12 +1943,24 @@
 
 /* --- POSTURE COLORS (final spec colors) --- */
 
+.wd-posture-badge {
+  font-size: var(--wd-size-micro);
+  font-weight: var(--wd-weight-bold);
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
 .wd-posture-actionable { background: rgba(66, 199, 122, 0.12); color: #42C77A; }
 .wd-posture-edge { background: rgba(78, 161, 255, 0.10); color: #4EA1FF; }
-.wd-posture-wait { background: rgba(214, 168, 59, 0.10); color: #D6A83B; }
+.wd-posture-wait { background: rgba(214, 168, 59, 0.12); color: #D6A83B; }
+.wd-posture-unavailable,
+.wd-posture-data_incomplete { background: rgba(0, 0, 0, 0.04); color: var(--wd-text-disabled); }
 
 .wd-posture-row.wd-posture-actionable td { background: rgba(66, 199, 122, 0.04); }
 .wd-posture-row.wd-posture-edge td { background: rgba(78, 161, 255, 0.04); }
+.wd-posture-row.wd-posture-wait td { background: rgba(214, 168, 59, 0.03); }
 
 
 /* --- UNIFIED STICKY CONTROLS (policy + table) --- */
@@ -2059,11 +2015,6 @@
   gap: 3px;
   margin-left: 12px;
 }
-
-/* --- WAIT ROW STYLING --- */
-
-.wd-posture-wait { background: rgba(214, 168, 59, 0.12); color: #D6A83B; }
-.wd-posture-row.wd-posture-wait td { background: rgba(214, 168, 59, 0.03); }
 
 /* --- PORTFOLIO POPOVERS --- */
 

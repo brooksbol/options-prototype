@@ -16,7 +16,7 @@ import { DEFAULT_RECOMMENDATION_POLICY } from "../../src/write-desk/recommend";
 import { DurableMarketCache, buildCacheKey } from "../../src/cache/durable-cache";
 import { resetDB } from "../../src/cache/db";
 import { resetDurableCache, getDurableCache } from "../../src/cache/durable-cache";
-import type { PutCandidate } from "../../src/write-desk/scan-orchestrator";
+import type { PutCandidate } from "../../src/write-desk/candidate-types";
 import type { PortfolioSnapshot } from "../../src/write-desk/types";
 import type { MarketSessionClassification } from "../../src/market-session/session-policy";
 import * as pcsModule from "../../src/write-desk/conditioned-call-surface";

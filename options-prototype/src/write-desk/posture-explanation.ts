@@ -14,7 +14,7 @@
 
 import type { ExecutionAssessment, ActionPosture, QualityComponent } from "./execution-assessment";
 import type { DeltaFit } from "./brief-builder";
-import type { GovernanceAnnotation } from "./scan-orchestrator";
+import type { GovernanceAnnotation } from "./candidate-types";
 import type { ExecutionPolicy } from "./execution-policy";
 
 // --- Types ---

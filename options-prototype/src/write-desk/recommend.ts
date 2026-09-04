@@ -24,7 +24,7 @@ import { midPrice, annualizedYield } from "../domain/calculations";
 import { assessExecution, isHardNo, type ContractEvidence, type ActionPosture } from "./execution-assessment";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
 import { type ExecutionPolicy, DEFAULT_EXECUTION_POLICY } from "./execution-policy";
-import type { PutCandidate, GovernanceAnnotation } from "./scan-orchestrator";
+import type { PutCandidate, GovernanceAnnotation } from "./candidate-types";
 import type { ObservationSink } from "../opportunity-history/observation-sink";
 import type { WinnerEconomics } from "../opportunity-history/opportunity-fact";
 

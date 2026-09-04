@@ -11,7 +11,7 @@
 import { buildCacheKey, type DurableMarketCache } from "../cache/durable-cache";
 import { midPrice, annualizedYield } from "../domain/calculations";
 import { classifyDeltaFit, type DeltaFit } from "./brief-builder";
-import type { CallCandidate } from "./scan-orchestrator";
+import type { CallCandidate } from "./candidate-types";
 import type { RecommendationPolicy } from "./recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
 import { buildPostureExplanation, type PostureExplanation } from "./posture-explanation";

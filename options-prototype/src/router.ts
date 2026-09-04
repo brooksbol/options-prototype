@@ -7,12 +7,12 @@
  * Routes:
  *   /             → Operator Console (home)
  *   /app          → Operator Console (home)
- *   /app/write    → operational/recommendation surface
+ *   /app/write    → Deployment
  *   /engineering/* → subordinate engineering instruments
  *   anything else → Operator Console (home)
  */
 
-export type AppRoute = "operator-console" | "write-desk" | "production" | "kreature" | "engineering" | "sparkline-gallery";
+export type AppRoute = "operator-console" | "deployment" | "production" | "kreature" | "engineering" | "sparkline-gallery";
 
 /**
  * Determine the current route from the browser pathname.
@@ -25,9 +25,9 @@ export function resolveRoute(): AppRoute {
     return "kreature";
   }
 
-  // Operational/recommendation surface
+  // Deployment recommendation surface
   if (path === "/app/write") {
-    return "write-desk";
+    return "deployment";
   }
 
   // Production assessment

@@ -3,7 +3,7 @@
  *
  * The Candidate Universe holds symbols that might be worth evaluating
  * by institutional policy. It is intentionally larger than the admitted
- * registry or the Opportunity Lab scan set.
+ * registry or the Deployment recommendation universe.
  *
  * Inclusion in the Candidate Universe does NOT imply:
  * - admission or suitability

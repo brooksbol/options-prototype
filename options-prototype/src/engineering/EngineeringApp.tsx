@@ -1,4 +1,4 @@
-import { CsvDiagnostics } from "../components/CsvImportLab";
+import { CsvDiagnostics } from "../components/CsvDiagnostics";
 import { ScenarioReplay } from "../components/ScenarioReplay";
 import { UniverseView } from "../components/UniverseView";
 import "../App.css";

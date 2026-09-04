@@ -8,7 +8,7 @@
 import { describe, it, expect } from "vitest";
 import { formatFidelitySecurityId, buildWriteIntent } from "../../src/execution/write-intent";
 import { buildFidelityTradeLink } from "../../src/execution/fidelity-trade-link";
-import type { PutCandidate } from "../../src/write-desk/scan-orchestrator";
+import type { PutCandidate } from "../../src/write-desk/candidate-types";
 
 // --- Fidelity Security ID Formatting ---
 

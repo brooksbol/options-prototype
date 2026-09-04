@@ -1,5 +1,5 @@
 /**
- * Write Desk — Operational Application Shell
+ * Deployment — recommendation and capital-deployment surface
  *
  * The first true operator surface in the options prototype.
  * Answers: "What should I write today?"
@@ -12,7 +12,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useDrawerSelection } from "../hooks/useDrawerSelection";
 import { useSessionClassification } from "../hooks/useSessionClassification";
 import { usePortfolio } from "../portfolio/use-portfolio";
-import { type PutCandidate, type CallCandidate } from "../write-desk/scan-orchestrator";
+import { type PutCandidate, type CallCandidate } from "../write-desk/candidate-types";
 import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY } from "../write-desk/recommend";
 import { recommendCalls } from "../write-desk/recommend-calls";
 import { recommendBuyWrites, type BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
@@ -47,7 +47,7 @@ import "../recommendation-brief.css";
 
 // --- Component ---
 
-export function WriteDesk() {
+export function Deployment() {
   // Portfolio state from application-scoped Portfolio Store (ADR-011)
   const { source, snapshot } = usePortfolio();
   const [putCandidates, setPutCandidates] = useState<PutCandidate[]>([]);

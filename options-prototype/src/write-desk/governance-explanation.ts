@@ -5,7 +5,7 @@
  * Deterministic, no LLM. Maps structural classification to operator-facing rationale.
  */
 
-import type { GovernanceAnnotation } from "./scan-orchestrator";
+import type { GovernanceAnnotation } from "./candidate-types";
 
 /**
  * Operator-facing title for a DANGER governance annotation.

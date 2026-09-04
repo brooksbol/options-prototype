@@ -5,7 +5,7 @@
 import { describe, it, expect } from "vitest";
 import { createScanAuditRecord } from "../../src/write-desk/scan-audit";
 import { createDemoSnapshot } from "../../src/write-desk/demo-snapshot";
-import type { PutCandidate, CallCandidate, CallInventoryItem } from "../../src/write-desk/scan-orchestrator";
+import type { PutCandidate, CallCandidate, CallInventoryItem } from "../../src/write-desk/candidate-types";
 
 function makePutCandidate(overrides?: Partial<PutCandidate>): PutCandidate {
   return {

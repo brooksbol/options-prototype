@@ -16,7 +16,7 @@ import {
   computeProductionV0ForBuyWrite,
   buildCrossEntryRows,
 } from "../../src/write-desk/production-v0";
-import type { PutCandidate } from "../../src/write-desk/scan-orchestrator";
+import type { PutCandidate } from "../../src/write-desk/candidate-types";
 import type { BuyWriteCandidate } from "../../src/write-desk/recommend-buy-writes";
 import { computeBuyWriteEconomics } from "../../src/write-desk/recommend-buy-writes";
 

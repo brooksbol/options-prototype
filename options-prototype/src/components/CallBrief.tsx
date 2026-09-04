@@ -17,7 +17,7 @@ import { useState, useEffect } from "react";
 import { getDurableCache } from "../cache/durable-cache";
 import { buildCallBrief, type CallBriefViewModel, type CallNeighborTag, type ProjectedCalledAway } from "../write-desk/call-brief-builder";
 import { PostureExplanationSection } from "./RecommendationBrief";
-import type { CallCandidate } from "../write-desk/scan-orchestrator";
+import type { CallCandidate } from "../write-desk/candidate-types";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
 import { lookupDescription } from "../instrument-catalog/catalog";

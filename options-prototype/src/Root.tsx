@@ -10,7 +10,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { resolveRoute, type AppRoute } from "./router";
 import { AppShell } from "./components/AppShell";
-import { WriteDesk } from "./components/WriteDesk";
+import { Deployment } from "./components/WriteDesk";
 import { OperatorConsole } from "./components/OperatorConsole";
 import { ProductionView } from "./production/ProductionView";
 import { SparklineGallery } from "./operator-console/SparklineGallery";
@@ -42,7 +42,7 @@ export function Root() {
   return (
     <AppShell route={route}>
       {route === "operator-console" && <OperatorConsole />}
-      {route === "write-desk" && <WriteDesk />}
+      {route === "deployment" && <Deployment />}
       {route === "production" && <ProductionView />}
     </AppShell>
   );

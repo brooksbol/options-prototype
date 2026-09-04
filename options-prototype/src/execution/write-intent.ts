@@ -6,7 +6,7 @@
  * Does NOT require provider calls.
  */
 
-import type { PutCandidate } from "../write-desk/scan-orchestrator";
+import type { PutCandidate } from "../write-desk/candidate-types";
 
 // --- Domain Type ---
 

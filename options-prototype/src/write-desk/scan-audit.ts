@@ -14,7 +14,7 @@
  * - posture and ranking
  */
 
-import type { PutCandidate, CallCandidate, CallInventoryItem } from "./scan-orchestrator";
+import type { PutCandidate, CallCandidate, CallInventoryItem } from "./candidate-types";
 import type { PortfolioSnapshot } from "./types";
 
 // --- Audit Record ---

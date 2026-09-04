@@ -2,7 +2,7 @@
  * Tests for Velvet Rope audit context derivation.
  *
  * Verifies contract identity matching and semantic state determination
- * for the Opportunity Lab integration.
+ * for recommendation audit integration.
  */
 
 import { describe, it, expect } from "vitest";

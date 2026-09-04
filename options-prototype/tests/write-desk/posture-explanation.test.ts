@@ -15,7 +15,7 @@ import { describe, it, expect } from "vitest";
 import { buildPostureExplanation } from "../../src/write-desk/posture-explanation";
 import type { ExecutionAssessment, QualityComponent } from "../../src/write-desk/execution-assessment";
 import type { DeltaFit } from "../../src/write-desk/brief-builder";
-import type { GovernanceAnnotation } from "../../src/write-desk/scan-orchestrator";
+import type { GovernanceAnnotation } from "../../src/write-desk/candidate-types";
 import { DEFAULT_EXECUTION_POLICY } from "../../src/write-desk/execution-policy";
 
 // --- Helpers ---

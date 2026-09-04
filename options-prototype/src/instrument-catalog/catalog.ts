@@ -19,7 +19,7 @@
 
 import catalogData from "./catalog-seed.json";
 import { lookupLibraryDescription } from "./description-library";
-import type { GovernanceAnnotation, GovernanceStatus } from "../write-desk/scan-orchestrator";
+import type { GovernanceAnnotation, GovernanceStatus } from "../write-desk/candidate-types";
 
 // --- Catalog Types ---
 

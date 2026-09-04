@@ -21,7 +21,7 @@ import { DurableMarketCache, buildCacheKey } from "../../src/cache/durable-cache
 import { resetDB } from "../../src/cache/db";
 import { resetDurableCache, getDurableCache } from "../../src/cache/durable-cache";
 import type { OpenShortPut } from "../../src/write-desk/types";
-import type { CallCandidate } from "../../src/write-desk/scan-orchestrator";
+import type { CallCandidate } from "../../src/write-desk/candidate-types";
 
 let testId = 0;
 

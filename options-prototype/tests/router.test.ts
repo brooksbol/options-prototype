@@ -10,12 +10,12 @@ describe("resolveRoute", () => {
     vi.spyOn(window.history, "replaceState").mockImplementation(() => {});
   });
 
-  it("/app/write resolves to write-desk", () => {
+  it("/app/write resolves to deployment", () => {
     Object.defineProperty(window, "location", {
       value: { pathname: "/app/write" },
       writable: true,
     });
-    expect(resolveRoute()).toBe("write-desk");
+    expect(resolveRoute()).toBe("deployment");
   });
 
   it("/ resolves to operator-console (home)", () => {

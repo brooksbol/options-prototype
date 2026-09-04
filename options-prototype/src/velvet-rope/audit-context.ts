@@ -1,11 +1,11 @@
 /**
- * Velvet Rope — Audit Context for Opportunity Lab Integration
+ * Velvet Rope — recommendation audit context
  *
- * Derives informational audit context for Opportunity Lab rows by looking up
+ * Derives informational audit context for recommendation rows by looking up
  * prior Velvet Rope evaluations. Does NOT filter, rank, or claim current judgment.
  *
  * Key semantic rule: a prior evaluation conclusion is never presented as
- * a judgment on the current Opportunity Lab contract unless contract identity matches.
+ * a judgment on the current recommendation contract unless contract identity matches.
  */
 
 import type { AdmissionAuditRecord, AdmissionOutcome } from "./types";
@@ -71,7 +71,7 @@ function isStale(evaluatedAt: string): boolean {
 // --- Derivation ---
 
 /**
- * Derive audit context for an Opportunity Lab row.
+ * Derive audit context for a recommendation row.
  *
  * Looks up the latest successful Velvet Rope evaluation for the symbol
  * and determines the match type relative to the current opportunity contract.

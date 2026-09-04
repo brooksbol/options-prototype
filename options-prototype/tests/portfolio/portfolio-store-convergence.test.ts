@@ -5,7 +5,7 @@
  * application-scoped portfolio state, consumed by both Console and Deployment.
  *
  * These tests prove the architectural behavior that eliminates the prior
- * dual-authority problem (WriteDesk-local state vs Portfolio Store).
+ * dual-authority problem (Deployment-local state vs Portfolio Store).
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
@@ -86,7 +86,7 @@ describe("Portfolio Store — single runtime authority", () => {
       const { result: consoleHook } = renderHook(() => usePortfolio());
       expect(consoleHook.current.snapshot).toBeNull(); // reset state
 
-      // Deployment uploads a Fidelity snapshot (simulates FidelityUpload → WriteDesk → setPortfolio)
+      // Deployment uploads a Fidelity snapshot (simulates FidelityUpload → Deployment → setPortfolio)
       const uploaded = createTestSnapshot("Fidelity");
       act(() => {
         setPortfolio("fidelity", uploaded);
@@ -129,7 +129,7 @@ describe("Portfolio Store — single runtime authority", () => {
       // from localStorage persistence, not from in-memory cache.
       const { result } = renderHook(() => usePortfolio());
 
-      // Upload a snapshot via setPortfolio (simulates FidelityUpload → WriteDesk → store)
+      // Upload a snapshot via setPortfolio (simulates FidelityUpload → Deployment → store)
       const uploaded = createTestSnapshot("Fidelity");
       act(() => { setPortfolio("fidelity", uploaded); });
       expect(result.current.snapshot).toBe(uploaded);
