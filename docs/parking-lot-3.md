@@ -324,3 +324,152 @@ Durable why-state across three same-day 2026-09-02 journal entries: (a) "Provide
 | Sep 1, 2026 | Read-only assessment of whether the shipped opportunity-history plane has accumulated enough to enter the ratified `analyze` step. Corrected an earlier handoff assumption: the A/B/C/D measurement was substantially already run, interpreted (2026-08-27 ruling), and superseded by the opportunity-history fact plane (shipped 2026-08-28). Inspection (live backend + `sqlite3 -readonly`) found the plane preserves state/evaluation facts but persists **all winner economics as NULL** (62,404 surface rows) due to a silent frontend(nested `winner`)↔backend(flat `bestX` DTO) HTTP-boundary contract mismatch; Codex independently reproduced the same DB state and wire-path failure. Recorded as new child intake `PL-DEPLOY-02-DEF01` under `PL-DEPLOY-02` (concept-home), cross-referenced `PL-EVID-01` and `PL-ARCH-06`, related to ADR-015 by principle only. Classified as an implementation defect violating the opportunity-history evidence-preservation contract/invariant (not a new concept). Durable evidence-state conclusion: **cannot enter economics-based `analyze`; state-based history usable only within observed browser windows; further economics accumulation under current code is invalid for the intended hypotheses; no backfill; first validated post-fix emission is the economics-analysis provenance boundary.** Browser-only emission recorded separately as a known continuity limitation (`PL-EVID-01`/`PL-ARCH-06`), not part of the defect. Candidate ingestion invariant recorded mechanism-neutrally. Documentation only; no implementation, no runtime change, no commit. Rich why-state: journal 2026-09-01. |
 | Sep 2, 2026 | **`PL-PROV-FAILOVER` established (provider availability tiers / degraded-mode failover).** During the 2026-09-02 production-entitlement outage (opening-bell capture failed on two independent blockers: production 401 + browser emitter not operating), an authorized one-shot isolated read-only sandbox probe demonstrated **contemporaneous** production HTTP 401 + sandbox HTTP 200 usable market data — production and sandbox entitlements fail independently, enabling explicit degraded-mode failover. Recorded as a capability/architecture finding (not implementation): candidate NORMAL/DEGRADED/UNAVAILABLE tiers; governing invariant "failover may preserve operation but must never silently promote degraded evidence to production evidence" (ADR-015 provenance principle extended to environment). Sandbox success = access/entitlement separation ONLY; not evidence equivalence and NOT usable to diagnose the browser emitter (running appliance stays on production, confounded by the outage). No provider switch/restart/config change; Codex's recovery observer undisturbed. Documentation only; no automatic switching authorized. Rich why-state: journal 2026-09-02. |
 | Sep 2, 2026 | **Chronology correction (Codex review).** Corrected a historical inconsistency in the D1–D3 audit text of commit `3ae5413`: it narrated the A/B/C/D measurement as unrun / the next-or-first discriminating experiment. A/B/C/D was already measured in the 2026-08-27 Production experiment (A=443, B=1907, C=0, D=0) and interpreted by the 2026-08-27 3AM ruling, which selected opportunity-history as the next instrument. Corrected `docs/parking-lot-3.md` in place (audit intro, `PL-SCHED-DRIFT` clause, prior audit continuation-history row) and the journal via inline correction notes + a 2026-09-02 correction entry (append-only; `3ae5413` not rewritten, no force-push). Also tightened D2/`PL-SURF-01` wording (buy-write evidence is not wholly invisible to A/B; A/B does not represent buy-write relevance, per-expiration cardinality, buy-write economics/posture, affordability, or the operator-facing decision population) and removed two duplicate `---` separators + a missing final newline while in the file. Corrected canonical chronology: Aug 27 A/B/C/D experiment → ruling selects opportunity-history → Aug 28 instrument ships → Sep 1 Age + D1–D3 sharpen breadth-vs-decision → cold start recovers prior experiment → inspection finds opportunity-history instrument defect (`PL-DEPLOY-02-DEF01`) → repair / corrected accumulation next. No substantive change to D1/D2/D3, the ruling, or `PL-DEPLOY-02-DEF01`. |
+| Sep 4, 2026 | **Final PL-CLEANUP reconciliation (one-time authoritative rewrite).** Baseline SYNC `edcbfb2`. `PL-SHELL` residual boundary recorded as **RESOLVED/RATIFIED** (Console → Deployment → Production within the shared shell; subordinate engineering area outside operator navigation; import-direction rule as target boundary with known current violations; per-Lab migrate/preserve/delete; Deployment canonical name; `/engineering/*` vocabulary direction only; Kreature out of scope, Issue #10 separate). `PL-CLEANUP` rewritten once against the ratified target under the governing phase "reduction of accidental change surface before the next product-learning expansion," decomposed into four bounded packages with execution order **P2 (preserve 3 engineering capabilities behind one subordinate boundary) → P3 (separate governance judgment from acquisition; sever dead `/api/market`/proxy/factory) → P1 (delete 8 superseded Lab/spike surfaces after survivors relocated) → P4 (vocabulary/coherence; no mechanical `wd-*` campaign)**. Explicit exclusions, exit criterion (Sonar-zero/aesthetics are NOT exit criteria), key implementation evidence, and Reconciliation Completion Record added. Row rewrites in `docs/parking-lot.md`; full decomposition here. Documentation only; no production code; no cleanup implementation. Next authorized mode: read-only per-Lab disposition pass. Why-state: journal 2026-09-04 (`edcbfb2`). |
+
+
+---
+
+## Final PL-CLEANUP Reconciliation (2026-09-04)
+
+**Method:** `docs/foundations/idea-intake-reconciliation.md`
+**Baseline:** accepted `main` at SYNC `edcbfb2e8f71b124ace28a00d5e58393d2600bd0` (remotely verified).
+**Mode:** Decision + Documentation. No production-code implementation. No cleanup execution.
+**Provenance:** cleanup re-baseline + ratified residual `PL-SHELL` boundary in journal 2026-09-04 (commit `edcbfb2`).
+
+This is the **one-time authoritative rewrite** of `PL-CLEANUP`, deferred until the residual `PL-SHELL` boundary was ratified and Codex completed the current-code Lab retirement trace. It replaces the stale "holistic cleanup" scope with a bounded, dependency-ordered decomposition.
+
+### PL-SHELL final status — RESOLVED / RATIFIED
+
+The residual boundary is ratified (see the `PL-SHELL` row and journal `edcbfb2`). Summary of the resolved boundary:
+
+- Operator topology is **Console → Deployment → Production** within the shared Application Shell.
+- A **subordinate engineering area** exists outside operator navigation; engineering instruments are **not** operator surfaces.
+- **Operator application code must not depend on engineering-only behavior or surface implementations.** Capabilities shared with the operator application must graduate into an appropriate shared/domain boundary. Historical file location does not determine architectural status.
+- The **import-direction rule is a target boundary with known current violations** that cleanup reconciles.
+- Every historical Lab capability receives exactly one disposition: **migrate / preserve as subordinate engineering instrument / delete**.
+- **Deployment** is the canonical operator-facing name for the current WriteDesk surface.
+- `/engineering/*` is the ratified **vocabulary/topology direction**; `/labs/*` is transitional. **No `/engineering/*` route implementation has occurred.**
+- **Kreature is explicitly outside this decision** and separately governed; its navigation inconsistency remains **GitHub Issue #10**.
+
+### Governing phase
+
+> **Reduction of accidental change surface before the next product-learning expansion.**
+
+This is not a generic technical-cleanup campaign. Every intervention must name the future Wheelwright change it makes easier, safer, or cheaper.
+
+### PL-CLEANUP decomposition — four bounded packages
+
+**Execution order (dependency safety): P2 → P3 → P1 → P4.** The package numbers preserve investigation/decomposition history; the arrows are the execution order.
+
+#### Package 2 — Minimal Engineering Capability Preservation (execute first)
+
+Establish **one** subordinate engineering boundary/host. Preserve exactly these three ratified engineering capabilities:
+
+1. Universe inspection / local candidate maintenance.
+2. CSV parsing/classification diagnostics.
+3. Scenario Replay research capability (`PL-RESEARCH-03`).
+
+Constraints:
+
+- Browser-local universe candidate additions are **not** authoritative backend universe admission.
+- Preserve the production/shared `universe/*` capability used by Deployment.
+- Preserve production CSV readers, registry, Fidelity parsers, preprocessing, fixtures, integrations, and tests.
+- CSV diagnostics must **not** become a competing production-ingestion path.
+- Preserve Scenario Replay pure parser/projector/diff logic, fixtures, and deterministic tests. Scenario-specific CSV parsing stays research/fixture parsing, not production ingestion.
+- `/engineering/*` is the intended direction; `/labs/*` is transitional. Do **not** preserve the historical twelve-tab Lab application merely to host three instruments.
+
+#### Package 3 — Governance Extraction + Legacy Provider Severance (execute second)
+
+Architectural objective: **separate governance judgment from evidence acquisition.**
+
+- Preserve Velvet Rope policy, criteria, product-structure, audit/narrative semantics, and other domain capabilities still used by live Wheelwright code.
+- Admission judgment should accept explicit evidence and provenance rather than acquiring market data itself; ultimately feed governance evaluation from Wheelwright's supported published evidence contract rather than `/api/market`.
+- Preserve/add golden or parity tests proving equivalent judgments for fixed evidence.
+- Remove the historical `pendingVelvetRopeSymbol` Lab handoff when the Lab UI retires.
+- After no legitimate consumers remain, retire the obsolete browser acquisition/provider path where proven safe: `/api/market`, `ProxyMarketDataProvider`, provider factory, mock provider abstraction, zero-caller acquisition scaffolding.
+- Preserve Deployment cache/recommendation/provenance semantics. Do **not** casually replace the current stable provider identity while deleting the obsolete factory.
+- The provider deletion is a **consequence** of separating judgment from acquisition, not the primary objective.
+
+#### Package 1 — Historical Lab / Spike Deletion (execute third)
+
+After P2/P3 relocate/preserve survivors, delete the superseded historical surfaces: Laboratory / Delta Probe, ReferenceDataView / Options Chain, RecommendationLab, OpportunityLab, EtfCatalogExplorer, SecExplorer, FmpExplorer, MassiveChainView — plus their exclusive supporting code, provider spikes, obsolete tests, and configuration — **only after reverse-dependency evidence establishes that no surviving capability requires them.**
+
+- `App.tsx` historical Lab topology must not collapse until P2/P3 have moved/preserved its legitimate survivors.
+- Do **not** confuse RecommendationLab with the live Deployment recommendation engines.
+- Do **not** preserve research modules merely because obsolete tests reference them.
+- Do **not** delete shared CSS based only on historical section headings.
+
+#### Package 4 — Vocabulary / Coherence (execute last)
+
+After structural deletion establishes what remains genuinely live:
+
+- Reconcile WriteDesk / `write-desk` toward canonical **Deployment** terminology where it reduces semantic ambiguity.
+- Move live types out of the misleading `scan-orchestrator.ts` naming.
+- Prune obsolete Lab/workspace state; remove remaining `/labs` terminology.
+- Reconcile `PL-POSTURE-01` semantic CSS duplication.
+- Reduce obsolete global CSS where structural deletion proves it dead.
+- **Explicitly avoid** a mechanical `wd-*` rename campaign unless a particular rename reduces ambiguity or fragility.
+
+### Explicit exclusions (PL-CLEANUP must not absorb)
+
+- GitHub Issues/defects, including Issue #10 and existing S2/S3 defects.
+- Sonar findings as an automatic task queue.
+- `AcquisitionWorker` / provider-admission restructuring while the current constraint investigation constrains it.
+- Dependency upgrades; cloud work; scheduler/backend feature work; feature redesign; generalized refactoring; aesthetic cleanup.
+- Documentation/authority reconciliation outside this specific PL-SHELL/PL-CLEANUP update remains governed by the Technology Quality Program.
+
+### Cleanup exit criterion (governing stopping rule)
+
+> The cleanup increment ends when:
+> - only the three approved engineering capabilities remain deliberately behind the engineering boundary;
+> - governance evaluation no longer depends on legacy browser acquisition;
+> - the eight superseded Lab/spike surfaces and their exclusive dependencies are gone;
+> - `/api/market` and obsolete direct-provider coupling no longer enlarge ordinary change scope;
+> - operator behavior remains stable.
+
+> **Zero Sonar findings and aesthetic perfection are NOT exit criteria.**
+
+At that point Wheelwright reassesses readiness for product/infrastructure expansion.
+
+### Key implementation evidence (why these packages and this ordering)
+
+- `App.tsx` currently hosts the historical Lab topology (legacy view-switcher, reachable at `/labs/*`).
+- Operator surfaces do not legitimately use `ProxyMarketDataProvider`.
+- `WriteDesk` currently retains only the configuration/helper identity (`isTradierConfigured`) rather than using the proxy provider itself.
+- Velvet Rope domain functions are consumed by live recommendation code and therefore cannot be deleted alongside `VelvetRopePage`.
+- Universe candidate additions are browser/localStorage behavior, not backend universe admission.
+- CSV and Scenario pure infrastructure retain production/research value independent of historical Lab presentation.
+- The `/api/market` proxy pipeline is dead at the backend-contract level (backend serves no `/api/market` route), yet retired Labs keep it imported — accidental change surface.
+- Therefore **Packages 2 and 3 must precede Package 1 deletion.**
+
+---
+
+## Reconciliation Completion Record — `PL-CLEANUP` (Accidental-Change-Surface Reduction) + `PL-SHELL` resolution
+
+**Date:** September 4, 2026
+**Method:** `docs/foundations/idea-intake-reconciliation.md`
+**Reconciliation state:** RECONCILED. `PL-SHELL` residual boundary RESOLVED/RATIFIED; `PL-CLEANUP` rewritten once against the ratified target and decomposed into four dependency-ordered packages.
+
+### Intake
+
+Canonical identities retained: `PL-SHELL` (now resolved) and `PL-CLEANUP` (rewritten). No new IDs created. Absorbs former `PL-OPS-02`, `PL-OPS-05`, `PL-OPS-06` (scan functions already retired — verified), `PL-OPS-07`. Cross-references `PL-POSTURE-01`, `PL-SURF-01`, `PL-RESEARCH-03`, `PL-DEPLOY-02-DEF01`, `PL-PROV-FAILOVER`, `PL-ARCH-06`.
+
+### Strategic disposition
+
+**No new Bet; no roadmap change.** This is a consolidation/recovery phase (accidental-change-surface reduction) that precedes and de-risks the next product/infrastructure expansion. It strengthens the Trustability differentiator and reduces cost-of-change; it does not create new product direction.
+
+### Architectural disposition
+
+**Conforms to ratified architecture; no new architectural direction.** The residual `PL-SHELL` boundary is the faithful closure of docs 31/32 (three operational surfaces + shared shell + subordinate engineering area; capability-migration Lab retirement). The import-direction rule is the load-bearing invariant. `/engineering/*` is ratified vocabulary/topology direction only — no route/build separation is authorized; a build-system boundary is not authorized absent demonstrated evidence that the logical/import boundary is insufficient. Provider deletion is a consequence of separating governance judgment from acquisition.
+
+### Parking-lot disposition / mapping
+
+`PL-SHELL` **resolved** (row updated in `docs/parking-lot.md`). `PL-CLEANUP` **rewritten** (row updated in `docs/parking-lot.md`; full decomposition here). Documentation/authority leg **ceded** to the Technology Quality Program. Defects (Issue #10, S2/S3) remain in GitHub Issues, not double-booked.
+
+### Why-state
+
+Durable why-state: journal 2026-09-04 (`edcbfb2`) — cleanup re-baseline verified findings + ratified residual PL-SHELL boundary + withdrawn "PL-CLEANUP cannot lead" framing. This reconciliation record is the observable completion evidence.
+
+### Next authorized mode
+
+**Current-code per-Lab disposition pass** (read-only investigation) to assign each `/labs/*` capability migrate/preserve/delete under the ratified rule and gather reverse-dependency evidence — the input to bounded execution. **No cleanup implementation is authorized by this record.** Each package's execution requires separate Principal authorization; commit remains separately gated.
