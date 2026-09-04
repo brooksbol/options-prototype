@@ -851,3 +851,58 @@ P3 reached its intended boundary: governance judgment is decoupled from acquisit
 ### Next bounded increment
 
 **P1 — Historical Lab / Spike Deletion.** Delete the eight superseded surfaces + exclusive supports and collapse the `App.tsx` Lab host, only after reverse-dependency evidence clears each. Execution requires separate Principal authorization; not begun.
+
+---
+
+## 2026-09-04 — PL-CLEANUP Package 1 complete (Historical Lab / Spike Deletion)
+
+### Status
+
+**P1 — COMPLETE / ACCEPTED.** Third bounded package of the ratified PL-CLEANUP decomposition executed (execution order P2 → P3 → P1 → P4). Implementation/completion record only; it authorizes no further cleanup. P4 remains the next bounded increment and requires separate Principal authorization.
+
+### SHAs
+
+- **Baseline (accepted `main` before this package):** `ce371a050fc6214f82b5af3a6bff4300ec8fe8f1` — remotely verified, not assumed.
+- **P1 implementation commit:** `475ae1aff0200ee50c931ab4399c82f06983f90c` — `refactor(labs): remove superseded historical surfaces` (parent is the baseline SHA; the commit sits directly on the reviewed baseline).
+- **Accepted `main` after push:** `475ae1aff0200ee50c931ab4399c82f06983f90c` — reverified remotely after push.
+
+### Deletion result (ratified objective achieved)
+
+> Collapse the obsolete historical Lab topology now that P2/P3 extracted every survivor.
+
+All eight ratified superseded historical surfaces removed: Laboratory / Delta Probe (inline in `App.tsx`), ReferenceDataView / Options Chain, RecommendationLab, OpportunityLab, EtfCatalogExplorer, SecExplorer, FmpExplorer, MassiveChainView. The historical `/labs` route and the historical `App.tsx` Lab host were removed — no surviving legitimate responsibility remained in that host (its only inline surface was #1, and its only consumer was the `labs` branch in `Root.tsx`).
+
+### Reverse-dependency discipline
+
+Supporting code/config/tests/fixtures were deleted only after reverse-dependency evidence established that each was exclusive to the deleted surfaces or was residue whose only purpose disappeared with them. Historical file location was never treated as architectural evidence.
+
+Exclusive support removed: `src/engineering/probeData.ts` (sole importer `App.tsx`); `src/hooks/useOptionsChain.ts`; `src/domain/provider.ts`; the orphaned presentation components `src/components/{OptionsTable,MetricsPanel,UnderlyingSelector,DeltaInput}.tsx` (importers were only deleted surfaces); the obsolete provider spikes/fixtures under `src/providers/*` (`mock/` + `data/*.json`, `massive/`, `etf-catalog/`, `sec-catalog/`, `fmp-catalog/`, and the now-empty `providers/` directory); and `src/opportunity/{evaluate,explain,sweep,types}.ts`. Tests protecting only deleted behavior were removed (`tests/opportunity/*`, `tests/hooks/useOptionsChain.test.ts`, `tests/providers/mock.test.ts`, `tests/sec-catalog/secCatalog.test.ts`, `tests/fmp-catalog/fmpProvider.test.ts`, `tests/components/{ReferenceDataView,OptionsTable,MetricsPanel}.test.tsx`).
+
+### Preserved survivor boundaries
+
+Deliberately retained, with live consumers: `/engineering/*` (Universe Inspection, CSV Diagnostics, Scenario Replay), shared `universe/*`, production/shared CSV infrastructure, Scenario Replay logic/fixtures/tests; surviving `velvet-rope/*` governance/domain capability and Deployment's governance imports (`velvet-rope/evaluate`, `velvet-rope/product-structure`); `opportunity-history/*` (a distinct surviving module, not to be confused with the deleted `opportunity/*`); shared domain calculations/policy/types; operator Console / Deployment / Production; evidence/acquisition/portfolio/accounting/recommendation/cache/provenance capability; and shared `App.css` (still imported by the surviving `EngineeringApp`).
+
+### Workspace state / tests
+
+Lab-only workspace fields were removed only where their sole consumers disappeared with P1 (`activeTab`, `providerKey`, `selectedSymbol`, `selectedExpiration`, `callTargetDelta`, `putTargetDelta`, `tieBreaker`, `strikesCount`, `showFullEvidence`, and the `chain*` and `opportunity*` lab-only fields). All `writeDesk*` fields and `missionTarget` retained; no broader workspace or vocabulary normalization was performed (that is P4).
+
+Surviving tests were adjusted minimally: the deleted `/labs` assertion was removed from `tests/router.test.ts`; assertions protecting the deleted `PRIORITY_WATCHLIST` concept (and the dynamic-import guard against the deleted `opportunity/types`) were removed from `tests/universe/shared-universe.test.ts` while all shared-universe-service coverage was preserved. `PRIORITY_WATCHLIST` was deliberately **not** relocated into `universe/*` — moving a historical Opportunity Lab artifact into surviving domain code merely to keep an old assertion alive would have preserved accidental architecture.
+
+### Resulting topology after P1
+
+- **Operator:** Console / Deployment / Production (behaviorally unchanged).
+- **Engineering (`/engineering/*`):** exactly Universe Inspection, CSV Diagnostics, Scenario Replay.
+- **Historical Labs:** removed. `/labs` and the historical `App.tsx` host no longer exist.
+- **Kreature:** explicitly outside PL-CLEANUP; not touched. GitHub Issue #10 was **not** remediated (the mention of `/app/kreature` in route topology is descriptive only and implies no Issue #10 work).
+
+### Verification evidence
+
+Build passed (`tsc -b && vite build`). Full frontend suite passed: **99 files / 1,314 tests**. Focused router/universe/engineering suite passed: **12/12**. Changed-file lint clean (5 changed files: `src/router.ts`, `src/Root.tsx`, `src/workspace/workspace.ts`, `tests/router.test.ts`, `tests/universe/shared-universe.test.ts`). `git diff --check` passed. All eight historical surfaces absent; `/labs` absent; historical `App.tsx` absent; `/engineering/*` still exactly the three P2 instruments; operator behavior preserved. Repository-wide lint remains non-green **only** because of pre-existing accepted-`main` errors/warnings outside the P1 change set (notably `OperatorConsole.tsx` hooks-rules errors); these are pre-existing and were **not** converted into PL-CLEANUP work. Remote accepted `main` reverified after push.
+
+### Natural stopping point
+
+P1 reached its intended boundary: the superseded historical Lab topology is gone, the eight surfaces and their exclusive dependencies are removed, and no supported evidence/acquisition/portfolio/accounting/recommendation/governance/cache/provenance capability changed. This is a clean decision point for whether P4 is worth executing now or cleanup is declared functionally complete for the day.
+
+### Next bounded increment
+
+**P4 — Vocabulary / Coherence.** Residual coherence per the ratified P4 definition: WriteDesk→Deployment naming where it reduces ambiguity, move live types out of `scan-orchestrator.ts`, prune remaining `/labs` terminology and obsolete workspace/CSS, reconcile `PL-POSTURE-01`; explicitly no mechanical `wd-*` rename campaign. Execution requires separate Principal authorization; not begun.
