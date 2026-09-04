@@ -637,3 +637,106 @@ Durable now: the model, the operating principle, the strict-Sonar policy as repr
 
 ### Open Principal decisions carried forward
 Composition-boundary definition (unblocks R5); per-control enforcement mode (default: not a gate); durable ArchUnit vehicle (touches build files → separate authorized change); whether to stand up trend infrastructure now.
+
+
+---
+
+## 2026-09-04 — PL-CLEANUP current-state re-baseline (discovery evidence; PL-CLEANUP not yet rewritten)
+
+### Epistemic status
+
+This entry preserves **verified discovery evidence and a ratified sequencing consensus**, not a rewritten backlog record and not implementation authorization. It exists so a cold actor does not have to re-verify the dead proxy, the already-retired scan pipelines, the Lab/topology coupling, and the two-app-tree structure from scratch. The canonical `PL-CLEANUP` record is intentionally **left unchanged** until the narrow PL-SHELL boundary decision (below) resolves the target; rewriting it now would guarantee editing it twice.
+
+All code facts were verified against the working tree at SYNC `693445a`.
+
+### Why this was done
+
+The session began from a Principal thesis: "the next activity should be a round of cleanup (review the cleanup PL) before more feature or infrastructure work." Kiro's architectural objection was that `PL-CLEANUP` is dependency-gated and its record is stale. Codex supplied evidence that the record is no longer executable as written. Rather than argue from old backlog wording, the cleanup instinct was turned into a **current-state dependency model**. The review led and succeeded; its result is the model below.
+
+### Governing phase framing (Principal-ratified)
+
+> Wheelwright's next phase is **reduction of accidental change surface before the next product-learning expansion** — not "technical cleanup."
+
+This framing decides what belongs (dead proxy coupling, ambiguous retired-UI boundaries, duplicate semantic CSS) and what does not (renaming historical identifiers merely for tidiness). It is a sharper form of the governing test every cleanup intervention must pass:
+
+> Every cleanup intervention must name the future Wheelwright change it makes easier, safer, or cheaper.
+
+### Verified findings (implementation truth at SYNC `693445a`)
+
+1. **Scan pipelines already retired.** `scanPuts` / `scanCalls` / `scanUniversePuts` no longer exist; only a doc-comment remains in `options-prototype/src/write-desk/scan-orchestrator.ts`. That file is **not** dead — it exports live types (`ScanConfig`, `ScanResult`, `PutCandidate`, `CallCandidate`, `GovernanceAnnotation`, incl. the `PL-EVID-AGE` `evidenceProvenance` field). So the `PL-OPS-06` "remove scan functions" behavior is effectively **done**; the surviving artifact is a **naming residue** (a file named for orchestration that is now types-only), not a dead pipeline. These are different classes of cleanup and must not be conflated.
+
+2. **The real dead pipeline is the proxy.** `options-prototype/src/providers/index.ts` constructs `new ProxyMarketDataProvider("/api/market")` for the `tradier` key. The Java backend serves **no** `/api/market` route (only `/api/evidence/*`, `/api/production/*`, `/api/observer/*`, `/api/opportunity-history`, `/api/status`, `/api/health`). The proxy pipeline is therefore **dead at the backend-contract level**.
+
+3. **The dead proxy's only live coupling is through retired Lab surfaces.** `getProvider`/proxy consumers are `VelvetRopePage`, `ReferenceDataView`, `RecommendationLab`, `OpportunityLab` (all in the legacy `App.tsx` tree). `WriteDesk` imports only `isTradierConfigured`, not the provider. This is the strongest finding: **a retired/subordinate surface is carrying architectural coupling that makes unrelated provider work more expensive** (independently visible in the Sep 2–3 failover work touching dead surfaces). This passes the governing test as **cost-of-change debt**, not aesthetic debt.
+
+4. **Two parallel app trees.** `Root.tsx` + `AppShell` is the live operational shell (Console, Deployment/WriteDesk, Production, plus a Kreature nav button). `App.tsx` is a legacy view-switcher mounting `ReferenceDataView`, `RecommendationLab`, `OpportunityLab`, `CsvImportLab`, `EtfCatalogExplorer`, `VelvetRopePage`, `SecExplorer`, `MassiveChainView`. The Labs are **still reachable** at `/labs/*` (Root renders `<App/>`) — intentionally retained engineering tooling outside the shell, **not** orphaned code. This confirms the "retired product surface ≠ useless code" distinction is real.
+
+5. **Documentation leg is superseded/overlapping.** The doc-topology work `PL-CLEANUP` absorbed (`PL-OPS-05` ADR coverage; `07d-obsolete-docs.md`) is already reframed: `07d` is HISTORICAL, superseded by docs 30/31/32, and the Technology Quality Program Workstream 0 explicitly owns documentation + authority reconciliation and README reading-path repair. Conclusion: **cede the documentation leg to the Program**; do not run it as a separate cleanup package.
+
+6. **Kreature navigation defect (separated).** `AppShell` advertises a Kreature nav button; `router.ts` resolves `/app/kreature` to route `kreature`; but `Root.tsx` has no `kreature` render branch, so navigation yields shell chrome with an empty body and never reaches the intentional "temporarily disabled" `KreaturePage`. Filed as **GitHub Issue #10** (`defect`, `S3`) under the Sep 4 defect convention. Kept **outside** cleanup scope: independent evidence, independent authority; filing does not authorize remediation.
+
+### Ratified sequencing consensus (Principal + Codex + Kiro)
+
+1. The cleanup review is complete enough to establish the phase (accidental-change-surface reduction before expansion).
+2. Preserve verified findings as journal/discovery evidence (this entry); do **not** rewrite `PL-CLEANUP` yet.
+3. Issue #10 is correctly separated as a defect and durably recorded.
+4. **Next activity is a narrow completion of the unresolved PL-SHELL boundary** — not a broad reopening of the shell (much of the shell is already accepted and implemented). The three unresolved questions are:
+   - operational vs engineering topology;
+   - a per-Lab survival/disposition principle;
+   - the operational name currently rendered as "Write Desk" (route token `write-desk`, `wd-*` CSS, `WriteDesk` identifiers; nav already reads "Deployment").
+5. Once decided, rewrite/decompose `PL-CLEANUP` **once** against the resolved target.
+6. Then authorize bounded cleanup packages and establish the explicit condition for returning to expansion.
+
+### The boundary question that drives everything else
+
+The most useful thing to settle next is the **engineering boundary**, because per-Lab dispositions become far less subjective once it is clear:
+
+> What is an operator-facing Wheelwright capability, what is an engineering instrument used to build/inspect Wheelwright, and what architectural boundary prevents the latter from increasing the change surface of the former?
+
+### Candidate cleanup packages (recorded for later decomposition — NOT authorized)
+
+Dependency order, each carrying its own exit criteria at decomposition time:
+
+- **A — Dead proxy pipeline** (`ProxyMarketDataProvider` / `/api/market`). Remove or re-point; **depends on** the Lab disposition (C) to be safe. Simplification: moves the provider-wall test (a second provider requires no frontend edits) materially closer; serves `PL-PROV-FAILOVER` and `PL-COHERE-01`.
+- **B — `scan-orchestrator` naming residue.** Rename types-only module; prune stale comment. Best folded into D to avoid a double rename.
+- **C — Lab/retired-surface disposition.** Apply the ratified capability-migration rubric per Lab (learned what? covered operationally now? preserve as engineering infra behind a subordinate boundary?). **Analysis/design, deletion not presupposed.** Depends on the PL-SHELL engineering-boundary decision.
+- **D — `write-desk` / `wd-*` / posture vocabulary.** Adopt the ratified operational name, then mechanical rename + de-duplicate the posture CSS (`PL-POSTURE-01` records the posture-color definition appearing three conflicting times). Blocked on PL-SHELL naming. Note: the `wd-*` token rename **fails the governing test in isolation** and is only worthwhile bundled with the ratified rename.
+
+### Explicit exclusions from this phase
+
+- Documentation/authority reconciliation → Technology Quality Program Workstream 0.
+- `AcquisitionWorker` / provider-admission restructuring → blocked by the open constraint-identification investigation and a Program exclusion.
+- Behavioral defects (`PL-DEPLOY-02-DEF01`, `PL-GOV-01`, Issue #10, etc.) → remain GitHub Issues, not cleanup packages.
+- Dependency upgrades, cloud, redesign, and ambient debt.
+
+### Corrected framing (durable learning)
+
+An earlier Kiro phrasing said `PL-CLEANUP` "cannot lead." That was backlog-instrument thinking and is **withdrawn**: the cleanup review *did* lead and succeeded — its output is this dependency model, and we know PL-SHELL is the pivot precisely *because* the re-baseline surfaced it. The correct chain is: cleanup review → PL-SHELL decision → bounded cleanup execution → reassess expansion readiness.
+
+### Next authorized mode
+
+Design exploration of the narrow PL-SHELL boundary (topology / per-Lab disposition principle / operational naming). No implementation, no `PL-CLEANUP` rewrite, no Lab deletion, no proxy removal until that decision is made and separately authorized. This entry is uncommitted working-tree state pending the Principal's persistence/commit decision.
+
+
+### Ratified — residual PL-SHELL boundary decision (2026-09-04)
+
+The Principal ratified the residual PL-SHELL decision that this re-baseline surfaced as the pivot. This closes the three unresolved boundary questions (operational vs engineering topology, per-Lab disposition principle, operational naming) without reopening the broader shell architecture, which is already accepted and substantially implemented.
+
+**Ratified decision:**
+
+- Wheelwright operator topology is **Console → Deployment → Production** within the shared Application Shell.
+- A **subordinate engineering area** exists outside operator topology. `/engineering/*` is **vocabulary direction**; `/labs/*` is **transitional**. This ratification does **not** by itself authorize a mechanical route rename.
+- Engineering instruments are **not** operator surfaces and are **not** advertised in operator navigation.
+- **Operator application code must not depend on engineering-only behavior or surface implementations.** Shared capabilities must graduate into an appropriate shared/domain boundary; historical file location does not determine architectural status.
+- This is a **target boundary with known current violations** that cleanup will reconcile (e.g., the operator-adjacent provider factory and retired Labs currently share the dead `/api/market` proxy chain). The constraint is not asserted as already-true.
+- Every Lab capability receives exactly one disposition: **migrate** to operational/shared capability, **preserve** as a subordinate engineering instrument, or **delete**. There is no "leave it because it exists" category.
+- **Deployment** is the canonical operator-facing name for the current WriteDesk surface. `WriteDesk` / `write-desk` / `wd-*` are historical implementation vocabulary to reconcile during bounded cleanup **where doing so reduces ambiguity or fragility**.
+- **Kreature is explicitly outside this decision.** It is neither ratified here as an operator surface nor classified as engineering tooling. Existing Kreature authority continues to govern it; the navigation inconsistency remains GitHub Issue #10.
+
+**Load-bearing invariant:** the import-direction constraint (operator code must never depend on an engineering/Lab module; engineering may depend on published/domain contracts) is the architectural rule that makes the boundary real. It is deliberately expressed as a logical/import boundary, not a second application or package — a build-system separation is not authorized absent demonstrated evidence that the import boundary is insufficient.
+
+**What this unlocks:** the abstract "Package C" is replaced by a concrete PL-CLEANUP decomposition: (1) inventory every `/labs/*` capability and assign migrate/preserve/delete under the rule above; (2) remove the dead proxy/provider path wherever no preserved engineering capability requires it (preserved tools move to supported contracts, not a kept-alive dead architecture); (3) retire WriteDesk/write-desk/`wd-*` vocabulary toward Deployment incl. semantic CSS cleanup where it removes real ambiguity/fragility; (4) fold the `scan-orchestrator.ts` naming residue into that coherence work rather than treating scan-removal as undone; (5) leave docs/authority work with the Technology Quality Program and defects with Issues.
+
+**Cleanup-round exit criterion (ratified):** cleanup is complete when the operator topology and engineering topology conform to the resolved boundary, obsolete paths no longer enlarge normal change scope, competing historical vocabulary no longer obscures current responsibilities, and the selected cleanup packages are closed — **not** when Sonar has zero findings or the codebase is aesthetically perfect. At that point cleaning stops and feature/infrastructure expansion is reassessed.
+
+**PL-CLEANUP status:** still **not rewritten**. The final `PL-CLEANUP` record and the `PL-SHELL` row reconciliation are deferred until the current-code per-Lab disposition pass returns. This journal entry is the durable provenance for both the re-baseline and this ratification.
