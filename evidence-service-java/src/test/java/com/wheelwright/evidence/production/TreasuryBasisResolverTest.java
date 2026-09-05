@@ -108,16 +108,16 @@ class TreasuryBasisResolverTest {
         // Sell $1000 on day 3 (which lot? AMBIGUOUS)
         // Redeem $1000 on day 4
         var syntheticTransactions = List.of(
-            new NormalizedTransaction("t1", LocalDate.of(2026, 6, 1), null,
+            new NormalizedTransaction("t1", -1, LocalDate.of(2026, 6, 1), null,
                 FidelityTransactionKind.TREASURY_PURCHASE, "YOU BOUGHT...", "TESTCUSIP", "Test T-bill",
                 new BigDecimal("-990.00"), null, null, new BigDecimal("99.00"), new BigDecimal("1000")),
-            new NormalizedTransaction("t2", LocalDate.of(2026, 6, 5), null,
+            new NormalizedTransaction("t2", -1, LocalDate.of(2026, 6, 5), null,
                 FidelityTransactionKind.TREASURY_PURCHASE, "YOU BOUGHT...", "TESTCUSIP", "Test T-bill",
                 new BigDecimal("-995.00"), null, null, new BigDecimal("99.50"), new BigDecimal("1000")),
-            new NormalizedTransaction("t3", LocalDate.of(2026, 6, 10), null,
+            new NormalizedTransaction("t3", -1, LocalDate.of(2026, 6, 10), null,
                 FidelityTransactionKind.ASSET_SALE, "YOU SOLD...", "TESTCUSIP", "Test T-bill",
                 new BigDecimal("996.00"), null, null, new BigDecimal("99.60"), new BigDecimal("-1000")),
-            new NormalizedTransaction("t4", LocalDate.of(2026, 7, 1), null,
+            new NormalizedTransaction("t4", -1, LocalDate.of(2026, 7, 1), null,
                 FidelityTransactionKind.TREASURY_REDEMPTION, "REDEMPTION PAYOUT...", "TESTCUSIP", "Test T-bill",
                 new BigDecimal("1000.00"), null, null, new BigDecimal("1"), new BigDecimal("-1000"))
         );
@@ -141,19 +141,19 @@ class TreasuryBasisResolverTest {
         // Buy $1000 at 99.7 on day 4
         // Redeem $1000 on day 5
         var syntheticTransactions = List.of(
-            new NormalizedTransaction("t1", LocalDate.of(2026, 6, 1), null,
+            new NormalizedTransaction("t1", -1, LocalDate.of(2026, 6, 1), null,
                 FidelityTransactionKind.TREASURY_PURCHASE, "YOU BOUGHT...", "TESTCUSIP2", "Test T-bill",
                 new BigDecimal("-990.00"), null, null, new BigDecimal("99.00"), new BigDecimal("1000")),
-            new NormalizedTransaction("t2", LocalDate.of(2026, 6, 5), null,
+            new NormalizedTransaction("t2", -1, LocalDate.of(2026, 6, 5), null,
                 FidelityTransactionKind.TREASURY_PURCHASE, "YOU BOUGHT...", "TESTCUSIP2", "Test T-bill",
                 new BigDecimal("-995.00"), null, null, new BigDecimal("99.50"), new BigDecimal("1000")),
-            new NormalizedTransaction("t3", LocalDate.of(2026, 6, 10), null,
+            new NormalizedTransaction("t3", -1, LocalDate.of(2026, 6, 10), null,
                 FidelityTransactionKind.ASSET_SALE, "YOU SOLD...", "TESTCUSIP2", "Test T-bill",
                 new BigDecimal("1996.00"), null, null, new BigDecimal("99.80"), new BigDecimal("-2000")),
-            new NormalizedTransaction("t4", LocalDate.of(2026, 6, 15), null,
+            new NormalizedTransaction("t4", -1, LocalDate.of(2026, 6, 15), null,
                 FidelityTransactionKind.TREASURY_PURCHASE, "YOU BOUGHT...", "TESTCUSIP2", "Test T-bill",
                 new BigDecimal("-997.00"), null, null, new BigDecimal("99.70"), new BigDecimal("1000")),
-            new NormalizedTransaction("t5", LocalDate.of(2026, 7, 1), null,
+            new NormalizedTransaction("t5", -1, LocalDate.of(2026, 7, 1), null,
                 FidelityTransactionKind.TREASURY_REDEMPTION, "REDEMPTION PAYOUT...", "TESTCUSIP2", "Test T-bill",
                 new BigDecimal("1000.00"), null, null, new BigDecimal("1"), new BigDecimal("-1000"))
         );

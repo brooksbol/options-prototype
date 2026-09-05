@@ -48,7 +48,10 @@ public record ProductionAssessment(
     TransactionSummary transactionSummary,
 
     /** Full audit trail — every transaction with its economic decomposition */
-    List<AssessedTransaction> transactions
+    List<AssessedTransaction> transactions,
+
+    /** Authoritative per-disposition interpreted economic results (realized dispositions). */
+    List<DispositionResult> dispositionResults
 ) {
     public record ReconciliationIssue(
         IssueType type,

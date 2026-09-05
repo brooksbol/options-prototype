@@ -19,6 +19,7 @@ export interface ProductionAssessmentResponse {
   erosionEvents: ErosionEvent[];
   transactionSummary: TransactionSummary;
   transactions: AssessedTransaction[];
+  dispositionResults?: DispositionResult[];
 }
 
 export interface ReconciliationIssue {
@@ -57,4 +58,40 @@ export interface EconomicComponent {
   amount: number;
   confidence: string;
   derivation: string;
+}
+
+/**
+ * Backend-authoritative interpreted economics for one realized disposition.
+ * The frontend RENDERS this; it must not reconstruct realized disposition economics.
+ * `attributableAcquisitionCash` is proportional net acquisition cash — NOT a tax-lot basis.
+ */
+export interface DispositionResult {
+  /**
+   * Disposition fingerprint — deterministic trace/dedup value (backend NormalizedTransaction
+   * content fingerprint). NOT guaranteed unique, NOT evidence-row/broker/durable identity.
+   */
+  dispositionFingerprint: string;
+  /**
+   * Backend-established authoritative association target: the current OCC contract/activity
+   * grouping key. Null when the association is unresolved. NOT durable lifecycle/episode identity.
+   */
+  contractActivityKey: string | null;
+  symbol: string;
+  date: string;
+  /**
+   * Raw Fidelity action text of the disposition (sale) event. Present so the called-away sale can
+   * be rendered as a constituent event FROM the authoritative backend association — the frontend
+   * must not independently re-correlate a raw sale row to a CALL episode (ADR-016).
+   */
+  dispositionAction: string | null;
+  kind: string;
+  quantity: number | null;
+  salePricePerShare: number | null;
+  netSaleProceeds: number | null;
+  attributableAcquisitionCash: number | null;
+  realizedAppreciation: number | null;
+  realizedErosion: number | null;
+  /** "RESOLVED" | "PARTIAL" | "UNRESOLVED" */
+  state: string;
+  provenance: string;
 }

@@ -19,6 +19,7 @@ public class ProductionAssessor {
     private final TransactionClassifier classifier = new TransactionClassifier();
     private final TreasuryBasisResolver treasuryResolver = new TreasuryBasisResolver();
     private final EconomicDecomposer decomposer = new EconomicDecomposer(treasuryResolver);
+    private final DispositionAssociator associator = new DispositionAssociator();
 
     /**
      * Assess production for a specific period from parsed Fidelity activity rows.
@@ -28,10 +29,19 @@ public class ProductionAssessor {
      * @return Complete production assessment
      */
     public ProductionAssessment assess(List<FidelityActivityRow> rows, YearMonth period) {
-        // 1. Classify and normalize all transactions (full history, for basis resolution)
-        List<NormalizedTransaction> allTransactions = rows.stream()
-            .map(row -> NormalizedTransaction.from(row, classifier.classify(row)))
-            .toList();
+        // 1. Classify and normalize all transactions (full history, for basis resolution).
+        //    Assign an ASSESSMENT-LOCAL occurrence identity (monotonic sequence) so downstream
+        //    association bookkeeping can distinguish exact transaction occurrences without relying
+        //    on the collision-prone content fingerprint (NormalizedTransaction.id). This id is not
+        //    durable, not persisted, not lifecycle identity, and asserts no economic ordering — it
+        //    only makes occurrences distinguishable within this one assessment (ADR-016).
+        List<NormalizedTransaction> allTransactions = new ArrayList<>(rows.size());
+        int occurrenceSeq = 0;
+        for (FidelityActivityRow row : rows) {
+            allTransactions.add(
+                NormalizedTransaction.from(row, classifier.classify(row)).withAssessmentOccurrenceId(occurrenceSeq++)
+            );
+        }
 
         // 2. Filter to target period for assessment (but use full history for basis)
         LocalDate periodStart = period.atDay(1);
@@ -105,16 +115,30 @@ public class ProductionAssessor {
         for (AssessedEntry entry : assessed) {
             for (EconomicComponent c : entry.components) {
                 if (c.confidence() == Confidence.BASIS_UNKNOWN && c.type() == ComponentType.PRINCIPAL_MOVEMENT) {
-                    // Treasury with unknown basis — potential unresolved income
-                    BigDecimal potential = computeUnresolvedTreasuryPotential(entry.tx, allTransactions);
-                    if (potential != null && potential.compareTo(BigDecimal.ZERO) > 0) {
+                    if (entry.tx.kind() == FidelityTransactionKind.ASSIGNED_CALL_STOCK_SALE) {
+                        // Issue #12: a called-away disposition whose acquisition basis cannot be
+                        // established leaves realized appreciation/erosion undetermined. This must
+                        // make the assessment visibly uncertain — a reconciled cash total must not
+                        // conceal unresolved lifecycle economics. It is NOT a period-coverage or
+                        // classification failure; it is an economic-reconciliation uncertainty.
                         issues.add(new ProductionAssessment.ReconciliationIssue(
                             IssueType.BASIS_UNKNOWN,
-                            "Treasury " + entry.tx.symbol() + ": basis unconfirmed (ACAT transfer); " +
-                            "potential discount income $" + potential,
-                            potential
+                            entry.tx.symbol() + " called-away disposition ($" + c.amount() +
+                            "): acquisition basis unresolved — realized appreciation/erosion undetermined",
+                            null
                         ));
-                        unresolvedPotential = unresolvedPotential.add(potential);
+                    } else {
+                        // Treasury with unknown basis — potential unresolved income
+                        BigDecimal potential = computeUnresolvedTreasuryPotential(entry.tx, allTransactions);
+                        if (potential != null && potential.compareTo(BigDecimal.ZERO) > 0) {
+                            issues.add(new ProductionAssessment.ReconciliationIssue(
+                                IssueType.BASIS_UNKNOWN,
+                                "Treasury " + entry.tx.symbol() + ": basis unconfirmed (ACAT transfer); " +
+                                "potential discount income $" + potential,
+                                potential
+                            ));
+                            unresolvedPotential = unresolvedPotential.add(potential);
+                        }
                     }
                 }
             }
@@ -159,6 +183,43 @@ public class ProductionAssessor {
             ));
         }
 
+        // 7. Backend-authoritative per-disposition results (semantic owner of realized
+        //    disposition economics). Built for each realized disposition in the period from
+        //    its already-computed economic components — no duplicate attribution logic.
+        // Establish disposition→contract-activity association GLOBALLY and one-to-one over the whole
+        // relevant group before interpreting any single disposition (see DispositionAssociator).
+        // Keyed by assessment-local assessmentOccurrenceId, not the collision-prone fingerprint id.
+        Map<Integer, String> contractActivityAssociations = associator.associate(allTransactions);
+
+        // ASSESSMENT-WIDE association-key uniqueness (ADR-016). The per-group solver guarantees a
+        // one-to-one matching WITHIN a group, but the same OCC contractActivityKey can legitimately
+        // arise in two independently-resolvable groups on different run dates. contractActivityKey is
+        // the single frontend-addressable association key; if it were emitted twice, a downstream
+        // keyed lookup would silently resolve to one arbitrary result (last-write-wins) — a
+        // competing/overwritten authoritative association. We do NOT manufacture a stronger (e.g.
+        // run-date-suffixed) identifier to force uniqueness; instead any contractActivityKey claimed
+        // by more than one disposition across the whole assessment is conservatively demoted to
+        // UNRESOLVED for ALL affected dispositions (symmetric — no first-writer survivor).
+        Map<String, Long> keyClaims = contractActivityAssociations.values().stream()
+            .collect(Collectors.groupingBy(k -> k, Collectors.counting()));
+        Set<String> ambiguousKeys = keyClaims.entrySet().stream()
+            .filter(e -> e.getValue() > 1)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
+
+        List<DispositionResult> dispositionResults = new ArrayList<>();
+        for (AssessedEntry entry : assessed) {
+            if (entry.tx.kind() == FidelityTransactionKind.ASSIGNED_CALL_STOCK_SALE) {
+                String contractActivityKey = contractActivityAssociations.get(entry.tx.assessmentOccurrenceId());
+                if (contractActivityKey != null && ambiguousKeys.contains(contractActivityKey)) {
+                    // Same authoritative key claimed by multiple dispositions across groups →
+                    // no unique authoritative association survives. Preserve uncertainty.
+                    contractActivityKey = null;
+                }
+                dispositionResults.add(buildDispositionResult(entry.tx, entry.components, contractActivityKey));
+            }
+        }
+
         return new ProductionAssessment(
             period,
             formatPeriod(period),
@@ -171,7 +232,83 @@ public class ProductionAssessor {
             breakdown,
             erosionEvents,
             new ProductionAssessment.TransactionSummary(included, excluded, uncertain, notApplicable),
-            txList
+            txList,
+            dispositionResults
+        );
+    }
+
+    /**
+     * Build the authoritative disposition result for a realized called-away disposition from
+     * its already-computed economic components. This composes existing decomposition output;
+     * it does not re-run attribution. The frontend consumes this instead of correlating raw
+     * events and economics itself.
+     */
+    private DispositionResult buildDispositionResult(NormalizedTransaction tx,
+                                                     List<EconomicComponent> components,
+                                                     String contractActivityKey) {
+        BigDecimal netProceeds = tx.amount(); // actual Fidelity net cash for the sale
+        BigDecimal quantity = tx.quantity() != null ? tx.quantity().abs() : null;
+        BigDecimal salePrice = tx.price();
+
+        // (A) ASSOCIATION — established GLOBALLY (one-to-one) by DispositionAssociator, not here.
+        //     contractActivityKey = OCC contract/activity grouping key of the assigned call (matches
+        //     the consumer's grouping key exactly). Null when the association could not be uniquely
+        //     established.
+        if (contractActivityKey == null) {
+            // Association itself cannot be uniquely established → UNRESOLVED. Do not attach realized
+            // economics to an ambiguous/absent contract-activity grouping. Preserve known raw facts.
+            return new DispositionResult(
+                tx.id(), null, tx.symbol(), tx.date().toString(), tx.rawAction(), tx.kind(),
+                quantity, salePrice, netProceeds, null, null, null,
+                DispositionResult.DispositionEconomicState.UNRESOLVED,
+                "assoc=unresolved; dispositionFingerprint=" + tx.id()
+                    + "; reason=no unique authoritative assigned-call association for " + tx.symbol()
+                    + " on " + tx.date() + " (absent/ambiguous notification, or key not unique across the assessment)"
+            );
+        }
+
+        // (B) ECONOMICS — association is established; interpret realized economics.
+        EconomicComponent appreciation = components.stream()
+            .filter(c -> c.type() == ComponentType.PRODUCTION && c.source() == ProductionSource.REALIZED_APPRECIATION)
+            .findFirst().orElse(null);
+        EconomicComponent erosion = components.stream()
+            .filter(c -> c.type() == ComponentType.CAPITAL_EROSION)
+            .findFirst().orElse(null);
+        boolean basisUnknown = components.stream()
+            .anyMatch(c -> c.confidence() == Confidence.BASIS_UNKNOWN);
+
+        BigDecimal appreciationAmt = appreciation != null ? appreciation.amount() : null;
+        BigDecimal erosionAmt = erosion != null ? erosion.amount() : null;
+
+        BigDecimal attributableCash = null;
+        String provenance;
+        DispositionResult.DispositionEconomicState state;
+
+        String base = "assoc=" + contractActivityKey + "; dispositionFingerprint=" + tx.id();
+        if (netProceeds == null) {
+            state = DispositionResult.DispositionEconomicState.UNRESOLVED;
+            provenance = base + "; net sale proceeds unavailable from Fidelity Activity evidence.";
+        } else if (appreciation != null) {
+            attributableCash = netProceeds.subtract(appreciationAmt);
+            state = DispositionResult.DispositionEconomicState.RESOLVED;
+            provenance = base + "; realized appreciation from attributable acquisition cash. " + appreciation.derivation();
+        } else if (erosion != null) {
+            attributableCash = netProceeds.add(erosionAmt);
+            state = DispositionResult.DispositionEconomicState.RESOLVED;
+            provenance = base + "; realized erosion from attributable acquisition cash. " + erosion.derivation();
+        } else if (basisUnknown) {
+            state = DispositionResult.DispositionEconomicState.PARTIAL;
+            provenance = base + "; net sale proceeds known; attributable acquisition economics unresolved (BASIS_UNKNOWN).";
+        } else {
+            state = DispositionResult.DispositionEconomicState.RESOLVED;
+            attributableCash = netProceeds;
+            provenance = base + "; proceeds returned at attributable acquisition cash (no gain/loss).";
+        }
+
+        return new DispositionResult(
+            tx.id(), contractActivityKey, tx.symbol(), tx.date().toString(), tx.rawAction(), tx.kind(),
+            quantity, salePrice, netProceeds, attributableCash,
+            appreciationAmt, erosionAmt, state, provenance
         );
     }
 
