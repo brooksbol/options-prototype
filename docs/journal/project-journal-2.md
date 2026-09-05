@@ -1056,3 +1056,69 @@ Current **hypothesis** (discovery, not ratified): economic truth may legitimatel
 
 - **Do not fix the calculation yet.** We have not established which quantity belongs in which calculation.
 - The next domain question belongs partly with **accounting judgment**. Intended Jeff/CFO question: *"What does each of these numbers mean, and which belongs in which calculation — management economics, called-away decision support, realized strategy performance, and tax/accounting?"*
+
+---
+
+## 2026-09-05 — Live-operations synthesis: Sep-04 expiration / Sep-05 processing (four-actor review)
+
+Why-state / discovery-state from real September 4 expiration operations observed against Sep-05 Fidelity processing, reviewed by four actors (Principal, ChatGPT, Codex, Kiro). Not a new operating model. Live operations may preempt roadmap sequencing when real-money evidence exposes an immediate truth defect.
+
+### 1. Live operational evidence
+
+Sep-04 expirations produced: BNO calls assigned; EWY call assigned; GDXJ call assigned; COPX call expired (shares remain); GDX call expired (shares remain).
+
+Aggregate observation: broker-authoritative deployable cash reconciled with Wheelwright, and represented/encumbered capital reconciled — **yet individual lifecycle-event economic explanations could still be materially false or incomplete.** Aggregate correctness can conceal event-level economic-truth defects. This is the central lesson of the cycle.
+
+### 2. Confirmed defects (three distinct)
+
+**Defect A — called-away "capital returned" is the wrong economic quantity.** Frontend Production episode derivation (`episode-derivation.ts`, `buildResolveChapter`/`buildResolutionChapter`) computes the called-away capital label as `strike × 100 × contracts` and labels it capital "returned." Actual Fidelity assigned-share disposition proceeds exist in Activity evidence. The defect is NOT arithmetic difficulty nor that it runs in the frontend; it is that **a valid mechanical/notional quantity is promoted into an operator-visible realized economic claim it does not represent.** The exact historical screenshot multiplicities ($10,200 / $16,200 for BNO) are NOT reproducible from current source + supplied evidence; that provenance gap is preserved as unresolved and its cause is not invented. (New defect — filed as a GitHub Issue this pass.)
+
+**Defect B — directly acquired called-away shares can lose basis.** Backend `EconomicDecomposer.findDispositionBasis` for `ASSIGNED_CALL_STOCK_SALE` searches only the assigned-put acquisition stream and returns without falling through to direct `ASSET_PURCHASE`. BNO shares were directly purchased (`YOU BOUGHT`). Result: directly acquired covered-call shares can be called away with basis unresolved, realized appreciation/erosion disappears, and disposition proceeds are treated as principal movement. Durable requirement: **resolve directly acquired called-away basis only when evidence supports a defensible quantity-aware attribution; otherwise preserve `BASIS_UNKNOWN`.** This does NOT authorize a lot engine, and does NOT authorize "use the latest symbol-level purchase." **This defect is already the authoritative GitHub record — Issue #3** (SLV-shaped case). Reconciled here by cross-reference, not duplicated.
+
+**Defect C — unresolved assigned-call basis may fail to make reconciliation visibly uncertain.** A stock disposition can carry `BASIS_UNKNOWN` without operator-visible reconciliation status reflecting that unresolved economic state. Durable requirement: **unknown realized economics must not silently coexist with a presentation that implies the lifecycle is fully reconciled.** Kept distinct from Defect B even though B exposes it. (New defect — filed as a GitHub Issue this pass.) Architecturally analogous to Issue #9 (temporally incompatible evidence composed into an apparently-coherent view) but operationally independent; #9 is NOT absorbed into this work. Issue #10 remains unrelated.
+
+### 3. EWY correction
+
+The displayed ≈ −$135 called-away stock erosion was real; the display was NOT the bug. Current repository evidence does NOT establish a new buy-write recommendation-admissibility defect: the buy-write engine (`recommend-buy-writes.ts`) has a positive-appreciation / strike-above-underlying gate (`fitStrikes = eligible.filter(c => c.strike > underlyingPrice)`). The historical EWY result appears related to execution drift / evidence timing / historical recommendation context already associated with `PL-EXEC-01`. Do not create a new EWY defect without stronger provenance.
+
+### 4. Economic-authority principle (evidence-earned guideline)
+
+> An operator-visible economic claim should have one authoritative domain owner. Other layers may format, filter, sort, organize, aggregate, and present it, but should not silently reconstruct a different economic quantity under the same claim.
+
+This is NOT "frontend math is bad," NOT a mandate to move all frontend calculations backend-side, and NOT a generalized migration program. The governing concern is semantic/economic authority. Distinct legitimate quantities that must not be collapsed under "capital": strike notional (legitimate if labeled as such); gross disposition proceeds; net disposition proceeds; returned attributable principal; realized appreciation/erosion; buying-power/deployable-cash change.
+
+### 5. Basis-for-what-purpose continuity
+
+Cross-references the already-durable XLE finding ("Basis for what purpose?", journal 2026-09-04). Activity acquisition cost, Fidelity displayed Avg. cost / cost-basis value, prospective analytical basis, and realized acquisition/disposition basis may be distinct legitimate economic quantities. The unexplained XLE $313.65 difference is NOT resolved here. Fidelity's displayed Avg. cost is NOT called a tax-lot basis absent future evidence.
+
+### 6. Temporal semantics product gap ("Date for what purpose?")
+
+Observed distinction among: economic/effective date; Fidelity processing/run date; settlement date; Wheelwright observation/import date. Sep-04 expiration activity appearing with Sep-08 processing/settlement semantics exposed this. Recorded as a confirmed modeling/product gap, not automatically a defect. No implementation authorized.
+
+### 7. Portfolio ↔ Production reconciliation gap
+
+Portfolio and Production can reconstruct different aspects of the same economic lifecycle from different Fidelity evidence. Evidence earns **minimal disagreement/uncertainty detection and truthful reconciliation status.** It does NOT earn a general ledger, event sourcing, a new accounting subsystem, or a lot engine.
+
+### 8. Post-expiration retained-share product gap (COPX / GDX)
+
+COPX and GDX calls expired and shares remained. Wheelwright currently reaches "shares free," but the real operator decision begins there. Governing operator question: **"Can my assets be working harder somewhere else?"** Related principle: **re-underwrite capital at lifecycle boundaries rather than mechanically continuing the wheel.** Credible decision alternatives discussed (NOT all authorized features — this is the current decision-learning space): rewrite a normal covered call; short-duration / 0DTE ATM call; sell outright; deliberately hold uncovered; wait for a near-term event such as ex-dividend; redeploy elsewhere.
+
+### 9. Advisory / HITL boundary
+
+Wheelwright is advisory; the operator decides. A mature shape may eventually be: recommendation; why; alternatives; economic consequences; uncertainty; what would change the recommendation; next decision condition. Increasing intelligence should improve advice, not silently increase Wheelwright's authority to act.
+
+### 10. Product ideas — preserved, NOT promoted to backlog
+
+Evidence-earned / strong ideas: explicit outright-liquidation alternative; normal covered-call rewrite as a deliberate alternative; deliberate temporary uncovered hold; re-underwrite retained capital against alternative deployments; recommendation + alternatives + change conditions; expiration → processing/settlement → next-decision transition presentation; eventual decision-history accountability. Plausible but not sufficiently evidenced: 0DTE / very-short-duration ATM call as a capital-release strategy; dividend-aware hold advice; Kreature watching an accepted deferred decision. Premature: generalized "capital working harder" optimizer; universal capital×time×risk scoring formula. No feature backlog is created from this list.
+
+### 11. Layered interpretation (Economic Truth → Trustworthy Knowledge → Decision Quality → Lifecycle Management)
+
+Fix truthful event economics first; then establish sufficient semantic/reconciliation knowledge; retained COPX/GDX decisions provide Decision Quality learning; accepted future "wait until X" decisions eventually create Lifecycle/Kreature responsibility. Live operations may preempt roadmap sequencing whenever real money exposes an immediate truth defect.
+
+### 12. Explicitly NOT earned
+
+Current evidence does NOT authorize: lot engine; tax-lot subsystem; ledger/event-sourcing architecture; generalized frontend-to-backend migration; broad economic-computation cleanup; retained-share recommendation engine; 0DTE strategy admission; dividend-data implementation; capital×time×risk optimizer; Kreature watched-condition implementation; Issue #9 remediation inside this slice; Issue #10 remediation; resolution of XLE basis semantics; a new EWY recommendation defect.
+
+### Defect-record reconciliation note
+
+Principal authorized "three confirmed defects." On inspection, Defect B is already the authoritative record **Issue #3** ("Production accounting cannot derive called-away share basis from direct purchases or buy-writes"). Per the ratified defect-tracking convention (no double-booking of the same authoritative item) and the Principal's own instruction to cross-reference existing items rather than proliferate, Defect B is reconciled against Issue #3 rather than duplicated. Two genuinely-new defects (A and C) are filed as new GitHub Issues this pass. This deviation from the literal "three new issues" is deliberate and evidence-driven; it is surfaced for Principal/ChatGPT review.
