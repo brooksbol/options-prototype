@@ -13,33 +13,20 @@
  *   - Readable at 100% zoom on desktop
  */
 
-import { useState, useMemo, Fragment } from "react";
-import { deriveEpisodeChapters, type EpisodeChapter, type EpisodeDerivationInput } from "./episode-derivation";
-import type { ActivityRow } from "../csv/fidelity/activityParser";
-import type { PortfolioSnapshot } from "../write-desk/types";
-import type { ProductionAssessmentResponse } from "./production-types";
+import { useState, Fragment } from "react";
+import { type EpisodeChapter } from "./episode-derivation";
 
 interface Props {
-  activityRows: ActivityRow[] | null;
-  snapshot: PortfolioSnapshot | null;
-  assessment: ProductionAssessmentResponse | null;
-  targetMonth: string;
+  /**
+   * The SINGLE derived chapter collection, owned by the parent (CurrentMonthView). The same
+   * instance is consumed by the Production CSV export, so rendered claims and exported claims
+   * can never diverge from independent derivations (PL-PROD-EXPORT-01 trust correction #1).
+   */
+  chapters: EpisodeChapter[];
 }
 
-export function EpisodeLedger({ activityRows, snapshot, assessment, targetMonth }: Props) {
+export function EpisodeLedger({ chapters }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  const chapters = useMemo(() => {
-    if (!activityRows || activityRows.length === 0) return [];
-    const input: EpisodeDerivationInput = {
-      activityRows,
-      snapshot,
-      assessedTransactions: assessment?.transactions ?? null,
-      dispositionResults: assessment?.dispositionResults ?? null,
-      targetMonth,
-    };
-    return deriveEpisodeChapters(input);
-  }, [activityRows, snapshot, assessment, targetMonth]);
 
   if (chapters.length === 0) return null;
 

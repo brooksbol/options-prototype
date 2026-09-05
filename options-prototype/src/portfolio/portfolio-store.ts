@@ -111,6 +111,21 @@ export function getActivityRows(): ActivityRow[] | null {
   return currentActivityRows;
 }
 
+/**
+ * Uploaded Activity CSV filename, if present in the existing workflow storage. Read-only,
+ * no parsing/evidence machinery — used only as export source context (PL-PROD-EXPORT-01).
+ */
+export function getActivityFilename(): string | null {
+  try {
+    const stored = localStorage.getItem(LS_KEY_ACTIVITY);
+    if (!stored) return null;
+    const parsed = JSON.parse(stored);
+    return typeof parsed?.filename === "string" ? parsed.filename : null;
+  } catch {
+    return null;
+  }
+}
+
 // --- Mutations ---
 
 export function setPortfolio(source: PortfolioSourceType, snapshot: PortfolioSnapshot | null): void {

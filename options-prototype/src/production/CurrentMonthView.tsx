@@ -23,6 +23,9 @@ import { deriveMonitoredPositions, groupByExpiration } from "../portfolio/positi
 import { deriveCurrentMonthProduction, type InFlightPosition } from "./current-month-production";
 import type { ProductionAssessmentResponse } from "./production-types";
 import { EpisodeLedger } from "./EpisodeLedger";
+import { deriveEpisodeChapters } from "./episode-derivation";
+import { buildProductionCsv } from "./production-csv-export";
+import { getActivityFilename } from "../portfolio/portfolio-store";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import { classifyAllPositions } from "../forecast/resolution-outlook";
 import { deriveProductionOutlook } from "../forecast/production-outlook";
@@ -92,6 +95,44 @@ export function CurrentMonthView({ assessment }: Props) {
     return deriveCurrentMonthProduction(assessment, snapshot, rungs);
   }, [assessment, snapshot, observations]);
 
+  // PL-PROD-EXPORT-01 trust correction #1: derive the Economic Activity chapters ONCE. The exact
+  // same collection is rendered by the EpisodeLedger AND serialized into the Production CSV, so a
+  // rendered claim and an exported claim can never come from two independent derivations.
+  // (Declared BEFORE handleDownloadCsv so the callback closes over an initialized binding — no TDZ.)
+  const episodeChapters = useMemo(() => {
+    const activityRows = getActivityRows();
+    if (!activityRows || activityRows.length === 0) return [];
+    return deriveEpisodeChapters({
+      activityRows,
+      snapshot,
+      assessedTransactions: assessment?.transactions ?? null,
+      dispositionResults: assessment?.dispositionResults ?? null,
+      targetMonth: currentMonthKey,
+    });
+  }, [assessment, snapshot, currentMonthKey]);
+
+  // PL-PROD-EXPORT-01: download one hybrid Production Evidence CSV.
+  // Composes the authoritative backend response with the ALREADY-DERIVED presentation chapters
+  // (same inputs the EpisodeLedger renders). No economic recomputation happens here — the CSV
+  // serializer only serializes existing backend + presentation values.
+  const handleDownloadCsv = useCallback(() => {
+    // Consume the SAME chapter collection the ledger renders (correction #1) — no re-derivation.
+    const csv = buildProductionCsv(assessment, episodeChapters, {
+      exportGeneratedAt: new Date().toISOString(),
+      targetMonth: currentMonthKey,
+      sourceFilename: getActivityFilename(),
+    });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `production-evidence-${currentMonthKey}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [assessment, episodeChapters, currentMonthKey]);
+
   // --- Production Outlook (V1 Operating Forecast) ---
   const outlook = useMemo(() => {
     const positions = snapshot ? deriveMonitoredPositions(snapshot, observations) : [];
@@ -158,6 +199,16 @@ export function CurrentMonthView({ assessment }: Props) {
             <span className="prod-current-progress">
               Day {summary.evidenceContext.daysElapsed}/{summary.evidenceContext.totalDays}
             </span>
+            {assessment && (
+              <button
+                className="prod-csv-export-btn"
+                onClick={handleDownloadCsv}
+                title="Download a machine-readable Production evidence CSV (backend assessment + presented claims)"
+                aria-label="Download Production CSV"
+              >
+                Download Production CSV
+              </button>
+            )}
           </div>
 
           <div className="prod-current-metrics">
@@ -486,13 +537,9 @@ export function CurrentMonthView({ assessment }: Props) {
           </section>
         )}
 
-        {/* Episode Ledger — V2 chronological wheel activity (PL-PROD-EVENTS) */}
-        <EpisodeLedger
-          activityRows={getActivityRows()}
-          snapshot={snapshot}
-          assessment={assessment}
-          targetMonth={currentMonthKey}
-        />
+        {/* Episode Ledger — V2 chronological wheel activity (PL-PROD-EVENTS).
+            Consumes the single shared chapter collection (also serialized by the CSV export). */}
+        <EpisodeLedger chapters={episodeChapters} />
       </div>
     </div>
   );
