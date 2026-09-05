@@ -22,7 +22,8 @@ public record ProductionResponse(
     Map<String, BigDecimal> productionBreakdown,
     List<ErosionEventDto> erosionEvents,
     SummaryDto transactionSummary,
-    List<TransactionDto> transactions
+    List<TransactionDto> transactions,
+    List<DispositionResultDto> dispositionResults
 ) {
     public record IssueDto(String type, String description, BigDecimal potentialImpact) {}
     public record ErosionEventDto(String date, String symbol, BigDecimal amount, String description) {}
@@ -33,5 +34,13 @@ public record ProductionResponse(
     ) {}
     public record ComponentDto(
         String type, String source, BigDecimal amount, String confidence, String derivation
+    ) {}
+    /** Authoritative per-disposition interpreted economics (see DispositionResult). */
+    public record DispositionResultDto(
+        String dispositionFingerprint, String contractActivityKey, String symbol, String date,
+        String dispositionAction, String kind,
+        BigDecimal quantity, BigDecimal salePricePerShare, BigDecimal netSaleProceeds,
+        BigDecimal attributableAcquisitionCash, BigDecimal realizedAppreciation,
+        BigDecimal realizedErosion, String state, String provenance
     ) {}
 }

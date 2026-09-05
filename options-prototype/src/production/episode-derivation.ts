@@ -24,7 +24,7 @@
 
 import type { ActivityRow } from "../csv/fidelity/activityParser";
 import type { PortfolioSnapshot } from "../write-desk/types";
-import type { AssessedTransaction, EconomicComponent } from "./production-types";
+import type { AssessedTransaction, EconomicComponent, DispositionResult } from "./production-types";
 
 // --- Public types ---
 
@@ -92,6 +92,12 @@ export interface EpisodeDerivationInput {
   activityRows: ActivityRow[];
   snapshot: PortfolioSnapshot | null;
   assessedTransactions: AssessedTransaction[] | null;
+  /**
+   * Backend-authoritative per-disposition interpreted economics. When provided, realized
+   * called-away economics (net proceeds, appreciation/erosion, resolution state) are RENDERED
+   * from these results — the frontend does not reconstruct them. Optional for compatibility.
+   */
+  dispositionResults?: DispositionResult[] | null;
   /** Target month as "YYYY-MM" */
   targetMonth: string;
 }
@@ -103,7 +109,7 @@ export interface EpisodeDerivationInput {
  * ready for chronological display.
  */
 export function deriveEpisodeChapters(input: EpisodeDerivationInput): EpisodeChapter[] {
-  const { activityRows, snapshot, assessedTransactions, targetMonth } = input;
+  const { activityRows, snapshot, assessedTransactions, dispositionResults, targetMonth } = input;
 
   // 1. Build episode map: OCC symbol → linked events
   const episodeMap = buildEpisodeMap(activityRows, targetMonth);
@@ -113,14 +119,17 @@ export function deriveEpisodeChapters(input: EpisodeDerivationInput): EpisodeCha
     enrichWithInFlightPositions(episodeMap, snapshot, targetMonth);
   }
 
-  // 3. Resolve economic decomposition from backend assessment
+  // 3. Economic decomposition from backend assessment.
+  //    economicMap remains for non-disposition uses; realized called-away disposition
+  //    economics are owned by the backend DispositionResult lookup below.
   const economicMap = buildEconomicMap(assessedTransactions);
+  const dispositionLookup = buildDispositionLookup(dispositionResults ?? null);
 
   // 4. Generate chapters for all episodes that have events in the target month
   const chapters: EpisodeChapter[] = [];
 
   for (const [episodeId, episode] of episodeMap) {
-    const generated = generateChapters(episode, episodeId, economicMap, targetMonth);
+    const generated = generateChapters(episode, episodeId, economicMap, dispositionLookup, targetMonth);
     chapters.push(...generated);
   }
 
@@ -271,17 +280,16 @@ function buildEpisodeMap(rows: ActivityRow[], targetMonth: string): Map<string, 
     if (!underlying) continue;
 
     if (row.eventType === "shares_sold_assignment") {
-      // Call-away: link to a call episode assigned on the same date
-      for (const [, episode] of map) {
-        if (episode.underlying === underlying &&
-            episode.optionType === "CALL" &&
-            episode.resolveKind === "assigned" &&
-            episode.resolveDate === row.date) {
-          episode.dispositionEvent = row;
-          episode.dispositionProceeds = row.amount ?? null;
-          break;
-        }
-      }
+      // Called-away disposition → CALL episode. This is the SAME semantic relationship the backend
+      // Production DispositionResult now owns authoritatively (DispositionAssociator, solved
+      // globally one-to-one). Under ADR-016 the frontend must NOT independently establish a
+      // competing association for it from economic attributes (underlying/date/quantity/strike/
+      // price). The prior quantity+strike inference here is therefore removed. The called-away
+      // resolution chapter renders realized economics AND its disposition constituent event from
+      // the authoritative backend result (via episode.key → DispositionResult.contractActivityKey lookup).
+      // (PUT post-assignment discretionary sales — shares_sold_direct — are a DIFFERENT
+      //  relationship, not owned by this association, and remain handled below.)
+      continue;
     } else if (row.eventType === "shares_bought_assignment") {
       // Put assignment stock purchase: link to the CSP episode for authoritative quantity/cost
       for (const [, episode] of map) {
@@ -406,6 +414,7 @@ function generateChapters(
   episode: EpisodeRecord,
   episodeId: string,
   economicMap: Map<string, EconomicComponent[]>,
+  dispositionLookup: DispositionLookup,
   targetMonth: string
 ): EpisodeChapter[] {
   const chapters: EpisodeChapter[] = [];
@@ -418,7 +427,7 @@ function generateChapters(
 
   // Resolution chapter (if resolution occurred this month)
   if (episode.resolveDate && episode.resolveDate.startsWith(monthPrefix)) {
-    chapters.push(buildResolveChapter(episode, episodeId, economicMap));
+    chapters.push(buildResolveChapter(episode, episodeId, economicMap, dispositionLookup));
   }
 
   // Post-assignment disposition chapter (put assigned, then shares sold)
@@ -508,14 +517,30 @@ function buildOpenChapter(episode: EpisodeRecord, episodeId: string): EpisodeCha
 function buildResolveChapter(
   episode: EpisodeRecord,
   episodeId: string,
-  economicMap: Map<string, EconomicComponent[]>
+  economicMap: Map<string, EconomicComponent[]>,
+  dispositionLookup: DispositionLookup
 ): EpisodeChapter {
   const capitalAmount = episode.strike * 100 * episode.contracts;
+
+  // Authoritative backend disposition association for this episode (exact contractActivityKey lookup).
+  // Used for called-away realized economics AND for the disposition constituent event, so the
+  // frontend never independently re-derives the called-away sale→episode relationship (ADR-016).
+  const disposition = lookupDisposition(dispositionLookup, episode);
 
   let whatHappened: string;
   let capitalLabel: string | null;
   let productionLabel: string | null = null;
   let productionAmount: number | null = null;
+  // The numeric capital amount exposed on the chapter. Defaults to the strike
+  // notional for branches where that is the correct quantity (put encumbrance/
+  // released, share acquisition cost). The called-away branch overrides this with
+  // authoritative net sale proceeds (Issue #11).
+  let resolvedCapitalAmount: number | null = capitalAmount;
+  // Chapter confidence. A resolution whose authoritative economic quantity cannot be
+  // uniquely bound must NOT claim "deterministic" — that would be internally
+  // contradictory with an "unavailable" capital label. Downgraded to "partial" below
+  // when called-away net sale proceeds cannot be attributed.
+  let confidence: EpisodeChapter["confidence"] = "deterministic";
 
   if (episode.optionType === "PUT") {
     if (episode.resolveKind === "expired") {
@@ -548,31 +573,42 @@ function buildResolveChapter(
         productionAmount = episode.openPremium;
       }
     } else {
-      // Called away
-      whatHappened = episode.primitive === "BW"
-        ? "Called away · capital returned"
-        : "Called away · shares sold";
-      capitalLabel = `$${fmt(capitalAmount)} returned`;
+      // Called away. Realized disposition economics are OWNED BY THE BACKEND
+      // (DispositionResult): net sale proceeds, realized appreciation/erosion, and the
+      // economic-resolution state. The frontend RENDERS the authoritative result — it does
+      // not correlate raw events with economic components, reconstruct realized cash, or
+      // infer basis resolution itself. Strike notional is never presented as realized cash.
+      whatHappened = "Called away · shares sold";
 
-      // Try to get episode result from economic decomposition
-      const econComponents = economicMap.get(episode.resolveDate + "|" + episode.underlying);
-      const appreciation = econComponents?.find(c => c.source === "REALIZED_APPRECIATION");
-      const erosion = econComponents?.find(c => c.type === "CAPITAL_EROSION");
+      if (disposition && disposition.netSaleProceeds != null) {
+        capitalLabel = `$${fmt(disposition.netSaleProceeds)} net sale proceeds`;
+        resolvedCapitalAmount = disposition.netSaleProceeds;
+      } else {
+        // Backend has no attributable proceeds for this disposition — render unresolved.
+        capitalLabel = "Net sale proceeds unavailable";
+        resolvedCapitalAmount = null;
+      }
 
-      if (appreciation) {
-        const total = (episode.openPremium ?? 0) + appreciation.amount;
+      // Episode result label from the backend-owned realized economics.
+      if (disposition && disposition.realizedAppreciation != null) {
+        const total = (episode.openPremium ?? 0) + disposition.realizedAppreciation;
         productionLabel = `+$${fmt(total)} episode`;
         productionAmount = total;
-      } else if (erosion) {
-        const net = (episode.openPremium ?? 0) - erosion.amount;
+      } else if (disposition && disposition.realizedErosion != null) {
+        const net = (episode.openPremium ?? 0) - disposition.realizedErosion;
         productionLabel = net >= 0
           ? `+$${fmt(net)} episode`
           : `−$${fmt(Math.abs(net))} episode`;
         productionAmount = net;
       } else if (episode.openPremium != null) {
+        // Share-leg economics unresolved — show only the already-recognized premium.
         productionLabel = `+$${fmt(episode.openPremium)} premium`;
         productionAmount = episode.openPremium;
       }
+
+      // Confidence is RENDERED from the backend-owned disposition economic state.
+      // RESOLVED → deterministic; PARTIAL/UNRESOLVED (or no result) → partial.
+      confidence = disposition && disposition.state === "RESOLVED" ? "deterministic" : "partial";
     }
   }
 
@@ -585,13 +621,13 @@ function buildResolveChapter(
     productionLabel,
     productionAmount,
     capitalLabel,
-    capitalAmount,
+    capitalAmount: resolvedCapitalAmount,
     linkDate: episode.openDate,
     linkDirection: "opened",
     state: "complete",
     episodeId,
-    confidence: "deterministic",
-    constituentEvents: buildConstituentEvents(episode, "resolve"),
+    confidence,
+    constituentEvents: buildConstituentEvents(episode, "resolve", disposition),
     rawSymbol: episode.key,
     contracts: episode.contracts,
     conditionalLabel: null,
@@ -797,6 +833,37 @@ function createSkeletonEpisode(
   };
 }
 
+// --- Backend disposition-result lookup (authoritative realized economics) ---
+//
+// The BACKEND owns the disposition→contract-activity association (DispositionResult.contractActivityKey
+// = the OCC contract/activity grouping key). The frontend performs a DIRECT LOOKUP only —
+// episode.key === contractActivityKey. It must NOT re-derive the association from economic
+// attributes (symbol/date/quantity/strike/price). Establishing the association is backend
+// authority, not presentation.
+
+type DispositionLookup = Map<string, DispositionResult>;
+
+function buildDispositionLookup(results: DispositionResult[] | null): DispositionLookup {
+  const map = new Map<string, DispositionResult>();
+  if (!results) return map;
+  for (const r of results) {
+    // Only associated results are addressable by the contract-activity key. Unresolved-association
+    // results (contractActivityKey null) are intentionally not attachable to any episode.
+    if (r.contractActivityKey != null) {
+      map.set(r.contractActivityKey.trim(), r);
+    }
+  }
+  return map;
+}
+
+/**
+ * Direct lookup of the backend-authoritative DispositionResult for an episode.
+ * Exact match of the episode's key against the backend contractActivityKey. No heuristic association.
+ */
+function lookupDisposition(lookup: DispositionLookup, episode: EpisodeRecord): DispositionResult | null {
+  return lookup.get(episode.key.trim()) ?? null;
+}
+
 function buildEconomicMap(transactions: AssessedTransaction[] | null): Map<string, EconomicComponent[]> {
   const map = new Map<string, EconomicComponent[]>();
   if (!transactions) return map;
@@ -851,7 +918,11 @@ function deriveConditionalLabel(episode: EpisodeRecord): string | null {
   return null;
 }
 
-function buildConstituentEvents(episode: EpisodeRecord, phase: "open" | "resolve"): ConstituentEvent[] {
+function buildConstituentEvents(
+  episode: EpisodeRecord,
+  phase: "open" | "resolve",
+  authoritativeDisposition?: DispositionResult | null
+): ConstituentEvent[] {
   const events: ConstituentEvent[] = [];
   if (phase === "open" || phase === "resolve") {
     if (episode.openEvent) {
@@ -862,6 +933,20 @@ function buildConstituentEvents(episode: EpisodeRecord, phase: "open" | "resolve
     }
   }
   if (phase === "resolve") {
+    // Called-away disposition constituent event comes from the AUTHORITATIVE backend association
+    // (never from independent frontend correlation). Only rendered when the backend established a
+    // unique association (contractActivityKey present → looked up into authoritativeDisposition) and it
+    // carries the sale event's provenance.
+    if (authoritativeDisposition && authoritativeDisposition.netSaleProceeds != null) {
+      events.push({
+        date: authoritativeDisposition.date,
+        action: authoritativeDisposition.dispositionAction ?? authoritativeDisposition.kind,
+        symbol: authoritativeDisposition.symbol,
+        amount: authoritativeDisposition.netSaleProceeds,
+      });
+    }
+    // PUT post-assignment discretionary sale (a DIFFERENT relationship, not the called-away
+    // association owned by the backend) still renders from its own evidence event.
     if (episode.dispositionEvent) {
       events.push({ date: episode.dispositionEvent.date, action: episode.dispositionEvent.action, symbol: episode.dispositionEvent.symbol, amount: episode.dispositionEvent.amount });
     }

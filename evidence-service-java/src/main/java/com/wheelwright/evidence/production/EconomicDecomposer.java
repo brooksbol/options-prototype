@@ -258,17 +258,12 @@ public class EconomicDecomposer {
         String symbol = saleTx.symbol();
         BigDecimal saleQty = saleTx.quantity().abs();
 
-        // For assigned-call sales, look for the put-assignment stock purchase
+        // For assigned-call sales, resolve basis from prior acquisitions with strict
+        // attribution safety (Issue #3 + adversarial correction). Attribution — not merely
+        // arithmetic — must be provable: a UNIQUE, SUFFICIENT, NON-CONSUMED acquisition
+        // relationship. Otherwise return null so the disposition stays BASIS_UNKNOWN.
         if (saleTx.kind() == FidelityTransactionKind.ASSIGNED_CALL_STOCK_SALE) {
-            // Find the most recent ASSIGNED_PUT_STOCK_PURCHASE for this symbol before the sale
-            return allTransactions.stream()
-                .filter(tx -> tx.kind() == FidelityTransactionKind.ASSIGNED_PUT_STOCK_PURCHASE)
-                .filter(tx -> symbol.equals(tx.symbol()))
-                .filter(tx -> tx.date().isBefore(saleTx.date()) || tx.date().isEqual(saleTx.date()))
-                .filter(tx -> tx.quantity().abs().compareTo(saleQty) >= 0)
-                .reduce((a, b) -> b) // last one (most recent, since list is chronological)
-                .map(tx -> tx.amount().abs()) // basis = what was paid for the shares
-                .orElse(null);
+            return resolveAttributableBasis(symbol, saleQty, saleTx, allTransactions);
         }
 
         // For general asset sales, look for prior purchases
@@ -281,5 +276,137 @@ public class EconomicDecomposer {
             .reduce((a, b) -> b) // most recent
             .map(tx -> tx.amount().abs())
             .orElse(null);
+    }
+
+    /**
+     * Resolve acquisition basis for a called-away disposition with attribution safety.
+     *
+     * This is deliberately conservative and refuses to invent any lot-allocation convention
+     * (no FIFO/LIFO/latest-purchase/symbol-level allocation, no lot engine). It resolves a
+     * basis ONLY when the evidence proves a unique, sufficient, non-consumed acquisition
+     * relationship for the disposed shares:
+     *
+     *   1. Consider prior acquisitions of the symbol STRICTLY BEFORE the disposition date, of BOTH
+     *      kinds: ASSIGNED_PUT_STOCK_PURCHASE (wheel) and ASSET_PURCHASE (direct). Same-day
+     *      acquisitions are excluded absent authoritative intraday ordering.
+     *   2. Require a SINGLE acquisition source of cost. Concretely: every prior acquisition
+     *      row (across both kinds) must carry the SAME per-share net acquisition cash. If
+     *      acquisitions differ in per-share cost, attribution to the disposed shares would
+     *      require a lot convention -> BASIS_UNKNOWN.
+     *   3. Require SUFFICIENT, NON-CONSUMED, DATE-ELIGIBLE inventory. Because Fidelity
+     *      evidence is date-oriented and we deliberately do NOT infer intraday ordering:
+     *        - Eligible acquisition inventory comes only from acquisitions dated STRICTLY
+     *          BEFORE the disposition date (acquisitionDate < dispositionDate). Same-day
+     *          acquisitions are NOT counted as available inventory absent authoritative
+     *          ordering evidence.
+     *        - Opening eligible inventory for the date = (eligible acquisitions before date)
+     *          − (all dispositions before date).
+     *        - Same-day dispositions are evaluated COLLECTIVELY: the whole same-day
+     *          disposition group (all ASSET_SALE + ASSIGNED_CALL_STOCK_SALE of this symbol
+     *          on this date) must be covered by opening eligible inventory. If the group
+     *          total exceeds opening eligible inventory, NO same-day disposition may claim
+     *          the cost — two same-day sales must not each independently consume the same
+     *          shares. We do not choose which one wins.
+     *
+     * Cost semantics: per-share attributable acquisition cash = |amount| / |quantity|
+     * (proportional net Fidelity cash for the eligible attributable shares), not raw
+     * execution price and not a tax-lot/universal accounting basis. It is economically
+     * symmetric with net disposition proceeds and degrades correctly if acquisition
+     * commissions/fees ever appear. Basis returned = perShareCash × disposedQty.
+     *
+     * Returns null when basis cannot be defensibly established.
+     */
+    private BigDecimal resolveAttributableBasis(String symbol,
+                                                BigDecimal saleQty,
+                                                NormalizedTransaction saleTx,
+                                                List<NormalizedTransaction> allTransactions) {
+        if (saleQty == null || saleQty.compareTo(BigDecimal.ZERO) <= 0) {
+            return null;
+        }
+
+        // Eligible acquisitions: STRICTLY BEFORE the disposition date (no same-day inventory,
+        // no inferred intraday ordering). Both wheel and direct acquisitions count.
+        List<NormalizedTransaction> eligibleAcquisitions = allTransactions.stream()
+            .filter(tx -> tx.kind() == FidelityTransactionKind.ASSET_PURCHASE
+                       || tx.kind() == FidelityTransactionKind.ASSIGNED_PUT_STOCK_PURCHASE)
+            .filter(tx -> symbol.equals(tx.symbol()))
+            .filter(tx -> tx.date().isBefore(saleTx.date()))
+            .filter(tx -> tx.quantity() != null && tx.quantity().abs().compareTo(BigDecimal.ZERO) > 0)
+            .filter(tx -> tx.amount() != null)
+            .toList();
+
+        if (eligibleAcquisitions.isEmpty()) {
+            return null; // no date-eligible acquisition evidence -> BASIS_UNKNOWN
+        }
+
+        // Single cost source: identical per-share attributable cash across ALL eligible acquisitions.
+        BigDecimal firstPerShare = perShareNetCash(eligibleAcquisitions.get(0));
+        if (firstPerShare == null) {
+            return null;
+        }
+        boolean uniformCost = eligibleAcquisitions.stream()
+            .allMatch(tx -> {
+                BigDecimal ps = perShareNetCash(tx);
+                return ps != null && ps.compareTo(firstPerShare) == 0;
+            });
+        if (!uniformCost) {
+            return null; // mixed acquisition costs -> attribution ambiguous -> BASIS_UNKNOWN
+        }
+
+        // Opening eligible inventory for the disposition date =
+        //   eligible acquisitions (strictly before) − dispositions strictly before the date.
+        BigDecimal totalEligibleAcquired = eligibleAcquisitions.stream()
+            .map(tx -> tx.quantity().abs())
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal dispositionsBeforeDate = allTransactions.stream()
+            .filter(tx -> tx.kind() == FidelityTransactionKind.ASSET_SALE
+                       || tx.kind() == FidelityTransactionKind.ASSIGNED_CALL_STOCK_SALE)
+            .filter(tx -> symbol.equals(tx.symbol()))
+            .filter(tx -> tx.date().isBefore(saleTx.date()))
+            .filter(tx -> tx.quantity() != null)
+            .map(tx -> tx.quantity().abs())
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal openingEligibleInventory = totalEligibleAcquired.subtract(dispositionsBeforeDate);
+
+        // Same-day disposition GROUP: all dispositions of this symbol on the disposition date
+        // (including this one). The group as a whole must be covered — no same-day sale may
+        // independently reuse the same opening inventory.
+        BigDecimal sameDayGroupDisposition = allTransactions.stream()
+            .filter(tx -> tx.kind() == FidelityTransactionKind.ASSET_SALE
+                       || tx.kind() == FidelityTransactionKind.ASSIGNED_CALL_STOCK_SALE)
+            .filter(tx -> symbol.equals(tx.symbol()))
+            .filter(tx -> tx.date().isEqual(saleTx.date()))
+            .filter(tx -> tx.quantity() != null)
+            .map(tx -> tx.quantity().abs())
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (openingEligibleInventory.compareTo(sameDayGroupDisposition) < 0) {
+            // The same-day disposition group is not fully covered by proven opening inventory.
+            // Refuse to attribute any of them rather than let sales reuse the same shares.
+            return null; // BASIS_UNKNOWN
+        }
+
+        // Attribution safe: unique per-share cost; same-day group fully covered by
+        // date-eligible, non-consumed opening inventory.
+        // Basis is a cash quantity — normalize to cents (scale 2), symmetric with proceeds.
+        return firstPerShare.multiply(saleQty).setScale(2, java.math.RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Per-share NET acquisition cash for an acquisition row: |amount| / |quantity|.
+     * Uses actual net cash (symmetric with net disposition proceeds), not execution price.
+     * Returns null when quantity is missing/zero.
+     */
+    private BigDecimal perShareNetCash(NormalizedTransaction acquisition) {
+        if (acquisition.quantity() == null || acquisition.quantity().abs().compareTo(BigDecimal.ZERO) == 0) {
+            return null;
+        }
+        if (acquisition.amount() == null) {
+            return null;
+        }
+        return acquisition.amount().abs()
+            .divide(acquisition.quantity().abs(), 6, java.math.RoundingMode.HALF_UP);
     }
 }

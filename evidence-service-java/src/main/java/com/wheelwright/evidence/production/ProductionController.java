@@ -95,6 +95,13 @@ public class ProductionController {
                     c.source() != null ? c.source().name() : null,
                     c.amount(), c.confidence().name(), c.derivation()
                 )).toList()
+            )).toList(),
+            a.dispositionResults().stream().map(d -> new ProductionResponse.DispositionResultDto(
+                d.dispositionFingerprint(), d.contractActivityKey(), d.symbol(), d.date(), d.dispositionAction(),
+                d.kind() != null ? d.kind().name() : null,
+                d.quantity(), d.salePricePerShare(), d.netSaleProceeds(),
+                d.attributableAcquisitionCash(), d.realizedAppreciation(),
+                d.realizedErosion(), d.state().name(), d.provenance()
             )).toList()
         );
     }

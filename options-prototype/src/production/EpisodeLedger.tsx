@@ -35,6 +35,7 @@ export function EpisodeLedger({ activityRows, snapshot, assessment, targetMonth 
       activityRows,
       snapshot,
       assessedTransactions: assessment?.transactions ?? null,
+      dispositionResults: assessment?.dispositionResults ?? null,
       targetMonth,
     };
     return deriveEpisodeChapters(input);
