@@ -40,7 +40,11 @@ public record DispositionResult(
     String contractActivityKey,
     /** Underlying symbol. */
     String symbol,
-    /** Disposition (economic/run) date, ISO string. */
+    /**
+     * Broker run/processing date for the disposition evidence (normalized Fidelity Run Date),
+     * ISO string. This is NOT necessarily the economic "as of" date or the settlement date; those
+     * temporal semantics are distinct and not asserted here (ADR-015/ADR-016).
+     */
     String date,
     /**
      * Raw Fidelity action text of the disposition (sale) event, preserved for operator-visible

@@ -286,8 +286,9 @@ public class EconomicDecomposer {
      * basis ONLY when the evidence proves a unique, sufficient, non-consumed acquisition
      * relationship for the disposed shares:
      *
-     *   1. Consider prior acquisitions of the symbol on or before the sale date, of BOTH
-     *      kinds: ASSIGNED_PUT_STOCK_PURCHASE (wheel) and ASSET_PURCHASE (direct).
+     *   1. Consider prior acquisitions of the symbol STRICTLY BEFORE the disposition date, of BOTH
+     *      kinds: ASSIGNED_PUT_STOCK_PURCHASE (wheel) and ASSET_PURCHASE (direct). Same-day
+     *      acquisitions are excluded absent authoritative intraday ordering.
      *   2. Require a SINGLE acquisition source of cost. Concretely: every prior acquisition
      *      row (across both kinds) must carry the SAME per-share net acquisition cash. If
      *      acquisitions differ in per-share cost, attribution to the disposed shares would

@@ -522,7 +522,7 @@ function buildResolveChapter(
 ): EpisodeChapter {
   const capitalAmount = episode.strike * 100 * episode.contracts;
 
-  // Authoritative backend disposition association for this episode (exact episodeKey lookup).
+  // Authoritative backend disposition association for this episode (exact contractActivityKey lookup).
   // Used for called-away realized economics AND for the disposition constituent event, so the
   // frontend never independently re-derives the called-away sale→episode relationship (ADR-016).
   const disposition = lookupDisposition(dispositionLookup, episode);
@@ -935,7 +935,7 @@ function buildConstituentEvents(
   if (phase === "resolve") {
     // Called-away disposition constituent event comes from the AUTHORITATIVE backend association
     // (never from independent frontend correlation). Only rendered when the backend established a
-    // unique association (episodeKey present → looked up into authoritativeDisposition) and it
+    // unique association (contractActivityKey present → looked up into authoritativeDisposition) and it
     // carries the sale event's provenance.
     if (authoritativeDisposition && authoritativeDisposition.netSaleProceeds != null) {
       events.push({

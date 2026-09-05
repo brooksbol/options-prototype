@@ -16,7 +16,7 @@ public record NormalizedTransaction(
      * guaranteed scope is trace/deduplication: two genuinely identical rows share it, and hash
      * collisions across different rows are possible in principle. Per ADR-016 it carries only
      * the guarantees it actually has — it is NOT a unique evidence-row identity and MUST NOT be
-     * used as a uniqueness-bearing association-map key. Use {@link #occurrenceId} for that.
+     * used as a uniqueness-bearing association-map key. Use {@link #assessmentOccurrenceId} for that.
      */
     String id,
     /**

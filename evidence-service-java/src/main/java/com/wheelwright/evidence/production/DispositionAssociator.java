@@ -13,9 +13,10 @@ import java.util.regex.Pattern;
 /**
  * Establishes the authoritative disposition→episode association GLOBALLY and one-to-one.
  *
- * A called-away stock sale (ASSIGNED_CALL_STOCK_SALE) is associated with the option episode
- * (identified by its OCC option symbol) that produced it. This association is DOMAIN IDENTITY
- * and is owned by the backend, from evidence — never re-derived downstream.
+ * A called-away stock sale (ASSIGNED_CALL_STOCK_SALE) is associated with the option contract
+ * activity (grouped by its OCC option symbol) that produced it. This is an AUTHORITATIVE SEMANTIC
+ * ASSOCIATION CLAIM owned by Production, established from evidence and never re-derived downstream.
+ * It is NOT object, contract, episode, or lifecycle identity (ADR-016).
  *
  * Why group-wide rather than per-sale: resolving each sale independently can hand the same
  * episode to two different sales (and cannot aggregate several notification rows for one OCC
