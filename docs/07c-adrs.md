@@ -512,3 +512,80 @@ ADR-013 (fact-to-interpretation boundary / Epistemic Integrity) and INV-PERSIST-
 - The evidence snapshot becomes self-describing about per-chain acquisition provenance via additive, subject-scoped fields (see `docs/contracts/evidence-snapshot-v1.md`): `chains[].chainAcquisitionProvenance` per element, and `primaryChainAcquisitionProvenance` alongside the legacy `chain`/`primaryExpiration`.
 - The frontend `sym.chains`-vs-`sym.chain` provenance heuristic is removed; the frontend consumes the explicit published provenance state. Older snapshots lacking the field are interpreted by consumers as `unavailable` (a consumer compatibility rule, not permission to synthesize).
 - PL-EVID-AGE is the first concrete application: an observational Deployment Age column presenting option-chain acquisition age, with provenance established upstream.
+---
+
+## ADR-016: Evidence-to-Domain Association Is an Authoritative Semantic Claim
+
+**Date:** September 2026
+**Status:** Accepted
+
+**Context:** The "Production Disposition Truth" work (#11 / #3 / #12) produced a sequence of independent failures that repeatedly collapsed onto a single rule. Grounded in code:
+
+1. `NormalizedTransaction.id = Integer.toHexString((runDate|action|symbol|amount).hashCode())` is a **content fingerprint**, not a row identity; genuinely identical rows collide, so it cannot bear uniqueness as a map key.
+2. The frontend episode key was `episodeId = occSymbol` — the **OCC option contract symbol** used directly as a lifecycle/episode identity, with same-symbol fills accumulated into one record.
+3. Per-sale disposition→episode matching was locally correct but globally unsafe: it could assign one episode to multiple sales. Correctness required solving association **group-wide** (unique solution, else UNRESOLVED).
+4. The correlation used broker **processing** (run) date, which is explicitly not the economic "as of" date (the Sep-04 economic vs Sep-08 processing specimen).
+5. Frontend code was **independently reconstructing** the disposition→episode relationship from domain attributes (symbol/date/quantity/strike/price) rather than consuming a backend-owned association.
+
+Both Codex and Kiro converged independently on the same explanation: these are not five unrelated defects but one principle surfacing at five layers. In every case a token standing in for an identity was asked to carry uniqueness, stability, or relationship semantics it did not actually guarantee. What was missing was not stronger identity but an explicit, authoritative statement that *this evidence binds this economic event to this domain object*. The group-matching algorithm, assessment-local identifiers, OCC handling, and frontend lookup are *implementations of* this principle, not the principle itself.
+
+The rationale surfaced an important supporting observation — *identity for what purpose?* — but identity architecture is **not** the decision. The primary governing frame is **association-as-claim**.
+
+This sits directly alongside **ADR-015 (Evidence Provenance Authority)**. ADR-015 applies authority-preservation pressure to *time/provenance*; ADR-016 applies the same pressure to *relationship/association*. The observed architectural spine both express is: **transformation does not create semantic authority merely because the transformed representation needs an answer.** This spine is recorded here as an observation across two ADRs; it is **not** elevated to a new foundation, new ADR, or new governing artifact.
+
+**Decision:**
+
+Wheelwright treats an evidence-to-domain association as an authoritative semantic interpretation distinct from object identity. The layer responsible for the relevant domain interpretation establishes that association and must provide sufficient provenance and temporal context to explain its basis. When evidence does not support a unique association, uncertainty is preserved rather than resolved by inference. Downstream consumers may preserve, present, or transform the authoritative association, but must not silently establish a competing association for the same semantic relationship from independent domain inference. Identifiers may be relied upon only within their demonstrated scope and guarantees.
+
+Identifier equality may be evidence supporting an association, but it is not automatically equivalent to an authoritative association.
+
+**Meaning of "competing association":** A downstream component is *not* prohibited from deriving relationships for a genuinely different domain purpose. The prohibition is against silently replacing, reconstructing, or competing with the authoritative answer to the **same claimed semantic relationship** while presenting it as that relationship. This ADR does not forbid downstream derivation in general; it forbids the silent semantic promotion of an independently inferred answer into the authoritative one.
+
+**Governing frame:** *Association-as-claim* is the primary architectural decision. "Semantic identity" — especially *identity for what purpose?* — remains an important supporting observation, not the headline. This ADR does not make "identity architecture" a governing concept.
+
+**Consequences:**
+- The layer owning the relevant domain interpretation owns the authoritative association.
+- Production currently owns called-away disposition→contract-activity association because Production owns that economic interpretation. *(This is because Production owns the interpretation, not because "the backend owns associations." The owning layer is defined by domain interpretation, not by topology.)*
+- Frontend presentation **consumes** that authoritative association rather than independently reconstructing the same semantic relationship.
+- Ambiguous or unsupported association is a **legitimate explicit outcome** (UNRESOLVED), not an error to be resolved by inference.
+- Association authority must preserve enough provenance and temporal context to make the claim **auditable**.
+- Fingerprints, hashes, database identifiers, OCC symbols, UI keys, grouping keys, and other convenient identifiers acquire **no additional semantic authority merely because they are convenient to join on**.
+- Identifier equality **can** legitimately establish or support an association where the identifier's actual contract guarantees the relevant relationship.
+- Assessment-local uniqueness may be created where an implementation needs it, but such a mechanism does **not** thereby become durable domain identity.
+
+These consequences are architectural. They are **not** mandates for particular DTOs, schemas, identifiers, backend technologies, or persistence mechanisms.
+
+**Non-decisions (explicitly NOT ratified — normative):**
+
+*Lifecycle / episode identity:*
+- **ADR-016 does not establish, define, require, or anticipate a durable Wheelwright lifecycle identity.**
+- An OCC option symbol identifies an option contract series. This ADR does not ratify the OCC symbol as lifecycle identity.
+- The current Production "episode" remains a current grouping/presentation construct; ADR-016 does not ratify it as a durable domain entity.
+- The ADR does not imply that some separate lifecycle entity necessarily must exist later. Future operational evidence may force a lifecycle model, but that is not this decision and not an implied roadmap.
+
+*Identity mechanisms — not adopted:* a UUID/GUID policy; universal event identity; durable broker-event identity; a generic identity registry; cross-ingestion deduplication architecture.
+
+*Association infrastructure — not required:* a generic association framework; relationship graph; association registry; reusable association library; event sourcing. The principle may later reveal reuse, but no reusable implementation is ratified.
+
+*Temporal modeling — not established:* a complete universal model of economic/effective date, broker processing/run date, settlement date, observation time, or ingestion time. The ADR requires *sufficient* temporal context for an association claim; it does not require a universal temporal DTO/model.
+
+*Current Production implementation:* the assessment-local techniques used to complete #11 / #3 / #12 are **implementation choices, not ADR mandates**. The current matching algorithm, group key, row-identity mechanism, OCC aggregation mechanics, and solver design are **not** encoded as architecture.
+
+**Known limitation (recorded, not resolved):** Current architecture does **not** yet establish:
+- durable identity of a Fidelity activity event across exports;
+- durable Production lifecycle identity;
+- whether reopening the same OCC contract represents a new lifecycle;
+- association semantics across overlapping/corrected evidence artifacts;
+- complete temporal semantics connecting economic, processing, settlement, and observation time;
+- a persistent multi-assessment Production lifecycle model.
+
+Current scope: Production does not currently require a ratified durable lifecycle identity. Future persistence, overlapping/corrected evidence, lifecycle management, or cross-assessment reconciliation may create that requirement; it will be addressed only when operational evidence makes it necessary. (Durable lifecycle identity is **not** described as "anticipated next.")
+
+**Promotion / future-reuse threshold:** A broader association abstraction or reusable mechanism is **not** ratified now. Future elevation should require independent operational evidence — for example, a materially different subsystem needing the same distinction between identity, association, provenance, temporal scope, and ambiguity/resolution. A second independent instance may justify *examining* a reusable pattern; actual reusable software requires stronger repeated evidence. These are examples of what would earn elevation, not a roadmap.
+
+**Relationship to other decisions:**
+- **ADR-015 / Evidence Provenance Authority** — sibling decision. ADR-015 applies authority-preservation pressure to *time/provenance*; ADR-016 applies it to *relationship/association*. Both express: facts do not gain authority merely through transformation, and downstream representations must not silently promote an interpretation into fact. ADR-016's "must not silently establish a competing association" parallels ADR-015's "must not infer or manufacture" provenance authority.
+- **ADR-013 / Epistemic Integrity** — ADR-016 extends the fact-to-interpretation boundary to *relationship* interpretation: asserting that two things belong together is an interpretation with an owner, not a mechanical byproduct. Uncertainty is preferable to manufactured certainty.
+- **INV-PERSIST-03 / INV-PERSIST-04** ("persist facts; derive trust") — supporting foundations; an authoritative association is a derived-trust claim over persisted facts, not a persisted fact in itself.
+
+**Boundary principle (concise):** A downstream layer may present *that* two things are associated on authority established upstream; it must not silently establish, for the same semantic relationship, a competing association from independent domain inference.
