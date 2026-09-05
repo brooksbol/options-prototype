@@ -1059,9 +1059,9 @@ Current **hypothesis** (discovery, not ratified): economic truth may legitimatel
 
 ---
 
-## 2026-09-05 — Live-operations synthesis: Sep-04 expiration / Sep-05 processing (four-actor review)
+## 2026-09-05 — Live-operations synthesis: Sep-04 expiration / Sep-05 observation (four-actor review)
 
-Why-state / discovery-state from real September 4 expiration operations observed against Sep-05 Fidelity processing, reviewed by four actors (Principal, ChatGPT, Codex, Kiro). Not a new operating model. Live operations may preempt roadmap sequencing when real-money evidence exposes an immediate truth defect.
+Why-state / discovery-state from real September 4 economic expiration/assignment, observed/downloaded September 5, where the Fidelity records carry September 8 Run Date / processing / settlement semantics; reviewed by four actors (Principal, ChatGPT, Codex, Kiro). Not a new operating model. Live operations may preempt roadmap sequencing when real-money evidence exposes an immediate truth defect.
 
 ### 1. Live operational evidence
 
@@ -1071,7 +1071,7 @@ Aggregate observation: broker-authoritative deployable cash reconciled with Whee
 
 ### 2. Confirmed defects (three distinct)
 
-**Defect A — called-away "capital returned" is the wrong economic quantity.** Frontend Production episode derivation (`episode-derivation.ts`, `buildResolveChapter`/`buildResolutionChapter`) computes the called-away capital label as `strike × 100 × contracts` and labels it capital "returned." Actual Fidelity assigned-share disposition proceeds exist in Activity evidence. The defect is NOT arithmetic difficulty nor that it runs in the frontend; it is that **a valid mechanical/notional quantity is promoted into an operator-visible realized economic claim it does not represent.** The exact historical screenshot multiplicities ($10,200 / $16,200 for BNO) are NOT reproducible from current source + supplied evidence; that provenance gap is preserved as unresolved and its cause is not invented. (New defect — filed as a GitHub Issue this pass.)
+**Defect A — called-away "capital returned" is the wrong economic quantity.** Frontend Production episode derivation (`episode-derivation.ts`, `buildResolveChapter` — the sole resolution-chapter builder) computes the called-away capital label as `strike × 100 × contracts` and labels it capital "returned." Actual Fidelity assigned-share disposition proceeds exist in Activity evidence. The defect is NOT arithmetic difficulty nor that it runs in the frontend; it is that **a valid mechanical/notional quantity is promoted into an operator-visible realized economic claim it does not represent.** The exact historical screenshot multiplicities ($10,200 / $16,200 for BNO) are NOT reproducible from current source + supplied evidence; that provenance gap is preserved as unresolved and its cause is not invented. (New defect — filed as a GitHub Issue this pass.)
 
 **Defect B — directly acquired called-away shares can lose basis.** Backend `EconomicDecomposer.findDispositionBasis` for `ASSIGNED_CALL_STOCK_SALE` searches only the assigned-put acquisition stream and returns without falling through to direct `ASSET_PURCHASE`. BNO shares were directly purchased (`YOU BOUGHT`). Result: directly acquired covered-call shares can be called away with basis unresolved, realized appreciation/erosion disappears, and disposition proceeds are treated as principal movement. Durable requirement: **resolve directly acquired called-away basis only when evidence supports a defensible quantity-aware attribution; otherwise preserve `BASIS_UNKNOWN`.** This does NOT authorize a lot engine, and does NOT authorize "use the latest symbol-level purchase." **This defect is already the authoritative GitHub record — Issue #3** (SLV-shaped case). Reconciled here by cross-reference, not duplicated.
 
@@ -1122,3 +1122,103 @@ Current evidence does NOT authorize: lot engine; tax-lot subsystem; ledger/event
 ### Defect-record reconciliation note
 
 Principal authorized "three confirmed defects." On inspection, Defect B is already the authoritative record **Issue #3** ("Production accounting cannot derive called-away share basis from direct purchases or buy-writes"). Per the ratified defect-tracking convention (no double-booking of the same authoritative item) and the Principal's own instruction to cross-reference existing items rather than proliferate, Defect B is reconciled against Issue #3 rather than duplicated. Two genuinely-new defects (A and C) are filed as new GitHub Issues this pass. This deviation from the literal "three new issues" is deliberate and evidence-driven; it is surfaced for Principal/ChatGPT review.
+
+---
+
+## 2026-09-05 — Production Disposition Truth: implementation + adversarial correction (why-state)
+
+Implementation of the bounded Economic Truth slice for defects #11 (frontend), #3 (backend, existing record), #12 (backend). Recorded before commit; Codex adversarial review drove a correction pass whose reasoning is worth preserving.
+
+### What the correction pass taught us
+
+- **Quantity-aware arithmetic is not quantity-aware attribution.** The first implementation resolved direct-purchase called-away basis from a uniform per-share price × disposed quantity. That is arithmetically clean but proves nothing about whether *sufficient, non-consumed* inventory actually exists. It could turn `BASIS_UNKNOWN` into a confidently wrong number — the exact failure mode the slice exists to eliminate. The corrected rule resolves basis only when the evidence proves a **unique, sufficient, non-consumed** acquisition relationship (uniform per-share net cash across all prior acquisitions of both kinds, and total acquired minus prior dispositions ≥ this disposition), else `BASIS_UNKNOWN`. Still no FIFO/LIFO/lot engine.
+- **The pre-existing assigned-put path over-attributed.** It returned the whole acquisition amount even when acquisition quantity exceeded disposition quantity (200 acquired, 100 called away → full 200-share cost). Corrected to quantity-proportional basis. This was found only because the put path was being *trusted* as the precedent; trusting a path is not the same as verifying it.
+- **"Basis for what purpose?" recurs as an acquisition-cost semantics choice.** Because disposition proceeds are actual net Fidelity cash, acquisition basis should be **proportional net cash** (`|amount| / |quantity| × disposedQty`), not raw execution price × quantity. In current evidence equity/assigned-put buys carry empty commission/fees so the two coincide, but net-cash is economically symmetric with net proceeds and degrades correctly if acquisition costs ever appear. Chosen deliberately, not papered over.
+- **"Unavailable" cannot be "deterministic."** When called-away net proceeds cannot be uniquely bound, the frontend chapter now carries `partial` confidence rather than `deterministic`; a "Net sale proceeds unavailable" label beside deterministic confidence is internally contradictory.
+- **Disposition→episode binding must be uniqueness-checked, not first-match.** Binding now requires exactly one defensible candidate using underlying + economic date + disposed quantity + strike≈sale-price + already-bound state; multiple survivors → leave unbound (proceeds unavailable, non-deterministic) rather than guess.
+
+### Evidence-transfer weakness observed (meta)
+
+Codex could not review Kiro's actual working tree because its checkout did not contain the uncommitted diff. Uncommitted actor-local trees are themselves an evidence-transfer weakness. This adds weight to (a) getting bounded, reviewed changes into durable GitHub state promptly, and (b) producing machine-readable diagnostic artifacts for multi-actor review.
+
+### Production whole-page evidence export — earned pragmatic debugging feature (discourse/artifact only; NOT implemented)
+
+The BNO investigation depended on screenshots and manual correlation of several Fidelity files, which was fragile and blocked independent review. This earns a pragmatic debugging-instrumentation feature: a **versioned CSV/download representing Production's complete interpreted/rendered state** — semantic state and provenance, not merely repackaged raw Fidelity inputs — so investigations and multi-actor evidence exchange do not depend on screenshots or ephemeral working trees. Framing is deliberately lightweight: debugging instrumentation; multi-actor evidence exchange; reliable forensic reconstruction; likely schema-versioned from v1; **not** a generalized export/reporting subsystem. Recorded as discourse only; not implemented in this slice and not promoted to parking-lot machinery.
+
+### Temporal wording reconciliation
+
+Earlier phrasing "Sep-05 processing" was imprecise. The accurate temporal decomposition, and a live product gap ("date for what purpose?"): **Sep-04** economic expiration/assignment; **Sep-05** observation/download; Fidelity records carrying **Sep-08** Run Date / processing / settlement semantics. The 2026-09-05 synthesis header and Defect A source-symbol reference (`buildResolveChapter` is the sole builder; there is no `buildResolutionChapter`) are corrected in that entry.
+
+### Semantic-authority correction (Principal challenge: "where's the source of truth?")
+
+The repeated need to make the frontend better at correlating raw Fidelity disposition events with backend economic components was itself the finding: it exposed a **semantic-authority** problem, not a matching problem. The Principal named it directly — the frontend was doing too much.
+
+Governing model adopted for this slice:
+
+- **Fidelity evidence is the source of raw facts.**
+- **The backend Production domain is the source of interpreted economic truth.**
+- **The frontend is the source of presentation only.**
+
+Sharpened guideline: *an operator-visible economic claim has one authoritative semantic owner; other layers may format, organize, and present it, but may not silently reconstruct or reconcile a different economic quantity under the same claim.* For realized Production economics, that owner is the backend.
+
+Concretely: a backend-authoritative **per-disposition result** (`DispositionResult`) now owns net sale proceeds, attributable acquisition cash, realized appreciation/erosion, and the economic-resolution state (RESOLVED / PARTIAL / UNRESOLVED) for each called-away disposition. The frontend episode ledger **renders** that result and no longer correlates raw sale events with economic components by `date + underlying`, no longer infers basis resolution, and no longer decides economic completeness itself. `attributable acquisition cash` is deliberately named as such — proportional net acquisition cash, **not** a tax-lot or universal accounting basis ("basis for what purpose?").
+
+The governing lesson: **the concern is where semantic authority lives, not where arithmetic runs.** Presentation-only arithmetic in the frontend remains fine; reconstructing a realized economic claim there does not.
+
+This also sharpens the earned **Production whole-page CSV** debugging feature (still discourse-only, not implemented): its export should be the **backend-interpreted** Production semantic state and provenance — what Production believed, per-disposition state, known vs unknown quantities, reconciliation/completeness — so another actor can inspect authoritative truth without reverse-engineering React or relying on screenshots.
+
+### Association is authority too (Codex: the remaining boundary leak)
+
+Moving the *economics* backend was insufficient while React still decided **which** authoritative result belonged to **which** episode (a symbol/date/quantity/strike≈price heuristic). Establishing that disposition→episode association is domain identity, not presentation — the same class of leak, one level up. Corrected: the backend now emits `DispositionResult.episodeKey` (the OCC option symbol of the assigned call), established from evidence by matching the called-away sale to a **unique** same-run-date assigned-call notification of the same underlying whose contract quantity equals the disposed shares. If the evidence cannot uniquely say which option episode the shares came from (e.g. two otherwise-identical same-day assignments), the backend emits an **UNRESOLVED association** (null `episodeKey`, no economics) rather than guessing. The frontend performs a **direct identity lookup** (`episode.key === episodeKey`) and renders — no economic-attribute matching remains in React.
+
+Transaction-id note: `NormalizedTransaction.id` = `hex(hashCode(runDate|action|symbol|amount))`, so two genuinely-identical Fidelity rows collide. The association deliberately does **not** rely on id uniqueness to distinguish identical rows; identical same-day assignments resolve to UNRESOLVED. No arbitrary row-order identity was introduced (repository evidence does not establish authoritative CSV row order).
+
+The lesson generalizes the earlier one: **both the interpreted economics and the association that gives them meaning are backend authority.** The frontend renders identity-safe results.
+
+### FE/BE split is a guideline, not a policy — and this is a drift instance
+
+Wheelwright's working guideline — *backend generally owns data and computation-heavy lifting; frontend generally owns presentation-heavy lifting* — remains a **guideline, not an absolute law**. This slice exposed one concrete drift instance: realized economic identity and association had accreted into React across successive increments. It was corrected deliberately. Recorded signal: **repeated boundary drift across future work is evidence to reassess the guideline explicitly, rather than silently hardening or weakening it one implementation at a time.** One instance is not cause to rewrite the guideline; a pattern would be.
+
+### Association must be globally one-to-one (Codex: locally correct / globally unsafe)
+
+Even with the backend owning the association, resolving each sale independently was still unsafe: one episode could be handed to two sales, and several notification rows for one OCC episode could not be aggregated into one larger sale. Correctness requires solving the whole relevant group at once with a one-to-one relationship.
+
+The association is now computed group-wide (`DispositionAssociator`), grouped by `(underlying, broker run date)`. Episode demand aggregates CALL assignment-notification contracts by exact OCC symbol (Σ contracts × 100 shares); disposition supply is the called-away stock sales. The solver emits an association only when there is **exactly one** quantity-consistent bijection between episodes and sales; if zero or more than one valid global solution exists, **all** affected associations are UNRESOLVED (no guessed permutation, no salvaged single mapping). This makes every emitted non-null `episodeKey` unique by construction and refuses to manufacture certainty from inconsistent evidence.
+
+Run-date note: the group key uses the broker **run/processing date** as a conservative co-occurrence correlation constraint — Fidelity emits the assignment notification and the called-away sale on the same run date. This is **not** an assertion that the run date is the economic event date (the economic "as of" date can differ; Sep-04 economic vs Sep-08 processing is the live example).
+
+Provenance terminology: `DispositionResult.provenance` is **traceable provenance text**, not a structurally-typed provenance object. The machine-usable identity lives in the typed `dispositionId` and `episodeKey` fields; the string augments them.
+
+Zero-result correctness: a disposition sold exactly at its attributable acquisition cash is `RESOLVED` (association established + acquisition economics known + zero realized gain/loss), not `PARTIAL`. The state invariant is defined by knowledge/completeness, not by the presence of a nonzero appreciation/erosion component.
+
+Frontend audit: for called-away (CALL) episodes, the realized economic meaning now comes solely from the backend `DispositionResult` (exact `episodeKey` lookup). The residual `shares_sold_assignment` binding feeds only constituent-event provenance display; it no longer changes realized proceeds, economics, or confidence. (`buildDispositionChapter`, which still reads `dispositionProceeds`, is the PUT discretionary-sale-after-assignment path — a different, non-called-away concern outside this slice.)
+
+This is the third drift instance in one slice (arithmetic → identity → global consistency), all corrected deliberately. Consistent with the recorded signal: the FE/BE split remains a guideline; repeated drift is evidence to reassess it explicitly, not to harden it one fix at a time.
+### ADR-016 ratified, then the slice finished under it (association-as-claim)
+
+The 4AM pause turned the recurring boundary leaks into a single discovered principle and ratified it as **ADR-016 — Evidence-to-Domain Association Is an Authoritative Semantic Claim** (accepted on `main` before implementation resumed). ADR-016 was codified *first*, so #11/#3/#12 was completed *under* explicit authority rather than retroactively justified. The ADR stays at the level of principle and explicitly does **not** establish durable lifecycle identity, a GUID scheme, a generic association framework, or a universal temporal model.
+
+Finishing the slice under ADR-016 required four bounded corrections, each an instance of "an identifier may only carry the guarantees it actually has":
+
+- **Assessment-local occurrence identity vs content fingerprint.** `NormalizedTransaction.id` (= `hex(hashCode(runDate|action|symbol|amount))`) is a content *fingerprint*: identical rows collide, and it was silently doing uniqueness-bearing work as the association map key. Added a distinct assessment-local `occurrenceId` — a monotonic sequence assigned per assessment — used for solver bookkeeping. It is explicitly **not** durable broker-event identity, **not** lifecycle/episode identity, **not** cross-ingestion identity, is never persisted, and asserts **no** economic or CSV-row ordering; it only distinguishes occurrences within one assessment. The fingerprint remains for trace/dedup. Regression proves two fingerprint-colliding sales stay distinct and neither overwrites the other.
+
+- **Assessment-wide association-key uniqueness.** The OCC `episodeKey` is the single frontend-addressable association key. The per-group solver guarantees one-to-one *within* a group, but the same OCC symbol can legitimately recur in two independently-resolvable groups on different run dates — which would let a keyed frontend lookup silently resolve to one arbitrary result (last-write-wins). Any `episodeKey` claimed by more than one disposition across the whole assessment is now conservatively demoted to UNRESOLVED for all claimants. No run-date suffix or manufactured lifecycle identifier was introduced to force uniqueness — ADR-016 leaves durable lifecycle identity unresolved.
+
+- **One semantic authority for the called-away association (frontend competing association removed).** The residual `shares_sold_assignment` → CALL-episode binding in React (underlying + date + quantity + strike≈price inference) was the same relationship the backend now owns — a competing association, even though it only fed provenance display. It was removed. `DispositionResult` now carries the disposition event's raw action (`dispositionAction`); the called-away resolution chapter renders the sale as a constituent event **from the authoritative backend result** (exact `episodeKey` lookup), not from an independent scan. A frontend audit confirms no remaining fallback associates a called-away sale to a CALL episode by symbol/date/quantity/strike/price/row-order/fingerprint. The PUT `shares_sold_direct` / `shares_bought_assignment` paths are a *different* relationship (discretionary sale after put assignment) and were deliberately preserved.
+
+- **Bounded matcher.** The bijection search already short-circuits once a second valid solution is found (multiplicity → all UNRESOLVED); added a group-size guard so a malformed or unexpectedly large group preserves uncertainty rather than enumerating.
+
+**Ambiguity stayed first-class throughout.** Absent, ambiguous, or non-unique-across-the-assessment associations resolve to UNRESOLVED with no fabricated economics — never a guessed mapping. No lifecycle identity, GUID scheme, association framework, registry, or reusable abstraction was introduced; the assessment-local mechanisms are implementation choices, not architecture (per ADR-016's non-decisions).
+
+**FE/BE split remains a guideline, not policy.** The corrected authority sentence is "the layer owning the relevant domain interpretation owns the association" — Production owns *this* association because it owns the called-away economic interpretation, not because "the backend owns associations." Across the whole slice this was the fourth deliberate drift correction (arithmetic → identity → global consistency → occurrence/association identity under ADR-016). The recorded signal stands: repeated drift is evidence to reassess the guideline explicitly, not to harden it one fix at a time. The Production whole-page CSV evidence-export remains discourse/artifact only, not implemented.
+
+Validation: backend 434 tests (0 failures, 1 skipped — the disabled real-file test); full frontend 1320 passed / 1 failed, the failure being the pre-existing `velvet-rope/multi-expiration.test.ts` date-relative snapshot (admitted-expiration DTE drifts with the current date), independent of this slice; `tsc --noEmit` clean.
+### Final contract-honesty renames before literal review (ADR-016 "demonstrated scope")
+
+A last narrow, behavior-preserving naming pass made the still-uncommitted disposition contract read as a direct expression of ADR-016's "identifiers only within their demonstrated scope." No algorithm, abstraction, or lifecycle modeling changed. The three fields (and their prose above, where they appear under prior increment names) are now:
+
+- **`dispositionId` → `dispositionFingerprint`.** It is the collision-prone content fingerprint (`hex(hashCode(runDate|action|symbol|amount))`). `Id` overstated its guarantee — the collision regression proves two distinct disposition occurrences can share it. Now named as a **disposition fingerprint**: deterministic trace/dedup only, not unique, not evidence-row/broker/durable identity.
+- **`episodeKey` → `contractActivityKey`.** The backend association target is the current OCC **contract-activity grouping key**, not a durable Production "episode" entity. ADR-016 does not ratify "episode" as durable lifecycle identity, so the field name no longer implies one. The frontend still does an exact lookup against its existing `episode.key`; the frontend episode *model* was deliberately not renamed in this pass.
+- **`occurrenceId` → `assessmentOccurrenceId`** (internal, non-published). Names its scope: **assessment-local occurrence identity** — unique only within one assessment, for solver bookkeeping; not persisted, not broker/economic ordering, not cross-ingestion, not lifecycle identity.
+
+This is naming/epistemic compression, not a redesign: the semantic hierarchy is now executable — *fingerprint* (non-unique trace) ⊂ *assessment occurrence identity* (collision-free for one calculation) ⊂ *contract-activity key* (authoritative association target for the current OCC-keyed grouping). Assessment-wide duplicate-key demotion remains symmetric (all claimants of a duplicated key demoted to UNRESOLVED before publication; no first-writer survivor), and no frontend called-away inference exists — the disposition constituent event is backend-derived. Suites unchanged: backend 434 (0 fail, 1 skipped); frontend 1320 passed / 1 pre-existing unrelated Velvet Rope date-snapshot failure; `tsc` clean.
