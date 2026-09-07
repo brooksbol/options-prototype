@@ -130,8 +130,122 @@ Next useful work, if selected by the Principal, is to obtain the exact primary-s
 
 ---
 
+## `PL-STRAT-01` Refinement — Comparative Options Strategy Surface
+
+**Date:** September 7, 2026  
+**State:** RECONCILED exploration under existing `PL-STRAT-01`; no new `PL-*` identity created  
+**Rich discovery record:** `docs/44-options-strategy-surface-discovery-2026-09-07.md`
+
+### Intake
+
+The September 7 strategy-survey discussion crossed the durability threshold because it developed a reusable comparative model for evaluating option strategies. It does **not** create a new backlog concern. It refines existing **`PL-STRAT-01` Strategy Expansion Governance**.
+
+Canonical mapping:
+
+> **Comparative options strategy surface → merged/refined into `PL-STRAT-01`**
+
+No separate strategy-surface `PL-*` identity is created. The surface is a research instrument for the existing strategy-admission concern, not a new project namespace or admitted strategy catalog.
+
+### What was discovered
+
+A conventional list of named strategies was progressively expanded into an eight-dimensional comparative surface:
+
+1. strategy;
+2. popularity / prevalence;
+3. typical users;
+4. typical market view;
+5. core shape;
+6. risk character;
+7. prediction dependence;
+8. reward surface relative to other strategies.
+
+The comparison revealed that several properties routinely collapsed together in options discussion are materially independent:
+
+- directional exposure does not equal prediction dependence;
+- defined risk does not describe reward-surface geometry;
+- maximum profit does not describe how broad or narrow the favorable state space is;
+- retail or institutional prevalence does not establish Wheelwright suitability;
+- two strategies with similar market-view labels can create very different consequence and reward surfaces.
+
+The rich discovery artifact preserves the complete table and interpretation notes.
+
+### Why it may matter
+
+The strategy surface gives `PL-STRAT-01` a more disciplined way to compare future candidate strategies without treating a strategy name as a sufficient unit of reasoning.
+
+For example:
+
+- a vertical credit spread can have a broad maximum-reward region with bounded adverse consequence;
+- an iron condor can have a bounded central reward plateau with adverse outcomes in both tails;
+- a conventional butterfly can concentrate attractive reward around a much narrower terminal region;
+- a long straddle can have an adverse center but improving reward in both tails;
+- the HBWB research hypothesis may contain ordinary compensation, an intermediate loss valley, and renewed extreme-downside convexity.
+
+This comparison sharpens the Wheelwright question from **"which strategies are popular?"** to **"which consequence/reward geometries can be governed without prediction, with acceptable compensation, lifecycle burden, execution quality, and portfolio consequence?"**
+
+---
+
+## Reconciliation Completion Record — `PL-STRAT-01` / comparative strategy surface refinement
+
+### Intake
+
+Canonical identity: **`PL-STRAT-01`**. The strategy surface is a comparative research refinement under that existing strategy-expansion concern, not a new parking-lot item.
+
+Rich why/evidence record: `docs/44-options-strategy-surface-discovery-2026-09-07.md`.
+
+### Strategic disposition
+
+**Strengthens existing strategic Bets; no roadmap change required.**
+
+The surface directly strengthens existing roadmap intent:
+
+- **C2 — Broader governed trade-shape repertoire:** provides a comparative research surface for candidate strategy families without admitting them;
+- **K1 — Consequence envelopes:** makes clear that strategy quality cannot be inferred from premium, max profit, or max loss alone;
+- **K2 — Compensation relative to consequence:** adds reward-surface breadth/shape and prediction dependence as useful comparative lenses when judging compensation against consequence;
+- **L3 — Risk-profile performance can be learned empirically:** provides a stable comparative frame for future empirical comparison across different risk profiles.
+
+No new Bet is warranted and no roadmap edit is made.
+
+### Architectural disposition
+
+**Refines existing architecture pressure; no new architectural direction required.**
+
+The surface maps cleanly to:
+
+- **AR3 — Governed Alternatives / reusable economic primitives:** the variety of strategy shapes creates real pressure toward reusable economic semantics, but that abstraction must still be earned through concrete strategy pressure. This record does **not** authorize a generic arbitrary-trade-shape framework, DSL, registry, or strategy engine;
+- **AR4 — Consequence semantics before explanation:** reward/consequence geometry and prediction dependence reinforce the need for structured semantics before prose explanation if these dimensions later become product behavior.
+
+No new architecture is authorized.
+
+### Parking-lot disposition / mapping
+
+**Retained and refined under `PL-STRAT-01`.**
+
+The strategy surface is a research aid for evaluating candidate strategies under the existing Strategy Expansion Governance and Architectural Admission Test. It is not a list of strategies approved for Wheelwright.
+
+### Why-state
+
+Durable why-state is preserved in:
+
+- `docs/44-options-strategy-surface-discovery-2026-09-07.md`
+
+That artifact preserves the complete eight-column table, the qualitative nature of prevalence labels, the participant-context caveat, and the distinction between directional exposure, prediction dependence, risk character, and reward-surface geometry.
+
+No additional journal entry is required because the rich discovery record preserves the material reasoning and this canonical parking-lot record exposes the complete disposition.
+
+### Next authorized mode
+
+**Further exploration / research only.**
+
+Useful next work, if selected by the Principal, is to refine the strategy surface with empirically supportable dimensions such as execution complexity, capital/collateral character, lifecycle/management burden, assignment/exercise exposure, volatility/skew sensitivity, and portfolio aggregation behavior, then use those dimensions to compare candidate strategies under the existing Architectural Admission Test.
+
+**Not authorized:** strategy admission, recommendation-engine implementation, UI work, broker integration, generalized trade-shape framework work, policy promotion, or roadmap reprioritization.
+
+---
+
 ## Continuation History
 
 | Date | Event |
 |---|---|
 | Sep 7, 2026 | `docs/parking-lot-5.md` created as a physical continuation of the single logical parking lot. The HBWB/masterclass discussion was reconciled into existing `PL-STRAT-01`, with full failure-mode-first discovery preserved in `docs/43-hedged-broken-wing-butterfly-discovery-2026-09-07.md`. Strategic disposition: strengthens C2/K1/K2/L3 with no roadmap change. Architectural disposition: refines AR3/AR4 with no new architecture. Next mode: further research only. |
+| Sep 7, 2026 | Comparative options strategy surface reconciled into existing `PL-STRAT-01`, with the complete eight-column strategy surface preserved in `docs/44-options-strategy-surface-discovery-2026-09-07.md`. Strategic disposition: strengthens C2/K1/K2/L3 with no roadmap change. Architectural disposition: refines AR3/AR4 with no new architecture. Next mode: further research only. |
