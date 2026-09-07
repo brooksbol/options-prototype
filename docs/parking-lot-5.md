@@ -243,9 +243,180 @@ Useful next work, if selected by the Principal, is to refine the strategy surfac
 
 ---
 
+## `PL-STRAT-01` Refinement — Operator Strategy Policy and Governed Strategy Matching
+
+**Date:** September 7, 2026  
+**State:** RECONCILED exploration under existing `PL-STRAT-01`; no new `PL-*` identity created  
+**Rich discovery record:** `docs/45-operator-strategy-policy-governed-matching-discovery-2026-09-07.md`
+
+### Intake
+
+The experienced-trader questionnaire and strategy-mapping discussion crossed the durability threshold because it developed a general model for matching operator constraints and preferences to the comparative strategy surface. It does **not** create a genuinely new backlog concern. It materially refines existing **`PL-STRAT-01` Strategy Expansion Governance**.
+
+Canonical mapping:
+
+> **Operator Strategy Policy / governed strategy matching → merged/refined into `PL-STRAT-01`**
+
+The questionnaire is treated as an **elicitation mechanism**, not the architecture. Its durable output is provisionally named **Operator Strategy Policy**.
+
+### What was discovered
+
+The strategy surface and the operator questionnaire form dual descriptions of the strategy-selection problem:
+
+> **The strategy surface describes what a strategy is willing to do to the portfolio. The operator policy describes what the operator is willing to let a strategy do to the portfolio.**
+
+Recommendation can therefore be framed as:
+
+> **operator policy × strategy characteristics × current evidence × portfolio state → governed alternatives**
+
+A second invariant is explicit:
+
+> **Recommendation cardinality is 0..N, not 1..N.**
+
+Wheelwright must be able to return no recommendation when no admitted strategy satisfies current operator policy and current conditions.
+
+The discovery also separates three stages that must not be collapsed into one score:
+
+> **admission constraints → policy fitness → current opportunity selection**
+
+Hard prohibitions such as bounded-loss requirements, no naked options, no assignment, no multi-expiration positions, or mechanical-management-only are eligibility gates. Softer preferences such as broad reward surface, premium orientation, or capital-efficiency preference rank the surviving strategies. Current Evidence and portfolio state then determine whether any survivor is attractive now.
+
+### Strategy-policy mapping surface
+
+The rich discovery record preserves the complete candidate questionnaire, normalization dimensions, hard gates, and bidirectional 1-to-N mapping between policy answer combinations and strategy families.
+
+The normalized policy dimensions currently include:
+
+- objective;
+- underlying relationship;
+- direction;
+- prediction tolerance;
+- loss character;
+- reward preference;
+- premium orientation;
+- volatility dependence;
+- lifecycle complexity;
+- time structure;
+- with assignment, call-away, naked-option tolerance, leg count, hedge cost, and discretionary-management tolerance acting as hard gates or refinements where appropriate.
+
+The mapping is deliberately **1-to-N** at the policy stage. Multiple strategies may satisfy an operator policy before current Evidence distinguishes among them.
+
+The model is also invertible:
+
+- questionnaire → policy → eligible strategies;
+- strategy → required/compatible policy characteristics.
+
+This allows Wheelwright to test the model from both directions and allows a future admitted strategy to be characterized without rewriting the questionnaire decision tree.
+
+### Null recommendation invariant
+
+A policy can be internally coherent yet admit no current strategy, or can contain mutually restrictive conditions that make every candidate ineligible.
+
+Wheelwright must preserve the valid result:
+
+> **No admitted strategy satisfies the current policy.**
+
+A hard operator constraint must never be silently weakened merely to make the system return a recommendation.
+
+### Conceptual flow
+
+The research model is:
+
+> **Questionnaire answers**
+>
+> → **Operator Strategy Policy**
+>
+> → **hard-constraint admission**
+>
+> → **Eligible Strategy Set**
+>
+> → **policy-fitness comparison**
+>
+> → **current Evidence + executable Alternatives**
+>
+> → **Consequence Envelopes**
+>
+> → **Compensation relative to Consequence**
+>
+> → **portfolio-state check**
+>
+> → **0..N recommended alternatives + exclusions + reasons**
+
+The questionnaire itself does not decide what trade should be opened today.
+
+---
+
+## Reconciliation Completion Record — `PL-STRAT-01` / Operator Strategy Policy refinement
+
+### Intake
+
+Canonical identity: **`PL-STRAT-01`**. Operator Strategy Policy and governed strategy matching refine the existing strategy-expansion concern and directly build on the comparative strategy surface.
+
+Rich why/evidence record: `docs/45-operator-strategy-policy-governed-matching-discovery-2026-09-07.md`.
+
+### Strategic disposition
+
+**Strengthens existing strategic Bets; no roadmap change required at this stage.**
+
+Relevant roadmap homes already express the strategic intent:
+
+- **C2 — Broader governed trade-shape repertoire:** the valuable capability is not merely supporting more named strategies but governing which admitted strategies fit operator policy;
+- **K1 — Consequence envelopes:** operator policy can express which adverse/favorable consequence geometries are acceptable;
+- **K2 — Compensation relative to consequence:** compensation is compared only after unacceptable consequence shapes have been excluded;
+- **L3 — Risk-profile performance can be learned empirically:** strategy-policy matching can eventually support empirical comparison of different admitted risk profiles under different operator policies.
+
+No new Bet is warranted yet and no roadmap edit is made.
+
+### Architectural disposition
+
+**Refines existing architecture pressure; no new architecture direction required.**
+
+The discovery maps to:
+
+- **AR3 — Governed Alternatives:** it creates concrete pressure for comparing strategies and executable alternatives through shared economic/consequence semantics rather than hard-coded named-strategy branches;
+- **AR4 — Consequence Semantics Before Explanation:** hard constraints, prediction dependence, reward-surface geometry, and exclusion reasons need structured semantics before explanation can reliably expose why alternatives were admitted, rejected, or preferred.
+
+The provisional engine responsibility model is consistent with existing architecture: **Policy** owns durable operator constraints/preferences; **Evidence** owns current observable market/portfolio facts; **Decision** matches admitted strategy characteristics and current alternatives against Policy and Evidence; **Explanation** communicates inclusion, exclusion, preference, and reasons.
+
+This does **not** authorize a generalized strategy engine, arbitrary trade-shape DSL, questionnaire UI, new service/registry, or implementation work. Reusable semantics must still be earned through concrete strategy pressure.
+
+### Parking-lot disposition / mapping
+
+**Retained and refined under `PL-STRAT-01`.** No new `PL-*` identity is created.
+
+The Operator Strategy Policy model complements, rather than supersedes, the strategy-surface artifact and prior HBWB/credit-spread research.
+
+### Why-state
+
+Durable why-state is preserved in:
+
+- `docs/45-operator-strategy-policy-governed-matching-discovery-2026-09-07.md`
+
+That artifact preserves nearly verbatim the candidate experienced-trader questionnaire, normalized policy dimensions, hard gates, objective-specific mapping tables, reward-surface and prediction mappings, strategy-by-policy admission signatures, 1-to-N example, null recommendation invariant, conceptual algorithm, and strategy-surface/operator-policy duality.
+
+No additional journal entry is required because the rich discovery record preserves the material unfinished intellectual state and this canonical record exposes the complete disposition.
+
+### Next authorized mode
+
+**Further exploration / design research only.**
+
+Useful next work, if selected by the Principal, is to:
+
+1. validate the questionnaire dimensions against the complete strategy surface;
+2. identify which policy attributes are truly hard constraints versus preferences;
+3. refine strategy-characterization fields needed for deterministic eligibility/exclusion;
+4. test representative policy signatures, including contradictory and null-result cases;
+5. determine where portfolio-level constraints belong relative to operator strategy policy;
+6. only after those questions are resolved, consider a formal domain model or operator-facing elicitation design.
+
+**Not authorized:** implementation, questionnaire UI, strategy admission, recommendation-engine changes, broker integration, generalized strategy-framework work, policy promotion, or roadmap reprioritization.
+
+---
+
 ## Continuation History
 
 | Date | Event |
 |---|---|
 | Sep 7, 2026 | `docs/parking-lot-5.md` created as a physical continuation of the single logical parking lot. The HBWB/masterclass discussion was reconciled into existing `PL-STRAT-01`, with full failure-mode-first discovery preserved in `docs/43-hedged-broken-wing-butterfly-discovery-2026-09-07.md`. Strategic disposition: strengthens C2/K1/K2/L3 with no roadmap change. Architectural disposition: refines AR3/AR4 with no new architecture. Next mode: further research only. |
 | Sep 7, 2026 | Comparative options strategy surface reconciled into existing `PL-STRAT-01`, with the complete eight-column strategy surface preserved in `docs/44-options-strategy-surface-discovery-2026-09-07.md`. Strategic disposition: strengthens C2/K1/K2/L3 with no roadmap change. Architectural disposition: refines AR3/AR4 with no new architecture. Next mode: further research only. |
+| Sep 7, 2026 | Operator Strategy Policy / governed strategy matching reconciled into existing `PL-STRAT-01`, with the complete experienced-trader questionnaire and 0..N strategy-policy mapping preserved in `docs/45-operator-strategy-policy-governed-matching-discovery-2026-09-07.md`. Strategic disposition: strengthens C2/K1/K2/L3 with no roadmap change. Architectural disposition: refines AR3/AR4 and separates admission constraints → policy fitness → current opportunity selection. Next mode: further exploration / design research only. |
