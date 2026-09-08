@@ -2303,6 +2303,26 @@
   font-size: 10px;
 }
 
+/* Strike-selection tags (covered-call table — capital-state optionality) */
+.wd-select-tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 2px;
+  letter-spacing: 0.3px;
+}
+
+.wd-select-tag.wd-select-basis {
+  background: rgba(66, 199, 122, 0.15);
+  color: #2f9e5e;
+}
+
+.wd-select-tag.wd-select-delta {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--wd-text-tertiary, #999999);
+}
+
 /* Scrollable body with frozen (sticky) column headers */
 .wd-cross-entry-scroll {
   max-height: 60vh;

@@ -256,9 +256,52 @@ Useful next work is to determine the smallest useful capital-state/path represen
 
 ---
 
+## `PL-DEPLOY` Refinement — Covered-Call Basis-Positive Optionality (empirical)
+
+**Date:** September 8, 2026 (late-night exploratory session preceding the 4am roadmap discussion)
+**State:** RECONCILED exploration under existing `PL-DEPLOY`; no new `PL-*` identity created
+**Rich discovery record:** `docs/48-covered-call-basis-positive-optionality-discovery-2026-09-08.md`
+**Evidence artifact:** `docs/experiments/2026-09-08-covered-call-basis-positive-exploration/wheelwright-calls-2026-09-08-basis-positive.csv`
+
+### Intake
+
+A bounded exploratory change to the Covered-Call Candidates surface (per-DTE alternatives; Spot, Basis, Mid columns; a `basis-positive` strike surfaced alongside the target-delta pick) produced a concrete empirical finding during live operator use over a stale sealed snapshot. This does not create a new backlog concern; it is a same-thread continuation of the doc 47 `PL-DEPLOY` capital-state discovery, adding empirical evidence.
+
+Canonical mapping:
+
+> **Covered-call basis-positive optionality → merged/refined into `PL-DEPLOY`** (secondary: `PL-STRAT-01`, `PL-POL-01`, `PL-PORT-01`, `PL-DEC-BEH`)
+
+### What was discovered
+
+Cost basis, introduced as a candidate-**discovery** axis rather than a **veto**, surfaced materially different bargains against the same shares that single-objective (target-delta) selection had discarded. The sharpest example: at 14 DTE, target-delta selected COPX $93 (Δ0.393) while the basis-positive lens surfaced $95 (Δ0.296) — a strike that is simultaneously the higher exit price (just above the $94.93 basis) **and** the higher-quality market (11.3% vs 22.8% spread; OI 4,120 vs 528; Exec 100 vs 86). This exposed three non-dominating capital-state commitments against the same COPX shares (Sell now / 14-DTE $95 CC / 42-DTE $96 CC).
+
+### Boundary between accepted and deferred
+
+- **Accepted (implementation evidence):** the bounded operator instrumentation itself — per-DTE covered-call alternatives, Mid/Contracts/Basis/Spot columns, and `basis-positive` candidate selection with tests. This is operator instrumentation/usability work, independently authorized, and does **not** constitute implementation of any proposed Share Deployment architecture.
+- **Deferred (exploratory interpretation):** what this means architecturally. The four pre-game hypotheses below are exploration/design **input** for the 4am roadmap discussion. They are **not** ratified architecture, roadmap promotion, or authorization of Share Deployment / Capital Deployment implementation.
+
+### Four pre-game hypotheses (exploration/design input only — NOT ratified)
+
+1. Share Deployment probably deserves its own operator surface.
+2. One row should probably mean one materially distinct bargain, not one symbol.
+3. Cross-mechanism comparison likely needs more than Prod v0 (Prod v0 may be too narrow to compare CC / Collar / Sell / Hold; candidate shape is a consequence vector, ties to doc 47's "consequence envelope").
+4. Sell is likely the bridge from Share Deployment into the bigger Capital Deployment idea.
+
+Explicit correction preserved from the discussion: **UI symmetry between Cash Deployment and Share Deployment is probably real before economic symmetry is** — the cross-entry surface is a rendering template, not a semantics template; scoring/row-semantics/lifecycle parity must be earned, not assumed. This supersedes any one-for-one "mirror Cash Deployment" assumption in the structural analysis.
+
+### Disposition
+
+- **Strategic:** Strengthens existing capital-state-management direction with empirical evidence; no roadmap change.
+- **Architectural:** Corroborates the plural-alternatives pressure on a future Deployment surface; authorizes nothing.
+- **Next authorized mode:** Further exploration / design only.
+- **Not authorized:** Share Deployment implementation, Capital Deployment implementation, Prod v0 changes, strike-selection policy promotion, automatic selling/redeployment, broker execution, or roadmap reprioritization.
+
+---
+
 ## Continuation History
 
 | Date | Event |
 |---|---|
 | Sep 7, 2026 | Fidelity options-tier execution eligibility reconciled into existing `PL-STRAT-01`. The strategy surface was refined from eight to nine dimensions by adding Minimum Fidelity Options Tier while preserving explicit-vs-derived broker evidence. No strategy admission, broker integration, or implementation was authorized. |
 | Sep 7, 2026 | Capital-state management / deployment-path discovery reconciled into existing `PL-DEPLOY`, with secondary mappings to strategy policy, erosion/recovery policy, portfolio-state maturity, behavioral discipline, and lifecycle execution. Rich snapshot: `docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md`. No implementation authorized. |
+| Sep 8, 2026 | Covered-call basis-positive optionality reconciled into existing `PL-DEPLOY`. Bounded operator instrumentation (per-DTE alternatives; Spot/Basis/Mid columns; basis-positive selection) accepted as implementation evidence; the architectural interpretation (four pre-game hypotheses) remains exploratory input for the 4am roadmap discussion. Rich snapshot: `docs/48-covered-call-basis-positive-optionality-discovery-2026-09-08.md`. No Share Deployment / Capital Deployment implementation authorized. |

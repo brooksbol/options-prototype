@@ -92,9 +92,12 @@ export async function recommendCalls(
       continue;
     }
 
-    // Evaluate call chains
-    let bestCandidate: CallCandidate | null = null;
-    let bestWait: CallCandidate | null = null;
+    // Evaluate call chains.
+    // Emit one candidate PER eligible expiration (one strike per expiration:
+    // the contract closest to target delta). This surfaces the full DTE ladder
+    // for an owned symbol rather than collapsing to a single best row.
+    const symbolCandidates: CallCandidate[] = [];
+    const symbolWait: CallCandidate[] = [];
 
     for (const exp of eligibleExps) {
       interface CachedChain {
@@ -120,80 +123,105 @@ export async function recommendCalls(
 
       if (inRange.length === 0) continue;
 
-      // Find contract closest to target delta
+      const basisPerShare = pos.economics?.averageCostPerShare ?? null;
+
+      type RawCall = { strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number };
+
+      // Build an assessed candidate for a chosen contract, or null if it fails
+      // hard-no (zero bid / zero OI / wide spread — skipped for calls today).
+      const buildCandidate = (
+        contract: RawCall,
+        selectionBasis: CallCandidate["selectionBasis"],
+      ): CallCandidate | null => {
+        const mid = midPrice(contract.bid, contract.ask);
+        const spread = contract.ask - contract.bid;
+        const spreadPct = mid > 0 ? (spread / mid) * 100 : 100;
+
+        const evidence: ContractEvidence = {
+          bid: contract.bid,
+          ask: contract.ask,
+          spreadPercent: spreadPct,
+          openInterest: contract.openInterest,
+          volume: contract.volume,
+          delta: contract.delta,
+        };
+
+        const hardNoReason = isHardNo(evidence, policy.executionAssessment);
+        if (hardNoReason) {
+          // zero bid / zero OI / wide spread — not surfaced as a call row today.
+          return null;
+        }
+
+        const assessment = assessExecution(evidence, policy.executionAssessment);
+        const yieldAnnualized = annualizedYield(mid, underlyingPrice, exp.dte);
+
+        return {
+          rank: 0,
+          symbol,
+          expiration: exp.date,
+          dte: exp.dte,
+          strike: contract.strike,
+          delta: contract.delta,
+          bid: contract.bid,
+          ask: contract.ask,
+          mid,
+          spreadPercent: spreadPct,
+          openInterest: contract.openInterest,
+          volume: contract.volume,
+          freeShares: pos.sharesFree,
+          maxContracts: pos.maxAdditionalContracts,
+          premiumPerContract: mid * 100,
+          yieldAnnualized,
+          assessment,
+          posture: assessment.posture,
+          strikeAbovePrice: contract.strike > underlyingPrice,
+          underlyingPrice,
+          economics: pos.economics ?? null,
+          basisPerShare,
+          selectionBasis,
+          // PL-EVID-AGE: copy chain-acquisition provenance from the cache record.
+          evidenceProvenance: chainRecord.evidenceProvenance,
+        };
+      };
+
+      const fileCandidate = (candidate: CallCandidate | null) => {
+        if (!candidate) return;
+        if (candidate.posture === "ACTIONABLE" || candidate.posture === "EDGE") {
+          symbolCandidates.push(candidate);
+        } else if (candidate.posture === "WAIT") {
+          symbolWait.push(candidate);
+        }
+      };
+
+      // 1) Ordinary pick: contract closest to target delta.
       const targetDelta = policy.contractSelection.targetDelta;
-      const sorted = [...inRange].sort((a, b) =>
+      const byTargetDelta = [...inRange].sort((a, b) =>
         Math.abs(a.delta - targetDelta) - Math.abs(b.delta - targetDelta)
       );
-      const contract = sorted[0];
+      const targetContract = byTargetDelta[0];
+      fileCandidate(buildCandidate(targetContract, "target-delta"));
 
-      const mid = midPrice(contract.bid, contract.ask);
-      const spread = contract.ask - contract.bid;
-      const spreadPct = mid > 0 ? (spread / mid) * 100 : 100;
-
-      const evidence: ContractEvidence = {
-        bid: contract.bid,
-        ask: contract.ask,
-        spreadPercent: spreadPct,
-        openInterest: contract.openInterest,
-        volume: contract.volume,
-        delta: contract.delta,
-      };
-
-      // Hard-no check
-      const hardNoReason = isHardNo(evidence, policy.executionAssessment);
-      if (hardNoReason) {
-        if (evidence.bid <= 0 || evidence.openInterest === 0) continue;
-        // Wide spread: skip for calls (don't produce WIDE_SPREAD candidates yet)
-        continue;
-      }
-
-      const assessment = assessExecution(evidence, policy.executionAssessment);
-
-      // Yield: premium / underlying price (annualized)
-      const yieldAnnualized = annualizedYield(mid, underlyingPrice, exp.dte);
-
-      const candidate: CallCandidate = {
-        rank: 0,
-        symbol,
-        expiration: exp.date,
-        dte: exp.dte,
-        strike: contract.strike,
-        delta: contract.delta,
-        bid: contract.bid,
-        ask: contract.ask,
-        mid,
-        spreadPercent: spreadPct,
-        openInterest: contract.openInterest,
-        volume: contract.volume,
-        freeShares: pos.sharesFree,
-        maxContracts: pos.maxAdditionalContracts,
-        premiumPerContract: mid * 100,
-        yieldAnnualized,
-        assessment,
-        posture: assessment.posture,
-        strikeAbovePrice: contract.strike > underlyingPrice,
-        underlyingPrice,
-        economics: pos.economics ?? null,
-        // PL-EVID-AGE: copy chain-acquisition provenance from the cache record.
-        evidenceProvenance: chainRecord.evidenceProvenance,
-      };
-
-      if (assessment.posture === "ACTIONABLE" || assessment.posture === "EDGE") {
-        if (!bestCandidate || assessment.score > bestCandidate.assessment.score) {
-          bestCandidate = candidate;
-        }
-      } else if (assessment.posture === "WAIT") {
-        if (!bestWait || assessment.score > bestWait.assessment.score) {
-          bestWait = candidate;
+      // 2) Capital-state optionality (exploratory): lowest admissible strike at or
+      //    above cost basis, so a call-away would not sell shares below basis
+      //    (before premium). Only when basis is known and it is a DIFFERENT strike
+      //    than the target-delta pick (otherwise it is the same row).
+      if (basisPerShare != null) {
+        const basisPositive = [...inRange]
+          .filter((c) => c.strike >= basisPerShare)
+          .sort((a, b) => a.strike - b.strike)[0];
+        if (basisPositive && basisPositive.strike !== targetContract.strike) {
+          fileCandidate(buildCandidate(basisPositive, "basis-positive"));
         }
       }
     }
 
-    if (bestCandidate) {
-      allCandidates.push(bestCandidate);
-    } else if (bestWait) {
-      allWait.push(bestWait);
+    // Surface every actionable/edge expiration for this symbol as its own row.
+    // Only fall back to WAIT rows when the symbol produced no actionable row at all,
+    // preserving the prior "actionable wins over wait" behavior per symbol.
+    if (symbolCandidates.length > 0) {
+      allCandidates.push(...symbolCandidates);
+    } else if (symbolWait.length > 0) {
+      allWait.push(...symbolWait);
     } else {
       excluded.push({ symbol, reason: "No qualifying call contract" });
     }
@@ -203,12 +231,18 @@ export async function recommendCalls(
   const ranked = rankCallCandidates(allCandidates, policy.ranking.mode);
   const rankedWait = rankCallCandidates(allWait, policy.ranking.mode);
 
+  // Distinct symbols represented across actionable + wait rows.
+  // (Rows are now one-per-expiration, so count unique symbols, not rows.)
+  const distinctSymbols = new Set<string>();
+  for (const c of ranked) distinctSymbols.add(c.symbol);
+  for (const c of rankedWait) distinctSymbols.add(c.symbol);
+
   return {
     candidates: ranked,
     waitCandidates: rankedWait,
     excluded,
     eligiblePositions: eligible.length,
-    symbolsWithCandidates: ranked.length + rankedWait.length,
+    symbolsWithCandidates: distinctSymbols.size,
   };
 }
 

@@ -78,6 +78,20 @@ export interface CallCandidate {
   underlyingPrice: number;
   /** Position economics from brokerage (null when unavailable, e.g. demo mode). */
   economics: PositionEconomics | null;
+  /**
+   * Flattened broker-reported average cost per share (from economics), for
+   * table display/sorting. Null when unavailable (e.g. demo mode). This is the
+   * stock/accounting basis, NOT a capital-cycle basis.
+   */
+  basisPerShare: number | null;
+  /**
+   * Why this strike was selected for its expiration (exploratory — capital-state optionality):
+   * - "target-delta": closest-to-target-delta contract (the ordinary pick).
+   * - "basis-positive": lowest admissible strike at or above cost basis, so a
+   *   call-away would not sell shares below basis (before premium). Only emitted
+   *   when basis is known and differs from the target-delta pick.
+   */
+  selectionBasis: "target-delta" | "basis-positive";
   /** Chain-acquisition provenance copied from published evidence. */
   evidenceProvenance?: EvidenceProvenance;
 }

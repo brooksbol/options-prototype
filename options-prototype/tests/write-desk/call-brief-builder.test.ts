@@ -83,6 +83,8 @@ describe("buildCallBrief", () => {
         costBasis: 10500,
         marketValue: 11600,
       },
+      basisPerShare: 52.50,
+      selectionBasis: "target-delta",
       ...overrides,
     };
   }

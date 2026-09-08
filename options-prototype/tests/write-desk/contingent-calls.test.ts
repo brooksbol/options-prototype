@@ -200,6 +200,8 @@ describe("CallTableRow factory helpers", () => {
       strikeAbovePrice: true,
       underlyingPrice: 58.0,
       economics: null,
+      basisPerShare: null,
+      selectionBasis: "target-delta",
     };
 
     const row = executableRowFromCandidate(candidate);

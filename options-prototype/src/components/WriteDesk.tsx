@@ -1030,6 +1030,7 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
   );
   const selectedSymbol = selectedRow?.availability === "available-now" ? selectedRow.symbol : null;
   const selectedStrike = selectedRow?.availability === "available-now" ? selectedRow.strike : null;
+  const selectedExpiration = selectedRow?.availability === "available-now" ? selectedRow.expiration : null;
 
   return (
     <>
@@ -1038,10 +1039,13 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
       [
         { key: "rank", label: "#" }, { key: "symbol", label: "Symbol" }, { key: "expiration", label: "Exp" },
         { key: "dte", label: "DTE" }, { key: "strike", label: "Strike" }, { key: "delta", label: "Delta" },
-        { key: "bid", label: "Bid" }, { key: "ask", label: "Ask" }, { key: "spreadPercent", label: "Spread%" },
+        { key: "underlyingPrice", label: "Spot" },
+        { key: "basisPerShare", label: "Basis" },
+        { key: "bid", label: "Bid" }, { key: "mid", label: "Mid" }, { key: "ask", label: "Ask" }, { key: "spreadPercent", label: "Spread%" },
         { key: "openInterest", label: "OI" }, { key: "yieldAnnualized", label: "Yield%" },
-        { key: "freeShares", label: "Shares" }, { key: "maxContracts", label: "Cts" },
+        { key: "freeShares", label: "Shares" }, { key: "maxContracts", label: "Contracts" },
         { key: "assessment", label: "Exec" }, { key: "posture", label: "Posture" },
+        { key: "selectionBasis", label: "Select" },
         { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
       ],
       `wheelwright-calls-${new Date().toISOString().slice(0, 10)}.csv`
@@ -1055,23 +1059,27 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
           <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("underlyingPrice", e)} title="Current underlying (spot) price from the evidence snapshot">Spot{indicator("underlyingPrice")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("basisPerShare", e)} title="Broker-reported average cost per share (stock/accounting basis)">Basis{indicator("basisPerShare")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("mid", e)}>Mid{indicator("mid")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("ask", e)}>Ask{indicator("ask")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("spreadPercent", e)}>Spread{indicator("spreadPercent")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("openInterest", e)}>OI{indicator("openInterest")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("yieldAnnualized", e)}>Yield{indicator("yieldAnnualized")}</th>
           <th>Shares</th>
-          <th>Cts</th>
+          <th>Contracts</th>
           <th className="wd-sortable" onClick={(e) => handleSort("assessment", e)}>Exec{indicator("assessment")}</th>
           <th>Posture</th>
+          <th className="wd-sortable" onClick={(e) => handleSort("selectionBasis", e)} title="Strike selection: target-delta pick, or lowest strike at/above cost basis (capital-state optionality)">Select{indicator("selectionBasis")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("age", e)} title="Chain-acquisition age of the evidence this row was calculated from">Age{indicator("age")}</th>
         </tr>
       </thead>
       <tbody>
         {sorted.map((c) => (
           <tr
-            key={`${c.symbol}-${c.expiration}-${c.strike}`}
-            className={`wd-posture-row wd-posture-${c.posture.toLowerCase()}${c.symbol === selectedSymbol && c.strike === selectedStrike ? " wd-row-selected" : ""}`}
+            key={`${c.symbol}-${c.expiration}-${c.strike}-${c.selectionBasis}`}
+            className={`wd-posture-row wd-posture-${c.posture.toLowerCase()}${c.symbol === selectedSymbol && c.strike === selectedStrike && c.expiration === selectedExpiration ? " wd-row-selected" : ""}`}
             onClick={() => onSelect(executableRowFromCandidate(c))}
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(executableRowFromCandidate(c)); } }}
@@ -1082,7 +1090,10 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
             <td>{c.dte}</td>
             <td>${c.strike}</td>
             <td>{c.delta.toFixed(2)}</td>
+            <td>${c.underlyingPrice.toFixed(2)}</td>
+            <td>{c.basisPerShare != null ? `$${c.basisPerShare.toFixed(2)}` : "—"}</td>
             <td>${c.bid.toFixed(2)}</td>
+            <td>${c.mid.toFixed(2)}</td>
             <td>${c.ask.toFixed(2)}</td>
             <td className={c.spreadPercent > 15 ? "wd-warn-value" : ""}>{c.spreadPercent.toFixed(0)}%</td>
             <td className={c.openInterest < 50 ? "wd-warn-value" : ""}>{c.openInterest}</td>
@@ -1091,6 +1102,9 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
             <td>{c.maxContracts}</td>
             <td>{c.assessment.score}</td>
             <td><span className={`wd-posture-badge wd-posture-${c.posture.toLowerCase()}`}>{c.posture}</span></td>
+            <td>{c.selectionBasis === "basis-positive"
+              ? <span className="wd-select-tag wd-select-basis" title="Lowest strike at or above cost basis — call-away would not sell below basis (before premium)">basis+</span>
+              : <span className="wd-select-tag wd-select-delta" title="Closest to target delta">δ</span>}</td>
             <td><AgeCell provenance={c.evidenceProvenance} /></td>
           </tr>
         ))}

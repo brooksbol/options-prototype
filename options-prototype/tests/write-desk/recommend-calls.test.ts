@@ -187,6 +187,91 @@ describe("recommendCalls", () => {
     expect(result.candidates[0].premiumPerContract).toBeCloseTo(130, 0);
   });
 
+  it("emits one candidate per eligible expiration for an owned symbol", async () => {
+    // Same symbol, three eligible expirations, each with a qualifying call.
+    // Expect one row per expiration (not a single collapsed best row).
+    const symbol = "XLE";
+    const expKey = buildCacheKey("tradier", env, "expirations", symbol);
+    await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, symbol, null, [
+      { date: "2026-08-03", dte: 10 },
+      { date: "2026-08-17", dte: 24 },
+      { date: "2026-08-31", dte: 38 },
+    ]));
+    for (const { date } of [{ date: "2026-08-03" }, { date: "2026-08-17" }, { date: "2026-08-31" }]) {
+      const chainKey = buildCacheKey("tradier", env, "chain", symbol, date);
+      await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, date, {
+        underlying: { symbol, name: `${symbol} Fund`, price: 58.0 },
+        calls: [{ strike: 60, bid: 1.50, ask: 1.70, delta: 0.30, openInterest: 800, volume: 200 }],
+        puts: [],
+      }));
+    }
+
+    const result = await recommendCalls(
+      [makeInventory(symbol, 100, 1)],
+      cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY
+    );
+
+    // One row per eligible expiration
+    expect(result.candidates.length).toBe(3);
+    const expirations = result.candidates.map(c => c.expiration).sort();
+    expect(expirations).toEqual(["2026-08-03", "2026-08-17", "2026-08-31"]);
+    // All rows are the same symbol
+    expect(result.candidates.every(c => c.symbol === symbol)).toBe(true);
+    // symbolsWithCandidates counts distinct symbols, not rows
+    expect(result.symbolsWithCandidates).toBe(1);
+  });
+
+  it("emits an additional basis-positive strike alongside the target-delta pick", async () => {
+    // Basis $95. Target-delta (0.30) pick is strike 93 (below basis).
+    // A higher strike 96 is admissible (delta 0.20, within 0.15-0.50) and at/above basis.
+    // Expect TWO rows: one target-delta (93), one basis-positive (96).
+    await populateChain("XLE", [
+      { strike: 93, bid: 1.70, ask: 1.90, delta: 0.30, openInterest: 500, volume: 100 },
+      { strike: 96, bid: 0.90, ask: 1.10, delta: 0.20, openInterest: 400, volume: 90 },
+    ], 94.0);
+
+    const inventory: InventoryPosition = {
+      symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100,
+      maxAdditionalContracts: 1,
+      economics: { averageCostPerShare: 95.0, costBasis: 9500, marketValue: 9400 },
+    };
+
+    const result = await recommendCalls(
+      [inventory], cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY
+    );
+
+    const all = [...result.candidates, ...result.waitCandidates];
+    expect(all.length).toBe(2);
+    const target = all.find(c => c.selectionBasis === "target-delta");
+    const basisPos = all.find(c => c.selectionBasis === "basis-positive");
+    expect(target?.strike).toBe(93);
+    expect(basisPos?.strike).toBe(96);
+    // basis-positive strike is at or above the $95 basis
+    expect(basisPos!.strike).toBeGreaterThanOrEqual(95.0);
+  });
+
+  it("does not duplicate a row when the target-delta pick is already basis-positive", async () => {
+    // Basis $90. Target-delta pick strike 93 is already >= basis.
+    // The lowest basis-positive strike is the same 93 → no second row.
+    await populateChain("XLE", [
+      { strike: 93, bid: 1.70, ask: 1.90, delta: 0.30, openInterest: 500, volume: 100 },
+    ], 92.0);
+
+    const inventory: InventoryPosition = {
+      symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100,
+      maxAdditionalContracts: 1,
+      economics: { averageCostPerShare: 90.0, costBasis: 9000, marketValue: 9200 },
+    };
+
+    const result = await recommendCalls(
+      [inventory], cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY
+    );
+
+    const all = [...result.candidates, ...result.waitCandidates];
+    expect(all.length).toBe(1);
+    expect(all[0].selectionBasis).toBe("target-delta");
+  });
+
   it("strikeAbovePrice is true when strike > underlying", async () => {
     await populateChain("XLE", [
       { strike: 60, bid: 1.20, ask: 1.40, delta: 0.30, openInterest: 500, volume: 100 },
