@@ -158,3 +158,53 @@ This is distinct from the basis-positive finding (§2–§5) and sharpens hypoth
 > **Candidate generation may need to become capital-state-aware rather than strategy-siloed.** The admissibility band itself (e.g. delta 0.15–0.50) may be a **capital-state-dependent** parameter, not a global policy constant — an income lens and a disposition lens over the same owned shares admit different regions of the same chain.
 
 Governance unchanged: this remains exploratory evidence feeding `PL-DEPLOY`. It authorizes no cross-engine merge, no admissibility-policy change, and no Share Deployment implementation. It is a better question for the 4am roadmap review.
+
+---
+
+## 8. Third empirical finding — capital state changes the feasible set (SOXX affordability frontier)
+
+**Artifact:** `docs/experiments/2026-09-08-covered-call-basis-positive-exploration/wheelwright-cross-entry-2026-09-08.csv` (same Cash Deployment — Prod v0 export)
+
+SOXX makes a **threshold effect** obvious. The SOXX buy-write requires ~$51,989 capital; deployable cash is ~$47.1k; the Remaining column reads **−$4,937.81**. Wheelwright is saying: this opportunity exists and looks attractive (~7.6%/mo Prod v0), but you are ~$4,938 short of being able to take it.
+
+Now introduce the owned COPX shares. Selling 100 COPX at ~$90.66 releases ~$9,066. Pooled with cash:
+
+```text
+~$47.1k cash + ~$9.1k released  ≈  ~$56.2k deployable
+```
+
+SOXX flips from **unaffordable by ~$4.9k** to **affordable with ~$4.1k remaining**.
+
+### The finding
+
+> **Negative Remaining is not a rejection — it is a measured capital gap to a currently-inaccessible opportunity.** Existing share inventory is therefore not only "a $9k position I could sell"; it is also **"a $9k source of releasable capital capable of closing specific affordability gaps elsewhere."**
+
+The consequence of Sell is not:
+
+```text
+Sell COPX -> 0 production
+```
+
+It is:
+
+```text
+Sell COPX -> +$9,066 deployable liquidity -> affordability frontier moves ->
+previously inaccessible opportunities enter the feasible set
+```
+
+### Why it matters (exploration/design input only — NOT ratified)
+
+This is a **third distinct kind of optionality**, separate from §2–§5 and §7:
+
+- §2–§5 (basis-positive): a hidden bargain *within* a mechanism.
+- §7 (strategy-siloed): the *same* option leg judged differently by two engines over the same shares.
+- §8 (this): capital state changing the **feasible set itself** — choice *created by pooling* released capital with cash already available, not choice *among uses* of released capital.
+
+It is the strongest evidence yet that:
+
+1. **Scoring Sell as `Prod v0 = 0` would be badly misleading.** Selling COPX produces no premium, yet that transition can convert an inaccessible ~7.6%/mo SOXX opportunity into an accessible one. The consequence lives entirely outside the production numerator (reinforces hypothesis #3).
+2. **Sell is the bridge to Capital Deployment** (reinforces hypothesis #4): its value is realized only when release + existing cash + a downstream opportunity are reasoned about together.
+
+**Beyond tonight (explicitly not for design now):** the eventual question could become *what is the smallest / most appropriate capital release required to unlock a materially better opportunity?* — i.e. inventory as a tunable liquidity source against an affordability frontier, not an all-or-nothing sell. Recorded as a phenomenon SOXX exposed, not a proposal.
+
+Governance unchanged: exploratory evidence under `PL-DEPLOY`. Authorizes no affordability-frontier feature, no automatic selling/redeployment, no Prod v0 change, and no Share/Capital Deployment implementation.
