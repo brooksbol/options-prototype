@@ -81,6 +81,8 @@ export function CrossEntryStrip({
   const [dteMin, setDteMin] = useState<number | null>(() => loadWorkspace().writeDeskCrossEntryDteMin);
   const [dteMax, setDteMax] = useState<number | null>(() => loadWorkspace().writeDeskCrossEntryDteMax);
   const [symbolFilter, setSymbolFilter] = useState<string>(() => loadWorkspace().writeDeskCrossEntrySymbol);
+  const [capitalMin, setCapitalMin] = useState<number | null>(() => loadWorkspace().writeDeskCrossEntryCapitalMin);
+  const [capitalMax, setCapitalMax] = useState<number | null>(() => loadWorkspace().writeDeskCrossEntryCapitalMax);
   const symbolTerms = useMemo(
     () => symbolFilter.split(/[\s,]+/).map(t => t.trim().toUpperCase()).filter(Boolean),
     [symbolFilter]
@@ -89,6 +91,8 @@ export function CrossEntryStrip({
     (!affordableOnly || r.cashRemaining >= 0) &&
     (dteMin == null || r.dte >= dteMin) &&
     (dteMax == null || r.dte <= dteMax) &&
+    (capitalMin == null || r.capitalRequired >= capitalMin) &&
+    (capitalMax == null || r.capitalRequired <= capitalMax) &&
     (symbolTerms.length === 0 || symbolTerms.some(t => r.symbol.toUpperCase().includes(t)))
   );
   const displayed = filtered.slice(0, showCount);
@@ -165,13 +169,47 @@ export function CrossEntryStrip({
           />
         </label>
         <label className="wd-control" style={{ marginLeft: "8px" }}>
+          Capital min
+          <input
+            type="number"
+            min={0}
+            step={100}
+            value={capitalMin ?? ""}
+            placeholder="—"
+            onChange={(e) => {
+              const raw = e.target.value.trim();
+              const next = raw === "" ? null : Math.max(0, parseFloat(raw) || 0);
+              setCapitalMin(next);
+              updateWorkspace({ writeDeskCrossEntryCapitalMin: next });
+            }}
+            className="wd-control-spinner"
+          />
+        </label>
+        <label className="wd-control" style={{ marginLeft: "8px" }}>
+          Capital max
+          <input
+            type="number"
+            min={0}
+            step={100}
+            value={capitalMax ?? ""}
+            placeholder="—"
+            onChange={(e) => {
+              const raw = e.target.value.trim();
+              const next = raw === "" ? null : Math.max(0, parseFloat(raw) || 0);
+              setCapitalMax(next);
+              updateWorkspace({ writeDeskCrossEntryCapitalMax: next });
+            }}
+            className="wd-control-spinner"
+          />
+        </label>
+        <label className="wd-control" style={{ marginLeft: "8px" }}>
           Show
           <input type="number" min={1} max={filtered.length || 50} value={showCount} onChange={(e) => { const v = Math.max(1, Math.min(filtered.length || 50, parseInt(e.target.value) || 10)); setShowCount(v); updateWorkspace({ writeDeskCrossEntryShowCount: v }); }} className="wd-control-spinner" />
         </label>
         <span className="wd-table-showing" style={{ marginLeft: "8px" }}>Showing {Math.min(displayed.length, filtered.length)} of {filtered.length}</span>
         <button className="wd-download-btn" onClick={() => {
           downloadTableCsv(
-            sorted as unknown as Record<string, unknown>[],
+            filtered as unknown as Record<string, unknown>[],
             [
               { key: "entryMechanism", label: "Entry" }, { key: "symbol", label: "Symbol" },
               { key: "productionV0", label: "Prod v0" }, { key: "premiumYieldAnnualized", label: "Yield%" },
