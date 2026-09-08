@@ -51,6 +51,43 @@ The broader operator question is:
 
 > **“Given shares I own, what productive things can I do with them now?”**
 
+### Historical architecture gap as useful provenance
+
+The one-row COPX behavior is not an evidence-acquisition defect. The existing Calls architecture deliberately chose a narrow operating question: for held, executable inventory, select a single best covered-call recommendation per symbol. Its recommendation logic collapses the available strike/expiration surface to one preferred call for each held symbol even though multi-expiration evidence is available.
+
+That earlier design was reasonable for the capability Wheelwright was building at the time:
+
+> **I own shares; find me a good covered call to write.**
+
+Cash-side reasoning subsequently matured. **Cash Deployment — Prod v0** began comparing multiple alternatives and entry mechanisms across a common production-oriented surface, while Covered-Call Candidates retained the earlier one-best-call-per-symbol model.
+
+COPX makes the resulting asymmetry concrete because the shares themselves were produced by Wheelwright's operating lifecycle:
+
+```text
+Cash
+  -> COPX buy-write
+  -> premium production
+  -> short call expires OTM
+  -> COPX shares
+  -> now what?
+```
+
+Wheelwright could reason richly about several ways to deploy cash into COPX, but after that deployment legitimately resolved into COPX shares, the owned-inventory surface reduced the next decision to one covered-call candidate. The system's own operation therefore produced a capital state that its earlier Calls presentation represented more narrowly than the newer Deployment model could support.
+
+This is useful architectural provenance, not a new defect identity. It explains why evolving Covered-Call Candidates is not simply a request for a larger option-chain table or “more rows.” The question itself has matured:
+
+> **Earlier Calls question:** Which single covered call should I write against this held symbol?
+>
+> **Emerging Deployment question:** Given this owned capital, what materially different governed things can I do with it now?
+
+A related execution-capacity distinction should remain explicit. One unencumbered 100-share lot supports only one simultaneously covered short-call contract, but that does **not** imply recommendation cardinality must be one. Several mutually exclusive one-contract calls can be valid alternatives for the same 100 shares because each expresses a different consequence/compensation bargain. Capacity constrains simultaneous execution; it does not require the decision surface to collapse to one alternative.
+
+This history is the storytelling reason for the proposed Share Deployment evolution:
+
+> **Real Wheelwright deployments began producing owned-inventory states, and the operator needed to compare what that capital should do next.**
+
+No separate parking-lot item is created for this historical gap; it is why-state supporting the existing `PL-DEPLOY` refinement captured by this document.
+
 ---
 
 ## 2. Natural UI evolution: Cash Deployment → Share Deployment
@@ -607,6 +644,8 @@ This does **not** authorize changing `Prod v0`, inventing a composite score, or 
 14. **Same-symbol redeployment is not inherently contradictory.** Selling shares and later selling a CSP on the same symbol changes unconditional ownership into a compensated conditional obligation.
 15. **Recommendation cardinality remains 0..N.** No path is required merely because capital exists.
 16. **Mission semantics belong above strategy mechanics.** Erosion, protection cost, retained/distributed production, and similar concepts may be interpreted differently by different regimes.
+17. **Execution capacity ≠ recommendation cardinality.** One 100-share lot can support only one simultaneously covered short call, while several mutually exclusive covered-call alternatives can still be valid recommendations.
+18. **The one-row Calls design is historical architecture, not an evidence limitation.** Multi-expiration evidence can exist while the recommendation surface deliberately collapses it to one best call per held symbol.
 
 ---
 
@@ -642,7 +681,7 @@ The discovery suggests that the durable comparison object may eventually need to
 
 ### Why-state
 
-This document is the rich why-state snapshot. It preserves the concrete COPX trigger, basis calculations, Fidelity collar observations, execution cautions, UI evolution, mission-regime distinction, and return to Operator Strategy Policy.
+This document is the rich why-state snapshot. It preserves the concrete COPX trigger, basis calculations, Fidelity collar observations, execution cautions, UI evolution, mission-regime distinction, return to Operator Strategy Policy, and the historical reason the intentionally narrow Covered-Call Candidates surface became insufficient as Deployment matured.
 
 ### Next authorized mode
 
