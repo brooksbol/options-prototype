@@ -6,7 +6,7 @@
  * Does NOT require provider calls.
  */
 
-import type { PutCandidate } from "../write-desk/candidate-types";
+import type { PutCandidate, CallCandidate } from "../write-desk/candidate-types";
 
 // --- Domain Type ---
 
@@ -69,6 +69,68 @@ export function buildWriteIntent(input: WriteIntentInput): WriteIntent | null {
     contractSymbol,
     expiration: candidate.expiration,
     optionType: "put",
+    strike: candidate.strike,
+    action: "sell-to-open",
+    quantity,
+    orderType: "limit",
+    limitPrice: candidate.bid,
+    timeInForce: "day",
+  };
+}
+
+export interface CallWriteIntentInput {
+  candidate: CallCandidate;
+  quantity?: number;
+}
+
+/**
+ * Build a covered-call WriteIntent from a Wheelwright call recommendation.
+ *
+ * A covered call is SELL-to-open: the operator writes a call against held,
+ * unencumbered shares to collect premium. The Fidelity action is therefore
+ * SOPEN (the same sell-to-open mechanism as puts), differing only in the
+ * contract side (C) encoded in the SECURITY_ID.
+ *
+ * Uses the candidate's bid as the limit price (the operator must verify).
+ * Default quantity is 1 contract. Returns null if required fields are missing
+ * or invalid, or if the candidate has no covered-call capacity.
+ */
+export function buildCallWriteIntent(input: CallWriteIntentInput): WriteIntent | null {
+  const { candidate, quantity = 1 } = input;
+
+  if (!candidate.symbol || !candidate.expiration || candidate.strike <= 0) {
+    return null;
+  }
+
+  if (candidate.bid <= 0) {
+    return null;
+  }
+
+  if (quantity < 1 || !Number.isInteger(quantity)) {
+    return null;
+  }
+
+  // Cannot write a covered call without capacity (held, unencumbered shares).
+  if (candidate.maxContracts < 1) {
+    return null;
+  }
+
+  const contractSymbol = formatFidelitySecurityId(
+    candidate.symbol,
+    candidate.expiration,
+    "call",
+    candidate.strike
+  );
+
+  if (!contractSymbol) {
+    return null;
+  }
+
+  return {
+    underlyingSymbol: candidate.symbol.toUpperCase(),
+    contractSymbol,
+    expiration: candidate.expiration,
+    optionType: "call",
     strike: candidate.strike,
     action: "sell-to-open",
     quantity,

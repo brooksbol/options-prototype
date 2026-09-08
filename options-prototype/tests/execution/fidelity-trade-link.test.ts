@@ -221,3 +221,94 @@ describe("buildWriteIntent", () => {
     expect(intent).not.toBeNull();
   });
 });
+
+// --- Covered-Call Write Intent + Trade Link ---
+
+import { buildCallWriteIntent } from "../../src/execution/write-intent";
+import type { CallCandidate } from "../../src/write-desk/candidate-types";
+
+describe("buildCallWriteIntent", () => {
+  const makeCall = (overrides: Partial<CallCandidate> = {}): CallCandidate => ({
+    rank: 1,
+    symbol: "GDX",
+    expiration: "2026-09-11",
+    dte: 19,
+    strike: 103,
+    delta: 0.30,
+    bid: 0.65,
+    ask: 0.70,
+    mid: 0.675,
+    spreadPercent: 7.4,
+    openInterest: 800,
+    volume: 100,
+    freeShares: 100,
+    maxContracts: 1,
+    premiumPerContract: 65,
+    yieldAnnualized: 12.5,
+    assessment: { score: 85, reasons: [] },
+    posture: "ACTIONABLE",
+    strikeAbovePrice: true,
+    underlyingPrice: 99.25,
+    economics: null,
+    basisPerShare: null,
+    selectionBasis: "target-delta",
+    ...overrides,
+  });
+
+  it("builds a sell-to-open covered-call intent", () => {
+    const intent = buildCallWriteIntent({ candidate: makeCall() });
+    expect(intent).not.toBeNull();
+    expect(intent!.underlyingSymbol).toBe("GDX");
+    expect(intent!.contractSymbol).toBe("-GDX260911C103");
+    expect(intent!.optionType).toBe("call");
+    expect(intent!.action).toBe("sell-to-open");
+    expect(intent!.limitPrice).toBe(0.65);
+    expect(intent!.quantity).toBe(1);
+  });
+
+  it("returns null when there is no covered-call capacity", () => {
+    expect(buildCallWriteIntent({ candidate: makeCall({ maxContracts: 0 }) })).toBeNull();
+  });
+
+  it("returns null for zero bid", () => {
+    expect(buildCallWriteIntent({ candidate: makeCall({ bid: 0 }) })).toBeNull();
+  });
+
+  it("returns null for invalid quantity", () => {
+    expect(buildCallWriteIntent({ candidate: makeCall(), quantity: 0 })).toBeNull();
+    expect(buildCallWriteIntent({ candidate: makeCall(), quantity: 2.5 })).toBeNull();
+  });
+
+  it("produces the operator-confirmed GDX covered-call URL", () => {
+    const intent = buildCallWriteIntent({ candidate: makeCall() });
+    const link = buildFidelityTradeLink(intent!);
+    expect(link).not.toBeNull();
+    // Operator-confirmed working URL:
+    // ...?ORDER_TYPE=O&ORDER_ACTION=SOPEN&LIMIT_STOP_PRICE=0.65&SECURITY_ID=-GDX260911C103&trade=rocask
+    expect(link!.url).toContain("ORDER_TYPE=O");
+    expect(link!.url).toContain("ORDER_ACTION=SOPEN");
+    expect(link!.url).toContain("LIMIT_STOP_PRICE=0.65");
+    expect(link!.url).toContain("SECURITY_ID=-GDX260911C103");
+    expect(link!.url).toContain("trade=rocask");
+    expect(link!.url).not.toContain("trade=rocfly");
+  });
+});
+
+describe("buildFidelityTradeLink — call routing token", () => {
+  it("uses rocask for calls and rocfly for puts", () => {
+    const base = {
+      underlyingSymbol: "GDX",
+      expiration: "2026-09-11",
+      strike: 103,
+      action: "sell-to-open" as const,
+      quantity: 1,
+      orderType: "limit" as const,
+      limitPrice: 0.65,
+      timeInForce: "day" as const,
+    };
+    const callLink = buildFidelityTradeLink({ ...base, optionType: "call", contractSymbol: "-GDX260911C103" });
+    const putLink = buildFidelityTradeLink({ ...base, optionType: "put", contractSymbol: "-GDX260911P95" });
+    expect(callLink!.url).toContain("trade=rocask");
+    expect(putLink!.url).toContain("trade=rocfly");
+  });
+});

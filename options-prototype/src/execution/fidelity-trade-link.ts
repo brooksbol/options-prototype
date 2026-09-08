@@ -28,8 +28,8 @@ export interface FidelityTradeLink {
  *   ORDER_TYPE=O           → Options order
  *   ORDER_ACTION=SOPEN     → Sell to Open
  *   LIMIT_STOP_PRICE=x.xx  → Limit price
- *   SECURITY_ID=-SYM...    → Fidelity option security ID
- *   trade=rocfly           → Routing/flow identifier (constant)
+ *   SECURITY_ID=-SYM...    → Fidelity option security ID (C side for calls)
+ *   trade=rocfly|rocask    → Routing/flow token (puts: rocfly, calls: rocask)
  */
 export function buildFidelityTradeLink(intent: WriteIntent): FidelityTradeLink | null {
   if (!intent.contractSymbol || !intent.limitPrice || intent.limitPrice <= 0) {
@@ -46,7 +46,8 @@ export function buildFidelityTradeLink(intent: WriteIntent): FidelityTradeLink |
   url.searchParams.set("ORDER_ACTION", "SOPEN");
   url.searchParams.set("LIMIT_STOP_PRICE", formatLimitPrice(intent.limitPrice));
   url.searchParams.set("SECURITY_ID", intent.contractSymbol);
-  url.searchParams.set("trade", "rocfly");
+  // Routing/flow token (empirically observed): puts use "rocfly", calls use "rocask".
+  url.searchParams.set("trade", intent.optionType === "call" ? "rocask" : "rocfly");
 
   return {
     url: url.toString(),

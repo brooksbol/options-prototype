@@ -17,6 +17,8 @@ import { useState, useEffect } from "react";
 import { getDurableCache } from "../cache/durable-cache";
 import { buildCallBrief, type CallBriefViewModel, type CallNeighborTag, type ProjectedCalledAway } from "../write-desk/call-brief-builder";
 import { PostureExplanationSection } from "./RecommendationBrief";
+import { buildCallWriteIntent } from "../execution/write-intent";
+import { buildFidelityTradeLink, type FidelityTradeLink } from "../execution/fidelity-trade-link";
 import type { CallCandidate } from "../write-desk/candidate-types";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
@@ -78,6 +80,9 @@ export function CallBrief({
         const desc = lookupDescription(brief.identity.symbol);
         return desc ? <p className="rb-instrument-description">{desc}</p> : null;
       })()}
+
+      {/* === EXECUTION HANDOFF (immediately accessible) === */}
+      <CallFidelityHandoff candidate={candidate} />
 
       {/* === DECISION SUMMARY === */}
       <section className="rb-decision-summary">
@@ -245,6 +250,43 @@ export function CallBrief({
           <span>{brief.provenance.sessionState} &middot; {brief.provenance.evidenceStatus}</span>
         </div>
       </section>
+    </div>
+  );
+}
+
+// --- Fidelity Handoff (covered call) ---
+
+function CallFidelityHandoff({ candidate }: { candidate: CallCandidate }) {
+  const intent = buildCallWriteIntent({ candidate });
+  const link: FidelityTradeLink | null = intent ? buildFidelityTradeLink(intent) : null;
+
+  if (!link) {
+    return (
+      <div className="rb-handoff rb-handoff-unavailable">
+        <span className="rb-handoff-label">Broker handoff unavailable</span>
+        <span className="rb-handoff-reason">Insufficient data or no covered-call capacity</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rb-handoff">
+      <div className="rb-handoff-actions">
+        <a
+          className="rb-handoff-link"
+          href={link.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Open in Fidelity ↗
+        </a>
+      </div>
+      <div className="rb-handoff-verify">
+        <span className="rb-handoff-verify-label">Verify before submitting:</span>
+        {link.requiresVerification.map((field) => (
+          <span key={field} className="rb-handoff-verify-item">{field}</span>
+        ))}
+      </div>
     </div>
   );
 }
