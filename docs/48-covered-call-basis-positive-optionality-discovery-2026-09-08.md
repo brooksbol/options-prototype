@@ -126,3 +126,35 @@ These are not naturally comparable by forcing each into one monthly-production n
 4. **Sell is likely the bridge from Share Deployment into the bigger Capital Deployment idea.**
 
 None of this needs ratification tonight. It is a better set of questions for the roadmap review, and it explicitly supersedes any one-for-one "mirror Cash Deployment" assumption in the structural analysis.
+
+---
+
+## 7. Second empirical finding — strategy-siloed generation hides cross-state bargains
+
+**Artifact:** `docs/experiments/2026-09-08-covered-call-basis-positive-exploration/wheelwright-cross-entry-2026-09-08.csv` (Cash Deployment — Prod v0 export)
+
+The Cash Deployment surface surfaced a **covered-call bargain the Calls surface did not**.
+
+The top-ranked cross-entry row is a COPX buy-write at **42 DTE, strike ~$91 (Δ0.5305), mid $5.70, capital $9,066**. Given the operator already holds 100 COPX, that buy-write is **economically equivalent to simply selling one COPX Oct 16 $91 call against the shares already owned** (the redundant sell-shares / rebuy-shares path is not the point and is not narrated here). Same option leg, same ~$5.70/share premium, same resulting position.
+
+The Calls recommender never surfaced this contract, and the reason is now mechanical and clear from tonight's work:
+
+- The Calls engine selects around **target delta 0.30** within an admissible band of **0.15–0.50** (plus the exploratory basis-positive strike).
+- The $91 call is **Δ0.53 — deep in the money, outside the admissible band** — so the Calls surface structurally cannot emit it.
+- The **BW engine generates it happily** because, from a fresh-cash lens, a deep-ITM buy-write is an attractive shape: large premium, tiny appreciation-to-strike, strong production, likely near-term call-away.
+
+**Two strategy-specific engines discovered different bargains over the same underlying capital**, because they apply different admissibility to the same option leg.
+
+### The finding
+
+> **The bargain a contract represents depends on the capital state you view it from.** A deep-ITM call is inadmissible as a "covered call around 0.30 delta" but is exactly a "trade participation for production and likely disposition" bargain against owned shares. Strategy-siloed generation cannot see across that boundary.
+
+From the shares-owned view, the $91 / 42-DTE is a legitimate, disposition-leaning Share Deployment alternative: take ~$570 now, surrender essentially all upside above $91, and accept that call-away is likely. That is a different bargain from the income-leaning near-0.30-delta covered call — and a delta-banded covered-call generator will always hide it.
+
+### Why it matters (exploration/design input only — NOT ratified)
+
+This is distinct from the basis-positive finding (§2–§5) and sharpens hypothesis #3/#4:
+
+> **Candidate generation may need to become capital-state-aware rather than strategy-siloed.** The admissibility band itself (e.g. delta 0.15–0.50) may be a **capital-state-dependent** parameter, not a global policy constant — an income lens and a disposition lens over the same owned shares admit different regions of the same chain.
+
+Governance unchanged: this remains exploratory evidence feeding `PL-DEPLOY`. It authorizes no cross-engine merge, no admissibility-policy change, and no Share Deployment implementation. It is a better question for the 4am roadmap review.
