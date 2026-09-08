@@ -78,7 +78,19 @@ export function CrossEntryStrip({
   );
   const [affordableOnly, setAffordableOnly] = useState(() => loadWorkspace().writeDeskCrossEntryAffordableOnly);
   const [showCount, setShowCount] = useState(() => loadWorkspace().writeDeskCrossEntryShowCount ?? maxRows);
-  const filtered = affordableOnly ? sorted.filter(r => r.cashRemaining >= 0) : sorted;
+  const [dteMin, setDteMin] = useState<number | null>(() => loadWorkspace().writeDeskCrossEntryDteMin);
+  const [dteMax, setDteMax] = useState<number | null>(() => loadWorkspace().writeDeskCrossEntryDteMax);
+  const [symbolFilter, setSymbolFilter] = useState<string>(() => loadWorkspace().writeDeskCrossEntrySymbol);
+  const symbolTerms = useMemo(
+    () => symbolFilter.split(/[\s,]+/).map(t => t.trim().toUpperCase()).filter(Boolean),
+    [symbolFilter]
+  );
+  const filtered = sorted.filter(r =>
+    (!affordableOnly || r.cashRemaining >= 0) &&
+    (dteMin == null || r.dte >= dteMin) &&
+    (dteMax == null || r.dte <= dteMax) &&
+    (symbolTerms.length === 0 || symbolTerms.some(t => r.symbol.toUpperCase().includes(t)))
+  );
   const displayed = filtered.slice(0, showCount);
 
   if (allRows.length === 0) return null;
@@ -93,6 +105,64 @@ export function CrossEntryStrip({
         <label style={{ fontSize: "11px", marginLeft: "8px", cursor: "pointer", color: "#aaa" }}>
           <input type="checkbox" checked={affordableOnly} onChange={() => { const next = !affordableOnly; setAffordableOnly(next); updateWorkspace({ writeDeskCrossEntryAffordableOnly: next }); }} style={{ marginRight: "4px" }} />
           Affordable only
+        </label>
+        <label className="wd-control" style={{ marginLeft: "8px" }}>
+          Symbol
+          <input
+            type="text"
+            value={symbolFilter}
+            placeholder="e.g. SPY, QQQ"
+            onChange={(e) => {
+              const next = e.target.value;
+              setSymbolFilter(next);
+              updateWorkspace({ writeDeskCrossEntrySymbol: next });
+            }}
+            className="wd-control-text"
+            style={{ width: "96px" }}
+          />
+          {symbolFilter && (
+            <button
+              type="button"
+              className="wd-sort-reset"
+              style={{ marginLeft: "4px" }}
+              onClick={() => { setSymbolFilter(""); updateWorkspace({ writeDeskCrossEntrySymbol: "" }); }}
+              title="Clear symbol filter"
+            >
+              ✕
+            </button>
+          )}
+        </label>
+        <label className="wd-control" style={{ marginLeft: "8px" }}>
+          DTE min
+          <input
+            type="number"
+            min={0}
+            value={dteMin ?? ""}
+            placeholder="—"
+            onChange={(e) => {
+              const raw = e.target.value.trim();
+              const next = raw === "" ? null : Math.max(0, parseInt(raw, 10) || 0);
+              setDteMin(next);
+              updateWorkspace({ writeDeskCrossEntryDteMin: next });
+            }}
+            className="wd-control-spinner"
+          />
+        </label>
+        <label className="wd-control" style={{ marginLeft: "8px" }}>
+          DTE max
+          <input
+            type="number"
+            min={0}
+            value={dteMax ?? ""}
+            placeholder="—"
+            onChange={(e) => {
+              const raw = e.target.value.trim();
+              const next = raw === "" ? null : Math.max(0, parseInt(raw, 10) || 0);
+              setDteMax(next);
+              updateWorkspace({ writeDeskCrossEntryDteMax: next });
+            }}
+            className="wd-control-spinner"
+          />
         </label>
         <label className="wd-control" style={{ marginLeft: "8px" }}>
           Show
@@ -121,6 +191,7 @@ export function CrossEntryStrip({
           <button className="wd-sort-reset" onClick={(e) => handleSort("productionV0", e)}>Show Prod v0 order</button>
         </div>
       )}
+      <div className="wd-cross-entry-scroll">
       <table className="wd-candidate-table wd-cross-entry-table">
         <thead>
           <tr>
@@ -178,6 +249,7 @@ export function CrossEntryStrip({
           ))}
         </tbody>
       </table>
+      </div>
     </section>
   );
 }

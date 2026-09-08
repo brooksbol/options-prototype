@@ -42,6 +42,13 @@ export interface Workspace {
   // Deployment cross-entry show count
   writeDeskCrossEntryShowCount: number;
 
+  // Deployment cross-entry DTE bounds (null = no bound)
+  writeDeskCrossEntryDteMin: number | null;
+  writeDeskCrossEntryDteMax: number | null;
+
+  // Deployment cross-entry symbol filter (empty = no filter)
+  writeDeskCrossEntrySymbol: string;
+
   // Deployment table sort state
   writeDeskPutSortKey: string;
   writeDeskPutSortDir: string;
@@ -77,6 +84,9 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskShowWideSpread: false,
   writeDeskCrossEntryAffordableOnly: false,
   writeDeskCrossEntryShowCount: 10,
+  writeDeskCrossEntryDteMin: null,
+  writeDeskCrossEntryDteMax: null,
+  writeDeskCrossEntrySymbol: "",
   writeDeskPutSortKey: "rank",
   writeDeskPutSortDir: "asc",
   writeDeskCallSortKey: "rank",

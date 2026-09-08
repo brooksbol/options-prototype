@@ -2144,6 +2144,21 @@
 .wd-control-spinner:hover { border-color: var(--wd-accent-green); }
 .wd-control-spinner:focus { outline: none; border-color: var(--wd-accent-green); }
 
+.wd-control-text {
+  background: var(--wd-bg-surface);
+  border: 1px solid var(--wd-border-default);
+  color: var(--wd-text-primary);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: var(--wd-size-label);
+  font-family: var(--wd-font-mono);
+  text-transform: uppercase;
+}
+
+.wd-control-text::placeholder { text-transform: none; }
+.wd-control-text:hover { border-color: var(--wd-accent-green); }
+.wd-control-text:focus { outline: none; border-color: var(--wd-accent-green); }
+
 
 /* Danger ticker text color */
 .wd-symbol-danger {
@@ -2286,6 +2301,25 @@
 
 .wd-cross-entry-table {
   font-size: 10px;
+}
+
+/* Scrollable body with frozen (sticky) column headers */
+.wd-cross-entry-scroll {
+  max-height: 60vh;
+  overflow-y: auto;
+  border-top: 1px solid var(--wd-border-default);
+}
+
+.wd-cross-entry-scroll .wd-cross-entry-table {
+  border-top: none;
+}
+
+.wd-cross-entry-scroll .wd-cross-entry-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  /* Opaque background so scrolling rows don't show through the header */
+  background: var(--wd-bg-raised, #f0f2f5);
 }
 
 .wd-cross-entry-mechanism {
