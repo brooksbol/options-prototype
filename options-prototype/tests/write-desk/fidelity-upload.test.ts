@@ -269,3 +269,102 @@ describe("Fidelity upload — snapshot content", () => {
     expect(snap1.provenance.optionSummaryFilename).toBe("first.csv");
   });
 });
+
+// --- Current-format Balances (Sep 2026 export layout) ---
+
+// Real Fidelity "Balances" export layout as of Sep 2026: "AVAILABLE TO TRADE" is a
+// blank section header. Deployable cash is Fidelity's tactical trading capacity —
+// "Non-margin buying power" (equivalently "Available without margin impact") — per the
+// 2026-09-08 Principal decision. In this early export, Non-margin buying power happened to
+// equal Settled cash, so both resolve to the same value.
+const FIDELITY_BALANCES_CURRENT_FORMAT = `,Balance,Day change
+Total account value,115450.72,424.2
+Account equity percentage,100.00%,
+AVAILABLE TO TRADE,,
+Margin buying power,94102.38,94102.38
+Non-margin buying power,47051.19,47051.19
+Available without margin impact,47051.19,47051.19
+Cash reserved for options strategies,2100,
+Settled cash,47051.19,
+AVAILABLE TO WITHDRAW,,
+Cash only,47051.19,
+Cash and borrowing on margin,47051.19,
+MARGIN STATUS,,
+House surplus,47051.19,46399.02
+`;
+
+// Real Fidelity export (2026-09-08) where Non-margin buying power ($56,552.99) and
+// Settled cash ($47,051.19) DIVERGE. Per the 2026-09-08 Principal decision, deployable
+// cash is the tactical trading capacity Fidelity actually permits — Non-margin buying
+// power ($56,552.99) — not Settled cash. Settled cash remains captured as evidence.
+const FIDELITY_BALANCES_DIVERGENT = `,Balance,Day change
+Total account value,115591.63,565.11
+Account equity percentage,100.00%,
+AVAILABLE TO TRADE,,
+Margin buying power,113105.98,113105.98
+Non-margin buying power,56552.99,56552.99
+Available without margin impact,56552.99,56552.99
+Cash reserved for options strategies,2100,
+Settled cash,47051.19,
+AVAILABLE TO WITHDRAW,,
+Cash only,47051.19,
+Cash and borrowing on margin,47051.19,
+`;
+
+// Hypothetical export missing "Non-margin buying power" but retaining the equivalent
+// "Available without margin impact". Deployable cash resolves from the equivalent label.
+const FIDELITY_BALANCES_NMBP_VIA_EQUIVALENT = `,Balance,Day change
+Total account value,115591.63,565.11
+Account equity percentage,100.00%,
+AVAILABLE TO TRADE,,
+Margin buying power,113105.98,113105.98
+Available without margin impact,56552.99,56552.99
+Cash reserved for options strategies,2100,
+Settled cash,47051.19,
+AVAILABLE TO WITHDRAW,,
+Cash only,47051.19,
+`;
+
+describe("Fidelity upload — current-format Balances (Sep 2026)", () => {
+  it("classifies as fidelity_balances", () => {
+    const result = parseAndClassify(FIDELITY_BALANCES_CURRENT_FORMAT);
+    expect(result.parser).not.toBeNull();
+    expect(result.parser!.id).toBe("fidelity_balances");
+  });
+
+  it("extracts authoritative deployable cash from Non-margin buying power", () => {
+    const balances = parseBalances(FIDELITY_BALANCES_CURRENT_FORMAT);
+    // Downstream (fidelity-snapshot) resolves deployableCash = availableToTradeAllSettled ?? availableToTrade
+    const deployable = balances.availableToTradeAllSettled ?? balances.availableToTrade;
+    expect(deployable).toBe(47051.19); // Non-margin BP == Settled cash in this early export
+  });
+
+  it("captures current-format sub-fields", () => {
+    const balances = parseBalances(FIDELITY_BALANCES_CURRENT_FORMAT);
+    expect(balances.settledCash).toBe(47051.19);
+    expect(balances.nonMarginBuyingPower).toBe(47051.19);
+    expect(balances.availableWithoutMarginImpact).toBe(47051.19);
+    expect(balances.cashReservedForOptions).toBe(2100);
+    expect(balances.totalAccountValue).toBe(115450.72);
+  });
+
+  it("uses Non-margin buying power (not Settled cash) when the two diverge", () => {
+    const balances = parseBalances(FIDELITY_BALANCES_DIVERGENT);
+    // Non-margin BP = $56,552.99 is the tactical deployable figure Fidelity permits;
+    // Settled cash = $47,051.19 is retained only as evidence.
+    expect(balances.settledCash).toBe(47051.19);
+    expect(balances.nonMarginBuyingPower).toBe(56552.99);
+    expect(balances.availableToTradeAllSettled).toBe(56552.99);
+    const deployable = balances.availableToTradeAllSettled ?? balances.availableToTrade;
+    expect(deployable).toBe(56552.99);
+  });
+
+  it("resolves deployable cash from Available without margin impact when Non-margin buying power is absent", () => {
+    const balances = parseBalances(FIDELITY_BALANCES_NMBP_VIA_EQUIVALENT);
+    expect(balances.nonMarginBuyingPower).toBeNull();
+    expect(balances.availableWithoutMarginImpact).toBe(56552.99);
+    expect(balances.availableToTradeAllSettled).toBe(56552.99);
+    const deployable = balances.availableToTradeAllSettled ?? balances.availableToTrade;
+    expect(deployable).toBe(56552.99);
+  });
+});

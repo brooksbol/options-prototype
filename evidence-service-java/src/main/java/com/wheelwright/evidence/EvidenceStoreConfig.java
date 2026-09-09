@@ -138,8 +138,12 @@ public class EvidenceStoreConfig {
     }
 
     @Bean
-    public SessionGate sessionGate() {
-        return new SessionGate(Clock.systemUTC());
+    public SessionGate sessionGate(ProviderAuthorityManager providerAuthorityManager) {
+        // Real-time-ness follows the active provider dynamically (failover-aware):
+        // Tradier production is real-time; sandbox is 15-min delayed.
+        return new SessionGate(
+            Clock.systemUTC(),
+            () -> "production".equals(providerAuthorityManager.active().environment()));
     }
 
     @Bean

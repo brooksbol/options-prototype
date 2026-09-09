@@ -71,7 +71,7 @@ export const DEFAULT_RECOMMENDATION_POLICY: RecommendationPolicy = {
     preferredDeltaBand: { min: 0.25, max: 0.35 },
     admissibleDeltaRange: { min: 0.15, max: 0.50 },
     targetDte: 21,
-    eligibleDteRange: { min: 7, max: 45 },
+    eligibleDteRange: { min: 0, max: 45 },
     side: "puts",
     excludeZeroBid: true,
     requireGreeks: true,

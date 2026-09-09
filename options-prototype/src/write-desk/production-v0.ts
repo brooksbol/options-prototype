@@ -86,6 +86,8 @@ export interface CrossEntryRow {
   /** Reference to original candidate (for drawer dispatch) */
   originalPut: PutCandidate | null;
   originalBuyWrite: BuyWriteCandidate | null;
+  /** Chain-acquisition provenance (PL-EVID-AGE), copied from the source candidate. */
+  evidenceProvenance?: import("./evidence-provenance").EvidenceProvenance;
 }
 
 // --- Computation ---
@@ -189,6 +191,7 @@ export function buildCrossEntryRows(
       posture: c.posture,
       originalPut: c,
       originalBuyWrite: null,
+      evidenceProvenance: c.evidenceProvenance,
     });
   }
 
@@ -217,6 +220,7 @@ export function buildCrossEntryRows(
       posture: c.posture,
       originalPut: null,
       originalBuyWrite: c,
+      evidenceProvenance: c.evidenceProvenance,
     });
   }
 

@@ -198,4 +198,67 @@ class SessionGateTest {
             assertFalse(result.permitted());
         }
     }
+
+    @Nested
+    @DisplayName("opening delay window (Phase 2, 09:30–09:45 ET) is provider-aware")
+    class OpeningDelayWindow {
+
+        private final SessionGate delayedGate = new SessionGate(Clock.systemUTC(), () -> false);
+        private final SessionGate realtimeGate = new SessionGate(Clock.systemUTC(), () -> true);
+
+        @Test
+        @DisplayName("delayed data: EXPIRATIONS_ONLY at 09:30 ET (must wait out the delay)")
+        void delayedExpirationsOnlyAtOpen() {
+            var posture = delayedGate.getPosture(etInstant("2026-07-15", 9, 30));
+            assertEquals(SessionGate.Posture.EXPIRATIONS_ONLY, posture.posture());
+            assertTrue(posture.reason().contains("Opening delay window"));
+        }
+
+        @Test
+        @DisplayName("delayed data: still EXPIRATIONS_ONLY at 09:44 ET (end of window)")
+        void delayedExpirationsOnlyLateWindow() {
+            var posture = delayedGate.getPosture(etInstant("2026-07-15", 9, 44));
+            assertEquals(SessionGate.Posture.EXPIRATIONS_ONLY, posture.posture());
+        }
+
+        @Test
+        @DisplayName("delayed data: FULL at 09:45 ET (window ends)")
+        void delayedFullAfterWindow() {
+            var posture = delayedGate.getPosture(etInstant("2026-07-15", 9, 45));
+            assertEquals(SessionGate.Posture.FULL, posture.posture());
+        }
+
+        @Test
+        @DisplayName("real-time data: FULL at 09:30 ET (no delay to wait out)")
+        void realtimeFullAtOpen() {
+            var posture = realtimeGate.getPosture(etInstant("2026-07-15", 9, 30));
+            assertEquals(SessionGate.Posture.FULL, posture.posture());
+            assertTrue(posture.reason().contains("real-time"));
+        }
+
+        @Test
+        @DisplayName("real-time data: FULL at 09:44 ET (within legacy window)")
+        void realtimeFullLateWindow() {
+            var posture = realtimeGate.getPosture(etInstant("2026-07-15", 9, 44));
+            assertEquals(SessionGate.Posture.FULL, posture.posture());
+        }
+
+        @Test
+        @DisplayName("real-time data: premarket (Phase 1, 09:00 ET) is still EXPIRATIONS_ONLY")
+        void realtimePremarketStillExpirationsOnly() {
+            // The delay window is about data lag; premarket is about the market not being open.
+            // Real-time-ness must NOT promote premarket to FULL.
+            var posture = realtimeGate.getPosture(etInstant("2026-07-15", 9, 0));
+            assertEquals(SessionGate.Posture.EXPIRATIONS_ONLY, posture.posture());
+            assertTrue(posture.reason().contains("Premarket preparation"));
+        }
+
+        @Test
+        @DisplayName("real-time data: 09:29 ET is still premarket EXPIRATIONS_ONLY (before open)")
+        void realtimeJustBeforeOpen() {
+            var posture = realtimeGate.getPosture(etInstant("2026-07-15", 9, 29));
+            assertEquals(SessionGate.Posture.EXPIRATIONS_ONLY, posture.posture());
+            assertTrue(posture.reason().contains("Premarket preparation"));
+        }
+    }
 }

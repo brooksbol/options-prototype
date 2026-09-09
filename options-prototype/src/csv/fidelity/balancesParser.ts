@@ -42,6 +42,14 @@ export interface ParsedBalances {
   totalAccountValue: number | null;
   valueOfInvestments: number | null;
   availableToWithdraw: number | null;
+  /** Current-format field: settled cash available to trade (equivalent to legacy "All Settled"). */
+  settledCash?: number | null;
+  /** Current-format field: non-margin buying power (authoritative deployable cash). */
+  nonMarginBuyingPower?: number | null;
+  /** Current-format field: available without margin impact (equivalent to non-margin buying power). */
+  availableWithoutMarginImpact?: number | null;
+  /** Current-format field: cash reserved for open options strategies. */
+  cashReservedForOptions?: number | null;
   accountName: string | null;
   accountNumber: string | null;
   allRows: BalancesRow[];
@@ -155,6 +163,10 @@ export const fidelityBalancesParser: CsvParser = {
     let totalAccountValue: number | null = null;
     let valueOfInvestments: number | null = null;
     let availableToWithdraw: number | null = null;
+    let settledCash: number | null = null;
+    let nonMarginBuyingPower: number | null = null;
+    let availableWithoutMarginImpact: number | null = null;
+    let cashReservedForOptions: number | null = null;
 
     let lastParentLabel = "";
 
@@ -181,10 +193,22 @@ export const fidelityBalancesParser: CsvParser = {
 
       // Match known balance fields
       if (normalizedLabel.includes("available to trade") && !isSubItem) {
-        availableToTrade = amount;
+        // Legacy format: this row carried the amount. Current format: this is a
+        // section header with a blank amount (value lives in sub-rows below).
+        if (amount != null) availableToTrade = amount;
         lastParentLabel = "available_to_trade";
       } else if (normalizedLabel.includes("all settled") && (isSubItem || lastParentLabel === "available_to_trade")) {
         availableToTradeAllSettled = amount;
+      } else if (normalizedLabel === "settled cash" || normalizedLabel.startsWith("settled cash")) {
+        // Current format: "Settled cash" appears under both AVAILABLE TO TRADE and
+        // AVAILABLE TO WITHDRAW. Keep the first occurrence (AVAILABLE TO TRADE section).
+        if (settledCash == null) settledCash = amount;
+      } else if (normalizedLabel.includes("non-margin buying power")) {
+        if (nonMarginBuyingPower == null) nonMarginBuyingPower = amount;
+      } else if (normalizedLabel.includes("available without margin impact")) {
+        if (availableWithoutMarginImpact == null) availableWithoutMarginImpact = amount;
+      } else if (normalizedLabel.includes("cash reserved for options")) {
+        cashReservedForOptions = amount;
       } else if (normalizedLabel.includes("cash and credits") || normalizedLabel.includes("cash & credits")) {
         cashAndCredits = amount;
         lastParentLabel = "cash_and_credits";
@@ -204,6 +228,31 @@ export const fidelityBalancesParser: CsvParser = {
       } else {
         lastParentLabel = normalizedLabel;
       }
+    }
+
+    // Authoritative deployable cash for the current export format.
+    //
+    // AUTHORITY (Principal decision 2026-09-08, revising 2026-07-03 Decision #4):
+    // Deployable cash is Fidelity's own tactical trading capacity — "Non-margin buying
+    // power" (equivalently "Available without margin impact"). This is the amount Fidelity
+    // actually lets the operator trade without margin impact, and is the honest answer to
+    // "how much can I put to work right now." It already reflects Fidelity's own
+    // settlement and collateral rules.
+    //
+    // This intentionally supersedes the earlier "Settled cash only" authority. The
+    // 2026-07-10 discovery (a CSP backed by an unsettled EFT was rejected) is preserved as
+    // historical caution about raw unsettled deposits, but Non-margin buying power is
+    // Fidelity's computed tradable figure, not a naive sum that includes ineligible funds.
+    // "Settled cash" remains captured as evidence for reconciliation and any future
+    // settlement-sensitive policy.
+    //
+    // Resolution order:
+    //   1. Non-margin buying power (current-format tactical authority)
+    //   2. Available without margin impact (equivalent current-format label)
+    //   3. Available to Trade → All Settled (legacy export path)
+    // The field remains named availableToTradeAllSettled for downstream contract stability.
+    if (availableToTradeAllSettled == null) {
+      availableToTradeAllSettled = nonMarginBuyingPower ?? availableWithoutMarginImpact;
     }
 
     // Diagnostics
@@ -227,6 +276,10 @@ export const fidelityBalancesParser: CsvParser = {
       totalAccountValue,
       valueOfInvestments,
       availableToWithdraw,
+      settledCash,
+      nonMarginBuyingPower,
+      availableWithoutMarginImpact,
+      cashReservedForOptions,
       accountName,
       accountNumber,
       allRows,

@@ -20,6 +20,8 @@ import type { RecommendationPolicy } from "../write-desk/recommend";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import { useMultiColumnSort, type SortDir } from "../write-desk/use-multi-column-sort";
 import { downloadTableCsv } from "../write-desk/table-csv-export";
+import { AgeCell } from "../write-desk/AgeCell";
+import { formatAcquisitionAge, type EvidenceProvenance } from "../write-desk/evidence-provenance";
 
 // --- Sortable Table (delegates to shared multi-column hook) ---
 
@@ -207,7 +209,7 @@ export function CrossEntryStrip({
           <input type="number" min={1} max={filtered.length || 50} value={showCount} onChange={(e) => { const v = Math.max(1, Math.min(filtered.length || 50, parseInt(e.target.value) || 10)); setShowCount(v); updateWorkspace({ writeDeskCrossEntryShowCount: v }); }} className="wd-control-spinner" />
         </label>
         <span className="wd-table-showing" style={{ marginLeft: "8px" }}>Showing {Math.min(displayed.length, filtered.length)} of {filtered.length}</span>
-        <button className="wd-download-btn" onClick={() => {
+        <button className="wd-download-btn" onClick={() => { const csvNow = Date.now();
           downloadTableCsv(
             filtered as unknown as Record<string, unknown>[],
             [
@@ -217,6 +219,7 @@ export function CrossEntryStrip({
               { key: "bid", label: "Bid" }, { key: "mid", label: "Mid" }, { key: "ask", label: "Ask" },
               { key: "capitalRequired", label: "Capital" }, { key: "cashRemaining", label: "Remaining" },
               { key: "executionScore", label: "Exec" }, { key: "posture", label: "Posture" },
+              { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
             ],
             `wheelwright-cross-entry-${new Date().toISOString().slice(0, 10)}.csv`
           );
@@ -246,6 +249,7 @@ export function CrossEntryStrip({
             <th className="wd-sortable" onClick={(e) => handleSort("cashRemaining", e)}>Remaining{indicator("cashRemaining")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("executionScore", e)}>Exec{indicator("executionScore")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("posture", e)}>Posture{indicator("posture")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("age", e)} title="Chain-acquisition age of the evidence this row was calculated from">Age{indicator("age")}</th>
           </tr>
         </thead>
         <tbody>
@@ -283,6 +287,7 @@ export function CrossEntryStrip({
               <td className={row.cashRemaining < 0 ? "wd-negative-value" : ""}>${row.cashRemaining.toLocaleString()}</td>
               <td>{row.executionScore}</td>
               <td><span className={`wd-posture-badge wd-posture-${row.posture.toLowerCase()}`}>{row.posture}</span></td>
+              <td><AgeCell provenance={row.evidenceProvenance} /></td>
             </tr>
           ))}
         </tbody>

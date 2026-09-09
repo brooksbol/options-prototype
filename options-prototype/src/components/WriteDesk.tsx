@@ -102,6 +102,27 @@ export function Deployment() {
   const [showDanger, setShowDanger] = useState(() => loadWorkspace().writeDeskShowDanger);
   const [showWideSpread, setShowWideSpread] = useState(() => loadWorkspace().writeDeskShowWideSpread);
   const [showCount, setShowCount] = useState(() => loadWorkspace().writeDeskShowCount);
+  // Put table filters (mirror Cash Deployment: symbol / DTE / capital)
+  const [putSymbolFilter, setPutSymbolFilter] = useState<string>(() => loadWorkspace().writeDeskPutSymbol);
+  const [putDteMin, setPutDteMin] = useState<number | null>(() => loadWorkspace().writeDeskPutDteMin);
+  const [putDteMax, setPutDteMax] = useState<number | null>(() => loadWorkspace().writeDeskPutDteMax);
+  const [putCapitalMin, setPutCapitalMin] = useState<number | null>(() => loadWorkspace().writeDeskPutCapitalMin);
+  const [putCapitalMax, setPutCapitalMax] = useState<number | null>(() => loadWorkspace().writeDeskPutCapitalMax);
+  const putSymbolTerms = useMemo(
+    () => putSymbolFilter.split(/[\s,]+/).map(t => t.trim().toUpperCase()).filter(Boolean),
+    [putSymbolFilter]
+  );
+  // Shared predicate so the control-count and table-render blocks never diverge.
+  // Capital dimension for CSPs is cashRequired (collateral = strike × 100).
+  const putRowMatchesFilters = useCallback(
+    (c: PutCandidate) =>
+      (putDteMin == null || c.dte >= putDteMin) &&
+      (putDteMax == null || c.dte <= putDteMax) &&
+      (putCapitalMin == null || c.cashRequired >= putCapitalMin) &&
+      (putCapitalMax == null || c.cashRequired <= putCapitalMax) &&
+      (putSymbolTerms.length === 0 || putSymbolTerms.some(t => c.symbol.toUpperCase().includes(t))),
+    [putDteMin, putDteMax, putCapitalMin, putCapitalMax, putSymbolTerms]
+  );
   const [putsCollapsed, setPutsCollapsed] = useState(() => loadWorkspace().writeDeskPutsCollapsed);
   const [callsCollapsed, setCallsCollapsed] = useState(() => loadWorkspace().writeDeskCallsCollapsed);
   const [crossEntryCollapsed, setCrossEntryCollapsed] = useState(() => loadWorkspace().writeDeskCrossEntryCollapsed);
@@ -673,6 +694,74 @@ export function Deployment() {
                 Affordable only
               </label>
               <label className="wd-control">
+                Symbol
+                <input
+                  type="text"
+                  value={putSymbolFilter}
+                  placeholder="e.g. SPY, QQQ"
+                  onChange={(e) => { const next = e.target.value; setPutSymbolFilter(next); updateWorkspace({ writeDeskPutSymbol: next }); }}
+                  className="wd-control-text"
+                  style={{ width: "96px" }}
+                />
+                {putSymbolFilter && (
+                  <button
+                    type="button"
+                    className="wd-sort-reset"
+                    style={{ marginLeft: "4px" }}
+                    onClick={() => { setPutSymbolFilter(""); updateWorkspace({ writeDeskPutSymbol: "" }); }}
+                    title="Clear symbol filter"
+                  >
+                    ✕
+                  </button>
+                )}
+              </label>
+              <label className="wd-control">
+                DTE min
+                <input
+                  type="number"
+                  min={0}
+                  value={putDteMin ?? ""}
+                  placeholder="—"
+                  onChange={(e) => { const raw = e.target.value.trim(); const next = raw === "" ? null : Math.max(0, parseInt(raw, 10) || 0); setPutDteMin(next); updateWorkspace({ writeDeskPutDteMin: next }); }}
+                  className="wd-control-spinner"
+                />
+              </label>
+              <label className="wd-control">
+                DTE max
+                <input
+                  type="number"
+                  min={0}
+                  value={putDteMax ?? ""}
+                  placeholder="—"
+                  onChange={(e) => { const raw = e.target.value.trim(); const next = raw === "" ? null : Math.max(0, parseInt(raw, 10) || 0); setPutDteMax(next); updateWorkspace({ writeDeskPutDteMax: next }); }}
+                  className="wd-control-spinner"
+                />
+              </label>
+              <label className="wd-control">
+                Capital min
+                <input
+                  type="number"
+                  min={0}
+                  step={100}
+                  value={putCapitalMin ?? ""}
+                  placeholder="—"
+                  onChange={(e) => { const raw = e.target.value.trim(); const next = raw === "" ? null : Math.max(0, parseFloat(raw) || 0); setPutCapitalMin(next); updateWorkspace({ writeDeskPutCapitalMin: next }); }}
+                  className="wd-control-spinner"
+                />
+              </label>
+              <label className="wd-control">
+                Capital max
+                <input
+                  type="number"
+                  min={0}
+                  step={100}
+                  value={putCapitalMax ?? ""}
+                  placeholder="—"
+                  onChange={(e) => { const raw = e.target.value.trim(); const next = raw === "" ? null : Math.max(0, parseFloat(raw) || 0); setPutCapitalMax(next); updateWorkspace({ writeDeskPutCapitalMax: next }); }}
+                  className="wd-control-spinner"
+                />
+              </label>
+              <label className="wd-control">
                 Show
                 <input type="number" min={0} max={universeSymbols.length} value={showCount} onChange={(e) => { const v = Math.max(0, Math.min(universeSymbols.length, parseInt(e.target.value) || 0)); setShowCount(v); updateWorkspace({ writeDeskShowCount: v }); }} className="wd-control-spinner" />
               </label>
@@ -680,6 +769,7 @@ export function Deployment() {
                 const allRows = [...putCandidates, ...putWaitCandidates, ...(showWideSpread ? putWideSpreadCandidates : [])];
                 let filtered = showAffordableOnly ? allRows.filter(c => c.affordable) : allRows;
                 if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
+                filtered = filtered.filter(putRowMatchesFilters);
                 const displayed = Math.min(filtered.length, showCount);
                 const downloadCsv = () => {
                   const rows = filtered.slice(0, showCount);
@@ -710,6 +800,7 @@ export function Deployment() {
               const allRows = [...putCandidates, ...putWaitCandidates, ...(showWideSpread ? putWideSpreadCandidates : [])];
               let filtered = showAffordableOnly ? allRows.filter((c) => c.affordable) : allRows;
               if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
+              filtered = filtered.filter(putRowMatchesFilters);
               const displayed = filtered.slice(0, showCount).map((c, i) => ({ ...c, rank: i + 1 }));
               return <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { selectDrawerCandidate("put", { put: c, putPos: pos }); }} />;
             })()

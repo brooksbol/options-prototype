@@ -1236,3 +1236,55 @@ Today closed the Production Evidence CSV slice end to end: ADR-016 (evidence-to-
 **Deferred / separate (not touched):** button-placement UX polish (small future item); GitHub Issues #14 (inflated presented contract counts — episode-construction double counting) and #15 (capital label vs backing value inconsistency; expired null-label/non-null-amount) remain separate Product defects, faithfully exposed by the export; Production frontend/backend semantic decoupling remains a separate investigation for a future session (the CSV exists to make that divergence observable, not to resolve it).
 
 Suites at close: backend 434 (0 fail, 1 skipped); frontend 1350 passed / 1 pre-existing unrelated Velvet Rope date-snapshot failure; `tsc` clean.
+
+## 2026-09-08 — Deployable-cash reconciliation: Settled cash vs Non-margin buying power diverge
+
+### Origin
+
+Operator asked to reconcile the "Deployable" figure shown in the application shell against the actual Fidelity account. The live shell showed **Deployable $47.1K**. A same-day Fidelity Balances export (account Z39411514, downloaded 2026-09-08 10:25 ET) was provided.
+
+### What the reconciliation found
+
+The displayed value is **correct**, not defective. `Deployable` traces:
+
+```
+Balances CSV → balancesParser.availableToTradeAllSettled
+            → fidelity-snapshot.deployableCash
+            → HeaderPortfolioStatus "Deployable"
+```
+
+In the current-format export, this maps to **Settled cash = $47,051.19** (which also equals "Cash only" available to withdraw). That is the ratified cash authority (2026-07-03 Decision #4: `deployableCash = availableToTradeAllSettled`, Fidelity's settled CSP-eligible cash, no reconstruction).
+
+### The new observation: two fields that used to be equal now diverge
+
+This export is the first observed instance where the current-format fields **diverge**:
+
+| Fidelity field | Value | Meaning |
+|---|---|---|
+| Settled cash | $47,051.19 | Settled, CSP-collateral-eligible (authoritative deployable) |
+| Non-margin buying power / Available without margin impact | $56,552.99 | Includes ~$9,501.80 of **unsettled** funds |
+| Cash reserved for options strategies | $2,100 | Already excluded by Fidelity |
+
+Prior exports (see the `FIDELITY_BALANCES_CURRENT_FORMAT` test fixture) happened to have Settled cash == Non-margin buying power, which masked the distinction and led an earlier comment to call them "equivalent." They are not. The ~$9.5K gap is buying power backed by unsettled funds.
+
+This directly re-confirms the 2026-07-10 discovery ("Brokerage Policy Mediates Operational Capability"): unsettled funds are not valid cash-secured-put collateral — Fidelity rejected a CSP backed by an unsettled EFT. Using Non-margin buying power as deployable would over-state real CSP capacity by the unsettled amount and reintroduce that exact bug.
+
+### Latent defect fixed
+
+`balancesParser.ts` resolved the authoritative figure as `settledCash ?? nonMarginBuyingPower`. With Settled cash present (every valid export seen so far) this is correct and the fix is behavior-preserving. But if a future export ever omitted "Settled cash," the fallback would have silently substituted the unsettled-inclusive Non-margin buying power figure, over-stating deployable CSP capacity with no signal.
+
+Fix (operator-approved, option 1 — fail safe over substitute):
+- Removed the `nonMarginBuyingPower` fallback. Deployable cash now resolves only from Settled cash, else `null` (readiness blocks recommendations rather than deploying against an unsettled-inclusive number). `nonMarginBuyingPower` is still parsed and retained as evidence, just not an authority fallback.
+- Corrected the misleading "equivalent" comment with the settlement rationale and a pointer to the 2026-07-10 discovery.
+- Tests: added the real divergent export as a fixture (asserts Settled cash wins over Non-margin BP) and a no-settled-cash fixture (asserts deployable resolves to `null`, no unsettled fallback).
+
+### Epistemic status
+
+- Observed evidence: the 2026-09-08 export's field values and their divergence.
+- Confirmed: displayed Deployable ($47.1K) equals Settled cash and is the correct authority.
+- Fix: behavior-preserving for all valid exports; only changes the previously-untested Settled-cash-absent edge case.
+- Not a change to the ratified cash-authority decision — it hardens the parser against silently violating it.
+
+### Validation
+
+Targeted `fidelity-upload.test.ts` 21/21 pass; full write-desk + portfolio suites 552/552 pass. Whole-suite/backend not run. No commit made.

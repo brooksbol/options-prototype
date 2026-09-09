@@ -4,6 +4,7 @@ import com.wheelwright.evidence.SchedulerConfig;
 import java.sql.*;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -23,8 +24,61 @@ public class SqliteEvidenceStore implements AutoCloseable {
     private int cacheHits = 0;
     private String sessionDateOverride = null;
 
+    /**
+     * Serializes multi-statement transactional blocks that toggle the shared connection's
+     * autoCommit flag.
+     *
+     * SHORT-TERM FIX (2026-09-08): the store holds a single shared JDBC {@link Connection}
+     * used concurrently by the background AcquisitionWorker and by HTTP request threads
+     * (e.g. POST /api/opportunity-history → {@link #appendOpportunityHistory}). Each
+     * transactional method does {@code setAutoCommit(false) … commit … finally
+     * setAutoCommit(true)}. Because autoCommit is connection-wide, two overlapping
+     * transactional blocks race: one thread's {@code finally setAutoCommit(true)} flips the
+     * flag while another is mid-transaction, and that thread's {@code rollback()} then throws
+     * "database in auto-commit mode", masking the real outcome.
+     *
+     * This lock makes each transactional block's autoCommit window atomic so the four
+     * transactional writers can no longer corrupt each other's flag. It does NOT fully
+     * serialize every single-statement read/write against the shared connection — that is the
+     * broader connection-thread-safety fix tracked as a long-term to-do (GitHub issue).
+     */
+    private final ReentrantLock txLock = new ReentrantLock();
+
     public SqliteEvidenceStore(String dbPath) throws SQLException {
         this.conn = DatabaseManager.open(dbPath);
+    }
+
+    /**
+     * Run a multi-statement unit of work as one transaction with serialized autoCommit
+     * handling. Acquires {@link #txLock} so the autoCommit window cannot overlap another
+     * transactional block on the shared connection. Rollback is defensive: it only rolls back
+     * when the connection is actually in a transaction, so a genuine failure surfaces instead
+     * of being masked by a spurious "database in auto-commit mode" from the rollback itself.
+     */
+    private void inTransaction(SqlUnit work) throws SQLException {
+        txLock.lock();
+        try {
+            conn.setAutoCommit(false);
+            try {
+                work.run();
+                conn.commit();
+            } catch (SQLException e) {
+                if (!conn.getAutoCommit()) {
+                    conn.rollback();
+                }
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } finally {
+            txLock.unlock();
+        }
+    }
+
+    /** A unit of transactional work that may throw {@link SQLException}. */
+    @FunctionalInterface
+    private interface SqlUnit {
+        void run() throws SQLException;
     }
 
     // --- Universe ---
@@ -34,26 +88,21 @@ public class SqliteEvidenceStore implements AutoCloseable {
      */
     public void initUniverse(List<String> symbols) throws SQLException {
         String now = Instant.now().toString();
-        conn.setAutoCommit(false);
-        try (PreparedStatement insertSymbol = conn.prepareStatement(
-                    "INSERT OR IGNORE INTO symbols (symbol, added_at) VALUES (?, ?)");
-             PreparedStatement insertResolution = conn.prepareStatement(
-                    "INSERT OR IGNORE INTO symbol_resolution (symbol, resolution) VALUES (?, 'pending')")) {
-            for (String symbol : symbols) {
-                insertSymbol.setString(1, symbol);
-                insertSymbol.setString(2, now);
-                insertSymbol.executeUpdate();
+        inTransaction(() -> {
+            try (PreparedStatement insertSymbol = conn.prepareStatement(
+                        "INSERT OR IGNORE INTO symbols (symbol, added_at) VALUES (?, ?)");
+                 PreparedStatement insertResolution = conn.prepareStatement(
+                        "INSERT OR IGNORE INTO symbol_resolution (symbol, resolution) VALUES (?, 'pending')")) {
+                for (String symbol : symbols) {
+                    insertSymbol.setString(1, symbol);
+                    insertSymbol.setString(2, now);
+                    insertSymbol.executeUpdate();
 
-                insertResolution.setString(1, symbol);
-                insertResolution.executeUpdate();
+                    insertResolution.setString(1, symbol);
+                    insertResolution.executeUpdate();
+                }
             }
-            conn.commit();
-        } catch (SQLException e) {
-            conn.rollback();
-            throw e;
-        } finally {
-            conn.setAutoCommit(true);
-        }
+        });
     }
 
     // --- Evidence Recording ---
@@ -84,31 +133,26 @@ public class SqliteEvidenceStore implements AutoCloseable {
         List<String> genuinelyNew = findUnknownSymbols(symbols);
         if (genuinelyNew.isEmpty()) return;
 
-        conn.setAutoCommit(false);
-        try (PreparedStatement insertSymbol = conn.prepareStatement(
-                    "INSERT OR IGNORE INTO symbols (symbol, added_at) VALUES (?, ?)");
-             PreparedStatement insertResolution = conn.prepareStatement(
-                    "INSERT OR IGNORE INTO symbol_resolution (symbol, resolution) VALUES (?, 'pending')");
-             PreparedStatement insertMembership = conn.prepareStatement(
-                    "INSERT OR IGNORE INTO symbol_membership (symbol, source_id) VALUES (?, 'observation_demand')")) {
-            for (String symbol : genuinelyNew) {
-                insertSymbol.setString(1, symbol);
-                insertSymbol.setString(2, now);
-                insertSymbol.executeUpdate();
+        inTransaction(() -> {
+            try (PreparedStatement insertSymbol = conn.prepareStatement(
+                        "INSERT OR IGNORE INTO symbols (symbol, added_at) VALUES (?, ?)");
+                 PreparedStatement insertResolution = conn.prepareStatement(
+                        "INSERT OR IGNORE INTO symbol_resolution (symbol, resolution) VALUES (?, 'pending')");
+                 PreparedStatement insertMembership = conn.prepareStatement(
+                        "INSERT OR IGNORE INTO symbol_membership (symbol, source_id) VALUES (?, 'observation_demand')")) {
+                for (String symbol : genuinelyNew) {
+                    insertSymbol.setString(1, symbol);
+                    insertSymbol.setString(2, now);
+                    insertSymbol.executeUpdate();
 
-                insertResolution.setString(1, symbol);
-                insertResolution.executeUpdate();
+                    insertResolution.setString(1, symbol);
+                    insertResolution.executeUpdate();
 
-                insertMembership.setString(1, symbol);
-                insertMembership.executeUpdate();
+                    insertMembership.setString(1, symbol);
+                    insertMembership.executeUpdate();
+                }
             }
-            conn.commit();
-        } catch (SQLException e) {
-            conn.rollback();
-            throw e;
-        } finally {
-            conn.setAutoCommit(true);
-        }
+        });
     }
 
     /**
@@ -128,8 +172,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
         Set<String> monitored = new HashSet<>();
         for (String s : symbols) monitored.add(s.toUpperCase());
 
-        conn.setAutoCommit(false);
-        try {
+        inTransaction(() -> {
             // Clear all existing monitored markers
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate("UPDATE symbol_resolution SET monitored_at = NULL WHERE monitored_at IS NOT NULL");
@@ -144,13 +187,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
                 }
                 ps.executeBatch();
             }
-            conn.commit();
-        } catch (SQLException e) {
-            conn.rollback();
-            throw e;
-        } finally {
-            conn.setAutoCommit(true);
-        }
+        });
     }
 
     /**
@@ -1738,8 +1775,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
     public void appendOpportunityHistory(EvaluationEpochRecord epoch,
                                          List<SymbolObservationRecord> symbolObs,
                                          List<SurfaceObservationRecord> surfaceObs) throws SQLException {
-        conn.setAutoCommit(false);
-        try {
+        inTransaction(() -> {
             try (PreparedStatement ps = conn.prepareStatement("""
                     INSERT OR IGNORE INTO evaluation_epoch
                       (epoch_id, started_at, policy_version, evidence_generation, session_date,
@@ -1806,14 +1842,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
                 }
                 ps.executeBatch();
             }
-
-            conn.commit();
-        } catch (SQLException e) {
-            conn.rollback();
-            throw e;
-        } finally {
-            conn.setAutoCommit(true);
-        }
+        });
     }
 
     /** Count rows in each opportunity-history table (observability / tests). */

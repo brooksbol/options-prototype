@@ -53,6 +53,13 @@ export interface Workspace {
   writeDeskCrossEntryCapitalMin: number | null;
   writeDeskCrossEntryCapitalMax: number | null;
 
+  // Put candidates table filters (mirror cross-entry: symbol / DTE / capital)
+  writeDeskPutSymbol: string;
+  writeDeskPutDteMin: number | null;
+  writeDeskPutDteMax: number | null;
+  writeDeskPutCapitalMin: number | null;
+  writeDeskPutCapitalMax: number | null;
+
   // Deployment table sort state
   writeDeskPutSortKey: string;
   writeDeskPutSortDir: string;
@@ -93,6 +100,11 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskCrossEntrySymbol: "",
   writeDeskCrossEntryCapitalMin: null,
   writeDeskCrossEntryCapitalMax: null,
+  writeDeskPutSymbol: "",
+  writeDeskPutDteMin: null,
+  writeDeskPutDteMax: null,
+  writeDeskPutCapitalMin: null,
+  writeDeskPutCapitalMax: null,
   writeDeskPutSortKey: "rank",
   writeDeskPutSortDir: "asc",
   writeDeskCallSortKey: "rank",

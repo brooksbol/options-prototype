@@ -3,6 +3,7 @@ package com.wheelwright.evidence;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 /**
  * Session Gate — determines acquisition posture at a given instant.
@@ -15,8 +16,18 @@ import java.util.Set;
  *
  * Phase mapping (experimental scheduler postures, not new canonical session states):
  *   Phase 1 (09:00–09:30 ET): EXPIRATIONS_ONLY — premarket preparation for opening set
- *   Phase 2 (09:30–09:45 ET): EXPIRATIONS_ONLY — delay window; chains would be inadmissible
+ *   Phase 2 (09:30–09:45 ET): delay window — see below
  *   Phase 3 (09:45–16:15 ET): FULL — regular observation with opening-burst priority
+ *
+ * Phase 2 is PROVIDER-AWARE:
+ *   - Delayed data (e.g. Tradier sandbox, 15-min delayed): EXPIRATIONS_ONLY. During the
+ *     first 15 minutes of the session, delayed quotes still reflect the prior close, so
+ *     acquiring chains/quotes would model stale evidence as fresh. Wait it out.
+ *   - Real-time data (e.g. Tradier production): FULL immediately at 09:30. There is no
+ *     delay to wait out, so the delay window would needlessly suppress acquisition.
+ * The real-time signal is supplied dynamically so runtime provider failover
+ * (production <-> sandbox) is reflected correctly. Default is delayed (false) — the
+ * conservative choice that preserves the original sandbox behavior.
  *
  * The prior binary isPermitted() API is preserved for backward compatibility.
  * Uses an injectable Clock for deterministic testing.
@@ -41,9 +52,18 @@ public class SessionGate {
     private static final int EARLY_CLOSE_WITH_DELAY = 13 * 60 + 30;    // 13:30 ET
 
     private final Clock clock;
+    /** True when the active provider serves real-time (undelayed) market data. */
+    private final BooleanSupplier realtimeData;
 
-    public SessionGate(Clock clock) {
+    /** Full constructor: injectable clock and a dynamic real-time-data signal. */
+    public SessionGate(Clock clock, BooleanSupplier realtimeData) {
         this.clock = clock;
+        this.realtimeData = realtimeData != null ? realtimeData : () -> false;
+    }
+
+    /** Clock-only constructor. Assumes delayed data (conservative default). */
+    public SessionGate(Clock clock) {
+        this(clock, () -> false);
     }
 
     public SessionGate() {
@@ -112,8 +132,15 @@ public class SessionGate {
                 "Premarket preparation (%d:%02d ET)", et.hours, et.minutes));
         }
 
-        // Phase 2: 09:30–09:45 ET — expirations only (delay window)
+        // Phase 2: 09:30–09:45 ET — provider-aware delay window.
+        // Real-time data has no delay to wait out, so go straight to FULL.
+        // Delayed data (sandbox) must wait: fresh quotes would still reflect the prior close.
         if (et.timeMinutes < DELAY_END_MINUTES) {
+            if (realtimeData.getAsBoolean()) {
+                return PostureDecision.of(Posture.FULL, String.format(
+                    "Regular observation — real-time provider, no opening delay (%d:%02d ET)",
+                    et.hours, et.minutes));
+            }
             return PostureDecision.of(Posture.EXPIRATIONS_ONLY, String.format(
                 "Opening delay window (%d:%02d ET)", et.hours, et.minutes));
         }
