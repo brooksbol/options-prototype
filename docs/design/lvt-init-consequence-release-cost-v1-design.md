@@ -2,8 +2,8 @@
 
 **Status:** Design decomposition — implementation-ready candidate, **NOT implemented, NOT authorized for implementation.**
 **Authority:** Supporting design artifact (Category E). Canonical strategy is `docs/roadmap.md`; why-state is `docs/discovery/lvt-owned-capital-consequence-reconciliation-2026-09-09.md`.
-**Produced:** 2026-09-09, authorized 3AM execution cycle (Principal + ChatGPT + Kiro), Kiro as invoked actor.
-**Repository baseline:** SYNC SHA `addd498` (+ local truth-preflight commit `2d4928c`).
+**Produced:** 2026-09-09, authorized 3AM execution cycle (Principal + ChatGPT + Kiro), Kiro as invoked actor. **Revised 2026-09-09** (3AM) — see Revision log at end.
+**Repository baseline:** SYNC SHA `9bf9ff0`.
 **LVT home:** `LVT-INIT-CONSEQUENCE-RELEASE-COST` under `LVT-BET-CONSEQUENCE-ENVELOPE` (legacy `K1`), `LVT-GOAL-CONSEQUENCES`.
 **Review path:** returns to 3AM (Principal + ChatGPT). A 4AM (add Codex) adversarial pass may follow **after** this design exists, only if the Principal authorizes escalation. This document does not request one.
 
@@ -14,6 +14,12 @@
 > **"For capital I already have deployed in this owned-share position, what does releasing it or retaining it cost me — in money, time, and risk — what compensation and participation do I keep, what will I own next, and when is my next decision?"**
 
 This is a *consequence* question about already-deployed capital. It is not "what should I do" (that is comparison/explanation, `LVT-BET-EXPLANATION`), not "what alternatives exist" (`LVT-BET-LIFECYCLE-CHOICES`), and not "what becomes feasible elsewhere" (`LVT-BET-CAPITAL-CHOICES`). Those Bets *consume* this consequence representation; this Initiative *produces* it.
+
+### Ownership boundary (governing constraint — added 2026-09-09 3AM revision)
+
+> **The consequence model consumes an already-known governed alternative and emits its independent consequence facts. Alternative discovery/enumeration remains outside this Initiative — it belongs to `LVT-BET-LIFECYCLE-CHOICES`. An existing surface may compose several already-evaluated alternatives side by side, but this Initiative must not become the mechanism that discovers the alternative set.**
+
+Concretely: the v1 unit of work is `evaluateConsequences(position, suppliedAlternative) → consequence facts`. It takes one governed alternative as input. It does **not** iterate the option chain to *find* which alternatives (which strikes, which DTEs, whether a collar is possible) exist — that enumeration is `LVT-BET-LIFECYCLE-CHOICES`'s responsibility. This single boundary prevents the first implementation from silently becoming a lifecycle-alternative engine (the Goal separation preserved at ratification).
 
 ## 2. Concrete evidence motivating it
 
@@ -33,26 +39,26 @@ v1 represents, **per owned-share position, per candidate retention/release alter
 | # | Fact | One-line meaning |
 |---|------|------------------|
 | F1 | **Capital released (approx)** | Cash a Sell/CLOSE would return now ≈ current market value of the shares. |
-| F2 | **Temporal encumbrance** | For a retention alternative (Hold/CC/Collar), how long capital stays committed until the next decision boundary (DTE). |
+| F2 | **Time to represented contractual boundary** | For a retention alternative, time (DTE) until the *currently represented* contractual decision point. This is exposure-over-time, **not** guaranteed capital lockup: the operator may BTC, roll, unwind, or sell shares subject to closing the option. |
 | F3 | **Compensation while waiting** | Premium a CC/collar structure pays (midpoint), where option evidence exists. |
-| F4 | **Downside envelope** | Structural floor/bounded downside a collar creates (from strikes + option evidence); "unbounded below" where a bare Hold/CC provides none. |
+| F4 | **Downside envelope** | Whether a *protective floor above zero* exists (collar, from strikes + option evidence) or **no protective floor above zero** (bare Hold/CC — loss is economically bounded only by shares → 0, which is not protection). |
 | F5 | **Retained participation / recovery room** | Upside/recovery the alternative keeps (e.g. room to strike for CC; capped-but-present for collar; full for Hold; none after Sell). |
-| F6 | **Resulting capital state** | What the operator owns after resolution: cash / shares / bounded-shares. Structurally different per alternative. |
+| F6 | **Resulting holding / resolution outcome** | What the operator will *hold* after each resolution branch: cash, shares retained, shares-retained-with-protection-expired/renewal-needed, etc. A holding/outcome label — **not** a capital-state ontology. |
 | F7 | **Next decision boundary** | The next natural date a decision is forced (expiration for option structures; none/now for Sell; open-ended for bare Hold). |
-| F8 | **Exact monetary release cost** *(basis-gated)* | Realized erosion/appreciation on Sell relative to basis. **Precision-bounded** — see §5. Marked approximate/unavailable when lot-level basis is absent. |
+| F8 | **Basis-relative release effect** *(basis-gated; precision metadata)* | Erosion/appreciation on Sell relative to basis, carrying explicit precision metadata: `exact` (single-lot authoritative basis), `blended/approximate` (symbol-level blended basis), or `unavailable`. Named for what it is, not asserted as always-exact. See §5. |
 
 **Not in v1 as a computed fact:** any scalar combining these; any ranking; any "recommended" alternative; any downstream feasible-set computation.
 
 ## 4. Semantic definitions
 
 - **F1 Capital released** — `sharesFree × currentUnderlyingPrice`. Market-derived. This is *release value*, explicitly **not** basis-relative gain. It is what returns to cash, not what was made/lost.
-- **F2 Temporal encumbrance** — `expiration − today` (DTE) for the alternative's option leg; "until sold" for Hold; "immediate" for Sell. A duration, not a cost in dollars.
+- **F2 Time to represented contractual boundary** — `expiration − today` (DTE) for the alternative's option leg; "until sold" for Hold; "immediate" for Sell. Communicates **exposure duration**, not guaranteed lockup: the capital is not literally inaccessible until expiration — the operator may BTC, roll, unwind a collar, or sell shares subject to closing the option position. The GDX insight is that waiting *consumes time and maintains exposure*, not that capital is frozen. A duration, not a dollar cost.
 - **F3 Compensation** — CC: `mid × 100 × contracts`. Collar: net of short-call credit and long-put debit at midpoint. Uses the existing midpoint convention (`(bid+ask)/2`). Indicative, not a guaranteed fill.
-- **F4 Downside envelope** — Collar: `putStrike` establishes a floor; bounded downside ≈ `currentPrice − putStrike − netDebit`. Bare Hold/CC: no structural floor ("downside unbounded below current price except for premium cushion"). Structural, from strikes.
+- **F4 Downside envelope** — Collar: `putStrike` establishes a **protective floor above zero**; bounded downside ≈ `currentPrice − putStrike − netDebit`. Bare Hold/CC: **no protective floor above zero** — the position's loss is economically bounded only by the shares going to zero (plus any premium cushion), which is not protection. Say "no protective floor," never "unbounded/unlimited downside" (an owned-equity loss is economically bounded at share value → 0). Structural, from strikes.
 - **F5 Retained participation** — CC: `callStrike − currentPrice` room before capped (plus premium). Collar: bounded above by call strike, below by put strike. Hold: full. Sell: none.
-- **F6 Resulting state** — enumerated structural outcome per alternative and per resolution branch (e.g. CC → {shares retained if OTM, cash if assigned}). A label, not a probability.
+- **F6 Resulting holding / resolution outcome** — enumerated *holding* per alternative and per resolution branch (e.g. CC → {shares retained if OTM, cash if assigned}; collar → {shares retained, protection expired/renewal needed, if OTM}). A holding/outcome label, not a probability, and deliberately **not** a generalized capital-state vocabulary — it answers "what will I hold next?" without introducing a state ontology.
 - **F7 Next decision boundary** — the option expiration date, or "now" (Sell) / "open" (Hold).
-- **F8 Exact monetary release cost** — `sharesFree × (currentPrice − lotBasisPerShare)` **only when lot-level basis is authoritative**; otherwise approximate (blended basis, clearly labeled) or unavailable.
+- **F8 Basis-relative release effect** — `sharesFree × (currentPrice − basisPerShare)`, always accompanied by a **precision tag**: `exact` when lot-level basis is authoritative (and single-lot); `blended/approximate` when only symbol-level blended basis exists; `unavailable` when no basis exists. The field is *named for the question* ("what is the release effect relative to basis?"), not asserted as exact — because its dominant real-world state today is `blended/approximate`.
 
 Every fact is **per alternative** and **per resolution branch where branches diverge** (CC and collar have assigned/expired branches; Sell does not).
 
@@ -61,7 +67,7 @@ Every fact is **per alternative** and **per resolution branch where branches div
 **Rule (from ratified reconciliation):** `LVT-INIT-OUTCOME-BASIS` is a dependency for **exact lot-specific basis-sensitive claims only** (F8, and any per-lot appreciation/erosion), **not** a prerequisite for the Initiative as a whole.
 
 - **Available today without lot-level basis:** F1 (market value released), F2, F3, F4, F5, F6, F7. None reference basis.
-- **Requires stronger basis attribution:** F8 (exact realized erosion/appreciation on sale), and correct per-lot figures for **multi-lot symbols**.
+- **Requires stronger basis attribution:** F8 (basis-relative release effect) is `exact` only with authoritative single-lot basis; otherwise it carries a `blended/approximate` or `unavailable` precision tag — and is **wrong if presented as exact** for multi-lot symbols.
 - **Current implementation truth:** `InventoryPosition.economics.averageCostPerShare` is a **blended, symbol-level** accounting basis (`candidate-types.ts` explicitly labels it "stock/accounting basis, NOT a capital-cycle basis"; `call-brief-builder.ts` already returns `null` gain when basis unavailable). For a single-lot symbol the blended average equals the lot basis and F8 is approximately correct; for **multi-lot symbols it is wrong** and F8 must be marked approximate or withheld.
 - **Required v1 behavior:** when lot-level basis is unavailable or the symbol is multi-lot, F8 renders as **"≈ (blended basis)"** or **"exact erosion unavailable — needs lot-level basis"**, and F1–F7 are shown normally. Missing F8 must **never** suppress F1–F7. This is an application of the Trustability differentiator and mirrors the existing `unavailableReason` pattern in `ProjectedCalledAway`.
 
@@ -89,17 +95,18 @@ For each fact: source, computation, provenance available today, precision/uncert
 | F5 participation | evidence + price | strike − spot room | chain + spot provenance | No | same | "—" if no chain/spot | derived/structural | over/understates retained upside |
 | F6 resulting state | structural | enumerated per alternative/branch | n/a (structural) | No | same | always determinable | derived fact (label) | operator surprised by post-resolution holding |
 | F7 next boundary | evidence | expiration or now/open | calendar | No | same | "open" for bare Hold | observed fact | operator misses forced-decision date |
-| F8 exact release cost | portfolio basis | `sharesFree × (spot − lotBasis)` | basis provenance + spot | **Yes** | **wrong on blended; approx/withhold** | "≈ blended" or "unavailable — needs lot basis" | derived fact (basis-sensitive) | **worst case**: fabricated precise erosion figure on multi-lot symbol → false capital-loss belief |
+| F8 basis-relative release effect | portfolio basis | `sharesFree × (spot − basis)` + precision tag | basis provenance + spot | **Yes for `exact`** | **`blended/approximate` tag on blended; never `exact`** | precision tag = `blended/approximate` or `unavailable`; value shown with tag, never bare | derived fact (basis-sensitive) | **worst case**: presenting a `blended` figure as `exact` on a multi-lot symbol → false capital-loss belief |
 
 ## 8. Comparison behavior
 
-v1 presents facts **side by side across alternatives for one position** so the operator can compare (e.g. GDX: Sell vs 3-DTE $104 CC vs 3-DTE collar vs 10-DTE CC vs 10-DTE collar). It does **not**:
+An existing surface may place the consequence facts of **several already-evaluated alternatives** side by side for one position (e.g. GDX: Sell vs Hold vs an existing-CC candidate) so the operator can compare. Critically, per the §1 ownership boundary: **the alternatives being compared are supplied by `LVT-BET-LIFECYCLE-CHOICES` (alternative enumeration); this Initiative evaluates each supplied alternative's consequences and the surface composes them.** This Initiative does not discover the alternative set. It does **not**:
 
+- enumerate/discover which alternatives exist (that is `LVT-BET-LIFECYCLE-CHOICES`);
 - combine facts into a scalar or rank alternatives;
 - declare a winner or "recommended" alternative;
 - compute the downstream feasible-set effect (that is `LVT-BET-CAPITAL-CHOICES`; v1 only exposes F1 released-amount as an input another surface may consume — it does not reach into SOXX affordability itself).
 
-Comparison is *presentational adjacency of independent facts*, consistent with `LVT-BET-CONSEQUENCE-ENVELOPE`'s "make effects visible" and `LVT-BET-ACCEPTABILITY`/`LVT-BET-EXPLANATION` owning any actual judgment.
+Comparison is *presentational adjacency of independently-evaluated alternatives*, consistent with `LVT-BET-CONSEQUENCE-ENVELOPE`'s "make effects visible" and `LVT-BET-ACCEPTABILITY`/`LVT-BET-EXPLANATION` owning any actual judgment.
 
 ## 9. UI placement hypothesis
 
@@ -108,7 +115,7 @@ Comparison is *presentational adjacency of independent facts*, consistent with `
 1. **Covered-Call Candidates surface (Write Desk)** — already computes per-position free shares, basis, projected called-away economics, and (shipped) basis-positive selection. This is the strongest candidate host: release/retention consequence facts extend the existing per-position/per-expiration rows.
 2. **Operator Console position-detail modal (ADR-013)** — already shows Contract State, Decision Pressure, Economic Consequence per monitored position. F1–F7 map naturally onto the Economic Consequence dimension for owned shares.
 
-**Hypothesis:** v1 fits as an extension of the **Covered-Call Candidates surface** (where the operator is already reasoning about what to do with owned shares), possibly surfaced from the Console position-detail modal as the entry point. A dedicated "Share Deployment / Capital Deployment" surface is a **non-goal** (§12) and must be justified by demonstrated cognitive-role pressure, not conceptual neatness. This is a hypothesis for 3AM/Principal, not a decided placement.
+**DECIDED (3AM, 2026-09-09): Covered-Call Candidates surface (Write Desk) first — not both surfaces.** It already owns the evidence and operator context for reasoning about owned shares. A Console position-detail entry point **may follow if actual workflow pressure appears**, but duplicating the representation across two surfaces immediately would create synchronization / semantic-drift risk for no demonstrated benefit. A dedicated "Share Deployment / Capital Deployment" surface remains a **non-goal** (§12), justified only by demonstrated cognitive-role pressure, never conceptual neatness.
 
 ## 10. Architecture / data-flow impact
 
@@ -125,15 +132,16 @@ Comparison is *presentational adjacency of independent facts*, consistent with `
 ## 11. Tests required before implementation (design-level)
 
 1. F1 = `sharesFree × spot`; renders "—" when spot absent.
-2. F2/F7 correct from expiration; "open"/"now" for Hold/Sell.
-3. F3 CC and collar compensation from midpoints; "—" when chain absent; carries chain-acquisition provenance.
-4. F4 collar floor from put strike; "no structural floor" for CC/Hold.
+2. F2/F7 correct from expiration; "open"/"now" for Hold/Sell. **F2 labeled as exposure-duration/time-to-contractual-boundary, never "capital locked/inaccessible until expiration."**
+3. F3 CC compensation from midpoints; "—" when chain absent; carries chain-acquisition provenance. (Collar-net compensation deferred with collar.)
+4. F4 "no protective floor above zero" for CC/Hold; **never rendered as "unbounded/unlimited downside"** (owned-equity loss is economically bounded at shares → 0). Collar protective-floor test deferred with collar.
 5. F5 participation room correct; sign/room per alternative.
-6. F6 resulting-state labels correct per alternative × resolution branch.
+6. F6 resulting-*holding* labels correct per alternative × resolution branch; **no generalized capital-state term** (e.g. not "bounded-shares" as a state) — holding/outcome wording only.
+6a. **Ownership-boundary test:** the consequence evaluator accepts a supplied alternative and does **not** enumerate the chain to discover alternatives (no strike/DTE/collar-possibility search inside this module).
 7. **Precision-boundary tests (mandatory):**
-   - F8 single-lot symbol with basis → approximate figure with clear "≈" label;
-   - F8 multi-lot symbol → **withheld or explicitly-approximate**, never a fabricated precise number;
-   - F8 no basis → "unavailable — needs lot-level basis"; **F1–F7 still render** (missing F8 does not suppress others);
+   - F8 single-lot authoritative basis → precision tag `exact`;
+   - F8 multi-lot symbol → precision tag `blended/approximate`, **never `exact`** (no fabricated precise number);
+   - F8 no basis → precision tag `unavailable`; **F1–F7 still render** (missing F8 does not suppress others);
    - option-derived facts carry chain-acquisition provenance; spot-derived F1 marks quote-level freshness unknown where it is;
    - no fact presents an aged midpoint as timeless.
 8. Determinism: same cache + portfolio + policy → same facts (ADR-001/deterministic).
@@ -150,13 +158,21 @@ Comparison is *presentational adjacency of independent facts*, consistent with `
 - No use of `Prod v0` as a universal economic value function.
 - No implementation of lot-level basis (F8 degrades gracefully instead).
 - No solving of PL-EVID-AGE / quote-provenance / `LVT-BET-EVIDENCE-PRIORITY`.
+- **No alternative discovery/enumeration** — this Initiative evaluates a supplied alternative; enumeration is `LVT-BET-LIFECYCLE-CHOICES` (§1 ownership boundary).
+- **No collar candidate-construction in the first slice** — collar is in the design contract but deferred; the first slice uses Sell / Hold / existing-CC evidence (§13.2).
+- **No generalized capital-state vocabulary** — F6 is a holding/outcome label, not a state ontology (§4).
 
-## 13. Unresolved questions (for 3AM / Principal)
+## 13. Decisions resolved (3AM 2026-09-09) and remaining questions
 
-1. **Host surface:** extend Covered-Call Candidates, or the Console position-detail modal, or both (entry from Console → detail in Write Desk)? (§9 hypothesis; needs Principal/cognitive-role judgment.)
-2. **Alternative set for v1:** minimum is {Sell, Hold, CC}. Is **Collar** in v1, or v1.1? Collar adds F4 richness and matches the GDX evidence, but doubles the branch/consequence surface. Recommendation: include Collar because the sharpest evidence (GDX floor decision) needs it — but this is a scope call.
-3. **How prominent should F8's degraded state be** — inline "≈"/"unavailable", or a small provenance affordance? (Trustability presentation choice.)
-4. **Does exposing F1 (released amount) here create pressure to show the feasible-set effect** (`LVT-BET-CAPITAL-CHOICES`) immediately? Design keeps them separate; confirm that is acceptable for v1.
+**Resolved this revision:**
+
+1. **Host surface — DECIDED:** Covered-Call Candidates surface (Write Desk) **first, not both**. Console entry point may follow on demonstrated workflow pressure. (§9)
+2. **Alternative set for v1 — DECIDED:** first implementation slice proves the consequence representation with **Sell / Hold / existing-CC evidence**. **Collar is in the design contract but deferred from the first slice.** Implementation-truth basis for deferral: a repository check confirmed **no collar / protective-put candidate construction exists today** (the only `netDebit` machinery is buy-write share-cost−premium, not a short-call-credit−long-put-debit collar). Collar therefore is *not* available "essentially for free" — it needs a new long-put-leg selection + net-leg pricing path. It is valuable precisely because it exercises F4 (protective floor), so it is **earned after the basic representation works**, not built speculatively in the first slice.
+
+**Remaining (genuinely open) design questions:**
+
+3. **F8 degraded-state prominence** — inline precision tag vs a small provenance affordance? (Trustability presentation choice; can be settled during implementation design.)
+4. **Confirm F1↔feasible-set separation is acceptable for v1** — exposing F1 (released amount) may create pull toward showing the `LVT-BET-CAPITAL-CHOICES` feasible-set effect; the design deliberately keeps them separate. (Believed settled by the ownership boundary; flagged only for confirmation.)
 
 ## 14. Failure modes
 
@@ -168,7 +184,7 @@ Comparison is *presentational adjacency of independent facts*, consistent with `
 
 ## 15. Smallest coherent implementation boundary
 
-**v1 = per-position, read-only consequence facts F1–F7 + graceful-degraded F8, rendered as adjacent independent facts across {Sell, Hold, CC (+ Collar, pending Q2)} on an existing owned-share surface, consuming cached evidence and existing provenance, with both precision boundaries enforced by test.**
+**v1 = per-position, read-only consequence facts F1–F7 + precision-tagged F8, evaluating supplied governed alternatives (NOT discovering them), for {Sell, Hold, existing-CC} in the first slice (Collar in the contract but deferred), composed as adjacent independently-evaluated alternatives on the existing Covered-Call Candidates surface (Write Desk), consuming cached evidence and existing provenance, with the ownership boundary and both precision boundaries enforced by test.**
 
 - No backend change, no schema, no provider calls, no scheduler change, no new page.
 - One frontend computation module (extending the pattern in `call-brief-builder.ts`) + presentational adjacency in an existing surface.
@@ -176,10 +192,21 @@ Comparison is *presentational adjacency of independent facts*, consistent with `
 
 ---
 
-## Principal decisions requested (only genuine unresolved design choices)
+## Revision log
 
-1. **Host surface** (Q13.1): Covered-Call Candidates vs Console detail modal vs both.
-2. **Collar in v1?** (Q13.2): include (matches GDX evidence, larger surface) or defer to v1.1.
-3. **Escalate this design to 4AM** (add Codex adversarial review of evidence claims, precision boundaries, and accidental-generalization risk) **before** any implementation authorization?
+**2026-09-09 3AM revision (Principal + ChatGPT + Kiro):** applied six conceptual corrections before any 4AM/implementation:
+1. **Ownership boundary made explicit** (§1) — this Initiative *evaluates* a supplied alternative; enumeration stays in `LVT-BET-LIFECYCLE-CHOICES`. Prevents an accidental lifecycle-alternative engine.
+2. **F6** relabeled "resulting holding / resolution outcome" — no capital-state ontology ("bounded-shares" removed as a state).
+3. **F2** reframed as time-to-represented-contractual-boundary / exposure duration — not guaranteed capital lockup (BTC/roll/unwind/sell-subject-to-close remain available).
+4. **F4** downside wording fixed — "no protective floor above zero," never "unbounded/unlimited downside."
+5. **F8** renamed "basis-relative release effect" with an explicit precision tag (`exact` / `blended/approximate` / `unavailable`) — no "Exact…" field whose dominant behavior is not exact.
+6. **Host = Write Desk first** (not both); **Collar deferred** from the first slice (grounded: no collar candidate-construction exists today).
 
-Implementation remains **unauthorized**. This artifact is the A deliverable; it returns to 3AM review.
+## Principal decisions
+
+**Resolved in 3AM (recorded above):** host surface (Write Desk first); v1 slice = Sell/Hold/existing-CC, Collar deferred; TQ baseline stays pinned at `200f022`; ArchUnit/Sonar gaps stay in the TQ program (do not preempt A).
+
+**Remaining — one live gate:**
+- **Escalate this revised design to 4AM** (add Codex to adversarially attack the evidence claims, the ownership boundary, both precision boundaries, and accidental-generalization risk) **before** any implementation authorization?
+
+Implementation remains **unauthorized**. This revised artifact returns to 3AM; per the Principal, it is now concrete enough that a 4AM pass would break it rather than help define it — but invoking 4AM is the Principal's call.
