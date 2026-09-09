@@ -1,6 +1,6 @@
 # Wheelwright Strategic Roadmap
 
-> **Status:** Canonical strategic roadmap — starting point ratified by the Principal on 2026-08-31; semantic LVT identifier/presentation migration ratified 2026-09-09.
+> **Status:** Canonical strategic roadmap — starting point ratified by the Principal on 2026-08-31; semantic LVT identifier/presentation migration ratified 2026-09-09; owned-capital / consequence hardening ratified 2026-09-09.
 >
 > **Authority:** Category C — Canonical Project / Operational State. This document records Wheelwright's current strategic direction. It is intentionally mutable as evidence changes. It does not override Category A system definition or Category B ratified architecture/methodology.
 >
@@ -74,21 +74,22 @@ Canonical human presentation is:
       - **Child hypothesis — Defined-Risk Call Spreads** — Defined-risk credit call spreads can create useful income opportunities with materially different consequences from covered calls.
       - **`LVT-INIT-STRAT-NORMALIZE` — Normalize Alternatives** — Normalize strategy-specific candidates into a common Deployment Opportunity / Alternative representation.
       - **`LVT-INIT-STRAT-PRIMITIVES` — Economic Primitives** — Support reusable economic primitives for multi-leg and future trade shapes; this is also an architecture-roadmap concern.
-    - **`LVT-BET-LIFECYCLE-CHOICES` — Lifecycle Alternative Comparison** *(legacy `C3`)* — Explicit comparison of lifecycle alternatives improves position-management decisions.
-      - **`LVT-INIT-LIFE-COMPARE` — Compare Lifecycle Actions** — Compare HOLD, CLOSE, ROLL, and natural resolution.
+    - **`LVT-BET-LIFECYCLE-CHOICES` — Lifecycle Alternative Comparison** *(legacy `C3`)* — Explicit comparison of the complete governed alternatives available for already-deployed capital improves position-management decisions; current evidence includes retaining, releasing, modifying, protecting, and naturally resolving positions without freezing the Bet to a fixed mechanism list.
+      - **`LVT-INIT-LIFE-COMPARE` — Compare Lifecycle Actions** — Compare applicable governed lifecycle alternatives such as HOLD, SELL/CLOSE, ROLL, covered call, collar, and natural resolution while allowing the mechanism set to evolve through evidence and governance.
       - **`LVT-INIT-LIFE-TRANSITIONS` — Lifecycle Transitions** — Represent alternatives as possible state transitions rather than only opening trades.
     - **`LVT-BET-CHOICE-OPTIONALITY` — Future Optionality in Choice** *(legacy `C4`)* — Future optionality materially affects the quality of otherwise similar choices.
       - **`LVT-INIT-CHOICE-DTE-OPTIONALITY` — Cross-Expiration Optionality** — Evaluate alternatives across expirations as different future action spaces.
       - **`LVT-INIT-CHOICE-DURATION` — Capital Duration and Flexibility** — Incorporate capital duration and resulting flexibility into comparison.
-    - **`LVT-BET-CAPITAL-CHOICES` — Capital State Determines Feasible Choices** *(legacy `C5`)* — The actual feasible choice set depends materially on current capital state.
+    - **`LVT-BET-CAPITAL-CHOICES` — Capital State Determines Feasible Choices** *(legacy `C5`)* — The actual feasible choice set depends materially on current capital state, and changing one capital position can materially alter the feasible-alternative set elsewhere in the portfolio.
       - **`LVT-INIT-CAP-AVAILABILITY` — Capital Availability** — Establish explicit capital availability and encumbrance reasoning.
-      - **`LVT-INIT-CAP-ALTERNATIVES` — Capital-Aware Alternatives** — Integrate authoritative portfolio/capital state into alternative generation.
+      - **`LVT-INIT-CAP-ALTERNATIVES` — Capital-Aware Alternatives** — Integrate authoritative portfolio/capital state into alternative generation, including capital-state coupling and feasible-set optionality across positions.
     - **`LVT-BET-UNIVERSE` — Governed Universe Evolution** *(legacy `C6`)* — Systematically governing universe admission improves the set of genuinely deployable alternatives.
       - **`LVT-INIT-UNIVERSE-WORKFLOW` — Candidate Admission Workflow** — Create the universe candidate evaluation/admission workflow.
       - **`LVT-INIT-UNIVERSE-DISPOSITION` — Explicit Admission Disposition** — Make admission, displacement, rejection, insufficient evidence, and review explicit.
   - **`LVT-GOAL-CONSEQUENCES` — Understand the Consequences** *(legacy `G3`)* — Make consequences and tradeoffs explicit enough for deliberate, accountable decisions.
-    - **`LVT-BET-CONSEQUENCE-ENVELOPE` — Consequence Envelopes** *(legacy `K1`)* — Explicit consequence envelopes improve operator decisions compared with premium/rank-centric presentation.
+    - **`LVT-BET-CONSEQUENCE-ENVELOPE` — Consequence Envelopes** *(legacy `K1`)* — Explicit consequence envelopes improve operator decisions by making economically material effects visible across money, time, risk, compensation, retained participation, resulting capital state, and next decision boundary rather than centering only on premium/rank or terminal payoff geometry.
       - **`LVT-INIT-CONSEQUENCE-REPRESENT` — Represent Consequences** — Represent maximum gain/loss, breakeven, capital commitment, assignment/inventory consequences, and relevant conditional outcomes.
+      - **`LVT-INIT-CONSEQUENCE-RELEASE-COST` — Release / Retention Consequences** — Represent release/retention consequences as independent operator-facing facts, including monetary release cost where knowable, temporal encumbrance, compensation while waiting, downside envelope, retained participation/recovery room, resulting state, and next decision boundary; expose each fact only to the precision supported by authoritative evidence.
     - **`LVT-BET-COMPENSATION` — Compensation Relative to Consequence** *(legacy `K2`)* — Compensation relative to accepted capital consequence is a better measure of deployment quality than premium yield alone.
       - **`LVT-INIT-COMP-MEASURES` — Compensation/Consequence Measures** — Develop compensation-versus-consequence measures.
       - **`LVT-INIT-COMP-COMPARE` — Compare Ranking Dimensions** — Compare those measures against current ranking dimensions.
@@ -175,7 +176,11 @@ Canonical human presentation is:
 - **Continuity architecture implications** — determine which decision responsibilities require a durable service boundary, while preserving Evidence Appliance simplicity unless demonstrated pressure requires greater infrastructure complexity.
 - **Evidence-priority constraint** — `LVT-BET-EVIDENCE-PRIORITY` does not authorize scheduler changes during the current Constraint Identification investigation; acquisition authority and current behavioral invariants remain governing.
 - **Learning cross-cutting enabling work** — version policy and recommendation provenance, and require controlled empirical evidence before promoting candidate ranking factors into durable policy.
+- **Release/retention precision boundary** — `LVT-INIT-OUTCOME-BASIS` is a dependency for exact lot-specific basis-sensitive consequence claims, especially for multi-lot symbols, but is not a prerequisite for consequence comparison as a whole. Market-derived release value, duration/encumbrance, option compensation, downside envelope, resulting state, and next decision boundary may be exposed independently when supported by authoritative evidence; unsupported exact erosion should be marked approximate/unavailable.
+- **Owned-capital reconciliation non-goals** — the 2026-09-09 hardening does not authorize a scalar Deployment score, generalized capital-state machine, capital-path optimizer, recovery prediction, automatic Sell→redeploy, automatic trading/direct broker execution, a generalized multi-leg framework, or implementation of Share Deployment / Capital Deployment merely because the strategic model now expresses these consequences more clearly.
 - **Classification discipline** — this migration resolves naming/presentation only. Where the prior roadmap used mixed labels such as “Initiatives / experiments,” the semantic type labels above make the smallest reasonable classification needed for canonical identity; they do not themselves authorize implementation or promote exploratory evidence into policy.
+
+**2026-09-09 owned-capital reconciliation why-state:** `docs/discovery/lvt-owned-capital-consequence-reconciliation-2026-09-09.md`.
 
 ---
 
