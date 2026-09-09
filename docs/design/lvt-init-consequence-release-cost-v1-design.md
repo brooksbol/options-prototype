@@ -2,8 +2,8 @@
 
 **Status:** Design decomposition — implementation-ready candidate, **NOT implemented, NOT authorized for implementation.**
 **Authority:** Supporting design artifact (Category E). Canonical strategy is `docs/roadmap.md`; why-state is `docs/discovery/lvt-owned-capital-consequence-reconciliation-2026-09-09.md`.
-**Produced:** 2026-09-09, authorized 3AM execution cycle (Principal + ChatGPT + Kiro), Kiro as invoked actor. **Revised 2026-09-09** (3AM) — see Revision log at end.
-**Repository baseline:** SYNC SHA `9bf9ff0`.
+**Produced:** 2026-09-09, authorized 3AM execution cycle (Principal + ChatGPT + Kiro), Kiro as invoked actor. **Revised 2026-09-09** (3AM, then partial-4AM material findings) — see Revision log at end.
+**Repository baseline:** SYNC SHA `feb61a8`.
 **LVT home:** `LVT-INIT-CONSEQUENCE-RELEASE-COST` under `LVT-BET-CONSEQUENCE-ENVELOPE` (legacy `K1`), `LVT-GOAL-CONSEQUENCES`.
 **Review path:** returns to 3AM (Principal + ChatGPT). A 4AM (add Codex) adversarial pass may follow **after** this design exists, only if the Principal authorizes escalation. This document does not request one.
 
@@ -19,7 +19,20 @@ This is a *consequence* question about already-deployed capital. It is not "what
 
 > **The consequence model consumes an already-known governed alternative and emits its independent consequence facts. Alternative discovery/enumeration remains outside this Initiative — it belongs to `LVT-BET-LIFECYCLE-CHOICES`. An existing surface may compose several already-evaluated alternatives side by side, but this Initiative must not become the mechanism that discovers the alternative set.**
 
-Concretely: the v1 unit of work is `evaluateConsequences(position, suppliedAlternative) → consequence facts`. It takes one governed alternative as input. It does **not** iterate the option chain to *find* which alternatives (which strikes, which DTEs, whether a collar is possible) exist — that enumeration is `LVT-BET-LIFECYCLE-CHOICES`'s responsibility. This single boundary prevents the first implementation from silently becoming a lifecycle-alternative engine (the Goal separation preserved at ratification).
+Concretely: the v1 unit of work is `evaluateConsequences(position, suppliedAlternative) → consequence facts`, where **the supplied alternative includes an explicit subject quantity / capital block** (see next subsection). It takes one governed alternative as input. It does **not** iterate the option chain to *find* which alternatives (which strikes, which DTEs, whether a collar is possible) exist — that enumeration is `LVT-BET-LIFECYCLE-CHOICES`'s responsibility. This single boundary prevents the first implementation from silently becoming a lifecycle-alternative engine (the Goal separation preserved at ratification).
+
+### Subject quantity — every alternative names its own capital block (added 2026-09-09 3AM revision, 4AM quantity finding)
+
+**Material finding (Codex 4AM, verified against accepted code at `feb61a8`):** the covered-call engine quantizes capacity. A `CallCandidate` carries both `freeShares` and `maxContracts` (= `maxAdditionalContracts` = `Math.floor(sharesFree / 100)`), and `coveredSharesAtMaximumDeployment = maxContracts × 100`. So a position with **250 free shares** produces a CC that acts on **200 shares** (2 contracts), leaving 50 uncovered. If F1 (Sell) evaluates all 250 free shares while the CC alternative acts on 200, side-by-side presentation compares **unlike capital blocks** — a false comparison. It also breaks F6: "CC → cash if assigned" is false for the whole position (assignment converts the 200 covered shares; 50 free shares — and any separately encumbered shares — remain).
+
+**Correction (missing concept, not new architecture):** every supplied alternative carries an explicit **subject quantity** (the capital block it acts on). For a Write-Desk CC row of `N` contracts, `subjectShares = N × 100`. All alternatives compared on that row evaluate the **same** block:
+
+- **Sell:** the same `subjectShares` (not all free shares).
+- **Hold:** retain those `subjectShares`.
+- **CC:** write `N` calls against those `subjectShares`.
+- **Residual** free shares (e.g. the 50) and any separately encumbered shares are **outside the evaluated block** and shown as residual position inventory where useful, never folded into the compared alternative.
+
+Signature becomes conceptually `evaluateConsequences(position, suppliedAlternative, subjectQuantity) → facts`, or preferably **`subjectQuantity` is a field of the supplied alternative**. This keeps the ownership seam intact: `LVT-BET-LIFECYCLE-CHOICES` supplies *what + how much*; this Initiative *describes* that supplied, fully-specified alternative. It does not choose the quantity. (The finding actually *strengthens* the ownership boundary: a supplied alternative is now specified enough to evaluate without this Initiative inventing anything.)
 
 ## 2. Concrete evidence motivating it
 
@@ -38,12 +51,12 @@ v1 represents, **per owned-share position, per candidate retention/release alter
 
 | # | Fact | One-line meaning |
 |---|------|------------------|
-| F1 | **Capital released (approx)** | Cash a Sell/CLOSE would return now ≈ current market value of the shares. |
+| F1 | **Estimated gross sale value** | `subjectShares × observed spot` — estimated gross value represented by selling the evaluated block. **Not** an execution price, actual proceeds, or a guarantee of immediately deployable buying power (that authoritative capacity comes from Fidelity balance evidence, not this estimate). |
 | F2 | **Time to represented contractual boundary** | For a retention alternative, time (DTE) until the *currently represented* contractual decision point. This is exposure-over-time, **not** guaranteed capital lockup: the operator may BTC, roll, unwind, or sell shares subject to closing the option. |
 | F3 | **Compensation while waiting** | Premium a CC/collar structure pays (midpoint), where option evidence exists. |
 | F4 | **Downside envelope** | Whether a *protective floor above zero* exists (collar, from strikes + option evidence) or **no protective floor above zero** (bare Hold/CC — loss is economically bounded only by shares → 0, which is not protection). |
 | F5 | **Retained participation / recovery room** | Upside/recovery the alternative keeps (e.g. room to strike for CC; capped-but-present for collar; full for Hold; none after Sell). |
-| F6 | **Resulting holding / resolution outcome** | What the operator will *hold* after each resolution branch: cash, shares retained, shares-retained-with-protection-expired/renewal-needed, etc. A holding/outcome label — **not** a capital-state ontology. |
+| F6 | **Resulting holding / resolution outcome (of the evaluated block)** | What the operator will *hold* **for the evaluated `subjectShares` block** after each resolution branch (cash, shares retained, shares-retained-with-protection-expired/renewal-needed, etc.), with any **unaffected residual holdings explicitly outside** that outcome. A holding/outcome label — **not** a capital-state ontology. |
 | F7 | **Next decision boundary** | The next natural date a decision is forced (expiration for option structures; none/now for Sell; open-ended for bare Hold). |
 | F8 | **Basis-relative release effect** *(basis-gated; precision metadata)* | Erosion/appreciation on Sell relative to basis, carrying explicit precision metadata: `exact` (single-lot authoritative basis), `blended/approximate` (symbol-level blended basis), or `unavailable`. Named for what it is, not asserted as always-exact. See §5. |
 
@@ -51,14 +64,14 @@ v1 represents, **per owned-share position, per candidate retention/release alter
 
 ## 4. Semantic definitions
 
-- **F1 Capital released** — `sharesFree × currentUnderlyingPrice`. Market-derived. This is *release value*, explicitly **not** basis-relative gain. It is what returns to cash, not what was made/lost.
+- **F1 Estimated gross sale value** — `subjectShares × observedSpot` (the evaluated block, not all free shares). Market-derived, pre-trade. Explicitly **not** basis-relative gain, **not** an execution/fill price, **not** actual proceeds, and **not** authoritative deployable buying power. Wheelwright already owns an authoritative deployable-capacity concept derived from Fidelity balance evidence (settled cash; see the 2026-09-08 deployable-cash reconciliation); F1 must not appropriate that semantic. Required language: *"estimates the gross value represented by selling the evaluated share block; not an execution price, actual proceeds, or a guarantee of immediately deployable buying power."* `LVT-BET-CAPITAL-CHOICES` may consume F1 as an input later but must not treat it as authoritative post-sale deployment capacity.
 - **F2 Time to represented contractual boundary** — `expiration − today` (DTE) for the alternative's option leg; "until sold" for Hold; "immediate" for Sell. Communicates **exposure duration**, not guaranteed lockup: the capital is not literally inaccessible until expiration — the operator may BTC, roll, unwind a collar, or sell shares subject to closing the option position. The GDX insight is that waiting *consumes time and maintains exposure*, not that capital is frozen. A duration, not a dollar cost.
 - **F3 Compensation** — CC: `mid × 100 × contracts`. Collar: net of short-call credit and long-put debit at midpoint. Uses the existing midpoint convention (`(bid+ask)/2`). Indicative, not a guaranteed fill.
 - **F4 Downside envelope** — Collar: `putStrike` establishes a **protective floor above zero**; bounded downside ≈ `currentPrice − putStrike − netDebit`. Bare Hold/CC: **no protective floor above zero** — the position's loss is economically bounded only by the shares going to zero (plus any premium cushion), which is not protection. Say "no protective floor," never "unbounded/unlimited downside" (an owned-equity loss is economically bounded at share value → 0). Structural, from strikes.
-- **F5 Retained participation** — CC: `callStrike − currentPrice` room before capped (plus premium). Collar: bounded above by call strike, below by put strike. Hold: full. Sell: none.
-- **F6 Resulting holding / resolution outcome** — enumerated *holding* per alternative and per resolution branch (e.g. CC → {shares retained if OTM, cash if assigned}; collar → {shares retained, protection expired/renewal needed, if OTM}). A holding/outcome label, not a probability, and deliberately **not** a generalized capital-state vocabulary — it answers "what will I hold next?" without introducing a state ontology.
+- **F5 Retained participation** — for the `subjectShares` block. CC: `callStrike − currentPrice` room before capped (plus premium). Collar: bounded above by call strike, below by put strike. Hold: full. Sell: none.
+- **F6 Resulting holding / resolution outcome (of the evaluated block)** — enumerated *holding* for the **`subjectShares` block** per alternative and per resolution branch (e.g. CC on 200 shares → {200 shares retained if OTM, 200 → cash if assigned}), with **residual holdings named separately and explicitly outside the outcome** (e.g. "+ 50 free shares unaffected; + any separately encumbered shares unaffected"). A holding/outcome label, not a probability, and deliberately **not** a generalized capital-state vocabulary — it answers "what will I hold next?" for the evaluated block without introducing a state ontology.
 - **F7 Next decision boundary** — the option expiration date, or "now" (Sell) / "open" (Hold).
-- **F8 Basis-relative release effect** — `sharesFree × (currentPrice − basisPerShare)`, always accompanied by a **precision tag**: `exact` when lot-level basis is authoritative (and single-lot); `blended/approximate` when only symbol-level blended basis exists; `unavailable` when no basis exists. The field is *named for the question* ("what is the release effect relative to basis?"), not asserted as exact — because its dominant real-world state today is `blended/approximate`.
+- **F8 Basis-relative release effect** — `subjectShares × (currentPrice − basisPerShare)` (the evaluated block, not all free shares), always accompanied by a **precision tag**: `exact` when lot-level basis is authoritative (and single-lot); `blended/approximate` when only symbol-level blended basis exists; `unavailable` when no basis exists. The field is *named for the question* ("what is the release effect relative to basis?"), not asserted as exact — because its dominant real-world state today is `blended/approximate`.
 
 Every fact is **per alternative** and **per resolution branch where branches diverge** (CC and collar have assigned/expired branches; Sell does not).
 
@@ -88,14 +101,14 @@ For each fact: source, computation, provenance available today, precision/uncert
 
 | Fact | Source | Computation | Provenance today | Basis req'd | Multi-lot | Missing-data behavior | Class | Failure mode if misrepresented |
 |------|--------|-------------|------------------|-------------|-----------|-----------------------|-------|-------------------------------|
-| F1 released | portfolio + evidence | `sharesFree × spot` | spot/underlying provenance (partial; quote-level may be unknown) | No | same | show "—" if no spot | derived fact | operator over/understates fungible cash available now |
+| F1 est. gross sale value | portfolio + evidence | `subjectShares × spot` | spot/underlying provenance (partial; quote-level may be unknown) | No | same | show "—" if no spot | derived fact (pre-trade estimate) | **presenting an estimate as authoritative deployable buying power** (Fidelity balance evidence owns that); or evaluating all free shares instead of the block |
 | F2 encumbrance | evidence | `expiration − today` | calendar (exact) | No | same | n/a (always known if expiration known) | observed fact | operator misjudges lockup duration |
 | F3 compensation | evidence (chain) | `mid × 100 × contracts` (CC); net (collar) | chain-acquisition provenance | No | same | "—" if no chain | derived fact (indicative) | aged midpoint read as guaranteed income |
 | F4 downside floor | evidence (chain) | from put strike + net debit | chain-acquisition provenance | No | same | "no structural floor" for CC/Hold | derived/structural | operator believes floor exists when it does not |
 | F5 participation | evidence + price | strike − spot room | chain + spot provenance | No | same | "—" if no chain/spot | derived/structural | over/understates retained upside |
-| F6 resulting state | structural | enumerated per alternative/branch | n/a (structural) | No | same | always determinable | derived fact (label) | operator surprised by post-resolution holding |
+| F6 resulting holding (of block) | structural | enumerated per alternative/branch **for subjectShares**, residual named separately | n/a (structural) | No | same | always determinable | derived fact (label) | **claiming a whole-position outcome when only the block resolves** (e.g. "→ cash if assigned" while 50 free + encumbered shares remain) |
 | F7 next boundary | evidence | expiration or now/open | calendar | No | same | "open" for bare Hold | observed fact | operator misses forced-decision date |
-| F8 basis-relative release effect | portfolio basis | `sharesFree × (spot − basis)` + precision tag | basis provenance + spot | **Yes for `exact`** | **`blended/approximate` tag on blended; never `exact`** | precision tag = `blended/approximate` or `unavailable`; value shown with tag, never bare | derived fact (basis-sensitive) | **worst case**: presenting a `blended` figure as `exact` on a multi-lot symbol → false capital-loss belief |
+| F8 basis-relative release effect | portfolio basis | `subjectShares × (spot − basis)` + precision tag | basis provenance + spot | **Yes for `exact`** | **`blended/approximate` tag on blended; never `exact`** | precision tag = `blended/approximate` or `unavailable`; value shown with tag, never bare | derived fact (basis-sensitive) | **worst case**: presenting a `blended` figure as `exact` on a multi-lot symbol → false capital-loss belief |
 
 ## 8. Comparison behavior
 
@@ -131,12 +144,13 @@ Comparison is *presentational adjacency of independently-evaluated alternatives*
 
 ## 11. Tests required before implementation (design-level)
 
-1. F1 = `sharesFree × spot`; renders "—" when spot absent.
+0. **Subject-quantity test (from 4AM):** for a 250-free-share position evaluated as a 2-contract CC row, `subjectShares = 200`; **all** compared alternatives (Sell, Hold, CC) evaluate the **same 200-share block**; the 50 residual shares are reported as residual inventory, never inside a compared alternative. A test with free shares not a multiple of 100 must not silently evaluate Sell on the remainder.
+1. F1 = `subjectShares × spot` (the block, not all free shares); renders "—" when spot absent; **F1 labeled "estimated gross sale value," never "cash released" or "deployable buying power"** — a test asserts the disclaimer text and that F1 is not surfaced as authoritative deployable capacity.
 2. F2/F7 correct from expiration; "open"/"now" for Hold/Sell. **F2 labeled as exposure-duration/time-to-contractual-boundary, never "capital locked/inaccessible until expiration."**
 3. F3 CC compensation from midpoints; "—" when chain absent; carries chain-acquisition provenance. (Collar-net compensation deferred with collar.)
 4. F4 "no protective floor above zero" for CC/Hold; **never rendered as "unbounded/unlimited downside"** (owned-equity loss is economically bounded at shares → 0). Collar protective-floor test deferred with collar.
 5. F5 participation room correct; sign/room per alternative.
-6. F6 resulting-*holding* labels correct per alternative × resolution branch; **no generalized capital-state term** (e.g. not "bounded-shares" as a state) — holding/outcome wording only.
+6. F6 resulting-*holding* labels correct per alternative × resolution branch **for the subjectShares block, with residual holdings named separately and outside the outcome**; **no generalized capital-state term** (e.g. not "bounded-shares" as a state) — holding/outcome wording only. A test asserts "CC → cash if assigned" is **not** emitted as a whole-position claim when residual/encumbered shares exist.
 6a. **Ownership-boundary test:** the consequence evaluator accepts a supplied alternative and does **not** enumerate the chain to discover alternatives (no strike/DTE/collar-possibility search inside this module).
 7. **Precision-boundary tests (mandatory):**
    - F8 single-lot authoritative basis → precision tag `exact`;
@@ -161,6 +175,8 @@ Comparison is *presentational adjacency of independently-evaluated alternatives*
 - **No alternative discovery/enumeration** — this Initiative evaluates a supplied alternative; enumeration is `LVT-BET-LIFECYCLE-CHOICES` (§1 ownership boundary).
 - **No collar candidate-construction in the first slice** — collar is in the design contract but deferred; the first slice uses Sell / Hold / existing-CC evidence (§13.2).
 - **No generalized capital-state vocabulary** — F6 is a holding/outcome label, not a state ontology (§4).
+- **No cross-block comparison** — compared alternatives on a row must share one `subjectShares` block; never compare Sell-on-all-free-shares against CC-on-covered-shares (4AM quantity finding, §1).
+- **No appropriation of authoritative deployable capacity** — F1 is a pre-trade estimate; authoritative deployable buying power remains owned by Fidelity balance evidence, not this Initiative.
 
 ## 13. Decisions resolved (3AM 2026-09-09) and remaining questions
 
@@ -184,7 +200,7 @@ Comparison is *presentational adjacency of independently-evaluated alternatives*
 
 ## 15. Smallest coherent implementation boundary
 
-**v1 = per-position, read-only consequence facts F1–F7 + precision-tagged F8, evaluating supplied governed alternatives (NOT discovering them), for {Sell, Hold, existing-CC} in the first slice (Collar in the contract but deferred), composed as adjacent independently-evaluated alternatives on the existing Covered-Call Candidates surface (Write Desk), consuming cached evidence and existing provenance, with the ownership boundary and both precision boundaries enforced by test.**
+**v1 = per-position, read-only consequence facts F1–F7 + precision-tagged F8, each evaluated on an explicit `subjectShares` block carried by the supplied alternative, evaluating supplied governed alternatives (NOT discovering them), for {Sell, Hold, existing-CC} in the first slice (Collar in the contract but deferred), composed as adjacent independently-evaluated alternatives sharing one capital block on the existing Covered-Call Candidates surface (Write Desk), consuming cached evidence and existing provenance, with the ownership boundary, the subject-quantity rule, F1's estimate-not-capacity semantic, and both precision boundaries enforced by test.**
 
 - No backend change, no schema, no provider calls, no scheduler change, no new page.
 - One frontend computation module (extending the pattern in `call-brief-builder.ts`) + presentational adjacency in an existing surface.
@@ -202,11 +218,17 @@ Comparison is *presentational adjacency of independently-evaluated alternatives*
 5. **F8** renamed "basis-relative release effect" with an explicit precision tag (`exact` / `blended/approximate` / `unavailable`) — no "Exact…" field whose dominant behavior is not exact.
 6. **Host = Write Desk first** (not both); **Collar deferred** from the first slice (grounded: no collar candidate-construction exists today).
 
+**2026-09-09 4AM revision (partial — Codex did not complete; two MATERIAL findings established and verified against accepted code at `feb61a8`):**
+7. **Subject-quantity finding (MATERIAL):** the CC engine quantizes capacity (`maxContracts = floor(freeShares/100)`; covered shares = `maxContracts × 100`), so comparing Sell-on-all-free-shares vs CC-on-covered-shares compares unlike capital blocks and breaks F6's whole-position branch labels. Correction: every supplied alternative carries an explicit `subjectShares` block; all compared alternatives on a row share it; residual shares are named outside the block (§1 "Subject quantity", F5/F6/F8 scoped, tests #0/#6).
+8. **F1 semantic finding (MATERIAL):** "capital released ≈ market value" appropriated Wheelwright's authoritative deployable-capacity semantic (owned by Fidelity balance evidence). Correction: F1 renamed **"estimated gross sale value"** = `subjectShares × spot`, pre-trade, with explicit disclaimer that it is not fill/proceeds/deployable buying power (§3/§4/§7, test #1).
+
+Both classified **MATERIAL, not BLOCKING** — the architecture survives; corrections are local. The quantity finding *strengthens* the ownership boundary (a supplied alternative is now fully specified). **4AM is incomplete** — Codex did not return a final verdict; the unfinished attacks may resume against this corrected artifact if the Principal chooses.
+
 ## Principal decisions
 
 **Resolved in 3AM (recorded above):** host surface (Write Desk first); v1 slice = Sell/Hold/existing-CC, Collar deferred; TQ baseline stays pinned at `200f022`; ArchUnit/Sonar gaps stay in the TQ program (do not preempt A).
 
 **Remaining — one live gate:**
-- **Escalate this revised design to 4AM** (add Codex to adversarially attack the evidence claims, the ownership boundary, both precision boundaries, and accidental-generalization risk) **before** any implementation authorization?
+- **4AM is incomplete.** Codex established two MATERIAL findings (subject-quantity, F1-semantic), both now corrected in this artifact, then stopped before a final verdict. Decision: **resume 4AM against the corrected artifact** (finish the unfinished attacks) **or** accept the current 3AM+partial-4AM state and decide on implementation authorization? Kiro does not invoke Codex; this is the Principal's call.
 
-Implementation remains **unauthorized**. This revised artifact returns to 3AM; per the Principal, it is now concrete enough that a 4AM pass would break it rather than help define it — but invoking 4AM is the Principal's call.
+Implementation remains **UNAUTHORIZED**. Current state: 3AM revision applied → partial 4AM (2 MATERIAL findings established + corrected) → A still not authorized → Principal decides whether to resume 4AM against the corrected design.
