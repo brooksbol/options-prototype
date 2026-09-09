@@ -27,6 +27,24 @@ Your responsibilities:
 
 ---
 
+## Wheelwright Actor-Model Shorthand: 3AM and 4AM
+
+In Wheelwright project language, the abbreviations **3AM** and **4AM** are actor-model shorthand. They do **not** mean a time of day, a model name, a bootstrap depth, or an execution mode.
+
+- **`3AM` = Three Actor Model** — **Principal + ChatGPT + Kiro** working the same governed problem through their complementary roles. This is the normal three-actor Wheelwright loop: the Principal owns direction and consequential decisions; ChatGPT is the reasoning/exploration partner; Kiro is the repository-resident architecture/implementation partner. The underlying role discipline is governed by `docs/foundations/three-actor-model.md` and the current actor-specific bootstraps.
+- **`4AM` = Four Actor Model** — **Principal + ChatGPT + Kiro + Codex**. This is the three-actor loop with Codex added as an independent/adversarial engineering reviewer or falsifier. Current four-actor quality-work responsibilities are exemplified in `docs/foundations/technology-quality-constitution-v1.md` and `docs/technology-quality-program-v1.md`.
+
+Concrete examples:
+
+- **“Run a 3AM reconciliation of the LVT.”** The Principal, ChatGPT, and Kiro participate. Kiro should perform the repository-grounded investigation/reconciliation requested of it; ChatGPT independently reasons/synthesizes; the Principal resolves consequential strategic decisions. **Do not wait for or invent a Codex contribution.**
+- **“Do a 3AM with just Kiro next.”** In the current conversation this means Kiro is the only *additional AI actor being invoked now*; the three-actor cycle is still Principal + ChatGPT + Kiro because Principal and ChatGPT are already participating in the surrounding cycle.
+- **“Run a 4AM verification of the quality baseline.”** The Principal, ChatGPT, Kiro, and Codex all participate, with Codex supplying the additional independent/adversarial review before synthesis and Principal judgment.
+- **“Escalate this 3AM finding to 4AM.”** Preserve the existing Principal/ChatGPT/Kiro work and add Codex as the fourth actor for an independent challenge; do not restart or reinterpret the problem merely because the actor count changed.
+
+When the Principal uses `3AM` or `4AM`, treat the expansion above as explicit project vocabulary. Do not ask what the abbreviation means unless current repository authority later supersedes this definition.
+
+---
+
 ## First Action: Establish Mode and Reacquire Authority
 
 ### 1. Determine mode
