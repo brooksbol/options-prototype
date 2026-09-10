@@ -146,9 +146,56 @@ Preserved in `docs/discovery/decision-surface-expanded-row-vs-drawer-2026-09-09.
 
 ---
 
+## `PL-OPS-09` — Operator-Directed Targeted Re-Observation (Console Freshness on Demand)
+
+**Date:** September 10, 2026  
+**State:** INTAKE — new canonical identity created; bounded capability implemented, tested, and shipped under Principal direction  
+**Concept home:** `foundations/evidence-appliance.md` (evidence freshness / "persist facts; derive trust"), `07-architecture-current.md`  
+**Related:** `PL-OPS-08` (forced whole-cycle recovery — sibling, distinct intention), `PL-EVID-01` (monitored-position freshness overlay), `PL-ARCH-06` (recommendation-engine placement backdrop; unaffected)
+
+### Intake
+
+Live-software discovery on the Operator Console. A new **Freshness** column was added to the position tables (query-time evidence age derived from each position's `priceObservedAt`; nothing stored — "persist facts; derive trust"). Operator observation: clicking **"Refresh evidence now"** did not move the on-screen freshness values.
+
+Two mechanisms were found and separated:
+
+1. **Frontend read lag (fixed).** The console reads observations from a 30s-polling store with an ETag/304 conditional read. The forced-acquisition button never told the store to re-read, so freshness lagged up to a full poll interval and could return `304` even after the generation advanced.
+2. **Provider stewardship on the whole-cycle force (root behavioral finding).** `PL-OPS-08`'s `forceAcquireOnce()` forces the **due** work queue. On-screen monitored symbols that are still fresh (within the Class A ~15 min / refresh horizon) are deliberately **excluded** from the due queue (stewardship: do not re-acquire evidence that still satisfies policy). So a whole-cycle force correctly does **nothing** for a fresh symbol, and its freshness legitimately does not move.
+
+The operator intention here is **not** outage/gap recovery (that is `PL-OPS-08`). It is: *"re-observe the specific positions I am looking at, now, so their freshness reflects a just-now observation."* That is a distinct, narrower, bounded intention — a small explicit symbol set the operator is actively monitoring — and it is the reason a scoped exception to the freshness/due gate is defensible where a universe-wide one would not be.
+
+### What was implemented now (bounded capability)
+
+Under explicit Principal direction, a **targeted** variant of the existing forced-acquisition path:
+
+- `POST /api/evidence/refresh?symbol=BNO&symbol=COPX&…` — when one or more `symbol` query params are present, re-observe **exactly** those symbols regardless of freshness; with no params, the endpoint keeps its existing `PL-OPS-08` whole-cycle behavior. Response gains a `targeted` boolean. **POST, not GET:** the operation drives provider acquisition, mutates the evidence store, and advances the snapshot generation — it is side-effecting, so a safe/cacheable GET would misrepresent it (RFC 9110 safe-method semantics). The safe, cacheable read of the result remains `GET /api/evidence/quotes`.
+- `AcquisitionWorker.forceAcquireSymbols(List<String>)` — mirrors `forceAcquireOnce`'s guards (NOT_RUNNING / PROVIDER_UNAVAILABLE) and single-acquisition-thread submission, but loops the **existing** per-symbol `acquireSymbolTiered` over synthesized work items, bypassing **both** the freshness/due gate (never consults `getPrioritizedWorkQueue`) and the session gate. Registers genuinely-unknown symbols as observation-demand so acquisition is not a silent no-op; **does not** touch the monitored-position overlay (that is owned by `POST /api/evidence/observe`). Forces publication so the generation advances immediately.
+- Frontend: `ForceAcquisitionButton` passes the console's portfolio underlyings; `forceEvidenceAcquisition(symbols?)` builds the `?symbol=` params; the observation store's `refreshNow()` re-reads on a bounded backoff (0/0.8/1.8/3.5s) that stops once the generation advances — closing the read-lag race without a manual browser refresh.
+
+**Provenance / invariants preserved.** Re-observed evidence keeps its real `retrievedAt` timestamp and provider/session provenance (unchanged `setChain`/`setExpirations`). Single Acquisition Authority is preserved (runs on the one acquisition thread). Rate-limit compliance is inherited from the adapter pacer (no new sleeps/pacer). Failed refresh still preserves prior evidence. Verified live (market open): freshness reset to seconds automatically. Backend + frontend tests added (`AcquisitionWorkerTest$TargetedForcedAcquisition`, `NudgeControllerTest` targeted cases, `nudge-acquisition.test.ts`).
+
+### Reconciliation
+
+**Strategic:** Strengthens the existing evidence-appliance freshness/trust direction; no roadmap change, no new Bet. Serves the monitored-position operator (`PL-EVID-01`) and the Operator Console monitoring role.
+
+**Architectural:** A **new, narrow, operator-scoped exception to the provider-stewardship / freshness-due gate**, bounded to an explicit small symbol set the operator is actively monitoring, reusing existing acquisition machinery. It does **not** ratify universe-wide freshness bypass, change the scheduler cadence, freshness horizons, cache TTLs, concurrency, provider profile, session semantics, or the ETag/snapshot contract. It does not alter the monitored-set overlay semantics.
+
+**Parking-lot mapping:** New identity `PL-OPS-09` created and retained. **Not merged into `PL-OPS-08`:** that item owns outage/gap continuity and forces the *due* queue; this owns operator-directed *targeted* re-observation of specific fresh symbols — a different intention with a different gate-bypass scope. Cross-references `PL-OPS-08`, `PL-EVID-01`.
+
+**Why-state:** Preserved in this record and the Sep 10 journal checkpoint. The extended HTTP-semantics reasoning (why POST-with-query-params over a side-effecting GET, and why the whole-cycle force was correctly a no-op for fresh symbols) is the durable lesson.
+
+### Next authorized mode
+
+- **Shipped now:** the targeted refresh capability described above.
+- **Not authorized:** universe-wide freshness-gate bypass, scheduler/horizon/TTL/concurrency/provider/session changes, or any broadening of the scoped exception beyond the explicit operator-supplied symbol set without new reconciliation.
+
+---
+
 ## Continuation History
 
 | Date | Event |
 |---|---|
 | Sep 9, 2026 | Provider-neutral Well-Architected / Render reliability-fit discovery reconciled as a refinement under existing `PL-OPS-01`. Preserves Render attached-persistent-disk maintenance downtime as concrete pressure against the accepted one-service topology while explicitly withholding any inference that service extraction, database replacement, HA, or AWS migration is required. |
 | Sep 9, 2026 | Decision Surface (expanded row vs drawer) reconciled as a refinement under existing `PL-DEPLOY` from live-software discovery: the v1 consequence section falsified the narrow contract-detail drawer as the presentation for Sell/Hold/CC comparison across an owned-capital block, and exposed a contract→capital-block unit-of-interaction mismatch. Leading (unratified) hypothesis: horizontal expanded-row comparison + drawer inspection. Rich why-state: `docs/discovery/decision-surface-expanded-row-vs-drawer-2026-09-09.md`. No new `PL-*` id; no UI/implementation authorized; exact design held exploratory. |
+| Sep 9, 2026 | Bounded expanded-row (b)-move experiment built and reviewed in working software (under `PL-DEPLOY`). Validated: narrow drawer failed as comparison surface; horizontal in-row expansion substantially improves comparative cognition; removing consequences from the drawer improved its inspection coherence. New observation: above-the-fold availability ≠ visual accessibility — the expanded region needs stronger visual hierarchy. One reusable principle promoted to `foundations/visual-design-principles.md` (principle 11: essential decision info must be visually accessible without depending on undisclosed vertical discovery / the fold is degraded availability; presence ≠ accessibility carried as rationale, not a separate principle). Experiment retained (not reverted); next step is visual-accessibility iteration, not reconsidering existence. Exact visual design and architectural promotion still unresolved. |
+| Sep 10, 2026 | `PL-OPS-09` (Operator-Directed Targeted Re-Observation) created from live console discovery: a new query-time **Freshness** column didn't move on "Refresh evidence now". Root findings: (1) frontend read-lag/ETag-304 race in the polling store, and (2) `PL-OPS-08`'s whole-cycle force correctly no-ops for still-fresh on-screen symbols (provider stewardship excludes them from the due queue). Shipped a **targeted** variant — `POST /api/evidence/refresh?symbol=...` → `AcquisitionWorker.forceAcquireSymbols()` re-observing exactly the on-screen symbols, bypassing the freshness/due + session gates via the existing per-symbol path, preserving real timestamps/provenance/Single-Acquisition-Authority/rate-limit; frontend `refreshNow()` bounded-backoff re-read. POST (not GET) affirmed on RFC 9110 safe-method grounds. Verified live (market open): freshness resets to seconds automatically. Tests added both suites. New `PL-*` id (distinct intention from `PL-OPS-08`); narrow operator-scoped stewardship exception only; no scheduler/horizon/TTL/session/contract change. |

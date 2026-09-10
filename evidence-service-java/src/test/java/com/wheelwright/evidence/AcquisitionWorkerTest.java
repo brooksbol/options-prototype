@@ -577,6 +577,104 @@ class AcquisitionWorkerTest {
         }
     }
 
+    @Nested
+    @DisplayName("operator-forced TARGETED acquisition (console refresh?symbol=...)")
+    class TargetedForcedAcquisition {
+
+        // Saturday 16:00 UTC — deterministically BLOCKED (weekend), like ForcedAcquisition.
+        private SessionGate blockedGate() {
+            return new SessionGate(Clock.fixed(
+                ZonedDateTime.of(2026, 7, 18, 16, 0, 0, 0, ZoneOffset.UTC).toInstant(),
+                ZoneOffset.UTC));
+        }
+
+        @Test
+        @DisplayName("re-observes a FRESH symbol the due-queue would exclude (bypasses the freshness gate)")
+        void reObservesFreshSymbolBypassingFreshnessGate() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE"));
+            // Fresh (5 min) qualifying chain — well within the refresh horizon, so the normal
+            // work queue deliberately EXCLUDES it (provider stewardship). This is exactly the
+            // state where the old whole-cycle force would do nothing for this symbol.
+            store.setExpirations("XLE", EXPIRATIONS_JSON, minutesAgo(5));
+            store.setChain("XLE", QUALIFYING_CHAIN, minutesAgo(5));
+            assertTrue(store.getPrioritizedWorkQueue(CONFIG).stream().noneMatch(i -> "XLE".equals(i.symbol())),
+                "precondition: fresh symbol must be absent from the due work queue");
+
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            worker.start(List.of("XLE"));
+            Thread.sleep(1500); // let the background scheduler settle into session_blocked
+            int cycleCountBefore = worker.getStatus().cycleCount();
+
+            // Targeted refresh of the fresh symbol must still RUN a cycle for it.
+            var result = worker.forceAcquireSymbols(List.of("XLE"));
+
+            assertEquals(AcquisitionWorker.ForceOutcome.ACQUIRED, result.outcome(),
+                "targeted refresh should run even for a fresh (not-due) symbol");
+            assertTrue(worker.getStatus().cycleCount() > cycleCountBefore,
+                "a targeted forced cycle should have executed");
+
+            worker.stop();
+            store.close();
+        }
+
+        @Test
+        @DisplayName("empty symbol list is a no-op ACQUIRED (does not force a whole cycle)")
+        void emptyListIsNoOp() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE"));
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            worker.start(List.of("XLE"));
+            Thread.sleep(1500);
+            int cycleCountBefore = worker.getStatus().cycleCount();
+
+            var result = worker.forceAcquireSymbols(List.of());
+
+            assertEquals(AcquisitionWorker.ForceOutcome.ACQUIRED, result.outcome());
+            assertEquals(0, result.symbolsAcquired(), "no symbols requested → nothing acquired");
+            assertEquals(cycleCountBefore, worker.getStatus().cycleCount(),
+                "empty targeted refresh must not run an acquisition cycle");
+
+            worker.stop();
+            store.close();
+        }
+
+        @Test
+        @DisplayName("returns NOT_RUNNING when the worker is stopped")
+        void notRunningWhenStopped() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE"));
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            // Not started.
+            var result = worker.forceAcquireSymbols(List.of("XLE"));
+            assertEquals(AcquisitionWorker.ForceOutcome.NOT_RUNNING, result.outcome());
+            store.close();
+        }
+
+        @Test
+        @DisplayName("does NOT reschedule the automatic scheduler")
+        void doesNotChangeScheduler() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE"));
+            store.setExpirations("XLE", EXPIRATIONS_JSON, minutesAgo(5));
+            store.setChain("XLE", QUALIFYING_CHAIN, minutesAgo(5));
+
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            worker.start(List.of("XLE"));
+            Thread.sleep(1500);
+            String nextScheduledBefore = worker.getStatus().nextScheduledAt();
+            assertNotNull(nextScheduledBefore);
+
+            worker.forceAcquireSymbols(List.of("XLE"));
+
+            assertEquals(nextScheduledBefore, worker.getStatus().nextScheduledAt(),
+                "targeted refresh must not reschedule the automatic scheduler");
+
+            worker.stop();
+            store.close();
+        }
+    }
+
     // --- Stub adapter that doesn't make real network calls ---
 
     private TradierAdapter createStubAdapter() {
