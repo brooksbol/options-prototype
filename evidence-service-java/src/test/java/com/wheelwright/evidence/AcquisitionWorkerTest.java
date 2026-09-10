@@ -497,6 +497,86 @@ class AcquisitionWorkerTest {
         }
     }
 
+    @Nested
+    @DisplayName("operator-forced one-shot acquisition (PL-OPS-08)")
+    class ForcedAcquisition {
+
+        // Saturday 16:00 UTC — the SessionGate is deterministically BLOCKED (weekend).
+        private SessionGate blockedGate() {
+            return new SessionGate(Clock.fixed(
+                ZonedDateTime.of(2026, 7, 18, 16, 0, 0, 0, ZoneOffset.UTC).toInstant(),
+                ZoneOffset.UTC));
+        }
+
+        @Test
+        @DisplayName("forced cycle RUNS even when the session gate is BLOCKED (bypasses session policy)")
+        void forcedCycleRunsWhenGateBlocked() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE")); // pending → Class C work exists
+
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            worker.start(List.of("XLE"));
+
+            // Let the BACKGROUND scheduler settle into session_blocked (it must NOT run a cycle).
+            Thread.sleep(1500);
+            assertEquals("session_blocked", worker.getStatus().state(),
+                "background scheduler must remain session-gated");
+            int cycleCountBefore = worker.getStatus().cycleCount();
+
+            // Operator forces one cycle now — this must bypass the closed gate and actually run.
+            var result = worker.forceAcquireOnce();
+
+            assertEquals(AcquisitionWorker.ForceOutcome.ACQUIRED, result.outcome(),
+                "forced acquisition should run despite the blocked session gate");
+            assertTrue(worker.getStatus().cycleCount() > cycleCountBefore,
+                "a forced acquisition cycle should have executed");
+            // The real (bypassed) posture is honestly reported, not hidden.
+            assertEquals("BLOCKED", result.sessionPosture());
+
+            worker.stop();
+            store.close();
+        }
+
+        @Test
+        @DisplayName("does NOT touch the scheduler's own timer (one-shot never reschedules)")
+        void forcedCycleDoesNotChangeScheduler() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE"));
+
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            worker.start(List.of("XLE"));
+            // Let the background scheduler settle and set its next (gated) scheduled time.
+            Thread.sleep(1500);
+            assertEquals("session_blocked", worker.getStatus().state());
+            String nextScheduledBefore = worker.getStatus().nextScheduledAt();
+            assertNotNull(nextScheduledBefore);
+
+            // Forcing a one-shot acquisition must NOT reschedule the background loop: the
+            // scheduler's own timer (nextScheduledAt) is owned by scheduleCycle(), which the
+            // forced path never calls. This is the durable "does not change the scheduler"
+            // invariant, independent of the transient shared status.state during the forced run.
+            worker.forceAcquireOnce();
+
+            assertEquals(nextScheduledBefore, worker.getStatus().nextScheduledAt(),
+                "forced acquisition must not reschedule the automatic scheduler");
+
+            worker.stop();
+            store.close();
+        }
+
+        @Test
+        @DisplayName("returns NOT_RUNNING when the worker is stopped")
+        void notRunningWhenStopped() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE"));
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            // Not started.
+            var result = worker.forceAcquireOnce();
+            assertEquals(AcquisitionWorker.ForceOutcome.NOT_RUNNING, result.outcome());
+            store.close();
+        }
+    }
+
     // --- Stub adapter that doesn't make real network calls ---
 
     private TradierAdapter createStubAdapter() {

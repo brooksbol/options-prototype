@@ -7,18 +7,29 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Set;
+
+import static org.hamcrest.Matchers.in;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Nudge endpoint tests — POST /api/evidence/refresh
+ * Forced-acquisition endpoint tests — POST /api/evidence/refresh
+ *
+ * The endpoint now runs an operator-forced one-shot acquisition (PL-OPS-08) via
+ * AcquisitionWorker.forceAcquireOnce(), replacing the former worker.nudge() delegation.
  *
  * Proves:
- * - endpoint returns HTTP 200 with { "status": "nudged" }
+ * - endpoint returns HTTP 200 with the honest forced-acquisition disposition
+ * - outcome is one of the defined ForceOutcome values
+ * - the honest historical-recovery limitation flag is present and false
  * - POST method required (GET should return 405)
- * - response shape matches TypeScript contract exactly
- * - endpoint is callable regardless of worker state
+ *
+ * Note: in this integration context the provider authority is not established (test key,
+ * in-memory db), so the outcome is typically PROVIDER_UNAVAILABLE or NOT_RUNNING — either
+ * way the endpoint reports it honestly rather than fabricating success.
  */
 @SpringBootTest(properties = {
     "evidence.db.path=:memory:",
@@ -27,24 +38,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class NudgeControllerTest {
 
+    private static final Set<String> VALID_OUTCOMES =
+        Set.of("ACQUIRED", "NOT_RUNNING", "PROVIDER_UNAVAILABLE", "INTERRUPTED");
+
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("POST /api/evidence/refresh returns 200 with nudged status")
-    void nudgeReturnsOk() throws Exception {
+    @DisplayName("POST /api/evidence/refresh returns 200 with an honest forced-acquisition outcome")
+    void refreshReturnsOk() throws Exception {
         mockMvc.perform(post("/api/evidence/refresh"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("nudged"));
+            .andExpect(jsonPath("$.outcome").value(is(in(VALID_OUTCOMES))))
+            .andExpect(jsonPath("$.recoversHistory").value(false));
     }
 
     @Test
-    @DisplayName("response contains exactly one field: status")
-    void responseShapeExact() throws Exception {
+    @DisplayName("response exposes the forced-acquisition disposition fields")
+    void responseShape() throws Exception {
         mockMvc.perform(post("/api/evidence/refresh"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("nudged"))
-            .andExpect(jsonPath("$.length()").value(1));
+            .andExpect(jsonPath("$.outcome").exists())
+            .andExpect(jsonPath("$.symbolsAcquired").exists())
+            .andExpect(jsonPath("$.workQueueDepth").exists())
+            .andExpect(jsonPath("$.generation").exists())
+            .andExpect(jsonPath("$.sessionPosture").exists())
+            // Honest limitation: this control never reconstructs missed history.
+            .andExpect(jsonPath("$.recoversHistory").value(false));
     }
 
     @Test
@@ -55,18 +75,13 @@ class NudgeControllerTest {
     }
 
     @Test
-    @DisplayName("nudge is idempotent — multiple calls return same response")
-    void multipleNudgesIdempotent() throws Exception {
-        mockMvc.perform(post("/api/evidence/refresh"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("nudged"));
-
-        mockMvc.perform(post("/api/evidence/refresh"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("nudged"));
-
-        mockMvc.perform(post("/api/evidence/refresh"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("nudged"));
+    @DisplayName("repeated calls remain safe and honest")
+    void multipleCallsSafe() throws Exception {
+        for (int i = 0; i < 3; i++) {
+            mockMvc.perform(post("/api/evidence/refresh"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.outcome").value(is(in(VALID_OUTCOMES))))
+                .andExpect(jsonPath("$.recoversHistory").value(false));
+        }
     }
 }

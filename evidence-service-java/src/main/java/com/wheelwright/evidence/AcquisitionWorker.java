@@ -39,6 +39,9 @@ public class AcquisitionWorker {
     private static final long DELAY_SESSION_BLOCKED_MS = 300_000;
     private static final long DELAY_IDLE_MS = 30_000;
     private static final int BATCH_SIZE = 10;
+    // Bounded wait for an operator-forced one-shot cycle (PL-OPS-08). If exceeded, acquisition
+    // keeps running on the worker thread; the HTTP caller simply stops blocking.
+    private static final long FORCED_ACQUISITION_TIMEOUT_MS = 20_000;
 
     // --- PL-PROV-FAILOVER lifecycle thresholds (provisional / experimental) ---
     // Confirmed provider-unusable signals required to consider failover. Provisional.
@@ -301,6 +304,158 @@ public class AcquisitionWorker {
         if (nextCycle != null) nextCycle.cancel(false);
         idleLogged = false;
         scheduleCycle(0);
+    }
+
+    // --- Operator-forced one-shot acquisition (PL-OPS-08 recovery control) ---
+
+    /**
+     * Outcome of an operator-forced one-shot acquisition. Honest, observable disposition
+     * of what the single forced cycle actually did — never a bare "requested".
+     */
+    public enum ForceOutcome {
+        /** A forced acquisition cycle ran (may or may not have found due work). */
+        ACQUIRED,
+        /** No forced cycle ran because the worker is not running. */
+        NOT_RUNNING,
+        /**
+         * No forced cycle ran because the provider authority is not established/usable
+         * (UNVERIFIED / SUSPENDED). This is a provider-safety gate, NOT session policy —
+         * forcing acquisition through an unusable provider would produce no usable evidence.
+         */
+        PROVIDER_UNAVAILABLE,
+        /** The forced cycle was interrupted or timed out before completing. */
+        INTERRUPTED
+    }
+
+    /**
+     * Result of {@link #forceAcquireOnce()} — enough for the endpoint/UI to report honestly.
+     */
+    public record ForcedAcquisitionResult(
+        ForceOutcome outcome,
+        int cycleCount,
+        int symbolsAcquired,
+        int workQueueDepth,
+        long generation,
+        String sessionPosture
+    ) {}
+
+    /**
+     * Operator-forced one-shot acquisition (PL-OPS-08 bounded recovery control).
+     *
+     * Runs exactly ONE full acquisition cycle immediately, over the currently relevant
+     * work queue, through the EXISTING provider/cache/persistence paths — deliberately
+     * BYPASSING the scheduler's due-time and market-session gating for this single
+     * operator-requested cycle.
+     *
+     * What it does NOT do (by contract):
+     *   - Does not change the scheduler, its cadence, or its own next scheduled cycle.
+     *   - Does not reopen continuous observation or alter automatic session policy.
+     *   - Does not fabricate historical points — evidence keeps its real retrievedAt
+     *     timestamp and its actual provider/environment provenance, so after-hours
+     *     evidence can never masquerade as an observation captured during a missing
+     *     interval.
+     *   - Does not bypass the provider-availability safety gate: an UNVERIFIED/SUSPENDED
+     *     provider yields PROVIDER_UNAVAILABLE rather than a forced broken acquisition.
+     *
+     * Concurrency: the forced cycle is submitted onto the worker's single acquisition
+     * thread, so it serializes with any scheduled cycle (Single Acquisition Authority —
+     * no split-brain). This call blocks until the forced cycle completes (bounded wait).
+     *
+     * Limitation (PL-OPS-08 deferred work): this recovers evidence going FORWARD from
+     * now. It does NOT reconstruct observations missed during a prior outage.
+     */
+    public ForcedAcquisitionResult forceAcquireOnce() {
+        if (!running) {
+            return new ForcedAcquisitionResult(ForceOutcome.NOT_RUNNING, status.cycleCount(),
+                0, 0, safeGeneration(), "n/a");
+        }
+        // Provider-availability is a SAFETY gate, not session policy: forcing acquisition
+        // through an unusable/unverified provider would only produce no-usable-evidence
+        // outcomes. Report it honestly instead.
+        if (!providerManager.acquisitionAuthorityEstablished()) {
+            return new ForcedAcquisitionResult(ForceOutcome.PROVIDER_UNAVAILABLE, status.cycleCount(),
+                0, safeWorkQueueDepth(), safeGeneration(), "provider_unverified");
+        }
+
+        final int acquiredBefore = status.symbolsAcquiredTotal();
+        final String posture = safePosture();
+
+        Callable<ForceOutcome> task = () -> {
+            // Serialized on the acquisition thread: a scheduled cycle cannot be mid-flight here.
+            runForcedFullCycle();
+            return ForceOutcome.ACQUIRED;
+        };
+
+        try {
+            // Submit onto the same single thread the scheduler uses, so this cannot run
+            // concurrently with a normal cycle. Bounded wait keeps the HTTP request responsive
+            // even if the queue is large (acquisition continues; the caller just stops waiting).
+            Future<ForceOutcome> future = scheduler.submit(task);
+            ForceOutcome outcome = future.get(FORCED_ACQUISITION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            int acquiredDelta = status.symbolsAcquiredTotal() - acquiredBefore;
+            return new ForcedAcquisitionResult(outcome, status.cycleCount(), acquiredDelta,
+                safeWorkQueueDepth(), safeGeneration(), posture);
+        } catch (TimeoutException te) {
+            // The forced cycle is still running on the acquisition thread; we simply stop
+            // waiting. Report what has been acquired so far.
+            int acquiredDelta = status.symbolsAcquiredTotal() - acquiredBefore;
+            return new ForcedAcquisitionResult(ForceOutcome.ACQUIRED, status.cycleCount(), acquiredDelta,
+                safeWorkQueueDepth(), safeGeneration(), posture);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            return new ForcedAcquisitionResult(ForceOutcome.INTERRUPTED, status.cycleCount(),
+                status.symbolsAcquiredTotal() - acquiredBefore, safeWorkQueueDepth(), safeGeneration(), posture);
+        } catch (ExecutionException ee) {
+            System.err.println("[worker] Forced acquisition error: " + ee.getMessage());
+            return new ForcedAcquisitionResult(ForceOutcome.ACQUIRED, status.cycleCount(),
+                status.symbolsAcquiredTotal() - acquiredBefore, safeWorkQueueDepth(), safeGeneration(), posture);
+        }
+    }
+
+    /**
+     * Run one FULL acquisition cycle NOW, ignoring session posture. Reuses the exact
+     * {@link #runFullCycle} path (same provider/cache/persistence, same timestamp/
+     * provenance handling). Does NOT reschedule anything — the scheduler's own timer is
+     * untouched. Sets/clears {@code cycleActive} so it interlocks with the normal cycle.
+     */
+    private void runForcedFullCycle() {
+        if (!running) return;
+        if (cycleActive) return; // a normal cycle is somehow mid-flight; do not double-run
+        cycleActive = true;
+        int cycleCount = status.cycleCount() + 1;
+        String reason = "Operator-forced acquisition (session gate bypassed) · " + safePosture();
+        status = status.withState("acquiring")
+            .withCycleCount(cycleCount)
+            .withLastCycleStartedAt(Instant.now().toString());
+        long cycleStart = System.currentTimeMillis();
+        try {
+            // Always FULL — the operator explicitly requested acquisition. The provider adapter
+            // and store record the true retrievedAt/environment, so an after-hours delayed quote
+            // is written with its real (delayed) timestamp and provenance, never as in-interval.
+            runFullCycle(reason, cycleCount, cycleStart);
+            try {
+                evaluateProviderLifecycle();
+            } catch (Exception le) {
+                System.err.println("[provider] Lifecycle evaluation error (forced): " + le.getMessage());
+            }
+        } catch (Exception err) {
+            System.err.println("[worker] Forced cycle error: " + err.getMessage());
+            status = status.withFailures(status.failures() + 1);
+        } finally {
+            cycleActive = false;
+        }
+    }
+
+    private long safeGeneration() {
+        try { return store.getGeneration(); } catch (Exception e) { return -1; }
+    }
+
+    private int safeWorkQueueDepth() {
+        try { return store.getPrioritizedWorkQueue(schedulerConfig).size(); } catch (Exception e) { return -1; }
+    }
+
+    private String safePosture() {
+        try { return sessionGate.getPosture().posture().name(); } catch (Exception e) { return "unknown"; }
     }
 
     // --- Self-scheduling core ---

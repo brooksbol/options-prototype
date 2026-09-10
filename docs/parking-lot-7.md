@@ -125,8 +125,93 @@ Useful next work is to determine the smallest operator-facing representation of 
 
 ---
 
+## `PL-OPS-08` — Observation Continuity / Gap Recovery
+
+**Date:** September 9, 2026 (live operator incident)  
+**State:** INTAKE — new canonical identity created; broader problem deferred, bounded forced one-shot acquisition recovery control implemented (nudge-based first attempt falsified and replaced)  
+**Concept home:** `foundations/evidence-appliance.md`, `PL-OPS-01`, `PL-OPS-03`, `PL-OPS-04`, `PL-ARCH-06`
+
+### Intake
+
+A local development-machine incident exposed a durable operational gap in the evidence appliance's always-on promise. Concrete evidence:
+
+- Kiro (the IDE) was restarted around midday.
+- The backend evidence service and frontend dev server were **not** restarted, and — separately — nothing re-started acquisition after the operator's environment churned.
+- Observation effectively **stopped for roughly half the trading day**.
+- Consequently, temporal surfaces such as Operator Console sparklines and The Field terminate mid-session: the evidence model has a hole where continuous observation should exist.
+
+This is the first durable record of the general concern: **the appliance's continuity depends on a process actually running, and today it silently did not.** The appliance identity (`foundations/evidence-appliance.md`) asserts always-on, browser-independent, restart-durable observation. Today's incident is evidence that, in the current local topology, that identity is only partially realized — a running process is assumed, gaps are neither detected nor surfaced nor recovered, and the operator discovered the gap by noticing a truncated sparkline rather than by any appliance signal.
+
+This is a genuinely new unresolved concern. It is adjacent to but distinct from existing items:
+
+- `PL-OPS-01` (Cloud Deployment / always-on) would **prevent most** forgotten-restart gaps by removing the laptop-bound process, but does not itself detect, surface, or recover a gap that occurs.
+- `PL-OPS-03` (Prior-Epoch Failed Scheduler Gap / recovery-probe) recovers **per-symbol lifecycle** failures within the scheduler; it is not observation-timeline continuity or whole-appliance downtime recovery.
+- `PL-OPS-04` (Notification / Background Awareness) is a plausible **channel** for surfacing a detected continuity gap, but owns decision-state transitions, not evidence-continuity semantics.
+- `PL-ARCH-06` (transitional recommendation-engine placement) and the broader topology remain the backdrop; this concern does not authorize topology change.
+
+### What is deferred (the broader problem)
+
+`PL-OPS-08` durably preserves the broader **Observation Continuity / Gap Recovery** problem for later work. Candidate later directions (none authorized here):
+
+- **Gap detection / visibility** — the appliance recognizes and reports a break in its own observation timeline (a continuity form of Secondary Observation) rather than relying on the operator to notice a truncated sparkline.
+- **Historical recovery where authoritative evidence exists** — bounded backfill of missed observations only where a provider can supply authoritative point-in-time evidence, consistent with session semantics and "failed refresh preserves evidence."
+- **Provenance distinguishing recovered history from live observation** — recovered points must be labeled as recovered, never silently presented as continuous live observation (persist facts; derive trust).
+- **Stronger always-on / process-recovery behavior** — supervision/auto-restart of acquisition and, ultimately, `PL-OPS-01` cloud always-on so a forgotten local restart cannot silently halt observation.
+
+### What was implemented now (bounded operational repair)
+
+A **forced one-shot acquisition** control was implemented against the **existing** acquisition machinery, under explicit Principal authorization, as a bounded operational repair — explicitly **not** a solution to the broader problem.
+
+**Rejected first attempt (preserved why-state).** The first implementation wired the control to the pre-existing `POST /api/evidence/refresh` → `AcquisitionWorker.nudge()`. Operator testing (Sep 9, after close) falsified it: `nudge()` only pulls **due** work forward **within an already-valid session** and is a **deterministic no-op once the session gate is closed**. For the actual recovery scenario ("I forgot to restart the servers; get Wheelwright caught up, including after hours"), the session gate is exactly what's closed, so the button could never accomplish its job. Diagnostic status confirmed the mechanism: `scheduler.state: session_blocked`, `cycleCount: 0`, `symbolsAcquiredTotal: 0`. Merely improving the control's observability (e.g. reporting "market closed") was explicitly rejected as polishing a control that still cannot do its intended work. The nudge capability itself remains valid but is only "run due work sooner during an already-valid session" — a different, smaller problem.
+
+**Shipped control (forced one-shot).** `POST /api/evidence/refresh` was **re-implemented** to call a new `AcquisitionWorker.forceAcquireOnce()`:
+
+- Runs exactly **one full acquisition cycle now** over the currently relevant work queue (the existing prioritized A/B/C/D universe), through the existing provider/cache/persistence paths, **bypassing the scheduler's due-time and market-session gating** for that single operator-requested cycle.
+- Serializes on the worker's single acquisition thread (Single Acquisition Authority — no split-brain); does **not** call `scheduleCycle()`, so the automatic scheduler's own timer/cadence is untouched.
+- Still respects the **provider-availability safety gate** (an UNVERIFIED/SUSPENDED provider returns `PROVIDER_UNAVAILABLE` rather than forcing a broken acquisition). Provider safety is not session policy.
+- Returns an honest disposition: `outcome` (`ACQUIRED` / `NOT_RUNNING` / `PROVIDER_UNAVAILABLE` / `INTERRUPTED`), `symbolsAcquired`, `workQueueDepth`, `generation`, the real (bypassed) `sessionPosture`, and `recoversHistory: false`.
+- Frontend `forceEvidenceAcquisition()` (`src/evidence/nudge-acquisition.ts`) + Operator Console `ForceAcquisitionButton` (`src/operator-console/ForceAcquisitionButton.tsx`, group-by bar) invoke it and report the outcome ("Refresh evidence now" → "Acquired N" / "Acquired (up to date)" / "Provider unavailable" / "Appliance offline" / "Acquisition failed").
+
+**Provenance invariant preserved.** Acquired evidence keeps its real `retrievedAt` timestamp and actual provider/environment provenance (via the unchanged `setChain`/`setExpirations` paths). An after-hours acquisition is written with its true (possibly delayed) timestamp and posture, so it can **never** masquerade as an observation captured during the missing interval.
+
+> **Explicit limitation (unchanged):** this control does **not** solve historical gaps. It acquires evidence **forward from now**; it cannot reconstruct the observations missed during a prior outage. Gap detection, historical recovery, recovered-vs-live provenance, and always-on process recovery remain the deferred `PL-OPS-08` work above.
+
+This item deliberately does **not** derail the active constraint-identification campaign (Docs 39/40 / the `A`/`4AM` cycle): the broader continuity problem is recorded, today's bounded recovery control is shipped, and consequence work resumes.
+
+### Reconciliation Completion Record — `PL-OPS-08`
+
+#### Intake
+
+Canonical identity: **`PL-OPS-08`** (new). Concept home: `foundations/evidence-appliance.md`. Related: `PL-OPS-01`, `PL-OPS-03`, `PL-OPS-04`, `PL-ARCH-06`.
+
+#### Strategic disposition
+
+**Strengthens existing strategic direction; no roadmap change required.** The incident is concrete evidence for the already-accepted always-on appliance direction (of which `PL-OPS-01` cloud deployment is the primary enabler). It does not open a new strategic Bet; it sharpens the reliability/continuity dimension of the existing appliance identity.
+
+#### Architectural disposition
+
+**New operational pressure recorded under the existing appliance identity; no architecture change authorized now.** The bounded recovery control is an implementation-convenience wiring of an existing endpoint to an existing surface — it is **not** new architecture and does not ratify gap detection, backfill, recovered-evidence provenance, or process supervision. Those remain design/exploration pressure against `foundations/evidence-appliance.md` and `PL-OPS-01`.
+
+#### Parking-lot disposition / mapping
+
+**New identity `PL-OPS-08` created and retained.** Not merged into `PL-OPS-01` (prevention ≠ detection/recovery), `PL-OPS-03` (per-symbol lifecycle ≠ timeline continuity), or `PL-OPS-04` (notification channel ≠ continuity semantics). Cross-references those items and `PL-ARCH-06`.
+
+#### Why-state
+
+Durable why-state is preserved in this record. No separate journal entry or standalone discovery document is required: the incident, its evidence, the deferred broader problem, the bounded repair, and the explicit limitation are all captured here. If later exploration develops the gap-detection/backfill design, a richer artifact should be created and linked from this item.
+
+#### Next authorized mode
+
+- **Implemented / shippable now:** the bounded forced one-shot acquisition recovery control described above (`forceAcquireOnce()` + `ForceAcquisitionButton`, already built and tested). The superseded nudge-based control was falsified by operator testing and replaced.
+- **Further exploration / design only** for the broader `PL-OPS-08` problem (gap detection, historical recovery, recovered-vs-live provenance, always-on process recovery).
+- **Not authorized:** scheduler redesign, historical backfill, new provider capability, cloud/topology change, or any change to freshness horizons, cache TTLs, concurrency, provider profile, or session semantics merely to improve visible continuity metrics.
+
+---
+
 ## Continuation History
 
 | Date | Event |
 |---|---|
 | Sep 8, 2026 | Share-capital release-cost / recovery-time decision reconciled into existing `PL-DEPLOY`. BNO, COPX, and GDX provide three real post-short-call resolution paths; GDX exposes the operator choice between monetary erosion now and temporal encumbrance/risk while attempting basis recovery. Rich snapshot: `docs/49-share-capital-release-cost-decision-discovery-2026-09-08.md`. No Share/Capital Deployment implementation or scoring model authorized. |
+| Sep 9, 2026 | `PL-OPS-08` (Observation Continuity / Gap Recovery) created after a live incident: Kiro restarted midday, backend/frontend not restarted, observation stopped ~half the trading day, sparklines/The Field terminate mid-session. Broader problem (gap detection, historical recovery, recovered-vs-live provenance, always-on process recovery) deferred. |
+| Sep 9, 2026 | First recovery control (nudge-based) **falsified by operator testing**: `worker.nudge()` only advances due work within an already-valid session and is a deterministic no-op once the session gate is closed — useless for the after-hours recovery scenario. **Replaced** with a forced one-shot acquisition: `AcquisitionWorker.forceAcquireOnce()` runs one full cycle now over the relevant universe via existing provider/cache/persistence paths, bypassing due-time and session gating for that single cycle, while preserving real timestamps/provenance, respecting the provider-availability safety gate, and leaving the scheduler cadence untouched. `POST /api/evidence/refresh` re-implemented; frontend `forceEvidenceAcquisition()` + Operator Console `ForceAcquisitionButton`. Still explicitly does **not** reconstruct historical gaps. No scheduler/backfill/provider/cloud/topology change authorized. |

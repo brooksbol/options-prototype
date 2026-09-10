@@ -19,6 +19,7 @@ import type { OptionBasisInput } from "../portfolio/assignment-consequence";
 import { deriveCallAssignmentConsequence, derivePutAssignmentConsequence } from "../portfolio/assignment-consequence";
 import { lookupDescription } from "../instrument-catalog/catalog";
 import { PositionDetailModal } from "./PositionDetailModal";
+import { ForceAcquisitionButton } from "../operator-console/ForceAcquisitionButton";
 import "../operator-console/operator-console.css";
 
 // --- Sort Types ---
@@ -217,6 +218,8 @@ export function OperatorConsole() {
                 >
                   Download CSV
                 </button>
+                <span className="oc-group-by-divider" />
+                <ForceAcquisitionButton />
               </div>
             )}
             <div className="oc-ladder-scroll">
