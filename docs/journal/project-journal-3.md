@@ -240,3 +240,68 @@ Zero backend change throughout (the reuse gate held). 18 frontend tests across `
 ### Epistemic status
 
 Bounded v0 consumers of PL-OPS-09 (bulk + per-row), no new capability, no backend change, no new `PL-*`. High operator-validated value. Principle #12 is the durable takeaway beyond this feature.
+
+
+## 2026-09-10 — The spinner decision arc: how we recovered from two red herrings
+
+### Context
+
+Immediately after the previous entry (which landed the convergence-tracking spinner), the completion-semantics question went through a two-step near-miss before settling. This entry records the arc itself, because the arc — not just the final code — is the reusable learning, and a cold-start reader who saw only the endpoint would miss why the obvious "simplification" is wrong.
+
+### The arc
+
+1. **Simple spinner** (validated, useful): spin during request, stop on return. Defect observed: the Age lagged a few seconds after the spinner stopped — the UI briefly asserted freshness that hadn't propagated.
+2. **Convergence spinner** (the fix): keep spinning until the row's `acquiredAtMs` advances; bounded to 8s → explicit `?`. This fixed the lag.
+3. **Red herring #1 (mine):** on hearing "spinners spin forever," I recommended *reverting* to the simple spinner and rewriting principle #12 to say "don't make spinners wait for convergence." I even drafted the revert and the rewritten principle.
+4. **Red herring caught (Principal):** the revert would have knowingly restored the stale-Age gap. Crucially, the convergence version was **already bounded** (8s + `?`), so it never had the eternal-spinner failure mode the heuristic warned about. The objection targeted a problem this code didn't have.
+5. **Resolution:** keep the convergence spinner. The real requirement is **both** — responsive (spinner stops as the Age changes) **and** bounded (never eternal; terminate into an explicit unresolved state). Principle #12 sharpened to make the bound the load-bearing clause and to reject *both* failure modes explicitly.
+
+### Why this is worth preserving (two durable lessons)
+
+- **Validated working software outranks a plausible principle.** "Spinners spin forever" is true in general and was the right instinct in the abstract — but applied here it would have removed a working-software improvement to solve a failure mode that the bounded design had already eliminated. When a heuristic and validated behavior conflict, check whether the heuristic's failure mode actually exists in this implementation before acting on it.
+- **The requirement was "both," and each isolated simplification silently sacrificed one half.** Reverting protected against eternal spin by reintroducing the stale-Age gap; the naive convergence spinner (unbounded) would have done the reverse. The honest target holds both simultaneously — responsiveness *and* a bound — which is exactly what principle #12 now states.
+
+### A third, smaller lesson (testing)
+
+The bounded-timeout test first used fake timers. It **passed in isolation but failed in the full suite** (fake-timer/microtask contamination under concurrent load). Fixed by making the convergence bound an injectable prop (`convergenceTimeoutMs`) and testing with a tiny real timeout — deterministic, no time mocking. Reusable: prefer injecting a duration over mocking the clock; and always run the full suite, because an isolated green can hide a flaky interaction.
+
+### Process note
+
+No history rewrite. The earlier entry (convergence as "the fix") stands; this entry continues the arc through the near-miss to the settled "both, bounded" position. The messy path — simple → convergence → proposed revert → objection → keep-but-sharpen — is the organizational learning, preserved deliberately rather than tidied into a clean-looking final state.
+
+### Verification
+
+Final: 6 row-button tests (convergence + bounded-terminate), full suite 1428/1429 (sole failure the pre-existing unrelated velvet-rope date-drift snapshot), `tsc` clean. Zero backend change throughout.
+
+
+## 2026-09-10 — Codex review: the bulk button and the ACQUIRED label were still lying
+
+### Context
+
+External Codex review of the Cash Deployment refresh, after the row control's convergence semantics had settled. It found two remaining truthfulness defects — both frontend completion-semantics, neither invalidating PL-OPS-09 or the Deployment refresh idea. Both accepted and corrected in one bounded pass. The row control had already earned its success claim via visible convergence; these are the two places that hadn't caught up.
+
+### Finding 1 — the bulk button claimed success at request return
+
+`CrossEntryRefreshButton` displayed `Refreshed N` the moment the targeted acquisition POST returned — the operator reads that as "the rows I'm looking at are now fresh," which is a lie until the surface re-read has propagated. This is exactly principle #12 applied to the bulk control, which we had only applied to the row. Fix (bounded, no per-symbol accounting framework): the button now captures a click-time per-symbol provenance baseline, shows `Refreshing…` → `Updating evidence…`, and claims `Refreshed N` **only** when all requested rows' visible provenance advances. If only some advance within the bound it reports `Refreshed X of Y`; if none, `Not confirmed fresh`. The number is the count of rows whose VISIBLE provenance advanced — never the backend's `symbolsAcquired`.
+
+The provenance feedback comes from a live `symbol → provenance` map that CrossEntryStrip already can build from its displayed rows — so the bulk button detects convergence with a simple map compare, not machinery.
+
+### Finding 2 — `ACQUIRED` is not a synonym for "new evidence exists"
+
+The label logic translated backend `ACQUIRED` into `Refreshed N` / `Refreshed (up to date)`. But `ACQUIRED` is only an acquisition disposition: `forceAcquireSymbols` can return `ACQUIRED` on the bounded-wait timeout path, and `symbolsAcquired === 0` does not prove evidence was already current. So the label was epistemically stronger than the backend fact. Fixed: the FE never renders a confirmed-freshness claim from `ACQUIRED` alone; success is asserted only through visible convergence (above). The row control was already robust to this because it waits on the row's provenance.
+
+### Timing alignment (Codex MINOR, made intentional)
+
+The bulk convergence bound is 13s, deliberately set to exceed WriteDesk's re-read backoff total (~12.5s cumulative). If the bound were shorter (e.g. the row's 8s), the bulk button could declare a false "partial" while the re-read still had attempts pending. Documented as a constant with the coupling explained.
+
+### A correctness bug found while testing
+
+The bulk bounded-timeout closure initially read `provenanceBySymbol` from the click-time closure — stale, since the map advances via recompute after the timer is scheduled. Fixed by reading the latest map through a ref. Caught because the partial-convergence test was flaky until the ref was introduced — the test earned its keep.
+
+### Verification
+
+Zero backend change (the reuse gate held through the whole feature). Bulk tests rewritten to convergence semantics (7), row control unchanged (6), scope helper (7). Full suite 1429/1430 — sole failure the pre-existing unrelated velvet-rope date-drift snapshot. `tsc` clean.
+
+### Epistemic status
+
+The core architecture held throughout: one reusable backend capability (PL-OPS-09), multiple frontend consumers, and every consumer must tell the truth about when its OWN visible state has caught up. Principle #12 is the durable takeaway; this review is what forced it to be applied uniformly rather than only where the defect was first noticed.

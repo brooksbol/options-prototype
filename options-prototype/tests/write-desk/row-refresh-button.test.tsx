@@ -114,4 +114,26 @@ describe("RowRefreshButton", () => {
     await waitFor(() => expect(mockForce).toHaveBeenCalled());
     expect(rowClick).not.toHaveBeenCalled();
   });
+
+  it("is bounded: if the row never converges, the spinner terminates into indeterminate (never eternal)", async () => {
+    mockForce.mockResolvedValue(acquired());
+    // Inject a tiny convergence bound so the test uses real timers deterministically (no
+    // fake-timer/microtask contamination). Provenance is never advanced, so convergence
+    // cannot happen — the bound must fire.
+    const { container } = render(
+      <RowRefreshButton
+        symbol="SPY"
+        provenance={prov(1000)}
+        onRefreshComplete={vi.fn()}
+        convergenceTimeoutMs={20}
+      />,
+    );
+    const btn = () => container.querySelector("button")!;
+    fireEvent.click(btn());
+
+    // The spinner must STOP (never eternal) into an explicit indeterminate "?" — not a clean
+    // success while the value is still stale.
+    await waitFor(() => expect(btn().textContent).toBe("?"));
+    expect(btn().getAttribute("aria-busy")).toBe("false");
+  });
 });

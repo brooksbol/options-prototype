@@ -116,6 +116,19 @@ export function CrossEntryStrip({
   // head of the view the operator is using" — never a claim of canonical/best ranking.
   const refreshTopSymbols = selectRefreshTopSymbols(filtered, REFRESH_TOP_N);
 
+  // Live symbol → current chain-acquisition provenance for the displayed rows, so the bulk
+  // refresh control can detect VISIBLE-STATE convergence (rows actually showing newer evidence)
+  // rather than claiming success at request return. Rebuilt each recompute; when multiple rows
+  // share a symbol, the freshest provenance wins.
+  const provenanceBySymbol = new Map<string, EvidenceProvenance | null | undefined>();
+  for (const r of filtered) {
+    const sym = r.symbol.toUpperCase();
+    const existing = provenanceBySymbol.get(sym);
+    const ex = existing && existing.kind === "chain-acquired" ? existing.acquiredAtMs : -1;
+    const cur = r.evidenceProvenance && r.evidenceProvenance.kind === "chain-acquired" ? r.evidenceProvenance.acquiredAtMs : -1;
+    if (!provenanceBySymbol.has(sym) || cur > ex) provenanceBySymbol.set(sym, r.evidenceProvenance);
+  }
+
   if (allRows.length === 0) return null;
 
   return (
@@ -244,6 +257,7 @@ export function CrossEntryStrip({
         {onRefreshTopOpportunities && (
           <CrossEntryRefreshButton
             symbols={refreshTopSymbols}
+            provenanceBySymbol={provenanceBySymbol}
             onRefreshComplete={onRefreshTopOpportunities}
           />
         )}

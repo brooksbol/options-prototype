@@ -28,22 +28,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { forceEvidenceAcquisition } from "../evidence/nudge-acquisition";
 import type { EvidenceProvenance } from "./evidence-provenance";
+import { acquiredMs } from "./refresh-convergence";
 
 type Phase = "idle" | "acquiring" | "awaiting-convergence" | "indeterminate" | "failed";
 
 const RESULT_LINGER_MS = 2500;
-/** How long to wait for the row's visible provenance to advance after a successful acquisition. */
-const CONVERGENCE_TIMEOUT_MS = 8000;
-
-/** Extract the comparable acquisition instant (epoch ms) from provenance, or null. */
-function acquiredMs(p: EvidenceProvenance | null | undefined): number | null {
-  return p && p.kind === "chain-acquired" ? p.acquiredAtMs : null;
-}
+/** Default wait for the row's visible provenance to advance after a successful acquisition. */
+const DEFAULT_CONVERGENCE_TIMEOUT_MS = 8000;
 
 export function RowRefreshButton({
   symbol,
   provenance,
   onRefreshComplete,
+  convergenceTimeoutMs = DEFAULT_CONVERGENCE_TIMEOUT_MS,
 }: {
   /** The single underlying symbol for this row. */
   symbol: string;
@@ -57,6 +54,8 @@ export function RowRefreshButton({
    * authoritative evidence path and recomputes (which advances this row's provenance).
    */
   onRefreshComplete: () => void;
+  /** Upper bound on the convergence wait (ms). Injectable for deterministic testing. */
+  convergenceTimeoutMs?: number;
 }) {
   const [phase, setPhase] = useState<Phase>("idle");
   // Acquisition instant observed at click time; convergence = provenance newer than this.
@@ -109,8 +108,8 @@ export function RowRefreshButton({
       // 90s window). Stop indeterminate — never a clean "done" the operator would misread.
       setPhase("indeterminate");
       lingerTimer.current = setTimeout(() => setPhase("idle"), RESULT_LINGER_MS);
-    }, CONVERGENCE_TIMEOUT_MS);
-  }, [phase, symbol, provenance, onRefreshComplete]);
+    }, convergenceTimeoutMs);
+  }, [phase, symbol, provenance, onRefreshComplete, convergenceTimeoutMs]);
 
   const spinning = phase === "acquiring" || phase === "awaiting-convergence";
   const glyph = phase === "failed" ? "⚠" : phase === "indeterminate" ? "?" : "↻";
