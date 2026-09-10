@@ -305,3 +305,26 @@ Zero backend change (the reuse gate held through the whole feature). Bulk tests 
 ### Epistemic status
 
 The core architecture held throughout: one reusable backend capability (PL-OPS-09), multiple frontend consumers, and every consumer must tell the truth about when its OWN visible state has caught up. Principle #12 is the durable takeaway; this review is what forced it to be applied uniformly rather than only where the defect was first noticed.
+
+
+## 2026-09-10 — Refresh rate-limit stewardship verified (docs-only closeout before roadmap)
+
+### Context
+
+After promoting the Cash Deployment targeted refresh to production `main`, the open operational worry was: two refresh controls (bulk + per-row) — does repeated clicking push us into HTTP 429? Codex verified the boundary; this is the durable capture so a future session does not re-litigate it.
+
+### Verified
+
+**Force fresh bypasses freshness policy, not provider stewardship.** Targeted refresh shares every provider protection with scheduled acquisition: same single acquisition thread (Single Acquisition Authority — no second path), same `acquireSymbolTiered`, same `RequestPacer` (single-flight, ≤119 starts/60s), same response cache (exp 5m / quotes 60s / chains 90s), same 429 handling (records the event, honors Retry-After else 60s backoff, blocks later admission, classified as throttling not failover). No rate-limit bypass exists.
+
+### Residual risk (correctly characterized)
+
+Not a 429 spray — **backlog and delayed convergence.** Overlapping operator operations (a 30-symbol bulk, several row `↻`, another bulk, atop scheduled work) serialize through the one worker and one pacer. That protects Tradier but can delay convergence. A visible consequence, not a defect: under queued pressure the bulk button can truthfully report `Refreshed X of Y` / `Not confirmed fresh` because the requested work didn't complete within the 13s UI window. The button is honest; the delay is the operator's own backlog.
+
+### Disposition
+
+Observe before throttling. No code change now. If real pressure ever appears (inspect recorded 429s, pacer admission wait, refresh backlog, and whether bulk refresh delays scheduled acquisition), the only sanctioned response is coalescing/deduplicating pending refresh intentions — never weakening the pacer or adding a second rate-limit mechanism, which would violate Single Acquisition Authority. Recorded under PL-OPS-09.
+
+### Status
+
+Docs-only. `main` frozen after this commit; the next activity is the roadmap review from the accepted SHA. Cash Deployment targeted refresh (bulk + per-row) is production; its stewardship boundary is now durable knowledge.
