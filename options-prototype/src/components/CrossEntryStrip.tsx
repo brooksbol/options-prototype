@@ -23,6 +23,7 @@ import { downloadTableCsv } from "../write-desk/table-csv-export";
 import { AgeCell } from "../write-desk/AgeCell";
 import { formatAcquisitionAge, type EvidenceProvenance } from "../write-desk/evidence-provenance";
 import { CrossEntryRefreshButton } from "../write-desk/CrossEntryRefreshButton";
+import { RowRefreshButton } from "../write-desk/RowRefreshButton";
 import { selectRefreshTopSymbols, REFRESH_TOP_N } from "../write-desk/refresh-top-symbols";
 
 // --- Sortable Table (delegates to shared multi-column hook) ---
@@ -53,8 +54,9 @@ interface CrossEntryStripProps {
   onSelectBuyWrite: (candidate: BuyWriteCandidate) => void;
   /**
    * Re-read this surface's OWN authoritative evidence path (WriteDesk snapshot poll) and
-   * recompute. Called by the "Refresh top opportunities" control after a targeted PL-OPS-09
-   * re-observation completes. Optional — when absent, the refresh control is not shown.
+   * recompute. Called after a targeted PL-OPS-09 re-observation completes (by the bulk
+   * "Refresh top opportunities" control and by per-row refresh). Optional — when absent, the
+   * refresh affordances are not shown.
    */
   onRefreshTopOpportunities?: () => void;
 }
@@ -308,7 +310,16 @@ export function CrossEntryStrip({
               <td className={row.cashRemaining < 0 ? "wd-negative-value" : ""}>${row.cashRemaining.toLocaleString()}</td>
               <td>{row.executionScore}</td>
               <td><span className={`wd-posture-badge wd-posture-${row.posture.toLowerCase()}`}>{row.posture}</span></td>
-              <td><AgeCell provenance={row.evidenceProvenance} /></td>
+              <td className="wd-age-cell">
+                <AgeCell provenance={row.evidenceProvenance} />
+                {onRefreshTopOpportunities && (
+                  <RowRefreshButton
+                    symbol={row.symbol}
+                    provenance={row.evidenceProvenance}
+                    onRefreshComplete={onRefreshTopOpportunities}
+                  />
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

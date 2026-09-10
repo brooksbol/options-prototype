@@ -26,6 +26,8 @@
 
 10. **Centralized token authority.** All palette values, type scales, and spacing live in `theme-tokens.css`. No raw hex values in component CSS. Every surface speaks the same visual language.
 
+12. **Completion indication tracks visible-state convergence, not action completion.** When a control's visible result is what establishes operator trust, its "done" signal must correspond to the moment the visible state has actually converged — not to the moment the underlying request returned. Action completion and visible-state convergence are different events. A refresh spinner tied to "the request came back" reads to the operator as "this row is now current," which is a lie if the displayed value hasn't updated yet. If the request succeeds but the visible state does not converge within a bounded wait, stop in an indeterminate/warning state rather than declaring clean success. (Learned from working software: the Cash Deployment per-row refresh spinner stopped when acquisition returned, seconds before the Age value updated — briefly asserting a freshness the operator could not yet see. Principle 11 is reserved for the concurrent expanded-row branch.)
+
 ---
 
 ## Typography

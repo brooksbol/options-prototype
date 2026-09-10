@@ -2189,6 +2189,61 @@
   width: fit-content;
 }
 
+/* Age cell + per-row surgical refresh (PL-OPS-09 consumer) */
+.wd-age-cell {
+  white-space: nowrap;
+}
+
+.wd-row-refresh {
+  background: none;
+  border: none;
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  padding: 0 2px;
+  margin-left: 4px;
+  opacity: 0.45;
+  transition: opacity 0.12s ease, color 0.12s ease;
+}
+
+.wd-row-refresh:hover {
+  opacity: 1;
+  color: var(--wd-accent-green);
+}
+
+.wd-row-refresh:disabled {
+  cursor: default;
+}
+
+/* Busy: spin the circle-arrow while re-observing this symbol. */
+.wd-row-refresh-busy {
+  opacity: 1;
+  color: var(--wd-accent-green);
+  display: inline-block;
+  animation: wd-row-refresh-spin 0.8s linear infinite;
+}
+
+@keyframes wd-row-refresh-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Failed: brief warning tone; never a silent success. */
+.wd-row-refresh-failed {
+  opacity: 1;
+  color: var(--wd-accent-red, #b91c1c);
+  animation: none;
+}
+
+/* Indeterminate: acquired, but the visible age did not advance in time (e.g. provider-cache
+   window). Amber, not spinning, not a clean success — the operator must not read it as "done". */
+.wd-row-refresh-indeterminate {
+  opacity: 1;
+  color: var(--wd-accent-amber, #b7791f);
+  animation: none;
+}
+
 
 /* Wide spread posture */
 .wd-posture-wide_spread {

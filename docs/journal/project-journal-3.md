@@ -208,3 +208,35 @@ So at the **backend layer** the "refresh these symbols, not this table" property
 ### Epistemic status
 
 Bounded v0, new consumer of an existing capability, no backend change, no new `PL-*` identity. Stopping for Principal working-software review before broadening (higher N, population-wide refresh, or pipeline unification are all explicitly out of scope).
+
+
+## 2026-09-10 — Cash Deployment refresh: two working-software corrections + a durable UI principle
+
+### Context
+
+Continuation of the Cash Deployment PL-OPS-09 consumer. Principal exercised it in working software (market open) and it now works well — validated as potentially **hundreds to thousands of dollars/month** of operational value (surgically refreshing a candidate's evidence before execution instead of trading on stale economics). Two real defects surfaced only under working software, neither reachable by upfront design; both fixed. This is the closed loop doing its job.
+
+### Defect 1 — generation early-exit ("refreshed N but age unchanged")
+
+My surface re-read stopped as soon as `snapshot.generation` advanced past the click-time value. But the appliance publishes a new generation almost continuously (the scheduler is always acquiring the universe — I watched it climb several generations per second via the live snapshot endpoint). So a generation bump does **not** mean the *targeted* symbols were re-observed; the loop exited on an unrelated scheduler publication and merged a snapshot predating the targeted chains. Fix: run the full bounded backoff, no generation-based early exit — the later reads land after the targeted acquisition publishes.
+
+Direct backend probes confirmed the backend side was correct all along: `POST /api/evidence/refresh?symbol=AOA&symbol=AOM` advanced AOA's `primaryChainAcquisitionProvenance.acquiredAt` (18:23 → 18:36). The bug was entirely in my frontend re-read heuristic.
+
+### Defect 2 — completion indication lied (the important one)
+
+Added a **per-row `↻` surgical refresh** (`RowRefreshButton.tsx`) — a one-symbol PL-OPS-09 consumer for revalidating the exact opportunity before Open in Fidelity. Its spinner initially stopped when the acquisition request returned — seconds *before* the row's Age visibly updated. For a few seconds the UI asserted a freshness the operator could not yet see.
+
+Principal named the reusable principle precisely: **action completion and visible-state convergence are different events; operator-facing completion must correspond to the latter when the visible state is what establishes trust.** The spinner now tracks the row's own `acquiredAtMs` advancing past the click-time baseline, and stops **indeterminate** (not clean success) if acquired-but-not-converged within a bounded wait — the honest outcome when evidence can't get fresher (e.g. a provider-cache hit inside the 90s chain-cache window). Promoted to `foundations/visual-design-principles.md` as principle #12.
+
+### Also learned / preserved
+
+- **90s chain-cache floor:** re-refreshing the same symbol within 90s is a provider cache hit that rewrites the same `retrievedAt` — correct stewardship, but it means rapid re-clicks won't drive the age to ~0; the indeterminate state now tells that truth instead of faking success.
+- **Two frontend evidence readers, one backend model:** reaffirmed — Console (observation store) and Deployment (WriteDesk snapshot poll) each re-read their own source; the shared truth is at the backend. Recorded as a finding, not unified (belongs to `PL-ARCH-06`).
+
+### Verification
+
+Zero backend change throughout (the reuse gate held). 18 frontend tests across `refresh-top-symbols`, `cross-entry-refresh-button`, `row-refresh-button` (incl. an explicit convergence test: spinner keeps spinning post-acquisition until the provenance prop advances). Full suite 1427/1428 — sole failure the pre-existing unrelated velvet-rope date-drift snapshot. `tsc` clean.
+
+### Epistemic status
+
+Bounded v0 consumers of PL-OPS-09 (bulk + per-row), no new capability, no backend change, no new `PL-*`. High operator-validated value. Principle #12 is the durable takeaway beyond this feature.
