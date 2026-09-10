@@ -170,6 +170,7 @@ export async function recommendCalls(
           volume: contract.volume,
           freeShares: pos.sharesFree,
           maxContracts: pos.maxAdditionalContracts,
+          encumberedShares: pos.sharesEncumbered,
           premiumPerContract: mid * 100,
           yieldAnnualized,
           assessment,

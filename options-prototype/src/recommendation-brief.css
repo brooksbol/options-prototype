@@ -1057,3 +1057,79 @@
   margin-top: 6px;
   opacity: 0.7;
 }
+
+/* --- Release / Retention Consequences (LVT-INIT-CONSEQUENCE-RELEASE-COST v1) --- */
+/* Minimal styling for the side-by-side consequence adapter. Not a redesign. */
+
+.rb-section-note {
+  font-size: var(--wd-size-micro, 10px);
+  font-weight: var(--wd-weight-regular, 400);
+  color: var(--wd-text-secondary, #999999);
+  text-transform: none;
+}
+
+.rb-consequence-note {
+  font-size: var(--wd-size-micro, 10px);
+  color: var(--wd-text-secondary, #999999);
+  margin-bottom: 6px;
+}
+
+.rb-consequence-residual {
+  font-size: var(--wd-size-micro, 10px);
+  color: var(--wd-text-tertiary, #999999);
+  margin-bottom: 8px;
+}
+
+.rb-consequence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.rb-consequence-alt {
+  border: 1px solid var(--wd-border-strong, #333333);
+  border-radius: 4px;
+  padding: 6px 8px;
+}
+
+.rb-consequence-alt-title {
+  font-size: var(--wd-size-body, 12px);
+  font-weight: var(--wd-weight-bold, 700);
+  color: var(--wd-text-primary, #eeeeee);
+  margin-bottom: 4px;
+}
+
+.rb-consequence-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 1px 0;
+}
+
+.rb-consequence-lbl {
+  font-size: var(--wd-size-micro, 10px);
+  text-transform: uppercase;
+  color: var(--wd-text-secondary, #999999);
+}
+
+.rb-consequence-val {
+  font-size: var(--wd-size-micro, 10px);
+  font-family: var(--wd-font-mono, "SF Mono", monospace);
+  color: var(--wd-text-primary, #eeeeee);
+  text-align: right;
+}
+
+.rb-consequence-outcome {
+  margin-top: 4px;
+  font-size: var(--wd-size-micro, 10px);
+  color: var(--wd-text-secondary, #999999);
+}
+
+.rb-consequence-exits {
+  margin-top: 2px;
+}
+
+.rb-consequence-exits summary {
+  cursor: pointer;
+  color: var(--wd-text-tertiary, #999999);
+}

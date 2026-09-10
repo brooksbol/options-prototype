@@ -84,7 +84,7 @@ export interface ReleaseContext {
  * (LVT-INIT-OUTCOME-BASIS) and is NEVER produced from current evidence, because
  * current evidence cannot prove a symbol-level average came from a single lot.
  */
-export type BasisPrecision = "blended-approximate" | "unavailable" | "exact";
+export type BasisPrecision = "blended-approximate" | "unavailable" | "not-applicable" | "exact";
 
 // --- Consequence facts (F1–F8) ---
 
@@ -204,9 +204,6 @@ export function evaluateReleaseConsequences(
       ? subjectShares * ctx.observedSpot
       : null;
 
-  // F8 — basis-relative release effect. NEVER exact in v1.
-  const f8 = computeBasisRelativeReleaseEffect(ctx, subjectShares);
-
   // Residual holdings outside the evaluated block (same for every alternative on the row).
   const residual: string[] = [];
   const residualFree = Math.max(0, ctx.totalFreeShares - subjectShares);
@@ -216,6 +213,15 @@ export function evaluateReleaseConsequences(
   if (ctx.encumberedShares > 0) {
     residual.push(`${ctx.encumberedShares} separately-encumbered shares unaffected`);
   }
+
+  // F8 — basis-relative RELEASE effect. This is realized only by SELLING/releasing
+  // the evaluated block. Holding shares or opening a covered call does NOT realize
+  // it, so F8 is `not-applicable` for those alternatives (economic semantics, not a
+  // presentation choice). Never `exact` in v1.
+  const f8 =
+    alt.kind === "sell"
+      ? computeBasisRelativeReleaseEffect(ctx, subjectShares)
+      : notApplicableReleaseEffect(alt.kind);
 
   const base = {
     alternativeKind: alt.kind,
@@ -311,7 +317,9 @@ export function evaluateReleaseConsequences(
     retainedParticipation: {
       kind: "capped-to-strike",
       roomToStrikePerShare: roomToStrike,
-      note: "Upside participation capped at the call strike; premium retained regardless.",
+      note:
+        "Upside participation capped at the call strike. Gross opening credit is received; " +
+        "net retained compensation depends on later buy-to-close / roll / unwind economics.",
     },
     resultingHolding: {
       ifHeldThroughExpiration: [
@@ -336,6 +344,25 @@ export function evaluateReleaseConsequences(
  * `exact` is NEVER returned here — it is reserved for future authoritative lot
  * attribution and cannot be justified from current evidence (no lot count/identity).
  */
+/**
+ * F8 for non-release alternatives (Hold, Covered Call). The basis-relative
+ * RELEASE effect is not realized by holding or by opening a covered call, so it
+ * is `not-applicable` — never a computed sale figure, and never a substitute
+ * unrealized-P&L fact (that would broaden the Initiative).
+ */
+function notApplicableReleaseEffect(
+  kind: Exclude<ReleaseAlternativeKind, "sell">
+): ReleaseConsequenceFacts["basisRelativeReleaseEffect"] {
+  return {
+    value: null,
+    precision: "not-applicable",
+    note:
+      kind === "hold"
+        ? "Not applicable: holding does not realize a basis-relative release effect."
+        : "Not applicable: opening a covered call does not realize a basis-relative release effect.",
+  };
+}
+
 function computeBasisRelativeReleaseEffect(
   ctx: ReleaseContext,
   subjectShares: number

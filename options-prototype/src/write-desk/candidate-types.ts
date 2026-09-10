@@ -69,6 +69,13 @@ export interface CallCandidate {
   volume: number;
   freeShares: number;
   maxContracts: number;
+  /**
+   * Authoritative separately-encumbered shares for this position (from
+   * InventoryPosition.sharesEncumbered). Carried so consequence presentation can
+   * truthfully report residual holdings outside the evaluated block without the
+   * frontend inventing or defaulting the value. Not an input to rank/posture.
+   */
+  encumberedShares: number;
   premiumPerContract: number;
   yieldAnnualized: number;
   assessment: ExecutionAssessment;

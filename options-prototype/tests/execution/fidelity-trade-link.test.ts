@@ -243,6 +243,7 @@ describe("buildCallWriteIntent", () => {
     volume: 100,
     freeShares: 100,
     maxContracts: 1,
+    encumberedShares: 0,
     premiumPerContract: 65,
     yieldAnnualized: 12.5,
     assessment: { score: 85, reasons: [] },

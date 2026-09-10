@@ -193,6 +193,7 @@ describe("CallTableRow factory helpers", () => {
       volume: 80,
       freeShares: 200,
       maxContracts: 2,
+      encumberedShares: 0,
       premiumPerContract: 130,
       yieldAnnualized: 38.9,
       assessment: { score: 75, posture: "ACTIONABLE", components: [], hardNoReason: null, policyVersion: "v1" },

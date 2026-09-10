@@ -91,3 +91,43 @@ This preserves the distinction between protecting a critical capability and loca
 **Exploration / why-state only.**
 
 No ADR, cloud-topology amendment, new service, new infrastructure technology, or implementation work is authorized by this entry. The perspective is preserved so future cloud and technology-quality work does not have to rediscover the distinction between reliability classes and deployment boundaries.
+
+
+## 2026-09-09 — LVT-INIT-CONSEQUENCE-RELEASE-COST v1: FE/BE conformance repair
+
+### Context
+
+Codex reviewed the pushed v1 implementation (`4cd9a65`) and found three MATERIAL conformance defects at the frontend/backend economic-truth boundary, plus three MINOR issues. The implementation was structurally sound; economic meaning had leaked through the UI adapter. Principal authorized a bounded repair pass (no redesign, no new architecture). This entry records it. SYNC at repair start = `4cd9a65`; reconciled forward to `2c08327` (docs-only journal continuation) before commit.
+
+### The golden rule this enforced
+
+> If the frontend can change the economic truth by choosing a value, deriving a fact, or filling a missing field, the boundary is wrong.
+
+The lesson (bigger than the three bugs): the pure-evaluator tests were necessary but not sufficient — the dangerous leakage happened in the **adapter between evaluated facts and presentation**, which had no tests. Economically-meaningful UI adapters now get their own boundary tests.
+
+### MATERIAL repairs
+
+- **A — spot provenance laundering.** The adapter passed `candidate.evidenceProvenance` (chain-acquisition provenance) as `spotProvenance` for F1, letting the UI assert a spot/quote age Wheelwright does not know (ADR-015 violation). Fixed: F1 spot provenance is now `unavailable` (honest "quote freshness unknown"); option-derived F3 keeps chain provenance and is labeled "chain acquired … ago" (not the misleading "obs … ago"). No provider calls, no new acquisition infrastructure.
+- **B — F8 applicability.** The evaluator attached the same basis-relative *release* effect to Sell, Hold, and CC. Holding or opening a CC does not realize a release effect — an economic-semantic mistake, not presentation. Fixed in the module: F8 is computed only for Sell; Hold and CC return an explicit `not-applicable` precision (no value, no substitute unrealized-P&L fact). Rendered as "n/a (no release)".
+- **C — encumbered residual hardcoded 0.** The adapter hardcoded `encumberedShares: 0`, silently changing the position state described. Fixed with the smallest data-flow extension: added authoritative `encumberedShares` to `CallCandidate`, populated from `InventoryPosition.sharesEncumbered` at the single production construction site (`recommend-calls.ts`), and the adapter now passes the real value. Residual (free + encumbered) reported truthfully outside the evaluated block.
+
+### MINOR repairs
+
+- CC participation note: removed "premium retained regardless"; now "gross opening credit is received; net retained compensation depends on later BTC/roll/unwind economics" (preserves F3's opening-premium semantic).
+- ITM room-to-strike: no longer renders a malformed `+$-X.XX`; `formatRoomToStrike` reads "headroom" (OTM), "at strike" (ATM), or "…in the money" (ITM).
+- Added minimal `rb-consequence-*` / `rb-section-note` styling for the side-by-side presentation (no redesign).
+
+### Structural note
+
+The consequence section was extracted from `CallBrief.tsx` into its own exported `ReleaseConsequencesSection.tsx` so the FE/BE boundary is independently testable — the direct remedy for the lesson above.
+
+### Verification
+
+- New `tests/components/release-consequences-section.test.tsx` (8 tests) exercises the adapter boundary: F1 shows quote-freshness-unknown and never a spot-age claim; F3 shows chain-acquisition age; F8 has a value only for Sell (Hold/CC show n/a); encumbered shares survive (250 free + 100 encumbered + 2-contract CC → block 200 / residual 50 free / 100 encumbered); ITM renders no malformed sign; empty when no capacity.
+- Module tests extended for F8 applicability and encumbered residual. Targeted suites: 94/94 green. `tsc --noEmit` clean.
+- Full frontend suite: 1407 passed / 1 failed — the one failure is the **pre-existing, unrelated** Velvet Rope `multi-expiration` golden-snapshot test (confirmed failing at clean `4cd9a65`). Build: my files clean; the only build error is the **pre-existing** `episode-derivation.ts:520` unused-var (confirmed pre-existing, left untouched).
+- No `PL-OPS-08` / Observation-Continuity files touched; two pre-existing git stashes left untouched.
+
+### Epistemic status
+
+Accepted conformance repair of the v1 implementation. No new architecture, no state machine, no scoring, no scope broadening. F8 exactness (`LVT-INIT-OUTCOME-BASIS`), authoritative quote-level provenance, and collar remain separately-owned future work as designed.

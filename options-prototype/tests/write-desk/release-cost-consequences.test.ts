@@ -224,11 +224,23 @@ describe("F8 — basis-relative release effect (NEVER exact in v1)", () => {
       { averageBasisPerShare: null },
     ];
     for (const o of cases) {
-      for (const kind of ["sell", "hold"] as const) {
-        const facts = evaluateReleaseConsequences(ctx(o), { kind, subjectShares: 100 });
-        expect(facts.basisRelativeReleaseEffect.precision).not.toBe("exact");
-      }
+      const facts = evaluateReleaseConsequences(ctx(o), { kind: "sell", subjectShares: 100 });
+      expect(facts.basisRelativeReleaseEffect.precision).not.toBe("exact");
     }
+  });
+
+  it("F8 is a RELEASE effect — applies to Sell only; Hold and CC are not-applicable", () => {
+    const sell = evaluateReleaseConsequences(ctx(), { kind: "sell", subjectShares: 100 });
+    expect(["blended-approximate", "unavailable"]).toContain(sell.basisRelativeReleaseEffect.precision);
+    expect(sell.basisRelativeReleaseEffect.precision).not.toBe("not-applicable");
+
+    const hold = evaluateReleaseConsequences(ctx(), { kind: "hold", subjectShares: 100 });
+    expect(hold.basisRelativeReleaseEffect.precision).toBe("not-applicable");
+    expect(hold.basisRelativeReleaseEffect.value).toBeNull();
+
+    const cc = evaluateReleaseConsequences(ctx(), ccAlt(100, 1));
+    expect(cc.basisRelativeReleaseEffect.precision).toBe("not-applicable");
+    expect(cc.basisRelativeReleaseEffect.value).toBeNull();
   });
 
   it("missing/approximate F8 does not suppress F1", () => {
@@ -265,6 +277,17 @@ describe("ownership boundary — evaluates, does not discover", () => {
     expect(cc.callLeg!.expiration).toBe("2026-10-16");
     expect(cc.callLeg!.contracts).toBe(3);
     expect(cc.subjectShares).toBe(300);
+  });
+});
+
+describe("encumbered residual survives from context (not defaulted)", () => {
+  it("250 free + 100 encumbered + 2-contract CC -> block 200, residual free 50, encumbered 100", () => {
+    const c = ctx({ totalFreeShares: 250, encumberedShares: 100 });
+    const facts = evaluateReleaseConsequences(c, ccAlt(200, 2));
+    expect(facts.subjectShares).toBe(200);
+    const residual = facts.resultingHolding.residualOutsideBlock.join(" ");
+    expect(residual).toContain("50 free shares");
+    expect(residual).toContain("100 separately-encumbered shares");
   });
 });
 
