@@ -27,7 +27,7 @@ import "../operator-console/operator-console.css";
 type SortColumn =
   | "symbol" | "strike" | "expiration" | "dte" | "spot" | "contracts"
   | "moneyness" | "capital" | "capitalPct" | "shareBasis" | "premiumBooked"
-  | "effectiveExit" | "calledAway" | "assigned" | "mktVsBasis" | "opened";
+  | "effectiveExit" | "calledAway" | "assigned" | "mktVsBasis" | "opened" | "dataAge";
 
 /**
  * Sort positions by the given column. Operates on a shallow copy.
@@ -71,6 +71,7 @@ function getSortValue(p: MonitoredPosition, column: SortColumn): string | number
     case "capital": return p.encumberedCapital;
     case "capitalPct": return p.encumberedCapital; // sort by absolute capital (pct is proportional)
     case "opened": return p.openedDate;
+    case "dataAge": return p.priceObservedAt ? Date.parse(p.priceObservedAt) : null;
     default: return null; // Derived columns (premiumBooked, etc.) handled via position fields
   }
 }
@@ -339,7 +340,7 @@ function downloadPositionsCsv(
   positions: MonitoredPosition[],
   snapshot: import("../write-desk/types").PortfolioSnapshot,
 ) {
-  const header = "Type,Symbol,Strike,Expiration,Spot,Contracts,Moneyness,Capital,Premium Booked,Bonus If Called Away,If Assigned,Opened";
+  const header = "Type,Symbol,Strike,Expiration,Spot,Contracts,Moneyness,Capital,Premium Booked,Bonus If Called Away,If Assigned,Opened,Freshness";
   const rows = positions.map(position => {
     const type = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
     const spot = position.underlyingPrice != null ? position.underlyingPrice.toFixed(2) : "";
@@ -373,7 +374,14 @@ function downloadPositionsCsv(
       assigned = cell.display;
     }
 
-    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${position.quantity},${moneyness},${capital},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""}`;
+    // Data Age — freshness of the underlying price observation, derived at export time
+    let dataAge = "";
+    if (position.priceObservedAt) {
+      const observedMs = Date.parse(position.priceObservedAt);
+      if (!Number.isNaN(observedMs)) dataAge = formatDataAge(Math.max(0, Date.now() - observedMs));
+    }
+
+    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${position.quantity},${moneyness},${capital},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
   });
 
   const csv = [header, ...rows].join("\n");
@@ -714,6 +722,7 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
           <th className="oc-th-right">If Assigned</th>
           <th className="oc-th-right">Market vs Basis</th>
           {renderSortHeader("Opened", "opened")}
+          {renderSortHeader("Freshness", "dataAge", "oc-th-right")}
         </tr>
       </thead>
       <tbody>
@@ -763,6 +772,7 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
           const shareBasisCell = deriveShareBasisCell(position, snapshot);
           const effectiveExitCell = deriveEffectiveExitCell(position, snapshot);
           const mktVsBasisCell = deriveMktVsEffBasisCell(position, snapshot);
+          const dataAgeCell = deriveDataAgeCell(position);
 
           return (
             <tr key={position.id} className={`oc-trow oc-trow-${position.type}`} onClick={() => onTileClick(position)}>
@@ -858,6 +868,7 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
               <td className={`oc-td-right ${assignedCell.className}`} title={assignedCell.title}>{assignedCell.display}</td>
               <td className={`oc-td-right ${mktVsBasisCell.className}`} title={mktVsBasisCell.title}>{mktVsBasisCell.display}</td>
               <td className="oc-td-opened">{position.openedDate ? formatOpenedDate(position.openedDate) : "—"}</td>
+              <td className={`oc-td-right ${dataAgeCell.className}`} title={dataAgeCell.title}>{dataAgeCell.display}</td>
             </tr>
           );
         })}
@@ -970,6 +981,8 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
       <td className={`oc-td-right ${calledAwayClass}`} title={isPartial ? `${calledAwaySuppressed} position(s) excluded — basis not proven call-specific` : ""}>
         {calledAwayDisplay}
       </td>
+      <td />
+      <td />
       <td />
       <td />
     </tr>
@@ -1201,4 +1214,56 @@ function formatExpiration(iso: string): string {
 function formatOpenedDate(iso: string): string {
   const d = new Date(iso + "T12:00:00");
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+/**
+ * Format an evidence age (milliseconds since the underlying price was observed)
+ * as a compact relative string. Freshness is derived here at query time —
+ * never persisted (persist facts; derive trust).
+ */
+function formatDataAge(ageMs: number): string {
+  const sec = Math.floor(ageMs / 1000);
+  if (sec < 60) return `${sec}s`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h`;
+  const days = Math.floor(hr / 24);
+  return `${days}d`;
+}
+
+/**
+ * Derive the DATA AGE column — how recently this position's underlying price
+ * evidence was observed. Uses priceObservedAt from the Evidence observation.
+ * Tone escalates with staleness as a presentation-only hint; it does not
+ * classify sealed-vs-stale (that is session-aware backend semantics).
+ */
+function deriveDataAgeCell(position: MonitoredPosition): CellResult {
+  if (!position.priceObservedAt) {
+    return { display: "—", className: "oc-col-empty", title: "No price observation recorded for this symbol" };
+  }
+
+  const observedMs = Date.parse(position.priceObservedAt);
+  if (Number.isNaN(observedMs)) {
+    return { display: "—", className: "oc-col-empty", title: "Observation timestamp unparseable" };
+  }
+
+  const ageMs = Math.max(0, Date.now() - observedMs);
+  const minutes = ageMs / 60000;
+
+  // Presentation-only freshness tone. Reuses existing positive/ambiguous/negative
+  // classes so it inherits console color grammar.
+  let className = "oc-col-positive";
+  if (minutes >= 120) {
+    className = "oc-col-negative";
+  } else if (minutes >= 30) {
+    className = "oc-col-ambiguous";
+  }
+
+  const observedLocal = new Date(observedMs).toLocaleString();
+  return {
+    display: formatDataAge(ageMs),
+    className,
+    title: `Underlying price observed ${observedLocal} (${formatDataAge(ageMs)} ago)`,
+  };
 }
