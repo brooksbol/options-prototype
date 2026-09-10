@@ -16,6 +16,13 @@
 import { useState, useEffect } from "react";
 import { getDurableCache } from "../cache/durable-cache";
 import { buildCallBrief, type CallBriefViewModel, type CallNeighborTag, type ProjectedCalledAway } from "../write-desk/call-brief-builder";
+import {
+  evaluateReleaseConsequences,
+  suppliedAlternativesForCoveredCall,
+  SELL_VALUE_DISCLAIMER,
+  OPENING_PREMIUM_DISCLAIMER,
+} from "../write-desk/release-cost-consequences";
+import { formatAcquisitionAge, type EvidenceProvenance } from "../write-desk/evidence-provenance";
 import { PostureExplanationSection } from "./RecommendationBrief";
 import { buildCallWriteIntent } from "../execution/write-intent";
 import { buildFidelityTradeLink, type FidelityTradeLink } from "../execution/fidelity-trade-link";
@@ -168,6 +175,9 @@ export function CallBrief({
 
       {/* === PROJECTED CALLED-AWAY ECONOMICS === */}
       <ProjectedCalledAwaySection calledAway={brief.positionContext.projectedCalledAway} />
+
+      {/* === RELEASE / RETENTION CONSEQUENCES (LVT-INIT-CONSEQUENCE-RELEASE-COST v1) === */}
+      <ReleaseConsequencesSection candidate={candidate} />
 
       {/* === EXECUTION EVIDENCE === */}
       <section className="rb-section rb-evidence">
@@ -404,4 +414,174 @@ function tagTooltip(tag: CallNeighborTag): string {
     case "LOWER_YIELD": return "Valid alternative with lower annualized yield";
     case "LOWER_EXEC": return "Valid alternative with lower execution score";
   }
+}
+
+// --- Release / Retention Consequences (LVT-INIT-CONSEQUENCE-RELEASE-COST v1) ---
+//
+// Presentational adjacency ONLY. Composes the v1 first-slice alternatives
+// (Sell / Hold / existing CC) around the SUPPLIED covered-call candidate and
+// renders each alternative's consequence facts on one shared subjectShares
+// block. It does not discover, rank, select, or recommend — the candidate is
+// already chosen upstream. See docs/design/lvt-init-consequence-release-cost-v1-design.md.
+
+function fmtMoney(v: number | null): string {
+  if (v == null || !Number.isFinite(v)) return "—";
+  const sign = v < 0 ? "-" : "";
+  return `${sign}$${Math.abs(v).toFixed(0)}`;
+}
+
+function ageSuffix(provenance: EvidenceProvenance): string {
+  // Freshness boundary: show known chain-acquisition age; unknown stays em dash.
+  const age = formatAcquisitionAge(provenance, Date.now());
+  return age === "—" ? " (freshness unknown)" : ` (obs ${age} ago)`;
+}
+
+function ReleaseConsequencesSection({ candidate }: { candidate: CallCandidate }) {
+  // subjectShares = the CC's covered block = maxContracts × 100. Same block for all three.
+  if (candidate.maxContracts <= 0) return null;
+
+  const alternatives = suppliedAlternativesForCoveredCall({
+    maxContracts: candidate.maxContracts,
+    strike: candidate.strike,
+    expiration: candidate.expiration,
+    dte: candidate.dte,
+    midPerShare: candidate.mid,
+    provenance: candidate.evidenceProvenance ?? { kind: "unavailable" },
+  });
+
+  const ctx = {
+    symbol: candidate.symbol,
+    observedSpot: Number.isFinite(candidate.underlyingPrice) ? candidate.underlyingPrice : null,
+    spotProvenance: candidate.evidenceProvenance ?? { kind: "unavailable" as const },
+    averageBasisPerShare: candidate.basisPerShare,
+    totalFreeShares: candidate.freeShares,
+    encumberedShares: 0,
+  };
+
+  const evaluated = alternatives.map((a) => evaluateReleaseConsequences(ctx, a));
+  const subjectShares = candidate.maxContracts * 100;
+  const residual = evaluated[0]?.resultingHolding.residualOutsideBlock ?? [];
+
+  const label: Record<string, string> = {
+    sell: "Sell",
+    hold: "Hold",
+    "covered-call": "Covered Call",
+  };
+
+  return (
+    <section className="rb-section" aria-label="Release and retention consequences">
+      <h4 className="rb-section-title">
+        Release / Retention Consequences
+        <span className="rb-section-note"> · evaluated block: {subjectShares} shares</span>
+      </h4>
+      <div className="rb-consequence-note">
+        Pre-trade consequence facts for the same {subjectShares}-share block across supplied
+        alternatives. Not recommendations, ranking, or fills.
+      </div>
+      {residual.length > 0 && (
+        <div className="rb-consequence-residual">
+          Outside this block: {residual.join("; ")}.
+        </div>
+      )}
+
+      <div className="rb-consequence-grid">
+        {evaluated.map((f) => (
+          <div className="rb-consequence-alt" key={f.alternativeKind}>
+            <div className="rb-consequence-alt-title">{label[f.alternativeKind]}</div>
+
+            {/* F1 — estimated gross sale value */}
+            <ConsequenceRow
+              lbl="Est. gross sale value"
+              val={
+                f.estimatedGrossSaleValue.value == null
+                  ? "—"
+                  : `${fmtMoney(f.estimatedGrossSaleValue.value)}${ageSuffix(f.estimatedGrossSaleValue.provenance)}`
+              }
+              title={SELL_VALUE_DISCLAIMER}
+            />
+
+            {/* F3 — estimated gross opening premium */}
+            {f.estimatedGrossOpeningPremium.value != null && (
+              <ConsequenceRow
+                lbl="Est. gross opening premium"
+                val={`${fmtMoney(f.estimatedGrossOpeningPremium.value)}${ageSuffix(f.estimatedGrossOpeningPremium.provenance)}`}
+                title={OPENING_PREMIUM_DISCLAIMER}
+              />
+            )}
+
+            {/* F2 — time to represented contractual boundary */}
+            <ConsequenceRow
+              lbl="Exposure duration"
+              val={
+                f.timeToContractualBoundaryDays == null
+                  ? f.nextDecisionBoundary.kind === "now"
+                    ? "immediate"
+                    : "open-ended"
+                  : `${f.timeToContractualBoundaryDays}d to boundary`
+              }
+              title="Time to the represented contractual boundary. Not capital lockup — BTC/roll/unwind/sell-subject-to-close can change it."
+            />
+
+            {/* F4 — downside envelope */}
+            <ConsequenceRow
+              lbl="Downside"
+              val={f.downsideEnvelope.hasProtectiveFloorAboveZero ? "protective floor" : "no protective floor"}
+              title={f.downsideEnvelope.note}
+            />
+
+            {/* F5 — retained participation */}
+            <ConsequenceRow
+              lbl="Retained upside"
+              val={
+                f.retainedParticipation.kind === "full"
+                  ? "full"
+                  : f.retainedParticipation.kind === "none"
+                    ? "none"
+                    : f.retainedParticipation.roomToStrikePerShare != null
+                      ? `to strike (+$${f.retainedParticipation.roomToStrikePerShare.toFixed(2)}/sh)`
+                      : "capped at strike"
+              }
+              title={f.retainedParticipation.note}
+            />
+
+            {/* F8 — basis-relative release effect (never exact in v1) */}
+            <ConsequenceRow
+              lbl="Basis-relative effect"
+              val={
+                f.basisRelativeReleaseEffect.value == null
+                  ? "unavailable"
+                  : `${fmtMoney(f.basisRelativeReleaseEffect.value)} (approx)`
+              }
+              title={f.basisRelativeReleaseEffect.note}
+            />
+
+            {/* F6 — resulting holding / F7 — next decision boundary */}
+            <div className="rb-consequence-outcome" title="Resulting holding for the evaluated block.">
+              {f.resultingHolding.immediate && <div>{f.resultingHolding.immediate}</div>}
+              {f.resultingHolding.ifHeldThroughExpiration.map((b, i) => (
+                <div key={i}>{b}</div>
+              ))}
+              {f.resultingHolding.earlierExits.length > 0 && (
+                <details className="rb-consequence-exits">
+                  <summary>earlier exits</summary>
+                  {f.resultingHolding.earlierExits.map((e, i) => (
+                    <div key={i}>{e}</div>
+                  ))}
+                </details>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ConsequenceRow({ lbl, val, title }: { lbl: string; val: string; title: string }) {
+  return (
+    <div className="rb-consequence-row" title={title}>
+      <span className="rb-consequence-lbl">{lbl}</span>
+      <span className="rb-consequence-val">{val}</span>
+    </div>
+  );
 }

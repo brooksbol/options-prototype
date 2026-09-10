@@ -1288,3 +1288,45 @@ Fix (operator-approved, option 1 — fail safe over substitute):
 ### Validation
 
 Targeted `fidelity-upload.test.ts` 21/21 pass; full write-desk + portfolio suites 552/552 pass. Whole-suite/backend not run. No commit made.
+
+
+## 2026-09-09 — LVT-INIT-CONSEQUENCE-RELEASE-COST v1 implemented (authorized)
+
+### Context
+
+Principal authorized implementation of the v1 consequence Initiative as corrected at `b536ef1`, after the completed 4AM verdict (AUTHORIZED AFTER BOUNDED DESIGN CORRECTIONS). Authoritative design: `docs/design/lvt-init-consequence-release-cost-v1-design.md`. This entry records the implementation. SYNC SHA at implementation = `b536ef1` (== authorized design SHA; no advancement).
+
+### What shipped
+
+Bounded, three files:
+
+1. **`options-prototype/src/write-desk/release-cost-consequences.ts`** (new) — pure, deterministic consequence-evaluation module. `evaluateReleaseConsequences(ctx, suppliedAlternative)` emits F1–F8 for one supplied alternative on an explicit `subjectShares` block; `suppliedAlternativesForCoveredCall(cc)` composes the v1 first-slice alternatives (Sell / Hold / existing CC) around an already-selected covered-call candidate, all sharing one block (`subjectShares = maxContracts × 100`). Reuses the existing `EvidenceProvenance` union (ADR-015) so option-derived facts carry chain-acquisition provenance and spot-derived F1 carries what is known. Exported `SELL_VALUE_DISCLAIMER` / `OPENING_PREMIUM_DISCLAIMER` give the disclaimer wording one authoritative source.
+2. **`options-prototype/tests/write-desk/release-cost-consequences.test.ts`** (new) — 21 tests, all green.
+3. **`options-prototype/src/components/CallBrief.tsx`** (modified) — added a private `ReleaseConsequencesSection` rendered after Position Context in the covered-call inspection drawer. Presentational adjacency only: it composes the three supplied alternatives from the drawer's `candidate` and renders their facts side by side on the shared block. No discovery/ranking/selection.
+
+### Semantic boundaries honored (from the corrected design)
+
+- **Ownership boundary:** the module *evaluates* a supplied, fully-specified alternative (kind + subjectShares + supplied CC leg). It does not enumerate strikes/DTEs/quantities or decide the comparison set — that stays with candidate generation (`LVT-BET-LIFECYCLE-CHOICES`). A covered-call alternative missing its leg throws rather than inventing one.
+- **Subject-quantity (4AM finding):** all alternatives on a row evaluate the same `subjectShares` block; residual free shares and separately-encumbered shares are reported outside the block, never folded in. Tested with the 250-free / 2-contract → 200-share-block / 50-residual case.
+- **F1** = estimated gross sale value (`subjectShares × spot`), with a not-proceeds/not-deployable-capacity disclaimer; never appropriates the authoritative Fidelity-balance deployable-capacity semantic.
+- **F2** = time to represented contractual boundary / exposure duration; null (immediate/open) for Sell/Hold; never "locked."
+- **F3** = estimated gross opening premium; excludes fees and later BTC/roll/unwind; not retained net compensation.
+- **F4** = no protective floor above zero for Sell/Hold/CC; no "unbounded/unlimited" language.
+- **F6** = resulting holding of the evaluated block; expiration branches scoped "if held through expiration"; early exits (BTC/roll/close-then-sell) acknowledged as simple descriptions — no state machine/transition graph.
+- **F8** = basis-relative release effect, **never `exact` in v1** (only `blended-approximate` when basis present, else `unavailable`); missing/approximate F8 never suppresses F1–F7.
+- **Provenance/freshness** carried onto every market-derived fact; unknown quote-level freshness stays explicit; no new provider calls.
+
+### Non-goals confirmed absent
+
+Forbidden-construct scan of the new module found no class, `CapitalState`, state machine, transition graph, optimizer, scalar/score, prediction, recommendation, ranking, alternative-discovery, or cross-symbol affordability in code (only comments disclaiming them). Collar deferred as designed.
+
+### Verification
+
+- New module tests: 21/21 green. With `call-brief-builder`: 42/42.
+- `tsc --noEmit`: clean. Production build (`tsc -b && vite build`): my three files clean.
+- Full frontend suite: **1397 passed / 1 failed**. The single failure is the **pre-existing, unrelated** Velvet Rope `multi-expiration` inline-snapshot test — verified to fail at clean `b536ef1` with this work stashed. A pre-existing `tsc -b` unused-var error in `src/production/episode-derivation.ts:520` was likewise confirmed present at clean `b536ef1` and left untouched (out of scope).
+- No `PL-OPS-08` / Observation-Continuity files touched. Two pre-existing git stashes (not mine) left untouched.
+
+### Epistemic status
+
+Accepted v1 implementation of a ratified Initiative. It exposes consequence facts; it does not rank, recommend, or decide. F8 exactness and any feasible-set coupling (`LVT-BET-CAPITAL-CHOICES`) remain separately-owned future refinements. Collar remains in the design contract, deferred from this slice.
