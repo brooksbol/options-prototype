@@ -220,7 +220,7 @@ export function OperatorConsole() {
                   Download CSV
                 </button>
                 <span className="oc-group-by-divider" />
-                <ForceAcquisitionButton />
+                <ForceAcquisitionButton symbols={underlyings} />
               </div>
             )}
             <div className="oc-ladder-scroll">

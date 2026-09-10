@@ -50,6 +50,7 @@ describe("forceEvidenceAcquisition", () => {
       generation: 42,
       sessionPosture: "BLOCKED",
       recoversHistory: false,
+      targeted: false,
     });
   });
 
@@ -79,7 +80,36 @@ describe("forceEvidenceAcquisition", () => {
       generation: -1,
       sessionPosture: "unknown",
       recoversHistory: false,
+      targeted: false,
     });
+  });
+
+  it("scopes the refresh to the given symbols via repeated ?symbol= query params", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ outcome: "ACQUIRED", symbolsAcquired: 2, generation: 8, sessionPosture: "REGULAR_OBSERVATION", targeted: true }),
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await forceEvidenceAcquisition(["bno", "COPX", "bno"]);
+
+    const [url, opts] = fetchMock.mock.calls[0] as [string, RequestInit];
+    // Uppercased + deduped, still a POST (side-effecting acquisition, not a GET).
+    expect(url).toBe("/api/evidence/refresh?symbol=BNO&symbol=COPX");
+    expect(opts.method).toBe("POST");
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.targeted).toBe(true);
+  });
+
+  it("omits the query string when the symbol list is empty (whole-cycle behavior)", async () => {
+    const fetchMock = vi.fn(async () => ({ ok: true, status: 200, json: async () => ({}) }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await forceEvidenceAcquisition([]);
+
+    const [url] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("/api/evidence/refresh");
   });
 
   it("reports failure (does not throw) on non-2xx", async () => {

@@ -413,6 +413,156 @@ public class AcquisitionWorker {
     }
 
     /**
+     * Operator-forced TARGETED acquisition of an explicit symbol set (console "Refresh
+     * evidence now" for the monitored positions on screen).
+     *
+     * Unlike {@link #forceAcquireOnce()} — which forces one full cycle over the DUE work
+     * queue — this re-observes EXACTLY the passed symbols regardless of their freshness.
+     * It deliberately bypasses BOTH the freshness/"due" gate (it never consults
+     * {@code getPrioritizedWorkQueue}) AND the market-session gate, while going through
+     * the identical provider + persistence + pacing path as every other acquisition. This
+     * is the honest way to make on-screen freshness reflect a just-now observation: the
+     * evidence is genuinely re-acquired with its real {@code retrievedAt} timestamp and
+     * provenance — nothing is fabricated.
+     *
+     * Boundaries (mirrors forceAcquireOnce):
+     *   - Runs on the single acquisition thread (Single Acquisition Authority — no
+     *     split-brain); serializes behind any in-flight scheduled cycle.
+     *   - Does NOT change the scheduler, its cadence, or the monitored-position overlay
+     *     (that overlay is owned by POST /api/evidence/observe; this endpoint must not
+     *     replace it). Unknown symbols are registered as observation-demand so they are
+     *     acquirable, but the monitored set is left untouched.
+     *   - Rate-limit compliance is inherited from the provider adapter's pacer; this
+     *     method adds no sleeps or separate pacing.
+     *   - An unverified/suspended provider yields PROVIDER_UNAVAILABLE (safety gate).
+     *
+     * @param symbols the explicit symbols to re-observe (normalized here; empty is a no-op).
+     */
+    public ForcedAcquisitionResult forceAcquireSymbols(List<String> symbols) {
+        if (!running) {
+            return new ForcedAcquisitionResult(ForceOutcome.NOT_RUNNING, status.cycleCount(),
+                0, 0, safeGeneration(), "n/a");
+        }
+        if (!providerManager.acquisitionAuthorityEstablished()) {
+            return new ForcedAcquisitionResult(ForceOutcome.PROVIDER_UNAVAILABLE, status.cycleCount(),
+                0, safeWorkQueueDepth(), safeGeneration(), "provider_unverified");
+        }
+
+        // Normalize (uppercase, dedupe, sort) — match ObserveController / QuotesController.
+        final List<String> targets = symbols == null ? List.of() : symbols.stream()
+            .filter(s -> s != null && !s.isBlank())
+            .map(s -> s.toUpperCase(java.util.Locale.ROOT))
+            .distinct()
+            .sorted()
+            .toList();
+
+        if (targets.isEmpty()) {
+            // Nothing to observe — honest ACQUIRED with zero delta rather than forcing a cycle.
+            return new ForcedAcquisitionResult(ForceOutcome.ACQUIRED, status.cycleCount(),
+                0, safeWorkQueueDepth(), safeGeneration(), safePosture());
+        }
+
+        final int acquiredBefore = status.symbolsAcquiredTotal();
+        final String posture = safePosture();
+
+        Callable<ForceOutcome> task = () -> {
+            runForcedTargetedCycle(targets);
+            return ForceOutcome.ACQUIRED;
+        };
+
+        try {
+            Future<ForceOutcome> future = scheduler.submit(task);
+            ForceOutcome outcome = future.get(FORCED_ACQUISITION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            int acquiredDelta = status.symbolsAcquiredTotal() - acquiredBefore;
+            return new ForcedAcquisitionResult(outcome, status.cycleCount(), acquiredDelta,
+                safeWorkQueueDepth(), safeGeneration(), posture);
+        } catch (TimeoutException te) {
+            int acquiredDelta = status.symbolsAcquiredTotal() - acquiredBefore;
+            return new ForcedAcquisitionResult(ForceOutcome.ACQUIRED, status.cycleCount(), acquiredDelta,
+                safeWorkQueueDepth(), safeGeneration(), posture);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            return new ForcedAcquisitionResult(ForceOutcome.INTERRUPTED, status.cycleCount(),
+                status.symbolsAcquiredTotal() - acquiredBefore, safeWorkQueueDepth(), safeGeneration(), posture);
+        } catch (ExecutionException ee) {
+            System.err.println("[worker] Forced targeted acquisition error: " + ee.getMessage());
+            return new ForcedAcquisitionResult(ForceOutcome.ACQUIRED, status.cycleCount(),
+                status.symbolsAcquiredTotal() - acquiredBefore, safeWorkQueueDepth(), safeGeneration(), posture);
+        }
+    }
+
+    /**
+     * Re-observe an explicit symbol set NOW on the acquisition thread, bypassing the
+     * freshness/due gate and session posture. Reuses {@link #acquireSymbolTiered} per
+     * symbol (same lease/provider/persistence/pacing) and forces publication so the
+     * generation advances immediately (on-screen freshness updates without waiting for
+     * the coalescing window). Interlocks with the normal cycle via {@code cycleActive}.
+     */
+    private void runForcedTargetedCycle(List<String> targets) {
+        if (!running) return;
+        if (cycleActive) return; // a normal cycle is somehow mid-flight; do not double-run
+        cycleActive = true;
+        int cycleCount = status.cycleCount() + 1;
+        status = status.withState("acquiring")
+            .withCycleCount(cycleCount)
+            .withLastCycleStartedAt(Instant.now().toString());
+        long cycleStart = System.currentTimeMillis();
+        try {
+            for (String symbol : targets) {
+                if (!running) break;
+
+                // Register genuinely-unknown symbols so acquisition is not a silent no-op
+                // (acquireSymbolTiered aborts on a null evidence row). This adds them to the
+                // acquirable observation-demand population only; it does NOT touch the
+                // monitored-position overlay (owned by POST /api/evidence/observe).
+                try {
+                    if (!store.findUnknownSymbols(List.of(symbol)).isEmpty()) {
+                        store.addObservationDemand(List.of(symbol));
+                    }
+                } catch (Exception reg) {
+                    System.err.printf("[worker] Targeted refresh: could not register %s — %s%n", symbol, reg.getMessage());
+                    continue;
+                }
+
+                // Synthesize a work item that forces a refresh regardless of freshness.
+                // needsExpirations is decided from current state: a symbol still resolving
+                // (no primary expiration yet) needs the expirations step; a ready symbol
+                // just re-acquires its eligible chain surface.
+                boolean needsExpirations;
+                try {
+                    Map<String, Object> ev = store.getEvidence(symbol);
+                    needsExpirations = ev == null || ev.get("primaryExpiration") == null;
+                } catch (Exception e) {
+                    needsExpirations = true;
+                }
+
+                var item = new SqliteEvidenceStore.PrioritizedWorkItem(
+                    symbol, "A", Long.MAX_VALUE, needsExpirations, false, false);
+                status = status.withCurrentSymbol(symbol);
+                acquireSymbolTiered(item);
+                dispatchedJobs++;
+            }
+            status = status.withCurrentSymbol(null)
+                .withLastCycleDurationMs(System.currentTimeMillis() - cycleStart);
+
+            // Force publication so the generation advances now (not on the coalescing timer),
+            // making the re-observed timestamps visible to the next GET /api/evidence/quotes.
+            publishIfDue(true);
+
+            try {
+                evaluateProviderLifecycle();
+            } catch (Exception le) {
+                System.err.println("[provider] Lifecycle evaluation error (targeted): " + le.getMessage());
+            }
+        } catch (Exception err) {
+            System.err.println("[worker] Forced targeted cycle error: " + err.getMessage());
+            status = status.withFailures(status.failures() + 1);
+        } finally {
+            cycleActive = false;
+        }
+    }
+
+    /**
      * Run one FULL acquisition cycle NOW, ignoring session posture. Reuses the exact
      * {@link #runFullCycle} path (same provider/cache/persistence, same timestamp/
      * provenance handling). Does NOT reschedule anything — the scheduler's own timer is
