@@ -162,31 +162,27 @@ The evidence appliance is the system identity that the other governing principle
 - State-oriented trust derivation direction
 - Background worker (self-scheduling, single-flight)
 - Operator clients consuming shared evidence
-- Emergency off-hours acquisition guard (session awareness, minimal)
 - Recommendation funnel instrumentation
 - Evidence-state indicator in Write Desk
+- SQLite persistence — durable evidence store (WAL mode); sealed evidence survives restarts
+- Full backend session authority — six-state market-session model with canonical sealing
+- Restart recovery — universe/evidence loaded from SQLite on cold start (no full re-acquisition)
 
 ### Transitional
 
-- In-memory backend evidence store (no persistence across restarts)
-- Browser IndexedDB projection (legacy from desktop-app era)
-- Incomplete backend session authority (emergency gate, not full six-state model)
-- Misleading "Refresh" button on primary surface
+- Browser IndexedDB projection (read cache reconstructible from backend; legacy shape from desktop-app era)
 - Local-only deployment (laptop-bound)
-- Frontend independently classifies session for trust display
+- Frontend still performs some session/trust derivation for display
 
 ### Required to Fully Realize the Appliance
 
-- SQLite persistence (sealed evidence survives restarts)
-- Full backend session authority (shared six-state model, canonical sealing)
-- Restart recovery (load prior sealed evidence on cold start)
 - Cloud deployment (always-on, location-independent)
 - Multi-user authentication and operator context
 - Durable historical observation capture
 - Elimination of browser-owned evidence projection
 - Frontend trust derived entirely from backend-reported validity metadata
 
-The concept is the architectural north star. The implementation is partway there. The transition is tracked in `docs/21-write-desk-recomposition.md` (implementation phases).
+The concept is the architectural north star. Persistence, six-state session authority, and restart recovery are implemented; always-on cloud operation and full elimination of browser-side evidence/trust derivation remain the open transition. The transition is tracked in `docs/21-write-desk-recomposition.md` (implementation phases).
 
 ---
 

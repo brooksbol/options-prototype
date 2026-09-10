@@ -263,8 +263,8 @@ The system currently implements:
 - **Call recommendations** (Horizon A) — inventory-driven, cache-backed, for held unencumbered shares
 - **Buy-write recommendations** — share-acquisition + covered-call composite candidates, affordability-gated
 - **Write Desk** — collapsible put/call/buy-write sections, sortable tables, policy controls, cross-entry composition
-- **Recommendation Brief** — put and buy-write drawers with decision summary, evidence, neighborhood, governance, Projected Call Surface
-- **Broker handoff** — Fidelity trade link construction (puts)
+- **Recommendation Brief** — put, buy-write, and covered-call drawers with decision summary, evidence, neighborhood, governance
+- **Broker handoff** — Fidelity trade link construction (cash-secured puts and covered calls; buy-write handoff deferred)
 - **Production accounting** — backend-authoritative monthly reconciliation from Fidelity Activity History
 - **Market session model** — 6-state classification, trading calendar, sealed evidence semantics
 - **Instrument governance** — product structure classification, leveraged/inverse detection

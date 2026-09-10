@@ -82,8 +82,11 @@ The current runtime architecture consists of a Java backend maintaining evidence
 │    · Anti-starvation floors                                  │
 │    · Publication coalescing                                  │
 │                                                              │
-│  Tradier Adapter → Tradier Sandbox (60 req/min, 15m delay)   │
-│  Request Pacer (0.9 req/sec) · Response Cache                │
+│  Tradier Adapter → Tradier                                   │
+│    · Production authority (real-time, primary/required)      │
+│    · Sandbox authority (~15m delayed, optional degraded mode)│
+│  Request Pacer (single-flight; ≤119 starts / trailing 60s;   │
+│    Production allowance ~120/min) · Response Cache           │
 │                                                              │
 │  SQLite Evidence Store (durable, WAL mode)                   │
 │    · Symbol resolution · Evidence rows · Generations         │
@@ -177,7 +180,7 @@ This decomposition is the logical consequence of ADR-011 ("Multiple Wheelwright 
 - `SessionGate` — market-hours enforcement (injectable clock)
 - `SqliteEvidenceStore` — durable evidence persistence
 - `TradierAdapter` — provider normalization
-- `RequestPacer` — rate-limit compliance (0.9 req/sec)
+- `RequestPacer` — rate-limit compliance (single-flight; ≤119 request starts / trailing 60s; see Docs 39/40 and `PL-OPS-09` stewardship record)
 - `SnapshotController` — ETag/conditional HTTP publication
 - `StatusController` — scheduler telemetry exposure
 
@@ -185,7 +188,7 @@ This decomposition is the logical consequence of ADR-011 ("Multiple Wheelwright 
 
 | Class | Definition | Target |
 |-------|-----------|--------|
-| A | Ready symbols with qualifying puts | ≤ 15 min chain age |
+| A | Ready symbols with qualifying puts | ≤ 25 min chain age (`SchedulerConfig.DEFAULT`; was 15 min scarcity-era — refresh near Decision's 30-min horizon with a 5-min guard band) |
 | B | Ready symbols without qualifying puts | Best-effort, 120 min urgency |
 | C | Lifecycle work (pending, partial, retriable) | Epoch retry policy |
 | D | Prior-epoch absent | Once per epoch |
@@ -288,7 +291,7 @@ Midpoint is a policy convention — it represents the operator's reasonable expe
 - **Call section** (collapsible): Covered-call candidates for held inventory
 - **Buy-Write section** (collapsible): Buy-write candidates with composite economics
 - **Cross-entry comparison:** Unified ranking across CSP and buy-write opportunities
-- **Recommendation Brief:** Right-side drawer (put and buy-write; call drawer is deferred)
+- **Recommendation Brief:** Right-side drawer (put, buy-write, and covered-call drawers implemented)
 
 **Collapse state:** Persisted in `Workspace` (localStorage). Sections default expanded.
 
@@ -318,7 +321,7 @@ Midpoint is a policy convention — it represents the operator's reasonable expe
 
 **WriteIntent → Fidelity trade link → new tab.** The system opens a pre-populated ticket. The broker is responsible for preview, validation, confirmation, and submission.
 
-**Currently implemented for:** Cash-secured puts. Buy-write and call-only handoff are deferred.
+**Currently implemented for:** Cash-secured puts and covered calls (covered-call Fidelity handoff shipped from the call drawer, `f411c09`). Buy-write handoff remains deferred.
 
 ---
 
@@ -394,11 +397,12 @@ interface RecommendationPolicy {
 | Backend | Java 21, Spring Boot 3.4, SQLite (JDBC) |
 | Frontend framework | React 18+ with TypeScript (strict) |
 | Frontend build | Vite |
-| Frontend tests | Vitest (1112 tests) |
-| Backend tests | JUnit 5 (173 tests) |
+| Frontend tests | Vitest |
+| Backend tests | JUnit 5 |
 | Frontend storage | IndexedDB (evidence cache), localStorage (workspace) |
 | Backend storage | SQLite with WAL mode |
-| Provider | Tradier sandbox (REST, 15-min delayed, 60 req/min) |
+| Provider | Tradier (REST). Production authority = real-time (primary/required); Sandbox authority = ~15-min delayed (optional degraded mode). Each authority has its own isolated pacer + cache. |
+| Provider pacing | Single-flight; ≤119 request starts / trailing 60s (Production allowance ~120/min; `tradier.requests-per-minute:119`). See Docs 39/40 and `PL-OPS-09`. |
 | Styling | CSS custom properties (centralized theme tokens) |
 | State management | React hooks (no external library) |
 
@@ -495,11 +499,14 @@ The first slice of call recommendations restores covered-call candidates for hel
 - Produces ranked `CallCandidate[]`
 - Rendered in collapsible Call section of Write Desk
 
+**What has since shipped (previously listed as Horizon B/C deferred):**
+- Call drawer (full covered-call recommendation brief) — `CallBrief`, rendered in `WriteDesk.tsx`
+- Covered-call execution handoff (Fidelity trade link for covered calls) — `f411c09`
+
 **What is deferred (Horizon B/C):**
-- Call drawer (full recommendation brief)
 - Projected Call Surface (put drawer showing egress opportunity)
 - Appreciation geometry (basis vs strike vs current price)
-- Call execution handoff (Fidelity trade link for calls)
+- Buy-write execution handoff (Fidelity trade link for buy-writes)
 - Historical lifecycle linkage
 - Put/call symmetry classification
 - Familiarity / instrument affinity

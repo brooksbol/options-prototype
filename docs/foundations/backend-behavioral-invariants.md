@@ -332,10 +332,10 @@ The test for inclusion: if violating this statement produces a system that is no
 | **Statement** | The backend must not exceed the provider's published rate limit under any operational condition, including burst scenarios (operator nudge, restart with large work queue). |
 | **Type** | Architectural invariant |
 | **Scope** | Request pacing |
-| **Preconditions** | Provider has a published rate limit (Tradier: 60 requests/minute) |
+| **Preconditions** | Provider has a published rate limit (Tradier Production market-data allowance ~120/min) |
 | **Required outcome** | Sustained request rate remains below the provider's limit with safety margin |
 | **Prohibited outcome** | Provider returns 429. Burst from restart or nudge exceeds limit. |
-| **Evidence** | `request-pacer.ts`: 0.9 req/sec (~54/min, under 60/min). `docs/07-architecture-current.md`: "TradierProvider (sandbox, 15-min delayed, 60 req/min rate limit)." |
+| **Evidence** | `RequestPacer` (Java): single-flight, ≤119 request starts / trailing 60s (`tradier.requests-per-minute:119`, ~99% of the ~120/min Production allowance); 429 overrides admission via `Retry-After` (else 60s backoff). Each provider authority has an isolated pacer. See `docs/07-architecture-current.md` (Provider pacing) and Docs 39/40. (Evidence citation reconciled 2026-09-10; the ratified invariant statement is unchanged. Prior citation referenced the retired TypeScript `request-pacer.ts` at 0.9 req/sec.) |
 | **Authority** | Architecture document (law) |
 | **Confidence** | Ratified |
 | **Verification surface** | Integration test — max burst scenario, measure actual upstream call rate |

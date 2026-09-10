@@ -60,7 +60,7 @@ Components are organized by runtime boundary (Java backend vs browser frontend).
 | Property | Value |
 |----------|-------|
 | **Responsibility** | Rate-limit compliance. Queue-based serialization of provider calls. |
-| **Inputs** | Callable tasks. Rate configuration (0.9 req/sec). |
+| **Inputs** | Callable tasks. Rate configuration (single-flight; ≤119 request starts / trailing 60s; `tradier.requests-per-minute:119`). |
 | **Outputs** | Paced execution. Queue depth and rejection metrics. |
 | **Must not** | Decide what to acquire. Know about evidence or scheduling. |
 
