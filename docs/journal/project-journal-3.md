@@ -168,3 +168,43 @@ An extended design discussion settled the verb. The endpoint drives provider acq
 ### Epistemic status
 
 Accepted bounded capability. A new, narrow, operator-scoped exception to the provider-stewardship/freshness-due gate, reusing existing acquisition machinery. Not authorized: universe-wide freshness bypass, or any scheduler/horizon/TTL/concurrency/provider/session/contract change. The whole-cycle `PL-OPS-08` recovery control is unchanged.
+
+
+## 2026-09-10 — Cash Deployment as the second consumer of PL-OPS-09 (targeted refresh)
+
+### Context
+
+Same operator intent as the Console freshness refresh (`PL-OPS-09`), applied to a different decision surface, and again motivated by an operational failure: stale Cash Deployment evidence contributed to **missed morning trades**. Principal authorized a bounded v0 and — importantly — framed it as a **new consumer** of the existing PL-OPS-09 capability, not a new capability. Full reconciliation in `docs/parking-lot-8.md` under the PL-OPS-09 record.
+
+### The reuse gate that shaped the design
+
+Principal set a sharp acceptance criterion: *if this needs a backend change or a server bounce, we've drifted from "new consumer" into "new capability."* That gate held — the work is entirely frontend. The backend PL-OPS-09 contract already accepts an arbitrary bounded symbol set, so Cash Deployment's underlyings are serviceable by the running appliance with no change.
+
+### What the investigation revealed (the load-bearing finding)
+
+The shared-evidence assumption was only half-true, and the honest version mattered. Cash Deployment and the Operator Console read the **same authoritative backend evidence through different frontend readers**:
+
+- Console → observation store (`useObservations()` / `GET /api/evidence/quotes`, generation-keyed) — driven by `refreshNow()`.
+- Deployment → WriteDesk's private snapshot poll (`GET /api/evidence/snapshot`, own ETag) → IndexedDB durable cache → `recommendPuts`/`recommendBuyWrites` → the candidate arrays `CrossEntryStrip` ranks.
+
+So at the **backend layer** the "refresh these symbols, not this table" property holds perfectly — one acquisition advances the single evidence model both surfaces read. But at the **frontend layer** there is no shared generation: `refreshNow()` would update the Console, not Deployment. Each surface must re-read its own source. This is exactly the trap Principal flagged ("don't build a table-local refresh"), and the design honors it: the button reuses the shared acquisition, then triggers Deployment's *own* re-read.
+
+### What shipped (bounded, frontend-only)
+
+- `src/write-desk/refresh-top-symbols.ts` — pure, display-relative scope selection: first N rows **in the current sort order**, deduped/uppercased, hard-capped (N=30). Faithfully follows whatever order it is given; imposes no ranking of its own.
+- `src/write-desk/CrossEntryRefreshButton.tsx` — "Refresh top opportunities". Calls the existing `forceEvidenceAcquisition(symbols)` (PL-OPS-09); on a genuine `ACQUIRED` disposition, invokes `onRefreshComplete`. No new acquisition mechanism.
+- `CrossEntryStrip` — computes the top-30 current-sort symbols and mounts the button; `WriteDesk` supplies `refreshDeploymentEvidence` (invalidate ETag + re-poll on a bounded backoff; the 30s poll remains the safety net).
+
+### Findings preserved, not solved
+
+- **Display-relative stale-suppression (sort-dependent):** a refresh window scoped to the visible top-N cannot reach a candidate suppressed *below* the window by its own stale economics; worse under evidence-derived sorts. The 30-row window reduces, does not eliminate. Deferred; belongs to `PL-DEPLOY` / `PL-ARCH-06`.
+- **Two frontend evidence readers for one backend model:** recorded as a finding (it directly explains why each surface needs its own re-read), explicitly **not** an authorization to unify the pipelines.
+
+### Verification
+
+- Automated: `refresh-top-symbols` (7) + `cross-entry-refresh-button` (6) tests green; full frontend suite 1422/1423 (sole failure = pre-existing, unrelated velvet-rope date-drift snapshot); `tsc` clean; backend untouched from `main`.
+- **Not self-verified:** the live working-software exercise (click → freshness resets on Deployment → a second surface reflects the same fresh evidence with no second acquisition) requires the running app and a market-open provider. Reserved for Principal working-software review; the automated tests prove the mechanism (one acquisition, independent re-reads), not the on-screen outcome.
+
+### Epistemic status
+
+Bounded v0, new consumer of an existing capability, no backend change, no new `PL-*` identity. Stopping for Principal working-software review before broadening (higher N, population-wide refresh, or pipeline unification are all explicitly out of scope).

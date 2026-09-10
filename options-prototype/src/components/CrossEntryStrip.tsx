@@ -22,6 +22,8 @@ import { useMultiColumnSort, type SortDir } from "../write-desk/use-multi-column
 import { downloadTableCsv } from "../write-desk/table-csv-export";
 import { AgeCell } from "../write-desk/AgeCell";
 import { formatAcquisitionAge, type EvidenceProvenance } from "../write-desk/evidence-provenance";
+import { CrossEntryRefreshButton } from "../write-desk/CrossEntryRefreshButton";
+import { selectRefreshTopSymbols, REFRESH_TOP_N } from "../write-desk/refresh-top-symbols";
 
 // --- Sortable Table (delegates to shared multi-column hook) ---
 
@@ -49,6 +51,12 @@ interface CrossEntryStripProps {
   maxRows?: number;
   onSelectPut: (candidate: PutCandidate) => void;
   onSelectBuyWrite: (candidate: BuyWriteCandidate) => void;
+  /**
+   * Re-read this surface's OWN authoritative evidence path (WriteDesk snapshot poll) and
+   * recompute. Called by the "Refresh top opportunities" control after a targeted PL-OPS-09
+   * re-observation completes. Optional — when absent, the refresh control is not shown.
+   */
+  onRefreshTopOpportunities?: () => void;
 }
 
 export function CrossEntryStrip({
@@ -57,6 +65,7 @@ export function CrossEntryStrip({
   maxRows = 10,
   onSelectPut,
   onSelectBuyWrite,
+  onRefreshTopOpportunities,
 }: CrossEntryStripProps) {
   // Full eligible population (composition + eligibility filtering, no display cap)
   const allRows = useMemo(
@@ -98,6 +107,12 @@ export function CrossEntryStrip({
     (symbolTerms.length === 0 || symbolTerms.some(t => r.symbol.toUpperCase().includes(t)))
   );
   const displayed = filtered.slice(0, showCount);
+
+  // "Top opportunities" refresh scope (PL-OPS-09 consumer): the first N rows UNDER THE CURRENT
+  // SORT/ORDER (`filtered` already reflects the active column sort + filters), deduped to unique
+  // underlying symbols, hard-capped at N. This is display-relative — "the opportunities at the
+  // head of the view the operator is using" — never a claim of canonical/best ranking.
+  const refreshTopSymbols = selectRefreshTopSymbols(filtered, REFRESH_TOP_N);
 
   if (allRows.length === 0) return null;
 
@@ -224,6 +239,12 @@ export function CrossEntryStrip({
             `wheelwright-cross-entry-${new Date().toISOString().slice(0, 10)}.csv`
           );
         }} title="Download as CSV">⬇ CSV</button>
+        {onRefreshTopOpportunities && (
+          <CrossEntryRefreshButton
+            symbols={refreshTopSymbols}
+            onRefreshComplete={onRefreshTopOpportunities}
+          />
+        )}
       </div>
       {!isDefaultOrder && (
         <div className="wd-sort-notice">

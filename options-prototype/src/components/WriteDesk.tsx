@@ -551,6 +551,24 @@ export function Deployment() {
     return () => clearInterval(interval);
   }, [snapshot?.readiness.status, pollSnapshot]);
 
+  // Prompt re-read of THIS surface's own authoritative evidence path after a targeted
+  // ("Refresh top opportunities") PL-OPS-09 re-observation. Cash Deployment and the Operator
+  // Console read the same backend evidence through DIFFERENT frontend readers, so each surface
+  // must re-read its own source; there is no shared frontend generation. We invalidate the
+  // snapshot ETag (so the backend returns a genuine 200 rather than a 304) and re-poll on a
+  // short bounded backoff, because the forced-acquisition POST can return before the backend
+  // has finished writing/publishing the new generation. The passive 30s interval remains the
+  // safety net; this is the "see freshness update now" path.
+  const refreshDeploymentEvidence = useCallback(() => {
+    const schedule = [0, 800, 1800, 3500];
+    for (const delay of schedule) {
+      setTimeout(() => {
+        etagRef.current = null; // force a 200 on the next poll
+        pollSnapshot();
+      }, delay);
+    }
+  }, [pollSnapshot]);
+
   // Portfolio popover state removed — portfolio info now lives in global header
 
   return (
@@ -644,6 +662,7 @@ export function Deployment() {
               maxRows={10}
               onSelectPut={(c) => { selectDrawerCandidate("put", { put: c }); }}
               onSelectBuyWrite={(c) => { selectDrawerCandidate("buywrite", { buyWrite: c }); }}
+              onRefreshTopOpportunities={refreshDeploymentEvidence}
             />
           </div>
         </section>
