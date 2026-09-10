@@ -168,3 +168,140 @@ An extended design discussion settled the verb. The endpoint drives provider acq
 ### Epistemic status
 
 Accepted bounded capability. A new, narrow, operator-scoped exception to the provider-stewardship/freshness-due gate, reusing existing acquisition machinery. Not authorized: universe-wide freshness bypass, or any scheduler/horizon/TTL/concurrency/provider/session/contract change. The whole-cycle `PL-OPS-08` recovery control is unchanged.
+
+
+## 2026-09-10 — Cash Deployment as the second consumer of PL-OPS-09 (targeted refresh)
+
+### Context
+
+Same operator intent as the Console freshness refresh (`PL-OPS-09`), applied to a different decision surface, and again motivated by an operational failure: stale Cash Deployment evidence contributed to **missed morning trades**. Principal authorized a bounded v0 and — importantly — framed it as a **new consumer** of the existing PL-OPS-09 capability, not a new capability. Full reconciliation in `docs/parking-lot-8.md` under the PL-OPS-09 record.
+
+### The reuse gate that shaped the design
+
+Principal set a sharp acceptance criterion: *if this needs a backend change or a server bounce, we've drifted from "new consumer" into "new capability."* That gate held — the work is entirely frontend. The backend PL-OPS-09 contract already accepts an arbitrary bounded symbol set, so Cash Deployment's underlyings are serviceable by the running appliance with no change.
+
+### What the investigation revealed (the load-bearing finding)
+
+The shared-evidence assumption was only half-true, and the honest version mattered. Cash Deployment and the Operator Console read the **same authoritative backend evidence through different frontend readers**:
+
+- Console → observation store (`useObservations()` / `GET /api/evidence/quotes`, generation-keyed) — driven by `refreshNow()`.
+- Deployment → WriteDesk's private snapshot poll (`GET /api/evidence/snapshot`, own ETag) → IndexedDB durable cache → `recommendPuts`/`recommendBuyWrites` → the candidate arrays `CrossEntryStrip` ranks.
+
+So at the **backend layer** the "refresh these symbols, not this table" property holds perfectly — one acquisition advances the single evidence model both surfaces read. But at the **frontend layer** there is no shared generation: `refreshNow()` would update the Console, not Deployment. Each surface must re-read its own source. This is exactly the trap Principal flagged ("don't build a table-local refresh"), and the design honors it: the button reuses the shared acquisition, then triggers Deployment's *own* re-read.
+
+### What shipped (bounded, frontend-only)
+
+- `src/write-desk/refresh-top-symbols.ts` — pure, display-relative scope selection: first N rows **in the current sort order**, deduped/uppercased, hard-capped (N=30). Faithfully follows whatever order it is given; imposes no ranking of its own.
+- `src/write-desk/CrossEntryRefreshButton.tsx` — "Refresh top opportunities". Calls the existing `forceEvidenceAcquisition(symbols)` (PL-OPS-09); on a genuine `ACQUIRED` disposition, invokes `onRefreshComplete`. No new acquisition mechanism.
+- `CrossEntryStrip` — computes the top-30 current-sort symbols and mounts the button; `WriteDesk` supplies `refreshDeploymentEvidence` (invalidate ETag + re-poll on a bounded backoff; the 30s poll remains the safety net).
+
+### Findings preserved, not solved
+
+- **Display-relative stale-suppression (sort-dependent):** a refresh window scoped to the visible top-N cannot reach a candidate suppressed *below* the window by its own stale economics; worse under evidence-derived sorts. The 30-row window reduces, does not eliminate. Deferred; belongs to `PL-DEPLOY` / `PL-ARCH-06`.
+- **Two frontend evidence readers for one backend model:** recorded as a finding (it directly explains why each surface needs its own re-read), explicitly **not** an authorization to unify the pipelines.
+
+### Verification
+
+- Automated: `refresh-top-symbols` (7) + `cross-entry-refresh-button` (6) tests green; full frontend suite 1422/1423 (sole failure = pre-existing, unrelated velvet-rope date-drift snapshot); `tsc` clean; backend untouched from `main`.
+- **Not self-verified:** the live working-software exercise (click → freshness resets on Deployment → a second surface reflects the same fresh evidence with no second acquisition) requires the running app and a market-open provider. Reserved for Principal working-software review; the automated tests prove the mechanism (one acquisition, independent re-reads), not the on-screen outcome.
+
+### Epistemic status
+
+Bounded v0, new consumer of an existing capability, no backend change, no new `PL-*` identity. Stopping for Principal working-software review before broadening (higher N, population-wide refresh, or pipeline unification are all explicitly out of scope).
+
+
+## 2026-09-10 — Cash Deployment refresh: two working-software corrections + a durable UI principle
+
+### Context
+
+Continuation of the Cash Deployment PL-OPS-09 consumer. Principal exercised it in working software (market open) and it now works well — validated as potentially **hundreds to thousands of dollars/month** of operational value (surgically refreshing a candidate's evidence before execution instead of trading on stale economics). Two real defects surfaced only under working software, neither reachable by upfront design; both fixed. This is the closed loop doing its job.
+
+### Defect 1 — generation early-exit ("refreshed N but age unchanged")
+
+My surface re-read stopped as soon as `snapshot.generation` advanced past the click-time value. But the appliance publishes a new generation almost continuously (the scheduler is always acquiring the universe — I watched it climb several generations per second via the live snapshot endpoint). So a generation bump does **not** mean the *targeted* symbols were re-observed; the loop exited on an unrelated scheduler publication and merged a snapshot predating the targeted chains. Fix: run the full bounded backoff, no generation-based early exit — the later reads land after the targeted acquisition publishes.
+
+Direct backend probes confirmed the backend side was correct all along: `POST /api/evidence/refresh?symbol=AOA&symbol=AOM` advanced AOA's `primaryChainAcquisitionProvenance.acquiredAt` (18:23 → 18:36). The bug was entirely in my frontend re-read heuristic.
+
+### Defect 2 — completion indication lied (the important one)
+
+Added a **per-row `↻` surgical refresh** (`RowRefreshButton.tsx`) — a one-symbol PL-OPS-09 consumer for revalidating the exact opportunity before Open in Fidelity. Its spinner initially stopped when the acquisition request returned — seconds *before* the row's Age visibly updated. For a few seconds the UI asserted a freshness the operator could not yet see.
+
+Principal named the reusable principle precisely: **action completion and visible-state convergence are different events; operator-facing completion must correspond to the latter when the visible state is what establishes trust.** The spinner now tracks the row's own `acquiredAtMs` advancing past the click-time baseline, and stops **indeterminate** (not clean success) if acquired-but-not-converged within a bounded wait — the honest outcome when evidence can't get fresher (e.g. a provider-cache hit inside the 90s chain-cache window). Promoted to `foundations/visual-design-principles.md` as principle #12.
+
+### Also learned / preserved
+
+- **90s chain-cache floor:** re-refreshing the same symbol within 90s is a provider cache hit that rewrites the same `retrievedAt` — correct stewardship, but it means rapid re-clicks won't drive the age to ~0; the indeterminate state now tells that truth instead of faking success.
+- **Two frontend evidence readers, one backend model:** reaffirmed — Console (observation store) and Deployment (WriteDesk snapshot poll) each re-read their own source; the shared truth is at the backend. Recorded as a finding, not unified (belongs to `PL-ARCH-06`).
+
+### Verification
+
+Zero backend change throughout (the reuse gate held). 18 frontend tests across `refresh-top-symbols`, `cross-entry-refresh-button`, `row-refresh-button` (incl. an explicit convergence test: spinner keeps spinning post-acquisition until the provenance prop advances). Full suite 1427/1428 — sole failure the pre-existing unrelated velvet-rope date-drift snapshot. `tsc` clean.
+
+### Epistemic status
+
+Bounded v0 consumers of PL-OPS-09 (bulk + per-row), no new capability, no backend change, no new `PL-*`. High operator-validated value. Principle #12 is the durable takeaway beyond this feature.
+
+
+## 2026-09-10 — The spinner decision arc: how we recovered from two red herrings
+
+### Context
+
+Immediately after the previous entry (which landed the convergence-tracking spinner), the completion-semantics question went through a two-step near-miss before settling. This entry records the arc itself, because the arc — not just the final code — is the reusable learning, and a cold-start reader who saw only the endpoint would miss why the obvious "simplification" is wrong.
+
+### The arc
+
+1. **Simple spinner** (validated, useful): spin during request, stop on return. Defect observed: the Age lagged a few seconds after the spinner stopped — the UI briefly asserted freshness that hadn't propagated.
+2. **Convergence spinner** (the fix): keep spinning until the row's `acquiredAtMs` advances; bounded to 8s → explicit `?`. This fixed the lag.
+3. **Red herring #1 (mine):** on hearing "spinners spin forever," I recommended *reverting* to the simple spinner and rewriting principle #12 to say "don't make spinners wait for convergence." I even drafted the revert and the rewritten principle.
+4. **Red herring caught (Principal):** the revert would have knowingly restored the stale-Age gap. Crucially, the convergence version was **already bounded** (8s + `?`), so it never had the eternal-spinner failure mode the heuristic warned about. The objection targeted a problem this code didn't have.
+5. **Resolution:** keep the convergence spinner. The real requirement is **both** — responsive (spinner stops as the Age changes) **and** bounded (never eternal; terminate into an explicit unresolved state). Principle #12 sharpened to make the bound the load-bearing clause and to reject *both* failure modes explicitly.
+
+### Why this is worth preserving (two durable lessons)
+
+- **Validated working software outranks a plausible principle.** "Spinners spin forever" is true in general and was the right instinct in the abstract — but applied here it would have removed a working-software improvement to solve a failure mode that the bounded design had already eliminated. When a heuristic and validated behavior conflict, check whether the heuristic's failure mode actually exists in this implementation before acting on it.
+- **The requirement was "both," and each isolated simplification silently sacrificed one half.** Reverting protected against eternal spin by reintroducing the stale-Age gap; the naive convergence spinner (unbounded) would have done the reverse. The honest target holds both simultaneously — responsiveness *and* a bound — which is exactly what principle #12 now states.
+
+### A third, smaller lesson (testing)
+
+The bounded-timeout test first used fake timers. It **passed in isolation but failed in the full suite** (fake-timer/microtask contamination under concurrent load). Fixed by making the convergence bound an injectable prop (`convergenceTimeoutMs`) and testing with a tiny real timeout — deterministic, no time mocking. Reusable: prefer injecting a duration over mocking the clock; and always run the full suite, because an isolated green can hide a flaky interaction.
+
+### Process note
+
+No history rewrite. The earlier entry (convergence as "the fix") stands; this entry continues the arc through the near-miss to the settled "both, bounded" position. The messy path — simple → convergence → proposed revert → objection → keep-but-sharpen — is the organizational learning, preserved deliberately rather than tidied into a clean-looking final state.
+
+### Verification
+
+Final: 6 row-button tests (convergence + bounded-terminate), full suite 1428/1429 (sole failure the pre-existing unrelated velvet-rope date-drift snapshot), `tsc` clean. Zero backend change throughout.
+
+
+## 2026-09-10 — Codex review: the bulk button and the ACQUIRED label were still lying
+
+### Context
+
+External Codex review of the Cash Deployment refresh, after the row control's convergence semantics had settled. It found two remaining truthfulness defects — both frontend completion-semantics, neither invalidating PL-OPS-09 or the Deployment refresh idea. Both accepted and corrected in one bounded pass. The row control had already earned its success claim via visible convergence; these are the two places that hadn't caught up.
+
+### Finding 1 — the bulk button claimed success at request return
+
+`CrossEntryRefreshButton` displayed `Refreshed N` the moment the targeted acquisition POST returned — the operator reads that as "the rows I'm looking at are now fresh," which is a lie until the surface re-read has propagated. This is exactly principle #12 applied to the bulk control, which we had only applied to the row. Fix (bounded, no per-symbol accounting framework): the button now captures a click-time per-symbol provenance baseline, shows `Refreshing…` → `Updating evidence…`, and claims `Refreshed N` **only** when all requested rows' visible provenance advances. If only some advance within the bound it reports `Refreshed X of Y`; if none, `Not confirmed fresh`. The number is the count of rows whose VISIBLE provenance advanced — never the backend's `symbolsAcquired`.
+
+The provenance feedback comes from a live `symbol → provenance` map that CrossEntryStrip already can build from its displayed rows — so the bulk button detects convergence with a simple map compare, not machinery.
+
+### Finding 2 — `ACQUIRED` is not a synonym for "new evidence exists"
+
+The label logic translated backend `ACQUIRED` into `Refreshed N` / `Refreshed (up to date)`. But `ACQUIRED` is only an acquisition disposition: `forceAcquireSymbols` can return `ACQUIRED` on the bounded-wait timeout path, and `symbolsAcquired === 0` does not prove evidence was already current. So the label was epistemically stronger than the backend fact. Fixed: the FE never renders a confirmed-freshness claim from `ACQUIRED` alone; success is asserted only through visible convergence (above). The row control was already robust to this because it waits on the row's provenance.
+
+### Timing alignment (Codex MINOR, made intentional)
+
+The bulk convergence bound is 13s, deliberately set to exceed WriteDesk's re-read backoff total (~12.5s cumulative). If the bound were shorter (e.g. the row's 8s), the bulk button could declare a false "partial" while the re-read still had attempts pending. Documented as a constant with the coupling explained.
+
+### A correctness bug found while testing
+
+The bulk bounded-timeout closure initially read `provenanceBySymbol` from the click-time closure — stale, since the map advances via recompute after the timer is scheduled. Fixed by reading the latest map through a ref. Caught because the partial-convergence test was flaky until the ref was introduced — the test earned its keep.
+
+### Verification
+
+Zero backend change (the reuse gate held through the whole feature). Bulk tests rewritten to convergence semantics (7), row control unchanged (6), scope helper (7). Full suite 1429/1430 — sole failure the pre-existing unrelated velvet-rope date-drift snapshot. `tsc` clean.
+
+### Epistemic status
+
+The core architecture held throughout: one reusable backend capability (PL-OPS-09), multiple frontend consumers, and every consumer must tell the truth about when its OWN visible state has caught up. Principle #12 is the durable takeaway; this review is what forced it to be applied uniformly rather than only where the defect was first noticed.

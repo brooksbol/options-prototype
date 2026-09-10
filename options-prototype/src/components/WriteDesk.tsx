@@ -551,6 +551,54 @@ export function Deployment() {
     return () => clearInterval(interval);
   }, [snapshot?.readiness.status, pollSnapshot]);
 
+  // Prompt re-read of THIS surface's own authoritative evidence path after a targeted
+  // ("Refresh top opportunities") PL-OPS-09 re-observation. Cash Deployment and the Operator
+  // Console read the same backend evidence through DIFFERENT frontend readers, so each surface
+  // must re-read its own source; there is no shared frontend generation.
+  //
+  // This deliberately does NOT route through pollSnapshot(): that path is guarded by
+  // `pollingRef` (so a concurrent 30s poll would silently drop our re-read) and uses the
+  // conditional ETag (so it can 304 and never reach handleNewEvidence). Either would leave the
+  // surface stale after a click — the "clicked, nothing changed; hard refresh fixed it" symptom.
+  // Instead we run a DEDICATED unconditional fetch (no If-None-Match → always a genuine 200) on
+  // a bounded backoff, stopping once the generation advances past where it was at click time
+  // (the forced-acquisition POST can return before the backend has published the new
+  // generation). The normal pollSnapshot()/30s interval remains the untouched safety net.
+  const refreshInFlightRef = useRef(false);
+  const refreshDeploymentEvidence = useCallback(async () => {
+    if (refreshInFlightRef.current) return;
+    refreshInFlightRef.current = true;
+
+    // Run the FULL bounded backoff — do NOT early-exit on "generation advanced". This appliance
+    // publishes a new generation almost continuously (the scheduler is always acquiring), so a
+    // generation bump does NOT mean OUR targeted symbols were re-observed yet: an early exit
+    // would merge an unrelated scheduler publication that predates the targeted chains and leave
+    // the Age stale (the "refreshed N but age unchanged" symptom). Instead we re-read a few times
+    // over several seconds; the later reads land after the targeted acquisition has published its
+    // fresh chains. Each read is a cheap unconditional snapshot GET; merges are idempotent.
+    const schedule = [300, 900, 1800, 3500, 6000];
+
+    try {
+      for (const delay of schedule) {
+        await new Promise((r) => setTimeout(r, delay));
+        try {
+          // Unconditional read — no ETag — so we always get a fresh 200, never a 304.
+          const res = await fetch("/api/evidence/snapshot");
+          if (!res.ok) continue;
+          const etag = res.headers.get("etag");
+          if (etag) etagRef.current = etag; // keep the normal poller's ETag in sync
+          const data = await res.json();
+          setEvidenceMeta({ generation: data.generation, generatedAt: data.generatedAt, coverage: data.coverage });
+          await handleNewEvidence(data);
+        } catch {
+          // transient — let the next scheduled attempt retry
+        }
+      }
+    } finally {
+      refreshInFlightRef.current = false;
+    }
+  }, [handleNewEvidence]);
+
   // Portfolio popover state removed — portfolio info now lives in global header
 
   return (
@@ -644,6 +692,7 @@ export function Deployment() {
               maxRows={10}
               onSelectPut={(c) => { selectDrawerCandidate("put", { put: c }); }}
               onSelectBuyWrite={(c) => { selectDrawerCandidate("buywrite", { buyWrite: c }); }}
+              onRefreshTopOpportunities={refreshDeploymentEvidence}
             />
           </div>
         </section>
