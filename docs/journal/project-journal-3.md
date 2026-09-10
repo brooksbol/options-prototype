@@ -131,3 +131,40 @@ The consequence section was extracted from `CallBrief.tsx` into its own exported
 ### Epistemic status
 
 Accepted conformance repair of the v1 implementation. No new architecture, no state machine, no scoring, no scope broadening. F8 exactness (`LVT-INIT-OUTCOME-BASIS`), authoritative quote-level provenance, and collar remain separately-owned future work as designed.
+
+
+## 2026-09-10 — PL-OPS-09: operator-directed targeted re-observation (console freshness on demand)
+
+### Context
+
+The Operator Console gained a query-time **Freshness** column (evidence age derived from each position's `priceObservedAt`; nothing stored — "persist facts; derive trust"). The operator reported that clicking **"Refresh evidence now"** did not move the freshness values. This checkpoint records what that falsified and the bounded capability it produced (`PL-OPS-09`; full reconciliation in `docs/parking-lot-8.md`).
+
+### What the discovery taught us
+
+Two mechanisms, deliberately separated rather than conflated into one "it's broken":
+
+1. **Frontend read-lag / ETag-304 race.** The console reads observations from a 30s-polling store with a conditional `If-None-Match` read. The forced-acquisition button never asked the store to re-read, so freshness lagged up to a poll interval — and even a re-read could return `304` if it fired before the generation advanced. A single perfectly-timed re-read is not enough because the forced-acquisition POST can return (on its bounded HTTP wait) before the backend has finished writing and publishing.
+
+2. **Provider stewardship was working correctly.** `PL-OPS-08`'s `forceAcquireOnce()` forces the **due** work queue. Symbols still fresh within the refresh horizon are intentionally excluded from that queue (do not re-acquire evidence that still satisfies policy). So the whole-cycle force genuinely, correctly did nothing for the on-screen fresh symbols. The absence of movement was honest system behavior, not a defect. Naming this prevented "fixing" a non-bug by weakening stewardship globally.
+
+The real insight: **"refresh the positions I'm looking at" is a different operator intention from "recover from an outage."** `PL-OPS-08` owns the latter (whole due-cycle). The former is a narrow, explicit, operator-supplied symbol set — which is exactly why a scoped exception to the freshness/due gate is defensible here, where a universe-wide bypass would violate stewardship and rate-limit discipline.
+
+### HTTP-semantics reasoning (durable)
+
+An extended design discussion settled the verb. The endpoint drives provider acquisition, mutates the store, and advances the snapshot generation — it is side-effecting, and the generation advance is client-observable in the ETag. That makes a GET non-safe *in this system specifically* (RFC 9110 safe methods), even under a "the backend is just a cache of Tradier" framing, because the appliance is the authority and the generation is its own versioned state. Resolution: keep the trigger a **POST** (`?symbol=` query params scope it); the safe, cacheable read of the result stays `GET /api/evidence/quotes`. "GET = get me the latest; POST = refresh."
+
+### What shipped (bounded, reused existing machinery)
+
+- Backend `AcquisitionWorker.forceAcquireSymbols(List<String>)` loops the existing per-symbol `acquireSymbolTiered` over synthesized work items on the single acquisition thread — bypassing the freshness/due gate (never consults `getPrioritizedWorkQueue`) and the session gate, while preserving Single Acquisition Authority, adapter-level rate-limit pacing, real timestamps/provenance, and "failed refresh preserves evidence." Registers unknown symbols as observation-demand; does **not** touch the monitored-position overlay. Forces publication so the generation advances immediately.
+- `POST /api/evidence/refresh?symbol=...` routes to it (whole-cycle behavior preserved when no params); response gains `targeted`.
+- Frontend: button passes the console underlyings; `refreshNow()` re-reads on a bounded backoff (0/0.8/1.8/3.5s) that stops once the generation advances — closing the read-lag race without a manual browser refresh.
+
+### Verification
+
+- Live (market open): after startup provider-verification cleared, freshness reset to seconds automatically — no browser refresh needed.
+- Backend: `AcquisitionWorkerTest$TargetedForcedAcquisition` (4 tests: re-observes a fresh not-due symbol, empty list no-op, NOT_RUNNING guard, no scheduler reschedule) + `NudgeControllerTest` targeted cases — all green. Full backend suite green.
+- Frontend: `nudge-acquisition.test.ts` extended (targeted `?symbol=` param building, dedupe, empty-list fallback); `tsc` clean. Full suite 1416/1417 — the one failure is the **pre-existing, unrelated** Velvet Rope `multi-expiration` date-drift golden (hardcoded expiration now stale vs today's computed value; untouched by this work).
+
+### Epistemic status
+
+Accepted bounded capability. A new, narrow, operator-scoped exception to the provider-stewardship/freshness-due gate, reusing existing acquisition machinery. Not authorized: universe-wide freshness bypass, or any scheduler/horizon/TTL/concurrency/provider/session/contract change. The whole-cycle `PL-OPS-08` recovery control is unchanged.

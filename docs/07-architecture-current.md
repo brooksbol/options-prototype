@@ -93,7 +93,7 @@ The current runtime architecture consists of a Java backend maintaining evidence
 │    GET /api/evidence/quotes?symbol=... (selective, ETag)     │
 │    GET /api/status (scheduler telemetry)                     │
 │    GET /api/health                                           │
-│    POST /api/evidence/refresh (nudge)                        │
+│    POST /api/evidence/refresh[?symbol=...] (forced acq)      │
 └──────────────────────────────┬───────────────────────────────┘
                                │ HTTP (conditional GET, 30s poll)
 ┌──────────────────────────────▼───────────────────────────────┐

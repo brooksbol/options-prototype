@@ -124,6 +124,75 @@ export function getObservations(): ObservationState {
 }
 
 /**
+ * Force an immediate re-poll of the current symbol set, bypassing the 30s
+ * interval cadence. Invalidates the ETag so the backend returns a fresh 200
+ * (with current observation timestamps) rather than a 304.
+ *
+ * Used by the operator-forced acquisition control: after the backend completes
+ * a forced acquisition cycle, the console must re-read observations promptly so
+ * derived freshness reflects the newly acquired evidence instead of lagging up
+ * to a full poll interval.
+ *
+ * No-op when there are no subscribers or no symbols (nothing to observe).
+ * Never throws.
+ */
+export function refreshNow(): void {
+  forceReread();
+}
+
+/** Default backoff (ms, relative to call time) for the post-acquisition re-read. */
+const REFRESH_RETRY_SCHEDULE_MS = [0, 800, 1800, 3500];
+
+/**
+ * Force an immediate re-read, then retry a few times on a short backoff.
+ *
+ * A forced acquisition's POST can return (on the bounded HTTP wait) BEFORE the backend
+ * has finished writing evidence and advancing the snapshot generation. A single
+ * re-read fired at that instant may see the pre-acquisition generation (or a 304) and
+ * miss the fresh timestamps — which is exactly the "had to hard-refresh" symptom.
+ *
+ * So we re-read on a bounded schedule and stop early once the generation advances past
+ * the generation observed when the refresh began. Each attempt invalidates the ETag so
+ * the backend returns a genuine 200 (not a 304). Bounded and self-cancelling: at most a
+ * handful of reads over a few seconds.
+ *
+ * No-op when there are no subscribers or no symbols. Never throws.
+ */
+export function forceReread(schedule: number[] = REFRESH_RETRY_SCHEDULE_MS): void {
+  if (listeners.size === 0 || currentSymbols.length === 0) return;
+
+  const generationAtStart = currentState.generation;
+
+  const attempt = () => {
+    if (listeners.size === 0 || currentSymbols.length === 0) return;
+
+    // Invalidate the conditional cache so a genuine 200 is returned even when the
+    // generation has not advanced yet — the operator explicitly asked to re-read.
+    currentETag = null;
+
+    // Abort any in-flight poll so this forced read is not blocked by the overlap guard.
+    if (currentAbortController) {
+      currentAbortController.abort();
+      currentAbortController = null;
+      isPolling = false;
+    }
+
+    poll();
+  };
+
+  for (const delay of schedule) {
+    setTimeout(() => {
+      // Stop early once fresh evidence has landed (generation advanced since we started).
+      if (generationAtStart != null && currentState.generation != null
+          && currentState.generation > generationAtStart) {
+        return;
+      }
+      attempt();
+    }, delay);
+  }
+}
+
+/**
  * Set the symbols to observe.
  * Idempotent: no-op if the normalized set is unchanged.
  * If changed: clears ETag, aborts in-flight request, polls immediately.

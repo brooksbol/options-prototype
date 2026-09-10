@@ -20,6 +20,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { forceEvidenceAcquisition, type ForceAcquisitionResult } from "../evidence/nudge-acquisition";
+import { refreshNow } from "../evidence/observation-store";
 
 type Phase = "idle" | "acquiring" | "done";
 
@@ -46,7 +47,7 @@ function resultLabel(result: ForceAcquisitionResult): string {
   }
 }
 
-export function ForceAcquisitionButton({ className = "oc-group-by-action" }: { className?: string }) {
+export function ForceAcquisitionButton({ className = "oc-group-by-action", symbols }: { className?: string; symbols?: string[] }) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [label, setLabel] = useState<string>(IDLE_LABEL);
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -66,7 +67,18 @@ export function ForceAcquisitionButton({ className = "oc-group-by-action" }: { c
     setPhase("acquiring");
     setLabel(BUSY_LABEL);
 
-    const result = await forceEvidenceAcquisition();
+    // Scope the refresh to the on-screen (portfolio) symbols when provided, so their
+    // freshness reflects a just-now observation. With no symbols this stays a whole-cycle force.
+    const result = await forceEvidenceAcquisition(symbols);
+
+    // The backend acquisition cycle updates durable evidence, but the console reads
+    // observations from the polling store (30s cadence). Force an immediate re-poll so
+    // derived freshness reflects the just-acquired evidence rather than lagging a full
+    // interval. Only meaningful when the cycle actually acquired — other dispositions
+    // (offline, provider unavailable) leave evidence unchanged by design.
+    if (result.ok && result.outcome === "ACQUIRED") {
+      refreshNow();
+    }
 
     setPhase("done");
     setLabel(resultLabel(result));
@@ -74,7 +86,7 @@ export function ForceAcquisitionButton({ className = "oc-group-by-action" }: { c
       setPhase("idle");
       setLabel(IDLE_LABEL);
     }, RESULT_LINGER_MS);
-  }, [phase]);
+  }, [phase, symbols]);
 
   return (
     <button
@@ -83,7 +95,7 @@ export function ForceAcquisitionButton({ className = "oc-group-by-action" }: { c
       onClick={onClick}
       disabled={phase === "acquiring"}
       aria-busy={phase === "acquiring"}
-      title="Force one acquisition cycle now over the relevant universe, bypassing due-time and market-session gating (outage/forgotten-restart recovery). Evidence keeps its real timestamps and provenance. Does not reconstruct history missed during a prior outage."
+      title="Re-observe the positions on screen now, bypassing due-time and market-session gating. Evidence keeps its real timestamps and provenance. Falls back to a full recovery cycle when no positions are shown."
     >
       {label}
     </button>

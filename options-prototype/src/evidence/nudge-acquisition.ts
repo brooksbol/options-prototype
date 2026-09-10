@@ -34,6 +34,8 @@ export type ForceAcquisitionResult =
       generation: number;
       sessionPosture: string;
       recoversHistory: boolean;
+      /** True when the refresh was scoped to explicit symbols (targeted), not a whole cycle. */
+      targeted: boolean;
     }
   | { ok: false; error: string };
 
@@ -43,9 +45,26 @@ export type ForceAcquisitionResult =
  * Resolves with the backend's honest disposition (what the forced cycle actually did),
  * or an error descriptor on transport failure. Never throws.
  */
-export async function forceEvidenceAcquisition(signal?: AbortSignal): Promise<ForceAcquisitionResult> {
+export async function forceEvidenceAcquisition(
+  symbols?: string[],
+  signal?: AbortSignal,
+): Promise<ForceAcquisitionResult> {
   try {
-    const res = await fetch("/api/evidence/refresh", { method: "POST", signal });
+    // Targeted refresh: scope the forced acquisition to the given symbols via repeated
+    // ?symbol= query params (POST, because acquisition is side-effecting). With no symbols
+    // the endpoint keeps its whole-cycle recovery behavior.
+    let url = "/api/evidence/refresh";
+    const clean = [...new Set(
+      (symbols ?? [])
+        .map(s => s.trim().toUpperCase())
+        .filter(s => s.length > 0),
+    )];
+    if (clean.length > 0) {
+      const params = clean.map(s => `symbol=${encodeURIComponent(s)}`).join("&");
+      url = `${url}?${params}`;
+    }
+
+    const res = await fetch(url, { method: "POST", signal });
     if (!res.ok) {
       return { ok: false, error: `Acquisition request failed (HTTP ${res.status})` };
     }
@@ -58,6 +77,7 @@ export async function forceEvidenceAcquisition(signal?: AbortSignal): Promise<Fo
       generation: typeof data?.generation === "number" ? data.generation : -1,
       sessionPosture: typeof data?.sessionPosture === "string" ? data.sessionPosture : "unknown",
       recoversHistory: data?.recoversHistory === true,
+      targeted: data?.targeted === true,
     };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Acquisition request failed" };

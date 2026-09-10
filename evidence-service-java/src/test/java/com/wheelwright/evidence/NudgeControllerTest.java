@@ -75,6 +75,27 @@ class NudgeControllerTest {
     }
 
     @Test
+    @DisplayName("whole-cycle refresh reports targeted=false")
+    void wholeCycleNotTargeted() throws Exception {
+        mockMvc.perform(post("/api/evidence/refresh"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.targeted").value(false));
+    }
+
+    @Test
+    @DisplayName("symbol query params route to a targeted refresh (targeted=true)")
+    void symbolParamsAreTargeted() throws Exception {
+        mockMvc.perform(post("/api/evidence/refresh")
+                .param("symbol", "BNO")
+                .param("symbol", "COPX"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.outcome").value(is(in(VALID_OUTCOMES))))
+            .andExpect(jsonPath("$.targeted").value(true))
+            // Same honest limitation applies to the targeted path.
+            .andExpect(jsonPath("$.recoversHistory").value(false));
+    }
+
+    @Test
     @DisplayName("repeated calls remain safe and honest")
     void multipleCallsSafe() throws Exception {
         for (int i = 0; i < 3; i++) {
