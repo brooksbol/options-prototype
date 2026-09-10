@@ -97,8 +97,58 @@ The Render persistent-disk behavior strengthens the case for examining that char
 
 ---
 
+## `PL-DEPLOY` Refinement — Decision Surface: Expanded Row vs Drawer
+
+**Date:** September 9, 2026
+**State:** RECONCILED (discovery intake) under existing `PL-DEPLOY`; no new `PL-*` identity created; not authorized for implementation.
+**Rich why-state:** `docs/discovery/decision-surface-expanded-row-vs-drawer-2026-09-09.md`
+**Observed at:** SYNC `6786c1b` (v1 consequence section live + conformance-repaired), captured against `c8f24bd`.
+
+### Epistemic caution (carry forward to Codex review)
+
+> **Replacement unresolved does not mean problem uncertain.** Working software *falsified* the current narrow-drawer presentation for this comparison; it has *not* selected the replacement. Challenge unsupported promotion of the expanded-row/drawer hypothesis, but do not weaken the directly observed working-software failure because the replacement remains exploratory.
+
+### Intake
+
+Exercising the shipped `LVT-INIT-CONSEQUENCE-RELEASE-COST` v1 in the covered-call `CallBrief` drawer surfaced interaction-surface pressure. This is **reconciled as a refinement under existing `PL-DEPLOY`**, which already owns normalized alternatives, owned-capital decision paths, cross-strategy comparison, the unified deployment-surface direction, and release/retention consequence comparison. This discovery is interaction-surface pressure within that existing concern, so no new identity is minted. `PL-SURF-01` remains related but distinct (it governs result completeness/truncation, not this comparison/inspection problem).
+
+### Observed (working-software evidence, not hypothesis)
+
+The v1 consequence comparison (Sell / Hold / Covered Call across a shared owned-capital block) is **cognitively unusable in the current narrow contract-detail drawer**: the operator must read alternatives serially, hold them in working memory, and reconstruct a comparison that should be visually available. The information is intrinsically **alternatives × consequence dimensions** (two-dimensional); the drawer supplies vertical inspection territory and insufficient horizontal comparison territory. Moving the section up, reordering drawer content, and making the existing presentation more prominent all **fail to solve** this. The live software also exposed a **unit-of-interaction level mismatch**: the operator selects a contract, the drawer begins as contract inspection, but Sell/Hold/CC are alternatives on the shared capital block — so the surface silently crosses from contract-level inspection to capital-block-level decision comparison.
+
+### Derived design pressure
+
+Comparison and inspection appear to impose materially different spatial/cognitive requirements — comparison wants horizontal, simultaneously-visible territory; inspection is well served by the drawer's vertical territory.
+
+### Leading interaction hypothesis (not ratified)
+
+Comparison may belong in a **horizontal expanded-row region** beneath the selected candidate row, while selected-candidate inspection **remains in the drawer**. Useful design reasoning (hypotheses/heuristics, not durable rules): Sell/Hold as stable reference alternatives vs candidate-specific CC variants; the progressive-disclosure sequence *scan → expand → compare → inspect*; the sorting heuristic *compare-alternatives vs inspect-candidate*; a Tier-2 extension path that avoids table column explosion (future pressure only). Exact expanded-row design, the drawer's ultimate subject, and any enduring interaction architecture remain **unresolved**.
+
+### Strategic disposition
+
+**Strengthens existing `PL-DEPLOY` direction; no roadmap change; no new Bet.** Instantiates `foundations/cognitive-role-separation.md` and `foundations/visual-design-principles.md` (progressive disclosure) for the deployment surface, serving `LVT-BET-LIFECYCLE-CHOICES` (alternatives) and `LVT-INIT-CONSEQUENCE-RELEASE-COST` (consequences) where they meet the operator.
+
+### Architectural disposition
+
+**Refines existing `PL-DEPLOY` interaction-surface pressure; no architectural decision or implementation authorized.** Does not decide the drawer's ultimate subject; does not authorize CapitalState, a generalized decision/state-machine or multi-leg abstraction, a Tier-2 action-set build, a drawer redesign, scoring/ranking, or any code change. Does not claim the application/drawer must become position-centric.
+
+### Parking-lot disposition / mapping
+
+**Retained and refined under `PL-DEPLOY`.** Cross-links: `PL-SURF-01` (adjacent, distinct table-surface completeness), `LVT-INIT-CONSEQUENCE-RELEASE-COST` (the shipped feature that produced the evidence), `foundations/cognitive-role-separation.md`, `foundations/visual-design-principles.md`, and Fidelity Tier 2 (`PL-STRAT-01`) as future pressure only. The shipped v1 consequence section is unchanged and correct.
+
+### Why-state
+
+Preserved in `docs/discovery/decision-surface-expanded-row-vs-drawer-2026-09-09.md`, structured in explicit epistemic levels (observed failure → derived pressure → leading hypothesis → unresolved → not authorized) so the observation's strength is not softened into a placement concern.
+
+### Next authorized mode
+
+**Exploration / reconciliation only.** If selected, the smallest useful next step is a bounded design of the comparison surface (which facts earn horizontal comparison territory vs drawer inspection), reconciled against the open drawer-subject question, then normal decompose/authorize gates. No UI mutation until then.
+
+---
+
 ## Continuation History
 
 | Date | Event |
 |---|---|
 | Sep 9, 2026 | Provider-neutral Well-Architected / Render reliability-fit discovery reconciled as a refinement under existing `PL-OPS-01`. Preserves Render attached-persistent-disk maintenance downtime as concrete pressure against the accepted one-service topology while explicitly withholding any inference that service extraction, database replacement, HA, or AWS migration is required. |
+| Sep 9, 2026 | Decision Surface (expanded row vs drawer) reconciled as a refinement under existing `PL-DEPLOY` from live-software discovery: the v1 consequence section falsified the narrow contract-detail drawer as the presentation for Sell/Hold/CC comparison across an owned-capital block, and exposed a contract→capital-block unit-of-interaction mismatch. Leading (unratified) hypothesis: horizontal expanded-row comparison + drawer inspection. Rich why-state: `docs/discovery/decision-surface-expanded-row-vs-drawer-2026-09-09.md`. No new `PL-*` id; no UI/implementation authorized; exact design held exploratory. |

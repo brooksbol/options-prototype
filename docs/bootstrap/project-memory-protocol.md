@@ -247,6 +247,22 @@ The test is: *Could a future actor reconstruct why the project is this way witho
 
 Implementation is evidence, not automatic authority. Code may reveal defects, hidden assumptions, drift, missing provenance, emerging concepts, or architectural pressure. It does not become architecture merely by existing.
 
+### Withhold promotion without demoting evidence
+
+> **An unresolved replacement does not make an observed failure unresolved.**
+
+Evidence advances through distinct epistemic transitions:
+
+```
+observation → derived pressure → candidate response → architectural decision → implementation authorization
+```
+
+An actor (including an adversarial reviewer) may challenge whether the evidence justifies **promotion to the next state** without automatically **reopening or weakening an earlier state** that authoritative evidence has already established. Withholding ratification of a proposed response is not license to demote the established problem back into speculation.
+
+Applied symmetry with the rules above: just as an interesting idea must not be silently *promoted* into established truth, an established observation must not be silently *demoted* into a hypothesis merely because its proposed response remains unresolved. Both are epistemic-status errors.
+
+Concretely, keep these separable in durable records: what was **observed** (e.g. "working software demonstrated failure X"), the **design pressure derived** from it, the **candidate response** under consideration, and what remains **unresolved** or **unauthorized**. Preserving those levels explicitly lets review challenge the inference without eroding the evidence — and lets a cold actor reconstruct both what is known and what is still open. See `foundations/strategy-architecture-reconciliation.md` ("Govern commitment, not curiosity") for the commitment-side expression of the same transitions.
+
 ### Evidence before abstraction
 
 Before inventing a new primitive, registry, taxonomy, framework, policy DSL, or domain object, ask whether an existing concept already owns the semantics.
