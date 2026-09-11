@@ -357,3 +357,35 @@ The mixed-authority integration test exercised the real durable cache through th
 
 ### Process note (worktree discipline under concurrent work)
 #16 was built and this ratchet written in **isolated worktrees** off accepted `main`, never in the primary worktree, which holds paused concurrent Greeks/Operator-Console and expanded-row (PL-DEPLOY/A) dirty state. That paused work was never disturbed. Sequence going forward remains: (this ratchet) → resume Greeks/reconcile → return to PL-DEPLOY/A.
+
+
+## 2026-09-11 — Secondary Greeks on the Operator Console, and held-position monitoring as a distinct acquisition reason
+
+### What shipped
+The Operator Console position tables gained the four secondary greeks (gamma, theta, vega, rho) beside the existing delta, threaded end-to-end: Tradier `greeks=true` → `TradierAdapter` normalization → `MarketChain.OptionContract` → snapshot JSON → durable cache → shared frontend greek domain → Console table + CSV export. Also added a Console-owned snapshot ingestion so the Console no longer depends on the Write Desk having been visited to populate its chain cache. Built on branch `integration/greeks-plus-origin` (which also carries the accepted origin/main merge with Issue #16 admissibility and preserved consequences work).
+
+### The durable architectural lesson (why this entry exists)
+**Held-position monitoring is a SEPARATE acquisition reason from the Deployment opportunity window.** Wheelwright's chain acquisition only fetches expirations inside the 7–45 DTE eligibility window (the *Deployment* opportunity space — where new candidates come from). But an operator can *hold* a position at a near-expiry expiration (0–4 DTE) that sits OUTSIDE that window. Before this work those held chains stopped being refreshed the moment they fell below 7 DTE, so their greeks went stale/absent while capital was still at risk on them (GDXJ 0-DTE, SMH 4-DTE were the witnesses).
+
+The fix is a bounded **held-expiration acquisition overlay** (migration 007 `held_expiration`, `ObserveController` `heldExpirations`, `AcquisitionWorker.acquireAllEligibleChains` unions held expirations that the provider actually lists), NOT a scheduler redesign. The acquisition reason is literally "we hold this exact expiration, therefore keep observing it." This parallels the earlier symbol-level monitored overlay (PL-EVID-01, migration 003) but at expiration granularity — a monitored *symbol* was not enough, because the eligible-DTE filter still dropped the held near-expiry *expiration*. Non-held sub-7-DTE expirations remain excluded; only explicitly held ones are added.
+
+Generalization to preserve: **the Deployment opportunity window and the monitoring obligation are different questions with different scopes.** "What could we deploy into?" is bounded to 7–45 DTE. "What are we already exposed to and must keep watching?" is bounded by what we hold, at any DTE. Conflating them silently stops refreshing evidence the operator is still relying on.
+
+### Supporting greek-evidence lessons (durable)
+- **Nullable provider greeks — absence is not zero.** The five greeks are nullable `Double` in the domain record and serialize as JSON `null` when the provider omits them; `0.0` is emitted only when the provider supplied `0.0`. The prior `extractDouble→0` collapse fabricated zeros for missing evidence (violates persist-facts/derive-trust). Each greek is parsed independently — a missing/invalid delta never invalidates theta/vega/rho.
+- **Provider scientific notation.** Tradier sends small greeks in exponent form (`"vega":9.0E-4`). The hand-written numeric scanner stopped at `E`, truncating `9.0E-4` → `9.0` (DBO showed vega 9 / rho 7). Fixed by a JSON-number-grammar scanner (`scanJsonNumberToken`) that accepts `e/E`, signs, and exponent digits. Lesson: a minimal hand parser must cover the *whole* number grammar, and near-expiry small greeks are exactly where exponent form appears.
+- **`0.0` = unavailable, per field (product rule).** Near expiration the ORATS/Tradier greek model frequently returns exact `0.0` as a degenerate/rounded placeholder (COPX/UNG whole-zero vectors; URA/BNO partial zeros). For display, a greek is usable only if finite AND nonzero (delta also domain-checked to [-1,1]); this subsumes the earlier all-five-zero-vector special case. Facts are still persisted verbatim in the cache (0 stored as 0); the "0 = unavailable" trust is derived at read.
+- **Adaptive precision — a real tiny value must not render as a false `0.00`.** URA's tiny nonzero delta rounded to `0.00`, which under our own rule reads as "no answer." `formatGreek` now shows a threshold form (`<0.0001` / `>-0.0001`); the CSV widens precision to stay numeric-parseable.
+- **Greek age ≠ quote freshness.** A chain (and its greeks) can be materially older than the latest underlying quote. The Console/CSV now show a separate **Greek Age** (from the chain's authoritative acquisition provenance) beside the renamed **Quote Freshness**, with a STALE marker past the chain window — so a fresh spot can never make stale greeks look current. (Same authority-precedence spine as ADR-015/016/017: a representation must not let one fresh signal imply the freshness of a different subject.)
+
+### Reusability (so Deployment can reuse this later)
+Greek availability/sanitization/formatting live in a consumer-agnostic shared domain (`write-desk/option-greeks.ts` + `contract-greek-lookup.ts`); `use-position-deltas.ts` is a thin Console adapter. The future Deployment greek columns must consume these, not recreate validity rules.
+
+### Verification
+Backend full suite green (added: greek-nullability + serialization, exponent/malformed parsing, held-expiration store round-trip/replace + `getAllExpirationDates`). Frontend 1490/1491 — sole failure the pre-existing, unrelated velvet-rope date-drift snapshot. Runtime acceptance CSV (operator-exported) confirmed: GDXJ/SMH held near-expiry secondaries current; DBO exponent correct; COPX/UNG/BNO provider-zeros shown unavailable; URA tiny delta shows `0.0001` not `0.00`; Greek Age and Quote Freshness are distinct columns.
+
+### Contract
+`docs/contracts/evidence-snapshot-v1.md` documents the greeks as additive nullable fields (null = unavailable, never fabricated 0), alongside the Issue #16 per-subject admissibility section. Both additive under INV-PUB-05; no version increment.
+
+### Status
+Feature accepted by the Principal on the operator-visible CSV artifact. Remaining is repo hygiene (this entry, history cleanup, push/PR). The recommendation-engine-in-browser placement (PL-ARCH-06) and any Deployment-surface greeks remain future work.
