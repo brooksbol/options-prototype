@@ -93,25 +93,7 @@ export interface ReleaseConsequenceFacts {
   /** The capital block these facts describe. */
   subjectShares: number;
 
-  /**
-   * Current approximate market value of the evaluated share block
-   * (subjectShares × observed spot). SHARED capital-block context — the same
-   * for every alternative on the row. This is NOT a realized consequence of any
-   * alternative; it is the common starting value the alternatives act on, shown
-   * once as row context (never as a per-alternative sale value).
-   */
-  blockMarketValue: {
-    value: number | null;
-    provenance: EvidenceProvenance;
-  };
-
-  /**
-   * F1 — Estimated gross sale value. Present (non-null) ONLY for Sell, because
-   * only selling realizes a sale value. Hold and Covered Call do not produce a
-   * sale value, so their `value` is null. subjectShares × observed spot,
-   * pre-trade estimate. See `blockMarketValue` for the shared block context that
-   * every alternative starts from.
-   */
+  /** F1 — Estimated gross sale value. subjectShares × observed spot. Pre-trade estimate. */
   estimatedGrossSaleValue: {
     value: number | null;
     provenance: EvidenceProvenance;
@@ -138,19 +120,10 @@ export interface ReleaseConsequenceFacts {
   };
 
   /**
-   * F4 — Downside envelope. Three distinct authoritative states so presentation
-   * cannot collapse Sell into "no protective floor":
-   *   - "no-continuing-share-downside": the block is sold; the shares no longer
-   *     carry continuing owned-equity downside (Sell).
-   *   - "no-protective-floor": still holding equity with no protective floor
-   *     above zero (bare Hold; Covered Call — premium cushions but is not a floor).
-   *   - "protective-floor": a structural floor above zero exists (reserved; e.g.
-   *     a future collar).
-   * Never expressed as "unbounded/unlimited" for owned equity.
+   * F4 — Downside envelope. v1 first slice (Sell/Hold/CC) has no protective
+   * floor above zero. Never expressed as "unbounded/unlimited" for owned equity.
    */
   downsideEnvelope: {
-    kind: "no-continuing-share-downside" | "no-protective-floor" | "protective-floor";
-    /** True only for the protective-floor kind. Retained for convenience. */
     hasProtectiveFloorAboveZero: boolean;
     note: string;
   };
@@ -250,24 +223,12 @@ export function evaluateReleaseConsequences(
       ? computeBasisRelativeReleaseEffect(ctx, subjectShares)
       : notApplicableReleaseEffect(alt.kind);
 
-  // Shared block market value: the same authoritative subjectShares × spot for
-  // every alternative on the row. Sell realizes it as a sale value (F1 below);
-  // Hold/CC do not, so their estimatedGrossSaleValue is null.
-  const blockProvenance = estGross != null ? ctx.spotProvenance : PROVENANCE_UNAVAILABLE;
-
-  // A sale value is realized ONLY by Sell. Hold/CC produce no sale value.
-  const saleValueForAlt = alt.kind === "sell" ? estGross : null;
-
   const base = {
     alternativeKind: alt.kind,
     subjectShares,
-    blockMarketValue: {
-      value: estGross,
-      provenance: blockProvenance,
-    },
     estimatedGrossSaleValue: {
-      value: saleValueForAlt,
-      provenance: saleValueForAlt != null ? ctx.spotProvenance : PROVENANCE_UNAVAILABLE,
+      value: estGross,
+      provenance: estGross != null ? ctx.spotProvenance : PROVENANCE_UNAVAILABLE,
       disclaimer: "estimated-gross-not-proceeds-not-buying-power" as const,
     },
     basisRelativeReleaseEffect: f8,
@@ -283,9 +244,8 @@ export function evaluateReleaseConsequences(
         disclaimer: "gross-opening-only-not-retained-net",
       },
       downsideEnvelope: {
-        kind: "no-continuing-share-downside",
         hasProtectiveFloorAboveZero: false,
-        note: "Shares sold: the block is converted to cash; no continuing owned-share downside on the evaluated shares.",
+        note: "Sold: the block is converted; no further downside on the evaluated shares.",
       },
       retainedParticipation: {
         kind: "none",
@@ -312,7 +272,6 @@ export function evaluateReleaseConsequences(
         disclaimer: "gross-opening-only-not-retained-net",
       },
       downsideEnvelope: {
-        kind: "no-protective-floor",
         hasProtectiveFloorAboveZero: false,
         note: "Holding bare shares: no protective floor above zero (loss is bounded only by shares → 0, which is not protection).",
       },
@@ -352,7 +311,6 @@ export function evaluateReleaseConsequences(
       disclaimer: "gross-opening-only-not-retained-net",
     },
     downsideEnvelope: {
-      kind: "no-protective-floor",
       hasProtectiveFloorAboveZero: false,
       note: "Covered call: premium cushions but provides no protective floor above zero on the shares.",
     },
