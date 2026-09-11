@@ -413,3 +413,65 @@ Greek availability/sanitization/formatting live in a consumer-agnostic shared do
 
 ### Verification
 Backend full suite green. Frontend green except the pre-existing, unrelated `velvet-rope/multi-expiration` date-relative snapshot (velvet-rope code untouched here). Regression coverage added for held sub-7-DTE acquisition, observe-request validation, and failed-declaration retry.
+
+
+---
+
+## 2026-09-11 — Delta forensic investigation: stale truth → frustrating ignorance → tentative certainty
+
+### Trigger
+After the secondary-Greeks increment, the Operator Console showed unavailable Delta (em dash) for near-expiry held positions where the old Console had consistently shown a nonzero numeric Delta. The Principal's historical observation was specific: the old Console never showed 0.00 and never showed an em dash for these rows. That made a pure presentation explanation inadequate and prompted a lifecycle/provider investigation rather than an immediate fix.
+
+### What we established about old versus current behavior
+The old and current Console both suppress exact numeric `0.0` at presentation. The old renderer therefore did not manufacture the previously observed nonzero values. The material change was the evidence lifecycle feeding that renderer.
+
+Before the Greeks work, Console Delta read chain records already present in the durable browser cache. Console did not own snapshot ingestion, and the cache read path did not reject a chain merely because it was old. Write Desk was the path that populated those chain records. Separately, normal backend chain acquisition was bounded to the 7–45 DTE Deployment window. Once a held expiration fell below 7 DTE, it could stop being refreshed while an older cached nonzero Delta remained visible.
+
+The Greeks increment deliberately changed both conditions: held expirations are now acquired even below the Deployment window, and the Console now ingests current snapshots itself. A newly acquired held-expiration chain therefore overwrites the older cache record. When the newly acquired provider Delta is exact `0.0`, the existing frontend zero-as-unavailable rule renders it as unavailable.
+
+This gives a concrete causal mechanism for the observed transition. We still did not recover the historical IndexedDB records, so the exact provenance/age of the old nonzero values remains unproven. The strongest supported interpretation is that the old Console could preserve older, once-real Delta evidence after it ceased being current.
+
+### Direct Tradier production study
+Rather than infer provider behavior through Wheelwright, we reconstructed Wheelwright's accepted production Tradier request shape and called Tradier directly, bypassing Wheelwright caches and UI while preserving the same external requests:
+
+- production base `https://api.tradier.com/v1`;
+- expiration discovery: `GET /markets/options/expirations?symbol=...&includeAllRoots=true`;
+- option chain: `GET /markets/options/chains?symbol=...&expiration=...&greeks=true`;
+- underlying quote: `GET /markets/quotes?symbols=...`;
+- normal bearer authorization and JSON response shape.
+
+The production credential was loaded from the gitignored local `.env` and was not printed or persisted. The study sampled SPY, QQQ, IWM, GDXJ, SMH, URA, COPX, UNG, BNO, PDBC, WEAT, and DBO across available expirations nearest 0, 1, 2, 3, 5, 7, 10, 14, 21, 30, and 45 DTE, both calls and puts, and approximately 10% OTM, 5% OTM, ATM, 5% ITM, and 10% ITM strikes. Raw provider Greeks were classified before Wheelwright sanitization or rounding.
+
+The after-hours collection produced 740 primary sampled contracts. 683 (92.3%) had nonzero Delta; 57 (7.7%) had exact numeric `0.0`; none in this sample had null, absent, or unparsable Delta. Of the 57 exact-zero Deltas, 37 were all-zero five-Greek vectors and 20 had `delta=0.0` while at least one secondary Greek remained nonzero. Every sampled ATM and ITM contract retained nonzero Delta, including at 0 DTE. Every exact-zero Delta occurred in the sampled 5% or 10% OTM bands.
+
+There was no universal DTE cutoff. Exact-zero Delta appeared as far out as 14 DTE in the sample (SPY), while other OTM contracts retained nonzero Delta at 0 DTE. Observed symbol-level zero onset included SPY 14 DTE, QQQ/IWM 10 DTE, SMH 3 DTE, and GDXJ/URA/COPX/UNG/BNO 0 DTE; PDBC/WEAT/DBO had sparse monthly-expiration coverage and no observed zero. Calls showed 33/370 zeros and puts 24/370. The dominant empirical pattern was moneyness × DTE, with symbol/contract characteristics and side as possible modifiers.
+
+A particularly important witness reproduced the production symptom directly: a sampled URA 0-DTE call near 5% OTM returned raw `delta=0.0` while Gamma was nonzero (`0.00022`). Thus an exact-zero Delta is not synonymous with an absent Greek vector.
+
+For SPY, URA, COPX, and UNG, the same nearest-to-0-DTE chain request was repeated three times. All 40 tracked symbol/side/moneyness selections retained the same Delta state and raw Delta value across all three calls. There were no zero↔nonzero or null/absent transitions. All 110 provider calls returned HTTP 200 with no rate-limit failure.
+
+### Epistemic progression
+The investigation changed our understanding in three stages:
+
+**Stale truth.** The old Console displayed useful, plausible, nonzero Delta evidence, but its architecture allowed an older chain to survive after the expiration stopped being refreshed. The value may once have been true while no longer being current.
+
+**Frustrating ignorance.** The Greeks increment improved freshness and monitoring correctness, replacing potentially retained old chains with current held-expiration evidence. Tradier then supplied exact zeros, and Wheelwright's existing product rule collapsed those zeros into unavailable presentation. The product became more honest about not presenting the old stale number, but less informative to the operator.
+
+**Tentative certainty.** The direct study established that Tradier itself explicitly and repeatedly returns numeric `0.0` Delta in these conditions. It did NOT establish whether that zero is a precise sensitivity or a provider/model placeholder. We now know what Tradier said; we do not yet know exactly what semantic confidence to attach to the value.
+
+### BUG-011 reframing and decision
+BUG-011 is therefore framed as:
+
+> Provider-reported exact-zero Delta is rendered indistinguishably from absent Delta evidence.
+
+The important raw-state distinction is now explicit: exact numeric zero, null/absent, tiny nonzero, and an all-zero vector are different provider facts. Suspicion about the quality of an all-zero vector may justify a separate quality cue, but it does not justify rewriting explicit numeric observations into absence. The after-hours study observed no null/absent Delta in its 740-contract sample; that is a statement about this sample, not a claim that Tradier never produces those states.
+
+The Principal explicitly chose **not to fix BUG-011 now**. No remediation was authorized. The finding was persisted in the repository-native bug system and indexed as BUG-011.
+
+### Required trading-hours replication
+The Principal does not trust an after-hours provider study as sufficient evidence for a trading-hours product. The same raw-provider experiment must therefore be rerun during regular trading hours before stronger conclusions are drawn. The after-hours dataset is to be preserved as the comparison baseline, not overwritten. The purpose of the rerun is specifically to determine whether exact-zero prevalence/state changes materially with market session. If the same pattern persists in-session, confidence in the provider behavior strengthens considerably; if zeros diminish or disappear, session becomes an additional evidence-quality dimension.
+
+### Durable lesson
+The Greeks work did not simply "break Delta." It exposed an accidental dependency in the old product: apparent Delta completeness could be sustained by stale cache lifecycle behavior. Improving evidence freshness removed that accidental completeness and exposed a second ambiguity already present in the product rule: explicit provider zero was treated as equivalent to no evidence.
+
+The resulting discipline is: preserve provider facts first; distinguish freshness from availability and availability from quality; and do not infer semantic absence merely because a provider value looks suspicious. The next evidence step is trading-hours replication, not remediation.
