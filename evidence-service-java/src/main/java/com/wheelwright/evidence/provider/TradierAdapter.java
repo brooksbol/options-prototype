@@ -338,11 +338,15 @@ public class TradierAdapter {
             double bid = getDouble(opt, "bid");
             double ask = getDouble(opt, "ask");
             double delta = getNestedDouble(opt, "greeks", "delta");
+            double gamma = getNestedDouble(opt, "greeks", "gamma");
+            double theta = getNestedDouble(opt, "greeks", "theta");
+            double vega = getNestedDouble(opt, "greeks", "vega");
+            double rho = getNestedDouble(opt, "greeks", "rho");
             int openInterest = getInt(opt, "open_interest");
             int volume = getInt(opt, "volume");
             String optionType = (String) opt.get("option_type");
 
-            MarketChain.OptionContract contract = new MarketChain.OptionContract(strike, bid, ask, delta, openInterest, volume);
+            MarketChain.OptionContract contract = new MarketChain.OptionContract(strike, bid, ask, delta, gamma, theta, vega, rho, openInterest, volume);
             if ("put".equals(optionType)) puts.add(contract);
             else if ("call".equals(optionType)) calls.add(contract);
         }
@@ -450,7 +454,7 @@ public class TradierAdapter {
         obj.put("volume", (int) extractDouble(json, "volume"));
         obj.put("option_type", extractQuotedString(json, "option_type"));
 
-        // Nested greeks.delta
+        // Nested greeks: delta, gamma, theta, vega, rho
         int greeksIdx = json.indexOf("\"greeks\"");
         if (greeksIdx >= 0) {
             int braceStart = json.indexOf('{', greeksIdx);
@@ -458,6 +462,10 @@ public class TradierAdapter {
             if (braceStart >= 0 && braceEnd >= 0) {
                 String greeksJson = json.substring(braceStart, braceEnd + 1);
                 obj.put("greeks_delta", extractDouble(greeksJson, "delta"));
+                obj.put("greeks_gamma", extractDouble(greeksJson, "gamma"));
+                obj.put("greeks_theta", extractDouble(greeksJson, "theta"));
+                obj.put("greeks_vega", extractDouble(greeksJson, "vega"));
+                obj.put("greeks_rho", extractDouble(greeksJson, "rho"));
             }
         }
         return obj;

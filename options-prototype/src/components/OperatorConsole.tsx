@@ -11,8 +11,10 @@
 import { useState, useCallback, useMemo } from "react";
 import { usePortfolio } from "../portfolio/use-portfolio";
 import { useObservations } from "../evidence/use-observations";
+import { useEvidenceSnapshot } from "../hooks/useEvidenceSnapshot";
+import { ingestChainsFromSnapshot } from "../evidence/chain-cache-ingestion";
 import { useSpotHistory, type SpotHistoryMap } from "../evidence/use-spot-history";
-import { usePositionDeltas, type PositionDeltaMap } from "../operator-console/use-position-deltas";
+import { usePositionDeltas, usePositionGreeks, type PositionDeltaMap, type PositionGreeksMap } from "../operator-console/use-position-deltas";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
 import { buildPositionDetail, type PositionDetail } from "../portfolio/position-detail";
 import type { OptionBasisInput } from "../portfolio/assignment-consequence";
@@ -81,6 +83,24 @@ export function OperatorConsole() {
   const observations = useObservations();
   const [selectedPosition, setSelectedPosition] = useState<MonitoredPosition | null>(null);
 
+  // Own the chain-evidence read cycle (do not depend on Write Desk having been
+  // visited). The Console previously read chain records from IndexedDB that were
+  // populated ONLY by the Write Desk poll; a Console-only session therefore saw
+  // stale or missing chains (e.g. greeks blank, or delta from an older
+  // generation). Poll the snapshot here and ingest chains ourselves, then bump a
+  // local generation so the delta/greeks read hooks re-read what we just wrote.
+  //
+  // Chain records are a single shared IndexedDB store; ingestion is idempotent
+  // per (symbol, expiration) key, so overlapping with the Write Desk poll (only
+  // one surface is mounted at a time via the router) is safe.
+  const [chainGeneration, setChainGeneration] = useState(0);
+  const isDemo = source === "demo";
+  const onChainSnapshot = useCallback(async (snapshotData: any) => {
+    const merged = await ingestChainsFromSnapshot(snapshotData);
+    if (merged > 0) setChainGeneration(g => g + 1);
+  }, []);
+  useEvidenceSnapshot(!isDemo, onChainSnapshot);
+
   // Console visualization regime. B is the accepted production design.
   // A and C are retained as development reference but no longer the default.
   const vizRegime = new URLSearchParams(window.location.search).get("viz") || "b";
@@ -138,7 +158,12 @@ export function OperatorConsole() {
     [underlyingsKey],
   );
   const spotHistory = useSpotHistory(underlyings, !isDemoSource, observations.generation);
-  const positionDeltas = usePositionDeltas(positions, observations.generation);
+  // Re-read chain-derived values when EITHER the quote-observation generation or
+  // our own chain-ingestion generation advances. The chain generation is what
+  // reflects freshly ingested greeks/delta from this surface's own poll.
+  const chainReadGeneration = (observations.generation ?? 0) + chainGeneration;
+  const positionDeltas = usePositionDeltas(positions, chainReadGeneration);
+  const positionGreeks = usePositionGreeks(positions, chainReadGeneration);
 
   // Alternative groupings for regime B
   const groups: { label: string; sublabel?: string; positions: MonitoredPosition[]; totalCapital: number }[] = (() => {
@@ -215,7 +240,7 @@ export function OperatorConsole() {
                 <span className="oc-group-by-divider" />
                 <button
                   className="oc-group-by-action"
-                  onClick={() => downloadPositionsCsv(positions, snapshot)}
+                  onClick={() => downloadPositionsCsv(positions, snapshot, positionDeltas, positionGreeks)}
                 >
                   Download CSV
                 </button>
@@ -254,14 +279,14 @@ export function OperatorConsole() {
                         <span className="oc-rung-count">{group.positions.length} position{group.positions.length !== 1 ? "s" : ""}</span>
                       </div>
                       {!isCollapsed && (
-                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
                       )}
                     </div>
                   );
                 })
               ) : (
                 rungs.map((rung) => (
-                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
                 ))
               )}
             </div>
@@ -290,7 +315,7 @@ export function OperatorConsole() {
 
 // --- Expiration Rung ---
 
-function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDeltas, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
+function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDeltas, positionGreeks, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
   const rungPercent = totalCapital > 0 ? Math.round((rung.totalCapital / totalCapital) * 100) : 0;
 
   return (
@@ -303,7 +328,7 @@ function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDel
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
       {vizRegime === "b" ? (
-        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
       ) : (
         <PositionGrid positions={rung.positions} onTileClick={onTileClick} vizRegime={vizRegime} totalCapital={rung.totalCapital} />
       )}
@@ -339,8 +364,10 @@ function PositionGrid({ positions, onTileClick, vizRegime, totalCapital }: { pos
 function downloadPositionsCsv(
   positions: MonitoredPosition[],
   snapshot: import("../write-desk/types").PortfolioSnapshot,
+  positionDeltas: PositionDeltaMap,
+  positionGreeks: PositionGreeksMap,
 ) {
-  const header = "Type,Symbol,Strike,Expiration,Spot,Contracts,Moneyness,Capital,Premium Booked,Bonus If Called Away,If Assigned,Opened,Freshness";
+  const header = "Type,Symbol,Strike,Expiration,Spot,Contracts,Moneyness,Capital,Delta,Gamma,Theta,Vega,Rho,Premium Booked,Bonus If Called Away,If Assigned,Opened,Freshness";
   const rows = positions.map(position => {
     const type = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
     const spot = position.underlyingPrice != null ? position.underlyingPrice.toFixed(2) : "";
@@ -374,6 +401,15 @@ function downloadPositionsCsv(
       assigned = cell.display;
     }
 
+    // Greeks — from cached chain evidence (same source as the table columns)
+    const delta = positionDeltas.get(position.id);
+    const g = positionGreeks.get(position.id);
+    const deltaStr = delta != null ? delta.toFixed(2) : "";
+    const gammaStr = g?.gamma != null ? g.gamma.toFixed(4) : "";
+    const thetaStr = g?.theta != null ? g.theta.toFixed(4) : "";
+    const vegaStr = g?.vega != null ? g.vega.toFixed(4) : "";
+    const rhoStr = g?.rho != null ? g.rho.toFixed(4) : "";
+
     // Data Age — freshness of the underlying price observation, derived at export time
     let dataAge = "";
     if (position.priceObservedAt) {
@@ -381,7 +417,7 @@ function downloadPositionsCsv(
       if (!Number.isNaN(observedMs)) dataAge = formatDataAge(Math.max(0, Date.now() - observedMs));
     }
 
-    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${position.quantity},${moneyness},${capital},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
+    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${position.quantity},${moneyness},${capital},${deltaStr},${gammaStr},${thetaStr},${vegaStr},${rhoStr},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
   });
 
   const csv = [header, ...rows].join("\n");
@@ -679,7 +715,7 @@ function PositionTableHeader() {
 }
 
 /** Regime B: Dense fixed-geometry rows using native <table> for proper column alignment */
-function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, isDemoSource, spotHistory, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
+function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, positionGreeks, isDemoSource, spotHistory, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
 
   // Apply within-group sorting
   const sortedPositions = sortColumn
@@ -712,6 +748,10 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
           {renderSortHeader("Expiration", "expiration")}
           {renderSortHeader("DTE", "dte", "oc-th-right")}
           <th className="oc-th-right">Delta</th>
+          <th className="oc-th-right">Gamma</th>
+          <th className="oc-th-right">Theta</th>
+          <th className="oc-th-right">Vega</th>
+          <th className="oc-th-right">Rho</th>
           {renderSortHeader("Contracts", "contracts", "oc-th-center")}
           {renderSortHeader("Capital", "capital", "oc-th-right")}
           <th className="oc-th-right">Capital %</th>
@@ -853,6 +893,19 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
                   </td>
                 );
               })()}
+              {(() => {
+                const g = positionGreeks.get(position.id);
+                const fmt = (v: number | null | undefined, digits: number) =>
+                  v == null ? "—" : v.toFixed(digits);
+                return (
+                  <>
+                    <td className="oc-td-right oc-td-greek">{fmt(g?.gamma, 4)}</td>
+                    <td className="oc-td-right oc-td-greek">{fmt(g?.theta, 4)}</td>
+                    <td className="oc-td-right oc-td-greek">{fmt(g?.vega, 4)}</td>
+                    <td className="oc-td-right oc-td-greek">{fmt(g?.rho, 4)}</td>
+                  </>
+                );
+              })()}
               <td className="oc-td-center">{position.quantity}</td>
               <td className="oc-td-right">{position.encumberedCapital != null ? `$${position.encumberedCapital.toLocaleString()}` : "—"}</td>
               <td
@@ -970,7 +1023,7 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
 
   return (
     <tr className="oc-trow-totals">
-      <td colSpan={9} className="oc-td-totals-label">Total</td>
+      <td colSpan={13} className="oc-td-totals-label">Total</td>
       <td className="oc-td-right">${capitalTotal.toLocaleString()}</td>
       <td />
       <td />

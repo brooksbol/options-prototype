@@ -20,6 +20,10 @@ public record MarketChain(
         double bid,
         double ask,
         double delta,
+        double gamma,
+        double theta,
+        double vega,
+        double rho,
         int openInterest,
         int volume
     ) {}

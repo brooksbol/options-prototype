@@ -16,7 +16,6 @@
 import { useState, useEffect } from "react";
 import { getDurableCache } from "../cache/durable-cache";
 import { buildCallBrief, type CallBriefViewModel, type CallNeighborTag, type ProjectedCalledAway } from "../write-desk/call-brief-builder";
-import { ReleaseConsequencesSection } from "./ReleaseConsequencesSection";
 import { PostureExplanationSection } from "./RecommendationBrief";
 import { buildCallWriteIntent } from "../execution/write-intent";
 import { buildFidelityTradeLink, type FidelityTradeLink } from "../execution/fidelity-trade-link";
@@ -170,8 +169,11 @@ export function CallBrief({
       {/* === PROJECTED CALLED-AWAY ECONOMICS === */}
       <ProjectedCalledAwaySection calledAway={brief.positionContext.projectedCalledAway} />
 
-      {/* === RELEASE / RETENTION CONSEQUENCES (LVT-INIT-CONSEQUENCE-RELEASE-COST v1) === */}
-      <ReleaseConsequencesSection candidate={candidate} />
+      {/* Release / Retention consequence COMPARISON (Sell / Hold / Covered Call) moved
+          OUT of this narrow inspection drawer into the expandable Covered-Call candidate
+          row, where horizontal simultaneous comparison territory exists (PL-DEPLOY
+          direction A; see ExpandedConsequenceRow.tsx). The drawer remains candidate/
+          contract INSPECTION for this comparison. */}
 
       {/* === EXECUTION EVIDENCE === */}
       <section className="rb-section rb-evidence">

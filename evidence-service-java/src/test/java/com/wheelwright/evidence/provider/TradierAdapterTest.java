@@ -499,11 +499,18 @@ class TradierAdapterTest {
                             int oi = (int) extractTestDouble(obj, "open_interest");
                             int vol = (int) extractTestDouble(obj, "volume");
                             String type = extractTestString(obj, "option_type");
-                            double delta = 0;
+                            double delta = 0, gamma = 0, theta = 0, vega = 0, rho = 0;
                             int gIdx = obj.indexOf("\"greeks\"");
                             if (gIdx >= 0) { int gs = obj.indexOf('{', gIdx); int ge = obj.indexOf('}', gs);
-                                if (gs >= 0 && ge >= 0) delta = extractTestDouble(obj.substring(gs, ge+1), "delta"); }
-                            var contract = new MarketChain.OptionContract(strike, bid, ask, delta, oi, vol);
+                                if (gs >= 0 && ge >= 0) {
+                                    String g = obj.substring(gs, ge+1);
+                                    delta = extractTestDouble(g, "delta");
+                                    gamma = extractTestDouble(g, "gamma");
+                                    theta = extractTestDouble(g, "theta");
+                                    vega = extractTestDouble(g, "vega");
+                                    rho = extractTestDouble(g, "rho");
+                                } }
+                            var contract = new MarketChain.OptionContract(strike, bid, ask, delta, gamma, theta, vega, rho, oi, vol);
                             if ("put".equals(type)) puts.add(contract);
                             else if ("call".equals(type)) calls.add(contract);
                             objStart = -1;

@@ -42,7 +42,7 @@ class TerminalDispositionTest {
 
     private static MarketChain usableChain(String s) {
         return new MarketChain(s, FUT, new MarketChain.Underlying(s, s, 50.0),
-            List.of(new MarketChain.OptionContract(48, 1.0, 1.1, -0.28, 100, 10)), List.of());
+            List.of(new MarketChain.OptionContract(48, 1.0, 1.1, -0.28, 0.0, 0.0, 0.0, 0.0, 100, 10)), List.of());
     }
 
     /** Read the single terminal outcome per logical operation id, asserting exactly one each. */

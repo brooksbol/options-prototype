@@ -1753,6 +1753,10 @@ public class AcquisitionWorker {
           .append(",\"bid\":").append(c.bid())
           .append(",\"ask\":").append(c.ask())
           .append(",\"delta\":").append(c.delta())
+          .append(",\"gamma\":").append(c.gamma())
+          .append(",\"theta\":").append(c.theta())
+          .append(",\"vega\":").append(c.vega())
+          .append(",\"rho\":").append(c.rho())
           .append(",\"openInterest\":").append(c.openInterest())
           .append(",\"volume\":").append(c.volume())
           .append("}");

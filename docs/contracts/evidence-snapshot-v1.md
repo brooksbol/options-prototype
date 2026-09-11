@@ -182,6 +182,50 @@ Rules (ADR-015):
 - `{ "kind": "unavailable" }` requires an existing chain subject whose authoritative acquisition provenance the publisher cannot establish. It is not emitted where there is no chain subject at all.
 - **Consumer compatibility:** an older snapshot that supplies a chain but omits these provenance fields is interpreted by consumers as `unavailable`. Consumers must never reconstruct provenance from `symbols[].retrievedAt`, cache TTL timestamps, or `Date.now()`.
 
+### Additive fields — Secondary Greeks (September 2026)
+
+Each option contract in `symbols[].chain.puts[]`, `symbols[].chain.calls[]`, and the
+corresponding arrays within `symbols[].chains[].data` gains four secondary greeks
+alongside the existing `delta`. These are **additive, non-breaking** fields under
+INV-PUB-05 (no version increment); they are documented here as required by the
+contract's own stability rule.
+
+```jsonc
+{
+  "strike": 88,
+  "bid": 1.50,
+  "ask": 1.70,
+  "delta": -0.28,
+  "gamma": 0.0412,     // ADDITIVE
+  "theta": -0.0187,    // ADDITIVE
+  "vega": 0.0561,      // ADDITIVE
+  "rho": 0.0093,       // ADDITIVE
+  "openInterest": 520,
+  "volume": 110
+}
+```
+
+Value semantics:
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `gamma` | number | Rate of change of delta per $1 move in the underlying. Provider sign, as-reported. |
+| `theta` | number | Time decay per day. Typically negative. Provider sign, as-reported. |
+| `vega` | number | Sensitivity to a 1-point change in implied volatility. Provider sign, as-reported. |
+| `rho` | number | Sensitivity to a 1-point change in the risk-free rate. Provider sign, as-reported. |
+
+Rules:
+
+- These are observed provider greeks (Tradier `greeks=true`), acquired with the same
+  chain observation as `delta`. They carry no independent provenance; their acquisition
+  age equals the chain's.
+- **Sign is preserved as-reported by the provider** (unlike some consumer-side uses of
+  `delta`, which take the absolute value for presentation). Consumers that need a
+  normalized magnitude must normalize themselves.
+- **Consumer compatibility:** an older snapshot (or a chain acquired before greek
+  extraction) that omits these fields is interpreted by consumers as "greek unavailable"
+  (null), never as zero. Consumers must not treat an absent field as a meaningful `0`.
+
 ---
 
 ## Consumer Compatibility

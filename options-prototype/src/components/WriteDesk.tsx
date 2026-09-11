@@ -28,6 +28,7 @@ import { MarketSessionPolicy } from "../market-session/session-policy";
 import { getTradingCalendar } from "../market-session/trading-calendar";
 import { RecommendationBrief } from "./RecommendationBrief";
 import { CallBrief } from "./CallBrief";
+import { ExpandedConsequenceRow } from "./ExpandedConsequenceRow";
 import { BuyWriteBrief } from "./BuyWriteBrief";
 import { ContingentCallBrief } from "./ContingentCallBrief";
 import { FunnelInfographic } from "./FunnelInfographic";
@@ -1172,6 +1173,11 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
   const selectedStrike = selectedRow?.availability === "available-now" ? selectedRow.strike : null;
   const selectedExpiration = selectedRow?.availability === "available-now" ? selectedRow.expiration : null;
 
+  // Which covered-call row's Sell/Hold/CC consequence comparison is expanded.
+  // Transient, surface-local UI state (never persisted). Key matches the row key.
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const rowKey = (c: CallCandidate) => `${c.symbol}-${c.expiration}-${c.strike}-${c.selectionBasis}`;
+
   return (
     <>
     <button className="wd-download-btn wd-download-above" onClick={() => { const csvNow = Date.now(); downloadTableCsv(
@@ -1193,6 +1199,7 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
     <table className="wd-candidate-table">
       <thead>
         <tr>
+          <th className="wd-expc-toggle-head" title="Expand to compare Sell / Hold / Covered Call consequences over this share block"> </th>
           <th className="wd-sortable" onClick={(e) => handleSort("rank", e)}>#{indicator("rank")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("symbol", e)}>Symbol{indicator("symbol")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("expiration", e)}>Exp{indicator("expiration")}</th>
@@ -1216,14 +1223,32 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
         </tr>
       </thead>
       <tbody>
-        {sorted.map((c) => (
+        {sorted.flatMap((c) => {
+          const key = rowKey(c);
+          const isExpanded = expandedKey === key;
+          const canCompare = c.maxContracts > 0;
+          const mainRow = (
           <tr
-            key={`${c.symbol}-${c.expiration}-${c.strike}-${c.selectionBasis}`}
+            key={key}
             className={`wd-posture-row wd-posture-${c.posture.toLowerCase()}${c.symbol === selectedSymbol && c.strike === selectedStrike && c.expiration === selectedExpiration ? " wd-row-selected" : ""}`}
             onClick={() => onSelect(executableRowFromCandidate(c))}
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(executableRowFromCandidate(c)); } }}
           >
+            <td className="wd-expc-toggle-cell">
+              {canCompare && (
+                <button
+                  type="button"
+                  className="wd-expc-toggle"
+                  aria-expanded={isExpanded}
+                  aria-label={isExpanded ? "Collapse consequence comparison" : "Compare Sell / Hold / Covered Call consequences"}
+                  title={isExpanded ? "Collapse consequences" : "Compare Sell / Hold / Covered Call over this share block"}
+                  onClick={(e) => { e.stopPropagation(); setExpandedKey(isExpanded ? null : key); }}
+                >
+                  {isExpanded ? "▾" : "▸"}
+                </button>
+              )}
+            </td>
             <td>{c.rank}</td>
             <td className="wd-symbol">{c.symbol}</td>
             <td>{c.expiration.slice(5)}</td>
@@ -1247,7 +1272,17 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
               : <span className="wd-select-tag wd-select-delta" title="Closest to target delta">δ</span>}</td>
             <td><AgeCell provenance={c.evidenceProvenance} /></td>
           </tr>
-        ))}
+          );
+          if (!isExpanded) return [mainRow];
+          return [
+            mainRow,
+            <tr key={`${key}-expanded`} className="wd-expc-row">
+              <td colSpan={21}>
+                <ExpandedConsequenceRow candidate={c} />
+              </td>
+            </tr>,
+          ];
+        })}
       </tbody>
     </table>
     </>

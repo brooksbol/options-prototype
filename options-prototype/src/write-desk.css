@@ -2474,3 +2474,159 @@
   cursor: grabbing;
   color: var(--wd-accent-blue);
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Expanded Consequence Row — Sell / Hold / Covered Call comparison surface
+   (PL-DEPLOY direction A). Horizontal, simultaneously-visible comparison
+   territory injected beneath a covered-call candidate row. Dimensions run down
+   the left; alternatives run across as columns.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Toggle column: narrow, centered chevron control. */
+.wd-expc-toggle-head {
+  width: 18px;
+  padding: 4px 2px;
+}
+
+.wd-expc-toggle-cell {
+  width: 18px;
+  text-align: center;
+  padding: 4px 2px;
+}
+
+.wd-expc-toggle {
+  background: transparent;
+  border: none;
+  color: var(--wd-text-secondary);
+  font-size: var(--wd-size-body);
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  border-radius: 3px;
+}
+
+.wd-expc-toggle:hover {
+  background: var(--wd-bg-hover);
+  color: var(--wd-text-primary);
+}
+
+.wd-expc-toggle[aria-expanded="true"] {
+  color: var(--wd-accent-green);
+  font-weight: var(--wd-weight-bold);
+}
+
+/* The injected full-width row that hosts the comparison grid. */
+.wd-expc-row > td {
+  padding: 0;
+  background: var(--wd-bg-raised);
+  border-bottom: 1px solid var(--wd-border-default);
+}
+
+.wd-expc {
+  padding: 10px 14px 12px;
+  font-family: var(--wd-font-sans);
+}
+
+.wd-expc-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.wd-expc-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.wd-expc-title {
+  font-size: var(--wd-size-body);
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.wd-expc-blockvalue {
+  font-family: var(--wd-font-mono);
+  font-size: var(--wd-size-body);
+  color: var(--wd-text-secondary);
+}
+
+.wd-expc-sub {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+}
+
+.wd-expc-residual {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  margin-bottom: 6px;
+}
+
+/* The comparison grid: dimensions × alternatives. */
+.wd-expc-grid {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 720px;
+  table-layout: fixed;
+}
+
+.wd-expc-grid th,
+.wd-expc-grid td {
+  padding: 4px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--wd-table-row-border);
+  vertical-align: top;
+}
+
+/* Alternative column headers (Sell / Hold / Covered Call). */
+.wd-expc-alt-head {
+  font-size: var(--wd-size-label);
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid var(--wd-border-strong);
+  width: 30%;
+}
+
+.wd-expc-dim-head {
+  border-bottom: 1px solid var(--wd-border-strong);
+  width: 10%;
+}
+
+/* Dimension label column (left, the stable scan axis). */
+.wd-expc-dim {
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+/* Value cells — numbers are the product. */
+.wd-expc-cell {
+  font-family: var(--wd-font-mono);
+  font-size: var(--wd-size-body);
+  color: var(--wd-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Decision-essential dimensions get subtle scan emphasis. */
+.wd-expc-emph .wd-expc-cell {
+  font-weight: var(--wd-weight-semi);
+}
+
+.wd-expc-emph .wd-expc-dim {
+  color: var(--wd-text-primary);
+}
+
+.wd-expc-footnote {
+  margin-top: 8px;
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-secondary);
+  font-style: italic;
+}

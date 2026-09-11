@@ -1008,6 +1008,13 @@
   color: var(--wd-text-secondary);
 }
 
+.oc-td-greek {
+  font-family: var(--wd-font-mono, monospace);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--wd-text-secondary);
+}
+
 .oc-td-badge { font-family: var(--wd-font-sans); font-size: 9px; font-weight: var(--wd-weight-semi); }
 .oc-badge { padding: 1px 4px; border-radius: 2px; }
 .oc-badge-put { color: #a855a0; background: rgba(180,100,160,0.06); }

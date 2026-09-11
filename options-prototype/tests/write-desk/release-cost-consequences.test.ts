@@ -105,8 +105,8 @@ describe("subject-share block (4AM quantity finding)", () => {
   });
 });
 
-describe("F1 — estimated gross sale value", () => {
-  it("is block x spot, carries a not-proceeds/not-buying-power disclaimer", () => {
+describe("F1 — estimated gross sale value (Sell-only realized value)", () => {
+  it("is block x spot for Sell, carries a not-proceeds/not-buying-power disclaimer", () => {
     const facts = evaluateReleaseConsequences(ctx(), { kind: "sell", subjectShares: 100 });
     expect(facts.estimatedGrossSaleValue.value).toBeCloseTo(9066, 6);
     expect(facts.estimatedGrossSaleValue.disclaimer).toBe(
@@ -115,13 +115,45 @@ describe("F1 — estimated gross sale value", () => {
     expect(facts.estimatedGrossSaleValue.provenance).toEqual(SPOT_PROV);
   });
 
-  it("renders unavailable when spot is absent", () => {
+  it("renders unavailable when spot is absent (Sell)", () => {
     const facts = evaluateReleaseConsequences(ctx({ observedSpot: null }), {
       kind: "sell",
       subjectShares: 100,
     });
     expect(facts.estimatedGrossSaleValue.value).toBeNull();
     expect(facts.estimatedGrossSaleValue.provenance).toEqual({ kind: "unavailable" });
+  });
+
+  it("is NULL for Hold and Covered Call — only selling realizes a sale value", () => {
+    const hold = evaluateReleaseConsequences(ctx(), { kind: "hold", subjectShares: 100 });
+    expect(hold.estimatedGrossSaleValue.value).toBeNull();
+    expect(hold.estimatedGrossSaleValue.provenance).toEqual({ kind: "unavailable" });
+
+    const cc = evaluateReleaseConsequences(ctx(), ccAlt(100, 1));
+    expect(cc.estimatedGrossSaleValue.value).toBeNull();
+    expect(cc.estimatedGrossSaleValue.provenance).toEqual({ kind: "unavailable" });
+  });
+});
+
+describe("shared block market value (row context, not a per-alternative consequence)", () => {
+  it("is block x spot and identical for Sell / Hold / CC on the same block", () => {
+    const alts = suppliedAlternativesForCoveredCall({
+      maxContracts: 1, strike: 95, expiration: "2026-09-18", dte: 9, midPerShare: 1.3, provenance: CHAIN_PROV,
+    });
+    const values = alts.map((a) => evaluateReleaseConsequences(ctx(), a).blockMarketValue.value);
+    // same authoritative starting value for every alternative
+    expect(new Set(values)).toEqual(new Set([100 * 90.66]));
+  });
+
+  it("is unavailable (null) when spot is absent, for every alternative", () => {
+    const alts = suppliedAlternativesForCoveredCall({
+      maxContracts: 1, strike: 95, expiration: "2026-09-18", dte: 9, midPerShare: 1.3, provenance: CHAIN_PROV,
+    });
+    for (const a of alts) {
+      const facts = evaluateReleaseConsequences(ctx({ observedSpot: null }), a);
+      expect(facts.blockMarketValue.value).toBeNull();
+      expect(facts.blockMarketValue.provenance).toEqual({ kind: "unavailable" });
+    }
   });
 });
 
@@ -161,7 +193,7 @@ describe("F3 — estimated gross opening premium (not retained compensation)", (
   });
 });
 
-describe("F4 — downside envelope (never unbounded language)", () => {
+describe("F4 — downside envelope (three states, never unbounded language)", () => {
   it("has no protective floor above zero for CC/Hold, note avoids 'unlimited/unbounded'", () => {
     for (const alt of [
       ccAlt(100, 1),
@@ -172,6 +204,18 @@ describe("F4 — downside envelope (never unbounded language)", () => {
       expect(facts.downsideEnvelope.note.toLowerCase()).not.toContain("unlimited");
       expect(facts.downsideEnvelope.note.toLowerCase()).not.toContain("unbounded");
     }
+  });
+
+  it("distinguishes Sell (no continuing share downside) from Hold/CC (no protective floor)", () => {
+    const sell = evaluateReleaseConsequences(ctx(), { kind: "sell", subjectShares: 100 });
+    expect(sell.downsideEnvelope.kind).toBe("no-continuing-share-downside");
+    expect(sell.downsideEnvelope.hasProtectiveFloorAboveZero).toBe(false);
+
+    const hold = evaluateReleaseConsequences(ctx(), { kind: "hold", subjectShares: 100 });
+    expect(hold.downsideEnvelope.kind).toBe("no-protective-floor");
+
+    const cc = evaluateReleaseConsequences(ctx(), ccAlt(100, 1));
+    expect(cc.downsideEnvelope.kind).toBe("no-protective-floor");
   });
 });
 
@@ -254,9 +298,17 @@ describe("F8 — basis-relative release effect (NEVER exact in v1)", () => {
 });
 
 describe("provenance / freshness survives onto the facts", () => {
-  it("CC premium carries chain provenance; sell value carries spot provenance", () => {
+  it("CC premium carries chain provenance; CC has no sale value; the shared block value carries spot provenance", () => {
     const facts = evaluateReleaseConsequences(ctx(), ccAlt(100, 1));
     expect(facts.estimatedGrossOpeningPremium.provenance).toEqual(CHAIN_PROV);
+    // CC realizes no sale value -> unavailable; the shared block market value carries spot provenance
+    expect(facts.estimatedGrossSaleValue.value).toBeNull();
+    expect(facts.estimatedGrossSaleValue.provenance).toEqual({ kind: "unavailable" });
+    expect(facts.blockMarketValue.provenance).toEqual(SPOT_PROV);
+  });
+
+  it("Sell realizes the sale value with spot provenance", () => {
+    const facts = evaluateReleaseConsequences(ctx(), { kind: "sell", subjectShares: 100 });
     expect(facts.estimatedGrossSaleValue.provenance).toEqual(SPOT_PROV);
   });
 });
