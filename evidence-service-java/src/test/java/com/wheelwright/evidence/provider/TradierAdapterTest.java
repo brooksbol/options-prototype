@@ -219,6 +219,236 @@ class TradierAdapterTest {
     }
 
     @Nested
+    class GreekNullability {
+
+        private MarketChain.OptionContract onlyPut(String chainJson) throws Exception {
+            TestableAdapter adapter = new TestableAdapter("test-key", cache, pacer);
+            adapter.setChainResponse(chainJson);
+            adapter.setQuoteResponse("""
+                {"quotes":{"quote":{"symbol":"XLE","last":57.50}}}
+            """);
+            var result = adapter.getOptionsChain("XLE", "2026-08-21");
+            assertEquals(1, result.chain().puts().size(), "expected exactly one put");
+            return result.chain().puts().get(0);
+        }
+
+        @Test
+        void allFivePopulated() throws Exception {
+            var c = onlyPut("""
+                {"options":{"option":[
+                    {"strike":55,"bid":0.8,"ask":0.95,"option_type":"put","open_interest":500,"volume":120,
+                     "greeks":{"delta":-0.30,"gamma":0.04,"theta":-0.02,"vega":0.05,"rho":0.01}}
+                ]}}
+            """);
+            assertEquals(-0.30, c.delta(), 1e-9);
+            assertEquals(0.04, c.gamma(), 1e-9);
+            assertEquals(-0.02, c.theta(), 1e-9);
+            assertEquals(0.05, c.vega(), 1e-9);
+            assertEquals(0.01, c.rho(), 1e-9);
+        }
+
+        @Test
+        void greeksObjectAbsentYieldsAllNull() throws Exception {
+            var c = onlyPut("""
+                {"options":{"option":[
+                    {"strike":55,"bid":0.8,"ask":0.95,"option_type":"put","open_interest":500,"volume":120}
+                ]}}
+            """);
+            assertNull(c.delta());
+            assertNull(c.gamma());
+            assertNull(c.theta());
+            assertNull(c.vega());
+            assertNull(c.rho());
+        }
+
+        @Test
+        void greeksAllExplicitNullYieldNull() throws Exception {
+            var c = onlyPut("""
+                {"options":{"option":[
+                    {"strike":55,"bid":0.8,"ask":0.95,"option_type":"put","open_interest":500,"volume":120,
+                     "greeks":{"delta":null,"gamma":null,"theta":null,"vega":null,"rho":null}}
+                ]}}
+            """);
+            assertNull(c.delta());
+            assertNull(c.gamma());
+            assertNull(c.theta());
+            assertNull(c.vega());
+            assertNull(c.rho());
+        }
+
+        @Test
+        void partialGreeksPreserveAvailableAndNullTheRest() throws Exception {
+            // delta + theta present; gamma/vega/rho absent from the greeks object.
+            var c = onlyPut("""
+                {"options":{"option":[
+                    {"strike":55,"bid":0.8,"ask":0.95,"option_type":"put","open_interest":500,"volume":120,
+                     "greeks":{"delta":-0.31,"theta":-0.018}}
+                ]}}
+            """);
+            assertEquals(-0.31, c.delta(), 1e-9);
+            assertEquals(-0.018, c.theta(), 1e-9);
+            assertNull(c.gamma(), "absent gamma must be null, not 0");
+            assertNull(c.vega());
+            assertNull(c.rho());
+        }
+
+        @Test
+        void explicitNumericZeroIsPreservedNotNulled() throws Exception {
+            var c = onlyPut("""
+                {"options":{"option":[
+                    {"strike":55,"bid":0.8,"ask":0.95,"option_type":"put","open_interest":500,"volume":120,
+                     "greeks":{"delta":0,"gamma":0.0,"theta":0,"vega":0,"rho":0}}
+                ]}}
+            """);
+            assertNotNull(c.delta());
+            assertEquals(0.0, c.delta(), 1e-9);
+            assertEquals(0.0, c.gamma(), 1e-9);
+            assertEquals(0.0, c.theta(), 1e-9);
+            assertEquals(0.0, c.vega(), 1e-9);
+            assertEquals(0.0, c.rho(), 1e-9);
+        }
+
+        @Test
+        void malformedGreekValueYieldsNullForThatFieldOnly() throws Exception {
+            // gamma is a non-numeric token; the others are valid.
+            var c = onlyPut("""
+                {"options":{"option":[
+                    {"strike":55,"bid":0.8,"ask":0.95,"option_type":"put","open_interest":500,"volume":120,
+                     "greeks":{"delta":-0.30,"gamma":"NaN","theta":-0.02,"vega":0.05,"rho":0.01}}
+                ]}}
+            """);
+            assertEquals(-0.30, c.delta(), 1e-9);
+            assertNull(c.gamma(), "unparseable gamma must be null, not 0");
+            assertEquals(-0.02, c.theta(), 1e-9);
+            assertEquals(0.05, c.vega(), 1e-9);
+            assertEquals(0.01, c.rho(), 1e-9);
+        }
+
+        @Test
+        void gdxjExactWireObjectPreservesAllSecondaries() throws Exception {
+            // EXACT raw GDXJ 129C wire object (captured from Production). Real
+            // nonzero secondaries in plain decimal: gamma 0.07286, theta -0.113,
+            // vega 0.004. Boundary-2 trace: the normalizer must preserve them.
+            TestableAdapter adapter = new TestableAdapter("test-key", cache, pacer);
+            adapter.setChainResponse("""
+                {"options":{"option":[
+                    {"symbol":"GDXJ260911C00129000","last":0.3,"volume":45,"open":0.4,"high":0.4,"low":0.3,"close":null,"bid":0.0,"ask":0.29,"underlying":"GDXJ","strike":129.0,"greeks":{"delta":0.1061,"gamma":0.07286,"theta":-0.113,"vega":0.004,"rho":0.0,"phi":0.0,"bid_iv":0.0,"mid_iv":1.5178,"ask_iv":1.5178,"smv_vol":0.833,"updated_at":"2026-09-11 16:58:53"},"open_interest":19,"contract_size":100,"expiration_date":"2026-09-11","option_type":"call"}
+                ]}}
+            """);
+            adapter.setQuoteResponse("""
+                {"quotes":{"quote":{"symbol":"GDXJ","last":125.66}}}
+            """);
+            var call = adapter.getOptionsChain("GDXJ", "2026-09-11").chain().calls().get(0);
+            assertEquals(0.1061, call.delta(), 1e-9);
+            assertEquals(0.07286, call.gamma(), 1e-9, "gamma must survive normalization");
+            assertEquals(-0.113, call.theta(), 1e-9, "theta must survive normalization");
+            assertEquals(0.004, call.vega(), 1e-9, "vega must survive normalization");
+            assertEquals(0.0, call.rho(), 1e-9);
+        }
+
+        @Test
+        void scientificNotationGreeksParseExactly() throws Exception {
+            // The DBO defect: Tradier sends small greeks in exponent form
+            // (e.g. "vega":9.0E-4). The parser must consume the whole token, not
+            // truncate at 'E' (which produced 9.0 / 7.0).
+            var c = onlyPut("""
+                {"options":{"option":[
+                    {"strike":21,"bid":0.4,"ask":0.5,"option_type":"put","open_interest":10,"volume":1,
+                     "greeks":{"delta":-0.0111,"gamma":0.02542,"theta":-0.0031,"vega":9.0E-4,"rho":7.0E-4}}
+                ]}}
+            """);
+            assertEquals(-0.0111, c.delta(), 1e-12);
+            assertEquals(0.02542, c.gamma(), 1e-12);
+            assertEquals(-0.0031, c.theta(), 1e-12);
+            assertEquals(0.0009, c.vega(), 1e-12, "9.0E-4 must parse as 0.0009, not 9.0");
+            assertEquals(0.0007, c.rho(), 1e-12, "7.0E-4 must parse as 0.0007, not 7.0");
+        }
+
+        @Test
+        void scientificNotationExponentFormsAllAccepted() throws Exception {
+            // lower e, upper E, explicit + exponent, and negative mantissa with exponent.
+            var c = onlyPut("""
+                {"options":{"option":[
+                    {"strike":21,"bid":0.4,"ask":0.5,"option_type":"put","open_interest":10,"volume":1,
+                     "greeks":{"delta":-1.5e-3,"gamma":2.5E-05,"theta":-8.0E-4,"vega":1E+2,"rho":3.0e0}}
+                ]}}
+            """);
+            assertEquals(-0.0015, c.delta(), 1e-12);
+            assertEquals(0.000025, c.gamma(), 1e-12);
+            assertEquals(-0.0008, c.theta(), 1e-12);
+            assertEquals(100.0, c.vega(), 1e-12);
+            assertEquals(3.0, c.rho(), 1e-12);
+        }
+
+        @Test
+        void exponentDoesNotOverConsumeAdjacentField() throws Exception {
+            // Ensure the exponent scan stops correctly and the next field (a
+            // NEGATIVE value) is still parsed independently, not swallowed.
+            var c = onlyPut("""
+                {"options":{"option":[
+                    {"strike":21,"bid":0.4,"ask":0.5,"option_type":"put","open_interest":10,"volume":1,
+                     "greeks":{"delta":9.0E-4,"gamma":-0.02,"theta":-0.0031,"vega":0.001,"rho":0.0007}}
+                ]}}
+            """);
+            assertEquals(0.0009, c.delta(), 1e-12);
+            assertEquals(-0.02, c.gamma(), 1e-12, "adjacent negative gamma must parse independently");
+        }
+
+        @Test
+        void danglingExponentDoesNotOverconsumeAndSalvagesMantissa() throws Exception {
+            // A dangling exponent ("1e" with no exponent digits) is malformed. The token
+            // scanner must NOT consume the dangling 'e' (well-formed-exponent-only rule):
+            // it stops after the "1" mantissa, so gamma parses to 1.0 rather than throwing
+            // or swallowing following characters. The adjacent theta must be unaffected,
+            // and the well-formed exponent vega must still parse exactly.
+            var c = onlyPut("""
+                {"options":{"option":[
+                    {"strike":21,"bid":0.4,"ask":0.5,"option_type":"put","open_interest":10,"volume":1,
+                     "greeks":{"delta":-0.30,"gamma":1e,"theta":-0.02,"vega":9.0E-4,"rho":0.01}}
+                ]}}
+            """);
+            assertEquals(-0.30, c.delta(), 1e-12);
+            assertEquals(1.0, c.gamma(), 1e-12, "dangling 'e' not consumed; mantissa salvaged");
+            assertEquals(-0.02, c.theta(), 1e-12, "adjacent field unaffected by dangling exponent");
+            assertEquals(0.0009, c.vega(), 1e-12, "well-formed exponent still parses");
+            assertEquals(0.01, c.rho(), 1e-12);
+        }
+
+        @Test
+        void trulyUnparseableGreekYieldsNull() throws Exception {
+            // A non-numeric quoted token has no numeric prefix → unavailable (null),
+            // never fabricated as a number.
+            var c = onlyPut("""
+                {"options":{"option":[
+                    {"strike":21,"bid":0.4,"ask":0.5,"option_type":"put","open_interest":10,"volume":1,
+                     "greeks":{"delta":-0.30,"gamma":"NaN","theta":-0.02,"vega":9.0E-4,"rho":0.01}}
+                ]}}
+            """);
+            assertNull(c.gamma(), "quoted non-numeric gamma must be null");
+            assertEquals(-0.30, c.delta(), 1e-12);
+            assertEquals(0.0009, c.vega(), 1e-12);
+        }
+
+        @Test
+        void callSideGreeksAreNullableToo() throws Exception {
+            TestableAdapter adapter = new TestableAdapter("test-key", cache, pacer);
+            adapter.setChainResponse("""
+                {"options":{"option":[
+                    {"strike":60,"bid":1.2,"ask":1.35,"option_type":"call","open_interest":400,"volume":200,
+                     "greeks":{"delta":0.35}}
+                ]}}
+            """);
+            adapter.setQuoteResponse("""
+                {"quotes":{"quote":{"symbol":"XLE","last":57.50}}}
+            """);
+            var call = adapter.getOptionsChain("XLE", "2026-08-21").chain().calls().get(0);
+            assertEquals(0.35, call.delta(), 1e-9);
+            assertNull(call.gamma(), "absent call gamma must be null");
+            assertNull(call.theta());
+        }
+    }
+
+    @Nested
     class ErrorHandling {
 
         @Test
@@ -480,41 +710,10 @@ class TradierAdapterTest {
         }
 
         private MarketChain normalizeChainForTest(String body, String symbol, String expiration, String name, double price) {
-            List<MarketChain.OptionContract> puts = new java.util.ArrayList<>();
-            List<MarketChain.OptionContract> calls = new java.util.ArrayList<>();
-            int optionIdx = body.indexOf("\"option\"");
-            if (optionIdx >= 0) {
-                int bracketStart = body.indexOf('[', optionIdx);
-                if (bracketStart >= 0) {
-                    int depth = 0;
-                    int objStart = -1;
-                    for (int i = bracketStart + 1; i < body.length(); i++) {
-                        char c = body.charAt(i);
-                        if (c == '{') { if (depth == 0) objStart = i; depth++; }
-                        else if (c == '}') { depth--; if (depth == 0 && objStart >= 0) {
-                            String obj = body.substring(objStart, i + 1);
-                            double strike = extractTestDouble(obj, "strike");
-                            double bid = extractTestDouble(obj, "bid");
-                            double ask = extractTestDouble(obj, "ask");
-                            int oi = (int) extractTestDouble(obj, "open_interest");
-                            int vol = (int) extractTestDouble(obj, "volume");
-                            String type = extractTestString(obj, "option_type");
-                            double delta = 0;
-                            int gIdx = obj.indexOf("\"greeks\"");
-                            if (gIdx >= 0) { int gs = obj.indexOf('{', gIdx); int ge = obj.indexOf('}', gs);
-                                if (gs >= 0 && ge >= 0) delta = extractTestDouble(obj.substring(gs, ge+1), "delta"); }
-                            var contract = new MarketChain.OptionContract(strike, bid, ask, delta, oi, vol);
-                            if ("put".equals(type)) puts.add(contract);
-                            else if ("call".equals(type)) calls.add(contract);
-                            objStart = -1;
-                        }}
-                        else if (c == ']' && depth == 0) break;
-                    }
-                }
-            }
-            puts.sort(java.util.Comparator.comparingDouble(MarketChain.OptionContract::strike));
-            calls.sort(java.util.Comparator.comparingDouble(MarketChain.OptionContract::strike));
-            return new MarketChain(symbol.toUpperCase(), expiration, new MarketChain.Underlying(symbol.toUpperCase(), name, price), puts, calls);
+            // Delegate to the REAL production normalizer so tests validate actual
+            // parsing behavior (including nullable-greek semantics), never a
+            // drifting duplicate.
+            return normalizeChain(body, symbol, expiration, name, price);
         }
 
         private double extractTestDouble(String json, String key) {

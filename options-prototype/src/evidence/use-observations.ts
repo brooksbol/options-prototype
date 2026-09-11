@@ -34,6 +34,34 @@ function extractUnderlyings(snapshot: { existingPuts: { underlying: string }[]; 
   return [...symbols].sort();
 }
 
+interface HeldExpiration { symbol: string; expiration: string }
+
+/**
+ * Extract the EXACT (symbol, expiration) pairs the operator currently holds
+ * (held-expiration acquisition overlay). These drive the backend to keep the
+ * held chains refreshed even below the 7-45 DTE eligibility window, so held
+ * positions' greeks stay current. Sorted + deduped for a stable POST identity.
+ */
+function extractHeldExpirations(
+  snapshot: { existingPuts: { underlying: string; expiration: string }[]; existingCalls: { underlying: string; expiration: string }[] } | null,
+): HeldExpiration[] {
+  if (!snapshot) return [];
+  const seen = new Set<string>();
+  const pairs: HeldExpiration[] = [];
+  const add = (underlying: string, expiration: string) => {
+    if (!underlying || !expiration) return;
+    const sym = underlying.toUpperCase();
+    const key = `${sym}|${expiration}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    pairs.push({ symbol: sym, expiration });
+  };
+  for (const put of snapshot.existingPuts) add(put.underlying, put.expiration);
+  for (const call of snapshot.existingCalls) add(call.underlying, call.expiration);
+  pairs.sort((a, b) => (a.symbol === b.symbol ? a.expiration.localeCompare(b.expiration) : a.symbol.localeCompare(b.symbol)));
+  return pairs;
+}
+
 /**
  * Build a self-contained ObservationState from the demo scenario's spot prices.
  * This ensures Demo mode never depends on live backend Evidence for pricing,
@@ -92,18 +120,31 @@ export function useObservations(): ObservationState {
   // Memoize symbol extraction to avoid unnecessary setSymbols calls
   const symbols = useMemo(() => isDemo ? [] : extractUnderlyings(snapshot), [snapshot, isDemo]);
 
+  // Held (symbol, expiration) pairs — stabilized by content so the observe effect
+  // only re-posts when the actual held set changes.
+  const heldExpirations = useMemo(() => isDemo ? [] : extractHeldExpirations(snapshot), [snapshot, isDemo]);
+  const heldKey = useMemo(() => heldExpirations.map(h => `${h.symbol}|${h.expiration}`).join(","), [heldExpirations]);
+
   useEffect(() => {
     setSymbols(symbols);
   }, [symbols]);
 
-  // Ensure all portfolio symbols are in the backend's observable population.
-  // This is the bridge between portfolio monitoring demand and the Evidence Appliance's
-  // acquisition population. The backend doesn't know these are portfolio symbols — it just
-  // ensures they're acquirable. Idempotent: already-known symbols are no-ops.
+  // Ensure all portfolio symbols are in the backend's observable population, and
+  // declare the exact held expirations so the backend keeps their chains refreshed
+  // even below the 7-45 DTE window (held-expiration overlay). The backend doesn't
+  // know these are portfolio positions — it just ensures they're acquirable and
+  // that held chains stay current. Idempotent per exact (symbols + held) set.
+  //
+  // Empty portfolio is NOT a no-op: we still POST an explicit empty declaration
+  // ({ symbols: [], heldExpirations: [] }) so the backend clears monitored + held
+  // demand. Returning early here would leave stale held-expiration demand acquiring
+  // chains for positions the operator no longer holds. Demo mode does not POST.
   useEffect(() => {
-    if (symbols.length === 0) return;
-    ensureObservable(symbols);
-  }, [symbols]);
+    if (isDemo) return;
+    ensureObservable(symbols, heldExpirations);
+    // heldKey is the content-stable dependency for heldExpirations.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [symbols, heldKey, isDemo]);
 
   // For demo: use static demo observations. For fidelity: use live observation store.
   const liveState = useSyncExternalStore(
@@ -115,21 +156,45 @@ export function useObservations(): ObservationState {
 }
 
 /**
- * POST portfolio symbols to /api/evidence/observe to ensure the backend
- * can acquire them. Fire-and-forget — failures are non-fatal (the observation
- * pipeline still works for known symbols via the QuotesController graceful path).
+ * POST portfolio symbols + held expirations to /api/evidence/observe so the backend
+ * can acquire them and keep held chains refreshed. Fire-and-forget — failures are
+ * non-fatal (the observation pipeline still works for known symbols via the
+ * QuotesController graceful path).
+ *
+ * `heldExpirations` is ALWAYS included in the body — including as an empty array.
+ * An empty array is the EXPLICIT "clear held demand" signal (the backend
+ * distinguishes present-`[]` = clear from an omitted field = leave unchanged). This
+ * is why an empty portfolio must still POST `{ symbols: [], heldExpirations: [] }`
+ * rather than skipping the call: skipping would leave stale held demand in place.
  */
 let lastObserveKey = "";
-function ensureObservable(symbols: string[]): void {
-  const key = symbols.join(",");
-  if (key === lastObserveKey) return; // Already sent for this exact set
-  lastObserveKey = key;
+let inFlightObserveKey: string | null = null;
+function ensureObservable(symbols: string[], heldExpirations: HeldExpiration[] = []): void {
+  const heldKey = heldExpirations.map(h => `${h.symbol}|${h.expiration}`).join(",");
+  const key = symbols.join(",") + "||" + heldKey;
+
+  // Skip only when this EXACT declaration already SUCCEEDED. A failed declaration must
+  // remain retryable: we do NOT record the key until the POST resolves successfully.
+  if (key === lastObserveKey) return;
+  // Coalesce a duplicate in-flight POST for the same declaration (prevents a retry
+  // storm if the effect re-fires while a request is still pending).
+  if (key === inFlightObserveKey) return;
+  inFlightObserveKey = key;
 
   fetch("/api/evidence/observe", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ symbols }),
+    body: JSON.stringify({ symbols, heldExpirations }),
+  }).then((res) => {
+    // Success is authoritative: only now suppress re-sending this exact declaration.
+    // A non-ok HTTP status is treated as a failure (leave it retryable).
+    if (res && (res as Response).ok) {
+      lastObserveKey = key;
+    }
   }).catch(() => {
-    // Non-fatal — observation still works for known symbols
+    // Non-fatal — observation still works for known symbols. Do NOT record the key,
+    // so a transient failure can be retried on the next declaration attempt.
+  }).finally(() => {
+    if (inFlightObserveKey === key) inFlightObserveKey = null;
   });
 }

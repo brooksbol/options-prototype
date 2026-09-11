@@ -103,7 +103,7 @@ class ProviderHysteresisAndCadenceTest {
         @Override public ChainResult getOptionsChain(String symbol, String expiration) {
             if (expiration.equals(primary)) {
                 var underlying = new com.wheelwright.evidence.provider.MarketChain.Underlying(symbol, symbol, 100.0);
-                var contract = new com.wheelwright.evidence.provider.MarketChain.OptionContract(100.0, 1.0, 1.1, -0.30, 10, 5);
+                var contract = new com.wheelwright.evidence.provider.MarketChain.OptionContract(100.0, 1.0, 1.1, -0.30, 0.0, 0.0, 0.0, 0.0, 10, 5);
                 var chain = new com.wheelwright.evidence.provider.MarketChain(
                     symbol, expiration, underlying, List.of(contract), List.of(contract));
                 return new ChainResult(chain, java.time.Instant.now().toString(), false);
@@ -165,7 +165,7 @@ class ProviderHysteresisAndCadenceTest {
             }
             @Override public ChainResult getOptionsChain(String symbol, String expiration) {
                 var underlying = new com.wheelwright.evidence.provider.MarketChain.Underlying(symbol, symbol, 100.0);
-                var contract = new com.wheelwright.evidence.provider.MarketChain.OptionContract(100.0, 1.0, 1.1, -0.30, 10, 5);
+                var contract = new com.wheelwright.evidence.provider.MarketChain.OptionContract(100.0, 1.0, 1.1, -0.30, 0.0, 0.0, 0.0, 0.0, 10, 5);
                 var chain = new com.wheelwright.evidence.provider.MarketChain(
                     symbol, expiration, underlying, List.of(contract), List.of(contract));
                 return new ChainResult(chain, java.time.Instant.now().toString(), false);

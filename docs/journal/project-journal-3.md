@@ -384,3 +384,32 @@ Per Principal decision (Defect Tracking Migration), Wheelwright now has **one an
 ### Status
 
 Migration implemented; not yet committed (awaiting Principal commit authorization and Codex independent verification of the authority transition). GitHub Issues remain as historical provenance/workflow record; they are no longer defect authority.
+
+---
+
+## 2026-09-11 — Secondary Greeks on the Operator Console, and held-position monitoring as a distinct acquisition reason
+
+### What shipped
+The Operator Console position tables gained the four secondary greeks (gamma, theta, vega, rho) beside the existing delta, threaded end-to-end: Tradier `greeks=true` → `TradierAdapter` normalization → `MarketChain.OptionContract` → snapshot JSON → durable cache → shared frontend greek domain → Console table + CSV export. A Console-owned snapshot ingestion populates the chain cache so the Console no longer depends on the Write Desk having been visited.
+
+### The durable architectural lesson (why this entry exists)
+**Held-position monitoring is a SEPARATE acquisition reason from the Deployment opportunity window.** Chain acquisition fetches expirations inside the 7–45 DTE eligibility window (the *Deployment* opportunity space). But an operator can *hold* a position at a near-expiry expiration (0–4 DTE) OUTSIDE that window; before this work those held chains stopped refreshing the moment they fell below 7 DTE, so their greeks went stale while capital was still at risk (GDXJ 0-DTE, SMH 4-DTE were the witnesses). The bounded fix is a **held-expiration acquisition overlay** (migration 007; `AcquisitionWorker.acquireAllEligibleChains` unions held expirations the provider actually lists), NOT a scheduler redesign. Generalization to preserve: "what could we deploy into?" is bounded to 7–45 DTE; "what are we already exposed to and must keep watching?" is bounded by what we hold, at any DTE. Conflating them silently stops refreshing evidence the operator still relies on.
+
+### Evidence-honesty properties (each is load-bearing)
+- **Nullable provider greeks — absence is not zero.** Five nullable `Double`s; JSON `null` when the provider omits them; `0.0` only when the provider sent `0.0`. Each greek parsed independently — a missing/invalid delta never invalidates the others.
+- **Scientific-notation parsing.** Tradier sends small greeks in exponent form (`9.0E-4`); the JSON number scanner accepts `e/E`, signs, and exponent digits so small near-expiry greeks are not truncated.
+- **`0.0` = unavailable, per field.** Near expiration the greek model often returns exact `0.0` placeholders; for display a greek is usable only if finite AND nonzero (delta also domain-checked to [-1,1]). Facts persist verbatim; the "0 = unavailable" trust is derived at read.
+- **Adaptive precision.** A real tiny nonzero delta must not render as a false `0.00`; `formatGreek` shows a threshold form and the CSV widens precision.
+- **Greek Age is authoritative, and distinct from Quote Freshness.** Greek Age is derived ONLY from the chain record's authoritative `chain-acquired` provenance (`evidenceProvenance`) — never cache/TTL `retrievedAt`, symbol timing, or `Date.now()`; when provenance is unavailable the age is null (honestly unknown), not a substituted weaker timestamp. It is shown as its own column beside Quote Freshness with a STALE marker past the chain window, so a fresh spot can never make stale greeks look current. (Same authority-precedence spine as ADR-015/016/017.) This authority discipline is the reason a naive "use retrievedAt" implementation was rejected during review.
+
+### Held-declaration lifecycle (reliability, not just feature)
+The `/observe` held-expiration declaration distinguishes **omitted → unchanged**, **`[]` → clear**, **pairs → replace**, so an older client, a competing tab, or a symbols-only update cannot silently erase held-monitoring demand; the frontend POSTs an explicit empty declaration when the portfolio empties. Request validation rejects malformed `symbols` (missing / non-list / non-string members) with 400 rather than a 500/ClassCastException. The frontend declaration records its dedup key only after a **successful** POST, so a transient failure stays retryable (no permanent suppression, no retry storm).
+
+### Reusability
+Greek availability/sanitization/formatting live in a consumer-agnostic shared domain (`write-desk/option-greeks.ts` + `contract-greek-lookup.ts`); `use-position-deltas.ts` is a thin Console adapter. Future Deployment greek columns must consume these, not recreate validity rules.
+
+### Contract & scope
+`docs/contracts/evidence-snapshot-v1.md` documents the greeks as additive nullable fields (null = unavailable, never fabricated 0). Additive under INV-PUB-05; no version increment. This increment deliberately excludes the release-consequence work that was previously commingled on the working branch (kept as its own separate change set) and does NOT remediate BUG-004 (temporal incoherence remains its own tracked defect; delta not yet participating in the Greek-Age coherence treatment).
+
+### Verification
+Backend full suite green. Frontend green except the pre-existing, unrelated `velvet-rope/multi-expiration` date-relative snapshot (velvet-rope code untouched here). Regression coverage added for held sub-7-DTE acquisition, observe-request validation, and failed-declaration retry.

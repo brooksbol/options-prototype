@@ -247,6 +247,60 @@ public class SqliteEvidenceStore implements AutoCloseable {
     }
 
     /**
+     * Declare the operator's currently-HELD (symbol, expiration) pairs (held-expiration
+     * acquisition overlay, migration 007). This is the additional acquisition reason
+     * "we hold this exact expiration, therefore keep observing it" — the acquisition
+     * worker unions these into the expirations it fetches for a symbol, so held chains
+     * stay refreshed even below the 7-45 DTE eligibility window.
+     *
+     * Atomically REPLACES the held set (same lifecycle as setMonitoredSymbols): a closed
+     * position stops being held on the next declaration. Symbol/expiration are stored
+     * uppercase-symbol / as-supplied-date.
+     */
+    public void setHeldExpirations(List<Map.Entry<String, String>> symbolExpirationPairs) throws SQLException {
+        String now = Instant.now().toString();
+        // Dedup pairs (symbol upper, expiration as-is).
+        Set<Map.Entry<String, String>> pairs = new LinkedHashSet<>();
+        for (Map.Entry<String, String> p : symbolExpirationPairs) {
+            if (p.getKey() == null || p.getValue() == null) continue;
+            String sym = p.getKey().toUpperCase();
+            String exp = p.getValue().trim();
+            if (sym.isEmpty() || exp.isEmpty()) continue;
+            pairs.add(Map.entry(sym, exp));
+        }
+
+        inTransaction(() -> {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("DELETE FROM held_expiration");
+            }
+            if (pairs.isEmpty()) return;
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "INSERT OR IGNORE INTO held_expiration (symbol, expiration, declared_at) VALUES (?, ?, ?)")) {
+                for (Map.Entry<String, String> p : pairs) {
+                    ps.setString(1, p.getKey());
+                    ps.setString(2, p.getValue());
+                    ps.setString(3, now);
+                    ps.addBatch();
+                }
+                ps.executeBatch();
+            }
+        });
+    }
+
+    /** Held expirations for a symbol (uppercase), or empty if none declared. */
+    public List<String> getHeldExpirations(String symbol) throws SQLException {
+        List<String> result = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT expiration FROM held_expiration WHERE symbol = ? ORDER BY expiration")) {
+            ps.setString(1, symbol.toUpperCase());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) result.add(rs.getString("expiration"));
+            }
+        }
+        return result;
+    }
+
+    /**
      * Record expirations for a symbol. Empty expirations = absence.
      */
     public void setExpirations(String symbol, String expirationsJson, String retrievedAt) throws SQLException {
@@ -1590,6 +1644,26 @@ public class SqliteEvidenceStore implements AutoCloseable {
             .sorted(Comparator.comparingInt(Exp::dte))
             .map(Exp::date)
             .toList();
+    }
+
+    /**
+     * All expiration DATES a symbol lists, unfiltered by DTE. Used by the held-expiration
+     * overlay to confirm a held expiration is actually a listed contract of this symbol
+     * before adding it to the acquisition set (so we never fetch a date the provider
+     * won't have). Non-negative-DTE only (skips already-expired dates in the payload).
+     */
+    public static List<String> getAllExpirationDates(String expirationsJson) {
+        if (expirationsJson == null || expirationsJson.equals("[]")) return List.of();
+        List<String> dates = new ArrayList<>();
+        String content = expirationsJson.trim();
+        if (content.startsWith("[")) content = content.substring(1);
+        if (content.endsWith("]")) content = content.substring(0, content.length() - 1);
+        for (String obj : splitJsonObjects(content)) {
+            String date = extractJsonString(obj, "date");
+            int dte = extractJsonInt(obj, "dte");
+            if (date != null && dte >= 0) dates.add(date);
+        }
+        return dates;
     }
 
     /**

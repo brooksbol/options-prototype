@@ -43,7 +43,7 @@ class DegradedModeIntegrationTest {
 
     private static MarketChain usableChain(String symbol) {
         var underlying = new MarketChain.Underlying(symbol, symbol, 50.0);
-        var put = new MarketChain.OptionContract(48.0, 1.0, 1.1, -0.28, 100, 10);
+        var put = new MarketChain.OptionContract(48.0, 1.0, 1.1, -0.28, 0.0, 0.0, 0.0, 0.0, 100, 10);
         return new MarketChain(symbol, FUTURE_EXPIRATION, underlying, List.of(put), List.of());
     }
 

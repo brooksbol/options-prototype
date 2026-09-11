@@ -11,8 +11,11 @@
 import { useState, useCallback, useMemo } from "react";
 import { usePortfolio } from "../portfolio/use-portfolio";
 import { useObservations } from "../evidence/use-observations";
+import { useEvidenceSnapshot } from "../hooks/useEvidenceSnapshot";
+import { ingestChainsFromSnapshot } from "../evidence/chain-cache-ingestion";
+import { formatGreek } from "../write-desk/option-greeks";
 import { useSpotHistory, type SpotHistoryMap } from "../evidence/use-spot-history";
-import { usePositionDeltas, type PositionDeltaMap } from "../operator-console/use-position-deltas";
+import { usePositionDeltas, usePositionGreeks, type PositionDeltaMap, type PositionGreeksMap } from "../operator-console/use-position-deltas";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
 import { buildPositionDetail, type PositionDetail } from "../portfolio/position-detail";
 import type { OptionBasisInput } from "../portfolio/assignment-consequence";
@@ -21,6 +24,13 @@ import { lookupDescription } from "../instrument-catalog/catalog";
 import { PositionDetailModal } from "./PositionDetailModal";
 import { ForceAcquisitionButton } from "../operator-console/ForceAcquisitionButton";
 import "../operator-console/operator-console.css";
+
+// Greeks are considered stale when their source chain is older than this. Aligned
+// with the Decision chain-freshness window (~30 min during open sessions): beyond
+// it, the greeks no longer reflect current market state. This governs greek-cell
+// staleness annotation ONLY — it is a presentation honesty signal (greek age is
+// the chain's age, not the spot's), not a backend validity rule.
+const GREEK_STALE_MS = 30 * 60 * 1000;
 
 // --- Sort Types ---
 
@@ -81,6 +91,24 @@ export function OperatorConsole() {
   const observations = useObservations();
   const [selectedPosition, setSelectedPosition] = useState<MonitoredPosition | null>(null);
 
+  // Own the chain-evidence read cycle (do not depend on Write Desk having been
+  // visited). The Console previously read chain records from IndexedDB that were
+  // populated ONLY by the Write Desk poll; a Console-only session therefore saw
+  // stale or missing chains (e.g. greeks blank, or delta from an older
+  // generation). Poll the snapshot here and ingest chains ourselves, then bump a
+  // local generation so the delta/greeks read hooks re-read what we just wrote.
+  //
+  // Chain records are a single shared IndexedDB store; ingestion is idempotent
+  // per (symbol, expiration) key, so overlapping with the Write Desk poll (only
+  // one surface is mounted at a time via the router) is safe.
+  const [chainGeneration, setChainGeneration] = useState(0);
+  const isDemo = source === "demo";
+  const onChainSnapshot = useCallback(async (snapshotData: any) => {
+    const merged = await ingestChainsFromSnapshot(snapshotData);
+    if (merged > 0) setChainGeneration(g => g + 1);
+  }, []);
+  useEvidenceSnapshot(!isDemo, onChainSnapshot);
+
   // Console visualization regime. B is the accepted production design.
   // A and C are retained as development reference but no longer the default.
   const vizRegime = new URLSearchParams(window.location.search).get("viz") || "b";
@@ -138,7 +166,12 @@ export function OperatorConsole() {
     [underlyingsKey],
   );
   const spotHistory = useSpotHistory(underlyings, !isDemoSource, observations.generation);
-  const positionDeltas = usePositionDeltas(positions, observations.generation);
+  // Re-read chain-derived values when EITHER the quote-observation generation or
+  // our own chain-ingestion generation advances. The chain generation is what
+  // reflects freshly ingested greeks/delta from this surface's own poll.
+  const chainReadGeneration = (observations.generation ?? 0) + chainGeneration;
+  const positionDeltas = usePositionDeltas(positions, chainReadGeneration);
+  const positionGreeks = usePositionGreeks(positions, chainReadGeneration);
 
   // Alternative groupings for regime B
   const groups: { label: string; sublabel?: string; positions: MonitoredPosition[]; totalCapital: number }[] = (() => {
@@ -215,7 +248,7 @@ export function OperatorConsole() {
                 <span className="oc-group-by-divider" />
                 <button
                   className="oc-group-by-action"
-                  onClick={() => downloadPositionsCsv(positions, snapshot)}
+                  onClick={() => downloadPositionsCsv(positions, snapshot, positionDeltas, positionGreeks)}
                 >
                   Download CSV
                 </button>
@@ -254,14 +287,14 @@ export function OperatorConsole() {
                         <span className="oc-rung-count">{group.positions.length} position{group.positions.length !== 1 ? "s" : ""}</span>
                       </div>
                       {!isCollapsed && (
-                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
                       )}
                     </div>
                   );
                 })
               ) : (
                 rungs.map((rung) => (
-                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
                 ))
               )}
             </div>
@@ -290,7 +323,7 @@ export function OperatorConsole() {
 
 // --- Expiration Rung ---
 
-function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDeltas, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
+function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDeltas, positionGreeks, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
   const rungPercent = totalCapital > 0 ? Math.round((rung.totalCapital / totalCapital) * 100) : 0;
 
   return (
@@ -303,7 +336,7 @@ function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDel
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
       {vizRegime === "b" ? (
-        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
       ) : (
         <PositionGrid positions={rung.positions} onTileClick={onTileClick} vizRegime={vizRegime} totalCapital={rung.totalCapital} />
       )}
@@ -336,11 +369,29 @@ function PositionGrid({ positions, onTileClick, vizRegime, totalCapital }: { pos
  * Includes the same columns rendered in the table: Type, Symbol, Strike, Spot, Contracts,
  * Moneyness, Capital, Premium Booked, Bonus If Called Away, If Assigned.
  */
+/**
+ * CSV-safe greek formatting: keeps values numeric-parseable while never emitting a
+ * real nonzero value as a false "0.0000". Unavailable (null) → empty cell. A value
+ * that would round to zero at `digits` is widened (up to 8 decimals) until it is
+ * representable as nonzero; if still sub-1e-8 it is shown in exponential form.
+ * (This is the CSV counterpart to formatGreek's "<0.0001" threshold display.)
+ */
+function csvGreek(value: number | null, digits: number): string {
+  if (value == null || value === 0) return "";
+  for (let d = digits; d <= 8; d++) {
+    const s = value.toFixed(d);
+    if (Number(s) !== 0) return s;
+  }
+  return value.toExponential(2);
+}
+
 function downloadPositionsCsv(
   positions: MonitoredPosition[],
   snapshot: import("../write-desk/types").PortfolioSnapshot,
+  positionDeltas: PositionDeltaMap,
+  positionGreeks: PositionGreeksMap,
 ) {
-  const header = "Type,Symbol,Strike,Expiration,Spot,Contracts,Moneyness,Capital,Premium Booked,Bonus If Called Away,If Assigned,Opened,Freshness";
+  const header = "Type,Symbol,Strike,Expiration,Spot,Contracts,Moneyness,Capital,Delta,Gamma,Theta,Vega,Rho,Greek Age,Premium Booked,Bonus If Called Away,If Assigned,Opened,Quote Freshness";
   const rows = positions.map(position => {
     const type = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
     const spot = position.underlyingPrice != null ? position.underlyingPrice.toFixed(2) : "";
@@ -374,14 +425,34 @@ function downloadPositionsCsv(
       assigned = cell.display;
     }
 
-    // Data Age — freshness of the underlying price observation, derived at export time
+    // Greeks — from cached chain evidence (same source as the table columns).
+    // CSV keeps values numeric-parseable but must never emit a real value as a
+    // false "0.0000": csvGreek widens precision until the value is representable
+    // (unavailable → empty cell). Delta uses the same rule at 2 decimals.
+    const delta = positionDeltas.get(position.id);
+    const g = positionGreeks.get(position.id);
+    const deltaStr = csvGreek(delta ?? null, 2);
+    const gammaStr = csvGreek(g?.gamma ?? null, 4);
+    const thetaStr = csvGreek(g?.theta ?? null, 4);
+    const vegaStr = csvGreek(g?.vega ?? null, 4);
+    const rhoStr = csvGreek(g?.rho ?? null, 4);
+
+    // Greek Age — AUTHORITATIVE acquisition age of the CHAIN the greeks came from
+    // (from publisher-established provenance, not cache/TTL timing; distinct from
+    // the quote-freshness column below). Empty when provenance is unavailable.
+    let greekAge = "";
+    if (g?.chainAcquiredAtMs != null) {
+      greekAge = formatDataAge(Math.max(0, Date.now() - g.chainAcquiredAtMs));
+    }
+
+    // Quote Freshness — age of the underlying PRICE observation (NOT the greeks).
     let dataAge = "";
     if (position.priceObservedAt) {
       const observedMs = Date.parse(position.priceObservedAt);
       if (!Number.isNaN(observedMs)) dataAge = formatDataAge(Math.max(0, Date.now() - observedMs));
     }
 
-    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${position.quantity},${moneyness},${capital},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
+    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${position.quantity},${moneyness},${capital},${deltaStr},${gammaStr},${thetaStr},${vegaStr},${rhoStr},${greekAge},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
   });
 
   const csv = [header, ...rows].join("\n");
@@ -679,7 +750,7 @@ function PositionTableHeader() {
 }
 
 /** Regime B: Dense fixed-geometry rows using native <table> for proper column alignment */
-function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, isDemoSource, spotHistory, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
+function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, positionGreeks, isDemoSource, spotHistory, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
 
   // Apply within-group sorting
   const sortedPositions = sortColumn
@@ -712,6 +783,11 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
           {renderSortHeader("Expiration", "expiration")}
           {renderSortHeader("DTE", "dte", "oc-th-right")}
           <th className="oc-th-right">Delta</th>
+          <th className="oc-th-right">Gamma</th>
+          <th className="oc-th-right">Theta</th>
+          <th className="oc-th-right">Vega</th>
+          <th className="oc-th-right">Rho</th>
+          <th className="oc-th-right">Greek Age</th>
           {renderSortHeader("Contracts", "contracts", "oc-th-center")}
           {renderSortHeader("Capital", "capital", "oc-th-right")}
           <th className="oc-th-right">Capital %</th>
@@ -722,7 +798,7 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
           <th className="oc-th-right">If Assigned</th>
           <th className="oc-th-right">Market vs Basis</th>
           {renderSortHeader("Opened", "opened")}
-          {renderSortHeader("Freshness", "dataAge", "oc-th-right")}
+          {renderSortHeader("Quote Freshness", "dataAge", "oc-th-right")}
         </tr>
       </thead>
       <tbody>
@@ -849,8 +925,35 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
                       : undefined;
                 return (
                   <td className="oc-td-right oc-td-delta" style={bg ? { background: bg } : undefined}>
-                    {delta.toFixed(2)}
+                    {formatGreek(delta, 2)}
                   </td>
+                );
+              })()}
+              {(() => {
+                const g = positionGreeks.get(position.id);
+                // Greek freshness is the CHAIN's acquisition age — NOT the row's
+                // underlying-quote freshness. A chain can be materially older than the
+                // latest spot (e.g. a held near-expiry expiration acquired days ago), so
+                // we annotate the greek cells with their own age and mark them stale when
+                // the chain is older than the Decision chain window, so a fresh quote can
+                // never make stale greeks look current.
+                const chainMs = g?.chainAcquiredAtMs ?? null;
+                const chainAgeMs = chainMs != null ? Math.max(0, Date.now() - chainMs) : null;
+                const stale = chainAgeMs != null && chainAgeMs > GREEK_STALE_MS;
+                const ageStr = chainAgeMs != null ? formatDataAge(chainAgeMs) : null;
+                const cls = `oc-td-right oc-td-greek${stale ? " oc-td-greek-stale" : ""}`;
+                const title = ageStr
+                  ? `Greeks from chain acquired ${ageStr} ago${stale ? " — STALE (older than the chain freshness window; not the same as the spot's freshness)" : ""}`
+                  : "Greek chain age unknown";
+                const ageCls = `oc-td-right oc-td-greek-age${stale ? " oc-td-greek-stale" : ""}`;
+                return (
+                  <>
+                    <td className={cls} title={title}>{formatGreek(g?.gamma ?? null)}</td>
+                    <td className={cls} title={title}>{formatGreek(g?.theta ?? null)}</td>
+                    <td className={cls} title={title}>{formatGreek(g?.vega ?? null)}</td>
+                    <td className={cls} title={title}>{formatGreek(g?.rho ?? null)}</td>
+                    <td className={ageCls} title={title}>{ageStr ?? "—"}</td>
+                  </>
                 );
               })()}
               <td className="oc-td-center">{position.quantity}</td>
@@ -970,7 +1073,7 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
 
   return (
     <tr className="oc-trow-totals">
-      <td colSpan={9} className="oc-td-totals-label">Total</td>
+      <td colSpan={14} className="oc-td-totals-label">Total</td>
       <td className="oc-td-right">${capitalTotal.toLocaleString()}</td>
       <td />
       <td />
