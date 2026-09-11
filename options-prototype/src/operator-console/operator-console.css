@@ -1008,6 +1008,30 @@
   color: var(--wd-text-secondary);
 }
 
+.oc-td-greek {
+  font-family: var(--wd-font-mono, monospace);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--wd-text-secondary);
+}
+
+/* Greek Age: the chain-acquisition age of the greeks, shown next to them so it is
+   never confused with the row's underlying-quote freshness. */
+.oc-td-greek-age {
+  font-family: var(--wd-font-mono, monospace);
+  font-size: 10px;
+  color: var(--wd-text-secondary);
+}
+
+/* Greeks whose source chain is older than the freshness window. Muted + dashed
+   underline so an operator can see the value is not current — distinct from the
+   row's underlying-quote freshness. */
+.oc-td-greek-stale {
+  color: var(--wd-text-disabled, #9aa0a6);
+  text-decoration: underline dotted rgba(202, 138, 4, 0.7);
+  text-underline-offset: 2px;
+}
+
 .oc-td-badge { font-family: var(--wd-font-sans); font-size: 9px; font-weight: var(--wd-weight-semi); }
 .oc-badge { padding: 1px 4px; border-radius: 2px; }
 .oc-badge-put { color: #a855a0; background: rgba(180,100,160,0.06); }

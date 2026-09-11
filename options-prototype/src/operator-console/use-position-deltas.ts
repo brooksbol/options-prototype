@@ -1,34 +1,77 @@
 /**
- * usePositionDeltas — looks up current delta for monitored positions from cached chain evidence.
+ * use-position-deltas — THIN Operator Console adapter over the shared greek
+ * domain. It maps monitored positions to greek-lookup subjects and exposes the
+ * two map shapes the Console table consumes. It contains NO greek validity,
+ * availability, or formatting logic — those live in the consumer-agnostic
+ * `write-desk/option-greeks` and `write-desk/contract-greek-lookup` modules so
+ * the future Deployment tables reuse identical semantics without copying Console
+ * code.
  *
- * Delta is extracted from the DurableMarketCache chain records by matching
- * each position's symbol + expiration + strike against the cached chain's
- * puts/calls array.
- *
- * Returns a Map<positionId, number | null> where null means delta is unavailable
- * (no cached chain, contract not found, or chain too old).
- *
- * Sign convention:
- *   - Puts: delta is negative from provider (e.g., -0.30). We store absolute value.
- *   - Calls: delta is positive from provider (e.g., 0.30). Stored as-is.
- *   The returned value is always the ABSOLUTE delta (0.00–1.00).
+ * Console-specific presentation choice retained here: the delta column shows the
+ * ABSOLUTE delta magnitude (puts report negative delta; magnitude puts puts and
+ * calls on one 0–1 scale). Validity of that delta still comes from shared
+ * sanitization; only the abs() presentation is local.
  */
 
 import { useState, useEffect } from "react";
-import { getDurableCache, buildCacheKey } from "../cache/durable-cache";
 import type { MonitoredPosition } from "../portfolio/position-monitoring";
+import { lookupContractGreeksWithAge, type GreekLookupSubject, type ContractGreeksResult } from "../write-desk/contract-greek-lookup";
+import { absDeltaMagnitude } from "../write-desk/option-greeks";
 
+/** Absolute delta magnitude per position (null = unavailable). */
 export type PositionDeltaMap = ReadonlyMap<string, number | null>;
 
-const EMPTY_MAP: PositionDeltaMap = new Map();
+/** Secondary greeks per position (each field null = unavailable). */
+export interface PositionGreeks {
+  gamma: number | null;
+  theta: number | null;
+  vega: number | null;
+  rho: number | null;
+  /**
+   * Authoritative epoch-ms when the CHAIN these greeks came from was acquired
+   * (null when authoritative provenance is unavailable). Sourced from the record's
+   * publisher-established provenance (never cache/TTL timing). Distinct from the
+   * row's underlying-quote freshness: greeks can be materially older than the
+   * latest spot, so the surface presents this so a fresh quote does not
+   * masquerade as fresh greeks.
+   */
+  chainAcquiredAtMs: number | null;
+}
 
-interface ChainPayload {
-  puts?: Array<{ strike: number; delta: number }>;
-  calls?: Array<{ strike: number; delta: number }>;
+export type PositionGreeksMap = ReadonlyMap<string, PositionGreeks>;
+
+const EMPTY_DELTA_MAP: PositionDeltaMap = new Map();
+const EMPTY_GREEKS_MAP: PositionGreeksMap = new Map();
+
+/** Map a monitored position to a shared greek-lookup subject. */
+function toSubject(pos: MonitoredPosition): GreekLookupSubject {
+  return {
+    symbol: pos.underlying,
+    expiration: pos.expiration,
+    strike: pos.strike,
+    // buy-write is written against the call side, same as a covered call.
+    side: pos.type === "put" ? "put" : "call",
+  };
 }
 
 /**
- * Look up current delta for each monitored position from cached chain evidence.
+ * Resolve sanitized greeks for every position via the shared lookup. Returns a
+ * Map keyed by position id. Shared for both hooks so the cache read happens once
+ * per lookup call and both maps derive from identical, already-sanitized data.
+ */
+async function resolveGreeksByPosition(
+  positions: MonitoredPosition[],
+): Promise<Map<string, ContractGreeksResult>> {
+  const result = new Map<string, ContractGreeksResult>();
+  for (const pos of positions) {
+    result.set(pos.id, await lookupContractGreeksWithAge(toSubject(pos)));
+  }
+  return result;
+}
+
+/**
+ * usePositionDeltas — absolute delta magnitude per position, from shared,
+ * sanitized greek evidence.
  *
  * @param positions - current monitored positions
  * @param generation - evidence generation (triggers re-lookup when evidence advances)
@@ -37,60 +80,74 @@ export function usePositionDeltas(
   positions: MonitoredPosition[],
   generation: number | null,
 ): PositionDeltaMap {
-  const [deltas, setDeltas] = useState<PositionDeltaMap>(EMPTY_MAP);
-
-  // Stable key: only re-run when the position SET changes (not reference)
+  const [deltas, setDeltas] = useState<PositionDeltaMap>(EMPTY_DELTA_MAP);
   const positionKey = positions.map(p => p.id).join(",");
 
   useEffect(() => {
     if (positions.length === 0) {
-      setDeltas(EMPTY_MAP);
+      setDeltas(EMPTY_DELTA_MAP);
       return;
     }
-
     let cancelled = false;
 
-    async function lookup() {
-      const cache = getDurableCache();
+    (async () => {
+      const greeksByPos = await resolveGreeksByPosition(positions);
+      if (cancelled) return;
       const result = new Map<string, number | null>();
-
       for (const pos of positions) {
-        const key = buildCacheKey("tradier", "sandbox", "chain", pos.underlying, pos.expiration);
-        const record = await cache.get(key);
-
-        if (!record || !record.payload) {
-          result.set(pos.id, null);
-          continue;
-        }
-
-        const chain = record.payload as ChainPayload;
-        const contracts = pos.type === "put" ? chain.puts : chain.calls;
-
-        if (!contracts || contracts.length === 0) {
-          result.set(pos.id, null);
-          continue;
-        }
-
-        // Find the contract matching this position's strike
-        const match = contracts.find(c => c.strike === pos.strike);
-        if (!match || match.delta === 0) {
-          result.set(pos.id, null);
-          continue;
-        }
-
-        // Return absolute delta
-        result.set(pos.id, Math.abs(match.delta));
+        const g = greeksByPos.get(pos.id);
+        result.set(pos.id, absDeltaMagnitude(g?.greeks.delta ?? null));
       }
-
-      if (!cancelled) {
-        setDeltas(result);
-      }
-    }
-
-    lookup();
+      setDeltas(result);
+    })();
 
     return () => { cancelled = true; };
   }, [positionKey, generation]);
 
   return deltas;
+}
+
+/**
+ * usePositionGreeks — secondary greeks (gamma, theta, vega, rho) per position,
+ * from shared, sanitized greek evidence. Values are as-reported by the provider
+ * (no sign normalization); availability is the shared field-level result.
+ *
+ * @param positions - current monitored positions
+ * @param generation - evidence generation (triggers re-lookup when evidence advances)
+ */
+export function usePositionGreeks(
+  positions: MonitoredPosition[],
+  generation: number | null,
+): PositionGreeksMap {
+  const [greeks, setGreeks] = useState<PositionGreeksMap>(EMPTY_GREEKS_MAP);
+  const positionKey = positions.map(p => p.id).join(",");
+
+  useEffect(() => {
+    if (positions.length === 0) {
+      setGreeks(EMPTY_GREEKS_MAP);
+      return;
+    }
+    let cancelled = false;
+
+    (async () => {
+      const greeksByPos = await resolveGreeksByPosition(positions);
+      if (cancelled) return;
+      const result = new Map<string, PositionGreeks>();
+      for (const pos of positions) {
+        const r = greeksByPos.get(pos.id);
+        result.set(pos.id, {
+          gamma: r?.greeks.gamma ?? null,
+          theta: r?.greeks.theta ?? null,
+          vega: r?.greeks.vega ?? null,
+          rho: r?.greeks.rho ?? null,
+          chainAcquiredAtMs: r?.chainAcquiredAtMs ?? null,
+        });
+      }
+      setGreeks(result);
+    })();
+
+    return () => { cancelled = true; };
+  }, [positionKey, generation]);
+
+  return greeks;
 }
