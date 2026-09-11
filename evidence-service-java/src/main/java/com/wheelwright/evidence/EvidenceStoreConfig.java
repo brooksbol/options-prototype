@@ -154,10 +154,18 @@ public class EvidenceStoreConfig {
      * provider-delay policy from provider identity.
      */
     @Bean
-    public SessionClassifier sessionClassifier(ProviderAuthorityManager providerAuthorityManager) {
+    public SessionClassifier sessionClassifier(ProviderAuthorityManager providerAuthorityManager,
+                                               SqliteEvidenceStore store) {
         return new SessionClassifier(
             Clock.systemUTC(),
-            () -> "production".equals(providerAuthorityManager.active().environment()));
+            () -> "production".equals(providerAuthorityManager.active().environment()),
+            sessionDate -> {
+                try {
+                    return store.hasCompletePublishedSession(sessionDate);
+                } catch (SQLException e) {
+                    return false;
+                }
+            });
     }
 
     @Bean

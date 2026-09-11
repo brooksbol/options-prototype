@@ -187,10 +187,20 @@ class SessionClassifierTest {
         @Test
         @DisplayName("16:30 ET (production, real-time) -> CLOSED_CANONICAL (sealed)")
         void closedProduction() {
-            var c = classifier(true).classify(etInstant(TRADING_DAY, 16, 30));
+            var c = new SessionClassifier(Clock.systemUTC(), () -> true,
+                date -> TRADING_DAY.equals(date)).classify(etInstant(TRADING_DAY, 16, 30));
             assertEquals(SessionClassifier.State.CLOSED_CANONICAL, c.state());
             assertFalse(c.acceptingCanonicalEvidence());
+            assertTrue(c.priorSessionOperationallyValid());
             assertNull(c.admissibilityBoundaryEpochMs());
+        }
+
+        @Test
+        @DisplayName("closed-session validity fails closed without a matching durable session")
+        void closedWithoutDurableSession() {
+            var c = new SessionClassifier(Clock.systemUTC(), () -> true,
+                date -> false).classify(etInstant(TRADING_DAY, 16, 30));
+            assertFalse(c.priorSessionOperationallyValid());
         }
 
         @Test

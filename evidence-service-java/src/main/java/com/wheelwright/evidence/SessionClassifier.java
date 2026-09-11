@@ -9,6 +9,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 
 /**
  * Authoritative market-session classification (Issue #16).
@@ -73,10 +74,19 @@ public final class SessionClassifier {
     private final Clock clock;
     /** True when the active provider serves real-time (undelayed) market data. */
     private final BooleanSupplier realtimeData;
+    /** Durable authority for whether a completed canonical session can survive restart. */
+    private final Predicate<String> persistedSessionValid;
 
     public SessionClassifier(Clock clock, BooleanSupplier realtimeData) {
+        this(clock, realtimeData, ignored -> true);
+    }
+
+    public SessionClassifier(Clock clock, BooleanSupplier realtimeData,
+                             Predicate<String> persistedSessionValid) {
         this.clock = clock != null ? clock : Clock.systemUTC();
         this.realtimeData = realtimeData != null ? realtimeData : () -> false;
+        this.persistedSessionValid = persistedSessionValid != null
+            ? persistedSessionValid : ignored -> false;
     }
 
     /** The provider delay in minutes for the CURRENT active authority (0 real-time, 15 delayed). */
@@ -102,7 +112,7 @@ public final class SessionClassifier {
                 || US_MARKET_HOLIDAYS_2026.contains(et.dateStr)) {
             String canonical = previousTradingDay(et.dateStr);
             return new Classification(State.NON_TRADING_DAY, canonical, null,
-                /*acceptingCanonicalEvidence*/ false, /*priorSessionOperationallyValid*/ true,
+                /*acceptingCanonicalEvidence*/ false, persistedSessionValid.test(canonical),
                 delayMin, /*admissibilityBoundaryEpochMs*/ null);
         }
 
@@ -118,15 +128,17 @@ public final class SessionClassifier {
 
         // Before open → PREMARKET (prior session canonical).
         if (et.timeMinutes < MARKET_OPEN_MINUTES) {
-            return new Classification(State.PREMARKET, previousTradingDay(today), today,
-                false, true, delayMin, null);
+            String canonical = previousTradingDay(today);
+            return new Classification(State.PREMARKET, canonical, today,
+                false, persistedSessionValid.test(canonical), delayMin, null);
         }
 
         // [open, open+delay) → REGULAR_OPEN_DELAY. For a real-time authority delay=0,
         // so this window is empty and we fall straight through to REGULAR_OBSERVATION.
         if (et.timeMinutes < openPlusDelay) {
-            return new Classification(State.REGULAR_OPEN_DELAY, previousTradingDay(today), today,
-                false, true, delayMin, admissibilityBoundaryMs);
+            String canonical = previousTradingDay(today);
+            return new Classification(State.REGULAR_OPEN_DELAY, canonical, today,
+                false, persistedSessionValid.test(canonical), delayMin, admissibilityBoundaryMs);
         }
 
         // [open+delay, close) → REGULAR_OBSERVATION (accepting canonical evidence).
@@ -144,7 +156,7 @@ public final class SessionClassifier {
 
         // Past close+delay → CLOSED_CANONICAL (sealed).
         return new Classification(State.CLOSED_CANONICAL, today, today,
-            false, false, delayMin, null);
+            false, persistedSessionValid.test(today), delayMin, null);
     }
 
     /**

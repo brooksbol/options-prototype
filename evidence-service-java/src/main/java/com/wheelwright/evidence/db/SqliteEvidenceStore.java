@@ -839,6 +839,37 @@ public class SqliteEvidenceStore implements AutoCloseable {
     }
 
     /**
+     * Whether the durable published snapshot represents a completely resolved
+     * recommendation universe for the requested canonical session. This is the
+     * restart authority for sealed/prior-session validity: no in-memory worker
+     * state and no reacquisition are required.
+     */
+    public boolean hasCompletePublishedSession(String sessionDate) throws SQLException {
+        if (sessionDate == null || sessionDate.isBlank()) return false;
+        String sql = """
+            SELECT ss.generation, ss.published_at,
+                   COUNT(sr.symbol) AS total,
+                   SUM(CASE WHEN sr.session_date = ?
+                              AND sr.resolution IN ('ready', 'absent')
+                            THEN 1 ELSE 0 END) AS resolved
+              FROM snapshot_state ss
+              LEFT JOIN symbol_resolution sr ON 1 = 1
+             WHERE ss.id = 1
+             GROUP BY ss.generation, ss.published_at
+            """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, sessionDate);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next()
+                    && rs.getInt("generation") > 0
+                    && rs.getString("published_at") != null
+                    && rs.getInt("total") > 0
+                    && rs.getInt("resolved") == rs.getInt("total");
+            }
+        }
+    }
+
+    /**
      * Publish the snapshot: increment generation.
      */
     public void publishSnapshot() throws SQLException {

@@ -260,6 +260,7 @@ class SqliteEvidenceStoreTest {
 
             // First instance: acquire evidence
             try (SqliteEvidenceStore store1 = new SqliteEvidenceStore(dbPath)) {
+                store1.setSessionDateOverride("2026-07-16");
                 store1.initUniverse(List.of("XLE", "NOOPT"));
                 store1.setExpirations("XLE", EXPIRATIONS_JSON, NOW);
                 store1.setChain("XLE", CHAIN_JSON, NOW);
@@ -283,6 +284,10 @@ class SqliteEvidenceStoreTest {
                 Map<String, Integer> coverage = store2.getCoverage();
                 assertEquals(1, coverage.get("ready"));
                 assertEquals(1, coverage.get("absent"));
+                assertTrue(store2.hasCompletePublishedSession("2026-07-16"),
+                    "a fully resolved published session remains operationally valid after restart");
+                assertFalse(store2.hasCompletePublishedSession("2026-07-15"),
+                    "a different session must not inherit validity");
             }
         }
 
