@@ -675,6 +675,61 @@ class AcquisitionWorkerTest {
         }
     }
 
+    @Nested
+    @DisplayName("chain serialization — nullable greeks")
+    class ChainGreekSerialization {
+
+        private AcquisitionWorker worker() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE"));
+            var gate = new SessionGate(Clock.fixed(Instant.parse("2026-09-05T16:00:00Z"), ZoneOffset.UTC));
+            return new AcquisitionWorker(createStubAdapter(), store, gate, CONFIG);
+        }
+
+        private MarketChain oneContractChain(Double delta, Double gamma, Double theta, Double vega, Double rho) {
+            var put = new MarketChain.OptionContract(55.0, 1.5, 1.7, delta, gamma, theta, vega, rho, 500, 110);
+            return new MarketChain("XLE", FUTURE_EXPIRATION,
+                new MarketChain.Underlying("XLE", "Energy", 58.0), List.of(put), List.of());
+        }
+
+        @Test
+        @DisplayName("unavailable (null) greeks serialize as JSON null, never 0")
+        void nullGreeksSerializeAsNull() throws Exception {
+            var w = worker();
+            // delta present; gamma/theta/vega/rho unavailable.
+            String json = w.marshalChain(oneContractChain(-0.28, null, null, null, null));
+            assertTrue(json.contains("\"delta\":-0.28"), json);
+            assertTrue(json.contains("\"gamma\":null"), "absent gamma must serialize as null, not 0: " + json);
+            assertTrue(json.contains("\"theta\":null"), json);
+            assertTrue(json.contains("\"vega\":null"), json);
+            assertTrue(json.contains("\"rho\":null"), json);
+            assertFalse(json.contains("\"gamma\":0"), "must NOT fabricate zero for missing gamma: " + json);
+        }
+
+        @Test
+        @DisplayName("numeric zero greeks serialize as 0, distinct from null")
+        void zeroGreeksSerializeAsZero() throws Exception {
+            var w = worker();
+            String json = w.marshalChain(oneContractChain(0.0, 0.0, 0.0, 0.0, 0.0));
+            assertTrue(json.contains("\"delta\":0.0"), json);
+            assertTrue(json.contains("\"gamma\":0.0"), json);
+            assertFalse(json.contains("null"), "explicit zeros must not become null: " + json);
+        }
+
+        @Test
+        @DisplayName("mixed availability serializes each field truthfully")
+        void mixedGreeksSerializeIndependently() throws Exception {
+            var w = worker();
+            // delta valid, gamma null, theta zero, vega valid, rho null.
+            String json = w.marshalChain(oneContractChain(-0.31, null, 0.0, 0.05, null));
+            assertTrue(json.contains("\"delta\":-0.31"), json);
+            assertTrue(json.contains("\"gamma\":null"), json);
+            assertTrue(json.contains("\"theta\":0.0"), json);
+            assertTrue(json.contains("\"vega\":0.05"), json);
+            assertTrue(json.contains("\"rho\":null"), json);
+        }
+    }
+
     // --- Stub adapter that doesn't make real network calls ---
 
     private TradierAdapter createStubAdapter() {
