@@ -240,29 +240,23 @@ This prevents multiple competing backlogs.
 
 ---
 
-## Defect Tracking — GitHub Issues as the Defect System of Record
+## Defect Tracking — `docs/bugs/` is the Defect System of Record
 
-**Ratified September 4, 2026.** The prior clauses establish what GitHub Issues are *not* (they are not the canonical idea-intake registry). This section establishes the one *positive* durable role Issues carry.
+**Ratified September 11, 2026 (knife-edge migration).** The prior clauses establish what the parking lot is *not* (it is not the defect registry — a defect does not receive a `PL-*` identity merely for being a defect). This section establishes where defects *do* live and confirms the idea/defect boundary.
 
 **A defect is a demonstrated failure of Wheelwright to behave according to its intended semantics** — for example accounting-correctness failures, lifecycle-projection failures, or cognitive/operator-evidence-correctness failures. A defect is not a new capability, a roadmap direction, or a discovery note.
 
 The convention:
 
-1. **GitHub Issues are the authoritative system of record for defects.** A defect's authoritative identity, evidence, and disposition live in its Issue.
+1. **`docs/bugs/` is the one and only authoritative defect-tracking mechanism.** A defect's authoritative identity (`BUG-NNN`), evidence, and disposition live in its `docs/bugs/BUG-NNN-*.md` record. The governing methodology, record format, lifecycle rules, and classification live in `docs/bugs/README.md`; the discovery index is `docs/bugs/INDEX.md`.
 2. **The parking lot and roadmap remain authoritative for ideas, capabilities, discovery, and unresolved product direction.** A defect does **not** receive a `PL-*` identity merely for being a defect. This removes the earlier drift in which defects were stapled onto `PL-*` product-maturity rows.
-3. **Related defects and `PL-*` items may cross-link, but must not be double-booked as the same authoritative item.** When a defect relates to a capability (e.g. a Production-accounting defect relating to `PL-PORT-02`), the Issue links to the `PL-*` and the `PL-*` may reference the Issue, but the **Issue is authoritative for the defect** and the **`PL-*` remains authoritative for the capability/idea**. Neither restates the other as its own authority.
-4. **Filing a defect does not authorize remediation.** Identifying, filing, classifying, or reconciling a defect is not permission to change code, redesign a surface, or alter behavior. Remediation requires separate explicit Principal authorization, consistent with the mode/authorization discipline in `docs/bootstrap/project-memory-protocol.md`.
+3. **Related defects and `PL-*` items may cross-link, but must not be double-booked as the same authoritative item.** When a defect relates to a capability (e.g. a Production-accounting defect relating to `PL-PORT-02`), the `BUG-NNN` record links to the `PL-*` and the `PL-*` may reference the `BUG-NNN`, but the **`BUG-NNN` record is authoritative for the defect** and the **`PL-*` remains authoritative for the capability/idea**. Neither restates the other as its own authority.
+4. **Filing a defect does not authorize remediation.** Identifying, recording, classifying, or reconciling a defect is not permission to change code, redesign a surface, or alter behavior. Remediation requires separate explicit Principal authorization, consistent with the mode/authorization discipline in `docs/bootstrap/project-memory-protocol.md`.
 5. **Severity describes consequence; priority/sequencing is a separate Principal decision.** Severity is a property of the defect — the consequence if it stands. It is evidence, not a remediation ordering (mirroring the technology-quality rule that "severity is evidence, not a remediation priority or ordering"). *When* a defect is addressed is Principal sequencing and is not encoded in the defect record.
 
-### Minimal defect classification
+Defect classification (`area`, and `severity` `S1`–`S4`) is defined in `docs/bugs/README.md`. Severity is recorded as `Not established` where the defect's record never asserted one; it is not invented. No Jira-like workflow and no separate priority taxonomy is introduced.
 
-Defect Issues carry a lightweight classification drawn from existing Wheelwright vocabulary. No Jira-like workflow, and no separate priority taxonomy, is introduced.
-
-- **type** — `defect` (in scope here). `product-gap`, `roadmap-intake`, and `discovery-note` are the existing self-labels used to mark an Issue that is *not* a defect; only `defect` Issues are governed by this section.
-- **area** — the affected Wheelwright surface/engine, reusing canonical vocabulary: the Four Engines (Evidence / Policy / Decision / Explanation), product surfaces (Write Desk / Operator Console / Production / Velvet Rope), or the relevant `PL-*` family where that is the clearest locator.
-- **severity** — consequence of the defect. `S1` critical, `S2` major, `S3` moderate, `S4` minor. Severity is evidence of consequence only; it does not imply sequencing.
-
-Whether this classification is expressed as GitHub labels or as a required Issue header is an implementation detail; labels are the lower-overhead option. Do not bulk-relabel unrelated history.
+> **Authority note (knife-edge migration, September 11, 2026):** This **replaces** the September 4, 2026 rule that made GitHub Issues the defect system of record. GitHub Issues are **no longer** a defect registry; new defects are not filed as Issues, and `docs/bugs/` records are not mirrored by parallel defect Issues. The historical defect population was migrated into `BUG-001`–`BUG-010`, preserving original GitHub Issue identity as provenance only (see `docs/bugs/INDEX.md`).
 
 ---
 

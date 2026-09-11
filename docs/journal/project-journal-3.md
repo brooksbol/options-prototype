@@ -389,3 +389,30 @@ Backend full suite green (added: greek-nullability + serialization, exponent/mal
 
 ### Status
 Feature accepted by the Principal on the operator-visible CSV artifact. Remaining is repo hygiene (this entry, history cleanup, push/PR). The recommendation-engine-in-browser placement (PL-ARCH-06) and any Deployment-surface greeks remain future work.
+
+---
+
+## 2026-09-11 — Defect tracking migrated to repository-native `docs/bugs/` (knife-edge authority cutover)
+
+### What changed
+
+Per Principal decision (Defect Tracking Migration), Wheelwright now has **one and only one** way to track bugs: repository-native `BUG-NNN` records under `docs/bugs/`. This **replaces** — does not supplement — the September 4, 2026 rule that made GitHub Issues the defect system of record. There is no accepted intermediate state with two competing trackers.
+
+- Created `docs/bugs/README.md` (governing methodology: `BUG-NNN` identity, record format, lifecycle, severity `S1`–`S4`, `Not established` for unasserted severity), `docs/bugs/INDEX.md` (discovery index + migration map), and ten records `BUG-001`–`BUG-010`.
+- Replaced the defect-authority rule in `docs/README.md` and the "Defect Tracking" section of `foundations/idea-intake-reconciliation.md`; registered `docs/bugs/` in the README authority model (Category B methodology + Category C canonical corpus).
+- Repointed the incidental Kreature cross-links in `parking-lot.md` / `parking-lot-3.md` from "GitHub Issue #10" to `BUG-005` (Issue as provenance).
+
+### Migration map (ascending historical GitHub Issue number)
+
+#2→BUG-001, #3→BUG-002, #8→BUG-003, #9→BUG-004, #10→BUG-005, #11→BUG-006, #12→BUG-007, #14→BUG-008, #15→BUG-009, #16→BUG-010. Not migrated: #1, #4, #7 (roadmap-intake / product-gap / discovery-note — not defects). GitHub gaps #5/#6/#13 carry no significance.
+
+### Judgment calls preserved (why-state)
+
+- **#2 had no `defect` label** yet was ruled a defect: its body explicitly names a "latent lifecycle-processing defect" with demonstrated behavior and acceptance criteria. Migration membership is **semantic**, not label-driven — defining the population by the current label would have wrongly excluded it and contradicted the preservation rule.
+- **#14 and #15 have corrupted trailing prose** in the source Issue bodies (repeated/garbled fragments, truncated words). Per the ruling, surviving text is preserved verbatim and the corruption is explicitly marked; recoverable-but-uncertain intent is labeled as uncertain and non-authoritative rather than silently repaired.
+- **#16 (BUG-010) is Resolved.** Remediation provenance: PR #17. Subsequent architectural learning: PR #18 / ADR-017 — recorded as *post-dating* the defect, not as something that governed the original behavior.
+- Journal entries that historically say "filed as GitHub Issue #N" were left intact: append-only chronology records what happened at the time and must not be rewritten to make history look linear.
+
+### Status
+
+Migration implemented; not yet committed (awaiting Principal commit authorization and Codex independent verification of the authority transition). GitHub Issues remain as historical provenance/workflow record; they are no longer defect authority.

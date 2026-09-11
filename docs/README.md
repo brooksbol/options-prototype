@@ -24,9 +24,11 @@ All material new ideas use one canonical intake/reconciliation pipeline governed
 
 The complete `docs/parking-lot*.md` sequence is the system of record for unresolved idea identity and disposition. GitHub issues, standalone discovery documents, prompts, and conversations may support an idea but do not replace its canonical `PL-*` identity. A Principal decision that an item is next establishes sequencing; it does not bypass reconciliation or design gates.
 
-## Defect Tracking Rule — September 4, 2026
+## Defect Tracking Rule — September 11, 2026
 
-**GitHub Issues are the authoritative system of record for defects; the parking lot / roadmap remain authoritative for ideas, capabilities, discovery, and product direction.** Related defects and `PL-*` items may cross-link but are not double-booked as the same authoritative item. Filing a defect does not authorize remediation. Severity describes consequence; priority/sequencing is a separate Principal decision. The governing convention (including minimal `type` / `area` / `severity` classification) lives in `foundations/idea-intake-reconciliation.md` → "Defect Tracking."
+**`docs/bugs/` is the one and only authoritative defect-tracking mechanism for Wheelwright.** Each defect has one durable identity (`BUG-NNN`, sequential, permanent, never reused) → one authoritative record (`docs/bugs/BUG-NNN-*.md`) → one lifecycle. The parking lot / roadmap remain authoritative for ideas, capabilities, discovery, and product direction. Related defects and `PL-*` items may cross-link but are not double-booked as the same authoritative item. Filing a defect does not authorize remediation. Severity describes consequence; priority/sequencing is a separate Principal decision. The governing methodology, record format, lifecycle rules, and classification (`area` / `severity` `S1`–`S4`) live in `docs/bugs/README.md`; the discovery index is `docs/bugs/INDEX.md`.
+
+> **Authority note (knife-edge migration, September 11, 2026):** This **replaces** the September 4, 2026 rule that made GitHub Issues the defect system of record. GitHub Issues are **no longer** a defect registry; new defects must not be filed as Issues, and repository bug records must not be mirrored by parallel defect Issues. Historical defect Issues (#2, #3, #8, #9, #10, #11, #12, #14, #15, #16) were migrated into `BUG-001`–`BUG-010`, preserving their original Issue identity as provenance only. See `docs/bugs/INDEX.md`.
 
 ---
 
@@ -167,6 +169,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
 | `bootstrap/project-memory-protocol.md` | Ratified methodology (documentation diligence / project memory) |
 | `foundations/parking-lot-continuation-governance.md` | Ratified methodology (one logical parking lot across physical continuation files) |
+| `bugs/README.md` | Ratified methodology (repository-native defect tracking: `BUG-NNN` identity, record format, lifecycle — the sole defect system of record) |
 
 ### C. Canonical Project / Operational State
 
@@ -180,6 +183,7 @@ Authoritative for their specific project concern. Not system-definition document
 | `technology-quality-fitness-controls-v1.md` | Ratified fitness-control set: three-layer quality model, strict Sonar profile (reproducible policy), ArchUnit invariant mechanism, trend-over-gates principle |
 | `parking-lot.md` + numbered continuations | One canonical backlog and material-idea intake registry expressed across physical pages |
 | `journal/project-journal.md` + numbered continuations | One canonical chronology expressed across physical continuation files |
+| `bugs/INDEX.md` + `bugs/BUG-*.md` records | The one canonical defect corpus and discovery index (`BUG-NNN` records) — sole defect system of record |
 | `contracts/evidence-snapshot-v1.md` | Frozen API contract (v1) |
 
 ### D. Reconciliation / Checkpoint Artifacts

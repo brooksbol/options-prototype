@@ -361,7 +361,7 @@ The residual boundary is ratified (see the `PL-SHELL` row and journal `edcbfb2`)
 - Every historical Lab capability receives exactly one disposition: **migrate / preserve as subordinate engineering instrument / delete**.
 - **Deployment** is the canonical operator-facing name for the current WriteDesk surface.
 - `/engineering/*` is the ratified **vocabulary/topology direction**; `/labs/*` is transitional. **No `/engineering/*` route implementation has occurred.**
-- **Kreature is explicitly outside this decision** and separately governed; its navigation inconsistency remains **GitHub Issue #10**.
+- **Kreature is explicitly outside this decision** and separately governed; its navigation inconsistency is tracked as **`BUG-005`** (provenance: GitHub Issue #10).
 
 ### Governing phase
 
