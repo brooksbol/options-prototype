@@ -58,7 +58,7 @@ Read these before doing any Wheelwright work. Produces safe operating competence
 | 1 | `docs/README.md` (this file) | Orientation. Document index. Authority model. |
 | 2 | `foundations/evidence-appliance.md` | What Wheelwright is. System identity. |
 | 3 | `07-architecture-current.md` | Current system. Four Engines. Boundaries. Surfaces. |
-| 4 | `07c-adrs.md` | Decisions that constrain changes. ADR-001 through ADR-013. |
+| 4 | `07c-adrs.md` | Decisions that constrain changes. ADR-001 through ADR-017 (append-only). |
 | 5 | Complete `parking-lot*.md` sequence | What is active, deferred, and resolved. Read the original plus every numbered continuation. |
 
 **When this is insufficient:** If you're touching architecture, designing a new subsystem, or need to understand *why* something is the way it is — continue to the comprehensive path.
@@ -142,7 +142,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 
 | Document | Substatus |
 |----------|-----------|
-| `07c-adrs.md` | Ratified decisions (ADR-001 through ADR-013, append-only) |
+| `07c-adrs.md` | Ratified decisions (ADR-001 through ADR-017, append-only) |
 | `08-adr-backend-evidence-service.md` | Ratified decision (backend extraction) |
 | `09-backend-evidence-service-design.md` | Ratified design; §3 and §10 are Historical |
 | `09a-backend-diagrams.md` | Ratified design; diagram 6 is Historical |
