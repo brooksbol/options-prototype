@@ -74,12 +74,42 @@ public class ObserveController {
         // once they resolve to a chain; already-known symbols are marked monitored now.
         store.setMonitoredSymbols(normalized);
 
+        // Held-expiration acquisition overlay (migration 007). Optional additive field:
+        // { "heldExpirations": [ { "symbol": "GDXJ", "expiration": "2026-09-11" }, ... ] }.
+        // These are the EXACT (symbol, expiration) pairs the operator currently holds. The
+        // acquisition worker keeps their chains refreshed even below the 7-45 DTE window,
+        // so held positions' greeks stay current. Atomically REPLACES the held set; a
+        // closed position stops being held on the next declaration. Absent field → clear
+        // held set (back-compatible: older clients simply hold nothing).
+        List<Map.Entry<String, String>> heldPairs = parseHeldExpirations(body.get("heldExpirations"));
+        store.setHeldExpirations(heldPairs);
+
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("added", unknown);
         result.put("alreadyKnown", alreadyKnown);
         result.put("monitored", normalized.size());
+        result.put("heldExpirations", heldPairs.size());
         result.put("totalRequested", normalized.size());
 
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Parse the optional {@code heldExpirations} payload into (symbol, expiration) pairs.
+     * Accepts a list of objects each with "symbol" and "expiration" string fields.
+     * Tolerant: null/missing → empty list; malformed entries are skipped.
+     */
+    private static List<Map.Entry<String, String>> parseHeldExpirations(Object raw) {
+        List<Map.Entry<String, String>> pairs = new ArrayList<>();
+        if (!(raw instanceof List<?> list)) return pairs;
+        for (Object item : list) {
+            if (!(item instanceof Map<?, ?> m)) continue;
+            Object sym = m.get("symbol");
+            Object exp = m.get("expiration");
+            if (sym instanceof String s && exp instanceof String e && !s.isBlank() && !e.isBlank()) {
+                pairs.add(Map.entry(s.toUpperCase(), e.trim()));
+            }
+        }
+        return pairs;
     }
 }

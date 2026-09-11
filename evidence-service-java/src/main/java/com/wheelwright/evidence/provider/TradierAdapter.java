@@ -327,7 +327,8 @@ public class TradierAdapter {
         return Map.of("price", price, "name", name);
     }
 
-    private MarketChain normalizeChain(String responseBody, String symbol, String expiration, String name, double price) {
+    // Package-private so tests exercise the REAL normalization (not a duplicate).
+    MarketChain normalizeChain(String responseBody, String symbol, String expiration, String name, double price) {
         // Tradier shape: { "options": { "option": [ { "strike": ..., "bid": ..., ... } ] } }
         List<MarketChain.OptionContract> puts = new ArrayList<>();
         List<MarketChain.OptionContract> calls = new ArrayList<>();
@@ -337,11 +338,14 @@ public class TradierAdapter {
             double strike = getDouble(opt, "strike");
             double bid = getDouble(opt, "bid");
             double ask = getDouble(opt, "ask");
-            double delta = getNestedDouble(opt, "greeks", "delta");
-            double gamma = getNestedDouble(opt, "greeks", "gamma");
-            double theta = getNestedDouble(opt, "greeks", "theta");
-            double vega = getNestedDouble(opt, "greeks", "vega");
-            double rho = getNestedDouble(opt, "greeks", "rho");
+            // Greeks are nullable and parsed INDEPENDENTLY. Provider absence
+            // (field omitted, explicit null, or unparseable) → null, never 0.
+            // No greek gates another (a missing delta does not invalidate theta).
+            Double delta = getNullableNestedDouble(opt, "greeks", "delta");
+            Double gamma = getNullableNestedDouble(opt, "greeks", "gamma");
+            Double theta = getNullableNestedDouble(opt, "greeks", "theta");
+            Double vega = getNullableNestedDouble(opt, "greeks", "vega");
+            Double rho = getNullableNestedDouble(opt, "greeks", "rho");
             int openInterest = getInt(opt, "open_interest");
             int volume = getInt(opt, "volume");
             String optionType = (String) opt.get("option_type");
@@ -382,22 +386,77 @@ public class TradierAdapter {
         return dates;
     }
 
+    /**
+     * Scan a JSON number token starting at {@code start}, returning the exclusive
+     * end index, or {@code start} itself when there is no number here (caller
+     * treats that as absent/unparseable).
+     *
+     * Accepts the full JSON number grammar, INCLUDING scientific notation:
+     *   -?  digits  (. digits)?  ([eE] [+-]? digits)?
+     * so values like {@code 9.0E-4}, {@code 7.0e-4}, {@code 1E+5}, or
+     * {@code -8.0E-4} are consumed whole. The previous scanner accepted only
+     * digits / '.' / '-' and stopped at 'E', truncating {@code 9.0E-4} to
+     * {@code 9.0} — the DBO vega/rho corruption. Tradier greeks (ORATS-derived)
+     * commonly arrive in exponent form for small magnitudes, so this grammar is
+     * required for faithful normalization below BOTH consuming surfaces.
+     */
+    private int scanJsonNumberToken(String json, int start) {
+        int i = start;
+        int n = json.length();
+        if (i < n && json.charAt(i) == '-') i++;                    // optional leading sign
+        while (i < n && Character.isDigit(json.charAt(i))) i++;     // integer digits
+        if (i < n && json.charAt(i) == '.') {                       // fraction
+            i++;
+            while (i < n && Character.isDigit(json.charAt(i))) i++;
+        }
+        if (i < n && (json.charAt(i) == 'e' || json.charAt(i) == 'E')) { // exponent
+            int e = i + 1;
+            if (e < n && (json.charAt(e) == '+' || json.charAt(e) == '-')) e++;
+            int expDigitsStart = e;
+            while (e < n && Character.isDigit(json.charAt(e))) e++;
+            if (e > expDigitsStart) i = e;                          // only consume a well-formed exponent
+        }
+        return i;
+    }
+
+    /**
+     * Legacy numeric extractor: missing/null/unparseable → 0. RETAINED with its
+     * historical zero-default semantics for callers where a numeric field is
+     * always present (strike, bid, ask, open_interest, volume). Do NOT use for
+     * greeks — use {@link #extractNullableDouble} so absence stays absence.
+     */
     private double extractDouble(String json, String key) {
+        Double v = extractNullableDouble(json, key);
+        return v == null ? 0 : v;
+    }
+
+    /**
+     * Nullable numeric extractor: distinguishes provider ABSENCE from numeric zero.
+     *
+     *   key omitted        → null
+     *   value is JSON null → null
+     *   value unparseable  → null
+     *   numeric (incl. 0)  → that value, preserved (0.0 stays 0.0)
+     *
+     * Parses the full JSON number grammar including scientific notation
+     * (see {@link #scanJsonNumberToken}). Used for greeks so a missing/null/garbage
+     * greek is never fabricated as 0, and small exponent-form values are exact.
+     */
+    private Double extractNullableDouble(String json, String key) {
         String pattern = "\"" + key + "\"";
         int idx = json.indexOf(pattern);
-        if (idx < 0) return 0;
+        if (idx < 0) return null;                                   // key omitted
         int colonIdx = json.indexOf(':', idx + pattern.length());
-        if (colonIdx < 0) return 0;
+        if (colonIdx < 0) return null;
         int start = colonIdx + 1;
         while (start < json.length() && (json.charAt(start) == ' ' || json.charAt(start) == '\t')) start++;
-        if (start >= json.length() || json.charAt(start) == 'n') return 0; // null
-        int end = start;
-        while (end < json.length() && (Character.isDigit(json.charAt(end)) || json.charAt(end) == '.' || json.charAt(end) == '-')) end++;
-        if (end == start) return 0;
+        if (start >= json.length() || json.charAt(start) == 'n') return null; // explicit null
+        int end = scanJsonNumberToken(json, start);
+        if (end == start) return null;                              // no numeric token
         try {
             return Double.parseDouble(json.substring(start, end));
         } catch (NumberFormatException e) {
-            return 0;
+            return null;                                            // unparseable
         }
     }
 
@@ -454,18 +513,22 @@ public class TradierAdapter {
         obj.put("volume", (int) extractDouble(json, "volume"));
         obj.put("option_type", extractQuotedString(json, "option_type"));
 
-        // Nested greeks: delta, gamma, theta, vega, rho
+        // Nested greeks: delta, gamma, theta, vega, rho — parsed INDEPENDENTLY and
+        // NULLABLY. Absent greeks object → all null. A field omitted/null/unparseable
+        // within the object → that field null. Numeric zero is preserved as 0.0.
+        // Only non-null values are placed in the map; getNullableNestedDouble reads
+        // back null for anything absent. No greek is fabricated as zero.
         int greeksIdx = json.indexOf("\"greeks\"");
         if (greeksIdx >= 0) {
             int braceStart = json.indexOf('{', greeksIdx);
             int braceEnd = json.indexOf('}', braceStart);
             if (braceStart >= 0 && braceEnd >= 0) {
                 String greeksJson = json.substring(braceStart, braceEnd + 1);
-                obj.put("greeks_delta", extractDouble(greeksJson, "delta"));
-                obj.put("greeks_gamma", extractDouble(greeksJson, "gamma"));
-                obj.put("greeks_theta", extractDouble(greeksJson, "theta"));
-                obj.put("greeks_vega", extractDouble(greeksJson, "vega"));
-                obj.put("greeks_rho", extractDouble(greeksJson, "rho"));
+                putIfPresent(obj, "greeks_delta", extractNullableDouble(greeksJson, "delta"));
+                putIfPresent(obj, "greeks_gamma", extractNullableDouble(greeksJson, "gamma"));
+                putIfPresent(obj, "greeks_theta", extractNullableDouble(greeksJson, "theta"));
+                putIfPresent(obj, "greeks_vega", extractNullableDouble(greeksJson, "vega"));
+                putIfPresent(obj, "greeks_rho", extractNullableDouble(greeksJson, "rho"));
             }
         }
         return obj;
@@ -487,6 +550,22 @@ public class TradierAdapter {
         Object val = map.get(outer + "_" + inner);
         if (val instanceof Number n) return n.doubleValue();
         return 0;
+    }
+
+    /** Put only non-null values, so an absent nested field leaves no map entry. */
+    private void putIfPresent(Map<String, Object> map, String key, Double value) {
+        if (value != null) map.put(key, value);
+    }
+
+    /**
+     * Nullable nested lookup: returns the value when present as a Number, else
+     * null. Combined with {@link #putIfPresent}, an absent/null/unparseable greek
+     * yields null here — preserving provider absence rather than defaulting to 0.
+     */
+    private Double getNullableNestedDouble(Map<String, Object> map, String outer, String inner) {
+        Object val = map.get(outer + "_" + inner);
+        if (val instanceof Number n) return n.doubleValue();
+        return null;
     }
 
     // --- Result types ---

@@ -1457,9 +1457,29 @@ public class AcquisitionWorker {
     private boolean acquireAllEligibleChains(AcquisitionLease lease, String symbol,
                                              String primaryExpiration, String expirationsJson,
                                              boolean[] fenced) {
-        List<String> eligible = expirationsJson != null
+        List<String> eligibleBase = expirationsJson != null
             ? SqliteEvidenceStore.getEligibleExpirations(expirationsJson)
             : List.of(primaryExpiration);
+
+        // Held-expiration acquisition overlay (migration 007): union the operator's
+        // currently-HELD expirations for THIS symbol into the fetched set, so held
+        // chains (and thus their greeks) stay refreshed even below the 7-45 DTE
+        // eligibility window. Only expirations the provider actually LISTS for this
+        // symbol are added (guards against fetching a date the provider won't have);
+        // non-held sub-7-DTE expirations remain excluded. Order preserved, deduped.
+        LinkedHashSet<String> eligible = new LinkedHashSet<>(eligibleBase);
+        try {
+            List<String> held = store.getHeldExpirations(symbol);
+            if (!held.isEmpty() && expirationsJson != null) {
+                Set<String> known = new HashSet<>(SqliteEvidenceStore.getAllExpirationDates(expirationsJson));
+                for (String h : held) {
+                    if (known.contains(h)) eligible.add(h);
+                }
+            }
+        } catch (SQLException e) {
+            // Held-overlay lookup failure is non-fatal: fall back to the eligible set.
+            System.err.printf("[worker] held-expiration lookup failed for %s: %s%n", symbol, e.getMessage());
+        }
 
         // Always acquire the primary first (sets resolution to ready). A committed primary is
         // the normalized, fenced, durable chain that constitutes USABLE EVIDENCE (review-3 #3).
@@ -1726,7 +1746,8 @@ public class AcquisitionWorker {
         return sb.toString();
     }
 
-    private String marshalChain(com.wheelwright.evidence.provider.MarketChain chain) {
+    // Package-private for focused serialization tests (same-package AcquisitionWorkerTest).
+    String marshalChain(com.wheelwright.evidence.provider.MarketChain chain) {
         StringBuilder sb = new StringBuilder("{");
         sb.append("\"symbol\":\"").append(chain.symbol()).append("\",");
         sb.append("\"expiration\":\"").append(chain.expiration()).append("\",");
@@ -1749,17 +1770,25 @@ public class AcquisitionWorker {
     }
 
     private void appendContract(StringBuilder sb, com.wheelwright.evidence.provider.MarketChain.OptionContract c) {
+        // Greeks are nullable: emit JSON `null` for an unavailable greek, NEVER 0.
+        // Provider absence stays absence across the wire (INV: persist facts, derive
+        // trust). Numeric zero is emitted as 0 only when the provider supplied zero.
         sb.append("{\"strike\":").append(c.strike())
           .append(",\"bid\":").append(c.bid())
           .append(",\"ask\":").append(c.ask())
-          .append(",\"delta\":").append(c.delta())
-          .append(",\"gamma\":").append(c.gamma())
-          .append(",\"theta\":").append(c.theta())
-          .append(",\"vega\":").append(c.vega())
-          .append(",\"rho\":").append(c.rho())
+          .append(",\"delta\":").append(nullableNumber(c.delta()))
+          .append(",\"gamma\":").append(nullableNumber(c.gamma()))
+          .append(",\"theta\":").append(nullableNumber(c.theta()))
+          .append(",\"vega\":").append(nullableNumber(c.vega()))
+          .append(",\"rho\":").append(nullableNumber(c.rho()))
           .append(",\"openInterest\":").append(c.openInterest())
           .append(",\"volume\":").append(c.volume())
           .append("}");
+    }
+
+    /** Serialize a nullable greek as a JSON number, or the literal {@code null} when absent. */
+    private String nullableNumber(Double value) {
+        return value == null ? "null" : value.toString();
     }
 
     private String escapeJson(String s) {

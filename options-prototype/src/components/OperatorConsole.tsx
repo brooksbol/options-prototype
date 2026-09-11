@@ -13,6 +13,7 @@ import { usePortfolio } from "../portfolio/use-portfolio";
 import { useObservations } from "../evidence/use-observations";
 import { useEvidenceSnapshot } from "../hooks/useEvidenceSnapshot";
 import { ingestChainsFromSnapshot } from "../evidence/chain-cache-ingestion";
+import { formatGreek } from "../write-desk/option-greeks";
 import { useSpotHistory, type SpotHistoryMap } from "../evidence/use-spot-history";
 import { usePositionDeltas, usePositionGreeks, type PositionDeltaMap, type PositionGreeksMap } from "../operator-console/use-position-deltas";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
@@ -23,6 +24,13 @@ import { lookupDescription } from "../instrument-catalog/catalog";
 import { PositionDetailModal } from "./PositionDetailModal";
 import { ForceAcquisitionButton } from "../operator-console/ForceAcquisitionButton";
 import "../operator-console/operator-console.css";
+
+// Greeks are considered stale when their source chain is older than this. Aligned
+// with the Decision chain-freshness window (~30 min during open sessions): beyond
+// it, the greeks no longer reflect current market state. This governs greek-cell
+// staleness annotation ONLY — it is a presentation honesty signal (greek age is
+// the chain's age, not the spot's), not a backend validity rule.
+const GREEK_STALE_MS = 30 * 60 * 1000;
 
 // --- Sort Types ---
 
@@ -361,13 +369,29 @@ function PositionGrid({ positions, onTileClick, vizRegime, totalCapital }: { pos
  * Includes the same columns rendered in the table: Type, Symbol, Strike, Spot, Contracts,
  * Moneyness, Capital, Premium Booked, Bonus If Called Away, If Assigned.
  */
+/**
+ * CSV-safe greek formatting: keeps values numeric-parseable while never emitting a
+ * real nonzero value as a false "0.0000". Unavailable (null) → empty cell. A value
+ * that would round to zero at `digits` is widened (up to 8 decimals) until it is
+ * representable as nonzero; if still sub-1e-8 it is shown in exponential form.
+ * (This is the CSV counterpart to formatGreek's "<0.0001" threshold display.)
+ */
+function csvGreek(value: number | null, digits: number): string {
+  if (value == null || value === 0) return "";
+  for (let d = digits; d <= 8; d++) {
+    const s = value.toFixed(d);
+    if (Number(s) !== 0) return s;
+  }
+  return value.toExponential(2);
+}
+
 function downloadPositionsCsv(
   positions: MonitoredPosition[],
   snapshot: import("../write-desk/types").PortfolioSnapshot,
   positionDeltas: PositionDeltaMap,
   positionGreeks: PositionGreeksMap,
 ) {
-  const header = "Type,Symbol,Strike,Expiration,Spot,Contracts,Moneyness,Capital,Delta,Gamma,Theta,Vega,Rho,Premium Booked,Bonus If Called Away,If Assigned,Opened,Freshness";
+  const header = "Type,Symbol,Strike,Expiration,Spot,Contracts,Moneyness,Capital,Delta,Gamma,Theta,Vega,Rho,Greek Age,Premium Booked,Bonus If Called Away,If Assigned,Opened,Quote Freshness";
   const rows = positions.map(position => {
     const type = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
     const spot = position.underlyingPrice != null ? position.underlyingPrice.toFixed(2) : "";
@@ -401,23 +425,33 @@ function downloadPositionsCsv(
       assigned = cell.display;
     }
 
-    // Greeks — from cached chain evidence (same source as the table columns)
+    // Greeks — from cached chain evidence (same source as the table columns).
+    // CSV keeps values numeric-parseable but must never emit a real value as a
+    // false "0.0000": csvGreek widens precision until the value is representable
+    // (unavailable → empty cell). Delta uses the same rule at 2 decimals.
     const delta = positionDeltas.get(position.id);
     const g = positionGreeks.get(position.id);
-    const deltaStr = delta != null ? delta.toFixed(2) : "";
-    const gammaStr = g?.gamma != null ? g.gamma.toFixed(4) : "";
-    const thetaStr = g?.theta != null ? g.theta.toFixed(4) : "";
-    const vegaStr = g?.vega != null ? g.vega.toFixed(4) : "";
-    const rhoStr = g?.rho != null ? g.rho.toFixed(4) : "";
+    const deltaStr = csvGreek(delta ?? null, 2);
+    const gammaStr = csvGreek(g?.gamma ?? null, 4);
+    const thetaStr = csvGreek(g?.theta ?? null, 4);
+    const vegaStr = csvGreek(g?.vega ?? null, 4);
+    const rhoStr = csvGreek(g?.rho ?? null, 4);
 
-    // Data Age — freshness of the underlying price observation, derived at export time
+    // Greek Age — acquisition age of the CHAIN the greeks came from (distinct from
+    // the quote-freshness column below). Empty when unknown.
+    let greekAge = "";
+    if (g?.chainRetrievedAtMs != null) {
+      greekAge = formatDataAge(Math.max(0, Date.now() - g.chainRetrievedAtMs));
+    }
+
+    // Quote Freshness — age of the underlying PRICE observation (NOT the greeks).
     let dataAge = "";
     if (position.priceObservedAt) {
       const observedMs = Date.parse(position.priceObservedAt);
       if (!Number.isNaN(observedMs)) dataAge = formatDataAge(Math.max(0, Date.now() - observedMs));
     }
 
-    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${position.quantity},${moneyness},${capital},${deltaStr},${gammaStr},${thetaStr},${vegaStr},${rhoStr},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
+    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${position.quantity},${moneyness},${capital},${deltaStr},${gammaStr},${thetaStr},${vegaStr},${rhoStr},${greekAge},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
   });
 
   const csv = [header, ...rows].join("\n");
@@ -752,6 +786,7 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
           <th className="oc-th-right">Theta</th>
           <th className="oc-th-right">Vega</th>
           <th className="oc-th-right">Rho</th>
+          <th className="oc-th-right">Greek Age</th>
           {renderSortHeader("Contracts", "contracts", "oc-th-center")}
           {renderSortHeader("Capital", "capital", "oc-th-right")}
           <th className="oc-th-right">Capital %</th>
@@ -762,7 +797,7 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
           <th className="oc-th-right">If Assigned</th>
           <th className="oc-th-right">Market vs Basis</th>
           {renderSortHeader("Opened", "opened")}
-          {renderSortHeader("Freshness", "dataAge", "oc-th-right")}
+          {renderSortHeader("Quote Freshness", "dataAge", "oc-th-right")}
         </tr>
       </thead>
       <tbody>
@@ -889,20 +924,34 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
                       : undefined;
                 return (
                   <td className="oc-td-right oc-td-delta" style={bg ? { background: bg } : undefined}>
-                    {delta.toFixed(2)}
+                    {formatGreek(delta, 2)}
                   </td>
                 );
               })()}
               {(() => {
                 const g = positionGreeks.get(position.id);
-                const fmt = (v: number | null | undefined, digits: number) =>
-                  v == null ? "—" : v.toFixed(digits);
+                // Greek freshness is the CHAIN's acquisition age — NOT the row's
+                // underlying-quote freshness. A chain can be materially older than the
+                // latest spot (e.g. a held near-expiry expiration acquired days ago), so
+                // we annotate the greek cells with their own age and mark them stale when
+                // the chain is older than the Decision chain window, so a fresh quote can
+                // never make stale greeks look current.
+                const chainMs = g?.chainRetrievedAtMs ?? null;
+                const chainAgeMs = chainMs != null ? Math.max(0, Date.now() - chainMs) : null;
+                const stale = chainAgeMs != null && chainAgeMs > GREEK_STALE_MS;
+                const ageStr = chainAgeMs != null ? formatDataAge(chainAgeMs) : null;
+                const cls = `oc-td-right oc-td-greek${stale ? " oc-td-greek-stale" : ""}`;
+                const title = ageStr
+                  ? `Greeks from chain acquired ${ageStr} ago${stale ? " — STALE (older than the chain freshness window; not the same as the spot's freshness)" : ""}`
+                  : "Greek chain age unknown";
+                const ageCls = `oc-td-right oc-td-greek-age${stale ? " oc-td-greek-stale" : ""}`;
                 return (
                   <>
-                    <td className="oc-td-right oc-td-greek">{fmt(g?.gamma, 4)}</td>
-                    <td className="oc-td-right oc-td-greek">{fmt(g?.theta, 4)}</td>
-                    <td className="oc-td-right oc-td-greek">{fmt(g?.vega, 4)}</td>
-                    <td className="oc-td-right oc-td-greek">{fmt(g?.rho, 4)}</td>
+                    <td className={cls} title={title}>{formatGreek(g?.gamma ?? null)}</td>
+                    <td className={cls} title={title}>{formatGreek(g?.theta ?? null)}</td>
+                    <td className={cls} title={title}>{formatGreek(g?.vega ?? null)}</td>
+                    <td className={cls} title={title}>{formatGreek(g?.rho ?? null)}</td>
+                    <td className={ageCls} title={title}>{ageStr ?? "—"}</td>
                   </>
                 );
               })()}
@@ -1023,7 +1072,7 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
 
   return (
     <tr className="oc-trow-totals">
-      <td colSpan={13} className="oc-td-totals-label">Total</td>
+      <td colSpan={14} className="oc-td-totals-label">Total</td>
       <td className="oc-td-right">${capitalTotal.toLocaleString()}</td>
       <td />
       <td />

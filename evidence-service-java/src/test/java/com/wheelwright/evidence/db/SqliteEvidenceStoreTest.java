@@ -658,4 +658,63 @@ class SqliteEvidenceStoreTest {
             }
         }
     }
+
+    @Nested
+    class HeldExpirationOverlay {
+
+        @Test
+        void roundTripsHeldExpirationsPerSymbol() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.setHeldExpirations(List.of(
+                    Map.entry("GDXJ", "2026-09-11"),
+                    Map.entry("SMH", "2026-09-15"),
+                    Map.entry("SMH", "2026-10-16")
+                ));
+                assertEquals(List.of("2026-09-11"), store.getHeldExpirations("GDXJ"));
+                assertEquals(List.of("2026-09-15", "2026-10-16"), store.getHeldExpirations("SMH"));
+                assertEquals(List.of(), store.getHeldExpirations("NONE"));
+            }
+        }
+
+        @Test
+        void normalizesSymbolToUppercaseAndDedups() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.setHeldExpirations(List.of(
+                    Map.entry("gdxj", "2026-09-11"),
+                    Map.entry("GDXJ", "2026-09-11") // duplicate after upper
+                ));
+                assertEquals(List.of("2026-09-11"), store.getHeldExpirations("GDXJ"));
+            }
+        }
+
+        @Test
+        void atomicallyReplacesPriorHeldSet() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.setHeldExpirations(List.of(Map.entry("GDXJ", "2026-09-11")));
+                // New declaration replaces: GDXJ closed, WEAT opened.
+                store.setHeldExpirations(List.of(Map.entry("WEAT", "2026-09-18")));
+                assertEquals(List.of(), store.getHeldExpirations("GDXJ"), "closed position no longer held");
+                assertEquals(List.of("2026-09-18"), store.getHeldExpirations("WEAT"));
+            }
+        }
+
+        @Test
+        void emptyDeclarationClearsHeldSet() throws Exception {
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+                store.setHeldExpirations(List.of(Map.entry("GDXJ", "2026-09-11")));
+                store.setHeldExpirations(List.of());
+                assertEquals(List.of(), store.getHeldExpirations("GDXJ"));
+            }
+        }
+
+        @Test
+        void getAllExpirationDatesReturnsEveryListedDateUnfilteredByDte() {
+            // Includes a sub-7-DTE date (dte 0) that getEligibleExpirations would drop.
+            String json = "[{\"date\":\"2026-09-11\",\"dte\":0},{\"date\":\"2026-09-18\",\"dte\":7},{\"date\":\"2026-10-16\",\"dte\":35}]";
+            List<String> all = SqliteEvidenceStore.getAllExpirationDates(json);
+            assertEquals(List.of("2026-09-11", "2026-09-18", "2026-10-16"), all);
+            // And the eligible filter still excludes the sub-7 date.
+            assertEquals(List.of("2026-09-18", "2026-10-16"), SqliteEvidenceStore.getEligibleExpirations(json));
+        }
+    }
 }

@@ -185,21 +185,28 @@ Rules (ADR-015):
 ### Additive fields — Secondary Greeks (September 2026)
 
 Each option contract in `symbols[].chain.puts[]`, `symbols[].chain.calls[]`, and the
-corresponding arrays within `symbols[].chains[].data` gains four secondary greeks
-alongside the existing `delta`. These are **additive, non-breaking** fields under
-INV-PUB-05 (no version increment); they are documented here as required by the
-contract's own stability rule.
+corresponding arrays within `symbols[].chains[].data` carries five greeks —
+`delta` plus the four secondary greeks `gamma`, `theta`, `vega`, `rho`. These are
+**additive, non-breaking** fields under INV-PUB-05 (no version increment); they are
+documented here as required by the contract's own stability rule.
+
+**All five greeks are nullable** (`number | null`). Each is an independent
+observation: the value is a number **only when the provider actually supplied a
+number** (including a genuine `0`). Provider **absence** — field omitted, explicit
+`null`, or an unparseable value — is serialized as JSON `null`, **never** fabricated
+as `0`. This preserves the "persist facts; derive trust" invariant at the provider
+boundary.
 
 ```jsonc
 {
   "strike": 88,
   "bid": 1.50,
   "ask": 1.70,
-  "delta": -0.28,
-  "gamma": 0.0412,     // ADDITIVE
-  "theta": -0.0187,    // ADDITIVE
-  "vega": 0.0561,      // ADDITIVE
-  "rho": 0.0093,       // ADDITIVE
+  "delta": -0.28,      // number | null
+  "gamma": 0.0412,     // number | null
+  "theta": null,       // provider did not supply → null, NOT 0
+  "vega": 0.0561,      // number | null
+  "rho": 0.0093,       // number | null
   "openInterest": 520,
   "volume": 110
 }
@@ -209,22 +216,30 @@ Value semantics:
 
 | Field | Type | Meaning |
 |-------|------|---------|
-| `gamma` | number | Rate of change of delta per $1 move in the underlying. Provider sign, as-reported. |
-| `theta` | number | Time decay per day. Typically negative. Provider sign, as-reported. |
-| `vega` | number | Sensitivity to a 1-point change in implied volatility. Provider sign, as-reported. |
-| `rho` | number | Sensitivity to a 1-point change in the risk-free rate. Provider sign, as-reported. |
+| `delta` | number \| null | Rate of change of option price per $1 move in the underlying (puts negative, calls positive). Provider sign, as-reported. |
+| `gamma` | number \| null | Rate of change of delta per $1 move in the underlying. Provider sign, as-reported. |
+| `theta` | number \| null | Time decay per day. Typically negative. Provider sign, as-reported. |
+| `vega` | number \| null | Sensitivity to a 1-point change in implied volatility. Provider sign, as-reported. |
+| `rho` | number \| null | Sensitivity to a 1-point change in the risk-free rate. Provider sign, as-reported. |
 
 Rules:
 
 - These are observed provider greeks (Tradier `greeks=true`), acquired with the same
-  chain observation as `delta`. They carry no independent provenance; their acquisition
-  age equals the chain's.
-- **Sign is preserved as-reported by the provider** (unlike some consumer-side uses of
-  `delta`, which take the absolute value for presentation). Consumers that need a
-  normalized magnitude must normalize themselves.
-- **Consumer compatibility:** an older snapshot (or a chain acquired before greek
-  extraction) that omits these fields is interpreted by consumers as "greek unavailable"
-  (null), never as zero. Consumers must not treat an absent field as a meaningful `0`.
+  chain observation as the contract. They carry no independent provenance; their
+  acquisition age equals the chain's.
+- **Each greek is independent.** A missing or invalid value in one field says nothing
+  about the others; consumers must evaluate availability field by field. A missing
+  `delta` does not invalidate `theta`, and vice versa.
+- **Absence is `null`, never `0`.** Numeric zero means the provider supplied zero.
+  Producers must not substitute zero for unavailable data; consumers must not treat
+  `null` (or an omitted field, in an older snapshot) as a meaningful `0`.
+- **Sign is preserved as-reported by the provider.** Consumers that need a normalized
+  magnitude (e.g. absolute delta for a magnitude view) must normalize themselves.
+- **Provider placeholder vector:** some providers emit an exact five-field zero vector
+  (`delta`=`gamma`=`theta`=`vega`=`rho`=`0`) as an *uncomputed* placeholder even on a
+  real-bid contract. This is a provider-level sentinel, not data; consumers may treat a
+  fully-supplied exact all-zero vector as unavailable. This is the only justified
+  set-level rejection — a partially populated vector must remain partially populated.
 
 ### Additive fields — Per-Subject Admissibility (Issue #16, September 2026)
 
