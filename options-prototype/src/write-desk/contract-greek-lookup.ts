@@ -34,17 +34,26 @@ interface CachedChainPayload {
 }
 
 /**
- * Greeks plus the acquisition age of the CHAIN they came from.
+ * Greeks plus the AUTHORITATIVE chain-acquisition moment they came from.
  *
- * `chainRetrievedAtMs` is the epoch-ms of the chain record's acquisition (null if
- * unknown/no record). This is DISTINCT from the underlying-quote freshness a
- * surface may show elsewhere: a chain (and thus its greeks) can be materially
- * older than the latest spot. Surfaces must not let a fresh quote imply fresh
- * greeks — use this age to represent greek freshness honestly.
+ * `chainAcquiredAtMs` is the epoch-ms of the chain's authoritative acquisition
+ * provenance (`EvidenceProvenance.kind === "chain-acquired"`), or `null` when no
+ * authoritative provenance is available. It is DERIVED FROM the publisher-
+ * established provenance carried on the cache record (`evidenceProvenance`), NOT
+ * from cache/TTL timing (`retrievedAt`), a symbol-level fallback, or `Date.now()`
+ * (see `evidence-provenance.ts` / ADR-015). A record whose provenance is
+ * `unavailable` (older snapshot, or non-authoritative) yields `null` — an honest
+ * "greek age unknown", never a substituted weaker timestamp.
+ *
+ * This is DISTINCT from the underlying-quote freshness a surface may show
+ * elsewhere: a chain (and thus its greeks) can be materially older than the
+ * latest spot. Surfaces must not let a fresh quote imply fresh greeks — use this
+ * acquisition age to represent greek freshness honestly.
  */
 export interface ContractGreeksResult {
   greeks: OptionGreeks;
-  chainRetrievedAtMs: number | null;
+  /** Authoritative chain-acquisition epoch-ms, or null when provenance is unavailable. */
+  chainAcquiredAtMs: number | null;
 }
 
 /**
@@ -67,15 +76,20 @@ export async function lookupContractGreeksWithAge(subject: GreekLookupSubject): 
   const cache = getDurableCache();
   const key = buildCacheKey(PROVIDER, ENVIRONMENT, "chain", subject.symbol, subject.expiration);
   const record = await cache.get<CachedChainPayload>(key);
-  if (!record || !record.payload) return { greeks: { ...UNAVAILABLE_GREEKS }, chainRetrievedAtMs: null };
+  if (!record || !record.payload) return { greeks: { ...UNAVAILABLE_GREEKS }, chainAcquiredAtMs: null };
 
-  const chainRetrievedAtMs = typeof record.retrievedAt === "number" ? record.retrievedAt : null;
+  // Greek Age is the AUTHORITATIVE chain-acquisition moment, sourced ONLY from the
+  // publisher-established provenance on the record. When provenance is unavailable
+  // (older snapshot / non-authoritative), age is null — never fall back to
+  // record.retrievedAt (cache/TTL timing), a symbol timestamp, or Date.now().
+  const provenance = record.evidenceProvenance;
+  const chainAcquiredAtMs = provenance && provenance.kind === "chain-acquired" ? provenance.acquiredAtMs : null;
 
   const contracts = subject.side === "put" ? record.payload.puts : record.payload.calls;
-  if (!contracts || contracts.length === 0) return { greeks: { ...UNAVAILABLE_GREEKS }, chainRetrievedAtMs };
+  if (!contracts || contracts.length === 0) return { greeks: { ...UNAVAILABLE_GREEKS }, chainAcquiredAtMs };
 
   const match = contracts.find(c => c.strike === subject.strike);
-  if (!match) return { greeks: { ...UNAVAILABLE_GREEKS }, chainRetrievedAtMs };
+  if (!match) return { greeks: { ...UNAVAILABLE_GREEKS }, chainAcquiredAtMs };
 
-  return { greeks: sanitizeGreeks(match), chainRetrievedAtMs };
+  return { greeks: sanitizeGreeks(match), chainAcquiredAtMs };
 }

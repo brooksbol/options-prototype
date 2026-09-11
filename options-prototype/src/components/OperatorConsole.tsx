@@ -437,11 +437,12 @@ function downloadPositionsCsv(
     const vegaStr = csvGreek(g?.vega ?? null, 4);
     const rhoStr = csvGreek(g?.rho ?? null, 4);
 
-    // Greek Age — acquisition age of the CHAIN the greeks came from (distinct from
-    // the quote-freshness column below). Empty when unknown.
+    // Greek Age — AUTHORITATIVE acquisition age of the CHAIN the greeks came from
+    // (from publisher-established provenance, not cache/TTL timing; distinct from
+    // the quote-freshness column below). Empty when provenance is unavailable.
     let greekAge = "";
-    if (g?.chainRetrievedAtMs != null) {
-      greekAge = formatDataAge(Math.max(0, Date.now() - g.chainRetrievedAtMs));
+    if (g?.chainAcquiredAtMs != null) {
+      greekAge = formatDataAge(Math.max(0, Date.now() - g.chainAcquiredAtMs));
     }
 
     // Quote Freshness — age of the underlying PRICE observation (NOT the greeks).
@@ -936,7 +937,7 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
                 // we annotate the greek cells with their own age and mark them stale when
                 // the chain is older than the Decision chain window, so a fresh quote can
                 // never make stale greeks look current.
-                const chainMs = g?.chainRetrievedAtMs ?? null;
+                const chainMs = g?.chainAcquiredAtMs ?? null;
                 const chainAgeMs = chainMs != null ? Math.max(0, Date.now() - chainMs) : null;
                 const stale = chainAgeMs != null && chainAgeMs > GREEK_STALE_MS;
                 const ageStr = chainAgeMs != null ? formatDataAge(chainAgeMs) : null;

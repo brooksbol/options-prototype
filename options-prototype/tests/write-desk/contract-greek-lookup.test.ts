@@ -6,7 +6,8 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import "fake-indexeddb/auto";
 import { getDurableCache, resetDurableCache, buildCacheKey } from "../../src/cache/durable-cache";
-import { lookupContractGreeks } from "../../src/write-desk/contract-greek-lookup";
+import { lookupContractGreeks, lookupContractGreeksWithAge } from "../../src/write-desk/contract-greek-lookup";
+import type { EvidenceProvenance } from "../../src/write-desk/evidence-provenance";
 
 const EXP = "2026-10-16";
 
@@ -16,6 +17,27 @@ async function putChain(symbol: string, puts: unknown[], calls: unknown[] = []) 
     buildCacheKey("tradier", "sandbox", "chain", symbol, EXP),
     "chain", "tradier", "sandbox", symbol, EXP,
     { symbol, expiration: EXP, underlying: { symbol, name: symbol, price: 100 }, puts, calls },
+  );
+  await cache.put(rec);
+}
+
+/**
+ * Put a chain with explicit control of BOTH the authoritative provenance and the
+ * cache/TTL retrievedAt, so tests can prove Greek Age derives from provenance and
+ * NEVER from retrievedAt.
+ */
+async function putChainWithProvenance(
+  symbol: string,
+  puts: unknown[],
+  opts: { provenance?: EvidenceProvenance; retrievedAtMs?: number },
+) {
+  const cache = getDurableCache();
+  const rec = cache.createRecord(
+    buildCacheKey("tradier", "sandbox", "chain", symbol, EXP),
+    "chain", "tradier", "sandbox", symbol, EXP,
+    { symbol, expiration: EXP, underlying: { symbol, name: symbol, price: 100 }, puts, calls: [] },
+    opts.retrievedAtMs,
+    opts.provenance,
   );
   await cache.put(rec);
 }
@@ -98,5 +120,49 @@ describe("contract-greek-lookup", () => {
     expect(g.delta).toBeNull();
     expect(g.gamma).toBe(0.04);
     expect(g.theta).toBe(-0.02);
+  });
+
+  describe("Greek Age authority (chainAcquiredAtMs)", () => {
+    const strike = 55;
+    const contract = { strike, delta: -0.3, gamma: 0.04, theta: -0.018, vega: 0.05, rho: 0.012 };
+
+    it("uses the AUTHORITATIVE chain-acquired provenance timestamp, not retrievedAt", async () => {
+      const acquiredAtMs = Date.UTC(2026, 8, 4, 20, 14, 53); // authoritative acquisition moment
+      const retrievedAtMs = Date.UTC(2026, 8, 11, 12, 0, 0); // a DIFFERENT cache/TTL time
+      await putChainWithProvenance("XLE", [contract], {
+        provenance: { kind: "chain-acquired", acquiredAtMs },
+        retrievedAtMs,
+      });
+      const r = await lookupContractGreeksWithAge({ symbol: "XLE", expiration: EXP, strike, side: "put" });
+      expect(r.chainAcquiredAtMs).toBe(acquiredAtMs);
+      // Explicitly NOT the cache/TTL timestamp.
+      expect(r.chainAcquiredAtMs).not.toBe(retrievedAtMs);
+    });
+
+    it("returns null age when provenance is unavailable (never falls back to retrievedAt)", async () => {
+      const retrievedAtMs = Date.UTC(2026, 8, 11, 12, 0, 0);
+      await putChainWithProvenance("XLE", [contract], {
+        provenance: { kind: "unavailable" },
+        retrievedAtMs,
+      });
+      const r = await lookupContractGreeksWithAge({ symbol: "XLE", expiration: EXP, strike, side: "put" });
+      expect(r.chainAcquiredAtMs).toBeNull();
+      // Greeks themselves still resolve — only the AGE is honestly unknown.
+      expect(r.greeks.delta).toBe(-0.3);
+    });
+
+    it("returns null age when the record carries no provenance at all", async () => {
+      // putChain writes no evidenceProvenance (createRecord defaults retrievedAt to Date.now()).
+      await putChain("XLE", [contract]);
+      const r = await lookupContractGreeksWithAge({ symbol: "XLE", expiration: EXP, strike, side: "put" });
+      expect(r.chainAcquiredAtMs).toBeNull();
+    });
+
+    it("returns null age when there is no cached chain", async () => {
+      // Use a symbol never inserted in this block, independent of cache-reset timing.
+      const r = await lookupContractGreeksWithAge({ symbol: "NEVERCACHED", expiration: EXP, strike, side: "put" });
+      expect(r.chainAcquiredAtMs).toBeNull();
+      expect(r.greeks.delta).toBeNull();
+    });
   });
 });

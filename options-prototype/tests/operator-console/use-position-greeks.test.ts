@@ -21,12 +21,14 @@ function position(partial: Partial<MonitoredPosition> & Pick<MonitoredPosition, 
     acquisitionStatus: null, lastAttemptAt: null, failureCount: 0, openedDate: null, ...partial } as MonitoredPosition;
 }
 
-async function putChain(symbol: string, puts: unknown[], calls: unknown[] = []) {
+async function putChain(symbol: string, puts: unknown[], calls: unknown[] = [], acquiredAtMs?: number) {
   const cache = getDurableCache();
   await cache.put(cache.createRecord(
     buildCacheKey("tradier", "sandbox", "chain", symbol, EXP),
     "chain", "tradier", "sandbox", symbol, EXP,
     { symbol, expiration: EXP, underlying: { symbol, name: symbol, price: 100 }, puts, calls },
+    undefined,
+    acquiredAtMs != null ? { kind: "chain-acquired", acquiredAtMs } : undefined,
   ));
 }
 
@@ -115,15 +117,28 @@ describe("usePositionGreeks (Console adapter)", () => {
     });
   });
 
-  it("exposes the chain acquisition age distinct from quote freshness", async () => {
-    await putChain("XLE", [{ strike: 55, delta: -0.3, gamma: 0.04, theta: -0.02, vega: 0.05, rho: 0.01 }]);
+  it("exposes the AUTHORITATIVE chain acquisition age from provenance, distinct from quote freshness", async () => {
+    const acquiredAtMs = Date.UTC(2026, 8, 4, 20, 14, 53);
+    await putChain("XLE", [{ strike: 55, delta: -0.3, gamma: 0.04, theta: -0.02, vega: 0.05, rho: 0.01 }], [], acquiredAtMs);
     const positions = [position({ id: "p1", type: "put", underlying: "XLE", strike: 55, expiration: EXP })];
     const { result } = renderHook(() => usePositionGreeks(positions, 1));
     await waitFor(() => {
       const g = result.current.get("p1");
       expect(g?.gamma).toBe(0.04);
-      // chainRetrievedAtMs is populated from the cache record (a number, recent).
-      expect(typeof g?.chainRetrievedAtMs).toBe("number");
+      // chainAcquiredAtMs comes from the record's authoritative provenance.
+      expect(g?.chainAcquiredAtMs).toBe(acquiredAtMs);
+    });
+  });
+
+  it("reports chain age as null (unknown) when the record carries no authoritative provenance", async () => {
+    // No provenance passed → age must be null, never a cache/TTL fallback.
+    await putChain("XLE", [{ strike: 55, delta: -0.3, gamma: 0.04, theta: -0.02, vega: 0.05, rho: 0.01 }]);
+    const positions = [position({ id: "p1", type: "put", underlying: "XLE", strike: 55, expiration: EXP })];
+    const { result } = renderHook(() => usePositionGreeks(positions, 1));
+    await waitFor(() => {
+      const g = result.current.get("p1");
+      expect(g?.gamma).toBe(0.04); // greeks still resolve
+      expect(g?.chainAcquiredAtMs).toBeNull(); // age honestly unknown
     });
   });
 });

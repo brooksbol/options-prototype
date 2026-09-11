@@ -28,12 +28,14 @@ export interface PositionGreeks {
   vega: number | null;
   rho: number | null;
   /**
-   * Epoch-ms when the CHAIN these greeks came from was acquired (null if unknown).
-   * Distinct from the row's underlying-quote freshness: greeks can be materially
-   * older than the latest spot, so the surface presents this so a fresh quote does
-   * not masquerade as fresh greeks.
+   * Authoritative epoch-ms when the CHAIN these greeks came from was acquired
+   * (null when authoritative provenance is unavailable). Sourced from the record's
+   * publisher-established provenance (never cache/TTL timing). Distinct from the
+   * row's underlying-quote freshness: greeks can be materially older than the
+   * latest spot, so the surface presents this so a fresh quote does not
+   * masquerade as fresh greeks.
    */
-  chainRetrievedAtMs: number | null;
+  chainAcquiredAtMs: number | null;
 }
 
 export type PositionGreeksMap = ReadonlyMap<string, PositionGreeks>;
@@ -138,7 +140,7 @@ export function usePositionGreeks(
           theta: r?.greeks.theta ?? null,
           vega: r?.greeks.vega ?? null,
           rho: r?.greeks.rho ?? null,
-          chainRetrievedAtMs: r?.chainRetrievedAtMs ?? null,
+          chainAcquiredAtMs: r?.chainAcquiredAtMs ?? null,
         });
       }
       setGreeks(result);

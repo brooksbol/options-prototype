@@ -416,3 +416,24 @@ Per Principal decision (Defect Tracking Migration), Wheelwright now has **one an
 ### Status
 
 Migration implemented; not yet committed (awaiting Principal commit authorization and Codex independent verification of the authority transition). GitHub Issues remain as historical provenance/workflow record; they are no longer defect authority.
+
+---
+
+## 2026-09-11 — PR #19 review corrections: bounded Greeks increment (Codex blockers)
+
+Independent review (Codex) found PR #19 was less clean than the prior close-out concluded. Three blockers + a missing regression test were accepted and corrected; no new feature work, no BUG-004 remediation.
+
+### 1. Unrelated consequences work removed from the Greeks PR
+The release/retention consequence feature (`ExpandedConsequenceRow`, `ReleaseConsequencesSection` removal, `CallBrief`/`WriteDesk` consequence-row placement, `release-cost-consequences` semantics, `wd-expc` CSS, consequence tests) had been commingled in the same WIP commit as the Greeks work. It is reverted to `origin/main` here and preserved intact on branch `preserve/release-consequences-work` (pushed) for independent review. PR #19 is now Greeks + held-expiration only.
+
+### 2. Greek Age authority corrected (was cache/TTL timing)
+`contract-greek-lookup.ts` had sourced greek age from `record.retrievedAt` — the cache/TTL timestamp (which defaults to `Date.now()` in `createRecord`), NOT the authoritative acquisition moment. The journal claim that Greek Age is "authoritative chain acquisition provenance" therefore overstated the implementation. Corrected: age is now derived ONLY from `record.evidenceProvenance` when `kind === "chain-acquired"` (the publisher-established provenance already written by `chain-cache-ingestion.ts`), else `null` — never `retrievedAt`, symbol timing, TTL, or `Date.now()`. Field renamed `chainRetrievedAtMs → chainAcquiredAtMs` end-to-end (lookup → `usePositionGreeks` → Console) to make the authority explicit. The unrelated opportunity-history `chainRetrievedAtMs` (an evidence-input dedup identity) is a different concept and was left untouched. Tests now assert age comes from provenance and is `null` when provenance is unavailable.
+
+### 3. Held-expiration declaration lifecycle corrected (silent-erasure bug)
+`ObserveController` cleared the held set on EVERY `/observe` (an omitted `heldExpirations` was indistinguishable from an explicit `[]`), so an older client, a competing tab, or a symbols-only update silently erased held-monitoring demand. And the frontend `useObservations` early-returned on an empty portfolio, so it never cleared held demand when positions closed. Corrected contract: **omitted → leave unchanged; present `[]` → clear; present pairs → replace**; the frontend now POSTs an explicit `{ symbols: [], heldExpirations: [] }` when the portfolio empties. `/observe` now accepts an empty `symbols` list as the valid "clear" declaration (only a missing/non-list `symbols` is a 400).
+
+### 4. Missing acquisition regression test added
+`HeldExpirationAcquisitionTest` drives the real worker with a recording adapter and proves a HELD sub-7-DTE expiration is fetched + persisted while an unrelated non-held sub-7-DTE expiration is excluded — locking the migration-007 behavior that previously rested only on runtime CSV evidence. Added `ObserveControllerTest` for the lifecycle contract and `use-observations-held-lifecycle.test.tsx` for the frontend clear path.
+
+### Verification
+Backend full suite green. Frontend 1490/1491 (sole failure the pre-existing, unrelated velvet-rope date-relative snapshot drift; velvet-rope code untouched by this branch). Not merged — returned for review of the corrected increment.

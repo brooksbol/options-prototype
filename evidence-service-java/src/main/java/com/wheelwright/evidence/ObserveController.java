@@ -40,9 +40,13 @@ public class ObserveController {
         @SuppressWarnings("unchecked")
         List<String> symbols = (List<String>) body.get("symbols");
 
-        if (symbols == null || symbols.isEmpty()) {
+        // 'symbols' must be present and a list. An EMPTY list is now VALID: it is the
+        // explicit "no positions" declaration (empty portfolio) that atomically clears
+        // the monitored set — and, together with an explicit heldExpirations:[], clears
+        // held-expiration demand. Only a missing/non-list 'symbols' is a bad request.
+        if (!(body.get("symbols") instanceof List)) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Request must include a non-empty 'symbols' array"));
+                    .body(Map.of("error", "Request must include a 'symbols' array (may be empty to clear)"));
         }
 
         // Normalize
@@ -78,17 +82,31 @@ public class ObserveController {
         // { "heldExpirations": [ { "symbol": "GDXJ", "expiration": "2026-09-11" }, ... ] }.
         // These are the EXACT (symbol, expiration) pairs the operator currently holds. The
         // acquisition worker keeps their chains refreshed even below the 7-45 DTE window,
-        // so held positions' greeks stay current. Atomically REPLACES the held set; a
-        // closed position stops being held on the next declaration. Absent field → clear
-        // held set (back-compatible: older clients simply hold nothing).
-        List<Map.Entry<String, String>> heldPairs = parseHeldExpirations(body.get("heldExpirations"));
-        store.setHeldExpirations(heldPairs);
+        // so held positions' greeks stay current.
+        //
+        // LIFECYCLE CONTRACT (present-vs-omitted is significant — do not conflate):
+        //   - field OMITTED           → leave the existing held declaration UNCHANGED.
+        //     An older client, a competing tab, or a request that only updates symbols
+        //     must NOT silently erase current held-expiration monitoring demand.
+        //   - field present as []     → EXPLICITLY CLEAR the held set (operator holds
+        //     nothing, e.g. empty portfolio).
+        //   - field present with pairs → atomically REPLACE the held set (a closed
+        //     position stops being held on the next declaration).
+        int heldCount;
+        if (body.containsKey("heldExpirations")) {
+            List<Map.Entry<String, String>> heldPairs = parseHeldExpirations(body.get("heldExpirations"));
+            store.setHeldExpirations(heldPairs);
+            heldCount = heldPairs.size();
+        } else {
+            heldCount = -1; // sentinel: omitted → unchanged (not written)
+        }
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("added", unknown);
         result.put("alreadyKnown", alreadyKnown);
         result.put("monitored", normalized.size());
-        result.put("heldExpirations", heldPairs.size());
+        // -1 signals "heldExpirations omitted → existing held demand left unchanged".
+        result.put("heldExpirations", heldCount);
         result.put("totalRequested", normalized.size());
 
         return ResponseEntity.ok(result);

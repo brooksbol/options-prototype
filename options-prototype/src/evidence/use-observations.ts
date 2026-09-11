@@ -134,12 +134,17 @@ export function useObservations(): ObservationState {
   // even below the 7-45 DTE window (held-expiration overlay). The backend doesn't
   // know these are portfolio positions — it just ensures they're acquirable and
   // that held chains stay current. Idempotent per exact (symbols + held) set.
+  //
+  // Empty portfolio is NOT a no-op: we still POST an explicit empty declaration
+  // ({ symbols: [], heldExpirations: [] }) so the backend clears monitored + held
+  // demand. Returning early here would leave stale held-expiration demand acquiring
+  // chains for positions the operator no longer holds. Demo mode does not POST.
   useEffect(() => {
-    if (symbols.length === 0) return;
+    if (isDemo) return;
     ensureObservable(symbols, heldExpirations);
     // heldKey is the content-stable dependency for heldExpirations.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [symbols, heldKey]);
+  }, [symbols, heldKey, isDemo]);
 
   // For demo: use static demo observations. For fidelity: use live observation store.
   const liveState = useSyncExternalStore(
@@ -154,8 +159,13 @@ export function useObservations(): ObservationState {
  * POST portfolio symbols + held expirations to /api/evidence/observe so the backend
  * can acquire them and keep held chains refreshed. Fire-and-forget — failures are
  * non-fatal (the observation pipeline still works for known symbols via the
- * QuotesController graceful path). `heldExpirations` is additive; older backends
- * ignore it.
+ * QuotesController graceful path).
+ *
+ * `heldExpirations` is ALWAYS included in the body — including as an empty array.
+ * An empty array is the EXPLICIT "clear held demand" signal (the backend
+ * distinguishes present-`[]` = clear from an omitted field = leave unchanged). This
+ * is why an empty portfolio must still POST `{ symbols: [], heldExpirations: [] }`
+ * rather than skipping the call: skipping would leave stale held demand in place.
  */
 let lastObserveKey = "";
 function ensureObservable(symbols: string[], heldExpirations: HeldExpiration[] = []): void {
