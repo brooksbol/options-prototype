@@ -23,6 +23,7 @@ import type { Expiration } from "../domain/types";
 import { selectEligibleExpirations } from "../velvet-rope/evaluate";
 import { inferProductStructure, hasStructuralComplexity } from "../velvet-rope/product-structure";
 import { lookupCatalog, governanceFromCatalog } from "../instrument-catalog/catalog";
+import { isSubjectAdmissible } from "./subject-admissibility";
 import { midPrice, annualizedYield } from "../domain/calculations";
 import { assessExecution, isHardNo, type ContractEvidence, type ActionPosture } from "./execution-assessment";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
@@ -201,7 +202,7 @@ export async function recommendBuyWrites(
   cache: DurableMarketCache,
   cacheEnvironment: { provider: string; environment: string },
   policy: RecommendationPolicy,
-  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; observationSink?: ObservationSink }
+  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; authorityPending?: boolean; observationSink?: ObservationSink }
 ): Promise<BuyWriteRecommendationResult> {
   // Optional observe-only emission seam. Undefined (default, all existing callers/tests) =>
   // byte-identical Decision behavior.
@@ -227,19 +228,17 @@ export async function recommendBuyWrites(
   const effectiveCash = deployableCash - policy.deployment.reserveAmount;
   const useSessionValidity = options?.sessionClosed ?? false;
   const admissibilityBoundaryMs = options?.admissibilityBoundaryMs ?? null;
+  const authorityPending = options?.authorityPending ?? false;
 
+  // Issue #16: consume the BACKEND per-subject admissibility verdict (carried on the cache
+  // record) rather than re-deriving admissibility from a provider-delay policy. Fails
+  // closed while backend authority is pending; falls back to the backend-sourced session
+  // boundary + freshness only when no per-subject verdict is present.
   function isEligible(record: unknown): boolean {
-    if (!record) return false;
-    if (useSessionValidity) return true;
-    // Admissibility gate: reject evidence retrieved before the boundary
-    if (admissibilityBoundaryMs != null) {
-      const rec = record as { retrievedAt?: number };
-      if (rec.retrievedAt != null && rec.retrievedAt < admissibilityBoundaryMs) {
-        return false;
-      }
-    }
-    const freshness = cache.freshness(record as Parameters<typeof cache.freshness>[0]);
-    return freshness === "fresh" || freshness === "stale_usable";
+    return isSubjectAdmissible(
+      record as import("../cache/durable-cache").CacheRecord | null,
+      { authorityPending, useSessionValidity, admissibilityBoundaryMs, cache }
+    );
   }
 
   for (const symbol of symbols) {

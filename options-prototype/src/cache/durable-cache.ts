@@ -90,7 +90,23 @@ export interface CacheRecord<T = unknown> {
    * callers remain valid; consumers treat missing as `unavailable`.
    */
   evidenceProvenance?: EvidenceProvenance;
+  /**
+   * Issue #16: backend-authoritative per-subject ADMISSIBILITY verdict for this chain,
+   * carried verbatim from the evidence snapshot (`chains[].admissibility` /
+   * `primaryChainAdmissibility`). The frontend must CONSUME this rather than re-derive
+   * admissibility from a provider-delay profile. Absent for non-chain records, older
+   * snapshots, or a backend build without session context — consumers treat missing as
+   * "no backend verdict" and fall back to freshness only (never to a local delay policy).
+   */
+  admissibility?: SubjectAdmissibility;
   payload: T;
+}
+
+/** Backend per-subject admissibility verdict (mirrors the snapshot contract, Issue #16). */
+export interface SubjectAdmissibility {
+  admissible: boolean;
+  basis: "real-time" | "delayed" | "unknown";
+  canonicalSessionDate: string | null;
 }
 
 // --- Key Builder ---
@@ -221,7 +237,8 @@ export class DurableMarketCache {
     expiration: string | null,
     payload: T,
     retrievedAtMs?: number,
-    evidenceProvenance?: EvidenceProvenance
+    evidenceProvenance?: EvidenceProvenance,
+    admissibility?: SubjectAdmissibility
   ): CacheRecord<T> {
     const baseTime = retrievedAtMs ?? Date.now();
     const { freshMs, staleMs } = this.getTTLs(dataType);
@@ -233,6 +250,7 @@ export class DurableMarketCache {
       symbol: symbol.toUpperCase(),
       expiration,
       evidenceProvenance,
+      admissibility,
       schemaVersion: "v1",
       retrievedAt: baseTime,
       freshUntil: baseTime + freshMs,

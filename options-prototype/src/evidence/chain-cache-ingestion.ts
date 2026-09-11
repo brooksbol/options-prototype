@@ -71,11 +71,20 @@ export async function ingestChainsFromSnapshot(snapshotData: any): Promise<numbe
         ? provenanceFromPublished(chainEntry.chainAcquisitionProvenance)
         : legacyPrimaryProvenance;
 
+      // Issue #16: carry the backend-authoritative per-subject admissibility
+      // verdict for THIS chain. The Console CONSUMES it (never re-derives it from
+      // a delay policy). Multi-chain surface → per-entry; legacy single-chain →
+      // the symbol-level primary verdict. Mirrors the Write Desk ingestion so both
+      // surfaces populate identical records (no Issue #16 regression).
+      const admissibility = Array.isArray(sym.chains)
+        ? chainEntry.admissibility
+        : sym.primaryChainAdmissibility;
+
       // TTL mechanics may still use the symbol fallback — this is NOT Age.
       const chainRetrievedMs = chainEntry.retrievedAt ? new Date(chainEntry.retrievedAt).getTime() : backendRetrievedAtMs;
       const chainKey = buildCacheKey(PROVIDER_KEY, ENVIRONMENT_KEY, "chain", sym.symbol, chainExp);
       const chainRecord = cache.createRecord(
-        chainKey, "chain", PROVIDER_KEY, ENVIRONMENT_KEY, sym.symbol, chainExp, chainData, chainRetrievedMs, provenance,
+        chainKey, "chain", PROVIDER_KEY, ENVIRONMENT_KEY, sym.symbol, chainExp, chainData, chainRetrievedMs, provenance, admissibility,
       );
       await cache.put(chainRecord);
     }

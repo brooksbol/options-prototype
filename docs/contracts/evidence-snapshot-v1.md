@@ -226,6 +226,42 @@ Rules:
   extraction) that omits these fields is interpreted by consumers as "greek unavailable"
   (null), never as zero. Consumers must not treat an absent field as a meaningful `0`.
 
+### Additive fields — Per-Subject Admissibility (Issue #16, September 2026)
+
+Per Issue #16 (session/admissibility authority), the snapshot carries a **subject-scoped admissibility verdict** for each chain. Market-session state and evidence admissibility/canonicality are **domain judgments owned by the backend**, because only the backend knows the active provider authority (real-time Production vs 15-min-delayed Sandbox) and the session policy. Consumers **must not** re-derive admissibility by mapping provider identity/environment to a delay policy themselves — that is the authority leak this field closes. These are **additive, non-breaking** fields under INV-PUB-05 (no version increment).
+
+```jsonc
+"chains": [
+  {
+    "expiration": "2026-08-03",
+    "retrievedAt": "2026-08-03T14:30:00Z",
+    "chainAcquisitionProvenance": { "kind": "chain-acquired", "acquiredAt": "2026-08-03T14:30:00Z" },
+    "environmentProvenance": { "kind": "provider-acquired", "environment": "production" },
+    "admissibility": {                          // ADDITIVE — subject: THIS chain only
+      "admissible": true,
+      "basis": "real-time",                      // "real-time" | "delayed" | "unknown"
+      "canonicalSessionDate": "2026-08-03"
+    },
+    "data": { /* MarketChain */ }
+  }
+]
+```
+
+The legacy/primary single `chain` gains a sibling `primaryChainAdmissibility` of the same shape.
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `chains[].admissibility` / `primaryChainAdmissibility` | object | Backend verdict for that subject. `admissible` (bool): may this subject be relied upon now. `basis`: the semantics applied — `real-time` (production authority, no delay), `delayed` (sandbox authority, 15-min), or `unknown` (environment could not be established → conservative, not admissible). `canonicalSessionDate`: the session date this subject is canonical for (or null when unknown). |
+
+Rules (Issue #16):
+
+- The verdict is derived from **that subject's own** provider `environment` + its authoritative acquisition instant + backend session policy — **never** from the currently-active authority. A sandbox-acquired subject retains delayed semantics even while Production is active (no laundering), and a production-acquired subject is never charged Sandbox delay.
+- A production-acquired subject is admissible/canonical at the regular 09:30 ET open (no phantom 09:30–09:45 open-delay window). A sandbox-acquired subject retains its 15-minute delayed-open behavior.
+- `basis: "unknown"` (unknown/absent environment) yields `admissible: false` — an explicit conservative result. Consumers must not promote unknown to production.
+- **Consumer compatibility:** an older snapshot (or a build without session context) that omits `admissibility` is interpreted by consumers as absent/unknown — never fabricated. Consumers must not reconstruct admissibility from `environmentProvenance` alone.
+
+> Session-LEVEL classification (the six-state session model for the UI badge and session-closed behavior) is published on `GET /api/status` under the additive `session` key, not in the snapshot. See `07-architecture-current.md` / `StatusController`.
+
 ---
 
 ## Consumer Compatibility

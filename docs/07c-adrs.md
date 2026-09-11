@@ -506,6 +506,8 @@ ADR-013 (fact-to-interpretation boundary / Epistemic Integrity) and INV-PERSIST-
 - **INV-PERSIST-03 / INV-PERSIST-04** — supporting foundations ("persist facts; derive trust"); ADR-015 sharpens what provenance must carry and where authority is owned.
 - **AR6 / PL-ARCH-06** — this is pressure/evidence toward "where authoritative decision context lives," but ADR-015 is deliberately narrower: it governs *who decides what facts are authoritative*, not *where all recommendation computation runs*. It does not authorize relocating the recommendation engines.
 
+- **ADR-017 / Authoritative Verdict Precedence and Consumer-Path Reach** — a later sibling in this authority-boundary series (it does not supersede ADR-015). ADR-015 governs *who decides what facts are authoritative*; ADR-017 additionally governs that the authoritative verdict must *reach and govern the decision consumer*, outrank local fallback, and fail safe when pending.
+
 **Boundary principle (concise):** The frontend may calculate *what to display* from authoritative facts; it must not decide *what facts are authoritative*.
 
 **Consequences:**
@@ -589,3 +591,59 @@ Current scope: Production does not currently require a ratified durable lifecycl
 - **INV-PERSIST-03 / INV-PERSIST-04** ("persist facts; derive trust") — supporting foundations; an authoritative association is a derived-trust claim over persisted facts, not a persisted fact in itself.
 
 **Boundary principle (concise):** A downstream layer may present *that* two things are associated on authority established upstream; it must not silently establish, for the same semantic relationship, a competing association from independent domain inference.
+
+- **ADR-017 / Authoritative Verdict Precedence and Consumer-Path Reach** — a later sibling in this authority-boundary series (session/admissibility verdicts; it does not supersede ADR-016). ADR-016 forbids manufacturing a competing *association*; ADR-017 forbids a downstream consumer from reconstructing a competing *verdict/policy* and from letting local fallback override an explicit authoritative verdict.
+
+---
+
+## ADR-017: Authoritative Verdict Precedence and Consumer-Path Reach
+
+**Date:** September 2026
+**Status:** Accepted
+
+**Context:** Issue #16 (GitHub Issue #16, closed by PR #17) exposed a recurring Wheelwright failure mode that ADR-013, ADR-015, and ADR-016 each touched but none fully closed. The frontend independently derived **market-session state and evidence admissibility/canonicality** from a hardcoded provider-delay profile (Tradier sandbox, 15 minutes), in parallel with the backend `SessionGate`, which was already provider-aware. On the real-time Production feed this manufactured a phantom `REGULAR_OPEN_DELAY` window (09:30–09:45 ET) and suppressed canonical/admissible evidence during the highest-value trading window.
+
+The visible symptom was a phantom "Open Delay." The architectural defect was deeper and is the durable lesson: **two layers had quietly become competing semantic authorities** because a downstream representation reconstructed domain meaning (delay/session/admissibility policy) from lower-level signals (provider identity, cache timestamps) instead of consuming the authoritative verdict.
+
+The repair also surfaced two failure modes that the fix itself initially reproduced, and which are therefore recorded here as first-class rules:
+1. A "conservative" frontend bootstrap that fabricated a `CLOSED_CANONICAL` session actually became *more* permissive, because the existing sealed-session shortcut treats "closed" as permission to trust prior cached evidence. Fabricating an ordinary domain state to represent "authority unknown" is itself an authority defect.
+2. Even after the backend verdict was published and consumed, a legacy sealed-session / freshness shortcut evaluated *before* the verdict could override an explicit `admissible:false`. Publishing authority is insufficient if a parallel local rule still governs the actual decision.
+
+This ADR sits in the **ADR-015 / ADR-016 sibling series**. ADR-015 applied authority-preservation to *time/provenance*; ADR-016 to *relationship/association*; ADR-017 applies it to *session/admissibility verdicts* and adds the **consumer-path and precedence** dimensions the earlier two did not need to state. The shared spine remains: *transformation does not create semantic authority, and a downstream representation must not manufacture authority it does not own.* This ADR does not restate that spine; it extends it.
+
+**Decision:**
+
+1. **One semantic authority.** Every domain fact or verdict has exactly one authoritative owner. Session state, evidence admissibility, and canonicality are backend-owned domain judgments, because only the backend knows the active provider authority (real-time vs delayed) and the session policy. (This ratifies, through the normal authority mechanism, the Principal ruling made during #16: *backend owns provider/session/admissibility/canonicality semantics; the frontend composes and presents them and must not derive them from provider identity.*)
+
+2. **Composition, not invention.** Presentation/consumer layers may arrange, format, filter, and present authoritative facts. They must not reconstruct backend domain policy from lower-level signals such as provider identity, environment label, or cache timestamps. Mapping `environment ∈ {production, sandbox}` to a delay/admissibility policy in the frontend is prohibited; the frontend consumes the backend's per-subject verdict instead.
+
+3. **Authority must reach the consumer.** Publishing an authoritative fact is not sufficient. The *actual decision consumer* must consume it. An architectural repair is incomplete while any decision path continues to apply a parallel locally-derived rule. Consequently, repairs of this class require **consumer-path evidence**: producer/publication tests alone do not prove that authoritative semantics govern the decision.
+
+4. **Verdict outranks fallback; fallback only in the absence of authority.** When an explicit authoritative verdict is present, it governs. Fallback/legacy semantics exist only where no authoritative verdict is available; fallback may never override an explicit verdict. Concretely, evaluated in strict order for a subject: (0) authority pending → reject; (1) explicit `admissible:false` → reject in every session state; (2) explicit `admissible:true` under sealed/closed-session validity → admissible even if the live-session transport TTL has expired; (3) explicit `admissible:true` under a live session → still require ordinary cache usability; (4) no verdict → legacy fallback (sealed-session validity / boundary / freshness).
+
+5. **Unknown/pending authority fails safe.** While authoritative state is unavailable, the consumer fails closed and must not fabricate an ordinary domain state to stand in for the missing authority. Two distinct "unavailable" cases both fail closed and must not be conflated: (a) *session-authority pending* — no authoritative status has yet been received this session (represented explicitly as a pending flag, never as a fabricated market/session state); and (b) *subject authority unresolved* — a specific subject's provider environment cannot be established (represented as an explicit `unknown` verdict, `admissible:false`). Neither is ever promoted to an ordinary/admissible state.
+
+6. **Cache is transport/state, not an independent truth model.** Cache freshness (a transport concern) and domain admissibility (an authority concern) are distinct. A record may be cache-fresh yet inadmissible, or authoritatively admissible yet require cache usability to be *usable*. Neither may silently stand in for the other.
+
+7. **Sealed evidence survives ordinary live-TTL expiration.** Where accepted domain semantics establish that evidence remains valid for a sealed/closed session, expiration of the live-session transport TTL must not invalidate it. (ADR-007 sealed-session semantics, expressed at the per-subject admissibility layer.)
+
+8. **Prefer retiring a duplicate authority path over synchronizing competing truth models.** When duplicate semantic authority is discovered, the repair retires one authority path (here, the frontend's local session/delay derivation) rather than maintaining two truth models in sync indefinitely.
+
+9. **Non-regression at the boundary, not the symptom.** Tests that protect this class of repair must assert the authority boundary itself (verdict precedence, pending-fails-closed, consumer-path consumption), not merely the visible symptom (the "Open Delay" badge).
+
+**Mixed-authority implication (preserve):** Different subjects within one accepted snapshot may legitimately carry Production, Sandbox, or unknown provenance. A single global presentation-layer provider policy therefore *cannot* truthfully stand in for per-subject authority. Admissibility is judged per subject, from that subject's own provider environment and acquisition time — a sandbox-acquired subject retains delayed semantics even while Production is the active authority (no laundering), and a production subject is never charged sandbox delay.
+
+**Boundary principle (concise):** A consumer may present *what the authority decided*; it must not decide it, must not outrank it with local fallback, and must fail closed when the authority has not yet spoken.
+
+**Consequences:**
+- The backend publishes the authoritative session classification on `GET /api/status` (additive `session` block: six-state session, canonical date, acceptance flag, admissibility boundary) and a per-subject admissibility verdict on the evidence snapshot (additive `chains[].admissibility` / `primaryChainAdmissibility`; see `docs/contracts/evidence-snapshot-v1.md`). Both are additive under INV-PUB-05.
+- The frontend consumes both: session state via the status `session` block, and per-subject admissibility carried onto the cache record and honored by a single shared eligibility helper used by all three recommendation engines. The frontend no longer constructs a provider-delay profile for session/admissibility purposes.
+- The free-text `schedulerTelemetry.sessionState` is unchanged; the structured session projection is published under the new `session` key.
+
+**Verification nuance (recorded, not overstated):** The accepted mixed-authority evidence includes an integration test exercising the real durable cache through the actual recommendation engine (`recommendPuts`), proving an admissible Production subject survives while a backend-inadmissible Sandbox subject on the same run cannot. The snapshot → cache **ingestion hop** was verified by source inspection rather than executed end-to-end within that particular test. This is adequate evidence for the accepted bounded defect; it is not a claim of full end-to-end ingestion coverage.
+
+**Relationship to other decisions:**
+- **ADR-015 / Evidence Provenance Authority** and **ADR-016 / Evidence-to-Domain Association** — sibling decisions. ADR-015 governs *who decides what facts are authoritative* (provenance/time); ADR-016 governs *authoritative association*; ADR-017 governs *authoritative verdict precedence and consumer-path reach* for session/admissibility. All three express the same spine: downstream must not manufacture authority, and transformation confers no authority.
+- **ADR-007 / Session-Aware Evidence Governance** — ADR-017 relocates the authority for the *provider-delay-sensitive* portion of session semantics to the backend and adds the per-subject admissibility verdict; sealed-session validity (ADR-007) is preserved and expressed at the per-subject layer (Decision rule 7).
+- **ADR-013 / Epistemic Integrity** — extends the fact-to-interpretation boundary to *verdict consumption*: a published verdict that the consumer ignores in favor of a local rule is an epistemic-integrity violation.
+- **AR6 / PL-ARCH-06** — ADR-017 is deliberately narrow: it governs *who owns and must consume* session/admissibility verdicts, not *where all recommendation computation runs*. It does not authorize relocating the recommendation engines.

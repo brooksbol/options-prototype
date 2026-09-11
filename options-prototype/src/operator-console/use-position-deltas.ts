@@ -83,6 +83,22 @@ function sanitizeGreek(value: number | undefined, ceiling: number): number | nul
   return value;
 }
 
+/**
+ * Whether a contract's ENTIRE greek vector is exactly zero (delta and all four
+ * secondary greeks == 0). Tradier returns this placeholder set for contracts it
+ * has not actually computed greeks for — including some real-bid contracts (the
+ * DBO row). A genuine deep-OTM contract has tiny-but-nonzero values, never an
+ * all-exact-zero vector, so an all-zero vector is an uncomputed placeholder, not
+ * data. Treat it as unavailable rather than displaying a wall of 0.0000.
+ */
+function greekVectorAllZero(c: ChainContract): boolean {
+  return c.delta === 0
+    && (c.gamma ?? 0) === 0
+    && (c.theta ?? 0) === 0
+    && (c.vega ?? 0) === 0
+    && (c.rho ?? 0) === 0;
+}
+
 interface ChainPayload {
   puts?: ChainContract[];
   calls?: ChainContract[];
@@ -227,9 +243,11 @@ export function usePositionGreeks(
         }
 
         const match = contracts.find(c => c.strike === pos.strike);
-        if (!match || !hasRealMarket(match)) {
-          // No match, or the contract has no real market (Tradier's greek model
-          // fully degenerates on zero-bid strikes). Suppress the whole set.
+        if (!match || !hasRealMarket(match) || greekVectorAllZero(match)) {
+          // No match; or no real market (Tradier's greek model degenerates on
+          // zero-bid strikes); or an all-exact-zero greek vector, which is an
+          // uncomputed provider placeholder even when a bid exists (DBO row) —
+          // not real data. Suppress the whole set rather than show 0.0000 walls.
           result.set(pos.id, NONE);
           continue;
         }

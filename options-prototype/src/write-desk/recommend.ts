@@ -20,6 +20,7 @@ import type { Expiration } from "../domain/types";
 import { selectEligibleExpirations } from "../velvet-rope/evaluate";
 import { inferProductStructure, hasStructuralComplexity } from "../velvet-rope/product-structure";
 import { lookupCatalog, governanceFromCatalog } from "../instrument-catalog/catalog";
+import { isSubjectAdmissible } from "./subject-admissibility";
 import { midPrice, annualizedYield } from "../domain/calculations";
 import { assessExecution, isHardNo, type ContractEvidence, type ActionPosture } from "./execution-assessment";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
@@ -213,7 +214,7 @@ export async function recommendPuts(
   cache: DurableMarketCache,
   cacheEnvironment: { provider: string; environment: string },
   policy: RecommendationPolicy = DEFAULT_RECOMMENDATION_POLICY,
-  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; observationSink?: ObservationSink }
+  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; authorityPending?: boolean; observationSink?: ObservationSink }
 ): Promise<RecommendationResult> {
   // Optional observe-only emission seam. When undefined (default, all existing callers/tests),
   // every sink call below is skipped and Decision behavior is byte-identical.
@@ -250,6 +251,7 @@ export async function recommendPuts(
   // This implements sealed-evidence semantics: Friday's close remains valid through Monday.
   const useSessionValidity = options?.sessionClosed ?? false;
   const admissibilityBoundaryMs = options?.admissibilityBoundaryMs ?? null;
+  const authorityPending = options?.authorityPending ?? false;
 
   /**
    * Check if a cache record is eligible for recommendation.
@@ -261,18 +263,14 @@ export async function recommendPuts(
    *      pre-regular-session/delayed-feed evidence from participating.
    *   3. Freshness: record must be within TTL (fresh or stale_usable)
    */
+  // Issue #16: consume the BACKEND per-subject admissibility verdict on chain records;
+  // fail closed while backend authority is pending; fall back to the backend-sourced
+  // session boundary + freshness only when no per-subject verdict is present.
   function isEligible(record: unknown): boolean {
-    if (!record) return false;
-    if (useSessionValidity) return true; // sealed evidence valid during closed session
-    // Admissibility gate: reject evidence retrieved before the boundary
-    if (admissibilityBoundaryMs != null) {
-      const rec = record as { retrievedAt?: number };
-      if (rec.retrievedAt != null && rec.retrievedAt < admissibilityBoundaryMs) {
-        return false;
-      }
-    }
-    const freshness = cache.freshness(record as Parameters<typeof cache.freshness>[0]);
-    return freshness === "fresh" || freshness === "stale_usable";
+    return isSubjectAdmissible(
+      record as import("../cache/durable-cache").CacheRecord | null,
+      { authorityPending, useSessionValidity, admissibilityBoundaryMs, cache }
+    );
   }
 
   for (const symbol of symbols) {

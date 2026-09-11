@@ -328,3 +328,32 @@ Observe before throttling. No code change now. If real pressure ever appears (in
 ### Status
 
 Docs-only. `main` frozen after this commit; the next activity is the roadmap review from the accepted SHA. Cash Deployment targeted refresh (bulk + per-row) is production; its stewardship boundary is now durable knowledge.
+
+
+## 2026-09-11 — Issue #16: session/admissibility authority defect, and the authority-precedence lesson (ADR-017)
+
+### What happened
+A live Operator Console showed a phantom `OPEN DELAY` at ~09:41 ET on the real-time **Production** feed. Root-cause (traced, not guessed): the frontend `MarketSessionPolicy` hardcoded the Tradier **sandbox** 15-minute provider-delay profile and independently derived session state *and* evidence admissibility/canonicality from it — in parallel with the backend `SessionGate`, which was already provider-aware. The phantom badge was only the visible symptom; the real defect was **duplicated semantic authority**. Filed as GitHub Issue #16 (`defect`/`S2`), fixed in PR #17, merged to `main` `a964c5c`, Issue #16 CLOSED.
+
+### The deeper lesson (why this entry exists)
+This was the **third instance of one architectural spine**, after ADR-015 (provenance/time authority) and ADR-016 (association authority): *a downstream representation must not reconstruct domain meaning from lower-level signals, and transformation confers no authority.* Issue #16 added dimensions the earlier two didn't need to state, and which a future actor would otherwise rediscover the hard way:
+- **Authority must reach the consumer.** Publishing the backend verdict was not enough — the recommendation eligibility gate kept applying a local rule. Producer/publication tests did not prove the consumer was governed; only a consumer-path integration test did — one exercising a real durable `CacheRecord` through the real `recommendPuts`. (The snapshot-ingestion hop into the cache was verified by source inspection, not exercised by that test.)
+- **Verdict outranks fallback; fallback only in the absence of authority.**
+- **Pending authority fails safe** — and, sharply, a "conservative" fabricated `CLOSED_CANONICAL` bootstrap was actually *more* permissive, because the sealed-session shortcut treats "closed" as permission to trust prior cached evidence. Fabricating an ordinary domain state to mean "authority unknown" is itself the defect.
+- **Cache freshness (transport) ≠ admissibility (authority)**, and **sealed evidence survives ordinary live-TTL expiry**.
+- **Retire the duplicate authority path** rather than sync two truth models.
+
+### The review arc (preserved so it isn't re-litigated)
+The fix took several Codex rounds, each finding a *real* remaining authority bug, not a nitpick: (1) verdict published but not consumed; (2) same-state session updates dropped + permissive startup; (3) precedence inverted (sealed-session shortcut evaluated before the verdict, so `admissible:false` could be overridden; and sealed `admissible:true` wrongly invalidated by expired live TTL). The final precedence is: pending→reject; explicit false→reject (all states); explicit true + sealed→accept despite expired live TTL; explicit true + live→require freshness; no verdict→legacy fallback.
+
+### Mixed-authority implication (durable)
+One accepted snapshot may carry Production, Sandbox, and unknown per-subject provenance simultaneously. A single global presentation-layer provider policy therefore cannot stand in for per-subject authority — admissibility is judged per subject from its own environment + acquisition time (no laundering).
+
+### Verification honesty (not overstated)
+The mixed-authority integration test exercised the real durable cache through the actual `recommendPuts`. The snapshot→cache **ingestion hop** was verified by source inspection, not executed end-to-end in that test. Adequate for this bounded defect; not a claim of full end-to-end ingestion coverage. Full backend suite green; FE 1442/1443 (sole failure the pre-existing, unrelated velvet-rope date-drift snapshot).
+
+### Where the lesson now lives
+**ADR-017 (Authoritative Verdict Precedence and Consumer-Path Reach)** — appended to `07c-adrs.md` as a later sibling of ADR-015 and ADR-016 (both now forward-reference it). `07-architecture-current.md` Ownership Boundary gains a "Consumer-path authority precedence" governing constraint pointing to ADR-017. This is deliberately consolidated into the existing authority spine rather than a parallel new doctrine. The implementation (SessionClassifier, per-subject snapshot admissibility, `isSubjectAdmissible`, backend-consuming `useSessionClassification`) is accepted on `main`; this ratchet is documentation-only.
+
+### Process note (worktree discipline under concurrent work)
+#16 was built and this ratchet written in **isolated worktrees** off accepted `main`, never in the primary worktree, which holds paused concurrent Greeks/Operator-Console and expanded-row (PL-DEPLOY/A) dirty state. That paused work was never disturbed. Sequence going forward remains: (this ratchet) → resume Greeks/reconcile → return to PL-DEPLOY/A.

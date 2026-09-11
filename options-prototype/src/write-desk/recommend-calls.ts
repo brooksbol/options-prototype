@@ -19,6 +19,7 @@ import type { Expiration } from "../domain/types";
 import { selectEligibleExpirations } from "../velvet-rope/evaluate";
 import { midPrice, annualizedYield } from "../domain/calculations";
 import { assessExecution, isHardNo, type ContractEvidence } from "./execution-assessment";
+import { isSubjectAdmissible } from "./subject-admissibility";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
 import type { CallCandidate } from "./candidate-types";
 import type { InventoryPosition } from "./types";
@@ -50,7 +51,7 @@ export async function recommendCalls(
   cache: DurableMarketCache,
   cacheEnvironment: { provider: string; environment: string },
   policy: RecommendationPolicy,
-  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null }
+  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; authorityPending?: boolean }
 ): Promise<CallRecommendationResult> {
   const allCandidates: CallCandidate[] = [];
   const allWait: CallCandidate[] = [];
@@ -60,18 +61,16 @@ export async function recommendCalls(
   const eligible = inventory.filter((p) => p.maxAdditionalContracts > 0);
   const useSessionValidity = options?.sessionClosed ?? false;
   const admissibilityBoundaryMs = options?.admissibilityBoundaryMs ?? null;
+  const authorityPending = options?.authorityPending ?? false;
 
+  // Issue #16: consume the BACKEND per-subject admissibility verdict; fail closed while
+  // backend authority is pending; fall back to the backend-sourced session boundary +
+  // freshness only when no per-subject verdict exists.
   function isEligible(record: unknown): boolean {
-    if (!record) return false;
-    if (useSessionValidity) return true;
-    if (admissibilityBoundaryMs != null) {
-      const rec = record as { retrievedAt?: number };
-      if (rec.retrievedAt != null && rec.retrievedAt < admissibilityBoundaryMs) {
-        return false;
-      }
-    }
-    const freshness = cache.freshness(record as Parameters<typeof cache.freshness>[0]);
-    return freshness === "fresh" || freshness === "stale_usable";
+    return isSubjectAdmissible(
+      record as import("../cache/durable-cache").CacheRecord | null,
+      { authorityPending, useSessionValidity, admissibilityBoundaryMs, cache }
+    );
   }
 
   for (const pos of eligible) {
