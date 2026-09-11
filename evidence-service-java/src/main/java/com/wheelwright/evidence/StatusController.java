@@ -35,17 +35,20 @@ public class StatusController {
     private final ResponseCache cache;
     private final String tradierApiKey;
     private final String environment;
+    private final SessionClassifier sessionClassifier;
 
     public StatusController(SqliteEvidenceStore store,
                            AcquisitionWorker worker,
                            RequestPacer pacer,
                            ResponseCache cache,
+                           SessionClassifier sessionClassifier,
                            @org.springframework.beans.factory.annotation.Value("${tradier.api-key:}") String tradierApiKey,
                            @org.springframework.beans.factory.annotation.Value("${tradier.base-url:https://sandbox.tradier.com/v1}") String baseUrl) {
         this.store = store;
         this.worker = worker;
         this.pacer = pacer;
         this.cache = cache;
+        this.sessionClassifier = sessionClassifier;
         this.tradierApiKey = tradierApiKey;
         // Truthful runtime profile derived from the configured provider base-url.
         // Do not hardcode: durable consumers (e.g. opportunity-history provenance) must not
@@ -71,6 +74,24 @@ public class StatusController {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", "ok");
         result.put("provider", "tradier");
+
+        // Issue #16: authoritative session-level classification (backend-owned).
+        // The six-state temporal/evidence session state + canonical date +
+        // acceptance flag + admissibility boundary, computed from the SAME
+        // failover-aware real-time signal SessionGate uses. Additive key; the
+        // existing free-text schedulerTelemetry.sessionState is left unchanged.
+        // The frontend renders this and must NOT re-derive it from a local
+        // provider-delay profile.
+        var sessionClass = sessionClassifier.classify();
+        Map<String, Object> sessionMap = new LinkedHashMap<>();
+        sessionMap.put("state", sessionClass.state().name());
+        sessionMap.put("canonicalSessionDate", sessionClass.canonicalSessionDate());
+        sessionMap.put("currentTradingSessionDate", sessionClass.currentTradingSessionDate());
+        sessionMap.put("acceptingCanonicalEvidence", sessionClass.acceptingCanonicalEvidence());
+        sessionMap.put("priorSessionOperationallyValid", sessionClass.priorSessionOperationallyValid());
+        sessionMap.put("providerDelayMinutes", sessionClass.providerDelayMinutes());
+        sessionMap.put("admissibilityBoundaryEpochMs", sessionClass.admissibilityBoundaryEpochMs());
+        result.put("session", sessionMap);
         result.put("environment", environment);
         result.put("credentialConfigured", tradierApiKey != null && !tradierApiKey.isBlank());
 

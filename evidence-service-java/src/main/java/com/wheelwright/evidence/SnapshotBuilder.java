@@ -19,8 +19,29 @@ public class SnapshotBuilder {
 
     /**
      * Build the complete snapshot JSON string from the evidence store.
+     *
+     * <p>Backward-compatible overload with no session context: emits the snapshot
+     * without per-subject admissibility (the additive Issue #16 field is simply
+     * omitted, which consumers interpret as "unknown/absent" per additive-field
+     * compatibility). Retained for existing callers/tests.
      */
     public static String buildSnapshotJson(SqliteEvidenceStore store) throws SQLException {
+        return buildSnapshotJson(store, null, null);
+    }
+
+    /**
+     * Build the complete snapshot JSON string with authoritative per-subject
+     * admissibility (Issue #16). When {@code classifier} and {@code now} are
+     * supplied, each chain subject gains an additive {@code admissibility} object
+     * computed from THAT subject's own provider environment + acquisition time and
+     * backend session policy — the backend owns the judgment; the frontend consumes
+     * it and must not re-derive provider-delay policy from provider identity.
+     *
+     * <p>Additive/non-breaking under INV-PUB-05 (no version increment).
+     */
+    public static String buildSnapshotJson(SqliteEvidenceStore store,
+                                           SessionClassifier classifier,
+                                           java.time.Instant now) throws SQLException {
         int generation = store.getGeneration();
         String generatedAt = store.getGeneratedAt();
         List<String> allSymbols = store.getAllSymbols();
@@ -50,7 +71,7 @@ public class SnapshotBuilder {
             if (ev == null) continue;
             if (!first) sb.append(",");
             first = false;
-            appendSymbolEvidence(sb, ev);
+            appendSymbolEvidence(sb, ev, classifier, now);
         }
         sb.append("],");
 
@@ -65,7 +86,8 @@ public class SnapshotBuilder {
         return sb.toString();
     }
 
-    private static void appendSymbolEvidence(StringBuilder sb, Map<String, Object> ev) {
+    private static void appendSymbolEvidence(StringBuilder sb, Map<String, Object> ev,
+                                             SessionClassifier classifier, java.time.Instant now) {
         sb.append("{");
         sb.append("\"symbol\":").append(jsonString((String) ev.get("symbol"))).append(",");
         sb.append("\"status\":").append(jsonString((String) ev.get("status"))).append(",");
@@ -117,6 +139,16 @@ public class SnapshotBuilder {
         sb.append("\"primaryChainEnvironmentProvenance\":")
           .append(environmentProvenanceJson(chainData, primaryChainEnvironment)).append(",");
 
+        // Issue #16: additive, subject-scoped ADMISSIBILITY verdict for the legacy primary
+        // chain. The backend owns this domain judgment (session policy applied to THIS
+        // subject's own environment + acquisition time). The frontend consumes it and must
+        // not re-derive provider-delay policy. Omitted when no session context is supplied.
+        String primaryAdmissibility = subjectAdmissibilityJson(
+            classifier, now, chainData, primaryChainEnvironment, primaryChainRetrievedAt);
+        if (primaryAdmissibility != null) {
+            sb.append("\"primaryChainAdmissibility\":").append(primaryAdmissibility).append(",");
+        }
+
         // chains: all eligible-expiration chains for multi-DTE surface
         @SuppressWarnings("unchecked")
         List<Map<String, String>> allChains = (List<Map<String, String>>) ev.get("chains");
@@ -137,6 +169,13 @@ public class SnapshotBuilder {
                 sb.append(",\"chainAcquisitionProvenance\":").append(chainAcquisitionProvenanceJson(cRetrievedAt));
                 // PL-PROV-FAILOVER: additive per-chain provider/environment provenance.
                 sb.append(",\"environmentProvenance\":").append(environmentProvenanceJson(cData, chainEntry.get("environment")));
+                // Issue #16: additive per-chain ADMISSIBILITY verdict (backend-owned judgment,
+                // per this chain's own environment + acquisition time). Omitted without context.
+                String chainAdmissibility = subjectAdmissibilityJson(
+                    classifier, now, cData, chainEntry.get("environment"), cRetrievedAt);
+                if (chainAdmissibility != null) {
+                    sb.append(",\"admissibility\":").append(chainAdmissibility);
+                }
                 sb.append(",\"data\":").append(cData);
                 sb.append("}");
             }
@@ -205,6 +244,32 @@ public class SnapshotBuilder {
             return "{\"kind\":\"provider-acquired\",\"environment\":" + jsonString(environment) + "}";
         }
         return "{\"kind\":\"unavailable\"}";
+    }
+
+    /**
+     * Issue #16: subject-scoped ADMISSIBILITY verdict JSON. The backend computes whether
+     * THIS chain subject is admissible/canonical from its OWN environment + acquisition
+     * time under session policy — never from the currently-active authority (anti-laundering:
+     * a sandbox-acquired subject keeps delayed semantics even while production is active).
+     *
+     * Returns null (field omitted) when there is no chain subject or no session context.
+     * Shape: {"admissible":bool,"basis":"real-time|delayed|unknown","canonicalSessionDate":str|null}.
+     */
+    private static String subjectAdmissibilityJson(SessionClassifier classifier, java.time.Instant now,
+                                                   String chainData, String environment,
+                                                   String chainRetrievedAt) {
+        if (classifier == null || now == null) return null;   // no context → omit (compat)
+        if (chainData == null || chainData.isEmpty()) return null; // no subject → omit
+        java.time.Instant acquiredAt = isParseableInstant(chainRetrievedAt)
+            ? java.time.Instant.parse(chainRetrievedAt) : null;
+        SessionClassifier.SubjectAdmissibility a =
+            classifier.admissibilityForSubject(environment, acquiredAt, now);
+        StringBuilder sb = new StringBuilder(96);
+        sb.append("{\"admissible\":").append(a.admissible());
+        sb.append(",\"basis\":").append(jsonString(a.basis()));
+        sb.append(",\"canonicalSessionDate\":").append(jsonString(a.canonicalSessionDate()));
+        sb.append("}");
+        return sb.toString();
     }
 
     private static String chainAcquisitionProvenanceJson(String chainRetrievedAt) {

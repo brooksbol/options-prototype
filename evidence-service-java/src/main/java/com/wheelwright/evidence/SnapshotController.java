@@ -22,9 +22,11 @@ import java.sql.SQLException;
 public class SnapshotController {
 
     private final SqliteEvidenceStore store;
+    private final SessionClassifier sessionClassifier;
 
-    public SnapshotController(SqliteEvidenceStore store) {
+    public SnapshotController(SqliteEvidenceStore store, SessionClassifier sessionClassifier) {
         this.store = store;
+        this.sessionClassifier = sessionClassifier;
     }
 
     @GetMapping("/api/evidence/snapshot")
@@ -45,8 +47,8 @@ public class SnapshotController {
             }
         }
 
-        // Build snapshot JSON
-        String payload = SnapshotBuilder.buildSnapshotJson(store);
+        // Build snapshot JSON with authoritative per-subject admissibility (Issue #16).
+        String payload = SnapshotBuilder.buildSnapshotJson(store, sessionClassifier, java.time.Instant.now());
         int payloadBytes = payload.getBytes(StandardCharsets.UTF_8).length;
 
         return ResponseEntity.ok()

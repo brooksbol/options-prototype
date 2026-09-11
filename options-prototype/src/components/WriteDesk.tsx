@@ -24,8 +24,6 @@ import { executableRowFromCandidate, type CallTableRow, type ContingentCallRow }
 import type { RecommendationFunnel } from "../write-desk/recommend";
 import { getDurableCache } from "../cache/durable-cache";
 import { loadCandidateUniverseWithDescriptor } from "../universe/universe";
-import { MarketSessionPolicy } from "../market-session/session-policy";
-import { getTradingCalendar } from "../market-session/trading-calendar";
 import { RecommendationBrief } from "./RecommendationBrief";
 import { CallBrief } from "./CallBrief";
 import { BuyWriteBrief } from "./BuyWriteBrief";
@@ -175,8 +173,11 @@ export function Deployment() {
     const cache = getDurableCache();
     const sessionState = sessionClassification.state;
     const sessionClosed = sessionState === "CLOSED_CANONICAL" || sessionState === "NON_TRADING_DAY" || sessionState === "PREMARKET" || sessionState === "REGULAR_OPEN_DELAY";
-    const reRecSessionPolicy = new MarketSessionPolicy(getTradingCalendar());
-    const reRecAdmissibilityMs = reRecSessionPolicy.getAdmissibilityBoundary(new Date());
+    // Issue #16: admissibility boundary + authority-pending come from BACKEND authority
+    // (via the session classification), not a local provider-delay profile. While authority
+    // is pending, evidence consumers fail closed.
+    const reRecAdmissibilityMs = sessionClassification.admissibilityBoundaryEpochMs ?? null;
+    const authorityPending = sessionClassification.authorityPending ?? false;
     // Opportunity-history observe-only emission (policy change forces a new epoch).
     const reRecAcc = new OpportunityAccumulator({
       policyVersion: updatedPolicy.version,
@@ -192,7 +193,7 @@ export function Deployment() {
       cache,
       { provider: providerKey, environment: "sandbox" },
       updatedPolicy,
-      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, observationSink: reRecAcc }
+      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending, observationSink: reRecAcc }
     );
     setPutCandidates(recResult.candidates);
     setPutWaitCandidates(recResult.waitCandidates);
@@ -214,7 +215,7 @@ export function Deployment() {
         cache,
         { provider: providerKey, environment: "sandbox" },
         updatedPolicy,
-        { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs }
+        { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending }
       );
       setCallCandidates(callResult.candidates);
       setCallWaitCandidates(callResult.waitCandidates);
@@ -254,7 +255,7 @@ export function Deployment() {
       cache,
       { provider: providerKey, environment: "sandbox" },
       updatedPolicy,
-      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, observationSink: reRecAcc }
+      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending, observationSink: reRecAcc }
     );
     setBuyWriteCandidates(bwResult.candidates);
     setBuyWriteWaitCandidates(bwResult.waitCandidates);
@@ -354,8 +355,14 @@ export function Deployment() {
 
           // TTL mechanics may still use the symbol fallback — this is NOT Age.
           const chainRetrievedMs = chainEntry.retrievedAt ? new Date(chainEntry.retrievedAt).getTime() : backendRetrievedAtMs;
+          // Issue #16: carry the backend-authoritative per-subject admissibility verdict
+          // (per-chain, or the primary-chain verdict on the legacy path) into the cache so
+          // Deployment CONSUMES it rather than re-deriving admissibility from a delay policy.
+          const admissibility = Array.isArray(sym.chains)
+            ? chainEntry.admissibility
+            : sym.primaryChainAdmissibility;
           const chainKey = buildCacheKey(providerKey, "sandbox", "chain", sym.symbol, chainExp);
-          const chainRecord = cache.createRecord(chainKey, "chain", providerKey, "sandbox", sym.symbol, chainExp, chainData, chainRetrievedMs, provenance);
+          const chainRecord = cache.createRecord(chainKey, "chain", providerKey, "sandbox", sym.symbol, chainExp, chainData, chainRetrievedMs, provenance, admissibility);
           await cache.put(chainRecord);
         }
 
@@ -401,11 +408,13 @@ export function Deployment() {
 
     if (merged === 0 && putCandidates.length > 0) return; // No new chains and we already have results
 
-    // Recompute recommendations from updated cache
-    const sessionPolicy = new MarketSessionPolicy(getTradingCalendar());
-    const currentSession = sessionPolicy.classify(new Date());
+    // Recompute recommendations from updated cache. Session state + admissibility come
+    // from BACKEND authority (Issue #16), consumed via the session classification hook —
+    // the FE no longer constructs a local MarketSessionPolicy or a provider-delay profile.
+    const currentSession = sessionClassification;
     const sessionClosed = currentSession.state === "CLOSED_CANONICAL" || currentSession.state === "NON_TRADING_DAY" || currentSession.state === "PREMARKET" || currentSession.state === "REGULAR_OPEN_DELAY";
-    const admissibilityBoundaryMs = sessionPolicy.getAdmissibilityBoundary(new Date());
+    const admissibilityBoundaryMs = currentSession.admissibilityBoundaryEpochMs ?? null;
+    const authorityPending = currentSession.authorityPending ?? false;
 
     // Opportunity-history observe-only emission. The accumulator's cross-poll last-seen map
     // suppresses unchanged-evidence re-evaluations, so this writes only when evidence advanced.
@@ -423,7 +432,7 @@ export function Deployment() {
       cache,
       { provider: providerKey, environment: "sandbox" },
       policy,
-      { sessionClosed, admissibilityBoundaryMs, observationSink: newEvidenceAcc }
+      { sessionClosed, admissibilityBoundaryMs, authorityPending, observationSink: newEvidenceAcc }
     );
 
     setPutCandidates(recResult.candidates);
@@ -446,7 +455,7 @@ export function Deployment() {
         cache,
         { provider: providerKey, environment: "sandbox" },
         policy,
-        { sessionClosed, admissibilityBoundaryMs }
+        { sessionClosed, admissibilityBoundaryMs, authorityPending }
       );
       setCallCandidates(callResult.candidates);
       setCallWaitCandidates(callResult.waitCandidates);
@@ -488,7 +497,7 @@ export function Deployment() {
       cache,
       { provider: providerKey, environment: "sandbox" },
       policy,
-      { sessionClosed, admissibilityBoundaryMs, observationSink: newEvidenceAcc }
+      { sessionClosed, admissibilityBoundaryMs, authorityPending, observationSink: newEvidenceAcc }
     );
     setBuyWriteCandidates(bwResult2.candidates);
     setBuyWriteWaitCandidates(bwResult2.waitCandidates);

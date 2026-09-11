@@ -47,6 +47,25 @@ export interface MarketSessionClassification {
 
   /** The session profile used for this classification */
   profileId: string;
+
+  /**
+   * Issue #16: epoch-ms before which active-session evidence is inadmissible, as
+   * computed by BACKEND authority (published on /api/status `session`). Optional
+   * because the legacy local classifier did not populate it; when present it is the
+   * authoritative boundary and the frontend must not recompute it from a local
+   * provider-delay profile. null when no admissibility gate applies (closed/sealed).
+   */
+  admissibilityBoundaryEpochMs?: number | null;
+
+  /**
+   * Issue #16: true until the first AUTHORITATIVE backend session (/api/status `session`)
+   * has been received. While pending, evidence consumers must FAIL CLOSED — nothing is
+   * recommendation-eligible, and no local market/session fallback semantics may be
+   * invented. The local classifier (legacy path) never sets this, so its absence means
+   * "not pending" for legacy callers. Set true only by the backend-consuming hook's
+   * conservative bootstrap.
+   */
+  authorityPending?: boolean;
 }
 
 // --- effectiveObservedAt ---

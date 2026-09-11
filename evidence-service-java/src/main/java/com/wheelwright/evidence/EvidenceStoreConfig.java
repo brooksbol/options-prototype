@@ -146,6 +146,20 @@ public class EvidenceStoreConfig {
             () -> "production".equals(providerAuthorityManager.active().environment()));
     }
 
+    /**
+     * Authoritative market-session classifier (Issue #16). Six-state temporal/evidence
+     * model + per-subject admissibility, driven by the SAME failover-aware real-time
+     * signal as {@link SessionGate}, so the backend is the single authority for session
+     * state and evidence admissibility. The frontend consumes this; it must not re-derive
+     * provider-delay policy from provider identity.
+     */
+    @Bean
+    public SessionClassifier sessionClassifier(ProviderAuthorityManager providerAuthorityManager) {
+        return new SessionClassifier(
+            Clock.systemUTC(),
+            () -> "production".equals(providerAuthorityManager.active().environment()));
+    }
+
     @Bean
     public SchedulerConfig schedulerConfig() {
         return SchedulerConfig.DEFAULT;
