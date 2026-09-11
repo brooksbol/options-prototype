@@ -15,7 +15,7 @@ Exposed by the PL-PROD-EXPORT-01 Production Evidence CSV, which classifies claim
 
 ## Intended semantics violated
 
-The displayed capital label text must be consistent with its backing numeric amount, and backing amounts should not exist without a corresponding operator-visible label.
+The operator-visible capital presentation should not contradict or obscure its backing value. In the observed expired chapters, a non-null backing amount existed with no corresponding displayed label, producing an inconsistent presentation state.
 
 ## Evidence — Observed
 
