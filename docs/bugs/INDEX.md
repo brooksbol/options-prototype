@@ -16,6 +16,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-008 | Economic Activity presents inflated contract counts (episode double counting) | Production | Not established | Open | [record](BUG-008-inflated-contract-counts.md) | GH #14 |
 | BUG-009 | Capital label text diverges from backing amount; label-less non-null expired amounts | Production | Not established | Open | [record](BUG-009-capital-label-amount-divergence.md) | GH #15 |
 | BUG-010 | Phantom 09:30–09:45 Open Delay: FE session gate hardcodes Sandbox profile | Operator Console / session gate | S2 | Resolved | [record](BUG-010-phantom-open-delay-session-gate.md) | GH #16 |
+| BUG-011 | Provider-reported exact-zero Delta is rendered indistinguishably from absent Delta evidence | Operator Console / Greeks evidence presentation | Not established | Open | [record](BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md) | Provider study 2026-09-11 |
 
 ## Migration provenance (2026-09-11)
 
