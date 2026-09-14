@@ -295,3 +295,84 @@ Any threshold must be based on measured baseline/runtime characteristics before 
 - Treat execution speed as a technology-quality characteristic because excessive verification latency directly degrades development and incident-response feedback loops.
 
 No execution-time SLO value is ratified by this intake entry. Measurement and review come first.
+
+
+---
+
+## Java Test-Suite Execution Performance / Verification Economics — September 14 Diagnostic Disposition
+
+**Date:** September 14, 2026  
+**State:** CONFIRMED DIRECTION / PRELIMINARY MEASUREMENT — retained under the existing September 13 Java Test-Suite Execution Performance / Execution-Time SLO Review; implementation deferred; no new PL identity created
+
+### Principal concern
+
+The Principal reported that Wheelwright automated testing is too slow and that the verification regime is consuming material elapsed time and AI-agent credits. A report-only Kiro investigation was commissioned to identify bottlenecks, statistics, and recommendations without remediation.
+
+The investigation itself became unusually expensive: roughly an hour of actor wall-clock elapsed while Kiro repeatedly exercised a backend verification surface whose attempted broad runs consumed more than four minutes each. The investigation also continued acquiring evidence after the decision-relevant direction was already clear. This is preserved as direct process evidence of the same verification-economics problem under investigation: exhaustive verification and exhaustive diagnosis both become counterproductive when marginal confidence no longer justifies elapsed time, credits, and Principal attention.
+
+### Findings strong enough to carry forward
+
+1. **A real backend verification-economics problem exists.** Java verification is materially more expensive than frontend verification, and focused/bounded backend verification can complete in single-digit seconds while attempted broad runs consumed more than four minutes.
+2. **A concrete long-tail bottleneck exists.** DegradedRecoveryWhileBlockedTest repeatedly required roughly 153 seconds in isolation and contains roughly 149 seconds of explicit Thread.sleep budget. This is the strongest measured bottleneck and does not depend on the contaminated full-suite measurements.
+3. **Scheduler/recovery tests are coupled to real elapsed time.** Important acquisition/recovery behavior uses real scheduler cadence, so tests physically wait for asynchronous state transitions. The coverage is valuable; the testability seam, not the behavioral requirement, is the likely engineering target.
+4. **Verification breadth appears over-purchased.** Repository/journal evidence supports the qualitative conclusion that broad backend/frontend/typecheck verification has been applied to increments narrower than the evidence purchased. Exact historical frequency was not reconstructed to baseline quality and is not ratified.
+5. **Frontend verification is materially cheaper.** Observed frontend runs were on the order of tens of seconds and appeared primarily startup/environment-bound relative to Java. This makes backend recovery timing and verification selection the higher-return concerns.
+6. **SQLite/Spring setup did not emerge as the leading bottleneck in the evidence obtained.** This is a bounded negative finding, not a claim that their cost is literally negligible.
+7. **Blind Java parallelization is premature.** The dominant slow behavior is timing-sensitive real-scheduler integration work; parallelism should not be used as the first remedy without deterministic isolation evidence.
+
+### Measurement limitations / claims explicitly NOT ratified
+
+The diagnostic did **not** produce a decision-grade performance baseline. Concurrent Wheelwright session activity changed repository HEAD during the investigation, machine load was contaminated, and Kiro itself overlapped/backgrounded multiple Gradle invocations against the same checkout. Several long/full Gradle attempts ended during result collection with NoSuchFileException involving build/test-results/test/binary/in-progress-results-generic.bin.
+
+Therefore the following claims are explicitly **not authority** and must not be repeated as established facts:
+
+- no exact complete-Java-suite runtime or SLO is ratified from the ~259–266 second failed attempts;
+- no exact cumulative concentration figure such as “top 5–7 classes = 87%” is ratified because that estimate mixed standalone wall-clock, static sleep budgets, JUnit self-time, and failed-task wall time;
+- no “below 60 seconds” target is ratified;
+- no exact “~200 seconds reclaimable” figure is ratified;
+- no Gradle 9.6.1 defect is established. The transcript shows overlapping diagnostic invocations in the same checkout as a direct confounder; a Gradle defect would require clean reproduction;
+- no parallelism change is authorized;
+- no Java full-suite execution-time SLO is authorized;
+- no claim that frontend-only file edits can *never* require backend verification is authorized. Verification follows affected behavioral surfaces and contracts, not file extensions.
+
+The attempted broad Java runs remain useful as **operational-latency evidence under the observed conditions**, not as clean passing-suite baselines.
+
+### Immediate verification-selection disposition
+
+Wheelwright should use a progressive verification principle:
+
+> **Purchase the minimum sufficient verification evidence for the claim currently being made; escalate breadth as the claim approaches acceptance.**
+
+Working sequence:
+
+1. **Targeted edit loop** — directly affected test/class/file.
+2. **Bounded increment** — affected module/package and nearby contracts.
+3. **Relevant integration checkpoint** — expensive integration/recovery/provider tests only when the changed behavioral surface warrants them.
+4. **Acceptance verification** — broader applicable regression evidence when the increment is ready for acceptance.
+5. **Specialized/live validation** — only when the claim requires provider/session/live evidence.
+
+This is not a mechanical file-type rule. Cross-surface contracts can justify broader verification. Verification breadth must be justified by the claim and affected behavior rather than invoked reflexively.
+
+### Deferred engineering target
+
+A future bounded design investigation should determine how acquisition scheduler/recovery behavior can be tested deterministically without waiting for production-scale wall-clock cadence. Candidate approaches may include an injectable scheduling/time seam, virtual-time executor, deterministic synchronization, or another minimal mechanism, but **no implementation approach is selected here**.
+
+Guardrails: preserve meaningful recovery/degrade/self-healing coverage; do not weaken assertions merely to make tests fast; prefer deterministic control over real sleeps where behavior permits; do not generalize new timing machinery unless the observed seam earns it; measure after remediation before considering SLOs or parallelism.
+
+### Future baseline method, only when needed
+
+Do **not** repeat the September 14 measurement marathon merely to improve precision. If a decision later requires an SLO-quality baseline, use a controlled experiment: one isolated checkout pinned to one SHA; exactly one Gradle process touching it at a time; no concurrent actor mutating it; successful complete-suite result required; preserve JUnit XML and extract class and individual-test timings; map every measurement to the SHA under test; repeat only enough to characterize meaningful cold/warm variance.
+
+### Methodology ratchet
+
+The investigation exposed a conformance lesson that belongs with the September 14 actor contract rather than a new governance framework:
+
+> **When measurement conditions become contaminated and existing evidence is already sufficient to make the next bounded decision, stop measuring, disclose the limitation, and move forward.**
+
+Operationally: **stop purchasing evidence when additional evidence is no longer likely to change the next decision.** This instantiates the existing contract: *Find freely. Block narrowly. Defer explicitly. Observe quickly. Ratchet what reality proves.* It does not create another framework, score, ceremony, or gate.
+
+### Disposition / authorization
+
+**Persist and defer implementation.** Verification economics and the real-time scheduler/recovery bottleneck are sufficiently confirmed to justify future action. Exact suite-performance baseline, SLOs, Gradle-defect attribution, and parallelism remain unestablished or unauthorized.
+
+**No remediation is authorized by this entry tonight.** The next implementation session may first apply the verification-selection discipline and separately undertake a bounded design investigation of deterministic scheduler/recovery testing. A new exhaustive diagnostic is not a prerequisite.
