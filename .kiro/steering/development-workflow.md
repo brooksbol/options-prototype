@@ -75,6 +75,22 @@ When an authority-bearing fact is wrong or inconsistent, repair the authoritativ
 
 This does not weaken fail-closed behavior or authority precedence. It clarifies where defects should be repaired.
 
+## Existing Capability Before New Machinery
+
+A backlog item, future workflow, operator surface, or automation proposal is **not** evidence that the underlying capability is absent.
+
+Before deferring an authorized task behind new architecture, design, UI, workflow automation, or a parking-lot item:
+
+- Inspect current repository authority and implementation for an existing executable mechanism that already performs the required underlying operation.
+- Distinguish **capability** from **product expression** from **workflow automation**. An existing capability may be usable even when its polished operator-facing workflow remains unfinished.
+- Treat parking-lot items as declarations of an **unresolved delta**, not as negative capability declarations. The presence of `PL-*` means the concern described there remains open; it does not imply that every capability named in that item is unimplemented.
+- If an existing canonical mechanism can safely perform the authorized work, use it rather than inventing a parallel path or deferring execution until a future workflow is built.
+- Do not create a second mechanism merely to satisfy a one-time execution request when the existing mechanism is adequate.
+- When an unfinished backlog item depends on or improves an already-existing capability, document that boundary explicitly so cold-start actors do not mistake future productization for a prerequisite.
+- If a genuine missing capability or hard prerequisite prevents execution, identify the exact missing substrate and authoritative evidence for the blocker rather than inferring it from backlog wording.
+
+**Anti-pattern:** treating “there is a parking-lot item for a better way to do X” as “Wheelwright cannot currently do X.”
+
 ## Project Layout
 
 ```
