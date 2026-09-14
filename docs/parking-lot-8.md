@@ -252,3 +252,46 @@ Targeted refresh traverses the *same* provider protections as scheduled acquisit
 | Sep 10, 2026 | **Codex review** of the Cash Deployment refresh accepted; two bounded frontend truthfulness corrections applied (no backend change, no architecture reopened). (1) **Bulk button completion semantics:** it no longer claims `Refreshed N` at POST return — progression `Refreshing…` → `Updating evidence…` → success only when the requested rows' visible provenance advances, else `Refreshed X of Y` / `Not confirmed fresh`. Now enforces the same bounded visible-state convergence as the row control (bound 13s, intentionally > the ~12.5s re-read backoff so it never declares a false partial). (2) **ACQUIRED epistemics:** backend `ACQUIRED` treated as an acquisition disposition only; never translated into `Refreshed N` / `up to date`, and `symbolsAcquired === 0` never implies "already current" — the reported number is the count of symbols whose VISIBLE provenance advanced. Shared `acquiredMs`/convergence helper extracted (`refresh-convergence.ts`); the bounded-timeout closure now reads current provenance via a ref (correctness fix found while testing). Row control behavior unchanged. Principle 12 restated as *completion indication tracks visible-state convergence, but always bounded* (rejects both eternal-spin and stopped-while-stale). Full suite 1429/1430 (sole failure the pre-existing unrelated velvet-rope date-drift snapshot). Accepted Codex's two MINOR timing/`?`-visibility notes as doc/test hardening only, not scope expansion. |
 | Sep 10, 2026 | **Rate-limit stewardship boundary verified (Codex).** Question: do the two operator refresh controls (bulk + per-row) risk HTTP 429? Verified NO rate-limit bypass — targeted refresh shares the same single acquisition thread, the same `acquireSymbolTiered` path, the same `RequestPacer` (single-flight, ≤119/60s), the same response cache (exp 5m/quotes 60s/chains 90s), and the same 429 backoff (Retry-After else 60s, classified as throttling not failover) as scheduled acquisition. Governing principle recorded: *force fresh bypasses freshness policy, not provider stewardship.* Residual risk is backlog/delayed-convergence (overlapping ops serialize through one worker/pacer), NOT a 429 spray; under that pressure a truthful bulk `Refreshed X of Y`/`Not confirmed fresh` can occur because work didn't finish in the 13s UI window — a consequence, not a defect. Disposition: observe first (inspect recorded 429s, pacer wait, refresh backlog); only if real pressure appears, coalesce/dedupe pending refresh intentions — never weaken the pacer or add a second rate-limit mechanism. Docs-only closeout; no code change. |
 | Sep 10, 2026 | **Cold-start authority correction (roadmap-review docs reconciliation).** Corrects a drift in this file's own chronology: the Sep 9 "Bounded expanded-row (b)-move experiment … retained (not reverted)" row describes work that lives **only on branch `ui/deploy-expanded-row`** and is **NOT merged to accepted `main`**. Its "retained / next step" language describes branch state, not accepted product state; accepted `main` does not contain the expanded-row surface, and `foundations/visual-design-principles.md` principle 11 (the "presence ≠ accessibility" principle referenced by that row) is therefore intentionally absent from `main`. The v1 consequence section that *prompted* the experiment IS on `main`; the expanded-row *response* to it is not. No `PL-*` disposition changes; `PL-DEPLOY` decision-surface work remains exploratory and unauthorized. This row is the append-only correction; the Sep 9 row is left verbatim per journal/parking-lot append-only discipline. |
+
+---
+
+## Java Test-Suite Execution Performance / Execution-Time SLO Review
+
+**Date:** September 13, 2026  
+**State:** INTAKE — technology-quality / developer-feedback-loop review; no implementation authorized by this entry
+
+### Intake
+
+During defect diagnosis, the full Java test suite was observed to take long enough that it materially slows the diagnose → fix → review → retest loop.
+
+Before optimizing or enabling concurrency, perform a measured review of where the wall-clock time is actually spent.
+
+The review should determine:
+
+1. per-test and per-class execution-time distribution, including the slowest tests and dominant contributors to total wall-clock time;
+2. whether tests contain real sleeps, polling loops, generous timeouts, or other wall-clock waits that could be replaced by fake clocks, deterministic synchronization, or direct state control;
+3. whether SQLite/database setup, teardown, fixture construction, Spring context startup, filesystem work, subprocesses, or other integration infrastructure dominates runtime;
+4. whether independent tests/classes are unnecessarily serialized and could safely execute concurrently;
+5. whether concurrency would compromise isolation, deterministic behavior, shared SQLite/filesystem resources, the always-on appliance, or test epistemics;
+6. Gradle/JUnit configuration and lifecycle costs that may be avoidable without weakening coverage.
+
+### Potential quality control
+
+After establishing a reproducible baseline, consider an explicit **test-execution-time SLO / fitness control** rather than relying on a vague expectation that the suite remain fast.
+
+The SLO should distinguish at least:
+
+- the focused developer feedback loop for a bounded change; and
+- the complete Java/backend suite used for broader verification.
+
+Any threshold must be based on measured baseline/runtime characteristics before ratification. Consider both total wall-clock limits and visibility/limits for pathological individual tests or classes.
+
+### Guardrails
+
+- Do not optimize by deleting meaningful behavioral coverage or weakening assertions.
+- Do not introduce unsafe parallelism merely to improve elapsed time.
+- Prefer eliminating artificial waits and unnecessary lifecycle/setup cost before adding concurrency.
+- Preserve deterministic tests and isolation.
+- Treat execution speed as a technology-quality characteristic because excessive verification latency directly degrades development and incident-response feedback loops.
+
+No execution-time SLO value is ratified by this intake entry. Measurement and review come first.
