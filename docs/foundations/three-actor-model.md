@@ -68,6 +68,9 @@ This asymmetry is why the Principal role remains essential even as AI architectu
 - Surfaces contradictions for Principal resolution
 - Maintains the relationship between principles, invariants, and implementation
 - Produces durable documentation of architectural decisions
+- Preserves Principal-authorized execution mode, scope, and observation intent through messy implementation and review
+- Distinguishes valid findings from blocking findings; requires a demonstrated failure mode before reopening design
+- Protects earned-complexity discipline, engineering learning rate, and tactical opportunity cost, especially when observation windows are finite
 
 **In this project:** AI partner in architectural/design sessions. Proposes, analyzes, and documents but does not unilaterally decide.
 
@@ -82,6 +85,7 @@ This asymmetry is why the Principal role remains essential even as AI architectu
 - Verifies behavioral conformance against invariants
 - Produces tests that lock intended behavior
 - Identifies when implementation creates architectural pressure
+- Escalates potential blockers with the concrete execution impact; does not convert uncertainty into redesign without Architect/Principal disposition
 
 **In this project:** AI partner in implementation sessions. Executes, verifies, and reports but does not redesign without escalation.
 
@@ -169,6 +173,8 @@ The loops describe what happens. The actors describe who is responsible for each
 - Decide direction unilaterally (that's the Principal's job)
 - Implement without specification (that's conflation)
 - Suppress findings that create inconvenient pressure
+- Let each newly discovered concern silently reset authorized execution back into design mode
+- Treat technical validity, completeness, or elegance as sufficient blocking authority without considering concrete consequence and opportunity cost
 
 ### The Implementation Engineer must not
 
