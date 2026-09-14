@@ -746,3 +746,17 @@ The prior investigation's first pass finalized on a **stale SYNC** while another
 ### Authorization boundary
 
 The durability operation (persist under `PL-ELIG` + narrow Doc 26 correction + this journal entry + commit + push) was explicitly authorized. **Production implementation was not.** The contract is marked READY FOR IMPLEMENTATION AUTHORIZATION; the four gates (implementation / Category B amendment / commit / push) remain distinct.
+
+---
+
+## 2026-09-14 — Unencumbered Shares V1 implemented (overnight, unsupervised) and pushed to `main`
+
+Under explicit overnight implementation authorization, the accepted `PL-ELIG` Unencumbered Shares V1 contract was implemented, tested, visually (engineering-)validated, committed, and pushed to `main` as `a129fe1` (from starting SYNC `af5c840`).
+
+**What shipped:** a pure projection `deriveUnencumberedInventory(snapshot) → { rows, geometryWarnings }` (`src/portfolio/unencumbered-inventory.ts`) and a compact Console region `UnencumberedInventory` (`src/operator-console/UnencumberedInventory.tsx` + CSS) rendered above and separate from the DTE ladder in `OperatorConsole.tsx`. Columns Symbol / Free Shares / Free Lots; odd lots visible with 0 free lots; free shares = `sharesFree` (never `sharesOwned`). Geometry analysis over the union of inventory symbols and open-call underlyings with nullable observed ownership; open-call-without-ownership → ownership-evidence-unavailable warning (never zero); raw-required > observed → reconciliation warning; warnings independent of rows; clamp treated as safety, not reconciliation. Option Summary provenance only, with explicit "Export time unavailable" fallback (parse time never relabeled as export). 25 new tests pass.
+
+**Implementation choice (permitted by contract):** trustworthy-zero renders a truthful "No unencumbered shares." empty state rather than collapsing, so State 2 stays distinguishable from State 1 (evidence unavailable). Presentation-level, does not change the accepted design.
+
+**Validation:** full frontend suite 1571/1572; the one failure is the pre-existing, unrelated velvet-rope date-drift inline snapshot (confirmed failing on clean `main`; matches the Sep 10 note). Two `TS6133` unused-var typecheck errors (`OperatorConsole.tsx formatTodayGl`, `episode-derivation.ts economicMap`) also pre-exist on clean `main` — not introduced here and not "fixed" (out of scope). `vite build` succeeds. No backend/ingestion/contract change; `capacity-summary.ts` untouched (its separate Technology-Quality disposition remains open).
+
+**Still needs Principal judgment:** live in-browser visual/product acceptance (implemented without interactive supervision — engineering visual validation only). Candidate follow-on judgments (not implemented, not authorized): whether the trustworthy-zero empty state should instead collapse; visual weight/placement of the region relative to the ladder; and the two pre-existing typecheck/snapshot issues as a separate cleanup.

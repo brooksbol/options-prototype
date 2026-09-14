@@ -386,8 +386,12 @@ Operationally: **stop purchasing evidence when additional evidence is no longer 
 **Strategic relationship:** `LVT-INIT-CAP-AVAILABILITY` (within `LVT-BET-CAPITAL-CHOICES`, `docs/roadmap.md`).
 **Accepted design authority:** Operator Console architecture (`docs/26-operator-console-architecture.md`).
 **Future-only context (NOT a dependency):** `PL-DEPLOY`.
-**State:** V1 contract ACCEPTED by Principal after multi-actor (Kiro/Codex) reconciliation. **No new `PL-*` identity created.** Production implementation, Category B amendment beyond the narrow Doc 26 correction, and any code change remain **separately gated** (see Authorization gates).
-**Observed/derived at:** SYNC `248a4692efc27ef80f2a3545c00149bbdca713fe`.
+**State:** V1 **IMPLEMENTED and pushed to `main`** (Sep 14, 2026, commit `a129fe1`) under explicit overnight implementation authorization. Contract was ACCEPTED by Principal after multi-actor (Kiro/Codex) reconciliation. **No new `PL-*` identity created.** Implementation is frontend-only and additive; matches this contract. **Principal visual/product acceptance still pending** (implemented without interactive supervision — engineering visual validation only; see journal Sep 14 implementation entry).
+**Observed/derived at:** SYNC `248a4692efc27ef80f2a3545c00149bbdca713fe` (contract); implemented from SYNC `af5c8404c5b4180fd4f62c1ca1aa1bd733d7ad0a`.
+
+### Implementation record (Sep 14, 2026 — commit `a129fe1`)
+
+Implemented exactly as specified. Files: `options-prototype/src/portfolio/unencumbered-inventory.ts` (pure projection `{ rows, geometryWarnings }`), `options-prototype/src/operator-console/UnencumberedInventory.tsx` (region component) + region CSS in `operator-console.css`, wired into `OperatorConsole.tsx` above `oc-region-ladder`; tests `tests/portfolio/unencumbered-inventory.test.ts` (18) + `tests/operator-console/unencumbered-inventory-region.test.tsx` (7). Full frontend suite 1571/1572 (sole failure = pre-existing unrelated velvet-rope date-drift snapshot, confirmed on clean `main`). No backend/ingestion/contract change; no out-of-scope functionality; `capacity-summary.ts` untouched. **Implementation choice recorded:** for a trustworthy zero (evidence usable, no free shares) the region renders a truthful "No unencumbered shares." empty state rather than collapsing silently — chosen to keep State 2 distinguishable from State 1 (evidence unavailable/incomplete) as the three-state contract requires. This is a presentation-level choice permitted by the contract; it does not alter the accepted design.
 
 ### Problem this solves
 
