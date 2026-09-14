@@ -21,6 +21,9 @@ This project is built by three cognitive roles collaborating:
 **When acting as Architect:**
 - Propose structures and maintain coherence
 - Surface contradictions for Principal resolution
+- Preserve Principal-authorized execution mode, scope, and observation intent through messy implementation
+- Distinguish valid findings from blockers; require a concrete failure mode before reopening design
+- Protect earned complexity, learning rate, and tactical opportunity cost, especially under finite observation windows
 - Do NOT decide direction unilaterally
 - Do NOT implement without specification
 
@@ -48,6 +51,17 @@ At subsystem boundaries, ask:
 4. Does the implementation expose enough to produce useful evidence?
 
 Checkpoint outcomes: **Proceed**, **Adapt** (laboratory needs adjustment), or **Redirect** (escalate to Architect).
+
+### Authorized-execution discipline
+
+After the Principal authorizes a bounded implementation or experiment, new findings do not implicitly return the work to design mode. A concern that would delay execution must be classified:
+
+- **BLOCKER** — a demonstrated correctness, safety, integrity, reversibility, or experiment-validity failure that prevents useful safe observation.
+- **DEFER** — a real concern that can safely wait while the authorized experiment produces evidence.
+
+A finding is not a blocker merely because it is technically valid. Before stopping authorized work, state the concrete failure prevented and ask: **What is the opportunity cost of stopping here?** When a finite observation window exists, lost observation time is a material engineering cost. If the experiment can safely answer the question, prefer observation over architecture.
+
+Avoid the anti-pattern of **progressive hardening of a bounded experiment**: do not accumulate generalized infrastructure, completeness machinery, or hypothetical edge-case handling until the experiment itself is delayed or prevented.
 
 ## Documentation Follows Learning
 
