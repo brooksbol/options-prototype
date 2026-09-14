@@ -59,7 +59,20 @@ public record SchedulerConfig(
      *   this is a SOFT threshold: it raises multi-DTE full-surface urgency but does not
      *   preempt overdue Class-A primary work or the anti-starvation floors.
      */
-    long multiDteSurfaceTargetMs
+    long multiDteSurfaceTargetMs,
+    /**
+     * WEEKLY_REFRESH attempt-cadence interval (default: 7 days).
+     *
+     * Generation-29066 servicing policy. A symbol in the frozen WEEKLY_REFRESH cohort is
+     * excluded from routine due-work selection and admitted for exactly one governed normal
+     * servicing attempt when it has never had a governed weekly attempt, or when at least
+     * this interval has elapsed since its last one (symbol_resolution.weekly_last_attempt_at).
+     *
+     * This governs ATTEMPT CADENCE only. It does not change the normal 7-45 DTE acquisition
+     * path, acquisition completeness, or Decision DTE eligibility. When the weekly cohort is
+     * empty (seam disabled) this value is inert.
+     */
+    long weeklyRefreshIntervalMs
 ) {
     public static final SchedulerConfig DEFAULT = new SchedulerConfig(
         25 * 60 * 1000L,       // 25 min — chain refresh target (was 15 min scarcity-era value).
@@ -73,9 +86,35 @@ public record SchedulerConfig(
         5000L,
         15 * 60 * 1000L,       // 15 min — monitored-position freshness target (overlay retained)
         5,                     // monitored anti-starvation interval (every 5 dispatches)
-        25 * 60 * 1000L        // 25 min — multi-DTE surface target: RETAINED as a value but the
+        25 * 60 * 1000L,       // 25 min — multi-DTE surface target: RETAINED as a value but the
                                // blanket multi-DTE surface OBLIGATION is disabled in the scheduler
                                // (see getPrioritizedWorkQueue). Production breadth acquisition makes
                                // the special cohort unnecessary; kept only for diagnostic telemetry.
+        7L * 24 * 60 * 60 * 1000L // 7 days — WEEKLY_REFRESH attempt-cadence interval (gen-29066)
     );
+
+    /** Default WEEKLY_REFRESH attempt-cadence interval (7 days). */
+    public static final long DEFAULT_WEEKLY_REFRESH_INTERVAL_MS = 7L * 24 * 60 * 60 * 1000L;
+
+    /**
+     * Backward-compatible constructor (pre-gen-29066 arity) — supplies the default
+     * {@link #DEFAULT_WEEKLY_REFRESH_INTERVAL_MS}. Existing callers/tests that do not care about
+     * weekly cadence continue to compile unchanged; the weekly seam is inert unless a weekly
+     * cohort is also installed on the store.
+     */
+    public SchedulerConfig(
+            long chainFreshnessTargetMs,
+            long chainMaxAgeMs,
+            long expirationFreshnessMs,
+            int classBMinServiceInterval,
+            int classCDMinServiceInterval,
+            long publicationCoalesceMs,
+            long monitoredFreshnessTargetMs,
+            int monitoredMinServiceInterval,
+            long multiDteSurfaceTargetMs) {
+        this(chainFreshnessTargetMs, chainMaxAgeMs, expirationFreshnessMs,
+            classBMinServiceInterval, classCDMinServiceInterval, publicationCoalesceMs,
+            monitoredFreshnessTargetMs, monitoredMinServiceInterval, multiDteSurfaceTargetMs,
+            DEFAULT_WEEKLY_REFRESH_INTERVAL_MS);
+    }
 }

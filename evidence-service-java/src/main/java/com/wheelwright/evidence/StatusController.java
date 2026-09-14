@@ -175,6 +175,17 @@ public class StatusController {
         covMap.put("windowMs", DECISION_WINDOW_MS);
         result.put("decisionCoverage", covMap);
 
+        // Weekly-refresh cadence (generation-29066 servicing policy). Additive telemetry
+        // distinguishing weekly-cohort work from routine work: how many WEEKLY_REFRESH symbols
+        // are active and how many are currently due for their one governed weekly attempt. All
+        // zeros when the weekly seam is disabled (empty cohort).
+        var weeklyCounts = store.getWeeklyCadenceCounts(SchedulerConfig.DEFAULT.weeklyRefreshIntervalMs());
+        Map<String, Object> weeklyMap = new LinkedHashMap<>();
+        weeklyMap.put("cohortSize", store.getWeeklyRefreshCohort().size());
+        weeklyMap.put("eligibleWeekly", weeklyCounts.eligibleWeekly());
+        weeklyMap.put("dueWeekly", weeklyCounts.dueWeekly());
+        result.put("weeklyRefresh", weeklyMap);
+
         // Provider availability (PL-PROV-FAILOVER). Distinguishes process liveness /
         // publication activity from AUTHORITATIVE EVIDENCE AVAILABILITY (invariant I11):
         // the appliance can be "up" and advancing generations while acquiring nothing

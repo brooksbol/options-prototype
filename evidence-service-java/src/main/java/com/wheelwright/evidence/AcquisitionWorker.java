@@ -903,7 +903,18 @@ public class AcquisitionWorker {
         for (PrioritizedWorkItem item : batch) {
             if (!running) break;
             status = status.withCurrentSymbol(item.symbol());
-            acquireSymbolTiered(item);
+
+            // WEEKLY_REFRESH attempt-cadence clock (generation-29066). The policy is ATTEMPT-based:
+            // once a weekly-cohort symbol is actually DISPATCHED into its governed acquisition
+            // attempt, its seven-day clock advances EXACTLY ONCE regardless of outcome — including a
+            // thrown acquisition failure. The advance is therefore in a finally block around the
+            // dispatch, not after a normal return, so a throw cannot cause immediate re-dispatch
+            // next cycle. The clock is advanced ONLY here, at real dispatch — never for merely
+            // queued/undispatched work (a break above skips the dispatch entirely). Cadence
+            // bookkeeping only; the acquisition itself (evidence, resolution, failure accounting,
+            // provenance) is handled by acquireSymbolTiered exactly as for any other symbol. No-op
+            // when the weekly cohort is empty (seam disabled).
+            dispatchItemWithWeeklyClock(item);
             dispatchedJobs++;
 
             switch (item.urgencyClass()) {
@@ -1043,6 +1054,40 @@ public class AcquisitionWorker {
     }
 
     // --- Tiered symbol acquisition ---
+
+    /**
+     * Dispatch one work item and, for a WEEKLY_REFRESH-cohort symbol, advance its weekly attempt
+     * clock EXACTLY ONCE — in a {@code finally} so it advances regardless of outcome, including a
+     * thrown acquisition failure. The clock is advanced ONLY here, at real dispatch: a symbol that
+     * was merely queued/planned but never reached this method (e.g. worker stopped) is not counted
+     * as attempted. Cadence bookkeeping only; the acquisition itself (evidence, resolution, failure
+     * accounting, provenance) is handled by {@link #runAcquisition} exactly as for any other symbol.
+     * No-op weekly branch when the cohort is empty (seam disabled).
+     */
+    void dispatchItemWithWeeklyClock(PrioritizedWorkItem item) {
+        boolean isWeekly = store.getWeeklyRefreshCohort().contains(item.symbol());
+        try {
+            runAcquisition(item);
+        } finally {
+            if (isWeekly) {
+                try {
+                    store.markWeeklyAttempt(item.symbol());
+                } catch (Exception e) {
+                    System.err.printf("[worker] weekly attempt-clock update failed: %s — %s%n",
+                        item.symbol(), e.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
+     * The governed acquisition step for a single item. Extracted as a seam so the weekly-clock
+     * dispatch wrapper ({@link #dispatchItemWithWeeklyClock}) is independently testable; production
+     * behavior is exactly {@link #acquireSymbolTiered}.
+     */
+    void runAcquisition(PrioritizedWorkItem item) {
+        acquireSymbolTiered(item);
+    }
 
     private void acquireSymbolTiered(PrioritizedWorkItem item) {
         // Constraint 2: acquire ONE atomic lease for this operation. Every provider

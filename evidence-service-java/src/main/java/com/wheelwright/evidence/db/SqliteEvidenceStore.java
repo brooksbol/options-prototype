@@ -25,6 +25,18 @@ public class SqliteEvidenceStore implements AutoCloseable {
     private String sessionDateOverride = null;
 
     /**
+     * Frozen WEEKLY_REFRESH cohort (generation-29066 servicing policy). Symbols in this set are
+     * excluded from routine due-work selection and admitted for one governed normal servicing
+     * attempt per {@code weeklyRefreshIntervalMs} (see {@link #getPrioritizedWorkQueue}).
+     *
+     * Empty by default: when no weekly cohort is loaded the seam is entirely inert and the
+     * scheduler behaves exactly as before. Set once at startup from the validated
+     * {@code UniverseDisposition} artifact. Governs ATTEMPT CADENCE only — never acquisition
+     * completeness, the 7-45 DTE path, or Decision eligibility.
+     */
+    private volatile java.util.Set<String> weeklyRefreshCohort = java.util.Set.of();
+
+    /**
      * Serializes multi-statement transactional blocks that toggle the shared connection's
      * autoCommit flag.
      *
@@ -188,6 +200,149 @@ public class SqliteEvidenceStore implements AutoCloseable {
                 ps.executeBatch();
             }
         });
+    }
+
+    // --- Weekly-refresh servicing cadence (generation-29066) ---
+
+    /**
+     * Install the frozen WEEKLY_REFRESH cohort (generation-29066). Symbols in this set are
+     * excluded from routine due-work selection and admitted once per weekly interval (see
+     * {@link #getPrioritizedWorkQueue}). Passing an empty set disables the seam (default).
+     *
+     * Governs ATTEMPT CADENCE only; does not touch acquisition semantics or Decision eligibility.
+     */
+    public void setWeeklyRefreshCohort(java.util.Set<String> symbols) {
+        java.util.Set<String> normalized = new java.util.HashSet<>();
+        if (symbols != null) {
+            for (String s : symbols) {
+                if (s != null && !s.isBlank()) normalized.add(s.trim().toUpperCase());
+            }
+        }
+        this.weeklyRefreshCohort = java.util.Collections.unmodifiableSet(normalized);
+    }
+
+    /** The currently installed WEEKLY_REFRESH cohort (empty when the seam is disabled). */
+    public java.util.Set<String> getWeeklyRefreshCohort() {
+        return weeklyRefreshCohort;
+    }
+
+    /**
+     * Whether a symbol is currently an active, known, resolvable member of the universe:
+     * present in {@code symbol_resolution} and not soft-removed ({@code symbols.removed_at IS NULL}).
+     * Used by weekly positive admission so a removed symbol is never re-admitted.
+     */
+    boolean isActiveResolvableSymbol(String symbol) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT 1 FROM symbol_resolution sr JOIN symbols s ON s.symbol = sr.symbol "
+                + "WHERE sr.symbol = ? AND s.removed_at IS NULL")) {
+            ps.setString(1, symbol);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
+     * Whether a symbol has an admissible expirations evidence row (data present, last attempt
+     * successful). When false, weekly positive admission flags {@code needsExpirations} so the
+     * worker performs a full governed acquisition rather than a chain-only refresh.
+     */
+    boolean hasAdmissibleExpirations(String symbol) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT 1 FROM evidence WHERE symbol = ? AND evidence_type = 'expirations' "
+                + "AND data IS NOT NULL AND attempt_result = 'success'")) {
+            ps.setString(1, symbol);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /**
+     * Read the last governed weekly servicing-attempt timestamp for a symbol, or null if the
+     * symbol has never had a governed weekly attempt. This is an ATTEMPT clock (advanced on any
+     * outcome), not a success/completion clock.
+     */
+    public String getWeeklyLastAttemptAt(String symbol) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT weekly_last_attempt_at FROM symbol_resolution WHERE symbol = ?")) {
+            ps.setString(1, symbol);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString("weekly_last_attempt_at") : null;
+            }
+        }
+    }
+
+    /**
+     * Record that a governed weekly servicing attempt occurred for a symbol NOW, regardless of
+     * the attempt's outcome (complete / partial / absent / failed). This advances the weekly
+     * attempt clock so the symbol is not re-dispatched until the next weekly boundary.
+     *
+     * Only affects the weekly cadence clock. Does NOT change resolution, evidence, provenance,
+     * failure accounting, or any other servicing fact — those are written by the normal
+     * acquisition path exactly as for any other symbol.
+     */
+    public void markWeeklyAttempt(String symbol) throws SQLException {
+        markWeeklyAttempt(symbol, Instant.now().toString());
+    }
+
+    /** Test/seam variant with an explicit timestamp. */
+    public void markWeeklyAttempt(String symbol, String attemptAt) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "UPDATE symbol_resolution SET weekly_last_attempt_at = ? WHERE symbol = ?")) {
+            ps.setString(1, attemptAt);
+            ps.setString(2, symbol);
+            ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Weekly-cadence telemetry (generation-29066): how many of the installed WEEKLY_REFRESH
+     * cohort are currently active (removed_at IS NULL) and how many are weekly-due. Derived at
+     * query time; nothing stored. Returns zeros when the seam is disabled (empty cohort).
+     */
+    public WeeklyCadenceCounts getWeeklyCadenceCounts(long weeklyRefreshIntervalMs) throws SQLException {
+        Set<String> weekly = weeklyRefreshCohort;
+        if (weekly.isEmpty()) return new WeeklyCadenceCounts(0, 0);
+        long now = System.currentTimeMillis();
+        int active = 0;
+        int due = 0;
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT sr.weekly_last_attempt_at FROM symbol_resolution sr "
+                + "JOIN symbols s ON s.symbol = sr.symbol "
+                + "WHERE s.removed_at IS NULL AND sr.symbol = ?")) {
+            for (String sym : weekly) {
+                ps.setString(1, sym);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        active++;
+                        if (isWeeklyDue(rs.getString("weekly_last_attempt_at"), now, weeklyRefreshIntervalMs)) {
+                            due++;
+                        }
+                    }
+                }
+            }
+        }
+        return new WeeklyCadenceCounts(active, due);
+    }
+
+    /** Weekly-cadence telemetry counts. */
+    public record WeeklyCadenceCounts(int eligibleWeekly, int dueWeekly) {}
+
+    /**
+     * Whether a WEEKLY_REFRESH symbol is due for its one governed weekly servicing attempt:
+     * never attempted, or at least {@code weeklyRefreshIntervalMs} elapsed since the last
+     * governed attempt. Symbols not in the weekly cohort are irrelevant to this method.
+     */
+    boolean isWeeklyDue(String weeklyLastAttemptAt, long nowMs, long weeklyRefreshIntervalMs) {
+        if (weeklyLastAttemptAt == null) return true;
+        try {
+            long age = nowMs - java.time.Instant.parse(weeklyLastAttemptAt).toEpochMilli();
+            return age >= weeklyRefreshIntervalMs;
+        } catch (Exception e) {
+            // Unparseable timestamp: treat as due so a corrupt clock never permanently suppresses.
+            return true;
+        }
     }
 
     /**
@@ -1288,6 +1443,64 @@ public class SqliteEvidenceStore implements AutoCloseable {
                     results.add(new PrioritizedWorkItem(rs.getString("symbol"), "C", Long.MAX_VALUE, true, false));
                 }
             }
+        }
+
+        // WEEKLY_REFRESH attempt-cadence exclusion (generation-29066 servicing policy).
+        //
+        // Symbols in the frozen WEEKLY_REFRESH cohort are excluded from routine due-work
+        // selection UNLESS they are weekly-due: never had a governed weekly attempt, or at least
+        // weeklyRefreshIntervalMs has elapsed since the last one (symbol_resolution
+        // .weekly_last_attempt_at). This governs ATTEMPT CADENCE only — a due weekly symbol is
+        // admitted here exactly once and then serviced by the normal acquisition path unchanged;
+        // its weekly clock is advanced by the worker after the attempt regardless of outcome, so
+        // it is not re-dispatched until the next weekly boundary. When the cohort is empty (seam
+        // disabled) this block is a no-op. Applied uniformly across A/B/C/D so a weekly symbol
+        // that is not yet due never enters the queue through any class.
+        // The weekly clock OWNS ADMISSION for the weekly cohort in two directions:
+        //   (1) EXCLUSION: a weekly symbol that ordinary selection admitted is dropped unless it
+        //       is weekly-due (suppress inside the 7-day interval).
+        //   (2) POSITIVE ADMISSION: a weekly-due symbol that ordinary selection OMITTED (because it
+        //       is fresh, ready/partial/absent/failed, recovery-suppressed, or otherwise within its
+        //       ordinary targets) is nonetheless admitted for exactly one governed acquisition
+        //       attempt. Without (2) a fresh or non-due-classified weekly symbol would never be
+        //       serviced and its weekly clock would never advance.
+        // After admission, the symbol is serviced by the existing acquisition workflow unchanged;
+        // the worker advances its weekly clock after the attempt (any outcome). No-op when the
+        // cohort is empty (seam disabled).
+        final Set<String> weekly = weeklyRefreshCohort;
+        if (!weekly.isEmpty()) {
+            long weeklyIntervalMs = config.weeklyRefreshIntervalMs();
+
+            // (1) Exclusion pass over ordinary results, tracking which weekly symbols survive.
+            List<PrioritizedWorkItem> filtered = new ArrayList<>(results.size());
+            Set<String> weeklyAlreadyAdmitted = new java.util.HashSet<>();
+            for (PrioritizedWorkItem item : results) {
+                if (!weekly.contains(item.symbol())) {
+                    filtered.add(item);
+                    continue;
+                }
+                if (isWeeklyDue(getWeeklyLastAttemptAt(item.symbol()), now, weeklyIntervalMs)) {
+                    filtered.add(item);
+                    weeklyAlreadyAdmitted.add(item.symbol());
+                }
+                // else: weekly symbol not yet due — suppress this cycle
+            }
+
+            // (2) Positive admission: every ACTIVE weekly-due symbol not already admitted is
+            // inserted so weekly cadence, not ordinary due-work selection, governs its admission.
+            for (String sym : weekly) {
+                if (weeklyAlreadyAdmitted.contains(sym)) continue;
+                if (!isWeeklyDue(getWeeklyLastAttemptAt(sym), now, weeklyIntervalMs)) continue;
+                if (!isActiveResolvableSymbol(sym)) continue; // active (removed_at IS NULL) and known
+                // needsExpirations when there is no admissible expirations row yet, so the worker
+                // performs the full governed acquisition rather than a chain-only refresh.
+                boolean needsExpirations = !hasAdmissibleExpirations(sym);
+                // Class "B" (breadth) + MAX age so it sorts with lifecycle/oldest work and is not
+                // starved; the class label does not change how acquireSymbolTiered services it.
+                filtered.add(new PrioritizedWorkItem(sym, "B", Long.MAX_VALUE, needsExpirations, false, false));
+            }
+
+            results = filtered;
         }
 
         // Sort by urgency

@@ -190,23 +190,44 @@ public class EvidenceStoreConfig {
     public WorkerStarter workerStarter(
             AcquisitionWorker worker,
             SqliteEvidenceStore store,
-            @Value("${universe.seed.path:./data/seeds/yahoo-merged-etf-tickers.csv}") String seedPath) {
-        return new WorkerStarter(worker, store, seedPath);
+            @Value("${universe.seed.path:./data/seeds/yahoo-merged-etf-tickers.csv}") String seedPath,
+            @Value("${universe.disposition.path:}") String dispositionPath) {
+        return new WorkerStarter(worker, store, seedPath, dispositionPath);
     }
 
     static class WorkerStarter {
         private final AcquisitionWorker worker;
         private final SqliteEvidenceStore store;
         private final String seedPath;
+        private final String dispositionPath;
 
-        WorkerStarter(AcquisitionWorker worker, SqliteEvidenceStore store, String seedPath) {
+        WorkerStarter(AcquisitionWorker worker, SqliteEvidenceStore store, String seedPath, String dispositionPath) {
             this.worker = worker;
             this.store = store;
             this.seedPath = seedPath;
+            this.dispositionPath = dispositionPath;
         }
 
         @PostConstruct
         public void start() {
+            // Generation-29066 WEEKLY_REFRESH cohort (gated by config). This runs OUTSIDE the
+            // worker-start try/catch below and FAILS CLOSED: when universe.disposition.path is
+            // explicitly configured, a missing / unreadable / malformed / invalid artifact (one
+            // that does not validate to exactly 340/487/84 with correct generation provenance)
+            // aborts startup by propagating the exception — the appliance must NOT silently run
+            // with weekly cadence disabled once that scheduling authority is declared. When the
+            // path is unset (default), the seam is intentionally disabled and the scheduler
+            // behaves exactly as before.
+            if (dispositionPath != null && !dispositionPath.isBlank()) {
+                // UniverseDisposition.load throws DispositionValidationException on any load or
+                // validation failure; we deliberately do NOT catch it here — fail closed.
+                var disposition = com.wheelwright.evidence.universe.UniverseDisposition
+                    .load(java.nio.file.Path.of(dispositionPath));
+                store.setWeeklyRefreshCohort(disposition.weeklyRefresh());
+                System.out.printf("[startup] Loaded generation-%s weekly-refresh cohort: %d symbols%n",
+                    disposition.generation(), disposition.weeklyRefresh().size());
+            }
+
             try {
                 List<String> universe = UniverseLoader.loadUniverse(store.getConnection(), seedPath);
                 worker.start(universe);
