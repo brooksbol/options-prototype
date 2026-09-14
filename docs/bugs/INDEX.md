@@ -21,6 +21,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-013 | Trading-day PREMARKET per-subject admissibility invalidates prior-session sealed evidence that session-level classification still treats as canonical | Backend / SessionClassifier per-subject admissibility | S2 | Open | [record](BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md) | Discovered 2026-09-14 |
 | BUG-014 | Sealed-session completeness reconstructed from mutable current-work state; next-session re-resolution falsely revokes a completed session | Backend / durable sealed-session authority | S2 | Open | [record](BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md) | Discovered 2026-09-14 |
 | BUG-015 | Operator Console moneyness sparkline folds multi-day spot history onto one intraday session (misleading geometry; numeric values correct) | Operator Console / moneyness sparkline | S3 | Open | [record](BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md) | Discovered 2026-09-14 |
+| BUG-016 | Deployment funnels (CSP/Covered Call/Buy-Write) expose aggregate counts without preserving/exporting the exact evaluation-unit membership that produced them | Write Desk / Decision funnels observability | S3 | Resolved | [record](BUG-016-funnel-aggregate-counts-lack-exportable-membership.md) | Discovered 2026-09-14 |
 
 ## Migration provenance (2026-09-11)
 

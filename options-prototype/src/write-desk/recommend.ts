@@ -27,6 +27,8 @@ import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
 import { type ExecutionPolicy, DEFAULT_EXECUTION_POLICY } from "./execution-policy";
 import type { PutCandidate, GovernanceAnnotation } from "./candidate-types";
 import type { ObservationSink } from "../opportunity-history/observation-sink";
+import type { TerminalMembershipRecord, DecisionExportResult } from "./funnel-export/funnel-export-types";
+import { buildDecisionExportResult, createDecisionRunId, deriveTypedCounters, assertReconciled } from "./funnel-export/funnel-export-types";
 import type { WinnerEconomics } from "../opportunity-history/opportunity-fact";
 
 // --- Policy Types ---
@@ -132,6 +134,27 @@ export interface TerminalOutcomes {
   classificationUnknown: number;
 }
 
+/**
+ * The fixed CSP terminal-outcome taxonomy keys (in `TerminalOutcomes` shape).
+ * `deriveTypedCounters` uses this both to seed every key to 0 and to reject any
+ * membership record whose terminal outcome is outside the taxonomy (accounting/
+ * taxonomy drift). `classificationUnknown` is included for shape completeness but
+ * is never a recorded terminal state.
+ */
+export const TERMINAL_OUTCOME_KEYS: readonly (keyof TerminalOutcomes)[] = [
+  "actionable",
+  "edge",
+  "wait",
+  "hardNoZeroBid",
+  "hardNoZeroOI",
+  "hardNoWideSpread",
+  "noDeltaMatch",
+  "noDteMatch",
+  "nonOptionable",
+  "incomplete",
+  "classificationUnknown",
+] as const;
+
 export interface RecommendationFunnel {
   /** Total symbols in the monitored universe */
   monitored: number;
@@ -193,6 +216,27 @@ export interface RecommendationResult {
   policySnapshot: RecommendationPolicy;
   /** Recommendation timestamp */
   computedAt: string;
+  /**
+   * BUG-016 funnel export: immutable per-strategy exportable result for THIS
+   * Decision run — run metadata + per-symbol terminal membership + derived
+   * counters. Present when export context is supplied (WriteDesk always supplies
+   * it). Membership partitions the monitored universe: exactly one record per
+   * symbol; sum of derived counters === monitored.
+   */
+  exportResult?: DecisionExportResult;
+}
+
+/**
+ * Provenance/run-identity supplied by the Decision-run caller so the exportable
+ * result can be assembled. Optional — omitting it preserves byte-identical
+ * behavior for existing callers/tests (no export result is built).
+ */
+export interface ExportContext {
+  evidenceGeneration: number | null;
+  policyVersion: string;
+  sessionState: string;
+  canonicalSessionDate: string | null;
+  evidenceEnvironment: string;
 }
 
 // --- Recommendation Engine ---
@@ -214,7 +258,7 @@ export async function recommendPuts(
   cache: DurableMarketCache,
   cacheEnvironment: { provider: string; environment: string },
   policy: RecommendationPolicy = DEFAULT_RECOMMENDATION_POLICY,
-  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; authorityPending?: boolean; observationSink?: ObservationSink }
+  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; authorityPending?: boolean; observationSink?: ObservationSink; exportContext?: ExportContext }
 ): Promise<RecommendationResult> {
   // Optional observe-only emission seam. When undefined (default, all existing callers/tests),
   // every sink call below is skipped and Decision behavior is byte-identical.
@@ -245,6 +289,36 @@ export async function recommendPuts(
   let exclHardNoZeroOI = 0;
   let exclHardNoWideSpread = 0;
   let exclNoContracts = 0;
+
+  // BUG-016 funnel export: per-symbol terminal membership. Exactly one record is
+  // appended per symbol at its single terminal exit. The visible TerminalOutcomes
+  // counters below are cross-checked against counters DERIVED from this collection
+  // so exported membership and displayed counts cannot diverge. Recording is
+  // additive and never alters Decision behavior.
+  const terminalMembership: TerminalMembershipRecord[] = [];
+  const recordCsp = (
+    symbol: string,
+    terminalOutcome: keyof TerminalOutcomes,
+    fields?: { expiration?: string | null; terminalReason?: string | null; evidenceRetrievedAt?: string | null; admissible?: boolean | null },
+  ): void => {
+    terminalMembership.push({
+      evaluationUnitType: "universe_symbol",
+      symbol,
+      holdingOrLotId: null,
+      expiration: fields?.expiration ?? null,
+      terminalOutcome,
+      terminalReason: fields?.terminalReason ?? null,
+      evidenceRetrievedAt: fields?.evidenceRetrievedAt ?? null,
+      admissible: fields?.admissible ?? null,
+    });
+  };
+  // Copy the EXACT chain-acquisition instant already established on the winning
+  // candidate into the membership record — never synthesize or reconstruct it.
+  // Returns null when provenance is genuinely unavailable (field stays blank).
+  const provenanceIso = (c: PutCandidate | null | undefined): string | null => {
+    const p = c?.evidenceProvenance;
+    return p && p.kind === "chain-acquired" ? new Date(p.acquiredAtMs).toISOString() : null;
+  };
 
   const effectiveCash = deployableCash - policy.deployment.reserveAmount;
   // When session is closed, canonical evidence remains valid regardless of TTL.
@@ -281,6 +355,7 @@ export async function recommendPuts(
     const absRecord = await cache.get(absKey);
     if (absRecord && (cache.freshness(absRecord) === "fresh" || cache.freshness(absRecord) === "stale_usable")) {
       confirmedAbsence++;
+      recordCsp(symbol, "nonOptionable", { terminalReason: "Confirmed no listed options" });
       sink?.symbol(symbol, { kind: "non_optionable" });
       continue;
     }
@@ -303,6 +378,7 @@ export async function recommendPuts(
       // No expiration evidence — emit coverage request (pending/unresolved)
       coverageRequests.push({ symbol, expiration: null, reason: "No cached expirations", priority: "medium" });
       funnelPending++;
+      recordCsp(symbol, "incomplete", { terminalReason: "No admissible expirations (pending/unresolved)" });
       sink?.symbol(symbol, { kind: "pending" });
       continue;
     }
@@ -319,6 +395,7 @@ export async function recommendPuts(
       symbolsWithEvidence++;
       symbolsExcluded++;
       exclNoEligibleDte++;
+      recordCsp(symbol, "noDteMatch", { terminalReason: "No expiration within eligible DTE range" });
       sink?.symbol(symbol, { kind: "no_dte" });
       continue;
     }
@@ -326,6 +403,11 @@ export async function recommendPuts(
     // Evaluate chains from cache
     let foundChain = false;
     let instrumentName: string | null = null;
+    // BUG-016: the exact chain-acquisition provenance already observed for this
+    // symbol during the loop below, so hard-no / no-delta terminal branches (which
+    // DID inspect chain evidence) can carry the same acquisition instant as the
+    // actionable/edge/wait branches. Captured from the chain record; never synthesized.
+    let symbolChainProvenanceIso: string | null = null;
     let bestActionable: PutCandidate | null = null;
     let bestEdge: PutCandidate | null = null;
     let bestWait: PutCandidate | null = null;
@@ -357,6 +439,15 @@ export async function recommendPuts(
       }
 
       foundChain = true;
+
+      // BUG-016: capture the exact chain-acquisition instant already established on
+      // THIS chain record (first admissible expiration wins), so terminal branches
+      // that inspected chain evidence but produced no candidate (hard-no / no-delta)
+      // still carry the real acquisition timestamp. Never synthesized.
+      if (symbolChainProvenanceIso == null) {
+        const cp = chainRecord.evidenceProvenance;
+        if (cp && cp.kind === "chain-acquired") symbolChainProvenanceIso = new Date(cp.acquiredAtMs).toISOString();
+      }
 
       // Extract instrument name from chain underlying (first available wins)
       if (!instrumentName && chainRecord.payload.underlying?.name) {
@@ -531,31 +622,43 @@ export async function recommendPuts(
           allCandidates.push(best);
           if (best.posture === "ACTIONABLE") funnelActionable++;
           else funnelEdge++;
+          recordCsp(symbol, best.posture === "ACTIONABLE" ? "actionable" : "edge", {
+            expiration: best.expiration,
+            terminalReason: best.posture === "ACTIONABLE" ? "Recommended (actionable)" : "Recommended (edge)",
+            evidenceRetrievedAt: provenanceIso(best),
+            admissible: true,
+          });
         } else {
           allWait.push(best);
           funnelWaitPosture++;
+          recordCsp(symbol, "wait", { expiration: best.expiration, terminalReason: "Below recommendation threshold", evidenceRetrievedAt: provenanceIso(best), admissible: true });
         }
       } else if (bestWideSpread) {
         // No normal candidate but has a wide-spread contract — include for visibility
         bestWideSpread.governance = governance;
         allWideSpread.push(bestWideSpread);
+        recordCsp(symbol, "hardNoWideSpread", { expiration: bestWideSpread.expiration, terminalReason: "Spread exceeds exclusion floor", evidenceRetrievedAt: provenanceIso(bestWideSpread), admissible: true });
       } else {
-        // Had chain but no qualifying candidate at all
+        // Had chain but no qualifying candidate at all. These branches DID inspect
+        // chain evidence, so carry the observed chain-acquisition provenance.
         if (!symbolHadContractsInRange) {
           exclNoDeltaInRange++;
+          recordCsp(symbol, "noDeltaMatch", { terminalReason: "No contract within admissible delta range", evidenceRetrievedAt: symbolChainProvenanceIso, admissible: true });
         } else if (symbolHadHardNoOnly) {
           switch (symbolHardNoReason) {
-            case "zeroBid": exclHardNoZeroBid++; break;
-            case "zeroOI": exclHardNoZeroOI++; break;
-            default: exclHardNoWideSpread++; break; // wide-spread handled as a separate posture
+            case "zeroBid": exclHardNoZeroBid++; recordCsp(symbol, "hardNoZeroBid", { terminalReason: "All contracts zero bid", evidenceRetrievedAt: symbolChainProvenanceIso, admissible: true }); break;
+            case "zeroOI": exclHardNoZeroOI++; recordCsp(symbol, "hardNoZeroOI", { terminalReason: "All contracts zero open interest", evidenceRetrievedAt: symbolChainProvenanceIso, admissible: true }); break;
+            default: exclHardNoWideSpread++; recordCsp(symbol, "hardNoWideSpread", { terminalReason: "All contracts wide spread", evidenceRetrievedAt: symbolChainProvenanceIso, admissible: true }); break; // wide-spread handled as a separate posture
           }
         } else {
           exclNoContracts++;
+          recordCsp(symbol, "noDeltaMatch", { terminalReason: "No qualifying contract", evidenceRetrievedAt: symbolChainProvenanceIso, admissible: true });
         }
       }
     } else {
       symbolsMissingChain++;
       exclNoChain++;
+      recordCsp(symbol, "incomplete", { terminalReason: "Expirations known but chain evidence missing" });
     }
   }
 
@@ -576,21 +679,24 @@ export async function recommendPuts(
   if (exclNoContracts > 0) exclusions.push({ reason: "No qualifying contract", count: exclNoContracts });
   if (funnelPending > 0) exclusions.push({ reason: "Pending (not yet resolved)", count: funnelPending });
 
+  // BUG-016 SINGLE ACCOUNTING AUTHORITY: the visible terminal outcomes are derived
+  // from the SAME `terminalMembership` collection that is exported — never from the
+  // legacy local `funnel*`/`excl*` counters. This guarantees the operator's funnel
+  // and the exported CSV cannot diverge. The legacy counters below survive only for
+  // genuinely separate, NON-terminal-outcome metrics (coverage/hydration/ranking and
+  // the legacy compatibility scalars + exclusions list), never to populate `outcomes`.
+  // `classificationUnknown` is part of the taxonomy shape but is never a recorded
+  // terminal state (governance is an annotation, not a terminal outcome), so it
+  // derives to 0 — preserving prior behavior.
+  const outcomes: TerminalOutcomes = deriveTypedCounters(terminalMembership, TERMINAL_OUTCOME_KEYS);
+
+  // Runtime reconciliation invariant (fail loud on drift). Every monitored symbol
+  // must appear exactly once and the derived counters must sum to `monitored`.
+  assertReconciled(terminalMembership, symbols.length, "csp");
+
   const funnel: RecommendationFunnel = {
     monitored: symbols.length,
-    outcomes: {
-      actionable: funnelActionable,
-      edge: funnelEdge,
-      wait: funnelWaitPosture,
-      hardNoZeroBid: exclHardNoZeroBid,
-      hardNoZeroOI: exclHardNoZeroOI,
-      hardNoWideSpread: exclHardNoWideSpread + allWideSpread.length,
-      noDeltaMatch: exclNoDeltaInRange + exclNoContracts,
-      noDteMatch: exclNoEligibleDte,
-      nonOptionable: confirmedAbsence,
-      incomplete: funnelPending + exclNoChain,
-      classificationUnknown: 0, // No longer a terminal exclusion — visible with governance annotation
-    },
+    outcomes,
     evaluable: funnelEvaluable,
     eligible: allCandidates.length,
     ranked: ranked.length,
@@ -605,6 +711,29 @@ export async function recommendPuts(
     displayed: ranked.length,
     exclusions,
   };
+
+  // BUG-016 funnel export: assemble the immutable exportable result from the
+  // per-symbol terminal membership recorded above. Only built when the caller
+  // supplies export context (WriteDesk always does). Counters are derived from
+  // membership inside buildDecisionExportResult, guaranteeing parity with the
+  // funnel.outcomes counts (both are the same terminal decisions).
+  let exportResult: DecisionExportResult | undefined;
+  const exportContext = options?.exportContext;
+  if (exportContext) {
+    exportResult = buildDecisionExportResult(
+      {
+        strategy: "csp",
+        decisionRunId: createDecisionRunId("csp", exportContext.evidenceGeneration, exportContext.canonicalSessionDate),
+        evaluatedAt: new Date().toISOString(),
+        evidenceGeneration: exportContext.evidenceGeneration,
+        policyVersion: exportContext.policyVersion,
+        sessionState: exportContext.sessionState,
+        canonicalSessionDate: exportContext.canonicalSessionDate,
+        evidenceEnvironment: exportContext.evidenceEnvironment,
+      },
+      terminalMembership,
+    );
+  }
 
   return {
     candidates: ranked,
@@ -626,6 +755,7 @@ export async function recommendPuts(
     funnel,
     policySnapshot: policy,
     computedAt: new Date().toISOString(),
+    exportResult,
   };
 }
 

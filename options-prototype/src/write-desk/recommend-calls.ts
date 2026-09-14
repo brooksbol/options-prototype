@@ -23,7 +23,23 @@ import { isSubjectAdmissible } from "./subject-admissibility";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
 import type { CallCandidate } from "./candidate-types";
 import type { InventoryPosition } from "./types";
-import type { RecommendationPolicy } from "./recommend";
+import type { RecommendationPolicy, ExportContext } from "./recommend";
+import type { TerminalMembershipRecord, DecisionExportResult } from "./funnel-export/funnel-export-types";
+import { buildDecisionExportResult, createDecisionRunId, assertReconciled } from "./funnel-export/funnel-export-types";
+
+// --- Covered-call terminal taxonomy (BUG-016 funnel export) ---
+//
+// The governed evaluation unit is the ELIGIBLE HOLDING (an inventory position
+// with call-writing capacity: maxAdditionalContracts > 0). The denominator is
+// therefore `eligiblePositions`. Each eligible holding reaches exactly one of
+// these mutually-exclusive terminal outcomes; the sum equals eligiblePositions.
+export type CoveredCallTerminalOutcome =
+  | "actionable"      // produced at least one actionable candidate
+  | "edge"            // produced only edge candidate(s)
+  | "wait"            // produced only wait candidate(s)
+  | "noExpirations"   // no cached/admissible expirations for the holding
+  | "noDteMatch"      // expirations present but none in eligible DTE range
+  | "noQualifyingCall"; // had eligible expirations but produced no qualifying call contract
 
 // --- Result ---
 
@@ -36,6 +52,12 @@ export interface CallRecommendationResult {
   eligiblePositions: number;
   /** Symbols that produced at least one candidate */
   symbolsWithCandidates: number;
+  /**
+   * BUG-016 funnel export: immutable exportable result for THIS Decision run.
+   * One membership record per eligible holding; sum of derived counters ===
+   * eligiblePositions. Present only when export context is supplied.
+   */
+  exportResult?: DecisionExportResult;
 }
 
 // --- Engine ---
@@ -51,7 +73,7 @@ export async function recommendCalls(
   cache: DurableMarketCache,
   cacheEnvironment: { provider: string; environment: string },
   policy: RecommendationPolicy,
-  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; authorityPending?: boolean }
+  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; authorityPending?: boolean; exportContext?: ExportContext }
 ): Promise<CallRecommendationResult> {
   const allCandidates: CallCandidate[] = [];
   const allWait: CallCandidate[] = [];
@@ -59,6 +81,37 @@ export async function recommendCalls(
 
   // Only positions with free shares that can cover at least 1 contract
   const eligible = inventory.filter((p) => p.maxAdditionalContracts > 0);
+
+  // BUG-016 funnel export: per-holding terminal membership. Exactly one record
+  // per eligible holding at its single terminal exit. Recording is additive and
+  // never alters Decision behavior.
+  const terminalMembership: TerminalMembershipRecord[] = [];
+  const recordCall = (
+    pos: InventoryPosition,
+    terminalOutcome: CoveredCallTerminalOutcome,
+    fields?: { expiration?: string | null; terminalReason?: string | null; evidenceRetrievedAt?: string | null; admissible?: boolean | null },
+  ): void => {
+    terminalMembership.push({
+      evaluationUnitType: "holding",
+      symbol: pos.symbol,
+      holdingOrLotId: pos.symbol,
+      expiration: fields?.expiration ?? null,
+      terminalOutcome,
+      terminalReason: fields?.terminalReason ?? null,
+      evidenceRetrievedAt: fields?.evidenceRetrievedAt ?? null,
+      admissible: fields?.admissible ?? null,
+      metadata: {
+        free_shares: pos.sharesFree,
+        max_contracts: pos.maxAdditionalContracts,
+      },
+    });
+  };
+  // Copy the EXACT chain-acquisition instant already on a call candidate into the
+  // membership record — never synthesize. Null when genuinely unavailable.
+  const callProvenanceIso = (c: CallCandidate | null | undefined): string | null => {
+    const p = c?.evidenceProvenance;
+    return p && p.kind === "chain-acquired" ? new Date(p.acquiredAtMs).toISOString() : null;
+  };
   const useSessionValidity = options?.sessionClosed ?? false;
   const admissibilityBoundaryMs = options?.admissibilityBoundaryMs ?? null;
   const authorityPending = options?.authorityPending ?? false;
@@ -81,6 +134,7 @@ export async function recommendCalls(
     const expRecord = await cache.get<Expiration[]>(expKey);
     if (!expRecord || !isEligible(expRecord)) {
       excluded.push({ symbol, reason: "No cached expirations" });
+      recordCall(pos, "noExpirations", { terminalReason: "No cached/admissible expirations" });
       continue;
     }
 
@@ -88,6 +142,7 @@ export async function recommendCalls(
     const eligibleExps = selectEligibleExpirations(expirations, policy.contractSelection.eligibleDteRange);
     if (eligibleExps.length === 0) {
       excluded.push({ symbol, reason: "No eligible expiration in DTE range" });
+      recordCall(pos, "noDteMatch", { terminalReason: "No expiration within eligible DTE range" });
       continue;
     }
 
@@ -97,6 +152,9 @@ export async function recommendCalls(
     // for an owned symbol rather than collapsing to a single best row.
     const symbolCandidates: CallCandidate[] = [];
     const symbolWait: CallCandidate[] = [];
+    // BUG-016: exact chain-acquisition provenance observed for this holding, carried
+    // into the noQualifyingCall terminal branch (which inspected chain evidence).
+    let holdingChainProvenanceIso: string | null = null;
 
     for (const exp of eligibleExps) {
       interface CachedChain {
@@ -107,6 +165,10 @@ export async function recommendCalls(
       const chainRecord = await cache.get<CachedChain>(chainKey);
       if (!chainRecord || !isEligible(chainRecord)) continue;
 
+      if (holdingChainProvenanceIso == null) {
+        const cp = chainRecord.evidenceProvenance;
+        if (cp && cp.kind === "chain-acquired") holdingChainProvenanceIso = new Date(cp.acquiredAtMs).toISOString();
+      }
       const calls = chainRecord.payload.calls ?? [];
       const underlyingPrice = chainRecord.payload.underlying?.price ?? 0;
       if (underlyingPrice <= 0) continue;
@@ -220,10 +282,19 @@ export async function recommendCalls(
     // preserving the prior "actionable wins over wait" behavior per symbol.
     if (symbolCandidates.length > 0) {
       allCandidates.push(...symbolCandidates);
+      const hasActionable = symbolCandidates.some((c) => c.posture === "ACTIONABLE");
+      recordCall(pos, hasActionable ? "actionable" : "edge", {
+        expiration: symbolCandidates[0]?.expiration ?? null,
+        terminalReason: hasActionable ? "Produced actionable covered-call candidate" : "Produced edge covered-call candidate",
+        evidenceRetrievedAt: callProvenanceIso(symbolCandidates[0]),
+        admissible: true,
+      });
     } else if (symbolWait.length > 0) {
       allWait.push(...symbolWait);
+      recordCall(pos, "wait", { expiration: symbolWait[0]?.expiration ?? null, terminalReason: "Produced only wait covered-call candidate(s)", evidenceRetrievedAt: callProvenanceIso(symbolWait[0]), admissible: true });
     } else {
       excluded.push({ symbol, reason: "No qualifying call contract" });
+      recordCall(pos, "noQualifyingCall", { terminalReason: "Eligible expirations present but no qualifying call contract", evidenceRetrievedAt: holdingChainProvenanceIso, admissible: true });
     }
   }
 
@@ -237,12 +308,42 @@ export async function recommendCalls(
   for (const c of ranked) distinctSymbols.add(c.symbol);
   for (const c of rankedWait) distinctSymbols.add(c.symbol);
 
+  // BUG-016 funnel export: assemble the immutable exportable result. One record
+  // per eligible holding; sum of derived counters === eligiblePositions.
+  //
+  // BUG-016 SINGLE ACCOUNTING AUTHORITY: the governed denominator (eligiblePositions)
+  // IS the membership count — exactly one terminal record per eligible holding. We
+  // derive it from membership rather than from `eligible.length` independently, then
+  // reconcile (fail loud on drift). `eligible.length` is the same value; deriving
+  // from membership makes the collection the authority for the displayed denominator.
+  const eligiblePositions = terminalMembership.length;
+  assertReconciled(terminalMembership, eligible.length, "covered_call");
+
+  let exportResult: DecisionExportResult | undefined;
+  const exportContext = options?.exportContext;
+  if (exportContext) {
+    exportResult = buildDecisionExportResult(
+      {
+        strategy: "covered_call",
+        decisionRunId: createDecisionRunId("covered_call", exportContext.evidenceGeneration, exportContext.canonicalSessionDate),
+        evaluatedAt: new Date().toISOString(),
+        evidenceGeneration: exportContext.evidenceGeneration,
+        policyVersion: exportContext.policyVersion,
+        sessionState: exportContext.sessionState,
+        canonicalSessionDate: exportContext.canonicalSessionDate,
+        evidenceEnvironment: exportContext.evidenceEnvironment,
+      },
+      terminalMembership,
+    );
+  }
+
   return {
     candidates: ranked,
     waitCandidates: rankedWait,
     excluded,
-    eligiblePositions: eligible.length,
+    eligiblePositions,
     symbolsWithCandidates: distinctSymbols.size,
+    exportResult,
   };
 }
 

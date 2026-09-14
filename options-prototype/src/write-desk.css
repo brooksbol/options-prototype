@@ -2474,3 +2474,34 @@
   cursor: grabbing;
   color: var(--wd-accent-blue);
 }
+
+/* --- FUNNEL CSV EXPORT BUTTON (BUG-016 observability) --- */
+
+.wd-funnel-export-btn {
+  margin-left: auto;
+  font-size: var(--wd-size-body, 12px);
+  font-family: var(--wd-font-mono);
+  color: var(--wd-text-secondary, #8993a4);
+  background: transparent;
+  border: 1px solid var(--wd-border, #2a3140);
+  border-radius: 4px;
+  padding: 3px 9px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* When a rec-count already claimed margin-left:auto, keep a small gap instead of
+   pushing the button to a second flex track. */
+.wd-board-rec-count + .wd-funnel-export-btn {
+  margin-left: 10px;
+}
+
+.wd-funnel-export-btn:hover:not(:disabled) {
+  color: var(--wd-text-primary, #e6e9ef);
+  border-color: var(--wd-accent, #4ea1ff);
+}
+
+.wd-funnel-export-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

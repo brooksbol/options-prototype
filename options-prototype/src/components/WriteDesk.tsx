@@ -13,8 +13,10 @@ import { useDrawerSelection } from "../hooks/useDrawerSelection";
 import { useSessionClassification } from "../hooks/useSessionClassification";
 import { usePortfolio } from "../portfolio/use-portfolio";
 import { type PutCandidate, type CallCandidate } from "../write-desk/candidate-types";
-import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY } from "../write-desk/recommend";
+import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type ExportContext } from "../write-desk/recommend";
 import { recommendCalls } from "../write-desk/recommend-calls";
+import type { DecisionExportResult } from "../write-desk/funnel-export/funnel-export-types";
+import { downloadFunnelCsv } from "../write-desk/funnel-export/funnel-csv";
 import { recommendBuyWrites, type BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import { OpportunityAccumulator, type LastSeenMap } from "../opportunity-history/accumulator";
 import { emitOpportunityHistory } from "../opportunity-history/emit-client";
@@ -43,6 +45,32 @@ import { useSectionOrder } from "../hooks/useSectionOrder";
 import "../write-desk.css";
 import "../recommendation-brief.css";
 
+// --- Funnel CSV export button (BUG-016) ---
+
+/**
+ * Exports the EXACT in-memory Decision result that produced the currently
+ * displayed funnel counts. Disabled when no complete result is available.
+ * Clicking never re-runs Decision, calls the provider, or mutates evidence —
+ * it serializes the already-produced immutable result object.
+ */
+function FunnelExportButton({ label, result }: { label: string; result: DecisionExportResult | null }) {
+  const disabled = !result || result.membership.length === 0;
+  const title = disabled
+    ? "No complete Decision result available to export"
+    : `Export ${result!.membership.length} evaluation units (run ${result!.metadata.decisionRunId})`;
+  return (
+    <button
+      type="button"
+      className="wd-funnel-export-btn"
+      disabled={disabled}
+      title={title}
+      onClick={() => downloadFunnelCsv(result)}
+    >
+      ⬇ {label}
+    </button>
+  );
+}
+
 // --- Component ---
 
 export function Deployment() {
@@ -64,6 +92,12 @@ export function Deployment() {
   const [buyWriteWaitCandidates, setBuyWriteWaitCandidates] = useState<BuyWriteCandidate[]>([]);
   const [buyWriteWideSpreadCandidates, setBuyWriteWideSpreadCandidates] = useState<BuyWriteCandidate[]>([]);
   const [buyWriteOutcomes, setBuyWriteOutcomes] = useState<import("../write-desk/recommend-buy-writes").BuyWriteOutcomes | null>(null);
+  // BUG-016 funnel export: immutable per-strategy exportable Decision result.
+  // Each is replaced atomically when a new Decision run produces a new result;
+  // export reads the current object and never triggers a rerun/acquisition.
+  const [putExport, setPutExport] = useState<DecisionExportResult | null>(null);
+  const [callExport, setCallExport] = useState<DecisionExportResult | null>(null);
+  const [buyWriteExport, setBuyWriteExport] = useState<DecisionExportResult | null>(null);
   const [buyWritesCollapsed, setBuyWritesCollapsed] = useState(() => loadWorkspace().writeDeskBuyWritesCollapsed);
   const [scanTimestamp, setScanTimestamp] = useState<string | null>(null);
   const [policy, setPolicy] = useState(() => {
@@ -196,15 +230,36 @@ export function Deployment() {
       sessionClosed,
       admissibilityBoundaryMs: sc.admissibilityBoundaryEpochMs ?? null,
       authorityPending: sc.authorityPending ?? false,
+      canonicalSessionDate: sc.canonicalSessionDate || null,
     };
   };
+
+  /**
+   * BUG-016 funnel export: build the run-identity/provenance context supplied to
+   * each engine so it can assemble its exportable result. Pure read of current
+   * state — no acquisition, no mutation.
+   */
+  const buildExportContext = (
+    policyVersion: string,
+    sessionState: string,
+    canonicalSessionDate: string | null,
+    generation: number | null,
+  ): ExportContext => ({
+    evidenceGeneration: generation,
+    policyVersion,
+    sessionState,
+    canonicalSessionDate,
+    evidenceEnvironment: runtimeEnvironment.current,
+  });
 
   // Re-recommend: apply updated policy to existing cache (zero provider calls)
   const handleReRecommend = useCallback(async (updatedPolicy: typeof DEFAULT_RECOMMENDATION_POLICY) => {
     if (!snapshot || !snapshot.deployableCash) return;
     const cache = getDurableCache();
     // Runtime-authority: read CURRENT authority at execution time (never a captured closure).
-    const { sc: sessionAuthority, sessionState, sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending } = currentAuthority();
+    const { sc: sessionAuthority, sessionState, sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending, canonicalSessionDate } = currentAuthority();
+    // BUG-016: run-identity/provenance for the exportable Decision result.
+    const reRecExportCtx = buildExportContext(updatedPolicy.version, sessionState, canonicalSessionDate, evidenceMeta?.generation ?? null);
     // Opportunity-history observe-only emission (policy change forces a new epoch).
     const reRecAcc = new OpportunityAccumulator({
       policyVersion: updatedPolicy.version,
@@ -220,7 +275,7 @@ export function Deployment() {
       cache,
       { provider: providerKey, environment: "sandbox" },
       updatedPolicy,
-      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending, observationSink: reRecAcc }
+      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending, observationSink: reRecAcc, exportContext: reRecExportCtx }
     );
     setPutCandidates(recResult.candidates);
     setPutWaitCandidates(recResult.waitCandidates);
@@ -228,6 +283,7 @@ export function Deployment() {
     setPutIsProvisional(recResult.coverageRequests.length > 0);
     setPutFunnel(recResult.funnel);
     setPutHydration(recResult.evidenceHydration);
+    setPutExport(recResult.exportResult ?? null);
 
     // Selection validity: clear put selection if absent from new results
     clearCandidateIf((prev) => {
@@ -242,10 +298,11 @@ export function Deployment() {
         cache,
         { provider: providerKey, environment: "sandbox" },
         updatedPolicy,
-        { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending }
+        { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending, exportContext: reRecExportCtx }
       );
       setCallCandidates(callResult.candidates);
       setCallWaitCandidates(callResult.waitCandidates);
+      setCallExport(callResult.exportResult ?? null);
 
       // Selection validity: clear call selection if absent from new results
       clearCallCandidateIf((prev) => {
@@ -256,6 +313,7 @@ export function Deployment() {
     } else {
       setCallCandidates([]);
       setCallWaitCandidates([]);
+      setCallExport(null);
       closeCallCandidate();
     }
 
@@ -282,12 +340,13 @@ export function Deployment() {
       cache,
       { provider: providerKey, environment: "sandbox" },
       updatedPolicy,
-      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending, observationSink: reRecAcc }
+      { sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending, observationSink: reRecAcc, exportContext: reRecExportCtx }
     );
     setBuyWriteCandidates(bwResult.candidates);
     setBuyWriteWaitCandidates(bwResult.waitCandidates);
     setBuyWriteWideSpreadCandidates(bwResult.wideSpreadCandidates);
     setBuyWriteOutcomes(bwResult.outcomes);
+    setBuyWriteExport(bwResult.exportResult ?? null);
 
     // Emit the combined puts + buy-write observations for this Decision run (best-effort).
     void emitOpportunityHistory(reRecAcc.build());
@@ -467,7 +526,10 @@ export function Deployment() {
     // closure. This callback may be an in-flight snapshot response created while authority
     // was still BOOTSTRAP; by the time it runs, authority may have resolved, and Decision
     // must consume the resolved authority.
-    const { sc: currentSession, sessionClosed, admissibilityBoundaryMs, authorityPending } = currentAuthority();
+    const { sc: currentSession, sessionClosed, admissibilityBoundaryMs, authorityPending, canonicalSessionDate } = currentAuthority();
+    // BUG-016: run-identity/provenance for the exportable Decision result.
+    const newEvidenceGeneration = (snapshotData as { generation?: number })?.generation ?? evidenceMeta?.generation ?? null;
+    const newEvidenceExportCtx = buildExportContext(policy.version, currentSession.state, canonicalSessionDate, newEvidenceGeneration);
 
     // Opportunity-history observe-only emission. The accumulator's cross-poll last-seen map
     // suppresses unchanged-evidence re-evaluations, so this writes only when evidence advanced.
@@ -485,7 +547,7 @@ export function Deployment() {
       cache,
       { provider: providerKey, environment: "sandbox" },
       policy,
-      { sessionClosed, admissibilityBoundaryMs, authorityPending, observationSink: newEvidenceAcc }
+      { sessionClosed, admissibilityBoundaryMs, authorityPending, observationSink: newEvidenceAcc, exportContext: newEvidenceExportCtx }
     );
 
     setPutCandidates(recResult.candidates);
@@ -494,6 +556,7 @@ export function Deployment() {
     setPutIsProvisional(recResult.coverage.symbolsMissingChain > 0);
     setPutFunnel(recResult.funnel);
     setPutHydration(recResult.evidenceHydration);
+    setPutExport(recResult.exportResult ?? null);
 
     // Selection validity: clear put selection if it no longer exists in results
     clearCandidateIf((prev) => {
@@ -508,10 +571,11 @@ export function Deployment() {
         cache,
         { provider: providerKey, environment: "sandbox" },
         policy,
-        { sessionClosed, admissibilityBoundaryMs, authorityPending }
+        { sessionClosed, admissibilityBoundaryMs, authorityPending, exportContext: newEvidenceExportCtx }
       );
       setCallCandidates(callResult.candidates);
       setCallWaitCandidates(callResult.waitCandidates);
+      setCallExport(callResult.exportResult ?? null);
 
       // Selection validity: clear call selection if it no longer exists in results
       clearCallCandidateIf((prev) => {
@@ -523,6 +587,7 @@ export function Deployment() {
       // No eligible inventory — clear any stale call state
       setCallCandidates([]);
       setCallWaitCandidates([]);
+      setCallExport(null);
       closeCallCandidate();
     }
 
@@ -550,12 +615,13 @@ export function Deployment() {
       cache,
       { provider: providerKey, environment: "sandbox" },
       policy,
-      { sessionClosed, admissibilityBoundaryMs, authorityPending, observationSink: newEvidenceAcc }
+      { sessionClosed, admissibilityBoundaryMs, authorityPending, observationSink: newEvidenceAcc, exportContext: newEvidenceExportCtx }
     );
     setBuyWriteCandidates(bwResult2.candidates);
     setBuyWriteWaitCandidates(bwResult2.waitCandidates);
     setBuyWriteWideSpreadCandidates(bwResult2.wideSpreadCandidates);
     setBuyWriteOutcomes(bwResult2.outcomes);
+    setBuyWriteExport(bwResult2.exportResult ?? null);
 
     // Emit combined puts + buy-write observations for this Decision run (best-effort).
     void emitOpportunityHistory(newEvidenceAcc.build());
@@ -781,6 +847,7 @@ export function Deployment() {
                 Cash-Secured Put Candidates
               </h2>
               {putFunnel && <span className="wd-board-rec-count">{putFunnel.eligible} Recommendations · {putFunnel.outcomes.wait} Wait</span>}
+              <FunnelExportButton label="Export CSP Funnel CSV" result={putExport} />
             </div>
             {putFunnel && <FunnelInfographic funnel={putFunnel} backendResolved={evidenceMeta?.coverage ? (evidenceMeta.coverage.ready + evidenceMeta.coverage.absent) : undefined} />}
           </div>
@@ -954,6 +1021,7 @@ export function Deployment() {
                   {contingentCallRows.length > 0 && `${contingentCallRows.length} if assigned`}
                 </span>
               )}
+              <FunnelExportButton label="Export Covered Calls Funnel CSV" result={callExport} />
             </div>
           </div>
 
@@ -1012,6 +1080,7 @@ export function Deployment() {
                   {buyWriteCandidates.length + buyWriteWaitCandidates.length} Recommendations
                 </span>
               )}
+              <FunnelExportButton label="Export Buy-Write Funnel CSV" result={buyWriteExport} />
             </div>
             <BuyWriteDistributionBar outcomes={buyWriteOutcomes} universeSize={universeSymbols.length} />
             <div style={{ display: "flex", gap: "10px", padding: "6px 12px 8px", flexWrap: "wrap", alignItems: "flex-end" }}>

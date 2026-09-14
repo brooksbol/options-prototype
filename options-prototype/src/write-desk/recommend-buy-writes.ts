@@ -27,9 +27,11 @@ import { isSubjectAdmissible } from "./subject-admissibility";
 import { midPrice, annualizedYield } from "../domain/calculations";
 import { assessExecution, isHardNo, type ContractEvidence, type ActionPosture } from "./execution-assessment";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
-import type { RecommendationPolicy } from "./recommend";
+import type { RecommendationPolicy, ExportContext } from "./recommend";
 import type { GovernanceAnnotation } from "./candidate-types";
 import type { EvidenceProvenance } from "./evidence-provenance";
+import type { TerminalMembershipRecord, DecisionExportResult } from "./funnel-export/funnel-export-types";
+import { buildDecisionExportResult, createDecisionRunId, deriveTypedCounters, assertReconciled } from "./funnel-export/funnel-export-types";
 import type { ObservationSink } from "../opportunity-history/observation-sink";
 import type { WinnerEconomics } from "../opportunity-history/opportunity-fact";
 import type { SurfaceOutcomeKind } from "../opportunity-history/mapping";
@@ -168,6 +170,26 @@ export interface BuyWriteOutcomes {
   strategyUnfit: number;
 }
 
+/**
+ * The fixed buy-write terminal-outcome taxonomy keys (in `BuyWriteOutcomes`
+ * shape). Used to derive the visible `outcomes` object from the SAME membership
+ * collection that is exported, and to reject any drift between taxonomy and
+ * accounting. Preserves the buy-write-specific `strategyUnfit` state.
+ */
+export const BUY_WRITE_OUTCOME_KEYS: readonly (keyof BuyWriteOutcomes)[] = [
+  "actionable",
+  "edge",
+  "wait",
+  "hardNoZeroBid",
+  "hardNoZeroOI",
+  "hardNoWideSpread",
+  "noDeltaMatch",
+  "noDteMatch",
+  "nonOptionable",
+  "incomplete",
+  "strategyUnfit",
+] as const;
+
 export interface BuyWriteRecommendationResult {
   candidates: BuyWriteCandidate[];
   waitCandidates: BuyWriteCandidate[];
@@ -183,6 +205,12 @@ export interface BuyWriteRecommendationResult {
   outcomes: BuyWriteOutcomes;
   /** Timestamp */
   computedAt: string;
+  /**
+   * BUG-016 funnel export: immutable exportable result for THIS Decision run.
+   * One membership record per evaluated symbol; sum of derived counters ===
+   * universeSize. Present only when export context is supplied.
+   */
+  exportResult?: DecisionExportResult;
 }
 
 // --- Engine ---
@@ -202,7 +230,7 @@ export async function recommendBuyWrites(
   cache: DurableMarketCache,
   cacheEnvironment: { provider: string; environment: string },
   policy: RecommendationPolicy,
-  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; authorityPending?: boolean; observationSink?: ObservationSink }
+  options?: { sessionClosed?: boolean; admissibilityBoundaryMs?: number | null; authorityPending?: boolean; observationSink?: ObservationSink; exportContext?: ExportContext }
 ): Promise<BuyWriteRecommendationResult> {
   // Optional observe-only emission seam. Undefined (default, all existing callers/tests) =>
   // byte-identical Decision behavior.
@@ -212,18 +240,36 @@ export async function recommendBuyWrites(
   const allWideSpread: BuyWriteCandidate[] = [];
   const excluded: { symbol: string; reason: string }[] = [];
 
-  // Outcome tracking
-  let outcomeActionable = 0;
-  let outcomeEdge = 0;
-  let outcomeWait = 0;
-  let outcomeHardNoZeroBid = 0;
-  let outcomeHardNoZeroOI = 0;
-  let outcomeHardNoWideSpread = 0;
-  let outcomeNoDeltaMatch = 0;
-  let outcomeNoDteMatch = 0;
-  let outcomeNonOptionable = 0;
-  let outcomeIncomplete = 0;
-  let outcomeStrategyUnfit = 0;
+  // BUG-016 SINGLE ACCOUNTING AUTHORITY: there are no separate outcome counters.
+  // Terminal accounting lives ONLY in `terminalMembership` (recorded below); the
+  // visible `outcomes` are derived from it via deriveTypedCounters at return.
+
+  // BUG-016 funnel export: per-symbol terminal membership. Exactly one record per
+  // evaluated symbol at its single terminal exit, using the SAME BuyWriteOutcomes
+  // keys the distribution bar uses. Recording is additive; never alters Decision.
+  const terminalMembership: TerminalMembershipRecord[] = [];
+  const recordBw = (
+    symbol: string,
+    terminalOutcome: keyof BuyWriteOutcomes,
+    fields?: { expiration?: string | null; terminalReason?: string | null; evidenceRetrievedAt?: string | null; admissible?: boolean | null },
+  ): void => {
+    terminalMembership.push({
+      evaluationUnitType: "evaluated_symbol",
+      symbol,
+      holdingOrLotId: null,
+      expiration: fields?.expiration ?? null,
+      terminalOutcome,
+      terminalReason: fields?.terminalReason ?? null,
+      evidenceRetrievedAt: fields?.evidenceRetrievedAt ?? null,
+      admissible: fields?.admissible ?? null,
+    });
+  };
+  // Copy the EXACT chain-acquisition instant already present on a candidate into
+  // the membership record — never synthesize. Null when genuinely unavailable.
+  const bwProvenanceIso = (c: { evidenceProvenance?: EvidenceProvenance } | null | undefined): string | null => {
+    const p = c?.evidenceProvenance;
+    return p && p.kind === "chain-acquired" ? new Date(p.acquiredAtMs).toISOString() : null;
+  };
 
   const effectiveCash = deployableCash - policy.deployment.reserveAmount;
   const useSessionValidity = options?.sessionClosed ?? false;
@@ -246,7 +292,7 @@ export async function recommendBuyWrites(
     const absKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "absence", symbol);
     const absRecord = await cache.get(absKey);
     if (absRecord && (cache.freshness(absRecord) === "fresh" || cache.freshness(absRecord) === "stale_usable")) {
-      outcomeNonOptionable++;
+      recordBw(symbol, "nonOptionable", { terminalReason: "Confirmed no listed options" });
       continue; // non-optionable
     }
 
@@ -254,14 +300,14 @@ export async function recommendBuyWrites(
     const expKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "expirations", symbol);
     const expRecord = await cache.get<Expiration[]>(expKey);
     if (!expRecord || !isEligible(expRecord)) {
-      outcomeIncomplete++;
+      recordBw(symbol, "incomplete", { terminalReason: "No admissible expirations (pending/unresolved)" });
       continue; // no evidence yet
     }
 
     const expirations = expRecord.payload;
     const eligibleExps = selectEligibleExpirations(expirations, policy.contractSelection.eligibleDteRange);
     if (eligibleExps.length === 0) {
-      outcomeNoDteMatch++;
+      recordBw(symbol, "noDteMatch", { terminalReason: "No expiration within eligible DTE range" });
       excluded.push({ symbol, reason: "No eligible expiration in DTE range" });
       continue;
     }
@@ -273,6 +319,10 @@ export async function recommendBuyWrites(
     let symbolAllHardNo = true;
     let symbolHardNoType: "zeroBid" | "zeroOI" | "wideSpread" | null = null;
     let symbolHadEligibleButNoFit = false;
+    // BUG-016: exact chain-acquisition provenance observed for this symbol, carried
+    // into hard-no / no-delta / strategy-unfit terminal branches (which inspected
+    // chain evidence). Never synthesized.
+    let symbolChainProvenanceIso: string | null = null;
 
     // Collect per-expiration candidates before governance (applied once per symbol)
     const symbolCandidates: BuyWriteCandidate[] = [];
@@ -301,6 +351,10 @@ export async function recommendBuyWrites(
       }
 
       symbolFoundChain = true;
+      if (symbolChainProvenanceIso == null) {
+        const cp = chainRecord.evidenceProvenance;
+        if (cp && cp.kind === "chain-acquired") symbolChainProvenanceIso = new Date(cp.acquiredAtMs).toISOString();
+      }
       const calls = chainRecord.payload.calls ?? [];
       const underlyingPrice = chainRecord.payload.underlying?.price ?? 0;
       if (underlyingPrice <= 0) {
@@ -644,34 +698,37 @@ export async function recommendBuyWrites(
       // A symbol counts once in the highest-posture tier it achieved
       const hasActionable = symbolCandidates.some(c => c.posture === "ACTIONABLE");
       const hasEdge = symbolCandidates.some(c => c.posture === "EDGE");
-      if (hasActionable) outcomeActionable++;
-      else if (hasEdge) outcomeEdge++;
-      else outcomeWait++;
+      const bwWinner = symbolCandidates[0] ?? symbolWaitCandidates[0];
+      const bwExp = bwWinner?.expiration ?? null;
+      const bwProv = bwProvenanceIso(bwWinner);
+      if (hasActionable) { recordBw(symbol, "actionable", { expiration: bwExp, terminalReason: "Produced actionable buy-write candidate", evidenceRetrievedAt: bwProv, admissible: true }); }
+      else if (hasEdge) { recordBw(symbol, "edge", { expiration: bwExp, terminalReason: "Produced edge buy-write candidate", evidenceRetrievedAt: bwProv, admissible: true }); }
+      else { recordBw(symbol, "wait", { expiration: bwExp, terminalReason: "Below recommendation threshold", evidenceRetrievedAt: bwProv, admissible: true }); }
     } else if (symbolWideSpreadCandidates.length > 0) {
       // No normal candidate at any expiration but wide-spread candidates exist
       for (const c of symbolWideSpreadCandidates) {
         c.governance = governance;
         allWideSpread.push(c);
       }
-      outcomeHardNoWideSpread++;
+      recordBw(symbol, "hardNoWideSpread", { expiration: symbolWideSpreadCandidates[0]?.expiration ?? null, terminalReason: "Spread exceeds exclusion floor", evidenceRetrievedAt: bwProvenanceIso(symbolWideSpreadCandidates[0]), admissible: true });
     } else {
       // Determine why no candidate was produced
       if (!symbolFoundChain) {
-        outcomeIncomplete++;
+        recordBw(symbol, "incomplete", { terminalReason: "Expirations known but chain evidence missing" });
       } else if (!symbolHadContractsInRange) {
-        outcomeNoDeltaMatch++;
+        recordBw(symbol, "noDeltaMatch", { terminalReason: "No contract within admissible range", evidenceRetrievedAt: symbolChainProvenanceIso, admissible: true });
       } else if (symbolAllHardNo) {
         switch (symbolHardNoType) {
-          case "zeroBid": outcomeHardNoZeroBid++; break;
-          case "zeroOI": outcomeHardNoZeroOI++; break;
-          case "wideSpread": outcomeHardNoWideSpread++; break;
-          default: outcomeHardNoWideSpread++; break;
+          case "zeroBid": recordBw(symbol, "hardNoZeroBid", { terminalReason: "All contracts zero bid", evidenceRetrievedAt: symbolChainProvenanceIso, admissible: true }); break;
+          case "zeroOI": recordBw(symbol, "hardNoZeroOI", { terminalReason: "All contracts zero open interest", evidenceRetrievedAt: symbolChainProvenanceIso, admissible: true }); break;
+          case "wideSpread": recordBw(symbol, "hardNoWideSpread", { terminalReason: "All contracts wide spread", evidenceRetrievedAt: symbolChainProvenanceIso, admissible: true }); break;
+          default: recordBw(symbol, "hardNoWideSpread", { terminalReason: "All contracts hard-no", evidenceRetrievedAt: symbolChainProvenanceIso, admissible: true }); break;
         }
       } else if (symbolHadEligibleButNoFit) {
         // Executable contracts existed but all had strike <= underlyingPrice
-        outcomeStrategyUnfit++;
+        recordBw(symbol, "strategyUnfit", { terminalReason: "No positive-appreciation call available", evidenceRetrievedAt: symbolChainProvenanceIso, admissible: true });
       } else {
-        outcomeNoDeltaMatch++; // fallback
+        recordBw(symbol, "noDeltaMatch", { terminalReason: "No qualifying call contract", evidenceRetrievedAt: symbolChainProvenanceIso, admissible: true });
       }
       excluded.push({ symbol, reason: symbolHadEligibleButNoFit
         ? "No positive-appreciation call available (strategy unfit)"
@@ -689,6 +746,37 @@ export async function recommendBuyWrites(
     ...rankedWait.map(c => c.symbol),
   ]).size;
 
+  // BUG-016 SINGLE ACCOUNTING AUTHORITY: the visible `outcomes` are derived from
+  // the SAME `terminalMembership` collection that is exported — never from the
+  // local `outcome*` counters (which are retained only for classification-time
+  // branching, not as the accounting source). This guarantees the buy-write
+  // distribution bar and the exported CSV cannot diverge.
+  const outcomes: BuyWriteOutcomes = deriveTypedCounters(terminalMembership, BUY_WRITE_OUTCOME_KEYS);
+
+  // Runtime reconciliation invariant (fail loud on drift): every evaluated symbol
+  // appears exactly once and the derived counters sum to universeSize.
+  assertReconciled(terminalMembership, symbols.length, "buy_write");
+
+  // BUG-016 funnel export: assemble the immutable exportable result. One record
+  // per evaluated symbol; sum of derived counters === universeSize (== outcomes).
+  let exportResult: DecisionExportResult | undefined;
+  const exportContext = options?.exportContext;
+  if (exportContext) {
+    exportResult = buildDecisionExportResult(
+      {
+        strategy: "buy_write",
+        decisionRunId: createDecisionRunId("buy_write", exportContext.evidenceGeneration, exportContext.canonicalSessionDate),
+        evaluatedAt: new Date().toISOString(),
+        evidenceGeneration: exportContext.evidenceGeneration,
+        policyVersion: exportContext.policyVersion,
+        sessionState: exportContext.sessionState,
+        canonicalSessionDate: exportContext.canonicalSessionDate,
+        evidenceEnvironment: exportContext.evidenceEnvironment,
+      },
+      terminalMembership,
+    );
+  }
+
   return {
     candidates: ranked,
     waitCandidates: rankedWait,
@@ -696,20 +784,9 @@ export async function recommendBuyWrites(
     excluded,
     universeSize: symbols.length,
     symbolsWithCandidates: symbolsWithCands,
-    outcomes: {
-      actionable: outcomeActionable,
-      edge: outcomeEdge,
-      wait: outcomeWait,
-      hardNoZeroBid: outcomeHardNoZeroBid,
-      hardNoZeroOI: outcomeHardNoZeroOI,
-      hardNoWideSpread: outcomeHardNoWideSpread,
-      noDeltaMatch: outcomeNoDeltaMatch,
-      noDteMatch: outcomeNoDteMatch,
-      nonOptionable: outcomeNonOptionable,
-      incomplete: outcomeIncomplete,
-      strategyUnfit: outcomeStrategyUnfit,
-    },
+    outcomes,
     computedAt: new Date().toISOString(),
+    exportResult,
   };
 }
 
