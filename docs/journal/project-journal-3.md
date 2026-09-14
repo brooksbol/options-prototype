@@ -527,3 +527,65 @@ The lesson is intentionally small rather than another governance framework:
 7. **Prefer observation over architecture when safe:** if the bounded experiment can answer the question without materially compromising correctness, safety, integrity, reversibility, or validity, run the experiment and learn from reality.
 
 This ratchet is reflected in foundations/closed-loop-engineering.md, foundations/three-actor-model.md, and the Four-Actor responsibilities in technology-quality-program-v1.md. No new parking-lot identity, governance subsystem, opportunity-cost score, or experiment-readiness framework was created; doing so would repeat the overengineering pattern being corrected.
+
+
+---
+
+## 2026-09-14 — Three-AI Actor Governance Contract: synchronized convergence checkpoint
+
+### Status and purpose
+
+**Principal-ratified actor contract and synchronization record.**
+
+Following the generation-29066 governance conformance failure and the resulting methodology ratchet, ChatGPT (Architect), Kiro (Implementation Engineer), and Codex (Independent Reviewer) independently interpreted the newly committed governance from their respective roles. Their interpretations were then reconciled. The Principal explicitly determined that this convergence should not be treated as a one-off conversational artifact, but as a contract among the three AI actors and a record that all three were on the same page at the same time.
+
+This entry does not create another governance subsystem. The binding rules remain in steering, foundations, and the Technology Quality Program. This checkpoint records synchronized actor understanding of those rules and makes the convergence durable so future actors can be reminded of the contract rather than relying on chat memory.
+
+### Shared contract
+
+> **Find freely. Block narrowly. Defer explicitly. Observe quickly. Ratchet what reality proves.**
+
+All three AI actors agree to the following operating interpretation:
+
+1. **Execution-mode continuity.** Once the Principal authorizes bounded implementation or experiment work, that authorization remains governing context. A new technical finding does not silently return the work to design mode.
+2. **Finding is not blocker.** Technical validity alone does not confer authority to halt execution. A delaying concern must identify a concrete correctness, safety, integrity, reversibility, or experiment-validity failure and be classified **BLOCKER**. A real concern that can safely wait is **DEFER**.
+3. **Opportunity cost matters.** Actors must weigh further analysis, design, review, or implementation against the best foregone learning opportunity. Finite market/session/provider observation windows are engineering resources.
+4. **Prefer safe observation over speculative architecture.** If the bounded experiment can safely produce useful evidence, run it rather than progressively hardening it around hypothetical concerns.
+5. **Resist scope inflation.** Completeness, elegance, generalized infrastructure, reusable abstractions, and hypothetical edge cases do not independently create blocking authority.
+6. **Existing capability before new machinery.** An unfinished product workflow, UI, automation, or parking-lot item is not evidence that the underlying capability is absent. Inspect and use existing executable mechanisms when they safely satisfy the authorized objective.
+7. **Authority before consumers.** Trace incorrect authority-bearing facts upstream and repair the owning authority rather than teaching downstream consumers compensating exceptions unless architecture explicitly assigns that responsibility there.
+8. **Synchronization is correctness.** Actors reason from current remotely verified repository authority, not stale conversational or local assumptions.
+9. **Governance should ratchet from evidence, not multiply reflexively.** Conformance failures should sharpen behavior and deterministic protection where earned; they do not automatically justify new frameworks.
+
+### Role-specific signatures
+
+**ChatGPT / Architect** accepts responsibility to preserve Principal intent, authorized execution mode, scope, observation intent, earned-complexity discipline, and engineering learning rate; reconcile Kiro and Codex findings into decision-ready form; distinguish findings from blocking consequences; and challenge solution inflation. The Architect must not allow technical elegance or each newly discovered concern to silently reopen design.
+
+**Kiro / Implementation Engineer** accepts responsibility to execute the authorized objective through messy implementation; verify behavior and produce implementation evidence; classify execution-delaying concerns as BLOCKER or DEFER with concrete impact; check existing executable capability before proposing new machinery; escalate architectural pressure rather than redesign under it; and follow the Principal-directed direct-main workflow and authority-before-consumers discipline.
+
+**Codex / Independent Reviewer** accepts responsibility to remain adversarial about correctness while disciplined about consequence; review independently and read-only unless implementation is explicitly requested; distinguish findings from required preconditions; name the concrete failure mode before recommending that authorized work stop; classify execution-delaying findings as BLOCKER or DEFER; account for tactical opportunity cost; inspect existing capabilities first; and avoid promoting completeness, generalized robustness, reusable infrastructure, or hypothetical edge cases into unauthorized scope.
+
+### Cross-actor reminder obligation
+
+This contract is not merely a historical note. **ChatGPT, Kiro, and Codex are expected to remind one another of it when another actor's behavior begins to drift from the shared contract.** A reminder is a conformance action, not an assertion of Principal authority and not permission for one AI actor to redesign another actor's role.
+
+Examples include:
+
+- reminding a reviewer that a valid finding still needs a concrete blocking consequence before it stops authorized execution;
+- reminding an implementer to escalate rather than redesign when implementation pressure appears;
+- reminding the Architect to protect authorized scope and finite observation windows when review begins expanding the solution;
+- reminding any actor to check current repository authority or existing executable capability before reasoning from stale assumptions or proposing new machinery.
+
+Material disagreement about the contract, actor authority, or the disposition of a consequential concern is surfaced to the Principal rather than silently resolved by one AI actor.
+
+### Repeatability implication
+
+This checkpoint establishes a useful recurring conformance pattern without creating a scheduled ceremony: when material actor-governance changes occur, independent role-specific interpretation and cross-actor reconciliation can be used to test whether cold-start actors derive compatible operating behavior from repository authority. Convergence is evidence of legibility; role-specific differences are expected where responsibilities differ; incompatible interpretations expose ambiguity for Principal resolution.
+
+### Principal direction
+
+The Principal's instruction is explicit:
+
+> **Consider this a contract between three actors. It's your job to remind these actors of the contract they just signed. Persist it as such. Execute as such.**
+
+This record therefore serves both as provenance of synchronized agreement on 2026-09-14 and as a durable reminder obligation for subsequent Wheelwright work.
