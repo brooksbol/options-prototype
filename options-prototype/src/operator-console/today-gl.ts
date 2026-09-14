@@ -62,6 +62,34 @@ export function computeTodayUnderlyingChange(moments: SpotObservation[] | undefi
 }
 
 /**
+ * Percent form of the same latest-session move: (latest − firstOfDay) / firstOfDay * 100.
+ * Uses the identical latest-day isolation and ≥2-same-day-moment rule as
+ * computeTodayUnderlyingChange, so the $ and % columns are always consistent
+ * (same sign, same null condition). Returns null when it cannot be computed
+ * honestly (or the reference price is non-positive).
+ */
+export function computeTodayUnderlyingChangePercent(moments: SpotObservation[] | undefined | null): number | null {
+  if (!moments || moments.length < 2) return null;
+
+  const latest = moments[moments.length - 1];
+  const latestDay = dateKey(latest.observedAt);
+
+  let firstOfDay: SpotObservation | null = null;
+  for (const m of moments) {
+    if (dateKey(m.observedAt) === latestDay) {
+      firstOfDay = m;
+      break;
+    }
+  }
+
+  if (!firstOfDay || firstOfDay === latest) return null;
+  if (firstOfDay.observedAt === latest.observedAt) return null;
+  if (firstOfDay.price <= 0) return null;
+
+  return ((latest.price - firstOfDay.price) / firstOfDay.price) * 100;
+}
+
+/**
  * Format a signed dollar change for display: "+$0.42" / "-$1.07".
  * Returns "—" for null.
  */
@@ -69,6 +97,28 @@ export function formatTodayGl(change: number | null): string {
   if (change == null) return "—";
   const sign = change > 0 ? "+" : change < 0 ? "-" : "";
   return `${sign}$${Math.abs(change).toFixed(2)}`;
+}
+
+/**
+ * Format a signed percent for display: "+1.24%" / "-0.83%".
+ * Returns "—" for null.
+ */
+export function formatTodayGlPercent(pct: number | null): string {
+  if (pct == null) return "—";
+  const sign = pct > 0 ? "+" : pct < 0 ? "-" : "";
+  return `${sign}${Math.abs(pct).toFixed(2)}%`;
+}
+
+/**
+ * Combined single-cell form: "+$0.42 (+1.24%)".
+ * When the change cannot be computed, returns "—". When the dollar move is
+ * known but the percent is not (non-positive reference), the percent is omitted.
+ */
+export function formatTodayGlCombined(change: number | null, pct: number | null): string {
+  if (change == null) return "—";
+  const dollars = formatTodayGl(change);
+  if (pct == null) return dollars;
+  return `${dollars} (${formatTodayGlPercent(pct)})`;
 }
 
 /** Direction class suffix for red/green rendering. */

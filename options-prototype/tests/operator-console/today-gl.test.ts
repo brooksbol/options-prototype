@@ -1,7 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
   computeTodayUnderlyingChange,
+  computeTodayUnderlyingChangePercent,
   formatTodayGl,
+  formatTodayGlPercent,
+  formatTodayGlCombined,
   todayGlDirection,
 } from "../../src/operator-console/today-gl";
 import type { SpotObservation } from "../../src/evidence/use-spot-history";
@@ -61,6 +64,63 @@ describe("formatTodayGl", () => {
     expect(formatTodayGl(-1.25)).toBe("-$1.25");
     expect(formatTodayGl(0)).toBe("$0.00");
     expect(formatTodayGl(null)).toBe("—");
+  });
+});
+
+describe("computeTodayUnderlyingChangePercent", () => {
+  it("returns null for insufficient series", () => {
+    expect(computeTodayUnderlyingChangePercent([])).toBeNull();
+    expect(computeTodayUnderlyingChangePercent([obs(10, "2026-09-14T14:00:00Z")])).toBeNull();
+  });
+
+  it("computes percent relative to first-of-latest-day", () => {
+    const series = [
+      obs(100, "2026-09-14T13:30:00Z"),
+      obs(102.5, "2026-09-14T19:59:00Z"),
+    ];
+    // (102.5 - 100) / 100 * 100 = 2.5%
+    expect(computeTodayUnderlyingChangePercent(series)).toBeCloseTo(2.5, 6);
+  });
+
+  it("isolates the latest day only", () => {
+    const series = [
+      obs(50, "2026-09-11T19:00:00Z"), // prior day ignored
+      obs(200, "2026-09-14T13:30:00Z"),
+      obs(190, "2026-09-14T19:59:00Z"),
+    ];
+    // (190 - 200) / 200 * 100 = -5%
+    expect(computeTodayUnderlyingChangePercent(series)).toBeCloseTo(-5, 6);
+  });
+
+  it("returns null when reference price is non-positive", () => {
+    const series = [
+      obs(0, "2026-09-14T13:30:00Z"),
+      obs(1, "2026-09-14T19:59:00Z"),
+    ];
+    expect(computeTodayUnderlyingChangePercent(series)).toBeNull();
+  });
+});
+
+describe("formatTodayGlPercent", () => {
+  it("formats percent with sign", () => {
+    expect(formatTodayGlPercent(1.24)).toBe("+1.24%");
+    expect(formatTodayGlPercent(-0.83)).toBe("-0.83%");
+    expect(formatTodayGlPercent(0)).toBe("0.00%");
+    expect(formatTodayGlPercent(null)).toBe("—");
+  });
+});
+
+describe("formatTodayGlCombined", () => {
+  it("combines dollars and percent", () => {
+    expect(formatTodayGlCombined(0.42, 1.24)).toBe("+$0.42 (+1.24%)");
+    expect(formatTodayGlCombined(-1.07, -0.83)).toBe("-$1.07 (-0.83%)");
+  });
+  it("returns — when the dollar change is null", () => {
+    expect(formatTodayGlCombined(null, null)).toBe("—");
+    expect(formatTodayGlCombined(null, 1.2)).toBe("—");
+  });
+  it("shows dollars only when percent is unavailable", () => {
+    expect(formatTodayGlCombined(0.5, null)).toBe("+$0.50");
   });
 });
 

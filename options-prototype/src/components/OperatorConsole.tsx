@@ -403,7 +403,7 @@ function downloadPositionsCsv(
               .map((price, i, arr) => ({ price, observedAt: new Date(Date.now() - (arr.length - 1 - i) * 60_000).toISOString() }))
           : [])
       : deduplicateObservations(spotHistory.get(position.underlying) ?? []);
-    const todayGl = formatTodayGl(computeTodayUnderlyingChange(todayGlSeries));
+    const todayGl = formatTodayGlCombined(computeTodayUnderlyingChange(todayGlSeries), computeTodayUnderlyingChangePercent(todayGlSeries));
     const moneyness = position.moneyness != null ? (position.moneyness * 100).toFixed(1) + "%" : "";
     const capital = position.encumberedCapital != null ? position.encumberedCapital.toString() : "";
 
@@ -461,7 +461,7 @@ function downloadPositionsCsv(
       if (!Number.isNaN(observedMs)) dataAge = formatDataAge(Math.max(0, Date.now() - observedMs));
     }
 
-    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${todayGl},${position.quantity},${moneyness},${capital},${deltaStr},${gammaStr},${thetaStr},${vegaStr},${rhoStr},${greekAge},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
+    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},"${todayGl}",${position.quantity},${moneyness},${capital},${deltaStr},${gammaStr},${thetaStr},${vegaStr},${rhoStr},${greekAge},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
   });
 
   const csv = [header, ...rows].join("\n");
@@ -856,6 +856,7 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
                 : [])
             : deduplicateObservations(spotHistory.get(position.underlying) ?? []);
           const todayGl = computeTodayUnderlyingChange(todayGlSeries);
+          const todayGlPct = computeTodayUnderlyingChangePercent(todayGlSeries);
           const todayGlDir = todayGlDirection(todayGl);
 
           // Consequence columns (strategy-specific)
@@ -879,7 +880,7 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
               <td className="oc-td-symbol">{position.underlying}</td>
               <td className="oc-td-right">${position.strike}</td>
               <td className="oc-td-right">{position.underlyingPrice != null ? `$${position.underlyingPrice.toFixed(2)}` : "—"}</td>
-              <td className={`oc-td-right oc-td-gl oc-td-gl-${todayGlDir}`}>{formatTodayGl(todayGl)}</td>
+              <td className={`oc-td-right oc-td-gl oc-td-gl-${todayGlDir}`}>{formatTodayGlCombined(todayGl, todayGlPct)}</td>
               <td className={`oc-td-moneyness oc-td-moneyness-${colorClass}`}>
                 <MoneynessCellV4 points={moneynessPoints} type={position.type} currentMoneyness={position.moneyness} mDisplay={mDisplay} colorClass={colorClass} />
               </td>
@@ -1122,7 +1123,7 @@ import { classifyMoneyness, formatMoneynessDisplay } from "../operator-console/m
 import { moneynessColor, type MoneynessColorClass } from "../operator-console/moneyness-color";
 import { generateDemoSpotHistory, deriveMoneynessHistory, type MoneynessPoint } from "../operator-console/moneyness-history";
 import { deduplicateObservations } from "../kreature/observation-derivation";
-import { computeTodayUnderlyingChange, formatTodayGl, todayGlDirection } from "../operator-console/today-gl";
+import { computeTodayUnderlyingChange, computeTodayUnderlyingChangePercent, formatTodayGl, formatTodayGlCombined, todayGlDirection } from "../operator-console/today-gl";
 import { buildSparklineScale } from "../operator-console/sparkline-scale";
 
 /**
