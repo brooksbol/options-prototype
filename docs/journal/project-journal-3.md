@@ -475,3 +475,55 @@ The Principal does not trust an after-hours provider study as sufficient evidenc
 The Greeks work did not simply "break Delta." It exposed an accidental dependency in the old product: apparent Delta completeness could be sustained by stale cache lifecycle behavior. Improving evidence freshness removed that accidental completeness and exposed a second ambiguity already present in the product rule: explicit provider zero was treated as equivalent to no evidence.
 
 The resulting discipline is: preserve provider facts first; distinguish freshness from availability and availability from quality; and do not infer semantic absence merely because a provider value looks suspicious. The next evidence step is trading-hours replication, not remediation.
+
+
+---
+
+## 2026-09-14 — Generation-29066 servicing experiment: governance conformance failure and lost observation window
+
+### Context
+
+The generation-29066 universe-servicing experiment began from an intentionally bounded objective: reduce low-value acquisition work, preserve reversibility and historical evidence, and measure whether the Evidence Appliance's freshness/SLO behavior improved. The frozen disposition separated 340 canonical-removal symbols, 487 WEEKLY_REFRESH symbols, and 84 historically useful protected symbols.
+
+The repository already contained strong governing guidance relevant to this work: complexity must be earned; interventions should be bounded; working software should produce evidence early; engineering learning rate and observation cadence matter; architectural elegance must not override Principal direction; and implementation pressure should return through the actor loop rather than silently redesigning the system.
+
+### What went wrong
+
+After implementation had been authorized, a sequence of individually legitimate technical findings repeatedly reopened design: artifact provenance, universe-removal mechanics, ACTIVE/DORMANT semantics, weekly-completion semantics, multi-expiration completeness, retry policy, per-expiration failure persistence, generalized removal tooling, and the separate 0–45 versus current 7–45 DTE question.
+
+Most findings were technically real. The process failure was their **disposition**. The actors repeatedly asked whether a concern was valid, but insufficiently asked whether it had to be resolved before the authorized experiment could safely produce useful evidence.
+
+The result was progressive hardening of a bounded experiment: protections and completeness machinery accumulated faster than the experiment itself advanced. The Principal repeatedly simplified the intended policy back toward its actual purpose: 487 low-value symbols should receive one normal servicing attempt per week rather than consume routine capacity.
+
+### Opportunity cost realized
+
+The experiment depended on a finite regular-market observation window. Design/review cycles consumed that window. The WEEKLY_REFRESH seam eventually activated and behaved correctly: all 487 initial weekly attempts were recorded, weekly due work drained to zero, routine work drained, multi-DTE coverage recovered, and provider/scheduler failures remained zero. However, warm-up completed at approximately 19:57:46Z, leaving only about two minutes of comparable regular-session steady-state observation before the 20:00Z market close.
+
+Consequently, the immediate operational behavior was validated but the projected freshness/SLO improvement could not be meaningfully measured that day. The 340 canonical removals were also still unapplied, so the full 827-symbol intervention was not observed.
+
+This lost market-session evidence was a **tactical opportunity cost** of continued design and review. It was not merely schedule inconvenience: the foregone observation directly reduced the learning value of the day's work.
+
+### Root-cause interpretation
+
+This was not primarily a missing-governance failure. The governing principles already existed. It was a **conformance failure under execution pressure**:
+
+- the Architect did not continuously preserve implementation authorization, scope containment, earned-complexity discipline, and observation intent as governing context;
+- Codex's adversarial review correctly surfaced real concerns but too often allowed a valid finding to imply a required precondition or a broader solution;
+- ChatGPT did not reconcile those reviews back to the bounded objective and tactical opportunity cost early enough;
+- Kiro generally escalated implementation pressure appropriately, but those escalations repeatedly received design expansion instead of BLOCKER/DEFER disposition.
+
+The Principal had already supplied the direction. The review/architecture loop failed to protect it.
+
+### Durable methodology ratchet
+
+The lesson is intentionally small rather than another governance framework:
+
+1. **Execution-mode continuity:** Principal authorization of a bounded experiment remains governing context. New findings do not implicitly return work to design mode.
+2. **Finding ≠ blocker:** a concern that would delay execution must identify a concrete correctness, safety, integrity, reversibility, or experiment-validity failure. Otherwise it is deferred.
+3. **Opportunity cost is strategic and tactical:** during execution, actors must weigh the value of additional analysis/design/review against the best foregone alternative, including lost learning time.
+4. **Finite observation windows are engineering resources:** consuming a market/session/provider window through non-blocking design work is a material cost.
+5. **Architect owns scope containment:** messy execution increases rather than suspends the Architect's responsibility to preserve Principal intent and guardrails.
+6. **Adversarial review must not become solution inflation:** Codex should surface risk aggressively while distinguishing findings from required preconditions; ChatGPT should reconcile findings against current authorization, opportunity cost, and earned complexity.
+7. **Prefer observation over architecture when safe:** if the bounded experiment can answer the question without materially compromising correctness, safety, integrity, reversibility, or validity, run the experiment and learn from reality.
+
+This ratchet is reflected in foundations/closed-loop-engineering.md, foundations/three-actor-model.md, and the Four-Actor responsibilities in technology-quality-program-v1.md. No new parking-lot identity, governance subsystem, opportunity-cost score, or experiment-readiness framework was created; doing so would repeat the overengineering pattern being corrected.
