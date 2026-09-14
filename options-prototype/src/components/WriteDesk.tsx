@@ -167,17 +167,44 @@ export function Deployment() {
     return () => { cancelled = true; };
   }, []);
 
+  // Market session classification (wall-clock-driven, reclassifies every 30s).
+  const sessionClassification = useSessionClassification();
+
+  // BUG-012 — RUNTIME AUTHORITY INVARIANT.
+  //
+  // Governing rule: async evidence arrival may be stale in time; authority consumption may
+  // NOT be stale in closure. Whenever Decision EXECUTES it must consume the CURRENT backend
+  // session authority, never the authority that happened to be captured when an async
+  // request (e.g. a snapshot fetch) was STARTED.
+  //
+  // A snapshot request can begin while authority is still BOOTSTRAP (authorityPending:true)
+  // and resolve to authoritative before the response returns. If the response callback read
+  // authority from its render-time closure, it would ingest evidence and run Decision with
+  // the stale bootstrap authority (fail closed) even though authority is now known — and no
+  // later event would re-evaluate. Reading authority from this ref at execution time closes
+  // that race for ALL orderings, independent of when the callback was created.
+  const sessionClassificationRef = useRef(sessionClassification);
+  sessionClassificationRef.current = sessionClassification; // updated EVERY render
+
+  /** Derive Decision authority inputs from the CURRENT session classification (execution-time). */
+  const currentAuthority = () => {
+    const sc = sessionClassificationRef.current;
+    const sessionClosed = sc.state === "CLOSED_CANONICAL" || sc.state === "NON_TRADING_DAY" || sc.state === "PREMARKET" || sc.state === "REGULAR_OPEN_DELAY";
+    return {
+      sc,
+      sessionState: sc.state,
+      sessionClosed,
+      admissibilityBoundaryMs: sc.admissibilityBoundaryEpochMs ?? null,
+      authorityPending: sc.authorityPending ?? false,
+    };
+  };
+
   // Re-recommend: apply updated policy to existing cache (zero provider calls)
   const handleReRecommend = useCallback(async (updatedPolicy: typeof DEFAULT_RECOMMENDATION_POLICY) => {
     if (!snapshot || !snapshot.deployableCash) return;
     const cache = getDurableCache();
-    const sessionState = sessionClassification.state;
-    const sessionClosed = sessionState === "CLOSED_CANONICAL" || sessionState === "NON_TRADING_DAY" || sessionState === "PREMARKET" || sessionState === "REGULAR_OPEN_DELAY";
-    // Issue #16: admissibility boundary + authority-pending come from BACKEND authority
-    // (via the session classification), not a local provider-delay profile. While authority
-    // is pending, evidence consumers fail closed.
-    const reRecAdmissibilityMs = sessionClassification.admissibilityBoundaryEpochMs ?? null;
-    const authorityPending = sessionClassification.authorityPending ?? false;
+    // Runtime-authority: read CURRENT authority at execution time (never a captured closure).
+    const { sc: sessionAuthority, sessionState, sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending } = currentAuthority();
     // Opportunity-history observe-only emission (policy change forces a new epoch).
     const reRecAcc = new OpportunityAccumulator({
       policyVersion: updatedPolicy.version,
@@ -239,7 +266,7 @@ export function Deployment() {
         cache,
         { provider: providerKey, environment: "sandbox" },
         { contractSelection: updatedPolicy.contractSelection, executionAssessment: updatedPolicy.executionAssessment },
-        { sessionInfo: { acceptingCanonicalEvidence: sessionClassification.acceptingCanonicalEvidence, priorSessionOperationallyValid: sessionClassification.priorSessionOperationallyValid } }
+        { sessionInfo: { acceptingCanonicalEvidence: sessionAuthority.acceptingCanonicalEvidence, priorSessionOperationallyValid: sessionAuthority.priorSessionOperationallyValid } }
       );
       setContingentCallRows(contingentResult.rows);
     } else {
@@ -270,10 +297,31 @@ export function Deployment() {
       const allBW = [...bwResult.candidates, ...bwResult.waitCandidates];
       return !allBW.some(c => c.symbol === prev.symbol && c.strike === prev.strike && c.expiration === prev.expiration);
     });
+    // BUG-012 runtime-authority: this callback intentionally does NOT depend on
+    // sessionClassification. It reads CURRENT authority via sessionClassificationRef at
+    // execution time (currentAuthority()), so an already-created callback still consumes
+    // the latest authority. Recreating it on every classification change is unnecessary
+    // and would not have fixed an already in-flight invocation anyway.
   }, [snapshot, universeSymbols, providerKey]);
 
-  // Market session classification (wall-clock-driven, reclassifies every 30s)
-  const sessionClassification = useSessionClassification();
+  // BUG-012: whether the durable cache has been populated by at least one snapshot
+  // ingestion. A ref (not state) so the effect below reads it as a guard without taking it
+  // as a dependency (the false->true transition already ran Decision inside handleNewEvidence).
+  const evidenceIngestedRef = useRef(false);
+
+  // BUG-012: re-run Decision from cache when session authority resolves AFTER evidence was
+  // already ingested under bootstrap authority (the evidence-first ordering, where the
+  // ingest callback already completed). The runtime-authority ref already fixes the
+  // in-flight-callback ordering; this effect covers the case where the callback finished
+  // before authority resolved and no further snapshot arrives (polls 304). It fires only on
+  // sessionClassification change (value-deduped upstream, so not every poll, and NOT on
+  // policy changes — those are owned by the control handlers). Zero provider calls.
+  useEffect(() => {
+    if (snapshot?.readiness.status !== "READY") return;
+    if (!evidenceIngestedRef.current) return; // authority-first: ingestion will run Decision
+    void handleReRecommend(policy);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionClassification]);
 
   // --- Backend-owned acquisition: the browser observes, does not initiate ---
   //
@@ -390,6 +438,11 @@ export function Deployment() {
       }
     }
 
+    // BUG-012: the cache has now been populated at least once, so the
+    // session-authority re-trigger effect may re-consume it (cache-only) when the
+    // classification resolves/changes.
+    evidenceIngestedRef.current = true;
+
     // Update coverage from snapshot metadata
     const coverage = snapshotData.coverage;
     if (coverage) {
@@ -409,12 +462,12 @@ export function Deployment() {
     if (merged === 0 && putCandidates.length > 0) return; // No new chains and we already have results
 
     // Recompute recommendations from updated cache. Session state + admissibility come
-    // from BACKEND authority (Issue #16), consumed via the session classification hook —
-    // the FE no longer constructs a local MarketSessionPolicy or a provider-delay profile.
-    const currentSession = sessionClassification;
-    const sessionClosed = currentSession.state === "CLOSED_CANONICAL" || currentSession.state === "NON_TRADING_DAY" || currentSession.state === "PREMARKET" || currentSession.state === "REGULAR_OPEN_DELAY";
-    const admissibilityBoundaryMs = currentSession.admissibilityBoundaryEpochMs ?? null;
-    const authorityPending = currentSession.authorityPending ?? false;
+    // from BACKEND authority (Issue #16). BUG-012 runtime-authority: read the CURRENT
+    // classification at execution time via the ref — NOT this callback's render-time
+    // closure. This callback may be an in-flight snapshot response created while authority
+    // was still BOOTSTRAP; by the time it runs, authority may have resolved, and Decision
+    // must consume the resolved authority.
+    const { sc: currentSession, sessionClosed, admissibilityBoundaryMs, authorityPending } = currentAuthority();
 
     // Opportunity-history observe-only emission. The accumulator's cross-poll last-seen map
     // suppresses unchanged-evidence re-evaluations, so this writes only when evidence advanced.
@@ -480,7 +533,7 @@ export function Deployment() {
         cache,
         { provider: providerKey, environment: "sandbox" },
         { contractSelection: policy.contractSelection, executionAssessment: policy.executionAssessment },
-        { sessionInfo: { acceptingCanonicalEvidence: sessionClassification.acceptingCanonicalEvidence, priorSessionOperationallyValid: sessionClassification.priorSessionOperationallyValid } }
+        { sessionInfo: { acceptingCanonicalEvidence: currentSession.acceptingCanonicalEvidence, priorSessionOperationallyValid: currentSession.priorSessionOperationallyValid } }
       );
       setContingentCallRows(contingentResult.rows);
     } else {
@@ -516,6 +569,10 @@ export function Deployment() {
     if (!scanTimestamp) {
       setScanTimestamp(new Date().toISOString());
     }
+    // BUG-012 runtime-authority: this callback does NOT depend on sessionClassification.
+    // It reads CURRENT authority via currentAuthority() (sessionClassificationRef) at
+    // execution time, so an in-flight snapshot response created under bootstrap authority
+    // still runs Decision with the authority that is current WHEN THE RESPONSE COMPLETES.
   }, [snapshot, policy, providerKey, universeSymbols, scanTimestamp, putCandidates.length]);
 
   // Poll the backend snapshot every 30s with conditional HTTP (ETag/304)

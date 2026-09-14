@@ -722,4 +722,79 @@ class SqliteEvidenceStoreTest {
             assertEquals(List.of("2026-09-18", "2026-10-16"), SqliteEvidenceStore.getEligibleExpirations(json));
         }
     }
+
+    @Nested
+    @DisplayName("BUG-014: durable sealed-session completeness fact")
+    class DurableSealedSession {
+
+        @TempDir
+        Path tempDir;
+
+        private static final String FRI_EXP = """
+            [{"date":"2026-09-18","dte":7}]""";
+        private static final String FRI_CHAIN = """
+            {"symbol":"XLE","expiration":"2026-09-18","underlying":{"symbol":"XLE","name":"E","price":90},"puts":[{"strike":88,"bid":1.5,"ask":1.7,"delta":-0.28,"openInterest":10,"volume":1}],"calls":[]}""";
+
+        @Test
+        @DisplayName("a completed session is recorded on publish and survives restart")
+        void completeSessionRecordedAndDurable() throws Exception {
+            String dbPath = tempDir.resolve("sealed.sqlite3").toString();
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(dbPath)) {
+                store.setSessionDateOverride("2026-09-11");
+                store.initUniverse(List.of("XLE", "NOOPT"));
+                store.setExpirations("XLE", FRI_EXP, "2026-09-11T19:53:00Z");
+                store.setChain("XLE", FRI_CHAIN, "2026-09-11T19:53:10Z");
+                store.setExpirations("NOOPT", "[]", "2026-09-11T19:54:00Z"); // absent
+                store.publishSnapshot();
+                assertTrue(store.hasCompletePublishedSession("2026-09-11"));
+            }
+            // Reopen: the durable fact persists.
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(dbPath)) {
+                assertTrue(store.hasCompletePublishedSession("2026-09-11"),
+                    "sealed-session completeness must survive restart");
+            }
+        }
+
+        @Test
+        @DisplayName("next-session re-resolution does NOT revoke the sealed prior session (the BUG-014 core)")
+        void nextSessionMutationDoesNotRevokeSealedSession() throws Exception {
+            String dbPath = tempDir.resolve("sealed2.sqlite3").toString();
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(dbPath)) {
+                // Friday: fully resolve the universe and seal it.
+                store.setSessionDateOverride("2026-09-11");
+                store.initUniverse(List.of("XLE", "NOOPT"));
+                store.setExpirations("XLE", FRI_EXP, "2026-09-11T19:53:00Z");
+                store.setChain("XLE", FRI_CHAIN, "2026-09-11T19:53:10Z");
+                store.setExpirations("NOOPT", "[]", "2026-09-11T19:54:00Z");
+                store.publishSnapshot();
+                assertTrue(store.hasCompletePublishedSession("2026-09-11"), "precondition: Friday sealed");
+
+                // Monday overnight: the scheduler re-resolves ONE symbol under the new date.
+                // This is exactly what defeated the old reconstruct-from-mutable predicate.
+                store.setSessionDateOverride("2026-09-14");
+                store.setExpirations("XLE", FRI_EXP, "2026-09-14T03:53:00Z");
+                store.setChain("XLE", FRI_CHAIN, "2026-09-14T03:53:10Z");
+                store.publishSnapshot();
+
+                // The durable Friday fact MUST remain valid despite the Monday mutation.
+                assertTrue(store.hasCompletePublishedSession("2026-09-11"),
+                    "a completed prior session must not be revoked by next-session re-resolution");
+            }
+        }
+
+        @Test
+        @DisplayName("an incomplete session is not recorded as sealed")
+        void incompleteSessionNotSealed() throws Exception {
+            String dbPath = tempDir.resolve("sealed3.sqlite3").toString();
+            try (SqliteEvidenceStore store = new SqliteEvidenceStore(dbPath)) {
+                store.setSessionDateOverride("2026-09-11");
+                store.initUniverse(List.of("XLE", "PENDING")); // PENDING never resolved
+                store.setExpirations("XLE", FRI_EXP, "2026-09-11T19:53:00Z");
+                store.setChain("XLE", FRI_CHAIN, "2026-09-11T19:53:10Z");
+                store.publishSnapshot();
+                assertFalse(store.hasCompletePublishedSession("2026-09-11"),
+                    "a session with an unresolved symbol must not be sealed");
+            }
+        }
+    }
 }

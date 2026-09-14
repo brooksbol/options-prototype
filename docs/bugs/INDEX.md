@@ -17,6 +17,10 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-009 | Capital label text diverges from backing amount; label-less non-null expired amounts | Production | Not established | Open | [record](BUG-009-capital-label-amount-divergence.md) | GH #15 |
 | BUG-010 | Phantom 09:30–09:45 Open Delay: FE session gate hardcodes Sandbox profile | Operator Console / session gate | S2 | Resolved | [record](BUG-010-phantom-open-delay-session-gate.md) | GH #16 |
 | BUG-011 | Provider-reported exact-zero Delta is rendered indistinguishably from absent Delta evidence | Operator Console / Greeks evidence presentation | Not established | Open | [record](BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md) | Provider study 2026-09-11 |
+| BUG-012 | Deployment (Write Desk) shows zero candidates on a sealed/non-trading session; session authority never reaches the recommendation consumer | Write Desk / consumer-path session-authority reach | S2 | Open | [record](BUG-012-deployment-empty-on-sealed-session-stale-authority.md) | Discovered 2026-09-13 |
+| BUG-013 | Trading-day PREMARKET per-subject admissibility invalidates prior-session sealed evidence that session-level classification still treats as canonical | Backend / SessionClassifier per-subject admissibility | S2 | Open | [record](BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md) | Discovered 2026-09-14 |
+| BUG-014 | Sealed-session completeness reconstructed from mutable current-work state; next-session re-resolution falsely revokes a completed session | Backend / durable sealed-session authority | S2 | Open | [record](BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md) | Discovered 2026-09-14 |
+| BUG-015 | Operator Console moneyness sparkline folds multi-day spot history onto one intraday session (misleading geometry; numeric values correct) | Operator Console / moneyness sparkline | S3 | Open | [record](BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md) | Discovered 2026-09-14 |
 
 ## Migration provenance (2026-09-11)
 

@@ -846,27 +846,82 @@ public class SqliteEvidenceStore implements AutoCloseable {
      */
     public boolean hasCompletePublishedSession(String sessionDate) throws SQLException {
         if (sessionDate == null || sessionDate.isBlank()) return false;
-        String sql = """
-            SELECT ss.generation, ss.published_at,
-                   COUNT(sr.symbol) AS total,
-                   SUM(CASE WHEN sr.session_date = ?
-                              AND sr.resolution IN ('ready', 'absent')
-                            THEN 1 ELSE 0 END) AS resolved
-              FROM snapshot_state ss
-              LEFT JOIN symbol_resolution sr ON 1 = 1
-             WHERE ss.id = 1
-             GROUP BY ss.generation, ss.published_at
-            """;
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        // BUG-014: read the DURABLE sealed-session completeness fact. This is a fact about a
+        // COMPLETED session and must NOT be reconstructed from the mutable symbol_resolution
+        // table — next-session re-resolution advances rows' session_date and would falsely
+        // revoke a prior session's validity. The sealed_session row is written once (see
+        // recordSealedSessionIfComplete) and is immune to later current-work mutation.
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT complete FROM sealed_session WHERE session_date = ?")) {
             ps.setString(1, sessionDate);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next()
-                    && rs.getInt("generation") > 0
-                    && rs.getString("published_at") != null
-                    && rs.getInt("total") > 0
-                    && rs.getInt("resolved") == rs.getInt("total");
+                return rs.next() && rs.getInt("complete") == 1;
             }
         }
+    }
+
+    /**
+     * BUG-014: record the DURABLE sealed-session completeness fact when the current
+     * recommendation universe is fully resolved.
+     *
+     * <p>"Complete" means every ACTIVE-universe symbol (symbols.removed_at IS NULL) is
+     * resolved (ready|absent) and NOTHING is unresolved (no pending/partial/failed). When
+     * that holds, we upsert one row keyed by the dominant resolved session date recording
+     * expected universe size, resolved count, complete=1, and the seal time. Because the
+     * row is keyed by session_date and written once per completed session, later
+     * next-session re-resolution cannot revoke it (the defining property of BUG-014's fix).
+     *
+     * <p>Idempotent and safe to call on every publish: if the session is not (yet) complete
+     * it records nothing; if the fact already exists it is left intact (INSERT OR IGNORE).
+     *
+     * @return the sealed session date that was recorded, or null if nothing was recorded.
+     */
+    public String recordSealedSessionIfComplete() throws SQLException {
+        int activeUniverse;
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM symbols WHERE removed_at IS NULL")) {
+            activeUniverse = rs.next() ? rs.getInt(1) : 0;
+        }
+        if (activeUniverse == 0) return null;
+
+        int unresolved;
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(
+                 "SELECT COUNT(*) FROM symbol_resolution WHERE resolution NOT IN ('ready','absent')")) {
+            unresolved = rs.next() ? rs.getInt(1) : 0;
+        }
+        if (unresolved > 0) return null; // session still in progress — not sealable
+
+        int resolved;
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(
+                 "SELECT COUNT(*) FROM symbol_resolution WHERE resolution IN ('ready','absent')")) {
+            resolved = rs.next() ? rs.getInt(1) : 0;
+        }
+        if (resolved < activeUniverse) return null; // not every active symbol resolved
+
+        // Dominant prior/current session date among resolved rows. MIN keeps a handful of
+        // next-session re-resolutions from misattributing the completed session's date.
+        String sessionDate;
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(
+                 "SELECT MIN(session_date) FROM symbol_resolution "
+                 + "WHERE resolution IN ('ready','absent') AND session_date IS NOT NULL")) {
+            sessionDate = rs.next() ? rs.getString(1) : null;
+        }
+        if (sessionDate == null || sessionDate.isBlank()) return null;
+
+        try (PreparedStatement ps = conn.prepareStatement(
+                "INSERT OR IGNORE INTO sealed_session "
+                + "(session_date, expected_universe, resolved_count, complete, sealed_at) "
+                + "VALUES (?, ?, ?, 1, ?)")) {
+            ps.setString(1, sessionDate);
+            ps.setInt(2, activeUniverse);
+            ps.setInt(3, resolved);
+            ps.setString(4, Instant.now().toString());
+            ps.executeUpdate();
+        }
+        return sessionDate;
     }
 
     /**
@@ -879,6 +934,9 @@ public class SqliteEvidenceStore implements AutoCloseable {
             ps.setString(1, now);
             ps.executeUpdate();
         }
+        // BUG-014: capture the durable sealed-session completeness fact at publication time.
+        // No-op unless the current universe is fully resolved; idempotent once recorded.
+        recordSealedSessionIfComplete();
     }
 
     /**

@@ -199,23 +199,74 @@ public final class SessionClassifier {
         long closeEpochMs = etMinutesToEpochMs(et.dateStr, closeMinutes, et.offsetHours);
         boolean beforeBoundary = et.timeMinutes < MARKET_OPEN_MINUTES + delayMin;
 
-        // The subject is admissible/canonical iff its EFFECTIVE observation (acquisition
-        // minus this authority's delay) falls within TODAY's open session [open, close].
-        // This is the anti-laundering core: a sandbox subject uses the 15-min delay, so a
-        // chain acquired at 09:35 has effective observation 09:20 (before the 09:30 open)
-        // and is NOT admissible as today's canonical evidence — even while production is
-        // the active authority. A production subject (0 delay) is admissible immediately at
-        // the open. Prior-session sealed evidence is not represented per-subject here
-        // (chains carry a today acquisition instant); before-boundary we simply report the
-        // prior canonical date with the subject inadmissible for today until its effective
-        // observation lands in the open session.
-        String canonical = beforeBoundary ? previousTradingDay(et.dateStr) : et.dateStr;
+        // BEFORE the current session's admissibility boundary (PREMARKET, and the pre-open
+        // portion of REGULAR_OPEN_DELAY): the PRIOR completed session is still canonical.
+        // BUG-013 — per-subject admissibility must AGREE with the session-level state
+        // machine here. The session-level classify() reports the prior session as canonical
+        // and its operational validity via persistedSessionValid; this per-subject verdict
+        // must not contradict it by evaluating a prior-session (e.g. Friday) chain against
+        // TODAY's [open, close] window (which it can never satisfy). Doing so violated
+        // sealed-evidence semantics: identical Friday chains flipped admissible→inadmissible
+        // the instant the ET date rolled into Monday, even though Friday remained canonical.
+        //
+        // Sealed-evidence rule (reused authority, NOT an unconditional pass): a subject is
+        // admissible before the boundary iff
+        //   (a) the prior canonical session is operationally valid — the SAME authority the
+        //       session-level classification consults (persistedSessionValid), so we never
+        //       admit prior-session evidence the restart/completeness authority has rejected;
+        //   AND
+        //   (b) the subject's EFFECTIVE observation actually falls within that PRIOR session's
+        //       [open, close] window — i.e. it is genuine prior-session sealed evidence, not a
+        //       stray earlier/later timestamp. This preserves the anti-laundering discipline
+        //       and keeps production (0-delay) vs sandbox (15-min delay) semantics distinct.
+        if (beforeBoundary) {
+            String canonical = previousTradingDay(et.dateStr);
+            boolean priorValid = persistedSessionValid.test(canonical);
+            boolean admissible = false;
+            if (acquiredAt != null && priorValid) {
+                long priorOpenMs = etMinutesToEpochMs(canonical, MARKET_OPEN_MINUTES, et.offsetHours);
+                int priorCloseMinutes = US_EARLY_CLOSE_2026.contains(canonical)
+                    ? EARLY_CLOSE_MINUTES : STANDARD_CLOSE_MINUTES;
+                long priorCloseMs = etMinutesToEpochMs(canonical, priorCloseMinutes, et.offsetHours);
+                long effectiveMs = acquiredAt.toEpochMilli() - (long) delayMin * 60_000L;
+                admissible = effectiveMs >= priorOpenMs && effectiveMs <= priorCloseMs;
+            }
+            return new SubjectAdmissibility(admissible, basis, canonical,
+                admissibilityBoundaryFor(canonical, delayMin, et.offsetHours));
+        }
+
+        // AT/AFTER the boundary (REGULAR_OBSERVATION, DELAY_DRAIN): TODAY is canonical.
+        //
+        // The subject is admissible iff its EFFECTIVE observation (acquisition minus this
+        // authority's delay) belongs to the CURRENT session's forward window: after the PRIOR
+        // session closed, and no later than today's close.
+        //
+        // BUG-013 (restore-service correction): the lower bound is the PRIOR session's close,
+        // NOT today's open. Evidence acquired between the prior close and today's open (e.g.
+        // overnight/pre-open scheduler re-resolution) is the freshest CURRENT-session evidence
+        // available; requiring effectiveMs >= today's open wrongly rejected it, so a symbol
+        // whose newest chain was acquired overnight showed NO admissible chain during regular
+        // hours until it happened to be re-acquired after 09:30. Observed live for
+        // COPX/GDXJ/UNG/URA on 2026-09-14: eligible real-time chains acquired ~Sun 23:53 ET
+        // were all admissible:false during REGULAR_OBSERVATION.
+        //
+        // Anti-laundering is preserved by the UPPER bound plus the per-subject delay: a
+        // sandbox subject uses the 15-min delay, so its effective observation still cannot be
+        // laundered into a fresher-than-real position; and nothing acquired in the future is
+        // admitted. A genuine PRIOR-session chain (effective observation within the prior
+        // session's own window) is admitted by the sealed-evidence path before the boundary;
+        // after the boundary today is canonical.
         boolean admissible = false;
         if (acquiredAt != null) {
             long effectiveMs = acquiredAt.toEpochMilli() - (long) delayMin * 60_000L;
-            admissible = effectiveMs >= openEpochMs && effectiveMs <= closeEpochMs;
+            long priorCloseMinutesMs;
+            String priorDay = previousTradingDay(et.dateStr);
+            int priorCloseMinutes = US_EARLY_CLOSE_2026.contains(priorDay)
+                ? EARLY_CLOSE_MINUTES : STANDARD_CLOSE_MINUTES;
+            priorCloseMinutesMs = etMinutesToEpochMs(priorDay, priorCloseMinutes, et.offsetHours);
+            admissible = effectiveMs > priorCloseMinutesMs && effectiveMs <= closeEpochMs;
         }
-        return new SubjectAdmissibility(admissible, basis, canonical, boundaryMs);
+        return new SubjectAdmissibility(admissible, basis, et.dateStr, boundaryMs);
     }
 
     private Long admissibilityBoundaryFor(String dateStr, int delayMin, int offsetHours) {

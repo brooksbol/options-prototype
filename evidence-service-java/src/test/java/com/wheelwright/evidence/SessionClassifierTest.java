@@ -235,6 +235,128 @@ class SessionClassifierTest {
     }
 
     @Nested
+    @DisplayName("BUG-013 sealed-evidence validity across the ET midnight into a trading day")
+    class SealedEvidenceAcrossMidnight {
+
+        // Friday's completed session, and a production chain acquired during it.
+        private static final String FRIDAY = "2026-09-11";
+        private static final String MONDAY = "2026-09-14";
+        // A validity predicate that trusts Friday's completed session (mirrors a durable
+        // hasCompletePublishedSession('2026-09-11') == true).
+        private static SessionClassifier withFridayValid(boolean realtime) {
+            return new SessionClassifier(Clock.systemUTC(), () -> realtime,
+                FRIDAY::equals);
+        }
+        private static Instant fridayAcquisition() {
+            return etInstant(FRIDAY, 15, 53); // ~15:53 ET Friday, inside [09:30, 16:00]
+        }
+
+        @Test
+        @DisplayName("Sunday (NON_TRADING_DAY): a Friday production chain is admissible (sealed)")
+        void sundayFridayChainAdmissible() {
+            var now = etInstant("2026-09-13", 22, 0); // Sunday evening ET
+            var a = withFridayValid(true).admissibilityForSubject("production", fridayAcquisition(), now);
+            assertTrue(a.admissible(), "Friday sealed evidence must be admissible on a non-trading day");
+            assertEquals("real-time", a.basis());
+            assertEquals(FRIDAY, a.canonicalSessionDate());
+        }
+
+        @Test
+        @DisplayName("Monday 00:28 ET PREMARKET: the SAME Friday chain is STILL admissible (prior session valid)")
+        void mondayPremarketFridayChainStillAdmissible() {
+            var now = etInstant(MONDAY, 0, 28); // the exact observed failure time
+            var c = withFridayValid(true);
+            // Session-level: PREMARKET, Friday canonical, prior session operationally valid.
+            var cls = c.classify(now);
+            assertEquals(SessionClassifier.State.PREMARKET, cls.state());
+            assertEquals(FRIDAY, cls.canonicalSessionDate());
+            assertTrue(cls.priorSessionOperationallyValid());
+            // Per-subject verdict MUST AGREE: the Friday chain stays admissible (sealed).
+            var a = c.admissibilityForSubject("production", fridayAcquisition(), now);
+            assertTrue(a.admissible(), "sealed Friday evidence must not flip inadmissible just because ET rolled into Monday");
+            assertEquals(FRIDAY, a.canonicalSessionDate());
+            assertEquals("real-time", a.basis());
+        }
+
+        @Test
+        @DisplayName("Monday PREMARKET but prior session NOT operationally valid: Friday chain NOT admitted")
+        void mondayPremarketPriorSessionInvalid() {
+            var now = etInstant(MONDAY, 0, 28);
+            // persistedSessionValid returns false for everything -> prior session not valid.
+            var c = new SessionClassifier(Clock.systemUTC(), () -> true, date -> false);
+            var a = c.admissibilityForSubject("production", fridayAcquisition(), now);
+            assertFalse(a.admissible(),
+                "must not admit prior-session evidence when the prior session is not operationally valid");
+        }
+
+        @Test
+        @DisplayName("Monday REGULAR_OBSERVATION: the Friday chain is NO LONGER current-session evidence")
+        void mondayRegularSessionFridayChainNotCurrent() {
+            var now = etInstant(MONDAY, 10, 0); // Monday, well after the open -> Monday canonical
+            var c = withFridayValid(true);
+            var cls = c.classify(now);
+            assertEquals(SessionClassifier.State.REGULAR_OBSERVATION, cls.state());
+            assertEquals(MONDAY, cls.canonicalSessionDate());
+            // Friday chain must not be treated as Monday's current-session evidence.
+            var a = c.admissibilityForSubject("production", fridayAcquisition(), now);
+            assertFalse(a.admissible(), "a Friday chain is not current-session evidence once Monday is canonical");
+            assertEquals(MONDAY, a.canonicalSessionDate());
+        }
+
+        @Test
+        @DisplayName("production vs sandbox semantics remain distinct in Monday PREMARKET")
+        void productionVsSandboxDistinctInPremarket() {
+            var now = etInstant(MONDAY, 0, 28);
+            // Production Friday chain: admissible (sealed, prior valid).
+            var prod = withFridayValid(true).admissibilityForSubject("production", fridayAcquisition(), now);
+            assertTrue(prod.admissible());
+            assertEquals("real-time", prod.basis());
+            // Sandbox Friday chain acquired at 15:53 Friday: effective 15:38 Friday, still within
+            // Friday [09:30,16:00] -> admissible, but with DELAYED basis (semantics stay distinct).
+            var sandbox = withFridayValid(false).admissibilityForSubject("sandbox", fridayAcquisition(), now);
+            assertTrue(sandbox.admissible());
+            assertEquals("delayed", sandbox.basis());
+        }
+
+        @Test
+        @DisplayName("a Friday chain acquired AFTER Friday close is not admitted as Friday sealed evidence")
+        void fridayAfterCloseNotSealed() {
+            var now = etInstant(MONDAY, 0, 28);
+            // Acquired 16:30 Friday (after the 16:00 close) -> effective 16:30 > Friday close.
+            var afterClose = etInstant(FRIDAY, 16, 30);
+            var a = withFridayValid(true).admissibilityForSubject("production", afterClose, now);
+            assertFalse(a.admissible(),
+                "a subject observed outside the prior session window is not that session's sealed evidence");
+        }
+
+        @Test
+        @DisplayName("REGULAR session: a chain acquired overnight (after prior close, before today's open) IS current-session admissible")
+        void regularSessionOvernightAcquiredChainAdmissible() {
+            // The live COPX/GDXJ/UNG/URA incident (2026-09-14): the freshest real-time chains
+            // were acquired ~Sun 23:53 ET during overnight/pre-open re-resolution, i.e. AFTER
+            // Friday close and BEFORE Monday's 09:30 open. During REGULAR_OBSERVATION they must
+            // be admissible current-session evidence, not rejected for being pre-open.
+            var now = etInstant(MONDAY, 9, 40); // regular session, after the open
+            var overnight = etInstant(MONDAY, 0, 0); // Monday 00:00 ET (after Fri close, before open)
+            var a = withFridayValid(true).admissibilityForSubject("production", overnight, now);
+            assertTrue(a.admissible(),
+                "overnight-acquired current-session evidence must be admissible during regular hours");
+            assertEquals(MONDAY, a.canonicalSessionDate());
+            assertEquals("real-time", a.basis());
+        }
+
+        @Test
+        @DisplayName("REGULAR session: a future-dated acquisition is NOT admitted (upper bound holds)")
+        void regularSessionFutureAcquisitionRejected() {
+            var now = etInstant(MONDAY, 9, 40);
+            // Acquired after today's close -> effective observation beyond the session window.
+            var afterClose = etInstant(MONDAY, 16, 30);
+            var a = withFridayValid(true).admissibilityForSubject("production", afterClose, now);
+            assertFalse(a.admissible(), "evidence beyond today's close must not be admitted");
+        }
+    }
+
+    @Nested
     @DisplayName("failover-aware: the SAME classifier reflects a live authority switch")
     class FailoverAware {
 
