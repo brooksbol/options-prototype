@@ -1098,7 +1098,7 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
 
   return (
     <tr className="oc-trow-totals">
-      <td colSpan={14} className="oc-td-totals-label">Total</td>
+      <td colSpan={15} className="oc-td-totals-label">Total</td>
       <td className="oc-td-right">${capitalTotal.toLocaleString()}</td>
       <td />
       <td />
