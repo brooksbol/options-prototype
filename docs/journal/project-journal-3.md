@@ -589,3 +589,46 @@ The Principal's instruction is explicit:
 > **Consider this a contract between three actors. It's your job to remind these actors of the contract they just signed. Persist it as such. Execute as such.**
 
 This record therefore serves both as provenance of synchronized agreement on 2026-09-14 and as a durable reminder obligation for subsequent Wheelwright work.
+
+
+---
+
+## 2026-09-14 — PL-GOV-02: seven-ETF cohort admitted (Principal-authorized; VR/DANGER preserved)
+
+### Process correction preceding this entry
+
+An earlier Kiro attempt on this cohort was rejected and fully discarded. Two governance faults were corrected: (1) it crossed from analysis into universe mutation without an actual admission decision, treating "no implemented gate found" as though it constituted governance approval — conflating mechanics with the decision; (2) it collapsed distinct concepts, rewriting the census's `VR_MANUAL_REVIEW` findings into blanket "admitted/no gate." It also carried two technical errors: citing the Velvet Rope 7–45 research DTE range for Deployment (the Decision horizon is 0–45, `write-desk/recommend.ts`), and asserting "no restart required" without noting that only applies to an already-running appliance. All claimed mutations were reverted; the shared checkout was clean at 1,306 and the local working tree was restored to baseline (seed 1306, DB active 1308, zero residue of the seven). This entry records the corrected, authorized execution.
+
+### Decision (authorized)
+
+The Principal reviewed the structural concerns — some of the cohort are intentionally higher-risk or unusual products — and explicitly authorized admission of all seven: ETHA, TSLL, NVDL, QQQM, IBIT, DRAM, TLT. DANGER is not an admission veto; Wheelwright's existing Deployment "Show Danger" control governs operator-facing visibility of such instruments.
+
+### Critical semantic separation preserved
+
+Universe admission, Velvet Rope result, product characterization, DANGER classification, and Decision/posture qualification are kept as independent facts:
+
+- Prior census VR results are preserved verbatim, NOT rewritten: QQQM/TLT/DRAM/IBIT = `VR_PASS`; ETHA/TSLL/NVDL = `VR_MANUAL_REVIEW` (ETHA soft capital near-miss + spot-Ethereum trust; TSLL leveraged Tesla + soft capital fail; NVDL leveraged Nvidia). The Principal's review resolves the admission decision without converting `VR_MANUAL_REVIEW` to `VR_PASS`.
+- DANGER, per the live implementation, is a catalog `governance.status` or `hasStructuralComplexity(leveraged||inverse||dailyReset||singleStock)` inferred from the live instrument name at recommendation time. None of the seven are catalog members, so the name heuristic applies once they hydrate.
+
+### Admission mechanism (existing, no new machinery)
+
+Authoritative source = the version-controlled seed `data/seeds/yahoo-merged-etf-tickers.csv`; the DB is a derived materialization. The seven were appended to the seed (1306→1313), then materialized into the live SQLite store through the production path `UniverseLoader.loadUniverse` → `UniverseImport.importFromCsv` (idempotent additive `INSERT OR IGNORE`; 1306 preserved, 7 new; no provider calls; no worker). This time the real importer was invoked (via a temporary, since-removed test-tree runner + Gradle task) rather than hand-written SQL. All seven are recommendation-eligible members of `yahoo_merged_2026_07` — deliberately NOT observation-demand.
+
+### Verification
+
+Universe delta exactly +7, zero removals. DB active 1308→1315, recommendation-eligible 1306→1313, `yahoo_merged_2026_07` source count 1313; the seven are `pending` with membership under the canonical source and zero observation-demand membership; zero evidence rows (unhydrated); `JETS`/`TAN` untouched. Focused tests pass: `UniverseImportTest`, `SqliteEvidenceStoreTest`, `ObserveControllerTest`. Only tracked change: the seed CSV (+7); the DB is gitignored.
+
+### DEFER findings (existing DANGER machinery cannot express a relevant distinction)
+
+1. Single-stock detection is deliberately disabled in `inferProductStructure` ("skip for now"), so TSLL/NVDL single-stock concentration is invisible to the heuristic unless the live name contains a leverage/"daily" token.
+2. Crypto-trust structure (ETHA/IBIT) is not representable by the current product-structure rule at all.
+
+These are recorded as findings, not silently patched. Extending the danger policy is out of scope for this admission and would be a separate authorized change.
+
+### Hydration / Deployment acceptance path (admission ≠ evidence)
+
+The seven are admitted but unhydrated. They hydrate through the normal session-gated acquisition worker at the next session, or off-hours via the existing Console force-acquisition control (`ForceAcquisitionButton` → `POST /api/evidence/refresh` → `forceAcquireSymbols`/`forceAcquireOnce`), which bypasses the market-session gate (works after-hours/weekends) and is gated only by provider availability. Already-eligible symbols are refreshed correctly; only genuinely-unknown symbols get observation-demand registration (not applicable here since the seven are already recommendation-eligible). To appear as a Deployment candidate a symbol must additionally reach `ready` with an options chain in the current Decision DTE policy (0–45), publish a new snapshot generation, and — if classified DANGER — have Show Danger enabled. Provider/quota: per symbol roughly one expirations call (if needed) plus one chain call per eligible expiration, all paced by the existing 119/min single-flight RequestPacer. No provider quota was spent in this session.
+
+### Disposition
+
+Concrete PL-GOV-02 cohort admission complete and authorized. Remaining open PL-GOV-02 delta is the productized operator intake/evaluation/admission workflow, not this cohort.
