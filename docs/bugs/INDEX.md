@@ -22,6 +22,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-014 | Sealed-session completeness reconstructed from mutable current-work state; next-session re-resolution falsely revokes a completed session | Backend / durable sealed-session authority | S2 | Open | [record](BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md) | Discovered 2026-09-14 |
 | BUG-015 | Operator Console moneyness sparkline folds multi-day spot history onto one intraday session (misleading geometry; numeric values correct) | Operator Console / moneyness sparkline | S3 | Open | [record](BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md) | Discovered 2026-09-14 |
 | BUG-016 | Deployment funnels (CSP/Covered Call/Buy-Write) expose aggregate counts without preserving/exporting the exact evaluation-unit membership that produced them | Write Desk / Decision funnels observability | S3 | Resolved | [record](BUG-016-funnel-aggregate-counts-lack-exportable-membership.md) | Discovered 2026-09-14 |
+| BUG-017 | Deployment CSV export may be constrained by presentation row limit | Write Desk / Deployment CSV export | Not established | Open | [record](BUG-017-deployment-csv-export-row-limit.md) | Acceptance testing 2026-09-14 |
 
 ## Migration provenance (2026-09-11)
 
