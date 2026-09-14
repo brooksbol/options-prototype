@@ -248,7 +248,7 @@ export function OperatorConsole() {
                 <span className="oc-group-by-divider" />
                 <button
                   className="oc-group-by-action"
-                  onClick={() => downloadPositionsCsv(positions, snapshot, positionDeltas, positionGreeks)}
+                  onClick={() => downloadPositionsCsv(positions, snapshot, positionDeltas, positionGreeks, spotHistory, isDemoSource)}
                 >
                   Download CSV
                 </button>
@@ -366,8 +366,8 @@ function PositionGrid({ positions, onTileClick, vizRegime, totalCapital }: { pos
 
 /**
  * Export the current position ladder as CSV.
- * Includes the same columns rendered in the table: Type, Symbol, Strike, Spot, Contracts,
- * Moneyness, Capital, Premium Booked, Bonus If Called Away, If Assigned.
+ * Includes the same columns rendered in the table: Type, Symbol, Strike, Spot, Today's G/L,
+ * Contracts, Moneyness, Capital, Premium Booked, Bonus If Called Away, If Assigned.
  */
 /**
  * CSV-safe greek formatting: keeps values numeric-parseable while never emitting a
@@ -390,11 +390,20 @@ function downloadPositionsCsv(
   snapshot: import("../write-desk/types").PortfolioSnapshot,
   positionDeltas: PositionDeltaMap,
   positionGreeks: PositionGreeksMap,
+  spotHistory: SpotHistoryMap,
+  isDemoSource: boolean,
 ) {
-  const header = "Type,Symbol,Strike,Expiration,Spot,Contracts,Moneyness,Capital,Delta,Gamma,Theta,Vega,Rho,Greek Age,Premium Booked,Bonus If Called Away,If Assigned,Opened,Quote Freshness";
+  const header = "Type,Symbol,Strike,Expiration,Spot,Today's G/L,Contracts,Moneyness,Capital,Delta,Gamma,Theta,Vega,Rho,Greek Age,Premium Booked,Bonus If Called Away,If Assigned,Opened,Quote Freshness";
   const rows = positions.map(position => {
     const type = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
     const spot = position.underlyingPrice != null ? position.underlyingPrice.toFixed(2) : "";
+    const todayGlSeries = isDemoSource
+      ? (position.underlyingPrice != null
+          ? generateDemoSpotHistory(position.underlying, position.underlyingPrice)
+              .map((price, i, arr) => ({ price, observedAt: new Date(Date.now() - (arr.length - 1 - i) * 60_000).toISOString() }))
+          : [])
+      : deduplicateObservations(spotHistory.get(position.underlying) ?? []);
+    const todayGl = formatTodayGl(computeTodayUnderlyingChange(todayGlSeries));
     const moneyness = position.moneyness != null ? (position.moneyness * 100).toFixed(1) + "%" : "";
     const capital = position.encumberedCapital != null ? position.encumberedCapital.toString() : "";
 
@@ -452,7 +461,7 @@ function downloadPositionsCsv(
       if (!Number.isNaN(observedMs)) dataAge = formatDataAge(Math.max(0, Date.now() - observedMs));
     }
 
-    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${position.quantity},${moneyness},${capital},${deltaStr},${gammaStr},${thetaStr},${vegaStr},${rhoStr},${greekAge},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
+    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},${todayGl},${position.quantity},${moneyness},${capital},${deltaStr},${gammaStr},${thetaStr},${vegaStr},${rhoStr},${greekAge},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
   });
 
   const csv = [header, ...rows].join("\n");
@@ -779,6 +788,7 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
           {renderSortHeader("Symbol", "symbol")}
           {renderSortHeader("Strike", "strike", "oc-th-right")}
           {renderSortHeader("Spot", "spot", "oc-th-right")}
+          <th className="oc-th-right">Today's G/L</th>
           {renderSortHeader("Moneyness", "moneyness")}
           {renderSortHeader("Expiration", "expiration")}
           {renderSortHeader("DTE", "dte", "oc-th-right")}
@@ -835,6 +845,19 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
             }
           }
 
+          // Today's G/L: the underlying's per-share dollar move over the latest
+          // session day present in the spot series (market context, not a position
+          // mark-to-market P/L; null → "—", never fabricated). Demo uses synthetic
+          // spot history; real sources use the deduplicated observation moments.
+          const todayGlSeries = isDemoSource
+            ? (position.underlyingPrice != null
+                ? generateDemoSpotHistory(position.underlying, position.underlyingPrice)
+                    .map((price, i, arr) => ({ price, observedAt: new Date(Date.now() - (arr.length - 1 - i) * 60_000).toISOString() }))
+                : [])
+            : deduplicateObservations(spotHistory.get(position.underlying) ?? []);
+          const todayGl = computeTodayUnderlyingChange(todayGlSeries);
+          const todayGlDir = todayGlDirection(todayGl);
+
           // Consequence columns (strategy-specific)
           const premiumCell = derivePremiumBookedCell(position, snapshot);
           const calledAwayCell = deriveCalledAwayCell(position, snapshot);
@@ -856,6 +879,7 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
               <td className="oc-td-symbol">{position.underlying}</td>
               <td className="oc-td-right">${position.strike}</td>
               <td className="oc-td-right">{position.underlyingPrice != null ? `$${position.underlyingPrice.toFixed(2)}` : "—"}</td>
+              <td className={`oc-td-right oc-td-gl oc-td-gl-${todayGlDir}`}>{formatTodayGl(todayGl)}</td>
               <td className={`oc-td-moneyness oc-td-moneyness-${colorClass}`}>
                 <MoneynessCellV4 points={moneynessPoints} type={position.type} currentMoneyness={position.moneyness} mDisplay={mDisplay} colorClass={colorClass} />
               </td>
@@ -1098,6 +1122,7 @@ import { classifyMoneyness, formatMoneynessDisplay } from "../operator-console/m
 import { moneynessColor, type MoneynessColorClass } from "../operator-console/moneyness-color";
 import { generateDemoSpotHistory, deriveMoneynessHistory, type MoneynessPoint } from "../operator-console/moneyness-history";
 import { deduplicateObservations } from "../kreature/observation-derivation";
+import { computeTodayUnderlyingChange, formatTodayGl, todayGlDirection } from "../operator-console/today-gl";
 import { buildSparklineScale } from "../operator-console/sparkline-scale";
 
 /**

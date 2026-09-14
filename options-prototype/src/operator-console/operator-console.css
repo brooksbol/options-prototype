@@ -992,6 +992,19 @@
 .oc-trow:hover td { background: var(--wd-bg-hover); }
 
 .oc-td-right { text-align: right; }
+
+/* Today's G/L (underlying intraday $ move): green up, red down, neutral flat/—.
+   Brighter than the base accent tokens for unmistakable small-text legibility on
+   the dense dark table. */
+.oc-td-gl { font-weight: 700; font-variant-numeric: tabular-nums; }
+/* Scoped to beat `.oc-position-table tbody td { color: var(--wd-text-primary) }`
+   (specificity 0,1,1). A bare `.oc-td-gl-up` (0,1,0) loses to it, which is why the
+   signed values rendered but stayed neutral. */
+/* Match the moneyness "favorable"/"unfavorable" palette exactly (base #16a34a /
+   #dc2626, the same greens/reds used for the moneyness cell fill + sparkline). */
+.oc-position-table tbody td.oc-td-gl-up { color: #16a34a; }   /* moneyness green */
+.oc-position-table tbody td.oc-td-gl-down { color: #dc2626; } /* moneyness red */
+.oc-position-table tbody td.oc-td-gl-flat { color: var(--wd-text-secondary); }
 .oc-td-center { text-align: center; }
 .oc-td-secondary { color: var(--wd-text-secondary); }
 
