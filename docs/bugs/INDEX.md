@@ -23,6 +23,8 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-015 | Operator Console moneyness sparkline folds multi-day spot history onto one intraday session (misleading geometry; numeric values correct) | Operator Console / moneyness sparkline | S3 | Open | [record](BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md) | Discovered 2026-09-14 |
 | BUG-016 | Deployment funnels (CSP/Covered Call/Buy-Write) expose aggregate counts without preserving/exporting the exact evaluation-unit membership that produced them | Write Desk / Decision funnels observability | S3 | Resolved | [record](BUG-016-funnel-aggregate-counts-lack-exportable-membership.md) | Discovered 2026-09-14 |
 | BUG-017 | Deployment CSV export may be constrained by presentation row limit | Write Desk / Deployment CSV export | Not established | Open | [record](BUG-017-deployment-csv-export-row-limit.md) | Acceptance testing 2026-09-14 |
+| BUG-018 | Newly admitted (pending) universe member is not discoverable on Deployment; evaluated-universe count conceals distinct symbol states; no operator-facing targeted hydration for non-portfolio symbols | Write Desk (Deployment) / operator discoverability + hydration | S3 | Open | [record](BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md) | Discovered 2026-09-14 |
+| BUG-019 | Operator-forced off-hours acquisition succeeds but its newly acquired evidence is marked `admissible: false`, making it unusable by Decision | Backend admissibility semantics ↔ Decision consumer / operator-forced acquisition | S2 | Open | [record](BUG-019-forced-offhours-acquisition-marked-inadmissible.md) | Discovered 2026-09-14 |
 
 ## Migration provenance (2026-09-11)
 

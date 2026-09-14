@@ -673,3 +673,33 @@ No bug identity is created from this episode. In particular, the Gradle result-f
 ### Next-session posture
 
 Implementation remains deferred. When selected, the next work should be bounded: first apply the progressive verification-selection discipline; separately investigate the smallest deterministic timing seam that can preserve scheduler/recovery behavior without production-scale wall-clock waits. Do not require another exhaustive diagnostic before beginning that work. A decision-grade full-suite baseline should be acquired only when needed, under one pinned SHA, one isolated checkout, one Gradle process, preserved result artifacts, and no concurrent mutation of the subject.
+
+
+---
+
+## 2026-09-14 — PL-GOV-02 acceptance testing: hydration passed; forced off-hours Decision usability failed (BUG-019); discoverability gap (BUG-018)
+
+### What was tested and what happened
+
+After the seven-ETF cohort (ETHA, TSLL, NVDL, QQQM, IBIT, DRAM, TLT) was admitted and committed to `main`, acceptance testing continued against the running appliance. The seven were hydrated off-hours via an explicitly targeted operator forced acquisition (`POST /api/evidence/refresh?symbol=…` for exactly the seven), which bypasses the market-session gate.
+
+Hydration itself passed cleanly: all seven moved `pending → ready`, chains acquired with truthful (delayed) provider timestamps, published in snapshot generation 29555, coverage `pending 7 → 0` / `ready 957 → 964`, zero acquisition failures. All seven are structurally Decision-eligible (a primary expiration within the 0–45 DTE Decision policy and qualifying puts). Runtime DANGER classification, computed from live provider names, behaved correctly: TSLL ("Direxion Daily TSLA Bull 2X ETF") and NVDL ("GraniteShares 2x Long NVDA Daily ETF") classify DANGER via leverage/daily name tokens; ETHA/IBIT (crypto trusts), QQQM, TLT, DRAM do not. This confirmed the two earlier DEFER findings live: single-stock detection is not what flags TSLL/NVDL (it's the leverage/daily tokens), and crypto-trust structure is not representable by the DANGER classifier at all.
+
+Despite all that, none of the seven appear as Deployment candidates. Diagnosis (crime scene preserved — no tab reload, no re-acquisition, no code/DB change):
+
+- Backend published, for each of the seven's chains, a per-subject admissibility verdict of `admissible: false` (basis `real-time`, canonicalSessionDate 2026-09-14), because they were acquired while the canonical session was closed. Example: ETHA primary chain `{admissible:false, basis:"real-time"}` acquired 21:52 (post-close). A prior-session symbol that does produce recommendations (ABFL) carries `admissible:true`, acquired 19:39 (in-session).
+- The Decision consumer's `isSubjectAdmissible` (`options-prototype/src/write-desk/subject-admissibility.ts`, path 1a) treats a backend `admissible:false` as inadmissible in every session state, including sealed — correctly, per its authority-precedence rule. So the seven are filtered out before rendering; the ~93 visible CSP recommendations are prior-session `admissible:true` chains.
+
+### Interpretation
+
+This is not stale cache and not a failed refresh — it is an admissibility-semantics defect specific to operator-forced off-hours acquisition. The operator deliberately requested Decision-usable evidence now; acquisition succeeded and produced truthful evidence; the backend then marked it inadmissible solely because it was acquired outside the canonical session, defeating the action's purpose. Captured as **BUG-019** (S2) with explicit non-duplicate boundaries against BUG-013/014 (which concern boundary handling of pre-existing admissible evidence) and BUG-018/017 (which concern discoverability/export, and occur before/around rather than after a successful hydration). Governing invariant recorded in the BUG-019 record. Root-cause ownership is upstream (backend characterization of forced off-hours acquisition), not a Decision-consumer exception — the consumer's authority precedence and sealed-evidence semantics must not be weakened.
+
+A separate acceptance finding — that an admitted-but-`pending` symbol is invisible on Deployment and lacks a straightforward operator-facing targeted hydration path — is captured as **BUG-018** (S3). It is distinct from BUG-019: even with perfect discoverability, tonight's forced hydration would still succeed and still be rejected by admissibility.
+
+Numbering note: the discoverability defect was briefly drafted as BUG-017 against a stale local checkout, then renumbered to BUG-018 after syncing and finding the Principal had directly filed BUG-017 (Deployment CSV export). This is exactly the cross-namespace confusion the GitHub-Issues→`docs/bugs/` migration was meant to eliminate; resolved by reconciling against current `main` before numbering.
+
+### Disposition (Principal decision)
+
+Do not fix BUG-019 tonight; changing a subtle evidence-authority rule late in the day to finish acceptance is the wrong trade. Commit the acceptance-discovered documentation now for a clean overnight state. Tomorrow, during the open session, verify that the seven become Decision-visible under ordinary canonical-session acquisition — that is the clean control case and tells us whether the only remaining defect is specifically the off-hours forced-acquisition contract (BUG-019).
+
+Acceptance status: **Admission passed. Hydration passed. Ordinary-session Decision visibility pending open-session confirmation. Forced off-hours Decision usability failed and is captured as BUG-019.**
