@@ -376,3 +376,212 @@ Operationally: **stop purchasing evidence when additional evidence is no longer 
 **Persist and defer implementation.** Verification economics and the real-time scheduler/recovery bottleneck are sufficiently confirmed to justify future action. Exact suite-performance baseline, SLOs, Gradle-defect attribution, and parallelism remain unestablished or unauthorized.
 
 **No remediation is authorized by this entry tonight.** The next implementation session may first apply the verification-selection discipline and separately undertake a bounded design investigation of deterministic scheduler/recovery testing. A new exhaustive diagnostic is not a prerequisite.
+
+---
+
+## `PL-ELIG` — Unencumbered Shares on the Operator Console (V1 contract, accepted; implementation not yet authorized)
+
+**Date:** September 14, 2026
+**Canonical owner:** `PL-ELIG` (Deployment Eligibility / Capacity Explanation — base record in `docs/parking-lot.md`; held/encumbered/free shares, executable contracts, collateral, exclusion reasons). This is the **first direct standalone free-share inventory realization on the Operator Console** — not the first realization of `PL-ELIG` generally.
+**Strategic relationship:** `LVT-INIT-CAP-AVAILABILITY` (within `LVT-BET-CAPITAL-CHOICES`, `docs/roadmap.md`).
+**Accepted design authority:** Operator Console architecture (`docs/26-operator-console-architecture.md`).
+**Future-only context (NOT a dependency):** `PL-DEPLOY`.
+**State:** V1 contract ACCEPTED by Principal after multi-actor (Kiro/Codex) reconciliation. **No new `PL-*` identity created.** Production implementation, Category B amendment beyond the narrow Doc 26 correction, and any code change remain **separately gated** (see Authorization gates).
+**Observed/derived at:** SYNC `248a4692efc27ef80f2a3545c00149bbdca713fe`.
+
+### Problem this solves
+
+The Operator Console makes open option positions highly visible through the DTE ladder, but **unencumbered owned shares are effectively invisible** there. Free-share inventory is currently derivable only *indirectly*, as a byproduct of Deployment's covered-call candidate generation (`recommendCalls` filters `maxAdditionalContracts > 0`). A recommendation surface should not be where the operator infers what capital they already own and have free. The Console should answer, directly: *what capital do I have available right now, and what is already committed through options?*
+
+### Accepted product direction
+
+Unencumbered owned shares become **first-class current portfolio state on the Operator Console, above and separate from the DTE ladder**:
+
+- **Top of Console = current portfolio state / available inventory.**
+- **DTE ladder = option-encumbered capital distributed through time** (unchanged, still the encumbered option-position surface).
+
+Shares must **not** be inserted into the DTE ladder (the ladder's semantics are temporal: expiration, DTE, strike, contracts, moneyness, Greeks, assignment consequence — none of which apply to unencumbered shares). Free-share visibility is **portfolio-state observability, not recommendation behavior**.
+
+### Exact V1 UI
+
+Region title: **Unencumbered Shares** (NOT "Portfolio State", "Immediately Available Capital", or any name implying a new additive capital primitive).
+
+Columns, exactly three:
+
+- **Symbol**
+- **Free Shares**
+- **Free Lots**
+
+Plus a region-level Option Summary provenance/readiness line.
+
+```
+UNENCUMBERED SHARES
+  Symbol       Free Shares       Free Lots
+  COPX         100               1
+  XYZ           50               0
+  Fidelity Option Summary · exported <optionSummaryExportTimestamp | "Export time unavailable">
+  [ evidence warning(s) if any ]
+──────────────────────────────────────────
+  [ existing DTE ladder — unchanged, separate ]
+```
+
+Odd lots remain visible even when Free Lots = 0 (e.g. 50 free / 0 writable lots). Deployable Cash is **omitted** from this region — it is already persistently visible in the application shell; do not duplicate it here.
+
+### Share semantics (do NOT describe as authoritative)
+
+> **Free Shares** = snapshot-derived free shares based on observed Fidelity Option Summary ownership and open short-call geometry.
+
+The computation is deterministic; the underlying ownership evidence is **not** universally authoritative or complete.
+
+Current derivation source of truth (unchanged, read-only): `deriveInventory()` in `options-prototype/src/write-desk/fidelity-snapshot.ts`, producing per-symbol `InventoryPosition { sharesOwned, sharesEncumbered, sharesFree, maxAdditionalContracts, economics }` on `PortfolioSnapshot.inventory`, where:
+
+- `sharesEncumbered = min(Σ |shortCall.quantity| × 100, sharesOwned)` (clamped)
+- `sharesFree = max(0, sharesOwned − sharesEncumbered)`
+- `maxAdditionalContracts = floor(sharesFree / 100)`
+
+### Pure projection (result shape)
+
+A new pure presentation-layer projection over the snapshot (proposed `options-prototype/src/portfolio/unencumbered-inventory.ts`), returning conceptually:
+
+```ts
+interface UnencumberedInventoryResult {
+  rows: UnencumberedInventoryRow[];
+  geometryWarnings: InventoryGeometryWarning[];
+}
+
+interface UnencumberedInventoryRow {
+  symbol: string;
+  freeShares: number;   // = InventoryPosition.sharesFree  (NEVER sharesOwned)
+  freeLots: number;     // = InventoryPosition.maxAdditionalContracts = floor(sharesFree / 100)
+}
+
+interface InventoryGeometryWarning {
+  symbol: string;
+  observedSharesOwned: number | null;   // null = ownership evidence unavailable
+  rawCallRequiredShares: number;        // Σ |openCall.quantity| × 100 (pre-clamp)
+  provenance: {
+    optionSummaryFilename?: string;
+    optionSummaryExportTimestamp?: string;
+    optionSummaryParsedAt?: string;
+  };
+  explanation: string;                  // non-normative, descriptive only
+}
+```
+
+Rows: one per `InventoryPosition` with `sharesFree > 0`. Geometry warnings are **independent of rows** (they are properties of the inventory evidence, not of any visible free-share row).
+
+### Geometry analysis (union domain; nullable ownership)
+
+Geometry analysis MUST iterate over the **union** of:
+
+```
+inventory symbols  ∪  existing open-call underlyings
+```
+
+Do **not** analyze only symbols that have an `InventoryPosition`. `observedSharesOwned` MUST be nullable.
+
+Emit an `InventoryGeometryWarning` when either:
+
+1. an underlying has open short calls but **no corresponding inventory ownership record** → `observedSharesOwned = null`, meaning **"ownership evidence unavailable"** — which MUST NOT be silently converted to zero shares owned; or
+2. **raw call-required shares exceed observed shares owned** (`rawCallRequiredShares > observedSharesOwned`).
+
+The existing encumbrance clamp is **safety behavior**, not proof that ownership evidence and call geometry reconcile. When geometry disagrees, the clamp still yields a safe free-share display (0/absent), but the disagreement is surfaced as a warning rather than presented as a truthful zero.
+
+### Evidence / readiness semantics (absence of evidence ≠ evidence of absence)
+
+The pure projection owns only `rows` + `geometryWarnings`. The Console presentation composes those with the existing `SnapshotReadiness` status, the **complete** existing snapshot readiness warnings, and Option Summary provenance. Do **not** invent fragile substring-based filtering of readiness warnings for V1 — use the overall readiness status plus the complete existing warnings.
+
+The presentation MUST distinguish at least three states:
+
+1. **inventory evidence unavailable / incomplete**;
+2. **evidence usable and no unencumbered shares** (trustworthy zero);
+3. **one or more unencumbered-share rows**.
+
+Unavailable/incomplete evidence MUST NOT render indistinguishably from a trustworthy zero-free-share state.
+
+Region visibility rule (conceptual):
+
+```
+show region when:
+    rows exist
+    OR geometryWarnings exist
+    OR inventory evidence is not trustworthy
+```
+
+For trustworthy evidence with zero rows and zero warnings, whether the region collapses or shows a truthful "No unencumbered shares" state is an implementation-level presentation choice unless accepted architecture requires otherwise.
+
+### Provenance semantics
+
+Share-inventory provenance uses **Option Summary provenance only** (never balances provenance, never `snapshotDate` as the inventory observation/export time):
+
+- `provenance.optionSummaryExportTimestamp`
+- `provenance.optionSummaryFilename`
+- `provenance.optionSummaryParsedAt`
+
+Fallback: if the export timestamp exists, identify the Option Summary source and export time; if absent, explicitly state **"Export time unavailable"**. Parse time may be displayed as parse time but MUST NEVER be presented as broker observation/export time.
+
+### Behavioral tests required by the eventual implementation
+
+Every geometry test must state: observed ownership (including `null`), raw call-required shares, stored/clamped encumbrance where applicable, expected free shares, expected free lots, and expected warning state.
+
+- projection emits exactly `InventoryPosition.sharesFree`, never `sharesOwned`;
+- `sharesFree > 0` produces a row even when `freeLots = 0` (odd lot visible);
+- `sharesFree === 0` produces no free-inventory row;
+- consistent geometry: `rawCallRequiredShares + displayedFreeShares === observedSharesOwned`;
+- inconsistent geometry (raw call-required > observed owned): do NOT assert reconciliation; emit a warning;
+- open-call underlying with no inventory record: emit an **ownership-evidence-unavailable** warning (`observedSharesOwned === null`);
+- standalone inventory never presents owned or encumbered quantities as free inventory;
+- inventory visibility independent of call recommendations and option-chain availability;
+- presentation remains visible when rows exist, geometryWarnings exist, OR inventory evidence is not trustworthy;
+- incomplete/unavailable evidence cannot look like trustworthy zero inventory;
+- provenance fallback never substitutes parse time for export time.
+
+Worked examples (consistent geometry):
+
+| Owned | Open calls (raw req) | Clamped enc | Free shares | Free lots | Row? | Warning? |
+|---|---|---|---|---|---|---|
+| 200 | 1 (100) | 100 | 100 | 1 | yes | no |
+| 200 | 2 (200) | 200 | 0 | 0 | no | no |
+| 150 | 1 (100) | 100 | 50 | 0 | yes (odd) | no |
+| 250 | 1 (100) | 100 | 150 | 1 | yes | no |
+| 100 | 2 (200) | 100 | 0 | 0 | no | yes (raw 200 > owned 100) |
+| none | 1 (100) | — | — | — | no | yes (`observedSharesOwned = null`, ownership evidence unavailable) |
+
+### Likely implementation files (when implementation is separately authorized)
+
+- **New:** `options-prototype/src/portfolio/unencumbered-inventory.ts` (pure projection + geometry warnings).
+- **New test:** `options-prototype/tests/portfolio/unencumbered-inventory.test.ts`.
+- **Modify:** `options-prototype/src/components/OperatorConsole.tsx` (render region above `oc-region-ladder`; small `UnencumberedInventory` presentational subcomponent reading `usePortfolio()` + `SnapshotReadiness` + Option Summary provenance).
+- **Modify (styling):** the Console CSS owning `oc-region-*` (add `oc-region-inventory`).
+- **New/modify test:** Console render tests (visibility / three-state distinction / provenance / warning).
+- **Read-only, untouched:** `write-desk/types.ts`, `write-desk/fidelity-snapshot.ts`, `write-desk/demo-snapshot.ts`, `portfolio/use-portfolio.ts`. No backend, no ETag/snapshot contract, no ingestion change.
+
+### Explicitly out of scope for V1
+
+Market value; basis; unrealized G/L; recommendations; Hold/Sell/Call/Collar; click-through/navigation; actions; Share Deployment; unified Capital Deployment; new accounting totals; new scoring/ranking; broker execution; a generalized capital-state machine; Deployable Cash on the Console (stays in shell); live/spot re-valuation; DTE-ladder changes; use or wholesale resurrection of `capacity-summary.ts`.
+
+### `capacity-summary.ts` disposition
+
+`options-prototype/src/portfolio/capacity-summary.ts` is **dormant** — verified at SYNC `248a469`, its only non-comment importer is its own test; no rendered surface consumes it. Its `callCapacity` gate (`sharesFree > 0 && maxAdditionalContracts > 0`) would additionally **hide odd lots**, which V1 must not do. Therefore it is **kept out of the V1 implementation path**; V1 uses a fresh, correctly-gated projection. Recommended separate Technology-Quality disposition: **candidate for delete** (with its test) pending a reverse-dependency sweep confirming no live consumer — handled as its own cleanup, not this feature. No defect is asserted beyond dormancy + odd-lot mis-gating.
+
+### Authority attribution (corrected)
+
+- **State-Oriented Console** (`foundations/state-oriented-console.md`) supports the **general principle**: the Console shows observable portfolio context / "what is."
+- **Operator Console architecture** (`docs/26-operator-console-architecture.md`, §Capacity / Exposure Summary) is the document that **explicitly requires** "Unencumbered/available capacity (buying power, free shares)." The explicit free-share requirement is attributed here, not to State-Oriented Console.
+
+### Doc 26 reconciliation performed alongside this record
+
+Doc 26 §Implementation Status previously claimed the Capacity/Exposure summary + `capacity-summary.ts` sidebar were currently implemented on the Console. That is stale — the committed Console (SYNC `248a469`) renders only the DTE ladder + footer; the persistent capital surface is the AppShell triad. The narrow Category B correction is applied in the same durability commit as this record (stale-status correction + recording the accepted standalone-inventory-above-the-ladder boundary at the appropriate authority level).
+
+### Authorization gates (four distinct; one does not imply the others)
+
+1. **Implementation authorization** → working-tree implementation + tests + local validation only.
+2. **Category B documentation amendment authorization** → the narrow Doc 26 correction is authorized as part of this durability operation; broader Category B change is not.
+3. **Commit authorization** → separate; passing tests do not authorize commit.
+4. **Push / accepted-`main` advancement authorization** → separate; requires re-verifying remote `main` first.
+
+The durability operation that created this record was explicitly authorized (persist under `PL-ELIG` + narrow Doc 26 correction + journal reconciliation + commit + push). **Production implementation of the feature was NOT authorized by that operation.**
+
+### Readiness
+
+**READY FOR IMPLEMENTATION AUTHORIZATION** when the Principal chooses to proceed. Scope is minimal, additive, frontend-only; owned by canonical `PL-ELIG`; grounded in the Operator Console architecture's explicit free-share requirement; decoupled from recommendations/chains/Deployment; introduces no new totals or valuation; uses correct Option Summary provenance; treats snapshot inventory as deterministic-but-not-authoritative evidence; and preserves ownership-vs-call-geometry disagreement (including missing ownership records) as independent warnings rather than false reconciliation.

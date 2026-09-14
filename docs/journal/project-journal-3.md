@@ -703,3 +703,46 @@ Numbering note: the discoverability defect was briefly drafted as BUG-017 agains
 Do not fix BUG-019 tonight; changing a subtle evidence-authority rule late in the day to finish acceptance is the wrong trade. Commit the acceptance-discovered documentation now for a clean overnight state. Tomorrow, during the open session, verify that the seven become Decision-visible under ordinary canonical-session acquisition — that is the clean control case and tells us whether the only remaining defect is specifically the off-hours forced-acquisition contract (BUG-019).
 
 Acceptance status: **Admission passed. Hydration passed. Ordinary-session Decision visibility pending open-session confirmation. Forced off-hours Decision usability failed and is captured as BUG-019.**
+
+---
+
+## 2026-09-14 — Unencumbered Shares on the Operator Console: V1 contract accepted and persisted under `PL-ELIG` (durability only; no implementation)
+
+### What happened
+
+A multi-actor (Principal / ChatGPT-Kiro / Codex) investigation ratcheted a small Operator Console feature — surfacing **unencumbered owned shares** — from a broad thesis to an implementation-ready V1 contract. This session was **durability only**: persist the accepted contract, correct one stale Category B claim, reconcile project memory, commit, and push. **No production code was written.**
+
+The defect being addressed: the Console makes open option positions highly visible (DTE ladder) but leaves **free owned shares effectively invisible** there. Free-share inventory is derivable today only *indirectly*, as a byproduct of Deployment's covered-call candidate generation — the wrong place for the operator to learn what capital they already own and have free.
+
+### Accepted contract (canonical home: `docs/parking-lot-8.md` §`PL-ELIG`)
+
+- **Region "Unencumbered Shares"**, above/separate from the DTE ladder. Columns exactly: **Symbol / Free Shares / Free Lots**. Odd lots stay visible with Free Lots = 0. Deployable Cash omitted (already persistent in the shell). No value/basis/G/L/recommendation/navigation/totals.
+- **Pure projection** `{ rows, geometryWarnings }`; rows carry `freeShares = InventoryPosition.sharesFree` (never `sharesOwned`) and `freeLots = maxAdditionalContracts`.
+- **Geometry analysis over `inventory symbols ∪ open-call underlyings`**, with `observedSharesOwned: number | null`; warn when an open-call underlying has no ownership record (evidence unavailable, not zero) or raw call-required shares exceed observed owned.
+- **Three presentation states** must be distinguishable: evidence unavailable/incomplete; trustworthy zero; one-or-more rows. Absence of evidence must not look like a trustworthy zero. Visibility: rows OR warnings OR untrustworthy evidence.
+- **Provenance from Option Summary only** (`optionSummaryExportTimestamp` / `optionSummaryFilename` / `optionSummaryParsedAt`); never `snapshotDate`, never balances; fallback "Export time unavailable"; parse time never masquerades as export time.
+- Owner `PL-ELIG`; strategic `LVT-INIT-CAP-AVAILABILITY`; design authority Operator Console architecture; `PL-DEPLOY` future-only. **No new `PL-*`.**
+
+### Epistemic corrections preserved (why-state)
+
+These are the hard-won points that the contract exists to protect, so a cold-start actor does not relitigate them:
+
+1. **"Authoritative enough" was too strong.** The inventory is *snapshot-derived evidence* (Option Summary ownership + open-call geometry) — deterministic computation over possibly-incomplete/ambiguous evidence. Fidelity Option Summary is not a holdings ledger.
+2. **Absence of evidence ≠ evidence of absence.** A missing inventory record for a symbol that has open calls means *ownership evidence unavailable*, never zero shares. This is why the geometry domain is the union and `observedSharesOwned` is nullable.
+3. **The encumbrance clamp is safety behavior, not reconciliation.** `sharesEncumbered = min(Σcalls×100, owned)` can conceal disagreement; disagreement is surfaced as an independent warning, not smoothed into a truthful-looking zero.
+4. **No live valuation in V1.** Reinforced by the concurrent PL-OPS-09 finding that a free-only symbol may lack live quote evidence.
+5. **Basis/value/G/L out.** We cannot truthfully assign a basis to the remaining free 100 of 200 shares without lot attribution (`PL-PORT-01`).
+6. **Working sell-to-open orders** are a known limitation constraining what "unencumbered" means (unencumbered *per the imported snapshot/open-position evidence*); a limitation, not a blocker.
+7. **`capacity-summary.ts` stays out.** Dormant (test-only importer, verified at `248a469`) and its `callCapacity` gate would hide odd lots. The alleged precedence bug was withdrawn; dormancy + odd-lot mis-gating are sufficient reasons not to build on it. Separate Technology-Quality disposition: candidate for delete pending a reverse-dependency sweep — not this feature.
+
+### Category B correction made
+
+`docs/26-operator-console-architecture.md` §Implementation Status previously claimed the Capacity/Exposure sidebar backed by `capacity-summary.ts` was implemented on the Console. Corrected: the committed Console (SYNC `248a469`) renders only the DTE ladder + footer; the persistent capital surface is the AppShell triad (`deriveShellCapitalContext` → `PortfolioTrajectoryChart`); `capacity-summary.ts` is dormant. Also recorded the accepted standalone-inventory-above-the-ladder boundary at the region's authority level (not presentation detail). This was a standing cold-start hazard independent of the feature.
+
+### Process note (multi-actor discipline)
+
+The prior investigation's first pass finalized on a **stale SYNC** while another actor was actively committing Console work — a real synchronization failure. `main` in fact advanced three times across the investigation (`309aa42` → `14372ee` → `248a469`, all the concurrent "Today's G/L" Console work). This session re-verified remote `main` at bootstrap and again at the commit/push boundary, and re-confirmed every Console finding against the current committed state before persisting. Codex's successive corrections (canonical `PL-ELIG` ownership that intake should have found; snapshot-derived language; basis removal; clamp-is-not-reconciliation; union geometry domain + nullable ownership; Option Summary provenance fallback; readiness kept out of the pure projection) were accepted and are baked into the contract.
+
+### Authorization boundary
+
+The durability operation (persist under `PL-ELIG` + narrow Doc 26 correction + this journal entry + commit + push) was explicitly authorized. **Production implementation was not.** The contract is marked READY FOR IMPLEMENTATION AUTHORIZATION; the four gates (implementation / Category B amendment / commit / push) remain distinct.

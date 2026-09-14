@@ -125,6 +125,16 @@ Communicates the operator's current capital position at a glance.
 
 This region provides numbers and status — the ladder provides the spatial/temporal distribution.
 
+#### Unencumbered Shares (accepted design; free-share realization of this region)
+
+*(Accepted September 14, 2026 under canonical `PL-ELIG`; strategic relationship `LVT-INIT-CAP-AVAILABILITY`; implementation not yet authorized. Full V1 contract: `docs/parking-lot-8.md` §`PL-ELIG` — Unencumbered Shares on the Operator Console.)*
+
+Architectural boundary (recorded at this authority level; presentation detail belongs to the contract, not here):
+
+- **Unencumbered owned shares are first-class current portfolio state, rendered above and separate from the DTE ladder.** The ladder remains the encumbered option-position surface; shares are not inserted into it (the ladder's semantics — expiration, DTE, strike, moneyness, Greeks, assignment consequence — do not apply to unencumbered shares).
+- **Free-share visibility is portfolio-state observability, not recommendation behavior.** It must not depend on covered-call recommendations, option-chain availability, scoring, or Deployment.
+- The inventory is **snapshot-derived evidence** (observed Fidelity Option Summary ownership + open short-call geometry), deterministic but **not universally authoritative or complete**. Ownership-vs-call-geometry disagreement — including open-call underlyings with no ownership record — is surfaced as evidence, not silently reconciled by the encumbrance clamp. Absence of ownership evidence must not render as a trustworthy zero.
+
 ### Portfolio Trajectory Region
 
 *(Formerly "NAV / Mission Progress." Renamed August 2026 after Console reconciliation clarified the concept.)*
@@ -234,7 +244,7 @@ The first operational slice of the Operator Console is implemented and committed
 | Moneyness visualization | ✅ Implemented — OTM/ATM/ITM borders + signed percentage magnitude |
 | Tile inspection (click interaction) | ✅ Implemented — position-detail modal with progressive learning, assignment scenarios, concept explanations |
 | Shared import status | ✅ Implemented — both Console and Write Desk consume the same portfolio store |
-| Capacity/exposure summary | ✅ Implemented — `capacity-summary.ts` pure derivation + unified Portfolio Snapshot sidebar: total encumbered capital (hero) with put/call decomposition, deployable cash, next resolution (merged nearest-rung + consequence), free call-writing capacity (per-symbol), provenance. Redesigned August 2026 from fragmented sections into coherent point-in-time orientation. |
+| Capacity/exposure summary | ⚠️ **Not currently rendered on the Console (status corrected Sep 14, 2026).** An August 2026 unified Portfolio Snapshot sidebar backed by `capacity-summary.ts` was described here as implemented, but the committed Console (verified at SYNC `248a469`) renders only the DTE ladder + footer; it does not import or display `capacity-summary.ts`, and that module is **dormant** (its only non-comment importer is its own test). The persistent capital surface today is the **Application Shell** capital-state triad (`deriveShellCapitalContext` → `PortfolioTrajectoryChart`): Portfolio Capital, Deployable Cash, Encumbered Capital, position count — rendered in `AppShell.tsx`, not on the Console. The Console realization of this region's *free-share* requirement is the accepted **Unencumbered Shares** design (see §Unencumbered Shares below); other capacity/exposure elements remain unrendered on the Console. |
 
 ### What remains deferred
 
