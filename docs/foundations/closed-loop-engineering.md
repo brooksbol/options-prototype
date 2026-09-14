@@ -98,6 +98,33 @@ A checkpoint produces one of three outcomes:
 - **Adapt** — the Engineering Laboratory needs a new experiment, fixture, or control to make the subsystem's behavior observable. Implement the adaptation before continuing.
 - **Redirect** — the evidence suggests the plan itself needs revision (escalate to Architect review).
 
+### Execution-mode continuity and opportunity cost
+
+Once the Principal authorizes a bounded implementation or experiment, that authorization remains governing context through subsequent implementation and review. New technical findings do **not** implicitly return the work to design mode.
+
+Every material decision to continue analysis, design, review, or implementation must consider not only the expected value, risk, and direct cost of that work, but also the value of the best alternative displaced by it. Opportunity cost applies at both scales:
+
+- **Strategic opportunity cost** — whether continuing the current initiative is worth displacing another initiative or direction.
+- **Tactical opportunity cost** — whether additional analysis, design, review, or implementation inside an authorized initiative is worth delaying its next valuable learning event.
+
+When an experiment depends on a finite or time-sensitive observation window, lost observation time is a material engineering cost. Preserving the window is part of optimizing the engineering learning rate.
+
+During authorized execution, a newly discovered concern that would delay observation must be explicitly disposed as:
+
+- **BLOCKER** — a demonstrated correctness, safety, data-integrity, reversibility, or experiment-validity failure that prevents the authorized work from safely producing useful evidence.
+- **DEFER** — a real concern whose resolution is not required for the authorized experiment to proceed safely and informatively. Preserve it where useful, but do not expand the current implementation to solve it.
+
+A finding is not a blocker merely because it is technically valid. A blocker must state the concrete failure mode it prevents. Architectural completeness, generalized future capability, hypothetical edge cases, reusable infrastructure, and elegance do not by themselves justify consuming a finite observation window.
+
+At execution checkpoints, ask two additional questions:
+
+1. **What concrete failure occurs if we proceed now?**
+2. **What is the opportunity cost of stopping here?**
+
+If the experiment can safely answer the question, prefer observation over architecture.
+
+**Anti-pattern — progressive hardening of a bounded experiment:** individually reasonable concerns accumulate into architecture, controls, generalized infrastructure, or completeness requirements until the machinery intended to protect the experiment materially delays or prevents the experiment itself. The corrective posture is to restore the authorized objective, require demonstrated blocking consequence, defer non-blocking concerns, and return to observation.
+
 The Engineering Laboratory is an explicit participant in every checkpoint. It is the shared medium through which the team observes evidence. A subsystem that is correct but not observable in the laboratory has not yet produced learning — it has only produced code.
 
 Laboratory adaptations are normal, expected, and small. They are not scope expansion. They are the mechanism by which implementation becomes evidence.
