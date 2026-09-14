@@ -381,14 +381,18 @@ The Four-Actor Model applies throughout the program.
 
 - independently reviews/falsifies analysis and implementation;
 - challenges scanner interpretation, architecture claims, rule enforceability, false positives, overreach, and hidden implementation risk;
-- verifies that proposed controls actually distinguish positive and negative cases where practical.
+- verifies that proposed controls actually distinguish positive and negative cases where practical;
+- distinguishes a **finding** from a **required precondition**: when recommending that authorized work stop, states the concrete failure that proceeding would cause and why deferral would invalidate or materially endanger the current experiment;
+- does not promote completeness, generalized robustness, or reusable infrastructure into blocking scope merely because they are technically desirable.
 
 ### ChatGPT
 
 - independently synthesizes evidence and competing interpretations;
 - checks program work against the Constitution and broader architecture;
 - exposes unresolved Principal decisions;
-- reconciles Kiro and Codex findings into decision-ready form.
+- reconciles Kiro and Codex findings into decision-ready form;
+- protects scope containment during authorized execution by weighing blocking consequence against tactical opportunity cost and finite observation windows;
+- challenges solution inflation when review findings begin expanding a bounded intervention beyond its Principal-authorized purpose.
 
 Assistant convergence does not replace Principal authority.
 
