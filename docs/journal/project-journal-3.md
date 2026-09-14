@@ -632,3 +632,44 @@ The seven are admitted but unhydrated. They hydrate through the normal session-g
 ### Disposition
 
 Concrete PL-GOV-02 cohort admission complete and authorized. Remaining open PL-GOV-02 delta is the productized operator intake/evaluation/admission workflow, not this cohort.
+
+
+---
+
+## 2026-09-14 — Verification-economics diagnostic: useful finding, contaminated baseline, implementation deferred
+
+### Why this investigation happened
+
+The Principal observed that Wheelwright automated testing had become too slow and was costing both elapsed development time and AI-agent credits. ChatGPT bootstrapped from repository authority and recommended a report-only investigation separating two questions: intrinsic test runtime and verification-selection economics. Kiro was explicitly authorized to measure and report, not remediate.
+
+### What the investigation established
+
+The strongest durable evidence is narrow and actionable. DegradedRecoveryWhileBlockedTest repeatedly took roughly 153 seconds in isolation and contains roughly 149 seconds of explicit sleeps. Important acquisition/recovery tests are therefore paying real elapsed time to observe scheduler-driven behavior. Focused/bounded backend verification was observed in single-digit seconds, while attempted broad Java runs consumed more than four minutes. Frontend verification was materially cheaper, on the order of tens of seconds. Repository history also supports the qualitative conclusion that broad verification has sometimes been purchased for narrower development claims than require it.
+
+This is sufficient to confirm two directions: Wheelwright should select verification progressively rather than reflexively, and a future bounded engineering investigation should examine deterministic scheduler/recovery testing while preserving behavioral coverage.
+
+### Why the report is preliminary rather than a baseline
+
+The diagnostic ran for roughly an hour and became methodologically contaminated. Concurrent Wheelwright sessions changed HEAD while measurement continued, machine load was not stable, and Kiro launched/backgrounded overlapping Gradle work in the same checkout. Long/full Gradle attempts then failed during result collection. The investigation also mixed several kinds of evidence—standalone wall-clock, static sleep budgets, JUnit self-time, and failed-task elapsed time—when estimating cumulative concentration.
+
+Subsequent adversarial review therefore rejected promotion of several attractive numbers and causal claims. No exact full-Java-suite baseline, 87% concentration figure, sub-60-second target, ~200-second reclaimable figure, Gradle 9.6.1 defect, parallelism change, or execution-time SLO is ratified from this work. The attempted broad runs are operational-latency evidence under observed conditions, not clean passing-suite baselines.
+
+### Process lesson
+
+The diagnostic itself reproduced the verification-economics failure it was meant to diagnose. Once the 153-second recovery test, real-time scheduler coupling, single-digit focused verification, and broad-verification pattern were known, additional exhaustive measurement had diminishing decision value. Instead, repeated long runs consumed more Principal time and credits, encountered concurrency contamination, and weakened rather than strengthened the baseline claim.
+
+The actor-contract consequence is intentionally small:
+
+> **When measurement conditions become contaminated and existing evidence is already sufficient to make the next bounded decision, stop measuring, disclose the limitation, and move forward.**
+
+Equivalently: stop purchasing evidence when additional evidence is no longer likely to change the next decision. This is a conformance application of *Find freely. Block narrowly. Defer explicitly. Observe quickly. Ratchet what reality proves*, not a new governance framework.
+
+### Principal disposition
+
+The Principal chose to persist the result tonight and explicitly not fix it tonight. The existing September 13 Java Test-Suite Execution Performance / Execution-Time SLO Review in parking-lot-8 has been refined with the detailed September 14 diagnostic disposition, limitations, verification-selection principle, future scheduler-testability target, and controlled-baseline method.
+
+No bug identity is created from this episode. In particular, the Gradle result-file failure is not established as a product or Gradle defect. No new PL identity is created because the existing test-performance intake already owns the concern.
+
+### Next-session posture
+
+Implementation remains deferred. When selected, the next work should be bounded: first apply the progressive verification-selection discipline; separately investigate the smallest deterministic timing seam that can preserve scheduler/recovery behavior without production-scale wall-clock waits. Do not require another exhaustive diagnostic before beginning that work. A decision-grade full-suite baseline should be acquired only when needed, under one pinned SHA, one isolated checkout, one Gradle process, preserved result artifacts, and no concurrent mutation of the subject.
