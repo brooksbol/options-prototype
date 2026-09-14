@@ -1069,3 +1069,130 @@
   border-top: 1px solid var(--wd-border-default);
   font-weight: var(--wd-weight-bold);
 }
+
+/* === Unencumbered Shares Region (PL-ELIG V1) ===
+   Current portfolio state / available inventory. Rendered above and visually
+   distinct from the temporal DTE ladder. Compact — must not dominate the page. */
+
+.oc-region-inventory {
+  flex: 0 0 auto;
+  margin: 8px 12px 0;
+  padding: 8px 12px 10px;
+  border: 1px solid var(--wd-border-default, #d7dae0);
+  border-left: 3px solid var(--wd-accent, #2563eb);
+  border-radius: 6px;
+  background: var(--wd-bg-raised, #f6f8fb);
+}
+
+.oc-inv-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.oc-inv-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wd-text-primary, #111827);
+}
+
+.oc-inv-provenance {
+  font-size: 9px;
+  color: var(--wd-text-tertiary, #6b7280);
+}
+
+.oc-inv-table {
+  border-collapse: collapse;
+  font-size: 11px;
+  min-width: 260px;
+}
+
+.oc-inv-table th,
+.oc-inv-table td {
+  padding: 3px 14px 3px 0;
+}
+
+.oc-inv-th-left,
+.oc-inv-td-symbol {
+  text-align: left;
+}
+
+.oc-inv-th-right,
+.oc-inv-td-right {
+  text-align: right;
+}
+
+.oc-inv-table thead th {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wd-text-secondary, #374151);
+  border-bottom: 1px solid var(--wd-border-subtle, #e5e7eb);
+}
+
+.oc-inv-td-symbol {
+  font-weight: 600;
+  color: var(--wd-text-primary, #111827);
+}
+
+.oc-inv-td-right {
+  font-variant-numeric: tabular-nums;
+  color: var(--wd-text-primary, #111827);
+}
+
+.oc-inv-empty {
+  font-size: 10px;
+  color: var(--wd-text-tertiary, #6b7280);
+  font-style: italic;
+}
+
+/* Evidence unavailable/incomplete — must read differently from a trustworthy zero. */
+.oc-inv-evidence-unavailable {
+  font-size: 10px;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+}
+
+.oc-inv-readiness-warnings {
+  margin: 4px 0 0;
+  padding-left: 16px;
+}
+
+.oc-inv-readiness-warnings li {
+  margin: 1px 0;
+}
+
+/* Geometry warnings — understandable, not alarmist. */
+.oc-inv-geometry-warnings {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.oc-inv-warning {
+  font-size: 10px;
+  color: var(--wd-text-secondary, #374151);
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.oc-inv-warning-symbol {
+  font-weight: 700;
+  color: #92400e;
+  flex: 0 0 auto;
+}
+
+.oc-inv-warning-text {
+  color: var(--wd-text-secondary, #374151);
+}

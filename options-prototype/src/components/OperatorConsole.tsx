@@ -23,6 +23,7 @@ import { deriveCallAssignmentConsequence, derivePutAssignmentConsequence } from 
 import { lookupDescription } from "../instrument-catalog/catalog";
 import { PositionDetailModal } from "./PositionDetailModal";
 import { ForceAcquisitionButton } from "../operator-console/ForceAcquisitionButton";
+import { UnencumberedInventory } from "../operator-console/UnencumberedInventory";
 import "../operator-console/operator-console.css";
 
 // Greeks are considered stale when their source chain is older than this. Aligned
@@ -216,6 +217,10 @@ export function OperatorConsole() {
     <div className={`oc-shell ${vizRegime !== "c" ? "oc-light" : ""}`}>
       <div className="oc-body">
         <div className="oc-main">
+          {/* Current portfolio state / available inventory — ABOVE and SEPARATE
+              from the temporal DTE ladder (PL-ELIG V1). Shares are never inserted
+              into the ladder. */}
+          <UnencumberedInventory snapshot={snapshot} />
           {/* Position Monitoring — ladder with regime-specific tile rendering */}
           <div className="oc-region-ladder">
             {vizRegime === "b" && (
