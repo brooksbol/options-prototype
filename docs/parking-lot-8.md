@@ -591,3 +591,37 @@ The durability operation that created this record was explicitly authorized (per
 ### Readiness
 
 **READY FOR IMPLEMENTATION AUTHORIZATION** when the Principal chooses to proceed. Scope is minimal, additive, frontend-only; owned by canonical `PL-ELIG`; grounded in the Operator Console architecture's explicit free-share requirement; decoupled from recommendations/chains/Deployment; introduces no new totals or valuation; uses correct Option Summary provenance; treats snapshot inventory as deterministic-but-not-authoritative evidence; and preserves ownership-vs-call-geometry disagreement (including missing ownership records) as independent warnings rather than false reconciliation.
+
+---
+
+## `PL-MKT` — Provider timesales as an appliance-sourced UI data source (Markets glance + high-resolution moneyness sparklines)
+
+**Date:** September 15, 2026
+**State:** INTAKE — new canonical identity; two bounded capabilities SHIPPED under it (Markets card + timesales-backed sparklines); further use requires its own reconciliation.
+**Concept home:** `07-architecture-current.md` (Evidence Appliance boundary), `26-operator-console-architecture.md` (Operator Console surfaces), `foundations/state-oriented-console.md`.
+**Related:** `PL-EVID-01` (historical/observation architecture — timesales is provider-derived bars, NOT written to `spot_history`); acquisition-scheduler policy (unaffected — this is a read-through market-context fetch, not an acquisition tier).
+
+### What this is
+
+A durable identity for using **Tradier `/markets/timesales` intraday bars** as an appliance-sourced data source for **presentation/market-context** on operator surfaces — distinct from the options-chain acquisition pipeline that produces `spot_history`. Two capabilities were built under it:
+
+1. **Markets header glance** (`GET /api/markets`, commit `b998bbe`): Dow (`$DJI`) / S&P 500 (`SPX`) / Nasdaq 100 (`NDX`) — real index value + provider daily change/% (quote) + intraday sparkline (timesales). Real index values, appliance-sourced, no frontend provider call.
+2. **High-resolution moneyness sparklines** (`GET /api/evidence/timesales`, this work): the Operator Console position table's moneyness sparkline is now derived from the underlying's timesales intraday bars (dense, ~56 pts/session) instead of the sparse `spot_history` (one point per chain acquisition). The strike is fixed, so a dense spot series → a dense moneyness curve; only the sparkline SHAPE uses timesales — the moneyness value cell and Today's G/L remain on observed `spot_history`.
+
+### Corrected premise (durable — do not repeat the error)
+
+An earlier session asserted, unverified, that Tradier's plan "can't serve indices." **Wrong.** Direct probe confirmed Tradier **production** serves `SPX`/`$DJI`/`NDX` quotes AND timesales bars (and timesales for ETF underlyings like COPX/XLE/URA/GDXJ). `IXIC`/`COMPX` don't resolve — Nasdaq is served as `NDX` (Nasdaq-100). Dow is `$DJI` (no options chain — irrelevant here, since quote+timesales need no chain).
+
+### Architecture disposition
+
+- **Boundary preserved.** Timesales is fetched **backend-side** through the active provider authority + pacer (rate-limit compliance, credential custody), exposed via cached read endpoints (`/api/markets`, `/api/evidence/timesales`), consumed by the browser as a pure viewport. NO frontend provider calls — no exception to the ratified invariant was needed.
+- **Not persisted.** Timesales bars are a live market-context read; they are NOT written to `spot_history` (keeps "persist facts; derive trust" clean — observed evidence stays observed). Provenance distinction: `spot_history` = our observations; timesales = provider-computed bars.
+- **Not in the frozen snapshot contract.** Distinct market-context reads.
+- **Provider stewardship.** Per-symbol short server-side TTL (60s) so many positions/clients cannot spray the provider; single-flight through the pacer; capped fan-out (`MAX_SYMBOLS`). Cost is ~1 timesales call per distinct held underlying per TTL window — far cheaper than raising acquisition cadence.
+- **NOT an acquisition-scheduler change.** The "Class Omega / faster held-symbol cadence" idea was considered and **dropped** for this purpose: timesales-backfill gives the resolution cheaply without touching the A/B/C/D tiers or the rate budget. (Whether held symbols deserve a fresher *quote/greek* tier remains a separate, unraised question — not part of `PL-MKT`.)
+
+### Epistemic / open
+
+- **Two spot sources on one screen** (observed `spot_history` for numbers; provider timesales bars for the sparkline shape) — intentional and bounded; the numeric cells keep observed-evidence provenance.
+- Bar field = `close` (so the latest point aligns with current). Off-hours → empty series → flat baseline, never fabricated.
+- Future timesales UI uses should reconcile under `PL-MKT` rather than minting new identities.

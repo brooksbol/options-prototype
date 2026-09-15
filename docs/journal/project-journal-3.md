@@ -817,3 +817,28 @@ The Console's existing spot comes from an options-chain's `underlying.price`. Th
 ### Architectural note
 
 This preserves the evidence-appliance boundary: index market context is acquired backend-side through the active provider authority and pacer, exposed via a read endpoint, consumed by the browser as a pure viewport. No exception to "no provider calls from frontend" was needed — the honest path existed once the false "Tradier can't serve indices" premise was corrected.
+
+---
+
+## 2026-09-15 — High-resolution moneyness sparklines via provider timesales (`PL-MKT`)
+
+Follow-on to the Markets card. The operator observed the Markets sparklines looked far better than the Console position-table moneyness sparklines, and correctly diagnosed the cause as **resolution** (data density), not rendering.
+
+### The key insight (Principal's, confirmed in code)
+
+The table sparkline plots **moneyness = f(spot, strike)**, and **strike is fixed** for a held contract — so the only time-varying input is spot. `deriveMoneynessHistory(spotHistory: number[], strike, type, timestamps?)` already works exactly this way and already accepts timestamps. The low resolution came purely from the *source*: `spot_history` accumulates one point per chain acquisition (sparse, irregular), whereas Tradier `/markets/timesales` returns a full session of 5-min bars in one call. So: feed the sparkline the underlying's timesales spot series × the fixed strike → a dense, smooth moneyness curve. No scheduler change, no new acquisition tier.
+
+I initially over-distinguished "cadence vs resolution" and implied a faster refresh wouldn't help; the Principal corrected me (a 5-min cadence *would* densify, at ~78 pts/day) — but the cleaner, cheaper mechanism is timesales-backfill (one call → ~56 pts, instant, no rate-budget concentration). A proposed "Class Omega" faster-cadence tier was explicitly **dropped** for this purpose.
+
+### What shipped
+
+- **Backend:** `TradierAdapter.getIntradayBars` + `extractBars` (per-bar `close` + `time`; `close` chosen so the last point aligns with current; empty on null/off-hours series). `TimesalesController` `GET /api/evidence/timesales?symbol=...` — per-symbol 60s TTL cache, capped fan-out, via the active authority/pacer, `"[]"` on provider error. `IntradayBarsParsingTest`.
+- **Frontend:** `use-intraday-bars.ts` hook reads the endpoint for the Console's distinct underlyings; `PositionTable`'s sparkline branch prefers timesales bars (`close`+`time`, ≥3) and falls back to sparse `spot_history` when timesales isn't available yet. **Scope discipline:** only the sparkline SHAPE uses timesales; the moneyness value cell and Today's G/L stay on observed `spot_history` (Principal decision #1). Demo path unchanged.
+
+### Boundary / provenance
+
+Appliance-sourced (backend fetch through provider authority + pacer; browser is a pure viewport — no frontend provider call). Timesales bars are provider-computed and are **not persisted** to `spot_history` — observed evidence stays observed; the sparkline is a presentation-layer derivation from a live market-context read. Recorded durably under new identity **`PL-MKT`** (provider timesales as an appliance-sourced UI data source), which also owns the earlier Markets card. Corrected the durable record that Tradier production *does* serve indices + timesales.
+
+### Verification / status
+
+`tsc` clean (only the 2 pre-existing unrelated `TS6133` warnings — I ran `tsc`, not just `vite build`, after the earlier `pts` white-screen taught me `vite build` doesn't catch undefined-name errors). Full suite 1578/1579 (sole failure the pre-existing velvet-rope date-drift snapshot). Backend compiles + bar-parsing test passes. Live `/api/evidence/timesales` verification pending a backend restart (running instance predates the controller). Not yet committed.

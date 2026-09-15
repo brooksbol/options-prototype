@@ -15,6 +15,10 @@ import { useEvidenceSnapshot } from "../hooks/useEvidenceSnapshot";
 import { ingestChainsFromSnapshot } from "../evidence/chain-cache-ingestion";
 import { formatGreek } from "../write-desk/option-greeks";
 import { useSpotHistory, type SpotHistoryMap } from "../evidence/use-spot-history";
+import { useIntradayBars, type IntradayBarsMap } from "../evidence/use-intraday-bars";
+
+/** Stable empty intraday-bars map for non-default regimes (a/c) that don't fetch bars. */
+const EMPTY_INTRADAY_BARS: IntradayBarsMap = new Map();
 import { usePositionDeltas, usePositionGreeks, type PositionDeltaMap, type PositionGreeksMap } from "../operator-console/use-position-deltas";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
 import { buildPositionDetail, type PositionDetail } from "../portfolio/position-detail";
@@ -176,6 +180,11 @@ export function OperatorConsole() {
     [underlyingsKey],
   );
   const spotHistory = useSpotHistory(underlyings, !isDemoSource, observations.generation);
+  // High-resolution intraday bars (timesales) for the moneyness SPARKLINE only.
+  // The strike is fixed, so a dense spot series → a dense moneyness curve. Numeric
+  // cells (moneyness value, Today's G/L) stay on observed spot evidence; this feeds
+  // the sparkline shape exclusively. Appliance-sourced via /api/evidence/timesales.
+  const intradayBars = useIntradayBars(underlyings, !isDemoSource, observations.generation);
   // Re-read chain-derived values when EITHER the quote-observation generation or
   // our own chain-ingestion generation advances. The chain generation is what
   // reflects freshly ingested greeks/delta from this surface's own poll.
@@ -301,7 +310,7 @@ export function OperatorConsole() {
                         <span className="oc-rung-count">{group.positions.length} position{group.positions.length !== 1 ? "s" : ""}</span>
                       </div>
                       {!isCollapsed && (
-                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={intradayBars} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
                       )}
                     </div>
                   );
@@ -350,7 +359,7 @@ function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDel
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
       {vizRegime === "b" ? (
-        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={EMPTY_INTRADAY_BARS} snapshot={snapshot} />
       ) : (
         <PositionGrid positions={rung.positions} onTileClick={onTileClick} vizRegime={vizRegime} totalCapital={rung.totalCapital} />
       )}
@@ -790,7 +799,7 @@ function PositionTableHeader() {
 }
 
 /** Regime B: Dense fixed-geometry rows using native <table> for proper column alignment */
-function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, positionGreeks, isDemoSource, spotHistory, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
+function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, positionGreeks, isDemoSource, spotHistory, intradayBars, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; isDemoSource: boolean; spotHistory: SpotHistoryMap; intradayBars: IntradayBarsMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
 
   // Apply within-group sorting
   const sortedPositions = sortColumn
@@ -858,21 +867,33 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
               position.type,
             );
           } else if (!isDemoSource) {
-            // Reason in genuine observation MOMENTS, not raw spot_history rows.
-            // Multi-expiration acquisition writes one identical spot row per eligible
-            // expiration per cycle; those collapse to a single observation moment.
-            // Dedup (shared with Kreature) before deriving the trace, and gate on the
-            // count of distinct moments so a burst of identical rows can no longer pass
-            // the render threshold while producing a flat, invisible line.
-            const realSpotSeries = spotHistory.get(position.underlying);
-            const moments = realSpotSeries ? deduplicateObservations(realSpotSeries) : [];
-            if (moments.length >= 3) {
+            // Prefer HIGH-RESOLUTION intraday timesales bars (a full session of 5-min
+            // bars from one appliance call) for the sparkline SHAPE. The strike is
+            // fixed, so a dense spot series → a dense moneyness curve. Bars carry
+            // {close, time}; feed close as spot and time for time-proportional x.
+            const bars = intradayBars.get(position.underlying);
+            if (bars && bars.length >= 3) {
               moneynessPoints = deriveMoneynessHistory(
-                moments.map(obs => obs.price),
+                bars.map(b => b.close),
                 position.strike,
                 position.type,
-                moments.map(obs => obs.observedAt),
+                bars.map(b => b.time),
               );
+            } else {
+              // Fallback: sparse observed spot_history (before timesales arrives, or
+              // when unavailable). Reason in genuine observation MOMENTS, not raw
+              // rows — multi-expiration acquisition writes one identical spot row per
+              // eligible expiration per cycle; dedup collapses those to one moment.
+              const realSpotSeries = spotHistory.get(position.underlying);
+              const moments = realSpotSeries ? deduplicateObservations(realSpotSeries) : [];
+              if (moments.length >= 3) {
+                moneynessPoints = deriveMoneynessHistory(
+                  moments.map(obs => obs.price),
+                  position.strike,
+                  position.type,
+                  moments.map(obs => obs.observedAt),
+                );
+              }
             }
           }
 

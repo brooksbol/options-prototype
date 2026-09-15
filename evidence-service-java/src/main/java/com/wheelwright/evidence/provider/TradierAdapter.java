@@ -155,6 +155,57 @@ public class TradierAdapter {
     /** Intraday price bars (chronological) for a symbol's sparkline. */
     public record IntradaySeries(String symbol, List<Double> prices, String retrievedAt) {}
 
+    /** One intraday bar: close price + bar time (ISO). */
+    public record IntradayBar(double close, String time) {}
+
+    /** Ordered intraday bars (close + time) for a symbol's moneyness sparkline. */
+    public record IntradayBars(String symbol, List<IntradayBar> bars, String retrievedAt) {}
+
+    /**
+     * Fetch intraday timesales bars for the current session, returning each bar's
+     * CLOSE price + time (chronological). Read-only; goes through the pacer.
+     * Used to derive high-resolution moneyness sparklines (spot series × fixed strike).
+     */
+    public IntradayBars getIntradayBars(String symbol, String interval, String start, String end)
+            throws Exception {
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new ProviderError("Tradier API key not configured", 503);
+        }
+        pacer.setOperationKind("timesales");
+        String body = pacer.submit(() -> fetchTimesales(symbol, interval, start, end));
+        return new IntradayBars(symbol.toUpperCase(), extractBars(body), Instant.now().toString());
+    }
+
+    /**
+     * Extract ordered {close, time} bars from a Tradier timesales payload.
+     * Uses each bar's "close" (so the last point aligns with the current value) and
+     * "time". Empty/null series → empty list (honest: no fabricated shape).
+     */
+    List<IntradayBar> extractBars(String json) {
+        List<IntradayBar> bars = new ArrayList<>();
+        if (json == null) return bars;
+        int seriesIdx = json.indexOf("\"series\"");
+        if (seriesIdx < 0) return bars;
+        int dataIdx = json.indexOf("\"data\"", seriesIdx);
+        if (dataIdx < 0) return bars;
+        // Walk object-by-object within the data array, pulling "time" and "close" from each.
+        int i = dataIdx;
+        while (true) {
+            int objStart = json.indexOf('{', i);
+            if (objStart < 0) break;
+            int objEnd = json.indexOf('}', objStart);
+            if (objEnd < 0) break;
+            String obj = json.substring(objStart, objEnd + 1);
+            String time = extractQuotedString(obj, "time");
+            Double close = extractNullableDouble(obj, "close");
+            if (time != null && close != null) {
+                bars.add(new IntradayBar(close, time));
+            }
+            i = objEnd + 1;
+        }
+        return bars;
+    }
+
     /**
      * Fetch a single index/underlying quote with the provider's own daily change fields.
      * Read-only; goes through the pacer. No cache mutation, no persistence.
