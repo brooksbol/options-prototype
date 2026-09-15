@@ -489,8 +489,9 @@ function downloadPositionsCsv(
   const invLines: string[] = ["", "Unencumbered Shares", UNENCUMBERED_CSV_HEADER.join(",")];
   for (const r of invRows) {
     invLines.push([
-      q(r.symbol), r.freeShares, r.freeLots, q(r.spot), q(r.todayGl),
-      q(r.totalGl), q(r.capital), q(r.shareBasis), q(r.freshness),
+      q(r.symbol), q(r.lastPrice), q(r.todayGlDollar), q(r.todayGlPct),
+      q(r.totalGlDollar), q(r.totalGlPct), q(r.currentValue), r.quantity,
+      r.freeLots, q(r.averageCostBasis), q(r.freshness),
     ].join(","));
   }
 

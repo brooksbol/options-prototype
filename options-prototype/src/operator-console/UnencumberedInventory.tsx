@@ -39,7 +39,7 @@ import { deriveUnencumberedInventory } from "../portfolio/unencumbered-inventory
 import {
   computeTodayUnderlyingChange,
   computeTodayUnderlyingChangePercent,
-  formatTodayGlCombined,
+  formatTodayGlPercent,
   todayGlDirection,
 } from "./today-gl";
 
@@ -108,16 +108,7 @@ function fmtSignedPct(v: number): string {
   return `${sign}${Math.abs(v).toFixed(2)}%`;
 }
 
-/**
- * Combined Total G/L cell: "+$5,406 (+13.66%)". Whole-dollar $ + 2-dp %.
- * "—" when the dollar figure is unavailable (no spot or no basis). When the
- * dollar is known but percent is not (non-positive basis), the percent is omitted.
- */
-function formatTotalGlCombined(dollar: number | null, pct: number | null): string {
-  if (dollar == null) return DASH;
-  const d = fmtSignedMoney(dollar);
-  return pct == null ? d : `${d} (${fmtSignedPct(pct)})`;
-}
+
 
 function fmtBasis(economics: PositionEconomics | null): string {
   const b = economics?.averageCostPerShare;
@@ -167,6 +158,11 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
   let glReferenceBase = 0; // Σ free-shares × start-of-day price, over rows with a move
   let glRows = 0;
   let glMissingRows = 0;
+  // Lifetime (Total) G/L accumulators.
+  let totalTotalGl = 0;         // Σ (spot − basis) × free shares
+  let totalGlCostBase = 0;      // Σ basis × free shares (for dollar-weighted %)
+  let totalGlValueRows = 0;
+  let totalGlValueMissingRows = 0;
   for (const row of rows) {
     const key = row.symbol.toUpperCase();
     const spot = observations.get(key)?.price ?? null;
@@ -187,52 +183,32 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
     } else {
       glMissingRows++;
     }
+
+    // Lifetime (Total) G/L accumulation — Σ (spot − basis) × free shares, with a
+    // cost base of Σ free-shares × basis, so the total % is dollar-weighted and
+    // coherent with the total $. Requires both a live spot and a (blended) basis.
+    const basis = economicsBySymbol.get(key)?.averageCostPerShare ?? null;
+    if (spot != null && basis != null) {
+      totalTotalGl += (spot - basis) * row.freeShares;
+      totalGlCostBase += basis * row.freeShares;
+      totalGlValueRows++;
+    } else {
+      totalGlValueMissingRows++;
+    }
   }
-  const totalCapitalLabel =
-    pricedRows > 0
-      ? `${fmtMoney(totalCapital)}${unpricedRows > 0 ? " (partial)" : ""}`
-      : null;
-  const totalGlPct = glReferenceBase > 0 ? (totalGl / glReferenceBase) * 100 : null;
-  const totalGlLabel =
-    glRows > 0
-      ? `${fmtSignedMoney(totalGl)}${glMissingRows > 0 ? " (partial)" : ""}`
-      : null;
-  const totalGlPctLabel =
-    glRows > 0 && totalGlPct != null
-      ? `${fmtSignedPct(totalGlPct)}${glMissingRows > 0 ? " (partial)" : ""}`
-      : null;
-  const totalGlDir = totalGlLabel ? todayGlDirection(totalGl) : "flat";
+
+  // Totals-row values (rendered as a bottom "Totals" line, not next to the title).
+  const totalTodayPct = glReferenceBase > 0 ? (totalGl / glReferenceBase) * 100 : null;
+  const totalTotalGlPct = totalGlCostBase > 0 ? (totalTotalGl / totalGlCostBase) * 100 : null;
+  const totalFreeShares = rows.reduce((s, r) => s + r.freeShares, 0);
+  const totalFreeLots = rows.reduce((s, r) => s + r.freeLots, 0);
+  // "Partial" when any total omits rows that lacked the required live evidence.
+  const anyPartial = unpricedRows > 0 || glMissingRows > 0 || totalGlValueMissingRows > 0;
 
   return (
     <section className="oc-region-inventory" aria-label="Unencumbered Shares">
       <div className="oc-inv-header">
-        <span className="oc-inv-title">
-          Unencumbered Shares
-          {totalCapitalLabel && (
-            <span
-              className="oc-inv-title-total"
-              title={
-                unpricedRows > 0
-                  ? `Total capital of free shares with a live quote (${pricedRows} of ${pricedRows + unpricedRows} rows priced; the rest lack a current quote)`
-                  : "Total capital of free shares (free shares × live spot)"
-              }
-            >
-              {" "}({totalCapitalLabel})
-            </span>
-          )}
-          {totalGlLabel && (
-            <span
-              className={`oc-inv-title-gl oc-inv-gl-${totalGlDir}`}
-              title={
-                glMissingRows > 0
-                  ? `Today's total G/L: Σ (underlying intraday move × free shares) and dollar-weighted percent, over rows with a computable move (${glRows} of ${glRows + glMissingRows}); market context, not a position P/L`
-                  : "Today's total G/L: Σ (underlying intraday move × free shares) and dollar-weighted percent; market context, not a position P/L"
-              }
-            >
-              {" "}{totalGlLabel}{totalGlPctLabel ? `, ${totalGlPctLabel}` : ""}
-            </span>
-          )}
-        </span>
+        <span className="oc-inv-title">Unencumbered Shares</span>
         <span className="oc-inv-provenance">{provenanceLine(snapshot)}</span>
       </div>
 
@@ -253,13 +229,15 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
           <thead>
             <tr>
               <th className="oc-inv-th-left">Symbol</th>
-              <th className="oc-inv-th-right">Free Shares</th>
+              <th className="oc-inv-th-right">Last Price</th>
+              <th className="oc-inv-th-right">Today&apos;s gain/loss $</th>
+              <th className="oc-inv-th-right">Today&apos;s gain/loss %</th>
+              <th className="oc-inv-th-right" title="Lifetime gain/loss on the free shares vs blended average cost basis: (last price − average cost basis) × quantity">Total gain/loss $</th>
+              <th className="oc-inv-th-right" title="Lifetime gain/loss percent vs blended average cost basis">Total gain/loss %</th>
+              <th className="oc-inv-th-right">Current value</th>
+              <th className="oc-inv-th-right">Quantity</th>
               <th className="oc-inv-th-right">Free Lots</th>
-              <th className="oc-inv-th-right">Spot</th>
-              <th className="oc-inv-th-right">Today&apos;s G/L</th>
-              <th className="oc-inv-th-right" title="Lifetime gain/loss on the free shares vs blended cost basis: (spot − share basis) × free shares">Total G/L</th>
-              <th className="oc-inv-th-right">Capital</th>
-              <th className="oc-inv-th-right" title="Symbol-level blended average cost — not specific to the free shares">Share Basis</th>
+              <th className="oc-inv-th-right" title="Symbol-level blended average cost — not specific to the free shares">Average cost basis</th>
               <th className="oc-inv-th-right">Freshness</th>
             </tr>
           </thead>
@@ -289,19 +267,23 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
               return (
                 <tr key={row.symbol}>
                   <td className="oc-inv-td-symbol">{row.symbol}</td>
-                  <td className="oc-inv-td-right">{row.freeShares.toLocaleString()}</td>
-                  <td className="oc-inv-td-right">{row.freeLots}</td>
                   <td className="oc-inv-td-right">{fmtSpot(spot)}</td>
                   <td className={`oc-inv-td-right oc-inv-gl-${glDir}`}>
-                    {formatTodayGlCombined(glChange, glPct)}
+                    {glChange != null ? fmtSignedMoney(glChange * row.freeShares) : DASH}
                   </td>
+                  <td className={`oc-inv-td-right oc-inv-gl-${glDir}`}>{formatTodayGlPercent(glPct)}</td>
                   <td
                     className={`oc-inv-td-right oc-inv-gl-${rowTotalGlDir}`}
                     title="Symbol-level blended average cost — not specific to the free shares"
                   >
-                    {formatTotalGlCombined(totalGlDollar, totalGlPct)}
+                    {totalGlDollar != null ? fmtSignedMoney(totalGlDollar) : DASH}
+                  </td>
+                  <td className={`oc-inv-td-right oc-inv-gl-${rowTotalGlDir}`}>
+                    {totalGlPct != null ? fmtSignedPct(totalGlPct) : DASH}
                   </td>
                   <td className="oc-inv-td-right">{fmtMoney(capital)}</td>
+                  <td className="oc-inv-td-right">{row.freeShares.toLocaleString()}</td>
+                  <td className="oc-inv-td-right">{row.freeLots}</td>
                   <td className="oc-inv-td-right oc-inv-td-basis" title="Symbol-level blended average cost (not specific to the free shares)">
                     {fmtBasis(economics)}
                   </td>
@@ -310,9 +292,37 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
               );
             })}
           </tbody>
+          <tfoot>
+            <tr className="oc-inv-totals-row">
+              <td className="oc-inv-td-symbol">Totals{anyPartial ? " *" : ""}</td>
+              <td className="oc-inv-td-right" />
+              <td className={`oc-inv-td-right oc-inv-gl-${todayGlDirection(glRows > 0 ? totalGl : null)}`}>
+                {glRows > 0 ? fmtSignedMoney(totalGl) : DASH}
+              </td>
+              <td className={`oc-inv-td-right oc-inv-gl-${todayGlDirection(glRows > 0 ? totalGl : null)}`}>
+                {totalTodayPct != null ? fmtSignedPct(totalTodayPct) : DASH}
+              </td>
+              <td className={`oc-inv-td-right oc-inv-gl-${todayGlDirection(totalGlValueRows > 0 ? totalTotalGl : null)}`}>
+                {totalGlValueRows > 0 ? fmtSignedMoney(totalTotalGl) : DASH}
+              </td>
+              <td className={`oc-inv-td-right oc-inv-gl-${todayGlDirection(totalGlValueRows > 0 ? totalTotalGl : null)}`}>
+                {totalTotalGlPct != null ? fmtSignedPct(totalTotalGlPct) : DASH}
+              </td>
+              <td className="oc-inv-td-right">{pricedRows > 0 ? fmtMoney(totalCapital) : DASH}</td>
+              <td className="oc-inv-td-right">{totalFreeShares.toLocaleString()}</td>
+              <td className="oc-inv-td-right">{totalFreeLots}</td>
+              <td className="oc-inv-td-right" />
+              <td className="oc-inv-td-right" />
+            </tr>
+          </tfoot>
         </table>
       ) : (
         trustworthy && <div className="oc-inv-empty">No unencumbered shares.</div>
+      )}
+      {anyPartial && rows.length > 0 && (
+        <div className="oc-inv-totals-note">
+          * Totals cover only rows with the required live evidence; some rows lacked a quote or computable move.
+        </div>
       )}
 
       {geometryWarnings.length > 0 && (
@@ -334,26 +344,30 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
 /** One Unencumbered Shares row rendered for CSV (same truthful values as the table). */
 export interface UnencumberedCsvRow {
   symbol: string;
-  freeShares: number;
+  lastPrice: string;      // "$94.00" | "—"
+  todayGlDollar: string;  // "+$200" | "—"
+  todayGlPct: string;     // "+2.17%" | "—"
+  totalGlDollar: string;  // "+$5,400" | "—"
+  totalGlPct: string;     // "+135.00%" | "—"
+  currentValue: string;   // "$9,400" | "—"
+  quantity: number;
   freeLots: number;
-  spot: string;         // "$94.00" | "—"
-  todayGl: string;      // "+$2.00 (+2.17%)" | "—"
-  totalGl: string;      // "+$5,406 (+13.66%)" | "—"
-  capital: string;      // "$9,400" | "—"
-  shareBasis: string;   // "$40.50" | "—"
-  freshness: string;    // "1m" | "—"
+  averageCostBasis: string; // "$40.00" | "—"
+  freshness: string;      // "1m" | "—"
 }
 
-/** CSV header labels for the Unencumbered Shares section (order matches UnencumberedCsvRow). */
+/** CSV header labels for the Unencumbered Shares section (Fidelity wording; order matches UnencumberedCsvRow). */
 export const UNENCUMBERED_CSV_HEADER = [
   "Symbol",
-  "Free Shares",
+  "Last Price",
+  "Today's gain/loss $",
+  "Today's gain/loss %",
+  "Total gain/loss $",
+  "Total gain/loss %",
+  "Current value",
+  "Quantity",
   "Free Lots",
-  "Spot",
-  "Today's G/L",
-  "Total G/L",
-  "Capital",
-  "Share Basis",
+  "Average cost basis",
   "Freshness",
 ] as const;
 
@@ -386,13 +400,15 @@ export function buildUnencumberedCsvRows(
 
     return {
       symbol: row.symbol,
-      freeShares: row.freeShares,
+      lastPrice: fmtSpot(spot),
+      todayGlDollar: glChange != null ? fmtSignedMoney(glChange * row.freeShares) : DASH,
+      todayGlPct: formatTodayGlPercent(glPct),
+      totalGlDollar: totalGlDollar != null ? fmtSignedMoney(totalGlDollar) : DASH,
+      totalGlPct: totalGlPct != null ? fmtSignedPct(totalGlPct) : DASH,
+      currentValue: fmtMoney(capital),
+      quantity: row.freeShares,
       freeLots: row.freeLots,
-      spot: fmtSpot(spot),
-      todayGl: formatTodayGlCombined(glChange, glPct),
-      totalGl: formatTotalGlCombined(totalGlDollar, totalGlPct),
-      capital: fmtMoney(capital),
-      shareBasis: fmtBasis(economicsBySymbol.get(key) ?? null),
+      averageCostBasis: fmtBasis(economicsBySymbol.get(key) ?? null),
       freshness: fmtFreshness(obs?.observedAt),
     };
   });
