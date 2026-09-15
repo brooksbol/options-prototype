@@ -108,6 +108,17 @@ function fmtSignedPct(v: number): string {
   return `${sign}${Math.abs(v).toFixed(2)}%`;
 }
 
+/**
+ * Combined Total G/L cell: "+$5,406 (+13.66%)". Whole-dollar $ + 2-dp %.
+ * "—" when the dollar figure is unavailable (no spot or no basis). When the
+ * dollar is known but percent is not (non-positive basis), the percent is omitted.
+ */
+function formatTotalGlCombined(dollar: number | null, pct: number | null): string {
+  if (dollar == null) return DASH;
+  const d = fmtSignedMoney(dollar);
+  return pct == null ? d : `${d} (${fmtSignedPct(pct)})`;
+}
+
 function fmtBasis(economics: PositionEconomics | null): string {
   const b = economics?.averageCostPerShare;
   return b != null ? `$${b.toFixed(2)}` : DASH;
@@ -246,6 +257,7 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
               <th className="oc-inv-th-right">Free Lots</th>
               <th className="oc-inv-th-right">Spot</th>
               <th className="oc-inv-th-right">Today&apos;s G/L</th>
+              <th className="oc-inv-th-right" title="Lifetime gain/loss on the free shares vs blended cost basis: (spot − share basis) × free shares">Total G/L</th>
               <th className="oc-inv-th-right">Capital</th>
               <th className="oc-inv-th-right" title="Symbol-level blended average cost — not specific to the free shares">Share Basis</th>
               <th className="oc-inv-th-right">Freshness</th>
@@ -264,6 +276,16 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
               const capital = spot != null ? row.freeShares * spot : null;
               const economics = economicsBySymbol.get(key) ?? null;
 
+              // Total G/L = lifetime gain/loss on the free shares vs the (blended)
+              // cost basis. Change-since-acquisition, distinct from Today's move.
+              // Reflects the symbol-level blended average basis (not free-lot-specific).
+              const basis = economics?.averageCostPerShare ?? null;
+              const totalGlDollar =
+                spot != null && basis != null ? (spot - basis) * row.freeShares : null;
+              const totalGlPct =
+                spot != null && basis != null && basis > 0 ? ((spot - basis) / basis) * 100 : null;
+              const rowTotalGlDir = todayGlDirection(totalGlDollar);
+
               return (
                 <tr key={row.symbol}>
                   <td className="oc-inv-td-symbol">{row.symbol}</td>
@@ -272,6 +294,12 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
                   <td className="oc-inv-td-right">{fmtSpot(spot)}</td>
                   <td className={`oc-inv-td-right oc-inv-gl-${glDir}`}>
                     {formatTodayGlCombined(glChange, glPct)}
+                  </td>
+                  <td
+                    className={`oc-inv-td-right oc-inv-gl-${rowTotalGlDir}`}
+                    title="Symbol-level blended average cost — not specific to the free shares"
+                  >
+                    {formatTotalGlCombined(totalGlDollar, totalGlPct)}
                   </td>
                   <td className="oc-inv-td-right">{fmtMoney(capital)}</td>
                   <td className="oc-inv-td-right oc-inv-td-basis" title="Symbol-level blended average cost (not specific to the free shares)">
@@ -299,4 +327,73 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
       )}
     </section>
   );
+}
+
+// --- CSV export ---
+
+/** One Unencumbered Shares row rendered for CSV (same truthful values as the table). */
+export interface UnencumberedCsvRow {
+  symbol: string;
+  freeShares: number;
+  freeLots: number;
+  spot: string;         // "$94.00" | "—"
+  todayGl: string;      // "+$2.00 (+2.17%)" | "—"
+  totalGl: string;      // "+$5,406 (+13.66%)" | "—"
+  capital: string;      // "$9,400" | "—"
+  shareBasis: string;   // "$40.50" | "—"
+  freshness: string;    // "1m" | "—"
+}
+
+/** CSV header labels for the Unencumbered Shares section (order matches UnencumberedCsvRow). */
+export const UNENCUMBERED_CSV_HEADER = [
+  "Symbol",
+  "Free Shares",
+  "Free Lots",
+  "Spot",
+  "Today's G/L",
+  "Total G/L",
+  "Capital",
+  "Share Basis",
+  "Freshness",
+] as const;
+
+/**
+ * Build the Unencumbered Shares rows for CSV export, reusing the exact same
+ * projection and per-row derivation as the rendered region (single source of
+ * truth for values and their honesty rules). Returns "—" where the table shows
+ * a dash, so the CSV never fabricates values the UI does not have.
+ */
+export function buildUnencumberedCsvRows(
+  snapshot: PortfolioSnapshot,
+  observations: ReadonlyMap<string, QuoteObservation>,
+  spotHistory: SpotHistoryMap,
+): UnencumberedCsvRow[] {
+  const { rows } = deriveUnencumberedInventory(snapshot);
+  const economicsBySymbol = new Map(
+    snapshot.inventory.map((inv) => [inv.symbol.toUpperCase(), inv.economics]),
+  );
+
+  return rows.map((row) => {
+    const key = row.symbol.toUpperCase();
+    const obs = observations.get(key);
+    const spot = obs?.price ?? null;
+    const glChange = computeTodayUnderlyingChange(spotHistory.get(key));
+    const glPct = computeTodayUnderlyingChangePercent(spotHistory.get(key));
+    const capital = spot != null ? row.freeShares * spot : null;
+    const basis = economicsBySymbol.get(key)?.averageCostPerShare ?? null;
+    const totalGlDollar = spot != null && basis != null ? (spot - basis) * row.freeShares : null;
+    const totalGlPct = spot != null && basis != null && basis > 0 ? ((spot - basis) / basis) * 100 : null;
+
+    return {
+      symbol: row.symbol,
+      freeShares: row.freeShares,
+      freeLots: row.freeLots,
+      spot: fmtSpot(spot),
+      todayGl: formatTodayGlCombined(glChange, glPct),
+      totalGl: formatTotalGlCombined(totalGlDollar, totalGlPct),
+      capital: fmtMoney(capital),
+      shareBasis: fmtBasis(economicsBySymbol.get(key) ?? null),
+      freshness: fmtFreshness(obs?.observedAt),
+    };
+  });
 }

@@ -23,7 +23,7 @@ import { deriveCallAssignmentConsequence, derivePutAssignmentConsequence } from 
 import { lookupDescription } from "../instrument-catalog/catalog";
 import { PositionDetailModal } from "./PositionDetailModal";
 import { ForceAcquisitionButton } from "../operator-console/ForceAcquisitionButton";
-import { UnencumberedInventory } from "../operator-console/UnencumberedInventory";
+import { UnencumberedInventory, buildUnencumberedCsvRows, UNENCUMBERED_CSV_HEADER } from "../operator-console/UnencumberedInventory";
 import "../operator-console/operator-console.css";
 
 // Greeks are considered stale when their source chain is older than this. Aligned
@@ -262,7 +262,7 @@ export function OperatorConsole() {
                 <span className="oc-group-by-divider" />
                 <button
                   className="oc-group-by-action"
-                  onClick={() => downloadPositionsCsv(positions, snapshot, positionDeltas, positionGreeks, spotHistory, isDemoSource)}
+                  onClick={() => downloadPositionsCsv(positions, snapshot, positionDeltas, positionGreeks, spotHistory, isDemoSource, observations.observations)}
                 >
                   Download CSV
                 </button>
@@ -406,6 +406,7 @@ function downloadPositionsCsv(
   positionGreeks: PositionGreeksMap,
   spotHistory: SpotHistoryMap,
   isDemoSource: boolean,
+  observations: ReadonlyMap<string, import("../evidence/observation-store").QuoteObservation>,
 ) {
   const header = "Type,Symbol,Strike,Expiration,Spot,Today's G/L,Contracts,Moneyness,Capital,Delta,Gamma,Theta,Vega,Rho,Greek Age,Premium Booked,Bonus If Called Away,If Assigned,Opened,Quote Freshness";
   const rows = positions.map(position => {
@@ -478,7 +479,22 @@ function downloadPositionsCsv(
     return `${type},${position.underlying},${position.strike},${position.expiration},${spot},"${todayGl}",${position.quantity},${moneyness},${capital},${deltaStr},${gammaStr},${thetaStr},${vegaStr},${rhoStr},${greekAge},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
   });
 
-  const csv = [header, ...rows].join("\n");
+  // Unencumbered Shares section — appended as a labeled block so the two datasets
+  // stay in one file without corrupting the positions block. Values come from the
+  // same derivation as the rendered region (single source of truth). Fields are
+  // CSV-quoted because combined G/L and capital cells can contain commas
+  // (e.g. "$13,770", "+$5,406 (+13.66%)").
+  const q = (s: string) => `"${String(s).replace(/"/g, '""')}"`;
+  const invRows = buildUnencumberedCsvRows(snapshot, observations, spotHistory);
+  const invLines: string[] = ["", "Unencumbered Shares", UNENCUMBERED_CSV_HEADER.join(",")];
+  for (const r of invRows) {
+    invLines.push([
+      q(r.symbol), r.freeShares, r.freeLots, q(r.spot), q(r.todayGl),
+      q(r.totalGl), q(r.capital), q(r.shareBasis), q(r.freshness),
+    ].join(","));
+  }
+
+  const csv = [header, ...rows, ...invLines].join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

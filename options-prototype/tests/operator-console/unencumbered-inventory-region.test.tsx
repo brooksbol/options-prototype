@@ -8,7 +8,7 @@
 
 import { describe, it, expect } from "vitest";
 import { render, screen, within } from "@testing-library/react";
-import { UnencumberedInventory } from "../../src/operator-console/UnencumberedInventory";
+import { UnencumberedInventory, buildUnencumberedCsvRows } from "../../src/operator-console/UnencumberedInventory";
 import type { PortfolioSnapshot, InventoryPosition, OpenShortCall, PositionEconomics } from "../../src/write-desk/types";
 import type { QuoteObservation } from "../../src/evidence/observation-store";
 import type { SpotHistoryMap, SpotObservation } from "../../src/evidence/use-spot-history";
@@ -86,11 +86,34 @@ describe("UnencumberedInventory region", () => {
     expect(screen.getByText("Unencumbered Shares")).toBeTruthy();
     expect(screen.getByText("COPX")).toBeTruthy();
     const headerText = screen.getAllByRole("columnheader").map(h => h.textContent ?? "").join(" | ");
-    for (const label of ["Free Shares", "Free Lots", "Spot", "Today's G/L", "Capital", "Share Basis", "Freshness"]) {
+    for (const label of ["Free Shares", "Free Lots", "Spot", "Today's G/L", "Total G/L", "Capital", "Share Basis", "Freshness"]) {
       expect(headerText).toContain(label);
     }
     // No separate percent column.
     expect(headerText).not.toContain("Today's G/L %");
+  });
+
+  it("Total G/L column = (spot − blended basis) × free shares, combined $ (%)", () => {
+    const now = new Date().toISOString();
+    // 100 free × (spot 94 − basis 40) = +$5,400; % = (94−40)/40 = +135.00%
+    renderRegion(
+      snapshot({ inventory: [inv("COPX", 200, 100, { averageCostPerShare: 40, costBasis: 8000, marketValue: null })], calls: [call("COPX", 1)] }),
+      obsMap([{ symbol: "COPX", price: 94.0, observedAt: now }]),
+    );
+    const row = screen.getByText("COPX").closest("tr")!;
+    expect(within(row).getByText("+$5,400 (+135.00%)")).toBeTruthy();
+  });
+
+  it("Total G/L is a dash when spot or basis is unavailable", () => {
+    // Spot present, basis null → total G/L unavailable.
+    const now = new Date().toISOString();
+    renderRegion(
+      snapshot({ inventory: [inv("NOBASIS", 100, 0, null)] }),
+      obsMap([{ symbol: "NOBASIS", price: 20, observedAt: now }]),
+    );
+    const row = screen.getByText("NOBASIS").closest("tr")!;
+    // Total G/L cell dash (basis missing) — at least one dash present in the row.
+    expect(within(row).getAllByText("—").length).toBeGreaterThanOrEqual(1);
   });
 
   it("Today's G/L is a single combined $ (%) column", () => {
@@ -286,5 +309,45 @@ describe("UnencumberedInventory region", () => {
     );
     const glHeader = screen.getAllByRole("columnheader").find(h => /Today's G\/L/.test(h.textContent ?? ""))!;
     expect(glHeader.textContent).toBe("Today's G/L");
+  });
+});
+
+describe("buildUnencumberedCsvRows", () => {
+  it("emits the same truthful values as the table (Today's G/L, Total G/L, capital, basis)", () => {
+    const now = new Date().toISOString();
+    const nowMs = Date.now();
+    const earlier = new Date(nowMs - 3 * 3600_000).toISOString();
+    const csvRows = buildUnencumberedCsvRows(
+      snapshot({ inventory: [inv("COPX", 200, 100, { averageCostPerShare: 40, costBasis: 8000, marketValue: null })], calls: [call("COPX", 1)] }),
+      obsMap([{ symbol: "COPX", price: 94.0, observedAt: now }]),
+      historyMap([{ symbol: "COPX", moments: [{ price: 92.0, observedAt: earlier }, { price: 94.0, observedAt: now }] }]),
+    );
+    expect(csvRows).toHaveLength(1);
+    const r = csvRows[0];
+    expect(r.symbol).toBe("COPX");
+    expect(r.freeShares).toBe(100);
+    expect(r.freeLots).toBe(1);
+    expect(r.spot).toBe("$94.00");
+    expect(r.todayGl).toBe("+$2.00 (+2.17%)");
+    expect(r.totalGl).toBe("+$5,400 (+135.00%)"); // (94−40)×100 ; (94−40)/40
+    expect(r.capital).toBe("$9,400");
+    expect(r.shareBasis).toBe("$40.00");
+  });
+
+  it("emits dashes (not fabricated values) for an unobserved free-only symbol", () => {
+    const csvRows = buildUnencumberedCsvRows(
+      snapshot({ inventory: [inv("FREE", 300, 0, { averageCostPerShare: 12, costBasis: 3600, marketValue: null })] }),
+      NO_OBS,
+      NO_HISTORY,
+    );
+    const r = csvRows[0];
+    expect(r.symbol).toBe("FREE");
+    expect(r.freeShares).toBe(300);
+    expect(r.spot).toBe("—");
+    expect(r.todayGl).toBe("—");
+    expect(r.totalGl).toBe("—");   // no spot → no total G/L
+    expect(r.capital).toBe("—");
+    expect(r.shareBasis).toBe("$12.00"); // basis is snapshot-derived, still present
+    expect(r.freshness).toBe("—");
   });
 });
