@@ -39,8 +39,7 @@ import { deriveUnencumberedInventory } from "../portfolio/unencumbered-inventory
 import {
   computeTodayUnderlyingChange,
   computeTodayUnderlyingChangePercent,
-  formatTodayGl,
-  formatTodayGlPercent,
+  formatTodayGlCombined,
   todayGlDirection,
 } from "./today-gl";
 
@@ -210,6 +209,18 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
               {" "}({totalCapitalLabel})
             </span>
           )}
+          {totalGlLabel && (
+            <span
+              className={`oc-inv-title-gl oc-inv-gl-${totalGlDir}`}
+              title={
+                glMissingRows > 0
+                  ? `Today's total G/L: Σ (underlying intraday move × free shares) and dollar-weighted percent, over rows with a computable move (${glRows} of ${glRows + glMissingRows}); market context, not a position P/L`
+                  : "Today's total G/L: Σ (underlying intraday move × free shares) and dollar-weighted percent; market context, not a position P/L"
+              }
+            >
+              {" "}{totalGlLabel}{totalGlPctLabel ? `, ${totalGlPctLabel}` : ""}
+            </span>
+          )}
         </span>
         <span className="oc-inv-provenance">{provenanceLine(snapshot)}</span>
       </div>
@@ -234,36 +245,7 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
               <th className="oc-inv-th-right">Free Shares</th>
               <th className="oc-inv-th-right">Free Lots</th>
               <th className="oc-inv-th-right">Spot</th>
-              <th className="oc-inv-th-right">
-                Today&apos;s G/L
-                {totalGlLabel && (
-                  <span
-                    className={`oc-inv-th-total oc-inv-gl-${totalGlDir}`}
-                    title={
-                      glMissingRows > 0
-                        ? `Total: Σ (underlying intraday move × free shares) over rows with a computable move (${glRows} of ${glRows + glMissingRows}); market context, not a position P/L`
-                        : "Total: Σ (underlying intraday move × free shares); market context, not a position P/L"
-                    }
-                  >
-                    {" "}({totalGlLabel})
-                  </span>
-                )}
-              </th>
-              <th className="oc-inv-th-right">
-                Today&apos;s G/L %
-                {totalGlPctLabel && (
-                  <span
-                    className={`oc-inv-th-total oc-inv-gl-${totalGlDir}`}
-                    title={
-                      glMissingRows > 0
-                        ? `Total %: dollar-weighted (total move ÷ start-of-day free-share value) over rows with a computable move (${glRows} of ${glRows + glMissingRows}); market context, not a position P/L`
-                        : "Total %: dollar-weighted (total move ÷ start-of-day free-share value); market context, not a position P/L"
-                    }
-                  >
-                    {" "}({totalGlPctLabel})
-                  </span>
-                )}
-              </th>
+              <th className="oc-inv-th-right">Today&apos;s G/L</th>
               <th className="oc-inv-th-right">Capital</th>
               <th className="oc-inv-th-right" title="Symbol-level blended average cost — not specific to the free shares">Share Basis</th>
               <th className="oc-inv-th-right">Freshness</th>
@@ -289,10 +271,7 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
                   <td className="oc-inv-td-right">{row.freeLots}</td>
                   <td className="oc-inv-td-right">{fmtSpot(spot)}</td>
                   <td className={`oc-inv-td-right oc-inv-gl-${glDir}`}>
-                    {formatTodayGl(glChange)}
-                  </td>
-                  <td className={`oc-inv-td-right oc-inv-gl-${glDir}`}>
-                    {formatTodayGlPercent(glPct)}
+                    {formatTodayGlCombined(glChange, glPct)}
                   </td>
                   <td className="oc-inv-td-right">{fmtMoney(capital)}</td>
                   <td className="oc-inv-td-right oc-inv-td-basis" title="Symbol-level blended average cost (not specific to the free shares)">

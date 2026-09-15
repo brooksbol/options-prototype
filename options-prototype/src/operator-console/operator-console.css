@@ -1108,6 +1108,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Today's total G/L next to the title — direction color from oc-inv-gl-*. */
+.oc-inv-title-gl {
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Column-header total parenthetical (e.g. Today's G/L). Non-uppercase, lets the
    gl-direction color class provide the sign color. */
 .oc-inv-th-total {
