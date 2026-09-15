@@ -1100,6 +1100,23 @@
   color: var(--wd-text-primary, #111827);
 }
 
+.oc-inv-title-total {
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--wd-text-secondary, #374151);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Column-header total parenthetical (e.g. Today's G/L). Non-uppercase, lets the
+   gl-direction color class provide the sign color. */
+.oc-inv-th-total {
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+}
+
 .oc-inv-provenance {
   font-size: 9px;
   color: var(--wd-text-tertiary, #6b7280);

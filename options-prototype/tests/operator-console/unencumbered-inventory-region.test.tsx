@@ -85,9 +85,27 @@ describe("UnencumberedInventory region", () => {
     renderRegion(snapshot({ inventory: [inv("COPX", 200, 100)], calls: [call("COPX", 1)] }));
     expect(screen.getByText("Unencumbered Shares")).toBeTruthy();
     expect(screen.getByText("COPX")).toBeTruthy();
-    for (const name of [/free shares/i, /free lots/i, /^spot$/i, /today's g\/l/i, /^capital$/i, /share basis/i, /freshness/i]) {
-      expect(screen.getByRole("columnheader", { name })).toBeTruthy();
+    const headerText = screen.getAllByRole("columnheader").map(h => h.textContent ?? "").join(" | ");
+    for (const label of ["Free Shares", "Free Lots", "Spot", "Today's G/L", "Today's G/L %", "Capital", "Share Basis", "Freshness"]) {
+      expect(headerText).toContain(label);
     }
+  });
+
+  it("Today's G/L is split into separate $ and % columns", () => {
+    const now = new Date().toISOString();
+    const nowMs = Date.now();
+    renderRegion(
+      snapshot({ inventory: [inv("COPX", 200, 100)], calls: [call("COPX", 1)] }),
+      obsMap([{ symbol: "COPX", price: 94.0, observedAt: now }]),
+      historyMap([{ symbol: "COPX", moments: [
+        { price: 92.0, observedAt: new Date(nowMs - 3 * 3600_000).toISOString() },
+        { price: 94.0, observedAt: now },
+      ] }]),
+    );
+    const row = screen.getByText("COPX").closest("tr")!;
+    const u = within(row);
+    expect(u.getByText("+$2.00")).toBeTruthy();   // $ cell (no percent inside)
+    expect(u.getByText("+2.17%")).toBeTruthy();    // separate % cell
   });
 
   it("State 3: odd lot (50 free / 0 lots) is visible and not erroneous", () => {
@@ -153,8 +171,9 @@ describe("UnencumberedInventory region", () => {
     expect(u.getByText("$94.00")).toBeTruthy();     // spot
     expect(u.getByText("$9,400")).toBeTruthy();      // capital = 100 free × $94
     expect(u.getByText("$40.50")).toBeTruthy();      // blended basis
-    // Today's G/L: +$2.00 (+2.17%) — same-day move from 92 → 94
-    expect(u.getByText(/\+\$2\.00/)).toBeTruthy();
+    // Today's G/L split cells — same-day move from 92 → 94
+    expect(u.getByText("+$2.00")).toBeTruthy();
+    expect(u.getByText("+2.17%")).toBeTruthy();
   });
 
   it("free-only symbol with NO observation renders dashes for spot/capital/freshness (no fabrication)", () => {
@@ -172,5 +191,105 @@ describe("UnencumberedInventory region", () => {
     renderRegion(snapshot({ inventory: [inv("NOECON", 100, 0, null)] }));
     const row = screen.getByText("NOECON").closest("tr")!;
     expect(within(row).getAllByText("—").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("title shows a total-capital parenthetical = sum of priced rows' capital", () => {
+    const now = new Date().toISOString();
+    renderRegion(
+      snapshot({ inventory: [inv("COPX", 200, 100), inv("AAA", 100, 0)] }),
+      obsMap([
+        { symbol: "COPX", price: 94.0, observedAt: now }, // 100 free × 94 = 9,400
+        { symbol: "AAA", price: 10.0, observedAt: now },  // 100 free × 10 = 1,000
+      ]),
+    );
+    const title = screen.getByText("Unencumbered Shares").closest("span")!;
+    expect(title.textContent).toMatch(/\(\$10,400\)/); // 9,400 + 1,000, no "partial"
+    expect(title.textContent).not.toMatch(/partial/);
+  });
+
+  it("title total is marked (partial) when some rows lack a live quote", () => {
+    const now = new Date().toISOString();
+    renderRegion(
+      snapshot({ inventory: [inv("COPX", 200, 100), inv("FREE", 300, 0)] }),
+      obsMap([{ symbol: "COPX", price: 94.0, observedAt: now }]), // FREE unpriced
+    );
+    const title = screen.getByText("Unencumbered Shares").closest("span")!;
+    expect(title.textContent).toMatch(/\(\$9,400 \(partial\)\)/);
+  });
+
+  it("no total parenthetical when no row has a live quote", () => {
+    renderRegion(snapshot({ inventory: [inv("FREE", 300, 0)] }), NO_OBS, NO_HISTORY);
+    const title = screen.getByText("Unencumbered Shares").closest("span")!;
+    // Only the label, no "($...)" total.
+    expect(title.textContent).not.toMatch(/\$/);
+  });
+
+  // The $ header contains "Today's G/L" but not "%"; the % header contains "%".
+  function glDollarHeader(): HTMLElement {
+    return screen.getAllByRole("columnheader").find(h => /Today's G\/L/.test(h.textContent ?? "") && !/%/.test(h.textContent ?? ""))!;
+  }
+  function glPctHeader(): HTMLElement {
+    return screen.getAllByRole("columnheader").find(h => /Today's G\/L %/.test(h.textContent ?? ""))!;
+  }
+
+  it("Today's G/L $ header shows a dollar-weighted total (per-share move × free shares)", () => {
+    const now = new Date().toISOString();
+    const nowMs = Date.now();
+    const earlier = new Date(nowMs - 3 * 3600_000).toISOString();
+    renderRegion(
+      snapshot({ inventory: [inv("COPX", 200, 100), inv("AAA", 100, 0)] }),
+      obsMap([
+        { symbol: "COPX", price: 94.0, observedAt: now },
+        { symbol: "AAA", price: 10.0, observedAt: now },
+      ]),
+      historyMap([
+        // COPX +$2.00/sh × 100 free = +$200
+        { symbol: "COPX", moments: [{ price: 92.0, observedAt: earlier }, { price: 94.0, observedAt: now }] },
+        // AAA -$0.50/sh × 100 free = -$50  → total +$150
+        { symbol: "AAA", moments: [{ price: 10.5, observedAt: earlier }, { price: 10.0, observedAt: now }] },
+      ]),
+    );
+    expect(glDollarHeader().textContent).toMatch(/\(\+\$150\)/);
+    expect(glDollarHeader().textContent).not.toMatch(/partial/);
+  });
+
+  it("Today's G/L % header shows a dollar-weighted total percent", () => {
+    const now = new Date().toISOString();
+    const nowMs = Date.now();
+    const earlier = new Date(nowMs - 3 * 3600_000).toISOString();
+    // COPX: 100 free, 92 → 94 (+$200, ref base 100×92 = 9,200)
+    // AAA:  100 free, 10.5 → 10.0 (-$50, ref base 100×10.5 = 1,050)
+    // total $ = +150; ref base = 10,250; total % = 150/10,250 = +1.46%
+    renderRegion(
+      snapshot({ inventory: [inv("COPX", 200, 100), inv("AAA", 100, 0)] }),
+      obsMap([
+        { symbol: "COPX", price: 94.0, observedAt: now },
+        { symbol: "AAA", price: 10.0, observedAt: now },
+      ]),
+      historyMap([
+        { symbol: "COPX", moments: [{ price: 92.0, observedAt: earlier }, { price: 94.0, observedAt: now }] },
+        { symbol: "AAA", moments: [{ price: 10.5, observedAt: earlier }, { price: 10.0, observedAt: now }] },
+      ]),
+    );
+    expect(glPctHeader().textContent).toMatch(/\(\+1\.46%\)/);
+  });
+
+  it("Today's G/L totals are (partial) when a row lacks a computable move", () => {
+    const now = new Date().toISOString();
+    const nowMs = Date.now();
+    const earlier = new Date(nowMs - 3 * 3600_000).toISOString();
+    renderRegion(
+      snapshot({ inventory: [inv("COPX", 200, 100), inv("FREE", 300, 0)] }),
+      obsMap([{ symbol: "COPX", price: 94.0, observedAt: now }]),
+      historyMap([{ symbol: "COPX", moments: [{ price: 92.0, observedAt: earlier }, { price: 94.0, observedAt: now }] }]),
+    );
+    expect(glDollarHeader().textContent).toMatch(/\(\+\$200 \(partial\)\)/);
+    expect(glPctHeader().textContent).toMatch(/\(partial\)/);
+  });
+
+  it("no Today's G/L totals when no row has a computable move", () => {
+    renderRegion(snapshot({ inventory: [inv("FREE", 300, 0)] }), NO_OBS, NO_HISTORY);
+    expect(glDollarHeader().textContent).not.toMatch(/\$/);
+    expect(glPctHeader().textContent).not.toMatch(/%\)/); // no "(...%)" total parenthetical
   });
 });
