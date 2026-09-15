@@ -220,7 +220,7 @@ export function OperatorConsole() {
           {/* Current portfolio state / available inventory — ABOVE and SEPARATE
               from the temporal DTE ladder (PL-ELIG V1). Shares are never inserted
               into the ladder. */}
-          <UnencumberedInventory snapshot={snapshot} />
+          <UnencumberedInventory snapshot={snapshot} observations={observations.observations} spotHistory={spotHistory} />
           {/* Position Monitoring — ladder with regime-specific tile rendering */}
           <div className="oc-region-ladder">
             {vizRegime === "b" && (

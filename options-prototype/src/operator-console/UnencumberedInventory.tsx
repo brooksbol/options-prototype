@@ -1,39 +1,56 @@
 /**
- * Unencumbered Shares — Operator Console region (PL-ELIG V1)
+ * Unencumbered Shares — Operator Console region (PL-ELIG V1 + column expansion)
  *
  * Renders standalone free-share inventory ABOVE and SEPARATE FROM the DTE ladder.
  * The DTE ladder remains the temporal option-position / encumbered-capital surface;
  * shares are never inserted into it.
  *
- * This component is presentation only. It composes:
- *   - the pure projection (deriveUnencumberedInventory) → rows + geometryWarnings
- *   - snapshot readiness status + complete existing readiness warnings
- *   - Option Summary provenance (with export-timestamp fallback)
+ * COLUMNS (Principal-authorized expansion Sep 14, 2026 — see docs/parking-lot-8.md
+ * §PL-ELIG implementation record; this expansion is beyond the original V1
+ * exclusion list and was explicitly authorized):
+ *   Symbol · Free Shares · Free Lots · Spot · Today's G/L · Capital · Share Basis · Freshness
  *
- * Three states MUST be visually distinguishable (canonical: docs/parking-lot-8.md
- * §PL-ELIG):
+ * Truthfulness rules (unchanged core + expansion honesty):
+ *   - Free Shares / Free Lots come from the pure projection (deriveUnencumberedInventory):
+ *     snapshot-derived from observed Option Summary ownership + open short-call geometry;
+ *     deterministic but NOT universally authoritative/complete.
+ *   - Spot / Today's G/L / Capital / Freshness are LIVE-evidence derivations. A purely
+ *     free-held symbol (owned, no open option) is NOT in the Console observation set, so
+ *     these render "—" honestly rather than fabricating a value.
+ *   - Today's G/L is the UNDERLYING's intraday move (market context) — NOT a position
+ *     mark-to-market P/L (same honest semantics as the ladder's Today's G/L column).
+ *   - Capital = Free Shares × Spot (market value of the free shares at the live quote).
+ *     Shown only when spot is available; not folded into any account total.
+ *   - Share Basis = economics.averageCostPerShare, which is a SYMBOL-LEVEL BLENDED
+ *     average (Principal-accepted). It is NOT lot-specific to the free shares; labeled
+ *     "blended" so it is never mistaken for a free-lot-specific basis (PL-PORT-01).
+ *   - Freshness is the age of the underlying PRICE observation; "—" when unobserved.
+ *
+ * Three states MUST remain visually distinguishable (canonical contract):
  *   1. inventory evidence unavailable / incomplete
  *   2. evidence usable and no unencumbered shares (trustworthy zero)
  *   3. one or more unencumbered-share rows
- *
- * Visibility: render when rows exist OR geometryWarnings exist OR evidence is not
- * trustworthy. For a trustworthy zero, a truthful "No unencumbered shares" state is
- * shown (not a silent collapse), so absence-of-evidence never looks like a
- * trustworthy zero.
  */
 
-import type { PortfolioSnapshot } from "../write-desk/types";
+import type { PortfolioSnapshot, PositionEconomics } from "../write-desk/types";
+import type { QuoteObservation } from "../evidence/observation-store";
+import type { SpotHistoryMap } from "../evidence/use-spot-history";
 import { deriveUnencumberedInventory } from "../portfolio/unencumbered-inventory";
+import {
+  computeTodayUnderlyingChange,
+  computeTodayUnderlyingChangePercent,
+  formatTodayGlCombined,
+  todayGlDirection,
+} from "./today-gl";
 
 interface UnencumberedInventoryProps {
   snapshot: PortfolioSnapshot;
+  /** Per-symbol live quote observations (uppercase-keyed). Empty for unobserved symbols. */
+  observations: ReadonlyMap<string, QuoteObservation>;
+  /** Per-underlying spot history for the Today's G/L intraday move. */
+  spotHistory: SpotHistoryMap;
 }
 
-/**
- * Evidence is "trustworthy" for free-share display when the Option Summary loaded
- * and readiness is not in an incomplete/blocked state. We use the overall readiness
- * status + loaded flag — NOT fragile substring parsing of individual warnings.
- */
 function inventoryEvidenceTrustworthy(snapshot: PortfolioSnapshot): boolean {
   const r = snapshot.readiness;
   if (!r) return false;
@@ -42,15 +59,12 @@ function inventoryEvidenceTrustworthy(snapshot: PortfolioSnapshot): boolean {
   return r.status !== "INCOMPLETE" && r.status !== "CONFLICTED";
 }
 
-/** Option Summary export-time line with explicit fallback; parse time never masquerades as export time. */
 function provenanceLine(snapshot: PortfolioSnapshot): string {
   const p = snapshot.provenance;
   const source = p?.optionSummaryFilename ? `Fidelity Option Summary · ${p.optionSummaryFilename}` : "Fidelity Option Summary";
   if (p?.optionSummaryExportTimestamp) {
     return `${source} · exported ${formatTs(p.optionSummaryExportTimestamp)}`;
   }
-  // Export timestamp unavailable — say so explicitly. Optionally show parse time,
-  // clearly labeled as parse time (never as broker export/observation time).
   const parseNote = p?.optionSummaryParsedAt ? ` · parsed ${formatTs(p.optionSummaryParsedAt)}` : "";
   return `${source} · Export time unavailable${parseNote}`;
 }
@@ -58,25 +72,54 @@ function provenanceLine(snapshot: PortfolioSnapshot): string {
 function formatTs(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleString(undefined, {
-    year: "numeric", month: "short", day: "numeric",
-    hour: "2-digit", minute: "2-digit",
-  });
+  return d.toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-export function UnencumberedInventory({ snapshot }: UnencumberedInventoryProps) {
+/** Coarse age string ("42s"/"3m"/"5h"/"2d"), matching the ladder's convention. */
+function formatDataAge(ageMs: number): string {
+  const sec = Math.floor(ageMs / 1000);
+  if (sec < 60) return `${sec}s`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h`;
+  return `${Math.floor(hr / 24)}d`;
+}
+
+const DASH = "—";
+
+function fmtSpot(price: number | null | undefined): string {
+  return price != null ? `$${price.toFixed(2)}` : DASH;
+}
+
+function fmtMoney(v: number | null): string {
+  return v != null ? `$${Math.round(v).toLocaleString()}` : DASH;
+}
+
+function fmtBasis(economics: PositionEconomics | null): string {
+  const b = economics?.averageCostPerShare;
+  return b != null ? `$${b.toFixed(2)}` : DASH;
+}
+
+function fmtFreshness(observedAt: string | null | undefined): string {
+  if (!observedAt) return DASH;
+  const ms = Date.parse(observedAt);
+  if (Number.isNaN(ms)) return DASH;
+  return formatDataAge(Math.max(0, Date.now() - ms));
+}
+
+export function UnencumberedInventory({ snapshot, observations, spotHistory }: UnencumberedInventoryProps) {
   const { rows, geometryWarnings } = deriveUnencumberedInventory(snapshot);
   const trustworthy = inventoryEvidenceTrustworthy(snapshot);
   const readinessWarnings = snapshot.readiness?.warnings ?? [];
 
-  // Visibility: the contract's rule is "rows OR warnings OR untrustworthy". For a
-  // trustworthy zero (no rows, no warnings, trustworthy evidence), the contract
-  // leaves collapse-vs-truthful-empty to implementation UNLESS architecture requires
-  // otherwise. Doc 26 makes free-share visibility a required Console region, and the
-  // three-state distinction requires State 2 (trustworthy zero) to be distinguishable
-  // from State 1 (evidence unavailable). We therefore render a truthful empty state
-  // for the trustworthy zero rather than collapse silently — so absence-of-region can
-  // never be mistaken for "no unencumbered shares." The region is thus always shown.
+  // Region always renders (rows OR warnings OR untrustworthy; and a trustworthy zero
+  // shows a truthful empty state) so absence-of-region can never be mistaken for
+  // "no unencumbered shares" and State 2 stays distinct from State 1.
+
+  const economicsBySymbol = new Map(
+    snapshot.inventory.map((inv) => [inv.symbol.toUpperCase(), inv.economics]),
+  );
 
   return (
     <section className="oc-region-inventory" aria-label="Unencumbered Shares">
@@ -104,22 +147,47 @@ export function UnencumberedInventory({ snapshot }: UnencumberedInventoryProps) 
               <th className="oc-inv-th-left">Symbol</th>
               <th className="oc-inv-th-right">Free Shares</th>
               <th className="oc-inv-th-right">Free Lots</th>
+              <th className="oc-inv-th-right">Spot</th>
+              <th className="oc-inv-th-right">Today&apos;s G/L</th>
+              <th className="oc-inv-th-right">Capital</th>
+              <th className="oc-inv-th-right" title="Symbol-level blended average cost — not specific to the free shares">Share Basis</th>
+              <th className="oc-inv-th-right">Freshness</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr key={row.symbol}>
-                <td className="oc-inv-td-symbol">{row.symbol}</td>
-                <td className="oc-inv-td-right">{row.freeShares.toLocaleString()}</td>
-                <td className="oc-inv-td-right">{row.freeLots}</td>
-              </tr>
-            ))}
+            {rows.map((row) => {
+              const key = row.symbol.toUpperCase();
+              const obs = observations.get(key);
+              const spot = obs?.price ?? null;
+              const moments = spotHistory.get(key);
+              const glChange = computeTodayUnderlyingChange(moments);
+              const glPct = computeTodayUnderlyingChangePercent(moments);
+              const glDir = todayGlDirection(glChange);
+              // Capital = market value of the FREE shares at the live quote.
+              const capital = spot != null ? row.freeShares * spot : null;
+              const economics = economicsBySymbol.get(key) ?? null;
+
+              return (
+                <tr key={row.symbol}>
+                  <td className="oc-inv-td-symbol">{row.symbol}</td>
+                  <td className="oc-inv-td-right">{row.freeShares.toLocaleString()}</td>
+                  <td className="oc-inv-td-right">{row.freeLots}</td>
+                  <td className="oc-inv-td-right">{fmtSpot(spot)}</td>
+                  <td className={`oc-inv-td-right oc-inv-gl-${glDir}`}>
+                    {formatTodayGlCombined(glChange, glPct)}
+                  </td>
+                  <td className="oc-inv-td-right">{fmtMoney(capital)}</td>
+                  <td className="oc-inv-td-right oc-inv-td-basis" title="Symbol-level blended average cost (not specific to the free shares)">
+                    {fmtBasis(economics)}
+                  </td>
+                  <td className="oc-inv-td-right oc-inv-td-freshness">{fmtFreshness(obs?.observedAt)}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       ) : (
-        trustworthy && (
-          <div className="oc-inv-empty">No unencumbered shares.</div>
-        )
+        trustworthy && <div className="oc-inv-empty">No unencumbered shares.</div>
       )}
 
       {geometryWarnings.length > 0 && (

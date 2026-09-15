@@ -1113,7 +1113,16 @@
 
 .oc-inv-table th,
 .oc-inv-table td {
-  padding: 3px 14px 3px 0;
+  padding: 1px 14px 1px 0;
+  line-height: 1.35;
+}
+
+/* Remove inter-row separation — compact, dense rows with no vertical gap. */
+.oc-inv-table tr {
+  border: 0;
+}
+.oc-inv-table tbody td {
+  border: 0;
 }
 
 .oc-inv-th-left,
@@ -1149,6 +1158,28 @@
   font-size: 10px;
   color: var(--wd-text-tertiary, #6b7280);
   font-style: italic;
+}
+
+/* Today's G/L direction (underlying intraday move — market context). */
+.oc-inv-gl-up {
+  color: #15803d;
+}
+.oc-inv-gl-down {
+  color: #b91c1c;
+}
+.oc-inv-gl-flat {
+  color: var(--wd-text-secondary, #374151);
+}
+
+/* Share Basis — blended average; de-emphasized to signal it is coarse. */
+.oc-inv-td-basis {
+  color: var(--wd-text-secondary, #374151);
+}
+
+/* Freshness — quiet, tertiary. */
+.oc-inv-td-freshness {
+  color: var(--wd-text-tertiary, #6b7280);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Evidence unavailable/incomplete — must read differently from a trustworthy zero. */
