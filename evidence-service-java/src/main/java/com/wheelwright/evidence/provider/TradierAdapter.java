@@ -140,6 +140,80 @@ public class TradierAdapter {
         return new ChainResult(chain, retrievedAt, false);
     }
 
+    // --- Index market glance (PL-ELIG Markets card) -------------------------------
+    // Index symbols (SPX/NDX/$DJI) expose a live quote (last + broker-computed daily
+    // change/percent vs prior close) and intraday timesales bars. This is the honest
+    // source for the header Markets card: the daily % comes straight from the provider
+    // (not reconstructed from our own samples), and the sparkline comes from real
+    // intraday bars — neither depends on an options chain (indices like $DJI have none).
+    // Both go through this authority's pacer; nothing is persisted or published.
+
+    /** A market index snapshot: current value + broker-computed daily change. */
+    public record IndexQuote(String symbol, String name, double last, double change,
+                             double changePercent, double prevClose, String retrievedAt) {}
+
+    /** Intraday price bars (chronological) for a symbol's sparkline. */
+    public record IntradaySeries(String symbol, List<Double> prices, String retrievedAt) {}
+
+    /**
+     * Fetch a single index/underlying quote with the provider's own daily change fields.
+     * Read-only; goes through the pacer. No cache mutation, no persistence.
+     */
+    public IndexQuote getIndexQuote(String symbol) throws Exception {
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new ProviderError("Tradier API key not configured", 503);
+        }
+        pacer.setOperationKind("quote");
+        String body = pacer.submit(() -> fetchQuote(symbol));
+        double last = extractDouble(body, "last");
+        double prevClose = extractDouble(body, "prevclose");
+        double change = extractDouble(body, "change");
+        double changePercent = extractDouble(body, "change_percentage");
+        String name = extractQuotedString(body, "description");
+        if (name == null || name.isBlank()) name = symbol.toUpperCase();
+        return new IndexQuote(symbol.toUpperCase(), name, last, change, changePercent, prevClose,
+            Instant.now().toString());
+    }
+
+    /**
+     * Fetch intraday timesales bars for the current session and return the ordered
+     * price series (bar "price" = typical price). Read-only; goes through the pacer.
+     */
+    public IntradaySeries getIntradaySeries(String symbol, String interval, String start, String end)
+            throws Exception {
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new ProviderError("Tradier API key not configured", 503);
+        }
+        pacer.setOperationKind("timesales");
+        String body = pacer.submit(() -> fetchTimesales(symbol, interval, start, end));
+        return new IntradaySeries(symbol.toUpperCase(), extractSeriesPrices(body), Instant.now().toString());
+    }
+
+    /** Extract the ordered list of bar "price" values from a Tradier timesales payload. */
+    List<Double> extractSeriesPrices(String json) {
+        // Shape: { "series": { "data": [ { "time": "...", "price": 7608.8, ... }, ... ] } }
+        List<Double> prices = new ArrayList<>();
+        if (json == null) return prices;
+        int seriesIdx = json.indexOf("\"series\"");
+        if (seriesIdx < 0) return prices; // null/empty series (e.g. off-hours) → no points
+        int search = seriesIdx;
+        while (true) {
+            int p = json.indexOf("\"price\"", search);
+            if (p < 0) break;
+            int colon = json.indexOf(':', p);
+            if (colon < 0) break;
+            int i = colon + 1;
+            while (i < json.length() && Character.isWhitespace(json.charAt(i))) i++;
+            int j = i;
+            while (j < json.length() && (Character.isDigit(json.charAt(j)) || json.charAt(j) == '.' || json.charAt(j) == '-')) j++;
+            if (j > i) {
+                try { prices.add(Double.parseDouble(json.substring(i, j))); } catch (NumberFormatException ignore) { /* skip */ }
+            }
+            search = j;
+        }
+        return prices;
+    }
+
     /**
      * Issue one uncached, read-only quote request for the explicitly enabled
      * after-hours provider measurement harness.
@@ -231,6 +305,15 @@ public class TradierAdapter {
     private String fetchMeasurementQuote(String symbol) throws IOException, InterruptedException {
         String url = baseUrl + "/markets/quotes?symbols=" + symbol.toUpperCase();
         return httpRequest(url, "measurement-quote");
+    }
+
+    private String fetchTimesales(String symbol, String interval, String start, String end)
+            throws IOException, InterruptedException {
+        String url = baseUrl + "/markets/timesales?symbol=" + symbol.toUpperCase()
+            + "&interval=" + interval
+            + "&start=" + start.replace(" ", "%20")
+            + "&end=" + end.replace(" ", "%20");
+        return httpRequest(url, "timesales");
     }
 
     private String httpRequest(String url, String endpointClass) throws IOException, InterruptedException {

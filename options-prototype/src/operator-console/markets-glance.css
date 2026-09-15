@@ -1,0 +1,50 @@
+/* Markets glance (Option A) — compact header card, evidence-appliance-fed. */
+
+.mg-card {
+  font-family: system-ui, sans-serif;
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--wd-border-default, #e0e0e0);
+}
+
+.mg-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wd-text-primary, #111);
+  margin-bottom: 4px;
+}
+
+.mg-row {
+  display: flex;
+  gap: 18px;
+}
+
+.mg-item {
+  min-width: 96px;
+}
+
+.mg-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--wd-text-secondary, #374151);
+}
+
+.mg-price {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--wd-text-primary, #111);
+}
+
+.mg-change {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 2px;
+}
+
+.mg-up { color: #16a34a; }
+.mg-down { color: #dc2626; }
+.mg-flat { color: var(--wd-text-secondary, #374151); }

@@ -24,6 +24,7 @@ import { usePortfolio } from "../portfolio/use-portfolio";
 import { derivePortfolioCapital } from "../portfolio/portfolio-capital";
 import type { ShellCapitalContext } from "../portfolio/shell-capital-context";
 import type { TierReadiness } from "../hooks/useOpeningReadiness";
+import { MarketsGlance } from "../operator-console/MarketsGlance";
 import "./portfolio-trajectory.css";
 
 // --- Constants ---
@@ -189,6 +190,8 @@ export function PortfolioTrajectoryChart({ capitalContext, tierReadiness, sessio
                 {formatSessionState(sessionState)}
               </span>
             </div>
+            {/* Markets glance — real index values (SPX/NDX) via the evidence appliance. */}
+            <MarketsGlance />
           </div>
         )}
       </div>

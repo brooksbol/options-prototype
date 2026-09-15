@@ -782,3 +782,38 @@ Operator observed (screenshot) that the new Spot / Today's G/L / Capital / Fresh
 **Principal disposition on not-in-universe symbols:** empty values are acceptable. A symbol genuinely outside the universe / not acquirable correctly falls back to "—" (`QuotesController` returns `not_in_universe` with null price/observedAt). The FE change maximizes how many rows get live values (anything acquirable now populates and is covered by refresh) while non-universe rows truthfully stay "—" — no fabrication, no force-populate.
 
 **Expectation note:** even for acquirable free-only symbols, values are not instantaneous — the symbol must be acquired once (by the scheduler, or immediately via "Refresh evidence now," which now includes it); until first acquisition the row shows "—", then fills in. Full suite 1574/1575 (sole failure = pre-existing unrelated velvet-rope date-drift snapshot). No new tests required (internal extraction seam; existing region tests already cover the "—" honesty). Principal live in-browser confirmation still the acceptance gate.
+
+---
+
+## 2026-09-15 — Operator header "Markets" card: appliance-sourced index glance (commit pending)
+
+Added a compact "Markets" card to the application header (right of Session) showing **Dow Jones / S&P 500 / Nasdaq 100** with real index values, the provider's daily change $/%, and an intraday sparkline. Built after an A-vs-B working-software comparison.
+
+### The comparison (both built as spikes, one kept)
+
+- **Option A — evidence appliance (KEPT).** Real index values + change + sparkline sourced through the backend, no frontend provider calls.
+- **Option B — TradingView embed (REJECTED, deleted).** A hosted third-party widget. Rejected for two independent reasons: (1) it violates the ratified "no provider calls from frontend" invariant (browser opens a direct third-party market-data connection, not session-gated, no provenance, client becomes a data-lifecycle owner); and (2) its **free embed does not render real index symbols** — index widgets came back blank; only the ETF proxies rendered, which show ETF prices (~757), not index values. So B could not even deliver the true index numbers that were its only apparent advantage.
+
+### Corrected fact (important for cold-start actors)
+
+Earlier reasoning in this session asserted, unverified, that "Tradier's plan can't serve $SPX/$DJI/$COMPX." **That was wrong.** A direct read-only probe of Tradier **production** (`/markets/quotes`) confirmed real index quotes: `SPX` (S&P 500 Index), `$DJI` (Dow Jones Industrial Average), `NDX` (NASDAQ-100 Derived) all return `type:"index"` with live `last` + `change` + `change_percentage` + `prevclose`. `IXIC`/`COMPX`/`COMP` do NOT resolve (`COMP` is a stock), so the served Nasdaq index is **NDX (Nasdaq-100)**, and Dow is **`$DJI`** (not `DJX`, which is the ÷100 options index ~520). Do not repeat the "can't serve indices" claim.
+
+### Why quote+timesales, not the chain path
+
+The Console's existing spot comes from an options-chain's `underlying.price`. That path is wrong for indices: (a) `$DJI` has **no options chain** (`expirations: null`), and (b) the chain-embedded index underlying price is static/degenerate (a forced-acquisition burst produced a wall of identical values → flat sparkline, no computable % ). The correct sources, verified live for all three symbols:
+- **Daily value + change/%** from `/markets/quotes` (`last`, `change`, `change_percentage`, `prevclose`) — the provider's own figure vs prior close (retail-correct), not reconstructed from our samples.
+- **Sparkline** from `/markets/timesales` (5-min intraday bars) — a real intraday curve.
+
+### Implementation
+
+- **Backend:** `TradierAdapter.getIndexQuote()` + `getIntradaySeries()` (+ `extractSeriesPrices`), pacer-routed, read-only, no cache mutation/persistence. `MarketsController` `GET /api/markets` returns `{generatedAt, indices:[{symbol,label,last,change,changePercent,prevClose,observedAt,intraday[]}]}` for `$DJI`/`SPX`/`NDX` via `providerManager.active().adapter()`, with a 60s server-side TTL so the frontend poll can't spray the provider. Honest emptiness: provider errors → null fields (card shows "—"), never fabricated. `IndexMarketParsingTest` covers the timesales extraction incl. empty/null series.
+- **Frontend:** `MarketsGlance` polls `/api/markets` (60s); `PriceSparkline` renders a plain `number[]` intraday series (reuses `buildSparklineScale`). No frontend provider call; the browser stays a viewport. Rendered in the header via `PortfolioTrajectoryChart`.
+- **Not persisted / not in the snapshot contract** — a distinct market-context read, deliberately outside the frozen evidence-snapshot.
+
+### Live verification (post-restart, market open)
+
+`GET /api/markets` returned: Dow 51,985.14 (−0.84%, 53 bars), S&P 500 7,587.09 (−0.44%, 56 bars), Nasdaq 100 28,955.01 (−0.60%, 53 bars). Frontend build clean; full suite 1578/1579 (sole failure the pre-existing unrelated velvet-rope date-drift snapshot).
+
+### Architectural note
+
+This preserves the evidence-appliance boundary: index market context is acquired backend-side through the active provider authority and pacer, exposed via a read endpoint, consumed by the browser as a pure viewport. No exception to "no provider calls from frontend" was needed — the honest path existed once the false "Tradier can't serve indices" premise was corrected.
