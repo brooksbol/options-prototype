@@ -26,11 +26,18 @@ import { DEMO_SPOT_PRICES } from "../write-desk/demo-snapshot";
  * Extract unique underlying symbols from a PortfolioSnapshot.
  * Returns sorted, uppercase, deduplicated array.
  */
-function extractUnderlyings(snapshot: { existingPuts: { underlying: string }[]; existingCalls: { underlying: string }[] } | null): string[] {
+function extractUnderlyings(snapshot: { existingPuts: { underlying: string }[]; existingCalls: { underlying: string }[]; inventory?: { symbol: string }[] } | null): string[] {
   if (!snapshot) return [];
   const symbols = new Set<string>();
   for (const put of snapshot.existingPuts) symbols.add(put.underlying.toUpperCase());
   for (const call of snapshot.existingCalls) symbols.add(call.underlying.toUpperCase());
+  // Owned shares — including purely free holdings with no open option position —
+  // are capital exposure the operator monitors, so they belong in the observable
+  // population (PL-EVID-01: monitored-position observation is independent of the
+  // recommendation universe). Without this, the Unencumbered Shares region's live
+  // columns (Spot, Today's G/L, Capital, Freshness) stay blank for free-only
+  // holdings and the operator's "Refresh evidence now" cannot reach them.
+  for (const inv of snapshot.inventory ?? []) symbols.add(inv.symbol.toUpperCase());
   return [...symbols].sort();
 }
 

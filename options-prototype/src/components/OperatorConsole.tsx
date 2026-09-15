@@ -161,7 +161,16 @@ export function OperatorConsole() {
   // symbol set by its CONTENT: derive a joined key and only produce a new array when the
   // actual set of underlyings changes. (Same unstable-identity class as usePositionDeltas.)
   const isDemoSource = source === "demo";
-  const underlyingsKey = [...new Set(positions.map(p => p.underlying))].sort().join(",");
+  // Include owned-share symbols (inventory) alongside option-position underlyings so
+  // the Unencumbered Shares region's live columns (Spot, Today's G/L, Capital,
+  // Freshness) populate for purely free holdings, and so those symbols are covered
+  // by spot-history fetch and the operator's "Refresh evidence now" (which is passed
+  // this same `underlyings` set). PL-EVID-01: monitored capital is observable
+  // independent of the recommendation universe.
+  const underlyingsKey = [...new Set([
+    ...positions.map(p => p.underlying),
+    ...snapshot.inventory.map(inv => inv.symbol.toUpperCase()),
+  ])].sort().join(",");
   const underlyings = useMemo(
     () => (underlyingsKey === "" ? [] : underlyingsKey.split(",")),
     [underlyingsKey],
