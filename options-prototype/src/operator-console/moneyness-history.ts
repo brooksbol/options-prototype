@@ -193,9 +193,12 @@ export function deriveMoneynessHistory(
         ? (strike - spot) / strike
         : (spot - strike) / strike;
 
-      // Parse timestamp and convert to ET minutes from midnight
-      const date = new Date(timestamps[i]);
-      const etMinutes = getETMinutes(date);
+      // Convert timestamp to ET minutes from midnight. Two timestamp shapes reach here:
+      //   - UTC instants ("...Z" / with offset) — observed spot_history → convert via offset.
+      //   - Naive ET wall-clock ("2026-09-15T09:30:00", no zone) — Tradier timesales bars,
+      //     which are ALREADY ET; read their clock fields directly (no offset), else the
+      //     conversion double-shifts them and pushes the morning trace rightward.
+      const etMinutes = timestampToETMinutes(timestamps[i]);
       const t = Math.max(0, Math.min(1, (etMinutes - SESSION_START_MINUTES) / SESSION_DURATION));
 
       return { t, moneyness };
@@ -210,6 +213,26 @@ export function deriveMoneynessHistory(
       : (spot - strike) / strike;
     return { t: i * step, moneyness };
   });
+}
+
+/**
+ * Convert an ISO timestamp string to ET minutes from midnight.
+ *
+ * A NAIVE string (no trailing Z and no ±hh:mm offset) is treated as ET wall-clock
+ * and its hour:minute are read directly — this is Tradier's timesales bar format
+ * ("2026-09-15T09:30:00"), which is already ET. A string carrying a zone (UTC "Z"
+ * or an explicit offset — e.g. our observed spot_history) is a true instant and is
+ * converted through the EDT/EST offset. Reading a naive ET string through the offset
+ * path would double-shift it (the source of the right-shifted morning trace).
+ */
+function timestampToETMinutes(iso: string): number {
+  const hasZone = /[zZ]$|[+-]\d{2}:?\d{2}$/.test(iso);
+  if (!hasZone) {
+    // Naive → already ET wall-clock. Pull HH:MM straight from the string.
+    const m = /T(\d{2}):(\d{2})/.exec(iso);
+    if (m) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+  }
+  return getETMinutes(new Date(iso));
 }
 
 /**

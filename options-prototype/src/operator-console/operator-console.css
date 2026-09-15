@@ -862,6 +862,14 @@
   overflow: hidden;
 }
 
+/* Sparkline cell: minimal vertical padding so the trace governs row height without
+   inflating the tightened row rhythm (matches the Unencumbered Shares density). */
+.oc-td-moneyness {
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 0;
+}
+
 /* Moneyness cell background — matches the sparkline's region fill exactly */
 .oc-td-moneyness-favorable {
   background: rgba(22, 163, 74, 0.20);
@@ -982,7 +990,7 @@
 
 .oc-position-table tbody td,
 .oc-position-table tfoot td {
-  padding: 4px 8px;
+  padding: 1px 8px;
   border-bottom: 1px solid var(--wd-table-row-border);
   white-space: nowrap;
   color: var(--wd-text-primary);

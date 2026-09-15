@@ -1230,7 +1230,7 @@ function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass 
   }
 
   const SPARK_W = 160;
-  const SPARK_H = 24;
+  const SPARK_H = 18;
   const PAD = 1;
 
   // Topology-preserving auto-fit: scale Y by the LOCAL RANGE of the moneyness window,
@@ -1240,8 +1240,10 @@ function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass 
   // Strike relationship stays conveyed by the numeric value, cell color, region shading,
   // and the strike (zero) line when it falls within the fitted window.
   const scale = buildSparklineScale(points.map(p => p.moneyness), PAD, SPARK_H - PAD);
-  const zeroY = scale.zeroY;
   const sYScale = (m: number) => scale.yScale(m);
+  // Time-proportional x: session start (09:30 ET, t=0) at the LEFT, later points to
+  // the right. Any incomplete-session gap therefore falls on the RIGHT (the future
+  // that hasn't happened yet) — time reads left→right.
   const sXPos = (i: number) => PAD + points[i].t * (SPARK_W - PAD * 2);
 
   // Segmented trace
@@ -1270,14 +1272,11 @@ function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass 
         {mDisplay}
       </span>
       <svg width="100%" height={SPARK_H} viewBox={`0 0 ${SPARK_W} ${SPARK_H}`} preserveAspectRatio="none" style={{ display: "block", flexShrink: 0, flex: 1 }}>
-        {/* Strike boundary (zero line) — secondary context, drawn only when the strike
-            actually falls within the auto-fitted window so it never distorts the trace. */}
-        {scale.zeroInRange && (
-          <line x1={PAD} y1={zeroY} x2={SPARK_W - PAD} y2={zeroY} stroke="#6b7280" strokeWidth="1.2" />
-        )}
-        {/* Trajectory trace */}
+        {/* Trajectory trace — thin, like the Markets sparkline. (Strike/zero line
+            removed per operator: moneyness value + cell color already convey the
+            strike relationship.) */}
         {segments.map((seg, i) => (
-          <line key={i} x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2} stroke={seg.color} strokeWidth="2" strokeLinecap="round" />
+          <line key={i} x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2} stroke={seg.color} strokeWidth="1.5" strokeLinecap="round" />
         ))}
       </svg>
     </span>
