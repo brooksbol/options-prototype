@@ -124,13 +124,15 @@ class TradierAdapterTest {
                 ]}}
             """);
             adapter.setQuoteResponse("""
-                {"quotes":{"quote":{"symbol":"XLE","description":"Energy Select Sector SPDR Fund","last":57.50}}}
+                {"quotes":{"quote":{"symbol":"XLE","description":"Energy Select Sector SPDR Fund","last":57.50,"prevclose":56.40}}}
             """);
 
             var result = adapter.getOptionsChain("XLE", "2026-08-21");
             assertEquals("XLE", result.chain().symbol());
             assertEquals("Energy Select Sector SPDR Fund", result.chain().underlying().name());
             assertEquals(57.50, result.chain().underlying().price());
+            // BUG-020: provider prior close is preserved on the underlying.
+            assertEquals(56.40, result.chain().underlying().previousClose(), 0.0001);
             assertEquals(1, result.chain().puts().size());
             assertEquals(1, result.chain().calls().size());
             assertEquals(55, result.chain().puts().get(0).strike());
@@ -201,6 +203,37 @@ class TradierAdapterTest {
 
             var result = adapter.getOptionsChain("XLE", "2026-08-21");
             assertEquals(56.00, result.chain().underlying().price());
+        }
+
+        @Test
+        void preservesProviderPreviousClose() throws Exception {
+            // BUG-020: prevclose is the broker-comparison baseline for Today's G/L.
+            TestableAdapter adapter = new TestableAdapter("test-key", cache, pacer);
+            adapter.setChainResponse("""
+                {"options":{"option":[]}}
+            """);
+            adapter.setQuoteResponse("""
+                {"quotes":{"quote":{"symbol":"COPX","last":85.93,"prevclose":84.59}}}
+            """);
+
+            var result = adapter.getOptionsChain("COPX", "2026-08-21");
+            assertEquals(85.93, result.chain().underlying().price(), 0.0001);
+            assertEquals(84.59, result.chain().underlying().previousClose(), 0.0001);
+        }
+
+        @Test
+        void previousCloseAbsentYieldsNullNotZero() throws Exception {
+            // Absence stays absence — never fabricated 0 (persist facts; derive trust).
+            TestableAdapter adapter = new TestableAdapter("test-key", cache, pacer);
+            adapter.setChainResponse("""
+                {"options":{"option":[]}}
+            """);
+            adapter.setQuoteResponse("""
+                {"quotes":{"quote":{"symbol":"XLE","last":57.50}}}
+            """);
+
+            var result = adapter.getOptionsChain("XLE", "2026-08-21");
+            assertNull(result.chain().underlying().previousClose());
         }
 
         @Test
@@ -645,23 +678,29 @@ class TradierAdapterTest {
             String quoteCacheKey = symbol.toUpperCase();
             double price;
             String name;
+            Double previousClose;
             var cachedQuote = getCacheForTest().get(ResponseCache.CacheType.QUOTE, quoteCacheKey);
             if (cachedQuote != null) {
                 @SuppressWarnings("unchecked")
                 java.util.Map<String, Object> q = (java.util.Map<String, Object>) cachedQuote.data();
                 price = (Double) q.get("price");
                 name = (String) q.get("name");
+                previousClose = (Double) q.get("previousClose");
             } else {
                 String quoteBody = simulateHttpCall(quoteResponse);
                 price = extractTestDouble(quoteBody, "last");
                 if (price == 0) price = extractTestDouble(quoteBody, "close");
                 name = extractTestString(quoteBody, "description");
                 if (name == null || name.isBlank()) name = symbol.toUpperCase();
-                getCacheForTest().set(ResponseCache.CacheType.QUOTE, quoteCacheKey,
-                    java.util.Map.of("price", price, "name", name), java.time.Instant.now().toString());
+                previousClose = extractTestNullableDouble(quoteBody, "prevclose");
+                java.util.Map<String, Object> q = new java.util.HashMap<>();
+                q.put("price", price);
+                q.put("name", name);
+                q.put("previousClose", previousClose);
+                getCacheForTest().set(ResponseCache.CacheType.QUOTE, quoteCacheKey, q, java.time.Instant.now().toString());
             }
 
-            MarketChain chain = normalizeChainForTest(chainBody, symbol, expiration, name, price);
+            MarketChain chain = normalizeChainForTest(chainBody, symbol, expiration, name, price, previousClose);
             String retrievedAt = java.time.Instant.now().toString();
             getCacheForTest().set(ResponseCache.CacheType.CHAIN, cacheKey, chain, retrievedAt);
             return new ChainResult(chain, retrievedAt, false);
@@ -709,11 +748,11 @@ class TradierAdapterTest {
             return result;
         }
 
-        private MarketChain normalizeChainForTest(String body, String symbol, String expiration, String name, double price) {
+        private MarketChain normalizeChainForTest(String body, String symbol, String expiration, String name, double price, Double previousClose) {
             // Delegate to the REAL production normalizer so tests validate actual
-            // parsing behavior (including nullable-greek semantics), never a
-            // drifting duplicate.
-            return normalizeChain(body, symbol, expiration, name, price);
+            // parsing behavior (including nullable-greek + previousClose semantics),
+            // never a drifting duplicate.
+            return normalizeChain(body, symbol, expiration, name, price, previousClose);
         }
 
         private double extractTestDouble(String json, String key) {
@@ -729,6 +768,22 @@ class TradierAdapterTest {
             while (end < json.length() && (Character.isDigit(json.charAt(end)) || json.charAt(end) == '.' || json.charAt(end) == '-')) end++;
             if (end == start) return 0;
             try { return Double.parseDouble(json.substring(start, end)); } catch (NumberFormatException e) { return 0; }
+        }
+
+        /** Nullable twin of extractTestDouble: absence/JSON-null → null (never 0). */
+        private Double extractTestNullableDouble(String json, String key) {
+            String pattern = "\"" + key + "\"";
+            int idx = json.indexOf(pattern);
+            if (idx < 0) return null;
+            int colonIdx = json.indexOf(':', idx + pattern.length());
+            if (colonIdx < 0) return null;
+            int start = colonIdx + 1;
+            while (start < json.length() && (json.charAt(start) == ' ' || json.charAt(start) == '\t')) start++;
+            if (start >= json.length() || json.charAt(start) == 'n') return null;
+            int end = start;
+            while (end < json.length() && (Character.isDigit(json.charAt(end)) || json.charAt(end) == '.' || json.charAt(end) == '-')) end++;
+            if (end == start) return null;
+            try { return Double.parseDouble(json.substring(start, end)); } catch (NumberFormatException e) { return null; }
         }
 
         private String extractTestString(String json, String key) {

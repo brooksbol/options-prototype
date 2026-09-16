@@ -19,6 +19,7 @@ import {
   getObservations,
   setSymbols,
   type ObservationState,
+  type QuoteObservation,
 } from "./observation-store";
 import { DEMO_SPOT_PRICES } from "../write-desk/demo-snapshot";
 
@@ -75,14 +76,19 @@ function extractHeldExpirations(
  * keeping the demo temporally coherent regardless of actual market conditions.
  */
 function buildDemoObservations(): ObservationState {
-  const observations = new Map<string, { symbol: string; price: number | null; observedAt: string | null; acquisitionStatus: "ready"; lastAttemptAt: string | null; failureCount: number }>();
+  const observations = new Map<string, QuoteObservation>();
   const now = new Date().toISOString();
 
   for (const [symbol, price] of Object.entries(DEMO_SPOT_PRICES)) {
     const sym = symbol.toUpperCase();
+    // Demo prior close: a small deterministic offset from the demo spot so the
+    // Today's G/L column shows a plausible non-zero daily move in Demo mode
+    // (temporally coherent, self-contained, never derived from live Evidence).
+    const previousClose = Math.round(price * 0.994 * 100) / 100;
     observations.set(sym, {
       symbol: sym,
       price,
+      previousClose,
       observedAt: now,
       acquisitionStatus: "ready",
       lastAttemptAt: now,

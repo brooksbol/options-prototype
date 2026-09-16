@@ -117,22 +117,25 @@ public class TradierAdapter {
 
         double price;
         String name;
+        Double previousClose;
         if (cachedQuote != null) {
             @SuppressWarnings("unchecked")
             Map<String, Object> quoteData = (Map<String, Object>) cachedQuote.data();
             price = (Double) quoteData.get("price");
             name = (String) quoteData.get("name");
+            previousClose = (Double) quoteData.get("previousClose");
         } else {
             pacer.setOperationKind("quote");
             String quoteBody = pacer.submit(() -> fetchQuote(symbol));
             Map<String, Object> quoteInfo = normalizeQuote(quoteBody, symbol);
             price = (Double) quoteInfo.get("price");
             name = (String) quoteInfo.get("name");
+            previousClose = (Double) quoteInfo.get("previousClose");
             cache.set(ResponseCache.CacheType.QUOTE, quoteCacheKey, quoteInfo, retrievedAt);
         }
 
         // Normalize chain
-        MarketChain chain = normalizeChain(chainBody, symbol, expiration, name, price);
+        MarketChain chain = normalizeChain(chainBody, symbol, expiration, name, price, previousClose);
 
         // Store in cache
         cache.set(ResponseCache.CacheType.CHAIN, cacheKey, chain, retrievedAt);
@@ -451,18 +454,34 @@ public class TradierAdapter {
     }
 
     private Map<String, Object> normalizeQuote(String responseBody, String symbol) {
-        // Tradier shape: { "quotes": { "quote": { "last": 57.5, "close": 57.0, "description": "..." } } }
+        // Tradier shape: { "quotes": { "quote": { "last": 57.5, "close": 57.0, "prevclose": 56.4, "description": "..." } } }
         double price = extractDouble(responseBody, "last");
         if (price == 0) price = extractDouble(responseBody, "close");
 
         String name = extractQuotedString(responseBody, "description");
         if (name == null || name.isBlank()) name = symbol.toUpperCase();
 
-        return Map.of("price", price, "name", name);
+        // previousClose is the provider's prior-session official close. NULLABLE:
+        // absence stays absence (never fabricated 0), so a missing prior close
+        // yields an unavailable "Today's G/L" downstream rather than a wrong value.
+        Double previousClose = extractNullableDouble(responseBody, "prevclose");
+
+        // Map.of rejects null values; build a null-tolerant map so previousClose
+        // absence round-trips honestly.
+        Map<String, Object> out = new HashMap<>();
+        out.put("price", price);
+        out.put("name", name);
+        out.put("previousClose", previousClose);
+        return out;
     }
 
     // Package-private so tests exercise the REAL normalization (not a duplicate).
+    // Backward-compatible overload (previousClose unknown → null).
     MarketChain normalizeChain(String responseBody, String symbol, String expiration, String name, double price) {
+        return normalizeChain(responseBody, symbol, expiration, name, price, null);
+    }
+
+    MarketChain normalizeChain(String responseBody, String symbol, String expiration, String name, double price, Double previousClose) {
         // Tradier shape: { "options": { "option": [ { "strike": ..., "bid": ..., ... } ] } }
         List<MarketChain.OptionContract> puts = new ArrayList<>();
         List<MarketChain.OptionContract> calls = new ArrayList<>();
@@ -492,7 +511,7 @@ public class TradierAdapter {
         puts.sort(Comparator.comparingDouble(MarketChain.OptionContract::strike));
         calls.sort(Comparator.comparingDouble(MarketChain.OptionContract::strike));
 
-        MarketChain.Underlying underlying = new MarketChain.Underlying(symbol.toUpperCase(), name, price);
+        MarketChain.Underlying underlying = new MarketChain.Underlying(symbol.toUpperCase(), name, price, previousClose);
         return new MarketChain(symbol.toUpperCase(), expiration, underlying, puts, calls);
     }
 

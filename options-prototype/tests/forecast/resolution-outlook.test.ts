@@ -36,6 +36,7 @@ function makePosition(overrides: Partial<MonitoredPosition> = {}): MonitoredPosi
     capitalAsOf: "2026-08-18",
     moneyness: 0.05, // 5% ITM
     underlyingPrice: 57.75,
+    underlyingPreviousClose: null,
     priceObservedAt: "2026-08-18T10:00:00Z",
     evidenceGeneration: 5,
     acquisitionStatus: "FRESH",

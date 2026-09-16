@@ -66,6 +66,13 @@ export interface MonitoredPosition {
   /** The underlying price used to derive moneyness */
   underlyingPrice: number | null;
 
+  /**
+   * The underlying's provider prior-session close (Tradier `prevclose`), for the
+   * broker-parity "Today's G/L" = (underlyingPrice − underlyingPreviousClose).
+   * null when the provider did not supply a prior close (never fabricated).
+   */
+  underlyingPreviousClose: number | null;
+
   /** When the underlying price was observed (ISO timestamp from Evidence) */
   priceObservedAt: string | null;
 
@@ -188,6 +195,7 @@ export function deriveMonitoredPositions(
 interface EvidenceFacts {
   moneyness: number | null;
   underlyingPrice: number | null;
+  underlyingPreviousClose: number | null;
   priceObservedAt: string | null;
   evidenceGeneration: number | null;
   acquisitionStatus: AcquisitionStatus | null;
@@ -214,6 +222,7 @@ function resolveEvidence(
   const none: EvidenceFacts = {
     moneyness: null,
     underlyingPrice: null,
+    underlyingPreviousClose: null,
     priceObservedAt: null,
     evidenceGeneration: null,
     acquisitionStatus: null,
@@ -230,6 +239,7 @@ function resolveEvidence(
   const facts: EvidenceFacts = {
     moneyness: null,
     underlyingPrice: obs.price,
+    underlyingPreviousClose: obs.previousClose,
     priceObservedAt: obs.observedAt,
     evidenceGeneration: generation,
     acquisitionStatus: obs.acquisitionStatus,

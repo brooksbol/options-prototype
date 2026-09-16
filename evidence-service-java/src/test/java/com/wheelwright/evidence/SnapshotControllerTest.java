@@ -35,7 +35,7 @@ class SnapshotControllerTest {
         [{"date":"2026-08-03","dte":21},{"date":"2026-08-10","dte":28}]""";
 
     private static final String CHAIN_JSON = """
-        {"symbol":"XLE","expiration":"2026-08-03","underlying":{"symbol":"XLE","name":"Energy Select Sector","price":92.5},"puts":[{"strike":88,"bid":1.5,"ask":1.7,"delta":-0.28,"openInterest":520,"volume":110}],"calls":[{"strike":95,"bid":1.2,"ask":1.4,"delta":0.32,"openInterest":300,"volume":80}]}""";
+        {"symbol":"XLE","expiration":"2026-08-03","underlying":{"symbol":"XLE","name":"Energy Select Sector","price":92.5,"previousClose":91.3},"puts":[{"strike":88,"bid":1.5,"ask":1.7,"delta":-0.28,"openInterest":520,"volume":110}],"calls":[{"strike":95,"bid":1.2,"ask":1.4,"delta":0.32,"openInterest":300,"volume":80}]}""";
 
     private static final String NOW = "2026-07-16T14:30:00Z";
 
@@ -124,6 +124,7 @@ class SnapshotControllerTest {
             .andExpect(jsonPath("$.symbols[?(@.symbol == 'XLE')].chain.underlying.symbol", contains("XLE")))
             .andExpect(jsonPath("$.symbols[?(@.symbol == 'XLE')].chain.underlying.name", contains("Energy Select Sector")))
             .andExpect(jsonPath("$.symbols[?(@.symbol == 'XLE')].chain.underlying.price", contains(92.5)))
+            .andExpect(jsonPath("$.symbols[?(@.symbol == 'XLE')].chain.underlying.previousClose", contains(91.3)))
             .andExpect(jsonPath("$.symbols[?(@.symbol == 'XLE')].chain.puts[0].strike", contains(88)))
             .andExpect(jsonPath("$.symbols[?(@.symbol == 'XLE')].chain.puts[0].bid", contains(1.5)))
             .andExpect(jsonPath("$.symbols[?(@.symbol == 'XLE')].chain.puts[0].openInterest", contains(520)));

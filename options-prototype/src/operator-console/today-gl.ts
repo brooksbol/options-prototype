@@ -1,93 +1,21 @@
 /**
- * today-gl — derive the underlying's intraday dollar move ("Today's G/L $")
- * for the Operator Console position tables.
+ * today-gl — derive the broker-parity "Today's G/L $/%" for the Operator Console
+ * position tables (Unencumbered Shares) and the DTE ladder (underlying daily move).
  *
- * SEMANTICS (honest, non-fabricated):
- *   - This is the UNDERLYING's per-share dollar change over the most recent
- *     session day present in the spot-observation series — NOT a position
- *     mark-to-market P/L (the Console has no per-position option-mark history).
- *     It is market context, presented in dollars, matching the operator's
- *     preferred "Today's gain/loss $" wording.
- *   - "Today" is defined as the calendar date (UTC) of the LATEST observation in
- *     the series, not wall-clock now. This is correct for a sealed/closed session
- *     (the newest data is the last trading day) and deliberately avoids folding
- *     multiple days together (cf. BUG-015 moneyness-sparkline multi-day folding).
- *   - Returns null when the latest day has fewer than two distinct observation
- *     moments (no intraday reference to measure against) — the caller renders
- *     "—" rather than a fabricated zero.
- *
- * Input is the same SpotObservation[] series the moneyness sparkline consumes.
- * Callers should pass the already-deduplicated observation moments so that the
- * multi-expiration duplicate rows (one identical spot per eligible expiration per
- * cycle) do not masquerade as separate moments.
+ * SEMANTICS (BUG-020 — broker parity, honest, non-fabricated):
+ *   - "Today's G/L" is measured against the PRIOR SESSION CLOSE (the provider's
+ *     `prevclose`), exactly as Fidelity and other brokers report daily G/L —
+ *     NOT against Wheelwright's first intraday observation of the day (the prior
+ *     first-observation baseline excluded the open gap and could invert the sign).
+ *   - It is the underlying's daily move, presented in dollars (scaled by share
+ *     quantity for the position-level figure). It is market context, not a
+ *     per-position option mark-to-market P/L (the Console has no option-mark
+ *     history).
+ *   - The prior close is carried as an additive nullable field on the quote
+ *     observation. When it is absent (null) or non-positive, the daily figure is
+ *     UNAVAILABLE — the caller renders "—", never a fabricated zero and never a
+ *     wrong-baseline fallback. The $ and % share the same null condition and sign.
  */
-
-import type { SpotObservation } from "../evidence/use-spot-history";
-
-/** UTC calendar date key (YYYY-MM-DD) for an ISO timestamp. */
-function dateKey(iso: string): string {
-  return iso.slice(0, 10);
-}
-
-/**
- * Compute the underlying's dollar change over the latest session day present in
- * `moments`. `moments` MUST be chronologically ascending observation moments
- * (as returned by the history API and deduplicated by deduplicateObservations).
- *
- * Returns the signed per-share dollar change (latestPrice − firstPriceOfLatestDay),
- * or null when it cannot be computed honestly.
- */
-export function computeTodayUnderlyingChange(moments: SpotObservation[] | undefined | null): number | null {
-  if (!moments || moments.length < 2) return null;
-
-  const latest = moments[moments.length - 1];
-  const latestDay = dateKey(latest.observedAt);
-
-  // Earliest observation that shares the latest day.
-  let firstOfDay: SpotObservation | null = null;
-  for (const m of moments) {
-    if (dateKey(m.observedAt) === latestDay) {
-      firstOfDay = m;
-      break;
-    }
-  }
-
-  // Need at least two DISTINCT moments on the latest day to have an intraday
-  // reference. If the only same-day moment is the latest itself, there is no
-  // "today's move" to report.
-  if (!firstOfDay || firstOfDay === latest) return null;
-  if (firstOfDay.observedAt === latest.observedAt) return null;
-
-  return latest.price - firstOfDay.price;
-}
-
-/**
- * Percent form of the same latest-session move: (latest − firstOfDay) / firstOfDay * 100.
- * Uses the identical latest-day isolation and ≥2-same-day-moment rule as
- * computeTodayUnderlyingChange, so the $ and % columns are always consistent
- * (same sign, same null condition). Returns null when it cannot be computed
- * honestly (or the reference price is non-positive).
- */
-export function computeTodayUnderlyingChangePercent(moments: SpotObservation[] | undefined | null): number | null {
-  if (!moments || moments.length < 2) return null;
-
-  const latest = moments[moments.length - 1];
-  const latestDay = dateKey(latest.observedAt);
-
-  let firstOfDay: SpotObservation | null = null;
-  for (const m of moments) {
-    if (dateKey(m.observedAt) === latestDay) {
-      firstOfDay = m;
-      break;
-    }
-  }
-
-  if (!firstOfDay || firstOfDay === latest) return null;
-  if (firstOfDay.observedAt === latest.observedAt) return null;
-  if (firstOfDay.price <= 0) return null;
-
-  return ((latest.price - firstOfDay.price) / firstOfDay.price) * 100;
-}
 
 /**
  * Format a signed dollar change for display: "+$0.42" / "-$1.07".
@@ -125,4 +53,65 @@ export function formatTodayGlCombined(change: number | null, pct: number | null)
 export function todayGlDirection(change: number | null): "up" | "down" | "flat" {
   if (change == null || change === 0) return "flat";
   return change > 0 ? "up" : "down";
+}
+
+// --- Broker-parity "Today's G/L" (prior-close baseline) ----------------------
+//
+// BUG-020: the operator-facing "Today's gain/loss $/%" columns must match the
+// broker's daily G/L. The broker measures the day's move against the PRIOR
+// SESSION CLOSE, not against Wheelwright's first intraday observation. The
+// canonical derivation below is the single source of truth for those columns on
+// BOTH the Unencumbered Shares table and the DTE ladder (underlying daily move),
+// consumed identically by the on-screen tables and the CSV export.
+//
+//   Today's G/L $ (per share) = last − previousClose
+//   Today's G/L $ (position)  = (last − previousClose) × quantity
+//   Today's G/L %             = (last − previousClose) / previousClose × 100
+//
+// Honesty rules (persist facts; derive trust):
+//   - previousClose is the provider's prior-session official close, carried as an
+//     additive nullable field on the quote observation. When it is absent (null)
+//     or non-positive, the daily figure is UNAVAILABLE — callers render a dash,
+//     never a fabricated 0 and never a wrong-baseline fallback.
+//   - The $ and % share the same null condition and sign by construction.
+
+/** The prior-close inputs for one symbol's broker-parity Today's G/L. */
+export interface TodayGlInputs {
+  /** Current/last observed underlying price. */
+  last: number | null | undefined;
+  /** Provider prior-session official close. */
+  previousClose: number | null | undefined;
+}
+
+/**
+ * Per-share dollar move vs the prior session close: `last − previousClose`.
+ * Returns null when either input is missing (so the caller renders a dash).
+ */
+export function computeTodayGlPerShare(inputs: TodayGlInputs): number | null {
+  const { last, previousClose } = inputs;
+  if (last == null || previousClose == null) return null;
+  return last - previousClose;
+}
+
+/**
+ * Position-level dollar G/L vs the prior session close, scaled by quantity
+ * (fractional quantities supported): `(last − previousClose) × quantity`.
+ * Returns null when the per-share move is unavailable.
+ */
+export function computeTodayGlDollar(inputs: TodayGlInputs, quantity: number): number | null {
+  const perShare = computeTodayGlPerShare(inputs);
+  if (perShare == null) return null;
+  return perShare * quantity;
+}
+
+/**
+ * Percent move vs the prior session close:
+ * `(last − previousClose) / previousClose × 100`. Quantity-independent.
+ * Returns null when inputs are missing or the prior close is non-positive.
+ */
+export function computeTodayGlPercent(inputs: TodayGlInputs): number | null {
+  const { last, previousClose } = inputs;
+  if (last == null || previousClose == null) return null;
+  if (previousClose <= 0) return null;
+  return ((last - previousClose) / previousClose) * 100;
 }

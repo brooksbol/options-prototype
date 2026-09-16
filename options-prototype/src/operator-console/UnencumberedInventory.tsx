@@ -34,11 +34,10 @@
 
 import type { PortfolioSnapshot, PositionEconomics } from "../write-desk/types";
 import type { QuoteObservation } from "../evidence/observation-store";
-import type { SpotHistoryMap } from "../evidence/use-spot-history";
 import { deriveUnencumberedInventory } from "../portfolio/unencumbered-inventory";
 import {
-  computeTodayUnderlyingChange,
-  computeTodayUnderlyingChangePercent,
+  computeTodayGlPerShare,
+  computeTodayGlPercent,
   formatTodayGlPercent,
   todayGlDirection,
 } from "./today-gl";
@@ -47,8 +46,6 @@ interface UnencumberedInventoryProps {
   snapshot: PortfolioSnapshot;
   /** Per-symbol live quote observations (uppercase-keyed). Empty for unobserved symbols. */
   observations: ReadonlyMap<string, QuoteObservation>;
-  /** Per-underlying spot history for the Today's G/L intraday move. */
-  spotHistory: SpotHistoryMap;
 }
 
 function inventoryEvidenceTrustworthy(snapshot: PortfolioSnapshot): boolean {
@@ -122,7 +119,7 @@ function fmtFreshness(observedAt: string | null | undefined): string {
   return formatDataAge(Math.max(0, Date.now() - ms));
 }
 
-export function UnencumberedInventory({ snapshot, observations, spotHistory }: UnencumberedInventoryProps) {
+export function UnencumberedInventory({ snapshot, observations }: UnencumberedInventoryProps) {
   const { rows, geometryWarnings } = deriveUnencumberedInventory(snapshot);
   const trustworthy = inventoryEvidenceTrustworthy(snapshot);
   const readinessWarnings = snapshot.readiness?.warnings ?? [];
@@ -143,19 +140,17 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
   let totalCapital = 0;
   let pricedRows = 0;
   let unpricedRows = 0;
-  // Total Today's G/L = Σ (per-share underlying move × free shares) over rows that
-  // HAVE a computable intraday move. Dollar-weighted by free shares — summing the
-  // per-share moves directly would be meaningless across differently-priced symbols.
-  // This is the underlying's dollar move on the free shares (market context), NOT a
-  // position mark-to-market P/L — same honest semantics as the per-row column.
+  // Total Today's G/L = Σ ((last − previousClose) × free shares) over rows that
+  // HAVE a prior close. Broker-parity daily G/L on the free shares (BUG-020),
+  // dollar-weighted by free shares — summing per-share moves directly would be
+  // meaningless across differently-priced symbols.
   //
-  // Total % = totalGl / (Σ free-shares × start-of-day reference price) × 100 — a
-  // dollar-weighted portfolio percent, NOT an average of per-row percents (which
-  // would misweight differently-sized rows). The reference base is the free-share
-  // value at each row's start-of-day price (latest − move), so total% is coherent
-  // with total$.
+  // Total % = totalGl / (Σ free-shares × previousClose) × 100 — a dollar-weighted
+  // portfolio percent, NOT an average of per-row percents (which would misweight
+  // differently-sized rows). The reference base is the free-share value at each
+  // row's prior close, so total% is coherent with total$ (and with the broker).
   let totalGl = 0;
-  let glReferenceBase = 0; // Σ free-shares × start-of-day price, over rows with a move
+  let glReferenceBase = 0; // Σ free-shares × previousClose, over rows with a prior close
   let glRows = 0;
   let glMissingRows = 0;
   // Lifetime (Total) G/L accumulators.
@@ -165,21 +160,21 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
   let totalGlValueMissingRows = 0;
   for (const row of rows) {
     const key = row.symbol.toUpperCase();
-    const spot = observations.get(key)?.price ?? null;
+    const obs = observations.get(key);
+    const spot = obs?.price ?? null;
+    const previousClose = obs?.previousClose ?? null;
     if (spot != null) {
       totalCapital += row.freeShares * spot;
       pricedRows++;
     } else {
       unpricedRows++;
     }
-    const glChange = computeTodayUnderlyingChange(spotHistory.get(key));
-    if (glChange != null) {
+    const glChange = computeTodayGlPerShare({ last: spot, previousClose });
+    if (glChange != null && previousClose != null) {
       totalGl += glChange * row.freeShares;
       glRows++;
-      // Start-of-day reference price for this row = current spot − per-share move.
-      // (Falls back gracefully to 0 contribution when spot is unavailable, which is
-      // rare since a computable move implies ≥2 same-day observations.)
-      if (spot != null) glReferenceBase += row.freeShares * (spot - glChange);
+      // Reference base for this row = free shares × prior close (broker baseline).
+      glReferenceBase += row.freeShares * previousClose;
     } else {
       glMissingRows++;
     }
@@ -246,9 +241,12 @@ export function UnencumberedInventory({ snapshot, observations, spotHistory }: U
               const key = row.symbol.toUpperCase();
               const obs = observations.get(key);
               const spot = obs?.price ?? null;
-              const moments = spotHistory.get(key);
-              const glChange = computeTodayUnderlyingChange(moments);
-              const glPct = computeTodayUnderlyingChangePercent(moments);
+              const previousClose = obs?.previousClose ?? null;
+              // Today's G/L = broker-parity daily move vs prior close (BUG-020):
+              // per-share (last − previousClose), scaled by free shares for $.
+              const glInputs = { last: spot, previousClose };
+              const glChange = computeTodayGlPerShare(glInputs);
+              const glPct = computeTodayGlPercent(glInputs);
               const glDir = todayGlDirection(glChange);
               // Capital = market value of the FREE shares at the live quote.
               const capital = spot != null ? row.freeShares * spot : null;
@@ -380,7 +378,6 @@ export const UNENCUMBERED_CSV_HEADER = [
 export function buildUnencumberedCsvRows(
   snapshot: PortfolioSnapshot,
   observations: ReadonlyMap<string, QuoteObservation>,
-  spotHistory: SpotHistoryMap,
 ): UnencumberedCsvRow[] {
   const { rows } = deriveUnencumberedInventory(snapshot);
   const economicsBySymbol = new Map(
@@ -391,8 +388,11 @@ export function buildUnencumberedCsvRows(
     const key = row.symbol.toUpperCase();
     const obs = observations.get(key);
     const spot = obs?.price ?? null;
-    const glChange = computeTodayUnderlyingChange(spotHistory.get(key));
-    const glPct = computeTodayUnderlyingChangePercent(spotHistory.get(key));
+    const previousClose = obs?.previousClose ?? null;
+    // Same canonical broker-parity derivation as the on-screen table (BUG-020).
+    const glInputs = { last: spot, previousClose };
+    const glChange = computeTodayGlPerShare(glInputs);
+    const glPct = computeTodayGlPercent(glInputs);
     const capital = spot != null ? row.freeShares * spot : null;
     const basis = economicsBySymbol.get(key)?.averageCostPerShare ?? null;
     const totalGlDollar = spot != null && basis != null ? (spot - basis) * row.freeShares : null;

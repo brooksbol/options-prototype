@@ -17,7 +17,7 @@ const EXP = "2026-10-16";
 
 function position(partial: Partial<MonitoredPosition> & Pick<MonitoredPosition, "id" | "type" | "underlying" | "strike" | "expiration">): MonitoredPosition {
   return { dte: 30, quantity: 1, encumberedCapital: null, capitalValuationBasis: "unavailable", capitalAsOf: null,
-    moneyness: null, underlyingPrice: null, priceObservedAt: null, evidenceGeneration: null,
+    moneyness: null, underlyingPrice: null, underlyingPreviousClose: null, priceObservedAt: null, evidenceGeneration: null,
     acquisitionStatus: null, lastAttemptAt: null, failureCount: 0, openedDate: null, ...partial } as MonitoredPosition;
 }
 

@@ -13,7 +13,25 @@ public record MarketChain(
     List<OptionContract> puts,
     List<OptionContract> calls
 ) {
-    public record Underlying(String symbol, String name, double price) {}
+    /**
+     * The underlying's normalized quote fields.
+     *
+     * <p>{@code previousClose} is the provider's prior-session official close
+     * ({@code prevclose}). It is nullable ({@link Double}) to preserve the
+     * provider's distinction between an ABSENT prior close and a genuine numeric
+     * value: provider absence (field omitted / unparseable) is {@code null} and
+     * MUST stay null through normalization, snapshot serialization, the durable
+     * chain blob, and the Console. Consumers derive the broker-comparison
+     * "Today's G/L" from {@code price - previousClose}; a null prior close means
+     * the daily figure is unavailable (rendered as a dash), never a fabricated
+     * zero or a wrong-baseline fallback. Upholds "persist facts; derive trust".
+     */
+    public record Underlying(String symbol, String name, double price, Double previousClose) {
+        /** Backward-compatible constructor for callers/tests that predate previousClose. */
+        public Underlying(String symbol, String name, double price) {
+            this(symbol, name, price, null);
+        }
+    }
 
     /**
      * A single option contract.

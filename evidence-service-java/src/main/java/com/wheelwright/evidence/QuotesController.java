@@ -130,12 +130,18 @@ public class QuotesController {
             sb.append("{");
             sb.append("\"symbol\":").append(jsonString((String) obs.get("symbol"))).append(",");
 
-            // Observation: price + observedAt (null when no successful chain exists)
+            // Observation: price + observedAt (null when no successful chain exists).
+            // previousClose is the provider prior-session close for broker-comparison
+            // "Today's G/L"; NULLABLE within the observation — emit JSON null (never 0)
+            // when the provider did not supply a prior close, so the daily figure
+            // renders unavailable rather than wrong.
             Double price = (Double) obs.get("price");
             String observedAt = (String) obs.get("observedAt");
+            Double previousClose = (Double) obs.get("previousClose");
             if (price != null && observedAt != null) {
                 sb.append("\"observation\":{");
                 sb.append("\"price\":").append(price).append(",");
+                sb.append("\"previousClose\":").append(previousClose == null ? "null" : previousClose).append(",");
                 sb.append("\"observedAt\":").append(jsonString(observedAt));
                 sb.append("},");
             } else {

@@ -182,6 +182,52 @@ Rules (ADR-015):
 - `{ "kind": "unavailable" }` requires an existing chain subject whose authoritative acquisition provenance the publisher cannot establish. It is not emitted where there is no chain subject at all.
 - **Consumer compatibility:** an older snapshot that supplies a chain but omits these provenance fields is interpreted by consumers as `unavailable`. Consumers must never reconstruct provenance from `symbols[].retrievedAt`, cache TTL timestamps, or `Date.now()`.
 
+### Additive fields — Underlying Previous Close (BUG-020, September 2026)
+
+Per BUG-020 (Today's G/L broker parity), each chain's `underlying` object carries the
+provider's prior-session official close as `previousClose`. This is the baseline for the
+broker-comparison "Today's G/L" (`last − previousClose`), replacing the prior
+first-observation-of-day baseline that mismatched the broker. It is an **additive,
+non-breaking** field under INV-PUB-05 (no version increment).
+
+```jsonc
+"chain": {
+  "symbol": "XLE",
+  "expiration": "2026-08-03",
+  "underlying": {
+    "symbol": "XLE",
+    "name": "Energy Select Sector",
+    "price": 92.50,
+    "previousClose": 91.30      // ADDITIVE — provider prevclose; number | null
+  },
+  "puts": [ /* ... */ ],
+  "calls": [ /* ... */ ]
+}
+```
+
+The same `underlying.previousClose` field appears on `symbols[].chains[].data`. The
+per-symbol quote endpoint `GET /api/evidence/quotes` surfaces it as
+`quotes[].observation.previousClose` (same value, read back from the stored chain blob).
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `underlying.previousClose` | number \| null | Provider prior-session official close (Tradier `prevclose`). The broker-parity daily-G/L baseline. |
+| `quotes[].observation.previousClose` | number \| null | The same prior close, exposed on the quote observation for consumers computing Today's G/L. |
+
+Rules (BUG-020):
+
+- **Absence is `null`, never `0`.** When the provider does not supply a prior close (field
+  omitted, explicit `null`, or unparseable), `previousClose` is serialized as JSON `null`.
+  Numeric `0` means the provider supplied zero. Consumers must render "Today's G/L" as
+  unavailable (a dash) when `previousClose` is null or non-positive — never fabricate a zero
+  and never fall back to a different baseline under the "Today's G/L" label.
+- **It rides in the chain blob.** `previousClose` is stored inside the existing
+  `evidence.data` chain JSON (via `marshalChain`) and read back with the same minimal parser
+  used for `underlying.price` — **no schema/migration change**.
+- **Consumer compatibility:** an older snapshot (or a build without a provider prior close)
+  that omits `previousClose` is interpreted by consumers as absent/`null`. Consumers must not
+  reconstruct a prior close from `spot_history` or any first-observation baseline.
+
 ### Additive fields — Secondary Greeks (September 2026)
 
 Each option contract in `symbols[].chain.puts[]`, `symbols[].chain.calls[]`, and the

@@ -238,7 +238,7 @@ export function OperatorConsole() {
           {/* Current portfolio state / available inventory — ABOVE and SEPARATE
               from the temporal DTE ladder (PL-ELIG V1). Shares are never inserted
               into the ladder. */}
-          <UnencumberedInventory snapshot={snapshot} observations={observations.observations} spotHistory={spotHistory} />
+          <UnencumberedInventory snapshot={snapshot} observations={observations.observations} />
           {/* Position Monitoring — ladder with regime-specific tile rendering */}
           <div className="oc-region-ladder">
             {vizRegime === "b" && (
@@ -421,13 +421,11 @@ function downloadPositionsCsv(
   const rows = positions.map(position => {
     const type = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
     const spot = position.underlyingPrice != null ? position.underlyingPrice.toFixed(2) : "";
-    const todayGlSeries = isDemoSource
-      ? (position.underlyingPrice != null
-          ? generateDemoSpotHistory(position.underlying, position.underlyingPrice)
-              .map((price, i, arr) => ({ price, observedAt: new Date(Date.now() - (arr.length - 1 - i) * 60_000).toISOString() }))
-          : [])
-      : deduplicateObservations(spotHistory.get(position.underlying) ?? []);
-    const todayGl = formatTodayGlCombined(computeTodayUnderlyingChange(todayGlSeries), computeTodayUnderlyingChangePercent(todayGlSeries));
+    // Today's G/L = broker-parity daily move of the UNDERLYING vs its prior close
+    // (BUG-020): (last − previousClose). Same canonical derivation and prior-close
+    // source as the on-screen ladder row and the Unencumbered Shares column.
+    const ladderGlInputs = { last: position.underlyingPrice ?? null, previousClose: position.underlyingPreviousClose ?? null };
+    const todayGl = formatTodayGlCombined(computeTodayGlPerShare(ladderGlInputs), computeTodayGlPercent(ladderGlInputs));
     const moneyness = position.moneyness != null ? (position.moneyness * 100).toFixed(1) + "%" : "";
     const capital = position.encumberedCapital != null ? position.encumberedCapital.toString() : "";
 
@@ -494,7 +492,7 @@ function downloadPositionsCsv(
   // CSV-quoted because combined G/L and capital cells can contain commas
   // (e.g. "$13,770", "+$5,406 (+13.66%)").
   const q = (s: string) => `"${String(s).replace(/"/g, '""')}"`;
-  const invRows = buildUnencumberedCsvRows(snapshot, observations, spotHistory);
+  const invRows = buildUnencumberedCsvRows(snapshot, observations);
   const invLines: string[] = ["", "Unencumbered Shares", UNENCUMBERED_CSV_HEADER.join(",")];
   for (const r of invRows) {
     invLines.push([
@@ -901,14 +899,13 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
           // session day present in the spot series (market context, not a position
           // mark-to-market P/L; null → "—", never fabricated). Demo uses synthetic
           // spot history; real sources use the deduplicated observation moments.
-          const todayGlSeries = isDemoSource
-            ? (position.underlyingPrice != null
-                ? generateDemoSpotHistory(position.underlying, position.underlyingPrice)
-                    .map((price, i, arr) => ({ price, observedAt: new Date(Date.now() - (arr.length - 1 - i) * 60_000).toISOString() }))
-                : [])
-            : deduplicateObservations(spotHistory.get(position.underlying) ?? []);
-          const todayGl = computeTodayUnderlyingChange(todayGlSeries);
-          const todayGlPct = computeTodayUnderlyingChangePercent(todayGlSeries);
+          // Today's G/L = broker-parity daily move of the UNDERLYING vs its prior
+          // close (BUG-020): (last − previousClose). Same canonical derivation as
+          // the Unencumbered Shares column; prior close carried on the position
+          // (Demo supplies a synthetic coherent prior close via the observation set).
+          const todayGlInputs = { last: position.underlyingPrice ?? null, previousClose: position.underlyingPreviousClose ?? null };
+          const todayGl = computeTodayGlPerShare(todayGlInputs);
+          const todayGlPct = computeTodayGlPercent(todayGlInputs);
           const todayGlDir = todayGlDirection(todayGl);
 
           // Consequence columns (strategy-specific)
@@ -1175,7 +1172,7 @@ import { classifyMoneyness, formatMoneynessDisplay } from "../operator-console/m
 import { moneynessColor, type MoneynessColorClass } from "../operator-console/moneyness-color";
 import { generateDemoSpotHistory, deriveMoneynessHistory, type MoneynessPoint } from "../operator-console/moneyness-history";
 import { deduplicateObservations } from "../kreature/observation-derivation";
-import { computeTodayUnderlyingChange, computeTodayUnderlyingChangePercent, formatTodayGl, formatTodayGlCombined, todayGlDirection } from "../operator-console/today-gl";
+import { computeTodayGlPerShare, computeTodayGlPercent, formatTodayGlCombined, todayGlDirection } from "../operator-console/today-gl";
 import { buildSparklineScale } from "../operator-console/sparkline-scale";
 
 /**

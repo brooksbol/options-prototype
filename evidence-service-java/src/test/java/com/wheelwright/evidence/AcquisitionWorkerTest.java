@@ -710,7 +710,12 @@ class AcquisitionWorkerTest {
         @DisplayName("numeric zero greeks serialize as 0, distinct from null")
         void zeroGreeksSerializeAsZero() throws Exception {
             var w = worker();
-            String json = w.marshalChain(oneContractChain(0.0, 0.0, 0.0, 0.0, 0.0));
+            // Give a concrete previousClose so the "no null" check targets greeks only
+            // (marshalChain emits underlying.previousClose:null for provider absence).
+            var put = new MarketChain.OptionContract(55.0, 1.5, 1.7, 0.0, 0.0, 0.0, 0.0, 0.0, 500, 110);
+            var chain = new MarketChain("XLE", FUTURE_EXPIRATION,
+                new MarketChain.Underlying("XLE", "Energy", 58.0, 57.0), List.of(put), List.of());
+            String json = w.marshalChain(chain);
             assertTrue(json.contains("\"delta\":0.0"), json);
             assertTrue(json.contains("\"gamma\":0.0"), json);
             assertFalse(json.contains("null"), "explicit zeros must not become null: " + json);
@@ -727,6 +732,28 @@ class AcquisitionWorkerTest {
             assertTrue(json.contains("\"theta\":0.0"), json);
             assertTrue(json.contains("\"vega\":0.05"), json);
             assertTrue(json.contains("\"rho\":null"), json);
+        }
+
+        @Test
+        @DisplayName("BUG-020: underlying.previousClose serializes when present")
+        void previousCloseSerializesWhenPresent() throws Exception {
+            var w = worker();
+            var put = new MarketChain.OptionContract(55.0, 1.5, 1.7, -0.28, null, null, null, null, 500, 110);
+            var chain = new MarketChain("COPX", FUTURE_EXPIRATION,
+                new MarketChain.Underlying("COPX", "Global X Copper", 85.93, 84.59), List.of(put), List.of());
+            String json = w.marshalChain(chain);
+            assertTrue(json.contains("\"price\":85.93"), json);
+            assertTrue(json.contains("\"previousClose\":84.59"), json);
+        }
+
+        @Test
+        @DisplayName("BUG-020: absent previousClose serializes as JSON null, never 0")
+        void previousCloseAbsentSerializesAsNull() throws Exception {
+            var w = worker();
+            // 3-arg Underlying → previousClose null.
+            String json = w.marshalChain(oneContractChain(-0.28, null, null, null, null));
+            assertTrue(json.contains("\"previousClose\":null"), "absent previousClose must be null, not 0: " + json);
+            assertFalse(json.contains("\"previousClose\":0"), json);
         }
     }
 

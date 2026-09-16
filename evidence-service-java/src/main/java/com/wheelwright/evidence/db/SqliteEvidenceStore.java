@@ -1152,6 +1152,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
             String primaryExpiration = resolution.get("primary_expiration");
 
             Double price = null;
+            Double previousClose = null;
             String observedAt = null;
             String lastAttemptAt = null;
             int failureCount = 0;
@@ -1169,9 +1170,10 @@ public class SqliteEvidenceStore implements AutoCloseable {
                             lastAttemptAt = rs.getString("last_attempt_at");
                             failureCount = rs.getInt("failure_count");
 
-                            // Extract underlying.price from chain JSON
+                            // Extract underlying.price + previousClose from chain JSON
                             if (chainJson != null) {
                                 price = extractUnderlyingPrice(chainJson);
+                                previousClose = extractUnderlyingPreviousClose(chainJson);
                             }
                         }
                     }
@@ -1181,6 +1183,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
             Map<String, Object> entry = new LinkedHashMap<>();
             entry.put("symbol", symbol);
             entry.put("price", price);
+            entry.put("previousClose", previousClose);
             entry.put("observedAt", observedAt);
             entry.put("status", status);
             entry.put("lastAttemptAt", lastAttemptAt);
@@ -1196,18 +1199,36 @@ public class SqliteEvidenceStore implements AutoCloseable {
      * Minimal parsing — finds "underlying":{..."price":<number>...}
      */
     private static Double extractUnderlyingPrice(String chainJson) {
-        // Find "underlying": then "price": within that object
+        return extractUnderlyingNumber(chainJson, "price");
+    }
+
+    /**
+     * Extract "underlying.previousClose" from a chain JSON blob.
+     * Returns null when the field is absent OR explicitly JSON null (provider had
+     * no prior close) — never a fabricated 0. Mirrors the nullable serialization
+     * emitted by AcquisitionWorker.marshalChain so absence round-trips honestly.
+     */
+    private static Double extractUnderlyingPreviousClose(String chainJson) {
+        return extractUnderlyingNumber(chainJson, "previousClose");
+    }
+
+    /**
+     * Extract a numeric field from the chain blob's "underlying" object.
+     * Minimal parsing — finds "underlying":{...,"<key>":<number|null>...}.
+     * Returns null for absent field or an explicit JSON {@code null} value.
+     */
+    private static Double extractUnderlyingNumber(String chainJson, String key) {
+        if (chainJson == null) return null;
         int underlyingIdx = chainJson.indexOf("\"underlying\"");
         if (underlyingIdx < 0) return null;
 
-        int priceIdx = chainJson.indexOf("\"price\"", underlyingIdx);
-        if (priceIdx < 0) return null;
+        String pattern = "\"" + key + "\"";
+        int keyIdx = chainJson.indexOf(pattern, underlyingIdx);
+        if (keyIdx < 0) return null;
 
-        // Find the colon after "price"
-        int colonIdx = chainJson.indexOf(':', priceIdx + 7);
+        int colonIdx = chainJson.indexOf(':', keyIdx + pattern.length());
         if (colonIdx < 0) return null;
 
-        // Extract the number
         int start = colonIdx + 1;
         while (start < chainJson.length() && Character.isWhitespace(chainJson.charAt(start))) start++;
 
@@ -1219,8 +1240,11 @@ public class SqliteEvidenceStore implements AutoCloseable {
         }
 
         if (end <= start) return null;
+        String token = chainJson.substring(start, end);
+        // Explicit JSON null (provider absence) → null, never fabricated 0.
+        if ("null".equals(token)) return null;
         try {
-            return Double.parseDouble(chainJson.substring(start, end));
+            return Double.parseDouble(token);
         } catch (NumberFormatException e) {
             return null;
         }

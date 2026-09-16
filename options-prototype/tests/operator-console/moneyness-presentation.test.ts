@@ -28,6 +28,7 @@ function positionWithMoneyness(moneyness: number | null): MonitoredPosition {
     capitalAsOf: "2026-08-04",
     moneyness,
     underlyingPrice: moneyness != null ? 55 * (1 - moneyness) : null, // approximate
+    underlyingPreviousClose: null,
     priceObservedAt: moneyness != null ? "2026-08-04T16:00:00Z" : null,
     evidenceGeneration: moneyness != null ? 5000 : null,
     acquisitionStatus: moneyness != null ? "ready" : null,

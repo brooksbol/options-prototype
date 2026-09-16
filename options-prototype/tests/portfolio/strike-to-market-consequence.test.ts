@@ -32,6 +32,7 @@ function createPutPosition(overrides: Partial<MonitoredPosition> = {}): Monitore
     capitalAsOf: "2026-08-13",
     moneyness: null,
     underlyingPrice: null,
+    underlyingPreviousClose: null,
     priceObservedAt: null,
     evidenceGeneration: null,
     acquisitionStatus: null,

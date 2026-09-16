@@ -37,6 +37,7 @@ function makePosition(overrides: Partial<MonitoredPosition>): MonitoredPosition 
     capitalAsOf: "2026-08-20",
     moneyness: null,
     underlyingPrice: null,
+    underlyingPreviousClose: null,
     priceObservedAt: null,
     evidenceGeneration: null,
     acquisitionStatus: null,

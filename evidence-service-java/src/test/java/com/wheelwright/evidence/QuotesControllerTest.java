@@ -37,7 +37,7 @@ class QuotesControllerTest {
         [{"date":"2026-08-03","dte":21},{"date":"2026-08-10","dte":28}]""";
 
     private static final String CHAIN_XLE = """
-        {"symbol":"XLE","expiration":"2026-08-03","underlying":{"symbol":"XLE","name":"Energy Select Sector SPDR","price":58.99},"puts":[{"strike":55,"bid":0.5,"ask":0.7,"delta":-0.2,"openInterest":100,"volume":50}],"calls":[{"strike":60,"bid":0.8,"ask":1.0,"delta":0.35,"openInterest":200,"volume":80}]}""";
+        {"symbol":"XLE","expiration":"2026-08-03","underlying":{"symbol":"XLE","name":"Energy Select Sector SPDR","price":58.99,"previousClose":58.10},"puts":[{"strike":55,"bid":0.5,"ask":0.7,"delta":-0.2,"openInterest":100,"volume":50}],"calls":[{"strike":60,"bid":0.8,"ask":1.0,"delta":0.35,"openInterest":200,"volume":80}]}""";
 
     private static final String CHAIN_QQQ = """
         {"symbol":"QQQ","expiration":"2026-08-21","underlying":{"symbol":"QQQ","name":"Invesco QQQ Trust","price":698.41},"puts":[{"strike":680,"bid":5.0,"ask":5.5,"delta":-0.3,"openInterest":1000,"volume":500}],"calls":[{"strike":710,"bid":4.0,"ask":4.5,"delta":0.28,"openInterest":800,"volume":400}]}""";
@@ -100,9 +100,21 @@ class QuotesControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.quotes[0].symbol").value("XLE"))
                 .andExpect(jsonPath("$.quotes[0].observation.price").value(58.99))
+                .andExpect(jsonPath("$.quotes[0].observation.previousClose").value(58.10))
                 .andExpect(jsonPath("$.quotes[0].observation.observedAt").value(OBS_TIME_XLE))
                 .andExpect(jsonPath("$.quotes[0].acquisition.status").value("ready"))
                 .andExpect(jsonPath("$.quotes[0].acquisition.failureCount").value(0));
+    }
+
+    // --- BUG-020: previousClose absent → null (never fabricated 0) ---
+
+    @Test
+    void previousCloseAbsentSerializesAsNull() throws Exception {
+        // QQQ's chain blob has no previousClose field → observation.previousClose is null.
+        mockMvc.perform(get("/api/evidence/quotes").param("symbol", "QQQ"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.quotes[0].observation.price").value(698.41))
+                .andExpect(jsonPath("$.quotes[0].observation.previousClose").value(nullValue()));
     }
 
     // --- Failed symbol: preserved observation ---

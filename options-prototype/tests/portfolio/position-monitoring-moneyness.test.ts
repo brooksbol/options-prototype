@@ -39,12 +39,13 @@ function makeSnapshot(opts: {
   } as PortfolioSnapshot;
 }
 
-function makeObservations(quotes: Array<{ symbol: string; price: number | null; observedAt?: string; status?: string; lastAttemptAt?: string; failureCount?: number }>): ObservationState {
+function makeObservations(quotes: Array<{ symbol: string; price: number | null; previousClose?: number | null; observedAt?: string; status?: string; lastAttemptAt?: string; failureCount?: number }>): ObservationState {
   const observations = new Map<string, QuoteObservation>();
   for (const q of quotes) {
     observations.set(q.symbol.toUpperCase(), {
       symbol: q.symbol.toUpperCase(),
       price: q.price,
+      previousClose: q.previousClose ?? null,
       observedAt: q.observedAt ?? "2026-08-04T16:00:00Z",
       acquisitionStatus: (q.status as any) ?? "ready",
       lastAttemptAt: q.lastAttemptAt ?? "2026-08-04T16:00:00Z",

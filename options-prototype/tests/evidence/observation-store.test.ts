@@ -79,7 +79,7 @@ const QUOTES_RESPONSE = {
   quotes: [
     {
       symbol: "XLE",
-      observation: { price: 58.99, observedAt: "2026-08-04T16:00:00Z" },
+      observation: { price: 58.99, previousClose: 58.10, observedAt: "2026-08-04T16:00:00Z" },
       acquisition: { status: "ready", lastAttemptAt: "2026-08-04T16:00:00Z", failureCount: 0 },
     },
     {
@@ -543,5 +543,23 @@ describe("React StrictMode resilience (subscribe/unsubscribe/resubscribe)", () =
     expect(fetchCalls.length).toBe(2); // Initial + interval
 
     unsub2();
+  });
+});
+
+describe("previousClose parsing (BUG-020)", () => {
+  it("parses observation.previousClose when present and defaults to null when absent", async () => {
+    setSymbols(["XLE", "QQQ"]);
+    const unsub = subscribe(() => {});
+    await vi.advanceTimersByTimeAsync(0);
+    resolveLatestFetch(200, QUOTES_RESPONSE, { etag: '"quotes-prevclose-gen-5000"' });
+    await vi.advanceTimersByTimeAsync(0);
+
+    const state = getObservations();
+    // XLE mock carries previousClose: 58.10
+    expect(state.observations.get("XLE")?.previousClose).toBe(58.10);
+    // QQQ mock omits previousClose → parsed as null, never fabricated 0
+    expect(state.observations.get("QQQ")?.previousClose).toBeNull();
+
+    unsub();
   });
 });

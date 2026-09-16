@@ -1798,7 +1798,11 @@ public class AcquisitionWorker {
         sb.append("\"expiration\":\"").append(chain.expiration()).append("\",");
         sb.append("\"underlying\":{\"symbol\":\"").append(chain.underlying().symbol())
           .append("\",\"name\":\"").append(escapeJson(chain.underlying().name()))
-          .append("\",\"price\":").append(chain.underlying().price()).append("},");
+          .append("\",\"price\":").append(chain.underlying().price())
+          // previousClose is nullable: emit JSON null for provider absence, NEVER 0,
+          // so the broker-comparison "Today's G/L" stays unavailable rather than wrong.
+          .append(",\"previousClose\":").append(nullableNumber(chain.underlying().previousClose()))
+          .append("},");
 
         sb.append("\"puts\":[");
         for (int i = 0; i < chain.puts().size(); i++) {

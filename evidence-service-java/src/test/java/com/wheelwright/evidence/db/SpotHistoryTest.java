@@ -113,6 +113,35 @@ class SpotHistoryTest {
     }
 
     @Test
+    @DisplayName("BUG-020: getQuoteObservations returns underlying.previousClose when present")
+    void quoteObservationsIncludePreviousClose() throws Exception {
+        String chain = """
+            {"symbol":"XLE","expiration":"2026-08-22","underlying":{"symbol":"XLE","name":"Test","price":94.00,"previousClose":92.66},"puts":[],"calls":[]}""";
+        store.setChain("XLE", chain, "2026-08-19T14:00:00Z");
+
+        var obs = store.getQuoteObservations(List.of("XLE"));
+        assertEquals(1, obs.size());
+        assertEquals(94.00, (Double) obs.get(0).get("price"), 0.001);
+        assertEquals(92.66, (Double) obs.get(0).get("previousClose"), 0.001);
+    }
+
+    @Test
+    @DisplayName("BUG-020: absent/explicit-null previousClose reads back as null, never fabricated 0")
+    void quoteObservationsPreviousCloseAbsentIsNull() throws Exception {
+        // CHAIN_TEMPLATE has no previousClose field at all.
+        store.setChain("XLE", CHAIN_TEMPLATE.formatted("XLE", "XLE", "59.50"), "2026-08-19T14:00:00Z");
+        var absent = store.getQuoteObservations(List.of("XLE"));
+        assertNull(absent.get(0).get("previousClose"));
+
+        // Explicit JSON null (as marshalChain emits for provider absence) also → null.
+        String chainNull = """
+            {"symbol":"EWY","expiration":"2026-08-22","underlying":{"symbol":"EWY","name":"Test","price":183.00,"previousClose":null},"puts":[],"calls":[]}""";
+        store.setChain("EWY", chainNull, "2026-08-19T14:00:00Z");
+        var nullPrev = store.getQuoteObservations(List.of("EWY"));
+        assertNull(nullPrev.get(0).get("previousClose"));
+    }
+
+    @Test
     @DisplayName("getSpotHistory returns observations filtered by since timestamp")
     void getSpotHistoryFiltersBySince() throws Exception {
         store.setChain("XLE", CHAIN_TEMPLATE.formatted("XLE", "XLE", "59.50"), "2026-08-19T14:00:00Z");

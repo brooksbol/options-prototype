@@ -33,6 +33,12 @@ export interface QuoteObservation {
   symbol: string;
   /** Underlying price from last successful chain acquisition. null if never acquired. */
   price: number | null;
+  /**
+   * Provider prior-session official close (Tradier `prevclose`). null when the
+   * provider did not supply one (never fabricated 0). Basis for the
+   * broker-comparison "Today's G/L" = (price − previousClose) × quantity.
+   */
+  previousClose: number | null;
   /** When the price was observed (ISO timestamp). null if never acquired. */
   observedAt: string | null;
   /** Current acquisition machinery state */
@@ -303,6 +309,7 @@ async function poll(): Promise<void> {
         observations.set(q.symbol, {
           symbol: q.symbol,
           price: q.observation?.price ?? null,
+          previousClose: q.observation?.previousClose ?? null,
           observedAt: q.observation?.observedAt ?? null,
           acquisitionStatus: q.acquisition.status as AcquisitionStatus,
           lastAttemptAt: q.acquisition.lastAttemptAt ?? null,

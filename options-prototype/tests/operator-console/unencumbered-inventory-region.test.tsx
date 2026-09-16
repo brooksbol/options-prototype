@@ -1,10 +1,12 @@
 /**
- * UnencumberedInventory — Console region render tests (PL-ELIG V1).
+ * UnencumberedInventory — Console region render tests (PL-ELIG V1; BUG-020).
  *
  * Proves the three-state presentation distinction, provenance line + fallback,
  * geometry-warning rendering, odd-lot visibility, split Fidelity-worded columns,
- * and the bottom Totals row.
- * Canonical: docs/parking-lot-8.md §PL-ELIG — Unencumbered Shares on the Operator Console.
+ * the bottom Totals row, and — post BUG-020 — that "Today's gain/loss $/%" is the
+ * broker-parity daily move vs the provider PRIOR CLOSE (not Wheelwright's first
+ * intraday observation), consumed identically by the table and the CSV export.
+ * Canonical: docs/parking-lot-8.md §PL-ELIG; docs/bugs/BUG-020-*.
  */
 
 import { describe, it, expect } from "vitest";
@@ -12,36 +14,31 @@ import { render, screen, within } from "@testing-library/react";
 import { UnencumberedInventory, buildUnencumberedCsvRows } from "../../src/operator-console/UnencumberedInventory";
 import type { PortfolioSnapshot, InventoryPosition, OpenShortCall, PositionEconomics } from "../../src/write-desk/types";
 import type { QuoteObservation } from "../../src/evidence/observation-store";
-import type { SpotHistoryMap, SpotObservation } from "../../src/evidence/use-spot-history";
 
 // --- Live-evidence helpers (Last Price / gain-loss / Freshness / Current value) ---
 
-function obsMap(entries: Array<{ symbol: string; price: number | null; observedAt: string | null }>): ReadonlyMap<string, QuoteObservation> {
+function obsMap(
+  entries: Array<{ symbol: string; price: number | null; previousClose?: number | null; observedAt: string | null }>,
+): ReadonlyMap<string, QuoteObservation> {
   const m = new Map<string, QuoteObservation>();
   for (const e of entries) {
     m.set(e.symbol.toUpperCase(), {
       symbol: e.symbol.toUpperCase(),
       price: e.price,
+      previousClose: e.previousClose ?? null,
       observedAt: e.observedAt,
       acquisitionStatus: "ready",
       lastAttemptAt: e.observedAt,
       failureCount: 0,
-    } as QuoteObservation);
+    });
   }
   return m;
 }
 
-function historyMap(entries: Array<{ symbol: string; moments: SpotObservation[] }>): SpotHistoryMap {
-  const m = new Map<string, SpotObservation[]>();
-  for (const e of entries) m.set(e.symbol.toUpperCase(), e.moments);
-  return m;
-}
-
 const NO_OBS: ReadonlyMap<string, QuoteObservation> = new Map();
-const NO_HISTORY: SpotHistoryMap = new Map();
 
-function renderRegion(snap: PortfolioSnapshot, observations = NO_OBS, spotHistory = NO_HISTORY) {
-  return render(<UnencumberedInventory snapshot={snap} observations={observations} spotHistory={spotHistory} />);
+function renderRegion(snap: PortfolioSnapshot, observations = NO_OBS) {
+  return render(<UnencumberedInventory snapshot={snap} observations={observations} />);
 }
 
 function inv(symbol: string, sharesOwned: number, sharesEncumbered: number, economics: PositionEconomics | null = null): InventoryPosition {
@@ -81,20 +78,12 @@ function snapshot(opts?: {
   } as PortfolioSnapshot;
 }
 
-/** History with a same-day move from `from` → `to` (3h earlier → now). */
-function move(symbol: string, from: number, to: number) {
-  const now = new Date().toISOString();
-  const earlier = new Date(Date.now() - 3 * 3600_000).toISOString();
-  return { symbol, moments: [{ price: from, observedAt: earlier }, { price: to, observedAt: now }] };
-}
-
 const NOW = new Date().toISOString();
 
 describe("UnencumberedInventory region", () => {
   it("renders Fidelity-worded columns, split into $ and % (no title totals)", () => {
     renderRegion(snapshot({ inventory: [inv("COPX", 200, 100)], calls: [call("COPX", 1)] }));
     expect(screen.getByText("Unencumbered Shares")).toBeTruthy();
-    // Title carries NO totals parenthetical anymore.
     const title = screen.getByText("Unencumbered Shares").closest("span")!;
     expect(title.textContent).toBe("Unencumbered Shares");
 
@@ -108,29 +97,56 @@ describe("UnencumberedInventory region", () => {
     }
   });
 
-  it("splits Today's and Total gain/loss into separate $ and % cells (dollar figures)", () => {
-    // COPX: 100 free, 92 → 94 today (+$2/sh → +$200; +2.17%); basis 40 → total +$5,400 (+135.00%)
+  it("Today's G/L is the broker-parity move vs prior close (COPX-like: 92.66 → 94.00)", () => {
+    // 100 free, prior close 92.66 → last 94.00: +$1.34/sh → +$134; +1.45%.
+    // basis 40 → total +$5,400 (+135.00%); value 9,400.
     renderRegion(
       snapshot({ inventory: [inv("COPX", 200, 100, { averageCostPerShare: 40, costBasis: 8000, marketValue: null })], calls: [call("COPX", 1)] }),
-      obsMap([{ symbol: "COPX", price: 94.0, observedAt: NOW }]),
-      historyMap([move("COPX", 92.0, 94.0)]),
+      obsMap([{ symbol: "COPX", price: 94.0, previousClose: 92.66, observedAt: NOW }]),
     );
     const row = screen.getByText("COPX").closest("tr")!;
     const u = within(row);
     expect(u.getByText("$94.00")).toBeTruthy();       // Last Price
-    expect(u.getByText("+$200")).toBeTruthy();          // Today's gain/loss $ (dollar figure)
-    expect(u.getByText("+2.17%")).toBeTruthy();         // Today's gain/loss %
+    expect(u.getByText("+$134")).toBeTruthy();          // Today's gain/loss $ = (94−92.66)×100
+    expect(u.getByText("+1.45%")).toBeTruthy();         // Today's gain/loss %
     expect(u.getByText("+$5,400")).toBeTruthy();        // Total gain/loss $
     expect(u.getByText("+135.00%")).toBeTruthy();       // Total gain/loss %
     expect(u.getByText("$9,400")).toBeTruthy();         // Current value = 100 × 94
     expect(u.getByText("$40.00")).toBeTruthy();         // Average cost basis
-    expect(u.getByText("100")).toBeTruthy();            // Quantity
+  });
+
+  it("SIGN-REVERSAL GUARD: up vs prior close renders POSITIVE even if last < some intraday sample", () => {
+    // The old first-observation baseline produced a negative Today's G/L here.
+    // Prior close 84.59 → last 85.89: must be positive (+$130), not negative.
+    renderRegion(
+      snapshot({ inventory: [inv("COPX", 100, 0, { averageCostPerShare: 94.84, costBasis: 9484, marketValue: null })] }),
+      obsMap([{ symbol: "COPX", price: 85.89, previousClose: 84.59, observedAt: NOW }]),
+    );
+    const row = screen.getByText("COPX").closest("tr")!;
+    const u = within(row);
+    const cells = row.querySelectorAll("td");
+    // Column order: Symbol, Last, Today $, Today %, Total $, Total %, ...
+    expect(cells[2].textContent).toBe("+$130");         // Today's G/L $ = (85.89 − 84.59) × 100
+    expect(cells[3].textContent).toBe("+1.54%");        // Today's G/L % = 1.30/84.59
+    expect(u.getByText("+$130")).toBeTruthy();
+  });
+
+  it("Today's G/L is a dash (no fabricated 0) when previousClose is unavailable", () => {
+    renderRegion(
+      snapshot({ inventory: [inv("NOPREV", 100, 0, { averageCostPerShare: 10, costBasis: 1000, marketValue: null })] }),
+      obsMap([{ symbol: "NOPREV", price: 20, previousClose: null, observedAt: NOW }]),
+    );
+    const row = screen.getByText("NOPREV").closest("tr")!;
+    const u = within(row);
+    // Today $ and Today % are dashes; Last Price + Total G/L still render.
+    expect(u.getByText("$20.00")).toBeTruthy();
+    expect(u.getAllByText("—").length).toBeGreaterThanOrEqual(2);
   });
 
   it("Total gain/loss is a dash when spot or basis is unavailable", () => {
     renderRegion(
       snapshot({ inventory: [inv("NOBASIS", 100, 0, null)] }),
-      obsMap([{ symbol: "NOBASIS", price: 20, observedAt: NOW }]),
+      obsMap([{ symbol: "NOBASIS", price: 20, previousClose: 19.5, observedAt: NOW }]),
     );
     const row = screen.getByText("NOBASIS").closest("tr")!;
     expect(within(row).getAllByText("—").length).toBeGreaterThanOrEqual(1);
@@ -182,7 +198,7 @@ describe("UnencumberedInventory region", () => {
   });
 
   it("free-only symbol with NO observation renders dashes for live columns (no fabrication)", () => {
-    renderRegion(snapshot({ inventory: [inv("FREE", 300, 0)] }), NO_OBS, NO_HISTORY);
+    renderRegion(snapshot({ inventory: [inv("FREE", 300, 0)] }), NO_OBS);
     const row = screen.getByText("FREE").closest("tr")!;
     expect(within(row).getByText("300")).toBeTruthy(); // quantity still shown
     // last price, today $ , today %, total $, total %, current value, freshness → dashes
@@ -192,23 +208,22 @@ describe("UnencumberedInventory region", () => {
   // --- Bottom Totals row ---
 
   it("renders a bottom Totals row with summed gain/loss and current value", () => {
-    // COPX: 100 free, 92→94 today (+$200), basis 40 → total +$5,400, value 9,400
-    // AAA:  100 free, 10.5→10 today (-$50), basis 8 → total +$200, value 1,000
+    // COPX: 100 free, prior 92.66 → 94.00 today (+$134), basis 40 → total +$5,400, value 9,400
+    // AAA:  100 free, prior 10.50 → 10.00 today (-$50),  basis 8  → total +$200,   value 1,000
     renderRegion(
       snapshot({ inventory: [
         inv("COPX", 200, 100, { averageCostPerShare: 40, costBasis: 8000, marketValue: null }),
         inv("AAA", 100, 0, { averageCostPerShare: 8, costBasis: 800, marketValue: null }),
       ], calls: [call("COPX", 1)] }),
       obsMap([
-        { symbol: "COPX", price: 94.0, observedAt: NOW },
-        { symbol: "AAA", price: 10.0, observedAt: NOW },
+        { symbol: "COPX", price: 94.0, previousClose: 92.66, observedAt: NOW },
+        { symbol: "AAA", price: 10.0, previousClose: 10.5, observedAt: NOW },
       ]),
-      historyMap([move("COPX", 92.0, 94.0), move("AAA", 10.5, 10.0)]),
     );
     const totalsRow = screen.getByText(/^Totals/).closest("tr")!;
     const u = within(totalsRow);
-    // today total $ = +200 −50 = +$150
-    expect(u.getByText("+$150")).toBeTruthy();
+    // today total $ = +134 −50 = +$84
+    expect(u.getByText("+$84")).toBeTruthy();
     // total gain/loss $ = 5,400 + 200 = +$5,600
     expect(u.getByText("+$5,600")).toBeTruthy();
     // current value total = 9,400 + 1,000 = $10,400
@@ -223,8 +238,7 @@ describe("UnencumberedInventory region", () => {
         inv("COPX", 200, 100, { averageCostPerShare: 40, costBasis: 8000, marketValue: null }),
         inv("FREE", 300, 0, { averageCostPerShare: 12, costBasis: 3600, marketValue: null }),
       ], calls: [call("COPX", 1)] }),
-      obsMap([{ symbol: "COPX", price: 94.0, observedAt: NOW }]),
-      historyMap([move("COPX", 92.0, 94.0)]),
+      obsMap([{ symbol: "COPX", price: 94.0, previousClose: 92.66, observedAt: NOW }]),
     );
     expect(screen.getByText(/^Totals \*/)).toBeTruthy();
     expect(screen.getByText(/Totals cover only rows with the required live evidence/i)).toBeTruthy();
@@ -232,18 +246,17 @@ describe("UnencumberedInventory region", () => {
 });
 
 describe("buildUnencumberedCsvRows", () => {
-  it("emits split Fidelity-worded values matching the table", () => {
+  it("emits split Fidelity-worded values matching the table (prior-close Today's G/L)", () => {
     const csvRows = buildUnencumberedCsvRows(
       snapshot({ inventory: [inv("COPX", 200, 100, { averageCostPerShare: 40, costBasis: 8000, marketValue: null })], calls: [call("COPX", 1)] }),
-      obsMap([{ symbol: "COPX", price: 94.0, observedAt: NOW }]),
-      historyMap([move("COPX", 92.0, 94.0)]),
+      obsMap([{ symbol: "COPX", price: 94.0, previousClose: 92.66, observedAt: NOW }]),
     );
     expect(csvRows).toHaveLength(1);
     const r = csvRows[0];
     expect(r.symbol).toBe("COPX");
     expect(r.lastPrice).toBe("$94.00");
-    expect(r.todayGlDollar).toBe("+$200");     // dollar figure (per-share × free shares)
-    expect(r.todayGlPct).toBe("+2.17%");
+    expect(r.todayGlDollar).toBe("+$134");     // (94 − 92.66) × 100
+    expect(r.todayGlPct).toBe("+1.45%");
     expect(r.totalGlDollar).toBe("+$5,400");
     expect(r.totalGlPct).toBe("+135.00%");
     expect(r.currentValue).toBe("$9,400");
@@ -252,11 +265,42 @@ describe("buildUnencumberedCsvRows", () => {
     expect(r.averageCostBasis).toBe("$40.00");
   });
 
+  it("UI/CSV AGREEMENT: CSV Today's G/L equals the rendered table cell for the same fixture", () => {
+    const snap = snapshot({ inventory: [inv("SMH", 100, 0, { averageCostPerShare: 574.64, costBasis: 57464, marketValue: null })] });
+    const obs = obsMap([{ symbol: "SMH", price: 551.02, previousClose: 542.11, observedAt: NOW }]);
+
+    // Rendered table cell
+    renderRegion(snap, obs);
+    const row = screen.getByText("SMH").closest("tr")!;
+    // Large-gap guard: +$891 (551.02 − 542.11) × 100, NOT a small negative.
+    expect(within(row).getByText("+$891")).toBeTruthy();
+
+    // CSV row for the same inputs
+    const csv = buildUnencumberedCsvRows(snap, obs)[0];
+    expect(csv.todayGlDollar).toBe("+$891");
+    // % agreement
+    const uiPct = within(row).getByText(/^\+1\.64%$/);
+    expect(uiPct).toBeTruthy();
+    expect(csv.todayGlPct).toBe("+1.64%");
+  });
+
+  it("FRACTIONAL-QUANTITY (SPYI): 69 free shares priced against prior close", () => {
+    // Unencumbered rows are whole free shares; SPYI's fractional 0.829 is an odd-lot
+    // residual. Guard the fractional path at the derivation level in today-gl.test.ts;
+    // here confirm the whole-lot free-share dollar move is prior-close based.
+    const csv = buildUnencumberedCsvRows(
+      snapshot({ inventory: [inv("SPYI", 69, 0, { averageCostPerShare: 53.46, costBasis: 3688.74, marketValue: null })] }),
+      obsMap([{ symbol: "SPYI", price: 52.855, previousClose: 52.666, observedAt: NOW }]),
+    )[0];
+    // (52.855 − 52.666) × 69 ≈ 13.04 → +$13
+    expect(csv.todayGlDollar).toBe("+$13");
+    expect(csv.todayGlPct).toBe("+0.36%");
+  });
+
   it("emits dashes (not fabricated values) for an unobserved free-only symbol", () => {
     const csvRows = buildUnencumberedCsvRows(
       snapshot({ inventory: [inv("FREE", 300, 0, { averageCostPerShare: 12, costBasis: 3600, marketValue: null })] }),
       NO_OBS,
-      NO_HISTORY,
     );
     const r = csvRows[0];
     expect(r.symbol).toBe("FREE");
@@ -269,5 +313,15 @@ describe("buildUnencumberedCsvRows", () => {
     expect(r.currentValue).toBe("—");
     expect(r.averageCostBasis).toBe("$12.00"); // basis is snapshot-derived, still present
     expect(r.freshness).toBe("—");
+  });
+
+  it("CSV Today's G/L is a dash when previousClose is unavailable (has price, no prior close)", () => {
+    const r = buildUnencumberedCsvRows(
+      snapshot({ inventory: [inv("NOPREV", 100, 0, { averageCostPerShare: 10, costBasis: 1000, marketValue: null })] }),
+      obsMap([{ symbol: "NOPREV", price: 20, previousClose: null, observedAt: NOW }]),
+    )[0];
+    expect(r.lastPrice).toBe("$20.00");
+    expect(r.todayGlDollar).toBe("—");
+    expect(r.todayGlPct).toBe("—");
   });
 });
