@@ -76,3 +76,9 @@ None.
 ## Related
 
 - Portfolio-state / trade-lifecycle maturity: `PL-PORT-01`, `PL-EXEC-01` (capability context; not a bug record).
+
+### Sibling scope observation (2026-09-16, recorded — NOT a scope widening of this record)
+
+The Existing Short-Obligation HOLD vs CLOSE V1 reconciliation (SYNC `7b4a084`) re-verified the live `projectActivityOverlay` mutation switch (`options-prototype/src/portfolio/activity-projection.ts`) and found that, in addition to this record's `assigned` / `shares_sold_assignment` fall-through, the **`buy_to_close` (voluntary BTC)** and **`expired`** event types **also fall through without mutating projected state** — the same class of defect in the same switch. `enrichOpenedDates` reads those events but is explicitly provenance-only. The passing `options-prototype/tests/scenarios/projectState.test.ts` assertions exercise the *separate* scenario-replay path (`src/scenarios/projectState.ts`), not the live overlay, so they mask this gap.
+
+This record's ratified scope remains **assigned-call closure / called-away disposition**. The `buy_to_close` and `expired` cases are recorded here as an adjacent observation for discoverability. **Principal decision needed:** widen this record's scope to the full close/expire/assign set, or open a sibling `BUG-NNN`. Not decided here; no remediation authorized. Cross-links: `docs/design/existing-short-obligation-hold-vs-close-v1-design.md` §16 (cases 17–18) / §21, and `BUG-021` (the backend-accounting counterpart of the same lifecycle gap).

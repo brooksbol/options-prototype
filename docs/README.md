@@ -12,7 +12,7 @@ The canonical parking lot may span physical continuation files. `docs/parking-lo
 
 ## Project-Journal Continuation Rule — September 3, 2026
 
-The canonical project journal may span physical continuation files. `docs/journal/project-journal.md`, `docs/journal/project-journal-2.md`, and any later numbered continuations are **one logical Category C chronology**. Topical journal retrieval, context reconstruction, and chronological review must inspect the complete `docs/journal/project-journal*.md` sequence. File boundaries are pagination only; later continuations do not have lesser authority or durability.
+The canonical project journal may span physical continuation files. `docs/journal/project-journal.md`, `docs/journal/project-journal-2.md`, `docs/journal/project-journal-3.md`, `docs/journal/project-journal-4.md`, and any later numbered continuations are **one logical Category C chronology**. Topical journal retrieval, context reconstruction, and chronological review must inspect the complete `docs/journal/project-journal*.md` sequence. File boundaries are pagination only; later continuations do not have lesser authority or durability.
 
 > **Authority note:** References below to the project journal mean the complete continuation sequence.
 
@@ -182,7 +182,7 @@ Authoritative for their specific project concern. Not system-definition document
 | `technology-quality-program-v1.md` | Principal-ratified and mandated technology-quality program state and execution plan |
 | `technology-quality-fitness-controls-v1.md` | Ratified fitness-control set: three-layer quality model, strict Sonar profile (reproducible policy), ArchUnit invariant mechanism, trend-over-gates principle |
 | `parking-lot.md` + numbered continuations | One canonical backlog and material-idea intake registry expressed across physical pages |
-| `journal/project-journal.md` + numbered continuations | One canonical chronology expressed across physical continuation files |
+| `journal/project-journal.md` + numbered continuations (`-2`, `-3`, `-4`, …) | One canonical chronology expressed across physical continuation files |
 | `bugs/INDEX.md` + `bugs/BUG-*.md` records | The one canonical defect corpus and discovery index (`BUG-NNN` records) — sole defect system of record |
 | `contracts/evidence-snapshot-v1.md` | Frozen API contract (v1) |
 
