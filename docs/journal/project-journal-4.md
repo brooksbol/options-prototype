@@ -66,3 +66,39 @@ These findings are **inputs/constraints** to the HOLD-vs-CLOSE design (they expl
 ### Epistemic status
 
 The V1 **design exists and is internally coherent**; it is **not** implementation authority. Per the task's own gate and `PL-EXEC-01`/idea-intake discipline, design completeness does not authorize code. Next canonical step is a design-gate review (3AM; optional 4AM adversarial), then explicit Principal implementation authorization. The concurrent `PL-RECIPE-01` page-`-3`/`parking-lot-8` working tree was not touched.
+
+
+---
+
+## 2026-09-16 — HOLD vs CLOSE V1 design gate: ACCEPT WITH REQUIRED AMENDMENTS (applied)
+
+**Actor:** Kiro, invoked to apply a bounded documentation/design correction pass.
+**SYNC SHA:** `8125cc802f523dedc4eb4d9b0a644e3c1e8f1298` (accepted `main`; advanced from `05ada58` via the `PL-RECIPE-01` reconciliation `8125cc8`, verified immaterial to this design — it touched only the recipe design/journal-3/parking-lot-8).
+**Mode:** Design correction. **Not** implementation authorization.
+**Artifact amended:** `docs/design/existing-short-obligation-hold-vs-close-v1-design.md` (Revision log records the 10 corrections).
+
+### Gate outcome (preserved why-state)
+
+ChatGPT (with the Principal) returned **ACCEPT WITH REQUIRED AMENDMENTS** on the HOLD-vs-CLOSE V1 design. The core architecture was accepted without reversal: the ownership seam (`LVT-BET-LIFECYCLE-CHOICES` alternatives / `LVT-BET-CONSEQUENCE-ENVELOPE` consequences / `LVT-BET-EXPLANATION`+`LVT-BET-ACCEPTABILITY` judgment / `PL-EXEC-01` transitions), the HOLD/CLOSE state-transition model, the historical-vs-forward separation, the no-verdict V1, the CLOSE≠ROLL wall, and reuse of existing durable identities. No new discovery cycle, no new `PL-*`/LVT/ADR. The corrections are substantive **trustability** fixes, not architectural changes, and they make the design *smaller* (fewer implicit claims, fewer hard dependencies, a safer boundary around current lifecycle-state defects).
+
+### The load-bearing correction (why it matters)
+
+The most important amendment is the **§14a lifecycle-ambiguity fail-closed guard**. The live `projectActivityOverlay` can retain a ghost obligation after BTC/expiration/assignment (Finding B / BUG-001 sibling). Rather than depend on BUG-001 remediation first, V1 now **refuses** (classifies `lifecycle state ambiguous`) when authoritative post-checkpoint Activity contains an exact-contract resolution event conflicting with the projected open obligation — associating only on exact contract, never by inference (ADR-016 preserved), and never repairing overlay state inside the evaluator. This is what makes the accepted sequencing safe: **BUG-001 need not precede V1 only because this guard exists**; without it, V1 would be blocked. This is the cleanest expression of the capability's purpose — it must not confidently offer HOLD/CLOSE on a position that may no longer exist.
+
+### Other durable conclusions from the gate
+
+- CSP CLOSE must never say "collateral freed to cash"; nominal-encumbrance removal is not a cash/buying-power claim (unknown until broker/account evidence). Covered-call CLOSE frees shares from the call, not cash.
+- Greeks/IV are **optional enrichment**, not hard dependencies; the forward comparison must function with them entirely absent.
+- "Historical P/L" was smuggling an estimated close into accounting truth; renamed to an explicit gross mark-to-market estimate vs attributable opening credit (X2), with X3's gross/net basis made explicit.
+- The close estimate (C1) must always carry its quote geometry (bid/ask/spread + provenance) and degrade to weak/`unavailable` on a structurally weak market — no precise-looking false confidence, no invented execution-quality threshold.
+- HOLD must not imply survival to expiration (American-style early assignment); expiration is the *scheduled* boundary only. No early-assignment probability invented.
+- Assignment intent stays externally authoritative; the evaluator never infers desirability from moneyness/delta/basis/P/L.
+- Taxes explicitly declared a non-goal (evidence does not support reliable tax-specific lifecycle claims).
+
+### Settled design questions
+
+Host = **Operator Console position-detail** (subject is a held obligation; ADR-013 already owns Economic Consequence there; keeps prospective Deployment and existing-obligation management distinct; no new page). Host may supply the fixed `{HOLD, CLOSE}` pair while the evaluator remains one-alternative-at-a-time (enumeration stays `LVT-INIT-LIFE-COMPARE`). **Resolution Outlook is not a dependency** — displayable as separately-labeled adjacent context if it exists independently, never required/recomputed. Only degraded-fact visual prominence remains an implementation-design detail, bounded by the invariant that degraded evidence cannot masquerade as known.
+
+### Epistemic status
+
+Design gate is closed pending Principal acceptance of the amended design. **Implementation remains UNAUTHORIZED**; a 4AM Codex pass on the design is not required (Codex already supplied the accepted-code adversarial audit) unless the Principal escalates. Next decision is an explicit authorization to implement the bounded Console V1. The concurrent `PL-RECIPE-01` work (`8125cc8`) was not touched.

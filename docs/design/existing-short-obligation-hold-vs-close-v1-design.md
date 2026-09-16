@@ -1,6 +1,6 @@
 # Existing Short-Obligation HOLD vs CLOSE — Consequence Assessment V1 — Bounded Design
 
-**Status:** Design decomposition — implementation-ready candidate. **NOT implemented, NOT authorized for implementation.** Design completeness does not confer implementation authority (see §19).
+**Status:** Design decomposition — implementation-ready candidate. **Design gate 2026-09-16: ACCEPT WITH REQUIRED AMENDMENTS — amendments applied (see Revision log).** **NOT implemented, NOT authorized for implementation.** Design completeness does not confer implementation authority (see §23).
 **Authority:** Supporting design artifact (Category E). Canonical strategy is `docs/roadmap.md`; accepted why-state is `docs/journal/project-journal-4.md` (2026-09-16 entry) and `docs/discovery/lvt-owned-capital-consequence-reconciliation-2026-09-09.md`.
 **Produced:** 2026-09-16, authorized three-actor reconciliation cycle (Principal + ChatGPT + Kiro; Codex adversarial input reflected in the accepted reconciliation), Kiro as invoked repository-resident actor.
 **SYNC SHA:** `7b4a0843295bfed52584e4b5d97efd4eb7eacdd1` (remotely verified accepted `main`).
@@ -58,9 +58,9 @@ HOLD means:
 - contractual exposure remains; assignment/expiration resolution possibilities remain;
 - current option sensitivities (Greeks/IV) remain (§12);
 - the operator preserves the ability to close (or roll/let-resolve) later;
-- the next contractual/lifecycle decision boundary remains in the future.
+- the **scheduled** contractual boundary is expiration, but **for American-style short options earlier assignment remains possible** — HOLD does not guarantee the obligation survives until expiration.
 
-HOLD is **not** "do nothing forever." It is continuation to the next relevant lifecycle boundary while preserving later optionality. The time-to-boundary is an **exposure duration**, not guaranteed capital lockup (the operator may BTC, roll, or let it resolve).
+HOLD is **not** "do nothing forever." It is continuation toward the scheduled contractual boundary (expiration) while preserving later optionality, **acknowledging that early assignment may resolve it sooner**. The time-to-expiration is an **exposure duration**, not guaranteed capital lockup and not a guarantee the obligation persists that long (the operator may BTC/roll/let-resolve, and the counterparty may assign early). V1 does **not** predict early assignment merely from this possibility (§12, §16 case 3/4).
 
 ## 6. CLOSE semantics
 
@@ -69,11 +69,11 @@ CLOSE means:
 - buy to close the existing short leg;
 - the existing obligation terminates; future exposure from that obligation terminates;
 - the nominal encumbrance associated with that obligation is removed (§13);
-- the portfolio moves to the resulting post-close state (CSP → collateral freed to cash; covered call → shares freed from the call obligation, **not** converted to cash);
+- the portfolio moves to the resulting post-close state. For a **short put (CSP)**: the short-put obligation and its nominal encumbrance are removed — **whether this produces additional cash, buying power, or deployable capacity is unknown until authoritative broker/account evidence establishes it** (never stated as "collateral freed to cash"). For a **covered call**: the shares are **no longer encumbered by this call** — the shares remain shares; **no cash release from those shares is implied**;
 - remaining option value is surrendered through the closing debit;
 - the operator gains whatever future optionality the resulting state actually provides.
 
-CLOSE does **not** assume nominal-encumbrance removal equals broker-authoritative deployable buying power (§13). There is no executable close price before execution (§11).
+CLOSE does **not** assume nominal-encumbrance removal equals broker-authoritative deployable buying power, cash, or deployable capacity (§13). There is no executable close price before execution (§11).
 
 ## 7. Consequence-fact contract
 
@@ -83,11 +83,11 @@ V1 represents, **per obligation, per supplied alternative**, the following indep
 
 | # | Fact | One-line meaning |
 |---|------|------------------|
-| C1 | **Estimated close debit** | `assumedClosePrice × 100 × contracts`, `assumedClosePrice = (bid+ask)/2` midpoint. Indicative pre-trade estimate; **not** fill/executable/guaranteed debit (§11). |
-| C2 | **Quote convention used** | Names the convention behind C1 (midpoint), so the estimate is inspectable. |
+| C1 | **Estimated close debit (+ quote geometry)** | `assumedClosePrice × 100 × contracts`, `assumedClosePrice = (bid+ask)/2` midpoint, **presented together with the bid, ask, and spread (or equivalent quote-quality context) that produced it** — C1 must never become a precise-looking dollar figure detached from that geometry. Indicative pre-trade estimate; **not** fill/executable/guaranteed debit (§11). If evidence cannot distinguish a missing/unusable zero quote from a meaningful zero, or the market is structurally weak/wide, the estimate is marked **weak/`unavailable`** rather than manufacturing confidence. |
+| C2 | **Quote convention + quality used** | Names the convention behind C1 (midpoint) and carries the bid/ask/spread geometry and evidence age/provenance, so the estimate and its quality are inspectable. |
 | C3 | **Quote/evidence provenance and age** | Chain-acquisition provenance/age for the option leg (ADR-015). Never presented as timeless. |
-| C4 | **Nominal encumbrance removed** | The obligation-specific nominal encumbrance released by closing (CSP: `strike × 100 × contracts`; covered call: the `contracts × 100` shares freed from the call obligation — shares, **not** cash). §13. |
-| C5 | **Resulting holding/obligation state** | What the operator holds after CLOSE (CSP → freed collateral/cash; covered call → unencumbered shares). A holding label, not a capital-state ontology. |
+| C4 | **Nominal encumbrance removed** | The obligation-specific nominal encumbrance removed by closing (CSP: `strike × 100 × contracts` of cash-secured encumbrance removed; covered call: the `contracts × 100` shares are no longer encumbered by this call — shares, **not** cash). **Removal of nominal encumbrance is not a claim about cash/buying-power/deployable-capacity change** — that is unknown until broker/account evidence establishes it. §13. |
+| C5 | **Resulting holding/obligation state** | What the operator holds after CLOSE (CSP → short-put obligation removed; any change to cash/deployable capacity unknown pending broker/account evidence. Covered call → shares no longer encumbered by this call, still held as shares). A holding label, not a capital-state ontology, and **not** a cash-release claim. |
 | C6 | **Current DTE** | Days to expiration of the obligation being retired. |
 | C7 | **Current moneyness** | ITM/ATM/OTM + distance from strike, from current underlying + strike. |
 | C8 | **Assignment/expiration exposure removed** | The resolution exposure eliminated by closing. |
@@ -102,23 +102,23 @@ V1 represents, **per obligation, per supplied alternative**, the following indep
 |---|------|------------------|
 | H1 | **Obligation remains** | The short obligation continues unchanged. |
 | H2 | **Nominal encumbrance remains** | The obligation-specific nominal encumbrance stays committed (§13). |
-| H3 | **DTE / time to contractual boundary** | Exposure duration to the next contractual boundary; **not** guaranteed lockup (§5). |
-| H4 | **Assignment/expiration resolution branches** | The mechanically possible resolutions, each with its Economic Consequence (ADR-013), scoped "if held through expiration"; earlier exits acknowledged as descriptions, not modeled. |
+| H3 | **DTE / time to scheduled contractual boundary** | Exposure duration to expiration (the scheduled boundary); **not** guaranteed lockup and **not** a guarantee the obligation lasts that long — American-style early assignment remains possible (§5). |
+| H4 | **Assignment/expiration resolution branches** | The mechanically possible resolutions, each with its Economic Consequence (ADR-013). Expiration-path branches are scoped "if held through expiration"; **early assignment is acknowledged as a possible earlier resolution** (not predicted); other earlier exits (BTC/roll) acknowledged as descriptions, not modeled. |
 | H5 | **Current moneyness** | Same as C7. |
 | H6 | **Current Greeks (where authoritative)** | §12; enrich, never decide. |
 | H7 | **Mid IV / SMV (where authoritative)** | §12; distinct measurements. |
 | H8 | **No immediate closing cash outlay** | HOLD incurs no close debit now. |
 | H9 | **Continued exposure** | Directional/volatility/time exposure the obligation retains. |
 | H10 | **Retained ability to close later** | Optionality preserved (BTC/roll/let-resolve remain available). |
-| H11 | **Next decision boundary** | The next natural forced-decision date (typically expiration). |
+| H11 | **Next scheduled decision boundary** | Expiration is the scheduled contractual boundary; earlier assignment remains possible (not predicted). Not asserted as the only or guaranteed resolution date. |
 
 ### Historical / context facts — optional, degradable (NOT prerequisites)
 
 | # | Fact | One-line meaning |
 |---|------|------------------|
 | X1 | **Opening credit** | Premium received when the obligation was opened, where authoritatively attributable. |
-| X2 | **Current historical P/L** | `openingCredit − currentObligationValue` (per §8 sign discipline), where attributable. |
-| X3 | **Premium captured %** | `(openingCredit − currentObligationValue) / openingCredit`, where attributable. |
+| X2 | **Estimated gross mark-to-market option result vs attributable opening credit** | `openingCredit − currentObligationValue` (per §8 sign discipline), where opening credit is authoritatively attributable. **This is NOT realized P/L:** `currentObligationValue` is quote-derived (midpoint, indicative), no actual close has occurred, and closing costs/slippage are excluded unless separately authoritative. A mark-to-market estimate, never accounting truth. |
+| X3 | **Premium captured %** | `(openingCredit − currentObligationValue) / openingCredit`, where opening credit is trustworthy. Its numerator uses the same **gross** quote-derived estimate as X2 (before closing costs/slippage); the denominator is **gross opening credit**. The %'s gross/net basis must be stated explicitly and its gross numerator and gross denominator must **not** be silently mixed with any net figure. |
 | X4 | **Realized-to-date economics** | Any realized economics on this obligation to date, where attributable. |
 
 X1–X4 are **historical context**, not forward value. They **degrade honestly** to `approximate`/`unavailable` (§10) and **must never** be prerequisites for, or suppress, the forward HOLD/CLOSE facts (C*/H*). They must never masquerade as forward value (§8).
@@ -127,10 +127,10 @@ X1–X4 are **historical context**, not forward value. They **degrade honestly**
 
 ## 8. Historical vs forward — the load-bearing distinction
 
-- **Historical economics** (X1–X4: opening credit, realized premium, premium-captured %, historical P/L) answer *what has happened so far*. Useful context; **not** the forward decision model.
+- **Historical / context economics** (X1–X4: opening credit, estimated gross mark-to-market result vs opening credit, premium-captured %, realized-to-date) answer *what has happened so far* (or, for X2/X3, a gross mark-to-market estimate of it). Useful context; **not** the forward decision model. Note X2 is explicitly an estimate, not realized P/L (§7).
 - **Forward consequences** (C*/H*) answer *from this instant forward, what changes if the operator continues vs closes*. This is the actual HOLD-vs-CLOSE comparison.
 
-The design must not allow historical P/L, premium-captured %, sunk cost, or "getting back to even" to masquerade as forward value. Consistent with `PL-DEC-BEH` (Mechanics over Impulse; sunk-cost/reference-point effects) and ADR-014 (premium recognized once at receipt; resolving capital is never forecast production). A test asserts historical facts are labeled historical and are never inputs to a forward CLOSE-vs-HOLD verdict (there is no verdict in V1 anyway — §17).
+The design must not allow the mark-to-market estimate (X2), premium-captured % (X3), sunk cost, or "getting back to even" to masquerade as forward value. Consistent with `PL-DEC-BEH` (Mechanics over Impulse; sunk-cost/reference-point effects) and ADR-014 (premium recognized once at receipt; resolving capital is never forecast production). A test asserts historical facts are labeled historical and are never inputs to a forward CLOSE-vs-HOLD verdict (there is no verdict in V1 anyway — §17).
 
 ## 9. Authoritative inputs (classified)
 
@@ -140,7 +140,7 @@ The design must not allow historical P/L, premium-captured %, sunk cost, or "get
 | **Historical / accounting** | opening credit + realized-to-date (ADR-014; recognized-once), where authoritatively attributable — degradable |
 | **Current market evidence** | option midpoint (close-leg price), underlying spot, DTE, moneyness, chain-acquisition provenance/age |
 | **Greek/IV evidence** | delta/gamma/theta/vega/rho, `midIv`, `smvVol`, `greeksUpdatedAt` — nullable; age = chain age; distinct IV measurements (§12) |
-| **Situation / policy** | acceptability, take-profit thresholds, assignment intent — **kept upstream**, out of the consequence plumbing; consumed later by `LVT-BET-ACCEPTABILITY` / `LVT-INIT-POLICY-TAKE-PROFIT` |
+| **Situation / policy** | acceptability, take-profit thresholds, assignment intent — **kept upstream and externally authoritative**, out of the consequence plumbing. The evaluator **never creates or infers** assignment intent; it may *carry* an authoritative supplied value if one exists, otherwise intent is `unknown`. Consumed/owned by `LVT-BET-ACCEPTABILITY` / `LVT-INIT-POLICY-TAKE-PROFIT` |
 | **Execution evidence** | none exists pre-execution; midpoint is indicative only (§11) |
 
 The five evidence classes (option-chain, underlying, Greek/IV, portfolio state, historical/accounting) are **distinguished**, never conflated.
@@ -150,12 +150,12 @@ The five evidence classes (option-chain, underlying, Greek/IV, portfolio state, 
 Every fact is emitted with one of: **`known`** (authoritative value + provenance), **`approximate`** (value derivable but with a named precision caveat, e.g. blended-basis historical P/L, aged quote), or **`unavailable`** (`{ kind: "unavailable" }`, no synthesis). Rules:
 
 - Forward facts (C*/H*) that require only current chain + portfolio + calendar are `known` when that evidence is admissible; `unavailable` (with fail-closed refusal, §14) otherwise.
-- Historical facts (X*) degrade to `approximate` (e.g. blended symbol-level basis; incomplete opening attribution across multiple STOs/partial closes/reopenings — Codex finding) or `unavailable`, and **never** suppress C*/H*.
+- Historical/context facts (X*) degrade to `approximate` (e.g. gross mark-to-market estimate from a quote-derived obligation value; incomplete opening attribution across multiple STOs/partial closes/reopenings — Codex finding) or `unavailable`, and **never** suppress C*/H*.
 - No fact is shown bare; each shows its precision/provenance. **No invented precision** (mirrors the release-cost precedent: never emit `exact`/`known` beyond what evidence proves).
 
 ## 11. Pricing semantics
 
-There is **no authoritative executable BTC price before execution.** C1 uses midpoint `(bid+ask)/2` (the existing Wheelwright convention) as an **estimate/indicative** value only. It must be labeled as such and must **never** be called fill price, executable price, or guaranteed debit. Spread/slippage uncertainty is surfaced (C11), not hidden. No execution evidence is invented; no local option-pricing model or IV solver is introduced (§17). If bid/ask is wide, the midpoint is a **weak** estimate and the design says so (§16 case 6).
+There is **no authoritative executable BTC price before execution.** C1 uses midpoint `(bid+ask)/2` (the existing Wheelwright convention) as an **estimate/indicative** value only. It must be labeled as such and must **never** be called fill price, executable price, or guaranteed debit. **C1 always carries the quote geometry that produced it** — bid, ask, and spread (or equivalent quote-quality context) plus evidence age/provenance — so it never loses the market shape behind the dollar figure. Spread/slippage uncertainty is surfaced (C11), not hidden. No execution evidence is invented; no local option-pricing model or IV solver is introduced (§17). No execution-quality threshold or CLOSE policy is invented here (that is `LVT-INIT-POLICY-TAKE-PROFIT`); the requirement is only that a structurally weak/wide market, or evidence that cannot distinguish an unusable zero quote from a meaningful zero, yields a **weak/`unavailable`** estimate rather than a precise-looking, falsely-confident value (§16 case 6).
 
 ## 12. Greek / IV semantics (newly-accepted evidence — hard guardrails)
 
@@ -179,8 +179,8 @@ Semantic limits carried into every presentation:
 
 V1 may compute/display a **nominal obligation/collateral consequence** where strategy semantics make it deterministic:
 
-- **Short put (CSP):** cash-secured strike-notional geometry supports a nominal encumbrance fact = `strike × 100 × contracts`. Closing removes that nominal encumbrance.
-- **Covered call:** closing the call **releases the shares from the call obligation**; it does **not** create cash from those shares. The freed asset is *shares*, not cash.
+- **Short put (CSP):** cash-secured strike-notional geometry supports a nominal encumbrance fact = `strike × 100 × contracts`. Closing **removes that nominal encumbrance**; whether it produces additional cash/buying power/deployable capacity is **unknown until broker/account evidence establishes it** (never "collateral freed to cash").
+- **Covered call:** closing the call means the shares are **no longer encumbered by this call**; it does **not** create cash from those shares. The unencumbered asset is *shares*, not cash.
 
 V1 must **not** automatically translate nominal-encumbrance removal into: broker buying power released, cash released, deployable cash, or immediately reusable capital. Authoritative deployable buying power remains **broker/account (Fidelity balance) evidence**, not this design. Canonical term: **"nominal encumbrance removed"** (no better established term exists in current authority). This mirrors the release-cost precedent's F1 "estimated gross sale value ≠ deployable capacity" correction.
 
@@ -195,6 +195,16 @@ Inherited from ADR-015 / ADR-016 / ADR-017:
 - **Never present aged evidence as timeless/current** without qualification.
 - Distinguish option-chain, underlying, greek/IV, portfolio-state, and historical/accounting evidence (§9).
 
+## 14a. Lifecycle-ambiguity fail-closed guard (bounded, required)
+
+The live portfolio overlay can retain a **ghost obligation** after it has already been bought-to-close, expired, or assigned (this is the untracked live-overlay gap — Finding B / BUG-001 sibling, §21). Confidently offering HOLD/CLOSE facts on a ghost obligation is exactly the trustability failure this capability exists to eliminate. V1 therefore carries a bounded fail-closed guard:
+
+- **Rule:** if authoritative post-checkpoint Activity evidence contains an **exact-contract resolution event** (buy-to-close, expiration, or assignment) that **conflicts with the projected open obligation** being evaluated, the evaluator classifies the subject as **`lifecycle state ambiguous`** and **refuses** HOLD/CLOSE evaluation for that subject.
+- **Exact-contract association only.** The conflict is recognized only when the resolution event can be associated to the exact contract **without speculative inference**. If exact-contract association cannot be established under existing authority, the evaluator **refuses rather than associates** (preserves ADR-016 — no manufactured/competing association).
+- **No state repair inside the evaluator.** The consequence evaluator **must not** mutate, reconstruct, or repair portfolio/overlay state to resolve the disagreement. Portfolio-state remediation remains **BUG-001 / its sibling scope**, separately governed.
+- **No competing authority.** The guard reads authoritative Activity evidence to *detect a conflict and refuse*; it does not become a second position-projection authority.
+- This is a **refusal**, not a fabricated domain state — it fails closed (consistent with ADR-017's pending/unknown-fails-closed spirit), surfacing `lifecycle state ambiguous` rather than a confident HOLD/CLOSE comparison.
+
 ## 15. Degradation behavior (summary)
 
 - Missing/aged current chain → forward facts `unavailable` / refuse comparison (fail closed); never guess a close debit.
@@ -202,7 +212,9 @@ Inherited from ADR-015 / ADR-016 / ADR-017:
 - Exact all-zero greek vector → treat as unavailable placeholder (whole-vector rule).
 - `midIv`/`smvVol` disagree → show both distinctly; never reconcile/average.
 - Incomplete opening attribution → X1–X4 `approximate`/`unavailable`; C*/H* unaffected.
-- No authoritative deployable capacity → C4/C5 stay "nominal encumbrance removed", never "buying power".
+- No authoritative deployable capacity → C4/C5 stay "nominal encumbrance removed", never "cash/buying power/deployable capacity".
+- Exact-contract post-checkpoint resolution conflicts with the projected open obligation → classify **`lifecycle state ambiguous`** and **refuse** (§14a); never repair state in the evaluator.
+- Structurally weak/wide market or indistinguishable unusable-zero quote → C1 marked **weak/`unavailable`** with quote geometry, never a precise-looking confident figure (§11).
 
 ## 16. Design pressure test (18 cases)
 
@@ -210,10 +222,10 @@ For each: the design must produce **truthful facts**, **degrade explicitly**, or
 
 1. **OTM CSP, substantial DTE, most premium captured.** C1 small close debit (midpoint, indicative); H* show remaining exposure/DTE; X3 premium-captured % shown as *historical context*, explicitly not a forward CLOSE signal. Truthful facts.
 2. **OTM CSP, 1–2 DTE, tiny close debit.** C1 tiny debit; C12 "now"; H3 very short exposure duration; assignment/expiration branches shown. Truthful facts. No "just let it expire" recommendation (no verdict).
-3. **ITM CSP, assignment explicitly desired.** Assignment *consequence* (H4) + *outlook* (ADR-013) shown; assignment *desirability* consumed from Situation/intent, presented as acceptable — but V1 states facts, not a CLOSE/HOLD verdict. Truthful facts.
-4. **ITM CSP, assignment intent unknown.** Consequence + outlook shown; **no** "high assignment exposure ⇒ CLOSE" conclusion is produced (intent unknown → withhold acceptability judgment). Truthful facts + explicit withholding.
-5. **Covered call, closing releases shares not cash.** C4/C5 = shares freed from call obligation; explicitly **not** cash/buying power (§13). Truthful facts.
-6. **Wide bid/ask, midpoint weak estimate.** C1 shown with C2 convention + C11 execution uncertainty; the width is surfaced as weak-estimate caveat (`approximate`). Explicit degradation.
+3. **ITM CSP, assignment explicitly desired — ONLY when an authoritative supplied intent exists.** Assignment *consequence* (H4) + *outlook* (ADR-013, if independently available) shown; assignment *desirability* may be carried **only if** an authoritative Situation/operator-intent value is supplied — the evaluator consumes it, never owns or infers it. Absent such authority the intent is `unknown` (case 4). V1 states facts, not a CLOSE/HOLD verdict. Truthful facts (conditional on supplied intent).
+4. **ITM CSP, assignment intent unknown (default).** Consequence + outlook shown; intent remains `unknown`; **no** "high assignment exposure ⇒ CLOSE" conclusion is produced, and desirability is **never** inferred from moneyness/delta/basis/P/L (withhold acceptability judgment). Truthful facts + explicit withholding.
+5. **Covered call, closing removes call encumbrance, not cash.** C4/C5 = shares no longer encumbered by this call, still held as shares; explicitly **not** cash/buying power (§13). Truthful facts.
+6. **Wide bid/ask, midpoint weak estimate.** C1 shown with C2 quote geometry (bid/ask/spread) + C11 execution uncertainty; the width is surfaced as a weak-estimate caveat (`approximate`), or `unavailable` if structurally unusable. Explicit degradation.
 7. **Missing opening-credit attribution.** X1–X4 `unavailable`; C*/H* fully shown. Explicit degradation; forward comparison intact.
 8. **Partial close / reopened contract history.** Opening attribution ambiguous → X1–X4 `approximate`/`unavailable` with caveat; C*/H* unaffected. Explicit degradation.
 9. **Missing one greek, valid others.** Missing greek `unavailable`; others shown (per-greek independence). Explicit degradation.
@@ -224,12 +236,12 @@ For each: the design must produce **truthful facts**, **degrade explicitly**, or
 14. **Large nominal encumbrance, no known redeployment.** C4 nominal encumbrance removed shown; **no** claim of freed buying power or redeployment (§13; feasible-set is `LVT-BET-CAPITAL-CHOICES`). Truthful facts.
 15. **Apparent superior new opportunity, deployable capacity not authoritative.** V1 does not compute redeployment or feasible-set; C4 stays nominal-only; deployable capacity deferred to broker/account evidence. Truthful facts (bounded).
 16. **Potential ROLL where replacement credit would hide a costly old-leg close.** ROLL is out of V1; the design refuses to produce a net roll credit. CLOSE economics stand alone (per `PL-EXEC-01`). Refusal (of ROLL) + truthful CLOSE facts.
-17. **Position already BTC'd but live overlay not reconciled (Finding B).** V1 must not assume the live projected position set is authoritative for a just-closed obligation; if the obligation is absent/ambiguous in reconciled state, refuse or mark `unavailable` rather than emitting confident facts for a ghost position. Refusal/degradation. (Cross-links BUG-001 / §17-adjacent finding.)
-18. **Assignment/expiration already economically resolved but projected state inconsistent.** Same discipline as 17: do not emit forward HOLD/CLOSE facts for an obligation that reconciled evidence shows already resolved; degrade/refuse. (Cross-links Finding B.)
+17. **Position already BTC'd but live overlay not reconciled (Finding B).** The §14a guard fires: authoritative post-checkpoint Activity shows an exact-contract buy-to-close conflicting with the projected open obligation → classify **`lifecycle state ambiguous`** and **refuse** HOLD/CLOSE; the evaluator does **not** repair overlay state. If exact-contract association cannot be made without inference, refuse rather than associate. Refusal. (Cross-links BUG-001 sibling.)
+18. **Assignment/expiration already resolved but projected state inconsistent.** Same §14a guard: an exact-contract expiration/assignment resolution event conflicting with the projected open obligation → **`lifecycle state ambiguous`**, refuse. No state repair in the evaluator. Refusal. (Cross-links BUG-001 sibling.)
 
 ## 17. Explicit V1 non-goals
 
-No automatic HOLD recommendation; no automatic CLOSE recommendation; no scalar HOLD/CLOSE score; no generalized BTC engine; no take-profit policy implementation; no ROLL evaluation; no replacement-leg recommendation; no multi-leg lifecycle framework; no spread-close; no close-one-leg/partial-close; no assignment-desirability inference; no assignment-probability invention; no automatic redeployment; no claim that nominal encumbrance equals broker buying power; no capital-path optimizer; no generalized lifecycle-episode entity; no generalized `CapitalState` machine; no new provider calls; no local option-pricing model / IV solver; no policy thresholds hidden in UI/domain plumbing; no mutation of Deployment recommendation semantics; no direct broker execution; no alternative discovery/enumeration (that is `LVT-BET-LIFECYCLE-CHOICES`).
+No automatic HOLD recommendation; no automatic CLOSE recommendation; no scalar HOLD/CLOSE score; no generalized BTC engine; no take-profit policy implementation; no ROLL evaluation; no replacement-leg recommendation; no multi-leg lifecycle framework; no spread-close; no close-one-leg/partial-close; no assignment-desirability inference; no assignment-probability invention; no automatic redeployment; no claim that nominal encumbrance equals broker buying power; no capital-path optimizer; no generalized lifecycle-episode entity; no generalized `CapitalState` machine; no new provider calls; no local option-pricing model / IV solver; no policy thresholds hidden in UI/domain plumbing; no mutation of Deployment recommendation semantics; no direct broker execution; no alternative discovery/enumeration (that is `LVT-BET-LIFECYCLE-CHOICES`); **no tax computation or inference** — V1 does not compute or infer the tax consequences of HOLD/CLOSE because current authoritative evidence does not support reliable tax-specific lifecycle claims (stated explicitly rather than silently omitted); **no creation of assignment-desirability/intent state** — intent is consumed only from an authoritative supplied source, otherwise `unknown` (§9, §16 cases 3/4); **no portfolio/overlay state repair inside the evaluator** (§14a).
 
 ## 18. Future extensibility
 
@@ -237,8 +249,9 @@ The **supplied-alternative + independent-consequence-facts + presentational comp
 
 ## 19. Lifecycle / accounting dependencies
 
-- **Hard (already present):** cached option chain + underlying spot; portfolio short-obligation state; per-subject session/admissibility verdict (ADR-017); chain-acquisition provenance (ADR-015); the newly-accepted greek/IV fields (contract §Secondary Greeks / §IV).
-- **Soft / degradable:** opening-credit + realized-to-date attribution (ADR-014 recognition; lot/lifecycle maturity `PL-PORT-01`/`PL-PORT-02` / `LVT-INIT-OUTCOME-BASIS`) — required only for `known` historical facts (X*), never for the forward comparison.
+- **Hard (already present) — the minimum for the core forward comparison:** portfolio short-obligation state; usable current option evidence (bid/ask/midpoint for the obligation contract); the necessary underlying evidence; and provenance + per-subject session/admissibility authority (ADR-015 / ADR-017). Nothing else is required to produce the core HOLD/CLOSE forward facts.
+- **Optional / degradable enrichment — NOT hard dependencies:** the newly-accepted greek/IV fields (`delta`, `gamma`, `theta`, `vega`, `rho`, `midIv`, `smvVol`, `greeksUpdatedAt`; contract §Secondary Greeks / §IV). Each is independently nullable and degradable context (§12); the forward comparison must remain fully functional when any or all are absent. All §12 semantic guardrails still apply when they are present.
+- **Soft / degradable:** opening-credit + realized-to-date attribution (ADR-014 recognition; lot/lifecycle maturity `PL-PORT-01`/`PL-PORT-02` / `LVT-INIT-OUTCOME-BASIS`) — required only for `known` historical/context facts (X*), never for the forward comparison.
 - **Adjacent correctness constraints (NOT dependencies to repair here, but bounding the design — see §21):** backend BTC classification (**BUG-021**) and live-overlay BTC/expired resolution (**BUG-001** assigned subset + untracked BTC/expired). V1 must not assume Production accounting has netted a BTC, nor that the live projected position set has removed a closed/resolved obligation (§16 cases 17–18).
 
 ## 20. Testable invariants (design-level)
@@ -254,6 +267,14 @@ The **supplied-alternative + independent-consequence-facts + presentational comp
 9. **CLOSE ≠ ROLL:** no net-roll-credit output; CLOSE economics stand alone.
 10. **Determinism:** same cache + portfolio + policy → same facts (ADR-001).
 11. **Precision:** no fact shown bare; no invented `known`/exact precision; provenance/age carried.
+12. **Greeks/IV optional:** the core forward comparison (C1–C8/C11–C12, H1–H5/H8–H11) is produced when greek/IV evidence is entirely absent; a test drives the evaluator with all greek/IV fields null and asserts the forward facts still emit.
+13. **HOLD early-assignment:** HOLD facts describe expiration as the *scheduled* boundary and never assert the obligation survives until expiration; a test asserts early-assignment possibility is preserved (H3/H4/H11) and no early-assignment probability is produced.
+14. **Assignment intent external:** a test asserts intent defaults to `unknown`, is never inferred from moneyness/delta/basis/P/L, and is only carried when an authoritative supplied value is present.
+15. **Lifecycle-ambiguity guard:** given post-checkpoint exact-contract BTC/expiration/assignment conflicting with the projected open obligation, the evaluator emits `lifecycle state ambiguous` and no HOLD/CLOSE facts, and performs no portfolio-state mutation (§14a); if exact-contract association is not establishable, it refuses rather than associates.
+16. **C1 quote geometry:** a test asserts C1 always carries bid/ask/spread + provenance, and that a structurally weak/wide or indistinguishable-zero market yields weak/`unavailable`, never a bare confident dollar value.
+17. **X2 not realized P/L:** a test asserts X2 is labeled an estimated gross mark-to-market result (not realized P/L) and X3 declares its gross/net basis without mixing.
+18. **Tax non-goal:** a test/spec assertion confirms no tax figure is computed or presented.
+19. **Degraded-fact distinguishability (presentation invariant):** degraded/`unavailable` evidence must be visually and semantically distinguishable enough that it **cannot masquerade** as a known consequence fact. (Visual prominence is an implementation-design detail; this invariant is not.)
 
 ## 21. Adjacent correctness findings (identified, classified, NOT repaired here)
 
@@ -267,25 +288,31 @@ Per authorization item 4 (identify, do not silently repair):
 **V1 = a read-only, deterministic consequence evaluator that, per existing single-leg short obligation, emits independent CLOSE facts (C1–C12) and HOLD facts (H1–H11) plus precision-tagged historical context (X1–X4), for the two supplied alternatives {HOLD, CLOSE} (NOT discovering them), consuming cached option-chain + underlying + newly-accepted greek/IV evidence + portfolio short-obligation state + backend session/admissibility authority, composed as two adjacent independently-evaluated alternatives on an existing surface, with §12 greek/IV guardrails, §11 pricing semantics, §13 encumbrance semantics, §8 historical-vs-forward wall, and §14 fail-closed admissibility all enforced by test.**
 
 - **No backend change, no schema, no provider calls, no scheduler change, no new page** for the core evaluator + composition.
-- One frontend computation module (extending the pattern in `call-brief-builder.ts` / the release-cost consequence pattern) + presentational adjacency in an existing surface.
-- **Host-surface hypothesis (to be confirmed at the design gate, not decided here):** the Operator Console position-detail (ADR-013 Economic Consequence dimension) is the natural host because the subject is a *held* obligation; the Write Desk drawer is the alternative. Decision deferred to the design gate to avoid duplicating representation across surfaces (mirrors the release-cost host-first discipline). A dedicated new surface is a **non-goal** (§17).
+- One frontend computation module (extending the pattern in `call-brief-builder.ts` / the release-cost consequence pattern) + presentational adjacency in an existing surface, plus the §14a lifecycle-ambiguity guard.
+- **Host surface — DECIDED (design gate 2026-09-16): Operator Console position-detail.** The subject is an already-held obligation; ADR-013 already assigns Contract State / Decision Pressure / Economic Consequence to that surface; placing this in Deployment first would blur prospective (new-deployment) and existing-obligation populations. Deployment may eventually compose lifecycle alternatives, but Console is the cleanest first realization. **No new page.** A dedicated surface remains a **non-goal** (§17).
+- **Alternative supply — DECIDED (design gate 2026-09-16):** the Console host may supply the **fixed pair `{HOLD, CLOSE}`** for a qualifying existing single-leg short obligation. The evaluator still accepts **one supplied alternative at a time** and never discovers alternatives itself. This bounded realization does **not** establish a generalized lifecycle-enumeration engine; future enumeration remains `LVT-INIT-LIFE-COMPARE`.
 - Historical facts (X*) and any exact accounting depend on `PL-PORT-01`/`PL-PORT-02`/`LVT-INIT-OUTCOME-BASIS` and on BUG-021/BUG-001 correctness — all **degradable**, none blocking the forward comparison.
 
-## 23. Implementation-authorization gate
+## 23. Implementation-authorization gate and sequencing
 
-Implementation is **UNAUTHORIZED**. This design becomes eligible for implementation only after:
+Implementation is **UNAUTHORIZED**. Design-gate status: **ACCEPT WITH REQUIRED AMENDMENTS — amendments applied (this revision).** This design becomes eligible for implementation only after:
 
-1. Principal (3AM) acceptance of this design; optional 4AM (Codex) adversarial pass if the Principal authorizes escalation;
-2. explicit Principal implementation authorization (design completeness does **not** authorize code — `PL-EXEC-01` / idea-intake-reconciliation discipline);
-3. host-surface confirmation (§22);
-4. a decision on the adjacent findings (§21) — whether BUG-021 / BUG-001-scope work sequences before, with, or after this V1 (the forward comparison can ship with degradation regardless, but the Principal may prefer to sequence the accounting/overlay correctness first).
+1. Principal acceptance of this amended design (3AM); a 4AM Codex adversarial pass is **not required** for the design itself (Codex already supplied the accepted-code adversarial audit that shaped it) unless the Principal chooses to escalate;
+2. explicit Principal implementation authorization (design completeness does **not** authorize code — `PL-EXEC-01` / idea-intake-reconciliation discipline).
+
+### Sequencing (design-gate decision, 2026-09-16)
+
+- **BUG-021 does not block V1.** Historical/context facts (X*) are degradable; the forward comparison does not require Production to correctly net an actual BTC.
+- **BUG-001 / its sibling scope does not have to precede V1 — but only because of the §14a lifecycle-ambiguity guard.** With that guard implemented and tested, V1 refuses (rather than confidently evaluates) a possibly-ghost obligation. **Without the §14a guard, V1 is NOT implementation-safe** and would be blocked, because confidently offering HOLD/CLOSE on a ghost obligation is the exact trustability failure this capability exists to eliminate.
+- **Accepted implementation sequence:** design amendments (this revision) → explicit implementation authorization → V1 evaluator + Console position-detail composition + §14a lifecycle-ambiguity guard (with its invariants/tests) → separately governed BUG-001 / BUG-021 remediation.
 
 ## 24. Open design-time (non-blocking) questions
 
-1. Host surface: Console position-detail vs Write Desk drawer (§22) — related to the open `PL-DEPLOY` decision-surface (expanded-row vs drawer) pressure.
-2. Where the "applicable alternatives = {HOLD, CLOSE}" enumeration is authoritatively produced (`LVT-INIT-LIFE-COMPARE`) vs supplied by the host surface for V1.
-3. Whether an honest HOLD comparison can be stated without any Resolution Outlook, or whether it inherently imports the ADR-013 outlook layer (and its uncertainty-honesty rules).
-4. Presentation prominence of degraded/`unavailable` facts (Trustability presentation choice; settle at implementation design).
+Three of the four prior open questions were **settled at the 2026-09-16 design gate**: host surface = Operator Console position-detail (§22); alternative supply = fixed `{HOLD, CLOSE}` pair supplied by the host, evaluator still one-at-a-time (§22); Resolution Outlook is **not** a dependency (HOLD may state moneyness/DTE/branches/sensitivities/scheduled-expiration without predicting a branch; if ADR-013 Resolution Outlook exists independently it may be shown as separately-labeled adjacent context, never required or recomputed by the evaluator — invariant preserved in §12/§16 case 4).
+
+Remaining open (implementation-design detail only):
+
+1. **Visual prominence of degraded/`unavailable` facts.** Presentation choice, deferred to implementation design — bounded by the strong invariant (§20.19) that degraded evidence must be conspicuous enough that an unavailable estimate cannot visually masquerade as a known one.
 
 ---
 
@@ -297,3 +324,22 @@ Implementation is **UNAUTHORIZED**. This design becomes eligible for implementat
 - Governing decisions: ADR-013, ADR-014, ADR-015, ADR-016, ADR-017; `foundations/policy-over-prediction.md`.
 - Canonical strategy: `docs/roadmap.md` (`LVT-BET-LIFECYCLE-CHOICES`, `LVT-BET-CONSEQUENCE-ENVELOPE`, `LVT-INIT-CONSEQUENCE-RELEASE-COST`, `LVT-BET-EXPLANATION`, `LVT-BET-ACCEPTABILITY`, `LVT-BET-LIFECYCLE-POLICY`); backlog `PL-EXEC-01`, `PL-DEC-BEH`, `PL-PORT-01`, `PL-PORT-02`.
 - Adjacent findings: `docs/bugs/BUG-021-*.md` (Finding A), `docs/bugs/BUG-001-assigned-call-closure-projection.md` (Finding B assigned subset).
+
+---
+
+## Revision log
+
+**2026-09-16 — Design-gate ACCEPT WITH REQUIRED AMENDMENTS (Principal + ChatGPT; Kiro applied).** Core architecture accepted (ownership seam, HOLD/CLOSE state-transition model, historical-vs-forward separation, no-verdict V1, CLOSE≠ROLL, existing identities). Ten bounded corrections applied, no architectural reversal:
+
+1. **CSP CLOSE resulting-state** — removed "collateral freed to cash"; CSP CLOSE removes the short-put obligation + nominal encumbrance, and any cash/buying-power/deployable-capacity change is unknown until broker/account evidence; covered-call CLOSE = shares no longer encumbered by this call (still shares, no cash release). (§6, C4, C5, §13, §16.5, §20.5)
+2. **Lifecycle-ambiguity fail-closed guard (§14a, new)** — exact-contract post-checkpoint BTC/expiration/assignment conflicting with the projected open obligation ⇒ classify `lifecycle state ambiguous` and refuse; no state repair inside the evaluator; refuse rather than infer association (ADR-016 preserved). Invariant §20.15; pressure-test §16.17–18.
+3. **Greeks/IV are optional, not hard dependencies** — §19 hard minimum is obligation state + usable current option evidence + necessary underlying evidence + provenance/admissibility; greeks/`midIv`/`smvVol`/`greeksUpdatedAt` are degradable enrichment (guardrails preserved). Invariant §20.12.
+4. **X2 reframed** — no longer "historical P/L"; now "estimated gross mark-to-market option result vs attributable opening credit" (quote-derived, pre-close, excludes closing costs); X3 declares gross/net basis and does not mix. (§7, §8, §10, §16.1, §20.17)
+5. **C1 quote geometry preserved** — C1 always carries bid/ask/spread + provenance; structurally weak/wide or indistinguishable-zero market ⇒ weak/`unavailable`, never a precise-looking confident figure; no execution-quality threshold invented. (C1, C2, §11, §16.6, §20.16)
+6. **HOLD early-assignment** — expiration is the *scheduled* boundary; American-style early assignment remains possible; HOLD never implies survival to expiration; no early-assignment probability invented. (§5, H3, H4, H11, §16, §20.13)
+7. **Assignment intent external** — evaluator never creates/infers intent; carries it only from an authoritative supplied source, else `unknown`; case 3 made conditional on supplied authoritative intent. (§9, §16.3–4, §17, §20.14)
+8. **Taxes non-goal** — V1 explicitly does not compute/infer tax consequences (stated, not silently omitted). (§17, §20.18)
+9. **Three design questions settled** — host = Operator Console position-detail (no new page); host may supply the fixed `{HOLD, CLOSE}` pair (evaluator still one-at-a-time; enumeration stays `LVT-INIT-LIFE-COMPARE`); Resolution Outlook is not a dependency (may be shown as separately-labeled adjacent context). Degraded-fact distinguishability added as a presentation invariant (§20.19); only visual prominence remains an implementation-design detail. (§22, §24)
+10. **Sequencing recorded** — BUG-021 non-blocking; BUG-001/sibling non-blocking **only if** the §14a guard is implemented and tested, else V1 is not implementation-safe; accepted sequence: amendments → authorization → evaluator + Console composition + §14a guard → separately governed BUG remediation. (§23)
+
+No new `PL-*`/LVT/ADR created; no code changed; no BUG remediated. Contradiction check: none discovered — the amendments only *narrow* implicit claims and *reduce* hard dependencies; they are consistent with ADR-013/014/015/016/017 and the release-cost precedent.
