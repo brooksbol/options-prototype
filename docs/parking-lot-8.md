@@ -710,4 +710,69 @@ Four-actor discussion history (this pipeline); the September 11, 2026 secondary-
 
 ### Pipeline state
 
-**DISCOVERED → INTAKE (this record).** Next canonical stage: **§3 Strategic Reconciliation** against `docs/roadmap.md`, then **§4 Architectural Reconciliation** against `docs/architecture-roadmap.md` / ADRs / snapshot contract, culminating in a **Reconciliation Completion Record** before the item is RECONCILED. Per the amended actor instruction, intake stops here; Strategic Reconciliation is not performed in this step.
+**DISCOVERED → INTAKE → RECONCILED (Principal-accepted, published 2026-09-16).** §3 Strategic Reconciliation and §4 Architectural Reconciliation performed; see the **Reconciliation Completion Record for `PL-DEPLOY-EXPORT`** below in this file. Next canonical stage: **§6 Implementation Decomposition / Commitment** — decomposition authorized for the Greeks + IV evidence slice only, implementation subject to separate Principal authorization.
+
+---
+
+## Reconciliation Completion Record — `PL-DEPLOY-EXPORT` (Deployment "Export Everything" + AI-advisor evidence)
+
+**Date:** September 16, 2026
+**SYNC at reconciliation:** `76ed9c75720f4d03e2661931fe8869ad24a1c76a` (intake `76ed9c7` durably on accepted `main`)
+**Status of this record:** §3 Strategic Reconciliation **has been performed** and §4 Architectural Reconciliation **has been performed**. **Principal-accepted and published (September 16, 2026) — the item is RECONCILED.** Next stage: **§6 design/decomposition, authorized for the Greeks + IV evidence slice only, subject to separate implementation authorization.** **No implementation is authorized by this record.** Principal acceptance of the conceptual design does not automatically authorize implementation.
+**Scope discipline:** deliberately narrow — reconciles the already-ratified evidence/export concept against current authority; does NOT reopen the product design. The Application Shell mega-export remains parked and out of scope.
+
+### Intake
+
+Canonical identity: **`PL-DEPLOY-EXPORT`** (this file). A single top-level Deployment "Export Everything" action producing one CSV of the complete Deployment table evidence (superset schema, all populations), which becomes the canonical machine-consumable artifact for the bounded AI-advisor experiment. Concept home `PL-DEPLOY`. INTAKE record above.
+
+### Strategic disposition (§3, against `docs/roadmap.md`)
+
+**Strengthens existing strategic direction; NO new Bet; no roadmap change required.**
+
+- Primary home: the cross-cutting **Trustability** differentiator ("Can I trust what I'm seeing?"), supported here by provenance, freshness/age, explicit insufficiency (raw + `provider-reported`/`provider-exact-zero`/`absent` classification), and determinism. A complete, honest, machine-consumable export of Deployment evidence is a direct Trustability expression.
+- Also strengthens `LVT-INIT-OBS-TRUST` (make evidence fitness — and inability to establish it — explicit) and `LVT-BET-EXPLANATION` / `LVT-INIT-EXPLAIN-TRADEOFFS` (comparative explanation across the Deployment alternative set): the export exposes the same evidence the operator/advisor reasons over.
+- The AI-advisor experiment maps beneath `LVT-GOAL-LEARNING` / `LVT-BET-OUTCOME-LEARNING` as a bounded experiment consumer (evidence for the advisor), NOT a new learning Bet and NOT a change to ranking policy. Provider-IV evidence relates to `LVT-EXP-VOL-TRAJECTORY` (volatility as candidate discriminatory information) but this item does not promote IV into any ranking factor.
+- Quality/differentiation lens: this is **enabling instrumentation with a differentiating Trustability edge** — "good enough" = complete population (no presentation truncation), honest raw+quality semantics, unambiguous heterogeneous-row identity, and truthful per-row provenance/age. Absolute IV is not represented as relative richness.
+- **Roadmap not edited:** no LVT object added/changed; this record is the durable disposition so future actors do not re-ask.
+
+### Architectural disposition (§4, against `docs/architecture-roadmap.md`, ADRs, contract)
+
+**Refines/uses existing architecture; introduces NO new architectural pressure that isn't already recorded; conforms to the authority spine. One additive contract amendment anticipated for the IV slice.**
+
+- **Trustability (system-wide architectural concern)** and **AR8** (reproducible temporal substrate for learning) are the homes: the frozen-population, capture-not-refresh export is exactly the reproducible point-in-time artifact AR8 anticipates for evaluating a consumer without hindsight contamination. **AR4** (consequence semantics before explanation) is touched only insofar as greeks/IV are consequence-relevant evidence surfaced faithfully — no consequence engine implied.
+- **Authority spine conformance (ADR-013 / ADR-015 / ADR-016 / ADR-017):** the export is a consumer that *presents authoritative facts and preserves their provenance*; it must not decide what facts are authoritative, must not promote interpretation into fact (raw provider zero preserved; quality classification separate and non-resolving of BUG-011), and carries per-row authoritative chain-acquisition provenance (ADR-015) rather than reconstructing it. The raw-observation-vs-presentation principle is **an application of this existing spine** at the principle level.
+- **Proposed (not required) IV ADR:** the raw-observation-vs-presentation principle for this bounded application is **already governed by existing ADR-013/015/016/017 authority** and needs no new ADR. Separately, a **focused IV-semantics ADR is proposed for Principal consideration** (would record: preserve `midIv`/`smvVol` as distinct provider measurements; no generic `iv`; no local inversion; preserve `greeks.updated_at` verbatim) — **it is not an established prerequisite under current authority**, and it is not created here. The five-Greek projection and the export capability itself need no new ADR — they apply existing decisions.
+- **Snapshot contract v1:** the five greeks are already additive-documented. The IV slice requires an **additive-nullable amendment** (`midIv`, `smvVol`, `greeksUpdatedAt`; INV-PUB-05, no version increment) — same pattern as the Sept 2026 secondary-greeks addition. The export capability and five-Greek projection require **no** contract change.
+- **PL-ARCH-06 (recommendation ownership):** unaffected as a decision. Projection/packet construction occurs in the browser recommendation path transitionally; this item is pressure/evidence only and does not relocate engines.
+- **Simplicity constraint respected:** no new service/engine, no migration (contracts ride the chain JSON blob), no scheduler change, no new provider traffic (`greeks=true` already returns IV). Export is a read/capture, not an acquisition.
+
+### Parking-lot disposition / mapping
+
+- `PL-DEPLOY-EXPORT` — **RECONCILED** (Principal-accepted, published 2026-09-16). Retained as the canonical export-capability identity under `PL-DEPLOY`.
+- **Ownership resolutions made here (were open at §2):**
+  - Provider-IV evidence capability: **remains mapped to `PL-EVID-04`** as the related Market-Priced-Risk concern; its data-source limitation is partially resolved by the Production-Tradier finding. Final *decomposition* of the IV backend slice (model/marshal/contract/proposed ADR) would be a child implementation unit created **at §6, if and when authorized**, cross-linked to both `PL-EVID-04` and `PL-DEPLOY-EXPORT`. Not folded away; not double-owned.
+  - Five-Greek deployment projection: **a `PL-DEPLOY`/`PL-DEPLOY-EXPORT` sub-slice** (frontend projection, no backend/contract change) — the lightest, independently useful unit. (It is an implementation sub-slice, NOT an experimental arm: the experiment's arms are both derived from one frozen enriched export — the control omits the IV fields, the IV arm includes them. Implementation sequencing must not define the experimental populations.)
+- Mappings retained (not re-owned): `PL-EVID-MVPTA` (distinct broad TA/IV-history program), `PL-EVID-AGE` (provenance/age), `PL-COHERE-01` (classification-vs-presentation seam), `PL-ARCH-06`.
+- Defects cross-linked, not double-booked: `BUG-017` (export completeness vs presentation limit — bears on the still-open substantive-filter question), `BUG-016` (exportable-membership precedent), `BUG-011` (exact-zero — **not resolved by implication**).
+
+### Unresolved after reconciliation (carried forward; NOT blockers to RECONCILED state — each tagged with its authority level)
+
+- **Substantive-filter semantics** (does "Export Everything" override search/strategy/DANGER filters, or only defeat presentation truncation?) — **Principal PRODUCT decision**, required before affected design is finalized. Presentation completeness remains settled (never truncate).
+- **Superset CSV schema / row-identity columns / multi-population membership representation** (no silent dedup) — **§6 design/decomposition** matters, constrained by the already-set invariants (complete population, unambiguous heterogeneous rows, preserve legitimate multi-membership).
+- **Final `mid_iv` / `smv_vol` wording and units** — **evidence-semantics precision** work; but their **distinct measurement identity is FIXED** (they are not aliased/averaged/collapsed).
+- **Quality-tag vocabulary** — may remain open because the governing semantics are already **FIXED**: raw provider zero preserved, `provider-reported` = finite nonzero observation with **no certification** of accuracy/freshness/validity/suitability, and no resolution of BUG-011.
+- **Provider timestamp field naming** — may remain open because the governing semantics are already **FIXED**: `greeks.updated_at` preserved verbatim, no invented timezone, distinct from `chainAcquiredAt`.
+
+### Why-state
+
+This record is the durable provenance. No separate journal entry is required for the reconciliation itself; the four-actor discussion why-state (raw-evidence semantics, `midIv`≠`smvVol` divergence, absolute-IV-≠-richness boundary, capture-not-refresh) is preserved in the INTAKE record above and the Sept 11 secondary-greeks journal entry.
+
+**Preserved measurement-identity why-state (so future actors do not rediscover it):** Tradier distinguishes a **midpoint-derived implied volatility** from the **ORATS final/surface volatility**; ORATS documents that midpoint IV is inverted from the option's midpoint price while its surface value is model-smoothed. `midIv` (midpoint-price inversion) and `smvVol` (ORATS smoothed-surface) therefore remain **separate measurements** — the repo fixture's divergence (`mid_iv=1.5178` vs `smv_vol=0.833`, GDXJ 129C 0-DTE) is consistent with this. Definitions above are the working provider/ORATS reading and remain subject to primary-source confirmation for exact wording/units, but the *distinct identity* is fixed and must not be collapsed. A journal entry becomes appropriate if/when decomposition or a proposed IV ADR produces new understanding.
+
+### Next authorized mode
+
+**§6 design/decomposition — AUTHORIZED for the Greeks + IV evidence slice only; implementation NOT authorized.** Decomposition may produce, each still requiring separate explicit implementation authorization: (a) the frontend five-Greek projection (no backend/contract change); (b) a child IV slice (backend parse/model/marshal + additive snapshot-contract amendment + a **proposed** IV-semantics ADR for Principal consideration), cross-linked to `PL-EVID-04`; (c) evidence-export readiness for `PL-DEPLOY-EXPORT`. Substantive-filter semantics and the unified "Export Everything" CSV/button remain **out of this slice's scope** (deferred). Principal ratification of the concept is not implementation authorization.
+
+### Pipeline state
+
+**DISCOVERED → INTAKE → RECONCILED (Principal-accepted, published 2026-09-16).** Next canonical stage: **§6 Implementation Decomposition / Commitment**, decomposition authorized for the Greeks + IV evidence slice only; implementation subject to separate Principal authorization. Sequencing (unchanged, Principal-set): Greeks + `midIv`/`smvVol` + raw-quality/provenance → Deployment Export Everything → AI experiment. Application Shell mega-export remains parked.
