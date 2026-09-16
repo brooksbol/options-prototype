@@ -776,3 +776,126 @@ This record is the durable provenance. No separate journal entry is required for
 ### Pipeline state
 
 **DISCOVERED → INTAKE → RECONCILED (Principal-accepted, published 2026-09-16).** Next canonical stage: **§6 Implementation Decomposition / Commitment**, decomposition authorized for the Greeks + IV evidence slice only; implementation subject to separate Principal authorization. Sequencing (unchanged, Principal-set): Greeks + `midIv`/`smvVol` + raw-quality/provenance → Deployment Export Everything → AI experiment. Application Shell mega-export remains parked.
+## `PL-RECIPE-01` — Wheelwright Recipes (named, versioned decision lenses over the governed candidate population)
+
+**Date:** September 16, 2026 (targeted-reconciliation follow-through; Principal-authorized documentation preparation)
+**State:** INTAKE — new canonical identity created at this record, with several targeted questions **Principal-settled** (recorded below). §3 full Strategic Reconciliation and §4 full Architectural Reconciliation are **NOT** claimed complete; this item is **not RECONCILED**, not decomposed, and not authorized for implementation or experiment execution.
+**SYNC at intake:** `0bb91c556cf94a411671849b279e2fc6b59272c5`
+**Reconstruction-before-creation:** the complete `docs/parking-lot*.md` sequence (pages 1–8) was reconciled first. No existing item owns a named/versioned screening-and-ranking **decision-lens** abstraction over the already-governed candidate population. The word "recipe" appears in the corpus only incidentally (option-*leg* recipes in `docs/43`/`docs/46`, unrelated). A new stable identity was therefore minted, **mapping — not re-owning** — the intersecting concerns below.
+**Concept ownership boundary (load-bearing):** `PL-RECIPE-01` is an **investigation/product identity**. It does **NOT** imply a new architectural subsystem, engine, service, or parallel recommendation stack. Conceptual ownership remains within the existing **Decision / Deployment / AR5** direction. A recipe is a *lens* (a comparative-fitness treatment of an already-governed population), not a new strategy shape and not new evidence.
+
+### 1. What was discovered / what this is
+
+A **recipe** is a named, versioned **decision lens** over an already-governed candidate population. Rather than claiming to identify "the correct trade," a recipe asks one particular economic question of the surviving candidates and returns a candidate set/order **plus rationale**. Different recipes may legitimately disagree. The crude present baseline — effectively "sort admissible candidates by premium/yield descending" — is insufficient because high yield can simply compensate for undesirable directional, convexity, volatility, liquidity, or event risk; a recipe makes the economic question explicit, inspectable, versionable, and falsifiable rather than hiding it behind a single opaque score.
+
+Conceptually:
+
+> upstream governance gates → complete surviving contract population → recipe comparative-fitness lens → downstream selection/presentation
+
+A recipe evaluation may eventually distinguish: eligibility; comparative fitness/ordering; contributing factors; rejection reasons; and evidence warnings/insufficiency. These are **semantic concepts, not a DSL and not a ratified schema.**
+
+### 2. What triggered it
+
+A 4AM discovery discussion (Principal + ChatGPT + Kiro; Codex adversarial) followed by a **targeted reconciliation** that forced convergence on four questions. The triggering *implementation finding* (verified against accepted `main`, not asserted): the current put recommendation pipeline (`options-prototype/src/write-desk/recommend.ts`, `recommendPuts`) **destructively collapses the per-symbol contract population to one contract per symbol during strategy-specific winner selection** (`bestActionable` / `bestEdge` / `bestWait`) **before** final ranking/display. Consequently "today's visible Deployment board" is already ≈ one survivor per symbol, posture-filtered and display-capped. A lens that only reranked that board could not express most candidate recipes and would be structurally biased toward merely re-expressing yield — which is exactly the failure the first experiment must be able to detect.
+
+### 3. Accepted recipe population boundary (Principal-settled)
+
+**SETTLED:** Recipes evaluate the **post-admissibility, pre-winner-selection contract population** — the complete set of surviving admissible `(symbol, expiration, strike)` candidates *after* Wheelwright's upstream gates but *before* the per-symbol winner-selection collapse.
+
+"Admissible" here is **not** a universal safety certificate. It means only that the candidate survived the specific upstream gates the current implementation applies before winner selection. The actual gates observed in `recommendPuts` (SYNC `0bb91c5`) are, in order:
+
+- **Confirmed absence** — cached `absence` record (fresh/stale-usable) ⇒ symbol is non-optionable, excluded.
+- **Expirations present + eligible** — an admissible cached `expirations` record must exist; per-subject eligibility is enforced via `isEligible` → `isSubjectAdmissible` (Issue #16 backend per-subject admissibility verdict; fail-closed while backend authority is pending; sealed-session validity honored; freshness/TTL + session admissibility boundary otherwise).
+- **Eligible DTE** — at least one expiration inside `policy.contractSelection.eligibleDteRange` (`selectEligibleExpirations`).
+- **Chain present + eligible** — an admissible cached `chain` for that expiration (same `isEligible`).
+- **Contract-level governance within the chain** — delta-in-range, and hard-no gates (zero-bid, zero-OI, wide-spread) as encoded in the per-contract evaluation.
+
+The important preserved distinction is:
+
+> **upstream gates → complete surviving contract population → recipe comparative-fitness lens → downstream selection/presentation**
+
+and **NOT**
+
+> already-selected Deployment winners → recipe reranking.
+
+**Preserved-unresolved (NOT decided by this intake):** whether recipe evaluation eventually **replaces**, **parameterizes**, or **runs beside** today's winner-selection mechanism is an implementation-decomposition question left open. Winner-selection behavior is **not** changed by this intake.
+
+### 4. Product-surface disposition (Principal-settled as strong-but-unresolved)
+
+**Strong candidate hypothesis; unresolved pending evidence:** a dedicated **Recipes** Explorer surface may be preferable to shoehorning recipe comparison into Deployment. Reasoning preserved: recipe comparison is *exploratory*; Deployment is *operational/governed*; separating them aligns with Wheelwright's existing Explorer / Governor / Operator cognitive-role separation (`foundations/cognitive-role-separation.md`); a separate page does **not** imply separate backend/domain ownership; and UI separation does **not** authorize bypassing policy/governance boundaries. **Not** a UI requirement. The page is **not** to be created. Resolve after the first experiment yields evidence.
+
+### 5. First experiment — accepted scope (Principal-settled; execution NOT authorized)
+
+Exactly **three arms**, all operating from the **same frozen input population** corresponding to the accepted §3 boundary (post-admissibility, pre-winner-selection; identical evidence inputs across arms; no refresh/enrichment after capture; sufficient provenance to preserve point-in-time interpretation — consistent with AR8 no-hindsight and the `PL-DEPLOY-EXPORT` capture-not-refresh discipline):
+
+1. **Accepted Wheelwright** — its **existing selection process** run against the frozen inputs. Methodological requirement: it must **not** be represented merely by sorting already-selected winners.
+2. **Raw Yield** — yield descending, unconstrained.
+3. **Delta-Constrained Yield** — yield descending within a delta fence.
+
+**Kill criterion / limited claim (see §6).** Execution is **not** authorized in this session.
+
+### 5a. Delta Fence equivalence (recorded invariant)
+
+**Delta Fence + yield ordering is mathematically/behaviorally the same treatment as Delta-Constrained Yield** when the same delta fence, economics measure, and tie rules are used. Therefore Delta Fence + yield is **not** a separate fourth arm; the equality is an **expected check/invariant**, not an independent result. Any future "Delta Fence" recipe intended as an *independent* treatment must specify a **different post-filter ordering preference**. That alternate preference is **not** invented here.
+
+### 6. Limited claim of the first experiment (preserve prominently)
+
+The first experiment tests only **the effect of an explicit contract constraint on selection, relative to accepted Wheelwright behavior and raw yield.** It does **NOT** yet test the broader value of: competing ranking philosophies; theta-based ordering; gamma/vega-aware ranking; Pareto selection; surface-agreement / surface-dislocation logic; or generalized Recipes as a production abstraction. A later experiment would require a **genuinely distinct ordering preference** before any evidence claim about the broader recipe concept. If the constrained arm does not produce **materially different and explainable** selections versus accepted Wheelwright behavior, **do not build a generalized recipe abstraction yet.**
+
+### 7. Why-state preserved from discovery (so a future actor need not rediscover it)
+
+- Current ranking/selection behavior can **discard contracts before a different lens sees them** (the winner-selection collapse) — this is the core motivation for the population boundary.
+- Recipes are **explicit economic decision lenses, not claims of universal optimality**; different recipes may legitimately **disagree**, and that disagreement is the product value (structured disagreement over a single opaque "Wheelwright Score").
+- A recipe should distinguish **hard requirements**, **comparative preferences**, **evidence warnings/insufficiency**, and **explanation** — distinct semantic layers.
+- **Evidence semantics remain owned by Wheelwright's evidence/domain layer.** A recipe expresses intent; it must not independently redefine provider/evidence meaning (ADR-013 fact-to-interpretation boundary; ADR-015/016/017 authority spine).
+- **Missing evidence must not silently become zero or an opaque score penalty.** Absence is `null`, never `0` (per the frozen snapshot contract). Required-vs-optional-vs-informational evidence handling should reuse existing evidence-fitness semantics, not reinvent them.
+- **`midIv` and `smvVol` remain distinct provider observations** — never aliased, averaged, or collapsed into a generic `iv`; no local IV inversion. Repository fixture evidence shows material divergence (`mid_iv=1.5178` vs `smv_vol=0.833`, GDXJ 129C 0-DTE).
+- **Absolute IV does not establish IV richness** (it is not IV Rank or IV Percentile). `midIv > smvVol ⇒ overpriced` is **inadmissible** as a selection signal.
+- **Surface Agreement / Surface Dislocation remain research diagnostics**, not established trade-selection signals; they may primarily rediscover liquid near-ATM contracts or bad/wide quotes.
+- **Raw weighted combinations of Greeks are dimensionally suspect** (e.g. `4θ−3γ−2ν` is meaningless). Prefer hard filters + lexicographic + Pareto over dimensional arithmetic; weighted scoring requires defensible normalization (capital/scenario/consequence per AR4) whose scenario parameters would themselves be Principal-ratified policy.
+- **Generalized configuration / DSL machinery is NOT part of the current concept (Principal decision, Sep 16, 2026).** The DSL was an early implementation-shaped thought that got ahead of the product model; it is not a meaningful branch of the recipe idea and is not to be re-litigated. It is deferred unless repeated concrete recipe semantics ever independently justify it (evidence-before-abstraction; no premature generalization). Until then it is a closed branch, not an open design question.
+- **Versioning / historical semantic preservation matters** if recipes later participate in real decisions (recipe identity + version + parameters + evidence/time context bound to each historical decision; no silent rewrite of historical recommendation semantics after outcomes are known — AR8).
+- The recipe concept **must be empirically falsifiable**, not justified by plausible formulas.
+
+The original 4AM 8–12 recipe catalog (Delta Fence, Theta Harvester, Theta/Gamma Sweet Spot, Low-Drama Income, Fat Premium Explained, Vega-Light Income, Surface Agreement, Surface Dislocation, Greek-Efficient Income, Yield Baseline) is preserved **only as discovery examples**, **not** as requirements and **not** frozen as a catalog.
+
+### 8. Related concepts / items (mapped dependencies & intersections — reconcile, do not duplicate ownership)
+
+- **`PL-DEPLOY`** — Deployment Opportunity / unified surface. Conceptual home for the Decision-side composition; `PL-RECIPE-01` is the decision-lens investigation identity **within** that direction, not a restatement of `PL-DEPLOY`'s composition authority.
+- **AR5** (`architecture-roadmap.md`) — Separate Eligibility, Acceptability, Comparative Fitness. The recipe *is* the comparative-fitness stage; the accepted population boundary is a direct expression of AR5's "acceptability prunes; fitness ranks only survivors; relative superiority is insufficient (WAIT may survive)."
+- **AR4** — Consequence semantics before explanation. Future recipe normalization (capital/scenario/consequence) depends on AR4; no consequence engine is implied or authorized here.
+- **AR8** — Reproducible temporal substrate / historical semantic preservation. Governs the frozen-population experiment discipline and recipe versioning/no-hindsight.
+- **`PL-DEPLOY-EXPORT`** — supplies the faithful machine-consumable evidence (five raw greeks, `midIv`/`smvVol`, `greeksUpdatedAt`, per-row provenance/age) and the capture-not-refresh frozen-population discipline the first experiment reuses. `PL-RECIPE-01` is a **consumer** of that evidence; it does not re-own the export capability. (The §6 Greeks + IV evidence slice — previously paused/uncommitted — was committed to accepted `main` at `7b4a084`, "feat(PL-DEPLOY-EXPORT): surface provider Greeks + IV on Deployment evidence"; `PL-RECIPE-01` does not depend on its commit state.)
+- **`PL-EVID-MVPTA`** — owns the broad deployment-quality **evidence** experiment + IV-over-time / technical-analysis program. Distinct concern: MVPTA asks whether *new evidence* improves assessment; `PL-RECIPE-01` asks how a *lens* over existing governed evidence selects/orders. Mapped to prevent competing ownership; `PL-RECIPE-01` creates no IV-history or TA machinery.
+- **`PL-STRAT-01`** — Strategy Expansion Governance (trade *shapes* via the Architectural Admission Test). Distinct: recipes operate on an already-admitted population; they are not new strategies. Cross-linked only where future strategy-shape ↔ recipe interaction (multi-leg net-position evaluation) matters; not authorized here.
+- **`foundations/recommendation-set-analysis.md`** (Cat E) — the pluggable "grouping heuristic over the population" pattern is the nearest conceptual cousin (population *observation*); a recipe is its select/order sibling. Reuse the pattern.
+- **`docs/18-recommendation-vocabulary-review.md`** (Cat E) — already analyzes the three dimensions (Governance/Admissibility, Execution Quality/posture, Preference Match) and anticipated a multi-dimensional composite. Recipes should generalize the existing `RankingPolicy` (Execution First / Balanced / Yield First / Capital Efficiency) rather than build a parallel ranking system.
+- **`PL-ARCH-06`** — Recommendation Engine Ownership (transitional, browser-local). Recipe evaluation would live wherever recommendation computation lives; this is pressure/evidence only and does not force relocation.
+
+### 9. What is unresolved (carried forward)
+
+- Whether recipe evaluation replaces / parameterizes / runs beside current winner-selection (§3).
+- Whether Recipes deserves its own Explorer surface (§4).
+- The genuinely distinct ordering preference that would make a future "Delta Fence" (or any richer recipe) an independent treatment (§5a/§6).
+- The recipe semantic-primitive expression (hard requirements / preferences / warnings / explanation) beyond the conceptual level; no schema. (Generalized configuration/DSL machinery is **not** an open branch here — see §7 and §10.)
+- Normalization approach for any multi-Greek recipe (capital / time / scenario-consequence / population) and its ratified parameters (AR4).
+
+### 10. What is explicitly NOT authorized yet
+
+No experiment execution; no production implementation; no recipe engine; no DSL grammar; no generalized weighted-Greek scoring; no recipe radar; no multi-leg generalized recipe framework; no UI construction; no outcome-performance claims; no historical-IV / IV-rank strategies without authoritative evidence; no Event Avoider without authoritative event evidence; no change to winner-selection, ranking, posture, eligibility, or recommendation-policy semantics. No roadmap/architecture-roadmap edits are made by this intake. Intake does not authorize implementation.
+
+### 11. Where the richer evidence / why-state lives
+
+The 4AM discovery and targeted-reconciliation discussion (this pipeline); the implementation finding in `options-prototype/src/write-desk/recommend.ts` (`recommendPuts` winner-selection collapse); `architecture-roadmap.md` AR4/AR5/AR8; `docs/18-recommendation-vocabulary-review.md`; `foundations/recommendation-set-analysis.md`; `foundations/policy-over-prediction.md`; `PL-DEPLOY-EXPORT` (evidence/export + frozen-population discipline). A dedicated richer discovery document is not required at intake; if produced later it links back to this `PL-RECIPE-01` identity and does not become a parallel registry.
+
+### Pipeline state
+
+**DISCOVERED → INTAKE (this record), with targeted-reconciliation questions Principal-settled as noted in §3–§6.** This item is **not** RECONCILED: full §3 Strategic and §4 Architectural Reconciliation Completion Records (and any roadmap/architecture-roadmap dispositions they imply) remain to be produced under separate authorization. Next canonical stage: complete §3/§4 reconciliation → then, if supported, decompose the first three-arm experiment (execution separately authorized). No implementation or experiment is authorized by this record.
+
+---
+
+## Continuation History (continued)
+
+| Date | Event |
+|---|---|
+| Sep 16, 2026 | `PL-RECIPE-01` created (INTAKE) as the canonical investigation/product identity for Wheelwright Recipes — named, versioned decision lenses over the post-admissibility, pre-winner-selection candidate population. Principal-authorized documentation preparation. Targeted-reconciliation dispositions settled: population boundary (§3), Explorer-surface strong-but-unresolved hypothesis (§4), three-arm first experiment (§5), Delta-Fence≡Delta-Constrained-Yield invariant (§5a), limited experimental claim (§6). Mapped (not re-owned) to `PL-DEPLOY`, AR4/AR5/AR8, `PL-DEPLOY-EXPORT`, `PL-EVID-MVPTA`, `PL-STRAT-01`, `recommendation-set-analysis.md`, `18-recommendation-vocabulary-review.md`, `PL-ARCH-06`. Not RECONCILED; no roadmap change; no implementation/experiment authorized. SYNC `0bb91c5`. |
