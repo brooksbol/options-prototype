@@ -85,11 +85,15 @@ export interface TodayGlInputs {
 
 /**
  * Per-share dollar move vs the prior session close: `last − previousClose`.
- * Returns null when either input is missing (so the caller renders a dash).
+ * Returns null when either input is missing OR the prior close is non-positive
+ * (an unusable baseline). This mirrors computeTodayGlPercent EXACTLY so the $ and
+ * % columns always share one honesty rule — a non-positive prior close makes BOTH
+ * unavailable, never a $ figure alongside a dashed %.
  */
 export function computeTodayGlPerShare(inputs: TodayGlInputs): number | null {
   const { last, previousClose } = inputs;
   if (last == null || previousClose == null) return null;
+  if (previousClose <= 0) return null;
   return last - previousClose;
 }
 
@@ -107,7 +111,8 @@ export function computeTodayGlDollar(inputs: TodayGlInputs, quantity: number): n
 /**
  * Percent move vs the prior session close:
  * `(last − previousClose) / previousClose × 100`. Quantity-independent.
- * Returns null when inputs are missing or the prior close is non-positive.
+ * Returns null when inputs are missing or the prior close is non-positive —
+ * the identical null condition as computeTodayGlPerShare, so $ and % agree.
  */
 export function computeTodayGlPercent(inputs: TodayGlInputs): number | null {
   const { last, previousClose } = inputs;

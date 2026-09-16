@@ -453,7 +453,9 @@ public class TradierAdapter {
         return result;
     }
 
-    private Map<String, Object> normalizeQuote(String responseBody, String symbol) {
+    // Package-private so tests exercise the REAL production quote normalization
+    // (the exact parser the running app uses), not a test-only duplicate.
+    Map<String, Object> normalizeQuote(String responseBody, String symbol) {
         // Tradier shape: { "quotes": { "quote": { "last": 57.5, "close": 57.0, "prevclose": 56.4, "description": "..." } } }
         double price = extractDouble(responseBody, "last");
         if (price == 0) price = extractDouble(responseBody, "close");

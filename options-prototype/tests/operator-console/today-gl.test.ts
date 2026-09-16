@@ -93,6 +93,17 @@ describe("$ and % consistency", () => {
     expect(computeTodayGlPercent(inputs)).toBeNull();
   });
 
+  it("NON-POSITIVE prior close makes BOTH $ and % unavailable (Codex review)", () => {
+    // A non-positive prior close is an unusable baseline. Neither the per-share $,
+    // the position $, nor the % may render — no $ figure beside a dashed %.
+    for (const previousClose of [0, -1, -52.66]) {
+      const inputs = { last: 100, previousClose };
+      expect(computeTodayGlPerShare(inputs)).toBeNull();
+      expect(computeTodayGlDollar(inputs, 100)).toBeNull();
+      expect(computeTodayGlPercent(inputs)).toBeNull();
+    }
+  });
+
   it("share the same sign for the same inputs", () => {
     const up = { last: 105, previousClose: 100 };
     expect(computeTodayGlPerShare(up)!).toBeGreaterThan(0);

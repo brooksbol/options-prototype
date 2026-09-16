@@ -1,6 +1,6 @@
 # BUG-020 — "Today's G/L $/%" uses Wheelwright's first intraday observation as the baseline instead of the prior session close, producing broker-mismatched (often sign-inverted) daily G/L
 
-- **Status:** Resolved
+- **Status:** Open (repository remediation landed; runtime evidence population not yet demonstrated — the running appliance's stored chain blobs predate `previousClose`, so the UI correctly shows a dash until reacquisition)
 - **Severity:** S2 (operator-visible economic-correctness defect: values labeled "Today's gain/loss" materially disagree with the broker and can show the opposite sign)
 - **Area:** Operator Console / Unencumbered Shares (per-row + totals) and DTE-ladder "Today's G/L"; Console CSV export; per-symbol quote/evidence path (`today-gl.ts`, `UnencumberedInventory.tsx`, `OperatorConsole.tsx`, backend quote normalization)
 - **Provenance:** Discovered 2026-09-16 (Principal side-by-side comparison of the Operator Console against a real Fidelity `Portfolio-Positions-Sep-16-2026` export). Prior investigation report established root cause before this record was filed.
@@ -89,7 +89,13 @@ For the same Fidelity positions at approximately the same market moment, Wheelwr
 
 ## Remediation history
 
-Resolved 2026-09-16. Additive, non-breaking `previousClose` threaded from Tradier `prevclose` → `MarketChain.Underlying` → `marshalChain` stored blob → `SqliteEvidenceStore` read-back → `/api/evidence/quotes` `observation.previousClose` → frontend `QuoteObservation.previousClose`. Canonical `computeTodayGlFromPrevClose` derivation in `today-gl.ts` consumed by the Unencumbered Shares table, its totals, the CSV builder, and the DTE-ladder Today's G/L. No DB migration (rides in the existing chain blob). Contract documented as additive in `docs/contracts/evidence-snapshot-v1.md`. Commit: see journal / INDEX.
+**2026-09-16 — repository remediation (commit `5acf945`).** Additive, non-breaking `previousClose` threaded from Tradier `prevclose` → `MarketChain.Underlying` → `marshalChain` stored blob → `SqliteEvidenceStore` read-back → `/api/evidence/quotes` `observation.previousClose` → frontend `QuoteObservation.previousClose`. Canonical prior-close derivation in `today-gl.ts` (`computeTodayGlPerShare` / `computeTodayGlDollar` / `computeTodayGlPercent`) consumed by the Unencumbered Shares table, its totals, the CSV builder, and the DTE-ladder Today's G/L. No DB migration (rides in the existing chain blob). Contract documented as additive in `docs/contracts/evidence-snapshot-v1.md`.
+
+**2026-09-16 — follow-up corrections (post-Codex review, this session).**
+1. **Non-positive prior close:** `computeTodayGlPerShare` now returns null when `previousClose <= 0` (previously only `%` guarded it), so `$`, position `$`, and `%` share one honesty rule — no `$` figure beside a dashed `%`.
+2. **End-to-end provider test:** `normalizeQuote` made package-private; added `RealQuoteNormalization` tests that exercise the **actual production parser** (prevclose present → value, absent → null, explicit-null → null, and full `normalizeQuote → normalizeChain` threading), not the test-harness duplicate.
+
+**Runtime acceptance — PENDING.** The running evidence service predates this build; its stored chain blobs lack `previousClose`, so `/api/evidence/quotes` returns null and the Console correctly renders a dash. Closing this bug requires: restart/rebuild the service → let held symbols reacquire (rewriting their chain blobs with `previousClose`) → confirm `observation.previousClose` is non-null for a real symbol (COPX/GDXJ/SMH/URA) → confirm the Console populates. If the field is present in the API but the UI stays blank, that is a separate frontend-propagation defect.
 
 ## Verification
 

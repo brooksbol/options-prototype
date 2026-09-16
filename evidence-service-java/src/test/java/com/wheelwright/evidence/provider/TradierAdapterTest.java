@@ -614,6 +614,61 @@ class TradierAdapterTest {
         }
     }
 
+    // --- Real production quote normalization (end-to-end parser, not the test harness) ---
+
+    @Nested
+    class RealQuoteNormalization {
+        // These exercise the ACTUAL production normalizeQuote — the exact parser the
+        // running app uses to thread previousClose from a raw Tradier quote body —
+        // rather than the TestableAdapter's duplicate. Guards the real threading path.
+
+        private TradierAdapter realAdapter() {
+            return new TradierAdapter("test-key", "https://api.tradier.com/v1", cache, pacer);
+        }
+
+        @Test
+        void normalizeQuoteExtractsPrevcloseIntoMap() {
+            var adapter = realAdapter();
+            java.util.Map<String, Object> q = adapter.normalizeQuote(
+                "{\"quotes\":{\"quote\":{\"symbol\":\"COPX\",\"description\":\"Global X Copper\",\"last\":85.93,\"prevclose\":84.59}}}",
+                "COPX");
+            assertEquals(85.93, (Double) q.get("price"), 0.0001);
+            assertEquals(84.59, (Double) q.get("previousClose"), 0.0001);
+            assertEquals("Global X Copper", q.get("name"));
+        }
+
+        @Test
+        void normalizeQuoteAbsentPrevcloseIsNullNotZero() {
+            var adapter = realAdapter();
+            java.util.Map<String, Object> q = adapter.normalizeQuote(
+                "{\"quotes\":{\"quote\":{\"symbol\":\"XLE\",\"last\":57.50}}}", "XLE");
+            assertEquals(57.50, (Double) q.get("price"), 0.0001);
+            assertNull(q.get("previousClose"), "absent prevclose must be null, never fabricated 0");
+        }
+
+        @Test
+        void normalizeQuoteExplicitNullPrevcloseIsNull() {
+            var adapter = realAdapter();
+            java.util.Map<String, Object> q = adapter.normalizeQuote(
+                "{\"quotes\":{\"quote\":{\"symbol\":\"XLE\",\"last\":57.50,\"prevclose\":null}}}", "XLE");
+            assertNull(q.get("previousClose"));
+        }
+
+        @Test
+        void normalizeChainThreadsPreviousCloseFromRealQuote() {
+            // Full production threading: normalizeQuote → normalizeChain(...,previousClose)
+            // → MarketChain.Underlying.previousClose (the exact chain the running app builds).
+            var adapter = realAdapter();
+            java.util.Map<String, Object> q = adapter.normalizeQuote(
+                "{\"quotes\":{\"quote\":{\"symbol\":\"SMH\",\"last\":551.02,\"prevclose\":542.11}}}", "SMH");
+            MarketChain chain = adapter.normalizeChain(
+                "{\"options\":{\"option\":[]}}", "SMH", "2026-08-21",
+                (String) q.get("name"), (Double) q.get("price"), (Double) q.get("previousClose"));
+            assertEquals(551.02, chain.underlying().price(), 0.0001);
+            assertEquals(542.11, chain.underlying().previousClose(), 0.0001);
+        }
+    }
+
     // --- Testable adapter that bypasses real HTTP ---
 
     static class TestableAdapter extends TradierAdapter {
