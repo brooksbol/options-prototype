@@ -204,6 +204,7 @@ The live portfolio overlay can retain a **ghost obligation** after it has alread
 - **No state repair inside the evaluator.** The consequence evaluator **must not** mutate, reconstruct, or repair portfolio/overlay state to resolve the disagreement. Portfolio-state remediation remains **BUG-001 / its sibling scope**, separately governed.
 - **No competing authority.** The guard reads authoritative Activity evidence to *detect a conflict and refuse*; it does not become a second position-projection authority.
 - This is a **refusal**, not a fabricated domain state — it fails closed (consistent with ADR-017's pending/unknown-fails-closed spirit), surfacing `lifecycle state ambiguous` rather than a confident HOLD/CLOSE comparison.
+- **Authority basis:** this guard is the consequence-evaluator expression of the consolidated **brokerage lifecycle-evidence authority** rule (`07-architecture-current.md` §Ownership and Authority Boundary): a lifecycle transition is fact only from authoritative brokerage evidence, and a projection never outranks brokerage evidence. The guard therefore refuses when brokerage Activity contradicts the projected obligation, and never lets the projection (or intent/handoff/recommendation) assert that a transition did or did not occur.
 
 ## 15. Degradation behavior (summary)
 

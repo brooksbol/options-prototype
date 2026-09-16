@@ -102,3 +102,44 @@ Host = **Operator Console position-detail** (subject is a held obligation; ADR-0
 ### Epistemic status
 
 Design gate is closed pending Principal acceptance of the amended design. **Implementation remains UNAUTHORIZED**; a 4AM Codex pass on the design is not required (Codex already supplied the accepted-code adversarial audit) unless the Principal escalates. Next decision is an explicit authorization to implement the bounded Console V1. The concurrent `PL-RECIPE-01` work (`8125cc8`) was not touched.
+
+
+---
+
+## 2026-09-16 — Brokerage lifecycle-evidence authority: final pre-implementation reconciliation (clarification absorbed)
+
+**Actor:** Kiro, bounded authority-reconciliation pass before HOLD-vs-CLOSE V1 implementation.
+**SYNC SHA:** `87884ea36fa53c745cd74872eb67e86f4dbd9d6f` (accepted `main`; working tree clean).
+**Mode:** Authority reconciliation / clarification. **Not** implementation.
+
+### Question closed
+
+Does current authority establish that *a trade/lifecycle transition may become portfolio/history fact only from authoritative brokerage evidence — never from intent, broker handoff, recommendations, market observations, forecasts, or unsupported inference — and that brokerage evidence wins conflicts with projections?*
+
+### Finding — PARTIALLY codified (fragmented), now consolidated
+
+The rule existed in pieces but **not in one governing A/B artifact**:
+- **ADR-004** — broker handoff opens a ticket, does not submit, does not assume acceptance, does not mutate portfolio state.
+- **ADR-011** — Fidelity CSV as application-scoped portfolio state with shared provenance.
+- **ADR-015/016/017** — the authority spine: downstream must not manufacture provenance authority, must not infer competing associations, must not let local/projected fallback outrank an authoritative verdict; fail closed while authority pending.
+- **`07-architecture-current.md`** — Fidelity Activity History CSV is the current mechanism for importing realized trade data.
+- **BUG-001** — states the operational contract verbatim ("authoritative Option Summary checkpoint + subsequent executed Activity = current state") — but this lived in a **defect record**, forcing cold-start reconstruction from a bug + code.
+- **`foundations/portfolio-capital.md` §Open Q6** — Option Summary owns strategy pairing/encumbrance; a Holdings export would be stronger for pure ownership (evidence-ownership fragment).
+
+The generalized *source-of-the-event* rule and the *projection-loses-to-brokerage-evidence* precedence were not stated together in governing authority. That is a genuine cold-start reconstruction hole.
+
+### Disposition — smallest clarification, no new principle/ADR
+
+Absorbed the rule as **one governing bullet** in `07-architecture-current.md` §Ownership and Authority Boundary (Category A), placed in the ADR-004/011/015/016/017 sibling cluster. It **introduces no new principle** — it consolidates existing authority so a cold actor need not rebuild it from a defect record + `activity-projection.ts`.
+
+### Refinement adopted (important)
+
+The earlier wording ("projections never establish current state") was **too strong** and was corrected. Wheelwright legitimately **projects broker-observed subsequent Activity over an older broker checkpoint** — that overlay contract is valid. The real boundary is the **source of the event**: a non-brokerage signal may never *originate* a lifecycle fact, and a projection may never *outrank* newer brokerage evidence. Fidelity is named as the *current supported instance*, not the timeless concept (broker modularity, `PL-EXEC-01`).
+
+### Relationship to HOLD-vs-CLOSE V1
+
+This is the authority basis for the §14a lifecycle-ambiguity guard: the guard refuses (`lifecycle state ambiguous`) when brokerage Activity contradicts the projected obligation, and never lets intent/handoff/projection assert a transition occurred. The BTC case the Principal flagged is exactly covered — Wheelwright may say "CLOSE would do X" and may know an intent/handoff happened, but cannot say "this option was bought-to-close" until Fidelity evidence says so. Cross-linked from the design §14a.
+
+### Epistemic status
+
+Clarification absorbed into governing authority; why-state preserved here. **Implementation remains UNAUTHORIZED.** With this hole closed, the reconciliation boundary is complete: the next step is an explicit Principal authorization to implement the bounded Console V1 at the then-current accepted `main`.
