@@ -687,7 +687,7 @@ class AcquisitionWorkerTest {
         }
 
         private MarketChain oneContractChain(Double delta, Double gamma, Double theta, Double vega, Double rho) {
-            var put = new MarketChain.OptionContract(55.0, 1.5, 1.7, delta, gamma, theta, vega, rho, 500, 110);
+            var put = new MarketChain.OptionContract(55.0, 1.5, 1.7, delta, gamma, theta, vega, rho, 500, 110, null, null, null);
             return new MarketChain("XLE", FUTURE_EXPIRATION,
                 new MarketChain.Underlying("XLE", "Energy", 58.0), List.of(put), List.of());
         }
@@ -712,13 +712,27 @@ class AcquisitionWorkerTest {
             var w = worker();
             // Give a concrete previousClose so the "no null" check targets greeks only
             // (marshalChain emits underlying.previousClose:null for provider absence).
-            var put = new MarketChain.OptionContract(55.0, 1.5, 1.7, 0.0, 0.0, 0.0, 0.0, 0.0, 500, 110);
+            var put = new MarketChain.OptionContract(55.0, 1.5, 1.7, 0.0, 0.0, 0.0, 0.0, 0.0, 500, 110, null, null, null);
             var chain = new MarketChain("XLE", FUTURE_EXPIRATION,
                 new MarketChain.Underlying("XLE", "Energy", 58.0, 57.0), List.of(put), List.of());
             String json = w.marshalChain(chain);
+            // Each of the FIVE greeks serializes as explicit 0.0, never null (this is the
+            // provider-zero-preservation invariant). IV fields (midIv/smvVol/greeksUpdatedAt)
+            // are legitimately null here (provider absent) and are asserted separately below.
             assertTrue(json.contains("\"delta\":0.0"), json);
             assertTrue(json.contains("\"gamma\":0.0"), json);
-            assertFalse(json.contains("null"), "explicit zeros must not become null: " + json);
+            assertTrue(json.contains("\"theta\":0.0"), json);
+            assertTrue(json.contains("\"vega\":0.0"), json);
+            assertTrue(json.contains("\"rho\":0.0"), json);
+            assertFalse(json.contains("\"delta\":null"), "explicit zero delta must not become null: " + json);
+            assertFalse(json.contains("\"gamma\":null"), "explicit zero gamma must not become null: " + json);
+            assertFalse(json.contains("\"theta\":null"), "explicit zero theta must not become null: " + json);
+            assertFalse(json.contains("\"vega\":null"), "explicit zero vega must not become null: " + json);
+            assertFalse(json.contains("\"rho\":null"), "explicit zero rho must not become null: " + json);
+            // Absent provider IV serializes as null (never 0) — the correct absence semantics.
+            assertTrue(json.contains("\"midIv\":null"), json);
+            assertTrue(json.contains("\"smvVol\":null"), json);
+            assertTrue(json.contains("\"greeksUpdatedAt\":null"), json);
         }
 
         @Test
@@ -738,7 +752,7 @@ class AcquisitionWorkerTest {
         @DisplayName("BUG-020: underlying.previousClose serializes when present")
         void previousCloseSerializesWhenPresent() throws Exception {
             var w = worker();
-            var put = new MarketChain.OptionContract(55.0, 1.5, 1.7, -0.28, null, null, null, null, 500, 110);
+            var put = new MarketChain.OptionContract(55.0, 1.5, 1.7, -0.28, null, null, null, null, 500, 110, null, null, null);
             var chain = new MarketChain("COPX", FUTURE_EXPIRATION,
                 new MarketChain.Underlying("COPX", "Global X Copper", 85.93, 84.59), List.of(put), List.of());
             String json = w.marshalChain(chain);

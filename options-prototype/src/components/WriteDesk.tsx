@@ -40,7 +40,8 @@ import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import { useMultiColumnSort } from "../write-desk/use-multi-column-sort";
 import { AgeCell } from "../write-desk/AgeCell";
 import { formatAcquisitionAge, provenanceFromPublished, type EvidenceProvenance } from "../write-desk/evidence-provenance";
-import { downloadTableCsv } from "../write-desk/table-csv-export";
+import { downloadTableCsv, RAW_GREEK_IV_COLUMNS } from "../write-desk/table-csv-export";
+import { sanitizeGreeks, formatGreek, type RawExportGreeks } from "../write-desk/option-greeks";
 import { useSectionOrder } from "../hooks/useSectionOrder";
 import "../write-desk.css";
 import "../recommendation-brief.css";
@@ -1191,6 +1192,45 @@ function useSortableTable<T>(items: T[], defaultKey: string = "rank", defaultDir
   return { sorted, handleSort, indicator, isRecommendationOrder, sortKey: primaryKey, columns };
 }
 
+// --- Curated visible Greek/IV evidence columns (presentation semantics) ---
+//
+// These render Γ / Θ / Vega / Mid IV / SMV for the operator using PRESENTATION
+// semantics: raw provider values are routed through sanitizeGreeks/formatGreek,
+// so an exact provider 0.0 or an absent value shows as "—" (unavailable), NOT a
+// literal 0. This is intentionally different from the machine-consumable CSV,
+// which preserves the raw provider observation verbatim (raw 0 stays 0, absence
+// stays empty). Rho and greeksUpdatedAt are deliberately CSV-only. Delta keeps
+// its existing dedicated column; these five are the added visible evidence.
+const GREEK_IV_HEADER_CELLS = (
+  <>
+    <th className="wd-greek-head wd-greek-first" title="Gamma (Δ change per $1 underlying move)">Γ</th>
+    <th className="wd-greek-head" title="Theta (option value change per calendar day)">Θ</th>
+    <th className="wd-greek-head" title="Vega (value change per 1 IV point)">Vega</th>
+    <th className="wd-greek-head wd-greek-iv" title="Mid IV — Tradier midpoint-derived implied volatility">Mid IV</th>
+    <th className="wd-greek-head wd-greek-iv wd-greek-last" title="SMV — ORATS smoothed/surface volatility">SMV</th>
+  </>
+);
+
+/** Present an IV value with presentation semantics: finite & nonzero → 4-dp
+ * decimal; else em dash (matches the Greek unavailable treatment).
+ * Raw preservation stays in the CSV; this is the operator view. */
+function presentIv(v: number | null | undefined): string {
+  return v != null && Number.isFinite(v) && v !== 0 ? v.toFixed(4) : "—";
+}
+
+function GreekIvCells({ greeks }: { greeks?: RawExportGreeks }) {
+  const g = sanitizeGreeks(greeks ?? {});
+  return (
+    <>
+      <td className="wd-greek-cell wd-greek-first">{formatGreek(g.gamma)}</td>
+      <td className="wd-greek-cell">{formatGreek(g.theta)}</td>
+      <td className="wd-greek-cell">{formatGreek(g.vega)}</td>
+      <td className="wd-greek-cell wd-greek-iv">{presentIv(greeks?.midIv)}</td>
+      <td className="wd-greek-cell wd-greek-iv wd-greek-last">{presentIv(greeks?.smvVol)}</td>
+    </>
+  );
+}
+
 // --- Put Candidate Table ---
 
 function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelect }: { candidates: PutCandidate[]; selectedSymbol: string | null; selectedStrike: number | null; onSelect: (c: PutCandidate, pos: TablePositionContext) => void }) {
@@ -1238,6 +1278,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
           { key: "cashRequired", label: "Cash Req" }, { key: "cashRemaining", label: "Remaining" },
           { key: "assessment", label: "Exec" }, { key: "posture", label: "Posture" },
           { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
+          ...RAW_GREEK_IV_COLUMNS,
         ],
         `wheelwright-puts-${new Date().toISOString().slice(0, 10)}.csv`
       ); }} title="Download as CSV">⬇ CSV</button>
@@ -1250,6 +1291,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
           <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
+          {GREEK_IV_HEADER_CELLS}
           <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("ask", e)}>Ask{indicator("ask")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("spreadPercent", e)}>Spread{indicator("spreadPercent")}</th>
@@ -1277,6 +1319,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
             <td>{c.dte}</td>
             <td>${c.strike}</td>
             <td>{Math.abs(c.delta).toFixed(2)}</td>
+            <GreekIvCells greeks={c.exportGreeks} />
             <td>${c.bid.toFixed(2)}</td>
             <td>${c.ask.toFixed(2)}</td>
             <td className={c.spreadPercent > 15 ? "wd-warn-value" : ""}>{c.spreadPercent.toFixed(0)}%</td>
@@ -1322,6 +1365,7 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
         { key: "assessment", label: "Exec" }, { key: "posture", label: "Posture" },
         { key: "selectionBasis", label: "Select" },
         { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
+        ...RAW_GREEK_IV_COLUMNS,
       ],
       `wheelwright-calls-${new Date().toISOString().slice(0, 10)}.csv`
     ); }} title="Download as CSV">⬇ CSV</button>
@@ -1334,6 +1378,7 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
           <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
+          {GREEK_IV_HEADER_CELLS}
           <th className="wd-sortable" onClick={(e) => handleSort("underlyingPrice", e)} title="Current underlying (spot) price from the evidence snapshot">Spot{indicator("underlyingPrice")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("basisPerShare", e)} title="Broker-reported average cost per share (stock/accounting basis)">Basis{indicator("basisPerShare")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
@@ -1365,6 +1410,7 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
             <td>{c.dte}</td>
             <td>${c.strike}</td>
             <td>{c.delta.toFixed(2)}</td>
+            <GreekIvCells greeks={c.exportGreeks} />
             <td>${c.underlyingPrice.toFixed(2)}</td>
             <td>{c.basisPerShare != null ? `$${c.basisPerShare.toFixed(2)}` : "—"}</td>
             <td>${c.bid.toFixed(2)}</td>
@@ -1692,6 +1738,7 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
           { key: "totalReturnIfCalledPercent", label: "If Called%" }, { key: "capitalRequired", label: "Capital" },
           { key: "cashRemaining", label: "Remaining" }, { key: "assessment", label: "Exec" }, { key: "posture", label: "Posture" },
           { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
+          ...RAW_GREEK_IV_COLUMNS,
         ],
         `wheelwright-buy-writes-${new Date().toISOString().slice(0, 10)}.csv`
       ); }} title="Download as CSV">⬇ CSV</button>
@@ -1705,6 +1752,7 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
             <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
+            {GREEK_IV_HEADER_CELLS}
             <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("ask", e)}>Ask{indicator("ask")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("spreadPercent", e)}>Spread{indicator("spreadPercent")}</th>
@@ -1739,6 +1787,7 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
               <td>{c.dte}</td>
               <td className={!c.strikeAbovePrice ? "wd-warn-value" : ""}>${c.strike}</td>
               <td>{c.delta.toFixed(2)}</td>
+              <GreekIvCells greeks={c.exportGreeks} />
               <td>${c.bid.toFixed(2)}</td>
               <td>${c.ask.toFixed(2)}</td>
               <td className={c.spreadPercent > 15 ? "wd-warn-value" : ""}>{c.spreadPercent.toFixed(0)}%</td>
@@ -1781,6 +1830,7 @@ function ContingentCallTable({ rows, selectedRow, onSelect }: { rows: Contingent
         { key: "openInterest", label: "OI" }, { key: "yieldFromBasis", label: "Yield(basis)" },
         { key: "conditionedBasis", label: "Basis" },
         { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
+        ...RAW_GREEK_IV_COLUMNS,
       ],
       `wheelwright-contingent-calls-${new Date().toISOString().slice(0, 10)}.csv`
     ); }} title="Download as CSV">⬇ CSV</button>

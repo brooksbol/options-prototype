@@ -89,6 +89,12 @@ export interface ContingentCallRow {
    * its input call-chain evidence, which is truthful and useful.
    */
   evidenceProvenance?: EvidenceProvenance;
+  /**
+   * Raw provider greeks + IV + greek/IV update time for the conditioned call
+   * contract, carried for machine-consumable evidence/export ONLY. Preserves
+   * provider exact zero and absence verbatim. NEVER a policy/selection input.
+   */
+  exportGreeks?: import("./conditioned-call-surface").ConditionedCallOpportunity["exportGreeks"];
 }
 
 // --- Union ---
@@ -143,5 +149,6 @@ export function contingentRowFromOpportunity(
     volume: opportunity.volume,
     yieldFromBasis: opportunity.yieldFromBasis,
     evidenceProvenance: opportunity.evidenceProvenance,
+    exportGreeks: opportunity.exportGreeks,
   };
 }

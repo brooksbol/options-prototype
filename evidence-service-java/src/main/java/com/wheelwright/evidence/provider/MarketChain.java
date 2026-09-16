@@ -48,6 +48,17 @@ public record MarketChain(
      * strike/bid/ask/openInterest/volume remain primitive; they are outside this
      * greek-nullability correction and the provider supplies them for real
      * contracts.
+     *
+     * midIv / smvVol are provider implied-volatility measurements carried with
+     * the same nullable semantics as the greeks (absence → null, never 0). They
+     * are DISTINCT provider measurements and are never aliased, averaged, or
+     * collapsed into a generic "iv": {@code midIv} is Tradier's midpoint-derived
+     * IV (inverted from the option midpoint price), {@code smvVol} is the ORATS
+     * smoothed/surface volatility. No generic iv, no local computation, no
+     * bid_iv/ask_iv. greeksUpdatedAt is the provider-reported greek/IV update
+     * time, preserved VERBATIM as the provider string (provider-local,
+     * zone-unspecified) — never normalized to an ISO instant, never assigned a
+     * timezone, and DISTINCT from Wheelwright's chain-acquisition provenance.
      */
     public record OptionContract(
         double strike,
@@ -59,6 +70,9 @@ public record MarketChain(
         Double vega,
         Double rho,
         int openInterest,
-        int volume
+        int volume,
+        Double midIv,
+        Double smvVol,
+        String greeksUpdatedAt
     ) {}
 }

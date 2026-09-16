@@ -29,6 +29,65 @@ export interface RawContractGreeks {
   theta?: number | null;
   vega?: number | null;
   rho?: number | null;
+  /** Provider midpoint-derived IV. Distinct from smvVol; never aliased/collapsed. */
+  midIv?: number | null;
+  /** Provider ORATS smoothed/surface volatility. Distinct from midIv. */
+  smvVol?: number | null;
+  /** Provider greek/IV update time, verbatim provider string (zone-unspecified). */
+  greeksUpdatedAt?: string | null;
+}
+
+/**
+ * RAW export view of a contract's greeks + IV + provider update time, for the
+ * MACHINE-CONSUMABLE evidence path (candidate/table CSV exports, AI-advisor
+ * packet). This deliberately does NOT apply the presentation `sanitizeGreeks`
+ * zero→null collapse: a provider exact `0.0` is preserved as `0`, provider
+ * absence is `null`, tiny/scientific-notation values are preserved, and IV > 1
+ * is preserved (no clamp). `midIv` and `smvVol` remain distinct. This is the
+ * classification-vs-presentation seam: presentation sanitization must not silently
+ * become the evidence-export contract (BUG-011 is NOT resolved by this).
+ */
+export interface RawExportGreeks {
+  delta: number | null;
+  gamma: number | null;
+  theta: number | null;
+  vega: number | null;
+  rho: number | null;
+  midIv: number | null;
+  smvVol: number | null;
+  greeksUpdatedAt: string | null;
+}
+
+/** All-unavailable raw export greeks (stable reference for empty results). */
+export const UNAVAILABLE_RAW_EXPORT_GREEKS: RawExportGreeks = Object.freeze({
+  delta: null, gamma: null, theta: null, vega: null, rho: null,
+  midIv: null, smvVol: null, greeksUpdatedAt: null,
+});
+
+/** Coerce a raw provider numeric field to `number | null` WITHOUT the zero→null
+ * presentation collapse. A finite number (including exact 0) is preserved; null,
+ * undefined, and non-finite become null. */
+function rawNumber(v: number | null | undefined): number | null {
+  return v != null && Number.isFinite(v) ? v : null;
+}
+
+/**
+ * Build the RAW export view from a contract's raw greeks. Preserves provider
+ * exact zero, absence, tiny values, and IV magnitude verbatim. NEVER applies the
+ * presentation zero→null rule. Use this for machine-consumable evidence, not for
+ * human display (use {@link sanitizeGreeks}/{@link formatGreek} for display).
+ */
+export function rawExportGreeks(raw: RawContractGreeks): RawExportGreeks {
+  return {
+    delta: rawNumber(raw.delta),
+    gamma: rawNumber(raw.gamma),
+    theta: rawNumber(raw.theta),
+    vega: rawNumber(raw.vega),
+    rho: rawNumber(raw.rho),
+    midIv: rawNumber(raw.midIv),
+    smvVol: rawNumber(raw.smvVol),
+    greeksUpdatedAt: raw.greeksUpdatedAt ?? null,
+  };
 }
 
 /**

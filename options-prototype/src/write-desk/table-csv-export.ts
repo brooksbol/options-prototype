@@ -14,6 +14,42 @@ export interface CsvColumn {
 }
 
 /**
+ * Machine-consumable RAW greek/IV/provider-timestamp export columns
+ * (PL-DEPLOY-EXPORT). Reads each row's `exportGreeks` (a RawExportGreeks carried
+ * on the candidate) and emits the RAW provider value: a finite number (including
+ * an exact provider 0) is emitted verbatim; absence (null/undefined) is emitted
+ * as empty — NEVER fabricated as 0, and NEVER run through the presentation
+ * zero→null sanitizer. IV magnitude is unconstrained (values > 1 emitted as-is).
+ * `midIv` and `smvVol` are distinct columns; `greeksUpdatedAt` is the verbatim
+ * provider string. Uniform across every candidate/table export in scope.
+ */
+export const RAW_GREEK_IV_COLUMNS: CsvColumn[] = [
+  { key: "raw_delta", label: "Delta (raw)", format: (r) => rawGreekCell(r, "delta") },
+  { key: "raw_gamma", label: "Gamma (raw)", format: (r) => rawGreekCell(r, "gamma") },
+  { key: "raw_theta", label: "Theta (raw)", format: (r) => rawGreekCell(r, "theta") },
+  { key: "raw_vega", label: "Vega (raw)", format: (r) => rawGreekCell(r, "vega") },
+  { key: "raw_rho", label: "Rho (raw)", format: (r) => rawGreekCell(r, "rho") },
+  { key: "raw_midIv", label: "midIv", format: (r) => rawGreekCell(r, "midIv") },
+  { key: "raw_smvVol", label: "smvVol", format: (r) => rawGreekCell(r, "smvVol") },
+  { key: "raw_greeksUpdatedAt", label: "greeksUpdatedAt", format: (r) => rawTimestampCell(r) },
+];
+
+function rawGreekCell(row: Record<string, unknown>, field: string): string {
+  const g = row["exportGreeks"] as Record<string, unknown> | undefined;
+  if (!g) return "";
+  const v = g[field];
+  // Raw preservation: finite number (incl. exact 0) verbatim; absence → empty.
+  return typeof v === "number" && Number.isFinite(v) ? String(v) : "";
+}
+
+function rawTimestampCell(row: Record<string, unknown>): string {
+  const g = row["exportGreeks"] as Record<string, unknown> | undefined;
+  if (!g) return "";
+  const v = g["greeksUpdatedAt"];
+  return typeof v === "string" ? v : "";
+}
+
+/**
  * Build CSV text from rows + columns. Pure and testable (no DOM).
  */
 export function buildCsv(

@@ -18,6 +18,7 @@
 import type { Expiration } from "../domain/types";
 import { selectEligibleExpirations } from "../velvet-rope/evaluate";
 import { midPrice, annualizedYield } from "../domain/calculations";
+import { rawExportGreeks } from "./option-greeks";
 import { assessExecution, isHardNo, type ContractEvidence } from "./execution-assessment";
 import { isSubjectAdmissible } from "./subject-admissibility";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
@@ -158,7 +159,7 @@ export async function recommendCalls(
 
     for (const exp of eligibleExps) {
       interface CachedChain {
-        calls: Array<{ strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number }>;
+        calls: Array<{ strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number; gamma?: number | null; theta?: number | null; vega?: number | null; rho?: number | null; midIv?: number | null; smvVol?: number | null; greeksUpdatedAt?: string | null }>;
         underlying?: { name?: string; symbol?: string; price?: number };
       }
       const chainKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "chain", symbol, exp.date);
@@ -243,6 +244,8 @@ export async function recommendCalls(
           selectionBasis,
           // PL-EVID-AGE: copy chain-acquisition provenance from the cache record.
           evidenceProvenance: chainRecord.evidenceProvenance,
+          // PL-DEPLOY-EXPORT: raw provider greeks+IV+update-time (evidence-only).
+          exportGreeks: rawExportGreeks(contract),
         };
       };
 

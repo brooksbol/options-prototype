@@ -287,6 +287,64 @@ Rules:
   fully-supplied exact all-zero vector as unavailable. This is the only justified
   set-level rejection — a partially populated vector must remain partially populated.
 
+### Additive fields — Provider Implied Volatility + Greek Update Time (`PL-DEPLOY-EXPORT`, September 2026)
+
+Each option contract additionally carries two **distinct** provider implied-volatility
+measurements and the provider's greek/IV update time, all acquired with the same
+`greeks=true` chain observation as the greeks above. These are **additive, non-breaking**
+fields under INV-PUB-05 (no version increment).
+
+```jsonc
+{
+  "strike": 88,
+  "bid": 1.50,
+  "ask": 1.70,
+  "delta": -0.28,
+  "gamma": 0.0412,
+  "theta": null,
+  "vega": 0.0561,
+  "rho": 0.0093,
+  "openInterest": 520,
+  "volume": 110,
+  "midIv": 0.4213,                 // number | null — Tradier midpoint-derived IV
+  "smvVol": 0.3987,                // number | null — ORATS smoothed/surface volatility
+  "greeksUpdatedAt": "2026-09-11 16:58:53"  // string | null — provider-reported, verbatim
+}
+```
+
+Value semantics:
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `midIv` | number \| null | Tradier's **midpoint-derived** implied volatility (inverted from the option midpoint price). Decimal volatility, provider as-reported (e.g. `0.42` = 42%). |
+| `smvVol` | number \| null | The **ORATS smoothed/surface** volatility measurement. Decimal volatility, provider as-reported. |
+| `greeksUpdatedAt` | string \| null | The provider-reported greek/IV update time, preserved **verbatim** as the provider string. |
+
+Rules:
+
+- **`midIv` and `smvVol` are DISTINCT measurements.** They are never aliased, averaged,
+  substituted, or collapsed into a generic `iv`. `midIv` is midpoint-price inversion;
+  `smvVol` is the ORATS smoothed surface. Repository fixture evidence shows they can
+  diverge materially (e.g. `mid_iv=1.5178` vs `smv_vol=0.833`). There is no generic `iv`
+  field, and IV is **never computed locally** (no pricing model / solver). `bid_iv` and
+  `ask_iv` are intentionally **not** exposed in this contract.
+- **Absence is `null`, never `0`.** Provider absence (field omitted, explicit `null`, or
+  unparseable) serializes as JSON `null`. Numeric zero means the provider supplied zero.
+  As with the greeks, `0.0` is preserved verbatim in the machine-consumable evidence; any
+  "zero = unavailable" trust is a *presentation-layer* derivation and must not be applied
+  to this raw evidence.
+- **IV magnitude is unconstrained.** Values `> 1` are valid (IV is not a probability); no
+  `[0, 1]` clamp is applied.
+- **`greeksUpdatedAt` is provider-local and zone-unspecified.** It is preserved exactly as
+  the provider returns it (Tradier form `"YYYY-MM-DD HH:MM:SS"`, no timezone marker). It is
+  **never** parsed into an ISO instant, never assigned/appended a timezone (no `Z`), and is
+  **distinct** from Wheelwright's chain-acquisition provenance (`chains[].retrievedAt` /
+  `chainAcquisitionProvenance`). It describes when the provider computed the greeks/IV, not
+  when Wheelwright acquired the chain; consumers must not derive a freshness claim from it
+  beyond what the raw value supports.
+- **Consumer compatibility:** an older snapshot (or a build without provider IV) that omits
+  these fields is interpreted by consumers as absent/`null` — never fabricated.
+
 ### Additive fields — Per-Subject Admissibility (Issue #16, September 2026)
 
 Per Issue #16 (session/admissibility authority), the snapshot carries a **subject-scoped admissibility verdict** for each chain. Market-session state and evidence admissibility/canonicality are **domain judgments owned by the backend**, because only the backend knows the active provider authority (real-time Production vs 15-min-delayed Sandbox) and the session policy. Consumers **must not** re-derive admissibility by mapping provider identity/environment to a delay policy themselves — that is the authority leak this field closes. These are **additive, non-breaking** fields under INV-PUB-05 (no version increment).

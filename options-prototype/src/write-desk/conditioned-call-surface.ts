@@ -17,6 +17,7 @@
 import { buildCacheKey, type DurableMarketCache } from "../cache/durable-cache";
 import { selectEligibleExpirations } from "../velvet-rope/evaluate";
 import { midPrice, annualizedYield } from "../domain/calculations";
+import { rawExportGreeks } from "./option-greeks";
 import { type ContractEvidence } from "./execution-assessment";
 import type { ExecutionPolicy } from "./execution-policy";
 import type { ContractSelectionPolicy } from "./recommend";
@@ -57,6 +58,15 @@ export interface CachedCallContract {
   delta: number;
   openInterest: number;
   volume: number;
+  // Raw provider greeks + IV + update time (machine-consumable export evidence
+  // only; never inputs to selection/ranking/posture). Absence → null.
+  gamma?: number | null;
+  theta?: number | null;
+  vega?: number | null;
+  rho?: number | null;
+  midIv?: number | null;
+  smvVol?: number | null;
+  greeksUpdatedAt?: string | null;
 }
 
 export interface ConditionedCallChainEvidence {
@@ -122,6 +132,13 @@ export interface ConditionedCallOpportunity {
    * evidence this opportunity was derived from. Observational only.
    */
   evidenceProvenance?: EvidenceProvenance;
+  /**
+   * Raw provider greeks + IV + greek/IV update time for the conditioned call
+   * contract, carried for machine-consumable evidence/export ONLY. Preserves
+   * provider exact zero and absence verbatim. NEVER an input to selection,
+   * ranking, posture, or admissibility.
+   */
+  exportGreeks?: import("./option-greeks").RawExportGreeks;
 }
 
 export interface ConditionedExpirationAssessment {
@@ -494,6 +511,9 @@ function evaluateContracts(
       policyFailureReasons: failures,
       // PL-EVID-AGE: carry chain-acquisition provenance from the chain evidence.
       evidenceProvenance: chain.evidenceProvenance,
+      // PL-DEPLOY-EXPORT: raw provider greeks+IV+update-time for the conditioned
+      // call contract (machine-consumable export evidence only; never a policy input).
+      exportGreeks: rawExportGreeks(call),
     });
   }
 

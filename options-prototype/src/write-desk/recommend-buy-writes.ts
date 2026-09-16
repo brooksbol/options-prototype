@@ -25,6 +25,7 @@ import { inferProductStructure, hasStructuralComplexity } from "../velvet-rope/p
 import { lookupCatalog, governanceFromCatalog } from "../instrument-catalog/catalog";
 import { isSubjectAdmissible } from "./subject-admissibility";
 import { midPrice, annualizedYield } from "../domain/calculations";
+import { rawExportGreeks } from "./option-greeks";
 import { assessExecution, isHardNo, type ContractEvidence, type ActionPosture } from "./execution-assessment";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
 import type { RecommendationPolicy, ExportContext } from "./recommend";
@@ -151,6 +152,12 @@ export interface BuyWriteCandidate {
    * documented provenance limitation. This reflects chain acquisition age.
    */
   evidenceProvenance?: EvidenceProvenance;
+  /**
+   * Raw provider greeks + IV + greek/IV update time for the call contract,
+   * carried for machine-consumable evidence/export ONLY. Preserves provider exact
+   * zero and absence verbatim. NEVER an input to rank/posture/governance/selection.
+   */
+  exportGreeks?: import("./option-greeks").RawExportGreeks;
 }
 
 // --- Result ---
@@ -331,7 +338,7 @@ export async function recommendBuyWrites(
 
     for (const exp of eligibleExps) {
       interface CachedChain {
-        calls: Array<{ strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number }>;
+        calls: Array<{ strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number; gamma?: number | null; theta?: number | null; vega?: number | null; rho?: number | null; midIv?: number | null; smvVol?: number | null; greeksUpdatedAt?: string | null }>;
         underlying?: { name?: string; symbol?: string; price?: number };
       }
       const chainKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "chain", symbol, exp.date);
@@ -490,6 +497,7 @@ export async function recommendBuyWrites(
             maxFCH: 0,
             fchSacrificePercent: 0,
             evidenceProvenance: chainRecord.evidenceProvenance,
+            exportGreeks: rawExportGreeks(hn.contract),
           };
           symbolWideSpreadCandidates.push(wsCandidate);
         }
@@ -649,6 +657,8 @@ export async function recommendBuyWrites(
         fchSacrificePercent: maxFCH > 0 ? ((maxFCH - expWinner.fullCycleHarvest) / maxFCH) * 100 : 0,
         // PL-EVID-AGE: copy chain-acquisition provenance from the cache record.
         evidenceProvenance: chainRecord.evidenceProvenance,
+        // PL-DEPLOY-EXPORT: raw provider greeks+IV+update-time for the call contract (evidence-only).
+        exportGreeks: rawExportGreeks(contract),
       };
 
       // Emit the best candidate for this expiration directly (no cross-expiration collapse)

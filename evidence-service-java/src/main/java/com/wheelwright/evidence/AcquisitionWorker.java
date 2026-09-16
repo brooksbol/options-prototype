@@ -1832,12 +1832,27 @@ public class AcquisitionWorker {
           .append(",\"rho\":").append(nullableNumber(c.rho()))
           .append(",\"openInterest\":").append(c.openInterest())
           .append(",\"volume\":").append(c.volume())
+          // Provider IV measurements (distinct; never aliased/collapsed) + provider
+          // greek/IV update time (verbatim string). Same absence→null discipline:
+          // JSON null for provider absence, NEVER 0 / "". IV > 1 emitted as-is.
+          .append(",\"midIv\":").append(nullableNumber(c.midIv()))
+          .append(",\"smvVol\":").append(nullableNumber(c.smvVol()))
+          .append(",\"greeksUpdatedAt\":").append(nullableString(c.greeksUpdatedAt()))
           .append("}");
     }
 
     /** Serialize a nullable greek as a JSON number, or the literal {@code null} when absent. */
     private String nullableNumber(Double value) {
         return value == null ? "null" : value.toString();
+    }
+
+    /**
+     * Serialize a nullable provider string as a JSON string literal, or the literal
+     * {@code null} when absent. Used for {@code greeksUpdatedAt} — the provider value
+     * is preserved verbatim (escaped for JSON), never fabricated as "" for absence.
+     */
+    private String nullableString(String value) {
+        return value == null ? "null" : "\"" + escapeJson(value) + "\"";
     }
 
     private String escapeJson(String s) {

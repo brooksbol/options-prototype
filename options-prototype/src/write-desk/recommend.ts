@@ -22,6 +22,7 @@ import { inferProductStructure, hasStructuralComplexity } from "../velvet-rope/p
 import { lookupCatalog, governanceFromCatalog } from "../instrument-catalog/catalog";
 import { isSubjectAdmissible } from "./subject-admissibility";
 import { midPrice, annualizedYield } from "../domain/calculations";
+import { rawExportGreeks } from "./option-greeks";
 import { assessExecution, isHardNo, type ContractEvidence, type ActionPosture } from "./execution-assessment";
 import { type DurableMarketCache, buildCacheKey } from "../cache/durable-cache";
 import { type ExecutionPolicy, DEFAULT_EXECUTION_POLICY } from "./execution-policy";
@@ -417,7 +418,8 @@ export async function recommendPuts(
     let symbolHardNoReason: "zeroBid" | "zeroOI" | "wideSpread" | null = null;
 
     for (const exp of eligible) {
-      interface CachedChain { puts: Array<{ type: string; strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number }>; underlying?: { name?: string; symbol?: string; price?: number } }
+      interface CachedPut { type: string; strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number; gamma?: number | null; theta?: number | null; vega?: number | null; rho?: number | null; midIv?: number | null; smvVol?: number | null; greeksUpdatedAt?: string | null }
+      interface CachedChain { puts: Array<CachedPut>; underlying?: { name?: string; symbol?: string; price?: number } }
       const chainKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "chain", symbol, exp.date);
       const chainRecord = await cache.get<CachedChain>(chainKey);
       if (!chainRecord || !isEligible(chainRecord)) {
@@ -518,6 +520,7 @@ export async function recommendPuts(
             affordable,
             governance: { status: "authorized", reason: "" },
             evidenceProvenance: chainRecord.evidenceProvenance,
+            exportGreeks: rawExportGreeks(contract),
           };
           if (!bestWideSpread || spreadPct < bestWideSpread.spreadPercent) {
             bestWideSpread = wideSpreadCandidate;
@@ -552,6 +555,9 @@ export async function recommendPuts(
           // PL-EVID-AGE: copy operator-facing chain-acquisition provenance from the
           // cache record. Never reconstruct from cache TTL timestamps.
           evidenceProvenance: chainRecord.evidenceProvenance,
+          // PL-DEPLOY-EXPORT: raw provider greeks+IV+update-time for machine-consumable
+          // export. Evidence-only; never influences the assessment/posture above.
+          exportGreeks: rawExportGreeks(contract),
         };
 
         switch (assessment.posture) {

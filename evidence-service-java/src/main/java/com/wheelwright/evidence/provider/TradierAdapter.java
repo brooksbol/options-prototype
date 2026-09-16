@@ -501,11 +501,15 @@ public class TradierAdapter {
             Double theta = getNullableNestedDouble(opt, "greeks", "theta");
             Double vega = getNullableNestedDouble(opt, "greeks", "vega");
             Double rho = getNullableNestedDouble(opt, "greeks", "rho");
+            // Provider IV measurements + provider greek/IV update time (nullable, independent).
+            Double midIv = getNullableNestedDouble(opt, "greeks", "mid_iv");
+            Double smvVol = getNullableNestedDouble(opt, "greeks", "smv_vol");
+            String greeksUpdatedAt = getNestedString(opt, "greeks", "updated_at");
             int openInterest = getInt(opt, "open_interest");
             int volume = getInt(opt, "volume");
             String optionType = (String) opt.get("option_type");
 
-            MarketChain.OptionContract contract = new MarketChain.OptionContract(strike, bid, ask, delta, gamma, theta, vega, rho, openInterest, volume);
+            MarketChain.OptionContract contract = new MarketChain.OptionContract(strike, bid, ask, delta, gamma, theta, vega, rho, openInterest, volume, midIv, smvVol, greeksUpdatedAt);
             if ("put".equals(optionType)) puts.add(contract);
             else if ("call".equals(optionType)) calls.add(contract);
         }
@@ -684,6 +688,16 @@ public class TradierAdapter {
                 putIfPresent(obj, "greeks_theta", extractNullableDouble(greeksJson, "theta"));
                 putIfPresent(obj, "greeks_vega", extractNullableDouble(greeksJson, "vega"));
                 putIfPresent(obj, "greeks_rho", extractNullableDouble(greeksJson, "rho"));
+                // Provider IV measurements — nullable, parsed INDEPENDENTLY, same
+                // absence→null discipline. mid_iv and smv_vol are DISTINCT provider
+                // measurements (kept separate, never aliased/averaged/collapsed).
+                // IV > 1 is valid (no [0,1] clamp). bid_iv/ask_iv intentionally NOT read.
+                putIfPresent(obj, "greeks_mid_iv", extractNullableDouble(greeksJson, "mid_iv"));
+                putIfPresent(obj, "greeks_smv_vol", extractNullableDouble(greeksJson, "smv_vol"));
+                // Provider greek/IV update time — preserved VERBATIM (provider-local,
+                // zone-unspecified). Never parsed to an instant, never given a timezone.
+                String greeksUpdatedAt = extractQuotedString(greeksJson, "updated_at");
+                if (greeksUpdatedAt != null) obj.put("greeks_updated_at", greeksUpdatedAt);
             }
         }
         return obj;
@@ -721,6 +735,17 @@ public class TradierAdapter {
         Object val = map.get(outer + "_" + inner);
         if (val instanceof Number n) return n.doubleValue();
         return null;
+    }
+
+    /**
+     * Nullable nested STRING lookup: returns the provider string verbatim when
+     * present, else null. Used for {@code greeks.updated_at} — the provider's
+     * greek/IV update time is preserved exactly as given (provider-local,
+     * zone-unspecified); it is never parsed, normalized, or timezone-tagged here.
+     */
+    private String getNestedString(Map<String, Object> map, String outer, String inner) {
+        Object val = map.get(outer + "_" + inner);
+        return val instanceof String s ? s : null;
     }
 
     // --- Result types ---

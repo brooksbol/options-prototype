@@ -49,7 +49,7 @@ class HeldExpirationAcquisitionTest {
 
     private static MarketChain chainFor(String symbol, String expiration) {
         return new MarketChain(symbol, expiration, new MarketChain.Underlying(symbol, symbol, 50.0),
-            List.of(new MarketChain.OptionContract(48, 1.0, 1.1, -0.28, 0.02, -0.01, 0.03, 0.01, 100, 10)),
+            List.of(new MarketChain.OptionContract(48, 1.0, 1.1, -0.28, 0.02, -0.01, 0.03, 0.01, 100, 10, null, null, null)),
             List.of());
     }
 

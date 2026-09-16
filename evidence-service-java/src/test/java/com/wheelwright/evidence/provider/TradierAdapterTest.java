@@ -377,6 +377,26 @@ class TradierAdapterTest {
             assertEquals(-0.113, call.theta(), 1e-9, "theta must survive normalization");
             assertEquals(0.004, call.vega(), 1e-9, "vega must survive normalization");
             assertEquals(0.0, call.rho(), 1e-9);
+            // Provider IV: midIv and smvVol are DISTINCT (no alias/fallback), IV>1 valid,
+            // updated_at preserved verbatim (provider-local, zone-unspecified).
+            assertEquals(1.5178, call.midIv(), 1e-9, "midIv from mid_iv, IV>1 preserved (no clamp)");
+            assertEquals(0.833, call.smvVol(), 1e-9, "smvVol from smv_vol, distinct from midIv");
+            assertNotEquals(call.midIv(), call.smvVol(), "midIv and smvVol must not be aliased/collapsed");
+            assertEquals("2026-09-11 16:58:53", call.greeksUpdatedAt(), "greeks.updated_at preserved verbatim");
+        }
+
+        @Test
+        void ivFieldsAbsentAreNullNotZero() throws Exception {
+            // No mid_iv/smv_vol/updated_at in the greeks object → null, never 0/"".
+            var c = onlyPut("""
+                {"options":{"option":[
+                    {"strike":21,"bid":0.4,"ask":0.5,"option_type":"put","open_interest":10,"volume":1,
+                     "greeks":{"delta":-0.30,"gamma":0.02,"theta":-0.01,"vega":0.03,"rho":0.01}}
+                ]}}
+            """);
+            assertNull(c.midIv(), "absent mid_iv → null, never 0");
+            assertNull(c.smvVol(), "absent smv_vol → null, never 0");
+            assertNull(c.greeksUpdatedAt(), "absent updated_at → null, never empty string");
         }
 
         @Test

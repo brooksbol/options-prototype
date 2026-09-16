@@ -9,6 +9,7 @@
 import type { ExecutionAssessment, ActionPosture } from "./execution-assessment";
 import type { PositionEconomics } from "./types";
 import type { EvidenceProvenance } from "./evidence-provenance";
+import type { RawExportGreeks } from "./option-greeks";
 
 export type GovernanceStatus = "authorized" | "danger" | "review" | "unknown";
 
@@ -52,6 +53,14 @@ export interface PutCandidate {
    * only; never an input to rank, posture, or governance.
    */
   evidenceProvenance?: EvidenceProvenance;
+  /**
+   * Raw provider greeks + IV + greek/IV update time for the selected contract,
+   * carried for machine-consumable evidence/export ONLY (five raw greeks,
+   * midIv/smvVol, greeksUpdatedAt). Preserves provider exact zero and absence
+   * verbatim (no presentation sanitization). NEVER an input to rank, posture,
+   * governance, admissibility, or selection.
+   */
+  exportGreeks?: RawExportGreeks;
 }
 
 export interface CallCandidate {
@@ -101,6 +110,12 @@ export interface CallCandidate {
   selectionBasis: "target-delta" | "basis-positive";
   /** Chain-acquisition provenance copied from published evidence. */
   evidenceProvenance?: EvidenceProvenance;
+  /**
+   * Raw provider greeks + IV + greek/IV update time for the selected contract,
+   * carried for machine-consumable evidence/export ONLY. Preserves provider exact
+   * zero and absence verbatim. NEVER an input to rank/posture/governance/selection.
+   */
+  exportGreeks?: RawExportGreeks;
 }
 
 export interface CallInventoryItem {

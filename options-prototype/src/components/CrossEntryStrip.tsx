@@ -19,7 +19,8 @@ import type { BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import { useMultiColumnSort, type SortDir } from "../write-desk/use-multi-column-sort";
-import { downloadTableCsv } from "../write-desk/table-csv-export";
+import { downloadTableCsv, RAW_GREEK_IV_COLUMNS } from "../write-desk/table-csv-export";
+import { sanitizeGreeks, formatGreek, type RawExportGreeks } from "../write-desk/option-greeks";
 import { AgeCell } from "../write-desk/AgeCell";
 import { formatAcquisitionAge, type EvidenceProvenance } from "../write-desk/evidence-provenance";
 import { CrossEntryRefreshButton } from "../write-desk/CrossEntryRefreshButton";
@@ -59,6 +60,38 @@ interface CrossEntryStripProps {
    * refresh affordances are not shown.
    */
   onRefreshTopOpportunities?: () => void;
+}
+
+// Curated visible Greek/IV evidence columns (presentation semantics), resolved
+// from the cross-entry row's originating candidate (CrossEntryRow references
+// originalPut / originalBuyWrite). Presentation semantics: exact-zero/absence →
+// "—" (the raw values are preserved in the CSV, not here). Rho and
+// greeksUpdatedAt are deliberately CSV-only.
+const CROSS_ENTRY_GREEK_IV_HEADERS = (
+  <>
+    <th className="wd-greek-head wd-greek-first" title="Gamma (Δ change per $1 underlying move)">Γ</th>
+    <th className="wd-greek-head" title="Theta (option value change per calendar day)">Θ</th>
+    <th className="wd-greek-head" title="Vega (value change per 1 IV point)">Vega</th>
+    <th className="wd-greek-head wd-greek-iv" title="Mid IV — Tradier midpoint-derived implied volatility">Mid IV</th>
+    <th className="wd-greek-head wd-greek-iv wd-greek-last" title="SMV — ORATS smoothed/surface volatility">SMV</th>
+  </>
+);
+
+function crossEntryPresentIv(v: number | null | undefined): string {
+  return v != null && Number.isFinite(v) && v !== 0 ? v.toFixed(4) : "—";
+}
+
+function CrossEntryGreekIvCells({ greeks }: { greeks?: RawExportGreeks }) {
+  const g = sanitizeGreeks(greeks ?? {});
+  return (
+    <>
+      <td className="wd-greek-cell wd-greek-first">{formatGreek(g.gamma)}</td>
+      <td className="wd-greek-cell">{formatGreek(g.theta)}</td>
+      <td className="wd-greek-cell">{formatGreek(g.vega)}</td>
+      <td className="wd-greek-cell wd-greek-iv">{crossEntryPresentIv(greeks?.midIv)}</td>
+      <td className="wd-greek-cell wd-greek-iv wd-greek-last">{crossEntryPresentIv(greeks?.smvVol)}</td>
+    </>
+  );
 }
 
 export function CrossEntryStrip({
@@ -250,6 +283,16 @@ export function CrossEntryStrip({
               { key: "capitalRequired", label: "Capital" }, { key: "cashRemaining", label: "Remaining" },
               { key: "executionScore", label: "Exec" }, { key: "posture", label: "Posture" },
               { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
+              // PL-DEPLOY-EXPORT: raw greek/IV columns resolved from the originating
+              // candidate (CrossEntryRow references originalPut/originalBuyWrite). Same
+              // raw-preservation semantics; distinct midIv/smvVol; verbatim timestamp.
+              ...RAW_GREEK_IV_COLUMNS.map((col) => ({
+                ...col,
+                format: (r: Record<string, unknown>) => {
+                  const orig = (r.originalPut ?? r.originalBuyWrite) as Record<string, unknown> | null;
+                  return orig && col.format ? col.format(orig) : "";
+                },
+              })),
             ],
             `wheelwright-cross-entry-${new Date().toISOString().slice(0, 10)}.csv`
           );
@@ -279,6 +322,7 @@ export function CrossEntryStrip({
             <th className="wd-sortable" onClick={(e) => handleSort("premiumYieldAnnualized", e)}>Yield{indicator("premiumYieldAnnualized")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
+            {CROSS_ENTRY_GREEK_IV_HEADERS}
             <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("mid", e)}>Mid{indicator("mid")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("ask", e)}>Ask{indicator("ask")}</th>
@@ -317,6 +361,7 @@ export function CrossEntryStrip({
               <td>{row.premiumYieldAnnualized.toFixed(1)}%</td>
               <td>{row.dte}</td>
               <td>{row.delta.toFixed(2)}</td>
+              <CrossEntryGreekIvCells greeks={(row.originalPut ?? row.originalBuyWrite)?.exportGreeks} />
               <td>${row.bid.toFixed(2)}</td>
               <td>${row.mid.toFixed(2)}</td>
               <td>${row.ask.toFixed(2)}</td>
