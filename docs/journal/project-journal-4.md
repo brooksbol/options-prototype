@@ -143,3 +143,97 @@ This is the authority basis for the §14a lifecycle-ambiguity guard: the guard r
 ### Epistemic status
 
 Clarification absorbed into governing authority; why-state preserved here. **Implementation remains UNAUTHORIZED.** With this hole closed, the reconciliation boundary is complete: the next step is an explicit Principal authorization to implement the bounded Console V1 at the then-current accepted `main`.
+
+
+---
+
+## 2026-09-16 — BTS/HOLD-CLOSE product-outcome execution failure: accepted machinery displaced the operator answer
+
+### Context
+
+The Principal exercised the in-progress existing-short-obligation HOLD/CLOSE work against the concrete DBO Sep 18 $21 short put. The operator-visible result failed the actual product intent: the DBO row still had no red BTS attention indicator, and the position-detail modal presented a large HOLD/CLOSE consequence wall rather than a concise lifecycle decision. Earlier iterations were worse: chain inadmissibility produced a blanket "comparison refused," effectively allowing a market/session evidence boundary to erase an otherwise conspicuous BTC-review opportunity.
+
+The concrete specimen was:
+
+- DBO Sep 18 $21 short PUT;
+- approximately 2 DTE;
+- underlying approximately $25.47;
+- deeply OTM;
+- displayed delta approximately 0.0001;
+- obligation still open.
+
+The Principal's clarified expected operator outcome is intentionally simple:
+
+> **DBO must show a red BTS indicator and, when governed lifecycle policy supports the conclusion, Wheelwright should directly say "BTC THIS PUT."**
+
+Unavailable current close-price evidence may be shown beneath that answer. It must not turn the primary product answer into "comparison refused," nor force the operator to reconstruct the decision from a wall of consequence facts.
+
+### What went wrong
+
+This was primarily an **execution/conformance failure, not absence of governing process**.
+
+The accepted HOLD-vs-CLOSE design was a consequence-analysis slice. During implementation and review, that supporting slice was allowed to become the product surface. Candidate detection/attention, consequence evaluation, and governed lifecycle decision were progressively conflated. The row bell was initially wired to consequence-evaluator completeness, so downstream chain admissibility could suppress the attention signal. Subsequent design/review passes became increasingly rigorous about the intermediate abstraction while the original operator question — "what do I need to do with this position?" — was not kept as the acceptance anchor.
+
+The failure was expensive: substantial Kiro/Codex/Principal effort was spent hardening a technically careful interpretation that still failed the obvious working-software outcome.
+
+The repository already contained the conceptual homes we needed: AR2/ADR-013 attention/Decision Pressure, lifecycle choices, consequence evaluation, AR5/policy, explanation, and the Technology Quality / architectural-fitness-function program. The actors failed to connect and execute those authorities around a concrete Principal-visible outcome.
+
+### Product correction
+
+The governing product decomposition is:
+
+1. **NOTICE** — identify a supported lifecycle candidate / attention condition.
+2. **EVALUATE** — establish each supported consequence independently; unavailable evidence degrades dependent facts rather than unrelated facts.
+3. **DECIDE** — apply governed lifecycle policy and state the operator action directly when supported.
+4. **EXPLAIN** — provide the smallest useful reason set and material caveats beneath the answer.
+
+A recommendation such as **BTC THIS PUT** is a governed policy result with operator-controlled execution; it is not an automatic trade and not a prediction.
+
+Market/session closure or option-chain inadmissibility must not, by itself, erase independently supported BTS candidacy or independently supported consequences. Whether missing close-price evidence prevents a decision depends on the governed policy's actual evidence requirements.
+
+### Hard-earned process correction
+
+The Principal identified two lessons behind the failure:
+
+1. Acceptance criteria must be **stupid simple and specimen-first**.
+2. New operator learning — here, the recently learned BTC technique for retiring a largely completed obligation early so capital can be reused — must first be translated into the **decision Wheelwright should support**, before evidence plumbing, architecture, or UI is designed around it.
+
+The process ratchet is therefore:
+
+- **Specimen-first acceptance:** name a real case that must work.
+- **Explicit trigger:** state why Wheelwright should notice it.
+- **Product-before-conformance:** state the literal operator-visible result before architecture review.
+- **Principal-outcome confirmation:** actors propose 2–4 concrete outcomes early; the Principal confirms/replaces them in plain language. The Principal is not responsible for discovering missing acceptance criteria after implementation.
+- **Implementation-handoff repetition:** every implementation/review handoff repeats the confirmed acceptance sentence so supporting architecture cannot silently replace the objective.
+- **Fitness-function ratchet:** after outcome confirmation and design reconciliation, identify mechanically observable load-bearing properties; propose executable protection, positive and negative specimens, and an explicit enforcement mode. Preserve approved protection across future implementations.
+- **Working-software acceptance first:** final handoff begins with `Principal-visible outcome delivered: YES / NO`, the specimen, expected behavior, and observed behavior. Test counts and architectural conformance follow; they cannot turn a visible NO into acceptance.
+
+For this capability the acceptance specimen must be frozen in evaluation time/evidence so Sep 18 does not become a wall-clock-dependent test. At minimum, protection should cover: DBO-positive red/action case; routine-obligation negative case; close-pricing-inadmissible independence; and contradictory brokerage-lifecycle authority preventing an unsupported current-obligation decision.
+
+### Relationship to the previous execution failure
+
+This is thematically the same class as the **2026-09-14 generation-29066 servicing experiment governance conformance failure** recorded in `project-journal-3.md`.
+
+That earlier failure also did **not** arise because governance was missing. The Principal had already supplied a bounded objective and the repository already required bounded intervention, earned complexity, rapid working-software evidence, and preservation of observation cadence. During execution, individually legitimate technical findings repeatedly reopened design and accumulated completeness machinery until the finite regular-market observation window was largely consumed. The journal's root-cause statement was explicit: **"This was not primarily a missing-governance failure. The governing principles already existed. It was a conformance failure under execution pressure."**
+
+The shared pattern is:
+
+> **The Principal supplied the direction and governing process already existed; actors failed to preserve the simple objective while technically legitimate intermediate concerns became dominant.**
+
+Generation-29066 lost a market observation window by over-hardening before observing. BTS/HOLD-CLOSE lost the operator outcome by over-hardening the consequence abstraction before anchoring and continuously testing the actual decision surface. In both cases, architecture/review quality locally improved while execution drifted from the Principal's intended result.
+
+The Sep 14 actor contract — **"Find freely. Block narrowly. Defer explicitly. Observe quickly. Ratchet what reality proves."** — therefore applies directly here. The additional BTS lesson is that "observe quickly" must include the **Principal-visible product outcome**, not merely implementation/runtime evidence.
+
+### Fitness-function loop that was not closed
+
+The project already had `PL-ARCH-FITNESS-01` and Technology Quality authority for promoting mechanically observable architectural truths into executable protection. That loop was not closed here. Once the DBO outcome became explicit, the project should have asked whether it was a load-bearing executable invariant and protected it across the real consumer path.
+
+The required loop is:
+
+> **real specimen → confirmed outcome → reconciled architecture → executable protection → implementation → continuous protection**
+
+Deterministic protection cannot discover that the wrong product outcome was confirmed. Therefore Principal-visible outcome confirmation must precede the fitness-function ratchet.
+
+### Epistemic status
+
+**Failure/why-state recorded; process ratchet identified.** This entry does not itself authorize implementation, invent policy thresholds, or promote `PL-ARCH-FITNESS-01` from INTAKE. The current in-progress BTS/HOLD-CLOSE working-tree work must be judged against the Principal-visible specimen, not accepted merely because intermediate architecture or tests conform.
