@@ -137,13 +137,9 @@ ATM tolerance is $0.50 (absolute). This is a simplification suitable for ETFs wi
 
 ---
 
-### BR-5: Approximate Assignment Probability
+### BR-5: Delta and probability interpretation
 
-```
-assignmentProbability ≈ |delta|
-```
-
-Delta is used as a rough proxy for the probability that the option expires in-the-money.
+**Superseded.** Delta is a *sensitivity*, not a probability. This document does **not** specify assignment probability. See the options-domain reference D5 for qualified, model-dependent terminal-moneyness interpretations (and note that assignment is an American-exercise/allocation question distinct from terminal ITM probability).
 
 ---
 
@@ -166,9 +162,9 @@ If two contracts are equidistant, prefer the one closer to OTM (higher strike fo
 |---|-----------|-----------|------|
 | A-1 | Mid price is a reasonable fill estimate | Liquid ETF options have tight spreads | May overestimate fills in illiquid contracts |
 | A-2 | Simple annualization (no compounding) | Sufficient for screening/comparison | Overstates true annualized return |
-| A-3 | Delta ≈ assignment probability | Standard approximation in options education | Ignores skew, dividends, early exercise |
+| A-3 | ~~Delta ≈ assignment probability~~ **Superseded** | Delta does not establish assignment probability; reference D5 governs probability interpretations | — |
 | A-4 | No transaction costs | Prototype is for evaluation, not P&L tracking | Real yields are lower |
-| A-5 | Position held to expiration | Simplifies yield calculation | Does not model early close or roll |
+| A-5 | Held-to-expiration applies only to the stated yield/screening calculation | Simplifies that calculation | Does **not** constrain supported lifecycle actions (Wheelwright ships BTC/HOLD; see the options-domain reference) |
 | A-6 | $0.50 ATM tolerance | ETFs typically have $1 strike intervals | May misclassify for non-standard intervals |
 
 ---
