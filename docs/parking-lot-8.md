@@ -962,3 +962,66 @@ This record plus the INTAKE record above are the durable provenance. Additional 
 | Date | Event |
 |---|---|
 | Sep 16, 2026 | `PL-RECIPE-01` advanced **INTAKE → RECONCILED**. §3 strategic disposition: strengthens `LVT-BET-COMPENSATION` (via `LVT-INIT-COMP-COMPARE`), `LVT-BET-ACCEPTABILITY`/`LVT-INIT-ACCEPT-GATES`, `LVT-BET-EXPLANATION`/`LVT-INIT-EXPLAIN-TRADEOFFS`; no new Bet; no `roadmap.md` edit; Trustability differentiation intent; future-only `LVT-BET-OUTCOME-LEARNING` mapping. §4 architectural disposition: refines AR5 (recipe = explicit realization of the comparative-fitness stage winner-selection implicitly hard-codes; verified in `recommend.ts`); no new engine; under `PL-DEPLOY`; population = post-admissibility/pre-winner-selection; winner-selection unchanged through impl-readiness; conforms ADR-013/015/016/017; AR4/recipe-provenance future; no `architecture-roadmap.md` edit. Reconciliation Completion Record published in this file. Next mode: experiment design/decomposition (execution + implementation NOT authorized). SYNC `05ada58`. |
+| Sep 17, 2026 | **`PL-DEPLOY` refinement — Covered-Call posture plurality (lived trade, operator left the tool).** A real trade today: operator held shares with a basis, faced three non-dominating choices — (1) sell + redeploy, (2) sell ATM (~0.50Δ) calls and wait, (3) sell basis-recovery calls — and **traded (2) using Fidelity's chain tool because Wheelwright's Covered-Call surface could not express it.** Root: the CC engine selects within admissible Δ-band 0.15–0.50 (target 0.30), biasing OTM, so it surfaces neither ATM nor basis-anchored strikes; operator-supplied `wheelwright-calls-2026-09-17` export corroborates (all rows Δ0.26–0.40, all OTM). Confirms the BW/CC asymmetry and the plural-bargains hypothesis doc 48 (Sep 8) raised from instrumentation — now grounded in a lived decision + off-tool event. Two additional CC kinds the surface owes: **ATM harvest** and **basis-recovery** (basis definition strict `strike>=basis` vs effective-sale `strike+premium>=basis`; stock vs cycle basis — unresolved). Rich why-state: `docs/50-covered-call-operator-lived-decision-off-tool-2026-09-17.md`. RECONCILED under existing `PL-DEPLOY`; no new `PL-*` id; **implementation NOT authorized** — next mode is reconciliation/design (decide basis definition + posture-vs-discovery-axis, reconcile with Sep-9 plurality-presentation work). SYNC `3d98999`. |
+
+---
+
+## `PL-DEPLOY` Refinement — Covered-Call Posture Plurality (Lived Trade; Operator Left the Tool)
+
+**Date:** September 17, 2026
+**State:** DISCOVERY / lived-trade confirmation, RECONCILED under existing `PL-DEPLOY`; no new `PL-*` identity created; not authorized for implementation.
+**Rich why-state:** `docs/50-covered-call-operator-lived-decision-off-tool-2026-09-17.md`
+**Anticipating discovery:** `docs/48-covered-call-basis-positive-optionality-discovery-2026-09-08.md` (§2–§7 predicted this exact gap from instrumentation).
+**Observed at:** SYNC `3d98999` (unrelated console bid/ask columns just shipped).
+
+### Epistemic caution (carry forward)
+
+> **A lived off-tool trade falsifies the current covered-call surface for a real operator decision; it does not select the replacement.** The delta-band selection is doing exactly what it is configured to do — the gap is a *missing posture set*, not a defect. Do not weaken the directly observed failure (operator used Fidelity's chain tool) because the remedy remains exploratory, and do not let "add ATM calls" be promoted to policy without the reconciliation below.
+
+### Intake (lived-software / lived-trade evidence, not hypothesis)
+
+Today the operator held shares (basis established) and faced three genuine, non-dominating choices for that capital, then **traded scenario 2 using Fidelity's option-chain tool because Wheelwright's Covered-Call surface could not express the choice:**
+
+1. **Sell shares + redeploy cash** — capital-release / affordability-frontier path (doc 48 §8, doc 49).
+2. **Sell ATM (~0.50-delta) calls and wait a turn** — maximum premium, ~even-odds call-away near spot. *Traded today.*
+3. **Sell basis-recovery calls** — strike anchored to cost basis so assignment realizes no loss; premium meanwhile.
+
+Wheelwright's Covered-Call engine selects within admissible **delta band 0.15–0.50, target 0.30** (`recommend.ts`), biasing OTM — so it surfaces **neither ATM (scenario 2) nor basis-anchored (scenario 3)** strikes. The operator-supplied `wheelwright-calls-2026-09-17` export corroborates: every row delta 0.26–0.40, all OTM, no ~0.50-delta and no basis-anchored row. The buy-write engine (`recommend-buy-writes.ts`) applies **no** delta gate and selects by Production v0, which is why the BW surface *does* show near-ATM strikes — the BW/CC asymmetry doc 48 §7 identified, now confirmed against a live decision.
+
+### What is new vs doc 48
+
+Doc 48 established the structure as a hypothesis from exploratory instrumentation on stale sealed evidence. Today adds (a) **a real executed trade**, (b) **an off-tool event** — the sharpest signal that the evidence appliance failed at its stated support role for a genuine case, and (c) **the operator's own three-way framing** (sell/redeploy · ATM-and-wait · basis-recovery) matching the doc 47–49 capital-state direction. Hypothesis → confirmed operational gap.
+
+### The two additional covered-call kinds the surface appears to owe
+
+Alongside the existing target-delta income call, for held shares with a basis:
+
+1. **ATM harvest** — strike near spot (~0.50 delta); maximize current premium, accept ~even-odds call-away.
+2. **Basis-recovery** — strike anchored to **cost basis** so assignment realizes no loss. Definition seam (from doc 48 §4, unresolved): **strict** `strike >= stock-basis` vs **effective-sale** `strike + premium >= basis`; stock/broker basis vs capital-cycle basis (nets prior premium).
+
+These answer different questions about the same shares; a single delta band collapses both into neither ("there may be no single best covered call," doc 48).
+
+### Strategic disposition
+
+**Strengthens existing `PL-DEPLOY` capital-state / plural-bargains direction with the strongest evidence to date (lived trade + off-tool); no roadmap change; no new Bet.** Reinforces doc 47–49 direction.
+
+### Architectural disposition
+
+**Refines existing `PL-DEPLOY` covered-call posture-plurality pressure; no architectural decision or implementation authorized.** Does not change covered-call strike-selection policy, does not add an ATM-harvest or basis-recovery posture, does not merge the BW and CC engines, does not change the admissibility band, Prod v0, or Share/Capital Deployment. `PL-ARCH-06` (browser-side recommendation placement) is the backdrop; `PL-POL-01` (policy), `PL-PORT-01` (basis/portfolio), `PL-DEC-BEH`, `PL-STRAT-01` are secondary pressure. The Sep-9 expanded-row-vs-drawer `PL-DEPLOY` work is the relevant interaction-surface pressure for *how* plurality would be shown.
+
+### Parking-lot disposition / mapping
+
+**Retained and refined under `PL-DEPLOY`.** No new `PL-*` id (this is the concept doc 48 already placed under `PL-DEPLOY`). Cross-links: docs 47/48/49, `docs/23-calls-architecture.md` (ratified "one best per symbol" behavior this pressures), the Sep-9 decision-surface refinement (plurality presentation), `PL-ARCH-06`, `PL-POL-01`, `PL-PORT-01`.
+
+### Why-state
+
+Preserved in `docs/50-covered-call-operator-lived-decision-off-tool-2026-09-17.md`, structured observed-failure → corroboration → new-vs-doc-48 → open seams → disposition. The load-bearing insight not to rediscover: **the covered-call surface's single delta-band objective drove a real operator decision off-tool; ATM-harvest and basis-recovery are distinct postures the surface must be able to express, and the basis definition (strict vs effective-sale; stock vs cycle) is the first thing reconciliation must decide.**
+
+### Next authorized mode
+
+**Reconciliation / design only.** Smallest useful next step: decide (a) the basis definition (strict `strike >= basis` vs effective-sale `strike + premium >= basis`; stock vs capital-cycle basis), and (b) whether ATM-harvest and basis-recovery are *policy postures* or *discovery axes*, reconciled against the Sep-9 plurality-presentation work — then normal decompose/authorize gates.
+**Not authorized:** covered-call strike-selection policy change, ATM/basis-recovery posture implementation, BW/CC engine merge, admissibility-band change, Prod v0 change, Share/Capital Deployment implementation, automatic selling/redeployment, broker execution, roadmap reprioritization, or any code change.
+
+### Pipeline state
+
+**DISCOVERED (Sep 8, doc 48) → lived-trade CONFIRMED (Sep 17, doc 50) → RECONCILED under `PL-DEPLOY`.** Not an `IMPLEMENTABLE` state. Next canonical action: a separate Principal decision on basis definition + posture-vs-axis, then design. Implementation remains NOT authorized.
