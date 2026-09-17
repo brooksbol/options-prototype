@@ -93,7 +93,7 @@ Distinguish the *kind* of transition — this typing is used in Part 2:
 
 `[MECH]` **American-style** equity/ETF options can be assigned **any business day before expiration**, not only at expiration. `[MECH]` **Assignment is not controllable by the writer** — OCC assigns randomly to a clearing member, which then allocates to a customer (see Part 4).
 
-## 6. Settlement: equity/ETF options are physically settled
+## 6. Settlement: standard equity/ETF options ordinarily settle physically
 
 `[MECH]` **Standard, unadjusted** equity and ETF options ordinarily settle by **physical delivery of the specified shares**: an exercised/assigned ITM option is exchanged for shares, not cash. But the actual settlement form and deliverable must be read from the **applicable contract / OCC adjustment** — an adjusted contract can carry a cash component or a non-standard deliverable (see Part 4 D8 / Specimen 7), and index options (e.g. SPX) cash-settle (out of Wheelwright scope). Establish physical settlement before relying on it; do not assume it.
 
