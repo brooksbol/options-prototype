@@ -479,3 +479,44 @@
 }
 
 
+
+/* === Decision Headline (operator answer — leads the modal) === */
+.pdm-decision {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--pdm-border, #2a2a2a);
+}
+.pdm-decision-headline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pdm-decision-dot {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+.pdm-decision-action {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.pdm-decision-btc .pdm-decision-action {
+  color: var(--pdm-danger, #ff5a5a);
+}
+.pdm-decision-reconcile .pdm-decision-action {
+  color: var(--pdm-warn, #ffb020);
+}
+.pdm-decision-deferred .pdm-decision-action,
+.pdm-decision-hold .pdm-decision-action {
+  color: var(--pdm-text, #e8e8e8);
+}
+.pdm-decision-reason {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: var(--pdm-text-muted, #a8a8a8);
+}
+.pdm-decision-caveat {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--pdm-warn, #ffb020);
+}

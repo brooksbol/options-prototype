@@ -21,14 +21,27 @@ import type { CallAssignmentConsequence, PutAssignmentConsequence } from "../por
 import type { ConceptContext } from "../concepts/types";
 import { getConcept } from "../concepts/index";
 import { formatMoneynessDisplay } from "../operator-console/moneyness-presentation";
+import { HoldVsCloseSection } from "./HoldVsCloseSection";
+import type { ResolvedShortObligation } from "../write-desk/short-obligation-resolve";
+import type { LifecycleDecision } from "../write-desk/short-obligation-decision";
 import "./position-detail-modal.css";
 
 interface Props {
   detail: PositionDetail;
   onClose: () => void;
+  /**
+   * The fully-resolved per-position result (NOTICE candidate + governed DECIDE
+   * action + EVALUATE pair), OWNED by the Console (single evaluation, two
+   * consumers). The modal LEADS with `resolved.decision` (the operator answer)
+   * and renders `resolved.pair` as subordinate supporting detail — the same
+   * result the row indicator reflected, so badge and drawer cannot disagree.
+   * Null when there is no governed lifecycle context (non-obligation, gone, or
+   * evaluation failed/pending).
+   */
+  resolved?: ResolvedShortObligation | null;
 }
 
-export function PositionDetailModal({ detail, onClose }: Props) {
+export function PositionDetailModal({ detail, onClose, resolved = null }: Props) {
   const { position } = detail;
 
   // Escape key dismiss
@@ -67,13 +80,32 @@ export function PositionDetailModal({ detail, onClose }: Props) {
           <button className="pdm-close" onClick={onClose} aria-label="Close">×</button>
         </header>
 
-        {/* Immediate Economic Consequence — the answer */}
-        <ImmediateConsequence detail={detail} />
+        {/* === OPERATOR ANSWER LEADS === The first prominent thing the operator
+            sees is the governed lifecycle action (DECIDE), not raw consequence
+            machinery. Everything else is subordinate explanation below. */}
+        {resolved && resolved.decision.action !== "NO-ACTION" && (
+          <DecisionHeadline decision={resolved.decision} />
+        )}
 
-        {/* === REFLECTIVE MODE: Detail underneath === */}
+        {/* === EXPLAIN → subordinate EVALUATE detail === */}
         <div className="pdm-body">
-          {/* Full Assignment Consequence Decomposition */}
-          <ConsequenceSection detail={detail} />
+          {/* Assignment consequence — the "if assigned now" figure and full
+              decomposition — is SUPPORTING detail now, not the lead. Collapsed. */}
+          <details className="pdm-disclosure">
+            <summary className="pdm-disclosure-summary">Assignment consequence</summary>
+            <ImmediateConsequence detail={detail} />
+            <ConsequenceSection detail={detail} />
+          </details>
+
+          {/* HOLD vs CLOSE consequence detail — the evaluated pair (single
+              evaluation shared with the row indicator). Subordinate disclosure:
+              the operator does not read two columns to discover the decision. */}
+          {resolved && (
+            <details className="pdm-disclosure">
+              <summary className="pdm-disclosure-summary">HOLD vs CLOSE consequence detail</summary>
+              <HoldVsCloseSection pair={resolved.pair} renderPending={false} />
+            </details>
+          )}
 
           {/* Contract Measurements — collapsed by default */}
           <details className="pdm-disclosure">
@@ -88,6 +120,38 @@ export function PositionDetailModal({ detail, onClose }: Props) {
           </details>
         </div>
       </div>
+    </div>
+  );
+}
+
+// --- Decision Headline (the operator answer — leads the modal) ---
+//
+// Renders the governed DECIDE result answer-first: the action headline (e.g.
+// "BTC THIS PUT"), a concise governed reason line built only from supported
+// inputs, an optional secondary execution caveat, then nothing else. The
+// attention dot mirrors the row's red BTS indicator. This is EXPLAIN of the
+// DECIDE layer — it states the answer; the machinery lives below.
+
+function DecisionHeadline({ decision }: { decision: LifecycleDecision }) {
+  const reasonLine = decision.reasons.map(r => r.text).join(" · ");
+  const cls = decision.action === "BTC"
+    ? "pdm-decision-btc"
+    : decision.action === "RECONCILE-LIFECYCLE"
+      ? "pdm-decision-reconcile"
+      : decision.action === "DECISION-DEFERRED"
+        ? "pdm-decision-deferred"
+        : "pdm-decision-hold";
+
+  return (
+    <div className={`pdm-decision ${cls}`} data-action={decision.action}>
+      <div className="pdm-decision-headline">
+        {decision.attention && <span className="pdm-decision-dot" aria-hidden="true">🔴</span>}
+        <span className="pdm-decision-action">{decision.headline}</span>
+      </div>
+      {reasonLine && <div className="pdm-decision-reason">{reasonLine}</div>}
+      {decision.executionCaveat && (
+        <div className="pdm-decision-caveat">{decision.executionCaveat}</div>
+      )}
     </div>
   );
 }

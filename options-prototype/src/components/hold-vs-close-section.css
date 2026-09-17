@@ -1,0 +1,225 @@
+/**
+ * HOLD vs CLOSE section styles — Existing Short-Obligation Consequence V1.
+ *
+ * Presentational adjacency inside the Position Detail modal. Degraded /
+ * unavailable facts are visually distinct (muted + italic) so they cannot
+ * masquerade as known consequence facts (design §20.19).
+ */
+@import "../theme-tokens.css";
+
+.hvc-section {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--wd-border-subtle);
+}
+
+.hvc-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--wd-text-primary);
+  margin: 0 0 6px 0;
+}
+
+.hvc-note {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--wd-text-secondary);
+  text-transform: none;
+}
+
+.hvc-loading {
+  font-size: 12px;
+  color: var(--wd-text-secondary);
+  padding: 8px 0;
+}
+
+/* Refusal banner (§14a / fail-closed) — prominent, not a normal fact. */
+.hvc-refusal {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  border: 1px solid var(--wd-border-default);
+  border-left: 3px solid #b45309;
+  border-radius: 4px;
+  background: rgba(180, 83, 9, 0.08);
+}
+
+.hvc-refusal-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #b45309;
+}
+
+.hvc-refusal-note {
+  font-size: 11px;
+  color: var(--wd-text-secondary);
+  line-height: 1.4;
+}
+
+/* Two-column adjacency. */
+.hvc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.hvc-alt {
+  border: 1px solid var(--wd-border-subtle);
+  border-radius: 4px;
+  padding: 8px;
+  min-width: 0;
+}
+
+.hvc-alt-refused {
+  opacity: 0.85;
+}
+
+.hvc-alt-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--wd-text-primary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.hvc-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--wd-border-subtle);
+}
+
+.hvc-lbl {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--wd-text-secondary);
+}
+
+.hvc-val {
+  font-size: 12px;
+  color: var(--wd-text-primary);
+  line-height: 1.35;
+}
+
+/* Precision semantics — known vs approximate vs unavailable are distinguishable. */
+.hvc-known {
+  font-weight: 600;
+}
+
+.hvc-approx {
+  font-weight: 500;
+  color: #92600a;
+}
+
+.hvc-unavailable {
+  font-style: italic;
+  color: var(--wd-text-disabled);
+  font-weight: 400;
+}
+
+/* Quote geometry line — always present with C1. */
+.hvc-geom {
+  font-size: 10px;
+  color: var(--wd-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.hvc-geom-weak {
+  color: #92600a;
+  font-style: italic;
+}
+
+.hvc-caveat {
+  font-size: 10px;
+  color: var(--wd-text-secondary);
+  font-style: italic;
+  padding: 3px 0;
+  line-height: 1.35;
+}
+
+.hvc-branches {
+  padding: 4px 0;
+}
+
+.hvc-branch {
+  font-size: 11px;
+  color: var(--wd-text-primary);
+  line-height: 1.4;
+  padding: 1px 0;
+}
+
+/* Historical context — explicitly separated from forward facts. */
+.hvc-historical {
+  margin-top: 8px;
+  font-size: 11px;
+}
+
+.hvc-historical > summary {
+  cursor: pointer;
+  color: var(--wd-text-secondary);
+  font-size: 11px;
+  padding: 4px 0;
+}
+
+.hvc-historical-note {
+  font-size: 10px;
+  color: var(--wd-text-secondary);
+  font-style: italic;
+  padding: 2px 0 6px 0;
+  line-height: 1.4;
+}
+
+/* Greeks / IV enrichment. */
+.hvc-greeks {
+  margin-top: 6px;
+}
+
+.hvc-greeks > summary {
+  cursor: pointer;
+  color: var(--wd-text-secondary);
+  font-size: 10px;
+  padding: 3px 0;
+}
+
+.hvc-greek-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.hvc-greek-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.hvc-greek-lbl {
+  font-size: 9px;
+  color: var(--wd-text-secondary);
+}
+
+.hvc-greek-val {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--wd-text-primary);
+}
+
+.hvc-greek-updated {
+  font-size: 9px;
+  color: var(--wd-text-secondary);
+  font-variant-numeric: tabular-nums;
+  padding: 2px 0 0 0;
+}
+
+@media (max-width: 520px) {
+  .hvc-grid {
+    grid-template-columns: 1fr;
+  }
+}

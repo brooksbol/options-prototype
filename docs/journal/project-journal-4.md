@@ -237,3 +237,29 @@ Deterministic protection cannot discover that the wrong product outcome was conf
 ### Epistemic status
 
 **Failure/why-state recorded; process ratchet identified.** This entry does not itself authorize implementation, invent policy thresholds, or promote `PL-ARCH-FITNESS-01` from INTAKE. The current in-progress BTS/HOLD-CLOSE working-tree work must be judged against the Principal-visible specimen, not accepted merely because intermediate architecture or tests conform.
+
+---
+## 2026-09-16 — BTS/HOLD-CLOSE closeout: Principal-visible acceptance reached after a second-order economic-collapse defect
+**Actor:** Kiro (implementation), authorized bounded closeout of the BTS red-indicator / operator-answer work.
+**SYNC SHA at work:** `1a12d1cc210407765268a2b5c898c294a5ffd271` (accepted `main`; the in-progress work was reconciled onto it — the advancement was docs-only and non-conflicting).
+**Mode:** Implementation closeout + why-state preservation. Not new design authority.
+### What was delivered (Principal-visually verified)
+- DBO Sep 18 $21 short PUT: red BTS indicator present; opened modal LEADS with `BTC THIS PUT`; reason line `2 DTE · deeply OTM (…% from strike) · remaining obligation risk governed negligible — BTC policy condition met`; unavailable close pricing is a subordinate execution caveat, not a suppression.
+- DBO $26 BUY-WRITE (HOLD) and PDBC BUY-WRITE (ITM) do NOT receive the red indicator.
+- The layered model is now expressed in code as five distinct concerns: NOTICE (candidate) → DECIDE (BTC/HOLD/RECONCILE/DEFER/NO-ACTION) → **ATTENTION** (`actionRequiresOperator`, the sole red driver) → EXPLAIN (modal answer-first) → EVALUATE detail (collapsed).
+### The second-order failure (the durable lesson of this closeout)
+The first correction fixed the *displacement* defect (machinery led the modal instead of the answer) but introduced a NEW defect: it set `attention: true` on **every** governed decision, including routine HOLD. That collapsed ATTENTION into DECIDE — "a decision exists" became "red" — and lit every near-expiry position. Worse, it collapsed economically distinct short-option structures into a single `near-expiry + OTM = red` abstraction, which is economically backwards for a covered call whose assignment/call-away is an *intended* lifecycle outcome (the PDBC case). The fix required separating ATTENTION as a pure function of the *action* (`BTC`/`RECONCILE`/`DEFER` require the operator to act; `HOLD`/`NO-ACTION` do not) — not of decision existence, strategy type, DTE, or moneyness sign alone.
+### Why it kept happening / what finally caught it
+Each intermediate pass preserved engineering and architectural conformance while the Principal-visible outcome remained wrong, so the Principal had to serve as the end-to-end acceptance test twice. What finally exposed the defect was an **explicit positive + negative specimen pair** stated in operator terms ("DBO $21 PUT red + BTC; DBO $26 BUY-WRITE not red when HOLD"), plus a required pre-implementation contradiction check ("does the proposed trigger path mechanically produce BOTH sides?"). This is further concrete evidence for the pending outcome-alignment / fitness-function discussion (`PL-ARCH-FITNESS-01`, INTAKE) — it is NOT authorization to invent process now.
+### Durable protection added (deterministic)
+Locked as tests so the verified specimens cannot silently regress:
+- qualifying near-DTE deeply-OTM short PUT → `BTC` + attention (red);
+- HOLD / NO-ACTION → no attention (no red), even at 2 DTE / while evaluated;
+- ITM short CALL (PDBC-style buy-write) → HOLD + no red, never a put-style BTC (economic-protection specimen);
+- unavailable/inadmissible close pricing → PUT decision still `BTC`, degraded only to the execution caveat (BTS-CLOSURE-INDEPENDENCE);
+- §14a lifecycle ambiguity → `RECONCILE-LIFECYCLE`, never an invented BTC/HOLD;
+- the row indicator is driven solely by the governed decision's `attention`, not by consequence completeness (the original "facts→actionable" classifier was removed as the root NOTICE defect).
+### Explicitly deferred (not pursued in this closeout)
+Absence of current option/BTC prices in the tables is noticed and deferred by Principal instruction. Whether a *deeply*-OTM short call should be BTC or HOLD is a separate economic-semantics question (not present in this frozen specimen — WEAT $27C is near-strike, ~0.45 delta, so it correctly resolves to HOLD today); not decided here.
+### Epistemic status
+Implementation complete and Principal-visually accepted; reconciled onto accepted `main`; committed under the direct-`main` routine workflow. No new `PL-*`/ADR/policy invented. The two next topics (always-on outcome-alignment mechanism; whether the actors understand options mechanics well enough / a durable options-trading domain treatise) are separate four-actor discussions and were NOT started.
