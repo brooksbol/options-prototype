@@ -47,15 +47,17 @@ Documents are classified by the *type* of authority they carry, not merely by im
 
 **Precedence rule:** Category A describes what Wheelwright *is*. Category B records what Wheelwright *decided*. Category C records current project/operational state. Category D explains how we arrived here. Category E is bounded reference. Category F is historical provenance.
 
-## Shared Execution Contract — September 16, 2026
+## Execution-Control Transition — September 17, 2026
 
-**For outcome-bearing Wheelwright work, `foundations/shared-execution-contract.md` is the primary shared execution contract.** It operationalizes the September 14 actor contract — **Find freely. Block narrowly. Defer explicitly. Observe quickly. Ratchet what reality proves.** — around Principal-confirmed outcomes, positive/negative specimens, early contradiction detection, earliest usable product observation, context-reset recovery, and acceptance evidence.
+`foundations/shared-execution-contract.md` is **suspended as a runtime execution-control mechanism**. Its useful semantic guidance remains available, but actor-readable prose is not proof of consequential execution authority.
 
-Every AI actor cold start must read this contract **before substantive outcome-bearing reasoning or execution**. Recovering architecture and repository authority without recovering the active confirmed specimens and verification state is incomplete synchronization.
+For outcome-bearing work, every AI actor must reacquire current repository authority, applicable task/experiment state, and the applicable authoritative transition mechanism before claiming that a consequential action is permitted. Conversation, technical reasoning, recommendations, prompts, and review dispositions are not authoritative execution state.
 
-This is operational primacy, not document-precedence supremacy: the contract remains subject to the A–F authority model, Category A system definition, and later explicit Principal direction.
+`foundations/principal-decision-surface.md` is the ratified human-factors and presentation convention for Principal-facing outcome-bearing replies. Its fixed decision surface makes authority state conspicuous; it does **not** itself grant or enforce authority.
 
----
+Gate Experiment 001 remains a staged capability-boundary experiment until its durable state says otherwise. Observed BUG-021 conversational-containment failures must not be represented as failure of an activated Gate experiment.
+
+Every AI actor cold start must read the suspended-contract compatibility bridge, the Principal Decision Surface, the applicable actor bootstrap, and current task/experiment state before substantive outcome-bearing reasoning or execution.
 
 ---
 
@@ -109,23 +111,25 @@ Read these when designing or reviewing implementation structure, evaluating tech
 | Document | Why |
 |----------|-----|
 | `foundations/technology-quality-constitution-v1.md` | Ratified technology-quality principles, day-to-day architecture practice, operating model, and version-one baseline authorization |
-| `technology-quality-program-v1.md` | Principal-ratified and mandated execution program: backlog/journal reconciliation, untouched baseline, balanced scorecard, technology-optimization roadmap, interventions, fitness controls, and steady-state operation |
-| `technology-quality-fitness-controls-v1.md` | Ratified fitness-control set (graduation record): three-layer quality model, strict Sonar profile as reproducible policy, ArchUnit as approved architectural-invariant mechanism, trend-over-gates operating principle, and open Principal decisions |
+| `technology-quality-program-v1.md` | Principal-ratified and mandated technology-quality program: backlog/journal reconciliation, untouched baseline, balanced scorecard, technology-optimization roadmap, interventions, fitness controls, and steady-state operation |
+| `technology-quality-fitness-controls-v1.md` | Ratified fitness-control set: three-layer quality model, strict Sonar profile, ArchUnit invariant mechanism, trend-over-gates principle, and open Principal decisions |
 
 ### AI Actor Cold-Start Bootstrap
 
-For a completely new ChatGPT thread or Kiro session starting from scratch. A one-line instruction such as "Bootstrap yourself for Wheelwright from GitHub" should lead an actor here.
+For a completely new ChatGPT thread, Kiro session, or Codex session starting from scratch. A one-line instruction such as "Bootstrap yourself for Wheelwright from GitHub" should lead an actor here.
 
 | Document | Actor | Role |
 |----------|-------|------|
-| `bootstrap/chatgpt-cold-start.md` | ChatGPT | Reasoning partner bootstrap — role, authority retrieval, epistemic discipline |
-| `bootstrap/kiro-cold-start.md` | Kiro | Repository-resident architect/implementation partner bootstrap |
+| `bootstrap/chatgpt-cold-start.md` | ChatGPT | Reasoning/synthesis/challenge actor bootstrap |
+| `bootstrap/kiro-cold-start.md` | Kiro | Repository-resident architecture/implementation actor bootstrap |
+| `bootstrap/codex-cold-start.md` | Codex | Independent adversarial reviewer/falsifier bootstrap |
 | `bootstrap/project-memory-protocol.md` | Shared | Documentation diligence / project-memory synchronization protocol |
-| `foundations/shared-execution-contract.md` | Shared | **Primary execution contract for outcome-bearing work; mandatory before substantive execution** |
+| `foundations/shared-execution-contract.md` | Shared | **Suspended runtime-control contract and compatibility bridge; semantic guidance only, not execution authority** |
+| `foundations/principal-decision-surface.md` | Shared | **Ratified Principal-facing decision grammar and authority/reasoning distinction; human-factors control, not enforcement** |
 | `foundations/multi-actor-repeatability-temporal-synchronization.md` | Shared | Ratified temporal synchronization, convergence, and scoped execution-ownership methodology |
 | `foundations/idea-intake-reconciliation.md` | Shared | Mandatory methodology whenever a material new idea is being considered or handed off |
 
-**Lookup path:** Actor finds `docs/README.md` → reads this section → follows actor-specific bootstrap → follows shared protocol → follows the multi-actor repeatability methodology → follows Minimum Safe Bootstrap reading path above → begins substantive work. For a material new idea, the actor must also follow `foundations/idea-intake-reconciliation.md`.
+**Lookup path:** Actor finds `docs/README.md` → reads this section → follows the suspended-contract compatibility bridge → reads the Principal Decision Surface → follows actor-specific bootstrap → acquires current task/experiment state → follows shared project-memory and task-relevant authority → begins substantive work. For a material new idea, the actor must also follow `foundations/idea-intake-reconciliation.md`.
 
 ---
 
@@ -171,7 +175,8 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/retooling-charter.md` | Ratified migration governance |
 | `foundations/backend-behavioral-invariants.md` | Ratified invariant catalog |
 | `foundations/closed-loop-engineering.md` | Ratified methodology |
-| `foundations/shared-execution-contract.md` | Principal-ratified shared execution contract; primary execution control for outcome-bearing work |
+| `foundations/shared-execution-contract.md` | Principal-ratified historical execution semantics; **runtime-control claim suspended**; current compatibility bridge |
+| `foundations/principal-decision-surface.md` | Principal-ratified decision-surface and authority/reasoning distinction; human-factors convention, not enforcement |
 | `foundations/options-domain-competence-contract.md` | Principal-ratified options domain-competence methodology; mandatory before dependent options design, implementation, review, or acceptance |
 | `foundations/three-actor-model.md` | Ratified methodology |
 | `foundations/architectural-evolution-methodology.md` | Ratified methodology |
@@ -193,7 +198,7 @@ Authoritative for their specific project concern. Not system-definition document
 | `roadmap.md` | Current strategic roadmap (Vision → Goals → Bets → Initiatives) |
 | `architecture-roadmap.md` | Current architecture-roadmap pressure and intended structural evolution |
 | `technology-quality-program-v1.md` | Principal-ratified and mandated technology-quality program state and execution plan |
-| `technology-quality-fitness-controls-v1.md` | Ratified fitness-control set: three-layer quality model, strict Sonar profile (reproducible policy), ArchUnit invariant mechanism, trend-over-gates principle |
+| `technology-quality-fitness-controls-v1.md` | Ratified fitness-control set: three-layer quality model, strict Sonar profile, ArchUnit invariant mechanism, trend-over-gates principle |
 | `parking-lot.md` + numbered continuations | One canonical backlog and material-idea intake registry expressed across physical pages |
 | `journal/project-journal.md` + numbered continuations (`-2`, `-3`, `-4`, …) | One canonical chronology expressed across physical continuation files |
 | `bugs/INDEX.md` + `bugs/BUG-*.md` records | The one canonical defect corpus and discovery index (`BUG-NNN` records) — sole defect system of record |
@@ -230,6 +235,7 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `foundations/strategy-expansion-governance.md` | Exploratory strategy scope boundary and evaluation framework |
 | `bootstrap/chatgpt-cold-start.md` | AI actor cold-start instructions (ChatGPT reasoning partner) |
 | `bootstrap/kiro-cold-start.md` | AI actor cold-start instructions (Kiro implementation partner) |
+| `bootstrap/codex-cold-start.md` | AI actor cold-start instructions (Codex independent reviewer/falsifier) |
 | `development-machine.md` | Hardware spec |
 | `velvet-rope/*` | Universe admission domain model (dormant) |
 | `universe/*` | Candidate universe design (dormant) |
