@@ -1,3 +1,15 @@
+## Primary Outcome-Execution Contract
+
+For outcome-bearing work, `docs/foundations/shared-execution-contract.md` is the **primary execution contract** and must be applied continuously, not merely remembered at cold start.
+
+Before substantial implementation, recover or obtain the Principal-confirmed positive and negative specimens. Before consequential changes or handoffs, trace both through the proposed behavior. Outcome contradiction requires STOP; ordinary incompleteness does not. Observe the Principal-visible result at the earliest usable integration point and before further hardening when observation is available. If a result is observable now, `NOT VERIFIED` is not available.
+
+Passing tests, architecture conformance, or review approval cannot substitute for the confirmed observable outcome. On context reset, recover the specimens and verification state before proposing the next consequential action.
+
+This operational primacy remains subject to repository authority precedence and later explicit Principal direction.
+
+---
+
 # Wheelwright — Engineering Methodology
 
 ## Three Actor Development Model
