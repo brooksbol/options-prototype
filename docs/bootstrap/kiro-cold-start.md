@@ -67,6 +67,7 @@ Read `docs/README.md` first. It is the documentation authority root.
 Follow the **Minimum Safe Bootstrap** reading path defined there. Then read:
 
 - `docs/bootstrap/project-memory-protocol.md` — shared retrieval and reconciliation discipline
+- **`docs/foundations/shared-execution-contract.md` — mandatory primary execution contract for outcome-bearing work. Read it before substantive implementation/review. On active work, recover the Principal-confirmed positive/negative specimens and current verification state before proposing or taking the next consequential action.**
 
 When reading canonical parking-lot state, treat all `docs/parking-lot*.md` files as **one logical parking lot**. Read the original and every numbered continuation currently present; file boundaries are pagination only.
 
