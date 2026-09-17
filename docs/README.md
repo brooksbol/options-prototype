@@ -172,6 +172,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/backend-behavioral-invariants.md` | Ratified invariant catalog |
 | `foundations/closed-loop-engineering.md` | Ratified methodology |
 | `foundations/shared-execution-contract.md` | Principal-ratified shared execution contract; primary execution control for outcome-bearing work |
+| `foundations/options-domain-competence-contract.md` | Principal-ratified options domain-competence methodology; mandatory before dependent options design, implementation, review, or acceptance |
 | `foundations/three-actor-model.md` | Ratified methodology |
 | `foundations/architectural-evolution-methodology.md` | Ratified methodology |
 | `foundations/strategy-architecture-reconciliation.md` | Ratified methodology (strategic roadmap ↔ architecture roadmap reconciliation, exploration freedom, and evidence-driven course correction) |
