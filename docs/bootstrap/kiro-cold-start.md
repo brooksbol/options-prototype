@@ -69,6 +69,7 @@ Follow the **Minimum Safe Bootstrap** reading path defined there. Then read:
 - `docs/bootstrap/project-memory-protocol.md` — shared retrieval and reconciliation discipline
 - **`docs/foundations/shared-execution-contract.md` — mandatory primary execution contract for outcome-bearing work. Read it before substantive implementation/review. On active work, recover the Principal-confirmed positive/negative specimens and current verification state before proposing or taking the next consequential action.**
 - **`docs/foundations/options-domain-competence-contract.md` — mandatory domain-competence contract before substantive options-domain design, implementation, review, or acceptance. Establish the complete economic position and lifecycle, independently ground economically load-bearing mechanics where required, and keep Mechanics, Evidence, and Policy distinct before dependent work.**
+- **`docs/foundations/options-domain-reference.md` — the durable specialized reference (Category E) for *establishing* those economics: the options economic model, lifecycle/structure matrices, contrasting semantic specimens, focused depth, and the external grounding map. This is the landing place a `STOP DOMAIN — NOT SPECIFIED` routes to; run proposed cross-structure generalizations against its specimens.**
 
 When reading canonical parking-lot state, treat all `docs/parking-lot*.md` files as **one logical parking lot**. Read the original and every numbered continuation currently present; file boundaries are pagination only.
 

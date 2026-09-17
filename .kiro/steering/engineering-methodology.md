@@ -16,6 +16,8 @@ Reason from the complete economic position and relevant lifecycle, not an isolat
 
 This domain-competence precondition composes with the Shared Execution Contract: establish the economic model first; once outcome-bearing execution proceeds, the Shared Execution Contract governs observation, verification, and acceptance.
 
+`docs/foundations/options-domain-reference.md` (Category E) is the durable place to *establish* the required economics — economic model, lifecycle/structure matrices, contrasting semantic specimens, focused depth, and external grounding map. It is where a `STOP DOMAIN — NOT SPECIFIED` routes; run proposed cross-structure generalizations against its specimens rather than assuming symmetry across option structures.
+
 ---
 
 # Wheelwright — Engineering Methodology

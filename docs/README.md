@@ -217,7 +217,8 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | Document | Subject |
 |----------|---------|
 | `01-environment.md` | Development environment contract |
-| `02-domain.md` | Core domain model (partially incomplete) |
+| `foundations/options-domain-reference.md` | **Options domain reference** — durable operational options economics (economic model, lifecycle/structure matrices, semantic specimens, focused depth, external grounding). Companion to the Category B options competence contract; authoritative for externally-grounded mechanics, non-authoritative for policy. `02-domain.md` is subordinate to it for lifecycle economics. |
+| `02-domain.md` | Core domain model (partially incomplete; **subordinate to `foundations/options-domain-reference.md` for options lifecycle economics — A-5 "held to expiration / no early close" is superseded by shipped BTS/HOLD-CLOSE behavior**) |
 | `10-backend-implementation-preferences.md` | Technology choices (adopted) |
 | `17-recommendation-funnel-analysis.md` | Funnel behavior explanation |
 | `18-recommendation-vocabulary-review.md` | Vocabulary dimensional analysis |
