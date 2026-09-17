@@ -1,9 +1,9 @@
 # Pending Operating-Model Corrections — 2026-09-17
 
 **Status:** Principal-approved for later codification at the next safe stop.  
-**Recorded while:** BUG-021 candidate is frozen under incomplete independent Codex review.  
+**Recorded while:** BUG-021 candidate is frozen following independent Codex REJECT; no retry authority exists.  
 **Base main:** `00bde244201c6ba04c782c4371cfd3a7ce9d919f`.  
-**Execution effect:** This record does **not** authorize modification of the frozen BUG-021 candidate, resumption or substitution of its review, or immediate amendment of the operating-model authority on `main`.
+**Execution effect:** This record does **not** authorize modification of the frozen BUG-021 candidate, remediation, retry, candidate replacement, or another implementation attempt.
 
 ## Principal decision
 
@@ -50,6 +50,38 @@ A locally complete task therefore does not justify `NEXT AUTHORIZED ACTION: NONE
 This correction was exposed when the Principal authorized creation of the orthogonal `PL-ACTOR-01` human-clipboard intake item while BUG-021 remained frozen under an interrupted Codex review. The intake was completed and persisted, but reporting `NEXT AUTHORIZED ACTION: NONE` incorrectly erased the still-active BUG-021 workflow head. The correct next action remained to resume the existing Codex review after the usage limit reset, reacquire current `main`, and verify that the frozen candidate remained identical before continuing.
 
 This finding does not establish a hierarchy among actors, select a global scheduler, or resolve the broader concurrent-next-action problem. It establishes only the preservation invariant: orthogonal completion cannot make an outstanding workflow head disappear.
+
+## 5. Conceptual REJECT must not default to another implementation attempt
+
+Repeated high-quality falsification of different manifestations of the same underlying model error is evidence that the implementation model or model-translation handoff may be inadequate, not merely evidence of another local defect.
+
+The observed BUG-021 loop was:
+
+`ChatGPT interprets → Kiro implements → Codex falsifies → ChatGPT translates the falsifier into a tighter Kiro instruction → Kiro implements again`.
+
+Adding explicit Principal retry authorization improves authority hygiene but does not by itself change this rework pattern. A governed retry loop can remain the same throughput failure.
+
+When a Codex REJECT exposes a conceptual/invariant failure class, the natural successor must therefore be **reasoning/model validation**, not another implementation authorization decision.
+
+The reasoning/model-validation state must:
+
+- identify the invariant at the level that generated the failure class, rather than restating Codex's latest counterexample;
+- identify which component owns authoritative truth and which components may consume or transform that truth;
+- make evidence provenance and temporal authority explicit;
+- explain why the proposed model excludes the known failure class;
+- generate and survive counterexamples beyond those supplied by Codex;
+- remain non-mutating with respect to the frozen implementation candidate;
+- produce no Kiro implementation prompt and create no retry authority.
+
+Only after the model has been made explicit and falsified should the workflow surface any new Principal implementation-authorization decision.
+
+For BUG-021, the immediate architectural question is not “how do we stop Product from associating the July 20 STO?” It is:
+
+> What evidence is authoritative for identifying the opening associated with a close, where is that association established, and why is Product independently reconstructing an opening identity after the backend has already adjudicated the close?
+
+The July 20 specimen is a counterexample to the model, not the requirement.
+
+This correction is an experiment in changing the intellectual division of labor at the ChatGPT→Kiro handoff. It does not assert that ChatGPT or Kiro has already been proven to be the throughput constraint, and it does not weaken Codex's independent falsification role.
 
 ## Safe-stop disposition
 
