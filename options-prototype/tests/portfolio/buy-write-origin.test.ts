@@ -51,6 +51,7 @@ function makeBalances(): ParsedBalances {
     totalAccountValue: 200000,
     valueOfInvestments: 150000,
     availableToWithdraw: 50000,
+    regimeEvidence: { marginFormatPresent: false, legacyAllSettledPresent: true },
     accountName: "Test",
     accountNumber: "TEST001",
     allRows: [],

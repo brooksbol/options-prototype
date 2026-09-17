@@ -6,12 +6,13 @@
  * Derives:
  *   - Inventory (owned shares, encumbered, free, max contracts)
  *   - Existing short calls and puts
- *   - Deployable cash (direct from Balances "Available to Trade, All Settled")
+ *   - Deployable cash (regime-aware; see deriveDeployableCash in balancesParser)
  *   - Readiness and warnings
  */
 
 import type { OptionSummaryRow } from "../csv/fidelity/optionSummaryParser";
 import type { ParsedBalances } from "../csv/fidelity/balancesParser";
+import { deriveDeployableCash } from "../csv/fidelity/balancesParser";
 import type {
   PortfolioSnapshot,
   InventoryPosition,
@@ -57,9 +58,11 @@ export function buildFidelitySnapshot(input: FidelitySnapshotInput): PortfolioSn
     ? shortOptionRows.reduce((sum, r) => sum + r.marketValue!, 0)
     : null;
 
-  // Cash authority — direct assignment
-  const deployableCash = input.balances.availableToTradeAllSettled
-    ?? input.balances.availableToTrade;
+  // Cash authority — regime-aware unlevered Deployable (BUG-022).
+  // LEGACY_CASH → "Available to trade (all settled)"; MARGIN → "Available without
+  // margin impact"; INDETERMINATE → null (readiness fails closed). "Non-margin buying
+  // power" is never used as Deployable. No independent reserve-netting is applied.
+  const deployableCash = deriveDeployableCash(input.balances);
 
   // Balance context
   const balanceContext: BalanceContext | null = input.balances.totalAccountValue != null ? {

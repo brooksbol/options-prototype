@@ -1,6 +1,6 @@
 # BUG-022 — Deployable cash is regime-unaware: the balances parser folds margin-derived buying power into the legacy "all settled" slot, over-stating unlevered deployable capacity on a margin-enabled account
 
-- **Status:** Open
+- **Status:** Resolved (Principal Product-accepted 2026-09-17 on two independent live Fidelity CSV import runs — see Verification)
 - **Severity:** Not established
 - **Area:** Write Desk / broker-balance ingestion and deployable-cash derivation (`options-prototype/src/csv/fidelity/balancesParser.ts`, `options-prototype/src/write-desk/fidelity-snapshot.ts`, `PortfolioSnapshot.deployableCash` contract in `options-prototype/src/write-desk/types.ts`, `tests/write-desk/fidelity-upload.test.ts`)
 - **Provenance:** Discovered 2026-09-17 (investigation into a live Operator/Write Desk "Deployable" figure that disagreed with Fidelity). Independent review by ChatGPT (reasoning partner) and Kiro (repository investigation). Not previously filed. No GitHub Issue.
@@ -149,11 +149,50 @@ An eventual fix (under separate Principal authorization) should satisfy:
 
 ## Remediation history
 
-_(empty — Open)_
+**2026-09-17 — bounded three-layer remediation (this session), Principal-authorized against baseline `53ced757`.**
+
+Smallest coherent fix satisfying the acceptance criteria:
+
+- **Parser preserves broker truth; fold removed** (`options-prototype/src/csv/fidelity/balancesParser.ts`).
+  - Deleted the `availableToTradeAllSettled = nonMarginBuyingPower ?? availableWithoutMarginImpact` fold. The parser makes no deployable-cash decision.
+  - Distinct broker facts retained: `settledCash`, `nonMarginBuyingPower`, **new** `marginBuyingPower`, `availableWithoutMarginImpact`, `cashReservedForOptions`, plus legacy `availableToTradeAllSettled`.
+- **Regime classified by structural PRESENCE, not numeric value** (Codex-review correction). New `BalanceRegimeEvidence { marginFormatPresent, legacyAllSettledPresent }` captured from label/section presence independent of whether an amount parsed:
+  - `marginFormatPresent` fires on any margin-format label (`margin buying power` / `non-margin buying power` / `available without margin impact`) or the `MARGIN STATUS` section — **even when the value is blank**.
+  - `legacyAllSettledPresent` fires on any "all settled" row, in either real shape (combined `Available to trade (all settled)` or separated header + indented `All Settled`).
+- **Regime-aware `deriveDeployableCash`** (exported pure fn, called by `fidelity-snapshot.ts`):
+  - `LEGACY_CASH` → `Available to trade (all settled)`
+  - `MARGIN` → `Available without margin impact` (present-but-blank → `null`, fail-closed — never a legacy fall-through)
+  - `INDETERMINATE` → `null` (readiness blocks)
+  - `Non-margin buying power` is never used as Deployable.
+- **Reserve-netting discipline (epistemically bounded).** The reserve is retained as a distinct fact and **not** independently subtracted. Documentation was corrected (Codex-review) to state this as a deliberate no-double-adjust discipline — **not** a claim that Fidelity has already netted it (unproven from available specimens). Acceptance criterion 5 is satisfied on the "do not double-net" requirement; the internal Fidelity formula remains an unresolved epistemic limitation (see Verification).
+- **`PortfolioSnapshot.deployableCash` doc comment corrected** (`options-prototype/src/write-desk/types.ts`) from the legacy-only semantic to the regime-aware semantic + no-double-net note (the remediation surface flagged at filing).
+- **Fixtures corrected/added** (`tests/write-desk/fidelity-upload.test.ts`): removed the wrong `DIVERGENT` assertion; added both live specimens end-to-end, an INDETERMINATE fail-closed case, a present-but-blank-margin falsifier (→ MARGIN + null + INCOMPLETE), and a MARGIN-STATUS-only falsifier. Three `ParsedBalances` test constructors updated for the required `regimeEvidence` field.
+
+Files committed: `src/csv/fidelity/balancesParser.ts`, `src/write-desk/fidelity-snapshot.ts`, `src/write-desk/types.ts`, `tests/write-desk/fidelity-upload.test.ts`, `tests/write-desk/fidelity-snapshot.test.ts`, `tests/portfolio/buy-write-origin.test.ts`, `tests/portfolio/buy-write-encumbrance.test.ts`, and this record.
 
 ## Verification
 
-_(empty — Open)_
+**Principal live Product acceptance — 2026-09-17 (the authoritative acceptance gate).** Two independent live Fidelity CSV import runs against the uncommitted remediation, exercising opposite sides of the regime boundary:
+
+| Account | Regime | WW Portfolio Capital | Expected Deployable | Observed WW UI | Result |
+|---|---|---:|---:|---:|:--|
+| Sawdust Roth | legacy / non-margin | $24.2K | $510.28 | $510 (compact) | **PASS** |
+| PTS | margin-enabled | $115.8K | $0.00 | $0 | **PASS** |
+
+- **PTS:** the former erroneous **$6.7K** Deployable (Fidelity Non-margin buying power $6,734.37) is **gone**; WW no longer treats Non-margin buying power as unlevered Deployable.
+- **Sawdust:** the legacy/non-margin regime is **not** broken by the margin fix — `Available to trade (all settled)` $510.28 survives as $510 in the compact UI.
+
+These are independent live Product observations using the two current Fidelity account/export regimes — the negative and positive specimens from the acceptance criteria.
+
+**Automated verification.**
+- `tests/write-desk/fidelity-upload.test.ts`: both live specimens, INDETERMINATE, and both presence falsifiers pass.
+- Affected suites (write-desk, portfolio, production, scenarios, forecast, csv): **1021/1021 pass**.
+- Application typecheck (`tsc -p tsconfig.app.json --noEmit`): the only errors are **3 pre-existing, unrelated** `TS6133` unused-variable diagnostics in `OperatorConsole.tsx` and `episode-derivation.ts` (confirmed present on the clean baseline; not in this changeset; not repaired — out of scope). No type errors introduced by this remediation. (Correction of a prior inaccurate "root `tsc --noEmit` clean" claim: the root config is a solution shell and checks no source.)
+
+**Residual epistemic limitations (do not reopen this record; tracked for future work):**
+- Fidelity's internal reserve-netting formula is not proven from the available specimens; the remediation deliberately does not recompute it.
+- The MARGIN-regime tiebreak (Available-without-margin-impact vs Settled cash when they *diverge*) is reasoned but not specimen-validated — both are $0 in the PTS specimen. The synthetic divergence fixture exercises the code path only.
+- Separately observed and **not** part of this record: a direct-share-sale Activity overlay may add proceeds to a Balances-derived Deployable that already includes them (candidate BUG-023, distinct root cause). Not filed or remediated here.
 
 ## Related
 

@@ -54,6 +54,7 @@ function makeBalances(overrides?: Partial<ParsedBalances>): ParsedBalances {
     totalAccountValue: 145200,
     valueOfInvestments: 122860,
     availableToWithdraw: 18500,
+    regimeEvidence: { marginFormatPresent: false, legacyAllSettledPresent: true },
     accountName: "Individual",
     accountNumber: "Z12-345678",
     allRows: [{ label: "Available to Trade", amount: 20000, dayChange: null, isSubItem: false, rawRow: [] }],

@@ -170,10 +170,20 @@ export interface PortfolioSnapshot {
   existingCalls: OpenShortCall[];
   existingPuts: OpenShortPut[];
   /**
-   * Authoritative deployable cash.
-   * When sourced from Fidelity balances CSV, this is "Available to trade (all settled)"
-   * which already accounts for open-order commitments. Do NOT subtract open-order
-   * reservations from this value — Fidelity has already done so.
+   * Authoritative unlevered deployable cash (Wheelwright put-writing capacity).
+   *
+   * When sourced from a Fidelity Balances CSV this is derived regime-aware by
+   * `deriveDeployableCash` (see `csv/fidelity/balancesParser`), NOT read from a single
+   * fixed field (BUG-022):
+   *   - Legacy / non-margin export → "Available to trade (all settled)"
+   *   - Margin-enabled export      → "Available without margin impact"
+   *   - Indeterminate regime       → null (readiness fails closed)
+   *
+   * "Non-margin buying power" is never used here — on a margin account it reflects
+   * margin-inclusive capacity, not unlevered deployable cash. Consumers must not
+   * independently subtract "Cash reserved for options strategies" from this value; no
+   * authoritative evidence establishes that Fidelity's availability figures are
+   * pre-reserve, and re-subtracting would double-net.
    */
   deployableCash: number | null;
   /**

@@ -37,22 +37,134 @@ export interface BalancesRow {
 
 export interface ParsedBalances {
   availableToTrade: number | null;
+  /**
+   * Legacy/non-margin export field: "Available to trade (all settled)".
+   * Present only in the legacy (cash-account) Balances layout. This is a DISTINCT
+   * broker fact — it is NOT a normalized target into which current-format margin
+   * fields are folded. See deriveDeployableCash() for regime-aware Deployable.
+   */
   availableToTradeAllSettled: number | null;
   cashAndCredits: number | null;
   totalAccountValue: number | null;
   valueOfInvestments: number | null;
   availableToWithdraw: number | null;
-  /** Current-format field: settled cash available to trade (equivalent to legacy "All Settled"). */
+  // --- Distinct broker facts (current margin-format export). Preserved verbatim;
+  //     never collapsed into one another or into availableToTradeAllSettled. ---
+  /** Current-format field: settled cash available to trade. Distinct broker fact. */
   settledCash?: number | null;
-  /** Current-format field: non-margin buying power (authoritative deployable cash). */
+  /** Current-format field: non-margin buying power. Distinct broker fact — NOT unlevered Deployable. */
   nonMarginBuyingPower?: number | null;
-  /** Current-format field: available without margin impact (equivalent to non-margin buying power). */
+  /** Current-format field: margin buying power. Distinct broker fact — leveraged capacity, never Deployable. */
+  marginBuyingPower?: number | null;
+  /** Current-format field: available without margin impact. Distinct broker fact — the unlevered Deployable source in the MARGIN regime. */
   availableWithoutMarginImpact?: number | null;
-  /** Current-format field: cash reserved for open options strategies. */
+  /** Current-format field: cash reserved for open options strategies. Distinct broker fact. */
   cashReservedForOptions?: number | null;
+  /**
+   * Structural regime evidence, captured by LABEL/SECTION PRESENCE — independent of
+   * whether a numeric amount parsed. BUG-022: regime is determined by presence of
+   * margin-format vs legacy evidence, NOT by any field being numerically non-null. A
+   * present-but-blank margin field must still mark the margin regime so a margin export
+   * never falls through to legacy-cash Deployable semantics.
+   */
+  regimeEvidence: BalanceRegimeEvidence;
   accountName: string | null;
   accountNumber: string | null;
   allRows: BalancesRow[];
+}
+
+/**
+ * Presence-of-evidence flags used to classify the account/export regime. These record
+ * that a row/section characteristic of a format appeared in the export, regardless of
+ * whether it carried a numeric value.
+ */
+export interface BalanceRegimeEvidence {
+  /**
+   * A margin-format capacity label or the "MARGIN STATUS" section appeared — e.g.
+   * "Margin buying power", "Non-margin buying power", "Available without margin impact",
+   * or a "MARGIN STATUS" section header. Presence alone (even blank amounts) marks margin.
+   */
+  marginFormatPresent: boolean;
+  /**
+   * A legacy "all settled" row appeared, in either real shape: the combined single row
+   * "Available to trade (all settled)", or a separated "Available to Trade" header with
+   * an indented "All Settled" sub-row. Presence is independent of its numeric value.
+   */
+  legacyAllSettledPresent: boolean;
+}
+
+/**
+ * Account/export regime, classified from the PRESENCE of broker balance fields
+ * (not from equity percentage — a margin account can report 100% equity, and the
+ * legacy cash export omits equity percentage entirely).
+ *
+ * - LEGACY_CASH: legacy/non-margin layout — a legacy "all settled" row present and no
+ *   margin-format evidence.
+ * - MARGIN: current margin-format layout — margin-format evidence present
+ *   (Non-margin buying power / Margin buying power / Available without margin impact /
+ *   MARGIN STATUS section), by presence alone even when values are blank.
+ * - INDETERMINATE: regime cannot be established from the parsed fields.
+ */
+export type BalanceRegime = "LEGACY_CASH" | "MARGIN" | "INDETERMINATE";
+
+/**
+ * Classify the account/export regime from structural field/section PRESENCE
+ * (BUG-022) — NOT from any field being numerically non-null.
+ *
+ * - MARGIN wins on presence: if margin-format evidence appeared at all (including a
+ *   present-but-blank "Available without margin impact", or a "MARGIN STATUS" section),
+ *   the regime is MARGIN. This prevents a margin export with blank capacity values from
+ *   falling through to LEGACY_CASH and reporting legacy-cash Deployable.
+ * - LEGACY_CASH: the legacy "Available to trade (all settled)" label appeared and no
+ *   margin-format evidence appeared.
+ * - INDETERMINATE: neither presence signal is available (fail-closed).
+ *
+ * Account equity percentage is intentionally NOT used (a margin account can report 100%
+ * equity; the legacy export omits the field entirely).
+ */
+export function classifyBalanceRegime(b: ParsedBalances): BalanceRegime {
+  if (b.regimeEvidence.marginFormatPresent) return "MARGIN";
+  if (b.regimeEvidence.legacyAllSettledPresent) return "LEGACY_CASH";
+  return "INDETERMINATE";
+}
+
+/**
+ * Regime-aware Wheelwright unlevered Deployable cash (BUG-022).
+ *
+ * Deployable is Wheelwright's unlevered put-writing capacity. It is derived from the
+ * appropriate broker fact for the account regime — never by folding distinct fields:
+ *
+ *   - LEGACY_CASH  → "Available to trade (all settled)"    (broker's settled tradable figure)
+ *   - MARGIN       → "Available without margin impact"      (broker's no-margin tradable figure)
+ *   - INDETERMINATE→ null                                   (fail-closed; readiness blocks)
+ *
+ * "Non-margin buying power" is NEVER used as unlevered Deployable: on a real margin
+ * account it exceeds both settled cash and available-without-margin-impact and reflects
+ * margin-inclusive capacity (BUG-022, PTS specimen: NMBP $6,734.37 while AWMI/settled $0).
+ *
+ * A present-but-blank margin field yields null here (the MARGIN regime is established by
+ * presence, but the Deployable value is absent) — i.e. fail-closed, not a fall-through to
+ * legacy semantics.
+ *
+ * Reserve-netting discipline (epistemically bounded):
+ *   - "Available without margin impact" is the current reasoned broker-authoritative
+ *     Deployable field for the MARGIN regime.
+ *   - This function does NOT independently recompute or subtract "Cash reserved for
+ *     options strategies"; the reserve is preserved only as a distinct broker fact.
+ *   - Fidelity's internal reserve-netting formula is NOT proven from the available
+ *     specimens. We deliberately do not double-adjust for the reserve absent authoritative
+ *     evidence — this is a chosen discipline, NOT a claim that Fidelity has already netted it.
+ */
+export function deriveDeployableCash(b: ParsedBalances): number | null {
+  switch (classifyBalanceRegime(b)) {
+    case "LEGACY_CASH":
+      return b.availableToTradeAllSettled;
+    case "MARGIN":
+      return b.availableWithoutMarginImpact ?? null;
+    case "INDETERMINATE":
+    default:
+      return null;
+  }
 }
 
 // --- Detection ---
@@ -165,8 +277,15 @@ export const fidelityBalancesParser: CsvParser = {
     let availableToWithdraw: number | null = null;
     let settledCash: number | null = null;
     let nonMarginBuyingPower: number | null = null;
+    let marginBuyingPower: number | null = null;
     let availableWithoutMarginImpact: number | null = null;
     let cashReservedForOptions: number | null = null;
+
+    // BUG-022: structural regime evidence by LABEL/SECTION presence, independent of
+    // whether the row carried a numeric amount. A present-but-blank margin field must
+    // still mark the margin regime.
+    let marginFormatPresent = false;
+    let legacyAllSettledPresent = false;
 
     let lastParentLabel = "";
 
@@ -191,8 +310,31 @@ export const fidelityBalancesParser: CsvParser = {
 
       allRows.push({ label: label.trim(), amount, dayChange, isSubItem, rawRow: row });
 
+      // --- Structural regime presence (BUG-022) ---
+      // Recorded by label/section presence alone, regardless of numeric value or which
+      // value-matching branch (if any) handles the row below.
+      if (
+        normalizedLabel.includes("margin buying power") ||          // incl. "non-margin buying power"
+        normalizedLabel.includes("available without margin impact") ||
+        normalizedLabel.includes("margin status")                  // section header, typically blank amount
+      ) {
+        marginFormatPresent = true;
+      }
+      if (normalizedLabel.includes("all settled")) {
+        // Legacy "all settled" evidence, in either real shape:
+        //   - combined single row: "Available to trade (all settled)" (e.g. Roth IRA)
+        //   - separated: "Available to Trade" header + indented "All Settled" sub-row
+        legacyAllSettledPresent = true;
+      }
+
       // Match known balance fields
-      if (normalizedLabel.includes("available to trade") && !isSubItem) {
+      if (normalizedLabel.includes("available to trade") && normalizedLabel.includes("all settled")) {
+        // Legacy single-row form: "Available to trade (all settled)" carries the settled
+        // figure directly (real non-margin export, e.g. Roth IRA). This IS the legacy
+        // all-settled value, not the section header.
+        if (amount != null) availableToTradeAllSettled = amount;
+        lastParentLabel = "available_to_trade";
+      } else if (normalizedLabel.includes("available to trade") && !isSubItem) {
         // Legacy format: this row carried the amount. Current format: this is a
         // section header with a blank amount (value lives in sub-rows below).
         if (amount != null) availableToTrade = amount;
@@ -205,6 +347,10 @@ export const fidelityBalancesParser: CsvParser = {
         if (settledCash == null) settledCash = amount;
       } else if (normalizedLabel.includes("non-margin buying power")) {
         if (nonMarginBuyingPower == null) nonMarginBuyingPower = amount;
+      } else if (normalizedLabel.includes("margin buying power")) {
+        // Note: "non-margin buying power" is matched by the branch above, so this
+        // branch only catches the true "Margin buying power" row.
+        if (marginBuyingPower == null) marginBuyingPower = amount;
       } else if (normalizedLabel.includes("available without margin impact")) {
         if (availableWithoutMarginImpact == null) availableWithoutMarginImpact = amount;
       } else if (normalizedLabel.includes("cash reserved for options")) {
@@ -230,44 +376,10 @@ export const fidelityBalancesParser: CsvParser = {
       }
     }
 
-    // Authoritative deployable cash for the current export format.
-    //
-    // AUTHORITY (Principal decision 2026-09-08, revising 2026-07-03 Decision #4):
-    // Deployable cash is Fidelity's own tactical trading capacity — "Non-margin buying
-    // power" (equivalently "Available without margin impact"). This is the amount Fidelity
-    // actually lets the operator trade without margin impact, and is the honest answer to
-    // "how much can I put to work right now." It already reflects Fidelity's own
-    // settlement and collateral rules.
-    //
-    // This intentionally supersedes the earlier "Settled cash only" authority. The
-    // 2026-07-10 discovery (a CSP backed by an unsettled EFT was rejected) is preserved as
-    // historical caution about raw unsettled deposits, but Non-margin buying power is
-    // Fidelity's computed tradable figure, not a naive sum that includes ineligible funds.
-    // "Settled cash" remains captured as evidence for reconciliation and any future
-    // settlement-sensitive policy.
-    //
-    // Resolution order:
-    //   1. Non-margin buying power (current-format tactical authority)
-    //   2. Available without margin impact (equivalent current-format label)
-    //   3. Available to Trade → All Settled (legacy export path)
-    // The field remains named availableToTradeAllSettled for downstream contract stability.
-    if (availableToTradeAllSettled == null) {
-      availableToTradeAllSettled = nonMarginBuyingPower ?? availableWithoutMarginImpact;
-    }
-
-    // Diagnostics
-    if (availableToTrade == null && availableToTradeAllSettled == null) {
-      diagnostics.push({ level: "error", message: "Could not extract 'Available to Trade' from balances." });
-    }
-    if (accountNumber) {
-      diagnostics.push({ level: "info", message: `Account: ${accountNumber}` });
-    }
-
-    // Use "All Settled" preferentially; fall back to top-level "Available to Trade"
-    const authoritative = availableToTradeAllSettled ?? availableToTrade;
-    if (authoritative != null) {
-      diagnostics.push({ level: "info", message: `Authoritative deployable cash: $${authoritative.toLocaleString()}` });
-    }
+    // BUG-022: the parser preserves distinct broker facts and makes NO deployable-cash
+    // decision. It does NOT fold "Non-margin buying power" or "Available without margin
+    // impact" into the legacy "Available to trade (all settled)" slot. Regime-aware
+    // Deployable is derived downstream via deriveDeployableCash().
 
     const balances: ParsedBalances = {
       availableToTrade,
@@ -278,12 +390,32 @@ export const fidelityBalancesParser: CsvParser = {
       availableToWithdraw,
       settledCash,
       nonMarginBuyingPower,
+      marginBuyingPower,
       availableWithoutMarginImpact,
       cashReservedForOptions,
+      regimeEvidence: { marginFormatPresent, legacyAllSettledPresent },
       accountName,
       accountNumber,
       allRows,
     };
+
+    // Diagnostics (regime-aware; the parser reports, it does not decide Deployable).
+    if (accountNumber) {
+      diagnostics.push({ level: "info", message: `Account: ${accountNumber}` });
+    }
+    const regime = classifyBalanceRegime(balances);
+    const derivedDeployable = deriveDeployableCash(balances);
+    if (regime === "INDETERMINATE" || derivedDeployable == null) {
+      diagnostics.push({
+        level: "error",
+        message: "Could not derive deployable cash from balances (indeterminate regime or missing regime-appropriate field).",
+      });
+    } else {
+      diagnostics.push({
+        level: "info",
+        message: `Regime: ${regime}. Deployable cash: $${derivedDeployable.toLocaleString()}`,
+      });
+    }
 
     return {
       parserId: "fidelity_balances",

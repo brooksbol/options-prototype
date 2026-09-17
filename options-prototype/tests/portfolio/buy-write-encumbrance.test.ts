@@ -92,6 +92,7 @@ function makeBalances(): ParsedBalances {
     totalAccountValue: 50000,
     valueOfInvestments: 48930.17,
     availableToWithdraw: 1069.83,
+    regimeEvidence: { marginFormatPresent: false, legacyAllSettledPresent: true },
     accountName: "Individual",
     accountNumber: "262761078",
     allRows: [{ label: "Available to Trade", amount: 1069.83, dayChange: null, isSubItem: false, rawRow: [] }],

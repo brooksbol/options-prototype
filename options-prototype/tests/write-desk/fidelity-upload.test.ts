@@ -21,6 +21,7 @@ import { FIDELITY_BALANCES_FIXTURE } from "../../src/csv/fixtures/balances";
 import { buildFidelitySnapshot } from "../../src/write-desk/fidelity-snapshot";
 import type { OptionSummaryRow } from "../../src/csv/fidelity/optionSummaryParser";
 import type { ParsedBalances } from "../../src/csv/fidelity/balancesParser";
+import { classifyBalanceRegime, deriveDeployableCash } from "../../src/csv/fidelity/balancesParser";
 
 // --- Helpers ---
 
@@ -121,6 +122,7 @@ describe("Fidelity upload — both files required for READY", () => {
         totalAccountValue: null,
         valueOfInvestments: null,
         availableToWithdraw: null,
+        regimeEvidence: { marginFormatPresent: false, legacyAllSettledPresent: false },
         accountName: null,
         accountNumber: null,
         allRows: [], // empty — balances not loaded
@@ -270,34 +272,61 @@ describe("Fidelity upload — snapshot content", () => {
   });
 });
 
-// --- Current-format Balances (Sep 2026 export layout) ---
+// --- BUG-022: regime-aware Deployable cash (current margin-format export layout) ---
+//
+// The margin-format "Balances" export uses "AVAILABLE TO TRADE" as a blank section
+// header with the capacity values in sub-rows. Wheelwright's unlevered Deployable is
+// "Available without margin impact" in this regime — NEVER "Non-margin buying power",
+// which reflects margin-inclusive capacity. Distinct broker facts are preserved and not
+// folded into the legacy "all settled" slot.
 
-// Real Fidelity "Balances" export layout as of Sep 2026: "AVAILABLE TO TRADE" is a
-// blank section header. Deployable cash is Fidelity's tactical trading capacity —
-// "Non-margin buying power" (equivalently "Available without margin impact") — per the
-// 2026-09-08 Principal decision. In this early export, Non-margin buying power happened to
-// equal Settled cash, so both resolve to the same value.
-const FIDELITY_BALANCES_CURRENT_FORMAT = `,Balance,Day change
-Total account value,115450.72,424.2
+// --- Live acceptance specimen: PTS (margin-enabled), exported 2026-09-17 ---
+// The BUG-022 negative specimen. Non-margin buying power ($6,734.37) is non-zero while
+// Available without margin impact and Settled cash are both $0. Correct Deployable = $0;
+// Wheelwright must NOT surface the $6,734.37 as Deployable.
+const FIDELITY_BALANCES_PTS_MARGIN = `,Balance,Day change
+Total account value,113842.91,2244.36
 Account equity percentage,100.00%,
 AVAILABLE TO TRADE,,
-Margin buying power,94102.38,94102.38
-Non-margin buying power,47051.19,47051.19
-Available without margin impact,47051.19,47051.19
-Cash reserved for options strategies,2100,
-Settled cash,47051.19,
+Margin buying power,13468.74,13366.24
+Non-margin buying power,6734.37,6683.12
+Available without margin impact,0,-51.25
+Cash reserved for options strategies,900,
+Settled cash,0,
 AVAILABLE TO WITHDRAW,,
-Cash only,47051.19,
-Cash and borrowing on margin,47051.19,
+Cash only,0,
+Cash and borrowing on margin,0,
 MARGIN STATUS,,
-House surplus,47051.19,46399.02
+House surplus,7393.18,7341.93
+SMA,6734.37,6683.12
+Exchange surplus,7677.52,7626.27
+No margin interest accrued,,
+HOLDINGS,,
+Cash market value,106209.61,-2423.69
+Margin market value,8666.38,8666.38
+Option market value,-1997,-1831
+Cash (core),5051.25,
+Cash debit,-4165.33,-2195.9
+Margin credit/debit,0,0
 `;
 
-// Real Fidelity export (2026-09-08) where Non-margin buying power ($56,552.99) and
-// Settled cash ($47,051.19) DIVERGE. Per the 2026-09-08 Principal decision, deployable
-// cash is the tactical trading capacity Fidelity actually permits — Non-margin buying
-// power ($56,552.99) — not Settled cash. Settled cash remains captured as evidence.
-const FIDELITY_BALANCES_DIVERGENT = `,Balance,Day change
+// --- Live acceptance specimen: Sawdust Roth (legacy / non-margin), exported 2026-09-17 ---
+// The BUG-022 positive specimen for the legacy regime. No margin fields present; the
+// value-bearing "Available to trade (all settled)" row is the Deployable source ($510.28).
+const FIDELITY_BALANCES_SAWDUST_LEGACY = `,Balance,Day change
+Total account value,23736.47,67.64
+AVAILABLE TO TRADE,,
+Available to trade (all settled),510.28,
+Available to withdraw,510.28,
+HOLDINGS,,
+Cash and credits,10310.28,
+Value of your investments,13426.19,21.64
+`;
+
+// Margin-format export where Non-margin buying power ($56,552.99) and Available without
+// margin impact ($56,552.99) agree, but Settled cash ($47,051.19) diverges. Deployable is
+// Available without margin impact; Settled cash is retained as a distinct fact only.
+const FIDELITY_BALANCES_MARGIN_SETTLED_DIVERGES = `,Balance,Day change
 Total account value,115591.63,565.11
 Account equity percentage,100.00%,
 AVAILABLE TO TRADE,,
@@ -311,60 +340,132 @@ Cash only,47051.19,
 Cash and borrowing on margin,47051.19,
 `;
 
-// Hypothetical export missing "Non-margin buying power" but retaining the equivalent
-// "Available without margin impact". Deployable cash resolves from the equivalent label.
-const FIDELITY_BALANCES_NMBP_VIA_EQUIVALENT = `,Balance,Day change
-Total account value,115591.63,565.11
-Account equity percentage,100.00%,
-AVAILABLE TO TRADE,,
-Margin buying power,113105.98,113105.98
-Available without margin impact,56552.99,56552.99
-Cash reserved for options strategies,2100,
-Settled cash,47051.19,
-AVAILABLE TO WITHDRAW,,
-Cash only,47051.19,
-`;
+function snapshotFromBalancesText(balancesText: string) {
+  const rows = parseOptionSummary(FIDELITY_OPTION_SUMMARY_FIXTURE);
+  const balances = parseBalances(balancesText);
+  return buildFidelitySnapshot({
+    optionSummaryRows: rows,
+    optionSummaryFilename: "test.csv",
+    optionSummaryExportTimestamp: null,
+    balances,
+    balancesFilename: "test.csv",
+    balancesExportTimestamp: null,
+  });
+}
 
-describe("Fidelity upload — current-format Balances (Sep 2026)", () => {
-  it("classifies as fidelity_balances", () => {
-    const result = parseAndClassify(FIDELITY_BALANCES_CURRENT_FORMAT);
+describe("Fidelity upload — BUG-022 regime-aware Deployable", () => {
+  // --- MARGIN regime ---
+
+  it("classifies the margin-format export as fidelity_balances", () => {
+    const result = parseAndClassify(FIDELITY_BALANCES_PTS_MARGIN);
     expect(result.parser).not.toBeNull();
     expect(result.parser!.id).toBe("fidelity_balances");
   });
 
-  it("extracts authoritative deployable cash from Non-margin buying power", () => {
-    const balances = parseBalances(FIDELITY_BALANCES_CURRENT_FORMAT);
-    // Downstream (fidelity-snapshot) resolves deployableCash = availableToTradeAllSettled ?? availableToTrade
-    const deployable = balances.availableToTradeAllSettled ?? balances.availableToTrade;
-    expect(deployable).toBe(47051.19); // Non-margin BP == Settled cash in this early export
+  it("preserves distinct broker facts without folding them (PTS margin specimen)", () => {
+    const balances = parseBalances(FIDELITY_BALANCES_PTS_MARGIN);
+    expect(balances.settledCash).toBe(0);
+    expect(balances.nonMarginBuyingPower).toBe(6734.37);
+    expect(balances.marginBuyingPower).toBe(13468.74);
+    expect(balances.availableWithoutMarginImpact).toBe(0);
+    expect(balances.cashReservedForOptions).toBe(900);
+    expect(balances.totalAccountValue).toBe(113842.91);
+    // The legacy "all settled" slot is NOT populated by the fold — it stays absent in
+    // the margin format (no legacy "Available to trade (all settled)" row).
+    expect(balances.availableToTradeAllSettled).toBeNull();
   });
 
-  it("captures current-format sub-fields", () => {
-    const balances = parseBalances(FIDELITY_BALANCES_CURRENT_FORMAT);
-    expect(balances.settledCash).toBe(47051.19);
-    expect(balances.nonMarginBuyingPower).toBe(47051.19);
-    expect(balances.availableWithoutMarginImpact).toBe(47051.19);
-    expect(balances.cashReservedForOptions).toBe(2100);
-    expect(balances.totalAccountValue).toBe(115450.72);
+  it("LIVE PTS specimen → Deployable is $0, NOT the $6,734.37 Non-margin buying power", () => {
+    const snapshot = snapshotFromBalancesText(FIDELITY_BALANCES_PTS_MARGIN);
+    expect(snapshot.deployableCash).toBe(0);
+    // Regression guard: the folded value must never reappear as Deployable.
+    expect(snapshot.deployableCash).not.toBe(6734.37);
   });
 
-  it("uses Non-margin buying power (not Settled cash) when the two diverge", () => {
-    const balances = parseBalances(FIDELITY_BALANCES_DIVERGENT);
-    // Non-margin BP = $56,552.99 is the tactical deployable figure Fidelity permits;
-    // Settled cash = $47,051.19 is retained only as evidence.
-    expect(balances.settledCash).toBe(47051.19);
+  it("uses Available without margin impact (not Non-margin buying power, not Settled cash) when they diverge", () => {
+    const balances = parseBalances(FIDELITY_BALANCES_MARGIN_SETTLED_DIVERGES);
     expect(balances.nonMarginBuyingPower).toBe(56552.99);
-    expect(balances.availableToTradeAllSettled).toBe(56552.99);
-    const deployable = balances.availableToTradeAllSettled ?? balances.availableToTrade;
-    expect(deployable).toBe(56552.99);
+    expect(balances.availableWithoutMarginImpact).toBe(56552.99);
+    expect(balances.settledCash).toBe(47051.19);
+    const snapshot = snapshotFromBalancesText(FIDELITY_BALANCES_MARGIN_SETTLED_DIVERGES);
+    expect(snapshot.deployableCash).toBe(56552.99);
   });
 
-  it("resolves deployable cash from Available without margin impact when Non-margin buying power is absent", () => {
-    const balances = parseBalances(FIDELITY_BALANCES_NMBP_VIA_EQUIVALENT);
-    expect(balances.nonMarginBuyingPower).toBeNull();
-    expect(balances.availableWithoutMarginImpact).toBe(56552.99);
-    expect(balances.availableToTradeAllSettled).toBe(56552.99);
-    const deployable = balances.availableToTradeAllSettled ?? balances.availableToTrade;
-    expect(deployable).toBe(56552.99);
+  // --- LEGACY_CASH regime ---
+
+  it("LIVE Sawdust specimen → Deployable is $510.28 from 'Available to trade (all settled)'", () => {
+    const balances = parseBalances(FIDELITY_BALANCES_SAWDUST_LEGACY);
+    expect(balances.availableToTradeAllSettled).toBe(510.28);
+    // Margin fields absent in the legacy format.
+    expect(balances.nonMarginBuyingPower ?? null).toBeNull();
+    expect(balances.availableWithoutMarginImpact ?? null).toBeNull();
+    const snapshot = snapshotFromBalancesText(FIDELITY_BALANCES_SAWDUST_LEGACY);
+    expect(snapshot.deployableCash).toBe(510.28);
+  });
+
+  // --- INDETERMINATE regime (fail-closed) ---
+
+  it("INDETERMINATE regime (no regime-appropriate field) yields null Deployable and blocks readiness", () => {
+    // A balances export with a total but no legacy all-settled row and no margin fields.
+    const indeterminate = `,Balance,Day change
+Total account value,50000,0
+HOLDINGS,,
+Cash and credits,1234,
+`;
+    const balances = parseBalances(indeterminate);
+    expect(balances.availableToTradeAllSettled).toBeNull();
+    expect(balances.nonMarginBuyingPower ?? null).toBeNull();
+    expect(balances.availableWithoutMarginImpact ?? null).toBeNull();
+    const snapshot = snapshotFromBalancesText(indeterminate);
+    expect(snapshot.deployableCash).toBeNull();
+    expect(snapshot.readiness.status).toBe("INCOMPLETE");
+    expect(snapshot.readiness.blockReasons.length).toBeGreaterThan(0);
+  });
+
+  // --- Regime by PRESENCE, not numeric value (BUG-022 correction) ---
+
+  it("present-but-blank margin fields classify MARGIN and fail closed (null), NOT legacy cash", () => {
+    // Margin-format export whose margin capacity rows are present but blank. There is no
+    // legacy "Available to trade (all settled)" row. Regime must be MARGIN by presence;
+    // Deployable must be null (fail closed) — it must NOT fall through to any legacy value.
+    const blankMargin = `,Balance,Day change
+Total account value,113842.91,2244.36
+Account equity percentage,100.00%,
+AVAILABLE TO TRADE,,
+Margin buying power,,
+Non-margin buying power,,
+Available without margin impact,,
+Cash reserved for options strategies,,
+Settled cash,,
+MARGIN STATUS,,
+House surplus,,
+`;
+    const balances = parseBalances(blankMargin);
+    // Presence recorded despite blank numeric values.
+    expect(balances.regimeEvidence.marginFormatPresent).toBe(true);
+    expect(balances.regimeEvidence.legacyAllSettledPresent).toBe(false);
+    expect(classifyBalanceRegime(balances)).toBe("MARGIN");
+    // Blank AWMI → no Deployable value → fail closed, NOT legacy fallback.
+    expect(deriveDeployableCash(balances)).toBeNull();
+    const snapshot = snapshotFromBalancesText(blankMargin);
+    expect(snapshot.deployableCash).toBeNull();
+    expect(snapshot.readiness.status).toBe("INCOMPLETE");
+  });
+
+  it("MARGIN STATUS section alone marks the margin regime (presence, not numeric value)", () => {
+    // Even if only the MARGIN STATUS section is recognizable, the export is margin-format
+    // and must not be treated as legacy cash.
+    const marginStatusOnly = `,Balance,Day change
+Total account value,113842.91,2244.36
+AVAILABLE TO TRADE,,
+Available without margin impact,4200,
+MARGIN STATUS,,
+House surplus,7393.18,7341.93
+`;
+    const balances = parseBalances(marginStatusOnly);
+    expect(balances.regimeEvidence.marginFormatPresent).toBe(true);
+    expect(classifyBalanceRegime(balances)).toBe("MARGIN");
+    // AWMI present ($4,200) → that is Deployable in the margin regime.
+    expect(deriveDeployableCash(balances)).toBe(4200);
   });
 });
