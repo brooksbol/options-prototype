@@ -42,6 +42,7 @@ Begin by reading:
 2. Follow the **Minimum Safe Bootstrap** defined there.
 3. Read `docs/bootstrap/project-memory-protocol.md` — shared retrieval and reconciliation discipline.
 4. **Read `docs/foundations/shared-execution-contract.md` before substantive outcome-bearing work.** This is the primary shared execution contract for preserving Principal-confirmed outcomes through reasoning, handoffs, review, observation, and acceptance. For active work, recover the confirmed positive/negative specimens and current verification state before proposing the next consequential action.
+5. **Read `docs/foundations/options-domain-competence-contract.md` before substantive options-domain work.** Establish the complete economic position and relevant lifecycle, independently ground economically load-bearing mechanics where required, and keep Mechanics, Evidence, and Policy distinct before dependent design, implementation, review, or acceptance.
 
 When the bootstrap or task requires parking-lot state, treat the complete `docs/parking-lot*.md` sequence as **one logical parking lot**. Read `docs/parking-lot.md` and every numbered continuation currently present; do not stop after the original file.
 
