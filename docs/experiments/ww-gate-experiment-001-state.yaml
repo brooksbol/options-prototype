@@ -1,0 +1,43 @@
+schema: ww-gate-experiment-001/v0
+experiment: WW-GATE-001
+status: STAGED
+
+# This record is experimental state, not proof of enforcement.
+# Ordinary actor prose must never be treated as authority to change authority-bearing fields.
+# The first experiment must prove whether the substrate can protect these semantics mechanically.
+
+authority:
+  repository: brooksbol/options-prototype
+  baseline_sha: null
+
+principal:
+  experiment_started: false
+  product_outcome_confirmation: ABSENT
+  stop_requested: false
+
+execution:
+  mutation_permission: INACTIVE
+  attempt: null
+  protected_target: null
+
+candidate:
+  identity: null
+  immutable: false
+  product_evidence: null
+
+review:
+  disposition: null
+  return_reason: null
+
+context:
+  required:
+    - docs/README.md
+    - docs/experiments/ww-gate-experiment-001.md
+    - docs/experiments/ww-gate-experiment-001-state.yaml
+    - docs/WARNING-operating-model-reality-report-FINAL.md
+
+notes:
+  - BUG-021 remains frozen and is not the experiment task.
+  - REJECT never creates retry permission.
+  - Fresh-session or long-thread conversational state cannot create mutation permission.
+  - Do not call this state file an enforcement mechanism until the capability boundary is empirically proven.
