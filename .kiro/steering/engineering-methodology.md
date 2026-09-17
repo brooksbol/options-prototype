@@ -8,6 +8,14 @@ Passing tests, architecture conformance, or review approval cannot substitute fo
 
 This operational primacy remains subject to repository authority precedence and later explicit Principal direction.
 
+## Options Domain Competence Contract
+
+For outcome-bearing options work, `docs/foundations/options-domain-competence-contract.md` is mandatory before dependent design, implementation, review, or acceptance.
+
+Reason from the complete economic position and relevant lifecycle, not an isolated option leg, metric, heuristic, UI state, or implementation artifact. Independently ground economically load-bearing mechanics when required. Keep **Mechanics, Evidence, and Policy** distinct; do not invent one to satisfy another. Tests and existing implementation can verify software behavior but do not by themselves establish that the financial semantics are correct.
+
+This domain-competence precondition composes with the Shared Execution Contract: establish the economic model first; once outcome-bearing execution proceeds, the Shared Execution Contract governs observation, verification, and acceptance.
+
 ---
 
 # Wheelwright — Engineering Methodology
