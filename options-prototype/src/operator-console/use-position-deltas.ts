@@ -15,7 +15,7 @@
 
 import { useState, useEffect } from "react";
 import type { MonitoredPosition } from "../portfolio/position-monitoring";
-import { lookupContractGreeksWithAge, type GreekLookupSubject, type ContractGreeksResult } from "../write-desk/contract-greek-lookup";
+import { lookupContractGreeksWithAge, lookupContractQuote, type GreekLookupSubject, type ContractGreeksResult, type ContractQuote } from "../write-desk/contract-greek-lookup";
 import { absDeltaMagnitude } from "../write-desk/option-greeks";
 
 /** Absolute delta magnitude per position (null = unavailable). */
@@ -40,8 +40,12 @@ export interface PositionGreeks {
 
 export type PositionGreeksMap = ReadonlyMap<string, PositionGreeks>;
 
+/** Option contract bid/ask per position (each field null = unavailable). */
+export type PositionQuoteMap = ReadonlyMap<string, ContractQuote>;
+
 const EMPTY_DELTA_MAP: PositionDeltaMap = new Map();
 const EMPTY_GREEKS_MAP: PositionGreeksMap = new Map();
+const EMPTY_QUOTE_MAP: PositionQuoteMap = new Map();
 
 /** Map a monitored position to a shared greek-lookup subject. */
 function toSubject(pos: MonitoredPosition): GreekLookupSubject {
@@ -150,4 +154,42 @@ export function usePositionGreeks(
   }, [positionKey, generation]);
 
   return greeks;
+}
+
+/**
+ * usePositionQuotes — the option contract's bid/ask per position, from the SAME
+ * cached chain evidence as the greeks (one leg = one quote; no second source).
+ * A provider exact 0 is preserved (zero bid = real market state); absence stays
+ * null. Availability is field-level and independent of the greeks' availability.
+ *
+ * @param positions - current monitored positions
+ * @param generation - evidence generation (triggers re-lookup when evidence advances)
+ */
+export function usePositionQuotes(
+  positions: MonitoredPosition[],
+  generation: number | null,
+): PositionQuoteMap {
+  const [quotes, setQuotes] = useState<PositionQuoteMap>(EMPTY_QUOTE_MAP);
+  const positionKey = positions.map(p => p.id).join(",");
+
+  useEffect(() => {
+    if (positions.length === 0) {
+      setQuotes(EMPTY_QUOTE_MAP);
+      return;
+    }
+    let cancelled = false;
+
+    (async () => {
+      const result = new Map<string, ContractQuote>();
+      for (const pos of positions) {
+        result.set(pos.id, await lookupContractQuote(toSubject(pos)));
+      }
+      if (cancelled) return;
+      setQuotes(result);
+    })();
+
+    return () => { cancelled = true; };
+  }, [positionKey, generation]);
+
+  return quotes;
 }

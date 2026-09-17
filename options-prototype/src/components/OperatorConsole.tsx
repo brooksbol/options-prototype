@@ -20,7 +20,7 @@ import { useIntradayBars, type IntradayBarsMap } from "../evidence/use-intraday-
 
 /** Stable empty intraday-bars map for non-default regimes (a/c) that don't fetch bars. */
 const EMPTY_INTRADAY_BARS: IntradayBarsMap = new Map();
-import { usePositionDeltas, usePositionGreeks, type PositionDeltaMap, type PositionGreeksMap } from "../operator-console/use-position-deltas";
+import { usePositionDeltas, usePositionGreeks, usePositionQuotes, type PositionDeltaMap, type PositionGreeksMap, type PositionQuoteMap } from "../operator-console/use-position-deltas";
 import { useHoldCloseNotices, type HoldCloseNotice } from "../operator-console/use-hold-close-notices";
 import { HoldCloseBell } from "../operator-console/HoldCloseBell";
 
@@ -200,6 +200,8 @@ export function OperatorConsole() {
   const chainReadGeneration = (observations.generation ?? 0) + chainGeneration;
   const positionDeltas = usePositionDeltas(positions, chainReadGeneration);
   const positionGreeks = usePositionGreeks(positions, chainReadGeneration);
+  // Option contract bid/ask per position — same cached-chain source as greeks.
+  const positionQuotes = usePositionQuotes(positions, chainReadGeneration);
   // Row-level BTS / HOLD-CLOSE evaluation, computed ONCE per position and owned
   // here (single evaluation, two consumers). The row indicator reflects the
   // governed decision (`notices`); the opened modal LEADS with the SAME resolved
@@ -285,7 +287,7 @@ export function OperatorConsole() {
                 <span className="oc-group-by-divider" />
                 <button
                   className="oc-group-by-action"
-                  onClick={() => downloadPositionsCsv(positions, snapshot, positionDeltas, positionGreeks, spotHistory, isDemoSource, observations.observations)}
+                  onClick={() => downloadPositionsCsv(positions, snapshot, positionDeltas, positionGreeks, positionQuotes, spotHistory, isDemoSource, observations.observations)}
                 >
                   Download CSV
                 </button>
@@ -324,14 +326,14 @@ export function OperatorConsole() {
                         <span className="oc-rung-count">{group.positions.length} position{group.positions.length !== 1 ? "s" : ""}</span>
                       </div>
                       {!isCollapsed && (
-                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} holdCloseNotices={holdCloseNotices} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={intradayBars} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} holdCloseNotices={holdCloseNotices} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={intradayBars} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
                       )}
                     </div>
                   );
                 })
               ) : (
                 rungs.map((rung) => (
-                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} holdCloseNotices={holdCloseNotices} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} holdCloseNotices={holdCloseNotices} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
                 ))
               )}
             </div>
@@ -361,7 +363,7 @@ export function OperatorConsole() {
 
 // --- Expiration Rung ---
 
-function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDeltas, positionGreeks, holdCloseNotices, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; holdCloseNotices?: HoldCloseNoticeMap; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
+function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDeltas, positionGreeks, positionQuotes, holdCloseNotices, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; positionQuotes: PositionQuoteMap; holdCloseNotices?: HoldCloseNoticeMap; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
   const rungPercent = totalCapital > 0 ? Math.round((rung.totalCapital / totalCapital) * 100) : 0;
 
   return (
@@ -374,7 +376,7 @@ function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDel
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
       {vizRegime === "b" ? (
-        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} holdCloseNotices={holdCloseNotices} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={EMPTY_INTRADAY_BARS} snapshot={snapshot} />
+        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} holdCloseNotices={holdCloseNotices} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={EMPTY_INTRADAY_BARS} snapshot={snapshot} />
       ) : (
         <PositionGrid positions={rung.positions} onTileClick={onTileClick} vizRegime={vizRegime} totalCapital={rung.totalCapital} />
       )}
@@ -428,13 +430,19 @@ function downloadPositionsCsv(
   snapshot: import("../write-desk/types").PortfolioSnapshot,
   positionDeltas: PositionDeltaMap,
   positionGreeks: PositionGreeksMap,
+  positionQuotes: PositionQuoteMap,
   spotHistory: SpotHistoryMap,
   isDemoSource: boolean,
   observations: ReadonlyMap<string, import("../evidence/observation-store").QuoteObservation>,
 ) {
-  const header = "Type,Symbol,Strike,Expiration,Spot,Today's G/L,Contracts,Moneyness,Capital,Delta,Gamma,Theta,Vega,Rho,Greek Age,Premium Booked,Bonus If Called Away,If Assigned,Opened,Quote Freshness";
+  const header = "Type,Symbol,Bid,Ask,Strike,Expiration,Spot,Today's G/L,Contracts,Moneyness,Capital,Delta,Gamma,Theta,Vega,Rho,Greek Age,Premium Booked,Bonus If Called Away,If Assigned,Opened,Quote Freshness";
   const rows = positions.map(position => {
     const type = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
+    // Option contract bid/ask (same cached-chain source as the table). Unavailable
+    // → empty cell; a provider exact 0 is preserved as 0.00 (real zero bid).
+    const quote = positionQuotes.get(position.id);
+    const bidStr = quote?.bid != null ? quote.bid.toFixed(2) : "";
+    const askStr = quote?.ask != null ? quote.ask.toFixed(2) : "";
     const spot = position.underlyingPrice != null ? position.underlyingPrice.toFixed(2) : "";
     // Today's G/L = broker-parity daily move of the UNDERLYING vs its prior close
     // (BUG-020): (last − previousClose). Same canonical derivation and prior-close
@@ -498,7 +506,7 @@ function downloadPositionsCsv(
       if (!Number.isNaN(observedMs)) dataAge = formatDataAge(Math.max(0, Date.now() - observedMs));
     }
 
-    return `${type},${position.underlying},${position.strike},${position.expiration},${spot},"${todayGl}",${position.quantity},${moneyness},${capital},${deltaStr},${gammaStr},${thetaStr},${vegaStr},${rhoStr},${greekAge},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
+    return `${type},${position.underlying},${bidStr},${askStr},${position.strike},${position.expiration},${spot},"${todayGl}",${position.quantity},${moneyness},${capital},${deltaStr},${gammaStr},${thetaStr},${vegaStr},${rhoStr},${greekAge},${premium},${calledAway},"${assigned}",${position.openedDate ?? ""},${dataAge}`;
   });
 
   // Unencumbered Shares section — appended as a labeled block so the two datasets
@@ -812,7 +820,7 @@ function PositionTableHeader() {
 }
 
 /** Regime B: Dense fixed-geometry rows using native <table> for proper column alignment */
-function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, positionGreeks, holdCloseNotices, isDemoSource, spotHistory, intradayBars, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; holdCloseNotices?: HoldCloseNoticeMap; isDemoSource: boolean; spotHistory: SpotHistoryMap; intradayBars: IntradayBarsMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
+function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, positionGreeks, positionQuotes, holdCloseNotices, isDemoSource, spotHistory, intradayBars, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; positionQuotes: PositionQuoteMap; holdCloseNotices?: HoldCloseNoticeMap; isDemoSource: boolean; spotHistory: SpotHistoryMap; intradayBars: IntradayBarsMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
 
   // Apply within-group sorting
   const sortedPositions = sortColumn
@@ -839,6 +847,8 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
         <tr>
           <th>Type</th>
           {renderSortHeader("Symbol", "symbol")}
+          <th className="oc-th-right">Bid</th>
+          <th className="oc-th-right">Ask</th>
           {renderSortHeader("Strike", "strike", "oc-th-right")}
           {renderSortHeader("Spot", "spot", "oc-th-right")}
           <th className="oc-th-right">Today's G/L</th>
@@ -945,6 +955,8 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
                 <HoldCloseBell notice={holdCloseNotices?.get(position.id) ?? "none"} />
               </td>
               <td className="oc-td-symbol">{position.underlying}</td>
+              <td className="oc-td-right oc-td-bid">{formatQuotePrice(positionQuotes.get(position.id)?.bid ?? null)}</td>
+              <td className="oc-td-right oc-td-ask">{formatQuotePrice(positionQuotes.get(position.id)?.ask ?? null)}</td>
               <td className="oc-td-right">${position.strike}</td>
               <td className="oc-td-right">{position.underlyingPrice != null ? `$${position.underlyingPrice.toFixed(2)}` : "—"}</td>
               <td className={`oc-td-right oc-td-gl oc-td-gl-${todayGlDir}`}>{formatTodayGlCombined(todayGl, todayGlPct)}</td>
@@ -1409,6 +1421,17 @@ function formatExpiration(iso: string): string {
 function formatOpenedDate(iso: string): string {
   const d = new Date(iso + "T12:00:00");
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+/**
+ * Format an option contract bid/ask price for the ladder. Unavailable (null) →
+ * em dash — a missing quote is never shown as $0.00. A provider-supplied exact 0
+ * IS shown as $0.00 (a zero bid is real market state: no live buyer), matching the
+ * lookup's zero-preserving semantics.
+ */
+function formatQuotePrice(value: number | null): string {
+  if (value == null) return "—";
+  return `$${value.toFixed(2)}`;
 }
 
 /**

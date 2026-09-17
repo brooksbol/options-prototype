@@ -26,6 +26,10 @@ const ENVIRONMENT = "sandbox";
 
 interface CachedContract extends RawContractGreeks {
   strike: number;
+  /** Provider bid for this contract. number (incl. 0) = observed; null/undefined = unavailable. */
+  bid?: number | null;
+  /** Provider ask for this contract. number (incl. 0) = observed; null/undefined = unavailable. */
+  ask?: number | null;
 }
 
 interface CachedChainPayload {
@@ -54,6 +58,33 @@ export interface ContractGreeksResult {
   greeks: OptionGreeks;
   /** Authoritative chain-acquisition epoch-ms, or null when provenance is unavailable. */
   chainAcquiredAtMs: number | null;
+}
+
+/**
+ * A single option contract's bid/ask as carried in cached chain evidence.
+ *
+ * Each field is `number | null`:
+ *   - a finite number (INCLUDING 0) → the provider supplied that quote. A zero
+ *     bid is a real market observation (no live buyer), not "unavailable", so it
+ *     is preserved as 0 — unlike greeks, there is no zero→null collapse here.
+ *   - null → the provider did not supply the field, there is no cached chain, or
+ *     no matching strike/side. Honest absence, never a fabricated zero.
+ *
+ * These are the SAME session-sensitive chain observations as the greeks (same
+ * cache record, same acquisition moment); a surface that shows greek age can
+ * reuse it for these quotes.
+ */
+export interface ContractQuote {
+  bid: number | null;
+  ask: number | null;
+}
+
+/** All-unavailable quote (stable reference for empty/placeholder results). */
+export const UNAVAILABLE_QUOTE: ContractQuote = Object.freeze({ bid: null, ask: null });
+
+/** Coerce a raw provider bid/ask to `number | null`, preserving an exact 0. */
+function quoteNumber(v: number | null | undefined): number | null {
+  return v != null && Number.isFinite(v) ? v : null;
 }
 
 /**
@@ -92,4 +123,28 @@ export async function lookupContractGreeksWithAge(subject: GreekLookupSubject): 
   if (!match) return { greeks: { ...UNAVAILABLE_GREEKS }, chainAcquiredAtMs };
 
   return { greeks: sanitizeGreeks(match), chainAcquiredAtMs };
+}
+
+/**
+ * Resolve the option contract's bid/ask for one subject from cached chain
+ * evidence — the SAME cache record, key convention, and strike/side match rule
+ * used for greeks (there is no second source of truth for a leg's quote).
+ *
+ * Returns an all-unavailable quote when there is no cached chain, the payload has
+ * no contracts on the requested side, or no strike matches. A provider-supplied
+ * exact 0 is preserved (a zero bid is real market state, not absence).
+ */
+export async function lookupContractQuote(subject: GreekLookupSubject): Promise<ContractQuote> {
+  const cache = getDurableCache();
+  const key = buildCacheKey(PROVIDER, ENVIRONMENT, "chain", subject.symbol, subject.expiration);
+  const record = await cache.get<CachedChainPayload>(key);
+  if (!record || !record.payload) return { ...UNAVAILABLE_QUOTE };
+
+  const contracts = subject.side === "put" ? record.payload.puts : record.payload.calls;
+  if (!contracts || contracts.length === 0) return { ...UNAVAILABLE_QUOTE };
+
+  const match = contracts.find(c => c.strike === subject.strike);
+  if (!match) return { ...UNAVAILABLE_QUOTE };
+
+  return { bid: quoteNumber(match.bid), ask: quoteNumber(match.ask) };
 }
