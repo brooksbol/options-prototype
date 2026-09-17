@@ -47,6 +47,16 @@ Documents are classified by the *type* of authority they carry, not merely by im
 
 **Precedence rule:** Category A describes what Wheelwright *is*. Category B records what Wheelwright *decided*. Category C records current project/operational state. Category D explains how we arrived here. Category E is bounded reference. Category F is historical provenance.
 
+## Shared Execution Contract — September 16, 2026
+
+**For outcome-bearing Wheelwright work, `foundations/shared-execution-contract.md` is the primary shared execution contract.** It operationalizes the September 14 actor contract — **Find freely. Block narrowly. Defer explicitly. Observe quickly. Ratchet what reality proves.** — around Principal-confirmed outcomes, positive/negative specimens, early contradiction detection, earliest usable product observation, context-reset recovery, and acceptance evidence.
+
+Every AI actor cold start must read this contract **before substantive outcome-bearing reasoning or execution**. Recovering architecture and repository authority without recovering the active confirmed specimens and verification state is incomplete synchronization.
+
+This is operational primacy, not document-precedence supremacy: the contract remains subject to the A–F authority model, Category A system definition, and later explicit Principal direction.
+
+---
+
 ---
 
 ## Reading Paths
@@ -111,6 +121,7 @@ For a completely new ChatGPT thread or Kiro session starting from scratch. A one
 | `bootstrap/chatgpt-cold-start.md` | ChatGPT | Reasoning partner bootstrap — role, authority retrieval, epistemic discipline |
 | `bootstrap/kiro-cold-start.md` | Kiro | Repository-resident architect/implementation partner bootstrap |
 | `bootstrap/project-memory-protocol.md` | Shared | Documentation diligence / project-memory synchronization protocol |
+| `foundations/shared-execution-contract.md` | Shared | **Primary execution contract for outcome-bearing work; mandatory before substantive execution** |
 | `foundations/multi-actor-repeatability-temporal-synchronization.md` | Shared | Ratified temporal synchronization, convergence, and scoped execution-ownership methodology |
 | `foundations/idea-intake-reconciliation.md` | Shared | Mandatory methodology whenever a material new idea is being considered or handed off |
 
@@ -160,6 +171,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/retooling-charter.md` | Ratified migration governance |
 | `foundations/backend-behavioral-invariants.md` | Ratified invariant catalog |
 | `foundations/closed-loop-engineering.md` | Ratified methodology |
+| `foundations/shared-execution-contract.md` | Principal-ratified shared execution contract; primary execution control for outcome-bearing work |
 | `foundations/three-actor-model.md` | Ratified methodology |
 | `foundations/architectural-evolution-methodology.md` | Ratified methodology |
 | `foundations/strategy-architecture-reconciliation.md` | Ratified methodology (strategic roadmap ↔ architecture roadmap reconciliation, exploration freedom, and evidence-driven course correction) |
