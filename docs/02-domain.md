@@ -1,5 +1,7 @@
 # Options Prototype — Domain Model
 
+> **Authority qualification.** Current Specialized Reference (Category E). **Subordinate to `foundations/options-domain-reference.md` for options lifecycle economics.** A-5 does **not** prohibit early closure (Wheelwright ships BTC/HOLD on existing obligations); BR-5/A-3 do **not** establish assignment probability (delta is a sensitivity — see the reference's D5). Where this document and the options-domain reference conflict on lifecycle economics, the reference governs.
+
 ## Purpose
 
 This document defines the business domain for the Options Prototype. It is the authoritative source for terminology, concepts, calculations, assumptions, and architectural decisions.

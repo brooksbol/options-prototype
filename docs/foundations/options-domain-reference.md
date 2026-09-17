@@ -12,6 +12,8 @@
 
 This is an **operational reference, not a textbook**. Its job is to let a Wheelwright actor (Principal, ChatGPT, Kiro, Codex) reason correctly about *what an option position economically is and does* before designing, implementing, reviewing, or accepting software that depends on it — so we do not spend effort implementing an economically wrong model.
 
+This reference **consolidates** domain knowledge; each load-bearing claim remains subject to its applicable external authority, assumptions, and current evidence. **Ratification and repository residence do not establish economic correctness.** Part 5 identifies source classes *and* claim-specific grounding; the `[MECH]`/`[THEORY]`/`[EMPIRICAL]` tag on a claim indicates the kind of authority it answers to, not that it has been exhaustively substantiated here.
+
 Five parts, in retrieval order:
 
 1. **Options Economic Model** — the compact, always-read core.
@@ -31,7 +33,7 @@ Five parts, in retrieval order:
 - `[WW-INTENT]` Wheelwright strategy intent (situation/mission)
 - `[UNRESOLVED]` not established / not decided — must not be silently resolved
 
-> **Support status ≠ diagnostic boundary.** "Wheelwright does not currently do X" is **not** "X is rejected." Unless explicit support authority establishes rejection, an unused concept is `[UNRESOLVED]` — "not currently operationalized," never "deliberately excluded."
+> **Record domain understanding, implementation status, and support decision separately.** Mechanics may be **established** while implementation is **absent** and the support decision remains **undecided** — three distinct axes, not one. Explicitly unsupported behavior requires **support authority**; absence of implementation does **not** establish rejection, and it does not establish unresolved *mechanics* either. ("Not currently operationalized," never "deliberately excluded," unless support authority says so.)
 
 ---
 
@@ -48,7 +50,7 @@ Five parts, in retrieval order:
 
 The two sides are **not symmetric**:
 
-- The **holder (long)** paid a premium and holds a **right**, never an obligation. Maximum loss = premium paid. `[MECH]`
+- The **holder (long)** paid a premium and holds a **right**, never an obligation. Maximum loss = premium paid **on the long option position itself**; if the holder *exercises*, the resulting underlying position has a new exposure profile — resume complete-position reasoning after exercise. `[MECH]`
 - The **writer (short)** received a premium and holds an **obligation** to perform if assigned. `[MECH]`
 
 > **Load-bearing:** "short option" tells you there is an obligation. It does **not** tell you what backs it, which direction it resolves, or what you own. You must name the *complete position*.
@@ -66,12 +68,14 @@ The two sides are **not symmetric**:
 
 ## 3. Premium = intrinsic + extrinsic value
 
+> **Standard-contract scope (applies to §§3–4 and Part 2).** The per-share formulas and 100-share arithmetic below assume **ordinary unadjusted physical-delivery** equity/ETF contracts. Adjusted or other contracts require their actual deliverable, aggregate exercise payment, premium quotation factor, valuation convention, and settlement terms (D8 / Specimen 7). Do **not** substitute deliverable share count for premium or strike dollar-extension factors, or use a raw underlying share price for an adjusted contract's moneyness.
+
 `[THEORY]` An option's price decomposes as:
 
 - **Intrinsic value** — the in-the-money amount: `max(0, S−K)` for a call, `max(0, K−S)` for a put (S = underlying price, K = strike). `[MECH]`/`[THEORY]`
 - **Extrinsic (time) value** — everything above intrinsic; a function of time remaining, volatility, and carry. `[THEORY]`
 
-> **Load-bearing:** almost every lifecycle decision is really a statement about **remaining extrinsic value** — early assignment risk, "is it worth closing," take-profit, roll economics. Wheelwright's DTE + moneyness heuristics are *proxies* for extrinsic value; name the real quantity when the decision depends on it.
+> **Load-bearing:** remaining **extrinsic value** is important to many lifecycle comparisons — early-assignment incentive, "is it worth closing," take-profit, roll economics. It does **not** replace intrinsic value, complete-position exposure, financing, execution costs, resulting holdings, or governed intent. Wheelwright's DTE + moneyness heuristics are *proxies* for extrinsic value; name the real quantity when the decision depends on it.
 
 ## 4. Moneyness
 
@@ -80,7 +84,7 @@ The two sides are **not symmetric**:
 - Call: ITM when `S > K`, OTM when `S < K`. Put: ITM when `S < K`, OTM when `S > K`.
 - ATM ≈ strike near underlying.
 
-Moneyness governs *resolution direction* but is **not** by itself a probability, a decision, or a final outcome (see §Delta, §Expiration).
+Option type and contract terms determine **settlement direction**. Moneyness describes intrinsic value and informs applicable exercise-by-exception defaults; it does **not** by itself establish exercise, assignment, desirability, or final holdings (see D5, D2).
 
 ## 5. Lifecycle events (four distinct kinds)
 
@@ -89,13 +93,13 @@ Distinguish the *kind* of transition — this typing is used in Part 2:
 - **Operator action** — you choose it: BTO/STO/BTC/STC, roll, early close.
 - **Continued state** — HOLD: no transition now; obligation and exposure persist.
 - **Counterparty event** — you do not control it: early assignment (American-style).
-- **Natural contract resolution** — expiration: worthless if OTM, or exercise/assignment if ITM.
+- **Expiration boundary** — the option ceases to exist if unexercised; exercise and assignment outcomes depend on applicable exercise-by-exception procedures, valid instructions, and allocation. Closing-price moneyness alone does not establish the resulting position (see Specimen 4, D2).
 
 `[MECH]` **American-style** equity/ETF options can be assigned **any business day before expiration**, not only at expiration. `[MECH]` **Assignment is not controllable by the writer** — OCC assigns randomly to a clearing member, which then allocates to a customer (see Part 4).
 
 ## 6. Settlement: standard equity/ETF options ordinarily settle physically
 
-`[MECH]` **Standard, unadjusted** equity and ETF options ordinarily settle by **physical delivery of the specified shares**: an exercised/assigned ITM option is exchanged for shares, not cash. But the actual settlement form and deliverable must be read from the **applicable contract / OCC adjustment** — an adjusted contract can carry a cash component or a non-standard deliverable (see Part 4 D8 / Specimen 7), and index options (e.g. SPX) cash-settle (out of Wheelwright scope). Establish physical settlement before relying on it; do not assume it.
+`[MECH]` **Standard, unadjusted** equity and ETF options ordinarily settle by **physical delivery of the specified shares**: an exercised/assigned ITM option is exchanged for shares, not cash. But the actual settlement form and deliverable must be read from the **applicable contract / OCC adjustment** — an adjusted contract can carry a cash component or a non-standard deliverable (see Part 4 D8 / Specimen 7), and index options (e.g. SPX) cash-settle (not currently operationalized by Wheelwright). Establish physical settlement before relying on it; do not assume it.
 
 `[MECH]` Since **2024-05-28**, U.S. stock trades settle **T+1** (one business day). The share leg from assignment/exercise therefore settles on the stock cycle, not instantaneously.
 
@@ -105,13 +109,14 @@ Distinguish the *kind* of transition — this typing is used in Part 2:
 
 These are **distinct** and must never be collapsed `[MECH]`/`[BROKER]`:
 
-1. **Mechanical notional** — `strike × 100 × contracts`. An arithmetic fact about the contract. `[MECH]`
+1. **Aggregate exercise payment / stated notional** — determined from applicable contract terms. For **ordinary unadjusted 100-share physical-delivery** contracts this is `strike × 100 × contracts`. It is **not** necessarily deliverable market value, collateral, margin, or buying power. `[MECH]`
 2. **Collateral / encumbrance** — what a strategy ties up: cash for a cash-secured put, shares for a covered call. `[MECH]` for the *nominal* amount.
 3. **Margin requirement** — the broker/regulatory amount actually reserved; governed by Reg-T / FINRA Rule 4210 and the broker's house rules. **"Cash-secured" is a broker/account collateral treatment, not a clearing mechanic.** `[BROKER]`
 4. **Broker buying power** — what the broker says you can deploy. `[BROKER]`
-5. **Settled cash / deployable capital** — cash actually available, post-settlement. `[BROKER]`
+5. **Settled cash** — cash whose relevant settlement has completed; settlement alone does **not** establish freedom from reserves or restrictions. `[BROKER]`
+6. **Deployable capital** — capacity available for the contemplated action under authoritative broker/account evidence and applicable Wheelwright policy. **Not** synonymous with settled cash, notional, collateral, or margin requirement. `[BROKER]`
 
-> **Capital invariant (load-bearing):** retiring an obligation removes *that obligation's attributable encumbrance* — nothing more. It does **not** by itself establish cash received, buying power created, settled cash, deployable capital, or a broker-recognized capacity increase. Those require **broker/account evidence**. Nominal notional is arithmetic; deployable capacity is a broker fact.
+> **Capital invariant (load-bearing):** retiring an obligation removes *that obligation's attributable encumbrance* — nothing more. It does **not** by itself establish cash received, buying power created, settled cash, deployable capital, or a broker-recognized capacity increase. Those require **broker/account evidence**. Stated notional is arithmetic; deployable capacity is a broker fact.
 
 ## 8. Mechanics / Evidence / Policy — keep three questions separate
 
@@ -137,16 +142,22 @@ Working lookup for the structures Wheelwright currently handles: **cash-secured 
 
 `Kind` column: **A**=operator action, **C**=continued state, **X**=counterparty event, **R**=natural resolution.
 
+> **Standard-contract scope.** The 100-share matrices and per-share formulas below apply to **ordinary unadjusted physical-delivery** equity/ETF contracts. Adjusted or other contracts require their actual deliverable, aggregate exercise payment, premium quotation factor, valuation convention, and settlement terms (Part 4 D8 / Specimen 7). Do not substitute deliverable share count for premium or strike dollar-extension factors.
+
+> **Quantity preservation.** Unless explicitly stated otherwise, full-resolution rows assume **all represented contracts resolve**. Preserve excess inventory, unaffected contracts, other positions, and their corresponding encumbrances. For standard contracts, let `h` = owned shares, `n` = open short contracts, `m` = contracts affected by the event.
+
+> **Conditional transition, not evidence of an event.** Matrix outcomes are **conditional economic transitions**, not evidence that an event occurred. Quotes support indicative pre-execution estimates only. An actual transition requires **authoritative execution or lifecycle evidence** identifying contract, affected quantity, price/payment, fees, and event timing. An order submission or a quote does not establish execution (Contract §7).
+
 ## 2.1 Cash-Secured Put (CSP)
 
 The obligation is to **buy** shares at strike; backed by **cash**. `[MECH]` "Cash-secured" is the `[BROKER]` collateral treatment; the contractual short put is the `[MECH]` obligation. (A short put *without* established cash security is **not** a CSP — see §Short put ≠ CSP.)
 
 | Before | Action/Event | Kind | Cash Flow | Assets After | Obligations After | Exposure After | Encumbrance After | Evidence Required | Policy Still Required |
 |---|---|---|---|---|---|---|---|---|---|
-| Cash | STO put | A | **+ premium (historical inflow at open)** | Cash (incl. premium received) | Short put | Obligation to acquire at strike if assigned | Cash `strike×100×n` reserved (nominal) | option quote, underlying | Is acquisition at strike acceptable? `[WW-POLICY]` |
+| Cash | STO put | A | **+ premium (historical inflow at open)** | Cash (incl. premium received) | Short put | Obligation to acquire at strike if assigned | Cash `strike×100×n` reserved (nominal) | pre-execution: contract terms, before-state, indicative price · actual: authoritative fill + affected quantity | Is acquisition at strike acceptable? `[WW-POLICY]` |
 | Short put | HOLD | C | none now | unchanged | Short put | unchanged | unchanged | underlying (moneyness), DTE | none if already governed |
-| Short put | BTC | A | **− debit now (new outflow)** | Cash − debit; **no shares** | none (from this leg) | flat on this leg | this leg's cash encumbrance released (nominal; broker confirms capacity) | option quote (for debit); underlying | Was closing preferred over holding? `[UNRESOLVED]`/`[WW-POLICY]` |
-| Short put | Expire OTM | R | none now | Cash unchanged | none | flat | released (nominal) | underlying at expiry, session finality | none |
+| Short put | BTC (m of n) | A | **− executed debit + fees now (new outflow)** | Cash − debit; **no shares**; `n−m` short puts remain | `n−m` short puts remain | flat on the affected leg(s) | only the affected legs' cash encumbrance released (nominal; broker confirms capacity) | pre-execution: contract terms + indicative price · actual: authoritative fill + affected quantity | Was closing preferred over holding? `[UNRESOLVED]`/`[WW-POLICY]` |
+| Short put | Expiration without exercise/assignment, authoritatively confirmed | R | none now | Cash unchanged | none | flat | released (nominal) | Applicable expiration procedures + authoritative broker lifecycle/position evidence confirming resolution of the affected quantity; underlying closing price alone is insufficient | none |
 | Short put | Assignment (ITM) | X/R | − `strike×100×n` now | **Shares acquired** at strike | none (obligation consumed) | long shares | cash converted to shares (T+1) | broker Activity (authoritative) | Manage resulting shares (CC? hold? sell?) `[UNRESOLVED]` |
 | Short put (n) | **Partial** assignment (m<n) | X | − `strike×100×m` | m×100 shares + (n−m) still short | (n−m) short puts remain | mixed | partial | broker Activity | Re-evaluate residual short + new shares |
 
@@ -156,12 +167,12 @@ Own ≥100 shares; sell a call against them. The obligation is to **sell** share
 
 | Before | Action/Event | Kind | Cash Flow | Assets After | Obligations After | Exposure After | Encumbrance After | Evidence Required | Policy Still Required |
 |---|---|---|---|---|---|---|---|---|---|
-| Shares | STO call | A | **+ premium (historical inflow at open)** | Shares (+ cash from premium) | Short call | Shares, upside capped at K | `n×100` shares encumbered by call | option quote, shares owned | Is disposition at strike acceptable? `[WW-POLICY]` |
+| Shares | STO call | A | **+ premium (historical inflow at open)** | Shares (+ cash from premium) | Short call | Shares, upside capped at K | `m×100` shares encumbered per call | pre-execution: contract terms, before-state, indicative price · actual: authoritative fill + affected quantity | Is disposition at strike acceptable? `[WW-POLICY]` |
 | Shares + short call | HOLD | C | none now | unchanged | Short call | unchanged | unchanged | underlying, DTE, (dividend calendar if ITM near ex-date) | none if governed |
-| Shares + short call | BTC | A | **− debit now (new outflow)** | **Shares retained (now uncapped)** | none (from call) | full share exposure restored | call encumbrance released; **shares still held, no cash created** | option quote (debit); underlying | Why uncap? (keep upside / avoid assignment) `[UNRESOLVED]` |
-| Shares + short call | Expire OTM | R | none now | Shares unchanged | none | shares, uncapped | released (shares) | underlying at expiry, session finality | Re-write? `[WW-POLICY]` |
-| Shares + short call | Assignment / call-away (ITM) | X/R | + `strike×100×n` now | **Shares gone**; cash at strike | none | flat (no shares) | shares delivered out (T+1) | broker Activity | Redeploy proceeds? `[UNRESOLVED]` |
-| Shares + short call | **Early** assignment (dividend) | X | + `strike×100×n` now | Shares gone **before** ex-date; **dividend forfeited** | none | flat | shares delivered out | broker Activity; dividend/ex-date | Was dividend capture intended? `[UNRESOLVED]` |
+| Shares + short call | BTC (m of n) | A | **− executed debit + fees now (new outflow)** | **All `h` shares retained**; `n−m` calls remain | `n−m` short calls remain | affected shares uncapped; still capped under remaining calls | only the affected calls' nominal share encumbrance removed | pre-execution: contract terms + indicative price · actual: authoritative fill + affected quantity | Why uncap? (keep upside / avoid assignment) `[UNRESOLVED]` |
+| Shares + short call | Expiration without exercise/assignment, authoritatively confirmed | R | none now | Shares unchanged | none | shares, uncapped | released (shares) | Applicable expiration procedures + authoritative broker lifecycle/position evidence confirming resolution of the affected quantity; underlying closing price alone is insufficient | Re-write? `[WW-POLICY]` |
+| Shares + short call | Assignment / call-away (m of n) | X/R | + `K×100×m` now | shares remaining `h−100m`; `n−m` calls remain | `n−m` short calls remain | reduced share exposure; flat **only** if `h−100m=0` and `n−m=0` | affected shares delivered out (T+1) | authoritative broker Activity (contract + affected quantity + payment + timing) | Redeploy proceeds? `[UNRESOLVED]` |
+| Shares + short call | **Early** assignment (dividend, m of n) | X | + `K×100×m` now | shares remaining `h−100m` **before** ex-date; distribution on delivered shares forfeited | `n−m` short calls remain | reduced share exposure | affected shares delivered out | authoritative broker Activity; dividend/ex-date | Was dividend capture intended? `[UNRESOLVED]` |
 
 ## 2.3 Buy-Write (BW)
 
@@ -169,11 +180,17 @@ Simultaneously **buy the shares + sell (STO) a call against them**. `[MECH]` Onc
 
 | Before | Action/Event | Kind | Cash Flow | Assets After | Obligations After | Exposure After | Encumbrance After | Evidence Required | Policy Still Required |
 |---|---|---|---|---|---|---|---|---|---|
-| Cash | Buy shares + STO call | A | − share cost + premium | Shares + short call | Short call | Shares, upside capped at K, downside to 0 below effective basis | shares encumbered by call; cash spent on shares | share quote, option quote, deployable cash `[BROKER]` | Is bounded-upside acquisition at this basis acceptable? `[WW-POLICY]` |
+| Cash | Buy shares + STO call | A | − share cost + premium | Shares + short call | Short call | Shares, upside capped at K, downside to 0 below effective basis | shares encumbered by call; cash spent on shares | pre-execution: share + option quotes, deployable cash `[BROKER]` · actual: **authoritative fills of BOTH legs** before asserting a covered-call position | Is bounded-upside acquisition at this basis acceptable? `[WW-POLICY]` |
 
-> **"Effective basis = share price − premium"** is a `[HEURISTIC]` presentation convention, not a current-asset figure. It folds a historical premium inflow into a per-share number; it is useful for framing acceptability but must not be treated as broker basis or current cash.
+> **"Effective basis = share price − premium"** is a `[HEURISTIC]` presentation convention. For a matched standard buy-write, ignoring costs and distributions, `share purchase price − call premium per share` is the **expiration breakeven** — a theoretical relationship, not necessarily broker or tax basis, and not a current-asset figure.
 
-> **Accounting discipline (load-bearing; ties to `BUG-021`).** The `Cash Flow` column records the cash event **at that transition** (historical when it happened, new when it happens). Premium received at STO is a **historical inflow**, not a standing current asset that later events "keep." BTC is a **new cash outflow** that retires the obligation — it is *not* a return of the premium and *not* nettable in the naive "premium − debit" sense without proper lifecycle accounting. Distinguish **historical option cash flow / P&L** from **current assets and obligations**. Conflating the two is exactly the class of error behind `BUG-021` (a BTC debit mis-booked as a generic asset purchase instead of being associated with the obligation's lifecycle).
+> **Accounting model (load-bearing; ties to `BUG-021`).** State the distinct quantities rather than only prohibiting the shortcut:
+> - Premium receipt is a **historical cash-flow event**. Cash remaining from that receipt is counted **once** in current cash; the receipt is **not** a second current asset.
+> - While the option remains open, represent its current **short-option liability** (mark-to-market uses current liability valuation, not an executed closing cost).
+> - For an **authoritatively matched quantity closed by BTC**, option **trading P&L** = attributable opening proceeds − executed closing cost − relevant expenses. This is trading P&L, **not** current deployable capital and **not** the complete covered-call result.
+> - **Complete-position P&L** additionally includes relevant underlying and other components.
+> - Wheelwright **Production recognition** is a separately governed accounting policy (`[WW-POLICY]`, ADR-014), not proof of realized trading profit.
+> Conflating these is exactly the class of error behind `BUG-021` (a BTC debit mis-booked as a generic asset purchase instead of being associated with the obligation's lifecycle and resulting option P&L).
 
 ## 2.4 Roll (any short leg)
 
@@ -197,9 +214,9 @@ These are **domain-semantic test vectors**. Use them during design/review to att
 - **Exposes:** the false generalization "near-expiry + OTM short → BTC" as one rule. Same action verb, categorically different residual (cash-freed-from-obligation vs shares-uncapped-still-held). Any lifecycle rule spanning both structures must survive this pair.
 
 ### Specimen 2 — CSP assignment vs covered-call call-away
-- **CSP assigned:** buy shares at strike, cash out, now long shares.
-- **CC assigned:** sell shares at strike, cash in, now flat.
-- **Exposes:** treating "assignment" as one outcome. Opposite direction (acquire vs dispose), opposite cash flow.
+- **CSP assigned:** buy the affected contracts' shares at strike, cash out, now long those shares (any unaffected short puts remain).
+- **CC assigned:** deliver the affected contracts' required shares, receive the aggregate exercise payment, and **preserve any excess shares or remaining obligations**. Flat **only** for a fully resolved, exactly matched position.
+- **Exposes:** treating "assignment" as one outcome, and treating call-away as "everything flat." Opposite direction (acquire vs dispose), opposite cash flow, and quantity must be preserved (own 150, one call assigned → 50 shares remain; short 3 calls, one assigned → 200 shares + 2 short calls remain).
 
 ### Specimen 3 — Same-strike CSP vs covered call (synthetic similarity ≠ identity)
 - Same strike/expiration: **payoff diagrams are nearly identical** `[THEORY]`.
@@ -211,8 +228,8 @@ These are **domain-semantic test vectors**. Use them during design/review to att
 - **Exposes:** "let it expire OTM is safe" and "expiration moneyness proves final resulting position." Near-strike expiration is a distinct risk with a next-morning surprise.
 
 ### Specimen 5 — Dividend-driven early call assignment
-- Short call ITM approaching ex-dividend: a remaining extrinsic value **smaller than the dividend** is a *necessary condition* for early exercise to be economically attractive, but it is **not alone sufficient** — the holder's decision also depends on financing/carry, transaction alternatives, timing, and continuation value. When exercise does occur, the writer is assigned **before** ex-date and **forfeits the distribution**. `[THEORY]`/`[MECH]`
-- **Exposes:** symmetric put/call early-assignment treatment. This is the early-assignment case with the clearest economic *incentive*; it is a **short-call** phenomenon (short-put early exercise is driven by different, rarer deep-ITM/carry economics). The incentive does **not** prove exercise/assignment will occur (do not reduce it to a one-variable trigger; see D3 and the Competence Contract §10).
+- Short call ITM approaching ex-dividend: little remaining extrinsic value relative to the dividend is a useful *indicator* of early-exercise incentive, but it is **not alone sufficient** — the holder's decision also depends on financing/carry, transaction alternatives, timing, and continuation value. Exercise effective before the relevant ex-date generally transfers the upcoming unadjusted distribution on the delivered shares to the exercising holder; assignment notification may arrive later, and unaffected shares (and their distribution entitlement) are preserved. `[THEORY]`/`[MECH]`
+- **Exposes:** symmetric put/call early-assignment treatment. This is the early-assignment case with the clearest economic *incentive*; it is primarily a **short-call** phenomenon (put early exercise is driven by different deep-ITM/carry economics, and a forthcoming distribution can favor waiting). The incentive does **not** prove exercise/assignment will occur (do not reduce it to a one-variable trigger; see D3 and the Competence Contract §10).
 
 ### Specimen 6 — Roll as close-old + open-new
 - A combined-order "roll for a $0.30 credit" is BTC (debit) + STO (larger credit). The credit can coexist with a **loss** on the closed leg and a **worse** new position.
@@ -223,8 +240,8 @@ These are **domain-semantic test vectors**. Use them during design/review to att
 - **Exposes:** the silent assumption that every contract is an ordinary 100-share deliverable.
 
 ### Specimen 8 — Short put where cash security is not established
-- A short put in an account without reserved cash is **not** a CSP; it is (partially) a margin short put with different capacity, risk, and assignment-funding consequences. `[MECH]`/`[BROKER]`
-- **Exposes:** the assumption "short put = cash-secured put."
+- A short put alone, or unavailable reserve evidence, does **not** establish cash security. Inspect the complete position and broker/account evidence: the put may be cash-secured, uncovered/margin-supported, covered by short stock, part of an option structure (e.g. a spread), or **unresolved** as to coverage. Preserve its contractual obligation while withholding unsupported coverage and funding conclusions. `[MECH]`/`[BROKER]`
+- **Exposes:** the assumption "short put = cash-secured put" — and the opposite over-correction "no reserved cash ⇒ naked/margin put." Absence of cash-security evidence is a coverage question, not proof of any single coverage form.
 
 ---
 
@@ -237,22 +254,24 @@ These are **domain-semantic test vectors**. Use them during design/review to att
 `[MECH]` At expiration OCC uses **exercise-by-exception ("ex-by-ex")**: options ITM by a threshold are exercised **automatically unless** the clearing member submits contrary instructions; a holder can also submit contrary instructions to *not* exercise an ITM option or to exercise one that would not auto-exercise. Customer/broker/firm deadlines differ and are **earlier** than OCC's. So expiration outcome is a *default with overrides*, and after-hours price moves add uncertainty (Specimen 4). Source: Cboe C2 RG10-007; OCC ODD.
 
 ### D3. Early exercise economics *(trigger: ITM short near ex-date, deep-ITM short)*
-`[THEORY]` Early exercise of an American **call** becomes economically attractive as the captured **dividend approaches or exceeds the call's remaining extrinsic value** — but that comparison is a *necessary, not sufficient* condition. The holder's decision also depends on financing/carry, feasible transaction alternatives, timing, and continuation value (the value of exercising now vs holding the option). Early exercise of an American **put** is driven by deep-ITM/interest-carry considerations, not dividends. Do **not** collapse any of this into a one-variable "dividend > extrinsic ⇒ exercise" shortcut (Competence Contract §10). Wheelwright does **not** predict exercise; it should *recognize the incentive condition* and treat it as evidence-and-mechanics, not forecast.
+`[THEORY]` **Call:** a forthcoming unadjusted dividend and little remaining call extrinsic value are useful *indicators* of a potential dividend-related early-exercise incentive — but establish continuation value, financing/carry, feasible sale-and-share-purchase alternatives, costs, and contract terms before drawing an economic conclusion. This comparison is **not a universal exercise trigger**; early call exercise can also be rational for short-sale/transaction/funding-cost reasons even without a dividend. **Put:** American put early exercise can become attractive when receiving the exercise payment sooner outweighs continuation value and relevant costs. Deep-ITM status and interest carry are important, while a forthcoming distribution can favor *waiting* and can alter exercise timing (not simply "not dividends"). Do **not** collapse any of this into a one-variable shortcut (Competence Contract §10). Wheelwright does **not** predict exercise; it should *recognize the incentive condition* and treat it as evidence-and-mechanics, not forecast.
 
 ### D4. Settlement & funding *(trigger: any "freed cash / deployable" claim)*
-`[MECH]`/`[BROKER]` Physical settlement + T+1 means assignment produces a **share** event that settles next business day, and any cash effect is a **broker/account** fact. Do not translate a closed obligation into deployable cash without broker evidence (Capital invariant, §7). Ties to `BUG-021` (a BTC debit mis-accounted as a generic asset purchase rather than associated with the short-option obligation's lifecycle and resulting option P&L) and HOLD/CLOSE design §13.
+`[MECH]`/`[BROKER]` For ordinary physical-delivery equity options, exercise/assignment creates the **contractual** security-delivery and exercise-payment obligations (direction and amount are `[MECH]`), generally settling **T+1**; adjustment memos can prescribe different handling for particular deliverable components. **Broker/account evidence** `[BROKER]` establishes balance treatment, funding arrangements, restrictions, and when proceeds or capacity can actually be used. So the contractual cash effect is a mechanic; its *recognition, availability, and deployability* are broker facts. Do not translate a closed obligation into deployable cash without broker evidence (Capital invariant, §7). Ties to `BUG-021` (a BTC debit mis-accounted as a generic asset purchase rather than associated with the short-option obligation's lifecycle and resulting option P&L) and HOLD/CLOSE design §13.
 
 ### D5. Delta & the Greeks *(trigger: any exposure/valuation claim, "assignment probability")*
-`[THEORY]` Delta is a **local sensitivity** of option price to a $1 move in the underlying (a hedge ratio, `N(d₁)` in Black–Scholes) — **not** a probability. Any probability interpretation is **model-, measure-, horizon-, and event-specific**: the risk-neutral probability of finishing ITM is a distinct quantity (the **dual delta**, ≈ `N(d₂)`), it is risk-neutral rather than real-world, and it is a *finish-at-expiration* statement that says nothing about *when* American assignment occurs. So "delta ≈ assignment probability" conflates a sensitivity with a specific, assumption-laden probability. The durable lesson: **delta is a sensitivity; treat any probability reading as conditional on a stated event/horizon/measure/model.** Gamma/theta/vega are local sensitivities, not decisions. Greeks/IV are `[EMPIRICAL]`/`[THEORY]` context, never a Wheelwright action by themselves.
+`[THEORY]` Delta is a **local sensitivity** of option price to a move in the underlying — **not** a probability. Precisely, in the European Black–Scholes–Merton model with continuous dividend yield `q`: call delta = `e^(−qT)·N(d₁)`, put delta = `e^(−qT)·[N(d₁)−1]`. The **risk-neutral terminal ITM probabilities** are `N(d₂)` for calls and `N(−d₂)` for puts. **Dual delta** is the *strike* sensitivity: `∂C/∂K = −e^(−rT)·N(d₂)`, `∂P/∂K = e^(−rT)·N(−d₂)` under those assumptions — related to, but not literally equal to, those probabilities (sign and discounting matter). American exercise, discrete distributions, and model conventions require separate treatment. **None of these quantities alone establishes writer assignment probability or probability of touching.** The durable lesson: **delta is a sensitivity; treat any probability reading as conditional on a stated event/horizon/measure/model.**
+`[THEORY]` **Gamma** measures change in delta; **theta** measures value sensitivity to elapsed time under the stated convention; **vega** measures sensitivity to the volatility input. State units/conventions, and aggregate *signed* quantities with the underlying and other legs for position-level conclusions. Greeks/IV are `[EMPIRICAL]`/`[THEORY]` context, never a Wheelwright action by themselves.
 
 ### D6. Volatility & option compensation *(trigger: "richness," entry-timing, expected return)*
-`[EMPIRICAL]` Implied volatility is the market's forward volatility estimate embedded in price; realized volatility is what occurs. The **variance risk premium** — the tendency for IV to exceed subsequent realized volatility, so option *sellers* are compensated on average — is an empirical regularity, **not** a mechanical guarantee and conditional on regime. `[UNRESOLVED]` whether/how Wheelwright operationalizes relative-compensation observation. **Observing** relative compensation is *evidence* and is compatible with policy-over-prediction; **betting entry on predicted volatility direction** is prediction and is inadmissible as deployment authority (`foundations/policy-over-prediction.md`). Distinguish the two carefully.
+`[THEORY]` Implied volatility is the volatility parameter that reconciles an observed option price with a specified pricing model and its other inputs. It is **not** necessarily an unbiased physical forecast of realized volatility.
+`[EMPIRICAL]` Using the positive-for-sellers convention, the forward **variance risk premium** compares **risk-neutral and physical expected future variance over a matched horizon**. Empirical estimators and ex-post implied-minus-realized spreads are *related but distinct* quantities. Historical compensation varies with instrument, sample, horizon, hedging, costs, and regime; it does **not** establish profitability of an individual CSP, covered call, or roll. `[UNRESOLVED]` whether/how Wheelwright operationalizes relative-compensation observation. **Observing** relative compensation is *evidence* and is compatible with policy-over-prediction; **betting entry on predicted volatility direction** is prediction and is inadmissible as deployment authority (`foundations/policy-over-prediction.md`). Distinguish the two carefully.
 
 ### D7. Portfolio consequence — detect-and-route boundary *(trigger: an action changes aggregate exposure)*
 `[MECH]`/`[UNRESOLVED]` A locally correct single-position action can change **aggregate** exposure: assignment across correlated ETFs concentrates equity exposure; multiple CSPs concentrate funding/assignment obligations on the same date; call-aways can leave concentrated cash. This reference only asks the actor to **notice and route** such consequences to Situation/Mission authority (`25-situation-architecture.md`). It contains **no** concentration limits, correlation policy, or sizing rules — those are `[UNRESOLVED]`/`[WW-POLICY]` and live elsewhere. Detect-and-route only.
 
 ### D8. Adjusted contracts *(trigger: corporate action, non-standard deliverable, unusual symbol)*
-`[MECH]` OCC issues contract-adjustment memos for splits, reverse splits, special/large cash distributions, mergers, and spin-offs; the adjusted contract may carry a modified **deliverable**, share count, or a cash component, and often a modified option symbol. This is **live on ETFs** (OCC info memos show ETF splits). The deliverable quantity is distinct from other scaling/multiplier fields. Never assume a clean 100-share deliverable without checking for adjustment.
+`[MECH]` OCC issues contract-adjustment memos for splits, reverse splits, special/large cash distributions, mergers, and spin-offs; the adjusted contract may carry a modified **deliverable**, share count, or a cash component, and often a modified option symbol. This is **live on ETFs** (OCC info memos show ETF splits). Adjustment can change **contract count, strike, deliverable, or settlement handling** — and need **not** change every field or leave a non-standard share deliverable. The deliverable quantity is distinct from the premium/strike dollar-extension (multiplier) fields; do not conflate them (a real example: an adjusted deliverable of 33 shares + cash while the premium multiplier stays 100, requiring a separate adjusted-underlying pricing formula). A cash-settled ETF FLEX option is a further reminder not to infer settlement from "ETF." Never assume a clean 100-share deliverable without checking for adjustment.
 
 ---
 
@@ -272,17 +291,27 @@ There is **no universal master source.** Ground each claim to the weakest-suffic
 
 **Rule:** a `[MECH]` claim must be grounded to clearing/exchange/regulatory authority of record; a practitioner or broker-education page is corroboration/convention only. Settlement dates, thresholds, margin rules, and product characteristics are **verify-current** (they change); core payoff mechanics are **durable**.
 
+**Claim-specific grounding anchors** (starting entries for the load-bearing claims; numeric deadlines and account-specific treatment still require current applicable evidence):
+
+- **Standard 100-share physical delivery + T+1** — OCC equity-option product specifications; SEC T+1 (effective 2024-05-28).
+- **Expiration / exercise-by-exception + contrary instructions** — OCC ODD and current applicable exchange rules (e.g. Cboe exercise-declaration procedures); broker instruction deadlines from broker documentation.
+- **Random assignment + partial assignment** — OCC Standard Assignment Procedures; OIC assignment FAQ.
+- **Contract adjustments / non-standard deliverables** — identified OCC adjustment memos (splits, reverse splits, special distributions, mergers).
+- **Collateral / margin / reserves / buying power** — FINRA Rule 4210 (regulatory floor) + identified broker documentation, plus **account evidence** where a specific account's treatment is asserted.
+- **Early-exercise economics, Greeks, synthetics/parity** — identified financial-theory references, **with their assumptions stated** (European vs American, dividend yield, discounting).
+- **Variance risk premium** — identified empirical studies **with sample, horizon, and estimator qualifications**; recent literature qualifies historical persistence.
+
 ---
 
 ## Reconciliation notes (required Principal action — NOT performed here)
 
 This reference **identifies** contradictions with existing authority; it does **not** silently edit them. Each requires separate Principal decision:
 
-1. **`02-domain.md` A-5 ("Position held to expiration … Does not model early close or roll") — CONTRADICTION.** Directly contradicts shipped BTS / HOLD-CLOSE behavior (`short-obligation-decision.ts` produces BTC/HOLD on existing obligations) and the ratified HOLD-vs-CLOSE V1 design. A-5 is a stale simplifying assumption; it must be reconciled, and `02-domain.md` should be subordinated to this reference as the domain-authority source for lifecycle economics.
-2. **Delta ≈ assignment probability shorthand** (`02-domain.md` BR-5/A-3): retain as an explicitly-labeled rough approximation only; Part 4 D5 is the corrected statement (delta = sensitivity/hedge ratio; ITM probability = dual delta; risk-neutral ≠ real-world).
+1. **`02-domain.md` A-5 ("Position held to expiration … Does not model early close or roll") — CONTRADICTION.** Directly contradicts shipped BTS / HOLD-CLOSE behavior (`short-obligation-decision.ts` produces BTC/HOLD on existing obligations) and the ratified HOLD-vs-CLOSE V1 design. The authority root (`docs/README.md`) **already establishes** `02-domain.md`'s subordination to this reference for lifecycle economics; reconcile `02-domain.md`'s own self-description and stale A-5 assumption accordingly. Implementation support remains a separate question.
+2. **Delta ≈ assignment probability shorthand** (`02-domain.md` BR-5/A-3): remove the assignment-probability interpretation. Any retained delta-based expiration-moneyness heuristic must be explicitly attributed and qualified by event, horizon, model, and measure; it must **not** be named or consumed as assignment probability. Part 4 D5 is the corrected statement.
 3. **`23-calls-architecture.md` collateral table** (CSP `strike×100`, CC share ownership): consistent with §7 here, but should cross-link the Capital invariant so nominal encumbrance is never read as deployable capacity.
 4. **HOLD/CLOSE V1 design §13** (nominal-encumbrance-removed ≠ buying power): consistent and reinforced; cross-link, keep authoritative.
-5. **`BUG-021`** (BTC classified as generic asset purchase, not netted against premium): this reference's §7/D4 supplies the domain rationale for the fix; the bug record remains the remediation authority.
+5. **`BUG-021`** (BTC classified as generic asset purchase, not associated with the obligation lifecycle): this reference's §7/D4/accounting-model supplies the domain rationale; the bug record remains the authoritative **defect record**, and remediation requires separate authorization.
 6. **Support-status labels** (`[UNRESOLVED]` for IV-timing/VRP, take-profit-%, rolling, multi-leg): recorded as "not currently operationalized," **not** "rejected." Do not infer rejection from nonimplementation without explicit support authority.
 
 ## Intentional-boundary note
