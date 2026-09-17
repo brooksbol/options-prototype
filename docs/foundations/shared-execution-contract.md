@@ -8,10 +8,21 @@ The original contract remains historical evidence and contains useful reasoning 
 
 Original text is durably recoverable from commit `b7a74ac37a19a7c46ff26555dcd104456e9dc512` at this path. A historical pointer also exists at `docs/historical/shared-execution-contract-2026-09-16.md`.
 
-Read:
+## Current cold-start routing
 
-1. `docs/WARNING-operating-model-reality-report-FINAL.md` for the field-test evidence and limitations.
-2. `docs/experiments/ww-gate-experiment-001.md` for the staged capability-boundary experiment.
+Because `docs/README.md` still routes cold actors here while the replacement mechanism is being tested, this file deliberately serves as the compatibility bridge.
+
+Read next:
+
+1. `docs/WARNING-operating-model-reality-report-FINAL.md` — field-test evidence and limitations.
+2. `docs/experiments/ww-gate-experiment-001.md` — staged capability-boundary experiment.
+3. `docs/experiments/ww-gate-experiment-001-state.yaml` — current experimental state; representation is not enforcement.
+4. Actor bootstrap as applicable:
+   - ChatGPT: `docs/bootstrap/chatgpt-cold-start.md`
+   - Kiro: `docs/bootstrap/kiro-cold-start.md`
+   - Codex: `docs/bootstrap/codex-cold-start.md`
+
+Do not run the staged experiment until the Principal starts it.
 
 ## Current interpretation
 
