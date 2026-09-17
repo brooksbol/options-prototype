@@ -353,3 +353,48 @@ This document is deliberately incomplete. Continue adding observations while the
 3. **Possible remedy** — mechanisms worth evaluating; these are not ratified architecture merely because they appear here.
 
 Do not close, archive, downgrade, or treat this warning as resolved merely because BUG-021 itself is fixed. The operating-model issue requires independent evidence of changed execution behavior.
+
+## 25. Directives for the corrective actor retrospective
+
+When this field test reaches the cross-actor retrospective, the actors are **not** being asked to litigate or defend their individual performance. The evidence above is the starting point. The purpose of the exercise is to design the observed pathologies out of Wheelwright.
+
+### Directive 1 — Do not defend yourself
+
+Do not spend the retrospective explaining why an action was locally reasonable, why tests passed, why scope appeared bounded, why information was unavailable at the time, or why another actor should have caught something sooner. Those facts may be relevant evidence, but defensive narratives are not the requested output.
+
+> **Treat the observed failures as established evidence. Spend the effort on prevention, not rationalization.**
+
+### Directive 2 — Propose ways to eliminate the pathologies
+
+Do not merely produce "lessons learned," reminders, or additional prose obligations. Wheelwright already contains substantial declarative guidance that actors were able to read and recite without reliably changing execution behavior.
+
+For each important pathology, propose a mechanism that makes recurrence difficult or impossible. Prefer **removing failure-producing degrees of freedom over adding instructions**. Candidate mechanisms may include explicit state transitions, executable gates, authority ownership, automatic routing, fail-closed transitions, required durable evidence, or other structural controls.
+
+Every proposed corrective mechanism must answer:
+
+- What exact behavior changes?
+- At what workflow transition is it enforced?
+- What prevents or visibly marks noncompliant progression?
+- How does the mechanism preserve Principal authority without making the Principal a runtime compliance monitor?
+- How would another deliberately small Wheelwright task falsify the claim that the mechanism works?
+- How will Wheelwright distinguish genuine improvement from added ceremony?
+
+Examples of inadequate remedies include "actors should remember to ask the Principal," "Kiro should reason about invariants," "ChatGPT should stay in its lane," or "Codex should keep reviewing." Those restate desired behavior without making it structural.
+
+### Directive 3 — Do not design a better BUG-021 process
+
+> **Do not design a better process for fixing BUG-021. That opportunity has passed. We are in damage-control mode on BUG-021. Finish it safely, but do not mistake making this specimen finally work for correcting the operating model.**
+
+The retrospective is counterfactual and forward-looking:
+
+> **What must change so that the next supposedly small Wheelwright task does not produce this pathology?**
+
+BUG-021 supplies evidence. It is not the target for the operating-model remedy. Do not respond by creating a more rigorous options-lifecycle-defect workflow, a BTC-specific process, or another procedure optimized for the exact semantic discoveries made during this incident.
+
+A useful filter is:
+
+> **A proposal that would have made this particular BTC implementation easier but would not materially change the execution trajectory of an unrelated small Wheelwright task is not an operating-model remedy.**
+
+The desired retrospective posture is therefore:
+
+> **Here is what happened. Do not litigate it. Design it out of the system.**
