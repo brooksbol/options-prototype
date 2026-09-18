@@ -1175,22 +1175,39 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
     }
   }
 
+  // Column layout (must track PositionTableHeader exactly, 27 columns):
+  //  1 Type · 2 Symbol · 3 Bid · 4 Ask · 5 Strike · 6 Spot · 7 Today's G/L ·
+  //  8 Moneyness · 9 Expiration · 10 DTE · 11 Delta · 12 Gamma · 13 Theta ·
+  // 14 Vega · 15 Rho · 16 Greek Age · 17 Contracts · 18 Capital · 19 Capital % ·
+  // 20 Share Basis · 21 Premium Booked · 22 Effective Exit · 23 If Called Away ·
+  // 24 If Assigned · 25 Market vs Basis · 26 Opened · 27 Quote Freshness
+  // The label spans cols 1–17; each summed value sits under its own header.
   return (
     <tr className="oc-trow-totals">
-      <td colSpan={15} className="oc-td-totals-label">Total</td>
+      <td colSpan={17} className="oc-td-totals-label">Total</td>
+      {/* 18 Capital */}
       <td className="oc-td-right">${capitalTotal.toLocaleString()}</td>
+      {/* 19 Capital % */}
       <td />
+      {/* 20 Share Basis */}
       <td />
+      {/* 21 Premium Booked */}
       <td className={`oc-td-right oc-col-premium`}>
         {premiumCount > 0 ? `+$${premiumTotal.toLocaleString()}` : "—"}
       </td>
+      {/* 22 Effective Exit */}
       <td />
+      {/* 23 If Called Away */}
       <td className={`oc-td-right ${calledAwayClass}`} title={isPartial ? `${calledAwaySuppressed} position(s) excluded — basis not proven call-specific` : ""}>
         {calledAwayDisplay}
       </td>
+      {/* 24 If Assigned */}
       <td />
+      {/* 25 Market vs Basis */}
       <td />
+      {/* 26 Opened */}
       <td />
+      {/* 27 Quote Freshness */}
       <td />
     </tr>
   );
