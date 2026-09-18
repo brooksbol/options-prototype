@@ -413,40 +413,23 @@
   color: var(--wd-table-symbol);
 }
 
-/* Curated visible Greek/IV evidence cells (Γ/Θ/Vega/Mid IV/SMV): compact,
-   right-aligned numerics, slightly muted so they read as supporting evidence
-   next to the primary economics columns. Unavailable renders as an em dash. */
+/* Curated visible Greek/IV evidence cells (Γ/Θ/Vega/Mid IV/SMV): styled exactly
+   like every other numeric column — left-aligned data under a left-aligned
+   header (inherited from .wd-candidate-table td/th), default 4px/5px padding,
+   and no reserved min-width — so the headers sit directly above their data the
+   same way Bid/Ask/Yield do. tabular-nums keeps digit widths even; the muted
+   color marks them as supporting evidence. Unavailable renders as an em dash. */
 .wd-greek-cell {
-  text-align: right;
   font-variant-numeric: tabular-nums;
   color: var(--wd-table-cell-muted, var(--wd-table-cell));
   white-space: nowrap;
-  /* Explicit min-width so the six-column Greek/IV block forms obvious vertical
-     tracks instead of a compressed, ambiguous run. Right-aligned + tabular nums
-     keep decimals lined up; a left divider on the first cell + inner padding
-     give each column a clear boundary. Prefer horizontal overflow over squeezing
-     these numbers until column ownership is ambiguous. */
-  min-width: 4.5rem;
-  padding-right: 12px;
-  padding-left: 10px;
 }
 
-/* Match the header cells to the numeric columns: right-aligned, same min-width,
-   so each heading sits directly above its own vertical track of values. The
-   markup places these five <th> immediately after the Δ column header. */
+/* Header cells inherit the table's left alignment and default padding; no
+   overrides needed for alignment. The markup places these five <th>
+   immediately after the Δ column header. */
 .wd-candidate-table th.wd-greek-head {
-  text-align: right;
-  min-width: 4.5rem;
-  padding-right: 12px;
-  padding-left: 10px;
   white-space: nowrap;
-}
-
-/* Mid IV / SMV carry longer labels and 4-dp values; give them a touch more room
-   so they are visually distinct from Vega and from each other. */
-.wd-greek-cell.wd-greek-iv,
-.wd-candidate-table th.wd-greek-head.wd-greek-iv {
-  min-width: 5.25rem;
 }
 
 /* A subtle left divider opening the Greek/IV block and closing it, so the group
