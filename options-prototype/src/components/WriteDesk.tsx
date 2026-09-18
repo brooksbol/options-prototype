@@ -17,6 +17,7 @@ import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type ExportContext } from
 import { recommendCalls } from "../write-desk/recommend-calls";
 import type { DecisionExportResult } from "../write-desk/funnel-export/funnel-export-types";
 import { downloadFunnelCsv } from "../write-desk/funnel-export/funnel-csv";
+import { isFunnelExportEnabled } from "../write-desk/funnel-export/funnel-export-visibility";
 import { recommendBuyWrites, type BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import { OpportunityAccumulator, type LastSeenMap } from "../opportunity-history/accumulator";
 import { emitOpportunityHistory } from "../opportunity-history/emit-client";
@@ -53,8 +54,17 @@ import "../recommendation-brief.css";
  * displayed funnel counts. Disabled when no complete result is available.
  * Clicking never re-runs Decision, calls the provider, or mutates evidence —
  * it serializes the already-produced immutable result object.
+ *
+ * DIAGNOSTIC AFFORDANCE (UI visibility only): this control is hidden from the
+ * normal operator surface and rendered only when the caller opts in via the
+ * `?funnelExport=1` query parameter (see funnel-export-visibility). When not
+ * enabled the component renders nothing — no disabled button, placeholder, or
+ * layout artifact. This gate is purely presentational; it never affects the
+ * BUG-016 terminal-membership/DecisionExportResult accounting that underlies
+ * the displayed funnel.
  */
-function FunnelExportButton({ label, result }: { label: string; result: DecisionExportResult | null }) {
+export function FunnelExportButton({ label, result, enabled }: { label: string; result: DecisionExportResult | null; enabled: boolean }) {
+  if (!enabled) return null;
   const disabled = !result || result.membership.length === 0;
   const title = disabled
     ? "No complete Decision result available to export"
@@ -75,6 +85,10 @@ function FunnelExportButton({ label, result }: { label: string; result: Decision
 // --- Component ---
 
 export function Deployment() {
+  // BUG-016 diagnostic funnel CSV controls are hidden by default and exposed
+  // only via the intentional `?funnelExport=1` query-parameter easter egg.
+  // UI visibility only — the underlying export accounting is unaffected.
+  const funnelExportEnabled = isFunnelExportEnabled(window.location.search);
   // Portfolio state from application-scoped Portfolio Store (ADR-011)
   const { source, snapshot } = usePortfolio();
   const [putCandidates, setPutCandidates] = useState<PutCandidate[]>([]);
@@ -858,7 +872,7 @@ export function Deployment() {
                 Cash-Secured Put Candidates
               </h2>
               {putFunnel && <span className="wd-board-rec-count">{putFunnel.eligible} Recommendations · {putFunnel.outcomes.wait} Wait</span>}
-              <FunnelExportButton label="Export CSP Funnel CSV" result={putExport} />
+              <FunnelExportButton label="Export CSP Funnel CSV" result={putExport} enabled={funnelExportEnabled} />
             </div>
             {putFunnel && <FunnelInfographic funnel={putFunnel} backendResolved={evidenceMeta?.coverage ? (evidenceMeta.coverage.ready + evidenceMeta.coverage.absent) : undefined} />}
           </div>
@@ -1032,7 +1046,7 @@ export function Deployment() {
                   {contingentCallRows.length > 0 && `${contingentCallRows.length} if assigned`}
                 </span>
               )}
-              <FunnelExportButton label="Export Covered Calls Funnel CSV" result={callExport} />
+              <FunnelExportButton label="Export Covered Calls Funnel CSV" result={callExport} enabled={funnelExportEnabled} />
             </div>
           </div>
 
@@ -1091,7 +1105,7 @@ export function Deployment() {
                   {buyWriteCandidates.length + buyWriteWaitCandidates.length} Recommendations
                 </span>
               )}
-              <FunnelExportButton label="Export Buy-Write Funnel CSV" result={buyWriteExport} />
+              <FunnelExportButton label="Export Buy-Write Funnel CSV" result={buyWriteExport} enabled={funnelExportEnabled} />
             </div>
             <BuyWriteDistributionBar outcomes={buyWriteOutcomes} universeSize={universeSymbols.length} />
             <div style={{ display: "flex", gap: "10px", padding: "6px 12px 8px", flexWrap: "wrap", alignItems: "flex-end" }}>
