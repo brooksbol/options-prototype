@@ -18,7 +18,10 @@ public record EconomicComponent(
     String transactionId,
     ComponentType type,
     ProductionSource source,    // nullable — only meaningful when type == PRODUCTION
-    BigDecimal amount,          // non-negative for PRODUCTION and CAPITAL_EROSION
+    BigDecimal amount,          // non-negative for CAPITAL_EROSION; non-negative for PRODUCTION
+                                // except an OPTION_PREMIUM close-debit reduction (buy-to-close),
+                                // which is carried as a signed (negative) amount so it nets against
+                                // recognized opening premium at the source level (BUG-021)
     Confidence confidence,
     String derivation           // human-readable explanation of how this was derived
 ) {}

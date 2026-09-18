@@ -714,6 +714,8 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 10px;
+  /* Match Economic Activity (.ep-table) row rhythm so vertical row spacing is equivalent. */
+  line-height: 1.4;
 }
 
 .prod-inflight-table th {

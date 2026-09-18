@@ -51,7 +51,14 @@ public record ProductionAssessment(
     List<AssessedTransaction> transactions,
 
     /** Authoritative per-disposition interpreted economic results (realized dispositions). */
-    List<DispositionResult> dispositionResults
+    List<DispositionResult> dispositionResults,
+
+    /**
+     * Authoritative per-buy-to-close lifecycle-association results (BUG-021). The single authority
+     * for each executed BTC's recognized-outstanding-before range, matched/residual/excess quantity,
+     * and association status. Consumers RENDER these; they must not recompute association (ADR-016).
+     */
+    List<OptionCloseResult> optionCloseResults
 ) {
     public record ReconciliationIssue(
         IssueType type,

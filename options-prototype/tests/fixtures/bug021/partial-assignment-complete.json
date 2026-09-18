@@ -1,0 +1,110 @@
+{
+  "period" : "2026-07",
+  "periodDescription" : "July 2026",
+  "reconciliationStatus" : "FULLY_RECONCILED",
+  "reconciliationIssues" : [ ],
+  "knownCashProduction" : 360.00,
+  "unresolvedPotentialProduction" : 0,
+  "realizedCapitalErosion" : 0,
+  "netStrategyResult" : 360.00,
+  "productionBreakdown" : {
+    "OPTION_PREMIUM" : 360.00
+  },
+  "erosionEvents" : [ ],
+  "transactionSummary" : {
+    "included" : 4,
+    "excluded" : 0,
+    "uncertain" : 0,
+    "notApplicable" : 1
+  },
+  "transactions" : [ {
+    "id" : "48c9c643",
+    "date" : "2026-07-31",
+    "action" : "YOU SOLD OPENING TRANSACTION PUT (BNO) UNITED STS BRENT OIL AUG 14 26 $50 (100 SHS) (Cash)",
+    "symbol" : "-BNO260814P50",
+    "amount" : 50.00,
+    "role" : "INCLUDED",
+    "components" : [ {
+      "type" : "PRODUCTION",
+      "source" : "OPTION_PREMIUM",
+      "amount" : 50.00,
+      "confidence" : "DETERMINISTIC",
+      "derivation" : "Option premium received: YOU SOLD OPENING TRANSACTION PUT (BNO) UNITED STS BRENT OIL AUG 14 26 $50 (100 SHS) (Cash)"
+    } ]
+  }, {
+    "id" : "967c59c1",
+    "date" : "2026-07-20",
+    "action" : "YOU BOUGHT CLOSING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)",
+    "symbol" : "-EWY260821P150",
+    "amount" : -40.00,
+    "role" : "INCLUDED",
+    "components" : [ {
+      "type" : "PRODUCTION",
+      "source" : "OPTION_PREMIUM",
+      "amount" : -40.00,
+      "confidence" : "DETERMINISTIC",
+      "derivation" : "Option obligation closed (buy-to-close); closing debit reduces net option premium: YOU BOUGHT CLOSING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)"
+    } ]
+  }, {
+    "id" : "7607b6c7",
+    "date" : "2026-07-10",
+    "action" : "ASSIGNED as of 07/10/2026 PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)",
+    "symbol" : "-EWY260821P150",
+    "amount" : 0.00,
+    "role" : "NOT_APPLICABLE",
+    "components" : [ {
+      "type" : "LIFECYCLE_NOTIFICATION",
+      "source" : null,
+      "amount" : 0,
+      "confidence" : "DETERMINISTIC",
+      "derivation" : "Lifecycle event: ASSIGNED as of 07/10/2026 PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)"
+    } ]
+  }, {
+    "id" : "2644f330",
+    "date" : "2026-07-03",
+    "action" : "YOU SOLD OPENING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)",
+    "symbol" : "-EWY260821P150",
+    "amount" : 300.00,
+    "role" : "INCLUDED",
+    "components" : [ {
+      "type" : "PRODUCTION",
+      "source" : "OPTION_PREMIUM",
+      "amount" : 300.00,
+      "confidence" : "DETERMINISTIC",
+      "derivation" : "Option premium received: YOU SOLD OPENING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)"
+    } ]
+  }, {
+    "id" : "6f6619ba",
+    "date" : "2026-07-01",
+    "action" : "YOU SOLD OPENING TRANSACTION PUT (GSG) ISHARES S&P GSCI AUG 21 26 $32 (100 SHS) (Cash)",
+    "symbol" : "-GSG260821P32",
+    "amount" : 50.00,
+    "role" : "INCLUDED",
+    "components" : [ {
+      "type" : "PRODUCTION",
+      "source" : "OPTION_PREMIUM",
+      "amount" : 50.00,
+      "confidence" : "DETERMINISTIC",
+      "derivation" : "Option premium received: YOU SOLD OPENING TRANSACTION PUT (GSG) ISHARES S&P GSCI AUG 21 26 $32 (100 SHS) (Cash)"
+    } ]
+  } ],
+  "dispositionResults" : [ ],
+  "optionCloseResults" : [ {
+    "closeFingerprint" : "967c59c1",
+    "contractKey" : "-EWY260821P150",
+    "symbol" : "-EWY260821P150",
+    "date" : "2026-07-20",
+    "action" : "YOU BOUGHT CLOSING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)",
+    "executedDebit" : -40.00,
+    "closedQuantity" : 1,
+    "outstandingBeforeMin" : 1,
+    "outstandingBeforeMax" : 1,
+    "matchedMin" : 1,
+    "matchedMax" : 1,
+    "residualMin" : 0,
+    "residualMax" : 0,
+    "excessUnmatched" : 0,
+    "status" : "DETERMINISTIC_COMPLETE",
+    "reason" : "close -EWY260821P150 on 2026-07-20: close retires 1 and definitely leaves no residual — obligation fully retired"
+  } ]
+}

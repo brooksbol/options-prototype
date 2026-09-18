@@ -102,6 +102,13 @@ public class ProductionController {
                 d.quantity(), d.salePricePerShare(), d.netSaleProceeds(),
                 d.attributableAcquisitionCash(), d.realizedAppreciation(),
                 d.realizedErosion(), d.state().name(), d.provenance()
+            )).toList(),
+            a.optionCloseResults().stream().map(o -> new ProductionResponse.OptionCloseResultDto(
+                o.closeFingerprint(), o.contractKey(), o.symbol(), o.date(), o.action(),
+                o.executedDebit(), o.closedQuantity(),
+                o.outstandingBeforeMin(), o.outstandingBeforeMax(),
+                o.matchedMin(), o.matchedMax(), o.residualMin(), o.residualMax(),
+                o.excessUnmatched(), o.status().name(), o.reason()
             )).toList()
         );
     }

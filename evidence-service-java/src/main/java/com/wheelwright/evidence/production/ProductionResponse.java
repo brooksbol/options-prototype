@@ -23,7 +23,8 @@ public record ProductionResponse(
     List<ErosionEventDto> erosionEvents,
     SummaryDto transactionSummary,
     List<TransactionDto> transactions,
-    List<DispositionResultDto> dispositionResults
+    List<DispositionResultDto> dispositionResults,
+    List<OptionCloseResultDto> optionCloseResults
 ) {
     public record IssueDto(String type, String description, BigDecimal potentialImpact) {}
     public record ErosionEventDto(String date, String symbol, BigDecimal amount, String description) {}
@@ -42,5 +43,18 @@ public record ProductionResponse(
         BigDecimal quantity, BigDecimal salePricePerShare, BigDecimal netSaleProceeds,
         BigDecimal attributableAcquisitionCash, BigDecimal realizedAppreciation,
         BigDecimal realizedErosion, String state, String provenance
+    ) {}
+
+    /**
+     * Authoritative per-buy-to-close lifecycle-association result (see OptionCloseResult, BUG-021).
+     * The frontend RENDERS this; it must not recompute matched/residual/excess/status (ADR-016).
+     */
+    public record OptionCloseResultDto(
+        String closeFingerprint, String contractKey, String symbol, String date, String action,
+        BigDecimal executedDebit, BigDecimal closedQuantity,
+        BigDecimal outstandingBeforeMin, BigDecimal outstandingBeforeMax,
+        BigDecimal matchedMin, BigDecimal matchedMax,
+        BigDecimal residualMin, BigDecimal residualMax,
+        BigDecimal excessUnmatched, String status, String reason
     ) {}
 }

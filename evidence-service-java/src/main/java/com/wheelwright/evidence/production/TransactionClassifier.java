@@ -28,6 +28,17 @@ public class TransactionClassifier {
             return FidelityTransactionKind.OPTION_SELL_TO_OPEN_CALL;
         }
 
+        // Option closing transactions (debit paid to retire an existing short-option obligation).
+        // Must be matched BEFORE the generic "YOU BOUGHT" catch-all so a buy-to-close is not
+        // misread as a fresh asset purchase (BUG-021). A BTC is never a Treasury purchase
+        // (Treasury has no PUT/CALL closing transaction) and never an assigned-put purchase.
+        if (action.startsWith("YOU BOUGHT CLOSING TRANSACTION PUT")) {
+            return FidelityTransactionKind.OPTION_BUY_TO_CLOSE_PUT;
+        }
+        if (action.startsWith("YOU BOUGHT CLOSING TRANSACTION CALL")) {
+            return FidelityTransactionKind.OPTION_BUY_TO_CLOSE_CALL;
+        }
+
         // Dividend/distribution events
         if (action.startsWith("DIVIDEND RECEIVED")) {
             if (isSpaxx(row)) {

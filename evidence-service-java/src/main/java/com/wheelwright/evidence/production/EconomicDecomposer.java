@@ -43,6 +43,29 @@ public class EconomicDecomposer {
                     "Option premium received: " + tx.rawAction())
             );
 
+            // Buy-to-close — the executed closing debit paid for an option-close transaction.
+            //
+            // TWO INDEPENDENT FACTS, never conflated (BUG-021 amendment):
+            //   (1) Executed BTC cash economics — the row's own authoritative net debit. This is a
+            //       real option-close cash outflow and reduces net realized OPTION_PREMIUM for the
+            //       period. It is NOT a new-asset acquisition, so it must never be CAPITAL_DEPLOYMENT.
+            //       It participates in period option economics EVEN WHEN no corresponding recognized
+            //       short obligation (STO) can be associated — the debit is known; suppressing it
+            //       would discard authoritative cash.
+            //   (2) Recognized-lifecycle association (did this retire a recognized short obligation,
+            //       and how much recognized short quantity?) — this decomposer does NOT establish or
+            //       assert that. It performs no STO↔BTC occurrence pairing (that is lifecycle-episode
+            //       reconstruction; LVT-BET-LIFECYCLE-OUTCOME / PL-EXEC-01, out of scope). Association
+            //       resolution and its reconciliation VISIBILITY are owned by ProductionAssessor,
+            //       which raises a reconciliation issue when the recognized short lifecycle/quantity
+            //       for an option-close is unresolved or over-closed (so a materially unresolved BTC
+            //       cannot silently produce FULLY_RECONCILED).
+            //
+            // The closing debit is carried as a signed (negative) OPTION_PREMIUM component; the
+            // opening premium is still recognized exactly once at sell-to-open (ADR-014 preserved).
+            // Fail closed when the authoritative closing debit itself is unavailable.
+            case OPTION_BUY_TO_CLOSE_PUT, OPTION_BUY_TO_CLOSE_CALL -> decomposeOptionClose(tx);
+
             // SPAXX money market — structurally income
             case MONEY_MARKET_DIVIDEND -> List.of(
                 new EconomicComponent(tx.id(), ComponentType.PRODUCTION, ProductionSource.MONEY_MARKET_INCOME,
@@ -124,6 +147,36 @@ public class EconomicDecomposer {
                     "Unclassified Fidelity action: " + tx.rawAction())
             );
         };
+    }
+
+    /**
+     * Decompose a buy-to-close (BTC) option transaction.
+     *
+     * The BTC closing debit reduces the net realized option premium of the closed obligation.
+     * It is emitted as a PRODUCTION / OPTION_PREMIUM component carrying the transaction's signed
+     * net cash (a closing debit is negative), so aggregation nets it against recognized opening
+     * premium at the OPTION_PREMIUM source level. This preserves ADR-014 (premium is recognized
+     * once at sell-to-open; the close does not re-recognize premium) and never books the debit as
+     * CAPITAL_DEPLOYMENT (BUG-021).
+     *
+     * Fail closed: if the authoritative closing debit is unavailable, the economics that depend on
+     * it cannot be established, so the component is UNRESOLVED / BASIS_UNKNOWN rather than assumed.
+     */
+    private List<EconomicComponent> decomposeOptionClose(NormalizedTransaction tx) {
+        if (tx.amount() == null) {
+            return List.of(
+                new EconomicComponent(tx.id(), ComponentType.UNRESOLVED, null,
+                    BigDecimal.ZERO, Confidence.BASIS_UNKNOWN,
+                    "Option buy-to-close with no authoritative closing debit — net premium impact undetermined: "
+                        + tx.rawAction())
+            );
+        }
+        return List.of(
+            new EconomicComponent(tx.id(), ComponentType.PRODUCTION, ProductionSource.OPTION_PREMIUM,
+                tx.amount(), Confidence.DETERMINISTIC,
+                "Option obligation closed (buy-to-close); closing debit reduces net option premium: "
+                    + tx.rawAction())
+        );
     }
 
     private List<EconomicComponent> decomposeTreasuryRedemption(NormalizedTransaction tx,

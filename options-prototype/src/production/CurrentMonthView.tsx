@@ -107,6 +107,7 @@ export function CurrentMonthView({ assessment }: Props) {
       snapshot,
       assessedTransactions: assessment?.transactions ?? null,
       dispositionResults: assessment?.dispositionResults ?? null,
+      optionCloseResults: assessment?.optionCloseResults ?? null,
       targetMonth: currentMonthKey,
     });
   }, [assessment, snapshot, currentMonthKey]);
@@ -584,6 +585,7 @@ function formatIssueType(type: string): string {
     UNCLASSIFIED_ACTION: "Unclassified",
     INCOMPLETE_PERIOD_COVERAGE: "Incomplete Coverage",
     INSUFFICIENT_HISTORY: "Insufficient History",
+    OPTION_CLOSE_LIFECYCLE_UNRESOLVED: "Option Close Unresolved",
   };
   return labels[type] || type.replace(/_/g, " ");
 }

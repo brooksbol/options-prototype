@@ -24,7 +24,7 @@
 
 import type { ActivityRow } from "../csv/fidelity/activityParser";
 import type { PortfolioSnapshot } from "../write-desk/types";
-import type { AssessedTransaction, EconomicComponent, DispositionResult } from "./production-types";
+import type { AssessedTransaction, EconomicComponent, DispositionResult, OptionCloseResult } from "./production-types";
 
 // --- Public types ---
 
@@ -73,8 +73,13 @@ export interface EpisodeChapter {
   constituentEvents: ConstituentEvent[];
   /** Raw OCC symbol */
   rawSymbol: string;
-  /** Number of contracts */
-  contracts: number;
+  /**
+   * Number of contracts for this chapter's event. For opening/resolution/disposition chapters this
+   * is the episode's (opening) quantity. For a CLOSE chapter it is the OBSERVED close quantity and
+   * may be `null` when the BTC row carried no usable quantity — an unknown executed quantity stays
+   * unknown and is NEVER backfilled from the opening quantity (BUG-021 negative specimen).
+   */
+  contracts: number | null;
   /** Conditional consequence for in-flight episodes */
   conditionalLabel: string | null;
 }
@@ -98,6 +103,12 @@ export interface EpisodeDerivationInput {
    * from these results — the frontend does not reconstruct them. Optional for compatibility.
    */
   dispositionResults?: DispositionResult[] | null;
+  /**
+   * Backend-authoritative per-buy-to-close lifecycle-association results (BUG-021). When provided,
+   * each close chapter RENDERS matched/residual/excess/status FROM the corresponding result — the
+   * frontend does NOT recompute association (ADR-016). Optional for compatibility.
+   */
+  optionCloseResults?: OptionCloseResult[] | null;
   /** Target month as "YYYY-MM" */
   targetMonth: string;
 }
@@ -109,7 +120,7 @@ export interface EpisodeDerivationInput {
  * ready for chronological display.
  */
 export function deriveEpisodeChapters(input: EpisodeDerivationInput): EpisodeChapter[] {
-  const { activityRows, snapshot, assessedTransactions, dispositionResults, targetMonth } = input;
+  const { activityRows, snapshot, assessedTransactions, dispositionResults, optionCloseResults, targetMonth } = input;
 
   // 1. Build episode map: OCC symbol → linked events
   const episodeMap = buildEpisodeMap(activityRows, targetMonth);
@@ -124,12 +135,16 @@ export function deriveEpisodeChapters(input: EpisodeDerivationInput): EpisodeCha
   //    economics are owned by the backend DispositionResult lookup below.
   const economicMap = buildEconomicMap(assessedTransactions);
   const dispositionLookup = buildDispositionLookup(dispositionResults ?? null);
+  // Backend-authoritative BTC lifecycle-association results (BUG-021). The frontend RENDERS these;
+  // it does NOT recompute association. A close with no matching authoritative result is presented
+  // as unresolved (the backend did not establish it) — never locally re-derived.
+  const optionCloseLookup = buildOptionCloseLookup(optionCloseResults ?? null);
 
   // 4. Generate chapters for all episodes that have events in the target month
   const chapters: EpisodeChapter[] = [];
 
   for (const [episodeId, episode] of episodeMap) {
-    const generated = generateChapters(episode, episodeId, economicMap, dispositionLookup, targetMonth);
+    const generated = generateChapters(episode, episodeId, economicMap, dispositionLookup, optionCloseLookup, targetMonth);
     chapters.push(...generated);
   }
 
@@ -144,6 +159,16 @@ export function deriveEpisodeChapters(input: EpisodeDerivationInput): EpisodeCha
 }
 
 // --- Internal types ---
+
+/** One executed buy-to-close event (preserves per-event identity: date, signed debit, quantity). */
+interface CloseEvent {
+  row: ActivityRow;
+  date: string;
+  /** Executed net closing cash (signed; a debit is negative). null when the row carried no amount. */
+  debit: number | null;
+  /** Executed closed quantity (|quantity|). null when the row carried no usable quantity. */
+  quantity: number | null;
+}
 
 interface EpisodeRecord {
   /** OCC symbol or synthetic key */
@@ -171,6 +196,18 @@ interface EpisodeRecord {
   /** Share disposition for call-away */
   dispositionEvent: ActivityRow | null;
   dispositionProceeds: number | null;
+
+  /**
+   * Option-close (buy-to-close) events for this exact contract — ONE ENTRY PER EXECUTED BTC ROW.
+   *
+   * BUG-021 second amendment (per-event correctness): a BTC is an executed, dated cash event.
+   * Multiple closes MUST remain multiple events with their own dates and debits — never collapsed
+   * into a single accumulated debit/date, which would move cash/lifecycle across reporting periods
+   * or make a later close disappear. Each executed debit is known period option cash regardless of
+   * whether a recognized opening (STO) is present; recognized-lifecycle association is judged
+   * separately and chronologically (see generateChapters → buildCloseChapter).
+   */
+  closeEvents: CloseEvent[];
 
   /** In-flight from snapshot (no resolution in activity) */
   isInFlight: boolean;
@@ -236,6 +273,7 @@ function buildEpisodeMap(rows: ActivityRow[], targetMonth: string): Map<string, 
             shareCost: null,
             dispositionEvent: null,
             dispositionProceeds: null,
+            closeEvents: [],
             isInFlight: false,
           };
 
@@ -266,6 +304,36 @@ function buildEpisodeMap(rows: ActivityRow[], targetMonth: string): Map<string, 
         existing.resolveKind = "assigned";
         existing.resolveDate = row.date;
         if (!map.has(episodeId)) map.set(episodeId, existing);
+        break;
+      }
+
+      case "buy_to_close": {
+        // Buy-to-close: the executed closing debit for this exact contract. Accumulate the
+        // AUTHORITATIVE close facts onto the episode (creating a skeleton when there is no
+        // recognized opening — an unmatched close is still a real, known cash event whose
+        // recognized-lifecycle association is simply unresolved; BUG-021 amendment). We do NOT
+        // synthesize an STO to "complete" the accounting. The close is NOT recorded as an
+        // expiry/assignment resolveKind — it is an option-close, judged against recognized opened
+        // quantity in the chapter (complete / partial / excess / unmatched).
+        const preexisting = map.get(episodeId);
+        const existing = preexisting ?? createSkeletonEpisode(episodeId, underlying, strike, optionType, expiration);
+        if (!preexisting) {
+          // A BTC-created skeleton has NO recognized opening — recognized opened quantity is 0
+          // (not the skeleton default of 1). This makes an unmatched close read as unresolved
+          // rather than silently deterministic.
+          existing.contracts = 0;
+        }
+        // Preserve EVERY BTC as its own dated event (BUG-021 second amendment): never collapse
+        // multiple closes into one accumulated debit/date. Quantity is null when unusable so
+        // cash-known and quantity-known remain independent facts.
+        const rawQty = Math.abs(row.quantity ?? 0);
+        existing.closeEvents.push({
+          row,
+          date: row.date,
+          debit: row.amount ?? null,
+          quantity: rawQty > 0 ? rawQty : null,
+        });
+        if (!preexisting) map.set(episodeId, existing);
         break;
       }
 
@@ -327,6 +395,7 @@ function buildEpisodeMap(rows: ActivityRow[], targetMonth: string): Map<string, 
     const hasEventInMonth =
       (ep.openDate && ep.openDate.startsWith(monthPrefix)) ||
       (ep.resolveDate && ep.resolveDate.startsWith(monthPrefix)) ||
+      ep.closeEvents.some(ce => ce.date.startsWith(monthPrefix)) ||
       (ep.dispositionEvent && ep.dispositionEvent.date.startsWith(monthPrefix));
     if (hasEventInMonth) {
       filtered.set(id, ep);
@@ -366,6 +435,7 @@ function enrichWithInFlightPositions(
         shareCost: null,
         dispositionEvent: null,
         dispositionProceeds: null,
+        closeEvents: [],
         isInFlight: true,
       };
       // Only include if expiration is in target month or later
@@ -399,6 +469,7 @@ function enrichWithInFlightPositions(
         shareCost: null,
         dispositionEvent: null,
         dispositionProceeds: null,
+        closeEvents: [],
         isInFlight: true,
       };
       if (episode.expiration >= targetMonth) {
@@ -415,6 +486,7 @@ function generateChapters(
   episodeId: string,
   economicMap: Map<string, EconomicComponent[]>,
   dispositionLookup: DispositionLookup,
+  optionCloseLookup: OptionCloseLookup,
   targetMonth: string
 ): EpisodeChapter[] {
   const chapters: EpisodeChapter[] = [];
@@ -438,10 +510,25 @@ function generateChapters(
     chapters.push(buildDispositionChapter(episode, episodeId));
   }
 
+  // Option-close (buy-to-close) chapters — ONE PER EXECUTED BTC EVENT dated in this month.
+  // The backend is the SINGLE authority for recognized-lifecycle association (BUG-021 / ADR-016):
+  // each chapter RENDERS matched/residual/excess/status FROM the authoritative OptionCloseResult.
+  // The frontend does NOT recompute association here.
+  const closeChapters = buildCloseChapters(episode, episodeId, monthPrefix, optionCloseLookup);
+  chapters.push(...closeChapters);
+
   // In-flight state: if this episode was opened this month and hasn't resolved,
   // augment the opening row with in-flight markers (link date, conditional).
   // Episodes opened in prior months that are still in-flight don't get a ledger row —
   // they're visible in the In-Flight Positions table until something happens.
+  //
+  // BUG-021 scope discipline (Principal, Package 1 / Option A): the opening chapter's
+  // lifecycle state is NOT flipped to "retired" merely because a DETERMINISTIC_COMPLETE
+  // backend close exists. Whether the opening obligation is CURRENTLY retired (lifecycle
+  // retirement) is out of BUG-021 scope and is tracked as a separate defect. The narrow
+  // accounting repair renders each BTC close chapter (debit vs premium, explicit status)
+  // WITHOUT claiming the opening is now retired. Only a genuine resolution
+  // (expiry/assignment) completes the opening here.
   if (episode.isInFlight && !episode.resolveKind) {
     if (episode.openDate && episode.openDate.startsWith(monthPrefix)) {
       // Opening was this month — augment it with in-flight state
@@ -492,6 +579,15 @@ function buildOpenChapter(episode: EpisodeRecord, episodeId: string): EpisodeCha
     }
   }
 
+  // The opening chapter's complete/in-flight lifecycle state comes from a genuine RESOLUTION
+  // (expiry/assignment) ONLY. BUG-021 scope discipline (Principal, Package 1 / Option A): the
+  // opening is NOT marked complete/retired merely because a DETERMINISTIC_COMPLETE backend close
+  // exists — whether the opening obligation is currently retired is lifecycle-retirement behavior
+  // tracked as a separate defect, deliberately NOT carried by this narrow accounting repair. The
+  // executed BTC close is still fully represented by its own close chapter (debit vs premium,
+  // explicit status); it simply does not restate the opening's lifecycle state here.
+  const opencomplete = episode.resolveKind != null;
+
   return {
     date: episode.openDate!,
     primitive: episode.primitive,
@@ -504,13 +600,13 @@ function buildOpenChapter(episode: EpisodeRecord, episodeId: string): EpisodeCha
     capitalAmount,
     linkDate: episode.resolveDate ?? episode.expiration,
     linkDirection: "resolves",
-    state: episode.resolveKind ? "complete" : "in_flight",
+    state: opencomplete ? "complete" : "in_flight",
     episodeId,
     confidence: "deterministic",
     constituentEvents: buildConstituentEvents(episode, "open"),
     rawSymbol: episode.key,
     contracts: episode.contracts,
-    conditionalLabel: (!episode.resolveKind) ? deriveConditionalLabel(episode) : null,
+    conditionalLabel: (!opencomplete) ? deriveConditionalLabel(episode) : null,
   };
 }
 
@@ -632,6 +728,193 @@ function buildResolveChapter(
     contracts: episode.contracts,
     conditionalLabel: null,
   };
+}
+
+/**
+ * Build one option-close (buy-to-close) chapter PER EXECUTED BTC EVENT dated in the target month.
+ *
+ * SINGLE-AUTHORITY MODEL (BUG-021 third amendment, ADR-016): the backend Production path is the
+ * sole authority for recognized-lifecycle association. Each chapter RENDERS matched / residual /
+ * excess / status FROM the authoritative OptionCloseResult; the frontend does NOT recompute
+ * association from Activity evidence. This eliminates the prior competing frontend/backend
+ * resolvers. Each executed close remains its OWN dated chapter (never collapsed); the executed
+ * debit and quantity are shown from the close row itself. A close with no matching authoritative
+ * result is presented as unresolved (the backend did not establish it).
+ */
+function buildCloseChapters(
+  episode: EpisodeRecord,
+  episodeId: string,
+  monthPrefix: string,
+  optionCloseLookup: OptionCloseLookup,
+): EpisodeChapter[] {
+  const chapters: EpisodeChapter[] = [];
+  for (const ce of episode.closeEvents) {
+    if (!ce.date.startsWith(monthPrefix)) continue;
+    const result = takeOptionCloseResult(optionCloseLookup, ce);
+    chapters.push(buildSingleCloseChapter(episode, episodeId, ce, result));
+  }
+  return chapters;
+}
+
+/**
+ * Render a single close chapter FROM the authoritative backend result. No local association math.
+ * The executed debit/quantity come from the close row (evidence); matched/residual/excess/status
+ * come from the backend result only.
+ */
+function buildSingleCloseChapter(
+  episode: EpisodeRecord,
+  episodeId: string,
+  ce: CloseEvent,
+  result: OptionCloseResult | null,
+): EpisodeChapter {
+  const typeWord = episode.optionType === "PUT" ? "put" : "call";
+  const status = result?.status ?? null;
+  const deterministic = status === "DETERMINISTIC_COMPLETE" || status === "DETERMINISTIC_PARTIAL";
+
+  let whatHappened: string;
+  let confidence: EpisodeChapter["confidence"];
+  if (status === "DETERMINISTIC_COMPLETE") {
+    whatHappened = "Closed · obligation retired";
+    confidence = "deterministic";
+  } else if (status === "DETERMINISTIC_PARTIAL") {
+    whatHappened = "Partially closed";
+    confidence = "deterministic";
+  } else if (status === "OVER_CLOSE") {
+    whatHappened = "Closed · over-close (excess unresolved)";
+    confidence = "partial";
+  } else {
+    // UNRESOLVED, or no authoritative result at all → present as unresolved (backend did not
+    // establish association). Never locally re-derive it.
+    whatHappened = `Closed ${typeWord} · association unresolved`;
+    confidence = "unresolved";
+  }
+
+  // Production/result: the EXECUTED CLOSING DEBIT is a known per-event cash fact (from the row).
+  // Never "opening premium − partial debit" as realized closed-lifecycle P&L.
+  let productionLabel: string | null;
+  let productionAmount: number | null;
+  if (ce.debit != null) {
+    const debitMagnitude = Math.abs(ce.debit);
+    productionLabel = `−$${fmt(debitMagnitude)} closing debit`;
+    productionAmount = -debitMagnitude;
+  } else {
+    productionLabel = "closing debit unavailable";
+    productionAmount = null;
+  }
+
+  // Capital: closing removes obligation-specific NOMINAL encumbrance ONLY for a backend-authoritative
+  // DETERMINISTIC matched quantity. Never a cash/buying-power release (HOLD-vs-CLOSE V1 discipline).
+  // No encumbrance claim under any non-deterministic status.
+  let capitalLabel: string | null;
+  let capitalAmount: number | null;
+  const matchedExact = deterministic && result != null && result.matchedMin === result.matchedMax
+    ? result.matchedMin : null;
+  if (matchedExact != null && matchedExact > 0 && episode.optionType === "PUT") {
+    const encumbranceRemoved = episode.strike * 100 * matchedExact;
+    capitalLabel = `$${fmt(encumbranceRemoved)} nominal encumbrance removed`;
+    capitalAmount = encumbranceRemoved;
+  } else if (matchedExact != null && matchedExact > 0 && episode.optionType === "CALL") {
+    capitalLabel = "call obligation removed (shares retained)";
+    capitalAmount = null;
+  } else {
+    capitalLabel = null;
+    capitalAmount = null;
+  }
+
+  // Annotation: surface residual / excess / unresolved reason FROM the authoritative result.
+  const conditionalLabel = buildCloseAnnotation(result);
+
+  // NO singular opening association is asserted for a close (BUG-021 validated invariant).
+  //
+  // The backend Production authority (OptionCloseResult) establishes close ECONOMICS for the
+  // contract SERIES — executed debit, observed/null quantity, recognized outstanding-before range,
+  // matched/residual/excess ranges, status — keyed by contractKey. It does NOT establish a
+  // particular opening ROW, an opening DATE, or an allocation of the close among multiple opening
+  // fills. Economic close certainty is not opening-identity certainty.
+  //
+  // The prior candidate asserted `linkDate = episode.openDate` (an opening date chosen by STO
+  // encounter order) whenever the close was deterministic/over-close. That manufactured an opening
+  // identity the backend never established, and it was order-dependent and future-opening-unsafe:
+  //   - future opening: a later STO could become the asserted "opening" of an earlier close;
+  //   - order dependence: with multiple prior STO fills, reversing input row order changed which
+  //     opening date was asserted, while the authoritative backend result was unchanged.
+  // Product therefore asserts NO singular opening relationship on a close chapter. Every ESTABLISHED
+  // close economic fact (debit, observed/null quantity, matched/residual/excess ranges, status,
+  // annotation) is still rendered above from the close row and the backend result — missing opening
+  // identity never erases established close economics.
+  const linkDate: string | null = null;
+  const linkDirection: EpisodeChapter["linkDirection"] = null;
+
+  return {
+    date: ce.date,                       // THIS close's own date — never collapsed
+    primitive: episode.primitive,
+    underlying: episode.underlying,
+    strike: episode.strike,
+    whatHappened,
+    productionLabel,
+    productionAmount,
+    capitalLabel,
+    capitalAmount,
+    linkDate,
+    linkDirection,
+    state: "complete",                   // the close event itself is a completed action this month
+    episodeId,
+    confidence,
+    constituentEvents: buildSingleCloseConstituents(episode, ce),
+    rawSymbol: episode.key,
+    // A close chapter's quantity is EXACTLY the OBSERVED BTC/close quantity (evidence) — never the
+    // episode's recognized-opening quantity:
+    //   - unmatched BTC with a known quantity (e.g. 3): the skeleton episode carries contracts=0,
+    //     so substituting episode.contracts would erase the known close quantity;
+    //   - BTC with an UNAVAILABLE quantity: ce.quantity is null and MUST remain null (unknown) —
+    //     substituting the opening quantity (e.g. an STO-2 episode's 2) as the observed closing
+    //     quantity is the BUG-021 negative-specimen violation.
+    // There is NO fallback to episode.contracts: known BTC quantity stays visible, unknown BTC
+    // quantity stays unknown.
+    contracts: ce.quantity,
+    conditionalLabel,
+  };
+}
+
+/** Human annotation for a close chapter, derived only from the authoritative result. */
+function buildCloseAnnotation(result: OptionCloseResult | null): string | null {
+  if (result == null) return "association not established by backend";
+  const q = result.closedQuantity;
+  switch (result.status) {
+    case "DETERMINISTIC_PARTIAL": {
+      const residual = result.residualMin === result.residualMax
+        ? `${result.residualMin}` : `${result.residualMin}..${result.residualMax}`;
+      return q != null ? `closed ${q} · ${residual} still open` : `residual ${residual} still open`;
+    }
+    case "OVER_CLOSE":
+      return q != null
+        ? `closed ${q} vs max recognized outstanding ${result.outstandingBeforeMax} · excess ${result.excessUnmatched} unresolved`
+        : `excess ${result.excessUnmatched} unresolved`;
+    case "DETERMINISTIC_COMPLETE":
+      return null;
+    default: {
+      // UNRESOLVED — surface the recognized-outstanding range when it carries information.
+      if (result.outstandingBeforeMin !== result.outstandingBeforeMax) {
+        return `recognized outstanding uncertain (${result.outstandingBeforeMin}..${result.outstandingBeforeMax}); association unresolved`;
+      }
+      return "recognized-lifecycle association unresolved";
+    }
+  }
+}
+
+/**
+ * Constituent events for a single close chapter: THIS close's own row only.
+ *
+ * The close chapter deliberately does NOT include an opening (STO) constituent (BUG-021 validated
+ * invariant). The episode's `openEvent` is the STO row selected by encounter order among possibly
+ * multiple fills; attaching it here asserted a singular opening→close provenance the backend
+ * OptionCloseResult never established (the future-opening / order-dependent failure class — Product
+ * previously listed a later or arbitrarily-ordered STO as the close's constituent). The close row
+ * itself is the authoritative provenance for the executed close; matched/residual/excess remain on
+ * the chapter from the backend result. Provenance for the opening lives on the opening's own chapter.
+ */
+function buildSingleCloseConstituents(_episode: EpisodeRecord, ce: CloseEvent): ConstituentEvent[] {
+  return [{ date: ce.row.date, action: ce.row.action, symbol: ce.row.symbol, amount: ce.row.amount }];
 }
 
 /**
@@ -829,6 +1112,7 @@ function createSkeletonEpisode(
     shareCost: null,
     dispositionEvent: null,
     dispositionProceeds: null,
+    closeEvents: [],
     isInFlight: false,
   };
 }
@@ -862,6 +1146,45 @@ function buildDispositionLookup(results: DispositionResult[] | null): Dispositio
  */
 function lookupDisposition(lookup: DispositionLookup, episode: EpisodeRecord): DispositionResult | null {
   return lookup.get(episode.key.trim()) ?? null;
+}
+
+// --- Backend-authoritative option-close (BTC) result lookup (BUG-021) ---
+//
+// The BACKEND owns BTC lifecycle association. The frontend matches each executed close row to its
+// authoritative OptionCloseResult by the close's own evidence identity (symbol|date|action|debit|
+// quantity) and CONSUMES it (a queue per key) so multiple identical closes on the same date each
+// take a distinct result deterministically (both sides preserve CSV/emission order). It must NOT
+// recompute matched/residual/excess/status.
+
+interface OptionCloseLookup {
+  /** Consumable per-evidence-identity queues (one authoritative result taken per rendered close). */
+  byKey: Map<string, OptionCloseResult[]>;
+}
+
+function optionCloseKey(symbol: string | null, date: string, action: string,
+                        debit: number | null, quantity: number | null): string {
+  const sym = (symbol ?? "").trim();
+  const d = debit == null ? "NULL" : debit.toFixed(2);
+  const q = quantity == null ? "NULL" : String(quantity);
+  return `${sym}|${date}|${action}|${d}|${q}`;
+}
+
+function buildOptionCloseLookup(results: OptionCloseResult[] | null): OptionCloseLookup {
+  const byKey = new Map<string, OptionCloseResult[]>();
+  if (!results) return { byKey };
+  for (const r of results) {
+    const key = optionCloseKey(r.symbol, r.date, r.action, r.executedDebit, r.closedQuantity);
+    (byKey.get(key) ?? byKey.set(key, []).get(key)!).push(r);
+  }
+  return { byKey };
+}
+
+/** Consume (take) the next authoritative result matching this close event's evidence identity. */
+function takeOptionCloseResult(lookup: OptionCloseLookup, ce: CloseEvent): OptionCloseResult | null {
+  const key = optionCloseKey(ce.row.symbol, ce.date, ce.row.action, ce.debit, ce.quantity);
+  const bucket = lookup.byKey.get(key);
+  if (!bucket || bucket.length === 0) return null;
+  return bucket.shift() ?? null;
 }
 
 function buildEconomicMap(transactions: AssessedTransaction[] | null): Map<string, EconomicComponent[]> {

@@ -18,5 +18,15 @@ public enum IssueType {
     UNCLASSIFIED_ACTION,
 
     /** Prior purchases needed for basis resolution not found within the data */
-    INSUFFICIENT_HISTORY
+    INSUFFICIENT_HISTORY,
+
+    /**
+     * An option-close (buy-to-close) transaction cannot be fully associated with a recognized
+     * short-option obligation within the assessed data: no recognized opening, insufficient
+     * contract identity, or a closed quantity exceeding the recognized open short quantity
+     * (over-close). The executed closing debit remains known period option economics, but the
+     * recognized short lifecycle/quantity it retired is unresolved — so the assessment must not
+     * appear fully reconciled.
+     */
+    OPTION_CLOSE_LIFECYCLE_UNRESOLVED
 }

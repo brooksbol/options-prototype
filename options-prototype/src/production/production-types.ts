@@ -20,6 +20,7 @@ export interface ProductionAssessmentResponse {
   transactionSummary: TransactionSummary;
   transactions: AssessedTransaction[];
   dispositionResults?: DispositionResult[];
+  optionCloseResults?: OptionCloseResult[];
 }
 
 export interface ReconciliationIssue {
@@ -94,4 +95,41 @@ export interface DispositionResult {
   /** "RESOLVED" | "PARTIAL" | "UNRESOLVED" */
   state: string;
   provenance: string;
+}
+
+/**
+ * Backend-authoritative lifecycle-association result for ONE executed buy-to-close (BUG-021).
+ *
+ * The backend Production path is the SINGLE authority for BTC recognized-lifecycle association
+ * (ADR-016). The frontend RENDERS this — it must NOT independently reconstruct matched/residual/
+ * excess/status from Activity evidence. Recognized-outstanding-before is an inclusive integer
+ * RANGE that preserves uncertainty (unknown historical consumption is never treated as zero).
+ */
+export interface OptionCloseResult {
+  /** Non-unique content fingerprint of the BTC row (trace only). */
+  closeFingerprint: string;
+  /** OCC contract key when usable, else the raw trimmed symbol (identity for matching/display). */
+  contractKey: string;
+  symbol: string;
+  date: string;
+  /** Raw Fidelity action text of the close row. */
+  action: string;
+  /** Executed net closing cash (signed; a debit is negative). null when unavailable. */
+  executedDebit: number | null;
+  /** Executed closed quantity. null when unavailable. */
+  closedQuantity: number | null;
+  /** Recognized outstanding short-quantity range that existed BEFORE this close. */
+  outstandingBeforeMin: number;
+  outstandingBeforeMax: number;
+  /** Defensibly matched (retired) quantity range for this close. */
+  matchedMin: number;
+  matchedMax: number;
+  /** Residual recognized outstanding range AFTER this close. */
+  residualMin: number;
+  residualMax: number;
+  /** Guaranteed-unmatched (excess) quantity when the close definitely exceeded max outstanding. */
+  excessUnmatched: number;
+  /** "DETERMINISTIC_COMPLETE" | "DETERMINISTIC_PARTIAL" | "OVER_CLOSE" | "UNRESOLVED" */
+  status: string;
+  reason: string;
 }

@@ -1,0 +1,149 @@
+{
+  "period" : "2026-07",
+  "periodDescription" : "July 2026",
+  "reconciliationStatus" : "PRODUCTION_UNCERTAIN",
+  "reconciliationIssues" : [ {
+    "type" : "OPTION_CLOSE_LIFECYCLE_UNRESOLVED",
+    "description" : "Option close -EWY260821P150 on 2026-07-20: recognized outstanding before this close is uncertain (0..3) and the closed quantity 2 falls within that range — how much recognized obligation existed cannot be determined (closing cash known)",
+    "potentialImpact" : null
+  }, {
+    "type" : "OPTION_CLOSE_LIFECYCLE_UNRESOLVED",
+    "description" : "Option close -EWY260821P150 on 2026-07-10: a competing lifecycle event for this contract occurred the same day and Fidelity date-only evidence cannot establish ordering — retired obligation unresolved (closing cash known)",
+    "potentialImpact" : null
+  } ],
+  "knownCashProduction" : 490.00,
+  "unresolvedPotentialProduction" : 0,
+  "realizedCapitalErosion" : 0,
+  "netStrategyResult" : 490.00,
+  "productionBreakdown" : {
+    "OPTION_PREMIUM" : 490.00
+  },
+  "erosionEvents" : [ ],
+  "transactionSummary" : {
+    "included" : 6,
+    "excluded" : 0,
+    "uncertain" : 0,
+    "notApplicable" : 0
+  },
+  "transactions" : [ {
+    "id" : "48c9c643",
+    "date" : "2026-07-31",
+    "action" : "YOU SOLD OPENING TRANSACTION PUT (BNO) UNITED STS BRENT OIL AUG 14 26 $50 (100 SHS) (Cash)",
+    "symbol" : "-BNO260814P50",
+    "amount" : 50.00,
+    "role" : "INCLUDED",
+    "components" : [ {
+      "type" : "PRODUCTION",
+      "source" : "OPTION_PREMIUM",
+      "amount" : 50.00,
+      "confidence" : "DETERMINISTIC",
+      "derivation" : "Option premium received: YOU SOLD OPENING TRANSACTION PUT (BNO) UNITED STS BRENT OIL AUG 14 26 $50 (100 SHS) (Cash)"
+    } ]
+  }, {
+    "id" : "967c59c1",
+    "date" : "2026-07-20",
+    "action" : "YOU BOUGHT CLOSING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)",
+    "symbol" : "-EWY260821P150",
+    "amount" : -40.00,
+    "role" : "INCLUDED",
+    "components" : [ {
+      "type" : "PRODUCTION",
+      "source" : "OPTION_PREMIUM",
+      "amount" : -40.00,
+      "confidence" : "DETERMINISTIC",
+      "derivation" : "Option obligation closed (buy-to-close); closing debit reduces net option premium: YOU BOUGHT CLOSING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)"
+    } ]
+  }, {
+    "id" : "c45faf93",
+    "date" : "2026-07-10",
+    "action" : "YOU SOLD OPENING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)",
+    "symbol" : "-EWY260821P150",
+    "amount" : 150.00,
+    "role" : "INCLUDED",
+    "components" : [ {
+      "type" : "PRODUCTION",
+      "source" : "OPTION_PREMIUM",
+      "amount" : 150.00,
+      "confidence" : "DETERMINISTIC",
+      "derivation" : "Option premium received: YOU SOLD OPENING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)"
+    } ]
+  }, {
+    "id" : "204a0860",
+    "date" : "2026-07-10",
+    "action" : "YOU BOUGHT CLOSING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)",
+    "symbol" : "-EWY260821P150",
+    "amount" : -20.00,
+    "role" : "INCLUDED",
+    "components" : [ {
+      "type" : "PRODUCTION",
+      "source" : "OPTION_PREMIUM",
+      "amount" : -20.00,
+      "confidence" : "DETERMINISTIC",
+      "derivation" : "Option obligation closed (buy-to-close); closing debit reduces net option premium: YOU BOUGHT CLOSING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)"
+    } ]
+  }, {
+    "id" : "2644f330",
+    "date" : "2026-07-03",
+    "action" : "YOU SOLD OPENING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)",
+    "symbol" : "-EWY260821P150",
+    "amount" : 300.00,
+    "role" : "INCLUDED",
+    "components" : [ {
+      "type" : "PRODUCTION",
+      "source" : "OPTION_PREMIUM",
+      "amount" : 300.00,
+      "confidence" : "DETERMINISTIC",
+      "derivation" : "Option premium received: YOU SOLD OPENING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)"
+    } ]
+  }, {
+    "id" : "6f6619ba",
+    "date" : "2026-07-01",
+    "action" : "YOU SOLD OPENING TRANSACTION PUT (GSG) ISHARES S&P GSCI AUG 21 26 $32 (100 SHS) (Cash)",
+    "symbol" : "-GSG260821P32",
+    "amount" : 50.00,
+    "role" : "INCLUDED",
+    "components" : [ {
+      "type" : "PRODUCTION",
+      "source" : "OPTION_PREMIUM",
+      "amount" : 50.00,
+      "confidence" : "DETERMINISTIC",
+      "derivation" : "Option premium received: YOU SOLD OPENING TRANSACTION PUT (GSG) ISHARES S&P GSCI AUG 21 26 $32 (100 SHS) (Cash)"
+    } ]
+  } ],
+  "dispositionResults" : [ ],
+  "optionCloseResults" : [ {
+    "closeFingerprint" : "967c59c1",
+    "contractKey" : "-EWY260821P150",
+    "symbol" : "-EWY260821P150",
+    "date" : "2026-07-20",
+    "action" : "YOU BOUGHT CLOSING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)",
+    "executedDebit" : -40.00,
+    "closedQuantity" : 2,
+    "outstandingBeforeMin" : 0,
+    "outstandingBeforeMax" : 3,
+    "matchedMin" : 0,
+    "matchedMax" : 2,
+    "residualMin" : 0,
+    "residualMax" : 3,
+    "excessUnmatched" : 0,
+    "status" : "UNRESOLVED",
+    "reason" : "close -EWY260821P150 on 2026-07-20: recognized outstanding before this close is uncertain (0..3) and the closed quantity 2 falls within that range — how much recognized obligation existed cannot be determined (closing cash known)"
+  }, {
+    "closeFingerprint" : "204a0860",
+    "contractKey" : "-EWY260821P150",
+    "symbol" : "-EWY260821P150",
+    "date" : "2026-07-10",
+    "action" : "YOU BOUGHT CLOSING TRANSACTION PUT (EWY) ISHARES MSCI SOUTH AUG 21 26 $150 (100 SHS) (Cash)",
+    "executedDebit" : -20.00,
+    "closedQuantity" : 1,
+    "outstandingBeforeMin" : 2,
+    "outstandingBeforeMax" : 2,
+    "matchedMin" : 0,
+    "matchedMax" : 1,
+    "residualMin" : 1,
+    "residualMax" : 2,
+    "excessUnmatched" : 0,
+    "status" : "UNRESOLVED",
+    "reason" : "close -EWY260821P150 on 2026-07-10: a competing lifecycle event for this contract occurred the same day and Fidelity date-only evidence cannot establish ordering — retired obligation unresolved (closing cash known)"
+  } ]
+}

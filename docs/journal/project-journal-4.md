@@ -263,3 +263,111 @@ Locked as tests so the verified specimens cannot silently regress:
 Absence of current option/BTC prices in the tables is noticed and deferred by Principal instruction. Whether a *deeply*-OTM short call should be BTC or HOLD is a separate economic-semantics question (not present in this frozen specimen — WEAT $27C is near-strike, ~0.45 delta, so it correctly resolves to HOLD today); not decided here.
 ### Epistemic status
 Implementation complete and Principal-visually accepted; reconciled onto accepted `main`; committed under the direct-`main` routine workflow. No new `PL-*`/ADR/policy invented. The two next topics (always-on outcome-alignment mechanism; whether the actors understand options mechanics well enough / a durable options-trading domain treatise) are separate four-actor discussions and were NOT started.
+
+
+---
+
+## 2026-09-16 — BUG-021 repair: buy-to-close no longer booked as capital deployment (Kiro)
+
+**SYNC:** repaired against remotely-verified accepted `main` at `9f10ba3de8c40aaf87e5bc2250aace6c1456cdc8`. The BUG-021 record was originally verified at `7b4a084`; the `7b4a084..9f10ba3` range is documentation-only, so its code findings held unchanged.
+
+**Authorized scope.** Principal selected BUG-021 as the next work item (backend Production accounting only; not adjacent lifecycle generalization). Prior why-state confirmed BTC is not a new durable concept and needs no new `PL-*`/architecture (this cycle re-verified that against `9f10ba3`).
+
+**What was wrong (accepted code).** `TransactionClassifier` had no `"YOU BOUGHT CLOSING TRANSACTION"` branch, so a buy-to-close fell through to the generic `"YOU BOUGHT" → ASSET_PURCHASE`, and `EconomicDecomposer` booked it as `CAPITAL_DEPLOYMENT` against the OCC symbol. `CAPITAL_DEPLOYMENT` is never summed into any production/erosion total, so the closing debit silently vanished from Net Strategy Result while the gross opening premium stayed fully counted.
+
+**The load-bearing design choice (preserved so it is not re-litigated).** The BTC closing debit is netted against recognized premium **at the `OPTION_PREMIUM` source level**, by emitting a `PRODUCTION`/`OPTION_PREMIUM` component carrying the row's *signed* (negative) net cash. This is economically correct and needs only the BTC row's own OCC identity + authoritative cash. It deliberately does **not** pair a specific STO occurrence — that STO↔BTC lifecycle-episode pairing is `LVT-BET-LIFECYCLE-OUTCOME` / `PL-EXEC-01` scope and was explicitly out of bounds. Considered and rejected: (a) representing the debit as `CAPITAL_EROSION` — wrong, erosion means realized loss on a disposition, not the cost of retiring a premium obligation, and it would corrupt the `realized_capital_erosion` headline; (b) building an STO↔BTC matcher (like `DispositionAssociator`) — unnecessary for source-level netting and would invent association the evidence does not require. ADR-014 preserved: premium is still recognized once at STO; the close reduces the net, it does not re-recognize.
+
+**Fail-closed boundary.** A BTC with no authoritative closing debit (`amount == null`) decomposes to `UNRESOLVED`/`BASIS_UNKNOWN`, never an assumed value — consistent with the HOLD-vs-CLOSE V1 §14a exact-contract-or-refuse discipline and ADR-016.
+
+**Observed product outcome.** Live `POST /api/production/assess` on a freshly-built backend: specimen STO EWY +150 → BTC EWY −40 (+ equity buy SPYI −3955.67, + STO GSG +112.34) ⇒ net `OPTION_PREMIUM = 222.34`, `netStrategyResult = 222.34`; BTC row = `PRODUCTION`/`OPTION_PREMIUM` `−40.0` (INCLUDED, not CAPITAL_DEPLOYMENT); SPYI stays `CAPITAL_DEPLOYMENT 3955.67`. Gross-vs-net contrast: 262.34 → 222.34 (the −$40 closing debit now shows up).
+
+**Caveat noticed (not repaired here, not bundled).** The operator's separately-running local instance on port 3100 is a *stale* build that mis-booked both the BTC and the equity buy as `PRINCIPAL_MOVEMENT`/"External deposit" — it does not reflect accepted `main` and was not used as evidence. Also note the frontend Episode Ledger derives its own per-episode premium from the raw Activity rows (its own `buy_to_close` handling) rather than from the backend `OPTION_PREMIUM` components; BUG-021 was the backend accounting path only, and that separate presentation path was untouched.
+
+**Epistemic status.** Implementation complete; backend 578 tests pass (1 manual skip), frontend production 53 pass, live product-path observed. Change is **uncommitted**; BUG-021 remains **Open** pending Principal acceptance (passing tests do not authorize commit or self-close). No new `PL-*`/ADR/policy invented.
+
+
+---
+
+## 2026-09-16 — BUG-021 bounded amendment after independent review (Kiro) — corrects the prior same-day entry
+
+The earlier 2026-09-16 BUG-021 entry above overclaimed. Independent review (Codex) plus Principal correction found that the first pass implemented "the BTC debit reduces period option economics" but described it as "the BTC retired a recognized short obligation." Those are different claims, and BUG-021 exists precisely to preserve that distinction. This entry records the correction; the prior entry's *economic* direction (executed debit nets into period option premium; never CAPITAL_DEPLOYMENT; premium recognized once at STO) stands — its *lifecycle-certainty* and *frontend-complete* claims did not.
+
+**Three-way distinction now governing (never conflate):**
+1. **Known executed BTC economics** — the row's own authoritative closing debit; known whenever the row carries cash; reduces net period option premium even without a recognized opening.
+2. **Recognized-lifecycle association** — whether/how much recognized short quantity the close retires (complete/partial); a *separate* determination.
+3. **Unresolved lifecycle/quantity** — the residual: no recognized opening, insufficient contract identity, over-close, or missing cash.
+
+**Corrected overclaims:** (a) OCC identity alone does NOT establish lifecycle association — it establishes fact 1 and enables quantity-level association; unmatched/over-close/insufficient-identity is surfaced as unresolved. (b) The frontend did NOT already present BTC — `episode-derivation.ts` `buildEpisodeMap` dropped `buy_to_close` entirely, so Economic Activity told only the opening story while the headline changed. (c) BUG-021 is NOT self-declared repaired — it stays Open pending Principal acceptance.
+
+**Two real blockers the amendment fixed (both were genuine, not philosophical):**
+- **Reconciliation propagation gap.** `ProductionAssessor.determineStatus` returns `FULLY_RECONCILED` when `issues.isEmpty()`, and nothing raised an issue for an unresolved BTC (missing cash / unmatched / over-close). A materially unresolved BTC could therefore report `FULLY_RECONCILED` with the debit either lost (pre-fix) or netted-but-unexplained. Added `IssueType.OPTION_CLOSE_LIFECYCLE_UNRESOLVED` + `appendOptionCloseReconciliationIssues(...)`. Executed debit is never suppressed; visibility of the unresolved association is preserved.
+- **Frontend presentation.** Added `buildCloseChapter` (+ `buy_to_close` handling in `buildEpisodeMap`, target-month filter, `buildOpenChapter` full-close state, `buildConstituentEvents` close phase). Presents complete/partial/over-close/unmatched/missing-cash distinctly, shows the executed debit as known cash, and never presents a partial/unmatched/over-close as a complete retirement. CSP capital effect = "nominal encumbrance removed" (matched qty only), never cash release (HOLD-vs-CLOSE V1 discipline).
+
+**Association is quantity-level only** for the exact OCC contract (summed BTC qty vs summed STO qty); no STO-occurrence pairing, no lot allocation, no invented STO — episode-lifecycle reconstruction remains `LVT-BET-LIFECYCLE-OUTCOME` / `PL-EXEC-01` scope.
+
+**Observed (real Product path).** HTTP `/api/production/assess`: matched → `FULLY_RECONCILED`, no issue, BTC −40 netted; unmatched → `PRODUCTION_UNCERTAIN` + issue, debit still known; over-close → issue "excess unresolved", both debits counted; missing-cash → `PRODUCTION_UNCERTAIN` + issue, BTC `UNRESOLVED`. Economic Activity ledger (`deriveEpisodeChapters`) now renders the close chapter for every specimen with residual/excess/unmatched made explicit.
+
+**Verification.** Backend 583 pass (1 manual skip); frontend production 59 pass; full frontend 1715 pass with 1 pre-existing unrelated velvet-rope date-snapshot failure (confirmed on clean `main`). Uncommitted; BUG-021 Open pending Principal acceptance. Stopped at BUG-021 — no adjacent lifecycle work.
+
+
+---
+
+## 2026-09-16 — BUG-021 third pass: temporal & per-event correctness (Kiro) — corrects the second-amendment entry
+
+The second BUG-021 amendment (entry above) fixed reconciliation propagation and the Product presentation but left two genuine causal/reporting defects that a second independent review (Codex) plus Principal correction surfaced. Recorded here (append-only); the earlier entries' economic direction stands, but their *association* and *per-event* claims did not.
+
+**Defect 1 — quantity reconciliation without temporal reconciliation.** The second-pass association summed all STO vs all BTC for a contract across the whole supplied history. That cannot establish that an obligation existed *when a particular BTC executed*: a later STO could validate an earlier close, and a prior expiration/assignment could be ignored. Fixed with a bounded **chronological exact-contract resolver** (`resolveRecognizedOutstandingBefore`): recognized outstanding short quantity is built from **strictly-prior** events only (prior STO +qty; prior BTC or prior terminal resolution −qty); future events have zero effect on an earlier close. Over-close / no-recognized-outstanding are judged per close against that temporal quantity. Same-day competing lifecycle events **fail closed** (date-only evidence cannot establish intraday order) rather than inventing a sequence.
+
+**Defect 2 — per-event identity destroyed.** The frontend accumulated BTCs into scalar `closeDate`/`closeDebit`/`closedContracts`, collapsing multiple dated closes into one (first date, summed debit). That can move cash/lifecycle across reporting periods or make a later-month close disappear. Fixed by modelling `EpisodeRecord.closeEvents: CloseEvent[]` and emitting **one dated close chapter per executed BTC** (`buildCloseChapters`), each judged by the same chronological resolver. A cross-month later close now lands in its own month.
+
+**Third correction — partial-close product semantics.** A partial close no longer shows `opening premium − partial debit` as realized closed-lifecycle P&L (no authoritative opening-premium allocation exists). Each close chapter shows the **executed closing debit itself** plus matched/residual/excess quantity and confidence.
+
+**Quantity independent of cash.** A BTC with authoritative cash but missing/invalid quantity keeps its debit in period option economics yet raises a lifecycle issue and never claims deterministic retirement — cash-known and quantity-known are independent facts.
+
+**Durable 4-way distinction now recorded in the BUG-021 record:** (1) known executed BTC cash (per-event, dated); (2) temporally-defensible recognized association (strictly-prior evidence only); (3) quantity affected; (4) unresolved/conflicting evidence (no prior opening, prior resolution consumed, insufficient identity, over-close, same-day ambiguity, missing cash, missing quantity).
+
+**Observed (real Product path).** HTTP `/api/production/assess`: future-opening (BTC then later STO) → `PRODUCTION_UNCERTAIN`, no backfill, debit known; prior-resolution (STO/EXPIRED/BTC) → `PRODUCTION_UNCERTAIN`, obligation already consumed; cross-month (STO 2; BTC Jul; BTC Aug) → July view has the July close, August view has the August close (`OPTION_PREMIUM 70`), not absorbed. `deriveEpisodeChapters` renders one dated chapter per close.
+
+**Verification.** Backend 589 pass (1 manual skip); BuyToCloseProductionTest 20 cases; frontend production 65 pass; full frontend 1721 pass with 1 pre-existing unrelated velvet-rope date-snapshot failure (confirmed on clean `main`). Uncommitted; BUG-021 **Open** pending Principal acceptance. Stopped at BUG-021.
+
+
+---
+
+## 2026-09-16 — BUG-021 fourth pass: uncertainty-as-state + single lifecycle authority (Kiro) — corrects the third-pass entry
+
+A third independent review (Codex) + Principal correction found two remaining defects in the temporal (third-pass) candidate. Recorded here append-only; the executed-cash economics were never the problem.
+
+**Defect 1 — unknown consumption was treated as zero.** The chronological resolver folded a null prior quantity as `0` consumption, so after an unknown-quantity BTC or unknown terminal event the remaining outstanding stayed a definite integer, letting a later close become falsely deterministic. Fixed by carrying recognized-outstanding-before as an inclusive integer **range** `[min,max]`: known events move both bounds; an unknown-quantity prior consumption sets `min→0` and leaves `max` unchanged (unknown ≠ zero); an unknown prior opening marks the upper bound untrusted. A close of `q` is deterministic only when `min ≥ q`, definitely over-closed when `max < q`, else UNRESOLVED. Live-confirmed: STO 2 → unknown-qty BTC → BTC 2 now reports `outstandingBefore=[0,2]`, UNRESOLVED.
+
+**Defect 2 — two competing lifecycle authorities.** The frontend still ran its own chronological resolver over collapsed opening (openDate+contracts) and episode-level terminal evidence, so it could diverge from the backend (a later opening leaking backward; a partial terminal consuming the whole episode). Fixed by making the **backend the single authority**: a new `OptionCloseResult` per executed BTC (executed debit, closed quantity, `outstandingBefore[min,max]`, matched/residual/excess, status, reason) is produced by `ProductionAssessor` and exposed on the assessment/DTO. `episode-derivation.ts` no longer computes association — its resolver was removed; it looks up the authoritative result (by `symbol|date|action|debit|quantity`, ordinal-consumed) and renders status/residual/excess/encumbrance from it. A close with no matching result renders unresolved. A frontend divergence-guard test proves the Product renders the backend verdict even when a naive local resolver would call it complete (ADR-016).
+
+**Durable model (now in the BUG-021 record):** (1) executed BTC cash known per dated event; (2) temporally-defensible association from strictly-prior individual dated/quantified rows; (3) quantity affected (independent of cash); (4) uncertainty preserved as a range — unknown history never becomes zero; (5) one authority (backend) decides association, Product renders it.
+
+**Retractions:** unknown prior consumption is NOT zero; accumulated episode opening quantity is NOT sufficient temporal evidence; backend and frontend do NOT independently run the same resolver (there is now one).
+
+**Verification.** Backend 595 pass (1 manual skip); BuyToCloseProductionTest 26 cases incl. range-model + authoritative-result assertions; frontend production 65 pass (BTC file 11, incl. divergence guard); full frontend 1720 pass with 1 pre-existing unrelated velvet-rope date-snapshot failure (confirmed on clean `main`). Live product path confirmed range preservation and partial-terminal correctness. Uncommitted; BUG-021 **Open** pending Principal acceptance. Stopped at BUG-021.
+
+
+---
+
+## 2026-09-16 — BUG-021 fifth pass: covered≠complete, same-day propagation, last frontend authority removed, real round-trip (Kiro) — corrects the fourth-pass entry
+
+A fourth independent review (Codex) + Principal direction found three residual defects in the fourth-pass (range + single-authority) candidate. Recorded append-only; the range model and single-authority direction stand.
+
+**Defect 1 — covered treated as complete retirement.** `buildOptionCloseResult` set `DETERMINISTIC_COMPLETE` whenever the covered close had `residualMin == 0`, which is any covered close. But outstanding `[1,3]` with a close of 1 leaves residual `[0,2]` — covered, yet the obligation is not definitely fully retired. Fixed: `DETERMINISTIC_COMPLETE` requires `residualMax == 0`; `min ≥ q` with `residualMax > 0` is `DETERMINISTIC_PARTIAL` (covered, residual uncertain). "This close is covered" is not the same claim as "the obligation is completely retired."
+
+**Defect 2 — same-day ambiguity not propagated.** The resolver subtracted a prior known close/terminal quantity exactly even when that prior event shared its date with a competing event for the same contract, manufacturing a definite outstanding for a later close from an unestablished ordering. Fixed: a prior event on a multi-event date for the contract is treated as ambiguous — an ambiguous prior consumption widens the range (`min→0`); an ambiguous prior opening contributes to `max` only. Ambiguity is carried forward, not erased by occurrence order.
+
+**Defect 3 — a frontend lifecycle decision remained.** `episode-derivation.ts` still had `isFullyClosed()` deciding the OPEN chapter's complete/in-flight state from raw close quantities — a second lifecycle authority. Removed. Open-chapter state now comes from `episodeFullyRetiredByBackend(...)` (true only when a backend `DETERMINISTIC_COMPLETE` result exists for the contract). `OptionCloseLookup` gained a non-consuming `byContract` index for this.
+
+**Fix 4 — real backend→Product round-trip.** Replaced the prior "test HTTP output and hand-built frontend DTOs separately" approach: `Bug021RoundTripFixtureTest` (Java) serializes the actual `ProductionResponse` from the real controller to shared fixtures; `episode-derivation-backend-roundtrip.test.ts` drives those fixtures through the real `deriveEpisodeChapters` and asserts the Product renders the backend verdict. Both sides now consume the same backend output, so a frontend/backend divergence is a test failure.
+
+**Verification.** Backend 598 pass (1 manual skip); BuyToCloseProductionTest 26 + 3 round-trip fixtures; frontend production 68 pass (incl. 4 round-trip); full frontend 1724 pass + 1 pre-existing unrelated velvet-rope date-snapshot failure. Uncommitted; BUG-021 **Open** pending Principal acceptance. SYNC reconciled to `e53ea4d` (docs-only advance, immaterial to code). Stopped at BUG-021.
+
+---
+## 2026-09-18 — Diagnostic funnel CSV controls hidden behind `?funnelExport=1` (Kiro)
+Ratified UX refinement (Principal). The three funnel-membership CSV export controls (CSP, Covered Call, Buy-Write) introduced by BUG-016 are diagnostic/observability affordances, not normal operator workflow; their permanent presence on the Write Desk created operator noise and ambiguity with ordinary operational CSV/download controls. They are now **hidden by default** and exposed only through an intentional, non-persisted query-parameter easter egg: `?funnelExport=1`.
+**Scope — UI visibility only.** This is strictly a presentation gate. BUG-016 remains resolved and its remediation is not weakened: terminal-membership collection, `DecisionExportResult` construction, funnel accounting, derived counters, reconciliation assertions (`assertReconciled`), and the CSV schema/filenames are all unchanged and remain independent of the flag. The authoritative terminal membership that underlies the displayed funnel exists whether or not its diagnostic CSV control is rendered. **Funnel membership/export remains a supported diagnostic and audit capability; only its UI controls are intentionally hidden from the normal operator surface to avoid ambiguity with operational exports.**
+**Implementation.** New pure predicate `isFunnelExportEnabled(search)` in `src/write-desk/funnel-export/funnel-export-visibility.ts` with exact opt-in semantics (`funnelExport=1` → enabled; absent or any other value → disabled; parameter name case-sensitive). Mirrors the existing `?viz=` convention in `OperatorConsole.tsx`. In `WriteDesk.tsx` the flag is read once (`window.location.search`) and passed to `FunnelExportButton`, which returns `null` when not enabled — no disabled button, placeholder, explanatory text, or empty layout artifact. Not persisted: no Settings preference, storage, visible toggle, environment variable, or feature-flag framework.
+**A future actor should not mistake the hidden controls for missing functionality and re-expose them.** Append `?funnelExport=1` to the Write Desk URL to surface them.
+**Verification.** New `funnel-export-visibility.test.ts` (query-param semantics + BUG-016 independence) and `funnel-export-visibility.render.test.tsx` (DOM: hidden = empty container/no button; visible = working button that drives the unchanged `downloadFunnelCsv` path). Funnel-export test set 37 pass; existing `funnel-csv.test.ts` unchanged and green. `tsc -b` clean for `src`. Full frontend suite: 1755/1756 pass — the single failure is the pre-existing, date-relative `velvet-rope/multi-expiration` inline snapshot (unrelated). No new BUG record (ratified UX change, no defect uncovered). Uncommitted pending Principal acceptance and explicit commit authorization.

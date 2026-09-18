@@ -103,7 +103,7 @@ export function EpisodeLedger({ chapters }: Props) {
                         <div className="ep-detail">
                           <div className="ep-detail-line">
                             <span className="ep-detail-key">Contract</span>
-                            <span className="ep-detail-val">{ch.underlying} ${ch.strike} {ch.primitive === "CSP" || (ch.primitive === "PUT" as string) ? "Put" : "Call"} × {ch.contracts}</span>
+                            <span className="ep-detail-val">{ch.underlying} ${ch.strike} {ch.primitive === "CSP" || (ch.primitive === "PUT" as string) ? "Put" : "Call"} × {ch.contracts ?? "unknown"}</span>
                           </div>
                           <div className="ep-detail-line">
                             <span className="ep-detail-key">Symbol</span>

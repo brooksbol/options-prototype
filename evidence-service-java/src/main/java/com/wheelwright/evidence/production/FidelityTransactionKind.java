@@ -17,6 +17,13 @@ public enum FidelityTransactionKind {
     OPTION_SELL_TO_OPEN_PUT,
     OPTION_SELL_TO_OPEN_CALL,
 
+    // Option obligation-closing events (buy-to-close a short option).
+    // A BTC pays a debit to retire an existing short-option obligation; it is NOT the
+    // acquisition of a new long-option asset. Economically it reduces the net realized
+    // option premium of the closed obligation (see EconomicDecomposer / BUG-021).
+    OPTION_BUY_TO_CLOSE_PUT,
+    OPTION_BUY_TO_CLOSE_CALL,
+
     // Dividend/distribution events
     MONEY_MARKET_DIVIDEND,      // SPAXX specifically
     DIVIDEND_RECEIVED,          // other fund distributions
