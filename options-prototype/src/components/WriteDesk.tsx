@@ -255,7 +255,13 @@ export function Deployment() {
 
   // Re-recommend: apply updated policy to existing cache (zero provider calls)
   const handleReRecommend = useCallback(async (updatedPolicy: typeof DEFAULT_RECOMMENDATION_POLICY) => {
-    if (!snapshot || !snapshot.deployableCash) return;
+    // Gate on UNKNOWN deployable cash only (null = INDETERMINATE regime → fail closed), NOT on
+    // a known $0. A known-zero deployable is a valid balance: candidate discovery ("what is
+    // possible?") must still evaluate and show rows — the engine already marks each row
+    // affordable:false rather than dropping unaffordable candidates. The prior `!deployableCash`
+    // guard conflated known-$0 with unknown and emptied the whole board for a fully-encumbered
+    // account. (See WriteDesk zero-cash entry-point defect.)
+    if (!snapshot || snapshot.deployableCash == null) return;
     const cache = getDurableCache();
     // Runtime-authority: read CURRENT authority at execution time (never a captured closure).
     const { sc: sessionAuthority, sessionState, sessionClosed, admissibilityBoundaryMs: reRecAdmissibilityMs, authorityPending, canonicalSessionDate } = currentAuthority();
@@ -411,7 +417,11 @@ export function Deployment() {
 
   // Evidence snapshot polling — merges backend evidence into IndexedDB, reruns Wheelwright
   const handleNewEvidence = useCallback(async (snapshotData: any) => {
-    if (!snapshot || !snapshot.deployableCash) return;
+    // Gate on UNKNOWN deployable cash only (null = INDETERMINATE regime → fail closed), NOT on
+    // a known $0. Blocking $0 here also suppressed evidence ingestion for this callback, so a
+    // fully-encumbered account never populated any candidates. A known-zero deployable proceeds:
+    // rows are evaluated and shown, each marked affordable:false. (WriteDesk zero-cash defect.)
+    if (!snapshot || snapshot.deployableCash == null) return;
 
     // Extract universe symbol list from backend snapshot (canonical authority)
     const snapshotSymbols: string[] = (snapshotData.symbols ?? []).map((s: any) => s.symbol);

@@ -147,6 +147,26 @@ describe("recommendPuts", () => {
     expect(result.coverage.symbolsWithEvidence).toBe(1);
   });
 
+  it("known $0 deployable cash still yields candidate rows (marked unaffordable), not an empty board", async () => {
+    // Regression for the WriteDesk zero-cash entry-point defect: a KNOWN $0 deployable is a valid
+    // balance (a fully-encumbered account), NOT the unknown/INDETERMINATE regime. The Decision
+    // engine must still discover and RETURN candidates ("what is possible?"), each annotated
+    // affordable:false — it must never drop rows because cash is 0. (The defect was in the
+    // WriteDesk entry-point guards `!snapshot.deployableCash`, which conflated known-$0 with
+    // unknown-null and short-circuited before the engine ran; the engine itself was always
+    // correct, as this test pins.)
+    await populateSymbol("XLE", [
+      { strike: 50, bid: 1.50, ask: 1.70, delta: -0.30, openInterest: 500, volume: 100 },
+    ]);
+
+    const atZero = await recommendPuts(["XLE"], 0, cache, cacheEnv());
+    // Row is still discovered and returned...
+    expect(atZero.candidates.length).toBe(1);
+    expect(atZero.coverage.symbolsWithEvidence).toBe(1);
+    // ...and correctly annotated unaffordable rather than dropped.
+    expect(atZero.candidates[0].affordable).toBe(false);
+  });
+
   it("deployment reserve reduces effective cash", async () => {
     await populateSymbol("XLE", [
       { strike: 180, bid: 1.50, ask: 1.70, delta: -0.30, openInterest: 500, volume: 100 },
