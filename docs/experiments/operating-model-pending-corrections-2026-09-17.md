@@ -83,6 +83,52 @@ The July 20 specimen is a counterexample to the model, not the requirement.
 
 This correction is an experiment in changing the intellectual division of labor at the ChatGPT→Kiro handoff. It does not assert that ChatGPT or Kiro has already been proven to be the throughput constraint, and it does not weaken Codex's independent falsification role.
 
+
+## 6. Cross-actor evidence provenance is mandatory
+
+> **AN ACTOR MAY NOT RELY ON ANOTHER ACTOR'S COMPLETED WORK, DISPOSITION, OR STATE TRANSITION MERELY BECAUSE A THIRD ACTOR REPORTS THAT IT OCCURRED.**
+
+A consequential cross-actor handoff must carry enough provenance for the receiving actor to establish the claimed result from the underlying evidence or from a durable authoritative representation of that result.
+
+This is a distinct requirement from the existing rule that conversation and actor prose do not create execution authority. The problem is not only whether a message grants authority. The receiving actor may not even possess the evidence needed to know that the claimed prerequisite event occurred.
+
+The governing distinction is:
+
+> **Possession of evidence by Actor A does not make that evidence available to Actor B. Actor C's summary of Actor A's evidence does not close the gap.**
+
+Therefore:
+
+- a third actor's statement that another actor returned `ACCEPT`, `REJECT`, `BLOCKED`, completed a review, validated a model, or established another consequential result is not a substitute for the underlying disposition/evidence or a durable authoritative record of it;
+- repository synchronization alone is insufficient when consequential workflow state depends on external actor evidence that has not been persisted there;
+- a receiving actor must be able to identify the producer, the relevant evidence/result, the state or candidate against which it was produced, and enough provenance to determine that the evidence applies to the contemplated transition;
+- if the receiving actor cannot establish that provenance, it must stop rather than accept a conversational reconstruction as workflow truth;
+- evidence transport and authority transport remain separate: delivering authentic evidence does not itself authorize the next consequential transition.
+
+The resulting synchronization invariant is:
+
+> **Actor synchronization requires synchronization of relevant evidence, not merely synchronization of repository SHA and authority.**
+
+### BUG-021 specimen that exposed the gap
+
+After Codex independently reviewed the preserved seventh-pass BUG-021 candidate and returned `REJECT`, ChatGPT possessed that review evidence and later performed model validation. Kiro did not possess the Codex evidence, and the repository-resident BUG-021 record still described the candidate as pending independent Codex review.
+
+When subsequently asked to proceed from the later state, Kiro stopped because the state it could independently establish did not prove that the Codex review had occurred.
+
+That STOP was correct.
+
+ChatGPT telling Kiro that "Codex already reviewed and rejected this candidate" would not have repaired the provenance gap. It would merely have made ChatGPT an evidence-provenance proxy and asked Kiro to trust a third actor's conversational reconstruction.
+
+The correct future operating model must make the actual cross-actor evidence, or its durable authoritative representation, available to the receiving actor before a consequential transition depends on it.
+
+### Relationship to PL-ACTOR-01
+
+This finding materially sharpens `PL-ACTOR-01 — Remove the Principal as Human Clipboard While Preserving Principal Authority`.
+
+Automatic actor transport must not merely move prose messages. Where a handoff carries consequential evidence, it must preserve evidence provenance sufficiently for the receiver to establish what happened and against what state.
+
+This correction does **not** choose MCP, a broker, direct actor integration, a workflow controller, or any other transport topology. It establishes the invariant any later transport mechanism must satisfy.
+
+
 ## Safe-stop disposition
 
 At the next safe stop, reconcile these corrections into the appropriate operating-model authority documents on `main`, then retire or supersede this pending record according to the repository's normal documentation discipline.
