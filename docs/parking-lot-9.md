@@ -163,3 +163,74 @@ The material discussion is preserved in this intake record so that the concept c
 **Further exploration only.** When deliberately selected later, reacquire this item and investigate the problem before choosing protocol, topology, hierarchy, delegation, or enforcement design.
 
 No reconciliation, design, decomposition, experiment, or implementation is authorized by this intake.
+
+
+---
+
+## `PL-DEPLOY-BAL` — Fidelity Account-Regime / Broker-Balance Semantics
+
+**Date:** September 19, 2026  
+**State:** RECONCILED — durable knowledge captured; candidate runtime/model/test consequences retained; no production implementation authorized  
+**SYNC at reconciliation:** `c1e22e0e6575f70e722088aad0c2dc41ca2eb169`  
+**Concept home:** `PL-DEPLOY` — Deployment Opportunity / Unified Surface  
+**Evidence / why-state:** `docs/56-fidelity-account-regime-balance-semantics-2026-09-19.md`
+
+### What was discovered
+
+Live Fidelity definitions and two real account specimens show that Wheelwright must support two materially different broker balance regimes without collapsing their facts into one synthetic model:
+
+- a simple non-margin/cash-style Fidelity account (Sawdust Roth); and
+- a margin-enabled Fidelity account (PTS) exposing buying power, AWMI, settled cash, withdrawal-with-borrowing capacity, margin-surplus state, holding-type values, and actual financing state.
+
+The durable architectural rule is:
+
+> **broker-native facts → account-regime classification → Wheelwright semantic projection → policy**
+
+The parser preserves facts. Domain projection answers explicit Wheelwright questions. Policy consumes those projections.
+
+### Material evidence
+
+The September 19 PTS specimen supplies the real divergence BUG-022 previously lacked:
+
+- Available without margin impact = **$0.00**
+- Settled cash = **$1,923.15**
+- Non-margin buying power = **$8,621.39**
+- Margin buying power = **$17,242.78**
+- Margin credit/debit = **$0.00**
+- no margin interest accrued
+
+This validates the existing MARGIN-regime Deployable rule: **AWMI, not Settled cash or Non-margin buying power, is the broker-native authority for additional unlevered deployment capacity.**
+
+The current Sawdust specimen supplies the complementary CASH branch:
+
+- Available to trade (all settled) = **$10,510.06**
+- Available to withdraw = **$710.06**
+
+This also establishes that tradable and withdrawable liquidity are distinct even in the simpler non-margin regime.
+
+### Reconciliation against existing identity
+
+Complete parking-lot/repository reconciliation found `PL-DEPLOY` as the existing strategic/concept home but no stable item owning the narrower broker-account-regime/balance-semantics concern. `BUG-022` owns the historical defect and remains RESOLVED; this item must not double-book or reopen it. A bounded child/refinement identity is therefore warranted to preserve the broader capability semantics and candidate future work.
+
+### Candidate later work — not authorized implementation
+
+- Preserve richer Fidelity broker-native balance facts where useful rather than folding them.
+- Keep unlevered Deployable regime-aware: CASH → Available to trade (all settled); MARGIN → AWMI; INDETERMINATE → null.
+- Consider a distinct unlevered-withdrawable semantic projection: CASH → Available to withdraw; MARGIN → Cash only.
+- Represent actual financing state independently from margin capability/holding type.
+- Preserve house surplus, SMA, and exchange surplus as distinct explanatory/risk facts without inventing policy thresholds.
+- Retain both account regimes as sanitized regression specimens, including the PTS falsifier: positive Settled cash + positive buying power + zero margin debt + zero AWMI.
+- Do not build a synthetic Fidelity NAV/margin-requirement/reserve engine.
+
+### Reconciliation Completion Record
+
+- **Intake:** `PL-DEPLOY-BAL`
+- **Strategic disposition:** **strengthens existing `PL-DEPLOY`; no new Bet and no `docs/roadmap.md` change.** The concern is truthful capital-state semantics beneath the already accepted Deployment Opportunity direction.
+- **Architectural disposition:** **refines existing broker-fact / domain-derivation boundary and regime-aware semantic projection; no new architecture direction and no `docs/architecture-roadmap.md` change.** Do not normalize distinct broker facts at ingestion and do not create a shadow Fidelity accounting engine.
+- **Parking-lot disposition/mapping:** **retained** as bounded `PL-DEPLOY-BAL` under concept home `PL-DEPLOY`; cross-linked to resolved `BUG-022` for historical defect provenance.
+- **Why-state:** `docs/56-fidelity-account-regime-balance-semantics-2026-09-19.md`
+- **Next authorized mode:** **design / decomposition only when separately selected by the Principal; no production implementation is authorized by this reconciliation.**
+
+### Explicitly not authorized
+
+No production-code, parser, DTO/schema, UI, or `deriveDeployableCash` changes; no invented Fidelity formulas; no margin-aware trading policy; no generalized broker-accounting subsystem; no automatic roadmap commitment from the candidate consequences above.
