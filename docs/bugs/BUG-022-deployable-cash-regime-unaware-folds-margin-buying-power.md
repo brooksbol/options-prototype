@@ -199,3 +199,30 @@ These are independent live Product observations using the two current Fidelity a
 - Commit `62acc8f` (2026-09-09) — origin of the fold (provenance/why-state, not authority).
 - `docs/contracts/evidence-snapshot-v1.md` — the frozen backend evidence contract is **not** involved; broker balances are a separate frontend CSV ingestion path. Recorded here to bound scope.
 - `PortfolioSnapshot` contract (`options-prototype/src/write-desk/types.ts`) — deployable-cash consumer contract; stale doc comment noted as remediation surface.
+
+
+---
+
+## Post-resolution validation — 2026-09-19 (does not reopen BUG-022)
+
+New live Fidelity PTS evidence closes the principal residual empirical limitation recorded at resolution: the earlier specimens did not demonstrate a real MARGIN account where **Available without margin impact** and **Settled cash** diverged.
+
+The September 19 PTS specimen does:
+
+| Broker field | Value |
+|---|---:|
+| Available without margin impact | **$0.00** |
+| Settled cash | **$1,923.15** |
+| Non-margin buying power | $8,621.39 |
+| Margin buying power | $17,242.78 |
+| Cash only available to withdraw | $1,923.15 |
+| Margin credit/debit | **$0.00** |
+| Margin interest accrued | **none** |
+
+**Result:** the live divergence validates the remediated MARGIN-regime rule: Wheelwright's unlevered Deployable projection follows Fidelity's **Available without margin impact**, not Settled cash or Non-margin buying power. The defect remains **Resolved**; no remediation change is implied.
+
+The same evidence also demonstrates that (a) margin-enabled / positive margin capacity does not imply current margin borrowing, and (b) no current margin debt does not imply positive additional unlevered deployment capacity.
+
+The separate residual limitation about Fidelity's internal reserve-netting formula **remains unresolved**. Wheelwright continues not to recompute that formula.
+
+Broader account-regime semantics and candidate future capability work are owned by `PL-DEPLOY-BAL` and `docs/56-fidelity-account-regime-balance-semantics-2026-09-19.md`, not by this resolved defect.
