@@ -897,3 +897,24 @@ Current winner-selection collapses the per-symbol contract population to a singl
 
 ### Epistemic status
 `PL-RECIPE-01` is now **RECONCILED** — the completion record is the observable evidence the reconciliation stage returned. The subsequent experiment design + implementation-readiness review are also complete (`docs/design/pl-recipe-01-first-experiment-v1-design.md`). **Durable stopping-state: first experiment fully specified and reviewed; implementation authorization pending** — this is deliberately **not** an `IMPLEMENTABLE` state, and it authorizes neither implementation nor experiment execution. The Explorer product surface remains a strong-but-unresolved hypothesis; DSL/generalized machinery remains a closed branch; winner-selection behavior must not change through implementation-readiness.
+
+
+---
+
+## 2026-09-19 — Fidelity account-regime semantics reconciled as `PL-DEPLOY-BAL`
+
+A live comparison of two Fidelity accounts moved the margin-balance discussion beyond BUG-022's original defect and into durable domain knowledge.
+
+The PTS margin-enabled specimen produced the missing falsifier: **Available without margin impact = $0 while Settled cash = $1,923.15**, alongside positive Non-margin buying power ($8,621.39), positive Margin buying power ($17,242.78), **zero margin credit/debit**, and no accrued margin interest. This validates the BUG-022 MARGIN Deployable choice (AWMI) while proving several concepts are orthogonal: margin capability, margin holding type, actual debt, settled cash, and additional unlevered deployment capacity.
+
+The Sawdust Roth non-margin specimen supplied the opposite regime: **Available to trade (all settled) = $10,510.06** while **Available to withdraw = $710.06**. Even the simple account therefore distinguishes tradable from withdrawable liquidity.
+
+The durable insight is not “support margin accounts” as one special case. It is:
+
+> **preserve broker-native facts → classify account regime → project explicit Wheelwright decision semantics → apply policy.**
+
+Do not normalize both account types into one synthetic cash model, and do not build a shadow Fidelity accounting engine.
+
+Reconciliation created bounded identity `PL-DEPLOY-BAL` under `PL-DEPLOY`. Strategic disposition: strengthens existing Deployment Opportunity; no new Bet / no roadmap edit. Architectural disposition: refines the existing fact-versus-derivation and regime-aware projection boundary; no architecture-roadmap edit. BUG-022 remains resolved and now carries the post-resolution validation. Full evidence: `docs/56-fidelity-account-regime-balance-semantics-2026-09-19.md`.
+
+No production implementation was authorized.
