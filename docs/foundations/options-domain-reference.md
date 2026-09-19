@@ -317,3 +317,52 @@ Some reconciliation is **already performed** (documentation-level, within this c
 ## Intentional-boundary note
 
 Named so a cold-start actor arriving from the standard seller canon does not read absence as defect: multi-leg/defined-risk structures, IV-rank/relative-compensation *ranking*, variance-risk-premium *entry logic*, percentage-of-premium take-profit *as a forward decision driver*, and rolling are **not currently operationalized** (`[UNRESOLVED]`). The one genuine ratified boundary: **deployment justified by directional forecast is inadmissible** (`foundations/policy-over-prediction.md`, Category A). Everything else in this list is undecided, not rejected.
+
+
+---
+
+## Fidelity broker-account balance semantics (September 19, 2026)
+
+> **Scope:** `[BROKER]` Fidelity-specific operational semantics grounded in current Fidelity balance-page definitions plus real PTS margin-enabled and Sawdust non-margin specimens. These are not universal clearing mechanics and do not establish policy for another broker. Full evidence/why-state: `docs/56-fidelity-account-regime-balance-semantics-2026-09-19.md`.
+
+### Broker facts that must remain distinct
+
+`[BROKER]` Fidelity exposes materially different balance dialects for non-margin and margin-enabled accounts. Wheelwright must preserve the broker-native facts and project them into common decision meanings; absent/not-applicable fields are not numeric zero.
+
+For a Fidelity margin account, distinguish at least:
+
+- **Margin buying power** — capacity, including cash and potential margin borrowing, for fully marginable securities.
+- **Non-margin buying power** — purchasing capacity for securities subject to 100%/non-margin treatment; it is **not** synonymous with cash-only, unlevered, or without-margin-impact capacity.
+- **Available without margin impact (AWMI)** — amount Fidelity says can be used without borrowing on margin and incurring interest.
+- **Settled cash** — settlement/GFV-oriented cash concept; not synonymous with unlevered Deployable.
+- **Cash only available to withdraw** — collected cash withdrawal capacity without margin borrowing.
+- **Cash and borrowing on margin** — withdrawal capacity including potential broker credit; the credit portion is not owned liquidity.
+- **Committed to open orders** and **Cash reserved for options strategies** — distinct commitment/encumbrance facts.
+- **Net house surplus**, **Net SMA**, and **Net exchange surplus** — distinct broker requirement/surplus concepts; do not collapse them into one synthetic margin-cushion number.
+- **Cash market value**, **Margin market value**, and **Option market value** — holding/value classifications. In particular, Margin market value is not the amount borrowed.
+- **Cash core / Cash credit** — broker accounting balances distinct from settled/deployable/withdrawable cash.
+- **Margin credit/debit** and accrued margin interest — actual financing-state facts, distinct from margin capability, margin holding type, and buying power.
+
+For the simpler Fidelity non-margin/cash-style regime, the broker may instead expose **Available to trade (all settled)**, **Available to withdraw**, **Cash and credits**, and **Value of investments**, without the margin-account field family.
+
+### Wheelwright semantic projections
+
+`[WW-POLICY]` / `[BROKER]` For the already-remediated BUG-022 Deployable semantic:
+
+- Fidelity CASH/legacy regime → **Available to trade (all settled)**
+- Fidelity MARGIN regime → **Available without margin impact**
+- INDETERMINATE → **null / fail closed**
+
+`[BROKER]` The September 19, 2026 PTS specimen empirically discriminates AWMI from Settled cash: **AWMI = $0.00 while Settled cash = $1,923.15**, with Non-margin buying power = $8,621.39 and Margin buying power = $17,242.78. Therefore Settled cash and buying power must not substitute for AWMI when answering the MARGIN-regime question “what additional amount can be deployed without margin borrowing/interest?”
+
+`[BROKER]` Margin-enabled does not imply margin-borrowing. The same PTS specimen has positive Margin market value and positive margin buying power while **Margin credit/debit = $0.00** and **no margin interest accrued**. Conversely, no current margin debt does not imply positive additional unlevered deployment capacity: AWMI is simultaneously $0.
+
+`[BROKER]` Tradable liquidity and withdrawable liquidity are separate. The September 19 Sawdust non-margin specimen reports **Available to trade (all settled) = $10,510.06** while **Available to withdraw = $710.06**. The reason for the difference is not established by the specimen and must not be invented.
+
+### Authority / derivation discipline
+
+`[BROKER]` When Fidelity directly reports a current broker-account quantity, preserve it as broker state rather than replacing it with a Wheelwright reconstruction. In particular, do not synthesize Fidelity NAV, house requirements, SMA, exchange surplus, or reserve-netting formulas from visible holdings absent a sufficient documented broker contract.
+
+`[UNRESOLVED]` Fidelity's internal reserve-netting formula remains unproven. No Wheelwright deployment/risk policy is established merely from house surplus, SMA, or exchange surplus.
+
+**Canonical project reconciliation:** `PL-DEPLOY-BAL`; historical defect provenance: resolved `BUG-022`.
