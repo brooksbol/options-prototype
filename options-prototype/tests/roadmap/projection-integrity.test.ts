@@ -267,6 +267,58 @@ describe("roadmap projection — principles register (ratified only)", () => {
   });
 });
 
+describe("roadmap projection — domain reference (faithful projection)", () => {
+  it("projects the options domain reference into Parts with entries", () => {
+    expect(p.domain).toBeTruthy();
+    expect(p.domain.parts.length).toBeGreaterThan(0);
+    const total = p.domain.parts.reduce((s, part) => s + part.entries.length, 0);
+    expect(total).toBe(p.meta.counts.domainEntryTotal);
+  });
+
+  it("declares the options domain reference as a source", () => {
+    expect(p.meta.sources).toContain("docs/foundations/options-domain-reference.md");
+  });
+
+  it("carries only faithful fields (heading/content/tags/level) — no summary field", () => {
+    for (const part of p.domain.parts) {
+      for (const entry of part.entries) {
+        expect(Object.keys(entry).sort()).toEqual([
+          "content",
+          "heading",
+          "level",
+          "tables",
+          "tags",
+          "truncated",
+        ]);
+        // Tags are drawn only from the reference's own grounding vocabulary.
+        for (const t of entry.tags) {
+          expect(["MECH", "THEORY", "EMPIRICAL", "BROKER", "WW-POLICY", "UNRESOLVED", "HEURISTIC"]).toContain(t);
+        }
+      }
+    }
+  });
+
+  it("renders the lifecycle matrices as structured tables (not lost to truncation)", () => {
+    const all = p.domain.parts.flatMap((part) => part.entries);
+    const csp = all.find((e) => e.heading.startsWith("2.1"));
+    expect(csp, "CSP matrix entry should exist").toBeTruthy();
+    expect(csp!.tables.length).toBeGreaterThan(0);
+    // The matrix header is the canonical lifecycle schema.
+    expect(csp!.tables[0].header).toContain("Before");
+    expect(csp!.tables[0].rows.length).toBeGreaterThan(0);
+  });
+
+  it("preserves the three-question separation by not asserting policy in tags", () => {
+    // A domain entry may be TAGGED [WW-POLICY] where the source flags a policy
+    // boundary, but the projection must not itself invent policy content — the
+    // faithful-fields test above already guarantees no synthesized field exists.
+    // Here we simply confirm the source's own contrast section survived.
+    const all = p.domain.parts.flatMap((part) => part.entries);
+    const mep = all.find((e) => /Mechanics \/ Evidence \/ Policy/i.test(e.heading));
+    expect(mep, "the Mechanics/Evidence/Policy separation section should be projected").toBeTruthy();
+  });
+});
+
 describe("roadmap projection — coming soon (Now/Next/Later horizons)", () => {
   it("has three unordered horizons", () => {
     expect(p.comingSoon).toBeTruthy();

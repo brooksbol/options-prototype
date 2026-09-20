@@ -86,6 +86,19 @@ describe("RoadmapView", () => {
     expect(screen.getByText("LVT-GOAL-AWARENESS")).toBeTruthy();
   });
 
+  it("Domain lens projects the reference with a policy boundary and selectable entries", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Domain" }));
+    // Lens-level boundary is visible.
+    expect(screen.getByText(/does not establish Wheelwright policy/i)).toBeTruthy();
+    // A canonical Part heading renders; expand it and select an entry.
+    const partRow = screen.getByText(/Options Economic Model/i).closest(".rm-row") as HTMLElement;
+    fireEvent.click(within(partRow).getByRole("button", { name: /expand|collapse/i }));
+    fireEvent.click(screen.getByText(/An option is a contract with two asymmetric sides/i));
+    // Detail pane shows the Domain type tag.
+    expect(screen.getAllByText("Domain").length).toBeGreaterThan(0);
+  });
+
   it("Coming Soon lens renders Now / Next / Later horizons", () => {
     render(<RoadmapView />);
     fireEvent.click(screen.getByRole("tab", { name: "Coming Soon" }));

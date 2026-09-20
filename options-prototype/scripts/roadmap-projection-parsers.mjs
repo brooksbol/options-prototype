@@ -746,3 +746,184 @@ export function parsePrinciples(markdown) {
 
   return { items };
 }
+
+/** Domain-grounding tags used by the options domain reference. Detected mechanically; never invented. */
+const DOMAIN_TAGS = [
+  "MECH",
+  "THEORY",
+  "EMPIRICAL",
+  "BROKER",
+  "WW-POLICY",
+  "UNRESOLVED",
+  "HEURISTIC",
+];
+
+/**
+ * Split an entry's raw lines into prose and Markdown tables.
+ *
+ * A Markdown table is a run of consecutive lines each starting (after optional
+ * whitespace) with "|". The separator row (---|---) is dropped; header and body
+ * rows are emitted with verbatim trimmed cells. Non-table lines become prose.
+ * This is a structural transformation of canonical content — cells are copied
+ * verbatim; nothing is summarized or reworded.
+ *
+ * Returns { prose, tables: [{ header: string[], rows: string[][] }] }.
+ */
+export function splitProseAndTables(lines) {
+  const tables = [];
+  const proseLines = [];
+  let i = 0;
+
+  const isTableRow = (l) => /^\s*\|.*\|\s*$/.test(l);
+  const isSeparator = (l) => /^\s*\|?[\s:|-]*-[\s:|-]*\|?\s*$/.test(l) && l.includes("-");
+  const cells = (l) =>
+    l
+      .trim()
+      .replace(/^\|/, "")
+      .replace(/\|$/, "")
+      .split("|")
+      .map((c) => c.trim());
+
+  while (i < lines.length) {
+    const line = lines[i];
+    if (isTableRow(line) && i + 1 < lines.length && isSeparator(lines[i + 1])) {
+      const header = cells(line);
+      const rows = [];
+      i += 2; // skip header + separator
+      while (i < lines.length && isTableRow(lines[i]) && !isSeparator(lines[i])) {
+        rows.push(cells(lines[i]));
+        i += 1;
+      }
+      tables.push({ header, rows });
+      continue;
+    }
+    proseLines.push(line);
+    i += 1;
+  }
+
+  return { prose: proseLines.join("\n"), tables };
+}
+
+/**
+ * Parse the options domain reference (docs/foundations/options-domain-reference.md)
+ * into a Part → entry structure for the Roadmap Domain lens.
+ *
+ * FIDELITY CONSTRAINT (governing): this projects documentation; it never
+ * synthesizes a second interpretation. Every emitted string is either canonical
+ * text verbatim or a mechanically-sliced excerpt of it, plus the heading and the
+ * grounding tags mechanically detected in the entry. No actor-written summaries.
+ *
+ * Structure:
+ *   # PART N — Title            → a Part (also the trailing ## notes/boundary/Fidelity sections)
+ *   ## N. / ## N.N / ### ...     → entries within the current Part
+ * An entry's `content` is the verbatim body up to `excerptCharLimit`; if longer,
+ * it is cut at a paragraph/sentence boundary and `truncated` is set so the UI can
+ * point to the canonical source for the remainder. `tags` are the distinct
+ * grounding tags found in the entry body.
+ *
+ * Returns { parts: [{ title, entries: [{ heading, level, content, truncated, tags }] }] }.
+ */
+export function parseDomainReference(markdown, excerptCharLimit = 600) {
+  const lines = markdown.split("\n");
+  const parts = [];
+  let currentPart = null;
+  let currentEntry = null;
+  const entryLines = [];
+
+  const flushEntry = () => {
+    if (!currentEntry || !currentPart) {
+      entryLines.length = 0;
+      return;
+    }
+    const bodyRaw = entryLines.join("\n").trim();
+    // Mechanically detect grounding tags actually present in the body.
+    const tags = [];
+    for (const t of DOMAIN_TAGS) {
+      // Match the bracketed tag token, e.g. `[MECH]` (may be inside backticks).
+      const re = new RegExp("\\[" + t.replace(/[-]/g, "\\-") + "\\]");
+      if (re.test(bodyRaw)) tags.push(t);
+    }
+
+    // Separate Markdown tables from prose. Tables are emitted structurally
+    // (verbatim header + row cells) so the UI can render a real table rather
+    // than raw pipe text; prose is the non-table remainder. Both are canonical —
+    // no synthesis, just structural transformation.
+    const { prose, tables } = splitProseAndTables(entryLines);
+
+    // Faithful prose content: verbatim up to the limit; if longer, cut at a boundary.
+    let content = prose.trim();
+    let truncated = false;
+    if (content.length > excerptCharLimit) {
+      const slice = content.slice(0, excerptCharLimit);
+      const para = slice.lastIndexOf("\n\n");
+      const sentence = slice.lastIndexOf(". ");
+      const space = slice.lastIndexOf(" ");
+      const cut = para > 200 ? para : sentence > 200 ? sentence + 1 : space > 0 ? space : slice.length;
+      content = slice.slice(0, cut).trim();
+      truncated = true;
+    }
+    currentEntry.content = content;
+    currentEntry.truncated = truncated;
+    currentEntry.tags = tags;
+    currentEntry.tables = tables;
+    currentPart.entries.push(currentEntry);
+    currentEntry = null;
+    entryLines.length = 0;
+  };
+
+  const flushPart = () => {
+    flushEntry();
+    if (currentPart) parts.push(currentPart);
+    currentPart = null;
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/\r$/, "");
+
+    // Part boundary: "# PART N — Title".
+    const partHeading = line.match(/^#\s+PART\s+\d+\s*[—–-]\s*(.+?)\s*$/i);
+    if (partHeading) {
+      flushPart();
+      currentPart = { title: partHeading[1].trim(), entries: [] };
+      continue;
+    }
+
+    // Trailing top-level "## " sections after Part 5 (Reconciliation notes,
+    // Intentional-boundary note, Fidelity broker-account balance semantics) are
+    // grouped under a synthesized-but-labelled "Notes & Boundaries" part using
+    // ONLY their own verbatim headings/content.
+    const h2 = line.match(/^##\s+(.+?)\s*$/);
+    const h3 = line.match(/^###\s+(.+?)\s*$/);
+
+    if (h2 && !currentPart) {
+      // A ## before any PART (e.g. "How to read this reference") — treat as a
+      // preface part so nothing is silently dropped.
+      flushPart();
+      currentPart = { title: "Preface", entries: [] };
+    }
+
+    if ((h2 || h3) && currentPart) {
+      // If this ## is actually a trailing top-level section after the last PART,
+      // start a Notes part the first time we see one.
+      if (
+        h2 &&
+        /^(reconciliation notes|intentional-boundary note|fidelity )/i.test(h2[1].trim()) &&
+        currentPart.title !== "Notes & Boundaries"
+      ) {
+        flushPart();
+        currentPart = { title: "Notes & Boundaries", entries: [] };
+      }
+      flushEntry();
+      const heading = (h3 ? h3[1] : h2[1]).trim();
+      currentEntry = { heading, level: h3 ? 3 : 2, content: "", truncated: false, tags: [] };
+      continue;
+    }
+
+    if (currentEntry) entryLines.push(line);
+  }
+
+  flushPart();
+
+  // Keep only parts that actually carry entries.
+  return { parts: parts.filter((p) => p.entries.length > 0) };
+}

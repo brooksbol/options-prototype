@@ -344,6 +344,72 @@
   background: var(--wd-accent-purple-bg);
 }
 
+/* Domain type tag + grounding tags */
+.rm-type-domain-tag {
+  color: var(--wd-accent-blue);
+  background: var(--wd-accent-blue-bg);
+}
+
+.rm-domain-boundary {
+  color: var(--wd-text-secondary);
+  border-left: 2px solid var(--wd-accent-yellow-border);
+  padding-left: 8px;
+}
+
+.rm-domain-tag {
+  font-family: var(--wd-font-mono);
+  font-size: var(--wd-size-micro);
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-tertiary);
+  background: var(--wd-bg-raised);
+  border: 1px solid var(--wd-border-subtle);
+  padding: 0 4px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.rm-domain-content {
+  font-family: var(--wd-font-sans);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--wd-text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0 0 10px 0;
+}
+
+/* Domain matrices rendered as real tables (verbatim canonical cells) */
+.rm-domain-table-wrap {
+  overflow-x: auto;
+  margin: 0 0 12px 0;
+}
+
+.rm-domain-table {
+  border-collapse: collapse;
+  font-size: 10px;
+  line-height: 1.4;
+  min-width: 100%;
+}
+
+.rm-domain-table th,
+.rm-domain-table td {
+  text-align: left;
+  vertical-align: top;
+  border: 1px solid var(--wd-border-subtle);
+  padding: 3px 6px;
+}
+
+.rm-domain-table th {
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-table-header);
+  background: var(--wd-bg-raised);
+  white-space: nowrap;
+}
+
+.rm-domain-table td {
+  color: var(--wd-text-secondary);
+}
+
 .rm-adr-status {
   font-size: var(--wd-size-label);
   color: var(--wd-accent-green);

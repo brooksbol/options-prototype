@@ -172,6 +172,46 @@ export interface PrincipleRecord {
   provenance: string | null;
 }
 
+/**
+ * A single entry within a Domain Part — a heading from the options domain
+ * reference plus its faithful content. Content is canonical text verbatim or a
+ * mechanically-sliced excerpt (never an actor-written summary); `truncated`
+ * indicates additional canonical detail exists in the source. `tags` are the
+ * grounding classifications ([MECH]/[THEORY]/[EMPIRICAL]/…) mechanically
+ * detected in the entry.
+ */
+export interface DomainTable {
+  /** Verbatim header cells. */
+  header: string[];
+  /** Verbatim body-row cells (separator row dropped). */
+  rows: string[][];
+}
+
+export interface DomainEntry {
+  heading: string;
+  level: number;
+  content: string;
+  truncated: boolean;
+  tags: string[];
+  /** Canonical Markdown tables in the entry, rendered structurally (verbatim cells). */
+  tables: DomainTable[];
+}
+
+/** A Part of the options domain reference (its own heading) with its entries. */
+export interface DomainPart {
+  title: string;
+  entries: DomainEntry[];
+}
+
+/**
+ * The Domain projection — a read-only, faithful projection of the canonical
+ * options domain reference (Category E specialized reference). Describes the
+ * domain; does not establish Wheelwright policy or authorize trading behavior.
+ */
+export interface DomainReference {
+  parts: DomainPart[];
+}
+
 /** Provenance and integrity metadata for the projection. */
 export interface ProjectionMeta {
   /** ISO timestamp the projection was generated. */
@@ -195,6 +235,8 @@ export interface ProjectionMeta {
     comingSoonTotal: number;
     /** Ratified principles in the canonical register. */
     principleTotal: number;
+    /** Domain reference entries projected (across all Parts). */
+    domainEntryTotal: number;
   };
   /**
    * Non-fatal notes recorded during parsing (e.g. an alias that did not resolve).
@@ -218,4 +260,6 @@ export interface RoadmapProjection {
   comingSoon: ComingSoon;
   /** Ratified enduring principles (canonical register). */
   principles: PrincipleRecord[];
+  /** Faithful projection of the options domain reference (Category E). */
+  domain: DomainReference;
 }

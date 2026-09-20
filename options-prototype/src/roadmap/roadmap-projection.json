@@ -1,11 +1,12 @@
 {
   "meta": {
-    "generatedAt": "2026-09-20T17:42:52.431Z",
+    "generatedAt": "2026-09-20T17:58:12.750Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
       "docs/07c-adrs.md",
       "docs/principles.md",
+      "docs/foundations/options-domain-reference.md",
       "docs/roadmap-priority.md",
       "docs/roadmap-coming-soon.md",
       "docs/parking-lot.md",
@@ -35,7 +36,8 @@
       "adrTotal": 18,
       "priorityTotal": 10,
       "comingSoonTotal": 5,
-      "principleTotal": 9
+      "principleTotal": 9,
+      "domainEntryTotal": 36
     },
     "notes": []
   },
@@ -2304,5 +2306,660 @@
       "statement": "Numerical/output precision must be commensurate with evidence quality; the system must not present outputs with more precision than the underlying evidence and computation deserve. Rounding, qualification, and range representation are honest communication of epistemic state, not compromises. Source: `docs/foundations/epistemic-precision.md` (Governing principle).",
       "provenance": null
     }
-  ]
+  ],
+  "domain": {
+    "parts": [
+      {
+        "title": "Preface",
+        "entries": [
+          {
+            "heading": "How to read this reference",
+            "level": 2,
+            "content": "This is an **operational reference, not a textbook**. Its job is to let a Wheelwright actor (Principal, ChatGPT, Kiro, Codex) reason correctly about *what an option position economically is and does* before designing, implementing, reviewing, or accepting software that depends on it — so we do not spend effort implementing an economically wrong model.",
+            "truncated": true,
+            "tags": [
+              "MECH",
+              "THEORY",
+              "EMPIRICAL",
+              "BROKER",
+              "WW-POLICY",
+              "UNRESOLVED",
+              "HEURISTIC"
+            ],
+            "tables": []
+          }
+        ]
+      },
+      {
+        "title": "Options Economic Model (the always-read core)",
+        "entries": [
+          {
+            "heading": "1. An option is a contract with two asymmetric sides",
+            "level": 2,
+            "content": "`[MECH]` A standardized U.S. equity/ETF option **ordinarily has a 100-share deliverable before adjustment** — a contract on a specific underlying at a fixed **strike**, expiring on a fixed date. The deliverable is a contract term, **not a constant**: corporate actions can change it (see Part 4 D8 / Specimen 7). Always read the deliverable from the applicable contract rather than assuming 100 shares.\n\n- A **call** gives the *holder* the right to **buy** the underlying at the strike. `[MECH]`\n- A **put** gives the *holder* the right to **sell** the underlying at the strike. `[MECH]`",
+            "truncated": true,
+            "tags": [
+              "MECH"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "2. The four order actions (open vs close)",
+            "level": 2,
+            "content": "`[MECH]` Every option order is one of a 2×2 (buy/sell × open/close):\n\n- **BTO** Buy To Open — become long (acquire a right).\n- **STO** Sell To Open — become short (accept an obligation, receive premium).\n- **BTC** Buy To Close — retire an existing short (pay to extinguish your obligation).\n- **STC** Sell To Close — retire an existing long (sell the right you hold).",
+            "truncated": true,
+            "tags": [
+              "MECH"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "3. Premium = intrinsic + extrinsic value",
+            "level": 2,
+            "content": "> **Standard-contract scope (applies to §§3–4 and Part 2).** The per-share formulas and 100-share arithmetic below assume **ordinary unadjusted physical-delivery** equity/ETF contracts. Adjusted or other contracts require their actual deliverable, aggregate exercise payment, premium quotation factor, valuation convention, and settlement terms (D8 / Specimen 7). Do **not** substitute deliverable share count for premium or strike dollar-extension factors, or use a raw underlying share price for an adjusted contract's moneyness.\n\n`[THEORY]` An option's price decomposes as:",
+            "truncated": true,
+            "tags": [
+              "MECH",
+              "THEORY"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "4. Moneyness",
+            "level": 2,
+            "content": "`[MECH]` OTM / ATM / ITM describe strike vs underlying:\n\n- Call: ITM when `S > K`, OTM when `S < K`. Put: ITM when `S < K`, OTM when `S > K`.\n- ATM ≈ strike near underlying.\n\nOption type and contract terms determine **settlement direction**. Moneyness describes intrinsic value and informs applicable exercise-by-exception defaults; it does **not** by itself establish exercise, assignment, desirability, or final holdings (see D5, D2).",
+            "truncated": false,
+            "tags": [
+              "MECH"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "5. Lifecycle events (four distinct kinds)",
+            "level": 2,
+            "content": "Distinguish the *kind* of transition — this typing is used in Part 2:\n\n- **Operator action** — you choose it: BTO/STO/BTC/STC, roll, early close.\n- **Continued state** — HOLD: no transition now; obligation and exposure persist.\n- **Counterparty event** — you do not control it: early assignment (American-style).\n- **Expiration boundary** — the option ceases to exist if unexercised; exercise and assignment outcomes depend on applicable exercise-by-exception procedures, valid instructions, and allocation.",
+            "truncated": true,
+            "tags": [
+              "MECH"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "6. Settlement: standard equity/ETF options ordinarily settle physically",
+            "level": 2,
+            "content": "`[MECH]` **Standard, unadjusted** equity and ETF options ordinarily settle by **physical delivery of the specified shares**: an exercised/assigned ITM option is exchanged for shares, not cash. But the actual settlement form and deliverable must be read from the **applicable contract / OCC adjustment** — an adjusted contract can carry a cash component or a non-standard deliverable (see Part 4 D8 / Specimen 7), and index options (e.g. SPX) cash-settle (not currently operationalized by Wheelwright). Establish physical settlement before relying on it; do not assume it.",
+            "truncated": true,
+            "tags": [
+              "MECH"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "7. The capital ladder — the most misused part of the domain",
+            "level": 2,
+            "content": "These are **distinct** and must never be collapsed `[MECH]`/`[BROKER]`:\n\n1. **Aggregate exercise payment / stated notional** — determined from applicable contract terms. For **ordinary unadjusted 100-share physical-delivery** contracts this is `strike × 100 × contracts`. It is **not** necessarily deliverable market value, collateral, margin, or buying power. `[MECH]`\n2. **Collateral / encumbrance** — what a strategy ties up: cash for a cash-secured put, shares for a covered call. `[MECH]` for the *nominal* amount.\n3.",
+            "truncated": true,
+            "tags": [
+              "MECH",
+              "BROKER"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "8. Mechanics / Evidence / Policy — keep three questions separate",
+            "level": 2,
+            "content": "For any options conclusion, separate:\n\n- **Mechanics** — what economically happens if the event occurs? (true even when the market is closed)\n- **Evidence** — which admissible facts establish *this* position's current state? (underlying price, option quote, provenance, broker state)\n- **Policy** — given mechanics + evidence, what does Wheelwright *prefer*? `[WW-POLICY]`/`[UNRESOLVED]`",
+            "truncated": true,
+            "tags": [
+              "WW-POLICY",
+              "UNRESOLVED"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "9. Complete-position rule",
+            "level": 2,
+            "content": "`[MECH]`/`[THEORY]` Never infer economic meaning from an isolated leg. A short call *alone* is an undefined-risk position; a short call *against 100 owned shares* is a covered call with bounded, entirely different economics. Conversely, do not assume different implementation/lifecycle forms imply different terminal economics: a cash-secured put and a covered call at the same strike/expiration are **synthetically similar in payoff** (put–call parity) `[THEORY]` while differing in capital form and assignment direction (see Part 3, Specimen 3).\n\n---",
+            "truncated": false,
+            "tags": [
+              "MECH",
+              "THEORY"
+            ],
+            "tables": []
+          }
+        ]
+      },
+      {
+        "title": "Lifecycle / Structure Matrices",
+        "entries": [
+          {
+            "heading": "2.1 Cash-Secured Put (CSP)",
+            "level": 2,
+            "content": "The obligation is to **buy** shares at strike; backed by **cash**. `[MECH]` \"Cash-secured\" is the `[BROKER]` collateral treatment; the contractual short put is the `[MECH]` obligation. (A short put *without* established cash security is **not** a CSP — see §Short put ≠ CSP.)",
+            "truncated": false,
+            "tags": [
+              "MECH",
+              "BROKER",
+              "WW-POLICY",
+              "UNRESOLVED"
+            ],
+            "tables": [
+              {
+                "header": [
+                  "Before",
+                  "Action/Event",
+                  "Kind",
+                  "Cash Flow",
+                  "Assets After",
+                  "Obligations After",
+                  "Exposure After",
+                  "Encumbrance After",
+                  "Evidence Required",
+                  "Policy Still Required"
+                ],
+                "rows": [
+                  [
+                    "Cash",
+                    "STO put",
+                    "A",
+                    "**+ premium (historical inflow at open)**",
+                    "Cash (incl. premium received)",
+                    "Short put",
+                    "Obligation to acquire at strike if assigned",
+                    "Cash `strike×100×n` reserved (nominal)",
+                    "pre-execution: contract terms, before-state, indicative price · actual: authoritative fill + affected quantity",
+                    "Is acquisition at strike acceptable? `[WW-POLICY]`"
+                  ],
+                  [
+                    "Short put",
+                    "HOLD",
+                    "C",
+                    "none now",
+                    "unchanged",
+                    "Short put",
+                    "unchanged",
+                    "unchanged",
+                    "underlying (moneyness), DTE",
+                    "none if already governed"
+                  ],
+                  [
+                    "Short put",
+                    "BTC (m of n)",
+                    "A",
+                    "**−(executed closing debit + relevant fees) now (new outflow)**",
+                    "Cash decreases by executed closing debit plus relevant fees; **no shares acquired by BTC**; `n−m` short puts remain",
+                    "`n−m` short puts remain",
+                    "flat on the affected leg(s)",
+                    "only the affected legs' cash encumbrance released (nominal; broker confirms capacity)",
+                    "pre-execution: contract terms + indicative price · actual: authoritative fill + affected quantity",
+                    "Was closing preferred over holding? `[UNRESOLVED]`/`[WW-POLICY]`"
+                  ],
+                  [
+                    "Short put",
+                    "Expiration without exercise/assignment, authoritatively confirmed",
+                    "R",
+                    "none now",
+                    "Cash unchanged",
+                    "none",
+                    "flat",
+                    "released (nominal)",
+                    "Applicable expiration procedures + authoritative broker lifecycle/position evidence confirming resolution of the affected quantity; underlying closing price alone is insufficient",
+                    "none"
+                  ],
+                  [
+                    "Short put",
+                    "Assignment (ITM)",
+                    "X/R",
+                    "− `strike×100×n` now",
+                    "**Shares acquired** at strike",
+                    "none (obligation consumed)",
+                    "long shares",
+                    "cash converted to shares (T+1)",
+                    "broker Activity (authoritative)",
+                    "Manage resulting shares (CC? hold? sell?) `[UNRESOLVED]`"
+                  ],
+                  [
+                    "Short put (n)",
+                    "**Partial** assignment (m<n)",
+                    "X",
+                    "− `strike×100×m`",
+                    "m×100 shares + (n−m) still short",
+                    "(n−m) short puts remain",
+                    "mixed",
+                    "partial",
+                    "broker Activity",
+                    "Re-evaluate residual short + new shares"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "2.2 Covered Call (CC)",
+            "level": 2,
+            "content": "Own ≥100 shares; sell a call against them. The obligation is to **sell** shares at strike; backed by **shares**. `[MECH]`",
+            "truncated": false,
+            "tags": [
+              "MECH",
+              "WW-POLICY",
+              "UNRESOLVED"
+            ],
+            "tables": [
+              {
+                "header": [
+                  "Before",
+                  "Action/Event",
+                  "Kind",
+                  "Cash Flow",
+                  "Assets After",
+                  "Obligations After",
+                  "Exposure After",
+                  "Encumbrance After",
+                  "Evidence Required",
+                  "Policy Still Required"
+                ],
+                "rows": [
+                  [
+                    "Shares (≥ `100×m` available, unencumbered)",
+                    "STO `m` calls",
+                    "A",
+                    "**+ premium (historical inflow at open)**",
+                    "Shares (+ cash from premium)",
+                    "Short call(s)",
+                    "Upside capped at K on the `100×m` covered shares; excess shares retain uncapped exposure",
+                    "`100×m` shares encumbered **in total** for the newly written calls; preserve any existing encumbrances",
+                    "pre-execution: contract terms, before-state, indicative price · actual: authoritative fill + affected quantity",
+                    "Is disposition at strike acceptable? `[WW-POLICY]`"
+                  ],
+                  [
+                    "Shares + short call",
+                    "HOLD",
+                    "C",
+                    "none now",
+                    "unchanged",
+                    "Short call",
+                    "unchanged",
+                    "unchanged",
+                    "underlying, DTE, (dividend calendar if ITM near ex-date)",
+                    "none if governed"
+                  ],
+                  [
+                    "Shares + short call",
+                    "BTC (m of n)",
+                    "A",
+                    "**−(executed closing debit + relevant fees) now (new outflow)**",
+                    "**All `h` shares retained**; cash decreases by executed closing debit plus relevant fees; `n−m` calls remain",
+                    "`n−m` short calls remain",
+                    "affected shares uncapped; still capped under remaining calls",
+                    "only the affected calls' nominal share encumbrance removed",
+                    "pre-execution: contract terms + indicative price · actual: authoritative fill + affected quantity",
+                    "Why uncap? (keep upside / avoid assignment) `[UNRESOLVED]`"
+                  ],
+                  [
+                    "Shares + short call",
+                    "Expiration without exercise/assignment, authoritatively confirmed",
+                    "R",
+                    "none now",
+                    "Shares unchanged",
+                    "none",
+                    "shares, uncapped",
+                    "released (shares)",
+                    "Applicable expiration procedures + authoritative broker lifecycle/position evidence confirming resolution of the affected quantity; underlying closing price alone is insufficient",
+                    "Re-write? `[WW-POLICY]`"
+                  ],
+                  [
+                    "Shares + short call",
+                    "Assignment / call-away (m of n)",
+                    "X/R",
+                    "+ `K×100×m` now",
+                    "shares remaining `h−100m`; `n−m` calls remain",
+                    "`n−m` short calls remain",
+                    "reduced share exposure; flat **only** if `h−100m=0` and `n−m=0`",
+                    "affected shares delivered out (T+1)",
+                    "authoritative broker Activity (contract + affected quantity + payment + timing)",
+                    "Redeploy proceeds? `[UNRESOLVED]`"
+                  ],
+                  [
+                    "Shares + short call",
+                    "**Early** assignment (dividend, m of n)",
+                    "X",
+                    "+ `K×100×m` now",
+                    "shares remaining `h−100m` **before** ex-date; distribution on delivered shares forfeited",
+                    "`n−m` short calls remain",
+                    "reduced share exposure",
+                    "affected shares delivered out",
+                    "authoritative broker Activity; dividend/ex-date",
+                    "Was dividend capture intended? `[UNRESOLVED]`"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "2.3 Buy-Write (BW)",
+            "level": 2,
+            "content": "Simultaneously **buy the shares + sell (STO) a call against them**. `[MECH]` Once opened, the resulting position **is** a covered call — the CC rows above then govern its lifecycle.\n\n\n> **\"Effective basis = share price − premium\"** is a `[HEURISTIC]` presentation convention. For a matched standard buy-write, ignoring costs and distributions, `share purchase price − call premium per share` is the **expiration breakeven** — a theoretical relationship, not necessarily broker or tax basis, and not a current-asset figure.",
+            "truncated": true,
+            "tags": [
+              "MECH",
+              "BROKER",
+              "WW-POLICY",
+              "HEURISTIC"
+            ],
+            "tables": [
+              {
+                "header": [
+                  "Before",
+                  "Action/Event",
+                  "Kind",
+                  "Cash Flow",
+                  "Assets After",
+                  "Obligations After",
+                  "Exposure After",
+                  "Encumbrance After",
+                  "Evidence Required",
+                  "Policy Still Required"
+                ],
+                "rows": [
+                  [
+                    "Cash",
+                    "Buy shares + STO call",
+                    "A",
+                    "− share cost + premium",
+                    "Shares + short call",
+                    "Short call",
+                    "Shares, upside capped at K, downside to 0 below effective basis",
+                    "shares encumbered by call; cash spent on shares",
+                    "pre-execution: share + option quotes, deployable cash `[BROKER]` · actual: **authoritative fills of BOTH legs** before asserting a covered-call position",
+                    "Is bounded-upside acquisition at this basis acceptable? `[WW-POLICY]`"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "2.4 Roll (any short leg)",
+            "level": 2,
+            "content": "`[MECH]` A roll is **two trades**: BTC the existing short + STO a new short (different strike and/or expiration), often presented as one net-priced combined order.\n\n\n> `[HEURISTIC]` Practitioner canon: treat a roll as a **new trade**, roll only if the thesis is unchanged, and prefer a net credit. **A net roll credit does not establish profit or reduced risk** — it can mask a costly old-leg close and a worse new position. Not currently a Wheelwright-operationalized action (`[UNRESOLVED]`; see roadmap / `PL-EXEC-01`).\n\n---",
+            "truncated": false,
+            "tags": [
+              "MECH",
+              "WW-POLICY",
+              "UNRESOLVED",
+              "HEURISTIC"
+            ],
+            "tables": [
+              {
+                "header": [
+                  "Before",
+                  "Action/Event",
+                  "Kind",
+                  "Cash Flow",
+                  "Assets After",
+                  "Obligations After",
+                  "Exposure After",
+                  "Encumbrance After",
+                  "Evidence Required",
+                  "Policy Still Required"
+                ],
+                "rows": [
+                  [
+                    "Short leg",
+                    "Roll (BTC old + STO new)",
+                    "A",
+                    "net credit **or** debit",
+                    "underlying holdings unchanged",
+                    "**new** short obligation (new terms)",
+                    "shifted (new strike/expiry)",
+                    "re-based to new leg",
+                    "both legs' quotes",
+                    "Is the *new* position independently acceptable? `[HEURISTIC]`→`[WW-POLICY]`"
+                  ]
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Semantic Specimens",
+        "entries": [
+          {
+            "heading": "Specimen 1 — BTC of CSP vs BTC of covered call *(the foundational contrast)*",
+            "level": 3,
+            "content": "- **CSP $21, ~2 DTE, OTM.** BTC → a **new cash debit** retires the obligation; **no shares**; this leg's cash encumbrance released (broker confirms capacity). The STO premium is historical, not a standing asset the close \"keeps.\"\n- **CC $26, ~2 DTE, OTM, shares owned.** BTC → a **new cash debit** retires the obligation; **shares retained, now uncapped**; **no cash created**.\n- **Exposes:** the false generalization \"near-expiry + OTM short → BTC\" as one rule. Same action verb, categorically different residual (cash-freed-from-obligation vs shares-uncapped-still-held).",
+            "truncated": true,
+            "tags": [],
+            "tables": []
+          },
+          {
+            "heading": "Specimen 2 — CSP assignment vs covered-call call-away",
+            "level": 3,
+            "content": "- **CSP assigned:** buy the affected contracts' shares at strike, cash out, now long those shares (any unaffected short puts remain).\n- **CC assigned:** deliver the affected contracts' required shares, receive the aggregate exercise payment, and **preserve any excess shares or remaining obligations**.",
+            "truncated": true,
+            "tags": [],
+            "tables": []
+          },
+          {
+            "heading": "Specimen 3 — Same-strike CSP vs covered call (synthetic similarity ≠ identity)",
+            "level": 3,
+            "content": "- Same strike/expiration: **payoff diagrams are nearly identical** `[THEORY]`.\n- But capital form differs (cash vs shares), assignment direction differs, and tax/holding treatment differs.\n- **Exposes:** reading synthetic payoff similarity as economic identity.",
+            "truncated": false,
+            "tags": [
+              "THEORY"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "Specimen 4 — Near-strike expiration (pin/after-hours uncertainty)",
+            "level": 3,
+            "content": "- Underlying pinned ≈ strike into the close; ITM/OTM status can flip on after-hours movement. **Two distinct uncertainties compound:** (a) whether the *holder* exercises (exercise-by-exception is a default, but contrary instructions can exercise an OTM option or decline an ITM one — the writer cannot know); and (b) if exercised, *which writer* is assigned (random allocation, see D1). Post-expiration you may therefore hold an **unexpected** position (or unexpectedly not).",
+            "truncated": true,
+            "tags": [
+              "MECH"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "Specimen 5 — Dividend-driven early call assignment",
+            "level": 3,
+            "content": "- Short call ITM approaching ex-dividend: little remaining extrinsic value relative to the dividend is a useful *indicator* of early-exercise incentive, but it is **not alone sufficient** — the holder's decision also depends on financing/carry, transaction alternatives, timing, and continuation value. Exercise effective before the relevant ex-date generally transfers the upcoming unadjusted distribution on the delivered shares to the exercising holder; assignment notification may arrive later, and unaffected shares (and their distribution entitlement) are preserved.",
+            "truncated": true,
+            "tags": [
+              "MECH",
+              "THEORY"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "Specimen 6 — Roll as close-old + open-new",
+            "level": 3,
+            "content": "- A combined-order \"roll for a $0.30 credit\" is BTC (debit) + STO (larger credit). The credit can coexist with a **loss** on the closed leg and a **worse** new position.\n- **Exposes:** treating a roll as one atomic favorable event; net credit ≠ profit/improved risk.",
+            "truncated": false,
+            "tags": [],
+            "tables": []
+          },
+          {
+            "heading": "Specimen 7 — Adjusted contract / non-standard deliverable",
+            "level": 3,
+            "content": "- After a split/reverse-split/special distribution, OCC may change the **deliverable** (e.g., 100 shares → 100 shares + cash, or a different share count). \"100 shares at strike\" is then false. `[MECH]`\n- **Exposes:** the silent assumption that every contract is an ordinary 100-share deliverable.",
+            "truncated": false,
+            "tags": [
+              "MECH"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "Specimen 8 — Short put where cash security is not established",
+            "level": 3,
+            "content": "- A short put alone, or unavailable reserve evidence, does **not** establish cash security. Inspect the complete position and broker/account evidence: the put may be cash-secured, uncovered/margin-supported, covered by short stock, part of an option structure (e.g. a spread), or **unresolved** as to coverage. Preserve its contractual obligation while withholding unsupported coverage and funding conclusions.",
+            "truncated": true,
+            "tags": [
+              "MECH",
+              "BROKER"
+            ],
+            "tables": []
+          }
+        ]
+      },
+      {
+        "title": "Focused Depth (retrieve only on trigger)",
+        "entries": [
+          {
+            "heading": "D1. Assignment & allocation mechanics *(trigger: partial assignment, multi-contract, \"probability of assignment\")*",
+            "level": 3,
+            "content": "`[MECH]` OCC assigns exercises **randomly to clearing-member accounts** (a documented wheel with a random start, in standard increments); the clearing member (broker) then allocates to individual customers by its own random or FIFO method. Consequences: (a) assignment is **not** controllable or predictable by the writer; (b) **partial assignment** of a multi-contract position is possible; (c) delta is **not** an allocation probability. Source of record: OCC Standard Assignment Procedures; OIC.",
+            "truncated": false,
+            "tags": [
+              "MECH"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "D2. Expiration: exercise-by-exception & contrary instructions *(trigger: expiration handling, near-strike)*",
+            "level": 3,
+            "content": "`[MECH]` At expiration OCC uses **exercise-by-exception (\"ex-by-ex\")**: options ITM by a threshold are exercised **automatically unless** the clearing member submits contrary instructions; a holder can also submit contrary instructions to *not* exercise an ITM option or to exercise one that would not auto-exercise. Customer/broker/firm deadlines differ and are **earlier** than OCC's. So expiration outcome is a *default with overrides*, and after-hours price moves add uncertainty (Specimen 4). Source: Cboe C2 RG10-007; OCC ODD.",
+            "truncated": false,
+            "tags": [
+              "MECH"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "D3. Early exercise economics *(trigger: ITM short near ex-date, deep-ITM short)*",
+            "level": 3,
+            "content": "`[THEORY]` **Call:** a forthcoming unadjusted dividend and little remaining call extrinsic value are useful *indicators* of a potential dividend-related early-exercise incentive — but establish continuation value, financing/carry, feasible sale-and-share-purchase alternatives, costs, and contract terms before drawing an economic conclusion. This comparison is **not a universal exercise trigger**; early call exercise can also be rational for short-sale/transaction/funding-cost reasons even without a dividend.",
+            "truncated": true,
+            "tags": [
+              "THEORY"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "D4. Settlement & funding *(trigger: any \"freed cash / deployable\" claim)*",
+            "level": 3,
+            "content": "`[MECH]`/`[BROKER]` For ordinary physical-delivery equity options, exercise/assignment creates the **contractual** security-delivery and exercise-payment obligations (direction and amount are `[MECH]`), generally settling **T+1**; adjustment memos can prescribe different handling for particular deliverable components. **Broker/account evidence** `[BROKER]` establishes balance treatment, funding arrangements, restrictions, and when proceeds or capacity can actually be used. So the contractual cash effect is a mechanic; its *recognition, availability, and deployability* are broker facts.",
+            "truncated": true,
+            "tags": [
+              "MECH",
+              "BROKER"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "D5. Delta & the Greeks *(trigger: any exposure/valuation claim, \"assignment probability\")*",
+            "level": 3,
+            "content": "`[THEORY]` Delta is a **local sensitivity** of option price to a move in the underlying — **not** a probability. Precisely, in the European Black–Scholes–Merton model with continuous dividend yield `q`: call delta = `e^(−qT)·N(d₁)`, put delta = `e^(−qT)·[N(d₁)−1]`. The **risk-neutral terminal ITM probabilities** are `N(d₂)` for calls and `N(−d₂)` for puts. **Dual delta** is the *strike* sensitivity: `∂C/∂K = −e^(−rT)·N(d₂)`, `∂P/∂K = e^(−rT)·N(−d₂)` under those assumptions — related to, but not literally equal to, those probabilities (sign and discounting matter).",
+            "truncated": true,
+            "tags": [
+              "THEORY",
+              "EMPIRICAL"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "D6. Volatility & option compensation *(trigger: \"richness,\" entry-timing, expected return)*",
+            "level": 3,
+            "content": "`[THEORY]` Implied volatility is the volatility parameter that reconciles an observed option price with a specified pricing model and its other inputs. It is **not** necessarily an unbiased physical forecast of realized volatility.\n`[EMPIRICAL]` Using the positive-for-sellers convention, the forward **variance risk premium** compares **risk-neutral and physical expected future variance over a matched horizon**. Empirical estimators and ex-post implied-minus-realized spreads are *related but distinct* quantities.",
+            "truncated": true,
+            "tags": [
+              "THEORY",
+              "EMPIRICAL",
+              "UNRESOLVED"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "D7. Portfolio consequence — detect-and-route boundary *(trigger: an action changes aggregate exposure)*",
+            "level": 3,
+            "content": "`[MECH]`/`[UNRESOLVED]` A locally correct single-position action can change **aggregate** exposure: assignment across correlated ETFs concentrates equity exposure; multiple CSPs concentrate funding/assignment obligations on the same date; call-aways can leave concentrated cash. This reference only asks the actor to **notice and route** such consequences to Situation/Mission authority (`25-situation-architecture.md`). It contains **no** concentration limits, correlation policy, or sizing rules — those are `[UNRESOLVED]`/`[WW-POLICY]` and live elsewhere. Detect-and-route only.",
+            "truncated": false,
+            "tags": [
+              "MECH",
+              "WW-POLICY",
+              "UNRESOLVED"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "D8. Adjusted contracts *(trigger: corporate action, non-standard deliverable, unusual symbol)*",
+            "level": 3,
+            "content": "`[MECH]` OCC issues contract-adjustment memos for splits, reverse splits, special/large cash distributions, mergers, and spin-offs; the adjusted contract may carry a modified **deliverable**, share count, or a cash component, and often a modified option symbol. This is **live on ETFs** (OCC info memos show ETF splits). Adjustment can change **contract count, strike, deliverable, or settlement handling** — and need **not** change every field or leave a non-standard share deliverable.",
+            "truncated": true,
+            "tags": [
+              "MECH"
+            ],
+            "tables": []
+          }
+        ]
+      },
+      {
+        "title": "Notes & Boundaries",
+        "entries": [
+          {
+            "heading": "Reconciliation notes",
+            "level": 2,
+            "content": "Some reconciliation is **already performed** (documentation-level, within this correction pass); items still requiring **separate Principal action** (e.g. implementation/support decisions, or edits to other authority) are marked as such.",
+            "truncated": true,
+            "tags": [
+              "UNRESOLVED"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "Intentional-boundary note",
+            "level": 2,
+            "content": "Named so a cold-start actor arriving from the standard seller canon does not read absence as defect: multi-leg/defined-risk structures, IV-rank/relative-compensation *ranking*, variance-risk-premium *entry logic*, percentage-of-premium take-profit *as a forward decision driver*, and rolling are **not currently operationalized** (`[UNRESOLVED]`). The one genuine ratified boundary: **deployment justified by directional forecast is inadmissible** (`foundations/policy-over-prediction.md`, Category A). Everything else in this list is undecided, not rejected.\n\n\n---",
+            "truncated": false,
+            "tags": [
+              "UNRESOLVED"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "Fidelity broker-account balance semantics (September 19, 2026)",
+            "level": 2,
+            "content": "> **Scope:** `[BROKER]` Fidelity-specific operational semantics grounded in current Fidelity balance-page definitions plus real PTS margin-enabled and Sawdust non-margin specimens. These are not universal clearing mechanics and do not establish policy for another broker. Full evidence/why-state: `docs/56-fidelity-account-regime-balance-semantics-2026-09-19.md`.",
+            "truncated": false,
+            "tags": [
+              "BROKER"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "Broker facts that must remain distinct",
+            "level": 3,
+            "content": "`[BROKER]` Fidelity exposes materially different balance dialects for non-margin and margin-enabled accounts. Wheelwright must preserve the broker-native facts and project them into common decision meanings; absent/not-applicable fields are not numeric zero.\n\nFor a Fidelity margin account, distinguish at least:",
+            "truncated": true,
+            "tags": [
+              "BROKER"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "Wheelwright semantic projections",
+            "level": 3,
+            "content": "`[WW-POLICY]` / `[BROKER]` For the already-remediated BUG-022 Deployable semantic:\n\n- Fidelity CASH/legacy regime → **Available to trade (all settled)**\n- Fidelity MARGIN regime → **Available without margin impact**\n- INDETERMINATE → **null / fail closed**",
+            "truncated": true,
+            "tags": [
+              "BROKER",
+              "WW-POLICY"
+            ],
+            "tables": []
+          },
+          {
+            "heading": "Authority / derivation discipline",
+            "level": 3,
+            "content": "`[BROKER]` When Fidelity directly reports a current broker-account quantity, preserve it as broker state rather than replacing it with a Wheelwright reconstruction. In particular, do not synthesize Fidelity NAV, house requirements, SMA, exchange surplus, or reserve-netting formulas from visible holdings absent a sufficient documented broker contract.\n\n`[UNRESOLVED]` Fidelity's internal reserve-netting formula remains unproven. No Wheelwright deployment/risk policy is established merely from house surplus, SMA, or exchange surplus.",
+            "truncated": true,
+            "tags": [
+              "BROKER",
+              "UNRESOLVED"
+            ],
+            "tables": []
+          }
+        ]
+      }
+    ]
+  }
 }

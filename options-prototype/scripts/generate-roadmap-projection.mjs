@@ -32,6 +32,7 @@ import {
   parsePriority,
   parseHorizons,
   parsePrinciples,
+  parseDomainReference,
 } from "./roadmap-projection-parsers.mjs";
 
 const projectRoot = resolve(dirname(new URL(import.meta.url).pathname), "..");
@@ -187,6 +188,16 @@ if (existsSync(principlesPath) && principles.length === 0) {
   fail("docs/principles.md exists but no ratified principles were parsed");
 }
 
+// Domain reference — faithful projection of the options domain reference (Category E).
+const domainPath = resolve(docsDir, "foundations/options-domain-reference.md");
+const domain = existsSync(domainPath)
+  ? parseDomainReference(readFileSync(domainPath, "utf-8"))
+  : { parts: [] };
+if (existsSync(domainPath) && domain.parts.length === 0) {
+  fail("docs/foundations/options-domain-reference.md exists but no Domain parts were parsed");
+}
+const domainEntryTotal = domain.parts.reduce((sum, p) => sum + p.entries.length, 0);
+
 // Integrity: a priority entry that references a canonical id must resolve, else
 // it is a stale reference the authority should fix (fail-closed).
 for (const e of priority.entries) {
@@ -219,6 +230,7 @@ const projection = {
       "docs/architecture-roadmap.md",
       "docs/07c-adrs.md",
       "docs/principles.md",
+      "docs/foundations/options-domain-reference.md",
       "docs/roadmap-priority.md",
       "docs/roadmap-coming-soon.md",
       ...parkingLotFiles.map((f) => `docs/${f}`),
@@ -234,6 +246,7 @@ const projection = {
       priorityTotal: priority.entries.length,
       comingSoonTotal,
       principleTotal: principles.length,
+      domainEntryTotal,
     },
     notes,
   },
@@ -245,6 +258,7 @@ const projection = {
   priority,
   comingSoon,
   principles,
+  domain,
 };
 
 // ---------- Write or check ----------
@@ -287,6 +301,7 @@ console.log(`  ADRs:         ${adrs.length}  (ratified decisions)`);
 console.log(`  Priority:     ${priority.entries.length}  (${priority.established ? "established" : "NOT established yet"})`);
 console.log(`  Coming Soon:  now ${comingSoon.now.length} · next ${comingSoon.next.length} · later ${comingSoon.later.length}`);
 console.log(`  Principles:   ${principles.length}  (ratified register)`);
+console.log(`  Domain:       ${domain.parts.length} parts · ${domainEntryTotal} entries  (options domain reference)`);
 if (notes.length > 0) {
   console.log(`  Notes (${notes.length}):`);
   for (const n of notes) console.log(`    - ${n}`);

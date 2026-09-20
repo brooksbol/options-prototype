@@ -30,11 +30,13 @@ import { AdrView } from "./AdrView";
 import { PriorityView } from "./PriorityView";
 import { ComingSoonView } from "./ComingSoonView";
 import { PrinciplesView } from "./PrinciplesView";
+import { DomainView } from "./DomainView";
 import "./roadmap.css";
 
 type RoadmapLens =
   | "strategy"
   | "principles"
+  | "domain"
   | "priority"
   | "architecture"
   | "adr"
@@ -44,6 +46,7 @@ type RoadmapLens =
 const LENSES: { id: RoadmapLens; label: string }[] = [
   { id: "strategy", label: "Strategy" },
   { id: "principles", label: "Principles" },
+  { id: "domain", label: "Domain" },
   { id: "priority", label: "Priority" },
   { id: "architecture", label: "Architecture" },
   { id: "adr", label: "ADRs" },
@@ -88,6 +91,8 @@ export function RoadmapView() {
           <span className="rm-count-sep">·</span>
           <span title="Ratified principles">{counts.principleTotal} principles</span>
           <span className="rm-count-sep">·</span>
+          <span title="Domain reference entries">{counts.domainEntryTotal} domain</span>
+          <span className="rm-count-sep">·</span>
           <span title="Architectural pressures">{counts.arTotal} AR</span>
           <span className="rm-count-sep">·</span>
           <span title="Architecture decision records">{counts.adrTotal} ADR</span>
@@ -111,6 +116,8 @@ export function RoadmapView() {
         {lens === "architecture" && <ArchitectureView />}
 
         {lens === "principles" && <PrinciplesView />}
+
+        {lens === "domain" && <DomainView />}
 
         {lens === "priority" && <PriorityView />}
 

@@ -17,6 +17,7 @@ import {
   lvtTypeFromId,
   parsePriority,
   parseHorizons,
+  parseDomainReference,
 } from "../../scripts/roadmap-projection-parsers.mjs";
 
 const LVT_FIXTURE = [
@@ -344,5 +345,88 @@ describe("parseHorizons", () => {
     expect(h.now).toEqual([]);
     expect(h.next).toEqual([]);
     expect(h.later).toEqual([]);
+  });
+});
+
+describe("parseDomainReference", () => {
+  const md = [
+    "# Wheelwright Options Domain Reference",
+    "## How to read this reference",
+    "Preface text.",
+    "# PART 1 — Options Economic Model (the always-read core)",
+    "## 1. An option is a contract with two asymmetric sides",
+    "`[MECH]` A standardized option has a 100-share deliverable.",
+    "## 2. The four order actions (open vs close)",
+    "`[MECH]` Every option order is one of a 2×2.",
+    "# PART 3 — Semantic Specimens",
+    "### Specimen 1 — BTC of CSP vs BTC of covered call",
+    "- CSP: a new cash debit retires the obligation.",
+    "### Specimen 3 — synthetic similarity",
+    "- Same strike/expiration payoff nearly identical `[THEORY]`.",
+    "## Reconciliation notes",
+    "Some reconciliation is already performed. `[UNRESOLVED]`",
+  ].join("\n");
+
+  const { parts } = parseDomainReference(md);
+
+  it("parses parts by their canonical titles", () => {
+    const titles = parts.map((p: { title: string }) => p.title);
+    expect(titles).toContain("Options Economic Model (the always-read core)");
+    expect(titles).toContain("Semantic Specimens");
+    // Trailing top-level sections are grouped as Notes & Boundaries.
+    expect(titles).toContain("Notes & Boundaries");
+    // Preface content is preserved, not dropped.
+    expect(titles).toContain("Preface");
+  });
+
+  it("preserves canonical entry headings and content verbatim (no synthesis)", () => {
+    const part1 = parts.find((p: { title: string }) => p.title.startsWith("Options Economic Model"));
+    const entry = part1.entries.find((e: { heading: string }) => e.heading.startsWith("1."));
+    expect(entry.heading).toBe("1. An option is a contract with two asymmetric sides");
+    // Content is exactly the source line(s), not a paraphrase.
+    expect(entry.content).toContain("`[MECH]` A standardized option has a 100-share deliverable.");
+  });
+
+  it("mechanically detects grounding tags present in an entry, and none where absent", () => {
+    const specimens = parts.find((p: { title: string }) => p.title === "Semantic Specimens");
+    const s1 = specimens.entries.find((e: { heading: string }) => e.heading.startsWith("Specimen 1"));
+    const s3 = specimens.entries.find((e: { heading: string }) => e.heading.startsWith("Specimen 3"));
+    expect(s1.tags).toEqual([]); // no tag in the source specimen 1 body
+    expect(s3.tags).toContain("THEORY");
+  });
+
+  it("extracts Markdown tables structurally with verbatim cells, separate from prose", () => {
+    const tableMd = [
+      "# PART 2 — Lifecycle / Structure Matrices",
+      "## 2.1 Cash-Secured Put (CSP)",
+      "The obligation is to buy shares at strike. `[MECH]`",
+      "| Before | Action | Kind |",
+      "|---|---|---|",
+      "| Cash | STO put | A |",
+      "| Short put | HOLD | C |",
+    ].join("\n");
+    const { parts: tp } = parseDomainReference(tableMd);
+    const entry = tp[0].entries[0];
+    // Prose excludes the table lines.
+    expect(entry.content).toContain("The obligation is to buy shares at strike.");
+    expect(entry.content).not.toContain("| Cash |");
+    // Table captured with verbatim header + rows; separator dropped.
+    expect(entry.tables).toHaveLength(1);
+    expect(entry.tables[0].header).toEqual(["Before", "Action", "Kind"]);
+    expect(entry.tables[0].rows).toEqual([
+      ["Cash", "STO put", "A"],
+      ["Short put", "HOLD", "C"],
+    ]);
+  });
+
+  it("marks long entries as truncated and short entries as not", () => {
+    const longMd = [
+      "# PART 1 — X",
+      "## 1. Long",
+      "`[MECH]` " + "word ".repeat(400),
+    ].join("\n");
+    const { parts: lp } = parseDomainReference(longMd, 600);
+    expect(lp[0].entries[0].truncated).toBe(true);
+    expect(lp[0].entries[0].content.length).toBeLessThanOrEqual(600);
   });
 });
