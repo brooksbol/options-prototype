@@ -31,6 +31,7 @@ import { PriorityView } from "./PriorityView";
 import { ComingSoonView } from "./ComingSoonView";
 import { PrinciplesView } from "./PrinciplesView";
 import { DomainView } from "./DomainView";
+import { BugsView } from "./BugsView";
 import "./roadmap.css";
 
 type RoadmapLens =
@@ -41,6 +42,7 @@ type RoadmapLens =
   | "architecture"
   | "adr"
   | "parking-lot"
+  | "bugs"
   | "coming-soon";
 
 const LENSES: { id: RoadmapLens; label: string }[] = [
@@ -51,6 +53,7 @@ const LENSES: { id: RoadmapLens; label: string }[] = [
   { id: "architecture", label: "Architecture" },
   { id: "adr", label: "ADRs" },
   { id: "parking-lot", label: "Parking Lot" },
+  { id: "bugs", label: "Bugs" },
   { id: "coming-soon", label: "Coming Soon" },
 ];
 
@@ -98,6 +101,8 @@ export function RoadmapView() {
           <span title="Architecture decision records">{counts.adrTotal} ADR</span>
           <span className="rm-count-sep">·</span>
           <span title="Parking-lot items (unresolved work / ideas)">{counts.plTotal} PL</span>
+          <span className="rm-count-sep">·</span>
+          <span title="Known defects">{counts.bugTotal} bugs</span>
         </div>
       </div>
 
@@ -122,6 +127,8 @@ export function RoadmapView() {
         {lens === "priority" && <PriorityView />}
 
         {lens === "adr" && <AdrView />}
+
+        {lens === "bugs" && <BugsView />}
 
         {lens === "coming-soon" && <ComingSoonView />}
 

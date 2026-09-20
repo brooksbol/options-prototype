@@ -350,6 +350,86 @@
   background: var(--wd-accent-blue-bg);
 }
 
+/* Bug type tag + severity chips (severity = consequence, not priority) */
+.rm-type-bug-tag {
+  color: var(--wd-accent-red);
+  background: var(--wd-accent-red-bg);
+}
+
+.rm-bug-sev {
+  font-family: var(--wd-font-mono);
+  font-size: var(--wd-size-micro);
+  font-weight: var(--wd-weight-semi);
+  padding: 0 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-left: auto;
+  border: 1px solid var(--wd-border-subtle);
+}
+.rm-bug-sev-s1 { color: var(--wd-accent-red); background: var(--wd-accent-red-bg); border-color: var(--wd-accent-red-border); }
+.rm-bug-sev-s2 { color: var(--wd-accent-red); background: var(--wd-accent-red-bg); }
+.rm-bug-sev-s3 { color: var(--wd-accent-yellow); background: var(--wd-accent-yellow-bg); }
+.rm-bug-sev-s4 { color: var(--wd-text-tertiary); background: var(--wd-bg-raised); }
+.rm-bug-sev-none { color: var(--wd-text-disabled); background: var(--wd-bg-raised); font-style: italic; }
+
+.rm-bug-fields {
+  margin: 0;
+}
+.rm-bug-field {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--wd-table-row-border);
+  font-size: 12px;
+}
+.rm-bug-field dt {
+  flex-shrink: 0;
+  width: 92px;
+  font-size: var(--wd-size-label);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--wd-text-tertiary);
+  font-weight: var(--wd-weight-semi);
+  margin: 0;
+}
+.rm-bug-field dd {
+  margin: 0;
+  color: var(--wd-text-secondary);
+}
+.rm-bug-sev-note {
+  color: var(--wd-text-disabled);
+  font-size: 10px;
+}
+
+/* Registry metadata as a compact supporting strip (not the whole detail) */
+.rm-bug-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding: 6px 0 10px 0;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--wd-border-subtle);
+  font-size: 11px;
+  color: var(--wd-text-secondary);
+}
+.rm-bug-meta-item {
+  white-space: nowrap;
+}
+.rm-bug-meta-key {
+  font-size: var(--wd-size-label);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--wd-text-tertiary);
+  font-weight: var(--wd-weight-semi);
+  margin-right: 3px;
+}
+.rm-bug-sev-inline {
+  margin-left: 0;
+}
+.rm-bug-section-title {
+  color: var(--wd-text-primary);
+}
+
 .rm-domain-boundary {
   color: var(--wd-text-secondary);
   border-left: 2px solid var(--wd-accent-yellow-border);

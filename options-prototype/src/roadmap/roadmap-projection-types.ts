@@ -212,6 +212,45 @@ export interface DomainReference {
   parts: DomainPart[];
 }
 
+/**
+ * A known defect, projected verbatim from the canonical bug index
+ * (docs/bugs/INDEX.md). Exposes what Wheelwright knows is wrong, independently of
+ * whether the defect is prioritized or authorized for remediation. Severity is
+ * consequence evidence, NOT remediation priority; `Not established` is preserved
+ * verbatim, never inferred. No ranking/assignee/workflow fields exist.
+ */
+/**
+ * A section of a canonical bug record, projected faithfully: heading and content
+ * verbatim (content may be a mechanically-sliced excerpt when long), embedded
+ * tables rendered structurally with verbatim cells. No synthesized text.
+ */
+export interface BugSection {
+  heading: string;
+  level: number;
+  content: string;
+  truncated: boolean;
+  tables: DomainTable[];
+}
+
+export interface BugRecord {
+  /** e.g. "BUG-018". */
+  id: string;
+  /** Title from the INDEX row (verbatim). */
+  title: string;
+  area: string;
+  /** "S1".."S4" or "Not established" — verbatim. */
+  severity: string;
+  /** "Open" | "Resolved" | "Won't Fix" | "Duplicate" — verbatim. */
+  status: string;
+  /** Canonical record path (e.g. "BUG-018-*.md") — reference only, not a link. */
+  recordFile: string;
+  provenance: string;
+  /** The record's own `#` title (verbatim), when the record file is present. */
+  recordTitle: string | null;
+  /** Faithful projection of the record's `##`/`###` sections, in document order. */
+  sections: BugSection[];
+}
+
 /** Provenance and integrity metadata for the projection. */
 export interface ProjectionMeta {
   /** ISO timestamp the projection was generated. */
@@ -237,6 +276,8 @@ export interface ProjectionMeta {
     principleTotal: number;
     /** Domain reference entries projected (across all Parts). */
     domainEntryTotal: number;
+    /** Known defects in the canonical bug index. */
+    bugTotal: number;
   };
   /**
    * Non-fatal notes recorded during parsing (e.g. an alias that did not resolve).
@@ -262,4 +303,6 @@ export interface RoadmapProjection {
   principles: PrincipleRecord[];
   /** Faithful projection of the options domain reference (Category E). */
   domain: DomainReference;
+  /** Known defects, verbatim from the canonical bug index (source order). */
+  bugs: BugRecord[];
 }

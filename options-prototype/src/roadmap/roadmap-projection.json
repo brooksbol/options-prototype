@@ -1,12 +1,13 @@
 {
   "meta": {
-    "generatedAt": "2026-09-20T17:58:12.750Z",
+    "generatedAt": "2026-09-20T18:22:45.245Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
       "docs/07c-adrs.md",
       "docs/principles.md",
       "docs/foundations/options-domain-reference.md",
+      "docs/bugs/INDEX.md",
       "docs/roadmap-priority.md",
       "docs/roadmap-coming-soon.md",
       "docs/parking-lot.md",
@@ -37,7 +38,8 @@
       "priorityTotal": 10,
       "comingSoonTotal": 5,
       "principleTotal": 9,
-      "domainEntryTotal": 36
+      "domainEntryTotal": 36,
+      "bugTotal": 24
     },
     "notes": []
   },
@@ -2961,5 +2963,2478 @@
         ]
       }
     ]
-  }
+  },
+  "bugs": [
+    {
+      "id": "BUG-001",
+      "title": "Activity overlay does not project assigned-call closure / called-away disposition",
+      "area": "Portfolio / lifecycle overlay",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-001-assigned-call-closure-projection.md",
+      "provenance": "GH #2",
+      "recordTitle": "BUG-001 — Activity overlay does not project assigned-call closure and called-away share disposition",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "The Fidelity Activity overlay parses assigned-call lifecycle events but does not apply them to post-checkpoint portfolio state. This is a **latent lifecycle-processing defect**.\n\nIt did **not** cause the Sep 3, 2026 SLV position to disappear: the Sep 3 Option Summary already reflected the closed state, so the current-state CSV was correct. The defect surfaces when an assignment occurs *after* an older authoritative checkpoint and must be projected forward from Activity.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "The intended overlay contract is:\n\n> authoritative Option Summary checkpoint + subsequent executed Activity = current state.\n\nAssigned-call lifecycle events that occur after the checkpoint must be projected onto current portfolio state. They currently are not.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Fidelity Activity classification already distinguishes:\n\n- `assigned` — the option assignment notification;\n- `shares_sold_assignment` — `YOU SOLD ASSIGNED CALLS ...`.\n\nThe current Activity projection mutation switch handles direct share purchases, sell-to-open, direct share sales, and cash/default paths, but `assigned` and `shares_sold_assignment` **fall through without mutating current portfolio state**.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "For a covered call assigned after an older checkpoint, the projected current state is wrong: the short call is not closed and the called-away shares are not removed. (Severity was not established in the historical record.)",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Projection mutation switch does not handle the `assigned` and `shares_sold_assignment` classifications; they are parsed but not applied.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Records the defect only. Filing does not authorize remediation.\n\nExplicit non-bug clarifications (preserved from the original record):\n\n- The Sep 3 SLV omission from `wheelwright-positions-2026-09-03.csv` is **correct** — that CSV is a current open-position projection; SLV had already been called away and should not remain.\n- SLV appearing in the puts/buy-writes/cross-entry opportunity exports after closure is **coherent** — those files describe current opportunities, not historical positions.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "- Add a post-checkpoint assigned-call scenario using a checkpoint older than the Activity event.\n- `assigned` closes/removes the matching short call.\n- `shares_sold_assignment` removes the called-away shares from inventory.\n- The affected symbol is reflected as projected activity.\n- Reconciliation does not double-count when a newer Option Summary already incorporates the same lifecycle (a later authoritative Option Summary must remain authoritative and must not cause the event to be applied twice).\n- Cash / deployable-cash handling follows the existing authoritative Balances reconciliation policy without double-counting.\n- Tests cover the full covered-call lifecycle transition rather than only parser classification.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Test gaps identified (historical)",
+          "level": 3,
+          "content": "- Portfolio overlay after assigned call\n- Removal of called-away shares\n- Removal of corresponding short call\n- Proceeds/cash semantics after call-away\n- Explicit frontend assertion for `shares_sold_assignment`",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- Portfolio-state / trade-lifecycle maturity: `PL-PORT-01`, `PL-EXEC-01` (capability context; not a bug record).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Sibling scope observation (2026-09-16, recorded — NOT a scope widening of this record)",
+          "level": 3,
+          "content": "The Existing Short-Obligation HOLD vs CLOSE V1 reconciliation (SYNC `7b4a084`) re-verified the live `projectActivityOverlay` mutation switch (`options-prototype/src/portfolio/activity-projection.ts`) and found that, in addition to this record's `assigned` / `shares_sold_assignment` fall-through, the **`buy_to_close` (voluntary BTC)** and **`expired`** event types **also fall through without mutating projected state** — the same class of defect in the same switch. `enrichOpenedDates` reads those events but is explicitly provenance-only. The passing `options-prototype/tests/scenarios/projectState.test.ts` assertions exercise the *separate* scenario-replay path (`src/scenarios/projectState.ts`), not the live overlay, so they mask this gap.",
+          "truncated": true,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-002",
+      "title": "Production cannot derive called-away share basis from direct purchases / buy-writes",
+      "area": "Production",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-002-called-away-share-basis.md",
+      "provenance": "GH #3",
+      "recordTitle": "BUG-002 — Production accounting cannot derive called-away share basis from direct purchases or buy-writes",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Production accounting recognizes an assigned-call stock sale as a lifecycle-attributed disposition, but its basis lookup is too narrow: it only searches prior assigned-put stock purchases. Shares acquired directly (including buy-write share acquisition) are not considered.\n\nThis causes realized call-away economics to remain **unresolved** even when Fidelity Activity contains sufficient direct-purchase basis evidence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Called-away share disposition basis resolution should consider authoritative acquisition evidence appropriate to the shares being disposed, including direct share purchases / buy-write acquisition where attribution is supportable — while preserving epistemic discipline (no manufactured lot attribution).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Empirical case: SLV, Sep 3 2026 (operator-reported — see status note)",
+          "level": 3,
+          "content": "Observed Fidelity lifecycle:\n\n- 100 SLV shares acquired directly at $62.50/share.\n- The Sep 2 $59 covered call was assigned.\n- Fidelity reported `YOU SOLD ASSIGNED CALLS ...` for 100 SLV shares at $59.00.\n- Net disposition proceeds: $5,899.87.\n\nExpected share-leg realized result:\n\n- acquisition basis: $6,250.00\n- net proceeds: $5,899.87\n- capital erosion: ≈ $350.13\n\nThis capital consequence is separate from previously recognized option premium and must not double-count that premium.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Confirmed implementation mechanics (verified from code, 2026-09-04 reconciliation)",
+          "level": 3,
+          "content": "- `TransactionClassifier` maps `YOU SOLD ASSIGNED CALLS ...` to `ASSIGNED_CALL_STOCK_SALE`.\n- `EconomicDecomposer.decompose` routes that kind to `decomposeLifecycleDisposition`, which computes `gainOrLoss = proceeds - basis` and books `REALIZED_APPRECIATION` (gain) or `CAPITAL_EROSION` (loss).\n- `findDispositionBasis`, for `ASSIGNED_CALL_STOCK_SALE`, resolves basis **only** from a prior `ASSIGNED_PUT_STOCK_PURCHASE` of the same symbol. It does **not** consult direct `ASSET_PURCHASE` / buy-write acquisition for the call-away path.\n- When basis resolves to `null`, the disposition is booked as `PRINCIPAL_MOVEMENT` with `BASIS_UNKNOWN`; no `REALIZED_APPRECIATION`/`CAPITAL_EROSION` component is emitted.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Silent-degradation clarification (added 2026-09-04)",
+          "level": 3,
+          "content": "The failure does **not** surface as an error or an explicit \"basis unresolved\" signal. With no realized-appreciation/erosion component available, the frontend episode ledger (`buildResolveChapter`, called-away branch) falls back to labeling the row with the opening premium only — a plausible-looking **premium-only** figure. The operator can see a credible number and not realize the share-leg economics were never resolved. This silent degradation is material to the defect's consequence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Realized share appreciation/erosion for directly-purchased or buy-write-origin called-away shares is silently omitted; the operator may see a premium-only figure that appears complete. (Severity was intentionally not asserted in the historical record.)",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "`findDispositionBasis` scopes basis resolution for `ASSIGNED_CALL_STOCK_SALE` to prior assigned-put purchases only; direct/buy-write acquisition basis is never consulted.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Records the defect and its factual basis. Filing does not authorize remediation. Priority/sequencing is a separate Principal decision.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "- A direct-purchase → covered-call assignment → assigned-call stock-sale lifecycle can resolve realized share economics when the acquisition basis is determinable from Activity evidence.\n- The SLV-shaped case recognizes ≈ $350.13 of capital erosion from $6,250 basis and $5,899.87 net proceeds.\n- Existing assigned-put-origin basis behavior remains correct.\n- No option-premium double counting is introduced.\n- Ambiguous/multiple-lot cases remain explicitly unresolved or carry appropriate attribution confidence rather than guessing (distinguish unique, batch/partial, and unresolved attribution; preserve multi-lot ambiguity rather than silently using symbol-level blended basis; keep realized share appreciation/erosion separate from booked option premium).\n- Tests cover direct-purchase/buy-write origin, above-basis appreciation, below-basis erosion, and ambiguous multi-lot attribution.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Test gap identified (historical)",
+          "level": 3,
+          "content": "Current called-away accounting tests use shares acquired through put assignment, matching the existing narrow resolver. There is no equivalent direct-purchase/buy-write-origin test.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Epistemic status of the SLV figures (preserved verbatim intent)",
+          "level": 2,
+          "content": "The SLV Sep 3 2026 dollar figures (basis $6,250 from 100 shares at $62.50; net proceeds $5,899.87; ≈ $350.13 erosion) are **operator-reported and have not been independently verified from the actual Fidelity Activity evidence.** The Production endpoint is stateless and the underlying Activity CSV is not retained in the repository, so these numbers could not be reconstructed from repository state. The implementation mechanics above are confirmed; the specific SLV dollar amounts are a plausible, arithmetically consistent illustration pending confirmation from the source Activity export. No numbers were invented or adjusted.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- Visibility sibling: `BUG-007` (unknown basis leaving reconciliation appearing complete).\n- Economic-authority companion: `BUG-006` (called-away \"capital returned\" uses reconstructed strike notional).\n- Legibility sibling (correct composite still illegible): `BUG-003`.\n- Capability context: `PL-PORT-02` (production-accounting correctness), `PL-PORT-01` (lot attribution), `PL-EXEC-01` (lifecycle provenance).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-003",
+      "title": "\"Produced\" result not legible: composite economic sources not first-order visible",
+      "area": "Production",
+      "severity": "S3",
+      "status": "Open",
+      "recordFile": "BUG-003-produced-composite-legibility.md",
+      "provenance": "GH #8",
+      "recordTitle": "BUG-003 — Production \"Produced\" result is not sufficiently legible: composite economic sources are not first-order visible",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Production can present a **correct composite** monthly Produced result without making its economic composition sufficiently legible. The number can be right while answering \"where did it come from?\" requires the operator to perform arithmetic or reconstruct lifecycle joins.\n\nThis is a **cognitive-correctness / presentation-semantics** defect measured against Wheelwright's evidence-appliance semantics — not a request for visual polish, and distinct from the accounting-correctness bug in `BUG-002` (it remains even when `BUG-002` is fixed).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Wheelwright is an evidence appliance whose surfaces should \"represent the environment, not the machinery\" and let the operator read state without reconstructing it. The Production surface's first-order operator question is:\n\n> \"How much has the strategy produced this month, and where did it come from?\"\n\nRequiring the operator to do arithmetic or reconstruct cross-transaction lifecycle joins to answer the second half is a correctness gap against evidence-appliance / state-oriented-console semantics.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence (confirmed from implementation)",
+          "level": 2,
+          "content": "- **Produced is a genuine composite.** `ProductionAssessor` aggregates `knownCashProduction` across multiple `ProductionSource` values: `OPTION_PREMIUM`, `REALIZED_APPRECIATION`, `MONEY_MARKET_INCOME`, `TREASURY_DISCOUNT`, `DIVIDEND`. A single \"Produced $X\" can silently combine all of these.\n- **The decomposition already exists in the backend response.** The assessment returns a `productionBreakdown` map keyed by `ProductionSource`, a `netStrategyResult` (defined as `OPTION_PREMIUM + REALIZED_APPRECIATION - CAPITAL_EROSION`, excluding structural income), and a per-transaction audit trail of `EconomicComponent`s.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Empirical trigger (illustration only)",
+          "level": 3,
+          "content": "The Sep 3 2026 SLV case exposed the ambiguity: two adjacent rows both showed +$53.34 with no on-surface decomposition, and even an expert reviewer could not distinguish premium from appreciation without inspecting code or the source CSV. Cited only as the trigger that surfaced the defect, not as its definition.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "The operator cannot easily see that Produced = premium + appreciation + structural income, and in what proportion. S3 (moderate): the composite figure is correct but its composition is not legible on-surface.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Backend already computes the decomposition (`productionBreakdown`, `netStrategyResult`, `EconomicComponent` trail); it is not surfaced as a first-order operator answer.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Records the defect and its factual basis. Does **not** prescribe a UI solution (no decomposition panel, tooltip, or layout is authorized or implied). Filing does not authorize remediation; priority/sequencing is a separate Principal decision.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Distinction from BUG-002",
+          "level": 2,
+          "content": "- `BUG-002` is about **computing the number correctly** (called-away basis resolution).\n- This defect is present **even when the number is computed correctly**: composition remains illegible.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Not separately enumerated in the historical record beyond the intended-semantics statement above (no UI solution prescribed).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- Accounting-correctness sibling: `BUG-002` (called-away basis resolution).\n- Lifecycle/decomposition context: `PL-PROD-EVENTS`, `PL-PORT-02` (supporting context only).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-004",
+      "title": "Console composes temporally incompatible evidence into apparently-coherent view",
+      "area": "Operator Console",
+      "severity": "S2",
+      "status": "Open",
+      "recordFile": "BUG-004-incoherent-composed-evidence.md",
+      "provenance": "GH #9",
+      "recordTitle": "BUG-004 — Console composes temporally incompatible evidence (stale contract Greek beside fresh underlying) into an apparently-coherent current position view",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Wheelwright can present temporally incompatible market observations as though they form a coherent current description of a monitored position. In the observed EWY case, a nearly seven-day-old contract delta was displayed alongside current underlying-price / moneyness evidence, producing a materially misleading current-state representation of a live position.\n\nThis is an **observed production defect**, not a hypothetical product gap. Reproduced against the running production appliance on 2026-09-04.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Precisely scoped:\n\n- **Not a defect:** stale evidence *existing* in the appliance. Retention is by design (failed refresh preserves successful evidence; sealed evidence remains valid).\n- **Not (in itself) the defect logged here:** stale evidence remaining *eligible for use*. Eligibility policy is a separate concern with its own prior work.\n- **The actual defect:** presenting temporally **incompatible** evidence *together* — an old contract greek beside fresh underlying evidence — **without making the lack of temporal coherence apparent to the operator**. The operator is shown a single, confident \"current\" picture that is internally incoherent.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Empirical specimen (Sep 4, 2026) — Wheelwright Console, live",
+          "level": 3,
+          "content": "- Displayed the EWY **Sep 4 $185 call** with underlying ≈ **$185.26** and delta ≈ **0.33**.\n\nForensic trace (live investigation against the running system):\n\n- Displayed delta traced to **0.3296**, sourced from the **Sep 4 $185 call chain acquired `2026-08-28T20:14:53Z`**, when that chain's underlying price was **$180.20**.\n- Current Sep 4 quote evidence at investigation time was ≈ **$184.85–$185.26**.\n- Result: ≈ **7 days** of temporal skew between the delta observation and the underlying-price observation, across ≈ **$5** of underlying movement.\n- The **Sep 4 expiration was no longer actively maintained**; the actively maintained EWY primary chain was **Sep 25** (delta for the $185 strike on the fresh Sep 25 chain ≈ 0.5076, consistent with a near-ATM contract).\n- The delta 0.3296 is **coherent with its own chain's underlying** ($180.20 → $185 strike is OTM) — the number is correct",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Independent empirical corroboration (Fidelity)",
+          "level": 3,
+          "content": "Fidelity at 9:18 AM showed the same covered-call strategy: **100 EWY shares + short Sep 4 $185 call**.\n\n- Fidelity **displayed** net strategy delta **42.66794**.\n- With ≈ **+100** delta from the 100 shares, this implies ≈ **−57.33** strategy delta contribution from the short call, i.e. ≈ **+0.573** call delta before applying the short sign.\n- **Derivation note:** the ≈ **0.573** call delta is a **derived value**, computed from the displayed net strategy delta minus the share delta. Fidelity did **not** directly display a 0.573 per-contract call delta.\n\nThis independent source places the true current call delta near **~0.57**, contradicting Wheelwright's displayed **~0.33** and confirming the displayed value was materially stale rather than merely imprecise.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Provenance clarification (do not conflate)",
+          "level": 3,
+          "content": "The `\"sandbox\"` string observed in the frontend cache key was **separately proven** to be a historical frontend **namespace artifact**, not evidence that the greek came from the Tradier sandbox. The live acquisition authority and this chain's provenance are **production**. This is **not** part of this defect and must not be conflated with it.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "An operator monitoring a live covered-call position was shown a per-contract delta that was materially wrong (~0.33 vs a true ~0.57) because two incompatible observations were composed into one apparently-current view, with no signal that the values did not share a moment. Delta is a primary risk descriptor; a materially misleading current delta on a held position is a major (S2) operator-facing consequence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "The frontend composes a contract greek and an underlying observation from different acquisition moments into one \"current\" view without a temporal-coherence signal.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Remediation is **not** authorized or prescribed here. Refreshing the expiration, age-gating greeks, suppressing stale values, joint provenance / coherence rules, or any other approach are design decisions for later.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Not separately enumerated beyond the scoped defect statement (remediation explicitly deferred).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- Temporal coherence between subsystems has prior context in `docs/35-evidence-decision-temporal-coherence.md` (Decision vs Evidence temporal consistency) — context only; this is **not** scheduler-policy work and creates no parking-lot item.\n- Architecturally analogous (independent): `BUG-007`, `BUG-006`.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-005",
+      "title": "Kreature nav advertises a route that renders an empty surface",
+      "area": "Application Shell / nav",
+      "severity": "S3",
+      "status": "Open",
+      "recordFile": "BUG-005-kreature-empty-surface.md",
+      "provenance": "GH #10",
+      "recordTitle": "BUG-005 — Kreature nav advertises a route that renders an empty surface",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "`AppShell` renders a **Kreature** nav button that navigates to `/app/kreature`. `router.ts` resolves that path to the route `kreature`. But `Root.tsx` has **no `route === \"kreature\"` render branch**: it handles `labs` and `sparkline-gallery` explicitly, then renders `<AppShell>` whose children match only `operator-console`, `write-desk`, and `production`.\n\nResult: navigating to Kreature produces the shell chrome with an **empty body**. `KreaturePage.tsx` — which exists specifically to communicate an intentional \"temporarily disabled during market hours\" state — is never reached (it is imported by nothing in `Root.tsx`).\n\nSo this is not \"Kreature is intentionally disabled\" (that would be handled by rendering `KreaturePage`). It is a navigation/render-wiring gap: the nav advertises a surface that renders nothing.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "An advertised navigation target must render its intended surface. The nav promises a Kreature surface; the router resolves it; but no render branch exists, so the operator reaches an empty body instead of the intentional `KreaturePage` state.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence (verified at SYNC `693445a`)",
+          "level": 2,
+          "content": "- `options-prototype/src/components/AppShell.tsx` (~lines 71–77) — Kreature nav button → `navigateTo(\"/app/kreature\")`.\n- `options-prototype/src/router.ts` (~lines 15, 23–27) — `AppRoute` includes `kreature`; `resolveRoute()` returns `kreature` for `/app/kreature`.\n- `options-prototype/src/Root.tsx` — branches for `labs` and `sparkline-gallery`; `AppShell` children match only `operator-console` / `write-desk` / `production`. No `kreature` branch. `KreaturePage` not imported.\n- `options-prototype/src/kreature/KreaturePage.tsx` — exists; renders an intentional \"Temporarily disabled\" message; currently unreachable.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "An advertised operator surface is unreachable (empty body). No data or accounting corruption. Severity S3 (moderate).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Missing `route === \"kreature\"` render branch in `Root.tsx`; `KreaturePage` is imported by nothing.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Filing this defect does **not** authorize remediation. Candidate fixes (wire the missing branch to `KreaturePage`, or remove the nav button while the surface is disabled) are a separate Principal decision.\n\nKept **outside** the PL-CLEANUP re-baseline scope deliberately: independent evidence with independent authority. It should not distort cleanup scope.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Not separately enumerated in the historical record (candidate fixes noted under Scope, not authorized).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- `PL-SHELL` (Application Coherence / Shell) — context only; not double-booked as the same authoritative item.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-006",
+      "title": "Called-away \"capital returned\" uses reconstructed strike notional, not actual proceeds",
+      "area": "Production",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-006-capital-returned-strike-notional.md",
+      "provenance": "GH #11",
+      "recordTitle": "BUG-006 — Production called-away \"capital returned\" uses reconstructed strike notional instead of actual disposition proceeds",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Production's frontend episode ledger presents a called-away **\"capital returned\"** figure computed as a reconstructed strike notional (`strike × 100 × contracts`) rather than the actual Fidelity disposition proceeds available in Activity evidence.\n\nThe defect is **not** that the arithmetic is difficult, nor that it runs in the frontend. The defect is:\n\n> A valid mechanical/notional quantity is promoted into an operator-visible **realized economic claim** (\"capital returned\") that it does not represent.\n\nThis is an economic-authority / semantic-truth defect: a notional is labeled as though it were realized cash returned.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "An operator-visible \"capital returned\" claim must represent realized returned capital (authoritative disposition proceeds), not a reconstructed strike notional. Distinct economic quantities must not be collapsed under the \"capital\" label.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Current source mechanism (confirmed)",
+          "level": 3,
+          "content": "`options-prototype/src/production/episode-derivation.ts`, called-away branch in `buildResolveChapter` (and `buildResolutionChapter`):\n\n```\nconst capitalAmount = episode.strike * 100 * episode.contracts;\n...\ncapitalLabel = `$${fmt(capitalAmount)} returned`;\n```\n\nThe **put-assigned** branch already prefers authoritative evidence (`episode.shareCost` from the `shares_bought_assignment` row) and only falls back to notional when absent. The **called-away** branch does not apply that discipline to the capital figure — it uses the raw strike notional and consults backend economics only for the *production/episode result* label, not the *capital returned* figure.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Operational evidence (Sep-04 / Sep-05)",
+          "level": 3,
+          "content": "BNO (400 shares held via direct purchases), EWY, and GDXJ calls were assigned on Sep-04, processed Sep-08. Actual Fidelity `YOU SOLD ASSIGNED CALLS` net proceeds exist in Activity evidence (e.g., BNO: 200 sh @ $54 = $10,799.77 net; 100 sh @ $51 = $5,099.89 net). The operator-visible \"capital returned\" figure did not represent these actual proceeds.\n\n**Provenance gap (unresolved — do not invent a cause):** the exact historical screenshot multiplicities ($10,200 / $16,200 for BNO) are NOT reproducible from current source + supplied evidence. Current source emits `strike × 100 × contracts` (i.e., $5,100 / $10,800 for BNO's two assigned episodes). Whether the screenshot predates current source or reflects a different load is unresolved. Acceptance should be demonstrated against the supplied Sep-04/Sep-05 transaction shapes, not the screenshot values.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Distinct economic quantities not to be collapsed under \"capital\"",
+          "level": 3,
+          "content": "- strike notional (`strike × 100 × contracts`) — legitimate only if labeled as strike notional;\n- gross disposition proceeds;\n- net disposition proceeds (after fees);\n- returned attributable principal (basis of disposed shares);\n- realized appreciation/erosion;\n- buying-power / deployable-cash change.\n\nThe current label conflates a notional with realized returned capital.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "The operator sees a \"capital returned\" figure that is actually a strike notional, not realized cash returned. (Severity was not established in the historical record.)",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Called-away branch sources the capital figure from `strike × 100 × contracts` instead of authoritative disposition proceeds, unlike the put-assigned branch which prefers authoritative evidence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Filing does not authorize remediation; priority/sequencing is a separate Principal decision. No UI redesign is authorized or implied. Distinct from `BUG-003` (legibility of the composite *Produced* number) and from `BUG-002` (backend basis resolution) — this concerns the *kind* of quantity shown for called-away capital.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "- Against the supplied Sep-04/Sep-05 export shapes, BNO/EWY/GDXJ called-away rows show actual disposition proceeds (or an explicit \"unavailable\"/labeled-notional), never an unlabeled `strike × 100 × contracts` presented as \"capital returned.\"\n- Put-assigned capital presentation remains correct.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Smallest correction boundary (historical guidance)",
+          "level": 3,
+          "content": "In the called-away branch, source the operator-visible capital figure from authoritative disposition proceeds (Activity `YOU SOLD ASSIGNED CALLS` amount / backend assessment), mirroring the put-assigned discipline; when authoritative proceeds are unavailable, present the quantity as unavailable (or as an explicitly-labeled notional) rather than as \"capital returned.\" No generalized frontend→backend migration; no new subsystem.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- Backend accounting-correctness sibling: `BUG-002` (called-away basis resolution).\n- Reconciliation-visibility sibling: `BUG-007` (unknown basis leaving reconciliation appearing complete).\n- Architecturally analogous (independent): `BUG-004` (temporally incompatible evidence composed into an apparently-coherent view).\n- Economic-authority why-state: `docs/journal/project-journal-2.md` (2026-09-05 live-operations synthesis).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-007",
+      "title": "Unknown stock-disposition basis can leave reconciliation appearing complete",
+      "area": "Production",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-007-unknown-basis-appears-reconciled.md",
+      "provenance": "GH #12",
+      "recordTitle": "BUG-007 — Unknown stock-disposition basis can leave Production reconciliation appearing complete",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "When realized economics for a called-away stock disposition remain unresolved (`BASIS_UNKNOWN`), Production can still present the lifecycle as though it were fully reconciled. Unknown realized economics can silently coexist with a presentation that implies completeness.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "> Unknown realized economics must not silently coexist with a presentation that implies the lifecycle is fully reconciled.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "The Production pipeline decomposes a disposition into components with a `Confidence` (including `BASIS_UNKNOWN`) and produces a `ReconciliationStatus`. A disposition whose basis cannot be resolved is booked as principal movement with realized appreciation/erosion unresolved. The concern raised in the four-actor review is that this unresolved realized-economics state is not reliably reflected as operator-visible reconciliation uncertainty — the aggregate cash total can still reconcile, producing an appearance of completeness.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "An operator can be shown an apparently-complete monthly/lifecycle economic picture while realized appreciation/erosion for one or more called-away dispositions is in fact undetermined. Aggregate correctness (deployable cash reconciles) conceals the event-level uncertainty. This is the same class of hazard observed across the Sep-04 cycle: aggregate reconciliation masking event-level economic-truth gaps. (Severity was not established in the historical record.)",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Event-level `BASIS_UNKNOWN` state is not propagated into operator-visible reconciliation status; aggregate cash reconciliation can still appear complete.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Relationship to BUG-002",
+          "level": 2,
+          "content": "`BUG-002` (GitHub #3) concerns **computing** called-away basis correctly for directly-purchased shares (the number is wrong/absent). **This defect is the visibility sibling:** even when basis genuinely cannot be resolved from available evidence — a legitimate, correct `BASIS_UNKNOWN` outcome — the operator-visible reconciliation status should reflect that unresolved economic state rather than appearing complete. Fixing `BUG-002` reduces how often this occurs but does not, by itself, guarantee that a *remaining* `BASIS_UNKNOWN` is surfaced as reconciliation uncertainty. Keep the two records distinct.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Filing does not authorize remediation; priority/sequencing is a separate Principal decision. No UI solution is prescribed. Distinct from `BUG-003` (legibility of a *correct composite* Produced number) — this concerns making *unresolved* economics visible as uncertainty.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria (requirement)",
+          "level": 2,
+          "content": "- Unresolved realized economics (`BASIS_UNKNOWN` on a lifecycle-attributed disposition) must influence the operator-visible reconciliation status / uncertainty presentation.\n- Keep this distinct from cash-total reconciliation: the cash total reconciling does not imply the realized-economics attribution is complete.\n- No fabrication of attribution to make the status appear resolved; the correct outcome is *visible uncertainty*, not a manufactured number.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- Exposing defect (backend basis resolution): `BUG-002`.\n- Companion economic-authority defect: `BUG-006` (called-away \"capital returned\" uses reconstructed strike notional instead of actual disposition proceeds).\n- Architecturally analogous (independent): `BUG-004` (incoherent composed evidence presented as coherent).\n- Why-state: `docs/journal/project-journal-2.md` (2026-09-05 live-operations synthesis).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-008",
+      "title": "Economic Activity presents inflated contract counts (episode double counting)",
+      "area": "Production",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-008-inflated-contract-counts.md",
+      "provenance": "GH #14",
+      "recordTitle": "BUG-008 — Production Economic Activity presents inflated contract counts (episode-construction double counting)",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "The Production **Economic Activity** ledger (frontend `EpisodeChapter` view-model, `episode-derivation.ts`) presents contract counts higher than the authoritative Fidelity evidence.\n\nExposed by the PL-PROD-EXPORT-01 Production Evidence CSV (which faithfully serialized the presented view-model values against authoritative backend state).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Presented contract counts must match the authoritative Fidelity evidence. The ledger presents inflated counts.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence — Observed (presented vs authoritative)",
+          "level": 2,
+          "content": "- BNO C51: **2 presented** vs authoritative **1 contract / 100 shares**\n- BNO C54: **3 presented** vs authoritative **2 contracts / 200 shares**\n- EWY: **2 presented** vs authoritative **1 contract**\n- GDXJ: **2 presented** vs authoritative **1 contract**",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Operator-visible contract counts in the Economic Activity ledger are inflated relative to authoritative evidence. (Severity was not established in the historical record.)",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause (likely cause, historical)",
+          "level": 2,
+          "content": "Episode-construction in `buildEpisodeMap` / STO-fill accumulation appears to double count contracts (e.g. multiple fills or open/resolve events inflating `contracts`).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "This is a **frontend/presentation** defect in episode construction, not a CSV serializer defect and not a backend assessment defect.\n\n> **Corrupted source text (preserved verbatim; do not treat as coherent):**\n>\n> \"The CSV export intentionally does NOT correct it - The CSV export intentionally does NOT correct it - The CSV export intentionally does NOT correct it - The CSV export intentionally does Nc-decoupling follow-on (PL-PROD-EXPORT-01) but is a concrete, independently-fixable defect.\"\n>\n> The above is the literal surviving text of the historical Scope section. It is garbled (repeated fragments and a truncated word \"Nc-decoupling\"). The recoverable intent appears to be: the CSV export intentionally does not correct the inflated counts, and this relates to the Production FE/BE semantic-decoupling follow-on (`PL-PROD-EXPORT-01`) but is a concrete, independently-fixable defect.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Not established in the historical record.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- Production FE/BE semantic-decoupling follow-on: `PL-PROD-EXPORT-01` (context only).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-009",
+      "title": "Capital label text diverges from backing amount; label-less non-null expired amounts",
+      "area": "Production",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-009-capital-label-amount-divergence.md",
+      "provenance": "GH #15",
+      "recordTitle": "BUG-009 — Production Economic Activity: capital label text diverges from backing capital amount; expired chapters carry non-null capital amount with null label",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "In the Production **Economic Activity** ledger, the displayed capital **label** and the backing capital **amount** (frontend `EpisodeChapter.capitalLabel` vs `capitalAmount`) are inconsistent, and some expired chapters carry a non-null backing amount with no displayed label.\n\nExposed by the PL-PROD-EXPORT-01 Production Evidence CSV, which classifies claims as `DISPLAYED_CLAIM` vs `PRESENTATION_BACKING_VALUE` and thereby made the divergence visible.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "The operator-visible capital presentation should not contradict or obscure its backing value. In the observed expired chapters, a non-null backing amount existed with no corresponding displayed label, producing an inconsistent presentation state.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence — Observed",
+          "level": 2,
+          "content": "- **URA**: `capital_label` displayed `$4,579.00 deployed` while backing `capital_amount` = `4600`.\n- **UNG**: displayed `$1,070.00 deployed` while backing numeric value = `1100`.\n- **Expired COPX / GDX**: `capital_label = NULL` (nothing displayed) but `capital_amount` is non-null.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Displayed capital label text does not match the numeric backing value, and expired-chapter capital backing values are populated without a corresponding operator-visible label. (Severity was not established in the historical record.)",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Not established. The divergence between displayed label and backing amount, and the label-less non-null expired-chapter amounts, are frontend presentation/model inconsistencies surfaced by the Production Evidence CSV.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Interpretation (corrupted source text preserved verbatim)",
+          "level": 2,
+          "content": "> **Corrupted source text (preserved verbatim; do not treat as coherent):**\n>\n> \"Displayed rounded/derived label text does not match the numeric backing value, and expired-chapter capital backing values are populated without a corresponding operator-visible label. These are frontend presentation/model inconsistDisplayed rounded/derived label text does not match the numeric backing value, and expired-chapter capital backing values are populated without a corresponding operator-visible label. These are frontend presentation/model inconsistDisplayed rounded/derived label text does not mtes to the Production FE/BE semantic-decoupling follow-on (PL-PROD-EXPORT-01), but is a concrete, independently-fixable presentation defect.\"\n>\n> The above is the literal surviving text of the historical Interpretation section.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Filing does not authorize remediation. A concrete, independently-fixable presentation defect (per the recoverable-but-uncertain intent above).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Not established in the historical record.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- Production FE/BE semantic-decoupling follow-on: `PL-PROD-EXPORT-01` (context only).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-010",
+      "title": "Phantom 09:30–09:45 Open Delay: FE session gate hardcodes Sandbox profile",
+      "area": "Operator Console / session gate",
+      "severity": "S2",
+      "status": "Resolved",
+      "recordFile": "BUG-010-phantom-open-delay-session-gate.md",
+      "provenance": "GH #16",
+      "recordTitle": "BUG-010 — Frontend session gate derives provider-delay semantics from a hardcoded Sandbox profile; phantom 09:30–09:45 Open Delay on real-time Production",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "At **09:43 ET on a Production (real-time) trading session**, the Operator Console session badge showed **\"Open Delay\"** (`REGULAR_OPEN_DELAY`). On the real-time Production feed there is **no** provider delay, so the regular session begins at 09:30 ET and there should be no open-delay window at all.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "An authority-boundary violation: the backend owns and computes provider-aware session truth; the frontend re-derived it from a locally chosen provider profile. The frontend was effectively deciding *\"what market-data authority am I looking at, and therefore when is this evidence admissible?\"* — which is not a frontend policy decision. Same class of boundary failure as consequence facts / provenance (ADR-015/016): the frontend must compose and display authority, not invent it.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Root cause",
+          "level": 3,
+          "content": "The frontend `MarketSessionPolicy` (`options-prototype/src/market-session/session-policy.ts`) hardcodes the Tradier **sandbox** session profile (`ETF_OPTIONS_TRADIER_SANDBOX`, `providerDelayMinutes: 15`) regardless of the live provider authority, and independently derives session state from it. On the real-time Production feed it manufactures a phantom `REGULAR_OPEN_DELAY` window **09:30–09:45 ET**.\n\nThis is **not** display-only. The single `providerDelayMs` drives three coupled semantics in `session-policy.ts`:\n\n1. **Session-level state / badge** — phantom `REGULAR_OPEN_DELAY` 09:30–09:45 ET on real-time authority.\n2. **Admissibility boundary** (`getAdmissibilityBoundary`) — pushed to 09:45 instead of 09:30.\n3. **Canonical-evidence acceptance** (`shouldAcceptAsCanonical` / evidence provenance) — real-time regular-session evidence refused as canonical until 09:45.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Live evidence (captured 2026-09-11 09:43 ET, inside the phantom window)",
+          "level": 3,
+          "content": "`GET /api/status`:\n\n- `\"environment\":\"production\"`; `providerAvailability.activeEnvironment: \"production\"`; `lifecycle: \"PRODUCTION_ACTIVE\"`\n- backend `sessionState`: `\"Regular observation — real-time provider, no opening delay (9:43 ET)\"`\n\nSnapshot chain provenance: 3271 `environment:production`, 1 `sandbox`, 1266 `unknown` (mixed per-subject authority present in one snapshot).\n\nBackend and frontend were in **direct, observable contradiction**: backend = real-time regular observation, no opening delay; frontend UI = \"Open Delay\".",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Reconciliation: incomplete wiring, not a regression",
+          "level": 3,
+          "content": "The **backend** `SessionGate` is already provider-aware (`SessionGate(Clock, BooleanSupplier realtimeData)`): real-time → FULL at 09:30 with the exact \"no opening delay\" posture; delayed/sandbox → EXPIRATIONS_ONLY through 09:45; reflects runtime failover. The provider-aware session gate was **accepted and implemented on the backend but never wired into the frontend** `MarketSessionPolicy`, which still assumed the sandbox 15-min profile. The frontend maintained a second, provider-unaware session model that contradicted backend authority.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "The first 15 minutes of every real-time trading session were misrepresented as not-yet-live (phantom Open Delay badge, delayed admissibility, delayed canonicality), on the primary operator surfaces. Severity S2 (major operator-facing consequence).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Frontend/backend authority duplication: backend already computed provider-aware session truth; the frontend independently derived session/admissibility/canonicality from a hardcoded sandbox provider profile.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Session-gate authority boundary only. No scheduler-policy, acquisition, provider-selection, PL-DEPLOY/A, or broader FE/BE migration changes. Remediation design was deferred to a bounded Architect pass (see remediation history).\n\nArchitectural starting position (Principal-directed at filing time):\n\n> Backend owns provider/session/admissibility/canonicality semantics. Frontend renders/composes backend authority and must not derive those semantics from provider identity.\n\nExplicitly rejected remediations (historical): a global frontend `providerDelayMinutes`; merely wiring `activeEnvironment` into the existing FE `MarketSessionPolicy` (still leaves FE owning environment→delay→canonicality policy — the same authority leak).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria (for the fix)",
+          "level": 2,
+          "content": "- Production authority does NOT manufacture a 09:30–09:45 ET `REGULAR_OPEN_DELAY`.\n- Production evidence becomes canonical/admissible at the regular open per accepted backend session semantics.\n- Sandbox/degraded retains delayed-provider behavior.\n- Existing closed / pre-market / post-market semantics unchanged.\n- Mixed-authority: sandbox evidence is not silently laundered into production semantics.\n- No duplicate FE authority model: session/admissibility semantics originate from backend-computed facts.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Resolved 2026-09-11. Remediation delivered by **PR #17** — *\"fix(#16): backend owns session + per-subject admissibility; frontend consumes\"* (merged 2026-09-11, https://github.com/brooksbol/options-prototype/pull/17). Backend owns session + per-subject admissibility; the frontend consumes backend authority rather than deriving it from provider identity.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Verified through the PR #17 change set (backend-owned session/admissibility with frontend consuming). The GitHub Issue was closed 2026-09-11T16:01:41Z coincident with the PR #17 merge.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related — subsequent architectural learning (does not predate the defect)",
+          "level": 2,
+          "content": "After remediation, the authority-precedence lesson from this defect was ratified as **ADR-017** via **PR #18** — *\"docs(#16): ratify authority-precedence lesson as ADR-017 (post-#16 ratchet)\"* (merged 2026-09-11, https://github.com/brooksbol/options-prototype/pull/18). ADR-017 is **subsequent** architectural-learning provenance derived from this defect's resolution; it did not exist before the defect and did not govern the original behavior.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-011",
+      "title": "Provider-reported exact-zero Delta is rendered indistinguishably from absent Delta evidence",
+      "area": "Operator Console / Greeks evidence presentation",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
+      "provenance": "Provider study 2026-09-11",
+      "recordTitle": "BUG-011 — Provider-reported exact-zero Delta is rendered indistinguishably from absent Delta evidence",
+      "sections": [
+        {
+          "heading": "Defect statement",
+          "level": 2,
+          "content": "Provider-reported exact-zero Delta is rendered indistinguishably from absent Delta evidence.\n\nRaw provider `delta=0.0` is semantically distinct from null or an absent Delta field. Wheelwright preserves that distinction through backend evidence, but frontend sanitization collapses exact zero to null and presentation renders the resulting null as unavailable.\n\nThis record does **not** assert that Tradier's exact zero is necessarily a precise sensitivity. It may reflect provider/model rounding, degeneracy, or another provider semantic. The verified defect is the loss of distinction between an explicit numeric provider observation and absence of evidence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Provider study — after-hours baseline",
+          "level": 2,
+          "content": "On 2026-09-11, a raw-provider empirical study used the same Tradier Production API request shape as accepted Wheelwright main:\n\n- production base URL `https://api.tradier.com/v1`;\n- Wheelwright-equivalent expiration discovery;\n- Wheelwright-equivalent quote acquisition;\n- option-chain requests with `greeks=true`;\n- raw provider values inspected before Wheelwright sanitization or zero-as-unavailable presentation rules.\n\nThe study sampled 740 primary contracts across:\n\nSPY, QQQ, IWM, GDXJ, SMH, URA, COPX, UNG, BNO, PDBC, WEAT, DBO.\n\nObserved in this collection window:",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Scope qualification",
+          "level": 3,
+          "content": "The collection occurred after the regular market close. It is a cross-sectional provider observation, not evidence that the same Greek behavior occurs during the regular trading session. The absence of null/absent/unparsable Delta applies only to this 740-contract sample and does not establish that Tradier never emits those states.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Deferred regular-session control",
+          "level": 2,
+          "content": "The Principal does not trust after-hours Greek behavior as sufficient evidence for regular-session behavior.\n\n**Do not remediate BUG-011 on the basis of the after-hours study alone.**\n\nRerun the same empirical study during regular U.S. trading hours. Preserve the after-hours dataset before rerunning so that the two studies can be compared rather than overwritten.\n\nThe regular-session run should intentionally keep the study design unchanged:\n\n- same Wheelwright Production Tradier API calls;\n- same endpoint shapes, query parameters, headers, and `greeks=true`;\n- same required symbol universe;\n- same expiration/DTE selection;\n- same call/put and moneyness sampling;\n- same raw-value classification;\n- same repeated-call stability test;\n- no Wheelwright sanitization or UI interpretation.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Required comparison",
+          "level": 3,
+          "content": "Compare the after-hours and regular-session observations, contract-for-contract where expiration and strike remain comparable, with particular attention to:\n\n1. exact-zero Delta frequency;\n2. all-zero Greek-vector frequency;\n3. `delta=0.0` with other Greeks nonzero;\n4. null/absent/unparsable Delta;\n5. actual numeric Delta changes for matching symbol / expiration / strike;\n6. whether the moneyness × DTE zero pattern persists during regular trading.\n\nInterpretation boundary:\n\n- If exact zeros/all-zero vectors largely disappear during regular hours, treat session/freshness semantics as a material part of the provider-evidence problem.\n- If comparable exact zeros persist during regular hours, confidence increases that the after-hours study identified stable provider behavior rather than an off-hours artifact.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance boundary if/when remediation is considered",
+          "level": 2,
+          "content": "This is recorded for defect semantics, not as authorization to implement a fix:\n\n\nSuspicion about evidence quality may justify a cue. It does not justify rewriting explicit numeric observations into absence.",
+          "truncated": false,
+          "tables": [
+            {
+              "header": [
+                "Raw provider state",
+                "Required distinction"
+              ],
+              "rows": [
+                [
+                  "Exact numeric `0.0`",
+                  "Visible explicit zero"
+                ],
+                [
+                  "Null or absent",
+                  "Unavailable"
+                ],
+                [
+                  "Tiny nonzero",
+                  "Visible without rounding to a false zero"
+                ],
+                [
+                  "All-zero vector",
+                  "Preserve raw zeros; any evidence-quality warning is a separate semantic layer"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Current decision",
+          "level": 2,
+          "content": "Persist the defect and empirical evidence. **No fix now.** Complete the regular-session control before using the provider study to make stronger claims about Tradier Greek behavior or before revisiting remediation.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-012",
+      "title": "Deployment (Write Desk) shows zero candidates on a sealed/non-trading session; session authority never reaches the recommendation consumer",
+      "area": "Write Desk / consumer-path session-authority reach",
+      "severity": "S2",
+      "status": "Open",
+      "recordFile": "BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
+      "provenance": "Discovered 2026-09-13",
+      "recordTitle": "BUG-012 — Deployment (Write Desk) shows zero candidates on a sealed/non-trading session because session authority never reaches the recommendation consumer",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "On the Deployment surface (Write Desk) during a sealed, non-trading session (Sunday 2026-09-13; canonical session date 2026-09-11), every candidate section renders empty:\n\n- **Buy-Write Candidates:** \"1306 incomplete\", \"0-list awaiting candidates\", \"No actionable buy-write opportunities available…\"\n- **Cash-Secured Put Candidates:** \"0 Recommendations · 0 Wait\", \"1306 incomplete\"\n- **Covered-Call Candidates:** empty\n- Recommendation Brief rail: \"Select a candidate to inspect\"\n\nThe \"1306 incomplete\" count equals the full universe: essentially every symbol is being treated as not-current/not-admissible for recommendation generation, even though the backend holds complete, admissible sealed evidence from the last close.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Sealed-evidence validity (a governing invariant): evidence from a completed session remains valid until superseded by the next session — \"Friday's sealed close remains valid through the weekend.\" The Deployment surface must therefore show rows sourced from the last close during a sealed/non-trading session, not an empty board.\n\nConsumer-path authority reach (ADR-017): an authoritative session verdict must reach the consumer that gates on it. Publishing/deriving the correct authority is not sufficient if the consumer keeps acting on a stale, pre-authority value. This is the same authority-precedence spine as ADR-015/016/017 and the direct sibling of BUG-010: authority computed but not consumed.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "The data is present and correctly stamped (backend is not at fault)",
+          "level": 3,
+          "content": "Direct SQLite inspection (`data/evidence.sqlite3`, read-only) and the live snapshot (`GET /api/evidence/snapshot`) on 2026-09-13:\n\n- `evidence` table: 3,591 chain rows with usable payloads. **2,109 chain rows are from session_date 2026-09-11 (Friday's close), environment `production`**, retrieved Friday afternoon (~19:53–20:04 UTC). 941 **distinct symbols** have at least one Friday chain row. This 941 figure is a row-density measure only (a symbol carries one chain row per eligible expiration, so rows outnumber symbols); it does **not** by itself explain the 955 serialized-ready figure below and is not offered as a reconciliation of it.\n- Snapshot coverage counter: `ready:957, absent:351` of `universe:1306`; nothing pending/failed. The emitted `symbols[]` array of this same snapshot contains **955** entries with `status:\"ready\"`.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Frontend root cause (traced)",
+          "level": 3,
+          "content": "`options-prototype/src/components/WriteDesk.tsx`:\n\n1. `useSessionClassification()` starts from a `BOOTSTRAP` value with `authorityPending: true` (`options-prototype/src/hooks/useSessionClassification.ts`). `authorityPending` becomes `false` only after the first successful `/api/status` read.\n2. `isSubjectAdmissible` (`options-prototype/src/write-desk/subject-admissibility.ts`) gate (0): **`if (ctx.authorityPending) return false;`** — every record (expirations and chains alike) is inadmissible while authority is pending (fail closed, by design — this is the ADR-017 startup discipline).\n3. `handleNewEvidence` (the snapshot-response callback) and `handleReRecommend` read `sessionClassification.state / .admissibilityBoundaryEpochMs / .authorityPending`.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "On any load of the Deployment surface during a sealed/non-trading session (every weekend, every holiday, every pre-open), the operator sees an empty board and cannot assess the last close's opportunities — exactly the situation sealed-evidence validity exists to serve. The evidence is present and admissible; the surface simply never consumes the resolved authority. Operator-facing correctness failure on a primary surface → **S2 (major)**.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Consumer-path authority-reach failure (ADR-017 class): the Deployment recommendation path consumed **stale-in-closure** session authority. The primary root cause is **execution-time authority staleness** — Decision ran with the authority captured when an async snapshot request *started*, not the authority current when the response *executed*. A secondary gap is that once the empty run had completed and polls were `304`-ing, nothing re-evaluated when authority later resolved.\n\nThe backend snapshot and per-subject admissibility verdicts are correct and are not implicated.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Frontend consumer-path authority-freshness + a minimal re-evaluation trigger only. No backend change (snapshot/admissibility verdicts are correct). No change to `isSubjectAdmissible` precedence, session semantics, scheduler, acquisition, freshness horizons, cache TTLs, or the snapshot contract. No reacquisition and no provider calls (existing cached Friday evidence is reused). Filing does not authorize remediation.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "- On a sealed/non-trading session, the Deployment surface shows rows sourced from the last completed session's sealed evidence (existing cached evidence reused; no provider calls; no reacquisition).\n- Whenever Decision executes it consumes the **current** `sessionClassification` at execution time — including when an in-flight snapshot callback created under bootstrap authority completes after authority has resolved.\n- The board recovers without requiring a new snapshot `200`/`304` after authority resolution.\n- A policy change still produces exactly one recommendation run.\n- Live-session behavior, the ADR-017 authority-precedence order, and `authorityPending` fail-closed startup are all preserved (no record becomes admissible before authority arrives).\n- No regression to existing Write Desk tests.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Remediation implemented (not yet committed; awaiting Principal browser test) in `options-prototype/src/components/WriteDesk.tsx`:\n\n- **Runtime-authority invariant (primary fix).** Added `sessionClassificationRef`, updated on **every render**, and a `currentAuthority()` reader. `handleNewEvidence` and `handleReRecommend` now derive `sessionClosed / admissibilityBoundaryMs / authorityPending / acceptingCanonicalEvidence / priorSessionOperationallyValid` from that ref **at execution time**, not from their render-time closure. An in-flight snapshot response created under bootstrap authority therefore runs Decision with the authority current when the response completes.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "- **Regression test** `options-prototype/tests/write-desk/runtime-authority-convergence.test.tsx` reproduces the in-flight stale-callback ordering: a callback created while `authorityPending:true`, authority resolving before it completes, then the callback executing. It asserts the execution-time (ref) read produces rows and — as a discriminator — that the render-time (closure) read fails closed (empty board), plus the authority-first ordering.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- **BUG-010** — sibling authority-boundary defect (frontend session gate); its resolution ratified **ADR-017** (Authoritative Verdict Precedence and Consumer-Path Reach), the governing lesson this defect re-expresses on the re-run/reach axis.\n- **ADR-015 / ADR-016 / ADR-017** (`docs/07c-adrs.md`) — the authority-precedence spine.\n- Sealed-evidence validity invariant (`docs/foundations/backend-behavioral-invariants.md`; `docs/07-architecture-current.md` — sealed evidence remains valid until superseded).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-013",
+      "title": "Trading-day PREMARKET per-subject admissibility invalidates prior-session sealed evidence that session-level classification still treats as canonical",
+      "area": "Backend / SessionClassifier per-subject admissibility",
+      "severity": "S2",
+      "status": "Open",
+      "recordFile": "BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
+      "provenance": "Discovered 2026-09-14",
+      "recordTitle": "BUG-013 — During trading-day PREMARKET, per-subject admissibility invalidates prior-session sealed evidence that session-level classification still treats as canonical",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "On Monday 2026-09-14 at 00:28 ET (Sunday 22:28 MDT), the Deployment surface showed `PRE-MARKET` and the funnel collapsed to `11 No Delta Match · 130 No DTE Match · 1165 Incomplete` with zero CSP/buy-write rows. Direct comparison of two live snapshots of the identical Friday chains:\n\n\nSame 955 ready symbols, same Friday chains, same `canonicalSessionDate: 2026-09-11` — every eligible Friday chain flipped from `admissible:true` to `admissible:false` purely because the ET clock crossed midnight into Monday.",
+          "truncated": false,
+          "tables": [
+            {
+              "header": [
+                "Session state (ET clock)",
+                "Friday eligible (7–45 DTE) chains: admissible / inadmissible"
+              ],
+              "rows": [
+                [
+                  "`NON_TRADING_DAY` (Sunday)",
+                  "**2210 / 0**"
+                ],
+                [
+                  "`PREMARKET` (Monday 00:28 ET)",
+                  "**0 / 2210**"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Sealed-evidence validity: a completed session's evidence remains valid until superseded by the next session (\"Friday's sealed close remains valid through the weekend and into Monday pre-open\"). Session-level classification honors this — in PREMARKET it correctly reports `canonicalSessionDate = 2026-09-11` (prior session). But **per-subject admissibility contradicted the session-level canonical state**: it evaluated the prior-session chain's timestamp against the CURRENT trading day's `[open, close]` window, which a Friday-acquired chain can never satisfy, and marked it inadmissible. Per-subject admissibility must agree with the canonical-session state machine.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "`SessionClassifier.admissibilityForSubject(env, acquiredAt, now)` had two branches:\n- **Non-trading day** (Sat/Sun/holiday): `admissible = acquiredAt != null` → Friday chains admissible as sealed evidence. Correct.\n- **Trading day** (entered at Monday 00:00 ET, well before the 09:30 open): computed `admissible = effectiveMs ∈ [todayOpen, todayClose]`. A Friday-afternoon `acquiredAt` is far below Monday's open ⇒ `admissible = false`. The branch's own comment acknowledged it: *\"Prior-session sealed evidence is not represented per-subject here … before-boundary we simply report the prior canonical date with the subject inadmissible for today.\"* That is precisely the inconsistency: it reported Friday as canonical while marking Friday's evidence inadmissible.\n\nThis was decisive on its own (2210/0 → 0/2210 flip on identical chains); the 141-vs-1165 funnel split was not needed to localize it.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Every trading-day pre-open window (roughly the overnight hours into each trading morning), the Deployment surface loses all prior-session rows even though sealed evidence is present and canonical — the operator arrives to an empty board pre-open. Operator-facing correctness failure on a primary surface → **S2**.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Per-subject admissibility did not agree with the session-level canonical state machine before the current session's admissibility boundary. It must, in PREMARKET / pre-open, treat a prior-session-acquired subject as canonical **when the prior session is operationally valid** (the same authority the session-level classifier consults).\n\n**Coupled upstream defect:** the \"prior session operationally valid\" authority this fix depends on (`hasCompletePublishedSession`) was itself defective — see **BUG-014**. BUG-013 is the per-subject inconsistency; BUG-014 is the durable-validity authority it consumes. Both had to be repaired for the board to recover; a correct BUG-013 consumer of a `false` BUG-014 boolean would still show an empty board.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "`SessionClassifier.admissibilityForSubject` before-boundary branch only. Does not weaken ADR-017, change frontend precedence, reacquire data, or special-case symbols. Production vs delayed/sandbox semantics preserved. Not a blanket \"PREMARKET ⇒ admissible\" pass.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "- Sat/Sun/holiday: prior completed-session sealed evidence admissible (unchanged).\n- Trading-day PREMARKET (and pre-open portion of open-delay): prior completed-session sealed evidence admissible **iff** the prior session is operationally valid.\n- REGULAR_OBSERVATION: current-session admissibility uses the current session window as designed; a prior-session chain is NOT treated as current-session evidence.\n- CLOSED_CANONICAL: completed current-session sealed evidence remains admissible.\n- Production vs delayed/sandbox semantics remain distinct.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Implemented (not committed; awaiting Principal browser verification) in `SessionClassifier.admissibilityForSubject`. Before the current session's admissibility boundary, a prior-session subject is admissible iff **(a)** `persistedSessionValid.test(previousTradingDay)` is true (the same authority the session-level classification consults for `priorSessionOperationallyValid`), AND **(b)** its effective observation (acquisition minus the authority's delay) falls within the PRIOR session's `[open, close]` window (genuine prior-session sealed evidence, not a stray timestamp). At/after the boundary, current-session semantics are unchanged. Depends on BUG-014 repairing `hasCompletePublishedSession`.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "`SessionClassifierTest.SealedEvidenceAcrossMidnight` (6 tests): Sunday→Friday chain admissible; Monday 00:28 PREMARKET→same Friday chain still admissible when prior session valid; PREMARKET with prior session NOT operationally valid→Friday chain not admitted; Monday REGULAR_OBSERVATION→Friday chain not current-session evidence; production vs sandbox distinct in PREMARKET; a chain acquired after Friday close is not admitted as Friday sealed evidence. All pass. Existing SessionClassifier subject-admissibility tests remain green. **Live browser verification pending** (requires backend restart to load the change and run BUG-014's migration).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- **BUG-014** — the coupled upstream durable-validity authority defect this fix consumes.\n- **BUG-012** — the frontend consumer-path race (separate defect; same empty-board symptom).\n- **ADR-015 / ADR-016 / ADR-017** — the authority-precedence spine.\n- Sealed-evidence validity invariant (`docs/foundations/backend-behavioral-invariants.md`, `docs/07-architecture-current.md`).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-014",
+      "title": "Sealed-session completeness reconstructed from mutable current-work state; next-session re-resolution falsely revokes a completed session",
+      "area": "Backend / durable sealed-session authority",
+      "severity": "S2",
+      "status": "Open",
+      "recordFile": "BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
+      "provenance": "Discovered 2026-09-14",
+      "recordTitle": "BUG-014 — Sealed-session completeness (prior-session operational validity) is reconstructed from mutable current-work state, so next-session re-resolution falsely revokes a completed session",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Live `/api/status` on Monday 2026-09-14 00:28 ET reported `priorSessionOperationallyValid: false` for canonical session `2026-09-11` (Friday), even though Friday's session had fully resolved the recommendation universe. This false `false` is what made prior-session sealed evidence ineligible (via the session classifier and BUG-013), contributing to the empty Deployment board.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Prior-session operational validity is a durable **fact about a completed session**: \"on session date D, the recommendation universe was fully resolved.\" Once true, it must remain true until superseded by a later completed session. It must not be revoked by the next session's in-progress work. \"Persist facts; derive trust\" — but this particular trust was being *reconstructed from mutable state*, which is not the same as a persisted fact.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "`hasCompletePublishedSession(sessionDate)` computed (paraphrased):\n\n```\ntotal    = COUNT(all symbol_resolution rows)\nresolved = COUNT(rows WHERE session_date = ? AND resolution IN ('ready','absent'))\nreturn generation>0 AND published_at IS NOT NULL AND total>0 AND resolved == total\n```\n\n`symbol_resolution.session_date` is **mutated in place** as symbols re-resolve. Live DB at diagnosis:\n\n- `total = 1308`\n- rows resolved *for Friday* (`session_date='2026-09-11'`, ready/absent) = **1288**\n- the mismatch = exactly **20 rows** re-stamped `session_date='2026-09-14'` (Monday) — symbols the scheduler re-resolved overnight after the ET date advanced. All 20 are active-universe symbols (not stale/removed).",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Any completed session's durable validity is silently revoked as soon as the next session begins re-resolving symbols (which happens automatically overnight). Downstream, this defeats sealed-evidence admissibility (BUG-013) and empties operator-facing surfaces. **S2**.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Completeness was derived from mutable `symbol_resolution` rather than persisted as a durable fact when the session was demonstrably complete. Filtering the mutable rows by `session_date` alone would not fix it (a completed session's row can be legitimately overwritten by the next session), so the completeness fact must be captured durably at the time completeness is observed.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Durable sealed-session completeness persistence + repointing the reader. No change to the acquisition scheduler, freshness horizons, cache TTLs, provider profile, or snapshot contract shape. Does not resolve the 957-vs-955 serialized-count observation (left open). Does not weaken fail-closed behavior (absent a durable sealed fact, validity is false).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "- A durable sealed-session fact is written when a session is demonstrably complete (every active-universe symbol resolved ready/absent; nothing pending/partial/failed).\n- The fact survives restart.\n- The fact is NOT invalidated when next-session `symbol_resolution` rows mutate.\n- `hasCompletePublishedSession(sessionDate)` reads the durable fact, not reconstructed history.\n- Fail-closed when no durable sealed fact exists for the requested date.\n- For the pre-existing Friday 2026-09-11 session, the fact is established ONLY from evidence already durably present (no fabrication).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Implemented (not committed; awaiting Principal browser verification):\n\n- **Migration `008_sealed_session.sql`** — new durable table `sealed_session(session_date PK, expected_universe, resolved_count, complete, sealed_at)`, registered in `DatabaseManager`. Includes an **evidence-backed, guarded backfill**: an `INSERT OR IGNORE` that records completeness for the earliest resolved `session_date` **only if** the DB currently proves it (zero unresolved rows AND resolved count == active-universe count AND a prior session date exists). If any guard fails it records nothing (no-op).\n- **`SqliteEvidenceStore.recordSealedSessionIfComplete()`** — records the durable fact when the current universe is fully resolved (idempotent `INSERT OR IGNORE`, keyed by `MIN(session_date)` among resolved rows so a few next-session re-resolutions do not misattribute it).",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "- `SqliteEvidenceStoreTest.DurableSealedSession` (3 tests): completed session recorded on publish and durable across restart; **next-session re-resolution does NOT revoke the sealed prior session (the BUG-014 core)**; an incomplete session is not sealed. All pass. The pre-existing restart test (`hasCompletePublishedSession('2026-07-16')` true after restart) remains green.\n- Backfill validated against a COPY of the live DB: seeds `2026-09-11 | expected 1308 | resolved 1308 | complete 1`, no Monday row, idempotent on re-apply. Evidence-backed (live DB has 0 unresolved, 1308/1308), not fabricated.\n- **Live verification pending** the single backend restart (which runs migration 008 on the live DB and should flip live `priorSessionOperationallyValid` to true for 2026-09-11).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- **BUG-013** — the per-subject admissibility defect that consumes this authority; both required for the board to recover.\n- **BUG-012** — the frontend consumer-path race (separate defect, same symptom).\n- 957-vs-955 serialized-ready discrepancy — related observation, deliberately NOT conflated or claimed resolved here.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-015",
+      "title": "Operator Console moneyness sparkline folds multi-day spot history onto one intraday session (misleading geometry; numeric values correct)",
+      "area": "Operator Console / moneyness sparkline",
+      "severity": "S3",
+      "status": "Open",
+      "recordFile": "BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
+      "provenance": "Discovered 2026-09-14",
+      "recordTitle": "BUG-015 — Operator Console moneyness sparkline folds multi-day spot history onto a single intraday session, producing misleading (near-straight, chronologically wrong) traces",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "On the Operator Console (Fidelity source), the MONEYNESS-column sparklines for held buy-writes looked internally suspicious:\n\n- SMH: OTM ~ −5.6%, red line rises sharply toward the right.\n- PDBC: ITM ~ +5.3%, green line slopes downward.\n- WEAT: OTM ~ −2.1%, red line also slopes downward.\n\nPDBC and WEAT showed nearly the same downward geometry despite being on opposite sides of the strike; SMH moved opposite to WEAT despite both being OTM. The traces also looked like near-straight two-point segments — more like a line from a baseline/reference to the current value than a real recent trajectory.\n\nThe numeric moneyness values are correct (e.g. SMH spot ~$542.60 vs $575 strike ≈ 5.6% OTM; PDBC ~$20.01 vs $19 ≈ 5.3% ITM; WEAT ~$26.42 vs $27 ≈ 2.1% OTM). The defect is specifically the sparkline geometry.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "The ratified sparkline semantic invariant (`sparkline-scale.ts`): a moneyness-cell sparkline represents the temporal trajectory of the underlying's moneyness over the observation window. Its x-axis must follow real chronology. Here the x-axis does not — multi-day observations are folded onto one intraday session by time-of-day, so the rendered shape is not a faithful temporal trajectory.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Root cause (traced): `deriveMoneynessHistory` (`options-prototype/src/operator-console/moneyness-history.ts`) computes each point's x-position `t` as a fraction of a single 09:30–16:00 ET session **from the observation's time-of-day only, discarding its date**:\n\n```\nt = clamp((etMinutesOfDay(observedAt) - 09:30) / 390min, 0, 1)\n```\n\nBut the real `spot_history` is multi-day. Live DB (read-only, 2026-09-14):\n\n- SMH: 2,514 rows spanning `2026-08-20T14:24Z` → `2026-09-14T14:16Z`\n- PDBC: 466 rows spanning `2026-08-20T15:52Z` → `2026-09-14T14:16Z`\n- WEAT: 389 rows spanning `2026-08-20T15:38Z` → `2026-09-14T14:16Z`",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "An operator glancing at the Console moneyness sparkline can misread the recent trajectory/direction of a held position, even though the numeric moneyness is correct. Misleading decision-support visualization → S3.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "`deriveMoneynessHistory` positions points by intraday time-of-day fraction while the real evidence spans multiple sessions. The x-axis should represent chronological order across the actual observation window (e.g. by index, or by true elapsed time across `[min, max] observedAt`), not time-of-day within one session.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Presentation-layer geometry of the Operator Console moneyness sparkline. No change to moneyness math, position monitoring, admissibility, recommendations, or the Deployment surface. Demo-mode synthetic path (evenly-spaced fallback) is not the defect. **Filing does not authorize remediation; fix deliberately deferred by the Principal.**",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria (for an eventual fix)",
+          "level": 2,
+          "content": "- Sparkline x-axis reflects real chronological order of the observation window (no cross-day time-of-day folding).\n- Two contracts on the same underlying/window render virtually identical geometry (the ratified consistency corollary).\n- Numeric moneyness values unchanged.\n- No regression to Demo-mode rendering.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "_(empty — deferred)_",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "_(empty — deferred)_",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- `sparkline-scale.ts` — ratified sparkline semantic invariant (topology-preserving vertical scale); this defect is on the horizontal/time axis.\n- Not related to BUG-012/013/014 (session authority / covered-call restoration).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-016",
+      "title": "Deployment funnels (CSP/Covered Call/Buy-Write) expose aggregate counts without preserving/exporting the exact evaluation-unit membership that produced them",
+      "area": "Write Desk / Decision funnels observability",
+      "severity": "S3",
+      "status": "Resolved",
+      "recordFile": "BUG-016-funnel-aggregate-counts-lack-exportable-membership.md",
+      "provenance": "Discovered 2026-09-14",
+      "recordTitle": "BUG-016 — Deployment funnels expose aggregate counts without preserving/exporting the exact evaluation-unit membership that produced them",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Each Deployment strategy surface (Cash-Secured Puts, Covered Calls, Buy-Writes) displays a Decision funnel as aggregate counts (e.g. Actionable, Edge, Wait, Zero OI, Wide Spread, No Delta Match, No Options, Incomplete). The engines computed each evaluation unit's terminal classification and then incremented an aggregate counter and **discarded the per-unit verdict**:\n\n- `recommendPuts` (CSP) accumulated `funnel*` / `excl*` integer counters; the per-symbol terminal decision was not retained in the result.\n- `recommendBuyWrites` (BW) accumulated `outcome*` counters (`BuyWriteOutcomes`); the per-symbol verdict was not retained.\n- `recommendCalls` (Covered Call) had **no funnel/terminal taxonomy at all** — only ranked candidate rows plus a coarse free-text `excluded[]` for holdings that produced nothing.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "- **Persist facts; derive trust / observability.** The system should be able to expose the concrete facts behind a summary, not only the summary. An aggregate count that cannot be decomposed into its contributing units is not auditable.\n- **Deterministic recommendation generation.** Determinism is only verifiable if the exact membership that produced a run's counts can be captured and compared. Aggregate counters alone do not permit reproduction or diff of a specific Decision run.\n- **Governed-universe analysis.** Answering \"which symbols are Zero OI / Wide Spread / No Delta Match right now?\" requires membership, which was unavailable.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Implementation truth on `main` at discovery (frontend `options-prototype/src/write-desk/`):\n\n- `recommend.ts`: the symbol loop computed a terminal classification at each exit (`nonOptionable`, `pending`, `noDteMatch`, posture `ACTIONABLE/EDGE/WAIT`, wide-spread, `noDeltaMatch`, hard-no zero-bid/zero-OI, missing chain) and executed `counter++` with no retained per-symbol record.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Without exportable membership the operator (and engineering) cannot:\n\n- audit which governed evaluation units produced a funnel count;\n- diagnose why a specific symbol/holding landed in a terminal state;\n- reproduce or diff a specific Decision run's membership;\n- perform governed-universe analysis (e.g. enumerate all Zero-OI or No-Delta-Match symbols).\n\nNo incorrect operator-facing number is displayed; the counts themselves are correct. The gap is the absence of the underlying evidence behind them — hence S3.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "The engines treated the funnel as a set of running integer tallies rather than as a derivation over a retained per-unit terminal-membership collection. The membership existed transiently inside the evaluation loop and was thrown away after counting, so the visible counts and the (absent) membership could not be reconciled or exported.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "This record covers observability and export of Decision-funnel membership only. It explicitly does **not** cover, and remediation must not change:\n\n- recommendation semantics, admissibility rules, ranking, or policy thresholds;\n- acquisition, renewal, or provider behavior;\n- universe membership, strategy eligibility, or portfolio/inventory governance;\n- the ETag/snapshot contract.\n\nNo drill-down UI, lifecycle architecture, universe-removal behavior, or unrelated cleanup is in scope.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "1. Every governed evaluation unit appears exactly once in its strategy's exportable membership.\n2. Every exported unit carries exactly one terminal outcome.\n3. Grouping membership by terminal outcome reproduces every visible funnel count for that strategy exactly.\n4. The sum of all terminal-outcome groups (named categories plus any residual) equals the strategy's displayed governed denominator — CSP: monitored universe symbols; Covered Call: eligible holdings; Buy-Write: evaluated universe symbols.\n5. Covered-call and buy-write exports preserve their actual terminal taxonomies (not forced into the CSP taxonomy).\n6. A new Decision run atomically replaces that strategy's exportable result; export never mixes rows from different runs.\n7. Export causes zero provider calls, zero evidence mutation, and zero Decision reruns.\n8.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Remediation implemented and accepted (frontend only; `options-prototype`):\n\n- Added a shared, immutable per-strategy export contract: `options-prototype/src/write-desk/funnel-export/funnel-export-types.ts` (`DecisionExportResult` = run metadata + terminal membership + derived counters; `deriveCounters`, `buildDecisionExportResult`, `createDecisionRunId`). Counters are **derived from** the membership so displayed counts and exported membership cannot diverge.\n- Added a shared CSV utility `funnel-export/funnel-csv.ts` with RFC-4180 escaping and formula-injection neutralization, plus filename and guarded download helpers.\n- Extended each engine to record exactly one terminal-membership record per governed evaluation unit at its single terminal exit, using each strategy's native taxonomy (CSP `TerminalOutcomes`; Buy-Write `BuyWriteOutcomes` incl.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "- Frontend `tsc --noEmit`: passes.\n- Focused tests in `options-prototype/tests/write-desk/`: `funnel-csv.test.ts`, `funnel-export-csp.test.ts`, `funnel-export-covered-call.test.ts`, `funnel-export-buy-write.test.ts`, `funnel-reconciliation.test.ts`: pass. They assert one record per governed unit; that visible funnel/outcomes equal `deriveCounters(membership)` (single accounting authority) for CSP and Buy-Write; grouping-reproduces-counters; `membership.length === denominator` and `sum(counters) === denominator` per strategy; Zero OI / Wide Spread / No Delta Match membership completeness; exact provenance copied on recommended cohorts AND on the Zero OI / No Delta Match cohorts (which inspected chain evidence), and left blank where genuinely unavailable; taxonomy-drift and reconciliation assertions fail loudly; CSV escaping/formula neutralization; no cache mutation on export;",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- `docs/17-recommendation-funnel-analysis.md`, `docs/19-funnel-architecture.md` (funnel behavior/stage documentation).\n- `PL-GOV-02` (Universe Candidate Evaluation / Admission Workflow) — governed-universe analysis consumer that benefits from exportable membership; cross-reference, not double-booked.\n- ADR-017 (consumer-path authority precedence) — funnel counts are now derived from the same membership that is exported (single owner of the fact).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-017",
+      "title": "Deployment CSV export may be constrained by presentation row limit",
+      "area": "Write Desk / Deployment CSV export",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-017-deployment-csv-export-row-limit.md",
+      "provenance": "Acceptance testing 2026-09-14",
+      "recordTitle": "BUG-017 — Deployment CSV export may be constrained by presentation row limit",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "During Deployment acceptance testing, the table reported **\"Showing 90 rows\"** and the exported puts CSV contained **90 data rows**.\n\nThis observation raises a credible export-completeness defect: the CSV export may be inheriting the table's presentation/display-row limit.\n\nThe failure is **not yet confirmed**, because the acceptance session did not establish that more than 90 otherwise-exportable rows existed under the same substantive filters at the moment of export.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "A presentation-only row limit and CSV export scope are separate concerns.\n\nThe Deployment table may limit rendered rows for usability. CSV export should contain the complete candidate result set satisfying the operator's substantive filters, independent of how many rows are currently rendered on screen.\n\nSubstantive filters remain authoritative for export scope, including strategy, symbol/search filters, DANGER visibility, and other candidate-selection filters. A presentation-only Show/row-count control must not silently truncate the export.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Observed during acceptance testing on 2026-09-14:\n\n- Deployment displayed **\"Showing 90 rows.\"**\n- The exported puts CSV contained **90 data rows**.\n- The exported specimen was named `wheelwright-puts-2026-09-14.csv`.\n- It was **not established** that the complete filtered candidate set contained more than 90 exportable rows.\n\nEpistemic status: the 90-row UI state and 90-row export are observed; causal truncation by the presentation limit is suspected and requires a controlled >90-row acceptance test.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "If confirmed, an export can appear complete while silently omitting valid filtered candidate rows. This becomes operationally significant as Wheelwright produces result sets larger than the on-screen presentation limit.\n\nSeverity is not established by the current evidence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Not established.\n\nA possible coupling between presentation row limiting and export input is the subject of the required verification; it must not be treated as proven root cause until demonstrated.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "This record concerns CSV export completeness relative to the Deployment table's presentation row limit.\n\nIt does not cover:\n\n- the newly admitted-symbol discoverability/hydration acceptance finding;\n- whether a pending symbol produces a recommendation row;\n- DANGER classification semantics;\n- admission or universe membership;\n- redesign of Deployment pagination or table rendering.\n\nFiling this bug does not authorize remediation.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "A controlled acceptance test must:\n\n1. Establish an underlying filtered candidate set containing more than 90 exportable rows.\n2. Leave the Deployment presentation limit at 90.\n3. Export CSV.\n4. Verify that the CSV contains the complete filtered candidate set, not merely the 90 rendered rows.\n5. Compare membership as well as row count so a different truncation cannot accidentally pass.\n\nIf the CSV contains only the displayed 90 rows, the defect is confirmed. If it contains the complete filtered set, this suspected defect should be dispositioned based on that evidence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None. Open; remediation is not authorized by filing.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Pending the controlled >90-row acceptance test described above.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- Acceptance testing, 2026-09-14.\n- Separate from the admitted-but-pending symbol discoverability/hydration finding.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-018",
+      "title": "Newly admitted (pending) universe member is not discoverable on Deployment; evaluated-universe count conceals distinct symbol states; no operator-facing targeted hydration for non-portfolio symbols",
+      "area": "Write Desk (Deployment) / operator discoverability + hydration",
+      "severity": "S3",
+      "status": "Open",
+      "recordFile": "BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
+      "provenance": "Discovered 2026-09-14",
+      "recordTitle": "BUG-018 — Newly admitted (pending) universe member is not discoverable on Deployment; evaluated-universe count conceals distinct symbol states; no operator-facing targeted hydration for non-portfolio symbols",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "After the seven-symbol cohort (ETHA, TSLL, NVDL, QQQM, IBIT, DRAM, TLT) was admitted to the maintained universe, the Deployment (Write Desk) surface reported the universe/evaluated count as `1313` and \"Showing 90 rows\", but the newly admitted symbols could not be found anywhere on the operator surface. In their `pending` (not-yet-hydrated) state they produce no recommendation rows, and the Deployment surface renders only recommendation-producing rows, so a real, governed universe member was **entirely invisible** to the operator between admission and hydration.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "The expected operator mental model is: **admit → the symbol is governed universe state → the operator can see its state → hydrate → it becomes evaluable/candidate-producing.** The current surface instead behaves as: **admit → the symbol silently disappears from the operator surface until enough evidence exists to produce a recommendation row.** A newly admitted `pending` symbol is real universe state and should be inspectable somewhere immediately (e.g. as `PENDING / NOT HYDRATED`), even without a recommendation row.\n\nRelatedly, the displayed universe/evaluated count (`1313`) is presented as a single figure that does not let the operator distinguish materially different states:\n\n- admitted but pending (not hydrated),\n- acquisition attempted but failed,\n- ready but no qualifying contract,\n- ready but filtered by DANGER (Show Danger off),\n- genuinely not a universe member.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Observed (working software, 2026-09-14, appliance on `main` with the seven admitted):\n\n- `/api/status` `evidence.universe = 1313`, `coverage.pending = 7`, scheduler `session_blocked` (`CLOSED_CANONICAL`).\n- `/api/evidence/snapshot`: all seven present with `status: pending` (in the published snapshot) yet producing no Deployment rows.\n- Deployment surface: \"Show 1313 / Showing 90 rows\"; the seven were not locatable in the put/candidate table (they produce no candidate row while `pending`). The \"Showing 90 of N\" cap is a separate display control and was not the cause — the symbols produce zero candidate rows regardless of the cap.\n- After an explicitly targeted forced refresh for exactly the seven, coverage moved `pending 7 → 0`, `ready 957 → 964`, and the symbols then produced candidate rows (five visible directly; TSLL/NVDL only under Show Danger — see BUG note below).",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "For acceptance testing and, more importantly, operations: a newly admitted symbol cannot be observed or acted on through the operator surface until it happens to produce a recommendation row. The operator cannot tell whether an admitted symbol is pending, failed, ready-without-candidate, danger-filtered, or absent. Combined with the missing operator-facing targeted hydration path, an admitted non-portfolio symbol is effectively un-operable from the UI until the next full acquisition session or an out-of-band backend call. Severity S3 (moderate): no incorrect economic figure is produced and no evidence is corrupted; the defect is discoverability/legibility + an operator-workflow gap, with a functional (if non-operator) backend workaround available.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Established at the behavioral level, not yet at a specific code fix:\n\n- The Deployment/Write Desk surface renders from the recommendation/Decision output (candidate rows), which requires `ready` evidence with a qualifying chain in the current 0–45 DTE Decision policy. A `pending` universe member has no candidate row and no other operator-visible representation on that surface.\n- The displayed count is the evaluated-universe size and is not decomposed into the lifecycle/outcome states enumerated above.\n- The Console hydration control targets its existing operator context rather than accepting an arbitrary operator-chosen symbol set, even though the backend endpoint (`forceAcquireSymbols`) already accepts an arbitrary bounded set.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Covers: operator discoverability of admitted-but-not-yet-evaluable universe members, legibility of the evaluated-universe count with respect to distinct symbol states, and the absence of an operator-facing targeted hydration path for non-portfolio symbols. Does **not** cover: the DANGER classifier's representational gaps for single-stock/crypto-trust structures (recorded as DEFER findings under the PL-GOV-02 admission; not a defect of this surface). Filing does not authorize remediation; severity is not priority. The broader productized universe intake/evaluation/admission/hydration **workflow** remains a `PL-GOV-02` capability item and is not restated here as a defect.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "An eventual fix should let an operator, without conversation history or backend `curl`:\n\n1. observe that an admitted symbol exists and see its state (e.g. `PENDING / NOT HYDRATED`, `FAILED`, `READY / NO CANDIDATE`, `DANGER-FILTERED`) even when it produces no recommendation row; and\n2. distinguish those states rather than folding them into a single \"evaluated\" count; and\n3. request evidence (hydration) for a newly admitted symbol through an operator-facing control rather than a raw backend call.\n\n(Exact surface/product expression is a design decision and is not prescribed here.)",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Empty (Open).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Empty (Open).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- `PL-GOV-02` (Universe Candidate Evaluation / Admission Workflow) — the mature productized intake/evaluation/**admission/hydration** workflow. This defect is the concrete discoverability/legibility + targeted-hydration gap observed during the PL-GOV-02 cohort admission; it is cross-linked, not double-booked (the capability item is not a defect, and this defect does not restate the workflow item).\n- Journal why-state: `docs/journal/project-journal-3.md` (2026-09-14 PL-GOV-02 admission + acceptance-testing entries).\n- `BUG-017` (Deployment CSV export may be constrained by presentation row limit) — a separate defect surfaced in the same 2026-09-14 acceptance session on the same surface. Distinct concern (export completeness vs.",
+          "truncated": true,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-019",
+      "title": "Operator-forced off-hours acquisition succeeds but its newly acquired evidence is marked `admissible: false`, making it unusable by Decision",
+      "area": "Backend admissibility semantics ↔ Decision consumer / operator-forced acquisition",
+      "severity": "S2",
+      "status": "Open",
+      "recordFile": "BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
+      "provenance": "Discovered 2026-09-14",
+      "recordTitle": "BUG-019 — Operator-forced off-hours acquisition succeeds but its newly acquired evidence is marked `admissible: false`, making it unusable by Decision",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "During acceptance testing, an operator-authorized forced acquisition was issued for the seven newly admitted symbols while the canonical session was **closed** (`CLOSED_CANONICAL`, after 16:15 ET). The acquisition **succeeded**: all seven moved `pending → ready`, chains were acquired with real (delayed) provider timestamps, and the evidence was published in snapshot generation 29555. Each symbol has structurally sufficient chain evidence to produce a 0–45 DTE Decision candidate (e.g. ETHA has four puts with |delta| 0.15–0.50, non-zero bids, healthy OI).\n\nYet none of the seven produce a Deployment/Decision candidate row. With the Deployment CSP table filtered to `ETHA`, the table shows **\"Showing 0 rows.\"**",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Proposed invariant this defect violates:\n\n> **Explicit forced acquisition must produce Decision-usable current evidence when usable provider evidence is available, regardless of canonical-session posture, while preserving truthful timestamps, provider provenance, and an explicit indication that the evidence is after-hours / non-canonical.**",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Observed live, 2026-09-14, appliance on `main` (`b3e2171`), snapshot generation 29555, session `CLOSED_CANONICAL` (sealed):\n\n- Forced targeted acquisition `POST /api/evidence/refresh?symbol=ETHA&…` returned `outcome: ACQUIRED, targeted: true, sessionPosture: BLOCKED`; generation advanced 29554 → 29555; coverage `pending 7 → 0`, `ready 957 → 964`.\n- Backend DB: `ETHA` resolution `ready`, primary expiration `2026-10-02`, five chains `success` (retrieved `2026-09-14T21:52:49Z`).\n- Published snapshot `ETHA`: `status: ready`, 47 puts on the primary chain, underlying `iShares Ethereum Trust ETF` @ $19.17; four puts qualify under the admissible delta band (0.15–0.50) with non-zero bids and OI.\n- **Published per-subject admissibility verdict for `ETHA`** (the authoritative value the frontend consumes):\n  `primaryChainAdmissibility = {\"admissible\": false, \"basis\": \"real-time\",",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Operator-triggered hydration during a closed session cannot surface a newly admitted (or any) symbol into Decision, even though the acquisition succeeds and the evidence is truthful and structurally sufficient. The operator has no way, off-hours, to obtain Decision-usable evidence for a symbol — the forced action silently produces permanently-non-recommendable evidence until a live session re-acquires it. This directly blocks the acceptance goal (hydrate the seven and see them participate) and, more broadly, makes the operator-forced acquisition control misleading: it reports `ACQUIRED` while producing evidence Decision will refuse. Severity S2 (major): no incorrect economic figure is produced, but a core operator action is defeated by policy and the outcome is silent/unexplained at the operator surface.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Established at the behavioral level:\n\n- The backend assigns per-subject admissibility from the subject's own acquisition time under canonical-session policy. Evidence acquired while the canonical session is closed is stamped `admissible: false` (basis `real-time`), regardless of whether it was produced by an explicit operator-forced acquisition.\n- The Decision consumer treats a backend `admissible: false` verdict as authoritative and inadmissible in all session states (correctly, per its own authority-precedence rule — see `subject-admissibility.ts` path 1a).",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Covers: the admissibility characterization of evidence produced by an explicit operator-forced acquisition performed while the canonical session is closed, and the resulting Decision-usability of that evidence. Does **not** cover: the passive session gate's normal behavior during closed sessions (that gate correctly suppresses ordinary acquisition), sealed-evidence validity for prior-session evidence, DANGER classification, or admission/universe membership. Filing does not authorize remediation. Severity is consequence, not priority.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Not a duplicate of BUG-013 / BUG-014",
+          "level": 3,
+          "content": "BUG-013 and BUG-014 concern admissibility/sealing behavior for evidence associated with **canonical-session boundaries** — the preservation and correct use of evidence that was **already valid/canonical** around a boundary, subsequently mishandled by admissibility/sealing semantics. This defect concerns the semantics of an **explicit operator-forced acquisition performed while the canonical session is closed**: the operator deliberately requests the best evidence available now, acquisition succeeds, but that **newly acquired** evidence is made unusable by Decision solely because it was acquired outside the canonical session. Different trigger (deliberate forced acquisition vs. boundary handling of pre-existing evidence), different evidence (newly acquired vs. previously admissible), different owner concern.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Not a duplicate of BUG-017 / BUG-018",
+          "level": 3,
+          "content": "BUG-017 concerns Deployment CSV export completeness vs. a presentation row limit. BUG-018 concerns discoverability of admitted-but-`pending` symbols and the absence of a straightforward operator hydration path. This defect occurs **after** a hydration path has successfully executed: evidence is acquired, persisted, published, and structurally sufficient for Decision, but is rejected by the admissibility verdict. Even with perfect discoverability and an operator symbol-picker, this defect would remain — the requested hydration would succeed but its result would be unusable.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "An eventual fix should satisfy the invariant above. Specifically, when an operator issues an explicit forced acquisition while the canonical session is closed and usable provider evidence is available:\n\n1. the acquired evidence is Decision-usable for that operator's decision context, rather than silently `admissible: false`; and\n2. truthful acquisition timestamps and provider provenance are preserved (no laundering of after-hours evidence as in-session/canonical); and\n3. the evidence carries an explicit after-hours / non-canonical indication so it is not mistaken for canonical-session evidence; and\n4. the fix repairs the authoritative characterization upstream (backend), not via a compensating exception in the Decision consumer, and does not weaken the consumer's authority-precedence rule or sealed-evidence semantics for prior-session evidence.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Empty (Open). Filing does not authorize remediation.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Empty (Open).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- `BUG-013`, `BUG-014` — per-subject admissibility / sealed-session authority around canonical-session boundaries. Related area; explicitly **not** the same defect (see \"Not a duplicate of\" above).\n- `BUG-018` — discoverability/hydration of admitted-but-pending symbols. Sequential in the operator flow; explicitly **not** the same defect.\n- `PL-GOV-02` — the seven-ETF admission whose acceptance testing surfaced this.\n- Journal why-state: `docs/journal/project-journal-3.md` (2026-09-14 acceptance-testing entries).\n- Code touchpoints (evidence, not remediation authorization): backend per-subject admissibility publication; `options-prototype/src/write-desk/subject-admissibility.ts` (`isSubjectAdmissible` path 1a); `options-prototype/src/write-desk/recommend.ts` (`isEligible`).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-020",
+      "title": "\"Today's G/L $/%\" uses Wheelwright's first intraday observation as baseline instead of prior session close, producing broker-mismatched (often sign-inverted) daily G/L",
+      "area": "Operator Console / Unencumbered Shares + DTE ladder + CSV; per-symbol quote path",
+      "severity": "S2",
+      "status": "Resolved",
+      "recordFile": "BUG-020-todays-gl-uses-first-observation-not-prior-close.md",
+      "provenance": "Discovered 2026-09-16",
+      "recordTitle": "BUG-020 — \"Today's G/L $/%\" uses Wheelwright's first intraday observation as the baseline instead of the prior session close, producing broker-mismatched (often sign-inverted) daily G/L",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "On the Operator Console (Fidelity source), the Unencumbered Shares table's **Today's gain/loss $** and **Today's gain/loss %** did not match Fidelity's real-time daily position G/L. Several values were materially off and some had the **opposite sign**.\n\nSep. 16, 2026 comparison (real account evidence):\n\n\nCOPX/GDXJ/SMH show a sign reversal; SMH is off by nearly $1,000. This is **not** acceptable quote-timing drift.\n\nThe same defect is visible on the DTE ladder's \"Today's G/L\" for the same underlyings (e.g. Fidelity DBO last-price-change −$1.00 vs ladder `+$0.05`; UNG −$0.105 vs ladder `+$0.02`).",
+          "truncated": false,
+          "tables": [
+            {
+              "header": [
+                "Symbol",
+                "Wheelwright Today's G/L $",
+                "Fidelity Today's G/L $",
+                "Fidelity last / prior close"
+              ],
+              "rows": [
+                [
+                  "COPX",
+                  "≈ −$12 (−0.14%)",
+                  "+$134 (+1.58%)",
+                  "85.93 / 84.59"
+                ],
+                [
+                  "GDXJ",
+                  "≈ −$25 (−0.21%)",
+                  "+$113 (+0.93%)",
+                  "121.44 / 120.31"
+                ],
+                [
+                  "SMH",
+                  "≈ −$98 (−0.18%)",
+                  "+$891 (+1.64%)",
+                  "551.02 / 542.11"
+                ],
+                [
+                  "SPYI",
+                  "≈ $0 (−0.00%)",
+                  "+$13.18 (+0.35%)",
+                  "52.855 / 52.666 (qty 69.829)"
+                ],
+                [
+                  "URA",
+                  "≈ +$4 (+0.10%)",
+                  "+$10 (+0.23%)",
+                  "41.87 / 41.77"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "\"Today's gain/loss\" is a **broker-comparison daily figure**. The operator reads Wheelwright's column next to Fidelity's and expects them to mean the same thing. The Principal-stated target semantics are:\n\n```\nToday's G/L $ = (current price − previous close) × quantity\nToday's G/L % = (current price − previous close) / previous close × 100\n```\nFor Unencumbered Shares, quantity is the displayed free-share quantity (fractional supported).\n\nThe label \"Today's gain/loss\" promises previous-close semantics; the implementation delivered a different metric under that label.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Root cause (traced, current `main` @ `1156178`): the shared derivation in\n`options-prototype/src/operator-console/today-gl.ts` computes\n\n```\ntodayΔ$/share = latest.price − firstObservationOfLatestDay.price\n```\n\nwhere `firstObservationOfLatestDay` is the **earliest `spot_history` row Wheelwright happened to record on the latest observed UTC day** — not the prior session official close. Consumers:\n\n- `UnencumberedInventory.tsx` per-row: `(latest − firstOfDay) × freeShares`, plus dollar-weighted totals.\n- `UnencumberedInventory.tsx` `buildUnencumberedCsvRows`: identical derivation (CSV inherits the defect; it is not a separate calculation).\n- `OperatorConsole.tsx` DTE-ladder CSV: same `computeTodayUnderlyingChange/Percent`.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "An operator comparing Wheelwright to Fidelity sees a different daily economic reality — wrong magnitude and sometimes the wrong direction — on a field explicitly labeled to match the broker. This undermines trust in the Unencumbered Shares region (otherwise validated against the real account) and the ladder. S2.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Wrong baseline. \"Today's\" reference was Wheelwright's first intraday observation of the latest UTC day rather than the prior trading session's close. The provider already supplies `prevclose`; the per-symbol evidence path discarded it, so no truthful prior-close baseline reached the consumer. Secondary: the \"day\" boundary was UTC, not market session.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "**In scope:** make \"Today's G/L $/%\" mean `(price − previousClose) × qty` and `(price − previousClose)/previousClose × 100` for Unencumbered Shares (UI + CSV, per-row + totals) and the DTE ladder's underlying-move \"Today's G/L\"; thread an additive `previousClose` from the provider through to the frontend quote observation.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "For the same Fidelity positions at approximately the same market moment, Wheelwright and Fidelity \"Today's G/L\" match within normal quote-timing / display-rounding tolerance:\n\n- COPX ≈ +$134 (positive; guards the sign reversal).\n- GDXJ ≈ +$113.\n- SMH ≈ +$891 (guards open-gap exclusion).\n- SPYI ≈ +$13.18 with fractional quantity 69.829 handled correctly.\n- URA ≈ +$10.\n- `$` and `%` are sign-consistent and mutually coherent.\n- When `previousClose` is unavailable for a symbol, the cell renders unavailable (em dash) — never a fabricated zero or a wrong-baseline fallback.\n- UI and CSV render the same value from one canonical derivation.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "**2026-09-16 — repository remediation (commit `5acf945`).** Additive, non-breaking `previousClose` threaded from Tradier `prevclose` → `MarketChain.Underlying` → `marshalChain` stored blob → `SqliteEvidenceStore` read-back → `/api/evidence/quotes` `observation.previousClose` → frontend `QuoteObservation.previousClose`. Canonical prior-close derivation in `today-gl.ts` (`computeTodayGlPerShare` / `computeTodayGlDollar` / `computeTodayGlPercent`) consumed by the Unencumbered Shares table, its totals, the CSV builder, and the DTE-ladder Today's G/L. No DB migration (rides in the existing chain blob). Contract documented as additive in `docs/contracts/evidence-snapshot-v1.md`.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Backend JUnit + frontend Vitest regression tests added: provider `prevclose` extraction (absence → null, not 0); snapshot/quotes propagation; frontend `previousClose` parsing; `today-gl` prior-close `$`/`%` with sign-reversal (COPX), large-gap (SMH), fractional (SPYI) fixtures; `previousClose`-unavailable → dash; UI/CSV agreement.",
+          "truncated": true,
+          "tables": [
+            {
+              "header": [
+                "Symbol",
+                "WW (fresh)",
+                "Earlier Fidelity",
+                "Difference"
+              ],
+              "rows": [
+                [
+                  "COPX",
+                  "+$76",
+                  "+$77",
+                  "−$1 (essentially exact)"
+                ],
+                [
+                  "GDXJ",
+                  "+$13",
+                  "+$17",
+                  "−$4 (few cents/share)"
+                ],
+                [
+                  "SMH",
+                  "+$809",
+                  "+$785",
+                  "+$24 (≈$0.24/share on a ~$550 security; non-simultaneous)"
+                ],
+                [
+                  "SPYI",
+                  "+$10",
+                  "+$8.16",
+                  "older WW quote"
+                ],
+                [
+                  "URA",
+                  "−$12",
+                  "−$12",
+                  "exact"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- Prior \"first observation of day\" semantic was introduced with the Unencumbered Shares column-expansion commits (`5c01175`, `9a39185`, `338750f`, `d1de278`, `8020178`) and the shared `today-gl.ts` used by the ladder. This record supersedes that baseline for the \"Today's G/L\" label.\n- `docs/contracts/evidence-snapshot-v1.md` — additive `underlying.previousClose` field.\n- Not a `PL-*` item (defect, not a capability).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-021",
+      "title": "Buy-to-close option classified as generic asset purchase (CAPITAL_DEPLOYMENT), never netted against recognized premium",
+      "area": "Production / accounting (TransactionClassifier → EconomicDecomposer)",
+      "severity": "Not established",
+      "status": "Resolved",
+      "recordFile": "BUG-021-btc-misclassified-as-asset-purchase.md",
+      "provenance": "Discovered 2026-09-16",
+      "recordTitle": "BUG-021 — Buy-to-close option is classified as a generic asset purchase (CAPITAL_DEPLOYMENT), never netted against recognized premium",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "A Fidelity Activity transaction that represents **buying to close a short option** (action string begins `\"YOU BOUGHT CLOSING TRANSACTION ...\"`) is not recognized by the backend transaction classifier. It falls through the classification chain to the generic catch-all and is classified as **`ASSET_PURCHASE`**, then economically decomposed as **`CAPITAL_DEPLOYMENT`** — a fresh asset purchase against the OCC option symbol — rather than being recognized as the closing of an option obligation and netted against the previously-recognized opening premium.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "- **ADR-014 (Production recognition):** option premium is recognized once, at sell-to-open receipt. The closing debit of that same obligation is part of the *same* economic lifecycle and must not be accounted as unrelated capital deployment. Booking a BTC debit as `CAPITAL_DEPLOYMENT` against the OCC symbol misrepresents the economic event.\n- **ADR-016 (evidence-to-domain association):** a closing transaction is an authoritative economic event bound to a specific short-obligation lifecycle; classifying it as a generic asset buy severs that association.\n- The classifier already encodes option *opening* semantics (`OPTION_SELL_TO_OPEN_PUT` / `_CALL`); the *closing* counterpart is missing, so the two halves of one obligation lifecycle are accounted incoherently.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Verified against accepted `main` at SYNC `7b4a0843295bfed52584e4b5d97efd4eb7eacdd1`:\n\n- `evidence-service-java/src/main/java/com/wheelwright/evidence/production/TransactionClassifier.java` — recognizes `\"YOU SOLD OPENING TRANSACTION PUT\"` / `\"...CALL\"` (option opening) but has **no** `\"YOU BOUGHT CLOSING TRANSACTION\"` branch. A BTC row is not matched by the treasury branch (requires `isTreasury`) nor `\"YOU BOUGHT ASSIGNED PUTS\"`, so it reaches the generic `if (action.startsWith(\"YOU BOUGHT\")) return FidelityTransactionKind.ASSET_PURCHASE;`.\n- `evidence-service-java/src/main/java/com/wheelwright/evidence/production/FidelityTransactionKind.java` — has `OPTION_SELL_TO_OPEN_PUT` / `_CALL` but **no** `OPTION_BUY_TO_CLOSE_*` member.\n- `evidence-service-java/src/main/java/com/wheelwright/evidence/production/EconomicDecomposer.java` — `case ASSET_PURCHASE, TREASURY_PURCHASE -> ...",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "A month containing a buy-to-close would misattribute the closing debit as capital deployment against an option symbol instead of reducing the net production of the closed obligation. This can distort Net Strategy Result and Production accounting. Consequence magnitude in real operation was **not** established in this investigation (no live specimen quantified), so severity is recorded as `Not established` rather than invented.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "The transaction classifier lacks a buy-to-close recognition branch and the enum lacks a corresponding kind; consequently the economic decomposer has no path to net the closing debit against recognized premium. The two halves of one option-obligation lifecycle (open credit, close debit) are classified by unrelated rules.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Records the defect only. **Filing does not authorize remediation.** This record does not prescribe the fix (new enum kind, classifier branch, netting semantics, or lifecycle-association design are all remediation-time decisions). It does not resolve the broader lifecycle-reconstruction maturity tracked by `PL-EXEC-01` / `PL-PORT-02`; it isolates the specific current mis-classification.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria (for an eventual, separately-authorized fix)",
+          "level": 2,
+          "content": "- A `\"YOU BOUGHT CLOSING TRANSACTION\"` row is classified as an option-close event, distinct from `ASSET_PURCHASE`.\n- The closing debit is economically associated with the corresponding opening premium (or explicitly `UNRESOLVED` when association cannot be established), never booked as generic `CAPITAL_DEPLOYMENT` against the OCC symbol.\n- Premium is still recognized exactly once (ADR-014 invariant preserved); the close does not double-count or re-recognize premium.\n- Backend tests feed a BTC row and assert both classification and economic decomposition.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Durable model (governs correct treatment)",
+          "level": 2,
+          "content": "Three rounds of independent review (Codex) plus Principal correction established the durable model. A BTC carries separable facts that must never be conflated, and there is **exactly one authority** for the association:\n\n1. **Known executed BTC economics** — the row's own authoritative net closing debit (fees folded into net cash) and its own date. This is a real option-close cash event and reduces net realized period option premium **regardless** of whether a recognized opening exists. It is not a new-asset acquisition. Known whenever the row carries cash. Each executed close is an **individually dated event** — multiple closes are never collapsed into one accumulated debit/date.\n2.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Principal authorization (2026-09-17) — one bounded implementation attempt",
+          "level": 2,
+          "content": "This section is the **durable authorization record** for BUG-021 remediation. It is recorded **before** the implementation attempt begins and does **not** assert that implementation has occurred. BUG-021 remains `Open`.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Authorization state",
+          "level": 3,
+          "content": "On **2026-09-17** the Principal, having reviewed the BUG-021 Product outcome:\n\n- **Product outcome confirmation:** PRESENT — the Principal explicitly confirmed the intended BUG-021 Product behavior described by the Product boundary below.\n- **Sequencing decision:** BUG-021 remediation **may resume**.\n- **Authorization granted:** exactly **ONE bounded implementation attempt**, constrained to the Product boundary below.\n- **Retry does not self-authorize:** a Codex `REJECT` of the resulting candidate does **not** itself authorize another attempt. A further attempt requires a new, separately-recorded Principal authorization.\n- **Exclusion preserved:** the separate In-Flight / current-position contradiction (a closed/expired obligation not removed from the projected-position view) is **out of scope** for this authorization and remains a distinct defect to be handled separately.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Principal-confirmed Product boundary (the authorized outcome)",
+          "level": 3,
+          "content": "The one authorized attempt must produce, and Production verification must demonstrate through the **actual BTC accounting path** (not isolated unit behavior only):\n\n- A Fidelity buy-to-close is an **option-close event**, never generic `ASSET_PURCHASE` / `CAPITAL_DEPLOYMENT`.\n- **Known BTC closing cash remains visible.**\n- **Known BTC executed quantity remains visible.**\n- **Unknown BTC executed quantity remains unknown** — never fabricated.\n- **Opening quantity must never be substituted or presented as observed closing quantity** when the BTC quantity is unavailable.\n- Closing evidence is **associated to the opening short obligation when the evidence establishes that association**; otherwise association remains **explicitly unresolved**.\n- **Opening premium is recognized exactly once**; the close must not re-recognize or double-count premium.\n- **Historical close evidence must not be",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "What this authorization does NOT record",
+          "level": 3,
+          "content": "- It does **not** claim implementation has occurred, does **not** populate `Remediation history` / `Verification` as though resolved, and does **not** change `Status` from `Open`.\n- The uncommitted prior candidate on a working tree is **not** an accepted remediation; acceptance remains the Principal's, after Product-behavior demonstration of a submitted candidate.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Repair prepared 2026-09-16 (Kiro) against accepted `main` at SYNC `9f10ba3de8c40aaf87e5bc2250aace6c1456cdc8` (the `7b4a084 → 9f10ba3` range was documentation-only; code findings held). Delivered in two passes; the second pass is a **bounded amendment after independent review** that corrected specific overclaims in the first pass.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Verified at SYNC `e53ea4d` (working tree; the `9f10ba3 → e53ea4d` advance was documentation-only and touched no code or BUG-021 files):\n\n- **Backend test** `evidence-service-java/.../production/BuyToCloseProductionTest.java` (27 cases): classification; decomposition (signed `OPTION_PREMIUM`; missing cash → `UNRESOLVED`); positive/negative/STO-regression; reconciliation-propagation; temporal/per-event; range-model/authoritative-result cases — including the fifth-pass fixes: a covered-but-uncertain close is `DETERMINISTIC_PARTIAL` (not `COMPLETE`); a prior same-day-ambiguous close leaves a later close `UNRESOLVED`; partial assignment (1 of 2) then BTC 1 → `DETERMINISTIC_COMPLETE` (`outstandingBefore=[1,1]`); over-close → `OVER_CLOSE`; `q` within range → `UNRESOLVED`.\n- **Backend round-trip fixtures** `Bug021RoundTripFixtureTest.java` (3 cases): drives specimens through the real",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Principal acceptance / closure (2026-09-17)",
+          "level": 2,
+          "content": "Status advanced **Open → Resolved**. Basis:\n\n- **Independent review:** Codex reconciled disposition **ACCEPT** at review SYNC `92bbd051401d5b84d3252e2a57f9c411b829e426`. Codex explicitly **withdrew** its earlier CSV-based REJECT because that criterion was **not** established by durable BUG-021 authority, and found no remaining durably-authorized BUG-021 requirement demonstrably failing.\n- **Principal decision:** ACCEPT the frozen candidate and authorize commit/push (Principal Decision Surface option A).\n- **Remediation** is the candidate recorded in \"Remediation history\" above (backend classification → decomposition → single-authority `OptionCloseResult`; Product renders the backend verdict; observed BTC quantity/cash preserved, unknown stays unknown).",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- `PL-EXEC-01` (Trade Lifecycle Evolution — anticipates later buy-to-close/roll/unwind economics and post-execution reconciliation; capability context, not a bug record).\n- `PL-PORT-02` (Production Accounting remaining — lifecycle reconstruction; capability context).\n- ADR-014 (Production recognition), ADR-016 (evidence-to-domain association) — governing semantics.\n- `docs/design/existing-short-obligation-hold-vs-close-v1-design.md` §8/§19/§21 — the HOLD-vs-CLOSE V1 design treats this as a bounding constraint (it must not assume Production has netted a BTC), not something it repairs.\n- **Finding B / BUG-001** — the live-overlay counterpart (a BTC/expired obligation is not removed from projected positions). Distinct concern (frontend projection vs backend accounting); cross-linked, not double-booked.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Principal authorization (2026-09-17, second) — one NEW bounded implementation attempt against the validated model",
+          "level": 2,
+          "content": "This section is a **durable authorization record**. It is recorded **before** the new implementation attempt begins and does **not** assert that the new implementation has occurred. BUG-021 remains `Open`. It supersedes neither the frozen candidate's own narrative above nor the defect protocol; it records a fresh, separately-granted Principal authorization and the cross-actor evidence that established the intervening workflow state.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Chronology this record makes durable",
+          "level": 3,
+          "content": "1. **Previous authorization (`00bde24`) was consumed.** The \"Principal authorization (2026-09-17) — one bounded implementation attempt\" section above authorized exactly one attempt. That attempt was executed as the **seventh pass** (negative-specimen / unknown-BTC-quantity fix) and is the currently-preserved uncommitted candidate. That authorization is **spent**.\n2. **Codex independently REJECTED the seventh-pass candidate.** Cross-actor evidence (supplied through the Principal per operating-model correction #6, *Cross-actor evidence provenance is mandatory*) established: Codex resumed its interrupted review; all **25 frozen candidate files** matched the pre-interruption SHA-256 inventory; nothing was staged; intervening commits were orthogonal; the candidate was therefore the same candidate submitted for review.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Validated governing invariant (the model this attempt implements)",
+          "level": 3,
+          "content": "> **Product must not assert an opening-event relationship, allocation, or provenance that Production's authoritative association contract does not establish. Missing opening identity must not erase established close economics.**\n\nQualification: the prohibition concerns unsupported semantic specificity for the **same authoritative relationship**. ADR-016 still permits downstream derivation for a genuinely *different* domain purpose. Economic close certainty and specific opening identity are **separate claims**; deterministic close economics do not establish complete brokerage history, current-position retirement, or singular opening identity. Product may **omit** a singular opening relationship when Production does not establish one; alternatively Production may publish additional justified provenance *only* where its evidence actually establishes it.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Authorization state (2026-09-17, second)",
+          "level": 3,
+          "content": "- The Principal, presented with A (authorize one new bounded attempt against the validated model/failure class), B (keep frozen), C (stop), explicitly selected **A**.\n- **Authorization granted:** exactly **ONE new bounded implementation attempt** against the validated invariant and failure class — not merely the Jul-20 counterexample.\n- **Required falsifier:** the stronger multiple-prior-STO / order-independence specimen (reordering economically identical evidence must not change an asserted authoritative opening relationship when the authoritative Production result is unchanged).\n- **Retry does not self-authorize:** a future Codex `REJECT` of the resulting candidate creates **no** further attempt authority; a further attempt requires a new, separately-recorded Principal authorization.\n- **Scope exclusions preserved:** no durable lifecycle identity, no universal",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "What this authorization does NOT record",
+          "level": 3,
+          "content": "- It does **not** claim the new implementation has occurred, does **not** populate remediation/verification as resolved, and does **not** change `Status` from `Open`.\n- The frozen seventh-pass candidate remains an **uncommitted, Codex-REJECTED** candidate; its own \"pending independent Codex review\" wording above is **stale** relative to the later-supplied REJECT evidence and is left intact (not repaired) for provenance.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-022",
+      "title": "Deployable cash is regime-unaware: balances parser folds margin-derived buying power into the legacy \"all settled\" slot, over-stating unlevered deployable on a margin-enabled account",
+      "area": "Write Desk / broker-balance ingestion + deployable-cash derivation",
+      "severity": "Not established",
+      "status": "Resolved",
+      "recordFile": "BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
+      "provenance": "Discovered 2026-09-17",
+      "recordTitle": "BUG-022 — Deployable cash is regime-unaware: the balances parser folds margin-derived buying power into the legacy \"all settled\" slot, over-stating unlevered deployable capacity on a margin-enabled account",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "On the current PTS margin-enabled Fidelity account, Wheelwright presents **Deployable ≈ $6,734** while Fidelity's own export for the same account reports **Available without margin impact = $0** and **Settled cash = $0**. Wheelwright is therefore labeling broker *buying-power capacity that requires margin* as unlevered \"Deployable\" cash, and would size cash-secured-put deployment against capital the broker says cannot be put to work without margin impact.\n\nThe figure Wheelwright surfaces ($6,734.37) is exactly Fidelity's **Non-margin buying power** row — a distinct broker concept from \"Available without margin impact\" — which the ingestion path currently treats as interchangeable with settled/unlevered deployable cash.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "- **Policy over prediction / honest capacity.** \"Deployable\" is Wheelwright's unlevered, put-writing capacity. It must reflect what the operator can actually commit now without incurring margin, not the broker's margin-inclusive buying power.\n- **Persist facts; derive trust.** Distinct broker-authoritative balance fields (Settled cash, Available without margin impact, Non-margin buying power, Margin buying power, Cash reserved for options) are distinct facts and must be preserved distinctly. They must not be normalized into a single legacy field at ingestion; the deployable *decision* is a domain-layer derivation, not a parser responsibility.\n- **Authority before consumers.** The defect originates at the ingestion/authority layer (the parser makes a domain decision and mislabels its output), not in the consumers that read `deployableCash`.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Epistemic tags: **[observed]** = present in a real exported file or read directly from current source; **[established diagnosis]** = confirmed by reading committed code/history; **[inference]** = reasoned from evidence but not directly proven; **[reasoned candidate]** = proposed remediation semantic, not yet specimen-validated.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Specimen A — Sawdust Roth (legacy / non-margin export) — CASH/legacy positive specimen **[observed]**",
+          "level": 3,
+          "content": "Real Fidelity Balances export, account `262761078` (Roth IRA), downloaded 2026-09-17 1:22 PM ET:\n\n```\n,Balance,Day change\nTotal account value,23736.47,67.64\nAVAILABLE TO TRADE,,\nAvailable to trade (all settled),510.28,\nAvailable to withdraw,510.28,\nHOLDINGS,,\nCash and credits,10310.28,\nValue of your investments,13426.19,21.64\n```",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Specimen B — PTS (margin-enabled export) — MARGIN negative specimen **[observed]**",
+          "level": 3,
+          "content": "Real Fidelity Balances export, account `Z39411514` (margin-enabled), downloaded 2026-09-17 12:51 PM ET:\n\n```\n,Balance,Day change\nTotal account value,113842.91,2244.36\nAccount equity percentage,100.00%,\nAVAILABLE TO TRADE,,\nMargin buying power,13468.74,13366.24\nNon-margin buying power,6734.37,6683.12\nAvailable without margin impact,0,-51.25\nCash reserved for options strategies,900,\nSettled cash,0,\nAVAILABLE TO WITHDRAW,,\nCash only,0,\nCash and borrowing on margin,0,\nMARGIN STATUS,,\nHouse surplus,7393.18,7341.93\nSMA,6734.37,6683.12\nExchange surplus,7677.52,7626.27\nNo margin interest accrued,,\nHOLDINGS,,\nCash market value,106209.61,-2423.69\nMargin market value,8666.38,8666.38\nOption market value,-1997,-1831\nCash (core),5051.25,\nCash debit,-4165.33,-2195.9\nMargin credit/debit,0,0\n```\n\nKey rows:",
+          "truncated": true,
+          "tables": [
+            {
+              "header": [
+                "Broker field",
+                "Value"
+              ],
+              "rows": [
+                [
+                  "Non-margin buying power",
+                  "$6,734.37"
+                ],
+                [
+                  "Available without margin impact",
+                  "$0"
+                ],
+                [
+                  "Settled cash",
+                  "$0"
+                ],
+                [
+                  "Cash reserved for options strategies",
+                  "$900"
+                ],
+                [
+                  "Margin buying power",
+                  "$13,468.74"
+                ],
+                [
+                  "Account equity percentage",
+                  "100.00%"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Behavior chain — current source **[established diagnosis]**",
+          "level": 3,
+          "content": "1. `balancesParser.ts` parses the distinct current-format fields (`settledCash`, `nonMarginBuyingPower`, `availableWithoutMarginImpact`, `cashReservedForOptions`) but then executes a fold:\n   ```ts\n   if (availableToTradeAllSettled == null) {\n     availableToTradeAllSettled = nonMarginBuyingPower ?? availableWithoutMarginImpact;\n   }\n   ```\n   For Specimen B this sets `availableToTradeAllSettled = 6734.37` (nullish-coalescing selects Non-margin buying power because it is non-null).\n2. `fidelity-snapshot.ts`: `deployableCash = input.balances.availableToTradeAllSettled ?? input.balances.availableToTrade` → `6734.37`.\n3. UI (`HeaderPortfolioStatus.tsx` and other consumers) renders `snapshot.deployableCash` as \"Deployable\" → $6.7K.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Regime signal **[established diagnosis]**",
+          "level": 3,
+          "content": "`Account equity percentage = 100.00%` is present on the **margin** Specimen B and **absent** on the cash-only Specimen A. Equity percentage therefore cannot distinguish regime. The reliable regime signal is **field presence**: the margin regime is marked by the presence of `Non-margin buying power` / `Margin buying power` / `Available without margin impact` / `MARGIN STATUS`; the legacy/cash regime by their absence together with a value-bearing `Available to trade (all settled)` row.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Historical origin **[established diagnosis]**",
+          "level": 3,
+          "content": "The fold entered in commit `62acc8f` (2026-09-09), titled \"provider-aware session gate + **settled-cash-only deployable hardening**.\" The commit message and its journal entry describe *removing* the buying-power fallback and resolving deployable from Settled cash only. The committed code does the opposite: it introduced the `nonMarginBuyingPower ?? availableWithoutMarginImpact` resolution and mapped it into the legacy `availableToTradeAllSettled` slot. The in-code comment documents this as an intentional \"2026-09-08\" decision superseding \"Settled cash only.\" Message/journal and implementation/tests are in direct, self-aware contradiction inside one commit. `balancesParser.ts` has had no commits since `62acc8f`; the behavior is live.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Latent-coincidence mechanism **[established diagnosis]**",
+          "level": 3,
+          "content": "`tests/write-desk/fidelity-upload.test.ts` encodes the folded behavior as intended, including fixtures where `Non-margin buying power ≈ Available without margin impact ≈ Settled cash`, and a `FIDELITY_BALANCES_DIVERGENT` fixture that asserts deployable = Non-margin buying power ($56,552.99) over Settled cash ($47,051.19). All current-format fixtures model a margin account with healthy settled cash; none models Specimen B's regime ($0 available-without-margin, $0 settled, positive Non-margin buying power). The tests validated a coincidence, not the semantics; margin activation on the live account exposed the latent error.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Wheelwright over-states unlevered deployable capacity on a margin-enabled account and would size CSP deployment against capacity the broker permits only with margin impact. This is an operator-facing, outcome-bearing capacity figure feeding recommendation sizing. Severity is left **Not established** pending a Principal severity decision; the potential consequence is a materially wrong \"Deployable\" figure driving deployment decisions, but the record does not assert a severity level to avoid inventing one (per `docs/bugs/README.md`).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "A **layering violation at ingestion.** `balancesParser.ts` performs two responsibilities: (1) extract broker facts — correct — and (2) *decide* what \"deployable\" means by folding margin-derived buying power into the legacy `availableToTradeAllSettled` field — a domain/policy decision that does not belong in the parser. The fold treats `Non-margin buying power` and `Available without margin impact` as interchangeable and both as interchangeable with legacy \"all settled\"; Specimen B falsifies that interchangeability.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "**Filing this record does not authorize remediation** (per `docs/bugs/README.md`). This record captures the demonstrated defect, its evidence, and converged acceptance criteria only.\n\nNon-goals for this record:\n- No production-code changes, no parser changes, no behavioral-test changes, no new domain module, no cleanup made under this filing.\n- Not eliminating the Balances CSV ingestion path (broker-authoritative balance facts remain required; reconstructing them from positions/transactions would convert broker fact into Wheelwright inference).\n- Not margin-capacity UI work (surfacing `Margin buying power` as a first-class product concept is a separate, deferred concern).\n- Does not touch or reference Gate Experiment 001.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "An eventual fix (under separate Principal authorization) should satisfy:\n\n1. **Parser preserves broker truth; no fold.** `balancesParser.ts` retains `Settled cash`, `Available without margin impact`, `Non-margin buying power`, `Margin buying power`, `Cash reserved for options` (and legacy `Available to trade (all settled)`) as **distinct** facts. The `availableToTradeAllSettled = nonMarginBuyingPower ?? availableWithoutMarginImpact` fold is removed. The parser makes no deployable-cash decision.\n2. **Regime-aware derivation in a domain layer**, keyed on **field presence** (not equity percentage):\n   - **Legacy / CASH regime** (margin fields absent): Deployable = `Available to trade (all settled)`. Specimen A → **$510.28**.\n   - **MARGIN regime** (margin fields present): Deployable = `Available without margin impact`. Specimen B → **$0**.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "**2026-09-17 — bounded three-layer remediation (this session), Principal-authorized against baseline `53ced757`.**\n\nSmallest coherent fix satisfying the acceptance criteria:\n\n- **Parser preserves broker truth; fold removed** (`options-prototype/src/csv/fidelity/balancesParser.ts`).\n  - Deleted the `availableToTradeAllSettled = nonMarginBuyingPower ?? availableWithoutMarginImpact` fold. The parser makes no deployable-cash decision.\n  - Distinct broker facts retained: `settledCash`, `nonMarginBuyingPower`, **new** `marginBuyingPower`, `availableWithoutMarginImpact`, `cashReservedForOptions`, plus legacy `availableToTradeAllSettled`.\n- **Regime classified by structural PRESENCE, not numeric value** (Codex-review correction).",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "**Principal live Product acceptance — 2026-09-17 (the authoritative acceptance gate).** Two independent live Fidelity CSV import runs against the uncommitted remediation, exercising opposite sides of the regime boundary:\n\n\n- **PTS:** the former erroneous **$6.7K** Deployable (Fidelity Non-margin buying power $6,734.37) is **gone**; WW no longer treats Non-margin buying power as unlevered Deployable.\n- **Sawdust:** the legacy/non-margin regime is **not** broken by the margin fix — `Available to trade (all settled)` $510.28 survives as $510 in the compact UI.\n\nThese are independent live Product observations using the two current Fidelity account/export regimes — the negative and positive specimens from the acceptance criteria.",
+          "truncated": true,
+          "tables": [
+            {
+              "header": [
+                "Account",
+                "Regime",
+                "WW Portfolio Capital",
+                "Expected Deployable",
+                "Observed WW UI",
+                "Result"
+              ],
+              "rows": [
+                [
+                  "Sawdust Roth",
+                  "legacy / non-margin",
+                  "$24.2K",
+                  "$510.28",
+                  "$510 (compact)",
+                  "**PASS**"
+                ],
+                [
+                  "PTS",
+                  "margin-enabled",
+                  "$115.8K",
+                  "$0.00",
+                  "$0",
+                  "**PASS**"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- Commit `62acc8f` (2026-09-09) — origin of the fold (provenance/why-state, not authority).\n- `docs/contracts/evidence-snapshot-v1.md` — the frozen backend evidence contract is **not** involved; broker balances are a separate frontend CSV ingestion path. Recorded here to bound scope.\n- `PortfolioSnapshot` contract (`options-prototype/src/write-desk/types.ts`) — deployable-cash consumer contract; stale doc comment noted as remediation surface.\n\n\n---",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Post-resolution validation — 2026-09-19 (does not reopen BUG-022)",
+          "level": 2,
+          "content": "New live Fidelity PTS evidence closes the principal residual empirical limitation recorded at resolution: the earlier specimens did not demonstrate a real MARGIN account where **Available without margin impact** and **Settled cash** diverged.\n\nThe September 19 PTS specimen does:\n\n\n**Result:** the live divergence validates the remediated MARGIN-regime rule: Wheelwright's unlevered Deployable projection follows Fidelity's **Available without margin impact**, not Settled cash or Non-margin buying power. The defect remains **Resolved**; no remediation change is implied.\n\nThe same evidence also demonstrates that (a) margin-enabled / positive margin capacity does not imply current margin borrowing, and (b) no current margin debt does not imply positive additional unlevered deployment capacity.",
+          "truncated": true,
+          "tables": [
+            {
+              "header": [
+                "Broker field",
+                "Value"
+              ],
+              "rows": [
+                [
+                  "Available without margin impact",
+                  "**$0.00**"
+                ],
+                [
+                  "Settled cash",
+                  "**$1,923.15**"
+                ],
+                [
+                  "Non-margin buying power",
+                  "$8,621.39"
+                ],
+                [
+                  "Margin buying power",
+                  "$17,242.78"
+                ],
+                [
+                  "Cash only available to withdraw",
+                  "$1,923.15"
+                ],
+                [
+                  "Margin credit/debit",
+                  "**$0.00**"
+                ],
+                [
+                  "Margin interest accrued",
+                  "**none**"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BUG-023",
+      "title": "Activity overlay can double-count direct-share-sale proceeds into Deployable when the projection checkpoint (Option Summary timestamp) predates the Balances export that already reflects the sale",
+      "area": "Portfolio / Activity projection ↔ broker-balance reconciliation",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
+      "provenance": "Discovered 2026-09-17",
+      "recordTitle": "BUG-023 — Activity overlay can double-count direct-share-sale proceeds into Deployable when the projection checkpoint (Option Summary timestamp) predates the Balances export that already reflects the sale",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Wheelwright can overstate `Deployable` when a `shares_sold_direct` Activity event is projected onto a Fidelity Balances-derived `deployableCash` that **already** reflects the sale proceeds. The Activity projection adds the proceeds a second time.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "The overlay contract is: **authoritative checkpoint + subsequent executed Activity = current state** — where \"subsequent\" must mean *not already reflected in the authoritative broker evidence being projected onto*. `Deployable` is a broker-authoritative capacity figure. Post-balance Activity may legitimately adjust it, but Activity that the Balances snapshot **already incorporates** must not be re-applied. The current implementation reconciles Activity against the **Option Summary** checkpoint while `Deployable` is sourced from the **Balances** export — two independent timestamps — so cash proceeds can be counted twice.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Epistemic tags: **[established diagnosis]** = confirmed by reading committed code on `main`; **[reproduced]** = demonstrated by a synthetic falsifier; **[observed]** = seen in a real export.\n\nImplementation path, current `main` (`46132f7`): **[established diagnosis]**\n\n1. **Deployable originates from the Balances CSV.** `options-prototype/src/write-desk/fidelity-snapshot.ts:65`:\n   ```ts\n   const deployableCash = deriveDeployableCash(input.balances);\n   ```\n   (`input.balances` is parsed from the Fidelity **Balances** export; `deriveDeployableCash` returns the regime-appropriate broker figure per BUG-022.)",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Overstated `Deployable` inflates put-writing/CSP sizing capacity — an outcome-bearing figure. The magnitude equals the double-counted direct-sale proceeds for sales falling in the checkpoint/Balances timestamp gap. Severity is left **Not established** pending a Principal decision (per `docs/bugs/README.md`); consequence is a materially overstated capacity figure in a specific timestamp-ordering condition.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "**Temporal-reconciliation mismatch between two independent broker exports.** Activity inclusion is gated by the Option Summary checkpoint, but the cash figure it mutates (`deployableCash`) is sourced from the Balances export. When the Balances export is newer than the Option Summary checkpoint, cash-affecting Activity in the gap is already reflected in Balances yet still projected, double-counting proceeds. This is distinct from BUG-022 (which was incorrect *interpretation* of Balance fields across cash vs margin regimes); BUG-023 is about *when* Activity should be applied to broker cash evidence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "**Filing only. This record does not authorize remediation.**\n\nNon-goals:\n- Do not design or implement a fix.\n- Do not change Activity projection behavior.\n- Do not alter BUG-022 or its remediation.\n- Do not touch the parked BUG-021 candidate.\n- Do not start or modify Gate Experiment 001.\n- No unrelated cleanup.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Direction (not an implementation prescription): an eventual fix should **prevent double-counting of broker cash impacts already reflected in the Balances evidence while preserving legitimate projection of genuinely post-Balance Activity.** Concretely, the eventual remediation should establish acceptance that:",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "_(empty — Open)_",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "_(empty — Open)_",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- **BUG-022** (Resolved 2026-09-17) — regime-aware Deployable field *interpretation*. Same output figure (`Deployable`), different root cause. BUG-023 was surfaced during BUG-022 remediation and deliberately kept separate.\n- **BUG-001** (Open) — Activity overlay assigned-call closure / called-away disposition. Its acceptance criteria mention deployable-cash \"without double-counting\" only as an **acceptance constraint**, and its sibling note concerns `assigned` / `shares_sold_assignment` / `buy_to_close` / `expired` *fall-through* (missing mutations). Neither is the `shares_sold_direct` cash double-count mechanism described here. This is a distinct defect identity, not covered by BUG-001.\n- Not a `PL-*` item (defect, not a capability).",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-024",
+      "title": "Covered-call moneyness visualization conflates strike-relative contract state with economic-consequence/intent, rendering CALL moneyness history neutral instead of communicating its OTM/ATM/ITM trajectory",
+      "area": "Operator Console / moneyness presentation",
+      "severity": "S3",
+      "status": "Open",
+      "recordFile": "BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
+      "provenance": "Discovered 2026-09-17",
+      "recordTitle": "BUG-024 — Covered-call moneyness visualization conflates strike-relative contract state with economic-consequence/intent, rendering CALL moneyness history neutral instead of communicating its OTM/ATM/ITM trajectory",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "On the Operator Console, **CALL moneyness sparklines render gray/neutral while PUT and BW moneyness sparklines render with semantic colors**, even when the CALL position has a well-defined OTM/ATM/ITM state and a real trajectory relative to strike.\n\nPrincipal-reported screenshot (2026-09-17), same Console view:\n\n- UNG — CALL — OTM −1.2% — gray trace\n- COPX — CALL — ATM −0.4% — gray trace\n- GDXJ — CALL — ATM −0.4% — gray trace\n- SHR — CALL — ATM −0.4% — gray trace\n- URA — CALL — ATM −0.4% — gray trace\n\nPUT and BW rows in the same Console render colored moneyness traces. Epistemic status: the specific rows/values are **operator-reported from the screenshot**; the code path that produces the gray CALL trace is **traced/observed** in the repository (below).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "ADR-013 (Position Monitoring Model, ratified) decomposes monitoring into **three independent dimensions** with an explicit fact-to-interpretation boundary:\n\n1. **Contract State (observable facts)** — \"objective measurements requiring no interpretation.\" Moneyness OTM/ATM/ITM lives here.\n3. **Economic Consequence (data-dependent assessment)** — \"requires inputs beyond contract state — particularly cost basis for calls... When these are unavailable, the assessment is explicitly partial or indeterminate.\" ADR-013 further states economic consequence \"is arithmetic, not judgment... **Whether that is desirable depends on context that this dimension does not supply**,\" and that \"**'ITM near expiration' is never architecturally encoded as a defect.**\"",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Traced implementation (read-only, SYNC `48752b44f8d3bc5816f6ca959ec12ca1ba8acdad`):\n\n1. `options-prototype/src/operator-console/moneyness-color.ts` — `moneynessColor(type, state)` returns `\"neutral\"` for `type === \"call\"` unconditionally:\n\n   ```ts\n   case \"call\":\n     // Intent unknown: conventional CC doesn't necessarily reveal whether assignment is desirable.\n     // Use neutral coloring — the operator needs other context (consequence, mission) to judge.\n     return \"neutral\";\n   ```\n\n   The file's own header declares its **epistemic status: \"Exploratory hypothesis, not ratified architecture.\"** It reasons from intent/desirability (\"whether call-away is desirable\"), a dimension-3 concern, to withhold the dimension-1 strike-relative color.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "The moneyness sparkline's primary information job on the Console is to communicate the contract's trajectory relative to strike (dimension 1). For every held covered call, that signal is suppressed: the operator cannot read OTM/ATM/ITM trajectory or direction from the trace, and must fall back to the numeric value alone, while PUT and BW rows in the same view retain the trajectory signal. This is an asymmetric loss of decision-support legibility for a common, first-class position type. Numeric moneyness values are correct, so this is a presentation/cognitive-correctness failure, not an accounting failure → **S3**.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Two ADR-013 dimensions have been conflated in the presentation layer:\n\n- **Strike-relative contract state / history** (OTM/ATM/ITM and its trajectory over time) — dimension 1, a fact that is fully defined for a covered call.\n- **Economic consequence / strategy intent** (favorable / ambiguous / unfavorable; whether assignment/call-away is desirable) — dimension 3, which for a plain covered call is legitimately unknown without additional context.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "- Covers the Operator Console moneyness **coloring** semantics for CALL positions (trace + numeric + cell) and the dimension conflation in `moneyness-color.ts` / `MoneynessCellV4`.\n- **Does not** cover the moneyness sparkline horizontal/time-axis geometry — that is **BUG-015** (multi-day history folded onto one intraday session), a distinct concern. The two may both touch `MoneynessCellV4` but are independent defects.\n- **Non-goal / explicit guardrail for any eventual remediation:** the fix must **not** redefine covered-call OTM/ITM as economically favorable/unfavorable (i.e., must not simply give the CALL trace put-like or BW-like intent semantics). The concern is *separation* of the two semantic dimensions: the moneyness trace should communicate strike-relative trajectory (dimension 1), and any economic-consequence/intent signal remains a separate layer (dimension 3, e.g.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria (for an eventual fix)",
+          "level": 2,
+          "content": "- CALL moneyness visualization communicates the position's **strike-relative** trajectory (OTM/ATM/ITM and its movement over the observation window), consistent with the ratified \"answers only 'where is the underlying relative to strike?'\" semantic — on the same footing as PUT and BW *for the dimension-1 signal*.\n- The fix does **not** encode covered-call OTM/ITM as economically favorable/unfavorable; strike-relative state and economic-consequence/intent remain distinct dimensions.\n- PUT and BW dimension-1 moneyness behavior is unchanged (or, if unified, unified around strike-relative state, not intent).\n- Numeric moneyness values unchanged.\n- No regression to BUG-015's separate time-axis concern.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "_(empty — Open)_",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "_(empty — Open)_",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- **ADR-013** (`docs/07c-adrs.md`) — Position Monitoring Model; ratified three-dimension decomposition (Contract State / Decision Pressure / Economic Consequence) that this defect conflates.\n- **`docs/26-operator-console-architecture.md`** — ratified Console state-encoding semantic (\"answers only 'where is the underlying relative to strike?'\"); Economic Consequence implemented separately (`assignment-consequence.ts`).\n- **`moneyness-presentation.ts`**, **`foundations/options-domain-reference.md` §4** — moneyness is a strike-relative/intrinsic-value fact, not a desirability judgment.\n- **BUG-015** — moneyness sparkline time-axis geometry (multi-day folding). Distinct concern; same component family.",
+          "truncated": true,
+          "tables": []
+        }
+      ]
+    }
+  ]
 }

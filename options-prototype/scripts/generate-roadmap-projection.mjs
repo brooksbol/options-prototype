@@ -33,6 +33,8 @@ import {
   parseHorizons,
   parsePrinciples,
   parseDomainReference,
+  parseBugIndex,
+  parseBugRecord,
 } from "./roadmap-projection-parsers.mjs";
 
 const projectRoot = resolve(dirname(new URL(import.meta.url).pathname), "..");
@@ -198,6 +200,27 @@ if (existsSync(domainPath) && domain.parts.length === 0) {
 }
 const domainEntryTotal = domain.parts.reduce((sum, p) => sum + p.entries.length, 0);
 
+// Known defects — verbatim projection of the canonical bug index.
+const bugIndexPath = resolve(docsDir, "bugs/INDEX.md");
+const bugs = existsSync(bugIndexPath) ? parseBugIndex(readFileSync(bugIndexPath, "utf-8")).items : [];
+if (existsSync(bugIndexPath) && bugs.length === 0) {
+  fail("docs/bugs/INDEX.md exists but no bug rows were parsed");
+}
+
+// Attach each bug's canonical record detail (faithful projection of BUG-NNN-*.md).
+// Fail-closed if an index row references a record file that does not exist, so the
+// INDEX ↔ record mapping stays exact.
+const bugsDir = resolve(docsDir, "bugs");
+for (const bug of bugs) {
+  const recordPath = resolve(bugsDir, bug.recordFile);
+  if (!existsSync(recordPath)) {
+    fail(`${bug.id} references missing record file docs/bugs/${bug.recordFile}`);
+  }
+  const record = parseBugRecord(readFileSync(recordPath, "utf-8"));
+  bug.recordTitle = record.title;
+  bug.sections = record.sections;
+}
+
 // Integrity: a priority entry that references a canonical id must resolve, else
 // it is a stale reference the authority should fix (fail-closed).
 for (const e of priority.entries) {
@@ -231,6 +254,7 @@ const projection = {
       "docs/07c-adrs.md",
       "docs/principles.md",
       "docs/foundations/options-domain-reference.md",
+      "docs/bugs/INDEX.md",
       "docs/roadmap-priority.md",
       "docs/roadmap-coming-soon.md",
       ...parkingLotFiles.map((f) => `docs/${f}`),
@@ -247,6 +271,7 @@ const projection = {
       comingSoonTotal,
       principleTotal: principles.length,
       domainEntryTotal,
+      bugTotal: bugs.length,
     },
     notes,
   },
@@ -259,6 +284,7 @@ const projection = {
   comingSoon,
   principles,
   domain,
+  bugs,
 };
 
 // ---------- Write or check ----------
@@ -302,6 +328,7 @@ console.log(`  Priority:     ${priority.entries.length}  (${priority.established
 console.log(`  Coming Soon:  now ${comingSoon.now.length} · next ${comingSoon.next.length} · later ${comingSoon.later.length}`);
 console.log(`  Principles:   ${principles.length}  (ratified register)`);
 console.log(`  Domain:       ${domain.parts.length} parts · ${domainEntryTotal} entries  (options domain reference)`);
+console.log(`  Bugs:         ${bugs.length}  (canonical bug index)`);
 if (notes.length > 0) {
   console.log(`  Notes (${notes.length}):`);
   for (const n of notes) console.log(`    - ${n}`);

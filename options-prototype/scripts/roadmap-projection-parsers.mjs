@@ -927,3 +927,118 @@ export function parseDomainReference(markdown, excerptCharLimit = 600) {
   // Keep only parts that actually carry entries.
   return { parts: parts.filter((p) => p.entries.length > 0) };
 }
+
+/**
+ * Parse the canonical bug index from docs/bugs/INDEX.md.
+ *
+ * The index is the sole defect system-of-record's discovery table:
+ *   | BUG | Title | Area | Severity | Status | Record | Provenance |
+ * The Record cell is a Markdown link `[record](BUG-NNN-*.md)`; only the canonical
+ * record path is captured (no navigation infrastructure). All values are verbatim.
+ *
+ * FAITHFUL PROJECTION: values are copied as-authored. Severity `Not established`
+ * is preserved, never inferred. No ranking/priority/assignee/workflow fields are
+ * added. Row order follows the source table. Returns { items }.
+ */
+export function parseBugIndex(markdown) {
+  const lines = markdown.split("\n");
+  const items = [];
+
+  const cells = (l) =>
+    l.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/\r$/, "");
+    if (!/^\s*\|\s*BUG-\d+\s*\|/.test(line)) continue;
+    const c = cells(line);
+    if (c.length < 7) continue;
+
+    const id = c[0];
+    const title = c[1];
+    const area = c[2];
+    const severity = c[3];
+    const status = c[4];
+    // Record cell: "[record](BUG-NNN-*.md)" → capture the path only.
+    const recordCell = c[5];
+    const recordMatch = recordCell.match(/\(([^)]+)\)/);
+    const recordFile = recordMatch ? recordMatch[1].trim() : recordCell.replace(/[[\]]/g, "").trim();
+    const provenance = c[6];
+
+    items.push({ id, title, area, severity, status, recordFile, provenance });
+  }
+
+  return { items };
+}
+
+/**
+ * Parse a single canonical bug record (docs/bugs/BUG-NNN-*.md) into a faithful
+ * structure for the Bugs detail pane.
+ *
+ * FIDELITY (same rule as Domain): project the record; never synthesize a second
+ * interpretation. Emits the record's own `#` title, its metadata bullets, and its
+ * `## `/`### ` sections with VERBATIM headings and bodies (long bodies are
+ * mechanically boundary-sliced with `truncated`, and embedded Markdown tables are
+ * rendered structurally with verbatim cells via splitProseAndTables). No
+ * summaries, no inferred fields.
+ *
+ * Returns { title, sections: [{ heading, level, content, truncated, tables }] }.
+ */
+export function parseBugRecord(markdown, excerptCharLimit = 900) {
+  const lines = markdown.split("\n");
+  let title = null;
+  const sections = [];
+  let current = null;
+  const buf = [];
+
+  const flush = () => {
+    if (!current) {
+      buf.length = 0;
+      return;
+    }
+    const { prose, tables } = splitProseAndTables(buf);
+    let content = prose.trim();
+    let truncated = false;
+    if (content.length > excerptCharLimit) {
+      const slice = content.slice(0, excerptCharLimit);
+      const para = slice.lastIndexOf("\n\n");
+      const sentence = slice.lastIndexOf(". ");
+      const space = slice.lastIndexOf(" ");
+      const cut = para > 300 ? para : sentence > 300 ? sentence + 1 : space > 0 ? space : slice.length;
+      content = slice.slice(0, cut).trim();
+      truncated = true;
+    }
+    current.content = content;
+    current.truncated = truncated;
+    current.tables = tables;
+    sections.push(current);
+    current = null;
+    buf.length = 0;
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/\r$/, "");
+
+    if (title === null) {
+      const t = line.match(/^#\s+(.+?)\s*$/);
+      if (t) {
+        title = t[1].trim();
+        continue;
+      }
+    }
+
+    const sec = line.match(/^(#{2,3})\s+(.+?)\s*$/);
+    if (sec) {
+      flush();
+      current = { heading: sec[2].trim(), level: sec[1].length, content: "", truncated: false, tables: [] };
+      continue;
+    }
+
+    // Metadata bullets before the first section are not part of any section body;
+    // the INDEX already carries Status/Severity/Area/Provenance, so they are not
+    // re-projected here. Everything else accumulates into the current section.
+    if (current) buf.push(line);
+  }
+  flush();
+
+  return { title, sections };
+}

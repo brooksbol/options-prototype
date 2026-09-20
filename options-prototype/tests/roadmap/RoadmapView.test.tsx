@@ -99,6 +99,21 @@ describe("RoadmapView", () => {
     expect(screen.getAllByText("Domain").length).toBeGreaterThan(0);
   });
 
+  it("Bugs lens groups defects by status with the severity-not-priority boundary", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Bugs" }));
+    // Boundary is visible.
+    expect(screen.getByText(/not remediation/i)).toBeTruthy();
+    // Status group present (Open); expand it and select a defect.
+    const openRow = screen.getByText("Open").closest(".rm-row") as HTMLElement;
+    fireEvent.click(within(openRow).getByRole("button", { name: /expand|collapse/i }));
+    // A known bug id renders once expanded, and selecting it shows its canonical
+    // record detail (a section heading) plus the record reference.
+    fireEvent.click(screen.getByText("BUG-018"));
+    expect(screen.getByRole("heading", { name: /Observed failure/i })).toBeTruthy();
+    expect(screen.getAllByText(/docs\/bugs\/BUG-018/i).length).toBeGreaterThan(0);
+  });
+
   it("Coming Soon lens renders Now / Next / Later horizons", () => {
     render(<RoadmapView />);
     fireEvent.click(screen.getByRole("tab", { name: "Coming Soon" }));

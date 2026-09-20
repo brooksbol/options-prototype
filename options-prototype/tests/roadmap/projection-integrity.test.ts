@@ -267,6 +267,66 @@ describe("roadmap projection — principles register (ratified only)", () => {
   });
 });
 
+describe("roadmap projection — bugs (verbatim projection of the canonical index)", () => {
+  it("projects each canonical bug exactly once", () => {
+    expect(p.bugs.length).toBe(p.meta.counts.bugTotal);
+    const ids = p.bugs.map((b) => b.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(p.bugs.length).toBeGreaterThan(0);
+  });
+
+  it("declares the canonical bug index as a source", () => {
+    expect(p.meta.sources).toContain("docs/bugs/INDEX.md");
+  });
+
+  it("carries only canonical index fields plus faithful record detail — no ranking/assignee/workflow metadata", () => {
+    for (const b of p.bugs) {
+      expect(Object.keys(b).sort()).toEqual([
+        "area",
+        "id",
+        "provenance",
+        "recordFile",
+        "recordTitle",
+        "sections",
+        "severity",
+        "status",
+        "title",
+      ]);
+      // No priority/rank/assignee/sprint fields smuggled in.
+      const keys = Object.keys(b);
+      for (const forbidden of ["priority", "rank", "assignee", "sprint", "order"]) {
+        expect(keys).not.toContain(forbidden);
+      }
+      // Sections carry only faithful projection fields.
+      for (const s of b.sections) {
+        expect(Object.keys(s).sort()).toEqual(["content", "heading", "level", "tables", "truncated"]);
+      }
+    }
+  });
+
+  it("attaches the canonical record detail (title + sections) to every bug", () => {
+    for (const b of p.bugs) {
+      expect(b.recordTitle, `${b.id} recordTitle`).toBeTruthy();
+      expect(b.sections.length, `${b.id} sections`).toBeGreaterThan(0);
+    }
+  });
+
+  it("preserves canonical Status and Severity vocabulary verbatim", () => {
+    const statuses = new Set(p.bugs.map((b) => b.status));
+    for (const s of statuses) {
+      expect(["Open", "Resolved", "Won't Fix", "Duplicate"]).toContain(s);
+    }
+    for (const b of p.bugs) {
+      expect(/^(S[1-4]|Not established)$/.test(b.severity), `severity "${b.severity}"`).toBe(true);
+    }
+  });
+
+  it("preserves 'Not established' severities (does not infer)", () => {
+    // The current corpus contains Not-established severities; ensure they survive.
+    expect(p.bugs.some((b) => b.severity === "Not established")).toBe(true);
+  });
+});
+
 describe("roadmap projection — domain reference (faithful projection)", () => {
   it("projects the options domain reference into Parts with entries", () => {
     expect(p.domain).toBeTruthy();

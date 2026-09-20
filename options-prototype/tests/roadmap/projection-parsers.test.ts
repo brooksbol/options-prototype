@@ -18,6 +18,8 @@ import {
   parsePriority,
   parseHorizons,
   parseDomainReference,
+  parseBugIndex,
+  parseBugRecord,
 } from "../../scripts/roadmap-projection-parsers.mjs";
 
 const LVT_FIXTURE = [
@@ -428,5 +430,103 @@ describe("parseDomainReference", () => {
     const { parts: lp } = parseDomainReference(longMd, 600);
     expect(lp[0].entries[0].truncated).toBe(true);
     expect(lp[0].entries[0].content.length).toBeLessThanOrEqual(600);
+  });
+});
+
+describe("parseBugIndex", () => {
+  const md = [
+    "# Wheelwright Bug Index",
+    "| BUG | Title | Area | Severity | Status | Record | Provenance |",
+    "|-----|-------|------|----------|--------|--------|------------|",
+    "| BUG-001 | Overlay does not project closure | Portfolio | Not established | Open | [record](BUG-001-x.md) | GH #2 |",
+    "| BUG-004 | Composes incompatible evidence | Operator Console | S2 | Open | [record](BUG-004-y.md) | GH #9 |",
+    "| BUG-010 | Phantom open delay | Session gate | S2 | Resolved | [record](BUG-010-z.md) | GH #16 |",
+  ].join("\n");
+
+  const { items } = parseBugIndex(md);
+
+  it("parses each bug row verbatim, capturing the record path only", () => {
+    expect(items).toHaveLength(3);
+    expect(items[0]).toMatchObject({
+      id: "BUG-001",
+      title: "Overlay does not project closure",
+      area: "Portfolio",
+      severity: "Not established",
+      status: "Open",
+      recordFile: "BUG-001-x.md",
+      provenance: "GH #2",
+    });
+  });
+
+  it("preserves 'Not established' severity verbatim (never inferred)", () => {
+    expect(items[0].severity).toBe("Not established");
+  });
+
+  it("preserves source (index) order — no severity/status sorting", () => {
+    expect(items.map((b: { id: string }) => b.id)).toEqual(["BUG-001", "BUG-004", "BUG-010"]);
+  });
+
+  it("ignores the header and separator rows", () => {
+    expect(items.some((b: { id: string }) => b.id === "BUG")).toBe(false);
+  });
+});
+
+describe("parseBugRecord", () => {
+  const md = [
+    "# BUG-004 — Console composes temporally incompatible evidence",
+    "",
+    "- **Status:** Open",
+    "- **Severity:** S2",
+    "- **Area:** Operator Console",
+    "",
+    "## Observed failure",
+    "The console blends premarket and sealed evidence into one view.",
+    "",
+    "## Intended semantics violated",
+    "Evidence from different sessions must not be composed as coherent.",
+    "",
+    "## Evidence",
+    "| Before | Event |",
+    "|---|---|",
+    "| A | B |",
+    "",
+    "## Remediation history",
+    "Empty (Open).",
+  ].join("\n");
+
+  const { title, sections } = parseBugRecord(md);
+
+  it("captures the record's own title verbatim", () => {
+    expect(title).toBe("BUG-004 — Console composes temporally incompatible evidence");
+  });
+
+  it("projects each ## section heading and body verbatim, in document order", () => {
+    expect(sections.map((s: { heading: string }) => s.heading)).toEqual([
+      "Observed failure",
+      "Intended semantics violated",
+      "Evidence",
+      "Remediation history",
+    ]);
+    expect(sections[0].content).toContain("blends premarket and sealed evidence");
+  });
+
+  it("does not fold the metadata bullets into a section body", () => {
+    const joined = sections.map((s: { content: string }) => s.content).join("\n");
+    expect(joined).not.toContain("**Status:**");
+    expect(joined).not.toContain("**Severity:**");
+  });
+
+  it("renders embedded tables structurally with verbatim cells", () => {
+    const evidence = sections.find((s: { heading: string }) => s.heading === "Evidence");
+    expect(evidence.tables).toHaveLength(1);
+    expect(evidence.tables[0].header).toEqual(["Before", "Event"]);
+    expect(evidence.tables[0].rows).toEqual([["A", "B"]]);
+    // Table lines are not duplicated into prose content.
+    expect(evidence.content).not.toContain("| A |");
+  });
+
+  it("preserves honest 'Empty (Open).' bodies verbatim", () => {
+    const rem = sections.find((s: { heading: string }) => s.heading === "Remediation history");
+    expect(rem.content).toBe("Empty (Open).");
   });
 });
