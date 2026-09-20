@@ -13,6 +13,7 @@ import { AppShell } from "./components/AppShell";
 import { Deployment } from "./components/WriteDesk";
 import { OperatorConsole } from "./components/OperatorConsole";
 import { ProductionView } from "./production/ProductionView";
+import { RoadmapView } from "./roadmap/RoadmapView";
 import { SparklineGallery } from "./operator-console/SparklineGallery";
 import { EngineeringApp } from "./engineering/EngineeringApp";
 
@@ -44,6 +45,7 @@ export function Root() {
       {route === "operator-console" && <OperatorConsole />}
       {route === "deployment" && <Deployment />}
       {route === "production" && <ProductionView />}
+      {route === "roadmap" && <RoadmapView />}
     </AppShell>
   );
 }

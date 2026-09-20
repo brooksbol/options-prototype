@@ -74,6 +74,13 @@ export function AppShell({ route, children }: AppShellProps) {
           >
             Kreature
           </button>
+          <button
+            className="as-nav-link"
+            aria-current={route === "roadmap" ? "page" : undefined}
+            onClick={() => navigateTo("/app/roadmap")}
+          >
+            Roadmap
+          </button>
         </nav>
 
         <HeaderPortfolioStatus />

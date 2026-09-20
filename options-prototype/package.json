@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "test": "vitest run",
+    "generate:roadmap-projection": "node scripts/generate-roadmap-projection.mjs",
+    "check:roadmap-projection": "node scripts/generate-roadmap-projection.mjs --check",
     "lint": "oxlint",
     "preview": "vite preview"
   },

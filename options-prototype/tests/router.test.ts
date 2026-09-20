@@ -34,6 +34,14 @@ describe("resolveRoute", () => {
     expect(resolveRoute()).toBe("operator-console");
   });
 
+  it("/app/roadmap resolves to roadmap", () => {
+    Object.defineProperty(window, "location", {
+      value: { pathname: "/app/roadmap" },
+      writable: true,
+    });
+    expect(resolveRoute()).toBe("roadmap");
+  });
+
   it("/engineering and subordinate instruments resolve outside the operator shell", () => {
     Object.defineProperty(window, "location", {
       value: { pathname: "/engineering/scenario-replay" },

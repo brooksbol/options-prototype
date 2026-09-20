@@ -647,3 +647,38 @@ This ADR sits in the **ADR-015 / ADR-016 sibling series**. ADR-015 applied autho
 - **ADR-007 / Session-Aware Evidence Governance** — ADR-017 relocates the authority for the *provider-delay-sensitive* portion of session semantics to the backend and adds the per-subject admissibility verdict; sealed-session validity (ADR-007) is preserved and expressed at the per-subject layer (Decision rule 7).
 - **ADR-013 / Epistemic Integrity** — extends the fact-to-interpretation boundary to *verdict consumption*: a published verdict that the consumer ignores in favor of a local rule is an epistemic-integrity violation.
 - **AR6 / PL-ARCH-06** — ADR-017 is deliberately narrow: it governs *who owns and must consume* session/admissibility verdicts, not *where all recommendation computation runs*. It does not authorize relocating the recommendation engines.
+
+
+---
+
+## ADR-018: No Runtime GitHub Dependency; Repository Interaction Is Build/Reconciliation-Side
+
+**Date:** September 2026
+**Status:** Accepted
+
+**Context:** The Roadmap operator surface (`/app/roadmap`, `PL-ROADMAP-UI`) makes Wheelwright's future-work landscape comprehensible by projecting canonical repository authority — `docs/roadmap.md`, `docs/architecture-roadmap.md`, and the complete `docs/parking-lot*.md` sequence. A naive implementation might fetch that Markdown from GitHub at runtime. That would introduce a runtime dependency on GitHub availability and, worse, a repository credential inside the Wheelwright runtime. Wheelwright is an always-on evidence appliance whose runtime already deliberately excludes concerns that do not belong to live decision support; GitHub is durable *engineering/reconciliation* truth, not a live runtime data source.
+
+This decision generalizes beyond the Roadmap capability: it establishes where the repository boundary sits relative to the Wheelwright runtime.
+
+**Decision:**
+
+1. **The Wheelwright production/runtime environment must not contain GitHub credentials and must not depend on GitHub at runtime.** No GitHub PAT, OAuth credential, GitHub App credential, SSH credential, or equivalent repository credential may be introduced into the Wheelwright runtime. The runtime must not authenticate to GitHub, poll GitHub, call GitHub APIs, or retrieve repository state.
+
+2. **Repository interaction belongs on the engineering, reconciliation, and build side of the system boundary.** Actors (Principal/Architect/Implementation Engineer) update and reconcile authoritative repository artifacts as part of major units of work. Derived artifacts that the runtime consumes are produced there, not fetched live.
+
+3. **The Roadmap projection is a build/reconciliation-side derived artifact.** The canonical Markdown remains the durable authority. A build-time generator (`scripts/generate-roadmap-projection.mjs`) parses that authority into a version-controlled, read-only projection (`src/roadmap/roadmap-projection.json`) shipped with the application. The surface imports the projection statically; it never fetches or mutates authority.
+
+4. **Roadmap synchronization and verification are completion criteria.** Every major unit of Wheelwright work that materially changes authoritative project state (roadmap, architecture roadmap, parking lot) must regenerate the projection and verify — through automated validation — that the shipped projection reflects the reconciled repository state. A stale projection is a completion defect, not a runtime concern to paper over.
+
+5. **Validation lives on the build/reconciliation side.** Integrity checks (the generator's fail-closed invariants and the Vitest projection-integrity suite) verify structural soundness and the explicit-only relationship discipline. These run in engineering/CI, not in the runtime.
+
+**Consequences:**
+- The Roadmap capability adds no runtime network calls and no credentials of any kind.
+- The projection can drift from authority only if an actor fails the completion criterion (regenerate + verify); this is detectable by a build-side freshness check rather than masked by live fetching.
+- The runtime remains free of repository concerns, consistent with the Evidence Appliance identity.
+
+**Relationship to other decisions:**
+- **ADR-001 / Evidence Acquisition and Recommendation are Separate Concerns** — same spine: the runtime reads prepared state and makes no live external calls for this class of data. ADR-018 applies that discipline to *repository/project state* rather than market evidence.
+- **`foundations/evidence-appliance.md`** and **credential-custody invariant (INV-PROV credential custody)** — ADR-018 extends credential-custody discipline: just as the provider API key never appears in the frontend, no repository credential appears in the Wheelwright runtime.
+- **`foundations/retooling-charter.md`** — reinforces the runtime/engineering boundary the charter establishes.
+- **`PL-ROADMAP-UI`** (`docs/parking-lot-9.md`) — the capability whose reconciliation established this constraint.

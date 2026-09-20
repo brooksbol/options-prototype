@@ -8,11 +8,12 @@
  *   /             → Operator Console (home)
  *   /app          → Operator Console (home)
  *   /app/write    → Deployment
+ *   /app/roadmap  → Roadmap (strategic map)
  *   /engineering/* → subordinate engineering instruments
  *   anything else → Operator Console (home)
  */
 
-export type AppRoute = "operator-console" | "deployment" | "production" | "kreature" | "engineering" | "sparkline-gallery";
+export type AppRoute = "operator-console" | "deployment" | "production" | "kreature" | "roadmap" | "engineering" | "sparkline-gallery";
 
 /**
  * Determine the current route from the browser pathname.
@@ -33,6 +34,11 @@ export function resolveRoute(): AppRoute {
   // Production assessment
   if (path === "/app/production") {
     return "production";
+  }
+
+  // Roadmap — strategic map / future-work landscape (projection of canonical authority)
+  if (path === "/app/roadmap") {
+    return "roadmap";
   }
 
   // Sparkline gallery (temporary UX experiment)

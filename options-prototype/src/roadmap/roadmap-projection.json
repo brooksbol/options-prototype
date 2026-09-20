@@ -1,0 +1,2284 @@
+{
+  "meta": {
+    "generatedAt": "2026-09-20T17:12:46.806Z",
+    "sources": [
+      "docs/roadmap.md",
+      "docs/architecture-roadmap.md",
+      "docs/07c-adrs.md",
+      "docs/principles.md",
+      "docs/roadmap-priority.md",
+      "docs/roadmap-coming-soon.md",
+      "docs/parking-lot.md",
+      "docs/parking-lot-2.md",
+      "docs/parking-lot-3.md",
+      "docs/parking-lot-4.md",
+      "docs/parking-lot-5.md",
+      "docs/parking-lot-6.md",
+      "docs/parking-lot-7.md",
+      "docs/parking-lot-8.md",
+      "docs/parking-lot-9.md"
+    ],
+    "counts": {
+      "lvtTotal": 114,
+      "lvtByType": {
+        "vision": 1,
+        "goal": 7,
+        "bet": 28,
+        "direction": 1,
+        "initiative": 70,
+        "experiment": 7
+      },
+      "arTotal": 10,
+      "plTotal": 59,
+      "plWithExplicitRelationship": 3,
+      "graduatedTotal": 29,
+      "adrTotal": 18,
+      "priorityTotal": 10,
+      "comingSoonTotal": 0,
+      "principleTotal": 9
+    },
+    "notes": []
+  },
+  "lvt": [
+    {
+      "id": "LVT-VISION-WHEELWRIGHT",
+      "type": "vision",
+      "name": "Wheelwright Vision",
+      "description": "Wheelwright is a continuously operating options-income decision system that connects evidence, choices, and consequences—helping the operator understand what is happening, what can be done, what could happen, and what actually happened.",
+      "legacyAlias": null,
+      "childIds": [
+        "LVT-GOAL-AWARENESS",
+        "LVT-GOAL-CHOICES",
+        "LVT-GOAL-CONSEQUENCES",
+        "LVT-GOAL-OUTCOMES",
+        "LVT-GOAL-LEARNING",
+        "LVT-GOAL-CONTINUITY",
+        "LVT-GOAL-ACCESS"
+      ],
+      "parentId": null
+    },
+    {
+      "id": "LVT-GOAL-AWARENESS",
+      "type": "goal",
+      "name": "Understand the Situation",
+      "description": "Continuously maintain trustworthy understanding of relevant market, portfolio, position, and evidence state; make material changes and uncertainty apparent.",
+      "legacyAlias": "G1",
+      "childIds": [
+        "LVT-BET-OBSERVATION",
+        "LVT-BET-POSITION",
+        "LVT-BET-ATTENTION"
+      ],
+      "parentId": "LVT-VISION-WHEELWRIGHT"
+    },
+    {
+      "id": "LVT-BET-OBSERVATION",
+      "type": "bet",
+      "name": "Continuous Observation",
+      "description": "Continuous observation reveals materially useful changes that periodic operator inspection misses.",
+      "legacyAlias": "A1",
+      "childIds": [
+        "LVT-INIT-OBS-HISTORY",
+        "LVT-INIT-OBS-CONTEXT",
+        "LVT-INIT-OBS-TRUST",
+        "LVT-INIT-OBS-UNIVERSE"
+      ],
+      "parentId": "LVT-GOAL-AWARENESS"
+    },
+    {
+      "id": "LVT-INIT-OBS-HISTORY",
+      "type": "initiative",
+      "name": "Observation History",
+      "description": "Retain selected market observations over time.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-OBSERVATION"
+    },
+    {
+      "id": "LVT-INIT-OBS-CONTEXT",
+      "type": "initiative",
+      "name": "Historical Context",
+      "description": "Evaluate whether small historical price/volatility observations improve situational context.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-OBSERVATION"
+    },
+    {
+      "id": "LVT-INIT-OBS-TRUST",
+      "type": "initiative",
+      "name": "Evidence Trust",
+      "description": "Make evidence fitness for its intended reliance — and the inability to establish that fitness — explicit, including freshness, insufficiency, disagreement, and degradation.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-OBSERVATION"
+    },
+    {
+      "id": "LVT-INIT-OBS-UNIVERSE",
+      "type": "initiative",
+      "name": "Universe Evaluation",
+      "description": "Establish governed universe evaluation.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-OBSERVATION"
+    },
+    {
+      "id": "LVT-BET-POSITION",
+      "type": "bet",
+      "name": "Continuous Position Reassessment",
+      "description": "Continuous reassessment of open positions identifies situations requiring attention earlier and more consistently.",
+      "legacyAlias": "A2",
+      "childIds": [
+        "LVT-INIT-POS-STATE",
+        "LVT-INIT-POS-REASSESS"
+      ],
+      "parentId": "LVT-GOAL-AWARENESS"
+    },
+    {
+      "id": "LVT-INIT-POS-STATE",
+      "type": "initiative",
+      "name": "Portfolio State",
+      "description": "Establish sufficiently rich lot-level portfolio state.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-POSITION"
+    },
+    {
+      "id": "LVT-INIT-POS-REASSESS",
+      "type": "initiative",
+      "name": "Position Reassessment",
+      "description": "Continuously reassess open positions against current evidence and economics.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-POSITION"
+    },
+    {
+      "id": "LVT-BET-ATTENTION",
+      "type": "bet",
+      "name": "Trustworthy Significance and Attention",
+      "description": "Explicit significance modeling can distinguish meaningful change from noise well enough that both attention and silence are trustworthy.",
+      "legacyAlias": "A3",
+      "childIds": [
+        "LVT-INIT-ATTN-MODEL",
+        "LVT-INIT-ATTN-RECONSIDER"
+      ],
+      "parentId": "LVT-GOAL-AWARENESS"
+    },
+    {
+      "id": "LVT-INIT-ATTN-MODEL",
+      "type": "initiative",
+      "name": "Attention Model",
+      "description": "Establish an Attention/significance model.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-ATTENTION"
+    },
+    {
+      "id": "LVT-INIT-ATTN-RECONSIDER",
+      "type": "initiative",
+      "name": "Reconsideration Detection",
+      "description": "Use temporal observations and current state to determine whether reconsideration is warranted.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-ATTENTION"
+    },
+    {
+      "id": "LVT-GOAL-CHOICES",
+      "type": "goal",
+      "name": "Understand the Choices",
+      "description": "Identify the complete set of governed actions genuinely available from current state, including materially different deployment, lifecycle, and WAIT alternatives.",
+      "legacyAlias": "G2",
+      "childIds": [
+        "LVT-BET-WAIT",
+        "LVT-BET-STRATEGIES",
+        "LVT-BET-LIFECYCLE-CHOICES",
+        "LVT-BET-CHOICE-OPTIONALITY",
+        "LVT-BET-CAPITAL-CHOICES",
+        "LVT-BET-UNIVERSE"
+      ],
+      "parentId": "LVT-VISION-WHEELWRIGHT"
+    },
+    {
+      "id": "LVT-BET-WAIT",
+      "type": "bet",
+      "name": "WAIT as a Genuine Alternative",
+      "description": "Treating WAIT as a first-class governed alternative improves capital-deployment decisions.",
+      "legacyAlias": "C1",
+      "childIds": [
+        "LVT-INIT-WAIT-REPRESENT",
+        "LVT-INIT-WAIT-ACCEPTABILITY"
+      ],
+      "parentId": "LVT-GOAL-CHOICES"
+    },
+    {
+      "id": "LVT-INIT-WAIT-REPRESENT",
+      "type": "initiative",
+      "name": "Represent WAIT",
+      "description": "Represent WAIT alongside actionable alternatives.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-WAIT"
+    },
+    {
+      "id": "LVT-INIT-WAIT-ACCEPTABILITY",
+      "type": "initiative",
+      "name": "Acceptability Separation",
+      "description": "Separate absolute acceptability from relative comparison.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-WAIT"
+    },
+    {
+      "id": "LVT-BET-STRATEGIES",
+      "type": "bet",
+      "name": "Broader Governed Trade Shapes",
+      "description": "A broader governed repertoire of trade shapes improves capital deployment compared with optimizing only the current Wheel strategy set.",
+      "legacyAlias": "C2",
+      "childIds": [
+        "LVT-INIT-STRAT-NORMALIZE",
+        "LVT-INIT-STRAT-PRIMITIVES"
+      ],
+      "parentId": "LVT-GOAL-CHOICES"
+    },
+    {
+      "id": "LVT-INIT-STRAT-NORMALIZE",
+      "type": "initiative",
+      "name": "Normalize Alternatives",
+      "description": "Normalize strategy-specific candidates into a common Deployment Opportunity / Alternative representation.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-STRATEGIES"
+    },
+    {
+      "id": "LVT-INIT-STRAT-PRIMITIVES",
+      "type": "initiative",
+      "name": "Economic Primitives",
+      "description": "Support reusable economic primitives for multi-leg and future trade shapes; this is also an architecture-roadmap concern.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-STRATEGIES"
+    },
+    {
+      "id": "LVT-BET-LIFECYCLE-CHOICES",
+      "type": "bet",
+      "name": "Lifecycle Alternative Comparison",
+      "description": "Explicit comparison of the complete governed alternatives available for already-deployed capital improves position-management decisions; current evidence includes retaining, releasing, modifying, protecting, and naturally resolving positions without freezing the Bet to a fixed mechanism list.",
+      "legacyAlias": "C3",
+      "childIds": [
+        "LVT-INIT-LIFE-COMPARE",
+        "LVT-INIT-LIFE-TRANSITIONS"
+      ],
+      "parentId": "LVT-GOAL-CHOICES"
+    },
+    {
+      "id": "LVT-INIT-LIFE-COMPARE",
+      "type": "initiative",
+      "name": "Compare Lifecycle Actions",
+      "description": "Compare applicable governed lifecycle alternatives such as HOLD, SELL/CLOSE, ROLL, covered call, collar, and natural resolution while allowing the mechanism set to evolve through evidence and governance.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-LIFECYCLE-CHOICES"
+    },
+    {
+      "id": "LVT-INIT-LIFE-TRANSITIONS",
+      "type": "initiative",
+      "name": "Lifecycle Transitions",
+      "description": "Represent alternatives as possible state transitions rather than only opening trades.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-LIFECYCLE-CHOICES"
+    },
+    {
+      "id": "LVT-BET-CHOICE-OPTIONALITY",
+      "type": "bet",
+      "name": "Future Optionality in Choice",
+      "description": "Future optionality materially affects the quality of otherwise similar choices.",
+      "legacyAlias": "C4",
+      "childIds": [
+        "LVT-INIT-CHOICE-DTE-OPTIONALITY",
+        "LVT-INIT-CHOICE-DURATION"
+      ],
+      "parentId": "LVT-GOAL-CHOICES"
+    },
+    {
+      "id": "LVT-INIT-CHOICE-DTE-OPTIONALITY",
+      "type": "initiative",
+      "name": "Cross-Expiration Optionality",
+      "description": "Evaluate alternatives across expirations as different future action spaces.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-CHOICE-OPTIONALITY"
+    },
+    {
+      "id": "LVT-INIT-CHOICE-DURATION",
+      "type": "initiative",
+      "name": "Capital Duration and Flexibility",
+      "description": "Incorporate capital duration and resulting flexibility into comparison.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-CHOICE-OPTIONALITY"
+    },
+    {
+      "id": "LVT-BET-CAPITAL-CHOICES",
+      "type": "bet",
+      "name": "Capital State Determines Feasible Choices",
+      "description": "The actual feasible choice set depends materially on current capital state, and changing one capital position can materially alter the feasible-alternative set elsewhere in the portfolio.",
+      "legacyAlias": "C5",
+      "childIds": [
+        "LVT-INIT-CAP-AVAILABILITY",
+        "LVT-INIT-CAP-ALTERNATIVES"
+      ],
+      "parentId": "LVT-GOAL-CHOICES"
+    },
+    {
+      "id": "LVT-INIT-CAP-AVAILABILITY",
+      "type": "initiative",
+      "name": "Capital Availability",
+      "description": "Establish explicit capital availability and encumbrance reasoning.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-CAPITAL-CHOICES"
+    },
+    {
+      "id": "LVT-INIT-CAP-ALTERNATIVES",
+      "type": "initiative",
+      "name": "Capital-Aware Alternatives",
+      "description": "Integrate authoritative portfolio/capital state into alternative generation, including capital-state coupling and feasible-set optionality across positions.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-CAPITAL-CHOICES"
+    },
+    {
+      "id": "LVT-BET-UNIVERSE",
+      "type": "bet",
+      "name": "Governed Universe Evolution",
+      "description": "Systematically governing universe admission improves the set of genuinely deployable alternatives.",
+      "legacyAlias": "C6",
+      "childIds": [
+        "LVT-INIT-UNIVERSE-WORKFLOW",
+        "LVT-INIT-UNIVERSE-DISPOSITION"
+      ],
+      "parentId": "LVT-GOAL-CHOICES"
+    },
+    {
+      "id": "LVT-INIT-UNIVERSE-WORKFLOW",
+      "type": "initiative",
+      "name": "Candidate Admission Workflow",
+      "description": "Create the universe candidate evaluation/admission workflow.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-UNIVERSE"
+    },
+    {
+      "id": "LVT-INIT-UNIVERSE-DISPOSITION",
+      "type": "initiative",
+      "name": "Explicit Admission Disposition",
+      "description": "Make admission, displacement, rejection, insufficient evidence, and review explicit.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-UNIVERSE"
+    },
+    {
+      "id": "LVT-GOAL-CONSEQUENCES",
+      "type": "goal",
+      "name": "Understand the Consequences",
+      "description": "Make consequences and tradeoffs explicit enough for deliberate, accountable decisions.",
+      "legacyAlias": "G3",
+      "childIds": [
+        "LVT-BET-CONSEQUENCE-ENVELOPE",
+        "LVT-BET-COMPENSATION",
+        "LVT-BET-CONSEQUENCE-OPTIONALITY",
+        "LVT-BET-RISK-PROFILES",
+        "LVT-BET-LIFECYCLE-POLICY",
+        "LVT-BET-EXPLANATION",
+        "LVT-BET-ACCEPTABILITY",
+        "LVT-BET-EXECUTION-ECONOMICS"
+      ],
+      "parentId": "LVT-VISION-WHEELWRIGHT"
+    },
+    {
+      "id": "LVT-BET-CONSEQUENCE-ENVELOPE",
+      "type": "bet",
+      "name": "Consequence Envelopes",
+      "description": "Explicit consequence envelopes improve operator decisions by making economically material effects visible across money, time, risk, compensation, retained participation, resulting capital state, and next decision boundary rather than centering only on premium/rank or terminal payoff geometry.",
+      "legacyAlias": "K1",
+      "childIds": [
+        "LVT-INIT-CONSEQUENCE-REPRESENT",
+        "LVT-INIT-CONSEQUENCE-RELEASE-COST"
+      ],
+      "parentId": "LVT-GOAL-CONSEQUENCES"
+    },
+    {
+      "id": "LVT-INIT-CONSEQUENCE-REPRESENT",
+      "type": "initiative",
+      "name": "Represent Consequences",
+      "description": "Represent maximum gain/loss, breakeven, capital commitment, assignment/inventory consequences, and relevant conditional outcomes.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-CONSEQUENCE-ENVELOPE"
+    },
+    {
+      "id": "LVT-INIT-CONSEQUENCE-RELEASE-COST",
+      "type": "initiative",
+      "name": "Release / Retention Consequences",
+      "description": "Represent release/retention consequences as independent operator-facing facts, including monetary release cost where knowable, temporal encumbrance, compensation while waiting, downside envelope, retained participation/recovery room, resulting state, and next decision boundary; expose each fact only to the precision supported by authoritative evidence.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-CONSEQUENCE-ENVELOPE"
+    },
+    {
+      "id": "LVT-BET-COMPENSATION",
+      "type": "bet",
+      "name": "Compensation Relative to Consequence",
+      "description": "Compensation relative to accepted capital consequence is a better measure of deployment quality than premium yield alone.",
+      "legacyAlias": "K2",
+      "childIds": [
+        "LVT-INIT-COMP-MEASURES",
+        "LVT-INIT-COMP-COMPARE"
+      ],
+      "parentId": "LVT-GOAL-CONSEQUENCES"
+    },
+    {
+      "id": "LVT-INIT-COMP-MEASURES",
+      "type": "initiative",
+      "name": "Compensation/Consequence Measures",
+      "description": "Develop compensation-versus-consequence measures.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-COMPENSATION"
+    },
+    {
+      "id": "LVT-INIT-COMP-COMPARE",
+      "type": "initiative",
+      "name": "Compare Ranking Dimensions",
+      "description": "Compare those measures against current ranking dimensions.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-COMPENSATION"
+    },
+    {
+      "id": "LVT-BET-CONSEQUENCE-OPTIONALITY",
+      "type": "bet",
+      "name": "Future Optionality as Consequence",
+      "description": "Future optionality is a material consequence of a decision.",
+      "legacyAlias": "K3",
+      "childIds": [
+        "LVT-INIT-CONSEQ-OPTION-SPACE",
+        "LVT-INIT-CONSEQ-OPTION-FACTORS"
+      ],
+      "parentId": "LVT-GOAL-CONSEQUENCES"
+    },
+    {
+      "id": "LVT-INIT-CONSEQ-OPTION-SPACE",
+      "type": "initiative",
+      "name": "Future Action Space",
+      "description": "Expose how alternatives alter future action space.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-CONSEQUENCE-OPTIONALITY"
+    },
+    {
+      "id": "LVT-INIT-CONSEQ-OPTION-FACTORS",
+      "type": "initiative",
+      "name": "Optionality Factors",
+      "description": "Incorporate duration, capital lockup, adjustment possibilities, and resulting state where useful.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-CONSEQUENCE-OPTIONALITY"
+    },
+    {
+      "id": "LVT-BET-RISK-PROFILES",
+      "type": "bet",
+      "name": "Upstream Governed Risk/Consequence Profiles",
+      "description": "Moving risk/consequence discretion upstream into governed policy reduces state-dependent risk taking.",
+      "legacyAlias": "K4",
+      "childIds": [
+        "LVT-INIT-RISK-PROFILES",
+        "LVT-INIT-RISK-BOUNDARIES"
+      ],
+      "parentId": "LVT-GOAL-CONSEQUENCES"
+    },
+    {
+      "id": "LVT-INIT-RISK-PROFILES",
+      "type": "initiative",
+      "name": "Governed Profiles",
+      "description": "Establish governed consequence/risk profiles.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-RISK-PROFILES"
+    },
+    {
+      "id": "LVT-INIT-RISK-BOUNDARIES",
+      "type": "initiative",
+      "name": "Pre-Opportunity Boundaries",
+      "description": "Express acceptable consequence boundaries before individual opportunities appear.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-RISK-PROFILES"
+    },
+    {
+      "id": "LVT-BET-LIFECYCLE-POLICY",
+      "type": "bet",
+      "name": "Precommitted Lifecycle Policy",
+      "description": "Precommitted lifecycle policy produces more consistent decisions under pressure.",
+      "legacyAlias": "K5",
+      "childIds": [
+        "LVT-INIT-POLICY-TAKE-PROFIT",
+        "LVT-INIT-POLICY-ADVERSE",
+        "LVT-INIT-POLICY-RESOLUTION"
+      ],
+      "parentId": "LVT-GOAL-CONSEQUENCES"
+    },
+    {
+      "id": "LVT-INIT-POLICY-TAKE-PROFIT",
+      "type": "initiative",
+      "name": "BTC/Take-Profit Policy",
+      "description": "Establish governed BTC/take-profit behavior.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-LIFECYCLE-POLICY"
+    },
+    {
+      "id": "LVT-INIT-POLICY-ADVERSE",
+      "type": "initiative",
+      "name": "Adverse-Boundary Policy",
+      "description": "Establish adverse-boundary rules.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-LIFECYCLE-POLICY"
+    },
+    {
+      "id": "LVT-INIT-POLICY-RESOLUTION",
+      "type": "initiative",
+      "name": "Resolution Policy",
+      "description": "Establish assignment/rolling/resolution policy.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-LIFECYCLE-POLICY"
+    },
+    {
+      "id": "LVT-BET-EXPLANATION",
+      "type": "bet",
+      "name": "Comparative Explanation",
+      "description": "Comparative explanations improve deliberate operator judgment as alternatives become more multidimensional.",
+      "legacyAlias": "K6",
+      "childIds": [
+        "LVT-INIT-EXPLAIN-SURVIVOR",
+        "LVT-INIT-EXPLAIN-TRADEOFFS"
+      ],
+      "parentId": "LVT-GOAL-CONSEQUENCES"
+    },
+    {
+      "id": "LVT-INIT-EXPLAIN-SURVIVOR",
+      "type": "initiative",
+      "name": "Explain Preferred Alternative",
+      "description": "Explain why the preferred alternative survives.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-EXPLANATION"
+    },
+    {
+      "id": "LVT-INIT-EXPLAIN-TRADEOFFS",
+      "type": "initiative",
+      "name": "Explain Tradeoffs",
+      "description": "Expose material tradeoffs against plausible alternatives.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-EXPLANATION"
+    },
+    {
+      "id": "LVT-BET-ACCEPTABILITY",
+      "type": "bet",
+      "name": "Absolute Acceptability Before Fitness",
+      "description": "Separating absolute acceptability from relative fitness reduces deployment into the best bad opportunity.",
+      "legacyAlias": "K7",
+      "childIds": [
+        "LVT-INIT-ACCEPT-GATES",
+        "LVT-INIT-ACCEPT-WAIT"
+      ],
+      "parentId": "LVT-GOAL-CONSEQUENCES"
+    },
+    {
+      "id": "LVT-INIT-ACCEPT-GATES",
+      "type": "initiative",
+      "name": "Acceptability Gates",
+      "description": "Establish acceptability gates before ranking.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-ACCEPTABILITY"
+    },
+    {
+      "id": "LVT-INIT-ACCEPT-WAIT",
+      "type": "initiative",
+      "name": "Preserve WAIT",
+      "description": "Preserve WAIT when nothing clears the gates.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-ACCEPTABILITY"
+    },
+    {
+      "id": "LVT-BET-EXECUTION-ECONOMICS",
+      "type": "bet",
+      "name": "Preserve Economics Through Execution",
+      "description": "Preserving intended economics through execution improves realized deployment quality.",
+      "legacyAlias": "K8",
+      "childIds": [
+        "LVT-INIT-EXEC-BOUNDARIES",
+        "LVT-INIT-EXEC-EXPOSE"
+      ],
+      "parentId": "LVT-GOAL-CONSEQUENCES"
+    },
+    {
+      "id": "LVT-INIT-EXEC-BOUNDARIES",
+      "type": "initiative",
+      "name": "Capital-Preserving Boundaries",
+      "description": "Calculate capital-preserving execution boundaries.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-EXECUTION-ECONOMICS"
+    },
+    {
+      "id": "LVT-INIT-EXEC-EXPOSE",
+      "type": "initiative",
+      "name": "Pre-Handoff Economics",
+      "description": "Expose those boundaries before broker handoff.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-EXECUTION-ECONOMICS"
+    },
+    {
+      "id": "LVT-GOAL-OUTCOMES",
+      "type": "goal",
+      "name": "Understand the Outcome",
+      "description": "Reconstruct what actually happened from decision through execution and lifecycle resolution, including economic and capital consequences.",
+      "legacyAlias": "G4",
+      "childIds": [
+        "LVT-BET-LIFECYCLE-OUTCOME",
+        "LVT-BET-CAPITAL-ACCOUNTING",
+        "LVT-BET-BROKER-TRUTH"
+      ],
+      "parentId": "LVT-VISION-WHEELWRIGHT"
+    },
+    {
+      "id": "LVT-BET-LIFECYCLE-OUTCOME",
+      "type": "bet",
+      "name": "Decision-to-Resolution Lifecycle Reconstruction",
+      "description": "Reconstructing the complete decision-to-resolution lifecycle produces more useful economic understanding than isolated transaction history.",
+      "legacyAlias": "O1",
+      "childIds": [
+        "LVT-INIT-OUTCOME-EPISODES",
+        "LVT-INIT-OUTCOME-EXECUTION",
+        "LVT-INIT-OUTCOME-EVENTS",
+        "LVT-INIT-OUTCOME-BASIS",
+        "LVT-INIT-OUTCOME-ALTERNATIVES"
+      ],
+      "parentId": "LVT-GOAL-OUTCOMES"
+    },
+    {
+      "id": "LVT-INIT-OUTCOME-EPISODES",
+      "type": "initiative",
+      "name": "Lifecycle Episodes",
+      "description": "Reconstruct positions as lifecycle episodes.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-LIFECYCLE-OUTCOME"
+    },
+    {
+      "id": "LVT-INIT-OUTCOME-EXECUTION",
+      "type": "initiative",
+      "name": "Recommendation-to-Execution Linkage",
+      "description": "Link recommendation-time economics to actual execution.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-LIFECYCLE-OUTCOME"
+    },
+    {
+      "id": "LVT-INIT-OUTCOME-EVENTS",
+      "type": "initiative",
+      "name": "Economic Events",
+      "description": "Establish chronological economic events.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-LIFECYCLE-OUTCOME"
+    },
+    {
+      "id": "LVT-INIT-OUTCOME-BASIS",
+      "type": "initiative",
+      "name": "Lot-Level Basis Attribution",
+      "description": "Establish lot-level basis attribution.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-LIFECYCLE-OUTCOME"
+    },
+    {
+      "id": "LVT-INIT-OUTCOME-ALTERNATIVES",
+      "type": "initiative",
+      "name": "Decision-Time Alternatives",
+      "description": "Preserve selected action and alternatives available at decision time.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-LIFECYCLE-OUTCOME"
+    },
+    {
+      "id": "LVT-BET-CAPITAL-ACCOUNTING",
+      "type": "bet",
+      "name": "Capital-Consequence Accounting",
+      "description": "Capital-consequence accounting provides a more meaningful account of options-income performance than premium accounting alone.",
+      "legacyAlias": "O2",
+      "childIds": [
+        "LVT-INIT-CAP-ACCOUNT-STATES",
+        "LVT-INIT-CAP-ACCOUNT-PREMIUM"
+      ],
+      "parentId": "LVT-GOAL-OUTCOMES"
+    },
+    {
+      "id": "LVT-INIT-CAP-ACCOUNT-STATES",
+      "type": "initiative",
+      "name": "Capital State Accounting",
+      "description": "Track capital deployed, encumbered, released, appreciated, and eroded.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-CAPITAL-ACCOUNTING"
+    },
+    {
+      "id": "LVT-INIT-CAP-ACCOUNT-PREMIUM",
+      "type": "initiative",
+      "name": "Premium/Capital Relationship",
+      "description": "Relate premium flows to the capital consequences that produced them.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-CAPITAL-ACCOUNTING"
+    },
+    {
+      "id": "LVT-BET-BROKER-TRUTH",
+      "type": "bet",
+      "name": "Broker-Derived Lifecycle Truth",
+      "description": "Broker-derived execution and resolution evidence can materially improve lifecycle truth while reducing manual reconciliation.",
+      "legacyAlias": "O3",
+      "childIds": [
+        "LVT-INIT-BROKER-EVIDENCE",
+        "LVT-INIT-BROKER-RECONCILE",
+        "LVT-INIT-BROKER-RESOLUTION"
+      ],
+      "parentId": "LVT-GOAL-OUTCOMES"
+    },
+    {
+      "id": "LVT-INIT-BROKER-EVIDENCE",
+      "type": "initiative",
+      "name": "Broker Execution Evidence",
+      "description": "Acquire broker execution evidence where practical.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-BROKER-TRUTH"
+    },
+    {
+      "id": "LVT-INIT-BROKER-RECONCILE",
+      "type": "initiative",
+      "name": "Lifecycle Reconciliation",
+      "description": "Reconcile intended → submitted → working → filled → resolved states.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-BROKER-TRUTH"
+    },
+    {
+      "id": "LVT-INIT-BROKER-RESOLUTION",
+      "type": "initiative",
+      "name": "Authoritative Resolution",
+      "description": "Derive lifecycle resolution from authoritative evidence where possible.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-BROKER-TRUTH"
+    },
+    {
+      "id": "LVT-GOAL-LEARNING",
+      "type": "goal",
+      "name": "Improve Empirically",
+      "description": "Use point-in-time evidence and observed outcomes to improve policy while preserving reproducibility, attribution, explanation, and governance.",
+      "legacyAlias": "G5",
+      "childIds": [
+        "LVT-BET-OUTCOME-LEARNING",
+        "LVT-BET-EXECUTION-LEARNING",
+        "LVT-BET-RISK-LEARNING"
+      ],
+      "parentId": "LVT-VISION-WHEELWRIGHT"
+    },
+    {
+      "id": "LVT-BET-OUTCOME-LEARNING",
+      "type": "bet",
+      "name": "Outcomes Reveal Discriminating Ranking Information",
+      "description": "Lifecycle outcomes can reveal ranking factors with genuine discriminatory information.",
+      "legacyAlias": "L1",
+      "childIds": [
+        "LVT-INIT-LEARN-PRESERVE",
+        "LVT-INIT-LEARN-QUALITY",
+        "LVT-INIT-LEARN-REPLAY",
+        "LVT-EXP-VOL-TRAJECTORY",
+        "LVT-EXP-PRICE-GEOMETRY",
+        "LVT-EXP-CROSS-DTE"
+      ],
+      "parentId": "LVT-GOAL-LEARNING"
+    },
+    {
+      "id": "LVT-INIT-LEARN-PRESERVE",
+      "type": "initiative",
+      "name": "Preserve Decision Evidence",
+      "description": "Preserve point-in-time evidence, recommendations, and outcomes.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-OUTCOME-LEARNING"
+    },
+    {
+      "id": "LVT-INIT-LEARN-QUALITY",
+      "type": "initiative",
+      "name": "Multidimensional Deployment Quality",
+      "description": "Define multidimensional deployment quality.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-OUTCOME-LEARNING"
+    },
+    {
+      "id": "LVT-INIT-LEARN-REPLAY",
+      "type": "initiative",
+      "name": "Historical Policy Replay",
+      "description": "Establish historical policy replay.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-OUTCOME-LEARNING"
+    },
+    {
+      "id": "LVT-EXP-VOL-TRAJECTORY",
+      "type": "experiment",
+      "name": "Volatility Trajectory",
+      "description": "Test whether volatility trajectory contributes useful discriminatory information.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-OUTCOME-LEARNING"
+    },
+    {
+      "id": "LVT-EXP-PRICE-GEOMETRY",
+      "type": "experiment",
+      "name": "Factual Price Geometry",
+      "description": "Test whether factual price geometry contributes useful discriminatory information.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-OUTCOME-LEARNING"
+    },
+    {
+      "id": "LVT-EXP-CROSS-DTE",
+      "type": "experiment",
+      "name": "Cross-DTE Duration/Optionality",
+      "description": "Test whether duration/optionality differences across expirations contribute useful discriminatory information.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-OUTCOME-LEARNING"
+    },
+    {
+      "id": "LVT-BET-EXECUTION-LEARNING",
+      "type": "bet",
+      "name": "Execution Mechanics Improve Empirically",
+      "description": "Execution mechanics can be improved empirically and independently of recommendation quality.",
+      "legacyAlias": "L2",
+      "childIds": [
+        "LVT-EXP-LIMIT-PRICING",
+        "LVT-EXP-FILL-BOUNDARIES",
+        "LVT-EXP-BTC-MECHANICS",
+        "LVT-INIT-EXEC-MEASURE-SEPARATELY"
+      ],
+      "parentId": "LVT-GOAL-LEARNING"
+    },
+    {
+      "id": "LVT-EXP-LIMIT-PRICING",
+      "type": "experiment",
+      "name": "Limit-Order Pricing",
+      "description": "Experiment with limit-order pricing.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-EXECUTION-LEARNING"
+    },
+    {
+      "id": "LVT-EXP-FILL-BOUNDARIES",
+      "type": "experiment",
+      "name": "Fill Boundaries",
+      "description": "Experiment with fill boundaries.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-EXECUTION-LEARNING"
+    },
+    {
+      "id": "LVT-EXP-BTC-MECHANICS",
+      "type": "experiment",
+      "name": "BTC/Take-Profit Mechanics",
+      "description": "Experiment with BTC/take-profit mechanics.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-EXECUTION-LEARNING"
+    },
+    {
+      "id": "LVT-INIT-EXEC-MEASURE-SEPARATELY",
+      "type": "initiative",
+      "name": "Separate Execution Measurement",
+      "description": "Measure recommendation quality separately from execution quality.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-EXECUTION-LEARNING"
+    },
+    {
+      "id": "LVT-BET-RISK-LEARNING",
+      "type": "bet",
+      "name": "Risk-Profile Performance Can Be Learned Empirically",
+      "description": "Comparing realized outcomes across risk profiles can identify when paying for defined risk produces superior overall deployment quality.",
+      "legacyAlias": "L3",
+      "childIds": [
+        "LVT-INIT-RISK-LEARN-PUTS",
+        "LVT-INIT-RISK-LEARN-CALLS",
+        "LVT-INIT-RISK-LEARN-TRADEOFF"
+      ],
+      "parentId": "LVT-GOAL-LEARNING"
+    },
+    {
+      "id": "LVT-INIT-RISK-LEARN-PUTS",
+      "type": "initiative",
+      "name": "CSP vs Put-Spread Outcomes",
+      "description": "Compare CSP versus put-spread outcomes where economically meaningful.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-RISK-LEARNING"
+    },
+    {
+      "id": "LVT-INIT-RISK-LEARN-CALLS",
+      "type": "initiative",
+      "name": "Call-Side Risk Profiles",
+      "description": "Compare call-side consequence profiles.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-RISK-LEARNING"
+    },
+    {
+      "id": "LVT-INIT-RISK-LEARN-TRADEOFF",
+      "type": "initiative",
+      "name": "Premium Haircut vs Consequence",
+      "description": "Evaluate premium haircut against capital efficiency and realized downside.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-RISK-LEARNING"
+    },
+    {
+      "id": "LVT-GOAL-CONTINUITY",
+      "type": "goal",
+      "name": "Operate Continuously",
+      "description": "Operate continuously and reliably without depending on the operator workstation or an active interface.",
+      "legacyAlias": "G6",
+      "childIds": [
+        "LVT-DIRECTION-ALWAYS-ON",
+        "LVT-BET-EVIDENCE-PRIORITY"
+      ],
+      "parentId": "LVT-VISION-WHEELWRIGHT"
+    },
+    {
+      "id": "LVT-DIRECTION-ALWAYS-ON",
+      "type": "direction",
+      "name": "Always-On Durable Wheelwright",
+      "description": "Wheelwright becomes an always-on durable appliance independent of the operator workstation; this direction is already substantially accepted and is not represented as an uncertain Bet merely to make the tree symmetrical.",
+      "legacyAlias": null,
+      "childIds": [
+        "LVT-INIT-CONT-CLOUD",
+        "LVT-INIT-CONT-BOUNDARIES",
+        "LVT-INIT-CONT-HEALTH",
+        "LVT-INIT-CONT-BACKUP",
+        "LVT-INIT-CONT-OBSERVE"
+      ],
+      "parentId": "LVT-GOAL-CONTINUITY"
+    },
+    {
+      "id": "LVT-INIT-CONT-CLOUD",
+      "type": "initiative",
+      "name": "Durable Cloud Runtime",
+      "description": "Establish durable cloud runtime.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-DIRECTION-ALWAYS-ON"
+    },
+    {
+      "id": "LVT-INIT-CONT-BOUNDARIES",
+      "type": "initiative",
+      "name": "Durable/Transient Responsibility Separation",
+      "description": "Separate continuous backend responsibilities from transient clients.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-DIRECTION-ALWAYS-ON"
+    },
+    {
+      "id": "LVT-INIT-CONT-HEALTH",
+      "type": "initiative",
+      "name": "Health and Recovery Semantics",
+      "description": "Establish health/degradation/recovery semantics.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-DIRECTION-ALWAYS-ON"
+    },
+    {
+      "id": "LVT-INIT-CONT-BACKUP",
+      "type": "initiative",
+      "name": "Durable Backup/Recovery",
+      "description": "Establish durable backup/recovery.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-DIRECTION-ALWAYS-ON"
+    },
+    {
+      "id": "LVT-INIT-CONT-OBSERVE",
+      "type": "initiative",
+      "name": "Continuous Observation/Attention",
+      "description": "Establish continuously operating observation/attention capability consistent with current governing boundaries.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-DIRECTION-ALWAYS-ON"
+    },
+    {
+      "id": "LVT-BET-EVIDENCE-PRIORITY",
+      "type": "bet",
+      "name": "Decision-Value-Aware Evidence Acquisition",
+      "description": "Prioritizing finite acquisition capacity by decision relevance improves the freshness of evidence that matters most.",
+      "legacyAlias": "N1",
+      "childIds": [
+        "LVT-INIT-EVID-RELEVANCE",
+        "LVT-EXP-EVID-PRIORITY"
+      ],
+      "parentId": "LVT-GOAL-CONTINUITY"
+    },
+    {
+      "id": "LVT-INIT-EVID-RELEVANCE",
+      "type": "initiative",
+      "name": "Expose Decision Relevance",
+      "description": "Expose decision/attention relevance without transferring acquisition authority.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-EVIDENCE-PRIORITY"
+    },
+    {
+      "id": "LVT-EXP-EVID-PRIORITY",
+      "type": "experiment",
+      "name": "Compare Acquisition Policies",
+      "description": "Compare decision-value-aware acquisition against current governed scheduling.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-EVIDENCE-PRIORITY"
+    },
+    {
+      "id": "LVT-GOAL-ACCESS",
+      "type": "goal",
+      "name": "Operate Wherever Needed",
+      "description": "Securely understand and appropriately interact with current decision state wherever operator attention is required.",
+      "legacyAlias": "G7",
+      "childIds": [
+        "LVT-BET-MOBILE",
+        "LVT-BET-NOTIFICATIONS",
+        "LVT-BET-REMOTE-ACTION",
+        "LVT-BET-CONCISE-EXPLANATION"
+      ],
+      "parentId": "LVT-VISION-WHEELWRIGHT"
+    },
+    {
+      "id": "LVT-BET-MOBILE",
+      "type": "bet",
+      "name": "Attention-First Mobile",
+      "description": "An attention-first mobile experience delivers most of the valuable off-desktop experience without reproducing the workstation.",
+      "legacyAlias": "X1",
+      "childIds": [
+        "LVT-INIT-MOBILE-ATTENTION",
+        "LVT-INIT-MOBILE-QUESTIONS",
+        "LVT-INIT-MOBILE-STATE",
+        "LVT-INIT-MOBILE-ACK"
+      ],
+      "parentId": "LVT-GOAL-ACCESS"
+    },
+    {
+      "id": "LVT-INIT-MOBILE-ATTENTION",
+      "type": "initiative",
+      "name": "Attention/Inspection First",
+      "description": "Build mobile around attention and inspection.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-MOBILE"
+    },
+    {
+      "id": "LVT-INIT-MOBILE-QUESTIONS",
+      "type": "initiative",
+      "name": "Operator-Question Topology",
+      "description": "Organize mobile around operator questions rather than desktop route topology.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-MOBILE"
+    },
+    {
+      "id": "LVT-INIT-MOBILE-STATE",
+      "type": "initiative",
+      "name": "Shared Authoritative State",
+      "description": "Establish shared authoritative state across clients.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-MOBILE"
+    },
+    {
+      "id": "LVT-INIT-MOBILE-ACK",
+      "type": "initiative",
+      "name": "Durable Attention Acknowledgement",
+      "description": "Establish durable attention acknowledgement.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-MOBILE"
+    },
+    {
+      "id": "LVT-BET-NOTIFICATIONS",
+      "type": "bet",
+      "name": "Material Notifications",
+      "description": "Notifications of genuinely material attention states reduce routine checking without creating alert fatigue.",
+      "legacyAlias": "X2",
+      "childIds": [
+        "LVT-INIT-NOTIFY-PUSH",
+        "LVT-INIT-NOTIFY-TRUST"
+      ],
+      "parentId": "LVT-GOAL-ACCESS"
+    },
+    {
+      "id": "LVT-INIT-NOTIFY-PUSH",
+      "type": "initiative",
+      "name": "Attention Push",
+      "description": "Deliver Attention states through push notifications.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-NOTIFICATIONS"
+    },
+    {
+      "id": "LVT-INIT-NOTIFY-TRUST",
+      "type": "initiative",
+      "name": "Preserve Significance and Uncertainty",
+      "description": "Preserve significance and uncertainty in notification decisions.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-NOTIFICATIONS"
+    },
+    {
+      "id": "LVT-BET-REMOTE-ACTION",
+      "type": "bet",
+      "name": "Bounded Consequential Remote Action",
+      "description": "Progressively introducing bounded consequential mobile actions provides useful remote control without weakening accountable-human governance.",
+      "legacyAlias": "X3",
+      "childIds": [
+        "LVT-INIT-REMOTE-ACK",
+        "LVT-INIT-REMOTE-GOVERN",
+        "LVT-INIT-REMOTE-AUTH"
+      ],
+      "parentId": "LVT-GOAL-ACCESS"
+    },
+    {
+      "id": "LVT-INIT-REMOTE-ACK",
+      "type": "initiative",
+      "name": "Non-Consequential Remote Actions",
+      "description": "Begin with non-consequential acknowledgement/defer workflows.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-REMOTE-ACTION"
+    },
+    {
+      "id": "LVT-INIT-REMOTE-GOVERN",
+      "type": "initiative",
+      "name": "Govern Consequential Actions",
+      "description": "Introduce consequential actions only behind explicit governance boundaries.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-REMOTE-ACTION"
+    },
+    {
+      "id": "LVT-INIT-REMOTE-AUTH",
+      "type": "initiative",
+      "name": "Authentication and Authorization",
+      "description": "Establish appropriate authentication and authorization.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-REMOTE-ACTION"
+    },
+    {
+      "id": "LVT-BET-CONCISE-EXPLANATION",
+      "type": "bet",
+      "name": "Trustworthy Concise Explanation",
+      "description": "Concise explanations can preserve operator trust and decision quality despite the information constraints of mobile.",
+      "legacyAlias": "X4",
+      "childIds": [
+        "LVT-INIT-CONCISE-EXPLAIN"
+      ],
+      "parentId": "LVT-GOAL-ACCESS"
+    },
+    {
+      "id": "LVT-INIT-CONCISE-EXPLAIN",
+      "type": "initiative",
+      "name": "Compressed Decision Explanation",
+      "description": "Compress explanations around what changed, why it matters, current consequences, available alternatives, and comparative reasoning.",
+      "legacyAlias": null,
+      "childIds": [],
+      "parentId": "LVT-BET-CONCISE-EXPLANATION"
+    }
+  ],
+  "architecture": [
+    {
+      "id": "AR1",
+      "title": "Authoritative State Must Mature Beyond Market Evidence",
+      "candidateTransition": "from market-evidence authority plus browser portfolio context toward a durable authoritative state substrate sufficient for continuous decision support and outcome reconstruction.",
+      "pressureFromLvtIds": [
+        "LVT-BET-POSITION",
+        "LVT-BET-CAPITAL-CHOICES",
+        "LVT-BET-LIFECYCLE-OUTCOME",
+        "LVT-BET-CAPITAL-ACCOUNTING",
+        "LVT-BET-OUTCOME-LEARNING",
+        "LVT-BET-MOBILE"
+      ],
+      "pressureFromRaw": []
+    },
+    {
+      "id": "AR2",
+      "title": "Attention Emerges as a Distinct Responsibility",
+      "candidateTransition": null,
+      "pressureFromLvtIds": [
+        "LVT-BET-OBSERVATION",
+        "LVT-BET-POSITION",
+        "LVT-BET-ATTENTION",
+        "LVT-BET-EVIDENCE-PRIORITY",
+        "LVT-BET-MOBILE",
+        "LVT-BET-NOTIFICATIONS"
+      ],
+      "pressureFromRaw": []
+    },
+    {
+      "id": "AR3",
+      "title": "From Strategy-Specific Recommendations Toward Governed Alternatives",
+      "candidateTransition": "from parallel strategy-specific recommendation pipelines toward a common concept of a **governed Alternative** grounded in authoritative state.",
+      "pressureFromLvtIds": [
+        "LVT-BET-WAIT",
+        "LVT-BET-STRATEGIES",
+        "LVT-BET-LIFECYCLE-CHOICES",
+        "LVT-BET-CHOICE-OPTIONALITY",
+        "LVT-BET-CAPITAL-CHOICES",
+        "LVT-BET-UNIVERSE",
+        "LVT-BET-CONSEQUENCE-ENVELOPE",
+        "LVT-BET-COMPENSATION",
+        "LVT-BET-CONSEQUENCE-OPTIONALITY",
+        "LVT-BET-RISK-PROFILES",
+        "LVT-BET-LIFECYCLE-POLICY",
+        "LVT-BET-EXPLANATION",
+        "LVT-BET-ACCEPTABILITY",
+        "LVT-BET-EXECUTION-ECONOMICS"
+      ],
+      "pressureFromRaw": []
+    },
+    {
+      "id": "AR4",
+      "title": "Consequence Semantics Before Explanation",
+      "candidateTransition": "make consequence/economic semantics first-class domain data usable by Policy, Decision, Execution, Explanation, Outcome, and Learning.",
+      "pressureFromLvtIds": [
+        "LVT-BET-CONSEQUENCE-ENVELOPE",
+        "LVT-BET-COMPENSATION",
+        "LVT-BET-CONSEQUENCE-OPTIONALITY",
+        "LVT-BET-RISK-PROFILES",
+        "LVT-BET-LIFECYCLE-POLICY",
+        "LVT-BET-EXPLANATION",
+        "LVT-BET-ACCEPTABILITY",
+        "LVT-BET-EXECUTION-ECONOMICS",
+        "LVT-BET-STRATEGIES",
+        "LVT-BET-CHOICE-OPTIONALITY",
+        "LVT-BET-CAPITAL-ACCOUNTING",
+        "LVT-BET-RISK-LEARNING"
+      ],
+      "pressureFromRaw": []
+    },
+    {
+      "id": "AR5",
+      "title": "Separate Eligibility, Acceptability, and Comparative Fitness",
+      "candidateTransition": "evolve Decision/Policy semantics so absolute acceptability is not hidden inside a relative rank score.",
+      "pressureFromLvtIds": [
+        "LVT-BET-WAIT",
+        "LVT-BET-COMPENSATION",
+        "LVT-BET-ACCEPTABILITY"
+      ],
+      "pressureFromRaw": []
+    },
+    {
+      "id": "AR6",
+      "title": "Durable Decision Context and Computation Ownership",
+      "candidateTransition": "move appropriate state and computation behind a durable/shared boundary while preserving deterministic behavior and avoiding unnecessary service decomposition.",
+      "pressureFromLvtIds": [
+        "LVT-BET-POSITION",
+        "LVT-BET-CAPITAL-CHOICES",
+        "LVT-BET-LIFECYCLE-OUTCOME",
+        "LVT-BET-OUTCOME-LEARNING",
+        "LVT-GOAL-CONTINUITY",
+        "LVT-GOAL-ACCESS"
+      ],
+      "pressureFromRaw": [
+        "also current PL-ARCH-06 pressure"
+      ]
+    },
+    {
+      "id": "AR7",
+      "title": "Decision → Execution → Lifecycle → Outcome Identity",
+      "candidateTransition": "strengthen the connective tissue between Decision, broker handoff/execution evidence, lifecycle state, and Production/Outcome.",
+      "pressureFromLvtIds": [
+        "LVT-BET-EXECUTION-ECONOMICS",
+        "LVT-BET-LIFECYCLE-OUTCOME",
+        "LVT-BET-CAPITAL-ACCOUNTING",
+        "LVT-BET-BROKER-TRUTH",
+        "LVT-BET-OUTCOME-LEARNING",
+        "LVT-BET-EXECUTION-LEARNING",
+        "LVT-BET-RISK-LEARNING"
+      ],
+      "pressureFromRaw": []
+    },
+    {
+      "id": "AR8",
+      "title": "Learning Requires a Reproducible Temporal Substrate",
+      "candidateTransition": "make point-in-time decision environments reproducible enough to evaluate candidate policies without hindsight contamination.",
+      "pressureFromLvtIds": [
+        "LVT-BET-OUTCOME-LEARNING",
+        "LVT-BET-EXECUTION-LEARNING",
+        "LVT-BET-RISK-LEARNING",
+        "LVT-GOAL-OUTCOMES"
+      ],
+      "pressureFromRaw": []
+    },
+    {
+      "id": "AR9",
+      "title": "Continuity Is a Cross-Cutting System Property",
+      "candidateTransition": null,
+      "pressureFromLvtIds": [
+        "LVT-GOAL-CONTINUITY"
+      ],
+      "pressureFromRaw": []
+    },
+    {
+      "id": "AR10",
+      "title": "Access Is a Cross-Cutting Client/Operator Property",
+      "candidateTransition": null,
+      "pressureFromLvtIds": [
+        "LVT-GOAL-ACCESS"
+      ],
+      "pressureFromRaw": []
+    }
+  ],
+  "parkingLot": [
+    {
+      "id": "PL-ARCH-06",
+      "name": "Recommendation Engine Ownership",
+      "section": "Principal Decisions (Unresolved)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-GOV-EXPR",
+      "name": "Governance Operator Expression",
+      "section": "Principal Decisions (Unresolved)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-SHELL",
+      "name": "Application Coherence / Shell",
+      "section": "Accepted Direction (Design/Implementation Needed)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-DEPLOY",
+      "name": "Deployment Opportunity / Unified Surface",
+      "section": "Accepted Direction (Design/Implementation Needed)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-DEC-BEH",
+      "name": "Behavioral Decision Discipline / Accountable HITL",
+      "section": "Accepted Direction (Design/Implementation Needed)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-CLEANUP",
+      "name": "Accidental-Change-Surface Reduction (bounded cleanup)",
+      "section": "Accepted Direction (Design/Implementation Needed)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-GOV-02",
+      "name": "Universe Candidate Evaluation / Admission Workflow",
+      "section": "Accepted Direction (Design/Implementation Needed)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-UX-01",
+      "name": "Console: Decision Pressure",
+      "section": "Implementation Work (Ratified Architecture)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-UX-04",
+      "name": "Console: Progressive Hydration",
+      "section": "Implementation Work (Ratified Architecture)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-ELIG",
+      "name": "Deployment Eligibility / Capacity Explanation",
+      "section": "Implementation Work (Ratified Architecture)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [
+        "LVT-INIT-CAP-AVAILABILITY"
+      ],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-EVID-03",
+      "name": "Conditioned Operating Opportunity: EP2",
+      "section": "Implementation Work (Ratified Architecture)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-PORT-01",
+      "name": "Portfolio-State Maturity",
+      "section": "Implementation Work (Ratified Architecture)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-PORT-02",
+      "name": "Production Accounting (remaining)",
+      "section": "Implementation Work (Ratified Architecture)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-EXEC-01",
+      "name": "Trade Lifecycle Evolution",
+      "section": "Implementation Work (Ratified Architecture)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-GOV-01",
+      "name": "Governance Catalog Gap",
+      "section": "Implementation Work (Ratified Architecture)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-POL-04",
+      "name": "Policy Evolution / Governance Provenance",
+      "section": "Implementation Work (Ratified Architecture)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-OPS-06",
+      "name": "Dead Pipeline Retirement",
+      "section": "Implementation Work (Ratified Architecture)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-PROD-EVENTS",
+      "name": "Production Economic Event Ledger",
+      "section": "Implementation Work (Ratified Architecture)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-EVID-07",
+      "name": "Multi-Expiration / Weekly-Aware Evidence Acquisition",
+      "section": "Unresolved Architectural Work",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-PROD-MISSION",
+      "name": "Monthly Production Mission Primitive",
+      "section": "Unresolved Architectural Work",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-PROD-NET",
+      "name": "Net Strategy Result",
+      "section": "Unresolved Architectural Work",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-PROD-FORECAST",
+      "name": "Production Forecasting Capability",
+      "section": "Unresolved Architectural Work",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-PROD-VALUE",
+      "name": "Portfolio Capital",
+      "section": "Unresolved Architectural Work",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-EVID-01",
+      "name": "Historical Evidence / Observation Architecture",
+      "section": "Unresolved Architectural Work",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-EVID-02",
+      "name": "Lifecycle Assessment Evidence Domain",
+      "section": "Unresolved Architectural Work",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-DEPLOY-02",
+      "name": "Opportunity Surface Observation",
+      "section": "Unresolved Architectural Work",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-OPS-01",
+      "name": "Cloud Deployment",
+      "section": "Infrastructure Prerequisites",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-ARCH-03",
+      "name": "Security and User Accounts",
+      "section": "Infrastructure Prerequisites",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-EVID-04",
+      "name": "Market-Priced Risk",
+      "section": "Blocked on External Dependencies",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-EVID-05",
+      "name": "Recommendation Set Analysis",
+      "section": "Blocked on External Dependencies",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-RESEARCH-01",
+      "name": "Universe Discovery",
+      "section": "Blocked on External Dependencies",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-RESEARCH-04",
+      "name": "Instrument Catalog Evolution",
+      "section": "Blocked on External Dependencies",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-ARCH-02",
+      "name": "Situation-Governed Deployment Strategy",
+      "section": "Exploratory / Far-Future Seeds",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-ARCH-01",
+      "name": "Instrument Governance Modes",
+      "section": "Exploratory / Far-Future Seeds",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-POL-01",
+      "name": "Cash-Flow-Safe Recovery",
+      "section": "Exploratory / Far-Future Seeds",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-CALL-03",
+      "name": "Familiarity vs Favorites",
+      "section": "Exploratory / Far-Future Seeds",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-OPS-04",
+      "name": "Notification / Background Awareness",
+      "section": "Exploratory / Far-Future Seeds",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-STRAT-01",
+      "name": "Strategy Expansion Governance",
+      "section": "Exploratory / Far-Future Seeds",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-TRAIN-01",
+      "name": "Training Mode / Portfolio-Operations Simulator",
+      "section": "Exploratory / Far-Future Seeds",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-COHERE-01",
+      "name": "Architecture-to-Code Coherence Assessment",
+      "section": "Exploratory / Far-Future Seeds",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-META-01",
+      "name": "Reusable Project Bootstrap / Meta-Repository",
+      "section": "Exploratory / Far-Future Seeds",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-RESEARCH-03",
+      "name": "Scenario Replay",
+      "section": "Research Instruments (Engineering Boundary)",
+      "sourceFile": "parking-lot.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-EVID-MVPTA",
+      "name": "Minimum Viable Technical Analysis / Deployment-Quality Evidence Experiment",
+      "section": "Historical / Observational Family",
+      "sourceFile": "parking-lot-2.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-EVID-AGE",
+      "name": "Deployment Evidence Age / Operator-Intent Acquisition Feedback",
+      "section": "Evidence / Operator-Usefulness Family",
+      "sourceFile": "parking-lot-3.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-POSTURE-01",
+      "name": "Colored-Line / Posture Semantic + CSS Drift",
+      "section": "Active Items — Colored-Line / Surface / Scheduler Audit (Sep 1, 2026)",
+      "sourceFile": "parking-lot-3.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-SURF-01",
+      "name": "Deployment Result-Surface Completeness / Truncation",
+      "section": "Active Items — Colored-Line / Surface / Scheduler Audit (Sep 1, 2026)",
+      "sourceFile": "parking-lot-3.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-SCHED-DRIFT",
+      "name": "Scheduler Policy vs Code Breadth-First Ordering Drift",
+      "section": "Active Items — Colored-Line / Surface / Scheduler Audit (Sep 1, 2026)",
+      "sourceFile": "parking-lot-3.md",
+      "relatedLvtIds": [],
+      "relatedArIds": [
+        "AR2"
+      ]
+    },
+    {
+      "id": "PL-DEPLOY-02-DEF01",
+      "name": "Opportunity-History Winner-Economics Preservation Defect",
+      "section": "Active Items — Opportunity-History Instrument (Sep 1, 2026)",
+      "sourceFile": "parking-lot-3.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-PROV-FAILOVER",
+      "name": "Provider Availability / Degraded-Mode Auto-Failover & Failback",
+      "section": "Active Items — Provider Availability / Degraded-Mode Failover (Sep 2, 2026)",
+      "sourceFile": "parking-lot-3.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-ARCH-FITNESS-01",
+      "name": "Architectural Fitness Functions / Executable Architecture Invariants",
+      "section": "Active Items — Architecture / Engineering Method",
+      "sourceFile": "parking-lot-4.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-PROD-EXPORT-01",
+      "name": "Production Evidence Export (machine-readable \"what Production believed\")",
+      "section": "Active Items — Product / Testing Instrumentation",
+      "sourceFile": "parking-lot-4.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-OPS-08",
+      "name": "Observation Continuity / Gap Recovery",
+      "section": "Reconciliation / continuation record",
+      "sourceFile": "parking-lot-7.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-OPS-09",
+      "name": "Operator-Directed Targeted Re-Observation (Console Freshness on Demand)",
+      "section": "Reconciliation / continuation record",
+      "sourceFile": "parking-lot-8.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-MKT",
+      "name": "Provider timesales as an appliance-sourced UI data source (Markets glance + high-resolution moneyness sparklines)",
+      "section": "Reconciliation / continuation record",
+      "sourceFile": "parking-lot-8.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-DEPLOY-EXPORT",
+      "name": "Deployment \"Export Everything\": complete machine-consumable Deployment evidence export (AI-advisor experiment is first consumer)",
+      "section": "Reconciliation / continuation record",
+      "sourceFile": "parking-lot-8.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-RECIPE-01",
+      "name": "Wheelwright Recipes (named, versioned decision lenses over the governed candidate population)",
+      "section": "Reconciliation / continuation record",
+      "sourceFile": "parking-lot-8.md",
+      "relatedLvtIds": [],
+      "relatedArIds": [
+        "AR4",
+        "AR5",
+        "AR8"
+      ]
+    },
+    {
+      "id": "PL-ACTOR-01",
+      "name": "Remove the Principal as Human Clipboard While Preserving Principal Authority",
+      "section": "Reconciliation / continuation record",
+      "sourceFile": "parking-lot-9.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-DEPLOY-BAL",
+      "name": "Fidelity Account-Regime / Broker-Balance Semantics",
+      "section": "Reconciliation / continuation record",
+      "sourceFile": "parking-lot-9.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    },
+    {
+      "id": "PL-ROADMAP-UI",
+      "name": "Roadmap Operator Surface (Projection of Canonical Strategic/Architecture/Parking-Lot Authority)",
+      "section": "Reconciliation / continuation record",
+      "sourceFile": "parking-lot-9.md",
+      "relatedLvtIds": [],
+      "relatedArIds": []
+    }
+  ],
+  "graduated": [
+    {
+      "id": "#7",
+      "name": "PendingIntent vs Open-Order",
+      "disposition": "Implemented",
+      "destination": "src/execution/pending-intent.ts"
+    },
+    {
+      "id": "#8",
+      "name": "Backend Evidence Service",
+      "disposition": "Implemented (Java)",
+      "destination": "evidence-service-java/"
+    },
+    {
+      "id": "#9",
+      "name": "Backend Implementation Preferences",
+      "disposition": "Followed",
+      "destination": "Implemented as specified"
+    },
+    {
+      "id": "#11",
+      "name": "Continuous Acquisition",
+      "disposition": "Implemented",
+      "destination": "Java acquisition worker"
+    },
+    {
+      "id": "#12",
+      "name": "Canonical Session Validity",
+      "disposition": "Implemented",
+      "destination": "Session gate (Java + TS)"
+    },
+    {
+      "id": "#18",
+      "name": "Fidelity Broker Handoff",
+      "disposition": "Implemented",
+      "destination": "src/execution/fidelity-trade-link.ts"
+    },
+    {
+      "id": "#19",
+      "name": "Recommendation Brief",
+      "disposition": "Implemented",
+      "destination": "src/components/RecommendationBrief.tsx"
+    },
+    {
+      "id": "#20",
+      "name": "Progressive Disclosure",
+      "disposition": "Implemented",
+      "destination": "Architecture doc ADR-005"
+    },
+    {
+      "id": "#24",
+      "name": "Wheelwright Naming",
+      "disposition": "Implemented (convention)",
+      "destination": "ADR-002"
+    },
+    {
+      "id": "#29",
+      "name": "Midpoint Yield Convention",
+      "disposition": "Implemented",
+      "destination": "07-architecture-current.md §Midpoint Economics"
+    },
+    {
+      "id": "#31",
+      "name": "Four-Engine Decomposition",
+      "disposition": "Promoted to ratified architecture",
+      "destination": "07-architecture-current.md §Conceptual Architecture"
+    },
+    {
+      "id": "#17",
+      "name": "Product-Structure (umbrella)",
+      "disposition": "Split",
+      "destination": "Heuristic/governance: implemented. Catalog: PL-RESEARCH-04. Strategy auth: PL-ARCH-01."
+    },
+    {
+      "id": "PL-OPS-03",
+      "name": "Prior-Epoch Failed Scheduler Gap",
+      "disposition": "Implemented (Java)",
+      "destination": "Recovery-probe mechanism, 8 tests"
+    },
+    {
+      "id": "PL-CALL-05",
+      "name": "Buy-Write Recommendation Board",
+      "disposition": "Promoted (Aug 2026)",
+      "destination": "Buy-Write Deployment Mechanism — accepted direction within Decision domain. Board topology is implementation; concept is architecture."
+    },
+    {
+      "id": "PL-DEPLOY-01",
+      "name": "Unified Capital Deployment Surface",
+      "disposition": "Promoted (Aug 2026)",
+      "destination": "Deployment Opportunity — accepted architectural direction (reconciliation F-13). Implementation work retained as PL-DEPLOY."
+    },
+    {
+      "id": "PL-POL-02",
+      "name": "Monthly Production Regime",
+      "disposition": "Promoted (Aug 2026)",
+      "destination": "Graduated → Situation Architecture, Bridge Income, Regime Objective Function"
+    },
+    {
+      "id": "PL-API-01",
+      "name": "API Testability and Cacheability",
+      "disposition": "Promoted (Aug 2026)",
+      "destination": "Principles graduated → Publication invariants, contracts/evidence-snapshot-v1.md"
+    },
+    {
+      "id": "PL-CALL-01",
+      "name": "Calls Horizon B",
+      "disposition": "Superseded (Aug 2026)",
+      "destination": "Historical container closed. Children: existing-put PCS → PL-EVID-03; appreciation geometry → ADR-013 dim 3; call handoff → PL-EXEC-01"
+    },
+    {
+      "id": "PL-CALL-02",
+      "name": "Calls Horizon C",
+      "disposition": "Superseded (Aug 2026)",
+      "destination": "Historical container closed. Children: lifecycle linkage → PL-EVID-01/02; call discovery → Deployment Opportunity; longitudinal → Level 3 (far future); user state → PL-ARCH-03; lifecycle quality → PL-EVID-02"
+    },
+    {
+      "id": "PL-UX-02",
+      "name": "Put/Call Desk Asymmetry (topology)",
+      "disposition": "Superseded (Aug 2026)",
+      "destination": "Desk topology resolved by Deployment Opportunity. Strategy-specific semantics survive as §Strategy-Specific Semantics above."
+    },
+    {
+      "id": "PL-DEPLOY-03",
+      "name": "Cross-Entry Multi-Path",
+      "disposition": "Superseded (Aug 2026)",
+      "destination": "Emergent property of Deployment Opportunity model. Current implementation already handles it."
+    },
+    {
+      "id": "PL-POL-03",
+      "name": "Portfolio Optimization Layer",
+      "disposition": "Superseded (Aug 2026)",
+      "destination": "Situation Architecture + Deployment Opportunity provide the composition."
+    },
+    {
+      "id": "PL-OPS-02",
+      "name": "Post-Retooling Craftsmanship Review",
+      "disposition": "Superseded (Aug 2026)",
+      "destination": "Absorbed into active holistic cleanup (PL-CLEANUP). The trigger arrived."
+    },
+    {
+      "id": "PL-OPS-05",
+      "name": "ADR Coverage Review",
+      "disposition": "Merged (Aug 2026)",
+      "destination": "→ Documentation Topology cleanup within PL-CLEANUP"
+    },
+    {
+      "id": "PL-ARCH-04",
+      "name": "Policy-Governance Scaling",
+      "disposition": "Merged (Aug 2026)",
+      "destination": "→ PL-POL-04 (same concern)"
+    },
+    {
+      "id": "PL-EVID-06",
+      "name": "Score vs Classification",
+      "disposition": "Merged (Aug 2026)",
+      "destination": "→ PL-EVID-02 (design sub-question)"
+    },
+    {
+      "id": "PL-REC-STATE",
+      "name": "Client-Local Recommendation State",
+      "disposition": "Merged (Aug 2026)",
+      "destination": "→ PL-ARCH-06 + PL-DEPLOY-02 (symptom of two tracked concerns)"
+    },
+    {
+      "id": "PL-CALL-04",
+      "name": "Call Inventory/Eligibility Observability",
+      "disposition": "Reframed (Aug 2026)",
+      "destination": "→ PL-ELIG (Deployment Eligibility / Capacity Explanation — broader concept)"
+    },
+    {
+      "id": "PL-RESEARCH-02",
+      "name": "Velvet Rope Evolution",
+      "disposition": "Dissolved (Aug 2026)",
+      "destination": "Lab container retired. Surviving capabilities distributed into Governance family."
+    }
+  ],
+  "adrs": [
+    {
+      "id": "ADR-001",
+      "title": "Evidence Acquisition and Recommendation are Separate Concerns",
+      "date": "July 2026",
+      "status": "Accepted",
+      "context": "The initial prototype combined market data fetching and recommendation generation in a single scan pass. This made recommendations dependent on network availability and created coupling between evidence freshness and ranking logic."
+    },
+    {
+      "id": "ADR-002",
+      "title": "Wheelwright as the Recommendation Craftsmanship Layer",
+      "date": "July 2026",
+      "status": "Accepted",
+      "context": "The recommendation engine needed a domain identity to distinguish it from the Write Desk (UI) and Evidence Acquisition (network). \"Recommendation Lab\" was the prior name but implied experimentation rather than operational craftsmanship."
+    },
+    {
+      "id": "ADR-003",
+      "title": "Recommendation Rank Independent of Presentation Sort",
+      "date": "July 2026",
+      "status": "Accepted",
+      "context": "When column sorting was added to the candidate table, there was a question of whether changing the sort should reset or recompute the recommendation order."
+    },
+    {
+      "id": "ADR-004",
+      "title": "Broker Handoff via Pre-Populated Trade Ticket",
+      "date": "July 2026",
+      "status": "Accepted",
+      "context": "Discovered that Fidelity accepts externally constructed option trade-ticket URLs with pre-populated fields (ORDER_TYPE, ORDER_ACTION, LIMIT_STOP_PRICE, SECURITY_ID)."
+    },
+    {
+      "id": "ADR-005",
+      "title": "Progressive Disclosure for Portfolio Context",
+      "date": "July 2026",
+      "status": "Accepted",
+      "context": "The portfolio state panels (call capacity, put budget, existing positions) consumed ~300px of vertical space before the recommendation table. On laptop viewports, this meant scrolling to reach the operational surface."
+    },
+    {
+      "id": "ADR-006",
+      "title": "Right-Side Drawer for Recommendation Brief",
+      "date": "July 2026",
+      "status": "Accepted",
+      "context": "Three options were considered for displaying recommendation detail: inline row expansion, modal dialog, and side drawer."
+    },
+    {
+      "id": "ADR-007",
+      "title": "Session-Aware Evidence Governance",
+      "date": "July 2026",
+      "status": "Accepted (provisional implementation)",
+      "context": "Options evidence has different validity semantics depending on market session state. A chain cached at 3:30 PM during regular session is canonical. The same data retrieved at 8 PM is after-hours and potentially stale."
+    },
+    {
+      "id": "ADR-008",
+      "title": "Yahoo 496 as Authoritative Put Universe",
+      "date": "July 2026",
+      "status": "Accepted",
+      "context": "The system needed a defined ETF universe for put scanning. Options considered: curated 15-symbol list, SEC/FMP catalog, Yahoo Finance top ETFs list."
+    },
+    {
+      "id": "ADR-009",
+      "title": "Numbers-First Typography",
+      "date": "July 2026",
+      "status": "Accepted",
+      "context": "The Write Desk is fundamentally a numerical application. Early designs gave equal visual weight to labels and values."
+    },
+    {
+      "id": "ADR-010",
+      "title": "Centralized Theme Tokens",
+      "date": "July 2026",
+      "status": "Accepted",
+      "context": "CSS values were proliferating as one-off hex colors across multiple component stylesheets."
+    },
+    {
+      "id": "ADR-011",
+      "title": "Application-Scoped Portfolio Ingestion",
+      "date": "July 2026",
+      "status": "Accepted",
+      "context": "Portfolio ingestion (Fidelity CSV import) currently lives inside the WriteDesk component. The raw CSV text persists in localStorage (application-accessible), but the parsed `PortfolioSnapshot`, validation state, provenance, and derived data are owned by WriteDesk's component state. When a second surface needs portfolio data (e.g., the Operator Console), it has no access without duplicating the import mechanism or lifting state."
+    },
+    {
+      "id": "ADR-012",
+      "title": "Operator Console as Wheelwright Home Surface",
+      "date": "July 2026",
+      "status": "Accepted",
+      "context": "Wheelwright's operational surface (currently implemented as `WriteDesk.tsx`) combines portfolio monitoring, recommendation discovery, contract selection, and execution support in a single table-oriented page. As the system matures, these responsibilities need distinct surfaces. The operator's first question upon arriving is not \"what should I write?\" but \"where is my capital, what needs attention, and am I on track?\" — a monitoring and orientation concern rather than a recommendation concern."
+    },
+    {
+      "id": "ADR-013",
+      "title": "Position Monitoring Model",
+      "date": "July 2026",
+      "status": "Accepted",
+      "context": "The Operator Console (ADR-012) needs to communicate the operational state of held positions on the DTE ladder. Conventional options dashboards use a single \"health\" classification that equates assignment risk with deterioration (red = ITM, green = far OTM). This is architecturally wrong for Wheelwright: assignment is an outcome, not a defect. A short put approaching assignment may be functioning exactly as intended. A covered call deep ITM near expiration may be excellent (effective exit above basis) or destructive (exit below basis) depending on economics that moneyness alone cannot determine."
+    },
+    {
+      "id": "ADR-014",
+      "title": "Production Recognition and Current-Month Semantics",
+      "date": "August 2026",
+      "status": "Accepted",
+      "context": "Implementing the current-month Production view exposed a critical double-counting risk and required explicit decisions about when production is recognized, how forecasting relates to known production, and how capital resolution relates to deployable cash."
+    },
+    {
+      "id": "ADR-015",
+      "title": "Evidence Provenance Authority and Preservation",
+      "date": "September 2026",
+      "status": "Accepted",
+      "context": "Evidence timestamps originate as acquisition/receipt time in `TradierAdapter` (`Instant.now()`), are persisted per-`(symbol, evidence_type, expiration)` in SQLite with their own `retrieved_at`, and are carried per-expiration through the snapshot as `chains[].retrievedAt`. Two lossy transformations degrade provenance authority downstream:"
+    },
+    {
+      "id": "ADR-016",
+      "title": "Evidence-to-Domain Association Is an Authoritative Semantic Claim",
+      "date": "September 2026",
+      "status": "Accepted",
+      "context": "The \"Production Disposition Truth\" work (#11 / #3 / #12) produced a sequence of independent failures that repeatedly collapsed onto a single rule. Grounded in code:"
+    },
+    {
+      "id": "ADR-017",
+      "title": "Authoritative Verdict Precedence and Consumer-Path Reach",
+      "date": "September 2026",
+      "status": "Accepted",
+      "context": "Issue #16 (GitHub Issue #16, closed by PR #17) exposed a recurring Wheelwright failure mode that ADR-013, ADR-015, and ADR-016 each touched but none fully closed. The frontend independently derived **market-session state and evidence admissibility/canonicality** from a hardcoded provider-delay profile (Tradier sandbox, 15 minutes), in parallel with the backend `SessionGate`, which was already provider-aware. On the real-time Production feed this manufactured a phantom `REGULAR_OPEN_DELAY` window (09:30–09:45 ET) and suppressed canonical/admissible evidence during the highest-value trading window."
+    },
+    {
+      "id": "ADR-018",
+      "title": "No Runtime GitHub Dependency; Repository Interaction Is Build/Reconciliation-Side",
+      "date": "September 2026",
+      "status": "Accepted",
+      "context": "The Roadmap operator surface (`/app/roadmap`, `PL-ROADMAP-UI`) makes Wheelwright's future-work landscape comprehensible by projecting canonical repository authority — `docs/roadmap.md`, `docs/architecture-roadmap.md`, and the complete `docs/parking-lot*.md` sequence. A naive implementation might fetch that Markdown from GitHub at runtime. That would introduce a runtime dependency on GitHub availability and, worse, a repository credential inside the Wheelwright runtime. Wheelwright is an always-on evidence appliance whose runtime already deliberately excludes concerns that do not belong to live decision support; GitHub is durable *engineering/reconciliation* truth, not a live runtime data source."
+    }
+  ],
+  "priority": {
+    "established": true,
+    "entries": [
+      {
+        "rank": 1,
+        "refId": "LVT-GOAL-AWARENESS",
+        "refResolves": true,
+        "reason": "Restore trustworthy decision-feeding authoritative state: session-authority reach to the recommendation consumer and durable sealed-evidence validity. Sources: AR1, ADR-017, ADR-007; BUG-012, BUG-013, BUG-014, BUG-019; `PL-PROV-FAILOVER`. Directly supported by principles Session awareness is correctness, Failed refresh preserves evidence, Evidence appliance, Persist facts / derive trust. Foundational — every downstream Bet depends on trustworthy state."
+      },
+      {
+        "rank": 2,
+        "refId": "LVT-BET-CAPITAL-CHOICES",
+        "refResolves": true,
+        "reason": "Deployable-cash / capital-state correctness (broker-balance ingestion → deployable derivation). Sources: `LVT-INIT-CAP-AVAILABILITY`; BUG-023; adjacent resolved BUG-022/BUG-020; zero-cash outage RCA (journal). Capital state determines the feasible choice set; wrong deployable cash silently distorts Deployment. Partially depends on #1 for coherent evidence timing."
+      },
+      {
+        "rank": 3,
+        "refId": "LVT-GOAL-OUTCOMES",
+        "refResolves": true,
+        "reason": "Production accounting correctness cluster (realized economic truth). Sources: `LVT-BET-CAPITAL-ACCOUNTING`, `PL-PORT-02`, ADR-014/015/016; BUG-002, BUG-003, BUG-006, BUG-007, BUG-008, BUG-009. Retrospective truth; below live-decision correctness but a prerequisite for the Learning loop."
+      },
+      {
+        "rank": 4,
+        "refId": "LVT-BET-EVIDENCE-PRIORITY",
+        "refResolves": true,
+        "reason": "Herbie / Constraint Identification: live-session evidence-flow evaluation of the admission controller, insofar as the active investigation requires work. Sources: current-investigation steering; Doc 39/40; `PL-SCHED-DRIFT`, AR2. Currently an evidence checkpoint awaiting a decision (Doc 40 does not authorize production optimization by itself and forbids scheduler/universe changes without authorization); interpreting live-session effects depends on #1–#3 being trustworthy. Behind Production accordingly."
+      },
+      {
+        "rank": 5,
+        "refId": "PL-GOV-02",
+        "refResolves": true,
+        "reason": "Operator discoverability + targeted hydration for admitted symbols. Sources: `PL-ELIG`; BUG-018, BUG-017. Completes the Sep-14 cohort admission; bounded, high operator value. Depends on #1 (BUG-019 blocks off-hours hydrated evidence being usable)."
+      },
+      {
+        "rank": 6,
+        "refId": "PL-UX-01",
+        "refResolves": true,
+        "reason": "Lifecycle attention / position reassessment (Console \"do I need to act now?\"). Sources: `LVT-BET-POSITION`, `LVT-BET-ATTENTION`, `PL-EXEC-01` (lifecycle-attention direction), ADR-013, AR2. Trustworthy attention requires trustworthy state (#1–#3) first."
+      },
+      {
+        "rank": 7,
+        "refId": "LVT-BET-ACCEPTABILITY",
+        "refResolves": true,
+        "reason": "WAIT + absolute-acceptability separation (governed alternatives foundation). Sources: `LVT-BET-WAIT`, `LVT-INIT-ACCEPT-GATES`, AR3, AR5; `PL-DEPLOY`, `PL-RECIPE-01`. Supported by Policy over prediction (govern WAIT/acceptability rather than producing more recommendations). Gateway to broader strategies."
+      },
+      {
+        "rank": 8,
+        "refId": "LVT-BET-STRATEGIES",
+        "refResolves": true,
+        "reason": "Broader governed trade shapes (spreads). Sources: defined-risk child hypotheses, `PL-STRAT-01`, AR3/AR4 (consequence semantics). A hypothesis, not admitted strategy; depends on the governed-Alternative + consequence-semantics foundation (#7, AR4) and execution modularity."
+      },
+      {
+        "rank": 9,
+        "refId": "LVT-DIRECTION-ALWAYS-ON",
+        "refResolves": true,
+        "reason": "Continuity / always-on cloud runtime. Sources: `LVT-GOAL-CONTINUITY`, AR9, ADR-024, `PL-OPS-01`, `PL-OPS-08`. Enabling infrastructure whose value compounds after the evidence/decision layer is trustworthy."
+      },
+      {
+        "rank": 10,
+        "refId": "LVT-BET-MOBILE",
+        "refResolves": true,
+        "reason": "Access / mobile (attention-first). Sources: `LVT-GOAL-ACCESS`, AR10. Roadmap's own sequence is state → attention → remote delivery; depends on shared authoritative state (#1, #9) and attention (#6)."
+      }
+    ]
+  },
+  "comingSoon": {
+    "curated": false,
+    "items": []
+  },
+  "principles": [
+    {
+      "id": "PRIN-POLICY-OVER-PREDICTION",
+      "name": "Policy over prediction",
+      "family": "Architectural / build",
+      "statement": "The system applies explicit, auditable policy to observed evidence rather than predicting outcomes; govern behavior through policy on current evidence, not forecasts of market direction.",
+      "provenance": "`docs/foundations/retooling-charter.md` (Durable Principle #1) and `docs/foundations/policy-over-prediction.md` (Governing principle). *(One principle, two authoritative expressions — architectural and epistemic. Consolidated to a single record so the register reports distinct principles, not duplicate provenance.)*"
+    },
+    {
+      "id": "PRIN-ARCH-EVIDENCE-APPLIANCE",
+      "name": "Evidence appliance",
+      "family": "Architectural / build",
+      "statement": "The backend maintains evidence continuously and independently of any connected client. The browser is a viewport, not the lifecycle owner.",
+      "provenance": null
+    },
+    {
+      "id": "PRIN-ARCH-PERSIST-FACTS-DERIVE-TRUST",
+      "name": "Persist facts; derive trust",
+      "family": "Architectural / build",
+      "statement": "The database stores observations with provenance. Freshness, staleness, and validity are computed at query time from facts and session context.",
+      "provenance": null
+    },
+    {
+      "id": "PRIN-ARCH-FAILED-REFRESH-PRESERVES",
+      "name": "Failed refresh preserves successful evidence",
+      "family": "Architectural / build",
+      "statement": "A failed acquisition attempt never overwrites the last successful payload.",
+      "provenance": null
+    },
+    {
+      "id": "PRIN-ARCH-SESSION-AWARENESS",
+      "name": "Session awareness is correctness",
+      "family": "Architectural / build",
+      "statement": "Market-session semantics determine when evidence can change, when acquisition is useful, and when evidence is sealed. Acquiring during closed sessions is a modeling failure.",
+      "provenance": null
+    },
+    {
+      "id": "PRIN-ARCH-DETERMINISTIC-RECOMMENDATION",
+      "name": "Deterministic recommendation generation",
+      "family": "Architectural / build",
+      "statement": "Same evidence + same policy = same recommendations. No hidden state, no randomness.",
+      "provenance": null
+    },
+    {
+      "id": "PRIN-ARCH-SINGLE-ACQUISITION-AUTHORITY",
+      "name": "Single acquisition authority",
+      "family": "Architectural / build",
+      "statement": "One process maintains one authoritative evidence model. No split-brain.",
+      "provenance": null
+    },
+    {
+      "id": "PRIN-ARCH-VERSION-CONTROLLED-DEFINITION",
+      "name": "Product definition is version-controlled",
+      "family": "Architectural / build",
+      "statement": "Structural knowledge, governance, descriptions, and other golden product definitions are maintained in Git. Runtime persistence is derived from these artifacts and never becomes their authority.",
+      "provenance": null
+    },
+    {
+      "id": "PRIN-EPI-PRECISION",
+      "name": "Epistemic precision (explicit uncertainty over false precision)",
+      "family": "Epistemic",
+      "statement": "Numerical/output precision must be commensurate with evidence quality; the system must not present outputs with more precision than the underlying evidence and computation deserve. Rounding, qualification, and range representation are honest communication of epistemic state, not compromises. Source: `docs/foundations/epistemic-precision.md` (Governing principle).",
+      "provenance": null
+    }
+  ]
+}
