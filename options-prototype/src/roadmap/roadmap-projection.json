@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-20T18:22:45.245Z",
+    "generatedAt": "2026-09-20T18:58:58.577Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -5357,13 +5357,20 @@
     {
       "id": "BUG-024",
       "title": "Covered-call moneyness visualization conflates strike-relative contract state with economic-consequence/intent, rendering CALL moneyness history neutral instead of communicating its OTM/ATM/ITM trajectory",
-      "area": "Operator Console / moneyness presentation",
+      "area": "Operator Console / moneyness + Delta coloring (CALL)",
       "severity": "S3",
-      "status": "Open",
+      "status": "Resolved",
       "recordFile": "BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
       "provenance": "Discovered 2026-09-17",
       "recordTitle": "BUG-024 — Covered-call moneyness visualization conflates strike-relative contract state with economic-consequence/intent, rendering CALL moneyness history neutral instead of communicating its OTM/ATM/ITM trajectory",
       "sections": [
+        {
+          "heading": "Scope expansion — CALL Delta coloring (Principal-authorized, 2026-09-17)",
+          "level": 2,
+          "content": "The original defect (below) concerned **CALL moneyness** only. During remediation the Principal **explicitly expanded BUG-024** to also include **CALL Delta coloring**, which exhibits the same class of failure on a different Console surface: the DTE-ladder Delta cell colors CSP and buy-write Delta but renders CALL Delta **neutral/uncolored** (`hue = \"neutral\"`, comment: *\"Call: neutral (no intent-aware coloring)\"*). Historical evidence established that CALL Delta was **not** part of the original observation and was not preserved in any other bug/parking-lot item; rather than file a separate BUG-025, the Principal decided both manifestations belong to one defect and are remediated together. This record is the authority for both.",
+          "truncated": false,
+          "tables": []
+        },
         {
           "heading": "Observed failure",
           "level": 2,
@@ -5400,31 +5407,38 @@
           "tables": []
         },
         {
-          "heading": "Scope / non-goals",
-          "level": 2,
-          "content": "- Covers the Operator Console moneyness **coloring** semantics for CALL positions (trace + numeric + cell) and the dimension conflation in `moneyness-color.ts` / `MoneynessCellV4`.\n- **Does not** cover the moneyness sparkline horizontal/time-axis geometry — that is **BUG-015** (multi-day history folded onto one intraday session), a distinct concern. The two may both touch `MoneynessCellV4` but are independent defects.\n- **Non-goal / explicit guardrail for any eventual remediation:** the fix must **not** redefine covered-call OTM/ITM as economically favorable/unfavorable (i.e., must not simply give the CALL trace put-like or BW-like intent semantics). The concern is *separation* of the two semantic dimensions: the moneyness trace should communicate strike-relative trajectory (dimension 1), and any economic-consequence/intent signal remains a separate layer (dimension 3, e.g.",
+          "heading": "Durable learning — domain theory vs operator semantics (surfaced during remediation)",
+          "level": 3,
+          "content": "Investigating the CALL Delta half exposed a layering distinction that the original diagnosis under-specified and that is worth preserving beyond this bug:\n\n> **Domain theory determines what a metric *is*. Operator semantics determine how that metric is made cognitively useful in a particular position context.** Operator semantics may *add* contextual meaning but must not *contradict* the underlying domain theory.\n\n- **Delta value** is an observable local sensitivity (domain theory: not a probability, no intrinsic good/bad — `options-domain-reference.md` D5; ADR-013 dim-1 fact).\n- **Position context** (put vs call vs buy-write) determines *why* that sensitivity matters operationally.\n- **Delta color** is a position-contextual operator cognitive aid layered onto the fact. It does **not** claim the metric is intrinsically good/bad or that Delta is a probability.",
           "truncated": true,
           "tables": []
         },
         {
-          "heading": "Acceptance criteria (for an eventual fix)",
+          "heading": "Scope / non-goals",
           "level": 2,
-          "content": "- CALL moneyness visualization communicates the position's **strike-relative** trajectory (OTM/ATM/ITM and its movement over the observation window), consistent with the ratified \"answers only 'where is the underlying relative to strike?'\" semantic — on the same footing as PUT and BW *for the dimension-1 signal*.\n- The fix does **not** encode covered-call OTM/ITM as economically favorable/unfavorable; strike-relative state and economic-consequence/intent remain distinct dimensions.\n- PUT and BW dimension-1 moneyness behavior is unchanged (or, if unified, unified around strike-relative state, not intent).\n- Numeric moneyness values unchanged.\n- No regression to BUG-015's separate time-axis concern.",
-          "truncated": false,
+          "content": "- Covers the Operator Console moneyness **coloring** semantics for CALL positions (trace + numeric + cell) and the dimension conflation in `moneyness-color.ts` / `MoneynessCellV4`.\n- **Does not** cover the moneyness sparkline horizontal/time-axis geometry — that is **BUG-015** (multi-day history folded onto one intraday session), a distinct concern. The two may both touch `MoneynessCellV4` but are independent defects.\n- **Non-goal / explicit guardrail:** the fix must **not** redefine covered-call OTM/ITM as economically favorable/unfavorable (i.e., must not simply give the CALL trace put-like or BW-like intent semantics). The concern is *separation*: moneyness color communicates strike-relative state (a contract-state cognitive aid); any economic-consequence/intent signal remains a separate layer (e.g. `assignment-consequence.ts`).",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria (updated for the expanded scope)",
+          "level": 2,
+          "content": "**CALL moneyness:**\n- CALL moneyness color communicates the position's **strike-relative** state/trajectory (OTM/ATM/ITM), no longer rendered gray/neutral — participating in the same graded visual grammar as PUT/BW.\n- Polarity is the contract-side **mirror** of PUT/CSP: CALL OTM = red, CALL ITM = green (ATM amber). It does **not** encode covered-call OTM/ITM as economically favorable/unfavorable.\n- Numeric moneyness values unchanged; text remains legible over the graded background.\n- No regression to BUG-015's separate time-axis concern.",
+          "truncated": true,
           "tables": []
         },
         {
           "heading": "Remediation history",
           "level": 2,
-          "content": "_(empty — Open)_",
-          "truncated": false,
+          "content": "Implemented 2026-09-17 (uncommitted at time of writing, pending Principal validation per the direct-`main` workflow acceptance gate). Changed files:\n\n- **`options-prototype/src/operator-console/moneyness-color.ts`** — added `moneynessGradedColor(type, signedMoneyness)` returning a graded `rgba(...)`: ATM band (`|m| ≤ ATM_TOLERANCE`) → amber `rgba(202,138,4,0.12)`; otherwise intensity `0.08 + t²·0.30` with `t = (|m| − ATM_TOLERANCE)/(0.15 − ATM_TOLERANCE)` (saturates ~0.38 by ~15% from strike); polarity PUT → OTM green / ITM red, CALL & buy-write → OTM red / ITM green (mirror). Header docstring updated.",
+          "truncated": true,
           "tables": []
         },
         {
           "heading": "Verification",
           "level": 2,
-          "content": "_(empty — Open)_",
-          "truncated": false,
+          "content": "- **Regression tests (new `moneyness-color.test.ts`):** ATM → amber for put/call/buy-write; PUT OTM green / ITM red; **CALL is the mirror** (OTM red, ITM green) and never neutral/undefined when an observation exists; CALL vs PUT opposite hues on the same side; buy-write uses call-side polarity; **deep OTM put alpha > barely-OTM put alpha** (the sanity check) and saturates ≈0.38; monotonic intensity for calls; `null` → `undefined`.\n- **Targeted run:** `moneyness-color.test.ts` + `moneyness-presentation.test.ts` → **46 passed**.\n- **Type check:** `tsc --noEmit` (full program) → clean.\n- **Full frontend suite:** `vitest run` → **1877 passed, 1 failed**. The single failure is `tests/velvet-rope/multi-expiration.test.ts`, a **date-sensitive inline snapshot** (expected `2026-09-18` vs `2026-10-04`, a 14-DTE-from-today drift).",
+          "truncated": true,
           "tables": []
         },
         {

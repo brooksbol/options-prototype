@@ -876,9 +876,12 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
       </thead>
       <tbody>
         {sortedPositions.map((position) => {
-          const mState = classifyMoneyness(position);
           const mDisplay = formatMoneynessDisplay(position);
-          const colorClass = moneynessColor(position.type, mState);
+          // BUG-024: graded moneyness background — intensity by distance from ATM,
+          // hue polarity by side/type (put: OTM green / ITM red; call & BW: mirror).
+          // The graded background carries the color signal; the numeric text uses a
+          // fixed high-contrast neutral so it stays legible over any tint/intensity.
+          const moneynessBg = moneynessGradedColor(position.type, position.moneyness);
           const badge = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
 
           // Moneyness history: Demo uses synthetic, Fidelity uses real persisted spot observations
@@ -960,8 +963,8 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
               <td className="oc-td-right">${position.strike}</td>
               <td className="oc-td-right">{position.underlyingPrice != null ? `$${position.underlyingPrice.toFixed(2)}` : "—"}</td>
               <td className={`oc-td-right oc-td-gl oc-td-gl-${todayGlDir}`}>{formatTodayGlCombined(todayGl, todayGlPct)}</td>
-              <td className={`oc-td-moneyness oc-td-moneyness-${colorClass}`}>
-                <MoneynessCellV4 points={moneynessPoints} type={position.type} currentMoneyness={position.moneyness} mDisplay={mDisplay} colorClass={colorClass} />
+              <td className="oc-td-moneyness" style={moneynessBg ? { background: moneynessBg } : undefined}>
+                <MoneynessCellV4 points={moneynessPoints} type={position.type} currentMoneyness={position.moneyness} mDisplay={mDisplay} />
               </td>
               <td className="oc-td-exp">{formatExpiration(position.expiration)}</td>
               <td className="oc-td-right">{position.dte}d</td>
@@ -970,10 +973,14 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
                 if (delta == null) {
                   return <td className="oc-td-right oc-td-delta">—</td>;
                 }
-                // Intent-aware color intensity:
+                // Position-contextual color intensity, graded by distance from 0.50 (the
+                // shared amber center). Delta is an observable local sensitivity; the color
+                // is an operator cognitive aid, not a claim that Delta is good/bad.
                 // BW: high delta = leaning toward call-away (green), low delta = not progressing (red)
                 // CSP: low |delta| = low assignment pressure (green), high |delta| = assignment pressure (red)
-                // Call: neutral (no intent-aware coloring)
+                // CALL/CC (BUG-024): contract-side MIRROR of CSP around 0.50 — low delta = red,
+                //   high delta = green, amber center. Identical bands/intensity to CSP, poles swapped.
+                //   Previously neutral (uncolored), which left CALL out of the visual grammar.
                 //
                 // Gradient zones (continuous, no hard boundaries):
                 //   ~0.20–0.35: one pole
@@ -989,16 +996,16 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
                   if (delta <= 0.35) {
                     // Strong green zone
                     const t = 1 - (delta - 0.10) / 0.25; // 0.10→1.0, 0.35→0.0
-                    intensity = 0.08 + Math.max(0, t) * t * 0.30;
+                    intensity = 0.22 + Math.max(0, t) * t * 0.53;
                     hue = "green";
                   } else if (delta <= 0.55) {
                     // Amber transition zone
-                    intensity = 0.12;
+                    intensity = 0.22;
                     hue = "amber";
                   } else {
                     // Red zone — increasing assignment pressure
                     const t = Math.min(1, (delta - 0.55) / 0.35); // 0.55→0.0, 0.90→1.0
-                    intensity = 0.08 + t * t * 0.30;
+                    intensity = 0.22 + t * t * 0.53;
                     hue = "red";
                   }
                 } else if (position.type === "buy-write") {
@@ -1007,17 +1014,35 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
                   if (delta >= 0.55) {
                     // Green zone — progressing toward designed exit
                     const t = Math.min(1, (delta - 0.55) / 0.35); // 0.55→0.0, 0.90→1.0
-                    intensity = 0.08 + t * t * 0.30;
+                    intensity = 0.22 + t * t * 0.53;
                     hue = "green";
                   } else if (delta >= 0.40) {
                     // Amber transition zone
-                    intensity = 0.12;
+                    intensity = 0.22;
                     hue = "amber";
                   } else {
                     // Red zone — not progressing toward call-away
                     const t = 1 - delta / 0.40; // 0.0→1.0, 0.40→0.0
-                    intensity = 0.08 + Math.max(0, t) * t * 0.30;
+                    intensity = 0.22 + Math.max(0, t) * t * 0.53;
                     hue = "red";
+                  }
+                } else if (position.type === "call") {
+                  // CALL/CC: contract-side MIRROR of CSP around the 0.50 amber center.
+                  // Identical bands/thresholds/intensity to CSP; green/red poles swapped.
+                  if (delta <= 0.35) {
+                    // Low delta → red pole (mirror of CSP's green)
+                    const t = 1 - (delta - 0.10) / 0.25; // 0.10→1.0, 0.35→0.0
+                    intensity = 0.22 + Math.max(0, t) * t * 0.53;
+                    hue = "red";
+                  } else if (delta <= 0.55) {
+                    // Amber transition zone — identical to CSP
+                    intensity = 0.22;
+                    hue = "amber";
+                  } else {
+                    // High delta → green pole (mirror of CSP's red)
+                    const t = Math.min(1, (delta - 0.55) / 0.35); // 0.55→0.0, 0.90→1.0
+                    intensity = 0.22 + t * t * 0.53;
+                    hue = "green";
                   }
                 }
                 const bg = hue === "green"
@@ -1215,8 +1240,8 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
 
 // --- Position Tile ---
 
-import { classifyMoneyness, formatMoneynessDisplay } from "../operator-console/moneyness-presentation";
-import { moneynessColor, type MoneynessColorClass } from "../operator-console/moneyness-color";
+import { formatMoneynessDisplay } from "../operator-console/moneyness-presentation";
+import { moneynessGradedColor } from "../operator-console/moneyness-color";
 import { generateDemoSpotHistory, deriveMoneynessHistory, type MoneynessPoint } from "../operator-console/moneyness-history";
 import { deduplicateObservations } from "../kreature/observation-derivation";
 import { computeTodayGlPerShare, computeTodayGlPercent, formatTodayGlCombined, todayGlDirection } from "../operator-console/today-gl";
@@ -1227,25 +1252,21 @@ import { buildSparklineScale } from "../operator-console/sparkline-scale";
  * V4 visual grammar: chart-dominant, segmented trace, moderate regions, strong zero.
  * Perceptual amplification (Aug 2026): larger geometry, stronger fills, endpoint marker.
  */
-function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass }: {
+function MoneynessCellV4({ points, type, currentMoneyness, mDisplay }: {
   points: MoneynessPoint[];
   type: import("../portfolio/position-monitoring").PositionType;
   currentMoneyness: number | null;
   mDisplay: string | null;
-  colorClass: MoneynessColorClass;
 }) {
-  const textColorMap: Record<MoneynessColorClass, string> = {
-    favorable: "#15803d",
-    ambiguous: "#a16207",
-    unfavorable: "#b91c1c",
-    neutral: "#374151",
-  };
-  const textColor = textColorMap[colorClass];
+  // BUG-024: the graded cell background carries the color signal (intensity by distance
+  // from ATM). The numeric text uses a fixed high-contrast neutral so it stays legible
+  // over any tint — faint amber through strong green/red — at any intensity.
+  const textColor = "#1f2937";
 
   // No moneyness at all → just dash
   if (currentMoneyness == null) {
     return (
-      <span className={`oc-tile-mc-${colorClass}`} style={{ fontSize: "10px", fontWeight: 700 }}>
+      <span style={{ fontSize: "10px", fontWeight: 700, color: textColor }}>
         {mDisplay ?? "—"}
       </span>
     );
@@ -1299,13 +1320,16 @@ function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass 
     const y2 = sYScale(points[i + 1].moneyness);
     const midM = (points[i].moneyness + points[i + 1].moneyness) / 2;
     const isAboveZero = midM > 0;
+    // BUG-024: trace polarity by side/type. PUT: ITM red / OTM green. CALL & BW
+    // (call-side): mirror — ITM green / OTM red. CALL previously rendered gray
+    // (neutral), suppressing its strike-relative trajectory; it now mirrors the put
+    // side like BW. Hue only here; the graded cell background carries intensity.
     let color: string;
     if (type === "put") {
       color = isAboveZero ? "#dc2626" : "#16a34a";
-    } else if (type === "buy-write") {
-      color = isAboveZero ? "#16a34a" : "#dc2626";
     } else {
-      color = "#6b7280";
+      // call-side (call, buy-write): ITM green, OTM red
+      color = isAboveZero ? "#16a34a" : "#dc2626";
     }
     segments.push({ x1, y1, x2, y2, color });
   }
@@ -1335,9 +1359,10 @@ function MoneynessCellV4({ points, type, currentMoneyness, mDisplay, colorClass 
  * Capital is shown as a labeled value — geometry no longer controls readability.
  */
 function PositionTile({ position, onClick, style }: { position: MonitoredPosition; onClick: () => void; style?: React.CSSProperties }) {
-  const mState = classifyMoneyness(position);
   const mDisplay = formatMoneynessDisplay(position);
-  const colorClass = moneynessColor(position.type, mState);
+  // BUG-024: graded moneyness background (intensity by distance from ATM, mirrored
+  // polarity by side/type) + fixed high-contrast text, consistent with the ladder cell.
+  const moneynessBg = moneynessGradedColor(position.type, position.moneyness);
 
   const badge = position.type === "put" ? "PUT" : position.type === "buy-write" ? "BW" : "CALL";
   const qtyLabel = position.quantity > 1 ? ` ×${position.quantity}` : "";
@@ -1368,11 +1393,14 @@ function PositionTile({ position, onClick, style }: { position: MonitoredPositio
         </span>
       )}
 
-      {/* Moneyness — intent-aware color */}
+      {/* Moneyness — graded strike-relative color (BUG-024) */}
       {mDisplay && (
         <span className="oc-tile-field oc-tile-field-moneyness">
           <span className="oc-tile-label">Moneyness</span>
-          <span className={`oc-tile-value oc-tile-moneyness oc-tile-mc-${colorClass}`}>{mDisplay}</span>
+          <span
+            className="oc-tile-value oc-tile-moneyness"
+            style={{ color: "#1f2937", ...(moneynessBg ? { background: moneynessBg, borderRadius: "3px", padding: "0 3px" } : {}) }}
+          >{mDisplay}</span>
         </span>
       )}
 
