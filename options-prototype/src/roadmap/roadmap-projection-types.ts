@@ -135,20 +135,25 @@ export interface PriorityStack {
 }
 
 /**
- * A curated user-facing "Coming Soon" item (docs/roadmap-coming-soon.md).
- * Curated by explicit decision only; never auto-populated. No delivery dates.
+ * A curated user-facing capability in the Coming Soon snapshot
+ * (docs/roadmap-coming-soon.md). A product capability, not implementation work.
+ * No rank, date, status, or percentage fields — horizon placement is attention/
+ * intent, not commitment, and item order within a horizon is non-semantic.
  */
 export interface ComingSoonItem {
   name: string;
   description: string | null;
-  /** Optional coarse, honest status word (e.g. "Exploring"); no dates. */
-  status: string | null;
 }
 
-/** The curated Coming Soon list. `curated` is false when the authority is empty. */
+/**
+ * The Coming Soon product-horizon snapshot. Three unordered horizons. Any horizon
+ * may be empty (the honest default). Ordering within a horizon carries no meaning;
+ * Priority (docs/roadmap-priority.md) is the sole ordinal execution authority.
+ */
 export interface ComingSoon {
-  curated: boolean;
-  items: ComingSoonItem[];
+  now: ComingSoonItem[];
+  next: ComingSoonItem[];
+  later: ComingSoonItem[];
 }
 
 /**

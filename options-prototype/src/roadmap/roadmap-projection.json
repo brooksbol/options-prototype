@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-20T17:12:46.806Z",
+    "generatedAt": "2026-09-20T17:42:52.431Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -34,7 +34,7 @@
       "graduatedTotal": 29,
       "adrTotal": 18,
       "priorityTotal": 10,
-      "comingSoonTotal": 0,
+      "comingSoonTotal": 5,
       "principleTotal": 9
     },
     "notes": []
@@ -2213,8 +2213,32 @@
     ]
   },
   "comingSoon": {
-    "curated": false,
-    "items": []
+    "now": [
+      {
+        "name": "Position reassessment / attention",
+        "description": "help the operator recognize when an open position deserves attention or reconsideration."
+      },
+      {
+        "name": "Genuine WAIT / governed alternatives",
+        "description": "allow Wheelwright to conclude that waiting is preferable to selecting the relatively-best available opportunity."
+      }
+    ],
+    "next": [
+      {
+        "name": "Broader governed trade structures",
+        "description": "expand the governed repertoire of trade structures Wheelwright can consider."
+      }
+    ],
+    "later": [
+      {
+        "name": "Continuous / always",
+        "description": "on operation — Wheelwright running continuously rather than depending on a local session."
+      },
+      {
+        "name": "Mobile / attention",
+        "description": "first access — extend Wheelwright's attention experience to remote/mobile use."
+      }
+    ]
   },
   "principles": [
     {

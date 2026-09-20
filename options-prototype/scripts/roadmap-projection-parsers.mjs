@@ -637,53 +637,49 @@ export function parsePriority(markdown, known) {
 }
 
 /**
- * Parse the curated user-facing list from docs/roadmap-coming-soon.md.
+ * Parse the Coming Soon product-horizon snapshot from docs/roadmap-coming-soon.md.
  *
- * Reads ONLY the "## Items" section. Each item is a bullet:
- *   - Capability Name — one-line description [optional: Status]
+ * Reads the "## Now", "## Next", and "## Later" sections. Each item is a bullet
+ * naming a user-meaningful capability:
+ *   - Capability Name — short user-facing description
  *
- * Nothing is auto-included; if the section has no bullets (the honest default),
- * returns an empty list. Never infers items from other authorities.
- * Returns { curated, items }.
+ * HORIZONS ARE UNORDERED: item order within a horizon carries no priority meaning
+ * and is preserved as authored (NOT sorted — sorting would itself imply a
+ * governance ordering). No rank, date, status, or percentage fields exist. Nothing
+ * is auto-included; empty horizons are the honest default. Never infers items from
+ * other authorities. Returns { now, next, later }.
  */
-export function parseComingSoon(markdown) {
+export function parseHorizons(markdown) {
   const lines = stripHtmlComments(markdown).split("\n");
-  const items = [];
-  let inSection = false;
+  const horizons = { now: [], next: [], later: [] };
+  let current = null; // "now" | "next" | "later" | null
 
   for (const rawLine of lines) {
     const line = rawLine.replace(/\r$/, "");
     const heading = line.match(/^##\s+(.+?)\s*$/);
     if (heading) {
-      inSection = /^items$/i.test(heading[1].trim());
+      const h = heading[1].trim().toLowerCase();
+      current = h === "now" ? "now" : h === "next" ? "next" : h === "later" ? "later" : null;
       continue;
     }
-    if (!inSection) continue;
+    if (!current) continue;
 
     const bullet = line.match(/^\s*[-*]\s+(.*)$/);
     if (!bullet) continue;
-    let body = bullet[1].trim();
+    const body = bullet[1].trim();
     if (body.length === 0) continue;
     // Skip an italic placeholder line if authored as a bullet (defensive).
     if (/^_.*_$/.test(body)) continue;
 
-    // Optional trailing status in brackets: "... [Exploring]"
-    let status = null;
-    const statusMatch = body.match(/\[([^\]]+)\]\s*$/);
-    if (statusMatch) {
-      status = statusMatch[1].trim();
-      body = body.slice(0, statusMatch.index).trim();
-    }
-
-    // Split "Name — description".
+    // Split "Capability Name — description". No status/date/rank fields.
     const split = body.match(/^(.*?)\s*[—–-]\s*(.*)$/);
     const name = split ? split[1].trim() : body;
     const description = split ? split[2].trim() : null;
 
-    items.push({ name, description: description || null, status });
+    horizons[current].push({ name, description: description || null });
   }
 
-  return { curated: items.length > 0, items };
+  return horizons;
 }
 
 /**

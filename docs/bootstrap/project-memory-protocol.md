@@ -366,11 +366,35 @@ Before substantial work is declared complete, ask:
 - Is the correct authority layer current?
 - Is journal why-state preserved where needed?
 - Is the complete parking-lot continuation sequence current?
+- Does the Coming Soon snapshot (Now/Next/Later, `docs/roadmap-coming-soon.md`) still truthfully represent the Principal's current product horizon? (Horizon = attention/intent, not commitment or work authorization.)
 - Are checkpoint conclusions absorbed into A/B/C?
 - Are implementation-only invariants missing from architecture?
 - Are historical documents accidentally being treated as active?
 - If docs were added/superseded/reclassified, is `docs/README.md` still accurate?
 - Could a cold actor reconstruct where to resume?
+
+---
+
+## Roadmap Freshness Invariant
+
+The Roadmap is Wheelwright's self-documenting meta-state — a live projection of the governed portion of the project's own thinking (see `foundations/roadmap-self-documenting-meta-state.md`). Its value depends on an invariant this protocol enforces:
+
+> **Roadmap freshness is a side effect of doing Wheelwright work correctly.**
+
+The Roadmap is a read-only projection built from canonical authority (strategy, principles, priority, architecture, ADRs, parking lot, Coming Soon, and any future lenses). It is never maintained as a separate representation. When normal work changes governed project meta-state, reconcile the appropriate **canonical authority** as part of the normal ways of working; the projection then changes because the meta-state changed. Do not edit the projection, and do not maintain the Roadmap as a standalone activity. If a distinct "maintain the Roadmap" task ever seems necessary, that is a signal the wrong layer is being edited.
+
+At the reconcile-while-learning and end-of-workstream checkpoints, this is one more project-state freshness question, beside journal and parking-lot currency: *did this work change governed meta-state that a canonical authority (and therefore the Roadmap) should now reflect?*
+
+### Worked example — Coming Soon horizon maintenance
+
+`docs/roadmap-coming-soon.md` is a Principal-curated product-horizon snapshot (Now / Next / Later) and one current expression of the invariant above. Keeping it fresh is routine project-state maintenance, not a separate ceremony. It has two triggers:
+
+1. **Explicit Principal horizon change.** When the Principal moves a capability between horizons (or into/out of the snapshot) — e.g. "move cloud to Now" — update the snapshot as governance maintenance. An explicit Principal horizon change is sufficient authority to update the snapshot **even when no implementation decision has been made**. Do not infer implementation authorization, do not require a workstream to exist, and do not automatically mutate Priority.
+2. **Routine reconciliation side effect.** During normal work — course corrections, completion, abandonment, redirection — check whether the snapshot still truthfully represents the Principal's product horizon, as part of the reconcile-while-learning / end-of-workstream discipline above.
+
+Governing contract: *Authority determines whether a capability is supportable. The Principal determines its horizon. Horizon placement expresses current attention and intent, not commitment. Priority expresses current execution preference. Actual work begins only through the normal work-authorization process.*
+
+Distinguish a real Principal course correction (which capability is on the product horizon) from ordinary implementation detail (how/when engineering produces something) — only the former moves horizons. If Principal intent is genuinely ambiguous, surface it rather than inventing a horizon move. Coming Soon holds product capabilities, never implementation tasks; it has no rank, dates, or Completed section (current scope).
 
 ---
 

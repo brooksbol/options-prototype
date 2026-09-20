@@ -267,24 +267,36 @@ describe("roadmap projection — principles register (ratified only)", () => {
   });
 });
 
-describe("roadmap projection — coming soon (curated, no auto-inclusion)", () => {
-  it("has a coming-soon shape with a curation flag", () => {
+describe("roadmap projection — coming soon (Now/Next/Later horizons)", () => {
+  it("has three unordered horizons", () => {
     expect(p.comingSoon).toBeTruthy();
-    expect(typeof p.comingSoon.curated).toBe("boolean");
-    expect(Array.isArray(p.comingSoon.items)).toBe(true);
-    expect(p.comingSoon.items.length).toBe(p.meta.counts.comingSoonTotal);
+    expect(Array.isArray(p.comingSoon.now)).toBe(true);
+    expect(Array.isArray(p.comingSoon.next)).toBe(true);
+    expect(Array.isArray(p.comingSoon.later)).toBe(true);
+    const total =
+      p.comingSoon.now.length + p.comingSoon.next.length + p.comingSoon.later.length;
+    expect(total).toBe(p.meta.counts.comingSoonTotal);
   });
 
-  it("carries no delivery dates (no false precision)", () => {
-    for (const item of p.comingSoon.items) {
-      const blob = `${item.name} ${item.description ?? ""} ${item.status ?? ""}`;
-      // Guard against obvious date patterns (yyyy-mm-dd, Q1/Q2, month names).
+  it("holds capabilities only: no rank, date, status, or percentage fields", () => {
+    const all = [...p.comingSoon.now, ...p.comingSoon.next, ...p.comingSoon.later];
+    for (const item of all) {
+      // Item shape is exactly {name, description} — no ordering/commitment metadata.
+      expect(Object.keys(item).sort()).toEqual(["description", "name"]);
+      const blob = `${item.name} ${item.description ?? ""}`;
       expect(blob).not.toMatch(/\d{4}-\d{2}-\d{2}/);
       expect(blob).not.toMatch(/\bQ[1-4]\b/);
     }
   });
 
-  it("curated matches presence of items (no fabricated user-facing items)", () => {
-    expect(p.comingSoon.curated).toBe(p.comingSoon.items.length > 0);
+  it("does not mechanically mirror Priority (non-isomorphic authorities)", () => {
+    // A correctness item can top Priority yet appear in no horizon; guard that the
+    // horizon capability set is not simply the priority ref set.
+    const horizonNames = new Set(
+      [...p.comingSoon.now, ...p.comingSoon.next, ...p.comingSoon.later].map((i) => i.name),
+    );
+    const priorityRefs = new Set(p.priority.entries.map((e) => e.refId));
+    // They must not be identical sets (different authorities, different semantics).
+    expect(horizonNames).not.toEqual(priorityRefs);
   });
 });

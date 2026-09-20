@@ -550,10 +550,40 @@
   color: var(--wd-text-secondary);
 }
 
-/* Coming Soon list */
+/* Coming Soon — Now / Next / Later horizons */
+.rm-cs-horizons {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.rm-cs-horizon-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  border-bottom: 1px solid var(--wd-border-subtle);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+.rm-cs-horizon-label {
+  font-size: var(--wd-size-value);
+  font-weight: var(--wd-weight-bold);
+  color: var(--wd-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.rm-cs-horizon-blurb {
+  font-size: 11px;
+  color: var(--wd-text-tertiary);
+}
+
 .rm-cs-list {
   list-style: none;
-  margin: 8px 0 0 0;
+  margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -575,15 +605,6 @@
   font-size: 13px;
   font-weight: var(--wd-weight-semi);
   color: var(--wd-text-primary);
-}
-
-.rm-cs-status {
-  font-size: var(--wd-size-label);
-  color: var(--wd-accent-blue);
-  background: var(--wd-accent-blue-bg);
-  padding: 1px 6px;
-  border-radius: 3px;
-  font-weight: var(--wd-weight-semi);
 }
 
 .rm-cs-desc {

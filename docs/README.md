@@ -103,6 +103,7 @@ Read these when evaluating strategic direction, proposing a material product cap
 | `foundations/strategy-architecture-reconciliation.md` | Governing method for exploration, reconciliation, and evidence-driven course correction |
 | `foundations/idea-intake-reconciliation.md` | Governing pipeline for durable idea identity, strategic/architectural reconciliation, why-state preservation, and implementation decomposition |
 | `33-strategy-roadmap-checkpoint.md` | Provenance: how the first roadmap/operating-model baseline was derived and blessed |
+| `foundations/roadmap-self-documenting-meta-state.md` | Why the Roadmap operator surface exists: it projects Wheelwright's governed meta-state so freshness is a side effect of doing the work. Read before working on any Roadmap lens. |
 
 ### Technology Quality / Day-to-Day Architecture
 
@@ -150,6 +151,7 @@ Documents a reader should use to answer: *What is Wheelwright now?* This is a de
 | `foundations/principles-governance-model.md` | Governing foundation (principles as domain model) |
 | `foundations/secondary-observation.md` | Governing principle (evidence trust) |
 | `foundations/state-oriented-console.md` | Governing principle (UI philosophy) |
+| `foundations/roadmap-self-documenting-meta-state.md` | Governing concept (why the Roadmap exists: self-documenting project meta-state) |
 | `foundations/regime-objective-function.md` | Operating regime definition |
 | `foundations/acquisition-scheduler-policy.md` | Current acquisition behavior |
 

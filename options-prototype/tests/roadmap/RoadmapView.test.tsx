@@ -86,10 +86,14 @@ describe("RoadmapView", () => {
     expect(screen.getByText("LVT-GOAL-AWARENESS")).toBeTruthy();
   });
 
-  it("Coming Soon lens honestly reports nothing curated (no auto-inclusion)", () => {
+  it("Coming Soon lens renders Now / Next / Later horizons", () => {
     render(<RoadmapView />);
     fireEvent.click(screen.getByRole("tab", { name: "Coming Soon" }));
-    expect(screen.getByText(/Nothing is currently announced as coming soon/i)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Now" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Next" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Later" })).toBeTruthy();
+    // A ratified capability appears in its horizon.
+    expect(screen.getByText(/Genuine WAIT \/ governed alternatives/i)).toBeTruthy();
   });
 
   it("switches to the ADRs lens and shows a decision's detail when selected", () => {

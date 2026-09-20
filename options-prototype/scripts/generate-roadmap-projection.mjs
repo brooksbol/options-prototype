@@ -30,7 +30,7 @@ import {
   parseGraduatedIndex,
   parseAdrs,
   parsePriority,
-  parseComingSoon,
+  parseHorizons,
   parsePrinciples,
 } from "./roadmap-projection-parsers.mjs";
 
@@ -174,8 +174,9 @@ const priority = existsSync(priorityPath)
 
 const comingSoonPath = resolve(docsDir, "roadmap-coming-soon.md");
 const comingSoon = existsSync(comingSoonPath)
-  ? parseComingSoon(readFileSync(comingSoonPath, "utf-8"))
-  : { curated: false, items: [] };
+  ? parseHorizons(readFileSync(comingSoonPath, "utf-8"))
+  : { now: [], next: [], later: [] };
+const comingSoonTotal = comingSoon.now.length + comingSoon.next.length + comingSoon.later.length;
 
 // Principles register — the canonical set of ratified enduring principles.
 const principlesPath = resolve(docsDir, "principles.md");
@@ -231,7 +232,7 @@ const projection = {
       graduatedTotal: graduated.length,
       adrTotal: adrs.length,
       priorityTotal: priority.entries.length,
-      comingSoonTotal: comingSoon.items.length,
+      comingSoonTotal,
       principleTotal: principles.length,
     },
     notes,
@@ -284,7 +285,7 @@ console.log(`  PL items:     ${parkingLot.length}  (with explicit LVT/AR relatio
 console.log(`  Graduated:    ${graduated.length}  (resolved landscape)`);
 console.log(`  ADRs:         ${adrs.length}  (ratified decisions)`);
 console.log(`  Priority:     ${priority.entries.length}  (${priority.established ? "established" : "NOT established yet"})`);
-console.log(`  Coming Soon:  ${comingSoon.items.length}  (${comingSoon.curated ? "curated" : "nothing curated yet"})`);
+console.log(`  Coming Soon:  now ${comingSoon.now.length} · next ${comingSoon.next.length} · later ${comingSoon.later.length}`);
 console.log(`  Principles:   ${principles.length}  (ratified register)`);
 if (notes.length > 0) {
   console.log(`  Notes (${notes.length}):`);

@@ -682,3 +682,4 @@ This decision generalizes beyond the Roadmap capability: it establishes where th
 - **`foundations/evidence-appliance.md`** and **credential-custody invariant (INV-PROV credential custody)** — ADR-018 extends credential-custody discipline: just as the provider API key never appears in the frontend, no repository credential appears in the Wheelwright runtime.
 - **`foundations/retooling-charter.md`** — reinforces the runtime/engineering boundary the charter establishes.
 - **`PL-ROADMAP-UI`** (`docs/parking-lot-9.md`) — the capability whose reconciliation established this constraint.
+- **`foundations/roadmap-self-documenting-meta-state.md`** — governs *why* the Roadmap exists (self-documenting project meta-state). ADR-018 governs the *boundary* (no runtime GitHub; build/reconciliation-side derivation) that constrains how that projection is implemented. Purpose and boundary are deliberately kept in separate authority layers.

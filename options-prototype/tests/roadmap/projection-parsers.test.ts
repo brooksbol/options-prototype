@@ -16,7 +16,7 @@ import {
   expandPressureTokens,
   lvtTypeFromId,
   parsePriority,
-  parseComingSoon,
+  parseHorizons,
 } from "../../scripts/roadmap-projection-parsers.mjs";
 
 const LVT_FIXTURE = [
@@ -282,40 +282,67 @@ describe("parsePriority", () => {
   });
 });
 
-describe("parseComingSoon", () => {
-  it("is empty (not curated) when the Items section has no bullets", () => {
+describe("parseHorizons", () => {
+  it("returns empty horizons when the sections have no bullets", () => {
     const md = [
       "# Coming Soon",
-      "## Items",
-      "_No capabilities are currently approved for user-facing communication._",
+      "## Now",
+      "_No capabilities are currently on the product horizon._",
+      "## Next",
+      "## Later",
     ].join("\n");
-    const { curated, items } = parseComingSoon(md);
-    expect(curated).toBe(false);
-    expect(items).toEqual([]);
+    const h = parseHorizons(md);
+    expect(h.now).toEqual([]);
+    expect(h.next).toEqual([]);
+    expect(h.later).toEqual([]);
   });
 
-  it("does not auto-include; only parses explicitly authored bullets", () => {
+  it("parses capabilities into the three horizons and does not carry rank/date/status", () => {
     const md = [
-      "## Items",
-      "- Spreads — defined-risk credit strategies [Exploring]",
-      "- Mobile — attention-first off-desktop experience",
+      "## Now",
+      "- Genuine WAIT / governed alternatives — waiting can be preferable",
+      "- Position reassessment / attention — recognize when a position needs attention",
+      "## Next",
+      "- Broader governed trade structures — expand the governed repertoire",
+      "## Later",
+      "- Continuous / always-on operation — run continuously",
+      "- Mobile / attention-first access — remote attention experience",
     ].join("\n");
-    const { curated, items } = parseComingSoon(md);
-    expect(curated).toBe(true);
-    expect(items).toHaveLength(2);
-    expect(items[0]).toMatchObject({
-      name: "Spreads",
-      description: "defined-risk credit strategies",
-      status: "Exploring",
-    });
-    expect(items[1]).toMatchObject({ name: "Mobile", status: null });
+    const h = parseHorizons(md);
+    expect(h.now).toHaveLength(2);
+    expect(h.next).toHaveLength(1);
+    expect(h.later).toHaveLength(2);
+    expect(h.now[0]).toMatchObject({ name: "Genuine WAIT / governed alternatives" });
+    // No rank/date/status fields.
+    for (const item of [...h.now, ...h.next, ...h.later]) {
+      expect(Object.keys(item).sort()).toEqual(["description", "name"]);
+    }
   });
 
-  it("ignores guidance inside HTML comments", () => {
+  it("preserves authored order within a horizon (no sorting applied)", () => {
     const md = [
-      "## Items",
-      "<!-- - Spreads — placeholder example, must not appear -->",
+      "## Now",
+      "- Zebra capability — z",
+      "- Apple capability — a",
     ].join("\n");
-    expect(parseComingSoon(md).curated).toBe(false);
+    const h = parseHorizons(md);
+    // Authored order preserved; NOT alphabetized (order is non-semantic, not reordered).
+    expect(h.now.map((i: { name: string }) => i.name)).toEqual([
+      "Zebra capability",
+      "Apple capability",
+    ]);
+  });
+
+  it("ignores guidance inside HTML comments and non-horizon sections", () => {
+    const md = [
+      "## Governing rules",
+      "- This is not a capability and must not be parsed.",
+      "## Now",
+      "<!-- - Placeholder — must not appear -->",
+    ].join("\n");
+    const h = parseHorizons(md);
+    expect(h.now).toEqual([]);
+    expect(h.next).toEqual([]);
+    expect(h.later).toEqual([]);
   });
 });
