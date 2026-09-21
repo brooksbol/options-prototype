@@ -114,6 +114,8 @@ export function Deployment() {
   const [callExport, setCallExport] = useState<DecisionExportResult | null>(null);
   const [buyWriteExport, setBuyWriteExport] = useState<DecisionExportResult | null>(null);
   const [buyWritesCollapsed, setBuyWritesCollapsed] = useState(() => loadWorkspace().writeDeskBuyWritesCollapsed);
+  // Buy-write table symbol filter (mirror the puts / cash deployment symbol filter)
+  const [buyWriteSymbolFilter, setBuyWriteSymbolFilter] = useState<string>(() => loadWorkspace().writeDeskBuyWriteSymbol);
   const [scanTimestamp, setScanTimestamp] = useState<string | null>(null);
   const [policy, setPolicy] = useState(() => {
     const ws = loadWorkspace();
@@ -169,6 +171,16 @@ export function Deployment() {
       (putCapitalMax == null || c.cashRequired <= putCapitalMax) &&
       (putSymbolTerms.length === 0 || putSymbolTerms.some(t => c.symbol.toUpperCase().includes(t))),
     [putDteMin, putDteMax, putCapitalMin, putCapitalMax, putSymbolTerms]
+  );
+  // Buy-write symbol filter terms (mirror puts: comma/space separated, case-insensitive substring)
+  const buyWriteSymbolTerms = useMemo(
+    () => buyWriteSymbolFilter.split(/[\s,]+/).map(t => t.trim().toUpperCase()).filter(Boolean),
+    [buyWriteSymbolFilter]
+  );
+  const buyWriteMatchesSymbol = useCallback(
+    (c: BuyWriteCandidate) =>
+      buyWriteSymbolTerms.length === 0 || buyWriteSymbolTerms.some(t => c.symbol.toUpperCase().includes(t)),
+    [buyWriteSymbolTerms]
   );
   const [putsCollapsed, setPutsCollapsed] = useState(() => loadWorkspace().writeDeskPutsCollapsed);
   const [callsCollapsed, setCallsCollapsed] = useState(() => loadWorkspace().writeDeskCallsCollapsed);
@@ -1142,17 +1154,40 @@ export function Deployment() {
                       Show
                       <input type="number" min={0} max={200} value={showCount} onChange={(e) => { const v = Math.max(0, Math.min(200, parseInt(e.target.value) || 0)); setShowCount(v); updateWorkspace({ writeDeskShowCount: v }); }} className="wd-control-spinner" />
                     </label>
+                    <label className="wd-control">
+                      Symbol
+                      <input
+                        type="text"
+                        value={buyWriteSymbolFilter}
+                        placeholder="e.g. SPY, QQQ"
+                        onChange={(e) => { const next = e.target.value; setBuyWriteSymbolFilter(next); updateWorkspace({ writeDeskBuyWriteSymbol: next }); }}
+                        className="wd-control-text"
+                        style={{ width: "96px" }}
+                      />
+                      {buyWriteSymbolFilter && (
+                        <button
+                          type="button"
+                          className="wd-sort-reset"
+                          style={{ marginLeft: "4px" }}
+                          onClick={() => { setBuyWriteSymbolFilter(""); updateWorkspace({ writeDeskBuyWriteSymbol: "" }); }}
+                          title="Clear symbol filter"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </label>
                     {(() => {
                       const allBW = [...buyWriteCandidates, ...buyWriteWaitCandidates, ...(showWideSpread ? buyWriteWideSpreadCandidates : [])];
                       let filtered = showAffordableOnly ? allBW.filter(c => c.affordable) : allBW;
                       if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
+                      filtered = filtered.filter(buyWriteMatchesSymbol);
                       const displayed = Math.min(filtered.length, showCount);
                       return <span className="wd-table-showing">Showing {displayed} of {allBW.length}</span>;
                     })()}
                   </div>
                 </div>
                 <BuyWriteCandidateTable
-                  candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates, ...(showWideSpread ? buyWriteWideSpreadCandidates : [])]}
+                  candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates, ...(showWideSpread ? buyWriteWideSpreadCandidates : [])].filter(buyWriteMatchesSymbol)}
                   selectedCandidate={selectedBuyWriteCandidate}
                   showAffordableOnly={showAffordableOnly}
                   showDanger={showDanger}

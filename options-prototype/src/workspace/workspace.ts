@@ -60,6 +60,9 @@ export interface Workspace {
   writeDeskPutCapitalMin: number | null;
   writeDeskPutCapitalMax: number | null;
 
+  // Buy-write candidates table symbol filter (mirror puts; empty = no filter)
+  writeDeskBuyWriteSymbol: string;
+
   // Deployment table sort state
   writeDeskPutSortKey: string;
   writeDeskPutSortDir: string;
@@ -105,6 +108,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskPutDteMax: null,
   writeDeskPutCapitalMin: null,
   writeDeskPutCapitalMax: null,
+  writeDeskBuyWriteSymbol: "",
   writeDeskPutSortKey: "rank",
   writeDeskPutSortDir: "asc",
   writeDeskCallSortKey: "rank",
