@@ -269,7 +269,6 @@ export function HeaderPortfolioStatus() {
                   key={activeAccount.brokerageAccountId}
                   onSnapshotChange={handleSnapshotChange}
                   targetBrokerageAccountId={activeAccount.brokerageAccountId}
-                  targetAccountName={activeAccount.displayName}
                 />
               ) : (
                 <div className="as-account-empty-hint">

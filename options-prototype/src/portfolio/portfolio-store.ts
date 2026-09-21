@@ -399,9 +399,11 @@ export function removeAccount(brokerageAccountId: string): void {
 
 /**
  * Import Fidelity CSVs INTO a specific account (the explicit-account upload workflow).
- * Identity governs safety (binds a manually-created account's external ref only when
- * unambiguous; refuses evidence that belongs to another account), but the operator's chosen
- * target is honored. Refreshes the visible snapshot when the target is the active account.
+ *
+ * Selection is the sole identity authority: the operator's chosen target IS the identity
+ * decision. Structurally-valid evidence is written straight into that account (no
+ * account-number check, no identity refusals, no cross-account routing). Refreshes the
+ * visible snapshot when the target is the active account.
  */
 export function importEvidenceIntoAccount(
   brokerageAccountId: string,
@@ -414,20 +416,6 @@ export function importEvidenceIntoAccount(
     loadActiveAccountSnapshot();
     if (currentSnapshot) recordPortfolioCapitalObservation(currentSnapshot);
     notify();
-  } else if (result.kind === "routed-elsewhere") {
-    // Off-account routing (ratified): the evidence identified a DIFFERENT known account and
-    // was refreshed there. The active view is unchanged. Record that account's own capital
-    // observation (importing its CSVs is a reading of it), and refresh the visible snapshot
-    // only in the edge case where the routed account IS the active one.
-    const routedSnapshot = buildSnapshotForAccount(result.routedToBrokerageAccountId);
-    if (getActiveBrokerageAccountId() === result.routedToBrokerageAccountId) {
-      currentSource = "fidelity";
-      loadActiveAccountSnapshot();
-      if (currentSnapshot) recordPortfolioCapitalObservation(currentSnapshot);
-      notify();
-    } else if (routedSnapshot) {
-      recordPortfolioCapitalObservation(routedSnapshot);
-    }
   }
   return result;
 }

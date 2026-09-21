@@ -15,8 +15,7 @@ import { classifyDocument } from "../csv/registry";
 import "../csv/fidelity"; // ensure parsers are registered
 import type { PortfolioSnapshot } from "../write-desk/types";
 import { importFidelityEvidence, importEvidenceIntoAccount, getSnapshot } from "../portfolio/portfolio-store";
-import type { ImportResolution, TargetedImportResult } from "../portfolio/account-import";
-import { getAccountById } from "../portfolio/brokerage-account-registry";
+import type { ImportResolution } from "../portfolio/account-import";
 
 /** Surface a non-refresh import outcome (generic path) as a hint on the balances slot. */
 function surfaceResolution(
@@ -29,36 +28,6 @@ function surfaceResolution(
     setBalSlot((s) => ({ ...s, error: `Files disagree on account (${resolution.refs.join(", ")}). Import refused.`, status: "error" }));
   }
   // "refreshed" / "empty": no additional hint needed.
-}
-
-/** Surface an account-targeted import outcome in plain operator language.
- *  Returns a notice string for outcomes that are informational (not errors), or null. */
-function surfaceTargeted(
-  result: TargetedImportResult,
-  setBalSlot: React.Dispatch<React.SetStateAction<SlotState>>,
-  activeAccountName: string,
-): string | null {
-  if (result.kind === "pending-identity") {
-    // Partial import: Option Summary / Activity uploaded, but the account's identity is
-    // established by Balances. Not an error — a benign "waiting for Balances" notice.
-    return "Waiting for the Balances file to identify the account.";
-  }
-  if (result.kind === "unidentified-balances") {
-    setBalSlot((s) => ({ ...s, status: "error", error: "Wheelwright couldn't identify the Fidelity account in this Balances file. The selected account was not changed." }));
-    return null;
-  }
-  if (result.kind === "conflict" && result.reason === "files-disagree") {
-    setBalSlot((s) => ({ ...s, status: "error", error: `These files disagree on the account (${result.refs.join(", ")}). Import refused.` }));
-    return null;
-  }
-  if (result.kind === "routed-elsewhere") {
-    // Ratified off-account behavior: the file identified a different known account; it was
-    // refreshed there and the current selection is preserved. This is a NOTICE, not an error.
-    const routedName = getAccountById(result.routedToBrokerageAccountId)?.displayName ?? "another account";
-    return `${routedName} was refreshed. ${activeAccountName} remains selected.`;
-  }
-  // "refreshed" / "empty" / "unknown-target": no additional hint needed.
-  return null;
 }
 
 type SlotStatus = "empty" | "parsing" | "loaded" | "error";
@@ -78,11 +47,9 @@ interface Props {
    * the generic account-aware resolver.
    */
   targetBrokerageAccountId?: string | null;
-  /** Display name of the target/active account, for operator-facing routing notices. */
-  targetAccountName?: string;
 }
 
-export function FidelityUploadCompact({ onSnapshotChange, targetBrokerageAccountId, targetAccountName }: Props) {
+export function FidelityUploadCompact({ onSnapshotChange, targetBrokerageAccountId }: Props) {
   const [osSlot, setOsSlot] = useState<SlotState>({ status: "empty", filename: null, error: null, timestamp: null });
   const [balSlot, setBalSlot] = useState<SlotState>({ status: "empty", filename: null, error: null, timestamp: null });
   const [actSlot, setActSlot] = useState<SlotState>({ status: "empty", filename: null, error: null, timestamp: null });
@@ -145,9 +112,10 @@ export function FidelityUploadCompact({ onSnapshotChange, targetBrokerageAccount
       activity: actBlobRef.current,
     };
     if (targetBrokerageAccountId) {
-      const result = importEvidenceIntoAccount(targetBrokerageAccountId, op);
-      const routedNotice = surfaceTargeted(result, setBalSlot, targetAccountName ?? "The current account");
-      setNotice(routedNotice);
+      // Selection is the sole identity authority: a structurally-valid CSV uploaded into the
+      // selected account is accepted into it. No identity refusals or routing notices.
+      importEvidenceIntoAccount(targetBrokerageAccountId, op);
+      setNotice(null);
     } else {
       const resolution = importFidelityEvidence(op);
       surfaceResolution(resolution, setBalSlot);
@@ -157,7 +125,7 @@ export function FidelityUploadCompact({ onSnapshotChange, targetBrokerageAccount
     // header/status updates. When a different account was refreshed the visible snapshot is
     // unchanged, which is the required behavior.
     onSnapshotChange(getSnapshot());
-  }, [onSnapshotChange, targetBrokerageAccountId, targetAccountName]);
+  }, [onSnapshotChange, targetBrokerageAccountId]);
 
   const handleOsFile = useCallback(async (file: File) => {
     setOsSlot({ status: "parsing", filename: file.name, error: null, timestamp: null });

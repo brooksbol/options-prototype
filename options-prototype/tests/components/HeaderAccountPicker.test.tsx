@@ -2,9 +2,14 @@
  * Portfolio dropdown as the account-management surface — real UI boundary.
  *
  * Exercises the operator workflow through the actual HeaderPortfolioStatus + FidelityUpload:
- * Add account → Select → Upload CSVs (binds identity) → Add second → switch (no import) →
- * Rename → Remove (with confirmation). Proves account-local isolation and fail-closed
- * upload behavior through the rendered UI, not just domain helpers.
+ * Add account → Select → Upload CSVs → Add second → switch (no import) → Rename → Remove
+ * (with confirmation). Proves account-local isolation through the rendered UI.
+ *
+ * PL-PORT-01 correction (selection-as-sole-identity-authority): the upload path performs NO
+ * account-number identity check. The operator's explicit account selection IS the identity
+ * decision, so a structurally-valid CSV loads into the selected account with no refusals and
+ * no cross-account routing. These tests assert evidence lands in the selected account and
+ * that no identity-error surface appears.
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
@@ -18,7 +23,7 @@ import {
 import { getActiveBrokerageAccountId } from "../../src/portfolio/active-account";
 import { loadAccounts, _clearRegistryForTesting } from "../../src/portfolio/brokerage-account-registry";
 import { _resetIdCounterForTesting } from "../../src/portfolio/brokerage-account";
-import { _clearAccountEvidenceForTesting } from "../../src/portfolio/account-evidence-store";
+import { readAccountCsv, _clearAccountEvidenceForTesting } from "../../src/portfolio/account-evidence-store";
 import { _clearHistoryForTesting } from "../../src/portfolio/portfolio-capital-history";
 import { _resetAccountsViewCacheForTesting } from "../../src/portfolio/use-accounts";
 import { resetWorkspace } from "../../src/workspace/workspace";
@@ -46,6 +51,17 @@ const ROTH_OS = `Option Summary Z98-765432
 Quote data as of 2026-09-18.
 Symbol,Description,Quantity,Last Price,Current Value,Strategy
 QQQ,Invesco QQQ,100,450,45000,Covered Call
+`;
+// A REAL-shape Balances export with NO in-body account number (the case that used to
+// false-refuse). Selection is the identity authority, so this loads into the selected account.
+const NO_ID_BAL = `,Balance,Day change
+Total account value,145200.00,
+AVAILABLE TO TRADE,,
+Available to trade (all settled),7690.00,
+`;
+const NO_ID_OS = `Option Summary
+Symbol,Description,Quantity,Last Price,Current Value,Strategy
+SPY,SPDR S&P 500,100,500,50000,Covered Call
 `;
 
 beforeEach(() => {
@@ -88,7 +104,7 @@ async function uploadCsvs(container: HTMLElement, os: string, bal: string) {
 }
 
 describe("Portfolio dropdown account management", () => {
-  it("Add → Upload binds identity; second Add + switch is import-free; rename; remove", async () => {
+  it("Add → Upload loads evidence into the selected account; second Add + switch is import-free; rename; remove", async () => {
     const { container } = render(<HeaderPortfolioStatus />);
     openDropdown();
 
@@ -97,14 +113,12 @@ describe("Portfolio dropdown account management", () => {
     await waitFor(() => expect(loadAccounts()).toHaveLength(1));
     const ptsId = loadAccounts()[0].brokerageAccountId;
     expect(getActiveBrokerageAccountId()).toBe(ptsId);
-    // No external identity yet.
-    expect(loadAccounts()[0].externalAccountRef).toBeNull();
 
-    // UPLOAD PTS CSVs → binds Z12-345678 to PTS and refreshes.
+    // UPLOAD PTS CSVs → evidence loads into PTS and the visible snapshot refreshes.
     await uploadCsvs(container, PTS_OS, PTS_BAL);
-    await waitFor(() => expect(loadAccounts()[0].externalAccountRef).toBe("Z12-345678"));
     await waitFor(() => expect(getSnapshot()?.brokerageAccountId).toBe(ptsId));
-    expect(getSnapshot()?.accountId).toBe("Z12-345678");
+    expect(readAccountCsv(ptsId, "balances")?.text).toBe(PTS_BAL);
+    expect(readAccountCsv(ptsId, "option-summary")?.text).toBe(PTS_OS);
 
     // ADD Sawdust Roth (becomes active on add).
     addAccount("Sawdust Roth");
@@ -114,15 +128,15 @@ describe("Portfolio dropdown account management", () => {
 
     // UPLOAD Sawdust CSVs into the (now active) Sawdust account.
     await uploadCsvs(container, ROTH_OS, ROTH_BAL);
-    await waitFor(() => expect(loadAccounts().find((a) => a.brokerageAccountId === rothId)!.externalAccountRef).toBe("Z98-765432"));
-    await waitFor(() => expect(getSnapshot()?.accountId).toBe("Z98-765432"));
+    await waitFor(() => expect(getSnapshot()?.brokerageAccountId).toBe(rothId));
+    expect(readAccountCsv(rothId, "balances")?.text).toBe(ROTH_BAL);
 
     // SWITCH back to PTS via the account button — no import — PTS state returns.
     const ptsSwitch = screen.getAllByRole("button", { pressed: false }).find((b) => b.textContent?.includes("PTS"))
       ?? screen.getAllByRole("button", { pressed: true }).find((b) => b.textContent?.includes("PTS"));
     fireEvent.click(ptsSwitch!);
     await waitFor(() => expect(getActiveBrokerageAccountId()).toBe(ptsId));
-    await waitFor(() => expect(getSnapshot()?.accountId).toBe("Z12-345678"));
+    await waitFor(() => expect(getSnapshot()?.brokerageAccountId).toBe(ptsId));
 
     // RENAME PTS → "PTS margin".
     fireEvent.click(screen.getByRole("button", { name: /^Rename PTS/ }));
@@ -139,7 +153,7 @@ describe("Portfolio dropdown account management", () => {
     await waitFor(() => expect(loadAccounts().filter((a) => a.status === "active")).toHaveLength(1));
     // PTS remains active and intact (removing an INACTIVE account doesn't change selection).
     expect(getActiveBrokerageAccountId()).toBe(ptsId);
-    expect(getSnapshot()?.accountId).toBe("Z12-345678");
+    expect(getSnapshot()?.brokerageAccountId).toBe(ptsId);
   });
 
   it("removing the ACTIVE account enters an explicit no-account-selected state (no auto-fallback)", async () => {
@@ -149,7 +163,7 @@ describe("Portfolio dropdown account management", () => {
     // Establish PTS + Sawdust.
     addAccount("PTS");
     await uploadCsvs(container, PTS_OS, PTS_BAL);
-    await waitFor(() => expect(loadAccounts()[0].externalAccountRef).toBe("Z12-345678"));
+    await waitFor(() => expect(getSnapshot()?.brokerageAccountId).toBeTruthy());
     const ptsId = loadAccounts()[0].brokerageAccountId;
     addAccount("Sawdust Roth");
     await waitFor(() => expect(loadAccounts()).toHaveLength(2));
@@ -171,107 +185,71 @@ describe("Portfolio dropdown account management", () => {
     const ptsSwitch = screen.getAllByRole("button", { pressed: false }).find((b) => b.textContent?.includes("PTS"));
     fireEvent.click(ptsSwitch!);
     await waitFor(() => expect(getActiveBrokerageAccountId()).toBe(ptsId));
-    await waitFor(() => expect(getSnapshot()?.accountId).toBe("Z12-345678"));
+    await waitFor(() => expect(getSnapshot()?.brokerageAccountId).toBe(ptsId));
   });
+});
 
-  it("off-account import: PTS active + known-Sawdust CSVs → Sawdust refreshes, PTS stays selected (ratified)", async () => {
+describe("selection is the sole identity authority (PL-PORT-01)", () => {
+  it("a Balances file WITHOUT an in-body account number loads into the selected account — no identity error", async () => {
     const { container } = render(<HeaderPortfolioStatus />);
     openDropdown();
 
-    // Establish PTS (Z12) and Sawdust (Z98) as two known accounts.
+    addAccount("PTS");
+    await waitFor(() => expect(loadAccounts()).toHaveLength(1));
+    const ptsId = loadAccounts()[0].brokerageAccountId;
+
+    // Upload the no-account-number Balances file → it loads into PTS. No refusal surface.
+    const [, balInput] = fileInputs(container);
+    fireEvent.change(balInput, { target: { files: [csvFile("noid.csv", NO_ID_BAL)] } });
+
+    await waitFor(() => expect(readAccountCsv(ptsId, "balances")?.filename).toBe("noid.csv"));
+    // The old identity-error surface must never appear.
+    expect(screen.queryByText(/couldn't identify the Fidelity account/i)).toBeNull();
+    expect(screen.queryByText(/disagree on the account/i)).toBeNull();
+  });
+
+  it("Option Summary alone (no account number) loads immediately — no premature/pending error", async () => {
+    const { container } = render(<HeaderPortfolioStatus />);
+    openDropdown();
+    addAccount("PTS");
+    await waitFor(() => expect(loadAccounts()).toHaveLength(1));
+    const ptsId = loadAccounts()[0].brokerageAccountId;
+
+    const [osInput] = fileInputs(container);
+    fireEvent.change(osInput, { target: { files: [csvFile("os.csv", NO_ID_OS)] } });
+
+    await waitFor(() => expect(readAccountCsv(ptsId, "option-summary")?.filename).toBe("os.csv"));
+    expect(screen.queryByText(/couldn't identify the Fidelity account/i)).toBeNull();
+    expect(screen.queryByText(/waiting for the balances file/i)).toBeNull();
+  });
+
+  it("uploading a file that resembles another known account still loads into the SELECTED account (no routing)", async () => {
+    const { container } = render(<HeaderPortfolioStatus />);
+    openDropdown();
+
+    // Establish PTS and Sawdust as two known accounts (evidence loaded into each).
     addAccount("PTS");
     await uploadCsvs(container, PTS_OS, PTS_BAL);
-    await waitFor(() => expect(loadAccounts()[0].externalAccountRef).toBe("Z12-345678"));
+    await waitFor(() => expect(getSnapshot()?.brokerageAccountId).toBeTruthy());
     const ptsId = loadAccounts()[0].brokerageAccountId;
 
     addAccount("Sawdust Roth");
     await waitFor(() => expect(loadAccounts()).toHaveLength(2));
     const rothId = loadAccounts().find((a) => a.brokerageAccountId !== ptsId)!.brokerageAccountId;
     await uploadCsvs(container, ROTH_OS, ROTH_BAL);
-    await waitFor(() => expect(loadAccounts().find((a) => a.brokerageAccountId === rothId)!.externalAccountRef).toBe("Z98-765432"));
+    await waitFor(() => expect(getSnapshot()?.brokerageAccountId).toBe(rothId));
 
-    // Switch back to PTS, then upload the KNOWN Sawdust Balances while PTS is selected.
+    // Switch back to PTS, then upload the Roth-shaped Balances while PTS is selected.
     const ptsSwitch = screen.getAllByRole("button", { pressed: false }).find((b) => b.textContent?.includes("PTS"));
     fireEvent.click(ptsSwitch!);
     await waitFor(() => expect(getActiveBrokerageAccountId()).toBe(ptsId));
 
     const [, balInput] = fileInputs(container);
-    fireEvent.change(balInput, { target: { files: [csvFile("roth-refresh.csv", ROTH_BAL)] } });
+    fireEvent.change(balInput, { target: { files: [csvFile("roth-shaped.csv", ROTH_BAL)] } });
 
-    // Ratified: routed to Sawdust; PTS remains selected; visible notice.
-    await waitFor(() => {
-      expect(screen.getByText(/Sawdust Roth was refreshed\. PTS remains selected\./i)).toBeTruthy();
-    });
+    // Selection governs: the file loads into PTS (the selection). No routing, no notice.
+    await waitFor(() => expect(readAccountCsv(ptsId, "balances")?.filename).toBe("roth-shaped.csv"));
     expect(getActiveBrokerageAccountId()).toBe(ptsId);
-    // Sawdust received the refreshed file; PTS evidence + identity unchanged.
-    const { readAccountCsv } = await import("../../src/portfolio/account-evidence-store");
-    expect(readAccountCsv(rothId, "balances")?.filename).toBe("roth-refresh.csv");
-    expect(loadAccounts().find((a) => a.brokerageAccountId === ptsId)!.externalAccountRef).toBe("Z12-345678");
-  });
-
-  it("refuses an unidentified Balances file (does not attach to the selected account)", async () => {
-    render(<HeaderPortfolioStatus />);
-    openDropdown();
-
-    addAccount("PTS");
-    await waitFor(() => expect(loadAccounts()).toHaveLength(1));
-
-    // Upload a Balances file with no usable account number → refused, PTS unbound.
-    const NO_ID_BAL = `Brokerage
-Account Name / Account Number,Individual - Z39411514
-Description,Amount,Day Change
-Available to trade (all settled),7690.00,
-Total Account Value,145200.00,
-`;
-    const balInputs = Array.from(document.querySelectorAll('input[type="file"]')) as HTMLInputElement[];
-    fireEvent.change(balInputs[1], { target: { files: [csvFile("noid.csv", NO_ID_BAL)] } });
-
-    await waitFor(() => {
-      expect(screen.getByText(/couldn't identify the Fidelity account/i)).toBeTruthy();
-    });
-    expect(loadAccounts()[0].externalAccountRef).toBeNull();
-  });
-
-  it("uploading Option Summary FIRST does not show a premature error (waits for Balances)", async () => {
-    const { container } = render(<HeaderPortfolioStatus />);
-    openDropdown();
-
-    addAccount("PTS");
-    await waitFor(() => expect(loadAccounts()).toHaveLength(1));
-
-    // Upload ONLY the Option Summary (operator's real first step). This must NOT show the
-    // red "couldn't identify the Fidelity account" Balances error — identity comes from
-    // Balances, which hasn't been uploaded yet.
-    const [osInput] = fileInputs(container);
-    fireEvent.change(osInput, { target: { files: [csvFile("os.csv", PTS_OS)] } });
-
-    // Benign pending notice, NOT an error. (PTS_OS carries a usable ref, so this particular
-    // fixture actually binds; assert the ERROR text never appears regardless.)
-    await waitFor(() => expect(screen.getByText(/^Option Summary$/)).toBeTruthy());
-    expect(screen.queryByText(/couldn't identify the Fidelity account/i)).toBeNull();
-
-    // Now upload Balances → the account is established (no error).
-    const [, balInput] = fileInputs(container);
-    fireEvent.change(balInput, { target: { files: [csvFile("bal.csv", PTS_BAL)] } });
-    await waitFor(() => expect(loadAccounts()[0].externalAccountRef).toBe("Z12-345678"));
-    expect(screen.queryByText(/couldn't identify the Fidelity account/i)).toBeNull();
-  });
-
-  it("Option Summary WITHOUT an embedded account number first → pending notice, never an error", async () => {
-    const NO_ID_OS = `Option Summary
-Symbol,Description,Quantity,Last Price,Current Value,Strategy
-SPY,SPDR S&P 500,100,500,50000,Covered Call
-`;
-    const { container } = render(<HeaderPortfolioStatus />);
-    openDropdown();
-    addAccount("PTS");
-    await waitFor(() => expect(loadAccounts()).toHaveLength(1));
-
-    const [osInput] = fileInputs(container);
-    fireEvent.change(osInput, { target: { files: [csvFile("os.csv", NO_ID_OS)] } });
-
-    // A benign "waiting for Balances" notice appears; NO red identity error.
-    await waitFor(() => expect(screen.getByText(/waiting for the balances file/i)).toBeTruthy());
-    expect(screen.queryByText(/couldn't identify the Fidelity account/i)).toBeNull();
+    expect(screen.queryByText(/remains selected/i)).toBeNull();
   });
 });

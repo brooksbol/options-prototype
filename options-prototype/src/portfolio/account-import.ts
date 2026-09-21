@@ -23,7 +23,7 @@ import {
   writeAccountCsv,
   type StoredCsvBlob,
 } from "./account-evidence-store";
-import { registerAccount, resolveAccountByExternalRef, getAccountById, updateAccount } from "./brokerage-account-registry";
+import { registerAccount, resolveAccountByExternalRef, getAccountById } from "./brokerage-account-registry";
 import { normalizeExternalRef } from "./brokerage-account";
 import { preprocessCsv } from "../csv/preprocess";
 import { detectDelimiter, parseCsv } from "../csv/reader";
@@ -143,54 +143,33 @@ export function resolveImport(
 }
 
 /**
- * Account-TARGETED import (explicit-account workflow, follow-on).
+ * Account-TARGETED import (explicit-account workflow).
  *
- * The operator has explicitly selected/created the account they intend to refresh, then
- * uploads CSVs. Identity still governs SAFETY, but the operator's explicit target is honored:
+ * SELECTION IS THE SOLE IDENTITY AUTHORITY (Principal ratified decision — Option 1).
  *
- *  - Files disagree on identity            → conflict (fail closed, nothing written).
- *  - A ref is present and already belongs to a DIFFERENT account → conflict "belongs-to-other"
- *    (never reassign another account's evidence to the target).
- *  - A ref is present and the target has NO ref yet → BIND it to the target (deferred identity
- *    binding for a manually-created account), then refresh.
- *  - A ref is present and matches the target's existing ref → refresh.
+ * The operator has explicitly selected or created the account they intend to refresh, then
+ * uploads CSVs. Their explicit target IS the identity decision. This path performs NO
+ * account-number identity check of any kind:
  *
- * FAIL-CLOSED ON UNIDENTIFIED AUTHORITATIVE EVIDENCE (Principal correction): selecting an
- * account expresses INTENT; it does NOT prove an unidentified Balances file belongs to it (a
- * wrong file picked from Finder is exactly the mistake to catch). Therefore:
- *  - Balances with NO usable account identity → refuse ("unidentified-balances"); the target
- *    is not bound and not overwritten.
- *  - Option Summary / Activity that carry no independent identity MAY be written to the target
- *    ONLY within a coherent operation whose Balances established (or matched) the identity, OR
- *    when the target already has an established ref. They never independently define identity.
+ *  - No CSV/filename account-number extraction.
+ *  - No identity-based refusals (no unidentified-balances, no pending-identity, no
+ *    cross-file files-disagree, no belongs-to-other / routed-elsewhere).
  *
- * Never invents an external reference; never guesses across accounts.
+ * The ONLY gate is structural validity — "is this a valid Balances / Option Summary /
+ * Activity CSV?" — which the upstream upload surface already enforces before calling here
+ * (a non-CSV or wrong-shape file never reaches this function as a populated slot).
+ *
+ * Rationale: real Fidelity CSV exports do NOT reliably contain an account number. It is not
+ * in the CSV body, and filenames are untrustworthy. Gating on a file-derived account number
+ * produced FALSE refusals that blocked valid uploads. The Principal accepted the explicit
+ * tradeoff: with selection as sole authority, uploading the wrong account's file into the
+ * selected account WILL load it (no detection). That is acceptable.
+ *
+ * A structurally-valid CSV uploaded into the explicitly selected account is accepted into
+ * that account. No account number required, ever.
  */
 export type TargetedImportResult =
-  | { kind: "refreshed"; brokerageAccountId: string; boundExternalRef: string | null }
-  | {
-      /**
-       * A non-authoritative file (Option Summary or Activity) was uploaded into a fresh
-       * account that has no established identity yet, and no Balances is present in this
-       * operation to establish it. This is NOT a failure — it is a partial import awaiting
-       * the Balances file (the authoritative identity source). Nothing is written yet.
-       */
-      kind: "pending-identity";
-    }
-  | {
-      /**
-       * The uploaded evidence cleanly identifies a DIFFERENT already-known account, so it was
-       * routed there and refreshed. The selected/target account was NOT changed and remains
-       * the active view. (Identity determines where evidence goes; selection is not an
-       * identity override, but neither does it prohibit correctly routing identifiable
-       * evidence — ratified off-account behavior.)
-       */
-      kind: "routed-elsewhere";
-      routedToBrokerageAccountId: string;
-      externalAccountRef: string;
-    }
-  | { kind: "conflict"; reason: "files-disagree"; refs: string[] }
-  | { kind: "unidentified-balances" }
+  | { kind: "refreshed"; brokerageAccountId: string }
   | { kind: "empty" }
   | { kind: "unknown-target" };
 
@@ -204,73 +183,12 @@ export function importIntoAccount(
   const target = getAccountById(targetBrokerageAccountId);
   if (!target || target.status !== "active") return { kind: "unknown-target" };
 
-  const balRef = externalRefFromBalancesBlob(op.balances ?? null);
-  const osRef = externalRefFromOptionSummaryBlob(op.optionSummary ?? null);
-  const distinctRefs = Array.from(new Set([balRef, osRef].filter((r): r is string => r != null)));
-
-  // Cross-file disagreement → refuse the merge (fail closed).
-  if (distinctRefs.length > 1) {
-    return { kind: "conflict", reason: "files-disagree", refs: distinctRefs };
-  }
-
-  const incomingRef = distinctRefs[0] ?? null;
-  const targetRef = normalizeExternalRef(target.externalAccountRef);
-  let boundExternalRef: string | null = null;
-
-  // Balances is economically authoritative. If a Balances file is present but carries NO
-  // usable account identity, refuse — do NOT attach it merely because this account is
-  // selected. (An Activity-only or OS-only import has no Balances and skips this guard.)
-  if (op.balances && balRef == null) {
-    return { kind: "unidentified-balances" };
-  }
-
-  if (incomingRef != null) {
-    // If the evidence cleanly identifies a DIFFERENT already-known account, route it there
-    // (refresh that account) and leave the selected/target account untouched. This preserves
-    // the ratified rule: identity determines where evidence goes. It is NOT a refusal — the
-    // file is unambiguous, just for another account.
-    const owner = resolveAccountByExternalRef(incomingRef);
-    if (owner.kind === "resolved" && owner.account.brokerageAccountId !== targetBrokerageAccountId) {
-      const other = owner.account.brokerageAccountId;
-      if (op.optionSummary) writeAccountCsv(other, "option-summary", op.optionSummary);
-      if (op.balances) writeAccountCsv(other, "balances", op.balances);
-      if (op.activity) writeAccountCsv(other, "activity", op.activity);
-      return { kind: "routed-elsewhere", routedToBrokerageAccountId: other, externalAccountRef: incomingRef };
-    }
-    if (owner.kind === "ambiguous") {
-      // The incoming ref maps to more than one account — genuinely ambiguous; fail closed
-      // (do not guess which account, do not write).
-      return { kind: "conflict", reason: "files-disagree", refs: [incomingRef] };
-    }
-    if (targetRef != null && targetRef !== incomingRef) {
-      // The selected account already has a different identity and the incoming ref is not
-      // owned by any account: it does not belong here. Fail closed rather than rebinding.
-      return { kind: "unidentified-balances" };
-    }
-    if (targetRef == null) {
-      // Unowned incoming ref + target has no identity yet → safe to bind to this account.
-      updateAccount(targetBrokerageAccountId, { externalAccountRef: incomingRef });
-      boundExternalRef = incomingRef;
-    }
-    // else targetRef === incomingRef → plain refresh, no binding needed.
-  } else if (targetRef == null) {
-    // No identity from any file AND the target has no established identity. The only files
-    // here are OS and/or Activity (a no-identity Balances already returned above via the
-    // op.balances && balRef == null guard). These cannot establish identity on their own.
-    //
-    // This is a PARTIAL import, not a failure: the operator typically uploads Option Summary
-    // first, then Balances (the authoritative identity source). Do NOT show a Balances error
-    // and do NOT persist yet — return pending-identity and wait for the Balances file. When
-    // Balances arrives, the accumulated operation resolves and binds identity.
-    return { kind: "pending-identity" };
-  }
-  // else: no incoming ref but the target already has an established ref → OS/Activity inherit
-  // that identity (operator-directed, safe).
-
-  // Write the operator-directed evidence into the target account's slots.
+  // Selection is the sole identity authority: write the operator-directed, structurally-valid
+  // evidence straight into the selected account's slots. No account-number extraction, no
+  // identity refusals, no cross-account routing.
   if (op.optionSummary) writeAccountCsv(targetBrokerageAccountId, "option-summary", op.optionSummary);
   if (op.balances) writeAccountCsv(targetBrokerageAccountId, "balances", op.balances);
   if (op.activity) writeAccountCsv(targetBrokerageAccountId, "activity", op.activity);
 
-  return { kind: "refreshed", brokerageAccountId: targetBrokerageAccountId, boundExternalRef };
+  return { kind: "refreshed", brokerageAccountId: targetBrokerageAccountId };
 }
