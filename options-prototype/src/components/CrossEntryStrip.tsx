@@ -18,6 +18,7 @@ import type { PutCandidate } from "../write-desk/candidate-types";
 import type { BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
+import { showCountInputValue, parseShowCountInput, applyShowCount, displayedCount } from "./showCountFilter";
 import { useMultiColumnSort, type SortDir } from "../write-desk/use-multi-column-sort";
 import { downloadTableCsv, RAW_GREEK_IV_COLUMNS } from "../write-desk/table-csv-export";
 import { sanitizeGreeks, formatGreek, type RawExportGreeks } from "../write-desk/option-greeks";
@@ -50,7 +51,6 @@ interface CrossEntryStripProps {
   putCandidates: PutCandidate[];
   buyWriteCandidates: BuyWriteCandidate[];
   policy: RecommendationPolicy;
-  maxRows?: number;
   onSelectPut: (candidate: PutCandidate) => void;
   onSelectBuyWrite: (candidate: BuyWriteCandidate) => void;
   /**
@@ -97,7 +97,6 @@ function CrossEntryGreekIvCells({ greeks }: { greeks?: RawExportGreeks }) {
 export function CrossEntryStrip({
   putCandidates,
   buyWriteCandidates,
-  maxRows = 10,
   onSelectPut,
   onSelectBuyWrite,
   onRefreshTopOpportunities,
@@ -123,7 +122,7 @@ export function CrossEntryStrip({
     (key, dir) => updateWorkspace({ writeDeskCrossEntrySortKey: key, writeDeskCrossEntrySortDir: dir }),
   );
   const [affordableOnly, setAffordableOnly] = useState(() => loadWorkspace().writeDeskCrossEntryAffordableOnly);
-  const [showCount, setShowCount] = useState(() => loadWorkspace().writeDeskCrossEntryShowCount ?? maxRows);
+  const [showCount, setShowCount] = useState<number | null>(() => loadWorkspace().writeDeskCrossEntryShowCount);
   const [dteMin, setDteMin] = useState<number | null>(() => loadWorkspace().writeDeskCrossEntryDteMin);
   const [dteMax, setDteMax] = useState<number | null>(() => loadWorkspace().writeDeskCrossEntryDteMax);
   const [symbolFilter, setSymbolFilter] = useState<string>(() => loadWorkspace().writeDeskCrossEntrySymbol);
@@ -141,7 +140,7 @@ export function CrossEntryStrip({
     (capitalMax == null || r.capitalRequired <= capitalMax) &&
     (symbolTerms.length === 0 || symbolTerms.some(t => r.symbol.toUpperCase().includes(t)))
   );
-  const displayed = filtered.slice(0, showCount);
+  const displayed = applyShowCount(filtered, showCount);
 
   // "Top opportunities" refresh scope (PL-OPS-09 consumer): the first N rows UNDER THE CURRENT
   // SORT/ORDER (`filtered` already reflects the active column sort + filters), deduped to unique
@@ -269,9 +268,9 @@ export function CrossEntryStrip({
         </label>
         <label className="wd-control" style={{ marginLeft: "8px" }}>
           Show
-          <input type="number" min={1} max={filtered.length || 50} value={showCount} onChange={(e) => { const v = Math.max(1, Math.min(filtered.length || 50, parseInt(e.target.value) || 10)); setShowCount(v); updateWorkspace({ writeDeskCrossEntryShowCount: v }); }} className="wd-control-spinner" />
+          <input type="text" inputMode="numeric" value={showCountInputValue(showCount)} onChange={(e) => { const v = parseShowCountInput(e.target.value, filtered.length || 50); setShowCount(v); updateWorkspace({ writeDeskCrossEntryShowCount: v }); }} className="wd-control-spinner" title="Rows to show. '-' = all" />
         </label>
-        <span className="wd-table-showing" style={{ marginLeft: "8px" }}>Showing {Math.min(displayed.length, filtered.length)} of {filtered.length}</span>
+        <span className="wd-table-showing" style={{ marginLeft: "8px" }}>Showing {displayedCount(filtered.length, showCount)} of {filtered.length}</span>
         <button className="wd-download-btn" onClick={() => { const csvNow = Date.now();
           downloadTableCsv(
             filtered as unknown as Record<string, unknown>[],

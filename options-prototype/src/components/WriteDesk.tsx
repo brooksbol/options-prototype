@@ -38,6 +38,7 @@ import { loadWorkingIntents, addPendingIntent, createPendingIntent, type Pending
 import { buildWriteIntent } from "../execution/write-intent";
 import type { PortfolioSnapshot } from "../write-desk/types";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
+import { showCountInputValue, parseShowCountInput, applyShowCount, displayedCount } from "./showCountFilter";
 import { useMultiColumnSort } from "../write-desk/use-multi-column-sort";
 import { AgeCell } from "../write-desk/AgeCell";
 import { formatAcquisitionAge, provenanceFromPublished, type EvidenceProvenance } from "../write-desk/evidence-provenance";
@@ -150,7 +151,8 @@ export function Deployment() {
   const [showAffordableOnly, setShowAffordableOnly] = useState(() => loadWorkspace().writeDeskAffordableOnly);
   const [showDanger, setShowDanger] = useState(() => loadWorkspace().writeDeskShowDanger);
   const [showWideSpread, setShowWideSpread] = useState(() => loadWorkspace().writeDeskShowWideSpread);
-  const [showCount, setShowCount] = useState(() => loadWorkspace().writeDeskShowCount);
+  const [showCount, setShowCount] = useState<number | null>(() => loadWorkspace().writeDeskShowCount);
+  const [buyWriteShowCount, setBuyWriteShowCount] = useState<number | null>(() => loadWorkspace().writeDeskBuyWriteShowCount);
   // Put table filters (mirror Cash Deployment: symbol / DTE / capital)
   const [putSymbolFilter, setPutSymbolFilter] = useState<string>(() => loadWorkspace().writeDeskPutSymbol);
   const [putDteMin, setPutDteMin] = useState<number | null>(() => loadWorkspace().writeDeskPutDteMin);
@@ -858,7 +860,6 @@ export function Deployment() {
               putCandidates={putCandidates}
               buyWriteCandidates={buyWriteCandidates}
               policy={policy}
-              maxRows={10}
               onSelectPut={(c) => { selectDrawerCandidate("put", { put: c }); }}
               onSelectBuyWrite={(c) => { selectDrawerCandidate("buywrite", { buyWrite: c }); }}
               onRefreshTopOpportunities={refreshDeploymentEvidence}
@@ -982,16 +983,16 @@ export function Deployment() {
               </label>
               <label className="wd-control">
                 Show
-                <input type="number" min={0} max={universeSymbols.length} value={showCount} onChange={(e) => { const v = Math.max(0, Math.min(universeSymbols.length, parseInt(e.target.value) || 0)); setShowCount(v); updateWorkspace({ writeDeskShowCount: v }); }} className="wd-control-spinner" />
+                <input type="text" inputMode="numeric" value={showCountInputValue(showCount)} onChange={(e) => { const v = parseShowCountInput(e.target.value, universeSymbols.length); setShowCount(v); updateWorkspace({ writeDeskShowCount: v }); }} className="wd-control-spinner" title="Rows to show. '-' = all" />
               </label>
               {(() => {
                 const allRows = [...putCandidates, ...putWaitCandidates, ...(showWideSpread ? putWideSpreadCandidates : [])];
                 let filtered = showAffordableOnly ? allRows.filter(c => c.affordable) : allRows;
                 if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
                 filtered = filtered.filter(putRowMatchesFilters);
-                const displayed = Math.min(filtered.length, showCount);
+                const displayed = displayedCount(filtered.length, showCount);
                 const downloadCsv = () => {
-                  const rows = filtered.slice(0, showCount);
+                  const rows = applyShowCount(filtered, showCount);
                   const header = "Rank,Symbol,Expiration,DTE,Strike,Delta,Bid,Ask,Spread%,OI,Yield%,CashRequired,Remaining,Exec,Posture,Governance";
                   const csvRows = rows.map((c, i) => `${i+1},${c.symbol},${c.expiration},${c.dte},${c.strike},${Math.abs(c.delta).toFixed(2)},${c.bid.toFixed(2)},${c.ask.toFixed(2)},${c.spreadPercent.toFixed(1)},${c.openInterest},${c.yieldAnnualized.toFixed(1)},${c.cashRequired},${c.cashRemaining},${c.assessment.score},${c.posture},${c.governance.status}`);
                   const csv = [header, ...csvRows].join("\n");
@@ -1020,7 +1021,7 @@ export function Deployment() {
               let filtered = showAffordableOnly ? allRows.filter((c) => c.affordable) : allRows;
               if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
               filtered = filtered.filter(putRowMatchesFilters);
-              const displayed = filtered.slice(0, showCount).map((c, i) => ({ ...c, rank: i + 1 }));
+              const displayed = applyShowCount(filtered, showCount).map((c, i) => ({ ...c, rank: i + 1 }));
               return <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { selectDrawerCandidate("put", { put: c, putPos: pos }); }} />;
             })()
           ) : (
@@ -1152,7 +1153,7 @@ export function Deployment() {
                     </label>
                     <label className="wd-control">
                       Show
-                      <input type="number" min={0} max={200} value={showCount} onChange={(e) => { const v = Math.max(0, Math.min(200, parseInt(e.target.value) || 0)); setShowCount(v); updateWorkspace({ writeDeskShowCount: v }); }} className="wd-control-spinner" />
+                      <input type="text" inputMode="numeric" value={showCountInputValue(buyWriteShowCount)} onChange={(e) => { const v = parseShowCountInput(e.target.value, universeSymbols.length); setBuyWriteShowCount(v); updateWorkspace({ writeDeskBuyWriteShowCount: v }); }} className="wd-control-spinner" title="Rows to show. '-' = all" />
                     </label>
                     <label className="wd-control">
                       Symbol
@@ -1181,7 +1182,7 @@ export function Deployment() {
                       let filtered = showAffordableOnly ? allBW.filter(c => c.affordable) : allBW;
                       if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
                       filtered = filtered.filter(buyWriteMatchesSymbol);
-                      const displayed = Math.min(filtered.length, showCount);
+                      const displayed = displayedCount(filtered.length, buyWriteShowCount);
                       return <span className="wd-table-showing">Showing {displayed} of {allBW.length}</span>;
                     })()}
                   </div>
@@ -1191,7 +1192,7 @@ export function Deployment() {
                   selectedCandidate={selectedBuyWriteCandidate}
                   showAffordableOnly={showAffordableOnly}
                   showDanger={showDanger}
-                  showCount={showCount}
+                  showCount={buyWriteShowCount}
                   onSelect={(c) => { selectDrawerCandidate("buywrite", { buyWrite: c }); }}
                 />
               </>
@@ -1742,12 +1743,12 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
   selectedCandidate: BuyWriteCandidate | null;
   showAffordableOnly: boolean;
   showDanger: boolean;
-  showCount: number;
+  showCount: number | null;
   onSelect: (c: BuyWriteCandidate) => void;
 }) {
   let filtered = showAffordableOnly ? candidates.filter(c => c.affordable) : candidates;
   if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
-  const displayed = filtered.slice(0, showCount);
+  const displayed = applyShowCount(filtered, showCount);
 
   const ws = loadWorkspace();
   const { sorted, handleSort, indicator, isRecommendationOrder, columns } = useSortableTable(

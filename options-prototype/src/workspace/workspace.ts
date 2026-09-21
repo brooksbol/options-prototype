@@ -22,7 +22,8 @@ export interface Workspace {
   writeDeskRankingMode: string;
   writeDeskDeltaMin: number;
   writeDeskDeltaMax: number;
-  writeDeskShowCount: number;
+  /** Puts table show count. null = "-" = all / unlimited. */
+  writeDeskShowCount: number | null;
 
   // Deployment section state
   writeDeskPutsCollapsed: boolean;
@@ -39,8 +40,8 @@ export interface Workspace {
   writeDeskShowWideSpread: boolean;
   writeDeskCrossEntryAffordableOnly: boolean;
 
-  // Deployment cross-entry show count
-  writeDeskCrossEntryShowCount: number;
+  // Deployment cross-entry show count (null = "-" = all / unlimited)
+  writeDeskCrossEntryShowCount: number | null;
 
   // Deployment cross-entry DTE bounds (null = no bound)
   writeDeskCrossEntryDteMin: number | null;
@@ -62,6 +63,9 @@ export interface Workspace {
 
   // Buy-write candidates table symbol filter (mirror puts; empty = no filter)
   writeDeskBuyWriteSymbol: string;
+
+  // Buy-write candidates table show count (null = "-" = all / unlimited)
+  writeDeskBuyWriteShowCount: number | null;
 
   // Deployment table sort state
   writeDeskPutSortKey: string;
@@ -87,7 +91,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskRankingMode: "execution_first",
   writeDeskDeltaMin: 0.15,
   writeDeskDeltaMax: 0.50,
-  writeDeskShowCount: 20,
+  writeDeskShowCount: null,
   writeDeskPutsCollapsed: false,
   writeDeskCallsCollapsed: false,
   writeDeskBuyWritesCollapsed: false,
@@ -97,7 +101,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskShowDanger: false,
   writeDeskShowWideSpread: false,
   writeDeskCrossEntryAffordableOnly: false,
-  writeDeskCrossEntryShowCount: 10,
+  writeDeskCrossEntryShowCount: null,
   writeDeskCrossEntryDteMin: null,
   writeDeskCrossEntryDteMax: null,
   writeDeskCrossEntrySymbol: "",
@@ -109,6 +113,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskPutCapitalMin: null,
   writeDeskPutCapitalMax: null,
   writeDeskBuyWriteSymbol: "",
+  writeDeskBuyWriteShowCount: null,
   writeDeskPutSortKey: "rank",
   writeDeskPutSortDir: "asc",
   writeDeskCallSortKey: "rank",
