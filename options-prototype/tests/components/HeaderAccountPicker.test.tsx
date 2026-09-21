@@ -133,39 +133,79 @@ describe("Portfolio dropdown account management", () => {
       expect(screen.getAllByRole("button", { pressed: true }).some((b) => b.textContent?.includes("PTS margin"))).toBe(true);
     });
 
-    // REMOVE Sawdust Roth (inactive) with confirmation — PTS untouched.
+    // REMOVE Sawdust Roth (inactive) with confirmation — PTS (active) untouched.
     fireEvent.click(screen.getByRole("button", { name: /^Remove Sawdust Roth/ }));
     fireEvent.click(screen.getByRole("button", { name: /confirm remove Sawdust Roth/i }));
     await waitFor(() => expect(loadAccounts().filter((a) => a.status === "active")).toHaveLength(1));
-    // PTS remains active and intact.
+    // PTS remains active and intact (removing an INACTIVE account doesn't change selection).
     expect(getActiveBrokerageAccountId()).toBe(ptsId);
     expect(getSnapshot()?.accountId).toBe("Z12-345678");
   });
 
-  it("refuses a Balances file that belongs to a different account (fail closed)", async () => {
+  it("removing the ACTIVE account enters an explicit no-account-selected state (no auto-fallback)", async () => {
     const { container } = render(<HeaderPortfolioStatus />);
     openDropdown();
 
-    // Establish PTS (Z12) so that ref is owned by an account.
+    // Establish PTS + Sawdust.
+    addAccount("PTS");
+    await uploadCsvs(container, PTS_OS, PTS_BAL);
+    await waitFor(() => expect(loadAccounts()[0].externalAccountRef).toBe("Z12-345678"));
+    const ptsId = loadAccounts()[0].brokerageAccountId;
+    addAccount("Sawdust Roth");
+    await waitFor(() => expect(loadAccounts()).toHaveLength(2));
+    const rothId = loadAccounts().find((a) => a.brokerageAccountId !== ptsId)!.brokerageAccountId;
+    // Sawdust is active (added last).
+    expect(getActiveBrokerageAccountId()).toBe(rothId);
+
+    // Remove the ACTIVE account (Sawdust).
+    fireEvent.click(screen.getByRole("button", { name: /^Remove Sawdust Roth/ }));
+    fireEvent.click(screen.getByRole("button", { name: /confirm remove Sawdust Roth/i }));
+
+    // Sawdust is gone; PTS still exists but is NOT auto-selected. Explicit no-active state.
+    await waitFor(() => expect(loadAccounts().filter((a) => a.status === "active")).toHaveLength(1));
+    expect(getActiveBrokerageAccountId()).toBeNull();
+    // UI shows the explicit "select an account" affordance.
+    await waitFor(() => expect(screen.getByText(/select an account/i)).toBeTruthy());
+
+    // Operator explicitly clicks PTS → it loads normally.
+    const ptsSwitch = screen.getAllByRole("button", { pressed: false }).find((b) => b.textContent?.includes("PTS"));
+    fireEvent.click(ptsSwitch!);
+    await waitFor(() => expect(getActiveBrokerageAccountId()).toBe(ptsId));
+    await waitFor(() => expect(getSnapshot()?.accountId).toBe("Z12-345678"));
+  });
+
+  it("off-account import: PTS active + known-Sawdust CSVs → Sawdust refreshes, PTS stays selected (ratified)", async () => {
+    const { container } = render(<HeaderPortfolioStatus />);
+    openDropdown();
+
+    // Establish PTS (Z12) and Sawdust (Z98) as two known accounts.
     addAccount("PTS");
     await uploadCsvs(container, PTS_OS, PTS_BAL);
     await waitFor(() => expect(loadAccounts()[0].externalAccountRef).toBe("Z12-345678"));
     const ptsId = loadAccounts()[0].brokerageAccountId;
 
-    // Add a fresh empty account and, with it active, upload the PTS Balances (belongs to PTS).
-    addAccount("Rollover");
+    addAccount("Sawdust Roth");
     await waitFor(() => expect(loadAccounts()).toHaveLength(2));
-    const rolloverId = loadAccounts().find((a) => a.brokerageAccountId !== ptsId)!.brokerageAccountId;
-    expect(getActiveBrokerageAccountId()).toBe(rolloverId);
+    const rothId = loadAccounts().find((a) => a.brokerageAccountId !== ptsId)!.brokerageAccountId;
+    await uploadCsvs(container, ROTH_OS, ROTH_BAL);
+    await waitFor(() => expect(loadAccounts().find((a) => a.brokerageAccountId === rothId)!.externalAccountRef).toBe("Z98-765432"));
+
+    // Switch back to PTS, then upload the KNOWN Sawdust Balances while PTS is selected.
+    const ptsSwitch = screen.getAllByRole("button", { pressed: false }).find((b) => b.textContent?.includes("PTS"));
+    fireEvent.click(ptsSwitch!);
+    await waitFor(() => expect(getActiveBrokerageAccountId()).toBe(ptsId));
 
     const [, balInput] = fileInputs(container);
-    fireEvent.change(balInput, { target: { files: [csvFile("pts-bal.csv", PTS_BAL)] } });
+    fireEvent.change(balInput, { target: { files: [csvFile("roth-refresh.csv", ROTH_BAL)] } });
 
+    // Ratified: routed to Sawdust; PTS remains selected; visible notice.
     await waitFor(() => {
-      expect(screen.getByText(/belongs to a different account/i)).toBeTruthy();
+      expect(screen.getByText(/Sawdust Roth was refreshed\. PTS remains selected\./i)).toBeTruthy();
     });
-    // Rollover was NOT bound to PTS's identity; PTS identity + evidence intact.
-    expect(loadAccounts().find((a) => a.brokerageAccountId === rolloverId)!.externalAccountRef).toBeNull();
+    expect(getActiveBrokerageAccountId()).toBe(ptsId);
+    // Sawdust received the refreshed file; PTS evidence + identity unchanged.
+    const { readAccountCsv } = await import("../../src/portfolio/account-evidence-store");
+    expect(readAccountCsv(rothId, "balances")?.filename).toBe("roth-refresh.csv");
     expect(loadAccounts().find((a) => a.brokerageAccountId === ptsId)!.externalAccountRef).toBe("Z12-345678");
   });
 

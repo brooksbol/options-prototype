@@ -91,21 +91,26 @@ describe("fresh manually-created account — deferred identity binding", () => {
     expect(readAccountCsv(pts, "balances")).toBeNull();
   });
 
-  it("Balances identifying an account already bound to ANOTHER account is REFUSED", () => {
+  it("Balances identifying an account already bound to ANOTHER account is ROUTED there (ratified off-account behavior)", () => {
     // Roth already owns Z98-765432.
     const roth = newAccount("Sawdust Roth");
     importIntoAccount({ balances: blob(ROTH_BAL, "roth.csv") }, roth);
     expect(getAccountById(roth)?.externalAccountRef).toBe("Z98-765432");
 
-    // Attempt to import the Roth Balances into a freshly created PTS.
+    // Import the Roth Balances while a freshly created PTS is the target: the evidence is
+    // unambiguous for Roth, so it is ROUTED to Roth (refreshed there), NOT written into PTS,
+    // and PTS is not bound.
     const pts = newAccount("PTS");
-    const r = importIntoAccount({ balances: blob(ROTH_BAL, "roth.csv") }, pts);
-    expect(r.kind).toBe("conflict");
-    if (r.kind === "conflict") expect(r.reason).toBe("belongs-to-other");
-    // Neither account mutated: PTS still unbound, Roth evidence intact.
+    const r = importIntoAccount({ balances: blob(ROTH_BAL, "roth2.csv") }, pts);
+    expect(r.kind).toBe("routed-elsewhere");
+    if (r.kind === "routed-elsewhere") {
+      expect(r.routedToBrokerageAccountId).toBe(roth);
+      expect(r.externalAccountRef).toBe("Z98-765432");
+    }
+    // PTS untouched; Roth received the new evidence.
     expect(getAccountById(pts)?.externalAccountRef).toBeNull();
     expect(readAccountCsv(pts, "balances")).toBeNull();
-    expect(readAccountCsv(roth, "balances")?.text).toBe(ROTH_BAL);
+    expect(readAccountCsv(roth, "balances")?.filename).toBe("roth2.csv");
   });
 
   it("OS-only WITH a usable account number binds identity and refreshes", () => {
@@ -158,13 +163,28 @@ describe("account with an established external ref", () => {
     expect(readAccountCsv(pts, "balances")?.filename).toBe("bal2.csv");
   });
 
-  it("mismatching Balances (belongs to another account) is REFUSED — evidence + ref preserved", () => {
+  it("Balances belonging to another KNOWN account routes there; the established target is untouched", () => {
     const pts = newAccount("PTS");
     importIntoAccount({ balances: blob(PTS_BAL, "bal.csv") }, pts); // binds Z12-345678
+    const roth = newAccount("Sawdust Roth");
+    importIntoAccount({ balances: blob(ROTH_BAL, "roth.csv") }, roth); // binds Z98-765432
+
+    // With PTS as target, upload Roth's Balances → routed to Roth, PTS untouched.
+    const r = importIntoAccount({ balances: blob(ROTH_BAL, "roth2.csv") }, pts);
+    expect(r.kind).toBe("routed-elsewhere");
+    if (r.kind === "routed-elsewhere") expect(r.routedToBrokerageAccountId).toBe(roth);
+    // PTS identity + evidence unchanged; Roth refreshed.
+    expect(getAccountById(pts)?.externalAccountRef).toBe("Z12-345678");
+    expect(readAccountCsv(pts, "balances")?.text).toBe(PTS_BAL);
+    expect(readAccountCsv(roth, "balances")?.filename).toBe("roth2.csv");
+  });
+
+  it("Balances with an UNOWNED ref that differs from an established target is refused (not rebound)", () => {
+    const pts = newAccount("PTS");
+    importIntoAccount({ balances: blob(PTS_BAL, "bal.csv") }, pts); // binds Z12-345678
+    // A ref that no account owns, uploaded into the established PTS → refuse (fail closed).
     const r = importIntoAccount({ balances: blob(ROTH_BAL, "roth.csv") }, pts);
-    expect(r.kind).toBe("conflict");
-    if (r.kind === "conflict") expect(r.reason).toBe("belongs-to-other");
-    // PTS identity + evidence unchanged.
+    expect(r.kind).toBe("unidentified-balances");
     expect(getAccountById(pts)?.externalAccountRef).toBe("Z12-345678");
     expect(readAccountCsv(pts, "balances")?.text).toBe(PTS_BAL);
   });

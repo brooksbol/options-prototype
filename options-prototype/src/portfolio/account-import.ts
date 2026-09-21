@@ -168,7 +168,19 @@ export function resolveImport(
  */
 export type TargetedImportResult =
   | { kind: "refreshed"; brokerageAccountId: string; boundExternalRef: string | null }
-  | { kind: "conflict"; reason: "files-disagree" | "belongs-to-other"; refs: string[] }
+  | {
+      /**
+       * The uploaded evidence cleanly identifies a DIFFERENT already-known account, so it was
+       * routed there and refreshed. The selected/target account was NOT changed and remains
+       * the active view. (Identity determines where evidence goes; selection is not an
+       * identity override, but neither does it prohibit correctly routing identifiable
+       * evidence — ratified off-account behavior.)
+       */
+      kind: "routed-elsewhere";
+      routedToBrokerageAccountId: string;
+      externalAccountRef: string;
+    }
+  | { kind: "conflict"; reason: "files-disagree"; refs: string[] }
   | { kind: "unidentified-balances" }
   | { kind: "empty" }
   | { kind: "unknown-target" };
@@ -204,20 +216,30 @@ export function importIntoAccount(
   }
 
   if (incomingRef != null) {
+    // If the evidence cleanly identifies a DIFFERENT already-known account, route it there
+    // (refresh that account) and leave the selected/target account untouched. This preserves
+    // the ratified rule: identity determines where evidence goes. It is NOT a refusal — the
+    // file is unambiguous, just for another account.
+    const owner = resolveAccountByExternalRef(incomingRef);
+    if (owner.kind === "resolved" && owner.account.brokerageAccountId !== targetBrokerageAccountId) {
+      const other = owner.account.brokerageAccountId;
+      if (op.optionSummary) writeAccountCsv(other, "option-summary", op.optionSummary);
+      if (op.balances) writeAccountCsv(other, "balances", op.balances);
+      if (op.activity) writeAccountCsv(other, "activity", op.activity);
+      return { kind: "routed-elsewhere", routedToBrokerageAccountId: other, externalAccountRef: incomingRef };
+    }
+    if (owner.kind === "ambiguous") {
+      // The incoming ref maps to more than one account — genuinely ambiguous; fail closed
+      // (do not guess which account, do not write).
+      return { kind: "conflict", reason: "files-disagree", refs: [incomingRef] };
+    }
     if (targetRef != null && targetRef !== incomingRef) {
-      // The selected account already has a different identity — this CSV is not for it.
-      return { kind: "conflict", reason: "belongs-to-other", refs: [incomingRef] };
+      // The selected account already has a different identity and the incoming ref is not
+      // owned by any account: it does not belong here. Fail closed rather than rebinding.
+      return { kind: "unidentified-balances" };
     }
     if (targetRef == null) {
-      // The incoming ref must not already belong to ANOTHER account.
-      const owner = resolveAccountByExternalRef(incomingRef);
-      if (owner.kind === "resolved" && owner.account.brokerageAccountId !== targetBrokerageAccountId) {
-        return { kind: "conflict", reason: "belongs-to-other", refs: [incomingRef] };
-      }
-      if (owner.kind === "ambiguous") {
-        return { kind: "conflict", reason: "belongs-to-other", refs: [incomingRef] };
-      }
-      // Safe to bind the incoming identity to this manually-created account.
+      // Unowned incoming ref + target has no identity yet → safe to bind to this account.
       updateAccount(targetBrokerageAccountId, { externalAccountRef: incomingRef });
       boundExternalRef = incomingRef;
     }

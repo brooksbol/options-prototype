@@ -111,7 +111,7 @@ export function HeaderPortfolioStatus() {
       >
         <span className={`as-portfolio-pip${isReady ? " as-pip-ready" : source === "fidelity" ? " as-pip-fidelity" : ""}`} />
         <span className="as-portfolio-label">
-          {source === "demo" ? "Demo" : activeAccount ? activeAccount.displayName : statusLabel}
+          {source === "demo" ? "Demo" : activeAccount ? activeAccount.displayName : (accounts.length > 0 ? "Select account" : statusLabel)}
         </span>
         {isReady && exportTimestamp && (
           <span className="as-portfolio-freshness">{exportTimestamp}</span>
@@ -269,9 +269,12 @@ export function HeaderPortfolioStatus() {
                   key={activeAccount.brokerageAccountId}
                   onSnapshotChange={handleSnapshotChange}
                   targetBrokerageAccountId={activeAccount.brokerageAccountId}
+                  targetAccountName={activeAccount.displayName}
                 />
               ) : (
-                <div className="as-account-empty-hint">Add or select an account to upload CSVs.</div>
+                <div className="as-account-empty-hint">
+                  {accounts.length > 0 ? "Select an account to upload CSVs." : "Add an account to upload CSVs."}
+                </div>
               )}
             </div>
           )}

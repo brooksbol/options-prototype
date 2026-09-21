@@ -381,12 +381,10 @@ export function removeAccount(brokerageAccountId: string): void {
   updateAccount(brokerageAccountId, { status: "archived" });
 
   if (wasActive) {
-    const remaining = loadAccounts().filter((a) => a.status === "active");
-    if (remaining.length === 1) {
-      switchToAccount(remaining[0].brokerageAccountId);
-      return;
-    }
-    // Zero or many remaining → explicit safe state, no accidental fallback.
+    // Explicit safe state (ratified): removing the ACTIVE account must NOT silently
+    // substitute another BrokerageAccount — that would change financial context without an
+    // operator decision. Enter a no-active-account state; the operator then deliberately
+    // selects the next account. Demo is not silently selected either.
     clearActiveAccountSelection();
     currentSource = "fidelity";
     currentSnapshot = null;
@@ -394,6 +392,7 @@ export function removeAccount(brokerageAccountId: string): void {
     currentActivityRows = null;
     notify();
   } else {
+    // Removing an inactive account leaves the active account unchanged.
     notify();
   }
 }
@@ -409,11 +408,26 @@ export function importEvidenceIntoAccount(
   op: ImportOperation,
 ): TargetedImportResult {
   const result = importIntoAccount(op, brokerageAccountId);
+
   if (result.kind === "refreshed" && getActiveBrokerageAccountId() === brokerageAccountId) {
     currentSource = "fidelity";
     loadActiveAccountSnapshot();
     if (currentSnapshot) recordPortfolioCapitalObservation(currentSnapshot);
     notify();
+  } else if (result.kind === "routed-elsewhere") {
+    // Off-account routing (ratified): the evidence identified a DIFFERENT known account and
+    // was refreshed there. The active view is unchanged. Record that account's own capital
+    // observation (importing its CSVs is a reading of it), and refresh the visible snapshot
+    // only in the edge case where the routed account IS the active one.
+    const routedSnapshot = buildSnapshotForAccount(result.routedToBrokerageAccountId);
+    if (getActiveBrokerageAccountId() === result.routedToBrokerageAccountId) {
+      currentSource = "fidelity";
+      loadActiveAccountSnapshot();
+      if (currentSnapshot) recordPortfolioCapitalObservation(currentSnapshot);
+      notify();
+    } else if (routedSnapshot) {
+      recordPortfolioCapitalObservation(routedSnapshot);
+    }
   }
   return result;
 }

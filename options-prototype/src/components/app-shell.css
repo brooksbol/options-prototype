@@ -448,6 +448,13 @@
   line-height: 1.3;
 }
 
+.as-upload-notice {
+  font-size: 10px;
+  color: var(--wd-accent-green, #98c379);
+  padding: 4px 0 2px 0;
+  line-height: 1.3;
+}
+
 /* --- Provenance rows --- */
 
 .as-dropdown-provenance {
