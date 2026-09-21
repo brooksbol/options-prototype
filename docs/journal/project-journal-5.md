@@ -245,3 +245,22 @@ So a Log built today is **complete for reconciliation-era items and partial for 
 **Explicitly not authorized.** No vendor selected; no RBAC/FGA/authentication/authorization/identity/session implementation; no multi-Operator implementation work; no cloud/deployment change; no new dependency or credential.
 
 **Epistemic status.** Durable intake + dependency clarification preserved as project memory. Not implementation authority; no production code changed. Full Required Intake Record and Reconciliation Completion Record live in `docs/parking-lot-9.md` under `PL-ARCH-07`. Next mode: research/design only when separately selected by the Principal.
+
+
+---
+## 2026-09-21 — COTS authorization investigation reconciled into durable evidence (`docs/57`), linked from `PL-ARCH-07` (Kiro, governance)
+
+**Actor:** Kiro (governance thread). Reconciliation/persistence only; no vendor selected, no authorization/authentication/RBAC/ReBAC/FGA/multi-Operator implementation authorized.
+**SYNC SHA:** `be128ee21545482f1a0d6bbe58480b431b0e5024` (remotely verified accepted `main`; re-fetched, not assumed).
+
+**What was asked.** A dedicated COTS authorization research session (research baseline `90098621…`) closed without repository mutation and handed back a substantive evidence package for `PL-ARCH-07`. The Principal authorized reconciling that package into durable authority so a future cold-start actor can recover the investigation from GitHub without the conversation and without repeating the research.
+
+**Durable home chosen.** A dedicated evidence document, `docs/57-cots-authorization-investigation-2026-09-21.md` (Category E — bounded investigation evidence), following the numbered-discovery convention (cf. doc 56). The handoff's suggestion of "PL record + journal why-state" was treated as non-binding: the investigation is large enough that dumping it into `parking-lot-9.md` would turn the backlog identity into a research notebook. So `PL-ARCH-07` remains the backlog identity and now *points to* doc 57; the journal carries why-state; doc 57 carries the detailed vendor/model/Render/economics investigation.
+
+**Epistemic status preserved.** Doc 57 retains the investigation's labels — `[EXT]` external evidence, `[FIND]` finding, `[HYP]` hypothesis, `[RATIFIED]` decision, `[OPEN]` unresolved. **No finding or hypothesis was promoted to ratified architecture.** The only ratified items are the previously-ratified relationship decisions (PL-ARCH-07 informs PL-ARCH-03; not dependent on PL-OPS-01 for research/design; PL-OPS-01 is deployment context; PL-PORT-01 not blocked; near-term multi-BrokerageAccount may proceed with one implicit Operator preserving the authorization seam).
+
+**Discoverability.** `PL-ARCH-07` intake record (`parking-lot-9.md`, question 7 "richer evidence/why-state") now names `docs/57-…` explicitly.
+
+**Git-safety note (important).** The working tree carried extensive **unrelated in-flight `PL-ROADMAP-UI` / Log-lens work** (`RoadmapView.tsx`, untracked `LogView.tsx`, roadmap projection scripts/types/json/css, roadmap tests, and Log-lens prose interleaved in `parking-lot-9.md`/`journal-5.md`). That work is foreign to this task and was **excluded**: only the new `docs/57` file and the isolated `PL-ARCH-07`-pointer / journal hunks were staged (via `git add -p`), and the staged diff was inspected to confirm no Log-lens content was present before committing.
+
+**Epistemic status.** Evidence persisted as durable project memory. Not implementation authority; no production code changed. Next mode for `PL-ARCH-07`: research/design only when separately selected by the Principal.

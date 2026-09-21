@@ -448,7 +448,7 @@ The authorization model materially shapes `PL-ARCH-03`: an RBAC-vs-FGA choice an
 - Intake does not authorize implementation (intake invariant 6).
 
 **7. Where is the richer evidence/why-state?**
-Migration-safety analysis (SYNC `9009862`) and the prior operator/brokerage-account architectural review (SYNC `37dd918`) — session artifacts referenced from the journal. Why-state entry: `docs/journal/project-journal-5.md` (2026-09-21, `PL-ARCH-07` intake).
+Migration-safety analysis (SYNC `9009862`) and the prior operator/brokerage-account architectural review (SYNC `37dd918`) — session artifacts referenced from the journal. Why-state entry: `docs/journal/project-journal-5.md` (2026-09-21, `PL-ARCH-07` intake). **COTS authorization investigation evidence (RBAC/ABAC/ReBAC/FGA models; Cerbos / OpenFGA / WorkOS / Permit.io / Auth0 FGA and further candidates; Render/topology/datastore/latency/audit/economics findings; build-vs-buy; owned-identity seams; open questions; external sources) is preserved with full epistemic labeling in `docs/57-cots-authorization-investigation-2026-09-21.md`** (reconciled 2026-09-21; no vendor selected, no implementation authorized).
 
 ### Reconciliation Completion Record — `PL-ARCH-07`
 
