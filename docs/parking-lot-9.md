@@ -573,3 +573,13 @@ Two Principal acceptance findings applied during operator testing; **display-onl
 2. **Master/detail interaction.** Log rows are selectable; the selected event's full detail (title, event date, `PL-*` identity or explicit missing-id, event kind, verbatim governed state or explicit missing-state, whether it establishes intake, source/provenance) renders in the previously-unused right pane, reusing the shared Roadmap tree+detail pattern. The newest event is selected by default. No modal, route, or new architecture.
 
 Earlier descriptions of the Log as a "single-column chronological timeline" are superseded by this master/detail presentation. This was Principal-accepted operator behavior; no further Codex review was required for these two display changes. This note carries no `**Date:**` line and is therefore not itself a Log event.
+
+
+### `PL-ROADMAP-UI` — Log lens Principal acceptance recorded (2026-09-21)
+
+**Principal operator-acceptance testing PASSED** for the Roadmap Log UX corrections. The two acceptance findings are confirmed satisfied:
+
+1. The Log displays newest events first while preserving deterministic canonical source order within the same date.
+2. Log rows are selectable/clickable and populate the existing right-hand detail pane.
+
+The Log lens implementation is on `main` (feat commit `6873015`, on top of accepted `main` at closeout SYNC `3570933`). This entry is the durable acceptance record; no Log design, semantics, implementation, testing, or Codex review is reopened, and no new identity/Bet/initiative/architecture item is created. Frozen semantics remain: 32 governed temporal events; intake partition 9 known / 51 unknown. This note carries no `**Date:**` line and is therefore not itself a Log event.
