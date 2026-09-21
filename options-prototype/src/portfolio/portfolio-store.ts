@@ -215,41 +215,23 @@ export function selectPortfolioSource(source: PortfolioSourceType): void {
     return;
   }
 
-  // Fidelity: reconstruct from persisted CSV input
+  // Fidelity: load the ACTIVE account's snapshot via the account-aware path (Increment 8).
+  // Previously this rebuilt from the legacy singleton keys, which was an account-blind path
+  // that could show stale/wrong evidence once multiple accounts exist. Now it migrates any
+  // legacy evidence once, resolves/adopts the active account, and loads that account's own
+  // account-local snapshot.
   currentSource = "fidelity";
-  currentSnapshot = null;
   updateWorkspace({ writeDeskSource: "fidelity" });
 
   try {
-    const osStored = localStorage.getItem(LS_KEY_OS);
-    const balStored = localStorage.getItem(LS_KEY_BAL);
-
-    if (osStored && balStored) {
-      const { text: osText, filename: osFilename } = JSON.parse(osStored);
-      const { text: balText, filename: balFilename } = JSON.parse(balStored);
-
-      const osParsed = parseOptionSummaryText(osText);
-      const balParsed = parseBalancesText(balText);
-
-      if (osParsed && balParsed) {
-        currentSnapshot = buildFidelitySnapshot({
-          optionSummaryRows: osParsed.rows,
-          optionSummaryFilename: osFilename,
-          optionSummaryExportTimestamp: osParsed.exportTimestamp,
-          balances: balParsed.balances,
-          balancesFilename: balFilename,
-          balancesExportTimestamp: balParsed.exportTimestamp,
-        });
-        currentImportStatus = {
-          optionSummary: { filename: osFilename, exportTimestamp: osParsed.exportTimestamp, loadedAt: new Date().toISOString() },
-          balances: { filename: balFilename, exportTimestamp: balParsed.exportTimestamp, loadedAt: new Date().toISOString() },
-          readinessStatus: currentSnapshot.readiness.status,
-          validationWarnings: currentSnapshot.readiness.warnings,
-        };
-      }
+    migrateLegacySingletonEvidence();
+    if (getActiveAccountContext().kind !== "account") {
+      adoptSoleAccountIfUnambiguous();
     }
+    loadActiveAccountSnapshot();
   } catch {
-    // Corrupt localStorage — snapshot remains null
+    // Registry/evidence failure — leave snapshot cleared rather than showing wrong data.
+    currentSnapshot = null;
   }
 
   notify();

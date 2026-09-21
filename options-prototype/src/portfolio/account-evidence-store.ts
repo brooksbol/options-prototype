@@ -63,12 +63,42 @@ export function readAccountCsv(brokerageAccountId: string, kind: CsvDocKind): St
   return readBlob(accountKey(brokerageAccountId, kind));
 }
 
+/**
+ * Write an account's Fidelity CSV blob. Returns true on success, false on failure
+ * (including a localStorage quota exceeded). Callers that need to surface a persistence
+ * failure to the operator can act on the false return; the write is fail-safe (a failed
+ * write never corrupts existing per-account evidence — it just does not persist the new blob).
+ */
 export function writeAccountCsv(
   brokerageAccountId: string,
   kind: CsvDocKind,
   blob: StoredCsvBlob
-): void {
-  writeBlob(accountKey(brokerageAccountId, kind), blob);
+): boolean {
+  return writeBlob(accountKey(brokerageAccountId, kind), blob);
+}
+
+/**
+ * Persistence-headroom probe (Increment 8). Estimate the total bytes currently used by all
+ * per-account evidence + registry + legacy keys, as a coarse guard against the localStorage
+ * origin quota (~5MB in most browsers). This is informational; it does not enforce a limit.
+ * Concrete failure mode if exceeded: writeAccountCsv returns false and the new blob is not
+ * persisted (existing evidence is preserved) — the operator must be told the import did not
+ * save rather than silently believing it did.
+ */
+export function estimateWheelwrightStorageBytes(): number {
+  let total = 0;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k || !k.startsWith("wheelwright:")) continue;
+      const v = localStorage.getItem(k) ?? "";
+      // UTF-16 code units → ~2 bytes each is the common storage accounting.
+      total += (k.length + v.length) * 2;
+    }
+  } catch {
+    // ignore
+  }
+  return total;
 }
 
 function readBlob(key: string): StoredCsvBlob | null {
@@ -85,11 +115,14 @@ function readBlob(key: string): StoredCsvBlob | null {
   }
 }
 
-function writeBlob(key: string, blob: StoredCsvBlob): void {
+function writeBlob(key: string, blob: StoredCsvBlob): boolean {
   try {
     localStorage.setItem(key, JSON.stringify(blob));
+    return true;
   } catch {
-    // localStorage full/unavailable — fail silently (prototype convention).
+    // localStorage full/unavailable (e.g. QuotaExceededError). Existing evidence under this
+    // key is preserved (setItem is atomic per-key); we simply did not persist the new blob.
+    return false;
   }
 }
 

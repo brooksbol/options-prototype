@@ -72,7 +72,9 @@ export function ProductionView() {
     const csvText = getCsvText();
     if (csvText) {
       const file = new File([csvText], "activity-history.csv", { type: "text/csv" });
-      assessCurrentMonth(file, currentMonthKey);
+      // Guard against the account-switch race: if the operator switches accounts before this
+      // assessment completes, the result is discarded rather than shown under the new account.
+      assessCurrentMonth(file, currentMonthKey, { expectedAccountId: activeAccountId });
     }
   }, [assessCurrentMonth, currentMonthKey, getCsvText, activeAccountId]);
 
