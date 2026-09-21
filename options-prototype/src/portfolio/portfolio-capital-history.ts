@@ -39,18 +39,30 @@ export interface PortfolioCapitalObservation {
 export type TimeRange = "all" | "1y" | "6m" | "3m" | "1m" | "1w";
 
 // --- localStorage Keys ---
-
+//
+// Capital history is ACCOUNT-LOCAL (Increment 5): each BrokerageAccount has its own
+// trajectory. Per-account key: wheelwright:acct:<baId>:portfolio-capital:history.
+// The legacy global key is retained for the demo/unattributed context and as the
+// migration source (migrated to the sole account on startup; increment 8 owns removal).
 const LS_KEY_HISTORY = "wheelwright:portfolio-capital:history";
 const LS_KEY_TIME_RANGE = "wheelwright:portfolio-capital:time-range";
+
+/** Resolve the history storage key for an account (null → legacy global key). */
+function historyKey(brokerageAccountId: string | null): string {
+  return brokerageAccountId
+    ? `wheelwright:acct:${brokerageAccountId}:portfolio-capital:history`
+    : LS_KEY_HISTORY;
+}
 
 // --- History Management ---
 
 /**
- * Load all persisted Portfolio Capital observations, sorted chronologically.
+ * Load persisted Portfolio Capital observations for an account (sorted chronologically).
+ * A null account reads the legacy global series (demo/unattributed context).
  */
-export function loadHistory(): PortfolioCapitalObservation[] {
+export function loadHistory(brokerageAccountId: string | null = null): PortfolioCapitalObservation[] {
   try {
-    const raw = localStorage.getItem(LS_KEY_HISTORY);
+    const raw = localStorage.getItem(historyKey(brokerageAccountId));
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -83,8 +95,9 @@ export function recordObservation(
   _sourceTimestamp: string,
   value: number,
   importDate: Date = new Date(),
+  brokerageAccountId: string | null = null,
 ): PortfolioCapitalObservation[] {
-  const history = loadHistory();
+  const history = loadHistory(brokerageAccountId);
 
   // Calendar day identity: local YYYY-MM-DD
   const dayKey = toLocalDateKey(importDate);
@@ -100,8 +113,29 @@ export function recordObservation(
     history.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
   }
 
-  localStorage.setItem(LS_KEY_HISTORY, JSON.stringify(history));
+  localStorage.setItem(historyKey(brokerageAccountId), JSON.stringify(history));
   return history;
+}
+
+/**
+ * Migrate the legacy global capital-history series to a per-account series (Increment 5).
+ * Idempotent and non-destructive: copies the legacy series into the account key only when
+ * the account has no series yet AND a legacy series exists. Legacy key is left in place
+ * (increment 8 owns removal). Preserves the historical seed provenance for that account.
+ * Returns true if a migration copy occurred.
+ */
+export function migrateLegacyHistoryToAccount(brokerageAccountId: string | null): boolean {
+  if (!brokerageAccountId) return false;
+  const accountKey = historyKey(brokerageAccountId);
+  try {
+    if (localStorage.getItem(accountKey)) return false; // account already has its own series
+    const legacy = localStorage.getItem(LS_KEY_HISTORY);
+    if (!legacy) return false;
+    localStorage.setItem(accountKey, legacy);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -182,6 +216,17 @@ function isValidTimeRange(value: string): value is TimeRange {
 export function _clearHistoryForTesting(): void {
   localStorage.removeItem(LS_KEY_HISTORY);
   localStorage.removeItem(LS_KEY_TIME_RANGE);
+  // Also clear any per-account history series.
+  try {
+    const toRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("wheelwright:acct:") && k.endsWith(":portfolio-capital:history")) toRemove.push(k);
+    }
+    for (const k of toRemove) localStorage.removeItem(k);
+  } catch {
+    // ignore
+  }
 }
 
 // --- Historical Seed (one-time bootstrap from prior Fidelity CSVs) ---

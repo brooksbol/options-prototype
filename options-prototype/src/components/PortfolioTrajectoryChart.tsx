@@ -67,8 +67,16 @@ export function PortfolioTrajectoryChart({ capitalContext, tierReadiness, sessio
     return derivation?.portfolioCapital ?? null;
   }, [snapshot]);
 
-  // Load history — re-read whenever snapshot changes (new observation may have been recorded)
-  const history = useMemo(() => loadHistory(), [currentPC]);
+  // Load the ACTIVE ACCOUNT's history (Increment 5) — re-read whenever the snapshot changes
+  // (a new observation may have been recorded on import, or the operator switched accounts).
+  // A null account (demo/unattributed) reads the legacy global series. currentPC is included
+  // because a same-account re-import changes the value but not the account id.
+  const activeAccountId = snapshot?.brokerageAccountId ?? null;
+  const history = useMemo(
+    () => loadHistory(activeAccountId),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-read on value or account change
+    [currentPC, activeAccountId],
+  );
   const filteredHistory = useMemo(
     () => filterByRange(history, timeRange),
     [history, timeRange],

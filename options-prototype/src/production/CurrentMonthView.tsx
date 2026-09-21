@@ -146,7 +146,8 @@ export function CurrentMonthView({ assessment }: Props) {
     // Record observations for future evaluation
     const monthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
     const posMap = new Map(positions.map(p => [p.id, { underlying: p.underlying }]));
-    recordOutlookObservations(outlooks, posMap, monthStr, today);
+    // Record under the active account (Increment 5): each account forecasts its own positions.
+    recordOutlookObservations(outlooks, posMap, monthStr, today, snapshot?.brokerageAccountId ?? null);
 
     return deriveProductionOutlook(assessment, outlooks, positions, snapshot, today);
   }, [assessment, snapshot, observations]);

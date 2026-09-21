@@ -21,7 +21,7 @@ import { classifyDocument } from "../csv/registry";
 import "../csv/fidelity"; // ensure parsers are registered before hydration
 import { projectActivityOverlay, parseCheckpoint } from "./activity-projection";
 import { derivePortfolioCapital } from "./portfolio-capital";
-import { recordObservation } from "./portfolio-capital-history";
+import { recordObservation, migrateLegacyHistoryToAccount } from "./portfolio-capital-history";
 import {
   resolveImport,
   type ImportOperation,
@@ -40,6 +40,7 @@ import {
 } from "./active-account";
 import { loadAccounts } from "./brokerage-account-registry";
 import { migrateLegacyIntents } from "../execution/pending-intent";
+import { migrateLegacyOutlookToAccount } from "../forecast/outlook-observations";
 
 // --- localStorage keys (shared with FidelityUpload for backward compat) ---
 
@@ -66,7 +67,9 @@ function recordPortfolioCapitalObservation(snapshot: PortfolioSnapshot): void {
     snapshot.provenance?.optionSummaryExportTimestamp ??
     new Date().toISOString();
 
-  recordObservation(sourceTimestamp, derivation.portfolioCapital, new Date());
+  // Record under the account the snapshot belongs to (Increment 5). Demo/unattributed
+  // snapshots (null) record into the legacy global series.
+  recordObservation(sourceTimestamp, derivation.portfolioCapital, new Date(), snapshot.brokerageAccountId ?? null);
 }
 
 // --- Import Status ---
@@ -250,9 +253,11 @@ function adoptSoleAccountIfUnambiguous(): string | null {
   if (accounts.length === 1) {
     const soleId = accounts[0].brokerageAccountId;
     selectActiveAccount(soleId);
-    // Attribute any legacy account-blind pending intents to the sole account (Increment 4).
-    // Idempotent, non-destructive, and only when unambiguous.
+    // Attribute legacy account-blind state to the sole account (Increments 4 & 5).
+    // All idempotent, non-destructive, and only when unambiguous.
     migrateLegacyIntents(soleId);
+    migrateLegacyHistoryToAccount(soleId);
+    migrateLegacyOutlookToAccount(soleId);
     return soleId;
   }
   return null;
@@ -357,9 +362,13 @@ export function importFidelityEvidence(op: ImportOperation): ImportResolution {
     // Record a capital observation for the active account's fresh import.
     if (currentSnapshot) recordPortfolioCapitalObservation(currentSnapshot);
     notify();
+  } else {
+    // Case B: a DIFFERENT account was refreshed; the active view is unchanged. Still record
+    // that account's own capital observation (importing its CSVs IS taking a reading of it),
+    // under its own account-local trajectory — never the active account's.
+    const refreshedSnapshot = buildSnapshotForAccount(resolution.brokerageAccountId);
+    if (refreshedSnapshot) recordPortfolioCapitalObservation(refreshedSnapshot);
   }
-  // Else Case B: a different account was refreshed; active view is unchanged. No notify
-  // needed for the visible snapshot, but listeners may still want registry-level updates.
 
   return resolution;
 }
