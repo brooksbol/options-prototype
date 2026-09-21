@@ -150,17 +150,13 @@ export function OperatorConsole() {
     }
   }, [sortColumn, sortDirection]);
 
-  if (!snapshot) {
-    return (
-      <div className="oc-shell">
-        <div className="oc-empty">
-          <p>No portfolio data available.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const positions = deriveMonitoredPositions(snapshot, observations);
+  // NOTE: do NOT early-return here on a null snapshot. Hooks below (useMemo,
+  // useSpotHistory, useIntradayBars, usePositionDeltas/Greeks/Quotes, useHoldCloseNotices)
+  // must run unconditionally on every render — an early return between hook groups changes
+  // the hook count when the active account's snapshot transitions null↔present and crashes
+  // React ("Rendered fewer hooks than expected"). The empty state is rendered after all
+  // hooks (see below). Derivations are null-safe.
+  const positions = snapshot ? deriveMonitoredPositions(snapshot, observations) : [];
   const rungs = groupByExpiration(positions);
   const totalCapital = rungs.reduce((sum, r) => sum + r.totalCapital, 0);
   const maxPositionCapital = Math.max(...positions.map(p => p.encumberedCapital ?? 0), 1);
@@ -182,7 +178,7 @@ export function OperatorConsole() {
   // independent of the recommendation universe.
   const underlyingsKey = [...new Set([
     ...positions.map(p => p.underlying),
-    ...snapshot.inventory.map(inv => inv.symbol.toUpperCase()),
+    ...(snapshot?.inventory ?? []).map(inv => inv.symbol.toUpperCase()),
   ])].sort().join(",");
   const underlyings = useMemo(
     () => (underlyingsKey === "" ? [] : underlyingsKey.split(",")),
@@ -246,6 +242,18 @@ export function OperatorConsole() {
 
   // Note: consequence hints are no longer rendered on tiles (ADR-013 dimension independence).
   // Economic Consequence remains available in the position-detail modal.
+
+  // Empty state — rendered AFTER all hooks have run (no early return above), so the hook
+  // count is stable whether or not an account snapshot is present.
+  if (!snapshot) {
+    return (
+      <div className="oc-shell">
+        <div className="oc-empty">
+          <p>No portfolio data available.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`oc-shell ${vizRegime !== "c" ? "oc-light" : ""}`}>
