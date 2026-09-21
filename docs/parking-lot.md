@@ -68,7 +68,7 @@
 | ID | Name | Summary | Concept Home |
 |---|---|---|---|
 | `PL-OPS-01` | Cloud Deployment | Always-on backend (Render or equivalent). Persistent SQLite. GitHub CI/CD. Independent of workstation. Prerequisite for PL-ARCH-03, PL-OPS-04, always-on observation. **Notification implication (Aug 29):** meaningful SMS/push background awareness is expected to depend on this always-on deployment boundary; local Console attention analysis may precede cloud, but reliable off-device notification should not be promised as a workstation-local capability. | `docs/24-cloud-deployment.md` |
-| `PL-ARCH-03` | Security and User Accounts | Application-managed users, sessions, ownership boundaries. Depends on cloud deployment. | `10-backend-implementation-preferences.md` §5 |
+| `PL-ARCH-03` | Security and User Accounts | Application-managed users, sessions, ownership boundaries. Depends on cloud deployment. **Informed by `PL-ARCH-07`** (Authorization Platform / COTS RBAC-FGA build-vs-buy evaluation) — the authorization-model / build-vs-buy decision that shapes this implementation; `PL-ARCH-07` is research/design and does **not** itself depend on cloud deployment. | `10-backend-implementation-preferences.md` §5; `PL-ARCH-07` (parking-lot-9) |
 
 ### Blocked on External Dependencies
 

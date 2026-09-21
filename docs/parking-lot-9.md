@@ -345,3 +345,127 @@ Both are new lenses in the existing tabbed surface. Neither was populated with i
 ### `PL-ROADMAP-UI` — enduring-purpose codification (2026-09-20)
 
 The Roadmap's enduring *why* — **"the Roadmap is Wheelwright's self-documenting meta-state; its freshness is a side effect of doing the work"** — is now governed in the Category-A foundation `docs/foundations/roadmap-self-documenting-meta-state.md`, with the ways-of-working freshness invariant in `docs/bootstrap/project-memory-protocol.md` and the architectural boundary in ADR-018. This `PL-ROADMAP-UI` record remains reconciliation provenance only; it is no longer the home of the capability's purpose. The concept is codified independently of the current lens set (Principles / Strategy / Priority / Architecture / ADRs / Parking Lot / Coming Soon), which are its current expressions and may change without invalidating it.
+
+
+### `PL-ROADMAP-UI` — Log lens intake/reconciliation (2026-09-21)
+
+**Date:** September 21, 2026
+**SYNC at reconciliation:** `90098621332539e583c7c715cab5a125153368d2` (remotely verified accepted `main`)
+**Method:** `docs/foundations/idea-intake-reconciliation.md`
+**Actor:** Kiro (repository-resident implementation/architecture partner), reconciliation only — no implementation authorized by this entry.
+
+**Discovery (Principal observation).** The Roadmap surface lacks a temporal lens the Principal wants: a **Log** exposing, chronologically, *what ideas entered Wheelwright's governed meta-state and what subsequently happened to them*. Approximate intent: "look at the Roadmap and see, chronologically, what ideas entered Wheelwright's thinking and what subsequently happened to them." Explicitly **not** a Git commit log, a dev-activity feed, a full rendering of the Project Journal, a second manually maintained backlog, a second source of authority, or a Jira-style workflow/event system. Candidate semantic unit: **intake and its subsequent governed disposition**.
+
+**Identity determination (verified against repository authority, not assumed).** This is a **refinement of the existing `PL-ROADMAP-UI` capability**, not a new canonical identity. Grounds: (a) the enduring purpose already codified in `foundations/roadmap-self-documenting-meta-state.md` explicitly says the lens set (Principles / Strategy / Priority / Architecture / ADRs / Parking Lot / Coming Soon) is *today's* expression and "any of them may be redesigned or removed — or added — without invalidating this concept"; (b) a chronological projection of governed intake/disposition is another lens over the same canonical authority `PL-ROADMAP-UI` already projects (the parking-lot sequence), under the same ADR-018 build-time boundary; (c) a repository sweep found **no existing PL-\* item contemplating an intake chronology / timeline lens** and **no prior `roadmap-log.md` or Log design**. (`PL-PROD-EVENTS` is an unrelated *economic* event ledger for a trading month, not project meta-state.) The ChatGPT suspicion that this belongs under `PL-ROADMAP-UI` is **confirmed**.
+
+**What exact question the Log should answer (Q1).** For a governed idea: *when did it enter Wheelwright's thinking, under what canonical `PL-*` identity, what triggered it, and what has since happened to it (strategic reconciliation → architectural reconciliation → decomposition/authorization/disposition), with a pointer to richer why-state?* It is the operator-facing chronology of **governed intake/reconciliation events**, distinct from (and pointing back into) the richer Project Journal.
+
+**Strategic disposition (against `docs/roadmap.md`).** **No new Bet and no LVT change.** The Log is an operator-facing *projection* of existing Category-C project-state authority (the parking-lot sequence) that strengthens comprehensibility of the self-documenting meta-state. It introduces no new strategic hypothesis. It must not promote intake into commitment, or manufacture priority/sequencing (that remains the separate Priority lens authority).
+
+**Architectural disposition (against `docs/architecture-roadmap.md`, ADRs, foundations).** **No AR change, no new engine, wholly within the existing ADR-018 build-time projection boundary (Q8 = yes).** A Log lens would be one more read-only projection derived by `scripts/generate-roadmap-projection.mjs` from canonical Markdown, shipped as `roadmap-projection.json`, freshness-verified in CI — no runtime GitHub, no credentials, no new backend, no new authority. It fits the existing schema pattern; it does **not** fit the current schema *as-is* (Q4): the `PlItem` type and `parseParkingLotFile` capture **no date and no lifecycle transition**. Representing the Log cleanly would require the projection to additionally capture, *explicit-only*, per-item intake date, state, and any dated disposition/remediation transitions the canonical records already state.
+
+**Authority gap — the load-bearing finding (Q2/Q3/Q5).** The Log is only as truthful as the temporal facts canonical authority *explicitly* records, and today those facts are **structurally uneven**:
+
+- **Prose continuation records (`parking-lot-3.md` … `-9.md`)** — mostly reconciliation-era items — carry a structured `**Date:**` line and a `**State:**` line, frequently a `**SYNC at reconciliation:**`, and sometimes explicit dated transition notes (e.g. `**remediation closure appended 2026-09-09**`). For these, an **intake date + current state + selected dated transitions are explicit and projectable without inference.**
+- **The primary `docs/parking-lot.md` table rows** (the older, foundational `PL-*` population — `PL-ARCH-06`, `PL-DEPLOY`, `PL-PORT-01/02`, `PL-EVID-*`, `PL-PROD-*`, etc.) carry **no intake-date column and no state column.** Dates appear only inconsistently, embedded free-text inside the Summary cell ("Aug 26", "August 21, 2026", "2026-09-04"), and where present they usually mark a *resolution/refinement* event, **not the original intake**. The **Graduated/Closed Index** carries disposition + destination but **no dates**.
+
+**Consequence:** a chronology built today would be **complete and trustworthy for the reconciliation-era prose items and missing/partial for the older primary-table items.** Per the Roadmap's explicit-only rule, those gaps must render as **missing/unknown**, never as inferred dates or reconstructed transitions. This is a genuine authority gap, but it is **not a blocker** to a truthful Log — a Log that honestly shows "intake date: not recorded" for early items is faithful; it is only a blocker to a *complete* Log. Closing the gap (backfilling explicit intake dates into the primary table) is optional, separate reconciliation work — **not** a prerequisite, and must not be done speculatively.
+
+**Journal vs Log distinction (preserved, Q per prompt).** The **Project Journal** remains rich chronological why-state / intellectual history (Category C, append-only, not authority). The **Log** is a compact operator-facing chronology of *governed intake/reconciliation events* projected from the parking-lot sequence, with references back into the Journal for richer why-state. The architecture does **not** say they are the same, and no evidence was found to collapse them. The Log projects the parking lot's temporal facts; it does not render the Journal.
+
+**New strategic Bet? (Q6):** No. **New/refined architecture-roadmap pressure? (Q7):** No new AR; at most it *reinforces* the existing ADR-018 boundary and the projection-schema pattern. No `architecture-roadmap.md` change warranted.
+
+**Smallest coherent implementation unit if authorized (Q9).** A **read-only "Log" lens** added to the existing Roadmap surface, fed by an *explicit-only* temporal extension of the existing projection:
+
+1. Extend `parseParkingLotFile` (and the prose-record path) to capture, when — and only when — the canonical text states them: `intakeDate`, `state`, and a list of dated transition notes already present in the record (e.g. remediation-closure dates, "amended same day"). No date is inferred; absence → `null`.
+2. Add a `LogEntry`/temporal shape to `roadmap-projection-types.ts` and emit a chronologically **sorted-where-dated** projection; undated items surface in a clearly separated "intake date not recorded" group rather than being given a fabricated position.
+3. Add a `"log"` lens to `RoadmapView.tsx` rendering entry → `PL-*` identity → concise concept → trigger (when recorded) → state/disposition → journal/why-state reference, read-only.
+4. Extend the projection-integrity Vitest suite: explicit-only temporal facts, no inferred dates, undated items represented as unknown, freshness verified.
+
+No backend, no database, no runtime GitHub, no new authority file, no manufactured dates/transitions, no priority/sequencing semantics.
+
+### Reconciliation Completion Record — `PL-ROADMAP-UI` Log lens
+
+**Intake:** Refinement of existing `PL-ROADMAP-UI` (Roadmap Operator Surface). **No new `PL-*` identity created** (verified: no existing/absent identity contemplates an intake chronology; the enduring-purpose foundation explicitly admits new lenses).
+
+**Strategic disposition:** No new Bet, no LVT change. Operator-facing projection strengthening comprehensibility of existing Category-C project-state authority.
+
+**Architectural disposition:** No AR change, no new engine, wholly within the ADR-018 build-time projection boundary. Requires an explicit-only temporal extension of the existing projection schema (currently the schema captures no dates/transitions). Reinforces the existing boundary; creates no new pressure.
+
+**Parking-lot disposition / mapping:** Retained under `PL-ROADMAP-UI`. Distinct from `PL-PROD-EVENTS` (economic ledger, not meta-state). Journal and Log kept distinct.
+
+**Why-state:** Journal entry `docs/journal/project-journal-5.md` (2026-09-21) records the authority-gap finding (uneven temporal-fact coverage between prose continuation records and primary-table rows) so a future actor does not re-derive it. This record is the durable completion record.
+
+**Next authorized mode:** **No implementation authorized.** Reconciliation complete; the smallest coherent implementation unit above is ready for the Principal to authorize (or decline). If authorized, implementation should stop at explicit-only temporal facts and represent all gaps as unknown.
+
+### Pipeline state
+
+Explore → Intake (existing `PL-ROADMAP-UI`) → Reconcile Strategy (done) → Reconcile Architecture (done) → Preserve Why (journal 2026-09-21) → Decompose (smallest unit identified) → **Awaiting Principal authorization (NOT implemented).**
+
+---
+
+## `PL-ARCH-07` — Authorization Platform / COTS RBAC-FGA Evaluation (Build-vs-Buy)
+
+**Date:** September 21, 2026
+**State:** INTAKE — new canonical identity created; Principal-authorized as an intake/research-and-design concern. No vendor selected, no authorization/RBAC/FGA/authentication implemented, no multi-Operator implementation work opened.
+**SYNC at intake:** `90098621332539e583c7c715cab5a125153368d2` (remotely verified accepted `main`)
+**Method:** `docs/foundations/idea-intake-reconciliation.md`
+**Concept home:** `PL-ARCH-03` (Security and User Accounts) — `PL-ARCH-07` **informs** `PL-ARCH-03`; it is not a child of cloud deployment.
+**Actor:** Kiro (repository-resident architecture partner), intake only — no implementation authorized by this record.
+
+### Required Intake Record
+
+**1. What was discovered?**
+The multi-Operator migration-safety analysis (SYNC `9009862`) established that Wheelwright will eventually need an *authorization* layer (identity resolution, authentication, authorization/ownership enforcement, persistence isolation) to support multiple Operators, and that this layer is the genuinely deferred infrastructure distinct from the cheap now-seam (the Operator-ownership invariant). A separable, prior question therefore exists: **when that authorization layer is eventually built, should Wheelwright build RBAC / fine-grained authorization (FGA) itself, or adopt a commercial/off-the-shelf (COTS) authorization platform?** This is a **research-and-design (build-vs-buy) evaluation**, not an implementation. It is deliberately isolated as its own concern so the evaluation can proceed and inform `PL-ARCH-03` without waiting on multi-Operator implementation or cloud deployment.
+
+**2. What triggered it?**
+The migration-safety analysis's finding that auth/authorization is the expensive, safely-deferrable half of multi-Operator support (in contrast to the cheap, unrecoverable-if-deferred ownership invariant). The evaluation is the natural place to resolve *how* that eventual authorization capability should be provided (RBAC vs FGA model; build vs buy) before `PL-ARCH-03` implementation commits to a shape. Triggering example (external context, not a prerequisite): mature COTS authorization/FGA platforms exist; whether one fits Wheelwright's evidence-appliance posture, credential-custody discipline, and no-runtime-GitHub boundary (ADR-018) is an open design question. *(Evidence-gap flag: specific vendors/capabilities are external and not asserted here; vendor comparison is future evaluation work, not established repository fact.)*
+
+**3. Why might it matter?**
+The authorization model materially shapes `PL-ARCH-03`: an RBAC-vs-FGA choice and a build-vs-buy choice determine the ownership-enforcement mechanism, the persistence-isolation strategy, the deployment/credential surface, and the operational burden Wheelwright takes on. Resolving it as research/design *before* `PL-ARCH-03` implementation prevents that implementation from either inventing a bespoke authorization system by default or being blocked while the question is reopened. It also protects the "complexity must be earned" discipline: the evaluation may conclude that the simplest sufficient mechanism (or deferral) is correct.
+
+**4. What existing concepts/items are related?**
+- **`PL-ARCH-03` (Security and User Accounts)** — `PL-ARCH-07` **informs** this item. `PL-ARCH-03` owns the eventual identity/sessions/ownership-enforcement implementation; `PL-ARCH-07` supplies the authorization-model / build-vs-buy decision that shapes it.
+- **`PL-PORT-01` (Portfolio-State Maturity)** — must **preserve the authorization seam** (the Operator-ownership invariant / owner-stamping identified in the migration-safety analysis) but is **NOT blocked** by COTS authorization selection or by multi-Operator implementation. Multi-BrokerageAccount work may proceed on the ownership foundation independently of `PL-ARCH-07`.
+- **`PL-OPS-01` (Cloud Deployment)** — **relevant deployment context only, NOT a prerequisite.** Researching and designing the authorization model / build-vs-buy decision does not require cloud deployment. `PL-ARCH-03` *implementation* may ultimately depend on `PL-OPS-01` for real remote/multi-Operator runtime use; `PL-ARCH-07` (research/design) does not.
+- **AR10 (architecture-roadmap — Access Is a Cross-Cutting Client/Operator Property)** — existing architectural pressure this evaluation serves; no new AR required.
+- **ADR-018 (No Runtime GitHub Dependency)** — any COTS/authorization option must respect the runtime-credential and no-runtime-GitHub boundary; a candidate that violates it is disqualified on architecture grounds.
+- **Credential-custody discipline** (`TRADIER_API_KEY` custody; development-workflow steering) — an authorization platform must not weaken credential custody.
+
+**5. What is unresolved?**
+- RBAC vs FGA (relationship-/attribute-based) as the authorization model for Wheelwright's ownership boundaries.
+- Build vs buy: whether a COTS authorization platform is warranted, or whether the simplest sufficient in-house mechanism (or continued deferral) is correct.
+- Evaluation criteria/weighting (fit to the Operator-ownership invariant, deployment/credential surface, operational burden, offline/local-first posture, cost, lock-in, ADR-018 compatibility).
+- How an eventual choice maps onto the ownership seam that `PL-PORT-01` preserves.
+- Whether any authorization decision is needed at all before a second Operator actually exists.
+
+**6. What is explicitly NOT authorized yet?**
+- No vendor selection.
+- No implementation of RBAC, FGA, authentication, authorization, sessions, or identity.
+- No expansion into multi-Operator implementation work.
+- No cloud/deployment change.
+- No new dependency, credential, or runtime integration.
+- Intake does not authorize implementation (intake invariant 6).
+
+**7. Where is the richer evidence/why-state?**
+Migration-safety analysis (SYNC `9009862`) and the prior operator/brokerage-account architectural review (SYNC `37dd918`) — session artifacts referenced from the journal. Why-state entry: `docs/journal/project-journal-5.md` (2026-09-21, `PL-ARCH-07` intake).
+
+### Reconciliation Completion Record — `PL-ARCH-07`
+
+- **Intake:** `PL-ARCH-07` — Authorization Platform / COTS RBAC-FGA Evaluation (Build-vs-Buy). New canonical identity (verified: no existing `PL-*` owns the authorization-model / build-vs-buy evaluation; `PL-ARCH-03` owns the *user-accounts implementation*, not the build-vs-buy question).
+- **Strategic disposition:** **No new Bet, no `docs/roadmap.md` change.** Enabling-infrastructure evaluation beneath the already-accepted operator/access direction (AR10); it resolves *how* an eventual authorization capability is provided, not *whether* a new outcome is pursued.
+- **Architectural disposition:** **No new AR, no ADR yet.** Reinforces AR10 and must respect ADR-018 and credential custody. An ADR may become warranted **only** when a build-vs-buy / RBAC-vs-FGA direction is actually chosen; this intake does not create one.
+- **Parking-lot disposition/mapping:** **Retained** as new `PL-ARCH-07` under concept home `PL-ARCH-03`. Cross-links: **informs** `PL-ARCH-03`; **seam-preserving but non-blocking** for `PL-PORT-01`; **deployment-context-only** reference to `PL-OPS-01` (explicitly not a prerequisite). No double-booking.
+- **Why-state:** `docs/journal/project-journal-5.md` (2026-09-21, `PL-ARCH-07` intake).
+- **Next authorized mode:** **Research / design only when separately selected by the Principal.** No vendor selection, no implementation, no multi-Operator work authorized by this record.
+
+### Dependency wording (authoritative for this item)
+
+- `PL-ARCH-07` **informs** `PL-ARCH-03`.
+- `PL-ARCH-03` *implementation* may ultimately **depend on** `PL-OPS-01` for real remote/multi-Operator runtime use.
+- `PL-ARCH-07` is **NOT** enabled-by or dependent-on `PL-OPS-01`; researching/designing the authorization model / COTS build-vs-buy decision does not require cloud deployment. `PL-OPS-01` is referenced only as relevant deployment context.
+- `PL-PORT-01` **preserves the authorization seam** (Operator-ownership invariant) and is **NOT blocked** by COTS authorization selection or by multi-Operator implementation.
+
+### Pipeline state
+
+Explore → **Intake (`PL-ARCH-07`, created)** → Reconcile Strategy (no roadmap change) → Reconcile Architecture (no AR/ADR yet; respects ADR-018) → Preserve Why (journal 2026-09-21) → Decompose (deferred) → **Awaiting Principal selection to begin research/design (NOT implemented).**
