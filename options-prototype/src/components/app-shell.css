@@ -280,6 +280,80 @@
   background: var(--wd-accent-green-bg);
 }
 
+/* --- Account picker --- */
+
+.as-account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.as-account-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.as-account-btn {
+  flex: 1 1 auto;
+  text-align: left;
+  font-family: var(--wd-font-sans);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--wd-border-subtle);
+  background: none;
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+  transition: all 0.1s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.as-account-btn:hover {
+  border-color: var(--wd-border-default);
+  color: var(--wd-text-primary);
+}
+
+.as-account-btn.as-account-active {
+  border-color: var(--wd-accent-green);
+  color: var(--wd-accent-green);
+  background: var(--wd-accent-green-bg);
+}
+
+.as-account-check {
+  font-weight: 600;
+}
+
+.as-account-rename {
+  flex: 0 0 auto;
+  font-size: 10px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--wd-border-subtle);
+  background: none;
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+}
+
+.as-account-rename:hover {
+  color: var(--wd-text-primary);
+  border-color: var(--wd-border-default);
+}
+
+.as-account-rename-input {
+  flex: 1 1 auto;
+  font-family: var(--wd-font-sans);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--wd-accent-green);
+  background: var(--wd-bg-input, #1a1a1a);
+  color: var(--wd-text-primary);
+}
+
 /* --- Provenance rows --- */
 
 .as-dropdown-provenance {
