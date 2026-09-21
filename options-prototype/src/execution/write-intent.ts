@@ -11,6 +11,14 @@ import type { PutCandidate, CallCandidate } from "../write-desk/candidate-types"
 // --- Domain Type ---
 
 export interface WriteIntent {
+  /**
+   * Stable Wheelwright BrokerageAccount identity this intent belongs to (Increment 4).
+   * A symbol alone is no longer a sufficient identity once the same symbol can exist in
+   * multiple accounts. Optional on construction (legacy/demo callers may omit → null);
+   * when present it is the authoritative account the resulting PendingIntent and broker
+   * handoff are scoped to.
+   */
+  brokerageAccountId?: string | null;
   underlyingSymbol: string;
   contractSymbol: string;
   expiration: string;
@@ -28,6 +36,8 @@ export interface WriteIntent {
 export interface WriteIntentInput {
   candidate: PutCandidate;
   quantity?: number;
+  /** Account this intent belongs to (Increment 4). Omitted → null (legacy/demo). */
+  brokerageAccountId?: string | null;
 }
 
 /**
@@ -38,7 +48,7 @@ export interface WriteIntentInput {
  * Returns null if required fields are missing or invalid.
  */
 export function buildWriteIntent(input: WriteIntentInput): WriteIntent | null {
-  const { candidate, quantity = 1 } = input;
+  const { candidate, quantity = 1, brokerageAccountId = null } = input;
 
   if (!candidate.symbol || !candidate.expiration || candidate.strike <= 0) {
     return null;
@@ -65,6 +75,7 @@ export function buildWriteIntent(input: WriteIntentInput): WriteIntent | null {
   }
 
   return {
+    brokerageAccountId,
     underlyingSymbol: candidate.symbol.toUpperCase(),
     contractSymbol,
     expiration: candidate.expiration,
@@ -81,6 +92,8 @@ export function buildWriteIntent(input: WriteIntentInput): WriteIntent | null {
 export interface CallWriteIntentInput {
   candidate: CallCandidate;
   quantity?: number;
+  /** Account this intent belongs to (Increment 4). Omitted → null (legacy/demo). */
+  brokerageAccountId?: string | null;
 }
 
 /**
@@ -96,7 +109,7 @@ export interface CallWriteIntentInput {
  * or invalid, or if the candidate has no covered-call capacity.
  */
 export function buildCallWriteIntent(input: CallWriteIntentInput): WriteIntent | null {
-  const { candidate, quantity = 1 } = input;
+  const { candidate, quantity = 1, brokerageAccountId = null } = input;
 
   if (!candidate.symbol || !candidate.expiration || candidate.strike <= 0) {
     return null;
@@ -127,6 +140,7 @@ export function buildCallWriteIntent(input: CallWriteIntentInput): WriteIntent |
   }
 
   return {
+    brokerageAccountId,
     underlyingSymbol: candidate.symbol.toUpperCase(),
     contractSymbol,
     expiration: candidate.expiration,

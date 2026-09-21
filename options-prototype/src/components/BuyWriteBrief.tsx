@@ -12,7 +12,8 @@ import { useState, useEffect } from "react";
 import { getDurableCache } from "../cache/durable-cache";
 import { buildBuyWriteBrief, type BuyWriteBriefViewModel, type BuyWriteNeighborTag } from "../write-desk/buy-write-brief-builder";
 import { PostureExplanationSection } from "./RecommendationBrief";
-import { hasWorkingIntent, getWorkingIntentsForSymbol, type PendingIntent } from "../execution/pending-intent";
+import { hasWorkingIntentForAccount, getWorkingIntentsForAccountSymbol, type PendingIntent } from "../execution/pending-intent";
+import { getActiveBrokerageAccountId } from "../portfolio/active-account";
 import type { BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
@@ -172,13 +173,13 @@ export function BuyWriteBrief({
       </section>
 
       {/* === PENDING EXPOSURE WARNING === */}
-      {hasWorkingIntent(candidate.symbol, pendingIntents) && (
+      {hasWorkingIntentForAccount(getActiveBrokerageAccountId(), candidate.symbol, pendingIntents) && (
         <div className="rb-pending-warning">
           <span className="rb-pending-icon">⚠</span>
           <span className="rb-pending-text">
             {candidate.symbol} — pending broker order
           </span>
-          {getWorkingIntentsForSymbol(candidate.symbol, pendingIntents).map((i) => (
+          {getWorkingIntentsForAccountSymbol(getActiveBrokerageAccountId(), candidate.symbol, pendingIntents).map((i) => (
             <span key={i.id} className="rb-pending-detail">
               ${i.strike} {i.optionType === "put" ? "P" : "C"} {i.expiration.slice(5)} × {i.quantity}
             </span>

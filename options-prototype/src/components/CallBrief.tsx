@@ -19,7 +19,8 @@ import { buildCallBrief, type CallBriefViewModel, type CallNeighborTag, type Pro
 import { ReleaseConsequencesSection } from "./ReleaseConsequencesSection";
 import { PostureExplanationSection } from "./RecommendationBrief";
 import { buildCallWriteIntent } from "../execution/write-intent";
-import { buildFidelityTradeLink, type FidelityTradeLink } from "../execution/fidelity-trade-link";
+import { buildAccountSafeTradeLink, type FidelityTradeLink } from "../execution/fidelity-trade-link";
+import { getActiveBrokerageAccountId } from "../portfolio/active-account";
 import type { CallCandidate } from "../write-desk/candidate-types";
 import type { RecommendationPolicy } from "../write-desk/recommend";
 import type { MarketSessionClassification } from "../market-session/session-policy";
@@ -261,8 +262,20 @@ export function CallBrief({
 // --- Fidelity Handoff (covered call) ---
 
 function CallFidelityHandoff({ candidate }: { candidate: CallCandidate }) {
-  const intent = buildCallWriteIntent({ candidate });
-  const link: FidelityTradeLink | null = intent ? buildFidelityTradeLink(intent) : null;
+  const activeAccountId = getActiveBrokerageAccountId();
+  const intent = buildCallWriteIntent({ candidate, brokerageAccountId: activeAccountId });
+  const handoff = intent ? buildAccountSafeTradeLink(intent, activeAccountId) : { kind: "invalid-intent" as const };
+
+  if (handoff.kind === "account-mismatch") {
+    return (
+      <div className="rb-handoff rb-handoff-unavailable">
+        <span className="rb-handoff-label">Broker handoff blocked</span>
+        <span className="rb-handoff-reason">This recommendation belongs to a different account than the one selected. Switch accounts to hand it off.</span>
+      </div>
+    );
+  }
+
+  const link: FidelityTradeLink | null = handoff.kind === "ok" ? handoff.link : null;
 
   if (!link) {
     return (

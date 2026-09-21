@@ -33,6 +33,7 @@ const validIntent: WriteIntent = {
 function makeIntent(overrides: Partial<PendingIntent> = {}): PendingIntent {
   return {
     id: "pi-test-1",
+    brokerageAccountId: null,
     symbol: "URA",
     contractSymbol: "-URA260807P40",
     expiration: "2026-08-07",

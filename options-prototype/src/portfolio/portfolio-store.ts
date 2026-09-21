@@ -39,6 +39,7 @@ import {
   selectDemo as selectActiveDemo,
 } from "./active-account";
 import { loadAccounts } from "./brokerage-account-registry";
+import { migrateLegacyIntents } from "../execution/pending-intent";
 
 // --- localStorage keys (shared with FidelityUpload for backward compat) ---
 
@@ -247,8 +248,12 @@ function adoptSoleAccountIfUnambiguous(): string | null {
   if (getActiveBrokerageAccountId() != null) return getActiveBrokerageAccountId();
   const accounts = loadAccounts().filter((a) => a.status === "active");
   if (accounts.length === 1) {
-    selectActiveAccount(accounts[0].brokerageAccountId);
-    return accounts[0].brokerageAccountId;
+    const soleId = accounts[0].brokerageAccountId;
+    selectActiveAccount(soleId);
+    // Attribute any legacy account-blind pending intents to the sole account (Increment 4).
+    // Idempotent, non-destructive, and only when unambiguous.
+    migrateLegacyIntents(soleId);
+    return soleId;
   }
   return null;
 }

@@ -12,6 +12,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useDrawerSelection } from "../hooks/useDrawerSelection";
 import { useSessionClassification } from "../hooks/useSessionClassification";
 import { usePortfolio } from "../portfolio/use-portfolio";
+import { getActiveBrokerageAccountId } from "../portfolio/active-account";
 import { type PutCandidate, type CallCandidate } from "../write-desk/candidate-types";
 import { recommendPuts, DEFAULT_RECOMMENDATION_POLICY, type ExportContext } from "../write-desk/recommend";
 import { recommendCalls } from "../write-desk/recommend-calls";
@@ -786,7 +787,10 @@ export function Deployment() {
           pendingIntents={pendingIntents}
           onClose={closeCandidate}
           onOrderConfirmed={(c) => {
-            const intent = buildWriteIntent({ candidate: c });
+            // Stamp the intent with the active BrokerageAccount so the persisted
+            // PendingIntent is account-scoped (Increment 4). Same symbol in another
+            // account remains an independent intent.
+            const intent = buildWriteIntent({ candidate: c, brokerageAccountId: getActiveBrokerageAccountId() });
             if (intent) {
               const pending = createPendingIntent(intent);
               addPendingIntent(pending);

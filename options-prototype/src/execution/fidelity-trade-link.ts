@@ -62,6 +62,42 @@ export function buildFidelityTradeLink(intent: WriteIntent): FidelityTradeLink |
 }
 
 /**
+ * Account-safe broker handoff (Increment 4).
+ *
+ * Fails CLOSED when the intent belongs to a different account than the one currently
+ * active: an intent generated under account A must not be handed off while account B is
+ * active without explicit safe context correction. This is the sharpest capital-path guard
+ * in the multi-account model — a wrong-account order is a material safety failure.
+ *
+ * When the intent carries no account (null, legacy/demo) it is treated as unattributed and
+ * only permitted when there is likewise no active real account; otherwise it fails closed
+ * (an unattributed intent must not silently ride the active real account).
+ *
+ * On success, delegates to buildFidelityTradeLink, preserving Fidelity's existing operator
+ * verification (including the operator's own "Account selection" confirmation step).
+ */
+export type AccountSafeHandoff =
+  | { kind: "ok"; link: FidelityTradeLink }
+  | { kind: "account-mismatch"; intentAccountId: string | null; activeAccountId: string | null }
+  | { kind: "invalid-intent" };
+
+export function buildAccountSafeTradeLink(
+  intent: WriteIntent,
+  activeBrokerageAccountId: string | null
+): AccountSafeHandoff {
+  const intentAccountId = intent.brokerageAccountId ?? null;
+
+  // Fail closed on any account discrepancy (including unattributed intent vs active account).
+  if (intentAccountId !== activeBrokerageAccountId) {
+    return { kind: "account-mismatch", intentAccountId, activeAccountId: activeBrokerageAccountId };
+  }
+
+  const link = buildFidelityTradeLink(intent);
+  if (!link) return { kind: "invalid-intent" };
+  return { kind: "ok", link };
+}
+
+/**
  * Format limit price for Fidelity URL.
  * Use minimal decimal places: $0.33 → "0.33", $1.50 → "1.5", $2.00 → "2"
  */

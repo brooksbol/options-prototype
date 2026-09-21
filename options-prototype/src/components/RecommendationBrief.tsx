@@ -10,8 +10,9 @@ import { buildWheelwrightBrief, type WheelwrightBriefViewModel, type TablePositi
 import type { PostureExplanation } from "../write-desk/posture-explanation";
 import { getDurableCache } from "../cache/durable-cache";
 import { buildWriteIntent } from "../execution/write-intent";
-import { buildFidelityTradeLink, type FidelityTradeLink } from "../execution/fidelity-trade-link";
-import { hasWorkingIntent, getWorkingIntentsForSymbol, type PendingIntent } from "../execution/pending-intent";
+import { buildAccountSafeTradeLink, type FidelityTradeLink } from "../execution/fidelity-trade-link";
+import { hasWorkingIntentForAccount, getWorkingIntentsForAccountSymbol, type PendingIntent } from "../execution/pending-intent";
+import { getActiveBrokerageAccountId } from "../portfolio/active-account";
 import type { PutCandidate } from "../write-desk/candidate-types";
 import type { PortfolioSnapshot } from "../write-desk/types";
 import type { RecommendationPolicy } from "../write-desk/recommend";
@@ -130,14 +131,14 @@ export function RecommendationBrief({
         <PostureExplanationSection explanation={brief.postureExplanation} />
       </section>
 
-      {/* === PENDING EXPOSURE WARNING === */}
-      {hasWorkingIntent(candidate.symbol, pendingIntents) && (
+      {/* === PENDING EXPOSURE WARNING (account-scoped) === */}
+      {hasWorkingIntentForAccount(getActiveBrokerageAccountId(), candidate.symbol, pendingIntents) && (
         <div className="rb-pending-warning">
           <span className="rb-pending-icon">⚠</span>
           <span className="rb-pending-text">
             {candidate.symbol} — pending broker order
           </span>
-          {getWorkingIntentsForSymbol(candidate.symbol, pendingIntents).map((i) => (
+          {getWorkingIntentsForAccountSymbol(getActiveBrokerageAccountId(), candidate.symbol, pendingIntents).map((i) => (
             <span key={i.id} className="rb-pending-detail">
               ${i.strike} {i.optionType === "put" ? "P" : "C"} {i.expiration.slice(5)} × {i.quantity}
             </span>
@@ -337,8 +338,21 @@ export function RecommendationBrief({
 // --- Fidelity Handoff ---
 
 function FidelityHandoff({ candidate, onOrderConfirmed }: { candidate: PutCandidate; onOrderConfirmed?: (candidate: PutCandidate) => void }) {
-  const intent = buildWriteIntent({ candidate });
-  const link: FidelityTradeLink | null = intent ? buildFidelityTradeLink(intent) : null;
+  const activeAccountId = getActiveBrokerageAccountId();
+  const intent = buildWriteIntent({ candidate, brokerageAccountId: activeAccountId });
+  // Account-safe handoff: fails closed if the intent's account differs from the active one.
+  const handoff = intent ? buildAccountSafeTradeLink(intent, activeAccountId) : { kind: "invalid-intent" as const };
+
+  if (handoff.kind === "account-mismatch") {
+    return (
+      <div className="rb-handoff rb-handoff-unavailable">
+        <span className="rb-handoff-label">Broker handoff blocked</span>
+        <span className="rb-handoff-reason">This recommendation belongs to a different account than the one selected. Switch accounts to hand it off.</span>
+      </div>
+    );
+  }
+
+  const link: FidelityTradeLink | null = handoff.kind === "ok" ? handoff.link : null;
 
   if (!link) {
     return (
