@@ -430,6 +430,234 @@ export function parseParkingLotFile(content, fileName, validLvtIds, validArIds) 
   return { items: [...items.values()], notes };
 }
 
+/** Month-name → 1-based month number, for parsing "Month D, YYYY" date text. */
+const MONTHS = {
+  january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
+  july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
+};
+
+/** Days per month (index 1..12); February handled with a leap-year check. */
+function daysInMonth(month, year) {
+  if (month === 2) {
+    const leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    return leap ? 29 : 28;
+  }
+  return [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
+}
+
+/**
+ * Parse a LEADING "Month D, YYYY" from an authored date string into a REAL
+ * calendar date. Returns { iso } on success, or { error } describing why it is
+ * not a valid calendar date. Distinguishes three outcomes deliberately:
+ *   - no leading long-form date at all      → { iso: null, error: null }
+ *   - a leading date that is NOT a real day  → { iso: null, error: "..." }  (fail closed)
+ *   - a valid real calendar date             → { iso: "YYYY-MM-DD", error: null }
+ *
+ * This NEVER infers a date; it only validates and normalizes one the authority
+ * explicitly stated. Impossible dates (Feb 31, Sep 31, month 13) are surfaced as
+ * errors so the generator can fail closed rather than silently normalizing or
+ * sorting them last.
+ */
+export function parseLeadingCalendarDate(text) {
+  if (!text) return { iso: null, error: null };
+  const m = text.match(/^\s*([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})\b/);
+  if (!m) return { iso: null, error: null };
+  const monthName = m[1].toLowerCase();
+  const month = MONTHS[monthName];
+  if (!month) {
+    return { iso: null, error: `unknown month name "${m[1]}"` };
+  }
+  const day = parseInt(m[2], 10);
+  const year = parseInt(m[3], 10);
+  const max = daysInMonth(month, year);
+  if (day < 1 || day > max) {
+    return { iso: null, error: `impossible calendar date "${m[1]} ${day}, ${year}" (${monthName} has ${max} days${month === 2 ? " that year" : ""})` };
+  }
+  const mm = String(month).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+  return { iso: `${year}-${mm}-${dd}`, error: null };
+}
+
+/**
+ * Derive the governed EVENT KIND of a record explicitly (never guessed from vague
+ * prose). Inputs are the record's heading title and its `**State:**` line.
+ *
+ * Priority: the state's leading governed word is the strongest explicit signal;
+ * heading form ("Reconciliation Completion Record", "... Refinement — ...") is a
+ * secondary explicit signal. When neither yields a confident kind, returns
+ * "unclassified" rather than guessing.
+ *
+ * Returns one of: intake | reconciliation | refinement | implementation |
+ * remediation | unclassified.
+ */
+export function deriveEventKind(title, state) {
+  const s = (state || "").trim().toUpperCase();
+  const leadWord = s.match(/^[A-Z]+/)?.[0] ?? "";
+  const t = title || "";
+  const isRefinementHeading = /\bRefinement\b/i.test(t);
+
+  // A "... Refinement — ..." heading is refinement work on an EXISTING identity;
+  // it is never a new-identity intake, even when its state reads "INTAKE
+  // refinement ...". (eventKind is presentation only; intake evidence is derived
+  // separately by deriveIntakeEvidence.)
+  if (isRefinementHeading) return "refinement";
+
+  // Classification uses ONLY the exact leading state token or the heading form.
+  // No substring scan of prose/state (so "V1 NOT IMPLEMENTED — pending" is never
+  // read as implementation). Prefer "unclassified" over guessing.
+  if (leadWord === "INTAKE") return "intake";
+  if (leadWord === "IMPLEMENTED") return "implementation";
+  if (leadWord === "REMEDIATED") return "remediation";
+  if (leadWord === "RECONCILED") return "reconciliation";
+
+  if (/^Reconciliation Completion Record\b/i.test(t)) return "reconciliation";
+
+  return "unclassified";
+}
+
+/**
+ * Decide whether a record carries EXPLICIT canonical evidence that it establishes
+ * the original intake of its identity — independent of the event kind.
+ *
+ * Two narrow explicit signals the corpus actually uses:
+ *   1. the `**Date:**` line marks the date as intake:  "... , 2026 (intake)";
+ *   2. the state line states a new identity was created:
+ *        "new canonical identity created", "New canonical identity in the logical
+ *        parking lot", "new identity created" (case-insensitive).
+ *
+ * The word "INTAKE" alone is NOT sufficient — "INTAKE refinement … no new `PL-*`
+ * identity created" explicitly does NOT establish original intake. This function
+ * therefore never keys on the bare word "INTAKE"; it requires one of the explicit
+ * creation/intake signals above.
+ *
+ * `dateText` is the authored **Date:** text; `state` is the state line (or null).
+ */
+export function deriveIntakeEvidence(dateText, state) {
+  const d = dateText || "";
+  // Signal 1: an explicit "(intake)" marker on the date itself.
+  if (/\(\s*intake\s*\)/i.test(d)) return true;
+
+  // Signal 2: the state line explicitly states this record CREATED the canonical
+  // identity. Two governed phrasings appear in the corpus:
+  //   "new canonical identity created …" / "new canonical identity …"
+  //   "canonical identity created …"  (e.g. RECONCILED — canonical identity created)
+  // The negative case "no new `PL-*` identity created" must NOT match. We first
+  // exclude any "no new … identity" statement, then accept an affirmative
+  // "canonical identity created"/"new canonical identity".
+  const s = state || "";
+  const negatesNewIdentity = /\bno\s+new\b[^.;]*\bidentity\b/i.test(s);
+  if (!negatesNewIdentity) {
+    if (/\bcanonical\s+identity\s+created\b/i.test(s)) return true;
+    if (/\bnew(?:ly)?\s+canonical\s+identity\b/i.test(s)) return true;
+    if (/\bnew\s+identity\s+created\b/i.test(s)) return true;
+  }
+  return false;
+}
+
+/**
+ * Extract explicit governed temporal EVENTS from a single physical parking-lot
+ * file — the Log's semantic unit.
+ *
+ * DEPTH-GENERIC, EXPLICIT-ONLY. An event is any Markdown heading block — at ANY
+ * depth 2..6 — that contains its OWN explicit `**Date:**` line, where "its own"
+ * means the `**Date:**` appears in the block before the next heading of
+ * EQUAL-OR-SHALLOWER depth. This captures top-level `##` records and nested
+ * dated records at `###`/`####`/… alike, while NOT treating an undated
+ * subsection (### Intake, ### Pipeline state, …) as an event. The rule is the
+ * general one — "a temporal field belongs to its nearest enclosing heading, and
+ * heading scope ends at the next heading of equal-or-shallower depth" — not a
+ * special case for levels 2 and 3.
+ *
+ * A dated parent and a dated nested child are BOTH emitted; each is one event.
+ * Nothing is inferred from order, proximity, Git, or later events. Records with
+ * no explicit `**Date:**` produce no event.
+ *
+ * `startOrder` is the global monotonic capture counter (file order across the
+ * whole corpus); each emitted event records its `sourceOrder` from it so the
+ * generator can preserve true canonical source order as the same-date tie-break.
+ *
+ * Returns { events, dateErrors, nextOrder }.
+ */
+export function parseLogEvents(content, fileName, startOrder = 0) {
+  const lines = content.split("\n");
+  const events = [];
+  const dateErrors = [];
+  let order = startOrder;
+
+  // Stack of open heading blocks. A block is finalized (emitted if dated) when a
+  // heading of equal-or-shallower depth appears, or at EOF. `order` is captured
+  // when the heading is SEEN (source position), not when the block is finalized,
+  // so parent-before-child and adjacency follow true source order.
+  const stack = [];
+
+  const parseHeading = (headingText) => {
+    const idMatch = headingText.match(/`(PL-[A-Z0-9-]+)`/);
+    const plId = idMatch ? idMatch[1] : null;
+    const title = headingText.replace(/`/g, "").trim();
+    return { plId, title };
+  };
+
+  const finalize = (block) => {
+    if (!block || block.dateText === null) return; // no explicit date → not an event
+    const { iso, error } = parseLeadingCalendarDate(block.dateText);
+    if (error) {
+      dateErrors.push(`${fileName}: "${block.title}" — ${error}`);
+      return;
+    }
+    if (!iso) {
+      // Explicit **Date:** present but no recognizable leading calendar date.
+      dateErrors.push(`${fileName}: "${block.title}" — **Date:** "${block.dateText}" has no recognizable "Month D, YYYY" calendar date`);
+      return;
+    }
+    events.push({
+      plId: block.plId,
+      title: block.title,
+      eventKind: deriveEventKind(block.title, block.state),
+      establishesIntake: deriveIntakeEvidence(block.dateText, block.state),
+      eventDateText: block.dateText,
+      eventDateIso: iso,
+      state: block.state,
+      headingLevel: block.level,
+      sourceFile: fileName,
+      sourceOrder: block.order,
+    });
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/\r$/, "");
+
+    const headingMatch = line.match(/^(#{2,6})\s+(.+?)\s*$/);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      // Close every open block at equal-or-shallower depth (nearest-enclosing rule).
+      while (stack.length > 0 && stack[stack.length - 1].level >= level) {
+        finalize(stack.pop());
+      }
+      const { plId, title } = parseHeading(headingMatch[2]);
+      stack.push({ level, plId, title, dateText: null, state: null, order: order++ });
+      continue;
+    }
+
+    if (stack.length === 0) continue;
+    const block = stack[stack.length - 1]; // nearest enclosing heading
+
+    const dateMatch = line.match(/^\*\*Date:\*\*\s*(.+?)\s*$/);
+    if (dateMatch && block.dateText === null) {
+      block.dateText = dateMatch[1].trim();
+      continue;
+    }
+
+    const stateMatch = line.match(/^\*\*(?:State|Reconciliation state):\*\*\s*(.+?)\s*$/);
+    if (stateMatch && block.state === null) {
+      block.state = stateMatch[1].trim();
+      continue;
+    }
+  }
+  while (stack.length > 0) finalize(stack.pop());
+
+  return { events, dateErrors, nextOrder: order };
+}
+
 /**
  * Parse the "Graduated / Closed Index" table from the primary parking-lot file.
  *

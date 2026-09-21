@@ -27,6 +27,7 @@ import {
   parseLvt,
   parseArchitecture,
   parseParkingLotFile,
+  parseLogEvents,
   parseGraduatedIndex,
   parseAdrs,
   parsePriority,
@@ -87,6 +88,8 @@ const validArIds = new Set(architecture.map((p) => p.id));
 
 const parkingLot = [];
 const seenPlIds = new Set();
+const logEvents = [];
+let logSourceOrder = 0;
 for (const file of parkingLotFiles) {
   const content = readFileSync(join(docsDir, file), "utf-8");
   const { items, notes: plNotes } = parseParkingLotFile(content, file, validLvtIds, validArIds);
@@ -99,7 +102,37 @@ for (const file of parkingLotFiles) {
     seenPlIds.add(item.id);
     parkingLot.push(item);
   }
+  // Log: explicit governed temporal events (any heading depth; explicit dates only).
+  const { events, dateErrors, nextOrder } = parseLogEvents(content, file, logSourceOrder);
+  logSourceOrder = nextOrder;
+  logEvents.push(...events);
+  // Fail closed on any impossible/malformed explicit calendar date (Codex date-validation).
+  for (const err of dateErrors) fail(`Log date validation: ${err}`);
 }
+
+// Deterministic chronological order: by REAL calendar date ascending (every event
+// carries a validated eventDateIso — impossible dates already failed generation).
+// Ties on the same day break by TRUE canonical source order (sourceOrder), so a
+// parent record precedes its nested child and adjacent records keep their order.
+const log = [...logEvents].sort((a, b) => {
+  if (a.eventDateIso !== b.eventDateIso) return a.eventDateIso < b.eventDateIso ? -1 : 1;
+  return a.sourceOrder - b.sourceOrder;
+});
+
+// Intake-date knowledge is derived from EXPLICIT INTAKE EVIDENCE only (Codex final
+// finding 1/2) — a record's `establishesIntake` flag, NOT its eventKind. A later
+// reconciliation / refinement / implementation / remediation event never
+// establishes intake merely by existing. List active PL identities for which NO
+// record carries explicit intake evidence, by identity; never infer a date.
+const intakeEvidencePlIds = new Set(
+  log.filter((e) => e.establishesIntake && e.plId).map((e) => e.plId)
+);
+const intakeDateUnknown = parkingLot
+  .map((i) => i.id)
+  .filter((id) => !intakeEvidencePlIds.has(id))
+  .sort();
+const logIntakeEvidenceEvents = log.filter((e) => e.establishesIntake).length;
+const plWithIntakeDate = parkingLot.filter((i) => intakeEvidencePlIds.has(i.id)).length;
 
 // ---------- Integrity checks (fail-closed) ----------
 
@@ -143,6 +176,39 @@ for (const item of parkingLot) {
 }
 
 if (parkingLot.length === 0) fail("parsed zero PL items");
+
+// Log integrity (explicit-only, no inference). Every Log event must carry a
+// validated real calendar date, a title, a known kind, and (if present) a
+// well-formed PL id. Impossible dates already failed above.
+const KNOWN_KINDS = new Set([
+  "intake", "reconciliation", "refinement", "implementation", "remediation", "unclassified",
+]);
+for (const ev of log) {
+  if (!ev.eventDateIso || !/^\d{4}-\d{2}-\d{2}$/.test(ev.eventDateIso)) {
+    fail(`log event "${ev.title}" (${ev.sourceFile}) has no validated calendar date`);
+  }
+  if (!ev.eventDateText || ev.eventDateText.length === 0) {
+    fail(`log event "${ev.title}" (${ev.sourceFile}) has no explicit date text`);
+  }
+  if (!ev.title || ev.title.length === 0) {
+    fail(`log event in ${ev.sourceFile} has no title`);
+  }
+  if (!KNOWN_KINDS.has(ev.eventKind)) {
+    fail(`log event "${ev.title}" has unknown event kind ${ev.eventKind}`);
+  }
+  if (typeof ev.establishesIntake !== "boolean") {
+    fail(`log event "${ev.title}" has non-boolean establishesIntake`);
+  }
+  if (ev.plId && !/^PL-[A-Z0-9-]+$/.test(ev.plId)) {
+    fail(`log event "${ev.title}" has malformed PL id ${ev.plId}`);
+  }
+}
+// Intake evidence with no identity cannot mark any identity known; that is fine,
+// but a record that establishes intake for a NAMED id must place that id in the
+// known set (partition integrity is asserted in the projection tests).
+if (log.length === 0) {
+  fail("parsed zero Log events (expected dated governed records in the parking-lot continuations)");
+}
 
 // Graduated / closed index — the resolved landscape. Lives in the primary
 // parking-lot.md file.
@@ -272,6 +338,10 @@ const projection = {
       principleTotal: principles.length,
       domainEntryTotal,
       bugTotal: bugs.length,
+      logTotal: log.length,
+      logIntakeEvidenceEvents,
+      plWithIntakeDate,
+      plWithoutIntakeDate: intakeDateUnknown.length,
     },
     notes,
   },
@@ -285,6 +355,8 @@ const projection = {
   principles,
   domain,
   bugs,
+  log,
+  intakeDateUnknown,
 };
 
 // ---------- Write or check ----------
@@ -329,6 +401,7 @@ console.log(`  Coming Soon:  now ${comingSoon.now.length} · next ${comingSoon.n
 console.log(`  Principles:   ${principles.length}  (ratified register)`);
 console.log(`  Domain:       ${domain.parts.length} parts · ${domainEntryTotal} entries  (options domain reference)`);
 console.log(`  Bugs:         ${bugs.length}  (canonical bug index)`);
+console.log(`  Log:          ${log.length}  governed temporal events (${logIntakeEvidenceEvents} carry explicit intake evidence; ${plWithIntakeDate} identities have a recorded intake date, ${intakeDateUnknown.length} do not)`);
 if (notes.length > 0) {
   console.log(`  Notes (${notes.length}):`);
   for (const n of notes) console.log(`    - ${n}`);

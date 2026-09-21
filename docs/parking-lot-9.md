@@ -469,3 +469,107 @@ Migration-safety analysis (SYNC `9009862`) and the prior operator/brokerage-acco
 ### Pipeline state
 
 Explore → **Intake (`PL-ARCH-07`, created)** → Reconcile Strategy (no roadmap change) → Reconcile Architecture (no AR/ADR yet; respects ADR-018) → Preserve Why (journal 2026-09-21) → Decompose (deferred) → **Awaiting Principal selection to begin research/design (NOT implemented).**
+
+
+### `PL-ROADMAP-UI` — Log lens implemented (2026-09-21)
+
+**Date:** September 21, 2026
+**SYNC at implementation:** `90098621332539e583c7c715cab5a125153368d2` (remotely verified accepted `main`)
+**State:** IMPLEMENTED (uncommitted working tree) — Principal-authorized (Option A, smallest coherent unit). Awaiting Principal operator-surface acceptance before commit.
+
+The Log lens reconciled above (2026-09-21 Log lens intake/reconciliation) was implemented as the smallest coherent capability. It answers: *what entered Wheelwright's governed thinking, when did it enter, and what governed disposition followed?*
+
+**What shipped (build-time projection → read-only UI; wholly within ADR-018):**
+- **Projection schema:** new `LogEntry` type + `log: LogEntry[]` section + `counts.logTotal` / `counts.plWithoutLogEvent` in `src/roadmap/roadmap-projection-types.ts`. Deliberately a **separate** section: `PlItem` is unchanged, preserving the existing explicit-only invariant that parking-lot items carry no date field.
+- **Parser/generator:** `parseLogEvents` + `parseLeadingIsoDate` in `scripts/roadmap-projection-parsers.mjs`; wired into `scripts/generate-roadmap-projection.mjs` with fail-closed integrity checks and a deterministic chronological sort. The projection JSON was regenerated and the ADR-018 freshness `--check` passes.
+- **UI:** `src/roadmap/LogView.tsx`, a compact single-column chronological timeline, added as a first-class `Log` lens in `RoadmapView.tsx` alongside the existing lenses; styles in `roadmap.css`.
+
+**Explicit-only semantics (no inference):** one Log event per parking-lot record that states an explicit `**Date:**`. Captured verbatim: `plId` (from the heading, or null when the heading names none), `title`, `dateText`, `state` (`**State:**` / `**Reconciliation state:**`, or null), and any inline dated transition clause. `isoDate` (parsed leading `Month D, YYYY`) is used only for deterministic ordering, never displayed as authority. No date is inferred from row order, file order, Git history, journal proximity, or prose; no lifecycle transition is manufactured.
+
+**Honest historical gap (as reconciled):** dated records live in the prose continuation files, so the Log currently shows **28 dated governed events**. The **43 of 60** parking-lot items with no explicit dated record (chiefly the primary `parking-lot.md` table rows) are **not** shown as events; the lens states this gap plainly ("Date not recorded") rather than backfilling. No historical intake-date backfill was performed (out of scope).
+
+**Journal ≠ Log preserved:** the Log is the compact chronology of governed intake/reconciliation events; the Project Journal remains the richer why-state. The lens points back to canonical/journal material rather than reproducing it.
+
+**Implementation discoveries (no new authority pressure):**
+- A single `PL-*` identity legitimately accrues **multiple** dated records over time (e.g. `PL-STRAT-01`, `PL-DEPLOY` refinements). The Log intentionally shows each dated record as its own event — this is the chronology the lens exists to expose, not a dedup defect.
+- Two dated records name no `PL-*` in their heading (the Java Test-Suite performance entries) and two state no `**State:**` line; both are shown honestly (`(no id)` / no state tag) rather than fabricated. These are pre-existing authoring shapes, not defects introduced here; **no** authority edit was made to "fix" them (would exceed this authorization).
+
+**Verification:** full frontend suite 1898/1898 pass (roadmap suite 117); `tsc -b && vite build` clean; ADR-018 projection freshness `--check` in sync; lint clean for changed files. Operator surface served at `/app/roadmap` (HTTP 200) and the rendered Log chronology + gap treatment were inspected.
+
+**Next authorized mode:** Principal operator-surface acceptance → commit + push to `main` per the Principal git workflow. Not committed; the interaction/visual model remains provisional pending Principal inspection, consistent with the rest of `PL-ROADMAP-UI`.
+
+
+### `PL-ROADMAP-UI` — Log lens corrected after Codex review (2026-09-21)
+
+**Date:** September 21, 2026
+**SYNC at correction:** `6a99217ec8a107b333519dd60ceadd4c919b7862` (remotely verified accepted `main`)
+**State:** IMPLEMENTED (uncommitted working tree) — corrected per independent Codex review; awaiting a second independent re-review, then Principal operator-surface acceptance before commit.
+
+Codex independently reviewed the first implementation (above) and returned **NOT READY**. The findings were correct and are now corrected in place (no restart; the projection→UI structure held). This record supersedes the specific overclaims in the "Log lens implemented (2026-09-21)" record above where they conflict; that record is preserved as provenance of the first pass.
+
+**Corrections made:**
+
+1. **Dropped `###` records fixed (Blocking 1).** The parser recognized temporal records only at `##` boundaries, so explicitly dated `###` records were swallowed into their parent block. The corpus has **30** explicit `**Date:**` records; the first pass emitted **28** (the two nested `PL-ROADMAP-UI` Log records — this intake/reconciliation record's ancestor and the implementation record — were dropped). The parser is now **depth-aware**: a heading stack attributes each `**Date:**` to its nearest enclosing heading and closes a block at the next equal-or-shallower heading, so a dated `##` record and a dated nested `###` sub-record are **both** emitted, while an *undated* `###` subsection (e.g. `### Intake`, `### Pipeline state`) is **not**. The rule is semantic and explicit-only: *a heading block that states its own `**Date:**` is an event, regardless of depth.* Result: **30 events**. A corpus-reconciliation test independently recounts dated records from the Markdown and requires the projection to match exactly (no drop, no duplicate).
+
+2. **Intake-date vs event-date separated (Blocking 2).** The earlier `plWithoutLogEvent` metric conflated "has any dated event" with "has a known intake date," and the UI claimed "43 of 60 … have no dated intake record" — which the implementation could not prove. Now each event carries an explicit **event kind** (`intake` / `reconciliation` / `refinement` / `implementation` / `remediation` / `unclassified`) derived only from what authority states (state leading word + heading form; a "Refinement" heading is never a new-identity intake even when its state reads "INTAKE refinement"). An identity's **original intake date is known only when an `intake`-kind event exists for it**; a later reconciliation/refinement/implementation event never establishes it. The projection now exposes `intakeDateUnknown` — the actual **53 of 60** active `PL-*` identities with no intake-kind event — and the UI lists them by identity under **"Intake date not recorded,"** rather than a misleading aggregate. Concretely, `PL-ROADMAP-UI` itself has dated reconciliation + implementation events but no intake event, so it correctly appears as intake-date-unknown.
+
+3. **Fail-closed calendar validation.** Dates are now validated as real calendar dates (`parseLeadingCalendarDate`, with a leap-year check). Impossible dates (`February 31`, `September 31`, `February 29` in a non-leap year, unknown month) cause the generator to **exit non-zero with a visible integrity failure** rather than being silently normalized or sorted last. Verified end-to-end. Tests cover valid and impossible dates.
+
+4. **State classification hardened.** `stateKind`'s substring scan (which could misread "not closed"/"not implemented") is replaced: a normalized badge is applied only for an **exact recognized leading token**; otherwise the **verbatim** `**State:**` text is shown with no badge. State is never overstated.
+
+5. **`transitions[]` removed.** The earlier field scraped bolded year-containing clauses from the `**Date:**` line. With explicit event kinds, a lifecycle transition that has its own dated record is now its own event; no prose is scraped. Simpler and truthful.
+
+6. **Why-state wording corrected.** The UI no longer claims a why-state link it does not provide. `sourceFile` is labeled provenance (which physical page), not a why-state reference. Journal (rich why-state) and Log (compact governed temporal-event chronology) remain distinct.
+
+**Corrected schema.** `LogEntry { plId | null, title, eventKind, eventDateText, eventDateIso (validated), state | null, headingLevel, sourceFile }`; projection adds `intakeDateUnknown: string[]`; `PlItem` remains dateless (temporal facts live only in the Log). Counts: `logIntakeEvents` = 8, `plWithoutIntakeDate` = 53. The corpus had **30** dated records at the moment the parser fix was verified; **this correction record is itself a dated governed record (an implementation-kind event)**, so once it lands the Log self-consistently shows **31** events. The count is derived from authority, not asserted — the corpus-reconciliation test recomputes it from the Markdown, so it tracks the corpus automatically.
+
+**Verification (corrected).** Roadmap suite 132 pass; full frontend suite **1913/1913**; `tsc -b && vite build` clean; ADR-018 freshness `--check` in sync; lint clean for changed files; `git diff --check` clean. Operator surface rendered and inspected: 30 chronological events with explicit kinds, exact-token-only state badges, honest `no PL-id`/`no explicit state` rows, and the named 53-identity "Intake date not recorded" group (including `PL-ROADMAP-UI`).
+
+**Scope discipline.** No historical intake-date backfill; no authority edits to normalize the two id-less / stateless records; no new Bet; no new architecture-roadmap pressure; wholly within ADR-018 (build-time projection → read-only UI; no runtime GitHub/credentials/backend). The unrelated staged `PL-ARCH-07` working-tree changes were left untouched.
+
+**Next authorized mode.** Second independent re-review → Principal operator-surface acceptance → commit + push to `main`. Not committed. SYNC provenance: the first pass cited `90098621…`; this correction was performed against the current accepted `main` `6a99217…`.
+
+
+### `PL-ROADMAP-UI` — Log lens final bounded correction after second Codex review (2026-09-21)
+
+**Date:** September 21, 2026
+**SYNC at correction:** `1a9eafa24e6963a4266d752038fc7e6fe13fcdb9` (remotely verified accepted `main`)
+**State:** IMPLEMENTED (uncommitted working tree) — final bounded correction pass; awaiting one constrained Codex verification against the frozen acceptance invariants, then Principal operator-surface acceptance before commit.
+
+The **second** Codex review of the Log candidate identified a further finite defect set. This is the final bounded implementation pass; it supersedes the specific overclaims of the earlier correction record where they conflict, and preserves the earlier records as provenance of the failed passes (the process was iterative and is not being smoothed over).
+
+**Corrections made (this pass):**
+
+1. **Event classification separated from intake evidence (principal fix).** `eventKind` is now presentation-only and no longer determines intake knowledge. A new independent, explicit `establishesIntake` flag is derived per record from narrow canonical signals: (a) the `**Date:**` line marks the date as intake — `… (intake)`; or (b) the state line states the record created the identity — "canonical identity created" / "new canonical identity" (the negative "no new `PL-*` identity created" is excluded). The bare word "INTAKE" is **not** sufficient. Worked cases: `PL-DEPLOY-02-DEF01` is a **remediation** event that **also establishes intake** (its date says `(intake)`); `PL-ROADMAP-UI`'s `##` record is a **reconciliation** event that **establishes intake** ("RECONCILED — canonical identity created"), while its later implementation events do **not**; an `INTAKE refinement` (`PL-OPS-01`) does **not** establish intake.
+
+2. **Known/unknown intake recomputed from explicit evidence, derived (not hardcoded).** `intakeDateUnknown` now lists active identities with **no** record carrying explicit intake evidence. The result — **9 identities with a recorded intake date, 51 without** — is computed from authority. All nine identities Codex named as having explicit intake evidence (`PL-OPS-08`, `PL-OPS-09`, `PL-MKT`, `PL-DEPLOY-EXPORT`, `PL-RECIPE-01`, `PL-ACTOR-01`, `PL-ARCH-07`, `PL-DEPLOY-02-DEF01`, `PL-ROADMAP-UI`) are reproduced as known; they are used as falsification cases in tests, not as the algorithm.
+
+3. **Heading attribution made genuinely depth-generic.** The parser stack now handles heading depths **2–6** with the general rule (a temporal field belongs to its nearest enclosing heading; scope ends at the next equal-or-shallower heading), rather than special-casing `##`/`###`. A dated `####` record is attributed to itself, not its parent.
+
+4. **True source order preserved.** Each event records a monotonic global `sourceOrder` (file order, then line order), used as the same-date tie-break so a parent precedes its nested child and adjacent records keep their order. It is internal ordering metadata and is never rendered.
+
+5. **Event-kind substring leak removed.** Classification uses only the exact leading state token or heading form. `"V1 NOT IMPLEMENTED — pending"` no longer becomes `implementation`; it is `unclassified`. (`PL-ELIG` now renders as a neutral "Event", not "Implementation".) Prefer `unclassified` over guessing.
+
+6. **Corpus verification strengthened to an identity/evidence oracle.** The corpus test no longer compares counts only (which could pass with one missing + one extra). An independent oracle — which does **not** import `parseLogEvents` — re-derives the canonical temporal records keyed by `sourceFile :: heading title :: authored date` and asserts exact set equality with the projected events, proving every qualifying record maps to exactly one event, no extras, nested records included, ordering preserved.
+
+7. **Intake evidence independently tested.** Tests assert the intake/kind separation directly (remediation-that-establishes-intake, reconciliation-that-creates-identity, INTAKE-refinement-that-does-not, later-implementation-that-does-not, no-evidence-stays-unknown) with truth defined from authority, not from whatever the generator classified.
+
+**Corrected schema.** `LogEntry { plId|null, title, eventKind, establishesIntake, eventDateText, eventDateIso (validated real date), state|null, headingLevel (2–6), sourceFile, sourceOrder }`; projection `intakeDateUnknown: string[]`; counts `logIntakeEvidenceEvents`, `plWithIntakeDate` (9), `plWithoutIntakeDate` (51). `PlItem` remains dateless.
+
+**Event count note.** At the moment this pass was verified the corpus held **31** dated governed records. **This correction record is itself a dated `###` record (an implementation-kind event that does not establish intake)**, so once it lands the Log self-consistently shows **32** events. The count is derived and asserted by the corpus oracle, not hand-maintained.
+
+**Verification (this pass).** Roadmap suite 149 pass; full frontend suite **1930/1930**; `tsc -b && vite build` clean; ADR-018 freshness `--check` in sync; lint clean for changed files; `git diff --check` clean. Fail-closed calendar validation reconfirmed. Operator surface rendered and inspected (text render; the environment cannot produce a screenshot): 31 chronological events, explicit kinds, per-row "establishes intake" flags independent of kind (incl. the DEF01 remediation record and the PL-ROADMAP-UI reconciliation record), `PL-ELIG` as neutral Event, and the named 51-identity "Intake date not recorded" group (excluding `PL-ROADMAP-UI`).
+
+**Scope discipline.** No historical intake-date backfill; no authority edits to normalize heterogeneous records; no new Bet; no new architecture-roadmap pressure; wholly within ADR-018. Unrelated committed work (`PL-ARCH-07`, `PL-PORT-01`) untouched.
+
+**Next authorized mode.** One constrained Codex verification against the eight frozen acceptance invariants → Principal operator-surface acceptance → commit + push. Not committed.
+
+
+### `PL-ROADMAP-UI` — Log lens Principal UX acceptance (2026-09-21)
+
+Two Principal acceptance findings applied during operator testing; **display-only**, no change to frozen temporal/intake semantics (still 32 events, 9 intake-known, 51 unknown; projection order and the corpus oracle unchanged):
+
+1. **Newest-first display order.** The Log list renders event date **descending** (newest first). This is display ordering only; the projection's canonical order remains ascending date, then true `sourceOrder`. Within a same-date group, canonical source order is preserved (the day is not internally reversed).
+2. **Master/detail interaction.** Log rows are selectable; the selected event's full detail (title, event date, `PL-*` identity or explicit missing-id, event kind, verbatim governed state or explicit missing-state, whether it establishes intake, source/provenance) renders in the previously-unused right pane, reusing the shared Roadmap tree+detail pattern. The newest event is selected by default. No modal, route, or new architecture.
+
+Earlier descriptions of the Log as a "single-column chronological timeline" are superseded by this master/detail presentation. This was Principal-accepted operator behavior; no further Codex review was required for these two display changes. This note carries no `**Date:**` line and is therefore not itself a Log event.

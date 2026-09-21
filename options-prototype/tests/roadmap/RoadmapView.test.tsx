@@ -178,4 +178,131 @@ describe("RoadmapView", () => {
     expect(screen.getByText("Section")).toBeTruthy();
     expect(screen.getByText(/Related strategy \(explicit\)/i)).toBeTruthy();
   });
+
+  it("switches to the Log lens and shows explicit governed events NEWEST-FIRST", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Log" }));
+    // Lens intro states the governed-temporal-event purpose.
+    expect(screen.getByText(/Explicit governed temporal events/i)).toBeTruthy();
+    // A known event's PL id is rendered.
+    expect(screen.getAllByText("PL-OPS-08").length).toBeGreaterThan(0);
+    // Event dates render in DESCENDING (newest-first) order.
+    const isos = Array.from(document.querySelectorAll(".rm-log-date-iso")).map(
+      (el) => el.textContent ?? ""
+    );
+    expect(isos.length).toBeGreaterThan(1);
+    expect([...isos]).toEqual([...isos].sort().reverse());
+    // Newest overall date is first; oldest is last.
+    expect(isos[0]).toBe("2026-09-21");
+    expect(isos[isos.length - 1]).toBe("2026-09-01");
+  });
+
+  it("preserves canonical source order WITHIN a same-date group (day not reversed)", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Log" }));
+    // The four 2026-09-21 events must keep their authored source order even though
+    // the overall list runs newest-first. Their titles, in canonical source order,
+    // begin: Log lens intake/reconciliation, PL-ARCH-07, Log lens implemented,
+    // Log lens ... corrected. We assert the first-of-day precedes the later ones.
+    const titles = Array.from(document.querySelectorAll(".rm-log-item .rm-log-title")).map(
+      (el) => el.textContent ?? ""
+    );
+    const idxIntakeRecon = titles.findIndex((t) => /Log lens intake\/reconciliation/i.test(t));
+    const idxImplemented = titles.findIndex((t) => /Log lens implemented/i.test(t));
+    const idxCorrected = titles.findIndex((t) => /Log lens .*corrected/i.test(t));
+    expect(idxIntakeRecon).toBeGreaterThanOrEqual(0);
+    expect(idxIntakeRecon).toBeLessThan(idxImplemented);
+    expect(idxImplemented).toBeLessThan(idxCorrected);
+  });
+
+  it("selects the newest event by default and shows it in the detail pane", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Log" }));
+    // First (newest) row is selected by default.
+    const items = document.querySelectorAll(".rm-log-item");
+    expect(items[0].getAttribute("aria-selected")).toBe("true");
+    // Detail pane shows the event's fields (Event date / Event kind / Source headings).
+    const detail = document.querySelector(".rm-detail-pane") as HTMLElement;
+    expect(within(detail).getByText("Event date")).toBeTruthy();
+    expect(within(detail).getByText("Event kind")).toBeTruthy();
+    expect(within(detail).getByText("Governed state")).toBeTruthy();
+    expect(within(detail).getByText("Source")).toBeTruthy();
+  });
+
+  it("clicking a Log row changes selection and updates the detail pane", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Log" }));
+    const items = Array.from(document.querySelectorAll(".rm-log-item"));
+    // Click a later row (not the default newest one).
+    const target = items[5];
+    fireEvent.click(target);
+    expect(target.getAttribute("aria-selected")).toBe("true");
+    expect(items[0].getAttribute("aria-selected")).toBe("false");
+    // The detail pane reflects the clicked row's title.
+    const clickedTitle = target.querySelector(".rm-log-title")?.textContent ?? "";
+    const detail = document.querySelector(".rm-detail-pane") as HTMLElement;
+    expect(within(detail).getByText(clickedTitle)).toBeTruthy();
+  });
+
+  it("detail pane reports intake establishment truthfully for the selected event", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Log" }));
+    // Select the DEF01 remediation record (establishes intake via '(intake)' date).
+    const rows = Array.from(document.querySelectorAll(".rm-log-item"));
+    const def = rows.find((r) => /PL-DEPLOY-02-DEF01/.test(r.textContent ?? "")) as HTMLElement;
+    fireEvent.click(def);
+    const detail = document.querySelector(".rm-detail-pane") as HTMLElement;
+    expect(within(detail).getByText(/explicitly establishes the identity's original intake date/i)).toBeTruthy();
+  });
+
+  it("renders explicit event kinds (intake, reconciliation, refinement, implementation)", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Log" }));
+    const kinds = Array.from(document.querySelectorAll(".rm-log-kind")).map((el) => el.textContent);
+    expect(kinds).toContain("Intake");
+    expect(kinds).toContain("Reconciliation");
+    expect(kinds).toContain("Refinement");
+  });
+
+  it("shows the previously-dropped nested Log records (implementation event)", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Log" }));
+    // Both PL-ROADMAP-UI Log ### records now render (multiple PL-ROADMAP-UI rows).
+    expect(screen.getAllByText("PL-ROADMAP-UI").length).toBeGreaterThan(1);
+  });
+
+  it("surfaces 'Intake date not recorded' as a NAMED identity list, not a bare count", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Log" }));
+    expect(screen.getByText(/Intake date not recorded/i)).toBeTruthy();
+    // The group names actual PL identities. PL-OPS-01 is a refinement with no
+    // explicit intake evidence, so it must appear here.
+    const unknownList = document.querySelector(".rm-log-unknown-ids") as HTMLElement;
+    expect(unknownList).toBeTruthy();
+    expect(within(unknownList).getAllByText("PL-OPS-01").length).toBeGreaterThan(0);
+  });
+
+  it("does NOT list an identity with explicit intake evidence as unknown", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Log" }));
+    // PL-ROADMAP-UI's reconciliation record states it created the identity, so it
+    // is known-intake and must NOT appear in the unknown list.
+    const unknownList = document.querySelector(".rm-log-unknown-ids") as HTMLElement;
+    expect(within(unknownList).queryByText("PL-ROADMAP-UI")).toBeNull();
+  });
+
+  it("marks events that explicitly establish intake, independent of kind", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Log" }));
+    // At least one 'establishes intake' flag renders (e.g. the DEF01 remediation
+    // record whose date is marked '(intake)').
+    expect(screen.getAllByText(/establishes intake/i).length).toBeGreaterThan(0);
+  });
+
+  it("uses honest wording: intake unknown unless explicitly established", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Log" }));
+    expect(screen.getByText(/original intake date is unknown/i)).toBeTruthy();
+    expect(screen.getByText(/Event classification does not establish intake/i)).toBeTruthy();
+  });
 });

@@ -770,3 +770,211 @@
   line-height: 1.4;
   background: var(--wd-bg-base);
 }
+
+/* === Log lens — chronology of governed temporal events (master/detail) === */
+
+/* The Log uses the shared two-pane rm-strategy layout: list on the left, detail
+   on the right. The list pane scrolls; rows are selectable. */
+.rm-log .rm-log-list {
+  list-style: none;
+  margin: 8px 0 0 0;
+  padding: 0 8px;
+}
+
+.rm-log-item {
+  display: flex;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--wd-table-row-border);
+  border-left: 2px solid var(--wd-border-subtle);
+  padding-left: 12px;
+}
+
+.rm-log-item-click {
+  cursor: pointer;
+}
+
+.rm-log-item-click:hover {
+  background: var(--wd-bg-hover);
+}
+
+.rm-log-item.rm-row-selected {
+  background: var(--wd-bg-selected);
+  border-left-color: var(--wd-select-rail);
+}
+
+.rm-log-date {
+  flex-shrink: 0;
+  width: 88px;
+  padding-top: 1px;
+}
+
+.rm-log-date-iso {
+  font-family: var(--wd-font-mono);
+  font-size: var(--wd-size-label);
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-secondary);
+}
+
+.rm-log-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.rm-log-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rm-log-title {
+  font-size: 12px;
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-primary);
+}
+
+.rm-log-state {
+  font-size: var(--wd-size-micro);
+  font-weight: var(--wd-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.rm-log-state-intake { color: var(--wd-accent-yellow); background: var(--wd-accent-yellow-bg); }
+.rm-log-state-discovery { color: var(--wd-text-tertiary); background: var(--wd-bg-raised); }
+.rm-log-state-reconciled { color: var(--wd-accent-blue); background: var(--wd-accent-blue-bg); }
+.rm-log-state-closed { color: var(--wd-accent-green); background: var(--wd-accent-green-bg); }
+.rm-log-state-other { color: var(--wd-text-tertiary); background: var(--wd-bg-raised); }
+
+.rm-log-datetext {
+  font-size: 10px;
+  color: var(--wd-text-disabled);
+  margin-top: 2px;
+}
+
+.rm-log-statetext {
+  font-size: 11px;
+  color: var(--wd-text-secondary);
+  line-height: 1.45;
+  margin-top: 4px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Event-kind tag — restrained semantic color per governed kind. */
+.rm-log-kind {
+  font-size: var(--wd-size-micro);
+  font-weight: var(--wd-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.rm-log-kind-intake { color: var(--wd-accent-yellow); background: var(--wd-accent-yellow-bg); }
+.rm-log-kind-reconciliation { color: var(--wd-accent-blue); background: var(--wd-accent-blue-bg); }
+.rm-log-kind-refinement { color: var(--wd-accent-purple); background: var(--wd-accent-purple-bg); }
+.rm-log-kind-implementation { color: var(--wd-accent-green); background: var(--wd-accent-green-bg); }
+.rm-log-kind-remediation { color: var(--wd-accent-green); background: var(--wd-accent-green-bg); }
+.rm-log-kind-unclassified { color: var(--wd-text-tertiary); background: var(--wd-bg-raised); }
+
+.rm-log-no-id {
+  font-family: var(--wd-font-mono);
+  font-size: var(--wd-size-micro);
+  color: var(--wd-text-disabled);
+  font-style: italic;
+  flex-shrink: 0;
+}
+
+.rm-log-intake-flag {
+  font-size: var(--wd-size-micro);
+  font-weight: var(--wd-weight-semi);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  color: var(--wd-accent-yellow);
+  background: var(--wd-accent-yellow-bg);
+  border: 1px solid var(--wd-accent-yellow-border);
+}
+
+.rm-log-state-verbatim {
+  color: var(--wd-text-secondary);
+}
+
+.rm-log-nostate {
+  font-size: 10px;
+  color: var(--wd-text-disabled);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.rm-log-summary {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--wd-text-tertiary);
+}
+
+.rm-log-gap-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.rm-log-gap-count {
+  font-family: var(--wd-font-mono);
+  font-size: var(--wd-size-label);
+  color: var(--wd-text-disabled);
+}
+
+.rm-log-unknown-ids {
+  list-style: none;
+  margin: 8px 0 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+}
+
+.rm-log-unknown-id {
+  border: 1px solid var(--wd-border-subtle);
+  border-radius: 3px;
+  padding: 1px 5px;
+  background: var(--wd-bg-surface);
+}
+
+.rm-log-source {
+  font-family: var(--wd-font-mono);
+  font-size: var(--wd-size-micro);
+  color: var(--wd-text-disabled);
+  margin-top: 5px;
+}
+
+.rm-log-gap {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px dashed var(--wd-border-default);
+  border-radius: 6px;
+  background: var(--wd-bg-raised);
+}
+
+.rm-log-gap-key {
+  font-size: var(--wd-size-label);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: var(--wd-weight-semi);
+  color: var(--wd-text-tertiary);
+}
+
+.rm-log-gap p {
+  font-size: 11px;
+  color: var(--wd-text-secondary);
+  line-height: 1.5;
+  margin: 4px 0 0 0;
+}

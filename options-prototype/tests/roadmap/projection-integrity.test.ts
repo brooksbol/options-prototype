@@ -9,6 +9,8 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { readdirSync, readFileSync } from "node:fs";
+import { resolve, join } from "node:path";
 import projection from "../../src/roadmap/roadmap-projection.json";
 import type { RoadmapProjection, LvtNode } from "../../src/roadmap/roadmap-projection-types";
 
@@ -410,5 +412,212 @@ describe("roadmap projection — coming soon (Now/Next/Later horizons)", () => {
     const priorityRefs = new Set(p.priority.entries.map((e) => e.refId));
     // They must not be identical sets (different authorities, different semantics).
     expect(horizonNames).not.toEqual(priorityRefs);
+  });
+});
+
+/**
+ * Independent corpus ORACLE for the Log (Codex final finding 6).
+ *
+ * This deliberately does NOT import parseLogEvents. It re-derives, with a simple
+ * independent heading-stack, the set of canonical temporal records — keyed by
+ * stable source evidence (file, heading title, authored date) — and requires a
+ * one-to-one correspondence with the projected events. A count-only check would
+ * let "one missing + one extra" pass; keying by evidence closes that.
+ */
+function corpusTemporalRecords(): { key: string; file: string; title: string; date: string }[] {
+  const docsDir = resolve(__dirname, "../../../docs");
+  const files = readdirSync(docsDir)
+    .filter((f) => /^parking-lot.*\.md$/.test(f))
+    .sort();
+  const records: { key: string; file: string; title: string; date: string }[] = [];
+  for (const file of files) {
+    const lines = readFileSync(join(docsDir, file), "utf-8").split("\n");
+    const stack: { title: string; date: string | null }[] = [];
+    const levels: number[] = [];
+    const close = (b: { title: string; date: string | null } | undefined) => {
+      if (b && b.date) {
+        const title = b.title.replace(/`/g, "").trim();
+        records.push({ key: `${file}::${title}::${b.date}`, file, title, date: b.date });
+      }
+    };
+    for (const raw of lines) {
+      const line = raw.replace(/\r$/, "");
+      const h = line.match(/^(#{2,6})\s+(.+?)\s*$/);
+      if (h) {
+        const level = h[1].length;
+        while (levels.length && levels[levels.length - 1] >= level) {
+          close(stack.pop());
+          levels.pop();
+        }
+        stack.push({ title: h[2], date: null });
+        levels.push(level);
+        continue;
+      }
+      if (stack.length) {
+        const d = line.match(/^\*\*Date:\*\*\s*(.+?)\s*$/);
+        if (d && stack[stack.length - 1].date === null) stack[stack.length - 1].date = d[1].trim();
+      }
+    }
+    while (stack.length) {
+      close(stack.pop());
+      levels.pop();
+    }
+  }
+  return records;
+}
+
+describe("roadmap projection — Log (explicit governed temporal events)", () => {
+  it("captures dated governed events and matches the declared count", () => {
+    expect(Array.isArray(p.log)).toBe(true);
+    expect(p.log.length).toBe(p.meta.counts.logTotal);
+    expect(p.log.length).toBeGreaterThan(0);
+  });
+
+  it("maps one-to-one with the canonical corpus by source evidence (no drop, no extra)", () => {
+    const oracle = corpusTemporalRecords();
+    const oracleKeys = oracle.map((r) => r.key).sort();
+    const projKeys = p.log
+      .map((e) => `${e.sourceFile}::${e.title}::${e.eventDateText}`)
+      .sort();
+    // Exact set equality by stable evidence — proves neither a missing record nor
+    // a fabricated event, and that nested records are mapped, not swallowed.
+    expect(projKeys).toEqual(oracleKeys);
+    // And the same cardinality, so a duplicate key cannot hide a swap.
+    expect(p.log.length).toBe(oracle.length);
+  });
+
+  it("captures nested (deeper-than-##) PL-ROADMAP-UI Log records the ##-only parser dropped", () => {
+    const nested = p.log.filter((e) => e.headingLevel >= 3 && e.plId === "PL-ROADMAP-UI");
+    expect(nested.length).toBeGreaterThanOrEqual(2);
+    const titles = nested.map((e) => e.title);
+    expect(titles.some((t) => /Log lens intake\/reconciliation/i.test(t))).toBe(true);
+    expect(titles.some((t) => /Log lens implemented/i.test(t))).toBe(true);
+  });
+
+  it("every event has a validated real calendar date (impossible dates fail generation)", () => {
+    for (const e of p.log) {
+      expect(e.eventDateIso, `${e.title}`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      const [y, m, d] = e.eventDateIso.split("-").map((n) => parseInt(n, 10));
+      const maxDay = new Date(y, m, 0).getDate();
+      expect(d).toBeGreaterThanOrEqual(1);
+      expect(d).toBeLessThanOrEqual(maxDay);
+      expect(e.eventDateText.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("orders deterministically by calendar date, then by true canonical source order", () => {
+    for (let i = 1; i < p.log.length; i++) {
+      const prev = p.log[i - 1];
+      const cur = p.log[i];
+      if (prev.eventDateIso === cur.eventDateIso) {
+        // Same day → must be in ascending canonical source order.
+        expect(prev.sourceOrder).toBeLessThan(cur.sourceOrder);
+      } else {
+        expect(prev.eventDateIso < cur.eventDateIso).toBe(true);
+      }
+    }
+  });
+
+  it("uses only known explicit event kinds (never a guessed classification)", () => {
+    const allowed = new Set([
+      "intake", "reconciliation", "refinement", "implementation", "remediation", "unclassified",
+    ]);
+    for (const e of p.log) expect(allowed.has(e.eventKind), `${e.title}: ${e.eventKind}`).toBe(true);
+  });
+
+  it("allows several dated events under one PL identity", () => {
+    const byId = new Map<string, number>();
+    for (const e of p.log) {
+      if (!e.plId) continue;
+      byId.set(e.plId, (byId.get(e.plId) ?? 0) + 1);
+    }
+    expect(Math.max(0, ...byId.values())).toBeGreaterThan(1);
+  });
+
+  it("carries only explicit-only fields — no priority/owner/progress/rank/transitions", () => {
+    for (const e of p.log) {
+      const keys = Object.keys(e);
+      for (const forbidden of ["priority", "owner", "progress", "rank", "estimate", "transitions"]) {
+        expect(keys).not.toContain(forbidden);
+      }
+    }
+  });
+});
+
+describe("roadmap projection — intake evidence is independent of event kind (Codex final findings 1–2)", () => {
+  it("derives intake-known strictly from establishesIntake, not from eventKind", () => {
+    const knownByEvidence = new Set(
+      p.log.filter((e) => e.establishesIntake && e.plId).map((e) => e.plId),
+    );
+    // Partition: every active PL id is either known-by-evidence or listed unknown.
+    for (const item of p.parkingLot) {
+      const known = knownByEvidence.has(item.id);
+      const unknown = p.intakeDateUnknown.includes(item.id);
+      expect(known || unknown, `${item.id} neither known nor unknown`).toBe(true);
+      expect(known && unknown, `${item.id} both`).toBe(false);
+    }
+    expect(p.intakeDateUnknown.length).toBe(p.meta.counts.plWithoutIntakeDate);
+    expect(knownByEvidence.size).toBe(p.meta.counts.plWithIntakeDate);
+  });
+
+  it("a remediation event that explicitly marks its date '(intake)' establishes intake", () => {
+    // PL-DEPLOY-02-DEF01: eventKind remediation, but its date says "(intake)".
+    const def = p.log.find((e) => e.plId === "PL-DEPLOY-02-DEF01");
+    expect(def).toBeTruthy();
+    expect(def!.eventKind).toBe("remediation");
+    expect(def!.establishesIntake).toBe(true);
+    expect(p.intakeDateUnknown).not.toContain("PL-DEPLOY-02-DEF01");
+  });
+
+  it("a reconciliation record that states it created the identity establishes intake", () => {
+    // PL-ROADMAP-UI's ## record: RECONCILED — canonical identity created.
+    const created = p.log.find(
+      (e) => e.plId === "PL-ROADMAP-UI" && e.establishesIntake,
+    );
+    expect(created).toBeTruthy();
+    expect(created!.eventKind).toBe("reconciliation");
+    expect(p.intakeDateUnknown).not.toContain("PL-ROADMAP-UI");
+  });
+
+  it("a later implementation/reconciliation event does NOT by itself establish intake", () => {
+    // PL-ROADMAP-UI's later implementation events must not carry intake evidence.
+    const impls = p.log.filter((e) => e.plId === "PL-ROADMAP-UI" && e.eventKind === "implementation");
+    expect(impls.length).toBeGreaterThan(0);
+    for (const e of impls) expect(e.establishesIntake).toBe(false);
+  });
+
+  it("a refinement whose state contains INTAKE but says 'no new identity' does NOT establish intake", () => {
+    // PL-OPS-01 refinement: INTAKE refinement … no new PL-* identity created.
+    const ops01 = p.log.filter((e) => e.plId === "PL-OPS-01");
+    expect(ops01.length).toBeGreaterThan(0);
+    for (const e of ops01) expect(e.establishesIntake).toBe(false);
+    expect(p.intakeDateUnknown).toContain("PL-OPS-01");
+  });
+
+  it("independently reproduces Codex's known-intake falsification set from authority", () => {
+    // These identities MUST be known-intake (derived, not hardcoded in the impl).
+    const knownByEvidence = new Set(
+      p.log.filter((e) => e.establishesIntake && e.plId).map((e) => e.plId),
+    );
+    for (const id of [
+      "PL-OPS-08", "PL-OPS-09", "PL-MKT", "PL-DEPLOY-EXPORT", "PL-RECIPE-01",
+      "PL-ACTOR-01", "PL-ARCH-07", "PL-DEPLOY-02-DEF01", "PL-ROADMAP-UI",
+    ]) {
+      expect(knownByEvidence.has(id), `${id} should have explicit intake evidence`).toBe(true);
+    }
+  });
+
+  it("names the unknown-intake identities (deterministic, well-formed) rather than only counting", () => {
+    expect(Array.isArray(p.intakeDateUnknown)).toBe(true);
+    expect(p.intakeDateUnknown.length).toBeGreaterThan(0);
+    for (const id of p.intakeDateUnknown) expect(id).toMatch(/^PL-[A-Z0-9-]+$/);
+    expect(p.intakeDateUnknown).toEqual([...p.intakeDateUnknown].sort());
+  });
+
+  it("keeps PlItem dateless (temporal facts live only in the Log)", () => {
+    for (const item of p.parkingLot) {
+      expect(Object.keys(item)).not.toContain("date");
+      expect(Object.keys(item)).not.toContain("intakeDate");
+    }
   });
 });

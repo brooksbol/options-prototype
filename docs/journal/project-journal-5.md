@@ -248,6 +248,23 @@ So a Log built today is **complete for reconciliation-era items and partial for 
 
 
 ---
+## 2026-09-21 — Roadmap Log lens implemented (Option A, smallest coherent unit) — Kiro
+
+**Actor:** Kiro (repository-resident implementation partner). Principal-authorized implementation; uncommitted pending operator acceptance.
+**SYNC SHA:** `90098621332539e583c7c715cab5a125153368d2` (remotely verified accepted `main`).
+
+**What shipped.** The Log lens reconciled earlier today under `PL-ROADMAP-UI` is now implemented: a build-time explicit-only temporal projection (`LogEntry`/`log[]` in the roadmap projection; `parseLogEvents`/`parseLeadingIsoDate` in the generator) and a read-only `Log` lens (`LogView.tsx`) in the Roadmap surface. Wholly within ADR-018 — no runtime GitHub, no credentials, no backend. Full record in `docs/parking-lot-9.md` (`PL-ROADMAP-UI` — Log lens implemented, 2026-09-21).
+
+**The design decision worth remembering.** The Log is a **separate projection section**, not a `date` field on `PlItem`. That preserves the pre-existing explicit-only invariant (and its integrity test) that parking-lot items carry no dates, while giving the Log its own temporal shape. It also matches the domain reality: a single `PL-*` identity accrues **several** dated records over time (intake, then reconciliation, then refinements), and the Principal wants each governed step in the chronology — so the Log's unit is the *dated record*, not the *unique PL id*. 28 dated events render today.
+
+**The honest-gap finding held under implementation.** The reconciliation predicted uneven temporal authority; implementation confirmed it concretely: 43 of 60 parking-lot items have no explicit dated record (chiefly the primary-table rows) and therefore produce no Log event. The lens states this plainly ("Date not recorded") rather than inferring dates from order/history. No backfill was done (out of scope). If the Principal later wants a complete chronology, backfilling explicit intake dates into the primary table is separate, authorizable reconciliation work — still explicit-only.
+
+**Two authoring shapes surfaced, deliberately not "fixed".** Two dated records name no `PL-*` in their heading (Java Test-Suite performance entries); two state no `**State:**`. Both render honestly rather than fabricated. Editing the authority to normalize them would exceed this authorization and would be authority cleanup, not Log implementation — so it was left alone and noted.
+
+**Verification.** 1898/1898 frontend tests; clean `tsc`+`vite` build; ADR-018 freshness `--check` in sync; operator surface served and the rendered chronology inspected. Epistemic status: implementation complete and verified at the software level; **operator/product acceptance is the gate before commit**, consistent with the rest of `PL-ROADMAP-UI`'s provisional UX.
+
+
+---
 ## 2026-09-21 — COTS authorization investigation reconciled into durable evidence (`docs/57`), linked from `PL-ARCH-07` (Kiro, governance)
 
 **Actor:** Kiro (governance thread). Reconciliation/persistence only; no vendor selected, no authorization/authentication/RBAC/ReBAC/FGA/multi-Operator implementation authorized.
@@ -283,3 +300,39 @@ So a Log built today is **complete for reconciliation-era items and partial for 
 **Git-safety.** Unrelated in-flight `PL-ROADMAP-UI` / Log-lens work (roadmap scripts/types/json/css, `RoadmapView.tsx`, untracked `LogView.tsx`, roadmap tests, and Log-lens prose interleaved in `parking-lot-9.md`/`journal-5.md`) preserved exactly as-is and excluded from this commit via surgical staging; staged diff inspected to confirm no foreign content.
 
 **Epistemic status.** Closure reconciliation persisted as durable authority. Not implementation authority; no production code changed.
+
+
+---
+## 2026-09-21 — Roadmap Log lens corrected after Codex NOT-READY review — Kiro
+
+**Actor:** Kiro (repository-resident implementation partner). Correction of the uncommitted Log implementation; still uncommitted, now awaiting a second independent review.
+**SYNC SHA:** `6a99217ec8a107b333519dd60ceadd4c919b7862` (remotely verified accepted `main`; the first pass was authored against `90098621…`, which `main` has since advanced past).
+
+**What happened.** Codex reviewed the first Log implementation and returned NOT READY with two blocking findings and several material ones. All were correct. Corrected in place — the projection→UI structure held, no restart. Durable record: `docs/parking-lot-9.md`, "PL-ROADMAP-UI — Log lens corrected after Codex review (2026-09-21)".
+
+**The two findings worth remembering (they are subtle and I got them wrong the first time):**
+
+1. **Depth blindness dropped real records.** Recognizing temporal records only at `##` silently swallowed explicitly dated `###` records — including the Log lens's own two `###` records. The corpus had 30 dated records; I emitted 28 and did not notice. Lesson: when a canonical corpus mixes heading depths, an event-extraction rule must be *semantic* ("a heading block that states its own `**Date:**`"), enforced with a **corpus-reconciliation test** that recomputes the expected count straight from the Markdown. Hardcoding the count (28) would have hidden the defect; recomputing it exposes drift automatically. (Adding the correction record itself moved the live count to 31 — the reconciliation test tracked it without edits.)
+
+2. **Event date is not intake date.** I let "does this identity appear in any dated event?" stand in for "is its intake date known?" and the UI asserted "43 of 60 have no dated intake record" — a claim the data could not support. A reconciliation/refinement/implementation event dated today says nothing about when the identity was first taken in. The correct model derives an explicit **event kind** and treats intake-date-known as *there exists an intake-kind event*. `PL-ROADMAP-UI` is the clean example: it has dated reconciliation + implementation events but no intake event, so its original intake date is honestly unknown. The corrected surface lists the 53 unknown-intake identities by name rather than as a possibly-misleading aggregate.
+
+**Also corrected:** fail-closed real-calendar date validation (impossible dates now fail generation visibly instead of being silently normalized/sorted last); state badges only on exact leading tokens (no "not closed" misread); removed the `transitions[]` prose-scrape in favor of explicit dated events; corrected UI/why-state wording so the Log no longer implies a journal link it does not provide (`sourceFile` is provenance, not a why-state reference).
+
+**Epistemic status.** Corrected and verified at the software level (roadmap 132, full suite 1913, build clean, freshness in sync, fail-closed proven end-to-end). NOT declared commit-ready on passing tests alone — awaiting a second independent (Codex) review and then Principal operator-surface acceptance, consistent with `PL-ROADMAP-UI`'s provisional-UX discipline. The general lesson for the Roadmap projection family: *derive counts and coverage from authority and test the reconciliation, and keep "an event happened" strictly separate from "this specific governed fact (intake date) is known."*
+
+
+---
+## 2026-09-21 — Roadmap Log lens: final bounded correction after second Codex review — Kiro
+
+**Actor:** Kiro. Final bounded implementation pass; uncommitted, awaiting one constrained Codex verification against a frozen acceptance contract.
+**SYNC SHA:** `1a9eafa24e6963a4266d752038fc7e6fe13fcdb9`.
+
+**What happened.** Second Codex review found a finite defect set; all corrected in place (no restart). Durable record: `docs/parking-lot-9.md` "Log lens final bounded correction after second Codex review (2026-09-21)". This was explicitly the last open-ended-review iteration — the Principal froze an eight-invariant acceptance contract and a stopping rule.
+
+**The one idea worth remembering (I got it wrong twice before).** *An event happening is not the same fact as a specific governed fact being known.* I first used `eventKind === "intake"` to decide whether an identity's original intake date was known. That conflates classification with evidence. A single canonical record can carry two independent facts: `PL-DEPLOY-02-DEF01` is a **remediation** record whose `**Date:**` line explicitly says `(intake)` — so it establishes intake while being a remediation event; `PL-ROADMAP-UI`'s record is a **reconciliation** that explicitly "created the canonical identity" — so it establishes intake despite not being kind=intake; and an "INTAKE refinement … no new `PL-*` identity created" must **not** establish intake despite containing the word INTAKE. The fix models `establishesIntake` as its own explicit signal (`(intake)` date marker, or "canonical identity created" in state, minus the negative), independent of `eventKind`. Known-intake went from a false "7/60" (and earlier a misleading "43/60 no dated intake record") to a derived, defensible **9 known / 51 unknown**, reproducing all nine of Codex's falsification identities from authority.
+
+**Other corrections.** (a) Depth-generic heading attribution (levels 2–6, general nearest-enclosing rule) instead of special-casing `##`/`###`. (b) True `sourceOrder` tie-break for same-day events (parent before nested child). (c) Removed the event-kind substring leak — "V1 NOT IMPLEMENTED" no longer reads as implementation; `unclassified` over guessing. (d) Strengthened the corpus test into an **independent oracle** keyed by `file::title::date` set equality (a count-only check let "one missing + one extra" pass). (e) Verified independent intake-evidence tests whose truth comes from authority, not from the generator's own classification.
+
+**Method lesson for the Roadmap projection family.** Derive coverage/known-sets from explicit authority signals, keep independent facts independent, and verify with an oracle that does not reuse the code under test. A count that matches is not proof of correspondence; identity-keyed set equality is.
+
+**Epistemic status.** Corrected and verified at the software level (roadmap 149, full 1930, build clean, freshness sync, fail-closed reconfirmed, lint/diff clean). Operator validation is a text render (no screenshot capability). NOT commit-ready on tests alone — next is one constrained Codex verification against the frozen invariants, then Principal operator-surface acceptance. Non-blocking robustness/UX ideas belong in follow-up parking-lot state, not another reimplementation loop.

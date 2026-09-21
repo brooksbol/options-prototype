@@ -251,6 +251,110 @@ export interface BugRecord {
   sections: BugSection[];
 }
 
+/**
+ * The governed kind of a Log event, derived EXPLICITLY from the canonical record
+ * (its heading form and its `**State:**` word) — never guessed from vague prose.
+ *
+ *   - "intake":          a new-identity intake record (state begins INTAKE) or an
+ *                        INTAKE-refinement record. An intake event's date is the
+ *                        one kind of event whose date can establish an intake date.
+ *   - "reconciliation":  a "Reconciliation Completion Record" heading, or a record
+ *                        whose state begins RECONCILED.
+ *   - "refinement":      a "... Refinement — ..." record that is not itself an
+ *                        intake (state does not begin INTAKE).
+ *   - "implementation":  state begins IMPLEMENTED.
+ *   - "remediation":     state begins REMEDIATED (or REMEDIATED / CLOSED).
+ *   - "unclassified":    a real dated governed record whose kind the authority does
+ *                        not let us establish confidently. Shown neutrally; NEVER
+ *                        guessed into one of the above.
+ *
+ * These are the only kinds the current authority reliably supports. Decomposition
+ * and authorization are recorded inside reconciliation records' prose rather than
+ * as their own dated headings today, so no such kind is invented here.
+ */
+export type LogEventKind =
+  | "intake"
+  | "reconciliation"
+  | "refinement"
+  | "implementation"
+  | "remediation"
+  | "unclassified";
+
+/**
+ * Whether a record carries EXPLICIT canonical evidence that it establishes the
+ * original intake of its `PL-*` identity. This is INDEPENDENT of `eventKind`
+ * (Codex final finding 1): one dated record may be, say, a remediation event
+ * while its `**Date:**` line explicitly marks that date as the intake date, and a
+ * reconciliation record may explicitly state it created a new canonical identity.
+ *
+ * Established ONLY by narrow explicit signals the corpus actually uses:
+ *   - the `**Date:**` line marks the date as intake, e.g. "September 1, 2026 (intake)";
+ *   - the state line explicitly says a new identity was created, e.g.
+ *     "new canonical identity created" / "New canonical identity in the logical parking lot".
+ * The mere appearance of the word "INTAKE" (e.g. "INTAKE refinement … no new
+ * `PL-*` identity created") does NOT establish original intake.
+ */
+
+/**
+ * A single EXPLICIT governed temporal event for the Log lens.
+ *
+ * The Log is a chronology of explicit governed temporal events: *what governed
+ * step happened, when, and to which identity.* Each entry corresponds to one
+ * canonical record — at ANY heading depth (`##` or nested `###`) — that states
+ * its OWN explicit `**Date:**`. A single `PL-*` identity legitimately accrues
+ * several such events over time; each is its own event.
+ *
+ * CRITICAL SEMANTIC DISTINCTION (Codex Blocking 2):
+ *   - `eventDate*` is the date of THIS event (intake, reconciliation, refinement,
+ *     implementation, remediation, …). It is NOT automatically an intake date.
+ *   - An intake date is known for an identity ONLY when an `eventKind === "intake"`
+ *     event exists for it. A later reconciliation/refinement/implementation event
+ *     NEVER retroactively establishes an unknown intake date.
+ *
+ * EXPLICIT-ONLY / NO INFERENCE: an entry exists ONLY when the record states an
+ * explicit `**Date:**`. Dates are never inferred from row order, file order, Git
+ * history, journal/heading order, textual proximity, or later lifecycle events.
+ * `plId` is captured only when the record's heading names a `PL-*` identity; else
+ * null. `state` is the record's `**State:**` / `**Reconciliation state:**` line,
+ * verbatim, or null. Nothing here is a schedule, priority, or progress metric.
+ */
+export interface LogEntry {
+  /** Canonical `PL-*` identity when the record heading names one; else null. */
+  plId: string | null;
+  /** The record's heading title (verbatim, backticks stripped). */
+  title: string;
+  /** The explicitly derived governed kind of THIS event, for presentation (never guessed). */
+  eventKind: LogEventKind;
+  /**
+   * Whether THIS record explicitly establishes original intake of its identity.
+   * Independent of `eventKind` (see the doc above). Never inferred from the word
+   * "INTAKE" alone.
+   */
+  establishesIntake: boolean;
+  /** The event date exactly as authored, e.g. "September 8, 2026 (live operator incident)". */
+  eventDateText: string;
+  /**
+   * ISO-8601 (YYYY-MM-DD) parsed from the LEADING "Month D, YYYY" of eventDateText,
+   * used solely for deterministic chronological ordering — never shown as authority.
+   * Always a REAL calendar date: the generator fails closed on an impossible date,
+   * so this is never null for an emitted event.
+   */
+  eventDateIso: string;
+  /** The record's `**State:**` / `**Reconciliation state:**` line, verbatim, or null. */
+  state: string | null;
+  /** Heading depth this record was found at (2..6). Provenance only. */
+  headingLevel: number;
+  /** Physical source file (pagination only), e.g. "parking-lot-7.md". Provenance, not a why-state link. */
+  sourceFile: string;
+  /**
+   * Monotonic global capture position in canonical source order (file order, then
+   * line order). Internal ordering metadata used ONLY as the deterministic
+   * same-date tie-breaker so parent-before-child and adjacency are preserved. Has
+   * no product meaning and is never rendered.
+   */
+  sourceOrder: number;
+}
+
 /** Provenance and integrity metadata for the projection. */
 export interface ProjectionMeta {
   /** ISO timestamp the projection was generated. */
@@ -278,6 +382,20 @@ export interface ProjectionMeta {
     domainEntryTotal: number;
     /** Known defects in the canonical bug index. */
     bugTotal: number;
+    /** Explicit governed temporal events in the Log (any heading depth; explicit dates only). */
+    logTotal: number;
+    /** Log events that carry explicit intake evidence (establishesIntake === true). */
+    logIntakeEvidenceEvents: number;
+    /** Active parking-lot `PL-*` identities WITH explicit recorded intake evidence. */
+    plWithIntakeDate: number;
+    /**
+     * Count of active parking-lot `PL-*` identities for which NO record carries
+     * explicit intake evidence — their ORIGINAL intake date is not recorded in
+     * canonical authority. Listed by identity in `intakeDateUnknown` so the UI
+     * names them rather than reducing to a count. Derived from explicit intake
+     * evidence only, never from `eventKind`.
+     */
+    plWithoutIntakeDate: number;
   };
   /**
    * Non-fatal notes recorded during parsing (e.g. an alias that did not resolve).
@@ -305,4 +423,19 @@ export interface RoadmapProjection {
   domain: DomainReference;
   /** Known defects, verbatim from the canonical bug index (source order). */
   bugs: BugRecord[];
+  /**
+   * The Log: explicit governed temporal events in deterministic chronological
+   * order (earliest first). Explicit dates only, any heading depth; records
+   * without their own `**Date:**` produce no entry (see LogEntry).
+   */
+  log: LogEntry[];
+  /**
+   * Active parking-lot `PL-*` identities whose ORIGINAL intake date is not
+   * recorded in canonical authority — i.e. no `eventKind === "intake"` Log event
+   * exists for them. Listed by identity (not reduced to a count) so the operator
+   * surface can name the affected items. Never backfilled or inferred; a later
+   * reconciliation/implementation/refinement event does NOT remove an identity
+   * from this list. Sorted for determinism.
+   */
+  intakeDateUnknown: string[];
 }

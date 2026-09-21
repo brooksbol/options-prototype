@@ -20,6 +20,10 @@ import {
   parseDomainReference,
   parseBugIndex,
   parseBugRecord,
+  parseLogEvents,
+  parseLeadingCalendarDate,
+  deriveEventKind,
+  deriveIntakeEvidence,
 } from "../../scripts/roadmap-projection-parsers.mjs";
 
 const LVT_FIXTURE = [
@@ -528,5 +532,293 @@ describe("parseBugRecord", () => {
   it("preserves honest 'Empty (Open).' bodies verbatim", () => {
     const rem = sections.find((s: { heading: string }) => s.heading === "Remediation history");
     expect(rem.content).toBe("Empty (Open).");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Log — chronology of explicit governed temporal events (post-review model).
+// ---------------------------------------------------------------------------
+
+describe("parseLeadingCalendarDate", () => {
+  it("parses a real leading 'Month D, YYYY' into an ISO ordering key", () => {
+    expect(parseLeadingCalendarDate("September 7, 2026")).toEqual({ iso: "2026-09-07", error: null });
+    expect(parseLeadingCalendarDate("September 8, 2026 (late-night session)")).toEqual({
+      iso: "2026-09-08",
+      error: null,
+    });
+    expect(parseLeadingCalendarDate("February 29, 2028")).toEqual({ iso: "2028-02-29", error: null }); // leap year
+  });
+
+  it("reports NO leading date distinctly from an INVALID date", () => {
+    // No recognizable leading long-form date → not an error, just absent.
+    expect(parseLeadingCalendarDate("soon")).toEqual({ iso: null, error: null });
+    expect(parseLeadingCalendarDate("Q3 2026")).toEqual({ iso: null, error: null });
+    expect(parseLeadingCalendarDate("")).toEqual({ iso: null, error: null });
+  });
+
+  it("FAILS CLOSED on impossible calendar dates (never silently normalized)", () => {
+    const feb31 = parseLeadingCalendarDate("February 31, 2026");
+    expect(feb31.iso).toBeNull();
+    expect(feb31.error).toMatch(/impossible calendar date/i);
+
+    const sep31 = parseLeadingCalendarDate("September 31, 2026");
+    expect(sep31.iso).toBeNull();
+    expect(sep31.error).toMatch(/impossible calendar date/i);
+
+    const feb29_2027 = parseLeadingCalendarDate("February 29, 2027"); // not a leap year
+    expect(feb29_2027.iso).toBeNull();
+    expect(feb29_2027.error).toMatch(/impossible/i);
+
+    const badMonth = parseLeadingCalendarDate("Septamber 7, 2026");
+    expect(badMonth.iso).toBeNull();
+    expect(badMonth.error).toMatch(/unknown month/i);
+  });
+});
+
+describe("deriveEventKind", () => {
+  it("classifies from the explicit state leading word", () => {
+    expect(deriveEventKind("PL-X — Something", "INTAKE — new canonical identity")).toBe("intake");
+    expect(deriveEventKind("PL-X — Something", "IMPLEMENTED (uncommitted)")).toBe("implementation");
+    expect(deriveEventKind("PL-X — Something", "REMEDIATED / CLOSED")).toBe("remediation");
+    expect(deriveEventKind("PL-X — Something", "RECONCILED — durable knowledge")).toBe("reconciliation");
+  });
+
+  it("treats a Refinement heading as refinement even when state leads with INTAKE", () => {
+    // Load-bearing: a refinement's date must not establish an identity's intake date.
+    expect(deriveEventKind("PL-OPS-01 Refinement — Reliability Fit", "INTAKE refinement under existing PL-OPS-01")).toBe("refinement");
+    expect(deriveEventKind("PL-DEPLOY Refinement — X", "RECONCILED exploration")).toBe("refinement");
+  });
+
+  it("classifies a Reconciliation Completion Record heading as reconciliation", () => {
+    expect(deriveEventKind("Reconciliation Completion Record — PL-X (Y)", null)).toBe("reconciliation");
+  });
+
+  it("returns 'unclassified' rather than guessing when authority is silent", () => {
+    expect(deriveEventKind("Some Prose Heading With No Signal", null)).toBe("unclassified");
+    expect(deriveEventKind("PL-X — Log lens intake/reconciliation (2026-09-21)", null)).toBe("unclassified");
+  });
+
+  it("does not misread 'not closed'/'not implemented' as a closure/impl kind", () => {
+    // Exact leading token, not a substring scan.
+    expect(deriveEventKind("PL-X — Something", "RECONCILED — not yet implemented")).toBe("reconciliation");
+  });
+
+  it("does NOT let a substring like 'V1 NOT IMPLEMENTED' become implementation (leak fixed)", () => {
+    // Codex final finding 5: no substring scan through state/prose for kinds.
+    expect(deriveEventKind("PL-X — Something", "V1 NOT IMPLEMENTED — pending")).toBe("unclassified");
+    expect(deriveEventKind("PL-X — Something", "planned; implemented later maybe")).toBe("unclassified");
+  });
+});
+
+describe("deriveIntakeEvidence — independent of eventKind", () => {
+  it("is TRUE when the date explicitly marks intake, regardless of kind", () => {
+    // A remediation record can still carry the intake date explicitly.
+    expect(deriveIntakeEvidence("September 1, 2026 (intake); remediation later", "REMEDIATED / CLOSED")).toBe(true);
+  });
+
+  it("is TRUE when the state states a new/created canonical identity", () => {
+    expect(deriveIntakeEvidence("September 9, 2026", "INTAKE — new canonical identity created")).toBe(true);
+    expect(deriveIntakeEvidence("September 20, 2026", "RECONCILED — canonical identity created")).toBe(true);
+    expect(deriveIntakeEvidence("September 15, 2026", "INTAKE — new canonical identity; shipped")).toBe(true);
+  });
+
+  it("is FALSE for a refinement that says 'no new PL-* identity created' even though it contains 'INTAKE'", () => {
+    expect(
+      deriveIntakeEvidence("September 9, 2026", "INTAKE refinement under existing PL-OPS-01; no new `PL-*` identity created"),
+    ).toBe(false);
+  });
+
+  it("is FALSE for the bare word INTAKE with no explicit creation/intake marker", () => {
+    expect(deriveIntakeEvidence("September 5, 2026", "INTAKE — under reconciliation")).toBe(false);
+  });
+
+  it("is FALSE for a later implementation event that does not restate intake", () => {
+    expect(deriveIntakeEvidence("September 21, 2026", "IMPLEMENTED (uncommitted)")).toBe(false);
+  });
+
+  it("is FALSE when state is null and the date has no intake marker", () => {
+    expect(deriveIntakeEvidence("September 13, 2026", null)).toBe(false);
+  });
+});
+
+const LOG_FIXTURE = [
+  "# Parking lot continuation fixture",
+  "",
+  "## `PL-OPS-08` — Observation Continuity / Gap Recovery",
+  "",
+  "**Date:** September 9, 2026 (live operator incident)  ",
+  "**State:** INTAKE — new canonical identity created; bounded recovery control implemented  ",
+  "**Concept home:** `foundations/evidence-appliance.md`",
+  "",
+  "Some prose about the record.",
+  "",
+  "## `PL-BIG` — A Parent Record With A Dated Nested Sub-Record",
+  "",
+  "**Date:** September 20, 2026",
+  "**State:** RECONCILED — parent record.",
+  "",
+  "### Intake",
+  "This undated ### subsection must NOT become an event.",
+  "",
+  "### `PL-BIG` — Implementation follow-up (2026-09-21)",
+  "",
+  "**Date:** September 21, 2026",
+  "**State:** IMPLEMENTED — nested dated sub-record.",
+  "",
+  "## Reconciliation Completion Record — `PL-DEF` (Some Defect)",
+  "",
+  "**Date:** September 1, 2026 (intake); remediation later",
+  "**Reconciliation state:** REMEDIATED / CLOSED. Repair shipped.",
+  "",
+  "## `PL-NODATE` — Item With No Explicit Date",
+  "",
+  "**State:** INTAKE — but this record states no Date line.",
+  "**Concept home:** nowhere",
+  "",
+  "## Free Prose Record With A Date But No PL Id And No State",
+  "",
+  "**Date:** September 13, 2026",
+].join("\n");
+
+describe("parseLogEvents — depth-aware, explicit-only", () => {
+  const { events, dateErrors } = parseLogEvents(LOG_FIXTURE, "parking-lot-fixture.md");
+
+  it("captures dated records at BOTH ## and nested ### depth", () => {
+    // PL-OPS-08 (##), PL-BIG parent (##), PL-BIG nested (###), PL-DEF (##),
+    // and the free-prose dated record (##). PL-NODATE has no Date → excluded.
+    expect(events).toHaveLength(5);
+    const nested = events.find((e: { headingLevel: number }) => e.headingLevel === 3);
+    expect(nested).toBeTruthy();
+    expect(nested.plId).toBe("PL-BIG");
+    expect(nested.eventKind).toBe("implementation");
+  });
+
+  it("keeps the dated parent AND its dated nested sub-record as two distinct events", () => {
+    const big = events.filter((e: { plId: string | null }) => e.plId === "PL-BIG");
+    expect(big).toHaveLength(2);
+    expect(big.map((e: { eventDateIso: string }) => e.eventDateIso).sort()).toEqual([
+      "2026-09-20",
+      "2026-09-21",
+    ]);
+  });
+
+  it("does NOT turn an undated ### subsection (### Intake) into an event", () => {
+    expect(events.some((e: { title: string }) => e.title === "Intake")).toBe(false);
+  });
+
+  it("omits records with no explicit date (never inferred)", () => {
+    expect(events.some((e: { plId: string | null }) => e.plId === "PL-NODATE")).toBe(false);
+  });
+
+  it("captures PL id when the heading names one, else null; state may be null", () => {
+    const free = events.find((e: { title: string }) => e.title.startsWith("Free Prose Record"));
+    expect(free.plId).toBeNull();
+    expect(free.state).toBeNull();
+    expect(free.eventKind).toBe("unclassified");
+  });
+
+  it("derives event kind explicitly and preserves state verbatim", () => {
+    const ops = events.find((e: { plId: string }) => e.plId === "PL-OPS-08");
+    expect(ops.eventKind).toBe("intake");
+    const def = events.find((e: { title: string }) => e.title.includes("PL-DEF"));
+    expect(def.eventKind).toBe("remediation");
+    expect(def.state).toBe("REMEDIATED / CLOSED. Repair shipped.");
+  });
+
+  it("preserves the authored date verbatim and derives a validated ISO key", () => {
+    const ops = events.find((e: { plId: string }) => e.plId === "PL-OPS-08");
+    expect(ops.eventDateText).toBe("September 9, 2026 (live operator incident)");
+    expect(ops.eventDateIso).toBe("2026-09-09");
+  });
+
+  it("carries only explicit-only fields (no priority/owner/progress/transitions)", () => {
+    for (const e of events) {
+      expect(Object.keys(e).sort()).toEqual([
+        "establishesIntake",
+        "eventDateIso",
+        "eventDateText",
+        "eventKind",
+        "headingLevel",
+        "plId",
+        "sourceFile",
+        "sourceOrder",
+        "state",
+        "title",
+      ]);
+    }
+  });
+
+  it("separates event classification from intake evidence (Codex final finding 1)", () => {
+    // PL-DEF is a REMEDIATION event that ALSO explicitly establishes intake via
+    // its "(intake)" date marker — the two facts are independent.
+    const def = events.find((e: { title: string }) => e.title.includes("PL-DEF"));
+    expect(def.eventKind).toBe("remediation");
+    expect(def.establishesIntake).toBe(true);
+    // PL-OPS-08 intake record establishes intake.
+    const ops = events.find((e: { plId: string }) => e.plId === "PL-OPS-08");
+    expect(ops.establishesIntake).toBe(true);
+    // The nested IMPLEMENTED follow-up does NOT establish intake.
+    const nested = events.find((e: { headingLevel: number }) => e.headingLevel === 3);
+    expect(nested.establishesIntake).toBe(false);
+  });
+
+  it("captures monotonic source order (parent before nested child)", () => {
+    const parent = events.find((e: { headingLevel: number; plId: string | null }) => e.headingLevel === 2 && e.plId === "PL-BIG");
+    const child = events.find((e: { headingLevel: number }) => e.headingLevel === 3);
+    expect(parent.sourceOrder).toBeLessThan(child.sourceOrder);
+  });
+
+  it("reports no date errors for a valid fixture", () => {
+    expect(dateErrors).toEqual([]);
+  });
+});
+
+describe("parseLogEvents — impossible dates fail closed", () => {
+  const BAD_FIXTURE = [
+    "## `PL-BAD` — Impossible Date Record",
+    "",
+    "**Date:** September 31, 2026",
+    "**State:** INTAKE — bad date.",
+  ].join("\n");
+
+  it("surfaces an impossible calendar date as an error and emits no event for it", () => {
+    const { events, dateErrors } = parseLogEvents(BAD_FIXTURE, "parking-lot-bad.md");
+    expect(events).toHaveLength(0);
+    expect(dateErrors.length).toBeGreaterThan(0);
+    expect(dateErrors[0]).toMatch(/impossible calendar date/i);
+  });
+});
+
+describe("parseLogEvents — generic heading depth (not special-cased to ##/###)", () => {
+  const DEEP_FIXTURE = [
+    "## `PL-A` — Parent",
+    "**Date:** September 1, 2026",
+    "**State:** INTAKE — new canonical identity created",
+    "#### `PL-A` — Deep nested dated sub-record",
+    "**Date:** September 2, 2026",
+    "**State:** IMPLEMENTED follow-up",
+    "##### Undated deep subsection",
+    "text only, no date",
+  ].join("\n");
+
+  it("attributes a dated #### record to itself, not its ## parent", () => {
+    const { events } = parseLogEvents(DEEP_FIXTURE, "fixture.md", 0);
+    const deep = events.find((e: { headingLevel: number }) => e.headingLevel === 4);
+    expect(deep).toBeTruthy();
+    expect(deep.eventDateIso).toBe("2026-09-02");
+    expect(deep.eventKind).toBe("implementation");
+    // The undated ##### subsection is not an event.
+    expect(events.some((e: { headingLevel: number }) => e.headingLevel === 5)).toBe(false);
+    // Parent and deep child are two events.
+    expect(events).toHaveLength(2);
+  });
+
+  it("threads a global source-order counter across files via startOrder/nextOrder", () => {
+    const first = parseLogEvents(DEEP_FIXTURE, "a.md", 0);
+    const second = parseLogEvents(DEEP_FIXTURE, "b.md", first.nextOrder);
+    // Every source order in the second file is greater than in the first.
+    const maxFirst = Math.max(...first.events.map((e: { sourceOrder: number }) => e.sourceOrder));
+    const minSecond = Math.min(...second.events.map((e: { sourceOrder: number }) => e.sourceOrder));
+    expect(minSecond).toBeGreaterThan(maxFirst);
   });
 });
