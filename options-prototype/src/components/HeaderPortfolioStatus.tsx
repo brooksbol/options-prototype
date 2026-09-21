@@ -12,7 +12,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { usePortfolio } from "../portfolio/use-portfolio";
-import { setPortfolio, selectPortfolioSource } from "../portfolio/portfolio-store";
+import { selectPortfolioSource } from "../portfolio/portfolio-store";
 import { FidelityUploadCompact } from "./FidelityUploadCompact";
 import type { PortfolioSnapshot, PortfolioSourceType } from "../write-desk/types";
 
@@ -37,10 +37,12 @@ export function HeaderPortfolioStatus() {
     selectPortfolioSource(newSource);
   }, []);
 
-  const handleSnapshotChange = useCallback((newSnapshot: PortfolioSnapshot | null) => {
-    if (newSnapshot) {
-      setPortfolio("fidelity", newSnapshot);
-    }
+  const handleSnapshotChange = useCallback((_newSnapshot: PortfolioSnapshot | null) => {
+    // No-op (Increment 6): the account-aware uploader publishes through
+    // importFidelityEvidence, which already sets the store snapshot and records the
+    // account-local capital observation. Re-calling setPortfolio here would double-record
+    // the observation and redundantly rewrite writeDeskSource. HeaderPortfolioStatus
+    // re-renders from the store via usePortfolio(); nothing further is needed here.
   }, []);
 
   // Derive compact status text

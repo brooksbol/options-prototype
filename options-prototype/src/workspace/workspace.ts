@@ -15,13 +15,36 @@
 
 const STORAGE_KEY = "options-prototype:workspace";
 
+/**
+ * Workspace fields are organized by SEMANTIC SCOPE (Increment 6). This is a documentation
+ * and structural clarification, not a behavioral change — the persisted key and field names
+ * are unchanged. The scopes make explicit which state is account-local vs global vs
+ * operator/session context, per the ratified multi-account decomposition:
+ *
+ *   1. GLOBAL STRATEGY DEFAULTS  — policy knobs shared across all accounts. Global.
+ *   2. GLOBAL / OPERATOR UI PREFS — view preferences (collapse, sort, filters, show counts,
+ *      section order, table toggles). Operator-local, NOT account-local: switching the
+ *      active account must NOT change these.
+ *   3. APPLICATION / OPERATOR CONTEXT — the active BrokerageAccount selection. Durable
+ *      operator preference; the seam that determines which account's account-local state is
+ *      shown. Not itself account-local.
+ *   4. GLOBAL MISSION — the monthly production target. Global by Principal resolution; NOT
+ *      partitioned per account (no per-account mission override machinery in this phase).
+ *
+ * NOTE: account-LOCAL state (snapshot, balances, positions, intents, capital history,
+ * outlook) does NOT live in the Workspace — it is keyed by brokerageAccountId in its own
+ * per-account stores (Increments 2–5). The Workspace deliberately holds none of it.
+ */
 export interface Workspace {
+  // ── Scope 1: GLOBAL STRATEGY DEFAULTS (shared across all accounts) ──
   // Deployment policy (persisted field names remain stable)
   writeDeskTargetDelta: number;
   writeDeskTargetDte: number;
   writeDeskRankingMode: string;
   writeDeskDeltaMin: number;
   writeDeskDeltaMax: number;
+
+  // ── Scope 2: GLOBAL / OPERATOR UI PREFERENCES (NOT account-local) ──
   /** Puts table show count. null = "-" = all / unlimited. */
   writeDeskShowCount: number | null;
 
@@ -77,6 +100,7 @@ export interface Workspace {
   writeDeskCrossEntrySortKey: string;
   writeDeskCrossEntrySortDir: string;
 
+  // ── Scope 3: APPLICATION / OPERATOR CONTEXT (selection, not account-local) ──
   // Deployment portfolio source (LEGACY selection seam: "demo" | "fidelity").
   // Superseded by the active-account context below for multi-account selection; retained
   // for backward compatibility and demo-vs-fidelity distinction until Increment 8 cleanup.
@@ -91,8 +115,12 @@ export interface Workspace {
    */
   activeBrokerageAccountId: string | null;
 
-  // Mission Context (first Situation Architecture primitive)
-  /** Monthly production target in dollars. Null = not configured. Global (Principal resolution). */
+  // ── Scope 4: GLOBAL MISSION (Situation Architecture primitive) ──
+  /**
+   * Monthly production target in dollars. Null = not configured. GLOBAL by Principal
+   * resolution — NOT partitioned per BrokerageAccount in this phase. Do not add per-account
+   * mission override machinery without an explicit Principal decision.
+   */
   missionTarget: number | null;
 }
 
