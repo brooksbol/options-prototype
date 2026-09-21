@@ -367,11 +367,13 @@ Before substantial work is declared complete, ask:
 - Is journal why-state preserved where needed?
 - Is the complete parking-lot continuation sequence current?
 - Does the Coming Soon snapshot (Now/Next/Later, `docs/roadmap-coming-soon.md`) still truthfully represent the Principal's current product horizon? (Horizon = attention/intent, not commitment or work authorization.)
+- Does completed/governed work that should appear in the Roadmap Log have the appropriate explicit dated canonical record, so the derived Log projection truthfully reflects governed project state? Do not maintain the Log separately.
 - Are checkpoint conclusions absorbed into A/B/C?
 - Are implementation-only invariants missing from architecture?
 - Are historical documents accidentally being treated as active?
 - If docs were added/superseded/reclassified, is `docs/README.md` still accurate?
 - Could a cold actor reconstruct where to resume?
+- After authorized persistence/commit, is accepted `main` synchronized and is the resulting SYNC SHA established/reported as the durable handoff point?
 
 ---
 
