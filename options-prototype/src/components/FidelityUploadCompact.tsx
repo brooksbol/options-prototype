@@ -38,8 +38,13 @@ function surfaceTargeted(
   setBalSlot: React.Dispatch<React.SetStateAction<SlotState>>,
   activeAccountName: string,
 ): string | null {
+  if (result.kind === "pending-identity") {
+    // Partial import: Option Summary / Activity uploaded, but the account's identity is
+    // established by Balances. Not an error — a benign "waiting for Balances" notice.
+    return "Waiting for the Balances file to identify the account.";
+  }
   if (result.kind === "unidentified-balances") {
-    setBalSlot((s) => ({ ...s, status: "error", error: "Wheelwright couldn't identify the Fidelity account in this file. The selected account was not changed." }));
+    setBalSlot((s) => ({ ...s, status: "error", error: "Wheelwright couldn't identify the Fidelity account in this Balances file. The selected account was not changed." }));
     return null;
   }
   if (result.kind === "conflict" && result.reason === "files-disagree") {

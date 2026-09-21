@@ -122,21 +122,23 @@ describe("fresh manually-created account — deferred identity binding", () => {
     expect(readAccountCsv(pts, "option-summary")?.text).toBe(PTS_OS);
   });
 
-  it("OS-only WITHOUT a usable account number into an unidentified account is refused", () => {
+  it("OS-only WITHOUT a usable account number into a fresh account is PENDING (waits for Balances, not an error)", () => {
     const NO_ID_OS = `Option Summary
 Symbol,Description,Quantity,Last Price,Current Value,Strategy
 SPY,SPDR S&P 500,100,500,50000,Covered Call
 `;
     const pts = newAccount("PTS");
     const r = importIntoAccount({ optionSummary: blob(NO_ID_OS, "os.csv") }, pts);
-    expect(r.kind).toBe("unidentified-balances");
+    expect(r.kind).toBe("pending-identity");
+    // Nothing persisted yet; account remains unbound (no premature error/refusal).
     expect(readAccountCsv(pts, "option-summary")).toBeNull();
+    expect(getAccountById(pts)?.externalAccountRef).toBeNull();
   });
 
-  it("Activity-only into an unidentified account cannot inherit identity → refused", () => {
+  it("Activity-only into a fresh account is PENDING (waits for Balances, not an error)", () => {
     const pts = newAccount("PTS");
     const r = importIntoAccount({ activity: blob(ACTIVITY, "act.csv") }, pts);
-    expect(r.kind).toBe("unidentified-balances");
+    expect(r.kind).toBe("pending-identity");
     expect(readAccountCsv(pts, "activity")).toBeNull();
   });
 

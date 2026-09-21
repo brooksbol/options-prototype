@@ -231,4 +231,47 @@ Total Account Value,145200.00,
     });
     expect(loadAccounts()[0].externalAccountRef).toBeNull();
   });
+
+  it("uploading Option Summary FIRST does not show a premature error (waits for Balances)", async () => {
+    const { container } = render(<HeaderPortfolioStatus />);
+    openDropdown();
+
+    addAccount("PTS");
+    await waitFor(() => expect(loadAccounts()).toHaveLength(1));
+
+    // Upload ONLY the Option Summary (operator's real first step). This must NOT show the
+    // red "couldn't identify the Fidelity account" Balances error — identity comes from
+    // Balances, which hasn't been uploaded yet.
+    const [osInput] = fileInputs(container);
+    fireEvent.change(osInput, { target: { files: [csvFile("os.csv", PTS_OS)] } });
+
+    // Benign pending notice, NOT an error. (PTS_OS carries a usable ref, so this particular
+    // fixture actually binds; assert the ERROR text never appears regardless.)
+    await waitFor(() => expect(screen.getByText(/^Option Summary$/)).toBeTruthy());
+    expect(screen.queryByText(/couldn't identify the Fidelity account/i)).toBeNull();
+
+    // Now upload Balances → the account is established (no error).
+    const [, balInput] = fileInputs(container);
+    fireEvent.change(balInput, { target: { files: [csvFile("bal.csv", PTS_BAL)] } });
+    await waitFor(() => expect(loadAccounts()[0].externalAccountRef).toBe("Z12-345678"));
+    expect(screen.queryByText(/couldn't identify the Fidelity account/i)).toBeNull();
+  });
+
+  it("Option Summary WITHOUT an embedded account number first → pending notice, never an error", async () => {
+    const NO_ID_OS = `Option Summary
+Symbol,Description,Quantity,Last Price,Current Value,Strategy
+SPY,SPDR S&P 500,100,500,50000,Covered Call
+`;
+    const { container } = render(<HeaderPortfolioStatus />);
+    openDropdown();
+    addAccount("PTS");
+    await waitFor(() => expect(loadAccounts()).toHaveLength(1));
+
+    const [osInput] = fileInputs(container);
+    fireEvent.change(osInput, { target: { files: [csvFile("os.csv", NO_ID_OS)] } });
+
+    // A benign "waiting for Balances" notice appears; NO red identity error.
+    await waitFor(() => expect(screen.getByText(/waiting for the balances file/i)).toBeTruthy());
+    expect(screen.queryByText(/couldn't identify the Fidelity account/i)).toBeNull();
+  });
 });

@@ -170,6 +170,15 @@ export type TargetedImportResult =
   | { kind: "refreshed"; brokerageAccountId: string; boundExternalRef: string | null }
   | {
       /**
+       * A non-authoritative file (Option Summary or Activity) was uploaded into a fresh
+       * account that has no established identity yet, and no Balances is present in this
+       * operation to establish it. This is NOT a failure — it is a partial import awaiting
+       * the Balances file (the authoritative identity source). Nothing is written yet.
+       */
+      kind: "pending-identity";
+    }
+  | {
+      /**
        * The uploaded evidence cleanly identifies a DIFFERENT already-known account, so it was
        * routed there and refreshed. The selected/target account was NOT changed and remains
        * the active view. (Identity determines where evidence goes; selection is not an
@@ -246,16 +255,14 @@ export function importIntoAccount(
     // else targetRef === incomingRef → plain refresh, no binding needed.
   } else if (targetRef == null) {
     // No identity from any file AND the target has no established identity. The only files
-    // here are OS and/or Activity (a no-identity Balances already returned above). These
-    // cannot establish identity on their own, so there is nothing authoritative to attach
-    // them to yet. Refuse rather than parking economically-relevant evidence on an
-    // unidentified account.
-    if (op.optionSummary) {
-      // OS alone into an unidentified account: treat like unidentified authoritative evidence.
-      return { kind: "unidentified-balances" };
-    }
-    // Activity-only into an unidentified account: nothing to inherit identity from.
-    return { kind: "unidentified-balances" };
+    // here are OS and/or Activity (a no-identity Balances already returned above via the
+    // op.balances && balRef == null guard). These cannot establish identity on their own.
+    //
+    // This is a PARTIAL import, not a failure: the operator typically uploads Option Summary
+    // first, then Balances (the authoritative identity source). Do NOT show a Balances error
+    // and do NOT persist yet — return pending-identity and wait for the Balances file. When
+    // Balances arrives, the accumulated operation resolves and binds identity.
+    return { kind: "pending-identity" };
   }
   // else: no incoming ref but the target already has an established ref → OS/Activity inherit
   // that identity (operator-directed, safe).
