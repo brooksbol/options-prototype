@@ -13,16 +13,22 @@ import { parseCsv, detectDelimiter } from "../csv/reader";
 import { preprocessCsv } from "../csv/preprocess";
 import { classifyDocument } from "../csv/registry";
 import "../csv/fidelity"; // ensure parsers are registered
-import type { OptionSummaryRow } from "../csv/fidelity/optionSummaryParser";
-import type { ParsedBalances } from "../csv/fidelity/balancesParser";
-import { buildFidelitySnapshot } from "../write-desk/fidelity-snapshot";
 import type { PortfolioSnapshot } from "../write-desk/types";
-import { setActivityCsv } from "../portfolio/portfolio-store";
+import { importFidelityEvidence, getSnapshot } from "../portfolio/portfolio-store";
+import type { ImportResolution } from "../portfolio/account-import";
 
-// localStorage keys (shared with portfolio-store for backward compat)
-const LS_KEY_OS = "wheelwright:fidelity-csv:option-summary";
-const LS_KEY_BAL = "wheelwright:fidelity-csv:balances";
-const LS_KEY_ACTIVITY = "wheelwright:fidelity-csv:activity";
+/** Surface a non-refresh import outcome (Case B/C/D) as a hint on the balances slot. */
+function surfaceResolution(
+  resolution: ImportResolution,
+  setBalSlot: React.Dispatch<React.SetStateAction<SlotState>>
+): void {
+  if (resolution.kind === "needs-assignment") {
+    setBalSlot((s) => ({ ...s, error: "Account identity unresolved — assignment required.", status: s.status === "loaded" ? "loaded" : "error" }));
+  } else if (resolution.kind === "conflict") {
+    setBalSlot((s) => ({ ...s, error: `Files disagree on account (${resolution.refs.join(", ")}). Import refused.`, status: "error" }));
+  }
+  // "refreshed" / "empty": no additional hint needed.
+}
 
 type SlotStatus = "empty" | "parsing" | "loaded" | "error";
 
@@ -42,131 +48,129 @@ export function FidelityUploadCompact({ onSnapshotChange }: Props) {
   const [balSlot, setBalSlot] = useState<SlotState>({ status: "empty", filename: null, error: null, timestamp: null });
   const [actSlot, setActSlot] = useState<SlotState>({ status: "empty", filename: null, error: null, timestamp: null });
 
-  const osDataRef = useRef<{ rows: OptionSummaryRow[]; filename: string; exportTimestamp: string | null } | null>(null);
-  const balDataRef = useRef<{ balances: ParsedBalances; filename: string; exportTimestamp: string | null } | null>(null);
+  // Raw text blobs for the current in-progress import operation. Evidence is routed through
+  // the account-aware importer (importFidelityEvidence), which resolves the account it
+  // BELONGS to and writes that account's per-account slot — never the legacy singleton keys,
+  // and never changing the active selection.
+  const osBlobRef = useRef<{ text: string; filename: string } | null>(null);
+  const balBlobRef = useRef<{ text: string; filename: string } | null>(null);
+  const actBlobRef = useRef<{ text: string; filename: string } | null>(null);
   const osInputRef = useRef<HTMLInputElement>(null);
   const balInputRef = useRef<HTMLInputElement>(null);
   const actInputRef = useRef<HTMLInputElement>(null);
-  const restoredRef = useRef(false);
 
-  const rebuildSnapshot = useCallback(() => {
-    const os = osDataRef.current;
-    const bal = balDataRef.current;
-    if (os && bal) {
-      const snapshot = buildFidelitySnapshot({
-        optionSummaryRows: os.rows,
-        optionSummaryFilename: os.filename,
-        optionSummaryExportTimestamp: os.exportTimestamp,
-        balances: bal.balances,
-        balancesFilename: bal.filename,
-        balancesExportTimestamp: bal.exportTimestamp,
-      });
-      onSnapshotChange(snapshot);
-    } else {
-      onSnapshotChange(null);
-    }
+  // Validate CSV classification without persisting. Returns the export timestamp on success.
+  const validateOs = useCallback((text: string): { ok: boolean; timestamp: string | null } => {
+    try {
+      const { csvContent, preambleLines } = preprocessCsv(text);
+      const doc = parseCsv(csvContent, detectDelimiter(csvContent));
+      const classification = classifyDocument(doc);
+      if (!classification.parser || classification.parser.id !== "fidelity_option_summary") return { ok: false, timestamp: null };
+      const parsed = classification.parser.parse(doc, { filename: "", preambleLines });
+      if (parsed.payload.type !== "option_summary") return { ok: false, timestamp: null };
+      return { ok: true, timestamp: parsed.metadata.quoteDate ?? parsed.metadata.downloadTimestamp ?? null };
+    } catch { return { ok: false, timestamp: null }; }
+  }, []);
+
+  const validateBal = useCallback((text: string): { ok: boolean; timestamp: string | null } => {
+    try {
+      const { csvContent, preambleLines } = preprocessCsv(text);
+      const doc = parseCsv(csvContent, detectDelimiter(csvContent));
+      const classification = classifyDocument(doc);
+      if (!classification.parser || classification.parser.id !== "fidelity_balances") return { ok: false, timestamp: null };
+      const parsed = classification.parser.parse(doc, { filename: "", preambleLines });
+      if (parsed.payload.type !== "balances" || !parsed.payload.rows[0]) return { ok: false, timestamp: null };
+      return { ok: true, timestamp: parsed.metadata.downloadTimestamp ?? null };
+    } catch { return { ok: false, timestamp: null }; }
+  }, []);
+
+  const validateActivity = useCallback((text: string): boolean => {
+    try {
+      const { csvContent, preambleLines } = preprocessCsv(text);
+      const doc = parseCsv(csvContent, detectDelimiter(csvContent));
+      const classification = classifyDocument(doc);
+      if (!classification.parser || classification.parser.id !== "fidelity_activity") return false;
+      const parsed = classification.parser.parse(doc, { preambleLines });
+      return parsed.payload.type === "activity";
+    } catch { return false; }
+  }, []);
+
+  // Route the currently-loaded blobs through the account-aware importer, then reflect the
+  // resolution to the caller and surface Case B/C/D outcomes on the relevant slot.
+  const runImport = useCallback((): ImportResolution => {
+    const resolution = importFidelityEvidence({
+      optionSummary: osBlobRef.current,
+      balances: balBlobRef.current,
+      activity: actBlobRef.current,
+    });
+    // The store publishes the active account's snapshot; mirror it to the caller so the
+    // header/status updates. When a different account was refreshed (Case B) the visible
+    // snapshot is unchanged, which is the required behavior.
+    onSnapshotChange(getSnapshot());
+    return resolution;
   }, [onSnapshotChange]);
-
-  const processOsText = useCallback((text: string, filename: string): boolean => {
-    try {
-      const { csvContent, preambleLines } = preprocessCsv(text);
-      const delimiter = detectDelimiter(csvContent);
-      const doc = parseCsv(csvContent, delimiter);
-      const classification = classifyDocument(doc);
-      if (!classification.parser || classification.parser.id !== "fidelity_option_summary") return false;
-      const parsed = classification.parser.parse(doc, { filename, preambleLines });
-      if (parsed.payload.type !== "option_summary") return false;
-      const rows = parsed.payload.rows as OptionSummaryRow[];
-      const exportTimestamp = parsed.metadata.quoteDate ?? parsed.metadata.downloadTimestamp ?? null;
-      osDataRef.current = { rows, filename, exportTimestamp };
-      setOsSlot({ status: "loaded", filename, error: null, timestamp: exportTimestamp });
-      return true;
-    } catch { return false; }
-  }, []);
-
-  const processBalText = useCallback((text: string, filename: string): boolean => {
-    try {
-      const { csvContent, preambleLines } = preprocessCsv(text);
-      const delimiter = detectDelimiter(csvContent);
-      const doc = parseCsv(csvContent, delimiter);
-      const classification = classifyDocument(doc);
-      if (!classification.parser || classification.parser.id !== "fidelity_balances") return false;
-      const parsed = classification.parser.parse(doc, { filename, preambleLines });
-      if (parsed.payload.type !== "balances" || !parsed.payload.rows[0]) return false;
-      const balances = parsed.payload.rows[0] as unknown as ParsedBalances;
-      const exportTimestamp = parsed.metadata.downloadTimestamp ?? null;
-      balDataRef.current = { balances, filename, exportTimestamp };
-      setBalSlot({ status: "loaded", filename, error: null, timestamp: exportTimestamp });
-      return true;
-    } catch { return false; }
-  }, []);
-
-  // Restore from localStorage on mount
-  useEffect(() => {
-    if (restoredRef.current) return;
-    restoredRef.current = true;
-    let restored = false;
-    try {
-      const osStored = localStorage.getItem(LS_KEY_OS);
-      const balStored = localStorage.getItem(LS_KEY_BAL);
-      const actStored = localStorage.getItem(LS_KEY_ACTIVITY);
-      if (osStored) {
-        const { text, filename } = JSON.parse(osStored);
-        if (processOsText(text, filename)) restored = true;
-      }
-      if (balStored) {
-        const { text, filename } = JSON.parse(balStored);
-        if (processBalText(text, filename)) restored = true;
-      }
-      if (actStored) {
-        const { filename } = JSON.parse(actStored);
-        setActSlot({ status: "loaded", filename, error: null, timestamp: null });
-      }
-    } catch { /* ignore */ }
-    if (restored) setTimeout(() => rebuildSnapshot(), 0);
-  }, [processOsText, processBalText, rebuildSnapshot]);
 
   const handleOsFile = useCallback(async (file: File) => {
     setOsSlot({ status: "parsing", filename: file.name, error: null, timestamp: null });
     try {
       const text = await file.text();
-      if (processOsText(text, file.name)) {
-        localStorage.setItem(LS_KEY_OS, JSON.stringify({ text, filename: file.name }));
-        rebuildSnapshot();
+      const v = validateOs(text);
+      if (v.ok) {
+        osBlobRef.current = { text, filename: file.name };
+        const resolution = runImport();
+        setOsSlot({ status: "loaded", filename: file.name, error: null, timestamp: v.timestamp });
+        surfaceResolution(resolution, setBalSlot);
       } else {
         setOsSlot({ status: "error", filename: file.name, error: "Not a valid Option Summary CSV", timestamp: null });
       }
     } catch (err) {
       setOsSlot({ status: "error", filename: file.name, error: `Parse error: ${err instanceof Error ? err.message : "unknown"}`, timestamp: null });
     }
-  }, [processOsText, rebuildSnapshot]);
+  }, [validateOs, runImport]);
 
   const handleBalFile = useCallback(async (file: File) => {
     setBalSlot({ status: "parsing", filename: file.name, error: null, timestamp: null });
     try {
       const text = await file.text();
-      if (processBalText(text, file.name)) {
-        localStorage.setItem(LS_KEY_BAL, JSON.stringify({ text, filename: file.name }));
-        rebuildSnapshot();
+      const v = validateBal(text);
+      if (v.ok) {
+        balBlobRef.current = { text, filename: file.name };
+        const resolution = runImport();
+        setBalSlot({ status: "loaded", filename: file.name, error: null, timestamp: v.timestamp });
+        surfaceResolution(resolution, setBalSlot);
       } else {
         setBalSlot({ status: "error", filename: file.name, error: "Not a valid Balances CSV", timestamp: null });
       }
     } catch (err) {
       setBalSlot({ status: "error", filename: file.name, error: `Parse error: ${err instanceof Error ? err.message : "unknown"}`, timestamp: null });
     }
-  }, [processBalText, rebuildSnapshot]);
+  }, [validateBal, runImport]);
 
   const handleActFile = useCallback(async (file: File) => {
     setActSlot({ status: "parsing", filename: file.name, error: null, timestamp: null });
     try {
       const text = await file.text();
-      if (setActivityCsv(text, file.name)) {
+      if (validateActivity(text)) {
+        actBlobRef.current = { text, filename: file.name };
+        runImport();
         setActSlot({ status: "loaded", filename: file.name, error: null, timestamp: null });
       } else {
         setActSlot({ status: "error", filename: file.name, error: "Not a valid Activity CSV", timestamp: null });
       }
     } catch (err) {
       setActSlot({ status: "error", filename: file.name, error: `Parse error: ${err instanceof Error ? err.message : "unknown"}`, timestamp: null });
+    }
+  }, [validateActivity, runImport]);
+
+  // Reflect the active account's already-loaded evidence (from store hydration) as slot
+  // status on mount, so reopening the panel shows the current account's files.
+  useEffect(() => {
+    const snap = getSnapshot();
+    if (snap && snap.source.type === "fidelity") {
+      const osName = snap.provenance.optionSummaryFilename;
+      const balName = snap.provenance.balancesFilename;
+      if (osName) setOsSlot({ status: "loaded", filename: osName, error: null, timestamp: snap.provenance.optionSummaryExportTimestamp ?? null });
+      if (balName) setBalSlot({ status: "loaded", filename: balName, error: null, timestamp: snap.provenance.balancesExportTimestamp ?? null });
     }
   }, []);
 

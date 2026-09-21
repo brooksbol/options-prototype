@@ -22,6 +22,23 @@ import "../csv/fidelity"; // ensure parsers are registered before hydration
 import { projectActivityOverlay, parseCheckpoint } from "./activity-projection";
 import { derivePortfolioCapital } from "./portfolio-capital";
 import { recordObservation } from "./portfolio-capital-history";
+import {
+  resolveImport,
+  type ImportOperation,
+  type ImportResolution,
+} from "./account-import";
+import { buildSnapshotForAccount } from "./account-snapshot";
+import {
+  migrateLegacySingletonEvidence,
+  readAccountCsv,
+} from "./account-evidence-store";
+import {
+  getActiveAccountContext,
+  getActiveBrokerageAccountId,
+  selectAccount as selectActiveAccount,
+  selectDemo as selectActiveDemo,
+} from "./active-account";
+import { loadAccounts } from "./brokerage-account-registry";
 
 // --- localStorage keys (shared with FidelityUpload for backward compat) ---
 
@@ -213,6 +230,135 @@ export function setImportStatus(status: Partial<ImportStatus>): void {
   notify();
 }
 
+// --- Account-aware live path (Increment 3 integration) ---
+//
+// These are the live seams that make the running application multi-account aware. Import
+// resolves evidence to the account it BELONGS to (never changing the active selection);
+// selection/switch loads that account's own account-local snapshot with no import. The
+// read API (getSnapshot/getSource/getImportStatus/subscribe) is unchanged, so all existing
+// consumers observe the active account's state transparently.
+
+/**
+ * When no account is selected and exactly one account exists in the registry, adopt it as
+ * the active account (legacy single-account migration convenience). Returns the adopted id
+ * or null. Never guesses when there are zero or multiple accounts.
+ */
+function adoptSoleAccountIfUnambiguous(): string | null {
+  if (getActiveBrokerageAccountId() != null) return getActiveBrokerageAccountId();
+  const accounts = loadAccounts().filter((a) => a.status === "active");
+  if (accounts.length === 1) {
+    selectActiveAccount(accounts[0].brokerageAccountId);
+    return accounts[0].brokerageAccountId;
+  }
+  return null;
+}
+
+/** Load the active account's snapshot into the store and publish, or clear if none. */
+function loadActiveAccountSnapshot(): void {
+  const activeId = getActiveBrokerageAccountId();
+  if (!activeId) {
+    // No real account selected → nothing account-local to show on the fidelity path.
+    currentSnapshot = null;
+    currentImportStatus = { optionSummary: null, balances: null, readinessStatus: null, validationWarnings: [] };
+    currentActivityRows = null;
+    return;
+  }
+
+  const snapshot = buildSnapshotForAccount(activeId);
+  currentSnapshot = snapshot;
+
+  if (snapshot) {
+    currentImportStatus = {
+      optionSummary: snapshot.provenance.optionSummaryFilename
+        ? { filename: snapshot.provenance.optionSummaryFilename, exportTimestamp: snapshot.provenance.optionSummaryExportTimestamp ?? null, loadedAt: new Date().toISOString() }
+        : null,
+      balances: snapshot.provenance.balancesFilename
+        ? { filename: snapshot.provenance.balancesFilename, exportTimestamp: snapshot.provenance.balancesExportTimestamp ?? null, loadedAt: new Date().toISOString() }
+        : null,
+      readinessStatus: snapshot.readiness.status,
+      validationWarnings: snapshot.readiness.warnings,
+    };
+
+    // Apply this account's own Activity overlay, if present.
+    const actBlob = readAccountCsv(activeId, "activity");
+    if (actBlob) {
+      const actRows = parseActivityText(actBlob.text);
+      currentActivityRows = actRows && actRows.length > 0 ? actRows : null;
+      if (currentActivityRows) applyActivityProjection();
+    } else {
+      currentActivityRows = null;
+    }
+  } else {
+    currentImportStatus = { optionSummary: null, balances: null, readinessStatus: null, validationWarnings: [] };
+    currentActivityRows = null;
+  }
+}
+
+/**
+ * Switch the active BrokerageAccount and reload its account-local snapshot (Case E).
+ * No import occurs; no other account is touched. Returns false if the id does not resolve.
+ */
+export function switchToAccount(brokerageAccountId: string): boolean {
+  if (!selectActiveAccount(brokerageAccountId)) return false;
+  currentSource = "fidelity";
+  loadActiveAccountSnapshot();
+  notify();
+  return true;
+}
+
+/** Switch to the demo context (not a real account). */
+export function switchToDemo(): void {
+  selectActiveDemo();
+  currentSource = "demo";
+  currentSnapshot = createDemoSnapshot();
+  currentActivityRows = null;
+  notify();
+}
+
+/**
+ * Import Fidelity evidence through the account-aware resolver (live upload path).
+ *
+ * Identity determines WHERE the evidence lands; this NEVER changes the active selection.
+ * - Case A/B: evidence is written to the resolved account's slot. If the resolved account
+ *   is the active one, the visible snapshot refreshes; if it is a different account, that
+ *   account is refreshed while the active account (and visible snapshot) stays put.
+ * - Case C: no resolvable identity → needs-assignment; nothing is attached to the active
+ *   account.
+ * - Case D: files disagree → conflict; nothing is written.
+ *
+ * Returns the resolution so the caller can surface Case B/C/D to the operator.
+ */
+export function importFidelityEvidence(op: ImportOperation): ImportResolution {
+  const activeId = getActiveBrokerageAccountId();
+  const resolution = resolveImport(op, activeId);
+
+  if (resolution.kind !== "refreshed") {
+    // Case C (needs-assignment), Case D (conflict), or empty: do not mutate visible state.
+    return resolution;
+  }
+
+  // If this import created the very first account and nothing is selected yet, adopt it as
+  // the active account (first-run convenience). This is NOT changing away from an existing
+  // selection — it only selects when there was none.
+  if (activeId == null && resolution.createdAccount && getActiveAccountContext().kind !== "account") {
+    selectActiveAccount(resolution.brokerageAccountId);
+  }
+
+  // Refresh the VISIBLE snapshot only if the refreshed account is the active one.
+  const nowActiveId = getActiveBrokerageAccountId();
+  if (nowActiveId === resolution.brokerageAccountId) {
+    currentSource = "fidelity";
+    loadActiveAccountSnapshot();
+    // Record a capital observation for the active account's fresh import.
+    if (currentSnapshot) recordPortfolioCapitalObservation(currentSnapshot);
+    notify();
+  }
+  // Else Case B: a different account was refreshed; active view is unchanged. No notify
+  // needed for the visible snapshot, but listeners may still want registry-level updates.
+
+  return resolution;
+}
+
 // --- Activity CSV ---
 
 let currentActivityRows: ActivityRow[] | null = null;
@@ -286,8 +432,30 @@ function hydrate(): void {
     return;
   }
 
-  // Attempt Fidelity restore from localStorage
+  // Account-aware hydration (Increment 3 integration):
+  // Migrate any legacy single-slot evidence into an account-keyed slot exactly once
+  // (idempotent, non-destructive). Then, if an active account resolves, load its own
+  // account-local snapshot. This is the live multi-account path.
   currentSource = "fidelity";
+  try {
+    migrateLegacySingletonEvidence();
+    const ctx = getActiveAccountContext();
+    if (ctx.kind === "account") {
+      loadActiveAccountSnapshot();
+      return;
+    }
+    // No active account selected yet. If migration produced exactly one account, adopt it
+    // as the active account so the existing single-account operator sees their data without
+    // re-import (Principal legacy-migration resolution).
+    const migratedActiveId = adoptSoleAccountIfUnambiguous();
+    if (migratedActiveId) {
+      loadActiveAccountSnapshot();
+      return;
+    }
+    // Otherwise fall through to the legacy singleton restore below (backward compatible).
+  } catch {
+    // Migration/registry failure must never break hydration — fall through to legacy.
+  }
 
   try {
     const osStored = localStorage.getItem(LS_KEY_OS);
@@ -405,6 +573,7 @@ hydrate();
 export function _resetForTesting(): void {
   currentSource = "demo";
   currentSnapshot = null;
+  currentActivityRows = null;
   currentImportStatus = {
     optionSummary: null,
     balances: null,
@@ -412,4 +581,16 @@ export function _resetForTesting(): void {
     validationWarnings: [],
   };
   listeners.clear();
+}
+
+/**
+ * Re-run the live hydration path after seeding localStorage. Test-only — lets integration
+ * tests exercise the real startup path (migration + active-account load) deterministically.
+ */
+export function _rehydrateForTesting(): void {
+  currentSource = "demo";
+  currentSnapshot = null;
+  currentActivityRows = null;
+  currentImportStatus = { optionSummary: null, balances: null, readinessStatus: null, validationWarnings: [] };
+  hydrate();
 }
