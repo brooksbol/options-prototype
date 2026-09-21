@@ -247,6 +247,46 @@ Treat third-party market comparisons as supporting evidence, not primary authori
 
 ---
 
+## Codex review closure (2026-09-21, SYNC `6a99217`)
+
+The independent Codex review of this investigation was reconciled under a **bounded closure** governed by the Principal's convergence rule. The Kiro → governance → Codex review budget for this question is **exhausted**; no further independent architecture review of this reconciliation is warranted unless implementation discovers new evidence meeting the reopening threshold.
+
+**Convergence rule (Principal-ratified, 2026-09-21).** A review finding may reopen current design only if ignoring it would: (1) semantically redefine a core domain object later; (2) leave a material safety / capital-path failure unresolved; (3) contradict ratified authority; or (4) create materially irreversible or migration-hostile implementation debt. **All other findings are recorded and deferred; they do not block the current workstream.**
+
+### Blocking finding accepted (meets threshold #1)
+
+- **[RATIFIED]** **Near-term multi-account state is keyed by stable `BrokerageAccount` identity and is account-local — not by Operator ownership.** Concretely:
+  - `BrokerageAccount` = a **stable Wheelwright identity** (`brokerageAccountId`) for a broker account.
+  - The **external broker account identity/reference** is a **separate** field (evidence, not Wheelwright identity — consistent with ADR-016).
+  - **Account-local durable state** (`PortfolioSnapshot`, pending/write intents, Production state, broker-handoff evidence, capital-history) **references `brokerageAccountId`**.
+  - **Application access / authorization** is a **separate future relationship** (`PL-ARCH-07` → `PL-ARCH-03`), not the partition key.
+  - **Financial/legal ownership** is a **separate concept** again.
+  - An Operator/user identifier must **not** become the partition key for account-local financial state merely because Brooks is currently the only Operator.
+  - **Rationale:** getting this wrong would force semantic redefinition of `PortfolioSnapshot`, intents, Production state, and broker-handoff evidence when a second human is later added (threshold #1). Reconciled once, into `PL-PORT-01` (durable authority) and here.
+
+This is durable authority. It does **not** authorize multi-account implementation; it constrains it.
+
+### Non-blocking findings — recorded and deferred to `PL-ARCH-07` (do NOT reopen design)
+
+Each is a legitimate `[OPEN]`/`[HYP]` concern that fails the convergence threshold and is deferred; none blocks multi-BrokerageAccount work:
+
+- **[OPEN]** RBAC vs ABAC vs ReBAC/FGA authorization model.
+- **[OPEN]** `AccountAccessGrant` shape / grant model.
+- **[OPEN]** `principalId` vs `userId` vs `Operator` terminology.
+- **[OPEN]** Service / AI principals.
+- **[OPEN]** Cerbos / OpenFGA / WorkOS / Permit.io / Auth0 FGA comparison depth.
+- **[OPEN]** OPA / Cedar / SpiceDB and other candidate gaps.
+- **[OPEN]** Permission vocabulary.
+- **[OPEN]** Deeper COTS evaluation.
+- **[OPEN]** Detailed authorization audit architecture.
+- **[OPEN]** Authorization-provider selection.
+
+These remain `PL-ARCH-07` concerns. They are addressed only when the Principal separately selects a research/design pass — not by another review loop over this reconciliation.
+
+### Closure
+
+The review loop for this question is **closed**. The reconciled account-locality invariant is the closure operation, not new material to review. The next phase is concrete multi-BrokerageAccount design/work under the ratified invariant; ordinary implementation testing and code review may still find defects, but recursive architecture research on authorization is stopped.
+
 ## Content deliberately not persisted
 
 - **Conversational back-and-forth** and prompt scaffolding from the research session — not evidence; would bloat the record.

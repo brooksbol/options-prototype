@@ -264,3 +264,22 @@ So a Log built today is **complete for reconciliation-era items and partial for 
 **Git-safety note (important).** The working tree carried extensive **unrelated in-flight `PL-ROADMAP-UI` / Log-lens work** (`RoadmapView.tsx`, untracked `LogView.tsx`, roadmap projection scripts/types/json/css, roadmap tests, and Log-lens prose interleaved in `parking-lot-9.md`/`journal-5.md`). That work is foreign to this task and was **excluded**: only the new `docs/57` file and the isolated `PL-ARCH-07`-pointer / journal hunks were staged (via `git add -p`), and the staged diff was inspected to confirm no Log-lens content was present before committing.
 
 **Epistemic status.** Evidence persisted as durable project memory. Not implementation authority; no production code changed. Next mode for `PL-ARCH-07`: research/design only when separately selected by the Principal.
+
+
+---
+## 2026-09-21 — Codex authorization-review closure: one blocking finding reconciled (account-locality), rest deferred; review loop closed (Kiro, governance)
+
+**Actor:** Kiro (governance thread). Bounded closure reconciliation; no COTS research, no authorization-model/vendor/grant/multi-Operator design, no application implementation authorized.
+**SYNC SHA:** `6a99217ec8a107b333519dd60ceadd4c919b7862` (remotely verified accepted `main`; re-fetched, not assumed).
+
+**Why this entry exists — the convergence rule.** Wheelwright was at risk of a research/reconciliation spiral (Kiro researches → governance reconciles → Codex reviews → governance reconciles the review → …), where each pass finds another legitimate refinement and nothing stabilizes enough to build. The Principal ratified a convergence rule: a review finding may reopen current design only if ignoring it would (1) semantically redefine a core domain object later, (2) leave a material safety/capital-path failure unresolved, (3) contradict ratified authority, or (4) create materially irreversible/migration-hostile debt. Otherwise: record → defer → proceed.
+
+**What was accepted as blocking (threshold #1).** Codex's finding that **near-term multi-account state must be keyed by stable `BrokerageAccount` identity and be account-local, NOT partitioned by Operator ownership.** Account-local durable objects (`PortfolioSnapshot`, intents, Production state, broker-handoff evidence, capital-history) reference `brokerageAccountId`; external broker account ref, application authorization, and financial/legal ownership are each separate concerns. Using an Operator/user id as the partition key now — merely because Brooks is the only Operator — would force semantic redefinition of those objects when a second human arrives. Reconciled into `PL-PORT-01` (durable authority) and `docs/57` (§Codex review closure). This supersedes the earlier "(depends on PL-ARCH-03)" framing on `PL-PORT-01`; multi-account is not blocked by authorization/operator work and proceeds under this invariant.
+
+**What was deferred (fails the threshold).** RBAC/ABAC/ReBAC/FGA; AccountAccessGrant shape; principalId/userId/Operator terminology; service/AI principals; Cerbos/OpenFGA/WorkOS/Permit/Auth0 comparisons; OPA/Cedar/SpiceDB gaps; permission vocabulary; deeper COTS evaluation; authorization audit architecture; provider selection. All recorded as `PL-ARCH-07` `[OPEN]` concerns in `docs/57`; none blocks multi-BrokerageAccount work.
+
+**Closure.** The Kiro → governance → Codex review budget for this question is exhausted. No further independent architecture review of this reconciliation. Governance's reconciliation is the closure operation, not new material to review. Next phase: concrete multi-BrokerageAccount design/work under the ratified account-locality invariant. New architecture review only if implementation surfaces new evidence crossing the reopening threshold.
+
+**Git-safety.** Unrelated in-flight `PL-ROADMAP-UI` / Log-lens work (roadmap scripts/types/json/css, `RoadmapView.tsx`, untracked `LogView.tsx`, roadmap tests, and Log-lens prose interleaved in `parking-lot-9.md`/`journal-5.md`) preserved exactly as-is and excluded from this commit via surgical staging; staged diff inspected to confirm no foreign content.
+
+**Epistemic status.** Closure reconciliation persisted as durable authority. Not implementation authority; no production code changed.
