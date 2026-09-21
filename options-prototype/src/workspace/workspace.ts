@@ -77,11 +77,22 @@ export interface Workspace {
   writeDeskCrossEntrySortKey: string;
   writeDeskCrossEntrySortDir: string;
 
-  // Deployment portfolio source
+  // Deployment portfolio source (LEGACY selection seam: "demo" | "fidelity").
+  // Superseded by the active-account context below for multi-account selection; retained
+  // for backward compatibility and demo-vs-fidelity distinction until Increment 8 cleanup.
   writeDeskSource: string;
 
+  /**
+   * Active BrokerageAccount selection (Increment 3) — durable operator preference, NOT
+   * account-local. This is application/operator context: "which account am I operating on".
+   * Null means no real account is selected (e.g. demo context, or nothing imported yet).
+   * The active account is distinct from an account's identity; switching it reloads
+   * account-local state without any import.
+   */
+  activeBrokerageAccountId: string | null;
+
   // Mission Context (first Situation Architecture primitive)
-  /** Monthly production target in dollars. Null = not configured. */
+  /** Monthly production target in dollars. Null = not configured. Global (Principal resolution). */
   missionTarget: number | null;
 }
 
@@ -123,6 +134,7 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskCrossEntrySortKey: "productionV0",
   writeDeskCrossEntrySortDir: "desc",
   writeDeskSource: "demo",
+  activeBrokerageAccountId: null,
   missionTarget: null,
 };
 

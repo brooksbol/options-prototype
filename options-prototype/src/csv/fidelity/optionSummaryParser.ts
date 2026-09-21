@@ -229,8 +229,17 @@ export const fidelityOptionSummaryParser: CsvParser = {
     for (const line of preamble) {
       const dateMatch = line.match(/quote data as of (.+)/i);
       if (dateMatch) quoteDate = dateMatch[1].trim().replace(/\.$/, "");
-      const acctMatch = line.match(/option summary\s+(\w+)/i);
-      if (acctMatch) accountNumber = acctMatch[1];
+      // Prefer the full hyphenated Fidelity account-number format (e.g. "Z12-345678") so
+      // the account reference is complete for downstream account resolution/cross-checking.
+      // Fall back to the legacy single-token capture only when no hyphenated number is
+      // present (backward compatible with exports lacking the full format).
+      const hyphenatedMatch = line.match(/option summary\s+([A-Z0-9]{3,4}-[A-Z0-9]{3,6})/i);
+      if (hyphenatedMatch) {
+        accountNumber = hyphenatedMatch[1];
+      } else {
+        const acctMatch = line.match(/option summary\s+(\w+)/i);
+        if (acctMatch) accountNumber = acctMatch[1];
+      }
     }
 
     return {
