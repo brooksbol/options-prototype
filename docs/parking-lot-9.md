@@ -583,3 +583,74 @@ Earlier descriptions of the Log as a "single-column chronological timeline" are 
 2. Log rows are selectable/clickable and populate the existing right-hand detail pane.
 
 The Log lens implementation is on `main` (feat commit `6873015`, on top of accepted `main` at closeout SYNC `3570933`). This entry is the durable acceptance record; no Log design, semantics, implementation, testing, or Codex review is reopened, and no new identity/Bet/initiative/architecture item is created. Frozen semantics remain: 32 governed temporal events; intake partition 9 known / 51 unknown. This note carries no `**Date:**` line and is therefore not itself a Log event.
+
+
+### `PL-PORT-01` — Durable Brokerage / Fidelity Evidence Persistence intake refinement
+
+**Date:** September 21, 2026  
+**State:** INTAKE refinement under existing `PL-PORT-01`; not reconciled; no implementation authorized
+
+#### What was discovered
+
+During Principal operator acceptance of multi-BrokerageAccount support, the Principal identified a separate architectural concern:
+
+> Much of the Fidelity / brokerage portfolio information is currently stored only in the frontend/browser.
+
+The multi-account work makes browser-local state account-safe, but account-safe frontend persistence is not the same as durable portfolio authority. If economically important brokerage evidence and derived portfolio state exist only in one browser, Wheelwright is exposed to browser/device loss, storage eviction/corruption, poor portability across machines, and an architectural boundary in which backend/server-side capabilities cannot reliably consume the current brokerage state.
+
+This concern crossed the durability threshold because losing it would force meaningful rediscovery during later portfolio-state or agent architecture work.
+
+#### Trigger vs broader concept
+
+The trigger was the current Fidelity multi-account implementation and operator acceptance. The broader concern is not “replace localStorage” mechanically. It is to determine the correct durable ownership and persistence boundary for brokerage evidence and portfolio state.
+
+A future reconciliation/design pass should inventory and classify, at minimum:
+
+- raw imported Fidelity evidence and provenance;
+- BrokerageAccount / external broker identity facts;
+- normalized PortfolioSnapshots;
+- balances, holdings, positions, inventory, and activity;
+- capital-history and outlook observations;
+- PendingIntent / WriteIntent state;
+- Production lifecycle evidence;
+- other account-local derived state;
+- genuinely operator-local UI state;
+- rebuildable/derived state versus evidence that must be durably preserved.
+
+The future design must preserve the already-ratified separation among account-local financial evidence/state, global/shared market evidence, global strategy/policy defaults, and operator/UI-local state.
+
+#### Why it might matter
+
+Durable brokerage state is a prerequisite for trustworthy continuity across browser/device boundaries and is likely enabling infrastructure for future server-side recommendation / AI-agent capabilities. A recommendation agent should not depend on whichever browser happens to contain the latest Fidelity CSV-derived state.
+
+#### Canonical mapping
+
+**Retained as a refinement of `PL-PORT-01` (Portfolio-State Maturity).** No new `PL-*` identity is created at intake.
+
+Related architecture may include the existing backend evidence-service boundary, but this intake does not assert that the current backend evidence service is the correct home for all brokerage state and does not authorize simply moving frontend objects into a database.
+
+#### Unresolved
+
+- Which brokerage facts/evidence are authoritative and must be persisted durably?
+- Which normalized/derived views should be rebuildable rather than stored as authority?
+- What backend boundary should own durable account-local brokerage evidence?
+- What migration/provenance guarantees are required for existing browser-local state?
+- What remains legitimately frontend/operator-local?
+- How should durable account state be exposed to future server-side recommendation/agent capabilities without collapsing existing evidence/provenance boundaries?
+
+#### Explicitly not authorized
+
+- No persistence migration.
+- No database/schema implementation.
+- No localStorage removal or cleanup.
+- No backend-service redesign.
+- No AI-agent implementation.
+- No reopening of current PL-PORT-01 stabilization/operator acceptance.
+
+#### Next authorized mode
+
+**Future strategic/architectural reconciliation and bounded design only when separately selected by the Principal.**
+
+For the current multi-account stabilization effort:
+
+> **Record → defer → proceed.**
