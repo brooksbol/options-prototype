@@ -24,8 +24,10 @@ import { derivePortfolioCapital } from "./portfolio-capital";
 import { recordObservation, migrateLegacyHistoryToAccount } from "./portfolio-capital-history";
 import {
   resolveImport,
+  importIntoAccount,
   type ImportOperation,
   type ImportResolution,
+  type TargetedImportResult,
 } from "./account-import";
 import { buildSnapshotForAccount } from "./account-snapshot";
 import {
@@ -37,8 +39,14 @@ import {
   getActiveBrokerageAccountId,
   selectAccount as selectActiveAccount,
   selectDemo as selectActiveDemo,
+  clearActiveAccount as clearActiveAccountSelection,
 } from "./active-account";
-import { loadAccounts } from "./brokerage-account-registry";
+import {
+  loadAccounts,
+  registerAccount,
+  updateAccount,
+} from "./brokerage-account-registry";
+import type { BrokerageAccount } from "./brokerage-account";
 import { migrateLegacyIntents } from "../execution/pending-intent";
 import { migrateLegacyOutlookToAccount } from "../forecast/outlook-observations";
 
@@ -331,6 +339,83 @@ export function switchToDemo(): void {
   currentSnapshot = createDemoSnapshot();
   currentActivityRows = null;
   notify();
+}
+
+// --- Operator account management (explicit-account workflow, follow-on) ---
+//
+// The Portfolio dropdown is the lightweight account-management surface: add / select /
+// upload-refresh / remove / rename — all account-local, no separate screen. Accounts are
+// created explicitly by the operator; external Fidelity identity is bound later by the
+// first unambiguous import (importIntoAccount), never fabricated.
+
+/**
+ * Create a new BrokerageAccount explicitly with an operator display name (no CSV required).
+ * Returns the created account. The account has stable Wheelwright identity immediately but
+ * no external Fidelity reference and no evidence until CSVs are imported into it.
+ */
+export function createAccount(displayName: string): BrokerageAccount {
+  const reg = registerAccount({ broker: "fidelity", displayName: displayName.trim() || null });
+  // A fresh anonymous account is always "created" (null refs never coalesce).
+  const account = reg.kind === "ambiguous" ? reg.matches[0] : reg.account;
+  notify();
+  return account;
+}
+
+/** Rename an account (display only). Never changes identity, external ref, or evidence. */
+export function renameAccount(brokerageAccountId: string, displayName: string): void {
+  const name = displayName.trim();
+  if (!name) return;
+  updateAccount(brokerageAccountId, { displayName: name });
+  notify();
+}
+
+/**
+ * Remove (archive) an account. Soft, reversible at the domain level: the account is marked
+ * archived so it no longer appears in the active list, but its evidence is not destroyed and
+ * no OTHER account is touched. If the removed account was active, the app is left in an
+ * explicit safe state: switch to the sole remaining account if exactly one remains, else
+ * clear to "none" (never silently masquerade another account as the removed one).
+ */
+export function removeAccount(brokerageAccountId: string): void {
+  const wasActive = getActiveBrokerageAccountId() === brokerageAccountId;
+  updateAccount(brokerageAccountId, { status: "archived" });
+
+  if (wasActive) {
+    const remaining = loadAccounts().filter((a) => a.status === "active");
+    if (remaining.length === 1) {
+      switchToAccount(remaining[0].brokerageAccountId);
+      return;
+    }
+    // Zero or many remaining → explicit safe state, no accidental fallback.
+    clearActiveAccountSelection();
+    currentSource = "fidelity";
+    currentSnapshot = null;
+    currentImportStatus = { optionSummary: null, balances: null, readinessStatus: null, validationWarnings: [] };
+    currentActivityRows = null;
+    notify();
+  } else {
+    notify();
+  }
+}
+
+/**
+ * Import Fidelity CSVs INTO a specific account (the explicit-account upload workflow).
+ * Identity governs safety (binds a manually-created account's external ref only when
+ * unambiguous; refuses evidence that belongs to another account), but the operator's chosen
+ * target is honored. Refreshes the visible snapshot when the target is the active account.
+ */
+export function importEvidenceIntoAccount(
+  brokerageAccountId: string,
+  op: ImportOperation,
+): TargetedImportResult {
+  const result = importIntoAccount(op, brokerageAccountId);
+  if (result.kind === "refreshed" && getActiveBrokerageAccountId() === brokerageAccountId) {
+    currentSource = "fidelity";
+    loadActiveAccountSnapshot();
+    if (currentSnapshot) recordPortfolioCapitalObservation(currentSnapshot);
+    notify();
+  }
+  return result;
 }
 
 /**

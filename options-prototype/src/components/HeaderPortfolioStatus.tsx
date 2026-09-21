@@ -1,20 +1,27 @@
 /**
- * Header Portfolio Status — Compact Fidelity snapshot info + upload dropdown.
+ * Header Portfolio Status — the lightweight account-management surface.
  *
- * Lives in the global AppShell header. Provides:
- *   - Current portfolio source indicator
- *   - Snapshot freshness/provenance (compact)
- *   - Upload controls behind a dropdown menu
+ * Lives in the global AppShell header. The Portfolio dropdown is the ONE place the operator
+ * manages Fidelity accounts (no separate account screen):
+ *   - Source (Demo / Fidelity)
+ *   - Accounts: add, select/switch, rename, remove — all account-local
+ *   - Upload / refresh Fidelity CSVs for the SELECTED account
+ *   - Compact snapshot provenance for the active account
  *
- * This makes Fidelity portfolio evidence an application-level concern
- * rather than something each page manages independently.
+ * Accounts are created EXPLICITLY (Add account); external Fidelity identity is bound later by
+ * the first unambiguous import. Selection expresses intent; evidence establishes identity.
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { usePortfolio } from "../portfolio/use-portfolio";
-import { selectPortfolioSource, switchToAccount } from "../portfolio/portfolio-store";
+import {
+  selectPortfolioSource,
+  switchToAccount,
+  createAccount,
+  renameAccount,
+  removeAccount,
+} from "../portfolio/portfolio-store";
 import { useAccounts } from "../portfolio/use-accounts";
-import { updateAccount } from "../portfolio/brokerage-account-registry";
 import { FidelityUploadCompact } from "./FidelityUploadCompact";
 import type { PortfolioSnapshot, PortfolioSourceType } from "../write-desk/types";
 
@@ -24,6 +31,9 @@ export function HeaderPortfolioStatus() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameInput, setRenameInput] = useState("");
+  const [addingAccount, setAddingAccount] = useState(false);
+  const [newAccountName, setNewAccountName] = useState("");
+  const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -43,11 +53,8 @@ export function HeaderPortfolioStatus() {
   }, []);
 
   const handleSnapshotChange = useCallback((_newSnapshot: PortfolioSnapshot | null) => {
-    // No-op (Increment 6): the account-aware uploader publishes through
-    // importFidelityEvidence, which already sets the store snapshot and records the
-    // account-local capital observation. Re-calling setPortfolio here would double-record
-    // the observation and redundantly rewrite writeDeskSource. HeaderPortfolioStatus
-    // re-renders from the store via usePortfolio(); nothing further is needed here.
+    // No-op: the account-aware uploader publishes through the store; the header re-renders
+    // from usePortfolio(). See Increment 6.
   }, []);
 
   // Switch the active BrokerageAccount (no import). The store reloads that account's
@@ -56,6 +63,17 @@ export function HeaderPortfolioStatus() {
     switchToAccount(brokerageAccountId);
   }, []);
 
+  // --- Add ---
+  const handleAddAccount = useCallback(() => {
+    const name = newAccountName.trim();
+    const created = createAccount(name || "New account");
+    // Select it immediately so uploads target it.
+    switchToAccount(created.brokerageAccountId);
+    setAddingAccount(false);
+    setNewAccountName("");
+  }, [newAccountName]);
+
+  // --- Rename ---
   const startRename = useCallback((brokerageAccountId: string, currentName: string) => {
     setRenamingId(brokerageAccountId);
     setRenameInput(currentName);
@@ -64,17 +82,24 @@ export function HeaderPortfolioStatus() {
   const commitRename = useCallback(() => {
     if (renamingId) {
       const name = renameInput.trim();
-      if (name) updateAccount(renamingId, { displayName: name });
+      if (name) renameAccount(renamingId, name);
     }
     setRenamingId(null);
     setRenameInput("");
   }, [renamingId, renameInput]);
+
+  // --- Remove (with confirmation) ---
+  const handleConfirmRemove = useCallback((brokerageAccountId: string) => {
+    removeAccount(brokerageAccountId);
+    setConfirmRemoveId(null);
+  }, []);
 
   // Derive compact status text
   const statusLabel = source === "demo" ? "Demo" : "Fidelity";
   const isReady = snapshot?.readiness.status === "READY";
   const snapshotDate = snapshot?.snapshotDate ?? null;
   const exportTimestamp = importStatus.optionSummary?.exportTimestamp ?? null;
+  const activeAccount = accounts.find((a) => a.brokerageAccountId === activeBrokerageAccountId) ?? null;
 
   return (
     <div className="as-portfolio" ref={dropdownRef}>
@@ -85,7 +110,9 @@ export function HeaderPortfolioStatus() {
         aria-label="Portfolio status and upload"
       >
         <span className={`as-portfolio-pip${isReady ? " as-pip-ready" : source === "fidelity" ? " as-pip-fidelity" : ""}`} />
-        <span className="as-portfolio-label">{statusLabel}</span>
+        <span className="as-portfolio-label">
+          {source === "demo" ? "Demo" : activeAccount ? activeAccount.displayName : statusLabel}
+        </span>
         {isReady && exportTimestamp && (
           <span className="as-portfolio-freshness">{exportTimestamp}</span>
         )}
@@ -116,11 +143,10 @@ export function HeaderPortfolioStatus() {
             </div>
           </div>
 
-          {/* Account picker (Fidelity mode, ≥1 account). Switching is import-free: it loads
-              the selected account's own account-local state. */}
-          {source === "fidelity" && accounts.length > 0 && (
+          {/* Accounts management (Fidelity mode): add / select / rename / remove. */}
+          {source === "fidelity" && (
             <div className="as-dropdown-section as-dropdown-accounts">
-              <span className="as-dropdown-label">Account</span>
+              <span className="as-dropdown-label">Accounts</span>
               <div className="as-account-list">
                 {accounts.map((a) => (
                   <div key={a.brokerageAccountId} className="as-account-row">
@@ -137,13 +163,31 @@ export function HeaderPortfolioStatus() {
                         }}
                         aria-label={`Rename account ${a.displayName}`}
                       />
+                    ) : confirmRemoveId === a.brokerageAccountId ? (
+                      <div className="as-account-confirm">
+                        <span className="as-account-confirm-text">Remove “{a.displayName}”?</span>
+                        <button
+                          className="as-account-confirm-yes"
+                          onClick={() => handleConfirmRemove(a.brokerageAccountId)}
+                          aria-label={`Confirm remove ${a.displayName}`}
+                        >
+                          Remove
+                        </button>
+                        <button
+                          className="as-account-confirm-no"
+                          onClick={() => setConfirmRemoveId(null)}
+                          aria-label="Cancel remove"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     ) : (
                       <>
                         <button
                           className={`as-account-btn${a.brokerageAccountId === activeBrokerageAccountId ? " as-account-active" : ""}`}
                           onClick={() => handleSwitchAccount(a.brokerageAccountId)}
                           aria-pressed={a.brokerageAccountId === activeBrokerageAccountId}
-                          title={a.externalAccountRef ?? undefined}
+                          title={a.externalAccountRef ?? "No Fidelity account linked yet"}
                         >
                           {a.brokerageAccountId === activeBrokerageAccountId && (
                             <span className="as-account-check" aria-hidden="true">✓ </span>
@@ -158,11 +202,46 @@ export function HeaderPortfolioStatus() {
                         >
                           ✎
                         </button>
+                        <button
+                          className="as-account-remove"
+                          onClick={() => setConfirmRemoveId(a.brokerageAccountId)}
+                          aria-label={`Remove ${a.displayName}`}
+                          title="Remove"
+                        >
+                          ✕
+                        </button>
                       </>
                     )}
                   </div>
                 ))}
               </div>
+
+              {/* Add account */}
+              {addingAccount ? (
+                <div className="as-account-add-row">
+                  <input
+                    className="as-account-rename-input"
+                    value={newAccountName}
+                    autoFocus
+                    placeholder="Account name (e.g. PTS)"
+                    onChange={(e) => setNewAccountName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleAddAccount();
+                      if (e.key === "Escape") { setAddingAccount(false); setNewAccountName(""); }
+                    }}
+                    aria-label="New account name"
+                  />
+                  <button className="as-account-add-confirm" onClick={handleAddAccount} aria-label="Create account">Add</button>
+                </div>
+              ) : (
+                <button
+                  className="as-account-add"
+                  onClick={() => setAddingAccount(true)}
+                  aria-label="Add account"
+                >
+                  + Add account
+                </button>
+              )}
             </div>
           )}
 
@@ -178,11 +257,22 @@ export function HeaderPortfolioStatus() {
             </div>
           )}
 
-          {/* Upload controls (Fidelity mode) */}
+          {/* Upload / refresh CSVs for the SELECTED account (Fidelity mode). When a real
+              account is active, uploads target it explicitly (fail-closed identity binding). */}
           {source === "fidelity" && (
             <div className="as-dropdown-section">
-              <span className="as-dropdown-label">Upload CSVs</span>
-              <FidelityUploadCompact onSnapshotChange={handleSnapshotChange} />
+              <span className="as-dropdown-label">
+                {activeAccount ? `Upload / refresh CSVs — ${activeAccount.displayName}` : "Upload CSVs"}
+              </span>
+              {activeAccount ? (
+                <FidelityUploadCompact
+                  key={activeAccount.brokerageAccountId}
+                  onSnapshotChange={handleSnapshotChange}
+                  targetBrokerageAccountId={activeAccount.brokerageAccountId}
+                />
+              ) : (
+                <div className="as-account-empty-hint">Add or select an account to upload CSVs.</div>
+              )}
             </div>
           )}
         </div>

@@ -354,6 +354,100 @@
   color: var(--wd-text-primary);
 }
 
+.as-account-remove {
+  flex: 0 0 auto;
+  font-size: 10px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--wd-border-subtle);
+  background: none;
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+}
+
+.as-account-remove:hover {
+  color: var(--wd-accent-red, #e06c75);
+  border-color: var(--wd-accent-red, #e06c75);
+}
+
+.as-account-add,
+.as-account-add-confirm {
+  font-family: var(--wd-font-sans);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  border: 1px dashed var(--wd-border-default);
+  background: none;
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.as-account-add:hover,
+.as-account-add-confirm:hover {
+  color: var(--wd-accent-green);
+  border-color: var(--wd-accent-green);
+}
+
+.as-account-add-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.as-account-add-confirm {
+  flex: 0 0 auto;
+  border-style: solid;
+  margin-top: 0;
+}
+
+.as-account-confirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  font-size: 11px;
+}
+
+.as-account-confirm-text {
+  flex: 1 1 auto;
+  color: var(--wd-text-primary);
+}
+
+.as-account-confirm-yes {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--wd-accent-red, #e06c75);
+  background: none;
+  color: var(--wd-accent-red, #e06c75);
+  cursor: pointer;
+}
+
+.as-account-confirm-no {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--wd-border-subtle);
+  background: none;
+  color: var(--wd-text-secondary);
+  cursor: pointer;
+}
+
+.as-account-empty-hint {
+  font-size: 10px;
+  color: var(--wd-text-secondary);
+  padding: 4px 0;
+}
+
+.as-upload-error-msg {
+  font-size: 10px;
+  color: var(--wd-accent-red, #e06c75);
+  padding: 2px 0 4px 0;
+  line-height: 1.3;
+}
+
 /* --- Provenance rows --- */
 
 .as-dropdown-provenance {

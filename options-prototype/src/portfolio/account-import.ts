@@ -23,7 +23,7 @@ import {
   writeAccountCsv,
   type StoredCsvBlob,
 } from "./account-evidence-store";
-import { registerAccount, resolveAccountByExternalRef } from "./brokerage-account-registry";
+import { registerAccount, resolveAccountByExternalRef, getAccountById, updateAccount } from "./brokerage-account-registry";
 import { normalizeExternalRef } from "./brokerage-account";
 import { preprocessCsv } from "../csv/preprocess";
 import { detectDelimiter, parseCsv } from "../csv/reader";
@@ -140,4 +140,108 @@ export function resolveImport(
     createdAccount,
     differsFromActive: activeBrokerageAccountId != null && activeBrokerageAccountId !== brokerageAccountId,
   };
+}
+
+/**
+ * Account-TARGETED import (explicit-account workflow, follow-on).
+ *
+ * The operator has explicitly selected/created the account they intend to refresh, then
+ * uploads CSVs. Identity still governs SAFETY, but the operator's explicit target is honored:
+ *
+ *  - Files disagree on identity            → conflict (fail closed, nothing written).
+ *  - A ref is present and already belongs to a DIFFERENT account → conflict "belongs-to-other"
+ *    (never reassign another account's evidence to the target).
+ *  - A ref is present and the target has NO ref yet → BIND it to the target (deferred identity
+ *    binding for a manually-created account), then refresh.
+ *  - A ref is present and matches the target's existing ref → refresh.
+ *
+ * FAIL-CLOSED ON UNIDENTIFIED AUTHORITATIVE EVIDENCE (Principal correction): selecting an
+ * account expresses INTENT; it does NOT prove an unidentified Balances file belongs to it (a
+ * wrong file picked from Finder is exactly the mistake to catch). Therefore:
+ *  - Balances with NO usable account identity → refuse ("unidentified-balances"); the target
+ *    is not bound and not overwritten.
+ *  - Option Summary / Activity that carry no independent identity MAY be written to the target
+ *    ONLY within a coherent operation whose Balances established (or matched) the identity, OR
+ *    when the target already has an established ref. They never independently define identity.
+ *
+ * Never invents an external reference; never guesses across accounts.
+ */
+export type TargetedImportResult =
+  | { kind: "refreshed"; brokerageAccountId: string; boundExternalRef: string | null }
+  | { kind: "conflict"; reason: "files-disagree" | "belongs-to-other"; refs: string[] }
+  | { kind: "unidentified-balances" }
+  | { kind: "empty" }
+  | { kind: "unknown-target" };
+
+export function importIntoAccount(
+  op: ImportOperation,
+  targetBrokerageAccountId: string
+): TargetedImportResult {
+  const hasAny = !!(op.optionSummary || op.balances || op.activity);
+  if (!hasAny) return { kind: "empty" };
+
+  const target = getAccountById(targetBrokerageAccountId);
+  if (!target || target.status !== "active") return { kind: "unknown-target" };
+
+  const balRef = externalRefFromBalancesBlob(op.balances ?? null);
+  const osRef = externalRefFromOptionSummaryBlob(op.optionSummary ?? null);
+  const distinctRefs = Array.from(new Set([balRef, osRef].filter((r): r is string => r != null)));
+
+  // Cross-file disagreement → refuse the merge (fail closed).
+  if (distinctRefs.length > 1) {
+    return { kind: "conflict", reason: "files-disagree", refs: distinctRefs };
+  }
+
+  const incomingRef = distinctRefs[0] ?? null;
+  const targetRef = normalizeExternalRef(target.externalAccountRef);
+  let boundExternalRef: string | null = null;
+
+  // Balances is economically authoritative. If a Balances file is present but carries NO
+  // usable account identity, refuse — do NOT attach it merely because this account is
+  // selected. (An Activity-only or OS-only import has no Balances and skips this guard.)
+  if (op.balances && balRef == null) {
+    return { kind: "unidentified-balances" };
+  }
+
+  if (incomingRef != null) {
+    if (targetRef != null && targetRef !== incomingRef) {
+      // The selected account already has a different identity — this CSV is not for it.
+      return { kind: "conflict", reason: "belongs-to-other", refs: [incomingRef] };
+    }
+    if (targetRef == null) {
+      // The incoming ref must not already belong to ANOTHER account.
+      const owner = resolveAccountByExternalRef(incomingRef);
+      if (owner.kind === "resolved" && owner.account.brokerageAccountId !== targetBrokerageAccountId) {
+        return { kind: "conflict", reason: "belongs-to-other", refs: [incomingRef] };
+      }
+      if (owner.kind === "ambiguous") {
+        return { kind: "conflict", reason: "belongs-to-other", refs: [incomingRef] };
+      }
+      // Safe to bind the incoming identity to this manually-created account.
+      updateAccount(targetBrokerageAccountId, { externalAccountRef: incomingRef });
+      boundExternalRef = incomingRef;
+    }
+    // else targetRef === incomingRef → plain refresh, no binding needed.
+  } else if (targetRef == null) {
+    // No identity from any file AND the target has no established identity. The only files
+    // here are OS and/or Activity (a no-identity Balances already returned above). These
+    // cannot establish identity on their own, so there is nothing authoritative to attach
+    // them to yet. Refuse rather than parking economically-relevant evidence on an
+    // unidentified account.
+    if (op.optionSummary) {
+      // OS alone into an unidentified account: treat like unidentified authoritative evidence.
+      return { kind: "unidentified-balances" };
+    }
+    // Activity-only into an unidentified account: nothing to inherit identity from.
+    return { kind: "unidentified-balances" };
+  }
+  // else: no incoming ref but the target already has an established ref → OS/Activity inherit
+  // that identity (operator-directed, safe).
+
+  // Write the operator-directed evidence into the target account's slots.
+  if (op.optionSummary) writeAccountCsv(targetBrokerageAccountId, "option-summary", op.optionSummary);
+  if (op.balances) writeAccountCsv(targetBrokerageAccountId, "balances", op.balances);
+  if (op.activity) writeAccountCsv(targetBrokerageAccountId, "activity", op.activity);
+
+  return { kind: "refreshed", brokerageAccountId: targetBrokerageAccountId, boundExternalRef };
 }

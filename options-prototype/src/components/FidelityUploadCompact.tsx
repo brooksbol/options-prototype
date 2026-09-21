@@ -14,10 +14,10 @@ import { preprocessCsv } from "../csv/preprocess";
 import { classifyDocument } from "../csv/registry";
 import "../csv/fidelity"; // ensure parsers are registered
 import type { PortfolioSnapshot } from "../write-desk/types";
-import { importFidelityEvidence, getSnapshot } from "../portfolio/portfolio-store";
-import type { ImportResolution } from "../portfolio/account-import";
+import { importFidelityEvidence, importEvidenceIntoAccount, getSnapshot } from "../portfolio/portfolio-store";
+import type { ImportResolution, TargetedImportResult } from "../portfolio/account-import";
 
-/** Surface a non-refresh import outcome (Case B/C/D) as a hint on the balances slot. */
+/** Surface a non-refresh import outcome (generic path) as a hint on the balances slot. */
 function surfaceResolution(
   resolution: ImportResolution,
   setBalSlot: React.Dispatch<React.SetStateAction<SlotState>>
@@ -28,6 +28,21 @@ function surfaceResolution(
     setBalSlot((s) => ({ ...s, error: `Files disagree on account (${resolution.refs.join(", ")}). Import refused.`, status: "error" }));
   }
   // "refreshed" / "empty": no additional hint needed.
+}
+
+/** Surface an account-targeted import outcome in plain operator language. */
+function surfaceTargeted(
+  result: TargetedImportResult,
+  setBalSlot: React.Dispatch<React.SetStateAction<SlotState>>
+): void {
+  if (result.kind === "unidentified-balances") {
+    setBalSlot((s) => ({ ...s, status: "error", error: "Wheelwright couldn't identify the Fidelity account in this file. The selected account was not changed." }));
+  } else if (result.kind === "conflict" && result.reason === "belongs-to-other") {
+    setBalSlot((s) => ({ ...s, status: "error", error: "This file belongs to a different account. The selected account was not changed." }));
+  } else if (result.kind === "conflict" && result.reason === "files-disagree") {
+    setBalSlot((s) => ({ ...s, status: "error", error: `These files disagree on the account (${result.refs.join(", ")}). Import refused.` }));
+  }
+  // "refreshed" / "empty" / "unknown-target": no additional balances hint needed.
 }
 
 type SlotStatus = "empty" | "parsing" | "loaded" | "error";
@@ -41,9 +56,15 @@ interface SlotState {
 
 interface Props {
   onSnapshotChange: (snapshot: PortfolioSnapshot | null) => void;
+  /**
+   * When provided, uploads target THIS account explicitly (account-targeted import with
+   * fail-closed identity binding). When omitted, uploads use the generic account-aware
+   * resolver (identity determines where evidence lands).
+   */
+  targetBrokerageAccountId?: string | null;
 }
 
-export function FidelityUploadCompact({ onSnapshotChange }: Props) {
+export function FidelityUploadCompact({ onSnapshotChange, targetBrokerageAccountId }: Props) {
   const [osSlot, setOsSlot] = useState<SlotState>({ status: "empty", filename: null, error: null, timestamp: null });
   const [balSlot, setBalSlot] = useState<SlotState>({ status: "empty", filename: null, error: null, timestamp: null });
   const [actSlot, setActSlot] = useState<SlotState>({ status: "empty", filename: null, error: null, timestamp: null });
@@ -95,20 +116,27 @@ export function FidelityUploadCompact({ onSnapshotChange }: Props) {
     } catch { return false; }
   }, []);
 
-  // Route the currently-loaded blobs through the account-aware importer, then reflect the
-  // resolution to the caller and surface Case B/C/D outcomes on the relevant slot.
-  const runImport = useCallback((): ImportResolution => {
-    const resolution = importFidelityEvidence({
+  // Route the currently-loaded blobs through the appropriate importer and surface the
+  // outcome. When targeting a specific account, use the account-targeted (fail-closed)
+  // importer; otherwise the generic account-aware resolver.
+  const runImport = useCallback((): void => {
+    const op = {
       optionSummary: osBlobRef.current,
       balances: balBlobRef.current,
       activity: actBlobRef.current,
-    });
+    };
+    if (targetBrokerageAccountId) {
+      const result = importEvidenceIntoAccount(targetBrokerageAccountId, op);
+      surfaceTargeted(result, setBalSlot);
+    } else {
+      const resolution = importFidelityEvidence(op);
+      surfaceResolution(resolution, setBalSlot);
+    }
     // The store publishes the active account's snapshot; mirror it to the caller so the
-    // header/status updates. When a different account was refreshed (Case B) the visible
-    // snapshot is unchanged, which is the required behavior.
+    // header/status updates. When a different account was refreshed the visible snapshot is
+    // unchanged, which is the required behavior.
     onSnapshotChange(getSnapshot());
-    return resolution;
-  }, [onSnapshotChange]);
+  }, [onSnapshotChange, targetBrokerageAccountId]);
 
   const handleOsFile = useCallback(async (file: File) => {
     setOsSlot({ status: "parsing", filename: file.name, error: null, timestamp: null });
@@ -117,9 +145,8 @@ export function FidelityUploadCompact({ onSnapshotChange }: Props) {
       const v = validateOs(text);
       if (v.ok) {
         osBlobRef.current = { text, filename: file.name };
-        const resolution = runImport();
         setOsSlot({ status: "loaded", filename: file.name, error: null, timestamp: v.timestamp });
-        surfaceResolution(resolution, setBalSlot);
+        runImport();
       } else {
         setOsSlot({ status: "error", filename: file.name, error: "Not a valid Option Summary CSV", timestamp: null });
       }
@@ -135,9 +162,8 @@ export function FidelityUploadCompact({ onSnapshotChange }: Props) {
       const v = validateBal(text);
       if (v.ok) {
         balBlobRef.current = { text, filename: file.name };
-        const resolution = runImport();
         setBalSlot({ status: "loaded", filename: file.name, error: null, timestamp: v.timestamp });
-        surfaceResolution(resolution, setBalSlot);
+        runImport();
       } else {
         setBalSlot({ status: "error", filename: file.name, error: "Not a valid Balances CSV", timestamp: null });
       }
@@ -205,35 +231,40 @@ function UploadRow({ label, slot, inputRef, onFile }: {
   onFile: (file: File) => void;
 }) {
   return (
-    <div className={`as-upload-row as-upload-${slot.status}`}>
-      <span className="as-upload-slot-label">{label}</span>
-      <span className="as-upload-slot-status">
-        {slot.status === "loaded" && <span className="as-upload-ok">✓</span>}
-        {slot.status === "error" && <span className="as-upload-err" title={slot.error ?? undefined}>✗</span>}
-        {slot.status === "loaded" && slot.filename && (
-          <span className="as-upload-filename" title={slot.filename}>
-            {slot.filename.length > 18 ? slot.filename.slice(0, 15) + "…" : slot.filename}
-          </span>
-        )}
-        {slot.status === "empty" && <span className="as-upload-empty">—</span>}
-      </span>
-      <input
-        ref={inputRef}
-        type="file"
-        accept=".csv"
-        className="as-upload-input-hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) onFile(file);
-          e.target.value = "";
-        }}
-      />
-      <button
-        className="as-upload-btn"
-        onClick={() => inputRef.current?.click()}
-      >
-        {slot.status === "loaded" ? "↻" : "⬆"}
-      </button>
+    <div className={`as-upload-row-wrap as-upload-${slot.status}`}>
+      <div className="as-upload-row">
+        <span className="as-upload-slot-label">{label}</span>
+        <span className="as-upload-slot-status">
+          {slot.status === "loaded" && <span className="as-upload-ok">✓</span>}
+          {slot.status === "error" && <span className="as-upload-err">✗</span>}
+          {slot.status === "loaded" && slot.filename && (
+            <span className="as-upload-filename" title={slot.filename}>
+              {slot.filename.length > 18 ? slot.filename.slice(0, 15) + "…" : slot.filename}
+            </span>
+          )}
+          {slot.status === "empty" && <span className="as-upload-empty">—</span>}
+        </span>
+        <input
+          ref={inputRef}
+          type="file"
+          accept=".csv"
+          className="as-upload-input-hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) onFile(file);
+            e.target.value = "";
+          }}
+        />
+        <button
+          className="as-upload-btn"
+          onClick={() => inputRef.current?.click()}
+        >
+          {slot.status === "loaded" ? "↻" : "⬆"}
+        </button>
+      </div>
+      {slot.status === "error" && slot.error && (
+        <div className="as-upload-error-msg" role="alert">{slot.error}</div>
+      )}
     </div>
   );
 }
