@@ -4,6 +4,14 @@
 
 This directory contains the architectural documentation for the Wheelwright Evidence Appliance.
 
+> # ⚠️ BEFORE YOU DO ANYTHING: READ THE KNOWN FAILURE MODES
+>
+> **Wheelwright has already paid for a set of recurring operating-model mistakes. Do not rediscover them.**
+>
+> **[READ \`KNOWN-FAILURE-MODES.md\` BEFORE CONSEQUENTIAL WORK](KNOWN-FAILURE-MODES.md)**
+>
+> It is the short cold-start failure checksum: invented Product outcomes, late Principal observation, Codex→Kiro patch loops, manufactured retry authority, premature multi-actor convergence, in-flight-state damage, interruption mistakes, deterministic state left to probabilistic judgment, and other demonstrated failures. It summarizes evidence; it does not create execution authority.
+
 ## Parking-Lot Continuation Rule — August 29, 2026
 
 The canonical parking lot may span physical continuation files. `docs/parking-lot.md`, `docs/parking-lot-2.md`, and any later numbered continuations are **one logical Category C backlog**. Every cold start, scan, search, backlog review, and reconciliation must inspect the complete `docs/parking-lot*.md` sequence. File boundaries are pagination only; stable IDs, governance, and dispositions are global.
@@ -63,17 +71,18 @@ Every AI actor cold start must read the suspended-contract compatibility bridge,
 
 ## Reading Paths
 
-### Minimum Safe Bootstrap (5 documents)
+### Minimum Safe Bootstrap (6 documents)
 
 Read these before doing any Wheelwright work. Produces safe operating competence in 30–60 minutes.
 
 | # | Document | Why |
 |---|----------|-----|
 | 1 | `docs/README.md` (this file) | Orientation. Document index. Authority model. |
-| 2 | `foundations/evidence-appliance.md` | What Wheelwright is. System identity. |
-| 3 | `07-architecture-current.md` | Current system. Four Engines. Boundaries. Surfaces. |
-| 4 | `07c-adrs.md` | Decisions that constrain changes. ADR-001 through ADR-017 (append-only). |
-| 5 | Complete `parking-lot*.md` sequence | What is active, deferred, and resolved. Read the original plus every numbered continuation. |
+| 2 | `KNOWN-FAILURE-MODES.md` | **Failure checksum. Mistakes Wheelwright has already paid for; do not repeat them.** |
+| 3 | `foundations/evidence-appliance.md` | What Wheelwright is. System identity. |
+| 4 | `07-architecture-current.md` | Current system. Four Engines. Boundaries. Surfaces. |
+| 5 | `07c-adrs.md` | Decisions that constrain changes. ADR-001 through ADR-017 (append-only). |
+| 6 | Complete `parking-lot*.md` sequence | What is active, deferred, and resolved. Read the original plus every numbered continuation. |
 
 **When this is insufficient:** If you're touching architecture, designing a new subsystem, or need to understand *why* something is the way it is — continue to the comprehensive path.
 
@@ -130,7 +139,7 @@ For a completely new ChatGPT thread, Kiro session, or Codex session starting fro
 | `foundations/multi-actor-repeatability-temporal-synchronization.md` | Shared | Ratified temporal synchronization, convergence, and scoped execution-ownership methodology |
 | `foundations/idea-intake-reconciliation.md` | Shared | Mandatory methodology whenever a material new idea is being considered or handed off |
 
-**Lookup path:** Actor finds `docs/README.md` → reads this section → follows the suspended-contract compatibility bridge → reads the Principal Decision Surface → follows actor-specific bootstrap → acquires current task/experiment state → follows shared project-memory and task-relevant authority → begins substantive work. For a material new idea, the actor must also follow `foundations/idea-intake-reconciliation.md`.
+**Lookup path:** Actor finds `docs/README.md` → reads `KNOWN-FAILURE-MODES.md` → reads this section → follows the suspended-contract compatibility bridge → reads the Principal Decision Surface → follows actor-specific bootstrap → acquires current task/experiment state → follows shared project-memory and task-relevant authority → begins substantive work. For a material new idea, the actor must also follow `foundations/idea-intake-reconciliation.md`.
 
 ---
 
