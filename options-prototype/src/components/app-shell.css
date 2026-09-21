@@ -350,8 +350,14 @@
   padding: 4px 8px;
   border-radius: 3px;
   border: 1px solid var(--wd-accent-green);
-  background: var(--wd-bg-input, #1a1a1a);
+  /* Match the dropdown surface + its readable text tokens (the previous #1a1a1a fallback
+     rendered black-on-black on this light surface). */
+  background: var(--wd-bg-raised);
   color: var(--wd-text-primary);
+}
+
+.as-account-rename-input::placeholder {
+  color: var(--wd-text-secondary);
 }
 
 .as-account-remove {
