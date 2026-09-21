@@ -133,18 +133,44 @@ export function getActivityRows(): ActivityRow[] | null {
 }
 
 /**
- * Uploaded Activity CSV filename, if present in the existing workflow storage. Read-only,
- * no parsing/evidence machinery — used only as export source context (PL-PROD-EXPORT-01).
+ * The ACTIVE account's Activity CSV blob (Increment 7), or the legacy global blob when the
+ * context is demo/unattributed. Production assessment must be fed the active account's own
+ * activity so account A's realized activity can never be assessed as account B's. Read-only.
  */
-export function getActivityFilename(): string | null {
+function getActiveActivityBlob(): { text: string; filename: string } | null {
+  const activeId = getActiveBrokerageAccountId();
+  if (activeId) {
+    return readAccountCsv(activeId, "activity");
+  }
+  // Demo/unattributed: fall back to the legacy global slot.
   try {
     const stored = localStorage.getItem(LS_KEY_ACTIVITY);
     if (!stored) return null;
     const parsed = JSON.parse(stored);
-    return typeof parsed?.filename === "string" ? parsed.filename : null;
+    if (typeof parsed?.text === "string" && typeof parsed?.filename === "string") {
+      return { text: parsed.text, filename: parsed.filename };
+    }
+    return null;
   } catch {
     return null;
   }
+}
+
+/**
+ * The ACTIVE account's raw Activity CSV text, for feeding Production assessment
+ * (POST /api/production/assess). Account-scoped (Increment 7). Null when no activity exists.
+ */
+export function getActiveAccountActivityText(): string | null {
+  return getActiveActivityBlob()?.text ?? null;
+}
+
+/**
+ * The ACTIVE account's Activity CSV filename (Increment 7), or the legacy global filename
+ * for the demo/unattributed context. Read-only; used only as export source context
+ * (PL-PROD-EXPORT-01).
+ */
+export function getActivityFilename(): string | null {
+  return getActiveActivityBlob()?.filename ?? null;
 }
 
 // --- Mutations ---

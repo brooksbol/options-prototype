@@ -14,11 +14,12 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useProductionAssessment } from "./use-production-assessment";
 import { CurrentMonthView } from "./CurrentMonthView";
 import type { ProductionAssessmentResponse, ReconciliationIssue, ErosionEvent } from "./production-types";
+import { getActiveAccountActivityText } from "../portfolio/portfolio-store";
+import { usePortfolio } from "../portfolio/use-portfolio";
 import "./production.css";
 
-// Global Activity CSV key (shared with portfolio-store and FidelityUploadCompact)
-const LS_KEY_ACTIVITY = "wheelwright:fidelity-csv:activity";
-// Legacy key (from prior page-local upload) — check for migration
+// Legacy page-local Activity key (from a prior page-local upload) — checked as a last-resort
+// fallback only. The active account's Activity is sourced through the store (Increment 7).
 const LS_KEY_LEGACY = "wheelwright:production:activity-csv";
 
 type MonthTab = "current" | string; // "current" or "YYYY-MM" for historical
@@ -27,6 +28,13 @@ export function ProductionView() {
   const { state: currentMonthState, assess: assessCurrentMonth } = useProductionAssessment();
   const { state: historicalState, assess: assessHistorical } = useProductionAssessment();
   const hydratedRef = useRef(false);
+
+  // The active BrokerageAccount (Increment 7): when it changes, Production must re-assess
+  // against the newly-active account's own Activity so it never shows another account's
+  // realized production.
+  const { snapshot } = usePortfolio();
+  const activeAccountId = snapshot?.brokerageAccountId ?? null;
+  const lastAssessedAccountRef = useRef<string | null | undefined>(undefined);
 
   // Derive current month
   const now = new Date();
@@ -45,30 +53,28 @@ export function ProductionView() {
     };
   });
 
-  // Get CSV text from global storage
+  // Source the ACTIVE ACCOUNT's Activity CSV (Increment 7): Production assessment must be
+  // fed the active account's own realized activity so account A's activity can never be
+  // assessed as account B's. Falls back to the legacy page-local key only if nothing else.
   const getCsvText = useCallback((): string | null => {
-    const globalStored = localStorage.getItem(LS_KEY_ACTIVITY);
-    if (globalStored) {
-      try {
-        const parsed = JSON.parse(globalStored);
-        return parsed.text ?? parsed;
-      } catch {
-        return globalStored;
-      }
-    }
+    const activeText = getActiveAccountActivityText();
+    if (activeText) return activeText;
     return localStorage.getItem(LS_KEY_LEGACY);
   }, []);
 
   // Auto-hydrate current month on mount
   useEffect(() => {
-    if (hydratedRef.current) return;
+    // Re-assess on first mount AND whenever the active account changes (so switching
+    // accounts re-derives Production from the newly-active account's Activity).
+    if (hydratedRef.current && lastAssessedAccountRef.current === activeAccountId) return;
     hydratedRef.current = true;
+    lastAssessedAccountRef.current = activeAccountId;
     const csvText = getCsvText();
     if (csvText) {
       const file = new File([csvText], "activity-history.csv", { type: "text/csv" });
       assessCurrentMonth(file, currentMonthKey);
     }
-  }, [assessCurrentMonth, currentMonthKey, getCsvText]);
+  }, [assessCurrentMonth, currentMonthKey, getCsvText, activeAccountId]);
 
   // Assess a specific historical month
   const handleSelectMonth = useCallback((monthKey: string) => {
