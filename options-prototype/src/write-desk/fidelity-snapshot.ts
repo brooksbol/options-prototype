@@ -33,6 +33,13 @@ export interface FidelitySnapshotInput {
   balances: ParsedBalances;
   balancesFilename: string;
   balancesExportTimestamp: string | null;
+  /**
+   * Stable Wheelwright BrokerageAccount identity that owns this snapshot (Increment 2).
+   * Resolved by the caller from the BrokerageAccount registry using the broker external
+   * reference. Null/omitted for legacy/unresolved state — the snapshot is then not yet
+   * attributed to an account (never guessed here).
+   */
+  brokerageAccountId?: string | null;
 }
 
 // --- Builder ---
@@ -73,8 +80,12 @@ export function buildFidelitySnapshot(input: FidelitySnapshotInput): PortfolioSn
     availableToWithdraw: input.balances.availableToWithdraw,
   } : null;
 
-  // Account reconciliation
+  // Account reconciliation.
+  // `accountId` is the raw EXTERNAL broker reference (evidence). `brokerageAccountId` is
+  // the stable Wheelwright identity resolved by the caller — the authoritative partition
+  // key. It is never inferred from broker data here.
   const accountId = input.balances.accountNumber ?? null;
+  const brokerageAccountId = input.brokerageAccountId ?? null;
 
   // Readiness
   const readiness = evaluateReadiness(input, inventory, deployableCash);
@@ -91,6 +102,7 @@ export function buildFidelitySnapshot(input: FidelitySnapshotInput): PortfolioSn
     balancesExportTimestamp: input.balancesExportTimestamp ?? undefined,
     balancesParsedAt: now,
     accountId: accountId ?? undefined,
+    brokerageAccountId: brokerageAccountId ?? undefined,
   };
 
   return {
@@ -100,6 +112,7 @@ export function buildFidelitySnapshot(input: FidelitySnapshotInput): PortfolioSn
       label: "Fidelity Snapshot",
       filenames: [input.optionSummaryFilename, input.balancesFilename],
     },
+    brokerageAccountId,
     accountId,
     snapshotDate: today,
     inventory,

@@ -189,14 +189,40 @@ function isTrailerRow(row: string[]): boolean {
 
 // --- Account extraction ---
 
-function extractAccountInfo(document: CsvDocument): { accountName: string | null; accountNumber: string | null } {
-  // Look for account number pattern in first few rows
+const ACCOUNT_NUMBER_PATTERN = /([A-Z0-9]{3,4}-[A-Z0-9]{3,6})/;
+
+function extractAccountInfo(
+  document: CsvDocument,
+  context?: ParseContext
+): { accountName: string | null; accountNumber: string | null } {
+  // Fidelity's account identity ("Account Name / Account Number,<Name> - <XXXX-1234>")
+  // can land in DIFFERENT places depending on export layout: for the margin layout it
+  // survives into document.rows, but for the legacy layout preprocessCsv strips it into
+  // the preamble (the header row appears after it). Search both, plus the header row, so
+  // ParsedBalances.accountNumber is correct for every layout — the account reference is
+  // authoritative account-resolution evidence downstream and must not be layout-fragile.
+
+  // 1) Preamble lines (legacy layout). Preserve the whole line as the "name" context.
+  for (const line of context?.preambleLines ?? []) {
+    const acctMatch = line.match(ACCOUNT_NUMBER_PATTERN);
+    if (acctMatch) {
+      return { accountName: line.trim() || null, accountNumber: acctMatch[1] };
+    }
+  }
+
+  // 2) Header row (in case the account cell became a header cell).
+  for (const cell of document.headers) {
+    const acctMatch = cell.match(ACCOUNT_NUMBER_PATTERN);
+    if (acctMatch) {
+      return { accountName: null, accountNumber: acctMatch[1] };
+    }
+  }
+
+  // 3) First few data rows (margin layout).
   for (const row of document.rows.slice(0, 5)) {
     for (const cell of row) {
-      // Fidelity account numbers: "XXXX-1234" or similar
-      const acctMatch = cell.match(/([A-Z0-9]{3,4}-[A-Z0-9]{3,6})/);
+      const acctMatch = cell.match(ACCOUNT_NUMBER_PATTERN);
       if (acctMatch) {
-        // First cell is usually account name
         const name = row[0]?.trim() || null;
         return { accountName: name, accountNumber: acctMatch[1] };
       }
@@ -266,7 +292,7 @@ export const fidelityBalancesParser: CsvParser = {
     const trailerRows: string[][] = [];
     const allRows: BalancesRow[] = [];
 
-    const { accountName, accountNumber } = extractAccountInfo(document);
+    const { accountName, accountNumber } = extractAccountInfo(document, context);
 
     // Parse balance rows
     let availableToTrade: number | null = null;

@@ -139,8 +139,10 @@ export interface PortfolioSnapshotProvenance {
   balancesFilename?: string;
   balancesExportTimestamp?: string;
   balancesParsedAt?: string;
-  /** Account identifier when available */
+  /** External broker account reference when available (evidence, not identity). */
   accountId?: string;
+  /** Stable Wheelwright BrokerageAccount identity that owns this snapshot, when resolved. */
+  brokerageAccountId?: string;
 }
 
 // --- Readiness ---
@@ -164,6 +166,24 @@ export interface SnapshotReadiness {
 export interface PortfolioSnapshot {
   id: string;
   source: PortfolioSnapshotSourceDescriptor;
+  /**
+   * Stable Wheelwright BrokerageAccount identity that owns this snapshot (Increment 2).
+   *
+   * This is the AUTHORITATIVE account-local partition key (PL-PORT-01 account-locality
+   * invariant). It is minted/resolved by the BrokerageAccount registry, never derived
+   * from broker data. Null only for demo snapshots or legacy/unknown-account state that
+   * has not yet been resolved to an account.
+   *
+   * Distinct from `accountId` below, which is the raw EXTERNAL broker account reference
+   * (evidence, not identity). A broker renumbering the external reference never changes
+   * `brokerageAccountId`.
+   */
+  brokerageAccountId: string | null;
+  /**
+   * External broker account reference (e.g. Fidelity "XXXX-1234") as reported by broker
+   * evidence, or null. EVIDENCE / provenance only — never used as a partition key. Used
+   * to RESOLVE a `brokerageAccountId`; the resolved identity is what state is keyed by.
+   */
   accountId: string | null;
   snapshotDate: string | null;
   inventory: InventoryPosition[];

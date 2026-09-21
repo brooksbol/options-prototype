@@ -227,6 +227,9 @@ export function createDemoSnapshot(): PortfolioSnapshot {
   return {
     id: DEMO_ID,
     source: { type: "demo", label: "Demo Portfolio" },
+    // Demo is NOT a BrokerageAccount (Principal resolution): no brokerageAccountId is ever
+    // minted for it. "DEMO-001" below is a cosmetic external-reference label only.
+    brokerageAccountId: null,
     accountId: "DEMO-001",
     snapshotDate: today,
     inventory,
