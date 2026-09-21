@@ -613,7 +613,7 @@ function buildOpenChapter(episode: EpisodeRecord, episodeId: string): EpisodeCha
 function buildResolveChapter(
   episode: EpisodeRecord,
   episodeId: string,
-  economicMap: Map<string, EconomicComponent[]>,
+  _economicMap: Map<string, EconomicComponent[]>,
   dispositionLookup: DispositionLookup
 ): EpisodeChapter {
   const capitalAmount = episode.strike * 100 * episode.contracts;

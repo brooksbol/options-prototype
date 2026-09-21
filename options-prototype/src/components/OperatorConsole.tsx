@@ -431,8 +431,8 @@ function downloadPositionsCsv(
   positionDeltas: PositionDeltaMap,
   positionGreeks: PositionGreeksMap,
   positionQuotes: PositionQuoteMap,
-  spotHistory: SpotHistoryMap,
-  isDemoSource: boolean,
+  _spotHistory: SpotHistoryMap,
+  _isDemoSource: boolean,
   observations: ReadonlyMap<string, import("../evidence/observation-store").QuoteObservation>,
 ) {
   const header = "Type,Symbol,Bid,Ask,Strike,Expiration,Spot,Today's G/L,Contracts,Moneyness,Capital,Delta,Gamma,Theta,Vega,Rho,Greek Age,Premium Booked,Bonus If Called Away,If Assigned,Opened,Quote Freshness";

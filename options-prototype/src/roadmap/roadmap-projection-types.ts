@@ -118,7 +118,7 @@ export interface AdrRecord {
 /**
  * A single entry in the provisional priority stack (docs/roadmap-priority.md).
  * Rank is authority-established list order, never inferred. `refId` points at a
- * canonical identity (PL-*/LVT-*/AR*) when the authority cites one.
+ * canonical identity (PL-* / LVT-* / AR*) when the authority cites one.
  */
 export interface PriorityEntry {
   rank: number;

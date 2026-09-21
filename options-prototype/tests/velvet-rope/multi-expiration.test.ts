@@ -278,6 +278,12 @@ describe("evaluateSymbolAdmission — multi-expiration", () => {
   });
 
   it("preserves the fixed-evidence governance golden without acquiring or manufacturing provenance", () => {
+    // The golden snapshot embeds absolute expiration dates derived from
+    // makeExpiration (new Date() + dte). Pin the clock so the derived dates are
+    // deterministic and the golden does not drift with wall-clock time.
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-04T12:00:00Z"));
+    try {
     const exp14 = makeExpiration(14);
     const exp30 = makeExpiration(30);
     const passing = healthyChain(exp14);
@@ -392,6 +398,9 @@ describe("evaluateSymbolAdmission — multi-expiration", () => {
       `);
     } finally {
       vi.unstubAllGlobals();
+    }
+    } finally {
+      vi.useRealTimers();
     }
   });
 });
