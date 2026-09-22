@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-22T01:13:09.286Z",
+    "generatedAt": "2026-09-22T01:19:11.970Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -40,7 +40,7 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 24,
-      "logTotal": 36,
+      "logTotal": 37,
       "logIntakeEvidenceEvents": 11,
       "plWithIntakeDate": 11,
       "plWithoutIntakeDate": 51
@@ -5920,6 +5920,18 @@
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
       "sourceOrder": 371
+    },
+    {
+      "plId": null,
+      "title": "Architectural finding — import-identity attribution model (2026-09-21)",
+      "eventKind": "unclassified",
+      "establishesIntake": false,
+      "eventDateText": "September 21, 2026",
+      "eventDateIso": "2026-09-21",
+      "state": null,
+      "headingLevel": 4,
+      "sourceFile": "parking-lot-9.md",
+      "sourceOrder": 380
     }
   ],
   "intakeDateUnknown": [

@@ -792,3 +792,33 @@ If yes, browser-local persistence must not be its only authority.
 For the current multi-account stabilization effort:
 
 > **Record → defer → proceed.**
+
+
+#### Architectural finding — import-identity attribution model (2026-09-21)
+
+**Date:** September 21, 2026
+
+An independent FE/BE responsibility review (Codex, at accepted-main SYNC `ddac5cad99fd706c4c28d996af35a5cf900b5e1e`) surfaced a durable architectural finding relevant to any future durable ingestion contract for brokerage evidence. It is captured here as reconciliation/bookkeeping under this existing Durable Brokerage / Fidelity Evidence Persistence refinement.
+
+**Classification — architectural finding, NOT a defect.** The review identified latent split semantics and documentation drift between two import-identity models coexisting in the codebase, but did **not** demonstrate a current operator-visible defect caused by that coexistence. Current accepted authority is explicit operator-selected BrokerageAccount attribution, adopted precisely because real Fidelity evidence does not reliably establish account identity. No `docs/bugs/` record is created from the present evidence.
+
+**The two coexisting models (repository fact):**
+
+- **Accepted authority — selection-as-identity** (ratified at `e6e743b`, exercised by the September 21 recovery): the operator's explicitly selected BrokerageAccount is the sole import identity authority. A structurally valid CSV uploaded into the selected account is accepted into it, with no account-number extraction and no identity refusals (`options-prototype/src/portfolio/account-import.ts`, `importIntoAccount`).
+- **Generic content-identity resolver — also present**: a path that derives an external account reference from file content, routes evidence to the identified account, and fails closed on unidentified Balances / cross-file disagreement (`options-prototype/src/portfolio/account-import.ts`, `resolveImport`). Empirically, real Fidelity Balances and Option Summary exports carry no extractable external account reference (the account number appears only in the filename, and filename identity was rejected), so this resolver's identity path does not fire for real files today.
+
+**Constraint to preserve (load-bearing for any future ingestion contract):**
+
+> Current accepted import authority is explicit operator-selected BrokerageAccount attribution. A generic content-identity resolver also remains in the codebase. Any future durable ingestion contract must explicitly reconcile these models and must not assume that Fidelity CSV content can establish BrokerageAccount identity.
+
+**Epistemic distinction to preserve (honest provenance):**
+
+- Operator selection is an **attribution fact** ("the operator directed this evidence into account X").
+- It is **not** evidence that the CSV itself proved account identity.
+- Future provenance should therefore record the **attribution method** honestly (e.g. `OPERATOR_SELECTED` vs `BROKER_EMBEDDED` vs `EXPLICITLY_RESOLVED` vs `LEGACY_UNKNOWN`), never conflating an operator-selected target with a content-proven identity.
+
+**Explicitly not authorized by this finding.** No implementation, no refactoring, no removal of the generic resolver, no persistence design adoption, no ingestion-contract design, and no new governance loop. This is durable capture of an architectural finding so a future authorized reconciliation/design pass (owned by this refinement) begins from it rather than rediscovering it.
+
+**Why-state:** the independent review is in Principal conversation context (2026-09-21) and summarized here; the recovery why-state that established the no-embedded-identity fact is `docs/journal/project-journal-5.md` (2026-09-21) and the `PL-DEPLOY-BAL` transition record earlier in this file.
+
+**Next authorized mode:** unchanged — **Record → defer → proceed.** Future reconciliation/design only when separately selected by the Principal.
