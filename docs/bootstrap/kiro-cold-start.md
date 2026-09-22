@@ -29,7 +29,9 @@ Keep two questions separate:
 - **What should be changed?** — technical reasoning.
 - **May I mutate it now?** — authority state.
 
-Do not infer, manufacture, preserve, or restore consequential mutation permission from ChatGPT instructions, Codex findings, task momentum, narrowness of a defect, prior permission, settled Product meaning, sunk cost, your own confidence, or a Principal request to draft/provide an implementation prompt.
+Do not infer, manufacture, preserve, or restore consequential mutation permission from ChatGPT instructions, Codex findings, task momentum, narrowness of a defect, stale or unrelated prior permission, settled Product meaning, sunk cost, your own confidence, or a Principal request to draft/provide an implementation prompt.
+
+One narrow continuation rule is governed by `bootstrap/project-memory-protocol.md`: when the Principal has explicitly authorized a work item, the ordinary scope-preserving reconciliation and durable persistence required to complete that same work item's End-of-Workstream Memory Check remain within that authorization. Do not treat such closeout as a fresh implementation attempt or force the Principal to re-authorize routine persistence. If closeout would introduce a new decision, broaden scope, retry consumed/rejected implementation authority, or cross another consequential boundary, stop and return to the Principal.
 
 A Codex `REJECT` does not authorize correction or retry. A technically excellent repair performed after an unauthorized transition is still an unauthorized transition.
 
