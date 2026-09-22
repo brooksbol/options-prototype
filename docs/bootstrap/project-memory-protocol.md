@@ -372,6 +372,7 @@ Before substantial work is declared complete, ask:
 - Is the complete parking-lot continuation sequence current?
 - Does the Coming Soon snapshot (Now/Next/Later, `docs/roadmap-coming-soon.md`) still truthfully represent the Principal's current product horizon? (Horizon = attention/intent, not commitment or work authorization.)
 - Does completed/governed work that should appear in the Roadmap Log have the appropriate explicit dated canonical record, so the derived Log projection truthfully reflects governed project state? Do not maintain the Log separately.
+- **MANDATORY ROADMAP PROJECTION CHECK:** Did this work change **any canonical authority consumed by the checked-in Roadmap projection**? If yes, the work is **NOT COMPLETE** until the affected canonical authority is reconciled, the projection is regenerated from authority, and the checked-in projection passes the freshness check. Do not answer this from memory; inspect the generator's current source list when scope is uncertain.
 - Are checkpoint conclusions absorbed into A/B/C?
 - Are implementation-only invariants missing from architecture?
 - Are historical documents accidentally being treated as active?
@@ -387,9 +388,66 @@ The Roadmap is Wheelwright's self-documenting meta-state — a live projection o
 
 > **Roadmap freshness is a side effect of doing Wheelwright work correctly.**
 
-The Roadmap is a read-only projection built from canonical authority (strategy, principles, priority, architecture, ADRs, parking lot, Coming Soon, and any future lenses). It is never maintained as a separate representation. When normal work changes governed project meta-state, reconcile the appropriate **canonical authority** as part of the normal ways of working; the projection then changes because the meta-state changed. Do not edit the projection, and do not maintain the Roadmap as a standalone activity. If a distinct "maintain the Roadmap" task ever seems necessary, that is a signal the wrong layer is being edited.
+### Mandatory derived-projection synchronization rule
 
-At the reconcile-while-learning and end-of-workstream checkpoints, this is one more project-state freshness question, beside journal and parking-lot currency: *did this work change governed meta-state that a canonical authority (and therefore the Roadmap) should now reflect?*
+This is a **completion obligation**, not a suggestion and not a separate Roadmap-maintenance task.
+
+The checked-in Roadmap projection is:
+
+`options-prototype/src/roadmap/roadmap-projection.json`
+
+Its generator is:
+
+`options-prototype/scripts/generate-roadmap-projection.mjs`
+
+The generator itself owns the current list of canonical inputs. **Do not rely on a frozen list in this protocol.** When there is any doubt whether a changed authority feeds the Roadmap, inspect the generator at current `main`.
+
+For every authorized work item, reconciliation, bug update, architecture update, parking-lot update, horizon change, ADR change, principle change, or other mutation:
+
+1. **Determine whether any changed canonical file is an input to the Roadmap generator.** If uncertain, inspect `generate-roadmap-projection.mjs`. Do not guess from the Roadmap tab currently visible and do not rely on memory.
+2. **If no Roadmap input changed, no projection regeneration is required.**
+3. **If any Roadmap input changed, regenerate the Roadmap projection during the same authorized workstream.** From `options-prototype/`, run:
+   `npm run generate:roadmap-projection`
+4. **Then verify freshness.** Run:
+   `npm run check:roadmap-projection`
+   A non-zero result means the work is **not complete**.
+5. **Persist the regenerated checked-in projection with the canonical changes that caused it.** Do not leave canonical authority on accepted `main` with a stale checked-in projection.
+6. **Before declaring the work complete, explicitly confirm that the projection was regenerated and the freshness check passed whenever Step 1 found an affected input.**
+
+The required transition is therefore:
+
+```
+canonical authority changes
+    → determine whether the Roadmap generator consumes that authority
+    → if consumed: regenerate roadmap-projection.json
+    → run the freshness check
+    → persist canonical authority + regenerated projection
+    → only then may the work be complete
+```
+
+There is **no valid completion state** in which canonical Roadmap input has changed but regeneration is deferred as a later Roadmap task. Regeneration and verification are ordinary scope-preserving consequences of the authorized work and are covered by the **Authorized-work closeout rule** above. They do **not** require a second Principal authorization merely because the derived file must change.
+
+### The projection is never the reconciliation target
+
+**Never reconcile governed project state by hand-editing `roadmap-projection.json`.** Reconcile the canonical authority first, then regenerate. The projection has no independent authority and must contain no manually invented state.
+
+Do not say that work was "reconciled into the Roadmap" if that wording implies the projection was the target. The correct model is:
+
+> **reconcile canonical authority → regenerate derived projection → verify synchronization**
+
+### Dirty or in-flight projection state does not waive freshness
+
+If `roadmap-projection.json` already has uncommitted or in-flight changes, **do not overwrite, discard, absorb, normalize, or reinterpret them blindly.** Preserve the existing work and determine its provenance before regeneration.
+
+A dirty projection creates an in-flight-state preservation obligation; it does **not** make projection synchronization optional and it does **not** authorize destructive cleanup. If safe regeneration cannot preserve or correctly incorporate the existing in-flight state without ambiguity, stop and surface that specific conflict. Do not declare the work complete with a known-stale projection.
+
+### Why this is mandatory
+
+The Roadmap is a read-only projection built from canonical authority. It is never maintained as a second representation. "Roadmap freshness is a side effect" means the actor must perform the mechanical regeneration and verification whenever canonical inputs change; it does **not** mean freshness happens automatically without executing the generator.
+
+If a distinct "maintain the Roadmap" work item seems necessary after canonical Roadmap input has already changed, the originating workstream was not actually complete.
+
+At reconcile-while-learning and end-of-workstream checkpoints, do not merely ask whether governed meta-state changed. **Inspect whether changed canonical authority is consumed by the generator and, when it is, execute the regeneration + freshness check before completion.**
 
 ### Worked example — Coming Soon horizon maintenance
 
