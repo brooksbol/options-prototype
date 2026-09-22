@@ -349,7 +349,11 @@ Documentation follows the same commit gate as code.
 
 "Just documentation" is not an exception to the commit discipline.
 
-Do not commit without explicit Principal authorization. Requests to investigate, analyze, reconcile, inspect, propose, explore, or review are not permission to commit.
+Do not commit without Principal authorization. Requests to investigate, analyze, reconcile, inspect, propose, explore, or review are not permission to commit.
+
+**Authorized-work closeout rule:** explicit Principal authorization to execute a work item also authorizes the ordinary, scope-preserving reconciliation and durable persistence required to bring that same work item through the applicable End-of-Workstream Memory Check, including commit/push of reconciliation-only changes. This is continuation of the authorized work, not a new work item and not a reuse of stale permission.
+
+That carried closeout authority ends at the work item's established scope. Stop and return to the Principal when reconciliation would introduce or ratify a new Product/architecture decision, broaden scope, start another work item, resolve genuinely ambiguous meaning, retry rejected/consumed implementation authority, or otherwise cross a consequential boundary not already established by the authorized work. An explicit Principal limitation on persistence or reconciliation also controls.
 
 ---
 
@@ -422,7 +426,7 @@ This protocol applies to all actors. Each actor bootstrap defines its specific o
 
 - **Kiro** (`bootstrap/kiro-cold-start.md`): Actively inspect whether affected durable artifacts remain truthful during authorized work. Identify documentation checkpoints naturally rather than waiting to be asked.
 
-- **Principal**: Determine when learning crosses the durability threshold. Authorize persistence. Reduce dependency on human memory by improving durable artifacts when repeated reminders are needed.
+- **Principal**: Determine when learning crosses the durability threshold and authorize consequential work. Ordinary scope-preserving persistence required to close an authorized work item is carried by that authorization under the Authorized-work closeout rule; new decisions or scope still return to the Principal. Reduce dependency on human memory by improving durable artifacts when repeated reminders are needed.
 
 Both AI actors must respect mode and authorization boundaries. Noticing that documentation needs reconciliation is not permission to edit during Exploration.
 
