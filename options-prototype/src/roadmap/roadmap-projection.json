@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-22T01:19:11.970Z",
+    "generatedAt": "2026-09-22T17:29:25.273Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -3095,6 +3095,13 @@
           "content": "The Existing Short-Obligation HOLD vs CLOSE V1 reconciliation (SYNC `7b4a084`) re-verified the live `projectActivityOverlay` mutation switch (`options-prototype/src/portfolio/activity-projection.ts`) and found that, in addition to this record's `assigned` / `shares_sold_assignment` fall-through, the **`buy_to_close` (voluntary BTC)** and **`expired`** event types **also fall through without mutating projected state** — the same class of defect in the same switch. `enrichOpenedDates` reads those events but is explicitly provenance-only. The passing `options-prototype/tests/scenarios/projectState.test.ts` assertions exercise the *separate* scenario-replay path (`src/scenarios/projectState.ts`), not the live overlay, so they mask this gap.",
           "truncated": true,
           "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Confirmed still active on accepted main.\n\nCurrent activity projection still lacks the lifecycle mutations needed to project assigned-call closure / called-away share disposition. No remediation was identified during the open-bug audit. The separately recorded BTC / expiry observations remain outside this record's ratified scope pending a Principal decision.\n\n**Restart point:** Reproduce against the current activity-overlay path, then design remediation only under separate implementation authority.",
+          "truncated": false,
+          "tables": []
         }
       ]
     },
@@ -3103,7 +3110,7 @@
       "title": "Production cannot derive called-away share basis from direct purchases / buy-writes",
       "area": "Production",
       "severity": "Not established",
-      "status": "Open",
+      "status": "Resolved",
       "recordFile": "BUG-002-called-away-share-basis.md",
       "provenance": "GH #3",
       "recordTitle": "BUG-002 — Production accounting cannot derive called-away share basis from direct purchases or buy-writes",
@@ -3195,14 +3202,14 @@
         {
           "heading": "Remediation history",
           "level": 2,
-          "content": "None.",
+          "content": "Remediated on current main by the implementation originating at commit `0590bc0`. Called-away basis attribution now considers supportable direct-purchase / buy-write acquisition evidence while preserving unresolved or ambiguous attribution rather than guessing.",
           "truncated": false,
           "tables": []
         },
         {
           "heading": "Verification",
           "level": 2,
-          "content": "None.",
+          "content": "Verified during the 2026-09-22 open-bug audit. Focused tests passed for direct-purchase call-away basis, above-basis appreciation, below-basis erosion, multi-lot ambiguity, insufficient inventory, prior lot consumption, and the existing assigned-put-origin regression path. This demonstrates the repository-level acceptance behavior; the historical SLV source figures remain operator-reported provenance.",
           "truncated": false,
           "tables": []
         },
@@ -3210,6 +3217,13 @@
           "heading": "Related",
           "level": 2,
           "content": "- Visibility sibling: `BUG-007` (unknown basis leaving reconciliation appearing complete).\n- Economic-authority companion: `BUG-006` (called-away \"capital returned\" uses reconstructed strike notional).\n- Legibility sibling (correct composite still illegible): `BUG-003`.\n- Capability context: `PL-PORT-02` (production-accounting correctness), `PL-PORT-01` (lot attribution), `PL-EXEC-01` (lifecycle provenance).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Resolved.\n\nThe open-bug audit found the remediation on current main (originating implementation identified at commit `0590bc0`) and independently exercised the recorded acceptance behavior. Focused tests passed for direct-purchase call-away basis, above-basis appreciation, below-basis erosion, multi-lot ambiguity, insufficient inventory, prior lot consumption, and the existing assigned-put-origin regression path. The implementation preserves unresolved/ambiguous attribution rather than guessing.\n\nThis satisfies the repository-level acceptance criteria for the defect. The historical SLV source figures remain operator-reported provenance, but the defect mechanism and equivalent acceptance behavior are now deterministically verified.\n\n**Restart point:** Closed; reopen only with a demonstrated counterexample to the accepted basis-attribution semantics.",
           "truncated": false,
           "tables": []
         }
@@ -3307,6 +3321,13 @@
           "level": 2,
           "content": "- Accounting-correctness sibling: `BUG-002` (called-away basis resolution).\n- Lifecycle/decomposition context: `PL-PROD-EVENTS`, `PL-PORT-02` (supporting context only).",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Open — Product revalidation / reframing required.\n\nCurrent-month and historical Production surfaces already render first-order production-source breakdowns. That visible implementation appears to predate this defect record, so the record's broad claim (\"composite economic sources are not first-order visible\") is not presently substantiated by source inspection. A narrower per-episode attribution/legibility complaint may still exist, but that is not equivalent to the current record.\n\nBrowser/Product observation could not be completed in this audit because the browser-control client failed during initialization. Source inspection is not being substituted for Product acceptance.",
+          "truncated": true,
           "tables": []
         }
       ]
@@ -3411,6 +3432,13 @@
           "content": "- Temporal coherence between subsystems has prior context in `docs/35-evidence-decision-temporal-coherence.md` (Decision vs Evidence temporal consistency) — context only; this is **not** scheduler-policy work and creates no parking-lot item.\n- Architecturally analogous (independent): `BUG-007`, `BUG-006`.",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Open — technical remediation verified; Product acceptance outstanding.\n\nCurrent main carries independent chain acquisition age into the Console, displays a distinct **Greek Age** signal, and visually distinguishes stale Greek evidence from fresher quote/underlying evidence. Focused automated verification passed. This addresses the recorded technical failure mode of presenting temporally incompatible evidence without an operator-visible coherence signal.\n\nBrowser/Product acceptance was not completed because the browser-control client failed during initialization; source/test evidence is not being substituted for Product acceptance.\n\n**Restart point:** Perform the outstanding browser/Product verification of the coherence signal on a stale-Greek specimen. If accepted, disposition this record as Resolved.",
+          "truncated": false,
+          "tables": []
         }
       ]
     },
@@ -3493,6 +3521,13 @@
           "content": "- `PL-SHELL` (Application Coherence / Shell) — context only; not double-booked as the same authoritative item.",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Confirmed still active on accepted main.\n\nThe `/app/kreature` route remains advertised/routed, while the application root still renders no substantive Kreature surface.\n\n**Restart point:** Confirm the empty-route Product behavior, then remediate or remove the advertised route only under separate implementation authority.",
+          "truncated": false,
+          "tables": []
         }
       ]
     },
@@ -3501,7 +3536,7 @@
       "title": "Called-away \"capital returned\" uses reconstructed strike notional, not actual proceeds",
       "area": "Production",
       "severity": "Not established",
-      "status": "Open",
+      "status": "Resolved",
       "recordFile": "BUG-006-capital-returned-strike-notional.md",
       "provenance": "GH #11",
       "recordTitle": "BUG-006 — Production called-away \"capital returned\" uses reconstructed strike notional instead of actual disposition proceeds",
@@ -3586,14 +3621,14 @@
         {
           "heading": "Remediation history",
           "level": 2,
-          "content": "None.",
+          "content": "Remediated on current main by the implementation originating at commit `0590bc0`. Called-away episode capital now uses authoritative net disposition proceeds when available rather than promoting reconstructed strike notional to the realized `capital returned` claim.",
           "truncated": false,
           "tables": []
         },
         {
           "heading": "Verification",
           "level": 2,
-          "content": "None.",
+          "content": "Verified during the 2026-09-22 open-bug audit. Focused verification demonstrated that called-away chapters use authoritative net disposition proceeds and explicitly reject strike notional as the realized capital-returned amount, satisfying the recorded semantic requirement.",
           "truncated": false,
           "tables": []
         },
@@ -3601,6 +3636,13 @@
           "heading": "Related",
           "level": 2,
           "content": "- Backend accounting-correctness sibling: `BUG-002` (called-away basis resolution).\n- Reconciliation-visibility sibling: `BUG-007` (unknown basis leaving reconciliation appearing complete).\n- Architecturally analogous (independent): `BUG-004` (temporally incompatible evidence composed into an apparently-coherent view).\n- Economic-authority why-state: `docs/journal/project-journal-2.md` (2026-09-05 live-operations synthesis).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Resolved.\n\nThe open-bug audit found the remediation on current main (originating implementation identified at commit `0590bc0`). Focused verification demonstrates that called-away episode capital uses authoritative net disposition proceeds when available and explicitly does not promote strike notional to the realized \"capital returned\" claim.\n\nThis satisfies the recorded semantic requirement that realized capital claims be grounded in authoritative disposition proceeds rather than reconstructed strike notional.\n\n**Restart point:** Closed; reopen only with a demonstrated called-away episode that again labels strike notional as realized returned capital.",
           "truncated": false,
           "tables": []
         }
@@ -3611,7 +3653,7 @@
       "title": "Unknown stock-disposition basis can leave reconciliation appearing complete",
       "area": "Production",
       "severity": "Not established",
-      "status": "Open",
+      "status": "Resolved",
       "recordFile": "BUG-007-unknown-basis-appears-reconciled.md",
       "provenance": "GH #12",
       "recordTitle": "BUG-007 — Unknown stock-disposition basis can leave Production reconciliation appearing complete",
@@ -3675,14 +3717,14 @@
         {
           "heading": "Remediation history",
           "level": 2,
-          "content": "None.",
+          "content": "Remediated on current main. Unresolved stock-disposition basis is propagated as a `BASIS_UNKNOWN` reconciliation issue and produces `PRODUCTION_UNCERTAIN`, keeping event-level economic uncertainty distinct from aggregate cash reconciliation.",
           "truncated": false,
           "tables": []
         },
         {
           "heading": "Verification",
           "level": 2,
-          "content": "None.",
+          "content": "Verified during the 2026-09-22 open-bug audit. Focused Production assessment and attribution tests passed and demonstrated that cash reconciliation cannot conceal an unresolved `BASIS_UNKNOWN` state behind an apparently complete reconciliation.",
           "truncated": false,
           "tables": []
         },
@@ -3690,6 +3732,13 @@
           "heading": "Related",
           "level": 2,
           "content": "- Exposing defect (backend basis resolution): `BUG-002`.\n- Companion economic-authority defect: `BUG-006` (called-away \"capital returned\" uses reconstructed strike notional instead of actual disposition proceeds).\n- Architecturally analogous (independent): `BUG-004` (incoherent composed evidence presented as coherent).\n- Why-state: `docs/journal/project-journal-2.md` (2026-09-05 live-operations synthesis).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Resolved.\n\nFocused verification on current main demonstrates that unresolved stock-disposition basis produces a `BASIS_UNKNOWN` reconciliation issue and a `PRODUCTION_UNCERTAIN` state; cash reconciliation cannot make that unresolved economic state appear complete. The relevant Production assessment and attribution tests pass.\n\nThis satisfies the defect's visibility requirement: legitimately unknown basis is now operator-visible reconciliation uncertainty rather than silent apparent completeness.\n\n**Restart point:** Closed; reopen only with a demonstrated case where unresolved basis is again hidden behind an apparently complete reconciliation state.",
           "truncated": false,
           "tables": []
         }
@@ -3772,6 +3821,13 @@
           "heading": "Related",
           "level": 2,
           "content": "- Production FE/BE semantic-decoupling follow-on: `PL-PROD-EXPORT-01` (context only).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Open — reproduction-dependent; current defect not yet re-demonstrated.\n\nThe historical inflated-count observation could not be reproduced from valid partial-fill semantics. A deterministic BNO-shaped specimen currently treats two STO fills as two contracts, which is economically correct for that fixture. The episode builder still has no deduplication within a single Activity export, but without the original offending rows (or an equivalent duplicate-representation fixture) the audit cannot distinguish a real duplicate-lifecycle representation from legitimate multiple fills.\n\n**Restart point:** Acquire the original offending Activity rows or construct an evidence-faithful duplicate-row specimen. Do not remediate until contract-count inflation is demonstrated against evidence that should economically represent fewer contracts.",
           "truncated": false,
           "tables": []
         }
@@ -3861,6 +3917,13 @@
           "heading": "Related",
           "level": 2,
           "content": "- Production FE/BE semantic-decoupling follow-on: `PL-PROD-EXPORT-01` (context only).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Confirmed still active on accepted main.\n\nEpisode chapter derivation still permits capital-label / backing-amount divergence, including expired-call shapes with a null/absent label while a non-null capital amount remains present.\n\n**Restart point:** Build a minimal current fixture for the divergent chapter state, then remediate only under separate implementation authority.",
           "truncated": false,
           "tables": []
         }
@@ -4052,6 +4115,13 @@
           "content": "Persist the defect and empirical evidence. **No fix now.** Complete the regular-session control before using the provider study to make stronger claims about Tradier Greek behavior or before revisiting remediation.",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Confirmed still active; deliberately deferred pending provider study.\n\nCurrent Greek normalization still collapses exact-zero provider Greeks into the same unavailable representation used for absent evidence. The previously required regular-session provider study remains outstanding.\n\n**Restart point:** Complete the provider study that distinguishes legitimate exact-zero observations from unavailable/missing Greek evidence before choosing remediation semantics.",
+          "truncated": false,
+          "tables": []
         }
       ]
     },
@@ -4147,6 +4217,13 @@
           "level": 2,
           "content": "- **BUG-010** — sibling authority-boundary defect (frontend session gate); its resolution ratified **ADR-017** (Authoritative Verdict Precedence and Consumer-Path Reach), the governing lesson this defect re-expresses on the re-run/reach axis.\n- **ADR-015 / ADR-016 / ADR-017** (`docs/07c-adrs.md`) — the authority-precedence spine.\n- Sealed-evidence validity invariant (`docs/foundations/backend-behavioral-invariants.md`; `docs/07-architecture-current.md` — sealed evidence remains valid until superseded).",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Open — technical remediation verified; Product acceptance outstanding.\n\nThe remediation is committed on current main (the audit identified implementation commit `a1028a0`). The focused `runtime-authority-convergence` verification reproduces the former stale-closure ordering and demonstrates that execution-time authority is now read through the ref-based path, including convergence when authority resolves around in-flight evidence processing. The relevant focused frontend suites pass.\n\nThe record's older \"not yet committed\" wording is superseded by this checkpoint. Browser/Product verification remains outstanding; it could not be completed because the browser-control client failed during initialization.",
+          "truncated": true,
           "tables": []
         }
       ]
@@ -4247,6 +4324,13 @@
           "content": "- **BUG-014** — the coupled upstream durable-validity authority defect this fix consumes.\n- **BUG-012** — the frontend consumer-path race (separate defect; same empty-board symptom).\n- **ADR-015 / ADR-016 / ADR-017** — the authority-precedence spine.\n- Sealed-evidence validity invariant (`docs/foundations/backend-behavioral-invariants.md`, `docs/07-architecture-current.md`).",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Open — technical remediation verified; Product acceptance outstanding.\n\nThe remediation is committed on current main (the audit identified implementation commit `a1028a0`). Focused `SessionClassifier` verification passes across Sunday/non-trading, Monday PREMARKET, regular session, invalid-prior-session, production-vs-sandbox, and after-close boundary specimens. The prior-session admissibility behavior described by the defect is technically repaired.\n\nThe record's older \"not committed\" wording is superseded by this checkpoint. Browser/Product verification remains outstanding and was not simulated during the current regular session.\n\n**Restart point:** Observe the Deployment surface through the relevant premarket/sealed-evidence boundary with the current backend. If Product behavior matches the automated acceptance evidence, disposition as Resolved.",
+          "truncated": false,
+          "tables": []
         }
       ]
     },
@@ -4329,6 +4413,13 @@
           "content": "- **BUG-013** — the per-subject admissibility defect that consumes this authority; both required for the board to recover.\n- **BUG-012** — the frontend consumer-path race (separate defect, same symptom).\n- 957-vs-955 serialized-ready discrepancy — related observation, deliberately NOT conflated or claimed resolved here.",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Open — technical remediation verified; Product acceptance outstanding.\n\nThe remediation is committed on current main (the audit identified implementation commit `a1028a0`). Focused durable-session verification demonstrates sealing on completion, survival across restart, preservation across next-session mutation, rejection of incomplete sessions, and guarded migration/backfill behavior. The technical invariant at the core of this defect is therefore verified.\n\nThe record's older \"not committed\" wording is superseded by this checkpoint. Product/live acceptance remains outstanding; the audit did not manipulate runtime date/state to manufacture the boundary condition.",
+          "truncated": true,
+          "tables": []
         }
       ]
     },
@@ -4409,6 +4500,13 @@
           "heading": "Related",
           "level": 2,
           "content": "- `sparkline-scale.ts` — ratified sparkline semantic invariant (topology-preserving vertical scale); this defect is on the horizontal/time axis.\n- Not related to BUG-012/013/014 (session authority / covered-call restoration).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Confirmed still active on accepted main.\n\nThe moneyness-history path still maps observations from multiple dates onto one intraday-session axis, discarding the date dimension and preserving the misleading folded geometry described by this record.\n\n**Restart point:** Reproduce with a multi-day history fixture, then remediate the temporal geometry without changing the correct underlying numeric moneyness values.",
           "truncated": false,
           "tables": []
         }
@@ -4498,18 +4596,18 @@
     },
     {
       "id": "BUG-017",
-      "title": "Deployment CSV export may be constrained by presentation row limit",
+      "title": "Deployment CSV export is constrained by presentation row limit",
       "area": "Write Desk / Deployment CSV export",
       "severity": "Not established",
       "status": "Open",
       "recordFile": "BUG-017-deployment-csv-export-row-limit.md",
       "provenance": "Acceptance testing 2026-09-14",
-      "recordTitle": "BUG-017 — Deployment CSV export may be constrained by presentation row limit",
+      "recordTitle": "BUG-017 — Deployment CSV export is constrained by presentation row limit",
       "sections": [
         {
           "heading": "Observed failure",
           "level": 2,
-          "content": "During Deployment acceptance testing, the table reported **\"Showing 90 rows\"** and the exported puts CSV contained **90 data rows**.\n\nThis observation raises a credible export-completeness defect: the CSV export may be inheriting the table's presentation/display-row limit.\n\nThe failure is **not yet confirmed**, because the acceptance session did not establish that more than 90 otherwise-exportable rows existed under the same substantive filters at the moment of export.",
+          "content": "During Deployment acceptance testing, the table reported **\"Showing 90 rows\"** and the exported puts CSV contained **90 data rows**.\n\nAt the time of the acceptance session, this observation raised a credible export-completeness defect, but the session alone did not establish that more than 90 otherwise-exportable rows existed under the same substantive filters.\n\nSubsequent implementation inspection during the 2026-09-22 open-bug audit **confirmed the defect mechanism**: the presentation `showCount` limit is applied before CSV generation, so export inherits the presentation slice.",
           "truncated": false,
           "tables": []
         },
@@ -4523,21 +4621,21 @@
         {
           "heading": "Evidence",
           "level": 2,
-          "content": "Observed during acceptance testing on 2026-09-14:\n\n- Deployment displayed **\"Showing 90 rows.\"**\n- The exported puts CSV contained **90 data rows**.\n- The exported specimen was named `wheelwright-puts-2026-09-14.csv`.\n- It was **not established** that the complete filtered candidate set contained more than 90 exportable rows.\n\nEpistemic status: the 90-row UI state and 90-row export are observed; causal truncation by the presentation limit is suspected and requires a controlled >90-row acceptance test.",
+          "content": "Observed during acceptance testing on 2026-09-14:\n\n- Deployment displayed **\"Showing 90 rows.\"**\n- The exported puts CSV contained **90 data rows**.\n- The exported specimen was named `wheelwright-puts-2026-09-14.csv`.\n- It was **not established** that the complete filtered candidate set contained more than 90 exportable rows.\n\nHistorical epistemic status: the 2026-09-14 session observed the 90-row UI state and 90-row export but did not by itself prove causal truncation. Current epistemic status: implementation inspection on 2026-09-22 confirms that `showCount` is applied before CSV generation, establishing the truncation mechanism.",
           "truncated": false,
           "tables": []
         },
         {
           "heading": "Consequence",
           "level": 2,
-          "content": "If confirmed, an export can appear complete while silently omitting valid filtered candidate rows. This becomes operationally significant as Wheelwright produces result sets larger than the on-screen presentation limit.\n\nSeverity is not established by the current evidence.",
+          "content": "An export can appear complete while silently omitting valid filtered candidate rows whenever the authoritative filtered export set exceeds the on-screen presentation limit. This becomes operationally significant as Wheelwright produces result sets larger than that limit.\n\nSeverity is not established by the current evidence.",
           "truncated": false,
           "tables": []
         },
         {
           "heading": "Diagnosis / root cause",
           "level": 2,
-          "content": "Not established.\n\nA possible coupling between presentation row limiting and export input is the subject of the required verification; it must not be treated as proven root cause until demonstrated.",
+          "content": "Confirmed during the 2026-09-22 open-bug audit: Deployment applies the presentation `showCount` limit before CSV generation. The exporter therefore receives the displayed subset rather than the complete substantively filtered candidate set.",
           "truncated": false,
           "tables": []
         },
@@ -4565,7 +4663,7 @@
         {
           "heading": "Verification",
           "level": 2,
-          "content": "Pending the controlled >90-row acceptance test described above.",
+          "content": "The original 2026-09-14 acceptance session did not establish a >90-row underlying filtered population, so that historical observation alone was non-dispositive. The 2026-09-22 open-bug audit subsequently confirmed the causal mechanism directly from current implementation: `showCount` is applied before CSV generation. The defect is therefore confirmed active; the controlled >90-row Product specimen remains useful as an end-to-end acceptance case for any future remediation.",
           "truncated": false,
           "tables": []
         },
@@ -4573,6 +4671,13 @@
           "heading": "Related",
           "level": 2,
           "content": "- Acceptance testing, 2026-09-14.\n- Separate from the admitted-but-pending symbol discoverability/hydration finding.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Confirmed active; the prior \"may be constrained\" wording understated the evidence.\n\nCurrent Deployment export applies the presentation `showCount` limit before CSV generation. With the current 90-row presentation limit, the exported CSV is therefore truncated to the presented subset rather than representing the full evaluated/exportable population. This was confirmed directly from the implementation during the open-bug audit.\n\n**Restart point:** Preserve the demonstrated distinction between presentation limiting and export membership; remediation should make export operate on the authoritative full export set rather than the display slice.",
           "truncated": false,
           "tables": []
         }
@@ -4656,6 +4761,13 @@
           "level": 2,
           "content": "- `PL-GOV-02` (Universe Candidate Evaluation / Admission Workflow) — the mature productized intake/evaluation/**admission/hydration** workflow. This defect is the concrete discoverability/legibility + targeted-hydration gap observed during the PL-GOV-02 cohort admission; it is cross-linked, not double-booked (the capability item is not a defect, and this defect does not restate the workflow item).\n- Journal why-state: `docs/journal/project-journal-3.md` (2026-09-14 PL-GOV-02 admission + acceptance-testing entries).\n- `BUG-017` (Deployment CSV export may be constrained by presentation row limit) — a separate defect surfaced in the same 2026-09-14 acceptance session on the same surface. Distinct concern (export completeness vs.",
           "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Confirmed still active on accepted main.\n\nDeployment remains centered on recommendation-producing rows and does not independently expose pending, failed, or ready-without-candidate universe members in a way that makes an admitted pending symbol directly discoverable. The targeted-hydration/operator-discoverability gap remains.\n\n**Restart point:** Reproduce with an admitted non-portfolio symbol in a pending/non-candidate state, then address discoverability/hydration only under separate implementation authority.",
+          "truncated": false,
           "tables": []
         }
       ]
@@ -4751,6 +4863,13 @@
           "heading": "Related",
           "level": 2,
           "content": "- `BUG-013`, `BUG-014` — per-subject admissibility / sealed-session authority around canonical-session boundaries. Related area; explicitly **not** the same defect (see \"Not a duplicate of\" above).\n- `BUG-018` — discoverability/hydration of admitted-but-pending symbols. Sequential in the operator flow; explicitly **not** the same defect.\n- `PL-GOV-02` — the seven-ETF admission whose acceptance testing surfaced this.\n- Journal why-state: `docs/journal/project-journal-3.md` (2026-09-14 acceptance-testing entries).\n- Code touchpoints (evidence, not remediation authorization): backend per-subject admissibility publication; `options-prototype/src/write-desk/subject-admissibility.ts` (`isSubjectAdmissible` path 1a); `options-prototype/src/write-desk/recommend.ts` (`isEligible`).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Confirmed still active on accepted main.\n\nAdmissibility remains derived from environment/session timing, and an operator-forced off-hours acquisition still lacks a distinct Decision-usable, non-canonical characterization. The successful forced acquisition can therefore remain unusable by Decision for the reason captured in this record.\n\n**Restart point:** Reproduce a forced off-hours acquisition through the current path and preserve the distinction between canonical-session evidence and explicitly operator-requested best-available evidence when designing remediation.",
           "truncated": false,
           "tables": []
         }
@@ -5386,6 +5505,13 @@
           "heading": "Related",
           "level": 2,
           "content": "- **BUG-022** (Resolved 2026-09-17) — regime-aware Deployable field *interpretation*. Same output figure (`Deployable`), different root cause. BUG-023 was surfaced during BUG-022 remediation and deliberately kept separate.\n- **BUG-001** (Open) — Activity overlay assigned-call closure / called-away disposition. Its acceptance criteria mention deployable-cash \"without double-counting\" only as an **acceptance constraint**, and its sibling note concerns `assigned` / `shares_sold_assignment` / `buy_to_close` / `expired` *fall-through* (missing mutations). Neither is the `shares_sold_direct` cash double-count mechanism described here. This is a distinct defect identity, not covered by BUG-001.\n- Not a `PL-*` item (defect, not a capability).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-09-22",
+          "level": 2,
+          "content": "**Disposition:** Confirmed still active on accepted main.\n\nDirect-share-sale proceeds are still projected into Deployable by the Activity overlay while inclusion is keyed from the Option Summary projection checkpoint; when a newer Balances export already contains the sale proceeds, the same cash can still be counted again.\n\n**Restart point:** Reproduce with a Balances export newer than the Option Summary checkpoint plus an intervening direct share sale, then remediate checkpoint/reconciliation semantics without weakening legitimate activity projection.",
           "truncated": false,
           "tables": []
         }
