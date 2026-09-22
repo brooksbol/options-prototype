@@ -41,11 +41,11 @@ Filing does not authorize remediation; priority/sequencing is a separate Princip
 
 ## Remediation history
 
-None.
+Remediated on current main. Unresolved stock-disposition basis is propagated as a `BASIS_UNKNOWN` reconciliation issue and produces `PRODUCTION_UNCERTAIN`, keeping event-level economic uncertainty distinct from aggregate cash reconciliation.
 
 ## Verification
 
-None.
+Verified during the 2026-09-22 open-bug audit. Focused Production assessment and attribution tests passed and demonstrated that cash reconciliation cannot conceal an unresolved `BASIS_UNKNOWN` state behind an apparently complete reconciliation.
 
 ## Related
 
