@@ -7,6 +7,16 @@
 
 ---
 
+## Relationship to End-of-Session Closeout
+
+This protocol governs Wheelwright's durable project-memory discipline and contains the **End-of-Workstream Memory Check**. It is a required component of session closeout, but it is **not** the containing session-closeout process.
+
+The parent process is `bootstrap/end-of-session-protocol.md`. When the Principal says **“execute end of session protocol”**, follow that parent protocol; it invokes this Project-Memory Protocol as part of complete closeout and continues through verification, persistence, accepted-main synchronization, and final SYNC reporting.
+
+Do not reinterpret “execute end of session protocol” as “describe the End-of-Workstream Memory Check” or “prepare a closeout plan and ask whether to proceed.”
+
+---
+
 ## Central Invariant
 
 Wheelwright treats GitHub as durable project memory.
