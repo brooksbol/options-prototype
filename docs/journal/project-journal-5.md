@@ -357,3 +357,16 @@ So a Log built today is **complete for reconciliation-era items and partial for 
 **Excluded, confirmed not leaked.** The failed-session capital-history attribution work and the FE/BE persistence architecture (PL-PORT-01 Durable Brokerage Evidence Persistence / Incognito invariant) were deliberately not touched. The Increment A commit changed only `balancesParser.ts` and its test.
 
 **Epistemic status.** Increment A verified at every level (focused tests, adjacent suites, tsc, and Principal real-browser acceptance for both accounts) and committed/pushed/remote-verified at `970f87a`. This closeout is reconciliation-only.
+
+---
+
+## 2026-09-21 — Intake: Upload All and portfolio capital-graph as PL-PORT-01 refinements — Kiro
+
+**Actor:** Kiro. Principal-directed intake ("create the work items, follow the process") for two concerns that surfaced during the Option A recovery but were not durably captured.
+
+Both reconcile as refinements of `PL-PORT-01` (portfolio-state maturity), not new top-level `PL-*` identities, per the idea-intake methodology's prefer-existing-structure rule:
+
+- **`PL-PORT-01-UPLOAD-ALL`** — multi-file "Upload All" import affordance. Dropped for the recovery by Principal (Option 4); preserved as deferred future UX. Key unresolved tension recorded: identity-gated multi-select is unsatisfiable against real Fidelity files (no embedded account reference; number only in filename), so any future implementation must honor the ratified selection-as-identity decision or introduce a new identity source first. No new Bet/AR; import-UX convenience beneath `LVT-INIT-POS-STATE`.
+- **`PL-PORT-01-CAPGRAPH`** — portfolio capital-history graph durability/restoration. The graph is empty after the storage clear because the capital trajectory persists only in browser localStorage. Reconciled as the concrete instance of the Incognito-invariant question (durable authority vs disposable presentation state — unresolved), under AR6/AR1 durable-state pressure and the PL-PORT-01 Durable Persistence refinement. Explicitly must NOT reopen or authorize the excluded capital-history attribution-by-inference work. Not a `docs/bugs/` defect: clearing client-local storage legitimately clears client-local state; whether it should have been durable is a capability/architecture question.
+
+Both carry full intake records + Reconciliation Completion Records in `docs/parking-lot-9.md`. Neither authorizes implementation. Roadmap Log/projection regenerated so the two refinements are visible from canonical authority.

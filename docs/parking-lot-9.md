@@ -262,6 +262,104 @@ This closes the "no production implementation authorized" line of the 2026-09-19
 - Real Fidelity files carry no embedded account identity; relevant if multi-select / content-based routing is ever revisited.
 ---
 
+## `PL-PORT-01-UPLOAD-ALL` — Multi-file "Upload All" import affordance (refinement of `PL-PORT-01`)
+
+**Date:** September 21, 2026 (intake)  
+**State:** INTAKE refinement under existing `PL-PORT-01`; RECONCILED (see completion record); no implementation authorized  
+**Concept home:** `PL-PORT-01` — Portfolio-State Maturity (multi-account operator UX)
+
+### 1. What was discovered
+
+The Fidelity upload surface (`FidelityUploadCompact`) exposes three individual slots (Option Summary, Balances, Activity) that must each be uploaded separately. During the September 21 Option A recovery, a multi-file **"Upload All"** affordance was considered — select the coherent file set once and import the whole set in one action — then **dropped by explicit Principal decision (Option 4)** because the individual-upload workflow already restores the morning workflow. The concept is preserved here as durable intake so it is not rediscovered.
+
+### 2. What triggered it
+
+The recovery re-examined multi-select because it was uncommitted failed-session work never present in the `e6e743b` baseline. The trigger (recovery) is distinct from the general concept (a one-action import of a coherent Fidelity file set that also removes the one-file ordering trap — see the deferred note under `PL-DEPLOY-BAL`).
+
+### 3. Why it might matter
+
+One-action import would (a) remove the one-file intermediate dead state where `buildSnapshotForAccount` returns null with no operator feedback until both Option Summary and Balances are present, and (b) make the coherent set (Option Summary + Balances + Activity) reach the active account together so a single action can yield a populated portfolio and Production page.
+
+### 4. Related concepts/items
+
+- **`PL-PORT-01`** (concept home) — multi-account operator UX and portfolio-state maturity.
+- **`PL-DEPLOY-BAL`** — records the drop decision and the one-file ordering trap as a deferred finding.
+- **Ratified `e6e743b` decision** — "explicit account selection is sole import identity authority."
+
+### 5. Unresolved
+
+- **Identity model.** The handoff's identity-gated multi-select ("unidentified Balances fails closed", "route by content identity") is **unsatisfiable against real Fidelity files**: both Balances and Option Summary exports carry no embedded external account reference (empirically confirmed — refs return null; the account number lives only in the filename). Any future multi-select must therefore honor the ratified selection-as-identity decision (route the selected set into the active account) rather than gate on file-derived identity, OR a new identity source must first exist. This tension must be resolved before implementation.
+- Whether "Upload All" is worth building at all given the individual path already works.
+- Classification-by-content (parser id) vs selection order for slot assignment; duplicate-role and unrecognized-file handling; fail-closed presentation.
+
+### 6. Explicitly not authorized
+
+No implementation. No second import pipeline. No revival of the failed-session `handleMultiFiles` code. No reopening of the ratified selection-as-identity decision.
+
+### 7. Richer why-state
+
+`docs/journal/project-journal-5.md` (2026-09-21, Option A recovery). Drop decision recorded in the `PL-DEPLOY-BAL` transition record above.
+
+### Reconciliation Completion Record
+
+- **Intake:** `PL-PORT-01-UPLOAD-ALL` (refinement; no new top-level `PL-*` identity).
+- **Strategic disposition:** **No new Bet, no `docs/roadmap.md` change.** Import-UX convenience beneath `LVT-INIT-POS-STATE` (Portfolio State) within the existing multi-account direction.
+- **Architectural disposition:** **No new AR, no ADR.** UI-composition affordance over the existing account-aware import path; must respect the ratified selection-as-identity decision.
+- **Parking-lot disposition/mapping:** **Retained** as refinement `PL-PORT-01-UPLOAD-ALL` under concept home `PL-PORT-01`. Dropped for current recovery by Principal (Option 4); preserved as deferred future UX.
+- **Why-state:** `docs/journal/project-journal-5.md` (2026-09-21); `PL-DEPLOY-BAL` transition record.
+- **Next authorized mode:** **No work.** Design/decomposition only if separately selected by the Principal, and only after the identity-model tension in §5 is resolved.
+---
+
+## `PL-PORT-01-CAPGRAPH` — Portfolio capital-history graph durability / restoration (refinement of `PL-PORT-01`)
+
+**Date:** September 21, 2026 (intake)  
+**State:** INTAKE refinement under existing `PL-PORT-01`; RECONCILED (see completion record); no implementation authorized  
+**Concept home:** `PL-PORT-01` — Portfolio-State Maturity (capital-history / durable portfolio state)
+
+### 1. What was discovered
+
+The Portfolio capital-history graph (the capital trajectory sparkline derived from `portfolio-capital-history.ts`) is empty after browser `localStorage` was cleared at the start of the September 21 recovery. The capital-history series is persisted **only** in browser localStorage, so clearing storage (or an incognito/private browser) leaves nothing to plot. "Restoring the portfolio graph" is a distinct concern from the Balances parser fix and was not captured during the recovery.
+
+### 2. What triggered it
+
+The Principal cleared localStorage before real-browser acceptance testing (a legitimate clean-slate action that also exercises the fresh-browser path). The trigger (a deliberate storage clear) is distinct from the general concept (whether the capital trajectory is durable authority or disposable client-local state).
+
+### 3. Why it might matter
+
+The capital trajectory is operator-visible portfolio state. If it exists only in one browser, it is lost on storage clear / device change and cannot be reconstructed. This is the concrete instance of the **Incognito invariant** question ("Should this state survive the incognito test?"): if the trajectory is economically meaningful portfolio state, browser-local persistence must not be its only authority; if it is disposable presentation state, its loss on clear is acceptable and no restoration is owed. That classification is unresolved.
+
+### 4. Related concepts/items
+
+- **`PL-PORT-01`** (concept home), specifically the **Durable Brokerage / Fidelity Evidence Persistence** refinement and the **Incognito invariant** recorded in this file.
+- **The excluded capital-history attribution problem** — the legacy unattributed global 16-point trajectory with no account provenance. Restoration must NOT re-introduce attribution-by-inference (first account imported, active account, storage location, migration timing); unknown historical evidence remains epistemically unknown until explicitly attributed or retired. This intake does not reopen or authorize that attribution work.
+- **Architecture-roadmap AR6** (Durable Decision Context) and **AR1** (durable authoritative state substrate) — the pressure this concern sits under.
+
+### 5. Unresolved
+
+- Is the capital trajectory economically meaningful portfolio state that must survive the incognito test, or disposable presentation state?
+- If durable: what authority owns it (backend evidence boundary vs a rebuildable projection from durable imports), and how is it reconstructed for a fresh browser?
+- Can the trajectory be re-derived from durably persisted per-account Fidelity evidence rather than stored as its own authority?
+- How does restoration interact with the unresolved account-provenance problem for the legacy global series (must not attribute by inference)?
+- What is owed after a deliberate storage clear vs a genuine loss/device change?
+
+### 6. Explicitly not authorized
+
+No implementation. No persistence migration or DB schema. No localStorage removal. No backend-service redesign. No capital-history attribution-by-inference. No reopening of the excluded failed-session attribution work.
+
+### 7. Richer why-state
+
+`docs/journal/project-journal-5.md` (2026-09-21, Option A recovery); the `PL-PORT-01` Durable Brokerage Evidence Persistence refinement + Incognito invariant in this file.
+
+### Reconciliation Completion Record
+
+- **Intake:** `PL-PORT-01-CAPGRAPH` (refinement; no new top-level `PL-*` identity).
+- **Strategic disposition:** **No new Bet, no `docs/roadmap.md` change.** Trustworthy durable portfolio state beneath `LVT-INIT-POS-STATE` / the existing awareness direction.
+- **Architectural disposition:** **No new AR; refines existing AR6/AR1 durable-state pressure and the PL-PORT-01 Durable Persistence refinement.** No architecture change ratified here. Not a `docs/bugs/` defect: clearing client-local storage legitimately clears disposable client-local state per the Incognito invariant carve-out; whether the trajectory should have been durable is a capability/architecture question, not a demonstrated behavior defect.
+- **Parking-lot disposition/mapping:** **Retained** as refinement `PL-PORT-01-CAPGRAPH` under concept home `PL-PORT-01`; cross-linked to the Durable Persistence refinement and the excluded attribution problem (referenced, not reopened).
+- **Why-state:** `docs/journal/project-journal-5.md` (2026-09-21); Durable Persistence refinement / Incognito invariant.
+- **Next authorized mode:** **No work.** Strategic/architectural reconciliation and bounded design only when separately selected by the Principal, and only within the durable-persistence design that owns the Incognito invariant.
+---
+
 ## `PL-ROADMAP-UI` — Roadmap Operator Surface (Projection of Canonical Strategic/Architecture/Parking-Lot Authority)
 
 **Date:** September 20, 2026
