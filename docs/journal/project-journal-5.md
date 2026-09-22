@@ -370,3 +370,33 @@ Both reconcile as refinements of `PL-PORT-01` (portfolio-state maturity), not ne
 - **`PL-PORT-01-CAPGRAPH`** — portfolio capital-history graph durability/restoration. The graph is empty after the storage clear because the capital trajectory persists only in browser localStorage. Reconciled as the concrete instance of the Incognito-invariant question (durable authority vs disposable presentation state — unresolved), under AR6/AR1 durable-state pressure and the PL-PORT-01 Durable Persistence refinement. Explicitly must NOT reopen or authorize the excluded capital-history attribution-by-inference work. Not a `docs/bugs/` defect: clearing client-local storage legitimately clears client-local state; whether it should have been durable is a capability/architecture question.
 
 Both carry full intake records + Reconciliation Completion Records in `docs/parking-lot-9.md`. Neither authorizes implementation. Roadmap Log/projection regenerated so the two refinements are visible from canonical authority.
+
+
+---
+
+## 2026-09-22 — Brokerage-facing capability model crosses durability threshold — ChatGPT
+
+**Actor:** ChatGPT. **Mode:** Principal-authorized intake + project-memory reconciliation. **Intake commit:** `b074d9bb95f87366382f7054d858091fc4a3f9c9`.
+
+**What changed in understanding.** A discussion that began with Fidelity options-permission friction and possible brokerage/integration alternatives evolved past any one broker, integration, LVT node, initiative, or existing parking-lot item. The Principal stopped solution-space exploration before it became vendor-led and identified the more fundamental work: appraise Wheelwright's brokerage-facing capabilities and incumbent fitness before deciding what “better” means or shopping for mechanisms.
+
+The durable problem-space decomposition is four capability surfaces:
+
+1. **Portfolio State** — brokerage-account financial state, identity, provenance, freshness, availability/encumbrance.
+2. **Market Evidence** — options/market observations and their provenance, freshness, trust/fitness.
+3. **Execution** — movement from operator-authorized TradeIntent toward actual market action, including representation/review/handoff and authority boundaries.
+4. **Lifecycle / Outcome** — authoritative reconstruction of what actually happened and its economic/portfolio consequences.
+
+**Principal framing worth preserving.** *Capabilities are currency in the problem space; vendors, APIs, platforms, aggregators, and drop-in/hosted components live in the solution space.* The incumbent must be appraised before a landscape survey. The intended inquiry order is: **incumbent appraisal → observed problem/pressure → solution-neutral “better” → decision criteria → solution classes → landscape survey → evidence/experiments → decision.** This is explicitly intended to avoid “hammer shopping when I don't know if I have nails.”
+
+**Incumbent posture.** Tradier APIs, Fidelity CSVs, and Fidelity/browser execution handoff are not being characterized as mistakes. They were direct, pragmatic mechanisms that produced working software and the operational evidence now making the deeper capability boundaries visible. The corresponding counter-principle is equally important: what got Wheelwright this far is not presumed to be what gets it the rest of the way. **Keep** is a first-class outcome; replacement must earn displacement of a working incumbent.
+
+**Quality-attribute posture.** The Principal uses six contextual “-ities” — usability, security, reliability, extensibility, maintainability, and scalability (including performance). Their relative importance is application/surface-specific rather than globally ranked. The present integration discussion is substantially **usability-forward and security-supported**: CSV copying, dual-browser execution/re-entry, manual chain scanning, and reconciliation are examples of mechanical operator impedance, while integrations add trust/threat surfaces that must be bounded. Security-first reasoning is valid, but security is not the sole objective.
+
+**Platform hypothesis — deliberately downstream.** A mature trading/connectivity platform might supply multiple brokerage capabilities and save Wheelwright from implementing broker-specific plumbing. That is an attractive hypothesis, not a conclusion or requirement. No platform/vendor survey should begin until the incumbent appraisal establishes actual nails and solution-neutral criteria.
+
+**Canonical intake.** Complete `parking-lot*.md` reconciliation found existing narrower homes (`PL-PORT-01`, `PL-EXEC-01`, evidence family, `PL-DEPLOY-BAL`, broker eligibility, etc.) but no one item owns the cross-cutting capability-provision appraisal. New canonical identity `PL-BROKER-CAP` was therefore created in `docs/parking-lot-9.md` at **INTAKE** only. It does not supersede the narrower items and does not establish a new LVT/AR/ADR direction.
+
+**Epistemic status.** Durable discovery/intake + why-state. Strategic and architectural reconciliation intentionally remain incomplete. No vendor selection, landscape survey, API spike, generalized broker abstraction, execution-authority expansion, or implementation is authorized.
+
+**Resume point.** When Principal-selected, continue in the **problem space** by appraising the four surfaces from incumbent evidence. Do not begin with vendors or mechanisms.
