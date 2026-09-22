@@ -734,6 +734,7 @@ describe("parseLogEvents — depth-aware, explicit-only", () => {
   it("carries only explicit-only fields (no priority/owner/progress/transitions)", () => {
     for (const e of events) {
       expect(Object.keys(e).sort()).toEqual([
+        "bugId",
         "establishesIntake",
         "eventDateIso",
         "eventDateText",
@@ -745,6 +746,8 @@ describe("parseLogEvents — depth-aware, explicit-only", () => {
         "state",
         "title",
       ]);
+      // Parking-lot events carry a null bugId (source identity is PL-*).
+      expect((e as { bugId: string | null }).bugId).toBeNull();
     }
   });
 

@@ -150,8 +150,10 @@ export function LogView() {
                       <span className="rm-log-title">{e.title}</span>
                       {e.plId ? (
                         <span className="rm-node-id">{e.plId}</span>
+                      ) : e.bugId ? (
+                        <span className="rm-node-id">{e.bugId}</span>
                       ) : (
-                        <span className="rm-log-no-id">no PL-id</span>
+                        <span className="rm-log-no-id">no id</span>
                       )}
                     </div>
                   </div>
@@ -226,8 +228,10 @@ function LogDetail({ entry }: { entry: LogEntry | null }) {
         <div className="rm-detail-ids">
           {entry.plId ? (
             <span className="rm-node-id">{entry.plId}</span>
+          ) : entry.bugId ? (
+            <span className="rm-node-id">{entry.bugId}</span>
           ) : (
-            <span className="rm-log-no-id">no PL-id (this record names no PL-* identity)</span>
+            <span className="rm-log-no-id">no id (this record names no PL-* or BUG-NNN identity)</span>
           )}
         </div>
       </div>

@@ -36,6 +36,7 @@ import {
   parseDomainReference,
   parseBugIndex,
   parseBugRecord,
+  parseBugLogEvents,
 } from "./roadmap-projection-parsers.mjs";
 
 const projectRoot = resolve(dirname(new URL(import.meta.url).pathname), "..");
@@ -110,28 +111,24 @@ for (const file of parkingLotFiles) {
   for (const err of dateErrors) fail(`Log date validation: ${err}`);
 }
 
-// Deterministic chronological order: by REAL calendar date ascending (every event
-// carries a validated eventDateIso — impossible dates already failed generation).
-// Ties on the same day break by TRUE canonical source order (sourceOrder), so a
-// parent record precedes its nested child and adjacent records keep their order.
-const log = [...logEvents].sort((a, b) => {
-  if (a.eventDateIso !== b.eventDateIso) return a.eventDateIso < b.eventDateIso ? -1 : 1;
-  return a.sourceOrder - b.sourceOrder;
-});
+// NOTE: bug-corpus governed Log events are appended to `logEvents` further below
+// (after the bug corpus is read), then the unified chronology is sorted. Parking-
+// lot events are collected above; bug events preserve their own BUG-NNN identity.
 
 // Intake-date knowledge is derived from EXPLICIT INTAKE EVIDENCE only (Codex final
 // finding 1/2) — a record's `establishesIntake` flag, NOT its eventKind. A later
 // reconciliation / refinement / implementation / remediation event never
 // establishes intake merely by existing. List active PL identities for which NO
-// record carries explicit intake evidence, by identity; never infer a date.
+// record carries explicit intake evidence, by identity; never infer a date. Bug
+// events never establish PL intake (establishesIntake === false, plId === null),
+// so this parking-lot derivation is unaffected by the cross-authority extension.
 const intakeEvidencePlIds = new Set(
-  log.filter((e) => e.establishesIntake && e.plId).map((e) => e.plId)
+  logEvents.filter((e) => e.establishesIntake && e.plId).map((e) => e.plId)
 );
 const intakeDateUnknown = parkingLot
   .map((i) => i.id)
   .filter((id) => !intakeEvidencePlIds.has(id))
   .sort();
-const logIntakeEvidenceEvents = log.filter((e) => e.establishesIntake).length;
 const plWithIntakeDate = parkingLot.filter((i) => intakeEvidencePlIds.has(i.id)).length;
 
 // ---------- Integrity checks (fail-closed) ----------
@@ -177,38 +174,9 @@ for (const item of parkingLot) {
 
 if (parkingLot.length === 0) fail("parsed zero PL items");
 
-// Log integrity (explicit-only, no inference). Every Log event must carry a
-// validated real calendar date, a title, a known kind, and (if present) a
-// well-formed PL id. Impossible dates already failed above.
-const KNOWN_KINDS = new Set([
-  "intake", "reconciliation", "refinement", "implementation", "remediation", "unclassified",
-]);
-for (const ev of log) {
-  if (!ev.eventDateIso || !/^\d{4}-\d{2}-\d{2}$/.test(ev.eventDateIso)) {
-    fail(`log event "${ev.title}" (${ev.sourceFile}) has no validated calendar date`);
-  }
-  if (!ev.eventDateText || ev.eventDateText.length === 0) {
-    fail(`log event "${ev.title}" (${ev.sourceFile}) has no explicit date text`);
-  }
-  if (!ev.title || ev.title.length === 0) {
-    fail(`log event in ${ev.sourceFile} has no title`);
-  }
-  if (!KNOWN_KINDS.has(ev.eventKind)) {
-    fail(`log event "${ev.title}" has unknown event kind ${ev.eventKind}`);
-  }
-  if (typeof ev.establishesIntake !== "boolean") {
-    fail(`log event "${ev.title}" has non-boolean establishesIntake`);
-  }
-  if (ev.plId && !/^PL-[A-Z0-9-]+$/.test(ev.plId)) {
-    fail(`log event "${ev.title}" has malformed PL id ${ev.plId}`);
-  }
-}
-// Intake evidence with no identity cannot mark any identity known; that is fine,
-// but a record that establishes intake for a NAMED id must place that id in the
-// known set (partition integrity is asserted in the projection tests).
-if (log.length === 0) {
-  fail("parsed zero Log events (expected dated governed records in the parking-lot continuations)");
-}
+// NOTE: unified Log integrity (parking-lot + bug authorities) and the non-empty
+// check are applied AFTER the bug corpus is read and bug events are appended —
+// see the "Unified chronology across canonical authorities" block below.
 
 // Graduated / closed index — the resolved landscape. Lives in the primary
 // parking-lot.md file.
@@ -275,16 +243,95 @@ if (existsSync(bugIndexPath) && bugs.length === 0) {
 
 // Attach each bug's canonical record detail (faithful projection of BUG-NNN-*.md).
 // Fail-closed if an index row references a record file that does not exist, so the
-// INDEX ↔ record mapping stays exact.
+// INDEX ↔ record mapping stays exact. Simultaneously extract governed dated Log
+// events from each bug record (cross-authority Log invariant): a bug's canonical
+// authority explicitly establishes dated governed events (audit checkpoints,
+// Principal authorizations/acceptance, post-resolution validation, migration
+// provenance). BUG-NNN identity is preserved; bug events never become PL-*.
 const bugsDir = resolve(docsDir, "bugs");
 for (const bug of bugs) {
   const recordPath = resolve(bugsDir, bug.recordFile);
   if (!existsSync(recordPath)) {
     fail(`${bug.id} references missing record file docs/bugs/${bug.recordFile}`);
   }
-  const record = parseBugRecord(readFileSync(recordPath, "utf-8"));
+  const recordContent = readFileSync(recordPath, "utf-8");
+  const record = parseBugRecord(recordContent);
   bug.recordTitle = record.title;
   bug.sections = record.sections;
+
+  const { events: bugEvents, dateErrors: bugDateErrors, nextOrder } = parseBugLogEvents(
+    recordContent,
+    `bugs/${bug.recordFile}`,
+    bug.id,
+    logSourceOrder,
+  );
+  logSourceOrder = nextOrder;
+  logEvents.push(...bugEvents);
+  for (const err of bugDateErrors) fail(`Bug Log date validation: ${err}`);
+}
+
+// The bug INDEX itself carries governed dated events (the Open-bug audit
+// checkpoint and Migration provenance). Project those too, attributed to the
+// index rather than a single BUG-NNN.
+{
+  const indexContent = readFileSync(bugIndexPath, "utf-8");
+  const { events: indexEvents, dateErrors: indexDateErrors, nextOrder } = parseBugLogEvents(
+    indexContent,
+    "bugs/INDEX.md",
+    null,
+    logSourceOrder,
+  );
+  logSourceOrder = nextOrder;
+  logEvents.push(...indexEvents);
+  for (const err of indexDateErrors) fail(`Bug Log date validation: ${err}`);
+}
+
+// Unified chronology across canonical authorities (parking lot + bug corpus), in
+// deterministic order: by REAL calendar date ascending (every event carries a
+// validated eventDateIso — impossible dates already failed generation). Ties on
+// the same day break by TRUE canonical capture order (sourceOrder), so a parent
+// record precedes its nested child and adjacent records keep their order.
+const log = [...logEvents].sort((a, b) => {
+  if (a.eventDateIso !== b.eventDateIso) return a.eventDateIso < b.eventDateIso ? -1 : 1;
+  return a.sourceOrder - b.sourceOrder;
+});
+const logIntakeEvidenceEvents = log.filter((e) => e.establishesIntake).length;
+
+// Log integrity (explicit-only, no inference), applied to the UNIFIED log so bug
+// and parking-lot events are held to the same contract. Every event must carry a
+// validated real calendar date, a title, a known kind, exactly one source-system
+// identity, and (if present) a well-formed PL/BUG id.
+const KNOWN_KINDS_UNIFIED = new Set([
+  "intake", "reconciliation", "refinement", "implementation", "remediation", "unclassified",
+]);
+for (const ev of log) {
+  if (!ev.eventDateIso || !/^\d{4}-\d{2}-\d{2}$/.test(ev.eventDateIso)) {
+    fail(`log event "${ev.title}" (${ev.sourceFile}) has no validated calendar date`);
+  }
+  if (!ev.eventDateText || ev.eventDateText.length === 0) {
+    fail(`log event "${ev.title}" (${ev.sourceFile}) has no explicit date text`);
+  }
+  if (!ev.title || ev.title.length === 0) {
+    fail(`log event in ${ev.sourceFile} has no title`);
+  }
+  if (!KNOWN_KINDS_UNIFIED.has(ev.eventKind)) {
+    fail(`log event "${ev.title}" has unknown event kind ${ev.eventKind}`);
+  }
+  if (typeof ev.establishesIntake !== "boolean") {
+    fail(`log event "${ev.title}" has non-boolean establishesIntake`);
+  }
+  if (ev.plId && ev.bugId) {
+    fail(`log event "${ev.title}" has both a PL id and a BUG id (source identity must be single)`);
+  }
+  if (ev.plId && !/^PL-[A-Z0-9-]+$/.test(ev.plId)) {
+    fail(`log event "${ev.title}" has malformed PL id ${ev.plId}`);
+  }
+  if (ev.bugId && !/^BUG-\d+$/.test(ev.bugId)) {
+    fail(`log event "${ev.title}" has malformed BUG id ${ev.bugId}`);
+  }
+}
+if (log.length === 0) {
+  fail("parsed zero Log events (expected dated governed records across parking-lot and bug authorities)");
 }
 
 // Integrity: a priority entry that references a canonical id must resolve, else

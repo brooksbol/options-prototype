@@ -466,6 +466,52 @@ function corpusTemporalRecords(): { key: string; file: string; title: string; da
   return records;
 }
 
+/**
+ * Independent corpus ORACLE for the Log — BUG authority (cross-authority Log).
+ *
+ * Mirrors the ratified semantic without importing the parser: a bug Log event is
+ * a governed-form dated heading in a `docs/bugs/*.md` file. A governed form is one
+ * of the corpus's own governed dated-heading phrasings (audit checkpoint, post-
+ * resolution validation, Principal authorization, Principal acceptance/closure,
+ * Principal-authorized scope expansion, migration provenance) AND the heading
+ * carries an explicit date (ISO or "Month D, YYYY"). Keyed by stable evidence.
+ */
+function bugTemporalRecords(): { key: string; file: string; title: string; date: string }[] {
+  const bugsDir = resolve(__dirname, "../../../docs/bugs");
+  const files = readdirSync(bugsDir)
+    .filter((f) => /\.md$/.test(f) && f !== "README.md")
+    .sort();
+  const isGoverned = (t: string): boolean =>
+    /^Principal acceptance\b/i.test(t) ||
+    /\bacceptance \/ closure\b/i.test(t) ||
+    /^Principal authorization\b/i.test(t) ||
+    (/^Scope expansion\b/i.test(t) && /Principal-authorized/i.test(t)) ||
+    /^(Open-bug )?[Aa]udit checkpoint\b/i.test(t) ||
+    /^Post-resolution validation\b/i.test(t) ||
+    /^Migration provenance\b/i.test(t);
+  const extractDate = (t: string): string | null => {
+    const iso = t.match(/\b\d{4}-\d{2}-\d{2}\b/);
+    if (iso) return iso[0];
+    const long = t.match(/\b[A-Za-z]+\s+\d{1,2},\s*\d{4}\b/);
+    return long ? long[0] : null;
+  };
+  const records: { key: string; file: string; title: string; date: string }[] = [];
+  for (const file of files) {
+    const lines = readFileSync(join(bugsDir, file), "utf-8").split("\n");
+    for (const raw of lines) {
+      const line = raw.replace(/\r$/, "");
+      const h = line.match(/^#{2,6}\s+(.+?)\s*$/);
+      if (!h) continue;
+      const title = h[1].replace(/`/g, "").trim();
+      if (!isGoverned(title)) continue;
+      const date = extractDate(title);
+      if (!date) continue;
+      records.push({ key: `bugs/${file}::${title}::${date}`, file: `bugs/${file}`, title, date });
+    }
+  }
+  return records;
+}
+
 describe("roadmap projection — Log (explicit governed temporal events)", () => {
   it("captures dated governed events and matches the declared count", () => {
     expect(Array.isArray(p.log)).toBe(true);
@@ -474,7 +520,8 @@ describe("roadmap projection — Log (explicit governed temporal events)", () =>
   });
 
   it("maps one-to-one with the canonical corpus by source evidence (no drop, no extra)", () => {
-    const oracle = corpusTemporalRecords();
+    // Cross-authority oracle: parking-lot governed events + bug governed events.
+    const oracle = [...corpusTemporalRecords(), ...bugTemporalRecords()];
     const oracleKeys = oracle.map((r) => r.key).sort();
     const projKeys = p.log
       .map((e) => `${e.sourceFile}::${e.title}::${e.eventDateText}`)
@@ -484,6 +531,21 @@ describe("roadmap projection — Log (explicit governed temporal events)", () =>
     expect(projKeys).toEqual(oracleKeys);
     // And the same cardinality, so a duplicate key cannot hide a swap.
     expect(p.log.length).toBe(oracle.length);
+  });
+
+  it("projects canonical governed BUG events while preserving BUG-NNN source identity", () => {
+    const bugEvents = p.log.filter((e) => e.bugId);
+    // The ratified cross-authority invariant requires bug governed events in scope.
+    expect(bugEvents.length).toBeGreaterThan(0);
+    for (const e of bugEvents) {
+      // Source identity preserved; never double-booked as a PL-* identity.
+      expect(e.bugId).toMatch(/^BUG-\d+$/);
+      expect(e.plId).toBeNull();
+      // Bug events never establish parking-lot original intake.
+      expect(e.establishesIntake).toBe(false);
+      // Provenance points at the bug authority.
+      expect(e.sourceFile.startsWith("bugs/")).toBe(true);
+    }
   });
 
   it("captures nested (deeper-than-##) PL-ROADMAP-UI Log records the ##-only parser dropped", () => {

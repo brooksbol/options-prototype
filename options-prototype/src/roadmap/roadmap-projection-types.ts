@@ -321,6 +321,13 @@ export type LogEventKind =
 export interface LogEntry {
   /** Canonical `PL-*` identity when the record heading names one; else null. */
   plId: string | null;
+  /**
+   * Canonical `BUG-NNN` identity when this event comes from the bug corpus; else
+   * null. Preserves source-system identity per the ratified cross-authority Log
+   * invariant: a bug event stays a bug event and is NEVER given a `PL-*` identity.
+   * Exactly one of `plId` / `bugId` is non-null for a given event.
+   */
+  bugId: string | null;
   /** The record's heading title (verbatim, backticks stripped). */
   title: string;
   /** The explicitly derived governed kind of THIS event, for presentation (never guessed). */

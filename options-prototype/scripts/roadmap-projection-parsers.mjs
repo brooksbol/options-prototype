@@ -479,6 +479,147 @@ export function parseLeadingCalendarDate(text) {
 }
 
 /**
+ * Parse a governed event date embedded IN a bug-corpus heading. Bug records do
+ * not use the parking-lot `**Date:**` convention; their governed dated events are
+ * expressed as dated section headings, e.g.
+ *
+ *   "## Audit checkpoint — 2026-09-22"
+ *   "## Principal acceptance / closure (2026-09-17)"
+ *   "## Migration provenance (2026-09-11)"
+ *
+ * Accepts either a leading/embedded ISO date (YYYY-MM-DD) or a "Month D, YYYY"
+ * form, wherever it appears in the heading text. NEVER infers a date; it only
+ * validates and normalizes one the heading explicitly states. Impossible ISO
+ * dates (month 13, day 32, Feb 30) are surfaced as errors so the generator can
+ * fail closed, consistent with parseLeadingCalendarDate.
+ *
+ * Returns { iso, error, dateText } — dateText is the matched date substring
+ * exactly as authored. { iso: null, error: null } when no date is present.
+ */
+export function parseHeadingEventDate(headingText) {
+  if (!headingText) return { iso: null, error: null, dateText: null };
+
+  // ISO form anywhere in the heading.
+  const isoMatch = headingText.match(/\b(\d{4})-(\d{2})-(\d{2})\b/);
+  if (isoMatch) {
+    const year = parseInt(isoMatch[1], 10);
+    const month = parseInt(isoMatch[2], 10);
+    const day = parseInt(isoMatch[3], 10);
+    if (month < 1 || month > 12) {
+      return { iso: null, error: `impossible calendar date "${isoMatch[0]}" (month ${month})`, dateText: isoMatch[0] };
+    }
+    const max = daysInMonth(month, year);
+    if (day < 1 || day > max) {
+      return { iso: null, error: `impossible calendar date "${isoMatch[0]}" (month ${month} has ${max} days${month === 2 ? " that year" : ""})`, dateText: isoMatch[0] };
+    }
+    return { iso: isoMatch[0], error: null, dateText: isoMatch[0] };
+  }
+
+  // "Month D, YYYY" form anywhere in the heading.
+  const longMatch = headingText.match(/\b([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})\b/);
+  if (longMatch) {
+    const { iso, error } = parseLeadingCalendarDate(longMatch[0]);
+    return { iso, error, dateText: longMatch[0] };
+  }
+
+  return { iso: null, error: null, dateText: null };
+}
+
+/**
+ * Governed bug-corpus heading vocabulary → Log event kind. EXPLICIT-ONLY: a bug
+ * heading is a governed Log event ONLY when its leading phrase matches one of the
+ * governed forms the `docs/bugs/` corpus actually uses. A heading that merely
+ * contains a date (e.g. an evidence-capture subsection like "Empirical specimen
+ * (Sep 4, 2026)" or "Live evidence (captured 2026-09-11)") is NOT a governed
+ * project event and returns null — it must never be promoted into the Log.
+ *
+ * The mapping preserves the bug corpus's own semantics onto the existing Log kind
+ * vocabulary (no new kinds are invented):
+ *   - audit checkpoint / post-resolution validation / migration provenance → reconciliation
+ *   - principal authorization / scope expansion (authorized)               → implementation
+ *   - principal acceptance / closure                                       → remediation
+ *
+ * Returns a LogEventKind, or null when the heading is not a governed bug event.
+ */
+export function deriveBugEventKind(headingText) {
+  const t = (headingText || "").trim();
+  // Acceptance/closure must be checked before generic "authorization" phrasing.
+  if (/^Principal acceptance\b|\bacceptance \/ closure\b/i.test(t)) return "remediation";
+  if (/^Principal authorization\b/i.test(t)) return "implementation";
+  if (/^Scope expansion\b.*Principal-authorized/i.test(t)) return "implementation";
+  if (/^(Open-bug )?[Aa]udit checkpoint\b/i.test(t)) return "reconciliation";
+  if (/^Post-resolution validation\b/i.test(t)) return "reconciliation";
+  if (/^Migration provenance\b/i.test(t)) return "reconciliation";
+  return null;
+}
+
+/**
+ * Extract explicit governed temporal EVENTS from a single bug-corpus file (a
+ * `BUG-NNN-*.md` record or `INDEX.md`) — the Log's semantic unit for the bug
+ * authority. Companion to parseLogEvents (parking-lot authority) with the same
+ * output shape, so bug events and parking-lot events populate one chronological
+ * Log while each preserves its own source-system identity.
+ *
+ * GOVERNED-FORM-ONLY, EXPLICIT-ONLY. An event is a heading (depth 2..6) whose
+ * text BOTH (a) matches a governed bug-event form (deriveBugEventKind) AND (b)
+ * carries an explicit calendar date in the heading (parseHeadingEventDate). A
+ * heading missing either signal produces no event. Nothing is inferred from file
+ * order, Git history, proximity, or an actor's memory — consistent with the
+ * ratified cross-authority Log invariant.
+ *
+ * `bugId` is the record's canonical BUG-NNN identity (from the filename/first
+ * heading), preserved on every emitted event; it is NEVER converted into a PL-*
+ * identity. `establishesIntake` is always false: the bug corpus does not
+ * establish parking-lot original intake.
+ *
+ * Returns { events, dateErrors, nextOrder }.
+ */
+export function parseBugLogEvents(content, fileName, bugId, startOrder = 0) {
+  const lines = content.split("\n");
+  const events = [];
+  const dateErrors = [];
+  let order = startOrder;
+
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/\r$/, "");
+    const headingMatch = line.match(/^(#{2,6})\s+(.+?)\s*$/);
+    if (!headingMatch) continue;
+
+    const level = headingMatch[1].length;
+    const headingText = headingMatch[2].trim();
+
+    const eventKind = deriveBugEventKind(headingText);
+    if (!eventKind) continue; // not a governed bug event form
+
+    const { iso, error, dateText } = parseHeadingEventDate(headingText);
+    if (error) {
+      dateErrors.push(`${fileName}: "${headingText}" — ${error}`);
+      continue;
+    }
+    if (!iso) {
+      // Governed form but no explicit date: not a datable Log event. Do not infer.
+      continue;
+    }
+
+    events.push({
+      plId: null,
+      bugId: bugId,
+      title: headingText.replace(/`/g, "").trim(),
+      eventKind,
+      establishesIntake: false,
+      eventDateText: dateText,
+      eventDateIso: iso,
+      state: null,
+      headingLevel: level,
+      sourceFile: fileName,
+      sourceOrder: order++,
+    });
+  }
+
+  return { events, dateErrors, nextOrder: order };
+}
+
+/**
  * Derive the governed EVENT KIND of a record explicitly (never guessed from vague
  * prose). Inputs are the record's heading title and its `**State:**` line.
  *
@@ -611,6 +752,7 @@ export function parseLogEvents(content, fileName, startOrder = 0) {
     }
     events.push({
       plId: block.plId,
+      bugId: null,
       title: block.title,
       eventKind: deriveEventKind(block.title, block.state),
       establishesIntake: deriveIntakeEvidence(block.dateText, block.state),

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-22T17:29:25.273Z",
+    "generatedAt": "2026-09-22T18:10:23.918Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -40,7 +40,7 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 24,
-      "logTotal": 37,
+      "logTotal": 62,
       "logIntakeEvidenceEvents": 11,
       "plWithIntakeDate": 11,
       "plWithoutIntakeDate": 51
@@ -5617,6 +5617,7 @@
   "log": [
     {
       "plId": "PL-EVID-AGE",
+      "bugId": null,
       "title": "Reconciliation Completion Record — PL-EVID-AGE (Deployment Evidence Age, first slice)",
       "eventKind": "reconciliation",
       "establishesIntake": false,
@@ -5629,6 +5630,7 @@
     },
     {
       "plId": "PL-DEPLOY-02-DEF01",
+      "bugId": null,
       "title": "Reconciliation Completion Record — PL-DEPLOY-02-DEF01 (Opportunity-History Winner-Economics Preservation Defect)",
       "eventKind": "remediation",
       "establishesIntake": true,
@@ -5641,6 +5643,7 @@
     },
     {
       "plId": "PL-PROV-FAILOVER",
+      "bugId": null,
       "title": "Reconciliation Completion Record — PL-PROV-FAILOVER (Provider Availability Tiers / Degraded-Mode Failover)",
       "eventKind": "reconciliation",
       "establishesIntake": false,
@@ -5653,6 +5656,7 @@
     },
     {
       "plId": "PL-CLEANUP",
+      "bugId": null,
       "title": "Reconciliation Completion Record — PL-CLEANUP (Accidental-Change-Surface Reduction) + PL-SHELL resolution",
       "eventKind": "reconciliation",
       "establishesIntake": false,
@@ -5665,6 +5669,7 @@
     },
     {
       "plId": "PL-STRAT-01",
+      "bugId": null,
       "title": "PL-STRAT-01 Refinement — Hedged Broken-Wing Butterfly (HBWB)",
       "eventKind": "refinement",
       "establishesIntake": false,
@@ -5677,6 +5682,7 @@
     },
     {
       "plId": "PL-STRAT-01",
+      "bugId": null,
       "title": "PL-STRAT-01 Refinement — Comparative Options Strategy Surface",
       "eventKind": "refinement",
       "establishesIntake": false,
@@ -5689,6 +5695,7 @@
     },
     {
       "plId": "PL-STRAT-01",
+      "bugId": null,
       "title": "PL-STRAT-01 Refinement — Operator Strategy Policy and Governed Strategy Matching",
       "eventKind": "refinement",
       "establishesIntake": false,
@@ -5701,6 +5708,7 @@
     },
     {
       "plId": "PL-STRAT-01",
+      "bugId": null,
       "title": "PL-STRAT-01 Refinement — Fidelity Options-Tier Execution Eligibility",
       "eventKind": "refinement",
       "establishesIntake": false,
@@ -5713,6 +5721,7 @@
     },
     {
       "plId": "PL-DEPLOY",
+      "bugId": null,
       "title": "PL-DEPLOY Refinement — Capital-State Management and Deployment Paths",
       "eventKind": "refinement",
       "establishesIntake": false,
@@ -5725,6 +5734,7 @@
     },
     {
       "plId": "PL-DEPLOY",
+      "bugId": null,
       "title": "PL-DEPLOY Refinement — Covered-Call Basis-Positive Optionality (empirical)",
       "eventKind": "refinement",
       "establishesIntake": false,
@@ -5737,6 +5747,7 @@
     },
     {
       "plId": "PL-DEPLOY",
+      "bugId": null,
       "title": "PL-DEPLOY Refinement — Share-Capital Release Cost and Recovery-Time Decision",
       "eventKind": "refinement",
       "establishesIntake": false,
@@ -5749,6 +5760,7 @@
     },
     {
       "plId": "PL-OPS-08",
+      "bugId": null,
       "title": "PL-OPS-08 — Observation Continuity / Gap Recovery",
       "eventKind": "intake",
       "establishesIntake": true,
@@ -5761,6 +5773,7 @@
     },
     {
       "plId": "PL-OPS-01",
+      "bugId": null,
       "title": "PL-OPS-01 Refinement — Provider-Neutral Well-Architected Review / Render Reliability Fit",
       "eventKind": "refinement",
       "establishesIntake": false,
@@ -5773,6 +5786,7 @@
     },
     {
       "plId": "PL-DEPLOY",
+      "bugId": null,
       "title": "PL-DEPLOY Refinement — Decision Surface: Expanded Row vs Drawer",
       "eventKind": "refinement",
       "establishesIntake": false,
@@ -5785,6 +5799,7 @@
     },
     {
       "plId": "PL-OPS-09",
+      "bugId": null,
       "title": "PL-OPS-09 — Operator-Directed Targeted Re-Observation (Console Freshness on Demand)",
       "eventKind": "intake",
       "establishesIntake": true,
@@ -5797,6 +5812,20 @@
     },
     {
       "plId": null,
+      "bugId": null,
+      "title": "Migration provenance (2026-09-11)",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-11",
+      "eventDateIso": "2026-09-11",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/INDEX.md",
+      "sourceOrder": 405
+    },
+    {
+      "plId": null,
+      "bugId": null,
       "title": "Java Test-Suite Execution Performance / Execution-Time SLO Review",
       "eventKind": "intake",
       "establishesIntake": false,
@@ -5809,6 +5838,7 @@
     },
     {
       "plId": null,
+      "bugId": null,
       "title": "Java Test-Suite Execution Performance / Verification Economics — September 14 Diagnostic Disposition",
       "eventKind": "unclassified",
       "establishesIntake": false,
@@ -5821,6 +5851,7 @@
     },
     {
       "plId": "PL-ELIG",
+      "bugId": null,
       "title": "PL-ELIG — Unencumbered Shares on the Operator Console (V1 contract, accepted; implementation not yet authorized)",
       "eventKind": "unclassified",
       "establishesIntake": false,
@@ -5833,6 +5864,7 @@
     },
     {
       "plId": "PL-MKT",
+      "bugId": null,
       "title": "PL-MKT — Provider timesales as an appliance-sourced UI data source (Markets glance + high-resolution moneyness sparklines)",
       "eventKind": "intake",
       "establishesIntake": true,
@@ -5845,6 +5877,7 @@
     },
     {
       "plId": "PL-DEPLOY-EXPORT",
+      "bugId": null,
       "title": "PL-DEPLOY-EXPORT — Deployment \"Export Everything\": complete machine-consumable Deployment evidence export (AI-advisor experiment is first consumer)",
       "eventKind": "intake",
       "establishesIntake": true,
@@ -5857,6 +5890,7 @@
     },
     {
       "plId": "PL-DEPLOY-EXPORT",
+      "bugId": null,
       "title": "Reconciliation Completion Record — PL-DEPLOY-EXPORT (Deployment \"Export Everything\" + AI-advisor evidence)",
       "eventKind": "reconciliation",
       "establishesIntake": false,
@@ -5869,6 +5903,7 @@
     },
     {
       "plId": "PL-RECIPE-01",
+      "bugId": null,
       "title": "PL-RECIPE-01 — Wheelwright Recipes (named, versioned decision lenses over the governed candidate population)",
       "eventKind": "intake",
       "establishesIntake": true,
@@ -5881,6 +5916,7 @@
     },
     {
       "plId": "PL-RECIPE-01",
+      "bugId": null,
       "title": "Reconciliation Completion Record — PL-RECIPE-01 (Wheelwright Recipes)",
       "eventKind": "reconciliation",
       "establishesIntake": false,
@@ -5893,6 +5929,7 @@
     },
     {
       "plId": "PL-DEPLOY",
+      "bugId": null,
       "title": "PL-DEPLOY Refinement — Covered-Call Posture Plurality (Lived Trade; Operator Left the Tool)",
       "eventKind": "refinement",
       "establishesIntake": false,
@@ -5905,6 +5942,7 @@
     },
     {
       "plId": "PL-ACTOR-01",
+      "bugId": null,
       "title": "PL-ACTOR-01 — Remove the Principal as Human Clipboard While Preserving Principal Authority",
       "eventKind": "intake",
       "establishesIntake": true,
@@ -5916,7 +5954,60 @@
       "sourceOrder": 304
     },
     {
+      "plId": null,
+      "bugId": "BUG-021",
+      "title": "Principal authorization (2026-09-17) — one bounded implementation attempt",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-17",
+      "eventDateIso": "2026-09-17",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
+      "sourceOrder": 398
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-021",
+      "title": "Principal acceptance / closure (2026-09-17)",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-17",
+      "eventDateIso": "2026-09-17",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
+      "sourceOrder": 399
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-021",
+      "title": "Principal authorization (2026-09-17, second) — one NEW bounded implementation attempt against the validated model",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-17",
+      "eventDateIso": "2026-09-17",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
+      "sourceOrder": 400
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-024",
+      "title": "Scope expansion — CALL Delta coloring (Principal-authorized, 2026-09-17)",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-17",
+      "eventDateIso": "2026-09-17",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
+      "sourceOrder": 403
+    },
+    {
       "plId": "PL-DEPLOY-BAL",
+      "bugId": null,
       "title": "PL-DEPLOY-BAL — Fidelity Account-Regime / Broker-Balance Semantics",
       "eventKind": "reconciliation",
       "establishesIntake": false,
@@ -5928,7 +6019,21 @@
       "sourceOrder": 319
     },
     {
+      "plId": null,
+      "bugId": "BUG-022",
+      "title": "Post-resolution validation — 2026-09-19 (does not reopen BUG-022)",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-19",
+      "eventDateIso": "2026-09-19",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
+      "sourceOrder": 401
+    },
+    {
       "plId": "PL-ROADMAP-UI",
+      "bugId": null,
       "title": "PL-ROADMAP-UI — Roadmap Operator Surface (Projection of Canonical Strategic/Architecture/Parking-Lot Authority)",
       "eventKind": "reconciliation",
       "establishesIntake": true,
@@ -5941,6 +6046,7 @@
     },
     {
       "plId": null,
+      "bugId": null,
       "title": "PL-DEPLOY-BAL — Sep-2026 cash-layout Deployable fix shipped (2026-09-21)",
       "eventKind": "unclassified",
       "establishesIntake": false,
@@ -5953,6 +6059,7 @@
     },
     {
       "plId": "PL-PORT-01-UPLOAD-ALL",
+      "bugId": null,
       "title": "PL-PORT-01-UPLOAD-ALL — Multi-file \"Upload All\" import affordance (refinement of PL-PORT-01)",
       "eventKind": "refinement",
       "establishesIntake": true,
@@ -5965,6 +6072,7 @@
     },
     {
       "plId": "PL-PORT-01-CAPGRAPH",
+      "bugId": null,
       "title": "PL-PORT-01-CAPGRAPH — Portfolio capital-history graph durability / restoration (refinement of PL-PORT-01)",
       "eventKind": "refinement",
       "establishesIntake": true,
@@ -5977,6 +6085,7 @@
     },
     {
       "plId": "PL-ROADMAP-UI",
+      "bugId": null,
       "title": "PL-ROADMAP-UI — Log lens intake/reconciliation (2026-09-21)",
       "eventKind": "unclassified",
       "establishesIntake": false,
@@ -5989,6 +6098,7 @@
     },
     {
       "plId": "PL-ARCH-07",
+      "bugId": null,
       "title": "PL-ARCH-07 — Authorization Platform / COTS RBAC-FGA Evaluation (Build-vs-Buy)",
       "eventKind": "intake",
       "establishesIntake": true,
@@ -6001,6 +6111,7 @@
     },
     {
       "plId": "PL-ROADMAP-UI",
+      "bugId": null,
       "title": "PL-ROADMAP-UI — Log lens implemented (2026-09-21)",
       "eventKind": "implementation",
       "establishesIntake": false,
@@ -6013,6 +6124,7 @@
     },
     {
       "plId": "PL-ROADMAP-UI",
+      "bugId": null,
       "title": "PL-ROADMAP-UI — Log lens corrected after Codex review (2026-09-21)",
       "eventKind": "implementation",
       "establishesIntake": false,
@@ -6025,6 +6137,7 @@
     },
     {
       "plId": "PL-ROADMAP-UI",
+      "bugId": null,
       "title": "PL-ROADMAP-UI — Log lens final bounded correction after second Codex review (2026-09-21)",
       "eventKind": "implementation",
       "establishesIntake": false,
@@ -6037,6 +6150,7 @@
     },
     {
       "plId": "PL-PORT-01",
+      "bugId": null,
       "title": "PL-PORT-01 — Durable Brokerage / Fidelity Evidence Persistence intake refinement",
       "eventKind": "refinement",
       "establishesIntake": false,
@@ -6049,6 +6163,7 @@
     },
     {
       "plId": null,
+      "bugId": null,
       "title": "Architectural finding — import-identity attribution model (2026-09-21)",
       "eventKind": "unclassified",
       "establishesIntake": false,
@@ -6058,6 +6173,253 @@
       "headingLevel": 4,
       "sourceFile": "parking-lot-9.md",
       "sourceOrder": 380
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-001",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
+      "sourceOrder": 381
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-002",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
+      "sourceOrder": 382
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-003",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
+      "sourceOrder": 383
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-004",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
+      "sourceOrder": 384
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-005",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
+      "sourceOrder": 385
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-006",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
+      "sourceOrder": 386
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-007",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
+      "sourceOrder": 387
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-008",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
+      "sourceOrder": 388
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-009",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
+      "sourceOrder": 389
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-011",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
+      "sourceOrder": 390
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-012",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
+      "sourceOrder": 391
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-013",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
+      "sourceOrder": 392
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-014",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
+      "sourceOrder": 393
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-015",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
+      "sourceOrder": 394
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-017",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
+      "sourceOrder": 395
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-018",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
+      "sourceOrder": 396
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-019",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
+      "sourceOrder": 397
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-023",
+      "title": "Audit checkpoint — 2026-09-22",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
+      "sourceOrder": 402
+    },
+    {
+      "plId": null,
+      "bugId": null,
+      "title": "Open-bug audit checkpoint (2026-09-22)",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-22",
+      "eventDateIso": "2026-09-22",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/INDEX.md",
+      "sourceOrder": 404
     }
   ],
   "intakeDateUnknown": [
