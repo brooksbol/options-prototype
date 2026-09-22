@@ -16,6 +16,115 @@
  * The Markdown remains authoritative; this only derives a read-only view.
  */
 
+/**
+ * Faithfully excerpt canonical prose: collapse runs of whitespace to single
+ * spaces (so multi-line lead prose reads as one clean paragraph in the detail
+ * pane), then, if longer than `limit`, cut at the nearest sentence/word boundary
+ * and flag it truncated. This NEVER rewords — it only trims verbatim text at a
+ * boundary, the same discipline parseDomainReference/parseBugRecord already use.
+ *
+ * Returns { text, truncated }.
+ */
+export function faithfulExcerpt(raw, limit = 600) {
+  const collapsed = (raw || "").replace(/\s+/g, " ").trim();
+  if (limit === Infinity || collapsed.length <= limit) {
+    return { text: collapsed, truncated: false };
+  }
+  const slice = collapsed.slice(0, limit);
+  const sentence = slice.lastIndexOf(". ");
+  const space = slice.lastIndexOf(" ");
+  const cut = sentence > 200 ? sentence + 1 : space > 0 ? space : slice.length;
+  return { text: slice.slice(0, cut).trim(), truncated: true };
+}
+
+/**
+ * Slice a Markdown body into faithful sections keyed by its `##`/`###` (and
+ * optionally deeper) headings. Each section carries its verbatim heading, depth
+ * level, prose content, embedded tables (structural, verbatim cells via
+ * splitProseAndTables), and a `truncated` flag. Content preserves line breaks
+ * (NOT whitespace-collapsed) so multi-paragraph and bulleted bodies read
+ * correctly in a <pre>-style pane, exactly like the Bugs detail pane.
+ *
+ * `excerptCharLimit` bounds a single section's prose; pass Infinity for full,
+ * uncapped bodies (verbosity-first). Lines before the first heading are captured
+ * as an untitled lead section (heading "", level 0) so nothing is dropped.
+ *
+ * This is a pure structural transformation of canonical text — no synthesis.
+ *
+ * Returns [{ heading, level, content, truncated, tables }].
+ */
+export function sliceIntoSections(bodyLines, excerptCharLimit = Infinity, maxDepth = 3, keepLead = true) {
+  const sections = [];
+  let current = null;
+  let lead = []; // lines before the first heading
+  let buf = [];
+
+  const boundarySlice = (text) => {
+    let content = text.trim();
+    if (excerptCharLimit === Infinity || content.length <= excerptCharLimit) {
+      return { content, truncated: false };
+    }
+    const slice = content.slice(0, excerptCharLimit);
+    const para = slice.lastIndexOf("\n\n");
+    const sentence = slice.lastIndexOf(". ");
+    const space = slice.lastIndexOf(" ");
+    const cut = para > 300 ? para : sentence > 300 ? sentence + 1 : space > 0 ? space : slice.length;
+    return { content: slice.slice(0, cut).trim(), truncated: true };
+  };
+
+  const flush = () => {
+    if (!current) {
+      buf.length = 0;
+      return;
+    }
+    const { prose, tables } = splitProseAndTables(buf);
+    const { content, truncated } = boundarySlice(prose);
+    current.content = content;
+    current.truncated = truncated;
+    current.tables = tables;
+    sections.push(current);
+    current = null;
+    buf.length = 0;
+  };
+
+  const headingRe = new RegExp(`^(#{2,${2 + maxDepth - 1}})\\s+(.+?)\\s*$`);
+
+  for (const rawLine of bodyLines) {
+    const line = rawLine.replace(/\r$/, "");
+    const sec = line.match(headingRe);
+    if (sec) {
+      if (!current && lead.length > 0) {
+        if (keepLead) {
+          // Emit the pre-heading lead as an untitled section so it is never lost.
+          const { prose, tables } = splitProseAndTables(lead);
+          const { content, truncated } = boundarySlice(prose);
+          if (content || tables.length > 0) {
+            sections.push({ heading: "", level: 0, content, truncated, tables });
+          }
+        }
+        lead = [];
+      }
+      flush();
+      current = { heading: sec[2].trim(), level: sec[1].length, content: "", truncated: false, tables: [] };
+      continue;
+    }
+    if (current) buf.push(line);
+    else lead.push(line);
+  }
+  flush();
+
+  // Body with no headings at all: the entire lead is one untitled section.
+  if (keepLead && sections.length === 0 && lead.length > 0) {
+    const { prose, tables } = splitProseAndTables(lead);
+    const { content, truncated } = boundarySlice(prose);
+    if (content || tables.length > 0) {
+      sections.push({ heading: "", level: 0, content, truncated, tables });
+    }
+  }
+
+  return sections;
+}
+
 /** Prefix -> LVT node type. Order matters: longer/more specific prefixes first. */
 const LVT_TYPE_BY_PREFIX = [
   ["LVT-VISION-", "vision"],
@@ -218,10 +327,27 @@ export function parseArchitecture(markdown, aliasToId) {
   const notes = [];
 
   let current = null;
+  // Accumulate the AR's descriptive prose — the narrative paragraphs of the
+  // record, in document order, EXCLUDING the structured bold-field lines
+  // (**Pressure from:**, **Candidate transition:**, **Not yet prescribed:**,
+  // etc.) which are surfaced separately. This is the "what is this pressure
+  // about?" overview. Bold fields carry structured facts, not the explanation;
+  // the prose between and around them is the explanation. Bullet-list lines are
+  // kept (they are part of the narrative, e.g. AR1's enumerated required facts).
+  let proseLines = [];
 
   const finalize = () => {
-    if (current) pressures.push(current);
+    if (current) {
+      // Verbosity-first: show the AR's full descriptive prose (uncapped). The
+      // AR pane has no separate sectioned body, so the summary is the whole
+      // narrative; below-the-fold length is acceptable.
+      const { text, truncated } = faithfulExcerpt(proseLines.join("\n"), Infinity);
+      current.summary = text;
+      current.summaryTruncated = truncated;
+      pressures.push(current);
+    }
     current = null;
+    proseLines = [];
   };
 
   for (const rawLine of lines) {
@@ -233,6 +359,8 @@ export function parseArchitecture(markdown, aliasToId) {
       current = {
         id: headingMatch[1],
         title: headingMatch[2].trim(),
+        summary: "",
+        summaryTruncated: false,
         candidateTransition: null,
         pressureFromLvtIds: [],
         pressureFromRaw: [],
@@ -248,6 +376,13 @@ export function parseArchitecture(markdown, aliasToId) {
       // Continue scanning; there may be nothing more, but stay safe.
       continue;
     }
+
+    // Structured bold-field lines (**Pressure from:**, **Candidate transition:**,
+    // **Not yet prescribed:**, **Kreature boundary:**, ...) are surfaced as their
+    // own facts and are NOT part of the descriptive summary. Every other line
+    // (narrative paragraphs and enumerated bullets) is descriptive prose.
+    const isBoldField = /^\*\*[^*]+:\*\*/.test(line);
+    if (!isBoldField) proseLines.push(line);
 
     const pressureMatch = line.match(/^\*\*Pressure from:\*\*\s*(.+?)\s*$/);
     if (pressureMatch) {
@@ -318,7 +453,27 @@ export function parseParkingLotFile(content, fileName, validLvtIds, validArIds) 
   // rows, the item's text is the row. For prose records, the text is the block
   // from the heading until the next PL heading or top-level heading.
   const itemText = new Map(); // id -> accumulated text
+  // Lead-narrative lines per prose item: the record's descriptive prose (its
+  // **Trigger:** line and the paragraphs) BEFORE the first `###` subsection.
+  // This becomes the item's faithful `description`.
+  const leadText = new Map(); // id -> accumulated lead-narrative text
+  // Fallback body per prose item: the prose of the FIRST `###` subsection that
+  // carries real narrative. Many well-formed records put their "what is this
+  // about?" prose under a first subsection (### Intake, ### 1. What was
+  // discovered, ### 2. What triggered it, ...) with an empty lead region.
+  const firstSubText = new Map(); // id -> first-subsection prose text
+  // Full body lines per prose item (everything after the heading, INCLUDING the
+  // `###` subsections but EXCLUDING the item's own metadata bullets). Sliced into
+  // faithful sections for the verbosity-first detail pane.
+  const bodyLines = new Map(); // id -> string[]
   let activeProseId = null;
+  // Whether the active prose record has reached its first `###` subsection yet.
+  // Lead narrative is only the region between the metadata and that subsection.
+  let leadOpenForProseId = null;
+  // The prose id currently accumulating its first-subsection fallback body, and
+  // whether that first subsection has already been captured (only the first).
+  let firstSubProseId = null;
+  const firstSubCaptured = new Set();
 
   const recordItem = (id, name, section) => {
     if (!items.has(id)) {
@@ -326,17 +481,39 @@ export function parseParkingLotFile(content, fileName, validLvtIds, validArIds) 
         id,
         name: name || null,
         section,
+        description: "",
+        descriptionTruncated: false,
+        state: null,
         sourceFile: fileName,
         relatedLvtIds: [],
         relatedArIds: [],
       });
       itemText.set(id, "");
+      leadText.set(id, "");
+      firstSubText.set(id, "");
+      bodyLines.set(id, []);
     }
   };
 
   const appendText = (id, text) => {
     itemText.set(id, (itemText.get(id) || "") + "\n" + text);
   };
+
+  const appendLead = (id, text) => {
+    leadText.set(id, (leadText.get(id) || "") + "\n" + text);
+  };
+
+  const appendFirstSub = (id, text) => {
+    firstSubText.set(id, (firstSubText.get(id) || "") + "\n" + text);
+  };
+
+  // Headings whose body is structured governance/relationship content, not a
+  // "what is this about?" description. If the FIRST subsection is one of these,
+  // skip it as the description fallback and try the next descriptive subsection.
+  const isGovernanceSubsection = (heading) =>
+    /^(reconciliation completion record|strategic disposition|architectural disposition|parking-lot|related|next authorized|why-state|explicitly not authorized|unresolved)\b/i.test(
+      heading.replace(/^\d+\.\s*/, "").trim(),
+    );
 
   for (const rawLine of lines) {
     const line = rawLine.replace(/\r$/, "");
@@ -349,6 +526,8 @@ export function parseParkingLotFile(content, fileName, validLvtIds, validArIds) 
       // Section for a prose reconciliation record is the record itself.
       recordItem(id, name, "Reconciliation / continuation record");
       activeProseId = id;
+      leadOpenForProseId = id; // lead narrative runs until the first ### subsection
+      firstSubProseId = null;
       appendText(id, line);
       continue;
     }
@@ -362,14 +541,28 @@ export function parseParkingLotFile(content, fileName, validLvtIds, validArIds) 
     if (level2Heading) {
       currentSection = level2Heading[1].replace(/`/g, "").trim();
       activeProseId = null;
+      leadOpenForProseId = null;
+      firstSubProseId = null;
       continue;
     }
 
     const level3Heading = line.match(/^###\s+(.+?)\s*$/);
     if (level3Heading) {
       if (activeProseId) {
-        // Subsection of the active prose record: keep accumulating.
+        // Subsection of the active prose record: keep accumulating for
+        // relationship scanning, but the lead-narrative region ends here.
         appendText(activeProseId, line);
+        bodyLines.get(activeProseId).push(line);
+        leadOpenForProseId = null;
+        // First-subsection fallback: capture the FIRST descriptive subsection's
+        // prose (skipping governance/relationship subsections) as a description
+        // fallback for records whose lead region is empty.
+        if (!firstSubCaptured.has(activeProseId) && !isGovernanceSubsection(level3Heading[1])) {
+          firstSubProseId = activeProseId;
+          firstSubCaptured.add(activeProseId);
+        } else {
+          firstSubProseId = null;
+        }
       } else {
         // A table-context section grouping (e.g. "### Accepted Direction").
         currentSection = level3Heading[1].replace(/`/g, "").trim();
@@ -388,6 +581,20 @@ export function parseParkingLotFile(content, fileName, validLvtIds, validArIds) 
       const name = tableRow[2].trim();
       recordItem(id, name || null, currentSection);
       appendText(id, line);
+      // The next table cell after Name is the authored "Summary" — the item's
+      // description. tableRow[3] is everything after Name ("| Summary | ... |");
+      // its first cell is the Summary. Captured verbatim (faithful excerpt).
+      if (items.get(id).description === "") {
+        const afterName = tableRow[3];
+        const firstCell = afterName.replace(/^\|/, "").split("|")[0] ?? "";
+        // Verbosity-first: a table row has no sectioned body, so its Summary cell
+        // IS the full content — show it uncapped rather than excerpting.
+        const { text, truncated } = faithfulExcerpt(firstCell, Infinity);
+        if (text) {
+          items.get(id).description = text;
+          items.get(id).descriptionTruncated = truncated;
+        }
+      }
       // A table row is self-contained; do not treat following lines as its text.
       continue;
     }
@@ -395,7 +602,60 @@ export function parseParkingLotFile(content, fileName, validLvtIds, validArIds) 
     // Otherwise, if we are inside a prose PL record, accumulate its text.
     if (activeProseId) {
       appendText(activeProseId, line);
+
+      // Capture the record's **State:** line (verbatim) once — answers "where
+      // does this stand?". Do NOT treat the State line as lead narrative.
+      const stateMatch = line.match(/^\*\*State:\*\*\s*(.+?)\s*$/);
+      if (stateMatch && items.get(activeProseId).state === null) {
+        items.get(activeProseId).state = stateMatch[1].trim();
+      }
+
+      // Accumulate the full body for sectioned projection, EXCLUDING the record's
+      // own metadata bullets (Date/State/Concept home/Authority/Related) which are
+      // surfaced separately. Subsection headings and their prose are kept.
+      const isItemMetadata = /^\*\*(Date|State|Reconciliation state|Concept home|Authority|Related|Status):\*\*/.test(
+        line,
+      );
+      if (!isItemMetadata) bodyLines.get(activeProseId).push(line);
+
+      // Lead narrative: prose between the metadata and the first ### subsection.
+      // Skip pure metadata bullet lines (**Date:**, **State:**, **Concept home:**)
+      // but KEEP **Trigger:** since that is descriptive of what the item is about.
+      if (leadOpenForProseId === activeProseId) {
+        const isMetadataOnly = /^\*\*(Date|State|Reconciliation state|Concept home|Authority|Related|Status):\*\*/.test(
+          line,
+        );
+        if (!isMetadataOnly) appendLead(activeProseId, line);
+      }
+
+      // Accumulate the first descriptive subsection's prose as a fallback.
+      if (firstSubProseId === activeProseId) {
+        appendFirstSub(activeProseId, line);
+      }
     }
+  }
+
+  // Finalize prose descriptions from the accumulated lead narrative. A prose
+  // record's description is its **Trigger:** line + opening paragraph(s),
+  // faithfully excerpted. Table-row descriptions were already set inline.
+  for (const [id, item] of items) {
+    if (item.description === "") {
+      // Prefer the lead narrative (between metadata and first ### subsection).
+      // Keep the "Trigger:" label as plain text (drop only the markdown bold
+      // markers) so the operator sees what triggered the item, then the prose.
+      let lead = (leadText.get(id) || "").replace(/\*\*(Trigger:)\*\*/i, "$1").trim();
+      // Fallback: records whose lead region is empty put their "what is this
+      // about?" prose under the first descriptive subsection.
+      if (lead === "") lead = (firstSubText.get(id) || "").trim();
+      const { text, truncated } = faithfulExcerpt(lead);
+      item.description = text;
+      item.descriptionTruncated = truncated;
+    }
+
+    // Full sectioned body (verbosity-first, uncapped) for prose records. Table
+    // rows have no accumulated body, so this is [] for them.
+    const body = bodyLines.get(id) || [];
+    item.sections = sliceIntoSections(body, Infinity, 3, true);
   }
 
   // Now resolve explicit relationships from accumulated text.
@@ -870,25 +1130,40 @@ export function parseGraduatedIndex(content) {
  *   **Decision:** ...
  *   **Consequences:** ...
  *
- * Captures id, title, date, status, and a concise context excerpt. The full ADR
- * text remains in the canonical Markdown; this is a projection, not a copy.
+ * Captures id, title, date, status, and the FULL Context / Decision /
+ * Consequences prose (verbatim, line breaks preserved — verbosity-first). Each
+ * field accumulates from its `**Field:**` marker until the next bold field, the
+ * `---` record separator, or the next ADR heading. The full ADR text remains
+ * canonical in the Markdown; this is a faithful projection, not a reword.
+ *
  * Returns { items }.
  */
 export function parseAdrs(markdown) {
   const lines = markdown.split("\n");
   const items = [];
   let current = null;
+  // Which field we are currently accumulating: "context" | "decision" |
+  // "consequences" | null. Accumulation buffers live on the current record.
+  let collecting = null;
+
+  const joinField = (buf) => {
+    // Preserve line breaks (bullets, paragraphs) but trim outer blank lines.
+    const text = buf.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+    return text.length > 0 ? text : null;
+  };
 
   const finalize = () => {
     if (current) {
-      // Trim the collected context to a concise excerpt (first paragraph).
-      const contextText = current._context.join(" ").replace(/\s+/g, " ").trim();
-      current.context = contextText.length > 0 ? contextText : null;
+      current.context = joinField(current._context);
+      current.decision = joinField(current._decision);
+      current.consequences = joinField(current._consequences);
       delete current._context;
-      delete current._collecting;
+      delete current._decision;
+      delete current._consequences;
       items.push(current);
     }
     current = null;
+    collecting = null;
   };
 
   for (const rawLine of lines) {
@@ -903,42 +1178,71 @@ export function parseAdrs(markdown) {
         date: null,
         status: null,
         context: null,
+        decision: null,
+        consequences: null,
         _context: [],
-        _collecting: false,
+        _decision: [],
+        _consequences: [],
       };
       continue;
     }
     if (!current) continue;
 
+    // The `---` separator ends the current record's field accumulation.
+    if (/^---\s*$/.test(line)) {
+      collecting = null;
+      continue;
+    }
+
     const dateMatch = line.match(/^\*\*Date:\*\*\s*(.+?)\s*$/);
     if (dateMatch) {
       current.date = dateMatch[1].trim();
+      collecting = null;
       continue;
     }
     const statusMatch = line.match(/^\*\*Status:\*\*\s*(.+?)\s*$/);
     if (statusMatch) {
       current.status = statusMatch[1].trim();
+      collecting = null;
       continue;
     }
-    const contextMatch = line.match(/^\*\*Context:\*\*\s*(.*)$/);
-    if (contextMatch) {
-      current._collecting = true;
-      if (contextMatch[1].trim().length > 0) current._context.push(contextMatch[1].trim());
+
+    // The three narrative fields. Each opens accumulation; any inline text after
+    // the marker is the first line of that field.
+    const fieldOpen = (label) => {
+      const m = line.match(new RegExp(`^\\*\\*${label}:\\*\\*\\s*(.*)$`, "i"));
+      return m ? m[1] : null;
+    };
+    const ctxOpen = fieldOpen("Context");
+    if (ctxOpen !== null) {
+      collecting = "context";
+      if (ctxOpen.trim().length > 0) current._context.push(ctxOpen.trim());
       continue;
     }
-    // A subsequent bold field (Decision:, Consequences:, etc.) ends context collection.
-    if (/^\*\*[A-Z][a-z]+.*:\*\*/.test(line)) {
-      current._collecting = false;
+    // "Decision" or "Decisions" (some ADRs use the plural with ### subsections).
+    const decOpen = fieldOpen("Decisions?");
+    if (decOpen !== null) {
+      collecting = "decision";
+      if (decOpen.trim().length > 0) current._decision.push(decOpen.trim());
       continue;
     }
-    if (current._collecting) {
-      if (line.trim().length === 0) {
-        // Blank line ends the first context paragraph.
-        if (current._context.length > 0) current._collecting = false;
-      } else {
-        current._context.push(line.trim());
-      }
+    const consOpen = fieldOpen("Consequences");
+    if (consOpen !== null) {
+      collecting = "consequences";
+      if (consOpen.trim().length > 0) current._consequences.push(consOpen.trim());
+      continue;
     }
+
+    // NOTE: other inline bold fields (e.g. **Invariant:**, **Domain rule:**,
+    // **Amendment:**) appear WITHIN a Decision/Consequences body and are part of
+    // its verbatim prose — they must NOT end accumulation. Only the explicit
+    // section markers above (Context / Decision(s) / Consequences / Date /
+    // Status) and the `---` record separator switch fields. This keeps the
+    // full, faithful body (including its ### subsections) intact.
+
+    if (collecting === "context") current._context.push(line);
+    else if (collecting === "decision") current._decision.push(line);
+    else if (collecting === "consequences") current._consequences.push(line);
   }
 
   finalize();
@@ -1356,59 +1660,27 @@ export function parseBugIndex(markdown) {
 export function parseBugRecord(markdown, excerptCharLimit = 900) {
   const lines = markdown.split("\n");
   let title = null;
-  const sections = [];
-  let current = null;
-  const buf = [];
-
-  const flush = () => {
-    if (!current) {
-      buf.length = 0;
-      return;
-    }
-    const { prose, tables } = splitProseAndTables(buf);
-    let content = prose.trim();
-    let truncated = false;
-    if (content.length > excerptCharLimit) {
-      const slice = content.slice(0, excerptCharLimit);
-      const para = slice.lastIndexOf("\n\n");
-      const sentence = slice.lastIndexOf(". ");
-      const space = slice.lastIndexOf(" ");
-      const cut = para > 300 ? para : sentence > 300 ? sentence + 1 : space > 0 ? space : slice.length;
-      content = slice.slice(0, cut).trim();
-      truncated = true;
-    }
-    current.content = content;
-    current.truncated = truncated;
-    current.tables = tables;
-    sections.push(current);
-    current = null;
-    buf.length = 0;
-  };
+  const bodyLines = [];
+  let seenTitle = false;
 
   for (const rawLine of lines) {
     const line = rawLine.replace(/\r$/, "");
-
-    if (title === null) {
+    if (!seenTitle) {
       const t = line.match(/^#\s+(.+?)\s*$/);
       if (t) {
         title = t[1].trim();
+        seenTitle = true;
         continue;
       }
     }
-
-    const sec = line.match(/^(#{2,3})\s+(.+?)\s*$/);
-    if (sec) {
-      flush();
-      current = { heading: sec[2].trim(), level: sec[1].length, content: "", truncated: false, tables: [] };
-      continue;
-    }
-
-    // Metadata bullets before the first section are not part of any section body;
-    // the INDEX already carries Status/Severity/Area/Provenance, so they are not
-    // re-projected here. Everything else accumulates into the current section.
-    if (current) buf.push(line);
+    bodyLines.push(line);
   }
-  flush();
+
+  // Slice the body into faithful sections. Lines before the first `##`/`###`
+  // are the record's metadata bullets (Status/Severity/Area/Provenance), which
+  // the INDEX already carries — so the pre-heading lead is dropped (keepLead=false),
+  // preserving the original Bugs-pane behavior.
+  const sections = sliceIntoSections(bodyLines, excerptCharLimit, 3, false);
 
   return { title, sections };
 }

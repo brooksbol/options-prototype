@@ -242,6 +242,11 @@
   margin: 0 0 14px 0;
 }
 
+.rm-detail-more {
+  color: var(--wd-text-tertiary);
+  font-style: italic;
+}
+
 .rm-detail-section {
   margin-bottom: 14px;
 }

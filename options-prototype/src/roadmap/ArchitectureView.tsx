@@ -132,8 +132,8 @@ function ArDetail({ selected, byLvtId }: ArDetailProps) {
   if (!selected) {
     return (
       <div className="rm-detail rm-detail-empty">
-        Select an architectural pressure to see its candidate transition, the strategy
-        it responds to, and the work explicitly related to it.
+        Select an architectural pressure to see what it is, its candidate transition, the
+        strategy it responds to, and the work explicitly related to it.
       </div>
     );
   }
@@ -149,6 +149,22 @@ function ArDetail({ selected, byLvtId }: ArDetailProps) {
           <span className="rm-node-id">{selected.id}</span>
         </div>
       </div>
+
+      <section className="rm-detail-section">
+        <h3 className="rm-detail-section-title">What this pressure is</h3>
+        {selected.summary ? (
+          <p className="rm-detail-desc">
+            {selected.summary}
+            {selected.summaryTruncated && (
+              <span className="rm-detail-more" title="Full text in docs/architecture-roadmap.md">
+                {" "}… (full text in the canonical source)
+              </span>
+            )}
+          </p>
+        ) : (
+          <p className="rm-none">The canonical source provides no overview prose for this pressure.</p>
+        )}
+      </section>
 
       {selected.candidateTransition && (
         <section className="rm-detail-section">

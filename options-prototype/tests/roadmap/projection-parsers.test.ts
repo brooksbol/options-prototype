@@ -24,6 +24,9 @@ import {
   parseLeadingCalendarDate,
   deriveEventKind,
   deriveIntakeEvidence,
+  faithfulExcerpt,
+  sliceIntoSections,
+  parseAdrs,
 } from "../../scripts/roadmap-projection-parsers.mjs";
 
 const LVT_FIXTURE = [
@@ -100,6 +103,91 @@ describe("parseLvt", () => {
   });
 });
 
+describe("faithfulExcerpt", () => {
+  it("collapses whitespace and returns short text untruncated", () => {
+    const { text, truncated } = faithfulExcerpt("Line one.\n\nLine   two.");
+    expect(text).toBe("Line one. Line two.");
+    expect(truncated).toBe(false);
+  });
+
+  it("cuts long text at a boundary and flags truncation (never rewords)", () => {
+    const raw = "First sentence is short. " + "word ".repeat(300);
+    const { text, truncated } = faithfulExcerpt(raw, 120);
+    expect(truncated).toBe(true);
+    expect(text.length).toBeLessThanOrEqual(120);
+    // The retained text is a verbatim prefix of the collapsed source.
+    expect("First sentence is short. ".startsWith(text.slice(0, 20))).toBe(true);
+  });
+
+  it("returns empty for empty/whitespace input", () => {
+    expect(faithfulExcerpt("   \n  ")).toEqual({ text: "", truncated: false });
+    expect(faithfulExcerpt(null)).toEqual({ text: "", truncated: false });
+  });
+});
+
+describe("faithfulExcerpt — uncapped mode", () => {
+  it("returns full text (untruncated) when limit is Infinity", () => {
+    const raw = "Sentence. " + "word ".repeat(500);
+    const { text, truncated } = faithfulExcerpt(raw, Infinity);
+    expect(truncated).toBe(false);
+    // Whitespace is still collapsed, but nothing is cut.
+    expect(text.startsWith("Sentence. word word")).toBe(true);
+    expect(text.length).toBeGreaterThan(1000);
+  });
+});
+
+describe("sliceIntoSections", () => {
+  const body = [
+    "Lead paragraph before any heading.",
+    "",
+    "### What was discovered",
+    "The discovery prose, on two lines.",
+    "Second line of the discovery.",
+    "",
+    "### Evidence",
+    "| Before | After |",
+    "|---|---|",
+    "| A | B |",
+    "",
+    "### Next authorized mode",
+    "No work.",
+  ].join("\n");
+
+  it("captures an untitled lead section and each heading's body verbatim", () => {
+    const secs = sliceIntoSections(body.split("\n"), Infinity, 3, true);
+    expect(secs[0].heading).toBe("");
+    expect(secs[0].level).toBe(0);
+    expect(secs[0].content).toContain("Lead paragraph before any heading");
+    const disc = secs.find((s: { heading: string }) => s.heading === "What was discovered");
+    // Line breaks preserved (not collapsed to one line).
+    expect(disc.content).toContain("The discovery prose, on two lines.\nSecond line");
+  });
+
+  it("extracts embedded tables structurally, separate from prose", () => {
+    const secs = sliceIntoSections(body.split("\n"), Infinity, 3, true);
+    const ev = secs.find((s: { heading: string }) => s.heading === "Evidence");
+    expect(ev.tables).toHaveLength(1);
+    expect(ev.tables[0].header).toEqual(["Before", "After"]);
+    expect(ev.tables[0].rows).toEqual([["A", "B"]]);
+    expect(ev.content).not.toContain("| A |");
+  });
+
+  it("omits the pre-heading lead when keepLead is false", () => {
+    const secs = sliceIntoSections(body.split("\n"), Infinity, 3, false);
+    expect(secs.some((s: { level: number }) => s.level === 0)).toBe(false);
+    expect(secs[0].heading).toBe("What was discovered");
+  });
+
+  it("does not truncate under Infinity, and truncates at a boundary under a limit", () => {
+    const long = ["## Big", "`x` " + "word ".repeat(400)].join("\n");
+    const uncapped = sliceIntoSections(long.split("\n"), Infinity, 3, true);
+    expect(uncapped[0].truncated).toBe(false);
+    const capped = sliceIntoSections(long.split("\n"), 500, 3, true);
+    expect(capped[0].truncated).toBe(true);
+    expect(capped[0].content.length).toBeLessThanOrEqual(500);
+  });
+});
+
 describe("expandPressureTokens", () => {
   it("expands comma lists, ranges, and slash groups", () => {
     const { aliases } = expandPressureTokens("A2, C5, O1/O2, L1, X1.");
@@ -126,6 +214,9 @@ describe("parseArchitecture", () => {
     "## AR3 — From Strategy-Specific Recommendations Toward Governed Alternatives",
     "",
     "**Pressure from:** C1–C6, K1–K8.",
+    "",
+    "Parallel per-strategy pipelines duplicate reasoning and diverge over time.",
+    "A single governed-alternative model would unify how candidates are compared.",
     "",
     "**Candidate transition:** from parallel pipelines toward a common Alternative.",
     "",
@@ -160,6 +251,21 @@ describe("parseArchitecture", () => {
     expect(ar3.candidateTransition).toContain("common Alternative");
   });
 
+  it("captures the descriptive prose as a faithful summary, excluding bold-field lines", () => {
+    const ar3 = pressures.find((p: { id: string }) => p.id === "AR3");
+    // The narrative paragraphs are captured verbatim (whitespace-collapsed)...
+    expect(ar3.summary).toContain("Parallel per-strategy pipelines duplicate reasoning");
+    expect(ar3.summary).toContain("unify how candidates are compared");
+    // ...but the structured **Pressure from:** / **Candidate transition:** lines
+    // are surfaced separately and are NOT folded into the summary.
+    expect(ar3.summary).not.toContain("Pressure from");
+    expect(ar3.summary).not.toContain("Candidate transition");
+    expect(ar3.summaryTruncated).toBe(false);
+    // An AR with no prose paragraphs yields an empty (not fabricated) summary.
+    const ar9 = pressures.find((p: { id: string }) => p.id === "AR9");
+    expect(ar9.summary).toBe("");
+  });
+
   it("stops AR parsing at a non-AR top-level heading", () => {
     expect(pressures.some((p: { id: string }) => p.id === "AR-other")).toBe(false);
     expect(pressures).toHaveLength(2);
@@ -187,6 +293,117 @@ describe("parseParkingLotFile — explicit-only relationships", () => {
     // No manufactured relationship where none is stated.
     expect(byId.get("PL-DEPLOY").relatedLvtIds).toEqual([]);
     expect(byId.get("PL-DEPLOY").relatedArIds).toEqual([]);
+  });
+
+  it("captures the table-row Summary cell as the item's faithful description", () => {
+    const md = [
+      "### Accepted Direction (Design/Implementation Needed)",
+      "| ID | Name | Summary | Concept Home |",
+      "|---|---|---|---|",
+      "| `PL-ELIG` | Deployment Eligibility | Transparency of why actions are available or unavailable. | home |",
+      "| `PL-DEPLOY` | Deployment Opportunity | Normalize candidates. | home |",
+    ].join("\n");
+    const { items } = parseParkingLotFile(md, "parking-lot.md", validLvt, validAr);
+    const byId = new Map(items.map((i: { id: string }) => [i.id, i]));
+    // The Summary column (cell after Name) becomes the description, verbatim.
+    expect(byId.get("PL-ELIG").description).toBe(
+      "Transparency of why actions are available or unavailable.",
+    );
+    expect(byId.get("PL-ELIG").descriptionTruncated).toBe(false);
+    // Table rows carry no separate **State:** line.
+    expect(byId.get("PL-ELIG").state).toBeNull();
+    expect(byId.get("PL-DEPLOY").description).toBe("Normalize candidates.");
+  });
+
+  it("captures a prose record's lead narrative (with Trigger) and State as description", () => {
+    const md = [
+      "## `PL-ACTOR-01` — Remove the Principal as Human Clipboard",
+      "",
+      "**Date:** September 17, 2026  ",
+      "**State:** INTAKE — new canonical identity created; not reconciled  ",
+      "**Trigger:** Live multi-actor operation exposed that the Principal is the message bus.",
+      "",
+      "The desired separation: the Principal owns authority; the system owns transport.",
+      "",
+      "### What was discovered",
+      "This subsection body is not the lead narrative.",
+    ].join("\n");
+    const { items } = parseParkingLotFile(md, "parking-lot-9.md", validLvt, validAr);
+    const item = items.find((i: { id: string }) => i.id === "PL-ACTOR-01");
+    // The Trigger label is kept as plain text; the lead paragraphs follow.
+    expect(item.description).toContain("Trigger: Live multi-actor operation");
+    expect(item.description).toContain("the Principal owns authority");
+    // Metadata (Date/State/Concept home) is NOT folded into the description.
+    expect(item.description).not.toContain("September 17");
+    // State is captured verbatim, separately.
+    expect(item.state).toBe("INTAKE — new canonical identity created; not reconciled");
+  });
+
+  it("projects the FULL prose-record body as faithful sections (verbosity-first)", () => {
+    const md = [
+      "## `PL-ACTOR-01` — Remove the Principal as Human Clipboard",
+      "",
+      "**Date:** September 17, 2026  ",
+      "**State:** INTAKE — new canonical identity created  ",
+      "",
+      "### What was discovered",
+      "The Principal is the physical message bus among the actors.",
+      "Second line of the discovery.",
+      "",
+      "### What remains unresolved",
+      "Topology is intentionally unresolved.",
+    ].join("\n");
+    const { items } = parseParkingLotFile(md, "parking-lot-9.md", validLvt, validAr);
+    const item = items.find((i: { id: string }) => i.id === "PL-ACTOR-01");
+    const headings = item.sections.map((s: { heading: string }) => s.heading);
+    expect(headings).toContain("What was discovered");
+    expect(headings).toContain("What remains unresolved");
+    // Full body, uncapped, line breaks preserved.
+    const disc = item.sections.find((s: { heading: string }) => s.heading === "What was discovered");
+    expect(disc.content).toContain("physical message bus");
+    expect(disc.content).toContain("Second line of the discovery.");
+    expect(disc.truncated).toBe(false);
+    // Metadata bullets (Date/State) are not projected as a section body.
+    expect(item.sections.some((s: { content: string }) => s.content.includes("September 17"))).toBe(false);
+  });
+
+  it("keeps the full table-row Summary uncapped and gives table rows no sections", () => {
+    const bigSummary = "This is a very detailed summary. " + "detail ".repeat(300);
+    const md = [
+      "### Accepted Direction",
+      "| ID | Name | Summary | Concept Home |",
+      "|---|---|---|---|",
+      `| \`PL-BIG\` | Big Item | ${bigSummary.replace(/\n/g, " ")} | home |`,
+    ].join("\n");
+    const { items } = parseParkingLotFile(md, "parking-lot.md", validLvt, validAr);
+    const item = items.find((i: { id: string }) => i.id === "PL-BIG");
+    expect(item.descriptionTruncated).toBe(false);
+    expect(item.description.length).toBeGreaterThan(1000);
+    expect(item.sections).toEqual([]);
+  });
+
+  it("falls back to the first descriptive subsection when the lead region is empty", () => {
+    // Well-formed records (### Intake / ### 1. What was discovered) place their
+    // description under the first subsection; the lead region is then empty.
+    const md = [
+      "## `PL-OPS-08` — Observation Continuity / Gap Recovery",
+      "",
+      "**Date:** September 9, 2026  ",
+      "**State:** INTAKE — new canonical identity created  ",
+      "**Concept home:** `foundations/evidence-appliance.md`",
+      "",
+      "### Intake",
+      "A local incident exposed a durable operational gap in the always-on promise.",
+      "",
+      "### What is deferred",
+      "The broader problem is preserved for later work.",
+    ].join("\n");
+    const { items } = parseParkingLotFile(md, "parking-lot-7.md", validLvt, validAr);
+    const item = items.find((i: { id: string }) => i.id === "PL-OPS-08");
+    expect(item.description).toContain("A local incident exposed a durable operational gap");
+    // Only the FIRST descriptive subsection is used, not later ones.
+    expect(item.description).not.toContain("preserved for later work");
+    expect(item.state).toBe("INTAKE — new canonical identity created");
   });
 
   it("parses prose reconciliation-record items and captures explicit AR references", () => {
@@ -240,6 +457,79 @@ describe("parseParkingLotFile — explicit-only relationships", () => {
     const item = items.find((i: { id: string }) => i.id === "PL-X");
     expect(item.relatedLvtIds).toEqual([]);
     expect(item.relatedArIds).toEqual([]);
+  });
+});
+
+describe("parseAdrs — full Context / Decision / Consequences", () => {
+  const md = [
+    "# Architecture Decision Records",
+    "---",
+    "## ADR-001: Separate Concerns",
+    "**Date:** July 2026",
+    "**Status:** Accepted",
+    "**Context:** The prototype combined fetching and ranking in one pass.",
+    "**Decision:** Separate Evidence Acquisition from the Recommendation Engine.",
+    "**Consequences:**",
+    "- Recommendations regenerate instantly.",
+    "- Cached evidence survives reloads.",
+    "---",
+    "## ADR-014: Plural Decisions With Subsections",
+    "**Date:** August 2026",
+    "**Status:** Accepted",
+    "**Context:** Implementing the view exposed a double-counting risk.",
+    "**Decisions:**",
+    "### Production recognition at receipt",
+    "Premium is recognized at receipt.",
+    "**Invariant:** One premium receipt contributes exactly once.",
+    "### Lifecycle attribution",
+    "Realized appreciation is production only under a governed lifecycle event.",
+    "**Consequences:**",
+    "- Forecast derives from known production only.",
+    "---",
+    "## ADR-007: No Consequences Field",
+    "**Date:** July 2026",
+    "**Status:** Accepted",
+    "**Context:** Evidence has session-dependent validity.",
+    "**Decision:** Implement a 6-state session model.",
+    "**Current status:** Provisional shortcut in use.",
+  ].join("\n");
+
+  const { items } = parseAdrs(md);
+  const byId = new Map(items.map((a: { id: string }) => [a.id, a]));
+
+  it("captures full Context, Decision, and Consequences (line breaks preserved)", () => {
+    const a1 = byId.get("ADR-001");
+    expect(a1.context).toContain("combined fetching and ranking");
+    expect(a1.decision).toContain("Separate Evidence Acquisition");
+    // Consequences keeps its bullet lines.
+    expect(a1.consequences).toContain("- Recommendations regenerate instantly.");
+    expect(a1.consequences).toContain("- Cached evidence survives reloads.");
+  });
+
+  it("handles plural **Decisions:** with ### subsections and inline bold fields as one body", () => {
+    const a14 = byId.get("ADR-014");
+    // The whole Decisions block is captured, including its subsections and the
+    // inline **Invariant:** field (which must NOT terminate the field).
+    expect(a14.decision).toContain("Production recognition at receipt");
+    expect(a14.decision).toContain("**Invariant:** One premium receipt contributes exactly once.");
+    expect(a14.decision).toContain("Lifecycle attribution");
+    // Consequences is a clean, separate field (no decision bleed-through).
+    expect(a14.consequences).toContain("Forecast derives from known production only.");
+    expect(a14.consequences).not.toContain("Production recognition at receipt");
+  });
+
+  it("leaves Consequences null when the record genuinely has none (faithful, not invented)", () => {
+    const a7 = byId.get("ADR-007");
+    expect(a7.context).toContain("session-dependent validity");
+    expect(a7.decision).toContain("6-state session model");
+    // ADR-007 uses "Current status" instead of Consequences — do not fabricate one.
+    expect(a7.consequences).toBeNull();
+  });
+
+  it("stops a field at the --- record separator (no cross-record bleed)", () => {
+    const a1 = byId.get("ADR-001");
+    expect(a1.consequences).not.toContain("ADR-014");
+    expect(a1.decision).not.toContain("Plural Decisions");
   });
 });
 

@@ -57,6 +57,15 @@ export interface ArPressure {
   id: string;
   /** Short title from the AR heading. */
   title: string;
+  /**
+   * Faithful overview prose: the AR's lead paragraph(s) before the
+   * "**Pressure from:**" line, verbatim (whitespace-collapsed) up to an excerpt
+   * limit. This answers "what is this pressure about?" so the detail pane is
+   * self-explanatory. Empty string when the record has no lead prose.
+   */
+  summary: string;
+  /** True when `summary` was boundary-cut because the canonical lead prose is longer. */
+  summaryTruncated: boolean;
   /** The one-line candidate transition, when present. */
   candidateTransition: string | null;
   /** Canonical LVT IDs explicitly cited as pressure sources. */
@@ -78,6 +87,34 @@ export interface PlItem {
   name: string | null;
   /** Repository section / disposition grouping this item was found under. */
   section: string;
+  /**
+   * Faithful description prose so the operator understands what the item IS —
+   * never a synthesized summary. For a table-row item this is the authored
+   * "Summary" cell verbatim. For a prose reconciliation/continuation record it
+   * is the record's lead narrative (its `**Trigger:**` line and the paragraphs
+   * before the first `###` subsection), whitespace-collapsed up to an excerpt
+   * limit. Empty string only when the source genuinely provides no prose.
+   */
+  description: string;
+  /** True when `description` was boundary-cut because the canonical prose is longer. */
+  descriptionTruncated: boolean;
+  /**
+   * The item's `**State:**` line verbatim when a prose record states one (e.g.
+   * "INTAKE — new canonical identity created; not reconciled"); otherwise null.
+   * Answers "where does this stand?" alongside the description. Table-row items
+   * carry no separate state line, so this is null for them.
+   */
+  state: string | null;
+  /**
+   * Faithful projection of the FULL body of a prose reconciliation/continuation
+   * record — its `##`/`###` subsections with verbatim headings and bodies (and
+   * embedded tables rendered structurally), same shape and discipline as the
+   * Bugs detail pane. This is the complete, verbosity-first record content so the
+   * operator never has to leave the pane to understand an item. Empty array for
+   * table-row items (their full authored Summary is the `description`) and for
+   * records with no subsections (their body is the `description`).
+   */
+  sections: BugSection[];
   /** Physical source file (pagination only), e.g. "parking-lot-9.md". */
   sourceFile: string;
   /** Canonical LVT IDs explicitly referenced by this item's text. */
@@ -111,8 +148,12 @@ export interface AdrRecord {
   title: string;
   date: string | null;
   status: string | null;
-  /** Concise context excerpt (first paragraph), or null. */
+  /** Full Context prose (verbatim, line breaks preserved), or null. */
   context: string | null;
+  /** Full Decision prose (verbatim, line breaks preserved), or null. */
+  decision: string | null;
+  /** Full Consequences prose (verbatim, line breaks preserved), or null. */
+  consequences: string | null;
 }
 
 /**

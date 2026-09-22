@@ -822,3 +822,33 @@ An independent FE/BE responsibility review (Codex, at accepted-main SYNC `ddac5c
 **Why-state:** the independent review is in Principal conversation context (2026-09-21) and summarized here; the recovery why-state that established the no-embedded-identity fact is `docs/journal/project-journal-5.md` (2026-09-21) and the `PL-DEPLOY-BAL` transition record earlier in this file.
 
 **Next authorized mode:** unchanged — **Record → defer → proceed.** Future reconciliation/design only when separately selected by the Principal.
+
+### `PL-ROADMAP-UI` — detail-pane completeness refinement (verbosity-first, 2026-09-22)
+
+**Date:** September 22, 2026
+**State:** RECONCILED — provisional-UX refinement under existing `PL-ROADMAP-UI`; no new canonical identity; Principal-accepted; no new authority mutated.
+
+**Discovery (Principal review of the rendered surface).** Inspecting the two-pane lenses, the Principal found the detail panes for **Parking Lot** and **Architecture** showed only metadata (id, name, section, source, relationship chips) and answered neither "what is this item about?" nor "where does it stand?". The governing requirement: *the operator should never leave a detail pane still asking "wait, what is this one about?"* A follow-up review added a global preference: **err on the side of verbosity in every detail pane** (screen real estate is available; below-the-fold content is acceptable).
+
+**What changed (presentation/projection only; no canonical authority mutated).** This refinement is entirely within the existing ADR-018 build-time projection boundary — canonical Markdown → `scripts/generate-roadmap-projection.mjs` → read-only `roadmap-projection.json` → UI. It adds no relationships, priority, dates, owners, or authorization state, and rewords nothing (faithful excerpt/verbatim discipline, mirroring the existing Domain/Bugs projections).
+
+- **Parking Lot** — `PlItem` gained a faithful `description` (table-row items use their authored Summary cell verbatim and uncapped; prose records use their lead narrative + `**Trigger:**`, falling back to the first descriptive subsection), a verbatim `state` line, and a full sectioned `sections[]` body (every `##`/`###` subsection of a prose record, verbatim, uncapped, Bugs-style), plus `descriptionTruncated`.
+- **Architecture** — `ArPressure` gained a faithful `summary` (the AR's narrative paragraphs, excluding the structured `**Pressure from:**`/`**Candidate transition:**` fields), uncapped.
+- **ADRs** — `AdrRecord` gained full `decision` and `consequences` and a full (no longer first-paragraph-only) `context`. The parser handles source-format variance faithfully: plural `**Decisions:**` with `###` subsections is captured whole; inline bold fields (`**Invariant:**`, etc.) remain in-body; ADR-007 correctly carries `null` consequences because it genuinely has none (it uses "Current status").
+- Shared parser helpers: `faithfulExcerpt` gained an uncapped (`Infinity`) mode; new `sliceIntoSections` factored out of `parseBugRecord` (behavior preserved).
+
+**Strategic disposition (against `docs/roadmap.md`).** No new Bet, no LVT change. Strengthens comprehensibility of existing Category-C authority; introduces no strategic hypothesis.
+
+**Architectural disposition (against `docs/architecture-roadmap.md`, ADRs).** No AR change, no new engine; wholly within the ADR-018 projection boundary. The projection was regenerated from authority and passes the freshness check.
+
+**Parking-lot disposition / mapping.** Retained under `PL-ROADMAP-UI` (this capability's home). No new identity; no double-booking.
+
+**Findings preserved (not acted on).** (a) **Strategy** and **Principles** detail panes remain thin because the *source* is thin (an LVT node is one bullet clause; a principle statement is one sentence) — richer content is a doc-authority edit to `docs/roadmap.md`/`docs/principles.md`, not a presentation fix; recorded, not padded. (b) **ADRs** would benefit from an industry-standard (Google-style) structure — that is a rewrite of the ADR *documents*, deferred as a separate concern, not a projection change. (c) **Domain** detail is unsatisfactory to the Principal; explicitly deferred to a separate Principal-initiated intake (ignored in this pass). (d) **Priority** left unchanged (Principal rethinking it).
+
+**Explicitly not authorized.** No mutation of `docs/roadmap.md`, `docs/architecture-roadmap.md`, `docs/principles.md`, `docs/07c-adrs.md`, or the domain reference; no Domain intake created here; no new lens; no runtime/backend change.
+
+**Verification.** Frontend suite green (2062/2062 at closeout, composed with the concurrently-landed Log-lens work), `tsc -b` clean, `check:roadmap-projection` in sync.
+
+**Why-state.** This record is the durable provenance; the acceptance and design reasoning are in the Principal conversation (2026-09-22).
+
+**Next authorized mode.** No further work. Strategy/Principles source enrichment, the Google-style ADR restructure, and the Domain detail concern each require separate Principal selection.

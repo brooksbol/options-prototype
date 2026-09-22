@@ -112,7 +112,8 @@ function AdrDetail({ selected }: { selected: AdrRecord | null }) {
   if (!selected) {
     return (
       <div className="rm-detail rm-detail-empty">
-        Select an architecture decision to see its status, date, and context.
+        Select an architecture decision to see its status, date, context, decision, and
+        consequences.
       </div>
     );
   }
@@ -132,12 +133,26 @@ function AdrDetail({ selected }: { selected: AdrRecord | null }) {
       {selected.context && (
         <section className="rm-detail-section">
           <h3 className="rm-detail-section-title">Context</h3>
-          <p className="rm-detail-desc">{selected.context}</p>
+          <pre className="rm-domain-content">{selected.context}</pre>
+        </section>
+      )}
+
+      {selected.decision && (
+        <section className="rm-detail-section">
+          <h3 className="rm-detail-section-title">Decision</h3>
+          <pre className="rm-domain-content">{selected.decision}</pre>
+        </section>
+      )}
+
+      {selected.consequences && (
+        <section className="rm-detail-section">
+          <h3 className="rm-detail-section-title">Consequences</h3>
+          <pre className="rm-domain-content">{selected.consequences}</pre>
         </section>
       )}
 
       <p className="rm-none">
-        Full decision and consequences are canonical in <code>docs/07c-adrs.md</code>.
+        Full canonical record in <code>docs/07c-adrs.md</code>.
       </p>
     </div>
   );

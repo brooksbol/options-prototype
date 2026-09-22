@@ -214,8 +214,8 @@ function PlDetail({ selection, byLvtId, onSelectLvt }: PlDetailProps) {
   if (!selection) {
     return (
       <div className="rm-detail rm-detail-empty">
-        Select a parking-lot item to see its section, source, explicit relationships,
-        or — for resolved items — its disposition and destination.
+        Select a parking-lot item to see what it is, its state, section, source, and
+        explicit relationships — or, for resolved items, its disposition and destination.
       </div>
     );
   }
@@ -255,6 +255,63 @@ function PlDetail({ selection, byLvtId, onSelectLvt }: PlDetailProps) {
           <span className="rm-node-id">{item.id}</span>
         </div>
       </div>
+
+      <section className="rm-detail-section">
+        <h3 className="rm-detail-section-title">What this is</h3>
+        {item.description ? (
+          <p className="rm-detail-desc">
+            {item.description}
+            {item.descriptionTruncated && (
+              <span className="rm-detail-more" title={`Full text in docs/${item.sourceFile}`}>
+                {" "}… (full text in the canonical source)
+              </span>
+            )}
+          </p>
+        ) : (
+          <p className="rm-none">The canonical source provides no description for this item.</p>
+        )}
+      </section>
+
+      {item.state && (
+        <section className="rm-detail-section">
+          <h3 className="rm-detail-section-title">State</h3>
+          <p className="rm-detail-desc">{item.state}</p>
+        </section>
+      )}
+
+      {/* Full canonical record body — verbosity-first, faithful projection of
+          the record's subsections. The untitled lead (level 0) is omitted here
+          because it is already shown as "What this is" above. */}
+      {item.sections
+        .filter((s) => s.heading !== "")
+        .map((section, si) => (
+          <section key={si} className="rm-detail-section">
+            <h3 className="rm-detail-section-title rm-bug-section-title">{section.heading}</h3>
+            {section.content && <pre className="rm-domain-content">{section.content}</pre>}
+            {section.tables.map((table, ti) => (
+              <div key={ti} className="rm-domain-table-wrap">
+                <table className="rm-domain-table">
+                  <thead>
+                    <tr>
+                      {table.header.map((h, hi) => (
+                        <th key={hi}>{h.replace(/\*\*/g, "").replace(/`/g, "").trim()}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {table.rows.map((row, ri) => (
+                      <tr key={ri}>
+                        {row.map((c, ci) => (
+                          <td key={ci}>{c.replace(/\*\*/g, "").replace(/`/g, "").trim()}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </section>
+        ))}
 
       <section className="rm-detail-section">
         <h3 className="rm-detail-section-title">Section</h3>
