@@ -1,5 +1,14 @@
 # Options Prototype
 
+> ## ⚠️ AI / WHEELWRIGHT WORK — START AT `docs/README.md`
+>
+> **`docs/README.md` is Wheelwright's documentation authority and bootstrap root.**
+>
+> Before substantive Wheelwright reasoning, review, implementation, reconciliation, or other outcome-bearing work, **stop here and begin with [`docs/README.md`](docs/README.md)**. Follow the current authority/bootstrap routing defined there.
+>
+> **Do not use this root README's project overview, active-investigation notes, or Documentation Roadmap as a substitute bootstrap path.** This file is the repository/project overview; it does not own the AI authority-acquisition sequence.
+
+
 > A spec-driven prototype exploring whether an options income strategy can be engineered as a closed-loop financial control system.
 
 This repository serves two purposes:
