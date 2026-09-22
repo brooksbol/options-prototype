@@ -340,6 +340,49 @@ Cash only,47051.19,
 Cash and borrowing on margin,47051.19,
 `;
 
+// --- REAL LIVE SPECIMEN: PTS margin-enabled account (Z39411514), exported 2026-09-21 ---
+// Verbatim body of the Fidelity Balances export. AWMI = Settled cash = $849.30 here (they
+// happen to agree in this specimen); Deployable is AWMI ($849.30) in the MARGIN regime.
+// Non-margin buying power ($9,547.54) must NOT surface as Deployable. MARGIN STATUS present.
+const FIDELITY_BALANCES_PTS_MARGIN_2026_09_21 = `,Balance,Day change
+Total account value,114996.37,171.62
+Account equity percentage,100.00%,
+AVAILABLE TO TRADE,,
+Margin buying power,19095.08,1652.22
+Non-margin buying power,9547.54,826.11
+Available without margin impact,849.3,826.11
+Settled cash,849.3,
+AVAILABLE TO WITHDRAW,,
+Cash only,849.3,
+Cash and borrowing on margin,9494.31,
+MARGIN STATUS,,
+House surplus,10204.83,856.9
+SMA,9547.54,826.11
+Exchange surplus,10531.15,859.1
+No margin interest accrued,,
+HOLDINGS,,
+Cash market value,104344.07,12.52
+Margin market value,10689,43.99
+Option market value,-4646,-2222
+Cash and credits,849.3,-73.89
+`;
+
+// --- REAL LIVE SPECIMEN: Sawdust Roth cash (non-margin) account (262761078), exported
+//     2026-09-21. Verbatim body. Sep-2026 cash layout: NO "(all settled)" row, NO MARGIN
+//     STATUS. Headline "Available to trade" ($458.42) is Deployable; "Settled cash" ($51.06)
+//     is withdrawal-oriented and is NOT Deployable. This is the format that regressed the
+//     baseline parser to INDETERMINATE and blocked the Roth account. ---
+const FIDELITY_BALANCES_SAWDUST_CASH_2026_09 = `,Balance,Day change
+Total account value,23826.12,-69.04
+AVAILABLE TO TRADE,,
+Available to trade,458.42,
+Settled cash,51.06,
+Available to withdraw,51.06,
+HOLDINGS,,
+Cash and credits,458.42,
+Value of your investments,23367.7,10219.82
+`;
+
 function snapshotFromBalancesText(balancesText: string) {
   const rows = parseOptionSummary(FIDELITY_OPTION_SUMMARY_FIXTURE);
   const balances = parseBalances(balancesText);
@@ -382,6 +425,19 @@ describe("Fidelity upload — BUG-022 regime-aware Deployable", () => {
     expect(snapshot.deployableCash).not.toBe(6734.37);
   });
 
+  it("LIVE PTS 2026-09-21 specimen → MARGIN; Deployable is $849.30 from AWMI (not the $9,547.54 NMBP)", () => {
+    const balances = parseBalances(FIDELITY_BALANCES_PTS_MARGIN_2026_09_21);
+    expect(balances.regimeEvidence.marginFormatPresent).toBe(true);
+    expect(classifyBalanceRegime(balances)).toBe("MARGIN");
+    expect(balances.availableWithoutMarginImpact).toBe(849.3);
+    expect(balances.nonMarginBuyingPower).toBe(9547.54);
+    expect(balances.settledCash).toBe(849.3);
+    expect(deriveDeployableCash(balances)).toBe(849.3);
+    const snapshot = snapshotFromBalancesText(FIDELITY_BALANCES_PTS_MARGIN_2026_09_21);
+    expect(snapshot.deployableCash).toBe(849.3);
+    expect(snapshot.deployableCash).not.toBe(9547.54);
+  });
+
   it("uses Available without margin impact (not Non-margin buying power, not Settled cash) when they diverge", () => {
     const balances = parseBalances(FIDELITY_BALANCES_MARGIN_SETTLED_DIVERGES);
     expect(balances.nonMarginBuyingPower).toBe(56552.99);
@@ -401,6 +457,47 @@ describe("Fidelity upload — BUG-022 regime-aware Deployable", () => {
     expect(balances.availableWithoutMarginImpact ?? null).toBeNull();
     const snapshot = snapshotFromBalancesText(FIDELITY_BALANCES_SAWDUST_LEGACY);
     expect(snapshot.deployableCash).toBe(510.28);
+  });
+
+  // --- Sep-2026 cash-account layout: "(all settled)" suffix dropped, "Settled cash"
+  //     broken out into its own row. This is the format that regressed to INDETERMINATE.
+  //     Sawdust Roth specimen (exported Sep-2026): headline "Available to trade" carries
+  //     the tradable figure ($458.42); "Settled cash" ($51.06) is withdrawal-oriented and
+  //     is NOT Deployable. No "(all settled)" row, no MARGIN STATUS. ---
+  it("Sep-2026 Sawdust cash layout → LEGACY_CASH; Deployable is $458.42 from 'Available to trade'", () => {
+    const balances = parseBalances(FIDELITY_BALANCES_SAWDUST_CASH_2026_09);
+    // No legacy all-settled row, no margin evidence — presence of a value-bearing
+    // "Available to trade" row is what marks the cash regime.
+    expect(balances.availableToTradeAllSettled).toBeNull();
+    expect(balances.availableToTrade).toBe(458.42);
+    expect(balances.settledCash).toBe(51.06);
+    expect(balances.regimeEvidence.legacyAllSettledPresent).toBe(false);
+    expect(balances.regimeEvidence.marginFormatPresent).toBe(false);
+    expect(balances.regimeEvidence.availableToTradePresent).toBe(true);
+    expect(classifyBalanceRegime(balances)).toBe("LEGACY_CASH");
+    // Deployable falls back to "Available to trade" (headline tradable), NOT "Settled cash".
+    expect(deriveDeployableCash(balances)).toBe(458.42);
+    const snapshot = snapshotFromBalancesText(FIDELITY_BALANCES_SAWDUST_CASH_2026_09);
+    expect(snapshot.deployableCash).toBe(458.42);
+    expect(snapshot.readiness.status).toBe("READY");
+  });
+
+  it("Sep-2026 cash layout: when BOTH an all-settled row and a headline row exist, prefers all-settled", () => {
+    // Guard the preference direction: a pre-Sep-2026 cash export can expose a larger
+    // headline "Available to trade" alongside the smaller settled "(all settled)" figure.
+    // The settled figure remains the ratified Deployable authority.
+    const bothForms = `,Balance,Day change
+Total account value,23736.47,67.64
+AVAILABLE TO TRADE,,
+Available to trade,900.00,
+Available to trade (all settled),510.28,
+Available to withdraw,510.28,
+`;
+    const balances = parseBalances(bothForms);
+    expect(balances.availableToTrade).toBe(900.0);
+    expect(balances.availableToTradeAllSettled).toBe(510.28);
+    expect(classifyBalanceRegime(balances)).toBe("LEGACY_CASH");
+    expect(deriveDeployableCash(balances)).toBe(510.28);
   });
 
   // --- INDETERMINATE regime (fail-closed) ---

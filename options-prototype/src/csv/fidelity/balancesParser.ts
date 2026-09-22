@@ -91,6 +91,15 @@ export interface BalanceRegimeEvidence {
    * an indented "All Settled" sub-row. Presence is independent of its numeric value.
    */
   legacyAllSettledPresent: boolean;
+  /**
+   * An "Available to trade" row carrying a value appeared — the current non-margin cash
+   * layout's headline tradable figure (e.g. "Available to trade,458.42"). This is the CASH
+   * regime's Deployable source. Optional for backward compatibility with older constructed
+   * fixtures; absent is treated as false. Presence is independent of the legacy
+   * "(all settled)" label: Fidelity's Sep-2026 cash-account export dropped that suffix and
+   * broke "Settled cash" out into a separate row.
+   */
+  availableToTradePresent?: boolean;
 }
 
 /**
@@ -98,8 +107,9 @@ export interface BalanceRegimeEvidence {
  * (not from equity percentage — a margin account can report 100% equity, and the
  * legacy cash export omits equity percentage entirely).
  *
- * - LEGACY_CASH: legacy/non-margin layout — a legacy "all settled" row present and no
- *   margin-format evidence.
+ * - LEGACY_CASH: non-margin (cash) layout — an "Available to trade" row present in EITHER
+ *   the legacy "(all settled)" form or the current plain form, and no margin-format
+ *   evidence. (Named LEGACY_CASH for contract stability; it means "cash regime.")
  * - MARGIN: current margin-format layout — margin-format evidence present
  *   (Non-margin buying power / Margin buying power / Available without margin impact /
  *   MARGIN STATUS section), by presence alone even when values are blank.
@@ -124,7 +134,14 @@ export type BalanceRegime = "LEGACY_CASH" | "MARGIN" | "INDETERMINATE";
  */
 export function classifyBalanceRegime(b: ParsedBalances): BalanceRegime {
   if (b.regimeEvidence.marginFormatPresent) return "MARGIN";
-  if (b.regimeEvidence.legacyAllSettledPresent) return "LEGACY_CASH";
+  // Non-margin (cash) regime, in either export shape:
+  //   - legacy label "Available to trade (all settled)" (pre-Sep-2026 cash export), OR
+  //   - current label "Available to trade" with "Settled cash" broken out separately
+  //     (Fidelity's Sep-2026 cash-account export format change).
+  // Both are the same broker concept (the account's headline tradable figure) and both are
+  // NON-margin, so they classify as the same LEGACY_CASH (cash) regime. Margin wins on
+  // presence above, so this can never capture a margin export.
+  if (b.regimeEvidence.legacyAllSettledPresent || b.regimeEvidence.availableToTradePresent) return "LEGACY_CASH";
   return "INDETERMINATE";
 }
 
@@ -134,9 +151,18 @@ export function classifyBalanceRegime(b: ParsedBalances): BalanceRegime {
  * Deployable is Wheelwright's unlevered put-writing capacity. It is derived from the
  * appropriate broker fact for the account regime — never by folding distinct fields:
  *
- *   - LEGACY_CASH  → "Available to trade (all settled)"    (broker's settled tradable figure)
+ *   - LEGACY_CASH  → "Available to trade (all settled)" (legacy) or "Available to trade"
+ *                    (current Sep-2026 cash layout) — the non-margin account's headline
+ *                    tradable figure. Prefers the settled figure when both are present.
  *   - MARGIN       → "Available without margin impact"      (broker's no-margin tradable figure)
  *   - INDETERMINATE→ null                                   (fail-closed; readiness blocks)
+ *
+ * Cash-regime label history: the pre-Sep-2026 cash export used a single "Available to trade
+ * (all settled)" row; the Sep-2026 format split it into "Available to trade" (headline
+ * tradable) plus a separate "Settled cash" row. Both headline forms are the same Deployable
+ * concept, so CASH Deployable prefers availableToTradeAllSettled and falls back to
+ * availableToTrade. "Settled cash" is a settlement/withdrawal-oriented figure and is NOT
+ * Deployable (docs/56-fidelity-account-regime-balance-semantics-2026-09-19.md).
  *
  * "Non-margin buying power" is NEVER used as unlevered Deployable: on a real margin
  * account it exceeds both settled cash and available-without-margin-impact and reflects
@@ -158,7 +184,13 @@ export function classifyBalanceRegime(b: ParsedBalances): BalanceRegime {
 export function deriveDeployableCash(b: ParsedBalances): number | null {
   switch (classifyBalanceRegime(b)) {
     case "LEGACY_CASH":
-      return b.availableToTradeAllSettled;
+      // Prefer the legacy "(all settled)" settled figure when present (pre-Sep-2026 layout
+      // may expose BOTH a larger headline "Available to trade" and the smaller settled
+      // "(all settled)" row; the settled figure is the ratified Deployable authority). Fall
+      // back to "Available to trade" when there is no all-settled row — the Sep-2026 one-row
+      // cash layout, where "Available to trade" IS the tradable figure (with "Settled cash"
+      // broken out as a separate withdrawal-oriented row that is NOT Deployable).
+      return b.availableToTradeAllSettled ?? b.availableToTrade ?? null;
     case "MARGIN":
       return b.availableWithoutMarginImpact ?? null;
     case "INDETERMINATE":
@@ -312,6 +344,7 @@ export const fidelityBalancesParser: CsvParser = {
     // still mark the margin regime.
     let marginFormatPresent = false;
     let legacyAllSettledPresent = false;
+    let availableToTradePresent = false;
 
     let lastParentLabel = "";
 
@@ -363,7 +396,15 @@ export const fidelityBalancesParser: CsvParser = {
       } else if (normalizedLabel.includes("available to trade") && !isSubItem) {
         // Legacy format: this row carried the amount. Current format: this is a
         // section header with a blank amount (value lives in sub-rows below).
-        if (amount != null) availableToTrade = amount;
+        if (amount != null) {
+          availableToTrade = amount;
+          // A VALUE-bearing "Available to trade" row is the Sep-2026 cash layout's headline
+          // tradable figure. Record its presence so the cash regime classifies even when the
+          // legacy "(all settled)" label is absent. The blank margin-format "AVAILABLE TO
+          // TRADE" section header carries no amount and so never sets this flag; MARGIN also
+          // wins on presence in classifyBalanceRegime regardless.
+          availableToTradePresent = true;
+        }
         lastParentLabel = "available_to_trade";
       } else if (normalizedLabel.includes("all settled") && (isSubItem || lastParentLabel === "available_to_trade")) {
         availableToTradeAllSettled = amount;
@@ -419,7 +460,7 @@ export const fidelityBalancesParser: CsvParser = {
       marginBuyingPower,
       availableWithoutMarginImpact,
       cashReservedForOptions,
-      regimeEvidence: { marginFormatPresent, legacyAllSettledPresent },
+      regimeEvidence: { marginFormatPresent, legacyAllSettledPresent, availableToTradePresent },
       accountName,
       accountNumber,
       allRows,
