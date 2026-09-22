@@ -87,6 +87,6 @@ This record's ratified scope remains **assigned-call closure / called-away dispo
 
 **Disposition:** Confirmed still active on accepted main.
 
-Current activity projection still lacks the lifecycle mutations needed to project assigned-call closure / called-away share disposition, including the corresponding BTC / expiry closure behavior. No remediation was identified during the open-bug audit.
+Current activity projection still lacks the lifecycle mutations needed to project assigned-call closure / called-away share disposition. No remediation was identified during the open-bug audit. The separately recorded BTC / expiry observations remain outside this record's ratified scope pending a Principal decision.
 
 **Restart point:** Reproduce against the current activity-overlay path, then design remediation only under separate implementation authority.
