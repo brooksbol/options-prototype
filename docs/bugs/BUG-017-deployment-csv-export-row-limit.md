@@ -9,9 +9,9 @@
 
 During Deployment acceptance testing, the table reported **"Showing 90 rows"** and the exported puts CSV contained **90 data rows**.
 
-This observation raises a credible export-completeness defect: the CSV export may be inheriting the table's presentation/display-row limit.
+At the time of the acceptance session, this observation raised a credible export-completeness defect, but the session alone did not establish that more than 90 otherwise-exportable rows existed under the same substantive filters.
 
-The failure is **not yet confirmed**, because the acceptance session did not establish that more than 90 otherwise-exportable rows existed under the same substantive filters at the moment of export.
+Subsequent implementation inspection during the 2026-09-22 open-bug audit **confirmed the defect mechanism**: the presentation `showCount` limit is applied before CSV generation, so export inherits the presentation slice.
 
 ## Intended semantics violated
 
@@ -30,19 +30,17 @@ Observed during acceptance testing on 2026-09-14:
 - The exported specimen was named `wheelwright-puts-2026-09-14.csv`.
 - It was **not established** that the complete filtered candidate set contained more than 90 exportable rows.
 
-Epistemic status: the 90-row UI state and 90-row export are observed; causal truncation by the presentation limit is suspected and requires a controlled >90-row acceptance test.
+Historical epistemic status: the 2026-09-14 session observed the 90-row UI state and 90-row export but did not by itself prove causal truncation. Current epistemic status: implementation inspection on 2026-09-22 confirms that `showCount` is applied before CSV generation, establishing the truncation mechanism.
 
 ## Consequence
 
-If confirmed, an export can appear complete while silently omitting valid filtered candidate rows. This becomes operationally significant as Wheelwright produces result sets larger than the on-screen presentation limit.
+An export can appear complete while silently omitting valid filtered candidate rows whenever the authoritative filtered export set exceeds the on-screen presentation limit. This becomes operationally significant as Wheelwright produces result sets larger than that limit.
 
 Severity is not established by the current evidence.
 
 ## Diagnosis / root cause
 
-Not established.
-
-A possible coupling between presentation row limiting and export input is the subject of the required verification; it must not be treated as proven root cause until demonstrated.
+Confirmed during the 2026-09-22 open-bug audit: Deployment applies the presentation `showCount` limit before CSV generation. The exporter therefore receives the displayed subset rather than the complete substantively filtered candidate set.
 
 ## Scope / non-goals
 
@@ -76,7 +74,7 @@ None. Open; remediation is not authorized by filing.
 
 ## Verification
 
-Pending the controlled >90-row acceptance test described above.
+The original 2026-09-14 acceptance session did not establish a >90-row underlying filtered population, so that historical observation alone was non-dispositive. The 2026-09-22 open-bug audit subsequently confirmed the causal mechanism directly from current implementation: `showCount` is applied before CSV generation. The defect is therefore confirmed active; the controlled >90-row Product specimen remains useful as an end-to-end acceptance case for any future remediation.
 
 ## Related
 
