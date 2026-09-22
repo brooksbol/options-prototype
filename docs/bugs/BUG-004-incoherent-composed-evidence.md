@@ -77,3 +77,13 @@ None.
 
 - Temporal coherence between subsystems has prior context in `docs/35-evidence-decision-temporal-coherence.md` (Decision vs Evidence temporal consistency) — context only; this is **not** scheduler-policy work and creates no parking-lot item.
 - Architecturally analogous (independent): `BUG-007`, `BUG-006`.
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Open — technical remediation verified; Product acceptance outstanding.
+
+Current main carries independent chain acquisition age into the Console, displays a distinct **Greek Age** signal, and visually distinguishes stale Greek evidence from fresher quote/underlying evidence. Focused automated verification passed. This addresses the recorded technical failure mode of presenting temporally incompatible evidence without an operator-visible coherence signal.
+
+Browser/Product acceptance was not completed because the browser-control client failed during initialization; source/test evidence is not being substituted for Product acceptance.
+
+**Restart point:** Perform the outstanding browser/Product verification of the coherence signal on a stale-Greek specimen. If accepted, disposition this record as Resolved.

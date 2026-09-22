@@ -62,3 +62,13 @@ None.
 
 - Accounting-correctness sibling: `BUG-002` (called-away basis resolution).
 - Lifecycle/decomposition context: `PL-PROD-EVENTS`, `PL-PORT-02` (supporting context only).
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Open — Product revalidation / reframing required.
+
+Current-month and historical Production surfaces already render first-order production-source breakdowns. That visible implementation appears to predate this defect record, so the record's broad claim ("composite economic sources are not first-order visible") is not presently substantiated by source inspection. A narrower per-episode attribution/legibility complaint may still exist, but that is not equivalent to the current record.
+
+Browser/Product observation could not be completed in this audit because the browser-control client failed during initialization. Source inspection is not being substituted for Product acceptance.
+
+**Restart point:** Re-observe the exact Product complaint in the running Production surface. If the broad failure cannot be demonstrated, reframe the record to the narrower demonstrated semantics or close it as unsubstantiated.

@@ -1,6 +1,6 @@
 # BUG-007 — Unknown stock-disposition basis can leave Production reconciliation appearing complete
 
-- **Status:** Open
+- **Status:** Resolved
 - **Severity:** Not established
 - **Area:** Production (reconciliation visibility)
 - **Provenance:** GitHub Issue #12 (https://github.com/brooksbol/options-prototype/issues/12) — historical, non-authoritative. Created 2026-09-05. Labels: `defect`, `area:production`.
@@ -53,3 +53,13 @@ None.
 - Companion economic-authority defect: `BUG-006` (called-away "capital returned" uses reconstructed strike notional instead of actual disposition proceeds).
 - Architecturally analogous (independent): `BUG-004` (incoherent composed evidence presented as coherent).
 - Why-state: `docs/journal/project-journal-2.md` (2026-09-05 live-operations synthesis).
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Resolved.
+
+Focused verification on current main demonstrates that unresolved stock-disposition basis produces a `BASIS_UNKNOWN` reconciliation issue and a `PRODUCTION_UNCERTAIN` state; cash reconciliation cannot make that unresolved economic state appear complete. The relevant Production assessment and attribution tests pass.
+
+This satisfies the defect's visibility requirement: legitimately unknown basis is now operator-visible reconciliation uncertainty rather than silent apparent completeness.
+
+**Restart point:** Closed; reopen only with a demonstrated case where unresolved basis is again hidden behind an apparently complete reconciliation state.

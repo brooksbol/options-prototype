@@ -1,6 +1,6 @@
 # BUG-002 — Production accounting cannot derive called-away share basis from direct purchases or buy-writes
 
-- **Status:** Open
+- **Status:** Resolved
 - **Severity:** Not established
 - **Area:** Production (accounting correctness)
 - **Provenance:** GitHub Issue #3 (https://github.com/brooksbol/options-prototype/issues/3) — historical, non-authoritative. Created 2026-09-03. Labels: `defect`, `area:production`.
@@ -88,3 +88,13 @@ None.
 - Economic-authority companion: `BUG-006` (called-away "capital returned" uses reconstructed strike notional).
 - Legibility sibling (correct composite still illegible): `BUG-003`.
 - Capability context: `PL-PORT-02` (production-accounting correctness), `PL-PORT-01` (lot attribution), `PL-EXEC-01` (lifecycle provenance).
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Resolved.
+
+The open-bug audit found the remediation on current main (originating implementation identified at commit `0590bc0`) and independently exercised the recorded acceptance behavior. Focused tests passed for direct-purchase call-away basis, above-basis appreciation, below-basis erosion, multi-lot ambiguity, insufficient inventory, prior lot consumption, and the existing assigned-put-origin regression path. The implementation preserves unresolved/ambiguous attribution rather than guessing.
+
+This satisfies the repository-level acceptance criteria for the defect. The historical SLV source figures remain operator-reported provenance, but the defect mechanism and equivalent acceptance behavior are now deterministically verified.
+
+**Restart point:** Closed; reopen only with a demonstrated counterexample to the accepted basis-attribution semantics.

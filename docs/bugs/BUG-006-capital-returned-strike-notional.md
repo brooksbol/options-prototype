@@ -1,6 +1,6 @@
 # BUG-006 — Production called-away "capital returned" uses reconstructed strike notional instead of actual disposition proceeds
 
-- **Status:** Open
+- **Status:** Resolved
 - **Severity:** Not established
 - **Area:** Production (economic-authority / semantic-truth; frontend episode ledger)
 - **Provenance:** GitHub Issue #11 (https://github.com/brooksbol/options-prototype/issues/11) — historical, non-authoritative. Created 2026-09-05. Labels: `defect`, `area:production`.
@@ -85,3 +85,13 @@ None.
 - Reconciliation-visibility sibling: `BUG-007` (unknown basis leaving reconciliation appearing complete).
 - Architecturally analogous (independent): `BUG-004` (temporally incompatible evidence composed into an apparently-coherent view).
 - Economic-authority why-state: `docs/journal/project-journal-2.md` (2026-09-05 live-operations synthesis).
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Resolved.
+
+The open-bug audit found the remediation on current main (originating implementation identified at commit `0590bc0`). Focused verification demonstrates that called-away episode capital uses authoritative net disposition proceeds when available and explicitly does not promote strike notional to the realized "capital returned" claim.
+
+This satisfies the recorded semantic requirement that realized capital claims be grounded in authoritative disposition proceeds rather than reconstructed strike notional.
+
+**Restart point:** Closed; reopen only with a demonstrated called-away episode that again labels strike notional as realized returned capital.
