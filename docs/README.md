@@ -133,6 +133,7 @@ For a completely new ChatGPT thread, Kiro session, or Codex session starting fro
 | `bootstrap/chatgpt-cold-start.md` | ChatGPT | Reasoning/synthesis/challenge actor bootstrap |
 | `bootstrap/kiro-cold-start.md` | Kiro | Repository-resident architecture/implementation actor bootstrap |
 | `bootstrap/codex-cold-start.md` | Codex | Independent adversarial reviewer/falsifier bootstrap |
+| `bootstrap/end-of-session-protocol.md` | Shared | **Containing session-closeout protocol. Principal command “execute end of session protocol” means execute closeout now through memory reconciliation, verification, persistence, accepted-main synchronization, and final SYNC; do not stop for an intermediate plan/confirmation.** |
 | `bootstrap/project-memory-protocol.md` | Shared | Documentation diligence / project-memory synchronization protocol |
 | `foundations/shared-execution-contract.md` | Shared | **Suspended runtime-control contract and compatibility bridge; semantic guidance only, not execution authority** |
 | `foundations/principal-decision-surface.md` | Shared | **Ratified Principal-facing decision grammar and authority/reasoning distinction; human-factors control, not enforcement** |
@@ -196,6 +197,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/technology-quality-constitution-v1.md` | Ratified methodology (technology-quality constitution, operating model, day-to-day architecture practice, and baseline authorization) |
 | `foundations/multi-actor-repeatability-temporal-synchronization.md` | Ratified methodology (temporal synchronization, convergence, and scoped execution ownership extending project memory) |
 | `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
+| `bootstrap/end-of-session-protocol.md` | Ratified methodology (containing session-closeout process; canonical invocation: “execute end of session protocol”) |
 | `bootstrap/project-memory-protocol.md` | Ratified methodology (documentation diligence / project memory) |
 | `foundations/parking-lot-continuation-governance.md` | Ratified methodology (one logical parking lot across physical continuation files) |
 | `bugs/README.md` | Ratified methodology (repository-native defect tracking: `BUG-NNN` identity, record format, lifecycle — the sole defect system of record) |
