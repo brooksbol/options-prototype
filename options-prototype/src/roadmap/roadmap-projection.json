@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-21T19:30:56.988Z",
+    "generatedAt": "2026-09-22T01:06:07.409Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -40,7 +40,7 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 24,
-      "logTotal": 32,
+      "logTotal": 34,
       "logIntakeEvidenceEvents": 9,
       "plWithIntakeDate": 9,
       "plWithoutIntakeDate": 51
@@ -5788,6 +5788,18 @@
       "state": "RECONCILED — canonical identity created; strategic and architectural reconciliation complete; implementation authorized by the Principal (Option A, provisional UX) at SYNC `0d1061699ad32b86c67fb4285a64d94bd69734ef`. The interaction model and visual organization are a first implementation hypothesis, not ratified final UX.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
+      "sourceOrder": 327
+    },
+    {
+      "plId": null,
+      "title": "PL-DEPLOY-BAL — Sep-2026 cash-layout Deployable fix shipped (2026-09-21)",
+      "eventKind": "unclassified",
+      "establishesIntake": false,
+      "eventDateText": "September 21, 2026",
+      "eventDateIso": "2026-09-21",
+      "state": "Bounded implementation shipped under `PL-DEPLOY-BAL`; Principal operator-accepted; accepted-main SYNC `970f87af6f5a48de491cb579e39624fad19cb2c3`",
+      "headingLevel": 3,
+      "sourceFile": "parking-lot-9.md",
       "sourceOrder": 326
     },
     {
@@ -5800,7 +5812,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 339
+      "sourceOrder": 340
     },
     {
       "plId": "PL-ARCH-07",
@@ -5812,7 +5824,7 @@
       "state": "INTAKE — new canonical identity created; Principal-authorized as an intake/research-and-design concern. No vendor selected, no authorization/RBAC/FGA/authentication implemented, no multi-Operator implementation work opened.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 342
+      "sourceOrder": 343
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -5824,7 +5836,7 @@
       "state": "IMPLEMENTED (uncommitted working tree) — Principal-authorized (Option A, smallest coherent unit). Awaiting Principal operator-surface acceptance before commit.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 347
+      "sourceOrder": 348
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -5836,7 +5848,7 @@
       "state": "IMPLEMENTED (uncommitted working tree) — corrected per independent Codex review; awaiting a second independent re-review, then Principal operator-surface acceptance before commit.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 348
+      "sourceOrder": 349
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -5848,7 +5860,19 @@
       "state": "IMPLEMENTED (uncommitted working tree) — final bounded correction pass; awaiting one constrained Codex verification against the frozen acceptance invariants, then Principal operator-surface acceptance before commit.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 349
+      "sourceOrder": 350
+    },
+    {
+      "plId": "PL-PORT-01",
+      "title": "PL-PORT-01 — Durable Brokerage / Fidelity Evidence Persistence intake refinement",
+      "eventKind": "refinement",
+      "establishesIntake": false,
+      "eventDateText": "September 21, 2026",
+      "eventDateIso": "2026-09-21",
+      "state": "INTAKE refinement under existing `PL-PORT-01`; not reconciled; no implementation authorized",
+      "headingLevel": 3,
+      "sourceFile": "parking-lot-9.md",
+      "sourceOrder": 353
     }
   ],
   "intakeDateUnknown": [

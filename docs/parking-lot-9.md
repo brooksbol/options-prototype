@@ -234,6 +234,32 @@ Complete parking-lot/repository reconciliation found `PL-DEPLOY` as the existing
 ### Explicitly not authorized
 
 No production-code, parser, DTO/schema, UI, or `deriveDeployableCash` changes; no invented Fidelity formulas; no margin-aware trading policy; no generalized broker-accounting subsystem; no automatic roadmap commitment from the candidate consequences above.
+
+### PL-DEPLOY-BAL — Sep-2026 cash-layout Deployable fix shipped (2026-09-21)
+
+**Date:** September 21, 2026  
+**State:** Bounded implementation shipped under `PL-DEPLOY-BAL`; Principal operator-accepted; accepted-main SYNC `970f87af6f5a48de491cb579e39624fad19cb2c3`
+
+The September 19 reconciliation authorized no production implementation. On September 21 the Principal separately authorized and accepted a bounded correction for a specific regression: Fidelity's Sep-2026 cash-account Balances export dropped the "Available to trade (all settled)" label and split "Settled cash" into its own row. The baseline parser recognized neither margin evidence nor the legacy all-settled label, so the modern cash layout classified INDETERMINATE, `deriveDeployableCash` returned null, and readiness blocked the account (real case: Sawdust Roth).
+
+Bounded correction (smallest sufficient parser change; no UI, persistence, or capital-history coupling): `parse()` now records presence of a value-bearing "Available to trade" row (`availableToTradePresent`). The cash regime classifies on the legacy "(all settled)" label OR that value-bearing row; MARGIN still wins on presence. Cash Deployable prefers the legacy all-settled figure and falls back to the current headline "Available to trade"; "Settled cash" is never Deployable.
+
+Real-specimen result + Principal browser acceptance:
+
+- PTS margin (Z39411514) → MARGIN / **$849.30** (from AWMI, not the $9,547.54 Non-margin buying power)
+- Sawdust Roth (262761078) → LEGACY_CASH / **$458.42** (headline "Available to trade", not the $51.06 Settled cash)
+- Both accounts also produced a fully populated Production page after Activity upload (individual-upload workflow).
+
+Verification: focused `fidelity-upload.test.ts` 27/27; `tests/portfolio` + `tests/write-desk` 903/903; `tsc` clean; Principal real-browser acceptance for both accounts.
+
+Multi-select / "Upload All" was considered as a second bounded enhancement and **dropped by explicit Principal decision (Option 4)**: the individual-upload workflow already restores the morning workflow, and identity-gated multi-select is unsatisfiable against real Fidelity files, which carry no embedded account identity (confirmed: both Balances and Option Summary exports return no external account reference; the account number lives only in the filename, and filename-derived identity was already rejected by the ratified selection-as-identity decision at `e6e743b`).
+
+This closes the "no production implementation authorized" line of the 2026-09-19 `PL-DEPLOY-BAL` intake **for the Sep-2026 cash-layout Deployable regression only**. The broader account-regime capability candidates listed above (richer preserved facts, unlevered-withdrawable projection, financing-state representation, regression specimens) remain open under `PL-DEPLOY-BAL`.
+
+**Deferred (not defects, recorded for future work):**
+
+- One-file ordering trap: `buildSnapshotForAccount` returns null until both Option Summary and Balances are present, with no operator feedback for the intermediate state — it reads as a silent failure. Not a correctness defect; not addressed here (the dropped multi-select would have masked it). Candidate small UX affordance.
+- Real Fidelity files carry no embedded account identity; relevant if multi-select / content-based routing is ever revisited.
 ---
 
 ## `PL-ROADMAP-UI` — Roadmap Operator Surface (Projection of Canonical Strategic/Architecture/Parking-Lot Authority)
