@@ -62,7 +62,7 @@ const LENSES: { id: RoadmapLens; label: string }[] = [
 
 export function RoadmapView() {
   const projection = getProjection();
-  const [lens, setLens] = useState<RoadmapLens>("strategy");
+  const [lens, setLens] = useState<RoadmapLens>("log");
   const [selectedLvtId, setSelectedLvtId] = useState<string | null>(null);
 
   const lvtById = new Map<string, LvtNode>(projection.lvt.map((n) => [n.id, n]));

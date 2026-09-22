@@ -13,6 +13,11 @@ import { RoadmapView } from "../../src/roadmap/RoadmapView";
 describe("RoadmapView", () => {
   it("renders the strategy lens by default with only the Vision root visible (collapsed)", () => {
     render(<RoadmapView />);
+    // Log is the default lens; its intro is visible on mount without clicking a tab.
+    expect(screen.getByRole("tab", { name: "Log" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tab", { name: "Strategy" }).getAttribute("aria-selected")).toBe("false");
+    // The strategy tree renders when the Strategy lens is selected.
+    fireEvent.click(screen.getByRole("tab", { name: "Strategy" }));
     // Vision root is visible.
     expect(screen.getByText("Wheelwright Vision")).toBeTruthy();
     // Trees start fully collapsed, so goals are NOT visible until the root is expanded.
@@ -21,6 +26,7 @@ describe("RoadmapView", () => {
 
   it("progressively discloses: trees are collapsed by default; expanding reveals children", () => {
     render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Strategy" }));
     // Expand the Vision root to reveal goals.
     const visionRow = screen.getByText("Wheelwright Vision").closest(".rm-row") as HTMLElement;
     const visionTwisty = within(visionRow).getByRole("button", { name: /expand|collapse/i });
@@ -38,6 +44,7 @@ describe("RoadmapView", () => {
 
   it("shows explicit relationships in the detail panel and states absence otherwise", () => {
     render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Strategy" }));
     // Select the Vision root — it has no explicit AR/PL relationship, so the panel
     // must say so rather than inventing one.
     fireEvent.click(screen.getByText("Wheelwright Vision"));
