@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-22T18:31:23.173Z",
+    "generatedAt": "2026-09-22T20:52:41.293Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -31,8 +31,8 @@
         "experiment": 7
       },
       "arTotal": 10,
-      "plTotal": 62,
-      "plWithExplicitRelationship": 6,
+      "plTotal": 63,
+      "plWithExplicitRelationship": 7,
       "graduatedTotal": 29,
       "adrTotal": 18,
       "priorityTotal": 10,
@@ -40,9 +40,9 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 25,
-      "logTotal": 63,
-      "logIntakeEvidenceEvents": 11,
-      "plWithIntakeDate": 11,
+      "logTotal": 64,
+      "logIntakeEvidenceEvents": 12,
+      "plWithIntakeDate": 12,
       "plWithoutIntakeDate": 51
     },
     "notes": []
@@ -3011,6 +3011,94 @@
           "heading": "`PL-ROADMAP-UI` — detail-pane completeness refinement (verbosity-first, 2026-09-22)",
           "level": 3,
           "content": "**Discovery (Principal review of the rendered surface).** Inspecting the two-pane lenses, the Principal found the detail panes for **Parking Lot** and **Architecture** showed only metadata (id, name, section, source, relationship chips) and answered neither \"what is this item about?\" nor \"where does it stand?\". The governing requirement: *the operator should never leave a detail pane still asking \"wait, what is this one about?\"* A follow-up review added a global preference: **err on the side of verbosity in every detail pane** (screen real estate is available; below-the-fold content is acceptable).\n\n**What changed (presentation/projection only; no canonical authority mutated).** This refinement is entirely within the existing ADR-018 build-time projection boundary — canonical Markdown → `scripts/generate-roadmap-projection.mjs` → read-only `roadmap-projection.json` → UI. It adds no relationships, priority, dates, owners, or authorization state, and rewords nothing (faithful excerpt/verbatim discipline, mirroring the existing Domain/Bugs projections).\n\n- **Parking Lot** — `PlItem` gained a faithful `description` (table-row items use their authored Summary cell verbatim and uncapped; prose records use their lead narrative + `**Trigger:**`, falling back to the first descriptive subsection), a verbatim `state` line, and a full sectioned `sections[]` body (every `##`/`###` subsection of a prose record, verbatim, uncapped, Bugs-style), plus `descriptionTruncated`.\n- **Architecture** — `ArPressure` gained a faithful `summary` (the AR's narrative paragraphs, excluding the structured `**Pressure from:**`/`**Candidate transition:**` fields), uncapped.\n- **ADRs** — `AdrRecord` gained full `decision` and `consequences` and a full (no longer first-paragraph-only) `context`. The parser handles source-format variance faithfully: plural `**Decisions:**` with `###` subsections is captured whole; inline bold fields (`**Invariant:**`, etc.) remain in-body; ADR-007 correctly carries `null` consequences because it genuinely has none (it uses \"Current status\").\n- Shared parser helpers: `faithfulExcerpt` gained an uncapped (`Infinity`) mode; new `sliceIntoSections` factored out of `parseBugRecord` (behavior preserved).\n\n**Strategic disposition (against `docs/roadmap.md`).** No new Bet, no LVT change. Strengthens comprehensibility of existing Category-C authority; introduces no strategic hypothesis.\n\n**Architectural disposition (against `docs/architecture-roadmap.md`, ADRs).** No AR change, no new engine; wholly within the ADR-018 projection boundary. The projection was regenerated from authority and passes the freshness check.\n\n**Parking-lot disposition / mapping.** Retained under `PL-ROADMAP-UI` (this capability's home). No new identity; no double-booking.\n\n**Findings preserved (not acted on).** (a) **Strategy** and **Principles** detail panes remain thin because the *source* is thin (an LVT node is one bullet clause; a principle statement is one sentence) — richer content is a doc-authority edit to `docs/roadmap.md`/`docs/principles.md`, not a presentation fix; recorded, not padded. (b) **ADRs** would benefit from an industry-standard (Google-style) structure — that is a rewrite of the ADR *documents*, deferred as a separate concern, not a projection change. (c) **Domain** detail is unsatisfactory to the Principal; explicitly deferred to a separate Principal-initiated intake (ignored in this pass). (d) **Priority** left unchanged (Principal rethinking it).\n\n**Explicitly not authorized.** No mutation of `docs/roadmap.md`, `docs/architecture-roadmap.md`, `docs/principles.md`, `docs/07c-adrs.md`, or the domain reference; no Domain intake created here; no new lens; no runtime/backend change.\n\n**Verification.** Frontend suite green (2062/2062 at closeout, composed with the concurrently-landed Log-lens work), `tsc -b` clean, `check:roadmap-projection` in sync.\n\n**Why-state.** This record is the durable provenance; the acceptance and design reasoning are in the Principal conversation (2026-09-22).\n\n**Next authorized mode.** No further work. Strategy/Principles source enrichment, the Google-style ADR restructure, and the Domain detail concern each require separate Principal selection.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "PL-BROKER-CAP",
+      "name": "Brokerage-Facing Capability Model / Incumbent Fitness Appraisal",
+      "section": "Reconciliation / continuation record",
+      "description": "A discussion initially triggered by Fidelity execution limitations and possible brokerage alternatives broadened beyond any one broker, API, existing parking-lot item, LVT node, or implementation seam. Wheelwright currently obtains or exercises brokerage-facing capability through several direct mechanisms that were chosen pragmatically to get working software into operation: Tradier-backed market/options evidence, Fidelity CSV-derived portfolio state, Wheelwright/Fidelity browser handoff for execution, and Fidelity-derived evidence used for lifecycle/outcome reconstruction.",
+      "descriptionTruncated": true,
+      "state": "INTAKE — new canonical identity; materially developed cross-cutting discovery; strategic/architectural reconciliation intentionally not completed; no implementation or vendor evaluation authorized",
+      "sourceFile": "parking-lot-9.md",
+      "relatedLvtIds": [],
+      "relatedArIds": [
+        "AR1",
+        "AR10",
+        "AR6",
+        "AR7"
+      ],
+      "sections": [
+        {
+          "heading": "What was discovered",
+          "level": 3,
+          "content": "A discussion initially triggered by Fidelity execution limitations and possible brokerage alternatives broadened beyond any one broker, API, existing parking-lot item, LVT node, or implementation seam.\n\nWheelwright currently obtains or exercises brokerage-facing capability through several direct mechanisms that were chosen pragmatically to get working software into operation: Tradier-backed market/options evidence, Fidelity CSV-derived portfolio state, Wheelwright/Fidelity browser handoff for execution, and Fidelity-derived evidence used for lifecycle/outcome reconstruction. These mechanisms have been productive incumbents, not mistakes. Real operation through them has exposed enough domain knowledge, operator friction, and architectural pressure that their continuing fitness should now be appraised before Wheelwright assumes that extending the same mechanisms is the correct next step.\n\nThe emerging problem-space model has **four capability surfaces**:\n\n1. **Portfolio State** — what Wheelwright must know about brokerage accounts, positions/lots, balances/capital availability, encumbrance/open orders, activity, account regime, identity, provenance, and freshness.\n2. **Market Evidence** — what Wheelwright must know about relevant markets/options: chains, quotes, Greeks, IV/volatility, expirations/strikes, liquidity and other governed evidence, including provenance/freshness/fitness.\n3. **Execution** — how an operator-authorized Wheelwright decision/TradeIntent becomes an actual market action, including representation, validation/preview, multi-leg shape, handoff/staging/submission boundaries, limits, cancel/replace, and operator review.\n4. **Lifecycle / Outcome** — how Wheelwright learns what actually happened after the decision: submitted/working state, fills/partial fills, expiration/assignment/exercise, close/roll, realized economics, reconciliation, and resulting portfolio state.\n\nThese surfaces describe **capabilities in the problem space**. Vendors, brokers, direct APIs, aggregators, trading platforms, hosted/drop-in components, files/CSVs, browser links, OAuth mechanisms, iframes, SDKs, FIX/OMS mechanisms, and similar technologies belong to the **solution space**. The investigation must not select a solution class before establishing the incumbent capability, actual problem/pressure, and solution-neutral meaning of “better.”",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Trigger versus broader concept",
+          "level": 3,
+          "content": "The immediate trigger was the Principal's Fidelity Tier-2 options denial and discussion of whether another brokerage or integration mechanism could remove current execution and portfolio-state friction. Earlier reconciliation correctly mapped individual concerns to existing homes such as `PL-PORT-01`, `PL-EXEC-01`, evidence work, AR1/AR6/AR7/AR10, ADR-004, and ADR-011.\n\nContinued discussion exposed a broader concern: evaluating only those individual seams risks preserving the assumption that Wheelwright itself should own the underlying brokerage plumbing. Conversely, beginning with vendors/platforms risks “hammer shopping” — finding attractive solutions before establishing whether Wheelwright has the corresponding nails.\n\nThe broader discovery is therefore an **incumbent capability-and-fitness appraisal before solution selection**, not “replace Fidelity,” “replace Tradier,” “adopt an aggregator,” “build broker APIs,” or “use a trading platform.”",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Why it might matter",
+          "level": 3,
+          "content": "Observed operator work already crosses multiple surfaces:\n\n- brokerage files are manually obtained and imported to establish portfolio state;\n- the operator may scan/compare option-chain information manually even when Wheelwright possesses relevant evidence;\n- execution can require dual-browser context switching and transfer/reverification of Wheelwright trade information in brokerage UI;\n- lifecycle/outcome truth can require brokerage evidence/import/reconciliation after execution.\n\nMuch of this work appears mechanical rather than consequential operator judgment. A candidate product principle emerging from the discovery is:\n\n> **Automate the movement of facts and intent; preserve the consequential decision.**\n\nThis is a hypothesis for appraisal, not a ratified product or architecture principle.\n\nThe discussion also identified a possible build-vs-buy/platform-boundary question: mature multi-broker trading/connectivity platforms may already provide some brokerage capabilities Wheelwright currently implements directly. If so, Wheelwright might avoid owning non-differentiating broker-specific plumbing. That possibility is deliberately **downstream** of the incumbent appraisal and decision criteria; it is not the intake conclusion.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Appraisal method before solution research",
+          "level": 3,
+          "content": "The Principal explicitly selected the following order of inquiry:\n\n> **incumbent appraisal → observed problem/pressure → solution-neutral “better” → decision criteria → solution-space classes → broad landscape survey → evidence/experiments → decision**\n\nThe **incumbent is the control**. “Keep” is a first-class result. Existing mechanisms must not be criticized merely because newer mechanisms exist; they earned their place by getting Wheelwright to its current operational state. Equally, past success does not grant them permanence if current evidence shows the problem has changed.\n\nFor each of the four surfaces, future appraisal should distinguish:\n\n- required capability;\n- current realization;\n- demonstrated fitness / what works;\n- observed friction;\n- demonstrated failure mode;\n- current constraint;\n- trajectory pressure;\n- solution-neutral meaning of “better”;\n- relevant technology-quality consequences.\n\nDo not turn every inconvenience into a requirement. Distinguish tolerable friction from constraints and failures.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Technology-quality lens",
+          "level": 3,
+          "content": "The Principal uses six contextual quality attributes as architectural evaluation dimensions:\n\n- **Usability**\n- **Security**\n- **Reliability**\n- **Extensibility**\n- **Maintainability**\n- **Scalability**, including performance\n\nDifferent applications and different Wheelwright surfaces may weight these qualities differently. No universal ordering or aggregate score is asserted. This is consistent with the ratified Technology Quality Constitution's multidimensional/evidence-driven posture.\n\nThe current discovery is substantially **usability-forward and security-supported**: eliminate clerical/operator impedance where justified (CSV handling, dual-browser trade reconstruction, unnecessary manual chain scanning, reconciliation work) while treating each integration as a new trust/attack surface and granting only authority required by the capability. Security is not the sole objective and does not automatically outrank the other qualities.\n\nA provisional authority vocabulary emerged during discovery — `MARKET_READ`, `ACCOUNT_READ`, `ORDER_STAGE`, `ORDER_EXECUTE`, `FUNDS_MOVE` — as a way to reason about blast radius and least authority. This vocabulary is **not ratified ontology** and must not be generalized prematurely. It may be useful later when evaluating concrete solution mechanisms.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Complete parking-lot reconciliation at intake",
+          "level": 3,
+          "content": "The complete `docs/parking-lot*.md` sequence was reviewed at current `main` SYNC `3813f8e1a609b9771e6efba646dca596f80f5499` before creating this identity.\n\nRelevant existing homes remain valid but do not individually own the broader appraisal:\n\n- **`PL-PORT-01`** owns Portfolio-State Maturity, multi-BrokerageAccount/account-local state, durable brokerage/Fidelity evidence persistence, and related ingestion/provenance concerns.\n- **`PL-EXEC-01`** owns Trade Lifecycle Evolution and the execution/handoff lifecycle beyond the existing Fidelity URL handoff.\n- **`PL-EVID-01` / evidence family** owns historical/market evidence concerns and the Evidence Appliance/provider semantics.\n- **`PL-DEPLOY-BAL`** owns broker-native account-regime/balance semantics, not the cross-surface brokerage capability model.\n- **`PL-STRAT-01` refinements** own broker/account execution eligibility as a strategy gate, not brokerage capability provision.\n- **`PL-ARCH-07`** is a useful methodological analogue for COTS/build-vs-buy evaluation but owns authorization infrastructure, not brokerage capability.\n- Existing `PL-DEPLOY`, Production, and lifecycle items own their specific decision/accounting semantics and are not replaced by this intake.\n\nBecause the discovered concern intentionally spans these established identities and asks whether the **capability-provision boundary itself** should be appraised before further local extension, merging it into any one existing item would lose the cross-cutting question. A new stable identity is therefore warranted at **INTAKE**. This does not supersede, merge, or reprioritize those existing items.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Unresolved",
+          "level": 3,
+          "content": "- Are the four capability surfaces the right durable decomposition, or does appraisal evidence require refinement?\n- What exact capabilities does Wheelwright require within each surface today and on the evidenced trajectory?\n- Which incumbent mechanisms are demonstrably fit and should remain untouched?\n- Which observed operator frictions are material enough to justify change?\n- Which current limitations are true constraints or failure modes versus tolerable friction?\n- What does “better” mean for each surface without naming a solution?\n- Which of the six quality attributes materially determine fitness for each surface, and what evidence supports their relative importance?\n- Which brokerage-facing responsibilities are differentiating Wheelwright capability versus enabling/non-differentiating infrastructure?\n- Only after those questions: what solution classes exist, what broad market landscape supplies them, and what evidence/experiments would be required to displace an incumbent?\n- Does later reconciliation strengthen/refine existing LVT/AR structure, reveal a genuinely broader strategic/architectural concern, or require no roadmap/architecture-roadmap change? **Not decided at intake.**",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Explicitly not authorized",
+          "level": 3,
+          "content": "- No vendor or product selection.\n- No broad vendor/platform landscape survey yet.\n- No Schwab, SnapTrade, Tradier-trading, Fidelity replacement, aggregator, trading-platform, OMS/FIX, iframe/hosted-ticket, or other solution commitment.\n- No broker/API spike or experiment.\n- No new direct brokerage integration.\n- No replacement/removal of Tradier, Fidelity CSV ingestion, Fidelity handoff, or existing lifecycle evidence paths.\n- No new generalized broker abstraction, provider interface, TradeIntent framework, capability ontology, credential model, or execution service.\n- No `ORDER_EXECUTE` or funds-movement authority.\n- No LVT, architecture-roadmap, ADR, foundation, or Technology Quality Constitution mutation from this intake.\n- No implementation work.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Why-state",
+          "level": 3,
+          "content": "The richer discovery is the Principal/ChatGPT brokerage-capability discussion of September 22, 2026, beginning with Fidelity Tier-2 constraints and evolving through LVT/PL and architecture/ADR reconciliation into the four-surface capability model, incumbent-control principle, six-quality-attribute lens, security/integration threat discussion, platform/build-vs-buy hypothesis, and the explicit decision to stop before further appraisal and enter durable intake.\n\nThis record intentionally preserves enough of that why-state for a cold actor to resume without reconstructing the solution-space discussion from memory. Existing related durable records remain authoritative within their narrower subjects.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Next authorized mode",
+          "level": 3,
+          "content": "**Further exploration / problem-space appraisal only.**\n\nThe next bounded activity, when Principal-selected, is to appraise the four surfaces from incumbent evidence, starting from capabilities and fitness rather than vendors or mechanisms. Strategic and architectural reconciliation remain required before this item can become **RECONCILED**. No solution-space survey or implementation is authorized by intake.",
           "truncated": false,
           "tables": []
         }
@@ -7086,7 +7174,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 406
+      "sourceOrder": 417
     },
     {
       "plId": null,
@@ -7229,7 +7317,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 399
+      "sourceOrder": 410
     },
     {
       "plId": null,
@@ -7242,7 +7330,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 400
+      "sourceOrder": 411
     },
     {
       "plId": null,
@@ -7255,7 +7343,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 401
+      "sourceOrder": 412
     },
     {
       "plId": null,
@@ -7268,7 +7356,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 404
+      "sourceOrder": 415
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -7294,7 +7382,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 402
+      "sourceOrder": 413
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -7453,6 +7541,19 @@
       "sourceOrder": 381
     },
     {
+      "plId": "PL-BROKER-CAP",
+      "bugId": null,
+      "title": "PL-BROKER-CAP — Brokerage-Facing Capability Model / Incumbent Fitness Appraisal",
+      "eventKind": "intake",
+      "establishesIntake": true,
+      "eventDateText": "September 22, 2026",
+      "eventDateIso": "2026-09-22",
+      "state": "INTAKE — new canonical identity; materially developed cross-cutting discovery; strategic/architectural reconciliation intentionally not completed; no implementation or vendor evaluation authorized",
+      "headingLevel": 2,
+      "sourceFile": "parking-lot-9.md",
+      "sourceOrder": 382
+    },
+    {
       "plId": null,
       "bugId": "BUG-001",
       "title": "Audit checkpoint — 2026-09-22",
@@ -7463,7 +7564,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 382
+      "sourceOrder": 393
     },
     {
       "plId": null,
@@ -7476,7 +7577,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 383
+      "sourceOrder": 394
     },
     {
       "plId": null,
@@ -7489,7 +7590,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 384
+      "sourceOrder": 395
     },
     {
       "plId": null,
@@ -7502,7 +7603,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 385
+      "sourceOrder": 396
     },
     {
       "plId": null,
@@ -7515,7 +7616,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 386
+      "sourceOrder": 397
     },
     {
       "plId": null,
@@ -7528,7 +7629,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 387
+      "sourceOrder": 398
     },
     {
       "plId": null,
@@ -7541,7 +7642,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 388
+      "sourceOrder": 399
     },
     {
       "plId": null,
@@ -7554,7 +7655,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 389
+      "sourceOrder": 400
     },
     {
       "plId": null,
@@ -7567,7 +7668,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 390
+      "sourceOrder": 401
     },
     {
       "plId": null,
@@ -7580,7 +7681,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 391
+      "sourceOrder": 402
     },
     {
       "plId": null,
@@ -7593,7 +7694,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 392
+      "sourceOrder": 403
     },
     {
       "plId": null,
@@ -7606,7 +7707,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 393
+      "sourceOrder": 404
     },
     {
       "plId": null,
@@ -7619,7 +7720,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 394
+      "sourceOrder": 405
     },
     {
       "plId": null,
@@ -7632,7 +7733,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 395
+      "sourceOrder": 406
     },
     {
       "plId": null,
@@ -7645,7 +7746,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 396
+      "sourceOrder": 407
     },
     {
       "plId": null,
@@ -7658,7 +7759,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 397
+      "sourceOrder": 408
     },
     {
       "plId": null,
@@ -7671,7 +7772,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 398
+      "sourceOrder": 409
     },
     {
       "plId": null,
@@ -7684,7 +7785,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 403
+      "sourceOrder": 414
     },
     {
       "plId": null,
@@ -7697,7 +7798,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 405
+      "sourceOrder": 416
     }
   ],
   "intakeDateUnknown": [
