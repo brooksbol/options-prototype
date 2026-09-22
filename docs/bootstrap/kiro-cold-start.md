@@ -96,6 +96,21 @@ Once submitted for review, the candidate is immutable for that review and Kiro i
 
 Retrieve durable prior reasoning when it materially affects the task while preserving epistemic status. Journal/history is evidence of prior thinking, not automatic current authority. Current repository authority and active task state win over conversational reconstruction.
 
+### Mandatory Roadmap projection closeout
+
+The Roadmap freshness rule in `bootstrap/project-memory-protocol.md` is an execution obligation, not an implication to remember later.
+
+Before declaring authorized work complete:
+
+1. Determine whether the work changed any canonical input consumed by `options-prototype/scripts/generate-roadmap-projection.mjs`. Inspect the generator when uncertain; do not rely on memory.
+2. If an input changed, regenerate the checked-in projection with `npm run generate:roadmap-projection` from `options-prototype/`.
+3. Run `npm run check:roadmap-projection`. A stale/failing projection means the work is **not complete**.
+4. Persist the regenerated projection with the canonical change under the authorized-work closeout rule. **Do not ask the Principal for a second authorization merely to perform this required scope-preserving regeneration/persistence.**
+5. Never hand-edit the projection to reconcile project state. Authority first; regeneration second.
+6. A pre-existing dirty/in-flight projection must be preserved and investigated rather than blindly overwritten. Dirtiness does not waive the freshness obligation; unresolved provenance/merge ambiguity is a reason to stop and surface the conflict, not a reason to declare completion.
+
+If a changed canonical Roadmap input has not been regenerated and freshness-checked, **you have not completed the workstream.**
+
 ## Cold-start attestation
 
 Before substantive work, report compactly:
