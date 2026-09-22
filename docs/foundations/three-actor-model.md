@@ -72,7 +72,7 @@ This asymmetry is why the Principal role remains essential even as AI architectu
 - Distinguishes valid findings from blocking findings; requires a demonstrated failure mode before reopening design
 - Protects earned-complexity discipline, engineering learning rate, and tactical opportunity cost, especially when observation windows are finite
 
-**In this project:** AI partner in architectural/design sessions. Proposes, analyzes, and documents but does not unilaterally decide.
+**In this project:** Codex. Codex is the primary AI Architect and independent adversarial reviewer/falsifier. In architecture mode it proposes, analyzes, falsifies, and documents structural choices; in review mode it independently attacks candidate conformance. Codex does not unilaterally ratify architecture, authorize implementation, or implement the candidate it is reviewing.
 
 ### Implementation Engineer
 
@@ -87,9 +87,32 @@ This asymmetry is why the Principal role remains essential even as AI architectu
 - Identifies when implementation creates architectural pressure
 - Escalates potential blockers with the concrete execution impact; does not convert uncertainty into redesign without Architect/Principal disposition
 
-**In this project:** AI partner in implementation sessions. Executes, verifies, and reports but does not redesign without escalation.
+**In this project:** Kiro. Kiro is the repository-resident Implementation Engineer. It executes authorized specifications, verifies behavior, and reports implementation evidence. It may investigate architecture to understand implementation, but implementation pressure does not authorize it to redefine architectural boundaries; architectural uncertainty is escalated rather than silently resolved in code.
 
 ---
+
+## AI Role Mapping and Reconciliation Conduit
+
+The cognitive roles above remain Principal, Architect, and Implementation Engineer. Wheelwright currently maps them deliberately:
+
+- **Principal — decision authority and experiential grounding:** Brooks retains Product meaning, consequential direction, scope/economic commitment, stop, and final/delegated acceptance authority.
+- **Architect and adversarial reviewer — Codex:** carries the primary AI architecture burden, analyzes structural consequences and failure modes, and independently falsifies candidate work where review is warranted. Codex proposes and challenges architecture; it does not ratify it.
+- **Implementation Engineer — Kiro:** builds authorized work, exercises ordinary engineering judgment inside established architecture, and escalates architectural uncertainty rather than deciding it implicitly.
+- **Principal-facing reconciliation conduit — ChatGPT:** synthesizes Codex architecture/review findings, Kiro implementation evidence, repository authority, and Principal intent. ChatGPT challenges incomplete reasoning and reduces only genuinely unresolved consequential questions to the Principal. It is not a fourth architectural authority.
+
+The governing responsibility boundary is:
+
+> **Architecture decides what must be true. Engineering decides how to make it true. Reconciliation determines what actually requires Principal attention. The Principal retains consequential decision authority.**
+
+Architectural uncertainty includes proposed changes to authority/source of truth, identity or attribution, persistence ownership, provenance, domain or lifecycle semantics, publication/hydration boundaries, migration semantics, and safety/capital-path behavior. Kiro retains normal engineering discretion beneath those boundaries, including decomposition, internal implementation structures, tests, diagnostics, bounded refactoring, and integration mechanics that preserve established semantics.
+
+### Anti-death-spiral responsibility
+
+ChatGPT is explicitly responsible for detecting and interrupting multi-actor review/governance death spirals. Reconciliation must not become recursive Kiro → Codex → ChatGPT → Kiro loops that repeatedly reopen settled questions, manufacture new authorization gates, or return ordinary engineering choices to the Principal.
+
+ChatGPT should apply the project's convergence/reopening discipline: distinguish a valid finding from a blocking finding, reconcile against durable authority, and route to the Principal only material unresolved choices that durable authority and ordinary role-local judgment cannot settle. Once architecture is ratified and implementation is authorized, non-blocking review findings are recorded/deferred rather than used to restart architecture.
+
+> **The Principal is the decision authority, not the workflow scheduler or human continue button.**
 
 ## The Development Learning Loop
 
@@ -188,7 +211,7 @@ The loops describe what happens. The actors describe who is responsible for each
 
 The Three Actor Model produces durable artifacts (documents, code, tests) that should allow any of the three roles to be replaced without catastrophic knowledge loss.
 
-A fresh Architect (new Kiro session) should be able to reconstruct the intended architecture from GitHub alone without repeating mistakes that prior sessions have already corrected.
+A fresh Architect (new Codex session) should be able to reconstruct the intended architecture from GitHub alone without repeating mistakes that prior sessions have already corrected.
 
 A fresh Implementation Engineer should be able to build the next task from existing specifications without needing conversational context.
 
