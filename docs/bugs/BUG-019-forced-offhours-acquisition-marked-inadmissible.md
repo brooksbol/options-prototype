@@ -85,3 +85,11 @@ Empty (Open).
 - `PL-GOV-02` — the seven-ETF admission whose acceptance testing surfaced this.
 - Journal why-state: `docs/journal/project-journal-3.md` (2026-09-14 acceptance-testing entries).
 - Code touchpoints (evidence, not remediation authorization): backend per-subject admissibility publication; `options-prototype/src/write-desk/subject-admissibility.ts` (`isSubjectAdmissible` path 1a); `options-prototype/src/write-desk/recommend.ts` (`isEligible`).
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Confirmed still active on accepted main.
+
+Admissibility remains derived from environment/session timing, and an operator-forced off-hours acquisition still lacks a distinct Decision-usable, non-canonical characterization. The successful forced acquisition can therefore remain unusable by Decision for the reason captured in this record.
+
+**Restart point:** Reproduce a forced off-hours acquisition through the current path and preserve the distinction between canonical-session evidence and explicitly operator-requested best-available evidence when designing remediation.

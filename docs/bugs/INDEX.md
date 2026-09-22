@@ -7,12 +7,12 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG | Title | Area | Severity | Status | Record | Provenance |
 |-----|-------|------|----------|--------|--------|------------|
 | BUG-001 | Activity overlay does not project assigned-call closure / called-away disposition | Portfolio / lifecycle overlay | Not established | Open | [record](BUG-001-assigned-call-closure-projection.md) | GH #2 |
-| BUG-002 | Production cannot derive called-away share basis from direct purchases / buy-writes | Production | Not established | Open | [record](BUG-002-called-away-share-basis.md) | GH #3 |
+| BUG-002 | Production cannot derive called-away share basis from direct purchases / buy-writes | Production | Not established | Resolved | [record](BUG-002-called-away-share-basis.md) | GH #3 |
 | BUG-003 | "Produced" result not legible: composite economic sources not first-order visible | Production | S3 | Open | [record](BUG-003-produced-composite-legibility.md) | GH #8 |
 | BUG-004 | Console composes temporally incompatible evidence into apparently-coherent view | Operator Console | S2 | Open | [record](BUG-004-incoherent-composed-evidence.md) | GH #9 |
 | BUG-005 | Kreature nav advertises a route that renders an empty surface | Application Shell / nav | S3 | Open | [record](BUG-005-kreature-empty-surface.md) | GH #10 |
-| BUG-006 | Called-away "capital returned" uses reconstructed strike notional, not actual proceeds | Production | Not established | Open | [record](BUG-006-capital-returned-strike-notional.md) | GH #11 |
-| BUG-007 | Unknown stock-disposition basis can leave reconciliation appearing complete | Production | Not established | Open | [record](BUG-007-unknown-basis-appears-reconciled.md) | GH #12 |
+| BUG-006 | Called-away "capital returned" uses reconstructed strike notional, not actual proceeds | Production | Not established | Resolved | [record](BUG-006-capital-returned-strike-notional.md) | GH #11 |
+| BUG-007 | Unknown stock-disposition basis can leave reconciliation appearing complete | Production | Not established | Resolved | [record](BUG-007-unknown-basis-appears-reconciled.md) | GH #12 |
 | BUG-008 | Economic Activity presents inflated contract counts (episode double counting) | Production | Not established | Open | [record](BUG-008-inflated-contract-counts.md) | GH #14 |
 | BUG-009 | Capital label text diverges from backing amount; label-less non-null expired amounts | Production | Not established | Open | [record](BUG-009-capital-label-amount-divergence.md) | GH #15 |
 | BUG-010 | Phantom 09:30–09:45 Open Delay: FE session gate hardcodes Sandbox profile | Operator Console / session gate | S2 | Resolved | [record](BUG-010-phantom-open-delay-session-gate.md) | GH #16 |
@@ -22,7 +22,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-014 | Sealed-session completeness reconstructed from mutable current-work state; next-session re-resolution falsely revokes a completed session | Backend / durable sealed-session authority | S2 | Open | [record](BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md) | Discovered 2026-09-14 |
 | BUG-015 | Operator Console moneyness sparkline folds multi-day spot history onto one intraday session (misleading geometry; numeric values correct) | Operator Console / moneyness sparkline | S3 | Open | [record](BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md) | Discovered 2026-09-14 |
 | BUG-016 | Deployment funnels (CSP/Covered Call/Buy-Write) expose aggregate counts without preserving/exporting the exact evaluation-unit membership that produced them | Write Desk / Decision funnels observability | S3 | Resolved | [record](BUG-016-funnel-aggregate-counts-lack-exportable-membership.md) | Discovered 2026-09-14 |
-| BUG-017 | Deployment CSV export may be constrained by presentation row limit | Write Desk / Deployment CSV export | Not established | Open | [record](BUG-017-deployment-csv-export-row-limit.md) | Acceptance testing 2026-09-14 |
+| BUG-017 | Deployment CSV export is constrained by presentation row limit | Write Desk / Deployment CSV export | Not established | Open | [record](BUG-017-deployment-csv-export-row-limit.md) | Acceptance testing 2026-09-14 |
 | BUG-018 | Newly admitted (pending) universe member is not discoverable on Deployment; evaluated-universe count conceals distinct symbol states; no operator-facing targeted hydration for non-portfolio symbols | Write Desk (Deployment) / operator discoverability + hydration | S3 | Open | [record](BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md) | Discovered 2026-09-14 |
 | BUG-019 | Operator-forced off-hours acquisition succeeds but its newly acquired evidence is marked `admissible: false`, making it unusable by Decision | Backend admissibility semantics ↔ Decision consumer / operator-forced acquisition | S2 | Open | [record](BUG-019-forced-offhours-acquisition-marked-inadmissible.md) | Discovered 2026-09-14 |
 | BUG-020 | "Today's G/L $/%" uses Wheelwright's first intraday observation as baseline instead of prior session close, producing broker-mismatched (often sign-inverted) daily G/L | Operator Console / Unencumbered Shares + DTE ladder + CSV; per-symbol quote path | S2 | Resolved | [record](BUG-020-todays-gl-uses-first-observation-not-prior-close.md) | Discovered 2026-09-16 |
@@ -30,6 +30,18 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-022 | Deployable cash is regime-unaware: balances parser folds margin-derived buying power into the legacy "all settled" slot, over-stating unlevered deployable on a margin-enabled account | Write Desk / broker-balance ingestion + deployable-cash derivation | Not established | Resolved | [record](BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md) | Discovered 2026-09-17 |
 | BUG-023 | Activity overlay can double-count direct-share-sale proceeds into Deployable when the projection checkpoint (Option Summary timestamp) predates the Balances export that already reflects the sale | Portfolio / Activity projection ↔ broker-balance reconciliation | Not established | Open | [record](BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md) | Discovered 2026-09-17 |
 | BUG-024 | Covered-call moneyness visualization conflates strike-relative contract state with economic-consequence/intent, rendering CALL moneyness history neutral instead of communicating its OTM/ATM/ITM trajectory | Operator Console / moneyness + Delta coloring (CALL) | S3 | Resolved | [record](BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md) | Discovered 2026-09-17 |
+
+## Open-bug audit checkpoint (2026-09-22)
+
+Independent current-main audit/reverification reconciled the previously 18 Open records:
+
+- **Resolved from demonstrated acceptance evidence:** BUG-002, BUG-006, BUG-007.
+- **Confirmed active:** BUG-001, BUG-005, BUG-009, BUG-011, BUG-015, BUG-017, BUG-018, BUG-019, BUG-023.
+- **Open; technical remediation verified, Product/browser acceptance outstanding:** BUG-004, BUG-012, BUG-013, BUG-014.
+- **Open; Product revalidation/reframing required:** BUG-003.
+- **Open; reproduction-dependent / historical specimen required:** BUG-008.
+
+Each affected BUG record contains its own dated restart point. BUG-025 candidate investigation is deliberately outside this reconciliation and is not recorded here.
 
 ## Migration provenance (2026-09-11)
 

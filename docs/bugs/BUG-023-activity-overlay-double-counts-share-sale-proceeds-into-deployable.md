@@ -108,3 +108,11 @@ _(empty — Open)_
 - **BUG-022** (Resolved 2026-09-17) — regime-aware Deployable field *interpretation*. Same output figure (`Deployable`), different root cause. BUG-023 was surfaced during BUG-022 remediation and deliberately kept separate.
 - **BUG-001** (Open) — Activity overlay assigned-call closure / called-away disposition. Its acceptance criteria mention deployable-cash "without double-counting" only as an **acceptance constraint**, and its sibling note concerns `assigned` / `shares_sold_assignment` / `buy_to_close` / `expired` *fall-through* (missing mutations). Neither is the `shares_sold_direct` cash double-count mechanism described here. This is a distinct defect identity, not covered by BUG-001.
 - Not a `PL-*` item (defect, not a capability).
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Confirmed still active on accepted main.
+
+Direct-share-sale proceeds are still projected into Deployable by the Activity overlay while inclusion is keyed from the Option Summary projection checkpoint; when a newer Balances export already contains the sale proceeds, the same cash can still be counted again.
+
+**Restart point:** Reproduce with a Balances export newer than the Option Summary checkpoint plus an intervening direct share sale, then remediate checkpoint/reconciliation semantics without weakening legitimate activity projection.

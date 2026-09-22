@@ -77,3 +77,11 @@ Empty (Open).
 - `BUG-017` (Deployment CSV export may be constrained by presentation row limit) — a separate defect surfaced in the same 2026-09-14 acceptance session on the same surface. Distinct concern (export completeness vs. row cap), cross-linked for context only.
 - `BUG-019` (operator-forced off-hours acquisition produces `admissible: false` evidence Decision won't use) — the *next* step in the operator flow: this record (BUG-018) is about discovering an admitted symbol and reaching a hydration path; BUG-019 is about the hydration result being rejected by admissibility even after that path succeeds. Distinct, sequential; cross-linked for context only.
 - Context: the seven-ETF admission is durable on `main` (seed + derived SQLite); this defect concerns the operator surface, not the admission itself.
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Confirmed still active on accepted main.
+
+Deployment remains centered on recommendation-producing rows and does not independently expose pending, failed, or ready-without-candidate universe members in a way that makes an admitted pending symbol directly discoverable. The targeted-hydration/operator-discoverability gap remains.
+
+**Restart point:** Reproduce with an admitted non-portfolio symbol in a pending/non-candidate state, then address discoverability/hydration only under separate implementation authority.
