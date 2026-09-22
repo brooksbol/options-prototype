@@ -44,6 +44,14 @@ The Roadmap is **not** the source of truth for the governance concepts it displa
 - Relationships shown are **explicit-only** — exactly what canonical authority establishes, never inferred or manufactured.
 - The architectural boundary that constrains how the projection crosses the repository/runtime line is governed by **ADR-018** (no runtime GitHub dependency; repository interaction is build/reconciliation-side). This concept does not restate that boundary; it depends on it.
 
+## Log lens semantics
+
+The Roadmap Log is the chronological lens over **explicit dated governed events from canonical project-state authorities**. It is a project-history projection, not a parking-lot-specific chronology.
+
+Canonical source systems retain their own identity and authority. In particular, canonical governed bug lifecycle events remain `BUG-NNN` events and canonical parking-lot events remain `PL-*` events. Neither is copied into the other merely to obtain Log visibility. The Log derives from qualifying canonical events across those authorities while preserving provenance and source identity.
+
+The Log does not infer history from Git timestamps, file order, conversations, or merely from the presence of a date. Its inputs must be explicit governed temporal events established by the relevant canonical authority. The operational ways-of-working and completion rules for keeping that cross-authority projection fresh are owned by `bootstrap/project-memory-protocol.md`.
+
 ## The feedback loop
 
 > **governed project meta-state → projection → Principal inspection → observation/course correction → authority reconciliation → updated projection**
