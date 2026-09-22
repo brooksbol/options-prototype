@@ -92,6 +92,14 @@ When an applicable authority mechanism grants a bounded implementation attempt, 
 
 Once submitted for review, the candidate is immutable for that review and Kiro is read-only with respect to that candidate.
 
+## End-of-session invocation
+
+When the Principal says **“execute end of session protocol”**, **“run the end-of-session protocol”**, or otherwise unambiguously directs session closeout through that protocol, immediately follow `bootstrap/end-of-session-protocol.md`.
+
+This is an execution instruction, not a request for a plan. **Do not respond with a closeout plan and ask whether to proceed.** Execute ordinary authorized closeout through final persistence/synchronization and SYNC reporting unless the protocol identifies a genuine consequential boundary that actually prevents safe completion.
+
+A dirty working tree does not by itself return control to the Principal. Preserve and isolate unrelated in-flight work when safe; escalate only an actual provenance/collision ambiguity that cannot be resolved without crossing an unauthorized boundary.
+
 ## Project memory
 
 Retrieve durable prior reasoning when it materially affects the task while preserving epistemic status. Journal/history is evidence of prior thinking, not automatic current authority. Current repository authority and active task state win over conversational reconstruction.
