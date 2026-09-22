@@ -58,3 +58,11 @@ None.
 ## Related
 
 - Production FE/BE semantic-decoupling follow-on: `PL-PROD-EXPORT-01` (context only).
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Confirmed still active on accepted main.
+
+Episode chapter derivation still permits capital-label / backing-amount divergence, including expired-call shapes with a null/absent label while a non-null capital amount remains present.
+
+**Restart point:** Build a minimal current fixture for the divergent chapter state, then remediate only under separate implementation authority.

@@ -99,3 +99,11 @@ Suspicion about evidence quality may justify a cue. It does not justify rewritin
 ## Current decision
 
 Persist the defect and empirical evidence. **No fix now.** Complete the regular-session control before using the provider study to make stronger claims about Tradier Greek behavior or before revisiting remediation.
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Confirmed still active; deliberately deferred pending provider study.
+
+Current Greek normalization still collapses exact-zero provider Greeks into the same unavailable representation used for absent evidence. The previously required regular-session provider study remains outstanding.
+
+**Restart point:** Complete the provider study that distinguishes legitimate exact-zero observations from unavailable/missing Greek evidence before choosing remediation semantics.

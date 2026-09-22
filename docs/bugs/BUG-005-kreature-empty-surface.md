@@ -55,3 +55,11 @@ None.
 ## Related
 
 - `PL-SHELL` (Application Coherence / Shell) — context only; not double-booked as the same authoritative item.
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Confirmed still active on accepted main.
+
+The `/app/kreature` route remains advertised/routed, while the application root still renders no substantive Kreature surface.
+
+**Restart point:** Confirm the empty-route Product behavior, then remediate or remove the advertised route only under separate implementation authority.

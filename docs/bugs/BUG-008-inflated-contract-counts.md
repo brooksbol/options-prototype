@@ -59,3 +59,11 @@ None.
 ## Related
 
 - Production FE/BE semantic-decoupling follow-on: `PL-PROD-EXPORT-01` (context only).
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Open — reproduction-dependent; current defect not yet re-demonstrated.
+
+The historical inflated-count observation could not be reproduced from valid partial-fill semantics. A deterministic BNO-shaped specimen currently treats two STO fills as two contracts, which is economically correct for that fixture. The episode builder still has no deduplication within a single Activity export, but without the original offending rows (or an equivalent duplicate-representation fixture) the audit cannot distinguish a real duplicate-lifecycle representation from legitimate multiple fills.
+
+**Restart point:** Acquire the original offending Activity rows or construct an evidence-faithful duplicate-row specimen. Do not remediate until contract-count inflation is demonstrated against evidence that should economically represent fewer contracts.
