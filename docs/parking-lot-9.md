@@ -852,3 +852,142 @@ An independent FE/BE responsibility review (Codex, at accepted-main SYNC `ddac5c
 **Why-state.** This record is the durable provenance; the acceptance and design reasoning are in the Principal conversation (2026-09-22).
 
 **Next authorized mode.** No further work. Strategy/Principles source enrichment, the Google-style ADR restructure, and the Domain detail concern each require separate Principal selection.
+
+
+## `PL-BROKER-CAP` — Brokerage-Facing Capability Model / Incumbent Fitness Appraisal
+
+**Date:** September 22, 2026  
+**State:** INTAKE — new canonical identity; materially developed cross-cutting discovery; strategic/architectural reconciliation intentionally not completed; no implementation or vendor evaluation authorized
+
+### What was discovered
+
+A discussion initially triggered by Fidelity execution limitations and possible brokerage alternatives broadened beyond any one broker, API, existing parking-lot item, LVT node, or implementation seam.
+
+Wheelwright currently obtains or exercises brokerage-facing capability through several direct mechanisms that were chosen pragmatically to get working software into operation: Tradier-backed market/options evidence, Fidelity CSV-derived portfolio state, Wheelwright/Fidelity browser handoff for execution, and Fidelity-derived evidence used for lifecycle/outcome reconstruction. These mechanisms have been productive incumbents, not mistakes. Real operation through them has exposed enough domain knowledge, operator friction, and architectural pressure that their continuing fitness should now be appraised before Wheelwright assumes that extending the same mechanisms is the correct next step.
+
+The emerging problem-space model has **four capability surfaces**:
+
+1. **Portfolio State** — what Wheelwright must know about brokerage accounts, positions/lots, balances/capital availability, encumbrance/open orders, activity, account regime, identity, provenance, and freshness.
+2. **Market Evidence** — what Wheelwright must know about relevant markets/options: chains, quotes, Greeks, IV/volatility, expirations/strikes, liquidity and other governed evidence, including provenance/freshness/fitness.
+3. **Execution** — how an operator-authorized Wheelwright decision/TradeIntent becomes an actual market action, including representation, validation/preview, multi-leg shape, handoff/staging/submission boundaries, limits, cancel/replace, and operator review.
+4. **Lifecycle / Outcome** — how Wheelwright learns what actually happened after the decision: submitted/working state, fills/partial fills, expiration/assignment/exercise, close/roll, realized economics, reconciliation, and resulting portfolio state.
+
+These surfaces describe **capabilities in the problem space**. Vendors, brokers, direct APIs, aggregators, trading platforms, hosted/drop-in components, files/CSVs, browser links, OAuth mechanisms, iframes, SDKs, FIX/OMS mechanisms, and similar technologies belong to the **solution space**. The investigation must not select a solution class before establishing the incumbent capability, actual problem/pressure, and solution-neutral meaning of “better.”
+
+### Trigger versus broader concept
+
+The immediate trigger was the Principal's Fidelity Tier-2 options denial and discussion of whether another brokerage or integration mechanism could remove current execution and portfolio-state friction. Earlier reconciliation correctly mapped individual concerns to existing homes such as `PL-PORT-01`, `PL-EXEC-01`, evidence work, AR1/AR6/AR7/AR10, ADR-004, and ADR-011.
+
+Continued discussion exposed a broader concern: evaluating only those individual seams risks preserving the assumption that Wheelwright itself should own the underlying brokerage plumbing. Conversely, beginning with vendors/platforms risks “hammer shopping” — finding attractive solutions before establishing whether Wheelwright has the corresponding nails.
+
+The broader discovery is therefore an **incumbent capability-and-fitness appraisal before solution selection**, not “replace Fidelity,” “replace Tradier,” “adopt an aggregator,” “build broker APIs,” or “use a trading platform.”
+
+### Why it might matter
+
+Observed operator work already crosses multiple surfaces:
+
+- brokerage files are manually obtained and imported to establish portfolio state;
+- the operator may scan/compare option-chain information manually even when Wheelwright possesses relevant evidence;
+- execution can require dual-browser context switching and transfer/reverification of Wheelwright trade information in brokerage UI;
+- lifecycle/outcome truth can require brokerage evidence/import/reconciliation after execution.
+
+Much of this work appears mechanical rather than consequential operator judgment. A candidate product principle emerging from the discovery is:
+
+> **Automate the movement of facts and intent; preserve the consequential decision.**
+
+This is a hypothesis for appraisal, not a ratified product or architecture principle.
+
+The discussion also identified a possible build-vs-buy/platform-boundary question: mature multi-broker trading/connectivity platforms may already provide some brokerage capabilities Wheelwright currently implements directly. If so, Wheelwright might avoid owning non-differentiating broker-specific plumbing. That possibility is deliberately **downstream** of the incumbent appraisal and decision criteria; it is not the intake conclusion.
+
+### Appraisal method before solution research
+
+The Principal explicitly selected the following order of inquiry:
+
+> **incumbent appraisal → observed problem/pressure → solution-neutral “better” → decision criteria → solution-space classes → broad landscape survey → evidence/experiments → decision**
+
+The **incumbent is the control**. “Keep” is a first-class result. Existing mechanisms must not be criticized merely because newer mechanisms exist; they earned their place by getting Wheelwright to its current operational state. Equally, past success does not grant them permanence if current evidence shows the problem has changed.
+
+For each of the four surfaces, future appraisal should distinguish:
+
+- required capability;
+- current realization;
+- demonstrated fitness / what works;
+- observed friction;
+- demonstrated failure mode;
+- current constraint;
+- trajectory pressure;
+- solution-neutral meaning of “better”;
+- relevant technology-quality consequences.
+
+Do not turn every inconvenience into a requirement. Distinguish tolerable friction from constraints and failures.
+
+### Technology-quality lens
+
+The Principal uses six contextual quality attributes as architectural evaluation dimensions:
+
+- **Usability**
+- **Security**
+- **Reliability**
+- **Extensibility**
+- **Maintainability**
+- **Scalability**, including performance
+
+Different applications and different Wheelwright surfaces may weight these qualities differently. No universal ordering or aggregate score is asserted. This is consistent with the ratified Technology Quality Constitution's multidimensional/evidence-driven posture.
+
+The current discovery is substantially **usability-forward and security-supported**: eliminate clerical/operator impedance where justified (CSV handling, dual-browser trade reconstruction, unnecessary manual chain scanning, reconciliation work) while treating each integration as a new trust/attack surface and granting only authority required by the capability. Security is not the sole objective and does not automatically outrank the other qualities.
+
+A provisional authority vocabulary emerged during discovery — `MARKET_READ`, `ACCOUNT_READ`, `ORDER_STAGE`, `ORDER_EXECUTE`, `FUNDS_MOVE` — as a way to reason about blast radius and least authority. This vocabulary is **not ratified ontology** and must not be generalized prematurely. It may be useful later when evaluating concrete solution mechanisms.
+
+### Complete parking-lot reconciliation at intake
+
+The complete `docs/parking-lot*.md` sequence was reviewed at current `main` SYNC `3813f8e1a609b9771e6efba646dca596f80f5499` before creating this identity.
+
+Relevant existing homes remain valid but do not individually own the broader appraisal:
+
+- **`PL-PORT-01`** owns Portfolio-State Maturity, multi-BrokerageAccount/account-local state, durable brokerage/Fidelity evidence persistence, and related ingestion/provenance concerns.
+- **`PL-EXEC-01`** owns Trade Lifecycle Evolution and the execution/handoff lifecycle beyond the existing Fidelity URL handoff.
+- **`PL-EVID-01` / evidence family** owns historical/market evidence concerns and the Evidence Appliance/provider semantics.
+- **`PL-DEPLOY-BAL`** owns broker-native account-regime/balance semantics, not the cross-surface brokerage capability model.
+- **`PL-STRAT-01` refinements** own broker/account execution eligibility as a strategy gate, not brokerage capability provision.
+- **`PL-ARCH-07`** is a useful methodological analogue for COTS/build-vs-buy evaluation but owns authorization infrastructure, not brokerage capability.
+- Existing `PL-DEPLOY`, Production, and lifecycle items own their specific decision/accounting semantics and are not replaced by this intake.
+
+Because the discovered concern intentionally spans these established identities and asks whether the **capability-provision boundary itself** should be appraised before further local extension, merging it into any one existing item would lose the cross-cutting question. A new stable identity is therefore warranted at **INTAKE**. This does not supersede, merge, or reprioritize those existing items.
+
+### Unresolved
+
+- Are the four capability surfaces the right durable decomposition, or does appraisal evidence require refinement?
+- What exact capabilities does Wheelwright require within each surface today and on the evidenced trajectory?
+- Which incumbent mechanisms are demonstrably fit and should remain untouched?
+- Which observed operator frictions are material enough to justify change?
+- Which current limitations are true constraints or failure modes versus tolerable friction?
+- What does “better” mean for each surface without naming a solution?
+- Which of the six quality attributes materially determine fitness for each surface, and what evidence supports their relative importance?
+- Which brokerage-facing responsibilities are differentiating Wheelwright capability versus enabling/non-differentiating infrastructure?
+- Only after those questions: what solution classes exist, what broad market landscape supplies them, and what evidence/experiments would be required to displace an incumbent?
+- Does later reconciliation strengthen/refine existing LVT/AR structure, reveal a genuinely broader strategic/architectural concern, or require no roadmap/architecture-roadmap change? **Not decided at intake.**
+
+### Explicitly not authorized
+
+- No vendor or product selection.
+- No broad vendor/platform landscape survey yet.
+- No Schwab, SnapTrade, Tradier-trading, Fidelity replacement, aggregator, trading-platform, OMS/FIX, iframe/hosted-ticket, or other solution commitment.
+- No broker/API spike or experiment.
+- No new direct brokerage integration.
+- No replacement/removal of Tradier, Fidelity CSV ingestion, Fidelity handoff, or existing lifecycle evidence paths.
+- No new generalized broker abstraction, provider interface, TradeIntent framework, capability ontology, credential model, or execution service.
+- No `ORDER_EXECUTE` or funds-movement authority.
+- No LVT, architecture-roadmap, ADR, foundation, or Technology Quality Constitution mutation from this intake.
+- No implementation work.
+
+### Why-state
+
+The richer discovery is the Principal/ChatGPT brokerage-capability discussion of September 22, 2026, beginning with Fidelity Tier-2 constraints and evolving through LVT/PL and architecture/ADR reconciliation into the four-surface capability model, incumbent-control principle, six-quality-attribute lens, security/integration threat discussion, platform/build-vs-buy hypothesis, and the explicit decision to stop before further appraisal and enter durable intake.
+
+This record intentionally preserves enough of that why-state for a cold actor to resume without reconstructing the solution-space discussion from memory. Existing related durable records remain authoritative within their narrower subjects.
+
+### Next authorized mode
+
+**Further exploration / problem-space appraisal only.**
+
+The next bounded activity, when Principal-selected, is to appraise the four surfaces from incumbent evidence, starting from capabilities and fitness rather than vendors or mechanisms. Strategic and architectural reconciliation remain required before this item can become **RECONCILED**. No solution-space survey or implementation is authorized by intake.
