@@ -388,6 +388,38 @@ The Roadmap is Wheelwright's self-documenting meta-state — a live projection o
 
 > **Roadmap freshness is a side effect of doing Wheelwright work correctly.**
 
+### Roadmap Log semantic invariant
+
+The Roadmap **Log** is the project-level chronological projection of **explicit dated governed events from canonical project-state authorities**. It is **not** a parking-lot activity log and it is not owned by any single source system.
+
+This semantic is mandatory:
+
+- A governed event belongs in the Log because its **own canonical authority explicitly establishes a dated project event**, not because the event was copied into a Log-specific record or into another authority that the current generator happens to parse.
+- **Source-system identity must be preserved.** A `BUG-NNN` event remains a bug event; a `PL-*` event remains a parking-lot event. Do not manufacture a `PL-*` identity for a defect, manufacture a bug identity for non-defect work, or otherwise double-book an event merely to make it visible in the Log.
+- **Bug lifecycle is governed project history.** Explicit dated governed bug events established by the canonical `docs/bugs/` corpus are in scope for the Log, just as explicit dated governed parking-lot events are. A Log implementation that can project parking-lot governed events but structurally cannot project canonical governed bug events is incomplete relative to this invariant.
+- The Log remains **derived and read-only**. Never hand-add a Log event and never hand-edit `roadmap-projection.json` to make an event appear. Reconcile the event in its correct canonical authority, then derive the Log from that authority.
+- **Do not infer events from file modification time, Git commit time, document order, conversational chronology, or an actor's memory.** The canonical source must explicitly establish the event and its date.
+- A date appearing somewhere in a canonical document does **not by itself** make it a Log event. The source authority must establish that the dated material represents governed project history. Source-specific parsing/mapping rules must preserve the source's semantics rather than inventing them.
+- Adding another canonical project-state authority in the future does not automatically make every dated statement in that authority a Log event. Extend Log derivation only when that authority explicitly establishes governed temporal events under this invariant.
+
+The governing model is:
+
+```
+canonical parking-lot governed events ─┐
+canonical bug governed events ─────────┤
+future qualifying canonical events ────┼─→ explicit dated governed-event projection → Roadmap Log
+                                      │
+                    source identity preserved
+```
+
+The forbidden model is:
+
+```
+other governed event → duplicate/restate as PL-* → Roadmap Log
+```
+
+The End-of-Workstream question above — "Does completed/governed work that should appear in the Roadmap Log have the appropriate explicit dated canonical record?" — is therefore **cross-authority**. It must not be interpreted as shorthand for "is there a dated parking-lot record?"
+
 ### Mandatory derived-projection synchronization rule
 
 This is a **completion obligation**, not a suggestion and not a separate Roadmap-maintenance task.
