@@ -73,11 +73,11 @@ In the called-away branch, source the operator-visible capital figure from autho
 
 ## Remediation history
 
-None.
+Remediated on current main by the implementation originating at commit `0590bc0`. Called-away episode capital now uses authoritative net disposition proceeds when available rather than promoting reconstructed strike notional to the realized `capital returned` claim.
 
 ## Verification
 
-None.
+Verified during the 2026-09-22 open-bug audit. Focused verification demonstrated that called-away chapters use authoritative net disposition proceeds and explicitly reject strike notional as the realized capital-returned amount, satisfying the recorded semantic requirement.
 
 ## Related
 
