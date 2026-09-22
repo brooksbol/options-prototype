@@ -312,6 +312,22 @@ Explicit authority governs change.
 
 ## 8. Divergence, Evidence Completeness, and Convergence
 
+### Role-aware routing before convergence
+
+Wheelwright does not route every disagreement directly to the Principal.
+
+- **Architectural divergence** routes first to the Architect (Codex) for analysis, failure-mode examination, and falsification against current authority.
+- **Implementation divergence** routes first to the Implementation Engineer (Kiro) for repository-grounded engineering resolution inside established architecture.
+- **Cross-role, authority, or materially unresolved divergence** routes through ChatGPT reconciliation to the Principal only when durable authority and role-local judgment do not already determine the answer.
+
+ChatGPT owns anti-death-spiral reconciliation: it must detect recursive review/governance loops, prevent settled questions from being reopened without the governing threshold, and avoid turning the Principal into a workflow scheduler or human continue button.
+
+This routing is not mandatory ceremony. Use the shortest path consistent with the uncertainty present. Routine engineering does not require an architecture round-trip. Architecturally consequential work should receive architecture analysis before implementation, and independent adversarial review should be used where the consequence warrants it.
+
+> **Do not ask the Principal to choose when repository authority, established architecture, or ordinary engineering judgment already determines the answer.**
+
+
+
 Independent reasoning is a feature of the operating model.
 
 Agreement among AI participants does not itself create authority.
