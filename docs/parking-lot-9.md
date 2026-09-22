@@ -638,6 +638,20 @@ Related architecture may include the existing backend evidence-service boundary,
 - What remains legitimately frontend/operator-local?
 - How should durable account state be exposed to future server-side recommendation/agent capabilities without collapsing existing evidence/provenance boundaries?
 
+#### Additional operating invariant — incognito reconstruction
+
+The Principal identified a simple acceptance test for the durable brokerage-state boundary:
+
+> **Incognito invariant:** A fresh browser with no Wheelwright client persistence must be able to reconstruct economically meaningful BrokerageAccount state from durable authority. Loss of client storage may reset presentation preferences, but must not destroy financial evidence, account identity, provenance, history, or durable workflow state.
+
+This is a boundary test, not a requirement that all frontend state move to the backend. Disposable operator/UI state such as active-account selection, expanded panels, sorting, and similar presentation preferences may legitimately remain client-local. But if clearing browser storage or opening Wheelwright in an incognito/private browser destroys or materially changes Wheelwright's durable understanding of a BrokerageAccount, that state is evidence that the frontend is acting as an inappropriate durable authority.
+
+A useful design question for future persistence work is therefore:
+
+> **Should this state survive the incognito test?**
+
+If yes, browser-local persistence must not be its only authority.
+
 #### Explicitly not authorized
 
 - No persistence migration.
