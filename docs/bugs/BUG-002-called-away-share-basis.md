@@ -76,11 +76,11 @@ The SLV Sep 3 2026 dollar figures (basis $6,250 from 100 shares at $62.50; net p
 
 ## Remediation history
 
-None.
+Remediated on current main by the implementation originating at commit `0590bc0`. Called-away basis attribution now considers supportable direct-purchase / buy-write acquisition evidence while preserving unresolved or ambiguous attribution rather than guessing.
 
 ## Verification
 
-None.
+Verified during the 2026-09-22 open-bug audit. Focused tests passed for direct-purchase call-away basis, above-basis appreciation, below-basis erosion, multi-lot ambiguity, insufficient inventory, prior lot consumption, and the existing assigned-put-origin regression path. This demonstrates the repository-level acceptance behavior; the historical SLV source figures remain operator-reported provenance.
 
 ## Related
 
