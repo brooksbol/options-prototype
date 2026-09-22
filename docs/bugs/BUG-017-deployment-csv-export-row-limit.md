@@ -1,4 +1,4 @@
-# BUG-017 — Deployment CSV export may be constrained by presentation row limit
+# BUG-017 — Deployment CSV export is constrained by presentation row limit
 
 - **Status:** Open
 - **Severity:** Not established
@@ -82,3 +82,11 @@ Pending the controlled >90-row acceptance test described above.
 
 - Acceptance testing, 2026-09-14.
 - Separate from the admitted-but-pending symbol discoverability/hydration finding.
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Confirmed active; the prior "may be constrained" wording understated the evidence.
+
+Current Deployment export applies the presentation `showCount` limit before CSV generation. With the current 90-row presentation limit, the exported CSV is therefore truncated to the presented subset rather than representing the full evaluated/exportable population. This was confirmed directly from the implementation during the open-bug audit.
+
+**Restart point:** Preserve the demonstrated distinction between presentation limiting and export membership; remediation should make export operate on the authoritative full export set rather than the display slice.

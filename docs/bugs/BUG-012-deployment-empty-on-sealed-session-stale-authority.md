@@ -96,3 +96,13 @@ Remediation implemented (not yet committed; awaiting Principal browser test) in 
 - **BUG-010** — sibling authority-boundary defect (frontend session gate); its resolution ratified **ADR-017** (Authoritative Verdict Precedence and Consumer-Path Reach), the governing lesson this defect re-expresses on the re-run/reach axis.
 - **ADR-015 / ADR-016 / ADR-017** (`docs/07c-adrs.md`) — the authority-precedence spine.
 - Sealed-evidence validity invariant (`docs/foundations/backend-behavioral-invariants.md`; `docs/07-architecture-current.md` — sealed evidence remains valid until superseded).
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Open — technical remediation verified; Product acceptance outstanding.
+
+The remediation is committed on current main (the audit identified implementation commit `a1028a0`). The focused `runtime-authority-convergence` verification reproduces the former stale-closure ordering and demonstrates that execution-time authority is now read through the ref-based path, including convergence when authority resolves around in-flight evidence processing. The relevant focused frontend suites pass.
+
+The record's older "not yet committed" wording is superseded by this checkpoint. Browser/Product verification remains outstanding; it could not be completed because the browser-control client failed during initialization.
+
+**Restart point:** Browser-verify Deployment recovery on an appropriate sealed/non-trading-session specimen. If Product behavior matches the automated acceptance evidence, disposition as Resolved.

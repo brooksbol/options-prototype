@@ -64,3 +64,13 @@ Implemented (not committed; awaiting Principal browser verification) in `Session
 - **BUG-012** — the frontend consumer-path race (separate defect; same empty-board symptom).
 - **ADR-015 / ADR-016 / ADR-017** — the authority-precedence spine.
 - Sealed-evidence validity invariant (`docs/foundations/backend-behavioral-invariants.md`, `docs/07-architecture-current.md`).
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Open — technical remediation verified; Product acceptance outstanding.
+
+The remediation is committed on current main (the audit identified implementation commit `a1028a0`). Focused `SessionClassifier` verification passes across Sunday/non-trading, Monday PREMARKET, regular session, invalid-prior-session, production-vs-sandbox, and after-close boundary specimens. The prior-session admissibility behavior described by the defect is technically repaired.
+
+The record's older "not committed" wording is superseded by this checkpoint. Browser/Product verification remains outstanding and was not simulated during the current regular session.
+
+**Restart point:** Observe the Deployment surface through the relevant premarket/sealed-evidence boundary with the current backend. If Product behavior matches the automated acceptance evidence, disposition as Resolved.

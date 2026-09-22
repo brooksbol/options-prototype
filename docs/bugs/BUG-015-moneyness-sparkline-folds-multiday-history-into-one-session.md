@@ -75,3 +75,11 @@ _(empty — deferred)_
 
 - `sparkline-scale.ts` — ratified sparkline semantic invariant (topology-preserving vertical scale); this defect is on the horizontal/time axis.
 - Not related to BUG-012/013/014 (session authority / covered-call restoration).
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Confirmed still active on accepted main.
+
+The moneyness-history path still maps observations from multiple dates onto one intraday-session axis, discarding the date dimension and preserving the misleading folded geometry described by this record.
+
+**Restart point:** Reproduce with a multi-day history fixture, then remediate the temporal geometry without changing the correct underlying numeric moneyness values.

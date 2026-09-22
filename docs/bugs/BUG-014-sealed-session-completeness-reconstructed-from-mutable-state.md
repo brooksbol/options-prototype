@@ -75,3 +75,13 @@ Because `EvidenceStoreConfig` wires `persistedSessionValid = hasCompletePublishe
 - **BUG-013** — the per-subject admissibility defect that consumes this authority; both required for the board to recover.
 - **BUG-012** — the frontend consumer-path race (separate defect, same symptom).
 - 957-vs-955 serialized-ready discrepancy — related observation, deliberately NOT conflated or claimed resolved here.
+
+## Audit checkpoint — 2026-09-22
+
+**Disposition:** Open — technical remediation verified; Product acceptance outstanding.
+
+The remediation is committed on current main (the audit identified implementation commit `a1028a0`). Focused durable-session verification demonstrates sealing on completion, survival across restart, preservation across next-session mutation, rejection of incomplete sessions, and guarded migration/backfill behavior. The technical invariant at the core of this defect is therefore verified.
+
+The record's older "not committed" wording is superseded by this checkpoint. Product/live acceptance remains outstanding; the audit did not manipulate runtime date/state to manufacture the boundary condition.
+
+**Restart point:** Live/browser-verify prior-session operational validity across the relevant next-session boundary. If the durable fact remains valid and the Product surface consumes it correctly, disposition as Resolved.
