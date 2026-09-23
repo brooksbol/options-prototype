@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-23T20:00:00.000Z",
+    "generatedAt": "2026-09-23T20:35:00.000Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -40,7 +40,7 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 25,
-      "logTotal": 68,
+      "logTotal": 69,
       "logIntakeEvidenceEvents": 13,
       "plWithIntakeDate": 13,
       "plWithoutIntakeDate": 51
@@ -3266,6 +3266,41 @@
           "heading": "Next authorized pressure",
           "level": 4,
           "content": "Perform the previously pinned broader practitioner-strategy falsification pass. Decompose practitioner strategy treatments across construction/legs, formation cash flow, payoff/consequence geometry, directional/magnitude thesis, volatility/time exposure, lifecycle/resolution, applicability/use criteria, capability/feasibility, and conventional vocabulary. Do not infer normative Intent from practitioner labels or market criteria. Do not open DDD decomposition.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-SEM-01` Refinement — v1.3 coherence repair and practitioner-source binding",
+          "level": 3,
+          "content": "The independent v1.3 review accepted the semantic direction but found four bounded coherence defects and one reproducibility blocker. Under explicit Principal direction, the producing actor repaired those defects without reopening the focused reconciliation or advancing the model version.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Repairs",
+          "level": 4,
+          "content": "- Earlier concept-family, topology, and open-question text now conforms to the Section 21 conclusions rather than competing with them.\n- Physical coverage semantics no longer allow authority to override mechanics: one deliverable share unit cannot be allocated as full physical coverage to more than one simultaneous physically deliverable obligation. Portfolio-margin or collateral offsets must be represented under their actual relation.\n- HOLD is defined as a no-current-transaction Alternative that continues the existing obligation/exposure subject to changing market state and external lifecycle Events; it does not freeze state.\n- Operator/system commitment withdrawal is separated from broker cancellation request, broker-authoritative canceled-order state, cancel/replace, partial execution, and residual commitment.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Practitioner-source binding",
+          "level": 4,
+          "content": "Principal-supplied source:\n- platform: YouTube;\n- video ID: `5BMMrfBtA_c`;\n- supplied URL: `https://youtu.be/5BMMrfBtA_c?si=YqV2dB-SEdyzFUpk`;\n- supplied in governing conversation: 2026-09-23;\n- purpose: external practitioner semantic pressure concerning conventional options “strategy” bundles, including mechanics, opening cash flow, payoff geometry, directional/magnitude criteria, volatility/time exposure, lifecycle, applicability/use criteria, and conventional nomenclature.\n\nTitle, channel/publisher, publication/version date, transcript, reviewed segments, and individual source claims are **not yet established in repository authority and must not be invented**. Before a source claim affects the semantic model it must be captured with enough segment/context to reproduce it and classified as mechanics, broker fact, theory, empirical claim, heuristic, conventional vocabulary, or source-specific pedagogy as applicable.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Protocol clarification",
+          "level": 4,
+          "content": "Explicit Principal direction is valid decision ingress. Durable persistence records that decision; lack of an already-persisted record must not recursively invalidate the Principal decision. Actor mutation authority remains a separate question.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Next authorized pressure",
+          "level": 4,
+          "content": "Independent review of this bounded coherence/source-binding repair. If it survives, execute the already-pinned practitioner-strategy falsification pass. Ratification and DDD decomposition remain blocked.",
           "truncated": false,
           "tables": []
         }
@@ -8018,6 +8053,19 @@
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
       "sourceOrder": 411
+    },
+    {
+      "plId": "PL-SEM-01",
+      "bugId": null,
+      "title": "PL-SEM-01 Refinement — v1.3 coherence repair and practitioner-source binding",
+      "eventKind": "refinement",
+      "establishesIntake": false,
+      "eventDateText": "September 23, 2026",
+      "eventDateIso": "2026-09-23",
+      "state": "REFINEMENT — Principal selected Option B; bounded v1.3 coherence repair persisted without version advance; practitioner source identity bound; independent review required before corpus analysis",
+      "headingLevel": 3,
+      "sourceFile": "parking-lot-9.md",
+      "sourceOrder": 415
     }
   ],
   "intakeDateUnknown": [
