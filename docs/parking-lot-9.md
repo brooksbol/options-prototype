@@ -1215,3 +1215,23 @@ The source-specific `-2/-1/0/+1/+2` and one-standard-deviation framework remains
 #### Next authorized pressure
 
 Adversarially test Scenario / Market Thesis against covered-call, CSP, long-straddle, iron-condor, and calendar specimens and determine whether it deserves durable identity or is better represented as a governed Assertion family. Continue remaining v1.3 blocker pressure afterward. No DDD or implementation migration is authorized.
+
+
+### `PL-SEM-01` Refinement — v1.4 Scenario / Market Thesis reconciliation
+
+**Date:** September 24, 2026  
+**State:** REFINEMENT — practitioner-corpus pressure resolved provisionally; Semantic Model advanced to v1.4; Scenario / Market Thesis represented as an optional governed Assertion family; implementation and DDD remain blocked
+
+The focused adversarial follow-on tested Scenario / Market Thesis against covered-call, CSP, long-straddle, iron-condor, and calendar specimens.
+
+#### Durable conclusion
+
+Scenario / Market Thesis does not currently earn durable entity identity. It is better represented as a governed Assertion family about possible market evolution, scoped to subject(s) and horizon, with authority/provenance/derivation/uncertainty as applicable.
+
+It is distinct from Objective/Purpose, Outcome Stance/Intent, Preference, Policy, strategy identity, and realized state. It may be absent, model-derived, operator-authored, externally sourced, or branched across counterfactual scenarios.
+
+The key invariant is: **market expectation is not outcome desirability**.
+
+#### Next pressure
+
+Return to the remaining semantic blockers: Lifecycle Subject/Episode identity, Capital Pool overlap/partition, association authority matrices, final Intent naming, Recommendation/decision-trace identity, commitment boundary, Candidate durability, and capability/support lifecycle semantics. No implementation migration or DDD decomposition is authorized.
