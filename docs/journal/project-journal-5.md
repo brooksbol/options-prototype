@@ -502,3 +502,22 @@ The producing actor repaired the Semantic Model in place without advancing beyon
 The practitioner source is now durably identified as YouTube video ID `5BMMrfBtA_c`, supplied URL `https://youtu.be/5BMMrfBtA_c?si=YqV2dB-SEdyzFUpk`, supplied by the Principal on 2026-09-23. The repository does **not** yet establish the title, channel/publisher, publication date, transcript, reviewed segments, or exact claims. Those must be acquired and classified before use; the source is evidence pressure, not Wheelwright mechanics or policy authority.
 
 **Next pressure:** independent review of this bounded repair. Only after it survives should the broader practitioner-strategy falsification pass begin. DDD remains downstream.
+
+
+---
+
+## 2026-09-23 — Practitioner-evidence research workstream made durable
+
+The Practitioner Corpus workstream reached a deliberate stopping point after completion of Practitioner Corpus v1 and the first successful corpus-first Product Challenge. The Principal selected **Option A** for durable continuation: create a dedicated canonical research identity and preserve the Product Challenge Test 2 result as a separate research artifact.
+
+Canonical intake is now **`PL-RESEARCH-05 — Practitioner Corpus / Practitioner-Evidence Research Program`** in `docs/parking-lot-9.md`. The item is **INTAKE / ACTIVE RESEARCH** only. It preserves the research program's identity, contamination boundary, why-state, downstream boundaries, and next research mode without creating Product, semantic, domain, architecture, policy, roadmap, or implementation authority.
+
+The Test 2 result is preserved at `docs/research/practitioner-corpus/product-challenge-test-2-2026-09-23.md`. The experiment derived and froze ten capability hypotheses from the completed corpus before current Wheelwright Product/implementation bootstrap, then reconciled them against Wheelwright. Result: **9 PARTIALLY EXISTS, 1 NOT FOUND**; the clear absent family was cross-expiry residual-leg management. Strongest corroboration included Assignment Consequence, Recommendation Brief, and Unencumbered Shares/capacity semantics. Strongest pressure included covered-call opportunity cost, planned-loss/invalidation semantics, monitoring beyond state display, volatility qualification, single-leg lifecycle boundaries, and probability/payoff comparison.
+
+The durable research sequence is:
+
+> **practitioner evidence → corpus → blind hypotheses/challenges → freeze → Wheelwright bootstrap → reconciliation**
+
+The experiment is preserved as a useful pilot, not represented as pristine double-blind validation. Rediscovery of existing capability is itself useful convergence evidence; research findings do not automatically become requirements.
+
+Session-closeout note: creation of the new canonical `PL-*` identity triggers Roadmap derived-projection regeneration/freshness verification under the Project-Memory Protocol. The ChatGPT GitHub execution surface used for this closeout can persist repository files but cannot run the repository-local generator command. That mechanical closeout obligation therefore remains to be completed by a repository-resident capable actor before the session can claim fully fresh derived Roadmap state.
