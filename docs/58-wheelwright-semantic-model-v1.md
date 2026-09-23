@@ -1,6 +1,6 @@
-# Wheelwright Semantic Model v1.3 — Draft
+# Wheelwright Semantic Model v1.4 — Draft
 
-**Date:** September 23, 2026  
+**Date:** September 24, 2026  
 **Status:** Draft semantic integration model — Current Specialized Reference (Category E); **not ratified architecture or implementation authority**  
 **Canonical intake:** `PL-SEM-01`  
 **Scope:** Wheelwright-wide semantic integration across domain, portfolio, lifecycle, evidence, intent/policy, capability, decision, execution, and accounting submodels  
@@ -153,6 +153,7 @@ A primitive, if later claimed, must be semantically irreducible for Wheelwright 
 - **Evidence Observation** — an observation with provenance and time semantics; it may support an Event Assertion but is not the Event.
 - **Authoritative Association** — a governed claim that two otherwise independent identities are related for a stated purpose.
 - **Intent Assertion** — provisionally, an authoritative, scoped, time-bounded Outcome Stance toward a specified possible outcome. Objective/Purpose is a separate semantic kind; final naming as `Intent Assertion` versus `Outcome Stance Assertion` remains open.
+- **Scenario / Market Thesis Assertion** — a governed Assertion about possible market evolution, scoped to semantic subject(s) and horizon, with evidence/authority/derivation and uncertainty as applicable. It may concern direction, magnitude, range, volatility, path, correlation, rates, term structure, or a governed scenario/distribution. It is optional and is not Objective/Purpose, Outcome Stance, Preference, Policy, realized state, or strategy identity.
 - **Policy Rule** — a governed decision rule.
 - **Constraint** — an admissibility/prohibition boundary.
 - **Preference** — an ordering among admissible alternatives/outcomes. Constraint and Preference must not be collapsed.
@@ -1198,3 +1199,40 @@ The practitioner `-2/-1/0/+1/+2` and one-standard-deviation framework is treated
 v1.3 survives the broader practitioner-strategy corpus **with refinement pressure, not ratification**. Scenario/Market Thesis now requires focused adversarial specimens to determine whether it deserves durable semantic identity or is better represented as a governed Assertion family.
 
 DDD decomposition and implementation migration remain downstream and unauthorized.
+
+
+---
+
+## 29. v1.4 Scenario / Market Thesis reconciliation — September 24, 2026
+
+The practitioner-strategy corpus exposed one material semantic pressure: practitioners routinely pair constructions with assumptions about future direction, magnitude, volatility, range, path, or term structure. Those assumptions require a semantic home but must not be misfiled as Intent, Objective/Purpose, Preference, Policy, or strategy identity.
+
+The adversarial specimen pass is recorded in `docs/60-scenario-market-thesis-adversarial-specimens-2026-09-24.md` and tested covered call, CSP, long straddle, iron condor, and calendar spread.
+
+### Conclusion
+
+**Scenario / Market Thesis does not currently earn durable entity identity.** It is integrated provisionally as a **Scenario / Market Thesis Assertion** family.
+
+A thesis assertion:
+
+- is scoped to semantic subject(s) and horizon;
+- may express direction, magnitude, range, volatility, path, correlation, rates, term structure, or a scenario/distribution;
+- carries evidence/provenance, authority, derivation/model semantics, uncertainty, and supersession/conflict behavior where material;
+- may be operator-authored, model-derived, or externally sourced;
+- may be absent entirely;
+- may branch into multiple counterfactual scenarios;
+- is an input to Alternative/Counterfactual-Consequence evaluation, not a normative verdict.
+
+The key invariant is:
+
+> **Market expectation is not outcome desirability.**
+
+A CSP may have desired assignment under a cautious market thesis. A long straddle may serve an insurance purpose without an assertion that a large move is likely. A systematic iron-condor program may rely on distributional/model evidence rather than a point forecast. A calendar thesis may concern volatility term structure or path rather than direction.
+
+A `±σ` criterion belongs inside such an assertion only when its subject, horizon, volatility source, model/distribution, timestamp, units, and interpretation are explicit. Otherwise it remains pedagogy/heuristic.
+
+### Status
+
+The draft advances to **v1.4** for this semantic refinement. It remains Category E, unratified, and non-authoritative for implementation. DDD and implementation migration remain blocked.
+
+The practitioner-strategy pressure is now resolved provisionally. Remaining maturation pressure returns to the unresolved v1.3/v1.4 blockers: Lifecycle Subject/Episode identity, Capital Pool overlap/partition, association authority matrices, final Intent naming, Recommendation/decision-trace identity, commitment boundary, Candidate durability, and capability/support lifecycle semantics.
