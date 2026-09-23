@@ -1235,3 +1235,106 @@ The key invariant is: **market expectation is not outcome desirability**.
 #### Next pressure
 
 Return to the remaining semantic blockers: Lifecycle Subject/Episode identity, Capital Pool overlap/partition, association authority matrices, final Intent naming, Recommendation/decision-trace identity, commitment boundary, Candidate durability, and capability/support lifecycle semantics. No implementation migration or DDD decomposition is authorized.
+
+
+---
+
+## `PL-EVID-OBS` — Universe Observation Value / Servicing Research
+
+**Date:** September 23, 2026  
+**State:** INTAKE / ACTIVE RESEARCH — evidence-preserving investigation only; no universe, servicing, suitability, scheduler, or Product policy change authorized  
+**Trigger:** Reconciliation of frozen Wheelwright gen-29066 universe-disposition evidence with independently produced Muse structural options-liquidity classifications exposed both unusually strong convergence and a material historical-usefulness contradiction.
+
+### Research question
+
+> What evidence predicts the expected Wheelwright value of observing a maintained symbol over time, and how should structural options-market quality, historical strategy usefulness, acquisition cost, and temporal behavior inform observation effort without conflating servicing priority with universe membership, strategy suitability, exposure substitutability, or Product policy?
+
+This is an Evidence Appliance / observation-value research concern. It is not a generic ETF-ranking project and it does not create a new admission, pruning, or recommendation rule.
+
+### Established evidence entering intake
+
+The current research package preserves source artifacts separately from synthesis. The strongest derived cross-classification observations are:
+
+- all **340/340** symbols in the frozen Wheelwright gen-29066 `REMOVE` cohort map to Muse tier **F**;
+- all **487/487** symbols in Wheelwright's `WEEKLY_REFRESH` cohort map to Muse **D/F** (**362 D + 125 F**);
+- no Muse **S/A/B/C** symbol falls into either of those two Wheelwright demotion cohorts;
+- Wheelwright's **84 historical-usefulness rescue symbols** sharply diverge from Muse's current structural classification: **81 D + 2 F + 1 B**;
+- the lone B historical keeper is `LABD`; the two F historical keepers are `HYMB` and `VTIP`.
+
+These are **derived crosswalk facts**, not policy conclusions. The Muse classifications were independently produced with no Wheelwright disposition-label leakage before the relevant ranking artifact was generated; that establishes **provenance independence of the classifications**, not statistical independence of the underlying market evidence.
+
+The 84-symbol cohort establishes only that a current D/F structural classification **does not by itself prove absence of historical or episodic Wheelwright usefulness**. It does not establish that all 84 should remain indefinitely, that historical usefulness should dominate servicing policy, or that structural liquidity is irrelevant.
+
+### Current research frame — longitudinal 2×2 falsification
+
+| | Wheelwright useful history | Little / no Wheelwright useful history |
+|---|---|---|
+| **Structurally strong** | convergence / control population | strong-structure but unproductive falsifier |
+| **Structurally weak** | historical / episodic-usefulness falsifier | candidate low-yield servicing population |
+
+The two falsifier populations are deliberately complementary. Research must not study only weak-current-structure historical keepers; it must also identify structurally strong symbols that have produced little or no useful Wheelwright surface.
+
+Candidate measurements to preserve separately include:
+
+- frequency of evaluable/useful Wheelwright surfaces;
+- time since last useful surface;
+- strategy provenance;
+- acquisition/observation cost;
+- executable spread quality at the time usefulness was observed;
+- contemporaneous options-market structural quality;
+- temporal changes in expiration depth, open interest, volume, and other structural evidence;
+- evidence quality / missingness / observation failure.
+
+### Competing hypotheses — research only
+
+- **H2a — Episodic structural market:** some currently weak symbols had materially stronger options markets during periods when Wheelwright found useful surfaces.
+- **H2b — Local strategy-specific surface:** aggregate structural weakness can coexist with a locally usable contract/expiration surface relevant to Wheelwright's strategy and policy.
+- **H2c — Retained-evidence quality:** some historical-rescue observations may reflect stale, incomplete, or otherwise insufficient evidence rather than durable economic usefulness.
+
+The mirror population tests the opposite failure mode: structural strength may be neither sufficient for Wheelwright usefulness nor an admission criterion even when it is valuable as an acquisition/servicing prior.
+
+### Epistemic / source discipline
+
+Preserve the research chain mechanically where practical:
+
+> **External Artifact → Evidence Extraction → Derived Crosswalk → Synthesis → Hypotheses/Falsifiers → Domain/Semantic/Product Consumers**
+
+Source reality is preserved first; derived structure second; reconciliation with Wheelwright third; policy decisions last. Market structural quality, Wheelwright strategy suitability, and exposure substitutability are distinct dimensions and must not be collapsed.
+
+### Durable research corpus
+
+Current research state and source artifacts:
+
+- `docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md`
+- `docs/research/external-artifacts/muse-options-friendly-etfs-report-2026-09-23.md` — preserves the supplied truncated initial artifact as received;
+- `docs/research/external-artifacts/muse-wheelwright-universe-options-report-2026-09-23.md`;
+- `docs/research/external-artifacts/muse-wheelwright-universe-options-ranking-2026-09-23.csv` — complete 1,306-row ranking artifact.
+
+The current Muse follow-on on the 84 symbols was commissioned without disclosing Wheelwright's historical-keeper rationale; Muse requested the missing ticker list and the Principal supplied **only the 84 symbols**. Muse reported that it was gathering current snapshots, historical evidence, and a **2018–2025 volume crosswalk**. That follow-on remains external research evidence until received, preserved, and evaluated; no result is invented here.
+
+### Relationship to existing governed concerns
+
+- **`PL-RESEARCH-01` Universe Discovery:** discovers candidates outside the maintained universe; does not own observation-value/servicing semantics.
+- **`PL-GOV-02` Universe Candidate Evaluation / Admission Workflow:** explicitly does not define a usefulness score, acquisition-cost accounting field, or pruning policy; this research may eventually supply evidence relevant to those separate concerns but does not modify admission governance.
+- **`PL-EVID-AGE` Deployment Evidence Age / Operator-Intent Acquisition Feedback:** related evidence-allocation concern, but Age/freshness is not equivalent to expected observation value and this intake does not authorize demand-aware scheduler changes.
+- **`PL-EVID-01` historical/observation architecture:** enabling evidence substrate; this item is a consumer/research concern, not a replacement for historical-evidence ownership.
+- **Evidence Appliance / acquisition scheduler:** structural-liquidity evidence may eventually prove useful as an acquisition prior, but no cadence/tier/scheduler rule follows from this intake.
+
+### Explicit non-decisions / guardrails
+
+This intake does **not** authorize:
+
+- candidate-universe removal or admission;
+- permanent deletion based on Muse D/F classification;
+- scheduler/cadence/tier changes;
+- a structural-liquidity threshold or scalar usefulness score;
+- treating Muse tiers as Wheelwright semantics;
+- strategy suitability conclusions from market-structure evidence;
+- exposure substitution (for example SPY vs VOO/IVV) from liquidity evidence alone;
+- Product, Decision, Deployment, or Governance implementation.
+
+Muse tier F currently also contains unresolved observation failures: the preserved ranking artifact has **97 F rows with non-empty error state**, so F must not be treated mechanically as proven absence of listed options without resolving evidence quality.
+
+### Next authorized research action
+
+Continue bounded research by receiving and preserving the blind Muse 84-symbol follow-on, then build the longitudinal 2×2 derived crosswalk from Wheelwright historical observations plus the mirror strong-structure/little-or-no-usefulness cohort. Preserve usefulness frequency, recency, strategy provenance, acquisition cost, contemporaneous executability, temporal structural quality, and evidence quality separately. Do not promote findings to universe, servicing, suitability, scheduler, or Product policy without a later governed decision.
