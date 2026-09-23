@@ -998,7 +998,7 @@ The next bounded activity, when Principal-selected, is to appraise the four surf
 ## `PL-SEM-01` — Wheelwright Canonical Semantic Model / Domain Integration
 
 **Date:** September 23, 2026  
-**State:** INTAKE + bounded design draft created under explicit Principal direction; not ratified architecture and no implementation migration authorized  
+**State:** INTAKE — new canonical identity created; bounded design draft created under explicit Principal direction; not ratified architecture and no implementation migration authorized  
 **Concept home:** semantic integration across current domain/architecture submodels  
 **Draft:** `docs/58-wheelwright-semantic-model-v1.md`  
 **Trigger:** Options-intent/nomenclature work and independent Codex information-architecture review demonstrated that Wheelwright has mature semantic submodels but no canonical integrated ontology/domain model.
