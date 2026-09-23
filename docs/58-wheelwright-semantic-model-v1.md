@@ -187,17 +187,26 @@ A semantic assertion conceptually answers:
 
 A load-bearing assertion may require:
 
+- assertion identity / version;
 - subject;
+- applicability scope / context;
+- subject-binding / identity-binding basis;
 - predicate / claim;
 - value or relation;
 - epistemic class;
-- authority class;
+- authority class, including source-system authority where relevant;
 - evidence / provenance;
+- validity dependencies;
 - effective time;
 - recorded time;
 - derivation method;
 - uncertainty / unresolved status;
-- supersession / conflict relationship.
+- supersession / conflict relationship;
+- revocation / invalidation status and reason.
+
+Semantic absence is not one state. Where material, **false, absent, unknown, unavailable, stale, conflicted, zero/empty, and not applicable** must remain distinguishable.
+
+A true assertion about one subject and a true assertion about another subject do not establish an association between them.
 
 This is a conceptual contract, not a requirement for a generic `Assertion` runtime object or table.
 
@@ -213,6 +222,8 @@ Examples:
 - realized appreciation is attributable to a governed lifecycle event.
 
 These relationships require authority; proximity or matching identifiers do not manufacture them.
+
+Load-bearing portfolio associations may also require **quantity/unit, effective interval, exclusivity or overlap rules, authority/provenance, and supersession/conflict semantics**. Coverage, allocation, encumbrance, pool membership, mandate binding, program membership, lifecycle association, and accounting attribution must not be assumed to share the same invariants.
 
 ---
 
@@ -241,9 +252,13 @@ Whether lot-level identity is always required remains unresolved. A governed qua
 
 These concepts must remain distinct.
 
+### Holding / obligation record
+
+Describes an evidence-backed quantity of an asset, right, or obligation at an account or source. It is not automatically a complete economic construction or lifecycle identity.
+
 ### Economic construction
 
-Describes what economically exists now.
+Describes an economically relevant relation/view over constituents that creates a payoff or exposure shape now.
 
 Examples:
 
@@ -263,6 +278,18 @@ Example:
 ### Formation provenance
 
 Preserves the historical fact that a current covered-call construction was formed through a buy-write.
+
+### Decision subject
+
+Describes the explicitly scoped subject against which consequences, intent, policy, and Alternatives are evaluated. A Decision Subject need not be identical to a broker holding, UI row, or durable lifecycle entity.
+
+### Complete Position
+
+The Complete-Position Invariant establishes a **reasoning closure obligation**, not yet a durable entity identity. A Complete Position is provisionally the governed closure/view containing everything economically material to a specified conclusion.
+
+### Lifecycle subject / episode
+
+A durable lifecycle identity remains provisional. It should be introduced only if specimens demonstrate something that survives transitions such as leg expiration/replacement, partial close, assignment, or residual inventory.
 
 ### Operating program
 
@@ -325,7 +352,14 @@ Candidate definition:
 
 > **An Intent Assertion is an authoritative, scoped, time-bounded statement binding a subject to a purpose or stance toward a possible outcome.**
 
-The exact boundary remains open: canonical `Intent` may ultimately mean only scoped outcome stance, leaving objective/purpose/mandate as distinct concepts.
+The second adversarial review narrows the surviving model:
+
+- **Objective / Purpose** — the result or function a mandate, program, or deployment seeks over a horizon.
+- **Outcome Stance** — authoritative desirability/acceptability toward a specified possible outcome for a scoped subject.
+- **Constraint** — an admissibility boundary, including prohibition.
+- **Preference** — ordering among admissible alternatives or outcomes.
+
+`Intent` remains provisional terminology. Before ratification it must acquire one non-overloaded meaning; the leading candidate is that canonical **Intent Assertion** names a scoped Outcome Stance rather than serving as an umbrella for purpose, policy, preference, and action choice.
 
 ### Admissibility and preference are distinct
 
@@ -333,8 +367,10 @@ The exact boundary remains open: canonical `Intent` may ultimately mean only sco
 
 At minimum distinguish:
 
-- whether an outcome is admissible under policy;
-- how it is preferred among admissible outcomes.
+- **admissibility** — for example required / permitted / prohibited, with unresolved and not-applicable states where needed;
+- **preference** — for example desired / preferred / neutral / disfavored, potentially conditional or comparative.
+
+“Tolerated” ordinarily means permitted but disfavored. “Indifferent” means no material ordering under the stated comparison, not unknown.
 
 A prohibited outcome is not merely a very low-ranked outcome.
 
@@ -372,7 +408,9 @@ These are separate semantic layers.
 
 | Layer | Question |
 |---|---|
-| State | What is true now? |
+| World / Economic State | What is actually true now, possibly unknown to Wheelwright? |
+| State Assertion / View | What does a particular source or projection claim is true? |
+| Reconciled State | What does Wheelwright currently accept as true under evidence, association, and reconciliation? |
 | Counterfactual Consequence | What would happen if a specified Alternative/transition occurred? |
 | Event / Mechanical Effect | What actually occurred, and what does domain mechanics make that occurrence do? |
 | Reconciled Outcome | What resulting state/economic result has authoritative evidence and reconciliation accepted into history? |
@@ -531,6 +569,10 @@ Assignment and exercise are lifecycle Events, not necessarily operator Actions. 
 
 ## 16. Counterfactual and realized semantics
 
+The distinctions below are **semantic dependencies, not a universal wall-clock processing sequence**. Observation may be the first evidence from which Wheelwright can identify an Event and derive its Mechanical Event Effect. Corrections may revise reconciliation without changing the actual Event.
+
+**Mechanical Event Effect is derived semantics:** given an actual Event, contract/domain mechanics, quantities/units, and subject identity, it describes what the occurrence mechanically does. It is not another occurrence.
+
 Wheelwright must preserve the distinction among:
 
 - current factual State;
@@ -553,7 +595,11 @@ An Event answers:
 
 > **What occurrence actually happened in the economic or operational world?**
 
-An Event Observation / Assertion answers:
+An **Event Observation** is evidence received or measured concerning an occurrence.
+
+An **Event Assertion** is a claim that an occurrence happened, potentially derived from one or more observations or another authoritative source. Observation and assertion must not be assumed identical.
+
+An Event Assertion answers:
 
 > **What evidence establishes or reports that occurrence, with what authority and provenance?**
 
@@ -569,7 +615,7 @@ These boundaries are essential to Policy over Prediction and to historical truth
 
 ---
 
-## 17. Validity, supersession, and revocation
+## 17. Validity, supersession, correction, and revocation
 
 Some semantic objects are only valid under dependencies.
 
@@ -582,6 +628,10 @@ Examples:
 - evidence verdicts may expire or be superseded.
 
 The semantic model must eventually define dependency-sensitive invalidation without pretending that every concept shares one lifetime.
+
+It must also distinguish correction of a false assertion, late enrichment of an incomplete assertion, reassociation of a true Event, reversal/correction in an external source, and prospective supersession of intent/policy from retrospective correction of history.
+
+A Recommendation also requires a reproducible decision trace to the evaluated Alternative set, evidence/policy/intent/capability versions and as-of time, operator selection if any, later Events, and post-hoc evaluation. This is a semantic trace requirement, not authorization for a generic runtime framework.
 
 ---
 
@@ -610,6 +660,8 @@ This draft does not redefine those accounting concepts.
 v1.1 withdraws the v1 claim that the slash-combined list represented “strong primitive candidates.” The semantic model is not mature enough to make that claim consistently.
 
 ### Candidate concept families requiring identity/decomposition work
+
+Quantity and unit semantics are cross-cutting correctness concerns. Contracts, shares, deliverable multipliers, adjusted contracts, cash amounts, and per-share/per-contract values must remain explicit where they affect coverage, assignment, collateral, consequence, or complete-position reasoning.
 
 - Account; Account Regime.
 - Instrument; Contract.
@@ -657,21 +709,27 @@ A future primitive register should contain only concepts that survive decomposit
 | Specimen | Required distinctions |
 |---|---|
 | UNG disposition covered call | inventory subject; covered-call construction; counterfactual call-away consequence before assignment; actual assignment Event if it occurs; broker observation; reconciled outcome; disposition intent; policy; alignment |
-| Strategic SPY overwrite | capital pool; mandate; inventory role/binding; overwrite program; retention intent; short-call obligation; counterfactual consequence; capability vs current feasibility vs Wheelwright support; policy |
+| Strategic SPY overwrite | capital pool; multiple lots/inventory blocks; quantified/time-scoped coverage and encumbrance; mandate; overwrite program; objective; retention outcome stance; short-call obligations; counterfactual consequence; capability vs current feasibility vs Wheelwright support; policy |
+| Partial SPY call assignment with late evidence | actual assignment Event; partial quantity; contract/share units; late broker observation; Event Assertion; identity binding; corrected coverage/encumbrance; Reconciled State; residual inventory; historical intent/policy; accounting attribution |
 | Buy-write | coordinated formation mechanism; provenance; resulting covered-call construction |
 | CSP acquisition | short-put construction; collateral; acquisition intent; assignment consequence |
 | CSP income | same construction; premium purpose; assignment acceptable/disfavored rather than necessarily desired |
-| Wheel | durable program identity; cycle/process state; Candidate vs Alternative; multiple position lifecycles; Events/observations/reconciled transitions; capital transitions |
+| Wheel | durable program identity across a cycle boundary; cycle/process state; Candidate vs Alternative; multiple holding/construction/lifecycle identities; Events/observations/assertions/reconciled transitions; capital transitions; program membership |
 | Protective put | construction; protection purpose; desired floor distinct from undesired adverse market event |
 | Collar | construction; protection purpose; accepted upside cap/call-away consequence |
 | Vertical spread | multi-leg construction; bounded consequence surface; purpose separately scoped |
 | Iron condor | four-leg construction; range consequence profile; terminal-state preferences |
 | PMCC / diagonal | multi-expiry construction; lifecycle complexity; no literal share-coverage assumption |
 | BWB / HBWB | asymmetric consequence surface; desired tail behavior; tolerated intermediate valley |
-| HOLD | normalized no-transaction Alternative; continuing obligation/exposure; capability not confused with action; next decision boundary |
-| CLOSE | Alternative; contemplated Action; broker Order where applicable; Execution vs execution evidence; counterfactual close cost vs realized fill; reconciled residual state |
+| HOLD | normalized no-transaction Alternative; Decision Subject; continuing obligation/exposure; actual/asserted/reconciled state; capability not confused with action; next decision boundary |
+| CLOSE | Alternative; contemplated Action; operator commitment/cancellation; broker Order and cancel/replace where applicable; partial/full Execution vs execution observation/assertion; counterfactual close cost vs realized fill; reconciled residual capital/inventory state |
+| Long straddle control | two long option rights; same-underlying/same-strike/same-expiration leg relationships; two opening debits; no underlying inventory requirement; bilateral convex payoff; quantity/unit correctness; Decision Subject; purpose/outcome stance not inferred from construction; no covered-call-style assignment-intent assumption |
 
 A candidate semantic distinction that cannot survive these specimens should not be promoted.
+
+The long-straddle specimen is deliberately a **control outside Wheelwright's current covered-call/CSP/Wheel center of gravity**. It tests whether the semantic core generalizes to options constructions rather than encoding current operating-program assumptions.
+
+Broader practitioner “strategy” material—including construction mechanics, opening debit/credit, payoff geometry, scenario/magnitude thesis, volatility/time exposure, applicability criteria, and conventional labels—remains **pending semantic pressure**. It is intentionally not promoted into the model until the focused identity–association–assertion reconciliation is stable.
 
 ---
 
@@ -795,4 +853,8 @@ It is durable project memory and a review target.
 
 It is **not** ratified Category A/B architecture and does not override existing authority.
 
-The next useful pressure is a second adversarial review focused on whether the v1 findings are actually resolved and whether the revised distinctions survive the semantic specimens. DDD decomposition remains downstream.
+The second independent adversarial review has completed. Three v1 material findings were resolved and the counterfactual-versus-realized finding was substantially but only partially resolved.
+
+The next authorized pressure is a **focused identity–association–assertion reconciliation** against strategic-SPY/partial-assignment, Wheel-cycle, HOLD/CLOSE, and long-straddle control specimens. It must settle semantic identities and invariants without opening DDD design.
+
+Broader practitioner-strategy mechanics/outlook/applicability analysis is pinned as subsequent semantic pressure, not silently folded into this focused pass. DDD decomposition remains downstream.
