@@ -1,4 +1,4 @@
-# Wheelwright Semantic Model v1.1 — Draft
+# Wheelwright Semantic Model v1.2 — Draft
 
 **Date:** September 23, 2026  
 **Status:** Draft semantic integration model — Current Specialized Reference (Category E); **not ratified architecture or implementation authority**  
@@ -866,9 +866,9 @@ The purpose is not to produce a perfect abstract model. The purpose is to give W
 
 ---
 
-## 26. v1.1 status
+## 26. v1.2 status
 
-This is a **v1.1 draft integration model** created under Principal direction and canonical intake `PL-SEM-01`, incorporating the first independent adversarial review.
+This is a **v1.2 draft integration model** created under Principal direction and canonical intake `PL-SEM-01`, incorporating the first and second independent adversarial reviews.
 
 It is durable project memory and a review target.
 
