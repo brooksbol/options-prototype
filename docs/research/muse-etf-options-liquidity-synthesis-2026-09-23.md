@@ -15,13 +15,15 @@ The second scan changes the framing of the problem. Muse's current structural-li
 - all **487** Wheelwright `WEEKLY_REFRESH` symbols are Muse **Tier D or F**;
 - **0** of Muse's **106 Tier S-C** symbols fall into either Wheelwright demotion cohort.
 
-The principal contradiction is equally useful. Wheelwright retained **84 historical keepers** at normal cadence despite poor current observations because they had retained historical usefulness. Muse currently classifies **81 of those 84 as Tier D**, **2 as Tier F**, and only **1 as Tier B**. The Tier B case is leveraged `LABD`.
+The principal contradiction is equally useful. Wheelwright retained **84 historical keepers** at normal cadence despite poor current observations because they had retained historical usefulness. Muse's original full-universe classifier placed **81 of those 84 in Tier D**, **2 in Tier F**, and only **1 in Tier B**. The Tier B case is leveraged `LABD`.
 
-This does not establish that either classifier is ground truth. It shows that they observe different properties: Muse measures current/persistent structural options-market quality; Wheelwright includes longitudinal strategy-specific evidence. The 84-name cohort is therefore a high-value falsifier set for any proposal that turns a current structural-liquidity score directly into canonical-universe admission/removal.
+Muse then researched those 84 as a blind cohort: it received the ticker list but not the Wheelwright reason for selection. That follow-up materially narrows one possible explanation. Muse found **83 of 84 structurally thin today**, with `LABD` the current structural exception. It recovered clear evidence that today's snapshot understates materially stronger historical conditions for only **four** names: `EUO`, `DJP`, `SLX`, and `RETL`. For roughly 75 names it found no dated public evidence of materially stronger historical options markets, while explicitly grading much of the historical record as **indeterminate** because public per-symbol historical options data is sparse.
 
-The stronger emerging research question is:
+The resulting contradiction is sharper than the original one: **Wheelwright records demonstrated historical strategy usefulness for 84 symbols, while provenance-independent public-market research generally cannot recover structural-liquidity history sufficient to explain that usefulness.** This does not establish that either classifier is ground truth, and absence of recoverable public evidence is not evidence that a stronger historical market never existed.
 
-> Is the broad candidate universe itself the problem, or is the higher-value opportunity to allocate observation effort intelligently across a deliberately broad universe while preserving rediscovery of episodically useful surfaces?
+The stronger emerging research question is now:
+
+> What exactly did Wheelwright observe when each historical keeper was useful, and does structural liquidity predict Wheelwright usefulness, acquisition yield, neither, or only under particular temporal/strategy conditions?
 
 No Product decision is made by this document.
 
@@ -61,7 +63,21 @@ Canonical internal evidence:
 Source:
 - `docs/universe/disposition/wheelwright-universe-disposition-gen29066.md`
 
-Muse did not receive these disposition labels before producing the frozen external artifacts. The crosswalk is subsequent synthesis.
+Muse did not receive these disposition labels before producing the frozen full-universe artifacts. The crosswalk is subsequent synthesis.
+
+### D — Muse blind 84-symbol historical-liquidity follow-up
+
+Muse received only the 84 ticker symbols after asking for the missing cohort list; it was not told that Wheelwright classified them as historical keepers or why they were selected. It independently researched current and historical options-market conditions.
+
+Preserved unchanged:
+- `docs/research/external-artifacts/muse-cohort-84-options-liquidity-research-2026-09-23.md`
+- `docs/research/external-artifacts/muse-cohort-84-options-evidence-table-2026-09-23.csv`
+
+Key external findings:
+- 83/84 are structurally thin today; `LABD` is the current structural outlier.
+- Four names have recovered evidence that the current snapshot materially understates past conditions: `EUO`, `DJP`, `SLX`, `RETL`.
+- For roughly 75 names, Muse found no dated evidence that their options markets were ever materially more usable.
+- Historical negatives remain evidence-limited: Muse found no public annual per-ETF options-volume ranking for 2018–2025 and labels many symbol histories indeterminate.
 
 ## Patterns and convergences
 
@@ -71,7 +87,7 @@ Muse did not receive these disposition labels before producing the frozen extern
 |---|---:|---:|---:|---:|---:|---:|
 | REMOVE (340) | 0 | 0 | 0 | 0 | 0 | **340** |
 
-Two independent evidence paths place the same 340 symbols at the structurally weakest end.
+Two independently produced classifications with no Wheelwright disposition-label leakage place the same 340 symbols at the structurally weakest end.
 
 ### 2. Complete convergence on WEEKLY_REFRESH
 
@@ -89,7 +105,7 @@ This is stronger than agreement on famous ETFs. The entire structurally stronger
 
 ## Central contradiction — the 84 historical keepers
 
-| Muse tier | WW historical keepers |
+| Muse original tier | WW historical keepers |
 |---|---:|
 | B | 1 |
 | D | 81 |
@@ -98,24 +114,36 @@ This is stronger than agreement on famous ETFs. The entire structurally stronger
 
 The B symbol is `LABD`, flagged by Muse as leveraged. The F symbols are `HYMB` and `VTIP`.
 
-This cohort directly falsifies any unsupported shortcut:
+The blind historical follow-up changes the interpretation of this cohort. The 84 are **not, as a population, explained by recoverable evidence of formerly strong options markets**.
 
-> Muse D/F ⇒ remove from candidate universe.
+### Three observed populations
 
-Wheelwright has retained evidence that these names previously produced useful CSP and/or buy-write outcomes, while Muse's current snapshot says almost all are structurally thin or absent.
+1. **Current structural exception — `LABD`.** Muse finds a genuinely live current options market with weeklies, roughly 3,000 contracts/day and approximately 28k–46k total OI.
+2. **Recovered historical/episodic exceptions — `EUO`, `DJP`, `SLX`, `RETL`.** These have dated evidence that today's structural snapshot understates materially stronger or episodically active past conditions.
+3. **Unexplained/indeterminate remainder.** For the large majority, Muse did not recover dated public evidence sufficient to explain Wheelwright's retained historical usefulness through broad structural liquidity.
+
+The third population must not be relabeled "historically thin." Muse explicitly reports that public historical ETF-options data is sparse and that many negative searches remain indeterminate. "Not recovered" is not "never existed."
+
+The cohort therefore establishes a narrower claim:
+
+> **Current Muse D/F status does not by itself establish absence of historical or episodic Wheelwright usefulness.**
+
+This defeats current structural weakness as a sufficient standalone rule for permanent candidate-universe removal. It does **not** establish that historical usefulness warrants indefinite retention.
 
 ### JNK specimen
 
-Muse explicitly identifies `JNK` as currently having only three expirations and recommends `HYG` as the more usable high-yield options venue. JNK is nevertheless a WW historical keeper.
+Muse explicitly investigated `JNK`. Its current market remains thin (three expirations, roughly 46 contracts/day and ~2,377 OI in the external research). A spectacular-looking 2019 historical datapoint appears duplicated with SPY and is treated by Muse as likely scrape contamination. Muse therefore recovered no credible evidence that JNK once had a materially stronger broad options market.
 
-Questions raised:
-- Was JNK materially deeper when WW observed usefulness?
-- Was usefulness episodic at particular strikes/expirations?
-- Can aggregate chain metrics miss a strategy-specific useful surface?
-- Is WW's retained history now stale?
-- Are provider/snapshot differences material?
+JNK now raises the more forensic question: **what exact Wheelwright observation caused it to be retained as historically useful?**
 
-The contradiction should be investigated, not reconciled by choosing a preferred source.
+Possible explanations to preserve rather than choose among:
+- a strategy-specific strike/expiration was useful despite a structurally thin aggregate market;
+- usefulness was transient and left little public historical trace;
+- provider/snapshot differences were material;
+- retained history is stale;
+- historical evidence or classification was erroneous.
+
+The contradiction should be investigated from Wheelwright's actual retained observations, not reconciled by choosing a preferred source.
 
 ## Insights
 
@@ -134,11 +162,13 @@ Wheelwright observes strategy-specific outcomes under its policy/evidence model 
 
 Structural depth may increase the probability of finding executable useful surfaces. It does not itself imply Actionable/Edge/Wait or desirability. Structural thinness likewise does not prove that a useful surface can never occur.
 
+The blind 84-symbol follow-up makes the distinction more important: broad historical structural liquidity explains only a small minority of the retained historical-keeper cohort. A Wheelwright-useful surface may therefore be much narrower than a generally liquid options market, or some retained historical evidence may fail reconstruction. Both remain hypotheses.
+
 ### Servicing priority is a different question from universe membership
 
 The strongest agreement is between Muse structural weakness and WW servicing demotion. The historical-keeper contradiction warns against translating that agreement directly into canonical deletion.
 
-This makes structural liquidity a promising **research candidate for an acquisition/servicing prior**, not an authorized admission rule.
+This makes structural liquidity a promising **research candidate for predicting expected acquisition yield or servicing priority**, not an authorized admission rule. The research question is now whether it predicts Wheelwright usefulness, acquisition efficiency, both, or neither after strategy and time are controlled.
 
 ## Red flags in the Muse evidence
 
@@ -165,6 +195,22 @@ Muse demotes leveraged/inverse/volatility products partly for assignment/path-ri
 ### 5. Some language exceeds the evidence layer
 
 Claims such as “higher IV — better for premium sellers” mix market observations with strategy conclusions. They should not be imported as Wheelwright policy.
+
+### 6. Underlying liquidity/AUM is not an options-liquidity surrogate
+
+The blind 84-symbol study finds very large funds with minimal options activity and much smaller funds with materially greater OI. Structural options liquidity must therefore be observed directly rather than inferred from AUM or share liquidity.
+
+### 7. "Optionable" metadata is not ground truth
+
+Muse found issuer/vendor flags such as "Options Available: No" or "Optionable: N/A" that conflict with observable listed chains. Research should preserve optionability as a provenance-bearing observation state, not silently treat a single vendor boolean as truth.
+
+### 8. Historical continuity is not symbol continuity
+
+Ticker renames, benchmark/strategy changes, ETN events, splits, and reverse splits can break economic and options-market continuity. Preserve the distinction:
+
+> **symbol continuity ≠ economic-product continuity ≠ options-market continuity**
+
+Historical usefulness should eventually be evaluated against the economic instrument and options structure that existed when the observation occurred.
 
 ## Contradictions and tensions to preserve
 
@@ -196,10 +242,20 @@ S-C symbols may have higher expected acquisition yield and justify more frequent
 
 **Falsifier:** persistent D/F symbols repeatedly produce useful WW outcomes at rates comparable to S-C.
 
-### H2 — historical keepers capture episodic usefulness
-Some currently thin symbols may periodically develop usable strike/expiration-specific surfaces.
+### H2a — episodic structural-market hypothesis
+Some WW historical usefulness resulted from temporary periods of materially stronger options-market activity. `EUO`, `DJP`, `SLX`, and `RETL` are observed examples consistent with this mechanism.
 
-**Falsifier:** reconstruction shows historical usefulness was not executable or arose from stale/bad evidence.
+**Falsifier:** reconstruction shows the relevant WW useful observations occurred outside the recovered stronger periods or did not depend on stronger market structure.
+
+### H2b — local-surface hypothesis
+A strategy-specific strike/expiration may satisfy Wheelwright evidence and policy requirements even when the symbol never develops broadly strong structural liquidity.
+
+**Falsifier:** reconstruction shows WW useful observations required broadly strong market conditions or were not realistically executable.
+
+### H2c — retained-evidence-quality hypothesis
+Some historical usefulness may reflect provider artifacts, stale observations, or classifications that would not survive reconstruction.
+
+**Falsifier:** retained observations reconstruct cleanly with contemporaneous executable evidence and intended policy behavior.
 
 ### H3 — some retained history is stale
 Some of the 84 may no longer justify normal servicing because market structure durably deteriorated.
@@ -216,16 +272,28 @@ A structurally deep symbol that repeatedly fails to yield evaluable surfaces may
 
 **Falsifier:** failures are fully explained by intended policy and evidence behavior.
 
-## Research segmentation
+## Research segmentation — longitudinal 2×2 falsification frame
 
-| Historical WW usefulness | Structural quality | Research interpretation |
+The next research pass should treat both contradiction quadrants symmetrically:
+
+| | WW useful history | No WW useful history |
 |---|---|---|
-| demonstrated | strong | expected convergence |
-| demonstrated | weak | episodic/stale-history falsifier set |
-| not demonstrated | strong | policy-fit/acquisition anomaly investigation |
-| not demonstrated | weak | strongest servicing-demotion candidate |
-| unknown/new | strong | high-priority discovery candidate |
-| unknown/new | weak | low-priority discovery candidate |
+| **Structurally strong** | convergence/control | **strong-but-unproductive falsifier** |
+| **Structurally weak** | **historical/episodic-usefulness falsifier** | expected low-yield servicing population |
+
+The 84 historical keepers occupy the lower-left research problem. The mirror-image upper-right population is equally important: structurally strong symbols that have produced little or no Wheelwright usefulness.
+
+Measure longitudinally, where retained evidence permits:
+- frequency/count of evaluable and useful surfaces;
+- date/recency of last useful surface;
+- CSP vs buy-write strategy provenance;
+- acquisition cost;
+- contemporaneous option volume and OI;
+- expiration and strike depth;
+- spread/executability at the useful observation;
+- structural trajectory and instrument continuity.
+
+This design can distinguish whether structural liquidity is predictive of Wheelwright usefulness, merely an acquisition-efficiency variable, necessary-ish but insufficient, or largely orthogonal after policy is applied.
 
 Neither axis is ground truth.
 
@@ -268,14 +336,17 @@ Once an actor receives WW labels and rationale, its subsequent work becomes **re
 
 ## Take-aways
 
-1. Muse structural evidence strongly converges with WW servicing/disposition evidence.
-2. The convergence is exact at the frozen weak-end cohorts: **340/340 REMOVE are F; 487/487 WEEKLY are D/F**.
-3. Muse S-C has **zero overlap** with WW REMOVE/WEEKLY.
-4. The 84 historical keepers block the leap from “currently structurally weak” to “remove from candidate universe.”
-5. Structural market evidence is therefore a promising **acquisition-prior research direction**, but no policy is authorized here.
-6. The 84-name cohort is the highest-value falsifier set for distinguishing low expected acquisition yield, episodic usefulness, and stale retained history.
-7. Muse's row-level artifact is stronger than several prose aggregates; error-state separation and count reconciliation are prerequisites to operational use.
-8. The original “which ETFs are missing?” question has evolved into a potentially more important systems question: **how should Wheelwright allocate observation effort across a broad discovery universe?**
+1. Muse structural evidence and WW disposition show exact weak-end classification convergence: **340/340 REMOVE are F; 487/487 WEEKLY are D/F; 0 Muse S-C symbols fall into either cohort**.
+2. This is **provenance-independent classification agreement**, not proof of statistically independent underlying evidence.
+3. The blind 84-symbol follow-up materially weakens the simple explanation that WW historical keepers were broadly liquid options markets in the past.
+4. `LABD` is the current structural exception; `EUO`, `DJP`, `SLX`, and `RETL` have recovered evidence of materially stronger/episodic past conditions.
+5. The large remaining historical-keeper population is **unexplained/indeterminate**, not proven historically thin. Public historical ETF-options evidence is too sparse for that negative conclusion.
+6. Current D/F status therefore does not establish absence of historical/episodic Wheelwright usefulness, but historical usefulness also does not establish indefinite retention.
+7. The next critical evidence source is Wheelwright's own retained history: what exact observation, date, strategy, strike/DTE, evidence state, and executability produced each keeper classification?
+8. The mirror-image falsifier population—structurally strong names with little or no WW usefulness—must be studied alongside the 84.
+9. Underlying AUM/share liquidity is not a reliable options-liquidity proxy in this cohort; optionability metadata also requires provenance because vendor/issuer flags conflict with observable chains.
+10. Structural market quality, Wheelwright strategy usefulness/suitability, and exposure substitutability are separate propositions and should remain separately testable.
+11. The research program is now best framed as a longitudinal 2×2 falsification study, not a path toward an admission rule.
 
 ## Authority boundary
 
@@ -291,8 +362,8 @@ Any such change requires the appropriate Wheelwright authority and Principal dec
 
 ---
 
-CURRENT STATE: Independent Muse structural-liquidity research and frozen Wheelwright gen-29066 disposition evidence are preserved and reconciled as research. Strong convergence exists on REMOVE/WEEKLY cohorts, while the 84 historical keepers remain the principal falsifier set.
+CURRENT STATE: Frozen Muse research and Wheelwright gen-29066 evidence now establish a sharper unresolved contradiction. Current structural weakness does not explain most of Wheelwright's 84 historical-keeper classifications: blind external research recovered clear evidence of materially stronger historical options-market conditions for only a small minority, while public historical options evidence remains incomplete. Provenance-independent classifications therefore remain unreconciled.
 
 DECISION REQUIRED: NO
 
-NEXT AUTHORIZED ACTION: Continue bounded research on the 84 historical keepers without changing canonical universe, servicing policy, or strategy eligibility.
+NEXT AUTHORIZED ACTION: Build the longitudinal 2×2 research crosswalk from Wheelwright's actual retained evidence, beginning with the exact historical-usefulness observations for the 84 weak-structure keepers and the mirror-image strong-structure/no-usefulness cohort. Preserve usefulness frequency, recency, strategy provenance, acquisition cost, contemporaneous executability, instrument continuity, and temporal market structure separately from any future policy conclusion.
