@@ -179,6 +179,19 @@ This list remains provisional. Promotion requires surviving semantic specimens a
 
 ## 6. Semantic assertion model
 
+### Epistemic boundary: world, observation, assertion, reconciliation
+
+Wheelwright must distinguish what exists in the economic/operational world from what a source reports and from what Wheelwright currently accepts.
+
+- **World / Economic State** — what is actually true at a time, whether or not Wheelwright currently knows it.
+- **Observation** — evidence received, measured, or acquired from a source.
+- **Assertion** — a claim about a subject, made from observation, explicit authority, or a governed derivation.
+- **Reconciled State** — the evidence-backed state Wheelwright currently accepts after identity binding, authoritative association, conflict handling, and reconciliation.
+- **State View / Projection** — a source- or product-specific representation that may be stale, partial, conflicted, or not applicable.
+
+A real Event may therefore occur while Wheelwright's Reconciled State still reflects the pre-event world. Reconciliation changes Wheelwright's accepted representation; it does not move the Event in time or manufacture the occurrence.
+
+
 The largest integration gap is not another noun taxonomy. Wheelwright repeatedly needs to reason about claims.
 
 A semantic assertion conceptually answers:
@@ -389,10 +402,14 @@ Time is semantic, not incidental metadata.
 Wheelwright needs to distinguish at least:
 
 1. **Economic/event time** — when a trade, assignment, deposit, disposition, or other economic event occurred.
-2. **Processing/settlement time** — broker processing and settlement boundaries.
-3. **Observation/acquisition time** — when evidence was acquired.
-4. **Effective/decision time** — when intent, policy, Situation, capability, or recommendation governed.
-5. **Recorded time** — when Wheelwright learned or persisted the assertion.
+2. **Settlement-effective time** — when settlement becomes economically/effectively operative where distinct.
+3. **Broker processing/posting time** — when a broker processes or posts the record.
+4. **Source observation time** — when a source observed/measured the fact, where available.
+5. **Wheelwright acquisition/receipt time** — when Wheelwright acquired the evidence.
+6. **Effective/decision time or interval** — when intent, policy, Situation, capability, or recommendation governed.
+7. **Recorded time** — when Wheelwright persisted the assertion.
+
+These are semantic time roles, not mandatory fields on every object.
 
 Historical intent and policy must be preserved when required to answer:
 
@@ -801,7 +818,11 @@ This draft intentionally leaves unresolved:
 - What capability facts are durable versus point-in-time observations?
 - Does Candidate earn a durable semantic identity distinct from Alternative, or is it only discovery-stage vocabulary?
 - Which Position identities are required in addition to Complete Position and Economic Construction?
-- Which Event observations are sufficient for reconciliation in each lifecycle?
+- What narrower `Position` identity, if any, survives once Holding/Obligation Record, Economic Construction, Decision Subject, Complete Position, and Lifecycle Subject/Episode are distinguished?
+- What are the quantity, unit, interval, exclusivity/overlap, authority, and conflict invariants for coverage, encumbrance, allocation, pool membership, mandate binding, and program membership?
+- Can Capital Pools overlap, and may one governed share quantity cover more than one obligation at the same effective time?
+- Which Event observations/assertions are sufficient for reconciliation in each lifecycle?
+- When does operator selection become durable commitment, and how do withdrawal, cancellation, cancel/replace, and partial execution relate to the original Action and Order?
 - Which capability/support dimensions need explicit state machines versus assertions?
 
 These are design questions, not defects.
