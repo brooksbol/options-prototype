@@ -421,3 +421,20 @@ The durable problem-space decomposition is four capability surfaces:
 **Durable action.** Principal explicitly authorized creation, GitHub persistence, wiring, and project-memory reconciliation of a v1 draft. New canonical intake `PL-SEM-01` owns the unresolved semantic-integration concern. `docs/58-wheelwright-semantic-model-v1.md` is the bounded Category E draft/review target. It is not ratified Category A/B architecture and authorizes no implementation migration.
 
 **Still unresolved.** Position/lifecycle identity; capital-pool/mandate topology; whether lot identity is always required; Wheel program/cycle identity; the exact boundary of Intent versus objective/purpose/mandate; authoritative operator declarations; capability fact lifetime; and eventual DDD context/aggregate boundaries remain open design questions.
+
+
+---
+
+## 2026-09-23 — Semantic Model v1.1: Principal selects specimen-driven reconciliation
+
+The first independent adversarial review of `PL-SEM-01` validated the persistence/governance package and independently ran the repository's actual `npm run check:roadmap-projection` against accepted main successfully. It also found four material semantic type collisions in v1: Event versus evidence of Event; capability versus current feasibility versus Wheelwright support; slash-combined concept families mislabeled as primitives; and counterfactual Consequence versus realized outcome.
+
+The Principal was presented three paths: **A** narrow patch, **B** specimen-driven semantic-core reconciliation, or **C** immediate expansion into DDD/domain architecture. The Principal selected **B**, the recommended path.
+
+v1.1 therefore revises the semantic core before any DDD decomposition. Event is now independent of observation; Event Observation / Assertion and Reconciled Transition / Outcome are distinct. Capability, current feasibility/executability, and Wheelwright support status are separate axes. The primitive claim is withdrawn in favor of candidate concept families pending decomposition/specimen survival. Counterfactual Consequence, Mechanical Event Effect, Reconciled Outcome, and Economic Attribution are distinct. Candidate/Alternative and Position/Complete Position remain explicit review pressure rather than hidden equivalences. The decision-to-execution ladder now states authority boundaries.
+
+`PL-BROKER-CAP` is explicitly related but non-duplicative: it owns brokerage-facing capability-provision/incumbent appraisal; `PL-SEM-01` owns the general semantic distinction among capability, present feasibility, and Wheelwright support.
+
+The DDD boundary remains unchanged: no bounded contexts, aggregates, repositories, domain services, anti-corruption layers, context maps, CQRS/event sourcing, persistence schemas, or implementation migration are authorized.
+
+**Next pressure:** second independent adversarial review of v1.1 and specimen-driven falsification. No Principal decision is required before that review.
