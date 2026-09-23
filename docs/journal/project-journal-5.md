@@ -567,3 +567,20 @@ This revision remains research-only and creates no Wheelwright Product, semantic
 
 Because canonical `PL-RESEARCH-05` was updated to record Revision 1.1, the ordinary Roadmap derived-projection regeneration/freshness check is again required before the persistence pass is fully synchronized.
 
+---
+
+## 2026-09-23 — Practitioner Corpus reconciliation revision boundary made explicit
+
+The Principal selected the explicit-version option after observing that Revision 1.1 existed only as metadata inside the original reconciliation filename.
+
+The research artifacts now have a visible revision boundary:
+
+- `docs/research/practitioner-corpus/practitioner-corpus-v1-reconciliation-2026-09-23.md` is restored and frozen as **Revision 1.0**;
+- `docs/research/practitioner-corpus/practitioner-corpus-v1-reconciliation-v1.1.md` is the explicit **Revision 1.1 review candidate**.
+
+Revision 1.1 carries forward the complete v1.0 reconciliation/verification content and adds the independent corpus-review findings. Practitioner Corpus v1 itself remains untouched and frozen.
+
+This corrects artifact identity rather than changing the research conclusions. Canonical `PL-RESEARCH-05` now points to both revision artifacts and records their roles.
+
+Because the canonical PL changed again, Roadmap derived-projection regeneration/freshness verification is required as ordinary mechanical closeout.
+
