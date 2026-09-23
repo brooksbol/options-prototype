@@ -1362,6 +1362,7 @@ Current durable artifacts:
 - `docs/research/practitioner-corpus/practitioner-corpus-v1.md` — completed Practitioner Corpus v1 derived from the 24 admitted transcript-backed sources;
 - `docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md` — preserved upstream Muse artifact; description-only studies remain preserved but were excluded from v1 evidentiary contribution under the charter;
 - `docs/research/practitioner-corpus/product-challenge-test-2-2026-09-23.md` — durable Test 2 research result: ten corpus-first hypotheses frozen before Wheelwright bootstrap, subsequent reconciliation, existing-feature challenge, and experimental assessment.
+- `docs/research/practitioner-corpus/practitioner-corpus-v1-reconciliation-2026-09-23.md` — post-corpus reconciliation and verification overlay preserving dispositions for all four contradictions, all six red flags, all eight open questions, and the twelve-item verification backlog while leaving Practitioner Corpus v1 intact.
 
 The research directory owns evidence, methodology, experiment reports, future corpus versions, and supporting analyses. This `PL-*` record owns the durable project identity, why-state, boundaries, current research disposition, and relationship to downstream governed concerns.
 
@@ -1377,6 +1378,15 @@ Product Challenge Test 2 supplied an initial bounded test of the corpus as a dow
 - strongest pressure included covered-call opportunity cost, predeclared invalidation/planned-loss semantics, monitoring beyond state display, volatility as qualification, single-leg lifecycle boundaries, and probability/payoff comparison.
 
 These are research findings, not Product decisions. Rediscovery of existing capability is a useful result rather than experimental failure; novelty is not the sole success criterion.
+
+Post-corpus reconciliation has now also established a bounded epistemic overlay without rewriting the v1 evidence baseline:
+
+- **4/4 contradictions** have research dispositions, primarily by exposing missing distinctions such as mechanics vs. compensation, cash flow vs. counterfactual economics, frequency vs. expectancy, and generic exercise heuristics vs. lifecycle-state economics;
+- **6/6 red flags** have verification or reclassification dispositions, separating mechanics/theory, empirical regularities, practitioner heuristics, model outputs, and source examples;
+- **8/8 open questions** now have bounded answers or explicit source-limit dispositions, including material absences around portfolio-level aggregation, taxes, transaction-cost modeling, and full behavioral auditability;
+- the **verification backlog is reduced from 12 to 3 genuinely open items**: the 20/50 covered-call filter, 0DTE seller-edge erosion, and provenance for the “12% leadership regain” statistic.
+
+A resolved verification question does not automatically validate a trading prescription or promote it into Wheelwright domain truth. Exact external citations still need durable attachment wherever a verified claim is later proposed for domain promotion.
 
 ### Research method / contamination boundary
 
