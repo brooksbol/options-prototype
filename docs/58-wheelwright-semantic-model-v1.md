@@ -1,10 +1,10 @@
-# Wheelwright Semantic Model v1 — Draft
+# Wheelwright Semantic Model v1.1 — Draft
 
 **Date:** September 23, 2026  
 **Status:** Draft semantic integration model — Current Specialized Reference (Category E); **not ratified architecture or implementation authority**  
 **Canonical intake:** `PL-SEM-01`  
 **Scope:** Wheelwright-wide semantic integration across domain, portfolio, lifecycle, evidence, intent/policy, capability, decision, execution, and accounting submodels  
-**Related:** `docs/foundations/options-domain-reference.md`, `docs/foundations/options-domain-competence-contract.md`, `docs/25-situation-architecture.md`, `docs/07c-adrs.md`, `docs/architecture-roadmap.md`, `docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md`, `docs/58-wheelwright-semantic-model-v1.md`
+**Related:** `docs/foundations/options-domain-reference.md`, `docs/foundations/options-domain-competence-contract.md`, `docs/25-situation-architecture.md`, `docs/07c-adrs.md`, `docs/architecture-roadmap.md`, `docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md`, `PL-BROKER-CAP` in `docs/parking-lot-9.md`
 
 ---
 
@@ -113,48 +113,67 @@ Separate authoritative documents are not proposed for v1. The project is already
 
 ---
 
-## 5. Candidate semantic primitives
+## 5. Candidate semantic concept families
 
-“Primitive” means semantically irreducible for Wheelwright reasoning. It does **not** imply one class, table, aggregate, or service per concept.
+The v1 adversarial review exposed an internal error: the draft called slash-combined families “primitives” while grouping concepts that are not semantically identical. v1.1 therefore treats this as a **decomposition workspace**, not a settled primitive register.
+
+A primitive, if later claimed, must be semantically irreducible for Wheelwright reasoning. Related concepts may still be distinct types, relations, or roles. None of these labels implies one class, table, aggregate, service, or bounded context.
 
 ### Identity and economic world
 
-- **Account / Account Regime** — Wheelwright brokerage-account identity and the broker/account semantic regime applicable to it.
-- **Instrument / Contract** — externally identifiable tradable instrument or contract.
-- **Asset / Right / Obligation** — economically material constituents of a complete position.
-- **Inventory Block / Lot** — owned inventory at the level required for mandate, basis, encumbrance, or lifecycle attribution.
-- **Economic Position / Complete Position** — the economically material assets, cash, rights, obligations, collateral, encumbrance, and residual exposure that must be reasoned about together.
-- **Capital Boundary / Capital Pool** — governed boundary within which capital is classified, allocated, constrained, and evaluated.
-- **Portfolio Mandate / Inventory Role** — the expected contribution or governed role of capital/inventory, distinct from a specific outcome stance.
+- **Account** — brokerage-account identity known to Wheelwright.
+- **Account Regime** — semantic/accounting/execution regime applicable to an Account; a property/context of an account, not the account itself.
+- **Instrument** — externally identifiable tradable instrument family or security.
+- **Contract** — a specific contractual instrument with identity and terms; related to, but not synonymous with, Instrument.
+- **Asset**, **Right**, **Obligation** — distinct economically material constituents that may participate in a complete position.
+- **Lot** — broker/accounting inventory unit when authoritative lot identity exists.
+- **Inventory Block** — governed quantity of inventory treated together for mandate, encumbrance, lifecycle, or decision purposes; may correspond to one or more lots and must not manufacture lot identity.
+- **Position** — intentionally unresolved narrower identity used by broker, monitoring, construction, and lifecycle views; it must not silently mean Complete Position.
+- **Complete Position** — all material assets, cash, rights, obligations, collateral, encumbrance, and residual exposure required for correct economic reasoning about a subject.
+- **Capital Boundary** — governed scope within which capital classification and rules apply.
+- **Capital Pool** — capital grouped within a boundary for a governed purpose; not synonymous with the boundary.
+- **Portfolio Mandate** — authoritative purpose/objective assigned to a capital or inventory scope.
+- **Inventory Role** — the expected contribution/function of inventory under a mandate; distinct from the mandate and from a specific outcome stance.
 
 ### Change over time
 
 - **State** — facts true of a subject at a time.
-- **Event** — something observed to have occurred.
-- **Transition** — the semantic before/after transformation associated with an event or contemplated action.
-- **Process** — ordered activity producing transitions.
+- **Event** — an occurrence in the economic or operational world. An Event exists independently of when or whether Wheelwright observes it.
+- **Event Observation / Event Assertion** — evidence or an authoritative claim that an Event occurred, with provenance and time semantics.
+- **Transition** — a before/after semantic transformation. A contemplated transition is counterfactual; a reconciled transition is accepted as domain history.
+- **Reconciled Transition** — the accepted domain-state change attributed to an actual Event after sufficient evidence, association, and reconciliation.
+- **Process** — ordered activity producing or contemplating transitions.
 - **Operating Program** — durable governed purpose/process spanning multiple positions or cycles.
-- **Lifecycle** — the relevant state/event history of a particular subject.
+- **Lifecycle** — the relevant state/event/transition history of a particular subject.
 - **Formation Provenance** — how the current state or construction came to exist.
 
 ### Claims and governance
 
-- **Evidence Observation** — an observation with provenance and time semantics.
+- **Evidence Observation** — an observation with provenance and time semantics; it may support an Event Assertion but is not the Event.
 - **Authoritative Association** — a governed claim that two otherwise independent identities are related for a stated purpose.
-- **Intent Assertion** — an authoritative, scoped, time-bounded statement of purpose or stance toward an outcome. Whether purpose and outcome stance remain one primitive is unresolved.
-- **Policy Rule / Constraint / Preference** — governed rules about admissibility, prohibition, thresholds, and comparison.
-- **Situation / Regime** — higher-scope operating context and objective semantics.
+- **Intent Assertion** — an authoritative, scoped, time-bounded statement of purpose or stance toward an outcome. Whether purpose and outcome stance remain one concept is unresolved.
+- **Policy Rule** — a governed decision rule.
+- **Constraint** — an admissibility/prohibition boundary.
+- **Preference** — an ordering among admissible alternatives/outcomes. Constraint and Preference must not be collapsed.
+- **Situation** — operator-declared or otherwise authoritative decision context.
+- **Regime** — durable operating/accounting/policy context. Situation and Regime may relate, but are not synonyms.
 
-### Decision and action
+### Decision, action, and realized history
 
-- **Alternative** — a candidate governed path, including a valid no-transaction alternative such as HOLD.
-- **Consequence** — a conditional economic/resulting-state effect of an Alternative or lifecycle event.
-- **Recommendation** — a time- and evidence-bounded decision result over Alternatives; not an execution fact.
-- **Action / Order** — operator or system instruction intended to cause a transition.
-- **Observed Execution** — authoritative evidence that an action was actually executed.
-- **Accounting Stock / Flow / Attribution** — governed economic/accounting semantics such as Portfolio Capital and Production.
+- **Candidate** — raw discovered possibility not yet normalized into a governed Alternative. If future specimens show no useful distinction, this concept should be removed rather than retained ceremonially.
+- **Alternative** — a normalized governed path available for decision evaluation, including a valid no-transaction path such as HOLD.
+- **Counterfactual Consequence** — conditional economic/resulting-state effect if an Alternative or contemplated transition occurs.
+- **Mechanical Event Effect** — domain-mechanical effect caused by an Event, independent of whether Wheelwright has yet reconciled it.
+- **Reconciled Outcome** — resulting state/economic result accepted into Wheelwright history after authoritative observation, association, and reconciliation.
+- **Economic Attribution** — governed classification of a realized result to Production, principal movement, appreciation/erosion, lifecycle, or other accounting meaning.
+- **Recommendation** — a time- and evidence-bounded decision result over Alternatives; not an operator selection or execution fact.
+- **Action** — an operator/system act intended to cause or respond to a transition.
+- **Order / Broker Instruction** — a broker-facing instruction expressing an Action where applicable; not every Action is an Order.
+- **Execution** — actual execution occurrence in the broker/market world.
+- **Execution Observation / Assertion** — broker-authoritative or otherwise governed evidence establishing execution; not the Execution itself.
+- **Accounting Stock**, **Accounting Flow**, **Accounting Attribution** — distinct accounting concept families; this model integrates their relationships but does not redefine the bounded Portfolio Capital / Production authorities.
 
-This list is provisional and must survive semantic specimens before ratification.
+This list remains provisional. Promotion requires surviving semantic specimens and resolving identity, scope, authority, and temporal behavior.
 
 ---
 
@@ -347,61 +366,97 @@ Current intent must not rewrite historical intent.
 
 ---
 
-## 12. State, consequence, intent, and alignment
+## 12. State, counterfactual consequence, realized outcome, intent, and alignment
 
 These are separate semantic layers.
 
 | Layer | Question |
 |---|---|
 | State | What is true now? |
-| Consequence | What would happen if a specified transition occurred? |
+| Counterfactual Consequence | What would happen if a specified Alternative/transition occurred? |
+| Event / Mechanical Effect | What actually occurred, and what does domain mechanics make that occurrence do? |
+| Reconciled Outcome | What resulting state/economic result has authoritative evidence and reconciliation accepted into history? |
+| Economic Attribution | How is that realized result governed/accounted for? |
 | Intent | What purpose/outcome stance authoritatively applies? |
 | Policy | What is permitted, prohibited, constrained, or preferred? |
 | Alignment | How consistent is the current trajectory with the governed plan? |
 
 **Alignment is derived**, not primitive.
 
-Example:
+Example before assignment:
 
 - State: a call is ITM.
-- Consequence: assignment would dispose of 100 shares at the strike.
+- Counterfactual Consequence: if assignment occurs, 100 shares would be disposed at the strike.
 - Intent: disposition is desired for this inventory.
 - Policy: assignment at this effective exit is admissible.
 - Alignment: current trajectory may align with the governed plan.
 
-The same ITM state against strategic retention inventory can produce the opposite alignment.
+Example after assignment:
+
+- Event: assignment economically occurred.
+- Event Observation: broker-authoritative evidence reports the assignment.
+- Mechanical Event Effect: the short-call obligation resolves and the covered quantity is disposed at the strike, subject to actual contract terms.
+- Reconciled Outcome: Wheelwright accepts the resulting inventory/cash state after association and reconciliation.
+- Economic Attribution: bounded accounting authority determines which realized components, if any, are Production, principal movement, appreciation/erosion, or another category.
+
+The same ITM state against strategic retention inventory can produce the opposite alignment before resolution. A later realized outcome must not retroactively rewrite the intent/policy that governed the earlier decision.
 
 ---
 
-## 13. Capability and executability
+## 13. Capability, current feasibility, and Wheelwright support
 
-A mechanically coherent and policy-admissible Alternative may still be unavailable.
+The v1 draft incorrectly bundled three axes with different authorities and lifetimes.
 
-Capability/executability answers:
+### Capability
 
-> **Can Wheelwright/operator actually perform this Alternative in this account, through this broker, under current evidence and operational conditions?**
+> **Is this kind of action structurally permitted and supported for this account/product/broker relationship?**
 
-Relevant constraints may include:
+Examples include account option tier, product eligibility, broker order-type support, and structural collateral rules. Capability can change, but it is not merely a quote-time market fact.
 
-- account permissions / option tier;
-- broker product and order support;
-- collateral treatment;
-- settlement state;
-- market evidence sufficiency;
-- liquidity / executable market;
-- supported order semantics;
-- Wheelwright implementation/support maturity.
+### Current feasibility / executability
 
-This is distinct from:
+> **Can this otherwise-capable action actually be performed now under current state and evidence?**
 
-- mechanical validity;
-- policy admissibility;
-- desirability;
-- recommendation.
+Examples include available buying power/collateral, settlement state, current position/encumbrance, sufficient market evidence, executable liquidity, market/session state, and other time-sensitive preconditions.
 
-Understanding a structure does not imply Wheelwright supports recommending, staging, executing, or lifecycle-managing it.
+Feasibility is generally shorter-lived than structural capability and must carry currentness/provenance appropriate to the claim.
 
-A later capability model may be warranted. This draft establishes the semantic gap without selecting a standalone artifact.
+### Wheelwright support status
+
+> **What can Wheelwright itself correctly understand, represent, evaluate, recommend, stage, execute, and lifecycle-manage?**
+
+Support is not one boolean. A structure may be:
+
+- understood mechanically;
+- representable;
+- consequence-modelled;
+- policy-evaluable;
+- recommendable;
+- stageable;
+- executable through an integration;
+- lifecycle-manageable.
+
+The Options Domain Competence Contract remains authoritative that domain understanding and support status are independent axes.
+
+### Relationship to `PL-BROKER-CAP`
+
+`PL-BROKER-CAP` owns the cross-surface **appraisal of brokerage-facing capability provision and incumbent fitness** across Portfolio State, Market Evidence, Execution, and Lifecycle/Outcome. It asks how Wheelwright should obtain those capabilities and whether current mechanisms remain fit.
+
+`PL-SEM-01` owns the **general semantic distinction** among capability, present feasibility/executability, and Wheelwright product support. It does not select providers or replace the brokerage-capability appraisal.
+
+Therefore these identities are related but not duplicates.
+
+### Decision interaction
+
+A mechanically coherent Alternative can be:
+
+- prohibited by policy despite being capable and feasible;
+- policy-admissible but structurally incapable;
+- capable but currently infeasible;
+- capable and feasible but unsupported by Wheelwright for recommendation/execution;
+- fully admissible, capable, feasible, and supported.
+
+None of those axes alone establishes desirability or recommendation.
 
 ---
 
@@ -415,9 +470,11 @@ Working composition:
 current subject/state
 + authoritative evidence
 + applicable intent and policy
-+ candidate Alternatives
-+ conditional consequences
-+ capability/executability
++ normalized Alternatives
++ counterfactual consequences
++ structural capability
++ current feasibility/executability
++ Wheelwright support status
 + admissibility
 + preference/comparison
 + uncertainty
@@ -436,43 +493,79 @@ Important distinctions:
 
 ---
 
-## 15. Decision-to-execution ladder
+## 15. Decision-to-execution ladder and authority
 
 The semantic ladder is:
 
 ```text
-candidate
-→ Alternative
+discovered candidate
+→ normalized Alternative
 → recommendation
 → operator selection
-→ contemplated action
+→ contemplated Action
 → staged broker instruction
-→ submitted order
-→ working order
-→ execution
-→ broker-observed event
-→ reconciled domain state
+→ submitted order assertion
+→ working-order assertion
+→ Execution
+→ execution/event observation
+→ authoritative association
+→ Reconciled Transition / Outcome
 ```
 
 Adjacent stages must not be collapsed merely because one implementation currently represents them with the same object or UI interaction.
 
-Assignment is a lifecycle event, not necessarily an operator action. HOLD is an Alternative without a transaction event.
+Authority changes along the ladder:
+
+- discovery establishes a possibility, not permission or recommendation;
+- a Recommendation is Wheelwright decision output under its evidence/policy dependencies;
+- operator selection establishes operator choice, not broker state;
+- staging establishes a prepared instruction, not submission;
+- broker order state such as submitted/working requires broker-authoritative evidence under the applicable execution contract;
+- Execution is the occurrence itself; an execution observation/assertion is evidence of it;
+- broker evidence does not by itself establish which Wheelwright lifecycle, inventory block, program, or accounting category the event belongs to;
+- association and reconciliation are required before accepted domain state/history changes.
+
+Assignment and exercise are lifecycle Events, not necessarily operator Actions. HOLD is an Alternative without a transaction Event.
 
 ---
 
-## 16. Counterfactual semantics
+## 16. Counterfactual and realized semantics
 
 Wheelwright must preserve the distinction among:
 
-- current factual state;
-- conditional consequence;
-- forecasted likely outcome;
-- recommended action;
-- observed historical result.
+- current factual State;
+- Counterfactual Consequence;
+- forecasted likelihood of a possible Event/outcome;
+- recommended Action;
+- actual Event;
+- Event Observation / Assertion;
+- Mechanical Event Effect;
+- Reconciled Transition / Outcome;
+- Economic Attribution.
 
-A consequence answers “if this transition occurs, then…”. It does not assert that the transition will occur.
+A Counterfactual Consequence answers:
 
-This boundary is essential to Policy over Prediction.
+> **If this Alternative/transition occurs, what follows?**
+
+It does not assert that the transition will occur.
+
+An Event answers:
+
+> **What occurrence actually happened in the economic or operational world?**
+
+An Event Observation / Assertion answers:
+
+> **What evidence establishes or reports that occurrence, with what authority and provenance?**
+
+A Reconciled Outcome answers:
+
+> **What resulting state/economic result has Wheelwright accepted into history after evidence, association, and reconciliation?**
+
+Economic Attribution answers:
+
+> **How should that realized result be classified under the bounded accounting authorities?**
+
+These boundaries are essential to Policy over Prediction and to historical truth.
 
 ---
 
@@ -512,28 +605,28 @@ This draft does not redefine those accounting concepts.
 
 ---
 
-## 19. Primitive versus derived semantics
+## 19. Concept families versus derived semantics
 
-### Strong primitive candidates
+v1.1 withdraws the v1 claim that the slash-combined list represented “strong primitive candidates.” The semantic model is not mature enough to make that claim consistently.
 
-- account / account regime;
-- instrument / contract;
-- asset / right / obligation;
-- inventory block / lot;
-- complete position;
-- capital boundary / pool;
-- state / event / transition;
-- formation provenance;
-- evidence observation;
-- authoritative association;
-- intent assertion;
-- policy rule / constraint / preference;
-- Situation / regime;
-- Alternative;
-- consequence;
-- operating program;
-- action / order / execution;
-- accounting stock / flow.
+### Candidate concept families requiring identity/decomposition work
+
+- Account; Account Regime.
+- Instrument; Contract.
+- Asset; Right; Obligation.
+- Lot; Inventory Block.
+- Position; Complete Position; Economic Construction.
+- Capital Boundary; Capital Pool.
+- Portfolio Mandate; Inventory Role.
+- State; Event; Event Observation/Assertion; Transition; Reconciled Transition.
+- Process; Operating Program; Lifecycle; Formation Provenance.
+- Evidence Observation; Authoritative Association; Semantic Assertion.
+- Intent Assertion; Policy Rule; Constraint; Preference; Situation; Regime.
+- Candidate; Alternative; Counterfactual Consequence.
+- Mechanical Event Effect; Reconciled Outcome; Economic Attribution.
+- Recommendation; Action; Order/Broker Instruction; Execution; Execution Observation/Assertion.
+- Capability; Current Feasibility/Executability; Wheelwright Support Status.
+- Accounting Stock; Accounting Flow; Accounting Attribution.
 
 ### Derived candidates
 
@@ -555,26 +648,28 @@ This draft does not redefine those accounting concepts.
 
 Derived does not mean unimportant. It means the value must retain traceable dependency on more primitive facts and governed semantics.
 
+A future primitive register should contain only concepts that survive decomposition and specimen testing without slash-combining categorically distinct meanings.
+
 ---
 
 ## 20. Semantic specimens
 
 | Specimen | Required distinctions |
 |---|---|
-| UNG disposition covered call | inventory subject; covered-call construction; call-away consequence; disposition intent; policy; alignment |
-| Strategic SPY overwrite | capital pool/mandate; strategic inventory binding; overwrite program; retention intent; short-call obligation; consequence; capability/policy |
+| UNG disposition covered call | inventory subject; covered-call construction; counterfactual call-away consequence before assignment; actual assignment Event if it occurs; broker observation; reconciled outcome; disposition intent; policy; alignment |
+| Strategic SPY overwrite | capital pool; mandate; inventory role/binding; overwrite program; retention intent; short-call obligation; counterfactual consequence; capability vs current feasibility vs Wheelwright support; policy |
 | Buy-write | coordinated formation mechanism; provenance; resulting covered-call construction |
 | CSP acquisition | short-put construction; collateral; acquisition intent; assignment consequence |
 | CSP income | same construction; premium purpose; assignment acceptable/disfavored rather than necessarily desired |
-| Wheel | durable program identity; cycle/process state; multiple position lifecycles and capital transitions |
+| Wheel | durable program identity; cycle/process state; Candidate vs Alternative; multiple position lifecycles; Events/observations/reconciled transitions; capital transitions |
 | Protective put | construction; protection purpose; desired floor distinct from undesired adverse market event |
 | Collar | construction; protection purpose; accepted upside cap/call-away consequence |
 | Vertical spread | multi-leg construction; bounded consequence surface; purpose separately scoped |
 | Iron condor | four-leg construction; range consequence profile; terminal-state preferences |
 | PMCC / diagonal | multi-expiry construction; lifecycle complexity; no literal share-coverage assumption |
 | BWB / HBWB | asymmetric consequence surface; desired tail behavior; tolerated intermediate valley |
-| HOLD | no-transaction Alternative; continuing obligation/exposure; next decision boundary |
-| CLOSE | action Alternative; indicative versus executed cost; residual resulting state |
+| HOLD | normalized no-transaction Alternative; continuing obligation/exposure; capability not confused with action; next decision boundary |
+| CLOSE | Alternative; contemplated Action; broker Order where applicable; Execution vs execution evidence; counterfactual close cost vs realized fill; reconciled residual state |
 
 A candidate semantic distinction that cannot survive these specimens should not be promoted.
 
@@ -646,12 +741,16 @@ This draft intentionally leaves unresolved:
 - Is Intent the umbrella for purpose + outcome stance, or outcome stance only?
 - Which operator interactions create authoritative intent?
 - What capability facts are durable versus point-in-time observations?
+- Does Candidate earn a durable semantic identity distinct from Alternative, or is it only discovery-stage vocabulary?
+- Which Position identities are required in addition to Complete Position and Economic Construction?
+- Which Event observations are sufficient for reconciliation in each lifecycle?
+- Which capability/support dimensions need explicit state machines versus assertions?
 
 These are design questions, not defects.
 
 ---
 
-## 24. v1 non-goals
+## 24. v1.1 non-goals
 
 This draft does not:
 
@@ -679,7 +778,7 @@ Before promotion beyond draft:
 4. settle the minimum ontology;
 5. settle operational composition/state/lifecycle semantics;
 6. settle intent/policy boundaries;
-7. settle capability/executability semantics;
+7. settle capability / current-feasibility / Wheelwright-support semantics;
 8. settle Decision semantics;
 9. trace current implementation concepts against the model;
 10. only then consider DDD bounded contexts, aggregates, ACLs, and implementation migration.
@@ -688,12 +787,12 @@ The purpose is not to produce a perfect abstract model. The purpose is to give W
 
 ---
 
-## 26. v1 status
+## 26. v1.1 status
 
-This is a **draft integration model** created under Principal direction and canonical intake `PL-SEM-01`.
+This is a **v1.1 draft integration model** created under Principal direction and canonical intake `PL-SEM-01`, incorporating the first independent adversarial review.
 
 It is durable project memory and a review target.
 
 It is **not** ratified Category A/B architecture and does not override existing authority.
 
-The next useful pressure is adversarial review and specimen-driven reconciliation, not implementation.
+The next useful pressure is a second adversarial review focused on whether the v1 findings are actually resolved and whether the revised distinctions survive the semantic specimens. DDD decomposition remains downstream.
