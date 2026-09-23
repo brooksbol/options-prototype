@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-23T23:41:14.747Z",
+    "generatedAt": "2026-09-23T23:52:42.448Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -8402,6 +8402,5 @@
     "PL-TRAIN-01",
     "PL-UX-01",
     "PL-UX-04"
-  ],
-  "generatedAt": "2026-09-23T23:50:17.270Z"
+  ]
 }
