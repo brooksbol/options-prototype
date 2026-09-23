@@ -1362,7 +1362,7 @@ Current durable artifacts:
 - `docs/research/practitioner-corpus/practitioner-corpus-v1.md` — completed Practitioner Corpus v1 derived from the 24 admitted transcript-backed sources;
 - `docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md` — preserved upstream Muse artifact; description-only studies remain preserved but were excluded from v1 evidentiary contribution under the charter;
 - `docs/research/practitioner-corpus/product-challenge-test-2-2026-09-23.md` — durable Test 2 research result: ten corpus-first hypotheses frozen before Wheelwright bootstrap, subsequent reconciliation, existing-feature challenge, and experimental assessment.
-- `docs/research/practitioner-corpus/practitioner-corpus-v1-reconciliation-2026-09-23.md` — post-corpus reconciliation and verification overlay preserving dispositions for all four contradictions, all six red flags, all eight open questions, and the twelve-item verification backlog while leaving Practitioner Corpus v1 intact.
+- `docs/research/practitioner-corpus/practitioner-corpus-v1-reconciliation-2026-09-23.md` — post-corpus reconciliation and verification overlay, now **Revision 1.1**, preserving dispositions for all four contradictions, all six red flags, all eight open questions, and the twelve-item verification backlog while leaving Practitioner Corpus v1 intact; Revision 1.1 also records admission-created topic coverage holes, a retail-premium-selling population qualifier, and the methodological distinction between reference-verifiable and empirically-verifiable claims.
 
 The research directory owns evidence, methodology, experiment reports, future corpus versions, and supporting analyses. This `PL-*` record owns the durable project identity, why-state, boundaries, current research disposition, and relationship to downstream governed concerns.
 
@@ -1387,6 +1387,8 @@ Post-corpus reconciliation has now also established a bounded epistemic overlay 
 - the **verification backlog is reduced from 12 to 3 genuinely open items**: the 20/50 covered-call filter, 0DTE seller-edge erosion, and provenance for the “12% leadership regain” statistic.
 
 A resolved verification question does not automatically validate a trading prescription or promote it into Wheelwright domain truth. Exact external citations still need durable attachment wherever a verified claim is later proposed for domain promotion.
+
+Independent review of frozen v1 subsequently corroborated the freeze-plus-overlay architecture and added three bounded findings: exclusion can create topic-specific evidence holes rather than merely lower sample size; generic synthesis language must be interpreted as referring to the retail premium-selling practitioner population represented by this corpus; and future verification methodology should distinguish `VERIFY_BY_REFERENCE` from `VERIFY_BY_EVIDENCE` without retroactively changing the frozen v1 charter.
 
 ### Research method / contamination boundary
 
