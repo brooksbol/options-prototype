@@ -41,9 +41,9 @@
       "domainEntryTotal": 36,
       "bugTotal": 25,
       "logTotal": 65,
-      "logIntakeEvidenceEvents": 12,
-      "plWithIntakeDate": 12,
-      "plWithoutIntakeDate": 52
+      "logIntakeEvidenceEvents": 13,
+      "plWithIntakeDate": 13,
+      "plWithoutIntakeDate": 51
     },
     "notes": []
   },
@@ -3110,7 +3110,7 @@
       "section": "Reconciliation / continuation record",
       "description": "**Draft:** `docs/58-wheelwright-semantic-model-v1.md` Trigger: Options-intent/nomenclature work and independent Codex information-architecture review demonstrated that Wheelwright has mature semantic submodels but no canonical integrated ontology/domain model.",
       "descriptionTruncated": false,
-      "state": "INTAKE + bounded design draft created under explicit Principal direction; not ratified architecture and no implementation migration authorized",
+      "state": "INTAKE — new canonical identity created; bounded design draft created under explicit Principal direction; not ratified architecture and no implementation migration authorized",
       "sourceFile": "parking-lot-9.md",
       "relatedLvtIds": [],
       "relatedArIds": [],
@@ -7874,10 +7874,10 @@
       "bugId": null,
       "title": "PL-SEM-01 — Wheelwright Canonical Semantic Model / Domain Integration",
       "eventKind": "intake",
-      "establishesIntake": false,
+      "establishesIntake": true,
       "eventDateText": "September 23, 2026",
       "eventDateIso": "2026-09-23",
-      "state": "INTAKE + bounded design draft created under explicit Principal direction; not ratified architecture and no implementation migration authorized",
+      "state": "INTAKE — new canonical identity created; bounded design draft created under explicit Principal direction; not ratified architecture and no implementation migration authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
       "sourceOrder": 393
@@ -7929,7 +7929,6 @@
     "PL-RESEARCH-03",
     "PL-RESEARCH-04",
     "PL-SCHED-DRIFT",
-    "PL-SEM-01",
     "PL-SHELL",
     "PL-STRAT-01",
     "PL-SURF-01",
