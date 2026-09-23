@@ -584,3 +584,24 @@ This corrects artifact identity rather than changing the research conclusions. C
 
 Because the canonical PL changed again, Roadmap derived-projection regeneration/freshness verification is required as ordinary mechanical closeout.
 
+---
+
+## 2026-09-23 — Practitioner Corpus v1.1 repaired after independent adversarial review
+
+The Principal authorized Option A: execute the bounded repair as `docs/research/practitioner-corpus/practitioner-corpus-v1.1.md` and preserve all existing artifacts as history.
+
+Independent Codex review rejected `practitioner-corpus-v1-reconciliation-v1.1.md` for acceptance as written while corroborating the overall freeze-plus-overlay architecture. The review found excluded-source leakage, evidence-act promotions from recommendation/plan/calculation to observed behavior, incomplete dispositions for verification items #6 and #7, an overly broad population qualifier, omitted topic-specific coverage losses, a within-corpus long-LEAPS exception, and pre-existing frozen-v1 provenance inconsistencies.
+
+The repaired v1.1:
+- removes bracket-order and wide-bid/ask/slippage evidentiary leakage from excluded studies 13–14;
+- corrects the SanDisk planned exit and 69.6% LEAPS prospective calculation classifications;
+- narrows the evidentiary population to admitted Cashflow Academy teaching/demonstration evidence mediated through Muse;
+- records topic-specific admission holes and the 540-DTE LEAPS exception;
+- discloses frozen-v1 provenance/derivation-status limitations without editing v1;
+- replaces the binary verification-method refinement with authority/reference lookup, mathematical/theoretical derivation, empirical testing, and source/provenance tracing;
+- changes backlog state from 9 closed / 3 open to **7 fully dispositioned / 2 partially dispositioned / 3 open**.
+
+Frozen corpus v1, frozen reconciliation v1.0, and the rejected reconciliation-v1.1 candidate remain historical and unchanged by this repair. No Product, semantic, domain, policy, architecture, roadmap, implementation, or execution authority is created. Broad Wheelwright reconciliation remains separate future governed work.
+
+The Principal also invoked the End-of-Session Protocol. Canonical PL-RESEARCH-05 was reconciled to the repaired revision; Roadmap projection freshness must be regenerated and verified as the ordinary derived closeout consequence.
+
