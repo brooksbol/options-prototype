@@ -457,3 +457,24 @@ Separately, the Principal supplied practitioner educational material whose conve
 Semantic Model v1.2 records these refinements while retaining the DDD boundary. No ratification, implementation, bounded contexts, aggregates, anti-corruption layers, context maps, or persistence design are authorized.
 
 **Next pressure:** specimen-driven identity–association–assertion reconciliation, with the long straddle as a generalization control; broader practitioner-strategy mechanics/outlook/applicability analysis follows only after that focused pass stabilizes.
+
+
+---
+
+## 2026-09-23 — Semantic Model v1.3: identity–association–assertion specimen pass completed
+
+The focused Option-C continuation has completed against strategic SPY with multiple governed quantities and overwrite calls, partial assignment with late broker evidence, Wheel across a cycle boundary, HOLD/CLOSE with residual state, and a long-straddle control outside Wheelwright's current covered-call/CSP/Wheel center of gravity.
+
+The pass rejects a universal canonical `Position` identity. It separates Holding/Obligation Record, Economic Construction, Decision Subject, Complete Position, and provisional Lifecycle Subject/Episode. Complete Position is treated as conclusion-relative reasoning closure unless future specimens prove durable identity is required.
+
+Portfolio relationship semantics were strengthened: coverage, encumbrance, allocation, pool/mandate/program membership, lifecycle association, and accounting attribution are governed claims rather than pointer-like facts. Quantity/unit, effective interval, authority, overlap/exclusivity, and correction/conflict can be semantically load-bearing.
+
+The epistemic boundary is now explicit: World/Economic State is independent of Wheelwright knowledge; Observation is evidence; Assertion is a bound claim; Reconciled State is what Wheelwright currently accepts. Late evidence and reassociation can change accepted history without changing when an Event actually occurred.
+
+Normative semantics were narrowed: Objective/Purpose, Outcome Stance, Constraint, Preference, and Action Choice are separate. `Intent Assertion` is provisionally narrowed toward scoped Outcome Stance rather than serving as an umbrella.
+
+HOLD/CLOSE exposed commitment, withdrawal/cancellation, cancel-replace, partial execution, and residual-state semantics. The long-straddle control demonstrated that the core can represent two long Rights and a multi-leg construction without importing inventory, short-obligation, call-away, or Wheel assumptions.
+
+The model advanced to **v1.3**. Ratification remains blocked on the explicitly retained identity/authority/topology questions, and DDD remains downstream.
+
+**Next pressure:** the previously pinned broader practitioner-strategy falsification pass. Its purpose is to test the semantic model against conventional strategy bundles—mechanics, opening cash flows, payoff geometry, directional/magnitude thesis, volatility/time exposure, lifecycle, applicability, and vocabulary—without manufacturing a universal `Strategy` type or inferring operator Intent from practitioner criteria.
