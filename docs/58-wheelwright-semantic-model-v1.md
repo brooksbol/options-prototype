@@ -1,4 +1,4 @@
-# Wheelwright Semantic Model v1.2 — Draft
+# Wheelwright Semantic Model v1.3 — Draft
 
 **Date:** September 23, 2026  
 **Status:** Draft semantic integration model — Current Specialized Reference (Category E); **not ratified architecture or implementation authority**  
@@ -750,7 +750,300 @@ Broader practitioner “strategy” material—including construction mechanics,
 
 ---
 
-## 21. Product / operator projection
+## 21. v1.3 identity–association–assertion reconciliation
+
+This section records the focused specimen pass authorized after the second independent adversarial review. Its purpose is to settle the minimum semantic commitments needed to continue maturation without opening DDD design.
+
+### 21.1 Position is not one canonical identity
+
+The specimens reject a universal `Position` entity.
+
+Wheelwright should instead distinguish:
+
+1. **Holding / Obligation Record** — evidence-backed quantity of an asset, right, or obligation associated with an account/source.
+2. **Economic Construction** — an economically meaningful relation/view over constituents that creates a payoff/exposure shape.
+3. **Decision Subject** — the explicitly scoped subject against which Alternatives, consequences, intent, policy, and recommendations are evaluated.
+4. **Complete Position** — a conclusion-relative closure/view containing everything economically material to a specified question.
+5. **Lifecycle Subject / Episode** — a durable identity only where a governed lifecycle actually requires continuity across state changes.
+
+`Position` remains valid conventional/product vocabulary, but **must not establish canonical identity by itself**. A Console row, broker holding, option obligation, construction, Complete Position, and lifecycle episode are not interchangeable.
+
+A Complete Position is therefore not presumed to be a persistent entity. Completeness is relative to the conclusion: assignment consequence, collateral, P&L, deployability, aggregate exposure, and accounting attribution may require different closure scopes.
+
+### 21.2 Association is a quantified, time-scoped governed claim
+
+The SPY and partial-assignment specimens reject generic pointer-like association for load-bearing relationships.
+
+A load-bearing association may require:
+
+- subject identity;
+- counterpart identity;
+- relation kind and purpose;
+- quantity and unit;
+- effective interval;
+- authority/provenance;
+- exclusivity or permitted-overlap semantics;
+- supersession/conflict/correction behavior.
+
+This applies especially to **coverage, encumbrance, allocation, Capital Pool membership, mandate binding, program membership, lifecycle association, and accounting attribution**.
+
+Core invariant:
+
+> **A true assertion about A and a true assertion about B do not establish a relationship between A and B.**
+
+Additional invariants established by the specimens:
+
+- the same governed share quantity must not be treated as simultaneously available to cover two obligations unless an authoritative relation explicitly permits that economic use;
+- partial assignment changes only the assigned quantity and its affected associations; residual inventory and residual obligations retain independent identity;
+- one option obligation may be covered by quantities drawn from more than one lot/block only if the coverage allocation is explicit and quantity-correct;
+- program membership may survive expiration or resolution of an individual option obligation;
+- a mandate change is prospective/versioned and does not rewrite the mandate governing an earlier decision;
+- Capital Pool membership is governed allocation, not a synonym for broker account balance;
+- same-symbol inventory may participate in distinct mandates/programs when quantity allocation prevents false overlap.
+
+Whether Capital Pools themselves may overlap remains policy/topology-specific and is not universally settled here.
+
+### 21.3 Actual, observed, asserted, and reconciled state are distinct
+
+The partial-assignment/late-evidence specimen settles the epistemic boundary:
+
+```text
+World / Economic State
+    exists independently of Wheelwright knowledge
+
+Observation
+    evidence received/measured from a source
+
+Assertion
+    a claim about a bound subject, supported by observation/authority/derivation
+
+Reconciled State
+    what Wheelwright currently accepts after identity binding,
+    authoritative association, conflict handling, and reconciliation
+```
+
+An assignment may economically occur before Wheelwright receives broker evidence. The late observation does not move event time. Reconciliation may update accepted history later without claiming the economic event occurred later.
+
+A correction may:
+
+- correct a false assertion;
+- enrich an incomplete assertion;
+- reassociate a true Event to the correct subject/lifecycle;
+- represent an external reversal/correction.
+
+Those are not the same historical operation.
+
+### 21.4 Assertion validity is dependency-sensitive
+
+A load-bearing assertion is not adequately described by provenance alone. Its semantic contract may include:
+
+- assertion identity/version;
+- subject and identity-binding basis;
+- applicability scope/context;
+- predicate/value/relation;
+- epistemic class;
+- source authority and decision/reconciliation authority where distinct;
+- evidence/provenance;
+- effective interval and recorded/acquired times;
+- derivation;
+- validity dependencies;
+- uncertainty;
+- supersession/conflict;
+- revocation/invalidation and reason.
+
+Absence semantics are explicit:
+
+`false ≠ absent ≠ unknown ≠ unavailable ≠ stale ≠ conflicted ≠ zero/empty ≠ not applicable`.
+
+A dependent recommendation or reconciliation must not silently convert one of these states into another.
+
+### 21.5 Purpose, Outcome Stance, Constraint, and Preference are separate
+
+The specimens reject `Intent` as an umbrella that carries all normative meaning.
+
+- **Objective / Purpose** — what a mandate/program/deployment seeks to accomplish over a horizon.
+- **Outcome Stance** — authoritative desirability/acceptability toward a specified possible outcome for a scoped subject.
+- **Constraint** — an admissibility boundary.
+- **Preference** — ordering among admissible Alternatives/outcomes.
+- **Action Choice / Operator Selection** — a decision fact, not durable intent.
+
+Canonical `Intent Assertion` is narrowed provisionally to **a scoped, authoritative, time-bounded Outcome Stance**. This remains subject to one further adversarial pass before ratification, but purpose/objective is no longer part of the same semantic kind.
+
+Admissibility and preference remain independent. An outcome can be permitted but disfavored; prohibited is not merely “very undesirable”; indifferent is not unknown.
+
+### 21.6 Strategic-SPY / partial-assignment specimen
+
+Assume strategic SPY inventory spans multiple evidence-backed lots or governed quantity blocks and ten short calls participate in an overwrite program.
+
+Before assignment:
+
+- holdings/lots establish evidence-backed inventory quantities;
+- governed allocation associates specified quantities with a strategic mandate/pool;
+- explicit coverage/encumbrance associates quantities with each short-call obligation;
+- the overwrite program supplies durable program context;
+- Objective/Purpose may be incremental income while preserving strategic exposure;
+- Outcome Stance may prefer retention and disfavor call-away;
+- policy determines whether disposition is prohibited, conditionally admissible, or permitted;
+- ITM/OTM is factual contract state, not alignment by itself.
+
+If only some calls are assigned:
+
+- Assignment is an Event affecting specific obligations and quantities.
+- Mechanical Event Effect is derived from the Event, contract terms, deliverables, and quantity.
+- unassigned obligations remain open;
+- only assigned covered quantities are disposed/changed;
+- residual strategic inventory remains inventory rather than becoming a new “position” merely because another quantity left;
+- coverage/encumbrance associations for resolved obligations terminate or change at the applicable boundary;
+- program identity may persist;
+- accounting attribution remains separately governed.
+
+If broker evidence arrives late, Wheelwright may temporarily hold a Reconciled State that differs from World State. Later reconciliation corrects the representation without rewriting the Event time or historical intent/policy.
+
+This specimen therefore requires **quantity-bearing association identity**, not merely `symbol + account + option`.
+
+### 21.7 Wheel-cycle specimen
+
+The Wheel specimen establishes that an Operating Program can persist while constructions and obligations change:
+
+```text
+cash state
+  -> short-put obligation
+  -> assignment Event
+  -> share inventory
+  -> short-call obligation
+  -> call-away Event
+  -> cash state
+```
+
+The durable semantic candidate is the **Operating Program**, not one Position spanning all states.
+
+A Wheel cycle may earn its own lifecycle/episode identity when Wheelwright needs to associate opening deployment, intermediate Events, Production attribution, and terminal capital state. That identity is not automatically the option contract, share lot, or program itself.
+
+Program membership is an authoritative association. It must not be inferred solely because trades resemble a Wheel.
+
+### 21.8 HOLD / CLOSE specimen
+
+HOLD proves that an Alternative is not synonymous with a transaction.
+
+For a scoped Decision Subject:
+
+- **HOLD** preserves the current governed exposure/obligation until a stated decision boundary or invalidating condition;
+- **CLOSE** contemplates an Action that may produce a broker instruction/order and, if executed, a resulting state.
+
+The ladder remains semantically distinct:
+
+```text
+Alternative
+  -> Recommendation
+  -> Operator Selection
+  -> Commitment / contemplated Action
+  -> Staged Broker Instruction
+  -> Submitted / Working Order
+  -> Execution(s)
+  -> Observation(s) / Assertion(s)
+  -> Association + Reconciliation
+  -> Reconciled Transition / Outcome
+  -> Economic Attribution
+```
+
+This is not a mandatory implementation state machine.
+
+**Commitment** is the missing semantic bridge: operator selection does not by itself prove broker submission, and staging does not prove broker acceptance. Withdrawal/cancellation can terminate a commitment before execution. Cancel/replace relates successor broker instructions/orders to the governing Action without pretending the original order never existed. Partial execution creates realized quantity plus residual open quantity; it does not collapse into either “executed” or “not executed.”
+
+Broker-authoritative evidence is required for broker order/execution state. Operator/system authority can establish selection, commitment, or staging but cannot manufacture a broker fill.
+
+### 21.9 Long-straddle control specimen
+
+The long-straddle control falsifies several assumptions that would otherwise remain hidden in covered-call/CSP/Wheel specimens.
+
+A conventional long straddle consists of a long call and long put on the same underlying with the same strike and expiration. Semantically:
+
+- there are two long option Rights, not a short obligation plus inventory;
+- the Economic Construction depends on an explicit leg relationship, not containment in underlying shares;
+- formation commonly involves opening debit(s), but formation provenance does not define the construction's durable identity;
+- the Decision Subject may be the two-leg construction even though each contract/right retains its own evidence-backed identity;
+- Complete Position for payoff/consequence reasoning includes both legs and relevant cash flows;
+- quantity/unit and contract multiplier must be explicit;
+- Objective/Purpose, market thesis, volatility/time thesis, and Outcome Stance are **not inferred solely from the label**;
+- there is no general covered-call-style “call-away desired/undesired” semantic;
+- exercise/expiration/lifecycle outcomes may differ by leg while the construction-level reasoning subject remains meaningful.
+
+The control therefore supports the separation:
+
+```text
+conventional strategy label
+    ≠ Economic Construction
+    ≠ formation mechanism/provenance
+    ≠ Decision Subject
+    ≠ Objective/Purpose
+    ≠ market/scenario thesis
+    ≠ Outcome Stance
+    ≠ Policy
+```
+
+This is the principal generalization result of the focused pass.
+
+### 21.10 Candidate remains decision-pipeline vocabulary
+
+The focused specimens do not yet require Candidate as a foundational ontology identity.
+
+For now:
+
+- **Candidate** = raw discovered possibility before normalization;
+- **Alternative** = normalized governed path suitable for consequence/policy/decision evaluation, including HOLD.
+
+Candidate should remain provisional decision-intake vocabulary unless Wheelwright needs durable candidate identity for rejection provenance, deduplication, or learning across normalization.
+
+### 21.11 Settled versus still open after the focused pass
+
+**Settled strongly enough to continue maturation:**
+
+- no universal canonical Position identity;
+- Complete Position is a conclusion-relative closure/view unless future evidence requires durable identity;
+- Economic Construction, Decision Subject, Holding/Obligation Record, and Operating Program are distinct;
+- load-bearing association is governed and may be quantity/time scoped;
+- World State, Observation, Assertion, and Reconciled State are distinct;
+- assertion validity/applicability/absence semantics are first-class;
+- Objective/Purpose, Outcome Stance, Constraint, Preference, and Action Choice are distinct;
+- Event Observation and Event Assertion are distinct;
+- Mechanical Event Effect is derived semantics;
+- HOLD is a real Alternative;
+- partial execution and partial assignment preserve residual identity/quantity;
+- conventional strategy labels do not establish canonical semantic type or normative intent.
+
+**Still open before ratification:**
+
+- whether a narrower durable Lifecycle Subject/Episode is required in each operating program;
+- exact Capital Pool overlap/partition rules;
+- exact authority matrices for each association kind;
+- final canonical naming of `Intent Assertion` versus `Outcome Stance Assertion`;
+- exact identity/version contract for Recommendation/decision trace;
+- which commitment semantics belong in the semantic core versus later execution-domain design;
+- whether Candidate ever earns durable identity;
+- full mapping of conventional practitioner strategy vocabulary and applicability/thesis dimensions.
+
+### 21.12 Consequence for the next pressure
+
+The focused pass does **not** authorize DDD decomposition.
+
+It does establish enough separation to begin the previously pinned broader practitioner-strategy falsification pass. That pass should decompose each conventional strategy treatment into at least:
+
+- economic construction and leg mechanics;
+- formation/opening cash-flow mechanics;
+- payoff/consequence geometry;
+- directional and/or magnitude scenario thesis where the source supplies one;
+- volatility and time exposure where the source supplies it;
+- lifecycle/resolution mechanics;
+- applicability/use criteria;
+- capability/feasibility requirements;
+- Objective/Purpose or Outcome Stance only when explicitly authoritative rather than inferred;
+- conventional label/source mapping.
+
+The purpose of that next pass is not to create a universal `Strategy` type. It is to test whether the semantic model can represent the dimensions practitioners legitimately bundle under the word “strategy.”
+
+---
+
+## 22. Product / operator projection
 
 Operator surfaces project semantic claims; they do not create truth merely by rendering it.
 
@@ -763,7 +1056,7 @@ This is particularly important for intent declarations, policy changes, recommen
 
 ---
 
-## 22. Boundary with implementation and DDD
+## 23. Boundary with implementation and DDD
 
 This draft deliberately stops before implementation-domain architecture.
 
@@ -798,7 +1091,7 @@ No bounded context or aggregate is ratified by this v1 draft.
 
 ---
 
-## 23. Open identity and scope questions
+## 24. Open identity and scope questions
 
 This draft intentionally leaves unresolved:
 
@@ -829,7 +1122,7 @@ These are design questions, not defects.
 
 ---
 
-## 24. v1.1 non-goals
+## 25. v1.3 non-goals
 
 This draft does not:
 
@@ -847,7 +1140,7 @@ This draft does not:
 
 ---
 
-## 25. Proposed maturation path
+## 26. Proposed maturation path
 
 Before promotion beyond draft:
 
@@ -866,9 +1159,9 @@ The purpose is not to produce a perfect abstract model. The purpose is to give W
 
 ---
 
-## 26. v1.2 status
+## 27. v1.3 status
 
-This is a **v1.2 draft integration model** created under Principal direction and canonical intake `PL-SEM-01`, incorporating the first and second independent adversarial reviews.
+This is a **v1.3 draft integration model** created under Principal direction and canonical intake `PL-SEM-01`, incorporating the first and second independent adversarial reviews and the focused identity–association–assertion specimen reconciliation.
 
 It is durable project memory and a review target.
 
@@ -876,6 +1169,6 @@ It is **not** ratified Category A/B architecture and does not override existing 
 
 The second independent adversarial review has completed. Three v1 material findings were resolved and the counterfactual-versus-realized finding was substantially but only partially resolved.
 
-The next authorized pressure is a **focused identity–association–assertion reconciliation** against strategic-SPY/partial-assignment, Wheel-cycle, HOLD/CLOSE, and long-straddle control specimens. It must settle semantic identities and invariants without opening DDD design.
+The focused identity–association–assertion reconciliation has completed and is recorded in Section 21. It settles enough semantic separation to continue maturation while leaving ratification blocked on the explicitly listed residual questions.
 
-Broader practitioner-strategy mechanics/outlook/applicability analysis is pinned as subsequent semantic pressure, not silently folded into this focused pass. DDD decomposition remains downstream.
+The next authorized pressure is the previously pinned **broader practitioner-strategy falsification pass**, decomposing conventional strategy treatments across mechanics, formation cash flows, payoff geometry, scenario thesis, volatility/time exposure, lifecycle, applicability, capability/feasibility, and external vocabulary without creating a universal `Strategy` type. DDD decomposition remains downstream.
