@@ -370,7 +370,7 @@ Moneyness, delta, DTE, premium, assignment probability, construction, and conven
 
 Candidate definition:
 
-> **An Intent Assertion is an authoritative, scoped, time-bounded statement binding a subject to a purpose or stance toward a possible outcome.**
+> **An Intent Assertion is provisionally an authoritative, scoped, time-bounded Outcome Stance toward a specified possible outcome. Objective/Purpose is a separate semantic kind.**
 
 The second adversarial review narrows the surviving model:
 
@@ -396,7 +396,7 @@ A prohibited outcome is not merely a very low-ranked outcome.
 
 ### Policy remains distinct
 
-Intent says what outcome/purpose applies to a subject. Policy supplies constraints, prohibitions, thresholds, and preferences governing decisions.
+Objective/Purpose says what result or function a mandate, program, or deployment seeks over a horizon. An Intent Assertion, if that name survives, says what Outcome Stance authoritatively applies to a scoped possible outcome. Policy supplies constraints, prohibitions, thresholds, and preferences governing decisions.
 
 An authoritative policy may imply an outcome stance only when its applicability and subject binding are explicit.
 
@@ -439,7 +439,8 @@ These are separate semantic layers.
 | Event / Mechanical Effect | What actually occurred, and what does domain mechanics make that occurrence do? |
 | Reconciled Outcome | What resulting state/economic result has authoritative evidence and reconciliation accepted into history? |
 | Economic Attribution | How is that realized result governed/accounted for? |
-| Intent | What purpose/outcome stance authoritatively applies? |
+| Objective / Purpose | What result or function does the governed subject seek over the relevant horizon? |
+| Intent / Outcome Stance | What authoritative desirability/acceptability stance applies to the specified possible outcome? |
 | Policy | What is permitted, prohibited, constrained, or preferred? |
 | Alignment | How consistent is the current trajectory with the governed plan? |
 
@@ -746,7 +747,7 @@ A future primitive register should contain only concepts that survive decomposit
 | PMCC / diagonal | multi-expiry construction; lifecycle complexity; no literal share-coverage assumption |
 | BWB / HBWB | asymmetric consequence surface; desired tail behavior; tolerated intermediate valley |
 | HOLD | normalized no-transaction Alternative; Decision Subject; continuing obligation/exposure; actual/asserted/reconciled state; capability not confused with action; next decision boundary |
-| CLOSE | Alternative; contemplated Action; operator commitment/cancellation; broker Order and cancel/replace where applicable; partial/full Execution vs execution observation/assertion; counterfactual close cost vs realized fill; reconciled residual capital/inventory state |
+| CLOSE | Alternative; contemplated Action; operator commitment and possible withdrawal; broker cancellation request/state and cancel/replace where applicable; partial/full Execution vs execution observation/assertion; counterfactual close cost vs realized fill; reconciled residual capital/inventory state |
 | Long straddle control | two long option rights; same-underlying/same-strike/same-expiration leg relationships; two opening debits; no underlying inventory requirement; bilateral convex payoff; quantity/unit correctness; Decision Subject; purpose/outcome stance not inferred from construction; no covered-call-style assignment-intent assumption |
 
 A candidate semantic distinction that cannot survive these specimens should not be promoted.
