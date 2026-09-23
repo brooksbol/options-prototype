@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-22T20:52:41.293Z",
+    "generatedAt": "2026-09-23T18:37:52.000Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -31,7 +31,7 @@
         "experiment": 7
       },
       "arTotal": 10,
-      "plTotal": 63,
+      "plTotal": 64,
       "plWithExplicitRelationship": 7,
       "graduatedTotal": 29,
       "adrTotal": 18,
@@ -40,10 +40,10 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 25,
-      "logTotal": 64,
+      "logTotal": 65,
       "logIntakeEvidenceEvents": 12,
       "plWithIntakeDate": 12,
-      "plWithoutIntakeDate": 51
+      "plWithoutIntakeDate": 52
     },
     "notes": []
   },
@@ -3099,6 +3099,75 @@
           "heading": "Next authorized mode",
           "level": 3,
           "content": "**Further exploration / problem-space appraisal only.**\n\nThe next bounded activity, when Principal-selected, is to appraise the four surfaces from incumbent evidence, starting from capabilities and fitness rather than vendors or mechanisms. Strategic and architectural reconciliation remain required before this item can become **RECONCILED**. No solution-space survey or implementation is authorized by intake.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "PL-SEM-01",
+      "name": "Wheelwright Canonical Semantic Model / Domain Integration",
+      "section": "Reconciliation / continuation record",
+      "description": "**Draft:** `docs/58-wheelwright-semantic-model-v1.md` Trigger: Options-intent/nomenclature work and independent Codex information-architecture review demonstrated that Wheelwright has mature semantic submodels but no canonical integrated ontology/domain model.",
+      "descriptionTruncated": false,
+      "state": "INTAKE + bounded design draft created under explicit Principal direction; not ratified architecture and no implementation migration authorized",
+      "sourceFile": "parking-lot-9.md",
+      "relatedLvtIds": [],
+      "relatedArIds": [],
+      "sections": [
+        {
+          "heading": "",
+          "level": 0,
+          "content": "**Draft:** `docs/58-wheelwright-semantic-model-v1.md`  \n**Trigger:** Options-intent/nomenclature work and independent Codex information-architecture review demonstrated that Wheelwright has mature semantic submodels but no canonical integrated ontology/domain model.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "What was discovered",
+          "level": 3,
+          "content": "Wheelwright has strong bounded models for options mechanics, evidence semantics, position monitoring, Portfolio Capital, Production, Situation/regime context, broker/account projections, lifecycle consequences, and application architecture. It does not have one canonical semantic integration layer establishing how those concepts compose.\n\nThe current `docs/02-domain.md` is an early-slice mixed artifact (domain knowledge, calculations, provider-neutral data shapes, prototype assumptions, and local decisions), not a complete Wheelwright domain model.\n\nConcrete pressure includes:\n\n- `strategy` is legitimate practitioner vocabulary but overloaded across construction, mechanism, program, and policy-matching uses;\n- `intent` has strong negative non-inference invariants but no integrated positive identity/scope/time model;\n- Position, Inventory, Capital State, Alternative, Consequence, Deployment, Recommendation, and Outcome have partial or context-local semantics;\n- authority/provenance/time rules have been repeatedly established locally without a common semantic assertion grammar;\n- mechanically valid and policy-admissible Alternatives may still be non-executable because of broker/account/collateral/liquidity/support constraints, exposing a capability/executability dimension;\n- future DDD questions (bounded contexts, aggregates, anti-corruption layers, context maps) should follow semantic ownership/invariants rather than precede them.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Reconciliation against existing identity",
+          "level": 3,
+          "content": "Repository and parking-lot search found no existing `PL-*` identity whose scope is the canonical integration of Wheelwright's semantic world. Existing items own narrower concerns (portfolio maturity, recommendation placement, strategy expansion, lifecycle evidence, security/authorization, etc.) and should remain distinct.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Strategic disposition",
+          "level": 3,
+          "content": "**No roadmap change.** This work does not create a new Product Bet. It strengthens the existing trustability, choices/consequences, outcomes, learning, and continuity directions by reducing semantic ambiguity beneath them.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Architectural disposition",
+          "level": 3,
+          "content": "**New cross-cutting semantic-integration pressure; bounded draft only.** The v1 draft proposes one eventual Wheelwright Semantic Model containing ontology and operational-domain-model concerns, with explicit treatment of identity/scope, portfolio topology, state/event/transition/program/lifecycle, semantic assertions, authority/provenance, time/history, intent/policy, Alternatives/consequences, capability/executability, decision semantics, accounting relationships, and mappings from conventional market vocabulary.\n\nThis intake does **not** ratify the draft as Category A/B architecture.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Why-state",
+          "level": 3,
+          "content": "- Principal discussion on September 23, 2026: options nomenclature and intent semantics exposed the missing world model.\n- Independent Codex review: `wheelwright-information-architecture-proposal-review.md` session artifact; durable conclusions are incorporated into `docs/58-wheelwright-semantic-model-v1.md`.\n- Project journal entry dated September 23, 2026.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Explicitly not authorized",
+          "level": 3,
+          "content": "No code/schema migration; no rename or rewrite of `02-domain.md`; no new ADR; no bounded-context, aggregate, repository, domain-service, ACL, CQRS, or event-sourcing design; no generalized runtime framework; no recommendation/UI/execution behavior change.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Reconciliation Completion Record",
+          "level": 3,
+          "content": "- **Intake:** `PL-SEM-01`\n- **Strategic disposition:** strengthens existing strategic directions; **no `docs/roadmap.md` change**\n- **Architectural disposition:** new cross-cutting semantic-integration pressure represented by a bounded Category E draft; **not ratified architecture**\n- **Parking-lot disposition/mapping:** retained as new `PL-SEM-01`; related to but not merged with `PL-PORT-01`, `PL-ARCH-06`, `PL-STRAT-01`, `PL-POL-01`, Situation architecture, and current evidence/accounting semantics\n- **Why-state:** `docs/58-wheelwright-semantic-model-v1.md` + September 23, 2026 project-journal entry\n- **Next authorized mode:** adversarial review / specimen-driven semantic reconciliation only; implementation requires separate authority",
           "truncated": false,
           "tables": []
         }
@@ -7174,7 +7243,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 417
+      "sourceOrder": 425
     },
     {
       "plId": null,
@@ -7317,7 +7386,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 410
+      "sourceOrder": 418
     },
     {
       "plId": null,
@@ -7330,7 +7399,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 411
+      "sourceOrder": 419
     },
     {
       "plId": null,
@@ -7343,7 +7412,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 412
+      "sourceOrder": 420
     },
     {
       "plId": null,
@@ -7356,7 +7425,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 415
+      "sourceOrder": 423
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -7382,7 +7451,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 413
+      "sourceOrder": 421
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -7564,7 +7633,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 393
+      "sourceOrder": 401
     },
     {
       "plId": null,
@@ -7577,7 +7646,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 394
+      "sourceOrder": 402
     },
     {
       "plId": null,
@@ -7590,7 +7659,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 395
+      "sourceOrder": 403
     },
     {
       "plId": null,
@@ -7603,7 +7672,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 396
+      "sourceOrder": 404
     },
     {
       "plId": null,
@@ -7616,7 +7685,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 397
+      "sourceOrder": 405
     },
     {
       "plId": null,
@@ -7629,7 +7698,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 398
+      "sourceOrder": 406
     },
     {
       "plId": null,
@@ -7642,7 +7711,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 399
+      "sourceOrder": 407
     },
     {
       "plId": null,
@@ -7655,7 +7724,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 400
+      "sourceOrder": 408
     },
     {
       "plId": null,
@@ -7668,7 +7737,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 401
+      "sourceOrder": 409
     },
     {
       "plId": null,
@@ -7681,7 +7750,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 402
+      "sourceOrder": 410
     },
     {
       "plId": null,
@@ -7694,7 +7763,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 403
+      "sourceOrder": 411
     },
     {
       "plId": null,
@@ -7707,7 +7776,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 404
+      "sourceOrder": 412
     },
     {
       "plId": null,
@@ -7720,7 +7789,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 405
+      "sourceOrder": 413
     },
     {
       "plId": null,
@@ -7733,7 +7802,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 406
+      "sourceOrder": 414
     },
     {
       "plId": null,
@@ -7746,7 +7815,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 407
+      "sourceOrder": 415
     },
     {
       "plId": null,
@@ -7759,7 +7828,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 408
+      "sourceOrder": 416
     },
     {
       "plId": null,
@@ -7772,7 +7841,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 409
+      "sourceOrder": 417
     },
     {
       "plId": null,
@@ -7785,7 +7854,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 414
+      "sourceOrder": 422
     },
     {
       "plId": null,
@@ -7798,7 +7867,20 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 416
+      "sourceOrder": 424
+    },
+    {
+      "plId": "PL-SEM-01",
+      "bugId": null,
+      "title": "PL-SEM-01 — Wheelwright Canonical Semantic Model / Domain Integration",
+      "eventKind": "intake",
+      "establishesIntake": false,
+      "eventDateText": "September 23, 2026",
+      "eventDateIso": "2026-09-23",
+      "state": "INTAKE + bounded design draft created under explicit Principal direction; not ratified architecture and no implementation migration authorized",
+      "headingLevel": 2,
+      "sourceFile": "parking-lot-9.md",
+      "sourceOrder": 393
     }
   ],
   "intakeDateUnknown": [
@@ -7847,6 +7929,7 @@
     "PL-RESEARCH-03",
     "PL-RESEARCH-04",
     "PL-SCHED-DRIFT",
+    "PL-SEM-01",
     "PL-SHELL",
     "PL-STRAT-01",
     "PL-SURF-01",
