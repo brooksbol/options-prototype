@@ -545,3 +545,25 @@ This overlay remains research only. It does not promote practitioner findings in
 
 Because `PL-RESEARCH-05` in `docs/parking-lot-9.md` was updated to include this new durable research state, the Roadmap projection requires the ordinary repository-local regeneration and freshness check before this persistence pass is fully synchronized.
 
+---
+
+## 2026-09-23 — Practitioner Corpus reconciliation overlay rolled to Revision 1.1
+
+An independent review of frozen Practitioner Corpus v1 strongly corroborated its provenance architecture, evidence/inference separation, and the decision to leave v1 frozen while placing later verification in a separate overlay.
+
+The review also added bounded research pressure that was not yet durable. The reconciliation overlay at `docs/research/practitioner-corpus/practitioner-corpus-v1-reconciliation-2026-09-23.md` was therefore rolled to **Revision 1.1** rather than editing Practitioner Corpus v1.
+
+Revision 1.1 preserves three main additions:
+
+- exclusion of studies 13–24 creates **topic-specific coverage holes**, particularly around neutral / volatility-premium multi-leg structures and several practitioner-process topics; admission is therefore a coverage-topology issue, not merely a sample-size issue;
+- generic v1 synthesis language such as “the practitioner” must be read as **the retail premium-selling practitioner represented by this corpus**, not as representative of market makers, institutional buy-side practice, systematic-volatility practice, or the options profession generally;
+- future verification work should distinguish **VERIFY_BY_REFERENCE** for contractual/mechanical/theoretical claims from **VERIFY_BY_EVIDENCE** for empirical performance/frequency/edge/behavior claims. This is a methodological refinement only; the frozen v1 charter and tags were not retroactively changed.
+
+The review also identified useful overlay relationships CON-001↔PAT-005 and CON-003↔PAT-003, while correctly treating portfolio-level aggregation and taxes as important source omissions. The stronger claim that those omissions automatically block downstream Product design was not promoted; that judgment belongs to later governed reconciliation.
+
+Current verification state remains **9 closed / 3 open** (#9 20/50 covered-call filter, #10 0DTE seller-edge erosion, #11 source trace for the 12% leadership statistic).
+
+This revision remains research-only and creates no Wheelwright Product, semantic, domain, policy, architecture, roadmap, or implementation authority.
+
+Because canonical `PL-RESEARCH-05` was updated to record Revision 1.1, the ordinary Roadmap derived-projection regeneration/freshness check is again required before the persistence pass is fully synchronized.
+
