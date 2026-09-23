@@ -1080,3 +1080,48 @@ No bounded contexts, aggregates, repositories, domain services, anti-corruption 
 #### Next authorized mode
 
 **Independent adversarial review of v1.1 plus specimen pressure.** Review should attempt to falsify the revised distinctions, especially Event/Observation/Reconciliation, Capability/Feasibility/Support, Candidate/Alternative, Position/Complete Position, and Counterfactual Consequence/Realized Outcome. No Principal decision is required to perform that review.
+
+
+### `PL-SEM-01` Refinement — v1.2 identity–association–assertion reconciliation opened
+
+**Date:** September 23, 2026  
+**State:** REFINEMENT — second adversarial review accepted as semantic pressure; focused Option-C continuation opened; long-straddle control specimen added; broader practitioner-strategy analysis pinned for later pressure
+
+The second independent adversarial review found Semantic Model v1.1 materially improved and governance-correct, with no withdrawal required. Three original material defects were resolved; counterfactual-versus-realized semantics was partially resolved. Ratification remains blocked by Position identity, quantified portfolio associations, assertion applicability/validity, actual-versus-reconciled state, and the Intent boundary.
+
+The Principal agreed to the recommended focused **identity–association–assertion reconciliation** rather than ratification or broad vocabulary review.
+
+#### Immediate specimen set
+
+1. strategic SPY inventory with multiple lots/inventory blocks and overwrite calls;
+2. partial assignment with late broker evidence;
+3. Wheel program across a cycle boundary;
+4. HOLD versus CLOSE with residual state;
+5. **long straddle control specimen**, deliberately outside the current covered-call/CSP/Wheel center of gravity.
+
+The long straddle is a falsification control, not a scope expansion into generalized strategy research. It tests whether Holding/Obligation, Economic Construction, Decision Subject, Complete Position, Outcome Stance, quantity/unit, Event/Observation/Assertion, and reconciliation semantics generalize to two long option rights without underlying inventory or short-option obligation assumptions.
+
+#### Additional semantic pressure accepted
+
+The focused pass must address:
+
+- Holding/Obligation Record vs Economic Construction vs Decision Subject vs Complete Position vs provisional Lifecycle Subject/Episode;
+- quantified/time-scoped coverage, allocation, encumbrance, pool, mandate, and program associations;
+- World/Economic State vs source Observation vs Assertion vs Reconciled State;
+- assertion applicability, identity binding, validity dependencies, revocation/correction, authority, conflict, and absence semantics;
+- Objective/Purpose vs Outcome Stance vs Constraint vs Preference, with `Intent` still provisional;
+- quantity/unit semantics;
+- Event Observation vs Event Assertion;
+- Mechanical Event Effect as derived semantics rather than a chronological Event;
+- commitment/cancellation/cancel-replace/partial-execution semantics;
+- reproducible decision trace.
+
+#### Pinned subsequent pressure
+
+The Principal separately identified useful practitioner evidence from a high-quality educational treatment of conventional options “strategies.” The material appears to decompose named strategies across mechanics, leg relationships, opening debit/credit, payoff geometry, directional/magnitude scenario criteria, volatility/time exposure, lifecycle behavior, and use case/applicability.
+
+That broader analysis is **pinned, not yet promoted**. After the focused identity–association–assertion reconciliation stabilizes, it should be used as a broader falsification corpus to test whether Wheelwright can represent practitioner strategy bundles without making `Strategy` one universal canonical type or conflating market thesis/applicability with Intent.
+
+#### Boundary retained
+
+No ratification, implementation migration, bounded-context design, aggregate design, repository/domain-service design, anti-corruption-layer design, context map, CQRS/event sourcing, or persistence-schema work is authorized by this refinement.
