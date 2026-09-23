@@ -1173,3 +1173,28 @@ The focused identity–association–assertion reconciliation has completed and 
 The Principal selected the bounded coherence-and-source-binding path (Option B). The practitioner source is durably bound as YouTube video ID `5BMMrfBtA_c`, URL `https://youtu.be/5BMMrfBtA_c?si=YqV2dB-SEdyzFUpk`; title/channel/transcript and individual claims remain to be established rather than invented.
 
 After independent review of this coherence repair, the next pressure is the previously pinned **broader practitioner-strategy falsification pass**, decomposing conventional strategy treatments across mechanics, formation cash flows, payoff geometry, scenario thesis, volatility/time exposure, lifecycle, applicability, capability/feasibility, and external vocabulary without creating a universal `Strategy` type. DDD decomposition remains downstream.
+
+
+---
+
+## 28. Practitioner-strategy falsification result — September 24, 2026
+
+The Principal selected Option D: continue semantic falsification before implementation. The previously pinned practitioner-strategy pass has now been executed and is recorded in `docs/59-practitioner-strategy-semantic-falsification-2026-09-24.md`.
+
+Source metadata is now established for the bound YouTube video ID `5BMMrfBtA_c`: title **Every Options Trading Strategy Explained**, publisher/channel **The Cashflow Academy**, publication date **June 30, 2026**, with eleven chapter labels from Long Call through Calendar Spread. Detailed transcript-derived claims remain subject to the evidence boundary in the falsification artifact; machine/secondary extraction is not silently promoted to primary authority.
+
+### Result
+
+The corpus does **not** falsify the v1.3 decomposition of conventional strategy vocabulary. It reinforces that a practitioner strategy label may bundle construction, formation cash flow, payoff geometry, common scenario/use criteria, volatility/time exposure, and lifecycle behavior without establishing one universal canonical `Strategy` identity.
+
+One material refinement pressure emerged:
+
+> **Scenario / Market Thesis** — provisionally, a scoped and time-bounded claim or assumption about possible market evolution used in counterfactual evaluation. It may concern direction, magnitude, volatility, path, correlation, rates, or other market variables. It is not Objective/Purpose, Outcome Stance, Preference, Policy, or realized state.
+
+The practitioner `-2/-1/0/+1/+2` and one-standard-deviation framework is treated as source-specific pedagogy/heuristic unless its model, horizon, volatility input, units, and probability semantics are established. It must not be converted into Intent or a universal strategy property.
+
+### Disposition
+
+v1.3 survives the broader practitioner-strategy corpus **with refinement pressure, not ratification**. Scenario/Market Thesis now requires focused adversarial specimens to determine whether it deserves durable semantic identity or is better represented as a governed Assertion family.
+
+DDD decomposition and implementation migration remain downstream and unauthorized.
