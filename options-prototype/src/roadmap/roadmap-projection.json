@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-23T22:47:49.726Z",
+    "generatedAt": "2026-09-23T23:10:44.427Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -31,7 +31,7 @@
         "experiment": 7
       },
       "arTotal": 10,
-      "plTotal": 65,
+      "plTotal": 66,
       "plWithExplicitRelationship": 7,
       "graduatedTotal": 29,
       "adrTotal": 18,
@@ -40,10 +40,10 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 25,
-      "logTotal": 72,
+      "logTotal": 73,
       "logIntakeEvidenceEvents": 13,
       "plWithIntakeDate": 13,
-      "plWithoutIntakeDate": 52
+      "plWithoutIntakeDate": 53
     },
     "notes": []
   },
@@ -3452,7 +3452,83 @@
         {
           "heading": "Next authorized research action",
           "level": 3,
-          "content": "Continue bounded research by receiving and preserving the blind Muse 84-symbol follow-on, then build the longitudinal 2×2 derived crosswalk from Wheelwright historical observations plus the mirror strong-structure/little-or-no-usefulness cohort. Preserve usefulness frequency, recency, strategy provenance, acquisition cost, contemporaneous executability, temporal structural quality, and evidence quality separately. Do not promote findings to universe, servicing, suitability, scheduler, or Product policy without a later governed decision.",
+          "content": "Continue bounded research by receiving and preserving the blind Muse 84-symbol follow-on, then build the longitudinal 2×2 derived crosswalk from Wheelwright historical observations plus the mirror strong-structure/little-or-no-usefulness cohort. Preserve usefulness frequency, recency, strategy provenance, acquisition cost, contemporaneous executability, temporal structural quality, and evidence quality separately. Do not promote findings to universe, servicing, suitability, scheduler, or Product policy without a later governed decision.\n\n\n---",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "PL-RESEARCH-05",
+      "name": "Practitioner Corpus / Practitioner-Evidence Research Program",
+      "section": "Reconciliation / continuation record",
+      "description": "Trigger: The Practitioner Corpus v1 workstream produced a frozen research methodology, a completed transcript-backed practitioner corpus, and a corpus-first Product Challenge experiment that demonstrated useful independent convergence, product pressure, and at least one capability family not found in current Wheelwright. The Principal selected durable intake so this research program can stop cleanly without losing its identity, method, evidence, or next research direction.",
+      "descriptionTruncated": false,
+      "state": "INTAKE / ACTIVE RESEARCH — durable practitioner-evidence workstream; research and falsification only; no Product, policy, semantic, architecture, roadmap, or implementation consequence is authorized by this intake",
+      "sourceFile": "parking-lot-9.md",
+      "relatedLvtIds": [],
+      "relatedArIds": [],
+      "sections": [
+        {
+          "heading": "",
+          "level": 0,
+          "content": "**Trigger:** The Practitioner Corpus v1 workstream produced a frozen research methodology, a completed transcript-backed practitioner corpus, and a corpus-first Product Challenge experiment that demonstrated useful independent convergence, product pressure, and at least one capability family not found in current Wheelwright. The Principal selected durable intake so this research program can stop cleanly without losing its identity, method, evidence, or next research direction.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Research question",
+          "level": 3,
+          "content": "> How can independently preserved practitioner evidence be used to discover, pressure-test, corroborate, falsify, and refine Wheelwright's understanding of real options decision work without allowing Wheelwright's existing semantics or product shape to contaminate the practitioner evidence?\n\nThis is a practitioner-evidence research program. It is not a feature initiative, requirements backlog, trading-policy source, canonical options reference, or implementation program.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Durable research package",
+          "level": 3,
+          "content": "Current durable artifacts:\n\n- `docs/research/practitioner-corpus/practitioner-corpus-v1-charter.md` — frozen v1 methodology and extraction protocol;\n- `docs/research/practitioner-corpus/practitioner-corpus-v1.md` — completed Practitioner Corpus v1 derived from the 24 admitted transcript-backed sources;\n- `docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md` — preserved upstream Muse artifact; description-only studies remain preserved but were excluded from v1 evidentiary contribution under the charter;\n- `docs/research/practitioner-corpus/product-challenge-test-2-2026-09-23.md` — durable Test 2 research result: ten corpus-first hypotheses frozen before Wheelwright bootstrap, subsequent reconciliation, existing-feature challenge, and experimental assessment.\n\nThe research directory owns evidence, methodology, experiment reports, future corpus versions, and supporting analyses. This `PL-*` record owns the durable project identity, why-state, boundaries, current research disposition, and relationship to downstream governed concerns.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Established findings entering intake",
+          "level": 3,
+          "content": "The completed corpus is useful as more than a glossary or strategy catalog. It preserves practitioner decision jobs, frictions, failure modes, relationships, exceptions, contradictions, specimens, vocabulary, heuristics, empirical claims and verification backlog.\n\nProduct Challenge Test 2 supplied an initial bounded test of the corpus as a downstream research instrument:\n\n- ten capability hypotheses were derived and frozen from the corpus before current Wheelwright Product/implementation bootstrap;\n- reconciliation found **9 PARTIALLY EXISTS** and **1 NOT FOUND**, with the clear missing family being cross-expiry residual-leg management;\n- strongest existing-capability corroboration included Assignment Consequence, Recommendation Brief, and Unencumbered Shares/capacity semantics;\n- strongest pressure included covered-call opportunity cost, predeclared invalidation/planned-loss semantics, monitoring beyond state display, volatility as qualification, single-leg lifecycle boundaries, and probability/payoff comparison.\n\nThese are research findings, not Product decisions. Rediscovery of existing capability is a useful result rather than experimental failure; novelty is not the sole success criterion.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Research method / contamination boundary",
+          "level": 3,
+          "content": "The durable direction is:\n\n> **practitioner evidence → corpus → blind hypotheses/challenges → freeze → Wheelwright bootstrap → reconciliation**\n\nPractitioner evidence should remain Wheelwright-blind where practical. Downstream reconciliation may use the corpus to challenge Wheelwright, but must not retroactively rewrite the corpus to make Wheelwright appear aligned or misaligned.\n\nCorpus-derived practitioner pressure, Wheelwright evidence, and analyst inference must remain distinguishable.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Relationship to existing governed concerns",
+          "level": 3,
+          "content": "- **`PL-SEM-01`:** may consume practitioner-corpus pressure for semantic falsification; it does not own or redefine the corpus.\n- **Product / Decision / Deployment capability work:** may later consume validated research findings through normal idea intake/reconciliation; no feature requirement is created here.\n- **Options Domain Reference:** may later consume independently verified domain findings; practitioner claims do not become mechanics by recurrence.\n- **`PL-RESEARCH-01`–`PL-RESEARCH-04`:** existing research identities demonstrate that research work belongs within the canonical parking-lot mechanism; this item owns the practitioner-evidence program specifically.\n- **`PL-EVID-OBS`:** parallel current precedent for an `INTAKE / ACTIVE RESEARCH` item whose research findings do not themselves authorize Product or policy change.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Explicit non-decisions / guardrails",
+          "level": 3,
+          "content": "This intake does **not** authorize:\n\n- adding any Test 2 hypothesis to the Product roadmap;\n- treating a practitioner heuristic as Wheelwright policy or domain mechanics;\n- changing the semantic model, options-domain reference, architecture, recommendation policy, lifecycle behavior, or UI;\n- implementing cross-expiry residual-leg management or any other candidate capability;\n- rewriting Practitioner Corpus v1 based on downstream Wheelwright reconciliation;\n- treating frequency of practitioner mention as importance, correctness, or empirical validity;\n- treating Test 2 as pristine double-blind validation or proof of statistical independence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Why-state",
+          "level": 3,
+          "content": "The workstream reached a natural stopping point after corpus construction and the first successful corpus-first Product Challenge. Without a canonical identity, future work would have to reconstruct from individual research files why the corpus exists, how it is meant to pressure Wheelwright, what contamination boundary matters, and what the first experiment established.\n\nThe Principal therefore selected **Option A** on September 23, 2026: create a dedicated practitioner-evidence research PL and preserve the corpus Product Challenge Test 2 output as a separate research artifact.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Next authorized mode",
+          "level": 3,
+          "content": "**Research only, when deliberately resumed.** Reacquire this item and its durable research package before extending the corpus or running another corpus-first challenge. Any proposed Product, semantic, domain, architecture, policy, roadmap, or implementation consequence must enter its applicable downstream governed reconciliation rather than being promoted directly from practitioner research.",
           "truncated": false,
           "tables": []
         }
@@ -7528,7 +7604,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 461
+      "sourceOrder": 470
     },
     {
       "plId": null,
@@ -7671,7 +7747,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 454
+      "sourceOrder": 463
     },
     {
       "plId": null,
@@ -7684,7 +7760,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 455
+      "sourceOrder": 464
     },
     {
       "plId": null,
@@ -7697,7 +7773,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 456
+      "sourceOrder": 465
     },
     {
       "plId": null,
@@ -7710,7 +7786,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 459
+      "sourceOrder": 468
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -7736,7 +7812,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 457
+      "sourceOrder": 466
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -7918,7 +7994,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 437
+      "sourceOrder": 446
     },
     {
       "plId": null,
@@ -7931,7 +8007,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 438
+      "sourceOrder": 447
     },
     {
       "plId": null,
@@ -7944,7 +8020,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 439
+      "sourceOrder": 448
     },
     {
       "plId": null,
@@ -7957,7 +8033,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 440
+      "sourceOrder": 449
     },
     {
       "plId": null,
@@ -7970,7 +8046,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 441
+      "sourceOrder": 450
     },
     {
       "plId": null,
@@ -7983,7 +8059,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 442
+      "sourceOrder": 451
     },
     {
       "plId": null,
@@ -7996,7 +8072,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 443
+      "sourceOrder": 452
     },
     {
       "plId": null,
@@ -8009,7 +8085,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 444
+      "sourceOrder": 453
     },
     {
       "plId": null,
@@ -8022,7 +8098,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 445
+      "sourceOrder": 454
     },
     {
       "plId": null,
@@ -8035,7 +8111,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 446
+      "sourceOrder": 455
     },
     {
       "plId": null,
@@ -8048,7 +8124,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 447
+      "sourceOrder": 456
     },
     {
       "plId": null,
@@ -8061,7 +8137,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 448
+      "sourceOrder": 457
     },
     {
       "plId": null,
@@ -8074,7 +8150,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 449
+      "sourceOrder": 458
     },
     {
       "plId": null,
@@ -8087,7 +8163,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 450
+      "sourceOrder": 459
     },
     {
       "plId": null,
@@ -8100,7 +8176,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 451
+      "sourceOrder": 460
     },
     {
       "plId": null,
@@ -8113,7 +8189,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 452
+      "sourceOrder": 461
     },
     {
       "plId": null,
@@ -8126,7 +8202,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 453
+      "sourceOrder": 462
     },
     {
       "plId": null,
@@ -8139,7 +8215,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 458
+      "sourceOrder": 467
     },
     {
       "plId": null,
@@ -8152,7 +8228,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 460
+      "sourceOrder": 469
     },
     {
       "plId": "PL-SEM-01",
@@ -8233,6 +8309,19 @@
       "sourceOrder": 427
     },
     {
+      "plId": "PL-RESEARCH-05",
+      "bugId": null,
+      "title": "PL-RESEARCH-05 — Practitioner Corpus / Practitioner-Evidence Research Program",
+      "eventKind": "intake",
+      "establishesIntake": false,
+      "eventDateText": "September 23, 2026",
+      "eventDateIso": "2026-09-23",
+      "state": "INTAKE / ACTIVE RESEARCH — durable practitioner-evidence workstream; research and falsification only; no Product, policy, semantic, architecture, roadmap, or implementation consequence is authorized by this intake",
+      "headingLevel": 2,
+      "sourceFile": "parking-lot-9.md",
+      "sourceOrder": 437
+    },
+    {
       "plId": "PL-SEM-01",
       "bugId": null,
       "title": "PL-SEM-01 Refinement — practitioner-strategy falsification completed",
@@ -8305,6 +8394,7 @@
     "PL-RESEARCH-01",
     "PL-RESEARCH-03",
     "PL-RESEARCH-04",
+    "PL-RESEARCH-05",
     "PL-SCHED-DRIFT",
     "PL-SHELL",
     "PL-STRAT-01",
