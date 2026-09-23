@@ -128,8 +128,8 @@ A primitive, if later claimed, must be semantically irreducible for Wheelwright 
 - **Asset**, **Right**, **Obligation** — distinct economically material constituents that may participate in a complete position.
 - **Lot** — broker/accounting inventory unit when authoritative lot identity exists.
 - **Inventory Block** — governed quantity of inventory treated together for mandate, encumbrance, lifecycle, or decision purposes; may correspond to one or more lots and must not manufacture lot identity.
-- **Position** — intentionally unresolved narrower identity used by broker, monitoring, construction, and lifecycle views; it must not silently mean Complete Position.
-- **Complete Position** — all material assets, cash, rights, obligations, collateral, encumbrance, and residual exposure required for correct economic reasoning about a subject.
+- **Position** — conventional/product vocabulary only at this integration level; it does not establish one canonical identity. Use the narrower semantic kind actually meant: Holding/Obligation Record, Economic Construction, Decision Subject, Complete Position, or a justified Lifecycle Subject/Episode.
+- **Complete Position** — a conclusion-relative governed closure/view containing the assets, cash, rights, obligations, collateral, encumbrance, and residual exposure economically material to a specified reasoning question; it is not presumed to be a persistent entity.
 - **Capital Boundary** — governed scope within which capital classification and rules apply.
 - **Capital Pool** — capital grouped within a boundary for a governed purpose; not synonymous with the boundary.
 - **Portfolio Mandate** — authoritative purpose/objective assigned to a capital or inventory scope.
@@ -139,7 +139,8 @@ A primitive, if later claimed, must be semantically irreducible for Wheelwright 
 
 - **State** — facts true of a subject at a time.
 - **Event** — an occurrence in the economic or operational world. An Event exists independently of when or whether Wheelwright observes it.
-- **Event Observation / Event Assertion** — evidence or an authoritative claim that an Event occurred, with provenance and time semantics.
+- **Event Observation** — evidence received or acquired that may support a claim that an Event occurred; it is not the Event or the claim.
+- **Event Assertion** — a claim that an Event occurred, bound to a subject and supported by observation, authority, or governed derivation.
 - **Transition** — a before/after semantic transformation. A contemplated transition is counterfactual; a reconciled transition is accepted as domain history.
 - **Reconciled Transition** — the accepted domain-state change attributed to an actual Event after sufficient evidence, association, and reconciliation.
 - **Process** — ordered activity producing or contemplating transitions.
@@ -151,7 +152,7 @@ A primitive, if later claimed, must be semantically irreducible for Wheelwright 
 
 - **Evidence Observation** — an observation with provenance and time semantics; it may support an Event Assertion but is not the Event.
 - **Authoritative Association** — a governed claim that two otherwise independent identities are related for a stated purpose.
-- **Intent Assertion** — an authoritative, scoped, time-bounded statement of purpose or stance toward an outcome. Whether purpose and outcome stance remain one concept is unresolved.
+- **Intent Assertion** — provisionally, an authoritative, scoped, time-bounded Outcome Stance toward a specified possible outcome. Objective/Purpose is a separate semantic kind; final naming as `Intent Assertion` versus `Outcome Stance Assertion` remains open.
 - **Policy Rule** — a governed decision rule.
 - **Constraint** — an admissibility/prohibition boundary.
 - **Preference** — an ordering among admissible alternatives/outcomes. Constraint and Preference must not be collapsed.
@@ -170,7 +171,8 @@ A primitive, if later claimed, must be semantically irreducible for Wheelwright 
 - **Action** — an operator/system act intended to cause or respond to a transition.
 - **Order / Broker Instruction** — a broker-facing instruction expressing an Action where applicable; not every Action is an Order.
 - **Execution** — actual execution occurrence in the broker/market world.
-- **Execution Observation / Assertion** — broker-authoritative or otherwise governed evidence establishing execution; not the Execution itself.
+- **Execution Observation** — broker-authoritative or otherwise governed evidence received about an execution; not the Execution itself.
+- **Execution Assertion** — a claim that an Execution occurred, with subject binding, authority, provenance, and time semantics.
 - **Accounting Stock**, **Accounting Flow**, **Accounting Attribution** — distinct accounting concept families; this model integrates their relationships but does not redefine the bounded Portfolio Capital / Production authorities.
 
 This list remains provisional. Promotion requires surviving semantic specimens and resolving identity, scope, authority, and temporal behavior.
@@ -248,16 +250,21 @@ The semantic model must be able to represent, where authoritative evidence exist
 
 ```text
 Account
-  └─ Capital Boundary / Pool
-       ├─ Mandate / Role
-       ├─ Inventory block(s) / lot(s)
-       ├─ Operating program(s)
-       └─ Positions / obligations / encumbrances
+  ├─ Capital Boundary
+  ├─ Capital Pool(s)
+  ├─ Lot(s) / governed Inventory Block(s)
+  ├─ Portfolio Mandate(s) / Inventory Role(s)
+  ├─ Operating Program(s)
+  └─ Holding / Obligation Record(s)
+
+Governed associations connect these identities/views:
+  allocation / pool membership / mandate binding / program membership
+  coverage / encumbrance / lifecycle association / accounting attribution
 ```
 
-The same symbol may plausibly participate in separately governed pools. Symbol identity therefore must not silently become mandate identity.
+This is an association topology, not a containment tree. The same symbol may participate in separately governed quantities and programs when allocation is explicit and mechanically non-conflicting. Symbol identity therefore must not silently become mandate identity.
 
-Whether lot-level identity is always required remains unresolved. A governed quantity block may be sufficient for some purposes.
+Lot identity is required only where authoritative lot identity matters. A governed Inventory Block may be sufficient for some purposes, but it must not manufacture broker/accounting lot identity.
 
 ---
 
@@ -684,16 +691,16 @@ Quantity and unit semantics are cross-cutting correctness concerns. Contracts, s
 - Instrument; Contract.
 - Asset; Right; Obligation.
 - Lot; Inventory Block.
-- Position; Complete Position; Economic Construction.
+- Holding/Obligation Record; Economic Construction; Decision Subject; Complete Position; provisional Lifecycle Subject/Episode. `Position` remains conventional/product vocabulary rather than a canonical identity.
 - Capital Boundary; Capital Pool.
 - Portfolio Mandate; Inventory Role.
-- State; Event; Event Observation/Assertion; Transition; Reconciled Transition.
+- World/Economic State; Reconciled State; Event; Event Observation; Event Assertion; Transition; Reconciled Transition.
 - Process; Operating Program; Lifecycle; Formation Provenance.
 - Evidence Observation; Authoritative Association; Semantic Assertion.
-- Intent Assertion; Policy Rule; Constraint; Preference; Situation; Regime.
+- Objective/Purpose; Outcome Stance (provisionally `Intent Assertion`); Policy Rule; Constraint; Preference; Situation; Regime.
 - Candidate; Alternative; Counterfactual Consequence.
 - Mechanical Event Effect; Reconciled Outcome; Economic Attribution.
-- Recommendation; Action; Order/Broker Instruction; Execution; Execution Observation/Assertion.
+- Recommendation; Action; Order/Broker Instruction; Execution; Execution Observation; Execution Assertion.
 - Capability; Current Feasibility/Executability; Wheelwright Support Status.
 - Accounting Stock; Accounting Flow; Accounting Attribution.
 
@@ -746,7 +753,7 @@ A candidate semantic distinction that cannot survive these specimens should not 
 
 The long-straddle specimen is deliberately a **control outside Wheelwright's current covered-call/CSP/Wheel center of gravity**. It tests whether the semantic core generalizes to options constructions rather than encoding current operating-program assumptions.
 
-Broader practitioner “strategy” material—including construction mechanics, opening debit/credit, payoff geometry, scenario/magnitude thesis, volatility/time exposure, applicability criteria, and conventional labels—remains **pending semantic pressure**. It is intentionally not promoted into the model until the focused identity–association–assertion reconciliation is stable.
+Broader practitioner “strategy” material—including construction mechanics, opening debit/credit, payoff geometry, scenario/magnitude thesis, volatility/time exposure, applicability criteria, and conventional labels—remains **pending semantic pressure**. It is intentionally not promoted into the model until the focused identity–association–assertion reconciliation is stable. The Principal-supplied source currently bound for that pressure is YouTube video ID `5BMMrfBtA_c`, URL `https://youtu.be/5BMMrfBtA_c?si=YqV2dB-SEdyzFUpk`, supplied in the governing conversation on 2026-09-23. Title/channel/transcript are not yet durably established; claims from the source must therefore be captured with segment/context and classified before use.
 
 ---
 
@@ -793,7 +800,7 @@ Core invariant:
 
 Additional invariants established by the specimens:
 
-- the same governed share quantity must not be treated as simultaneously available to cover two obligations unless an authoritative relation explicitly permits that economic use;
+- the same deliverable share unit cannot be allocated as full physical coverage to more than one simultaneous physically deliverable obligation. Portfolio-margin offsets, broker-recognized collateral treatments, or other risk offsets must be represented under their actual mechanically and broker-authoritatively established relation; authority cannot manufacture duplicate physical share coverage;
 - partial assignment changes only the assigned quantity and its affected associations; residual inventory and residual obligations retain independent identity;
 - one option obligation may be covered by quantities drawn from more than one lot/block only if the coverage allocation is explicit and quantity-correct;
 - program membership may survive expiration or resolution of an individual option obligation;
@@ -927,7 +934,7 @@ HOLD proves that an Alternative is not synonymous with a transaction.
 
 For a scoped Decision Subject:
 
-- **HOLD** preserves the current governed exposure/obligation until a stated decision boundary or invalidating condition;
+- **HOLD** is a no-current-transaction Alternative that continues the existing obligation/exposure toward the next decision or lifecycle boundary while preserving later operator optionality; it does not freeze state, market sensitivity, value, or prevent externally caused assignment, expiration, exercise, or other lifecycle Events;
 - **CLOSE** contemplates an Action that may produce a broker instruction/order and, if executed, a resulting state.
 
 The ladder remains semantically distinct:
@@ -948,7 +955,7 @@ Alternative
 
 This is not a mandatory implementation state machine.
 
-**Commitment** is the missing semantic bridge: operator selection does not by itself prove broker submission, and staging does not prove broker acceptance. Withdrawal/cancellation can terminate a commitment before execution. Cancel/replace relates successor broker instructions/orders to the governing Action without pretending the original order never existed. Partial execution creates realized quantity plus residual open quantity; it does not collapse into either “executed” or “not executed.”
+**Commitment** remains a provisional semantic bridge: operator selection does not by itself prove broker submission, and staging does not prove broker acceptance. **Withdrawal** concerns operator/system commitment or contemplated Action. A **cancellation request** is a broker-facing Action/Instruction, while **canceled order state** requires broker-authoritative evidence and may fail if execution has already occurred. Cancel/replace may preserve a broader commitment while replacing an Order; it must relate successor instructions/orders without pretending the original Order never existed. Partial execution creates realized quantity plus residual open quantity and may leave residual commitment or prompt withdrawal of the remainder. The exact commitment boundary remains open.
 
 Broker-authoritative evidence is required for broker order/execution state. Operator/system authority can establish selection, commitment, or staging but cannot manufacture a broker fill.
 
@@ -1093,30 +1100,21 @@ No bounded context or aggregate is ratified by this v1 draft.
 
 ## 24. Open identity and scope questions
 
-This draft intentionally leaves unresolved:
+The focused v1.3 specimens settled several earlier questions; they are no longer repeated here. This draft intentionally leaves unresolved:
 
-- What makes a Position the same Position over time?
-- Does a position survive expiration/replacement of one leg?
-- Is buy-write current identity or formation provenance only?
-- Does a covered-call position contain shares or reference an inventory block?
-- Can one short call be covered by multiple lots?
-- Can one symbol contain separately governed strategic and disposable pools?
-- What identifies a mandate?
-- What identifies a Wheel program across cycles?
-- What identifies one Wheel cycle?
-- Is Deployment a decision, capital episode, transaction, or resulting state?
-- What is the scope boundary of a Situation?
-- Is Intent the umbrella for purpose + outcome stance, or outcome stance only?
-- Which operator interactions create authoritative intent?
+- Is a durable Lifecycle Subject/Episode required for each operating program, and what identity survives leg expiration/replacement, roll, partial close, assignment, or residual inventory?
+- What identifies a Portfolio Mandate, an Operating Program, and one Wheel cycle/episode across time?
+- Is Deployment a decision, capital episode, transaction, resulting state, or source-specific umbrella term?
+- What is the scope boundary and identity behavior of a Situation versus a Regime?
+- Which operator interactions create authoritative Outcome Stance assertions, and should the canonical name remain `Intent Assertion` or become `Outcome Stance Assertion`?
 - What capability facts are durable versus point-in-time observations?
-- Does Candidate earn a durable semantic identity distinct from Alternative, or is it only discovery-stage vocabulary?
-- Which Position identities are required in addition to Complete Position and Economic Construction?
-- What narrower `Position` identity, if any, survives once Holding/Obligation Record, Economic Construction, Decision Subject, Complete Position, and Lifecycle Subject/Episode are distinguished?
-- What are the quantity, unit, interval, exclusivity/overlap, authority, and conflict invariants for coverage, encumbrance, allocation, pool membership, mandate binding, and program membership?
-- Can Capital Pools overlap, and may one governed share quantity cover more than one obligation at the same effective time?
-- Which Event observations/assertions are sufficient for reconciliation in each lifecycle?
-- When does operator selection become durable commitment, and how do withdrawal, cancellation, cancel/replace, and partial execution relate to the original Action and Order?
-- Which capability/support dimensions need explicit state machines versus assertions?
+- Does Candidate earn a durable semantic identity distinct from Alternative, or remain discovery-stage vocabulary?
+- What are the exact authority matrices and quantity/unit/interval/conflict invariants for coverage, encumbrance, allocation, Capital Pool membership, mandate binding, program membership, lifecycle association, and accounting attribution?
+- Can Capital Pools overlap or must particular pool kinds partition a Capital Boundary? This must not be confused with duplicate physical coverage, which is mechanically prohibited for the same deliverable share unit across simultaneous obligations.
+- Which Event observations and assertions are sufficient for reconciliation in each lifecycle?
+- What exact semantic boundary constitutes operator/system Commitment, and how do withdrawal, cancellation request, broker-canceled state, cancel/replace, partial execution, and residual commitment relate to Action and Order identities?
+- What is the identity/version contract for Recommendation and its decision trace?
+- Which capability/support dimensions need explicit lifecycle semantics versus point-in-time assertions?
 
 These are design questions, not defects.
 
@@ -1169,6 +1167,8 @@ It is **not** ratified Category A/B architecture and does not override existing 
 
 The second independent adversarial review has completed. Three v1 material findings were resolved and the counterfactual-versus-realized finding was substantially but only partially resolved.
 
-The focused identity–association–assertion reconciliation has completed and is recorded in Section 21. It settles enough semantic separation to continue maturation while leaving ratification blocked on the explicitly listed residual questions.
+The focused identity–association–assertion reconciliation has completed and is recorded in Section 21. A subsequent independent review found bounded coherence defects rather than a failure of the semantic direction. Those defects are repaired in place in v1.3: earlier definitions now conform to Section 21; duplicate physical coverage cannot be authorized contrary to mechanics; HOLD is no-current-transaction continuation rather than frozen state; and commitment withdrawal is separated from broker cancellation/order state.
 
-The next authorized pressure is the previously pinned **broader practitioner-strategy falsification pass**, decomposing conventional strategy treatments across mechanics, formation cash flows, payoff geometry, scenario thesis, volatility/time exposure, lifecycle, applicability, capability/feasibility, and external vocabulary without creating a universal `Strategy` type. DDD decomposition remains downstream.
+The Principal selected the bounded coherence-and-source-binding path (Option B). The practitioner source is durably bound as YouTube video ID `5BMMrfBtA_c`, URL `https://youtu.be/5BMMrfBtA_c?si=YqV2dB-SEdyzFUpk`; title/channel/transcript and individual claims remain to be established rather than invented.
+
+After independent review of this coherence repair, the next pressure is the previously pinned **broader practitioner-strategy falsification pass**, decomposing conventional strategy treatments across mechanics, formation cash flows, payoff geometry, scenario thesis, volatility/time exposure, lifecycle, applicability, capability/feasibility, and external vocabulary without creating a universal `Strategy` type. DDD decomposition remains downstream.
