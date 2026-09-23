@@ -521,3 +521,27 @@ The durable research sequence is:
 The experiment is preserved as a useful pilot, not represented as pristine double-blind validation. Rediscovery of existing capability is itself useful convergence evidence; research findings do not automatically become requirements.
 
 Session-closeout note: creation of the new canonical `PL-*` identity triggers Roadmap derived-projection regeneration/freshness verification under the Project-Memory Protocol. The ChatGPT GitHub execution surface used for this closeout can persist repository files but cannot run the repository-local generator command. That mechanical closeout obligation therefore remains to be completed by a repository-resident capable actor before the session can claim fully fresh derived Roadmap state.
+
+---
+
+## 2026-09-23 — Practitioner Corpus v1 post-corpus reconciliation preserved
+
+The Principal continued the `PL-RESEARCH-05` research workstream by resolving the corpus's retained contradictions, externally checking the red-flag claims, answering the open questions at the level supported by the corpus and external review, and triaging the verification backlog.
+
+The work is preserved separately at `docs/research/practitioner-corpus/practitioner-corpus-v1-reconciliation-2026-09-23.md` so the frozen Practitioner Corpus v1 remains the evidence-preserving baseline rather than being silently rewritten by later reconciliation.
+
+The reconciliation produced several durable research distinctions:
+
+- CON-001–004 all received dispositions by separating mechanics from compensation/edge, premium cash flow from counterfactual economics, win frequency from expectancy, and generic exercise heuristics from lifecycle-state economics.
+- RED-001–006 received verification/reclassification dispositions. The work distinguishes conditional statistics, theoretical/model quantities, empirical regularities, practitioner heuristics, model-implied probabilities, and single-example performance.
+- Q-001–008 received bounded answers or explicit source-limit dispositions. Important corpus limitations include absent portfolio-level Greek/risk aggregation, absent tax treatment, incomplete short-option dividend/assignment management, transaction costs acknowledged but not modeled, discretionary management that is less reproducible than deterministic entry rules, and curated examples insufficient for a complete behavioral audit.
+- The twelve-item Verification Backlog is now **9 closed / 3 open**. Remaining work is: #9 empirical testing of the 20/50 covered-call filter; #10 current empirical testing of 0DTE seller-edge erosion; #11 source tracing for the “former leading industry groups regain leadership only 12%” statistic.
+
+A key research correction is preserved: CON-002's conceptual covered-call reconciliation survives, but the specific 20/50 moving-average prescription remains unverified and must not be smuggled into the resolved principle.
+
+The emerging epistemic pattern is that standard mechanics/theory generally survive verification with precision added; empirical regularities survive only with population/regime/instrument boundaries; and the greatest remaining epistemic risk is concentrated in presenter-specific prescriptions, edge claims, and performance generalization.
+
+This overlay remains research only. It does not promote practitioner findings into the Options Domain Reference, semantic model, Product requirements, policy, architecture, roadmap commitment, or implementation. Exact external citations remain a prerequisite wherever a post-corpus verification result is later proposed for canonical domain promotion.
+
+Because `PL-RESEARCH-05` in `docs/parking-lot-9.md` was updated to include this new durable research state, the Roadmap projection requires the ordinary repository-local regeneration and freshness check before this persistence pass is fully synchronized.
+
