@@ -400,3 +400,24 @@ The durable problem-space decomposition is four capability surfaces:
 **Epistemic status.** Durable discovery/intake + why-state. Strategic and architectural reconciliation intentionally remain incomplete. No vendor selection, landscape survey, API spike, generalized broker abstraction, execution-authority expansion, or implementation is authorized.
 
 **Resume point.** When Principal-selected, continue in the **problem space** by appraising the four surfaces from incumbent evidence. Do not begin with vendors or mechanisms.
+
+
+---
+
+## 2026-09-23 — Semantic-model gap made explicit; v1 draft created (`PL-SEM-01`)
+
+**What changed in understanding.** Options-intent and nomenclature work exposed that Wheelwright's problem is larger than the overloaded word `strategy`. The repository contains mature bounded semantic models but never produced one integrated model of Wheelwright's world. The file historically named `02-domain.md` is better understood as an early-slice mixed domain-knowledge/calculation/data-contract artifact, not the canonical domain model the name suggests.
+
+**Concrete trigger.** The same covered-call construction can serve opposite operator purposes: UNG disposition can make call-away desired, while a strategic SPY overwrite can use low-delta calls for incremental premium while retention is desired. Conventional practitioner lists also legitimately call payoff constructions such as covered calls, protective puts, iron condors, straddles, and calendar spreads “options strategies,” while the Wheel is closer to a recurring lifecycle program. The market vocabulary is useful but too overloaded to carry Wheelwright's machine semantics by itself.
+
+**Independent review.** Codex independently reviewed the information architecture and agreed that Wheelwright has neither a canonical ontology nor an integrated domain model. It characterized the current state as a federation of semantic submodels. Its strongest additional finding was a missing cross-cutting semantic-assertion grammar: who asserts what, about which subject, for what effective time, from what evidence/authority, at what epistemic level, and through which transformations may that meaning travel. It also independently identified association/subject resolution, the decision-to-execution ladder, portfolio topology, integrated accounting relationships, capability/executability, counterfactual semantics, validity/revocation, and explanation trace as integration gaps.
+
+**Capability finding.** Capability/executability is distinct from mechanics, desirability, and policy admission. An Alternative can be mechanically coherent and policy-admissible yet unavailable because of account permission/tier, broker support, collateral treatment, settlement state, market evidence/liquidity, supported order semantics, or Wheelwright support maturity.
+
+**Information-architecture conclusion.** Ontology and operational domain model remain useful intellectual distinctions, but the working direction is one eventual **Wheelwright Semantic Model** with explicit sections for both, to reduce the risk of two adjacent authorities drifting. Specialized domain references remain specialized owners rather than being duplicated.
+
+**DDD boundary.** This work deliberately stops before bounded contexts, aggregates, repositories, domain services, anti-corruption layers, context maps, CQRS/event sourcing, or service/module boundaries. Those should be discovered later from stable semantic identity, ownership, authority, invariants, and consistency requirements rather than imposed first.
+
+**Durable action.** Principal explicitly authorized creation, GitHub persistence, wiring, and project-memory reconciliation of a v1 draft. New canonical intake `PL-SEM-01` owns the unresolved semantic-integration concern. `docs/58-wheelwright-semantic-model-v1.md` is the bounded Category E draft/review target. It is not ratified Category A/B architecture and authorizes no implementation migration.
+
+**Still unresolved.** Position/lifecycle identity; capital-pool/mandate topology; whether lot identity is always required; Wheel program/cycle identity; the exact boundary of Intent versus objective/purpose/mandate; authoritative operator declarations; capability fact lifetime; and eventual DDD context/aggregate boundaries remain open design questions.
