@@ -991,3 +991,63 @@ This record intentionally preserves enough of that why-state for a cold actor to
 **Further exploration / problem-space appraisal only.**
 
 The next bounded activity, when Principal-selected, is to appraise the four surfaces from incumbent evidence, starting from capabilities and fitness rather than vendors or mechanisms. Strategic and architectural reconciliation remain required before this item can become **RECONCILED**. No solution-space survey or implementation is authorized by intake.
+
+
+---
+
+## `PL-SEM-01` — Wheelwright Canonical Semantic Model / Domain Integration
+
+**Date:** September 23, 2026  
+**State:** INTAKE + bounded design draft created under explicit Principal direction; not ratified architecture and no implementation migration authorized  
+**Concept home:** semantic integration across current domain/architecture submodels  
+**Draft:** `docs/58-wheelwright-semantic-model-v1.md`  
+**Trigger:** Options-intent/nomenclature work and independent Codex information-architecture review demonstrated that Wheelwright has mature semantic submodels but no canonical integrated ontology/domain model.
+
+### What was discovered
+
+Wheelwright has strong bounded models for options mechanics, evidence semantics, position monitoring, Portfolio Capital, Production, Situation/regime context, broker/account projections, lifecycle consequences, and application architecture. It does not have one canonical semantic integration layer establishing how those concepts compose.
+
+The current `docs/02-domain.md` is an early-slice mixed artifact (domain knowledge, calculations, provider-neutral data shapes, prototype assumptions, and local decisions), not a complete Wheelwright domain model.
+
+Concrete pressure includes:
+
+- `strategy` is legitimate practitioner vocabulary but overloaded across construction, mechanism, program, and policy-matching uses;
+- `intent` has strong negative non-inference invariants but no integrated positive identity/scope/time model;
+- Position, Inventory, Capital State, Alternative, Consequence, Deployment, Recommendation, and Outcome have partial or context-local semantics;
+- authority/provenance/time rules have been repeatedly established locally without a common semantic assertion grammar;
+- mechanically valid and policy-admissible Alternatives may still be non-executable because of broker/account/collateral/liquidity/support constraints, exposing a capability/executability dimension;
+- future DDD questions (bounded contexts, aggregates, anti-corruption layers, context maps) should follow semantic ownership/invariants rather than precede them.
+
+### Reconciliation against existing identity
+
+Repository and parking-lot search found no existing `PL-*` identity whose scope is the canonical integration of Wheelwright's semantic world. Existing items own narrower concerns (portfolio maturity, recommendation placement, strategy expansion, lifecycle evidence, security/authorization, etc.) and should remain distinct.
+
+### Strategic disposition
+
+**No roadmap change.** This work does not create a new Product Bet. It strengthens the existing trustability, choices/consequences, outcomes, learning, and continuity directions by reducing semantic ambiguity beneath them.
+
+### Architectural disposition
+
+**New cross-cutting semantic-integration pressure; bounded draft only.** The v1 draft proposes one eventual Wheelwright Semantic Model containing ontology and operational-domain-model concerns, with explicit treatment of identity/scope, portfolio topology, state/event/transition/program/lifecycle, semantic assertions, authority/provenance, time/history, intent/policy, Alternatives/consequences, capability/executability, decision semantics, accounting relationships, and mappings from conventional market vocabulary.
+
+This intake does **not** ratify the draft as Category A/B architecture.
+
+### Why-state
+
+- Principal discussion on September 23, 2026: options nomenclature and intent semantics exposed the missing world model.
+- Independent Codex review: `wheelwright-information-architecture-proposal-review.md` session artifact; durable conclusions are incorporated into `docs/58-wheelwright-semantic-model-v1.md`.
+- Project journal entry dated September 23, 2026.
+
+### Explicitly not authorized
+
+No code/schema migration; no rename or rewrite of `02-domain.md`; no new ADR; no bounded-context, aggregate, repository, domain-service, ACL, CQRS, or event-sourcing design; no generalized runtime framework; no recommendation/UI/execution behavior change.
+
+### Reconciliation Completion Record
+
+- **Intake:** `PL-SEM-01`
+- **Strategic disposition:** strengthens existing strategic directions; **no `docs/roadmap.md` change**
+- **Architectural disposition:** new cross-cutting semantic-integration pressure represented by a bounded Category E draft; **not ratified architecture**
+- **Parking-lot disposition/mapping:** retained as new `PL-SEM-01`; related to but not merged with `PL-PORT-01`, `PL-ARCH-06`, `PL-STRAT-01`, `PL-POL-01`, Situation architecture, and current evidence/accounting semantics
+- **Why-state:** `docs/58-wheelwright-semantic-model-v1.md` + September 23, 2026 project-journal entry
+- **Next authorized mode:** adversarial review / specimen-driven semantic reconciliation only; implementation requires separate authority
+
