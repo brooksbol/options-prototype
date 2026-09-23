@@ -1189,3 +1189,29 @@ Explicit Principal direction is valid decision ingress. Durable persistence reco
 #### Next authorized pressure
 
 Independent review of this bounded coherence/source-binding repair. If it survives, execute the already-pinned practitioner-strategy falsification pass. Ratification and DDD decomposition remain blocked.
+
+
+### `PL-SEM-01` Refinement — practitioner-strategy falsification completed
+
+**Date:** September 24, 2026  
+**State:** REFINEMENT — Option D executed; broader practitioner-strategy corpus completed; v1.3 survives with Scenario / Market Thesis refinement pressure; ratification and DDD remain blocked
+
+The Principal selected Option D: continue semantic falsification before implementation. The previously pinned practitioner-strategy pass has been executed and is durably recorded in `docs/59-practitioner-strategy-semantic-falsification-2026-09-24.md`.
+
+#### Source acquisition
+
+The bound YouTube source `5BMMrfBtA_c` is now identified as **Every Options Trading Strategy Explained**, published by **The Cashflow Academy** on **June 30, 2026**. The source exposes eleven conventional strategy chapters: Long Call, Long Put, Covered Call, Cash Secured Put, Protective Put, Bull Call Spread, Bear Put Spread, Iron Condor, Straddle, Strangle, and Calendar Spread.
+
+Primary metadata is established. Machine/secondary transcript extraction remains evidence with its own provenance and is not silently promoted to primary source authority.
+
+#### Falsification result
+
+The corpus does not force one canonical `Strategy` type. Conventional labels bundle different combinations of construction, formation cash flow, payoff geometry, scenario/use criteria, volatility/time exposure, lifecycle behavior, and conventional vocabulary while leaving Objective/Purpose, Outcome Stance, Policy, Decision Subject, provenance, program membership, and support status separately governed.
+
+One material refinement pressure emerged: **Scenario / Market Thesis**. Directional, magnitude, volatility, and path assumptions used in counterfactual evaluation need a semantic home distinct from Intent/Outcome Stance, Objective/Purpose, Preference, Policy, and realized state.
+
+The source-specific `-2/-1/0/+1/+2` and one-standard-deviation framework remains pedagogy/heuristic unless model, horizon, volatility input, units, and probability semantics are established.
+
+#### Next authorized pressure
+
+Adversarially test Scenario / Market Thesis against covered-call, CSP, long-straddle, iron-condor, and calendar specimens and determine whether it deserves durable identity or is better represented as a governed Assertion family. Continue remaining v1.3 blocker pressure afterward. No DDD or implementation migration is authorized.
