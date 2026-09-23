@@ -438,3 +438,22 @@ v1.1 therefore revises the semantic core before any DDD decomposition. Event is 
 The DDD boundary remains unchanged: no bounded contexts, aggregates, repositories, domain services, anti-corruption layers, context maps, CQRS/event sourcing, persistence schemas, or implementation migration are authorized.
 
 **Next pressure:** second independent adversarial review of v1.1 and specimen-driven falsification. No Principal decision is required before that review.
+
+
+---
+
+## 2026-09-23 — Semantic Model v1.2: focused reconciliation continues; practitioner-strategy pressure pinned
+
+The second independent adversarial review of Semantic Model v1.1 verified accepted authority, project-memory wiring, and Roadmap projection freshness. It concluded that v1.1 should remain active and need not be withdrawn, but is not ready for ratification.
+
+The review's principal blockers are Position identity; quantified portfolio association semantics; assertion applicability/validity; actual World/Economic State versus source assertions and Wheelwright Reconciled State; and the unresolved boundary of Intent. It also surfaced quantity/unit semantics, absence/conflict semantics, commitment/cancellation, reconciliation-correction semantics, and decision-trace identity.
+
+The Principal agreed to the recommended focused identity–association–assertion continuation. The core specimen set is strategic SPY overwrite with multiple lots, partial assignment with late broker evidence, Wheel across a cycle boundary, and HOLD/CLOSE with residual state.
+
+A **long straddle** was added as a deliberate control specimen. Its purpose is to falsify accidental modeling of only Wheelwright's current covered-call/CSP/Wheel center of gravity: two long option rights, same-strike/same-expiration relationships, two opening debits, no underlying inventory requirement, bilateral convex payoff, and no covered-call-style assignment-intent semantics must still fit the core distinctions.
+
+Separately, the Principal supplied practitioner educational material whose conventional “strategy” treatment includes mechanics and selection/use criteria. That broader corpus is intentionally pinned for later semantic pressure. It may test construction mechanics, debit/credit formation economics, payoff topology, directional/magnitude scenario thesis, volatility/time exposure, lifecycle behavior, applicability/use case, and external strategy vocabulary. It is **not** being silently promoted into the semantic model before the focused reconciliation stabilizes.
+
+Semantic Model v1.2 records these refinements while retaining the DDD boundary. No ratification, implementation, bounded contexts, aggregates, anti-corruption layers, context maps, or persistence design are authorized.
+
+**Next pressure:** specimen-driven identity–association–assertion reconciliation, with the long straddle as a generalization control; broader practitioner-strategy mechanics/outlook/applicability analysis follows only after that focused pass stabilizes.
