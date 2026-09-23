@@ -1,8 +1,8 @@
 # Practitioner Corpus v1 — Reconciliation and Verification Overlay
 
 **Date:** September 23, 2026  
-**Status:** ACTIVE RESEARCH OVERLAY — Revision 1.1 — preserves post-corpus reconciliation, external-verification results, source limitations, and remaining research questions  
-**Revision:** 1.1  
+**Status:** FROZEN RESEARCH OVERLAY — Revision 1.0  
+**Revision:** 1.0  
 **Applies to:** `docs/research/practitioner-corpus/practitioner-corpus-v1.md`  
 **Authority:** Research evidence/synthesis only. No authority over Wheelwright domain semantics, policy, architecture, Product behavior, roadmap, or implementation.  
 **Corpus integrity:** This overlay does not rewrite Practitioner Corpus v1. Original corpus records remain the preserved practitioner-evidence baseline.
@@ -527,85 +527,3 @@ The next research work, if deliberately resumed under `PL-RESEARCH-05`, is bound
 - preserve Practitioner Corpus v1 itself as the original evidence-preserving baseline.
 
 No finding in this overlay directly authorizes a Wheelwright Product feature, semantic change, domain promotion, trading policy, architecture change, roadmap commitment, or implementation.
-
----
-
-# 11. Revision 1.1 — Independent corpus-review findings
-
-A subsequent independent review of frozen Practitioner Corpus v1 broadly corroborated the corpus architecture and the decision to preserve post-freeze verification in a separate overlay rather than editing v1. The review also identified several incremental limitations and methodological refinements worth preserving before downstream Wheelwright reconciliation.
-
-## 11.1 Admission-created topic coverage holes
-
-The exclusion of studies 13–24 for insufficient source fidelity did more than reduce evidence volume. Those excluded studies disproportionately covered topics including strangles, straddles, iron condors, bear call spreads, Wheel stock screening, position sizing, and journaling.
-
-**Finding:** admission/exclusion can create topic-specific coverage holes. The admitted v1 evidence therefore should not be read as uniformly representative across the strategy families discussed in the upstream source set.
-
-In particular, neutral / volatility-premium multi-leg structures are less directly represented in the admitted evidence than the corpus's broad language about selling structures might suggest.
-
-This does not invalidate PAT-003 or PAT-005. It bounds their evidentiary breadth and should be considered whenever those patterns are used downstream.
-
-## 11.2 Population qualifier for synthesis language
-
-The review independently reinforced Q-001's external-validity boundary.
-
-**Interpretive scope:** where frozen v1 uses generic synthesis language such as “the practitioner,” downstream readers should interpret it as shorthand for **the retail premium-selling practitioner represented by this corpus**, not as a claim about all options practitioners.
-
-The admitted source population does not establish representative practice for market makers, institutional buy-side options users, systematic-volatility practitioners, or the profession generally.
-
-Frozen v1 remains unchanged; this qualifier belongs in the overlay.
-
-## 11.3 Verification-method refinement
-
-The review identified a useful distinction within the original `VERIFY_LATER` class.
-
-Some claims can be resolved primarily through authoritative reference or mathematical/theoretical derivation—for example contractual settlement specifications or put-call-parity relationships. Other claims require empirical evidence such as historical observations, backtests, or population studies.
-
-For future corpus methodology, preserve the conceptual distinction:
-
-- **VERIFY_BY_REFERENCE** — mechanics, contractual specifications, mathematical/theoretical relationships, or other claims resolvable against authoritative reference/derivation;
-- **VERIFY_BY_EVIDENCE** — empirical frequencies, performance, edge, behavioral prevalence, strategy effectiveness, and similar claims requiring observational evidence.
-
-This is a **methodological refinement for future work**, not a retroactive mutation of the frozen v1 charter or its original verification tags.
-
-The review specifically identified OBS-023 (CSP / covered-call synthetic-equivalence pressure) and OBS-046 (SPX vs SPY settlement distinctions) as examples where reference-based verification is more appropriate than open-ended empirical verification.
-
-## 11.4 Additional relationship pressure
-
-The review noted that frozen v1 cross-links PAT-010 to CON-002 but does not provide comparable inbound pattern pointers for all other contradictions.
-
-Two relationships are worth preserving without editing v1:
-
-- **CON-001 ↔ PAT-005:** theta/volatility mechanics and the claim of seller advantage must remain distinct; the contradiction resolution supplies a boundary on broad volatility-selling interpretation.
-- **CON-003 ↔ PAT-003:** probability-oriented selling/construction patterns must not be read as establishing positive expectancy; the contradiction resolution supplies the missing frequency-vs-expectancy boundary.
-
-These are overlay relationships, not corrections to frozen corpus evidence.
-
-## 11.5 Source limitations are not automatic Product blockers
-
-The review correctly emphasized portfolio-level Greek aggregation and taxes as important missing dimensions. The overlay preserves those absences under Q-003 and Q-004.
-
-However, the stronger proposition that either omission is automatically **blocking** for downstream position-management design is **not established by the corpus**. Whether a missing domain dimension blocks a particular Wheelwright capability is a downstream Product/domain/semantic decision and must not be promoted directly from corpus review.
-
-## 11.6 Review-state correction
-
-The independent review was performed against frozen v1 and therefore correctly observed that v1 itself still shows unresolved contradictions, verification flags, open questions, and the original backlog.
-
-That is intentional after creation of this overlay, not a defect requiring v1 mutation.
-
-The review's backlog arithmetic reflected an earlier research snapshot. Current durable overlay state remains:
-
-- **9 of 12 closed**;
-- **3 of 12 open**: #9, #10, #11.
-
-## 11.7 Revision 1.1 synthesis
-
-The independent review adds three especially useful findings to the post-corpus research state:
-
-1. **Admission can create topic-specific coverage holes, not merely reduce sample size.**
-2. **Reference-verifiable claims and empirically-verifiable claims should use different verification methods.**
-3. **The synthesis population must be explicitly bounded to the retail premium-selling practitioner school represented by the admitted corpus.**
-
-It also independently corroborates the central preservation decision: **freeze Practitioner Corpus v1 and place subsequent verification/reconciliation in a versioned overlay rather than silently editing the evidence baseline.**
-
-No Revision 1.1 finding creates Wheelwright Product, semantic, domain, policy, architecture, roadmap, or implementation authority.
-
