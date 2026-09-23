@@ -1125,3 +1125,33 @@ That broader analysis is **pinned, not yet promoted**. After the focused identit
 #### Boundary retained
 
 No ratification, implementation migration, bounded-context design, aggregate design, repository/domain-service design, anti-corruption-layer design, context map, CQRS/event sourcing, or persistence-schema work is authorized by this refinement.
+
+
+### `PL-SEM-01` Refinement — v1.3 focused specimen reconciliation completed
+
+**Date:** September 23, 2026  
+**State:** REFINEMENT — focused identity–association–assertion specimen pass completed; semantic model advanced to v1.3; broader practitioner-strategy falsification pass is next authorized pressure; ratification and DDD remain blocked
+
+The authorized focused pass tested strategic-SPY/partial-assignment, Wheel-cycle, HOLD/CLOSE, and long-straddle control specimens.
+
+#### Durable conclusions
+
+- `Position` is not one canonical identity. Holding/Obligation Record, Economic Construction, Decision Subject, Complete Position, and provisional Lifecycle Subject/Episode are distinct.
+- Complete Position is provisionally a conclusion-relative reasoning closure/view, not a universal persistent entity.
+- Load-bearing associations require governed identity binding and may require quantity/unit, effective interval, exclusivity/overlap, authority/provenance, and conflict/correction semantics.
+- World/Economic State, Observation, Assertion, and Reconciled State are distinct.
+- Assertion validity requires applicability, identity binding, dependencies, authority, correction/revocation, and explicit absence/conflict semantics.
+- Objective/Purpose, Outcome Stance, Constraint, Preference, and Action Choice are distinct. Canonical Intent is narrowed provisionally toward scoped Outcome Stance.
+- Partial assignment/execution changes realized quantity while preserving residual identity/quantity.
+- Wheel is best represented as an Operating Program spanning changing constructions rather than one Position.
+- HOLD is a normalized governed Alternative even though it creates no transaction.
+- Commitment/cancellation/cancel-replace are semantically distinct from operator selection, staging, broker order state, and Execution.
+- The long-straddle control survives the model and falsifies inventory/short-obligation assumptions: conventional strategy label, construction, provenance, Decision Subject, purpose/thesis, Outcome Stance, and Policy remain separate.
+
+#### Residual blockers before ratification
+
+Lifecycle Subject/Episode identity, Capital Pool overlap/partition rules, association authority matrices, final Intent naming, Recommendation/decision-trace identity, commitment boundary placement, Candidate durability, and broad practitioner-strategy mapping remain open.
+
+#### Next authorized pressure
+
+Perform the previously pinned broader practitioner-strategy falsification pass. Decompose practitioner strategy treatments across construction/legs, formation cash flow, payoff/consequence geometry, directional/magnitude thesis, volatility/time exposure, lifecycle/resolution, applicability/use criteria, capability/feasibility, and conventional vocabulary. Do not infer normative Intent from practitioner labels or market criteria. Do not open DDD decomposition.
