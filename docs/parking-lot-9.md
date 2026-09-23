@@ -1050,7 +1050,7 @@ No code/schema migration; no rename or rewrite of `02-domain.md`; no new ADR; no
 
 
 
-### `PL-SEM-01` — v1.1 semantic-core reconciliation
+### `PL-SEM-01` Refinement — v1.1 semantic-core reconciliation
 
 **Date:** September 23, 2026  
 **State:** REFINEMENT — Principal selected Option B: specimen-driven semantic-core reconciliation before DDD decomposition; v1.1 persisted; second adversarial review pending
