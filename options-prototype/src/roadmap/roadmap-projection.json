@@ -7376,7 +7376,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 444
+      "sourceOrder": 445
     },
     {
       "plId": null,
@@ -7519,7 +7519,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 437
+      "sourceOrder": 438
     },
     {
       "plId": null,
@@ -7532,7 +7532,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 438
+      "sourceOrder": 439
     },
     {
       "plId": null,
@@ -7545,7 +7545,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 439
+      "sourceOrder": 440
     },
     {
       "plId": null,
@@ -7558,7 +7558,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 442
+      "sourceOrder": 443
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -7584,7 +7584,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 440
+      "sourceOrder": 441
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -7766,7 +7766,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 420
+      "sourceOrder": 421
     },
     {
       "plId": null,
@@ -7779,7 +7779,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 421
+      "sourceOrder": 422
     },
     {
       "plId": null,
@@ -7792,7 +7792,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 422
+      "sourceOrder": 423
     },
     {
       "plId": null,
@@ -7805,7 +7805,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 423
+      "sourceOrder": 424
     },
     {
       "plId": null,
@@ -7818,7 +7818,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 424
+      "sourceOrder": 425
     },
     {
       "plId": null,
@@ -7831,7 +7831,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 425
+      "sourceOrder": 426
     },
     {
       "plId": null,
@@ -7844,7 +7844,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 426
+      "sourceOrder": 427
     },
     {
       "plId": null,
@@ -7857,7 +7857,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 427
+      "sourceOrder": 428
     },
     {
       "plId": null,
@@ -7870,7 +7870,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 428
+      "sourceOrder": 429
     },
     {
       "plId": null,
@@ -7883,7 +7883,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 429
+      "sourceOrder": 430
     },
     {
       "plId": null,
@@ -7896,7 +7896,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 430
+      "sourceOrder": 431
     },
     {
       "plId": null,
@@ -7909,7 +7909,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 431
+      "sourceOrder": 432
     },
     {
       "plId": null,
@@ -7922,7 +7922,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 432
+      "sourceOrder": 433
     },
     {
       "plId": null,
@@ -7935,7 +7935,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 433
+      "sourceOrder": 434
     },
     {
       "plId": null,
@@ -7948,7 +7948,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 434
+      "sourceOrder": 435
     },
     {
       "plId": null,
@@ -7961,7 +7961,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 435
+      "sourceOrder": 436
     },
     {
       "plId": null,
@@ -7974,7 +7974,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 436
+      "sourceOrder": 437
     },
     {
       "plId": null,
@@ -7987,7 +7987,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 441
+      "sourceOrder": 442
     },
     {
       "plId": null,
@@ -8000,7 +8000,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 443
+      "sourceOrder": 444
     },
     {
       "plId": "PL-SEM-01",
@@ -8066,6 +8066,19 @@
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
       "sourceOrder": 415
+    },
+    {
+      "plId": "PL-SEM-01",
+      "bugId": null,
+      "title": "PL-SEM-01 Refinement — practitioner-strategy falsification completed",
+      "eventKind": "refinement",
+      "establishesIntake": false,
+      "eventDateText": "September 24, 2026",
+      "eventDateIso": "2026-09-24",
+      "state": "REFINEMENT — Option D executed; broader practitioner-strategy corpus completed; v1.3 survives with Scenario / Market Thesis refinement pressure; ratification and DDD remain blocked",
+      "headingLevel": 3,
+      "sourceFile": "parking-lot-9.md",
+      "sourceOrder": 420
     }
   ],
   "intakeDateUnknown": [
