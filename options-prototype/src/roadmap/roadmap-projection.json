@@ -3172,7 +3172,7 @@
           "tables": []
         },
         {
-          "heading": "`PL-SEM-01` — v1.1 semantic-core reconciliation",
+          "heading": "`PL-SEM-01` Refinement — v1.1 semantic-core reconciliation",
           "level": 3,
           "content": "The first independent adversarial review validated the Category-E integration scaffold and found four material type collisions plus moderate/minor findings. Principal selected the recommended **Option B** rather than a narrow patch or premature DDD expansion.",
           "truncated": false,
@@ -7920,8 +7920,8 @@
     {
       "plId": "PL-SEM-01",
       "bugId": null,
-      "title": "PL-SEM-01 — v1.1 semantic-core reconciliation",
-      "eventKind": "unclassified",
+      "title": "PL-SEM-01 Refinement — v1.1 semantic-core reconciliation",
+      "eventKind": "refinement",
       "establishesIntake": false,
       "eventDateText": "September 23, 2026",
       "eventDateIso": "2026-09-23",
