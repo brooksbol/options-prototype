@@ -1155,3 +1155,37 @@ Lifecycle Subject/Episode identity, Capital Pool overlap/partition rules, associ
 #### Next authorized pressure
 
 Perform the previously pinned broader practitioner-strategy falsification pass. Decompose practitioner strategy treatments across construction/legs, formation cash flow, payoff/consequence geometry, directional/magnitude thesis, volatility/time exposure, lifecycle/resolution, applicability/use criteria, capability/feasibility, and conventional vocabulary. Do not infer normative Intent from practitioner labels or market criteria. Do not open DDD decomposition.
+
+
+### `PL-SEM-01` Refinement — v1.3 coherence repair and practitioner-source binding
+
+**Date:** September 23, 2026  
+**State:** REFINEMENT — Principal selected Option B; bounded v1.3 coherence repair persisted without version advance; practitioner source identity bound; independent review required before corpus analysis
+
+The independent v1.3 review accepted the semantic direction but found four bounded coherence defects and one reproducibility blocker. Under explicit Principal direction, the producing actor repaired those defects without reopening the focused reconciliation or advancing the model version.
+
+#### Repairs
+
+- Earlier concept-family, topology, and open-question text now conforms to the Section 21 conclusions rather than competing with them.
+- Physical coverage semantics no longer allow authority to override mechanics: one deliverable share unit cannot be allocated as full physical coverage to more than one simultaneous physically deliverable obligation. Portfolio-margin or collateral offsets must be represented under their actual relation.
+- HOLD is defined as a no-current-transaction Alternative that continues the existing obligation/exposure subject to changing market state and external lifecycle Events; it does not freeze state.
+- Operator/system commitment withdrawal is separated from broker cancellation request, broker-authoritative canceled-order state, cancel/replace, partial execution, and residual commitment.
+
+#### Practitioner-source binding
+
+Principal-supplied source:
+- platform: YouTube;
+- video ID: `5BMMrfBtA_c`;
+- supplied URL: `https://youtu.be/5BMMrfBtA_c?si=YqV2dB-SEdyzFUpk`;
+- supplied in governing conversation: 2026-09-23;
+- purpose: external practitioner semantic pressure concerning conventional options “strategy” bundles, including mechanics, opening cash flow, payoff geometry, directional/magnitude criteria, volatility/time exposure, lifecycle, applicability/use criteria, and conventional nomenclature.
+
+Title, channel/publisher, publication/version date, transcript, reviewed segments, and individual source claims are **not yet established in repository authority and must not be invented**. Before a source claim affects the semantic model it must be captured with enough segment/context to reproduce it and classified as mechanics, broker fact, theory, empirical claim, heuristic, conventional vocabulary, or source-specific pedagogy as applicable.
+
+#### Protocol clarification
+
+Explicit Principal direction is valid decision ingress. Durable persistence records that decision; lack of an already-persisted record must not recursively invalidate the Principal decision. Actor mutation authority remains a separate question.
+
+#### Next authorized pressure
+
+Independent review of this bounded coherence/source-binding repair. If it survives, execute the already-pinned practitioner-strategy falsification pass. Ratification and DDD decomposition remain blocked.
