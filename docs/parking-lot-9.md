@@ -1051,3 +1051,35 @@ No code/schema migration; no rename or rewrite of `02-domain.md`; no new ADR; no
 - **Why-state:** `docs/58-wheelwright-semantic-model-v1.md` + September 23, 2026 project-journal entry
 - **Next authorized mode:** adversarial review / specimen-driven semantic reconciliation only; implementation requires separate authority
 
+
+
+### PL-SEM-01 v1.1 semantic-core reconciliation
+
+**Date:** September 23, 2026  
+**State:** REFINEMENT — Principal selected Option B: specimen-driven semantic-core reconciliation before DDD decomposition; v1.1 persisted; second adversarial review pending
+
+The first independent adversarial review validated the Category-E integration scaffold and found four material type collisions plus moderate/minor findings. Principal selected the recommended **Option B** rather than a narrow patch or premature DDD expansion.
+
+#### Material distinctions reconciled in v1.1
+
+1. **Event ≠ evidence of Event ≠ reconciled transition.** Event now means an occurrence in the economic/operational world. Event Observation / Assertion is evidence establishing/reporting it. Reconciled Transition / Outcome is accepted domain history after evidence, association, and reconciliation.
+2. **Capability ≠ current feasibility/executability ≠ Wheelwright support status.** Structural broker/account/product support, performability now, and Wheelwright understanding/representation/recommendation/staging/execution/lifecycle support are separate axes with different authority and lifetime.
+3. **Slash-combined “primitives” withdrawn.** The draft now calls them candidate semantic concept families and explicitly decomposes Account vs Account Regime, Instrument vs Contract, Lot vs Inventory Block, Position vs Complete Position, Capital Boundary vs Capital Pool, Mandate vs Inventory Role, Constraint vs Preference, Situation vs Regime, Action vs Order, and accounting Stock vs Flow vs Attribution.
+4. **Counterfactual Consequence ≠ actual Event Effect ≠ Reconciled Outcome ≠ Economic Attribution.** Prospective decision semantics no longer share one type with realized history/accounting.
+
+#### Moderate/minor findings reconciled
+
+- Candidate is now explicitly defined as raw discovered possibility before normalization into an Alternative, with an explicit requirement to remove it if specimens do not justify a durable distinction.
+- Position remains explicitly unresolved rather than being silently equated with Complete Position.
+- The decision-to-execution ladder now carries authority boundaries from discovery through broker state, Execution, observation, association, and reconciliation.
+- The draft's self-reference in Related was removed.
+- `PL-BROKER-CAP` is explicitly cross-linked: it owns brokerage-facing capability-provision/incumbent appraisal; `PL-SEM-01` owns the general semantic distinctions among capability, current feasibility, and Wheelwright support.
+- The prior projection separator leakage is recognized as a parser/projection-fidelity defect to be reviewed separately; semantic-model work does not silently mutate parser behavior.
+
+#### Boundary retained
+
+No bounded contexts, aggregates, repositories, domain services, anti-corruption layers, context maps, CQRS/event sourcing, persistence schemas, or implementation migration are authorized. Those remain downstream of semantic stability.
+
+#### Next authorized mode
+
+**Independent adversarial review of v1.1 plus specimen pressure.** Review should attempt to falsify the revised distinctions, especially Event/Observation/Reconciliation, Capability/Feasibility/Support, Candidate/Alternative, Position/Complete Position, and Counterfactual Consequence/Realized Outcome. No Principal decision is required to perform that review.
