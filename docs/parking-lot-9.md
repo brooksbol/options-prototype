@@ -992,9 +992,6 @@ This record intentionally preserves enough of that why-state for a cold actor to
 
 The next bounded activity, when Principal-selected, is to appraise the four surfaces from incumbent evidence, starting from capabilities and fitness rather than vendors or mechanisms. Strategic and architectural reconciliation remain required before this item can become **RECONCILED**. No solution-space survey or implementation is authorized by intake.
 
-
----
-
 ## `PL-SEM-01` — Wheelwright Canonical Semantic Model / Domain Integration
 
 **Date:** September 23, 2026  
