@@ -71,6 +71,8 @@ Once invoked, execute the following without an intermediate plan/approval round-
 4. **Synchronize derived artifacts.**
    - Perform every required derived-artifact regeneration/freshness check triggered by the work, including the mandatory Roadmap projection rules in the Project-Memory Protocol.
    - Required scope-preserving regeneration is closeout, not a new work item.
+   - **Actor-local capability limits are not project-level blockers.** If the current actor cannot execute a required mechanical closeout step but another governed project actor can (for example, ChatGPT can persist GitHub state but cannot run repository-local commands that Kiro can run), hand off/delegate that bounded step to the capable actor and continue the containing protocol through completion.
+   - The handoff must preserve the established workstream scope, current durable state/SYNC, required command or verification obligation, unrelated in-flight-work protections, and the prohibition on manufacturing new decisions. Do not ask the Principal to act as a message router when the project environment provides an authorized actor handoff path.
 
 5. **Verify the workstream.**
    - Run the applicable verification needed to establish that the accepted work and its closeout state remain sound.
@@ -101,7 +103,10 @@ Do **not** stop for:
 - routine verification;
 - ordinary scope-preserving commit/push;
 - a dirty working tree that can be safely isolated;
-- unrelated in-flight work that can be preserved without collision.
+- unrelated in-flight work that can be preserved without collision;
+- the current actor lacking a tool or execution capability when a governed project actor can perform the required bounded closeout step.
+
+Before stopping for an execution limitation, distinguish **actor-local incapability** from a **project-level consequential blocker**. Exhaust available governed actor handoff/delegation paths for ordinary bounded closeout first. A handoff does not transfer or expand Product/architecture authority; it transfers only the already-authorized mechanical closeout obligation.
 
 Stop and return to the Principal **only when completion actually requires**:
 - a new Product or architecture decision;
@@ -135,4 +140,4 @@ The protocol is complete only when either:
 1. the authorized session/workstream has reached a durable, verified, synchronized handoff state and the final SYNC is reported; **or**
 2. a genuine consequential boundary listed above prevents completion, all safely preservable state has been preserved, and the exact Principal decision required to continue is surfaced.
 
-A report of intended steps is not completion. A request to proceed is not completion. Project-memory reconciliation without persistence/synchronization is not completion.
+A report of intended steps is not completion. A request to proceed is not completion. Project-memory reconciliation without persistence/synchronization is not completion. **Stopping because the current actor personally lacks an execution capability is not completion when an available governed project actor can finish the bounded closeout without crossing a consequential boundary.**
