@@ -478,3 +478,27 @@ HOLD/CLOSE exposed commitment, withdrawal/cancellation, cancel-replace, partial 
 The model advanced to **v1.3**. Ratification remains blocked on the explicitly retained identity/authority/topology questions, and DDD remains downstream.
 
 **Next pressure:** the previously pinned broader practitioner-strategy falsification pass. Its purpose is to test the semantic model against conventional strategy bundles—mechanics, opening cash flows, payoff geometry, directional/magnitude thesis, volatility/time exposure, lifecycle, applicability, and vocabulary—without manufacturing a universal `Strategy` type or inferring operator Intent from practitioner criteria.
+
+
+---
+
+## 2026-09-23 — v1.3 coherence repair and practitioner-source provenance bound
+
+The independent v1.3 review accepted the specimen-driven semantic direction but found bounded contradictions and precision defects: stale earlier sections competed with Section 21; a coverage escape clause allowed authority to appear capable of overriding physical-delivery mechanics; HOLD was described too strongly as preserving state; and commitment withdrawal was conflated with broker cancellation/order state.
+
+The Principal selected **Option B — narrow v1.3 coherence repair and source binding**. This selection is itself valid Principal decision ingress; project-memory persistence records the decision rather than serving as a prerequisite for the decision to exist. Actor mutation authority is separate.
+
+The producing actor repaired the Semantic Model in place without advancing beyond v1.3:
+
+- canonical identity language now rejects universal `Position` identity consistently;
+- Complete Position is consistently conclusion-relative reasoning closure;
+- Event/Execution Observation and Assertion are separated;
+- Objective/Purpose is separate from the provisionally narrowed Outcome Stance / Intent Assertion;
+- portfolio topology is expressed as governed association rather than a generic containment tree;
+- duplicate physical share coverage cannot be authorized contrary to mechanics;
+- HOLD continues an obligation without a current transaction and without freezing state;
+- withdrawal, cancellation request, canceled-order state, cancel/replace, partial execution, and residual commitment remain distinct.
+
+The practitioner source is now durably identified as YouTube video ID `5BMMrfBtA_c`, supplied URL `https://youtu.be/5BMMrfBtA_c?si=YqV2dB-SEdyzFUpk`, supplied by the Principal on 2026-09-23. The repository does **not** yet establish the title, channel/publisher, publication date, transcript, reviewed segments, or exact claims. Those must be acquired and classified before use; the source is evidence pressure, not Wheelwright mechanics or policy authority.
+
+**Next pressure:** independent review of this bounded repair. Only after it survives should the broader practitioner-strategy falsification pass begin. DDD remains downstream.
