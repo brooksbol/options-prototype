@@ -1338,3 +1338,82 @@ Muse tier F currently also contains unresolved observation failures: the preserv
 ### Next authorized research action
 
 Continue bounded research by receiving and preserving the blind Muse 84-symbol follow-on, then build the longitudinal 2×2 derived crosswalk from Wheelwright historical observations plus the mirror strong-structure/little-or-no-usefulness cohort. Preserve usefulness frequency, recency, strategy provenance, acquisition cost, contemporaneous executability, temporal structural quality, and evidence quality separately. Do not promote findings to universe, servicing, suitability, scheduler, or Product policy without a later governed decision.
+
+
+---
+
+## `PL-RESEARCH-05` — Practitioner Corpus / Practitioner-Evidence Research Program
+
+**Date:** September 23, 2026  
+**State:** INTAKE / ACTIVE RESEARCH — durable practitioner-evidence workstream; research and falsification only; no Product, policy, semantic, architecture, roadmap, or implementation consequence is authorized by this intake  
+**Trigger:** The Practitioner Corpus v1 workstream produced a frozen research methodology, a completed transcript-backed practitioner corpus, and a corpus-first Product Challenge experiment that demonstrated useful independent convergence, product pressure, and at least one capability family not found in current Wheelwright. The Principal selected durable intake so this research program can stop cleanly without losing its identity, method, evidence, or next research direction.
+
+### Research question
+
+> How can independently preserved practitioner evidence be used to discover, pressure-test, corroborate, falsify, and refine Wheelwright's understanding of real options decision work without allowing Wheelwright's existing semantics or product shape to contaminate the practitioner evidence?
+
+This is a practitioner-evidence research program. It is not a feature initiative, requirements backlog, trading-policy source, canonical options reference, or implementation program.
+
+### Durable research package
+
+Current durable artifacts:
+
+- `docs/research/practitioner-corpus/practitioner-corpus-v1-charter.md` — frozen v1 methodology and extraction protocol;
+- `docs/research/practitioner-corpus/practitioner-corpus-v1.md` — completed Practitioner Corpus v1 derived from the 24 admitted transcript-backed sources;
+- `docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md` — preserved upstream Muse artifact; description-only studies remain preserved but were excluded from v1 evidentiary contribution under the charter;
+- `docs/research/practitioner-corpus/product-challenge-test-2-2026-09-23.md` — durable Test 2 research result: ten corpus-first hypotheses frozen before Wheelwright bootstrap, subsequent reconciliation, existing-feature challenge, and experimental assessment.
+
+The research directory owns evidence, methodology, experiment reports, future corpus versions, and supporting analyses. This `PL-*` record owns the durable project identity, why-state, boundaries, current research disposition, and relationship to downstream governed concerns.
+
+### Established findings entering intake
+
+The completed corpus is useful as more than a glossary or strategy catalog. It preserves practitioner decision jobs, frictions, failure modes, relationships, exceptions, contradictions, specimens, vocabulary, heuristics, empirical claims and verification backlog.
+
+Product Challenge Test 2 supplied an initial bounded test of the corpus as a downstream research instrument:
+
+- ten capability hypotheses were derived and frozen from the corpus before current Wheelwright Product/implementation bootstrap;
+- reconciliation found **9 PARTIALLY EXISTS** and **1 NOT FOUND**, with the clear missing family being cross-expiry residual-leg management;
+- strongest existing-capability corroboration included Assignment Consequence, Recommendation Brief, and Unencumbered Shares/capacity semantics;
+- strongest pressure included covered-call opportunity cost, predeclared invalidation/planned-loss semantics, monitoring beyond state display, volatility as qualification, single-leg lifecycle boundaries, and probability/payoff comparison.
+
+These are research findings, not Product decisions. Rediscovery of existing capability is a useful result rather than experimental failure; novelty is not the sole success criterion.
+
+### Research method / contamination boundary
+
+The durable direction is:
+
+> **practitioner evidence → corpus → blind hypotheses/challenges → freeze → Wheelwright bootstrap → reconciliation**
+
+Practitioner evidence should remain Wheelwright-blind where practical. Downstream reconciliation may use the corpus to challenge Wheelwright, but must not retroactively rewrite the corpus to make Wheelwright appear aligned or misaligned.
+
+Corpus-derived practitioner pressure, Wheelwright evidence, and analyst inference must remain distinguishable.
+
+### Relationship to existing governed concerns
+
+- **`PL-SEM-01`:** may consume practitioner-corpus pressure for semantic falsification; it does not own or redefine the corpus.
+- **Product / Decision / Deployment capability work:** may later consume validated research findings through normal idea intake/reconciliation; no feature requirement is created here.
+- **Options Domain Reference:** may later consume independently verified domain findings; practitioner claims do not become mechanics by recurrence.
+- **`PL-RESEARCH-01`–`PL-RESEARCH-04`:** existing research identities demonstrate that research work belongs within the canonical parking-lot mechanism; this item owns the practitioner-evidence program specifically.
+- **`PL-EVID-OBS`:** parallel current precedent for an `INTAKE / ACTIVE RESEARCH` item whose research findings do not themselves authorize Product or policy change.
+
+### Explicit non-decisions / guardrails
+
+This intake does **not** authorize:
+
+- adding any Test 2 hypothesis to the Product roadmap;
+- treating a practitioner heuristic as Wheelwright policy or domain mechanics;
+- changing the semantic model, options-domain reference, architecture, recommendation policy, lifecycle behavior, or UI;
+- implementing cross-expiry residual-leg management or any other candidate capability;
+- rewriting Practitioner Corpus v1 based on downstream Wheelwright reconciliation;
+- treating frequency of practitioner mention as importance, correctness, or empirical validity;
+- treating Test 2 as pristine double-blind validation or proof of statistical independence.
+
+### Why-state
+
+The workstream reached a natural stopping point after corpus construction and the first successful corpus-first Product Challenge. Without a canonical identity, future work would have to reconstruct from individual research files why the corpus exists, how it is meant to pressure Wheelwright, what contamination boundary matters, and what the first experiment established.
+
+The Principal therefore selected **Option A** on September 23, 2026: create a dedicated practitioner-evidence research PL and preserve the corpus Product Challenge Test 2 output as a separate research artifact.
+
+### Next authorized mode
+
+**Research only, when deliberately resumed.** Reacquire this item and its durable research package before extending the corpus or running another corpus-first challenge. Any proposed Product, semantic, domain, architecture, policy, roadmap, or implementation consequence must enter its applicable downstream governed reconciliation rather than being promoted directly from practitioner research.
