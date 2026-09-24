@@ -5668,3 +5668,334 @@ It is:
 > **What persistence ownership model is the smallest one that can make Governed Context and Decision Trace authoritative, account-local, effective-time reproducible, and non-disposable—while allowing deterministic DECIDE to remain where it is unless separate pressure requires moving it?**
 
 This should be resolved before implementation decomposition.
+
+
+---
+
+## 41. Sanitized Muse persistence challenge — reconciliation — 2026-09-24
+
+**Source status:** Principal-supplied output from a sanitized/generic Muse architecture challenge. Muse was intentionally denied Wheelwright, options, PTS/Sawdust, current repository vocabulary, and the preferred architectural answer. Preserve this section as independent falsification/reconciliation evidence. It does **not** itself ratify architecture, authorize implementation, or override Category-A/B authority.
+
+### Why this run matters
+
+The Muse challenge attacked the one unresolved boundary left by §40:
+
+> **What should own authoritative persistence for Governed Context and Decision Trace?**
+
+The challenge explicitly separated:
+- logical requirements;
+- engineering preferences;
+- operational conveniences;
+- deterministic evaluation location;
+- authoritative persistence ownership.
+
+This makes the result useful because it did not merely choose a conventional server-centric answer.
+
+### Muse invariants
+
+Muse derived the following minimum requirements from the replay question:
+
+> **What did the governed process recommend at time T, on what evidence, under what rules as they existed at T?**
+
+Required:
+1. **Account isolation**
+2. **Effective-time semantics**
+3. **Deterministic replay**
+4. **No hindsight rewriting**
+5. **Recommendation / operator-disposition separation**
+6. **UNRESOLVED ≠ affirmative inactivity**
+7. **Durability across ordinary client loss**
+8. **Provenance**
+9. **Bitemporal discipline** — distinguish effective/decision time from recorded time
+
+Conditional:
+- multi-writer consistency only if there is more than one writer/authority for an account.
+
+Muse sharpened the reproducibility requirement:
+
+```text
+replay(
+  evidence refs,
+  governed-context version,
+  subject-state/input bundle,
+  evaluator version
+) → same Recommendation
+```
+
+This introduces one useful pressure not stated as sharply in §§37–40:
+
+> **Evaluator version is a load-bearing replay dependency and must be pinned with the Decision Trace if implementation changes can alter deterministic behavior.**
+
+The trace need not store generated reasoning prose if the authoritative inputs and evaluator version are sufficient to regenerate it.
+
+### Strongest client-local model
+
+Muse successfully constructed a strong client-local model:
+- IndexedDB/local durable store for context versions and decision/disposition records;
+- per-account hash chain;
+- immutable records;
+- encrypted backup to shared infrastructure;
+- content-addressed evidence refs;
+- deterministic browser-side evaluation.
+
+Under a fully trusted single operator across time, Muse concluded this can satisfy the replay requirements.
+
+This is important because it falsifies any simplistic proposition that:
+
+> **server custody of full semantic decision records is logically required merely because the records matter.**
+
+### Exact client-local failure point
+
+Muse identified a narrower forcing function:
+
+> **A self-authored local history cannot prove to the operator's future self that the historical record was not silently regenerated or rewritten.**
+
+A local hash chain protects against accidental mutation but not against its own author replacing the entire chain.
+
+Given Wheelwright's anti-hindsight / anti-objective-drift purpose, the relevant requirement is not merely durable bytes. It is **externally anchored temporal commitment** sufficient to distinguish:
+- governance that really existed before discomfort;
+- governance legitimately amended later;
+- later rationalization/departure.
+
+Muse therefore located the forcing invariant at:
+
+> **no-hindsight rewriting under self-distrust across time**
+
+rather than at generic “backend persistence.”
+
+### Minimal shared-authority mechanism proposed by Muse
+
+Muse's smallest shared requirement is not a server-side Decision engine and not necessarily full server custody of decision semantics.
+
+It proposed a **commitment/notary model**:
+
+```text
+client computes + records
+        ↓
+submit per-account chain head / record commitment
+        ↓
+shared durable authority timestamps / appends the commitment
+        ↓
+later mutation or regenerated history becomes detectable
+```
+
+A minimal anchor may contain:
+- account id;
+- sequence;
+- chain-head / record hash;
+- client decision time;
+- authoritative recorded time.
+
+The shared authority can return an immutable receipt and append it to an account-local commitment log.
+
+The semantic payload may remain elsewhere, provided it is durably recoverable and cryptographically bound to the anchored commitment.
+
+### ChatGPT reconciliation: what Muse earns and what it does not
+
+Muse **successfully falsifies a stronger architecture claim**:
+
+> **Full server-side ownership of Governed Context + Decision Trace is not logically required by the current invariants.**
+
+What survives is narrower:
+
+> **Wheelwright needs a durable authority outside the mutable client history for effective-time commitments if anti-hindsight provenance is to be more than self-attestation.**
+
+This materially narrows the persistence-ownership problem.
+
+The current architecture question should therefore no longer be framed as:
+
+> “backend or browser?”
+
+It should be framed as:
+
+> **What is the smallest shared durable commitment boundary required to make account-local governed context and decision history temporally trustworthy?**
+
+Possible implementation forms remain unchosen. Examples such as storing full records server-side, storing opaque encrypted blobs plus anchors, or storing only commitments are **architecture candidates**, not decisions.
+
+### Minimal record pressure from Muse
+
+Muse derived three logical record roles:
+
+#### R1 — Governed Context Version
+
+Minimum semantics:
+- stable/content identity;
+- account id;
+- effective-from;
+- effective-to / supersession;
+- recorded-at;
+- authority/author;
+- immutable governed payload or content binding;
+- prior version / supersession provenance.
+
+This directly supports §37's effective-time governance and amendment provenance.
+
+#### R2 — Decision Record
+
+Minimum semantics:
+- account id;
+- Decision Subject identity;
+- decision/evaluated time;
+- recorded time;
+- evidence refs;
+- governed-context version;
+- evaluator version;
+- subject-state / exact-input binding;
+- Alternatives/admissibility result sufficient for replay;
+- Recommendation or unresolved state;
+- immutable sequence / prior-record commitment if a chain is used.
+
+#### R3 — Operator Disposition Record
+
+Minimum semantics:
+- reference to Decision Record;
+- followed / deferred / departed;
+- action/disposition time;
+- recorded time;
+- optional new human judgment;
+- immutable/superseding correction semantics.
+
+Muse argues R2 and R3 should remain separate **logical records** because their author/time/cardinality differ, even if §40 correctly observed they can live in the same append-only physical store/history.
+
+This resolves the apparent §40 “3 parts” simplification without semantic loss:
+
+```text
+one append-only Decision-history capability
+    contains distinct Decision records
+    and later Disposition records
+```
+
+No separate “Disposition subsystem” is earned.
+
+### UNRESOLVED semantics
+
+Muse independently reinforced §37/§40:
+
+```text
+RECOMMEND(action)
+RECOMMEND(affirmative inactivity)
+UNRESOLVED(reason)
+```
+
+must remain distinguishable.
+
+This supports:
+- HOLD / WAIT / LET RESOLVE as legitimate governed Recommendations when earned;
+- evidence/governance insufficiency as a different result class.
+
+### Purpose-label leakage result
+
+Muse's generic result aligns strongly with §35 and §39.
+
+Cheapest safeguard:
+
+> **The deterministic evaluator's runtime input contract should not contain a high-level purpose label.**
+
+Instead:
+
+```text
+durable purpose
+    ↓ establishes / explains
+explicit governed context:
+    Objective
+    Constraint
+    Preference
+    Outcome Stance
+    Policy
+    ↓
+deterministic evaluator
+    ↓
+Recommendation
+```
+
+A purpose label may exist in upstream governance/provenance, but it should not be a hidden evaluator discriminator.
+
+This strengthens the PTS/Sawdust experimental design:
+- different accounts may legitimately produce different explicit runtime machinery;
+- if identical explicit machinery produces different Recommendations solely because purpose differs, hidden-label behavior has leaked into DECIDE.
+
+### Bitemporal tightening
+
+Muse adds a useful distinction that should be carried into architecture decomposition:
+
+- **effective / decision time** — when governance or a Recommendation applies;
+- **recorded time** — when Wheelwright durably recorded/anchored that fact.
+
+This allows Wheelwright to distinguish:
+- “what was effective at T?”
+from
+- “what did Wheelwright have durably recorded as of S about T?”
+
+Backdated governance correction may exist, but it must never masquerade as contemporaneously known governance.
+
+This is directly relevant to anti-hindsight integrity.
+
+### Shared authority versus computation
+
+Muse independently confirms the separation already identified in §40:
+
+```text
+authoritative persistence / temporal commitment
+        ≠
+deterministic evaluation location
+```
+
+No current invariant requires moving DECIDE to the backend.
+
+A coherent minimum architecture may allow:
+- client-side deterministic evaluation;
+- shared durable governed-context version commitments;
+- shared durable Decision/disposition commitments;
+- existing backend evidence authority;
+- client-side explanation/UI.
+
+Server-side decision computation remains unearned by this analysis.
+
+### Strongest future falsifier
+
+Muse identified two requirements that would materially change the minimum architecture:
+
+1. **Multiple mutually independent writers/authorities to the same account**
+   - co-trustee;
+   - delegated autonomous actor;
+   - concurrent authoritative writers.
+   
+   This would require identity, ordering, conflict, and per-author provenance beyond a single-writer commitment log.
+
+2. **Preventive enforcement**
+   - if Wheelwright must block prohibited external actions in real time rather than merely recommend/explain/record.
+   
+   That would pressure evaluation into the execution path and change the current accountable-human boundary.
+
+Neither condition is part of the current first slice.
+
+### Reconciled architecture conclusion
+
+Kiro §40 showed that the first governed-decision slice reduces to:
+1. Governed Context;
+2. reconciled deterministic lifecycle DECIDE;
+3. append-only Decision Trace with later disposition linkage.
+
+Muse now narrows the unresolved persistence boundary:
+
+> **Do not prematurely equate “authoritative” with “full semantic records must live in the backend.”**
+
+The minimum architectural need is:
+
+```text
+account-local immutable/versioned governed context
++ immutable Decision/disposition records
++ exact replay pins, including evaluator version
++ durable recovery
++ an external/shared recorded-time commitment sufficient to detect hindsight rewriting
+```
+
+The exact storage topology remains an implementation/architecture choice.
+
+### Next bounded architecture question
+
+The next useful reconciliation is now very small:
+
+> **Against current Wheelwright backend, browser stores, account identity, and SQLite posture, what is the smallest concrete persistence/anchoring design that satisfies the Muse invariants without moving deterministic DECIDE or inventing a generalized event-sourcing system?**
+
+That question is concrete enough for architecture decomposition and no longer requires broad semantic research.
