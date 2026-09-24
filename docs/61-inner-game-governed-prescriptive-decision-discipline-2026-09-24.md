@@ -5458,3 +5458,213 @@ A failure would be informative:
 - expected different Recommendation but same machinery/result → missing purpose-derived criterion;
 - explicit machinery cleanly explains the divergence → supports the governance/runtime split.
 
+
+
+---
+
+## 40. Kiro narrow repository-resident falsification of §38 — 2026-09-24
+
+**Source status:** Principal-supplied Kiro read-only falsification run at current `origin/main` HEAD `53aab6b606d0611017a2c39be19a149dea0066f3`. Kiro fast-forwarded non-destructively from a stale local checkout, inspected current repository code and authority, and performed no repository-content mutation. Preserve as architecture-reconciliation evidence. **Not ratified architecture, implementation authority, schema/API design, or semantic-model mutation.**
+
+### Acquisition
+
+Kiro reported:
+- actual HEAD used: `53aab6b606d0611017a2c39be19a149dea0066f3`;
+- clean tree, zero commits ahead, pure fast-forward;
+- bootstrap authority had changed only through Doc 61 §§35–39 additions; no Category-A/B, ADR, locked-spine, or parking-lot disposition changes were identified;
+- read-only inspection of §§37–39 plus current short-obligation decision/evidence/resolve/consequence code, account identity/persistence code, write/pending intent code, and available decision-history/export structures;
+- no mutation.
+
+### Gap falsification result
+
+Kiro attempted to falsify each §38 gap rather than confirm it.
+
+| §38 gap | Kiro verdict | Result |
+|---|---|---|
+| 1 — durable effective-time governed context absent from live decision path | **SURVIVES** | `assignmentIntent` exists as an optional evidence input but live resolution supplies `"unknown"`; DECIDE does not consume it, Objective, Outcome Stance, Inventory Role, willingness-to-own, Program context, or amendment history |
+| 2 — lifecycle decision can contradict natural-resolution governance | **SURVIVES** | current near-DTE/deep-OTM BTC rule consumes DTE/moneyness without governed call-away/assignment context; no upstream mechanism was found that prevents a GDXJ-class context-free BTC result |
+| 3 — LET RESOLVE not first-class | **NARROWED** | generic HOLD/no-action concepts exist and "let-resolve" is mentioned conceptually, but no decision type preserves the stronger natural-resolution meaning; distinct semantics remain earned |
+| 4 — lifecycle Recommendation not bound to effective Policy identity/version | **NARROWED** | policyVersion exists in recommendation-funnel/velvet-rope paths, but lifecycle policy remains an unversioned frozen code default |
+| 5 — no durable per-subject Decision Trace owner | **NARROWED** | opportunity-history/export machinery exists but is surface/symbol/funnel-oriented, browser-emitted, policy-neutral, and not account-keyed lifecycle decision history |
+| 6 — operator disposition not linked to Recommendation trace | **SURVIVES** | Write Intent and Pending Intent exist and are account-local, but neither records followed/departed/deferred relative to a specific Recommendation |
+| 7 — unresolved/judgment-required distinct from governed inactivity | **NARROWED** | `RECONCILE-LIFECYCLE`, `DECISION-DEFERRED`, `NO-ACTION`, and `HOLD` already provide useful separation; first-slice projection still must not collapse unresolved governance/evidence into WAIT/HOLD/LET RESOLVE |
+
+No §38 gap was fully falsified.
+
+### Important code-level findings
+
+Kiro confirmed the live short-obligation DECIDE inputs are currently limited to:
+- side;
+- DTE;
+- moneyness;
+- candidate detection;
+- close-price support.
+
+The live path does not currently provide assignment/call-away desirability or other effective governed context to DECIDE.
+
+Kiro also confirmed:
+- `loadHoldClosePair` supplies assignment intent as `"unknown"`;
+- current consequence plumbing may carry assignment intent but does not use it to select the governed action;
+- the current lifecycle decision rule can produce BTC from contract posture alone;
+- current HOLD is semantically broader than LET RESOLVE.
+
+This independently supports the §38 diagnosis that the principal missing center is governed context reaching deterministic DECIDE, rather than missing consequence plumbing.
+
+### Four-part slice falsification
+
+Kiro found no proposed part fully unnecessary, but identified one valid simplification.
+
+Original §38 slice:
+1. Governed Context
+2. Lifecycle Alternative + Decision Policy
+3. Decision Trace
+4. Operator Disposition Link
+
+Kiro conclusion:
+- Governed Context remains necessary.
+- The existing deterministic DECIDE seam is reusable but requires context consumption, LET RESOLVE semantics, and policy identity/versioning.
+- Decision Trace remains necessary for anti-hindsight and for preserving a prior Recommendation when the operator later departs.
+- Operator Disposition need not require a separate store/model from Decision Trace.
+
+Smallest surviving slice:
+
+```text
+1. Governed Context
+   account-local
+   subject-bindable
+   effective-time / versioned
+
+2. Lifecycle Decision reconciliation
+   reuse deterministic DECIDE seam
+   consume governed context
+   add LET RESOLVE if earned
+   bind lifecycle policy identity/version
+   preserve explicit unresolved states
+
+3. Append-only per-subject Decision Trace
+   preserve Recommendation
+   also append/link operator disposition entries
+   later link Action / Execution / Outcome
+```
+
+Thus Kiro narrows the §38 four-part structural slice to **three parts** by collapsing Decision Trace + Operator Disposition storage/identity.
+
+### PTS / Sawdust account-local governance audit
+
+Kiro found current architecture unusually well-positioned for the planned cross-account contrast.
+
+Current facts:
+- stable Wheelwright `brokerageAccountId` already exists as an account-local partition key;
+- account-local persistence is an established invariant;
+- Fidelity evidence already uses per-account storage keys;
+- current architecture includes explicit migration away from account-blind singleton state;
+- Write/Pending Intent already carry `brokerageAccountId`;
+- `BrokerageAccount` deliberately does **not** store purpose/regime as an authoritative-looking field.
+
+This means current architecture can support:
+
+```text
+account-local durable purpose / governance
+        ↓ establishes
+explicit account-local Objective / Constraint / Preference / Policy
+        ↓
+purpose-label-agnostic deterministic evaluator
+        ↓
+Recommendation
+```
+
+without introducing a hidden runtime branch such as:
+
+```text
+accountPurpose == income → X
+accountPurpose == growth → Y
+```
+
+Kiro found no current code encouraging that forbidden pattern.
+
+The smallest safeguard is therefore:
+- key governed context and any account-specific lifecycle policy by stable `brokerageAccountId`;
+- keep the DECIDE function purpose-label-agnostic;
+- feed it explicit decision machinery rather than an account-purpose switch.
+
+Sawdust-as-Growth remains an experimental candidate, not ratified governance.
+
+### Persistence-boundary facts
+
+Kiro confirmed the architectural split remains unresolved rather than accidentally answered by current implementation.
+
+Current observed boundaries:
+- backend durable/authoritative: market evidence, session/admissibility authority, snapshot publication;
+- browser-local account state: brokerage-account registry and per-account Fidelity evidence;
+- IndexedDB durable market cache: persistence/transport mechanism, not independent authority;
+- lifecycle Decision outputs: principally browser-reconstructed/transient;
+- opportunity-history: not an adequate lifecycle Decision Trace.
+
+AR1 and AR6 create pressure toward durable/shared authoritative state and decision context, but do **not** prescribe:
+- backend ownership;
+- a specific database;
+- event sourcing;
+- a Decision service;
+- moving deterministic evaluation out of the browser.
+
+Kiro preserved the key separation:
+
+```text
+deterministic evaluation location
+        ≠
+authoritative persistence ownership
+```
+
+The former may remain browser-side initially. The latter must be decided deliberately for Governed Context + Decision Trace rather than inherited accidentally from presentation-local storage.
+
+### Strongest falsifier of Kiro's conclusion
+
+Kiro identified a current-main falsifier that would overturn the surviving central diagnosis:
+
+> an authoritative, account-local, effective-time source that already feeds assignment/call-away desirability or willingness-to-own into the live DECIDE path.
+
+Kiro searched the live path and did not find one.
+
+Future cross-account falsifier:
+
+> if PTS and Sawdust, with identical explicit decision machinery, produce different Recommendations solely because an account-purpose label differs, the purpose-agnostic evaluator model is false and hidden label-based behavior exists.
+
+### ChatGPT reconciliation of the Kiro result
+
+The Kiro run materially strengthens §38 rather than merely agreeing with it because it found one real simplification and several existing precedents.
+
+The architectural problem is now narrower:
+
+- do **not** invent a new Decision engine;
+- do **not** add a Mandate/Purpose runtime switch;
+- do **not** build a separate disposition subsystem merely because operator departure needs preservation;
+- do reuse account-local identity, evidence plumbing, consequence evaluation, DECIDE, attention separation, and existing operator surfaces.
+
+The surviving structural core is:
+
+> **Governed Context + reconciled lifecycle DECIDE + append-only Decision Trace/disposition history.**
+
+The one unresolved architecture boundary that must be chosen before clean decomposition is:
+
+> **What is the authoritative persistence owner for Governed Context and Decision Trace?**
+
+That choice must satisfy:
+- account locality;
+- effective-time reproducibility;
+- anti-hindsight history;
+- multi-client/shared-state direction where required;
+- no hidden purpose-label branching;
+- deterministic replay;
+- historical Recommendation preservation.
+
+The current evidence does **not** yet justify a new service, generic event store, or moving decision computation wholesale to the backend.
+
+### Next research/architecture discriminator
+
+The next bounded question is therefore not "what should the whole target architecture be?"
+
+It is:
+
+> **What persistence ownership model is the smallest one that can make Governed Context and Decision Trace authoritative, account-local, effective-time reproducible, and non-disposable—while allowing deterministic DECIDE to remain where it is unless separate pressure requires moving it?**
+
+This should be resolved before implementation decomposition.
