@@ -4492,3 +4492,198 @@ The immediate remaining falsifier is:
 
 The actor should attack that proposition directly and stop once the discriminator is resolved or a single irreducible counterexample is found.
 
+
+
+## 35. Codex narrow allocation-purpose irreducibility falsifier — 2026-09-24
+
+**Source status:** Principal-supplied Codex adversarial result. Codex reused the already-completed bootstrap because bootstrap authority was unchanged since the prior acquisition, synchronized to current `main` at `fdf506fbf9c4fd6fb265dd68782a5a5e203ac699`, read only §§33–34, and performed no repository-content mutation. Preserve as high-value falsification evidence. **Not ratified ontology, architecture, Product semantics, roadmap disposition, schema, or implementation authority.**
+
+### Acquisition delta
+
+Codex reported:
+- HEAD: `fdf506fbf9c4fd6fb265dd68782a5a5e203ac699`;
+- only Doc 61 changed since prior acquisition;
+- bootstrap authority files were unchanged, so the previously completed literal bootstrap was legitimately reused;
+- only §§33–34 were newly read.
+
+### Proposition under attack
+
+Codex attacked the remaining proposition:
+
+> **Allocation Purpose has no irreducible runtime semantics once explicit decision machinery is complete.**
+
+This was the single remaining refuge after the §32 Muse challenge, the first Codex five-specimen controlled run, and the §33 Kiro reconciliation.
+
+### Best attempted counterexample
+
+Codex constructed the strongest marginal case it could:
+
+> two admissible capital uses where an Income purpose selects current cash production while a Growth purpose selects reinvestment.
+
+The apparent divergence was:
+
+```text
+Income → prefer current distributable cash flow
+Growth → prefer expected compounding
+```
+
+Codex then applied the mandatory compile-away test.
+
+Result:
+
+> the distinction compiles losslessly into an explicit Objective or Preference.
+
+If those explicit runtime inputs are then held identical, the legitimate basis for divergent Recommendations disappears.
+
+### Compile-away results
+
+Codex generalized the same result across several candidate purpose effects:
+
+| Apparent purpose effect | Explicit representation that carries the runtime work |
+|---|---|
+| lexicographic purpose priority | governed Preference ordering |
+| purpose-specific success condition | Objective |
+| purpose-specific prohibition | Constraint |
+| purpose-specific qualification requirement | Policy predicate / rule |
+| purpose-specific desired outcome | Outcome Stance |
+| purpose-specific inventory use | Inventory Role |
+
+Codex further attacked the escape hatch that purpose might be “holistic” or nonseparable.
+
+Its conclusion:
+
+> **A complete mapping from state and Alternatives to admissibility or ordering is itself decision machinery, even if represented as one compound Policy rather than decomposed rules.**
+
+Therefore holistic purpose does not demonstrate irreducible runtime semantics merely by resisting simple decomposition.
+
+### Discriminator result
+
+Codex stated the discriminator cleanly:
+
+If all explicit runtime machinery is genuinely complete and identical, but Recommendation still changes only because the purpose label differs, then one of two things is true:
+
+1. the behavior is unexplained label-based behavior; or
+2. the runtime machinery omitted a purpose-derived criterion.
+
+In case (2), the omitted criterion must be represented explicitly as an Objective, Preference, Constraint, Policy, Outcome Stance, Inventory Role, consequence semantics, or another governed runtime input.
+
+Thus:
+
+> **An apparent Allocation-Purpose effect that can be compiled into explicit machinery without information loss does not establish independent runtime semantics for Allocation Purpose.**
+
+### Governance explanation vs runtime information
+
+Codex identified one important distinction that must not be lost:
+
+> Compiling purpose consequences into runtime machinery can lose governance explanation if Allocation Purpose is deleted altogether. It does **not** lose runtime decision information if Allocation Purpose remains as durable design rationale and provenance.
+
+This separates two legitimate semantic jobs:
+
+```text
+Allocation Purpose
+  explains why the machinery exists
+  supports governance coherence
+  persists as provenance
+
+Explicit runtime machinery
+  determines the Recommendation
+```
+
+This result strengthens the governance/runtime split without arguing that Allocation Purpose is meaningless or disposable.
+
+### Narrow falsification verdict
+
+Codex concluded:
+
+> **No valid irreducible counterexample survives.**
+
+And:
+
+> **Allocation Purpose has no demonstrated irreducible runtime semantics once explicit decision machinery is complete.**
+
+This is a falsification result against the remaining runtime-purpose hypothesis, **not ontology ratification**.
+
+It closes the reserved marginal-case refuge unless future evidence identifies a concrete Recommendation-relevant distinction that:
+- cannot be represented as admissibility;
+- cannot be represented as Objective;
+- cannot be represented as Preference;
+- cannot be represented as Constraint;
+- cannot be represented as Policy;
+- cannot be represented as Outcome Stance;
+- cannot be represented as Inventory Role;
+- cannot be represented as consequence semantics;
+- and cannot be represented as another explicit governed input without real information loss.
+
+### Semantic consequence
+
+The current evidence now strongly supports this separation:
+
+```text
+GOVERNANCE / DESIGN / PROVENANCE
+  Allocation Purpose
+  Program selection rationale
+  Policy design rationale
+  durable effective-time intent
+  amendment authority/history
+
+          ↓ establishes
+
+RUNTIME DECISION
+  Reconciled State / Evidence
+  Decision Subject
+  Alternatives
+  qualification predicates
+  Constraints
+  Objectives
+  Outcome Stance
+  Inventory Role
+  Preferences
+  consequence semantics
+          ↓
+  Recommendation
+```
+
+The remaining semantic value of Allocation Purpose is therefore upstream:
+- durable declaration of what governed capital is for;
+- rationale for Program / Policy selection;
+- coherence check against later governance;
+- historical provenance;
+- anti-hindsight context.
+
+No current specimen demonstrates that Allocation Purpose must also appear as an independently causal runtime evaluator.
+
+### Strongest falsifier of this result
+
+The result should be overturned if a future specimen demonstrates all of the following simultaneously:
+
+1. all explicit runtime decision machinery is complete and held constant;
+2. only durable Allocation Purpose differs;
+3. Recommendation legitimately differs;
+4. the reason for that difference cannot be represented losslessly in any existing governed runtime input;
+5. the supposedly irreducible content is operationally identifiable rather than merely called “purpose,” “context,” “intent,” “meaning,” or “strategy.”
+
+Until such a specimen exists, runtime Allocation-Purpose causality has not earned semantic status.
+
+### Research implication
+
+This narrows the 4AM research focus materially.
+
+The primary question is no longer:
+
+> **Where does Mandate bind in the runtime loop?**
+
+The better current question is:
+
+> **What durable governance-purpose and temporal-provenance facts must be recorded upstream, and how should explicit runtime decision machinery consume their consequences without allowing hindsight rewriting or hidden decision criteria?**
+
+The unresolved work therefore moves away from mandate-scope hunting and toward:
+- minimum durable governance/provenance record;
+- typed Policy mechanisms;
+- telic Objective vs atelic Allocation Purpose;
+- Outcome Stance / Inventory Role boundaries;
+- amendment / reconsideration semantics;
+- preserving WAIT / HOLD / natural resolution;
+- ensuring operator authority and departures remain explicit.
+
+No implementation, ontology mutation, or spine change is authorized by this result alone.
+
