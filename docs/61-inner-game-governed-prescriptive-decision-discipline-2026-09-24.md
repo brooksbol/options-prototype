@@ -6987,3 +6987,129 @@ Codex reserve is approximately **15%** after the §43 falsifier. Preserve it.
 Muse has completed the independent generic falsification role for this architecture question.
 
 No additional Kiro/Muse/Codex challenge is currently earned unless the Principal rejects the candidate or decomposition exposes a concrete contradiction.
+
+
+---
+
+## 45. Principal promotion decision and roadmap / ADR / AR reconciliation — 2026-09-24
+
+**Principal decision:** **A — promote the §§42–44 reconciled candidate into Wheelwright architecture authority before decomposition.**
+
+This section preserves the promotion rationale and the required reconciliation against current strategic-roadmap, architecture-roadmap, and ADR authority. Architecture authority is carried by `docs/07-architecture-current.md` and ADR-019; this section remains why-state/reconciliation evidence.
+
+### Promotion result
+
+The following first-slice architecture is now ratified:
+
+- existing Java backend + SQLite own durable Governed Context Versions, Lifecycle Decision Records, and later Operator Disposition Records;
+- deterministic lifecycle DECIDE remains browser-side unless separately changed;
+- every durable record is account-partitioned by stable `brokerageAccountId`;
+- backend-assigned `recorded_at` is distinct from effective/decided/acted time;
+- context amendment is immutable/versioned rather than in-place historical rewrite;
+- existing Decision replay pins `context_version_id`;
+- generic as-of context resolution applies both effective time and recorded-time knowledge cutoff;
+- Lifecycle Decision Record contains the canonical exact load-bearing Decision input bundle;
+- mutable/overwritten/ambient inputs are retained as the exact values DECIDE consumed;
+- resolved policy/default/threshold values are replay-bound, not represented only by a version label;
+- evidence generation/retrieval/provenance identifiers remain provenance unless they resolve to immutable recoverable payload;
+- purpose/Mandate remains upstream governance provenance rather than a direct runtime discriminator;
+- UNRESOLVED remains distinct from governed inactivity;
+- operator disposition remains distinct from Action/execution;
+- authoritative brokerage evidence remains required for actual lifecycle transition/execution truth.
+
+### Strategic roadmap reconciliation
+
+No new Lean Value Tree identity is required.
+
+The architecture serves existing strategic homes:
+
+- **`LVT-BET-POSITION` / `LVT-BET-ATTENTION`** — durable context/history supports trustworthy reassessment but does not collapse Attention into Decision;
+- **`LVT-BET-WAIT`** — replay preserves genuine inactivity Recommendation separately from unresolved context;
+- **`LVT-BET-LIFECYCLE-CHOICES`** — Decision history can preserve lifecycle Alternatives including natural resolution;
+- **`LVT-BET-RISK-PROFILES`** — upstream governed risk/consequence choices can become durable effective context;
+- **`LVT-BET-LIFECYCLE-POLICY`** — direct strategic home for precommitted lifecycle governance;
+- **`LVT-BET-LIFECYCLE-OUTCOME`** — Decision identity/provenance supplies the upstream side of future Decision→Execution→Outcome reconstruction;
+- **`LVT-BET-OUTCOME-LEARNING` / `LVT-INIT-LEARN-PRESERVE` / `LVT-INIT-LEARN-REPLAY`** — canonical Decision inputs and evaluator/policy pinning create the first reproducible Decision-time substrate;
+- **`LVT-DIRECTION-ALWAYS-ON`** — durable shared state is compatible with continuous operation, but this decision does not authorize cloud migration.
+
+Therefore:
+- **no new Bet;**
+- **no new Goal;**
+- **no new Initiative solely for this architecture decision;**
+- existing strategic direction is strengthened rather than changed.
+
+### Priority and Coming Soon reconciliation
+
+The Principal did **not** change priority or horizon placement in this decision.
+
+Accordingly:
+- `docs/roadmap-priority.md` remains unchanged;
+- `docs/roadmap-coming-soon.md` remains unchanged.
+
+Architecture promotion must not silently become a priority/horizon decision.
+
+### Architecture-roadmap reconciliation
+
+The architecture-roadmap has been updated with a bounded reconciliation rather than a new AR.
+
+- **AR1 — Authoritative State Must Mature Beyond Market Evidence:** **partially resolved for governed decision context/history only.** Broader portfolio/capital/lifecycle-state authority remains open.
+- **AR2 — Attention:** unchanged and explicitly preserved as distinct from Decision.
+- **AR3 — Governed Alternatives:** compatible; no strategy-specific replay architecture or generic Alternative framework is introduced.
+- **AR4 — Consequence Semantics:** preserved; only consequence values actually consumed by DECIDE become replay-bound. Current consequence objects are not duplicated.
+- **AR5 — Eligibility / Acceptability / Fitness:** unchanged.
+- **AR6 — Durable Decision Context and Computation Ownership:** **materially resolved for the first lifecycle-decision slice.** Durable context/history live behind backend/SQLite; deterministic evaluation remains browser-side.
+- **AR7 — Decision → Execution → Lifecycle → Outcome Identity:** narrowed. Decision identity/history + later disposition linkage are established; Action/execution/lifecycle/outcome identity remains open.
+- **AR8 — Reproducible Temporal Substrate:** **first-slice Decision replay substrate established.** Full learning chain remains open beyond Decision.
+- **AR9 / AR10:** no new architectural decision.
+
+No new AR identity is warranted.
+
+### ADR reconciliation
+
+ADR-019 records the promoted decision and is consistent with the existing ADR spine:
+
+- **ADR-001** — preserved: evidence acquisition and recommendation remain separate; durable recording does not make backend the evaluator.
+- **ADR-004** — preserved: Recommendation/disposition does not establish broker execution.
+- **ADR-013** — reinforced: uncertainty/missing authority is explicit; history preserves what was actually known rather than manufacturing certainty.
+- **ADR-015** — reinforced/extended at the Decision boundary: provenance accompanies consumed inputs; provenance metadata is not silently promoted into recoverable evidence.
+- **ADR-016** — reinforced: account/subject/context associations must be explicit and authority-scoped; convenient identifiers do not acquire extra semantic authority.
+- **ADR-017** — reinforced: effective governed context must actually reach DECIDE; missing authoritative context fails closed rather than being replaced by local inference or purpose label.
+- **ADR-018** — preserved: evaluator/policy/source identity may be carried as prepared build/runtime metadata, but replay must never require runtime GitHub access.
+
+### Current-architecture reconciliation
+
+`docs/07-architecture-current.md` now contains the ratified governed-decision ownership, replay, account-locality, temporal, and non-decision boundaries.
+
+This changes one important part of the prior transitional picture:
+
+> Browser-side deterministic recommendation computation may remain transitional/current, but browser-local storage is no longer the architectural owner of governed-decision history.
+
+The new durable history boundary is backend/SQLite.
+
+### Simplicity check
+
+The promoted architecture introduces **no new infrastructure technology** and deliberately avoids:
+
+- generic event sourcing;
+- a second evidence/semantic store;
+- cryptographic notarization for the current threat model;
+- a new service topology;
+- backend DECIDE merely for persistence;
+- backend BrokerageAccount registry ownership merely for partitioning;
+- a generic policy/ontology runtime.
+
+The change is one narrow expansion of durable responsibility inside the existing backend/SQLite boundary.
+
+### Decomposition boundary
+
+Architecture promotion is complete at the semantic/structural level.
+
+Before implementation decomposition may begin, the repository's ADR-018 Roadmap projection completion criterion must be satisfied because `architecture-roadmap.md` and `07c-adrs.md` changed: regenerate and verify the derived `roadmap-projection.json`.
+
+After that mechanical synchronization, decomposition may proceed from ADR-019 / current architecture without reopening the architecture question unless decomposition exposes a concrete contradiction.
+
+### Actor allocation
+
+- **Muse:** no further run earned for this architecture question.
+- **Codex:** preserve the remaining ~15% reserve.
+- **Kiro:** no further architecture challenge earned before decomposition; Kiro may be useful later as a repository-resident decomposition/reconciliation actor once the projection is synchronized.
