@@ -4893,3 +4893,196 @@ The next bounded semantic reconciliation should use the following Product test:
 
 The contract should automate routine reconstruction while leaving genuine judgment, exceptions, governance amendment, and consequential Action with the operator.
 
+
+
+---
+
+## 37. Bounded semantic reconciliation — minimum decision/provenance contract for the first governed-decision vertical slice — 2026-09-24
+
+**Source status:** Principal-authorized bounded semantic reconciliation following §§35–36. This section reconciles the current research into the smallest contract needed to support the first governed-decision software slice. It is a **working implementation-boundary candidate**, not ratified ontology, architecture, schema, API, UI, or implementation authorization. Unrelated semantic questions remain open deliberately.
+
+### Reconciliation question
+
+> **What minimum durable decision/provenance contract is necessary for Wheelwright to answer “What do I need to do right now?” correctly, reproducibly, and with minimal cognitive load?**
+
+The contract must automate routine decision reconstruction; preserve effective-time governance and evidence; permit inactivity to be an affirmative governed path; distinguish insufficient evidence from governed inactivity; preserve operator authority; distinguish Recommendation from later operator choice; distinguish legitimate governance amendment from hindsight rewriting; and avoid requiring the operator to manipulate ontology directly.
+
+### Product acceptance criterion
+
+> **Given a governed subject and authoritative current evidence, Wheelwright reconstructs the applicable decision context, generates legitimate Alternatives including inactivity, evaluates them under explicit decision machinery, produces a deterministic Recommendation when one is earned, preserves the effective-time decision trace, and records the operator's later choice without rewriting history.**
+
+The minimal visible projection may be a **Recommendation** column on an existing console table. The depth belongs behind that projection.
+
+### Minimum contract — decision input
+
+#### 1. Decision Subject
+Identify exactly what the Recommendation is about, including stable subject binding sufficient for the decision, relevant account/inventory/construction/program association where required, and affected quantity/unit where material. This does **not** require final ratification of a universal Position or Lifecycle Episode entity.
+
+#### 2. Decision time / as-of boundary
+Every evaluation needs an explicit decision/effective time. Distinguish facts effective for the decision, evidence observation/acquisition time, governance effective time, and decision-recorded time where material. One timestamp is not assumed sufficient.
+
+#### 3. Reconciled State / Evidence
+Bind the decision to authoritative state/evidence on which it depends: evidence/state references or immutable decision-relevant values; authority/provenance sufficient to reproduce the conclusion; freshness/applicability where material; explicit insufficiency/conflict where a Recommendation cannot legitimately be earned. The first slice need not snapshot the entire world—only load-bearing facts.
+
+#### 4. Applicable governed machinery
+Runtime evaluation receives explicit machinery rather than inferring behavior from a purpose label. Where relevant this includes Program/lifecycle state, qualification predicates, Constraints/hard vetoes, Objectives/targets, Outcome Stance, Inventory Role, Preferences/ordering, consequence semantics, and lifecycle transition rules.
+
+Allocation Purpose may remain upstream as governance rationale/provenance but is not required as an independently causal runtime evaluator on current evidence.
+
+#### 5. Policy identity and effective version
+Identify the Policy/rules actually in force. The Policy umbrella may contain different mechanisms. The evaluator must not confuse qualification predicates, hard vetoes/Constraints, Preferences/orderings, Objectives/targets, lifecycle transition rules, reconsideration/attention rules, amendment/rule-change rules, and provenance/record-keeping rules.
+
+This is mechanism-typing pressure, not authorization to create eight new ontology entities.
+
+### Minimum contract — decision evaluation
+
+#### 6. Normalized Alternatives
+Enumerate legitimate governed paths, including transaction and non-transaction paths. First-slice examples include HOLD, WAIT, LET RESOLVE, CLOSE, ROLL, SELL CALL, and other program-valid paths when supported.
+
+Important distinction:
+- **WAIT/HOLD/LET RESOLVE can be affirmative governed Alternatives.**
+- **Insufficient evidence is not automatically an Alternative called WAIT.**
+
+#### 7. Counterfactual Consequences
+Carry the structured consequences required by governing machinery for each Alternative. Only decision-relevant dimensions are required in the first slice: e.g. assignment/disposition consequence, residual inventory/exposure, premium/cost economics, capital encumbrance, duration, lifecycle transition, future optionality. Counterfactual consequence remains distinct from realized Outcome.
+
+#### 8. Admissibility and ordering result
+Preserve whether an Alternative is qualified/feasible enough to evaluate, whether a hard Constraint prohibits it, whether it clears absolute acceptability, comparative ordering among admissible survivors where required, and the reason/dependency for exclusion or ordering.
+
+This preserves: **feasible/eligible ≠ acceptable ≠ comparatively preferable.** It prevents “best available” from silently becoming “good enough.”
+
+#### 9. Recommendation result
+A Recommendation is the deterministic governed result over Alternatives under bound evidence and machinery. Preserve the selected/recommended Alternative when earned, decision time, governing Policy/version, dependency/provenance binding sufficient for replay, and structured basis sufficient for explanation.
+
+A Recommendation is **not** operator choice, Action, Order, Execution, or realized Outcome. The first UI projection may display only the recommended path, e.g. **LET RESOLVE**.
+
+#### 10. No-Recommendation / judgment-required state
+Permit evaluation to conclude that no governed Recommendation is currently earned: required evidence may be insufficient/conflicted, governance may not cover the case, or genuine operator judgment/governance amendment may be required.
+
+This is distinct from a governed Recommendation of WAIT/HOLD/LET RESOLVE.
+
+This tightens the §36 illustrative **REVIEW** cell: REVIEW may be an operator-facing attention/status projection; it should **not** silently masquerade as a Recommendation Alternative unless later semantics explicitly earn that meaning.
+
+### Minimum contract — temporal provenance and operator authority
+
+#### 11. Effective-time governance provenance
+For every load-bearing governed input, establish what was in force at decision time. Where applicable: Policy/version, Objective, Outcome Stance, Inventory Role, qualification commitments such as willingness-to-own, thresholds/targets, authority, and effective time/interval.
+
+Immutable/versioned references may satisfy this without duplicating every value into every record. The invariant is reproducibility, not denormalization.
+
+#### 12. Amendment provenance
+A later governance change must not overwrite prior effective-time governance. Preserve what changed, prior/new governed value or version, authority, effective time, recorded time, and reason/rationale where governance requires it.
+
+This is the minimum anti-hindsight mechanism. Distinguish:
+- same governance + changed evidence;
+- changed governance;
+- deliberate operator departure under unchanged governance.
+
+#### 13. Operator disposition
+Record the operator response separately: accepted/followed, declined/departed, deferred, or other sufficiently evidenced disposition as required; selected Alternative/Action where one exists; time; and genuinely new human judgment when supplied.
+
+Do not require manual journaling of facts Wheelwright already knows. A departure does not retroactively change the Recommendation.
+
+#### 14. Action / execution / outcome linkage
+The first slice need not solve all AR7 lifecycle identity, but it must preserve:
+
+~~~text
+Recommendation
+  ≠ operator disposition
+  ≠ Action
+  ≠ broker instruction
+  ≠ Execution
+  ≠ Reconciled Outcome
+~~~
+
+Later execution/outcome evidence should be linkable without rewriting the decision trace. Final universal Decision Episode/Lifecycle Episode identity is not required first.
+
+### Minimum reproducible decision trace
+
+~~~text
+Decision Subject
++ decision/as-of time
++ load-bearing Reconciled State / Evidence
++ applicable Program / lifecycle state
++ effective Policy version
++ explicit predicates / Constraints / Objectives
++ Outcome Stance / Inventory Role / Preferences
++ normalized Alternatives
++ decision-relevant Counterfactual Consequences
++ admissibility / acceptability / ordering result
+        ↓
+Recommendation OR no-recommendation/judgment-required state
+        ↓
+operator disposition / selected Action
+        ↓
+later execution / outcome linkage when available
+~~~
+
+Parallel provenance chain:
+
+~~~text
+governed value
++ authority
++ effective time
++ recorded time
++ version / supersession
++ amendment provenance
+~~~
+
+### Deliberately outside this contract
+
+The first slice does **not** require resolution of universal Lifecycle Subject/Episode identity; every Capital Pool overlap/partition rule; generalized association-authority matrices beyond specimen needs; final canonical naming of Intent; universal Candidate durability; broad practitioner-strategy mapping; every conventional options strategy; generalized brokerage-capability architecture; learning/replay architecture beyond sufficient trace; a generic Policy DSL; a generic ontology runtime; a new primary UI surface; or schema-per-ontology-noun implementation.
+
+Those remain open unless the first slice produces concrete pressure that makes one necessary.
+
+### Acceptance specimens
+
+#### Specimen A — covered-call natural resolution / GDXJ class
+Preconditions: governed shares + short call authoritatively associated; applicable Wheel state known; current market/expiry evidence sufficient; call-away/assignment stance and relevant objective preserved from effective time; no intervention/invalidation/reconsideration rule fired; natural resolution remains preferred.
+
+Expected result:
+- **LET RESOLVE** may be the governed Recommendation;
+- no transaction is required merely to create activity;
+- expiration and assignment consequences remain represented accurately;
+- if the operator rolls anyway, the original Recommendation remains historically intact and departure is separately recorded.
+
+Pathology pressure: activity bias, objective drift, hindsight rationalization, loss aversion around a pre-accepted outcome.
+
+#### Specimen B — CSP willing-to-own under adverse movement
+Preconditions: willingness-to-own at strike or equivalent qualification passed under effective-time evidence/governance at entry; assignment stance/objective and risk boundaries recorded; current adverse movement observed; no thesis-breaking/invalidation/reconsideration condition fired.
+
+Expected result:
+- current discomfort alone does not rewrite prior ownership acceptability;
+- Recommendation follows current explicit machinery;
+- changed evidence can legitimately trigger reconsideration;
+- governance amendment is prospective and provenance-bearing;
+- operator departure is permitted but remains distinct.
+
+Pathology pressure: loss aversion, objective/thesis drift, hindsight rationalization, regime/mandate shopping.
+
+### Minimal UX consequence
+
+Normal case:
+> **Recommendation: LET RESOLVE**
+
+Inspection can answer why, what evidence/governance was used, and what would change the Recommendation.
+
+Exception case: if no Recommendation is earned, ask for attention/judgment rather than manufacture a trade or disguise uncertainty as WAIT.
+
+> **Complexity should accumulate behind the Recommendation, not in front of the operator.**
+
+### Reconciliation verdict
+
+The research is sufficiently converged to define a bounded first decision/provenance contract **without** completing the universal semantic model.
+
+Remaining semantic-model questions are not global blockers to the first behavioral vertical slice unless a concrete acceptance specimen depends on them.
+
+The next phase should stop asking “what other ontology concepts might exist?” and ask:
+
+> **Where do the minimum contract responsibilities belong in current Wheelwright architecture, what existing authoritative state can satisfy them, and what smallest gaps must be filled for the two acceptance specimens?**
+
+That is an architecture/decomposition question, not another broad semantic-discovery question.
+
+### Authority boundary
+
+This section does not itself authorize canonical Semantic Model mutation, locked 17-row spine mutation, ADR mutation, schema/API/UI/backend implementation, or migration. It establishes the bounded semantic input for the next architecture reconciliation.
