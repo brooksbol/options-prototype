@@ -4687,3 +4687,209 @@ The unresolved work therefore moves away from mandate-scope hunting and toward:
 
 No implementation, ontology mutation, or spine change is authorized by this result alone.
 
+
+
+---
+
+## 36. Product reframing — cognitive resistance, operator attention, and minimal recommendation surface — 2026-09-24
+
+**Source status:** Principal/ChatGPT Product reframing following the §35 falsifier. The Principal explicitly affirmed the core framing and its behavioral rationale. Preserve as Product meaning and a constraint on the next bounded semantic reconciliation. This section does **not** ratify ontology, architecture, schema, UI design, or implementation.
+
+### Product principle
+
+The original sentiment remains:
+
+> **Make the right thing to do the easiest thing to do.**
+
+The more system-rigorous formulation is:
+
+> **Make the governed process the path of least cognitive resistance.**
+
+Both connect to the older human-factors maxim:
+
+> **Don't make me think.**
+
+For Wheelwright, that maxim has a specific meaning:
+
+> **Do not make the operator perform unnecessary decision reconstruction that the system can perform and remember. Reserve operator cognition for genuine judgment.**
+
+The Principal sharpened the causal rationale:
+
+> **Don't make me think unnecessarily, otherwise I may become emotional and make a mistake.**
+
+This is not a license to diagnose operator psychology. It is a Product reason to reduce unnecessary cognitive work and the opportunity for already-observed behavioral pathologies to become actions.
+
+### Causal Product chain
+
+The current framing is:
+
+```text
+remove unnecessary decision reconstruction
+        ↓
+make the governed process the path of least cognitive resistance
+        ↓
+reserve operator cognition for genuine judgment and exceptions
+        ↓
+reduce opportunities for known behavioral pathologies to become actions
+        ↓
+preserve operator authority over what actually happens
+```
+
+The system should do routine reasoning before the operator is forced to reconstruct the process under emotional or time pressure.
+
+### What the system should remember so the operator does not have to
+
+Where authoritative and applicable, Wheelwright should carry forward:
+- current reconciled state and evidence;
+- applicable Program/lifecycle state;
+- Policy and effective version;
+- Constraints and Preferences;
+- Objectives;
+- Outcome Stance;
+- Inventory Role;
+- previously accepted outcomes and commitments;
+- Alternatives and consequence semantics;
+- prior Recommendation;
+- operator choice/departure;
+- effective-time provenance and later amendments.
+
+The operator should not be required to restate facts Wheelwright already possesses merely to recover the governed answer.
+
+Human cognition should instead be concentrated on questions such as:
+- has the thesis genuinely changed?
+- has evidence changed in a way the current policy does not cover?
+- is a governance amendment warranted?
+- is this a legitimate exception?
+- does the operator deliberately choose to depart from the Recommendation?
+
+### Behavioral pathologies as process pressure, not diagnostic features
+
+The known hazards remain useful as adversarial pressure:
+- FOMO;
+- revenge;
+- boredom / activity bias;
+- premature profit-taking;
+- loss aversion;
+- objective / thesis drift;
+- hindsight rationalization;
+- mandate / regime shopping;
+- premium / probability fixation;
+- oversizing;
+- best-available being mistaken for acceptable.
+
+Wheelwright need not build a separate detector or warning for each pathology.
+
+A stronger Product mechanism is to make the governed baseline conspicuous before improvisation begins.
+
+Examples:
+- no Alternative clears absolute acceptability → **WAIT**;
+- an open position remains within policy → **HOLD** or **LET RESOLVE**;
+- a pre-accepted assignment outcome remains valid under current evidence → do not manufacture intervention merely because the outcome is now uncomfortable;
+- a deliberate operator departure remains permitted but is preserved as a departure rather than retrospectively rewriting the prior Recommendation.
+
+The system should observe process facts, not label the operator's mental state.
+
+### The Wheel as the leading behavioral specimen
+
+The rigorous Wheel definition is especially useful because its states, transitions, Policy rules, preferences, and natural-resolution semantics permit Wheelwright to perform routine reconstruction itself.
+
+For a covered-call state such as the GDXJ specimen, if:
+- the call remains open;
+- the relevant expiry/evidence state is known;
+- assignment/call-away remains acceptable or desired under the effective governance;
+- no invalidation/reconsideration/intervention condition has fired;
+- natural resolution remains preferred to unnecessary intervention;
+
+then the operator should not have to mentally rerun the Wheel.
+
+A valid governed Recommendation may simply be:
+
+> **LET RESOLVE**
+
+This is the behavioral intervention: make disciplined inactivity easier than unnecessary activity without preventing the operator from choosing otherwise.
+
+### Minimal user-experience hypothesis
+
+Operators do not need to see or manipulate the ontology merely because Wheelwright requires semantic rigor internally.
+
+The smallest useful surface may be an additional **Recommendation** column on existing console tables.
+
+Illustrative projection only:
+
+| Governed subject | Recommendation |
+|---|---|
+| covered call approaching resolution | **LET RESOLVE** |
+| open position with no intervention trigger | **HOLD** |
+| inventory eligible for governed overwrite | **SELL CALL** |
+| available capital with no acceptable deployment | **WAIT** |
+| state requiring genuine operator judgment | **REVIEW** |
+
+The normal operator question is:
+
+> **What do I need to do right now, even if the answer is nothing?**
+
+The Recommendation is the compression surface for deeper machinery. Detail/explanation may be available on inspection, but the first slice should not assume a new primary UI surface is necessary.
+
+Working UX constraint:
+
+> **Try to project governed Recommendation into existing operator surfaces before inventing a new surface.**
+
+A new surface should be earned by demonstrated information or workflow pressure.
+
+### Complexity belongs behind the Recommendation
+
+The operator should not have to reason directly over Allocation Purpose, semantic association topology, effective-time machinery, or other ontology merely because those concepts are required for correctness.
+
+Working principle:
+
+> **Complexity should accumulate behind the Recommendation, not in front of the operator.**
+
+The semantic machinery is justified when it improves one or more of:
+- Recommendation correctness;
+- reproducibility;
+- explanation;
+- temporal integrity;
+- distinction between process continuation, legitimate amendment, and operator departure.
+
+If a semantic distinction cannot eventually improve those properties of the operator's answer, its Product value should be challenged.
+
+### Human authority boundary
+
+The system does not coerce compliance.
+
+Working boundary remains:
+
+> **Wheelwright determines what the governed process says should happen. The operator determines whether it actually happens.**
+
+Therefore:
+- Recommendation is not Action;
+- a visible governed baseline does not remove operator discretion;
+- departure is allowed;
+- legitimate amendment is allowed;
+- genuine new judgment is allowed;
+- history must not be rewritten to make a later departure appear to have been the earlier Recommendation.
+
+### First working-software interpretation
+
+The semantic research should not be interpreted as requiring a large ontology-facing UI or a universal semantic-model implementation before useful software exists.
+
+A meaningful first behavioral vertical slice is:
+
+> **Given a previously governed subject and authoritative current evidence, Wheelwright can reconstruct the applicable decision context, generate legitimate Alternatives including inactivity, evaluate them under explicit decision machinery, produce a deterministic Recommendation, preserve the effective-time decision trace, and record the operator's subsequent choice without rewriting history.**
+
+The first visible proof may be as small as a trustworthy Recommendation column plus inspectable reasoning.
+
+GDXJ-like covered-call natural resolution is a leading acceptance specimen because it tests whether the system can correctly recommend disciplined inactivity under pressure.
+
+A CSP with a pre-recorded willingness-to-own / assignment stance under adverse movement is a complementary specimen because it tests anti-hindsight behavior.
+
+### Constraint on the next reconciliation
+
+Do not reopen broad ontology discovery merely because this Product framing is now clearer.
+
+The next bounded semantic reconciliation should use the following Product test:
+
+> **What minimum durable decision/provenance contract is necessary for Wheelwright to answer “What do I need to do right now?” correctly, reproducibly, and with minimal cognitive load?**
+
+The contract should automate routine reconstruction while leaving genuine judgment, exceptions, governance amendment, and consequential Action with the operator.
+
