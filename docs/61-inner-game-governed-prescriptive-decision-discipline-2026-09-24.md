@@ -5086,3 +5086,297 @@ That is an architecture/decomposition question, not another broad semantic-disco
 ### Authority boundary
 
 This section does not itself authorize canonical Semantic Model mutation, locked 17-row spine mutation, ADR mutation, schema/API/UI/backend implementation, or migration. It establishes the bounded semantic input for the next architecture reconciliation.
+
+
+---
+
+## 38. Architecture reconciliation — smallest structural gaps for the first governed-decision slice — 2026-09-24
+
+**Source status:** Principal-authorized reconciliation of §37 against current Wheelwright architecture and implementation. Read-only architectural inspection preceded this record; this section preserves the reconciliation result. It does **not** authorize implementation, schema/API migration, canonical Semantic Model mutation, or locked-spine mutation.
+
+### Question
+
+> **Where do the §37 minimum-contract responsibilities already live in current Wheelwright architecture, and what is the smallest structural delta required to make the GDXJ and adverse-CSP acceptance specimens real?**
+
+### High-level result
+
+The gap is materially smaller than a new Decision architecture.
+
+Wheelwright already has much of the mechanical path:
+
+    authoritative-ish portfolio subject
+    + current market evidence
+    + lifecycle ambiguity guard
+    + HOLD/CLOSE consequence evaluation
+    + deterministic lifecycle decision
+    + attention distinct from decision
+    + operator-facing decision presentation
+
+The missing center is **durable governed context + effective-time decision trace**.
+
+Current code can answer a narrow question from current contract state. It cannot yet reliably answer:
+
+> **What does the governed process say to do now, given what this position was for, what outcomes were accepted before discomfort appeared, which policy/version was in force, and what was recommended at that time?**
+
+That is the smallest structural problem to solve.
+
+### Current architecture already satisfying parts of §37
+
+#### A. Decision Subject — substantially present
+
+Current short-obligation machinery already operates on an existing single-leg short obligation / monitored position, with side, symbol, strike, expiration, quantity and portfolio association available through the PortfolioSnapshot path.
+
+The existing HOLD-vs-CLOSE design explicitly avoided requiring a universal Lifecycle Episode. That remains compatible with §37.
+
+**Gap:** no new universal subject ontology is required for the first slice.
+
+#### B. Current State / Evidence — substantially present, with known lifecycle defects
+
+Existing pieces include account-local PortfolioSnapshot, Fidelity Option Summary checkpoint, Activity overlay, durable market cache, backend per-subject admissibility authority, chain provenance/age, current underlying/moneyness, lifecycle-ambiguity guard, and consequence evidence precision states.
+
+This is enough to support much of the two specimens.
+
+However BUG-001 remains active: assigned-call closure/called-away share disposition is not projected through the live Activity overlay. Adjacent BTC/expiration projection gaps are also recorded. Therefore a decision trace may be correct before resolution while the post-resolution projected portfolio state can still be wrong.
+
+**Gap:** lifecycle projection correctness is a dependency for end-to-end GDXJ resolution, but not for proving the pre-resolution Recommendation itself.
+
+#### C. Consequence semantics — strongly present
+
+The short-obligation consequence evaluator already separates HOLD and CLOSE facts, evidence precision, quote geometry, assignment/expiration exposure, encumbrance, resulting state, Greeks/IV context, and historical-vs-forward economics.
+
+This is directly aligned with AR4 and §37.
+
+**Gap:** no new general consequence engine is required for the first slice.
+
+#### D. Attention vs Decision — already structurally separated
+
+Current code explicitly separates NOTICE/EVALUATE/DECIDE/EXPLAIN and derives operator attention from whether the action requires operator work.
+
+A governed HOLD can exist without a red attention indicator.
+
+This is strongly aligned with the Inner Game framing: routine governed inactivity should not manufacture operator work.
+
+**Gap:** preserve this separation. Do not turn every Recommendation into an alert.
+
+#### E. Deterministic decision seam — already present
+
+The current short-obligation lifecycle decision function is pure/deterministic and emits a governed action, reasons, attention, and execution caveat.
+
+This is a natural seam for the first slice rather than evidence that a new Decision service is required immediately.
+
+**Gap:** the evaluator's current inputs are too narrow and its provisional policy does not yet represent the governed context required by the two specimens.
+
+#### F. Existing UI can carry the result
+
+The Console, Position Detail modal, HOLD-vs-CLOSE section, and Recommendation/Brief patterns already provide operator-facing projection seams.
+
+**Gap:** no new primary surface is required. A Recommendation column/status on existing Console rows remains the smallest plausible projection, with detail behind it.
+
+### The load-bearing gaps
+
+#### GAP 1 — Durable effective-time governed context is absent from the live decision path
+
+The current evidence adapter has an assignment-intent field, but the live resolver supplies assignment intent as **unknown**. Search of current main found no authoritative persisted source supplying it to the live path.
+
+Likewise, the live short-obligation decision does not consume Objective, Outcome Stance, Inventory Role, willingness-to-own / willingness-to-be-called-away commitment, position/program-specific governing context, or effective-time amendment history.
+
+This is the primary GDXJ/CSP gap.
+
+**Smallest required capability:** an account-local, subject-bindable, effective-time **governed context record** carrying only the fields the first specimens require.
+
+For the first slice, that likely means no more than:
+- subject/account binding;
+- applicable Program / lifecycle context;
+- Objective or equivalent target needed by the specimen;
+- Outcome Stance for assignment/call-away;
+- willingness-to-own qualification where applicable;
+- Policy/version reference;
+- effective time;
+- authority;
+- recorded time;
+- supersession/amendment linkage.
+
+Do **not** create a generic ontology store merely to hold these values.
+
+#### GAP 2 — Current lifecycle policy can contradict natural-resolution governance
+
+Current lifecycle decision contains a provisional rule:
+
+    near DTE + deeply OTM short
+    → remaining obligation risk governed negligible
+    → BTC
+
+That rule uses DTE + moneyness and can recommend BTC without consuming assignment intent, Objective, Outcome Stance, or the Wheel's natural-resolution preference.
+
+For a GDXJ-class covered call, this is exactly the kind of context-free intervention §§36–37 are intended to prevent.
+
+The current consequence design itself is not the problem. The decision rule is under-contextualized.
+
+**Smallest required capability:** extend/reconcile the deterministic lifecycle evaluator so the governed result is a function of the effective governed context and explicit policy mechanics, not merely contract posture.
+
+Do not patch GDXJ by symbol, strike, or one-off exception.
+
+#### GAP 3 — LET RESOLVE is not currently a first-class decision Alternative
+
+Current HOLD semantics explicitly preserve the ability to close, roll, or let resolve later. Therefore HOLD is broader than the Product meaning now attached to **LET RESOLVE**.
+
+For the GDXJ specimen, the governed answer is not merely “do not transact this instant”; it is affirmative continuation into the already-accepted natural lifecycle boundary absent a reconsideration trigger.
+
+**Smallest required capability:** represent **LET RESOLVE** distinctly at the Decision/Alternative layer when policy means “allow the current governed lifecycle to resolve naturally.”
+
+This does not require a separate consequence engine. Existing HOLD consequence facts can likely be reused/extended where economically identical at the current instant, while the decision semantics remain distinct.
+
+Do not force WAIT, HOLD, LET RESOLVE, and insufficient-evidence into one bucket.
+
+#### GAP 4 — Policy identity exists in places, but the live lifecycle decision is not bound to durable effective policy provenance
+
+Recommendation engines already export a policy version in Decision export context. Current lifecycle policy is a code-level default object with provisional thresholds.
+
+§37 requires knowing which governed policy/version was effective for a historical Recommendation.
+
+**Smallest required capability:** give lifecycle Recommendation a stable effective Policy identity/version and bind each decision trace to it.
+
+This does not require a generic Policy DSL.
+
+#### GAP 5 — Decision/recommendation history has no resolved durable owner
+
+The architecture roadmap already identifies AR6/AR7 pressure, and the parking lot explicitly records Decision/recommendation history ownership as unresolved.
+
+Current deterministic outputs are principally live/browser results. Funnel export can produce immutable Decision-run metadata for strategy recommendation funnels, but it is not yet the durable per-subject lifecycle decision history required here.
+
+**Smallest required capability:** append a durable **Decision Trace** when a governed lifecycle Recommendation is materially evaluated/published.
+
+Minimum first-slice trace:
+- stable trace id;
+- brokerage account id;
+- Decision Subject key;
+- evaluated/decision time;
+- load-bearing evidence/provenance references or immutable values;
+- effective Policy/version;
+- governed-context version/reference;
+- Alternatives considered;
+- result of admissibility/acceptability/comparison needed to explain the outcome;
+- Recommendation or explicit no-recommendation/judgment-required state;
+- structured reasons.
+
+It must be append-only/superseding rather than mutable history.
+
+The final backend-vs-browser persistence home remains an architecture decision. AR1/AR6 strongly pressure a durable/shared boundary; merely adding another disposable presentation-only localStorage object should not be mistaken for closing that architectural question.
+
+#### GAP 6 — Operator disposition is not yet linked to the Recommendation trace
+
+Wheelwright already has Write Intent / Pending Intent concepts and account-local intent migration, but these represent later execution workflow, not “the operator followed/departed from this Recommendation.”
+
+**Smallest required capability:** record operator disposition separately and link it to the immutable Decision Trace.
+
+For the first slice, the semantics need only preserve followed/accepted, deliberately departed/selected another Alternative, deferred/no selection when materially needed, time, and optional genuinely new operator judgment.
+
+Do not force the operator to journal system-known facts.
+
+#### GAP 7 — No-recommendation/judgment-required must remain distinct from HOLD/WAIT
+
+Current lifecycle decision already has useful non-action states: RECONCILE-LIFECYCLE, DECISION-DEFERRED, NO-ACTION, and HOLD.
+
+This is valuable precedent.
+
+**Smallest required capability:** normalize the first-slice operator projection so evidence/governance insufficiency does not appear as WAIT/HOLD/LET RESOLVE.
+
+A UI status such as REVIEW may be useful, but it is an attention/status projection unless and until it earns Alternative semantics.
+
+### Specimen-specific structural delta
+
+#### GDXJ-class covered call
+
+Current path can already provide account-local short-call subject, current contract state, DTE/moneyness, lifecycle ambiguity detection, HOLD/CLOSE consequence facts, deterministic decision seam, and attention projection.
+
+Missing for the required result:
+1. durable “called away acceptable/desirable / disposition objective” context;
+2. effective Wheel policy/version including natural-resolution preference;
+3. LET RESOLVE as a distinct governed Alternative/result;
+4. evaluator consuming (1) and (2);
+5. durable Decision Trace;
+6. separate operator disposition if the operator rolls/closes instead;
+7. after actual resolution, correct lifecycle projection (BUG-001 dependency).
+
+The pre-resolution **LET RESOLVE** Recommendation can be proven before BUG-001 is repaired; the complete decision→resolution specimen cannot.
+
+#### Adverse CSP willing-to-own
+
+Current path can already provide account-local short-put subject, current DTE/moneyness/evidence, lifecycle ambiguity detection, HOLD/CLOSE consequences, and deterministic decision seam.
+
+Missing:
+1. durable effective-time willingness-to-own-at-strike or equivalent qualification;
+2. assignment Outcome Stance / acquisition Objective where needed;
+3. policy/version effective at entry/current decision;
+4. amendment provenance;
+5. evaluator consumption of those facts;
+6. immutable Decision Trace;
+7. separate operator departure/amendment record.
+
+This specimen does **not** require a universal thesis engine. If thesis-breaking evidence is later made a reconsideration trigger, it can enter as explicit governed evidence/policy rather than as a prerequisite to the first anti-hindsight proof.
+
+### Smallest coherent structural slice
+
+The architecture does **not** currently justify nine new services or a universal semantic runtime.
+
+The smallest coherent slice is four additions/reconciliations around existing seams:
+
+    1. Governed Context
+       small, account-local, subject-bindable, effective-time/versioned
+
+    2. Lifecycle Alternative + Decision Policy
+       extend existing deterministic short-obligation decision seam
+       consume governed context
+       add LET RESOLVE
+       preserve explicit no-recommendation states
+
+    3. Decision Trace
+       append-only record of evidence + governance + Alternatives + Recommendation
+
+    4. Operator Disposition Link
+       record follow/depart/defer separately
+       later link to existing Action/Execution/Outcome machinery
+
+Reuse PortfolioSnapshot/account identity, current Evidence/admissibility/provenance, lifecycle ambiguity guard, short-obligation consequence evaluator, existing attention separation, existing Console/detail surfaces, and existing Write/Pending Intent/execution boundaries where later linkage applies.
+
+### What should NOT be built as part of this slice
+
+Do not use these specimens to justify a Mandate evaluator, generic semantic database, generic Policy DSL, new Decision microservice by default, event sourcing, universal Lifecycle Episode, pathology detector, AI/LLM recommendation agent, new primary operator workspace, symbol-specific GDXJ rule, or rewriting the existing consequence evaluator merely because Recommendation semantics are expanding.
+
+### Architecture ownership pressure
+
+Current Category-A steering still places recommendation generation and portfolio context in the browser while the backend owns durable market evidence.
+
+AR1/AR6 already record pressure toward durable/shared authoritative portfolio/decision state.
+
+The first slice therefore exposes one genuine architecture decision that cannot be hidden:
+
+> **Where should Governed Context and Decision Trace become durable authority?**
+
+Two things can be separated:
+- **deterministic evaluation location** may remain browser-side initially;
+- **authoritative persistence ownership** of governed context/history should be chosen deliberately rather than inherited accidentally from current UI-local storage.
+
+No conclusion is ratified here about backend ownership. The architectural requirement is that the chosen persistence satisfy effective-time reproducibility and survive the failure modes we claim to protect against.
+
+### Verification posture / other actors
+
+The Principal explicitly invited use of other actors for verification without directing a specific handoff.
+
+This reconciliation does not require another broad discovery pass. A useful independent verification, when invoked, should be narrow:
+
+> **Attempt to falsify the seven gaps above by finding existing current-main machinery that already satisfies them, or show that one proposed gap is unnecessary for both acceptance specimens. Also identify any hidden dependency that makes the four-part slice insufficient. Do not redesign the system.**
+
+Kiro is well suited to a repository-resident existence/ownership audit. Codex should be reserved for a sharper architectural falsifier if Kiro or implementation decomposition exposes a disputed boundary.
+
+### Reconciliation verdict
+
+The first governed-decision slice is primarily **integration and missing durable context/history**, not invention of a new recommendation architecture.
+
+The strongest existing seam is the short-obligation NOTICE → EVALUATE → DECIDE → EXPLAIN path.
+
+The smallest Product-significant change is to make DECIDE consume what Wheelwright already should remember about the governed position, distinguish natural resolution from generic holding, and preserve the resulting decision through time.
+
+The architectural question now narrows to:
+
+> **Choose the authoritative persistence boundary for Governed Context + Decision Trace, then decompose the four-part slice against existing modules without broadening scope.**
