@@ -107,7 +107,21 @@ _(empty — Open)_
 
 - **BUG-022** (Resolved 2026-09-17) — regime-aware Deployable field *interpretation*. Same output figure (`Deployable`), different root cause. BUG-023 was surfaced during BUG-022 remediation and deliberately kept separate.
 - **BUG-001** (Open) — Activity overlay assigned-call closure / called-away disposition. Its acceptance criteria mention deployable-cash "without double-counting" only as an **acceptance constraint**, and its sibling note concerns `assigned` / `shares_sold_assignment` / `buy_to_close` / `expired` *fall-through* (missing mutations). Neither is the `shares_sold_direct` cash double-count mechanism described here. This is a distinct defect identity, not covered by BUG-001.
+- **BUG-026** (Open) — base-snapshot inventory derivation collapses additive share lots (MAX-not-SUM). Different surface and mechanism; shares the "authority before consumer" principle (repair ownership derivation, not the consumer).
 - Not a `PL-*` item (defect, not a capability).
+
+## Ownership-side checkpoint note — 2026-09-24 (recorded; NOT a scope widening, NOT a separate bug)
+
+During the 2026-09-24 URA incident investigation, the **ownership side** of this same checkpoint seam was examined and is recorded here for discoverability rather than filed as a new bug.
+
+The Activity overlay reconciles **inclusion** against the Option Summary `optionSummaryExportTimestamp` (`portfolio-store.applyActivityProjection` → `parseCheckpoint`), and applies day-precision same-day exclusion (`isAfterCheckpoint`, introduced at commit `ad48816` to prevent the historical **EWY same-day buy-write double-count**). This is a two-sided knife:
+
+- **Exclude same-day** (current behavior) → risk of **under-counting** ownership when a same-day buy-write share purchase is present in Activity but **not yet** reflected in the Option Summary.
+- **Include same-day** → risk of **double-counting** when the Option Summary already reflects the same-day purchase (the EWY class this rule was built to prevent).
+
+The 2026-09-24 URA specimen did **not** demonstrate the ownership-side under-count as a live failure: the Sep 24 URA lot was already present in the Option Summary, so same-day exclusion was **correct** for that specimen, and the observed URA warning was fully explained upstream by BUG-026 (additive-lot collapse). The ownership-side same-day under-count therefore remains a **latent mechanism** at this seam, not an independently demonstrated defect. It is the ownership analogue of this record's cash-side double-count: both stem from reconciling Activity inclusion against a checkpoint (Option Summary quoteDate) that may not match the evidence being mutated (Balances cash; Option Summary ownership) or what that evidence already incorporates.
+
+**Recorded, not decided:** whether an eventual remediation of this record's cash reconciliation should also address the ownership-side inclusion semantics at the same seam is a Principal/design decision. No remediation is authorized here.
 
 ## Audit checkpoint — 2026-09-22
 

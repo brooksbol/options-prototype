@@ -605,3 +605,52 @@ Frozen corpus v1, frozen reconciliation v1.0, and the rejected reconciliation-v1
 
 The Principal also invoked the End-of-Session Protocol. Canonical PL-RESEARCH-05 was reconciled to the repaired revision; Roadmap projection freshness must be regenerated and verified as the ordinary derived closeout consequence.
 
+
+
+---
+
+## 2026-09-24 — URA "Unencumbered Shares" split-brain: additive-lot collapse (not an Activity-upload failure) + AUTO-JOURNAL ingestion resiliency assessment (Kiro)
+
+**Actor:** Kiro (repository-resident implementation partner).
+**SYNC SHA at investigation:** synced accepted `main` through `d0f953a` (fast-forward reconciliation of docs-only advancement during the read-only phase). BUG records filed and this entry authored under explicit Principal authorization for a bounded work item (file two proven bugs, update BUG-023, run a read-only AUTO-JOURNAL resiliency assessment, then Project Memory + commit + push).
+**Mode:** Read-only diagnosis → authorized durable capture (BUG-026, BUG-027, BUG-023 note, this journal entry). **No remediation authorized or performed.**
+**Specimens:** operator's real Fidelity exports, Account Z39411514 — Option Summary (quote 09/24/2026, downloaded 2:56 PM ET) and Activity History (downloaded 09/24/2026 12:56 pm).
+
+### Operator-visible incident
+
+Three surfaces disagreed about the same Sep 24 URA buy-write:
+
+1. **Production** reconstructed the Sep 24 URA buy-write episode (+$39.34 produced, $4,094 deployed) — proving the Activity CSV was ingested.
+2. **Operator Console / Unencumbered Shares** warned: "Open short calls require 200 shares of URA, but only 100 shares were observed as owned. Observed ownership and open-call geometry do not reconcile."
+3. **Header Activity upload slot** showed `— ⬆` (as if no Activity CSV were loaded).
+
+### Specimen-backed causal attribution (the disciplined result)
+
+The initial hypothesis (offered as a starting point, not a conclusion) was that the Activity overlay "lost" or never received the Sep 24 share purchase. The specimens **falsified** that framing. Findings:
+
+- **True URA position (from the Activity ledger):** 200 shares held — lot 1 (100 @ $45.79, bought 09/04) + lot 2 (100 @ $40.94, bought 09/24) — against two short calls (Sep 25 $43 covering lot 1, opened 09/17; Sep 25 $41 covering lot 2, the 09/24 buy-write). Fully covered, coherent. Correct state = **no warning**.
+- **Option Summary** carries **four** URA rows: two "Shares" rows of 100 (byte-identical, showing the *position-level blended* basis $4,336.50 / $43.37 = ($4,579+$4,094)/200) + the $41 and $43 CALL rows. The two additive lots are **indistinguishable by row content**.
+- **Observed, sufficient cause = BUG-026:** `deriveInventory` (`fidelity-snapshot.ts`) collapses the two additive URA share rows via **MAX-not-SUM** → `owned=100`, while `deriveExistingShortCalls` emits both calls → `required=200`. `deriveUnencumberedInventory` Case 2 then fires the exact warning — **from the Option Summary alone, before any Activity projection**. `evaluateReadiness` never checks call-vs-share geometry, so nothing flags it.
+- **Latent, non-causal = the Activity checkpoint seam (recorded on BUG-023, not a new bug):** `applyActivityProjection` reconciles Activity inclusion against the Option Summary `quoteDate` via `parseCheckpoint`; `"09/24/2026"` yields **day precision**, so the same-day Sep 24 purchase is **excluded** (`isAfterCheckpoint` requires a strictly-later date). For this specimen that exclusion is **correct** — the OS already contains the Sep 24 lot, so adding the Activity purchase would double-count (the EWY failure class commit `ad48816` was built to prevent). The ownership-side same-day under-count is a real *mechanism* but did **not** participate in this incident; it is the ownership analogue of BUG-023's cash-side double-count and is recorded there.
+- **Independent display defect = BUG-027:** `FidelityUploadCompact`'s mount effect reconstructs only OS/Balances slots from provenance; the Activity slot's loaded state is ephemeral component state seeded only by `handleActFile()`. On remount it reverts to `—`. Activity is durably persisted and re-applied (`loadActiveAccountSnapshot` → `readAccountCsv(activeId,"activity")`), so `— ⬆` is **not** evidence of absence.
+
+**Counterfactuals against the specimen:** (a) applying the same-day purchase → owned 200 numerically, but by double-count (OS already has the lot) → insufficient and dangerous; (b) SUM instead of MAX → correct here but doubles the genuinely-repeated-per-strategy case, and value-dedup also fails since the rows are byte-identical → the correct repair is **lot disambiguation** using short-call coverage count and/or Activity buy events, at the ownership-derivation authority (not the consumer, not the checkpoint).
+
+**Regression origin:** none. MAX-not-SUM dates to the covered-call restore (`4ff135c`, deliberate per-strategy dedup); day-precision checkpoint dates to `ad48816` (deliberate EWY double-count fix). Both are original design decisions whose edges this incident exposed.
+
+### AUTO-JOURNAL ingestion resiliency assessment (read-only; Principal-requested)
+
+The Sep 24 Activity contains new Fidelity vocabulary: `JOURNALED VS Z39-411514-N AUTO-JOURNAL ...` (cash/margin internal journaling of the GDXJ call + shares). Assessment of whether the current parser/classifier contracts adequately protect Wheelwright:
+
+- **Unknown syntax stays first-class unknown — HELD.** Frontend `classifyAction` returns `"other"` for the AUTO-JOURNAL rows (they contain no matched substring); `projectActivityOverlay`'s `default` branch does not mutate portfolio state for `"other"`. Backend `TransactionClassifier` returns `UNCLASSIFIED` (no `startsWith` match); `EconomicDecomposer` maps `UNCLASSIFIED` → `UNRESOLVED` / `BASIS_UNKNOWN`, and `ProductionAssessor` surfaces each as an `UNCLASSIFIED_ACTION` reconciliation issue. No fabricated economics.
+- **Unknown rows remain visible/auditable — HELD.** Frontend preserves every parsed row (including `rawRow`) and reports an event-type breakdown diagnostic; backend surfaces unclassified in-period actions as explicit reconciliation issues rather than dropping them.
+- **Zero-economic internal transfers remain non-mutating unless understood — HELD (for this specimen).** The AUTO-JOURNAL cash/margin pairs net to zero and are treated as `"other"` (FE) / `UNCLASSIFIED` (BE); neither invents a transfer economic.
+- **Broad `YOU BOUGHT` / `YOU SOLD` fallbacks cannot silently misclassify structurally novel events — PARTIALLY HELD; standing design pressure.** Both layers place specific patterns before the generic verb catch-all (FE `shares_bought_direct`/`shares_sold_direct`; BE `ASSET_PURCHASE`/`ASSET_SALE`). This is resilient to novel vocabulary that does **not** contain a familiar verb (AUTO-JOURNAL is safe). It is **not** structurally guaranteed against a *future* Fidelity phrase that contains `YOU BOUGHT`/`YOU SOLD` while carrying different semantics — the exact class BUG-021 belonged to before its repair (a buy-to-close resembling an asset purchase). No such phrase is present in this specimen, so this is a **resiliency/design pressure, not a demonstrated defect** (no bug filed).
+- **Adding support for a new phrase should require a corpus/specimen test, not another ad hoc branch — DESIGN PRESSURE.** Current growth path is lexical branch accretion in both classifiers; there is no corpus-driven guard forcing a specimen test when vocabulary is added.
+
+**Governing resiliency principle (captured, not implemented):** external broker prose must not acquire economic authority merely by matching a generic lexical pattern. Specific recognized evidence may classify confidently; unfamiliar or ambiguous verb-bearing variants should degrade to explicit uncertainty (`UNRESOLVED`/`BASIS_UNKNOWN` / `"other"`) rather than a broader economic catch-all. Recorded here as durable design pressure for a future governed decision; deliberately **not** manufactured into a bug, since the specimen shows the current fail-closed boundary holding for genuinely-novel vocabulary.
+
+### Durable outcomes
+
+- Filed **BUG-026** (additive-lot collapse — the observed URA cause) and **BUG-027** (ephemeral Activity slot status). Added the ownership-side checkpoint note to **BUG-023**. INDEX updated.
+- No remediation authorized. The two ownership "defects" were correctly held apart: BUG-026 is observed; the checkpoint under-count is latent and lives on BUG-023.

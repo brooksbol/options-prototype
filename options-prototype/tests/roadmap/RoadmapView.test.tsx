@@ -200,9 +200,10 @@ describe("RoadmapView", () => {
     expect(isos.length).toBeGreaterThan(1);
     expect([...isos]).toEqual([...isos].sort().reverse());
     // Newest overall date is first; oldest is last. Per the ratified cross-authority
-    // Log semantic, canonical governed bug events are in scope: the 2026-09-22
-    // open-bug audit checkpoints are the newest governed events in the corpus.
-    expect(isos[0]).toBe("2026-09-22");
+    // Log semantic, canonical governed events across authorities are in scope; the
+    // newest governed events in the corpus are dated 2026-09-24 (PL-SEM-01 / PL-DEC-BEH
+    // refinements and the BUG-026 / BUG-027 filings).
+    expect(isos[0]).toBe("2026-09-24");
     expect(isos[isos.length - 1]).toBe("2026-09-01");
     // A canonical governed BUG event is projected into the Log (cross-authority),
     // preserving its BUG-NNN identity rather than being given a PL-* identity.
