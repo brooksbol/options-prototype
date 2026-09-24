@@ -3895,3 +3895,600 @@ The immediate falsification burden is the controlled experiment:
 > **Hold all decision machinery constant; vary only declared Mandate; determine whether Recommendation legitimately changes.**
 
 If an actor changes Policy, Objective, Preference, Constraint, state/evidence, or Program while claiming to test Mandate, the experiment is invalid.
+
+
+## 33. Kiro read-only reconciliation — controlled collision, taxonomy audit, and governance/runtime split — 2026-09-24
+
+**Source status:** Principal-supplied Kiro run result. Kiro operated read-only after synchronizing to current main `3ef807d39b7021ae0c928f97a644da58c24fe762`, completed the required bootstrap at scoped depth, reacquired Doc 61 §§25–32 plus current PL/semantic authority, and performed no repository-content mutation. Preserve as high-value semantic reconciliation evidence. **Not ratified ontology, architecture, Product semantics, roadmap disposition, schema, or implementation authority.**
+
+### Authority/acquisition result reported by Kiro
+
+Kiro reported:
+- HEAD synchronized to `3ef807d39b7021ae0c928f97a644da58c24fe762`;
+- remote main advanced during the run, and Kiro used clean non-destructive fast-forwards to reacquire current authority;
+- Doc 61 did not exist on its stale local checkout but did exist on current `origin/main`, exposing the importance of synchronizing before semantic work;
+- no content mutation authority was held or exercised;
+- the live semantic workflow remained specimen-driven reconciliation under `PL-SEM-01`, with pressure on `PL-DEC-BEH`, `PL-DEPLOY`, `PL-STRAT-01`, `PL-PORT-01`, and `PL-EXEC-01`.
+
+Kiro preserved the epistemic distinction that §§25–32 consist of Principal-supplied survey/falsification material plus external Muse falsification and ChatGPT analysis; none is ratified.
+
+### Research progression reconstructed by Kiro
+
+Kiro reconstructed §§25–32 as a falsification sequence rather than a linear design:
+
+| Research step | Proposition tested | What survived | What was falsified / reopened |
+|---|---|---|---|
+| §25 Operating Program | Wheel is one instance of a broader durable rule-governed program class | Program is distinct from construction, mandate, and policy; assignment can be a desired endogenous transition | “Wheel unique because assignment desired” softened; other programs also desire assignment |
+| §26 Economic Construction | point-in-time economic structures exist independently of program/purpose | construction ≠ purpose ≠ program ≠ provenance ≠ Outcome Stance ≠ thesis ≠ policy | conventional labels bundle facts; retention/disposition cannot be inferred from mechanics |
+| §27 Portfolio Mandate | mandate must change decision rules and success metric | ongoing purpose intuition, counterfactual semantics, migration specimen | Acquisition/Disposition/Protection classifications later reopened by Muse |
+| §28 Policy Rule | policy governs decision behavior across lifecycle | amendment/rule-change governance, journaling/provenance importance | `Policy Rule` exposed as an umbrella across several distinct mechanisms |
+| §29 formal Wheel | state-machine specimen with phase semantics | coherent specimen spanning much of the spine | phase-mandate migration now under challenge |
+| §30 Mandate↔Program | relation appears n-to-n | mapping is real as an observed projection | n-to-n may be a projection of coarser keys rather than primitive semantics |
+| §31 mandate-scope falsification | find single-valued mandate scope | governance-vs-application distinction; temporal integrity pressure | Program and Program-Phase falsified; Pool weak/vacuous; Block circular; DecisionAspect only provisional |
+| §32 Muse + ChatGPT | attack DecisionAspect and runtime mandate binding | durable declared purpose, temporal integrity, policy-as-frame, hierarchy diagnosis | DecisionAspect strongly rejected; Acquisition/Disposition/Preservation reopened; no-mandate-in-runtime-loop becomes leading contender |
+
+### Controlled collision — Kiro independently reproduces the no-runtime-mandate result
+
+Kiro ran the same controlled experiment proposed in §32:
+
+> **Hold all runtime decision machinery constant; change only declared Mandate / durable purpose; ask whether Recommendation legitimately changes.**
+
+The five specimens were:
+
+1. CSP — Income vs Acquisition
+2. covered call — Income vs Disposition
+3. cash / T-bill reserve — Liquidity Reserve vs Preservation
+4. long equity — Growth / Compounding vs Income
+5. strategic holding + hedge — Growth vs Protection / Hedging
+
+Kiro's result across all five:
+
+> **Changing only declared Mandate produced no legitimate Recommendation change.**
+
+When a divergent Recommendation could be manufactured, Kiro found that some other semantic variable had actually changed:
+- ownership / willing-to-own predicate;
+- premium floor;
+- exit target;
+- Outcome Stance;
+- Inventory Role;
+- liquidity / nominal-loss Constraint;
+- hedge budget;
+- Program selection;
+- Policy;
+- Objective;
+- Preference.
+
+Kiro therefore treated those runs as contaminated and refused to attribute the difference to Mandate.
+
+#### Collision matrix
+
+| Specimen | Only declared Mandate changed? | Recommendation changed? | Hidden variable needed to make it change | Kiro implication |
+|---|---|---|---|---|
+| CSP | yes | no | ownership predicate / premium floor / Objective | Acquisition intent is better represented by willing-to-own + Objective + Outcome Stance |
+| Covered call | yes | no | exit target / call-away stance / retention preference | Disposition behaves like telic Objective, with Stance / Role carrying operational consequences |
+| Cash / T-bill | yes | no | availability / maturity / nominal-loss constraints | Preservation adds no independent runtime work once constraints are explicit |
+| Long equity | yes | no at the tick | different Program / Policy selection | Growth vs Income appears upstream as allocation-purpose / program-choice rationale |
+| Hedge | yes | no | hedge budget / downside tolerance / retention objective | Protection may be objective / service / relationship role rather than runtime mandate |
+
+Kiro's specimen-bounded conclusion:
+
+> **Model B/C is strongly favored over Model A: durable purpose may matter upstream, but Mandate did not demonstrate independent causal work in the routine Recommendation loop once explicit decision machinery was held constant.**
+
+### Important caveat preserved by Kiro
+
+Kiro did **not** claim the runtime-mandate question is mathematically closed.
+
+It identified one remaining discriminator:
+
+> a genuinely marginal case where two otherwise-admissible Alternatives remain tied under all explicit Policy, Objective, Constraint, Preference, Outcome Stance, Inventory Role, and evidence inputs, but declared Allocation Purpose alone appears to determine Recommendation.
+
+Kiro noted that this is the narrow remaining refuge for irreducible runtime Mandate semantics.
+
+ChatGPT follow-on analysis sharpens the test:
+
+> **If the reason the Recommendation changes can be losslessly compiled into an explicit Preference, Objective, Constraint, Policy, Outcome Stance, Inventory Role, or other governed input, then Mandate has not demonstrated independent runtime semantics.**
+
+The remaining question is therefore not merely “can Mandate break a tie?” but:
+
+> **Can Allocation Purpose alter Recommendation in a way that cannot be represented without information loss as explicit decision machinery?**
+
+### Kiro taxonomy audit
+
+Kiro pressure-tested the candidate Mandates without silently ratifying reclassification:
+
+| Candidate | Strongest current interpretation | Current pressure |
+|---|---|---|
+| Income | atelic Allocation Purpose | supported upstream; no independent runtime effect demonstrated |
+| Growth / Compounding | atelic Allocation Purpose | supported upstream; no independent runtime effect demonstrated |
+| Acquisition | telic Objective + Outcome Stance | Principal §27 PASS reopened; Muse/Kiro lean Objective |
+| Disposition | telic Objective + exit/call-away stance / Inventory Role | Principal §27 PASS reopened; Muse/Kiro lean Objective |
+| Protection / Hedging | hedge relationship Objective / service / role | category unresolved; not clearly an allocation purpose of underlying capital |
+| Speculation | candidate Allocation Purpose | insufficient pressure-testing |
+| Liquidity Reserve | availability Constraint / capital-pool role / possible purpose | unresolved overlap |
+| Preservation | Constraint family | strong reduction pressure; demotion still needs independent challenge before ratification |
+
+Kiro emphasized that Acquisition/Disposition/Preservation demotions are not as cleanly falsified as H1/H2; they are category/parsimony conclusions and remain research positions.
+
+### Governance-time vs runtime-time model emerging from Kiro
+
+Kiro's smallest currently supported contender:
+
+```text
+GOVERNANCE / DESIGN TIME
+  Allocation Purpose
+  Program selection
+  Policy design
+  Objectives
+  Constraints
+  Preferences
+  standing intent
+  amendment rules
+  authority + effective time
+
+          ↓ establishes
+
+RUNTIME DECISION TIME
+  Reconciled State / Evidence
+  Decision Subject
+  Alternatives, including WAIT / HOLD
+  qualification predicates
+  Constraints
+  Objectives / Outcome Stance
+  Preferences
+  counterfactual consequences
+          ↓
+  Recommendation
+          ↓
+  human Action / deliberate departure / execution
+```
+
+Under this contender, Allocation Purpose does not disappear; it performs upstream design/provenance work rather than necessarily appearing as a runtime evaluator.
+
+### Temporal integrity remains load-bearing
+
+Kiro independently reinforced the strongest survivor across §§31–32:
+
+> **The system must preserve what was decided before the position became uncomfortable.**
+
+For the adverse-put specimen, Kiro located the anti-rationalization mechanism in durable effective-time facts such as:
+- whether `willing_to_own(strike)` actually passed at entry;
+- the Objective / Outcome Stance then in force;
+- the Policy version then in force;
+- the evidence then available;
+- authority + effective time;
+- later amendment reason and authority;
+- explicit operator departure when current action differs from Recommendation.
+
+Kiro's critical result:
+
+> **The durable protection against hindsight rewriting need not be a Mandate label. It can be the effective-time intent / policy / evidence record.**
+
+This directly serves the Inner Game goal: distinguish changed evidence, legitimate governance change, natural plan resolution, and deliberate departure from retrospective rewriting.
+
+### Policy Rule mechanism audit
+
+Kiro found `Policy Rule` useful as a governance umbrella but too coarse if actors assume every rule has the same computational role.
+
+Kiro identified at least these distinct mechanisms within the existing umbrella:
+
+- qualification predicate;
+- hard veto / Constraint;
+- Preference / ordering;
+- Objective / target;
+- lifecycle transition rule;
+- reconsideration / attention rule;
+- amendment / rule-change rule;
+- provenance / record-keeping rule.
+
+Kiro did **not** propose eight new ontology entities.
+
+Instead:
+
+> **Policy Rule can remain the governance umbrella, while its mechanism must be typed or otherwise semantically distinguishable.**
+
+Why this matters:
+- a hard Constraint cannot become a relative ranking factor;
+- a reconsideration trigger cannot become an action recommendation;
+- an amendment rule governs changing Policy, not the trade itself;
+- a provenance rule records evidence and history rather than deciding action;
+- an Objective can complete while an ongoing purpose does not.
+
+This result strongly aligns with the Inner Game constitutional principle that rule changes must themselves be governed.
+
+### Inner Game fit
+
+Kiro explicitly tested the emerging model against the actual Product goal.
+
+The model reduces objective drift because:
+- willing-to-own, premium floor, exit target, and risk boundaries are precommitted upstream;
+- the operator cannot rescue a failing criterion simply by switching the current label.
+
+The model reduces activity bias because:
+- WAIT / HOLD / LET RESOLVE remain first-class governed Alternatives;
+- reconsideration can trigger attention without forcing action;
+- natural resolution can itself be the disciplined path.
+
+The model preserves human authority because:
+- Recommendation remains system output;
+- Action remains operator-owned;
+- deliberate departure can be recorded without pretending the governed process said something else.
+
+The model distinguishes changed plan vs abandoned plan only if temporal provenance is durable.
+
+Kiro restated the core behavioral objective in substance:
+
+> Wheelwright should do enough routine reasoning that the human spends judgment on authority, exceptions, and genuinely new evidence rather than reconstructing routine process under discomfort.
+
+### Locked 17-row spine audit — no mutation
+
+Kiro audited rather than changed the locked spine.
+
+Pressure points:
+
+- **Portfolio Mandate** — terminology/category pressured; may be too broad and may belong primarily at allocation/governance time.
+- **Inventory Block** — supported, but must not be individuated by mandate or role in a circular way.
+- **Inventory Role** — strongly supported and increasingly important for absorbing “current job” semantics.
+- **Operating Program** — supported; relation to mandate/purpose remains pressured.
+- **Economic Construction** — reinforced as distinct.
+- **Decision Subject** — supported.
+- **Outcome Stance** — supported; gains importance if Acquisition/Disposition leave Mandate.
+- **Policy Rule** — supported as umbrella but mechanism-typing pressure increased.
+- **Constraint** — supported; may absorb Preservation.
+- **Preference** — supported; must not collapse into Constraint.
+- **Alternatives** — supported; WAIT/HOLD first-class.
+- **Recommendation** — supported.
+- **Action** — supported but remains a known compression point relative to selection/commitment.
+- **Reconciled Outcome** — supported.
+- **DecisionAspect** — has not earned entity status.
+- **Program Edge Thesis** — has not earned entity status; may remain explanatory documentation.
+
+No change to the 17-row spine is authorized by this audit.
+
+### Strongest remaining competing explanations after Kiro
+
+#### Model B — durable Mandate / Allocation Purpose as governance/design provenance
+
+Explains:
+- all five collision specimens;
+- standing purpose during inactivity;
+- program/policy design rationale;
+- temporal integrity/provenance.
+
+Strongest falsifier:
+- irreducible marginal decision where only purpose changes and the difference cannot be represented elsewhere without information loss.
+
+#### Model C — “Mandate” is over-broad vocabulary
+
+Possible decomposition:
+- Allocation Purpose;
+- Program thesis/rationale;
+- telic Objective;
+- Outcome Stance;
+- Inventory Role;
+- Constraint;
+- Preference;
+- Policy.
+
+Explains much of the original taxonomy conflict.
+
+Strongest falsifier:
+- a supposedly demoted category demonstrates unique semantic work not expressible by the smaller existing concepts.
+
+#### Model A — Mandate as direct runtime evaluator
+
+Now weakest but not logically eliminated.
+
+Needs:
+- a clean specimen showing an irreducible runtime effect after all explicit mechanics are held constant.
+
+### Decisions explicitly not earned
+
+Kiro correctly withheld authority for:
+- ratifying Model A/B/C;
+- adding `DecisionAspect`;
+- adding `Program Edge Thesis`;
+- ratifying Acquisition/Disposition demotion;
+- ratifying Preservation demotion;
+- changing the 17-row spine;
+- deciding Program↔Mandate cardinality;
+- changing canonical semantic model;
+- changing ADRs/roadmap/parking-lot dispositions;
+- schema/code/UI implementation;
+- treating sparse Growth/Speculation observations as priority evidence.
+
+### Kiro's recommended 4AM focus
+
+Kiro identified three highest-value questions:
+
+1. **Does declared Allocation Purpose ever change a legitimate Recommendation when every explicit decision mechanism is held constant?**
+2. **Is Mandate one word doing several jobs, and what is the minimum decomposition that corresponds to real governed differences?**
+3. **What minimum durable temporal-provenance record distinguishes legitimate plan change from plan abandonment / hindsight rewriting?**
+
+### ChatGPT follow-on analysis — persisted with the Kiro result
+
+The Kiro run materially changes the burden of proof.
+
+We now have:
+
+```text
+§31 Principal:
+  DecisionAspect looked like the surviving scope hypothesis.
+
+§32 Muse:
+  DecisionAspect is arbitrary/unfalsifiable or false under non-circular individuation.
+  Durable purpose + direct decision machinery is smaller.
+
+Codex controlled run:
+  five specimens → no independent Recommendation effect from Mandate.
+
+Kiro reconciliation:
+  independently reproduces the five-specimen result
+  and reconciles it against §§25–32, the spine, PLs, and Inner Game.
+```
+
+Therefore the old research question:
+
+> **Where does Mandate bind?**
+
+is increasingly likely to be malformed.
+
+The stronger current question is:
+
+> **What durable upstream purpose/provenance must exist, and what explicit runtime decision machinery consumes its consequences?**
+
+The purpose remains meaningful even if it is not an evaluator in every decision tick.
+
+### Single remaining allocation-purpose falsifier
+
+The reserved Codex capacity should now be used only against this proposition:
+
+> **Allocation Purpose has no irreducible runtime semantics once explicit decision machinery is complete.**
+
+The challenge must attempt to construct a case where:
+- every relevant state/evidence fact is identical;
+- Program is identical;
+- Policy is identical;
+- qualification predicates are identical;
+- Constraints are identical;
+- Preferences are identical;
+- Objectives are identical;
+- Outcome Stance is identical;
+- Inventory Role is identical;
+- execution assumptions are identical;
+- only declared Allocation Purpose changes;
+- Recommendation legitimately changes.
+
+Then the actor must attempt to **compile away** that divergence by representing its reason explicitly as a Preference, Objective, Constraint, Policy, Stance, Role, or another governed input.
+
+The discriminator is:
+
+> **If the divergence can be compiled away without information loss, Allocation Purpose has not demonstrated independent runtime semantics.**
+
+> **If it cannot be compiled away without losing a real governed distinction, identify exactly what information is lost. That is the strongest remaining case for a runtime Mandate/Purpose role.**
+
+This is the next authorized semantic falsifier. It should be narrow, adversarial, and capacity-constrained.
+
+---
+
+## 34. Conversation-context durability sweep — additional context promoted to repository — 2026-09-24
+
+**Source status:** Principal instruction to eliminate conversation-only dependency before further research. Preserve the following as durable working context because it materially governs the next phase but was previously available primarily in conversation synthesis. This section does **not** ratify any semantic conclusion.
+
+### Product / Inner Game goal
+
+The research is not an ontology-beautification exercise.
+
+Primary working goal:
+
+> **Wheelwright should make following the disciplined process the path of least cognitive resistance.**
+
+Companion goal:
+
+> **Wheelwright should do enough routine reasoning that the human-in-the-loop primarily exercises authority and judgment over exceptions rather than repeatedly reconstructing routine process from raw facts.**
+
+Boundary:
+
+> **Wheelwright determines what the governed process says should happen. The operator determines whether it actually happens.**
+
+The system is not autonomous trading.
+
+Human authority remains over:
+- money;
+- action;
+- exceptions;
+- governance amendment;
+- legitimate override;
+- consequential judgment.
+
+The system should make durable distinctions between:
+- evidence changed;
+- governance legitimately changed;
+- a precommitted plan is naturally resolving;
+- the operator deliberately departed;
+- current discomfort created retrospective objective/thesis drift;
+- evidence is insufficient;
+- WAIT / HOLD / LET RESOLVE is the governed answer.
+
+### Canonical GDXJ lesson
+
+The GDXJ covered-call episode remains the primary behavioral falsifier.
+
+Mechanical state was available:
+- shares owned;
+- call open;
+- strike / expiry / market facts;
+- call OTM near expiry.
+
+The reasoning failure occurred because AI supplied an unstated objective.
+
+After the Principal supplied the actual objective — recover basis through premium and ultimately have the shares called away — the governed interpretation changed materially.
+
+The high-value principle remains:
+
+> **Do not manufacture activity merely to avoid a pre-accepted outcome.**
+
+and:
+
+> **Patience was the process.**
+
+Natural resolution must remain a first-class governed path.
+
+### Behavioral / Inner Game pressure
+
+Observe behavior; do not diagnose psychology.
+
+Relevant process hazards include:
+- FOMO;
+- revenge;
+- boredom / activity bias;
+- premature profit-taking;
+- loss aversion;
+- objective / thesis drift;
+- hindsight rationalization;
+- mandate / regime shopping;
+- premium / probability fixation;
+- oversizing;
+- best-available being mistaken for acceptable.
+
+The system should reduce dependence on heroic operator discipline by making precommitted governance, evidence, constraints, objectives, preferences, and amendment history durable.
+
+### Journaling / provenance working principle
+
+Where the system already possesses:
+- authoritative state;
+- governing context;
+- Alternatives;
+- Recommendation;
+- rationale;
+- operator choice;
+- execution;
+- lifecycle;
+- outcome;
+
+it should not force the human to manually restate those facts as journaling theater.
+
+Human journaling should capture genuinely new/private judgment.
+
+Temporal provenance is essential:
+- what was believed / known at the time;
+- what intent was recorded;
+- what Policy version applied;
+- what authority permitted a change;
+- when the change became effective.
+
+Memory edited after the fact must not silently replace contemporaneous evidence.
+
+### Process change vs process abandonment
+
+Research must preserve the distinction among:
+- process-consistent continuation;
+- legitimate reconsideration because evidence/economics/governance/lifecycle changed;
+- governed Policy / objective amendment with authority and effective time;
+- operator departure from current Recommendation.
+
+Do not moralize the categories.
+
+The semantic system must permit deliberate human departure while preserving that it was a departure.
+
+### Inactivity semantics
+
+WAIT / HOLD / LET RESOLVE / NO TRADE may not be synonymous.
+
+Current research principles:
+- natural resolution is affirmative;
+- sufficient evidence that no action clears governance can produce WAIT;
+- insufficient evidence is not automatically WAIT;
+- inactivity can be the disciplined action path;
+- idle capital is not automatically failed capital.
+
+### Sell-side-bias guard
+
+Wheelwright was born in an options-income context and much of its corpus/UI naturally over-samples premium-selling programs.
+
+Do not infer from sparse research mappings that:
+- Income is semantically primary;
+- premium received is intrinsically preferable to premium paid;
+- long-premium / hedging / Growth programs are illegitimate.
+
+Protection / Tail Hedge / Long Put remains a clean counterexample to any hidden “premium received good, premium paid bad” assumption.
+
+The live question is where sell-side bias exists, if anywhere:
+- Mandate / Allocation Purpose;
+- Program;
+- Policy;
+- Preference;
+- Alternative generation;
+- ranking;
+- UI.
+
+### Contrastive-testing discipline
+
+Avoid Cartesian explosion.
+
+Preferred research sequence:
+
+> **baseline → single-axis contrast → two-axis interaction → adversarial counterexample**
+
+If a proposed dimension never changes:
+- Alternatives;
+- admissibility;
+- consequence interpretation;
+- comparison;
+- Recommendation;
+- attention;
+- explanation;
+- evidence required;
+
+then its semantic relevance is suspect.
+
+### Research lifecycle / authority discipline
+
+Exploration remains governed by:
+
+> **Explore → Intake (PL) → Reconcile Strategy → Reconcile Architecture → Preserve Why → Decompose → Authorize/Implement**
+
+Working maxim:
+
+> **Explore freely; reconcile before committing. Govern commitment, not curiosity.**
+
+No implementation/mutation authority may be inferred from:
+- reasoning quality;
+- research convergence;
+- actor agreement;
+- tests;
+- momentum;
+- a compelling specimen.
+
+No semantic change is authorized merely because multiple actors converge.
+
+### Actor-role context
+
+Current working roles:
+- **ChatGPT** — Principal-facing synthesis/reconciliation;
+- **Codex** — primary AI Architect + adversarial reviewer/falsifier;
+- **Kiro** — repository-resident Implementation Engineer / broader repo reconciliation;
+- **Muse** — independent generic domain/ontology challenger, intentionally kept away from Wheelwright-specific context;
+- **Principal** — owns Product meaning, scope/economic commitment, stop, and final/delegated acceptance.
+
+Muse prompts should remain generic and should not be contaminated with Wheelwright/repository/Product-specific semantics.
+
+### Current actor-capacity context
+
+At the time of this durability sweep:
+- Codex had approximately 35% capacity remaining before a 4 PM reset;
+- the immediately preceding constrained Codex falsification consumed materially less capacity than expected;
+- one additional narrow Codex adversarial pass is therefore intentionally reserved;
+- Kiro has more context/capacity wiggle room and is the preferred actor for broader reconciliation.
+
+This is operational planning context only, not durable Product semantics. It is preserved here solely because it governs the next research handoff and should not be mistaken for a roadmap commitment.
+
+### Next semantic falsifier after persistence
+
+Do not resume broad discovery.
+
+The immediate remaining falsifier is:
+
+> **Can Allocation Purpose change Recommendation in a way that cannot be losslessly compiled into explicit runtime decision machinery?**
+
+The actor should attack that proposition directly and stop once the discriminator is resolved or a single irreducible counterexample is found.
+
