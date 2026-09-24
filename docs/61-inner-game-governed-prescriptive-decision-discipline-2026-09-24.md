@@ -1472,3 +1472,293 @@ Future Kiro/Codex/ChatGPT prompts concerning the Inner Game, governed purpose/co
 - relevant practitioner-corpus material.
 
 The surveys are pressure-test inputs with preserved source status. Do not silently promote them to ratified ontology or policy.
+
+
+## 27. Principal independent Portfolio Mandate survey — 2026-09-24
+
+**Source status:** Principal-supplied independent survey. Preserve as high-value semantic/falsification input; it is **not yet independently verified, ratified taxonomy, or architecture/policy authority**. The survey deliberately pressure-tests candidate Portfolio Mandates using a decision-relevance criterion.
+
+### Admission criterion
+
+The Principal's criterion is:
+
+> **A Portfolio Mandate earns its place only if it changes the decision rules and the success metric; otherwise it is just a label.**
+
+This is a useful falsification rule for `PL-SEM-01`, not yet a ratified ontology invariant.
+
+### Candidate Portfolio Mandates
+
+| Candidate Portfolio Mandate | Fundamental purpose of capital | Principal survey success metric / counterfactual | Decision-rule pressure |
+|---|---|---|---|
+| **Income** | Capital deployed to produce cash flow: premiums, dividends, interest | cash generated per unit of capital per period, against idle-capital counterfactual | home of Wheel, put-write, overwrite; must include opportunity cost and tail consequences that a cash-flow ledger can hide |
+| **Growth / Compounding** | Capital deployed to increase in value over time | total return vs benchmark | default buy-and-hold equity specimen; supplies opportunity-cost counterfactual against which income programs must defend themselves |
+| **Acquisition** | Capital held to become desired inventory at acceptable/better prices | quality/economics of acquired inventory vs governed acquisition target, not merely premium collected | strike governed by “price I'd celebrate owning,” not premium maximization; prevents premium-chasing from corrupting acquisition discipline |
+| **Disposition** | Inventory/capital positioned to exit at governed target prices | successful governed exit / disposition economics relative to target and alternatives | strike is an exit price, not premium-optimal strike; call-away is desired rather than merely tolerated |
+| **Protection / Hedging** | Capital spent to alter the distribution of other capital | counterfactual protection: avoided/limited adverse outcome relative to unhedged state | deliberate cost center; hedge expiry worthless can be process-consistent/good because insured adverse event did not occur |
+| **Speculation** | Capital risked for positive-skew / convex or event-driven payoffs | portfolio-level payoff distribution/expectancy rather than trade-level win rate | expected decay/frequent failures can be admissible; requires different sizing/diversification/risk rules from Growth |
+| **Liquidity Reserve** | Capital whose job is to remain available / preserve uncommitted optionality | capacity retained to act when dislocations/opportunities arrive; “regret avoided” is Principal shorthand requiring operationalization | differs from Acquisition because no specific target inventory is required; reserve size itself becomes governed |
+| **Preservation** | Capital whose job is to avoid nominal loss / preserve principal | nominal capital preservation plus appropriate liquidity/yield constraints | supports T-bill, money-market, short-duration Treasury specimens; strengthens “do nothing” / remain-safe as legitimate Alternative |
+
+### Principal pressure-test verdicts
+
+The survey explicitly pressure-tested three candidates previously flagged as uncertain in the working ontology table.
+
+#### Acquisition — Principal verdict: PASS at mandate level
+
+Reasoning:
+
+- acquisition capital is earmarked to become specific desirable inventory;
+- its optimization target differs from Income;
+- the relevant strike is governed by the price at which ownership is desirable, not by maximum premium;
+- demoting Acquisition to an Income phase creates a pathology: premium chasing can override ownership discipline.
+
+This is strong semantic evidence that Acquisition may deserve mandate-level identity, but it remains a Principal survey verdict pending `PL-SEM-01` falsification/reconciliation.
+
+#### Disposition — Principal verdict: PASS at mandate level
+
+Reasoning:
+
+- disposition inventory is intended to leave the portfolio at governed target economics;
+- call strike is primarily an exit target, not a premium-optimal strike;
+- call-away is desired;
+- the same covered-call construction can receive a different verdict under Income versus Disposition.
+
+This is a particularly useful controlled specimen because the Economic Construction can remain constant while mandate changes decision rules and outcome interpretation.
+
+#### Protection / Hedging — Principal verdict: PASS at mandate level
+
+Reasoning:
+
+- protection capital exists to change the distribution of other capital;
+- it is intentionally a cost center;
+- judging it by Income criteria (“premium paid was wasted”) is a category error;
+- a hedge expiring worthless may be the desired portfolio-level outcome because the insured adverse event did not occur;
+- its success metric is inherently counterfactual to the unhedged state.
+
+This is the survey's clearest mandate-level specimen and a strong falsifier of global cash-flow/premium-production objectives.
+
+### New candidate pressure: Speculation
+
+The Principal proposes **Speculation** as a distinct Portfolio Mandate:
+
+- capital is risked for positive-skew payoffs;
+- examples include long convexity, event bets, and lottery-like small-risk/high-payoff positions;
+- most individual specimens may fail by design;
+- sizing should therefore be small and potentially numerous/uncorrelated;
+- evaluation belongs at portfolio/program distribution level rather than individual trade win rate.
+
+The survey argues this is distinct from Growth because expected path, sizing, payoff topology, and success metric differ materially.
+
+This candidate requires substantial pressure testing. In particular:
+
+- whether “Speculation” is too broad to be a single mandate;
+- whether long-convexity/event-bet behavior belongs instead to an Operating Program or Inventory Role under another mandate;
+- whether “positive skew” is necessary or merely common;
+- how it relates to optional Scenario / Market Thesis Assertions;
+- whether it can be defined without moral or colloquial baggage.
+
+### New candidate pressure: Liquidity Reserve
+
+The Principal proposes **Liquidity Reserve** as a mandate whose purpose is uncommitted optionality itself.
+
+It differs from Acquisition because:
+
+- Acquisition targets specific inventory or a bounded acquisition purpose;
+- Liquidity Reserve remains deliberately uncommitted;
+- its success is preserving capacity to act when better opportunities/dislocations arrive;
+- reserve size is a governed choice rather than leftover cash.
+
+This strongly intersects the Inner Game “patience is a position” pressure and `LVT-BET-WAIT`.
+
+Open semantic questions:
+
+- whether Liquidity Reserve is a Portfolio Mandate, Capital Pool role, Constraint/floor, or combination;
+- whether “regret avoided” can become a disciplined measurable success criterion;
+- whether the same dollars can simultaneously satisfy Preservation and Liquidity Reserve purposes without semantic double counting.
+
+### New candidate pressure: Preservation
+
+The Principal proposes **Preservation** for capital whose job is not to lose nominal value.
+
+Specimens:
+
+- T-bills;
+- money-market funds;
+- short-duration Treasuries.
+
+The survey calls this the quiet mandate that can fund collateral needs and makes “do nothing” economically real rather than empty.
+
+Open semantic questions:
+
+- whether Preservation is distinct from Liquidity Reserve when safe liquid assets serve both;
+- whether Preservation is a Portfolio Mandate or a risk profile/objective attached to another mandate;
+- whether nominal preservation is sufficient or must account for inflation, duration, credit risk, and liquidity.
+
+### Structural finding 1 — capital can migrate between mandates
+
+The Principal proposes:
+
+> **Capital migrates between mandates.**
+
+The Wheel is offered as the key specimen:
+
+```text
+Acquisition
+    ↓ assignment
+Income
+    ↓ covered-call lifecycle
+Disposition
+    ↓ call-away
+capital available for next cycle
+```
+
+This is a major semantic pressure and should **not yet be accepted literally without reconciliation**.
+
+It may indicate one of several possibilities:
+
+1. Portfolio Mandate genuinely changes through the Wheel lifecycle;
+2. one durable higher-level Income mandate contains changing sub-objectives/Inventory Roles;
+3. Capital Pool purpose and Inventory Role change while Portfolio Mandate remains stable;
+4. the Wheel Operating Program coordinates several mandate-like purposes across phases;
+5. current semantic scope is insufficient and needs another concept.
+
+This is exactly the kind of specimen that can falsify the ontology. Do not force the Wheel into the proposed mandate-migration interpretation merely because the language is intuitive.
+
+The survey's associated reason for keeping **Inventory Role** separate remains strong:
+
+> mandate describes what capital is fundamentally for; Inventory Role describes what a governed quantity is currently doing within that purpose/context.
+
+The Wheel specimen should test whether that distinction is sufficient.
+
+### Structural finding 2 — every mandate carries a counterfactual
+
+The Principal proposes:
+
+> **Every Portfolio Mandate smuggles in a counterfactual, and mandate misclassification corrupts performance judgment before any trade is evaluated.**
+
+Survey examples:
+
+- Income → idle capital / alternative yield / total-return opportunity cost;
+- Growth → benchmark / buy-and-hold counterfactual;
+- Acquisition → alternative acquisition price/timing and desired ownership economics;
+- Disposition → target exit economics / continued-hold counterfactual;
+- Protection → unhedged adverse state;
+- Speculation → portfolio allocation without the convex/event exposure;
+- Liquidity Reserve → lost capacity when capital is prematurely committed;
+- Preservation → unsafe/risk-bearing alternative and nominal-loss avoidance.
+
+This is a high-value bridge between **Portfolio Mandate** and **Counterfactual Consequence**.
+
+Research question:
+
+> Does a Portfolio Mandate need an explicit governed success criterion / counterfactual comparator, or should those be represented as separate policy/objective/evaluation semantics associated with the mandate?
+
+The answer matters because the same realized P/L can be judged differently under different legitimate counterfactuals.
+
+### Controlled mandate specimens
+
+The survey enables a compact contrastive set:
+
+1. **Income vs Acquisition — same CSP mechanics**
+   - Income: premium production may dominate within risk/ownership constraints.
+   - Acquisition: ownership price is primary; premium is compensation while waiting.
+   - Tests whether mandate changes strike/ranking logic.
+
+2. **Income vs Disposition — same covered-call mechanics**
+   - Income: premium/upside tradeoff and repeatability matter.
+   - Disposition: exit target/call-away is the point.
+   - Tests Recommendation and outcome-quality interpretation.
+
+3. **Growth vs Protection — same strategic shares, hedge added**
+   - Growth evaluates total return.
+   - Protection spends capital to alter downside distribution.
+   - Tests cross-mandate relationships and whether protection is subordinate/supporting or peer-level.
+
+4. **Growth vs Speculation — both may buy calls**
+   - Growth may use long calls as capital-efficient directional exposure.
+   - Speculation may intentionally buy small positive-skew convexity with low win rate.
+   - Tests whether Economic Construction or thesis can infer mandate (they cannot if model holds).
+
+5. **Acquisition vs Liquidity Reserve — both can be cash**
+   - Acquisition cash has a target/ownership purpose.
+   - Liquidity Reserve cash is deliberately uncommitted.
+   - Tests whether cash state alone can infer purpose.
+
+6. **Liquidity Reserve vs Preservation — same money-market/T-bill inventory**
+   - Reserve emphasizes availability/optionality.
+   - Preservation emphasizes nominal safety.
+   - Tests whether these are truly distinct mandates or different objectives/roles attached to the same capital.
+
+7. **Protection vs Income — collar/covered-call overlap**
+   - both may include a short call;
+   - protection values downside-floor economics and retention;
+   - income values cash production;
+   - tests global sell-side bias and conventional-strategy-label leakage.
+
+### Decision-relevance test
+
+The Principal's mandate-admission criterion can be operationalized for falsification:
+
+A candidate mandate is semantically useful only if, under controlled specimens, changing it can legitimately change at least one of:
+
+- generated Alternatives;
+- admissibility;
+- ranking/comparison;
+- risk/consequence interpretation;
+- required evidence;
+- policy selection;
+- Outcome Stance;
+- attention/reconsideration;
+- Recommendation;
+- success/outcome evaluation;
+- relevant counterfactual.
+
+If none change, the candidate is likely metadata or a synonym rather than a load-bearing Portfolio Mandate.
+
+### Cross-survey topology now available
+
+The three Principal surveys now form a much stronger test bench:
+
+```text
+Portfolio Mandate
+    ↓ supplies fundamental purpose / evaluation frame
+Operating Program
+    ↓ supplies durable governed process
+Economic Construction
+    ↓ describes point-in-time economic structure
+Decision Subject + State/Evidence
+    ↓
+Alternatives / Consequences
+    ↓
+Recommendation
+```
+
+This is **not** a ratified containment hierarchy. The semantic model's association topology still applies. A mandate can potentially support multiple programs; a program can traverse multiple constructions; the same construction can appear under different mandates/programs.
+
+The surveys make those many-to-many distinctions testable rather than merely verbal.
+
+### Intake / roadmap pressure
+
+This survey remains primarily under:
+
+- `PL-DEC-BEH` — governed purpose should be established upstream rather than reconstructed under pressure;
+- `PL-SEM-01` — Portfolio Mandate identity/scope and distinction from Inventory Role, Operating Program, Objective/Purpose, Policy, and counterfactual semantics;
+- `PL-DEPLOY` — mandate-aware Alternative generation, admissibility, comparison, and WAIT;
+- `PL-PORT-01` — Capital Pool / Inventory Block state needed to bind mandates to actual capital;
+- `PL-STRAT-01` — programs/constructions must be evaluated against legitimate mandate purpose rather than admitted as free-floating “strategies.”
+
+Roadmap pressure remains within existing Bets. No new LVT identity is implied.
+
+### Actor handoff requirement — expanded again
+
+Future Kiro/Codex/ChatGPT prompts concerning the Inner Game, governed purpose/context, Portfolio Mandates, Operating Programs, Economic Constructions, strategy/program expansion, prescriptive recommendations, lifecycle policy, performance evaluation, or sell-side bias must explicitly direct actors to reacquire:
+
+- `docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md`;
+- §25 Principal Operating Program survey;
+- §26 Principal Economic Construction survey;
+- §27 Principal Portfolio Mandate survey;
+- current `PL-DEC-BEH`;
+- current `PL-SEM-01` artifacts;
+- relevant practitioner-corpus/reconciliation material.
+
+These surveys are Principal-supplied pressure-test inputs. Do not silently promote their classifications or verdicts into ratified ontology, architecture, policy, or implementation.
