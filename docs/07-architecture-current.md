@@ -529,3 +529,157 @@ This document supersedes the earlier version that described browser-owned acquis
 | Bid-based yield | Midpoint-based yield |
 
 The TypeScript backend (`evidence-service/`) has been retired after successful Java retooling acceptance (August 3, 2026). The Java backend is the sole evidence appliance.
+
+
+---
+
+## Governed Decision Context, Persistence, and Replay
+
+**Ratified September 24, 2026.** This section promotes the reconciled governed-decision persistence/replay architecture from Doc 61 §§42–44 into current architecture authority. It is intentionally narrow: it governs the first durable lifecycle-decision slice and does not move recommendation computation or create a generalized event architecture.
+
+### Ownership boundary
+
+Wheelwright uses the existing Java backend + existing SQLite persistence boundary as the durable shared owner for:
+
+1. immutable **Governed Context Versions**;
+2. immutable **Lifecycle Decision Records**; and
+3. immutable later **Operator Disposition Records**.
+
+The browser remains the deterministic lifecycle Decision evaluator for this slice. Backend persistence authority and deterministic computation placement are separate architectural decisions.
+
+This preserves the current recommendation-computation boundary while removing browser-local history as the sole owner of governed context and Decision provenance.
+
+### Account locality
+
+Every governed-context, Decision, and disposition record is partitioned by stable `brokerageAccountId`.
+
+For the current trusted single-operator model, the backend may treat `brokerageAccountId` as an opaque stable partition identity supplied by the client. This does **not** make the backend the authoritative BrokerageAccount registry and does not establish multi-user authorization semantics.
+
+Cross-record references must remain within one account partition.
+
+### Temporal authority
+
+Every durable governed-decision record distinguishes:
+
+- **effective / decided / acted time** — when the governance, Decision, or disposition applies; and
+- **`recorded_at`** — backend-assigned durable recording time.
+
+Governed Context Versions are immutable. Amendment creates a new version; history is never rewritten in place.
+
+For replay of an existing Decision, the Decision's pinned `context_version_id` governs. Historical as-of reconstruction without such a pin must satisfy both:
+
+```text
+context effective at target time
+AND
+context recorded_at <= knowledge-cutoff recorded time
+```
+
+A later backdated amendment therefore cannot become contemporaneous knowledge for an earlier Decision.
+
+### Replay contract
+
+A Lifecycle Decision Record must preserve enough immutable content to reproduce the Recommendation under the historical evaluator without depending on mutable browser state or overwritten evidence.
+
+The minimum replay boundary is:
+
+```text
+Decision Subject identity
++ canonical exact Decision input bundle
++ authoritative evidence provenance attached to those values
++ pinned immutable Governed Context version
++ resolved lifecycle policy/default/threshold values
++ lifecycle policy version
++ evaluator version
+        ↓
+same deterministic Recommendation
+```
+
+A generation number, retrieval timestamp, provenance identifier, version label, or hash is not sufficient by itself unless it resolves to immutable recoverable content.
+
+### Canonical lifecycle Decision input bundle
+
+For the current short-obligation lifecycle evaluator, the replay-bound consumed values are:
+
+```text
+brokerage_account_id
+decision_subject_key
+side
+dte
+moneyness | null
+lifecycle_ambiguous
+close_price_supported
+
+resolved lifecycle policy:
+  nearDteMax
+  negligibleRiskOtmMagnitude
+  btcRequiresClosePrice
+
+resolved BTC-review thresholds:
+  nearDteMax
+  nearStrikeMagnitude
+
+context_version_id
+context_payload_hash
+lifecycle_policy_version
+evaluator_version
+evidence provenance
+decided_at
+input_bundle_hash
+```
+
+`candidate` is a pure derivative of already-pinned inputs and need not become an independent authoritative fact.
+
+The architectural rule generalizes narrowly:
+
+> Persist the exact value DECIDE consumed when its upstream derivation depends on mutable, overwritten, browser-local, or ambient state. Recompute only pure derivatives of already-pinned inputs.
+
+Do not retain full evidence snapshots merely for replay when a smaller consumed value plus provenance is sufficient.
+
+### Governed Context and purpose
+
+High-level Allocation Purpose / Mandate is governance/design provenance, not a hidden runtime discriminator.
+
+The permitted causal path is:
+
+```text
+durable account purpose / governance rationale
+        ↓ establishes
+explicit Objective / Constraint / Preference / Outcome Stance / Policy
+        ↓
+purpose-label-agnostic deterministic DECIDE
+        ↓
+Recommendation
+```
+
+Governed Context may be referenced rather than duplicated inside each Decision when the referenced version is immutable, durably recoverable, and bound by identity/hash.
+
+### Recommendation, disposition, execution
+
+Recommendation, operator disposition, Action, execution, and brokerage-observed lifecycle fact remain distinct.
+
+An Operator Disposition Record may state FOLLOW / DEFER / DEPART relative to a Decision. It does not establish that a broker instruction was submitted, filled, assigned, expired, called away, rolled, or otherwise executed.
+
+Authoritative brokerage evidence remains the source of lifecycle execution/resolution facts.
+
+### Explicit non-decisions
+
+This ratification does **not** require:
+
+- cryptographic anchoring or regulatory-grade non-repudiation;
+- a second durable semantic/evidence store;
+- generic event sourcing;
+- a new database technology;
+- backend DECIDE;
+- backend BrokerageAccount registry authority;
+- a fourth durable record role;
+- a generalized serialization framework;
+- full portfolio-state migration to the backend;
+- autonomous execution.
+
+Those require separate evidence and architecture decisions if future pressure earns them.
+
+### Architecture-roadmap relationship
+
+This decision partially resolves the first-slice pressure in AR1, materially resolves the governed-decision ownership question in AR6, establishes the Decision-side identity/provenance seam needed by AR7, and establishes the replay substrate needed by AR8. AR7 remains open beyond the Decision boundary because Action, execution, lifecycle, and outcome linkage are broader concerns.
+
+See ADR-019 for the ratified decision record and Doc 61 §§42–45 for falsification/reconciliation evidence.
