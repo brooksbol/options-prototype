@@ -5999,3 +5999,372 @@ The next useful reconciliation is now very small:
 > **Against current Wheelwright backend, browser stores, account identity, and SQLite posture, what is the smallest concrete persistence/anchoring design that satisfies the Muse invariants without moving deterministic DECIDE or inventing a generalized event-sourcing system?**
 
 That question is concrete enough for architecture decomposition and no longer requires broad semantic research.
+
+
+---
+
+## 42. Concrete Wheelwright persistence / anchoring reconciliation — 2026-09-24
+
+**Source status:** ChatGPT architecture reconciliation executed against current repository state after the §41 sanitized Muse challenge. Current `main` at acquisition: `4d52d1f456262b8cfe7ad4617c7173c700e7317f`. Repository inspected read-only before this why-state append. This section is an architecture candidate/reconciliation, **not implementation authorization, schema/API ratification, or permission to modify runtime code.**
+
+### Question
+
+> **Against current Wheelwright SQLite/backend, browser stores, and account-identity patterns, what is the smallest concrete persistence/anchoring design that satisfies the §41 invariants without moving deterministic DECIDE or introducing generic event sourcing?**
+
+### Existing seams that materially constrain the answer
+
+Current repository facts:
+
+1. **SQLite is already the durable backend substrate.**
+   - Java/Spring Boot backend owns `evidence.sqlite3`.
+   - `DatabaseManager` runs numbered SQL migrations transactionally and tracks them in `_migrations`.
+   - WAL + foreign keys are already enabled.
+   - The retooling charter says SQLite is durable until evidence proves otherwise and explicitly rejects adding PostgreSQL/Redis/Kafka/event buses without demonstrated need.
+
+2. **The browser already emits Decision-derived facts to durable SQLite.**
+   - `OpportunityHistoryController` accepts browser-emitted Decision outcomes and persists them through `SqliteEvidenceStore`.
+   - Its own architecture comment calls this B-1 transitional: browser remains authoritative Decision evaluator while the Evidence Appliance owns durable history.
+   - The path is append-only/idempotent using deterministic identities + `INSERT OR IGNORE`.
+   - This is a direct precedent for “client computes; backend durably records” without moving Decision computation.
+
+3. **Account-local identity already exists in the browser.**
+   - `brokerageAccountId` is the stable Wheelwright partition key.
+   - Fidelity evidence has already migrated from singleton keys to `wheelwright:acct:<brokerageAccountId>:...`.
+   - Ambiguous/missing account identity is never guessed.
+   - The account registry currently remains browser-local and stores identity/provenance metadata only.
+
+4. **The current backend does not yet own BrokerageAccount identity.**
+   - Therefore making the backend the master account registry would be a separate architectural expansion.
+   - It is not required merely to use `brokerageAccountId` as an opaque durable partition/provenance key for the first governed-decision slice.
+
+5. **Current lifecycle DECIDE is deterministic and browser-side.**
+   - No invariant found in §§38–41 requires moving it.
+   - Current Category-A/B authority and the retooling charter explicitly caution against combining recommendation-location migration with unrelated backend work.
+
+### Candidate rejected: client-only semantic history + opaque backup + cryptographic notary
+
+Muse proved this model can satisfy the generic invariants, but it is **not the smallest Wheelwright implementation**.
+
+Wheelwright already has:
+- a continuously running Java backend;
+- durable SQLite;
+- numbered migrations;
+- append-only browser→backend historical fact ingestion;
+- a single-operator deployment;
+- no requirement to hide decision semantics from its own backend.
+
+Adding:
+- encrypted client blobs;
+- a second opaque backup protocol;
+- cryptographic chain receipts;
+- a separate notarization abstraction;
+
+would create mechanisms Wheelwright does not otherwise need.
+
+The generic anchor-only design is therefore useful as a **lower-bound proof**, not the preferred concrete Wheelwright shape.
+
+### Candidate rejected: move DECIDE to backend
+
+No current invariant earns this move.
+
+It would:
+- cross the current browser Decision boundary;
+- combine persistence work with recommendation-location migration;
+- expand Category-A backend responsibilities;
+- create unnecessary implementation scope before the first governed-decision specimen is proven.
+
+### Smallest concrete candidate
+
+Use the **existing Java backend + existing SQLite database as the shared durable recorded-time authority**, while leaving deterministic DECIDE in the browser.
+
+```text
+Git / durable governance rationale
+        ↓
+browser account-local working context
+        ↓ commit governed context version
+Java backend / SQLite
+        ├── immutable governed-context versions
+        ├── immutable lifecycle Decision records
+        └── immutable later disposition records
+        ↑
+browser DECIDE computes deterministically
+        │
+        └── submits exact replay pins + result
+```
+
+The backend does not decide. It timestamps, structurally validates, and durably appends.
+
+For the current single-operator threat model, a successful SQLite commit with backend-assigned `recorded_at` is the temporal anchor. No cryptographic receipt protocol is required for the first slice.
+
+### Why full semantic records in SQLite rather than hashes only
+
+Muse established that hashes/anchors can be logically sufficient if the semantic payload is durably recoverable elsewhere.
+
+Wheelwright has no second durable semantic store today.
+
+Therefore hash-only anchoring would force an additional durable-blob/backup mechanism merely to make replay possible.
+
+Storing the small semantic records directly in SQLite is simpler:
+- one durable substrate;
+- one migration mechanism;
+- one recovery path;
+- no opaque-blob protocol;
+- direct inspection/debugging;
+- no need to reconstruct authoritative history from browser storage.
+
+This is an **engineering-minimality conclusion**, not a claim that full server custody is logically necessary.
+
+### Minimal logical records
+
+Three logical records remain earned. They may live in one persistence capability and one controller/store module; they do not imply three services.
+
+#### A. Governed Context Version
+
+Minimum fields:
+
+```text
+context_version_id
+brokerage_account_id
+subject_scope / binding
+effective_from
+effective_to or supersedes_context_version_id
+recorded_at              ← backend assigned
+authority / author
+policy_version
+governed_payload          ← explicit Objective / Constraint / Preference /
+                            Outcome Stance / qualification values needed by slice
+payload_hash
+```
+
+Properties:
+- immutable once committed;
+- amendment = new version, never update-in-place;
+- account-local;
+- effective-time and recorded-time both preserved;
+- high-level Allocation Purpose may be preserved upstream as governance rationale, but is **not** a DECIDE runtime discriminator.
+
+A closed effective interval may be represented by the superseding record rather than mutating the prior row if strict immutability is preferred. The exact SQL representation is decomposition work.
+
+#### B. Lifecycle Decision Record
+
+Minimum fields:
+
+```text
+decision_id
+brokerage_account_id
+decision_subject_key
+decided_at
+recorded_at              ← backend assigned
+context_version_id
+lifecycle_policy_version
+evaluator_version
+evidence_generation / exact evidence provenance refs
+subject_state / input_bundle binding
+alternatives considered
+status                   ← RECOMMEND | UNRESOLVED
+recommendation           ← e.g. LET_RESOLVE / HOLD / BTC / ...
+structured reason codes
+input_bundle_hash
+```
+
+Properties:
+- immutable;
+- idempotent identity;
+- pins exact deterministic replay inputs;
+- explanation prose is reconstructive/non-authoritative unless a future requirement proves otherwise;
+- `UNRESOLVED` cannot be encoded as HOLD/WAIT/LET_RESOLVE.
+
+#### C. Operator Disposition Record
+
+Minimum fields:
+
+```text
+disposition_id
+decision_id
+brokerage_account_id
+disposition              ← FOLLOW | DEFER | DEPART
+effective/acted_at
+recorded_at              ← backend assigned
+optional new human judgment / reason
+supersedes_disposition_id (only for correction)
+```
+
+Properties:
+- append-only;
+- never mutates Decision Record;
+- later Action / Write Intent / Execution identity may link to it when available;
+- a broker execution remains separate external-world evidence, not magically made true by this record.
+
+### Physical persistence shape
+
+The minimum physical change is one numbered SQLite migration containing **three small append-oriented tables plus indexes/foreign keys**.
+
+Do **not**:
+- introduce an event-store framework;
+- create a generic entity/value ontology;
+- split into new services;
+- add Kafka/message buses;
+- replace SQLite;
+- add a purpose/mandate runtime column to the lifecycle evaluator;
+- migrate the recommendation engine.
+
+Existing `DatabaseManager` migration machinery is sufficient.
+
+### Minimum HTTP boundary
+
+The first slice needs only a narrow governed-decision API surface, conceptually:
+
+```text
+POST governed-context version
+GET  effective governed-context for account + subject + as-of time
+
+POST lifecycle Decision record
+GET  lifecycle Decision history / specific decision
+
+POST operator disposition
+```
+
+Names/routes are decomposition details, not ratified here.
+
+Required backend behavior:
+- assign authoritative `recorded_at`;
+- reject missing account/subject/context bindings;
+- reject a Decision referring to an unknown context version;
+- preserve idempotency;
+- never UPDATE/DELETE historical Decision/disposition rows through normal API;
+- validate structural replay pins;
+- do not independently reinterpret or recompute the Recommendation.
+
+### Account-locality safeguard
+
+For the first slice, the backend may treat `brokerageAccountId` as an **opaque stable partition key supplied by the browser**.
+
+This does not make the browser's account registry less important and does not make the backend the BrokerageAccount identity authority.
+
+Every context, Decision, and disposition row must carry `brokerage_account_id`, and cross-record references must remain within the same account partition.
+
+This is enough for PTS/Sawdust isolation in the single-operator prototype without prematurely migrating the account registry.
+
+If multi-user authorization or mutually independent writers later appear, this assumption must be revisited.
+
+### Purpose-label safeguard
+
+The DECIDE input contract should remain free of a high-level Allocation Purpose/Mandate discriminator.
+
+The allowed causal path remains:
+
+```text
+account-local durable purpose / governance rationale
+        ↓ establishes
+explicit governed context
+  Objective / Constraint / Preference / Outcome Stance / Policy
+        ↓
+purpose-label-agnostic deterministic DECIDE
+        ↓
+Recommendation
+```
+
+PTS and Sawdust may therefore legitimately receive different Recommendations only when their explicit governed machinery differs.
+
+### Replay contract
+
+A historical Recommendation is reproducible only when Wheelwright can pin:
+
+```text
+Decision Subject
++ exact subject state / input bundle
++ authoritative evidence refs / generation
++ effective Governed Context version
++ lifecycle Policy version
++ evaluator version
+        ↓
+same deterministic Recommendation
+```
+
+This is stronger than merely storing the rendered Recommendation.
+
+The first implementation decomposition must explicitly define `evaluator_version`; source-code version/commit identity is a candidate, but this reconciliation does not ratify its representation.
+
+### Temporal contract
+
+Every governed-context, Decision, and disposition fact must preserve two different clocks:
+
+```text
+effective / decided / acted time
+recorded_at (backend durable commit time)
+```
+
+Backdated correction may alter what governance is claimed to have been effective at an earlier time, but it cannot alter what Wheelwright had durably recorded at that earlier time.
+
+This is the anti-hindsight property the shared boundary exists to preserve.
+
+### Threat model boundary
+
+The first slice protects against:
+- ordinary browser loss/replacement;
+- accidental local-state deletion;
+- later UI-level rewriting of prior governance;
+- retrospective objective/stance editing through normal product flows;
+- confusion between amendment and departure.
+
+It does **not** attempt to protect against:
+- an administrator manually editing the SQLite file;
+- filesystem rollback by a malicious operator;
+- mutually distrusting writers;
+- regulatory-grade non-repudiation.
+
+Those would earn cryptographic anchoring, remote immutable storage, signatures, or stronger identity/order semantics later. They are not current requirements.
+
+### Existing opportunity-history precedent: reuse the pattern, not the schema
+
+`OpportunityHistoryController` is a strong implementation precedent:
+- browser emitter;
+- backend durable append;
+- deterministic/idempotent ids;
+- structural validation;
+- SQLite history;
+- no backend recommendation computation.
+
+But its existing tables are the wrong semantic owner:
+- policy-neutral opportunity/funnel observations;
+- symbol/surface oriented;
+- not account-local;
+- not lifecycle Decision provenance.
+
+Do not overload `evaluation_epoch` / `surface_observation` into the new governed-decision history.
+
+Reuse the **boundary pattern**, not those record meanings.
+
+### Concrete architecture verdict
+
+The smallest Wheelwright-shaped persistence design is therefore:
+
+> **Persist the small authoritative semantic records themselves in the existing backend SQLite, using the existing browser→backend append-history pattern; keep deterministic DECIDE in the browser; use backend commit time as the shared temporal anchor; key every record by `brokerageAccountId`; and pin evidence, governed-context, lifecycle-policy, and evaluator versions for replay.**
+
+This is smaller in Wheelwright than Muse's opaque-blob + cryptographic-anchor model because Wheelwright already owns a durable semantic SQLite boundary.
+
+### Codex reserve decision
+
+The Principal has explicitly preserved approximately **31% Codex capacity** for a high-value discriminator.
+
+Do **not** spend it merely to repeat this architecture mapping.
+
+The highest-value Codex use is now a narrow adversarial falsifier of one proposition:
+
+> **Given Wheelwright's existing Java/SQLite append-history boundary and single-operator threat model, is direct immutable semantic persistence in SQLite with backend-assigned recorded time sufficient for the first governed-decision slice, or is there a concrete current requirement that forces cryptographic anchoring, a second durable payload store, backend DECIDE, or backend account-registry authority?**
+
+Use Codex only if an independent challenge is desired before this candidate is promoted into architecture/decomposition. Preserve the remaining capacity otherwise.
+
+### Next bounded action
+
+Before implementation decomposition, independently falsify the concrete candidate above.
+
+The falsifier should attack only:
+- direct semantic SQLite persistence versus anchor-only;
+- opaque browser-supplied `brokerageAccountId`;
+- backend-assigned `recorded_at` as sufficient first-slice temporal anchor;
+- three logical record roles;
+- browser-side deterministic DECIDE;
+- replay pins, especially evaluator version.
+
+If no current requirement breaks the candidate, the architecture question is sufficiently resolved to return through normal reconciliation/Principal decision before decomposition.
