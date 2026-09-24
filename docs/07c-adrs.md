@@ -683,3 +683,85 @@ This decision generalizes beyond the Roadmap capability: it establishes where th
 - **`foundations/retooling-charter.md`** — reinforces the runtime/engineering boundary the charter establishes.
 - **`PL-ROADMAP-UI`** (`docs/parking-lot-9.md`) — the capability whose reconciliation established this constraint.
 - **`foundations/roadmap-self-documenting-meta-state.md`** — governs *why* the Roadmap exists (self-documenting project meta-state). ADR-018 governs the *boundary* (no runtime GitHub; build/reconciliation-side derivation) that constrains how that projection is implemented. Purpose and boundary are deliberately kept in separate authority layers.
+
+
+---
+
+## ADR-019: Governed Decision Context, Durable Replay, and Disposition History
+
+**Date:** September 24, 2026
+**Status:** Accepted
+
+**Context:** Wheelwright's current recommendation/lifecycle evaluation is deterministic but substantially browser-side, while durable authority is stronger for market evidence than for governed decision context and Recommendation history. The Inner Game / governed-prescriptive-decision work (Doc 61) established a concrete operator need: Wheelwright must be able to answer what the governed process prescribed at a historical decision time, on what evidence and explicit governance, under what evaluator/policy, without hindsight rewriting and without conflating Recommendation, later operator disposition, and actual broker execution.
+
+Generic falsification (Muse) showed that full server-side semantic custody is not logically required merely because the records matter. Repository-specific reconciliation then showed that Wheelwright already has a simpler native boundary: Java/Spring Boot + SQLite is the durable shared substrate, and existing opportunity-history code demonstrates a browser-compute → backend-append pattern. A subsequent Codex falsifier narrowed the replay requirement: current evidence rows can advance/overwrite, so snapshot generation/retrieval/provenance identifiers alone do not necessarily recover the exact values DECIDE consumed. Kiro then traced the current lifecycle DECIDE path and established the minimum replay-bound consumed inputs and the load-bearing in-code defaults/thresholds.
+
+The Principal selected promotion of this reconciled candidate into architecture authority before decomposition.
+
+**Decision:**
+
+1. **Durable owner.** The existing Java backend + SQLite is the shared durable owner for the first governed-decision slice's immutable Governed Context Versions, immutable Lifecycle Decision Records, and immutable later Operator Disposition Records.
+
+2. **Computation placement remains separate.** Deterministic lifecycle DECIDE remains browser-side for this slice. Durable persistence ownership does not by itself move recommendation computation. Moving DECIDE server-side remains a separate architecture decision.
+
+3. **Three logical durable roles.**
+   - **Governed Context Version** — immutable, account-local, effective-time-aware governance/policy context.
+   - **Lifecycle Decision Record** — immutable historical Recommendation/UNRESOLVED result plus replay-bound inputs/provenance.
+   - **Operator Disposition Record** — immutable later FOLLOW / DEFER / DEPART relative to a Decision.
+   
+   These are logical roles, not separate services. No generic event-sourcing model is implied.
+
+4. **Account partition.** Every record is keyed/partitioned by stable `brokerageAccountId`. In the current trusted single-operator system, the backend may treat that identifier as an opaque stable client-supplied partition identity. This does not ratify backend BrokerageAccount registry authority or multi-user authorization semantics.
+
+5. **Bitemporal discipline.** Effective/decided/acted time is distinct from backend-assigned `recorded_at`. Governed Context amendment creates a new immutable version rather than rewriting history. Existing Decision replay uses the pinned `context_version_id`. Generic historical as-of resolution must apply both effective time and a recorded-time knowledge cutoff so later backdated amendments cannot masquerade as contemporaneously known governance.
+
+6. **Canonical Decision input bundle.** A Decision Record must contain the exact replay-bound values DECIDE consumed when those values originate from mutable, overwritten, browser-local, or ambient state. A generation number, provenance identifier, version label, timestamp, or hash is not sufficient as the recovery mechanism unless it resolves to immutable recoverable content.
+
+   For the current short-obligation lifecycle evaluator, the minimum consumed values are:
+   - `side`;
+   - `dte`;
+   - `moneyness` (including explicit null);
+   - `lifecycleAmbiguous`;
+   - `closePriceSupported`;
+   - the resolved values of `DEFAULT_LIFECYCLE_POLICY`;
+   - the resolved values of `DEFAULT_BTC_REVIEW_THRESHOLDS`;
+   - pinned immutable Governed Context identity/hash;
+   - lifecycle policy version;
+   - evaluator version;
+   - attached evidence provenance;
+   - decision time and canonical input-bundle identity/hash.
+
+   Pure derivatives of already-pinned inputs, such as the current `candidate` classification, need not become independent authoritative facts.
+
+7. **Resolved values, not labels only.** Policy/evaluator/version identifiers remain valuable provenance, but where an identifier does not resolve to immutable retained content, the actual load-bearing resolved values must also be replay-bound. This applies to the current in-code policy/default/threshold literals.
+
+8. **Governed purpose remains upstream.** Allocation Purpose / Mandate does not become a direct runtime discriminator. Durable purpose/governance establishes explicit Objectives, Constraints, Preferences, Outcome Stance, Inventory Role where relevant, and Policy. Those explicit mechanics determine Recommendation.
+
+9. **UNRESOLVED remains distinct from inactivity.** Lack of sufficient evidence/governance is not encoded as HOLD, WAIT, LET RESOLVE, or any other affirmative inactivity Recommendation.
+
+10. **Disposition is not execution.** A FOLLOW / DEFER / DEPART record states the operator's relation to the Recommendation. It does not establish broker submission, fill, assignment, expiration, call-away, roll, or any other lifecycle fact. Authoritative brokerage evidence remains required for execution/resolution truth.
+
+11. **Minimality constraint.** This decision does not authorize cryptographic notarization, a second semantic store, a new database, generic event sourcing, backend BrokerageAccount authority, a fourth record role, a generalized policy engine, a generic ontology runtime, autonomous broker execution, or full backend migration of portfolio/recommendation state.
+
+**Consequences:**
+- Historical Recommendation replay no longer depends on whatever mutable browser/evidence state happens to exist later.
+- Anti-hindsight integrity is provided by immutable context versions, backend durable recording time, pinned context identity, and replay-bound consumed inputs.
+- Existing Java/SQLite migration and append-history patterns remain the implementation substrate; no new infrastructure technology is required.
+- Recommendation computation may remain in the browser while backend persistence becomes authoritative for governed-decision history.
+- A future evaluator that consumes additional load-bearing inputs must replay-bind those consumed values (or an immutable recoverable reference) under the same rule.
+- Decomposition must define a narrow canonical serialization/identity contract for the input bundle and explicit structural validation/idempotency at the backend boundary; this ADR does not prescribe table names, endpoint names, DTO names, or UI.
+- This decision partially resolves AR1 for governed decision context, materially resolves the first-slice ownership question in AR6, establishes the Decision-side provenance/identity seam for AR7, and establishes a reproducible Decision-time substrate for AR8. Broader portfolio authority, execution/lifecycle identity, and outcome linkage remain separate unresolved work.
+
+**Relationship to other decisions:**
+- **ADR-001 / Evidence Acquisition and Recommendation are Separate Concerns** — preserved. The backend may durably record Decision context/history without becoming the recommendation evaluator.
+- **ADR-004 / Broker Handoff via Pre-Populated Trade Ticket** — preserved. Recommendation/disposition remains upstream of broker submission and cannot establish execution.
+- **ADR-013 / Position Monitoring Model / epistemic-integrity boundary** — reinforced. UNRESOLVED is preferable to manufactured certainty; Decision history preserves what was actually known/governed.
+- **ADR-015 / Evidence Provenance Authority and Preservation** — extended at the Decision boundary: provenance accompanies consumed values, but provenance metadata alone is not treated as recoverable historical evidence when the underlying payload is mutable.
+- **ADR-016 / Evidence-to-Domain Association Is an Authoritative Semantic Claim** — cross-record subject/account/context links must be explicit and must not acquire authority merely from convenient identifiers.
+- **ADR-017 / Authoritative Verdict Precedence and Consumer-Path Reach** — the actual Decision consumer must consume the effective governed context; missing authority fails closed rather than being replaced by a local guess or purpose-label shortcut.
+- **ADR-018 / No Runtime GitHub Dependency** — evaluator/policy identity must not require runtime GitHub access. If source/build identity is used, it must be carried as prepared runtime metadata or another build/reconciliation-side artifact, not resolved by live repository calls.
+- **AR1 / AR6 / AR7 / AR8** — this ADR is the ratified first-slice structural disposition of the governed-decision persistence/replay pressure recorded there.
+
+**Boundary principle (concise):**
+
+> Preserve the exact governed Decision that was made — context, consumed inputs, evaluator/policy, Recommendation, and later human disposition — in durable account-local history, while keeping execution truth and deterministic computation ownership distinct.
