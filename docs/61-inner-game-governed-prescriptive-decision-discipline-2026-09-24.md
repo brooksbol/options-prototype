@@ -2430,3 +2430,327 @@ Future Kiro/Codex/ChatGPT prompts concerning the Inner Game, governed purpose/co
 - relevant practitioner-corpus/reconciliation material.
 
 The technical Wheel definition is a Principal-supplied formal specimen. Preserve its unresolved sections and contradictions as research evidence; do not silently complete or repair them in actor prompts.
+
+
+## 30. Principal Portfolio Mandate ↔ Operating Program mapping survey — 2026-09-24
+
+**Source status:** Principal-supplied independent mapping survey. Preserve as high-value semantic/falsification input; it is **not yet a ratified compatibility matrix, taxonomy, architecture, or implementation authority**.
+
+### Core proposition
+
+The Principal proposes:
+
+> **Portfolio Mandate ↔ Operating Program is n-to-n.**
+
+A Portfolio Mandate can be served by multiple Operating Programs. An Operating Program can serve multiple Portfolio Mandates, potentially at different lifecycle phases.
+
+### Mapping supplied by the Principal
+
+| Portfolio Mandate | Operating Program | Why it fits |
+|---|---|---|
+| **Income** | **Wheel** | Multi-phase premium harvesting; both assignment transitions pre-accepted as desired outcomes |
+| **Income** | **Systematic put-write** | Recurring premium; assignment is the contingent acquisition branch, not a failure |
+| **Income** | **Systematic overwrite** | Premium on held shares; upside cap is the explicitly priced cost |
+| **Income** | **PMCC program** | Overwrite economics at a fraction of the capital; long-leg decay is the known drag |
+| **Income** | **Mechanical delta-neutral premium** | Rules-based short-vol harvesting (45 DTE / manage at 21 specimen); assignment prohibited by policy |
+| **Income** | **Defined-risk spread ladder** | Capped-tail short premium; wings bound tail risk |
+| **Income** | **Covered strangle program** | Dual premium streams; position sized for the double-assignment branch |
+| **Income** | **Diagonal income ladder** | Front-leg decay harvested against persistent long leg; front expiry is renewal, not full resolution |
+| **Income** | **Earnings premium harvest** | Event-volatility premium captured with defined-risk constructions, sized per event |
+| **Income** | **0DTE premium program** | Same-day decay harvested mechanically; flat by close; edge status disputed |
+| **Income** | **Long-dated put-write** | Term-structure premium sold after volatility spikes; distant acquisition is tail branch |
+| **Growth / Compounding** | **Systematic accumulation (buy-and-hold)** | Compounding through ownership; governed by allocation and rebalancing rather than option-trading rules |
+| **Growth / Compounding** | **Dividend-growth program** | Compounding plus rising income stream; secondary fit to Income |
+| **Acquisition** | **Systematic put-write** | Strike = celebration price; premium compensates contingent commitment to buy |
+| **Acquisition** | **Long-dated put-write** | Distant acquisition at deep-discount strikes; multi-year patience is the policy |
+| **Acquisition** | **Wheel (Phase 1)** | CSP leg is acquisition mechanism; proposed mandate migration to Income on assignment |
+| **Disposition** | **Systematic overwrite (exit-strike)** | Strike = exit price; call-away is plan completion rather than unwanted upside loss |
+| **Disposition** | **Wheel (Phase 3)** | Covered-call leg disposes inventory at ≥ basis + target; proposed mandate migration on sale |
+| **Protection / Hedging** | **Systematic collar program** | Floor on strategic inventory funded by capped upside; retention is the point in this specimen |
+| **Protection / Hedging** | **Tail-hedge program** | Rolling long puts; expiry worthless can be good outcome; judged against unhedged non-event |
+| **Speculation** | **Asymmetric convexity program** | Recurring small long-vol bets; sized for frequent total loss; judged at portfolio payoff level |
+| **Liquidity Reserve** | **Cash-reserve ladder program** | T-bill / money-market ladder; availability itself is the product; sized as governed share of account/capital |
+| **Preservation** | **Cash-reserve ladder program** | Same program under different mandate: nominal safety rather than optionality |
+
+### N-to-N structure made explicit
+
+#### One program → many mandates
+
+Principal examples:
+
+```text
+Wheel
+  → Acquisition
+  → Income
+  → Disposition
+  (phase-dependent)
+
+Systematic put-write
+  → Income
+  → Acquisition
+
+Systematic overwrite
+  → Income
+  → Disposition
+
+Cash-reserve ladder
+  → Liquidity Reserve
+  → Preservation
+
+Dividend-growth
+  → Growth / Compounding
+  → potentially Income as a secondary fit
+```
+
+This is strong pressure against making `OperatingProgram.mandate_id` a simple one-to-one attribute.
+
+#### One mandate → many programs
+
+The survey gives **Income** the densest program set, with eleven supplied mappings.
+
+Principal interpretation:
+
+> **Income is the most crowded mandate, which is why program-level Policy Rules—not mandate labels—do the real governing work.**
+
+This is useful but should be pressure-tested. A mandate can constrain/evaluate purpose while program policy governs mechanics; “do the real governing work” should not be read as making Mandate semantically weak.
+
+### Sparse regions are evidence
+
+The Principal explicitly calls out:
+
+- Growth / Compounding has no options-native Operating Program in this survey;
+- options may be guests rather than residents under Growth;
+- Speculation has one surveyed program;
+- the asymmetry reflects a surveyed program space built heavily around Income and Protection rather than a claim that the global program universe is actually sparse.
+
+This is particularly important for the sell-side-bias investigation. Do **not** interpret the mapping density as evidence that Income deserves greater product priority or that long-premium/growth/speculation programs are intrinsically less legitimate.
+
+### Integrity note — Program vs (Program, Phase)
+
+The Principal identifies a key modeling issue:
+
+> Rows such as **Wheel (Phase 1)** suggest that the mapping key may really be **(Program, Phase)** rather than Program alone for multi-mandate programs. If Wheelwright needs a clean key, phase-qualified programs are the honest unit.
+
+This is a high-value semantic hypothesis, but it should be challenged before introducing a `ProgramPhase` entity or key.
+
+Possible interpretations include:
+
+1. **Program ↔ Mandate is genuinely n-to-n, with phase as association context.**
+2. **(Program, Phase) ↔ Mandate** is the actual semantic relationship.
+3. **Program remains under one higher-level Mandate**, while phase changes Inventory Role / Outcome Stance / local objective.
+4. **Mandate binds to Inventory Block/Capital Pool over effective time**, and Program phase merely triggers migration.
+5. The current concept of Portfolio Mandate is too coarse and is mixing capital purpose with phase objective.
+
+No implementation choice follows yet.
+
+### Why phase qualification matters
+
+Consider the same Wheel instance:
+
+```text
+S1_PUT_OPEN
+  proposed Mandate: Acquisition
+  construction: CSP
+  desired transition: assignment → shares
+
+S2_STOCK_HELD / ordinary S3_CALL_OPEN
+  proposed Mandate: Income
+  construction: long stock / covered call
+  desired activity: premium production
+
+S3_CALL_OPEN at governed exit strike
+  proposed Mandate: Disposition
+  construction: covered call
+  desired transition: call-away → cash
+```
+
+If the mapping were only:
+
+```text
+WHEEL → Income
+```
+
+the model could lose the purpose change that affects strike selection and outcome evaluation.
+
+If the mapping were instead:
+
+```text
+WHEEL → {Acquisition, Income, Disposition}
+```
+
+without phase/effective-time context, Wheelwright could still fail to determine **which mandate governs this Decision Subject now**.
+
+Therefore the important decision-time question is not merely:
+
+> Which mandates can this program serve?
+
+It is:
+
+> **Which governed mandate is applicable to this Decision Subject / Inventory Block at this effective time, and why?**
+
+### Cross-product is not implied
+
+The n-to-n relationship must not become a Cartesian compatibility assumption.
+
+For example:
+
+- Tail Hedge ↔ Protection does not imply Tail Hedge ↔ Income.
+- Wheel ↔ Acquisition does not mean every Wheel state is Acquisition-governed.
+- Systematic overwrite ↔ Disposition may require exit-strike policy; an ordinary overwrite instance need not be a Disposition program.
+- Cash-reserve ladder ↔ Preservation and Liquidity Reserve may use the same mechanics but different success criteria and release rules.
+
+Mappings therefore require evidence/governance, not mere structural compatibility.
+
+### New Operating Program specimens introduced by this survey
+
+The mapping adds several program candidates not explicit in §25:
+
+- **Systematic accumulation / buy-and-hold**
+- **Dividend-growth program**
+- **Asymmetric convexity program**
+- **Cash-reserve ladder program**
+
+These are preserved as Principal-supplied Operating Program candidates for falsification. Their inclusion is important because it broadens the test bench beyond options-income programs and reduces the risk that the ontology merely describes the system's historical sell-side center of gravity.
+
+They should be tested against the §25 Operating Program criterion: durable, repeatable, rule-governed process spanning states/positions rather than a construction label or mandate synonym.
+
+### High-value controlled specimens
+
+#### Same program, different mandate — systematic put-write
+
+```text
+Income:
+  optimize qualified premium production subject to willingness-to-own
+
+Acquisition:
+  optimize acceptable acquisition economics;
+  premium compensates waiting/commitment
+```
+
+Same recurring short-put mechanics, different governing objective and success criterion.
+
+#### Same program, different mandate — systematic overwrite
+
+```text
+Income:
+  premium/upside tradeoff + repeatability
+
+Disposition:
+  strike = governed exit target
+  call-away = successful disposition
+```
+
+Same covered-call construction/program family; different strike policy and outcome interpretation.
+
+#### Same program, different mandate — cash-reserve ladder
+
+```text
+Liquidity Reserve:
+  optimize availability / optionality subject to safety/yield
+
+Preservation:
+  optimize nominal safety subject to liquidity/yield
+```
+
+This is an especially useful falsifier for whether Liquidity Reserve and Preservation truly deserve separate Mandate identities.
+
+#### Same mandate, different programs — Income
+
+Hold mandate constant and compare:
+
+```text
+Wheel
+Systematic put-write
+Systematic overwrite
+PMCC
+Mechanical delta-neutral premium
+Defined-risk spread ladder
+Covered strangle
+Diagonal income ladder
+Earnings premium harvest
+0DTE premium
+Long-dated put-write
+```
+
+This tests what Program contributes after purpose is held constant: state topology, eligible constructions, lifecycle rules, assignment stance, renewal/resolution semantics, risk topology, cadence, and policy.
+
+### Semantic relationship candidate
+
+A more faithful exploratory relation than a direct Program field may be:
+
+```text
+Portfolio Mandate
+        ↕
+[governed association:
+ scope + phase/state applicability + effective time + authority/provenance]
+        ↕
+Operating Program
+```
+
+At decision time:
+
+```text
+Account
++ Capital Pool / Inventory Block
++ Operating Program instance
++ current program state/phase
++ effective-time governance
+        ↓
+applicable Portfolio Mandate
+        ↓
+Inventory Role / Outcome Stance / Policy applicability
+        ↓
+Alternatives / consequences / Recommendation
+```
+
+This is a semantic research sketch, **not ratified architecture**.
+
+### Sell-side-bias consequence
+
+The mapping materially strengthens the sell-side-bias investigation.
+
+The current sample is visibly asymmetric:
+
+- Income has many mature options-native programs;
+- Protection has established long-option/collar specimens;
+- Growth, Speculation, Liquidity Reserve, and Preservation have fewer surveyed programs;
+- the new non-income programs help expose whether Wheelwright's Alternative generation is globally biased toward premium receipt.
+
+The correct research response is **not** to artificially balance the taxonomy. It is to determine whether sparse areas reflect:
+
+1. the actual bounded Wheelwright product mission;
+2. historical implementation bias;
+3. practitioner-corpus sampling bias;
+4. legitimate absence of useful programs;
+5. missing research.
+
+### Intake / roadmap disposition
+
+This mapping strengthens existing concerns rather than creating a new identity:
+
+- **`PL-SEM-01`** — n-to-n Mandate↔Program relationship, phase/effective-time applicability, association provenance;
+- **`PL-DEC-BEH`** — purpose should be explicit and stable enough to prevent mandate shopping under pressure;
+- **`PL-DEPLOY`** — applicable mandate/program pair affects Alternative generation/comparison;
+- **`PL-STRAT-01`** — broadened program candidate set and admission governance;
+- **`PL-PORT-01`** — mandate may need binding to actual Capital Pool / Inventory Block over time.
+
+It also strengthens existing `LVT-BET-STRATEGIES`, `LVT-BET-LIFECYCLE-POLICY`, `LVT-BET-LIFECYCLE-CHOICES`, and `LVT-BET-RISK-PROFILES`.
+
+No new PL or LVT identity is implied.
+
+### Actor handoff requirement — expanded
+
+Future Kiro/Codex/ChatGPT prompts concerning the Inner Game, governed purpose/context, Portfolio Mandates, Operating Programs, Economic Constructions, Policy Rules, Wheel semantics, strategy/program expansion, prescriptive recommendations, lifecycle policy, performance evaluation, or sell-side bias must explicitly direct actors to reacquire:
+
+- `docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md`;
+- §25 Principal Operating Program survey;
+- §26 Principal Economic Construction survey;
+- §27 Principal Portfolio Mandate survey;
+- §28 Principal Policy Rule survey;
+- §29 Principal technical Wheel definition;
+- §30 Principal Portfolio Mandate ↔ Operating Program mapping;
+- current `PL-DEC-BEH`;
+- current `PL-SEM-01` artifacts;
+- relevant practitioner-corpus/reconciliation material.
+
+The mapping is Principal-supplied falsification input. Do not silently turn it into a schema, compatibility matrix, exhaustive program universe, or ratified phase model.
