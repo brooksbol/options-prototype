@@ -1431,3 +1431,196 @@ The Principal therefore selected **Option A** on September 23, 2026: create a de
 ### Next authorized mode
 
 **Research only, when deliberately resumed.** Reacquire this item and its durable research package before extending the corpus or running another corpus-first challenge. Any proposed Product, semantic, domain, architecture, policy, roadmap, or implementation consequence must enter its applicable downstream governed reconciliation rather than being promoted directly from practitioner research.
+
+
+## `PL-DEC-BEH` Refinement — Inner Game / Governed Prescriptive Decision Discipline
+
+**Date:** September 24, 2026  
+**State:** REFINEMENT — Principal-directed thread capture and intake reconciliation completed; no new PL identity, no new LVT identity, no implementation authorized  
+**Why-state:** `docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md`
+
+### Trigger
+
+A Principal-led exploration beginning from *The Edge and the Hourglass* "Inner Game" chapter and the broader practitioner corpus exposed a higher-resolution form of the existing Behavioral Decision Discipline / Accountable HITL concern.
+
+The key Product pressure is:
+
+> **Wheelwright should make following the disciplined process the path of least cognitive resistance. The HITL should spend judgment on exceptions and authority—not repeatedly reconstructing routine decisions that the system can determine from authoritative state, governed purpose/context, policy, and evidence.**
+
+Companion boundary:
+
+> **Wheelwright determines what the governed process says should happen. The operator determines whether it actually happens.**
+
+### Principal falsifier
+
+A real GDXJ covered-call discussion showed that mechanical state alone was insufficient for correct management reasoning. The initial AI response implicitly supplied an objective. When the Principal supplied the actual purpose — recover basis through premium and ultimately have the shares called away — the management reasoning changed. When the Principal further specified "by-the-book Wheel," the prescription narrowed again.
+
+This demonstrates that construction/market state does not establish purpose, Outcome Stance, Operating Program, or policy.
+
+Under the supplied governed context, ordinary expiration/assignment resolution could itself be the process-consistent path. The important Inner Game result was that **patience was the process**, not failure to act.
+
+### Account-purpose specimen
+
+PTS and Sawdust supply a controlled multi-account specimen:
+
+- PTS: candidate Portfolio Mandate **Income**;
+- Sawdust Roth IRA: candidate Portfolio Mandate **Growth / Compounding**.
+
+The same covered-call mechanics may therefore have different governed meaning. Call-away can be desired progress under one context and contrary to strategic retention under another. Income/Growth are not casually "strategies" and should not be conflated with Account Regime. Wheel is an Operating Program; covered call is an Economic Construction; call-away/retention desirability is Outcome Stance.
+
+### Working decision spine
+
+The exploration locked a bounded semantic spine for decision-journey pressure testing:
+
+```text
+Account
+→ Portfolio Mandate
+→ Inventory Block
+→ Inventory Role
+→ Operating Program
+→ Economic Construction
+→ Decision Subject
+→ Outcome Stance
+→ Policy Rule
+→ Constraint
+→ Preference
+→ Reconciled State / Evidence
+→ Alternatives
+→ Recommendation
+→ Action
+→ Execution
+→ Reconciled Outcome
+```
+
+This is a working exploration spine, not ratified architecture. The semantic model's finer distinctions remain authoritative within the Category-E draft, including State vs Evidence and operator selection vs Action. Scenario / Market Thesis Assertion remains an optional decision input and is deliberately not silently inserted into the 17-row spine.
+
+### Behavioral / Inner Game pressure retained
+
+The practitioner corpus and thread preserve pressure around:
+
+- FOMO;
+- revenge trading;
+- boredom/activity trading;
+- premature realization of rare large winners;
+- loss aversion and refusal to realize a losing position;
+- reference-point / sunk-cost effects;
+- objective drift;
+- mandate/policy/stance shopping to justify a desired action;
+- premium fixation;
+- high-probability / win-rate fixation;
+- oversizing;
+- treating the best available trade as automatically acceptable;
+- hindsight reconstruction.
+
+Wheelwright must not claim to diagnose the operator's mental state merely from observed behavior. The Product concern is to make process-consistent behavior easier, departures visible/reconstructible, and unnecessary reconsideration less likely.
+
+### Process change vs process abandonment
+
+The refinement preserves a load-bearing distinction:
+
+> **The plan changed because the world/governance changed** is not the same as **I abandoned the plan.**
+
+Historical governed context must therefore remain reconstructible. A current mandate, Outcome Stance, policy, or thesis must not retroactively rewrite what governed an earlier decision.
+
+Candidate distinction under further exploration:
+
+- process-consistent continuation;
+- legitimate reconsideration due to material evidence/economics/governance/lifecycle change;
+- authoritative governance change;
+- deliberate operator departure from the current Recommendation.
+
+No moral or psychological label is implied by a departure.
+
+### Journaling pressure
+
+The practitioner journal is a contemporaneous decision record, not merely a feelings diary. Wheelwright may already possess most of the factual substrate:
+
+```text
+state → governed context → Alternatives → Recommendation → rationale
+→ operator selection → execution → lifecycle → reconciled outcome
+```
+
+The operator should ideally supply only genuinely new judgment that Wheelwright cannot know. This is cognitive-load reduction and hindsight protection, not a separately authorized journal feature.
+
+### Practitioner heuristic test bench
+
+The full capture preserves a detailed heuristic inventory from the practitioner corpus, including ownership/assignment rules, sizing/risk practices, probability/expectancy cautions, covered-call counterfactual economics, volatility/time/Greek heuristics, construction/thesis fit, execution mechanics, patience/no-trade rules, and behavioral practices.
+
+Heuristics must be classified before Product use as candidate:
+
+- invariant/principle;
+- Policy;
+- Preference;
+- heuristic;
+- warning;
+- question;
+- empirical hypothesis.
+
+Recurrence in the corpus does not establish truth or effectiveness.
+
+### Sell-side-bias falsification question
+
+The refinement opens but does not answer:
+
+> **Where does Wheelwright's sell-side bias actually live, is each occurrence intentional or accidental, and at what semantic level does it belong?**
+
+Candidate locations include Portfolio Mandate, Inventory Role, Operating Program, Policy, Preference, Alternative generation, ranking/comparison, historical Product scope, and presentation.
+
+The dangerous case is accidental sell-side narrowing in Alternative generation before governed purpose/context can evaluate legitimate long/protective alternatives. No long-side or short-side policy conclusion is authorized.
+
+### Specimen methodology
+
+Avoid Cartesian explosion. Use:
+
+> **Baseline → single-axis contrast → two-axis interaction → adversarial counterexample.**
+
+Examples include holding a covered-call construction constant while varying Mandate, Operating Program, Outcome Stance, or Market Thesis; and holding Income purpose constant while varying Wheel, overwrite, CSP, spreads, condors, or other admitted constructions/programs.
+
+A candidate dimension earns decision relevance only if controlled changes affect Alternatives, admissibility, consequences, comparison, Recommendation, attention, explanation, or required evidence.
+
+### Intake reconciliation
+
+**Primary home: `PL-DEC-BEH`. No new PL identity.**
+
+- `PL-SEM-01` owns semantic correctness and receives the specimens; it does not own the end-to-end Accountable-HITL Product behavior.
+- `PL-DEPLOY` owns normalized mission-aware Alternatives, WAIT, eligibility/acceptability/fitness, and unified decision composition; it is strongly pressured to consume authoritative governed context rather than assume it.
+- `PL-STRAT-01` owns repertoire/strategy-expansion governance and receives the sell-side-bias / practitioner-specimen pressure.
+- `PL-PORT-01` owns portfolio/inventory/lot/account state substrate.
+- `PL-POL-01` is a narrower Cash-Flow-Safe Recovery specimen, not the general home.
+- `PL-UX-01` owns downstream attention / "do I need to act now?" expression.
+- `PL-EXEC-01` owns lifecycle transition and execution semantics.
+- `PL-POSTURE-01` does **not** own future mandate/process alignment color semantics; current ActionPosture coloring is a separate execution-quality concept.
+
+### Roadmap disposition
+
+No new Bet is justified. The refinement strengthens existing:
+
+- `LVT-BET-POSITION`;
+- `LVT-BET-ATTENTION`;
+- `LVT-BET-WAIT`;
+- `LVT-BET-LIFECYCLE-CHOICES`;
+- `LVT-BET-STRATEGIES`;
+- `LVT-BET-CAPITAL-CHOICES`;
+- `LVT-BET-RISK-PROFILES`;
+- `LVT-BET-LIFECYCLE-POLICY`;
+- `LVT-BET-EXPLANATION`;
+- `LVT-BET-ACCEPTABILITY`;
+- `LVT-BET-LIFECYCLE-OUTCOME`;
+- `LVT-BET-OUTCOME-LEARNING`.
+
+In particular, the existing `LVT-BET-LIFECYCLE-POLICY` statement that precommitted lifecycle policy produces more consistent decisions under pressure is already a direct strategic home for the Inner Game thesis.
+
+### Boundary
+
+No autonomous execution; no account gear/modal; no new "strategy" field; no Account-Regime/purpose collapse; no semantic-color implementation; no journal UI; no operator behavioral score; no promotion of practitioner folk rules into policy; no generalized rules engine; no new Recommendation algorithm; no semantic-model implementation migration.
+
+### Next authorized mode
+
+Further problem-space exploration / specimen-driven reconciliation only, focused on:
+
+1. governed-purpose/context scope, inheritance, authority, provenance, time, absence, and conflict;
+2. heuristic-to-decision-spine mapping/classification;
+3. sell-side-bias location/falsification;
+4. contrastive specimens sufficient to pressure-test the model without combinatorial explosion.
+
+Do not enter solution design merely because the thread has now been durably captured.
