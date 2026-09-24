@@ -81,7 +81,7 @@ Read these before doing any Wheelwright work. Produces safe operating competence
 | 2 | `KNOWN-FAILURE-MODES.md` | **Failure checksum. Mistakes Wheelwright has already paid for; do not repeat them.** |
 | 3 | `foundations/evidence-appliance.md` | What Wheelwright is. System identity. |
 | 4 | `07-architecture-current.md` | Current system. Four Engines. Boundaries. Surfaces. |
-| 5 | `07c-adrs.md` | Decisions that constrain changes. ADR-001 through ADR-017 (append-only). |
+| 5 | `07c-adrs.md` | Decisions that constrain changes. ADR-001 through ADR-019 (append-only). |
 | 6 | Complete `parking-lot*.md` sequence | What is active, deferred, and resolved. Read the original plus every numbered continuation. |
 
 **When this is insufficient:** If you're touching architecture, designing a new subsystem, or need to understand *why* something is the way it is — continue to the comprehensive path.
@@ -171,7 +171,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 
 | Document | Substatus |
 |----------|-----------|
-| `07c-adrs.md` | Ratified decisions (ADR-001 through ADR-017, append-only) |
+| `07c-adrs.md` | Ratified decisions (ADR-001 through ADR-019, append-only) |
 | `08-adr-backend-evidence-service.md` | Ratified decision (backend extraction) |
 | `09-backend-evidence-service-design.md` | Ratified design; §3 and §10 are Historical |
 | `09a-backend-diagrams.md` | Ratified design; diagram 6 is Historical |
