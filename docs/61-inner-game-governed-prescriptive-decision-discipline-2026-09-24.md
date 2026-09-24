@@ -1204,3 +1204,130 @@ That is a direct refinement of Behavioral Decision Discipline / Accountable HITL
 - **Parking-lot disposition:** retain under existing `PL-DEC-BEH`; cross-link `PL-SEM-01`, `PL-DEPLOY`, `PL-STRAT-01`, `PL-PORT-01`, `PL-POL-01`, `PL-UX-01`, `PL-EXEC-01`.
 - **Why-state:** this artifact.
 - **Next authorized mode:** further problem-space exploration / specimen-driven reconciliation only. Do not enter solution design until the governed-purpose/context leg, heuristic classification, and sell-side-bias location have been pressure-tested.
+
+
+## 25. Principal independent Operating Program survey — 2026-09-24
+
+**Source status:** Principal-supplied independent survey. Preserve as high-value semantic/falsification input; it is **not yet independently verified practitioner evidence, ratified taxonomy, or policy**. Future actors working this problem must reacquire and explicitly consider this survey rather than treating Wheel as the only established Operating Program specimen.
+
+The survey proposes the following durable, rule-governed processes as candidate peers of the Wheel at the **Operating Program** level, grouped by mandate.
+
+### Income programs
+
+| Candidate Operating Program | Program sketch | Inventory Role | Outcome Stance | Illustrative Policy Rule(s) |
+|---|---|---|---|---|
+| **Systematic put-write** | Recurring CSP sales, e.g. 30–45 DTE and delta-banded | collateral → contingent acquisition | assignment desired at acceptable effective price | IV-vs-HV qualification; sizing; premium floors |
+| **Systematic overwrite** | Recurring covered calls against held shares | income-producing or disposition inventory | call-away acceptable/desired; upside cap priced in | strike selection vs exit targets; no-write filters |
+| **PMCC program** | Recurring short-call sales against a long LEAPS | long LEAPS as supporting inventory | retain long leg; never passively accept short-call assignment | long-leg delta thresholds; defend-or-close triggers |
+| **Mechanical delta-neutral premium** | Recurring delta-targeted premium sales, e.g. 45-DTE entry, managed at 21 DTE or 50% profit | margin only | assignment prohibited | IV-rank entry gate; mechanical profit-takers |
+| **Defined-risk spread ladder** | Recurring iron condors/verticals across expiries | governed risk/capital support to be pressure-tested | assignment prohibited; losses contractually capped | width-vs-credit minimums; no binary-event holds |
+| **Covered strangle program** | Recurring short calls + short puts against shares and cash | existing shares plus acquisition capital | call-away acceptable; put assignment = sized acquisition | put strikes only at buy-more prices; size for double-assignment branch |
+| **Diagonal income ladder** | Recurring calendar/diagonal sales against longer-dated longs | longer-dated long as supporting inventory | residual-leg management is the job; front-leg expiry is renewal, not full resolution | re-sell criteria; long-leg impairment exits |
+| **Earnings premium harvest** | Trigger-based defined-risk premium sales into earnings | risk capital; exact Inventory Role requires semantic pressure test | assignment prohibited; event risk treated as governed operating cost | liquid names only; defined-risk constructions only; per-event risk caps |
+| **0DTE premium program** | Daily mechanical premium sales into same-day expiry | intraday risk/margin support; exact Inventory Role requires pressure test | flat by closing bell; no overnight inventory | intraday entry windows; hard stop-outs |
+| **Long-dated put-write** | Opportunistic LEAPS put sales after volatility spikes | collateral → contingent long-horizon acquisition | assignment desired only at deep-discount strikes; multi-year holding tolerance | elevated term-structure gate; strikes at “celebrate owning” levels |
+
+**Epistemic caution:** the thread's practitioner reconciliation already treats 0DTE seller edge as disputed and warns that crowding may compress premium. The survey's 0DTE entry is therefore especially useful as a falsification specimen rather than evidence of edge.
+
+### Protection programs
+
+| Candidate Operating Program | Program sketch | Inventory Role / Mandate | Outcome Stance | Illustrative Policy Rule(s) |
+|---|---|---|---|---|
+| **Systematic collar program** | Recurring collars on strategic inventory, potentially near-zero-cost | protected strategic holding; Protection/Hedging purpose | retention preferred; call-away disfavored | put tenors matched to hedge horizon; call strikes at acceptable exit levels |
+| **Tail-hedge program** | Rolling long index or single-name puts | Protection/Hedging; pure cost-center behavior | hedge expiring worthless can be the desired portfolio-level outcome because the insured adverse event did not occur | fixed annual portfolio hedge budget; mechanical rolling; no discretionary monetization |
+
+### Survey hypothesis about the Wheel
+
+The Principal's survey proposes this distinguishing claim:
+
+> **Across this candidate set, the Wheel is unusual because assignment is a desired state transition in the operating process rather than merely a prohibited, disfavored, tolerated, or exceptional branch. The Wheel treats assignment as the machine working.**
+
+This is a valuable hypothesis, but it should be **falsified rather than promoted as fact**. In particular, the survey itself contains possible neighboring counterexamples:
+
+- systematic put-write can desire assignment at an acceptable effective price;
+- covered strangle can treat put assignment as sized acquisition and call-away as acceptable;
+- long-dated put-write can desire assignment at deep-discount strikes.
+
+Therefore the sharper research question may be whether the Wheel is distinguished not simply by *desiring assignment*, but by making assignment an **ordinary endogenous transition that advances a durable multi-state cycle**:
+
+```text
+cash
+→ short put
+→ assignment
+→ shares
+→ short call
+→ call-away
+→ cash
+→ repeat
+```
+
+That distinction should be tested against the other candidate programs rather than assumed.
+
+### Semantic pressure created by the survey
+
+The survey materially improves the Operating Program test bench because it provides candidates with different:
+
+- mandates/purposes;
+- inventory roles;
+- assignment stances;
+- renewal/resolution semantics;
+- time horizons;
+- risk topology;
+- policy styles;
+- use of long versus short optionality;
+- lifecycle continuity.
+
+It also creates several useful falsifiers for the current semantic model:
+
+1. **Operating Program vs Economic Construction** — a program may repeatedly create different constructions over time; the Wheel is the clearest case, but diagonal ladders and covered-strangle programs also create recurring lifecycle state.
+2. **Operating Program vs Policy** — “systematic overwrite” is not merely a strike rule; its strike/no-write rules are Policy inside a larger repeatable process.
+3. **Operating Program vs Portfolio Mandate** — multiple Income programs can serve one mandate; Protection/Hedging can support collar or tail-hedge programs.
+4. **Operating Program vs Outcome Stance** — assignment stance varies inside superficially similar short-option programs.
+5. **Resolution vs renewal** — a front-leg expiry in a diagonal program may be a renewal event rather than lifecycle completion.
+6. **Inventory Role** — PMCC/diagonal programs expose “supporting inventory” as distinct from ordinary income-producing shares.
+7. **Cost-center success semantics** — a tail hedge expiring worthless can be consistent with successful protection because the adverse insured state did not occur. Outcome quality cannot be inferred from leg P/L alone.
+8. **Trigger-based vs continuously recurring programs** — earnings premium harvest and opportunistic long-dated put-write test whether “Operating Program” requires periodic cadence or merely durable repeatable governed process.
+9. **Flat-at-close requirement** — 0DTE programs test whether a program can make end-of-session inventory state a hard policy invariant.
+10. **Assignment as program transition** — the Wheel, systematic put-write, covered strangle, and long-dated put-write provide controlled specimens for distinguishing assignment desired, acceptable, tolerated, prohibited, and cycle-advancing.
+
+### Contrastive specimen set enabled by the survey
+
+Use the survey to construct a small basis set rather than a Cartesian matrix:
+
+- **Wheel vs systematic put-write:** both can desire put assignment; only Wheel clearly specifies the subsequent shares → short call → call-away → cash continuation.
+- **Wheel vs systematic overwrite:** both can create covered calls; one may arise from an assignment-driven cycle while the other repeatedly overwrites pre-existing inventory.
+- **Systematic overwrite vs collar:** both may write calls against strategic shares, but protection purpose and retention stance can reverse the meaning of call-away.
+- **PMCC vs diagonal income ladder:** similar long/short calendar geometry can differ in program purpose, renewal semantics, and long-leg management policy.
+- **Mechanical delta-neutral premium vs 0DTE premium:** both can prohibit assignment and use mechanical exits, while horizon/gamma/execution pressure differs radically.
+- **Defined-risk spread ladder vs earnings premium harvest:** same spread construction can participate in a continuous ladder or an event-triggered program.
+- **Tail hedge vs premium-selling income program:** one may intentionally spend premium and regard worthless expiry as process-consistent; the other seeks premium production. This is a strong falsifier of any global sell-side or “premium received = productive” assumption.
+- **Covered strangle vs Wheel:** both can have assignment/call-away branches, but their durable lifecycle topology and inventory/capital requirements may differ.
+
+### Intake disposition
+
+This survey does **not** create a new PL identity.
+
+It strengthens:
+
+- `PL-SEM-01` — Operating Program identity and its distinction from construction, mandate, policy, Inventory Role, and Outcome Stance;
+- `PL-STRAT-01` — repertoire and strategy/program expansion governance;
+- `PL-DEC-BEH` — durable rule-governed processes as precommitment machinery;
+- `PL-DEPLOY` — multiple programs serving the same mandate create real cross-program Alternative-comparison pressure;
+- `LVT-BET-STRATEGIES` — candidate governed repertoire;
+- `LVT-BET-LIFECYCLE-POLICY` — repeatable program rules and lifecycle management;
+- `LVT-BET-LIFECYCLE-CHOICES` — program-specific lifecycle Alternatives;
+- `LVT-BET-RISK-PROFILES` — program-specific consequence/risk envelopes.
+
+It also materially strengthens the open **sell-side-bias** investigation because the candidate program set includes both short-premium and long-premium/protection programs.
+
+### Actor handoff requirement
+
+Future Kiro/Codex/ChatGPT prompts that ask actors to work on the Inner Game, governed purpose/context, semantic model, strategy/program expansion, prescriptive recommendations, lifecycle policy, or sell-side-bias question should explicitly direct them to reacquire:
+
+- `docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md`;
+- this Operating Program survey section;
+- current `PL-DEC-BEH` state;
+- `PL-SEM-01` semantic-model artifacts;
+- relevant practitioner-corpus material.
+
+Do not substitute a conversational paraphrase for that repository reacquisition.
