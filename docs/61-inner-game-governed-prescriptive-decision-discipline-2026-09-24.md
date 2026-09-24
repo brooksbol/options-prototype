@@ -6368,3 +6368,255 @@ The falsifier should attack only:
 - replay pins, especially evaluator version.
 
 If no current requirement breaks the candidate, the architecture question is sufficiently resolved to return through normal reconciliation/Principal decision before decomposition.
+
+
+---
+
+## 43. Codex adversarial falsifier of §42 — replay narrowing — 2026-09-24
+
+**Source status:** Principal-supplied Codex read-only adversarial falsification run against repository `main` at `4d43de8665258df862bbc8df574ba3d9ad0f398f`. Codex synchronized to current main, reused unchanged bootstrap authority, inspected the §42 candidate and current persistence/account/lifecycle implementation, and did not mutate the repository. Preserve as architecture-reconciliation evidence. This section does **not** authorize implementation or ratify schema/API details.
+
+### Verdict
+
+> **CODEX FALSIFICATION VERDICT: NARROWED**
+
+The §42 architecture candidate substantially survives. Codex found one concrete omitted replay dependency and one query invariant that must be tightened before decomposition.
+
+### Surviving §42 claims
+
+Codex did **not** find a current repository requirement forcing:
+- cryptographic anchoring;
+- a second durable semantic store;
+- backend DECIDE;
+- backend BrokerageAccount authority;
+- generic event sourcing;
+- a fourth logical history record role;
+- a runtime Allocation Purpose/Mandate discriminator.
+
+The following attacks failed to falsify §42:
+- account-local partitioning through stable `brokerageAccountId` under the current trusted single-operator model;
+- purpose-label exclusion from DECIDE;
+- browser-side deterministic DECIDE with backend durable recording;
+- Governed Context + Decision + Disposition logical sufficiency for the GDXJ natural-resolution and adverse-CSP specimens.
+
+### Successful falsifier 1 — current evidence references are not replayable evidence identities
+
+Codex identified a concrete repository-level weakness:
+
+- current evidence payload rows are updated/overwritten in place;
+- snapshot generation identifies publication state but does not itself preserve an immutable historical payload;
+- retrieval/provenance metadata identifies an observation but does not necessarily make its evaluated values recoverable later;
+- current opportunity-history code already acknowledges that mutable current evidence may have advanced or been overwritten after a browser Decision.
+
+Therefore this §42 allowance is too weak:
+
+```text
+evidence generation / exact evidence provenance refs
+```
+
+Generation or provenance alone can describe **which observation was used** while still failing to reproduce **the exact values DECIDE consumed**.
+
+A Decision can appear fully pinned:
+
+```text
+generation = G
+retrievedAt = T
+provenance = P
+```
+
+while the underlying payload associated with G/T/P is no longer durably recoverable.
+
+### Minimum correction — immutable canonical Decision input bundle
+
+The Decision Record must preserve one of these two equivalent replay capabilities:
+
+1. **the exact canonical decision-input values consumed by deterministic DECIDE, together with authoritative provenance**, or
+2. **a reference to an immutable, durably retained evidence/input payload that contains those exact values.**
+
+For the current first slice, the smaller Wheelwright-shaped answer is the first:
+
+> **Persist the canonical load-bearing Decision input bundle inside the immutable Lifecycle Decision Record.**
+
+This does not require a second evidence store.
+
+The bundle must include every actual value that can affect DECIDE, including:
+- subject state;
+- relevant market evidence values;
+- relevant portfolio/lifecycle state;
+- effective Governed Context values;
+- policy inputs;
+- explicit defaults or globally resolved values that affected the result.
+
+Hashes remain integrity aids, not recovery mechanisms:
+
+> **A hash can verify a recovered input bundle; it cannot recover an input bundle that was never durably retained.**
+
+Existing evidence generation/retrieval/provenance identities remain valuable and should remain attached as provenance, but they are not sufficient replay material unless they resolve to immutable recoverable payloads.
+
+### Successful falsifier 2 — historical governed-context selection is bitemporal
+
+§42 correctly preserved effective time and `recorded_at`, but Codex sharpened the query rule.
+
+A later backdated amendment must not become visible to replay of an earlier Decision merely because its declared effective interval includes the Decision time.
+
+For an existing Decision, the strongest rule is:
+
+> **Use the Decision's pinned `context_version_id`.**
+
+For historical as-of reconstruction where no Decision pin is available:
+
+```text
+context effective at target time
+AND
+context recorded_at <= knowledge-cutoff recorded time
+```
+
+For replay of a Decision, the natural knowledge cutoff is the Decision's own durable recorded time unless a more precise contract is explicitly established.
+
+This is a query/selection invariant, not a new record role or service.
+
+### Refined replay contract
+
+The §42 replay contract is now:
+
+```text
+Decision Subject identity
++ immutable canonical Decision input bundle
++ authoritative evidence provenance attached to those values
++ pinned Governed Context version
++ lifecycle Policy version
++ evaluator version
+        ↓
+same deterministic Recommendation
+```
+
+Where the canonical input bundle includes any default/global values DECIDE actually consumed.
+
+This is intentionally stronger than:
+
+```text
+current subject state
++ current evidence
++ generation/retrieval refs
+```
+
+because those may not reconstruct historical inputs after mutable runtime state advances.
+
+### Hidden fifth dependency
+
+Codex's explicit answer:
+
+> **An immutable canonical Decision input bundle—or an immutable recoverable evidence payload referenced by it—is the omitted replay dependency.**
+
+This dependency belongs **inside the Lifecycle Decision Record**. It does not earn another top-level semantic entity or architectural subsystem.
+
+### Temporal integrity result
+
+Codex found the §42 temporal model sufficient **if**:
+- context versions are immutable;
+- effective time and recorded time remain distinct;
+- Decision records pin their actual context version;
+- as-of queries apply the recorded-time knowledge cutoff.
+
+Backend-assigned `recorded_at` remains sufficient for the current first-slice threat model.
+
+### Account-locality result
+
+No current requirement forces backend account-registry authority.
+
+For the current single-operator system:
+- `brokerageAccountId` remains sufficient as the stable account partition identity;
+- identity authority and authorization are distinct stronger concerns;
+- a hostile/multi-writer model is not currently earned.
+
+### Purpose-label result
+
+No irreducible runtime role for Allocation Purpose/Mandate was found.
+
+PTS/Sawdust divergence remains legitimate only through different explicit:
+- Objectives;
+- Constraints;
+- Preferences;
+- Outcome Stance;
+- Inventory Role where relevant;
+- Policy/qualification machinery.
+
+### Browser/backend split result
+
+Codex found no requirement to move DECIDE server-side.
+
+The first slice needs:
+- durable recording of what the browser evaluated/recommended;
+- reproducible replay from retained inputs;
+- temporal/provenance integrity.
+
+It does not require the backend to independently recompute the Recommendation at write time.
+
+The existing opportunity-history boundary remains useful precedent for:
+- browser emitter;
+- backend structural validation;
+- append-oriented SQLite history.
+
+### Three-record result
+
+The three logical roles remain sufficient:
+
+1. Governed Context Version
+2. Lifecycle Decision Record
+3. Operator Disposition Record
+
+The new immutable input bundle is a **field/content requirement of the Decision Record**, not a fourth logical history role.
+
+### Reconciled concrete candidate after Codex
+
+The smallest surviving first-slice design is now:
+
+```text
+browser deterministic DECIDE
+        │
+        ├── reads current authoritative/reconciled values
+        ├── constructs canonical Decision input bundle
+        ├── computes Recommendation
+        │
+        └── submits immutable Decision record
+                    │
+                    v
+Java backend / existing SQLite
+        ├── Governed Context versions
+        ├── Decision records
+        │     ├── canonical exact input bundle
+        │     ├── evidence provenance
+        │     ├── pinned context version
+        │     ├── policy version
+        │     └── evaluator version
+        └── later Disposition records
+
+backend assigns durable recorded_at
+```
+
+No new infrastructure class is earned.
+
+### What remains to reconcile before decomposition
+
+The architecture ownership question is now substantially resolved. One implementation-boundary question remains:
+
+> **What is the smallest canonical serialization/identity contract for the Decision input bundle such that every value actually consumed by lifecycle DECIDE is captured without turning the bundle into a generic snapshot/ontology?**
+
+That question should be answered by tracing the current lifecycle DECIDE call path and enumerating its actual load-bearing inputs/defaults, then defining the minimum canonical record necessary for deterministic replay.
+
+This is narrower than another broad architecture review.
+
+### Actor allocation after Codex
+
+Codex capacity is now approximately **15%**. Preserve it unless a new contradiction survives repository-local reconciliation.
+
+Muse has already completed the useful independent generic challenge and does not need another run for this narrowing.
+
+Kiro is the best next actor **if available** because the remaining question is repository-specific:
+- trace current lifecycle DECIDE inputs;
+- enumerate all mutable/default/global dependencies;
+- test whether a minimal canonical input bundle can capture them;
+- identify any existing serialization/versioning seam that can be reused;
+- do not design implementation beyond the minimum contract.
+
+If Kiro finds a genuine dependency that cannot fit the Decision input bundle, that would be the next reason to spend Codex reserve.
