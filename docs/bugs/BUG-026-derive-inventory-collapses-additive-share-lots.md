@@ -119,9 +119,16 @@ Automated, against the **live** derivation path (not scenario replay):
 - Existing `tests/write-desk/fidelity-snapshot.test.ts` and `tests/write-desk/fidelity-upload.test.ts` (51) unchanged and green — the Positions-absent GDXJ/BNO/XLE behavior (including the previously-documented undercount limitation) is preserved exactly.
 - Full frontend suite green except a **pre-existing, unrelated** failure in `tests/roadmap/RoadmapView.test.tsx` caused by a duplicate `## AR1` heading in `docs/architecture-roadmap.md` (introduced by commit `14ac2e5`, ADR-019 workstream); reproduced on pristine `e161198` before this change and left untouched (out of scope). Backend suite green.
 
+## Principal acceptance — 2026-09-24
+
+Principal browser validation on the running application (PTS and Sawdust accounts). All four Fidelity CSVs (Option Summary, Balances, Activity, Positions) uploaded correctly for both accounts. On the Operator Console, the URA over-encumbrance warning ("Open short calls require 200 shares of URA, but only 100 shares were observed as owned") is **gone** from the Unencumbered Shares table with Positions supplied; the position reconciles as fully covered. Deployment and the other surfaces were unaffected; no regressions observed. Accepted.
+
+Operator-experience note (not a defect): supplying authoritative ownership now requires a fourth CSV per refresh. Captured as governed intake `PL-OPS-CSV-01` for separate reconciliation; it does not qualify this acceptance.
+
 ## Related
 
 - **ADR-020** — the ratified architecture decision this remediation implements.
+- **`PL-OPS-CSV-01`** — operator CSV-upload burden (Positions as a fourth manual export); captured from this acceptance as a follow-on Product concern, not a defect.
 - **BUG-023** (Open) — Activity overlay ↔ broker-balance checkpoint reconciliation (cash side). Same reconciliation-authority family (what evidence already incorporates a fact), different surface and different mechanism. The ownership-side same-day checkpoint behavior discussed during this investigation is recorded as a note on BUG-023, not as a separate bug, because it was **latent** (non-causal) in this incident. ADR-020 deliberately does not alter that checkpoint seam.
 - **BUG-001** (Open) — Activity overlay lifecycle projection (assigned-call closure / called-away disposition) on the same snapshot. Adjacent; not the same defect.
 - **BUG-004** (Open) — Console composing temporally incompatible evidence into an apparently-coherent view. Thematically related (composed inconsistency), materially different (market-evidence coherence vs share-lot derivation).

@@ -109,3 +109,47 @@ This record does not authorize public signup/distribution; charging; advisory/br
 
 Reconcile this posture again before materially expanding it if compensation is introduced; access becomes public/broadly solicited; the cohort grows materially beyond a small trusted group; support becomes recurring personalized portfolio decision-making; Wheelwright gains execution/custody/credential authority; an entity begins offering Wheelwright as its service; or evaluator portfolio data moves into materially different server-side persistence/sharing arrangements.
 
+
+---
+
+## `PL-OPS-CSV-01` — Operator CSV-upload burden (authoritative ownership now costs a fourth manual export)
+
+**Date:** September 24, 2026  
+**State:** RECONCILED intake — Principal operator-experience signal captured during BUG-026 acceptance; no workflow redesign or implementation authorized by this record.  
+**Why-state:** `docs/bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md` (Principal acceptance — 2026-09-24); ADR-020 (`docs/07c-adrs.md`).
+
+### Intake
+
+ADR-020 made the Fidelity **Positions** export the authoritative source of aggregate share ownership, resolving BUG-026 (false over-encumbrance on genuinely-additive covered-call lots). During acceptance the Principal observed that this adds a **fourth** manual CSV per portfolio refresh (Option Summary + Balances + Activity + Positions), i.e. more operator work each cycle.
+
+This is an operator-experience/product-workflow cost, **not** a correctness defect. ADR-020 deliberately makes Positions authoritative only **when supplied** (absent Positions, the conservative observed value is preserved), so the burden is opt-in — but for any multi-lot covered position that needs correct ownership, Positions becomes required in practice, which is the friction observed.
+
+### Concern
+
+The manual evidence-refresh workflow grows with each authoritative source. Four separate Fidelity exports per refresh is a real recurring operator cost and a candidate source of stale/mismatched evidence (an operator may refresh some CSVs and not others).
+
+### Candidate directions (not authorized; for later reconciliation)
+
+- Whether Positions could **substitute for** rather than **add to** an existing upload — e.g. sourcing aggregate ownership (and possibly share basis) from Positions so it partially replaces the Option Summary's role, reducing the count rather than increasing it.
+- Whether a single combined export or a guided multi-file upload could reduce per-file operator steps.
+- Whether the eventual broker-API / Evidence-Appliance direction collapses the manual CSV set entirely, making this burden transitional.
+- Operator-facing freshness/coherence signalling when the four exports are taken at materially different times (relates to the checkpoint seam behind BUG-023).
+
+### Relationship to existing concerns
+
+- **ADR-020** — the ratified ownership-authority decision that introduced the fourth upload; this item does not reopen that decision, only its workflow cost.
+- **`PL-PORT-01`** — portfolio-state / evidence-import semantics; the upload workflow and evidence set live in that neighborhood. This item is the operator-cost lens, not a redefinition of portfolio semantics.
+- **BUG-023** — multi-export temporal reconciliation (checkpoint vs the evidence being mutated); more exports taken at different times increases the surface this seam must handle.
+- **Evidence Appliance / cloud direction** — the end-state may remove manual CSV refresh; this item is explicitly a current-workflow concern, not a challenge to system identity.
+
+### Reconciliation Completion Record
+
+- **Intake:** new canonical identity **`PL-OPS-CSV-01`**. Parking-lot reconciliation found portfolio-import (`PL-PORT-01`) and temporal-reconciliation (BUG-023) neighbors, but no existing identity owning the **operator per-refresh CSV-count burden** as a first-class Product-experience concern.
+- **Strategic disposition:** **no new LVT Bet and no `docs/roadmap.md` change.** This is operator-experience friction on an existing capability, not a new strategic destination.
+- **Architectural disposition:** **no `docs/architecture-roadmap.md` change.** Reducing upload burden is a workflow/product-surface concern; any evidence-source substitution that touched ownership authority would return through ADR-level reconciliation.
+- **Parking-lot disposition/mapping:** **retained as `PL-OPS-CSV-01`**, cross-linked to `PL-PORT-01`, BUG-023, and ADR-020; not double-booked as any of them.
+- **Next authorized mode:** exploration/design only when deliberately selected by the Principal. No implementation, upload-workflow redesign, or ownership-source substitution is authorized by this record.
+
+### Explicitly not authorized
+
+This record does not authorize changing ADR-020's ownership authority, making Positions mandatory, altering the upload surface, sourcing ownership/basis from a different export, or any evidence-substitution that would change which document is authoritative for a fact.

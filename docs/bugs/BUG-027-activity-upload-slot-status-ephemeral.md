@@ -82,6 +82,10 @@ Direction (not an implementation prescription):
 - Account-switch isolation is provided by the store accessors, which read the active account's own per-account slot (`readAccountCsv(activeId, "activity"|"positions")`); switching accounts reflects the selected account's own evidence and never leaks another account's state.
 - No new evidence store or component-local shadow authority was introduced.
 
+## Principal acceptance — 2026-09-24
+
+Principal browser validation on the running application. After uploading Activity (and Positions), the persistent up-arrow-on-remount behavior in the Portfolio dropdown is **gone**: proper loaded behavior is restored and the refresh icon (↻) correctly remains for a loaded slot. Verified across the PTS and Sawdust accounts with no cross-account leakage and no regressions. Accepted.
+
 ## Related
 
 - **BUG-026** (Resolved) — the ownership-derivation defect that caused the URA warning in the same incident. Independent of this display defect; both were surfaced and remediated together. The Positions upload slot added for BUG-026/ADR-020 is reconstructed by the same mechanism as the Activity slot fixed here.

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-24T20:30:13.693Z",
+    "generatedAt": "2026-09-24T20:50:23.057Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -32,7 +32,7 @@
         "experiment": 7
       },
       "arTotal": 18,
-      "plTotal": 67,
+      "plTotal": 68,
       "plWithExplicitRelationship": 7,
       "graduatedTotal": 29,
       "adrTotal": 20,
@@ -41,10 +41,10 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 27,
-      "logTotal": 75,
+      "logTotal": 78,
       "logIntakeEvidenceEvents": 13,
       "plWithIntakeDate": 13,
-      "plWithoutIntakeDate": 54
+      "plWithoutIntakeDate": 55
     },
     "notes": []
   },
@@ -3684,7 +3684,69 @@
         {
           "heading": "Revisit triggers",
           "level": 3,
-          "content": "Reconcile this posture again before materially expanding it if compensation is introduced; access becomes public/broadly solicited; the cohort grows materially beyond a small trusted group; support becomes recurring personalized portfolio decision-making; Wheelwright gains execution/custody/credential authority; an entity begins offering Wheelwright as its service; or evaluator portfolio data moves into materially different server-side persistence/sharing arrangements.",
+          "content": "Reconcile this posture again before materially expanding it if compensation is introduced; access becomes public/broadly solicited; the cohort grows materially beyond a small trusted group; support becomes recurring personalized portfolio decision-making; Wheelwright gains execution/custody/credential authority; an entity begins offering Wheelwright as its service; or evaluator portfolio data moves into materially different server-side persistence/sharing arrangements.\n\n\n---",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "PL-OPS-CSV-01",
+      "name": "Operator CSV-upload burden (authoritative ownership now costs a fourth manual export)",
+      "section": "Reconciliation / continuation record",
+      "description": "**Why-state:** `docs/bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md` (Principal acceptance — 2026-09-24); ADR-020 (`docs/07c-adrs.md`).",
+      "descriptionTruncated": false,
+      "state": "RECONCILED intake — Principal operator-experience signal captured during BUG-026 acceptance; no workflow redesign or implementation authorized by this record.",
+      "sourceFile": "parking-lot-10.md",
+      "relatedLvtIds": [],
+      "relatedArIds": [],
+      "sections": [
+        {
+          "heading": "",
+          "level": 0,
+          "content": "**Why-state:** `docs/bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md` (Principal acceptance — 2026-09-24); ADR-020 (`docs/07c-adrs.md`).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intake",
+          "level": 3,
+          "content": "ADR-020 made the Fidelity **Positions** export the authoritative source of aggregate share ownership, resolving BUG-026 (false over-encumbrance on genuinely-additive covered-call lots). During acceptance the Principal observed that this adds a **fourth** manual CSV per portfolio refresh (Option Summary + Balances + Activity + Positions), i.e. more operator work each cycle.\n\nThis is an operator-experience/product-workflow cost, **not** a correctness defect. ADR-020 deliberately makes Positions authoritative only **when supplied** (absent Positions, the conservative observed value is preserved), so the burden is opt-in — but for any multi-lot covered position that needs correct ownership, Positions becomes required in practice, which is the friction observed.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Concern",
+          "level": 3,
+          "content": "The manual evidence-refresh workflow grows with each authoritative source. Four separate Fidelity exports per refresh is a real recurring operator cost and a candidate source of stale/mismatched evidence (an operator may refresh some CSVs and not others).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Candidate directions (not authorized; for later reconciliation)",
+          "level": 3,
+          "content": "- Whether Positions could **substitute for** rather than **add to** an existing upload — e.g. sourcing aggregate ownership (and possibly share basis) from Positions so it partially replaces the Option Summary's role, reducing the count rather than increasing it.\n- Whether a single combined export or a guided multi-file upload could reduce per-file operator steps.\n- Whether the eventual broker-API / Evidence-Appliance direction collapses the manual CSV set entirely, making this burden transitional.\n- Operator-facing freshness/coherence signalling when the four exports are taken at materially different times (relates to the checkpoint seam behind BUG-023).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Relationship to existing concerns",
+          "level": 3,
+          "content": "- **ADR-020** — the ratified ownership-authority decision that introduced the fourth upload; this item does not reopen that decision, only its workflow cost.\n- **`PL-PORT-01`** — portfolio-state / evidence-import semantics; the upload workflow and evidence set live in that neighborhood. This item is the operator-cost lens, not a redefinition of portfolio semantics.\n- **BUG-023** — multi-export temporal reconciliation (checkpoint vs the evidence being mutated); more exports taken at different times increases the surface this seam must handle.\n- **Evidence Appliance / cloud direction** — the end-state may remove manual CSV refresh; this item is explicitly a current-workflow concern, not a challenge to system identity.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Reconciliation Completion Record",
+          "level": 3,
+          "content": "- **Intake:** new canonical identity **`PL-OPS-CSV-01`**. Parking-lot reconciliation found portfolio-import (`PL-PORT-01`) and temporal-reconciliation (BUG-023) neighbors, but no existing identity owning the **operator per-refresh CSV-count burden** as a first-class Product-experience concern.\n- **Strategic disposition:** **no new LVT Bet and no `docs/roadmap.md` change.** This is operator-experience friction on an existing capability, not a new strategic destination.\n- **Architectural disposition:** **no `docs/architecture-roadmap.md` change.** Reducing upload burden is a workflow/product-surface concern; any evidence-source substitution that touched ownership authority would return through ADR-level reconciliation.\n- **Parking-lot disposition/mapping:** **retained as `PL-OPS-CSV-01`**, cross-linked to `PL-PORT-01`, BUG-023, and ADR-020; not double-booked as any of them.\n- **Next authorized mode:** exploration/design only when deliberately selected by the Principal. No implementation, upload-workflow redesign, or ownership-source substitution is authorized by this record.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Explicitly not authorized",
+          "level": 3,
+          "content": "This record does not authorize changing ADR-020's ownership authority, making Positions mandatory, altering the upload surface, sourcing ownership/basis from a different export, or any evidence-substitution that would change which document is authoritative for a fact.",
           "truncated": false,
           "tables": []
         }
@@ -7729,9 +7791,16 @@
           "tables": []
         },
         {
+          "heading": "Principal acceptance — 2026-09-24",
+          "level": 2,
+          "content": "Principal browser validation on the running application (PTS and Sawdust accounts). All four Fidelity CSVs (Option Summary, Balances, Activity, Positions) uploaded correctly for both accounts. On the Operator Console, the URA over-encumbrance warning (\"Open short calls require 200 shares of URA, but only 100 shares were observed as owned\") is **gone** from the Unencumbered Shares table with Positions supplied; the position reconciles as fully covered. Deployment and the other surfaces were unaffected; no regressions observed. Accepted.\n\nOperator-experience note (not a defect): supplying authoritative ownership now requires a fourth CSV per refresh. Captured as governed intake `PL-OPS-CSV-01` for separate reconciliation; it does not qualify this acceptance.",
+          "truncated": false,
+          "tables": []
+        },
+        {
           "heading": "Related",
           "level": 2,
-          "content": "- **ADR-020** — the ratified architecture decision this remediation implements.\n- **BUG-023** (Open) — Activity overlay ↔ broker-balance checkpoint reconciliation (cash side). Same reconciliation-authority family (what evidence already incorporates a fact), different surface and different mechanism. The ownership-side same-day checkpoint behavior discussed during this investigation is recorded as a note on BUG-023, not as a separate bug, because it was **latent** (non-causal) in this incident. ADR-020 deliberately does not alter that checkpoint seam.\n- **BUG-001** (Open) — Activity overlay lifecycle projection (assigned-call closure / called-away disposition) on the same snapshot. Adjacent; not the same defect.\n- **BUG-004** (Open) — Console composing temporally incompatible evidence into an apparently-coherent view.",
+          "content": "- **ADR-020** — the ratified architecture decision this remediation implements.\n- **`PL-OPS-CSV-01`** — operator CSV-upload burden (Positions as a fourth manual export); captured from this acceptance as a follow-on Product concern, not a defect.\n- **BUG-023** (Open) — Activity overlay ↔ broker-balance checkpoint reconciliation (cash side). Same reconciliation-authority family (what evidence already incorporates a fact), different surface and different mechanism. The ownership-side same-day checkpoint behavior discussed during this investigation is recorded as a note on BUG-023, not as a separate bug, because it was **latent** (non-causal) in this incident. ADR-020 deliberately does not alter that checkpoint seam.\n- **BUG-001** (Open) — Activity overlay lifecycle projection (assigned-call closure / called-away disposition) on the same snapshot.",
           "truncated": true,
           "tables": []
         }
@@ -7807,6 +7876,13 @@
           "heading": "Verification",
           "level": 2,
           "content": "- `options-prototype/tests/components/FidelityUploadCompact.test.tsx` — persisted Activity survives remount (Activity row shows loaded checkmark + filename, not empty); no persisted Activity → Activity row remains empty/upload state; the existing account-aware live-path test remains green with the added Positions slot (four upload rows).\n- Account-switch isolation is provided by the store accessors, which read the active account's own per-account slot (`readAccountCsv(activeId, \"activity\"|\"positions\")`); switching accounts reflects the selected account's own evidence and never leaks another account's state.\n- No new evidence store or component-local shadow authority was introduced.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Principal acceptance — 2026-09-24",
+          "level": 2,
+          "content": "Principal browser validation on the running application. After uploading Activity (and Positions), the persistent up-arrow-on-remount behavior in the Portfolio dropdown is **gone**: proper loaded behavior is restored and the refresh icon (↻) correctly remains for a loaded slot. Verified across the PTS and Sawdust accounts with no cross-account leakage and no regressions. Accepted.",
           "truncated": false,
           "tables": []
         },
@@ -8027,7 +8103,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 496
+      "sourceOrder": 505
     },
     {
       "plId": null,
@@ -8170,7 +8246,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 489
+      "sourceOrder": 496
     },
     {
       "plId": null,
@@ -8183,7 +8259,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 490
+      "sourceOrder": 497
     },
     {
       "plId": null,
@@ -8196,7 +8272,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 491
+      "sourceOrder": 498
     },
     {
       "plId": null,
@@ -8209,7 +8285,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 494
+      "sourceOrder": 501
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8235,7 +8311,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 492
+      "sourceOrder": 499
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8417,7 +8493,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 472
+      "sourceOrder": 479
     },
     {
       "plId": null,
@@ -8430,7 +8506,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 473
+      "sourceOrder": 480
     },
     {
       "plId": null,
@@ -8443,7 +8519,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 474
+      "sourceOrder": 481
     },
     {
       "plId": null,
@@ -8456,7 +8532,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 475
+      "sourceOrder": 482
     },
     {
       "plId": null,
@@ -8469,7 +8545,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 476
+      "sourceOrder": 483
     },
     {
       "plId": null,
@@ -8482,7 +8558,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 477
+      "sourceOrder": 484
     },
     {
       "plId": null,
@@ -8495,7 +8571,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 478
+      "sourceOrder": 485
     },
     {
       "plId": null,
@@ -8508,7 +8584,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 479
+      "sourceOrder": 486
     },
     {
       "plId": null,
@@ -8521,7 +8597,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 480
+      "sourceOrder": 487
     },
     {
       "plId": null,
@@ -8534,7 +8610,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 481
+      "sourceOrder": 488
     },
     {
       "plId": null,
@@ -8547,7 +8623,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 482
+      "sourceOrder": 489
     },
     {
       "plId": null,
@@ -8560,7 +8636,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 483
+      "sourceOrder": 490
     },
     {
       "plId": null,
@@ -8573,7 +8649,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 484
+      "sourceOrder": 491
     },
     {
       "plId": null,
@@ -8586,7 +8662,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 485
+      "sourceOrder": 492
     },
     {
       "plId": null,
@@ -8599,7 +8675,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 486
+      "sourceOrder": 493
     },
     {
       "plId": null,
@@ -8612,7 +8688,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 487
+      "sourceOrder": 494
     },
     {
       "plId": null,
@@ -8625,7 +8701,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 488
+      "sourceOrder": 495
     },
     {
       "plId": null,
@@ -8638,7 +8714,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 493
+      "sourceOrder": 500
     },
     {
       "plId": null,
@@ -8651,7 +8727,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 495
+      "sourceOrder": 504
     },
     {
       "plId": "PL-SEM-01",
@@ -8795,6 +8871,45 @@
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
       "sourceOrder": 462
+    },
+    {
+      "plId": "PL-OPS-CSV-01",
+      "bugId": null,
+      "title": "PL-OPS-CSV-01 — Operator CSV-upload burden (authoritative ownership now costs a fourth manual export)",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "September 24, 2026",
+      "eventDateIso": "2026-09-24",
+      "state": "RECONCILED intake — Principal operator-experience signal captured during BUG-026 acceptance; no workflow redesign or implementation authorized by this record.",
+      "headingLevel": 2,
+      "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 472
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-026",
+      "title": "Principal acceptance — 2026-09-24",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-24",
+      "eventDateIso": "2026-09-24",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
+      "sourceOrder": 502
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-027",
+      "title": "Principal acceptance — 2026-09-24",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "2026-09-24",
+      "eventDateIso": "2026-09-24",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
+      "sourceOrder": 503
     }
   ],
   "intakeDateUnknown": [
@@ -8829,6 +8944,7 @@
     "PL-OPS-01",
     "PL-OPS-04",
     "PL-OPS-06",
+    "PL-OPS-CSV-01",
     "PL-POL-01",
     "PL-POL-04",
     "PL-PORT-01",
