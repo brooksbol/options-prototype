@@ -320,3 +320,115 @@ The Evidence Appliance boundary, deterministic policy/decision behavior, SQLite 
 7. A known architectural improvement may remain intentionally deferred when the current structure is good enough for the operating context.
 8. Material changes to this roadmap should preserve why-state in a journal or reconciliation/checkpoint artifact.
 9. Occasional whole-roadmap drift review is useful, but reconciliation is primarily evidence-triggered rather than cadence-driven.
+
+
+---
+
+# 2026-09-24 Governed-Decision Persistence / Replay Reconciliation
+
+The Principal ratified the concrete governed-decision persistence/replay candidate after Muse, Codex, and Kiro falsification (Doc 61 §§42–44; ADR-019). This does **not** add a new architecture-roadmap pressure. It resolves a bounded portion of existing pressure and sharpens what remains open.
+
+## AR1 — bounded partial resolution
+
+AR1 remains open as a broad concern because portfolio authority, lot/basis/capital state, lifecycle state, and other shared decision context remain wider than this slice.
+
+The governed-decision slice now has a ratified durable owner:
+- immutable account-local Governed Context Versions;
+- immutable Lifecycle Decision Records;
+- immutable Operator Disposition Records;
+- existing Java/SQLite as the shared durable substrate.
+
+This is a **partial AR1 resolution**, not a declaration that all authoritative state has moved behind the backend boundary.
+
+## AR2 — unchanged, but explicitly preserved
+
+Attention remains distinct from Decision.
+
+The ratified decision-history substrate does not turn a Decision Record into an attention signal and does not authorize continuous browser-independent Attention. A Recommendation may exist without an attention event, and attention/reconsideration remains its own concern.
+
+## AR3 — compatible, no new pressure
+
+The three-record replay architecture does not define the complete Alternative set and does not privilege opening trades over HOLD/WAIT/natural resolution.
+
+It is compatible with governed Alternatives because the Decision Record can preserve the Alternatives actually considered without creating a strategy-specific persistence architecture.
+
+No new generalized Alternative framework is authorized by ADR-019.
+
+## AR4 — compatible, no collapse
+
+Structured consequences remain separate from the minimum canonical DECIDE input bundle unless a consequence value becomes load-bearing for Recommendation.
+
+Current HOLD/CLOSE consequence facts are not copied into the replay bundle merely because they exist. If a future Decision policy consumes a consequence field, the exact consumed value must then become replay-bound under ADR-019.
+
+This preserves “consequence semantics before explanation” without turning replay persistence into a duplicate consequence store.
+
+## AR5 — unchanged
+
+Eligibility, absolute acceptability, and comparative fitness remain distinct decision responsibilities.
+
+ADR-019 governs persistence/replay of the decision inputs and result; it does not collapse or redefine those stages.
+
+## AR6 — first-slice ownership question materially resolved
+
+For the governed lifecycle-decision slice, AR6's central ownership question now has a ratified answer:
+
+> **Authoritative governed context and Decision/disposition history live behind the existing durable backend/SQLite boundary; deterministic lifecycle evaluation remains browser-side unless separately changed.**
+
+This demonstrates that durable context ownership and computation placement are separable.
+
+AR6 remains broader than this slice because other recommendation paths, portfolio-state authority, continuous reassessment, multi-client consistency, and future computation placement are not globally resolved.
+
+## AR7 — Decision-side identity/provenance seam established; downstream remains open
+
+ADR-019 establishes durable Decision identity/history and explicit later Operator Disposition linkage.
+
+It does **not** complete:
+- contemplated Action identity;
+- broker instruction identity;
+- authoritative Execution linkage;
+- lifecycle-episode identity;
+- outcome identity/cardinality.
+
+Therefore AR7 is narrowed, not closed.
+
+The ratified boundary reinforces:
+- Recommendation ≠ operator disposition;
+- disposition ≠ Action;
+- Action/handoff ≠ broker execution;
+- execution/lifecycle fact requires authoritative brokerage evidence.
+
+## AR8 — first-slice reproducible Decision substrate established
+
+For the governed lifecycle-decision slice, replay now has a concrete ratified substrate:
+
+```text
+pinned immutable Governed Context
++ exact canonical consumed Decision inputs
++ authoritative evidence provenance
++ resolved policy/default/threshold values
++ policy version
++ evaluator version
++ bitemporal effective/recorded-time discipline
+→ historical deterministic Recommendation replay
+```
+
+Generation/retrieval/provenance identifiers alone are insufficient unless they resolve to immutable recoverable content.
+
+AR8 remains open for the complete learning chain because execution identity, lifecycle/outcome truth, deployment-quality definitions, and historical experimentation remain broader concerns.
+
+## AR9 / AR10 — no new decision
+
+The new durable records use the existing always-on durable substrate and are compatible with future multi-client/access needs, but ADR-019 does not itself authorize cloud deployment, multi-user synchronization, authentication/authorization, or remote action.
+
+## Simplicity result
+
+The reconciliation reinforces the roadmap's existing simplicity constraint:
+
+- no new database technology;
+- no event sourcing;
+- no new service topology;
+- no cryptographic notary for the current threat model;
+- no backend DECIDE migration merely to obtain durable history;
+- no generic ontology/runtime framework.
+
+The architecture earns one narrow durable responsibility expansion inside the existing backend/SQLite boundary rather than a new subsystem family.
