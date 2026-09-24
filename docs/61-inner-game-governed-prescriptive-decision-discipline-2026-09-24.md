@@ -6620,3 +6620,370 @@ Kiro is the best next actor **if available** because the remaining question is r
 - do not design implementation beyond the minimum contract.
 
 If Kiro finds a genuine dependency that cannot fit the Decision input bundle, that would be the next reason to spend Codex reserve.
+
+
+---
+
+## 44. Kiro canonical lifecycle Decision-input-bundle reconciliation — 2026-09-24
+
+**Source status:** Principal-supplied Kiro read-only repository reconciliation performed against `origin/main` at `d0f953a4bf6d42505d90638c21ba5444998a7c21`. Kiro reused valid unchanged bootstrap authority, read §§40–43 plus the actual lifecycle DECIDE/evidence/resolve/consequence/candidate/position-monitoring path, and left unrelated in-flight BUG files untouched. Preserve as architecture-reconciliation evidence. This section does **not** authorize implementation or ratify schema/API details.
+
+### Verdict
+
+> **§43 SURVIVES.**
+
+Kiro found **no additional first-class dependency**. The Codex replay narrowing is sufficient. One content refinement is required:
+
+> **The canonical Decision input bundle must pin the resolved values of every load-bearing in-code policy/default/threshold block, not merely a policy/version label.**
+
+This is the same failure class Codex identified for mutable evidence: an identifier is insufficient unless it resolves to an immutable recoverable payload.
+
+### Actual current lifecycle DECIDE dependency surface
+
+Current `decideShortObligationLifecycle(inputs, policy)` consumes:
+
+```text
+inputs:
+  side
+  dte
+  moneyness
+  candidate
+  closePriceSupported
+
+policy:
+  nearDteMax
+  negligibleRiskOtmMagnitude
+  btcRequiresClosePrice
+```
+
+`candidate` is itself derived from:
+
+```text
+side
+dte
+moneyness
+lifecycleAmbiguous
+DEFAULT_BTC_REVIEW_THRESHOLDS:
+  nearDteMax
+  nearStrikeMagnitude
+```
+
+Current load-bearing globals are therefore:
+
+```text
+DEFAULT_LIFECYCLE_POLICY
+  nearDteMax = 5
+  negligibleRiskOtmMagnitude = 0.15
+  btcRequiresClosePrice = false
+
+DEFAULT_BTC_REVIEW_THRESHOLDS
+  nearDteMax = 5
+  nearStrikeMagnitude = 0.05
+```
+
+Kiro confirmed that these current values are **not** lifecycle Recommendation inputs:
+- `assignmentIntent`;
+- `openingCredit`;
+- Greeks / IV;
+- full HOLD/CLOSE consequence facts.
+
+They currently feed EVALUATE/EXPLAIN or other surfaces, not DECIDE.
+
+### Minimum retained consumed values
+
+For deterministic replay, retain the exact consumed values whose upstream state is mutable or ambient:
+
+```text
+side
+dte
+moneyness
+lifecycleAmbiguous
+closePriceSupported
+resolved lifecycle-policy values
+resolved BTC-review threshold values
+```
+
+`candidate` need not be an independent authoritative stored value because it is a pure function of already-pinned values plus the pinned evaluator implementation. It may be reproduced.
+
+#### Why each derived value is retained
+
+- **side** — re-resolved from mutable/current PortfolioSnapshot state; snapshot import is not immutable historical authority.
+- **dte** — depends on evaluation date; replay-time recomputation would drift. Retain the integer actually consumed and retain `decided_at`.
+- **moneyness** — derived from mutable/overwritten market evidence + contract strike. Retain the signed derived value actually consumed; attach underlying-price/evidence provenance for verification rather than relying on later recovery.
+- **lifecycleAmbiguous** — derived from browser-local Activity/checkpoint state that may later change/re-import. Retain the resolved boolean.
+- **closePriceSupported** — derived from session/admissibility/quote state that can advance. Retain the resolved boolean.
+- **resolved policy/default/threshold values** — in-code literals can change across releases; a label/version does not reconstruct them unless the version itself resolves to immutable retained content.
+
+### Defaults invariant
+
+A `lifecycle_policy_version` string alone is insufficient under the current implementation.
+
+Replay must retain the actual resolved values:
+
+```text
+policy:
+  nearDteMax
+  negligibleRiskOtmMagnitude
+  btcRequiresClosePrice
+
+review_thresholds:
+  nearDteMax
+  nearStrikeMagnitude
+```
+
+A version identifier remains useful provenance, but it is not the recovery mechanism for current in-code literals.
+
+### Derived-value rule
+
+Use the smallest replay rule:
+
+> **Persist the value DECIDE actually consumed when its upstream derivation depends on mutable, overwritten, browser-local, or ambient state. Recompute only pure derivatives of already-pinned inputs.**
+
+Therefore:
+- persist consumed `moneyness`, not a full chain snapshot;
+- persist consumed `dte`, not merely expiration and hope to reconstruct the old clock;
+- persist `lifecycleAmbiguous`, not the entire Activity import;
+- persist `closePriceSupported`, not the entire quote/admissibility object;
+- recompute `candidate` from its pinned inputs.
+
+### Governed-context boundary
+
+The first governed-decision slice is intended to add explicit context such as:
+- Outcome Stance / call-away or assignment desirability;
+- willingness-to-own qualification;
+- Objective/target;
+- Program/applicable governed policy selection.
+
+Those values are not yet consumed by current DECIDE, which remains §40 GAP 1.
+
+When they become load-bearing, they do **not** need to be duplicated as a second governance record inside each Decision if:
+
+1. the Governed Context Version is immutable and durably recoverable;
+2. the Decision pins `context_version_id`;
+3. the Decision also binds the expected context payload identity/hash.
+
+Thus governed context can use immutable-reference replay, unlike current mutable evidence.
+
+### Evidence boundary
+
+No evidence identity currently used by lifecycle DECIDE was proven to be both immutable and durably recoverable.
+
+Current evidence generation, retrieval time, and provenance remain useful metadata, but do not replace retention of the consumed Decision values.
+
+Do **not** duplicate:
+- full option-chain payloads;
+- complete evidence snapshots;
+- full Activity imports;
+- complete quote geometry;
+
+merely for Decision replay when the consumed scalar/boolean plus provenance is sufficient.
+
+### Minimum canonical bundle contract
+
+Reasoning artifact only; not schema/API authority:
+
+```text
+LifecycleDecisionInputBundle {
+  brokerage_account_id
+  decision_subject_key
+
+  side
+  dte
+  moneyness | null
+  lifecycle_ambiguous
+  close_price_supported
+
+  policy {
+    nearDteMax
+    negligibleRiskOtmMagnitude
+    btcRequiresClosePrice
+  }
+
+  review_thresholds {
+    nearDteMax
+    nearStrikeMagnitude
+  }
+
+  context_version_id
+  context_payload_hash
+  lifecycle_policy_version
+  evaluator_version
+
+  evidence_provenance {
+    generation
+    retrievedAt
+    provenanceId
+  } | null
+
+  decided_at
+  input_bundle_hash
+}
+```
+
+The immutable Lifecycle Decision Record additionally owns:
+- backend-assigned `recorded_at`;
+- Recommendation status;
+- Recommendation when earned;
+- alternatives / structured reason codes as required by the reconciled Decision contract.
+
+### Canonicalization requirements
+
+Only a narrow fixed serialization contract is earned:
+
+- fixed/sorted field order before hashing;
+- canonical number representation/scale where floating representation could diverge;
+- explicit distinction between null and absent;
+- stable enum spellings;
+- canonical UTC representation for `decided_at`;
+- canonical subject/account identity representation;
+- `input_bundle_hash` over the canonical content;
+- include evaluator version, policy version, resolved policy values, context version, and context payload hash in the bound content;
+- backend `recorded_at` is assigned after submission and is not part of the client input-bundle hash.
+
+No generic serialization framework is earned.
+
+### GDXJ replay specimen
+
+For a governed covered call where call-away is acceptable and natural resolution is preferred absent reconsideration:
+
+```text
+subject/account identity
+side = call
+consumed dte
+consumed signed moneyness
+lifecycleAmbiguous = false
+consumed closePriceSupported
+resolved lifecycle policy
+resolved review thresholds
+pinned governed context:
+  call-away acceptable
+  natural-resolution preference/policy
+context payload hash
+evaluator version
+evidence provenance
+decided_at
+input bundle hash
+```
+
+The current under-contextualized evaluator may replay its historical BTC result from the old evaluator version. A future reconciled evaluator may produce LET RESOLVE from the explicit governed context. Replay must reproduce **the historical Recommendation under the historical evaluator/context**, not silently reinterpret it using today's corrected evaluator.
+
+### Adverse CSP replay specimen
+
+For a CSP whose willingness-to-own was accepted at entry:
+
+```text
+subject/account identity
+side = put
+consumed dte
+consumed adverse moneyness
+lifecycleAmbiguous
+closePriceSupported
+resolved policy + thresholds
+pinned governed context containing willingness-to-own / assignment stance
+context payload hash
+evaluator version
+evidence provenance
+decided_at
+input bundle hash
+```
+
+This is sufficient to distinguish:
+- continued governed assignment/ownership acceptance;
+- a real governed reconsideration trigger once such trigger becomes a load-bearing input;
+- unresolved evidence/governance.
+
+Adverse moneyness alone does not retrospectively rewrite the earlier ownership-acceptance fact.
+
+### Bitemporal replay invariant retained
+
+For an existing Decision:
+> **Replay from the Decision's pinned `context_version_id`.**
+
+For historical reconstruction without such a pin:
+
+```text
+context effective at target time
+AND
+context recorded_at <= knowledge-cutoff recorded time
+```
+
+A later backdated amendment must not enter an earlier Decision's knowledge state.
+
+### What should not be stored for this purpose
+
+Do not add to the canonical DECIDE bundle merely because the values exist elsewhere:
+- full HOLD/CLOSE consequence objects;
+- Greeks/IV;
+- opening credit;
+- assignmentIntent while it remains EXPLAIN-only;
+- full raw chain payload;
+- full evidence snapshot;
+- independently authoritative `candidate`;
+- a second evidence store;
+- cryptographic anchor;
+- generic event-sourcing machinery;
+- a fourth history-record role.
+
+If any of these becomes load-bearing for a future reconciled evaluator, the rule is simple: the consumed value must then become replay-bound through the bundle or an immutable recoverable reference.
+
+### Hidden dependency verdict
+
+> **NO ADDITIONAL FIRST-CLASS DEPENDENCY FOUND.**
+
+All current and expected first-slice load-bearing material fits into:
+1. immutable Governed Context Version;
+2. immutable canonical Decision input bundle + Decision output;
+3. evidence provenance;
+4. policy/evaluator identity and resolved values;
+5. later Operator Disposition.
+
+### Reconciled replay architecture after Kiro
+
+```text
+immutable Governed Context Version
+        │
+        │ pinned id + payload hash
+        v
+browser deterministic DECIDE
+        │
+        ├── exact consumed mutable/derived values
+        ├── resolved policy/default/threshold values
+        ├── evaluator identity
+        └── evidence provenance
+                    │
+                    v
+immutable Lifecycle Decision Record
+        ├── canonical input bundle
+        ├── Recommendation / UNRESOLVED result
+        └── backend recorded_at
+                    │
+                    v
+later immutable Operator Disposition
+```
+
+Existing Java/SQLite remains the smallest shared durable owner. DECIDE remains browser-side. `brokerageAccountId` remains the account partition key. No additional infrastructure class is earned.
+
+### Architecture status
+
+The bounded repository trace resolves the remaining §43 replay-content question sufficiently for an architecture decision.
+
+The concrete candidate now has:
+- persistence owner;
+- temporal owner;
+- account partition;
+- three logical durable roles;
+- exact replay-content rule;
+- bitemporal selection rule;
+- purpose-label safeguard;
+- evaluator/policy/default pinning;
+- clear client/backend computation boundary.
+
+The remaining work is no longer “discover another architecture dependency.” It is to decide whether this reconciled candidate should be promoted into architecture authority and then decomposed under normal Wheelwright lifecycle.
+
+### Actor allocation
+
+Codex reserve is approximately **15%** after the §43 falsifier. Preserve it.
+
+Muse has completed the independent generic falsification role for this architecture question.
+
+No additional Kiro/Muse/Codex challenge is currently earned unless the Principal rejects the candidate or decomposition exposes a concrete contradiction.
