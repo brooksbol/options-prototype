@@ -5380,3 +5380,81 @@ The smallest Product-significant change is to make DECIDE consume what Wheelwrig
 The architectural question now narrows to:
 
 > **Choose the authoritative persistence boundary for Governed Context + Decision Trace, then decompose the four-part slice against existing modules without broadening scope.**
+
+
+---
+
+## 39. Additional experimentation constraints — sanitized Muse and cross-account contrast — 2026-09-24
+
+**Source status:** Principal-supplied research/experimentation guidance. This preserves constraints and an experimental opportunity; it does **not** ratify a new ontology, change account governance, assign a mandate to an account that does not already have one, or authorize trading/implementation.
+
+### Muse boundary
+
+Muse remains available as an independent challenger for **sanitized or generic** problems, challenges, reconciliations, and falsifiers.
+
+The isolation requirement is load-bearing:
+
+- remove Wheelwright-specific names and repository vocabulary when they would leak the model under test;
+- do not disclose Wheelwright's preferred answer or current semantic hypothesis;
+- pose the smallest generic domain problem that preserves the discriminator being tested;
+- treat Muse output as independent evidence, not project authority;
+- reconcile any useful result back through Wheelwright authority before it can affect architecture, semantics, policy, or implementation.
+
+This makes Muse especially useful where prior Wheelwright context could bias another actor toward confirming the existing model.
+
+### Cross-account experimental opportunity
+
+The Principal identified a valuable natural contrast between two tax-deferred accounts:
+
+- **PTS** — governed for **Income**.
+- **Sawdust** — has no income requirement for years and can potentially be governed for a materially different purpose, with **Growth / Compounding** as the leading experimental candidate.
+
+The Sawdust Growth/Compounding designation is **not ratified by this note**; it is an experimental possibility requiring an explicit governance decision before operational use.
+
+This creates an unusually clean future test bed because the accounts can hold or encounter similar economic constructions while differing in durable upstream purpose and derived policy.
+
+Potential experimental structure:
+
+    similar/same economic construction
+    + comparable market evidence
+    + different durable account purpose
+            ↓
+    purpose-derived Objectives / Constraints / Preferences / Policy
+            ↓
+    potentially different legitimate Recommendation
+
+This is **not** evidence that Allocation Purpose should re-enter the runtime evaluator as an independent causal label. It is instead a strong opportunity to test the §35 model:
+
+> purpose should explain and govern why explicit runtime machinery differs; the explicit machinery should remain what determines Recommendation.
+
+Examples of useful controlled contrasts may include:
+- current cash production versus reinvestment/compounding;
+- disposition/call-away acceptability for owned shares;
+- willingness to accept assignment;
+- capital-idleness tolerance;
+- premium harvesting versus preserving upside;
+- reinvestment and lifecycle continuation policy.
+
+The experimental value comes from holding as much else constant as practical and identifying the **explicit policy/mechanism delta** that the differing account purpose legitimately produces.
+
+### Architectural implication
+
+The first governed-context design should avoid assuming every account shares one global Objective/Preference/Policy context.
+
+At minimum, account identity must remain available as a governance/provenance boundary so that PTS and Sawdust can carry different effective governed context without contaminating each other.
+
+This strengthens the §38 requirement that Governed Context be **account-local and effective-time/versioned**.
+
+It does not, by itself, require Allocation Purpose to be a runtime decision input, nor does it require a generic multi-mandate engine.
+
+### Research opportunity
+
+Once the first governed-decision slice exists, PTS vs Sawdust can become a controlled acceptance/research pair:
+
+> **Can Wheelwright explain two different Recommendations for otherwise similar situations entirely through explicit, inspectable policy machinery derived from different durable account purposes?**
+
+A failure would be informative:
+- same explicit machinery but unexplained different Recommendation → hidden label-based behavior;
+- expected different Recommendation but same machinery/result → missing purpose-derived criterion;
+- explicit machinery cleanly explains the divergence → supports the governance/runtime split.
+
