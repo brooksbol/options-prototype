@@ -2754,3 +2754,297 @@ Future Kiro/Codex/ChatGPT prompts concerning the Inner Game, governed purpose/co
 - relevant practitioner-corpus/reconciliation material.
 
 The mapping is Principal-supplied falsification input. Do not silently turn it into a schema, compatibility matrix, exhaustive program universe, or ratified phase model.
+
+
+## 31. Principal falsification run — at what scope does Portfolio Mandate bind? — 2026-09-24
+
+**Source status:** Principal-supplied falsification analysis and schema recommendation. Preserve as high-value semantic research evidence. The falsification results and proposed `DecisionAspect` solution are **not yet ratified ontology, architecture, schema, or implementation authority**.
+
+### Method
+
+The Principal's test:
+
+> **A scope hypothesis predicts that each entity at that scope carries exactly one mandate. One counterexample falsifies.**
+
+The §30 Mandate↔Operating Program mapping is used as the evidence set.
+
+### H1 — Mandate is single-valued at PROGRAM scope
+
+**Principal verdict: FALSIFIED.**
+
+Counterexamples:
+
+- Wheel → `{Income, Acquisition, Disposition}`
+- systematic put-write → `{Income, Acquisition}`
+- systematic overwrite → `{Income, Disposition}`
+- cash-reserve ladder → `{Liquidity Reserve, Preservation}`
+
+Four of thirteen surveyed programs are multi-mandate under the supplied mapping.
+
+Principal consequence:
+
+> Forcing a single-valued Program mandate can misclassify governed decisions. Example: filing the Wheel CSP leg simply under Income can license premium-chasing over ownership discipline, contrary to the acquisition/ownership gate.
+
+### H2 — Mandate is single-valued at PROGRAM-PHASE scope
+
+**Principal verdict: FALSIFIED.**
+
+#### Counterexample 1 — Wheel `S3_CALL_OPEN`
+
+- strike set at governed exit target → call-write decision evaluated under **Disposition**;
+- strike optimized for premium → evaluated under **Income**.
+
+Principal inference:
+
+> Same Program, same phase, different mandate frame. Phase alone does not determine the evaluation frame; strike-selection intent does.
+
+#### Counterexample 2 — Wheel `S1_PUT_OPEN` entry
+
+The single apparent decision “open CSP” is jointly gated by:
+
+- `willing_to_own` → **Acquisition** frame;
+- premium adequacy → **Income** frame.
+
+Principal inference:
+
+> One phase and one apparent decision can contain multiple simultaneous mandate frames. Program-phase therefore remains too coarse.
+
+### H3 — Mandate is single-valued at CAPITAL-POOL scope
+
+**Principal verdict: NOT FALSIFIED, BUT VACUOUS.**
+
+Test case:
+
+- overwrite written on strategic Growth-mandate shares;
+- shares can remain in a Growth pool while an Income program places a call-writing encumbrance over them.
+
+The Principal notes that the same economic inventory can then be subject to rules associated with multiple logical pools/overlays, e.g. retention plus overwrite.
+
+Principal criticism:
+
+> If Capital Pools can be subdivided arbitrarily until every observation fits, the hypothesis survives by re-pooling rather than prediction. At the limit, one logical pool per decision becomes decision scope under another name.
+
+Therefore H3 is not treated as evidentially useful merely because no counterexample was found.
+
+### H4 — Mandate is single-valued at INVENTORY-BLOCK scope
+
+**Principal verdict: NOT FALSIFIED, BY CONSTRUCTION / CIRCULAR.**
+
+The working ontology's own examples can individuate blocks by role/purpose, e.g.:
+
+- strategic SPY shares;
+- shares allocated to an overwrite;
+
+even when the physical shares overlap or derive from the same holding.
+
+Principal criticism:
+
+> If Inventory Block identity already incorporates role/mandate, then claiming Mandate is single-valued per block is true by definition. The scope claim relocates the problem to “what individuates a block?” rather than answering where Mandate actually governs a decision.
+
+### Verdict table
+
+| Hypothesis | Scope | Principal verdict | Falsifier / weakness |
+|---|---|---|---|
+| **H1** | Program | **Falsified** | four multi-mandate programs in supplied mapping |
+| **H2** | Program-phase | **Falsified** | S3 strike-intent splits Income/Disposition; S1 entry contains Acquisition + Income frames |
+| **H3** | Capital Pool | **Unfalsified, vacuous** | arbitrary re-pooling can absorb observations; weak predictive content |
+| **H4** | Inventory Block | **Unfalsified, circular** | block can be individuated by mandate/role; true by construction |
+
+### Principal surviving hypothesis — Decision Aspect scope
+
+The Principal concludes:
+
+> **Mandate binds at decision-aspect scope: each governed decision aspect (strike selection, premium acceptance, sizing, exit targeting, etc.) is evaluated under exactly one frame, while a compound decision can contain multiple single-frame aspects.**
+
+Example decomposition for Wheel put entry:
+
+```text
+Decision: OPEN CSP?
+
+Aspect: ownership / strike acceptability
+  evaluated under → Acquisition
+
+Aspect: premium adequacy
+  evaluated under → Income
+
+Aspect: sizing / capital preservation
+  potentially evaluated under → Preservation or another governing risk frame
+```
+
+Under this interpretation, the n-to-n Mandate×Program relation from §30 is not fundamental. It is a projection:
+
+```text
+Decision Aspect × Mandate
+        ↓ aggregate/project over decisions
+Program × Mandate
+```
+
+Principal interpretation:
+
+> **The observed n-to-n-ness is the algebraic signature of aggregating over too coarse a key. It is evidence that Program is the wrong binding scope, not necessarily a primitive fact about Programs.**
+
+### Principal schema recommendation
+
+The Principal recommends an exploratory relationship:
+
+```text
+Decision
+  --[evaluated_under, scoped by decision aspect]-->
+Portfolio Mandate
+```
+
+with many-to-many behavior at the compound-decision level and single-frame semantics at the decomposed aspect level.
+
+Policy Rules declare which frame governs which aspect, e.g.:
+
+```text
+strike selection   → Acquisition
+premium acceptance → Income
+sizing             → Preservation
+exit targeting     → Disposition
+```
+
+Program-, phase-, Capital-Pool-, and Inventory-Block-level mandate sets would then be **derived unions over governed decisions/aspects**:
+
+```text
+Program mandates     = union(mandates governing its decision aspects)
+Phase mandates       = union(mandates governing decision aspects active in phase)
+Pool mandate-set     = union(mandates governing decisions over pool)
+Block mandate-set    = union(mandates governing decisions over block)
+```
+
+Principal principle:
+
+> **Those aggregate mandate sets are descriptive, never prescriptive.**
+
+### Why this matters to the locked decision-journey spine
+
+This falsification directly challenges the current row:
+
+> **Portfolio Mandate — what this capital is fundamentally for**
+
+If the Decision-Aspect hypothesis survives, that wording may be too coarse. A single capital quantity can participate in a compound decision evaluated through multiple legitimate frames.
+
+This does **not yet authorize changing the locked 17-row spine**. Instead it creates a concrete falsification obligation for `PL-SEM-01`:
+
+1. Is **Portfolio Mandate** actually the correct name if it governs decision aspects rather than whole portfolios/capital pools?
+2. Is **Decision Aspect** a real semantic concept or merely decomposition of Policy evaluation?
+3. Does every aspect truly have exactly one mandate, or can one aspect itself require multiple simultaneous objective frames?
+4. Is **Preservation** in “sizing → Preservation” actually a Mandate, or is risk preservation a Constraint/objective that should not be elevated?
+5. Are Acquisition and Disposition better understood as **frame-mandates**, local objectives, Outcome Stances, or lifecycle intents rather than Portfolio Mandates?
+6. Does Growth/Compounding behave the same way under aspect decomposition, or is this result peculiar to options-income specimens?
+7. Can a mandate be a purpose of capital and an evaluation frame without collapsing two semantic roles into one term?
+
+### Strong adversarial tests still required
+
+The Principal run is powerful but not conclusive because the evidence set was itself generated from the prior Principal mapping. Future actors should try to falsify the surviving Decision-Aspect hypothesis with independent specimens.
+
+#### Test A — one aspect, two legitimate frames
+
+Find a single indivisible decision aspect whose correct evaluation requires two mandates simultaneously. If found, the “exactly one frame per aspect” claim fails or aspect decomposition is still too coarse.
+
+#### Test B — mandate without a decision
+
+Ask whether capital can have a durable mandate while no decision is currently being evaluated. If yes, Mandate may still be an independently governed purpose, with decision-aspect evaluation inheriting from it rather than constituting it.
+
+#### Test C — policy chooses frame vs governance establishes frame
+
+The recommendation says Policy Rules declare the frame per aspect. Test whether that is semantically correct. A Policy may **apply because** capital has a governed purpose rather than **create** that purpose. Otherwise Policy could manufacture Mandate.
+
+#### Test D — historical provenance
+
+If an operator changes the frame from Acquisition to Income after a put becomes uncomfortable, does the system recognize a legitimate governance change or mandate shopping? This requires effective-time authority independent of the current decision calculation.
+
+#### Test E — same aspect across different programs
+
+Hold the decision aspect constant, e.g. “strike acceptability,” across Wheel, put-write, overwrite, collar, and acquisition program. Determine whether the same Mandate semantics actually transfer.
+
+#### Test F — non-options programs
+
+Use systematic accumulation, dividend growth, tail hedge, asymmetric convexity, and cash-reserve ladder. If Decision Aspect only appears necessary in option-entry decomposition, it may be a local modeling artifact rather than universal ontology.
+
+### Important distinction: binding vs inheritance
+
+A possible reconciliation is:
+
+```text
+governed capital purpose exists durably
+        ↓ inherited by default
+Decision Aspect
+        ↓ may refine/select applicable evaluation frame
+Recommendation
+```
+
+This would distinguish:
+
+- **where Mandate is governed/declared**, from
+- **where Mandate becomes decision-relevant/applied**.
+
+The Principal falsification primarily attacks **single-valued application scope**. It may not yet prove that durable mandate identity itself exists only at Decision Aspect.
+
+That distinction should be preserved in future review.
+
+### Implication for the Wheel technical specimen
+
+The §29 phase-migration model:
+
+```text
+Acquisition → Income → Disposition
+```
+
+is now explicitly under stronger challenge.
+
+Under the Principal Decision-Aspect hypothesis, the Wheel might instead simultaneously apply:
+
+```text
+Acquisition → ownership / strike-acceptability aspect
+Income      → premium-adequacy aspect
+Disposition → exit-target aspect
+Preservation / risk frame → sizing aspect
+```
+
+as applicable, without requiring the entire Program phase or Inventory Block to “become” one Mandate.
+
+This may resolve the §29 contradiction between a multi-mandate phase model and an “Income-mandate Wheel,” but that resolution is **not yet accepted**.
+
+### Implication for the Inner Game
+
+Decision-aspect binding could provide a stronger defense against mandate shopping:
+
+Instead of asking the operator to choose one global label that can be changed to rationalize a desired trade, Wheelwright could preserve pre-governed evaluation frames for specific questions:
+
+- “Would I celebrate owning at this effective price?”
+- “Is the premium adequate?”
+- “Does this size preserve governed risk capacity?”
+- “Is this strike an acceptable exit?”
+
+The operator cannot make inadequate premium acceptable by relabeling Acquisition as Income, nor make an unacceptable ownership price acceptable by pointing to premium.
+
+This is a direct expression of the thread's central thesis:
+
+> **Make the disciplined process the path of least cognitive resistance.**
+
+### Intake disposition
+
+This falsification materially strengthens:
+
+- **`PL-SEM-01`** — Mandate scope, Decision decomposition, inheritance vs application, association cardinality, temporal governance;
+- **`PL-DEC-BEH`** — prevents mandate shopping / objective drift under pressure;
+- **`PL-DEPLOY`** — compound Alternative evaluation may require multiple governed frames;
+- **`PL-PORT-01`** — challenges using Pool/Block identity as the primitive mandate carrier;
+- **`PL-STRAT-01`** — Program mandate labels become descriptive summaries rather than sufficient governing semantics.
+
+No new PL or LVT identity is implied yet. `DecisionAspect` is a **candidate semantic concept under falsification**, not a ratified entity.
+
+### Actor handoff requirement — expanded
+
+Future Kiro/Codex/ChatGPT prompts concerning Portfolio Mandate scope, Inner Game, governed purpose/context, Operating Programs, Policy Rules, Wheel semantics, recommendation composition, or sell-side bias must explicitly direct actors to reacquire:
+
+- `docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md`;
+- §§25–30 Principal surveys and technical Wheel specimen;
+- **§31 Principal Mandate-scope falsification run**;
+- current `PL-DEC-BEH`;
+- current `PL-SEM-01` artifacts;
+- relevant practitioner-corpus/reconciliation material.
+
+Actors must challenge the surviving Decision-Aspect hypothesis rather than treat it as the answer. In particular, distinguish **where a Mandate is durably governed** from **where it is applied to evaluate a decision**.
