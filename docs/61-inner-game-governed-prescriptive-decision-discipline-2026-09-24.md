@@ -3048,3 +3048,850 @@ Future Kiro/Codex/ChatGPT prompts concerning Portfolio Mandate scope, Inner Game
 - relevant practitioner-corpus/reconciliation material.
 
 Actors must challenge the surviving Decision-Aspect hypothesis rather than treat it as the answer. In particular, distinguish **where a Mandate is durably governed** from **where it is applied to evaluate a decision**.
+
+
+## 32. Independent Muse falsification — where does an investment mandate bind? — 2026-09-24
+
+**Source status:** Independent Muse challenge result supplied by the Principal. Deliberately produced without Wheelwright context. Preserve as external adversarial research input and falsification evidence. It is **not yet ratified ontology, architecture, policy, schema, or Product authority**.
+
+Muse explicitly reverses two earlier positions:
+- prior support for Decision-Aspect mandate binding;
+- prior support for Acquisition / Disposition as mandates.
+
+### Executive result
+
+Muse rejects the hypothesis:
+
+> **Each governed Decision Aspect is evaluated under exactly one Mandate.**
+
+The rejection is structural, not cosmetic:
+
+1. If Decision Aspect is analyst-defined, troublesome decisions can always be subdivided until the claim becomes true. The hypothesis is then unfalsifiable.
+2. If Decision Aspect is operationally or independently individuated, concrete decisions remain jointly governed by multiple concerns. The hypothesis is then false.
+
+Muse therefore concludes that **Mandate should not currently be treated as a universal decision-time evaluator**.
+
+The smallest surviving model proposed by Muse is:
+
+```text
+Governance
+  ├── durable allocation purpose / recorded standing intent
+  └── Policy + Constraints + Preferences + Objectives
+
+Policy + Constraints + Preferences + Objectives + Evidence
+  ↓
+Alternative evaluation
+  ↓
+Recommendation
+```
+
+Under this model, Mandate may explain **why** decision rules exist without itself appearing in every evaluation loop.
+
+### Attack 1 — Decision Aspect lacks a non-circular individuation rule
+
+Muse tests three possible individuation rules.
+
+#### (a) Linguistic / analyst individuation
+
+> “Aspects are the questions the operator asks.”
+
+**Result: fails.**
+
+An analyst can always subdivide a decision into smaller questions until every fragment is associated with one mandate. Exactly-one-mandate-per-aspect becomes true by subdivision.
+
+Muse's conclusion:
+
+> A claim rescued by arbitrary subdivision is unfalsifiable and semantically empty.
+
+#### (b) Operational individuation
+
+> “One aspect = the domain of one Policy Rule.”
+
+**Result: falsifies the hypothesis.**
+
+Counterexamples:
+
+- sizing simultaneously changes premium production, acquisition exposure, tail exposure, and ruin risk;
+- entry qualification can jointly test ownership desirability and premium adequacy.
+
+Under operational individuation, one aspect can carry multiple mandate-like concerns.
+
+#### (c) Independent-variation individuation
+
+> Vary X while holding Y fixed; X's criterion must not reference Y.
+
+Muse argues the CSP strike-selection specimen fails:
+
+- a strike rejected at one premium may be accepted at a sufficiently different premium;
+- therefore strike acceptability and premium adequacy can interact through substitution rather than independent conjunction.
+
+The decomposition:
+
+```text
+strike  → Acquisition
+premium → Income
+```
+
+can therefore lose the actual joint trade-off.
+
+#### Strongest single counterexample: sizing
+
+Muse:
+
+> **Size scales every consequence at once — income produced, acquisition commitment, tail exposure. There is no coherent single-mandate evaluation of “is this size right”; sizing is where mandates collide, not where they separate.**
+
+The prior example `sizing → Preservation` is judged arbitrary.
+
+### Attack 2 — Mandates can exist when no decision exists
+
+Muse uses:
+
+- earmarked acquisition cash;
+- dry powder;
+- capital reserves;
+- protected strategic holdings during idle periods.
+
+No transaction must be actively contemplated, yet the capital remains governed.
+
+Muse therefore forces a distinction:
+
+```text
+Declared mandate / standing purpose
+  durable
+  recorded
+  persists during inactivity
+
+Applied frame
+  transient
+  used during a specific decision
+```
+
+Muse's causal claim:
+
+> Decision aspects do not create durable mandate binding. If anything, decision evaluation inherits from prior declared governance.
+
+This means the Decision-Aspect hypothesis, even if useful as an application mechanism, cannot explain the existence of standing purpose.
+
+### Attack 3 — Acquisition and Disposition are not Mandates
+
+**Muse reverses its earlier verdict.**
+
+Muse introduces a telic / atelic category test:
+
+- **Income / Growth** are atelic: ongoing purposes without a natural completion event.
+- **Acquisition / Disposition** are telic: completable objectives that terminate when the desired transition occurs.
+
+Example:
+
+- Acquisition is satisfied when the desired asset is acquired.
+- Disposition is satisfied when the asset is sold.
+- Income does not “finish” merely because one premium cycle succeeds.
+
+Muse argues that this categorical distinction is stronger than the earlier test “does it change decision rules?”
+
+Muse also sees semantic redundancy:
+
+- “acquisition through assignment desired” can be represented by **Outcome Stance**;
+- “disposition inventory” can be represented by **Inventory Role**.
+
+**Muse reclassification:**
+
+> **Acquisition and Disposition are Objectives / desired state transitions, not Mandates.**
+
+This directly challenges:
+- §27 Principal Portfolio Mandate survey;
+- §29 Wheel phase-mandate migration;
+- §30 Mandate↔Program mapping.
+
+### Attack 4 — Preservation is not a Mandate
+
+Muse argues:
+
+> “Do not blow up” is a boundary, not a purpose.
+
+And if Preservation applies to essentially all capital, it becomes non-discriminating.
+
+T-bill reserve specimen:
+
+```text
+objective:
+  earn acceptable yield
+
+constraints:
+  remain available on demand
+  avoid nominal loss
+```
+
+This requires no separate Preservation Mandate.
+
+Muse therefore demotes **Preservation** to a **Constraint family** such as:
+
+- nominal-loss bounds;
+- survivability;
+- portfolio risk limits;
+- other capital-preservation boundaries.
+
+The prior example `sizing → Preservation` is explicitly rejected as a category error.
+
+### Attack 5 — outside options, Decision-Aspect binding becomes artificial
+
+Muse tests:
+
+- passive index accumulation;
+- systematic rebalancing;
+- trend following;
+- dividend growth;
+- tail hedging;
+- cash / T-bill laddering.
+
+Results:
+
+#### Passive accumulation / systematic rebalancing / trend following
+
+These can often be described as direct Policy execution:
+
+```text
+buy $X monthly
+restore target allocation
+long above 200DMA
+```
+
+The operative evaluation frame is Policy compliance, not Mandate decomposition.
+
+#### Dividend-growth investing
+
+The thesis can be inherently dual:
+
+> “Will the dividend grow?”
+
+Income and Growth are intertwined in the thesis rather than cleanly separable into independent mandate aspects.
+
+#### Tail-hedge budgeting
+
+A rule such as “spend 1% NAV/year on hedges” looks naturally Constraint- or Policy-governed, not Mandate-governed.
+
+#### Cash / T-bill laddering
+
+Rung sizing can jointly trade:
+- yield;
+- liquidity / availability;
+- maturity risk.
+
+Decomposing:
+
+```text
+maturity → Liquidity
+yield    → Income
+```
+
+can fail to represent the actual Pareto trade-off.
+
+Muse's broader conclusion:
+
+> **Mandate is neither necessary nor sufficient as a universal decision-time frame.**
+
+### Attack 6 — exactly-one-Mandate was an unsupported premise
+
+Examples:
+
+- T-bill held for safety + liquidity + yield;
+- strategic stock held for compounding + dividends + collateral + future charitable transfer.
+
+Muse notes these “purposes” are heterogeneous:
+
+- collateral is a use;
+- charitable transfer is a terminal objective;
+- compounding is an ongoing purpose;
+- dividend income is a recurring economic contribution.
+
+Forcing all into one category called Mandate creates artificial conflict.
+
+Muse's simpler representation is multiple direct evaluation criteria rather than mandatory single-valued mandate binding.
+
+### Attack 7 — hierarchy dissolves level confusion
+
+Muse proposes a trimmed three-level hierarchy:
+
+```text
+Allocation Purpose
+  what governed capital pools are for
+  stable
+  declared
+  recorded
+
+Program Edge Thesis
+  what the recurring program exploits
+
+Decision Machinery
+  predicates / vetoes
+  Preferences / tie-breakers
+  Constraints / bounds
+  recorded telic Objectives
+```
+
+Muse argues this is not mere renaming because it resolves concrete disputes:
+
+- Acquisition → Objective level;
+- Disposition → Objective level;
+- Income → Allocation Purpose level;
+- Preservation → Constraint level.
+
+Muse's provisional conclusion:
+
+> **Allocation purpose is the only level where the word “Mandate” currently earns its keep.**
+
+### Attack 8 — causal direction between Mandate and Policy is backwards or sibling-based
+
+Muse rejects:
+
+```text
+Policy → Mandate
+```
+
+because changing a delta band changes decisions but does not change what capital is fundamentally for.
+
+Muse also rejects a simple deterministic:
+
+```text
+Mandate → Policy
+```
+
+because declaring Acquisition or Income does not uniquely determine a delta band, sizing limit, tenor, or profit target.
+
+Muse instead proposes:
+
+```text
+Principal / higher-order governance situation
+    ├──→ Mandate declaration
+    └──→ Policy Rules
+```
+
+Mandate and Policy are siblings derived from governance rather than one causing the other.
+
+Muse also warns that if Policy creates decision aspects and then Mandates are assigned to those aspects to explain the Policy's outputs, the reasoning becomes circular:
+
+```text
+Policy
+  → creates aspects
+  → aspects receive Mandates
+  → Mandates supposedly explain Policy evaluation
+```
+
+### Attack 9 — temporal integrity is the strongest attack on pure decision-time binding
+
+Specimen:
+
+1. A put is sold because ownership at the effective strike was explicitly accepted.
+2. The underlying falls sharply.
+3. The operator says:
+   > “Actually, this was an Income trade. I don't want the shares.”
+
+Muse says distinguishing legitimate reconsideration from hindsight rationalization requires durable facts that predate the adverse move:
+
+- timestamped entry intent;
+- whether `willing_to_own(strike)` actually passed;
+- changed evidence vs changed preference;
+- re-label test: would the newly claimed purpose/program have selected this strike?
+- policy governing when intent may be revised.
+
+Muse's strongest criticism:
+
+> **A pure transient decision-time binding model has no memory. If today's frames are simply re-derived, it cannot distinguish plan abandonment from plan execution.**
+
+Therefore any acceptable model needs durable, timestamped intent / purpose / governance independent of the current evaluation.
+
+### Attack 10 — compound Recommendation does not require Mandates
+
+#### Case A
+
+```text
+ownership acceptable
+premium inadequate
+sizing acceptable
+liquidity acceptable
+
+→ WAIT / NO TRADE
+```
+
+Reason: premium floor predicate vetoes.
+
+#### Case B
+
+```text
+premium excellent
+ownership unacceptable
+sizing acceptable
+liquidity acceptable
+
+→ WAIT / NO TRADE
+```
+
+Reason: ownership predicate vetoes.
+
+Muse argues that predicates alone reproduce these behaviors.
+
+Marginal cases can potentially use existing Preference semantics:
+
+> acquisition satisfaction outranks premium maximization when marginal.
+
+Therefore Mandate may do work at **design/governance time** but be explanatorily idle in routine decision evaluation.
+
+---
+
+## Muse competing-model table
+
+| Model | Strongest support | Strongest counterexample / weakness | Muse result |
+|---|---|---|---|
+| One Mandate / Program | pure Tail-Hedge / simple program specimens | Wheel / put-write / overwrite / cash ladder | falsified |
+| One Mandate / Program Phase | apparently homogeneous lifecycle phases | S3 strike-intent split; S1 mixed concerns | falsified |
+| One Mandate / Capital Pool | earmarked capital with standing purpose | overlap / arbitrary re-pooling | survives weakly; risks vacuity |
+| One Mandate / Inventory Block | logical block examples | block may be individuated by mandate | circular / reject as vacuous |
+| One Mandate / Decision Aspect | CSP appears decomposable | sizing; joint strike/premium tradeoff; individuation dilemma | rejected |
+| Multiple simultaneous Mandates | T-bill and strategic-stock multi-purpose examples | explains everything trivially | too permissive / vacuous if unrestricted |
+| Durable capital purpose + decision criteria | standing intent, inaction, hindsight policing | multi-purpose capital remains unresolved | survives strongly |
+| Hierarchical purposes | resolves category confusion | risk of level proliferation | promising diagnostic |
+| No Mandate in decision loop | veto cases; rebalancing; trend following | marginal case may still reveal mandate effect | strongest current Muse model; falsifiable |
+
+---
+
+## Muse final deliverable
+
+### A. What Muse says was actually falsified
+
+Muse reports as falsified:
+
+1. single Mandate at Program scope;
+2. single Mandate at Program-Phase scope;
+3. exactly-one-Mandate-per-Decision-Aspect under any non-circular individuation rule;
+4. requirement that Mandate must bind somewhere in the routine decision loop.
+
+Muse also concludes:
+- Acquisition / Disposition should be demoted from Mandates to Objectives;
+- Preservation should be demoted from Mandate to Constraint family.
+
+**Reconciliation warning:** the last two are strong category / parsimony arguments, not as cleanly falsified by counterexample as H1/H2/Decision-Aspect. They require independent challenge before Wheelwright adopts them.
+
+### B. What survived
+
+Muse preserves:
+
+- durable declared standing purpose;
+- design-time role for purpose explaining why Policy exists;
+- temporal integrity requirement;
+- Policy-as-frame cases;
+- hierarchy / level-confusion diagnosis.
+
+### C. Muse's smallest current semantic model
+
+```text
+Allocation Mandate
+  durable
+  recorded
+  capital-budget level
+  “what this pool is for”
+
+Program Edge Thesis
+  what recurring edge / process the program exploits
+
+Decision Machinery
+  predicates
+  Preferences
+  Constraints
+  recorded telic Objectives
+
+Design Rationale
+  explains why the Policies exist
+  need not be evaluated on every decision tick
+```
+
+Under this model, no Mandate entity is required inside the routine decision-evaluation loop.
+
+### D. Muse terminology recommendations
+
+- **Mandate** → restrict to allocation-level capital purpose.
+- **Objective** → telic/completable desired transition, e.g. acquire / dispose / donate.
+- **Purpose** → atelic/ongoing, e.g. Income / Growth.
+- **Intent** → split durable recorded intent from transient current inclination.
+- **Policy** → examine whether qualification predicates, Preferences, Constraints, and other mechanisms are being conflated.
+- **Acquisition / Disposition** → Objective / possibly Outcome Stance, not Mandate.
+- **Preservation** → Constraint family, not Mandate.
+- **Inventory Role** → retain.
+
+### E. Strongest remaining falsifier for Muse's preferred model
+
+Muse proposes the following controlled test:
+
+```text
+Hold constant:
+  Reconciled State / Evidence
+  candidate Alternative
+  Policy predicates
+  Constraints
+  Preferences
+  recorded Objectives
+  Program
+  execution assumptions
+
+Change only:
+  declared allocation Mandate
+```
+
+Concrete specimen:
+
+```text
+same CSP
+same ownership predicate
+same premium predicate
+same sizing
+same liquidity
+same objective
+same Preferences / Constraints
+
+Operator A declared allocation Mandate: Income
+Operator B declared allocation Mandate: Acquisition
+```
+
+Question:
+
+> **Do the governed Recommendations legitimately differ?**
+
+If **yes**, and the difference cannot be represented as a Policy / Preference / Constraint / Objective difference, then Mandate has irreducible decision-time explanatory power and Muse's “no Mandate in the loop” model fails.
+
+If **no**, the case strengthens that Mandate belongs at governance/design/provenance scope rather than routine decision evaluation.
+
+### F. Muse confidence
+
+**High confidence:**
+- Program and Program-Phase single-valued binding fail.
+- exactly-one-per-Decision-Aspect is false or unfalsifiable depending on individuation.
+- temporal integrity requires durable recorded intent.
+- Policy-as-frame cases exist.
+
+**Provisional:**
+- no-Mandate-in-decision-loop model;
+- Mandate restricted to allocation level;
+- trimmed hierarchy.
+
+**Unresolved:**
+- whether allocation Mandate has independent decision-time effect beyond Policy/Preference/Constraint/Objective;
+- how to represent genuinely multi-purpose capital without returning to vacuous multiple-mandate semantics;
+- whether Program Edge Thesis deserves semantic identity or is only explanatory documentation.
+
+---
+
+## ChatGPT analysis of the Muse result
+
+### 1. The Decision-Aspect survivor from §31 is no longer the leading explanation
+
+The strongest reason is not merely that Muse found another counterexample. It found a **meta-falsification problem**:
+
+> If the unit of analysis can be subdivided until the proposition becomes true, the proposition is not doing domain work.
+
+This directly attacks the semantic legitimacy of `DecisionAspect` as a carrier for exactly one Mandate.
+
+The burden of proof is now on any future actor who wants to retain `DecisionAspect`:
+
+- provide an individuation rule independent of Mandate;
+- show that the rule is operationally meaningful;
+- show that the resulting aspects remain single-frame under adversarial specimens;
+- show that the concept adds explanatory power beyond Policy predicates / Constraints / Preferences / Objectives.
+
+Until that occurs, `DecisionAspect` should remain an unratified research concept.
+
+### 2. The result separates durable governance from runtime evaluation more cleanly
+
+The earlier discussion blurred:
+
+```text
+what capital is for
+```
+
+with:
+
+```text
+what criteria evaluate this Alternative now
+```
+
+Muse shows these may be different semantic jobs.
+
+A durable standing purpose can explain:
+
+- why cash stays idle;
+- why a holding is retained;
+- why a reserve exists;
+- why a particular family of Policy Rules was adopted;
+
+without needing to be re-evaluated as a frame on every decision tick.
+
+This creates a stronger two-layer research model:
+
+```text
+GOVERNANCE / DESIGN TIME
+  declared purpose
+  program choice
+  Policy design
+  risk boundaries
+  recorded intent
+  amendment rules
+
+RUNTIME DECISION TIME
+  state/evidence
+  applicable predicates
+  Constraints
+  Preferences
+  Objectives
+  Alternatives
+  consequences
+  Recommendation
+```
+
+This is not ratified architecture, but it is now a serious contender.
+
+### 3. Temporal integrity is strengthened, not weakened, by removing Mandate from the runtime loop
+
+The core Inner Game requirement remains:
+
+> The system must know what the operator committed to before discomfort arrived.
+
+That can be preserved by durable provenance even if Mandate is not directly consulted during every Recommendation.
+
+A possible semantic split is:
+
+```text
+Allocation Purpose / Mandate
+  durable governance provenance
+
+Recorded Intent / Objective
+  position/program-specific commitment
+  effective-time scoped
+
+Policy
+  mechanical decision rule
+
+Current Recommendation
+  result of applying Policy to current evidence
+```
+
+This may be cleaner than allowing the operator to choose a current “frame” at decision time.
+
+### 4. Acquisition / Disposition now need categorical re-review
+
+Muse's telic / atelic distinction is powerful because it asks a different question than the earlier admission test.
+
+Earlier:
+
+> Does Acquisition / Disposition change decision rules and success criteria?
+
+Muse:
+
+> Is it the same *kind of thing* as Income / Growth?
+
+Those are not equivalent tests.
+
+A concept can be important and decision-relevant without deserving the same ontology type.
+
+Therefore future review should explicitly test:
+
+```text
+Income / Growth
+  ongoing purpose?
+
+Acquisition / Disposition
+  completable objective?
+
+Protection
+  ongoing purpose, objective, or service relationship?
+
+Liquidity Reserve
+  purpose or Inventory Role?
+
+Preservation
+  purpose or Constraint family?
+```
+
+No reclassification is authorized yet, but the old mandate list is reopened.
+
+### 5. Preservation receives especially strong reduction pressure
+
+Muse's challenge is compelling:
+
+If the semantic model already has:
+
+- capital-risk Constraints;
+- nominal-loss Constraints;
+- liquidity Constraints;
+- concentration Constraints;
+- survivability / drawdown controls;
+
+then introducing Preservation as an additional Mandate may duplicate rather than explain those rules.
+
+A future falsifier should seek a case where:
+
+> **Preservation as a declared purpose changes a legitimate Recommendation while all relevant Constraints, Preferences, Objectives, and Policies remain identical.**
+
+If no such case exists, Preservation likely does not earn independent Mandate identity.
+
+### 6. Policy Rule may itself be too coarse
+
+Muse indirectly exposes another issue.
+
+Current research uses `Policy Rule` for:
+
+- qualification predicates;
+- lifecycle transitions;
+- vetoes;
+- profit targets;
+- roll conditions;
+- assignment rules;
+- drawdown breakers;
+- record-keeping;
+- sometimes Preference-like ordering.
+
+That may be appropriate as a governance umbrella, but the decision machinery may need to distinguish the **mechanism** a rule instantiates:
+
+```text
+Predicate / Qualification
+Constraint / Boundary
+Preference / Ordering
+Objective / Target
+Transition Rule
+Reconsideration Rule
+Record-Keeping / Provenance Rule
+Amendment Rule
+```
+
+This does not require creating seven new ontology entities. It means future semantic work should not assume all Policy Rules have the same computational or normative role.
+
+### 7. The strongest next experiment is now exceptionally clean
+
+Muse's proposed controlled test is the right next falsifier:
+
+> **Hold all decision machinery constant and vary only declared Mandate.**
+
+This is much better than arguing terminology.
+
+If Recommendation changes, Mandate has irreducible runtime semantics.
+
+If Recommendation does not change, then Mandate is likely governance/design context whose operational effects are mediated through Policy/Constraint/Preference/Objective.
+
+The test should be run across more than one domain:
+
+1. CSP / acquisition-income marginal case;
+2. covered-call income-vs-disposition case;
+3. T-bill liquidity-vs-preservation case;
+4. long-equity growth-vs-income case;
+5. hedge protection case.
+
+The critical discipline is that **nothing except declared Mandate may change**. If an actor changes a premium floor, exit target, ownership predicate, risk bound, or Preference to make the Recommendations diverge, it has demonstrated that the decision machinery changed—not that Mandate independently mattered.
+
+### 8. Current research fork
+
+The current strongest alternatives are now:
+
+#### Model A — Mandate participates directly in runtime evaluation
+
+```text
+durable Mandate
+  ↓
+applicable decision frame
+  ↓
+Policy / Constraints / Preferences
+  ↓
+Recommendation
+```
+
+#### Model B — Mandate is governance/design provenance, not runtime evaluator
+
+```text
+Governance
+  ├──→ durable Mandate / purpose
+  └──→ Policy + Constraints + Preferences + Objectives
+
+Policy + Constraints + Preferences + Objectives + Evidence
+  ↓
+Recommendation
+```
+
+#### Model C — mandate vocabulary itself is over-broad
+
+```text
+Allocation Purpose
+Program Thesis
+Telic Objectives
+Inventory Roles
+Outcome Stances
+Constraints
+Preferences
+Policy
+```
+
+and “Mandate” is retained only for one narrow layer or removed entirely if it adds no unique information.
+
+The next work should falsify these alternatives rather than blend them prematurely.
+
+---
+
+## Reconciliation pressure on existing research
+
+Muse §32 explicitly reopens:
+
+- **§27** Principal Portfolio Mandate survey;
+- **§29** Wheel phase-mandate migration;
+- **§30** Mandate↔Program n-to-n mapping as a possible projection rather than primitive relation;
+- **§31** Decision-Aspect surviving hypothesis;
+- locked 17-row ontology wording:
+  > Portfolio Mandate — what capital is fundamentally for;
+- whether Acquisition / Disposition / Preservation belong in one category;
+- whether Policy Rule needs finer mechanism classification.
+
+It strengthens:
+
+- durable effective-time intent/provenance;
+- no hindsight rewriting;
+- operator departure semantics;
+- rule-change/amendment governance;
+- direct Policy/Constraint/Preference composition of Recommendation.
+
+---
+
+## Intake / roadmap disposition
+
+This result materially strengthens or challenges existing work only:
+
+- **`PL-SEM-01`** — mandate/purpose/objective taxonomy, Decision Aspect rejection pressure, Policy mechanism roles, governance-vs-runtime semantics;
+- **`PL-DEC-BEH`** — historical intent, objective drift, hindsight rationalization, precommitment;
+- **`PL-DEPLOY`** — actual composition of Alternative qualification and Recommendation;
+- **`PL-PORT-01`** — capital-pool purpose, Inventory Block semantics, standing governed capital;
+- **`PL-STRAT-01`** — Operating Program vs Program Edge Thesis;
+- **`PL-EXEC-01`** — recorded intent → recommendation → operator departure → execution → reconciled outcome provenance.
+
+No new PL or LVT identity is implied.
+
+---
+
+## Actor handoff requirement — expanded
+
+Future Kiro/Codex/ChatGPT work concerning Mandate, Purpose, Objective, Intent, Decision Aspect, Policy Rule, Wheel phase semantics, Recommendation composition, or the Inner Game must explicitly reacquire:
+
+- `docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md`;
+- §§25–31;
+- **§32 Independent Muse falsification and ChatGPT analysis**;
+- current `PL-SEM-01`;
+- current `PL-DEC-BEH`;
+- relevant practitioner corpus;
+- canonical semantic model.
+
+Actors must not treat:
+- §31 Decision-Aspect binding,
+- §32 Muse's allocation-only Mandate,
+- Acquisition / Disposition demotion,
+- Preservation demotion,
+- or the no-Mandate-in-runtime-loop model
+
+as ratified.
+
+The immediate falsification burden is the controlled experiment:
+
+> **Hold all decision machinery constant; vary only declared Mandate; determine whether Recommendation legitimately changes.**
+
+If an actor changes Policy, Objective, Preference, Constraint, state/evidence, or Program while claiming to test Mandate, the experiment is invalid.
