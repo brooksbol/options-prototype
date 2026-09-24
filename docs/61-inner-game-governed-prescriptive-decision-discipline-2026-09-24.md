@@ -2073,3 +2073,360 @@ Future Kiro/Codex/ChatGPT prompts concerning the Inner Game, governed purpose/co
 - relevant practitioner-corpus/reconciliation material.
 
 These surveys are Principal-supplied pressure-test inputs. Do not silently promote their examples, thresholds, classifications, or structural hypotheses into ratified ontology, architecture, policy, or implementation.
+
+
+## 29. Principal technical Wheel definition — Operating Program instance — 2026-09-24
+
+**Source status:** Principal-supplied formalization intended as a technical definition/specimen of the Wheel at the Operating Program level. Preserve verbatim in substance and structure for falsification/reconciliation. It is **not yet ratified architecture, policy, implementation authority, or a verified claim that the defining invariant is unique**.
+
+### 0. META
+
+```text
+program_id: WHEEL
+ontological_type: Operating Program
+cadence: continuous evaluation; event-driven actions
+scope: single-underlying instances; instances are independent and effectively unlimited
+source_specimens: EOG CSP→wheel cycle; KO 12-month wheel; corpus studies 10 (wheel process), 33 (CSP), 11 (covered-call income), 4 (covered-call defense)
+```
+
+### 1. GOVERNING CONTEXT
+
+**Account:** brokerage account with capabilities `{short_put, covered_call, assignment}`. IRA instances: cash-secured only (Constraint C1).
+
+**Portfolio Mandate:** multi-mandate program. Mandate is phase-dependent, not program-constant:
+
+- Phase P1 — put working: **Acquisition**
+- Phase P2/P3 — shares held, calls working: **Income**
+- Phase P3-exit — call strike = exit target: **Disposition**
+
+Mandate migration across phases is itself governed by Policy Rule `PR-W-14`.
+
+### 2. STATE MACHINE
+
+States:
+
+```text
+S0_SCAN          — no position; cash uncommitted
+S1_PUT_OPEN      — CSP working
+S2_STOCK_HELD    — 100-share blocks held, unencumbered
+S3_CALL_OPEN     — covered call working
+S4_CYCLE_CLOSED  — terminal; capital released to S0_SCAN
+```
+
+Transition table:
+
+```text
+S0_SCAN
+  --P_entry_true-->
+S1_PUT_OPEN
+  action: open CSP
+
+S1_PUT_OPEN
+  --put_expired_worthless | profit_target_hit-->
+S0_SCAN
+  result: premium realized; no inventory
+
+S1_PUT_OPEN
+  --assigned-->
+S2_STOCK_HELD
+  result: shares acquired; basis = strike − premium_received
+
+S2_STOCK_HELD
+  --P_callwrite_true-->
+S3_CALL_OPEN
+  action: open covered call
+
+S2_STOCK_HELD
+  --thesis_broken-->
+S0_SCAN
+  action/result: liquidate shares; loss realized
+
+S3_CALL_OPEN
+  --call_expired_worthless | profit_target_hit-->
+S2_STOCK_HELD
+  result: premium realized; shares retained
+
+S3_CALL_OPEN
+  --called_away-->
+S4_CYCLE_CLOSED
+  result: shares disposed at strike
+
+S4_CYCLE_CLOSED
+  --capital_released-->
+S0_SCAN
+
+ANY STATE
+  --underlying_ineligible | account_halt-->
+wind-down per PR-W-15 / PR-W-16
+```
+
+### 3. PER-STATE SPECIFICATION
+
+#### S0_SCAN
+
+- **Inventory Block:** cash reserve.
+- **Inventory Role:** uncommitted / acquisition-reserve.
+- **Economic Construction:** none.
+- **Decision Subject:** candidate underlying × candidate CSP terms.
+- **Outcome Stance:** assignment desired at acceptable effective price; expiry-worthless acceptable; no position acceptable (WAIT is valid).
+- **Alternatives:** `{OPEN_CSP, WAIT, NO_TRADE}`.
+- **Recommendation:** `OPEN_CSP` iff `P_entry` true, else `WAIT`.
+- **P_entry:** entry-qualification predicate; all conditions must hold. Exact predicate terms remain to be reconciled/filled from applicable Policy Rules and evidence.
+
+#### S1_PUT_OPEN
+
+- **Inventory Role:** collateral (cash encumbered) or margin; shares = acquisition target.
+- **Economic Construction:** CSP.
+- **Decision Subject:** short-put obligation + encumbered collateral.
+- **Outcome Stance:** assignment desired at strike − premium; early profit-taking acceptable; rolling acceptable only if new strike still passes `willing_to_own`.
+- **Alternatives:** `{HOLD, CLOSE_AT_PROFIT, ROLL_DOWN_OUT, ACCEPT_ASSIGNMENT}`.
+- **Recommendation logic:** supplied definition leaves this heading open for later formalization from Policy + state/evidence.
+
+#### S2_STOCK_HELD
+
+- **Inventory Block:** `N×100` shares.
+- **Basis:** `B = strike − premium_received`.
+- **Inventory Role:** income-producing inventory under Income; reclassifies to disposition inventory if price ≥ `exit_target` under the proposed Disposition phase.
+- **Economic Construction:** long stock, unencumbered.
+- **Decision Subject:** unencumbered share block.
+- **Outcome Stance:** call-away desired at `≥ max(B + MIN_PROFIT, exit_target)`; retention acceptable while premium harvesting; liquidation required if thesis broken.
+- **Alternatives:** `{WRITE_CALL, HOLD_UNCOVERED, SELL_SHARES, ADD_PROTECTION}`.
+
+`P_callwrite` mirrors `P_entry` for the call leg, plus:
+
+```text
+strike ≥ max(B + MIN_PROFIT, exit_target)
+AND no-write filters (PR-W-09; e.g. suppress after bullish 20/50 crossover)
+AND dividend / early-assignment screen on candidate short call
+```
+
+#### S3_CALL_OPEN
+
+- **Economic Construction:** covered call = shares + short call.
+- **Decision Subject:** share/call relationship; encumbered block.
+- **Outcome Stance:** call-away desired at strike; realized economics described as `strike − B + cumulative premiums`; expiry-worthless acceptable; never defend at a debit.
+- **Alternatives:** `{HOLD, CLOSE_AT_PROFIT, ROLL_UP_OUT, ACCEPT_CALL_AWAY}`.
+- **Recommendation logic:** supplied definition leaves this heading open for later formalization from Policy + state/evidence.
+
+### 4. POLICY RULE CATALOG
+
+- **PR-W-01 — Entry qualification:** `P_entry` above. No discretionary bypass without logged override.
+- **PR-W-02 — Underlying eligibility:** liquid options + durable willingness-to-own. Re-screened per cycle; ineligibility triggers wind-down, never new entry.
+- **PR-W-03 — Tenor/delta bands:** per leg, as resolved by the entry/call-write predicates.
+- **PR-W-04 — Premium adequacy floor:** reject trades where premium < floor even if all else passes.
+- **PR-W-05 — Sizing:** contracts bounded by allocatable capital, buying power, and per-underlying concentration; planned-loss sizing, not premium-target sizing.
+- **PR-W-06 — Profit taking:** close short legs at `PROFIT_TARGET` (survey specimen default 50% of max); never hold to expiry for the last 10% unless assignment is the intent.
+- **PR-W-07 — Roll criteria:** rolls must be net credit **and** new strike must independently pass acceptability: ownership for puts; `≥ B + MIN_PROFIT` for calls. Rolling to avoid an acceptable assignment is prohibited as manufactured activity.
+- **PR-W-08 — Assignment policy:** put assignment accepted iff strike acceptable, having been pre-accepted at entry. Call assignment accepted iff strike `≥ B + MIN_PROFIT`.
+- **PR-W-09 — No-write filters:** suppress call writing into defined bullish configurations, e.g. post-20/50 crossover; suppress put writing into defined bearish / IV-collapse configurations.
+- **PR-W-10 — Expiration management:** DTE floors per state; exercise-vs-hold decisions use remaining-extrinsic test; broker cutoff observed and distinguished from exchange deadline.
+- **PR-W-11 — Dividend / early-assignment guard:** screen short calls before ex-dividend; close if dividend > remaining extrinsic value.
+- **PR-W-12 — Downside contingency:** if shares fall more than `DRAWDOWN_TRIGGER` below B, Alternatives = `{hold + write reduced-strike calls, add protective put priced as business expense, liquidate}`. Selection governed by whether `willingness_to_own` still holds.
+- **PR-W-13 — Event handling:** no new CSP into known binary events unless explicitly permitted; working positions reduced or converted to defined risk at operator discretion with logged rationale.
+- **PR-W-14 — Mandate migration:** every `S1→S2` transition logs Acquisition→Income; every strike-set-at-exit-target logs Income→Disposition for that block. Proposed definition treats migration as a reconciled fact, not an interpretation.
+- **PR-W-15 — Record keeping:** every transition, Recommendation, departure from Recommendation, and fill logged with timestamp and evidence references.
+- **PR-W-16 — Program halt:** underlying ineligibility or account-level drawdown breaker suspends new entries; working positions managed to resolution rather than abandoned.
+
+### 5. CONSTRAINTS
+
+- **C1:** account capability ∈ `{short_put, covered_call, assignment}`; IRA → cash-secured only, no margin.
+- **C2:** buying power ≥ `strike × 100 × contracts` for cash or applicable margin requirement for margin account.
+- **C3:** 100-share blocks required to write calls; no fractional encumbrance.
+- **C4:** liquidity floors from PR-W-02.
+- **C5:** concentration: single-underlying exposure ≤ `CONC_MAX`; correlated-underlying aggregate ≤ `CORR_MAX`.
+- **C6:** construction whitelist = `{CSP, covered_call, long_stock, protective_put}`; everything else unsupported in this program.
+
+### 6. PREFERENCES — tie-breakers among admissible Alternatives
+
+- **PF1:** natural resolution > intervention when both admissible. Let expire / accept assignment rather than manufacture activity.
+- **PF2:** pre-accepted outcomes > engineered outcomes. Assignment at an acceptable strike beats a clever roll.
+- **PF3:** fewer transitions > more transitions. Each roll is a cost and a new decision.
+- **PF4:** ownership acceptability dominates premium size in all strike decisions.
+
+### 7. RECONCILED STATE / EVIDENCE SCHEMA
+
+The Principal definition requires sufficient reconciled facts before any Recommendation and specifies **UNRESOLVED** when evidence/context is insufficient.
+
+The supplied definition intentionally leaves the concrete schema body open here. This is a required completion point, not permission to invent fields silently.
+
+### 8. DECISION LOOP
+
+The supplied definition establishes a per-evaluation-tick decision loop but intentionally leaves the detailed algorithm body open. It should later be derived/reconciled from the state machine, applicable Policy, Constraints, Preferences, state/evidence, and Recommendation semantics rather than guessed.
+
+### 9. RECONCILED OUTCOMES — terminal/reconciled facts, not projections
+
+```text
+PUT_EXPIRED
+  premium realized
+  inventory unchanged
+  → S0_SCAN
+
+PUT_ASSIGNED
+  shares += 100 × contracts @ basis B
+  → S2_STOCK_HELD
+
+CALL_EXPIRED
+  premium realized
+  shares retained
+  → S2_STOCK_HELD
+
+CALL_ASSIGNED
+  shares -= 100 × contracts @ strike
+  realized = (strike − B) × shares + Σpremiums
+  → S4_CYCLE_CLOSED
+
+SHARES_LIQUIDATED
+  thesis-break exit
+  realized P&L logged
+  → S0_SCAN
+```
+
+### 10. DEFINING INVARIANT — Principal proposed machine-checkable essence
+
+The Principal proposes:
+
+> **The Wheel is the unique Income-mandate Operating Program satisfying: (a) its state machine contains an assignment-accepting transition (`S1_PUT_OPEN --assigned--> S2_STOCK_HELD`) classified as desired rather than failure; (b) its terminal transition (`S3_CALL_OPEN --called_away--> S4_CYCLE_CLOSED`) is classified as desired; (c) its construction whitelist is exactly `{CSP, long_stock, covered_call, protective_put}`; (d) every strike in every state independently satisfies a pre-acceptance predicate (`willing_to_own` / `≥ B + MIN_PROFIT`). Any program violating (a) is not the Wheel — it is a premium program with assignment risk.**
+
+**Reconciliation warning:** this proposed invariant is deliberately preserved but is **not yet accepted as machine-checkable truth**. It creates immediate falsification pressure:
+
+1. The same definition says the Wheel is **multi-mandate and phase-dependent**, while the invariant calls it a “unique Income-mandate Operating Program.” Those formulations may conflict.
+2. The exact whitelist including `protective_put` requires evidence: a protective put may be an allowed contingency without being essential to Wheel identity.
+3. “Unique” requires comparison against systematic put-write, covered strangle, long-dated put-write, and other assignment-accepting programs from §25.
+4. Requirement (a) alone cannot distinguish Wheel from put-write programs that intentionally acquire inventory through assignment.
+5. The likely stronger discriminator is the **closed lifecycle topology**: desired put assignment transitions into owned inventory, followed by a governed call-writing phase whose desired call-away returns capital to the scan/acquisition state.
+6. Requirement (d), especially `≥ B + MIN_PROFIT`, may describe a particular Wheel policy instance rather than the ontological essence of every legitimate Wheel.
+7. The basis expression `B = strike − premium_received` may be useful economic-cycle accounting but must be reconciled with tax basis, lot basis, cumulative premium attribution, and existing Wheelwright accounting semantics rather than overloaded as one universal “basis.”
+8. `S1_PUT_OPEN --profit_target_hit--> S0_SCAN` and `S3_CALL_OPEN --profit_target_hit--> S2_STOCK_HELD` compress Recommendation, Action, Execution, and Reconciled Outcome into transition triggers. The semantic model may require explicit intermediate states/events or a different formalization.
+9. “Mandate migration is a reconciled fact” depends on whether the mandate-migration hypothesis from §27 survives. It cannot be assumed merely because the state transition occurred.
+10. `S0_SCAN` calls cash “uncommitted” while also assigning it an acquisition-reserve Inventory Role. That is a useful tension to resolve: truly uncommitted Liquidity Reserve vs target-bound Acquisition capital may be semantically distinct.
+
+### Why this specimen is unusually valuable
+
+This definition is the first Principal-supplied specimen that attempts to instantiate most of the locked decision-journey concepts in one coherent technical object:
+
+- Account;
+- Portfolio Mandate;
+- Inventory Block;
+- Inventory Role;
+- Operating Program;
+- Economic Construction;
+- Decision Subject;
+- Outcome Stance;
+- Policy Rule;
+- Constraint;
+- Preference;
+- Reconciled State/Evidence;
+- Alternatives;
+- Recommendation;
+- Action/transition pressure;
+- Execution pressure;
+- Reconciled Outcome.
+
+It therefore provides a much stronger falsifier than isolated terminology examples.
+
+### Immediate semantic tests exposed by the definition
+
+#### Program identity vs policy instance
+
+Which properties make something **the Wheel**, and which merely define **this Wheel policy instance**?
+
+Likely pressure points:
+
+- exact DTE/delta bands;
+- 50% profit target;
+- no-debit-roll rule;
+- 20/50 crossover filter;
+- protective-put contingency;
+- `MIN_PROFIT`;
+- event treatment.
+
+A durable Operating Program identity should probably survive some Policy changes without becoming a different program.
+
+#### State machine vs decision journey
+
+The state machine models lifecycle state. The decision journey models how a Recommendation becomes operator Action, Execution, and reconciled transition.
+
+Those should not be silently collapsed.
+
+A more explicit conceptual sequence may be:
+
+```text
+state + evidence + governed context
+→ Alternatives
+→ Recommendation
+→ operator selection
+→ Action / broker instruction where applicable
+→ Execution / external event
+→ Evidence
+→ reconciled transition
+→ new state
+```
+
+No implementation design is authorized by this observation.
+
+#### Phase-dependent mandate vs Inventory Role
+
+The definition intentionally claims:
+
+```text
+Acquisition → Income → Disposition
+```
+
+This is now the strongest specimen for testing whether Portfolio Mandate actually migrates or whether:
+
+- one higher-level mandate persists;
+- Inventory Role changes;
+- Outcome Stance changes;
+- the Operating Program contains phase objectives;
+- a Capital Pool/Block purpose changes at narrower scope.
+
+The definition must be used to **falsify** the semantic model rather than to force mandate migration into it.
+
+#### Natural resolution as first-class behavior
+
+PF1/PF2 and PR-W-07 directly encode the GDXJ lesson:
+
+> Do not manufacture activity merely to avoid a pre-accepted outcome.
+
+This provides a formal program-level expression of the Inner Game thesis that WAIT / HOLD / natural resolution can be the prescribed action.
+
+#### Evidence insufficiency
+
+Section 7 explicitly requires **UNRESOLVED** when required evidence is insufficient.
+
+This reinforces the existing distinction:
+
+```text
+governed WAIT because sufficient evidence establishes no better action
+≠
+UNRESOLVED because evidence/context is insufficient to establish the decision
+```
+
+### Intake / roadmap disposition
+
+This technical definition remains a specimen/refinement under the existing intake structure:
+
+- **`PL-DEC-BEH`** — precommitment, natural resolution, operator departure, rule-change discipline;
+- **`PL-SEM-01`** — Operating Program identity, phase semantics, state/transition/event, Decision Subject, mandate/role, policy/constraint/preference, evidence sufficiency;
+- **`PL-DEPLOY`** — Alternatives and Recommendation under program state;
+- **`PL-STRAT-01`** — what makes Wheel a distinct admitted Operating Program and which constructions belong;
+- **`PL-PORT-01`** — inventory blocks, encumbrance, lots/basis, capital state;
+- **`PL-EXEC-01`** — Recommendation→selection→Action→Execution→reconciliation boundary.
+
+No new PL or LVT identity is implied.
+
+### Actor handoff requirement — expanded
+
+Future Kiro/Codex/ChatGPT prompts concerning the Inner Game, governed purpose/context, Portfolio Mandates, Operating Programs, Economic Constructions, Policy Rules, Wheel semantics, strategy/program expansion, prescriptive recommendations, lifecycle policy, performance evaluation, or sell-side bias must explicitly direct actors to reacquire:
+
+- `docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md`;
+- §25 Principal Operating Program survey;
+- §26 Principal Economic Construction survey;
+- §27 Principal Portfolio Mandate survey;
+- §28 Principal Policy Rule survey;
+- §29 Principal technical Wheel definition;
+- current `PL-DEC-BEH`;
+- current `PL-SEM-01` artifacts;
+- relevant practitioner-corpus/reconciliation material.
+
+The technical Wheel definition is a Principal-supplied formal specimen. Preserve its unresolved sections and contradictions as research evidence; do not silently complete or repair them in actor prompts.
