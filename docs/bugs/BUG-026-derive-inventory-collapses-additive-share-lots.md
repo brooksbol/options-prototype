@@ -1,9 +1,9 @@
 # BUG-026 — `deriveInventory` collapses genuinely-additive same-symbol share lots via MAX, under-counting ownership and producing a false over-encumbrance geometry warning
 
-- **Status:** Open
+- **Status:** Resolved
 - **Severity:** Not established
 - **Area:** Portfolio state / base-snapshot inventory derivation (`options-prototype/src/write-desk/fidelity-snapshot.ts`, `deriveInventory`)
-- **Provenance:** Discovered 2026-09-24 during read-only investigation of the observed URA "Unencumbered Shares" reconciliation warning. Specimen-confirmed against the operator's actual Fidelity Option Summary and Activity History exports (Account Z39411514, quote as of 09/24/2026).
+- **Provenance:** Discovered 2026-09-24 during read-only investigation of the observed URA "Unencumbered Shares" reconciliation warning. Specimen-confirmed against the operator's actual Fidelity Option Summary and Activity History exports (Account Z39411514, quote as of 09/24/2026). Remediated 2026-09-24 under ADR-020 (Positions as authoritative ownership).
 
 ## Observed failure
 
@@ -100,15 +100,29 @@ Direction (not an implementation prescription):
 
 ## Remediation history
 
-_(empty — Open)_
+**2026-09-24 — Resolved under ADR-020 (Aggregate Share-Ownership Authority).** The Principal ratified the Positions export as the authoritative source of aggregate share ownership *when available*, over the rejected alternative of inferring ownership from covered-call geometry.
+
+Implementation (smallest seam):
+- `options-prototype/src/portfolio/positions-ownership.ts` (new) — `deriveOwnershipFromPositions(HoldingRow[])` sums equity rows per symbol into an authoritative ownership map. Summing is the opposite of the Option Summary MAX-collapse and is correct because Positions reports one aggregate equity line per symbol (it does not repeat shares across strategy views).
+- `options-prototype/src/write-desk/fidelity-snapshot.ts` — `FidelitySnapshotInput.authoritativeOwnership`; `deriveInventory` uses the authoritative value for `sharesOwned` when present (marking `ownershipAuthority: "positions"`), else falls back to the conservative observed Option Summary MAX (`ownershipAuthority: "option-summary"`). Encumbrance/clamps unchanged. Ownership is never inferred from call geometry. Provenance records `ownershipFromPositions`.
+- `options-prototype/src/portfolio/account-snapshot.ts` and the legacy hydrate path in `options-prototype/src/portfolio/portfolio-store.ts` — read the account-local (and legacy) `positions` blob, parse it, and pass authoritative ownership into the builder.
+- `options-prototype/src/portfolio/account-evidence-store.ts` (`CsvDocKind += "positions"`) and `options-prototype/src/portfolio/account-import.ts` (`ImportOperation.positions`, persisted in both import paths) — account-local Positions persistence.
+- `options-prototype/src/components/FidelityUploadCompact.tsx` — a Positions upload slot.
+
+The Unencumbered Shares consumer (`unencumbered-inventory.ts`) was intentionally **not** modified — it correctly reported the contradiction it was handed; the defect was upstream in ownership derivation (authority before consumers).
 
 ## Verification
 
-_(empty — Open)_
+Automated, against the **live** derivation path (not scenario replay):
+- `options-prototype/tests/write-desk/positions-ownership-authority.test.ts` — additive lots (Positions 200) → owned 200, required 200, **no** geometry warning (URA specimen); repeated strategy presentation (Positions 100) → owned 100, no inflation; Positions absent → conservative observed 100 + warning fires (degraded, unchanged); genuine insufficient ownership (Positions 100 vs 200 required) → warning still fires; Positions equity rows summed additively; non-equity rows ignored.
+- `options-prototype/tests/portfolio/positions-ownership-integration.test.ts` — full live path `importIntoAccount` → `buildSnapshotForAccount`: URA OS (two ambiguous 100 rows) + Positions 200 → snapshot ownership 200, no warning; same OS with no Positions → observed 100 + warning.
+- Existing `tests/write-desk/fidelity-snapshot.test.ts` and `tests/write-desk/fidelity-upload.test.ts` (51) unchanged and green — the Positions-absent GDXJ/BNO/XLE behavior (including the previously-documented undercount limitation) is preserved exactly.
+- Full frontend suite green except a **pre-existing, unrelated** failure in `tests/roadmap/RoadmapView.test.tsx` caused by a duplicate `## AR1` heading in `docs/architecture-roadmap.md` (introduced by commit `14ac2e5`, ADR-019 workstream); reproduced on pristine `e161198` before this change and left untouched (out of scope). Backend suite green.
 
 ## Related
 
-- **BUG-023** (Open) — Activity overlay ↔ broker-balance checkpoint reconciliation (cash side). Same reconciliation-authority family (what evidence already incorporates a fact), different surface and different mechanism. The ownership-side same-day checkpoint behavior discussed during this investigation is recorded as a note on BUG-023, not as a separate bug, because it was **latent** (non-causal) in this incident.
+- **ADR-020** — the ratified architecture decision this remediation implements.
+- **BUG-023** (Open) — Activity overlay ↔ broker-balance checkpoint reconciliation (cash side). Same reconciliation-authority family (what evidence already incorporates a fact), different surface and different mechanism. The ownership-side same-day checkpoint behavior discussed during this investigation is recorded as a note on BUG-023, not as a separate bug, because it was **latent** (non-causal) in this incident. ADR-020 deliberately does not alter that checkpoint seam.
 - **BUG-001** (Open) — Activity overlay lifecycle projection (assigned-call closure / called-away disposition) on the same snapshot. Adjacent; not the same defect.
 - **BUG-004** (Open) — Console composing temporally incompatible evidence into an apparently-coherent view. Thematically related (composed inconsistency), materially different (market-evidence coherence vs share-lot derivation).
 - Not a `PL-*` item (defect, not a capability).

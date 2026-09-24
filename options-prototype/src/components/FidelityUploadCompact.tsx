@@ -14,7 +14,7 @@ import { preprocessCsv } from "../csv/preprocess";
 import { classifyDocument } from "../csv/registry";
 import "../csv/fidelity"; // ensure parsers are registered
 import type { PortfolioSnapshot } from "../write-desk/types";
-import { importFidelityEvidence, importEvidenceIntoAccount, getSnapshot } from "../portfolio/portfolio-store";
+import { importFidelityEvidence, importEvidenceIntoAccount, getSnapshot, getActivityFilename, getPositionsFilename } from "../portfolio/portfolio-store";
 import type { ImportResolution } from "../portfolio/account-import";
 
 /** Surface a non-refresh import outcome (generic path) as a hint on the balances slot. */
@@ -53,6 +53,7 @@ export function FidelityUploadCompact({ onSnapshotChange, targetBrokerageAccount
   const [osSlot, setOsSlot] = useState<SlotState>({ status: "empty", filename: null, error: null, timestamp: null });
   const [balSlot, setBalSlot] = useState<SlotState>({ status: "empty", filename: null, error: null, timestamp: null });
   const [actSlot, setActSlot] = useState<SlotState>({ status: "empty", filename: null, error: null, timestamp: null });
+  const [posSlot, setPosSlot] = useState<SlotState>({ status: "empty", filename: null, error: null, timestamp: null });
   const [notice, setNotice] = useState<string | null>(null);
 
   // Raw text blobs for the current in-progress import operation. Evidence is routed through
@@ -62,9 +63,11 @@ export function FidelityUploadCompact({ onSnapshotChange, targetBrokerageAccount
   const osBlobRef = useRef<{ text: string; filename: string } | null>(null);
   const balBlobRef = useRef<{ text: string; filename: string } | null>(null);
   const actBlobRef = useRef<{ text: string; filename: string } | null>(null);
+  const posBlobRef = useRef<{ text: string; filename: string } | null>(null);
   const osInputRef = useRef<HTMLInputElement>(null);
   const balInputRef = useRef<HTMLInputElement>(null);
   const actInputRef = useRef<HTMLInputElement>(null);
+  const posInputRef = useRef<HTMLInputElement>(null);
 
   // Validate CSV classification without persisting. Returns the export timestamp on success.
   const validateOs = useCallback((text: string): { ok: boolean; timestamp: string | null } => {
@@ -102,6 +105,18 @@ export function FidelityUploadCompact({ onSnapshotChange, targetBrokerageAccount
     } catch { return false; }
   }, []);
 
+  const validatePositions = useCallback((text: string): { ok: boolean; timestamp: string | null } => {
+    try {
+      const { csvContent, preambleLines } = preprocessCsv(text);
+      const doc = parseCsv(csvContent, detectDelimiter(csvContent));
+      const classification = classifyDocument(doc);
+      if (!classification.parser || classification.parser.id !== "fidelity_positions") return { ok: false, timestamp: null };
+      const parsed = classification.parser.parse(doc, { filename: "", preambleLines });
+      if (parsed.payload.type !== "holdings") return { ok: false, timestamp: null };
+      return { ok: true, timestamp: parsed.metadata.downloadTimestamp ?? null };
+    } catch { return { ok: false, timestamp: null }; }
+  }, []);
+
   // Route the currently-loaded blobs through the appropriate importer and surface the
   // outcome. When targeting a specific account, use the account-targeted (fail-closed)
   // importer; otherwise the generic account-aware resolver.
@@ -110,6 +125,7 @@ export function FidelityUploadCompact({ onSnapshotChange, targetBrokerageAccount
       optionSummary: osBlobRef.current,
       balances: balBlobRef.current,
       activity: actBlobRef.current,
+      positions: posBlobRef.current,
     };
     if (targetBrokerageAccountId) {
       // Selection is the sole identity authority: a structurally-valid CSV uploaded into the
@@ -177,8 +193,31 @@ export function FidelityUploadCompact({ onSnapshotChange, targetBrokerageAccount
     }
   }, [validateActivity, runImport]);
 
+  const handlePosFile = useCallback(async (file: File) => {
+    setPosSlot({ status: "parsing", filename: file.name, error: null, timestamp: null });
+    try {
+      const text = await file.text();
+      const v = validatePositions(text);
+      if (v.ok) {
+        posBlobRef.current = { text, filename: file.name };
+        runImport();
+        setPosSlot({ status: "loaded", filename: file.name, error: null, timestamp: v.timestamp });
+      } else {
+        setPosSlot({ status: "error", filename: file.name, error: "Not a valid Positions CSV", timestamp: null });
+      }
+    } catch (err) {
+      setPosSlot({ status: "error", filename: file.name, error: `Parse error: ${err instanceof Error ? err.message : "unknown"}`, timestamp: null });
+    }
+  }, [validatePositions, runImport]);
+
   // Reflect the active account's already-loaded evidence (from store hydration) as slot
-  // status on mount, so reopening the panel shows the current account's files.
+  // status on mount, so reopening/remounting the panel shows the current account's files.
+  //
+  // BUG-027: Option Summary and Balances reconstruct from snapshot provenance. Activity and
+  // Positions have no snapshot-provenance filename of their own (Activity is an overlay;
+  // Positions feeds ownership), so they are reconstructed from the store's account-local
+  // persisted evidence accessors. Without this, durably-persisted Activity/Positions files
+  // displayed as empty ("— ⬆") after any remount even though the evidence exists and is used.
   useEffect(() => {
     const snap = getSnapshot();
     if (snap && snap.source.type === "fidelity") {
@@ -186,6 +225,12 @@ export function FidelityUploadCompact({ onSnapshotChange, targetBrokerageAccount
       const balName = snap.provenance.balancesFilename;
       if (osName) setOsSlot({ status: "loaded", filename: osName, error: null, timestamp: snap.provenance.optionSummaryExportTimestamp ?? null });
       if (balName) setBalSlot({ status: "loaded", filename: balName, error: null, timestamp: snap.provenance.balancesExportTimestamp ?? null });
+
+      const actName = getActivityFilename();
+      if (actName) setActSlot({ status: "loaded", filename: actName, error: null, timestamp: null });
+
+      const posName = getPositionsFilename();
+      if (posName) setPosSlot({ status: "loaded", filename: posName, error: null, timestamp: snap.provenance.positionsExportTimestamp ?? null });
     }
   }, []);
 
@@ -208,6 +253,12 @@ export function FidelityUploadCompact({ onSnapshotChange, targetBrokerageAccount
         slot={actSlot}
         inputRef={actInputRef}
         onFile={handleActFile}
+      />
+      <UploadRow
+        label="Positions"
+        slot={posSlot}
+        inputRef={posInputRef}
+        onFile={handlePosFile}
       />
       {notice && <div className="as-upload-notice" role="status">{notice}</div>}
     </div>

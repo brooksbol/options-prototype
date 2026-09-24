@@ -654,3 +654,28 @@ The Sep 24 Activity contains new Fidelity vocabulary: `JOURNALED VS Z39-411514-N
 
 - Filed **BUG-026** (additive-lot collapse — the observed URA cause) and **BUG-027** (ephemeral Activity slot status). Added the ownership-side checkpoint note to **BUG-023**. INDEX updated.
 - No remediation authorized. The two ownership "defects" were correctly held apart: BUG-026 is observed; the checkpoint under-count is latent and lives on BUG-023.
+
+
+---
+
+## 2026-09-24 — BUG-026/BUG-027 remediated; ADR-020 ratifies Positions as aggregate-ownership authority (Kiro)
+
+**Actor:** Kiro (repository-resident implementation partner).
+**SYNC SHA at implementation start:** `e161198` (accepted `main`; reconciled forward from the diagnosis SHA `ade8bb5` through Principal-authored ADR-019 / private-beta docs commits, none of which touched the target code).
+**Mode:** Principal-authorized implementation of BUG-026 and BUG-027 only, plus ADR persistence, tests, bug-state transitions, and end-of-session closeout. Architecture authority for the ownership question was resolved by the Principal before implementation.
+
+### Decision (ADR-020)
+
+The additive-lot-vs-repeated-strategy ambiguity behind BUG-026 is **not resolvable from the Option Summary alone** — the two cases are byte-identical at the row level (Fidelity shows position-level blended basis on each per-strategy share row), and covered-call obligation geometry must never be used to infer ownership. The Principal ratified the **Fidelity Positions export as the authoritative source of aggregate share ownership when available**, over the rejected alternative of inferring ownership from call geometry. Absent Positions, the conservative observed Option Summary value is preserved (undercount over invention). Evidence roles: Positions = how many shares are owned; Option Summary = how those shares are presented as strategies (known ambiguity); Activity = temporal events under the existing checkpoint rules. See `docs/07c-adrs.md` ADR-020.
+
+### Implementation
+
+Smallest-seam wiring of the already-registered Positions parser into ownership derivation: new `positions-ownership.ts` (sum equity rows — opposite of the OS MAX-collapse); `deriveInventory` takes authoritative ownership and marks `ownershipAuthority` per position; account + legacy snapshot builders read the account-local `positions` slot; `CsvDocKind`/`ImportOperation` gain `positions`; a Positions upload slot is added. The Unencumbered Shares consumer was deliberately not touched (authority before consumers). BUG-027 fixed in the same component: the mount effect now reconstructs Activity and Positions slot status from persisted account evidence (store accessors), not ephemeral component state.
+
+### Verification
+
+The URA incident now resolves for the correct reason — 200 shares are true because Positions reports 200, not because two calls require 200. Falsifiers cover both sides of the historical problem on the live path: additive→200 (no warning), repeated→100 (no inflation), Positions-absent→observed 100 (warning fires, unchanged), genuine insufficient ownership→warning still fires, and the EWY same-day-no-double-count / post-checkpoint-inclusion behavior is preserved (activity-projection.ts untouched; existing checkpoint tests green). AUTO-JOURNAL vocabulary re-guarded: classifies as `other`, projection non-mutating. Frontend 2049/2049 green excluding one pre-existing unrelated failure (below); backend green; zero lint errors in touched files.
+
+### Pre-existing unrelated defect discovered (NOT touched)
+
+`tests/roadmap/RoadmapView.test.tsx` (2 tests) fails on **pristine `e161198`**, before any change in this session, because `docs/architecture-roadmap.md` now contains **two `## AR1` headings** (line 45 "Authoritative State Must Mature…" and line 331 "AR1 — bounded partial resolution"), introduced by commit `14ac2e5` (ADR-019 architecture-promotion workstream). The roadmap projection emits two AR entries with id `AR1`; RoadmapView renders duplicate React keys and `getByText("AR1")` finds two. This is a canonical-source data-integrity defect in another actor's just-landed work, outside the BUG-026/BUG-027 authorization. Per in-flight-work discipline it was left untouched and is surfaced for the Principal rather than silently absorbed or "fixed." Candidate dispositions: give the second AR1 section a distinct id (e.g. an `AR1-resolution` sub-anchor) or make the projection parser reject/merge duplicate AR ids; either is a separate authorized change.

@@ -16,6 +16,33 @@ import { detectDelimiter, parseCsv } from "../csv/reader";
 import { classifyDocument } from "../csv/registry";
 import "../csv/fidelity";
 import { readAccountCsv } from "./account-evidence-store";
+import type { HoldingRow } from "../csv/fidelity/positionsParser";
+import { deriveOwnershipFromPositions } from "./positions-ownership";
+
+/**
+ * Parse a Positions CSV into authoritative aggregate ownership (ADR-020). Returns the
+ * ownership map plus export timestamp, or null when the blob is missing/unparseable.
+ * Never throws.
+ */
+function parsePositionsText(
+  text: string
+): { ownership: Map<string, number>; exportTimestamp: string | null } | null {
+  try {
+    const { csvContent, preambleLines } = preprocessCsv(text);
+    const doc = parseCsv(csvContent, detectDelimiter(csvContent));
+    const classification = classifyDocument(doc);
+    if (!classification.parser || classification.parser.id !== "fidelity_positions") return null;
+    const parsed = classification.parser.parse(doc, { filename: "", preambleLines });
+    if (parsed.payload.type !== "holdings") return null;
+    const rows = parsed.payload.rows as HoldingRow[];
+    const ownership = deriveOwnershipFromPositions(rows);
+    if (ownership.size === 0) return null;
+    const exportTimestamp = parsed.metadata.downloadTimestamp ?? null;
+    return { ownership, exportTimestamp };
+  } catch {
+    return null;
+  }
+}
 
 function parseOptionSummaryText(
   text: string
@@ -68,6 +95,12 @@ export function buildSnapshotForAccount(brokerageAccountId: string): PortfolioSn
   const balParsed = parseBalancesText(balBlob.text);
   if (!osParsed || !balParsed) return null;
 
+  // Positions is authoritative for aggregate share ownership WHEN AVAILABLE (ADR-020).
+  // Absent Positions, ownership falls back to the conservative observed Option Summary
+  // value inside buildFidelitySnapshot; ownership is never inferred from call geometry.
+  const posBlob = readAccountCsv(brokerageAccountId, "positions");
+  const posParsed = posBlob ? parsePositionsText(posBlob.text) : null;
+
   return buildFidelitySnapshot({
     optionSummaryRows: osParsed.rows,
     optionSummaryFilename: osBlob.filename,
@@ -76,5 +109,8 @@ export function buildSnapshotForAccount(brokerageAccountId: string): PortfolioSn
     balancesFilename: balBlob.filename,
     balancesExportTimestamp: balParsed.exportTimestamp,
     brokerageAccountId,
+    authoritativeOwnership: posParsed?.ownership ?? null,
+    positionsFilename: posParsed ? posBlob!.filename : null,
+    positionsExportTimestamp: posParsed?.exportTimestamp ?? null,
   });
 }

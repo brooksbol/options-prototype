@@ -44,7 +44,7 @@ const LEGACY_KEY_ACTIVITY = "wheelwright:fidelity-csv:activity";
 const MIGRATION_MARKER_KEY = "wheelwright:acct-migration:v1";
 const LEGACY_UNKNOWN_KEY = "wheelwright:acct:legacy-unknown:fidelity-csv";
 
-export type CsvDocKind = "option-summary" | "balances" | "activity";
+export type CsvDocKind = "option-summary" | "balances" | "activity" | "positions";
 
 export interface StoredCsvBlob {
   text: string;

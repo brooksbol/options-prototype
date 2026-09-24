@@ -106,4 +106,62 @@ describe("FidelityUploadCompact drives the account-aware live path", () => {
       expect(snap?.accountId).toBe("Z12-345678");
     });
   });
+
+  // BUG-027: Activity (and Positions) slot status must reconstruct from persisted account
+  // evidence on remount, not only from ephemeral in-session component state.
+  it("BUG-027: persisted Activity survives remount — Activity slot shows loaded, not empty", async () => {
+    const acct = "acct-remount";
+    // Seed a resolved account with persisted evidence (as a prior upload would have).
+    const { registerAccount: reg } = await import("../../src/portfolio/brokerage-account-registry");
+    reg({ broker: "fidelity", externalAccountRef: "Z12-345678" });
+    const resolved = resolveAccountByExternalRef("Z12-345678");
+    if (resolved.kind !== "resolved") throw new Error("setup");
+    const baId = resolved.account.brokerageAccountId;
+    const { writeAccountCsv } = await import("../../src/portfolio/account-evidence-store");
+    writeAccountCsv(baId, "option-summary", { text: PTS_OS, filename: "os.csv" });
+    writeAccountCsv(baId, "balances", { text: PTS_BAL, filename: "bal.csv" });
+    writeAccountCsv(baId, "activity", { text: ACTIVITY_CSV, filename: "activity.csv" });
+    const { switchToAccount } = await import("../../src/portfolio/portfolio-store");
+    switchToAccount(baId);
+    void acct;
+
+    // Mount the panel fresh (simulates reopening the dropdown / remount).
+    const { container } = render(<FidelityUploadCompact onSnapshotChange={() => {}} targetBrokerageAccountId={baId} />);
+
+    // The Activity row must show the loaded checkmark + filename, NOT the empty "—" state.
+    await waitFor(() => {
+      expect(container.textContent).toContain("activity.csv");
+    });
+    // No slot should still be showing the empty dash for Activity: assert the loaded filename
+    // is present (empty state renders "—" with no filename).
+    const rows = Array.from(container.querySelectorAll(".as-upload-row-wrap"));
+    const activityRow = rows.find((r) => r.textContent?.includes("Activity"));
+    expect(activityRow?.textContent).toContain("activity.csv");
+    expect(activityRow?.querySelector(".as-upload-ok")).not.toBeNull();
+  });
+
+  it("BUG-027: no persisted Activity → Activity slot remains empty/upload state", async () => {
+    const { registerAccount: reg } = await import("../../src/portfolio/brokerage-account-registry");
+    reg({ broker: "fidelity", externalAccountRef: "Z12-345678" });
+    const resolved = resolveAccountByExternalRef("Z12-345678");
+    if (resolved.kind !== "resolved") throw new Error("setup");
+    const baId = resolved.account.brokerageAccountId;
+    const { writeAccountCsv } = await import("../../src/portfolio/account-evidence-store");
+    writeAccountCsv(baId, "option-summary", { text: PTS_OS, filename: "os.csv" });
+    writeAccountCsv(baId, "balances", { text: PTS_BAL, filename: "bal.csv" });
+    // No activity written.
+    const { switchToAccount } = await import("../../src/portfolio/portfolio-store");
+    switchToAccount(baId);
+
+    const { container } = render(<FidelityUploadCompact onSnapshotChange={() => {}} targetBrokerageAccountId={baId} />);
+    const rows = Array.from(container.querySelectorAll(".as-upload-row-wrap"));
+    const activityRow = rows.find((r) => r.textContent?.includes("Activity"));
+    // Empty state: dash present, no loaded checkmark.
+    expect(activityRow?.querySelector(".as-upload-empty")).not.toBeNull();
+    expect(activityRow?.querySelector(".as-upload-ok")).toBeNull();
+  });
 });
+
+const ACTIVITY_CSV = `Run Date,Action,Symbol,Description,Quantity,Price,Amount,Cash Balance,Settlement Date
+09/02/2026,YOU SOLD OPENING TRANSACTION CALL (SPY) SEP 18 26 $500 (100 SHS) (Cash),-SPY260918C500,SPY CALL,-1,5.00,500.00,1000,09/03/2026
+`;

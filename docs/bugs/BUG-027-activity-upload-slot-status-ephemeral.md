@@ -1,9 +1,9 @@
 # BUG-027 — Header Activity upload slot reverts to empty ("— ⬆") on remount despite durably-persisted Activity evidence, misrepresenting loaded state
 
-- **Status:** Open
+- **Status:** Resolved
 - **Severity:** Not established
 - **Area:** Application Shell / Portfolio dropdown upload status (`options-prototype/src/components/FidelityUploadCompact.tsx`)
-- **Provenance:** Discovered 2026-09-24 during read-only investigation of the URA incident. The Activity slot displaying "—" with the upload arrow was one of three contradicting observations that motivated the investigation.
+- **Provenance:** Discovered 2026-09-24 during read-only investigation of the URA incident. The Activity slot displaying "—" with the upload arrow was one of three contradicting observations that motivated the investigation. Remediated 2026-09-24.
 
 ## Observed failure
 
@@ -74,13 +74,15 @@ Direction (not an implementation prescription):
 
 ## Remediation history
 
-_(empty — Open)_
+**2026-09-24 — Resolved.** `options-prototype/src/components/FidelityUploadCompact.tsx` mount effect now reconstructs the Activity slot from the active account's persisted evidence via the store accessor `getActivityFilename()` (and the Positions slot via the new `getPositionsFilename()`), alongside the existing Option Summary / Balances reconstruction from snapshot provenance. Activity and Positions have no snapshot-provenance filename of their own, so they are read from account-local persisted evidence through the store's account-aware accessors (`options-prototype/src/portfolio/portfolio-store.ts`) rather than a component-local shadow store. On remount, a durably-persisted Activity/Positions file now shows the loaded checkmark + filename instead of reverting to the empty "— ⬆" state.
 
 ## Verification
 
-_(empty — Open)_
+- `options-prototype/tests/components/FidelityUploadCompact.test.tsx` — persisted Activity survives remount (Activity row shows loaded checkmark + filename, not empty); no persisted Activity → Activity row remains empty/upload state; the existing account-aware live-path test remains green with the added Positions slot (four upload rows).
+- Account-switch isolation is provided by the store accessors, which read the active account's own per-account slot (`readAccountCsv(activeId, "activity"|"positions")`); switching accounts reflects the selected account's own evidence and never leaks another account's state.
+- No new evidence store or component-local shadow authority was introduced.
 
 ## Related
 
-- **BUG-026** (Open) — the ownership-derivation defect that caused the URA warning in the same incident. Independent of this display defect; both were surfaced together.
+- **BUG-026** (Resolved) — the ownership-derivation defect that caused the URA warning in the same incident. Independent of this display defect; both were surfaced and remediated together. The Positions upload slot added for BUG-026/ADR-020 is reconstructed by the same mechanism as the Activity slot fixed here.
 - Not a `PL-*` item (defect, not a capability).

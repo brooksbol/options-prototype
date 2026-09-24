@@ -35,6 +35,12 @@ export interface ImportOperation {
   optionSummary?: StoredCsvBlob | null;
   balances?: StoredCsvBlob | null;
   activity?: StoredCsvBlob | null;
+  /**
+   * Fidelity Positions export. Authoritative broker observation of aggregate share
+   * ownership per symbol (ADR-020). Like Activity, it carries no account identity of its
+   * own and inherits the operation's resolved/targeted account.
+   */
+  positions?: StoredCsvBlob | null;
 }
 
 export type ImportResolution =
@@ -86,7 +92,7 @@ export function resolveImport(
   op: ImportOperation,
   activeBrokerageAccountId: string | null
 ): ImportResolution {
-  const hasAny = !!(op.optionSummary || op.balances || op.activity);
+  const hasAny = !!(op.optionSummary || op.balances || op.activity || op.positions);
   if (!hasAny) return { kind: "empty" };
 
   // Gather authoritative-ish identity signals from each file that can carry one.
@@ -132,6 +138,7 @@ export function resolveImport(
   if (op.optionSummary) writeAccountCsv(brokerageAccountId, "option-summary", op.optionSummary);
   if (op.balances) writeAccountCsv(brokerageAccountId, "balances", op.balances);
   if (op.activity) writeAccountCsv(brokerageAccountId, "activity", op.activity);
+  if (op.positions) writeAccountCsv(brokerageAccountId, "positions", op.positions);
 
   return {
     kind: "refreshed",
@@ -177,7 +184,7 @@ export function importIntoAccount(
   op: ImportOperation,
   targetBrokerageAccountId: string
 ): TargetedImportResult {
-  const hasAny = !!(op.optionSummary || op.balances || op.activity);
+  const hasAny = !!(op.optionSummary || op.balances || op.activity || op.positions);
   if (!hasAny) return { kind: "empty" };
 
   const target = getAccountById(targetBrokerageAccountId);
@@ -189,6 +196,7 @@ export function importIntoAccount(
   if (op.optionSummary) writeAccountCsv(targetBrokerageAccountId, "option-summary", op.optionSummary);
   if (op.balances) writeAccountCsv(targetBrokerageAccountId, "balances", op.balances);
   if (op.activity) writeAccountCsv(targetBrokerageAccountId, "activity", op.activity);
+  if (op.positions) writeAccountCsv(targetBrokerageAccountId, "positions", op.positions);
 
   return { kind: "refreshed", brokerageAccountId: targetBrokerageAccountId };
 }

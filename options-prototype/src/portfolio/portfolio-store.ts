@@ -15,6 +15,8 @@ import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import type { OptionSummaryRow } from "../csv/fidelity/optionSummaryParser";
 import type { ParsedBalances } from "../csv/fidelity/balancesParser";
 import type { ActivityRow } from "../csv/fidelity/activityParser";
+import type { HoldingRow } from "../csv/fidelity/positionsParser";
+import { deriveOwnershipFromPositions } from "./positions-ownership";
 import { preprocessCsv } from "../csv/preprocess";
 import { detectDelimiter, parseCsv } from "../csv/reader";
 import { classifyDocument } from "../csv/registry";
@@ -53,6 +55,7 @@ import { migrateLegacyOutlookToAccount } from "../forecast/outlook-observations"
 // --- localStorage keys (shared with FidelityUpload for backward compat) ---
 
 const LS_KEY_OS = "wheelwright:fidelity-csv:option-summary";
+const LS_KEY_POSITIONS = "wheelwright:fidelity-csv:positions";
 const LS_KEY_BAL = "wheelwright:fidelity-csv:balances";
 const LS_KEY_ACTIVITY = "wheelwright:fidelity-csv:activity";
 
@@ -179,6 +182,34 @@ export function getActiveAccountActivityText(): string | null {
  */
 export function getActivityFilename(): string | null {
   return getActiveActivityBlob()?.filename ?? null;
+}
+
+/**
+ * The ACTIVE account's persisted Positions CSV blob (ADR-020), or the legacy global blob
+ * for the demo/unattributed context. Read-only. Used to reconstruct upload-slot status
+ * (BUG-027-class asymmetry) so a durably-persisted Positions file is not shown as absent.
+ */
+function getActivePositionsBlob(): { text: string; filename: string } | null {
+  const activeId = getActiveBrokerageAccountId();
+  if (activeId) {
+    return readAccountCsv(activeId, "positions");
+  }
+  try {
+    const stored = localStorage.getItem(LS_KEY_POSITIONS);
+    if (!stored) return null;
+    const parsed = JSON.parse(stored);
+    if (typeof parsed?.text === "string" && typeof parsed?.filename === "string") {
+      return { text: parsed.text, filename: parsed.filename };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/** The ACTIVE account's Positions CSV filename, or null. Read-only (slot-status reconstruction). */
+export function getPositionsFilename(): string | null {
+  return getActivePositionsBlob()?.filename ?? null;
 }
 
 // --- Mutations ---
@@ -601,6 +632,24 @@ function hydrate(): void {
     }
 
     if (osRows && balances && osFilename && balFilename) {
+      // Positions is authoritative for aggregate share ownership WHEN AVAILABLE (ADR-020).
+      // Legacy singleton parity with the account-keyed path (account-snapshot.ts).
+      let posOwnership: Map<string, number> | null = null;
+      let posFilename: string | null = null;
+      let posTimestamp: string | null = null;
+      const posStored = localStorage.getItem(LS_KEY_POSITIONS);
+      if (posStored) {
+        try {
+          const { text: posText, filename } = JSON.parse(posStored);
+          const parsedPos = parsePositionsText(posText);
+          if (parsedPos) {
+            posOwnership = parsedPos.ownership;
+            posFilename = filename;
+            posTimestamp = parsedPos.exportTimestamp;
+          }
+        } catch { /* ignore corrupt positions data */ }
+      }
+
       currentSnapshot = buildFidelitySnapshot({
         optionSummaryRows: osRows,
         optionSummaryFilename: osFilename,
@@ -608,6 +657,9 @@ function hydrate(): void {
         balances,
         balancesFilename: balFilename,
         balancesExportTimestamp: balTimestamp,
+        authoritativeOwnership: posOwnership,
+        positionsFilename: posFilename,
+        positionsExportTimestamp: posTimestamp,
       });
       currentImportStatus.readinessStatus = currentSnapshot.readiness.status;
       currentImportStatus.validationWarnings = currentSnapshot.readiness.warnings;
@@ -666,6 +718,30 @@ function parseBalancesText(text: string): { balances: ParsedBalances; exportTime
     const balances = parsed.payload.rows[0] as unknown as ParsedBalances;
     const exportTimestamp = parsed.metadata.downloadTimestamp ?? null;
     return { balances, exportTimestamp };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Parse a Positions CSV into authoritative aggregate ownership (ADR-020). Legacy singleton
+ * parity with account-snapshot.ts. Returns null when missing/unparseable/empty.
+ */
+function parsePositionsText(
+  text: string
+): { ownership: Map<string, number>; exportTimestamp: string | null } | null {
+  try {
+    const { csvContent, preambleLines } = preprocessCsv(text);
+    const delimiter = detectDelimiter(csvContent);
+    const doc = parseCsv(csvContent, delimiter);
+    const classification = classifyDocument(doc);
+    if (!classification.parser || classification.parser.id !== "fidelity_positions") return null;
+    const parsed = classification.parser.parse(doc, { filename: "", preambleLines });
+    if (parsed.payload.type !== "holdings") return null;
+    const ownership = deriveOwnershipFromPositions(parsed.payload.rows as HoldingRow[]);
+    if (ownership.size === 0) return null;
+    const exportTimestamp = parsed.metadata.downloadTimestamp ?? null;
+    return { ownership, exportTimestamp };
   } catch {
     return null;
   }

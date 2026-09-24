@@ -765,3 +765,48 @@ The Principal selected promotion of this reconciled candidate into architecture 
 **Boundary principle (concise):**
 
 > Preserve the exact governed Decision that was made — context, consumed inputs, evaluator/policy, Recommendation, and later human disposition — in durable account-local history, while keeping execution truth and deterministic computation ownership distinct.
+
+
+## ADR-020: Aggregate Share-Ownership Authority (Positions over Option Summary Strategy Presentation)
+
+**Date:** September 24, 2026
+**Status:** Accepted
+
+**Context:** The Operator Console's Unencumbered Shares region raised a false over-encumbrance warning for a genuinely-covered URA position ("Open short calls require 200 shares of URA, but only 100 shares were observed as owned"). Specimen-backed investigation (real Fidelity Option Summary + Activity + Positions for account Z39411514, 2026-09-24) established the cause as BUG-026: `deriveInventory` collapsed two genuinely-additive 100-share URA lots to 100 via a MAX-not-SUM rule, while both short calls were counted (200 required).
+
+The decisive finding is that the additive-lot case and the repeated-strategy-presentation case are **indistinguishable from the Option Summary alone**. Fidelity pairs each covered lot under its own Covered Call strategy and shows the *position-level blended* basis on each share row, so two additive lots appear byte-identical to the same 100 shares shown twice across strategy views. No Option-Summary-only rule (MAX, SUM, or "trust the call count") gets both cases right, and covered-call obligation geometry must never be used to infer ownership (that would assert shares exist because options imply they ought to). The prior conservative behavior (observed MAX, undercount over invention) was a ratified epistemic position, not an accident. The Activity projection checkpoint cannot resolve this either without resurrecting the historical EWY same-day double-count (see BUG-023 note; commit `ad48816`).
+
+The Fidelity Positions export already has a registered parser and reports ONE aggregate equity line per symbol — an independent broker observation of actual aggregate ownership. The Principal selected introducing Positions as the authoritative ownership source over the alternative of inferring ownership from call geometry.
+
+**Decision:**
+
+1. **Aggregate share ownership authority.** When a Fidelity Positions export is available for an account, it is the authoritative source of aggregate owned shares per symbol. Positions equity rows for the same symbol are **additive** (summed) — the exact opposite of the Option Summary's per-strategy repetition.
+
+2. **Distinct evidence roles.**
+   - **Positions** answers: how many shares of this symbol does the brokerage report as owned?
+   - **Option Summary** answers: how Fidelity presents/associates those shares with strategies and option obligations. Its per-strategy share rows are presentation and carry a known additive-vs-repeated ambiguity; they are not an independent ownership count.
+   - **Activity** answers: what qualifying economic events occurred relative to the applicable snapshot/checkpoint. It remains governed by the existing temporal projection rules (checkpoint provenance-precision; ADR-adjacent, BUG-023).
+
+3. **No inference from option geometry.** Owned shares are NEVER inferred from short-call obligation geometry. The Unencumbered Shares warning continues to fire when authoritative ownership genuinely fails to cover open calls — the warning was never the defect; incorrect ownership evidence feeding it was.
+
+4. **Degraded behavior when Positions is absent.** Positions is authoritative *when available*; it is not silently mandatory. When Positions is absent and the Option Summary presentation is ambiguous, inventory falls back to the conservative observed Option Summary value (MAX across repeated strategy rows). This may undercount genuinely-additive lots — an honest, marked limitation preferred to manufactured certainty. Each inventory position records `ownershipAuthority` (`"positions"` | `"option-summary"`) and the snapshot provenance records `ownershipFromPositions`.
+
+5. **Reconciliation precedence (deterministic).** For each symbol: if Positions reports ownership, that value is `sharesOwned`; otherwise the conservative observed Option Summary value is used. Encumbrance is derived from short calls exactly as before and clamped to owned. A symbol that Positions reports as owned and that carries short calls but has no Option Summary share row is seeded from Positions so its covered geometry reconciles.
+
+6. **Minimality constraint.** This decision introduces no new subsystem. It wires the existing registered Positions parser into the existing account-local evidence store (`positions` slot), the account/legacy snapshot builders, and the header upload surface. It does not move recommendation computation, does not alter Activity checkpoint semantics, does not change deployable-cash derivation, and does not make Positions a required upload for existing workflows.
+
+**Consequences:**
+- BUG-026 resolves for the correct reason: 200 URA shares are true because the Positions export reports 200, not because two calls happen to require 200.
+- The additive-lot / repeated-strategy ambiguity is resolved by an independent evidence source rather than a heuristic; both cases are covered by tests against the live derivation path.
+- Absent Positions, existing behavior is preserved exactly (all prior snapshot tests unchanged and green), so no existing operator workflow is forced to supply Positions.
+- Downstream consumers (Unencumbered Shares, capacity, call recommendations) receive corrected ownership without changes of their own; they must not compensate for ownership authority in their own layers (authority before consumers).
+
+**Relationship to other decisions:**
+- **ADR-013 / Position Monitoring epistemic-integrity boundary** — reinforced: undercount/observed is preferred to invented ownership; authority now has a stronger evidence source when available.
+- **ADR-015 / Evidence Provenance Authority** — extended: ownership carries explicit `ownershipAuthority` provenance distinguishing authoritative (Positions) from degraded (Option Summary observation).
+- **ADR-016 / Evidence-to-Domain Association** — preserved: ownership is an authoritative claim from a specific evidence source, not inferred from coincident option geometry.
+- **BUG-023** — the ownership-side same-day checkpoint note remains the seam where Activity temporal reconciliation is governed; ADR-020 deliberately does not alter it.
+
+**Boundary principle (concise):**
+
+> Owned shares are what the broker reports as owned (Positions). Option Summary shows how those shares are dressed up as strategies; option obligations never conjure the shares that would cover them.

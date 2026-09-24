@@ -37,6 +37,14 @@ export interface InventoryPosition {
   maxAdditionalContracts: number;
   /** Position economics from brokerage (null when unavailable, e.g. demo mode) */
   economics: PositionEconomics | null;
+  /**
+   * Source of the authoritative `sharesOwned` figure (ADR-020):
+   *   - "positions"     — aggregate ownership from the Fidelity Positions export (authoritative).
+   *   - "option-summary" — conservative observed value from Option Summary strategy rows
+   *                        (degraded/fallback; may undercount genuinely-additive lots — BUG-026).
+   * Absent for demo/non-Fidelity inventory. Ownership is NEVER inferred from short-call geometry.
+   */
+  ownershipAuthority?: "positions" | "option-summary";
 }
 
 // --- Existing Option Positions ---
@@ -139,6 +147,15 @@ export interface PortfolioSnapshotProvenance {
   balancesFilename?: string;
   balancesExportTimestamp?: string;
   balancesParsedAt?: string;
+  /** Positions export provenance (ADR-020). Present only when Positions evidence was supplied. */
+  positionsFilename?: string;
+  positionsExportTimestamp?: string;
+  positionsParsedAt?: string;
+  /**
+   * Whether aggregate share ownership was resolved from the authoritative Positions export
+   * (true) or fell back to conservative Option Summary observation (false). ADR-020.
+   */
+  ownershipFromPositions?: boolean;
   /** External broker account reference when available (evidence, not identity). */
   accountId?: string;
   /** Stable Wheelwright BrokerageAccount identity that owns this snapshot, when resolved. */

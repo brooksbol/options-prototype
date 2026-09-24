@@ -165,3 +165,61 @@ describe("numeric parsing", () => {
     expect(first.cashBalance).toBeCloseTo(23390.08);
   });
 });
+
+// --- AUTO-JOURNAL resiliency guard (2026-09-24 vocabulary) ---
+//
+// Fidelity introduced "JOURNALED VS <acct> AUTO-JOURNAL ..." rows (internal cash/margin
+// journaling of options/shares) in the Sep 24 specimen. These are zero-economic internal
+// transfers. The fail-closed contract requires them to classify as first-class "other"
+// (not a familiar verb) and NOT mutate projected portfolio state until explicitly
+// classified by future authority. This guard locks that behavior so a future edit cannot
+// silently give AUTO-JOURNAL economic authority.
+
+import { projectActivityOverlay, parseCheckpoint } from "../../src/portfolio/activity-projection";
+import type { PortfolioSnapshot } from "../../src/write-desk/types";
+
+const AUTO_JOURNAL_CSV = `Run Date,Action,Symbol,Description,Type,Price ($),Quantity,Commission ($),Fees ($),Accrued Interest ($),Amount ($),Cash Balance ($),Settlement Date
+09/24/2026,JOURNALED VS Z39-411514-2 AUTO-JOURNAL CALL (GDXJ) VANECK ETF TRUST SEP 25 26 $124 (100 SHS) (Cash), -GDXJ260925C124,CALL (GDXJ) VANECK ETF TRUST SEP 25 26 $124 (100 SHS),Cash,,1,,,,0.00,Processing,
+09/24/2026,JOURNALED VS Z39-411514-1 AUTO-JOURNAL VANECK ETF TRUST JUNIOR GOLD MINE (GDXJ) (Margin),GDXJ,VANECK ETF TRUST JUNIOR GOLD MINE,Margin,,100,,,,0.00,Processing,
+`;
+
+describe("AUTO-JOURNAL resiliency (fail-closed, non-mutating)", () => {
+  function parseAutoJournalRows() {
+    const doc = parseCsv(AUTO_JOURNAL_CSV);
+    const result = fidelityActivityParser.parse(doc);
+    return result.payload.type === "activity" ? result.payload.rows : [];
+  }
+
+  it("classifies JOURNALED VS ... AUTO-JOURNAL as 'other' (not a share buy/sell/option event)", () => {
+    const rows = parseAutoJournalRows();
+    expect(rows.length).toBe(2);
+    for (const row of rows) {
+      expect(row.eventType).toBe("other");
+    }
+  });
+
+  it("does not mutate projected inventory (zero-economic internal transfer)", () => {
+    const base: PortfolioSnapshot = {
+      id: "t", source: { type: "fidelity", label: "F", filenames: [] },
+      brokerageAccountId: "a", accountId: null, snapshotDate: "2026-09-24",
+      inventory: [{ symbol: "GDXJ", sharesOwned: 100, sharesEncumbered: 0, sharesFree: 100, maxAdditionalContracts: 1, economics: null }],
+      existingCalls: [], existingPuts: [], deployableCash: 1000, aggregateShortOptionMTM: null,
+      balanceContext: null,
+      provenance: { sourceType: "fidelity", sourceLabel: "F", createdAt: new Date().toISOString() },
+      readiness: { status: "READY", optionSummaryLoaded: true, balancesLoaded: true, inventoryValid: true, cashStateValid: true, timestampsReconciled: true, timeSeparationMinutes: 0, warnings: [], blockReasons: [] },
+    };
+    const rows = parseAutoJournalRows();
+    const checkpoint = parseCheckpoint(null); // project everything — isolate AUTO-JOURNAL behavior
+    const { snapshot: projected, projectedEventCount } = projectActivityOverlay(base, rows, checkpoint.timestamp, checkpoint.precision);
+
+    // AUTO-JOURNAL rows are "other" → default branch → no state mutation.
+    const gdxj = projected.inventory.find((p) => p.symbol === "GDXJ")!;
+    expect(gdxj.sharesOwned).toBe(100);
+    expect(gdxj.sharesEncumbered).toBe(0);
+    expect(gdxj.sharesFree).toBe(100);
+    expect(projected.deployableCash).toBe(1000);
+    expect(projected.existingCalls).toHaveLength(0);
+    // The events are counted as projected-but-inert (they passed the checkpoint) yet mutate nothing.
+    expect(projectedEventCount).toBe(2);
+  });
+});
