@@ -1331,3 +1331,144 @@ Future Kiro/Codex/ChatGPT prompts that ask actors to work on the Inner Game, gov
 - relevant practitioner-corpus material.
 
 Do not substitute a conversational paraphrase for that repository reacquisition.
+
+
+## 26. Principal independent Economic Construction survey — 2026-09-24
+
+**Source status:** Principal-supplied independent survey. Preserve as high-value semantic/falsification input; it is **not yet independently verified domain reference, ratified taxonomy, or implementation authority**. Future actors working this problem must reacquire and explicitly consider this survey.
+
+The survey's governing ontology proposition is:
+
+> **Economic Constructions are structures that exist at a point in time, independent of any Operating Program running them. None of the conventional labels below is, by itself, a strategy in the decision-making sense. Each is a candidate value of Economic Construction, evaluated as a Decision Subject under a Portfolio Mandate / governed purpose, subject to Constraints and Preferences, with Outcome Stance and applicable Policy Rules supplied by the relevant governed context / Operating Program.**
+
+This proposition should be pressure-tested against `PL-SEM-01`; it must not be promoted merely because the examples fit well.
+
+### Single-option constructions
+
+| Economic Construction | Principal survey description |
+|---|---|
+| **Long call** | Right to buy at strike. Pays premium; needs magnitude, speed, and cooperative volatility. No inventory required. |
+| **Long put** | Right to sell at strike. Bearish speculation or hedge leg. |
+| **Short call (naked)** | Uncapped obligation. Undefined upside risk; margin and nerve required. |
+| **Short put (naked)** | Obligation to buy; downside exposure to zero minus premium. |
+| **Cash-secured put** | Short put plus earmarked cash. Identical payoff to naked short put; the "security" is a collateral fact about inventory/capital, not a different option payoff structure. |
+
+**Semantic pressure:** the CSP specimen is especially important. The conventional label bundles a short-put obligation with a collateral/encumbrance fact. The survey therefore challenges the simplistic claim that every market label maps cleanly to exactly one construction primitive. The semantic model may need to represent the option construction and authoritative cash encumbrance separately while still understanding/exposing the conventional label "cash-secured put."
+
+### Stock-plus-option constructions
+
+| Economic Construction | Principal survey description |
+|---|---|
+| **Covered call** | Shares + short call. Premium income; upside capped at strike; assignment is the mechanism, not an accident. |
+| **Protective put** | Shares + long put. Hard floor at strike; premium is insurance cost. |
+| **Collar** | Shares + long put + short call. Floor and ceiling; often structured zero-cost. Retention-oriented in the survey specimen. |
+| **Covered strangle** | Shares + short call + short put. Double premium; assignment exposure on both sides — call-away above, acquisition below. |
+
+**Semantic caution:** "retention-oriented" for collar is not intrinsic to the Economic Construction if the ontology discipline holds. It is a useful practitioner-purpose association/specimen, but actual retention preference belongs to governed purpose/Outcome Stance rather than being inferred from mechanics.
+
+### Verticals — same expiry, two strikes
+
+| Economic Construction | Principal survey description |
+|---|---|
+| **Bull call vertical** | Long lower call / short higher call. Debit, defined risk/reward; expresses upside without paying for unlimited upside. |
+| **Bull put vertical** | Short higher put / long lower put. Credit, defined risk; common defined-risk premium-selling construction. |
+| **Bear call vertical** | Call-side downside/bearish mirror construction. |
+| **Bear put vertical** | Put-side downside/bearish mirror construction. |
+
+### Volatility constructions — same expiry, two legs
+
+| Economic Construction | Principal survey description |
+|---|---|
+| **Long straddle** | Long ATM call + long ATM put. Pays for movement itself; direction-agnostic, magnitude-hungry. |
+| **Long strangle** | Long OTM call + long OTM put. Cheaper than straddle; needs a larger move to pay. |
+| **Short straddle** | Short ATM call + short ATM put. Undefined risk in both directions; concentrated short premium and high gamma exposure near expiry. |
+| **Short strangle** | Short OTM call + short OTM put. Wider breakevens than straddle; undefined wings; slower premium bleed. |
+
+### Winged / defined-risk multi-leg constructions
+
+| Economic Construction | Principal survey description |
+|---|---|
+| **Iron condor** | Short strangle plus long wings both sides. Defined risk; range-bound premium construction; wings bound tail loss. |
+| **Iron butterfly** | Short ATM straddle plus long wings. Condor with short strikes pinched together; concentrated premium, narrow sweet spot. |
+| **Long butterfly** | Long wings, short two bodies. Cheap convexity around a target price; value decays rapidly away from center as time passes. |
+| **Broken-wing butterfly** | Asymmetric wings; directional tilt with defined risk; may be entered for credit. |
+| **Jade lizard** | Short put plus short call spread, with call-spread width covered by put credit. No upside loss beyond the short-call-spread economics when credit is sufficient; downside remains short-put-like. |
+
+### Cross-expiry constructions
+
+| Economic Construction | Principal survey description |
+|---|---|
+| **Calendar spread** | Short near-dated option + long farther-dated option at same strike. Near leg decays faster; at front expiry a residual long leg remains — resolution/renewal semantics matter. |
+| **Diagonal spread** | Calendar with different strikes. Adds directional tilt to time-spread economics. |
+| **PMCC (construction)** | Deep-ITM long LEAPS call + short near-dated call. A diagonal whose long leg functions as a stock substitute; capital-efficient, with live theta/vega on the long leg. |
+
+**Semantic pressure:** PMCC is deliberately present in both surveys: **PMCC construction** is the point-in-time diagonal relationship; **PMCC program** is the durable recurring process that repeatedly sells/manages short calls against the long leg. This is a high-value controlled specimen for Economic Construction ≠ Operating Program.
+
+### Ratio / asymmetric constructions
+
+| Economic Construction | Principal survey description |
+|---|---|
+| **Ratio call spread (1×2)** | Long one call, short two higher calls. Stock-repair shape; undefined risk above upper strike. |
+| **Call backspread** | Short one call, long two higher calls. Small credit/debit; strong positive convexity if underlying rises violently. |
+| **Put ratio spread** | Downside mirror of call ratio spread. |
+| **Put backspread** | Downside mirror of call backspread. |
+
+### Synthetic / arbitrage constructions
+
+| Economic Construction | Principal survey description |
+|---|---|
+| **Synthetic long stock** | Long call + short put, same strike/expiry. Share-like economics subject to different capital, margin, dividend, and operational treatment. |
+| **Synthetic short stock** | Mirror image. |
+| **Conversion** | Long stock + long put + short call. Near-locked outcome associated with put-call parity. |
+| **Reversal** | Short stock + short put + long call. Conversion mirror. |
+| **Box spread** | Bull call spread + bear put spread. Financing/interest-rate construction when correctly priced and executable. |
+
+### Semantic consequences / falsification questions
+
+The survey creates several important pressures:
+
+1. **Construction ≠ purpose.** A long put can be bearish speculation or a hedge leg. The construction alone cannot establish Portfolio Mandate, Inventory Role, Outcome Stance, or thesis.
+2. **Construction ≠ Operating Program.** Covered calls can occur inside Wheel, systematic overwrite, collars/protection, disposition, or one-off decisions. PMCC exists both as construction and as recurring program.
+3. **Construction ≠ formation provenance.** Shares + short call can exist because a call was written against long-held shares, because shares arrived through put assignment in a Wheel, or because both legs were established as a buy-write.
+4. **Construction ≠ Outcome Stance.** Covered-call mechanics do not establish whether call-away is desired, acceptable, disfavored, or prohibited.
+5. **Construction ≠ Market Thesis.** A covered call does not prove "neutral-to-moderately bullish"; a CSP does not prove bullishness; a long put does not prove a bearish speculative thesis when it may be insurance.
+6. **Construction ≠ Policy.** DTE, delta, roll, take-profit, no-write, hedge-budget, and assignment rules belong elsewhere.
+7. **Conventional labels may bundle multiple semantic facts.** "Cash-secured put" combines short-put mechanics with authoritative collateral/encumbrance. "Covered call" combines shares and a short-call relationship whose coverage association must itself be authoritative. The ontology should understand conventional labels without allowing them to collapse canonical distinctions.
+8. **Residual-leg semantics are load-bearing.** Calendar, diagonal, PMCC, ratio, and multi-leg structures pressure the concept of Complete Position / Decision Subject because one leg may resolve while another remains.
+9. **Defined-risk vs undefined-risk is a consequence property, not purpose.** Iron condor and vertical geometry constrain loss, but do not establish whether the construction is acceptable under a given mandate/risk profile.
+10. **Synthetic equivalence does not imply operational identity.** Synthetic stock, conversions, reversals, and boxes can have economically related payoff structures while differing in capital, dividends, margin, assignment/exercise, taxes, liquidity, and execution semantics. Payoff equivalence must not erase operational evidence.
+11. **A construction can participate in multiple Decision Subjects.** A short call may be evaluated alone for execution, together with shares as a covered call for assignment consequences, or inside a broader Operating Program for lifecycle choice. Decision Subject remains conclusion-relative.
+12. **Point-in-time identity matters.** Economic Construction is the current structural relation; an Operating Program can survive the disappearance/replacement of one construction and create another over time.
+
+### Controlled cross-survey specimens
+
+The Operating Program and Economic Construction surveys together now provide a strong two-dimensional falsification bench:
+
+| Operating Program | Possible point-in-time Economic Construction(s) | Key semantic pressure |
+|---|---|---|
+| Wheel | CSP → shares → covered call → cash | one Program traverses multiple constructions; assignment/call-away advance lifecycle |
+| Systematic put-write | CSP / short-put + collateral relation | recurring same-family construction; assignment may end or transform the episode depending program definition |
+| Systematic overwrite | covered call; shares alone between writes | program persists when no short call is currently open |
+| PMCC program | PMCC/diagonal; residual long call between shorts | program persists through front-leg renewal; supporting inventory matters |
+| Defined-risk spread ladder | bull-put/bear-call verticals, iron condors, etc. | multiple simultaneous constructions can belong to one recurring program |
+| Covered strangle program | covered strangle; covered call + residual shares; shares + short put, depending resolution | partial leg resolution changes construction without necessarily ending program |
+| Diagonal income ladder | calendars/diagonals + residual long legs | renewal vs resolution |
+| Earnings premium harvest | defined-risk vertical/condor/other admitted event construction | trigger-based Program vs point-in-time construction |
+| 0DTE premium program | short/defined-risk intraday constructions | hard temporal boundary; flat-at-close policy |
+| Systematic collar | collar; strategic shares between renewals | Protection program can include short premium without becoming an Income mandate |
+| Tail hedge | long puts / put spreads if admitted by policy | long-premium cost center falsifies global "premium production = productive" assumption |
+
+This table is illustrative, not a ratified program-to-construction compatibility matrix.
+
+### Actor handoff requirement — expanded
+
+Future Kiro/Codex/ChatGPT prompts concerning the Inner Game, governed purpose/context, semantic model, Operating Programs, Economic Constructions, strategy expansion, prescriptive recommendations, lifecycle policy, or sell-side bias must explicitly direct actors to reacquire:
+
+- `docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md`;
+- the Principal Operating Program survey in §25;
+- this Principal Economic Construction survey in §26;
+- current `PL-DEC-BEH`;
+- current `PL-SEM-01` artifacts;
+- relevant practitioner-corpus material.
+
+The surveys are pressure-test inputs with preserved source status. Do not silently promote them to ratified ontology or policy.
