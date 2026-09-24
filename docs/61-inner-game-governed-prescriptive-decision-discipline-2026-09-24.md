@@ -1762,3 +1762,314 @@ Future Kiro/Codex/ChatGPT prompts concerning the Inner Game, governed purpose/co
 - relevant practitioner-corpus/reconciliation material.
 
 These surveys are Principal-supplied pressure-test inputs. Do not silently promote their classifications or verdicts into ratified ontology, architecture, policy, or implementation.
+
+
+## 28. Principal independent Policy Rule survey — 2026-09-24
+
+**Source status:** Principal-supplied independent survey. Preserve as high-value semantic/falsification input; it is **not yet independently verified, ratified policy taxonomy, or implementation authority**. Examples and numeric thresholds below are survey specimens, not Wheelwright defaults.
+
+The survey defines **Policy Rules** as:
+
+> **Governed rules that determine how decisions get made.**
+
+It organizes them by where they bite in a position/program lifecycle, plus portfolio-level and meta-governance rules.
+
+### Entry rules
+
+| Policy-rule family | Principal survey meaning | Illustrative specimens |
+|---|---|---|
+| **Entry qualification** | Preconditions before anything opens; the gate through which later entry reasoning passes | setup criteria; IV-vs-HV qualification; thesis stated in writing |
+| **DTE / tenor** | Which expirations are eligible under the applicable program | sellers 30–60 DTE; buyers ≥90 DTE; 0DTE only under a dedicated 0DTE program |
+| **Delta / strike selection** | Governed strike-selection bands/targets appropriate to construction and purpose | short puts at 16–30 delta; call-sale strikes tied to governed exit targets for disposition inventory |
+| **Liquidity / execution** | Minimum market-quality and order-handling conditions | minimum volume/OI; max bid-ask width such as 5–10% of mid; limit orders only; no chasing |
+| **No-trade** | Conditions that veto a new entry | earnings blackout; IV below floor; premium below minimum; post-loss cooling-off period; volatility-regime exclusion |
+| **Event** | Rules for binary/scheduled events that can affect both prospective and existing positions | close, reduce, or convert to defined risk before earnings, FOMC, CPI |
+
+**Survey distinction:** Event rules are not reducible to no-trade rules because an already-open position may require governed treatment when the event approaches.
+
+### Live-management rules
+
+| Policy-rule family | Principal survey meaning | Illustrative specimens |
+|---|---|---|
+| **Profit taking** | Mechanical or governed harvest triggers | close short premium at 50% max profit; scale winners in tranches |
+| **Invalidation / planned loss** | Thesis-break or governed loss exit established before pressure arrives; distinct from structural max loss | exit at 2× credit; exit at technical level that invalidates thesis |
+| **Roll criteria** | Conditions under which defense/repositioning is permitted and how | strike tested; delta breached; DTE floor reached; roll out/down/up for governed economics; specimen rule “never roll for a debit to save a premium trade” |
+| **Assignment management** | Whether assignment is accepted, desired, disfavored, or avoided and what action follows | Wheel accepts put assignment as program transition; other premium programs may close before assignment risk |
+| **Hedging** | Conditions requiring portfolio/position protection to be established or maintained | tail-hedge budget; collar triggers; vega caps |
+
+**Semantic caution:** some survey phrases combine Policy with Outcome Stance. For example, “accept assignment” can depend on a prior Outcome Stance; the Policy Rule determines what action/Alternative treatment follows under that stance. The survey is useful precisely because it pressures those boundaries.
+
+### Exit / expiration rules
+
+| Policy-rule family | Principal survey meaning | Illustrative specimens |
+|---|---|---|
+| **Expiration management** | Rules governing final-DTE exposure and remaining optionality | no short options inside final N days without a plan; compare exercise vs sale rather than surrendering extrinsic; dividend/early-assignment checks |
+| **Exercise / settlement** | Governed handling of exercise style, broker deadlines, and settlement form | American vs European exercise; broker cutoffs; cash settlement vs physical delivery |
+
+### Portfolio-level rules
+
+| Policy-rule family | Principal survey meaning | Illustrative specimens |
+|---|---|---|
+| **Sizing** | Limits on risk/capital committed per trade and across the portfolio | planned-loss cap such as ≤2–5% of account; portfolio heat; contract-count ceilings |
+| **Concentration / correlation** | Prevent apparently separate trades from creating one hidden exposure | max underlying/sector exposure; portfolio Greek bands such as net delta/net vega |
+| **Volatility regime** | Program behavior/eligibility conditioned on volatility environment | reduce size or widen wings at low IV rank; prefer defined risk during volatility spikes; gate program eligibility by regime |
+| **Leverage / margin** | Bound use of buying power and account capabilities | max margin utilization; no naked shorts in IRA; spreads-only capability; buying-power buffers |
+| **Drawdown circuit breakers** | Precommitted response to program/account loss state | halt new entries or halve size after X% drawdown; resume only after governed review |
+| **Mandate migration** | Rules governing when capital/inventory changes purpose classification | shares Income → Disposition at target; cash Reserve → Acquisition on trigger |
+| **Tax-aware** | Tax consequences included in governed choice | holding period; wash-sale awareness on rolls; assignment-vs-close treatment in taxable accounts |
+
+**Epistemic note:** the practitioner-corpus reconciliation observed taxes as materially absent from the source school. Their inclusion here is therefore Principal independent survey material, not corpus-derived evidence.
+
+### Meta rules
+
+| Policy-rule family | Principal survey meaning | Illustrative specimens |
+|---|---|---|
+| **Review / journaling** | Rules requiring contemporaneous decision evidence and periodic review | trade record with thesis, planned loss, outcome; weekly review; periodic program audit |
+| **Rule change** | Governance for changing Policy itself | evidence threshold; paper-trading period; no mid-drawdown rewrites |
+
+The Principal's useful analogy is:
+
+> **Rule-change rules are the constitution's amendment clause. Without them, every losing week can rewrite the system.**
+
+This directly supports the Inner Game distinction between legitimate governed change and ex-post rationalization.
+
+### Structural observation from the survey
+
+The Principal proposes:
+
+> **Most retail “strategies” ship with only entry and live-management rules and improvise the rest. Portfolio-level and meta rules are what separate a durable governed program from a collection of trades.**
+
+This is a high-value hypothesis, not yet an ontology invariant.
+
+It pressures the relationship among **Operating Program**, **Policy Rule**, and governance:
+
+- a program is not merely a repeated construction;
+- a program may require a durable rule set spanning entry, live management, expiration, portfolio interaction, and policy amendment;
+- program identity should not be inferred solely from a handful of entry parameters;
+- policy can operate at different scopes: Account, Capital Pool, Portfolio Mandate, Operating Program, Inventory Block, construction/Decision Subject, or event/lifecycle state.
+
+### Important semantic pressure: Policy vs Constraint vs Preference
+
+The survey contains specimens that can help falsify these boundaries.
+
+Potential **Constraint** examples:
+- account legally/operationally cannot write naked options;
+- capital/buying power is insufficient;
+- assignment is prohibited by a governing boundary;
+- margin utilization may not exceed a hard ceiling.
+
+Potential **Policy Rule** examples:
+- only enter short puts in a governed delta band;
+- close at a defined profit trigger;
+- reconsider/roll when a defined lifecycle condition occurs;
+- halt new entries after a governed drawdown threshold.
+
+Potential **Preference** examples:
+- prefer simpler construction when economics are materially equivalent;
+- prefer better execution among otherwise admissible choices;
+- prefer retention or disposition where neither is a hard boundary.
+
+But these categories can interact. A Policy Rule may operationalize a Constraint or Preference. The semantic model must preserve the underlying meaning rather than classify solely by surface grammar such as “never” or “prefer.”
+
+### Policy and the decision journey
+
+The survey suggests a policy application pipeline:
+
+```text
+governed purpose/context
++ applicable Operating Program
++ Decision Subject
++ Reconciled State / Evidence
+        ↓
+resolve applicable Policy Rules by scope + effective time
+        ↓
+generate / normalize Alternatives
+        ↓
+apply hard Constraints
+        ↓
+derive Counterfactual Consequences
+        ↓
+apply policy-specific qualification / lifecycle rules
+        ↓
+compare admissible Alternatives using Preferences / objective criteria
+        ↓
+Recommendation
+```
+
+This is a **research specimen**, not a ratified computation order. In particular, some Policy Rules may participate in Alternative generation itself, some may operationalize Constraints, and some may define consequence interpretation.
+
+### Policy inheritance and scope questions
+
+The survey makes policy scope unavoidable.
+
+Examples:
+
+- Account capability rule: no naked options in an IRA.
+- Portfolio Mandate rule: minimum liquidity reserve.
+- Operating Program rule: Wheel put-entry DTE/delta band.
+- Inventory-specific rule: do not overwrite strategic founder shares below a governed exit price.
+- Event rule: no undefined-risk exposure through earnings.
+- Account-wide drawdown circuit breaker: suspend new risk.
+- Meta rule: policy changes require review and cannot be made during an active drawdown.
+
+Research questions:
+
+1. How is an applicable Policy Rule associated with scope?
+2. How does a narrower rule override, refine, or conflict with a broader one?
+3. Which rules are hard vetoes versus comparison inputs?
+4. How are effective time, version, provenance, supersession, and revocation represented?
+5. What happens when two applicable rules conflict?
+6. Which rule families may be parameterized per Account/Program without becoming a generic rules engine?
+7. What does “by-the-book Wheel” mean as a durable, inspectable Policy set rather than a conversational phrase?
+
+### Rule-change governance and the Inner Game
+
+Rule-change rules are especially important to the thread's central pathology:
+
+> **Changing the rules because today's position is uncomfortable must not masquerade as following the rules.**
+
+A legitimate Policy change may occur, but the system should preserve:
+
+- prior Policy version;
+- new Policy version;
+- authority/provenance;
+- effective time;
+- reason/evidence for change where governed;
+- positions/decisions to which each version applied.
+
+A new rule must not retroactively rewrite whether an earlier Action followed the Policy applicable at the time.
+
+This is the policy analogue of the thread's distinction:
+
+> **The plan changed because the world/governance changed** vs **I abandoned the plan.**
+
+### Review/journaling as meta-policy
+
+The survey's claim that review/journaling “enforces all other rules” creates useful pressure.
+
+Wheelwright may be able to automate much of the required record:
+
+```text
+applicable mandate/program/policy version
++ Decision Subject
++ decision-time evidence
++ Alternatives
++ Recommendation
++ operator selection/departure
++ execution
++ lifecycle events
++ Reconciled Outcome
+```
+
+The human should not be forced to retype facts Wheelwright already knows.
+
+A review rule can then ask higher-value questions:
+
+- Was the applicable policy followed?
+- If not, was there an authoritative governance change or an operator departure?
+- Did the Recommendation itself fail under later evidence?
+- Was execution poor even though the decision was sound?
+- Did the outcome differ while the process remained valid?
+- Is a repeated loss pattern evidence against the Policy/Program rather than evidence that one trade was “bad”?
+
+### Policy-rule survey × prior surveys
+
+The four Principal surveys now expose a richer decision context:
+
+```text
+Portfolio Mandate
+    ↓ fundamental purpose / evaluation frame
+Operating Program
+    ↓ durable governed process
+Policy Rules
+    ↓ governed decision mechanics across lifecycle and portfolio
+Economic Construction
+    ↓ point-in-time economic structure
+
++ Inventory Role
++ Outcome Stance
++ Constraints
++ Preferences
++ optional Scenario / Market Thesis
++ Reconciled State / Evidence
+
+→ governed Alternatives
+→ Counterfactual Consequences
+→ Recommendation
+→ operator authority
+→ Execution
+→ Reconciled Outcome
+```
+
+This remains a **falsification topology, not ratified architecture**.
+
+### High-value controlled specimens
+
+1. **Same Program, different Policy version**
+   - Wheel v1: 30–45 DTE, one roll rule.
+   - Wheel v2: different DTE/management rule.
+   - Tests Policy versioning without changing Program identity.
+
+2. **Same construction, different Program policy**
+   - covered call inside systematic overwrite vs Wheel vs Disposition context.
+   - Tests whether mechanics improperly dictate management.
+
+3. **Same Account, account-level capability Constraint vs Program Policy**
+   - program permits a naked short construction;
+   - IRA/account capability forbids it.
+   - Tests hard Constraint precedence without pretending the program changed.
+
+4. **Same setup, no-trade Policy changes result**
+   - economically attractive premium;
+   - event blackout or liquidity rule vetoes entry.
+   - Tests WAIT/no-trade as governed result rather than absence of opportunity.
+
+5. **Same losing position, planned-loss vs structural max**
+   - structural max unchanged;
+   - Policy invalidation reached.
+   - Tests whether “defined risk” improperly overrides planned-loss discipline.
+
+6. **Same evidence, drawdown circuit breaker active**
+   - trade qualifies locally;
+   - account/program-level rule suspends entry.
+   - Tests portfolio policy vs local recommendation.
+
+7. **Policy change during discomfort**
+   - operator proposes relaxing roll/loss rule after position moves against them.
+   - Tests amendment governance and hindsight contamination.
+
+8. **Tax-aware taxable account vs IRA**
+   - same economic Alternative set;
+   - tax-aware policy changes comparative consequences in taxable account.
+   - Tests Account-specific policy without conflating account identity and mandate.
+
+### Intake / roadmap pressure
+
+This survey primarily strengthens:
+
+- `PL-DEC-BEH` — precommitment, rule-change governance, low-cognitive-load application under pressure;
+- `PL-SEM-01` — Policy Rule identity, scope, association, effective time, provenance, and distinction from Constraint/Preference;
+- `PL-DEPLOY` — policy-aware Alternative generation/admissibility/comparison;
+- `PL-STRAT-01` — a candidate Operating Program should arrive with lifecycle/portfolio/meta governance, not merely construction labels;
+- `PL-PORT-01` — account/capital/inventory state required to apply sizing, concentration, margin, and mandate policies;
+- `PL-EXEC-01` — expiration, exercise, settlement, and broker-capability rules;
+- `PL-POL-01` — remains a specific policy specimen, not the general Policy Rule home.
+
+Existing roadmap pressure includes `LVT-BET-RISK-PROFILES`, `LVT-BET-LIFECYCLE-POLICY`, `LVT-BET-WAIT`, `LVT-BET-LIFECYCLE-CHOICES`, `LVT-BET-ACCEPTABILITY`, `LVT-BET-LIFECYCLE-OUTCOME`, and `LVT-BET-OUTCOME-LEARNING`.
+
+No new PL or LVT identity is implied by this survey.
+
+### Actor handoff requirement — expanded
+
+Future Kiro/Codex/ChatGPT prompts concerning the Inner Game, governed purpose/context, Portfolio Mandates, Operating Programs, Economic Constructions, Policy Rules, strategy/program expansion, prescriptive recommendations, lifecycle policy, performance evaluation, or sell-side bias must explicitly direct actors to reacquire:
+
+- `docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md`;
+- §25 Principal Operating Program survey;
+- §26 Principal Economic Construction survey;
+- §27 Principal Portfolio Mandate survey;
+- §28 Principal Policy Rule survey;
+- current `PL-DEC-BEH`;
+- current `PL-SEM-01` artifacts;
+- relevant practitioner-corpus/reconciliation material.
+
+These surveys are Principal-supplied pressure-test inputs. Do not silently promote their examples, thresholds, classifications, or structural hypotheses into ratified ontology, architecture, policy, or implementation.
