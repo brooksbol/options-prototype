@@ -62,6 +62,8 @@ export interface CrossEntryRow {
   expiration: string;
   dte: number;
   strike: number;
+  /** Underlying spot price at observation */
+  spot: number;
   delta: number;
   /** Option bid */
   bid: number;
@@ -178,6 +180,7 @@ export function buildCrossEntryRows(
       expiration: c.expiration,
       dte: c.dte,
       strike: c.strike,
+      spot: c.underlyingPrice,
       delta: Math.abs(c.delta),
       bid: c.bid,
       mid: c.mid,
@@ -207,6 +210,7 @@ export function buildCrossEntryRows(
       expiration: c.expiration,
       dte: c.dte,
       strike: c.strike,
+      spot: c.underlyingPrice,
       delta: c.delta,
       bid: c.bid,
       mid: c.mid,

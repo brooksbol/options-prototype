@@ -42,6 +42,8 @@ export interface PutCandidate {
   cashRequired: number;
   cashRemaining: number;
   yieldAnnualized: number;
+  /** Underlying spot price from the chain evidence (0 when unavailable). */
+  underlyingPrice: number;
   assessment: ExecutionAssessment;
   posture: ActionPosture;
   /** Whether the operator has sufficient deployable cash for this contract. */

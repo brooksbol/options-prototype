@@ -277,7 +277,7 @@ export function CrossEntryStrip({
             [
               { key: "entryMechanism", label: "Entry" }, { key: "symbol", label: "Symbol" },
               { key: "productionV0", label: "Prod v0" }, { key: "premiumYieldAnnualized", label: "Yield%" },
-              { key: "dte", label: "DTE" }, { key: "delta", label: "Delta" },
+              { key: "dte", label: "DTE" }, { key: "spot", label: "Spot" }, { key: "strike", label: "Strike" }, { key: "delta", label: "Delta" },
               { key: "bid", label: "Bid" }, { key: "mid", label: "Mid" }, { key: "ask", label: "Ask" },
               { key: "capitalRequired", label: "Capital" }, { key: "cashRemaining", label: "Remaining" },
               { key: "executionScore", label: "Exec" }, { key: "posture", label: "Posture" },
@@ -320,6 +320,8 @@ export function CrossEntryStrip({
             <th className="wd-sortable" onClick={(e) => handleSort("productionV0", e)}>Prod v0{indicator("productionV0")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("premiumYieldAnnualized", e)}>Yield{indicator("premiumYieldAnnualized")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("spot", e)}>Spot{indicator("spot")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
             {CROSS_ENTRY_GREEK_IV_HEADERS}
             <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
@@ -359,6 +361,8 @@ export function CrossEntryStrip({
               <td className="wd-cross-entry-score">{row.productionV0.toFixed(1)}%</td>
               <td>{row.premiumYieldAnnualized.toFixed(1)}%</td>
               <td>{row.dte}</td>
+              <td>${row.spot.toFixed(2)}</td>
+              <td>${row.strike.toFixed(2)}</td>
               <td>{row.delta.toFixed(2)}</td>
               <CrossEntryGreekIvCells greeks={(row.originalPut ?? row.originalBuyWrite)?.exportGreeks} />
               <td>${row.bid.toFixed(2)}</td>
