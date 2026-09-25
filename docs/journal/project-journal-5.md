@@ -679,3 +679,18 @@ The URA incident now resolves for the correct reason — 200 shares are true bec
 ### Pre-existing unrelated defect discovered (NOT touched)
 
 `tests/roadmap/RoadmapView.test.tsx` (2 tests) fails on **pristine `e161198`**, before any change in this session, because `docs/architecture-roadmap.md` now contains **two `## AR1` headings** (line 45 "Authoritative State Must Mature…" and line 331 "AR1 — bounded partial resolution"), introduced by commit `14ac2e5` (ADR-019 architecture-promotion workstream). The roadmap projection emits two AR entries with id `AR1`; RoadmapView renders duplicate React keys and `getByText("AR1")` finds two. This is a canonical-source data-integrity defect in another actor's just-landed work, outside the BUG-026/BUG-027 authorization. Per in-flight-work discipline it was left untouched and is surfaced for the Principal rather than silently absorbed or "fixed." Candidate dispositions: give the second AR1 section a distinct id (e.g. an `AR1-resolution` sub-anchor) or make the projection parser reject/merge duplicate AR ids; either is a separate authorized change.
+
+
+---
+
+## 2026-09-24 — BUG-026/BUG-027 Principal-accepted; Roadmap Log bug-event legibility (Kiro)
+
+**Actor:** Kiro. **SYNC at closeout:** `4ff54ce` (accepted `main`). **Mode:** acceptance capture + a small authorized Product-legibility follow-up + end-of-session closeout.
+
+**Acceptance.** Principal browser validation (PTS + Sawdust) accepted both fixes: the URA over-encumbrance warning is gone from Unencumbered Shares once Positions is supplied (BUG-026), and the persistent up-arrow-on-remount is gone with the refresh icon correctly retained (BUG-027). No regressions; Deployment unaffected. Recorded on both BUG records via governed `## Principal acceptance — 2026-09-24` headings (commit `b486a41`), which is also what surfaces them as `remediation` events in the Roadmap Log.
+
+**Operator-cost signal.** Authoritative ownership now costs a fourth manual CSV (Positions) per refresh. Captured as parking-lot intake `PL-OPS-CSV-01` (workflow cost, not a defect; ADR-020 keeps Positions authoritative only when supplied). Candidate directions (Positions substituting for rather than adding to an upload; broker-API end-state) preserved there.
+
+**Log-tab legibility resolution (context-recovery note).** The Principal reported "no bug entries in the Log tab." Investigation established the events were in fact present, served fresh, and rendering (proven by inspecting the served projection module and a passing Log-lens test against the real projection). The real issue was **legibility**: bug-sourced Log events were styled identically to parking-lot events and read as generic kinds ("Reconciliation" / "Remediation / closure"), the only tell being the `BUG-NNN` id chip. Resolved with a small additive UI change (commit `4ff54ce`): `LogView` now renders a distinct red **BUG** source tag on any Log event with a `bugId`, in both the list row and detail pane, alongside (not replacing) the shared event-kind label. UI-only; no projection/data/schema change. A future cold-start actor should NOT re-investigate "are bug events in the Log?" — they are; the BUG tag makes that visible.
+
+**Open, unrelated (untouched all session):** `tests/roadmap/RoadmapView.test.tsx` Architecture-lens tests fail on a duplicate `## AR1` heading in `docs/architecture-roadmap.md` (introduced by commit `14ac2e5`, the ADR-019 workstream). Pre-existing on `e161198`; left untouched as out of scope. Fix candidates: give the second AR1 section a distinct id, or make the projection parser reject/merge duplicate AR ids.
