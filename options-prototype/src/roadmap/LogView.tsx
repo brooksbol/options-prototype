@@ -141,6 +141,9 @@ export function LogView() {
                   </div>
                   <div className="rm-log-body">
                     <div className="rm-log-head">
+                      {e.bugId && (
+                        <span className="rm-log-source-bug" title="Bug-corpus event (docs/bugs)">BUG</span>
+                      )}
                       <span className={`rm-log-kind ${kind.cls}`}>{kind.label}</span>
                       {e.establishesIntake && (
                         <span className="rm-log-intake-flag" title="Explicitly establishes original intake (independent of kind)">
@@ -218,6 +221,9 @@ function LogDetail({ entry }: { entry: LogEntry | null }) {
   return (
     <div className="rm-detail">
       <div className="rm-detail-head">
+        {entry.bugId && (
+          <span className="rm-log-source-bug" title="Bug-corpus event (docs/bugs)">BUG</span>
+        )}
         <span className={`rm-log-kind ${kind.cls}`}>{kind.label}</span>
         {entry.establishesIntake && (
           <span className="rm-log-intake-flag" title="Explicitly establishes original intake (independent of kind)">

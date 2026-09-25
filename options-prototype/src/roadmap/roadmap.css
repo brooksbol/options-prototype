@@ -888,6 +888,21 @@
 .rm-log-kind-remediation { color: var(--wd-accent-green); background: var(--wd-accent-green-bg); }
 .rm-log-kind-unclassified { color: var(--wd-text-tertiary); background: var(--wd-bg-raised); }
 
+/* Source tag — marks a Log event that originates in the bug corpus (docs/bugs),
+   distinguishing it from parking-lot-sourced events that share the same kind. */
+.rm-log-source-bug {
+  font-size: var(--wd-size-micro);
+  font-weight: var(--wd-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  color: var(--wd-accent-red);
+  background: var(--wd-accent-red-bg);
+  border: 1px solid var(--wd-accent-red-border);
+}
+
 .rm-log-no-id {
   font-family: var(--wd-font-mono);
   font-size: var(--wd-size-micro);

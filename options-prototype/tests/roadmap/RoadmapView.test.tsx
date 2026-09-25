@@ -210,6 +210,27 @@ describe("RoadmapView", () => {
     expect(screen.getAllByText(/^BUG-\d+$/).length).toBeGreaterThan(0);
   });
 
+  it("Log lens marks bug-corpus events with a BUG source tag (distinct from parking-lot events)", () => {
+    render(<RoadmapView />);
+    fireEvent.click(screen.getByRole("tab", { name: "Log" }));
+
+    // Every bug-sourced Log row carries a "BUG" source tag; a bug row is otherwise
+    // styled identically to a parking-lot row and reads as a generic kind (e.g.
+    // "Remediation / closure" / "Reconciliation") without it.
+    const bugTags = document.querySelectorAll(".rm-log-source-bug");
+    expect(bugTags.length).toBeGreaterThan(0);
+    for (const t of Array.from(bugTags)) {
+      expect(t.textContent).toBe("BUG");
+    }
+
+    // The number of BUG source tags in the list matches the number of BUG-NNN id
+    // chips in the list (every bug row is tagged; no PL row is falsely tagged).
+    const listBugTags = document.querySelectorAll(".rm-log-list .rm-log-source-bug").length;
+    const listBugIds = Array.from(document.querySelectorAll(".rm-log-list .rm-node-id"))
+      .filter((el) => /^BUG-\d+$/.test(el.textContent ?? "")).length;
+    expect(listBugTags).toBe(listBugIds);
+  });
+
   it("preserves canonical source order WITHIN a same-date group (day not reversed)", () => {
     render(<RoadmapView />);
     fireEvent.click(screen.getByRole("tab", { name: "Log" }));
