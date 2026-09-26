@@ -35,9 +35,8 @@ import { PositionDetailModal } from "./PositionDetailModal";
 import { ForceAcquisitionButton } from "../operator-console/ForceAcquisitionButton";
 import { UnencumberedInventory, buildUnencumberedCsvRows, UNENCUMBERED_CSV_HEADER } from "../operator-console/UnencumberedInventory";
 import { useGovernedRecommendations } from "../operator-console/use-governed-recommendations";
-import { GovernedRecommendationTag } from "../operator-console/GovernedRecommendationTag";
+import { GovernedRecommendationCell } from "../operator-console/GovernedRecommendationCell";
 import { GovernedRecommendationInspector } from "../operator-console/GovernedRecommendationInspector";
-import { GovernanceAuthoringModal } from "../operator-console/GovernanceAuthoringModal";
 import type { ResolvedGovernedRecommendation } from "../governed-decision/resolve";
 import "../operator-console/operator-console.css";
 
@@ -213,7 +212,7 @@ export function OperatorConsole() {
   // projected on in-scope subjects (covered-call obligations + unencumbered share blocks).
   // Fail-closed: without authorized governance + explicit association the result is UNRESOLVED.
   const [inspectedGoverned, setInspectedGoverned] = useState<ResolvedGovernedRecommendation | null>(null);
-  const [governingSubject, setGoverningSubject] = useState<{ subjectId: string; label: string } | null>(null);
+  // Governance authoring now lives INSIDE the drawer (no separate modal / no launch bridge).
   const [governanceEpoch, setGovernanceEpoch] = useState(0);
   const governedRecommendations = useGovernedRecommendations(positions, snapshot, chainReadGeneration, governanceEpoch);
 
@@ -386,30 +385,14 @@ export function OperatorConsole() {
         />
       )}
 
-      {/* Governed Recommendation inspector (governing basis / why UNRESOLVED). The
-          governance-authoring act is reached from here — keeping the row itself terse. */}
+      {/* The SINGLE governed Recommendation drawer: it owns both inspection (governing
+          basis / why UNRESOLVED) AND the inline governance establish/amend act. No separate
+          modal, no launch bridge. Governance writes bump the epoch to re-resolve. */}
       {inspectedGoverned && (
         <GovernedRecommendationInspector
           resolved={inspectedGoverned}
           onClose={() => setInspectedGoverned(null)}
-          onGovern={snapshot?.brokerageAccountId ? () => {
-            const s = inspectedGoverned.subject;
-            const label = s.subjectType === "covered-call"
-              ? `covered call ${s.symbol}`
-              : `unencumbered ${s.symbol} shares`;
-            setGoverningSubject({ subjectId: s.subjectId, label });
-            setInspectedGoverned(null);
-          } : undefined}
-        />
-      )}
-
-      {/* Explicit authority-bearing governance authoring. */}
-      {governingSubject && snapshot?.brokerageAccountId && (
-        <GovernanceAuthoringModal
-          brokerageAccountId={snapshot.brokerageAccountId}
-          subjectId={governingSubject.subjectId}
-          subjectLabel={governingSubject.label}
-          onClose={() => setGoverningSubject(null)}
+          brokerageAccountId={snapshot?.brokerageAccountId ?? null}
           onAuthored={() => setGovernanceEpoch((e) => e + 1)}
         />
       )}
@@ -875,8 +858,9 @@ function PositionTableHeader() {
   return null; // Header is rendered inside PositionTable <thead>
 }
 
-/** Regime B: Dense fixed-geometry rows using native <table> for proper column alignment */
-function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, positionGreeks, positionQuotes, holdCloseNotices, governedBySubjectId, onInspectGoverned, isDemoSource, spotHistory, intradayBars, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; positionQuotes: PositionQuoteMap; holdCloseNotices?: HoldCloseNoticeMap; governedBySubjectId?: ReadonlyMap<string, ResolvedGovernedRecommendation>; onInspectGoverned?: (r: ResolvedGovernedRecommendation) => void; isDemoSource: boolean; spotHistory: SpotHistoryMap; intradayBars: IntradayBarsMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
+/** Regime B: Dense fixed-geometry rows using native <table> for proper column alignment.
+ *  Exported for focused Ladder-projection tests (governed Recommendation column). */
+export function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, positionGreeks, positionQuotes, holdCloseNotices, governedBySubjectId, onInspectGoverned, isDemoSource, spotHistory, intradayBars, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; positionQuotes: PositionQuoteMap; holdCloseNotices?: HoldCloseNoticeMap; governedBySubjectId?: ReadonlyMap<string, ResolvedGovernedRecommendation>; onInspectGoverned?: (r: ResolvedGovernedRecommendation) => void; isDemoSource: boolean; spotHistory: SpotHistoryMap; intradayBars: IntradayBarsMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
 
   // Apply within-group sorting
   const sortedPositions = sortColumn
@@ -928,6 +912,7 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
           <th className="oc-th-right">Market vs Basis</th>
           {renderSortHeader("Opened", "opened")}
           {renderSortHeader("Quote Freshness", "dataAge", "oc-th-right")}
+          <th title="Governed by-the-book Wheel recommendation for this position (LET RESOLVE is natural-resolution, not HOLD; a covered-call phase result, never a contract selection)">Recommendation</th>
         </tr>
       </thead>
       <tbody>
@@ -1012,14 +997,6 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
               <td className="oc-td-badge">
                 <span className={`oc-badge oc-badge-${position.type}`}>{badge}</span>
                 <HoldCloseBell notice={holdCloseNotices?.get(position.id) ?? "none"} />
-                {(position.type === "call" || position.type === "buy-write") && governedBySubjectId?.get(position.id) && (
-                  <span onClick={(e) => e.stopPropagation()}>
-                    <GovernedRecommendationTag
-                      recommendation={governedBySubjectId.get(position.id)!.evaluation.recommendation}
-                      onClick={() => onInspectGoverned?.(governedBySubjectId.get(position.id)!)}
-                    />
-                  </span>
-                )}
               </td>
               <td className="oc-td-symbol">{position.underlying}</td>
               <td className="oc-td-right oc-td-bid">{formatQuotePrice(positionQuotes.get(position.id)?.bid ?? null)}</td>
@@ -1165,6 +1142,21 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
               <td className={`oc-td-right ${mktVsBasisCell.className}`} title={mktVsBasisCell.title}>{mktVsBasisCell.display}</td>
               <td className="oc-td-opened">{position.openedDate ? formatOpenedDate(position.openedDate) : "—"}</td>
               <td className={`oc-td-right ${dataAgeCell.className}`} title={dataAgeCell.title}>{dataAgeCell.display}</td>
+              {(() => {
+                const gr = (position.type === "call" || position.type === "buy-write")
+                  ? governedBySubjectId?.get(position.id)
+                  : undefined;
+                return gr ? (
+                  <td
+                    className="oc-td-governed"
+                    onClick={(e) => { e.stopPropagation(); onInspectGoverned?.(gr); }}
+                  >
+                    <GovernedRecommendationCell recommendation={gr.evaluation.recommendation} />
+                  </td>
+                ) : (
+                  <td className="oc-td-right">—</td>
+                );
+              })()}
             </tr>
           );
         })}
@@ -1264,12 +1256,13 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
     }
   }
 
-  // Column layout (must track PositionTableHeader exactly, 27 columns):
+  // Column layout (must track PositionTableHeader exactly, 28 columns):
   //  1 Type · 2 Symbol · 3 Bid · 4 Ask · 5 Strike · 6 Spot · 7 Today's G/L ·
   //  8 Moneyness · 9 Expiration · 10 DTE · 11 Delta · 12 Gamma · 13 Theta ·
   // 14 Vega · 15 Rho · 16 Greek Age · 17 Contracts · 18 Capital · 19 Capital % ·
   // 20 Share Basis · 21 Premium Booked · 22 Effective Exit · 23 If Called Away ·
-  // 24 If Assigned · 25 Market vs Basis · 26 Opened · 27 Quote Freshness
+  // 24 If Assigned · 25 Market vs Basis · 26 Opened · 27 Quote Freshness ·
+  // 28 Recommendation
   // The label spans cols 1–17; each summed value sits under its own header.
   return (
     <tr className="oc-trow-totals">
@@ -1297,6 +1290,8 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
       {/* 26 Opened */}
       <td />
       {/* 27 Quote Freshness */}
+      <td />
+      {/* 28 Recommendation */}
       <td />
     </tr>
   );

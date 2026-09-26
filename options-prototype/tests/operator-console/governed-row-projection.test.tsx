@@ -1,10 +1,11 @@
 /**
- * Row-level governed-recommendation projection (accepted UX correction).
+ * Row-level governed-recommendation projection (drawer-consolidation UX).
  *
  * Proves the governed Recommendation is projected directly onto the existing Unencumbered
- * Shares rows (SELL CALL | UNRESOLVED), reachable via a compact tag, and that NO standalone
- * "Governed Recommendations" region exists. Backend IO is not exercised here — the resolved
- * map is injected, matching how the Console owns and passes it.
+ * Shares rows (SELL CALL | UNRESOLVED) as PLAIN TEXT in a clickable cell (no pill/tag/badge,
+ * no hyperlink styling, no status dot), that clicking the cell opens the drawer, and that
+ * NO standalone "Governed Recommendations" region exists. Backend IO is not exercised — the
+ * resolved map is injected, matching how the Console owns and passes it.
  */
 
 import { describe, it, expect, vi } from "vitest";
@@ -67,7 +68,7 @@ describe("row-level governed projection into Unencumbered Shares", () => {
     expect(screen.getByText("UNRESOLVED")).toBeTruthy();
   });
 
-  it("clicking the tag invokes inspection with the correct subject", () => {
+  it("clicking the Recommendation cell invokes inspection with the correct subject", () => {
     const s = snap([inv("URA", 200)]);
     const gov = new Map([["shares-URA", resolved("URA", "SELL_CALL")]]);
     const onInspect = vi.fn();
@@ -92,18 +93,35 @@ describe("row-level governed projection into Unencumbered Shares", () => {
     expect(screen.queryByText("By-the-book")).toBeNull();
   });
 
-  it("renders the Recommendation value as an ordinary link (not a pill/badge) that opens the inspector", () => {
+  it("renders the Recommendation value as PLAIN TEXT (grc) — no pill/tag/badge, no hyperlink, no dot", () => {
+    const s = snap([inv("GDXJ", 100)]);
+    const gov = new Map([["shares-GDXJ", resolved("GDXJ", "SELL_CALL")]]);
+    const { container } = render(
+      <UnencumberedInventory snapshot={s} observations={noObs} governedBySubjectId={gov} onInspectGoverned={() => {}} />,
+    );
+    const value = screen.getByText("SELL CALL");
+    const classes = value.className.split(/\s+/);
+    // Plain-text cell content class; no old pill/link classes.
+    expect(classes).toContain("grc");
+    expect(classes).not.toContain("grt");
+    expect(classes).not.toContain("grt-link");
+    // Plain text, not an anchor/button element.
+    expect(value.tagName.toLowerCase()).toBe("span");
+    // No status dot / bell in the recommendation projection.
+    expect(container.querySelector(".hcb")).toBeNull();
+    expect(value.textContent).not.toContain("🔴");
+  });
+
+  it("clicking the cell does not require hyperlink/button semantics (cell is the target)", () => {
     const s = snap([inv("GDXJ", 100)]);
     const gov = new Map([["shares-GDXJ", resolved("GDXJ", "SELL_CALL")]]);
     const onInspect = vi.fn();
-    render(<UnencumberedInventory snapshot={s} observations={noObs} governedBySubjectId={gov} onInspectGoverned={onInspect} />);
-    const link = screen.getByText("SELL CALL");
-    // Link treatment (grt-link*), not the old bordered-pill treatment (base class "grt").
-    const classes = link.className.split(/\s+/);
-    expect(classes).toContain("grt-link");
-    expect(classes).toContain("grt-link-sell-call");
-    expect(classes).not.toContain("grt"); // old pill base class is gone
-    fireEvent.click(link);
+    const { container } = render(
+      <UnencumberedInventory snapshot={s} observations={noObs} governedBySubjectId={gov} onInspectGoverned={onInspect} />,
+    );
+    const cell = container.querySelector("td.oc-inv-td-governed");
+    expect(cell).toBeTruthy();
+    fireEvent.click(cell!);
     expect(onInspect).toHaveBeenCalledOnce();
   });
 

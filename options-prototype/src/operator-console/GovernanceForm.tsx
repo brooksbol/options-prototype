@@ -1,6 +1,7 @@
 /**
- * GovernanceAuthoringModal — the explicit, authority-bearing governance act
- * (Candidate B, Correction 1).
+ * GovernanceForm — the explicit, authority-bearing governance act (Candidate B, Correction 1),
+ * extracted from the former standalone GovernanceAuthoringModal so the single governed
+ * Recommendation drawer can own both inspection AND governance establishment/update.
  *
  * Establishing governance is a deliberate, durable act — NOT a per-row display toggle.
  * The operator explicitly asserts: the governed scope, the ratified Wheel program +
@@ -12,28 +13,35 @@
  * It also authorizes the explicit Subject->scope association so the governed scope actually
  * reaches the subject. Without that association the evaluator remains UNRESOLVED.
  *
- * This is intentionally a bounded governance form, not a generalized policy editor.
+ * Versioning discipline (unchanged): each submission writes a governed Context Version via
+ * the backend, which is append-only. An update therefore creates a SUCCESSOR immutable
+ * Context Version; historical governance and Decision replay are never mutated.
+ *
+ * This is intentionally a bounded governance form, not a generalized policy editor. The
+ * full operator-facing setup/configuration experience remains PL-SETUP-01 (design only).
  */
 
 import { useState } from "react";
 import type { GateState, CallAwayStance } from "../governed-decision/types";
 import { writeGovernedContext, writeSubjectScopeAssociation } from "../governed-decision/client";
-import "./governance-authoring-modal.css";
+import "./governance-form.css";
 
 interface Props {
   brokerageAccountId: string;
   /** The subject the operator is governing (its stable id + human label). */
   subjectId: string;
   subjectLabel: string;
-  onClose: () => void;
+  /** True when governance already exists for the subject (drawer shows "amend" framing). */
+  amend?: boolean;
+  /** Called after a successful governed Context Version + association write. */
   onAuthored: () => void;
 }
 
-export function GovernanceAuthoringModal({
+export function GovernanceForm({
   brokerageAccountId,
   subjectId,
   subjectLabel,
-  onClose,
+  amend = false,
   onAuthored,
 }: Props) {
   const [governedScopeId, setGovernedScopeId] = useState("");
@@ -78,65 +86,57 @@ export function GovernanceAuthoringModal({
       return;
     }
     onAuthored();
-    onClose();
   };
 
   return (
-    <div className="gam-overlay" role="dialog" aria-modal="true" onClick={onClose}>
-      <div className="gam-panel" onClick={(e) => e.stopPropagation()}>
-        <header className="gam-header">
-          <h2>Establish governance</h2>
-          <button className="gam-close" onClick={onClose} aria-label="Close">×</button>
-        </header>
+    <section className="gf" aria-label="Establish or update governance">
+      <h3 className="gf-title">{amend ? "Amend governance" : "Establish governance"}</h3>
+      <p className="gf-notice">
+        You are durably {amend ? "updating" : "establishing"} governance for <strong>{subjectLabel}</strong>.
+        This records a new versioned governance act — it never rewrites history. Missing values remain
+        <code> UNKNOWN</code> and fail closed to <code>UNRESOLVED</code>.
+      </p>
 
-        <p className="gam-notice">
-          You are durably establishing governance for <strong>{subjectLabel}</strong>. This is a
-          recorded, versioned governance act — not a display setting. Missing values remain
-          <code> UNKNOWN</code> and fail closed to <code>UNRESOLVED</code>.
-        </p>
+      <label className="gf-field">
+        <span>Governed scope id</span>
+        <input
+          type="text"
+          value={governedScopeId}
+          placeholder="e.g. wheel-GDXJ-2026Q3"
+          onChange={(e) => setGovernedScopeId(e.target.value)}
+        />
+      </label>
 
-        <label className="gam-field">
-          <span>Governed scope id</span>
-          <input
-            type="text"
-            value={governedScopeId}
-            placeholder="e.g. wheel-GDXJ-2026Q3"
-            onChange={(e) => setGovernedScopeId(e.target.value)}
-          />
-        </label>
+      <label className="gf-field">
+        <span>Program</span>
+        <input type="text" value="assignment-centric-wheel" disabled />
+      </label>
 
-        <label className="gam-field">
-          <span>Program</span>
-          <input type="text" value="assignment-centric-wheel" disabled />
-        </label>
+      <label className="gf-field">
+        <span>Configuration version</span>
+        <input type="text" value={configVersion} onChange={(e) => setConfigVersion(e.target.value)} />
+      </label>
 
-        <label className="gam-field">
-          <span>Configuration version</span>
-          <input type="text" value={configVersion} onChange={(e) => setConfigVersion(e.target.value)} />
-        </label>
+      <label className="gf-field">
+        <span>Call-away stance</span>
+        <select value={callAwayStance} onChange={(e) => setCallAwayStance(e.target.value as CallAwayStance)}>
+          <option value="unknown">unknown (fails closed)</option>
+          <option value="accepted">accepted</option>
+        </select>
+      </label>
 
-        <label className="gam-field">
-          <span>Call-away stance</span>
-          <select value={callAwayStance} onChange={(e) => setCallAwayStance(e.target.value as CallAwayStance)}>
-            <option value="unknown">unknown (fails closed)</option>
-            <option value="accepted">accepted</option>
-          </select>
-        </label>
+      <GateSelect label="Eligibility gate" value={eligibilityGate} onChange={setEligibilityGate} />
+      <GateSelect label="Intervention gate" value={interventionGate} onChange={setInterventionGate} />
+      <GateSelect label="No-write gate" value={noWriteGate} onChange={setNoWriteGate} />
 
-        <GateSelect label="Eligibility gate" value={eligibilityGate} onChange={setEligibilityGate} />
-        <GateSelect label="Intervention gate" value={interventionGate} onChange={setInterventionGate} />
-        <GateSelect label="No-write gate" value={noWriteGate} onChange={setNoWriteGate} />
+      {error && <p className="gf-error">{error}</p>}
 
-        {error && <p className="gam-error">{error}</p>}
-
-        <div className="gam-actions">
-          <button className="gam-cancel" onClick={onClose} disabled={busy}>Cancel</button>
-          <button className="gam-submit" onClick={submit} disabled={busy || governedScopeId.trim() === ""}>
-            {busy ? "Recording…" : "Record governance"}
-          </button>
-        </div>
+      <div className="gf-actions">
+        <button className="gf-submit" onClick={submit} disabled={busy || governedScopeId.trim() === ""}>
+          {busy ? "Recording…" : amend ? "Record new version" : "Record governance"}
+        </button>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -150,7 +150,7 @@ function GateSelect({
   onChange: (g: GateState) => void;
 }) {
   return (
-    <label className="gam-field">
+    <label className="gf-field">
       <span>{label}</span>
       <select value={value} onChange={(e) => onChange(e.target.value as GateState)}>
         <option value="UNKNOWN">UNKNOWN (fails closed)</option>

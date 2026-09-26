@@ -1,0 +1,27 @@
+/* Governed Recommendation — plain-text table data (Doc 65).
+ *
+ * Principal UX: ordinary, dense table text. No pill, tag, badge, hyperlink, underline, or
+ * status dot. Colour alone distinguishes affirmative (LET RESOLVE / SELL CALL) from
+ * fail-closed (UNRESOLVED). The clickable cell (td.oc-td-governed / oc-inv-td-governed)
+ * carries the hover/cursor affordance. */
+
+.grc {
+  font-size: inherit;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.grc[data-recommendation="LET_RESOLVE"] { color: var(--grc-let-resolve-fg, #1f6f43); }
+.grc[data-recommendation="SELL_CALL"] { color: var(--grc-sell-call-fg, #1f5aa8); }
+.grc[data-recommendation="UNRESOLVED"] { color: var(--grc-unresolved-fg, #6b6b6b); }
+
+/* Interactive cell affordance: subtle hover/cursor only (no link/pill treatment). */
+.oc-td-governed,
+.oc-inv-td-governed {
+  cursor: pointer;
+}
+.oc-td-governed:hover,
+.oc-inv-td-governed:hover {
+  background: var(--row-hover-bg, rgba(31, 90, 168, 0.06));
+}

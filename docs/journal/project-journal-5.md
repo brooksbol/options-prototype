@@ -754,3 +754,36 @@ Key preserved discoveries: an Account may contain multiple governed scopes; Prog
 ### Scope audit
 
 No deferred capability entered: no full setup wizard or advanced configuration editor, no scope-discovery/inference machinery, no broker-connection architecture or credential storage, no Treasury/Program engine or governance DSL, no account-global Program selector, no new intervention/eligibility/no-write policy, no automated Wheel classification, no BUG-001 fix, and **no change to Doc 65 P0–P3 evaluator semantics** (governed-decision + evaluator tests remain green).
+
+---
+
+## 2026-09-26 — Governed Recommendation interaction consolidated into one drawer idiom (Kiro)
+
+**Actor:** Kiro (Implementation Engineer). **SYNC at start:** `0a5b9a7` (accepted `main`, verified against GitHub `ls-remote` + `fetch`; local = origin, 0/0; clean worktree). **Mode:** Principal-authorized bounded production UX correction — interaction consolidation only. No reopening of settled P0–P3 governance semantics.
+
+### Accepted operator model
+
+`Recommendation column → plain-text value → click cell → one governed-decision drawer → inspect + establish/update governance in that same drawer.` The redundant idioms are gone.
+
+### What changed
+
+- **Plain-text Recommendation, clickable cell.** New `GovernedRecommendationCell` renders `UNRESOLVED` / `LET RESOLVE` / `SELL CALL` as ordinary dense table text (class `grc`) — no pill, tag, badge, hyperlink, underline, or status dot. Colour alone distinguishes affirmative from fail-closed. The containing `<td>` (`oc-td-governed` / `oc-inv-td-governed`) is the interaction target with a subtle hover/cursor affordance and `stopPropagation`. The former `GovernedRecommendationTag` (pill→hyperlink) and its CSS were deleted.
+- **Ladder gets its own Recommendation column.** The governed Recommendation was moved OUT of the `TYPE`/badge cell into a dedicated trailing `Recommendation` column (col 28, appended after Quote Freshness to preserve the precisely-tracked `RungTotalsRow` 1–17 `colSpan` + 18–27 layout; one trailing totals `<td/>` added). `TYPE` now describes only the position type. Clicking the Recommendation cell opens the drawer and does not trigger the row's position/lifecycle modal.
+- **One drawer owns inspection AND authoring.** `GovernedRecommendationInspector` now embeds `GovernanceForm` (extracted from the deleted `GovernanceAuthoringModal`) inline. It is inspection-first: the recommendation, facts, and (for UNRESOLVED) "Why unresolved" render first; an `Establish governance…` / `Amend governance…` affordance reveals the form in the SAME panel. The separate modal, its CSS, the drawer→modal launch bridge, and the `governingSubject` Console state were removed. Exactly one dialog exists.
+- **Versioning preserved.** `GovernanceForm` still writes via `writeGovernedContext` + `writeSubjectScopeAssociation`; every submission creates a successor immutable Context Version (append-only). Historical governance and replay are untouched.
+
+### Red-dot interpretation (flagged for Principal)
+
+The rejected "red dot next to unresolved Recommendation text" was the `HoldCloseBell` (🔴) sharing the Ladder `TYPE`/badge cell with the old inline Recommendation tag. `HoldCloseBell` is the SEPARATE hold/close lifecycle attention system (`use-hold-close-notices`, short-obligation NOTICE→EVALUATE→DECIDE), not the Doc 65 governed Recommendation. Per §12 it keeps its own vocabulary, and §14/§18 scope the removal to governed-Recommendation presentation. I therefore did NOT delete `HoldCloseBell` (a different ratified feature); moving the Recommendation into its own column removes the red-dot adjacency to the Recommendation. If the Principal intended the hold/close bell itself gone, that is a separate authorization touching a different system.
+
+### Semantic preservation
+
+No governed-decision core file (`evaluators`, `governed-context`, `subject`, `decision-bundle`, `replay`, `resolve`, `client`, `types`) and no backend file was touched. Recommendation vocabulary unchanged (`UNRESOLVED` / `LET RESOLVE` / `SELL CALL`); no CLOSE/ROLL/WAIT/MONITOR added; fail-closed behavior intact. `PositionTable` was exported solely to enable the focused Ladder test.
+
+### PL-SETUP-01 boundary
+
+Untouched. The full guided/advanced setup experience remains discovery/design only; this pass made today's bounded slice coherent without implementing any wizard, scope inference, or new policy.
+
+### Verification
+
+`tsc -b` clean; `npm run lint` exit 0 (warnings only). Focused: governed-row-projection + governed-drawer + ladder-governed-column = 18 pass. Broader: governed-decision + operator-console + components = 24 files / 215 pass (includes replay tests). Full frontend `npx vitest run` → 2122 pass / 3 fail. The 3 fails are ALL pre-existing `tests/roadmap/RoadmapView.test.tsx` failures (2 duplicate-`## AR1` heading + 1 Log newest-date now `2026-09-26` from the previously-accepted `PL-SETUP-01` intake), confirmed identical on the clean `0a5b9a7` base with this session's work stashed. No introduced failures.

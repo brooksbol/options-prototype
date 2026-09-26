@@ -1,30 +1,53 @@
 /**
- * GovernedRecommendationInspector — inspection drawer for one governed Recommendation.
+ * GovernedRecommendationInspector — the SINGLE governed Recommendation drawer.
  *
- * Shows the governing basis so the operator can understand what was recommended and why,
- * or why it is UNRESOLVED. Presentation only; reads the already-resolved recommendation.
+ * It owns BOTH:
+ *   1. governed-decision inspection (why this recommendation / why UNRESOLVED); and
+ *   2. governance establishment/update — via the embedded GovernanceForm.
  *
- * The inspection SHELL is strategy-family-neutral (it explains subject / scope / context /
- * rule / evaluator / reasons for any governed Decision). The reason CONTENT is Wheel-specific,
- * which is expected.
+ * There is no separate governance modal and no second drawer. The drawer is
+ * inspection-first: it explains the recommendation and (for UNRESOLVED) why governance
+ * is missing, then offers the governance act inline in the SAME panel.
+ *
+ * Presentation only for the recommendation itself; reads the already-resolved value. The
+ * inspection SHELL is strategy-family-neutral; the reason CONTENT is Wheel-specific
+ * (expected). Governance writes go through GovernanceForm -> backend (append-only,
+ * successor Context Versions; historical governance/replay never mutated).
  */
 
+import { useState } from "react";
 import type { ResolvedGovernedRecommendation } from "../governed-decision/resolve";
 import { RECOMMENDATION_LABEL } from "../governed-decision/types";
+import { GovernanceForm } from "./GovernanceForm";
 import "./governed-recommendation-inspector.css";
 
 export function GovernedRecommendationInspector({
   resolved,
   onClose,
-  onGovern,
+  /** Present when an account exists, enabling the inline governance act. */
+  brokerageAccountId,
+  /** Bump the governance epoch so the Console re-resolves after a governed write. */
+  onAuthored,
 }: {
   resolved: ResolvedGovernedRecommendation;
   onClose: () => void;
-  /** Open the governance-authoring act for this subject (present when an account exists). */
-  onGovern?: () => void;
+  brokerageAccountId?: string | null;
+  onAuthored?: () => void;
 }) {
   const { subject, evaluation, bundle } = resolved;
   const ctx = bundle?.contextVersion ?? null;
+  const hasGovernance = ctx != null;
+  const canGovern = !!brokerageAccountId;
+
+  // Inspection-first: the governance act is revealed on demand rather than replacing the
+  // explanation immediately (Principal: "Do not immediately replace the explanation with
+  // a giant form.").
+  const [showForm, setShowForm] = useState(false);
+
+  const subjectLabel =
+    subject.subjectType === "covered-call"
+      ? `covered call ${subject.symbol}`
+      : `unencumbered ${subject.symbol} shares`;
 
   return (
     <div className="gri-overlay" role="dialog" aria-modal="true" onClick={onClose}>
@@ -95,12 +118,25 @@ export function GovernedRecommendationInspector({
           )}
         </section>
 
-        {onGovern && (
+        {canGovern && !showForm && (
           <div className="gri-actions">
-            <button className="gri-govern" onClick={onGovern}>
-              {evaluation.recommendation === "UNRESOLVED" ? "Establish governance…" : "Amend governance…"}
+            <button className="gri-govern" onClick={() => setShowForm(true)}>
+              {hasGovernance ? "Amend governance…" : "Establish governance…"}
             </button>
           </div>
+        )}
+
+        {canGovern && showForm && (
+          <GovernanceForm
+            brokerageAccountId={brokerageAccountId!}
+            subjectId={subject.subjectId}
+            subjectLabel={subjectLabel}
+            amend={hasGovernance}
+            onAuthored={() => {
+              setShowForm(false);
+              onAuthored?.();
+            }}
+          />
         )}
       </div>
     </div>

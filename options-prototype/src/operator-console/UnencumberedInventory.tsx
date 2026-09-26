@@ -42,7 +42,7 @@ import {
   todayGlDirection,
 } from "./today-gl";
 import type { ResolvedGovernedRecommendation } from "../governed-decision/resolve";
-import { GovernedRecommendationTag } from "./GovernedRecommendationTag";
+import { GovernedRecommendationCell } from "./GovernedRecommendationCell";
 
 interface UnencumberedInventoryProps {
   snapshot: PortfolioSnapshot;
@@ -299,16 +299,19 @@ export function UnencumberedInventory({ snapshot, observations, governedBySubjec
                     {fmtBasis(economics)}
                   </td>
                   <td className="oc-inv-td-right oc-inv-td-freshness">{fmtFreshness(obs?.observedAt)}</td>
-                  {showGoverned && (
-                    <td className="oc-inv-td-right oc-inv-td-governed">
-                      {(() => {
-                        const r = governedBySubjectId!.get(`shares-${key}`);
-                        return r
-                          ? <GovernedRecommendationTag recommendation={r.evaluation.recommendation} onClick={() => onInspectGoverned?.(r)} />
-                          : <span className="oc-inv-td-basis">—</span>;
-                      })()}
-                    </td>
-                  )}
+                  {showGoverned && (() => {
+                    const r = governedBySubjectId!.get(`shares-${key}`);
+                    return r ? (
+                      <td
+                        className="oc-inv-td-right oc-inv-td-governed"
+                        onClick={(e) => { e.stopPropagation(); onInspectGoverned?.(r); }}
+                      >
+                        <GovernedRecommendationCell recommendation={r.evaluation.recommendation} />
+                      </td>
+                    ) : (
+                      <td className="oc-inv-td-right"><span className="oc-inv-td-basis">—</span></td>
+                    );
+                  })()}
                 </tr>
               );
             })}
