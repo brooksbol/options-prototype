@@ -41,11 +41,20 @@ import {
   formatTodayGlPercent,
   todayGlDirection,
 } from "./today-gl";
+import type { ResolvedGovernedRecommendation } from "../governed-decision/resolve";
+import { GovernedRecommendationTag } from "./GovernedRecommendationTag";
 
 interface UnencumberedInventoryProps {
   snapshot: PortfolioSnapshot;
   /** Per-symbol live quote observations (uppercase-keyed). Empty for unobserved symbols. */
   observations: ReadonlyMap<string, QuoteObservation>;
+  /**
+   * Governed by-the-book recommendation per share-block subject id (`shares-<SYMBOL>`),
+   * projected directly onto the applicable row. Omitted when governance projection is not
+   * available (e.g. no account identity). Clicking the tag opens the inspector.
+   */
+  governedBySubjectId?: ReadonlyMap<string, ResolvedGovernedRecommendation>;
+  onInspectGoverned?: (r: ResolvedGovernedRecommendation) => void;
 }
 
 function inventoryEvidenceTrustworthy(snapshot: PortfolioSnapshot): boolean {
@@ -119,7 +128,8 @@ function fmtFreshness(observedAt: string | null | undefined): string {
   return formatDataAge(Math.max(0, Date.now() - ms));
 }
 
-export function UnencumberedInventory({ snapshot, observations }: UnencumberedInventoryProps) {
+export function UnencumberedInventory({ snapshot, observations, governedBySubjectId, onInspectGoverned }: UnencumberedInventoryProps) {
+  const showGoverned = governedBySubjectId != null;
   const { rows, geometryWarnings } = deriveUnencumberedInventory(snapshot);
   const trustworthy = inventoryEvidenceTrustworthy(snapshot);
   const readinessWarnings = snapshot.readiness?.warnings ?? [];
@@ -234,6 +244,9 @@ export function UnencumberedInventory({ snapshot, observations }: UnencumberedIn
               <th className="oc-inv-th-right">Free Lots</th>
               <th className="oc-inv-th-right" title="Symbol-level blended average cost — not specific to the free shares">Average cost basis</th>
               <th className="oc-inv-th-right">Freshness</th>
+              {showGoverned && (
+                <th className="oc-inv-th-right" title="By-the-book governed Wheel recommendation for this share block (SELL CALL is a phase result, not a contract selection)">By-the-book</th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -286,6 +299,16 @@ export function UnencumberedInventory({ snapshot, observations }: UnencumberedIn
                     {fmtBasis(economics)}
                   </td>
                   <td className="oc-inv-td-right oc-inv-td-freshness">{fmtFreshness(obs?.observedAt)}</td>
+                  {showGoverned && (
+                    <td className="oc-inv-td-right oc-inv-td-governed">
+                      {(() => {
+                        const r = governedBySubjectId!.get(`shares-${key}`);
+                        return r
+                          ? <GovernedRecommendationTag recommendation={r.evaluation.recommendation} onClick={() => onInspectGoverned?.(r)} />
+                          : <span className="oc-inv-td-basis">—</span>;
+                      })()}
+                    </td>
+                  )}
                 </tr>
               );
             })}
@@ -311,6 +334,7 @@ export function UnencumberedInventory({ snapshot, observations }: UnencumberedIn
               <td className="oc-inv-td-right">{totalFreeLots}</td>
               <td className="oc-inv-td-right" />
               <td className="oc-inv-td-right" />
+              {showGoverned && <td className="oc-inv-td-right" />}
             </tr>
           </tfoot>
         </table>

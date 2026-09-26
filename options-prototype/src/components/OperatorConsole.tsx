@@ -40,7 +40,6 @@ import { GovernedRecommendationInspector } from "../operator-console/GovernedRec
 import { GovernanceAuthoringModal } from "../operator-console/GovernanceAuthoringModal";
 import type { ResolvedGovernedRecommendation } from "../governed-decision/resolve";
 import "../operator-console/operator-console.css";
-import "../operator-console/governed-recommendations-region.css";
 
 // Greeks are considered stale when their source chain is older than this. Aligned
 // with the Decision chain-freshness window (~30 min during open sessions): beyond
@@ -276,14 +275,13 @@ export function OperatorConsole() {
           {/* Current portfolio state / available inventory — ABOVE and SEPARATE
               from the temporal DTE ladder (PL-ELIG V1). Shares are never inserted
               into the ladder. */}
-          <UnencumberedInventory snapshot={snapshot} observations={observations.observations} />
-          {/* Governed by-the-book recommendations (Doc 65) projected on in-scope subjects. */}
-          <GovernedRecommendationsRegion
-            positions={positions}
+          {/* Governed by-the-book recommendations (Doc 65) are projected directly onto the
+              existing Unencumbered Shares rows and Ladder covered-call rows — no separate region. */}
+          <UnencumberedInventory
             snapshot={snapshot}
-            recommendations={governedRecommendations}
-            onInspect={setInspectedGoverned}
-            onGovern={(subjectId, label) => setGoverningSubject({ subjectId, label })}
+            observations={observations.observations}
+            governedBySubjectId={snapshot.brokerageAccountId ? governedRecommendations : undefined}
+            onInspectGoverned={setInspectedGoverned}
           />
           {/* Position Monitoring — ladder with regime-specific tile rendering */}
           <div className="oc-region-ladder">
@@ -356,7 +354,7 @@ export function OperatorConsole() {
                         <span className="oc-rung-count">{group.positions.length} position{group.positions.length !== 1 ? "s" : ""}</span>
                       </div>
                       {!isCollapsed && (
-                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} holdCloseNotices={holdCloseNotices} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={intradayBars} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} holdCloseNotices={holdCloseNotices} governedBySubjectId={governedRecommendations} onInspectGoverned={setInspectedGoverned} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={intradayBars} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
                       )}
                     </div>
                   );
@@ -388,11 +386,20 @@ export function OperatorConsole() {
         />
       )}
 
-      {/* Governed Recommendation inspector (governing basis / why UNRESOLVED). */}
+      {/* Governed Recommendation inspector (governing basis / why UNRESOLVED). The
+          governance-authoring act is reached from here — keeping the row itself terse. */}
       {inspectedGoverned && (
         <GovernedRecommendationInspector
           resolved={inspectedGoverned}
           onClose={() => setInspectedGoverned(null)}
+          onGovern={snapshot?.brokerageAccountId ? () => {
+            const s = inspectedGoverned.subject;
+            const label = s.subjectType === "covered-call"
+              ? `covered call ${s.symbol}`
+              : `unencumbered ${s.symbol} shares`;
+            setGoverningSubject({ subjectId: s.subjectId, label });
+            setInspectedGoverned(null);
+          } : undefined}
         />
       )}
 
@@ -406,91 +413,6 @@ export function OperatorConsole() {
           onAuthored={() => setGovernanceEpoch((e) => e + 1)}
         />
       )}
-    </div>
-  );
-}
-
-// --- Governed Recommendations region (Doc 65 projection) ---
-
-function GovernedRecommendationsRegion({
-  positions,
-  snapshot,
-  recommendations,
-  onInspect,
-  onGovern,
-}: {
-  positions: MonitoredPosition[];
-  snapshot: import("../write-desk/types").PortfolioSnapshot;
-  recommendations: import("../operator-console/use-governed-recommendations").GovernedRecommendationMap;
-  onInspect: (r: ResolvedGovernedRecommendation) => void;
-  onGovern: (subjectId: string, label: string) => void;
-}) {
-  const callRows = positions.filter((p) => p.type === "call" || p.type === "buy-write");
-  const shareRows = snapshot.inventory.filter((i) => i.sharesFree >= 100);
-
-  if (callRows.length === 0 && shareRows.length === 0) return null;
-
-  const hasAccount = !!snapshot.brokerageAccountId;
-
-  return (
-    <div className="grr-region">
-      <div className="grr-title">
-        Governed recommendations
-        {!hasAccount && <span className="grr-note"> — no account identity; governance unavailable</span>}
-      </div>
-      <table className="grr-table">
-        <thead>
-          <tr>
-            <th>Subject</th>
-            <th>Symbol</th>
-            <th>By-the-book</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {callRows.map((p) => {
-            const r = recommendations.get(p.id);
-            const label = `covered call ${p.underlying} $${p.strike} ${p.expiration}`;
-            return (
-              <tr key={p.id}>
-                <td>Covered call</td>
-                <td>{p.underlying} ${p.strike}</td>
-                <td>
-                  {r
-                    ? <GovernedRecommendationTag recommendation={r.evaluation.recommendation} onClick={() => onInspect(r)} />
-                    : <span className="grr-pending">…</span>}
-                </td>
-                <td>
-                  {hasAccount && (
-                    <button className="grr-govern" onClick={() => onGovern(p.id, label)}>Govern…</button>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-          {shareRows.map((inv) => {
-            const subjectId = `shares-${inv.symbol.toUpperCase()}`;
-            const r = recommendations.get(subjectId);
-            const label = `unencumbered ${inv.symbol} shares (${inv.sharesFree} free)`;
-            return (
-              <tr key={subjectId}>
-                <td>Unencumbered shares</td>
-                <td>{inv.symbol} ({inv.sharesFree})</td>
-                <td>
-                  {r
-                    ? <GovernedRecommendationTag recommendation={r.evaluation.recommendation} onClick={() => onInspect(r)} />
-                    : <span className="grr-pending">…</span>}
-                </td>
-                <td>
-                  {hasAccount && (
-                    <button className="grr-govern" onClick={() => onGovern(subjectId, label)}>Govern…</button>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
     </div>
   );
 }
@@ -954,7 +876,7 @@ function PositionTableHeader() {
 }
 
 /** Regime B: Dense fixed-geometry rows using native <table> for proper column alignment */
-function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, positionGreeks, positionQuotes, holdCloseNotices, isDemoSource, spotHistory, intradayBars, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; positionQuotes: PositionQuoteMap; holdCloseNotices?: HoldCloseNoticeMap; isDemoSource: boolean; spotHistory: SpotHistoryMap; intradayBars: IntradayBarsMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
+function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, positionGreeks, positionQuotes, holdCloseNotices, governedBySubjectId, onInspectGoverned, isDemoSource, spotHistory, intradayBars, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; positionQuotes: PositionQuoteMap; holdCloseNotices?: HoldCloseNoticeMap; governedBySubjectId?: ReadonlyMap<string, ResolvedGovernedRecommendation>; onInspectGoverned?: (r: ResolvedGovernedRecommendation) => void; isDemoSource: boolean; spotHistory: SpotHistoryMap; intradayBars: IntradayBarsMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
 
   // Apply within-group sorting
   const sortedPositions = sortColumn
@@ -1090,6 +1012,14 @@ function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPo
               <td className="oc-td-badge">
                 <span className={`oc-badge oc-badge-${position.type}`}>{badge}</span>
                 <HoldCloseBell notice={holdCloseNotices?.get(position.id) ?? "none"} />
+                {(position.type === "call" || position.type === "buy-write") && governedBySubjectId?.get(position.id) && (
+                  <span onClick={(e) => e.stopPropagation()}>
+                    <GovernedRecommendationTag
+                      recommendation={governedBySubjectId.get(position.id)!.evaluation.recommendation}
+                      onClick={() => onInspectGoverned?.(governedBySubjectId.get(position.id)!)}
+                    />
+                  </span>
+                )}
               </td>
               <td className="oc-td-symbol">{position.underlying}</td>
               <td className="oc-td-right oc-td-bid">{formatQuotePrice(positionQuotes.get(position.id)?.bid ?? null)}</td>

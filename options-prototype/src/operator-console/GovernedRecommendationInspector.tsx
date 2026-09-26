@@ -16,9 +16,12 @@ import "./governed-recommendation-inspector.css";
 export function GovernedRecommendationInspector({
   resolved,
   onClose,
+  onGovern,
 }: {
   resolved: ResolvedGovernedRecommendation;
   onClose: () => void;
+  /** Open the governance-authoring act for this subject (present when an account exists). */
+  onGovern?: () => void;
 }) {
   const { subject, evaluation, bundle } = resolved;
   const ctx = bundle?.contextVersion ?? null;
@@ -91,6 +94,14 @@ export function GovernedRecommendationInspector({
             </ul>
           )}
         </section>
+
+        {onGovern && (
+          <div className="gri-actions">
+            <button className="gri-govern" onClick={onGovern}>
+              {evaluation.recommendation === "UNRESOLVED" ? "Establish governance…" : "Amend governance…"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
