@@ -766,6 +766,10 @@ The Principal selected promotion of this reconciled candidate into architecture 
 
 > Preserve the exact governed Decision that was made — context, consumed inputs, evaluator/policy, Recommendation, and later human disposition — in durable account-local history, while keeping execution truth and deterministic computation ownership distinct.
 
+**Implementation note (2026-09-26, first realized slice — informational, not a decision change):**
+
+The bounded production Console governed-recommendation walking slice (Doc 65: `LET RESOLVE` / `SELL CALL` / `UNRESOLVED`) realizes this ADR under the Candidate B disposition (a Governed Context Version is the first durable capture of authorized governance; no separate Program-association or Outcome-Stance store). Realized structure: SQLite migration `010_governed_decision.sql` adds append-only, account-partitioned `governed_context_version`, `governed_decision`, and `subject_scope_association` tables; deterministic DECIDE remains browser-side (`options-prototype/src/governed-decision/`), the backend owns durable immutable history and idempotent append (`INSERT OR IGNORE`), and executable replay re-runs the pinned evaluator version against the recovered replay-bound bundle. Two logical roles from item 3 are exercised (Governed Context Version, Lifecycle Decision Record); the Operator Disposition Record remains defined-but-unused (out of the Doc 65 slice). Subject→scope association is an explicit evidence-backed act (ADR-016), never inferred from symbol equality. This note records what was built; it does not alter the ADR's decision.
+
 
 ## ADR-020: Aggregate Share-Ownership Authority (Positions over Option Summary Strategy Presentation)
 

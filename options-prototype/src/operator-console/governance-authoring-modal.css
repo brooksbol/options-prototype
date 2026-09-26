@@ -1,0 +1,88 @@
+/* Governance authoring modal — deliberate, durable governance act. */
+
+.gam-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.gam-panel {
+  width: min(440px, 92vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--panel-bg, #fff);
+  color: var(--panel-fg, #1a1a1a);
+  border-radius: 6px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+  padding: 1.25rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.gam-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.gam-header h2 { font-size: 1rem; margin: 0; }
+.gam-close { background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer; color: inherit; }
+
+.gam-notice {
+  font-size: 0.8rem;
+  color: var(--muted-fg, #555);
+  background: rgba(200, 160, 40, 0.1);
+  border: 1px solid rgba(200, 160, 40, 0.4);
+  border-radius: 4px;
+  padding: 0.5rem 0.6rem;
+  margin: 0 0 1rem;
+}
+.gam-notice code { font-size: 0.75rem; }
+
+.gam-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 0.7rem;
+  font-size: 0.8rem;
+}
+.gam-field span { font-weight: 600; color: var(--muted-fg, #555); }
+.gam-field input,
+.gam-field select {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--border, #ccc);
+  border-radius: 4px;
+  background: var(--input-bg, #fff);
+  color: inherit;
+}
+.gam-field input:disabled { background: var(--disabled-bg, #f0f0f0); color: var(--muted-fg, #888); }
+
+.gam-error {
+  color: #a3431f;
+  font-size: 0.8rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.gam-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.gam-cancel, .gam-submit {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--border, #ccc);
+}
+.gam-submit {
+  background: var(--accent, #1f5aa8);
+  color: #fff;
+  border-color: var(--accent, #1f5aa8);
+}
+.gam-submit:disabled { opacity: 0.5; cursor: not-allowed; }

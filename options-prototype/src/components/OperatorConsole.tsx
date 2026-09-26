@@ -34,7 +34,13 @@ import { lookupDescription } from "../instrument-catalog/catalog";
 import { PositionDetailModal } from "./PositionDetailModal";
 import { ForceAcquisitionButton } from "../operator-console/ForceAcquisitionButton";
 import { UnencumberedInventory, buildUnencumberedCsvRows, UNENCUMBERED_CSV_HEADER } from "../operator-console/UnencumberedInventory";
+import { useGovernedRecommendations } from "../operator-console/use-governed-recommendations";
+import { GovernedRecommendationTag } from "../operator-console/GovernedRecommendationTag";
+import { GovernedRecommendationInspector } from "../operator-console/GovernedRecommendationInspector";
+import { GovernanceAuthoringModal } from "../operator-console/GovernanceAuthoringModal";
+import type { ResolvedGovernedRecommendation } from "../governed-decision/resolve";
 import "../operator-console/operator-console.css";
+import "../operator-console/governed-recommendations-region.css";
 
 // Greeks are considered stale when their source chain is older than this. Aligned
 // with the Decision chain-freshness window (~30 min during open sessions): beyond
@@ -204,6 +210,14 @@ export function OperatorConsole() {
   // decision and renders its pair — they cannot disagree.
   const { resolved: holdCloseResolved, notices: holdCloseNotices } = useHoldCloseNotices(positions, snapshot, sessionClassification, chainReadGeneration);
 
+  // Governed by-the-book recommendations (Doc 65): LET RESOLVE | SELL CALL | UNRESOLVED,
+  // projected on in-scope subjects (covered-call obligations + unencumbered share blocks).
+  // Fail-closed: without authorized governance + explicit association the result is UNRESOLVED.
+  const [inspectedGoverned, setInspectedGoverned] = useState<ResolvedGovernedRecommendation | null>(null);
+  const [governingSubject, setGoverningSubject] = useState<{ subjectId: string; label: string } | null>(null);
+  const [governanceEpoch, setGovernanceEpoch] = useState(0);
+  const governedRecommendations = useGovernedRecommendations(positions, snapshot, chainReadGeneration, governanceEpoch);
+
   // Alternative groupings for regime B
   const groups: { label: string; sublabel?: string; positions: MonitoredPosition[]; totalCapital: number }[] = (() => {
     if (vizRegime !== "b" || groupBy === "expiration") {
@@ -263,6 +277,14 @@ export function OperatorConsole() {
               from the temporal DTE ladder (PL-ELIG V1). Shares are never inserted
               into the ladder. */}
           <UnencumberedInventory snapshot={snapshot} observations={observations.observations} />
+          {/* Governed by-the-book recommendations (Doc 65) projected on in-scope subjects. */}
+          <GovernedRecommendationsRegion
+            positions={positions}
+            snapshot={snapshot}
+            recommendations={governedRecommendations}
+            onInspect={setInspectedGoverned}
+            onGovern={(subjectId, label) => setGoverningSubject({ subjectId, label })}
+          />
           {/* Position Monitoring — ladder with regime-specific tile rendering */}
           <div className="oc-region-ladder">
             {vizRegime === "b" && (
@@ -365,6 +387,110 @@ export function OperatorConsole() {
           resolved={holdCloseResolved.get(selectedPosition.id) ?? null}
         />
       )}
+
+      {/* Governed Recommendation inspector (governing basis / why UNRESOLVED). */}
+      {inspectedGoverned && (
+        <GovernedRecommendationInspector
+          resolved={inspectedGoverned}
+          onClose={() => setInspectedGoverned(null)}
+        />
+      )}
+
+      {/* Explicit authority-bearing governance authoring. */}
+      {governingSubject && snapshot?.brokerageAccountId && (
+        <GovernanceAuthoringModal
+          brokerageAccountId={snapshot.brokerageAccountId}
+          subjectId={governingSubject.subjectId}
+          subjectLabel={governingSubject.label}
+          onClose={() => setGoverningSubject(null)}
+          onAuthored={() => setGovernanceEpoch((e) => e + 1)}
+        />
+      )}
+    </div>
+  );
+}
+
+// --- Governed Recommendations region (Doc 65 projection) ---
+
+function GovernedRecommendationsRegion({
+  positions,
+  snapshot,
+  recommendations,
+  onInspect,
+  onGovern,
+}: {
+  positions: MonitoredPosition[];
+  snapshot: import("../write-desk/types").PortfolioSnapshot;
+  recommendations: import("../operator-console/use-governed-recommendations").GovernedRecommendationMap;
+  onInspect: (r: ResolvedGovernedRecommendation) => void;
+  onGovern: (subjectId: string, label: string) => void;
+}) {
+  const callRows = positions.filter((p) => p.type === "call" || p.type === "buy-write");
+  const shareRows = snapshot.inventory.filter((i) => i.sharesFree >= 100);
+
+  if (callRows.length === 0 && shareRows.length === 0) return null;
+
+  const hasAccount = !!snapshot.brokerageAccountId;
+
+  return (
+    <div className="grr-region">
+      <div className="grr-title">
+        Governed recommendations
+        {!hasAccount && <span className="grr-note"> — no account identity; governance unavailable</span>}
+      </div>
+      <table className="grr-table">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Symbol</th>
+            <th>By-the-book</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {callRows.map((p) => {
+            const r = recommendations.get(p.id);
+            const label = `covered call ${p.underlying} $${p.strike} ${p.expiration}`;
+            return (
+              <tr key={p.id}>
+                <td>Covered call</td>
+                <td>{p.underlying} ${p.strike}</td>
+                <td>
+                  {r
+                    ? <GovernedRecommendationTag recommendation={r.evaluation.recommendation} onClick={() => onInspect(r)} />
+                    : <span className="grr-pending">…</span>}
+                </td>
+                <td>
+                  {hasAccount && (
+                    <button className="grr-govern" onClick={() => onGovern(p.id, label)}>Govern…</button>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+          {shareRows.map((inv) => {
+            const subjectId = `shares-${inv.symbol.toUpperCase()}`;
+            const r = recommendations.get(subjectId);
+            const label = `unencumbered ${inv.symbol} shares (${inv.sharesFree} free)`;
+            return (
+              <tr key={subjectId}>
+                <td>Unencumbered shares</td>
+                <td>{inv.symbol} ({inv.sharesFree})</td>
+                <td>
+                  {r
+                    ? <GovernedRecommendationTag recommendation={r.evaluation.recommendation} onClick={() => onInspect(r)} />
+                    : <span className="grr-pending">…</span>}
+                </td>
+                <td>
+                  {hasAccount && (
+                    <button className="grr-govern" onClick={() => onGovern(subjectId, label)}>Govern…</button>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

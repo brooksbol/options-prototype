@@ -2311,6 +2311,284 @@ public class SqliteEvidenceStore implements AutoCloseable {
         else ps.setInt(idx, v);
     }
 
+    // --- Governed Decision plane (Candidate B): append-only, account-partitioned, idempotent ---
+
+    /**
+     * Append one immutable Governed Context Version (INSERT OR IGNORE on context_version_id).
+     * Amendment is a NEW version row; existing versions are never mutated. Idempotent: a
+     * retried write of the same deterministic id is a no-op.
+     */
+    public void appendGovernedContextVersion(GovernedContextVersionRecord c) throws SQLException {
+        inTransaction(() -> {
+            try (PreparedStatement ps = conn.prepareStatement("""
+                    INSERT OR IGNORE INTO governed_context_version
+                      (context_version_id, brokerage_account_id, governed_scope_id, version,
+                       supersedes_version_id, program, config_version, call_away_stance,
+                       eligibility_gate, intervention_gate, no_write_gate, authority_provenance,
+                       effective_from, recorded_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """)) {
+                ps.setString(1, c.contextVersionId());
+                ps.setString(2, c.brokerageAccountId());
+                ps.setString(3, c.governedScopeId());
+                ps.setInt(4, c.version());
+                if (c.supersedesVersionId() == null) ps.setNull(5, Types.VARCHAR);
+                else ps.setString(5, c.supersedesVersionId());
+                ps.setString(6, c.program());
+                ps.setString(7, c.configVersion());
+                ps.setString(8, c.callAwayStance());
+                ps.setString(9, c.eligibilityGate());
+                ps.setString(10, c.interventionGate());
+                ps.setString(11, c.noWriteGate());
+                ps.setString(12, c.authorityProvenance());
+                ps.setString(13, c.effectiveFrom());
+                ps.setString(14, c.recordedAt());
+                ps.executeUpdate();
+            }
+        });
+    }
+
+    /** Read one Governed Context Version by its immutable id. Null when absent. */
+    public GovernedContextVersionRecord getGovernedContextVersion(String contextVersionId) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT context_version_id, brokerage_account_id, governed_scope_id, version,
+                       supersedes_version_id, program, config_version, call_away_stance,
+                       eligibility_gate, intervention_gate, no_write_gate, authority_provenance,
+                       effective_from, recorded_at
+                  FROM governed_context_version WHERE context_version_id = ?
+            """)) {
+            ps.setString(1, contextVersionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                return mapContextVersion(rs);
+            }
+        }
+    }
+
+    /**
+     * Resolve the applicable Governed Context Version for a scope AS-OF a decision instant,
+     * honoring ADR-019 bitemporal discipline: the version must be effective at or before
+     * {@code effectiveAsOf} AND already recorded at or before {@code knowledgeCutoff}. A
+     * later-recorded backdated version therefore cannot masquerade as contemporaneously known.
+     * Returns the highest-version qualifying record, or null when none qualifies.
+     */
+    public GovernedContextVersionRecord resolveGovernedContext(
+            String brokerageAccountId, String governedScopeId,
+            String effectiveAsOf, String knowledgeCutoff) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT context_version_id, brokerage_account_id, governed_scope_id, version,
+                       supersedes_version_id, program, config_version, call_away_stance,
+                       eligibility_gate, intervention_gate, no_write_gate, authority_provenance,
+                       effective_from, recorded_at
+                  FROM governed_context_version
+                 WHERE brokerage_account_id = ? AND governed_scope_id = ?
+                   AND effective_from <= ? AND recorded_at <= ?
+                 ORDER BY version DESC LIMIT 1
+            """)) {
+            ps.setString(1, brokerageAccountId);
+            ps.setString(2, governedScopeId);
+            ps.setString(3, effectiveAsOf);
+            ps.setString(4, knowledgeCutoff);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                return mapContextVersion(rs);
+            }
+        }
+    }
+
+    /** Highest existing version number for a scope family, or 0 when none. */
+    public int getMaxContextVersion(String brokerageAccountId, String governedScopeId) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT COALESCE(MAX(version), 0) FROM governed_context_version "
+                + "WHERE brokerage_account_id = ? AND governed_scope_id = ?")) {
+            ps.setString(1, brokerageAccountId);
+            ps.setString(2, governedScopeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
+    private static GovernedContextVersionRecord mapContextVersion(ResultSet rs) throws SQLException {
+        return new GovernedContextVersionRecord(
+            rs.getString("context_version_id"), rs.getString("brokerage_account_id"),
+            rs.getString("governed_scope_id"), rs.getInt("version"),
+            rs.getString("supersedes_version_id"), rs.getString("program"),
+            rs.getString("config_version"), rs.getString("call_away_stance"),
+            rs.getString("eligibility_gate"), rs.getString("intervention_gate"),
+            rs.getString("no_write_gate"), rs.getString("authority_provenance"),
+            rs.getString("effective_from"), rs.getString("recorded_at"));
+    }
+
+    /**
+     * Append one immutable Lifecycle Decision Record (INSERT OR IGNORE on decision_id).
+     * Idempotent by the deterministic bundle-derived id. Historical rows never mutate.
+     */
+    public void appendGovernedDecision(GovernedDecisionRecord d) throws SQLException {
+        inTransaction(() -> {
+            try (PreparedStatement ps = conn.prepareStatement("""
+                    INSERT OR IGNORE INTO governed_decision
+                      (decision_id, brokerage_account_id, governed_scope_id, subject_type, subject_id,
+                       symbol, context_version_id, rule_id, evaluator_id, evaluator_version,
+                       recommendation, reasoning_json, unresolved_causes_json, input_bundle_json,
+                       bundle_hash, decision_time, recorded_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """)) {
+                ps.setString(1, d.decisionId());
+                ps.setString(2, d.brokerageAccountId());
+                ps.setString(3, d.governedScopeId());
+                ps.setString(4, d.subjectType());
+                ps.setString(5, d.subjectId());
+                ps.setString(6, d.symbol());
+                ps.setString(7, d.contextVersionId());
+                ps.setString(8, d.ruleId());
+                ps.setString(9, d.evaluatorId());
+                ps.setString(10, d.evaluatorVersion());
+                ps.setString(11, d.recommendation());
+                ps.setString(12, d.reasoningJson());
+                ps.setString(13, d.unresolvedCausesJson());
+                ps.setString(14, d.inputBundleJson());
+                ps.setString(15, d.bundleHash());
+                ps.setString(16, d.decisionTime());
+                ps.setString(17, d.recordedAt());
+                ps.executeUpdate();
+            }
+        });
+    }
+
+    /** Read one Decision by id. Null when absent. */
+    public GovernedDecisionRecord getGovernedDecision(String decisionId) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT decision_id, brokerage_account_id, governed_scope_id, subject_type, subject_id,
+                       symbol, context_version_id, rule_id, evaluator_id, evaluator_version,
+                       recommendation, reasoning_json, unresolved_causes_json, input_bundle_json,
+                       bundle_hash, decision_time, recorded_at
+                  FROM governed_decision WHERE decision_id = ?
+            """)) {
+            ps.setString(1, decisionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                return mapDecision(rs);
+            }
+        }
+    }
+
+    /** All Decisions for an account subject, newest first (bounded history retrieval). */
+    public List<GovernedDecisionRecord> getGovernedDecisionsForSubject(
+            String brokerageAccountId, String subjectId) throws SQLException {
+        List<GovernedDecisionRecord> out = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT decision_id, brokerage_account_id, governed_scope_id, subject_type, subject_id,
+                       symbol, context_version_id, rule_id, evaluator_id, evaluator_version,
+                       recommendation, reasoning_json, unresolved_causes_json, input_bundle_json,
+                       bundle_hash, decision_time, recorded_at
+                  FROM governed_decision
+                 WHERE brokerage_account_id = ? AND subject_id = ?
+                 ORDER BY decision_time DESC
+            """)) {
+            ps.setString(1, brokerageAccountId);
+            ps.setString(2, subjectId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) out.add(mapDecision(rs));
+            }
+        }
+        return out;
+    }
+
+    private static GovernedDecisionRecord mapDecision(ResultSet rs) throws SQLException {
+        return new GovernedDecisionRecord(
+            rs.getString("decision_id"), rs.getString("brokerage_account_id"),
+            rs.getString("governed_scope_id"), rs.getString("subject_type"),
+            rs.getString("subject_id"), rs.getString("symbol"), rs.getString("context_version_id"),
+            rs.getString("rule_id"), rs.getString("evaluator_id"), rs.getString("evaluator_version"),
+            rs.getString("recommendation"), rs.getString("reasoning_json"),
+            rs.getString("unresolved_causes_json"), rs.getString("input_bundle_json"),
+            rs.getString("bundle_hash"), rs.getString("decision_time"), rs.getString("recorded_at"));
+    }
+
+    /** Append one explicit Subject->scope association (INSERT OR IGNORE). Never inferred. */
+    public void appendSubjectScopeAssociation(SubjectScopeAssociationRecord a) throws SQLException {
+        inTransaction(() -> {
+            try (PreparedStatement ps = conn.prepareStatement("""
+                    INSERT OR IGNORE INTO subject_scope_association
+                      (association_id, brokerage_account_id, subject_id, governed_scope_id,
+                       provenance, effective_from, recorded_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """)) {
+                ps.setString(1, a.associationId());
+                ps.setString(2, a.brokerageAccountId());
+                ps.setString(3, a.subjectId());
+                ps.setString(4, a.governedScopeId());
+                ps.setString(5, a.provenance());
+                ps.setString(6, a.effectiveFrom());
+                ps.setString(7, a.recordedAt());
+                ps.executeUpdate();
+            }
+        });
+    }
+
+    /**
+     * Resolve the effective Subject->scope association for a subject as-of a knowledge
+     * cutoff (most recent effective_from with recorded_at <= cutoff). Null when none —
+     * caller MUST fail closed to UNRESOLVED (no ticker/heuristic fallback).
+     */
+    public SubjectScopeAssociationRecord resolveSubjectScope(
+            String brokerageAccountId, String subjectId, String knowledgeCutoff) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT association_id, brokerage_account_id, subject_id, governed_scope_id,
+                       provenance, effective_from, recorded_at
+                  FROM subject_scope_association
+                 WHERE brokerage_account_id = ? AND subject_id = ? AND recorded_at <= ?
+                 ORDER BY effective_from DESC, recorded_at DESC LIMIT 1
+            """)) {
+            ps.setString(1, brokerageAccountId);
+            ps.setString(2, subjectId);
+            ps.setString(3, knowledgeCutoff);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                return new SubjectScopeAssociationRecord(
+                    rs.getString("association_id"), rs.getString("brokerage_account_id"),
+                    rs.getString("subject_id"), rs.getString("governed_scope_id"),
+                    rs.getString("provenance"), rs.getString("effective_from"),
+                    rs.getString("recorded_at"));
+            }
+        }
+    }
+
+    /** Count rows in each governed-decision table (observability / tests). */
+    public Map<String, Integer> getGovernedDecisionCounts() throws SQLException {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        String[][] tables = {
+            {"governed_context_version", "contextVersions"},
+            {"governed_decision", "decisions"},
+            {"subject_scope_association", "associations"},
+        };
+        for (String[] t : tables) {
+            try (Statement st = conn.createStatement();
+                 ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM " + t[0])) {
+                counts.put(t[1], rs.next() ? rs.getInt(1) : 0);
+            }
+        }
+        return counts;
+    }
+
+    public record GovernedContextVersionRecord(
+        String contextVersionId, String brokerageAccountId, String governedScopeId, int version,
+        String supersedesVersionId, String program, String configVersion, String callAwayStance,
+        String eligibilityGate, String interventionGate, String noWriteGate,
+        String authorityProvenance, String effectiveFrom, String recordedAt) {}
+
+    public record GovernedDecisionRecord(
+        String decisionId, String brokerageAccountId, String governedScopeId, String subjectType,
+        String subjectId, String symbol, String contextVersionId, String ruleId, String evaluatorId,
+        String evaluatorVersion, String recommendation, String reasoningJson,
+        String unresolvedCausesJson, String inputBundleJson, String bundleHash,
+        String decisionTime, String recordedAt) {}
+
+    public record SubjectScopeAssociationRecord(
+        String associationId, String brokerageAccountId, String subjectId, String governedScopeId,
+        String provenance, String effectiveFrom, String recordedAt) {}
+
     // --- Opportunity-history record types (transport between controller and store) ---
 
     public record EvaluationEpochRecord(

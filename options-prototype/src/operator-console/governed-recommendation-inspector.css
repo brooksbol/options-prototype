@@ -1,0 +1,80 @@
+/* Governed Recommendation inspector drawer. */
+
+.gri-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 1000;
+}
+
+.gri-panel {
+  width: min(480px, 100vw);
+  height: 100%;
+  overflow-y: auto;
+  background: var(--panel-bg, #fff);
+  color: var(--panel-fg, #1a1a1a);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.2);
+  padding: 1.25rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.gri-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.gri-header h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.gri-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+}
+
+.gri-recommendation {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border: 1px solid currentColor;
+}
+.gri-recommendation[data-recommendation="LET_RESOLVE"] { color: #1f6f43; }
+.gri-recommendation[data-recommendation="SELL_CALL"] { color: #1f5aa8; }
+.gri-recommendation[data-recommendation="UNRESOLVED"] { color: #6b6b6b; border-style: dashed; }
+
+.gri-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 0.75rem;
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+}
+.gri-facts dt { font-weight: 600; color: var(--muted-fg, #555); }
+.gri-facts dd { margin: 0; word-break: break-word; }
+.gri-facts code { font-size: 0.78rem; }
+
+.gri-reasons h3 {
+  font-size: 0.85rem;
+  margin: 0 0 0.4rem;
+}
+.gri-reasons ul { margin: 0 0 0.75rem; padding-left: 1.1rem; font-size: 0.82rem; }
+.gri-reasons li { margin-bottom: 0.3rem; }
+.gri-basis {
+  font-size: 0.7rem;
+  color: var(--muted-fg, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.gri-causes code { color: #a3431f; }

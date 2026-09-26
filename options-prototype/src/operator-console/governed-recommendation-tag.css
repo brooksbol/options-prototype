@@ -1,0 +1,45 @@
+/* Governed Recommendation tag — compact Console projection (Doc 65). */
+
+.grt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  line-height: 1.2;
+  white-space: nowrap;
+  background: transparent;
+}
+
+.grt:focus-visible {
+  outline: 2px solid var(--focus-ring, #4c9aff);
+  outline-offset: 1px;
+}
+
+/* LET RESOLVE — affirmative natural-resolution behavior (NOT a generic HOLD color). */
+.grt-let-resolve {
+  color: var(--grt-let-resolve-fg, #1f6f43);
+  border-color: var(--grt-let-resolve-fg, #1f6f43);
+  background: var(--grt-let-resolve-bg, rgba(31, 111, 67, 0.08));
+}
+
+/* SELL CALL — affirmative phase recommendation (does not select a contract). */
+.grt-sell-call {
+  color: var(--grt-sell-call-fg, #1f5aa8);
+  border-color: var(--grt-sell-call-fg, #1f5aa8);
+  background: var(--grt-sell-call-bg, rgba(31, 90, 168, 0.08));
+}
+
+/* UNRESOLVED — fail-closed; deliberately muted, not alarming. */
+.grt-unresolved {
+  color: var(--grt-unresolved-fg, #6b6b6b);
+  border-color: var(--grt-unresolved-fg, #9a9a9a);
+  background: var(--grt-unresolved-bg, rgba(120, 120, 120, 0.06));
+  border-style: dashed;
+}
