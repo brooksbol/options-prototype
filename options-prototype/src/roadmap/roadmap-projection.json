@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-26T22:27:32.437Z",
+    "generatedAt": "2026-09-26T22:48:20.124Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -32,8 +32,8 @@
         "experiment": 7
       },
       "arTotal": 18,
-      "plTotal": 68,
-      "plWithExplicitRelationship": 7,
+      "plTotal": 69,
+      "plWithExplicitRelationship": 8,
       "graduatedTotal": 29,
       "adrTotal": 20,
       "priorityTotal": 10,
@@ -41,10 +41,10 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 27,
-      "logTotal": 78,
+      "logTotal": 79,
       "logIntakeEvidenceEvents": 13,
       "plWithIntakeDate": 13,
-      "plWithoutIntakeDate": 55
+      "plWithoutIntakeDate": 56
     },
     "notes": []
   },
@@ -3746,7 +3746,64 @@
         {
           "heading": "Explicitly not authorized",
           "level": 3,
-          "content": "This record does not authorize changing ADR-020's ownership authority, making Positions mandatory, altering the upload surface, sourcing ownership/basis from a different export, or any evidence-substitution that would change which document is authoritative for a fact.",
+          "content": "This record does not authorize changing ADR-020's ownership authority, making Positions mandatory, altering the upload surface, sourcing ownership/basis from a different export, or any evidence-substitution that would change which document is authoritative for a fact.\n\n\n---",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "PL-SETUP-01",
+      "name": "Operator-facing governance setup / configuration (account governed-scope topology; guided vs advanced; evidence-accelerated, never inferred)",
+      "section": "Reconciliation / continuation record",
+      "description": "**Why-state:** `docs/66-operator-governance-setup-configuration-discovery-2026-09-26.md`.",
+      "descriptionTruncated": false,
+      "state": "RECONCILED intake — durable capture of Principal governance-configuration discovery surfaced during governed-decision (Doc 65) browser acceptance; no setup wizard, configuration editor, or governance semantics are authorized by this record.",
+      "sourceFile": "parking-lot-10.md",
+      "relatedLvtIds": [],
+      "relatedArIds": [
+        "AR1"
+      ],
+      "sections": [
+        {
+          "heading": "",
+          "level": 0,
+          "content": "**Why-state:** `docs/66-operator-governance-setup-configuration-discovery-2026-09-26.md`.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intake",
+          "level": 3,
+          "content": "Browser acceptance of the bounded governed-decision walking slice (Doc 65 / ADR-019 / ADR-020) confirmed the row-level Recommendation projection and fail-closed `UNRESOLVED` behavior, but established that the current `Establish governance` authoring modal is **architecture-facing, not operator-ready**. It requires the operator to speak internal concepts — opaque governed-scope id, Program, configuration version, call-away stance, and raw tri-state gates (`UNKNOWN`/`CLEAR`/`ACTIVE`) — without stating what governed condition each gate attests to.\n\nThe durable discovery is an operator-facing governance **setup/configuration** capability. Its emerging topology is:\n\n> **Account → governed scope(s) → Operating Program/configuration → Recommendation.**\n\nConcrete motivating counterexample: **PTS** — one brokerage account containing both a Treasury ladder and an options overlay. Therefore Program is **not** account-global; an account may contain multiple governed scopes governed differently. The existing `governedScopeId` is a genuine architectural identity, but opaque ids should be **system-managed**, with the operator dealing in meaningful (illustrative, non-canonical) Product names.\n\nEmerging Product shape (not authorized): **Add Account / Account Settings** entry points; a setup experience with two presentations over the *same* durable governance — **guided** (Product-language questions, evidence pre-fill) and **advanced/super-user** (direct scopes/Program/Outcome Stance/gates/provenance). Both resolve into the same immutable, versioned backend; configuration updates create **successor** Context Versions, never mutate history (ADR-019).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Critical inference boundary (load-bearing)",
+          "level": 3,
+          "content": "Brokerage evidence (CSV now, authorized broker connection later) may establish **mechanical facts / economic constructions** and support **hypotheses**, and may **pre-fill established facts and propose likely structures**. It cannot establish Program/Wheel membership. `recognition is not authority`; `covered-call geometry ≠ Wheel call-phase membership`; `writable 100-share lot ≠ Wheel inventory`. WW fills what it knows, proposes what it infers, and **asks** for operator-authority blanks. `UNKNOWN` stays in the model; undefined policy conditions remain `UNRESOLVED` rather than being guessed into `CLEAR`. Do not design around storing raw brokerage credentials.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Relationship to existing concerns",
+          "level": 3,
+          "content": "- **AR1 governed-decision durable owner (`docs/architecture-roadmap.md`)** — this is new architectural pressure *on* the ratified governed-decision substrate (immutable account-local Context Versions / Decision Records): specifically that an account hosts multiple governed scopes, Program is scope-relative, and the authoring surface must be operator-facing. It does not reopen ADR-019/ADR-020.\n- **Doc 64 / Doc 65 / ADR-019 / ADR-020** — the governed-decision slice this configures. This item owns the *operator configuration experience*, not the evaluator semantics.\n- **`PL-BETA-01`** — private-beta onboarding/agreement; a beta evaluator would need account/governance setup, but `PL-BETA-01` owns the *operating relationship*, not the governance-configuration UX.\n- **`PL-ARCH-03` (Security & User Accounts)** — owns authentication/account-security mechanics; `PL-SETUP-01` presumes but does not redefine them.\n- **`PL-ARCH-07`** — authorization/multi-Operator research may inform later scope/ownership boundaries; no RBAC/ReBAC/FGA authorized here.\n- **`PL-PORT-01`** — portfolio-state / evidence-import semantics; brokerage-evidence pre-fill reads from that neighborhood but does not redefine it.\n- **`PL-OPS-CSV-01`** — per-refresh CSV burden; evidence-accelerated setup is adjacent but distinct (setup/governance, not refresh cadence).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Reconciliation Completion Record",
+          "level": 3,
+          "content": "- **Intake:** new canonical identity **`PL-SETUP-01`**. Full parking-lot-sequence reconciliation found onboarding (`PL-BETA-01`), accounts/auth (`PL-ARCH-03`/`PL-ARCH-07`), portfolio import (`PL-PORT-01`), and CSV burden (`PL-OPS-CSV-01`) neighbors, but **no existing identity owning operator-facing governance configuration, account governed-scope topology, Program-per-scope, or guided-vs-advanced setup**.\n- **Strategic disposition:** **no new LVT Bet and no `docs/roadmap.md` change.** This is the operator-experience/configuration expression of the already-ratified governed-decision capability and the accepted always-on/multi-user direction; it strengthens rather than redirects existing strategy.\n- **Architectural disposition:** **new architectural pressure on the AR1 governed-decision durable owner; no `docs/architecture-roadmap.md` direction change and no ADR authorized yet.** The pressure is: model an account as hosting multiple governed scopes, keep Program scope-relative (not account-global), keep opaque scope identity system-managed, and drive operator interaction from Product-language governance questions while preserving immutable/versioned Context Versions and replay. Resolving this pressure requires design (and likely an ADR) under normal reconciliation before implementation.\n- **Parking-lot disposition/mapping:** **retained as `PL-SETUP-01`**, cross-linked to `PL-BETA-01`, `PL-ARCH-03`, `PL-ARCH-07`, `PL-PORT-01`, `PL-OPS-CSV-01`, Doc 64/65, and ADR-019/ADR-020; not double-booked as any of them.\n- **Why-state:** `docs/66-operator-governance-setup-configuration-discovery-2026-09-26.md`.\n- **Next authorized mode:** **design/exploration only when deliberately selected by the Principal** (likely a Product/semantic reconciliation of scope naming and Program topology, followed by an ADR). No setup wizard, configuration editor, scope-discovery/inference machinery, broker-connection architecture, or governance-semantics change is authorized by this record.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Explicitly not authorized",
+          "level": 3,
+          "content": "Final scope naming; automatic scope-discovery semantics; Program compatibility rules; questionnaire/advanced-mode schema; inference confidence model; brokerage connection architecture; broker credential storage; Treasury Program semantics; a generalized Program/governance engine or DSL; account-global Program ownership; new intervention/eligibility/no-write policy; automated Wheel classification; the full setup wizard or advanced configuration editor; portfolio allocation; or any change to Doc 65 P0–P3 evaluator semantics.",
           "truncated": false,
           "tables": []
         }
@@ -8103,7 +8160,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 505
+      "sourceOrder": 511
     },
     {
       "plId": null,
@@ -8246,7 +8303,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 496
+      "sourceOrder": 502
     },
     {
       "plId": null,
@@ -8259,7 +8316,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 497
+      "sourceOrder": 503
     },
     {
       "plId": null,
@@ -8272,7 +8329,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 498
+      "sourceOrder": 504
     },
     {
       "plId": null,
@@ -8285,7 +8342,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 501
+      "sourceOrder": 507
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8311,7 +8368,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 499
+      "sourceOrder": 505
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8493,7 +8550,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 479
+      "sourceOrder": 485
     },
     {
       "plId": null,
@@ -8506,7 +8563,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 480
+      "sourceOrder": 486
     },
     {
       "plId": null,
@@ -8519,7 +8576,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 481
+      "sourceOrder": 487
     },
     {
       "plId": null,
@@ -8532,7 +8589,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 482
+      "sourceOrder": 488
     },
     {
       "plId": null,
@@ -8545,7 +8602,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 483
+      "sourceOrder": 489
     },
     {
       "plId": null,
@@ -8558,7 +8615,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 484
+      "sourceOrder": 490
     },
     {
       "plId": null,
@@ -8571,7 +8628,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 485
+      "sourceOrder": 491
     },
     {
       "plId": null,
@@ -8584,7 +8641,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 486
+      "sourceOrder": 492
     },
     {
       "plId": null,
@@ -8597,7 +8654,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 487
+      "sourceOrder": 493
     },
     {
       "plId": null,
@@ -8610,7 +8667,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 488
+      "sourceOrder": 494
     },
     {
       "plId": null,
@@ -8623,7 +8680,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 489
+      "sourceOrder": 495
     },
     {
       "plId": null,
@@ -8636,7 +8693,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 490
+      "sourceOrder": 496
     },
     {
       "plId": null,
@@ -8649,7 +8706,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 491
+      "sourceOrder": 497
     },
     {
       "plId": null,
@@ -8662,7 +8719,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 492
+      "sourceOrder": 498
     },
     {
       "plId": null,
@@ -8675,7 +8732,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 493
+      "sourceOrder": 499
     },
     {
       "plId": null,
@@ -8688,7 +8745,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 494
+      "sourceOrder": 500
     },
     {
       "plId": null,
@@ -8701,7 +8758,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 495
+      "sourceOrder": 501
     },
     {
       "plId": null,
@@ -8714,7 +8771,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 500
+      "sourceOrder": 506
     },
     {
       "plId": null,
@@ -8727,7 +8784,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 504
+      "sourceOrder": 510
     },
     {
       "plId": "PL-SEM-01",
@@ -8896,7 +8953,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 502
+      "sourceOrder": 508
     },
     {
       "plId": null,
@@ -8909,7 +8966,20 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 503
+      "sourceOrder": 509
+    },
+    {
+      "plId": "PL-SETUP-01",
+      "bugId": null,
+      "title": "PL-SETUP-01 — Operator-facing governance setup / configuration (account governed-scope topology; guided vs advanced; evidence-accelerated, never inferred)",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "September 26, 2026",
+      "eventDateIso": "2026-09-26",
+      "state": "RECONCILED intake — durable capture of Principal governance-configuration discovery surfaced during governed-decision (Doc 65) browser acceptance; no setup wizard, configuration editor, or governance semantics are authorized by this record.",
+      "headingLevel": 2,
+      "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 479
     }
   ],
   "intakeDateUnknown": [
@@ -8962,6 +9032,7 @@
     "PL-RESEARCH-04",
     "PL-RESEARCH-05",
     "PL-SCHED-DRIFT",
+    "PL-SETUP-01",
     "PL-SHELL",
     "PL-STRAT-01",
     "PL-SURF-01",

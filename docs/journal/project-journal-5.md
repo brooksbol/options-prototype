@@ -718,3 +718,39 @@ The URA incident now resolves for the correct reason — 200 shares are true bec
 **BUG-001 boundary.** Not touched. First-local acceptance and fresh authoritative Option Summary checkpoints establish current-ness; the older Activity-overlay cumulative-lifecycle projection (assigned/expired/BTC fall-through) remains a separately authorized remediation. The lifecycle tests assert the governed transition *semantics* (expiration successor requires its own association; assignment produces no share subject) at the evaluator/resolve layer, which does not depend on BUG-001.
 
 **Scope audit.** No deferred capability entered: no exact-contract selection, no CSP/BTC/roll/CLOSE/dividend policy, no Operator Disposition / FOLLOW-DEFER-DEPART, no adherence or economic-outcome scoring, no paper/sandbox/live execution, no generic Program engine / policy DSL / universal Recommendation enum, no BUG-001 fix.
+
+---
+
+## 2026-09-26 — Governed Recommendation projection UX correction (RECOMMENDATION hyperlink) + operator-governance setup discovery (`PL-SETUP-01`) (Kiro)
+
+**Actor:** Kiro (Implementation Engineer). **SYNC at start:** `df246ba` (accepted `main`, verified against GitHub `ls-remote` + `fetch`; local = origin, 0/0 ahead/behind; clean worktree, no stashes). **Mode:** Principal-authorized consolidated UX reconciliation pass — one small production UX correction plus durable discovery preservation. No reopening of the settled governed-decision P0–P3 architecture or Doc 65 Product policy.
+
+### Principal browser-acceptance finding (preserved)
+
+Real browser use of the governed-decision walking slice (Doc 65 / ADR-019 / ADR-020) produced this acceptance state — **not** a declaration that the whole frozen Product outcome is finally accepted:
+
+- **Passing / useful:** standalone `Governed Recommendations` region correctly removed; row-level projection is the right general location; real positions fail closed to `UNRESOLVED` without governance (observed COPX share block and URA covered call both `UNRESOLVED` for missing governed-scope association); the inspector is useful and correctly exposes the missing association; no Program membership inferred from mechanics.
+- **Needed small polish (done this pass):** `By-the-book` → `Recommendation`; Recommendation rendered as an ordinary hyperlink, not a status pill/tag.
+- **Not operator-ready (preserved as discovery, NOT implemented):** the raw governance-authoring modal; manual opaque governed-scope id entry; unexplained raw tri-state gates; generic display of gates irrelevant to the subject/rule; any expectation that the operator select `CLEAR` without an enumerated governed condition set.
+
+### A. Production UX correction (implemented)
+
+`GovernedRecommendationTag.tsx` now renders the Recommendation **value** as a conventional in-table hyperlink (`grt-link` / `grt-link-{let-resolve,sell-call,unresolved}`) instead of a bordered pill; `governed-recommendation-tag.css` rewritten to link treatment (underline + link color, colour still distinguishes affirmative vs fail-closed). `UnencumberedInventory.tsx` column header `By-the-book` → `Recommendation` (sentence case, matching sibling headers). The link remains a `<button>` because it opens the in-app inspector rather than navigating a URL; it is the **single** entry point (no added Govern/Inspect button, icon, or status badge). Row density preserved; Ladder site keeps its `stopPropagation` wrapper (no row-click bleed); Unencumbered rows have no row-level click handler. **Recommendation semantics and the inspector are unchanged.**
+
+**Verification.** Focused governed-row + governed-decision (4 files, 39 tests) pass; `operator-console` suite (10 files, 124 tests) pass; `tsc -b` clean; `npm run lint` exit 0 (warnings only, incl. the pre-existing `UnencumberedInventory` `only-export-components` CSV-export warnings); full frontend `npx vitest run` → 2112 pass / 2 fail, the 2 fails being **only** the pre-existing `tests/roadmap/RoadmapView.test.tsx` duplicate-`## AR1` heading defect. No introduced failures.
+
+### B. Setup/configuration discovery (durable intake, NOT implemented)
+
+Materially developed operator-governance-configuration discovery crossed the durability threshold and was reconciled under `docs/foundations/idea-intake-reconciliation.md` against the complete `docs/parking-lot*.md` sequence. No existing `PL-*` owned it. New canonical identity **`PL-SETUP-01`** created in `docs/parking-lot-10.md` with a full Reconciliation Completion Record; rich why-state in `docs/66-operator-governance-setup-configuration-discovery-2026-09-26.md`.
+
+Key preserved discoveries: an Account may contain multiple governed scopes; Program is **not** account-global (PTS = Treasury ladder + options overlay in one account is the motivating counterexample); opaque `governedScopeId` should be system-managed while the operator deals in meaningful (illustrative, non-canonical) scope names; guided vs advanced setup are alternate views over the **same** durable governance; brokerage evidence may pre-fill established facts and propose likely structures but **cannot establish Program/Wheel membership** (`recognition is not authority`; covered-call geometry ≠ Wheel call-phase membership; writable 100-share lot ≠ Wheel inventory); `UNKNOWN` stays in the model and undefined policy conditions remain `UNRESOLVED` rather than being guessed into `CLEAR`; configuration updates create successor immutable Context Versions, never rewriting history.
+
+**Dispositions:** no `roadmap.md` change; **new architectural pressure on the AR1 governed-decision durable owner** (multiple scopes per account, scope-relative Program, operator-facing authoring) with no `architecture-roadmap.md` direction change and no ADR authorized yet; next authorized mode is design/exploration only when the Principal selects it.
+
+**Retraction (correcting the prior completion report).** The earlier instruction to accept by authoring an *"accepted-call-away governed scope with CLEAR gates"* is retired. The Principal must not manufacture `CLEAR` values to exercise the positive evaluator path; production governance must be truthful attestation. Automated evaluator tests may continue to use explicit positive fixtures.
+
+**ADR-018 compliance.** Adding `PL-SETUP-01` materially changes authoritative parking-lot state, so `scripts/generate-roadmap-projection.mjs` was regenerated (exit 0; 69 PL items incl. `PL-SETUP-01`) and verified via `tests/roadmap` projection-freshness/integrity/parsers (3 files, 147 tests pass). `src/roadmap/roadmap-projection.json` updated.
+
+### Scope audit
+
+No deferred capability entered: no full setup wizard or advanced configuration editor, no scope-discovery/inference machinery, no broker-connection architecture or credential storage, no Treasury/Program engine or governance DSL, no account-global Program selector, no new intervention/eligibility/no-write policy, no automated Wheel classification, no BUG-001 fix, and **no change to Doc 65 P0–P3 evaluator semantics** (governed-decision + evaluator tests remain green).

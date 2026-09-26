@@ -245,7 +245,7 @@ export function UnencumberedInventory({ snapshot, observations, governedBySubjec
               <th className="oc-inv-th-right" title="Symbol-level blended average cost — not specific to the free shares">Average cost basis</th>
               <th className="oc-inv-th-right">Freshness</th>
               {showGoverned && (
-                <th className="oc-inv-th-right" title="By-the-book governed Wheel recommendation for this share block (SELL CALL is a phase result, not a contract selection)">By-the-book</th>
+                <th className="oc-inv-th-right" title="Governed by-the-book Wheel recommendation for this share block (SELL CALL is a phase result, not a contract selection)">Recommendation</th>
               )}
             </tr>
           </thead>

@@ -153,3 +153,51 @@ The manual evidence-refresh workflow grows with each authoritative source. Four 
 ### Explicitly not authorized
 
 This record does not authorize changing ADR-020's ownership authority, making Positions mandatory, altering the upload surface, sourcing ownership/basis from a different export, or any evidence-substitution that would change which document is authoritative for a fact.
+
+
+---
+
+## `PL-SETUP-01` — Operator-facing governance setup / configuration (account governed-scope topology; guided vs advanced; evidence-accelerated, never inferred)
+
+**Date:** September 26, 2026
+**State:** RECONCILED intake — durable capture of Principal governance-configuration discovery surfaced during governed-decision (Doc 65) browser acceptance; no setup wizard, configuration editor, or governance semantics are authorized by this record.
+**Why-state:** `docs/66-operator-governance-setup-configuration-discovery-2026-09-26.md`.
+
+### Intake
+
+Browser acceptance of the bounded governed-decision walking slice (Doc 65 / ADR-019 / ADR-020) confirmed the row-level Recommendation projection and fail-closed `UNRESOLVED` behavior, but established that the current `Establish governance` authoring modal is **architecture-facing, not operator-ready**. It requires the operator to speak internal concepts — opaque governed-scope id, Program, configuration version, call-away stance, and raw tri-state gates (`UNKNOWN`/`CLEAR`/`ACTIVE`) — without stating what governed condition each gate attests to.
+
+The durable discovery is an operator-facing governance **setup/configuration** capability. Its emerging topology is:
+
+> **Account → governed scope(s) → Operating Program/configuration → Recommendation.**
+
+Concrete motivating counterexample: **PTS** — one brokerage account containing both a Treasury ladder and an options overlay. Therefore Program is **not** account-global; an account may contain multiple governed scopes governed differently. The existing `governedScopeId` is a genuine architectural identity, but opaque ids should be **system-managed**, with the operator dealing in meaningful (illustrative, non-canonical) Product names.
+
+Emerging Product shape (not authorized): **Add Account / Account Settings** entry points; a setup experience with two presentations over the *same* durable governance — **guided** (Product-language questions, evidence pre-fill) and **advanced/super-user** (direct scopes/Program/Outcome Stance/gates/provenance). Both resolve into the same immutable, versioned backend; configuration updates create **successor** Context Versions, never mutate history (ADR-019).
+
+### Critical inference boundary (load-bearing)
+
+Brokerage evidence (CSV now, authorized broker connection later) may establish **mechanical facts / economic constructions** and support **hypotheses**, and may **pre-fill established facts and propose likely structures**. It cannot establish Program/Wheel membership. `recognition is not authority`; `covered-call geometry ≠ Wheel call-phase membership`; `writable 100-share lot ≠ Wheel inventory`. WW fills what it knows, proposes what it infers, and **asks** for operator-authority blanks. `UNKNOWN` stays in the model; undefined policy conditions remain `UNRESOLVED` rather than being guessed into `CLEAR`. Do not design around storing raw brokerage credentials.
+
+### Relationship to existing concerns
+
+- **AR1 governed-decision durable owner (`docs/architecture-roadmap.md`)** — this is new architectural pressure *on* the ratified governed-decision substrate (immutable account-local Context Versions / Decision Records): specifically that an account hosts multiple governed scopes, Program is scope-relative, and the authoring surface must be operator-facing. It does not reopen ADR-019/ADR-020.
+- **Doc 64 / Doc 65 / ADR-019 / ADR-020** — the governed-decision slice this configures. This item owns the *operator configuration experience*, not the evaluator semantics.
+- **`PL-BETA-01`** — private-beta onboarding/agreement; a beta evaluator would need account/governance setup, but `PL-BETA-01` owns the *operating relationship*, not the governance-configuration UX.
+- **`PL-ARCH-03` (Security & User Accounts)** — owns authentication/account-security mechanics; `PL-SETUP-01` presumes but does not redefine them.
+- **`PL-ARCH-07`** — authorization/multi-Operator research may inform later scope/ownership boundaries; no RBAC/ReBAC/FGA authorized here.
+- **`PL-PORT-01`** — portfolio-state / evidence-import semantics; brokerage-evidence pre-fill reads from that neighborhood but does not redefine it.
+- **`PL-OPS-CSV-01`** — per-refresh CSV burden; evidence-accelerated setup is adjacent but distinct (setup/governance, not refresh cadence).
+
+### Reconciliation Completion Record
+
+- **Intake:** new canonical identity **`PL-SETUP-01`**. Full parking-lot-sequence reconciliation found onboarding (`PL-BETA-01`), accounts/auth (`PL-ARCH-03`/`PL-ARCH-07`), portfolio import (`PL-PORT-01`), and CSV burden (`PL-OPS-CSV-01`) neighbors, but **no existing identity owning operator-facing governance configuration, account governed-scope topology, Program-per-scope, or guided-vs-advanced setup**.
+- **Strategic disposition:** **no new LVT Bet and no `docs/roadmap.md` change.** This is the operator-experience/configuration expression of the already-ratified governed-decision capability and the accepted always-on/multi-user direction; it strengthens rather than redirects existing strategy.
+- **Architectural disposition:** **new architectural pressure on the AR1 governed-decision durable owner; no `docs/architecture-roadmap.md` direction change and no ADR authorized yet.** The pressure is: model an account as hosting multiple governed scopes, keep Program scope-relative (not account-global), keep opaque scope identity system-managed, and drive operator interaction from Product-language governance questions while preserving immutable/versioned Context Versions and replay. Resolving this pressure requires design (and likely an ADR) under normal reconciliation before implementation.
+- **Parking-lot disposition/mapping:** **retained as `PL-SETUP-01`**, cross-linked to `PL-BETA-01`, `PL-ARCH-03`, `PL-ARCH-07`, `PL-PORT-01`, `PL-OPS-CSV-01`, Doc 64/65, and ADR-019/ADR-020; not double-booked as any of them.
+- **Why-state:** `docs/66-operator-governance-setup-configuration-discovery-2026-09-26.md`.
+- **Next authorized mode:** **design/exploration only when deliberately selected by the Principal** (likely a Product/semantic reconciliation of scope naming and Program topology, followed by an ADR). No setup wizard, configuration editor, scope-discovery/inference machinery, broker-connection architecture, or governance-semantics change is authorized by this record.
+
+### Explicitly not authorized
+
+Final scope naming; automatic scope-discovery semantics; Program compatibility rules; questionnaire/advanced-mode schema; inference confidence model; brokerage connection architecture; broker credential storage; Treasury Program semantics; a generalized Program/governance engine or DSL; account-global Program ownership; new intervention/eligibility/no-write policy; automated Wheel classification; the full setup wizard or advanced configuration editor; portfolio allocation; or any change to Doc 65 P0–P3 evaluator semantics.

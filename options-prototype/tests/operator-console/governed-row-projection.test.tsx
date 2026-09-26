@@ -77,10 +77,34 @@ describe("row-level governed projection into Unencumbered Shares", () => {
     expect(onInspect.mock.calls[0][0].subject.subjectId).toBe("shares-URA");
   });
 
-  it("does NOT render the By-the-book column when governance projection is unavailable", () => {
+  it("does NOT render the Recommendation column when governance projection is unavailable", () => {
     const s = snap([inv("GDXJ", 100)]);
     render(<UnencumberedInventory snapshot={s} observations={noObs} />);
+    expect(screen.queryByText("Recommendation")).toBeNull();
+  });
+
+  it("renders the Recommendation column header when governance projection is available", () => {
+    const s = snap([inv("GDXJ", 100)]);
+    const gov = new Map([["shares-GDXJ", resolved("GDXJ", "SELL_CALL")]]);
+    render(<UnencumberedInventory snapshot={s} observations={noObs} governedBySubjectId={gov} onInspectGoverned={() => {}} />);
+    expect(screen.getByText("Recommendation")).toBeTruthy();
+    // No pre-rename "By-the-book" label anywhere.
     expect(screen.queryByText("By-the-book")).toBeNull();
+  });
+
+  it("renders the Recommendation value as an ordinary link (not a pill/badge) that opens the inspector", () => {
+    const s = snap([inv("GDXJ", 100)]);
+    const gov = new Map([["shares-GDXJ", resolved("GDXJ", "SELL_CALL")]]);
+    const onInspect = vi.fn();
+    render(<UnencumberedInventory snapshot={s} observations={noObs} governedBySubjectId={gov} onInspectGoverned={onInspect} />);
+    const link = screen.getByText("SELL CALL");
+    // Link treatment (grt-link*), not the old bordered-pill treatment (base class "grt").
+    const classes = link.className.split(/\s+/);
+    expect(classes).toContain("grt-link");
+    expect(classes).toContain("grt-link-sell-call");
+    expect(classes).not.toContain("grt"); // old pill base class is gone
+    fireEvent.click(link);
+    expect(onInspect).toHaveBeenCalledOnce();
   });
 
   it("has no standalone 'Governed Recommendations' region", () => {

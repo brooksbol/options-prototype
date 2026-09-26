@@ -8,6 +8,13 @@
  *
  * Vocabulary (bounded): LET RESOLVE | SELL CALL | UNRESOLVED. This is NOT a universal
  * Recommendation enum and must not be collapsed into HOLD/WAIT or a contract selection.
+ *
+ * Operator-facing treatment (Principal UX reconciliation): the Recommendation VALUE is
+ * rendered as an ordinary in-table hyperlink, not a pill/tag/badge. Clicking it opens the
+ * existing governed Recommendation inspector — it is the single entry point (no separate
+ * Govern/Inspect button, info icon, or status badge). It remains a <button> because the
+ * action opens an in-app inspector rather than navigating a URL; it is styled to read as a
+ * conventional link.
  */
 
 import type { GovernedRecommendation } from "../governed-decision/types";
@@ -24,10 +31,10 @@ export function GovernedRecommendationTag({
   const label = RECOMMENDATION_LABEL[recommendation];
   const cls =
     recommendation === "LET_RESOLVE"
-      ? "grt grt-let-resolve"
+      ? "grt-link grt-link-let-resolve"
       : recommendation === "SELL_CALL"
-        ? "grt grt-sell-call"
-        : "grt grt-unresolved";
+        ? "grt-link grt-link-sell-call"
+        : "grt-link grt-link-unresolved";
   const title =
     recommendation === "UNRESOLVED"
       ? "Governed recommendation unresolved — insufficient governance or evidence. Open to inspect why."
