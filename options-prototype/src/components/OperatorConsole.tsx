@@ -210,9 +210,9 @@ export function OperatorConsole() {
   // projected on in-scope subjects (covered-call obligations + unencumbered share blocks).
   // Fail-closed: without authorized governance + explicit association the result is UNRESOLVED.
   const [inspectedGoverned, setInspectedGoverned] = useState<ResolvedGovernedRecommendation | null>(null);
-  // Governance authoring now lives INSIDE the drawer (no separate modal / no launch bridge).
-  const [governanceEpoch, setGovernanceEpoch] = useState(0);
-  const governedRecommendations = useGovernedRecommendations(positions, snapshot, chainReadGeneration, governanceEpoch);
+  // The governed drawer is read-only (no browser governance write in this bounded slice), so
+  // there is no governance epoch to bump; the hook re-resolves on snapshot/generation change.
+  const governedRecommendations = useGovernedRecommendations(positions, snapshot, chainReadGeneration);
 
   // Alternative groupings for regime B
   const groups: { label: string; sublabel?: string; positions: MonitoredPosition[]; totalCapital: number }[] = (() => {
@@ -358,7 +358,7 @@ export function OperatorConsole() {
                 })
               ) : (
                 rungs.map((rung) => (
-                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} governedBySubjectId={snapshot.brokerageAccountId ? governedRecommendations : undefined} onInspectGoverned={setInspectedGoverned} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
                 ))
               )}
             </div>
@@ -383,15 +383,13 @@ export function OperatorConsole() {
         />
       )}
 
-      {/* The SINGLE governed Recommendation drawer: it owns both inspection (governing
-          basis / why UNRESOLVED) AND the inline governance establish/amend act. No separate
-          modal, no launch bridge. Governance writes bump the epoch to re-resolve. */}
+      {/* The SINGLE right-side governed Recommendation drawer: dense, operator-first,
+          read/explain + the bounded call-away question. No centered modal, no accordion,
+          no raw governance form. */}
       {inspectedGoverned && (
         <GovernedRecommendationInspector
           resolved={inspectedGoverned}
           onClose={() => setInspectedGoverned(null)}
-          brokerageAccountId={snapshot?.brokerageAccountId ?? null}
-          onAuthored={() => setGovernanceEpoch((e) => e + 1)}
           callAwayStrike={
             inspectedGoverned.subject.subjectType === "covered-call"
               ? positions.find((p) => p.id === inspectedGoverned.subject.subjectId)?.strike ?? null
@@ -405,7 +403,8 @@ export function OperatorConsole() {
 
 // --- Expiration Rung ---
 
-function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDeltas, positionGreeks, positionQuotes, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; positionQuotes: PositionQuoteMap; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
+/** Exported for the real Ladder rung-view Recommendation click-path regression test. */
+export function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDeltas, positionGreeks, positionQuotes, governedBySubjectId, onInspectGoverned, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; positionQuotes: PositionQuoteMap; governedBySubjectId?: ReadonlyMap<string, ResolvedGovernedRecommendation>; onInspectGoverned?: (r: ResolvedGovernedRecommendation) => void; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
   const rungPercent = totalCapital > 0 ? Math.round((rung.totalCapital / totalCapital) * 100) : 0;
 
   return (
@@ -418,7 +417,7 @@ function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDel
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
       {vizRegime === "b" ? (
-        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={EMPTY_INTRADAY_BARS} snapshot={snapshot} />
+        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} governedBySubjectId={governedBySubjectId} onInspectGoverned={onInspectGoverned} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={EMPTY_INTRADAY_BARS} snapshot={snapshot} />
       ) : (
         <PositionGrid positions={rung.positions} onTileClick={onTileClick} vizRegime={vizRegime} totalCapital={rung.totalCapital} />
       )}
@@ -1159,7 +1158,10 @@ export function PositionTable({ positions, onTileClick, allPositionsTotalCapital
                     <GovernedRecommendationCell recommendation={gr.evaluation.recommendation} />
                   </td>
                 ) : (
-                  <td className="oc-td-right">—</td>
+                  // No governed projection for this subject (e.g. a put). The Recommendation
+                  // column never opens the position/lifecycle modal — stop propagation so a
+                  // click here is inert rather than falling through to the row handler.
+                  <td className="oc-td-right" onClick={(e) => e.stopPropagation()}>—</td>
                 );
               })()}
             </tr>

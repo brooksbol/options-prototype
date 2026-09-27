@@ -1,24 +1,28 @@
 /**
- * governed-drawer-language — operator-first plain-English framing for the governed
+ * governed-drawer-language — operator-first plain-English framing for the dense governed
  * Recommendation drawer.
  *
  * SCOPE DISCIPLINE (Doc 65 + Principal corrective UX):
- *   - This module maps ALREADY-COMPUTED evaluator output (recommendation + unresolvedCauses)
- *     into operator-language explanation. It makes NO decision and changes NO semantics.
- *   - It only asks operator questions the current authority can legitimately support. The
- *     one meaningful bounded question is the operator's DESIRED call-away disposition.
- *   - It MUST NOT fabricate friendly questions for undefined governed conditions
- *     (intervention / eligibility / no-write). Doc 65 does not define those operator
- *     conditions, so where they block the recommendation we explain the boundary in plain
- *     language rather than inventing a question. (§6 invariant: a friendly UI must not
- *     manufacture governance the underlying authority does not contain.)
+ *   - Maps ALREADY-COMPUTED evaluator output (recommendation + unresolvedCauses) into
+ *     operator-language explanation. It makes NO decision and changes NO semantics.
+ *   - Asks only operator questions the current authority can legitimately support — the one
+ *     bounded question being the operator's DESIRED call-away disposition.
+ *   - MUST NOT fabricate friendly questions for undefined governed conditions
+ *     (intervention / eligibility / no-write). Where those block the recommendation we state
+ *     the boundary; we never invent a question or instruct choosing CLEAR.
+ *   - "Recognition is not authority": mechanical resemblance never establishes Wheel
+ *     membership or operator intent.
  */
 
 import type { GovernedRecommendation } from "../governed-decision/types";
 import type { DecisionSubject } from "../governed-decision/subject";
 
-/** Cause codes that correspond to governed conditions Doc 65 does NOT define for the
- *  operator to answer. We surface these as an honest boundary, never as a fake question. */
+/** A compact NEEDS row: what governed fact is required and its plain-English status. */
+export interface NeedRow {
+  label: string;
+  status: string;
+}
+
 const UNDEFINED_POLICY_CAUSES = new Set<string>([
   "governed-intervention-condition-active",
   "intervention-condition-unknown",
@@ -28,28 +32,30 @@ const UNDEFINED_POLICY_CAUSES = new Set<string>([
   "no-write-condition-unknown",
 ]);
 
-/** Cause codes that are PL-SETUP-01 scope-association / Wheel-attribution territory. */
-const SCOPE_ASSOCIATION_CAUSES = new Set<string>([
-  "no-governed-scope-association",
-]);
+const SCOPE_ASSOCIATION_CAUSES = new Set<string>(["no-governed-scope-association"]);
 
 export interface OperatorExplanation {
   /** One-line plain-English summary of the current recommendation. */
   headline: string;
-  /** Plain-English bullet(s) describing why WW cannot recommend (UNRESOLVED only). */
-  reasons: string[];
-  /** True when the ONLY meaningful bounded operator input — call-away desire — can be asked. */
+  /** Compact NEEDS rows (UNRESOLVED only). */
+  needs: NeedRow[];
+  /** One-line plain-English "why unresolved" (UNRESOLVED only). */
+  whyUnresolved: string | null;
+  /** True when the DESIRED call-away question can legitimately be asked. */
   canAskCallAway: boolean;
-  /** True when a boundary beyond the operator's answer prevents an affirmative result. */
-  hasUndefinedPolicyBoundary: boolean;
-  /** True when the subject has no governed-scope association yet (PL-SETUP-01 territory). */
-  needsScopeAssociation: boolean;
 }
 
-/** The operator-facing call-away question. Captures DESIRED disposition, not mere tolerance. */
+/** The operator-facing call-away question. Captures DESIRED disposition, not tolerance. */
 export function callAwayQuestion(subject: DecisionSubject, strike: number | null): string {
   const at = strike != null ? ` at $${strike}` : "";
   return `Do you want ${subject.symbol} to be called away${at}?`;
+}
+
+/** Plain-English subject line, e.g. "COPX · covered call" / "COPX share block". */
+export function subjectSummary(subject: DecisionSubject): string {
+  return subject.subjectType === "covered-call"
+    ? `${subject.symbol} · covered call`
+    : `${subject.symbol} · share block`;
 }
 
 export function explainForOperator(
@@ -59,55 +65,58 @@ export function explainForOperator(
 ): OperatorExplanation {
   if (recommendation === "LET_RESOLVE") {
     return {
-      headline: `WW recommends letting the ${subject.symbol} covered call resolve on its own — no action now.`,
-      reasons: [],
+      headline: `Let the ${subject.symbol} covered call resolve on its own — no action now.`,
+      needs: [],
+      whyUnresolved: null,
       canAskCallAway: false,
-      hasUndefinedPolicyBoundary: false,
-      needsScopeAssociation: false,
     };
   }
   if (recommendation === "SELL_CALL") {
     return {
-      headline: `WW recommends selling a call against the ${subject.symbol} shares (which call is a separate step).`,
-      reasons: [],
+      headline: `Sell a call against the ${subject.symbol} shares (which call is a separate step).`,
+      needs: [],
+      whyUnresolved: null,
       canAskCallAway: false,
-      hasUndefinedPolicyBoundary: false,
-      needsScopeAssociation: false,
     };
   }
 
-  // UNRESOLVED — translate causes into operator language.
+  // UNRESOLVED — translate causes into compact operator-language NEEDS rows.
   const causes = new Set(unresolvedCauses);
   const needsScopeAssociation = [...causes].some((c) => SCOPE_ASSOCIATION_CAUSES.has(c));
   const callAwayMissing = causes.has("call-away-stance-not-accepted");
   const hasUndefinedPolicyBoundary = [...causes].some((c) => UNDEFINED_POLICY_CAUSES.has(c));
 
-  const reasons: string[] = [];
-  if (needsScopeAssociation) {
-    reasons.push(
-      `WW has not been told that this ${subject.symbol} position is part of a governed Wheel. Until you confirm that, WW will not recommend an action.`,
-    );
-  }
-  if (callAwayMissing && !needsScopeAssociation) {
-    reasons.push(
-      `WW does not yet know your intended call-away disposition for ${subject.symbol}.`,
-    );
+  const needs: NeedRow[] = [];
+  needs.push({
+    label: "Wheel program membership",
+    status: needsScopeAssociation ? "Not established" : "Established",
+  });
+  if (!needsScopeAssociation) {
+    needs.push({
+      label: "Call-away intent",
+      status: callAwayMissing ? "Not established" : "Established",
+    });
   }
   if (causes.has("evidence-insufficient")) {
-    reasons.push("Some required position evidence is not yet authoritative enough to decide.");
+    needs.push({ label: "Position evidence", status: "Not yet authoritative" });
   }
   if (hasUndefinedPolicyBoundary) {
-    reasons.push(
-      "One or more governed conditions that would need checking are not yet defined in WW's ratified rules, so WW cannot ask you about them and holds at UNRESOLVED rather than guessing.",
-    );
-  }
-  if (reasons.length === 0) {
-    reasons.push("Required governance or evidence is not yet established.");
+    needs.push({ label: "Eligibility / intervention", status: "No governed determination" });
   }
 
-  // The only bounded question we can legitimately ask is call-away desire, and only once a
-  // scope association exists (otherwise the prerequisite is PL-SETUP-01 territory).
-  const canAskCallAway = callAwayMissing && !needsScopeAssociation;
+  const whyUnresolved = needsScopeAssociation
+    ? `No governed Wheel association exists for this ${subject.symbol} ${subject.subjectType === "covered-call" ? "call" : "share block"}. WW will not infer Wheel membership from the position itself.`
+    : hasUndefinedPolicyBoundary
+      ? "A governed condition this decision depends on is not defined in WW's ratified rules, so WW holds at UNRESOLVED rather than guessing."
+      : callAwayMissing
+        ? `WW does not yet know your intended call-away disposition for ${subject.symbol}.`
+        : "Required governance or evidence is not yet established.";
 
-  return { headline: `WW cannot make a recommendation for ${subject.symbol} yet.`, reasons, canAskCallAway, hasUndefinedPolicyBoundary, needsScopeAssociation };
+  return {
+    headline: `WW cannot make a recommendation for ${subject.symbol} yet.`,
+    needs,
+    whyUnresolved,
+    // Ask call-away only when it is the missing bounded fact AND a scope association exists.
+    canAskCallAway: callAwayMissing && !needsScopeAssociation,
+  };
 }

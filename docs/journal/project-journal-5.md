@@ -822,3 +822,36 @@ No governed-decision core file (`evaluators`, `governed-context`, `subject`, `de
 ### Not browser-accepted yet
 
 Automated tests passing is not acceptance. The endpoint remains a Principal inspection of the real Console (compact tags, no red balls, Recommendation → right-side drawer, operator-first URA question).
+
+---
+
+## 2026-09-26 — Governed drawer: Ladder rung-view click-path bug fixed + dense operator-first redesign (Kiro)
+
+**Actor:** Kiro (Implementation Engineer). **SYNC at start:** `e897fab` (accepted `main`, GitHub-verified; local = origin, 0/0; clean worktree). **Mode:** Principal-authorized tightly-bounded correction. Presentation/interaction only.
+
+### Root cause of the "Recommendation click opens the centered RECONCILE LIFECYCLE modal" bug
+
+Traced the actual event path (not just component tests, which is why prior tests missed it). The **expiration-rung Ladder view** renders positions through `ExpirationRungRow`, which was calling `PositionTable` **without** `governedBySubjectId` / `onInspectGoverned`. So in the rung view every Recommendation cell fell to the dash fallback `<td>—</td>` (no `stopPropagation`), and clicking in the Recommendation column bubbled to the row `<tr onClick={onTileClick}>` → `PositionDetailModal` (the centered RECONCILE LIFECYCLE surface). The non-rung grouped `PositionTable` already received the governed props, so component tests and that view worked — masking the defect.
+
+**Fix:** threaded `governedBySubjectId` + `onInspectGoverned` through `ExpirationRungRow` into its `PositionTable`, and hardened the dash fallback cell with `stopPropagation` so the Recommendation column never opens the position/lifecycle modal (`Recommendation click ≠ position-detail click`), regardless of position type. Added a **real rung-view regression** (`ExpirationRungRow` exported for test) asserting: governed tag projects, clicking it invokes the drawer path, and `onTileClick` (modal) is **not** called.
+
+### Dense, flat, operator-first drawer redesign
+
+Rebuilt `GovernedRecommendationInspector` as a dense operator inspector consistent with the Console (11px base, compact two-column rows, ~340px panel), replacing the low-density settings-panel look:
+
+- **Removed all accordions/disclosures** (`Technical details` / `Advanced governance` are gone — no `<details>`/`<summary>`).
+- **Removed raw governance engineering from the operator surface**: no governed-scope-id entry, no configuration version, no `CLEAR`/`ACTIVE`/`UNKNOWN` gate controls, no "fails closed" phrasing, no raw Record-governance form. The rejected `GovernanceForm` + its CSS were **deleted**. The durable write client (`client.ts`) is untouched and remains for the future PL-SETUP-01 workflow.
+- **Flat layout**: compact recommendation tag + subject summary + one-line headline; **Needs** (plain-English rows, e.g. `Wheel program membership — Not established`); the desired call-away question when authority supports it; **Basis** (Account/Subject/Program/Context/Rule, compact); **Why unresolved** (one line). All visible without expansion.
+- **Honest boundary preserved**: with no governed Wheel association, the drawer states `Wheel program membership — Not established` and "WW will not infer Wheel membership from the position itself" rather than exposing an internal governance editor. Absent the PL-SETUP-01 workflow, it stops at that boundary.
+
+### Semantics preserved
+
+`UNRESOLVED` / `LET RESOLVE` / `SELL CALL` remain compact tags in the CALL/BW idiom (`grc-tag*`); red Ladder balls remain absent; the call-away question keeps the required wording ("Do you want URA to be called away at $43?", Yes/No/Not sure) and is only asked when call-away is the missing bounded fact and an association exists; the desired-vs-pre-accepted boundary is stated (a "Yes" is captured as current intent and explicitly does not by itself establish governance). No governed-decision core file and no backend file was touched; recommendation vocabulary, fail-closed behavior, immutable Context Versions, Decision persistence, and replay are unchanged. PL-SETUP-01 not implemented. The browser drawer is now read-only (no governance write), so the Console governance-epoch state was removed.
+
+### Verification
+
+`tsc -b` clean; `npm run lint` exit 0. Focused governed-row + governed-drawer + ladder-governed-column (incl. the rung-view regression) = 20 pass. Broader governed-decision + operator-console + components = 24 files / 217 pass (incl. replay). Full frontend `npx vitest run` → 2124 pass / 3 fail — the 3 fails are ALL the pre-existing `tests/roadmap/RoadmapView.test.tsx` failures (2 duplicate-`## AR1` heading + 1 Log newest-date), unrelated and unchanged. No introduced failures.
+
+### Not browser-accepted
+
+Automated tests are not acceptance. The endpoint remains a Principal Console inspection: rung-view Recommendation click opens the right-side drawer (not the centered modal), and the drawer is dense with no accordions and no raw governance controls.

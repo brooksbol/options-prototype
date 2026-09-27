@@ -9,8 +9,8 @@
 
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
-import { PositionTable } from "../../src/components/OperatorConsole";
-import type { MonitoredPosition } from "../../src/portfolio/position-monitoring";
+import { PositionTable, ExpirationRungRow } from "../../src/components/OperatorConsole";
+import type { MonitoredPosition, ExpirationRung } from "../../src/portfolio/position-monitoring";
 import type { PortfolioSnapshot } from "../../src/write-desk/types";
 import type { ResolvedGovernedRecommendation } from "../../src/governed-decision/resolve";
 import type { GovernedRecommendation } from "../../src/governed-decision/types";
@@ -119,5 +119,50 @@ describe("Ladder governed Recommendation column", () => {
     const govCell = container.querySelector("td.oc-td-governed")!;
     expect((govCell as HTMLElement).querySelector(".hcb")).toBeNull();
     expect((govCell as HTMLElement).textContent).not.toContain("🔴");
+  });
+});
+
+/**
+ * Real Ladder RUNG-VIEW click-path regression (the view in the Principal's screenshot).
+ *
+ * Root cause of the reported bug: ExpirationRungRow rendered PositionTable WITHOUT the
+ * governed props, so the Recommendation column fell through to the row click -> centered
+ * position/lifecycle modal. This exercises the actual ExpirationRungRow DOM/event path.
+ */
+function rung(positions: MonitoredPosition[]): ExpirationRung {
+  return { expiration: "2026-10-16", dte: 20, positions, totalCapital: 0, capitalizedCount: 0 };
+}
+
+describe("Ladder rung-view Recommendation click path (regression)", () => {
+  it("projects the governed tag and opens the drawer path — NOT the position/lifecycle modal", () => {
+    const pos = coveredCall("cc-1", "URA");
+    const governed = new Map([["cc-1", gov("cc-1", "URA", "UNRESOLVED")]]);
+    const onTileClick = vi.fn();   // this is what opens the centered RECONCILE LIFECYCLE modal
+    const onInspect = vi.fn();     // this opens the right-side governed drawer
+    const { container } = render(
+      <ExpirationRungRow
+        rung={rung([pos])}
+        totalCapital={0}
+        maxPositionCapital={0}
+        positionDeltas={EMPTY}
+        positionGreeks={EMPTY}
+        positionQuotes={EMPTY}
+        governedBySubjectId={governed}
+        onInspectGoverned={onInspect}
+        onTileClick={onTileClick}
+        vizRegime="b"
+        isDemoSource={false}
+        spotHistory={EMPTY}
+        snapshot={snap()}
+      />,
+    );
+    // The Recommendation column projects a governed tag in the rung view.
+    const govCell = container.querySelector("td.oc-td-governed");
+    expect(govCell).toBeTruthy();
+    expect(within(govCell as HTMLElement).getByText("UNRESOLVED")).toBeTruthy();
+    // Clicking it opens the drawer path and NOT the position/lifecycle modal.
+    fireEvent.click(govCell!);
+    expect(onInspect).toHaveBeenCalledOnce();
+    expect(onTileClick).not.toHaveBeenCalled();
   });
 });
