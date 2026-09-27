@@ -67,11 +67,17 @@ Gate Experiment 001 remains a staged capability-boundary experiment until its du
 
 Every AI actor cold start must read the suspended-contract compatibility bridge, the Principal Decision Surface, the applicable actor bootstrap, and current task/experiment state before substantive outcome-bearing reasoning or execution.
 
+## Product and Architectural Principles Routing — September 27, 2026
+
+`principles.md` is the single canonical register of Wheelwright's ratified enduring principles. Consequential Product work must retrieve and test against applicable ratified **Product Principles**; consequential architecture work must do the same for applicable **Architectural / build** principles; cross-cutting work must check both. Candidate/discovered principle-like statements remain non-authoritative until explicit Principal ratification adds them to the register with provenance.
+
+The register also owns the lightweight meanings of **Solution Overview** (Product/architecture reconciliation of what must become true) and **Solution Design** (technical realization of an accepted Overview). Neither replaces an ADR, and lower-level findings may require upward reconciliation rather than imposing a rigid waterfall.
+
 ---
 
 ## Reading Paths
 
-### Minimum Safe Bootstrap (6 documents)
+### Minimum Safe Bootstrap (7 documents)
 
 Read these before doing any Wheelwright work. Produces safe operating competence in 30–60 minutes.
 
@@ -83,6 +89,7 @@ Read these before doing any Wheelwright work. Produces safe operating competence
 | 4 | `07-architecture-current.md` | Current system. Four Engines. Boundaries. Surfaces. |
 | 5 | `07c-adrs.md` | Decisions that constrain changes. ADR-001 through ADR-021 (append-only). |
 | 6 | Complete `parking-lot*.md` sequence | What is active, deferred, and resolved. Read the original plus every numbered continuation. |
+| 7 | `principles.md` | Canonical register of ratified Product, Architectural/build, and Epistemic principles; candidate boundary and solution-artifact meanings. |
 
 **When this is insufficient:** If you're touching architecture, designing a new subsystem, or need to understand *why* something is the way it is — continue to the comprehensive path.
 

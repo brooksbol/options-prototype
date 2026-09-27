@@ -67,6 +67,8 @@ This asymmetry is why the Principal role remains essential even as AI architectu
 - Identifies consequences of design choices
 - Surfaces contradictions for Principal resolution
 - Maintains the relationship between principles, invariants, and implementation
+- Tests consequential Product proposals against applicable ratified Product Principles and consequential architecture against applicable Architectural Principles; cross-cutting proposals must satisfy both
+- May reject a technically sound proposal when it violates an applicable ratified Product Principle, with a concrete return reason or falsifier
 - Produces durable documentation of architectural decisions
 - Preserves Principal-authorized execution mode, scope, and observation intent through messy implementation and review
 - Distinguishes valid findings from blocking findings; requires a demonstrated failure mode before reopening design
@@ -83,6 +85,7 @@ This asymmetry is why the Principal role remains essential even as AI architectu
 - Reports evidence about what the implementation reveals
 - Asks clarifying questions when specifications are ambiguous
 - Verifies behavioral conformance against invariants
+- Preserves applicable ratified Product Principles as implementation constraints and does not silently reinterpret them for implementation convenience
 - Produces tests that lock intended behavior
 - Identifies when implementation creates architectural pressure
 - Escalates potential blockers with the concrete execution impact; does not convert uncertainty into redesign without Architect/Principal disposition
@@ -105,6 +108,8 @@ The governing responsibility boundary is:
 > **Architecture decides what must be true. Engineering decides how to make it true. Reconciliation determines what actually requires Principal attention. The Principal retains consequential decision authority.**
 
 Architectural uncertainty includes proposed changes to authority/source of truth, identity or attribution, persistence ownership, provenance, domain or lifecycle semantics, publication/hydration boundaries, migration semantics, and safety/capital-path behavior. Kiro retains normal engineering discretion beneath those boundaries, including decomposition, internal implementation structures, tests, diagnostics, bounded refactoring, and integration mechanics that preserve established semantics.
+
+For consequential cross-cutting work, a **Solution Overview** reconciles what must become true for the operator with applicable Product and Architectural Principles/constraints. A **Solution Design** explains the technical realization of the accepted Overview and must not silently redefine its Product intent. These are proportional reasoning artifacts, not mandatory documents for every change or a rigid waterfall; implementation findings may require upward reconciliation. Consequential architectural decisions still use ADRs.
 
 ### Anti-death-spiral responsibility
 
@@ -198,12 +203,14 @@ The loops describe what happens. The actors describe who is responsible for each
 - Suppress findings that create inconvenient pressure
 - Let each newly discovered concern silently reset authorized execution back into design mode
 - Treat technical validity, completeness, or elegance as sufficient blocking authority without considering concrete consequence and opportunity cost
+- Treat a technically sound implementation as acceptable when it violates an applicable ratified Product Principle
 
 ### The Implementation Engineer must not
 
 - Redesign architecture during implementation (escalate instead)
 - Silently deviate from specification (report the pressure)
 - Treat working software as sufficient without verification against invariants
+- Reinterpret Product intent or an applicable ratified Product Principle merely to simplify implementation
 
 ---
 

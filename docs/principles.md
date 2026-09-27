@@ -8,23 +8,47 @@
 
 > **If an item appears in this register, Wheelwright considers it a ratified enduring principle.**
 
-A principle is an enduring constraint on *how* Wheelwright is built and operated — distinct from a Bet (what we pursue), an AR (architectural pressure), an ADR (a decision made), or a PL item (unresolved work).
+A principle is an enduring constraint on what Wheelwright must remain as a Product, how it is built, or how it treats knowledge — distinct from a Bet (what we pursue), an AR (architectural pressure), an ADR (a decision made), or a PL item (unresolved work).
+
+### Product Principles
+
+A **Product Principle** is an enduring Product/business truth explaining why Wheelwright should behave or evolve in a particular way. It should survive individual UI implementations and individual LVTs unless explicitly scoped otherwise, preserve important Product intent, constrain future Product decisions, remain understandable months later, and be strong enough to reject a violating Product/design proposal without unnecessarily prescribing technical implementation.
+
+A useful classification test is:
+
+> If this LVT disappeared tomorrow, would we still insist that this statement remain true of Wheelwright?
+
+If yes, it may belong at the Product Principle or Wheelwright-wide Product-constraint level. Discovery scope does not establish applicability scope; promotion from a narrower horizon must be deliberate.
+
+Where useful, a Product Principle or its concrete consequence declares an **applicability horizon** such as Wheelwright-wide, capability/solution, Operating Program, account/regime, LVT, or another explicit boundary.
+
+Product Principles may give rise to narrower Product/domain constraints: invariants, policies, guardrails, cardinality, authority, temporal, identity, or lifecycle rules, and acceptance/litmus tests. Those artifacts are not automatically Product Principles. Preserve only the artifact weight justified by the durable reasoning. The intended chain is:
+
+> **WHY → WHAT MUST BE TRUE → HOW A PROPOSED SOLUTION SATISFIES IT → HOW WE ATTACK / VERIFY IT**
+
+Product Principles and Architectural Principles are counterparts, not substitutes. Product work checks applicable Product Principles; architecture work checks applicable Architectural Principles; cross-cutting work checks both. A durable concern may legitimately have both Product and Architectural force without being forced into one exclusive category.
 
 ## Inclusion rule (governance)
 
 1. Only principles **explicitly established as principles** by ratified/governing authority are listed here.
 2. Something that is currently only implicit, operated-by, encoded in an ADR, a reconciliation convention, or suggested by recent work is **not** a principle merely because it sounds principle-like. It stays out of this register until the Principal explicitly ratifies it as a principle. Promotion is a separate, explicit Principal decision.
 3. Each entry preserves its **family** and a **provenance** reference to the originating canonical document.
+4. Candidate/discovered principle-like statements, narrower Product/domain constraints, and solution-specific observations remain visibly non-ratified in their appropriate durable homes. They become canonical Product Principles only through explicit Principal ratification and addition to this register with provenance.
 
 ## Families
 
 - **Architectural / build** — enduring constraints on how the system is structured and built.
+- **Product** — enduring Product/business truths about what Wheelwright must remain for its operator, purpose, journeys, outcomes, boundaries, and externally meaningful behavior.
 - **Epistemic** — enduring constraints on how the system treats knowledge, evidence, and uncertainty.
 - **Operating / product-domain** — enduring commitments about how the operator manages capital under uncertainty. *(Present in authority as a first-class governing model, but the specific operating principles are currently framed as **candidate hypotheses**, not ratified; see the note at the end. They are therefore intentionally NOT listed as ratified principles here.)*
 
 ---
 
 ## Ratified principles
+
+### Product
+
+No Product Principles are ratified yet. This empty family is intentional: this change ratifies the canonical structure and governance mechanism, not the candidate principles preserved in `docs/68-product-architecture-fundamental-constraints-working-intent-2026-09-27.md` or elsewhere.
 
 ### Architectural / build
 
@@ -50,7 +74,18 @@ Source: `docs/foundations/retooling-charter.md` § "Durable Principles" (Categor
 The following are excluded on purpose, to keep the semantic contract honest:
 
 - **Operating / product-domain principles** (Preserve Optionality, Respect Uncertainty, Execute with Discipline, Earn Proportional Compensation, Avoid Concentration, Observe Before Acting, Sustain Institutional Behavior). The governing *model* that principles are first-class is ratified (`docs/foundations/principles-governance-model.md`, Category A), but that document frames these seven as **"Candidate Operating Principles… initial hypotheses."** They are strong candidates and may be ratified later; until the Principal explicitly ratifies them as principles, they are not listed here as ratified.
+- **Product Principle candidates and working constraints in Doc 68.** `docs/68-product-architecture-fundamental-constraints-working-intent-2026-09-27.md` remains working discovery/why-state. Its operator-authority, operator-language, minimum-authority, Program-cardinality, delivery-surface-independence, Incognito Test, and related specimens are not promoted by this structural ratification.
 - **Implicit / operating-practice / decision-encoded concepts** — for example: no runtime GitHub dependency (currently ADR-018, a decision); don't manufacture relationships not established by authority; dumb runtime / intelligence in reconciliation. These are operated-by or encoded in decisions and reconciliation records, not ratified as principles. They may be good candidates for later consideration; promoting any of them into this register is a separate, explicit Principal decision.
+
+## Solution reconciliation artifacts
+
+A **Solution Overview** is a lightweight Product/architecture reconciliation artifact answering approximately: *What are we actually going to make true for the operator, and what shape must the solution have to make that possible while respecting architecture?* Where the durable reasoning warrants it, an Overview preserves Product intent, operator journeys or specimens, expected outcomes and Product acceptance, applicable Product and Architectural Principles/constraints, tradeoffs, implementation-independent behavioral commitments, and unresolved design boundaries.
+
+A **Solution Design** is the more technical realization artifact answering approximately: *How will we technically realize the accepted Solution Overview?* It may cover identity, commands and transactions, APIs, durable state/versioning, associations, evaluator integration, idempotency, replay, migrations, responsibility boundaries, and technical acceptance/tests. It must not silently redefine Product intent established by the accepted Overview.
+
+These meanings are proportional tools, not mandatory documents for every change and not a rigid waterfall. Lower-level work may expose contradictions requiring upward reconciliation. ADRs remain the mechanism for consequential architectural decisions: neither a Solution Overview nor a Solution Design replaces an ADR, and an ADR does not replace Product reasoning that belongs in a Product Principle or Solution Overview.
+
+During design/review, applicable ratified principles are PASS/FAIL constraints, not inspirational prose. A proposed solution should identify how it satisfies them and what observable attack could falsify that claim where such an attack materially improves confidence.
 
 ---
 
