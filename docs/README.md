@@ -205,6 +205,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/multi-actor-repeatability-temporal-synchronization.md` | Ratified methodology (temporal synchronization, convergence, and scoped execution ownership extending project memory) |
 | `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
 | `67-unresolved-predicate-resolution-model-architecture-reconciliation-2026-09-26.md` | Principal-ratified bounded semantic contract for governed Recommendation `UNRESOLVED` predicate results, resolution admissibility, and replay; canonical decision ADR-021 |
+| `69-assignment-centric-wheel-v1-operating-program.md` | Principal-ratified bounded Product authority for the first real Wheel Operating Program/configuration; stable identity `assignment-centric-wheel`, configuration v1; membership non-implications and current Doc 65 rule boundary |
 | `bootstrap/end-of-session-protocol.md` | Ratified methodology (containing session-closeout process; canonical invocation: “execute end of session protocol”) |
 | `bootstrap/project-memory-protocol.md` | Ratified methodology (documentation diligence / project memory) |
 | `foundations/parking-lot-continuation-governance.md` | Ratified methodology (one logical parking lot across physical continuation files) |

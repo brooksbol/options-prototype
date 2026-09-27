@@ -160,7 +160,7 @@ This record does not authorize changing ADR-020's ownership authority, making Po
 ## `PL-SETUP-01` — Operator-facing governance setup / configuration (account governed-scope topology; guided vs advanced; evidence-accelerated, never inferred)
 
 **Date:** September 26, 2026
-**State:** RECONCILED intake — durable capture of Principal governance-configuration discovery surfaced during governed-decision (Doc 65) browser acceptance; no setup wizard, configuration editor, or governance semantics are authorized by this record.
+**State:** RECONCILED intake — durable capture of Principal governance-configuration discovery surfaced during governed-decision (Doc 65) browser acceptance. The bounded Assignment-Centric Wheel v1 Program/configuration is now ratified in Doc 69; no setup wizard, configuration editor, `ATTACH TO…` write path, or broader governance semantics are authorized by this record.
 **Why-state:** `docs/66-operator-governance-setup-configuration-discovery-2026-09-26.md`.
 
 ### Intake
@@ -203,6 +203,8 @@ Brokerage evidence (CSV now, authorized broker connection later) may establish *
 Final scope naming; automatic scope-discovery semantics; Program compatibility rules; questionnaire/advanced-mode schema; inference confidence model; brokerage connection architecture; broker credential storage; Treasury Program semantics; a generalized Program/governance engine or DSL; account-global Program ownership; new intervention/eligibility/no-write policy; automated Wheel classification; the full setup wizard or advanced configuration editor; portfolio allocation; or any change to Doc 65 P0–P3 evaluator semantics.
 
 **Ratified bounded child (ADR-021 / `PL-DEC-RES-01`):** a future, separately handed-off Product-language act may create a system-managed opaque Wheel scope using an explicitly ratified Program/configuration and associate the specific subject/quantity. This does not authorize the full setup wizard and cannot establish call-away stance/history or clear undefined gates.
+
+**Ratified Program/configuration destination (September 27, 2026):** `docs/69-assignment-centric-wheel-v1-operating-program.md` establishes stable Program identity `assignment-centric-wheel`, configuration version `1` / v1, its bounded assignment-centric Product meaning, the narrow membership semantic and non-implications, and the Doc 65 rules currently associated with it. Exact subject/quantity semantics and the membership write path remain unresolved design work. Next authorized Product boundary under the Principal's September 27 instruction is the bounded `ATTACH TO…` Product/Solution Overview; this record does not authorize implementation.
 
 ---
 
