@@ -1,22 +1,28 @@
-/* Governed Recommendation — plain-text table data (Doc 65).
- *
- * Principal UX: ordinary, dense table text. No pill, tag, badge, hyperlink, underline, or
- * status dot. Colour alone distinguishes affirmative (LET RESOLVE / SELL CALL) from
- * fail-closed (UNRESOLVED). The clickable cell (td.oc-td-governed / oc-inv-td-governed)
- * carries the hover/cursor affordance. */
+/* Governed Recommendation — compact TAG idiom (Doc 65), matching the dense CALL / BW
+ * type tags (.oc-badge: padding 1px 4px; border-radius 2px). Not plain text, not a
+ * hyperlink, no status dot. Colour distinguishes affirmative (LET RESOLVE / SELL CALL)
+ * from fail-closed (UNRESOLVED). The clickable cell carries the hover/cursor affordance. */
 
-.grc {
-  font-size: inherit;
-  font-weight: 600;
+.grc-tag {
+  display: inline-block;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-family: var(--wd-font-sans);
+  font-size: 9px;
+  font-weight: var(--wd-weight-semi, 600);
   letter-spacing: 0.02em;
   white-space: nowrap;
+  line-height: 1.4;
 }
 
-.grc[data-recommendation="LET_RESOLVE"] { color: var(--grc-let-resolve-fg, #1f6f43); }
-.grc[data-recommendation="SELL_CALL"] { color: var(--grc-sell-call-fg, #1f5aa8); }
-.grc[data-recommendation="UNRESOLVED"] { color: var(--grc-unresolved-fg, #6b6b6b); }
+/* LET RESOLVE — affirmative natural-resolution (NOT a generic HOLD color). */
+.grc-tag-let-resolve { color: #1f6f43; background: rgba(60, 140, 90, 0.08); }
+/* SELL CALL — affirmative phase recommendation (does not select a contract). */
+.grc-tag-sell-call { color: #1f5aa8; background: rgba(50, 100, 180, 0.07); }
+/* UNRESOLVED — fail-closed; muted, still a compact tag like CALL / BW. */
+.grc-tag-unresolved { color: #6b6b6b; background: rgba(120, 120, 120, 0.08); }
 
-/* Interactive cell affordance: subtle hover/cursor only (no link/pill treatment). */
+/* Interactive cell affordance: subtle hover/cursor only (no link/pill/button treatment). */
 .oc-td-governed,
 .oc-inv-td-governed {
   cursor: pointer;

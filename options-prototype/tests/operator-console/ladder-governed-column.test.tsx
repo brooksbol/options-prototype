@@ -83,7 +83,7 @@ describe("Ladder governed Recommendation column", () => {
   it("renders LET RESOLVE as plain text, and NOT inside the TYPE/badge cell", () => {
     const { container } = renderTable("LET_RESOLVE");
     const value = screen.getByText("LET RESOLVE");
-    expect(value.className.split(/\s+/)).toContain("grc");
+    expect(value.className.split(/\s+/)).toContain("grc-tag");
     // The TYPE/badge cell contains only the position badge, not the recommendation.
     const badgeCell = container.querySelector("td.oc-td-badge")!;
     expect(within(badgeCell as HTMLElement).queryByText("LET RESOLVE")).toBeNull();

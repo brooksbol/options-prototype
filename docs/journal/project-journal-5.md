@@ -787,3 +787,38 @@ Untouched. The full guided/advanced setup experience remains discovery/design on
 ### Verification
 
 `tsc -b` clean; `npm run lint` exit 0 (warnings only). Focused: governed-row-projection + governed-drawer + ladder-governed-column = 18 pass. Broader: governed-decision + operator-console + components = 24 files / 215 pass (includes replay tests). Full frontend `npx vitest run` → 2122 pass / 3 fail. The 3 fails are ALL pre-existing `tests/roadmap/RoadmapView.test.tsx` failures (2 duplicate-`## AR1` heading + 1 Log newest-date now `2026-09-26` from the previously-accepted `PL-SETUP-01` intake), confirmed identical on the clean `0a5b9a7` base with this session's work stashed. No introduced failures.
+
+---
+
+## 2026-09-26 — Governed Recommendation UX corrected: compact tags, no red balls, operator-first drawer (Kiro)
+
+**Actor:** Kiro (Implementation Engineer). **SYNC at start:** `2de1198` (accepted `main`, GitHub-verified; local = origin, 0/0; clean worktree). **Mode:** Principal-authorized bounded correction — a **failed UX acceptance** of the prior pass, not evidence the governed-decision semantics are wrong. Presentation/interaction only.
+
+### What the previous pass got wrong (Principal browser feedback) and the correction
+
+- **`UNRESOLVED` must stay a tag, not plain text.** Restored the compact **tag idiom** for `UNRESOLVED` / `LET RESOLVE` / `SELL CALL` in the dedicated Recommendation column, styled to match the `CALL` / `BW` type tags (`grc-tag*`, mirroring `.oc-badge`: `padding 1px 4px; radius 2px; 9px`). Not a hyperlink, not plain text, not in the TYPE cell. Applies to both the Ladder covered-call rows and the Unencumbered Shares rows.
+- **Red balls removed from the Ladder.** Removed the `HoldCloseBell` (🔴) render from the Ladder badge cell and cleaned up its now-dead prop threading. This is presentation-only: `HoldCloseBell.tsx`, `use-hold-close-notices`, the hold/close lifecycle records/calculations, and the position-modal `HoldVsCloseSection` consumer are **unchanged**.
+- **Recommendation opens the right-side governed drawer, not the centered modal.** Clicking the Recommendation cell `stopPropagation`s, does not trigger the centered position/lifecycle (RECONCILE LIFECYCLE) modal, and opens the right-side drawer. Regression tests assert this on the Ladder.
+- **One drawer; no second governance modal.** Governance authoring stays inside the single right-side drawer (the separate modal was already removed last pass).
+- **Operator-first drawer.** The drawer now leads with the recommendation tag + a plain-English summary; for `UNRESOLVED` it shows "What WW needs" in plain language and, where authority supports it, the desired-disposition question **"Do you want URA to be called away at $43?"** with **Yes / No / Not sure** (deliberately *desired*, not "is call-away acceptable?"). Raw machinery (subject/scope/Context Version/rule/evaluator/gate state) is demoted under a collapsed **Technical details** disclosure; the bounded raw governance form is demoted under a collapsed **Advanced governance** disclosure. No opaque scope-id or raw `CLEAR`/`ACTIVE`/"fails closed" interaction is presented as the primary workflow.
+
+### Semantic finding surfaced (not silently mapped)
+
+Two honest boundaries were surfaced rather than papered over, per the Principal's instruction:
+
+1. **Desired vs accepted.** Doc 65's durable `callAwayStance = "accepted"` means call-away was *pre-accepted when the call was opened and remains effective*. The operator's *"Do you want…"* answer captures **desired disposition**, which is not identical to that pre-accepted-at-open semantic. So a "Yes" is **not** silently written as `accepted`.
+2. **Undefined gates + missing scope association.** An affirmative Recommendation also requires the intervention / eligibility / no-write gates (which Doc 65 deliberately leaves **undefined** — it says return `UNRESOLVED` rather than improvise) and an explicit governed-scope association (PL-SETUP-01 territory). Because those conditions have no ratified operator-facing meaning, the drawer does **not** fabricate friendly questions for them; it explains the boundary in operator language and holds at `UNRESOLVED`. The call-away question is only asked when call-away is the missing bounded fact **and** a scope association already exists.
+
+Net: capturing the operator's desire is necessary but not sufficient in this bounded slice; the drawer captures it and truthfully explains what else would be needed, without inventing a mapping or instructing the operator to choose `CLEAR`.
+
+### Semantic preservation / scope
+
+No governed-decision core file (`evaluators`, `governed-context`, `subject`, `decision-bundle`, `replay`, `resolve`, `client`, `types`) and no backend file was touched. Recommendation vocabulary unchanged; fail-closed behavior intact; immutable Context Versions / Decision persistence / replay unchanged. PL-SETUP-01 not implemented (no wizard, guided onboarding, advanced editor, inference, or new policy). New helper `governed-drawer-language.ts` is pure presentation-language mapping over already-computed evaluator output.
+
+### Verification
+
+`tsc -b` clean; `npm run lint` exit 0. Focused governed-row + governed-drawer + ladder-governed-column = 21 pass. Broader governed-decision + operator-console + components = 24 files / 218 pass (incl. replay). Full frontend `npx vitest run` → 2125 pass / 3 fail. The 3 fails are ALL pre-existing `tests/roadmap/RoadmapView.test.tsx` failures (2 duplicate-`## AR1` heading + 1 Log newest-date), confirmed pre-existing on the `2de1198` base last session; no roadmap/projection files were touched this pass. No introduced failures.
+
+### Not browser-accepted yet
+
+Automated tests passing is not acceptance. The endpoint remains a Principal inspection of the real Console (compact tags, no red balls, Recommendation → right-side drawer, operator-first URA question).

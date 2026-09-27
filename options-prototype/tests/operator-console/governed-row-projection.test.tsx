@@ -93,7 +93,7 @@ describe("row-level governed projection into Unencumbered Shares", () => {
     expect(screen.queryByText("By-the-book")).toBeNull();
   });
 
-  it("renders the Recommendation value as PLAIN TEXT (grc) — no pill/tag/badge, no hyperlink, no dot", () => {
+  it("renders the Recommendation value as a compact TAG (grc-tag) — like CALL/BW, not a hyperlink/plain text, no dot", () => {
     const s = snap([inv("GDXJ", 100)]);
     const gov = new Map([["shares-GDXJ", resolved("GDXJ", "SELL_CALL")]]);
     const { container } = render(
@@ -101,11 +101,11 @@ describe("row-level governed projection into Unencumbered Shares", () => {
     );
     const value = screen.getByText("SELL CALL");
     const classes = value.className.split(/\s+/);
-    // Plain-text cell content class; no old pill/link classes.
-    expect(classes).toContain("grc");
-    expect(classes).not.toContain("grt");
+    // Compact tag idiom; not the old pill/link classes.
+    expect(classes).toContain("grc-tag");
+    expect(classes).toContain("grc-tag-sell-call");
     expect(classes).not.toContain("grt-link");
-    // Plain text, not an anchor/button element.
+    // A tag span, not an anchor/button element (no hyperlink treatment).
     expect(value.tagName.toLowerCase()).toBe("span");
     // No status dot / bell in the recommendation projection.
     expect(container.querySelector(".hcb")).toBeNull();

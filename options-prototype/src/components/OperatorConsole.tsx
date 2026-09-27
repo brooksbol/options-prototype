@@ -21,11 +21,7 @@ import { useIntradayBars, type IntradayBarsMap } from "../evidence/use-intraday-
 /** Stable empty intraday-bars map for non-default regimes (a/c) that don't fetch bars. */
 const EMPTY_INTRADAY_BARS: IntradayBarsMap = new Map();
 import { usePositionDeltas, usePositionGreeks, usePositionQuotes, type PositionDeltaMap, type PositionGreeksMap, type PositionQuoteMap } from "../operator-console/use-position-deltas";
-import { useHoldCloseNotices, type HoldCloseNotice } from "../operator-console/use-hold-close-notices";
-import { HoldCloseBell } from "../operator-console/HoldCloseBell";
-
-/** Row-notice map type used by PositionTable/ExpirationRungRow props. */
-type HoldCloseNoticeMap = ReadonlyMap<string, HoldCloseNotice>;
+import { useHoldCloseNotices } from "../operator-console/use-hold-close-notices";
 import { deriveMonitoredPositions, groupByExpiration, type ExpirationRung, type MonitoredPosition } from "../portfolio/position-monitoring";
 import { buildPositionDetail, type PositionDetail } from "../portfolio/position-detail";
 import type { OptionBasisInput } from "../portfolio/assignment-consequence";
@@ -206,7 +202,9 @@ export function OperatorConsole() {
   // here (single evaluation, two consumers). The row indicator reflects the
   // governed decision (`notices`); the opened modal LEADS with the SAME resolved
   // decision and renders its pair — they cannot disagree.
-  const { resolved: holdCloseResolved, notices: holdCloseNotices } = useHoldCloseNotices(positions, snapshot, sessionClassification, chainReadGeneration);
+  // The hold/close row-ball was removed from the Ladder; the position modal still consumes
+  // the resolved pair. `notices` is no longer projected on rows (Principal UX correction).
+  const { resolved: holdCloseResolved } = useHoldCloseNotices(positions, snapshot, sessionClassification, chainReadGeneration);
 
   // Governed by-the-book recommendations (Doc 65): LET RESOLVE | SELL CALL | UNRESOLVED,
   // projected on in-scope subjects (covered-call obligations + unencumbered share blocks).
@@ -353,14 +351,14 @@ export function OperatorConsole() {
                         <span className="oc-rung-count">{group.positions.length} position{group.positions.length !== 1 ? "s" : ""}</span>
                       </div>
                       {!isCollapsed && (
-                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} holdCloseNotices={holdCloseNotices} governedBySubjectId={governedRecommendations} onInspectGoverned={setInspectedGoverned} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={intradayBars} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+                        <PositionTable positions={group.positions} onTileClick={setSelectedPosition} totalCapital={group.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} governedBySubjectId={governedRecommendations} onInspectGoverned={setInspectedGoverned} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={intradayBars} snapshot={snapshot} sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
                       )}
                     </div>
                   );
                 })
               ) : (
                 rungs.map((rung) => (
-                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} holdCloseNotices={holdCloseNotices} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
+                  <ExpirationRungRow key={rung.expiration} rung={rung} totalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} onTileClick={setSelectedPosition} vizRegime={vizRegime} isDemoSource={isDemoSource} spotHistory={spotHistory} snapshot={snapshot} />
                 ))
               )}
             </div>
@@ -394,6 +392,11 @@ export function OperatorConsole() {
           onClose={() => setInspectedGoverned(null)}
           brokerageAccountId={snapshot?.brokerageAccountId ?? null}
           onAuthored={() => setGovernanceEpoch((e) => e + 1)}
+          callAwayStrike={
+            inspectedGoverned.subject.subjectType === "covered-call"
+              ? positions.find((p) => p.id === inspectedGoverned.subject.subjectId)?.strike ?? null
+              : null
+          }
         />
       )}
     </div>
@@ -402,7 +405,7 @@ export function OperatorConsole() {
 
 // --- Expiration Rung ---
 
-function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDeltas, positionGreeks, positionQuotes, holdCloseNotices, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; positionQuotes: PositionQuoteMap; holdCloseNotices?: HoldCloseNoticeMap; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
+function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDeltas, positionGreeks, positionQuotes, onTileClick, vizRegime, isDemoSource, spotHistory, snapshot }: { rung: ExpirationRung; totalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; positionQuotes: PositionQuoteMap; onTileClick: (p: MonitoredPosition) => void; vizRegime: string; isDemoSource: boolean; spotHistory: SpotHistoryMap; snapshot: import("../write-desk/types").PortfolioSnapshot }) {
   const rungPercent = totalCapital > 0 ? Math.round((rung.totalCapital / totalCapital) * 100) : 0;
 
   return (
@@ -415,7 +418,7 @@ function ExpirationRungRow({ rung, totalCapital, maxPositionCapital, positionDel
         <span className="oc-rung-count">{rung.positions.length} position{rung.positions.length !== 1 ? "s" : ""}</span>
       </div>
       {vizRegime === "b" ? (
-        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} holdCloseNotices={holdCloseNotices} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={EMPTY_INTRADAY_BARS} snapshot={snapshot} />
+        <PositionTable positions={rung.positions} onTileClick={onTileClick} totalCapital={rung.totalCapital} allPositionsTotalCapital={totalCapital} maxPositionCapital={maxPositionCapital} positionDeltas={positionDeltas} positionGreeks={positionGreeks} positionQuotes={positionQuotes} isDemoSource={isDemoSource} spotHistory={spotHistory} intradayBars={EMPTY_INTRADAY_BARS} snapshot={snapshot} />
       ) : (
         <PositionGrid positions={rung.positions} onTileClick={onTileClick} vizRegime={vizRegime} totalCapital={rung.totalCapital} />
       )}
@@ -860,7 +863,7 @@ function PositionTableHeader() {
 
 /** Regime B: Dense fixed-geometry rows using native <table> for proper column alignment.
  *  Exported for focused Ladder-projection tests (governed Recommendation column). */
-export function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, positionGreeks, positionQuotes, holdCloseNotices, governedBySubjectId, onInspectGoverned, isDemoSource, spotHistory, intradayBars, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; positionQuotes: PositionQuoteMap; holdCloseNotices?: HoldCloseNoticeMap; governedBySubjectId?: ReadonlyMap<string, ResolvedGovernedRecommendation>; onInspectGoverned?: (r: ResolvedGovernedRecommendation) => void; isDemoSource: boolean; spotHistory: SpotHistoryMap; intradayBars: IntradayBarsMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
+export function PositionTable({ positions, onTileClick, allPositionsTotalCapital, maxPositionCapital, positionDeltas, positionGreeks, positionQuotes, governedBySubjectId, onInspectGoverned, isDemoSource, spotHistory, intradayBars, snapshot, sortColumn, sortDirection, onSort }: { positions: MonitoredPosition[]; onTileClick: (p: MonitoredPosition) => void; totalCapital: number; allPositionsTotalCapital: number; maxPositionCapital: number; positionDeltas: PositionDeltaMap; positionGreeks: PositionGreeksMap; positionQuotes: PositionQuoteMap; governedBySubjectId?: ReadonlyMap<string, ResolvedGovernedRecommendation>; onInspectGoverned?: (r: ResolvedGovernedRecommendation) => void; isDemoSource: boolean; spotHistory: SpotHistoryMap; intradayBars: IntradayBarsMap; snapshot: import("../write-desk/types").PortfolioSnapshot; sortColumn?: SortColumn | null; sortDirection?: "asc" | "desc"; onSort?: (column: SortColumn) => void }) {
 
   // Apply within-group sorting
   const sortedPositions = sortColumn
@@ -995,8 +998,10 @@ export function PositionTable({ positions, onTileClick, allPositionsTotalCapital
           return (
             <tr key={position.id} className={`oc-trow oc-trow-${position.type}`} onClick={() => onTileClick(position)}>
               <td className="oc-td-badge">
+                {/* TYPE tag only. The red HoldCloseBell row-ball was removed from the Ladder
+                    (Principal UX correction); the hold/close lifecycle semantics, records, and
+                    the position-modal HoldVsCloseSection consumer are unchanged. */}
                 <span className={`oc-badge oc-badge-${position.type}`}>{badge}</span>
-                <HoldCloseBell notice={holdCloseNotices?.get(position.id) ?? "none"} />
               </td>
               <td className="oc-td-symbol">{position.underlying}</td>
               <td className="oc-td-right oc-td-bid">{formatQuotePrice(positionQuotes.get(position.id)?.bid ?? null)}</td>

@@ -1,11 +1,12 @@
 /**
- * GovernedRecommendationCell — plain-text projection of a bounded governed Recommendation
- * (Doc 65) rendered as ordinary, dense table data.
+ * GovernedRecommendationCell — compact TAG projection of a bounded governed Recommendation
+ * (Doc 65), in the same dense Console tag idiom as the CALL / BW type tags.
  *
- * Principal UX (drawer consolidation): the Recommendation value is PLAIN TEXT — no pill,
- * no tag, no badge, no hyperlink styling, no status dot. The whole cell is the interaction
- * target; clicking it opens the single governed Recommendation drawer. Interactivity is
- * communicated only by the cell's hover/cursor convention, kept subtle and dense.
+ * Principal UX (corrective pass): the Recommendation value is a compact tag/badge — visually
+ * analogous to the `CALL` / `BW` type tags — NOT plain unstyled text, NOT a hyperlink, and
+ * NOT accompanied by a separate status dot. It lives in the dedicated Recommendation column
+ * (never in the TYPE cell). The clickable `<td>` (oc-td-governed / oc-inv-td-governed) is the
+ * interaction target (with stopPropagation) and opens the right-side governed drawer.
  *
  * Presentation only. The recommendation is computed upstream (governed-decision evaluators)
  * from authorized governance + authoritative evidence; this component makes no decision and
@@ -19,10 +20,15 @@ import type { GovernedRecommendation } from "../governed-decision/types";
 import { RECOMMENDATION_LABEL } from "../governed-decision/types";
 import "./governed-recommendation-cell.css";
 
+const CLASS: Record<GovernedRecommendation, string> = {
+  LET_RESOLVE: "grc-tag grc-tag-let-resolve",
+  SELL_CALL: "grc-tag grc-tag-sell-call",
+  UNRESOLVED: "grc-tag grc-tag-unresolved",
+};
+
 /**
- * Inner content for a Recommendation table cell: plain text plus a data attribute for the
- * recommendation state. The clickable `<td>` (with stopPropagation) is owned by the table
- * so the entire cell is the interaction target and row clicks are not triggered.
+ * A compact Recommendation tag for a table cell. The clickable `<td>` (owned by the table)
+ * carries the click + stopPropagation so the whole cell is the interaction target.
  */
 export function GovernedRecommendationCell({
   recommendation,
@@ -32,10 +38,10 @@ export function GovernedRecommendationCell({
   const label = RECOMMENDATION_LABEL[recommendation];
   const title =
     recommendation === "UNRESOLVED"
-      ? "Governed recommendation unresolved — insufficient governance or evidence. Click to inspect and govern."
-      : `Governed recommendation: ${label}. Click to inspect the governing basis.`;
+      ? "Governed recommendation unresolved — click to open the governed drawer and see what's needed."
+      : `Governed recommendation: ${label}. Click to open the governed drawer.`;
   return (
-    <span className="grc" data-recommendation={recommendation} title={title}>
+    <span className={CLASS[recommendation]} data-recommendation={recommendation} title={title}>
       {label}
     </span>
   );
