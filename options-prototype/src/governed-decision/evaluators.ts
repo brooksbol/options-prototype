@@ -82,6 +82,26 @@ const MEMBERSHIP_RESOLUTION: ResolutionAffordance[] = [
   },
 ];
 
+/**
+ * Membership resolution for a BOUNDED covered-call subject (Doc 69 ATTACH TO… walking
+ * slice). Unlike the symbol-level share-block case, a covered-call subject has a bounded
+ * durable identity (`call-<underlying>-<strike>-<expiration>`), so the complete §6
+ * attach chain exists and the affordance is AVAILABLE with a real capability id. Choosing
+ * it establishes ONLY Program membership — never call-away stance, eligibility, no-write,
+ * or intervention clearance.
+ */
+const MEMBERSHIP_RESOLUTION_ATTACHABLE: ResolutionAffordance[] = [
+  {
+    mode: "PROGRAM_CONFIGURATION",
+    availability: "available",
+    capabilityId: "attach-assignment-centric-wheel",
+    explanation:
+      "Attach this position to the Assignment-Centric Wheel so it is managed under those " +
+      "Wheel rules. This records only that the position takes part in the Wheel program; it " +
+      "does not by itself set your call-away preference or answer any missing policy.",
+  },
+];
+
 /** Undefined policy: only new Principal/Product authority (then implementation) can resolve it. */
 const POLICY_UNDEFINED_RESOLUTION: ResolutionAffordance[] = [
   {
@@ -187,7 +207,7 @@ export function evaluateCoveredCall(
   } else {
     P.push(predicate("wheel-membership", "Wheel program membership", "AUTHORITY_MISSING",
       "WW has not been told this position is part of a governed Wheel program; it will not infer membership.",
-      MEMBERSHIP_RESOLUTION));
+      MEMBERSHIP_RESOLUTION_ATTACHABLE));
   }
 
   // Call-away historical pre-acceptance (depends on membership). Doc 65 Rule 1 requires it.

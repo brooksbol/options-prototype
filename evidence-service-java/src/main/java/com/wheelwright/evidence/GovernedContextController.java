@@ -41,6 +41,10 @@ public class GovernedContextController {
     private static final Set<String> GATES = Set.of("CLEAR", "ACTIVE", "UNKNOWN");
     private static final Set<String> STANCES = Set.of("accepted", "unknown");
 
+    /** The only ratified Program/configuration for this slice (Doc 69). */
+    private static final String PROGRAM_ACW = "assignment-centric-wheel";
+    private static final String CONFIG_V1 = "1";
+
     private final SqliteEvidenceStore store;
 
     public GovernedContextController(SqliteEvidenceStore store) {
@@ -155,6 +159,116 @@ public class GovernedContextController {
         public String subjectId;
         public String governedScopeId;
         public String provenance;
+        public String effectiveFrom;
+    }
+
+    /**
+     * ATTACH TO… — the bounded operator governance act that establishes that a specific
+     * governed Decision Subject participates in a ratified Program/configuration
+     * (ADR-021 §7 / Doc 67 §16(3) bounded scope establishment; Doc 69 membership semantic).
+     *
+     * This is the ONLY thing this act does. In one atomic transaction it:
+     *   - system-mints a durable opaque governed scope for THIS bounded subject (the operator
+     *     never supplies the scope id; symbol equality / geometry never mint or reuse it);
+     *   - writes a first Governed Context Version that asserts NOTHING affirmative — stance
+     *     `unknown`, all gates `UNKNOWN` — so attachment cannot smuggle call-away acceptance,
+     *     eligibility, no-write, or intervention clearance;
+     *   - writes the explicit Subject->scope association (provenance operator-governance).
+     *
+     * It is idempotent: the scope/context/association identities are deterministic in the
+     * bounded subject, so re-attaching the same subject is a safe no-op (INSERT OR IGNORE),
+     * never a second scope. It rejects anything but the ratified program/config for this slice
+     * and never mutates historical Decisions.
+     *
+     * It deliberately does NOT touch share-block subjects: only a subject with a bounded
+     * identity (a specific covered-call obligation) may be attached in this slice, so
+     * "all free shares of a symbol" can never become an implicit membership rule.
+     */
+    @PostMapping("/api/governed-context/attach")
+    public ResponseEntity<Map<String, Object>> attach(@RequestBody AttachDto b) throws SQLException {
+        if (b == null || isBlank(b.brokerageAccountId) || isBlank(b.subjectId) || isBlank(b.subjectType)) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", "brokerageAccountId, subjectId, subjectType are required"));
+        }
+        // Bounded-subject guard: only an already-bounded subject identity may be attached in
+        // this slice. A symbol-level share-block ("shares-<SYMBOL>") is NOT a bounded block, so
+        // attaching it would silently mean "all free shares of this symbol" — refused here
+        // rather than approximated. (Residual gap: bounded inventory-block identity.)
+        if (!"covered-call".equals(b.subjectType)) {
+            return ResponseEntity.unprocessableEntity().body(Map.of(
+                "error", "only a bounded covered-call subject may be attached in this slice; "
+                    + "share-block (symbol-level) attachment requires a bounded inventory-block identity "
+                    + "that is not yet defined",
+                "subjectType", b.subjectType));
+        }
+        // Ratified destination only (Doc 69). No other Program/configuration exists.
+        String program = isBlank(b.program) ? PROGRAM_ACW : b.program;
+        String configVersion = isBlank(b.configVersion) ? CONFIG_V1 : b.configVersion;
+        if (!PROGRAM_ACW.equals(program)) {
+            return ResponseEntity.unprocessableEntity().body(Map.of(
+                "error", "program must be the ratified '" + PROGRAM_ACW + "' for this slice",
+                "program", program));
+        }
+        if (!CONFIG_V1.equals(configVersion)) {
+            return ResponseEntity.unprocessableEntity().body(Map.of(
+                "error", "configVersion must be '" + CONFIG_V1 + "' for this slice",
+                "configVersion", configVersion));
+        }
+        String effectiveFrom = isBlank(b.effectiveFrom) ? Instant.now().toString() : b.effectiveFrom;
+        if (!isIso(effectiveFrom)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "effectiveFrom must be ISO8601"));
+        }
+
+        // System-mint a durable opaque scope for THIS bounded subject. Deterministic in
+        // (account, subject) so re-attach is idempotent and a different subject — even the
+        // same symbol — gets a different scope. The operator never sees or supplies this id.
+        String governedScopeId = "scope_" + Identity.hash(b.brokerageAccountId, b.subjectId, PROGRAM_ACW);
+        String recordedAt = Instant.now().toString();
+
+        // Attachment version is always the FIRST version of this freshly-minted scope. It
+        // asserts nothing affirmative (unknown stance / UNKNOWN gates): membership only.
+        // Identity is deterministic in (account, scope, version) and (account, subject, scope)
+        // — deliberately NOT in effective/recorded time — so a repeated attach is a true
+        // durable no-op (INSERT OR IGNORE) and never appends a second context/association.
+        int version = 1;
+        String contextVersionId = "ctx_" + Identity.hash(
+            b.brokerageAccountId, governedScopeId, String.valueOf(version),
+            program, configVersion, "attach-membership-v1");
+        GovernedContextVersionRecord context = new GovernedContextVersionRecord(
+            contextVersionId, b.brokerageAccountId, governedScopeId, version, null,
+            program, configVersion, "unknown", "UNKNOWN", "UNKNOWN", "UNKNOWN",
+            "operator-governance", effectiveFrom, recordedAt);
+
+        String associationId = "assoc_" + Identity.hash(
+            b.brokerageAccountId, b.subjectId, governedScopeId, "attach-membership-v1");
+        SqliteEvidenceStore.SubjectScopeAssociationRecord association =
+            new SqliteEvidenceStore.SubjectScopeAssociationRecord(
+                associationId, b.brokerageAccountId, b.subjectId, governedScopeId,
+                "operator-governance", effectiveFrom, recordedAt);
+
+        store.attachSubjectToProgram(context, association);
+
+        return ResponseEntity.ok(Map.of(
+            "status", "attached",
+            "program", program,
+            "configVersion", configVersion,
+            "governedScopeId", governedScopeId,
+            "contextVersionId", contextVersionId,
+            "associationId", associationId,
+            "effectiveFrom", effectiveFrom,
+            "recordedAt", recordedAt));
+    }
+
+    /** ATTACH TO… request: the operator names the bounded subject and the ratified program. */
+    public static class AttachDto {
+        public String brokerageAccountId;
+        public String subjectId;
+        public String subjectType;
+        /** Optional; defaults to the only ratified program for this slice. */
+        public String program;
+        /** Optional; defaults to the only ratified configuration for this slice. */
+        public String configVersion;
+        /** Optional; defaults to now. */
         public String effectiveFrom;
     }
 

@@ -178,3 +178,62 @@ export async function fetchGovernedDecision(
     return null;
   }
 }
+
+/** Result of the bounded ATTACH TO… program-attachment act. */
+export interface AttachResult {
+  ok: boolean;
+  program?: string;
+  configVersion?: string;
+  governedScopeId?: string;
+  contextVersionId?: string;
+  associationId?: string;
+  effectiveFrom?: string;
+  recordedAt?: string;
+  error?: string;
+}
+
+/**
+ * ATTACH TO… — the bounded operator governance act that establishes that a specific
+ * bounded governed subject participates in the ratified Assignment-Centric Wheel v1
+ * Program/configuration (Doc 69). One atomic backend transaction mints the durable scope,
+ * writes a membership-only Context Version (asserts nothing affirmative), and writes the
+ * explicit association. Idempotent. The operator never supplies scope/context/association
+ * ids. Surfaces its result to the caller because it is authority-bearing.
+ *
+ * The backend refuses anything but a bounded covered-call subject in this slice and the
+ * ratified program/config, so this wrapper simply transports the operator's intent.
+ */
+export async function attachProgram(
+  req: {
+    brokerageAccountId: string;
+    subjectId: string;
+    subjectType: string;
+    /** Effective time of the membership (defaults to now on the backend). */
+    effectiveFrom?: string;
+  },
+  fetchImpl: typeof fetch = fetch,
+): Promise<AttachResult> {
+  try {
+    const res = await fetchImpl("/api/governed-context/attach", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+    });
+    const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    if (!res.ok) {
+      return { ok: false, error: (json.error as string) ?? `HTTP ${res.status}` };
+    }
+    return {
+      ok: true,
+      program: json.program as string,
+      configVersion: json.configVersion as string,
+      governedScopeId: json.governedScopeId as string,
+      contextVersionId: json.contextVersionId as string,
+      associationId: json.associationId as string,
+      effectiveFrom: json.effectiveFrom as string,
+      recordedAt: json.recordedAt as string,
+    };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+}

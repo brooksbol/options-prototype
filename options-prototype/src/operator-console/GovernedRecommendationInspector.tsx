@@ -15,11 +15,16 @@
  * No accordions. Presentation only; reads already-resolved values. No Doc 65 semantics change.
  */
 
+import { useState } from "react";
 import type { ResolvedGovernedRecommendation } from "../governed-decision/resolve";
 import { RECOMMENDATION_LABEL } from "../governed-decision/types";
 import { explainForOperator, subjectSummary, ruleName } from "./governed-drawer-language";
 import { admissibleControlFor } from "../governed-decision/control-admissibility";
+import { attachProgram } from "../governed-decision/client";
 import "./governed-recommendation-inspector.css";
+
+/** The one ratified destination for ATTACH TO… in this slice (Doc 69). */
+const ATTACH_DESTINATION_LABEL = "Assignment-Centric Wheel";
 
 export interface DrawerFactRow {
   label: string;
@@ -33,6 +38,11 @@ export function GovernedRecommendationInspector({
   accountName,
   /** Real observed position/evidence facts for the POSITION / EVIDENCE block. */
   evidenceRows,
+  /**
+   * Called after a durable governance change (e.g. a successful ATTACH TO…) so the Console
+   * can trigger deterministic reevaluation. Optional; when absent, the control is not offered.
+   */
+  onGovernanceChanged,
 }: {
   resolved: ResolvedGovernedRecommendation;
   onClose: () => void;
@@ -40,14 +50,51 @@ export function GovernedRecommendationInspector({
   accountName?: string | null;
   callAwayStrike?: number | null;
   evidenceRows?: DrawerFactRow[];
+  onGovernanceChanged?: () => void;
 }) {
   const { subject, evaluation, bundle } = resolved;
   const ctx = bundle?.contextVersion ?? null;
   const explanation = explainForOperator(evaluation, subject);
   const isUnresolved = evaluation.recommendation === "UNRESOLVED" && !explanation.outsideProgram;
 
-  // Whether ANY predicate has an admissible enabled control right now (ADR-021 §4 gate).
-  const anyAdmissibleControl = evaluation.predicateResults.some((p) => admissibleControlFor(p) != null);
+  // The membership predicate whose admissible capability is the ATTACH TO… affordance, if any.
+  const attachPredicate = evaluation.predicateResults.find(
+    (p) => p.key === "wheel-membership" && admissibleControlFor(p) === "attach-assignment-centric-wheel",
+  );
+  const canAttach = attachPredicate != null && onGovernanceChanged != null;
+
+  // Whether ANY predicate has an admissible enabled control OTHER than the attach control
+  // handled explicitly below (reserved for future capabilities). The attach control only
+  // renders when it is both admissible AND wired (canAttach); otherwise the honest blocker
+  // explanation is shown.
+  const anyOtherAdmissibleControl = evaluation.predicateResults.some(
+    (p) => {
+      const cap = admissibleControlFor(p);
+      return cap != null && cap !== "attach-assignment-centric-wheel";
+    },
+  );
+
+  const [attachState, setAttachState] = useState<"idle" | "confirming" | "attaching" | "error">("idle");
+  const [attachError, setAttachError] = useState<string | null>(null);
+
+  async function doAttach() {
+    setAttachState("attaching");
+    setAttachError(null);
+    const res = await attachProgram({
+      brokerageAccountId: subject.brokerageAccountId,
+      subjectId: subject.subjectId,
+      subjectType: subject.subjectType,
+    });
+    if (res.ok) {
+      // Durable membership recorded. Ask the Console to reevaluate; the drawer will
+      // re-open with the new predicate picture (membership established).
+      onGovernanceChanged?.();
+      onClose();
+    } else {
+      setAttachState("error");
+      setAttachError(res.error ?? "Attach failed.");
+    }
+  }
 
   return (
     <div className="gri-overlay" role="dialog" aria-modal="true" onClick={onClose}>
@@ -92,8 +139,53 @@ export function GovernedRecommendationInspector({
         {isUnresolved && (
           <section className="gri-block">
             <h3 className="gri-block-title">What WW needs</h3>
-            {anyAdmissibleControl ? (
-              // (Reserved) When a capability becomes admissible, its control renders here.
+            {canAttach ? (
+              <div className="gri-attach">
+                <p className="gri-note">
+                  {explanation.whyUnresolved} You can tell WW this position is managed under the
+                  Assignment-Centric Wheel. That records only that it takes part in the Wheel
+                  program; it does not set your call-away preference or answer any missing policy,
+                  so the recommendation may stay unresolved until those are addressed.
+                </p>
+                {attachState === "confirming" ? (
+                  <div className="gri-attach-confirm">
+                    <p className="gri-note">
+                      Manage <strong>{subjectSummary(subject)}</strong> under{" "}
+                      <strong>{ATTACH_DESTINATION_LABEL}</strong>?
+                    </p>
+                    <div className="gri-attach-actions">
+                      <button
+                        className="gri-attach-btn gri-attach-confirm-btn"
+                        onClick={doAttach}
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        className="gri-attach-btn gri-attach-cancel-btn"
+                        onClick={() => setAttachState("idle")}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : attachState === "attaching" ? (
+                  <p className="gri-note">Recording membership…</p>
+                ) : (
+                  <>
+                    <button
+                      className="gri-attach-btn"
+                      onClick={() => setAttachState("confirming")}
+                    >
+                      Attach to…
+                    </button>
+                    {attachState === "error" && attachError && (
+                      <p className="gri-note gri-attach-error">{attachError}</p>
+                    )}
+                  </>
+                )}
+              </div>
+            ) : anyOtherAdmissibleControl ? (
+              // (Reserved) Other admissible capabilities render here as they are added.
               <p className="gri-note">An operator action is available for this subject.</p>
             ) : (
               <p className="gri-note">

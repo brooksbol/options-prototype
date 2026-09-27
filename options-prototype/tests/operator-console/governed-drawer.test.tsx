@@ -87,15 +87,34 @@ describe("governed Recommendation drawer (ADR-021 predicate picture)", () => {
     expect(screen.getAllByText(/needs wheel-membership/).length).toBeGreaterThan(0);
   });
 
-  it("offers NO enabled control in this slice; explains the blocker instead (ADR-021 §4)", () => {
+  it("offers NO enabled control when no governance handler is wired; explains the blocker (ADR-021 §4)", () => {
+    // Without an onGovernanceChanged handler the drawer cannot perform a durable change, so
+    // it renders no mutating control and explains the blocker honestly.
     const { container } = render(
       <GovernedRecommendationInspector resolved={unresolvedNoMembership("URA")} onClose={() => {}} />,
     );
     expect(screen.getByText("What WW needs")).toBeTruthy();
     expect(screen.getByText(/not yet available in this slice/i)).toBeTruthy();
-    // No mutating controls (buttons other than the close ×).
     const buttons = Array.from(container.querySelectorAll("button")).map((b) => b.textContent?.trim());
     expect(buttons.filter((t) => t && t !== "×")).toHaveLength(0);
+  });
+
+  it("offers the ATTACH TO… control for a bounded covered-call subject when governance is wired (Doc 69)", () => {
+    // With the governance handler wired, the first admissible control appears: ATTACH TO….
+    const { container } = render(
+      <GovernedRecommendationInspector
+        resolved={unresolvedNoMembership("URA")}
+        onClose={() => {}}
+        onGovernanceChanged={() => {}}
+      />,
+    );
+    // The affordance is presented distinctly from the Recommendation outcome.
+    expect(screen.getByText("Attach to…")).toBeTruthy();
+    // Still no select/input (no scope-id / gate editor / internal ontology).
+    expect(container.querySelector("select")).toBeNull();
+    expect(container.querySelector("input")).toBeNull();
+    // The Recommendation tag remains UNRESOLVED (attaching does not affirm anything).
+    expect(screen.getByText("UNRESOLVED")).toBeTruthy();
   });
 
   it("shows POLICY_UNDEFINED honestly when membership is established (partial resolution)", () => {

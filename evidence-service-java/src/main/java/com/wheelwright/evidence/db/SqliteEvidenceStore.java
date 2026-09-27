@@ -2558,6 +2558,67 @@ public class SqliteEvidenceStore implements AutoCloseable {
         }
     }
 
+    /**
+     * Atomically attach a bounded Decision Subject to a governed Program/configuration
+     * (ATTACH TO… walking slice). In ONE transaction this appends a first-version Governed
+     * Context Version for the (system-managed) scope and the explicit Subject->scope
+     * association. Both inserts are INSERT OR IGNORE, so a repeated identical attach is a
+     * safe no-op (idempotent). This exists because governance and association writes are
+     * otherwise two separate transactions; the attach act requires them to be atomic so a
+     * partial failure can never leave an association pointing at a non-existent scope (or a
+     * scope with no subject). Historical Decisions are never touched.
+     *
+     * The caller is responsible for having minted the deterministic scope/context/association
+     * identities and for enforcing that the context asserts nothing affirmative (unknown
+     * stance, UNKNOWN gates) — this method is a pure durable-write unit.
+     */
+    public void attachSubjectToProgram(
+            GovernedContextVersionRecord context,
+            SubjectScopeAssociationRecord association) throws SQLException {
+        inTransaction(() -> {
+            try (PreparedStatement ctx = conn.prepareStatement("""
+                    INSERT OR IGNORE INTO governed_context_version
+                      (context_version_id, brokerage_account_id, governed_scope_id, version,
+                       supersedes_version_id, program, config_version, call_away_stance,
+                       eligibility_gate, intervention_gate, no_write_gate, authority_provenance,
+                       effective_from, recorded_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """)) {
+                ctx.setString(1, context.contextVersionId());
+                ctx.setString(2, context.brokerageAccountId());
+                ctx.setString(3, context.governedScopeId());
+                ctx.setInt(4, context.version());
+                if (context.supersedesVersionId() == null) ctx.setNull(5, Types.VARCHAR);
+                else ctx.setString(5, context.supersedesVersionId());
+                ctx.setString(6, context.program());
+                ctx.setString(7, context.configVersion());
+                ctx.setString(8, context.callAwayStance());
+                ctx.setString(9, context.eligibilityGate());
+                ctx.setString(10, context.interventionGate());
+                ctx.setString(11, context.noWriteGate());
+                ctx.setString(12, context.authorityProvenance());
+                ctx.setString(13, context.effectiveFrom());
+                ctx.setString(14, context.recordedAt());
+                ctx.executeUpdate();
+            }
+            try (PreparedStatement assoc = conn.prepareStatement("""
+                    INSERT OR IGNORE INTO subject_scope_association
+                      (association_id, brokerage_account_id, subject_id, governed_scope_id,
+                       provenance, effective_from, recorded_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """)) {
+                assoc.setString(1, association.associationId());
+                assoc.setString(2, association.brokerageAccountId());
+                assoc.setString(3, association.subjectId());
+                assoc.setString(4, association.governedScopeId());
+                assoc.setString(5, association.provenance());
+                assoc.setString(6, association.effectiveFrom());
+                assoc.setString(7, association.recordedAt());
+                assoc.executeUpdate();
+            }
+        });
+    }
+
     /** Count rows in each governed-decision table (observability / tests). */
     public Map<String, Integer> getGovernedDecisionCounts() throws SQLException {
         Map<String, Integer> counts = new LinkedHashMap<>();

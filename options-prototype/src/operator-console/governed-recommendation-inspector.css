@@ -97,3 +97,15 @@
 /* Secondary provenance rows (demoted machine ids). */
 .gri-row-detail dt, .gri-row-detail dd { color: var(--muted-fg, #888); font-size: 10px; font-weight: 400; }
 .gri-row-detail code { font-size: 10px; }
+
+/* ATTACH TO… — the first admissible resolution control (Doc 69 walking slice).
+   It is a resolution AFFORDANCE, presented distinctly from the Recommendation outcome. */
+.gri-attach { display: flex; flex-direction: column; gap: 8px; }
+.gri-attach-actions { display: flex; gap: 8px; margin-top: 4px; }
+.gri-attach-btn {
+  font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--accent, #2f6fb0); background: var(--accent, #2f6fb0); color: #fff;
+}
+.gri-attach-cancel-btn { background: transparent; color: var(--panel-fg, #333); border-color: var(--muted-fg, #999); }
+.gri-attach-confirm { border: 1px solid rgba(47, 111, 176, 0.35); border-radius: 6px; padding: 8px; background: rgba(47, 111, 176, 0.06); }
+.gri-attach-error { color: #a3431f; }

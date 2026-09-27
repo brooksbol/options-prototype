@@ -27,7 +27,15 @@ import type { PredicateResult, ResolutionAffordance } from "./predicate";
  * added ONLY when every §6 link is real (write contract + consumer + reevaluation + replay).
  */
 export const ADMISSIBLE_CONTROL_CAPABILITIES: ReadonlySet<string> = new Set<string>([
-  // (intentionally empty — see module header)
+  // ATTACH TO… (Doc 69 walking slice): establishing that a bounded covered-call subject
+  // participates in Assignment-Centric Wheel v1. The complete §6 chain is real —
+  // defined question/answer (attach vs not), operator authority (operator-governance),
+  // resolved bounded subject/scope identity (system-minted scope from the bounded
+  // covered-call subjectId), durable atomic append (POST /api/governed-context/attach),
+  // known evaluator consumer (wheel-membership predicate), deterministic reevaluation
+  // (governanceEpoch bump), and replay-bound Decision. It ONLY establishes membership;
+  // stance/eligibility/no-write/intervention remain unresolved/undefined.
+  "attach-assignment-centric-wheel",
 ]);
 
 /** Whether a single resolution affordance is an admissible enabled control right now. */

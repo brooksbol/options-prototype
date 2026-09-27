@@ -210,9 +210,11 @@ export function OperatorConsole() {
   // projected on in-scope subjects (covered-call obligations + unencumbered share blocks).
   // Fail-closed: without authorized governance + explicit association the result is UNRESOLVED.
   const [inspectedGoverned, setInspectedGoverned] = useState<ResolvedGovernedRecommendation | null>(null);
-  // The governed drawer is read-only (no browser governance write in this bounded slice), so
-  // there is no governance epoch to bump; the hook re-resolves on snapshot/generation change.
-  const governedRecommendations = useGovernedRecommendations(positions, snapshot, chainReadGeneration);
+  // ATTACH TO… (Doc 69 walking slice) durably records Program membership. Bumping the
+  // governance epoch forces the hook to re-resolve association + context so the membership
+  // predicate flips to established (deterministic reevaluation).
+  const [governanceEpoch, setGovernanceEpoch] = useState(0);
+  const governedRecommendations = useGovernedRecommendations(positions, snapshot, chainReadGeneration, governanceEpoch);
 
   // Alternative groupings for regime B
   const groups: { label: string; sublabel?: string; positions: MonitoredPosition[]; totalCapital: number }[] = (() => {
@@ -417,6 +419,7 @@ export function OperatorConsole() {
             accountName={snapshot?.accountId ?? snapshot?.source?.label ?? null}
             callAwayStrike={pos?.strike ?? null}
             evidenceRows={evidenceRows}
+            onGovernanceChanged={() => setGovernanceEpoch((e) => e + 1)}
           />
         );
       })()}

@@ -977,3 +977,39 @@ Primary account identity should eventually use the human account name (e.g. `Saw
 ### Restart point for the next session
 
 Resume by choosing the next authorized workstream among: (A) ratify + implement the intervention/eligibility/no-write **gate policies** (would unblock affirmative `LET RESOLVE`/`SELL CALL`); (B) authorize the bounded **`PL-SETUP-01`-child Wheel-scope establishment** design (would make the membership route/control admissible); or (C) other Principal-selected direction. No implementation is authorized by this closeout. Cold-start via `docs/README.md` → `KNOWN-FAILURE-MODES.md` → bootstrap; the ADR-021 slice is the accepted baseline.
+
+---
+
+## 2026-09-27 — ATTACH TO… first walking slice implemented (covered-call → Assignment-Centric Wheel v1) (Kiro)
+
+**Actor:** Kiro (Implementation Engineer). **SYNC:** `86ea76e` (accepted `main`; clean tree at start). Authority root `docs/README.md`; Gate Experiment 001 `STAGED`. This is authorized bounded implementation of the first real `ATTACH TO…` capability against the ratified `Assignment-Centric Wheel v1` Program (Doc 69).
+
+### What shipped
+
+The first admissible operator resolution control in the governed Recommendation drawer. An operator inspecting a covered-call subject whose `wheel-membership` predicate is `AUTHORITY_MISSING` can choose `Attach to…` → the one ratified destination **Assignment-Centric Wheel**, confirm, and Wheelwright durably records Program membership. Deterministic reevaluation then flips `wheel-membership` to `SATISFIED`. The Recommendation stays `UNRESOLVED` (call-away pre-acceptance becomes the next `AUTHORITY_MISSING`; intervention stays `POLICY_UNDEFINED`) — attachment establishes **membership only**.
+
+### The load-bearing design decision (subject/quantity)
+
+The evaluator already had two subject classes: covered-call (`call-<underlying>-<strike>-<expiration>`, a **bounded** identity) and share-block (`shares-<SYMBOL>`, **symbol-level**). Attaching the symbol-level share-block would silently mean "all free shares of this symbol" — the exact unsafe approximation the task forbids and the same-symbol attack targets. Rather than invent an inventory-block ontology, this slice **attaches only the already-bounded covered-call subject** and the backend **refuses** share-block attach. This is an ordinary implementation scoping choice grounded in existing identity structure (not a Principal decision): the covered-call subject is bounded; the share-block is not. Bounded inventory-block identity for share-phase attachment is the documented residual gap.
+
+### Atomicity + idempotency
+
+Context-version and association writes were previously two separate transactions. Attachment requires them atomic (a partial failure must never leave an association pointing at a non-existent scope), so I added one backend command, `SqliteEvidenceStore.attachSubjectToProgram(context, association)`, performing both `INSERT OR IGNORE`s inside a single `inTransaction`. The endpoint `POST /api/governed-context/attach` **system-mints** the governed scope deterministically from `(account, subject, program)` — the operator never supplies an opaque id — and derives the context/association identities from `(account, scope, version)` / `(account, subject, scope)` with a fixed tag rather than wall-clock time, so a repeated attach is a true durable no-op (verified: counts stayed 1 ctx / 1 assoc per subject). The minted context asserts nothing affirmative: `callAwayStance=unknown`, all gates `UNKNOWN`, `authorityProvenance=operator-governance`.
+
+### Authority preserved
+
+- Membership is an ADR-016 authoritative association; symbol equality / geometry / co-location never mint or reuse a scope (verified: same-symbol different subject → distinct scope).
+- ADR-019/ADR-021 replay honesty preserved: the association is effective from the recorded boundary forward; a pre-attachment Decision replays unchanged (the evaluator/bundle are pure over the pinned inputs; attaching does not rewrite prior Decisions).
+- ADR-021 §6 admissibility chain is complete for this one capability (question → operator authority → resolved bounded subject/scope → durable atomic append → known evaluator consumer → deterministic reevaluation via `governanceEpoch` → replay-bound Decision), so it is the first entry in `ADMISSIBLE_CONTROL_CAPABILITIES`. No policy was invented; eligibility/no-write/intervention stay `POLICY_UNDEFINED`.
+
+### Verification
+
+Backend full suite green (5 new attach controller tests). Frontend: 2134 pass; the only 3 failures are the pre-existing `RoadmapView.test.tsx` ones (AR duplicate-key/isolation ×2; Log NEWEST-FIRST stale-date), confirmed pre-existing and unrelated. Real end-to-end acceptance was exercised against a freshly-built backend on an isolated port (3199) + temp DB — I cannot visually see a browser, so I drove the actual `/attach` endpoint the drawer calls and verified before/attach/after, membership-only context, same-symbol isolation + distinct scopes, fresh-client recovery, idempotency, and share-block/bad-program refusal. The Principal's always-on appliance on port 3100 was left running and untouched.
+
+### Residual gaps (unchanged by this slice)
+
+Bounded inventory-block identity for share-phase attachment; call-away pre-acceptance attestation; intervention/eligibility/no-write policy; CSP/contract selection; negative-membership write; retrospective/lifecycle semantics. All remain honestly `AUTHORITY_MISSING` / `POLICY_UNDEFINED` and keep the Recommendation `UNRESOLVED`.
+
+### Next boundary
+
+Extend `ATTACH TO…` to the share-phase subject once a bounded inventory-block identity is designed (a Solution Overview/Design step), OR ratify one of the blocking policies (intervention/eligibility/no-write) or the call-away pre-acceptance attestation to unblock an affirmative `LET RESOLVE`/`SELL CALL`. Not authorized by this task.
