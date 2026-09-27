@@ -1,138 +1,129 @@
 /**
- * Governed Recommendation drawer — dense, flat, honest (Principal corrective UX + §7 no
- * decorative controls).
+ * Governed Recommendation drawer — ADR-021 predicate-picture rendering.
  *
- * Asserts: no accordion/disclosure; no raw governance engineering (no scope-id, no gate
- * controls, no "fails closed"); NEEDS + WHY + POSITION/EVIDENCE + BASIS visible without
- * expansion; the call-away question is shown in operator language BUT with NO clickable
- * answer control (the semantic trace found it cannot persist truthfully — surfaced as an
- * honest boundary, not a decorative button); affirmative recommendation inspectable.
+ * Asserts: the complete predicate picture renders in operator language with distinct
+ * statuses (no conflation); no accordion; no raw governance engineering (no scope-id, no
+ * gate controls, no "fails closed"); NO enabled control exists in this slice (admissibility
+ * gate empty) so a blocker is explained instead; outside-program projection; human account
+ * name primary with machine ids demoted; plain-language rule name.
  */
 
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { GovernedRecommendationInspector } from "../../src/operator-console/GovernedRecommendationInspector";
-import type { ResolvedGovernedRecommendation } from "../../src/governed-decision/resolve";
+import { evaluateCoveredCall, evaluateSharePhase, type GovernedInputsBase } from "../../src/governed-decision/evaluators";
 import type { GovernedContextVersion } from "../../src/governed-decision/governed-context";
-import type { DecisionInputBundle } from "../../src/governed-decision/decision-bundle";
+import type { ResolvedGovernedRecommendation } from "../../src/governed-decision/resolve";
 
-function unresolvedNoAssociation(symbol: string): ResolvedGovernedRecommendation {
+function ctx(overrides: Partial<GovernedContextVersion> = {}): GovernedContextVersion {
   return {
-    subject: { subjectType: "share-block", subjectId: `shares-${symbol}`, symbol, brokerageAccountId: "acctA" },
-    evaluation: {
-      recommendation: "UNRESOLVED", evaluatorId: "wheel-share-phase", evaluatorVersion: "1",
-      ruleId: "DOC65-RULE-2-SELL-CALL",
-      reasons: [{ basis: "association", text: "no governed scope association" }],
-      unresolvedCauses: ["no-governed-scope-association"],
-    },
-    bundle: null,
-  };
-}
-
-function unresolvedCallAwayMissing(symbol: string): ResolvedGovernedRecommendation {
-  return {
-    subject: { subjectType: "covered-call", subjectId: `call-${symbol}-43-2026-10-16`, symbol, brokerageAccountId: "acctA" },
-    evaluation: {
-      recommendation: "UNRESOLVED", evaluatorId: "wheel-covered-call", evaluatorVersion: "1",
-      ruleId: "DOC65-RULE-1-LET-RESOLVE",
-      reasons: [{ basis: "context", text: "applicability not established" }],
-      unresolvedCauses: ["call-away-stance-not-accepted"],
-    },
-    bundle: null,
-  };
-}
-
-function affirmativeCoveredCall(symbol: string): ResolvedGovernedRecommendation {
-  const ctx: GovernedContextVersion = {
-    brokerageAccountId: "acctA", governedScopeId: `wheel-${symbol}`, contextVersionId: "ctx-1",
-    version: 1, supersedesContextVersionId: null,
-    program: { program: "assignment-centric-wheel", configVersion: "1" },
+    brokerageAccountId: "ba-179", governedScopeId: "wheel-URA", contextVersionId: "ctx_1", version: 1,
+    supersedesContextVersionId: null, program: { program: "assignment-centric-wheel", configVersion: "1" },
     callAwayStance: "accepted", eligibilityGate: "CLEAR", interventionGate: "CLEAR", noWriteGate: "CLEAR",
-    authorityProvenance: "operator-governance", effectiveFrom: "2026-09-26T14:00:00Z", recordedAt: "2026-09-26T14:00:01Z",
-  };
-  const bundle = {
-    brokerageAccountId: "acctA",
-    subject: { subjectType: "covered-call", subjectId: `call-${symbol}-43-2026-10-16`, symbol, brokerageAccountId: "acctA" },
-    governedScopeId: ctx.governedScopeId, contextVersion: ctx, associationEstablished: true,
-    consumed: { kind: "covered-call" },
-  } as unknown as DecisionInputBundle;
-  return {
-    subject: bundle.subject,
-    evaluation: {
-      recommendation: "LET_RESOLVE", evaluatorId: "wheel-covered-call", evaluatorVersion: "1",
-      ruleId: "DOC65-RULE-1-LET-RESOLVE",
-      reasons: [{ basis: "call-away", text: "call-away accepted and effective" }], unresolvedCauses: [],
-    },
-    bundle,
+    authorityProvenance: "operator-governance", effectiveFrom: "2026-09-01T00:00:00Z", recordedAt: "2026-09-01T00:00:00Z",
+    ...overrides,
   };
 }
 
-describe("governed Recommendation drawer (dense, honest, no decorative controls)", () => {
-  it("shows NEEDS and WHY immediately, with no accordion/disclosure and no raw engineering", () => {
+/** No-membership covered call (URA): AUTHORITY_MISSING membership + NOT_EVALUATED dependents. */
+function unresolvedNoMembership(symbol: string): ResolvedGovernedRecommendation {
+  const evaluation = evaluateCoveredCall(
+    { callIsCurrent: true, coverageEstablished: true, evidenceSufficient: true },
+    { context: null, associationEstablished: false },
+  );
+  return {
+    subject: { subjectType: "covered-call", subjectId: `call-${symbol}-43-2026-10-16`, symbol, brokerageAccountId: "ba-179" },
+    evaluation, bundle: null,
+  };
+}
+
+/** Governed covered call: membership SATISFIED but intervention POLICY_UNDEFINED. */
+function governedButPolicyUndefined(symbol: string): ResolvedGovernedRecommendation {
+  const inputs: GovernedInputsBase = { context: ctx(), associationEstablished: true };
+  const evaluation = evaluateCoveredCall(
+    { callIsCurrent: true, coverageEstablished: true, evidenceSufficient: true }, inputs);
+  return {
+    subject: { subjectType: "covered-call", subjectId: `call-${symbol}-43-2026-10-16`, symbol, brokerageAccountId: "ba-179" },
+    evaluation,
+    bundle: { contextVersion: ctx() } as any,
+  };
+}
+
+/** Authoritative negative membership (outside program). */
+function outsideProgram(symbol: string): ResolvedGovernedRecommendation {
+  const evaluation = evaluateSharePhase(
+    { freeShares: 100, ownershipAuthority: "positions", evidenceSufficient: true },
+    { context: null, associationEstablished: false, membershipNegative: true });
+  return {
+    subject: { subjectType: "share-block", subjectId: `shares-${symbol}`, symbol, brokerageAccountId: "ba-179" },
+    evaluation, bundle: null,
+  };
+}
+
+describe("governed Recommendation drawer (ADR-021 predicate picture)", () => {
+  it("renders the complete predicate checklist with distinct statuses; no accordion; no raw engineering", () => {
     const { container } = render(
-      <GovernedRecommendationInspector resolved={unresolvedNoAssociation("COPX")} onClose={() => {}} />,
+      <GovernedRecommendationInspector resolved={unresolvedNoMembership("URA")} onClose={() => {}} />,
     );
-    expect(screen.getByText("Needs")).toBeTruthy();
+    expect(screen.getByText("Governed checklist")).toBeTruthy();
+    // Every relevant predicate label is present.
     expect(screen.getByText("Wheel program membership")).toBeTruthy();
-    expect(screen.getByText("Why unresolved")).toBeTruthy();
-    expect(screen.getByText(/will not infer Wheel membership/i)).toBeTruthy();
-    // No accordions.
+    expect(screen.getByText("Call-away pre-acceptance")).toBeTruthy();
+    expect(screen.getByText("Intervention condition")).toBeTruthy();
+    // Distinct statuses (not conflated): AUTHORITY_MISSING vs NOT_EVALUATED vs POLICY_UNDEFINED.
+    expect(screen.getByText("Not established")).toBeTruthy();
+    expect(screen.getAllByText(/Not yet evaluated/).length).toBeGreaterThan(0);
+    expect(screen.getByText("No governed policy yet")).toBeTruthy();
+    // No accordion; no raw governance engineering.
     expect(container.querySelector("details")).toBeNull();
-    expect(screen.queryByText(/Technical details/i)).toBeNull();
-    expect(screen.queryByText(/Advanced governance/i)).toBeNull();
-    // No raw governance engineering.
     expect(screen.queryByText(/Governed scope id/i)).toBeNull();
-    expect(screen.queryByText(/Configuration version/i)).toBeNull();
     expect(screen.queryByText(/fails closed/i)).toBeNull();
     expect(container.querySelector("select")).toBeNull();
     expect(container.querySelector("input")).toBeNull();
   });
 
-  it("renders POSITION / EVIDENCE inspection rows when supplied", () => {
-    render(
-      <GovernedRecommendationInspector
-        resolved={unresolvedCallAwayMissing("URA")}
-        onClose={() => {}}
-        callAwayStrike={43}
-        evidenceRows={[
-          { label: "Shares owned", value: "100" },
-          { label: "Short calls", value: "1" },
-          { label: "Strike", value: "$43" },
-        ]}
-      />,
-    );
-    expect(screen.getByText("Position / evidence")).toBeTruthy();
-    expect(screen.getByText("Shares owned")).toBeTruthy();
-    expect(screen.getByText("100")).toBeTruthy();
+  it("shows a not-evaluated dependent with its blocking prerequisite", () => {
+    render(<GovernedRecommendationInspector resolved={unresolvedNoMembership("URA")} onClose={() => {}} />);
+    expect(screen.getAllByText(/needs wheel-membership/).length).toBeGreaterThan(0);
   });
 
-  it("shows the call-away question in operator language but NO clickable answer control (honest boundary)", () => {
-    render(
-      <GovernedRecommendationInspector
-        resolved={unresolvedCallAwayMissing("URA")}
-        onClose={() => {}}
-        callAwayStrike={43}
-      />,
-    );
-    // The operator-language question is shown...
-    expect(screen.getByText("Do you want URA to be called away at $43?")).toBeTruthy();
-    expect(screen.getByText(/WW cannot record this answer yet/i)).toBeTruthy();
-    // ...but there is NO decorative Yes/No/Not sure control that cannot persist.
-    expect(screen.queryByRole("button", { name: "Yes" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "No" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Not sure" })).toBeNull();
-    // Not the rejected "acceptable" wording.
-    expect(screen.queryByText(/acceptable/i)).toBeNull();
-  });
-
-  it("keeps an affirmative recommendation inspectable (dense basis visible, no accordion)", () => {
+  it("offers NO enabled control in this slice; explains the blocker instead (ADR-021 §4)", () => {
     const { container } = render(
-      <GovernedRecommendationInspector resolved={affirmativeCoveredCall("GDXJ")} onClose={() => {}} callAwayStrike={43} />,
+      <GovernedRecommendationInspector resolved={unresolvedNoMembership("URA")} onClose={() => {}} />,
     );
-    expect(screen.getByText("LET RESOLVE")).toBeTruthy();
-    expect(screen.getByText(/Let the GDXJ covered call resolve/i)).toBeTruthy();
-    expect(screen.getByText("Governance / basis")).toBeTruthy();
-    expect(screen.getByText("assignment-centric-wheel")).toBeTruthy();
-    expect(container.querySelector("details")).toBeNull();
+    expect(screen.getByText("What WW needs")).toBeTruthy();
+    expect(screen.getByText(/not yet available in this slice/i)).toBeTruthy();
+    // No mutating controls (buttons other than the close ×).
+    const buttons = Array.from(container.querySelectorAll("button")).map((b) => b.textContent?.trim());
+    expect(buttons.filter((t) => t && t !== "×")).toHaveLength(0);
+  });
+
+  it("shows POLICY_UNDEFINED honestly when membership is established (partial resolution)", () => {
+    render(<GovernedRecommendationInspector resolved={governedButPolicyUndefined("URA")} onClose={() => {}} />);
+    // membership now Established, but intervention policy still blocks affirmative.
+    expect(screen.getByText("No governed policy yet")).toBeTruthy();
+  });
+
+  it("projects outside-program for authoritative negative membership (not a Recommendation)", () => {
+    render(<GovernedRecommendationInspector resolved={outsideProgram("COPX")} onClose={() => {}} />);
+    expect(screen.getByText("OUTSIDE PROGRAM")).toBeTruthy();
+    expect(screen.getAllByText(/outside the Wheel program/i).length).toBeGreaterThan(0);
+  });
+
+  it("presentation cleanup: human account name primary, plain rule name, machine ids demoted", () => {
+    render(
+      <GovernedRecommendationInspector
+        resolved={unresolvedNoMembership("URA")}
+        onClose={() => {}}
+        accountName="Fidelity XXXX-1234"
+        evidenceRows={[{ label: "Short calls", value: "1" }]}
+      />,
+    );
+    expect(screen.getByText("Fidelity XXXX-1234")).toBeTruthy();
+    expect(screen.getByText("Existing governed covered call (let resolve)")).toBeTruthy();
+    // The raw account id is demoted to a detail row (still present as provenance).
+    expect(screen.getByText("ba-179")).toBeTruthy();
+    // Position/evidence inspection renders.
+    expect(screen.getByText("Short calls")).toBeTruthy();
   });
 });

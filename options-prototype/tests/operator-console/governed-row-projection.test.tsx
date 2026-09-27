@@ -44,8 +44,9 @@ function resolved(symbol: string, recommendation: GovernedRecommendation): Resol
   return {
     subject: { subjectType: "share-block", subjectId: `shares-${symbol}`, symbol, brokerageAccountId: "acctA" },
     evaluation: {
-      recommendation, evaluatorId: "wheel-share-phase", evaluatorVersion: "1",
-      ruleId: "DOC65-RULE-2-SELL-CALL", reasons: [], unresolvedCauses: recommendation === "UNRESOLVED" ? ["no-governed-scope-association"] : [],
+      recommendation, evaluatorId: "wheel-share-phase", evaluatorVersion: "2",
+      ruleId: "DOC65-RULE-2-SELL-CALL", reasons: [], predicateResults: [], programApplicability: "applicable",
+      unresolvedCauses: recommendation === "UNRESOLVED" ? ["wheel-membership"] : [],
     },
     bundle: null,
   };

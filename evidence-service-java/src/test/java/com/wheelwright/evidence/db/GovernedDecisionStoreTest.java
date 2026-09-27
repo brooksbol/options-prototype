@@ -104,8 +104,8 @@ class GovernedDecisionStoreTest {
                 "CLEAR", "CLEAR", "CLEAR", "2026-09-01T00:00:00Z", "2026-09-01T00:00:00Z"));
             var d = new GovernedDecisionRecord(
                 "dec_1", "acctA", "scope1", "covered-call", "call-GDXJ-30-2026-10-17", "GDXJ",
-                "ctx_1", "DOC65-RULE-1-LET-RESOLVE", "wheel-covered-call", "1",
-                "LET_RESOLVE", "[]", "[]", "{\"k\":1}", "db_abc",
+                "ctx_1", "DOC65-RULE-1-LET-RESOLVE", "wheel-covered-call", "2",
+                "LET_RESOLVE", "applicable", "[]", "[]", "[]", "{\"k\":1}", "db_abc",
                 "2026-09-05T14:00:00Z", "2026-09-05T14:00:01Z");
             store.appendGovernedDecision(d);
             store.appendGovernedDecision(d); // idempotent
@@ -114,6 +114,27 @@ class GovernedDecisionStoreTest {
             assertNotNull(read);
             assertEquals("LET_RESOLVE", read.recommendation());
             assertEquals(1, store.getGovernedDecisionsForSubject("acctA", "call-GDXJ-30-2026-10-17").size());
+        }
+    }
+
+    @Test
+    @DisplayName("no-context UNRESOLVED Decision persists with null context/scope (ADR-021 §10)")
+    void noContextUnresolvedDecision() throws Exception {
+        try (SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:")) {
+            // No Context Version authored. A no-context UNRESOLVED Decision records the explicit
+            // absence rather than fabricating governance.
+            var d = new GovernedDecisionRecord(
+                "dec_nc", "acctA", null, "share-block", "shares-COPX", "COPX",
+                null, "DOC65-RULE-2-SELL-CALL", "wheel-share-phase", "2",
+                "UNRESOLVED", "applicable", "[]", "[\"wheel-membership\"]",
+                "[{\"key\":\"wheel-membership\",\"status\":\"AUTHORITY_MISSING\"}]",
+                "{\"contextVersion\":null}", "db_nc", "2026-09-05T14:00:00Z", "2026-09-05T14:00:01Z");
+            store.appendGovernedDecision(d);
+            var read = store.getGovernedDecision("dec_nc");
+            assertNotNull(read);
+            assertNull(read.contextVersionId(), "no-context Decision has null context_version_id");
+            assertNull(read.governedScopeId(), "no-context Decision has null governed_scope_id");
+            assertEquals("UNRESOLVED", read.recommendation());
         }
     }
 }

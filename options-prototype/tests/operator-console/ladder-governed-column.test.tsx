@@ -39,9 +39,9 @@ function gov(id: string, symbol: string, recommendation: GovernedRecommendation)
   return {
     subject: { subjectType: "covered-call", subjectId: id, symbol, brokerageAccountId: "acctA" },
     evaluation: {
-      recommendation, evaluatorId: "wheel-covered-call", evaluatorVersion: "1",
-      ruleId: "DOC65-RULE-1-LET-RESOLVE", reasons: [],
-      unresolvedCauses: recommendation === "UNRESOLVED" ? ["no-governed-scope-association"] : [],
+      recommendation, evaluatorId: "wheel-covered-call", evaluatorVersion: "2",
+      ruleId: "DOC65-RULE-1-LET-RESOLVE", reasons: [], predicateResults: [], programApplicability: "applicable",
+      unresolvedCauses: recommendation === "UNRESOLVED" ? ["wheel-membership"] : [],
     },
     bundle: null,
   };

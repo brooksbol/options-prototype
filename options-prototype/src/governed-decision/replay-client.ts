@@ -32,6 +32,8 @@ export async function loadAndReplay(
   const bundle = JSON.parse(String(row.inputBundleJson)) as DecisionInputBundle;
   const persistedResult: DecisionResult = {
     recommendation: String(row.recommendation) as GovernedRecommendation,
+    predicateResults: JSON.parse(String(row.predicateResultsJson ?? "[]")),
+    programApplicability: (row.programApplicability as DecisionResult["programApplicability"]) ?? "applicable",
     reasons: JSON.parse(String(row.reasoningJson ?? "[]")),
     unresolvedCauses: JSON.parse(String(row.unresolvedCausesJson ?? "[]")),
   };

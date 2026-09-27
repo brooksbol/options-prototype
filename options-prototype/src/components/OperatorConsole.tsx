@@ -414,6 +414,7 @@ export function OperatorConsole() {
           <GovernedRecommendationInspector
             resolved={inspectedGoverned}
             onClose={() => setInspectedGoverned(null)}
+            accountName={snapshot?.accountId ?? snapshot?.source?.label ?? null}
             callAwayStrike={pos?.strike ?? null}
             evidenceRows={evidenceRows}
           />

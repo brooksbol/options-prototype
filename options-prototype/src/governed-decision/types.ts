@@ -78,8 +78,11 @@ export type RuleId = "DOC65-RULE-1-LET-RESOLVE" | "DOC65-RULE-2-SELL-CALL";
  * semantic change.
  */
 export const EVALUATOR_VERSION: Record<EvaluatorId, string> = Object.freeze({
-  "wheel-covered-call": "1",
-  "wheel-share-phase": "1",
+  // v2: ADR-021 complete predicate-picture semantics (superseding the v1 first-blocker
+  // shape). A semantic change requires a new version so replay never re-runs v2 semantics
+  // against a v1-recorded Decision (it reports UNSUPPORTED_EVALUATOR_VERSION instead).
+  "wheel-covered-call": "2",
+  "wheel-share-phase": "2",
 });
 
 /** A single governed reason, naming the load-bearing fact/provenance behind it. */
@@ -100,16 +103,38 @@ export interface GovernedReason {
 }
 
 /**
- * The bounded result of a governed evaluator. `recommendation` is the machine token;
- * `reasons` explain why it is affirmative or unresolved; `unresolvedCauses` enumerates
- * the specific failed predicate(s) when UNRESOLVED (never empty for UNRESOLVED).
+ * Program applicability for a subject/rule (ADR-021 §5 / Doc 67 §10). Distinct from the
+ * Recommendation and from `UNRESOLVED`:
+ *   - "applicable"     — the rule's Program governs this subject (or membership is not yet
+ *                        established, which is still uncertainty, not a negative).
+ *   - "outside-program"— an AUTHORITATIVE negative membership: the rule's Program does not
+ *                        govern this subject. Projected as "no applicable Recommendation",
+ *                        NOT as UNRESOLVED, and WITHOUT adding a public Recommendation value.
+ */
+export type ProgramApplicability = "applicable" | "outside-program";
+
+/**
+ * The bounded result of a governed evaluator (ADR-021).
+ *
+ * `recommendation` is the public machine token (vocabulary unchanged). `predicateResults`
+ * is the ADR-021 semantic source of truth: the complete ordered per-predicate accounting.
+ * `reasons` and `unresolvedCauses` remain as a compatibility summary derived from the
+ * predicate picture; they are no longer the semantic source.
+ *
+ * `programApplicability` carries the known-negative-membership projection beside the
+ * Recommendation. When `outside-program`, the Recommendation remains `UNRESOLVED` at the
+ * token level but consumers project "outside Program / no applicable Recommendation".
  */
 export interface GovernedEvaluation {
   recommendation: GovernedRecommendation;
   evaluatorId: EvaluatorId;
   evaluatorVersion: string;
   ruleId: RuleId;
+  /** ADR-021 semantic source of truth: complete ordered per-predicate accounting. */
+  predicateResults: import("./predicate").PredicateResult[];
+  /** Known-negative-membership projection (ADR-021 §5). Defaults to "applicable". */
+  programApplicability: ProgramApplicability;
   reasons: GovernedReason[];
-  /** Present (non-empty) iff recommendation === "UNRESOLVED". */
+  /** Compatibility summary (derived). Present (non-empty) iff recommendation === "UNRESOLVED". */
   unresolvedCauses: string[];
 }

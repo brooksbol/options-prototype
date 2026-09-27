@@ -112,10 +112,9 @@ export function resolveCoveredCallRecommendation(
     associationEstablished: governance.associationEstablished,
   };
   const evaluation = evaluateCoveredCall(facts, inputs);
-  const bundle = governance.context
-    ? buildBundle(subject, snapshot, governance.context, inputs.associationEstablished,
-        { kind: "covered-call", facts }, evaluation, decisionTime)
-    : null;
+  // ADR-021 §10: a bundle/Decision is always built, including no-context UNRESOLVED.
+  const bundle = buildBundle(subject, snapshot, governance.context, inputs.associationEstablished,
+    { kind: "covered-call", facts }, evaluation, decisionTime);
   return { subject, evaluation, bundle };
 }
 
@@ -136,17 +135,15 @@ export function resolveSharePhaseRecommendation(
     associationEstablished: governance.associationEstablished,
   };
   const evaluation = evaluateSharePhase(facts, inputs);
-  const bundle = governance.context
-    ? buildBundle(subject, snapshot, governance.context, inputs.associationEstablished,
-        { kind: "share-block", facts }, evaluation, decisionTime)
-    : null;
+  const bundle = buildBundle(subject, snapshot, governance.context, inputs.associationEstablished,
+    { kind: "share-block", facts }, evaluation, decisionTime);
   return { subject, evaluation, bundle };
 }
 
 function buildBundle(
   subject: DecisionSubject,
   snapshot: PortfolioSnapshot,
-  context: GovernedContextVersion,
+  context: GovernedContextVersion | null,
   associationEstablished: boolean,
   consumed: DecisionInputBundle["consumed"],
   evaluation: GovernedEvaluation,
@@ -156,7 +153,7 @@ function buildBundle(
   return {
     brokerageAccountId: subject.brokerageAccountId,
     subject,
-    governedScopeId: context.governedScopeId,
+    governedScopeId: context ? context.governedScopeId : null,
     contextVersion: context,
     associationEstablished,
     consumed,

@@ -98,6 +98,8 @@ export function useGovernedRecommendations(
         if (resolved.bundle) {
           void emitGovernedDecision(resolved.bundle, {
             recommendation: resolved.evaluation.recommendation,
+            predicateResults: resolved.evaluation.predicateResults,
+            programApplicability: resolved.evaluation.programApplicability,
             reasons: resolved.evaluation.reasons,
             unresolvedCauses: resolved.evaluation.unresolvedCauses,
           });
@@ -113,6 +115,8 @@ export function useGovernedRecommendations(
         if (resolved.bundle) {
           void emitGovernedDecision(resolved.bundle, {
             recommendation: resolved.evaluation.recommendation,
+            predicateResults: resolved.evaluation.predicateResults,
+            programApplicability: resolved.evaluation.programApplicability,
             reasons: resolved.evaluation.reasons,
             unresolvedCauses: resolved.evaluation.unresolvedCauses,
           });

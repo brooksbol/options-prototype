@@ -42,15 +42,18 @@ public class GovernedDecisionController {
     @PostMapping("/api/governed-decision")
     public ResponseEntity<Map<String, Object>> append(@RequestBody DecisionDto body) throws SQLException {
         if (body == null || isBlank(body.decisionId) || isBlank(body.brokerageAccountId)
-                || isBlank(body.subjectId) || isBlank(body.contextVersionId)
+                || isBlank(body.subjectId)
                 || isBlank(body.recommendation) || isBlank(body.inputBundleJson)) {
             return ResponseEntity.badRequest().body(Map.of(
-                "error", "decisionId, brokerageAccountId, subjectId, contextVersionId, "
+                "error", "decisionId, brokerageAccountId, subjectId, "
                     + "recommendation, and inputBundleJson are required"));
         }
-        // The pinned context must already exist durably (a Decision cannot pin a context
-        // that was never authored). Fail closed rather than persist a dangling Decision.
-        if (store.getGovernedContextVersion(body.contextVersionId) == null) {
+        // ADR-021 §10: contextVersionId is OPTIONAL. A no-context UNRESOLVED Decision records
+        // the explicit absence of governed context (never a fabricated one). But WHEN a context
+        // is pinned, it must already exist durably — fail closed rather than persist a dangling
+        // reference to a context that was never authored.
+        if (!isBlank(body.contextVersionId)
+                && store.getGovernedContextVersion(body.contextVersionId) == null) {
             return ResponseEntity.unprocessableEntity().body(Map.of(
                 "error", "pinned contextVersionId does not exist; author governance first",
                 "contextVersionId", body.contextVersionId));
@@ -59,10 +62,12 @@ public class GovernedDecisionController {
         String recordedAt = Instant.now().toString();
         GovernedDecisionRecord rec = new GovernedDecisionRecord(
             body.decisionId, body.brokerageAccountId, body.governedScopeId, body.subjectType,
-            body.subjectId, body.symbol, body.contextVersionId, body.ruleId, body.evaluatorId,
-            body.evaluatorVersion, body.recommendation,
+            body.subjectId, body.symbol, isBlank(body.contextVersionId) ? null : body.contextVersionId,
+            body.ruleId, body.evaluatorId, body.evaluatorVersion, body.recommendation,
+            isBlank(body.programApplicability) ? "applicable" : body.programApplicability,
             body.reasoningJson == null ? "[]" : body.reasoningJson,
             body.unresolvedCausesJson == null ? "[]" : body.unresolvedCausesJson,
+            body.predicateResultsJson == null ? "[]" : body.predicateResultsJson,
             body.inputBundleJson, body.bundleHash, body.decisionTime, recordedAt);
 
         store.appendGovernedDecision(rec);
@@ -109,8 +114,10 @@ public class GovernedDecisionController {
         public String evaluatorId;
         public String evaluatorVersion;
         public String recommendation;
+        public String programApplicability;
         public String reasoningJson;
         public String unresolvedCausesJson;
+        public String predicateResultsJson;
         public String inputBundleJson;
         public String bundleHash;
         public String decisionTime;

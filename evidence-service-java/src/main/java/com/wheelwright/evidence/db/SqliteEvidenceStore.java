@@ -2430,9 +2430,9 @@ public class SqliteEvidenceStore implements AutoCloseable {
                     INSERT OR IGNORE INTO governed_decision
                       (decision_id, brokerage_account_id, governed_scope_id, subject_type, subject_id,
                        symbol, context_version_id, rule_id, evaluator_id, evaluator_version,
-                       recommendation, reasoning_json, unresolved_causes_json, input_bundle_json,
-                       bundle_hash, decision_time, recorded_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                       recommendation, program_applicability, reasoning_json, unresolved_causes_json,
+                       predicate_results_json, input_bundle_json, bundle_hash, decision_time, recorded_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """)) {
                 ps.setString(1, d.decisionId());
                 ps.setString(2, d.brokerageAccountId());
@@ -2445,12 +2445,14 @@ public class SqliteEvidenceStore implements AutoCloseable {
                 ps.setString(9, d.evaluatorId());
                 ps.setString(10, d.evaluatorVersion());
                 ps.setString(11, d.recommendation());
-                ps.setString(12, d.reasoningJson());
-                ps.setString(13, d.unresolvedCausesJson());
-                ps.setString(14, d.inputBundleJson());
-                ps.setString(15, d.bundleHash());
-                ps.setString(16, d.decisionTime());
-                ps.setString(17, d.recordedAt());
+                ps.setString(12, d.programApplicability());
+                ps.setString(13, d.reasoningJson());
+                ps.setString(14, d.unresolvedCausesJson());
+                ps.setString(15, d.predicateResultsJson());
+                ps.setString(16, d.inputBundleJson());
+                ps.setString(17, d.bundleHash());
+                ps.setString(18, d.decisionTime());
+                ps.setString(19, d.recordedAt());
                 ps.executeUpdate();
             }
         });
@@ -2461,8 +2463,8 @@ public class SqliteEvidenceStore implements AutoCloseable {
         try (PreparedStatement ps = conn.prepareStatement("""
                 SELECT decision_id, brokerage_account_id, governed_scope_id, subject_type, subject_id,
                        symbol, context_version_id, rule_id, evaluator_id, evaluator_version,
-                       recommendation, reasoning_json, unresolved_causes_json, input_bundle_json,
-                       bundle_hash, decision_time, recorded_at
+                       recommendation, program_applicability, reasoning_json, unresolved_causes_json,
+                       predicate_results_json, input_bundle_json, bundle_hash, decision_time, recorded_at
                   FROM governed_decision WHERE decision_id = ?
             """)) {
             ps.setString(1, decisionId);
@@ -2480,8 +2482,8 @@ public class SqliteEvidenceStore implements AutoCloseable {
         try (PreparedStatement ps = conn.prepareStatement("""
                 SELECT decision_id, brokerage_account_id, governed_scope_id, subject_type, subject_id,
                        symbol, context_version_id, rule_id, evaluator_id, evaluator_version,
-                       recommendation, reasoning_json, unresolved_causes_json, input_bundle_json,
-                       bundle_hash, decision_time, recorded_at
+                       recommendation, program_applicability, reasoning_json, unresolved_causes_json,
+                       predicate_results_json, input_bundle_json, bundle_hash, decision_time, recorded_at
                   FROM governed_decision
                  WHERE brokerage_account_id = ? AND subject_id = ?
                  ORDER BY decision_time DESC
@@ -2501,8 +2503,9 @@ public class SqliteEvidenceStore implements AutoCloseable {
             rs.getString("governed_scope_id"), rs.getString("subject_type"),
             rs.getString("subject_id"), rs.getString("symbol"), rs.getString("context_version_id"),
             rs.getString("rule_id"), rs.getString("evaluator_id"), rs.getString("evaluator_version"),
-            rs.getString("recommendation"), rs.getString("reasoning_json"),
-            rs.getString("unresolved_causes_json"), rs.getString("input_bundle_json"),
+            rs.getString("recommendation"), rs.getString("program_applicability"),
+            rs.getString("reasoning_json"), rs.getString("unresolved_causes_json"),
+            rs.getString("predicate_results_json"), rs.getString("input_bundle_json"),
             rs.getString("bundle_hash"), rs.getString("decision_time"), rs.getString("recorded_at"));
     }
 
@@ -2581,9 +2584,9 @@ public class SqliteEvidenceStore implements AutoCloseable {
     public record GovernedDecisionRecord(
         String decisionId, String brokerageAccountId, String governedScopeId, String subjectType,
         String subjectId, String symbol, String contextVersionId, String ruleId, String evaluatorId,
-        String evaluatorVersion, String recommendation, String reasoningJson,
-        String unresolvedCausesJson, String inputBundleJson, String bundleHash,
-        String decisionTime, String recordedAt) {}
+        String evaluatorVersion, String recommendation, String programApplicability,
+        String reasoningJson, String unresolvedCausesJson, String predicateResultsJson,
+        String inputBundleJson, String bundleHash, String decisionTime, String recordedAt) {}
 
     public record SubjectScopeAssociationRecord(
         String associationId, String brokerageAccountId, String subjectId, String governedScopeId,

@@ -30,8 +30,19 @@ export interface ReplayOutcome {
   recomputed: GovernedRecommendation | null;
   /** The Recommendation as originally persisted. */
   persisted: GovernedRecommendation;
+  /** Whether the recomputed Recommendation token matched the persisted one. */
+  recommendationMatch: boolean;
+  /** Whether the recomputed complete predicate picture matched the persisted one (ADR-021 §10). */
+  predicatePictureMatch: boolean;
   /** Human-facing detail for mismatch/unsupported reporting. */
   detail: string;
+}
+
+/** Canonical stable string for a predicate picture, for order-sensitive comparison. */
+function canonicalizePicture(results: import("./predicate").PredicateResult[]): string {
+  return results
+    .map((p) => `${p.key}=${p.status}${p.blockedBy && p.blockedBy.length ? `[${[...p.blockedBy].sort().join(",")}]` : ""}`)
+    .join("|");
 }
 
 /**
@@ -40,14 +51,15 @@ export interface ReplayOutcome {
  * UNSUPPORTED_EVALUATOR_VERSION) — never silently re-run new semantics against old inputs.
  */
 export function isEvaluatorVersionSupported(id: EvaluatorId, version: string): boolean {
-  // This build ships version "1" of both evaluators. When a v2 is introduced, this
-  // registry must dispatch to the correct historical implementation rather than assume
-  // the current one.
+  // This build ships version "2" of both evaluators (ADR-021 predicate-picture semantics).
+  // A future bump must keep old versions dispatchable or report UNSUPPORTED.
   return EVALUATOR_VERSION[id] === version;
 }
 
 /**
- * Re-execute the historical evaluator against the recovered bundle.
+ * Re-execute the historical evaluator against the recovered bundle and compare BOTH the
+ * Recommendation and the complete predicate picture (ADR-021 §10). Anti-hindsight: the
+ * recovered bundle is the sole input; current context/attestations are never consulted.
  */
 export function replayDecision(
   bundle: DecisionInputBundle,
@@ -60,6 +72,8 @@ export function replayDecision(
       status: "UNSUPPORTED_EVALUATOR_VERSION",
       recomputed: null,
       persisted,
+      recommendationMatch: false,
+      predicatePictureMatch: false,
       detail:
         `Historical evaluator ${bundle.evaluatorId}@${bundle.evaluatorVersion} is not dispatchable ` +
         `by this build (current ${bundle.evaluatorId}@${EVALUATOR_VERSION[bundle.evaluatorId]}). ` +
@@ -72,19 +86,29 @@ export function replayDecision(
     associationEstablished: bundle.associationEstablished,
   };
 
-  let recomputed: GovernedRecommendation;
-  if (bundle.consumed.kind === "covered-call") {
-    recomputed = evaluateCoveredCall(bundle.consumed.facts, inputs).recommendation;
-  } else {
-    recomputed = evaluateSharePhase(bundle.consumed.facts, inputs).recommendation;
-  }
+  const evaluation =
+    bundle.consumed.kind === "covered-call"
+      ? evaluateCoveredCall(bundle.consumed.facts, inputs)
+      : evaluateSharePhase(bundle.consumed.facts, inputs);
+  const recomputed = evaluation.recommendation;
 
-  if (recomputed === persisted) {
+  const recommendationMatch = recomputed === persisted;
+  // Compare the complete predicate picture when one was persisted (ADR-021 v2 Decisions).
+  // A pre-picture persisted result (empty) is treated as picture-agnostic MATCH on picture.
+  const persistedPicture = persistedResult.predicateResults ?? [];
+  const predicatePictureMatch =
+    persistedPicture.length === 0
+      ? true
+      : canonicalizePicture(evaluation.predicateResults) === canonicalizePicture(persistedPicture);
+
+  if (recommendationMatch && predicatePictureMatch) {
     return {
       status: "MATCH",
       recomputed,
       persisted,
-      detail: "Recomputed Recommendation matches the persisted historical Recommendation.",
+      recommendationMatch,
+      predicatePictureMatch,
+      detail: "Recomputed Recommendation and predicate picture match the persisted historical Decision.",
     };
   }
 
@@ -92,8 +116,11 @@ export function replayDecision(
     status: "MISMATCH",
     recomputed,
     persisted,
+    recommendationMatch,
+    predicatePictureMatch,
     detail:
-      `Replay mismatch: recomputed ${recomputed} but persisted ${persisted}. ` +
+      `Replay mismatch: recommendation ${recommendationMatch ? "matched" : `recomputed ${recomputed} vs persisted ${persisted}`}; ` +
+      `predicate picture ${predicatePictureMatch ? "matched" : "differed"}. ` +
       `The durable record and re-execution disagree; investigate integrity/version binding.`,
   };
 }

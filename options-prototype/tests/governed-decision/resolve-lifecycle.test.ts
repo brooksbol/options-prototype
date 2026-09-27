@@ -74,65 +74,77 @@ function ctx(overrides: Partial<GovernedContextVersion> = {}): GovernedContextVe
 
 const now = "2026-09-05T14:00:00Z";
 
+function statusOf(results: { key: string; status: string }[], key: string): string | undefined {
+  return results.find((p) => p.key === key)?.status;
+}
+
 describe("covered-call resolution", () => {
-  it("LET_RESOLVE when covered (Positions authority) + governed", () => {
+  it("membership + coverage established; UNRESOLVED because intervention policy is undefined (ADR-021 §8)", () => {
     const s = snap([inv("GDXJ", 100, 100)], [shortCall("GDXJ", 30, "2026-10-17", 1)]);
     const r = resolveCoveredCallRecommendation(callPos("GDXJ", 30, "2026-10-17"), s, "acctA",
       { context: ctx(), associationEstablished: true }, now);
-    expect(r.evaluation.recommendation).toBe("LET_RESOLVE");
+    expect(r.evaluation.recommendation).toBe("UNRESOLVED");
+    expect(statusOf(r.evaluation.predicateResults, "coverage")).toBe("SATISFIED");
+    expect(statusOf(r.evaluation.predicateResults, "wheel-membership")).toBe("SATISFIED");
+    expect(statusOf(r.evaluation.predicateResults, "intervention-policy")).toBe("POLICY_UNDEFINED");
+    // ADR-021 §10: a Decision (bundle) is always built, including this governed UNRESOLVED.
     expect(r.bundle).not.toBeNull();
   });
 
-  it("UNRESOLVED when governance absent (mechanically identical)", () => {
+  it("membership absent (mechanically identical): AUTHORITY_MISSING membership, no-context bundle still built", () => {
     const s = snap([inv("GDXJ", 100, 100)], [shortCall("GDXJ", 30, "2026-10-17", 1)]);
     const r = resolveCoveredCallRecommendation(callPos("GDXJ", 30, "2026-10-17"), s, "acctA",
       { context: null, associationEstablished: false }, now);
     expect(r.evaluation.recommendation).toBe("UNRESOLVED");
-    expect(r.bundle).toBeNull();
+    expect(statusOf(r.evaluation.predicateResults, "wheel-membership")).toBe("AUTHORITY_MISSING");
+    // ADR-021 §10: no-context UNRESOLVED is a legitimate durable Decision.
+    expect(r.bundle).not.toBeNull();
+    expect(r.bundle!.contextVersion).toBeNull();
   });
 
-  it("UNRESOLVED when ownership authority absent (never inferred from call geometry)", () => {
+  it("ownership authority absent -> coverage EVIDENCE_INSUFFICIENT (never inferred from call geometry)", () => {
     const s = snap([inv("GDXJ", 100, 100, "absent")], [shortCall("GDXJ", 30, "2026-10-17", 1)]);
     const r = resolveCoveredCallRecommendation(callPos("GDXJ", 30, "2026-10-17"), s, "acctA",
       { context: ctx(), associationEstablished: true }, now);
     expect(r.evaluation.recommendation).toBe("UNRESOLVED");
+    expect(statusOf(r.evaluation.predicateResults, "coverage")).toBe("EVIDENCE_INSUFFICIENT");
   });
 });
 
 describe("share-phase resolution (C7)", () => {
-  it("SELL_CALL when a governed free 100-lot exists; contract selection stays separate", () => {
+  it("governed free 100-lot: free-lot + membership SATISFIED; UNRESOLVED because eligibility/no-write undefined", () => {
     const s = snap([inv("GDXJ", 100, 0)], []);
     const r = resolveSharePhaseRecommendation("GDXJ", s, "acctA",
       { context: ctx(), associationEstablished: true }, now);
-    expect(r.evaluation.recommendation).toBe("SELL_CALL");
+    expect(r.evaluation.recommendation).toBe("UNRESOLVED");
+    expect(statusOf(r.evaluation.predicateResults, "free-lot")).toBe("SATISFIED");
+    expect(statusOf(r.evaluation.predicateResults, "wheel-membership")).toBe("SATISFIED");
+    expect(statusOf(r.evaluation.predicateResults, "eligibility-policy")).toBe("POLICY_UNDEFINED");
     // C7: the phase result never carries a contract; SELL CALL != WHICH CALL?
-    expect(JSON.stringify(r.evaluation)).not.toMatch(/strike|contract-selected/i);
+    expect(JSON.stringify(r.evaluation)).not.toMatch(/contract-selected/i);
   });
 });
 
 describe("lifecycle transitions (C11 expiration / C12 assignment)", () => {
   it("C11: after expiration the retained free shares are a NEW subject requiring their own association", () => {
-    // Post-expiration snapshot: call gone, 100 free shares retained.
     const s = snap([inv("GDXJ", 100, 0)], []);
-    // Without an explicit share-block association, the successor is UNRESOLVED (no copy from
-    // the historical call's governance merely because the symbol matches).
+    // Without an explicit share-block association, membership is AUTHORITY_MISSING (no copy
+    // from the historical call's governance merely because the symbol matches).
     const unresolved = resolveSharePhaseRecommendation("GDXJ", s, "acctA",
       { context: null, associationEstablished: false }, now);
     expect(unresolved.evaluation.recommendation).toBe("UNRESOLVED");
-    // With its own explicit association it can become SELL_CALL.
+    expect(statusOf(unresolved.evaluation.predicateResults, "wheel-membership")).toBe("AUTHORITY_MISSING");
+    // With its own explicit association, membership becomes SATISFIED (but policy still blocks).
     const governed = resolveSharePhaseRecommendation("GDXJ", s, "acctA",
       { context: ctx(), associationEstablished: true }, now);
-    expect(governed.evaluation.recommendation).toBe("SELL_CALL");
+    expect(statusOf(governed.evaluation.predicateResults, "wheel-membership")).toBe("SATISFIED");
   });
 
-  it("C12: after assignment the disposed shares create no share subject (no free shares)", () => {
-    // Post-assignment snapshot: shares called away -> no inventory row / zero free shares.
+  it("C12: after assignment the disposed shares have no free lot (free-lot NOT_SATISFIED)", () => {
     const s = snap([], []);
-    // The Console derives share-block subjects only from inventory with >=100 free shares;
-    // with none, no share subject exists to evaluate. A direct evaluation still fails closed.
     const r = resolveSharePhaseRecommendation("GDXJ", s, "acctA",
       { context: ctx(), associationEstablished: true }, now);
     expect(r.evaluation.recommendation).toBe("UNRESOLVED");
-    expect(r.evaluation.unresolvedCauses).toContain("insufficient-free-shares-for-one-lot");
+    expect(statusOf(r.evaluation.predicateResults, "free-lot")).toBe("NOT_SATISFIED");
   });
 });

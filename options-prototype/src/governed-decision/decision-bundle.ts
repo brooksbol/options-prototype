@@ -44,9 +44,14 @@ export type ConsumedFacts =
 export interface DecisionInputBundle {
   brokerageAccountId: string;
   subject: DecisionSubject;
-  governedScopeId: string;
-  /** The pinned Context Version consumed (full immutable content, not just an id). */
-  contextVersion: GovernedContextVersion;
+  /** Governed scope consumed, or null for a no-context (no-association) UNRESOLVED Decision. */
+  governedScopeId: string | null;
+  /**
+   * The pinned Context Version consumed, or null when no governed context existed at the
+   * boundary (ADR-021 §10: a no-context UNRESOLVED outcome is a legitimate durable Decision;
+   * the absence is recorded rather than fabricated).
+   */
+  contextVersion: GovernedContextVersion | null;
   associationEstablished: boolean;
   consumed: ConsumedFacts;
   evidenceProvenance: DecisionEvidenceProvenance;
@@ -57,9 +62,13 @@ export interface DecisionInputBundle {
   decisionTime: string;
 }
 
-/** The immutable Decision result persisted alongside the bundle. */
+/** The immutable Decision result persisted alongside the bundle (ADR-021 §10). */
 export interface DecisionResult {
   recommendation: GovernedRecommendation;
+  /** ADR-021 complete ordered predicate picture as of the decision boundary. */
+  predicateResults: import("./predicate").PredicateResult[];
+  /** Known-negative-membership projection at the boundary. */
+  programApplicability: import("./types").ProgramApplicability;
   reasons: { text: string; basis: string }[];
   unresolvedCauses: string[];
 }
@@ -73,22 +82,23 @@ export interface DecisionResult {
 export function canonicalizeBundle(b: DecisionInputBundle): string {
   const cv = b.contextVersion;
   const parts: (string | number | boolean | null)[] = [
-    "v1",
+    // v2: bundle may carry a null context/scope (ADR-021 no-context UNRESOLVED Decision).
+    "v2",
     b.brokerageAccountId,
     b.subject.subjectType,
     b.subject.subjectId,
     b.subject.symbol,
     b.governedScopeId,
-    cv.contextVersionId,
-    cv.version,
-    cv.program.program,
-    cv.program.configVersion,
-    cv.callAwayStance,
-    cv.eligibilityGate,
-    cv.interventionGate,
-    cv.noWriteGate,
-    cv.authorityProvenance,
-    cv.effectiveFrom,
+    cv ? cv.contextVersionId : null,
+    cv ? cv.version : null,
+    cv ? cv.program.program : null,
+    cv ? cv.program.configVersion : null,
+    cv ? cv.callAwayStance : null,
+    cv ? cv.eligibilityGate : null,
+    cv ? cv.interventionGate : null,
+    cv ? cv.noWriteGate : null,
+    cv ? cv.authorityProvenance : null,
+    cv ? cv.effectiveFrom : null,
     b.associationEstablished,
     b.consumed.kind,
     ...serializeConsumed(b.consumed),

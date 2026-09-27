@@ -1,33 +1,26 @@
 /**
  * GovernedRecommendationInspector — the SINGLE right-side governed Recommendation drawer.
  *
- * DENSE, FLAT, OPERATOR-FIRST, INSPECTION-RICH (Principal corrective UX):
- *   - Compact state-colored tag + subject summary + one-line headline.
- *   - NEEDS: which governed predicates are missing, in plain-English status rows.
- *   - WHAT WW NEEDS FROM YOU: the operator-language facts WW would need — stated honestly.
- *   - POSITION / EVIDENCE: real observed facts for the subject (inspection).
- *   - GOVERNANCE / BASIS: account/subject/program/context/rule (inspection).
- *   - WHY UNRESOLVED: one line.
+ * ADR-021: dense, flat, operator-first, and driven by the COMPLETE predicate picture.
+ *   - Recommendation tag + subject summary + one-line headline (or outside-program).
+ *   - Predicate picture: every relevant predicate with its truthful operator-language
+ *     status (Established / No / Not established / Evidence insufficient / Not yet evaluated
+ *     (+ blocked-by) / No governed policy yet / Not applicable). No status is conflated.
+ *   - Enabled controls appear ONLY where the admissibility gate says a complete durable
+ *     chain exists. In this slice none do, so the drawer explains the blocker and offers no
+ *     fake control (ADR-021 §4 / Doc 67 §6).
+ *   - Position/evidence + governance/basis are inspection detail (human account name primary,
+ *     plain rule name primary, machine ids demoted).
  *
- * NO accordions/disclosures. NO raw governance engineering (no scope-id entry, no config
- * version, no CLEAR/ACTIVE/UNKNOWN gate controls, no "fails closed", no raw Record form).
- *
- * IMPORTANT — NO DECORATIVE CONTROLS (this pass's stop condition): a semantic trace found
- * that neither the call-away-intent control nor the Wheel-membership control can be made
- * durable/truthful under current authority (see the journal / Principal Decision Surface).
- * Therefore this drawer presents the missing facts HONESTLY as read-only operator language
- * and does NOT render a clickable answer that cannot persist. It never fabricates a
- * transition. Opaque identifiers stay system-managed. "Recognition is not authority."
- *
- * Presentation only; reads already-resolved values. No Doc 65 semantics change.
+ * No accordions. Presentation only; reads already-resolved values. No Doc 65 semantics change.
  */
 
 import type { ResolvedGovernedRecommendation } from "../governed-decision/resolve";
 import { RECOMMENDATION_LABEL } from "../governed-decision/types";
-import { explainForOperator, callAwayQuestion, subjectSummary } from "./governed-drawer-language";
+import { explainForOperator, subjectSummary, ruleName } from "./governed-drawer-language";
+import { admissibleControlFor } from "../governed-decision/control-admissibility";
 import "./governed-recommendation-inspector.css";
 
-/** A compact label/value inspection row supplied by the Console call site. */
 export interface DrawerFactRow {
   label: string;
   value: string;
@@ -36,21 +29,25 @@ export interface DrawerFactRow {
 export function GovernedRecommendationInspector({
   resolved,
   onClose,
-  /** Strike for the call-away question wording, when the subject is a covered call. */
-  callAwayStrike,
+  /** Human-readable account name (primary account identity). Falls back to the raw id. */
+  accountName,
   /** Real observed position/evidence facts for the POSITION / EVIDENCE block. */
   evidenceRows,
 }: {
   resolved: ResolvedGovernedRecommendation;
   onClose: () => void;
   brokerageAccountId?: string | null;
+  accountName?: string | null;
   callAwayStrike?: number | null;
   evidenceRows?: DrawerFactRow[];
 }) {
   const { subject, evaluation, bundle } = resolved;
   const ctx = bundle?.contextVersion ?? null;
-  const explanation = explainForOperator(evaluation.recommendation, evaluation.unresolvedCauses, subject);
-  const isUnresolved = evaluation.recommendation === "UNRESOLVED";
+  const explanation = explainForOperator(evaluation, subject);
+  const isUnresolved = evaluation.recommendation === "UNRESOLVED" && !explanation.outsideProgram;
+
+  // Whether ANY predicate has an admissible enabled control right now (ADR-021 §4 gate).
+  const anyAdmissibleControl = evaluation.predicateResults.some((p) => admissibleControlFor(p) != null);
 
   return (
     <div className="gri-overlay" role="dialog" aria-modal="true" onClick={onClose}>
@@ -61,39 +58,59 @@ export function GovernedRecommendationInspector({
         </header>
 
         <div className="gri-top">
-          <span className={`grc-tag grc-tag-${evaluation.recommendation.toLowerCase().replace("_", "-")}`}>
-            {RECOMMENDATION_LABEL[evaluation.recommendation]}
-          </span>
+          {explanation.outsideProgram ? (
+            <span className="grc-tag grc-tag-outside">OUTSIDE PROGRAM</span>
+          ) : (
+            <span className={`grc-tag grc-tag-${evaluation.recommendation.toLowerCase().replace("_", "-")}`}>
+              {RECOMMENDATION_LABEL[evaluation.recommendation]}
+            </span>
+          )}
           <span className="gri-subject">{subjectSummary(subject)}</span>
         </div>
 
         <p className="gri-headline">{explanation.headline}</p>
 
-        {isUnresolved && explanation.needs.length > 0 && (
+        {/* Complete ADR-021 predicate picture (always shown). */}
+        <section className="gri-block">
+          <h3 className="gri-block-title">Governed checklist</h3>
+          <dl className="gri-rows">
+            {explanation.rows.map((r) => (
+              <div className={`gri-row gri-pred gri-pred-${r.status.toLowerCase()}`} key={r.key} title={r.reason}>
+                <dt>{r.label}</dt>
+                <dd>
+                  {r.statusLabel}
+                  {r.status === "NOT_EVALUATED" && r.blockedBy && r.blockedBy.length > 0 && (
+                    <span className="gri-blockedby"> (needs {r.blockedBy.join(", ")})</span>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        {/* Action / blocker section. No enabled control exists in this slice; explain honestly. */}
+        {isUnresolved && (
           <section className="gri-block">
-            <h3 className="gri-block-title">Needs</h3>
-            <dl className="gri-rows">
-              {explanation.needs.map((n, i) => (
-                <div className="gri-row" key={i}>
-                  <dt>{n.label}</dt>
-                  <dd>{n.status}</dd>
-                </div>
-              ))}
-            </dl>
+            <h3 className="gri-block-title">What WW needs</h3>
+            {anyAdmissibleControl ? (
+              // (Reserved) When a capability becomes admissible, its control renders here.
+              <p className="gri-note">An operator action is available for this subject.</p>
+            ) : (
+              <p className="gri-note">
+                {explanation.whyUnresolved} WW cannot offer an action here yet: establishing the
+                missing governance requires a governed-setup path (and, where a policy is
+                undefined, new ratified policy) that is not yet available in this slice.
+              </p>
+            )}
           </section>
         )}
 
-        {isUnresolved && explanation.canAskCallAway && (
+        {explanation.outsideProgram && (
           <section className="gri-block">
-            <h3 className="gri-block-title">What WW needs from you</h3>
-            <p className="gri-question-text">{callAwayQuestion(subject, callAwayStrike ?? null)}</p>
-            {/* HONEST BOUNDARY (no decorative control): capturing this answer as durable
-                governance is not yet supported — see the Principal Decision Surface. WW does
-                not render a clickable answer it cannot persist. */}
+            <h3 className="gri-block-title">Why no recommendation</h3>
             <p className="gri-note">
-              WW cannot record this answer yet — your present intent has no durable governed
-              home in this slice, and the governing Wheel scope for {subject.symbol} is not
-              established. This is a known boundary awaiting a governance-setup decision.
+              This position is authoritatively recorded as outside the Wheel program, so the
+              Wheel rule does not apply. This is a known negative, not an unresolved question.
             </p>
           </section>
         )}
@@ -112,20 +129,15 @@ export function GovernedRecommendationInspector({
         <section className="gri-block">
           <h3 className="gri-block-title">Governance / basis</h3>
           <dl className="gri-rows">
-            <div className="gri-row"><dt>Account</dt><dd>{subject.brokerageAccountId}</dd></div>
+            <div className="gri-row"><dt>Account</dt><dd>{accountName || subject.brokerageAccountId}</dd></div>
             <div className="gri-row"><dt>Subject</dt><dd>{subjectSummary(subject)}</dd></div>
+            <div className="gri-row"><dt>Rule</dt><dd>{ruleName(evaluation.ruleId)}</dd></div>
             <div className="gri-row"><dt>Program</dt><dd>{ctx ? ctx.program.program : "—"}</dd></div>
-            <div className="gri-row"><dt>Context</dt><dd>{ctx ? `v${ctx.version}` : "—"}</dd></div>
-            <div className="gri-row"><dt>Rule</dt><dd>{evaluation.ruleId}</dd></div>
+            <div className="gri-row gri-row-detail"><dt>Rule id</dt><dd><code>{evaluation.ruleId}</code></dd></div>
+            {ctx && <div className="gri-row gri-row-detail"><dt>Context</dt><dd><code>{ctx.contextVersionId}</code> (v{ctx.version})</dd></div>}
+            <div className="gri-row gri-row-detail"><dt>Account id</dt><dd><code>{subject.brokerageAccountId}</code></dd></div>
           </dl>
         </section>
-
-        {isUnresolved && explanation.whyUnresolved && (
-          <section className="gri-block">
-            <h3 className="gri-block-title">Why unresolved</h3>
-            <p className="gri-why">{explanation.whyUnresolved}</p>
-          </section>
-        )}
       </div>
     </div>
   );

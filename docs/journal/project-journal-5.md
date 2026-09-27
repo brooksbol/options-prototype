@@ -890,3 +890,35 @@ No governed-decision core file and no backend file touched. Recommendation vocab
 ### Open decision (surfaced, not resolved)
 
 Making `UNRESOLVED` operator-resolvable requires a Principal/architecture decision on one or more of: a durable representation of present call-away intent distinct from Doc 65's pre-accepted stance; an operator-facing Wheel-scope establishment path (system-managed scope identity — PL-SETUP-01); and definitions for the intervention/eligibility/no-write conditions Doc 65 currently leaves undefined. Until then the drawer is honestly inspection + boundary, not a resolver.
+
+---
+
+## 2026-09-26 — ADR-021 governed UNRESOLVED predicate/resolution model implemented (bounded slice) (Kiro)
+
+**Actor:** Kiro (Implementation Engineer). **SYNC at start:** `e3179353` (accepted `main`, GitHub-verified; local = origin, 0/0; clean). **Authority:** ADR-021 + Doc 67 (accepted), Doc 65, ADR-016/017/019/020, `PL-DEC-RES-01`, `PL-SETUP-01`. **Mode:** the bounded ADR-021 walking-slice implementation handoff.
+
+### What was implemented
+
+- **Rule-local predicate-result contract** (`governed-decision/predicate.ts`): the canonical eight states (`SATISFIED`, `NOT_SATISFIED`, `UNKNOWN`, `EVIDENCE_INSUFFICIENT`, `AUTHORITY_MISSING`, `POLICY_UNDEFINED`, `NOT_EVALUATED` + `blockedBy`, `NOT_APPLICABLE`), plus derived `ResolutionAffordance` metadata. No generic engine.
+- **Both evaluators rewritten** (`evaluators.ts`) to return the COMPLETE ordered picture with rule-local dependency ordering: independent mechanical/evidence predicates evaluated regardless of governance; dependents emit `NOT_EVALUATED` with exact `blockedBy` when a prerequisite is absent; membership is `AUTHORITY_MISSING` (never inferred, never `UNKNOWN`); authoritative negative membership is `NOT_SATISFIED` + `programApplicability: "outside-program"`; intervention/eligibility/no-write are `POLICY_UNDEFINED`. The Recommendation is derived only in the evaluator. `EVALUATOR_VERSION` bumped to `2` (semantic change).
+- **Negative membership** projects as *outside Program / no applicable Recommendation* beside the Recommendation; public vocabulary unchanged (`LET RESOLVE | SELL CALL | UNRESOLVED`, no 4th enum).
+- **Durable Decision + replay** (`decision-bundle.ts`, `replay.ts`, backend): the Decision now persists the complete ordered predicate picture + program applicability; `DecisionInputBundle` context/scope are nullable; replay reproduces and compares BOTH the Recommendation and the predicate picture; version-aware + anti-hindsight preserved (the ADR-019 bitemporal store already refuses later-recorded backdated governance).
+- **No-context UNRESOLVED Decisions** (migration `011`): `governed_decision.context_version_id` and `governed_scope_id` are now nullable (FK relaxed), and `program_applicability` + `predicate_results_json` columns added. The controller accepts an absent context (recording the explicit absence, never fabricating a Context Version) but still rejects a *present* context id that does not exist. The frontend hook now emits a Decision for every subject.
+- **Operator-control admissibility gate** (`control-admissibility.ts`): the single tested gate implementing the ADR-021 §4 / Doc 67 §6 chain. The admissible-capability manifest is **empty** in this slice, so no enabled mutating control is rendered.
+- **Drawer rewritten** to render the full predicate picture in operator language (distinct statuses, `NOT_EVALUATED (needs …)`, outside-program projection), explain the blocker where no control is admissible, and clean up presentation (human account name primary; plain rule name primary; machine ids/`ba-…` demoted to detail rows). Accepted structural UX + dual-click preserved.
+
+### Ratified authority boundary surfaced (tasks 9 & 10 STOP)
+
+Per Doc 67 §6/§7, the bounded **scope-establishment control** and the **retrospective pre-acceptance attestation control** are NOT admissible in this slice: configuration selection + Product-language scope-creation semantics are unratified (`PROGRAM_CONFIGURATION` unavailable), and the attestation depends on an established scope. Building them as enabled controls would violate the §6 admissibility invariant ADR-021/Doc 67 themselves draw. So they are represented honestly (affordances `unavailable`, manifest empty, drawer explains the blocker) rather than shipped as decorative/inadmissible controls. The durable substrate that *would* support them (no-context Decisions, anti-hindsight bitemporal store, pre-acceptance as a distinct predicate) is in place.
+
+### Consequence to flag
+
+Affirmative `LET RESOLVE` / `SELL CALL` is currently **unreachable in-slice** because the intervention (Rule 1) and eligibility + no-write (Rule 2) predicates are `POLICY_UNDEFINED` — exactly as ADR-021 §8 / Doc 67 §16 ratified ("affirmative outcomes remain blocked pending separate policy ratification"). This is correct, honest behavior, not a defect: the Console now truthfully shows the full picture and where each subject is blocked. Reaching affirmative requires separately ratifying those policies (and, for membership-gated subjects, the scope-establishment path).
+
+### Verification
+
+`tsc -b` clean; `npm run lint` exit 0. Focused governed-decision + operator-console + components: 220 pass (incl. predicate states, dependency/no-false-downstream, no-context Decision, replay picture comparison, outside-program, admissibility, drawer render). Backend full suite green (migration 011 applies to in-memory test DBs; store test adds a no-context Decision case). Full frontend `npx vitest run` → 2127 pass / 3 fail (all pre-existing `RoadmapView.test.tsx`; unrelated, unchanged). Scope audit: changes confined to the governed-decision module, drawer, hook/Console drawer-render, and the backend decision controller/store/migration + their tests. No generic engine, no full PL-SETUP-01 wizard, no undefined-policy invention, no BUG-001.
+
+### Browser acceptance still required
+
+Automated tests are not acceptance. The endpoint remains a Principal Console inspection of the URA and COPX specimens: the drawer should show the complete predicate checklist (membership `Not established`, dependents `Not yet evaluated (needs wheel-membership)`, gates `No governed policy yet`), remain `UNRESOLVED`, and offer no fake control.

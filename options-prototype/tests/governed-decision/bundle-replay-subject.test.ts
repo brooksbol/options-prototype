@@ -1,6 +1,6 @@
 /**
- * Decision bundle determinism/idempotency, executable replay (C7/C9/C10/C13 aspects),
- * and subject-association discipline (no ticker fallback).
+ * Decision bundle determinism/idempotency, executable replay incl. predicate-picture
+ * comparison (ADR-021 §10), no-context bundles, and subject-association discipline.
  */
 
 import { describe, it, expect } from "vitest";
@@ -13,26 +13,20 @@ import {
   type DecisionResult,
 } from "../../src/governed-decision/decision-bundle";
 import { replayDecision } from "../../src/governed-decision/replay";
+import { evaluateCoveredCall } from "../../src/governed-decision/evaluators";
 import { resolveScopeForSubject, type DecisionSubject, type SubjectScopeAssociation } from "../../src/governed-decision/subject";
 
 function ctx(overrides: Partial<GovernedContextVersion> = {}): GovernedContextVersion {
   return {
-    brokerageAccountId: "acctA",
-    governedScopeId: "scope1",
-    contextVersionId: "ctx_1",
-    version: 1,
-    supersedesContextVersionId: null,
-    program: { program: "assignment-centric-wheel", configVersion: "1" },
-    callAwayStance: "accepted",
-    eligibilityGate: "CLEAR",
-    interventionGate: "CLEAR",
-    noWriteGate: "CLEAR",
-    authorityProvenance: "operator-governance",
-    effectiveFrom: "2026-09-01T00:00:00Z",
-    recordedAt: "2026-09-01T00:00:00Z",
-    ...overrides,
+    brokerageAccountId: "acctA", governedScopeId: "scope1", contextVersionId: "ctx_1", version: 1,
+    supersedesContextVersionId: null, program: { program: "assignment-centric-wheel", configVersion: "1" },
+    callAwayStance: "accepted", eligibilityGate: "CLEAR", interventionGate: "CLEAR", noWriteGate: "CLEAR",
+    authorityProvenance: "operator-governance", effectiveFrom: "2026-09-01T00:00:00Z",
+    recordedAt: "2026-09-01T00:00:00Z", ...overrides,
   };
 }
+
+const CC_FACTS = { callIsCurrent: true, coverageEstablished: true, evidenceSufficient: true };
 
 function bundle(overrides: Partial<DecisionInputBundle> = {}): DecisionInputBundle {
   return {
@@ -41,13 +35,28 @@ function bundle(overrides: Partial<DecisionInputBundle> = {}): DecisionInputBund
     governedScopeId: "scope1",
     contextVersion: ctx(),
     associationEstablished: true,
-    consumed: { kind: "covered-call", facts: { callIsCurrent: true, coverageEstablished: true, evidenceSufficient: true } },
+    consumed: { kind: "covered-call", facts: CC_FACTS },
     evidenceProvenance: { ownershipAuthority: "positions", optionSummaryCheckpoint: "2026-09-05T14:00:00Z", evidenceGeneration: null },
     ruleId: "DOC65-RULE-1-LET-RESOLVE",
     evaluatorId: "wheel-covered-call",
-    evaluatorVersion: "1",
+    evaluatorVersion: "2",
     decisionTime: "2026-09-05T14:00:00Z",
     ...overrides,
+  };
+}
+
+/** The persisted result that matches re-running the evaluator over `b`'s inputs. */
+function persistedFor(b: DecisionInputBundle): DecisionResult {
+  const e = evaluateCoveredCall(
+    b.consumed.kind === "covered-call" ? b.consumed.facts : CC_FACTS,
+    { context: b.contextVersion, associationEstablished: b.associationEstablished },
+  );
+  return {
+    recommendation: e.recommendation,
+    predicateResults: e.predicateResults,
+    programApplicability: e.programApplicability,
+    reasons: e.reasons,
+    unresolvedCauses: e.unresolvedCauses,
   };
 }
 
@@ -69,6 +78,13 @@ describe("canonical bundle + identity", () => {
     expect(decisionId(changed)).not.toBe(decisionId(bundle()));
   });
 
+  it("supports a NO-CONTEXT bundle (null context/scope) with a stable identity (ADR-021 §10)", () => {
+    const noCtx = bundle({ contextVersion: null, governedScopeId: null, associationEstablished: false });
+    expect(() => canonicalizeBundle(noCtx)).not.toThrow();
+    expect(bundleHash(noCtx)).toBe(bundleHash(noCtx));
+    expect(decisionId(noCtx)).not.toBe(decisionId(bundle()));
+  });
+
   it("canonical form is length-prefixed (injective) — distinct fields cannot alias", () => {
     const a = bundle({ governedScopeId: "ab", subject: { ...bundle().subject, subjectId: "c" } });
     const b = bundle({ governedScopeId: "a", subject: { ...bundle().subject, subjectId: "bc" } });
@@ -76,35 +92,48 @@ describe("canonical bundle + identity", () => {
   });
 });
 
-describe("executable replay (P3)", () => {
-  const persisted: DecisionResult = { recommendation: "LET_RESOLVE", reasons: [], unresolvedCauses: [] };
-
-  it("MATCH: re-running the pinned evaluator reproduces the persisted Recommendation", () => {
-    const out = replayDecision(bundle(), persisted);
+describe("executable replay incl. predicate picture (ADR-021 §10)", () => {
+  it("MATCH: re-running reproduces BOTH the Recommendation and the predicate picture", () => {
+    const b = bundle();
+    const out = replayDecision(b, persistedFor(b));
     expect(out.status).toBe("MATCH");
-    expect(out.recomputed).toBe("LET_RESOLVE");
+    expect(out.recommendationMatch).toBe(true);
+    expect(out.predicatePictureMatch).toBe(true);
   });
 
-  it("MISMATCH: a tampered persisted result is detected by re-execution", () => {
-    const tampered: DecisionResult = { recommendation: "SELL_CALL", reasons: [], unresolvedCauses: [] };
-    const out = replayDecision(bundle(), tampered);
+  it("MISMATCH on Recommendation: a tampered persisted recommendation is detected", () => {
+    const b = bundle();
+    const tampered = { ...persistedFor(b), recommendation: "LET_RESOLVE" as const };
+    const out = replayDecision(b, tampered);
     expect(out.status).toBe("MISMATCH");
-    expect(out.recomputed).toBe("LET_RESOLVE");
-    expect(out.persisted).toBe("SELL_CALL");
+    expect(out.recommendationMatch).toBe(false);
+  });
+
+  it("MISMATCH on picture: a tampered predicate picture is detected even if the token matches", () => {
+    const b = bundle();
+    const base = persistedFor(b);
+    const tampered: DecisionResult = {
+      ...base,
+      predicateResults: base.predicateResults.map((p) =>
+        p.key === "intervention-policy" ? { ...p, status: "SATISFIED" } : p),
+    };
+    const out = replayDecision(b, tampered);
+    expect(out.status).toBe("MISMATCH");
+    expect(out.recommendationMatch).toBe(true);
+    expect(out.predicatePictureMatch).toBe(false);
   });
 
   it("UNSUPPORTED_EVALUATOR_VERSION: an unknown historical version is reported, not re-run", () => {
-    const out = replayDecision(bundle({ evaluatorVersion: "99" }), persisted);
+    const b = bundle({ evaluatorVersion: "99" });
+    const out = replayDecision(b, persistedFor(bundle()));
     expect(out.status).toBe("UNSUPPORTED_EVALUATOR_VERSION");
     expect(out.recomputed).toBeNull();
   });
 
-  it("C9: replay uses ONLY the recovered bundle — a backdated later context cannot change history", () => {
-    // The bundle pins the exact context consumed. Even if 'current' governance differed,
-    // replay re-runs against the pinned context in the bundle, so the result is stable.
-    const out1 = replayDecision(bundle(), persisted);
-    const out2 = replayDecision(bundle(), persisted);
-    expect(out1.recomputed).toBe(out2.recomputed);
+  it("replay uses ONLY the recovered bundle — stable across calls (anti-hindsight)", () => {
+    const b = bundle();
+    const p = persistedFor(b);
+    expect(replayDecision(b, p).recomputed).toBe(replayDecision(b, p).recomputed);
   });
 });
 

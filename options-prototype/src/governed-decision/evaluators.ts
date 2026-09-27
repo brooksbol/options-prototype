@@ -1,16 +1,21 @@
 /**
- * Bounded governed evaluators (P0).
+ * Bounded governed evaluators (ADR-021 rewrite of P0).
  *
- * Two pure, deterministic, fail-closed evaluators implementing the Doc 65 bounded
- * rules. They consume ONLY explicit inputs (the applicable Governed Context Version,
- * authoritative evidence facts, and the resolved scope association) so that P3 replay
- * can reproduce them exactly from replay-bound values.
+ * Two pure, deterministic evaluators implementing the Doc 65 bounded rules. Under ADR-021
+ * each returns the COMPLETE ordered predicate picture (not a first-blocker cause), using the
+ * canonical eight-state taxonomy, with rule-local dependency ordering: independent
+ * mechanical/evidence predicates are evaluated even when governance predicates fail;
+ * dependent predicates emit NOT_EVALUATED (with `blockedBy`) when a prerequisite is absent.
  *
- * INVARIANTS:
+ * INVARIANTS (ADR-021 / Doc 67):
  *   - No affirmative Recommendation from mechanical facts alone.
- *   - Missing context / association / evidence => UNRESOLVED.
- *   - Required gate UNKNOWN => UNRESOLVED. Required gate ACTIVE => UNRESOLVED.
- *   - `callAwayStance !== "accepted"` => UNRESOLVED.
+ *   - The Recommendation is DERIVED from the predicate picture only inside the evaluator.
+ *   - Missing membership authority => AUTHORITY_MISSING (not UNKNOWN, not a negative).
+ *   - Authoritative negative membership => NOT_SATISFIED + programApplicability "outside-program".
+ *   - Intervention / eligibility / no-write conditions have no ratified policy =>
+ *     POLICY_UNDEFINED (never silently UNKNOWN/CLEAR). They may block affirmative outcomes.
+ *   - Historical call-away pre-acceptance is a distinct fact from present desire; absent an
+ *     attestation it is AUTHORITY_MISSING; when membership is absent it is NOT_EVALUATED.
  *   - No import of the provisional BTC/HOLD evaluator. No HOLD -> LET_RESOLVE.
  *   - `SELL_CALL` is a PHASE result; it never selects a contract.
  */
@@ -18,71 +23,128 @@
 import type { GovernedContextVersion } from "./governed-context";
 import type {
   EvaluatorId,
-  GateState,
   GovernedEvaluation,
   GovernedReason,
+  ProgramApplicability,
 } from "./types";
 import { EVALUATOR_VERSION } from "./types";
+import type { PredicateResult, ResolutionAffordance } from "./predicate";
+import { predicate, notEvaluated } from "./predicate";
 
 /** Authoritative mechanical/evidence facts for a covered-call subject. */
 export interface CoveredCallFacts {
-  /** The short call is confirmed current (present in authoritative reconciled state). */
   callIsCurrent: boolean;
-  /** The call is authoritatively covered by owned shares (ADR-020 ownership authority). */
   coverageEstablished: boolean;
-  /** Whether the required decision evidence is sufficiently authoritative. */
   evidenceSufficient: boolean;
 }
 
 /** Authoritative mechanical/evidence facts for a share-block subject. */
 export interface ShareBlockFacts {
-  /** Authoritatively established free shares in the block (ADR-020). */
   freeShares: number;
-  /** Ownership authority behind `freeShares` (ADR-020). Degraded fallback still counts,
-   *  but a non-authoritative/absent source should be surfaced by the caller as
-   *  insufficient evidence rather than passed as a high freeShares with no authority. */
   ownershipAuthority: "positions" | "option-summary" | null;
-  /** Whether the required decision evidence is sufficiently authoritative. */
   evidenceSufficient: boolean;
 }
 
 /**
- * Inputs common to both evaluators: the applicable Context Version (already resolved
- * for the subject via an explicit association) or null when no governed context /
- * association is applicable.
+ * Inputs common to both evaluators: the applicable Context Version (already resolved for
+ * the subject via an explicit association) or null when no governed context / association
+ * is applicable, plus whether an explicit association was resolved.
+ *
+ * `membershipNegative` (ADR-021 §5): an AUTHORITATIVE negative membership assertion — the
+ * subject is explicitly attested to be OUTSIDE this Program. Distinct from "no association"
+ * (AUTHORITY_MISSING). Absent unless durable negative governance exists.
  */
 export interface GovernedInputsBase {
-  /** The pinned applicable Context Version, or null when none is applicable/associated. */
   context: GovernedContextVersion | null;
-  /** True iff an explicit evidence-backed subject->scope association was resolved. */
   associationEstablished: boolean;
+  /** Authoritative negative Program membership (explicit), when established. */
+  membershipNegative?: boolean;
 }
 
-function unresolved(
-  evaluatorId: EvaluatorId,
-  ruleId: GovernedEvaluation["ruleId"],
-  causes: string[],
-  reasons: GovernedReason[],
-): GovernedEvaluation {
-  return {
-    recommendation: "UNRESOLVED",
-    evaluatorId,
-    evaluatorVersion: EVALUATOR_VERSION[evaluatorId],
-    ruleId,
-    reasons,
-    unresolvedCauses: causes.length > 0 ? causes : ["insufficient-governance-or-evidence"],
-  };
+// --- Resolution affordances (derived metadata; never themselves enable a control) ---
+
+/**
+ * Membership resolution. Per Doc 67 §7, the operator-facing scope-establishment control's
+ * complete admissibility chain does NOT yet exist (configuration selection + Product-language
+ * creation semantics are unratified). So the advertised mechanism is PROGRAM_CONFIGURATION
+ * with availability "unavailable": the picture explains what would resolve it, but no enabled
+ * control is offered. `capabilityId` is null precisely because no admissible capability exists.
+ */
+const MEMBERSHIP_RESOLUTION: ResolutionAffordance[] = [
+  {
+    mode: "PROGRAM_CONFIGURATION",
+    availability: "unavailable",
+    capabilityId: null,
+    explanation:
+      "Establishing that this position belongs to a governed Wheel program requires selecting " +
+      "a ratified program configuration and creating a governed scope. That operator setup path " +
+      "is not yet available in this slice.",
+  },
+];
+
+/** Undefined policy: only new Principal/Product authority (then implementation) can resolve it. */
+const POLICY_UNDEFINED_RESOLUTION: ResolutionAffordance[] = [
+  {
+    mode: "PRINCIPAL_AUTHORITY",
+    availability: "unavailable",
+    capabilityId: null,
+    explanation:
+      "This condition has no ratified governing policy yet, so it cannot be answered as a fact. " +
+      "It stays unresolved until the policy is defined.",
+  },
+];
+
+/** Historical pre-acceptance: an authorized retrospective operator attestation could resolve it. */
+const PREACCEPTANCE_RESOLUTION: ResolutionAffordance[] = [
+  {
+    mode: "OPERATOR_GOVERNANCE",
+    availability: "unavailable",
+    capabilityId: null,
+    explanation:
+      "Whether call-away was pre-accepted when this call was opened is a historical governance " +
+      "fact. The attestation control depends on an established governed scope and is not yet " +
+      "available in this slice.",
+  },
+];
+
+/** Ownership/coverage evidence is resolvable by authoritative broker evidence (already used). */
+const EVIDENCE_RESOLUTION: ResolutionAffordance[] = [
+  { mode: "AUTHORITATIVE_EVIDENCE", availability: "available", capabilityId: "broker-positions-evidence" },
+];
+
+/** Derive the public Recommendation from the complete predicate picture (evaluator-only). */
+function deriveRecommendation(
+  affirmative: GovernedEvaluation["recommendation"],
+  predicates: PredicateResult[],
+): GovernedEvaluation["recommendation"] {
+  // Affirmative only when EVERY relevant predicate is SATISFIED or NOT_APPLICABLE.
+  const allClear = predicates.every(
+    (p) => p.status === "SATISFIED" || p.status === "NOT_APPLICABLE",
+  );
+  return allClear ? affirmative : "UNRESOLVED";
 }
 
-/** A required gate contributes a cause unless it is affirmatively CLEAR. */
-function gateBlocks(gate: GateState): "active" | "unknown" | null {
-  if (gate === "CLEAR") return null;
-  if (gate === "ACTIVE") return "active";
-  return "unknown";
+/** Compatibility summary: reasons + unresolvedCauses derived from the picture. */
+function summarize(predicates: PredicateResult[]): {
+  reasons: GovernedReason[];
+  unresolvedCauses: string[];
+} {
+  const reasons: GovernedReason[] = predicates.map((p) => ({
+    text: `${p.label}: ${p.reason}`,
+    basis: "context",
+  }));
+  const unresolvedCauses = predicates
+    .filter((p) => p.status !== "SATISFIED" && p.status !== "NOT_APPLICABLE")
+    .map((p) => p.key);
+  return { reasons, unresolvedCauses };
 }
 
 /**
- * Rule 1 — existing governed covered call => LET_RESOLVE | UNRESOLVED.
+ * Rule 1 — existing governed covered call => LET_RESOLVE | UNRESOLVED (+ applicability).
+ *
+ * Predicate order (rule-local): coverage/currency/evidence (independent mechanical),
+ * then membership (authority), then call-away pre-acceptance + continuing effectiveness
+ * (depend on membership), then intervention policy (POLICY_UNDEFINED).
  */
 export function evaluateCoveredCall(
   facts: CoveredCallFacts,
@@ -90,48 +152,93 @@ export function evaluateCoveredCall(
 ): GovernedEvaluation {
   const evaluatorId: EvaluatorId = "wheel-covered-call";
   const ruleId = "DOC65-RULE-1-LET-RESOLVE" as const;
-  const causes: string[] = [];
+  const P: PredicateResult[] = [];
 
-  if (!inputs.associationEstablished || !inputs.context) {
-    return unresolved(evaluatorId, ruleId, ["no-governed-scope-association"], [
-      { text: "No explicit governed-scope association is established for this subject.", basis: "association" },
-    ]);
+  // Independent mechanical/evidence predicates — evaluated regardless of governance.
+  P.push(
+    facts.callIsCurrent
+      ? predicate("covered-call-current", "Covered call is current", "SATISFIED",
+          "The short call is present in authoritative reconciled state.")
+      : predicate("covered-call-current", "Covered call is current", "NOT_SATISFIED",
+          "The short call is not confirmed current in authoritative state."),
+  );
+  P.push(
+    facts.coverageEstablished
+      ? predicate("coverage", "Share coverage", "SATISFIED",
+          "Owned shares authoritatively cover the short call (ADR-020).", EVIDENCE_RESOLUTION)
+      : predicate("coverage", "Share coverage", "EVIDENCE_INSUFFICIENT",
+          "Authoritative ownership does not yet establish coverage for this short call.", EVIDENCE_RESOLUTION),
+  );
+  P.push(
+    facts.evidenceSufficient
+      ? predicate("evidence", "Decision evidence", "SATISFIED", "Required decision evidence is authoritative.", EVIDENCE_RESOLUTION)
+      : predicate("evidence", "Decision evidence", "EVIDENCE_INSUFFICIENT", "Required decision evidence is not yet authoritative.", EVIDENCE_RESOLUTION),
+  );
+
+  // Membership / association (authority). Distinguish negative vs missing.
+  const applicability: ProgramApplicability = inputs.membershipNegative ? "outside-program" : "applicable";
+  const membershipEstablished = inputs.associationEstablished && !!inputs.context && !inputs.membershipNegative;
+  if (inputs.membershipNegative) {
+    P.push(predicate("wheel-membership", "Wheel program membership", "NOT_SATISFIED",
+      "This position is authoritatively attested to be outside the Wheel program; the rule does not apply."));
+  } else if (membershipEstablished) {
+    P.push(predicate("wheel-membership", "Wheel program membership", "SATISFIED",
+      "This position is associated with a governed Wheel scope."));
+  } else {
+    P.push(predicate("wheel-membership", "Wheel program membership", "AUTHORITY_MISSING",
+      "WW has not been told this position is part of a governed Wheel program; it will not infer membership.",
+      MEMBERSHIP_RESOLUTION));
   }
-  const ctx = inputs.context;
 
-  if (!facts.callIsCurrent) causes.push("covered-call-not-current");
-  if (!facts.coverageEstablished) causes.push("coverage-not-established");
-  if (!facts.evidenceSufficient) causes.push("evidence-insufficient");
-  if (ctx.callAwayStance !== "accepted") causes.push("call-away-stance-not-accepted");
-
-  // Only the intervention gate is load-bearing for Rule 1 (Doc 65). eligibility/no-write
-  // govern the share-writing phase, not an existing call.
-  const intervention = gateBlocks(ctx.interventionGate);
-  if (intervention === "active") causes.push("governed-intervention-condition-active");
-  if (intervention === "unknown") causes.push("intervention-condition-unknown");
-
-  if (causes.length > 0) {
-    return unresolved(evaluatorId, ruleId, causes, [
-      { text: "Governed applicability, call-away acceptance, evidence, and intervention clearance are not all established.", basis: "context" },
-    ]);
+  // Call-away historical pre-acceptance (depends on membership). Doc 65 Rule 1 requires it.
+  if (!membershipEstablished) {
+    P.push(notEvaluated("call-away-preacceptance", "Call-away pre-acceptance", ["wheel-membership"],
+      "Not evaluated: depends on established Wheel membership."));
+    P.push(notEvaluated("call-away-effective", "Call-away stance still effective", ["wheel-membership"],
+      "Not evaluated: depends on established Wheel membership."));
+  } else {
+    // Membership exists. Historical pre-acceptance is a distinct fact; the current context's
+    // callAwayStance is NOT that historical attestation (ADR-021 §6 / Doc 67 §8). Absent an
+    // explicit retrospective attestation it is AUTHORITY_MISSING.
+    const attested = inputs.context!.callAwayStance === "accepted";
+    P.push(
+      attested
+        ? predicate("call-away-preacceptance", "Call-away pre-acceptance", "SATISFIED",
+            "Call-away was attested as pre-accepted when the call was opened.")
+        : predicate("call-away-preacceptance", "Call-away pre-acceptance", "AUTHORITY_MISSING",
+            "It is not established that call-away was pre-accepted when this call was opened.",
+            PREACCEPTANCE_RESOLUTION),
+    );
+    P.push(
+      attested
+        ? predicate("call-away-effective", "Call-away stance still effective", "SATISFIED",
+            "The pre-accepted call-away disposition remains effective.")
+        : notEvaluated("call-away-effective", "Call-away stance still effective", ["call-away-preacceptance"],
+            "Not evaluated: depends on established pre-acceptance."),
+    );
   }
 
+  // Intervention policy — no ratified policy (ADR-021 §8). Always POLICY_UNDEFINED here.
+  P.push(predicate("intervention-policy", "Intervention condition", "POLICY_UNDEFINED",
+    "WW has no ratified policy defining an intervention condition for this position, so it cannot be evaluated.",
+    POLICY_UNDEFINED_RESOLUTION));
+
+  const recommendation = deriveRecommendation("LET_RESOLVE", P);
+  const { reasons, unresolvedCauses } = summarize(P);
   return {
-    recommendation: "LET_RESOLVE",
+    recommendation,
     evaluatorId,
     evaluatorVersion: EVALUATOR_VERSION[evaluatorId],
     ruleId,
-    reasons: [
-      { text: "Subject is a current covered call within the associated governed Wheel scope.", basis: "association" },
-      { text: "Call-away at the existing strike is a pre-accepted, still-effective disposition.", basis: "call-away" },
-      { text: "No governed intervention condition is active; the lifecycle proceeds toward the pre-accepted disposition.", basis: "intervention" },
-    ],
-    unresolvedCauses: [],
+    predicateResults: P,
+    programApplicability: applicability,
+    reasons,
+    unresolvedCauses,
   };
 }
 
 /**
- * Rule 2 — eligible unencumbered Wheel shares => SELL_CALL | UNRESOLVED.
+ * Rule 2 — eligible unencumbered Wheel shares => SELL_CALL | UNRESOLVED (+ applicability).
  *
  * SELL_CALL is a phase Recommendation; it does not select a contract.
  */
@@ -141,47 +248,72 @@ export function evaluateSharePhase(
 ): GovernedEvaluation {
   const evaluatorId: EvaluatorId = "wheel-share-phase";
   const ruleId = "DOC65-RULE-2-SELL-CALL" as const;
-  const causes: string[] = [];
+  const P: PredicateResult[] = [];
 
-  if (!inputs.associationEstablished || !inputs.context) {
-    return unresolved(evaluatorId, ruleId, ["no-governed-scope-association"], [
-      { text: "No explicit governed-scope association is established for this share block.", basis: "association" },
-    ]);
+  // Independent mechanical/evidence predicates.
+  P.push(
+    facts.freeShares >= 100
+      ? predicate("free-lot", "Free 100-share lot", "SATISFIED", `${facts.freeShares} free shares establish at least one writable lot.`, EVIDENCE_RESOLUTION)
+      : predicate("free-lot", "Free 100-share lot", "NOT_SATISFIED", "Fewer than 100 free shares; no writable lot.", EVIDENCE_RESOLUTION),
+  );
+  P.push(
+    facts.ownershipAuthority != null
+      ? predicate("ownership-evidence", "Ownership evidence", "SATISFIED", `Ownership is authoritative (${facts.ownershipAuthority}).`, EVIDENCE_RESOLUTION)
+      : predicate("ownership-evidence", "Ownership evidence", "EVIDENCE_INSUFFICIENT", "Authoritative ownership evidence is not available.", EVIDENCE_RESOLUTION),
+  );
+  P.push(
+    facts.evidenceSufficient
+      ? predicate("evidence", "Decision evidence", "SATISFIED", "Required decision evidence is authoritative.", EVIDENCE_RESOLUTION)
+      : predicate("evidence", "Decision evidence", "EVIDENCE_INSUFFICIENT", "Required decision evidence is not yet authoritative.", EVIDENCE_RESOLUTION),
+  );
+
+  // Membership / association.
+  const applicability: ProgramApplicability = inputs.membershipNegative ? "outside-program" : "applicable";
+  const membershipEstablished = inputs.associationEstablished && !!inputs.context && !inputs.membershipNegative;
+  if (inputs.membershipNegative) {
+    P.push(predicate("wheel-membership", "Wheel program membership", "NOT_SATISFIED",
+      "This share block is authoritatively attested to be outside the Wheel program; the rule does not apply."));
+  } else if (membershipEstablished) {
+    P.push(predicate("wheel-membership", "Wheel program membership", "SATISFIED",
+      "This share block is associated with a governed Wheel scope."));
+  } else {
+    P.push(predicate("wheel-membership", "Wheel program membership", "AUTHORITY_MISSING",
+      "WW has not been told this share block is part of a governed Wheel program; it will not infer membership.",
+      MEMBERSHIP_RESOLUTION));
   }
-  const ctx = inputs.context;
 
-  if (!(facts.freeShares >= 100)) causes.push("insufficient-free-shares-for-one-lot");
-  if (facts.ownershipAuthority == null) causes.push("ownership-authority-absent");
-  if (!facts.evidenceSufficient) causes.push("evidence-insufficient");
-  if (ctx.callAwayStance !== "accepted") causes.push("call-away-stance-not-accepted");
-
-  // Rule 2 load-bearing gates: eligibility AND no-write. (Intervention is the call-side
-  // gate and is not required for the share-writing phase decision.)
-  const eligibility = gateBlocks(ctx.eligibilityGate);
-  if (eligibility === "active") causes.push("program-eligibility-condition-active");
-  if (eligibility === "unknown") causes.push("program-eligibility-unknown");
-
-  const noWrite = gateBlocks(ctx.noWriteGate);
-  if (noWrite === "active") causes.push("governed-no-write-condition-active");
-  if (noWrite === "unknown") causes.push("no-write-condition-unknown");
-
-  if (causes.length > 0) {
-    return unresolved(evaluatorId, ruleId, causes, [
-      { text: "Governed applicability, eligibility, call-away acceptance, no-write clearance, and evidence are not all established.", basis: "context" },
-    ]);
+  // Call-away acceptance (depends on membership).
+  if (!membershipEstablished) {
+    P.push(notEvaluated("call-away-accepted", "Call-away accepted", ["wheel-membership"],
+      "Not evaluated: depends on established Wheel membership."));
+  } else {
+    const attested = inputs.context!.callAwayStance === "accepted";
+    P.push(
+      attested
+        ? predicate("call-away-accepted", "Call-away accepted", "SATISFIED", "Call-away is an accepted disposition for this Wheel inventory.")
+        : predicate("call-away-accepted", "Call-away accepted", "AUTHORITY_MISSING",
+            "It is not established that call-away is an accepted disposition for this inventory.", PREACCEPTANCE_RESOLUTION),
+    );
   }
 
+  // Eligibility + no-write policies — unratified (ADR-021 §8). Always POLICY_UNDEFINED here.
+  P.push(predicate("eligibility-policy", "Program eligibility", "POLICY_UNDEFINED",
+    "WW has no ratified stock-eligibility policy for this Wheel phase, so it cannot be evaluated.",
+    POLICY_UNDEFINED_RESOLUTION));
+  P.push(predicate("no-write-policy", "No-write condition", "POLICY_UNDEFINED",
+    "WW has no ratified no-write policy for this phase, so it cannot be evaluated.",
+    POLICY_UNDEFINED_RESOLUTION));
+
+  const recommendation = deriveRecommendation("SELL_CALL", P);
+  const { reasons, unresolvedCauses } = summarize(P);
   return {
-    recommendation: "SELL_CALL",
+    recommendation,
     evaluatorId,
     evaluatorVersion: EVALUATOR_VERSION[evaluatorId],
     ruleId,
-    reasons: [
-      { text: "At least one authoritatively unencumbered 100-share lot belongs to the associated active Wheel scope.", basis: "ownership" },
-      { text: "The underlying remains program-eligible and call-away is an accepted disposition.", basis: "eligibility" },
-      { text: "No governed no-write condition is active; the inventory should enter the call-writing phase.", basis: "no-write" },
-      { text: "This is a phase recommendation (SELL CALL != WHICH CALL?); it does not select a contract.", basis: "context" },
-    ],
-    unresolvedCauses: [],
+    predicateResults: P,
+    programApplicability: applicability,
+    reasons,
+    unresolvedCauses,
   };
 }
