@@ -201,3 +201,32 @@ Brokerage evidence (CSV now, authorized broker connection later) may establish *
 ### Explicitly not authorized
 
 Final scope naming; automatic scope-discovery semantics; Program compatibility rules; questionnaire/advanced-mode schema; inference confidence model; brokerage connection architecture; broker credential storage; Treasury Program semantics; a generalized Program/governance engine or DSL; account-global Program ownership; new intervention/eligibility/no-write policy; automated Wheel classification; the full setup wizard or advanced configuration editor; portfolio allocation; or any change to Doc 65 P0–P3 evaluator semantics.
+
+**Ratified bounded child (ADR-021 / `PL-DEC-RES-01`):** a future, separately handed-off Product-language act may create a system-managed opaque Wheel scope using an explicitly ratified Program/configuration and associate the specific subject/quantity. This does not authorize the full setup wizard and cannot establish call-away stance/history or clear undefined gates.
+
+---
+
+## `PL-DEC-RES-01` — Governed Recommendation `UNRESOLVED` predicate / resolution model
+
+**Date:** September 26, 2026
+**State:** RECONCILED / ARCHITECTURE RATIFIED — ADR-021 and Doc 67 establish the bounded semantic contract; implementation remains held pending a separate bounded handoff
+**Reconciliation artifact:** `docs/67-unresolved-predicate-resolution-model-architecture-reconciliation-2026-09-26.md`
+
+### Intake
+
+Production Console acceptance established that first-blocker `UNRESOLVED` is truthful but incomplete and operationally dead-ended. The material capability is broader than operator setup: an evaluator must explain every rule-relevant predicate without pretending dependency-blocked predicates were evaluated, conflating unknown facts with missing authority or undefined policy, or exposing controls without a legitimate durable authority path.
+
+COPX membership, URA call-away, and undefined intervention/eligibility/no-write policy are specimens. `PL-SETUP-01` owns operator-facing setup/configuration; this item owns the general predicate-result, resolution-admissibility, Decision/replay, and projection contract.
+
+### Reconciliation Completion Record
+
+- **Intake:** new canonical identity **`PL-DEC-RES-01`**. Full parking-lot-sequence reconciliation found `PL-SETUP-01`, ADR-019, Doc 65, and uncertainty/evidence neighbors, but no existing item owning the complete predicate/resolution picture and control-admissibility invariant.
+- **Strategic disposition:** **strengthens existing governed Decision / Policy-over-Prediction direction; no new Bet and no `docs/roadmap.md` direction change.**
+- **Architectural disposition:** **Principal-ratified bounded extension of ADR-019/Doc 65, canonically recorded by ADR-021 and detailed in Doc 67.** The minimum is rule-local immutable predicate results plus separate derived resolution metadata; no workflow/policy/ontology engine.
+- **Parking-lot disposition/mapping:** **retained as `PL-DEC-RES-01`**, cross-linked to `PL-SETUP-01`, Doc 65, ADR-016/017/019/020, and Doc 67; not merged into setup because setup is only one possible resolution source.
+- **Why-state:** Doc 67 is the structured reconciliation and adversarial record; no additional journal record required.
+- **Next authorized mode:** **bounded implementation decomposition/handoff only after this ratified authority is committed, pushed, and GitHub-verified.** This ratification does not itself authorize Kiro implementation.
+
+### Explicitly not authorized
+
+No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel inference; no raw gate editor; no new Recommendation enum; no retrospective intent equivalence; no policy defaults; no generic workflow, policy, predicate, or ontology engine.

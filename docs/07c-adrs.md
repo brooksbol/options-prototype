@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-**Status:** Authoritative as of July 2026
+**Status:** Authoritative through September 26, 2026
 
 ---
 
@@ -814,3 +814,82 @@ The Fidelity Positions export already has a registered parser and reports ONE ag
 **Boundary principle (concise):**
 
 > Owned shares are what the broker reports as owned (Positions). Option Summary shows how those shares are dressed up as strategies; option obligations never conjure the shares that would cover them.
+
+
+## ADR-021: Governed `UNRESOLVED` Predicate / Resolution Model
+
+**Date:** September 26, 2026
+**Status:** Accepted
+
+**Context:** The bounded Doc 65 Console slice truthfully failed closed to `UNRESOLVED`, but the implemented result was effectively a first-blocker message. Missing association caused immediate return; downstream predicates were absent rather than truthfully marked unevaluated. The Context representation also collapsed materially different cases: `UNKNOWN` gates could mean missing facts or nonexistent policy, and one call-away stance value could not distinguish opening-time pre-acceptance, continuing effectiveness, present desire, or later supersession. The Product requires a complete, replayable resolution picture and enabled controls only where an operator answer has a legitimate authority-bearing path.
+
+The Principal ratified the bounded model reconciled in Doc 67 and canonical intake `PL-DEC-RES-01`.
+
+**Decision:**
+
+1. **Meaning of `UNRESOLVED`.** For the bounded governed rule, `UNRESOLVED` means: the evaluator cannot establish an authorized affirmative Recommendation at this decision boundary, and existing authority supplies no other deterministic governed Recommendation for the subject. It does not mean merely that at least one predicate is not satisfied. It remains distinct from HOLD, WAIT, `LET RESOLVE`, and other governed inactivity.
+
+2. **Rule-local predicate results.** Every evaluator version returns a complete ordered accounting of its relevant predicates using:
+   - `SATISFIED`;
+   - `NOT_SATISFIED`;
+   - `UNKNOWN`;
+   - `EVIDENCE_INSUFFICIENT`;
+   - `AUTHORITY_MISSING`;
+   - `POLICY_UNDEFINED`;
+   - `NOT_EVALUATED`, with explicit blocking predicate identities;
+   - `NOT_APPLICABLE`.
+
+   Complete means every relevant predicate has a truthful state, not that dependency-blocked predicates are evaluated. Dependencies remain finite, rule-local, and evaluator-versioned; no generic workflow/dependency engine is introduced.
+
+3. **Resolution is a separate derived dimension.** Predicate semantic state is distinct from the legitimate mechanism that may change a future input: operator governance, authoritative evidence, deterministic governed-policy evaluation, lifecycle event, Program/configuration establishment, new Principal authority, or none in the slice. Resolution metadata may identify multiple sources. It is derived rule/capability metadata, not mutable workflow state or a universal durable ontology.
+
+4. **Operator-control admissibility.** An enabled mutating control requires a complete authorized chain:
+
+   ```text
+   operator answer
+   → defined semantic fact
+   → authorized operator authority
+   → resolved subject/scope identity where required
+   → durable append/version contract
+   → known evaluator consumer
+   → deterministic reevaluation
+   → replay-bound Decision
+   ```
+
+   Failure/conflict behavior must preserve the prior authoritative state. If any link is missing, the Product may explain the status and blocker but must not expose a fake enabled control.
+
+5. **Known-negative membership.** Authoritatively established negative Wheel membership is not uncertainty. It projects as outside the applicable Program / no applicable Recommendation, not as `UNRESOLVED`. No new public Recommendation value is added. Unknown membership, missing authority, authoritative negative membership, and Program non-applicability remain distinct.
+
+6. **Retrospective pre-acceptance attestation.** An operator may explicitly attest at a later recorded time that call-away was pre-accepted when a covered call opened. This fact is distinct from present call-away desire, present retention preference, contemporaneously recorded opening governance, continuing effective stance, and later supersession. It carries explicit retrospective-attestation provenance.
+
+   ADR-019 bitemporal semantics govern it: effective time may be earlier than recorded time; a Decision may consume the attestation only when both its effective-time applicability and recorded-time knowledge cutoff admit it. A Decision made before the attestation's `recorded_at` must replay without it. The attestation never masquerades as contemporaneous governance and never rewrites an earlier Decision.
+
+7. **Bounded scope establishment.** A bounded operator governance act may atomically select an explicitly ratified Program/configuration, create a system-managed opaque scope identity where no appropriate scope exists, associate the specific governed subject/quantity, and record authority-bearing provenance. The operator never supplies the opaque id. Symbol equality, brokerage geometry, account co-location, and mechanically writable inventory establish neither identity nor continuity. One account may contain multiple scopes/Programs.
+
+   This act establishes only the authority it states. It does not establish call-away stance or historical pre-acceptance, clear intervention/eligibility/no-write conditions, or infer other Program facts. It is a bounded child of `PL-SETUP-01`, not authorization for the full setup wizard.
+
+8. **Undefined policies.** Intervention, eligibility, and no-write policies remain unratified. Where their governing policy does not exist, the predicate state is `POLICY_UNDEFINED`, never silently `UNKNOWN` or `CLEAR`. This may continue to block `LET RESOLVE` or `SELL CALL`.
+
+9. **Partial resolution.** Persist immutable authority-bearing inputs and immutable Decisions; do not create a mutable resolution-session entity. Each legitimate append/version creates a new evaluation boundary. Resolving one predicate may expose another unknown or policy-undefined predicate. Earlier Decisions remain unchanged.
+
+10. **Decision/replay contract.** A Decision preserves Recommendation, complete ordered predicate results, blocker identities, structured reasons, exact consumed facts and associations, pinned Context Version where one exists, provenance, evidence cutoff, effective/decision/recorded-time distinctions, relevant rule/evaluator/policy versions, and canonical input identity. Replay compares both Recommendation and predicate-resolution picture.
+
+    An unresolved outcome is a legitimate durable Decision even when no Context Version exists. Physical persistence must support an explicit absent-context binding without fabricating governance, while preserving account/subject identity and exact consumed evidence/provenance.
+
+11. **Public Recommendation vocabulary.** The bounded vocabulary remains `LET RESOLVE | SELL CALL | UNRESOLVED`. Program non-applicability is projected beside/outside Recommendation rather than encoded as a fourth Recommendation.
+
+12. **Minimality.** This decision authorizes no generic workflow engine, generic policy engine, generic predicate/ontology runtime, event sourcing, universal lifecycle, full setup wizard, or application implementation.
+
+**Consequences:**
+
+- First-blocker output is no longer the architectural source of truth; UI may prioritize rows, but evaluator and Decision retain the complete ordered picture.
+- Cause strings may remain a compatibility summary, but rule-local predicate results become the semantic source.
+- Historical replay remains protected from later governance, especially recorded-later retrospective attestations.
+- The bounded scope-establishment path becomes an authorized future design target, while `PL-SETUP-01` remains broader and unimplemented.
+- Implementation remains held pending a separate bounded decomposition/handoff.
+
+**Detailed contract:** `docs/67-unresolved-predicate-resolution-model-architecture-reconciliation-2026-09-26.md`.
+
+**Boundary principle:**
+
+> Explain every relevant governed predicate truthfully, enable resolution only through a complete authority-bearing path, and never let later knowledge rewrite an earlier Decision.
