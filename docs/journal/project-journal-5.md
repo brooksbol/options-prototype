@@ -922,3 +922,58 @@ Affirmative `LET RESOLVE` / `SELL CALL` is currently **unreachable in-slice** be
 ### Browser acceptance still required
 
 Automated tests are not acceptance. The endpoint remains a Principal Console inspection of the URA and COPX specimens: the drawer should show the complete predicate checklist (membership `Not established`, dependents `Not yet evaluated (needs wheel-membership)`, gates `No governed policy yet`), remain `UNRESOLVED`, and offer no fake control.
+
+---
+
+## 2026-09-27 — Session stopping point: ADR-021 slice browser-accepted; governed-entry work intentionally held (Kiro end-of-session)
+
+**Actor:** Kiro (Implementation Engineer), executing `bootstrap/end-of-session-protocol.md`. **Closeout start SYNC:** `e65a123` (accepted `main`; fast-forwarded from my `53959fd` over two docs-only research-program commits `0762575`, `e65a123` that landed after my push; worktree clean). This entry is the durable stopping-point snapshot; there is no separate snapshot mechanism — the journal is the canonical durable home (project-memory protocol).
+
+### Accepted authority at this boundary
+
+- **ADR-021** (`docs/07c-adrs.md`) and **Doc 67** (`docs/67-unresolved-predicate-resolution-model-architecture-reconciliation-2026-09-26.md`) are accepted architecture authority for the governed `UNRESOLVED` predicate/resolution model. Canonical intake: **`PL-DEC-RES-01`** (`docs/parking-lot-10.md`). Related: `PL-SETUP-01`, Doc 65, ADR-016/017/019/020. (Links preserved; definitions not duplicated.)
+- The **bounded ADR-021 implementation** is present at commit `53959fd641a6e0533f5bdbf31f5bccd2614ba284` (in `main` history) and is detailed in the prior journal entry this session.
+
+### Implemented stopping point (what `53959fd` actually delivers)
+
+Canonical eight-state rule-local predicate-result model; complete ordered predicate pictures (not first-blocker); dependency-blocked `NOT_EVALUATED` with `blockedBy`; resolution mechanism as separate derived metadata; negative Program membership projected as *outside Program / no applicable Recommendation* (not overloaded `UNRESOLVED`, no 4th public enum); durable predicate pictures persisted in Decisions; durable **no-context** `UNRESOLVED` Decisions (migration 011, nullable context/scope); replay compares Recommendation **and** predicate picture; ADR-019-compatible anti-hindsight preserved; `POLICY_UNDEFINED` for intervention/eligibility/no-write; drawer projects the complete governed checklist; **no fake enabled authority-changing controls** where the ADR-021 admissibility chain is incomplete (admissibility manifest empty in-slice). No functionality is claimed beyond `53959fd`.
+
+### Principal browser-acceptance evidence (production Console, after the implementation)
+
+Specimens observed:
+1. **URA unencumbered share block** — 200 free shares, 2 free lots; inventory/mechanical facts established; Wheel program membership **not established**; dependent call-away evaluation blocked by membership; eligibility and no-write shown as **"No governed policy yet"**; Recommendation remains **UNRESOLVED**.
+2. **URA covered call** — covered-call mechanics / coverage / decision evidence established; membership **not established**; call-away pre-acceptance and continuing effectiveness **not evaluated** because membership is upstream; intervention policy **"No governed policy yet"**; Recommendation remains **UNRESOLVED**.
+
+(Screenshots were reviewed live; the repository's normal evidence mechanism is this journal record — no separate screenshot-artifact protocol exists, so provenance is recorded as Principal live browser inspection, not fabricated image files.)
+
+### Product finding selected tonight (responsibility boundary) — why-state, not new authority
+
+The Principal affirmed the responsibility split, refining (not changing) the already-ratified ADR-021/Doc 67 admissibility + routing boundary:
+
+- **Recommendation drawer = explanation and legitimate routing.** Read-mostly governed Decision explanation: predicate state, dependency, provenance, and a legitimate next destination *where one exists*. It must **not** embed casual authority-changing questionnaires merely to clear `UNRESOLVED`.
+- **Governance/setup = authority-changing controls.** Membership, retrospective attestation, Program/configuration selection, and future policy configuration belong in deliberate governance/setup journeys **when ratified and implemented**.
+- **Recommendation = operational output** once sufficient governed inputs exist.
+
+**Routing is itself governed.** A route such as `Set up in Wheel governance →` becomes legitimate only when the destination actually exists, account/subject/quantity context can be transferred safely, the destination implements an authorized authority-bearing path, and the ADR-021 control/routing admissibility requirements are satisfied. Until then, **explanation without a clickable route is correct** (which is exactly what `53959fd` ships).
+
+Predicate-to-UX direction captured (Product responsibility boundary, not an implementation spec, not routing/governance authorization):
+- `SATISFIED` → evidence/display; normally no action.
+- `NOT_EVALUATED` → explain upstream blocker; no independent action.
+- `POLICY_UNDEFINED` → explain Product-policy boundary; **no raw gate editor**.
+- operator-governance-resolvable → eventually route to legitimate governance/setup when an admissible destination exists.
+- evidence-resolvable → eventually route to legitimate evidence acquisition when such a journey exists.
+- Recommendation → operational output.
+
+Intake reconciliation: this finding is **why-state on already-ratified `PL-DEC-RES-01` + `PL-SETUP-01`**, not a new unresolved capability. The unresolved capabilities it points at (operator-facing Wheel-scope establishment; retrospective attestation; the gate policies) are already owned by `PL-SETUP-01` and named in ADR-021 §7/§8. No new `PL-*` was created (avoiding backlog accretion / not manufacturing authority). If a future actor decides the drawer↔governance routing contract deserves its own durable identity, that is a reconciliation decision to make deliberately, not tonight.
+
+### Explicitly unfinished / held (intentional stop)
+
+Tonight stops before: bounded governance-entry / `PL-SETUP-01` child design and implementation; operator-facing Wheel-scope establishment; retrospective pre-acceptance attestation UI/control; intervention / eligibility / no-write policy definition; the affirmative evaluator version those policies would enable; additional drawer routing; further presentation refinements. None of these missing policies are inferred or filled in.
+
+### Non-blocking presentation observations (future refinement, not authority)
+
+Primary account identity should eventually use the human account name (e.g. `Sawdust Roth IRA`, `Personal Treasury System`) rather than `Fidelity Snapshot`, with machine account/rule ids kept as secondary provenance; `Decision evidence` may benefit from more concrete operator language; the checklist is the strongest explanatory region; explanatory prose may be shortened once legitimate routing exists; **"No governed policy yet" was judged successful operator language**. These are observations only — not filed as defects or `PL-*`, per instruction.
+
+### Restart point for the next session
+
+Resume by choosing the next authorized workstream among: (A) ratify + implement the intervention/eligibility/no-write **gate policies** (would unblock affirmative `LET RESOLVE`/`SELL CALL`); (B) authorize the bounded **`PL-SETUP-01`-child Wheel-scope establishment** design (would make the membership route/control admissible); or (C) other Principal-selected direction. No implementation is authorized by this closeout. Cold-start via `docs/README.md` → `KNOWN-FAILURE-MODES.md` → bootstrap; the ADR-021 slice is the accepted baseline.
