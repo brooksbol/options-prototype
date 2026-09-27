@@ -93,6 +93,17 @@ describe("row-level governed projection into Unencumbered Shares", () => {
     expect(screen.queryByText("By-the-book")).toBeNull();
   });
 
+  it("orders the Recommendation column before Symbol (RECOMMENDATION | SYMBOL)", () => {
+    const s = snap([inv("GDXJ", 100)]);
+    const gov = new Map([["shares-GDXJ", resolved("GDXJ", "SELL_CALL")]]);
+    const { container } = render(
+      <UnencumberedInventory snapshot={s} observations={noObs} governedBySubjectId={gov} onInspectGoverned={() => {}} />,
+    );
+    const headers = Array.from(container.querySelectorAll("thead th")).map((th) => th.textContent);
+    expect(headers[0]).toBe("Recommendation");
+    expect(headers[1]).toBe("Symbol");
+  });
+
   it("renders the Recommendation value as a compact TAG (grc-tag) — like CALL/BW, not a hyperlink/plain text, no dot", () => {
     const s = snap([inv("GDXJ", 100)]);
     const gov = new Map([["shares-GDXJ", resolved("GDXJ", "SELL_CALL")]]);

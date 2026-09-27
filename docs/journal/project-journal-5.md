@@ -855,3 +855,38 @@ Rebuilt `GovernedRecommendationInspector` as a dense operator inspector consiste
 ### Not browser-accepted
 
 Automated tests are not acceptance. The endpoint remains a Principal Console inspection: rung-view Recommendation click opens the right-side drawer (not the centered modal), and the drawer is dense with no accordions and no raw governance controls.
+
+---
+
+## 2026-09-26 — Governed Recommendation: column next to TYPE, state-colored tags, denser inspector; operator-control STOP surfaced (Kiro)
+
+**Actor:** Kiro (Implementation Engineer). **SYNC at start:** `9ba1b24` (accepted `main`, GitHub-verified; local = origin, 0/0; clean). **Mode:** Principal-authorized bounded pass with an explicit §16 stop condition on decorative controls.
+
+### Mandatory semantic trace (the gate) — decisive finding
+
+Before building any operator control I traced both candidate controls end-to-end (client → backend controller → durable model → evaluator predicate → reevaluation → persistence/replay). The write **plumbing** is real and authorized (`writeGovernedContext`, `writeSubjectScopeAssociation`, both `operator-governance` provenance; consumed via `resolveGovernedContext`/`resolveSubjectScope`; reevaluation via the hook). But an **operator-language answer cannot truthfully establish the predicates** an affirmative Recommendation requires:
+
+- **Wheel program membership ("Is this COPX part of your Wheel?")** needs a `governedScopeId` + `program.configVersion`. There is no ratified operator-language way to name/mint a scope; auto-minting one silently decides account scope topology (an account may hold multiple governed scopes) — a **PL-SETUP-01 / new-semantic decision**. The operator must not type `wheel-COPX-2026Q3`. **BLOCKED (Product/architecture).**
+- **Call-away intent ("Do you want URA called away at $43?")** would map to `callAwayStance="accepted"`, but Doc 65's `accepted` means *pre-accepted when the call was opened and still effective* — a historical governed proposition, not present desire. There is **no durable field for present desired disposition** distinct from that stance; mapping "Yes"→`accepted` fabricates history. **BLOCKED (semantic/persistence gap).**
+- Even setting those aside, affirmative also needs `interventionGate`/`eligibilityGate`/`noWriteGate` = `CLEAR`, and **Doc 65 leaves those conditions undefined** ("return UNRESOLVED; do not improvise"). No authorized operator question sets a gate `CLEAR`. **BLOCKED (Product/undefined policy).**
+
+**Conclusion:** neither `UNRESOLVED → LET RESOLVE` nor `UNRESOLVED → SELL CALL` is reachable through legitimate operator input today. Per the §16 STOP branch I implemented the safe/ratified parts and **did not build any control that cannot persist**. The previous pass's local-only Yes/No/Not-sure buttons were exactly such a decorative control and were **removed**.
+
+### Implemented (safe, ratified)
+
+- **Recommendation moved next to TYPE.** Ladder is now `TYPE | RECOMMENDATION | SYMBOL | …` (moved from the trailing column to col 2; `RungTotalsRow` label `colSpan` 17→18 and the trailing totals cell removed; layout comment updated). Unencumbered Shares is now `RECOMMENDATION | SYMBOL | …`.
+- **State-colored tags.** `grc-tag-let-resolve` (green), `grc-tag-sell-call` (blue), `grc-tag-unresolved` (grey), each with a matching border — distinct, readable, Console-consistent; no red ball, no hyperlink. State differentiation, not a good/bad score.
+- **Denser, richer, honest drawer.** Flat sections: recommendation tag + subject summary + headline; **Needs** (plain-English missing predicates); **What WW needs from you** (the call-away question in operator language **with an honest "WW cannot record this answer yet" boundary note — no clickable answer**); **Position / evidence** (real observed facts threaded from the Console: shares/short-calls/strike/expiration/spot/DTE/ownership authority for covered calls; free shares/lots for share blocks); **Governance / basis**; **Why unresolved**. No accordions/disclosures; no scope-id/config/gate controls; no "fails closed".
+- **Dual Ladder clickability preserved** (Recommendation cell → drawer via `stopPropagation`; rest of row → position/lifecycle modal), including the rung-view prop threading, with regression coverage.
+
+### Semantics preserved
+
+No governed-decision core file and no backend file touched. Recommendation vocabulary, fail-closed behavior, immutable Context Versions, explicit association, Decision persistence, and replay unchanged. PL-SETUP-01 not implemented. "Recognition is not authority" preserved.
+
+### Verification
+
+`tsc -b` clean; `npm run lint` exit 0. Focused governed-row + governed-drawer + ladder-governed-column (incl. column-order + rung-view regression) = 21 pass. Broader governed-decision + operator-console + components = 24 files / 218 pass (incl. replay). Full frontend `npx vitest run` → 2125 pass / 3 fail (all pre-existing `RoadmapView.test.tsx`). No introduced failures.
+
+### Open decision (surfaced, not resolved)
+
+Making `UNRESOLVED` operator-resolvable requires a Principal/architecture decision on one or more of: a durable representation of present call-away intent distinct from Doc 65's pre-accepted stance; an operator-facing Wheel-scope establishment path (system-managed scope identity — PL-SETUP-01); and definitions for the intervention/eligibility/no-write conditions Doc 65 currently leaves undefined. Until then the drawer is honestly inspection + boundary, not a resolver.

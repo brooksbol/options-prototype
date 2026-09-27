@@ -80,6 +80,14 @@ describe("Ladder governed Recommendation column", () => {
     expect(screen.getByText("Recommendation")).toBeTruthy();
   });
 
+  it("orders columns TYPE | RECOMMENDATION | SYMBOL", () => {
+    const { container } = renderTable("UNRESOLVED");
+    const headers = Array.from(container.querySelectorAll("thead th")).map((th) => th.textContent);
+    expect(headers[0]).toBe("Type");
+    expect(headers[1]).toBe("Recommendation");
+    expect(headers[2]).toBe("Symbol");
+  });
+
   it("renders LET RESOLVE as plain text, and NOT inside the TYPE/badge cell", () => {
     const { container } = renderTable("LET_RESOLVE");
     const value = screen.getByText("LET RESOLVE");

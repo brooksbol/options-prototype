@@ -386,17 +386,39 @@ export function OperatorConsole() {
       {/* The SINGLE right-side governed Recommendation drawer: dense, operator-first,
           read/explain + the bounded call-away question. No centered modal, no accordion,
           no raw governance form. */}
-      {inspectedGoverned && (
-        <GovernedRecommendationInspector
-          resolved={inspectedGoverned}
-          onClose={() => setInspectedGoverned(null)}
-          callAwayStrike={
-            inspectedGoverned.subject.subjectType === "covered-call"
-              ? positions.find((p) => p.id === inspectedGoverned.subject.subjectId)?.strike ?? null
-              : null
-          }
-        />
-      )}
+      {inspectedGoverned && (() => {
+        const s = inspectedGoverned.subject;
+        const pos = s.subjectType === "covered-call"
+          ? positions.find((p) => p.id === s.subjectId) ?? null
+          : null;
+        const inv = snapshot?.inventory.find((i) => i.symbol.toUpperCase() === s.symbol.toUpperCase()) ?? null;
+        // Compact, real observed inspection facts (no fabricated values).
+        const evidenceRows = pos
+          ? [
+              { label: "Shares owned", value: inv ? inv.sharesOwned.toLocaleString() : "—" },
+              { label: "Short calls", value: `${pos.quantity}` },
+              { label: "Strike", value: `$${pos.strike}` },
+              { label: "Expiration", value: formatExpiration(pos.expiration) },
+              { label: "Spot", value: pos.underlyingPrice != null ? `$${pos.underlyingPrice.toFixed(2)}` : "—" },
+              { label: "DTE", value: `${pos.dte}d` },
+              { label: "Ownership authority", value: inv?.ownershipAuthority ?? "—" },
+            ]
+          : inv
+            ? [
+                { label: "Free shares", value: inv.sharesFree.toLocaleString() },
+                { label: "Free lots", value: `${Math.floor(inv.sharesFree / 100)}` },
+                { label: "Ownership authority", value: inv.ownershipAuthority ?? "—" },
+              ]
+            : undefined;
+        return (
+          <GovernedRecommendationInspector
+            resolved={inspectedGoverned}
+            onClose={() => setInspectedGoverned(null)}
+            callAwayStrike={pos?.strike ?? null}
+            evidenceRows={evidenceRows}
+          />
+        );
+      })()}
     </div>
   );
 }
@@ -888,6 +910,7 @@ export function PositionTable({ positions, onTileClick, allPositionsTotalCapital
       <thead>
         <tr>
           <th>Type</th>
+          <th title="Governed by-the-book Wheel recommendation for this position (LET RESOLVE is natural-resolution, not HOLD; a covered-call phase result, never a contract selection)">Recommendation</th>
           {renderSortHeader("Symbol", "symbol")}
           <th className="oc-th-right">Bid</th>
           <th className="oc-th-right">Ask</th>
@@ -914,7 +937,6 @@ export function PositionTable({ positions, onTileClick, allPositionsTotalCapital
           <th className="oc-th-right">Market vs Basis</th>
           {renderSortHeader("Opened", "opened")}
           {renderSortHeader("Quote Freshness", "dataAge", "oc-th-right")}
-          <th title="Governed by-the-book Wheel recommendation for this position (LET RESOLVE is natural-resolution, not HOLD; a covered-call phase result, never a contract selection)">Recommendation</th>
         </tr>
       </thead>
       <tbody>
@@ -1002,6 +1024,22 @@ export function PositionTable({ positions, onTileClick, allPositionsTotalCapital
                     the position-modal HoldVsCloseSection consumer are unchanged. */}
                 <span className={`oc-badge oc-badge-${position.type}`}>{badge}</span>
               </td>
+              {(() => {
+                const gr = (position.type === "call" || position.type === "buy-write")
+                  ? governedBySubjectId?.get(position.id)
+                  : undefined;
+                return gr ? (
+                  <td
+                    className="oc-td-governed"
+                    onClick={(e) => { e.stopPropagation(); onInspectGoverned?.(gr); }}
+                  >
+                    <GovernedRecommendationCell recommendation={gr.evaluation.recommendation} />
+                  </td>
+                ) : (
+                  // Recommendation column never opens the position/lifecycle modal.
+                  <td onClick={(e) => e.stopPropagation()}>—</td>
+                );
+              })()}
               <td className="oc-td-symbol">{position.underlying}</td>
               <td className="oc-td-right oc-td-bid">{formatQuotePrice(positionQuotes.get(position.id)?.bid ?? null)}</td>
               <td className="oc-td-right oc-td-ask">{formatQuotePrice(positionQuotes.get(position.id)?.ask ?? null)}</td>
@@ -1146,24 +1184,6 @@ export function PositionTable({ positions, onTileClick, allPositionsTotalCapital
               <td className={`oc-td-right ${mktVsBasisCell.className}`} title={mktVsBasisCell.title}>{mktVsBasisCell.display}</td>
               <td className="oc-td-opened">{position.openedDate ? formatOpenedDate(position.openedDate) : "—"}</td>
               <td className={`oc-td-right ${dataAgeCell.className}`} title={dataAgeCell.title}>{dataAgeCell.display}</td>
-              {(() => {
-                const gr = (position.type === "call" || position.type === "buy-write")
-                  ? governedBySubjectId?.get(position.id)
-                  : undefined;
-                return gr ? (
-                  <td
-                    className="oc-td-governed"
-                    onClick={(e) => { e.stopPropagation(); onInspectGoverned?.(gr); }}
-                  >
-                    <GovernedRecommendationCell recommendation={gr.evaluation.recommendation} />
-                  </td>
-                ) : (
-                  // No governed projection for this subject (e.g. a put). The Recommendation
-                  // column never opens the position/lifecycle modal — stop propagation so a
-                  // click here is inert rather than falling through to the row handler.
-                  <td className="oc-td-right" onClick={(e) => e.stopPropagation()}>—</td>
-                );
-              })()}
             </tr>
           );
         })}
@@ -1264,16 +1284,16 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
   }
 
   // Column layout (must track PositionTableHeader exactly, 28 columns):
-  //  1 Type · 2 Symbol · 3 Bid · 4 Ask · 5 Strike · 6 Spot · 7 Today's G/L ·
-  //  8 Moneyness · 9 Expiration · 10 DTE · 11 Delta · 12 Gamma · 13 Theta ·
-  // 14 Vega · 15 Rho · 16 Greek Age · 17 Contracts · 18 Capital · 19 Capital % ·
-  // 20 Share Basis · 21 Premium Booked · 22 Effective Exit · 23 If Called Away ·
-  // 24 If Assigned · 25 Market vs Basis · 26 Opened · 27 Quote Freshness ·
-  // 28 Recommendation
-  // The label spans cols 1–17; each summed value sits under its own header.
+  //  1 Type · 2 Recommendation · 3 Symbol · 4 Bid · 5 Ask · 6 Strike · 7 Spot ·
+  //  8 Today's G/L · 9 Moneyness · 10 Expiration · 11 DTE · 12 Delta · 13 Gamma ·
+  // 14 Theta · 15 Vega · 16 Rho · 17 Greek Age · 18 Contracts · 19 Capital ·
+  // 20 Capital % · 21 Share Basis · 22 Premium Booked · 23 Effective Exit ·
+  // 24 If Called Away · 25 If Assigned · 26 Market vs Basis · 27 Opened ·
+  // 28 Quote Freshness
+  // The label spans cols 1–18 (through Contracts); each summed value sits under its header.
   return (
     <tr className="oc-trow-totals">
-      <td colSpan={17} className="oc-td-totals-label">Total</td>
+      <td colSpan={18} className="oc-td-totals-label">Total</td>
       {/* 18 Capital */}
       <td className="oc-td-right">${capitalTotal.toLocaleString()}</td>
       {/* 19 Capital % */}
@@ -1294,11 +1314,9 @@ function RungTotalsRow({ positions, snapshot }: { positions: MonitoredPosition[]
       <td />
       {/* 25 Market vs Basis */}
       <td />
-      {/* 26 Opened */}
+      {/* 27 Opened */}
       <td />
-      {/* 27 Quote Freshness */}
-      <td />
-      {/* 28 Recommendation */}
+      {/* 28 Quote Freshness */}
       <td />
     </tr>
   );

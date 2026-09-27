@@ -1,11 +1,12 @@
 /**
- * Governed Recommendation drawer — dense, flat, operator-first (Principal corrective UX).
+ * Governed Recommendation drawer — dense, flat, honest (Principal corrective UX + §7 no
+ * decorative controls).
  *
- * Asserts: no accordion/disclosure; no raw governance engineering on the operator surface
- * (no scope-id requirement, no gate controls, no "fails closed"); the unresolved reason and
- * NEEDS are immediately visible without expansion; the desired call-away question uses the
- * required wording; and an affirmative recommendation is inspectable. Read-only drawer — no
- * client IO.
+ * Asserts: no accordion/disclosure; no raw governance engineering (no scope-id, no gate
+ * controls, no "fails closed"); NEEDS + WHY + POSITION/EVIDENCE + BASIS visible without
+ * expansion; the call-away question is shown in operator language BUT with NO clickable
+ * answer control (the semantic trace found it cannot persist truthfully — surfaced as an
+ * honest boundary, not a decorative button); affirmative recommendation inspectable.
  */
 
 import { describe, it, expect } from "vitest";
@@ -66,38 +67,46 @@ function affirmativeCoveredCall(symbol: string): ResolvedGovernedRecommendation 
   };
 }
 
-describe("governed Recommendation drawer (dense, operator-first)", () => {
-  it("shows the unresolved reason and NEEDS immediately, with no accordion/disclosure", () => {
+describe("governed Recommendation drawer (dense, honest, no decorative controls)", () => {
+  it("shows NEEDS and WHY immediately, with no accordion/disclosure and no raw engineering", () => {
     const { container } = render(
       <GovernedRecommendationInspector resolved={unresolvedNoAssociation("COPX")} onClose={() => {}} />,
     );
-    // Reason visible without expansion.
-    expect(screen.getByText("Why unresolved")).toBeTruthy();
-    expect(screen.getByText(/will not infer Wheel membership/i)).toBeTruthy();
-    // NEEDS visible without expansion.
     expect(screen.getByText("Needs")).toBeTruthy();
     expect(screen.getByText("Wheel program membership")).toBeTruthy();
-    // No accordion/disclosure controls.
+    expect(screen.getByText("Why unresolved")).toBeTruthy();
+    expect(screen.getByText(/will not infer Wheel membership/i)).toBeTruthy();
+    // No accordions.
     expect(container.querySelector("details")).toBeNull();
     expect(screen.queryByText(/Technical details/i)).toBeNull();
     expect(screen.queryByText(/Advanced governance/i)).toBeNull();
-  });
-
-  it("exposes NO raw governance engineering on the operator surface", () => {
-    const { container } = render(
-      <GovernedRecommendationInspector resolved={unresolvedNoAssociation("COPX")} onClose={() => {}} />,
-    );
+    // No raw governance engineering.
     expect(screen.queryByText(/Governed scope id/i)).toBeNull();
     expect(screen.queryByText(/Configuration version/i)).toBeNull();
     expect(screen.queryByText(/fails closed/i)).toBeNull();
-    expect(screen.queryByText(/Record governance/i)).toBeNull();
-    // No gate select controls.
     expect(container.querySelector("select")).toBeNull();
-    // No free-text scope-id input.
     expect(container.querySelector("input")).toBeNull();
   });
 
-  it("asks the DESIRED call-away question with a concrete strike (not 'acceptable')", () => {
+  it("renders POSITION / EVIDENCE inspection rows when supplied", () => {
+    render(
+      <GovernedRecommendationInspector
+        resolved={unresolvedCallAwayMissing("URA")}
+        onClose={() => {}}
+        callAwayStrike={43}
+        evidenceRows={[
+          { label: "Shares owned", value: "100" },
+          { label: "Short calls", value: "1" },
+          { label: "Strike", value: "$43" },
+        ]}
+      />,
+    );
+    expect(screen.getByText("Position / evidence")).toBeTruthy();
+    expect(screen.getByText("Shares owned")).toBeTruthy();
+    expect(screen.getByText("100")).toBeTruthy();
+  });
+
+  it("shows the call-away question in operator language but NO clickable answer control (honest boundary)", () => {
     render(
       <GovernedRecommendationInspector
         resolved={unresolvedCallAwayMissing("URA")}
@@ -105,26 +114,25 @@ describe("governed Recommendation drawer (dense, operator-first)", () => {
         callAwayStrike={43}
       />,
     );
+    // The operator-language question is shown...
     expect(screen.getByText("Do you want URA to be called away at $43?")).toBeTruthy();
+    expect(screen.getByText(/WW cannot record this answer yet/i)).toBeTruthy();
+    // ...but there is NO decorative Yes/No/Not sure control that cannot persist.
+    expect(screen.queryByRole("button", { name: "Yes" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "No" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Not sure" })).toBeNull();
+    // Not the rejected "acceptable" wording.
     expect(screen.queryByText(/acceptable/i)).toBeNull();
-    expect(screen.getByRole("button", { name: "Yes" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "No" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Not sure" })).toBeTruthy();
   });
 
-  it("does not fabricate a call-away question when the scope association is missing", () => {
-    render(<GovernedRecommendationInspector resolved={unresolvedNoAssociation("COPX")} onClose={() => {}} />);
-    expect(screen.queryByText(/Do you want COPX to be called away/i)).toBeNull();
-  });
-
-  it("keeps an affirmative recommendation inspectable (dense basis visible)", () => {
-    render(
+  it("keeps an affirmative recommendation inspectable (dense basis visible, no accordion)", () => {
+    const { container } = render(
       <GovernedRecommendationInspector resolved={affirmativeCoveredCall("GDXJ")} onClose={() => {}} callAwayStrike={43} />,
     );
     expect(screen.getByText("LET RESOLVE")).toBeTruthy();
     expect(screen.getByText(/Let the GDXJ covered call resolve/i)).toBeTruthy();
-    // Basis is visible without expansion.
-    expect(screen.getByText("Basis")).toBeTruthy();
+    expect(screen.getByText("Governance / basis")).toBeTruthy();
     expect(screen.getByText("assignment-centric-wheel")).toBeTruthy();
+    expect(container.querySelector("details")).toBeNull();
   });
 });

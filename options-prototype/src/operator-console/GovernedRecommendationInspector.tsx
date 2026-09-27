@@ -1,49 +1,56 @@
 /**
  * GovernedRecommendationInspector — the SINGLE right-side governed Recommendation drawer.
  *
- * DENSE, FLAT, OPERATOR-FIRST (Principal corrective UX):
- *   - Compact tag + subject summary + one-line headline.
- *   - NEEDS: what governed facts are required and their plain-English status.
- *   - The one meaningful operator question (desired call-away disposition) when the current
- *     authority supports it.
- *   - BASIS: compact account/subject/program/context/rule facts.
+ * DENSE, FLAT, OPERATOR-FIRST, INSPECTION-RICH (Principal corrective UX):
+ *   - Compact state-colored tag + subject summary + one-line headline.
+ *   - NEEDS: which governed predicates are missing, in plain-English status rows.
+ *   - WHAT WW NEEDS FROM YOU: the operator-language facts WW would need — stated honestly.
+ *   - POSITION / EVIDENCE: real observed facts for the subject (inspection).
+ *   - GOVERNANCE / BASIS: account/subject/program/context/rule (inspection).
  *   - WHY UNRESOLVED: one line.
  *
- * NO accordions/disclosures. NO raw governance engineering on the operator surface — no
- * scope-id entry, no configuration version, no CLEAR/ACTIVE/UNKNOWN gate controls, no
- * "fails closed", no raw Record-governance form. Where no operator-facing workflow exists
- * without PL-SETUP-01, the drawer STOPS at the honest boundary ("Not established / WW will
- * not infer") rather than exposing internal machinery.
+ * NO accordions/disclosures. NO raw governance engineering (no scope-id entry, no config
+ * version, no CLEAR/ACTIVE/UNKNOWN gate controls, no "fails closed", no raw Record form).
  *
- * Presentation only; reads already-resolved values. No Doc 65 semantics change. Opaque
- * system-managed identifiers stay system-managed. "Recognition is not authority."
+ * IMPORTANT — NO DECORATIVE CONTROLS (this pass's stop condition): a semantic trace found
+ * that neither the call-away-intent control nor the Wheel-membership control can be made
+ * durable/truthful under current authority (see the journal / Principal Decision Surface).
+ * Therefore this drawer presents the missing facts HONESTLY as read-only operator language
+ * and does NOT render a clickable answer that cannot persist. It never fabricates a
+ * transition. Opaque identifiers stay system-managed. "Recognition is not authority."
+ *
+ * Presentation only; reads already-resolved values. No Doc 65 semantics change.
  */
 
-import { useState } from "react";
 import type { ResolvedGovernedRecommendation } from "../governed-decision/resolve";
 import { RECOMMENDATION_LABEL } from "../governed-decision/types";
 import { explainForOperator, callAwayQuestion, subjectSummary } from "./governed-drawer-language";
 import "./governed-recommendation-inspector.css";
 
+/** A compact label/value inspection row supplied by the Console call site. */
+export interface DrawerFactRow {
+  label: string;
+  value: string;
+}
+
 export function GovernedRecommendationInspector({
   resolved,
   onClose,
-  /** Strike for the call-away question, when the subject is a covered call. */
+  /** Strike for the call-away question wording, when the subject is a covered call. */
   callAwayStrike,
+  /** Real observed position/evidence facts for the POSITION / EVIDENCE block. */
+  evidenceRows,
 }: {
   resolved: ResolvedGovernedRecommendation;
   onClose: () => void;
-  /** brokerageAccountId retained by callers for future use; not needed by the read-only drawer. */
   brokerageAccountId?: string | null;
-  onAuthored?: () => void;
   callAwayStrike?: number | null;
+  evidenceRows?: DrawerFactRow[];
 }) {
   const { subject, evaluation, bundle } = resolved;
   const ctx = bundle?.contextVersion ?? null;
   const explanation = explainForOperator(evaluation.recommendation, evaluation.unresolvedCauses, subject);
   const isUnresolved = evaluation.recommendation === "UNRESOLVED";
-
-  const [callAwayAnswer, setCallAwayAnswer] = useState<"yes" | "no" | "unsure" | null>(null);
 
   return (
     <div className="gri-overlay" role="dialog" aria-modal="true" onClick={onClose}>
@@ -77,33 +84,33 @@ export function GovernedRecommendationInspector({
         )}
 
         {isUnresolved && explanation.canAskCallAway && (
-          <section className="gri-block gri-question">
+          <section className="gri-block">
+            <h3 className="gri-block-title">What WW needs from you</h3>
             <p className="gri-question-text">{callAwayQuestion(subject, callAwayStrike ?? null)}</p>
-            <div className="gri-choices" role="group" aria-label="call-away disposition">
-              {(["yes", "no", "unsure"] as const).map((choice) => (
-                <button
-                  key={choice}
-                  type="button"
-                  className={`gri-choice${callAwayAnswer === choice ? " gri-choice-selected" : ""}`}
-                  aria-pressed={callAwayAnswer === choice}
-                  onClick={() => setCallAwayAnswer(choice)}
-                >
-                  {choice === "yes" ? "Yes" : choice === "no" ? "No" : "Not sure"}
-                </button>
+            {/* HONEST BOUNDARY (no decorative control): capturing this answer as durable
+                governance is not yet supported — see the Principal Decision Surface. WW does
+                not render a clickable answer it cannot persist. */}
+            <p className="gri-note">
+              WW cannot record this answer yet — your present intent has no durable governed
+              home in this slice, and the governing Wheel scope for {subject.symbol} is not
+              established. This is a known boundary awaiting a governance-setup decision.
+            </p>
+          </section>
+        )}
+
+        {evidenceRows && evidenceRows.length > 0 && (
+          <section className="gri-block">
+            <h3 className="gri-block-title">Position / evidence</h3>
+            <dl className="gri-rows">
+              {evidenceRows.map((r, i) => (
+                <div className="gri-row" key={i}><dt>{r.label}</dt><dd>{r.value}</dd></div>
               ))}
-            </div>
-            {callAwayAnswer != null && (
-              <p className="gri-note">
-                {callAwayAnswer === "yes"
-                  ? "Recorded as your current intent. This states what you want now — it does not by itself establish the governed Wheel scope this call belongs to, so WW keeps the recommendation unresolved until that governance exists."
-                  : "Noted. WW will keep this unresolved and will not recommend toward call-away against your intent."}
-              </p>
-            )}
+            </dl>
           </section>
         )}
 
         <section className="gri-block">
-          <h3 className="gri-block-title">Basis</h3>
+          <h3 className="gri-block-title">Governance / basis</h3>
           <dl className="gri-rows">
             <div className="gri-row"><dt>Account</dt><dd>{subject.brokerageAccountId}</dd></div>
             <div className="gri-row"><dt>Subject</dt><dd>{subjectSummary(subject)}</dd></div>

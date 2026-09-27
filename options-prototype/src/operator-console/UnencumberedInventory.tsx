@@ -233,6 +233,9 @@ export function UnencumberedInventory({ snapshot, observations, governedBySubjec
         <table className="oc-inv-table">
           <thead>
             <tr>
+              {showGoverned && (
+                <th className="oc-inv-th-left" title="Governed by-the-book Wheel recommendation for this share block (SELL CALL is a phase result, not a contract selection)">Recommendation</th>
+              )}
               <th className="oc-inv-th-left">Symbol</th>
               <th className="oc-inv-th-right">Last Price</th>
               <th className="oc-inv-th-right">Today&apos;s gain/loss $</th>
@@ -244,9 +247,6 @@ export function UnencumberedInventory({ snapshot, observations, governedBySubjec
               <th className="oc-inv-th-right">Free Lots</th>
               <th className="oc-inv-th-right" title="Symbol-level blended average cost — not specific to the free shares">Average cost basis</th>
               <th className="oc-inv-th-right">Freshness</th>
-              {showGoverned && (
-                <th className="oc-inv-th-right" title="Governed by-the-book Wheel recommendation for this share block (SELL CALL is a phase result, not a contract selection)">Recommendation</th>
-              )}
             </tr>
           </thead>
           <tbody>
@@ -277,6 +277,19 @@ export function UnencumberedInventory({ snapshot, observations, governedBySubjec
 
               return (
                 <tr key={row.symbol}>
+                  {showGoverned && (() => {
+                    const r = governedBySubjectId!.get(`shares-${key}`);
+                    return r ? (
+                      <td
+                        className="oc-inv-td-left oc-inv-td-governed"
+                        onClick={(e) => { e.stopPropagation(); onInspectGoverned?.(r); }}
+                      >
+                        <GovernedRecommendationCell recommendation={r.evaluation.recommendation} />
+                      </td>
+                    ) : (
+                      <td className="oc-inv-td-left" onClick={(e) => e.stopPropagation()}><span className="oc-inv-td-basis">—</span></td>
+                    );
+                  })()}
                   <td className="oc-inv-td-symbol">{row.symbol}</td>
                   <td className="oc-inv-td-right">{fmtSpot(spot)}</td>
                   <td className={`oc-inv-td-right oc-inv-gl-${glDir}`}>
@@ -299,25 +312,13 @@ export function UnencumberedInventory({ snapshot, observations, governedBySubjec
                     {fmtBasis(economics)}
                   </td>
                   <td className="oc-inv-td-right oc-inv-td-freshness">{fmtFreshness(obs?.observedAt)}</td>
-                  {showGoverned && (() => {
-                    const r = governedBySubjectId!.get(`shares-${key}`);
-                    return r ? (
-                      <td
-                        className="oc-inv-td-right oc-inv-td-governed"
-                        onClick={(e) => { e.stopPropagation(); onInspectGoverned?.(r); }}
-                      >
-                        <GovernedRecommendationCell recommendation={r.evaluation.recommendation} />
-                      </td>
-                    ) : (
-                      <td className="oc-inv-td-right"><span className="oc-inv-td-basis">—</span></td>
-                    );
-                  })()}
                 </tr>
               );
             })}
           </tbody>
           <tfoot>
             <tr className="oc-inv-totals-row">
+              {showGoverned && <td className="oc-inv-td-left" />}
               <td className="oc-inv-td-symbol">Totals{anyPartial ? " *" : ""}</td>
               <td className="oc-inv-td-right" />
               <td className={`oc-inv-td-right oc-inv-gl-${todayGlDirection(glRows > 0 ? totalGl : null)}`}>
@@ -337,7 +338,6 @@ export function UnencumberedInventory({ snapshot, observations, governedBySubjec
               <td className="oc-inv-td-right">{totalFreeLots}</td>
               <td className="oc-inv-td-right" />
               <td className="oc-inv-td-right" />
-              {showGoverned && <td className="oc-inv-td-right" />}
             </tr>
           </tfoot>
         </table>

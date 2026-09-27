@@ -15,12 +15,13 @@
   line-height: 1.4;
 }
 
+/* State-specific, stable color identities (differentiation, not a good/bad score). */
 /* LET RESOLVE — affirmative natural-resolution (NOT a generic HOLD color). */
-.grc-tag-let-resolve { color: #1f6f43; background: rgba(60, 140, 90, 0.08); }
+.grc-tag-let-resolve { color: #1f6f43; background: rgba(60, 140, 90, 0.10); border: 1px solid rgba(31, 111, 67, 0.35); }
 /* SELL CALL — affirmative phase recommendation (does not select a contract). */
-.grc-tag-sell-call { color: #1f5aa8; background: rgba(50, 100, 180, 0.07); }
+.grc-tag-sell-call { color: #1f5aa8; background: rgba(50, 100, 180, 0.10); border: 1px solid rgba(31, 90, 168, 0.35); }
 /* UNRESOLVED — fail-closed; muted, still a compact tag like CALL / BW. */
-.grc-tag-unresolved { color: #6b6b6b; background: rgba(120, 120, 120, 0.08); }
+.grc-tag-unresolved { color: #6b6b6b; background: rgba(120, 120, 120, 0.10); border: 1px solid rgba(120, 120, 120, 0.35); }
 
 /* Interactive cell affordance: subtle hover/cursor only (no link/pill/button treatment). */
 .oc-td-governed,
