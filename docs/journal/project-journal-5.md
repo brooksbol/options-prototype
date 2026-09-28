@@ -1013,3 +1013,15 @@ Bounded inventory-block identity for share-phase attachment; call-away pre-accep
 ### Next boundary
 
 Extend `ATTACH TO…` to the share-phase subject once a bounded inventory-block identity is designed (a Solution Overview/Design step), OR ratify one of the blocking policies (intervention/eligibility/no-write) or the call-away pre-acceptance attestation to unblock an affirmative `LET RESOLVE`/`SELL CALL`. Not authorized by this task.
+
+---
+
+## 2026-09-28 — Series-key ATTACH identity rejected; bounded continuity ratified; first design rejected (Codex checkpoint)
+
+**Checkpoint start SYNC:** `8093caedf1d64a079c9a74f1b1b6e04570fb81d1` (GitHub-advertised `main` == local `HEAD`; clean tree). Gate Experiment 001 remained `STAGED`, mutation permission `INACTIVE`. The Principal authorized **documentation/authority checkpoint only**, including commit/push, not product implementation.
+
+The September 27 ATTACH entry above accurately records what Kiro built and tested, but its claim that `call-<underlying>-<strike>-<expiration>` is a bounded economic obligation identity is **rejected**. BTC 1 then identical STO 1 reuses the old membership; an additional same-series STO expands the aggregate without an attached quantity boundary. Same-symbol-different-series isolation did not test either failure. Do not use the old entry as present architecture authority or infer that the next task is share-block attachment or policy ratification.
+
+The Principal-supplied `History_for_Account_Z39411514-72.csv` directly demonstrated opening, closing, assignment, and expiration actions. A complete accepted economic interval can distinguish unchanged obligation from close/reopen without a broker position-instance ID. That conclusion depends on a scoped completeness/finality assertion, semantic ingestion of every relevant raw event, sufficient economic ordering, and endpoint reconciliation. The first model was refined after independent falsification to separate economic finality from export/Run Date and separate historical membership, surviving quantity, full-`Q` intact, and current applicability. The refined bounded model survived independent falsification. The Principal explicitly chose **A — RATIFIED** for the opening-anchored **whole-quantity** cohort and conditional evidence-authority contract; ADR-022 is its canonical authority.
+
+The first bounded Solution Design candidate proposed durable immutable History/endpoint artifacts and completeness assertions in the existing backend, cohort evidence anchors, single accepted ledger version per Decision, derived reconciliation, and replay-bound consumed evidence. Independent review **rejected the design candidate**: paired option-affecting raw rows could be omitted by normalization while net endpoint quantity still matches; economic event/endpoint cuts and one semantic ownership path were insufficiently specified. This is a design return, not a new Product decision or a model reopening. Doc 70 preserves the detailed evidence/status trail and exact resume boundary. No product code, runtime state, or remote refs were changed by the analysis preceding this checkpoint.

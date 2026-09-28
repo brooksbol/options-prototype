@@ -80,6 +80,10 @@ This ratification supplies the first legitimate concrete destination for the nex
 
 This artifact does **not** authorize or implement `ATTACH TO…`, a membership command/write path, evaluator changes, Console changes, a generic Program registry/framework, or any missing Wheel policy.
 
+## September 28, 2026 bounded continuation
+
+ADR-022 records the Principal's later ratification of **whole-quantity, opening-anchored existing short-option cohort** identity and conditional History-based economic continuity. This partially resolves the exact subject/quantity question left open above; partial attachment, residual membership after a reduction, share-block identity, a specific accepted History artifact, and the technical evidence-admission design remain open. The implemented series-derived `ATTACH TO…` covered-call key does not conform to ADR-022 merely by persisting a membership association. Doc 70 preserves the evidence and rejected-design trail. The September 27 boundaries above remain historical statements of what this artifact itself ratified at the time.
+
 ## Product Principles check
 
 The canonical Principles Register currently contains no ratified Product Principles, so none independently constrain this ratification. Doc 68's operator-authority, minimum-necessary-authority, Operating Program cardinality, delivery-surface-independence, and Incognito Test candidates are relevant attack surfaces but remain unratified. This work promotes none of them and discovers no additional principle candidate requiring separate intake.
