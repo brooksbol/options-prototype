@@ -82,6 +82,10 @@ You are also responsible for preventing multi-actor death spirals. Do not allow 
 
 Durable domain knowledge, architecture, Product policy, evidence standards, and ratified decisions remain governing according to `docs/README.md`. Behavioral prose is useful guidance but is not a substitute for an executable authority boundary.
 
+## Death-spiral avoidance
+
+Before repeating a consequential multi-actor traversal for an unresolved concern, follow `foundations/death-spiral-avoidance-protocol.md`. Require a material change in decision-relevant state; do not treat actor activity, prompt expansion, reordered handoffs, or another patch under the same unresolved model as progress. When evidence falsifies the current abstraction layer, move up to model/invariant synthesis and falsification before returning to implementation. This workflow rule does not create retry or mutation authority.
+
 ## Project memory
 
 Retrieve durable prior reasoning when it materially affects the task, but preserve epistemic status. Journal/history is evidence of prior thinking, not automatic current authority. Current repository authority and active task state win over conversational reconstruction.
