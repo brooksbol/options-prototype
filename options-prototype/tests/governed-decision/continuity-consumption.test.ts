@@ -90,18 +90,32 @@ describe("resolveContinuityAssessment client", () => {
       }),
     });
     const res = await resolveContinuityAssessment(
-      { brokerageAccountId: "acctA", underlying: "XLE", optionType: "CALL", strike: 57.5,
+      { brokerageAccountId: "acctA", governedScopeId: "scope_a", underlying: "XLE", optionType: "CALL", strike: 57.5,
         expiration: "2026-10-16", effectiveAsOf: "2026-09-27T00:00:00Z", knowledgeCutoff: "2026-09-27T00:00:00Z" },
       fetchMock as unknown as typeof fetch,
     );
     expect(res?.verdict).toBe("FULL_Q_INTACT_APPLICABLE");
     expect(res?.evidenceHash).toBe("ceh_abc");
+    // Defect 5: the resolve is bound to the governed scope the Decision consumes.
+    const url = fetchMock.mock.calls[0][0] as string;
+    expect(url).toContain("governedScopeId=scope_a");
+  });
+
+  it("returns null (fail closed) when no governed scope is supplied — Defect 5", async () => {
+    const fetchMock = vi.fn();
+    const res = await resolveContinuityAssessment(
+      { brokerageAccountId: "acctA", governedScopeId: "", underlying: "XLE", optionType: "CALL", strike: 57.5,
+        expiration: "2026-10-16", effectiveAsOf: "2026-09-27T00:00:00Z", knowledgeCutoff: "2026-09-27T00:00:00Z" },
+      fetchMock as unknown as typeof fetch,
+    );
+    expect(res).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled(); // never even queries without a scope binding
   });
 
   it("returns null when the backend has no assessment (never inferred)", async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ resolved: false }) });
     const res = await resolveContinuityAssessment(
-      { brokerageAccountId: "acctA", underlying: "XLE", optionType: "CALL", strike: 57.5,
+      { brokerageAccountId: "acctA", governedScopeId: "scope_a", underlying: "XLE", optionType: "CALL", strike: 57.5,
         expiration: "2026-10-16", effectiveAsOf: "2026-09-27T00:00:00Z", knowledgeCutoff: "2026-09-27T00:00:00Z" },
       fetchMock as unknown as typeof fetch,
     );

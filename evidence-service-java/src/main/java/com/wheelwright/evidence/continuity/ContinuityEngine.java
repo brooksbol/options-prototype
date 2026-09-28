@@ -75,7 +75,11 @@ public class ContinuityEngine {
         // admitted interval [openingDate, end of quietDay] using the conservative daily envelope.
         int governedReduction = 0;     // contracts of the ORIGINAL cohort provably reduced
         int laterSameSeriesOpen = 0;   // contracts opened later in the same series (never join)
+        int openingEvidenceQty = 0;    // admitted STO contracts on the opening day (opening evidence)
         boolean sawOpeningAnchor = false;
+        // Admitted aggregate short position for the series across the interval (opening + later
+        // opens - reductions). Defect 2: the endpoint must reconcile against THIS, not observed>=Q.
+        int admittedNetShort = 0;
 
         for (FidelityActivityRow row : in.historyRows()) {
             if (!isTargetSeries(row, in)) {
@@ -103,9 +107,12 @@ public class ContinuityEngine {
 
             switch (kind) {
                 case OPTION_SELL_TO_OPEN_CALL, OPTION_SELL_TO_OPEN_PUT -> {
+                    admittedNetShort += qty;
                     if (econDay.isEqual(in.openingDate()) && !sawOpeningAnchor && qty >= in.openingQuantity()) {
-                        // The opening anchor itself (or the bounded opening set). Consume once.
+                        // The opening anchor itself (or the bounded opening set): admitted opening
+                        // EVIDENCE establishing the explicitly quantified cohort (Defect 1). Consume once.
                         sawOpeningAnchor = true;
+                        openingEvidenceQty = qty;
                         int extra = qty - in.openingQuantity();
                         if (extra > 0) laterSameSeriesOpen += extra;
                     } else {
@@ -118,6 +125,7 @@ public class ContinuityEngine {
                     // A reduction of the short obligation. If governed and ungoverned quantity
                     // have mixed, allocation between them is ambiguous => POLICY_UNDEFINED
                     // (Doc 70 §3/§6, ADR-022 §4). Otherwise it reduces the governed cohort.
+                    admittedNetShort -= qty;
                     if (laterSameSeriesOpen > 0) {
                         blockers.add("ambiguous-reduction-after-mixing");
                         return fail(ContinuityVerdict.POLICY_UNDEFINED, in, null, blockers, evidenceHash);
@@ -128,11 +136,13 @@ public class ContinuityEngine {
                     // Assignment/expiration reduces the option obligation exactly once. The
                     // companion share-delivery row (ASSIGNED_*_STOCK_*) is a different series
                     // (equity) and is filtered by isTargetSeries, so it cannot double-reduce.
+                    int reduced = (qty > 0 ? qty : in.openingQuantity());
+                    admittedNetShort -= reduced;
                     if (laterSameSeriesOpen > 0) {
                         blockers.add("ambiguous-reduction-after-mixing");
                         return fail(ContinuityVerdict.POLICY_UNDEFINED, in, null, blockers, evidenceHash);
                     }
-                    governedReduction += (qty > 0 ? qty : in.openingQuantity());
+                    governedReduction += reduced;
                 }
                 case ASSIGNED_PUT_STOCK_PURCHASE, ASSIGNED_CALL_STOCK_SALE -> {
                     // Companion share flow. These are equity rows; if one is mis-tagged to the
@@ -186,23 +196,42 @@ public class ContinuityEngine {
                 survivingGoverned, List.copyOf(blockers), ADMISSION_RULE_VERSION, true, iso(in.quietDay()), evidenceHash);
         }
 
-        // --- 4. Positive endpoint reconciliation (Doc 70 §5/§6). ---
-        // Full governed Q is provably untouched. The Positions observation on the quiet day
-        // must exist, identify the series, and be COMPATIBLE: observed short quantity >= the
-        // governed Q (additional ungoverned same-series short quantity may legitimately exist
-        // without joining the cohort, ADR-022 §4). An observed quantity below Q contradicts the
-        // "nothing reduced Q" conclusion and fails closed.
+        // --- 4. Admitted opening evidence is REQUIRED for an affirmative (Defect 1). ---
+        // The affirmative lane must rest on admitted opening EVIDENCE establishing the explicitly
+        // quantified opening-anchored cohort — a caller-supplied openingQuantity is not evidence.
+        // Absent an admitted opening STO on the opening day establishing >= Q, fail closed.
+        if (!sawOpeningAnchor || openingEvidenceQty < in.openingQuantity()) {
+            blockers.add("opening-evidence-missing");
+            return fail(ContinuityVerdict.AUTHORITY_MISSING, in, survivingGoverned, blockers, evidenceHash);
+        }
+
+        // --- 5. Positive endpoint reconciliation against the ADMITTED aggregate (Defect 2). ---
+        // Full governed Q is provably untouched by admitted rows. The Positions observation on
+        // the quiet day must exist, identify the series, and reconcile EXACTLY to the admitted
+        // aggregate net short position (opening + later opens - reductions). Merely observing
+        // "short >= governed Q" is insufficient: an admitted STO 1 + STO 1 with Positions short 1
+        // proves an off-record reduction happened, contradicting accepted completeness — fail
+        // closed rather than affirm (Doc 70 §5/§6, ADR-022 §3).
         if (in.positionsShortQuantityOnQuietDay() == null || !in.positionsIdentifiesSeries()) {
             blockers.add("endpoint-observation-missing");
             return fail(ContinuityVerdict.EVIDENCE_INSUFFICIENT, in, survivingGoverned, blockers, evidenceHash);
         }
         int observed = in.positionsShortQuantityOnQuietDay();
-        if (observed < in.openingQuantity()) {
+        if (observed != admittedNetShort) {
+            // The endpoint disagrees with the admitted lifecycle. Under accepted completeness
+            // this is impossible for a truthful record, so an off-record event must exist:
+            // fail closed rather than affirm on observed >= Q.
+            blockers.add("endpoint-aggregate-mismatch");
+            return fail(ContinuityVerdict.EVIDENCE_INSUFFICIENT, in, survivingGoverned, blockers, evidenceHash);
+        }
+        if (admittedNetShort < in.openingQuantity()) {
+            // Defensive: the reconciled aggregate cannot even hold the governed Q intact.
             blockers.add("endpoint-quantity-incompatible");
             return fail(ContinuityVerdict.EVIDENCE_INSUFFICIENT, in, survivingGoverned, blockers, evidenceHash);
         }
 
-        // Affirmative whole-Q-intact lane (Doc 70 §6).
+        // Affirmative whole-Q-intact lane (Doc 70 §6). The completeness/endpoint contract covers
+        // through the quiet day, which is therefore the covered-through boundary (Defect 4).
         return new ContinuityAssessment(ContinuityVerdict.FULL_Q_INTACT_APPLICABLE, in.openingQuantity(),
             in.openingQuantity(), List.of(), ADMISSION_RULE_VERSION, true, iso(in.quietDay()), evidenceHash);
     }
@@ -227,15 +256,17 @@ public class ContinuityEngine {
     }
 
     /**
-     * Conservative daily economic envelope (Doc 70 §4). An explicit settlement/economic date
-     * is preferred where present; otherwise Run Date is used only as a conservative daily
-     * envelope (never asserted equal to trade/execution time). Returns null when no admissible
-     * day can be established (caller fails closed). CSV order and Settlement Date never
-     * establish intraday order — we only ever compare at day granularity.
+     * Conservative daily economic envelope (Doc 70 §4). The explicit economic "as of" date
+     * CONTROLS when present (e.g. "ASSIGNED as of 09/20/2026" with Run Date 09/28/2026 lands on
+     * 09/20 and therefore affects a 09/26 Decision cut). Otherwise Run Date is used only as the
+     * bounded conservative daily envelope (never asserted equal to trade/execution time).
+     * Returns null when no admissible day can be established (caller fails closed). CSV order and
+     * Settlement Date never establish intraday order — we only ever compare at day granularity.
      */
     private LocalDate economicDay(FidelityActivityRow row) {
-        // Run Date is the observed economic day proxy for ordinary completed retail rows.
-        return row.runDate();
+        LocalDate asOf = ParsedSeries.asOfDate(row);
+        if (asOf != null) return asOf; // explicit economic "as of" date controls (Doc 70 §4)
+        return row.runDate();           // bounded fallback for ordinary completed retail rows
     }
 
     private int absContracts(FidelityActivityRow row) {

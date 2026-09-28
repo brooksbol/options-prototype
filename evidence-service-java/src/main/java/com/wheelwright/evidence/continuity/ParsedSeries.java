@@ -46,6 +46,40 @@ final class ParsedSeries {
         return parse(row.action());
     }
 
+    // Explicit economic "as of" date, e.g. "ASSIGNED as of 09/20/2026" or "... as of 2026-09-20".
+    private static final Pattern AS_OF =
+        Pattern.compile("as of\\s+(\\d{1,2})[/-](\\d{1,2})[/-](\\d{4})", Pattern.CASE_INSENSITIVE);
+    private static final Pattern AS_OF_ISO =
+        Pattern.compile("as of\\s+(\\d{4})-(\\d{2})-(\\d{2})", Pattern.CASE_INSENSITIVE);
+
+    /**
+     * Extract the explicit economic "as of" date from a row's action/description, or null when
+     * none is present. Doc 70 §4: the explicit economic "as of" date controls when present;
+     * Run Date is only the bounded fallback. Never inferred.
+     */
+    static LocalDate asOfDate(FidelityActivityRow row) {
+        LocalDate d = asOf(row.action());
+        if (d != null) return d;
+        return asOf(row.description());
+    }
+
+    private static LocalDate asOf(String text) {
+        if (text == null || text.isBlank()) return null;
+        Matcher iso = AS_OF_ISO.matcher(text);
+        if (iso.find()) {
+            try { return LocalDate.parse(iso.group(1) + "-" + iso.group(2) + "-" + iso.group(3)); }
+            catch (Exception e) { return null; }
+        }
+        Matcher m = AS_OF.matcher(text);
+        if (m.find()) {
+            String mm = String.format("%02d", Integer.parseInt(m.group(1)));
+            String dd = String.format("%02d", Integer.parseInt(m.group(2)));
+            try { return LocalDate.parse(m.group(3) + "-" + mm + "-" + dd); }
+            catch (Exception e) { return null; }
+        }
+        return null;
+    }
+
     private static ParsedSeries parse(String text) {
         if (text == null || text.isBlank()) return null;
         Matcher m = DESC.matcher(text);

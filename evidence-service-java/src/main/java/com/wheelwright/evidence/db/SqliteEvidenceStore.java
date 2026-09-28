@@ -2631,9 +2631,9 @@ public class SqliteEvidenceStore implements AutoCloseable {
                     INSERT OR IGNORE INTO option_obligation_continuity_assessment
                       (assessment_id, brokerage_account_id, governed_scope_id, underlying, option_type,
                        strike, expiration, opening_quantity, verdict, reconciled_quantity, blockers_json,
-                       admission_rule_version, accepted_completeness, quiet_day, evidence_hash,
+                       admission_rule_version, accepted_completeness, quiet_day, covered_through, evidence_hash,
                        effective_from, recorded_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """)) {
                 ps.setString(1, a.assessmentId());
                 ps.setString(2, a.brokerageAccountId());
@@ -2649,9 +2649,10 @@ public class SqliteEvidenceStore implements AutoCloseable {
                 ps.setString(12, a.admissionRuleVersion());
                 ps.setInt(13, a.acceptedCompleteness() ? 1 : 0);
                 if (a.quietDay() == null) ps.setNull(14, Types.VARCHAR); else ps.setString(14, a.quietDay());
-                ps.setString(15, a.evidenceHash());
-                ps.setString(16, a.effectiveFrom());
-                ps.setString(17, a.recordedAt());
+                if (a.coveredThrough() == null) ps.setNull(15, Types.VARCHAR); else ps.setString(15, a.coveredThrough());
+                ps.setString(16, a.evidenceHash());
+                ps.setString(17, a.effectiveFrom());
+                ps.setString(18, a.recordedAt());
                 ps.executeUpdate();
             }
         });
@@ -2659,31 +2660,46 @@ public class SqliteEvidenceStore implements AutoCloseable {
 
     /**
      * Resolve the latest applicable continuity assessment for a series AS-OF a decision instant,
-     * honoring ADR-019 bitemporal discipline: effective_from &lt;= effectiveAsOf AND
-     * recorded_at &lt;= knowledgeCutoff. A later-recorded correction therefore cannot enter an
-     * earlier Decision's knowledge set. Returns the most recent qualifying row, or null.
+     * bound to a specific governed scope (Defect 5), honoring ADR-019 bitemporal discipline AND
+     * the Decision-cut coverage boundary (Defect 4):
+     *   - governed_scope_id = the scope the Decision consumes (never a cross-scope/series match);
+     *   - effective_from &lt;= effectiveAsOf AND recorded_at &lt;= knowledgeCutoff (bitemporal);
+     *   - effectiveAsOf &lt;= covered_through — the assessment's completeness/endpoint contract
+     *     must cover the Decision cut being evaluated. A September 26 assessment therefore cannot
+     *     satisfy a later Decision cut without admissible evidence through that later cut.
+     * Returns the most recent qualifying row, or null (caller fails closed).
      */
     public ContinuityAssessmentRecord resolveContinuityAssessment(
-            String brokerageAccountId, String underlying, String optionType, double strike,
-            String expiration, String effectiveAsOf, String knowledgeCutoff) throws SQLException {
+            String brokerageAccountId, String governedScopeId, String underlying, String optionType,
+            double strike, String expiration, String effectiveAsOf, String knowledgeCutoff) throws SQLException {
+        // A bindable resolution requires an explicit governed scope (Defect 5): series geometry
+        // is not cohort identity. Without a scope there is nothing to authoritatively bind to.
+        if (governedScopeId == null || governedScopeId.isBlank()) return null;
+        // The Decision cut day (date portion of effectiveAsOf) must be within the coverage window.
+        String asOfDay = effectiveAsOf != null && effectiveAsOf.length() >= 10
+            ? effectiveAsOf.substring(0, 10) : effectiveAsOf;
         try (PreparedStatement ps = conn.prepareStatement("""
                 SELECT assessment_id, brokerage_account_id, governed_scope_id, underlying, option_type,
                        strike, expiration, opening_quantity, verdict, reconciled_quantity, blockers_json,
-                       admission_rule_version, accepted_completeness, quiet_day, evidence_hash,
+                       admission_rule_version, accepted_completeness, quiet_day, covered_through, evidence_hash,
                        effective_from, recorded_at
                   FROM option_obligation_continuity_assessment
-                 WHERE brokerage_account_id = ? AND underlying = ? AND option_type = ?
+                 WHERE brokerage_account_id = ? AND governed_scope_id = ?
+                   AND underlying = ? AND option_type = ?
                    AND ABS(strike - ?) < 0.0001 AND expiration = ?
                    AND effective_from <= ? AND recorded_at <= ?
+                   AND covered_through IS NOT NULL AND covered_through >= ?
                  ORDER BY effective_from DESC, recorded_at DESC LIMIT 1
             """)) {
             ps.setString(1, brokerageAccountId);
-            ps.setString(2, underlying);
-            ps.setString(3, optionType);
-            ps.setDouble(4, strike);
-            ps.setString(5, expiration);
-            ps.setString(6, effectiveAsOf);
-            ps.setString(7, knowledgeCutoff);
+            ps.setString(2, governedScopeId);
+            ps.setString(3, underlying);
+            ps.setString(4, optionType);
+            ps.setDouble(5, strike);
+            ps.setString(6, expiration);
+            ps.setString(7, effectiveAsOf);
+            ps.setString(8, knowledgeCutoff);
+            ps.setString(9, asOfDay);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) return null;
                 return mapContinuity(rs);
@@ -2700,7 +2716,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
             rs.getDouble("strike"), rs.getString("expiration"), rs.getInt("opening_quantity"),
             rs.getString("verdict"), reconciled, rs.getString("blockers_json"),
             rs.getString("admission_rule_version"), rs.getInt("accepted_completeness") == 1,
-            rs.getString("quiet_day"), rs.getString("evidence_hash"),
+            rs.getString("quiet_day"), rs.getString("covered_through"), rs.getString("evidence_hash"),
             rs.getString("effective_from"), rs.getString("recorded_at"));
     }
 
@@ -2743,7 +2759,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
         String assessmentId, String brokerageAccountId, String governedScopeId, String underlying,
         String optionType, double strike, String expiration, int openingQuantity, String verdict,
         Integer reconciledQuantity, String blockersJson, String admissionRuleVersion,
-        boolean acceptedCompleteness, String quietDay, String evidenceHash,
+        boolean acceptedCompleteness, String quietDay, String coveredThrough, String evidenceHash,
         String effectiveFrom, String recordedAt) {}
 
     // --- Opportunity-history record types (transport between controller and store) ---

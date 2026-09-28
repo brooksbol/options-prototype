@@ -80,30 +80,54 @@ public class ContinuityController {
 
         ContinuityAssessment a = engine.assess(inputs);
 
+        // Governance identity binding (Defect 5): an affirmative verdict can only establish
+        // membership when the assessment is authoritatively bound to the governed cohort/scope
+        // the Decision consumes. Series geometry is not cohort identity. An affirmative without
+        // a governedScopeId is downgraded to EVIDENCE_INSUFFICIENT with an explicit blocker so
+        // it can never be bound by series-key lookup.
+        String verdict = a.verdict().name();
+        List<String> blockers = new ArrayList<>(a.blockers());
+        boolean affirmative = a.isAffirmative();
+        Integer reconciled = a.reconciledQuantity();
+        if (affirmative && isBlank(b.governedScopeId)) {
+            verdict = "EVIDENCE_INSUFFICIENT";
+            affirmative = false;
+            blockers.add("governance-scope-binding-missing");
+            reconciled = a.openingQuantity();
+        }
+
         // Durable, deterministic, append-only. effective_from is the endpoint/economic cut
         // (quiet day when present, else the opening date); recorded_at is backend time.
         String effectiveFrom = (a.quietDay() != null ? a.quietDay() : b.openingDate) + "T00:00:00Z";
+        // covered_through (Defect 4): the last day the completeness/endpoint contract extends
+        // through — the quiet endpoint day for an affirmative; else the opening day (no coverage
+        // beyond the anchor is claimed for a non-affirmative outcome).
+        String coveredThrough = a.quietDay() != null ? a.quietDay() : b.openingDate;
         String recordedAt = Instant.now().toString();
-        String assessmentId = "ooca_" + a.evidenceHash().replace("ceh_", "") + "_" + a.admissionRuleVersion();
+        // Identity includes the scope so distinct cohorts on the same series never collide.
+        String assessmentId = "ooca_" + a.evidenceHash().replace("ceh_", "") + "_"
+            + a.admissionRuleVersion() + (isBlank(b.governedScopeId) ? "" : "_" + b.governedScopeId);
 
         ContinuityAssessmentRecord rec = new ContinuityAssessmentRecord(
             assessmentId, b.brokerageAccountId, b.governedScopeId, b.underlying, b.optionType,
-            b.strike == null ? 0.0 : b.strike, b.expiration, b.openingQuantity, a.verdict().name(),
-            a.reconciledQuantity(), toJsonArray(a.blockers()), a.admissionRuleVersion(),
-            a.acceptedCompleteness(), a.quietDay(), a.evidenceHash(), effectiveFrom, recordedAt);
+            b.strike == null ? 0.0 : b.strike, b.expiration, b.openingQuantity, verdict,
+            reconciled, toJsonArray(blockers), a.admissionRuleVersion(),
+            a.acceptedCompleteness(), a.quietDay(), coveredThrough, a.evidenceHash(), effectiveFrom, recordedAt);
         store.appendContinuityAssessment(rec);
 
         Map<String, Object> body = new java.util.LinkedHashMap<>();
         body.put("status", "assessed");
         body.put("assessmentId", assessmentId);
-        body.put("verdict", a.verdict().name());
-        body.put("affirmative", a.isAffirmative());
+        body.put("verdict", verdict);
+        body.put("affirmative", affirmative);
         body.put("openingQuantity", a.openingQuantity());
-        body.put("reconciledQuantity", a.reconciledQuantity());
-        body.put("blockers", a.blockers());
+        body.put("reconciledQuantity", reconciled);
+        body.put("blockers", blockers);
         body.put("admissionRuleVersion", a.admissionRuleVersion());
         body.put("acceptedCompleteness", a.acceptedCompleteness());
         body.put("quietDay", a.quietDay());
+        body.put("coveredThrough", coveredThrough);
+        body.put("governedScopeId", b.governedScopeId);
         body.put("evidenceHash", a.evidenceHash());
         body.put("effectiveFrom", effectiveFrom);
         body.put("recordedAt", recordedAt);
@@ -113,14 +137,17 @@ public class ContinuityController {
     @GetMapping("/api/continuity/resolve")
     public ResponseEntity<?> resolve(
             @RequestParam String brokerageAccountId,
+            @RequestParam String governedScopeId,
             @RequestParam String underlying,
             @RequestParam String optionType,
             @RequestParam double strike,
             @RequestParam String expiration,
             @RequestParam String effectiveAsOf,
             @RequestParam String knowledgeCutoff) throws SQLException {
+        // Defect 5: resolution is bound to the governed scope the Decision consumes.
         ContinuityAssessmentRecord rec = store.resolveContinuityAssessment(
-            brokerageAccountId, underlying, optionType, strike, expiration, effectiveAsOf, knowledgeCutoff);
+            brokerageAccountId, governedScopeId, underlying, optionType, strike, expiration,
+            effectiveAsOf, knowledgeCutoff);
         if (rec == null) return ResponseEntity.ok(Map.of("resolved", false));
         return ResponseEntity.ok(Map.of("resolved", true, "assessment", rec));
     }

@@ -94,22 +94,27 @@ export function useGovernedRecommendations(
         if (pos.type !== "call" && pos.type !== "buy-write") continue;
         const subjectId = pos.id;
         const governance = await resolveGovernanceFor(subjectId);
-        // ADR-022 / Doc 70: membership for a covered-call obligation is the BACKEND-owned
-        // continuity verdict, resolved as-of now. Null when unassessed — the browser then
-        // leaves membership AUTHORITY_MISSING and never infers continuity from the series key.
-        const continuity =
-          (await resolveContinuityAssessment(
-            {
-              brokerageAccountId: account,
-              underlying: pos.underlying,
-              optionType: "CALL",
-              strike: pos.strike,
-              expiration: pos.expiration,
-              effectiveAsOf: now,
-              knowledgeCutoff: now,
-            },
-            fetch,
-          )) ?? undefined;
+        // ADR-022 / Doc 70 (Defect 5): membership for a covered-call obligation is the
+        // BACKEND-owned continuity verdict BOUND to the governed scope the Decision consumes.
+        // Continuity is resolved only when the subject has a resolved governed scope; it is
+        // never inferred from the series key. Null when unassessed/unbound => membership stays
+        // AUTHORITY_MISSING.
+        const scopeId = governance.context?.governedScopeId ?? null;
+        const continuity = scopeId
+          ? (await resolveContinuityAssessment(
+              {
+                brokerageAccountId: account,
+                governedScopeId: scopeId,
+                underlying: pos.underlying,
+                optionType: "CALL",
+                strike: pos.strike,
+                expiration: pos.expiration,
+                effectiveAsOf: now,
+                knowledgeCutoff: now,
+              },
+              fetch,
+            )) ?? undefined
+          : undefined;
         const resolved = resolveCoveredCallRecommendation(
           pos, snapshot, account, { ...governance, continuity }, now);
         out.set(subjectId, resolved);

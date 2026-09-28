@@ -259,6 +259,12 @@ export interface ResolvedContinuity {
 export async function resolveContinuityAssessment(
   params: {
     brokerageAccountId: string;
+    /**
+     * The governed scope the Decision consumes (Defect 5). Continuity is bound to this exact
+     * cohort/scope; a series match alone never establishes membership. Required — a blank scope
+     * yields null (fail closed).
+     */
+    governedScopeId: string;
     underlying: string;
     optionType: string;
     strike: number;
@@ -268,9 +274,11 @@ export async function resolveContinuityAssessment(
   },
   fetchImpl: typeof fetch = fetch,
 ): Promise<ResolvedContinuity | null> {
+  if (!params.governedScopeId) return null;
   try {
     const q = new URLSearchParams({
       brokerageAccountId: params.brokerageAccountId,
+      governedScopeId: params.governedScopeId,
       underlying: params.underlying,
       optionType: params.optionType,
       strike: String(params.strike),

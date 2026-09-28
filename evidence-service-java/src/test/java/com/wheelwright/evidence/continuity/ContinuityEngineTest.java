@@ -190,14 +190,16 @@ class ContinuityEngineTest {
     }
 
     @Test
-    void endpointQuantityBelowQ_failsClosed() {
-        // Positions shows fewer contracts than Q with no admitted reduction — contradiction.
+    void endpointQuantityBelowAdmittedAggregate_failsClosed() {
+        // Admitted opening STO 2 (net short 2) but Positions shows only 1 with no admitted
+        // reduction — the endpoint disagrees with the admitted aggregate (an off-record event
+        // must exist). Fails closed on endpoint-aggregate-mismatch.
         InputsB b = new InputsB();
         b.q = 2; b.posQty = 1;
         b.rows = List.of(seriesRow("YOU SOLD OPENING TRANSACTION CALL", 2, OPEN));
         ContinuityAssessment a = engine.assess(b.build());
         assertEquals(ContinuityVerdict.EVIDENCE_INSUFFICIENT, a.verdict());
-        assertTrue(a.blockers().contains("endpoint-quantity-incompatible"));
+        assertTrue(a.blockers().contains("endpoint-aggregate-mismatch"));
     }
 
     @Test
@@ -213,6 +215,53 @@ class ContinuityEngineTest {
         assertEquals(ContinuityVerdict.POLICY_UNDEFINED, a.verdict());
         assertEquals(1, a.reconciledQuantity());
         assertTrue(a.blockers().contains("partial-survivor-residual-membership-undefined"));
+    }
+
+    // --- REJECT remediation regressions (exact review counterexamples) ---
+
+    @Test
+    void defect1_noOpeningEvidence_cannotAffirm() {
+        // Caller-supplied openingQuantity WITHOUT an admitted opening STO row must not affirm.
+        InputsB b = new InputsB();
+        b.rows = List.of(); // no opening evidence at all
+        ContinuityAssessment a = engine.assess(b.build());
+        assertNotEquals(ContinuityVerdict.FULL_Q_INTACT_APPLICABLE, a.verdict());
+        assertEquals(ContinuityVerdict.AUTHORITY_MISSING, a.verdict());
+        assertTrue(a.blockers().contains("opening-evidence-missing"));
+    }
+
+    @Test
+    void defect2_admittedSto1Sto1WithShort1_mustNotAffirm() {
+        // Admitted STO 1 (opening) + STO 1 (later), Positions short 1. Old code affirmed on
+        // observed >= Q; now it must fail closed because observed (1) != admitted aggregate (2):
+        // an off-record reduction must have occurred, contradicting accepted completeness.
+        InputsB b = new InputsB();
+        b.posQty = 1;
+        b.rows = List.of(
+            seriesRow("YOU SOLD OPENING TRANSACTION CALL", 1, OPEN),
+            seriesRow("YOU SOLD OPENING TRANSACTION CALL", 1, OPEN.plusDays(1)));
+        ContinuityAssessment a = engine.assess(b.build());
+        assertNotEquals(ContinuityVerdict.FULL_Q_INTACT_APPLICABLE, a.verdict());
+        assertEquals(ContinuityVerdict.EVIDENCE_INSUFFICIENT, a.verdict());
+        assertTrue(a.blockers().contains("endpoint-aggregate-mismatch"));
+    }
+
+    @Test
+    void defect3_assignedAsOfEarlierDate_affectsEarlierDecisionCut() {
+        // ASSIGNED "as of 2026-09-20" with Run Date 2026-09-28 must land on 09-20 and therefore
+        // reduce the obligation within a quiet-day-09-26 assessment (economic as-of controls).
+        FidelityActivityRow assignedAsOf = new FidelityActivityRow(
+            LocalDate.parse("2026-09-28"), // Run Date LATER than the as-of
+            "ASSIGNED as of 09/20/2026",
+            " -XLE...", "CALL (XLE) SELECT SECTOR SPDR OCT 16 26 $57.5 (100 SHS)", "Cash",
+            null, java.math.BigDecimal.valueOf(1), null, null, null, java.math.BigDecimal.ZERO, null,
+            LocalDate.parse("2026-09-28"));
+        InputsB b = new InputsB();
+        b.posQty = 0;
+        b.rows = List.of(seriesRow("YOU SOLD OPENING TRANSACTION CALL", 1, OPEN), assignedAsOf);
+        ContinuityAssessment a = engine.assess(b.build());
+        // The as-of-09-20 assignment reduced the Q=1 cohort => exhausted at the 09-26 cut.
+        assertEquals(ContinuityVerdict.EXHAUSTED, a.verdict());
     }
 
     @Test

@@ -1060,3 +1060,27 @@ No partial/residual cohort membership (POLICY_UNDEFINED, unratified). No general
 ### Next boundary
 
 Design the operator-facing act that supplies the opening-anchor + accepted-completeness premise + quiet-day Positions observation into `/api/continuity/assess` (a Solution Overview/Design step) — OR ratify partial-survivor residual membership. Not authorized by this task.
+
+---
+
+## 2026-09-28 — Continuity slice REJECT remediation (5 conformance defects) (Kiro)
+
+**Actor:** Kiro (Implementation Engineer). **SYNC at start:** `511f1b5` (accepted `main`; the commit under review). Independent review REJECTed `511f1b5` against ratified ADR-022 / accepted Doc 70 with five conformance defects. This was implementation correction at the implementation layer (per the death-spiral protocol: the REJECT supplied new decision-relevant evidence — concrete counterexamples — while the model/authority were unchanged, so a new bounded traversal was justified; no architecture reopened).
+
+**Note on working state:** an unrelated uncommitted change to `options-prototype/src/components/CrossEntryStrip.tsx` was present at start (another actor's in-flight work). Per KNOWN-FAILURE-MODES #8 it was preserved untouched and never staged.
+
+### The five defects and their corrections
+
+1. **Opening evidence required.** The affirmative lane no longer trusts caller `openingQuantity`; it requires an admitted opening STO row on the opening day establishing ≥ Q (`sawOpeningAnchor` + `openingEvidenceQty`). Absent → `AUTHORITY_MISSING` / `opening-evidence-missing`.
+2. **Endpoint reconciled against admitted aggregate.** The engine tracks admitted net short (opening + later opens − reductions) and requires the Positions observation to equal it exactly. Admitted STO 1 + STO 1 with Positions short 1 now fails closed (`endpoint-aggregate-mismatch`) instead of affirming on observed ≥ Q — an off-record reduction is proven.
+3. **Explicit economic "as of" date controls.** `ParsedSeries.asOfDate` parses "as of MM/DD/YYYY" (and ISO) from action/description; `economicDay` uses it over Run Date. ASSIGNED "as of 2026-09-20" with Run Date 2026-09-28 now lands on 09-20 and reduces the cohort within a 2026-09-26 cut.
+4. **Decision-cut coverage.** New `covered_through` boundary (migration 013) records the last day the completeness/endpoint contract extends through (the quiet day for an affirmative). `resolveContinuityAssessment` requires `effectiveAsOf <= covered_through`, so a Sep-26 assessment cannot satisfy a Sep-27 Decision cut.
+5. **Governance identity binding.** Resolution is bound to the governed scope the Decision consumes (`governed_scope_id` required; no series-key/cross-scope match; blank scope → null). An affirmative assessed without a `governedScopeId` is downgraded to `EVIDENCE_INSUFFICIENT` / `governance-scope-binding-missing`. The frontend hook resolves continuity only for the subject's resolved governed scope, never inferring from the series key.
+
+### Evidence
+
+Adversarial regressions added for each exact counterexample: backend `ContinuityEngineTest` (`defect1_noOpeningEvidence_cannotAffirm`, `defect2_admittedSto1Sto1WithShort1_mustNotAffirm`, `defect3_assignedAsOfEarlierDate_affectsEarlierDecisionCut`, updated endpoint-aggregate test), `ContinuityStoreTest` (`decisionCutBeyondCoverageResolvesNull_Defect4`, `resolveRequiresGovernedScope_Defect5`, coverage-aware anti-hindsight), `ContinuityControllerTest` (defect 2/4/5 endpoint tests), and frontend `continuity-consumption.test.ts` (scope-bound resolve + fail-closed without scope). Backend full suite green; frontend 2142 pass with only the 3 pre-existing unrelated `RoadmapView.test.tsx` failures. Real isolated-backend acceptance (port 3199 + temp DB, Principal appliance 3100 untouched) reproduced all five counterexamples: D1 AUTHORITY_MISSING/opening-evidence-missing; D2 EVIDENCE_INSUFFICIENT/endpoint-aggregate-mismatch; D3 EXHAUSTED via as-of; D4 09-27 cut resolves false while 09-26 resolves true; D5 no-scope downgraded + wrong-scope resolve false.
+
+### Boundaries preserved
+
+Fail-closed behavior and all ADR-022/Doc 70 boundaries intact. No architecture reopened; no partial/residual membership; no generalized custody/transfer semantics; no inferred intraday ordering (day-granularity envelope, as-of date only). Migration is append-only (013). Recommendation vocabulary unchanged.
