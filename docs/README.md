@@ -145,6 +145,7 @@ For a completely new ChatGPT thread, Kiro session, or Codex session starting fro
 | `foundations/shared-execution-contract.md` | Shared | **Suspended runtime-control contract and compatibility bridge; semantic guidance only, not execution authority** |
 | `foundations/principal-decision-surface.md` | Shared | **Ratified Principal-facing decision grammar and authority/reasoning distinction; human-factors control, not enforcement** |
 | `foundations/multi-actor-repeatability-temporal-synchronization.md` | Shared | Ratified temporal synchronization, convergence, and scoped execution-ownership methodology |
+| `foundations/death-spiral-avoidance-protocol.md` | Shared | **Ratified cross-actor death-spiral avoidance: no repeated consequential traversal without new decision-relevant state; escalate abstraction rather than prompt verbosity.** |
 | `foundations/idea-intake-reconciliation.md` | Shared | Mandatory methodology whenever a material new idea is being considered or handed off |
 
 **Lookup path:** Actor finds `docs/README.md` → reads `KNOWN-FAILURE-MODES.md` → reads this section → follows the suspended-contract compatibility bridge → reads the Principal Decision Surface → follows actor-specific bootstrap → acquires current task/experiment state → follows shared project-memory and task-relevant authority → begins substantive work. For a material new idea, the actor must also follow `foundations/idea-intake-reconciliation.md`.
@@ -203,6 +204,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/idea-intake-reconciliation.md` | Ratified methodology (material idea discovery → canonical intake → strategic/architectural reconciliation → why-state → decomposition/authorization) |
 | `foundations/technology-quality-constitution-v1.md` | Ratified methodology (technology-quality constitution, operating model, day-to-day architecture practice, and baseline authorization) |
 | `foundations/multi-actor-repeatability-temporal-synchronization.md` | Ratified methodology (temporal synchronization, convergence, and scoped execution ownership extending project memory) |
+| `foundations/death-spiral-avoidance-protocol.md` | Ratified methodology (cross-actor death-spiral detection, abstraction escalation, and re-entry discipline) |
 | `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
 | `67-unresolved-predicate-resolution-model-architecture-reconciliation-2026-09-26.md` | Principal-ratified bounded semantic contract for governed Recommendation `UNRESOLVED` predicate results, resolution admissibility, and replay; canonical decision ADR-021 |
 | `69-assignment-centric-wheel-v1-operating-program.md` | Principal-ratified bounded Product authority for the first real Wheel Operating Program/configuration; stable identity `assignment-centric-wheel`, configuration v1; membership non-implications and current Doc 65 rule boundary |
