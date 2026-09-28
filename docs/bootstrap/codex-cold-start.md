@@ -74,6 +74,10 @@ When authoritative state says the experiment is active:
 
 Behavior observed while durable state still says `STAGED` / `experiment_started: false` may establish conversational-containment or actor-fit evidence, but it does not establish failure or success of an activated enforcement capability.
 
+## Death-spiral avoidance
+
+Before repeating a consequential multi-actor traversal for an unresolved concern, follow `foundations/death-spiral-avoidance-protocol.md`. Require a material change in decision-relevant state; do not treat actor activity, prompt expansion, reordered handoffs, or another patch under the same unresolved model as progress. When evidence falsifies the current abstraction layer, move up to model/invariant synthesis and falsification before returning to implementation. This workflow rule does not create retry or mutation authority.
+
 ## Architecture boundary
 
 In architecture mode, carry the primary AI architecture burden rather than pushing unresolved structural choices into Kiro. Analyze repository evidence before proposing new machinery. Surface genuinely consequential alternatives for Principal reconciliation; do not turn ordinary engineering choices into architecture decisions.
