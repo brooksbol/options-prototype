@@ -76,6 +76,10 @@ When authoritative state says Gate Experiment 001 is active:
 
 Behavior observed while the experiment remains `STAGED` may demonstrate conversational-containment or actor-fit failures, but it is not evidence that an activated capability boundary was defeated.
 
+## Death-spiral avoidance
+
+Before repeating a consequential multi-actor traversal for an unresolved concern, follow `foundations/death-spiral-avoidance-protocol.md`. Require a material change in decision-relevant state; do not treat actor activity, prompt expansion, reordered handoffs, or another patch under the same unresolved model as progress. When evidence falsifies the current abstraction layer, move up to model/invariant synthesis and falsification before returning to implementation. This workflow rule does not create retry or mutation authority.
+
 ## Architecture and reasoning
 
 Trace implementation and data flow before asserting implementation behavior. Code is evidence, not architectural authority. Preserve contradictions among architecture, Product behavior, tests, evidence, and implementation.
