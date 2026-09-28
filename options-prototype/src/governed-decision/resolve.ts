@@ -28,6 +28,12 @@ import type { DecisionInputBundle } from "./decision-bundle";
 export interface ResolvedGovernance {
   context: GovernedContextVersion | null;
   associationEstablished: boolean;
+  /**
+   * Backend option-obligation continuity verdict (ADR-022 / Doc 70), when the backend has
+   * assessed this covered-call cohort. Absent for share blocks and for covered calls with no
+   * assessment. The browser consumes this; it never recomputes continuity.
+   */
+  continuity?: import("./evaluators").ContinuityVerdictProjection;
 }
 
 /** A fully-resolved governed recommendation for one subject (projection + persistence). */
@@ -110,11 +116,12 @@ export function resolveCoveredCallRecommendation(
   const inputs: GovernedInputsBase = {
     context: governance.context,
     associationEstablished: governance.associationEstablished,
+    continuity: governance.continuity,
   };
   const evaluation = evaluateCoveredCall(facts, inputs);
   // ADR-021 §10: a bundle/Decision is always built, including no-context UNRESOLVED.
   const bundle = buildBundle(subject, snapshot, governance.context, inputs.associationEstablished,
-    { kind: "covered-call", facts }, evaluation, decisionTime);
+    { kind: "covered-call", facts }, evaluation, decisionTime, governance.continuity ?? null);
   return { subject, evaluation, bundle };
 }
 
@@ -136,7 +143,7 @@ export function resolveSharePhaseRecommendation(
   };
   const evaluation = evaluateSharePhase(facts, inputs);
   const bundle = buildBundle(subject, snapshot, governance.context, inputs.associationEstablished,
-    { kind: "share-block", facts }, evaluation, decisionTime);
+    { kind: "share-block", facts }, evaluation, decisionTime, null);
   return { subject, evaluation, bundle };
 }
 
@@ -148,6 +155,7 @@ function buildBundle(
   consumed: DecisionInputBundle["consumed"],
   evaluation: GovernedEvaluation,
   decisionTime: string,
+  continuity: import("./evaluators").ContinuityVerdictProjection | null,
 ): DecisionInputBundle {
   const inv = snapshot.inventory.find((i) => i.symbol.toUpperCase() === subject.symbol.toUpperCase());
   return {
@@ -162,6 +170,13 @@ function buildBundle(
       optionSummaryCheckpoint: snapshot.provenance?.optionSummaryExportTimestamp ?? null,
       evidenceGeneration: null,
     },
+    continuity: continuity
+      ? {
+          verdict: continuity.verdict,
+          evidenceHash: continuity.evidenceHash,
+          admissionRuleVersion: continuity.admissionRuleVersion,
+        }
+      : null,
     ruleId: evaluation.ruleId,
     evaluatorId: evaluation.evaluatorId,
     evaluatorVersion: evaluation.evaluatorVersion,

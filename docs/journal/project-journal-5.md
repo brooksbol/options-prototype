@@ -1025,3 +1025,38 @@ The September 27 ATTACH entry above accurately records what Kiro built and teste
 The Principal-supplied `History_for_Account_Z39411514-72.csv` directly demonstrated opening, closing, assignment, and expiration actions. A complete accepted economic interval can distinguish unchanged obligation from close/reopen without a broker position-instance ID. That conclusion depends on a scoped completeness/finality assertion, semantic ingestion of every relevant raw event, sufficient economic ordering, and endpoint reconciliation. The first model was refined after independent falsification to separate economic finality from export/Run Date and separate historical membership, surviving quantity, full-`Q` intact, and current applicability. The refined bounded model survived independent falsification. The Principal explicitly chose **A — RATIFIED** for the opening-anchored **whole-quantity** cohort and conditional evidence-authority contract; ADR-022 is its canonical authority.
 
 The first bounded Solution Design candidate proposed durable immutable History/endpoint artifacts and completeness assertions in the existing backend, cohort evidence anchors, single accepted ledger version per Decision, derived reconciliation, and replay-bound consumed evidence. Independent review **rejected the design candidate**: paired option-affecting raw rows could be omitted by normalization while net endpoint quantity still matches; economic event/endpoint cuts and one semantic ownership path were insufficiently specified. This is a design return, not a new Product decision or a model reopening. Doc 70 preserves the detailed evidence/status trail and exact resume boundary. No product code, runtime state, or remote refs were changed by the analysis preceding this checkpoint.
+
+---
+
+## 2026-09-28 — Bounded option-obligation continuity slice implemented (ADR-022 / Doc 70) (Kiro)
+
+**Actor:** Kiro (Implementation Engineer). **SYNC at start:** `1eb448e` (accepted `main`; clean tree; fast-forwarded from `50985c5` over the ADR-022/Doc 70/death-spiral-protocol commits). Authority root `docs/README.md`; Gate Experiment 001 `STAGED`. Principal-authorized bounded implementation per Doc 70 "Implementation authorization"; ADR-022 is the ratified Product/architecture authority.
+
+### What shipped
+
+The backend now **owns** an option-obligation continuity assessment (ADR-022 §3 / Doc 70 §1). The browser Decision evaluator **consumes** the backend verdict for covered-call membership; it no longer treats a series-key association as membership. This directly implements the ADR-022 §6 finding that the existing series-key ATTACH does not, by itself, conform.
+
+**Backend (`com.wheelwright.evidence.continuity`):**
+- `ContinuityEngine` — pure, deterministic. Consumes an opening-anchored whole-quantity cohort, all raw History rows, an accepted completeness premise through a quiet endpoint day `P`, and a Positions observation on `P`; returns a verdict + ordered blockers. Reuses the production `TransactionClassifier`/`FidelityTransactionKind` for exhaustive semantic admission. Enforces every Doc 70 boundary: STO→BTC→identical-STO does not inherit; ambiguous governed/ungoverned reduction after mixing → `POLICY_UNDEFINED`; assignment/expiration reduce exactly once; companion share rows never double-reduce; unsupported/uninterpretable option-affecting rows (transfer/ACAT/unclassified on the series) fail closed (catches the paired net-zero transfer counterexample); non-quiet `P` fails closed; conservative daily temporal envelope only (no intraday inference; CSV order/Settlement Date never establish order); additional ungoverned same-series openings never join but do not defeat an untouched governed subset.
+- Verdicts map to ADR-021 predicate statuses: `FULL_Q_INTACT_APPLICABLE`→SATISFIED, `EXHAUSTED`→NOT_SATISFIED(known-negative/outside-program), `POLICY_UNDEFINED`→partial/ambiguous, `AUTHORITY_MISSING`/`EVIDENCE_INSUFFICIENT`→fail-closed.
+- Migration `012_option_obligation_continuity.sql` + `SqliteEvidenceStore.appendContinuityAssessment`/`resolveContinuityAssessment` (append-only, deterministic id, ADR-019 bitemporal effective/recorded). `ContinuityController`: `POST /api/continuity/assess` (compute + durably persist), `GET /api/continuity/resolve` (bitemporal). A non-affirmative verdict is a durable first-class outcome (200), not a 4xx; only a structurally incomplete opening anchor is a 422 intake error.
+
+**Frontend:**
+- `resolveContinuityAssessment` client fn; `use-governed-recommendations` resolves the backend verdict for each covered-call subject and feeds it into `evaluateCoveredCall`. Membership SATISFIED only on `FULL_Q_INTACT_APPLICABLE`; a legacy series-key association alone (no assessment) is `AUTHORITY_MISSING` (never inferred). Legacy series-key associations are NOT auto-converted.
+- Replay binding (Doc 70 §7): `DecisionInputBundle.continuity` pins the verdict/evidence-hash/admission-rule-version; `canonicalizeBundle` bumped v2→v3; `replay.ts` reconstructs the pinned verdict (anti-hindsight — a later correction affects only later Decisions).
+
+### Why the covered-call membership semantic changed (and why existing tests were updated)
+
+Under ADR-022 §6, covered-call membership can no longer be `SATISFIED` from association+context alone; it requires the backend continuity verdict. Existing evaluator/resolve/attach tests that asserted `SATISFIED` from association alone encoded the pre-ADR-022 behavior and were updated to supply the `FULL_Q_INTACT_APPLICABLE` verdict (the ratified path). The share-phase path is out of this slice's continuity scope and its membership logic/tests are unchanged. This is a ratified model change, not a test weakening.
+
+### Verification
+
+Backend full suite green (new `ContinuityEngineTest` 14 adversarial cases, `ContinuityControllerTest`, `ContinuityStoreTest` incl. bitemporal anti-hindsight). Frontend 2141 pass; only the 3 pre-existing `RoadmapView.test.tsx` failures remain (AR duplicate-key/isolation ×2; Log NEWEST-FIRST stale-date) — confirmed pre-existing/unrelated. Real acceptance exercised the live `/api/continuity/assess`+`/resolve` on an isolated port 3199 + temp DB (Principal appliance on 3100 untouched): affirmative persists+resolves; STO→BTC→STO EXHAUSTED; transfer fails closed; non-quiet P fails closed; missing completeness AUTHORITY_MISSING; fresh-client recovers. (No visual browser screenshots — I cannot see a browser; I drove the true endpoints the hook calls, clearly labeled.)
+
+### Boundaries held / residual
+
+No partial/residual cohort membership (POLICY_UNDEFINED, unratified). No generalized transfer/custody semantics (they fail closed). No inferred intraday ordering (daily envelope only). No auto-conversion of legacy series-key associations. Recommendation vocabulary unchanged (`LET RESOLVE | SELL CALL | UNRESOLVED`); affirmative Recommendation still blocked by call-away/policy gaps. Residual: partial-survivor residual-membership policy; call-away pre-acceptance attestation; intervention/eligibility/no-write policy; share-phase bounded-inventory-block identity; the operator-facing act that supplies the opening anchor + accepted-completeness premise + Positions observation to the assess endpoint (this slice implements the backend assessment + Decision consumption; the operator authoring UX for those premises is the next boundary).
+
+### Next boundary
+
+Design the operator-facing act that supplies the opening-anchor + accepted-completeness premise + quiet-day Positions observation into `/api/continuity/assess` (a Solution Overview/Design step) — OR ratify partial-survivor residual membership. Not authorized by this task.

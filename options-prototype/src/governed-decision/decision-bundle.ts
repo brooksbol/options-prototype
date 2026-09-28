@@ -55,11 +55,25 @@ export interface DecisionInputBundle {
   associationEstablished: boolean;
   consumed: ConsumedFacts;
   evidenceProvenance: DecisionEvidenceProvenance;
+  /**
+   * Backend continuity verdict pinned at the decision boundary (ADR-022 / Doc 70 §7), or null
+   * when no continuity assessment applied. Pinning the verdict + evidence hash + rule version
+   * makes the continuity evidence contract replay-bound: a later correction affects only later
+   * Decisions and never rewrites this one's picture.
+   */
+  continuity: DecisionContinuityPin | null;
   ruleId: RuleId;
   evaluatorId: EvaluatorId;
   evaluatorVersion: string;
   /** Decision time (when the evaluation was made). ISO8601. */
   decisionTime: string;
+}
+
+/** The replay-bound continuity contract pinned into a Decision (Doc 70 §7). */
+export interface DecisionContinuityPin {
+  verdict: string;
+  evidenceHash: string;
+  admissionRuleVersion: string;
 }
 
 /** The immutable Decision result persisted alongside the bundle (ADR-021 §10). */
@@ -82,8 +96,9 @@ export interface DecisionResult {
 export function canonicalizeBundle(b: DecisionInputBundle): string {
   const cv = b.contextVersion;
   const parts: (string | number | boolean | null)[] = [
-    // v2: bundle may carry a null context/scope (ADR-021 no-context UNRESOLVED Decision).
-    "v2",
+    // v3: bundle now pins the backend continuity verdict/evidence contract (ADR-022/Doc 70 §7).
+    // v2 remained: null context/scope (ADR-021 no-context UNRESOLVED Decision).
+    "v3",
     b.brokerageAccountId,
     b.subject.subjectType,
     b.subject.subjectId,
@@ -105,6 +120,9 @@ export function canonicalizeBundle(b: DecisionInputBundle): string {
     b.evidenceProvenance.ownershipAuthority,
     b.evidenceProvenance.optionSummaryCheckpoint,
     b.evidenceProvenance.evidenceGeneration,
+    b.continuity ? b.continuity.verdict : null,
+    b.continuity ? b.continuity.evidenceHash : null,
+    b.continuity ? b.continuity.admissionRuleVersion : null,
     b.ruleId,
     b.evaluatorId,
     b.evaluatorVersion,

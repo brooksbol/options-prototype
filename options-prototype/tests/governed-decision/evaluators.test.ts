@@ -37,6 +37,19 @@ const goodCall: CoveredCallFacts = { callIsCurrent: true, coverageEstablished: t
 const goodShares: ShareBlockFacts = { freeShares: 100, ownershipAuthority: "positions", evidenceSufficient: true };
 const associated = (context: GovernedContextVersion): GovernedInputsBase => ({ context, associationEstablished: true });
 
+/**
+ * Covered-call membership now requires the BACKEND continuity verdict (ADR-022 / Doc 70): a
+ * series-key association alone does NOT establish it. This helper supplies the affirmative
+ * whole-Q-intact verdict for covered-call SATISFIED cases.
+ */
+const CONTINUITY_FULL = {
+  verdict: "FULL_Q_INTACT_APPLICABLE" as const,
+  evidenceHash: "ceh_test",
+  admissionRuleVersion: "continuity-admission-v1",
+};
+const governedCC = (context: GovernedContextVersion): GovernedInputsBase =>
+  ({ context, associationEstablished: true, continuity: CONTINUITY_FULL });
+
 /** Helper: status of a predicate by key. */
 function statusOf(results: { key: string; status: PredicateStatus }[], key: string): PredicateStatus | undefined {
   return results.find((p) => p.key === key)?.status;
@@ -61,7 +74,7 @@ describe("Rule 1 — covered call predicate picture", () => {
   });
 
   it("membership + accepted stance, but intervention POLICY_UNDEFINED keeps it UNRESOLVED", () => {
-    const r = evaluateCoveredCall(goodCall, associated(ctx()));
+    const r = evaluateCoveredCall(goodCall, governedCC(ctx()));
     expect(r.recommendation).toBe("UNRESOLVED"); // gate policy undefined blocks affirmative
     const P = r.predicateResults;
     expect(statusOf(P, "wheel-membership")).toBe("SATISFIED");
@@ -71,7 +84,7 @@ describe("Rule 1 — covered call predicate picture", () => {
   });
 
   it("membership without attested pre-acceptance: pre-acceptance AUTHORITY_MISSING, effective NOT_EVALUATED", () => {
-    const r = evaluateCoveredCall(goodCall, associated(ctx({ callAwayStance: "unknown" })));
+    const r = evaluateCoveredCall(goodCall, governedCC(ctx({ callAwayStance: "unknown" })));
     expect(r.recommendation).toBe("UNRESOLVED");
     const P = r.predicateResults;
     expect(statusOf(P, "call-away-preacceptance")).toBe("AUTHORITY_MISSING");
@@ -79,7 +92,7 @@ describe("Rule 1 — covered call predicate picture", () => {
   });
 
   it("coverage insufficient is reported independently as EVIDENCE_INSUFFICIENT", () => {
-    const r = evaluateCoveredCall({ ...goodCall, coverageEstablished: false }, associated(ctx()));
+    const r = evaluateCoveredCall({ ...goodCall, coverageEstablished: false }, governedCC(ctx()));
     expect(r.recommendation).toBe("UNRESOLVED");
     expect(statusOf(r.predicateResults, "coverage")).toBe("EVIDENCE_INSUFFICIENT");
   });
@@ -93,7 +106,7 @@ describe("Rule 1 — covered call predicate picture", () => {
   });
 
   it("only the bounded public vocabulary is ever emitted", () => {
-    const r = evaluateCoveredCall(goodCall, associated(ctx({ interventionGate: "ACTIVE" })));
+    const r = evaluateCoveredCall(goodCall, governedCC(ctx({ interventionGate: "ACTIVE" })));
     expect(["LET_RESOLVE", "SELL_CALL", "UNRESOLVED"]).toContain(r.recommendation);
   });
 });

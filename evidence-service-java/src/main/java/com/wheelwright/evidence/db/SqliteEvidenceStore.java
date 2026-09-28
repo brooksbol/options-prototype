@@ -2619,6 +2619,91 @@ public class SqliteEvidenceStore implements AutoCloseable {
         });
     }
 
+    /**
+     * Append one immutable option-obligation continuity assessment (ADR-022 / Doc 70).
+     * INSERT OR IGNORE on the deterministic assessment_id: a byte-identical re-assessment
+     * dedups; a changed evidence contract / rule / cut yields a new row. Append-only; a later
+     * correction is a new row and never rewrites an earlier Decision's pinned picture.
+     */
+    public void appendContinuityAssessment(ContinuityAssessmentRecord a) throws SQLException {
+        inTransaction(() -> {
+            try (PreparedStatement ps = conn.prepareStatement("""
+                    INSERT OR IGNORE INTO option_obligation_continuity_assessment
+                      (assessment_id, brokerage_account_id, governed_scope_id, underlying, option_type,
+                       strike, expiration, opening_quantity, verdict, reconciled_quantity, blockers_json,
+                       admission_rule_version, accepted_completeness, quiet_day, evidence_hash,
+                       effective_from, recorded_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """)) {
+                ps.setString(1, a.assessmentId());
+                ps.setString(2, a.brokerageAccountId());
+                if (a.governedScopeId() == null) ps.setNull(3, Types.VARCHAR); else ps.setString(3, a.governedScopeId());
+                ps.setString(4, a.underlying());
+                ps.setString(5, a.optionType());
+                ps.setDouble(6, a.strike());
+                ps.setString(7, a.expiration());
+                ps.setInt(8, a.openingQuantity());
+                ps.setString(9, a.verdict());
+                if (a.reconciledQuantity() == null) ps.setNull(10, Types.INTEGER); else ps.setInt(10, a.reconciledQuantity());
+                ps.setString(11, a.blockersJson());
+                ps.setString(12, a.admissionRuleVersion());
+                ps.setInt(13, a.acceptedCompleteness() ? 1 : 0);
+                if (a.quietDay() == null) ps.setNull(14, Types.VARCHAR); else ps.setString(14, a.quietDay());
+                ps.setString(15, a.evidenceHash());
+                ps.setString(16, a.effectiveFrom());
+                ps.setString(17, a.recordedAt());
+                ps.executeUpdate();
+            }
+        });
+    }
+
+    /**
+     * Resolve the latest applicable continuity assessment for a series AS-OF a decision instant,
+     * honoring ADR-019 bitemporal discipline: effective_from &lt;= effectiveAsOf AND
+     * recorded_at &lt;= knowledgeCutoff. A later-recorded correction therefore cannot enter an
+     * earlier Decision's knowledge set. Returns the most recent qualifying row, or null.
+     */
+    public ContinuityAssessmentRecord resolveContinuityAssessment(
+            String brokerageAccountId, String underlying, String optionType, double strike,
+            String expiration, String effectiveAsOf, String knowledgeCutoff) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT assessment_id, brokerage_account_id, governed_scope_id, underlying, option_type,
+                       strike, expiration, opening_quantity, verdict, reconciled_quantity, blockers_json,
+                       admission_rule_version, accepted_completeness, quiet_day, evidence_hash,
+                       effective_from, recorded_at
+                  FROM option_obligation_continuity_assessment
+                 WHERE brokerage_account_id = ? AND underlying = ? AND option_type = ?
+                   AND ABS(strike - ?) < 0.0001 AND expiration = ?
+                   AND effective_from <= ? AND recorded_at <= ?
+                 ORDER BY effective_from DESC, recorded_at DESC LIMIT 1
+            """)) {
+            ps.setString(1, brokerageAccountId);
+            ps.setString(2, underlying);
+            ps.setString(3, optionType);
+            ps.setDouble(4, strike);
+            ps.setString(5, expiration);
+            ps.setString(6, effectiveAsOf);
+            ps.setString(7, knowledgeCutoff);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                return mapContinuity(rs);
+            }
+        }
+    }
+
+    private static ContinuityAssessmentRecord mapContinuity(ResultSet rs) throws SQLException {
+        int rq = rs.getInt("reconciled_quantity");
+        Integer reconciled = rs.wasNull() ? null : rq;
+        return new ContinuityAssessmentRecord(
+            rs.getString("assessment_id"), rs.getString("brokerage_account_id"),
+            rs.getString("governed_scope_id"), rs.getString("underlying"), rs.getString("option_type"),
+            rs.getDouble("strike"), rs.getString("expiration"), rs.getInt("opening_quantity"),
+            rs.getString("verdict"), reconciled, rs.getString("blockers_json"),
+            rs.getString("admission_rule_version"), rs.getInt("accepted_completeness") == 1,
+            rs.getString("quiet_day"), rs.getString("evidence_hash"),
+            rs.getString("effective_from"), rs.getString("recorded_at"));
+    }
+
     /** Count rows in each governed-decision table (observability / tests). */
     public Map<String, Integer> getGovernedDecisionCounts() throws SQLException {
         Map<String, Integer> counts = new LinkedHashMap<>();
@@ -2626,6 +2711,7 @@ public class SqliteEvidenceStore implements AutoCloseable {
             {"governed_context_version", "contextVersions"},
             {"governed_decision", "decisions"},
             {"subject_scope_association", "associations"},
+            {"option_obligation_continuity_assessment", "continuityAssessments"},
         };
         for (String[] t : tables) {
             try (Statement st = conn.createStatement();
@@ -2652,6 +2738,13 @@ public class SqliteEvidenceStore implements AutoCloseable {
     public record SubjectScopeAssociationRecord(
         String associationId, String brokerageAccountId, String subjectId, String governedScopeId,
         String provenance, String effectiveFrom, String recordedAt) {}
+
+    public record ContinuityAssessmentRecord(
+        String assessmentId, String brokerageAccountId, String governedScopeId, String underlying,
+        String optionType, double strike, String expiration, int openingQuantity, String verdict,
+        Integer reconciledQuantity, String blockersJson, String admissionRuleVersion,
+        boolean acceptedCompleteness, String quietDay, String evidenceHash,
+        String effectiveFrom, String recordedAt) {}
 
     // --- Opportunity-history record types (transport between controller and store) ---
 

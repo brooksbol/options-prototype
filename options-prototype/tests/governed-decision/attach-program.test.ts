@@ -55,7 +55,13 @@ describe("ATTACH TO… admissibility (Doc 69)", () => {
       authorityProvenance: "operator-governance" as const,
       effectiveFrom: "2026-09-01T00:00:00Z", recordedAt: "2026-09-01T00:00:00Z",
     };
-    const r = evaluateCoveredCall(goodCall, { context: ctx, associationEstablished: true });
+    const r = evaluateCoveredCall(goodCall, {
+      context: ctx,
+      associationEstablished: true,
+      // ADR-022 / Doc 70: covered-call membership is established by the backend continuity
+      // verdict, not by the association alone.
+      continuity: { verdict: "FULL_Q_INTACT_APPLICABLE", evidenceHash: "ceh_test", admissionRuleVersion: "continuity-admission-v1" },
+    });
     const m = membership(r.predicateResults);
     expect(m.status).toBe("SATISFIED");
     expect(admissibleControlFor(m)).toBeNull();
@@ -73,7 +79,11 @@ describe("ATTACH TO… admissibility (Doc 69)", () => {
       authorityProvenance: "operator-governance" as const,
       effectiveFrom: "2026-09-27T00:00:00Z", recordedAt: "2026-09-27T00:00:00Z",
     };
-    const r = evaluateCoveredCall(goodCall, { context: membershipOnlyContext, associationEstablished: true });
+    const r = evaluateCoveredCall(goodCall, {
+      context: membershipOnlyContext,
+      associationEstablished: true,
+      continuity: { verdict: "FULL_Q_INTACT_APPLICABLE", evidenceHash: "ceh_test", admissionRuleVersion: "continuity-admission-v1" },
+    });
     // Membership flipped to established...
     expect(membership(r.predicateResults).status).toBe("SATISFIED");
     // ...but call-away pre-acceptance is now the next missing authority, and intervention is

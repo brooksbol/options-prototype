@@ -22,6 +22,7 @@ import {
   resolveGovernedContext,
   resolveSubjectScope,
   emitGovernedDecision,
+  resolveContinuityAssessment,
 } from "../governed-decision/client";
 import {
   resolveCoveredCallRecommendation,
@@ -93,7 +94,24 @@ export function useGovernedRecommendations(
         if (pos.type !== "call" && pos.type !== "buy-write") continue;
         const subjectId = pos.id;
         const governance = await resolveGovernanceFor(subjectId);
-        const resolved = resolveCoveredCallRecommendation(pos, snapshot, account, governance, now);
+        // ADR-022 / Doc 70: membership for a covered-call obligation is the BACKEND-owned
+        // continuity verdict, resolved as-of now. Null when unassessed — the browser then
+        // leaves membership AUTHORITY_MISSING and never infers continuity from the series key.
+        const continuity =
+          (await resolveContinuityAssessment(
+            {
+              brokerageAccountId: account,
+              underlying: pos.underlying,
+              optionType: "CALL",
+              strike: pos.strike,
+              expiration: pos.expiration,
+              effectiveAsOf: now,
+              knowledgeCutoff: now,
+            },
+            fetch,
+          )) ?? undefined;
+        const resolved = resolveCoveredCallRecommendation(
+          pos, snapshot, account, { ...governance, continuity }, now);
         out.set(subjectId, resolved);
         if (resolved.bundle) {
           void emitGovernedDecision(resolved.bundle, {

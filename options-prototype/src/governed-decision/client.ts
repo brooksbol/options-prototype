@@ -237,3 +237,60 @@ export async function attachProgram(
     return { ok: false, error: String(e) };
   }
 }
+
+/** A resolved backend continuity assessment (ADR-022 / Doc 70), or null when none applies. */
+export interface ResolvedContinuity {
+  verdict:
+    | "FULL_Q_INTACT_APPLICABLE"
+    | "AUTHORITY_MISSING"
+    | "EVIDENCE_INSUFFICIENT"
+    | "POLICY_UNDEFINED"
+    | "EXHAUSTED";
+  evidenceHash: string;
+  admissionRuleVersion: string;
+}
+
+/**
+ * Resolve the backend-owned option-obligation continuity verdict for a covered-call series,
+ * as-of a decision boundary (ADR-019 bitemporal: effective <= asOf AND recorded <= cutoff).
+ * Returns null when the backend has no applicable assessment — the browser then leaves
+ * membership AUTHORITY_MISSING and NEVER infers continuity from a series key (ADR-022 §6).
+ */
+export async function resolveContinuityAssessment(
+  params: {
+    brokerageAccountId: string;
+    underlying: string;
+    optionType: string;
+    strike: number;
+    expiration: string;
+    effectiveAsOf: string;
+    knowledgeCutoff: string;
+  },
+  fetchImpl: typeof fetch = fetch,
+): Promise<ResolvedContinuity | null> {
+  try {
+    const q = new URLSearchParams({
+      brokerageAccountId: params.brokerageAccountId,
+      underlying: params.underlying,
+      optionType: params.optionType,
+      strike: String(params.strike),
+      expiration: params.expiration,
+      effectiveAsOf: params.effectiveAsOf,
+      knowledgeCutoff: params.knowledgeCutoff,
+    });
+    const res = await fetchImpl(`/api/continuity/resolve?${q.toString()}`);
+    if (!res.ok) return null;
+    const json = (await res.json()) as {
+      resolved: boolean;
+      assessment?: { verdict: string; evidenceHash: string; admissionRuleVersion: string };
+    };
+    if (!json.resolved || !json.assessment) return null;
+    return {
+      verdict: json.assessment.verdict as ResolvedContinuity["verdict"],
+      evidenceHash: json.assessment.evidenceHash,
+      admissionRuleVersion: json.assessment.admissionRuleVersion,
+    };
+  } catch {
+    return null;
+  }
+}

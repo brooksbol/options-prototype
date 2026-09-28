@@ -82,13 +82,18 @@ describe("covered-call resolution", () => {
   it("membership + coverage established; UNRESOLVED because intervention policy is undefined (ADR-021 §8)", () => {
     const s = snap([inv("GDXJ", 100, 100)], [shortCall("GDXJ", 30, "2026-10-17", 1)]);
     const r = resolveCoveredCallRecommendation(callPos("GDXJ", 30, "2026-10-17"), s, "acctA",
-      { context: ctx(), associationEstablished: true }, now);
+      // ADR-022 / Doc 70: covered-call membership is the backend continuity verdict, not the
+      // series-key association alone.
+      { context: ctx(), associationEstablished: true,
+        continuity: { verdict: "FULL_Q_INTACT_APPLICABLE", evidenceHash: "ceh_x", admissionRuleVersion: "continuity-admission-v1" } }, now);
     expect(r.evaluation.recommendation).toBe("UNRESOLVED");
     expect(statusOf(r.evaluation.predicateResults, "coverage")).toBe("SATISFIED");
     expect(statusOf(r.evaluation.predicateResults, "wheel-membership")).toBe("SATISFIED");
     expect(statusOf(r.evaluation.predicateResults, "intervention-policy")).toBe("POLICY_UNDEFINED");
     // ADR-021 §10: a Decision (bundle) is always built, including this governed UNRESOLVED.
     expect(r.bundle).not.toBeNull();
+    // The continuity verdict is pinned into the bundle for replay (Doc 70 §7).
+    expect(r.bundle!.continuity?.verdict).toBe("FULL_Q_INTACT_APPLICABLE");
   });
 
   it("membership absent (mechanically identical): AUTHORITY_MISSING membership, no-context bundle still built", () => {

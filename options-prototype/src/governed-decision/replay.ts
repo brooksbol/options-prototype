@@ -84,6 +84,16 @@ export function replayDecision(
   const inputs: GovernedInputsBase = {
     context: bundle.contextVersion,
     associationEstablished: bundle.associationEstablished,
+    // Anti-hindsight: replay consumes the continuity verdict PINNED at the decision boundary
+    // (ADR-022 / Doc 70 §7), never a current re-assessment. A later correction cannot change
+    // this Decision's picture.
+    continuity: bundle.continuity
+      ? {
+          verdict: bundle.continuity.verdict as import("./evaluators").ContinuityVerdictProjection["verdict"],
+          evidenceHash: bundle.continuity.evidenceHash,
+          admissionRuleVersion: bundle.continuity.admissionRuleVersion,
+        }
+      : undefined,
   };
 
   const evaluation =

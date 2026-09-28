@@ -59,6 +59,31 @@ export interface GovernedInputsBase {
   associationEstablished: boolean;
   /** Authoritative negative Program membership (explicit), when established. */
   membershipNegative?: boolean;
+  /**
+   * Backend-owned option-obligation continuity verdict (ADR-022 / Doc 70), when the backend
+   * has assessed this bounded cohort. The browser NEVER reconstructs continuity from a series
+   * key or local CSV; it consumes this verdict. Present only for covered-call subjects that
+   * carry an opening-anchored cohort assessment. Absent => no continuity dimension applies
+   * (legacy series-key associations are NOT auto-converted into a continuity claim).
+   */
+  continuity?: ContinuityVerdictProjection;
+}
+
+/**
+ * The bounded backend continuity verdict as consumed by the evaluator (Doc 70 §1/§8). This
+ * is a faithful projection of the backend assessment; the browser does not recompute it.
+ */
+export interface ContinuityVerdictProjection {
+  verdict:
+    | "FULL_Q_INTACT_APPLICABLE"
+    | "AUTHORITY_MISSING"
+    | "EVIDENCE_INSUFFICIENT"
+    | "POLICY_UNDEFINED"
+    | "EXHAUSTED";
+  /** Deterministic content hash of the admitted evidence contract (replay pin). */
+  evidenceHash: string;
+  /** Admission/interpretation rule version consumed. */
+  admissionRuleVersion: string;
 }
 
 // --- Resolution affordances (derived metadata; never themselves enable a control) ---
@@ -195,18 +220,44 @@ export function evaluateCoveredCall(
       : predicate("evidence", "Decision evidence", "EVIDENCE_INSUFFICIENT", "Required decision evidence is not yet authoritative.", EVIDENCE_RESOLUTION),
   );
 
-  // Membership / association (authority). Distinguish negative vs missing.
-  const applicability: ProgramApplicability = inputs.membershipNegative ? "outside-program" : "applicable";
-  const membershipEstablished = inputs.associationEstablished && !!inputs.context && !inputs.membershipNegative;
+  // Membership / continuity (authority). ADR-022 / Doc 70: for a covered-call obligation,
+  // membership requires that the ENTIRE opening-anchored quantity remains applicable, which
+  // is a BACKEND-OWNED continuity verdict — not a series-key association. The browser consumes
+  // the verdict; it never infers continuity from a series key or local CSV. A legacy series-key
+  // association alone (no continuity assessment) is NOT treated as established membership.
+  const cont = inputs.continuity;
+  const applicability: ProgramApplicability =
+    inputs.membershipNegative || cont?.verdict === "EXHAUSTED" ? "outside-program" : "applicable";
+  const membershipEstablished =
+    cont?.verdict === "FULL_Q_INTACT_APPLICABLE" && !!inputs.context && !inputs.membershipNegative;
+
   if (inputs.membershipNegative) {
     P.push(predicate("wheel-membership", "Wheel program membership", "NOT_SATISFIED",
       "This position is authoritatively attested to be outside the Wheel program; the rule does not apply."));
-  } else if (membershipEstablished) {
-    P.push(predicate("wheel-membership", "Wheel program membership", "SATISFIED",
-      "This position is associated with a governed Wheel scope."));
-  } else {
+  } else if (cont == null) {
+    // No backend continuity assessment exists. Membership is unproven — never inferred from a
+    // series key (ADR-022 §6: the existing series-key ATTACH does not conform). AUTHORITY_MISSING.
     P.push(predicate("wheel-membership", "Wheel program membership", "AUTHORITY_MISSING",
-      "WW has not been told this position is part of a governed Wheel program; it will not infer membership.",
+      "WW has not established that this exact option obligation is part of a governed Wheel cohort; " +
+      "it will not infer membership from a matching option series.",
+      MEMBERSHIP_RESOLUTION_ATTACHABLE));
+  } else if (cont.verdict === "FULL_Q_INTACT_APPLICABLE") {
+    P.push(predicate("wheel-membership", "Wheel program membership", "SATISFIED",
+      "The full opening-anchored quantity is proven intact and applicable by the backend continuity assessment."));
+  } else if (cont.verdict === "EXHAUSTED") {
+    P.push(predicate("wheel-membership", "Wheel program membership", "NOT_SATISFIED",
+      "The original option obligation is authoritatively exhausted; identical reopening does not revive the cohort."));
+  } else if (cont.verdict === "POLICY_UNDEFINED") {
+    P.push(predicate("wheel-membership", "Wheel program membership", "POLICY_UNDEFINED",
+      "A partial survivor or ambiguous same-series reduction exists; residual cohort membership is not yet governed.",
+      POLICY_UNDEFINED_RESOLUTION));
+  } else {
+    // AUTHORITY_MISSING or EVIDENCE_INSUFFICIENT from the backend assessment.
+    const status = cont.verdict === "AUTHORITY_MISSING" ? "AUTHORITY_MISSING" : "EVIDENCE_INSUFFICIENT";
+    P.push(predicate("wheel-membership", "Wheel program membership", status,
+      status === "AUTHORITY_MISSING"
+        ? "An accepted completeness premise for this cohort's option history is not established."
+        : "The continuity evidence cannot yet support whole-quantity applicability (endpoint/temporal admission).",
       MEMBERSHIP_RESOLUTION_ATTACHABLE));
   }
 

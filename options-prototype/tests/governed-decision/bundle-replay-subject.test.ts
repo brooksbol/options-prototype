@@ -27,6 +27,11 @@ function ctx(overrides: Partial<GovernedContextVersion> = {}): GovernedContextVe
 }
 
 const CC_FACTS = { callIsCurrent: true, coverageEstablished: true, evidenceSufficient: true };
+const CONTINUITY_FULL = {
+  verdict: "FULL_Q_INTACT_APPLICABLE",
+  evidenceHash: "ceh_test",
+  admissionRuleVersion: "continuity-admission-v1",
+};
 
 function bundle(overrides: Partial<DecisionInputBundle> = {}): DecisionInputBundle {
   return {
@@ -37,6 +42,8 @@ function bundle(overrides: Partial<DecisionInputBundle> = {}): DecisionInputBund
     associationEstablished: true,
     consumed: { kind: "covered-call", facts: CC_FACTS },
     evidenceProvenance: { ownershipAuthority: "positions", optionSummaryCheckpoint: "2026-09-05T14:00:00Z", evidenceGeneration: null },
+    // ADR-022 / Doc 70 §7: the continuity verdict is pinned into the bundle for replay.
+    continuity: { ...CONTINUITY_FULL },
     ruleId: "DOC65-RULE-1-LET-RESOLVE",
     evaluatorId: "wheel-covered-call",
     evaluatorVersion: "2",
@@ -49,7 +56,17 @@ function bundle(overrides: Partial<DecisionInputBundle> = {}): DecisionInputBund
 function persistedFor(b: DecisionInputBundle): DecisionResult {
   const e = evaluateCoveredCall(
     b.consumed.kind === "covered-call" ? b.consumed.facts : CC_FACTS,
-    { context: b.contextVersion, associationEstablished: b.associationEstablished },
+    {
+      context: b.contextVersion,
+      associationEstablished: b.associationEstablished,
+      continuity: b.continuity
+        ? {
+            verdict: b.continuity.verdict as "FULL_Q_INTACT_APPLICABLE",
+            evidenceHash: b.continuity.evidenceHash,
+            admissionRuleVersion: b.continuity.admissionRuleVersion,
+          }
+        : undefined,
+    },
   );
   return {
     recommendation: e.recommendation,
