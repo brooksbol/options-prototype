@@ -1084,3 +1084,27 @@ Adversarial regressions added for each exact counterexample: backend `Continuity
 ### Boundaries preserved
 
 Fail-closed behavior and all ADR-022/Doc 70 boundaries intact. No architecture reopened; no partial/residual membership; no generalized custody/transfer semantics; no inferred intraday ordering (day-granularity envelope, as-of date only). Migration is append-only (013). Recommendation vocabulary unchanged.
+
+
+---
+
+## 2026-09-29 — XSP defined-risk / tastytrade / Sosnoff research conversation preserved
+
+**Principal instruction:** bootstrap from GitHub and persist the complete current conversation, including provided artifacts.
+
+This entry records the durable why-state. The conversation explored a new bounded-risk XSP put-credit-spread research hypothesis (approximately 45 DTE; short put selected by premium closest to $5; long put 20 points lower; 50% profit exit; mandatory 21-DTE exit; one/two entries per trading day), tastytrade as a possible execution venue, Tom Sosnoff's "11 Boring Trading Strategies" transcript as practitioner hypothesis pressure, and two independent Codex reviews. The work remains **research/exploration under existing PL-STRAT-01**, not strategy admission, implementation authority, or policy ratification.
+
+Durable conclusions from the discussion and Codex reviews:
+
+- XSP verticals are a genuinely new strategy family relative to Assignment-Centric Wheel v1; cash-settled index spreads do not participate in an assignment-to-inventory lifecycle.
+- Defined risk per spread does not imply low portfolio risk. Overlapping XSP cohorts may behave as one concentrated broad-equity downside exposure.
+- The simple two-entry/day capacity illustration of roughly 32–36 concurrent spreads is useful only as capacity arithmetic, not an allocation target. "Remaining buying power" is not a portfolio objective; NAV-at-risk and liquidity/stress reserve should come first.
+- At the illustrative $1.88 credit on a $20-wide spread, a 50% target is about $94 while contractual max loss is about $1,812; one full-loss outcome equals roughly 19.3 target winners. The pending empirical study therefore needs the forced-21-DTE exit loss distribution, not merely win rate.
+- The $5 short-premium rule is mechanically simple but does not hold delta, moneyness, probability of loss, or risk compensation constant across volatility/skew/spot regimes. That variability is part of the hypothesis to measure, not an implementation detail to ignore.
+- Tom Sosnoff's eleven named structures collapse into fewer economic families. Many are variations on short volatility plus directional bias rather than independent return factors. Strategy-name diversity is not risk-factor diversity.
+- Transcript-supported practitioner observations are useful hypothesis generators only. Tom's self-reported preferences/performance are not Wheelwright policy or independent empirical evidence.
+- Short call spreads are legitimately interesting because Tom says he uses them heavily to reduce long delta while retaining defined risk. But repeated put spreads plus repeated call spreads may simply create a staggered/distributed iron-condor-like book: lower snapshot delta can coexist with higher gross exposure, short gamma, short volatility, whipsaw/path risk, and larger cumulative turnover.
+- No obvious second strategy from the eleven simultaneously provides a clearly orthogonal return source, deterministic Wheelwright policy expression, and bounded maximum loss. Pairs/relative value are more factor-distinct but discretionary/unbounded as described; broken-wing butterflies are bounded but strongly setup-dependent.
+- Research sequence: first falsify the standalone XSP put engine with realistic fills, costs, overlapping cohorts, 21-DTE exits, and account-level stress; next test robustness/capacity under a predeclared NAV-risk/liquidity budget; only then test any negative-delta sleeve against simpler comparators such as fewer puts plus cash at equal gross-risk budgets. Do not run an eleven-strategy tournament yet.
+
+The complete conversational record and the two Principal-provided source artifacts are intended to be preserved with this workstream. Where exact earlier chat turns had already been compacted in the model context, the record must preserve the available structured summary and label that limitation rather than fabricate verbatim text.
