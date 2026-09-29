@@ -1135,3 +1135,22 @@ XND and MRUT were considered as mini-index analogues, but the Principal observed
 **Authority boundary:** this remains PL-STRAT-01 research. No performance result exists yet; no strategy admission, provider migration, execution-policy ratification, or implementation authority is created by this checkpoint.
 
 **Resume point:** complete the historical pull, establish the true usable XSP coverage window, then run the fixed canonical study and inspect forced-21-DTE loss distribution, clustered cohort drawdown, monthly production, and capital utilization before changing the strategy.
+
+
+---
+
+## 2026-09-29 — XSP historical-results / audit-boundary snapshot
+
+**Principal instruction:** take a snapshot after Muse completed the first historical XSP report and a separate actor reviewed it read-only.
+
+Muse now reports a completed 2023-06-01 through 2026-09-28 ThetaData EOD backtest for the frozen XSP put-credit-spread hypothesis. Under the canonical bid/ask execution model it reports 546 entries / 537 completed trades, 69.1% profitable trades, **-$21,593** net P&L, **-$540/month** mean P&L, **+$415/month** median P&L, profit factor 0.61, and **-$33,009 (-35.9%)** max drawdown. The central reported mechanism is winner erasure: average target winner +$98.41 versus average losing forced exit -$331.30, or about 3.37 winners erased per average losing forced exit. Cohort clustering, not isolated trade frequency, dominates bad months.
+
+Execution is a first-order uncertainty. Muse reports **+$18,096** with midpoint fills versus **-$21,593** with bid/ask fills. One dislocated forced exit is modeled at a $23.01 debit on a $20-wide spread. The literal daily rule was reportedly enterable on only 63.5% of days, with exact-20 strike-grid gaps a major cause.
+
+A separate read-only audit therefore classifies the report as **useful adverse research, not yet independently validated evidence**. Four checks are required before it can affect strategy/capital authority: (1) reconcile the reported 859-day calendar, (2) verify same-day EOD selection/execution timing against raw timestamps and code, (3) audit the >width forced-close execution semantics, and (4) recompute drawdown from true daily mark-to-market equity across overlapping positions.
+
+**Authority boundary:** no parameter tuning, strategy admission, capital decision, provider migration, or execution-policy ratification follows from this report. XSP remains PL-STRAT-01 research. The frozen canonical rule remains frozen during audit.
+
+**Related curriculum observation:** tastytrade’s introductory curriculum and UI put intrinsic/extrinsic value front and center. For the normally OTM ~$5 short-put selector, this provides a useful economic interpretation—roughly fixed extrinsic premium sold—but does not make delta, moneyness, IV, or risk compensation constant and does not change the canonical selector.
+
+**Resume point:** audit Muse’s `~/workspace/xsp-study` artifacts end-to-end: calendar -> raw ThetaData timestamps/quotes -> selection -> entry execution -> lifecycle execution -> daily MTM portfolio equity -> statistics. Preserve the distinction between Muse-reported results and independently reproduced results.
