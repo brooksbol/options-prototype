@@ -444,3 +444,83 @@ If that study is encouraging, the next research sequence preserved by this conve
 4. only then investigate another bounded structure if a specific portfolio need remains.
 
 This is a research sequence, not implementation authority.
+
+
+---
+
+# F. 2026-09-29 afternoon checkpoint — historical-data substrate and backtest engine
+
+## F1. Historical data requirement resurfaced
+
+The Principal recalled that Wheelwright had previously identified a need for historical option data. The discussion connected the current XSP study to that earlier architectural concern: current/live chains answer “what is tradable now,” while historical point-in-time chains are needed to replay what a policy could actually have selected at an earlier decision time.
+
+The working distinction is now:
+
+- **Tradier / live provider:** operational current-market evidence.
+- **ThetaData / historical provider:** research and point-in-time replay evidence.
+- **Wheelwright retained snapshots:** prospective canonical evidence accumulated by the system itself.
+
+This is a research/architecture observation, not a provider migration decision.
+
+## F2. Nearby mini-index products
+
+XND and MRUT were considered as conceptual analogues to XSP. The Principal observed that their available chains are materially less complete than XSP for the intended mechanical selector. That matters because the proposed rule requires a sufficiently dense expiry/strike/quote surface to choose a ~45-DTE put nearest a $5 premium and then a long put exactly 20 points lower.
+
+Current research implication: do not broaden the experiment merely for nominal index diversification. Chain completeness and executable liquidity should be treated as prerequisites for any later instrument-generalization study.
+
+The tastytrade “W” marker on expirations was identified as a Weekly-series label, not a change to the DTE calculation. Weekly expirations are not excluded from the proposed XSP rule.
+
+## F3. tastytrade advanced-order observations
+
+Principal-provided screenshots showed a representative XSP Nov 13, 45-DTE 730/710 put vertical, 20 points wide, around $1.76 opening credit and about $1,824 BP/max-loss effect.
+
+The Advanced Order / Bracket panel demonstrated:
+
+- a GTC **Close At Profit** order around $0.87, corresponding to approximately 50% of opening credit;
+- a GTC **Stop Loss** around $2.19, reflecting tastytrade’s observed default ~25% stop-loss setting.
+
+The 25% stop is **not** part of the proposed canonical XSP strategy and must not be silently imported into it.
+
+The screenshots strengthen the lifecycle split already under discussion: tastytrade can plausibly own the price-triggered GTC profit exit, while the 21-DTE time-triggered mandatory exit still requires operator/Wheelwright/API lifecycle logic.
+
+An implementation detail remains worth verifying in a tiny live/paper observation: whether an attached 50%-profit bracket recalculates from the **actual opening fill credit** or preserves the pre-fill staged price.
+
+## F4. ThetaData acquisition status
+
+A separate research actor reported that ThetaData’s free account is active and historical data is accessed through the locally installed ThetaData terminal rather than a web-download surface. The terminal can authenticate with an API key.
+
+Security boundary preserved in this conversation: **do not paste the ThetaData API key into chat.** Prefer a local environment variable or local temporary credential file that is excluded from Git, never echoed/logged/committed, and can be revoked/rotated if exposed.
+
+The acquisition plan is to probe actual XSP EOD historical coverage before assuming the free-tier window. At this checkpoint, the first pull chunk was probing 2024-07 and all tested months were returning data. A 72-month scan is intended to establish the true earliest usable date before completing the full pull.
+
+## F5. Canonical backtest engine corrections completed
+
+The actor reported 13 unit tests passing, including six newly added tests for target-price execution, strict-DTE skipping, incomplete-trade exclusion, capital-ceiling blocking, clustered same-day exits, and order-insensitive live-shape parser validation.
+
+The corrected canonical methodology is:
+
+1. **Strict entry DTE:** eligible expirations must be in calendar DTE [40, 50], selecting the expiry nearest 45 DTE with nearer expiry as tie-break. If none exists, skip and log `no_expiration_in_45dte_window`. The legacy >=30-DTE fallback is non-canonical sensitivity behavior only.
+2. **Short strike:** among puts in the selected expiry, rank by distance of visible midpoint from $5.00; require an executable quote. Long put is exactly 20 index points below.
+3. **Canonical opening execution:** short bid minus long ask.
+4. **50% target:** when sampled closing debit reaches or passes the 50%-of-entry-credit limit, record the exit fill at the **limit price itself**, not at the better sampled debit. Preserve sampled debit separately. No price improvement is assumed.
+5. **21-DTE exit:** otherwise close at the sampled executable EOD debit on the first trading day with calendar DTE <= 21.
+6. **End-of-sample positions:** mark `incomplete` and exclude from realized-P&L statistics; do not fabricate neutral marks.
+7. **Capital ceiling:** every attempted entry in both 1/day and 2/day cases is refused if aggregate open BPR plus the new spread would exceed the $92,000 account. The 2/day case is therefore capital-constrained rather than a simple 2x scale.
+8. **Execution scenarios:** canonical reasonable execution pays the quoted spread; conservative execution adds 2 cents per leg per side adverse slippage.
+9. **No optimization:** $5 premium target, $20 width, ~45-DTE strict window, 50% target, and 21-DTE exit remain fixed for the canonical run.
+
+## F6. Study document checkpoint
+
+The Principal supplied **“XSP Put-Credit-Spread Systematic Strategy: Historical Viability Study.”** At this checkpoint Sections 1–3 define the research question, data/limitations, and exact methodology; Sections 4–12 intentionally remain TBD until the historical pull completes.
+
+The study’s central economic question remains: **do losing forced 21-DTE exits consume the stream of small 50%-profit winners?** Required outputs include winners erased per forced loser, gross target profits consumed by forced exits, monthly P&L distribution, drawdown/cluster behavior, capital utilization, 1/day versus capital-constrained 2/day, and execution-cost sensitivity.
+
+Important epistemic boundary: the expected ThetaData coverage window written in the draft is provisional. Empirical probing, not documentation expectation, determines the actual usable window.
+
+## F7. Current state / resume point
+
+- XSP remains exploratory research under PL-STRAT-01; no strategy admission or policy ratification.
+- Engine corrections are at a clean checkpoint with 13 reported passing tests.
+- Historical acquisition is still running; no performance conclusion exists yet.
+- Do not modify the engine merely to fill waiting time unless the data pull exposes a concrete defect.
+- Next evidence: actual earliest continuous XSP coverage, completed pull, then measured canonical results—especially the `forced_21dte` loss distribution and clustered cohort drawdowns.
