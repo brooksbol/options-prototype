@@ -1114,3 +1114,24 @@ The complete conversational record and the two Principal-provided source artifac
 - `docs/research/session-artifacts/2026-09-29/conversation-record.md` — complete available conversation state, with explicit compacted-history limitation.
 - `docs/research/session-artifacts/2026-09-29/github-url.md` — Principal-provided repository URL artifact.
 - `docs/research/session-artifacts/2026-09-29/kiro-op-model.md` — Principal-provided Kiro operating-model artifact, preserved verbatim as supplied.
+
+
+---
+
+## 2026-09-29 — XSP historical-data / backtest-engine checkpoint
+
+**Principal instruction:** persist the current XSP research state while the historical pull continues.
+
+The XSP study has reached a clean methodological checkpoint. Historical-data acquisition is now using ThetaData as a research/replay source while preserving the distinction between live operational evidence and historical point-in-time evidence. No provider migration has been decided.
+
+Canonical engine corrections now enforce a strict [40,50]-DTE entry window, 50%-target fills at the actual limit price rather than opportunistic sampled improvement, exclusion of incomplete end-of-sample positions from realized P&L, and a hard $92,000 aggregate-BPR ceiling for both one- and two-entry/day cases. Conservative execution is 2 cents per leg per side. The actor reports 13 passing unit tests, including targeted tests for these boundaries.
+
+ThetaData coverage is being established empirically rather than assumed from plan documentation. The first scan was returning XSP data in July 2024; the acquisition process is probing farther back before the full run.
+
+tastytrade Advanced Order screenshots also confirmed that a GTC 50%-profit bracket can represent the price-triggered half of the proposed lifecycle. The platform's default ~25% stop-loss bracket is **not** part of the canonical XSP hypothesis. The mandatory 21-DTE close remains a separate time-lifecycle responsibility.
+
+XND and MRUT were considered as mini-index analogues, but the Principal observed materially poorer chain completeness. Do not force instrument diversification where the mechanical selector cannot be expressed faithfully.
+
+**Authority boundary:** this remains PL-STRAT-01 research. No performance result exists yet; no strategy admission, provider migration, execution-policy ratification, or implementation authority is created by this checkpoint.
+
+**Resume point:** complete the historical pull, establish the true usable XSP coverage window, then run the fixed canonical study and inspect forced-21-DTE loss distribution, clustered cohort drawdown, monthly production, and capital utilization before changing the strategy.
