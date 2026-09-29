@@ -236,3 +236,37 @@ COPX membership, URA call-away, and undefined intervention/eligibility/no-write 
 ### Explicitly not authorized
 
 No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel inference; no raw gate editor; no new Recommendation enum; no retrospective intent equivalence; no policy defaults; no generic workflow, policy, predicate, or ontology engine.
+
+
+---
+
+## `PL-STRAT-01` Refinement — XSP defined-risk daily-cohort research and Sosnoff portfolio-factor pressure
+
+**Date:** September 29, 2026  
+**State:** RECONCILED exploration under existing `PL-STRAT-01`; no new `PL-*` identity; no strategy admission, implementation, or policy ratification.  
+**Session provenance:** `docs/research/session-artifacts/2026-09-29/conversation-record.md`
+
+### Refinement
+
+The Principal is exploring a bounded-risk XSP put-credit-spread hypothesis as a possible future strategy family distinct from Assignment-Centric Wheel v1. The canonical research specimen under study is approximately 45 DTE, short put selected by premium closest to $5, long put exactly 20 index points lower, 50% profit close, mandatory 21-DTE close, and systematic daily cohorts (one/day and two/day capacity cases under study). A separate empirical backtest is intended to determine whether small target winners survive the distribution of forced 21-DTE losses after realistic fills/costs and overlapping-cohort stress.
+
+Tom Sosnoff's “11 Boring Trading Strategies” transcript was reviewed as **practitioner hypothesis pressure**, not policy authority. Two independent Codex reviews materially sharpened the research framing:
+
+- individually bounded spreads can still create one highly correlated broad-index portfolio exposure;
+- buying-power capacity is not an allocation objective; NAV-at-risk and liquidity/stress reserve must be considered first;
+- the $5 premium rule does not normalize delta/moneyness/risk compensation across regimes;
+- strategy-name diversity is not risk-factor diversity; many of Sosnoff's structures are variations on short volatility plus directional bias;
+- short call spreads are a legitimate later research question because they can add bounded negative delta, but mechanically combining them with repeated put spreads may create a staggered iron-condor-like short-gamma/short-volatility book rather than independent diversification;
+- no second strategy from the reviewed eleven is currently established as both genuinely orthogonal and bounded-risk under deterministic Wheelwright policy.
+
+### Reconciliation disposition
+
+- **Canonical identity:** retain under existing `PL-STRAT-01`; no new backlog identity warranted.
+- **Strategic disposition:** reinforces existing `LVT-BET-STRATEGIES` research pressure; no new Bet and no `docs/roadmap.md` direction change.
+- **Architectural disposition:** reinforces existing AR3/AR4 portfolio Alternative/consequence pressure and account-level risk needs; no new architecture direction or ADR is established by this exploration.
+- **Evidence boundary:** Tom's transcript statements, tastytrade product affordances, Codex option-economic inference, and the pending Muse backtest remain distinct evidence classes. No transcript preference or backtest target may be silently promoted into Wheelwright policy.
+- **Research order:** validate/falsify the standalone XSP put engine first; then robustness/capacity/account stress under a predeclared risk/liquidity budget; only then compare a bounded negative-delta sleeve against simpler cash/fewer-put comparators at equal gross-risk budgets.
+
+### Explicitly not authorized
+
+No production strategy admission; no XSP implementation; no daily deployment count; no portfolio NAV-at-risk threshold; no call-spread sleeve; no iron-condor/butterfly/strangle implementation; no automatic tastytrade integration; no use of Tom Sosnoff's self-reported performance as empirical Wheelwright evidence.
