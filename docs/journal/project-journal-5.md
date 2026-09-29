@@ -1108,3 +1108,9 @@ Durable conclusions from the discussion and Codex reviews:
 - Research sequence: first falsify the standalone XSP put engine with realistic fills, costs, overlapping cohorts, 21-DTE exits, and account-level stress; next test robustness/capacity under a predeclared NAV-risk/liquidity budget; only then test any negative-delta sleeve against simpler comparators such as fewer puts plus cash at equal gross-risk budgets. Do not run an eleven-strategy tournament yet.
 
 The complete conversational record and the two Principal-provided source artifacts are intended to be preserved with this workstream. Where exact earlier chat turns had already been compacted in the model context, the record must preserve the available structured summary and label that limitation rather than fabricate verbatim text.
+
+
+**Durable session artifacts:**
+- `docs/research/session-artifacts/2026-09-29/conversation-record.md` — complete available conversation state, with explicit compacted-history limitation.
+- `docs/research/session-artifacts/2026-09-29/github-url.md` — Principal-provided repository URL artifact.
+- `docs/research/session-artifacts/2026-09-29/kiro-op-model.md` — Principal-provided Kiro operating-model artifact, preserved verbatim as supplied.
