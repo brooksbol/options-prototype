@@ -524,3 +524,63 @@ Important epistemic boundary: the expected ThetaData coverage window written in 
 - Historical acquisition is still running; no performance conclusion exists yet.
 - Do not modify the engine merely to fill waiting time unless the data pull exposes a concrete defect.
 - Next evidence: actual earliest continuous XSP coverage, completed pull, then measured canonical results—especially the `forced_21dte` loss distribution and clustered cohort drawdowns.
+
+
+---
+
+# G. 2026-09-29 late-afternoon snapshot — XSP historical results received; independent audit pending
+
+## G1. Muse historical-results report received
+
+The Principal supplied Muse’s completed report, **“XSP Put-Credit-Spread Backtest — Historical Results”** (study date 2026-09-29). The report states that ThetaData free-tier XSP EOD coverage was obtained from 2023-06-01 through 2026-09-28 and that the frozen canonical strategy was run without parameter optimization.
+
+Reported canonical Scenario A:
+- 859 reported sample days; 546 entries; 537 completed; 9 incomplete.
+- 314 target exits (58.5%); 223 forced exits (41.5%).
+- 69.1% profitable completed trades.
+- Net P&L **-$21,593**; average month **-$540**; median month **+$415**; 65% profitable months.
+- Reported annualized return on fixed $92,000: **-7.1%**.
+- Profit factor **0.61**.
+- Reported max drawdown **-$33,009 (-35.9%)**.
+- Average target winner **+$98.41**; average losing forced exit **-$331.30**; one average losing forced exit therefore erased about **3.37 average target winners**.
+- Gross losing forced exits were reported as **178% of gross target profits**.
+- Losses clustered in cohorts; reported examples include Mar 2025, Aug 2024, Apr 2024, and Mar 2026.
+- Peak reported BPR was $33,808 (36.8% of $92,000), with at most 18 simultaneous spreads.
+- Two entries/day reportedly scaled the loss approximately linearly rather than diversifying it.
+
+Execution sensitivity is material: Muse reports **+$18,096** under optimistic midpoint fills versus **-$21,593** under bid/ask execution, a $39,689 sign-changing swing. The report also states that an April 2025 forced exit crossed a severely dislocated quoted market and modeled a $23.01 closing debit on a nominally $20-wide spread.
+
+The report also found that the literal “daily” canonical rule was enterable on only 63.5% of reported days. A major cause was the absence of the exact short-minus-20 long strike on 212 otherwise-valid entry days. A nearest-listed-long sensitivity increased entries but worsened reported P&L.
+
+## G2. Epistemic status changed from “pending result” to “reported adverse result, unverified”
+
+The completed report is useful adverse evidence, but it is **not yet treated as independently validated evidence**. A separate read-only audit identified four bounded questions that must be resolved against Muse’s code, raw chains, timestamps, and trade outputs before the result can drive Wheelwright strategy or capital authority:
+
+1. **Calendar reconciliation.** The report labels 859 observations “trading days” and says all weekdays are present except nine market holidays. The date-range arithmetic/market calendar must be independently reconciled.
+2. **Same-day EOD selection/execution semantics.** The report selects the contract from an EOD chain and models entry using that same day’s quotes. The raw timestamps and code must establish whether this represents a legitimate executable protocol or introduces look-ahead.
+3. **Forced-close debit greater than spread width.** The $23.01 modeled close on a $20-wide spread may be mechanically possible when independently crossing badly dislocated leg quotes before expiration, but it exposes a policy tension: a mandatory 21-DTE close does not guarantee the contractual terminal width as the realized exit cap. The execution model and intended live order semantics require audit.
+4. **Portfolio drawdown methodology.** The report’s -35.9% drawdown must be checked against true daily mark-to-market equity for all overlapping open positions, not merely realized P&L. With up to 18 simultaneous spreads, realized-only drawdown could understate economic drawdown.
+
+The audit should trace the complete evidence path:
+**calendar -> raw ThetaData timestamps/quotes -> contract selection -> entry execution -> lifecycle execution -> daily portfolio valuation -> reported statistics.**
+
+## G3. No optimization authorized
+
+Do **not** respond to the adverse result by tuning premium target, width, DTE, profit target, or exit age against this sample. The canonical hypothesis remains frozen while validation is pending. Execution-realism analysis is permissible as validation of the existing experiment, not as parameter optimization.
+
+## G4. tastytrade curriculum observation
+
+The Principal is concurrently working through tastytrade’s nine-course “All About Options” curriculum. The completed introductory material places unusually strong emphasis on **intrinsic versus extrinsic value**, and extrinsic value is also prominent in the tastytrade trading UI.
+
+Research interpretation only: for the normally OTM short put selected by the canonical ~$5-premium rule, the premium is essentially extrinsic value. Thus the rule can be viewed economically as selecting roughly a fixed amount of extrinsic value to sell, while **not** fixing delta, moneyness, strike distance, implied volatility, or risk compensation across regimes. Do not change the canonical selector from premium to an “extrinsic” UI field without a separate decision.
+
+The curriculum sequence observed by the Principal is: Options Foundations; Building an Options Strategy; Opening an Options Strategy; Placing Options Trades; Managing an Options Strategy; Bullish Options Strategies; Bearish Options Strategies; Neutral Options Strategies; Options Greeks. Preserve a distinction among tastytrade’s official education, Sosnoff practitioner claims, and empirical historical evidence.
+
+## G5. Current state / resume point
+
+- Historical acquisition and Muse’s first canonical run are complete enough to produce a report.
+- The report is adverse but **unverified**.
+- XSP remains research under PL-STRAT-01.
+- No Wheelwright authority, strategy admission, capital allocation, provider migration, or execution policy changes as a consequence of the report.
+- Muse’s local artifacts are reported at `~/workspace/xsp-study`: engine/code, raw ThetaData parquet chains, scenario outputs, and unit tests. They were not independently accessible to the auditing actor at this checkpoint.
+- **Next authorized action:** independently audit the backtest artifacts when accessible, with special attention to calendar correctness, EOD timestamp/execution semantics, forced-close pricing beyond width, and true mark-to-market portfolio drawdown.
