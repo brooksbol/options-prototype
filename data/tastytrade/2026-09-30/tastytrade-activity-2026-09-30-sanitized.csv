@@ -1,0 +1,41 @@
+Symbol,Status,MarketOrFill,Price,TIF,Time,TimeStampAtType,OrderRef,Description
+EWZ,Filled,0.42 cr,0.42 cr,Day,10:52:35a,Fill,EWZ-ENTRY,"1 Nov 20 51d 31 Put BTO
+-1 Nov 20 51d 32 Put STO
+-1 Nov 20 51d 42 Call STO
+1 Nov 20 51d 43 Call BTO"
+XLE,Filled,0.18 cr,0.18 cr,Day,10:49:08a,Fill,XLE-ENTRY-CHAIN,"1 Oct 16 16d 59 Put BTO
+-1 Oct 16 16d 59.5 Put STO
+-1 Oct 16 16d 64.5 Call STO
+1 Oct 16 16d 65 Call BTO"
+XLE,Working,,STP 0.24 LMT 0.24 db,GTC,10:49:07a,,XLE-STOP-CHAIN,"-1 Oct 16 16d 59 Put STC
+1 Oct 16 16d 59.5 Put BTC
+1 Oct 16 16d 64.5 Call BTC
+-1 Oct 16 16d 65 Call STC"
+XLE,Working,,0.09 db,GTC,10:49:07a,,XLE-PROFIT-CHAIN,"-1 Oct 16 16d 59 Put STC
+1 Oct 16 16d 59.5 Put BTC
+1 Oct 16 16d 64.5 Call BTC
+-1 Oct 16 16d 65 Call STC"
+XLE,Canceled,,0.43 cr,Day,10:00:33a,Out,XLE-CANCELED-37D-ENTRY,"1 Nov 6 37d 56.5 Put BTO
+-1 Nov 6 37d 57 Put STO
+-1 Nov 6 37d 67 Call STO
+1 Nov 6 37d 67.5 Call BTO"
+XLE,Canceled,,STP 0.54 LMT 0.54 db,GTC,9:58:21a,Out,XLE-CANCELED-37D-STOP,"-1 Nov 6 37d 56.5 Put STC
+1 Nov 6 37d 57 Put BTC
+1 Nov 6 37d 67 Call BTC
+-1 Nov 6 37d 67.5 Call STC"
+XLE,Canceled,,0.21 db,GTC,9:58:15a,Out,XLE-CANCELED-37D-PROFIT,"-1 Nov 6 37d 56.5 Put STC
+1 Nov 6 37d 57 Put BTC
+1 Nov 6 37d 67 Call BTC
+-1 Nov 6 37d 67.5 Call STC"
+DRAM,Rejected,Complex order structure is invalid,STP 0.44 LMT 0.59 db,GTC,9:57:33a,,DRAM-REJECTED-STOP,"-1 Nov 6 37d 59.5 Put STC
+1 Nov 6 37d 60 Put BTC
+1 Nov 6 37d 61 Call BTC
+-1 Nov 6 37d 61.5 Call STC"
+DRAM,Rejected,Complex order structure is invalid,0.17 db,GTC,9:57:33a,,DRAM-REJECTED-PROFIT,"-1 Nov 6 37d 59.5 Put STC
+1 Nov 6 37d 60 Put BTC
+1 Nov 6 37d 61 Call BTC
+-1 Nov 6 37d 61.5 Call STC"
+DRAM,Rejected,Complex order structure is invalid,0.35 cr,Day,9:57:33a,,DRAM-REJECTED-ENTRY,"1 Nov 6 37d 50 Put BTO
+-1 Nov 6 37d 51 Put STO
+-1 Nov 6 37d 70 Call STO
+1 Nov 6 37d 71 Call BTO"
