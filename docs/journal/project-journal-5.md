@@ -1154,3 +1154,27 @@ A separate read-only audit therefore classifies the report as **useful adverse r
 **Related curriculum observation:** tastytrade’s introductory curriculum and UI put intrinsic/extrinsic value front and center. For the normally OTM ~$5 short-put selector, this provides a useful economic interpretation—roughly fixed extrinsic premium sold—but does not make delta, moneyness, IV, or risk compensation constant and does not change the canonical selector.
 
 **Resume point:** audit Muse’s `~/workspace/xsp-study` artifacts end-to-end: calendar -> raw ThetaData timestamps/quotes -> selection -> entry execution -> lifecycle execution -> daily MTM portfolio equity -> statistics. Preserve the distinction between Muse-reported results and independently reproduced results.
+
+
+---
+
+## 2026-09-30 — tastytrade multi-leg operator-learning session preserved (ChatGPT)
+
+**Actor:** ChatGPT (Principal-facing reasoning/synthesis).
+**Mode:** Principal-requested project-memory persistence of empirical operator learning; no strategy admission, Product-policy ratification, or implementation authorization.
+**Scope:** tastytrade iron-condor construction, transient complex-order validation behavior, post-fill bracket management, and sanitized evidence preservation.
+
+The Principal used a deliberately tiny tastytrade account to learn the platform's multi-leg workflow. The session established a practical operator sequence: clear the ticket → select symbol → Table → deliberately select expiration/DTE → generate Iron Condor → Curve → use Width expand until the desired P50/POP region → inspect economics/buying power → Review & Send → Submit when validation succeeds → verify working exits after fill.
+
+Two real fills were preserved as learning specimens: EWZ at 51 DTE (+31P/-32P/-42C/+43C, $0.42 credit) and XLE at 16 DTE (+59P/-59.5P/-64.5C/+65C, $0.18 credit). The XLE DTE was an operator-selection mistake during experimentation, useful mainly as a reminder that expiration selection needs an explicit visual checkpoint.
+
+The session also resolved an important false lead. `Complex order structure is invalid` appeared repeatedly and on both Desktop and Web, but successful later orders demonstrated that bracketed four-leg iron condors are not categorically unsupported. XLE filled with working profit and stop children; EWZ filled without children and then accepted a post-fill bracket after selecting all four position legs and choosing **Actions → Advanced Order → Bracket**. The exact cause of the intermittent validation failure remains unknown; discarded explanations must not be promoted into broker capability facts.
+
+Durable specialized record: `docs/discovery/tastytrade-iron-condor-operator-learning-2026-09-30.md`.
+
+Sanitized evidence snapshots (public-repository-safe: account and broker order identifiers removed/replaced):
+
+- `data/tastytrade/2026-09-30/tastytrade-positions-2026-09-30-sanitized.csv`
+- `data/tastytrade/2026-09-30/tastytrade-activity-2026-09-30-sanitized.csv`
+
+The activity export was taken before the later post-fill EWZ bracket was added, so the specialized record preserves that subsequent UI observation separately.
