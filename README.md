@@ -53,6 +53,29 @@ Kiro steering points to the same active evidence checkpoint via `.kiro/steering/
 
 # Local Development
 
+## tastytrade production Hello World (exploratory)
+
+This standalone Node command authenticates with tastytrade **production** OAuth and lists the accounts available to that customer. It only calls `POST /oauth/token` and `GET /customers/me/accounts` at `https://api.tastyworks.com`; it has no order path or environment switch. It does not use the Wheelwright evidence service or change trading policy.
+
+Supply your **production** OAuth credentials through the shell environment. A local root `.env` is Git-ignored. Create it privately with these three names and your values, then run:
+
+```bash
+chmod 600 .env
+node --env-file=.env scripts/tastytrade-hello.mjs
+```
+
+The file should contain `TASTYTRADE_CLIENT_ID=`, `TASTYTRADE_CLIENT_SECRET=`, and `TASTYTRADE_REFRESH_TOKEN=` with the production values after each `=`. Do not commit, share, or print the file. Node 20.6+ supports `--env-file`.
+
+Expected output shape (illustrative account values):
+
+```text
+tastytrade production: authenticated
+accounts: 1
+5WX01234  Individual  owner
+```
+
+Run its credential-free unit tests with `node --test scripts/tastytrade-hello.test.mjs`. See the [current tastytrade OAuth guide](https://developer.tastytrade.com/docs/authentication/oauth2/) for credential setup. Sandbox and production OAuth credentials are separate.
+
 ## Quick Start
 
 ```bash
