@@ -53,18 +53,25 @@ Kiro steering points to the same active evidence checkpoint via `.kiro/steering/
 
 # Local Development
 
-## tastytrade production Hello World (exploratory)
+## tastytrade read-only CLI (exploratory)
 
-This standalone Node command authenticates with tastytrade **production** OAuth and lists the accounts available to that customer. It only calls `POST /oauth/token` and `GET /customers/me/accounts` at `https://api.tastyworks.com`; it has no order path or environment switch. It does not use the Wheelwright evidence service or change trading policy.
+`tt` is a small, **read-only production** tastytrade utility. It lists accessible accounts and shows positions alongside broker complex orders for one account. It only exchanges OAuth credentials and calls the allowlisted account, position, and complex-order GET endpoints at `https://api.tastyworks.com`. It cannot submit, edit, or cancel an order, and it does not use the Wheelwright evidence service or change trading policy. Positions and complex-order child statuses are separate broker facts, not a claim that a position is protected.
 
-Supply your **production** OAuth credentials through the shell environment. A local root `.env` is Git-ignored. Create it privately with these three names and your values, then run:
+From the repository root, install the thin shell launcher once on your local PATH (this machine already has `~/.local/bin` on PATH):
 
 ```bash
-chmod 600 .env
-node --env-file=.env scripts/tastytrade-hello.mjs
+ln -s "$(pwd)/scripts/tt" "$HOME/.local/bin/tt"
 ```
 
-The file should contain `TASTYTRADE_CLIENT_ID=`, `TASTYTRADE_CLIENT_SECRET=`, and `TASTYTRADE_REFRESH_TOKEN=` with the production values after each `=`. Do not commit, share, or print the file. Node 20.6+ supports `--env-file`.
+Supply **production** OAuth credentials through exported environment variables or the Git-ignored root `.env`. The file may contain `TASTYTRADE_CLIENT_ID=`, `TASTYTRADE_CLIENT_SECRET=`, and `TASTYTRADE_REFRESH_TOKEN=` with the production values after each `=`. Keep it private (`chmod 600 .env`); do not commit, share, or print it. `tt` reads only these three values after validating a broker command. Exported values take precedence over `.env` values. Help and invalid commands do not read credentials or access the network.
+
+```bash
+tt
+tt --help
+tt accounts
+tt positions
+tt positions --account 5WX01234  # Use this form if you have multiple accounts
+```
 
 Expected output shape (illustrative account values):
 
@@ -74,7 +81,7 @@ accounts: 1
 5WX01234  Individual  owner
 ```
 
-Run its credential-free unit tests with `node --test scripts/tastytrade-hello.test.mjs`. See the [current tastytrade OAuth guide](https://developer.tastytrade.com/docs/authentication/oauth2/) for credential setup. Sandbox and production OAuth credentials are separate.
+`tt positions` selects the sole accessible account automatically, or requires `--account` when there are multiple accounts. It shows positions and each returned complex order and child status, with explicit complex-order pagination completeness. Zero results are explicit; incomplete retrieval exits nonzero. Run credential-free unit tests with `node --test scripts/tastytrade.test.mjs`. See the [current tastytrade OAuth guide](https://developer.tastytrade.com/docs/authentication/oauth2/) for credential setup. Sandbox and production OAuth credentials are separate.
 
 ## Quick Start
 
