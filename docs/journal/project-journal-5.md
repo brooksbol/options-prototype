@@ -1178,3 +1178,47 @@ Sanitized evidence snapshots (public-repository-safe: account and broker order i
 - `data/tastytrade/2026-09-30/tastytrade-activity-2026-09-30-sanitized.csv`
 
 The activity export was taken before the later post-fill EWZ bracket was added, so the specialized record preserves that subsequent UI observation separately.
+
+---
+
+## 2026-09-30 — tt product boundary, Ten-Second Read, and a corrected architectural review (Kiro)
+
+**Actor:** Kiro (Implementation Engineer), reconciling a review correction with repository authority.
+**Mode:** Project-memory persistence of product/architectural context and a review self-correction; no strategy admission, Product-policy ratification, or implementation authorization. SYNC at write: `5318bfe`.
+**Scope:** Why `tt` exists, the boundary between tastytrade / Wheelwright / `tt`, the Ten-Second Read product concept, and a corrected review of the `tt live` work (`aed56ef`, `5318bfe`).
+
+### Why this is preserved
+
+A read-only review of `tt live` raised an architectural concern — that `tt` reading live option quotes was "the first place this tooling pulls market data outside the backend" and might need reconciliation against Wheelwright's single-acquisition-authority invariant. **That concern was a category error and is recorded here so a cold-start actor does not rediscover it.** The single-acquisition-authority invariant governs *Wheelwright's* evidence appliance. `tt` is not a Wheelwright evidence path; it never claimed to be a second acquisition authority, so there is no split-brain risk to reconcile.
+
+### Product boundary (the missing "why")
+
+- **tastytrade is the trading workstation.** Chains, curves, order construction, inspection, adjustment, submission, and broker-native state live there.
+- **Wheelwright is decision support.** It does not become a trading workstation.
+- **`tt` is the tastytrade / API companion and mental-model bridge.** Overlap is allowed. Reimplementing the broker workstation is an explicit non-goal. Guardrail: if the tooling is rebuilding tastytrade, something has gone wrong; if it is translating between tastytrade evidence and the operator's decision/management model, it is in the right territory.
+- **`tt`'s two views are deliberately different shapes.** `tt positions` is broker/evidence-shaped. `tt live` is operator-shaped and *translates* evidence into the Ten-Second Read — it is not a new source of trading authority.
+
+### Ten-Second Read vocabulary (as shipped)
+
+- **GREEN/RED is live-state vocabulary** (economically better/worse than entry under current valuation; since-entry, not P/L Day). **Winner/loser is terminal vocabulary** reserved for completed trades.
+- **OBJECTIVE** is the *managed* objective, not the theoretical expiration maximum. GREEN may show progress-to-target; RED need not be a symmetric percentage (an "off target by …" gap can be more useful).
+- Routine OCO/OTOCO plumbing stays out of the view unless it materially changes the story; stale quotes suppress economic color; ambiguous evidence fails closed rather than fabricating a story.
+- **"Indicative" was deliberately removed from the operator-facing render.** The concept is preserved in documentation and in fail-closed honesty constraints (and an internal error string), but peppering the ten-second view with "indicative" was noise against the product goal. Technically-correct hedging that degrades the read is a cost, not a virtue, in this surface.
+
+### Review correction, grounded in evidence
+
+- The **multi-trade concern was already empirically falsified** before it was raised: the production run rendered two simultaneously recognized clean trades, **EWZ and XLE**, together. The per-trade grouping (by underlying + expiry) and leg-scoped exit matching resolve independently; the live run confirms it.
+- The **midpoint note** survives only in weak form: `tt live` explicitly presents a tastytrade-derived current valuation; it does not establish Wheelwright's canonical historical midpoint semantics, so there is no silent divergence from WW convention.
+- The review's confirmed-good properties stand: read-only, fail-closed recognition, fill-derived entry economics, quote-derived current economics, stale-data suppression, no protection claim, credential safety, clean TSV, masked account.
+
+### Development philosophy (recorded so it is not re-litigated)
+
+Intentional **clean happy-path first, learn from real use.** Partial closes, scale-ins, rolls, assignment, adjusted/reused contracts, ambiguous grouping, calendars/diagonals, covered-call provenance, and exhaustive structure reconstruction are **known deferred cases**, not prerequisites for making the clean case useful.
+
+### Operating context ("why now")
+
+tastytrade is no longer a toy fallback. Fidelity has one final Tier-2 attempt pending; at the local Fidelity meeting the Principal was advised that if it fails, **options trading** (not the entire Fidelity relationship) should move to tastytrade. This is why learning the tastytrade API and building a companion around it has practical near-term value. This note is operating context; it authorizes no implementation and ratifies no strategy.
+
+### Authority
+
+Review correction and context preservation only. No code change, no architecture reopened, no Product policy ratified. The `tt live` work is already accepted and on `main` (`aed56ef`, `5318bfe`).
