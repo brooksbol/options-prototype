@@ -1,0 +1,14 @@
+{
+  "schema": "ww-specimen-selection-pilot-artifact/v0",
+  "observation_date_utc": "2026-10-01",
+  "pass_minus_one_input_sha": "74ab143d73313cd664fa30760b09bb7173217671",
+  "pass_zero_method_sha": "bf7bf93387f33ba92eec94af306320159b0850bb",
+  "scope": "Eight underlying contrast panel plus one TSLL supplemental chain; 33 read-only Tradier production requests; not a population census or specimen rule.",
+  "archive": {
+    "path": "evidence.tar.gz",
+    "bytes": 309066,
+    "sha256": "7fa69cd3dec0a32b5dd4ec3ee9a805c781088a2c7a9019f7cd6d80e387e6bfdc"
+  },
+  "raw_responses": 33,
+  "http_200": 33
+}
