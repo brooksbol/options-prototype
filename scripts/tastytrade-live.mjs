@@ -7,7 +7,7 @@ function decimal(value) {
       !/^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(String(value))) return NaN;
   return Number(value);
 }
-function price(value) { return value.toFixed(2); }
+function midpointPrice(value) { return value.toFixed(3).replace(/0$/, ""); }
 export function maskAccount(account) {
   if (typeof account !== "string" || !/^[A-Za-z0-9]{4,}$/.test(account)) fail("account identity malformed");
   return `${"X".repeat(account.length - 4)}${account.slice(-4)}`;
@@ -153,7 +153,16 @@ function quoteAge(milliseconds) {
   return minutes < 60 ? `${minutes}m` : `${Math.round(minutes / 60)}h`;
 }
 
-export function renderLive({ account, holdings, orders, complexOrders, quotes, now, color = false, format = "table" }) {
+function quoteLabel(market, now, sessionCloseAt) {
+  const close = typeof sessionCloseAt === "string" ? Date.parse(sessionCloseAt) : NaN;
+  // EOD means every leg was quoted after the broker's session close, not merely that its quote is old.
+  return Number.isFinite(close) && dayInNewYork(now) === dayInNewYork(new Date(close)) &&
+    now.getTime() >= close && market.oldest >= close ?
+    "EOD" : quoteAge(now.getTime() - market.oldest);
+}
+
+export function renderLive({ account, holdings, orders, complexOrders, quotes, now,
+  sessionCloseAt, color = false, format = "table" }) {
   if (!Array.isArray(holdings) || !Array.isArray(orders) || !Array.isArray(complexOrders) ||
       !Array.isArray(quotes) || !(now instanceof Date) || !Number.isFinite(now.getTime()) ||
       !["table", "tsv"].includes(format)) {
@@ -188,23 +197,27 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, n
     const days = Math.round((dayInNewYork(now) - dayInNewYork(new Date(openedAt))) / 86_400_000);
     if (openedAt > now.getTime() || days < 0) fail("opening fill time is after the observation");
     const dte = Math.max(0, Math.round((dayInNewYork(new Date(trade.expiry)) - dayInNewYork(now)) / 86_400_000));
-    let state; let sinceEntry; let objective;
+    let state; let sinceEntry;
     if (market.stale) {
-      state = "UNKNOWN"; sinceEntry = "—"; objective = `target (${price(target)}); quotes stale`;
+      state = "UNKNOWN"; sinceEntry = "—";
     } else {
       const difference = credit - market.closeDebit;
       if (Math.abs(difference) < 0.000001) {
-        state = "FLAT"; sinceEntry = "$0"; objective = `target (${price(target)})`;
+        state = "FLAT"; sinceEntry = "$0";
       }
       else if (difference > 0) {
         state = "GREEN"; sinceEntry = signedDollars(difference * trade.multiplier * trade.quantity);
-        objective = market.closeDebit <= target ? `target reached (${price(target)}); still live` :
-          `${Math.round(100 * difference / (credit - target))}% to target (${price(target)})`;
       } else {
         state = "RED"; sinceEntry = signedDollars(difference * trade.multiplier * trade.quantity);
-        objective = `off target (${price(target)}) by ${price(market.closeDebit - target)}`;
       }
     }
+    const gap = market.closeDebit - target;
+    const progress = market.stale ? "quotes stale" : Math.abs(gap) < 0.000001 ?
+      "at target; still held" : gap < 0 ?
+        `${midpointPrice(-gap)} below target; still held` : `${midpointPrice(gap)} above target`;
+    const targetClose = `${Math.round(100 * (credit - target) / credit)}% @ ${midpointPrice(target)}; exp ${
+      monthDayInNewYork(new Date(trade.expiry))}`;
+    const opened = `${monthDayInNewYork(new Date(openedAt))} (${days} ${days === 1 ? "day" : "days"})`;
     const transition = new Set(["Contingent", "Cancel Requested", "Replace Requested"]);
     let note = "";
     if (transition.has(exit.target.status) || transition.has(exit.stop.status)) {
@@ -213,12 +226,12 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, n
     const dayGain = market.stale || market.dayGain === null ? "—" :
       Math.abs(market.dayGain) < 0.005 ? "$0" : signedDollars(market.dayGain);
     rows.push([accountLabel, trade.symbol, trade.label, String(trade.quantity), dayGain, state, sinceEntry,
-      objective, monthDayInNewYork(new Date(openedAt)), String(days), String(dte),
-      quoteAge(now.getTime() - market.oldest), note]);
+      `${midpointPrice(credit)} CR`, market.stale ? "—" : midpointPrice(market.closeDebit), targetClose,
+      progress, opened, String(dte), quoteLabel(market, now, sessionCloseAt), note]);
   }
   const headers = ["ACCOUNT", "SYMBOL", "STRUCTURE", "QTY", "P/L DAY", "STATE", "TOTAL G/L",
-    "OBJECTIVE", "OPENED", "DAYS", "DTE", "QUOTE"];
-  if (rows.some((row) => row[12])) headers.push("NOTE");
+    "OPEN@", "CLOSE@", "TARGET CLOSE@", "PROGRESS", "OPENED", "DTE", "QUOTE"];
+  if (rows.some((row) => row[14])) headers.push("NOTE");
   if (format === "tsv") {
     return [headers, ...rows.map((row) => row.slice(0, headers.length))].map((row) => row.join("\t")).join("\n");
   }
@@ -230,8 +243,8 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, n
     for (const row of rows) {
       const prefix = columns(row, 0, 4);
       const day = columns(row, 4, 5);
-      const economics = columns(row, 5, 8);
-      const suffix = columns(row, 8, headers.length);
+      const economics = columns(row, 5, 7);
+      const suffix = columns(row, 7, headers.length);
       const dayState = row[4].startsWith("+") ? "GREEN" : row[4].startsWith("−") ? "RED" : null;
       lines.push(`${prefix}  ${dayState ? colorSegment(dayState, day, color) : day}  ${
         ["GREEN", "RED"].includes(row[5]) ? colorSegment(row[5], economics, color) : economics

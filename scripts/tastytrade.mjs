@@ -146,6 +146,7 @@ async function authenticate(fetchImpl, values) {
 function brokerGet(fetchImpl, resource, account, token) {
   let path;
   if (resource === "accounts") path = "/customers/me/accounts";
+  else if (resource === "equity-session") path = "/market-time/equities/sessions/current";
   else if (["positions", "complex-orders", "orders"].includes(resource) && /^[A-Za-z0-9]+$/.test(account)) {
     path = `/accounts/${encodeURIComponent(account)}/${resource}`;
   } else if (resource === "equity-option-quotes") {
@@ -158,7 +159,8 @@ function brokerGet(fetchImpl, resource, account, token) {
         `${path}?${argument.map((symbol) => `equity-option[]=${encodeURIComponent(symbol)}`).join("&")}` :
       resource === "equity-option-quotes" ? (() => { throw new CliError("Unsupported quote request"); })() : path,
     { method: "GET", headers: { Authorization: `Bearer ${token}` } },
-    resource === "accounts" ? "Accounts" : resource === "positions" ? "Positions" :
+    resource === "accounts" ? "Accounts" : resource === "equity-session" ? "Equity session" :
+      resource === "positions" ? "Positions" :
       resource === "orders" ? "Orders" : resource === "equity-option-quotes" ? "Quotes" : "Complex orders");
 }
 
@@ -346,8 +348,14 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
           const symbols = [...new Set(holdings.map((item) => item.symbol))];
           if (symbols.length > 100) throw new CliError("Live: more than 100 held symbols; use tt positions");
           const quotes = await brokerGet(fetchImpl, "equity-option-quotes", undefined, token)(symbols);
+          // Session context enriches the quote label; a failed session read leaves its age visible.
+          let sessionCloseAt;
+          try {
+            const session = await brokerGet(fetchImpl, "equity-session", undefined, token)();
+            sessionCloseAt = session?.data?.["close-at"];
+          } catch { /* Quote age remains available. */ }
           out(renderLive({ account, holdings, orders: orders.items, complexOrders: complex.items,
-            quotes: quotes?.data?.items, now: now(),
+            quotes: quotes?.data?.items, now: now(), sessionCloseAt,
             color: Boolean(!command.tsv && stdoutIsTTY && !Object.hasOwn(env, "NO_COLOR")),
             format: command.tsv ? "tsv" : "table" }));
         }
