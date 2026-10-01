@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-01T20:36:46.277Z",
+    "generatedAt": "2026-10-01T20:43:55.670Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -1841,7 +1841,7 @@
       "id": "PL-RESEARCH-01",
       "name": "Universe Discovery",
       "section": "Active Research",
-      "description": "**Pass −1 v0 frozen by Principal decision (2026-10-01):** dated 2026-09-30 OCC opportunity population and 2026-10-01 Tradier identity-evidence snapshot; 6,072 underlyings and 6,381 ordinary option-class rows, both permanently retained. All exact underlying requests returned HTTP 200 and all raw bodies were hash-verified. Explicit aliases and unresolved identity states remain in the denominator. This is a research evidence snapshot, **not** an eligibility universe, exclusion policy, or permanent optionability classification. The earlier paid-tier enumeration blocker is resolved by the OCC/Cboe enumeration-source experiment; subsequent transformations remain separate research. **Pass 0 v1 method adopted (2026-10-01):** carry all 6,381 class rows into a dated, class-specific Tradier put-geometry census; preserve unresolved identities and acquisition states, exact roots, expirations, strikes, and raw provenance. DTE-window availability is an observation, not a structural veto; no specimen, eligibility, or market-quality decision occurs here. Next research action: bounded specimen-selection pilot before a full-population Pass 0 crawl.",
+      "description": "**Pass −1 v0 frozen by Principal decision (2026-10-01):** dated 2026-09-30 OCC opportunity population and 2026-10-01 Tradier identity-evidence snapshot; 6,072 underlyings and 6,381 ordinary option-class rows, both permanently retained. All exact underlying requests returned HTTP 200 and all raw bodies were hash-verified. Explicit aliases and unresolved identity states remain in the denominator. This is a research evidence snapshot, **not** an eligibility universe, exclusion policy, or permanent optionability classification. The earlier paid-tier enumeration blocker is resolved by the OCC/Cboe enumeration-source experiment; subsequent transformations remain separate research. **Pass 0 v1 method adopted (2026-10-01):** carry all 6,381 class rows into a dated, class-specific Tradier put-geometry census; preserve unresolved identities and acquisition states, exact roots, expirations, strikes, and raw provenance. DTE-window availability is an observation, not a structural veto; no specimen, eligibility, or market-quality decision occurs here. The first bounded specimen-selection pilot (2026-10-01; exploratory evidence) found that geometry alone cannot replay a price/volatility-scaled selector, `SPX`/`SPXW` can share an expiration while retaining distinct roots, and `TSLL1` needs separate deliverable authority; no unique specimen rule was adopted. Full-population Pass 0 acquisition remains downstream of a reference-evidence and selector decision.",
       "descriptionTruncated": false,
       "state": null,
       "sourceFile": "parking-lot.md",

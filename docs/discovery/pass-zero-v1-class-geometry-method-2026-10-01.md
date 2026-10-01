@@ -6,7 +6,7 @@
 
 **Input:** [Pass −1 v0](pass-minus-one-v0-occ-tradier-identity-snapshot-2026-10-01.md), frozen at `74ab143d73313cd664fa30760b09bb7173217671`.
 
-**Execution state:** Method adopted; no full-population Pass 0 acquisition has been run or authorized as the next action. The next research action is a bounded specimen-selection pilot.
+**Execution state at adoption:** Method adopted; no full-population Pass 0 acquisition had been run or authorized as the next action. The next research action was a bounded specimen-selection pilot. Its later evidence is recorded [separately](pass-one-specimen-selection-bounded-pilot-2026-10-01.md).
 
 ## Decision and stage boundary
 
