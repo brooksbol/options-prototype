@@ -4,7 +4,8 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { credentials, main, parseCommand, PRODUCTION_BASE_URL,
-  readComplexOrders, renderAccounts, renderComplexOrders, renderPositions } from "./tastytrade.mjs";
+  readComplexOrders, readOrders, renderAccounts, renderComplexOrders, renderPositions } from "./tastytrade.mjs";
+import { renderLive } from "./tastytrade-live.mjs";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const env = { TASTYTRADE_CLIENT_ID: "client-marker", TASTYTRADE_CLIENT_SECRET: "secret-marker",
@@ -23,9 +24,11 @@ const positions = { data: { items: [{ "account-number": "5WX01234", symbol: "XLE
 
 test("help and invalid arguments finish before credentials or HTTP", async () => {
   const helpCases = [[], ["--help"], ["-h"], ["help"], ["accounts", "--help"],
-    ["positions", "--help"]];
+    ["positions", "--help"], ["live", "--help"]];
   const invalidCases = [["wat"], ["accounts", "--json"], ["positions", "--json"],
-    ["positions", "--account"], ["positions", "--account", "../bad"], ["complex-orders"]];
+    ["positions", "--account"], ["positions", "--account", "../bad"], ["complex-orders"],
+    ["live", "--account"], ["live", "--json"], ["live", "--tsv", "--tsv"],
+    ["live", "--account", "5WX01234", "--account", "5WX01234"]];
   const never = () => { throw Error("credentials or network accessed"); };
   for (const args of helpCases) {
     const output = [];
@@ -40,6 +43,163 @@ test("help and invalid arguments finish before credentials or HTTP", async () =>
   assert.deepEqual(parseCommand(["positions", "--account", "5WX01234"]),
     { kind: "positions", account: "5WX01234" });
   assert.deepEqual(parseCommand(["positions"]), { kind: "positions" });
+  assert.deepEqual(parseCommand(["live"]), { kind: "live" });
+  assert.deepEqual(parseCommand(["live", "--tsv", "--account", "5WX01234"]),
+    { kind: "live", account: "5WX01234", tsv: true });
+});
+
+const sampleTrade = (underlying, expiry, strikes, fillPrices, mids, target, stop) => {
+  const symbols = strikes.map(([kind, strike]) =>
+    `${underlying}  ${expiry}${kind}${String(Math.round(strike * 1000)).padStart(8, "0")}`);
+  const directions = ["Long", "Short", "Short", "Long"];
+  const holdings = symbols.map((symbol, i) => ({ "account-number": "5WX01234", symbol,
+    "underlying-symbol": underlying, "instrument-type": "Equity Option", quantity: "1",
+    "quantity-direction": directions[i], multiplier: "100",
+    "expires-at": `20${expiry.slice(0, 2)}-${expiry.slice(2, 4)}-${expiry.slice(4, 6)}T21:00:00.000Z` }));
+  const legs = (opening) => symbols.map((symbol, i) => ({ symbol, quantity: "1",
+    action: opening ? (directions[i] === "Long" ? "Buy to Open" : "Sell to Open") :
+      (directions[i] === "Long" ? "Sell to Close" : "Buy to Close"),
+    ...(opening ? { fills: [{ quantity: "1", "fill-price": String(fillPrices[i]),
+      "filled-at": "2026-09-30T16:50:00.000Z" }] } : {}) }));
+  const opening = { id: `${underlying}-open`, status: "Filled", legs: legs(true) };
+  const closing = { id: `${underlying}-bracket`, type: "OCO", orders: [
+    { id: `${underlying}-target`, status: "Received", "order-type": "Limit", price: String(target),
+      "price-effect": "Debit", legs: legs(false) },
+    { id: `${underlying}-stop`, status: "Received", "order-type": "Stop Limit", price: String(stop),
+      "price-effect": "Debit", legs: legs(false) }] };
+  const quotes = symbols.map((symbol, i) => ({ symbol, bid: String(mids[i] - 0.01),
+    ask: String(mids[i] + 0.01), mid: String(mids[i]), "updated-at": "2026-10-01T00:00:00.000Z" }));
+  return { holdings, opening, closing, quotes };
+};
+
+const ewz = sampleTrade("EWZ", "261120", [["P", 31], ["P", 32], ["C", 42], ["C", 43]],
+  [0.52, 0.71, 1.11, 0.88], [0.45, 0.65, 0.75, 0.62], 0.21, 0.53);
+const xle = sampleTrade("XLE", "261016", [["P", 59], ["P", 59.5], ["C", 64.5], ["C", 65]],
+  [0.32, 0.40, 0.45, 0.35], [0.36, 0.50, 0.52, 0.35], 0.09, 0.24);
+const liveEvidence = { account: "5WX01234", holdings: [...ewz.holdings, ...xle.holdings],
+  orders: [ewz.opening, xle.opening, ...ewz.closing.orders, ...xle.closing.orders],
+  complexOrders: [ewz.closing, xle.closing],
+  quotes: [...ewz.quotes, ...xle.quotes], now: new Date("2026-10-01T02:00:00.000Z") };
+
+test("live summarizes two complete trades from fills and leg mids without historical order noise", () => {
+  const oldRejected = { id: "old", type: "OCO", orders: [{ ...ewz.closing.orders[0], status: "Rejected" }] };
+  const output = renderLive({ ...liveEvidence, complexOrders: [...liveEvidence.complexOrders, oldRejected] });
+  assert.match(output, /^\nACCOUNT\s+SYMBOL\s+STRUCTURE\s+QTY\s+STATE\s+TOTAL G\/L\s+OBJECTIVE\s+OPENED\s+DAYS\s+DTE\s+QUOTE/);
+  assert.match(output, /XXXX1234\s+EWZ\s+Iron Condor\s+1\s+GREEN\s+\+\$9\s+43% to target \(0\.21\)\s+09\/30\s+0\s+51\s+2h/);
+  assert.match(output, /XXXX1234\s+XLE\s+Iron Condor\s+1\s+RED\s+−\$13\s+off target \(0\.09\) by 0\.22\s+09\/30\s+0\s+16\s+2h/);
+  assert.match(output, /2h\n$/);
+  const [header, ewzRow, xleRow] = output.split("\n").slice(1, 4);
+  for (const [heading, ewzValue, xleValue] of [["ACCOUNT", "XXXX1234", "XXXX1234"],
+    ["SYMBOL", "EWZ", "XLE"], ["STRUCTURE", "Iron Condor", "Iron Condor"],
+    ["STATE", "GREEN", "RED"], ["TOTAL G/L", "+$9", "−$13"],
+    ["OBJECTIVE", "43% to target", "off target (0.09)"], ["OPENED", "09/30", "09/30"]]) {
+    assert.equal(ewzRow.indexOf(ewzValue), header.indexOf(heading));
+    assert.equal(xleRow.indexOf(xleValue), header.indexOf(heading));
+  }
+  assert.doesNotMatch(output, /exits received|exit states|Received/);
+  assert.doesNotMatch(output, /tastytrade production|live trades:|market quotes|5WX01234|indicative close|leg quotes:/);
+  assert.doesNotMatch(output, /Rejected|#old|protected|winner|loser/i);
+});
+
+test("live colors complete economic segments and returns to white before DTE", () => {
+  const plain = renderLive(liveEvidence);
+  const colored = renderLive({ ...liveEvidence, color: true });
+  assert.doesNotMatch(plain, /\x1b\[/);
+  assert.match(colored, /^\n\x1b\[37mACCOUNT/);
+  assert.match(colored, /\x1b\[32mGREEN\s+\+\$9\s+43% to target \(0\.21\)\s*\x1b\[37m\s+09\/30\s+0\s+51/);
+  assert.match(colored, /\x1b\[31mRED\s+−\$13\s+off target \(0\.09\) by 0\.22\s*\x1b\[37m\s+09\/30\s+0/);
+  assert.match(colored, /2h\x1b\[0m\n$/);
+  assert.equal(colored.replace(/\x1b\[(?:31|32|37|0)m/g, ""), plain);
+});
+
+test("DAYS counts elapsed New York calendar days from executed opening fills", () => {
+  const nextDay = renderLive({ ...liveEvidence, now: new Date("2026-10-01T04:01:00.000Z") });
+  assert.match(nextDay, /EWZ\s+Iron Condor\s+1\s+GREEN.*\s+09\/30\s+1\s+50\s+4h/);
+  assert.match(nextDay, /XLE\s+Iron Condor\s+1\s+RED.*\s+09\/30\s+1\s+15\s+4h/);
+  const missingFillTime = { ...ewz.opening, legs: ewz.opening.legs.map((leg) => ({ ...leg,
+    fills: leg.fills.map(({ "filled-at": _at, ...fill }) => fill) })) };
+  assert.throws(() => renderLive({ ...liveEvidence,
+    orders: [missingFillTime, ...liveEvidence.orders.slice(1)] }), /opening fill evidence malformed/);
+});
+
+test("explicit TSV output has real tabs, no padding or ANSI, and a header with zero trades", () => {
+  const tsv = renderLive({ ...liveEvidence, color: true, format: "tsv" });
+  const lines = tsv.split("\n");
+  assert.equal(lines.length, 3);
+  assert.deepEqual(lines[0].split("\t"), ["ACCOUNT", "SYMBOL", "STRUCTURE", "QTY", "STATE",
+    "TOTAL G/L", "OBJECTIVE", "OPENED", "DAYS", "DTE", "QUOTE"]);
+  assert.deepEqual(lines[1].split("\t"), ["XXXX1234", "EWZ", "Iron Condor", "1", "GREEN",
+    "+$9", "43% to target (0.21)", "09/30", "0", "51", "2h"]);
+  assert.deepEqual(lines[2].split("\t"), ["XXXX1234", "XLE", "Iron Condor", "1", "RED",
+    "−$13", "off target (0.09) by 0.22", "09/30", "0", "16", "2h"]);
+  assert.doesNotMatch(tsv, /\x1b\[|5WX01234|  +/);
+  assert.equal(renderLive({ account: "5WX01234", holdings: [], orders: [], complexOrders: [],
+    quotes: [], now: liveEvidence.now, format: "tsv" }), lines[0]);
+});
+
+test("live declines ambiguous opening evidence and withholds color for stale quotes", () => {
+  assert.throws(() => renderLive({ ...liveEvidence, orders: [...liveEvidence.orders, { ...ewz.opening, id: "duplicate" }] }),
+    /opening trade linkage is missing or ambiguous/);
+  assert.throws(() => renderLive({ ...liveEvidence, orders: [...liveEvidence.orders,
+    { ...ewz.closing.orders[0], id: "other-current-close" }] }),
+    /additional or missing current closing orders/);
+  const stale = liveEvidence.quotes.map((quote) => ({ ...quote, "updated-at": "2026-09-29T00:00:00.000Z" }));
+  const output = renderLive({ ...liveEvidence, quotes: stale });
+  assert.match(output, /UNKNOWN\s+—\s+target \(0\.21\); quotes stale/);
+  assert.doesNotMatch(output, /GREEN|RED|% to target/);
+  assert.throws(() => renderLive({ ...liveEvidence, quotes: liveEvidence.quotes.slice(1) }),
+    /quote evidence missing or duplicated/);
+});
+
+test("live uses only allowlisted reads, one token, and sanitizes API errors", async () => {
+  const calls = []; const output = [];
+  const fetchImpl = async (url, options) => {
+      calls.push({ url, options });
+      if (url.endsWith("/oauth/token")) return reply(200, { access_token: "access-marker" });
+      if (url.endsWith("/customers/me/accounts")) return reply(200, { data: { items: [
+        { account: { "account-number": "5WX01234" }, "authority-level": "owner" }] } });
+      if (url.endsWith("/positions")) return reply(200, { data: { items: liveEvidence.holdings } });
+      if (url.includes("/complex-orders?")) return reply(200, page(0, 1, 2, liveEvidence.complexOrders));
+      if (url.includes("/orders?")) return reply(200, page(0, 1, liveEvidence.orders.length, liveEvidence.orders));
+      if (url.includes("/market-data/by-type?")) return reply(200, { data: { items: liveEvidence.quotes } });
+      throw Error("unexpected endpoint");
+    };
+  const code = await main(["live"], { env, out: (s) => output.push(s), now: () => liveEvidence.now,
+    fetchImpl, stdoutIsTTY: false });
+  assert.equal(code, 0);
+  assert.deepEqual(calls.map(({ options }) => options.method), ["POST", "GET", "GET", "GET", "GET", "GET"]);
+  assert.ok(calls.every(({ url, options }) => url.startsWith(PRODUCTION_BASE_URL) &&
+    options.redirect === "error" && /^[^/]+\/[^/]+$/.test(options.headers["User-Agent"])));
+  assert.ok(calls.slice(1).every(({ options }) => options.headers.Authorization === "Bearer access-marker"));
+  assert.doesNotMatch(output.join("\n"), /access-marker|secret-marker|refresh-marker/);
+  assert.match(output[0], /EWZ.*GREEN/);
+  assert.doesNotMatch(output[0], /\x1b\[/);
+  const ttyOutput = [];
+  assert.equal(await main(["live"], { env, out: (s) => ttyOutput.push(s), now: () => liveEvidence.now,
+    fetchImpl, stdoutIsTTY: true }), 0);
+  assert.match(ttyOutput[0], /^\n\x1b\[37m/);
+  assert.match(ttyOutput[0], /\x1b\[32mGREEN\s+\+\$9\s+43% to target \(0\.21\)\s*\x1b\[37m/);
+  assert.match(ttyOutput[0], /\x1b\[31mRED\s+−\$13\s+off target \(0\.09\) by 0\.22\s*\x1b\[37m/);
+  assert.match(ttyOutput[0], /\x1b\[0m\n$/);
+  const noColorOutput = [];
+  assert.equal(await main(["live"], { env: { ...env, NO_COLOR: "1" },
+    out: (s) => noColorOutput.push(s), now: () => liveEvidence.now,
+    fetchImpl, stdoutIsTTY: true }), 0);
+  assert.doesNotMatch(noColorOutput[0], /\x1b\[/);
+  assert.match(noColorOutput[0], /GREEN.*RED/s);
+  const tsvOutput = [];
+  assert.equal(await main(["live", "--tsv"], { env, out: (s) => tsvOutput.push(s),
+    now: () => liveEvidence.now, fetchImpl, stdoutIsTTY: true }), 0);
+  assert.match(tsvOutput[0], /^ACCOUNT\tSYMBOL\t/);
+  assert.doesNotMatch(tsvOutput[0], /\x1b\[/);
+  await assert.rejects(readOrders(async (offset) => page(offset, 2, 2, [ewz.opening])),
+    /duplicate or missing order identity/);
+  const errors = [];
+  assert.equal(await main(["live", "--account", "5WX01234"], { env, err: (s) => errors.push(s),
+    fetchImpl: async (url) => reply(url.endsWith("/oauth/token") ? 200 : 500,
+      url.endsWith("/oauth/token") ? { access_token: "access-marker" } :
+        { error: { message: "secret-marker refresh-marker access-marker" } }) }), 1);
+  assert.doesNotMatch(errors.join("\n"), /secret-marker|refresh-marker|access-marker/);
 });
 
 test("credentials use only required .env keys and exported values take precedence", () => {

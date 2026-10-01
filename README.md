@@ -55,7 +55,7 @@ Kiro steering points to the same active evidence checkpoint via `.kiro/steering/
 
 ## tastytrade read-only CLI (exploratory)
 
-`tt` is a small, **read-only production** tastytrade utility. It lists accessible accounts and shows positions alongside broker complex orders for one account. It only exchanges OAuth credentials and calls the allowlisted account, position, and complex-order GET endpoints at `https://api.tastyworks.com`. It cannot submit, edit, or cancel an order, and it does not use the Wheelwright evidence service or change trading policy. Positions and complex-order child statuses are separate broker facts, not a claim that a position is protected.
+`tt` is a small, **read-only production** tastytrade utility. It lists accessible accounts, shows broker positions alongside complex orders, and provides a concise live-trade view for clean, recognizable trades. It only exchanges OAuth credentials and calls allowlisted account, position, order, complex-order, and batched equity-option quote GET endpoints at `https://api.tastyworks.com`. It cannot submit, edit, or cancel an order, and it does not use the Wheelwright evidence service or change trading policy. Positions and complex-order child statuses are separate broker facts, not a claim that a position is protected.
 
 From the repository root, install the thin shell launcher once on your local PATH (this machine already has `~/.local/bin` on PATH):
 
@@ -71,6 +71,9 @@ tt --help
 tt accounts
 tt positions
 tt positions --account 5WX01234  # Use this form if you have multiple accounts
+tt live
+tt live --account 5WX01234       # Use this form if you have multiple accounts
+tt live --tsv > foo.tsv           # Explicit tab-separated export; no terminal colors
 ```
 
 Expected output shape (illustrative account values):
@@ -82,6 +85,8 @@ accounts: 1
 ```
 
 `tt positions` selects the sole accessible account automatically, or requires `--account` when there are multiple accounts. It shows positions and each returned complex order and child status, with explicit complex-order pagination completeness. Zero results are explicit; incomplete retrieval exits nonzero. Run credential-free unit tests with `node --test scripts/tastytrade.test.mjs`. See the [current tastytrade OAuth guide](https://developer.tastytrade.com/docs/authentication/oauth2/) for credential setup. Sandbox and production OAuth credentials are separate.
+
+`tt live` applies the same account selection rule. Its first supported trade shape is a clean, four-leg short iron condor with a unique filled opening order and matching target/stop children. It derives opening credit from executed leg fills and an **indicative** closing debit from timestamped leg quote mids. Its aligned columns show a masked account number, symbol, trade quantity, indicative `TOTAL G/L` since entry, active objective, the executed opening fill date in New York time (`OPENED`, MM/DD), elapsed New York calendar days since that fill (`DAYS`, opening day is 0), DTE, and the age of the oldest leg quote for that trade (`QUOTE`). Dollar gain/loss uses the contract multiplier and excludes fees. GREEN target progress measures movement from entry credit toward the identified profit-taking close debit; RED shows the indicative debit gap above its target. The terminal table has a blank line before and after it. Interactive terminal output is white except for the full green GREEN or red RED economic segment, then restores the terminal default; `NO_COLOR` or redirected output remains plain. Use `--tsv` for actual tab-delimited rows with the same display values and no ANSI codes or extra blank lines; ordinary redirection of `tt live` saves the aligned human view. Routine order status and unrelated cancelled/rejected history stay out of the operator view, while an order transition can surface when it changes the story. Quotes older than 12 hours suppress economic color. Unsupported or ambiguous holdings, incomplete paginated evidence, and missing quotes fail safely without a partial trade summary. Use `tt positions` for the underlying broker evidence. This view does not establish that a trade is safe, protected, or compliant with Wheelwright policy.
 
 ## Quick Start
 

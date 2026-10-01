@@ -2,6 +2,7 @@
 
 import { readFileSync } from "node:fs";
 import { parseEnv } from "node:util";
+import { LiveError, maskAccount, renderLive } from "./tastytrade-live.mjs";
 
 // This experimental CLI has only allowlisted broker reads and no broker-write capability.
 export const PRODUCTION_BASE_URL = "https://api.tastyworks.com";
@@ -20,6 +21,7 @@ Credentials: TASTYTRADE_CLIENT_ID, TASTYTRADE_CLIENT_SECRET, TASTYTRADE_REFRESH_
 Commands:
   accounts         List accessible accounts
   positions        Show positions and complex orders for one account
+  live             Summarize recognizable live trades for one account
   help             Show this help
 
 Options:
@@ -38,6 +40,14 @@ If you have one accessible account, it is selected automatically.
 With multiple accounts, specify --account <account-number>.
 Positions and orders are separate broker evidence; no protection verdict is inferred.`;
 
+const LIVE_HELP = `Usage: tt live [--account <account-number>] [--tsv]
+
+Show an indicative, read-only live-trade summary for one production account.
+If you have one accessible account, it is selected automatically.
+With multiple accounts, specify --account <account-number>.
+Use --tsv for tab-separated, uncolored output suitable for redirection.
+Unsupported or ambiguous holdings are not guessed; use tt positions for broker evidence.`;
+
 class CliError extends Error {
   constructor(message, exitCode = 1) {
     super(message);
@@ -54,13 +64,25 @@ export function parseCommand(argv) {
     if (argv.length === 2 && ["-h", "--help"].includes(argv[1])) return { kind: "help", text: ACCOUNTS_HELP };
     throw new CliError(`Invalid accounts arguments.\n${ACCOUNTS_HELP}`, 2);
   }
-  if (argv[0] === "positions") {
-    if (argv.length === 2 && ["-h", "--help"].includes(argv[1])) return { kind: "help", text: POSITIONS_HELP };
-    if (argv.length === 1) return { kind: "positions" };
-    if (argv.length !== 3 || argv[1] !== "--account" || !/^[A-Za-z0-9]+$/.test(argv[2])) {
-      throw new CliError(`Invalid positions arguments.\n${POSITIONS_HELP}`, 2);
+  if (["positions", "live"].includes(argv[0])) {
+    const kind = argv[0];
+    const help = kind === "live" ? LIVE_HELP : POSITIONS_HELP;
+    if (argv.length === 2 && ["-h", "--help"].includes(argv[1])) return { kind: "help", text: help };
+    if (argv.length === 1) return { kind };
+    if (kind === "live") {
+      let account; let tsv = false;
+      for (let index = 1; index < argv.length; index++) {
+        if (argv[index] === "--tsv" && !tsv) tsv = true;
+        else if (argv[index] === "--account" && !account &&
+            /^[A-Za-z0-9]+$/.test(argv[index + 1] ?? "")) account = argv[++index];
+        else throw new CliError(`Invalid live arguments.\n${LIVE_HELP}`, 2);
+      }
+      return { kind, ...(account ? { account } : {}), ...(tsv ? { tsv } : {}) };
     }
-    return { kind: "positions", account: argv[2] };
+    if (argv.length !== 3 || argv[1] !== "--account" || !/^[A-Za-z0-9]+$/.test(argv[2])) {
+      throw new CliError(`Invalid ${kind} arguments.\n${help}`, 2);
+    }
+    return { kind, account: argv[2] };
   }
   throw new CliError("Unknown command or option.\nUsage: tt <command> [options]\nRun 'tt --help' for help.", 2);
 }
@@ -94,7 +116,7 @@ async function request(fetchImpl, path, options, step) {
     throw new CliError(`${step}: network error or redirect blocked`);
   }
   if (!response.ok) {
-    if (step === "Positions" && response.status === 404) {
+    if (["Positions", "Orders", "Complex orders"].includes(step) && response.status === 404) {
       throw new CliError("Account not found (HTTP 404). Check --account or run 'tt accounts'.");
     }
     if (step === "OAuth" && [400, 401, 403].includes(response.status)) {
@@ -124,13 +146,20 @@ async function authenticate(fetchImpl, values) {
 function brokerGet(fetchImpl, resource, account, token) {
   let path;
   if (resource === "accounts") path = "/customers/me/accounts";
-  else if (["positions", "complex-orders"].includes(resource) && /^[A-Za-z0-9]+$/.test(account)) {
+  else if (["positions", "complex-orders", "orders"].includes(resource) && /^[A-Za-z0-9]+$/.test(account)) {
     path = `/accounts/${encodeURIComponent(account)}/${resource}`;
+  } else if (resource === "equity-option-quotes") {
+    path = "/market-data/by-type";
   } else throw new CliError("Unsupported broker read");
-  return (pageOffset) => request(fetchImpl,
-    resource === "complex-orders" ? `${path}?page-offset=${pageOffset}&per-page=${PAGE_SIZE}` : path,
+  return (argument) => request(fetchImpl,
+    ["complex-orders", "orders"].includes(resource) ? `${path}?page-offset=${argument}&per-page=${PAGE_SIZE}` :
+      resource === "equity-option-quotes" && Array.isArray(argument) && argument.length > 0 && argument.length <= 100 &&
+        argument.every((symbol) => typeof symbol === "string" && /^[A-Za-z0-9 .]+$/.test(symbol)) ?
+        `${path}?${argument.map((symbol) => `equity-option[]=${encodeURIComponent(symbol)}`).join("&")}` :
+      resource === "equity-option-quotes" ? (() => { throw new CliError("Unsupported quote request"); })() : path,
     { method: "GET", headers: { Authorization: `Bearer ${token}` } },
-    resource === "accounts" ? "Accounts" : resource === "positions" ? "Positions" : "Complex orders");
+    resource === "accounts" ? "Accounts" : resource === "positions" ? "Positions" :
+      resource === "orders" ? "Orders" : resource === "equity-option-quotes" ? "Quotes" : "Complex orders");
 }
 
 function safeField(value, fallback = "—") {
@@ -203,7 +232,7 @@ export function renderPositions(body, account) {
   return lines.join("\n");
 }
 
-export async function readComplexOrders(getPage) {
+async function readPages(getPage, label) {
   let expectedPages;
   let expectedItems;
   const items = [];
@@ -214,29 +243,32 @@ export async function readComplexOrders(getPage) {
     if (!Array.isArray(chunk) || !page || !Number.isInteger(page["page-offset"]) ||
         !Number.isInteger(page["total-pages"]) || !Number.isInteger(page["total-items"]) ||
         page["page-offset"] !== offset || page["total-pages"] < 0 || page["total-items"] < 0) {
-      throw new CliError("Complex orders: malformed pagination or response; retrieval incomplete");
+      throw new CliError(`${label}: malformed pagination or response; retrieval incomplete`);
     }
     if (expectedPages === undefined) {
       expectedPages = page["total-pages"];
       expectedItems = page["total-items"];
-      if (expectedPages > MAX_PAGES) throw new CliError("Complex orders: page limit exceeded; retrieval incomplete");
+      if (expectedPages > MAX_PAGES) throw new CliError(`${label}: page limit exceeded; retrieval incomplete`);
     } else if (page["total-pages"] !== expectedPages || page["total-items"] !== expectedItems) {
-      throw new CliError("Complex orders: result changed during pagination; retrieval incomplete");
+      throw new CliError(`${label}: result changed during pagination; retrieval incomplete`);
     }
     items.push(...chunk);
     if (offset + 1 >= expectedPages || expectedPages === 0) {
       if (items.length !== expectedItems || (expectedPages === 0 && items.length !== 0)) {
-        throw new CliError("Complex orders: pagination count mismatch; retrieval incomplete");
+        throw new CliError(`${label}: pagination count mismatch; retrieval incomplete`);
       }
       const ids = items.map((item) => item?.id);
       if (ids.some((id) => id == null) || new Set(ids.map(String)).size !== ids.length) {
-        throw new CliError("Complex orders: duplicate or missing order identity; retrieval incomplete");
+        throw new CliError(`${label}: duplicate or missing order identity; retrieval incomplete`);
       }
       return { items, pages: expectedPages };
     }
   }
-  throw new CliError("Complex orders: page limit exceeded; retrieval incomplete");
+  throw new CliError(`${label}: page limit exceeded; retrieval incomplete`);
 }
+
+export const readComplexOrders = (getPage) => readPages(getPage, "Complex orders");
+export const readOrders = (getPage) => readPages(getPage, "Orders");
 
 function renderOrder(order, role) {
   if (!order || typeof order !== "object" || !Array.isArray(order.legs)) {
@@ -278,7 +310,8 @@ export function renderComplexOrders(account, result, retrievedAt) {
 }
 
 export async function main(argv = process.argv.slice(2), { env = process.env, readFile = readFileSync,
-  fetchImpl = fetch, out = console.log, err = console.error, now = () => new Date() } = {}) {
+  fetchImpl = fetch, out = console.log, err = console.error, now = () => new Date(),
+  stdoutIsTTY = process.stdout.isTTY } = {}) {
   try {
     const command = parseCommand(argv);
     if (command.kind === "help") { out(command.text); return 0; }
@@ -293,15 +326,36 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
         if (items.length !== 1) throw new CliError("Multiple accounts available; run 'tt accounts' and specify --account <account-number>.", 2);
         account = items[0].account["account-number"];
       }
-      const positions = renderPositions(await brokerGet(fetchImpl, "positions", account, token)(), account);
-      const result = await readComplexOrders(brokerGet(fetchImpl, "complex-orders", account, token));
-      const orders = renderComplexOrders(account, result, now().toISOString());
-      out([`tastytrade production: account ${account}`, positions,
-        orders.split("\n").slice(1).join("\n")].join("\n"));
+      const positionsBody = await brokerGet(fetchImpl, "positions", account, token)();
+      if (command.kind === "positions") {
+        const positions = renderPositions(positionsBody, account);
+        const result = await readComplexOrders(brokerGet(fetchImpl, "complex-orders", account, token));
+        const orders = renderComplexOrders(account, result, now().toISOString());
+        out([`tastytrade production: account ${account}`, positions,
+          orders.split("\n").slice(1).join("\n")].join("\n"));
+      } else {
+        // Validate holdings before further reads; never omit an unsupported live holding silently.
+        renderPositions(positionsBody, account);
+        const holdings = positionsBody.data.items;
+        if (holdings.length === 0) {
+          out(command.tsv ? renderLive({ account, holdings, orders: [], complexOrders: [], quotes: [],
+            now: now(), format: "tsv" }) : `no live trades for account ${maskAccount(account)}`);
+        } else {
+          const orders = await readOrders(brokerGet(fetchImpl, "orders", account, token));
+          const complex = await readComplexOrders(brokerGet(fetchImpl, "complex-orders", account, token));
+          const symbols = [...new Set(holdings.map((item) => item.symbol))];
+          if (symbols.length > 100) throw new CliError("Live: more than 100 held symbols; use tt positions");
+          const quotes = await brokerGet(fetchImpl, "equity-option-quotes", undefined, token)(symbols);
+          out(renderLive({ account, holdings, orders: orders.items, complexOrders: complex.items,
+            quotes: quotes?.data?.items, now: now(),
+            color: Boolean(!command.tsv && stdoutIsTTY && !Object.hasOwn(env, "NO_COLOR")),
+            format: command.tsv ? "tsv" : "table" }));
+        }
+      }
     }
     return 0;
   } catch (error) {
-    err(error instanceof CliError ? error.message : "Unexpected response or internal error");
+    err(error instanceof CliError || error instanceof LiveError ? error.message : "Unexpected response or internal error");
     return error instanceof CliError ? error.exitCode : 1;
   }
 }
