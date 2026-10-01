@@ -57,3 +57,5 @@ No unique specimen-selection rule is frozen by this pilot. Before one can be ado
 ## Subsequent Principal decision
 
 After reviewing this pilot, the Principal chose to capture the timestamped underlying quote and history needed for downstream replay **alongside each Pass 0 observation**. The reference bundle is ancillary: only identity and class-specific geometry determine the Pass 0 class state. The [adopted Pass 0 method](pass-zero-v1-class-geometry-method-2026-10-01.md) records this refinement. It does not retroactively make the pilot's provisional 60-return lookback or risk coordinate a selection rule.
+
+A [second bounded comparison](pass-one-coordinate-history-comparison-2026-10-01.md) subsequently tested predeclared price-relative and RV20/40/60 coordinates across two exact expirations. It remained exploratory and did not adopt a specimen rule.

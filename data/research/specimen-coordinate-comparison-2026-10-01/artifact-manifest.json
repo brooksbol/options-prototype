@@ -1,0 +1,17 @@
+{
+  "schema": "ww-specimen-coordinate-comparison-artifact/v0",
+  "observation_date_utc": "2026-10-01",
+  "accepted_main_at_protocol": "5e0fe1ec81c889ee068b27cc3e5501a7fe3383ba",
+  "declared_underlyings": 8,
+  "exact_expiration_dates": [
+    "2026-11-13",
+    "2026-11-20"
+  ],
+  "read_only_tradier_requests": 40,
+  "http_200": 40,
+  "archive": {
+    "path": "evidence.tar.gz",
+    "bytes": 361212,
+    "sha256": "6dd068e94c650815172b75768c8646e60b79dbf45fd7a268c40ac8cf9bb86105"
+  }
+}
