@@ -198,6 +198,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/shared-execution-contract.md` | Principal-ratified historical execution semantics; **runtime-control claim suspended**; current compatibility bridge |
 | `foundations/principal-decision-surface.md` | Principal-ratified decision-surface and authority/reasoning distinction; human-factors convention, not enforcement |
 | `foundations/options-domain-competence-contract.md` | Principal-ratified options domain-competence methodology; mandatory before dependent options design, implementation, review, or acceptance |
+| `discovery/pass-zero-v1-class-geometry-method-2026-10-01.md` | Principal-adopted Pass 0 v1 research methodology: complete frozen Pass −1 class denominator, dated class-specific geometry and evidence states; no specimen selection or eligibility |
 | `foundations/three-actor-model.md` | Ratified methodology |
 | `foundations/architectural-evolution-methodology.md` | Ratified methodology |
 | `foundations/strategy-architecture-reconciliation.md` | Ratified methodology (strategic roadmap ↔ architecture roadmap reconciliation, exploration freedom, and evidence-driven course correction) |

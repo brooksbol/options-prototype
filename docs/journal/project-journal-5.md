@@ -1415,3 +1415,11 @@ Unresolved:
 - whether forced-sourced renewal damage persists out of sample.
 
 **Authority:** XSP remains exploratory under existing research authority. No strategy admission, capital-allocation rule, recycling policy, Exit Reliability threshold, underlying ranking, or Wheelwright ingestion is authorized by this entry.
+
+## 2026-10-01 — Pass 0 v1 geometry boundary adopted after calendar-phase falsification (Principal)
+
+The Principal adopted Pass 0 v1 as a dated, class-specific option-geometry census over all 6,381 class rows in frozen Pass −1 v0, with 6,072 underlyings separately reportable. The 101 class rows whose provider roots were unresolved at Pass −1 stay in the denominator. Pass 0 records observed exact-root future put expirations, contract and strike geometry, acquisition and identity states, and provenance. It does not select a unique specimen, screen market quality, or determine eligibility.
+
+Why this boundary matters: an offline counterfactual held the Pass −1 option listings fixed and moved only the hypothetical observation date. A 40–50 DTE same-class put-pair count changed from 6,038 on October 1 to 13 on October 15 to zero on October 22. A narrow DTE gate would therefore encode calendar phase as structural attrition. These counts are a sensitivity check on static lookup strings, not a live later-date census.
+
+The next authorized research action is a bounded specimen-selection pilot covering reference price, volatility provenance, risk coordinate, expiration phase, strike tolerance, nonstandard deliverables, and unmatched behavior. The full-population Pass 0 crawl is deferred until that pilot checks whether the geometry evidence contract is sufficient. The adopted bounded methodology is recorded in `docs/discovery/pass-zero-v1-class-geometry-method-2026-10-01.md`; no product eligibility or Exit Reliability policy follows from it.
