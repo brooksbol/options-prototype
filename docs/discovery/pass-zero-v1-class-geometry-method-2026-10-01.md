@@ -1,6 +1,6 @@
 # Pass 0 v1 — Class-specific option-geometry census
 
-**Status:** Principal-adopted research methodology (2026-10-01; Category B within this bounded research program).
+**Status:** Principal-adopted research methodology (2026-10-01; Category B within this bounded research program); ancillary reference-evidence refinement adopted after the first bounded pilot.
 
 **Canonical intake:** `PL-RESEARCH-01` Universe Discovery.
 
@@ -18,7 +18,15 @@ For each class whose provider root is explicitly resolved, the observation prese
 
 Each row needs a class-level outcome and provenance sufficient to distinguish at least: identity unresolved; acquisition/evidence incomplete; exact class observed but no future put contracts; future puts but no same-expiration strike pair; and same-expiration pair observed. These states must not be inferred from a partial or failed acquisition. Preserve raw provider responses and request/response timing, hashes, queried symbol, observed root, contract identity, put/call, expiration, strike, and any source fields needed to replay the classification. Retain contract-term or deliverable uncertainty as an orthogonal evidence flag; `contract_size` alone does not establish a standard 100-share deliverable.
 
-No Pass 0 state depends on bid/ask spreads, quote sizes or ages, open interest, volume, Greek presence or freshness, broker liquidity labels, or whether a candidate seems like a good ETF. Those belong to later work. The raw record may retain provider fields beyond geometry so long as they do not choose or suppress census rows.
+No Pass 0 **class-geometry state** depends on bid/ask spreads, quote sizes or ages, open interest, volume, Greek presence or freshness, broker liquidity labels, or whether a candidate seems like a good ETF. Those belong to later work. The raw record may retain provider fields beyond geometry so long as they do not choose or suppress census rows.
+
+## Ancillary reference evidence for downstream replay
+
+Alongside each dated geometry observation, capture a timestamped Tradier underlying quote and the underlying price history specified by the **declared** downstream Pass 1 replay protocol. Preserve the raw bodies, provider symbol and explicit alias edge where relevant, request/response UTC times, provider-supplied timestamps or bar dates, and hashes. A single underlying reference bundle may be linked to multiple option-class rows, but those rows retain their distinct class roots and geometry. Record temporal separation between quote, history, and chain acquisitions rather than asserting simultaneity.
+
+Reference evidence is **ancillary**. Only identity and class-specific option geometry determine the Pass 0 class state. Missing, incomplete, or not-yet-interpretable quote/history evidence receives a separate reference-evidence state; it does not convert observed geometry into a failure or remove a class from either frozen denominator. An unresolved provider identity remains unresolved for reference acquisition too; no similar ticker is silently substituted. Pass 1 may withhold a specimen conclusion that depends on insufficient reference evidence.
+
+The historical lookback, price-adjustment convention, reference-price field, freshness semantics, and risk coordinate are not selected by this decision. Declare the history acquisition window and replay provenance before a full-population run so the captured bars actually cover the later selector. Do not calculate a preferred specimen, volatility-based eligibility, or market-quality verdict in Pass 0. Adjusted-class deliverables and any class-specific reference-price transformation still require applicable contract authority beyond Tradier's `contract_size` field.
 
 ## Why a narrow DTE gate was rejected
 
@@ -28,10 +36,10 @@ The frozen lookup strings are sufficient for this sensitivity test, but they do 
 
 ## Subsequent stage and next bounded experiment
 
-Pass 1 asks whether a unique risk-comparable specimen can be selected **from recorded geometry**, without using the liquidity or quote-quality features that later stages will measure. Its rule is not frozen here. A bounded pilot must test reference-price provenance, volatility provenance, risk coordinate, expiration phase, strike-grid tolerance, nonstandard deliverables, and unmatched behavior on contrasting class/root specimens. It should determine whether Pass 0 needs an additional raw field for deterministic selection **before** any full-population Pass 0 crawl.
+Pass 1 asks whether a unique risk-comparable specimen can be selected from recorded geometry **and its paired reference evidence**, without using the liquidity or quote-quality features that later stages will measure. Its rule is not frozen here. The first bounded pilot tested a provisional coordinate and exposed reference-provenance and adjusted-deliverable needs; the [pilot record](pass-one-specimen-selection-bounded-pilot-2026-10-01.md) preserves its evidence and limits. Further bounded selector work must resolve expiration phase, risk coordinate, strike-grid tolerance, nonstandard deliverables, and unmatched behavior before a full-population Pass 0 crawl.
 
 Later passes may observe raw market quality, longitudinal stability and fitness drift, and eventually actual complex execution evidence. None of these later conclusions follows from structural geometry alone. A future census is a new dated observation, not a mutation of Pass −1 or a rewrite of a previous Pass 0 observation.
 
 ## Scope of adoption
 
-This decision establishes the research methodology and evidence boundary. It does not authorize Wheelwright maintained-universe admission, provider-backed production acquisition, a full 6,381-row crawl, quality screening, an Exit Reliability score, or a specimen-selection rule. The immediate research continuation is the bounded specimen-selection pilot.
+This decision establishes the research methodology and evidence boundary, including ancillary raw reference capture for replay. It does not authorize Wheelwright maintained-universe admission, provider-backed production acquisition, a full 6,381-row crawl, quality screening, an Exit Reliability score, or a specimen-selection rule. The next research work remains bounded selector and reference-protocol resolution.
