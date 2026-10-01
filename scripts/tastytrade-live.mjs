@@ -197,25 +197,19 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, n
     const days = Math.round((dayInNewYork(now) - dayInNewYork(new Date(openedAt))) / 86_400_000);
     if (openedAt > now.getTime() || days < 0) fail("opening fill time is after the observation");
     const dte = Math.max(0, Math.round((dayInNewYork(new Date(trade.expiry)) - dayInNewYork(now)) / 86_400_000));
-    let state; let sinceEntry;
+    let sinceEntry;
     if (market.stale) {
-      state = "UNKNOWN"; sinceEntry = "—";
+      sinceEntry = "—";
     } else {
       const difference = credit - market.closeDebit;
-      if (Math.abs(difference) < 0.000001) {
-        state = "FLAT"; sinceEntry = "$0";
-      }
-      else if (difference > 0) {
-        state = "GREEN"; sinceEntry = signedDollars(difference * trade.multiplier * trade.quantity);
-      } else {
-        state = "RED"; sinceEntry = signedDollars(difference * trade.multiplier * trade.quantity);
-      }
+      sinceEntry = Math.abs(difference) < 0.000001 ? "$0" :
+        signedDollars(difference * trade.multiplier * trade.quantity);
     }
     const gap = market.closeDebit - target;
     const progress = market.stale ? "quotes stale" : Math.abs(gap) < 0.000001 ?
       "at target; still held" : gap < 0 ?
         `${midpointPrice(-gap)} below target; still held` : `${midpointPrice(gap)} above target`;
-    const targetClose = `${Math.round(100 * (credit - target) / credit)}% @ ${midpointPrice(target)}; exp ${
+    const targetClose = `${Math.round(100 * (credit - target) / credit)}% @ ${midpointPrice(target)} or exp ${
       monthDayInNewYork(new Date(trade.expiry))}`;
     const opened = `${monthDayInNewYork(new Date(openedAt))} (${days} ${days === 1 ? "day" : "days"})`;
     const transition = new Set(["Contingent", "Cancel Requested", "Replace Requested"]);
@@ -225,13 +219,13 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, n
     }
     const dayGain = market.stale || market.dayGain === null ? "—" :
       Math.abs(market.dayGain) < 0.005 ? "$0" : signedDollars(market.dayGain);
-    rows.push([accountLabel, trade.symbol, trade.label, String(trade.quantity), dayGain, state, sinceEntry,
+    rows.push([accountLabel, trade.symbol, trade.label, String(trade.quantity), dayGain, sinceEntry,
       `${midpointPrice(credit)} CR`, market.stale ? "—" : midpointPrice(market.closeDebit), targetClose,
       progress, opened, String(dte), quoteLabel(market, now, sessionCloseAt), note]);
   }
-  const headers = ["ACCOUNT", "SYMBOL", "STRUCTURE", "QTY", "P/L DAY", "STATE", "TOTAL G/L",
+  const headers = ["ACCOUNT", "SYMBOL", "STRUCTURE", "QTY", "P/L DAY", "TOTAL G/L",
     "OPENED@", "CURRENT", "TARGET CLOSE@", "PROGRESS", "OPENED", "DTE", "QUOTE"];
-  if (rows.some((row) => row[14])) headers.push("NOTE");
+  if (rows.some((row) => row[13])) headers.push("NOTE");
   if (format === "tsv") {
     return [headers, ...rows.map((row) => row.slice(0, headers.length))].map((row) => row.join("\t")).join("\n");
   }
@@ -243,12 +237,16 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, n
     for (const row of rows) {
       const prefix = columns(row, 0, 4);
       const day = columns(row, 4, 5);
-      const economics = columns(row, 5, 7);
-      const suffix = columns(row, 7, headers.length);
+      const total = columns(row, 5, 6);
+      const opening = columns(row, 6, 7);
+      const currentTargetProgress = columns(row, 7, 10);
+      const suffix = columns(row, 10, headers.length);
       const dayState = row[4].startsWith("+") ? "GREEN" : row[4].startsWith("−") ? "RED" : null;
+      const gainState = row[5].startsWith("+") ? "GREEN" : row[5].startsWith("−") ? "RED" : null;
       lines.push(`${prefix}  ${dayState ? colorSegment(dayState, day, color) : day}  ${
-        ["GREEN", "RED"].includes(row[5]) ? colorSegment(row[5], economics, color) : economics
-      }  ${suffix}`.trimEnd());
+        gainState ? colorSegment(gainState, total, color) : total
+      }  ${opening}  ${gainState ? colorSegment(gainState, currentTargetProgress, color) :
+        currentTargetProgress}  ${suffix}`.trimEnd());
     }
   }
   const output = lines.join("\n");

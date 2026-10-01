@@ -1459,3 +1459,9 @@ The narrower RV20 short-leg diagnostic is a candidate for independent challenge,
 After testing the first refined readout, the Principal identified that `CLOSE@` implied an executed closing fill even though the live trade remains open. The live header is now `CURRENT` for the four-leg midpoint-derived debit; `CLOSE@` is reserved for an actual closing execution. `OPEN@` becomes `OPENED@` for the fill-derived opening credit. The underlying numeric evidence and target/progress calculations are unchanged.
 
 Color is scoped to the measure it describes: P/L Day has its own sign color; STATE and TOTAL G/L share the since-opening economic color; OPENED@ through PROGRESS remain white. A trade can be GREEN since opening while its current debit is still above the target closing price. The independent color treatment keeps that distinction visible rather than making the whole row look like target completion.
+
+## 2026-10-01 — `tt live` removes redundant STATE and extends since-open color (Principal)
+
+The Principal removed the explicit STATE column from the live readout. TOTAL G/L now carries the since-opening gain/loss directly. Its red/green color also applies to CURRENT, TARGET CLOSE@, and PROGRESS; OPENED@ remains white, while P/L Day retains its independent sign color. Color on the target/progress segment expresses the trade's since-open economics, not whether the target order executed. Stale or flat economics have no red/green color.
+
+The TARGET CLOSE@ separator changed from a semicolon to `or`, yielding `50% @ 0.21 or exp 11/20` in the EWZ specimen. This is operator-facing wording for the displayed profit target and contract expiration; it does not add a DTE close rule or infer an executed exit.
