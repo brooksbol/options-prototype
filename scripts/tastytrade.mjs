@@ -3,6 +3,7 @@
 import { readFileSync } from "node:fs";
 import { parseEnv } from "node:util";
 import { LiveError, maskAccount, renderLive } from "./tastytrade-live.mjs";
+import { ScoutError, parseScout, selectSpecimens, buildScoutObservation } from "./tastytrade-scout.mjs";
 
 // This experimental CLI has only allowlisted broker reads and no broker-write capability.
 export const PRODUCTION_BASE_URL = "https://api.tastyworks.com";
@@ -22,6 +23,7 @@ Commands:
   accounts         List accessible accounts
   positions        Show positions and complex orders for one account
   live             Summarize recognizable live trades for one account
+  scout            Export one explicit option specimen observation as JSON
   help             Show this help
 
 Options:
@@ -48,6 +50,12 @@ With multiple accounts, specify --account <account-number>.
 Use --tsv for tab-separated, uncolored output suitable for redirection.
 Unsupported or ambiguous holdings are not guessed; use tt positions for broker evidence.`;
 
+const SCOUT_HELP = "Usage: tt scout ROOT --expiration YYYY-MM-DD --short-put-strike PRICE --widths W1,W2 --underlying-type equity|index\n\n" +
+  "Export read-only production broker evidence for explicitly selected put credit verticals.\n" +
+  "One root and one exact expiration/short strike per invocation; each width selects a lower-strike long put.\n" +
+  "Output is JSON. Missing or stale quote evidence is explicit and exits nonzero.\n" +
+  "No Exit Reliability score, package quote, ranking, or order capability.";
+
 class CliError extends Error {
   constructor(message, exitCode = 1) {
     super(message);
@@ -58,6 +66,11 @@ class CliError extends Error {
 export function parseCommand(argv) {
   if (argv.length === 0 || (argv.length === 1 && ["help", "-h", "--help"].includes(argv[0]))) {
     return { kind: "help", text: HELP };
+  }
+  if (argv[0] === "scout") {
+    if (argv.length === 2 && ["-h", "--help"].includes(argv[1])) return { kind: "help", text: SCOUT_HELP };
+    try { return parseScout(argv.slice(1)); }
+    catch { throw new CliError("Invalid scout arguments.\n" + SCOUT_HELP, 2); }
   }
   if (argv[0] === "accounts") {
     if (argv.length === 1) return { kind: "accounts" };
@@ -160,6 +173,31 @@ function brokerGet(fetchImpl, resource, account, token) {
     { method: "GET", headers: { Authorization: `Bearer ${token}` } },
     resource === "accounts" ? "Accounts" : resource === "positions" ? "Positions" :
       resource === "orders" ? "Orders" : resource === "equity-option-quotes" ? "Quotes" : "Complex orders");
+}
+
+function scoutGet(fetchImpl, resource, root, token, argument) {
+  if (!/^[A-Z][A-Z0-9.]{0,9}$/.test(root)) throw new CliError("Unsupported scout root");
+  let path;
+  if (resource === "chain") path = "/option-chains/" + encodeURIComponent(root);
+  else if (resource === "metrics") path = "/market-metrics?symbols=" + encodeURIComponent(root);
+  else if (resource === "underlying" && ["equity", "index"].includes(argument)) {
+    path = "/market-data/by-type?" + argument + "[]=" + encodeURIComponent(root);
+  } else if (resource === "quotes" && Array.isArray(argument) && argument.length > 0 &&
+      argument.length <= 100 && argument.every((symbol) => typeof symbol === "string" &&
+        /^[A-Za-z0-9 .]+$/.test(symbol))) {
+    path = "/market-data/by-type?" + argument.map((symbol) =>
+      "equity-option[]=" + encodeURIComponent(symbol)).join("&");
+  } else throw new CliError("Unsupported scout read");
+  return request(fetchImpl, path, { method: "GET", headers: { Authorization: "Bearer " + token } },
+    "Scout " + resource);
+}
+
+export function quoteBatches(symbols) {
+  if (!Array.isArray(symbols) || symbols.some((symbol) => typeof symbol !== "string") ||
+      new Set(symbols).size !== symbols.length) throw new CliError("Scout: invalid quote symbols");
+  const batches = [];
+  for (let offset = 0; offset < symbols.length; offset += 100) batches.push(symbols.slice(offset, offset + 100));
+  return batches;
 }
 
 function safeField(value, fallback = "—") {
@@ -317,7 +355,29 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
     if (command.kind === "help") { out(command.text); return 0; }
     const values = credentials(env, readFile);
     const token = await authenticate(fetchImpl, values);
-    if (command.kind === "accounts") {
+    if (command.kind === "scout") {
+      const timings = [];
+      const timed = async (label, operation) => {
+        const started_at_utc = now().toISOString();
+        const result = await operation();
+        timings.push({ resource: label, started_at_utc, received_at_utc: now().toISOString() });
+        return result;
+      };
+      const chain = await timed("option_chain", () => scoutGet(fetchImpl, "chain", command.root, token));
+      const specimens = selectSpecimens(chain, command);
+      const symbols = [...new Set(specimens.flatMap((item) => item.legs.map((leg) => leg.contract.symbol)))];
+      const quoteBodies = [];
+      for (const batch of quoteBatches(symbols)) {
+        quoteBodies.push(await timed("option_quotes", () => scoutGet(fetchImpl, "quotes", command.root, token, batch)));
+      }
+      const underlyingQuote = await timed("underlying_quote", () =>
+        scoutGet(fetchImpl, "underlying", command.root, token, command.underlyingType));
+      const metrics = await timed("market_metrics", () => scoutGet(fetchImpl, "metrics", command.root, token));
+      const observation = buildScoutObservation({ selection: command, chain, metrics, underlyingQuote,
+        quoteBatches: quoteBodies, timings, observedAt: now().toISOString() });
+      out(JSON.stringify(observation, null, 2));
+      return observation.status === "complete" ? 0 : 1;
+    } else if (command.kind === "accounts") {
       out(renderAccounts(await brokerGet(fetchImpl, "accounts", undefined, token)()));
     } else {
       let account = command.account;
@@ -355,7 +415,8 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
     }
     return 0;
   } catch (error) {
-    err(error instanceof CliError || error instanceof LiveError ? error.message : "Unexpected response or internal error");
+    err(error instanceof CliError || error instanceof LiveError || error instanceof ScoutError ?
+      error.message : "Unexpected response or internal error");
     return error instanceof CliError ? error.exitCode : 1;
   }
 }
