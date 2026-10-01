@@ -55,6 +55,7 @@ const sampleTrade = (underlying, expiry, strikes, fillPrices, mids, target, stop
   const holdings = symbols.map((symbol, i) => ({ "account-number": "5WX01234", symbol,
     "underlying-symbol": underlying, "instrument-type": "Equity Option", quantity: "1",
     "quantity-direction": directions[i], multiplier: "100",
+    "average-daily-market-close-price": String(mids[i] + (underlying === "XLE" && i === 2 ? 0.01 : 0)),
     "expires-at": `20${expiry.slice(0, 2)}-${expiry.slice(2, 4)}-${expiry.slice(4, 6)}T21:00:00.000Z` }));
   const legs = (opening) => symbols.map((symbol, i) => ({ symbol, quantity: "1",
     action: opening ? (directions[i] === "Long" ? "Buy to Open" : "Sell to Open") :
@@ -84,13 +85,14 @@ const liveEvidence = { account: "5WX01234", holdings: [...ewz.holdings, ...xle.h
 test("live summarizes two complete trades from fills and leg mids without historical order noise", () => {
   const oldRejected = { id: "old", type: "OCO", orders: [{ ...ewz.closing.orders[0], status: "Rejected" }] };
   const output = renderLive({ ...liveEvidence, complexOrders: [...liveEvidence.complexOrders, oldRejected] });
-  assert.match(output, /^\nACCOUNT\s+SYMBOL\s+STRUCTURE\s+QTY\s+STATE\s+TOTAL G\/L\s+OBJECTIVE\s+OPENED\s+DAYS\s+DTE\s+QUOTE/);
-  assert.match(output, /XXXX1234\s+EWZ\s+Iron Condor\s+1\s+GREEN\s+\+\$9\s+43% to target \(0\.21\)\s+09\/30\s+0\s+51\s+2h/);
-  assert.match(output, /XXXX1234\s+XLE\s+Iron Condor\s+1\s+RED\s+−\$13\s+off target \(0\.09\) by 0\.22\s+09\/30\s+0\s+16\s+2h/);
+  assert.match(output, /^\nACCOUNT\s+SYMBOL\s+STRUCTURE\s+QTY\s+P\/L DAY\s+STATE\s+TOTAL G\/L\s+OBJECTIVE\s+OPENED\s+DAYS\s+DTE\s+QUOTE/);
+  assert.match(output, /XXXX1234\s+EWZ\s+Iron Condor\s+1\s+\$0\s+GREEN\s+\+\$9\s+43% to target \(0\.21\)\s+09\/30\s+0\s+51\s+2h/);
+  assert.match(output, /XXXX1234\s+XLE\s+Iron Condor\s+1\s+\+\$1\s+RED\s+−\$13\s+off target \(0\.09\) by 0\.22\s+09\/30\s+0\s+16\s+2h/);
   assert.match(output, /2h\n$/);
   const [header, ewzRow, xleRow] = output.split("\n").slice(1, 4);
   for (const [heading, ewzValue, xleValue] of [["ACCOUNT", "XXXX1234", "XXXX1234"],
     ["SYMBOL", "EWZ", "XLE"], ["STRUCTURE", "Iron Condor", "Iron Condor"],
+    ["P/L DAY", "$0", "+$1"],
     ["STATE", "GREEN", "RED"], ["TOTAL G/L", "+$9", "−$13"],
     ["OBJECTIVE", "43% to target", "off target (0.09)"], ["OPENED", "09/30", "09/30"]]) {
     assert.equal(ewzRow.indexOf(ewzValue), header.indexOf(heading));
@@ -106,16 +108,28 @@ test("live colors complete economic segments and returns to white before DTE", (
   const colored = renderLive({ ...liveEvidence, color: true });
   assert.doesNotMatch(plain, /\x1b\[/);
   assert.match(colored, /^\n\x1b\[37mACCOUNT/);
-  assert.match(colored, /\x1b\[32mGREEN\s+\+\$9\s+43% to target \(0\.21\)\s*\x1b\[37m\s+09\/30\s+0\s+51/);
-  assert.match(colored, /\x1b\[31mRED\s+−\$13\s+off target \(0\.09\) by 0\.22\s*\x1b\[37m\s+09\/30\s+0/);
+  assert.match(colored, /\$0\s+\x1b\[32mGREEN\s+\+\$9\s+43% to target \(0\.21\)\s*\x1b\[37m\s+09\/30\s+0\s+51/);
+  assert.match(colored, /\x1b\[32m\+\$1\s*\x1b\[37m\s+\x1b\[31mRED\s+−\$13\s+off target \(0\.09\) by 0\.22\s*\x1b\[37m\s+09\/30\s+0/);
   assert.match(colored, /2h\x1b\[0m\n$/);
   assert.equal(colored.replace(/\x1b\[(?:31|32|37|0)m/g, ""), plain);
 });
 
+test("P/L Day uses its own sign and withholds incomplete or stale evidence", () => {
+  const losingHoldings = liveEvidence.holdings.map((item) => item.symbol === ewz.holdings[0].symbol ?
+    { ...item, "average-daily-market-close-price": "0.47" } : item);
+  const colored = renderLive({ ...liveEvidence, holdings: losingHoldings, color: true });
+  assert.match(colored, /EWZ\s+Iron Condor\s+1\s+\x1b\[31m−\$2\s*\x1b\[37m\s+\x1b\[32mGREEN/);
+  const missingHoldings = liveEvidence.holdings.map((item) => item.symbol === ewz.holdings[0].symbol ?
+    { ...item, "average-daily-market-close-price": undefined } : item);
+  assert.match(renderLive({ ...liveEvidence, holdings: missingHoldings }), /EWZ\s+Iron Condor\s+1\s+—\s+GREEN/);
+  const staleQuotes = liveEvidence.quotes.map((quote) => ({ ...quote, "updated-at": "2026-09-29T00:00:00.000Z" }));
+  assert.match(renderLive({ ...liveEvidence, quotes: staleQuotes }), /XLE\s+Iron Condor\s+1\s+—\s+UNKNOWN/);
+});
+
 test("DAYS counts elapsed New York calendar days from executed opening fills", () => {
   const nextDay = renderLive({ ...liveEvidence, now: new Date("2026-10-01T04:01:00.000Z") });
-  assert.match(nextDay, /EWZ\s+Iron Condor\s+1\s+GREEN.*\s+09\/30\s+1\s+50\s+4h/);
-  assert.match(nextDay, /XLE\s+Iron Condor\s+1\s+RED.*\s+09\/30\s+1\s+15\s+4h/);
+  assert.match(nextDay, /EWZ\s+Iron Condor\s+1\s+\$0\s+GREEN.*\s+09\/30\s+1\s+50\s+4h/);
+  assert.match(nextDay, /XLE\s+Iron Condor\s+1\s+\+\$1\s+RED.*\s+09\/30\s+1\s+15\s+4h/);
   const missingFillTime = { ...ewz.opening, legs: ewz.opening.legs.map((leg) => ({ ...leg,
     fills: leg.fills.map(({ "filled-at": _at, ...fill }) => fill) })) };
   assert.throws(() => renderLive({ ...liveEvidence,
@@ -126,11 +140,11 @@ test("explicit TSV output has real tabs, no padding or ANSI, and a header with z
   const tsv = renderLive({ ...liveEvidence, color: true, format: "tsv" });
   const lines = tsv.split("\n");
   assert.equal(lines.length, 3);
-  assert.deepEqual(lines[0].split("\t"), ["ACCOUNT", "SYMBOL", "STRUCTURE", "QTY", "STATE",
+  assert.deepEqual(lines[0].split("\t"), ["ACCOUNT", "SYMBOL", "STRUCTURE", "QTY", "P/L DAY", "STATE",
     "TOTAL G/L", "OBJECTIVE", "OPENED", "DAYS", "DTE", "QUOTE"]);
-  assert.deepEqual(lines[1].split("\t"), ["XXXX1234", "EWZ", "Iron Condor", "1", "GREEN",
+  assert.deepEqual(lines[1].split("\t"), ["XXXX1234", "EWZ", "Iron Condor", "1", "$0", "GREEN",
     "+$9", "43% to target (0.21)", "09/30", "0", "51", "2h"]);
-  assert.deepEqual(lines[2].split("\t"), ["XXXX1234", "XLE", "Iron Condor", "1", "RED",
+  assert.deepEqual(lines[2].split("\t"), ["XXXX1234", "XLE", "Iron Condor", "1", "+$1", "RED",
     "−$13", "off target (0.09) by 0.22", "09/30", "0", "16", "2h"]);
   assert.doesNotMatch(tsv, /\x1b\[|5WX01234|  +/);
   assert.equal(renderLive({ account: "5WX01234", holdings: [], orders: [], complexOrders: [],
@@ -178,8 +192,8 @@ test("live uses only allowlisted reads, one token, and sanitizes API errors", as
   assert.equal(await main(["live"], { env, out: (s) => ttyOutput.push(s), now: () => liveEvidence.now,
     fetchImpl, stdoutIsTTY: true }), 0);
   assert.match(ttyOutput[0], /^\n\x1b\[37m/);
-  assert.match(ttyOutput[0], /\x1b\[32mGREEN\s+\+\$9\s+43% to target \(0\.21\)\s*\x1b\[37m/);
-  assert.match(ttyOutput[0], /\x1b\[31mRED\s+−\$13\s+off target \(0\.09\) by 0\.22\s*\x1b\[37m/);
+  assert.match(ttyOutput[0], /\$0\s+\x1b\[32mGREEN\s+\+\$9\s+43% to target \(0\.21\)\s*\x1b\[37m/);
+  assert.match(ttyOutput[0], /\x1b\[32m\+\$1\s*\x1b\[37m\s+\x1b\[31mRED\s+−\$13\s+off target \(0\.09\) by 0\.22\s*\x1b\[37m/);
   assert.match(ttyOutput[0], /\x1b\[0m\n$/);
   const noColorOutput = [];
   assert.equal(await main(["live"], { env: { ...env, NO_COLOR: "1" },

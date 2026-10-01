@@ -116,7 +116,7 @@ function matchingExit(complexOrders, orders, held) {
 }
 
 function quoteEconomics(quotes, held, now) {
-  let closeDebit = 0; let oldest = Infinity;
+  let closeDebit = 0; let dayGain = 0; let dayReferenceComplete = true; let oldest = Infinity;
   for (const leg of held) {
     const matches = quotes.filter((quote) => quote?.symbol === leg.symbol);
     if (matches.length !== 1) fail("quote evidence missing or duplicated");
@@ -126,10 +126,14 @@ function quoteEconomics(quotes, held, now) {
     if (![bid, ask, mid, at].every(Number.isFinite) || bid > ask || mid < bid - 0.000001 ||
         mid > ask + 0.000001 || at > now.getTime() + 60_000) fail("quote evidence malformed");
     closeDebit += (leg.direction === "Short" ? 1 : -1) * mid;
+    const reference = decimal(leg.dayClose);
+    if (Number.isFinite(reference)) {
+      dayGain += (leg.direction === "Long" ? 1 : -1) * (mid - reference) * leg.quantity * leg.multiplier;
+    } else dayReferenceComplete = false;
     oldest = Math.min(oldest, at);
   }
   if (closeDebit < -0.000001) fail("indicative package value is inconsistent");
-  return { closeDebit: Math.max(0, closeDebit), oldest,
+  return { closeDebit: Math.max(0, closeDebit), dayGain: dayReferenceComplete ? dayGain : null, oldest,
     stale: now.getTime() - oldest > 12 * 60 * 60 * 1000 };
 }
 
@@ -175,7 +179,12 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, n
     const exit = matchingExit(complexOrders, orders, trade.legs);
     const target = decimal(exit.target.price);
     if (!(target >= 0 && target < credit)) fail("profit target economics are inconsistent");
-    const market = quoteEconomics(quotes, trade.legs, now);
+    const heldWithDayClose = trade.legs.map((leg) => {
+      const position = items.find((item) => item.symbol === leg.symbol);
+      return { ...leg, multiplier: trade.multiplier,
+        dayClose: position?.["average-daily-market-close-price"] ?? position?.["close-price"] };
+    });
+    const market = quoteEconomics(quotes, heldWithDayClose, now);
     const days = Math.round((dayInNewYork(now) - dayInNewYork(new Date(openedAt))) / 86_400_000);
     if (openedAt > now.getTime() || days < 0) fail("opening fill time is after the observation");
     const dte = Math.max(0, Math.round((dayInNewYork(new Date(trade.expiry)) - dayInNewYork(now)) / 86_400_000));
@@ -201,13 +210,15 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, n
     if (transition.has(exit.target.status) || transition.has(exit.stop.status)) {
       note = `exit transition: target ${exit.target.status}, stop ${exit.stop.status}`;
     }
-    rows.push([accountLabel, trade.symbol, trade.label, String(trade.quantity), state, sinceEntry,
+    const dayGain = market.stale || market.dayGain === null ? "—" :
+      Math.abs(market.dayGain) < 0.005 ? "$0" : signedDollars(market.dayGain);
+    rows.push([accountLabel, trade.symbol, trade.label, String(trade.quantity), dayGain, state, sinceEntry,
       objective, monthDayInNewYork(new Date(openedAt)), String(days), String(dte),
       quoteAge(now.getTime() - market.oldest), note]);
   }
-  const headers = ["ACCOUNT", "SYMBOL", "STRUCTURE", "QTY", "STATE", "TOTAL G/L",
+  const headers = ["ACCOUNT", "SYMBOL", "STRUCTURE", "QTY", "P/L DAY", "STATE", "TOTAL G/L",
     "OBJECTIVE", "OPENED", "DAYS", "DTE", "QUOTE"];
-  if (rows.some((row) => row[11])) headers.push("NOTE");
+  if (rows.some((row) => row[12])) headers.push("NOTE");
   if (format === "tsv") {
     return [headers, ...rows.map((row) => row.slice(0, headers.length))].map((row) => row.join("\t")).join("\n");
   }
@@ -218,10 +229,13 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, n
     lines.push(columns(headers, 0, headers.length));
     for (const row of rows) {
       const prefix = columns(row, 0, 4);
-      const economics = columns(row, 4, 7);
-      const suffix = columns(row, 7, headers.length);
-      lines.push(`${prefix}  ${["GREEN", "RED"].includes(row[4]) ?
-        colorSegment(row[4], economics, color) : economics}  ${suffix}`.trimEnd());
+      const day = columns(row, 4, 5);
+      const economics = columns(row, 5, 8);
+      const suffix = columns(row, 8, headers.length);
+      const dayState = row[4].startsWith("+") ? "GREEN" : row[4].startsWith("−") ? "RED" : null;
+      lines.push(`${prefix}  ${dayState ? colorSegment(dayState, day, color) : day}  ${
+        ["GREEN", "RED"].includes(row[5]) ? colorSegment(row[5], economics, color) : economics
+      }  ${suffix}`.trimEnd());
     }
   }
   const output = lines.join("\n");
