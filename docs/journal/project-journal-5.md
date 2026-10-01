@@ -1328,3 +1328,90 @@ What remains unresolved:
 - whether historical XSP P50 trigger observations correspond to executable resting complex-order fills.
 
 **Authority:** research continuity only. XSP remains exploratory. No Wheelwright strategy authority, roadmap admission, policy change, or production deployment rule is established by this entry.
+
+
+---
+
+## 2026-10-01 — XSP recycling audit closes; Exit Reliability becomes the next execution-evidence question (ChatGPT)
+
+**Actor:** ChatGPT, preserving the completed Muse follow-on audit and its connection to the live tastytrade evidence work.
+**Mode:** Research/journal persistence only. No XSP strategy admission, deployment-policy adoption, Exit Reliability score, Wheelwright eligibility rule, or optimization authorization.
+**Scope:** Completed audit of scenario R; corrected interpretation of recycling; execution-model dependence; same-session concentration; and the research handoff to Exit Reliability / `tt scout`.
+
+### Muse follow-on audit: what is now established
+
+Muse completed the requested audit/refinement run against the frozen XSP recipe. Scenario R reproduces exactly from its artifacts: **1,287 entries** (779 replacement / 508 calendar), **1,256 completed**, 674 P50 / 582 forced, **-$106,394.70** net, **-$180,310.70** model MTM drawdown, average BPR **$36,901 / 40.1%**, peak BPR **$91,979**, max 52 concurrent, and max **47 entries/session**. Replacement-attempt accounting reconciles on all 834 sessions with zero mismatches; 25/25 regression tests re-passed.
+
+The concentration question is resolved. The 47-entry day was **47 copies of one identical spread**. More generally, every one of the 508 R entry sessions selected exactly one unique `(expiration, short, long)` structure; 136 sessions entered multiple copies; 100% of replacement entries shared their session/structure with another entry; and **71% of all R BPR entered** sat in same-session duplicated cohorts. This is classified as a **faithful but pathological consequence of the specified renewal rule**, not a simulator bug: repeated same-day attempts invoke one deterministic selector, and the rule contains no same-session de-duplication or concentration constraint beyond aggregate BPR.
+
+The capital ceiling also has an important model boundary: it is checked against a **fixed $92,000 notional**, not current modeled equity. On 2025-03-17, after equity had fallen to **$145**, the model could still deploy **$91,966 BPR** into 42 identical replacement entries. This materially amplifies the modeled feedback loop and prevents reading the tail as a literal brokerage-account path.
+
+### Velocity and efficiency are separate
+
+The earlier phrase "little velocity to harvest" is withdrawn. R materially increased activity: completed trades / 100 sessions **62.2 → 150.6**, BPR-days **12.2M → 30.4M**, and mean utilization **16.0% → 40.1%**. But capital efficiency deteriorated: P&L per $1,000 BPR-day **-$1.71 → -$3.50**. Cycles per BPR-year actually fell **19.5 → 18.7**, so the turnover increase came from deploying more dollars, not faster cycling.
+
+Forced-exit-sourced renewal is the dominant loss channel. Expected attribution assigns about 355 replacement entries to forced-exit sources and 424 to P50 sources. Forced-sourced replacements lost about **-$74,495** versus **-$10,336** for P50-sourced replacements; approximately **87% of replacement P&L damage** traces to forced-exit-minted chains. Mean renewal depth is about 2.2 generations; the March 17 cohort reached about 3.9.
+
+### R is a specific renewal policy, not generic capital recycling
+
+The tested object is now bounded precisely: every close on T-1 mints one next-session replacement attempt; the standing calendar attempt remains; all attempts use one deterministic same-day selector; no same-day cohort concentration constraint exists; forced exits mint replacements identically to P50 exits; opportunities expire unused; and the BPR ceiling is fixed at $92k.
+
+Only "released capital can be reused" is inherent to the broad concept of capital recycling. One-for-one minting, deterministic duplicate selection, source-blind renewal, and lack of concentration controls are policy choices. Therefore the result must not be summarized as "capital recycling fails."
+
+### Execution-model robustness claim is refuted and replaced
+
+Muse actually ran R under the existing execution models. Calendar → R results:
+
+- optimistic midpoint: **+$18,252 → +$68,850** (R delta **+$50,598**);
+- reasonable/canonical: **-$20,842 → -$106,395** (delta **-$85,552**);
+- conservative: **-$24,998 → -$109,841** (delta **-$84,842**);
+- combo-cap: **-$20,541 → -$106,094** (delta **-$85,552**).
+
+The earlier broad claim that R is directionally bad across execution scenarios is therefore false. The better description is that this renewal rule is a **sign-preserving amplifier of base-trade expectancy**, while also widening tails and concentration. Even the profitable midpoint R run drew down **-$66,083** and lost **-$43,285** in March 2025.
+
+This makes the execution economics of the base trade a prerequisite to useful deployment optimization. Under the frozen study, changing the execution model changes the calendar strategy from positive to negative and changes renewal from beneficial to catastrophic. Recycling should therefore remain untouched until the base trade's executable economics are better established.
+
+### >width marks and XLE comparison narrowed
+
+The extreme R drawdown is not primarily a >width synthetic-mark artifact. Only 12 of 17,007 valid R position-days (0.07%) synthesized above the $20 width; capping those marks would improve the approximately -$83k trough by only about **$2.3k**. The dominant mechanism is concentration in many copies of spreads widening substantially toward, but mostly below, maximum loss. Combo-cap ≈ canonical independently supports this conclusion.
+
+The live XLE observation is also bounded correctly. Four consecutive one-minute XLE observations had a four-leg synthetic midpoint at/below the resting P50 target while the complex order remained unfilled. This establishes the **general** proposition that independent-leg synthetic valuation is not package-execution evidence. It does **not** directly falsify the XSP historical trigger, which uses a two-leg ask(short)-bid(long) taker-crossing on a different underlier. The XSP substrate itself still cannot establish whether a particular historical P50 trigger would have filled as a live complex order.
+
+### Exit Reliability: the research handoff
+
+The completed audit and the live evidence work now converge on one research priority: **establish the execution economics of the base trade before optimizing capital velocity**.
+
+A new research concept is being used for that problem:
+
+> **Exit Reliability:** the empirical likelihood that a complete options position can be closed, when its management rule requires closure, at a price reasonably represented by observable market evidence.
+
+Exit Reliability is not a broker liquidity rating and is not yet a Wheelwright score or policy. Leg bid/ask width, size, timestamp freshness/skew, open interest, volume, synthetic stability, and tastytrade's broker liquidity rating are candidate predictors only. The eventual dependent evidence requires package-level outcomes or comparable evidence: fill/no-fill, time-to-fill, and concession required.
+
+The read-only `tt scout` feasibility slice has been implemented locally by Codex (reported local commit `b2e139a`, not pushed at the time of this journal persistence). It accepts operator-supplied roots and exact specimen rules and exports one-shot tastytrade evidence without ranking roots or inventing a package quote. A live XSP specimen at 50 calendar DTE returned complete two-sided leg quotes, sizes, timestamps, and broker liquidity facts across $5/$10/$15/$20 widths. In that single observation, the component-market mid-to-natural gap remained roughly 7.5-9 cents while the spread credit increased with width; therefore the same absolute quote concession consumed a much larger fraction of the narrow spread's credit/P50 objective. This is a candidate diagnostic, **not an execution result** and not evidence that a complex order would fill at either synthetic price.
+
+The next research step is cross-sectional design, not another `tt` product feature: explicitly choose a candidate-root universe and specimen-sampling methodology, compare observable candidate predictors across roots and lifecycle ages, and only then decide whether longitudinal/streaming evidence collection is justified. Do not hard-code an Exit Reliability formula or Wheelwright criterion from the first snapshots.
+
+### Authority / unresolved
+
+This checkpoint preserves research continuity only.
+
+Supported:
+- R reproduces exactly under its specified rule.
+- Same-session duplicate concentration is total when multiple R attempts occur.
+- R materially increases utilization/activity but worsens efficiency under the canonical model.
+- Forced-exit-sourced renewal dominates incremental R losses.
+- R's direction depends on the base execution model; it is not universally destructive.
+- >width synthetic marks are not load-bearing for the extreme R tail.
+- XLE supports the general synthetic-valuation-versus-package-execution boundary.
+- The historical XSP substrate cannot determine actual complex-order fill truth.
+- One-shot `tt scout` evidence is suitable for studying candidate execution-quality predictors, not for claiming Exit Reliability.
+
+Unresolved:
+- actual fill/no-fill truth for historical XSP P50 triggers;
+- whether EOD ask/bid systematically over- or under-counts executable package fills;
+- which observable market-quality features predict package exit outcomes;
+- which underlying/structure/width/DTE combinations have high Exit Reliability;
+- any renewal policy other than the audited R bundle;
+- whether forced-sourced renewal damage persists out of sample.
+
+**Authority:** XSP remains exploratory under existing research authority. No strategy admission, capital-allocation rule, recycling policy, Exit Reliability threshold, underlying ranking, or Wheelwright ingestion is authorized by this entry.
