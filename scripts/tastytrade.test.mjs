@@ -85,7 +85,7 @@ const liveEvidence = { account: "5WX01234", holdings: [...ewz.holdings, ...xle.h
 test("live summarizes two complete trades from fills and leg mids without historical order noise", () => {
   const oldRejected = { id: "old", type: "OCO", orders: [{ ...ewz.closing.orders[0], status: "Rejected" }] };
   const output = renderLive({ ...liveEvidence, complexOrders: [...liveEvidence.complexOrders, oldRejected] });
-  assert.match(output, /^\nACCOUNT\s+SYMBOL\s+STRUCTURE\s+QTY\s+P\/L DAY\s+STATE\s+TOTAL G\/L\s+OPEN@\s+CLOSE@\s+TARGET CLOSE@\s+PROGRESS\s+OPENED\s+DTE\s+QUOTE/);
+  assert.match(output, /^\nACCOUNT\s+SYMBOL\s+STRUCTURE\s+QTY\s+P\/L DAY\s+STATE\s+TOTAL G\/L\s+OPENED@\s+CURRENT\s+TARGET CLOSE@\s+PROGRESS\s+OPENED\s+DTE\s+QUOTE/);
   assert.match(output, /XXXX1234\s+EWZ\s+Iron Condor\s+1\s+\$0\s+GREEN\s+\+\$9\s+0\.42 CR\s+0\.33\s+50% @ 0\.21; exp 11\/20\s+0\.12 above target\s+09\/30 \(0 days\)\s+51\s+2h/);
   assert.match(output, /XXXX1234\s+XLE\s+Iron Condor\s+1\s+\+\$1\s+RED\s+−\$13\s+0\.18 CR\s+0\.31\s+50% @ 0\.09; exp 10\/16\s+0\.22 above target\s+09\/30 \(0 days\)\s+16\s+2h/);
   assert.match(output, /2h\n$/);
@@ -94,9 +94,9 @@ test("live summarizes two complete trades from fills and leg mids without histor
     ["SYMBOL", "EWZ", "XLE"], ["STRUCTURE", "Iron Condor", "Iron Condor"],
     ["P/L DAY", "$0", "+$1"],
     ["STATE", "GREEN", "RED"], ["TOTAL G/L", "+$9", "−$13"],
-    ["OPEN@", "0.42 CR", "0.18 CR"], ["CLOSE@", "0.33", "0.31"],
+    ["OPENED@", "0.42 CR", "0.18 CR"], ["CURRENT", "0.33", "0.31"],
     ["TARGET CLOSE@", "50% @ 0.21", "50% @ 0.09"],
-    ["PROGRESS", "0.12 above target", "0.22 above target"], ["OPENED", "09/30", "09/30"]]) {
+    ["PROGRESS", "0.12 above target", "0.22 above target"], ["OPENED ", "09/30", "09/30"]]) {
     assert.equal(ewzRow.indexOf(ewzValue), header.indexOf(heading));
     assert.equal(xleRow.indexOf(xleValue), header.indexOf(heading));
   }
@@ -112,6 +112,8 @@ test("live colors complete economic segments and returns to white before DTE", (
   assert.match(colored, /^\n\x1b\[37mACCOUNT/);
   assert.match(colored, /\$0\s+\x1b\[32mGREEN\s+\+\$9\s*\x1b\[37m\s+0\.42 CR/);
   assert.match(colored, /\x1b\[32m\+\$1\s*\x1b\[37m\s+\x1b\[31mRED\s+−\$13\s*\x1b\[37m\s+0\.18 CR/);
+  assert.match(colored, /\x1b\[37m\s+0\.42 CR.*0\.12 above target/);
+  assert.match(colored, /\x1b\[37m\s+0\.18 CR.*0\.22 above target/);
   assert.match(colored, /2h\x1b\[0m\n$/);
   assert.equal(colored.replace(/\x1b\[(?:31|32|37|0)m/g, ""), plain);
 });
@@ -171,7 +173,7 @@ test("explicit TSV output has real tabs, no padding or ANSI, and a header with z
   const lines = tsv.split("\n");
   assert.equal(lines.length, 3);
   assert.deepEqual(lines[0].split("\t"), ["ACCOUNT", "SYMBOL", "STRUCTURE", "QTY", "P/L DAY", "STATE",
-    "TOTAL G/L", "OPEN@", "CLOSE@", "TARGET CLOSE@", "PROGRESS", "OPENED", "DTE", "QUOTE"]);
+    "TOTAL G/L", "OPENED@", "CURRENT", "TARGET CLOSE@", "PROGRESS", "OPENED", "DTE", "QUOTE"]);
   assert.deepEqual(lines[1].split("\t"), ["XXXX1234", "EWZ", "Iron Condor", "1", "$0", "GREEN",
     "+$9", "0.42 CR", "0.33", "50% @ 0.21; exp 11/20", "0.12 above target", "09/30 (0 days)", "51", "2h"]);
   assert.deepEqual(lines[2].split("\t"), ["XXXX1234", "XLE", "Iron Condor", "1", "+$1", "RED",

@@ -230,7 +230,7 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, n
       progress, opened, String(dte), quoteLabel(market, now, sessionCloseAt), note]);
   }
   const headers = ["ACCOUNT", "SYMBOL", "STRUCTURE", "QTY", "P/L DAY", "STATE", "TOTAL G/L",
-    "OPEN@", "CLOSE@", "TARGET CLOSE@", "PROGRESS", "OPENED", "DTE", "QUOTE"];
+    "OPENED@", "CURRENT", "TARGET CLOSE@", "PROGRESS", "OPENED", "DTE", "QUOTE"];
   if (rows.some((row) => row[14])) headers.push("NOTE");
   if (format === "tsv") {
     return [headers, ...rows.map((row) => row.slice(0, headers.length))].map((row) => row.join("\t")).join("\n");
