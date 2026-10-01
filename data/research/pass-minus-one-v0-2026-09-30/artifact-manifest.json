@@ -1,0 +1,21 @@
+{
+  "schema": "wheelwright-pass-minus-one-evidence-snapshot/v0",
+  "identity": "PASS-MINUS-ONE-V0",
+  "decision": "Principal adopted the dated opportunity population and identity evidence as a frozen research snapshot on 2026-10-01. This is not eligibility, product policy, or a permanent optionability classification.",
+  "occ_report_date": "2026-09-30",
+  "cboe_reference_date": "2026-10-01",
+  "capture_started_at_utc": "2026-10-01T18:21:51.781Z",
+  "capture_completed_at_utc": "2026-10-01T19:16:50.100Z",
+  "underlying_denominator": 6072,
+  "ordinary_option_class_denominator": 6381,
+  "archive": "evidence.tar.gz",
+  "archive_sha256": "1a43983917a7e2b2f96f291afe2c8a7859042e5ec12b9a3ad6630374d8694e25",
+  "source_population_sha256": "c8e4049b47b14100981c325d340edba470064e968f01ba0f3f2395714fd7eb3d",
+  "full_capture_manifest_sha256": "93b4f58d6ddb7a9c7b8fce2d657d92176d4188c155ca711cbddc0b7663df3bdb",
+  "analysis_summary_sha256": "0573a3af3e1e6ac3fbde6a55025fd7b34db3202c5884df9453cdf261716c8c90",
+  "analysis_underlyings_sha256": "e23ba03445c57e21a7526dcafcbde00df5f90fc9062b3333487b6398547e386f",
+  "analysis_classes_sha256": "729e8919a1ae2df836cdf5fef45c96d31a605462982f5b3c6aa007e11f0943e9",
+  "included_files": 6140,
+  "unresolved_states_retained": true,
+  "no_exclusions_applied": true
+}

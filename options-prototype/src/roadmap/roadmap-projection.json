@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-28T06:20:48.482Z",
+    "generatedAt": "2026-10-01T19:25:36.672Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -1826,10 +1826,10 @@
       "sections": []
     },
     {
-      "id": "PL-RESEARCH-01",
-      "name": "Universe Discovery",
+      "id": "PL-RESEARCH-04",
+      "name": "Instrument Catalog Evolution",
       "section": "Blocked on External Dependencies",
-      "description": "Needs paid provider tier for enumeration",
+      "description": "Needs provider/data-source for programmatic enrichment (sector, issuer, structural classification). Prerequisite for set analysis grouping and richer governance.",
       "descriptionTruncated": false,
       "state": null,
       "sourceFile": "parking-lot.md",
@@ -1838,10 +1838,10 @@
       "sections": []
     },
     {
-      "id": "PL-RESEARCH-04",
-      "name": "Instrument Catalog Evolution",
-      "section": "Blocked on External Dependencies",
-      "description": "Needs provider/data-source for programmatic enrichment (sector, issuer, structural classification). Prerequisite for set analysis grouping and richer governance.",
+      "id": "PL-RESEARCH-01",
+      "name": "Universe Discovery",
+      "section": "Active Research",
+      "description": "**Pass −1 v0 frozen by Principal decision (2026-10-01):** dated 2026-09-30 OCC opportunity population and 2026-10-01 Tradier identity-evidence snapshot; 6,072 underlyings and 6,381 ordinary option-class rows, both permanently retained. All exact underlying requests returned HTTP 200 and all raw bodies were hash-verified. Explicit aliases and unresolved identity states remain in the denominator. This is a research evidence snapshot, **not** an eligibility universe, exclusion policy, or permanent optionability classification. The earlier paid-tier enumeration blocker is resolved by the OCC/Cboe enumeration-source experiment; subsequent transformations remain separate research.",
       "descriptionTruncated": false,
       "state": null,
       "sourceFile": "parking-lot.md",
@@ -8024,7 +8024,7 @@
       "state": "RECONCILED (first slice). Produced across a 3AM design session with three independent review rounds that each falsified part of an earlier model and were corrected before commitment.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-3.md",
-      "sourceOrder": 25
+      "sourceOrder": 26
     },
     {
       "plId": "PL-DEPLOY-02-DEF01",
@@ -8037,7 +8037,7 @@
       "state": "REMEDIATED / CLOSED. Intake + disposition reconciled 2026-09-01 (independently verified by Codex); repair shipped and live-verified 2026-09-01 (`c5df959`). See \"Remediation closure\" below.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-3.md",
-      "sourceOrder": 38
+      "sourceOrder": 39
     },
     {
       "plId": "PL-PROV-FAILOVER",
@@ -8050,7 +8050,7 @@
       "state": "RECONCILED (observed capability + self-healing design + implementation-reality-grounded refinement + disposition). Established by contemporaneous read-only evidence; no implementation. Working state/threshold vocabulary is non-ratified.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-3.md",
-      "sourceOrder": 48
+      "sourceOrder": 49
     },
     {
       "plId": "PL-CLEANUP",
@@ -8063,7 +8063,7 @@
       "state": "RECONCILED. `PL-SHELL` residual boundary RESOLVED/RATIFIED; `PL-CLEANUP` rewritten once against the ratified target and decomposed into four dependency-ordered packages.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-3.md",
-      "sourceOrder": 73
+      "sourceOrder": 74
     },
     {
       "plId": "PL-STRAT-01",
@@ -8076,7 +8076,7 @@
       "state": "RECONCILED exploration under existing `PL-STRAT-01`; no new `PL-*` identity created",
       "headingLevel": 2,
       "sourceFile": "parking-lot-5.md",
-      "sourceOrder": 91
+      "sourceOrder": 92
     },
     {
       "plId": "PL-STRAT-01",
@@ -8089,7 +8089,7 @@
       "state": "RECONCILED exploration under existing `PL-STRAT-01`; no new `PL-*` identity created",
       "headingLevel": 2,
       "sourceFile": "parking-lot-5.md",
-      "sourceOrder": 102
+      "sourceOrder": 103
     },
     {
       "plId": "PL-STRAT-01",
@@ -8102,7 +8102,7 @@
       "state": "RECONCILED exploration under existing `PL-STRAT-01`; no new `PL-*` identity created",
       "headingLevel": 2,
       "sourceFile": "parking-lot-5.md",
-      "sourceOrder": 113
+      "sourceOrder": 114
     },
     {
       "plId": "PL-STRAT-01",
@@ -8115,7 +8115,7 @@
       "state": "RECONCILED exploration under existing `PL-STRAT-01`; no new `PL-*` identity created",
       "headingLevel": 2,
       "sourceFile": "parking-lot-6.md",
-      "sourceOrder": 128
+      "sourceOrder": 129
     },
     {
       "plId": "PL-DEPLOY",
@@ -8128,7 +8128,7 @@
       "state": "RECONCILED exploration under existing `PL-DEPLOY`; no new `PL-*` identity created",
       "headingLevel": 2,
       "sourceFile": "parking-lot-6.md",
-      "sourceOrder": 139
+      "sourceOrder": 140
     },
     {
       "plId": "PL-DEPLOY",
@@ -8141,7 +8141,7 @@
       "state": "RECONCILED exploration under existing `PL-DEPLOY`; no new `PL-*` identity created",
       "headingLevel": 2,
       "sourceFile": "parking-lot-6.md",
-      "sourceOrder": 153
+      "sourceOrder": 154
     },
     {
       "plId": "PL-DEPLOY",
@@ -8154,7 +8154,7 @@
       "state": "RECONCILED exploration under existing `PL-DEPLOY`; no new `PL-*` identity created",
       "headingLevel": 2,
       "sourceFile": "parking-lot-7.md",
-      "sourceOrder": 161
+      "sourceOrder": 162
     },
     {
       "plId": "PL-OPS-08",
@@ -8167,7 +8167,7 @@
       "state": "INTAKE — new canonical identity created; broader problem deferred, bounded forced one-shot acquisition recovery control implemented (nudge-based first attempt falsified and replaced)",
       "headingLevel": 2,
       "sourceFile": "parking-lot-7.md",
-      "sourceOrder": 172
+      "sourceOrder": 173
     },
     {
       "plId": "PL-OPS-01",
@@ -8180,7 +8180,7 @@
       "state": "INTAKE refinement under existing `PL-OPS-01` Cloud Deployment / always-on; no new `PL-*` identity created",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 185
+      "sourceOrder": 186
     },
     {
       "plId": "PL-DEPLOY",
@@ -8193,7 +8193,7 @@
       "state": "RECONCILED (discovery intake) under existing `PL-DEPLOY`; no new `PL-*` identity created; not authorized for implementation.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 193
+      "sourceOrder": 194
     },
     {
       "plId": "PL-OPS-09",
@@ -8206,7 +8206,7 @@
       "state": "INTAKE — new canonical identity created; bounded capability implemented, tested, and shipped under Principal direction",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 204
+      "sourceOrder": 205
     },
     {
       "plId": null,
@@ -8219,7 +8219,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 515
+      "sourceOrder": 516
     },
     {
       "plId": null,
@@ -8232,7 +8232,7 @@
       "state": "INTAKE — technology-quality / developer-feedback-loop review; no implementation authorized by this entry",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 214
+      "sourceOrder": 215
     },
     {
       "plId": null,
@@ -8245,7 +8245,7 @@
       "state": "CONFIRMED DIRECTION / PRELIMINARY MEASUREMENT — retained under the existing September 13 Java Test-Suite Execution Performance / Execution-Time SLO Review; implementation deferred; no new PL identity created",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 218
+      "sourceOrder": 219
     },
     {
       "plId": "PL-ELIG",
@@ -8258,7 +8258,7 @@
       "state": "V1 **IMPLEMENTED and pushed to `main`** (Sep 14, 2026, commit `a129fe1`) under explicit overnight implementation authorization. Contract was ACCEPTED by Principal after multi-actor (Kiro/Codex) reconciliation. **No new `PL-*` identity created.** Implementation is frontend-only and additive; matches this contract. **Principal visual/product acceptance still pending** (implemented without interactive supervision — engineering visual validation only; see journal Sep 14 implementation entry).",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 227
+      "sourceOrder": 228
     },
     {
       "plId": "PL-MKT",
@@ -8271,7 +8271,7 @@
       "state": "INTAKE — new canonical identity; two bounded capabilities SHIPPED under it (Markets card + timesales-backed sparklines); further use requires its own reconciliation.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 245
+      "sourceOrder": 246
     },
     {
       "plId": "PL-DEPLOY-EXPORT",
@@ -8284,7 +8284,7 @@
       "state": "INTAKE — new canonical identity created at this record. Strategic Reconciliation (§3) and Architectural Reconciliation (§4) NOT yet performed; not RECONCILED; not decomposed; not authorized for implementation.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 250
+      "sourceOrder": 251
     },
     {
       "plId": "PL-DEPLOY-EXPORT",
@@ -8297,7 +8297,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 260
+      "sourceOrder": 261
     },
     {
       "plId": "PL-RECIPE-01",
@@ -8310,7 +8310,7 @@
       "state": "INTAKE — new canonical identity created at this record, with several targeted questions **Principal-settled** (recorded below). §3 full Strategic Reconciliation and §4 full Architectural Reconciliation are **NOT** claimed complete; this item is **not RECONCILED**, not decomposed, and not authorized for implementation or experiment execution.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 269
+      "sourceOrder": 270
     },
     {
       "plId": "PL-RECIPE-01",
@@ -8323,7 +8323,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 284
+      "sourceOrder": 285
     },
     {
       "plId": "PL-DEPLOY",
@@ -8336,7 +8336,7 @@
       "state": "DISCOVERY / lived-trade confirmation, RECONCILED under existing `PL-DEPLOY`; no new `PL-*` identity created; not authorized for implementation.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 293
+      "sourceOrder": 294
     },
     {
       "plId": "PL-ACTOR-01",
@@ -8349,7 +8349,7 @@
       "state": "INTAKE — new canonical identity created; discussion preserved only; not reconciled, decomposed, designed, selected for implementation, or authorized for implementation",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 304
+      "sourceOrder": 305
     },
     {
       "plId": null,
@@ -8362,7 +8362,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 506
+      "sourceOrder": 507
     },
     {
       "plId": null,
@@ -8375,7 +8375,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 507
+      "sourceOrder": 508
     },
     {
       "plId": null,
@@ -8388,7 +8388,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 508
+      "sourceOrder": 509
     },
     {
       "plId": null,
@@ -8401,7 +8401,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 511
+      "sourceOrder": 512
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8414,7 +8414,7 @@
       "state": "RECONCILED — durable knowledge captured; candidate runtime/model/test consequences retained; no production implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 319
+      "sourceOrder": 320
     },
     {
       "plId": null,
@@ -8427,7 +8427,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 509
+      "sourceOrder": 510
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8440,7 +8440,7 @@
       "state": "RECONCILED — canonical identity created; strategic and architectural reconciliation complete; implementation authorized by the Principal (Option A, provisional UX) at SYNC `0d1061699ad32b86c67fb4285a64d94bd69734ef`. The interaction model and visual organization are a first implementation hypothesis, not ratified final UX.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 345
+      "sourceOrder": 346
     },
     {
       "plId": null,
@@ -8453,7 +8453,7 @@
       "state": "Bounded implementation shipped under `PL-DEPLOY-BAL`; Principal operator-accepted; accepted-main SYNC `970f87af6f5a48de491cb579e39624fad19cb2c3`",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 326
+      "sourceOrder": 327
     },
     {
       "plId": "PL-PORT-01-UPLOAD-ALL",
@@ -8466,7 +8466,7 @@
       "state": "INTAKE refinement under existing `PL-PORT-01`; RECONCILED (see completion record); no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 327
+      "sourceOrder": 328
     },
     {
       "plId": "PL-PORT-01-CAPGRAPH",
@@ -8479,7 +8479,7 @@
       "state": "INTAKE refinement under existing `PL-PORT-01`; RECONCILED (see completion record); no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 336
+      "sourceOrder": 337
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8492,7 +8492,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 358
+      "sourceOrder": 359
     },
     {
       "plId": "PL-ARCH-07",
@@ -8505,7 +8505,7 @@
       "state": "INTAKE — new canonical identity created; Principal-authorized as an intake/research-and-design concern. No vendor selected, no authorization/RBAC/FGA/authentication implemented, no multi-Operator implementation work opened.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 361
+      "sourceOrder": 362
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8518,7 +8518,7 @@
       "state": "IMPLEMENTED (uncommitted working tree) — Principal-authorized (Option A, smallest coherent unit). Awaiting Principal operator-surface acceptance before commit.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 366
+      "sourceOrder": 367
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8531,7 +8531,7 @@
       "state": "IMPLEMENTED (uncommitted working tree) — corrected per independent Codex review; awaiting a second independent re-review, then Principal operator-surface acceptance before commit.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 367
+      "sourceOrder": 368
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8544,7 +8544,7 @@
       "state": "IMPLEMENTED (uncommitted working tree) — final bounded correction pass; awaiting one constrained Codex verification against the frozen acceptance invariants, then Principal operator-surface acceptance before commit.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 368
+      "sourceOrder": 369
     },
     {
       "plId": "PL-PORT-01",
@@ -8557,7 +8557,7 @@
       "state": "INTAKE refinement under existing `PL-PORT-01`; not reconciled; no implementation authorized",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 371
+      "sourceOrder": 372
     },
     {
       "plId": null,
@@ -8570,7 +8570,7 @@
       "state": null,
       "headingLevel": 4,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 380
+      "sourceOrder": 381
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8583,7 +8583,7 @@
       "state": "RECONCILED — provisional-UX refinement under existing `PL-ROADMAP-UI`; no new canonical identity; Principal-accepted; no new authority mutated.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 381
+      "sourceOrder": 382
     },
     {
       "plId": "PL-BROKER-CAP",
@@ -8596,7 +8596,7 @@
       "state": "INTAKE — new canonical identity; materially developed cross-cutting discovery; strategic/architectural reconciliation intentionally not completed; no implementation or vendor evaluation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 382
+      "sourceOrder": 383
     },
     {
       "plId": null,
@@ -8609,7 +8609,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 489
+      "sourceOrder": 490
     },
     {
       "plId": null,
@@ -8622,7 +8622,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 490
+      "sourceOrder": 491
     },
     {
       "plId": null,
@@ -8635,7 +8635,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 491
+      "sourceOrder": 492
     },
     {
       "plId": null,
@@ -8648,7 +8648,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 492
+      "sourceOrder": 493
     },
     {
       "plId": null,
@@ -8661,7 +8661,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 493
+      "sourceOrder": 494
     },
     {
       "plId": null,
@@ -8674,7 +8674,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 494
+      "sourceOrder": 495
     },
     {
       "plId": null,
@@ -8687,7 +8687,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 495
+      "sourceOrder": 496
     },
     {
       "plId": null,
@@ -8700,7 +8700,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 496
+      "sourceOrder": 497
     },
     {
       "plId": null,
@@ -8713,7 +8713,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 497
+      "sourceOrder": 498
     },
     {
       "plId": null,
@@ -8726,7 +8726,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 498
+      "sourceOrder": 499
     },
     {
       "plId": null,
@@ -8739,7 +8739,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 499
+      "sourceOrder": 500
     },
     {
       "plId": null,
@@ -8752,7 +8752,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 500
+      "sourceOrder": 501
     },
     {
       "plId": null,
@@ -8765,7 +8765,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 501
+      "sourceOrder": 502
     },
     {
       "plId": null,
@@ -8778,7 +8778,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 502
+      "sourceOrder": 503
     },
     {
       "plId": null,
@@ -8791,7 +8791,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 503
+      "sourceOrder": 504
     },
     {
       "plId": null,
@@ -8804,7 +8804,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 504
+      "sourceOrder": 505
     },
     {
       "plId": null,
@@ -8817,7 +8817,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 505
+      "sourceOrder": 506
     },
     {
       "plId": null,
@@ -8830,7 +8830,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 510
+      "sourceOrder": 511
     },
     {
       "plId": null,
@@ -8843,7 +8843,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 514
+      "sourceOrder": 515
     },
     {
       "plId": "PL-SEM-01",
@@ -8856,7 +8856,7 @@
       "state": "INTAKE — new canonical identity created; bounded design draft created under explicit Principal direction; not ratified architecture and no implementation migration authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 393
+      "sourceOrder": 394
     },
     {
       "plId": "PL-SEM-01",
@@ -8869,7 +8869,7 @@
       "state": "REFINEMENT — Principal selected Option B: specimen-driven semantic-core reconciliation before DDD decomposition; v1.1 persisted; second adversarial review pending",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 401
+      "sourceOrder": 402
     },
     {
       "plId": "PL-SEM-01",
@@ -8882,7 +8882,7 @@
       "state": "REFINEMENT — second adversarial review accepted as semantic pressure; focused Option-C continuation opened; long-straddle control specimen added; broader practitioner-strategy analysis pinned for later pressure",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 406
+      "sourceOrder": 407
     },
     {
       "plId": "PL-SEM-01",
@@ -8895,7 +8895,7 @@
       "state": "REFINEMENT — focused identity–association–assertion specimen pass completed; semantic model advanced to v1.3; broader practitioner-strategy falsification pass is next authorized pressure; ratification and DDD remain blocked",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 411
+      "sourceOrder": 412
     },
     {
       "plId": "PL-SEM-01",
@@ -8908,7 +8908,7 @@
       "state": "REFINEMENT — Principal selected Option B; bounded v1.3 coherence repair persisted without version advance; practitioner source identity bound; independent review required before corpus analysis",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 415
+      "sourceOrder": 416
     },
     {
       "plId": "PL-EVID-OBS",
@@ -8921,7 +8921,7 @@
       "state": "INTAKE / ACTIVE RESEARCH — evidence-preserving investigation only; no universe, servicing, suitability, scheduler, or Product policy change authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 427
+      "sourceOrder": 428
     },
     {
       "plId": "PL-RESEARCH-05",
@@ -8934,7 +8934,7 @@
       "state": "INTAKE / ACTIVE RESEARCH — durable practitioner-evidence workstream; research and falsification only; no Product, policy, semantic, architecture, roadmap, or implementation consequence is authorized by this intake",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 437
+      "sourceOrder": 438
     },
     {
       "plId": "PL-SEM-01",
@@ -8947,7 +8947,7 @@
       "state": "REFINEMENT — Option D executed; broader practitioner-strategy corpus completed; v1.3 survives with Scenario / Market Thesis refinement pressure; ratification and DDD remain blocked",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 420
+      "sourceOrder": 421
     },
     {
       "plId": "PL-SEM-01",
@@ -8960,7 +8960,7 @@
       "state": "REFINEMENT — practitioner-corpus pressure resolved provisionally; Semantic Model advanced to v1.4; Scenario / Market Thesis represented as an optional governed Assertion family; implementation and DDD remain blocked",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 424
+      "sourceOrder": 425
     },
     {
       "plId": "PL-DEC-BEH",
@@ -8973,7 +8973,7 @@
       "state": "REFINEMENT — Principal-directed thread capture and intake reconciliation completed; no new PL identity, no new LVT identity, no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 446
+      "sourceOrder": 447
     },
     {
       "plId": "PL-BETA-01",
@@ -8986,7 +8986,7 @@
       "state": "RECONCILED intake — Principal-directed durable capture of the trusted-evaluator operating model; no private-beta agreement is yet lawyer-reviewed and no multi-user implementation is authorized by this record",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 462
+      "sourceOrder": 463
     },
     {
       "plId": "PL-OPS-CSV-01",
@@ -8999,7 +8999,7 @@
       "state": "RECONCILED intake — Principal operator-experience signal captured during BUG-026 acceptance; no workflow redesign or implementation authorized by this record.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 472
+      "sourceOrder": 473
     },
     {
       "plId": null,
@@ -9012,7 +9012,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 512
+      "sourceOrder": 513
     },
     {
       "plId": null,
@@ -9025,7 +9025,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 513
+      "sourceOrder": 514
     },
     {
       "plId": "PL-SETUP-01",
@@ -9038,7 +9038,7 @@
       "state": "RECONCILED intake — original September 26 setup/configuration discovery. See the explicitly dated September 27 and September 28 continuations below for the later Program, ATTACH implementation, rejected identity claim, bounded continuity ratification, and rejected technical design. No setup wizard or broader governance semantics are authorized by this item.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 479
+      "sourceOrder": 480
     },
     {
       "plId": "PL-DEC-RES-01",
@@ -9051,7 +9051,7 @@
       "state": "RECONCILED / ARCHITECTURE RATIFIED — ADR-021 and Doc 67 establish the bounded semantic contract; implementation remains held pending a separate bounded handoff",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 485
+      "sourceOrder": 486
     }
   ],
   "intakeDateUnknown": [
