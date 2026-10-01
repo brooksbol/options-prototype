@@ -1222,3 +1222,109 @@ tastytrade is no longer a toy fallback. Fidelity has one final Tier-2 attempt pe
 ### Authority
 
 Review correction and context preservation only. No code change, no architecture reopened, no Product policy ratified. The `tt live` work is already accepted and on `main` (`aed56ef`, `5318bfe`).
+
+
+---
+
+## 2026-10-01 — XSP capital velocity, naive recycling, and live complex-order evidence boundary (ChatGPT)
+
+**Actor:** ChatGPT, preserving research continuity from the XSP follow-on analysis and live `tt live` experiment.
+**Mode:** Research/journal persistence only. No XSP strategy admission, policy ratification, deployment-rule adoption, or optimization authorization.
+**Scope:** Capital-recycling hypothesis, Muse scenario R findings, initial Codex review, and the live XLE synthetic-threshold watch.
+
+### Why this is preserved
+
+The XSP study's original calendar-cohort deployment model attempted one entry per valid session. A new question emerged: a ~45-DTE spread managed at P50 or from 21 DTE can release capital well before the nominal lifecycle ends, so an actively deployed system might recycle that BPR. This raised a distinct question about **capital velocity**, separate from individual-trade expectancy.
+
+The first useful diagnostic was not the absence of one-day winners but the holding-time distribution. In the canonical A output, P50 exits had a **median holding time of 11 trading sessions** (mean 10.5; p10 5), while forced exits had a median of 16 sessions. The original engine averaged only about **$14,732 BPR / 16% of the $92,000 envelope**, and the capital ceiling never bound. The original model therefore left substantial capital idle and did not model close-driven replacement opportunities.
+
+### Muse capital-recycling scenario R
+
+Muse's follow-on research report, *XSP Put-Credit-Spread Study — Capital-Recycling Deployment Analysis* (2026-10-01), tested a specific renewal rule:
+
+- each position closed on session T-1 mints one replacement-entry attempt on session T;
+- the normal one-per-session calendar attempt remains;
+- unused/failed replacement opportunities expire;
+- same-session recycling is not modeled;
+- the frozen selector, P50 target, 21-DTE rule, execution assumptions, fees, and $92k BPR ceiling otherwise remain unchanged.
+
+Reported A → R changes include:
+
+- entries: **528 → 1,287**;
+- completed trades: **519 → 1,256**;
+- average BPR utilization: **16.0% → 40.1%**;
+- completed trades / 100 sessions: **62.2 → 150.6**;
+- realized P&L: **-$20,842 → -$106,395**;
+- max concurrent positions: **18 → 52**;
+- peak BPR: **$33,808 → $91,979**;
+- maximum entries in one session: **47**;
+- reported MTM drawdown: **-$31,534 → -$180,311**.
+
+The important interpretive correction is that scenario R **did materially increase capital velocity/activity**. Its adverse result is therefore not evidence that there was little velocity to harvest. Rather, under this specific renewal rule, the additional turnover was loss-dominated and capital efficiency deteriorated (reported P&L per $1,000 BPR-day: -$1.71 → -$3.50).
+
+Scenario R should not yet be treated as synonymous with generic "capital recycling." Only reuse of released capital is inherent to that broad idea. R additionally chooses one-for-one close-driven replacement opportunities, allows many attempts on the same next session, uses the same deterministic selector for those attempts, has no same-day fresh-cohort concentration limit beyond aggregate BPR, and lets forced exits mint replacements exactly as target exits do.
+
+A major open audit question is therefore the **47-entry day / same-cohort concentration**: determine how many same-session R entries were identical `(expiration, short strike, long strike)` structures. If repeated calls to the frozen selector return the same spread, the severe R tail may partly represent faithful but pathological same-cohort concentration under the chosen renewal rule. This must be established from artifacts rather than assumed.
+
+### Live `tt live` XLE watch: valuation crossing is not execution evidence
+
+A one-hour read-only watch sampled `tt live` once per minute from 10:16–11:16 a.m. EDT. All **61 reads succeeded**.
+
+- XLE P50 target: 0.09 debit.
+- Synthetic four-leg midpoint was at/below target on **4/61 samples**, one contiguous run at 10:19, 10:20, 10:21, and 10:22 EDT.
+- Those samples showed synthetic since-entry G/L of **+$12.50, +$10.50, +$10, +$10** while the position remained held.
+- The condition was back above target at 10:23.
+- EWZ crossed its 0.21 target on **0/61** samples.
+- An earlier XLE synthetic **+$16** observation did not recur during the watch.
+
+This establishes a useful evidence boundary for `tt live`: a synthetic leg-derived valuation can remain beyond a management threshold for several sampled minutes while the actual complex position remains held. Operator wording such as **"mid at/below target; still held"** is therefore more truthful than **"target reached."**
+
+Do not over-transfer the XLE observation to canonical XSP. XLE was a **four-leg iron condor valued from independent leg mids**. Canonical XSP is a **two-leg vertical whose historical P50 trigger uses short ask minus long bid**. The live XLE event supports the general proposition that a valuation synthesized from independent option-leg quotes is not automatically evidence that a resting complex-order limit was executable. It does **not directly falsify** the canonical XSP ask/bid trigger.
+
+### Initial Codex review of Muse R
+
+Codex's initial read-only review accepted the adverse result as consequential for the **specific tested replacement rule**, but identified three claims requiring narrowing or verification:
+
+1. The XLE observation illustrates the general package-execution evidence boundary but does not directly falsify XSP's two-leg ask/bid trigger.
+2. The reported negative equity / extreme drawdown is driven by **uncapped independent-leg marks/crosses** and must remain distinct from an observed executable defined-width spread loss. Contractual expiration payoff, executable combo liquidation, synthetic leg valuation, and model MTM are separate concepts.
+3. Muse states that A-vs-R direction is robust across execution scenarios, but the report says R was run under the canonical execution model only. That robustness claim has not yet been demonstrated by the presented R results.
+
+Codex had not yet independently verified the R run files or the reported 25-test result at the time of that review.
+
+### Next research run requested
+
+A new Muse audit/refinement run was requested to:
+
+- independently reproduce scenario R and its tests;
+- quantify same-session duplicate structures, especially the 47-entry day and March–April 2025;
+- distinguish **capital velocity/activity** from **capital efficiency/expectancy**;
+- attribute replacement chains to P50-sourced versus forced-exit-sourced renewals;
+- correct the XLE/XSP execution comparison;
+- decompose >width synthetic marks and their contribution to extreme MTM drawdown;
+- actually run R under compatible existing execution scenarios before claiming A-vs-R robustness;
+- mechanically trace the March–April 2025 renewal/concentration feedback;
+- avoid optimization or designing a post-hoc "better" replacement policy.
+
+The purpose is classification and mechanism isolation, not strategy rescue.
+
+### Current research posture
+
+What is supported so far:
+
+- the original calendar model did not recycle close-released capital;
+- the P50 median residence is about 11 sessions, not ~1 session;
+- the original model had substantial idle BPR;
+- scenario R materially increases activity/utilization;
+- scenario R is materially worse economically under the canonical execution model;
+- R permits extreme daily entry bursts and therefore requires concentration audit;
+- live XLE evidence demonstrates a general synthetic-valuation-versus-complex-execution distinction.
+
+What remains unresolved:
+
+- whether R's severe tail is substantially driven by identical same-session cohort duplication;
+- how much of incremental R loss is attributable to forced-exit renewal chains;
+- how much extreme MTM drawdown depends on >width synthetic independent-leg valuations;
+- whether R is worse than A under each compatible existing execution model;
+- whether historical XSP P50 trigger observations correspond to executable resting complex-order fills.
+
+**Authority:** research continuity only. XSP remains exploratory. No Wheelwright strategy authority, roadmap admission, policy change, or production deployment rule is established by this entry.
