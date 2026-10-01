@@ -76,8 +76,13 @@
 |---|---|---|---|
 | `PL-EVID-04` | Market-Priced Risk | Needs IV data source (Tradier sandbox lacks IV) | `foundations/market-priced-risk.md` |
 | `PL-EVID-05` | Recommendation Set Analysis | Needs enrichment data (sector, industry classification) | `foundations/recommendation-set-analysis.md` |
-| `PL-RESEARCH-01` | Universe Discovery | Needs paid provider tier for enumeration | `universe/`, `engineering-spikes/` |
 | `PL-RESEARCH-04` | Instrument Catalog Evolution | Needs provider/data-source for programmatic enrichment (sector, issuer, structural classification). Prerequisite for set analysis grouping and richer governance. | Code + catalog generation scripts, Governance golden-data family |
+
+### Active Research
+
+| ID | Name | State | Concept Home |
+|---|---|---|---|
+| `PL-RESEARCH-01` | Universe Discovery | **Pass −1 v0 frozen by Principal decision (2026-10-01):** dated 2026-09-30 OCC opportunity population and 2026-10-01 Tradier identity-evidence snapshot; 6,072 underlyings and 6,381 ordinary option-class rows, both permanently retained. All exact underlying requests returned HTTP 200 and all raw bodies were hash-verified. Explicit aliases and unresolved identity states remain in the denominator. This is a research evidence snapshot, **not** an eligibility universe, exclusion policy, or permanent optionability classification. The earlier paid-tier enumeration blocker is resolved by the OCC/Cboe enumeration-source experiment; subsequent transformations remain separate research. | `discovery/pass-minus-one-v0-occ-tradier-identity-snapshot-2026-10-01.md`; `data/research/pass-minus-one-v0-2026-09-30/`; `universe/` |
 
 ### Exploratory / Far-Future Seeds
 
