@@ -1,0 +1,66 @@
+{
+  "schema": "wheelwright-iron-condor-live-market-qualification/v1",
+  "session": "2026-10-02 regular U.S. market session",
+  "capture_started_at_utc": "2026-10-02T14:29:28.138474+00:00",
+  "capture_ended_at_utc": "2026-10-02T14:30:15.605537+00:00",
+  "provider": "Tradier production /markets/quotes; frozen Pass -1 exact-root contract strings",
+  "baseline": "6c96b30",
+  "qualification_population": {
+    "underlyings": 2128,
+    "classes": 2273
+  },
+  "pr33_previously_quoted_ordinary_etf_classes": 1641,
+  "newly_unprobed_classes": 632,
+  "newly_eligible_first_quote_ceiling_after_frozen_identity_and_geometry": 591,
+  "prequote_term_unresolved_adjusted_etf_classes": 106,
+  "reference_requested_underlyings": 476,
+  "request_attempts": 85,
+  "http_status_counts": {
+    "200": 85
+  },
+  "final_states": {
+    "otherwise_unevaluable": 106,
+    "identity_unresolved": 40,
+    "reference_price_unavailable": 96,
+    "observed_insufficient_market_evidence": 294,
+    "qualified_by_observation": 59,
+    "no_relevant_geometry": 37
+  },
+  "final_reasons": {
+    "ADJUSTED_CLASS_TERMS_UNVERIFIED": 106,
+    "FROZEN_EXACT_ROOT_UNRESOLVED": 40,
+    "NO_PRICE": 20,
+    "STALE_OR_FUTURE_TRADE_TIMESTAMP": 72,
+    "ALL_ATTEMPTED_GEOMETRIES_INSUFFICIENT": 294,
+    "FOUR_USABLE_DISPLAYED_LEG_MARKETS": 59,
+    "PRICE_RELATIVE_FOUR_LEG_GEOMETRY_ABSENT": 35,
+    "FROZEN_LISTED_FOUR_LEG_SHAPE_ABSENT": 1,
+    "NO_21_TO_100_DTE_FOUR_LEG_EXPIRATION": 1,
+    "NO_TRADE_TIMESTAMP": 4
+  },
+  "new_quote_surface_positives_even_if_reference_unavailable": 64,
+  "successful_option_market_observations": 424,
+  "qualified_by_cohort": {
+    "ETF_OCC_NAME_CANDIDATE": 49,
+    "INDEX_CBOE_CONFIRMED": 10
+  },
+  "index_state_counts": {
+    "identity_unresolved": 13,
+    "qualified_by_observation": 10,
+    "observed_insufficient_market_evidence": 8,
+    "reference_price_unavailable": 22,
+    "no_relevant_geometry": 1
+  },
+  "coarse_positive_bands": {
+    "half_spread_sum_over_min_wing<=0.25;min_display_size>=1": 7,
+    "half_spread_sum_over_min_wing<=0.25;min_display_size>=5": 6,
+    "half_spread_sum_over_min_wing<=0.25;min_display_size>=10": 6,
+    "half_spread_sum_over_min_wing<=0.5;min_display_size>=1": 12,
+    "half_spread_sum_over_min_wing<=0.5;min_display_size>=5": 8,
+    "half_spread_sum_over_min_wing<=0.5;min_display_size>=10": 7,
+    "half_spread_sum_over_min_wing<=1.0;min_display_size>=1": 20,
+    "half_spread_sum_over_min_wing<=1.0;min_display_size>=5": 12,
+    "half_spread_sum_over_min_wing<=1.0;min_display_size>=10": 11
+  },
+  "raw_manifest_sha256": "773b3066e0d1fe3265dd6aa3445d5d89baaf5365a6691257650baecf3fd69f5d"
+}
