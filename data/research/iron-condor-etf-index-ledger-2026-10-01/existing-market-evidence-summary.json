@@ -1,0 +1,27 @@
+{
+  "schema": "wheelwright-iron-condor-existing-market-evidence/v0",
+  "ledger_classes": 2273,
+  "ledger_underlyings": 2128,
+  "pr33_market_date": "2026-10-01",
+  "pr33_probe_details_sha256": "668ae4c96661e30bd16ad3ba2c68359178525eafca8d17d0e3aa3093f1e0d163",
+  "pr33_score_csv_sha256": "b04e32ebc9da675855589bb0ecddfc4007f7f6fc4d3eca69533abb67d9278668",
+  "pr33_scored_ordinary_etf_classes": 1641,
+  "pr33_unevaluable_underlyings": [
+    "BLCN",
+    "TXS"
+  ],
+  "pr33_probe_slots_observed": 2529,
+  "pr33_slots_with_four_usable_legs": 780,
+  "pr33_symbols_with_one_or_more_four_usable_leg_slots": 524,
+  "pr33_symbols_with_two_four_usable_leg_slots": 256,
+  "pr33_symbols_with_no_four_usable_leg_slot": 1117,
+  "classes_without_pr33_quote_probe": 632,
+  "classes_without_pr33_probe_by_reason": {
+    "no_usable_underlying_price": 2,
+    "other_etf_option_class": 123,
+    "occ_name_etf_candidate_class": 453,
+    "index_option_class": 54
+  },
+  "four_leg_definition": "PR #33 fixed representative probe: four positive, uncrossed two-sided leg quotes, positive displayed sizes, side timestamps within 60 minutes of its 20:15 UTC anchor; one bulk response per four-leg slot",
+  "interpretation": "Dated positive quote-surface observations only. A failed fixed probe is not a general market rejection; a successful probe is not a package fill or production admission."
+}
