@@ -1,0 +1,31 @@
+{
+  "as_of_market_date": "2026-10-01",
+  "capture_started_at_utc": "2026-10-02T01:23:09.821936+00:00",
+  "capture_ended_at_utc": "2026-10-02T01:28:20.816040+00:00",
+  "cohort_underlyings": 1643,
+  "evaluated": 1641,
+  "unevaluable": 2,
+  "request_attempts": 286,
+  "http_200": 286,
+  "unevaluable_states": {
+    "NO_UNDERLYING_PRICE": 2
+  },
+  "score_semantics": "0-100 monotone one-session four-leg exit quote-surface proxy, mean across two fixed DTE target slots (45,75); 0 for observed missing representative geometry, unavailable for acquisition/identity failure; not fill probability",
+  "weights": {
+    "usable_leg_fraction": 20,
+    "all_four_usable": 20,
+    "half_spread_concession_over_min_wing": 35,
+    "minimum_exit_side_size": 10,
+    "maximum_side_age_at_2026_10_01_20_15_UTC": 7,
+    "minimum_leg_open_interest": 4,
+    "mean_leg_volume": 2,
+    "strike_target_deviation": 2
+  },
+  "files_sha256": {
+    "capture-manifest.jsonl": "29fa66fb00d542d2fbf4350a6b45442919a338050cf7e4a396e4e59435688219",
+    "probe-plan.json": "6741324651350239582c0a9a57f8aebdec48cdba3e3f19207718d97762e64dc4",
+    "exit-reliability-v0.csv": "b04e32ebc9da675855589bb0ecddfc4007f7f6fc4d3eca69533abb67d9278668",
+    "probe-details.json": "668ae4c96661e30bd16ad3ba2c68359178525eafca8d17d0e3aa3093f1e0d163",
+    "unevaluable.json": "925106b9644f210600768f3d9c823f9f4f280e4aa2d007456c0ac9eada19806a"
+  }
+}
