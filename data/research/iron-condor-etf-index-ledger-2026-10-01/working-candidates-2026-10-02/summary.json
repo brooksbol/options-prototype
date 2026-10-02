@@ -1,0 +1,44 @@
+{
+  "schema": "wheelwright-iron-condor-working-candidates/v1",
+  "as_of": "2026-10-02",
+  "count": 92,
+  "tier_counts": {
+    "CORE": 15,
+    "ESTABLISHED": 37,
+    "BREADTH": 40
+  },
+  "product_counts": {
+    "ETF": 88,
+    "INDEX": 4
+  },
+  "index_data_method_gap": [
+    "RUT",
+    "NDX"
+  ],
+  "first_to_review": [
+    "ARKW",
+    "BSOL",
+    "BUG",
+    "EEM",
+    "FTEC",
+    "HACK",
+    "IBB",
+    "IWC",
+    "IWO",
+    "MLPX",
+    "PALL",
+    "REMX",
+    "SIVR",
+    "VOT",
+    "VXF",
+    "XES",
+    "XHB"
+  ],
+  "pr33_probe_details_sha256": "668ae4c96661e30bd16ad3ba2c68359178525eafca8d17d0e3aa3093f1e0d163",
+  "pr33_score_csv_sha256": "b04e32ebc9da675855589bb0ecddfc4007f7f6fc4d3eca69533abb67d9278668",
+  "pr33_underlying_quotes_sha256": "5d34115c75ab20c2ec4af82238c07e579b2017d03675d120e559c24db8caf3a2",
+  "oct02_raw_manifest_sha256": "773b3066e0d1fe3265dd6aa3445d5d89baaf5365a6691257650baecf3fd69f5d",
+  "oct02_audited_results_sha256": "214c6236b27b8b0b0dd351ba9b7a06425f4684fecb0e69d7236b42c619d50893",
+  "pass_minus_one_archive_sha256": "1a43983917a7e2b2f96f291afe2c8a7859042e5ec12b9a3ad6630374d8694e25",
+  "csv_sha256": "10f3fbc5c394289fd56932b6d5b187253ce750c69d177bc6dc256d9dea254287"
+}
