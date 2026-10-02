@@ -1006,3 +1006,32 @@ Acceptance: exactly 92 backend-policy rows; 88 ETF / four index classification a
 
 **Architecture ratified; Increment 1 implementation authorized by the Principal's request following this ratification commit.** Market Shape remains a separate DISCOVERED idea and does not expand this increment. Commit discipline still applies to the implementation: Kiro must report evidence and propose its implementation commit boundary, then wait for explicit Principal approval before committing implementation work.
 
+---
+## 2026-10-02 — Discovery refinement: unified Deployment comparison / Cash Deployment v1
+
+**Epistemic status: DISCOVERED.** This extends the Market Shape / Structure Fit discovery above; it does not create or reconcile a `PL-*` identity and does not expand the authorized Iron Condors Increment 1.
+
+The current Cash Deployment v0 export was reviewed as concrete operator evidence. It already represents a cross-entry comparison population: concrete Buy-Write and CSP alternatives with structure, symbol, productivity/yield, DTE, spot/strike relationship, option price, capital, execution/posture, age, Greeks, and IV evidence. The discovery is that a future v1 can generalize this existing comparison model rather than replace it.
+
+### Provisional v1 direction
+
+Add defined-risk structures such as Iron Condors as peer **deployment alternatives** beside Buy-Writes and CSPs. The common row concept becomes a concrete capital-allocation alternative, not merely a symbol. The operator should be able to compare structures side by side and rank the population by sorting economically meaningful columns rather than relying on a premature composite Wheelwright score.
+
+Potential common comparison dimensions include structure, symbol, productivity/return-on-capital, DTE, spot, capital/buying-power requirement, credit, max profit, max loss, POP/P50 where methodologically supported, Exit Reliability/execution evidence, posture, volatility context, movement, and evidence age. This is exploratory vocabulary, not a ratified schema.
+
+Structure-specific facts should not be forced into misleading common columns. A BW or CSP can expose a single strike/delta/distance-to-strike, while an Iron Condor requires four strikes, wing widths, package economics, break-evens, and potentially short-leg deltas. A likely UX pattern is a compact set of genuinely comparable sortable columns plus row expansion/details for structure-specific evidence.
+
+The difficult boundary is **candidate construction**. A BW/CSP v0 row already identifies a concrete contract candidate. An Iron Condor becomes economically comparable only after a representative four-leg structure has been selected: expiration/DTE, short strikes or target deltas/POP, wing widths, package credit, buying-power/max-loss economics, and related evidence. Therefore adding Iron Condors to a unified table eventually requires a principled candidate-construction method; a watchlist-level statement that SPY is suitable for Iron Condor investigation is not yet a comparable deployment row.
+
+### Relationship to Market Shape
+
+The emerging sequence is:
+
+> **Market Shape → Structure Fit → construct viable structure-specific alternatives → unified Deployment comparison → operator selection → tastytrade construction/execution → lifecycle management**
+
+Market Shape/Structure Fit helps determine which structures deserve consideration. The unified Deployment comparison answers a different downstream question: among the concrete alternatives those structures produced, which deserve the operator's capital and investigation? Sorting by different common dimensions preserves operator agency and avoids prematurely encoding one master ranking.
+
+This also suggests that today's label **Cash Deployment** may eventually become simply **Deployment**, because defined-risk buying-power deployment and cash-secured/share-funded structures share the broader concept of capital allocation rather than identical cash mechanics. The naming and v1 schema remain unresolved.
+
+No implementation is authorized by this discovery record, and the ratified Iron Condors Increment 1 remains unchanged.
+
