@@ -141,6 +141,27 @@ function colorSegment(state, words, color) {
   return color ? `\x1b[${state === "GREEN" ? "32" : "31"}m${words}\x1b[37m` : words;
 }
 
+// Delta is the signed, share-equivalent exposure to this trade's own underlying.
+// One share equivalent per condor is the explicit display-only neutral band.
+function directionFor(held, greeks, quantity, now) {
+  let net = 0;
+  for (const leg of held) {
+    const matches = greeks.filter((item) => item?.symbol === leg.symbol);
+    if (matches.length !== 1) return "—";
+    const { delta, updatedAt } = matches[0];
+    if (typeof delta !== "number" || !Number.isFinite(delta) || Math.abs(delta) > 1 ||
+        typeof updatedAt !== "number" || !Number.isFinite(updatedAt) ||
+        updatedAt > now.getTime() + 60_000 || now.getTime() - updatedAt > 12 * 60 * 60 * 1000) return "—";
+    net += (leg.direction === "Long" ? 1 : -1) * delta * leg.multiplier * leg.quantity;
+  }
+  return Math.abs(net) <= quantity ? "NEUTRAL" : net > 0 ? "BULLISH" : "BEARISH";
+}
+
+function directionSegment(label, words, color) {
+  const code = { BULLISH: 32, NEUTRAL: 33, BEARISH: 31 }[label];
+  return color && code ? `\x1b[${code}m${words}\x1b[37m` : words;
+}
+
 function signedDollars(value) {
   const rounded = Math.round(Math.abs(value) * 100) / 100;
   const amount = new Intl.NumberFormat("en-US", { minimumFractionDigits: Number.isInteger(rounded) ? 0 : 2,
@@ -161,10 +182,11 @@ function quoteLabel(market, now, sessionCloseAt) {
     "EOD" : quoteAge(now.getTime() - market.oldest);
 }
 
-export function renderLive({ account, holdings, orders, complexOrders, quotes, now,
+export function renderLive({ account, holdings, orders, complexOrders, quotes, greeks = [], now,
   sessionCloseAt, color = false, format = "table" }) {
   if (!Array.isArray(holdings) || !Array.isArray(orders) || !Array.isArray(complexOrders) ||
-      !Array.isArray(quotes) || !(now instanceof Date) || !Number.isFinite(now.getTime()) ||
+      !Array.isArray(quotes) || !Array.isArray(greeks) ||
+      !(now instanceof Date) || !Number.isFinite(now.getTime()) ||
       !["table", "tsv"].includes(format)) {
     fail("broker evidence malformed");
   }
@@ -219,13 +241,14 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, n
     }
     const dayGain = market.stale || market.dayGain === null ? "—" :
       Math.abs(market.dayGain) < 0.005 ? "$0" : signedDollars(market.dayGain);
-    rows.push([accountLabel, trade.symbol, trade.label, String(trade.quantity), dayGain, sinceEntry,
+    const direction = directionFor(heldWithDayClose, greeks, trade.quantity, now);
+    rows.push([accountLabel, trade.symbol, trade.label, direction, String(trade.quantity), dayGain, sinceEntry,
       `${midpointPrice(credit)} CR`, market.stale ? "—" : midpointPrice(market.closeDebit), targetClose,
       progress, opened, String(dte), quoteLabel(market, now, sessionCloseAt), note]);
   }
-  const headers = ["ACCOUNT", "SYMBOL", "STRUCTURE", "QTY", "P/L DAY", "TOTAL G/L",
+  const headers = ["ACCOUNT", "SYMBOL", "STRUCTURE", "DIRECTION", "QTY", "P/L DAY", "TOTAL G/L",
     "OPENED@", "CURRENT", "TARGET CLOSE@", "PROGRESS", "OPENED", "DTE", "QUOTE"];
-  if (rows.some((row) => row[13])) headers.push("NOTE");
+  if (rows.some((row) => row[14])) headers.push("NOTE");
   if (format === "tsv") {
     return [headers, ...rows.map((row) => row.slice(0, headers.length))].map((row) => row.join("\t")).join("\n");
   }
@@ -235,15 +258,18 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, n
       value.padEnd(widths[start + offset])).join("  ");
     lines.push(columns(headers, 0, headers.length));
     for (const row of rows) {
-      const prefix = columns(row, 0, 4);
-      const day = columns(row, 4, 5);
-      const total = columns(row, 5, 6);
-      const opening = columns(row, 6, 7);
-      const currentTargetProgress = columns(row, 7, 10);
-      const suffix = columns(row, 10, headers.length);
-      const dayState = row[4].startsWith("+") ? "GREEN" : row[4].startsWith("−") ? "RED" : null;
-      const gainState = row[5].startsWith("+") ? "GREEN" : row[5].startsWith("−") ? "RED" : null;
-      lines.push(`${prefix}  ${dayState ? colorSegment(dayState, day, color) : day}  ${
+      const prefix = columns(row, 0, 3);
+      const direction = columns(row, 3, 4);
+      const quantity = columns(row, 4, 5);
+      const day = columns(row, 5, 6);
+      const total = columns(row, 6, 7);
+      const opening = columns(row, 7, 8);
+      const currentTargetProgress = columns(row, 8, 11);
+      const suffix = columns(row, 11, headers.length);
+      const dayState = row[5].startsWith("+") ? "GREEN" : row[5].startsWith("−") ? "RED" : null;
+      const gainState = row[6].startsWith("+") ? "GREEN" : row[6].startsWith("−") ? "RED" : null;
+      lines.push(`${prefix}  ${directionSegment(row[3], direction, color)}  ${quantity}  ${
+        dayState ? colorSegment(dayState, day, color) : day}  ${
         gainState ? colorSegment(gainState, total, color) : total
       }  ${opening}  ${gainState ? colorSegment(gainState, currentTargetProgress, color) :
         currentTargetProgress}  ${suffix}`.trimEnd());
