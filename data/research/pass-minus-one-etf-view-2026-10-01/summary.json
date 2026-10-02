@@ -1,0 +1,85 @@
+{
+  "schema": "wheelwright-pass-minus-one-etf-evidence-view/v0",
+  "source_archive_sha256": "1a43983917a7e2b2f96f291afe2c8a7859042e5ec12b9a3ad6630374d8694e25",
+  "occ_report_date": "2026-09-30",
+  "cboe_retrieved_date": "2026-10-01",
+  "tradier_capture_date": "2026-10-01",
+  "frozen_underlying_denominator": 6072,
+  "frozen_option_class_denominator": 6381,
+  "classification_tiers": {
+    "CBOE_ABSENT_UNCLASSIFIED": {
+      "underlyings": 290,
+      "frozen_class_rows": 296,
+      "lookup_analyzed_class_rows": 0,
+      "underlying_states": {
+        "EXACT_UNDERLYING_LOOKUP_NO_OPTION_ROOTS": 12,
+        "PROVIDER_QUERY_RETURNED_OPTION_ROOTS": 247,
+        "QUERY_EMPTY_UNDERLYING_IDENTITY_UNRESOLVED": 29,
+        "UNDERLYING_ALIAS_RESOLVED_EXPLICITLY": 2
+      },
+      "class_states": {
+        "EXACT_CLASS_ROOT_OBSERVED": 250,
+        "EXACT_CLASS_ROOT_VIA_EXPLICIT_ALIAS": 2,
+        "EXACT_UNDERLYING_LOOKUP_CLASS_UNRESOLVED": 13,
+        "QUERY_EMPTY_CLASS_UNRESOLVED": 30,
+        "UNDERLYING_QUERY_WITH_OPTIONS_CLASS_UNRESOLVED": 1
+      },
+      "exact_root_classes_with_put_pair_somewhere": null,
+      "exact_root_put_contract_strings": null,
+      "exact_root_call_contract_strings": null
+    },
+    "CBOE_ETF": {
+      "underlyings": 1643,
+      "frozen_class_rows": 1766,
+      "lookup_analyzed_class_rows": 1766,
+      "underlying_states": {
+        "PROVIDER_QUERY_RETURNED_OPTION_ROOTS": 1643
+      },
+      "class_states": {
+        "EXACT_CLASS_ROOT_OBSERVED": 1741,
+        "UNDERLYING_QUERY_WITH_OPTIONS_CLASS_UNRESOLVED": 25
+      },
+      "exact_root_classes_with_put_pair_somewhere": 1741,
+      "exact_root_put_contract_strings": 283936,
+      "exact_root_call_contract_strings": 283940
+    },
+    "CBOE_OTHER_TYPE": {
+      "underlyings": 3694,
+      "frozen_class_rows": 3866,
+      "lookup_analyzed_class_rows": 0,
+      "underlying_states": {
+        "PROVIDER_QUERY_RETURNED_OPTION_ROOTS": 3692,
+        "QUERY_EMPTY_UNDERLYING_IDENTITY_UNRESOLVED": 2
+      },
+      "class_states": {
+        "EXACT_CLASS_ROOT_OBSERVED": 3836,
+        "QUERY_EMPTY_CLASS_UNRESOLVED": 4,
+        "UNDERLYING_QUERY_WITH_OPTIONS_CLASS_UNRESOLVED": 26
+      },
+      "exact_root_classes_with_put_pair_somewhere": null,
+      "exact_root_put_contract_strings": null,
+      "exact_root_call_contract_strings": null
+    },
+    "OCC_ETF_NAME_CBOE_ABSENT": {
+      "underlyings": 445,
+      "frozen_class_rows": 453,
+      "lookup_analyzed_class_rows": 453,
+      "underlying_states": {
+        "PROVIDER_QUERY_RETURNED_OPTION_ROOTS": 443,
+        "QUERY_EMPTY_UNDERLYING_IDENTITY_UNRESOLVED": 2
+      },
+      "class_states": {
+        "EXACT_CLASS_ROOT_OBSERVED": 451,
+        "QUERY_EMPTY_CLASS_UNRESOLVED": 2
+      },
+      "exact_root_classes_with_put_pair_somewhere": 450,
+      "exact_root_put_contract_strings": 36074,
+      "exact_root_call_contract_strings": 36074
+    }
+  },
+  "population_product_evidence_sha256": "c1a30c36261b4d148b7a999152907bdf2186777b348ead0caa8d9251b10a68f0",
+  "cboe_etf_underlyings_sha256": "a62cd73653d867fbdc5bcb4a6e05f2d1b39df147dda5b63c5d8a5459cfe9b170",
+  "occ_etf_name_candidates_sha256": "b260cd448161b6941297ede35b2fd6443f82bde136265802b6238b0f6215db2b",
+  "etf_cohort_class_lookup_sha256": "7f6d23ae4745dc5b2c0396db8e1c2e15e522669629717d3bcb8c7cc256ae9336",
+  "lookup_only_not_pass_zero_chain_census": true
+}
