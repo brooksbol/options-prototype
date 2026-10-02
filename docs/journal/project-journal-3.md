@@ -918,3 +918,41 @@ Do not normalize both account types into one synthetic cash model, and do not bu
 Reconciliation created bounded identity `PL-DEPLOY-BAL` under `PL-DEPLOY`. Strategic disposition: strengthens existing Deployment Opportunity; no new Bet / no roadmap edit. Architectural disposition: refines the existing fact-versus-derivation and regime-aware projection boundary; no architecture-roadmap edit. BUG-022 remains resolved and now carries the post-resolution validation. Full evidence: `docs/56-fidelity-account-regime-balance-semantics-2026-09-19.md`.
 
 No production implementation was authorized.
+
+---
+## 2026-10-02 — Discovery: Market Shape → Structure Fit sequencing
+
+**Epistemic status: DISCOVERED.** This is intentionally pre-intake: no `PL-*` identity, strategic reconciliation, architectural reconciliation, decomposition, or implementation authorization is asserted by this record. It is preserved in GitHub because the idea is developed enough that leaving it only in conversation memory risks meaningful rediscovery, while the concept itself remains exploratory.
+
+### Operator observation
+
+The operator does not naturally begin a trading day by asking, “What can I use an Iron Condor on?” The more natural question is:
+
+> **What strategy, if any, is appropriate for today's market conditions?**
+
+The current Iron Condor work begins downstream because that is the strategy slice presently under development. The longer-term Deployment mental model should instead investigate a market-first sequence:
+
+> **Market Shape → Structure Fit → Strategy-specific Underlying Opportunity → Structure / Execution → Lifecycle Management**
+
+### Provisional concept
+
+**Market Shape** would describe the current market independently of any one options strategy. Candidate dimensions discussed so far include direction/trend, volatility level and trajectory, breadth, dispersion, correlation, trend-versus-chop/range behavior, volatility term structure, skew, and other empirically useful regime evidence. These are exploratory dimensions, not a settled schema.
+
+A separate **Structure Fit** capability would interpret that market evidence against structures actually available to the operator through tastytrade—for example Iron Condors, short strangles, vertical spreads, butterflies, calendars/diagonals, and other supported structures. The output need not ultimately be binary; comparative, explainable fit may be more useful. **WAIT / no appropriate structure must remain a legitimate outcome.** Wheelwright must not manufacture a trade merely because structures are available.
+
+After a structure is selected for investigation, Wheelwright can descend into strategy-specific qualification and opportunity evidence. For the current Iron Condor slice that means the approved durable watch universe, current entry evidence, Exit Reliability / structure economics, and then candidate investigation/construction in tastytrade.
+
+### Boundary with current Iron Condor work
+
+This discovery does **not** invalidate the current Iron Condor Deployment projection. That work is the first vertical slice through the larger sequence. The strategy-specific Iron Condor projection should be understood as downstream, not as the eventual conceptual root of Deployment.
+
+The current volatility discussion reinforces the separation: broad VIX/market-regime evidence belongs naturally upstream in Market Shape, while symbol-specific IV, IV Rank/Percentile, IV trajectory, expected-move context, quote movement, Exit Reliability, and other future entry criteria can inform downstream underlying/structure opportunity. These evidence families may legitimately refresh at different cadences.
+
+Wheelwright's eventual role is to help answer: **What kind of market are we in? What structures deserve investigation? Which qualified underlyings fit those structures now? Is there sufficient evidence to investigate a trade?** tastytrade remains the execution/construction workstation rather than something Wheelwright should rebuild.
+
+### Unresolved
+
+The correct Market Shape dimensions, Structure Fit rules, weights, thresholds, scoring method, evidence cadence, and empirical validation approach are deliberately unresolved. The preferred direction is to learn these relationships through research/backtesting and subsequent production evidence rather than hard-code folklore such as a single VIX threshold implying a particular strategy.
+
+No intake identity or repository authority beyond this discovery record is created here. If/when the concept crosses into governed intake, the canonical intake process must reconcile it against the complete parking-lot sequence before deciding whether it refines an existing item such as `PL-DEPLOY` or warrants a new identity.
+
