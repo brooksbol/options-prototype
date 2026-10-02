@@ -956,3 +956,53 @@ The correct Market Shape dimensions, Structure Fit rules, weights, thresholds, s
 
 No intake identity or repository authority beyond this discovery record is created here. If/when the concept crosses into governed intake, the canonical intake process must reconcile it against the complete parking-lot sequence before deciding whether it refines an existing item such as `PL-DEPLOY` or warrants a new identity.
 
+
+---
+## 2026-10-02 — Iron Condors Deployment projection architecture ratified
+
+The Principal accepted the refined Iron Condors Deployment projection after adversarial Codex review. This record preserves the ratified implementation boundary; it does not broaden the separate Market Shape discovery above.
+
+### Ratified product and authority model
+
+The Deployment Iron Condors table is a **downstream strategy-watchlist opportunity scanner** over the Principal-approved durable 92-symbol universe (88 ETFs, four indexes). Watch membership answers where Wheelwright is willing to look. Exit Reliability answers whether a representative structure has been operationally manageable. Faster-moving quote evidence and later underlying-volatility evidence help assess whether a watched underlying is interesting now. None of these measurements is, alone or combined, a trade recommendation.
+
+The 92-symbol universe is to be promoted from research evidence into explicit versioned backend product policy. The research CSV remains promotion/provenance evidence, not a runtime database. Preferred index roots/classes remain explicit: SPX→SPXW, XSP→XSP, NDX→NDXP, RUT→RUTW; NDX/RUT reference-method gaps remain data-method states rather than liquidity judgments.
+
+The frontend must stop owning the frozen 1,641-ETF TypeScript population. The serving boundary is a cache-only typed strategy-watchlist projection at `GET /api/deployment?watchlist=iron_condors`. GET must never trigger provider acquisition. The projection joins independently owned evidence rather than turning the frontend into an evidence interpreter.
+
+### Evidence families and independent cadence
+
+Evidence families retain separate observation time, provenance/method, availability, freshness, and latest-attempt semantics. Missing evidence is null, never fabricated zero. A failed refresh retains the previous valid observation and does not make unrelated evidence stale.
+
+- **Exit Reliability:** slow-moving, class-aware, dated/versioned evidence; eventual bounded refresh approximately every five trading sessions during regular market conditions is an initial target, not an Increment-1 requirement.
+- **Spot / Change $ / Change %:** faster cached market evidence; eventual operator-surface target approximately 30–60 minutes during market hours, subject to measured provider capacity. Frontend polling frequency is not provider acquisition frequency.
+- **Underlying volatility:** future independently dated evidence; current IV should eventually refresh on an intraday cadence. Proposed research direction is a named, method-versioned ~45-calendar-day near-ATM constant-maturity measure for the preferred exact class, from which method-consistent IV Rank, IV Percentile, and trajectory can later be derived. No IV method is ratified for implementation here.
+- **Market regime / Market Shape:** upstream, independently owned evidence, not an Iron Condor row property.
+
+Expected move, normalized movement, IV peak/crush, term structure, skew, realized-versus-implied volatility, structure credit/width, POP/P50 and other entry criteria remain future research/evidence candidates. The projection must be extensible without introducing a composite Iron Condor score prematurely.
+
+### Codex ratification clarification
+
+Codex returned **PASS** with one required contract clarification, accepted by the Principal: describe the endpoint explicitly as a **downstream strategy watchlist projection** and **omit the illustrative `marketRegime: { availability: "not_implemented" }` placeholder from the required Increment-1 response**. Future Market Shape evidence may be composed upstream or summarized at a higher Deployment level; it must not be persisted as an Iron Condor property or repeated across 92 rows.
+
+This preserves the future sequence already captured in the preceding discovery record:
+
+> **Market Shape → Structure Fit → strategy-specific underlying opportunity → structure / execution → lifecycle management**
+
+The Iron Condor projection is intentionally downstream in that sequence.
+
+### Authorized Increment 1 boundary
+
+The architecture is ratified and the following bounded Increment 1 is ready for Principal-authorized implementation:
+
+1. Promote the approved 92-symbol universe through an explicit versioned backend policy resource, preserving product type, preferred class/root, and relevant index caveats.
+2. Serve unchanged dated ETF Exit Reliability v0 scores as provenance-bound backend evidence plus existing cached Spot / Change $ / Change % evidence where valid. No Exit Reliability recalculation or new provider acquisition is part of this increment.
+3. Implement the typed cache-only `GET /api/deployment?watchlist=iron_condors` strategy-watchlist projection with per-evidence-block null/status/time/source semantics. Do **not** include a required Market Shape/market-regime placeholder.
+4. Switch the existing Deployment Iron Condors table away from the frozen 1,641-row `exit-reliability-v0-data.ts` and separate quote hook to the backend projection. Preserve placement and operator interaction; adapt nullable sorting/filtering/export as needed. Cash Deployment behavior remains unchanged.
+
+Acceptance: exactly 92 backend-policy rows; 88 ETF / four index classification and preferred roots match approved research; existing ETF scores/dates remain unchanged; index scores and absent quotes are null with explicit reasons; available evidence exposes independent age/source/failure state; GET performs no provider call; frontend has no dependency on the frozen 1,641-row TypeScript dataset. No IV history/rank/percentile, expected move, Market Shape/VIX regime, Exit Reliability refresh, or other strategy implementation is required.
+
+### Stopping state
+
+**Architecture ratified; Increment 1 implementation authorized by the Principal's request following this ratification commit.** Market Shape remains a separate DISCOVERED idea and does not expand this increment. Commit discipline still applies to the implementation: Kiro must report evidence and propose its implementation commit boundary, then wait for explicit Principal approval before committing implementation work.
+
