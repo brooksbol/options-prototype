@@ -142,7 +142,7 @@ function colorSegment(state, words, color) {
 }
 
 // Delta is the signed, share-equivalent exposure to this trade's own underlying.
-// One share equivalent per condor is the explicit display-only neutral band.
+// Ten share equivalents per condor is the explicit display-only neutral band.
 function directionFor(held, greeks, quantity, now) {
   let net = 0;
   for (const leg of held) {
@@ -154,7 +154,8 @@ function directionFor(held, greeks, quantity, now) {
         updatedAt > now.getTime() + 60_000 || now.getTime() - updatedAt > 12 * 60 * 60 * 1000) return "—";
     net += (leg.direction === "Long" ? 1 : -1) * delta * leg.multiplier * leg.quantity;
   }
-  return Math.abs(net) <= quantity ? "NEUTRAL" : net > 0 ? "BULLISH" : "BEARISH";
+  const neutralLimit = 10 * quantity;
+  return Math.abs(net) <= neutralLimit + 1e-8 ? "NEUTRAL" : net > 0 ? "BULLISH" : "BEARISH";
 }
 
 function directionSegment(label, words, color) {

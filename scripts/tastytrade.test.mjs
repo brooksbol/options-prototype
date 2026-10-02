@@ -124,7 +124,7 @@ test("live colors complete economic segments and returns to white before DTE", (
 test("direction uses all held leg deltas in its own underlying and colors each label", () => {
   const greeks = liveEvidence.greeks.map((item) => ({ ...item,
     delta: item.symbol === ewz.holdings[0].symbol || item.symbol === xle.holdings[1].symbol ?
-      0.22 : item.delta }));
+      0.31 : item.delta }));
   const colored = renderLive({ ...liveEvidence, greeks, color: true });
   assert.match(colored, /EWZ\s+Iron Condor\s+\x1b\[32mBULLISH\s*\x1b\[37m/);
   assert.match(colored, /XLE\s+Iron Condor\s+\x1b\[31mBEARISH\s*\x1b\[37m/);
@@ -134,6 +134,21 @@ test("direction uses all held leg deltas in its own underlying and colors each l
   const stale = greeks.map((item) => ({ ...item,
     updatedAt: Date.parse("2026-09-29T00:00:00.000Z") }));
   assert.match(renderLive({ ...liveEvidence, greeks: stale }), /EWZ\s+Iron Condor\s+—\s+1/);
+});
+
+test("direction deadband includes ±10 share equivalents per condor", () => {
+  const longPutBoundary = liveEvidence.greeks.map((item) => ({ ...item,
+    delta: item.symbol === ewz.holdings[0].symbol ? 0.3 : 0.2 }));
+  const shortPutBoundary = liveEvidence.greeks.map((item) => ({ ...item,
+    delta: item.symbol === ewz.holdings[1].symbol ? 0.3 : 0.2 }));
+  assert.match(renderLive({ ...liveEvidence, greeks: longPutBoundary }), /EWZ\s+Iron Condor\s+NEUTRAL/);
+  assert.match(renderLive({ ...liveEvidence, greeks: shortPutBoundary }), /EWZ\s+Iron Condor\s+NEUTRAL/);
+  const outsidePositive = longPutBoundary.map((item) => ({ ...item,
+    delta: item.symbol === ewz.holdings[0].symbol ? 0.301 : item.delta }));
+  const outsideNegative = shortPutBoundary.map((item) => ({ ...item,
+    delta: item.symbol === ewz.holdings[1].symbol ? 0.301 : item.delta }));
+  assert.match(renderLive({ ...liveEvidence, greeks: outsidePositive }), /EWZ\s+Iron Condor\s+BULLISH/);
+  assert.match(renderLive({ ...liveEvidence, greeks: outsideNegative }), /EWZ\s+Iron Condor\s+BEARISH/);
 });
 
 test("P/L Day uses its own sign and withholds incomplete or stale evidence", () => {
