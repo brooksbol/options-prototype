@@ -1,0 +1,111 @@
+/* Iron Condors table — frozen Exit Reliability v0 presentation (PR #33). */
+
+.ic-card {
+  font-family: system-ui, sans-serif;
+  background: #fff;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--wd-border-default, #e0e0e0);
+  margin: 12px 0;
+}
+
+.ic-head {
+  margin-bottom: 10px;
+}
+
+.ic-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--wd-text-primary, #111);
+  margin: 0 0 4px;
+}
+
+.ic-subtitle {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--wd-text-secondary, #374151);
+  margin: 0 0 4px;
+  max-width: 60ch;
+}
+
+.ic-meta {
+  font-size: 10px;
+  color: var(--wd-text-secondary, #6b7280);
+  font-variant-numeric: tabular-nums;
+}
+
+.ic-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.ic-search {
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid var(--wd-border-default, #d1d5db);
+  border-radius: 6px;
+  min-width: 160px;
+}
+
+.ic-count {
+  font-size: 11px;
+  color: var(--wd-text-secondary, #6b7280);
+  font-variant-numeric: tabular-nums;
+}
+
+.ic-scroll {
+  max-height: 420px;
+  overflow-y: auto;
+  border: 1px solid var(--wd-border-default, #eee);
+  border-radius: 6px;
+}
+
+.ic-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.ic-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--wd-surface-subtle, #f9fafb);
+  text-align: left;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wd-text-secondary, #374151);
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--wd-border-default, #e5e7eb);
+}
+
+.ic-table tbody td {
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--wd-border-subtle, #f3f4f6);
+  color: var(--wd-text-primary, #111);
+}
+
+.ic-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ic-col-symbol {
+  font-weight: 600;
+}
+
+.ic-col-score {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ic-empty {
+  text-align: center;
+  color: var(--wd-text-secondary, #6b7280);
+  padding: 12px;
+  font-style: italic;
+}
