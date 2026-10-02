@@ -65,6 +65,19 @@ export interface CrossEntryRow {
   /** Underlying spot price at observation */
   spot: number;
   delta: number;
+  /**
+   * Signed percentage move the underlying must make from current spot to reach
+   * the option strike: (strike - spot) / spot × 100.
+   * Buy-Write/covered-call: positive — headroom to the capped-upside strike.
+   * CSP: negative — the underlying would have to depreciate to the (OTM) put strike.
+   * Presentation convention only; not a prediction that the move will occur.
+   */
+  appreciationToStrikePct: number;
+  /**
+   * Signed dollar value of the spot→strike move for one standard contract:
+   * (strike - spot) × 100. Same sign convention as appreciationToStrikePct.
+   */
+  appreciationToStrikeDollars: number;
   /** Option bid */
   bid: number;
   /** Option midpoint */
@@ -93,6 +106,24 @@ export interface CrossEntryRow {
 }
 
 // --- Computation ---
+
+/**
+ * Signed percentage move from spot to strike: (strike - spot) / spot × 100.
+ * Returns 0 when spot is not a positive finite number (no meaningful base).
+ */
+export function appreciationToStrikePct(strike: number, spot: number): number {
+  if (!Number.isFinite(spot) || spot <= 0 || !Number.isFinite(strike)) return 0;
+  return ((strike - spot) / spot) * 100;
+}
+
+/**
+ * Signed dollar value of the spot→strike move for one standard 100-share
+ * contract: (strike - spot) × 100. Returns 0 when either input is non-finite.
+ */
+export function appreciationToStrikeDollars(strike: number, spot: number): number {
+  if (!Number.isFinite(spot) || !Number.isFinite(strike)) return 0;
+  return (strike - spot) * 100;
+}
 
 /**
  * Compute Production v0 for a Cash-Secured Put candidate.
@@ -181,6 +212,8 @@ export function buildCrossEntryRows(
       dte: c.dte,
       strike: c.strike,
       spot: c.underlyingPrice,
+      appreciationToStrikePct: appreciationToStrikePct(c.strike, c.underlyingPrice),
+      appreciationToStrikeDollars: appreciationToStrikeDollars(c.strike, c.underlyingPrice),
       delta: Math.abs(c.delta),
       bid: c.bid,
       mid: c.mid,
@@ -211,6 +244,8 @@ export function buildCrossEntryRows(
       dte: c.dte,
       strike: c.strike,
       spot: c.underlyingPrice,
+      appreciationToStrikePct: appreciationToStrikePct(c.strike, c.underlyingPrice),
+      appreciationToStrikeDollars: appreciationToStrikeDollars(c.strike, c.underlyingPrice),
       delta: c.delta,
       bid: c.bid,
       mid: c.mid,
