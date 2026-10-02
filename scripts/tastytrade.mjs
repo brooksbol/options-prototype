@@ -321,7 +321,7 @@ export function renderComplexOrders(account, result, retrievedAt) {
 
 export async function main(argv = process.argv.slice(2), { env = process.env, readFile = readFileSync,
   fetchImpl = fetch, out = console.log, err = console.error, now = () => new Date(),
-  stdoutIsTTY = process.stdout.isTTY, WebSocketImpl = WebSocket } = {}) {
+  WebSocketImpl = WebSocket } = {}) {
   try {
     const command = parseCommand(argv);
     if (command.kind === "help") { out(command.text); return 0; }
@@ -372,7 +372,7 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
           } catch { /* Quote age remains available. */ }
           out(renderLive({ account, holdings, orders: orders.items, complexOrders: complex.items,
             quotes: quotes?.data?.items, greeks, now: now(), sessionCloseAt,
-            color: Boolean(!command.tsv && stdoutIsTTY && !Object.hasOwn(env, "NO_COLOR")),
+            color: !command.tsv,
             format: command.tsv ? "tsv" : "table" }));
         }
       }

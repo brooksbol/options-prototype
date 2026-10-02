@@ -246,7 +246,7 @@ test("live uses only allowlisted reads, one token, and sanitizes API errors", as
       throw Error("unexpected endpoint");
     };
   const code = await main(["live"], { env, out: (s) => output.push(s), now: () => liveEvidence.now,
-    fetchImpl, stdoutIsTTY: false });
+    fetchImpl });
   assert.equal(code, 0);
   assert.deepEqual(calls.map(({ options }) => options.method), ["POST", ...Array(14).fill("GET")]);
   assert.ok(calls.every(({ url, options }) => url.startsWith(PRODUCTION_BASE_URL) &&
@@ -255,10 +255,10 @@ test("live uses only allowlisted reads, one token, and sanitizes API errors", as
   assert.doesNotMatch(output.join("\n"), /access-marker|secret-marker|refresh-marker/);
   assert.match(output[0], /EWZ.*\+\$9/);
   assert.match(output[0], /EWZ\s+Iron Condor\s+—\s+1/);
-  assert.doesNotMatch(output[0], /\x1b\[/);
+  assert.match(output[0], /\x1b\[32m\+\$9/);
   const ttyOutput = [];
   assert.equal(await main(["live"], { env, out: (s) => ttyOutput.push(s), now: () => liveEvidence.now,
-    fetchImpl, stdoutIsTTY: true }), 0);
+    fetchImpl }), 0);
   assert.match(ttyOutput[0], /^\n\x1b\[37m/);
   assert.match(ttyOutput[0], /\$0\s+\x1b\[32m\+\$9\s*\x1b\[37m\s+0\.42 CR\s+\x1b\[32m0\.33/);
   assert.match(ttyOutput[0], /\x1b\[32m\+\$1\s*\x1b\[37m\s+\x1b\[31m−\$13\s*\x1b\[37m\s+0\.18 CR\s+\x1b\[31m0\.31/);
@@ -266,12 +266,12 @@ test("live uses only allowlisted reads, one token, and sanitizes API errors", as
   const noColorOutput = [];
   assert.equal(await main(["live"], { env: { ...env, NO_COLOR: "1" },
     out: (s) => noColorOutput.push(s), now: () => liveEvidence.now,
-    fetchImpl, stdoutIsTTY: true }), 0);
-  assert.doesNotMatch(noColorOutput[0], /\x1b\[/);
+    fetchImpl }), 0);
+  assert.match(noColorOutput[0], /\x1b\[32m\+\$9/);
   assert.match(noColorOutput[0], /\+\$9.*−\$13/s);
   const tsvOutput = [];
   assert.equal(await main(["live", "--tsv"], { env, out: (s) => tsvOutput.push(s),
-    now: () => liveEvidence.now, fetchImpl, stdoutIsTTY: true }), 0);
+    now: () => liveEvidence.now, fetchImpl }), 0);
   assert.match(tsvOutput[0], /^ACCOUNT\tSYMBOL\t/);
   assert.doesNotMatch(tsvOutput[0], /\x1b\[/);
   await assert.rejects(readOrders(async (offset) => page(offset, 2, 2, [ewz.opening])),
