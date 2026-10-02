@@ -3,6 +3,7 @@
 import { readFileSync } from "node:fs";
 import { parseEnv } from "node:util";
 import { LiveError, maskAccount, renderLive } from "./tastytrade-live.mjs";
+import { readHeldGreeks } from "./tastytrade-greeks.mjs";
 
 // This experimental CLI has only allowlisted broker reads and no broker-write capability.
 export const PRODUCTION_BASE_URL = "https://api.tastyworks.com";
@@ -43,6 +44,7 @@ Positions and orders are separate broker evidence; no protection verdict is infe
 const LIVE_HELP = `Usage: tt live [--account <account-number>] [--tsv]
 
 Show an indicative, read-only live-trade summary for one production account.
+Direction uses current held-leg delta; missing Greeks show —.
 If you have one accessible account, it is selected automatically.
 With multiple accounts, specify --account <account-number>.
 Use --tsv for tab-separated, uncolored output suitable for redirection.
@@ -147,7 +149,11 @@ function brokerGet(fetchImpl, resource, account, token) {
   let path;
   if (resource === "accounts") path = "/customers/me/accounts";
   else if (resource === "equity-session") path = "/market-time/equities/sessions/current";
-  else if (["positions", "complex-orders", "orders"].includes(resource) && /^[A-Za-z0-9]+$/.test(account)) {
+  else if (resource === "quote-token") path = "/api-quote-tokens";
+  else if (resource === "equity-option-instrument" && typeof account === "string" &&
+           /^[A-Za-z0-9.]+\s+\d{6}[CP]\d{8}$/.test(account)) {
+    path = `/instruments/equity-options/${encodeURIComponent(account)}`;
+  } else if (["positions", "complex-orders", "orders"].includes(resource) && /^[A-Za-z0-9]+$/.test(account)) {
     path = `/accounts/${encodeURIComponent(account)}/${resource}`;
   } else if (resource === "equity-option-quotes") {
     path = "/market-data/by-type";
@@ -160,6 +166,8 @@ function brokerGet(fetchImpl, resource, account, token) {
       resource === "equity-option-quotes" ? (() => { throw new CliError("Unsupported quote request"); })() : path,
     { method: "GET", headers: { Authorization: `Bearer ${token}` } },
     resource === "accounts" ? "Accounts" : resource === "equity-session" ? "Equity session" :
+      resource === "quote-token" ? "Quote token" :
+      resource === "equity-option-instrument" ? "Option instrument" :
       resource === "positions" ? "Positions" :
       resource === "orders" ? "Orders" : resource === "equity-option-quotes" ? "Quotes" : "Complex orders");
 }
@@ -313,7 +321,7 @@ export function renderComplexOrders(account, result, retrievedAt) {
 
 export async function main(argv = process.argv.slice(2), { env = process.env, readFile = readFileSync,
   fetchImpl = fetch, out = console.log, err = console.error, now = () => new Date(),
-  stdoutIsTTY = process.stdout.isTTY } = {}) {
+  WebSocketImpl = WebSocket } = {}) {
   try {
     const command = parseCommand(argv);
     if (command.kind === "help") { out(command.text); return 0; }
@@ -348,6 +356,14 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
           const symbols = [...new Set(holdings.map((item) => item.symbol))];
           if (symbols.length > 100) throw new CliError("Live: more than 100 held symbols; use tt positions");
           const quotes = await brokerGet(fetchImpl, "equity-option-quotes", undefined, token)(symbols);
+          // Greek acquisition is optional: it must never hide an otherwise evidenced live trade.
+          let greeks = [];
+          try {
+            greeks = await readHeldGreeks({ symbols,
+              loadInstrument: (symbol) => brokerGet(fetchImpl, "equity-option-instrument", symbol, token)(),
+              loadQuoteToken: () => brokerGet(fetchImpl, "quote-token", undefined, token)(),
+              WebSocketImpl, now: now() });
+          } catch { /* Unknown direction is shown explicitly. */ }
           // Session context enriches the quote label; a failed session read leaves its age visible.
           let sessionCloseAt;
           try {
@@ -355,8 +371,8 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
             sessionCloseAt = session?.data?.["close-at"];
           } catch { /* Quote age remains available. */ }
           out(renderLive({ account, holdings, orders: orders.items, complexOrders: complex.items,
-            quotes: quotes?.data?.items, now: now(), sessionCloseAt,
-            color: Boolean(!command.tsv && stdoutIsTTY && !Object.hasOwn(env, "NO_COLOR")),
+            quotes: quotes?.data?.items, greeks, now: now(), sessionCloseAt,
+            color: !command.tsv,
             format: command.tsv ? "tsv" : "table" }));
         }
       }
