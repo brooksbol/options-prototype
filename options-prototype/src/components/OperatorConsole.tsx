@@ -30,7 +30,6 @@ import { lookupDescription } from "../instrument-catalog/catalog";
 import { PositionDetailModal } from "./PositionDetailModal";
 import { ForceAcquisitionButton } from "../operator-console/ForceAcquisitionButton";
 import { UnencumberedInventory, buildUnencumberedCsvRows, UNENCUMBERED_CSV_HEADER } from "../operator-console/UnencumberedInventory";
-import { IronCondorsTable } from "../operator-console/IronCondorsTable";
 import { useGovernedRecommendations } from "../operator-console/use-governed-recommendations";
 import { GovernedRecommendationCell } from "../operator-console/GovernedRecommendationCell";
 import { GovernedRecommendationInspector } from "../operator-console/GovernedRecommendationInspector";
@@ -261,9 +260,6 @@ export function OperatorConsole() {
   if (!snapshot) {
     return (
       <div className="oc-shell">
-        {/* Iron Condors (frozen Exit Reliability v0) is independent of portfolio state,
-            so it renders even with no active account. */}
-        <IronCondorsTable />
         <div className="oc-empty">
           <p>No portfolio data available.</p>
         </div>
@@ -286,9 +282,6 @@ export function OperatorConsole() {
             governedBySubjectId={snapshot.brokerageAccountId ? governedRecommendations : undefined}
             onInspectGoverned={setInspectedGoverned}
           />
-          {/* Iron Condors — frozen Exit Reliability v0 universe (PR #33). Static
-              presentation over version-controlled research evidence. */}
-          <IronCondorsTable />
           {/* Position Monitoring — ladder with regime-specific tile rendering */}
           <div className="oc-region-ladder">
             {vizRegime === "b" && (

@@ -23,6 +23,29 @@ export interface ExitReliabilityRow {
   readonly exitReliability: number;
 }
 
+/**
+ * Instrument TYPE classification for a symbol.
+ *
+ * The per-symbol type will come from a future frozen classification dataset
+ * (not yet provided). Until that dataset is wired here, every symbol in the v0
+ * universe is an ETF — this is the ONLY place that assumption lives, so swapping
+ * in the real dataset is a single-point change (populate INSTRUMENT_TYPE_OVERRIDES
+ * or replace instrumentTypeFor's body) with no change to the table/view.
+ */
+export type InstrumentType = "ETF" | "INDEX";
+
+/**
+ * Future frozen classification overrides, keyed by symbol. Currently empty: the
+ * v0 universe is entirely ETFs. The forthcoming dataset will populate this (or
+ * replace this module's data entirely) with the real ETF/INDEX split.
+ */
+export const INSTRUMENT_TYPE_OVERRIDES: Readonly<Record<string, InstrumentType>> = {};
+
+/** Resolve a symbol's instrument type. Defaults to ETF until the dataset exists. */
+export function instrumentTypeFor(symbol: string): InstrumentType {
+  return INSTRUMENT_TYPE_OVERRIDES[symbol] ?? "ETF";
+}
+
 /** Provenance of the frozen v0 dataset. Kept with the data, surfaced lightly in UI. */
 export const EXIT_RELIABILITY_V0_PROVENANCE = {
   datasetDate: "2026-10-01",

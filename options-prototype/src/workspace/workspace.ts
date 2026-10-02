@@ -53,6 +53,7 @@ export interface Workspace {
   writeDeskCallsCollapsed: boolean;
   writeDeskBuyWritesCollapsed: boolean;
   writeDeskCrossEntryCollapsed: boolean;
+  writeDeskIronCondorsCollapsed: boolean;
 
   // Deployment section order (drag/reorder)
   writeDeskSectionOrder: string[];
@@ -135,7 +136,8 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskCallsCollapsed: false,
   writeDeskBuyWritesCollapsed: false,
   writeDeskCrossEntryCollapsed: false,
-  writeDeskSectionOrder: ["cross-entry", "puts", "calls", "buy-writes"],
+  writeDeskIronCondorsCollapsed: false,
+  writeDeskSectionOrder: ["cross-entry", "puts", "calls", "buy-writes", "iron-condors"],
   writeDeskAffordableOnly: false,
   writeDeskShowDanger: false,
   writeDeskShowWideSpread: false,

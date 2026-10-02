@@ -29,6 +29,7 @@ import type { RecommendationFunnel } from "../write-desk/recommend";
 import { getDurableCache } from "../cache/durable-cache";
 import { loadCandidateUniverseWithDescriptor } from "../universe/universe";
 import { RecommendationBrief } from "./RecommendationBrief";
+import { IronCondorsTable } from "./IronCondorsTable";
 import { CallBrief } from "./CallBrief";
 import { BuyWriteBrief } from "./BuyWriteBrief";
 import { ContingentCallBrief } from "./ContingentCallBrief";
@@ -116,6 +117,7 @@ export function Deployment() {
   const [callExport, setCallExport] = useState<DecisionExportResult | null>(null);
   const [buyWriteExport, setBuyWriteExport] = useState<DecisionExportResult | null>(null);
   const [buyWritesCollapsed, setBuyWritesCollapsed] = useState(() => loadWorkspace().writeDeskBuyWritesCollapsed);
+  const [ironCondorsCollapsed, setIronCondorsCollapsed] = useState(() => loadWorkspace().writeDeskIronCondorsCollapsed);
   // Buy-write table symbol filter (mirror the puts / cash deployment symbol filter)
   const [buyWriteSymbolFilter, setBuyWriteSymbolFilter] = useState<string>(() => loadWorkspace().writeDeskBuyWriteSymbol);
   const [scanTimestamp, setScanTimestamp] = useState<string | null>(null);
@@ -190,7 +192,7 @@ export function Deployment() {
   const [crossEntryCollapsed, setCrossEntryCollapsed] = useState(() => loadWorkspace().writeDeskCrossEntryCollapsed);
 
   // Section ordering (drag/reorder)
-  const defaultSectionOrder = ["cross-entry", "puts", "calls", "buy-writes"];
+  const defaultSectionOrder = ["cross-entry", "puts", "calls", "buy-writes", "iron-condors"];
   const savedOrder = loadWorkspace().writeDeskSectionOrder;
   // Ensure all known sections are present (handles migration from older saved orders)
   const initialOrder = (() => {
@@ -1206,6 +1208,20 @@ export function Deployment() {
               </div>
             )}
           </div>
+        </section>
+              )}
+
+              {sectionId === "iron-condors" && (
+        <section className="wd-board wd-iron-condors-board">
+          {/* Iron Condors — frozen Exit Reliability v0 universe (PR #33). A peer
+              candidate surface over version-controlled research evidence; it makes
+              no provider calls and does not recompute. Collapsible like the other
+              Deployment boards; collapse state is persisted to the workspace. */}
+          <IronCondorsTable
+            collapsed={ironCondorsCollapsed}
+            onToggleCollapse={() => { setIronCondorsCollapsed(!ironCondorsCollapsed); updateWorkspace({ writeDeskIronCondorsCollapsed: !ironCondorsCollapsed }); }}
+            enableQuotes={source !== "demo"}
+          />
         </section>
               )}
             </div>
