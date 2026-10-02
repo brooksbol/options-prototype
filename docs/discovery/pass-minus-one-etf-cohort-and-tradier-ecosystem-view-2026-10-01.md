@@ -1,0 +1,37 @@
+# ETF evidence cohort within frozen Pass −1 and its Tradier listing topology
+
+**Status:** Offline descriptive research view (Category E), 2026-10-01. This does not change [frozen Pass −1](pass-minus-one-v0-occ-tradier-identity-snapshot-2026-10-01.md), adopt an ETF eligibility universe, run [Pass 0](pass-zero-v1-class-geometry-method-2026-10-01.md), or choose an option trade. Canonical intake: `PL-RESEARCH-01`.
+
+**Source and reproducibility:** The direct [Cboe-labeled ETF list](../../data/research/pass-minus-one-etf-view-2026-10-01/cboe-etf-underlyings.csv) and separate [OCC-name ETF candidates](../../data/research/pass-minus-one-etf-view-2026-10-01/occ-etf-name-candidates.csv) answer the product question with their evidence tiers intact. The [full population view](../../data/research/pass-minus-one-etf-view-2026-10-01/population-product-evidence.csv) accounts for **every one of the 6,072 frozen OCC underlyings**. The [class lookup view](../../data/research/pass-minus-one-etf-view-2026-10-01/etf-cohort-class-lookup.csv) gives exact OCC class/root and archived Tradier listing topology for both ETF-evidence tiers. [Summary hashes](../../data/research/pass-minus-one-etf-view-2026-10-01/summary.json) and [offline derivation](../../data/research/pass-minus-one-etf-view-2026-10-01/derive.py) point to the immutable Pass −1 archive; no provider request was made for this view. OCC report date: 2026-09-30; Cboe reference and Tradier lookup capture: 2026-10-01. “Current” below means **observed at that dated capture**, not verified live today.
+
+## Which frozen products have ETF evidence?
+
+| Evidence tier | Underlyings | OCC class rows | Interpretation |
+| --- | ---: | ---: | --- |
+| Exact Cboe symbol with `Symbol Type=ETF` across its observed reference rows | **1,643** | **1,766** | Defensible **Cboe-labeled ETF/ETP research cohort**. This source label does not by itself establish legal fund form, ordinary deliverables, product quality, or current tradability. It includes products with materially different exposures, including trusts and leveraged/single-stock funds. |
+| No exact Cboe reference; an OCC ordinary-class name explicitly contains `ETF` or `Exchange Traded Fund` | **445** | **453** | **Name-based ETF candidates**, retained separately. A name string is not a verified product taxonomy. |
+| No exact Cboe reference and no explicit OCC ETF name | **290** | **296** | **Unclassified**, not “non-ETF.” These rows cannot be removed from the frozen denominator or silently assigned an ETF type. |
+| Cboe exact type `Equity`, `Index`, or `OTC` | **3,694** | **3,866** | Cboe's other labels; preserve source semantics rather than reclassifying from an “ETF” word embedded in an index name. |
+| **Frozen total** | **6,072** | **6,381** | No rows excluded. |
+
+The 1,643 are the directly reproducible answer to “which are ETFs?” **under the declared Cboe classification rule**. The additional 445 show why that list is not a claim of complete ETF coverage. For example, OCC calls `BEDZ` and `VICE` ETFs, but neither has an exact Cboe reference in the frozen files; their 2026-10-01 exact Tradier lookups were empty and their identities remain unresolved. The tier labels, Cboe company/settlement references where present, and OCC names remain attached to every row in the population export. Cboe's settlement label is reference metadata, not proof of an adjusted class's actual deliverable.
+
+## What the archived Tradier evidence actually shows
+
+The Pass −1 Tradier endpoint returned grouped option **symbol strings** for each queried underlying. Decoding an exact root's strings gives its listed expiration dates, put/call side, strike lattice, and root variants at the capture. These are provider-observed *listing topology*, not full chain observations or executable quotes.
+
+| Dated lookup finding | Cboe ETF tier | OCC-name candidate tier |
+| --- | ---: | ---: |
+| Underlyings whose exact query returned option roots | 1,643 / 1,643 | 443 / 445; 2 empty/unresolved |
+| OCC classes whose **exact class root** appeared | 1,741 / 1,766 | 451 / 453 |
+| OCC class rows with root unresolved in lookup | 25 | 2 |
+| Exact-root classes with at least one expiration containing two put strikes **in lookup strings** | 1,741 | 450; `SMCF` has one put strike at each of two expirations |
+| Exact-root put / call contract strings | 283,936 / 283,940 | 36,074 / 36,074 |
+
+Within the Cboe ETF tier, **113 underlyings have multiple frozen OCC classes** and **91 lookups exposed multiple Tradier roots**. Root count is an identity/structure observation, not an ETF-quality grade. `TSLL` and `TSLL1` illustrate why an ordinary root and an adjusted-looking root stay separate; the bounded chain pilot found that `contract_size: 100` did not encode `TSLL1`'s cash deliverable component. Of the 25 root-absent OCC classes, 24 have numbered suffixes and one has another underlying/class spelling difference; these are evidence cohorts, not automatic adjustment or exclusion decisions. All 1,741 exact-root Cboe ETF classes had a same-expiration put pair somewhere in their **lookup strings**, but that does not say a particular DTE window, same-day chain, risk location, quote, or execution opportunity exists. The 25 root-absent rows remain members, not failed ETFs.
+
+For each ETF ecosystem, the available dated lookup can describe **class/root multiplicity**, expiration calendar and DTE distribution, put/call listing breadth, strike counts and spacing per exact root/expiration, and whether any same-root put pair is listed. This is more informative than a binary “optionable” flag and needs no preferred strike, delta, spread width, or market-quality threshold.
+
+The adopted Pass 0 method would add a **fresh, dated, class-specific chain geometry observation** for every frozen class row, with separate identity/acquisition states and ancillary timestamped underlying quote/history. Raw Tradier chains can additionally preserve option identity, bid/ask and sizes, side timestamps, volume/OI and verbatim Greek update evidence for *later* market-quality research; those fields do **not** determine Pass 0 geometry state or select a specimen. The existing bounded pilots show this surface exists for a small contrast panel, not for this full ETF cohort. The Pass −1 lookup has none of the synchronized quote/history, chain freshness, authoritative adjusted deliverables, package-fill, or longitudinal evidence needed to infer liquidity or Exit Reliability.
+
+**Research boundary:** Keep product-type evidence, OCC underlying identity, OCC option-class identity, and Tradier root observations as separate fields. Repeat a declared census on later dates to study ecosystem change; do not overwrite this dated view or treat absent exact roots, thin listing geometry, or missing Cboe metadata as permanent exclusions. No fresh Tradier acquisition or trade selection is authorized by this analysis.
