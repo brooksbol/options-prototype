@@ -6,6 +6,7 @@ import { once } from "node:events";
 import {
   parseArgs, parseQuoteResponse, parseRefreshResponse, fetchEvidence, presentFetchResult,
   parseRecordLines, sortRecords, renderTable,
+  EXPERIMENTAL_SEED, resolveFetchSelection, parseMonitoredResponse, readMonitoredSymbols,
 } from "./wheelwright.mjs";
 
 const cli = new URL("./wheelwright.mjs", import.meta.url).pathname;
@@ -29,11 +30,16 @@ test("argument parsing and help need no backend", () => {
   assert.deepEqual(parseArgs(["prices", "qqq", "SPY"]),
     { command: "prices", symbols: ["QQQ", "SPY"] });
   assert.deepEqual(parseArgs(["fetch", "--", "qqq"]),
-    { command: "fetch", symbols: ["QQQ"], quiet: false, verbose: false });
+    { command: "fetch", symbols: ["QQQ"], quiet: false, verbose: false, useDefaultSelector: false });
   assert.deepEqual(parseArgs(["fetch", "qqq", "-q", "SPY", "--quiet"]),
-    { command: "fetch", symbols: ["QQQ", "SPY"], quiet: true, verbose: false });
+    { command: "fetch", symbols: ["QQQ", "SPY"], quiet: true, verbose: false, useDefaultSelector: false });
   assert.deepEqual(parseArgs(["fetch", "-v", "qqq"]),
-    { command: "fetch", symbols: ["QQQ"], quiet: false, verbose: true });
+    { command: "fetch", symbols: ["QQQ"], quiet: false, verbose: true, useDefaultSelector: false });
+  // Bare fetch selects the experimental default (resolved against the backend in main).
+  assert.deepEqual(parseArgs(["fetch"]),
+    { command: "fetch", symbols: [], quiet: false, verbose: false, useDefaultSelector: true });
+  assert.deepEqual(parseArgs(["fetch", "-q"]),
+    { command: "fetch", symbols: [], quiet: true, verbose: false, useDefaultSelector: true });
   assert.deepEqual(parseArgs(["observed-prices", "--", "-TEST"]).symbols, ["-TEST"]);
   assert.deepEqual(parseArgs(["sort", "--by", "price", "--descending"]),
     { command: "sort", by: "price", descending: true });
@@ -57,7 +63,7 @@ test("argument parsing and help need no backend", () => {
   assert.equal(rootManual.status, 0);
   assert.match(rootManual.stdout, /WW\(1\)/);
   assert.match(rootManual.stdout, /WORKING COMMANDS/);
-  assert.match(rootManual.stdout, /fetch \[-q \| -v\] SYMBOL/);
+  assert.match(rootManual.stdout, /fetch \[-q \| -v\] \[SYMBOL\.\.\.\]/);
   assert.doesNotMatch(rootManual.stdout, /refresh SYMBOL/);
   assert.match(rootManual.stdout, /EXIT STATUS/);
   assert.equal(rootManual.stderr, "");
@@ -77,8 +83,10 @@ test("argument parsing and help need no backend", () => {
   assert.equal(retired.status, 2);
   assert.equal(retired.stdout, "");
   assert.match(retired.stderr, /unknown command 'refresh'/);
-  assert.equal(run(["fetch"]).status, 2);
+  // Bare `ww fetch` is NO LONGER a usage error: it is the experimental default
+  // selector, resolved against the backend. (Exercised end-to-end below.)
   assert.equal(run(["fetch", "--bad", "QQQ"]).status, 2);
+  assert.equal(run(["prices"]).status, 2);
   const conflicting = run(["fetch", "-q", "--verbose", "QQQ"]);
   assert.equal(conflicting.status, 2);
   assert.equal(conflicting.stdout, "");
@@ -193,6 +201,189 @@ test("fetch exit status makes shell && depend on all requested held prices", asy
     assert.match(verbose.stderr, /fetch complete: 2\/2 prices held/);
     assert.doesNotMatch(verbose.stderr, /Tradier|749\.58|\/api\/evidence/);
     assert.equal(verbose.stdout, present.stdout);
+  } finally {
+    server.close();
+  }
+});
+
+test("experimental seed is the fixed ten-symbol research set", () => {
+  assert.deepEqual(EXPERIMENTAL_SEED,
+    ["SPY", "QQQ", "IWM", "SLV", "GLD", "TQQQ", "USO", "SMH", "SOXL", "GDX"]);
+  assert.equal(EXPERIMENTAL_SEED.length, 10);
+});
+
+test("resolveFetchSelection unions monitored with the seed, dedupes, and keeps provenance", () => {
+  // Empty monitored → exactly the ten seed symbols, all seed-only.
+  const empty = resolveFetchSelection([]);
+  assert.deepEqual(empty.symbols, EXPERIMENTAL_SEED);
+  assert.ok(empty.symbols.every(s => empty.provenance.get(s) === "experimental-seed"));
+
+  // Monitored symbols union with the seed; monitored-only come first in declared order.
+  const union = resolveFetchSelection(["XLE", "ARKK"]);
+  assert.deepEqual(union.symbols, ["XLE", "ARKK", ...EXPERIMENTAL_SEED]);
+  assert.equal(union.provenance.get("XLE"), "monitored");
+  assert.equal(union.provenance.get("ARKK"), "monitored");
+  assert.equal(union.provenance.get("SPY"), "experimental-seed");
+  assert.equal(union.symbols.length, 12);
+
+  // Overlap: a monitored symbol that is also in the seed is acquired ONCE, marked "both".
+  const overlap = resolveFetchSelection(["QQQ", "XLE"]);
+  assert.equal(overlap.symbols.filter(s => s === "QQQ").length, 1);
+  assert.equal(overlap.provenance.get("QQQ"), "both");
+  assert.equal(overlap.provenance.get("XLE"), "monitored");
+  // Full union size: 10 seed + 1 monitored-only (XLE); QQQ folded in.
+  assert.equal(overlap.symbols.length, 11);
+
+  // Normalization: lowercase/dup monitored input is uppercased and deduped.
+  const normalized = resolveFetchSelection(["xle", "XLE", "spy"]);
+  assert.equal(normalized.symbols.filter(s => s === "XLE").length, 1);
+  assert.equal(normalized.provenance.get("SPY"), "both");
+  assert.equal(normalized.symbols.filter(s => s === "SPY").length, 1);
+});
+
+test("parseMonitoredResponse accepts a membership list and rejects malformed shapes", () => {
+  assert.deepEqual(parseMonitoredResponse({ symbols: ["xle", "SPY"], count: 2,
+    meaning: "last declared monitored symbols" }), ["XLE", "SPY"]);
+  assert.deepEqual(parseMonitoredResponse({ symbols: [] }), []);
+  assert.throws(() => parseMonitoredResponse({}), /invalid monitored response/);
+  assert.throws(() => parseMonitoredResponse({ symbols: "SPY" }), /invalid monitored response/);
+  assert.throws(() => parseMonitoredResponse({ symbols: [""] }), /invalid monitored symbol/);
+  assert.throws(() => parseMonitoredResponse({ symbols: [123] }), /invalid monitored symbol/);
+});
+
+test("readMonitoredSymbols failure aborts (never a silent authoritative empty)", async () => {
+  const down = async () => { throw new Error("ECONNREFUSED"); };
+  await assert.rejects(() => readMonitoredSymbols(down, "http://127.0.0.1:3100"), /backend request failed/);
+  const http500 = async () => ({ ok: false, status: 500 });
+  await assert.rejects(() => readMonitoredSymbols(http500, "http://127.0.0.1:3100"), /HTTP 500/);
+});
+
+test("bare fetch resolves monitored UNION seed, acquires each once, and never POSTs zero symbols", async () => {
+  const cli = new URL("./wheelwright.mjs", import.meta.url).pathname;
+  // Monitored endpoint returns XLE + QQQ (QQQ overlaps the seed). Refresh echoes
+  // back whatever symbols it is asked for as held.
+  let refreshCall;
+  const server = createServer((request, reply) => {
+    const url = new URL(request.url, "http://localhost");
+    reply.setHeader("content-type", "application/json");
+    if (url.pathname === "/api/evidence/monitored" && request.method === "GET") {
+      reply.end(JSON.stringify({ symbols: ["XLE", "QQQ"], count: 2,
+        meaning: "last declared monitored symbols" }));
+      return;
+    }
+    if (url.pathname === "/api/evidence/refresh" && request.method === "POST") {
+      refreshCall = url.searchParams.getAll("symbol");
+      reply.end(JSON.stringify({ outcome: "ACQUIRED", completed: true,
+        perSymbol: refreshCall.map(symbol => ({ symbol, acquisitionOutcome: "ACQUIRED", heldPrice: true })) }));
+      return;
+    }
+    reply.statusCode = 404; reply.end("{}");
+  });
+  server.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  try {
+    const env = { ...process.env, WW_BASE_URL: `http://127.0.0.1:${server.address().port}` };
+    const invoke = async (args) => {
+      const child = spawn(process.execPath, [cli, ...args], { env });
+      let stdout = "", stderr = "";
+      child.stdout.on("data", c => { stdout += c; });
+      child.stderr.on("data", c => { stderr += c; });
+      const [code] = await once(child, "exit");
+      return { code, stdout, stderr };
+    };
+
+    const bare = await invoke(["fetch"]);
+    assert.equal(bare.code, 0);
+    // Union = monitored (XLE, QQQ) first then seed-only; QQQ deduped.
+    const expected = ["XLE", "QQQ", "SPY", "IWM", "SLV", "GLD", "TQQQ", "USO", "SMH", "SOXL", "GDX"];
+    assert.deepEqual(refreshCall, expected);
+    // Acquired once each — no duplicate QQQ.
+    assert.equal(refreshCall.filter(s => s === "QQQ").length, 1);
+    assert.equal(new Set(refreshCall).size, refreshCall.length);
+    // Piped stdout carries one record per distinct symbol.
+    assert.deepEqual(bare.stdout.trim().split("\n").map(JSON.parse).map(r => r.symbol), expected);
+
+    // Verbose default selection diagnostics go to stderr, not stdout.
+    const verbose = await invoke(["fetch", "-v"]);
+    assert.equal(verbose.code, 0);
+    assert.match(verbose.stderr, /Default selection: 11 symbol\(s\)/);
+    assert.match(verbose.stderr, /QQQ\s+both/);
+    assert.match(verbose.stderr, /XLE\s+monitored/);
+    assert.match(verbose.stderr, /SPY\s+experimental-seed/);
+    assert.doesNotMatch(verbose.stdout, /Default selection|monitored|experimental-seed/);
+    assert.deepEqual(verbose.stdout.trim().split("\n").map(JSON.parse).map(r => r.symbol), expected);
+
+    // Explicit operands REPLACE the default: only the given symbols are fetched,
+    // the monitored endpoint is not consulted, and the seed is not added.
+    const explicit = await invoke(["fetch", "QQQ", "SPY"]);
+    assert.equal(explicit.code, 0);
+    assert.deepEqual(refreshCall, ["QQQ", "SPY"]);
+  } finally {
+    server.close();
+  }
+});
+
+test("empty monitored declaration resolves exactly the ten seed symbols", async () => {
+  const cli = new URL("./wheelwright.mjs", import.meta.url).pathname;
+  let refreshCall;
+  const server = createServer((request, reply) => {
+    const url = new URL(request.url, "http://localhost");
+    reply.setHeader("content-type", "application/json");
+    if (url.pathname === "/api/evidence/monitored") {
+      reply.end(JSON.stringify({ symbols: [], count: 0, meaning: "last declared monitored symbols" }));
+      return;
+    }
+    if (url.pathname === "/api/evidence/refresh" && request.method === "POST") {
+      refreshCall = url.searchParams.getAll("symbol");
+      reply.end(JSON.stringify({ outcome: "ACQUIRED", completed: true,
+        perSymbol: refreshCall.map(symbol => ({ symbol, acquisitionOutcome: "ACQUIRED", heldPrice: true })) }));
+      return;
+    }
+    reply.statusCode = 404; reply.end("{}");
+  });
+  server.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  try {
+    const env = { ...process.env, WW_BASE_URL: `http://127.0.0.1:${server.address().port}` };
+    const child = spawn(process.execPath, [cli, "fetch"], { env });
+    let stdout = "";
+    child.stdout.on("data", c => { stdout += c; });
+    const [code] = await once(child, "exit");
+    assert.equal(code, 0);
+    assert.deepEqual(refreshCall, EXPERIMENTAL_SEED);
+  } finally {
+    server.close();
+  }
+});
+
+test("bare fetch aborts (does not POST whole-cycle) when the monitored read fails", async () => {
+  const cli = new URL("./wheelwright.mjs", import.meta.url).pathname;
+  let refreshCalled = false;
+  const server = createServer((request, reply) => {
+    const url = new URL(request.url, "http://localhost");
+    reply.setHeader("content-type", "application/json");
+    if (url.pathname === "/api/evidence/monitored") {
+      reply.statusCode = 503; reply.end('{"error":"down"}'); return;
+    }
+    if (url.pathname === "/api/evidence/refresh") { refreshCalled = true; }
+    reply.statusCode = 404; reply.end("{}");
+  });
+  server.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  try {
+    const env = { ...process.env, WW_BASE_URL: `http://127.0.0.1:${server.address().port}` };
+    const child = spawn(process.execPath, [cli, "fetch"], { env });
+    let stdout = "", stderr = "";
+    child.stdout.on("data", c => { stdout += c; });
+    child.stderr.on("data", c => { stderr += c; });
+    const [code] = await once(child, "exit");
+    // Monitored is a REQUIRED source: its failure aborts fetch (exit 1), it is NOT
+    // silently converted to an authoritative empty set, and crucially NO refresh
+    // POST is made — so a read failure can never trigger whole-cycle acquisition.
+    assert.equal(code, 1);
+    assert.equal(stdout, "");
+    assert.match(stderr, /HTTP 503/);
+    assert.equal(refreshCalled, false);
   } finally {
     server.close();
   }

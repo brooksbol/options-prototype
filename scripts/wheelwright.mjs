@@ -10,7 +10,10 @@ Use explicit symbols. Reading never silently acquires; acquisition never claims
 freshness or suitability. Pipe commands without a format flag.
 
 Working commands:
-  fetch [-q | -v] SYMBOL...  Acquire evidence; succeed when all requested prices are held
+  fetch [-q | -v] [SYMBOL...] Acquire evidence; succeed when all requested prices are held.
+                            With no symbols, acquires the experimental default set
+                            (last declared monitored UNION a fixed research seed).
+                            Explicit symbols replace the default.
   prices SYMBOL...          Inspect currently held underlying price evidence (read-only)
   sort --by FIELD           Reorder ww price records from stdin (price or symbol)
 
@@ -48,11 +51,17 @@ Backend: WW_BASE_URL (default http://localhost:3100).`;
 
 const PRICES_HELP = SOURCE_HELP.replaceAll("observed-prices", "prices");
 
-const FETCH_HELP = `Usage: ww fetch [-q | --quiet | -v | --verbose] [--] SYMBOL...
+const FETCH_HELP = `Usage: ww fetch [-q | --quiet | -v | --verbose] [--] [SYMBOL...]
 
-Ask the existing Wheelwright backend to run targeted evidence acquisition for
-explicit symbols. This changes Wheelwright's evidence store. It is separate
-from prices, which only reads held evidence.
+Ask the existing Wheelwright backend to run targeted evidence acquisition. With
+explicit symbols it acquires exactly those. With no symbols it acquires the
+current experimental default set: the last declared monitored symbols UNION a
+fixed experimental ten-symbol research seed (SPY QQQ IWM SLV GLD TQQQ USO SMH
+SOXL GDX). Explicit operands REPLACE the default; they are never added to it.
+The seed is experimental and provisional, not a live ranking, authoritative
+market policy, final default universe, watchlist, or recommendation. This
+changes Wheelwright's evidence store. It is separate from prices, which only
+reads held evidence.
 
 The backend reports whether the targeted operation completed and, for each
 symbol, its acquisition outcome and whether a price is held afterward. A
@@ -96,6 +105,14 @@ Example:
 const KIND = "observed-price/v1";
 const STATUSES = new Set(["ready", "failed", "pending", "absent", "expirations_known", "not_in_universe"]);
 
+// Fixed experimental research seed for bare `ww fetch` (PL-CLI-01 bare-fetch
+// experiment). Derived from dated September 23 options-volume research. It is
+// experimental and provisional: NOT a live ranking, authoritative market
+// representation, final default universe, watchlist, or recommendation. It
+// intentionally retains potentially awkward entries (TQQQ, SOXL) so the
+// experiment can falsify the default selection. Do not sanitize or shrink it.
+export const EXPERIMENTAL_SEED = ["SPY", "QQQ", "IWM", "SLV", "GLD", "TQQQ", "USO", "SMH", "SOXL", "GDX"];
+
 class WwError extends Error {
   constructor(message, code = 1) {
     super(message);
@@ -137,10 +154,19 @@ export function parseArgs(args) {
       if (!arg.trim()) usage(`${command}: symbol must not be empty`);
       symbols.push(arg);
     }
-    if (symbols.length === 0) usage(`${command}: at least one symbol is required`);
+    // Bare `ww fetch` (no operands) is NOT a usage error: it requests the
+    // experimental default selector (last declared monitored symbols UNION the
+    // fixed experimental seed), resolved against the backend in main(). prices /
+    // observed-prices still require at least one explicit symbol.
+    if (symbols.length === 0 && command !== "fetch") usage(`${command}: at least one symbol is required`);
     if (command === "fetch" && quiet && verbose) usage("fetch: --quiet and --verbose cannot be combined");
     const parsed = { command, symbols: [...new Set(symbols.map(s => s.toUpperCase()))] };
-    if (command === "fetch") { parsed.quiet = quiet; parsed.verbose = verbose; }
+    if (command === "fetch") {
+      parsed.quiet = quiet;
+      parsed.verbose = verbose;
+      // Explicit operands REPLACE the default; no operands selects the default.
+      parsed.useDefaultSelector = symbols.length === 0;
+    }
     return parsed;
   }
   if (command === "sort") {
@@ -248,6 +274,71 @@ export function refreshUrl(symbols, base = process.env.WW_BASE_URL ?? "http://lo
   if (!["http:", "https:"].includes(url.protocol)) throw new WwError("WW_BASE_URL must be an HTTP(S) URL", 2);
   for (const symbol of symbols) url.searchParams.append("symbol", symbol);
   return url;
+}
+
+export function monitoredUrl(base = process.env.WW_BASE_URL ?? "http://localhost:3100") {
+  let url;
+  try { url = new URL("/api/evidence/monitored", base); }
+  catch { throw new WwError("WW_BASE_URL must be an HTTP(S) URL", 2); }
+  if (!["http:", "https:"].includes(url.protocol)) throw new WwError("WW_BASE_URL must be an HTTP(S) URL", 2);
+  return url;
+}
+
+export function parseMonitoredResponse(data) {
+  if (!data || typeof data !== "object" || !Array.isArray(data.symbols)) {
+    throw new WwError("backend returned an invalid monitored response");
+  }
+  const symbols = [];
+  for (const s of data.symbols) {
+    if (typeof s !== "string" || !s.trim()) throw new WwError("backend returned an invalid monitored symbol");
+    symbols.push(s.toUpperCase());
+  }
+  return symbols;
+}
+
+export async function readMonitoredSymbols(fetchImpl = fetch, base) {
+  const url = monitoredUrl(base);
+  let response;
+  try { response = await fetchImpl(url); }
+  catch (error) { throw new WwError(`backend request failed: ${error.message}`); }
+  if (!response.ok) throw new WwError(`backend returned HTTP ${response.status}`);
+  let data;
+  try { data = await response.json(); }
+  catch { throw new WwError("backend returned invalid JSON"); }
+  return parseMonitoredResponse(data);
+}
+
+/**
+ * Resolve the experimental default fetch selection: the UNION of last declared
+ * monitored symbols and the fixed experimental seed, normalized (uppercase) and
+ * deduplicated, with per-symbol selection provenance preserved.
+ *
+ * Returns { symbols, provenance } where provenance maps each resolved symbol to
+ * "monitored", "experimental-seed", or "both". The symbol order is: monitored
+ * symbols first (in the order the backend declared them), then seed-only symbols
+ * (in fixed seed order), so the result is deterministic and the monitored
+ * contribution is visible first. This is NOT a weighted relevance score.
+ *
+ * resolved empty != unresolved: this function returns whatever the inputs resolve
+ * to. With the fixed non-empty seed the union is never empty, but the caller must
+ * still treat a (hypothetical) empty resolved set as "acquire nothing", never as
+ * a signal to run whole-cycle acquisition.
+ */
+export function resolveFetchSelection(monitored, seed = EXPERIMENTAL_SEED) {
+  const provenance = new Map();
+  const order = [];
+  const seedSet = new Set(seed.map(s => s.toUpperCase()));
+  const add = (raw, reason) => {
+    const symbol = raw.toUpperCase();
+    if (!provenance.has(symbol)) { order.push(symbol); provenance.set(symbol, reason); }
+    else if (provenance.get(symbol) !== reason) provenance.set(symbol, "both");
+  };
+  for (const m of monitored) {
+    const symbol = m.toUpperCase();
+    add(symbol, seedSet.has(symbol) ? "both" : "monitored");
+  }
+  for (const s of seed) add(s, "experimental-seed");
+  return { symbols: order, provenance };
 }
 
 export function parseRefreshResponse(data, requested) {
@@ -408,7 +499,40 @@ export async function main(args) {
     return;
   }
   if (parsed.command === "fetch") {
-    const result = await fetchEvidence(parsed.symbols);
+    let symbols = parsed.symbols;
+    if (parsed.useDefaultSelector) {
+      // Resolve the experimental default: last declared monitored symbols UNION
+      // the fixed experimental seed. The monitored read is a required source; a
+      // failure to read it is NOT silently treated as an authoritative empty set
+      // (readMonitoredSymbols throws, aborting fetch, rather than resolving []).
+      const monitored = await readMonitoredSymbols();
+      const selection = resolveFetchSelection(monitored, EXPERIMENTAL_SEED);
+      symbols = selection.symbols;
+      // Human-readable selection diagnostics belong on stderr, and only when
+      // verbose. Machine stdout is never contaminated with selection prose.
+      if (parsed.verbose && !parsed.quiet) {
+        const width = symbols.length ? Math.max(...symbols.map(s => s.length)) : 0;
+        const lines = symbols.map(s => `${s.padEnd(width)}  ${selection.provenance.get(s)}`);
+        const counts = { monitored: 0, "experimental-seed": 0, both: 0 };
+        for (const s of symbols) counts[selection.provenance.get(s)]++;
+        process.stderr.write(
+          `Default selection: ${symbols.length} symbol(s) ` +
+          `(${monitored.length} monitored, ${EXPERIMENTAL_SEED.length} seed; ` +
+          `${counts.monitored} monitored-only, ${counts["experimental-seed"]} seed-only, ${counts.both} both)\n` +
+          (lines.length ? lines.join("\n") + "\n" : ""));
+      }
+      // resolved empty != unresolved: a resolved-empty default set acquires
+      // nothing. It must NEVER fall through to a no-symbol POST, which the backend
+      // treats as whole-cycle acquisition. (The fixed seed makes this unreachable
+      // in practice; the guard preserves the invariant regardless.)
+      if (symbols.length === 0) {
+        if (!parsed.quiet && process.stderr.isTTY) {
+          process.stderr.write("fetch complete: 0/0 prices held\n");
+        }
+        return;
+      }
+    }
+    const result = await fetchEvidence(symbols);
     const presentation = presentFetchResult(result, parsed.quiet, !!process.stdout.isTTY,
       !!process.stderr.isTTY, parsed.verbose);
     if (presentation.stdout) process.stdout.write(presentation.stdout);

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-04T18:40:40.195Z",
+    "generatedAt": "2026-10-04T19:02:48.772Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -4033,6 +4033,13 @@
           "heading": "`PL-CLI-01` — October 4 bare-fetch pre-implementation checkpoint and bounded authorization",
           "level": 3,
           "content": "A prior Codex session's attempted pre-implementation checkpoint was lost before commit/push (not on remote, working tree, stash, reflog, or any branch) and is recreated as `docs/72-pl-cli-bare-fetch-pre-implementation-checkpoint-2026-10-04.md`. The authority baseline immediately before this experiment is `d7e588d4c29aaf017a19ff03e9cf66a0e32824c1` (*Record CLI composition friction guideline*). Accepted at this boundary: explicit `ww fetch SYMBOL...` with its completed/held-price exit contract; the bounded fetch acceptance pass (26 passed / 0 failed / 0 not executable); unchanged accepted fetch semantics; the Composition Friction Guideline as accepted authority; bare `ww fetch` not yet implemented; `ww ls` not implemented; `ww sort` retained; no six-source selector ratified; no watchlist required or authorized.\n**Principal authorization:** a deliberately provisional bare-fetch experiment, plus a separately required categorized survey of architecture/authority gaps, API/capability gaps, and actual bugs/contract defects exposed while implementing it. Bare `ww fetch` resolves **last declared monitored symbols UNION a fixed ten-symbol experimental seed** (`SPY QQQ IWM SLV GLD TQQQ USO SMH SOXL GDX`), all ten used, not shrunk. The seed derives from dated September 23 options-volume research; it is experimental and is not a live ranking, authoritative market-representation policy, or a final default universe, and intentionally retains awkward entries (TQQQ, SOXL) so the experiment can falsify the selection. Explicit operands **replace** the default. The experiment implements the smallest truthful backend read exposing exactly the last declared monitored symbols — monitored membership exists internally (`getMonitoredSymbols()`) but is not exposed publicly (`/api/status` is counts only); the CLI must not infer membership from counts, snapshots, or browser/frontend state. The acquisition-pressure hypothesis — a symbol being worth observing does not necessarily imply full option-chain acquisition — is to be measured, not hidden. `resolved empty != unresolved`: a resolved-empty target acquires nothing and must never trigger the backend's no-symbol whole-cycle acquisition. No six-source model, recency window, trade-history reconstruction, Exit Reliability selector, IV/premium selector, weighted score, watchlist, `ww ls`, acquisition redesign, API v2, or portfolio-state migration is authorized here. See `docs/72-pl-cli-bare-fetch-pre-implementation-checkpoint-2026-10-04.md`.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` — October 4 bare-fetch experiment result",
+          "level": 3,
+          "content": "The bounded bare-`ww fetch` implementation and experiment ran against the live local backend (built from the current working tree, Tradier production credential configured). The smallest truthful backend read was added as `GET /api/evidence/monitored` (additive, no v2) returning `{symbols,count,meaning:\"last declared monitored symbols\"}`. Bare `ww fetch` resolved the experimental default deterministically to 14 distinct symbols: monitored `{BN, ETHA, URA, USO, XHB}` UNION the fixed seed `{SPY, QQQ, IWM, SLV, GLD, TQQQ, USO, SMH, SOXL, GDX}`, with `USO` the single overlap (acquired once, provenance `both`), monitored-first then seed order, provenance diagnostics on stderr only. The first run returned `PROVIDER_UNAVAILABLE` (cold-start provider authority not yet established on a session-blocked weekend); after authority was established a re-run returned `NOT_COMPLETED` because 14 full-option-chain acquisitions exceeded the backend's single 20s forced-acquisition bound (`FORCED_ACQUISITION_TIMEOUT_MS`), yet a subsequent read showed held prices for all 14 symbols — the designed orthogonality of acquisition-completion vs stored-price state. The accepted explicit-fetch contract and the resolved-empty guard were preserved; both failure modes exited 1 with zero stdout records and no false per-symbol certification. The companion survey is `docs/73-bare-fetch-architecture-api-bug-survey-2026-10-04.md`. This result is intended to inform (and likely falsify) the provisional default; it ratifies no final default selector, and no six-source model, watchlist, `ww ls`, acquisition redesign, or API v2 is authorized by it.",
           "truncated": false,
           "tables": []
         }
@@ -8407,7 +8414,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 541
+      "sourceOrder": 542
     },
     {
       "plId": null,
@@ -8550,7 +8557,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 532
+      "sourceOrder": 533
     },
     {
       "plId": null,
@@ -8563,7 +8570,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 533
+      "sourceOrder": 534
     },
     {
       "plId": null,
@@ -8576,7 +8583,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 534
+      "sourceOrder": 535
     },
     {
       "plId": null,
@@ -8589,7 +8596,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 537
+      "sourceOrder": 538
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8615,7 +8622,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 535
+      "sourceOrder": 536
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8797,7 +8804,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 515
+      "sourceOrder": 516
     },
     {
       "plId": null,
@@ -8810,7 +8817,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 516
+      "sourceOrder": 517
     },
     {
       "plId": null,
@@ -8823,7 +8830,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 517
+      "sourceOrder": 518
     },
     {
       "plId": null,
@@ -8836,7 +8843,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 518
+      "sourceOrder": 519
     },
     {
       "plId": null,
@@ -8849,7 +8856,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 519
+      "sourceOrder": 520
     },
     {
       "plId": null,
@@ -8862,7 +8869,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 520
+      "sourceOrder": 521
     },
     {
       "plId": null,
@@ -8875,7 +8882,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 521
+      "sourceOrder": 522
     },
     {
       "plId": null,
@@ -8888,7 +8895,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 522
+      "sourceOrder": 523
     },
     {
       "plId": null,
@@ -8901,7 +8908,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 523
+      "sourceOrder": 524
     },
     {
       "plId": null,
@@ -8914,7 +8921,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 524
+      "sourceOrder": 525
     },
     {
       "plId": null,
@@ -8927,7 +8934,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 525
+      "sourceOrder": 526
     },
     {
       "plId": null,
@@ -8940,7 +8947,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 526
+      "sourceOrder": 527
     },
     {
       "plId": null,
@@ -8953,7 +8960,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 527
+      "sourceOrder": 528
     },
     {
       "plId": null,
@@ -8966,7 +8973,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 528
+      "sourceOrder": 529
     },
     {
       "plId": null,
@@ -8979,7 +8986,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 529
+      "sourceOrder": 530
     },
     {
       "plId": null,
@@ -8992,7 +8999,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 530
+      "sourceOrder": 531
     },
     {
       "plId": null,
@@ -9005,7 +9012,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 531
+      "sourceOrder": 532
     },
     {
       "plId": null,
@@ -9018,7 +9025,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 536
+      "sourceOrder": 537
     },
     {
       "plId": null,
@@ -9031,7 +9038,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 540
+      "sourceOrder": 541
     },
     {
       "plId": "PL-SEM-01",
@@ -9200,7 +9207,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 538
+      "sourceOrder": 539
     },
     {
       "plId": null,
@@ -9213,7 +9220,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 539
+      "sourceOrder": 540
     },
     {
       "plId": "PL-SETUP-01",

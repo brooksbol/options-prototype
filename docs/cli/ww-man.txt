@@ -13,14 +13,22 @@ DESCRIPTION
     Reading held evidence is separate from asking Wheelwright to acquire it.
 
 WORKING COMMANDS
-    fetch [-q | -v] SYMBOL...
-        Ask the existing backend to acquire evidence for explicit symbols.
+    fetch [-q | -v] [SYMBOL...]
+        Ask the existing backend to acquire evidence. With explicit symbols it
+        acquires exactly those. With no symbols it acquires the experimental
+        default set: the last declared monitored symbols UNION a fixed
+        ten-symbol research seed (SPY QQQ IWM SLV GLD TQQQ USO SMH SOXL GDX).
+        Explicit symbols REPLACE the default; they are not added to it. The
+        seed is experimental and provisional, not a live ranking, market
+        policy, final universe, watchlist, or recommendation.
         Exit 0 only after completed work with a held price for every requested
         symbol. A previously held price may survive a failed acquisition.
         Normal terminal status goes to stderr; -q/--quiet suppresses it.
         -v/--verbose reports the Wheelwright endpoint contacted, invocation
         outcome, and held state per symbol without displaying prices or
-        claiming upstream provider provenance.
+        claiming upstream provider provenance; for the default set it also
+        prints a per-symbol selection source (monitored/experimental-seed/both)
+        to stderr only.
         Run 'ww fetch --help' or 'ww fetch --man' for the current contract.
 
     prices SYMBOL...

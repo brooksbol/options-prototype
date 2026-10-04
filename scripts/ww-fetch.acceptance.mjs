@@ -22,6 +22,19 @@ const server = createServer((request, reply) => {
   requests.push({ method: request.method, path: url.pathname,
     symbols: url.searchParams.getAll("symbol") });
   reply.setHeader("content-type", "application/json");
+  // Monitored-membership read for the bare-fetch default selector. The fixture's
+  // monitored set is configurable per case via mode.monitored (default: empty).
+  if (url.pathname === "/api/evidence/monitored") {
+    if (mode.kind === "monitored-error") {
+      reply.statusCode = 503;
+      reply.end('{"error":"monitored unavailable"}');
+      return;
+    }
+    const symbols = mode.monitored ?? [];
+    reply.end(JSON.stringify({ symbols, count: symbols.length,
+      meaning: "last declared monitored symbols" }));
+    return;
+  }
   if (mode.kind === "http-error") {
     reply.statusCode = 503;
     reply.end('{"error":"fixture unavailable"}');
@@ -236,11 +249,55 @@ await check("A21b long --verbose matches short verbose", ["fetch", "--verbose", 
   assert.equal(lines(r.stdout).length, 1);
 });
 
-await check("A22 bare fetch is usage error, no whole-cycle HTTP", ["fetch"], full, r => {
-  assert.equal(r.status, 2);
-  assert.equal(r.stdout, "");
-  assert.equal(r.requests.length, 0);
-});
+const SEED = ["SPY", "QQQ", "IWM", "SLV", "GLD", "TQQQ", "USO", "SMH", "SOXL", "GDX"];
+
+await check("A22 bare fetch with empty monitored resolves exactly the ten seed symbols", ["fetch"],
+  { kind: "complete", monitored: [] }, r => {
+    assert.equal(r.status, 0);
+    // First request is the monitored read; the refresh POST carries exactly the seed.
+    const monitored = r.requests.find(req => req.path === "/api/evidence/monitored");
+    const refresh = r.requests.find(req => req.path === "/api/evidence/refresh");
+    assert.ok(monitored && refresh);
+    assert.deepEqual(refresh.symbols, SEED);
+    assert.deepEqual(lines(r.stdout).map(row => row.symbol), SEED);
+  });
+
+await check("A22b bare fetch unions monitored with the seed, dedupes overlap, acquires once",
+  ["fetch"], { kind: "complete", monitored: ["XLE", "QQQ"] }, r => {
+    assert.equal(r.status, 0);
+    const refresh = r.requests.find(req => req.path === "/api/evidence/refresh");
+    const expected = ["XLE", "QQQ", ...SEED.filter(s => s !== "QQQ")];
+    assert.deepEqual(refresh.symbols, expected);
+    assert.equal(refresh.symbols.filter(s => s === "QQQ").length, 1);
+    assert.equal(new Set(refresh.symbols).size, refresh.symbols.length);
+    assert.deepEqual(lines(r.stdout).map(row => row.symbol), expected);
+  });
+
+await check("A22c bare fetch -v shows selection provenance on stderr, not stdout",
+  ["fetch", "-v"], { kind: "complete", monitored: ["XLE", "QQQ"] }, r => {
+    assert.equal(r.status, 0);
+    assert.match(r.stderr, /Default selection: 11 symbol\(s\)/);
+    assert.match(r.stderr, /QQQ\s+both/);
+    assert.match(r.stderr, /XLE\s+monitored/);
+    assert.match(r.stderr, /SPY\s+experimental-seed/);
+    assert.doesNotMatch(r.stdout, /Default selection|experimental-seed/);
+  });
+
+await check("A22d explicit operands replace the default and skip the monitored read",
+  ["fetch", "QQQ", "SPY"], { kind: "complete", monitored: ["XLE", "ARKK"] }, r => {
+    assert.equal(r.status, 0);
+    assert.equal(r.requests.find(req => req.path === "/api/evidence/monitored"), undefined);
+    const refresh = r.requests.find(req => req.path === "/api/evidence/refresh");
+    assert.deepEqual(refresh.symbols, ["QQQ", "SPY"]);
+  });
+
+await check("A22e bare fetch aborts without whole-cycle POST when monitored read fails",
+  ["fetch"], { kind: "monitored-error" }, r => {
+    assert.equal(r.status, 1);
+    assert.equal(r.stdout, "");
+    assert.match(r.stderr, /HTTP 503/);
+    assert.equal(r.requests.find(req => req.path === "/api/evidence/refresh"), undefined);
+  });
 
 await check("A23 -- terminates fetch options", ["fetch", "--", "QQQ"], full, r => {
   assert.equal(r.status, 0);

@@ -4,11 +4,16 @@ NAME
     ww fetch — request market observations for specified symbols
 
 SYNOPSIS
-    ww fetch [-q | --quiet | -v | --verbose] [--] SYMBOL...
+    ww fetch [-q | --quiet | -v | --verbose] [--] [SYMBOL...]
 
 DESCRIPTION
-    Ask Wheelwright to acquire evidence for each specified symbol, then report
-    whether it holds a price for every requested symbol.
+    Ask Wheelwright to acquire evidence, then report whether it holds a price
+    for every requested symbol.
+
+    With explicit SYMBOL operands, fetch acquires exactly those symbols. With
+    no operands, fetch acquires the current experimental default set (see
+    EXPERIMENTAL DEFAULT SET). Explicit operands REPLACE the default; they are
+    never added to it.
 
     Fetch updates Wheelwright's held knowledge. It does not display prices;
     use ww prices for that. It does not guarantee a new observation, a current
@@ -91,10 +96,32 @@ EXAMPLES
 
         ww: fetch completed; 2/3 prices held; XLE has no local price stored
 
-UNRESOLVED DEFAULT CONTEXT
-    Bare ww fetch is not implemented. It requires an authoritative default
-    market context or a separately marked provisional experiment. The current
-    command requires explicit symbols; operands replace any future default.
+EXPERIMENTAL DEFAULT SET
+    With no operands, bare ww fetch acquires the union of:
+
+        the last declared monitored symbols (read from the backend), and
+        a fixed experimental ten-symbol research seed:
+            SPY QQQ IWM SLV GLD TQQQ USO SMH SOXL GDX
+
+    The two sources are normalized and deduplicated, so a symbol present in
+    both is acquired once. Explicit operands REPLACE this default set.
+
+    This default is experimental and provisional. The seed derives from dated
+    September 23 options-volume research. It is NOT a live ranking, an
+    authoritative market-representation policy, a final default universe, a
+    watchlist, or a recommendation. It intentionally retains potentially
+    awkward entries (such as TQQQ and SOXL) so the default can be falsified by
+    observation.
+
+    The monitored symbols are the last declared monitored set. They are not a
+    statement of current exposure, holdings, portfolio, currently traded
+    symbols, or brokerage positions.
+
+    With -v/--verbose, a human-readable selection summary (per-symbol source:
+    monitored, experimental-seed, or both) is written to stderr only; machine
+    stdout is never contaminated with selection prose. If reading the
+    monitored set fails, fetch aborts (nonzero) rather than silently treating
+    the monitored source as empty, and makes no acquisition request.
 
 SEE ALSO
     ww prices, ww sort
