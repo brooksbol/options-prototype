@@ -250,19 +250,17 @@ No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel i
 
 The Principal wants a first-class Wheelwright command-line interface named **`ww`**, intentionally complementary to the existing `tt` command. The central Product idea is a toolbox of small, stable, Wheelwright-aware Unix programs **designed for Unix composition**. **Humans and agents are equal consumers of the same tools.** Humans compose them into one-liners, aliases, shell scripts, cron jobs, and other reusable workflows; agents discover them through help/manual and input/output descriptions, then compose them for questions no developer implemented as a named workflow. **The primitive is the unit of Product capability; the workflow belongs to the composer.** The Unix shell is the orchestration language and practical SDK: pipes are central, alongside redirection, conditional execution, loops, variables, `find`, `xargs`, `watch`, scripts, and scheduling. The idea is not to reproduce browser screens as subcommands or build a separate agent orchestration system.
 
-Representative exploratory specimens:
+**Flags specialize an operation; the shell composes operations.** `positions --account PTS --status open` is still a positions tool; `expiring --within 21` is still temporal selection; `sort --by unrealized-pnl` is still ordering. The Product need not anticipate a named workflow for every useful question.
 
-- `ww positions | ww expiring 14 | ww table`
-- `ww positions | ww expiring 14 | ww structure iron-condor | ww sort pnl | ww table`
-- `ww positions | ww expiring 14 | ww symbol XLE | ww inspect`
-- `find ~/Downloads -type f -name '*.csv' -mmin -10 -print0 | ww files | ww identify | ww table`
-- `~/bin/ww-morning` — an operator-owned script composed from `ww` tools, not a Wheelwright-built Morning Routine feature
-- `tt live --json | ww import` — a deliberately hard boundary example; current `tt live --json` is not an implemented command
-- `ww commands --json`
-- `ww help expiring`
-- `ww doctor --json`
+Representative **discovery specimens, not accepted syntax or implementation requirements**:
 
-These are **discovery specimens, not accepted syntax or implementation requirements**.
+1. **Near-term positions for one account:** `ww positions --account PTS --status open | ww expiring --within 14 | ww table --columns symbol,structure,expiration,dte` — account/status narrowing, temporal selection, and presentation compose into an ordinary operator check.
+2. **Five worst near-term iron condors:** `ww positions --account PTS --status open | ww structure --name iron-condor | ww expiring --within 21 | ww sort --by unrealized-pnl --ascending | ww limit --count 5 | ww table` — a human or agent constructs a specific question from reusable tools; Wheelwright has no dedicated “five worst near-term iron condors” feature.
+3. **Inspect one underlying:** `ww positions --account PTS --symbol XLE --status open | ww inspect --include evidence,history` — narrow the source, then inspect the selected position in detail.
+4. **Recognize recent Fidelity downloads:** `find ~/Downloads -type f -name '*.csv' -mmin -10 -print0 | ww files --null | ww identify --broker fidelity | ww table --columns file,type,recognized` — Unix selects paths; Wheelwright inspects candidate artifacts. The workflow stops at inspection.
+5. **Check and save a report:** `ww doctor --profile production --check read && ww positions --account Roth --status open | ww expiring --within 30 | ww csv --columns symbol,structure,expiration,dte > ~/reports/expiring.csv` — shell conditional execution and redirection compose Wheelwright tools into a saved report.
+
+An operator might save several such pipelines in `~/bin/ww-morning`, or run them through aliases, `watch`, or cron; Wheelwright need not build a Morning Routine feature. `ww help expiring`, `ww commands --json`, and `man ww` illustrate discoverability rather than settled interfaces. `tt live --json | ww import` remains a deliberately hard boundary example, not a central Product specimen; current `tt live --json` is not implemented.
 
 ### Primary Product tests
 
