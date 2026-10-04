@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-04T19:43:07.156Z",
+    "generatedAt": "2026-10-04T20:21:42.035Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -32,7 +32,7 @@
         "experiment": 7
       },
       "arTotal": 18,
-      "plTotal": 71,
+      "plTotal": 72,
       "plWithExplicitRelationship": 8,
       "graduatedTotal": 29,
       "adrTotal": 22,
@@ -41,9 +41,9 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 27,
-      "logTotal": 84,
-      "logIntakeEvidenceEvents": 13,
-      "plWithIntakeDate": 13,
+      "logTotal": 85,
+      "logIntakeEvidenceEvents": 14,
+      "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 58
     },
     "notes": []
@@ -4047,6 +4047,26 @@
           "heading": "`PL-CLI-01` — October 4 bare-fetch experimental acceptance",
           "level": 3,
           "content": "After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap projection in sync) the Principal ran a substantial off-hours (Sunday) live shell gauntlet. Confirmed: the selector resolved 5 monitored (BN, ETHA, URA, USO, XHB) UNION the 10-symbol seed with USO as the single overlap → 14 distinct, provenance on stderr only, stdout uncontaminated; explicit operands bypass default resolution; normalization/dedupe, 0/1/2 exits, quiet/verbose, stdout/stderr separation, `&&`, redirection, and `ww fetch QQQ SPY XLE | head -1` (clean early close, no EPIPE) all behaved against the live backend. The bare 14-symbol fetch hit `NOT_COMPLETED` under the current 20s synchronous forced-acquisition bound while smaller explicit requests completed — empirical input to the timeout/configuration question only, not grounds for CLI asynchrony or acquisition redesign; `PROVIDER_UNAVAILABLE` right after restart is normal startup. The run also independently reproduced the CF01 adapter-friction pattern (`ww prices | jq | sort`) recorded in `docs/cli/ww-composition-friction-acceptance.md`, and reconfirmed that the human `ww prices` display is already a clean projection — useful evidence for a future `ww ls` decision. DECISION REQUIRED: NO. NEXT AUTHORIZED ACTION: NONE on fetch; the next work is a separate Product decision. `PL-CLI-01` broader catalog remains INTAKE.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "PL-OPS-10",
+      "name": "Optimize large targeted fetches",
+      "section": "Reconciliation / continuation record",
+      "description": "**Priority:** Address soon (Principal direction; sequencing, not a selected technical remedy) **Discovery and Product aim.** Targeted acquisition currently submits one task to a single acquisition worker, loops requested symbols sequentially, and acquires eligible option-chain expirations per symbol. Provider requests are paced and blocking. The scheduler's existing “batch” is a selected group of work, not parallel provider acquisition.",
+      "descriptionTruncated": true,
+      "state": "INTAKE — near-term investigation; no optimization implementation authorized",
+      "sourceFile": "parking-lot-10.md",
+      "relatedLvtIds": [],
+      "relatedArIds": [],
+      "sections": [
+        {
+          "heading": "",
+          "level": 0,
+          "content": "**Priority:** Address soon (Principal direction; sequencing, not a selected technical remedy)\n\n\n**Discovery and Product aim.** Targeted acquisition currently submits one task to a single acquisition worker, loops requested symbols sequentially, and acquires eligible option-chain expirations per symbol. Provider requests are paced and blocking. The scheduler's existing “batch” is a selected group of work, not parallel provider acquisition. In the October 4 bare-fetch experiment, a legitimate 14-symbol request exceeded the 20-second forced-acquisition wait; acquisition continued, and all 14 prices were subsequently observed as held. A reasonably sized targeted fetch, including this experimental set, should be an ordinary synchronous `ww fetch` workload without the CLI compensating for avoidable backend latency. This observation does not establish which component dominates elapsed time and is not evidence for asynchronous CLI behavior.\n\n**Investigation.** Measure per-symbol acquisition time; provider request and eligible-expiration counts per symbol; provider request latency; RequestPacer admission delay and rate-limit contribution; serialization from the worker topology; and whether the provider actually supports useful multi-symbol or batch requests. Then evaluate independently: (1) safe bounded backend concurrency, (2) provider-native batching where supported, (3) reducing unnecessary acquisition work per symbol, and (4) fitting the synchronous completion bound to legitimate workloads. Select no remedy before the measurements. Preserve provider stewardship, acquisition authority/fencing, and the accepted `ww fetch` completion, per-symbol, and exit-status contract.\n\n**Reconciliation and boundary.** This is a distinct performance/capacity investigation of the shipped `PL-OPS-09` targeted path, exposed by the `PL-CLI-01` consumer; it is not a second acquisition capability, a defect finding that every timeout is false, or a new strategic Bet. No roadmap strategy change is indicated at intake. Architectural consequences of concurrency, batching, work reduction, or timeout adjustment remain open pending evidence. The intake is retained as `PL-OPS-10` so the near-term work is trackable separately from the shipped targeted-acquisition contract. The why-state is this record and the linked October 4 acceptance checkpoint. **Next authorized mode:** measured investigation only. No concurrency, provider, acquisition-scope, timeout, or CLI code change is authorized by this item.",
           "truncated": false,
           "tables": []
         }
@@ -8421,7 +8441,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 543
+      "sourceOrder": 544
     },
     {
       "plId": null,
@@ -8564,7 +8584,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 534
+      "sourceOrder": 535
     },
     {
       "plId": null,
@@ -8577,7 +8597,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 535
+      "sourceOrder": 536
     },
     {
       "plId": null,
@@ -8590,7 +8610,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 536
+      "sourceOrder": 537
     },
     {
       "plId": null,
@@ -8603,7 +8623,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 539
+      "sourceOrder": 540
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8629,7 +8649,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 537
+      "sourceOrder": 538
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8811,7 +8831,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 517
+      "sourceOrder": 518
     },
     {
       "plId": null,
@@ -8824,7 +8844,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 518
+      "sourceOrder": 519
     },
     {
       "plId": null,
@@ -8837,7 +8857,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 519
+      "sourceOrder": 520
     },
     {
       "plId": null,
@@ -8850,7 +8870,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 520
+      "sourceOrder": 521
     },
     {
       "plId": null,
@@ -8863,7 +8883,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 521
+      "sourceOrder": 522
     },
     {
       "plId": null,
@@ -8876,7 +8896,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 522
+      "sourceOrder": 523
     },
     {
       "plId": null,
@@ -8889,7 +8909,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 523
+      "sourceOrder": 524
     },
     {
       "plId": null,
@@ -8902,7 +8922,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 524
+      "sourceOrder": 525
     },
     {
       "plId": null,
@@ -8915,7 +8935,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 525
+      "sourceOrder": 526
     },
     {
       "plId": null,
@@ -8928,7 +8948,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 526
+      "sourceOrder": 527
     },
     {
       "plId": null,
@@ -8941,7 +8961,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 527
+      "sourceOrder": 528
     },
     {
       "plId": null,
@@ -8954,7 +8974,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 528
+      "sourceOrder": 529
     },
     {
       "plId": null,
@@ -8967,7 +8987,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 529
+      "sourceOrder": 530
     },
     {
       "plId": null,
@@ -8980,7 +9000,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 530
+      "sourceOrder": 531
     },
     {
       "plId": null,
@@ -8993,7 +9013,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 531
+      "sourceOrder": 532
     },
     {
       "plId": null,
@@ -9006,7 +9026,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 532
+      "sourceOrder": 533
     },
     {
       "plId": null,
@@ -9019,7 +9039,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 533
+      "sourceOrder": 534
     },
     {
       "plId": null,
@@ -9032,7 +9052,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 538
+      "sourceOrder": 539
     },
     {
       "plId": null,
@@ -9045,7 +9065,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 542
+      "sourceOrder": 543
     },
     {
       "plId": "PL-SEM-01",
@@ -9214,7 +9234,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 540
+      "sourceOrder": 541
     },
     {
       "plId": null,
@@ -9227,7 +9247,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 541
+      "sourceOrder": 542
     },
     {
       "plId": "PL-SETUP-01",
@@ -9306,6 +9326,19 @@
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
       "sourceOrder": 514
+    },
+    {
+      "plId": "PL-OPS-10",
+      "bugId": null,
+      "title": "PL-OPS-10 — Optimize large targeted fetches",
+      "eventKind": "intake",
+      "establishesIntake": true,
+      "eventDateText": "October 4, 2026 (intake)",
+      "eventDateIso": "2026-10-04",
+      "state": "INTAKE — near-term investigation; no optimization implementation authorized",
+      "headingLevel": 2,
+      "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 517
     }
   ],
   "intakeDateUnknown": [
