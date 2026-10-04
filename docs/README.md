@@ -253,6 +253,7 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `cli/ww-man.txt` | Current `ww(1)` top-level command, composition, and discovery reference; available through `ww --man` |
 | `cli/ww-fetch-man.txt` | Current explicit-symbol `ww fetch(1)` command behavior; available through `ww fetch --man` |
 | `cli/ww-fetch-acceptance-2026-10-04.md` | Bounded deterministic and real-backend `ww fetch` acceptance evidence; candidate, not Product acceptance |
+| `cli/ww-composition-friction-acceptance.md` | **Explicit CF01–CF12 composition-friction acceptance specimens**: numeric sort, cut, awk, state counts, grep/rg, tee, head, command substitution, redirection, absence semantics, explicit rich serialization, and no generic-utility reinvention; records correctness separately from adapter friction so actors do not infer the Unix gauntlet |
 | `cli/ww-prices-man.txt` | Current read-only `ww prices(1)` behavior and evidence limits; available through `ww prices --man` |
 | `cli/ww-sort-man.txt` | Current bounded record-preserving `ww sort(1)` behavior; available through `ww sort --man` |
 | `01-environment.md` | Development environment contract |
