@@ -206,6 +206,11 @@ function safeField(value, fallback = "—") {
     : fallback;
 }
 
+function optionRight(symbol) {
+  const match = typeof symbol === "string" && /^[A-Za-z0-9.]+\s+\d{6}([CP])\d{8}$/.exec(symbol);
+  return match ? (match[1] === "C" ? "Call" : "Put") : null;
+}
+
 function orderTimestamp(value) {
   if (typeof value === "string" && !/^\d+$/.test(value)) return safeField(value);
   const milliseconds = typeof value === "number" ? value : Number(value);
@@ -261,8 +266,9 @@ export function renderPositions(body, account) {
         typeof item["quantity-direction"] !== "string" || !item["quantity-direction"].trim()) {
       throw new CliError("Positions: malformed position or wrong account in response");
     }
-    const parts = [safeField(item.symbol), safeField(item["instrument-type"], "unknown instrument"),
-      safeField(item["quantity-direction"]), safeField(item.quantity)];
+    const parts = [safeField(item.symbol), safeField(item["instrument-type"], "unknown instrument")];
+    if (item["instrument-type"] === "Equity Option") parts.push(optionRight(item.symbol) ?? "option type unknown");
+    parts.push(safeField(item["quantity-direction"]), safeField(item.quantity));
     if (item["average-open-price"] != null) parts.push(`average open ${safeField(item["average-open-price"])}`);
     if (item["updated-at"] != null) parts.push(`updated ${safeField(item["updated-at"])}`);
     lines.push(parts.join("  "));
@@ -321,7 +327,8 @@ function renderOrder(order, role) {
   const lines = [`  ${parts.join("  ")}`];
   for (const leg of order.legs) {
     if (!leg || typeof leg !== "object") throw new CliError("Complex orders: malformed leg");
-    lines.push(`    ${safeField(leg.action, "unknown action")}  ${safeField(leg.quantity, "unknown quantity")}  ${safeField(leg.symbol, "unknown symbol")}`);
+    const right = optionRight(leg.symbol);
+    lines.push(`    ${safeField(leg.action, "unknown action")}  ${safeField(leg.quantity, "unknown quantity")}  ${safeField(leg.symbol, "unknown symbol")}${right ? `  ${right}` : ""}`);
   }
   return lines.join("\n");
 }
