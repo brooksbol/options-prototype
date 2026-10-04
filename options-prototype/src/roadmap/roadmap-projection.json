@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-04T16:29:56.244Z",
+    "generatedAt": "2026-10-04T17:35:05.538Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -4019,6 +4019,13 @@
           "heading": "`PL-CLI-01` — October 4 fetch promotion and self-contained discovery",
           "level": 3,
           "content": "**Principal decision and bounded implementation authorization:** Retire the `ww refresh` CLI spelling and promote the already observed targeted acquisition primitive to `ww fetch SYMBOL...`, with no alias or deprecation path. Preserve its shared-backend completion and per-symbol held-price success rule: exit zero requires completed work and held prices for every requested symbol, even if an individual acquisition attempt failed while an earlier price remained held. No success claim means newly acquired, fresh, or suitable for trading. The backend endpoint retains its own `/api/evidence/refresh` path; this is a CLI vocabulary and presentation change, not a backend redesign.\n\nThe working `ww fetch(1)` page now replaces the proposed mock page. The CLI uses terminal stderr for `fetch complete: N/N prices held`, `-q`/`--quiet` suppresses normal status and nonfatal notices, and completed fetches emit bounded per-symbol records on piped/redirected stdout; incomplete work emits none. `ww --help` and `ww --man`, plus command-level help and manuals for `fetch`, `prices`, and `sort`, are the self-contained human/agent discovery surface. No installer, system man-page integration, Homebrew, packaging, or language decision follows. Explicit symbols remain required; the provisional bare-fetch fixture was not included, and authoritative default context remains unresolved. Existing `ww refresh` walking evidence above is historical provenance, not the current command syntax.\n\n**Bounded verbose refinement and authority correction:** `ww fetch -v` / `--verbose` reports each completed symbol's backend-provided invocation `acquisitionOutcome` beside its independent `heldPrice` state, followed by the aggregate held-price result on success. Quiet and verbose are mutually exclusive. An earlier review incorrectly treated upstream provider provenance as a prerequisite for a `From` line. The CLI can truthfully identify the **immediate Wheelwright authority endpoint it actually contacted**, such as `From http://localhost:3100`, from its request URL. This is distinct from the **upstream evidence provenance** (Tradier or another provider, potentially differing by symbol), which the targeted backend response does not currently establish. Verbose does not infer that deeper provenance from configuration or status. `ACQUIRED` describes the backend's acquisition outcome, not independently proven acquisition of a new underlying price. No backend change is authorized here. The emerging `ww ls` inspection direction and possible `ww sort` retirement remain separate Product work; this bounded verbose correction leaves both working commands and their current output formats untouched.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` — Composition Friction Guideline (October 4)",
+          "level": 3,
+          "content": "**Principal-selected CLI design guideline, not a Principle or implementation authorization:** Wheelwright CLI capabilities should minimize the friction between a domain fact and an ordinary Unix operation. Machine-readable output is necessary but not sufficient for a Unix-composable CLI. When ordinary use repeatedly needs an adapter merely to reach `sort`, `awk`, `cut`, `grep`/`rg`, `uniq`, `head`, or similar tools, reconsider the command's default representation. Favor a direct `ww | Unix` path where the command's facts can be represented honestly. Rich structured serialization remains valuable when the fuller evidence record is needed; an explicit `ww --jsonl | jq` path illustrates that role, **not current universal `ww` syntax**. Repeated `ww | jq | Unix` is a design-review diagnostic, not a prohibition on JSON Lines: domain semantics can justify structured default output.\n\n**Empirical provenance:** During the accepted `ww fetch` CLI manual/acceptance walk, the Principal used `ww prices QQQ SPY XLE` with ordinary numeric sorting, `awk` selection, acquisition-status counting, and `tee` capture. The bounded JSON Lines output passed its tests and composed correctly, yet each ordinary text operation first required `jq` to project the needed domain fact. **Composition correctness does not by itself establish low composition friction.** The complete evidence record remains useful for explicit structured capture. This guideline sharpens the existing small-tools/shell-as-SDK direction and the rule that Wheelwright supplies domain capabilities while Unix supplies generic operations; it does not decide a future `ww ls` row, null representation, or serialization flag, and it does not change `ww prices`, `ww sort`, or `ww fetch`. See `docs/71-pl-cli-composable-wheelwright-checkpoint-2026-10-03.md` for the originating CLI design and `docs/cli/ww-fetch-acceptance-2026-10-04.md` for the accepted fetch checkpoint evidence.",
           "truncated": false,
           "tables": []
         }
@@ -8393,7 +8400,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 539
+      "sourceOrder": 540
     },
     {
       "plId": null,
@@ -8536,7 +8543,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 530
+      "sourceOrder": 531
     },
     {
       "plId": null,
@@ -8549,7 +8556,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 531
+      "sourceOrder": 532
     },
     {
       "plId": null,
@@ -8562,7 +8569,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 532
+      "sourceOrder": 533
     },
     {
       "plId": null,
@@ -8575,7 +8582,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 535
+      "sourceOrder": 536
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8601,7 +8608,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 533
+      "sourceOrder": 534
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8783,7 +8790,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 513
+      "sourceOrder": 514
     },
     {
       "plId": null,
@@ -8796,7 +8803,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 514
+      "sourceOrder": 515
     },
     {
       "plId": null,
@@ -8809,7 +8816,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 515
+      "sourceOrder": 516
     },
     {
       "plId": null,
@@ -8822,7 +8829,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 516
+      "sourceOrder": 517
     },
     {
       "plId": null,
@@ -8835,7 +8842,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 517
+      "sourceOrder": 518
     },
     {
       "plId": null,
@@ -8848,7 +8855,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 518
+      "sourceOrder": 519
     },
     {
       "plId": null,
@@ -8861,7 +8868,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 519
+      "sourceOrder": 520
     },
     {
       "plId": null,
@@ -8874,7 +8881,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 520
+      "sourceOrder": 521
     },
     {
       "plId": null,
@@ -8887,7 +8894,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 521
+      "sourceOrder": 522
     },
     {
       "plId": null,
@@ -8900,7 +8907,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 522
+      "sourceOrder": 523
     },
     {
       "plId": null,
@@ -8913,7 +8920,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 523
+      "sourceOrder": 524
     },
     {
       "plId": null,
@@ -8926,7 +8933,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 524
+      "sourceOrder": 525
     },
     {
       "plId": null,
@@ -8939,7 +8946,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 525
+      "sourceOrder": 526
     },
     {
       "plId": null,
@@ -8952,7 +8959,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 526
+      "sourceOrder": 527
     },
     {
       "plId": null,
@@ -8965,7 +8972,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 527
+      "sourceOrder": 528
     },
     {
       "plId": null,
@@ -8978,7 +8985,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 528
+      "sourceOrder": 529
     },
     {
       "plId": null,
@@ -8991,7 +8998,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 529
+      "sourceOrder": 530
     },
     {
       "plId": null,
@@ -9004,7 +9011,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 534
+      "sourceOrder": 535
     },
     {
       "plId": null,
@@ -9017,7 +9024,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 538
+      "sourceOrder": 539
     },
     {
       "plId": "PL-SEM-01",
@@ -9186,7 +9193,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 536
+      "sourceOrder": 537
     },
     {
       "plId": null,
@@ -9199,7 +9206,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 537
+      "sourceOrder": 538
     },
     {
       "plId": "PL-SETUP-01",
