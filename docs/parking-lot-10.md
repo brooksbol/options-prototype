@@ -244,7 +244,7 @@ No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel i
 
 **Date:** October 3, 2026  
 **State:** INTAKE — Principal-selected durable capture of the composable command-line Wheelwright concept; strategic/architectural reconciliation, command grammar, schemas, and implementation are unresolved and not authorized by this record.  
-**Why-state:** Captured directly in this canonical intake; no standalone discovery artifact yet.
+**Why-state:** `docs/71-pl-cli-composable-wheelwright-checkpoint-2026-10-03.md` preserves the materially developed exploration, composition-specimen catalog, conversation/CLI responsibility boundary, selected first thin-slice learning specimen, and backend-contract/versioning learning rule. The canonical identity remains this parking-lot item.
 
 ### Intake
 
@@ -340,3 +340,7 @@ This intake does **not** authorize CLI implementation; creation/publication of a
 Full parking-lot-sequence inspection found adjacent ownership in `PL-OPS-CSV-01`, `PL-PORT-01`, Operator Console/state-oriented architecture, and agent/server-side capability pressure, but no existing `PL-*` identity owns the broader **Unix-composable Wheelwright command language for human, shell-script, and agent use**. The idea therefore receives new stable identity **`PL-CLI-01`**.
 
 Strategic and architectural reconciliation remain pending under `docs/foundations/idea-intake-reconciliation.md`. This record is intentionally **INTAKE**, not RECONCILED; no Reconciliation Completion Record is asserted yet.
+
+### October 3 exploration checkpoint
+
+The Principal paused further exploration to preserve the developed state before implementation evidence begins. The linked Doc 71 is supporting why-state, **not** a second intake registry or an implementation backlog. In particular, its command/pipeline catalog is a set of composition specimens rather than promised syntax or implementation scope. Its selected Spot/Quote Freshness thin slice remains a bounded learning specimen awaiting separate implementation authorization; the conversational-agent hypothesis is explicitly outside first-slice acceptance.
