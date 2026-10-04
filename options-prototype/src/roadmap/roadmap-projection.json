@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-04T04:22:01.498Z",
+    "generatedAt": "2026-10-04T05:36:00.775Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -2232,7 +2232,14 @@
         {
           "heading": "October 3, 2026 — targeted-refresh result-contract enhancement for `ww` (discovery; not implementation authority)",
           "level": 3,
-          "content": "**Trigger and owner:** The `PL-CLI-01` walking experiment made explicit synchronization an intended CLI building block: `ww refresh QQQ && ww prices QQQ` should be able to show a held numeric QQQ price after successful refresh. The existing targeted acquisition capability remains owned here under `PL-OPS-09`; this is enhancement pressure on its shared result contract, not a new backend project or a new `PL-*` identity.\n\n**Observed contract gap (Outcome 1):** `POST /api/evidence/refresh?symbol=...` returns an aggregate `ACQUIRED` disposition, `symbolsAcquired`, and generation, but no authoritative per-requested-symbol held-price postcondition. `ACQUIRED` can also be returned after the worker's bounded-wait timeout or error; the count reflects store mutations rather than distinct requested symbols with prices, and a generation increase does not prove their prices are populated. `GET /api/evidence/quotes?symbol=...` already reports held observations, including explicit absence, but making `ww` orchestrate both endpoints and define success from null checks would move shared Wheelwright result semantics into the CLI. Therefore the current backend does not support the intended `ww refresh` success contract without CLI compensation.\n\n**Bounded requested enhancement for later Kiro design/implementation handoff:** Once targeted synchronization has actually completed, the shared backend should report, for **each requested symbol**, its acquisition/operation outcome and whether Wheelwright then holds the requested numeric underlying price under the same observation semantics as the existing quote read. A preserved prior price may satisfy the held-price postcondition after a later acquisition failure; a recent attempt leaving the price absent does not. Incomplete or timed-out work must not be reported as completed. This postcondition does not certify new acquisition, recency, independent quote-acquisition time, freshness, or suitability for a trade. The shape of any API change, including whether versioning is needed, remains open; no v2 endpoint is selected here.\n\n**Unresolved and unauthorized:** The CLI aggregate exit status for partially populated symbol sets, provider-unavailable cases with previously held prices, and stdout/stderr presentation still require explicit Product resolution. No backend implementation or `ww refresh` implementation is authorized by this record. Preserve the existing provider stewardship, single acquisition authority, and ADR-015/`PL-EVID-AGE` provenance boundary. `PL-CLI-01` is the CLI consumer and cross-reference, not a second owner of this enhancement.\n\n---",
+          "content": "**Trigger and owner:** The `PL-CLI-01` walking experiment made explicit synchronization an intended CLI building block: `ww refresh QQQ && ww prices QQQ` should be able to show a held numeric QQQ price after successful refresh. The existing targeted acquisition capability remains owned here under `PL-OPS-09`; this is enhancement pressure on its shared result contract, not a new backend project or a new `PL-*` identity.\n\n**Observed contract gap (Outcome 1):** `POST /api/evidence/refresh?symbol=...` returns an aggregate `ACQUIRED` disposition, `symbolsAcquired`, and generation, but no authoritative per-requested-symbol held-price postcondition. `ACQUIRED` can also be returned after the worker's bounded-wait timeout or error; the count reflects store mutations rather than distinct requested symbols with prices, and a generation increase does not prove their prices are populated. `GET /api/evidence/quotes?symbol=...` already reports held observations, including explicit absence, but making `ww` orchestrate both endpoints and define success from null checks would move shared Wheelwright result semantics into the CLI. Therefore the current backend does not support the intended `ww refresh` success contract without CLI compensation.\n\n**Bounded requested enhancement for later Kiro design/implementation handoff:** Once targeted synchronization has actually completed, the shared backend should report, for **each requested symbol**, its acquisition/operation outcome and whether Wheelwright then holds the requested numeric underlying price under the same observation semantics as the existing quote read. A preserved prior price may satisfy the held-price postcondition after a later acquisition failure; a recent attempt leaving the price absent does not. Incomplete or timed-out work must not be reported as completed. This postcondition does not certify new acquisition, recency, independent quote-acquisition time, freshness, or suitability for a trade. The shape of any API change, including whether versioning is needed, remains open; no v2 endpoint is selected here.\n\n**Unresolved and unauthorized:** The CLI aggregate exit status for partially populated symbol sets, provider-unavailable cases with previously held prices, and stdout/stderr presentation still require explicit Product resolution. No backend implementation or `ww refresh` implementation is authorized by this record. Preserve the existing provider stewardship, single acquisition authority, and ADR-015/`PL-EVID-AGE` provenance boundary. `PL-CLI-01` is the CLI consumer and cross-reference, not a second owner of this enhancement.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "October 3, 2026 — bounded result-contract implementation and walking observation",
+          "level": 3,
+          "content": "The Principal subsequently authorized this specific PL-OPS-09 shared-backend enhancement. The targeted `POST /api/evidence/refresh` response now includes `completed` and, only after completed work, one `perSymbol` result per requested symbol: `{symbol, acquisitionOutcome, heldPrice}`. Acquisition outcome describes this invocation; held price is a separate postcondition, using the same held-observation determination as `GET /api/evidence/quotes`. Timeout, execution error, and mid-loop worker stop no longer certify completed acquisition or per-symbol postconditions. The existing `symbolsAcquired` mutation count remains available but is not a per-symbol success signal. No v2 endpoint was needed.\n\nFocused deterministic tests cover timeout, execution error, and a multi-symbol stop; the backend suite passed. The Principal then ran `ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price` against the candidate backend on port 3100 and saw held numeric prices for all three. This is operator evidence for the bounded synchronization/read/composition path, not quote freshness, new acquisition provenance, or trading suitability. ADR-015/`PL-EVID-AGE` remains unresolved. The earlier discovery-era \"not authorized\" statement above is historical; this later Principal authorization and observed implementation supersede it for this bounded enhancement only.\n\n---",
           "truncated": false,
           "tables": []
         }
@@ -3991,6 +3998,13 @@
           "heading": "`PL-CLI-01` — October 3 refresh acceptance fork: shared-backend enhancement required",
           "level": 3,
           "content": "The Principal's bounded Product target is `ww refresh QQQ && ww prices QQQ`: when refresh succeeds, the subsequent read has a numeric QQQ price. For multiple requested symbols, the intended shell composition is `ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price --descending`. A legitimate previously held price may satisfy the postcondition after a later failed acquisition; age, new acquisition, and trading suitability are separate questions. Inspection stays separate from acquisition.\n\nRepository inspection resolved the immediate fork as **Outcome 1**: the current targeted refresh response does not establish the per-symbol held-price postcondition or reliable completion needed for that success claim. `ww` must not compensate by deriving its own Wheelwright success semantics from `ACQUIRED`, generation, counts, and a quote reread. The bounded shared-backend enhancement and its why-state are recorded under existing owner `PL-OPS-09` in `docs/parking-lot-8.md`. No v2 endpoint, backend repair mechanism, CLI refresh implementation, or aggregate exit-status rule is decided or authorized here. Preserve the working read/composition specimen; park refresh until the shared contract can support it.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` — October 3 accepted synchronization composition",
+          "level": 3,
+          "content": "**Principal authorization and observed result:** The Principal subsequently authorized the bounded backend repair under `PL-OPS-09` and the narrow CLI path needed for tonight's walking test, while explicitly parking the implementation-language discussion. The provisional Node `ww` now exposes `refresh SYMBOL...` and `prices SYMBOL...` alongside `sort`; `observed-prices` remains a compatibility spelling. `prices` is a read of held evidence and never acquires. `refresh` makes one targeted request to the shared backend and uses its `completed` and per-symbol `heldPrice` facts; it neither rereads quotes to manufacture success nor treats mutation counts or generation movement as per-symbol evidence. For this bounded shell composition, refresh exits zero only after completed work with held prices for every requested symbol; a preserved prior price can satisfy that rule even when this invocation's acquisition failed. Incomplete work or any missing held price exits nonzero, so `&&` does not proceed.\n\nThe Principal ran `ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price` against the candidate on port 3100. Refresh reported held prices for QQQ, SPY, and XLE; the final TTY showed ascending numeric order **XLE 62.82 → QQQ 749.58 → SPY 769.64**, different from the backend's alphabetic symbol order. This is accepted working-software evidence for explicit synchronization, separate inspection, and real Unix composition. It does not assert quote freshness, independent quote-acquisition time, newly acquired values, or trade suitability. The bounded JSON Lines price stream retains exact backend facts; the human TTY view still has the recorded F2/F3 metadata and timestamp usability findings. `--ascending` remains parked polish; `--by price` is ascending by default.\n\nThe previously recorded Outcome 1 stop and \"no CLI refresh implementation\" statements remain historical provenance of why the backend enhancement came first; they do not describe this later authorized and observed state. The durable language/distribution gate remains open: using Node for the observed specimen does not select it permanently. Broader `PL-CLI-01` remains INTAKE; no catalog expansion, packaging decision, freshness policy, or ADR-015/`PL-EVID-AGE` repair follows from this acceptance.",
           "truncated": false,
           "tables": []
         }
@@ -8365,7 +8379,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 535
+      "sourceOrder": 537
     },
     {
       "plId": null,
@@ -8378,7 +8392,7 @@
       "state": "INTAKE — technology-quality / developer-feedback-loop review; no implementation authorized by this entry",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 216
+      "sourceOrder": 217
     },
     {
       "plId": null,
@@ -8391,7 +8405,7 @@
       "state": "CONFIRMED DIRECTION / PRELIMINARY MEASUREMENT — retained under the existing September 13 Java Test-Suite Execution Performance / Execution-Time SLO Review; implementation deferred; no new PL identity created",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 220
+      "sourceOrder": 221
     },
     {
       "plId": "PL-ELIG",
@@ -8404,7 +8418,7 @@
       "state": "V1 **IMPLEMENTED and pushed to `main`** (Sep 14, 2026, commit `a129fe1`) under explicit overnight implementation authorization. Contract was ACCEPTED by Principal after multi-actor (Kiro/Codex) reconciliation. **No new `PL-*` identity created.** Implementation is frontend-only and additive; matches this contract. **Principal visual/product acceptance still pending** (implemented without interactive supervision — engineering visual validation only; see journal Sep 14 implementation entry).",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 229
+      "sourceOrder": 230
     },
     {
       "plId": "PL-MKT",
@@ -8417,7 +8431,7 @@
       "state": "INTAKE — new canonical identity; two bounded capabilities SHIPPED under it (Markets card + timesales-backed sparklines); further use requires its own reconciliation.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 247
+      "sourceOrder": 248
     },
     {
       "plId": "PL-DEPLOY-EXPORT",
@@ -8430,7 +8444,7 @@
       "state": "INTAKE — new canonical identity created at this record. Strategic Reconciliation (§3) and Architectural Reconciliation (§4) NOT yet performed; not RECONCILED; not decomposed; not authorized for implementation.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 252
+      "sourceOrder": 253
     },
     {
       "plId": "PL-DEPLOY-EXPORT",
@@ -8443,7 +8457,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 262
+      "sourceOrder": 263
     },
     {
       "plId": "PL-RECIPE-01",
@@ -8456,7 +8470,7 @@
       "state": "INTAKE — new canonical identity created at this record, with several targeted questions **Principal-settled** (recorded below). §3 full Strategic Reconciliation and §4 full Architectural Reconciliation are **NOT** claimed complete; this item is **not RECONCILED**, not decomposed, and not authorized for implementation or experiment execution.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 271
+      "sourceOrder": 272
     },
     {
       "plId": "PL-RECIPE-01",
@@ -8469,7 +8483,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 286
+      "sourceOrder": 287
     },
     {
       "plId": "PL-DEPLOY",
@@ -8482,7 +8496,7 @@
       "state": "DISCOVERY / lived-trade confirmation, RECONCILED under existing `PL-DEPLOY`; no new `PL-*` identity created; not authorized for implementation.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-8.md",
-      "sourceOrder": 295
+      "sourceOrder": 296
     },
     {
       "plId": "PL-ACTOR-01",
@@ -8495,7 +8509,7 @@
       "state": "INTAKE — new canonical identity created; discussion preserved only; not reconciled, decomposed, designed, selected for implementation, or authorized for implementation",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 306
+      "sourceOrder": 307
     },
     {
       "plId": null,
@@ -8508,7 +8522,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 526
+      "sourceOrder": 528
     },
     {
       "plId": null,
@@ -8521,7 +8535,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 527
+      "sourceOrder": 529
     },
     {
       "plId": null,
@@ -8534,7 +8548,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 528
+      "sourceOrder": 530
     },
     {
       "plId": null,
@@ -8547,7 +8561,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 531
+      "sourceOrder": 533
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8560,7 +8574,7 @@
       "state": "RECONCILED — durable knowledge captured; candidate runtime/model/test consequences retained; no production implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 321
+      "sourceOrder": 322
     },
     {
       "plId": null,
@@ -8573,7 +8587,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 529
+      "sourceOrder": 531
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8586,7 +8600,7 @@
       "state": "RECONCILED — canonical identity created; strategic and architectural reconciliation complete; implementation authorized by the Principal (Option A, provisional UX) at SYNC `0d1061699ad32b86c67fb4285a64d94bd69734ef`. The interaction model and visual organization are a first implementation hypothesis, not ratified final UX.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 347
+      "sourceOrder": 348
     },
     {
       "plId": null,
@@ -8599,7 +8613,7 @@
       "state": "Bounded implementation shipped under `PL-DEPLOY-BAL`; Principal operator-accepted; accepted-main SYNC `970f87af6f5a48de491cb579e39624fad19cb2c3`",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 328
+      "sourceOrder": 329
     },
     {
       "plId": "PL-PORT-01-UPLOAD-ALL",
@@ -8612,7 +8626,7 @@
       "state": "INTAKE refinement under existing `PL-PORT-01`; RECONCILED (see completion record); no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 329
+      "sourceOrder": 330
     },
     {
       "plId": "PL-PORT-01-CAPGRAPH",
@@ -8625,7 +8639,7 @@
       "state": "INTAKE refinement under existing `PL-PORT-01`; RECONCILED (see completion record); no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 338
+      "sourceOrder": 339
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8638,7 +8652,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 360
+      "sourceOrder": 361
     },
     {
       "plId": "PL-ARCH-07",
@@ -8651,7 +8665,7 @@
       "state": "INTAKE — new canonical identity created; Principal-authorized as an intake/research-and-design concern. No vendor selected, no authorization/RBAC/FGA/authentication implemented, no multi-Operator implementation work opened.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 363
+      "sourceOrder": 364
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8664,7 +8678,7 @@
       "state": "IMPLEMENTED (uncommitted working tree) — Principal-authorized (Option A, smallest coherent unit). Awaiting Principal operator-surface acceptance before commit.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 368
+      "sourceOrder": 369
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8677,7 +8691,7 @@
       "state": "IMPLEMENTED (uncommitted working tree) — corrected per independent Codex review; awaiting a second independent re-review, then Principal operator-surface acceptance before commit.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 369
+      "sourceOrder": 370
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8690,7 +8704,7 @@
       "state": "IMPLEMENTED (uncommitted working tree) — final bounded correction pass; awaiting one constrained Codex verification against the frozen acceptance invariants, then Principal operator-surface acceptance before commit.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 370
+      "sourceOrder": 371
     },
     {
       "plId": "PL-PORT-01",
@@ -8703,7 +8717,7 @@
       "state": "INTAKE refinement under existing `PL-PORT-01`; not reconciled; no implementation authorized",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 373
+      "sourceOrder": 374
     },
     {
       "plId": null,
@@ -8716,7 +8730,7 @@
       "state": null,
       "headingLevel": 4,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 382
+      "sourceOrder": 383
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8729,7 +8743,7 @@
       "state": "RECONCILED — provisional-UX refinement under existing `PL-ROADMAP-UI`; no new canonical identity; Principal-accepted; no new authority mutated.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 383
+      "sourceOrder": 384
     },
     {
       "plId": "PL-BROKER-CAP",
@@ -8742,7 +8756,7 @@
       "state": "INTAKE — new canonical identity; materially developed cross-cutting discovery; strategic/architectural reconciliation intentionally not completed; no implementation or vendor evaluation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 384
+      "sourceOrder": 385
     },
     {
       "plId": null,
@@ -8755,7 +8769,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 509
+      "sourceOrder": 511
     },
     {
       "plId": null,
@@ -8768,7 +8782,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 510
+      "sourceOrder": 512
     },
     {
       "plId": null,
@@ -8781,7 +8795,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 511
+      "sourceOrder": 513
     },
     {
       "plId": null,
@@ -8794,7 +8808,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 512
+      "sourceOrder": 514
     },
     {
       "plId": null,
@@ -8807,7 +8821,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 513
+      "sourceOrder": 515
     },
     {
       "plId": null,
@@ -8820,7 +8834,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 514
+      "sourceOrder": 516
     },
     {
       "plId": null,
@@ -8833,7 +8847,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 515
+      "sourceOrder": 517
     },
     {
       "plId": null,
@@ -8846,7 +8860,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 516
+      "sourceOrder": 518
     },
     {
       "plId": null,
@@ -8859,7 +8873,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 517
+      "sourceOrder": 519
     },
     {
       "plId": null,
@@ -8872,7 +8886,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 518
+      "sourceOrder": 520
     },
     {
       "plId": null,
@@ -8885,7 +8899,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 519
+      "sourceOrder": 521
     },
     {
       "plId": null,
@@ -8898,7 +8912,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 520
+      "sourceOrder": 522
     },
     {
       "plId": null,
@@ -8911,7 +8925,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 521
+      "sourceOrder": 523
     },
     {
       "plId": null,
@@ -8924,7 +8938,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 522
+      "sourceOrder": 524
     },
     {
       "plId": null,
@@ -8937,7 +8951,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 523
+      "sourceOrder": 525
     },
     {
       "plId": null,
@@ -8950,7 +8964,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 524
+      "sourceOrder": 526
     },
     {
       "plId": null,
@@ -8963,7 +8977,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 525
+      "sourceOrder": 527
     },
     {
       "plId": null,
@@ -8976,7 +8990,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 530
+      "sourceOrder": 532
     },
     {
       "plId": null,
@@ -8989,7 +9003,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 534
+      "sourceOrder": 536
     },
     {
       "plId": "PL-SEM-01",
@@ -9002,7 +9016,7 @@
       "state": "INTAKE — new canonical identity created; bounded design draft created under explicit Principal direction; not ratified architecture and no implementation migration authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 395
+      "sourceOrder": 396
     },
     {
       "plId": "PL-SEM-01",
@@ -9015,7 +9029,7 @@
       "state": "REFINEMENT — Principal selected Option B: specimen-driven semantic-core reconciliation before DDD decomposition; v1.1 persisted; second adversarial review pending",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 403
+      "sourceOrder": 404
     },
     {
       "plId": "PL-SEM-01",
@@ -9028,7 +9042,7 @@
       "state": "REFINEMENT — second adversarial review accepted as semantic pressure; focused Option-C continuation opened; long-straddle control specimen added; broader practitioner-strategy analysis pinned for later pressure",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 408
+      "sourceOrder": 409
     },
     {
       "plId": "PL-SEM-01",
@@ -9041,7 +9055,7 @@
       "state": "REFINEMENT — focused identity–association–assertion specimen pass completed; semantic model advanced to v1.3; broader practitioner-strategy falsification pass is next authorized pressure; ratification and DDD remain blocked",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 413
+      "sourceOrder": 414
     },
     {
       "plId": "PL-SEM-01",
@@ -9054,7 +9068,7 @@
       "state": "REFINEMENT — Principal selected Option B; bounded v1.3 coherence repair persisted without version advance; practitioner source identity bound; independent review required before corpus analysis",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 417
+      "sourceOrder": 418
     },
     {
       "plId": "PL-EVID-OBS",
@@ -9067,7 +9081,7 @@
       "state": "INTAKE / ACTIVE RESEARCH — evidence-preserving investigation only; no universe, servicing, suitability, scheduler, or Product policy change authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 429
+      "sourceOrder": 430
     },
     {
       "plId": "PL-RESEARCH-05",
@@ -9080,7 +9094,7 @@
       "state": "INTAKE / ACTIVE RESEARCH — durable practitioner-evidence workstream; research and falsification only; no Product, policy, semantic, architecture, roadmap, or implementation consequence is authorized by this intake",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 439
+      "sourceOrder": 440
     },
     {
       "plId": "PL-SEM-01",
@@ -9093,7 +9107,7 @@
       "state": "REFINEMENT — Option D executed; broader practitioner-strategy corpus completed; v1.3 survives with Scenario / Market Thesis refinement pressure; ratification and DDD remain blocked",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 422
+      "sourceOrder": 423
     },
     {
       "plId": "PL-SEM-01",
@@ -9106,7 +9120,7 @@
       "state": "REFINEMENT — practitioner-corpus pressure resolved provisionally; Semantic Model advanced to v1.4; Scenario / Market Thesis represented as an optional governed Assertion family; implementation and DDD remain blocked",
       "headingLevel": 3,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 426
+      "sourceOrder": 427
     },
     {
       "plId": "PL-DEC-BEH",
@@ -9119,7 +9133,7 @@
       "state": "REFINEMENT — Principal-directed thread capture and intake reconciliation completed; no new PL identity, no new LVT identity, no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 448
+      "sourceOrder": 449
     },
     {
       "plId": "PL-BETA-01",
@@ -9132,7 +9146,7 @@
       "state": "RECONCILED intake — Principal-directed durable capture of the trusted-evaluator operating model; no private-beta agreement is yet lawyer-reviewed and no multi-user implementation is authorized by this record",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 464
+      "sourceOrder": 465
     },
     {
       "plId": "PL-OPS-CSV-01",
@@ -9145,7 +9159,7 @@
       "state": "RECONCILED intake — Principal operator-experience signal captured during BUG-026 acceptance; no workflow redesign or implementation authorized by this record.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 474
+      "sourceOrder": 475
     },
     {
       "plId": null,
@@ -9158,7 +9172,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 532
+      "sourceOrder": 534
     },
     {
       "plId": null,
@@ -9171,7 +9185,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 533
+      "sourceOrder": 535
     },
     {
       "plId": "PL-SETUP-01",
@@ -9184,7 +9198,7 @@
       "state": "RECONCILED intake — original September 26 setup/configuration discovery. See the explicitly dated September 27 and September 28 continuations below for the later Program, ATTACH implementation, rejected identity claim, bounded continuity ratification, and rejected technical design. No setup wizard or broader governance semantics are authorized by this item.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 481
+      "sourceOrder": 482
     },
     {
       "plId": "PL-DEC-RES-01",
@@ -9197,7 +9211,7 @@
       "state": "RECONCILED / ARCHITECTURE RATIFIED — ADR-021 and Doc 67 establish the bounded semantic contract; implementation remains held pending a separate bounded handoff",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 487
+      "sourceOrder": 488
     },
     {
       "plId": "PL-CLI-01",
@@ -9210,7 +9224,7 @@
       "state": "INTAKE — Principal-selected durable capture of the composable command-line Wheelwright concept; strategic/architectural reconciliation, command grammar, schemas, and implementation are unresolved and not authorized by this record.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 491
+      "sourceOrder": 492
     },
     {
       "plId": "PL-CLI-01",
@@ -9223,7 +9237,7 @@
       "state": "Bounded first slice authorized for implementation; broader `PL-CLI-01` remains INTAKE.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 502
+      "sourceOrder": 503
     },
     {
       "plId": "PL-CLI-01",
@@ -9236,7 +9250,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 503
+      "sourceOrder": 504
     }
   ],
   "intakeDateUnknown": [

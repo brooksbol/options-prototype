@@ -42,6 +42,10 @@ function resultLabel(result: ForceAcquisitionResult): string {
       return "Appliance offline";
     case "INTERRUPTED":
       return "Acquiring… (still running)";
+    case "NOT_COMPLETED":
+      // Bounded-wait timeout or escaped error: the cycle did not finish. Work may still
+      // be running — do not imply it completed.
+      return "Acquiring… (not confirmed)";
     default:
       return "Done";
   }

@@ -611,8 +611,153 @@ class AcquisitionWorkerTest {
 
             assertEquals(AcquisitionWorker.ForceOutcome.ACQUIRED, result.outcome(),
                 "targeted refresh should run even for a fresh (not-due) symbol");
+            assertTrue(result.completed(),
+                "a targeted cycle that ran to the end must report completed=true");
             assertTrue(worker.getStatus().cycleCount() > cycleCountBefore,
                 "a targeted forced cycle should have executed");
+
+            worker.stop();
+            store.close();
+        }
+
+        @Test
+        @DisplayName("completed targeted refresh reports per-symbol held-price via the SHARED quote gate")
+        void completedTargetedReportsPerSymbolHeldPrice() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE"));
+            store.setExpirations("XLE", EXPIRATIONS_JSON, minutesAgo(5));
+            store.setChain("XLE", QUALIFYING_CHAIN, minutesAgo(5));
+
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            worker.start(List.of("XLE"));
+            Thread.sleep(1500);
+
+            var result = worker.forceAcquireSymbols(List.of("XLE"));
+
+            assertTrue(result.completed(), "operation must have completed");
+            assertEquals(1, result.perSymbol().size(), "one requested symbol → one per-symbol result");
+            var xle = result.perSymbol().get(0);
+            assertEquals("XLE", xle.symbol());
+            assertTrue(xle.heldPrice(),
+                "XLE holds a qualifying chain with an underlying price → held per the shared quote gate");
+            // Case 1 also carries an invocation-specific acquisition outcome (not persisted status).
+            assertNotNull(xle.acquisitionOutcome(), "per-symbol invocation outcome must be present");
+
+            // Cross-check: the per-symbol determination agrees with the quote read's own
+            // shared gate (single definition of held observation).
+            var observations = store.getQuoteObservations(List.of("XLE"));
+            assertTrue(SqliteEvidenceStore.holdsRequestedPrice(observations.get(0)),
+                "shared gate on the quote read must agree with the targeted-refresh held flag");
+
+            worker.stop();
+            store.close();
+        }
+
+        @Test
+        @DisplayName("CASE 3: failed per-symbol acquisition with a PRIOR held observation → outcome shows failure AND heldPrice=true")
+        void failedAcquisitionPreservesPriorHeldObservation() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE"));
+            // Prior SUCCESSFUL observation already held (ready + qualifying chain).
+            store.setExpirations("XLE", EXPIRATIONS_JSON, minutesAgo(5));
+            store.setChain("XLE", QUALIFYING_CHAIN, minutesAgo(5));
+            assertTrue(SqliteEvidenceStore.holdsRequestedPrice(
+                    store.getQuoteObservations(List.of("XLE")).get(0)),
+                "precondition: XLE must already hold a price");
+
+            // The stub adapter points at https://localhost with no server, so THIS
+            // invocation's re-acquisition attempt fails at the provider call.
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            worker.start(List.of("XLE"));
+            Thread.sleep(1500);
+
+            var result = worker.forceAcquireSymbols(List.of("XLE"));
+
+            assertTrue(result.completed(), "the cycle itself completed (per-symbol attempt failed within it)");
+            var xle = result.perSymbol().get(0);
+            assertEquals("XLE", xle.symbol());
+            // Invocation failure is VISIBLE and NOT masked as ACQUIRED...
+            assertNotEquals("ACQUIRED", xle.acquisitionOutcome(),
+                "a failed re-acquisition attempt must not report ACQUIRED for this invocation");
+            // ...AND the previously held price is preserved (failed refresh preserves evidence).
+            assertTrue(xle.heldPrice(),
+                "a failed attempt must not erase a prior held observation → heldPrice stays true");
+            assertTrue(SqliteEvidenceStore.holdsRequestedPrice(
+                    store.getQuoteObservations(List.of("XLE")).get(0)),
+                "the durable prior observation must remain held after the failed attempt");
+
+            worker.stop();
+            store.close();
+        }
+
+        @Test
+        @DisplayName("CASE 9: multiple requested symbols receive DISTINCT invocation outcomes (no aggregate inference)")
+        void multipleSymbolsReceiveDistinctInvocationOutcomes() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE", "SPY"));
+            // XLE already holds a price; SPY holds nothing.
+            store.setExpirations("XLE", EXPIRATIONS_JSON, minutesAgo(5));
+            store.setChain("XLE", QUALIFYING_CHAIN, minutesAgo(5));
+
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            worker.start(List.of("XLE", "SPY"));
+            Thread.sleep(1500);
+
+            var result = worker.forceAcquireSymbols(List.of("XLE", "SPY"));
+
+            assertTrue(result.completed());
+            assertEquals(2, result.perSymbol().size(), "two requested symbols → two per-symbol results");
+            var bySymbol = result.perSymbol().stream()
+                .collect(java.util.stream.Collectors.toMap(
+                    AcquisitionWorker.PerSymbolRefreshResult::symbol, r -> r));
+            assertTrue(bySymbol.containsKey("XLE") && bySymbol.containsKey("SPY"));
+            // Distinct held-price facts (not an aggregate): XLE held, SPY absent.
+            assertTrue(bySymbol.get("XLE").heldPrice(), "XLE holds a price");
+            assertFalse(bySymbol.get("SPY").heldPrice(), "SPY holds nothing → absence preserved, never zero");
+            // Each has its own invocation-specific outcome string.
+            assertNotNull(bySymbol.get("XLE").acquisitionOutcome());
+            assertNotNull(bySymbol.get("SPY").acquisitionOutcome());
+
+            worker.stop();
+            store.close();
+        }
+
+        @Test
+        @DisplayName("CASE 7: early-return (stopped worker) does NOT falsely certify completion or a per-symbol postcondition")
+        void stoppedWorkerDoesNotCertifyCompletion() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE"));
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            // NOT started → forceAcquireSymbols short-circuits to NOT_RUNNING before any cycle.
+            var result = worker.forceAcquireSymbols(List.of("XLE"));
+
+            assertEquals(AcquisitionWorker.ForceOutcome.NOT_RUNNING, result.outcome());
+            assertFalse(result.completed(), "a stopped worker must not report completed");
+            assertTrue(result.perSymbol().isEmpty(),
+                "no completion → no per-symbol postcondition certified");
+
+            store.close();
+        }
+
+        @Test
+        @DisplayName("per-symbol held-price is FALSE for a requested symbol with no held observation (absence preserved)")
+        void perSymbolHeldPriceFalseWhenAbsent() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            // XLE is in-universe but has NO chain/expirations → no held observation.
+            store.initUniverse(List.of("XLE"));
+
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            worker.start(List.of("XLE"));
+            Thread.sleep(1500);
+
+            var result = worker.forceAcquireSymbols(List.of("XLE"));
+
+            assertTrue(result.completed(), "operation must have completed");
+            assertEquals(1, result.perSymbol().size());
+            var xle = result.perSymbol().get(0);
+            assertEquals("XLE", xle.symbol());
+            assertFalse(xle.heldPrice(),
+                "no held observation → heldPrice=false (absence preserved, never fabricated)");
 
             worker.stop();
             store.close();
@@ -671,6 +816,116 @@ class AcquisitionWorkerTest {
                 "targeted refresh must not reschedule the automatic scheduler");
 
             worker.stop();
+            store.close();
+        }
+
+        @Test
+        @DisplayName("CASE 1: TIMEOUT does NOT report completed/ACQUIRED and certifies NO per-symbol postcondition")
+        void timeoutDoesNotCertifyCompletion() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE"));
+            // Prior held observation present — if the contract leaked, a timeout could be
+            // tempted to certify heldPrice. It must not: timeout certifies nothing.
+            store.setExpirations("XLE", EXPIRATIONS_JSON, minutesAgo(5));
+            store.setChain("XLE", QUALIFYING_CHAIN, minutesAgo(5));
+
+            // Seam: a worker whose forced-targeted cycle hangs past a tiny bounded wait, so
+            // the await deterministically times out while the "cycle" is still running.
+            final CountDownLatch release = new CountDownLatch(1);
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG) {
+                @Override
+                boolean runForcedTargetedCycle(List<String> targets,
+                        java.util.Map<String, com.wheelwright.evidence.provider.ObservationRecorder.LogicalOutcome> perSymbolOutcome) {
+                    try { release.await(5, TimeUnit.SECONDS); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                    return true; // would-be completion, but the caller already timed out
+                }
+            };
+            worker.forcedAcquisitionTimeoutMs = 50; // deterministic bounded wait
+            worker.start(List.of("XLE"));
+            Thread.sleep(1500);
+
+            var result = worker.forceAcquireSymbols(List.of("XLE"));
+
+            assertEquals(AcquisitionWorker.ForceOutcome.NOT_COMPLETED, result.outcome(),
+                "a timed-out forced cycle must report NOT_COMPLETED, never ACQUIRED");
+            assertFalse(result.completed(), "timeout → completed=false (work may still be running)");
+            assertTrue(result.perSymbol().isEmpty(),
+                "timeout certifies NO after-completion per-symbol postcondition");
+
+            release.countDown(); // let the hung cycle finish before teardown
+            worker.stop();
+            store.close();
+        }
+
+        @Test
+        @DisplayName("CASE 2: ExecutionException does NOT report completed/ACQUIRED and certifies NO per-symbol postcondition")
+        void executionErrorDoesNotCertifyCompletion() throws Exception {
+            var store = new SqliteEvidenceStore(":memory:");
+            store.initUniverse(List.of("XLE"));
+            store.setExpirations("XLE", EXPIRATIONS_JSON, minutesAgo(5));
+            store.setChain("XLE", QUALIFYING_CHAIN, minutesAgo(5));
+
+            // Seam: a worker whose forced-targeted cycle throws, so the submitted task fails
+            // and future.get() raises ExecutionException on the caller.
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG) {
+                @Override
+                boolean runForcedTargetedCycle(List<String> targets,
+                        java.util.Map<String, com.wheelwright.evidence.provider.ObservationRecorder.LogicalOutcome> perSymbolOutcome) {
+                    throw new RuntimeException("injected forced-cycle failure");
+                }
+            };
+            worker.start(List.of("XLE"));
+            Thread.sleep(1500);
+
+            var result = worker.forceAcquireSymbols(List.of("XLE"));
+
+            assertEquals(AcquisitionWorker.ForceOutcome.NOT_COMPLETED, result.outcome(),
+                "a forced cycle that threw must report NOT_COMPLETED, never ACQUIRED");
+            assertFalse(result.completed(), "execution failure → completed=false");
+            assertTrue(result.perSymbol().isEmpty(),
+                "execution failure certifies NO per-symbol postcondition");
+
+            worker.stop();
+            store.close();
+        }
+
+        @Test
+        @DisplayName("CASE 3: mid-loop stop (!running) must NOT mark the whole operation completed or certify the per-symbol postcondition")
+        void midLoopStopDoesNotFalselyCertifyCompletion() throws Exception {
+            // A store that stops the worker when the SECOND requested symbol is reached, so
+            // the real production loop's `if (!running) break` fires partway through. This
+            // exercises the genuine runForcedTargetedCycle loop (no override of the method
+            // under test), proving a partial stop cannot report completed.
+            final AcquisitionWorker[] ref = new AcquisitionWorker[1];
+            var store = new SqliteEvidenceStore(":memory:") {
+                @Override
+                public List<String> findUnknownSymbols(List<String> symbols) throws SQLException {
+                    if (symbols != null && symbols.contains("SPY") && ref[0] != null) {
+                        ref[0].stop(); // flip running=false as the loop reaches the 2nd symbol
+                    }
+                    return super.findUnknownSymbols(symbols);
+                }
+            };
+            store.initUniverse(List.of("XLE", "SPY"));
+            store.setExpirations("XLE", EXPIRATIONS_JSON, minutesAgo(5));
+            store.setChain("XLE", QUALIFYING_CHAIN, minutesAgo(5));
+
+            var worker = new AcquisitionWorker(createStubAdapter(), store, blockedGate(), CONFIG);
+            ref[0] = worker;
+            worker.start(List.of("XLE", "SPY"));
+            Thread.sleep(1500);
+
+            // Targeted order is normalized sorted → ["SPY","XLE"]; SPY is first, so stop
+            // fires at the top of the loop (first iteration), guaranteeing an early break.
+            var result = worker.forceAcquireSymbols(List.of("XLE", "SPY"));
+
+            assertNotEquals(AcquisitionWorker.ForceOutcome.ACQUIRED, result.outcome(),
+                "a partial-stop targeted refresh must not report ACQUIRED");
+            assertFalse(result.completed(),
+                "a mid-loop stop must NOT mark the whole targeted operation completed");
+            assertTrue(result.perSymbol().isEmpty(),
+                "no completion → the whole per-symbol postcondition is NOT certified");
+
             store.close();
         }
     }

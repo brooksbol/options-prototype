@@ -37,7 +37,7 @@ describe("forceEvidenceAcquisition", () => {
     vi.stubGlobal("fetch", vi.fn(async () => ({
       ok: true,
       status: 200,
-      json: async () => ({ outcome: "ACQUIRED", symbolsAcquired: 3, workQueueDepth: 10, generation: 42, sessionPosture: "BLOCKED", recoversHistory: false }),
+      json: async () => ({ outcome: "ACQUIRED", completed: true, symbolsAcquired: 3, workQueueDepth: 10, generation: 42, sessionPosture: "BLOCKED", recoversHistory: false }),
     })));
 
     const result = await forceEvidenceAcquisition();
@@ -45,13 +45,115 @@ describe("forceEvidenceAcquisition", () => {
     expect(result).toEqual({
       ok: true,
       outcome: "ACQUIRED",
+      completed: true,
       symbolsAcquired: 3,
       workQueueDepth: 10,
       generation: 42,
       sessionPosture: "BLOCKED",
       recoversHistory: false,
       targeted: false,
+      perSymbol: [],
     });
+  });
+
+  it("maps the per-symbol held-price postcondition of a completed targeted refresh (PL-OPS-09)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        outcome: "ACQUIRED",
+        completed: true,
+        symbolsAcquired: 1,
+        workQueueDepth: 0,
+        generation: 50,
+        sessionPosture: "REGULAR_OBSERVATION",
+        recoversHistory: false,
+        targeted: true,
+        perSymbol: [
+          { symbol: "QQQ", acquisitionOutcome: "ACQUIRED", heldPrice: true },
+          { symbol: "SPY", acquisitionOutcome: "FAILED", heldPrice: false },
+        ],
+      }),
+    })));
+
+    const result = await forceEvidenceAcquisition(["QQQ", "SPY"]);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.completed).toBe(true);
+      expect(result.targeted).toBe(true);
+      expect(result.perSymbol).toEqual([
+        { symbol: "QQQ", acquisitionOutcome: "ACQUIRED", heldPrice: true },
+        { symbol: "SPY", acquisitionOutcome: "FAILED", heldPrice: false },
+      ]);
+    }
+  });
+
+  it("carries invocation failure AND a preserved held price independently (CASE 3)", async () => {
+    // A failed re-acquisition attempt for QQQ must remain visible as a failure while the
+    // previously held price is preserved — the two facts are independent and the client
+    // must never collapse them (no inferring acquisition from heldPrice, no erasing
+    // heldPrice because the attempt failed).
+    vi.stubGlobal("fetch", vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        outcome: "ACQUIRED",
+        completed: true,
+        targeted: true,
+        perSymbol: [{ symbol: "QQQ", acquisitionOutcome: "FAILED", heldPrice: true }],
+      }),
+    })));
+
+    const result = await forceEvidenceAcquisition(["QQQ"]);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.perSymbol).toEqual([
+        { symbol: "QQQ", acquisitionOutcome: "FAILED", heldPrice: true },
+      ]);
+    }
+  });
+
+  it("defaults a missing per-symbol acquisitionOutcome to UNKNOWN (never inferred from heldPrice)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        outcome: "ACQUIRED",
+        completed: true,
+        targeted: true,
+        perSymbol: [{ symbol: "QQQ", heldPrice: true }],
+      }),
+    })));
+
+    const result = await forceEvidenceAcquisition(["QQQ"]);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.perSymbol[0].acquisitionOutcome).toBe("UNKNOWN");
+      expect(result.perSymbol[0].heldPrice).toBe(true);
+    }
+  });
+
+  it("does not fabricate completion or a held-price postcondition for a NOT_COMPLETED refresh", async () => {
+    // Timeout path: backend reports NOT_COMPLETED, completed=false, and (per the honesty
+    // invariant) an empty per-symbol array — the client must carry that through, never
+    // defaulting to ACQUIRED/completed/held.
+    vi.stubGlobal("fetch", vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ outcome: "NOT_COMPLETED", completed: false, targeted: true, perSymbol: [] }),
+    })));
+
+    const result = await forceEvidenceAcquisition(["QQQ"]);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.outcome).toBe("NOT_COMPLETED");
+      expect(result.completed).toBe(false);
+      expect(result.perSymbol).toEqual([]);
+    }
   });
 
   it("carries PROVIDER_UNAVAILABLE through honestly", async () => {
@@ -75,12 +177,14 @@ describe("forceEvidenceAcquisition", () => {
     expect(result).toEqual({
       ok: true,
       outcome: "ACQUIRED",
+      completed: false,
       symbolsAcquired: 0,
       workQueueDepth: -1,
       generation: -1,
       sessionPosture: "unknown",
       recoversHistory: false,
       targeted: false,
+      perSymbol: [],
     });
   });
 

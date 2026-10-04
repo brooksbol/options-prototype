@@ -138,7 +138,10 @@ public class QuotesController {
             Double price = (Double) obs.get("price");
             String observedAt = (String) obs.get("observedAt");
             Double previousClose = (Double) obs.get("previousClose");
-            if (price != null && observedAt != null) {
+            // Shared held-observation gate — the single definition of "holds the
+            // requested price" (SqliteEvidenceStore.holdsRequestedPrice), reused by the
+            // targeted-refresh per-symbol postcondition so the two never drift apart.
+            if (SqliteEvidenceStore.holdsRequestedPrice(obs)) {
                 sb.append("\"observation\":{");
                 sb.append("\"price\":").append(price).append(",");
                 sb.append("\"previousClose\":").append(previousClose == null ? "null" : previousClose).append(",");

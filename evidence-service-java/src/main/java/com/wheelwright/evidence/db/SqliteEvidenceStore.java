@@ -1195,6 +1195,75 @@ public class SqliteEvidenceStore implements AutoCloseable {
     }
 
     /**
+     * THE single definition of "Wheelwright holds the requested price" for a quote
+     * observation entry produced by {@link #getQuoteObservations(List)}.
+     *
+     * An observation is considered held iff it carries BOTH a non-null underlying price
+     * and a non-null observation timestamp — the identical gate the quotes read uses to
+     * decide whether to emit a non-null {@code observation} object. Keeping this as one
+     * shared predicate prevents a second, drifting definition of "held observation" in
+     * the targeted-refresh path or any other consumer.
+     *
+     * Provenance boundary (ADR-015 / PL-EVID-AGE): a held observation means Wheelwright
+     * currently holds a numeric price with a (chain-associated) observation timestamp.
+     * It does NOT assert the price was newly acquired, that it is fresh, its independent
+     * quote age, or its suitability for any purpose. A legitimate preserved prior price
+     * satisfies this postcondition even after a later failed acquisition.
+     *
+     * @param observation an entry from {@link #getQuoteObservations(List)}
+     * @return true iff the entry holds the requested price under the shared quote gate
+     */
+    public static boolean holdsRequestedPrice(Map<String, Object> observation) {
+        if (observation == null) return false;
+        return observation.get("price") != null && observation.get("observedAt") != null;
+    }
+
+    /**
+     * Per-requested-symbol held-price postcondition, computed by SHARING
+     * {@link #getQuoteObservations(List)} and {@link #holdsRequestedPrice(Map)} — the
+     * same determination the quotes read uses. Symbols outside the canonical universe,
+     * or with no held observation, map to {@code false} (held price absent), never to a
+     * fabricated zero or a thrown error for the caller to misread.
+     *
+     * This is a read of currently-held evidence; it performs no acquisition and has no
+     * side effects. It is intended to be evaluated AFTER a targeted synchronization has
+     * actually completed, so the result reflects the post-operation held state.
+     *
+     * @param symbols requested symbols (any casing; filtered/normalized by the quote read)
+     * @return insertion-ordered map of requested symbol → whether its price is held
+     */
+    public Map<String, Boolean> heldPriceBySymbol(List<String> symbols) throws SQLException {
+        Map<String, Boolean> held = new LinkedHashMap<>();
+        if (symbols == null || symbols.isEmpty()) return held;
+
+        // Normalize to match getQuoteObservations / QuotesController (uppercase, dedupe).
+        List<String> normalized = symbols.stream()
+                .filter(s -> s != null && !s.isBlank())
+                .map(s -> s.toUpperCase(java.util.Locale.ROOT))
+                .distinct()
+                .toList();
+
+        // Seed every requested symbol as not-held so absence (incl. not-in-universe) is
+        // explicit rather than missing from the result.
+        for (String sym : normalized) held.put(sym, false);
+
+        // Only known-universe symbols can carry a held observation; getQuoteObservations
+        // already skips unknown symbols.
+        List<String> unknown = findUnknownSymbols(normalized);
+        List<String> known = normalized.stream()
+                .filter(s -> !unknown.contains(s))
+                .toList();
+
+        if (!known.isEmpty()) {
+            for (Map<String, Object> obs : getQuoteObservations(known)) {
+                String sym = (String) obs.get("symbol");
+                if (sym != null) held.put(sym, holdsRequestedPrice(obs));
+            }
+        }
+        return held;
+    }
+
+    /**
      * Extract "underlying.price" from a chain JSON blob.
      * Minimal parsing — finds "underlying":{..."price":<number>...}
      */

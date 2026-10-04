@@ -247,6 +247,12 @@ Targeted refresh traverses the *same* provider protections as scheduled acquisit
 
 **Unresolved and unauthorized:** The CLI aggregate exit status for partially populated symbol sets, provider-unavailable cases with previously held prices, and stdout/stderr presentation still require explicit Product resolution. No backend implementation or `ww refresh` implementation is authorized by this record. Preserve the existing provider stewardship, single acquisition authority, and ADR-015/`PL-EVID-AGE` provenance boundary. `PL-CLI-01` is the CLI consumer and cross-reference, not a second owner of this enhancement.
 
+### October 3, 2026 — bounded result-contract implementation and walking observation
+
+The Principal subsequently authorized this specific PL-OPS-09 shared-backend enhancement. The targeted `POST /api/evidence/refresh` response now includes `completed` and, only after completed work, one `perSymbol` result per requested symbol: `{symbol, acquisitionOutcome, heldPrice}`. Acquisition outcome describes this invocation; held price is a separate postcondition, using the same held-observation determination as `GET /api/evidence/quotes`. Timeout, execution error, and mid-loop worker stop no longer certify completed acquisition or per-symbol postconditions. The existing `symbolsAcquired` mutation count remains available but is not a per-symbol success signal. No v2 endpoint was needed.
+
+Focused deterministic tests cover timeout, execution error, and a multi-symbol stop; the backend suite passed. The Principal then ran `ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price` against the candidate backend on port 3100 and saw held numeric prices for all three. This is operator evidence for the bounded synchronization/read/composition path, not quote freshness, new acquisition provenance, or trading suitability. ADR-015/`PL-EVID-AGE` remains unresolved. The earlier discovery-era "not authorized" statement above is historical; this later Principal authorization and observed implementation supersede it for this bounded enhancement only.
+
 ---
 
 ## Continuation History

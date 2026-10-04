@@ -61,14 +61,43 @@ public class NudgeController {
                 : worker.forceAcquireOnce();
 
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("outcome", result.outcome().name());          // ACQUIRED | NOT_RUNNING | PROVIDER_UNAVAILABLE | INTERRUPTED
-        body.put("symbolsAcquired", result.symbolsAcquired());  // how many symbols this forced cycle acquired
+        body.put("outcome", result.outcome().name());          // ACQUIRED | NOT_RUNNING | PROVIDER_UNAVAILABLE | INTERRUPTED | NOT_COMPLETED
+        // Load-bearing honesty: true ONLY when the forced operation actually finished.
+        // A bounded-wait timeout or an escaped error yields completed=false (outcome
+        // NOT_COMPLETED), so no consumer may read "ACQUIRED" as "the work completed".
+        body.put("completed", result.completed());
+        body.put("symbolsAcquired", result.symbolsAcquired());  // store-mutation delta this cycle (NOT a per-requested-symbol count)
         body.put("workQueueDepth", result.workQueueDepth());    // relevant work still outstanding after the cycle
         body.put("generation", result.generation());            // snapshot generation after the cycle
         body.put("sessionPosture", result.sessionPosture());    // real posture (e.g. BLOCKED) — bypassed, but reported
         body.put("targeted", targeted);                         // true when scoped to explicit symbols
         // Explicit, honest limitation so no consumer treats this as historical recovery.
         body.put("recoversHistory", false);
+
+        // Per-requested-symbol result for a TARGETED refresh (PL-OPS-09): for each
+        // requested symbol, whether Wheelwright holds its requested price AFTER the
+        // operation completed. Only emitted when the operation actually completed; on a
+        // non-completed targeted refresh the backend certifies nothing per symbol, so the
+        // array is empty. The held flag uses the SAME gate as GET /api/evidence/quotes
+        // (shared held-observation determination). It does NOT assert new acquisition,
+        // freshness, independent quote age, or trade suitability — a preserved prior price
+        // legitimately satisfies "held". That provenance boundary stays owned by
+        // ADR-015 / PL-EVID-AGE.
+        if (targeted) {
+            List<Map<String, Object>> perSymbol = new java.util.ArrayList<>();
+            for (AcquisitionWorker.PerSymbolRefreshResult r : result.perSymbol()) {
+                Map<String, Object> entry = new LinkedHashMap<>();
+                entry.put("symbol", r.symbol());
+                // Two independent facts: (1) this invocation's acquisition outcome, and
+                // (2) whether Wheelwright holds the requested price after completion. A
+                // failed attempt can coexist with heldPrice=true (preserved prior price);
+                // a held price never implies this invocation acquired anything.
+                entry.put("acquisitionOutcome", r.acquisitionOutcome());
+                entry.put("heldPrice", r.heldPrice());
+                perSymbol.add(entry);
+            }
+            body.put("perSymbol", perSymbol);
+        }
         return body;
     }
 }

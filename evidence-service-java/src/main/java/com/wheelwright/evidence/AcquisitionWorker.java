@@ -42,6 +42,10 @@ public class AcquisitionWorker {
     // Bounded wait for an operator-forced one-shot cycle (PL-OPS-08). If exceeded, acquisition
     // keeps running on the worker thread; the HTTP caller simply stops blocking.
     private static final long FORCED_ACQUISITION_TIMEOUT_MS = 20_000;
+    // Effective bounded wait for a forced acquisition. Equal to the constant in production;
+    // narrowly overridable by same-package tests to make the timeout path deterministic
+    // (test seam only — no production caller changes this).
+    long forcedAcquisitionTimeoutMs = FORCED_ACQUISITION_TIMEOUT_MS;
 
     // --- PL-PROV-FAILOVER lifecycle thresholds (provisional / experimental) ---
     // Confirmed provider-unusable signals required to consider failover. Provisional.
@@ -313,7 +317,7 @@ public class AcquisitionWorker {
      * of what the single forced cycle actually did — never a bare "requested".
      */
     public enum ForceOutcome {
-        /** A forced acquisition cycle ran (may or may not have found due work). */
+        /** A forced acquisition cycle ran to completion (may or may not have found due work). */
         ACQUIRED,
         /** No forced cycle ran because the worker is not running. */
         NOT_RUNNING,
@@ -323,21 +327,87 @@ public class AcquisitionWorker {
          * forcing acquisition through an unusable provider would produce no usable evidence.
          */
         PROVIDER_UNAVAILABLE,
-        /** The forced cycle was interrupted or timed out before completing. */
-        INTERRUPTED
+        /** The forced cycle was interrupted before completing. */
+        INTERRUPTED,
+        /**
+         * The forced cycle did NOT complete within the bounded wait (or an error escaped
+         * the cycle). Work may still be running on the acquisition thread. Because the
+         * operation did not actually finish, NO after-completion postcondition (e.g. the
+         * per-symbol held-price result) can be truthfully certified for this invocation.
+         * Distinct from ACQUIRED precisely so a timeout is never reported as completed.
+         */
+        NOT_COMPLETED
     }
 
     /**
-     * Result of {@link #forceAcquireOnce()} — enough for the endpoint/UI to report honestly.
+     * Acquisition/operation outcome for ONE requested symbol in a targeted refresh,
+     * paired with whether Wheelwright holds that symbol's requested price AFTER the
+     * targeted operation completed. {@code heldPrice} uses the shared quote-read gate
+     * ({@link SqliteEvidenceStore#holdsRequestedPrice}); it does not assert new
+     * acquisition, recency, independent quote age, or trade suitability. {@code heldPrice}
+     * is only meaningful when the enclosing result reports {@code completed() == true}.
+     */
+    public record PerSymbolRefreshResult(
+        String symbol,
+        /**
+         * This invocation's acquisition outcome for the symbol — the terminal
+         * {@link ObservationRecorder.LogicalOutcome} of THIS targeted-refresh attempt
+         * (ACQUIRED / NO_USABLE_EVIDENCE / REJECTED / FENCED / PROVIDER_UNUSABLE /
+         * PERSISTENCE_FAILED / ABORTED). It describes what this attempt did, NOT the
+         * persisted {@code acquisition.status}. Independent of {@link #heldPrice}: a
+         * failed attempt (e.g. REJECTED) may coexist with heldPrice=true when a prior
+         * successful observation is preserved.
+         */
+        String acquisitionOutcome,
+        boolean heldPrice
+    ) {}
+
+    /**
+     * Public, stable per-symbol acquisition-outcome vocabulary for the targeted-refresh
+     * contract, mapped from the internal {@link ObservationRecorder.LogicalOutcome}. Kept
+     * as a small projection so the wire contract does not leak internal enum churn, while
+     * remaining the invocation-specific outcome (never persisted status).
+     */
+    static String mapAcquisitionOutcome(ObservationRecorder.LogicalOutcome outcome) {
+        if (outcome == null) return "UNKNOWN";
+        return switch (outcome) {
+            case ACQUISITION_COMMITTED -> "ACQUIRED";
+            case ACQUISITION_NO_USABLE_EVIDENCE -> "NO_USABLE_EVIDENCE";
+            case ACQUISITION_REJECTED -> "FAILED";
+            case ACQUISITION_FENCED -> "FENCED";
+            case ACQUISITION_PROVIDER_UNUSABLE -> "PROVIDER_UNUSABLE";
+            case ACQUISITION_PERSISTENCE_FAILED -> "PERSISTENCE_FAILED";
+            case ACQUISITION_ABORTED -> "ABORTED";
+            default -> "UNKNOWN";
+        };
+    }
+
+    /**
+     * Result of a forced acquisition — enough for the endpoint/UI to report honestly.
+     *
+     * {@code completed} is the load-bearing honesty flag: it is true ONLY when the forced
+     * cycle actually ran to completion within the bounded wait. On timeout, interruption,
+     * stopped worker, or an escaped error it is false, and {@code perSymbol} (the
+     * after-completion held-price postcondition) is therefore empty — the backend refuses
+     * to certify a postcondition for an operation that did not finish.
+     *
+     * {@code perSymbol} is populated only for a completed TARGETED refresh. A whole-cycle
+     * force leaves it empty (it has no bounded requested-symbol set to report on).
      */
     public record ForcedAcquisitionResult(
         ForceOutcome outcome,
+        boolean completed,
         int cycleCount,
         int symbolsAcquired,
         int workQueueDepth,
         long generation,
-        String sessionPosture
-    ) {}
+        String sessionPosture,
+        List<PerSymbolRefreshResult> perSymbol
+    ) {
+        public ForcedAcquisitionResult {
+            perSymbol = perSymbol == null ? List.of() : List.copyOf(perSymbol);
+        }
+    }
 
     /**
      * Operator-forced one-shot acquisition (PL-OPS-08 bounded recovery control).
@@ -366,49 +436,53 @@ public class AcquisitionWorker {
      */
     public ForcedAcquisitionResult forceAcquireOnce() {
         if (!running) {
-            return new ForcedAcquisitionResult(ForceOutcome.NOT_RUNNING, status.cycleCount(),
-                0, 0, safeGeneration(), "n/a");
+            return new ForcedAcquisitionResult(ForceOutcome.NOT_RUNNING, false, status.cycleCount(),
+                0, 0, safeGeneration(), "n/a", List.of());
         }
         // Provider-availability is a SAFETY gate, not session policy: forcing acquisition
         // through an unusable/unverified provider would only produce no-usable-evidence
         // outcomes. Report it honestly instead.
         if (!providerManager.acquisitionAuthorityEstablished()) {
-            return new ForcedAcquisitionResult(ForceOutcome.PROVIDER_UNAVAILABLE, status.cycleCount(),
-                0, safeWorkQueueDepth(), safeGeneration(), "provider_unverified");
+            return new ForcedAcquisitionResult(ForceOutcome.PROVIDER_UNAVAILABLE, false, status.cycleCount(),
+                0, safeWorkQueueDepth(), safeGeneration(), "provider_unverified", List.of());
         }
 
         final int acquiredBefore = status.symbolsAcquiredTotal();
         final String posture = safePosture();
 
-        Callable<ForceOutcome> task = () -> {
+        // The callable returns TRUE only if the forced cycle actually ran to completion
+        // (not an early-return for a stopped worker / in-flight cycle). "Callable returned"
+        // is no longer conflated with "cycle completed".
+        Callable<Boolean> task = () -> {
             // Serialized on the acquisition thread: a scheduled cycle cannot be mid-flight here.
-            runForcedFullCycle();
-            return ForceOutcome.ACQUIRED;
+            return runForcedFullCycle();
         };
 
         try {
             // Submit onto the same single thread the scheduler uses, so this cannot run
             // concurrently with a normal cycle. Bounded wait keeps the HTTP request responsive
             // even if the queue is large (acquisition continues; the caller just stops waiting).
-            Future<ForceOutcome> future = scheduler.submit(task);
-            ForceOutcome outcome = future.get(FORCED_ACQUISITION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            Future<Boolean> future = scheduler.submit(task);
+            boolean completed = Boolean.TRUE.equals(
+                future.get(forcedAcquisitionTimeoutMs, TimeUnit.MILLISECONDS));
             int acquiredDelta = status.symbolsAcquiredTotal() - acquiredBefore;
-            return new ForcedAcquisitionResult(outcome, status.cycleCount(), acquiredDelta,
-                safeWorkQueueDepth(), safeGeneration(), posture);
+            ForceOutcome outcome = completed ? ForceOutcome.ACQUIRED : ForceOutcome.NOT_COMPLETED;
+            return new ForcedAcquisitionResult(outcome, completed, status.cycleCount(), acquiredDelta,
+                safeWorkQueueDepth(), safeGeneration(), posture, List.of());
         } catch (TimeoutException te) {
             // The forced cycle is still running on the acquisition thread; we simply stop
-            // waiting. Report what has been acquired so far.
+            // waiting. It did NOT complete within the bound — report NOT_COMPLETED, not ACQUIRED.
             int acquiredDelta = status.symbolsAcquiredTotal() - acquiredBefore;
-            return new ForcedAcquisitionResult(ForceOutcome.ACQUIRED, status.cycleCount(), acquiredDelta,
-                safeWorkQueueDepth(), safeGeneration(), posture);
+            return new ForcedAcquisitionResult(ForceOutcome.NOT_COMPLETED, false, status.cycleCount(), acquiredDelta,
+                safeWorkQueueDepth(), safeGeneration(), posture, List.of());
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
-            return new ForcedAcquisitionResult(ForceOutcome.INTERRUPTED, status.cycleCount(),
-                status.symbolsAcquiredTotal() - acquiredBefore, safeWorkQueueDepth(), safeGeneration(), posture);
+            return new ForcedAcquisitionResult(ForceOutcome.INTERRUPTED, false, status.cycleCount(),
+                status.symbolsAcquiredTotal() - acquiredBefore, safeWorkQueueDepth(), safeGeneration(), posture, List.of());
         } catch (ExecutionException ee) {
             System.err.println("[worker] Forced acquisition error: " + ee.getMessage());
-            return new ForcedAcquisitionResult(ForceOutcome.ACQUIRED, status.cycleCount(),
-                status.symbolsAcquiredTotal() - acquiredBefore, safeWorkQueueDepth(), safeGeneration(), posture);
+            return new ForcedAcquisitionResult(ForceOutcome.NOT_COMPLETED, false, status.cycleCount(),
+                status.symbolsAcquiredTotal() - acquiredBefore, safeWorkQueueDepth(), safeGeneration(), posture, List.of());
         }
     }
 
@@ -440,12 +514,12 @@ public class AcquisitionWorker {
      */
     public ForcedAcquisitionResult forceAcquireSymbols(List<String> symbols) {
         if (!running) {
-            return new ForcedAcquisitionResult(ForceOutcome.NOT_RUNNING, status.cycleCount(),
-                0, 0, safeGeneration(), "n/a");
+            return new ForcedAcquisitionResult(ForceOutcome.NOT_RUNNING, false, status.cycleCount(),
+                0, 0, safeGeneration(), "n/a", List.of());
         }
         if (!providerManager.acquisitionAuthorityEstablished()) {
-            return new ForcedAcquisitionResult(ForceOutcome.PROVIDER_UNAVAILABLE, status.cycleCount(),
-                0, safeWorkQueueDepth(), safeGeneration(), "provider_unverified");
+            return new ForcedAcquisitionResult(ForceOutcome.PROVIDER_UNAVAILABLE, false, status.cycleCount(),
+                0, safeWorkQueueDepth(), safeGeneration(), "provider_unverified", List.of());
         }
 
         // Normalize (uppercase, dedupe, sort) — match ObserveController / QuotesController.
@@ -457,38 +531,93 @@ public class AcquisitionWorker {
             .toList();
 
         if (targets.isEmpty()) {
-            // Nothing to observe — honest ACQUIRED with zero delta rather than forcing a cycle.
-            return new ForcedAcquisitionResult(ForceOutcome.ACQUIRED, status.cycleCount(),
-                0, safeWorkQueueDepth(), safeGeneration(), safePosture());
+            // Nothing requested — the operation is trivially complete with an empty
+            // requested-symbol set. ACQUIRED + completed, empty per-symbol result.
+            return new ForcedAcquisitionResult(ForceOutcome.ACQUIRED, true, status.cycleCount(),
+                0, safeWorkQueueDepth(), safeGeneration(), safePosture(), List.of());
         }
 
         final int acquiredBefore = status.symbolsAcquiredTotal();
         final String posture = safePosture();
 
-        Callable<ForceOutcome> task = () -> {
-            runForcedTargetedCycle(targets);
-            return ForceOutcome.ACQUIRED;
-        };
+        // Collects THIS invocation's per-symbol acquisition outcome, written on the
+        // acquisition thread by runForcedTargetedCycle. Ordered map for stable reporting.
+        // Only read after the Future completes within the bound (happens-before via get()),
+        // so no additional synchronization is required for this single-producer/consumer use.
+        final Map<String, ObservationRecorder.LogicalOutcome> perSymbolOutcome = new LinkedHashMap<>();
+
+        // TRUE only if the targeted cycle actually ran to completion (not an early-return
+        // for a stopped worker / in-flight cycle). This is what makes the after-completion
+        // held-price postcondition truthful.
+        Callable<Boolean> task = () -> runForcedTargetedCycle(targets, perSymbolOutcome);
 
         try {
-            Future<ForceOutcome> future = scheduler.submit(task);
-            ForceOutcome outcome = future.get(FORCED_ACQUISITION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            Future<Boolean> future = scheduler.submit(task);
+            boolean completed = Boolean.TRUE.equals(
+                future.get(forcedAcquisitionTimeoutMs, TimeUnit.MILLISECONDS));
             int acquiredDelta = status.symbolsAcquiredTotal() - acquiredBefore;
-            return new ForcedAcquisitionResult(outcome, status.cycleCount(), acquiredDelta,
-                safeWorkQueueDepth(), safeGeneration(), posture);
+            if (completed) {
+                // Operation finished — NOW it is honest to report, per requested symbol,
+                // this invocation's acquisition outcome AND whether Wheelwright holds the
+                // requested price (shared quote-read gate). The two facts are independent.
+                return new ForcedAcquisitionResult(ForceOutcome.ACQUIRED, true, status.cycleCount(),
+                    acquiredDelta, safeWorkQueueDepth(), safeGeneration(), posture,
+                    perSymbolResults(targets, perSymbolOutcome));
+            }
+            // Cycle did not actually run (stopped worker / in-flight cycle collision).
+            return new ForcedAcquisitionResult(ForceOutcome.NOT_COMPLETED, false, status.cycleCount(),
+                acquiredDelta, safeWorkQueueDepth(), safeGeneration(), posture, List.of());
         } catch (TimeoutException te) {
+            // Work may still be running on the acquisition thread; the operation did NOT
+            // complete within the bound. No after-completion postcondition is certified.
             int acquiredDelta = status.symbolsAcquiredTotal() - acquiredBefore;
-            return new ForcedAcquisitionResult(ForceOutcome.ACQUIRED, status.cycleCount(), acquiredDelta,
-                safeWorkQueueDepth(), safeGeneration(), posture);
+            return new ForcedAcquisitionResult(ForceOutcome.NOT_COMPLETED, false, status.cycleCount(),
+                acquiredDelta, safeWorkQueueDepth(), safeGeneration(), posture, List.of());
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
-            return new ForcedAcquisitionResult(ForceOutcome.INTERRUPTED, status.cycleCount(),
-                status.symbolsAcquiredTotal() - acquiredBefore, safeWorkQueueDepth(), safeGeneration(), posture);
+            return new ForcedAcquisitionResult(ForceOutcome.INTERRUPTED, false, status.cycleCount(),
+                status.symbolsAcquiredTotal() - acquiredBefore, safeWorkQueueDepth(), safeGeneration(), posture, List.of());
         } catch (ExecutionException ee) {
+            // An error escaped the cycle — treat as not completed; certify nothing.
             System.err.println("[worker] Forced targeted acquisition error: " + ee.getMessage());
-            return new ForcedAcquisitionResult(ForceOutcome.ACQUIRED, status.cycleCount(),
-                status.symbolsAcquiredTotal() - acquiredBefore, safeWorkQueueDepth(), safeGeneration(), posture);
+            return new ForcedAcquisitionResult(ForceOutcome.NOT_COMPLETED, false, status.cycleCount(),
+                status.symbolsAcquiredTotal() - acquiredBefore, safeWorkQueueDepth(), safeGeneration(), posture, List.of());
         }
+    }
+
+    /**
+     * Build the per-requested-symbol result for a COMPLETED targeted refresh, carrying TWO
+     * independent facts per symbol:
+     *   1. this invocation's acquisition outcome (from {@code perSymbolOutcome}, captured on
+     *      the acquisition thread — NOT persisted {@code acquisition.status}); and
+     *   2. whether Wheelwright holds the requested price afterward, via the SHARED quote-read
+     *      determination ({@link SqliteEvidenceStore#heldPriceBySymbol}).
+     *
+     * These are independent: a failed attempt (e.g. FAILED) may coexist with heldPrice=true
+     * when a prior successful observation is preserved; a held price never implies this
+     * invocation acquired anything. Requested order is preserved. On a held-price read error,
+     * degrade honestly to "held price absent" rather than fabricating a held value. A symbol
+     * with no recorded invocation outcome (should not happen for a completed cycle) reports
+     * UNKNOWN rather than inferring success.
+     */
+    private List<PerSymbolRefreshResult> perSymbolResults(
+            List<String> targets,
+            Map<String, ObservationRecorder.LogicalOutcome> perSymbolOutcome) {
+        Map<String, Boolean> held;
+        try {
+            held = store.heldPriceBySymbol(targets);
+        } catch (Exception e) {
+            System.err.println("[worker] Targeted refresh held-price read error: " + e.getMessage());
+            held = Map.of();
+        }
+        List<PerSymbolRefreshResult> out = new ArrayList<>(targets.size());
+        for (String sym : targets) {
+            out.add(new PerSymbolRefreshResult(
+                sym,
+                mapAcquisitionOutcome(perSymbolOutcome.get(sym)),
+                held.getOrDefault(sym, false)));
+        }
+        return out;
     }
 
     /**
@@ -498,18 +627,24 @@ public class AcquisitionWorker {
      * generation advances immediately (on-screen freshness updates without waiting for
      * the coalescing window). Interlocks with the normal cycle via {@code cycleActive}.
      */
-    private void runForcedTargetedCycle(List<String> targets) {
-        if (!running) return;
-        if (cycleActive) return; // a normal cycle is somehow mid-flight; do not double-run
+    // Package-private (not private) and non-final so same-package tests can override it to
+    // make the timeout / execution-failure await paths deterministic. Test seam only;
+    // production behavior is unchanged.
+    boolean runForcedTargetedCycle(List<String> targets,
+                                   Map<String, ObservationRecorder.LogicalOutcome> perSymbolOutcome) {
+        if (!running) return false;
+        if (cycleActive) return false; // a normal cycle is somehow mid-flight; do not double-run
         cycleActive = true;
         int cycleCount = status.cycleCount() + 1;
         status = status.withState("acquiring")
             .withCycleCount(cycleCount)
             .withLastCycleStartedAt(Instant.now().toString());
         long cycleStart = System.currentTimeMillis();
+        boolean completed = false;
+        boolean interruptedEarly = false;
         try {
             for (String symbol : targets) {
-                if (!running) break;
+                if (!running) { interruptedEarly = true; break; }
 
                 // Register genuinely-unknown symbols so acquisition is not a silent no-op
                 // (acquireSymbolTiered aborts on a null evidence row). This adds them to the
@@ -521,6 +656,9 @@ public class AcquisitionWorker {
                     }
                 } catch (Exception reg) {
                     System.err.printf("[worker] Targeted refresh: could not register %s — %s%n", symbol, reg.getMessage());
+                    // The attempt could not even register this symbol for acquisition: an
+                    // honest per-invocation ABORTED outcome, not a silent omission.
+                    perSymbolOutcome.put(symbol, ObservationRecorder.LogicalOutcome.ACQUISITION_ABORTED);
                     continue;
                 }
 
@@ -539,7 +677,9 @@ public class AcquisitionWorker {
                 var item = new SqliteEvidenceStore.PrioritizedWorkItem(
                     symbol, "A", Long.MAX_VALUE, needsExpirations, false, false);
                 status = status.withCurrentSymbol(symbol);
-                acquireSymbolTiered(item);
+                // Capture THIS invocation's terminal acquisition outcome for the symbol
+                // (invocation-specific, not persisted acquisition.status).
+                perSymbolOutcome.put(symbol, acquireSymbolTiered(item));
                 dispatchedJobs++;
             }
             status = status.withCurrentSymbol(null)
@@ -554,12 +694,18 @@ public class AcquisitionWorker {
             } catch (Exception le) {
                 System.err.println("[provider] Lifecycle evaluation error (targeted): " + le.getMessage());
             }
+            // The operation COMPLETED only if the loop processed every requested symbol
+            // without an early stop. A mid-loop stop (!running) still publishes whatever
+            // was acquired, but must NOT mark the whole targeted operation completed or let
+            // the caller certify the per-symbol postcondition for symbols never attempted.
+            completed = !interruptedEarly;
         } catch (Exception err) {
             System.err.println("[worker] Forced targeted cycle error: " + err.getMessage());
             status = status.withFailures(status.failures() + 1);
         } finally {
             cycleActive = false;
         }
+        return completed;
     }
 
     /**
@@ -568,9 +714,9 @@ public class AcquisitionWorker {
      * provenance handling). Does NOT reschedule anything — the scheduler's own timer is
      * untouched. Sets/clears {@code cycleActive} so it interlocks with the normal cycle.
      */
-    private void runForcedFullCycle() {
-        if (!running) return;
-        if (cycleActive) return; // a normal cycle is somehow mid-flight; do not double-run
+    private boolean runForcedFullCycle() {
+        if (!running) return false;
+        if (cycleActive) return false; // a normal cycle is somehow mid-flight; do not double-run
         cycleActive = true;
         int cycleCount = status.cycleCount() + 1;
         String reason = "Operator-forced acquisition (session gate bypassed) · " + safePosture();
@@ -578,6 +724,7 @@ public class AcquisitionWorker {
             .withCycleCount(cycleCount)
             .withLastCycleStartedAt(Instant.now().toString());
         long cycleStart = System.currentTimeMillis();
+        boolean completed = false;
         try {
             // Always FULL — the operator explicitly requested acquisition. The provider adapter
             // and store record the true retrievedAt/environment, so an after-hours delayed quote
@@ -588,12 +735,14 @@ public class AcquisitionWorker {
             } catch (Exception le) {
                 System.err.println("[provider] Lifecycle evaluation error (forced): " + le.getMessage());
             }
+            completed = true;
         } catch (Exception err) {
             System.err.println("[worker] Forced cycle error: " + err.getMessage());
             status = status.withFailures(status.failures() + 1);
         } finally {
             cycleActive = false;
         }
+        return completed;
     }
 
     private long safeGeneration() {
@@ -1089,7 +1238,14 @@ public class AcquisitionWorker {
         acquireSymbolTiered(item);
     }
 
-    private void acquireSymbolTiered(PrioritizedWorkItem item) {
+    /**
+     * Returns the terminal {@link ObservationRecorder.LogicalOutcome} of THIS acquisition
+     * invocation for the item's symbol. Normal/scheduled callers may ignore it; the
+     * targeted-refresh path uses it to report the per-symbol, invocation-specific outcome
+     * (distinct from persisted {@code acquisition.status}). The return is purely additive —
+     * no behavioral change for existing callers.
+     */
+    private ObservationRecorder.LogicalOutcome acquireSymbolTiered(PrioritizedWorkItem item) {
         // Constraint 2: acquire ONE atomic lease for this operation. Every provider
         // call goes through lease.adapter(); every durable/status consequence is
         // committed only while the lease is still valid (commitGuarded). A concurrent
@@ -1119,7 +1275,7 @@ public class AcquisitionWorker {
             if (ev == null) {
                 // Missing/unexpected state — nothing to acquire. Honest terminal: ABORTED.
                 terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_ABORTED;
-                return;
+                return terminal[0];
             }
 
             String evStatus = (String) ev.get("status");
@@ -1131,7 +1287,7 @@ public class AcquisitionWorker {
                     store.recordMetrics(result.cacheHit() ? 0 : 1, result.cacheHit() ? 1 : 0);
                     store.setExpirations(item.symbol(), marshalExpirations(result.expirations()), result.retrievedAt(), lease.environment(), lease.provenanceId());
                 });
-                if (!committed) { fenced[0] = true; terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_FENCED; return; }
+                if (!committed) { fenced[0] = true; terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_FENCED; return terminal[0]; }
 
                 var updated = store.getEvidence(item.symbol());
                 if (updated != null && "expirations_known".equals(updated.get("status")) && updated.get("primaryExpiration") != null) {
@@ -1151,7 +1307,7 @@ public class AcquisitionWorker {
                         store.recordMetrics(result.cacheHit() ? 0 : 1, result.cacheHit() ? 1 : 0);
                         store.setExpirations(item.symbol(), marshalExpirations(result.expirations()), result.retrievedAt(), lease.environment(), lease.provenanceId());
                     });
-                    if (!committed) { fenced[0] = true; terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_FENCED; return; }
+                    if (!committed) { fenced[0] = true; terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_FENCED; return terminal[0]; }
 
                     var updated = store.getEvidence(item.symbol());
                     if (updated != null && "expirations_known".equals(updated.get("status")) && updated.get("primaryExpiration") != null) {
@@ -1207,7 +1363,7 @@ public class AcquisitionWorker {
                 // unusable, so this acquisition produced no usable evidence. Observable whether
                 // or not the control counters were current-authority-applicable.
                 terminal[0] = ObservationRecorder.LogicalOutcome.ACQUISITION_PROVIDER_UNUSABLE;
-                return;
+                return terminal[0];
             }
 
             // Genuine per-symbol quality failure (or unclassified). Failure accounting is
@@ -1261,6 +1417,9 @@ public class AcquisitionWorker {
         if (backoffAfterFailure[0]) {
             try { Thread.sleep(DELAY_AFTER_FAILURE_MS); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
         }
+        // Invocation-specific terminal outcome for this symbol (additive; existing callers
+        // ignore it). Defensive fallback preserves the historical "never null" guarantee.
+        return terminal[0] != null ? terminal[0] : ObservationRecorder.LogicalOutcome.ACQUISITION_ABORTED;
     }
 
     /**

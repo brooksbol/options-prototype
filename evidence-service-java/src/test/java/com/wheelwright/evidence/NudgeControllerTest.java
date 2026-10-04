@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class NudgeControllerTest {
 
     private static final Set<String> VALID_OUTCOMES =
-        Set.of("ACQUIRED", "NOT_RUNNING", "PROVIDER_UNAVAILABLE", "INTERRUPTED");
+        Set.of("ACQUIRED", "NOT_RUNNING", "PROVIDER_UNAVAILABLE", "INTERRUPTED", "NOT_COMPLETED");
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,6 +59,8 @@ class NudgeControllerTest {
         mockMvc.perform(post("/api/evidence/refresh"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.outcome").exists())
+            // Load-bearing honesty flag: did the forced operation actually complete?
+            .andExpect(jsonPath("$.completed").exists())
             .andExpect(jsonPath("$.symbolsAcquired").exists())
             .andExpect(jsonPath("$.workQueueDepth").exists())
             .andExpect(jsonPath("$.generation").exists())
@@ -93,6 +95,36 @@ class NudgeControllerTest {
             .andExpect(jsonPath("$.targeted").value(true))
             // Same honest limitation applies to the targeted path.
             .andExpect(jsonPath("$.recoversHistory").value(false));
+    }
+
+    @Test
+    @DisplayName("targeted refresh exposes completed flag and a per-symbol array")
+    void targetedExposesCompletedAndPerSymbol() throws Exception {
+        mockMvc.perform(post("/api/evidence/refresh")
+                .param("symbol", "BNO")
+                .param("symbol", "COPX"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.targeted").value(true))
+            .andExpect(jsonPath("$.completed").exists())
+            // perSymbol is present for a targeted refresh (array; may be empty when the
+            // operation did not actually complete). Each entry (when present) carries BOTH
+            // the invocation-specific acquisitionOutcome and the heldPrice postcondition.
+            .andExpect(jsonPath("$.perSymbol").isArray());
+    }
+
+    @Test
+    @DisplayName("a non-completed targeted refresh certifies NO per-symbol held-price postcondition")
+    void nonCompletedTargetedCertifiesNothingPerSymbol() throws Exception {
+        // In this integration context the provider authority is not established, so the
+        // targeted operation does not actually complete (PROVIDER_UNAVAILABLE). The honesty
+        // invariant: completed=false AND an empty per-symbol array — the backend never
+        // reports a held-price postcondition for an operation that did not finish.
+        mockMvc.perform(post("/api/evidence/refresh")
+                .param("symbol", "BNO")
+                .param("symbol", "COPX"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.completed").value(false))
+            .andExpect(jsonPath("$.perSymbol").isEmpty());
     }
 
     @Test

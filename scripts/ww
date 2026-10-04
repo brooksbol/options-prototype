@@ -1,0 +1,10 @@
+#!/bin/sh
+# PATH adapter only; the Node command owns behavior.
+self=$0
+case $self in
+  */*) ;;
+  *) self=$(command -v ww) || exit 127 ;;
+esac
+self=$(realpath "$self") || exit 1
+script_dir=$(CDPATH= cd "$(dirname "$self")" && pwd -P) || exit 1
+exec node "$script_dir/wheelwright.mjs" "$@"
