@@ -242,7 +242,7 @@ No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel i
 
 ## `PL-CLI-01` — Wheelwright composable Unix CLI (`ww`)
 
-**Date:** October 3, 2026  
+**Date:** October 3, 2026
 **State:** INTAKE — Principal-selected durable capture of the composable command-line Wheelwright concept; strategic/architectural reconciliation, command grammar, schemas, and implementation are unresolved and not authorized by this record.  
 **Why-state:** `docs/71-pl-cli-composable-wheelwright-checkpoint-2026-10-03.md` preserves the materially developed exploration, composition-specimen catalog, conversation/CLI responsibility boundary, selected first thin-slice learning specimen, and backend-contract/versioning learning rule. The canonical identity remains this parking-lot item.
 
@@ -344,3 +344,16 @@ Strategic and architectural reconciliation remain pending under `docs/foundation
 ### October 3 exploration checkpoint
 
 The Principal paused further exploration to preserve the developed state before implementation evidence begins. The linked Doc 71 is supporting why-state, **not** a second intake registry or an implementation backlog. In particular, its command/pipeline catalog is a set of composition specimens rather than promised syntax or implementation scope. Its selected Spot/Quote Freshness thin slice remains a bounded learning specimen awaiting separate implementation authorization; the conversational-agent hypothesis is explicitly outside first-slice acceptance.
+
+### `PL-CLI-01` — October 3 bounded first-slice authorization and reconciliation
+
+**Date:** October 3, 2026
+**State:** Bounded first slice authorized for implementation; broader `PL-CLI-01` remains INTAKE.
+
+**Principal decision:** The Principal explicitly authorized implementation of the first PL-CLI-01 thin slice: `ww observed-prices SYMBOL...` reading the existing `GET /api/evidence/quotes?symbol=...` capability, and `ww sort --by price [--descending]` reading the first slice's composition records from stdin. The acceptance composition is `ww observed-prices XLE SPY QQQ | ww sort --by price --descending`; numeric price ordering makes the transform nonredundant with the backend's alphabetical symbol ordering. Codex independently reviewed the revised concept and **ACCEPTED** it after that correction. This is reviewer evidence, not Principal Product acceptance of working software.
+
+**Strategic disposition, bounded slice:** This is a learning implementation beneath the existing Trustability/shared-capability direction; no new Bet or roadmap change is decided. **Architectural disposition, bounded slice:** Reuse the existing read-only evidence publisher as a second client and preserve its fact/provenance limits; no backend or architecture change is authorized. The linked Doc 71 remains the why-state and exploration checkpoint. `PL-CLI-01` remains the canonical identity; the broader command catalog stays **INTAKE**, without a claim of full PL-CLI-01 reconciliation. Only this specified two-primitive unit is decomposed and implementable. The next authorized mode for it is implementation followed by the earliest useful Principal-visible observation against the real local backend.
+
+**Accepted boundary:** Direct TTY presentation may differ from pipe/redirect JSON Lines, while the facts remain the same. The line format is bounded to this first composition, not a universal `ww` protocol. The source exposes held price or explicit absence, the timestamp associated through the primary chain, acquisition status, last attempt, failure count, and publication context. `ww sort` preserves records and sorts numeric prices with missing prices last in both directions and deterministic ties. Neither command acquires evidence, infers quote age, assigns freshness/admissibility, ranks opportunity, recommends action, accesses SQLite, or changes the web client. No CLI-specific backend, v2 endpoint, backend repair, portfolio migration, or broader specimen catalog is authorized by this decision.
+
+**Known provenance gap and owner:** ADR-015 and `PL-EVID-AGE` already own the deferred independent underlying-quote acquisition provenance and stronger oldest-material-evidence-age concern. In the current quote endpoint, `observation.observedAt` comes from the primary chain row's `retrieved_at`, while the embedded underlying price can come from a cached quote. The CLI exercise adds second-client architectural evidence under that existing owner: a truthful primitive can expose a *chain-associated timestamp*, but cannot claim independent quote acquisition time or quote age. The CLI must not compensate for this backend deficiency. If a useful primitive cannot be built without doing so, implementation stops and reports the smallest shared-backend capability gap. This is evidence/enhancement pressure, not a new backlog identity or authorization to repair the backend.

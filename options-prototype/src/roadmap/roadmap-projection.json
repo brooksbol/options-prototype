@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-01T21:08:39.481Z",
+    "generatedAt": "2026-10-04T03:21:16.148Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -32,7 +32,7 @@
         "experiment": 7
       },
       "arTotal": 18,
-      "plTotal": 70,
+      "plTotal": 71,
       "plWithExplicitRelationship": 8,
       "graduatedTotal": 29,
       "adrTotal": 22,
@@ -41,10 +41,10 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 27,
-      "logTotal": 80,
+      "logTotal": 82,
       "logIntakeEvidenceEvents": 13,
       "plWithIntakeDate": 13,
-      "plWithoutIntakeDate": 57
+      "plWithoutIntakeDate": 58
     },
     "notes": []
   },
@@ -3844,7 +3844,104 @@
         {
           "heading": "Explicitly not authorized",
           "level": 3,
-          "content": "No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel inference; no raw gate editor; no new Recommendation enum; no retrospective intent equivalence; no policy defaults; no generic workflow, policy, predicate, or ontology engine.",
+          "content": "No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel inference; no raw gate editor; no new Recommendation enum; no retrospective intent equivalence; no policy defaults; no generic workflow, policy, predicate, or ontology engine.\n\n\n---",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "PL-CLI-01",
+      "name": "Wheelwright composable Unix CLI (`ww`)",
+      "section": "Reconciliation / continuation record",
+      "description": "**Why-state:** `docs/71-pl-cli-composable-wheelwright-checkpoint-2026-10-03.md` preserves the materially developed exploration, composition-specimen catalog, conversation/CLI responsibility boundary, selected first thin-slice learning specimen, and backend-contract/versioning learning rule. The canonical identity remains this parking-lot item.",
+      "descriptionTruncated": false,
+      "state": "INTAKE — Principal-selected durable capture of the composable command-line Wheelwright concept; strategic/architectural reconciliation, command grammar, schemas, and implementation are unresolved and not authorized by this record.",
+      "sourceFile": "parking-lot-10.md",
+      "relatedLvtIds": [],
+      "relatedArIds": [],
+      "sections": [
+        {
+          "heading": "",
+          "level": 0,
+          "content": "**Why-state:** `docs/71-pl-cli-composable-wheelwright-checkpoint-2026-10-03.md` preserves the materially developed exploration, composition-specimen catalog, conversation/CLI responsibility boundary, selected first thin-slice learning specimen, and backend-contract/versioning learning rule. The canonical identity remains this parking-lot item.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intake",
+          "level": 3,
+          "content": "The Principal wants a first-class Wheelwright command-line interface named **`ww`**, intentionally complementary to the existing `tt` command. The central Product idea is a toolbox of small, stable, Wheelwright-aware Unix programs **designed for Unix composition**. **Humans and agents are equal consumers of the same tools.** Humans compose them into one-liners, aliases, shell scripts, cron jobs, and other reusable workflows; agents discover them through help/manual and input/output descriptions, then compose them for questions no developer implemented as a named workflow. **The primitive is the unit of Product capability; the workflow belongs to the composer.** The Unix shell is the orchestration language and practical SDK: pipes are central, alongside redirection, conditional execution, loops, variables, `find`, `xargs`, `watch`, scripts, and scheduling. The idea is not to reproduce browser screens as subcommands or build a separate agent orchestration system.\n\n**Flags specialize an operation; the shell composes operations.** `positions --account PTS --status open` is still a positions tool; `expiring --within 21` is still temporal selection; `sort --by unrealized-pnl` is still ordering. The Product need not anticipate a named workflow for every useful question.\n\nRepresentative **discovery specimens, not accepted syntax or implementation requirements**:\n\n1. **Near-term positions for one account:** `ww positions --account PTS --status open | ww expiring --within 14 | ww table --columns symbol,structure,expiration,dte` — account/status narrowing, temporal selection, and presentation compose into an ordinary operator check.\n2. **Five worst near-term iron condors:** `ww positions --account PTS --status open | ww structure --name iron-condor | ww expiring --within 21 | ww sort --by unrealized-pnl --ascending | ww limit --count 5 | ww table` — a human or agent constructs a specific question from reusable tools; Wheelwright has no dedicated “five worst near-term iron condors” feature.\n3. **Inspect one underlying:** `ww positions --account PTS --symbol XLE --status open | ww inspect --include evidence,history` — narrow the source, then inspect the selected position in detail.\n4. **Recognize recent Fidelity downloads:** `find ~/Downloads -type f -name '*.csv' -mmin -10 -print0 | ww files --null | ww identify --broker fidelity | ww table --columns file,type,recognized` — Unix selects paths; Wheelwright inspects candidate artifacts. The workflow stops at inspection.\n5. **Check and save a report:** `ww doctor --profile production --check read && ww positions --account Roth --status open | ww expiring --within 30 | ww csv --columns symbol,structure,expiration,dte > ~/reports/expiring.csv` — shell conditional execution and redirection compose Wheelwright tools into a saved report.\n\nAn operator might save several such pipelines in `~/bin/ww-morning`, or run them through aliases, `watch`, or cron; Wheelwright need not build a Morning Routine feature. `ww help expiring`, `ww commands --json`, and `man ww` illustrate discoverability rather than settled interfaces. `tt live --json | ww import` remains a deliberately hard boundary example, not a central Product specimen; current `tt live --json` is not implemented.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Primary Product tests",
+          "level": 3,
+          "content": "- **Agent test:** Can an agent given the `ww` manual/help and shell access answer useful Wheelwright questions that were never implemented as named workflows by discovering and combining the small tools into sensible pipelines? It should not need a special agent API for each question.\n- **Human test:** After using `ww` for a month, has the operator accumulated useful one-liners, aliases, and shell scripts that Wheelwright's developers did not have to build as Product workflows?\n\nBoth tests exercise the same toolbox. Stable behavior, discoverable inputs/outputs, and ordinary shell composition are the proposed source of value; a catalog of prebuilt workflows would not by itself validate the hypothesis. Read-only inspection, filtering, sorting, and presentation are the ordinary center of the idea. Commands that change durable Wheelwright state are important boundary cases, but they do not define the overall toolbox. A concrete analogy is an agent safely composing `git fetch`, `git status`, and `git merge --ff-only` with the shell's `&&` sequencing; no dedicated repository-synchronization capability is needed.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Trigger / observed opportunity",
+          "level": 3,
+          "content": "The idea emerged while using the terse `tt live` operator workflow and exploring what a command-line Wheelwright could do better than a GUI-shaped CLI. The Principal specifically emphasized:\n\n- taking advantage of Unix composition, including pipes and shell control flow;\n- composing many small commands into interesting higher-order activities;\n- supporting intake pipes, including Fidelity CSV-derived portfolio updates;\n- leaving filesystem selection and other generic composition to Unix where useful;\n- making the command language discoverable enough that agents can form valid commands and pipelines;\n- providing an agent-friendly man/help/schema surface;\n- supporting conventional configuration for hosts, provider/API keys or secret references, defaults, and environment-specific connection information.\n\nA concrete motivating workflow is selecting recently downloaded brokerage CSVs with ordinary Unix tools, preserving their individual identity/provenance through Wheelwright-aware identification/validation, and then explicitly importing accepted observations.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Why it might matter",
+          "level": 3,
+          "content": "A composable CLI could provide a dense operator surface while also acting as a scriptable/agent-facing projection of the same Wheelwright semantics. Small orthogonal operators may allow useful activities to be synthesized rather than individually productized. Stable, discoverable command behavior could let the shell serve as the integration/composition layer without requiring a separate agent-specific SDK for every operation.\n\nThe idea may also reduce operator friction around current evidence intake while preserving the distinction between generic filesystem/process concerns and Wheelwright domain semantics.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Emerging design hypotheses — not ratified",
+          "level": 3,
+          "content": "- Treat **Unix shell composition as the primary interaction model**; pipes are central, but not the only means of composition.\n- Explore **sources → transforms/filters → sinks/views** rather than a large catalog of monolithic commands.\n- Let commands exchange stable structured Wheelwright records when piped; human terminal rendering may differ from machine/pipe representation.\n- Preserve explicit input/file boundaries and provenance; do not make concatenated CSV text the semantic intake model.\n- Distinguish **interpret/validate without persistence** from **explicit durable import**.\n- Make command compatibility discoverable through metadata such as **ACCEPTS / EMITS**.\n- Make side effects discoverable, potentially distinguishing pure transforms, state reads, external acquisition, and durable mutation.\n- Make cold-start discovery possible through `ww --help`, `man ww`, command-specific help, machine-readable command catalogs, and schemas.\n- Use conventional configuration precedence (candidate shape: command-line override → environment → config file → built-in default), with secrets protected from accidental display.\n- Explore `ww doctor` / configuration introspection for human and agent environment/capability discovery.\n- Preserve the architectural distinction between **observable operator state** and **operational/diagnostic state**.\n- Keep recommendation/policy semantics distinct from observation/filtering semantics.\n- Do not resurrect process-oriented acquisition concepts such as “scan” merely because they make convenient CLI verbs; reconcile against the state-oriented Evidence Appliance model.\n- Convenience commands may eventually exist as sugar, but should not prematurely define the underlying compositional model.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Relationship to existing concerns",
+          "level": 3,
+          "content": "- **`PL-OPS-CSV-01`:** `ww` intake composition may become one Product expression for reducing manual refresh friction, but this CLI idea is broader than CSV-count burden and does not supersede it.\n- **`PL-PORT-01`:** any import/persistence behavior must preserve authoritative portfolio-state, account-locality, evidence identity, and provenance semantics rather than inventing a parallel CLI portfolio model.\n- **Operator Console / `docs/26-operator-console-architecture.md`:** `ww` may project many of the same operator questions, but a CLI is not assumed to duplicate the Console's presentation model.\n- **State-Oriented Operator Console / Evidence Appliance:** the CLI should consume/project observable state and current evidence semantics rather than reintroducing client-owned acquisition lifecycle.\n- **`tt`:** the Principal sees `ww` as complementary to `tt`; the exact responsibility boundary is unresolved.\n- **Agent/server-side capability pressure:** agent composition is an explicit motivating consumer, but this intake does not create or authorize an AI agent, autonomous trading, or a separate agent SDK.\n- **Configuration/security:** hostnames, API/provider keys, secret references, and environment configuration must be reconciled with existing authentication, runtime-credential, and provider boundaries before design.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Unresolved questions",
+          "level": 3,
+          "content": "- What is the smallest useful set of Wheelwright domain object types and orthogonal operators from which meaningful activities can be composed?\n- What is the pipe wire format and how are type, schema version, provenance, errors, and file boundaries represented?\n- Which operations are pure transformations, state reads, evidence acquisition requests, or durable mutations?\n- Where exactly is the `tt` / `ww` responsibility boundary?\n- Which current Wheelwright APIs/state owners can support the CLI without creating a second semantic implementation?\n- What should bare `ww` mean?\n- How should stdin, file-path streams, individual files, JSON, CSV, and future broker/provider inputs enter the same intake machinery?\n- What agent-discovery contract is sufficient?\n- What configuration belongs in a local config file versus environment variables, OS secret storage, server-side configuration, or authenticated remote context?\n- Is `ww` primarily a local client of a Wheelwright service, capable of local/offline transformations, or both?\n- Which high-level convenience commands should exist, and which should remain shell compositions?\n- What Product acceptance evidence would show that composition is genuinely more useful than a conventional monolithic CLI?",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Explicitly not authorized",
+          "level": 3,
+          "content": "This intake does **not** authorize CLI implementation; creation/publication of a Homebrew formula or other package; a final command grammar; a stable wire/schema contract; new backend APIs; changes to portfolio/evidence authority; automatic brokerage import; storage of brokerage credentials or API keys; direct trade submission/execution; autonomous agent action; recommendation-policy changes; replacement of `tt`; or duplication of Wheelwright domain semantics in a separate CLI implementation.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intake disposition",
+          "level": 3,
+          "content": "Full parking-lot-sequence inspection found adjacent ownership in `PL-OPS-CSV-01`, `PL-PORT-01`, Operator Console/state-oriented architecture, and agent/server-side capability pressure, but no existing `PL-*` identity owns the broader **Unix-composable Wheelwright command language for human, shell-script, and agent use**. The idea therefore receives new stable identity **`PL-CLI-01`**.\n\nStrategic and architectural reconciliation remain pending under `docs/foundations/idea-intake-reconciliation.md`. This record is intentionally **INTAKE**, not RECONCILED; no Reconciliation Completion Record is asserted yet.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "October 3 exploration checkpoint",
+          "level": 3,
+          "content": "The Principal paused further exploration to preserve the developed state before implementation evidence begins. The linked Doc 71 is supporting why-state, **not** a second intake registry or an implementation backlog. In particular, its command/pipeline catalog is a set of composition specimens rather than promised syntax or implementation scope. Its selected Spot/Quote Freshness thin slice remains a bounded learning specimen awaiting separate implementation authorization; the conversational-agent hypothesis is explicitly outside first-slice acceptance.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` — October 3 bounded first-slice authorization and reconciliation",
+          "level": 3,
+          "content": "**Principal decision:** The Principal explicitly authorized implementation of the first PL-CLI-01 thin slice: `ww observed-prices SYMBOL...` reading the existing `GET /api/evidence/quotes?symbol=...` capability, and `ww sort --by price [--descending]` reading the first slice's composition records from stdin. The acceptance composition is `ww observed-prices XLE SPY QQQ | ww sort --by price --descending`; numeric price ordering makes the transform nonredundant with the backend's alphabetical symbol ordering. Codex independently reviewed the revised concept and **ACCEPTED** it after that correction. This is reviewer evidence, not Principal Product acceptance of working software.\n\n**Strategic disposition, bounded slice:** This is a learning implementation beneath the existing Trustability/shared-capability direction; no new Bet or roadmap change is decided. **Architectural disposition, bounded slice:** Reuse the existing read-only evidence publisher as a second client and preserve its fact/provenance limits; no backend or architecture change is authorized. The linked Doc 71 remains the why-state and exploration checkpoint. `PL-CLI-01` remains the canonical identity; the broader command catalog stays **INTAKE**, without a claim of full PL-CLI-01 reconciliation. Only this specified two-primitive unit is decomposed and implementable. The next authorized mode for it is implementation followed by the earliest useful Principal-visible observation against the real local backend.\n\n**Accepted boundary:** Direct TTY presentation may differ from pipe/redirect JSON Lines, while the facts remain the same. The line format is bounded to this first composition, not a universal `ww` protocol. The source exposes held price or explicit absence, the timestamp associated through the primary chain, acquisition status, last attempt, failure count, and publication context. `ww sort` preserves records and sorts numeric prices with missing prices last in both directions and deterministic ties. Neither command acquires evidence, infers quote age, assigns freshness/admissibility, ranks opportunity, recommends action, accesses SQLite, or changes the web client. No CLI-specific backend, v2 endpoint, backend repair, portfolio migration, or broader specimen catalog is authorized by this decision.\n\n**Known provenance gap and owner:** ADR-015 and `PL-EVID-AGE` already own the deferred independent underlying-quote acquisition provenance and stronger oldest-material-evidence-age concern. In the current quote endpoint, `observation.observedAt` comes from the primary chain row's `retrieved_at`, while the embedded underlying price can come from a cached quote. The CLI exercise adds second-client architectural evidence under that existing owner: a truthful primitive can expose a *chain-associated timestamp*, but cannot claim independent quote acquisition time or quote age. The CLI must not compensate for this backend deficiency. If a useful primitive cannot be built without doing so, implementation stops and reports the smallest shared-backend capability gap. This is evidence/enhancement pressure, not a new backlog identity or authorization to repair the backend.",
           "truncated": false,
           "tables": []
         }
@@ -8219,7 +8316,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 516
+      "sourceOrder": 528
     },
     {
       "plId": null,
@@ -8362,7 +8459,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 507
+      "sourceOrder": 519
     },
     {
       "plId": null,
@@ -8375,7 +8472,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 508
+      "sourceOrder": 520
     },
     {
       "plId": null,
@@ -8388,7 +8485,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 509
+      "sourceOrder": 521
     },
     {
       "plId": null,
@@ -8401,7 +8498,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 512
+      "sourceOrder": 524
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8427,7 +8524,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 510
+      "sourceOrder": 522
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8609,7 +8706,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 490
+      "sourceOrder": 502
     },
     {
       "plId": null,
@@ -8622,7 +8719,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 491
+      "sourceOrder": 503
     },
     {
       "plId": null,
@@ -8635,7 +8732,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 492
+      "sourceOrder": 504
     },
     {
       "plId": null,
@@ -8648,7 +8745,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 493
+      "sourceOrder": 505
     },
     {
       "plId": null,
@@ -8661,7 +8758,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 494
+      "sourceOrder": 506
     },
     {
       "plId": null,
@@ -8674,7 +8771,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 495
+      "sourceOrder": 507
     },
     {
       "plId": null,
@@ -8687,7 +8784,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 496
+      "sourceOrder": 508
     },
     {
       "plId": null,
@@ -8700,7 +8797,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 497
+      "sourceOrder": 509
     },
     {
       "plId": null,
@@ -8713,7 +8810,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 498
+      "sourceOrder": 510
     },
     {
       "plId": null,
@@ -8726,7 +8823,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 499
+      "sourceOrder": 511
     },
     {
       "plId": null,
@@ -8739,7 +8836,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 500
+      "sourceOrder": 512
     },
     {
       "plId": null,
@@ -8752,7 +8849,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 501
+      "sourceOrder": 513
     },
     {
       "plId": null,
@@ -8765,7 +8862,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 502
+      "sourceOrder": 514
     },
     {
       "plId": null,
@@ -8778,7 +8875,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 503
+      "sourceOrder": 515
     },
     {
       "plId": null,
@@ -8791,7 +8888,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 504
+      "sourceOrder": 516
     },
     {
       "plId": null,
@@ -8804,7 +8901,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 505
+      "sourceOrder": 517
     },
     {
       "plId": null,
@@ -8817,7 +8914,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 506
+      "sourceOrder": 518
     },
     {
       "plId": null,
@@ -8830,7 +8927,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 511
+      "sourceOrder": 523
     },
     {
       "plId": null,
@@ -8843,7 +8940,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 515
+      "sourceOrder": 527
     },
     {
       "plId": "PL-SEM-01",
@@ -9012,7 +9109,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 513
+      "sourceOrder": 525
     },
     {
       "plId": null,
@@ -9025,7 +9122,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 514
+      "sourceOrder": 526
     },
     {
       "plId": "PL-SETUP-01",
@@ -9052,6 +9149,32 @@
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
       "sourceOrder": 486
+    },
+    {
+      "plId": "PL-CLI-01",
+      "bugId": null,
+      "title": "PL-CLI-01 — Wheelwright composable Unix CLI (ww)",
+      "eventKind": "intake",
+      "establishesIntake": false,
+      "eventDateText": "October 3, 2026",
+      "eventDateIso": "2026-10-03",
+      "state": "INTAKE — Principal-selected durable capture of the composable command-line Wheelwright concept; strategic/architectural reconciliation, command grammar, schemas, and implementation are unresolved and not authorized by this record.",
+      "headingLevel": 2,
+      "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 490
+    },
+    {
+      "plId": "PL-CLI-01",
+      "bugId": null,
+      "title": "PL-CLI-01 — October 3 bounded first-slice authorization and reconciliation",
+      "eventKind": "unclassified",
+      "establishesIntake": false,
+      "eventDateText": "October 3, 2026",
+      "eventDateIso": "2026-10-03",
+      "state": "Bounded first slice authorized for implementation; broader `PL-CLI-01` remains INTAKE.",
+      "headingLevel": 3,
+      "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 501
     }
   ],
   "intakeDateUnknown": [
@@ -9063,6 +9186,7 @@
     "PL-BETA-01",
     "PL-CALL-03",
     "PL-CLEANUP",
+    "PL-CLI-01",
     "PL-COHERE-01",
     "PL-DEC-BEH",
     "PL-DEC-RES-01",
