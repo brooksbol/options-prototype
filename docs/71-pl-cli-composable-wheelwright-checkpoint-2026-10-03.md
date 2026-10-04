@@ -501,3 +501,17 @@ The market continues changing after an observation. A price value alone therefor
 This reasoning arose from the CLI experiment but is broader than CLI presentation. ADR-015 and `PL-EVID-AGE` already own the independent underlying-quote acquisition-provenance gap; this note is additional evidence under that owner, not a second backlog item or a CLI-side workaround. Ratification of the candidate as a distinct enduring principle, if warranted beyond the existing ratified principle, requires a separate explicit Principal decision. The durable-language/distribution gate remains undecided.
 
 **Subsequent decision:** The Principal selected Node.js as the durable `ww` implementation after this note. The canonical `PL-CLI-01` record carries that transition. Installation mechanics and the Product disposition of F1–F3 remain open.
+
+---
+
+## October 3 subsequent discovery — synchronization is an explicit primitive
+
+**Status:** Principal-originated Product direction within `PL-CLI-01`, not authorization to implement another command or ratification of a new enduring principle.
+
+The all-pending `ww observed-prices XLE SPY QQQ | ww sort --by price --descending` result made the absence of held observations visible. The Principal reframed acquisition as ordinary synchronization of Wheelwright's knowledge with a continuously changing external authority. An agent may reasonably request it before a task that needs recent market evidence, deliberately omit it for historical explanation, or inspect before and after an attempt. The caller chooses that sequence; Wheelwright need not predict those workflows.
+
+Candidate command composition: `ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE`. Like `git fetch` followed by inspection, the two operations have distinct meanings. The analogy is limited: provider capacity, market-session behavior, caches, and provider delay matter, and elapsed time can degrade usefulness rapidly. A refresh request is side-effecting and should be explicit, scoped to the requested symbol set, and subject to the existing backend acquisition authority. It requests newer knowledge; it does not guarantee it. A subsequent read reports held knowledge; it does not silently synchronize.
+
+`PL-OPS-09` already owns the targeted backend `POST /api/evidence/refresh?symbol=...` capability for a bounded operator-supplied symbol set. A future CLI command would be another client of that capability. The endpoint returns an operation outcome (`ACQUIRED`, `NOT_RUNNING`, `PROVIDER_UNAVAILABLE`, or `INTERRUPTED`) and acquisition metadata, while `GET /api/evidence/quotes?symbol=...` reports held evidence. The unresolved CLI design question is what successful exit status can truthfully certify so shell `&&` is useful without implying independently established quote age, changed held value, or purpose-specific admissibility. In particular, an advancing publication generation is not proof that the requested symbol's evidence advanced. No new endpoint, CLI refresh implementation, universal `fresh` label, automatic refresh policy, or Product acceptance of `prices` syntax follows from this discovery.
+
+Before implementation, resolve separately: what `ww refresh` considers success; aggregate exit status when only some requested symbols acquire; what result facts belong on stdout versus diagnostics on stderr; whether completion means an attempt occurred or acquisition succeeded; and whether any age, freshness, or purpose-specific suitability claim is supportable. None is decided by this discovery record.
