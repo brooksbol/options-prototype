@@ -1,20 +1,29 @@
 #!/usr/bin/env node
 
+import { readFile } from "node:fs/promises";
+
 const ROOT_HELP = `Usage: ww <command> [options]
+       ww --help | --man
 
-Small Wheelwright evidence tools for people, scripts, and agents.
-Results go to stdout; diagnostics go to stderr. Pipe commands without a format flag.
+Small Wheelwright evidence tools for people, shells, and agents.
+Use explicit symbols. Reading never silently acquires; acquisition never claims
+freshness or suitability. Pipe commands without a format flag.
 
-Commands:
-  refresh SYMBOL...          Ask Wheelwright to acquire evidence for these symbols
-  prices SYMBOL...           Read currently held underlying prices from Wheelwright
-  sort --by FIELD        Reorder ww composition records from stdin
+Working commands:
+  refresh SYMBOL...         Acquire evidence; succeed when all requested prices are held
+  prices SYMBOL...          Inspect currently held underlying price evidence (read-only)
+  sort --by FIELD           Reorder ww price records from stdin (price or symbol)
+
+Proposed, not executable:
+  fetch                     Draft only; inspect with 'ww fetch --help' or '--man'
 
 Example:
-  ww refresh QQQ && ww prices QQQ
-  ww prices XLE SPY QQQ | ww sort --by price
+  ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price
 
-Use 'ww <command> --help' for facts, limits, and input/output details.
+TTY output is for humans; pipe/redirect output is bounded JSON Lines.
+Results go to stdout; diagnostics go to stderr. Exit status controls &&.
+Use 'ww <command> --help' for command details and 'ww --man' for the
+current CLI contract. 'ww observed-prices' remains a prices alias.
 Backend: WW_BASE_URL (default http://localhost:3100).`;
 
 const SOURCE_HELP = `Usage: ww observed-prices [--] SYMBOL...
@@ -41,6 +50,20 @@ Example:
 Backend: WW_BASE_URL (default http://localhost:3100).`;
 
 const PRICES_HELP = SOURCE_HELP.replaceAll("observed-prices", "prices");
+
+const FETCH_HELP = `Usage: ww fetch [--help | --man]
+
+PROPOSED / EXPERIMENTAL — fetch execution is not implemented.
+The current working acquisition command is: ww refresh SYMBOL...
+
+Proposed meaning: ask Wheelwright to acquire evidence for explicit symbols,
+then succeed only if the operation completed and every requested price is held.
+A failed attempt may leave an earlier price held. Success does not mean every
+symbol was newly acquired, fresh, or suitable for a trade. Prices are read
+separately with ww prices.
+
+Use 'ww fetch --man' for the full draft behavioral contract. Both discovery
+forms succeed without contacting the backend.`;
 
 const REFRESH_HELP = `Usage: ww refresh [--] SYMBOL...
 
@@ -99,7 +122,15 @@ export function parseArgs(args) {
   if (args.length === 0 || (args.length === 1 && ["-h", "--help"].includes(args[0]))) {
     return { command: "help", help: ROOT_HELP };
   }
+  if (args.length === 1 && args[0] === "--man") return { command: "root-man" };
   const [command, ...rest] = args;
+  if (command === "fetch") {
+    if (rest.length === 1 && ["-h", "--help"].includes(rest[0])) {
+      return { command: "help", help: FETCH_HELP };
+    }
+    if (rest.length === 1 && rest[0] === "--man") return { command: "fetch-man" };
+    usage("fetch is proposed, not implemented; use 'ww refresh SYMBOL...' for acquisition");
+  }
   if (["prices", "observed-prices", "refresh"].includes(command)) {
     if (rest.length === 1 && ["-h", "--help"].includes(rest[0])) {
       return { command: "help", help: command === "refresh" ? REFRESH_HELP :
@@ -340,6 +371,16 @@ function writeRecords(entries) {
 export async function main(args) {
   const parsed = parseArgs(args);
   if (parsed.command === "help") { process.stdout.write(`${parsed.help}\n`); return; }
+  if (parsed.command === "root-man") {
+    const manual = await readFile(new URL("../docs/cli/ww-man.txt", import.meta.url), "utf8");
+    process.stdout.write(manual);
+    return;
+  }
+  if (parsed.command === "fetch-man") {
+    const manual = await readFile(new URL("../docs/cli/ww-fetch-man-proposed.txt", import.meta.url), "utf8");
+    process.stdout.write(manual);
+    return;
+  }
   if (parsed.command === "refresh") {
     const result = await refreshEvidence(parsed.symbols);
     if (!result.completed) throw new WwError(`refresh did not complete (${result.outcome})`);

@@ -35,7 +35,8 @@ test("argument parsing and help need no backend", () => {
     { command: "sort", by: "price", descending: true });
   for (const args of [["--help"], ["-h"], ["observed-prices", "--help"],
     ["observed-prices", "-h"], ["prices", "--help"], ["prices", "-h"],
-    ["refresh", "--help"], ["refresh", "-h"], ["sort", "--help"], ["sort", "-h"]]) {
+    ["refresh", "--help"], ["refresh", "-h"], ["fetch", "--help"],
+    ["fetch", "-h"], ["sort", "--help"], ["sort", "-h"]]) {
     const result = run(args, { env: { ...process.env, WW_BASE_URL: "http://127.0.0.1:1" } });
     assert.equal(result.status, 0);
     assert.match(result.stdout, /Usage:/);
@@ -44,6 +45,28 @@ test("argument parsing and help need no backend", () => {
   assert.match(run(["observed-prices", "--help"]).stdout, /not independently established underlying-quote acquisition time/);
   assert.match(run(["sort", "--help"]).stdout, /missing prices remain visible and sort last/i);
   assert.match(run(["refresh", "--help"]).stdout, /preserved earlier price/);
+  assert.match(run(["fetch", "--help"]).stdout, /PROPOSED \/ EXPERIMENTAL/);
+  const rootHelp = run(["--help"], { env: { ...process.env, WW_BASE_URL: "http://127.0.0.1:1" } });
+  assert.match(rootHelp.stdout, /Working commands:/);
+  assert.match(rootHelp.stdout, /Proposed, not executable:/);
+  assert.match(rootHelp.stdout, /ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE \| ww sort --by price/);
+  const rootManual = run(["--man"], { env: { ...process.env, WW_BASE_URL: "http://127.0.0.1:1" } });
+  assert.equal(rootManual.status, 0);
+  assert.match(rootManual.stdout, /WW\(1\)/);
+  assert.match(rootManual.stdout, /WORKING COMMANDS/);
+  assert.match(rootManual.stdout, /PROPOSED COMMAND/);
+  assert.match(rootManual.stdout, /EXIT STATUS/);
+  assert.equal(rootManual.stderr, "");
+  const manual = run(["fetch", "--man"], { env: { ...process.env, WW_BASE_URL: "http://127.0.0.1:1" } });
+  assert.equal(manual.status, 0);
+  assert.match(manual.stdout, /WW-FETCH\(1\)/);
+  assert.match(manual.stdout, /PROPOSED \/ EXPERIMENTAL/);
+  assert.match(manual.stdout, /fetch complete: 3\/3 prices held/);
+  assert.equal(manual.stderr, "");
+  const proposed = run(["fetch", "QQQ"], { env: { ...process.env, WW_BASE_URL: "http://127.0.0.1:1" } });
+  assert.equal(proposed.status, 2);
+  assert.equal(proposed.stdout, "");
+  assert.match(proposed.stderr, /fetch is proposed, not implemented/);
   assert.equal(run(["observed-prices"]).status, 2);
   const invalid = run(["sort", "--by", "freshness"]);
   assert.equal(invalid.status, 2);

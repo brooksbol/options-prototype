@@ -241,6 +241,7 @@ Durable evidence of how we arrived at the current state. A checkpoint is not aut
 | `32-parking-lot-reconciliation.md` | Ratified parking-lot disposition record |
 | `33-strategy-roadmap-checkpoint.md` | Ratified roadmap/operating-model baseline and normalization provenance (August 31, 2026) |
 | `70-bounded-option-obligation-continuity-checkpoint-2026-09-28.md` | Actual History evidence, rejected series-key claim, synthesis/falsification trail, ADR-022 ratification provenance, and independently rejected unratified Solution Design candidate; exact read-only resume state |
+| `cli/ww-fetch-man-proposed.txt` | Proposed `ww fetch(1)` Product-facing behavioral specimen; discoverable through `ww fetch --man`, not an implemented command contract or backend authority |
 | `foundations/step4-conformance-assessment.md` | Retooling conformance checkpoint |
 
 ### E. Current Specialized Reference
@@ -249,6 +250,7 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 
 | Document | Subject |
 |----------|---------|
+| `cli/ww-man.txt` | Current `ww(1)` top-level command, composition, and discovery reference; available through `ww --man` |
 | `01-environment.md` | Development environment contract |
 | `foundations/options-domain-reference.md` | **Options domain reference** — durable operational options economics (economic model, lifecycle/structure matrices, semantic specimens, focused depth, external grounding). Companion to the Category B options competence contract; authoritative for externally-grounded mechanics, non-authoritative for policy. `02-domain.md` is subordinate to it for lifecycle economics. |
 | `discovery/pass-one-specimen-selection-bounded-pilot-2026-10-01.md` | Bounded Tradier contrast pilot testing specimen inputs and exact-root geometry; exploratory evidence, no specimen rule |

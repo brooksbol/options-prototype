@@ -1,0 +1,86 @@
+WW(1)                       Wheelwright Manual                      WW(1)
+
+NAME
+    ww — inspect and acquire Wheelwright evidence with Unix commands
+
+SYNOPSIS
+    ww [--help | -h | --man]
+    ww COMMAND [OPTIONS] [OPERANDS]
+
+DESCRIPTION
+    ww supplies small evidence capabilities to people, shell scripts, and
+    agents. The shell composes commands with pipes, redirection, and &&.
+    Reading held evidence is separate from asking Wheelwright to acquire it.
+
+WORKING COMMANDS
+    refresh SYMBOL...
+        Ask the existing backend to acquire evidence for explicit symbols.
+        Exit 0 only after completed work with a held price for every requested
+        symbol. A previously held price may survive a failed acquisition.
+        Run 'ww refresh --help' for the current contract.
+
+    prices SYMBOL...
+        Read the underlying prices Wheelwright currently holds, including
+        explicit absence and acquisition state. This never acquires evidence.
+        Run 'ww prices --help' for timestamp and provenance limits.
+
+    sort --by FIELD [--descending]
+        Read ww price composition records from stdin and emit those same
+        records ordered by numeric price or symbol. Missing prices sort last.
+        Price order is ascending unless --descending is given.
+        Run 'ww sort --help' for the bounded input format.
+
+    observed-prices SYMBOL...
+        Compatibility spelling for prices. The same read and output behavior
+        applies; new examples use prices.
+
+PROPOSED COMMAND
+    fetch
+        Discovery only. 'ww fetch --help' and 'ww fetch --man' expose a draft
+        behavioral specification. Fetch execution is not implemented; use
+        ww refresh for working acquisition. Bare-fetch default context is
+        unresolved. The draft manual does not authorize its implementation.
+
+OUTPUT AND COMPOSITION
+    Direct terminal output is human-oriented. When stdout is piped or
+    redirected, prices and sort emit bounded JSON Lines price records;
+    refresh emits bounded per-symbol result records after completed work.
+    This is not a universal ww wire-format commitment. Command results go to
+    stdout. Errors and diagnostics go to stderr. Neither progress nor
+    decoration belongs in composition stdout.
+
+    A useful composition is:
+
+        ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price
+
+    The shell runs prices only if refresh returns success. The pipe then
+    passes price records to sort, which orders them numerically. Fetching
+    evidence does not itself display prices or judge whether they are timely
+    enough for a purpose.
+
+EXIT STATUS
+    0   Command succeeded under its documented contract.
+    1   Backend, input-record, or evidence-operation failure.
+    2   Invalid usage, including an unavailable proposed command.
+
+    Detailed backend outcomes are not encoded as a catalog of exit codes.
+    See command help for the meaning of success and failure in each command.
+
+EVIDENCE LIMITS
+    A held price is not a guaranteed current market price. The timestamp
+    associated with a price through the primary option chain is not an
+    independently established underlying-quote acquisition time. ww does
+    not infer quote age, freshness, trade suitability, or recommendations.
+
+DISCOVERY
+    ww --help                  Short command list and example
+    ww --man                   This current top-level manual
+    ww COMMAND --help          Command-specific help
+    ww fetch --man             Proposed fetch manual (not implemented)
+
+ENVIRONMENT
+    WW_BASE_URL   Backend base URL; default http://localhost:3100
+
+SEE ALSO
+    ww refresh --help, ww prices --help, ww sort --help,
+    ww fetch --man

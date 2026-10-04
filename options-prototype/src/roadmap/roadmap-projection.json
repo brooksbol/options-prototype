@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-04T05:36:00.775Z",
+    "generatedAt": "2026-10-04T16:02:33.470Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -4005,6 +4005,13 @@
           "heading": "`PL-CLI-01` — October 3 accepted synchronization composition",
           "level": 3,
           "content": "**Principal authorization and observed result:** The Principal subsequently authorized the bounded backend repair under `PL-OPS-09` and the narrow CLI path needed for tonight's walking test, while explicitly parking the implementation-language discussion. The provisional Node `ww` now exposes `refresh SYMBOL...` and `prices SYMBOL...` alongside `sort`; `observed-prices` remains a compatibility spelling. `prices` is a read of held evidence and never acquires. `refresh` makes one targeted request to the shared backend and uses its `completed` and per-symbol `heldPrice` facts; it neither rereads quotes to manufacture success nor treats mutation counts or generation movement as per-symbol evidence. For this bounded shell composition, refresh exits zero only after completed work with held prices for every requested symbol; a preserved prior price can satisfy that rule even when this invocation's acquisition failed. Incomplete work or any missing held price exits nonzero, so `&&` does not proceed.\n\nThe Principal ran `ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price` against the candidate on port 3100. Refresh reported held prices for QQQ, SPY, and XLE; the final TTY showed ascending numeric order **XLE 62.82 → QQQ 749.58 → SPY 769.64**, different from the backend's alphabetic symbol order. This is accepted working-software evidence for explicit synchronization, separate inspection, and real Unix composition. It does not assert quote freshness, independent quote-acquisition time, newly acquired values, or trade suitability. The bounded JSON Lines price stream retains exact backend facts; the human TTY view still has the recorded F2/F3 metadata and timestamp usability findings. `--ascending` remains parked polish; `--by price` is ascending by default.\n\nThe previously recorded Outcome 1 stop and \"no CLI refresh implementation\" statements remain historical provenance of why the backend enhancement came first; they do not describe this later authorized and observed state. The durable language/distribution gate remains open: using Node for the observed specimen does not select it permanently. Broader `PL-CLI-01` remains INTAKE; no catalog expansion, packaging decision, freshness policy, or ADR-015/`PL-EVID-AGE` repair follows from this acceptance.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` — October 4 proposed fetch manual and discovery affordance",
+          "level": 3,
+          "content": "The Principal requested a Product-facing mock man page for the proposed `ww fetch` naming/UX and immediate discovery through `ww fetch --help` and `ww fetch --man`. The draft at `docs/cli/ww-fetch-man-proposed.txt` specifies the candidate observable contract and is marked **PROPOSED / EXPERIMENTAL**. These two discovery forms contact no backend; `ww fetch` execution remains unavailable and directs operators to the accepted `ww refresh SYMBOL...` command. This makes the draft reviewable without silently renaming the working primitive or implementing bare-fetch defaults.\n\nThe Principal also requested useful top-level agent discovery. `ww --help` lists working and proposed commands separately, gives the accepted shell composition, and identifies output conventions. `ww --man` opens the current top-level `ww(1)` manual at `docs/cli/ww-man.txt`, with command semantics, streams, exit status, evidence limits, and links to command-specific discovery. Both forms run without backend access. The current manual distinguishes executable `refresh`/`prices`/`sort` from draft-only `fetch`.\n\nMock man pages are a promising bounded behavioral-specification method for future `ww` primitives: changes to operands, streams, exit status, and semantic promises become visible as page changes. This first page is a design artifact, not automatic ratification of a universal CLI documentation rule or of the proposed fetch contract. The fixed ten-symbol bare-fetch fixture, authoritative default market context, and durable language/distribution choice remain open. No backend or additional CLI capability is authorized by publishing this draft.",
           "truncated": false,
           "tables": []
         }
@@ -8379,7 +8386,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 537
+      "sourceOrder": 538
     },
     {
       "plId": null,
@@ -8522,7 +8529,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 528
+      "sourceOrder": 529
     },
     {
       "plId": null,
@@ -8535,7 +8542,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 529
+      "sourceOrder": 530
     },
     {
       "plId": null,
@@ -8548,7 +8555,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 530
+      "sourceOrder": 531
     },
     {
       "plId": null,
@@ -8561,7 +8568,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 533
+      "sourceOrder": 534
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8587,7 +8594,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 531
+      "sourceOrder": 532
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8769,7 +8776,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 511
+      "sourceOrder": 512
     },
     {
       "plId": null,
@@ -8782,7 +8789,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 512
+      "sourceOrder": 513
     },
     {
       "plId": null,
@@ -8795,7 +8802,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 513
+      "sourceOrder": 514
     },
     {
       "plId": null,
@@ -8808,7 +8815,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 514
+      "sourceOrder": 515
     },
     {
       "plId": null,
@@ -8821,7 +8828,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 515
+      "sourceOrder": 516
     },
     {
       "plId": null,
@@ -8834,7 +8841,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 516
+      "sourceOrder": 517
     },
     {
       "plId": null,
@@ -8847,7 +8854,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 517
+      "sourceOrder": 518
     },
     {
       "plId": null,
@@ -8860,7 +8867,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 518
+      "sourceOrder": 519
     },
     {
       "plId": null,
@@ -8873,7 +8880,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 519
+      "sourceOrder": 520
     },
     {
       "plId": null,
@@ -8886,7 +8893,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 520
+      "sourceOrder": 521
     },
     {
       "plId": null,
@@ -8899,7 +8906,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 521
+      "sourceOrder": 522
     },
     {
       "plId": null,
@@ -8912,7 +8919,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 522
+      "sourceOrder": 523
     },
     {
       "plId": null,
@@ -8925,7 +8932,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 523
+      "sourceOrder": 524
     },
     {
       "plId": null,
@@ -8938,7 +8945,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 524
+      "sourceOrder": 525
     },
     {
       "plId": null,
@@ -8951,7 +8958,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 525
+      "sourceOrder": 526
     },
     {
       "plId": null,
@@ -8964,7 +8971,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 526
+      "sourceOrder": 527
     },
     {
       "plId": null,
@@ -8977,7 +8984,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 527
+      "sourceOrder": 528
     },
     {
       "plId": null,
@@ -8990,7 +8997,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 532
+      "sourceOrder": 533
     },
     {
       "plId": null,
@@ -9003,7 +9010,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 536
+      "sourceOrder": 537
     },
     {
       "plId": "PL-SEM-01",
@@ -9172,7 +9179,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 534
+      "sourceOrder": 535
     },
     {
       "plId": null,
@@ -9185,7 +9192,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 535
+      "sourceOrder": 536
     },
     {
       "plId": "PL-SETUP-01",
