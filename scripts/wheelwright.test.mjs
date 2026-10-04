@@ -4,7 +4,7 @@ import { spawnSync, spawn } from "node:child_process";
 import { createServer } from "node:http";
 import { once } from "node:events";
 import {
-  parseArgs, parseQuoteResponse, parseRefreshResponse, refreshEvidence,
+  parseArgs, parseQuoteResponse, parseRefreshResponse, fetchEvidence, presentFetchResult,
   parseRecordLines, sortRecords, renderTable,
 } from "./wheelwright.mjs";
 
@@ -28,14 +28,18 @@ test("argument parsing and help need no backend", () => {
     { command: "observed-prices", symbols: ["XLE", "SPY"] });
   assert.deepEqual(parseArgs(["prices", "qqq", "SPY"]),
     { command: "prices", symbols: ["QQQ", "SPY"] });
-  assert.deepEqual(parseArgs(["refresh", "--", "qqq"]),
-    { command: "refresh", symbols: ["QQQ"] });
+  assert.deepEqual(parseArgs(["fetch", "--", "qqq"]),
+    { command: "fetch", symbols: ["QQQ"], quiet: false, verbose: false });
+  assert.deepEqual(parseArgs(["fetch", "qqq", "-q", "SPY", "--quiet"]),
+    { command: "fetch", symbols: ["QQQ", "SPY"], quiet: true, verbose: false });
+  assert.deepEqual(parseArgs(["fetch", "-v", "qqq"]),
+    { command: "fetch", symbols: ["QQQ"], quiet: false, verbose: true });
   assert.deepEqual(parseArgs(["observed-prices", "--", "-TEST"]).symbols, ["-TEST"]);
   assert.deepEqual(parseArgs(["sort", "--by", "price", "--descending"]),
     { command: "sort", by: "price", descending: true });
   for (const args of [["--help"], ["-h"], ["observed-prices", "--help"],
     ["observed-prices", "-h"], ["prices", "--help"], ["prices", "-h"],
-    ["refresh", "--help"], ["refresh", "-h"], ["fetch", "--help"],
+    ["fetch", "--help"],
     ["fetch", "-h"], ["sort", "--help"], ["sort", "-h"]]) {
     const result = run(args, { env: { ...process.env, WW_BASE_URL: "http://127.0.0.1:1" } });
     assert.equal(result.status, 0);
@@ -44,29 +48,41 @@ test("argument parsing and help need no backend", () => {
   }
   assert.match(run(["observed-prices", "--help"]).stdout, /not independently established underlying-quote acquisition time/);
   assert.match(run(["sort", "--help"]).stdout, /missing prices remain visible and sort last/i);
-  assert.match(run(["refresh", "--help"]).stdout, /preserved earlier price/);
-  assert.match(run(["fetch", "--help"]).stdout, /PROPOSED \/ EXPERIMENTAL/);
+  assert.match(run(["fetch", "--help"]).stdout, /preserved earlier price/);
   const rootHelp = run(["--help"], { env: { ...process.env, WW_BASE_URL: "http://127.0.0.1:1" } });
   assert.match(rootHelp.stdout, /Working commands:/);
-  assert.match(rootHelp.stdout, /Proposed, not executable:/);
-  assert.match(rootHelp.stdout, /ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE \| ww sort --by price/);
+  assert.doesNotMatch(rootHelp.stdout, /refresh SYMBOL/);
+  assert.match(rootHelp.stdout, /ww fetch QQQ SPY XLE && ww prices QQQ SPY XLE \| ww sort --by price/);
   const rootManual = run(["--man"], { env: { ...process.env, WW_BASE_URL: "http://127.0.0.1:1" } });
   assert.equal(rootManual.status, 0);
   assert.match(rootManual.stdout, /WW\(1\)/);
   assert.match(rootManual.stdout, /WORKING COMMANDS/);
-  assert.match(rootManual.stdout, /PROPOSED COMMAND/);
+  assert.match(rootManual.stdout, /fetch \[-q \| -v\] SYMBOL/);
+  assert.doesNotMatch(rootManual.stdout, /refresh SYMBOL/);
   assert.match(rootManual.stdout, /EXIT STATUS/);
   assert.equal(rootManual.stderr, "");
   const manual = run(["fetch", "--man"], { env: { ...process.env, WW_BASE_URL: "http://127.0.0.1:1" } });
   assert.equal(manual.status, 0);
   assert.match(manual.stdout, /WW-FETCH\(1\)/);
-  assert.match(manual.stdout, /PROPOSED \/ EXPERIMENTAL/);
   assert.match(manual.stdout, /fetch complete: 3\/3 prices held/);
   assert.equal(manual.stderr, "");
-  const proposed = run(["fetch", "QQQ"], { env: { ...process.env, WW_BASE_URL: "http://127.0.0.1:1" } });
-  assert.equal(proposed.status, 2);
-  assert.equal(proposed.stdout, "");
-  assert.match(proposed.stderr, /fetch is proposed, not implemented/);
+  for (const [command, heading] of [["prices", "WW-PRICES(1)"],
+    ["observed-prices", "WW-PRICES(1)"], ["sort", "WW-SORT(1)"]]) {
+    const page = run([command, "--man"], { env: { ...process.env, WW_BASE_URL: "http://127.0.0.1:1" } });
+    assert.equal(page.status, 0);
+    assert.ok(page.stdout.includes(heading));
+    assert.equal(page.stderr, "");
+  }
+  const retired = run(["refresh", "QQQ"]);
+  assert.equal(retired.status, 2);
+  assert.equal(retired.stdout, "");
+  assert.match(retired.stderr, /unknown command 'refresh'/);
+  assert.equal(run(["fetch"]).status, 2);
+  assert.equal(run(["fetch", "--bad", "QQQ"]).status, 2);
+  const conflicting = run(["fetch", "-q", "--verbose", "QQQ"]);
+  assert.equal(conflicting.status, 2);
+  assert.equal(conflicting.stdout, "");
+  assert.match(conflicting.stderr, /--quiet and --verbose cannot be combined/);
   assert.equal(run(["observed-prices"]).status, 2);
   const invalid = run(["sort", "--by", "freshness"]);
   assert.equal(invalid.status, 2);
@@ -91,7 +107,7 @@ test("backend response preserves absence, failed acquisition, and honest timesta
   assert.throws(() => parseQuoteResponse(response([]), ["XLE"]), /omitted/);
 });
 
-test("refresh uses one targeted POST and trusts only the backend completion and held-price facts", async () => {
+test("fetch uses one targeted POST and trusts only the backend completion and held-price facts", async () => {
   const calls = [];
   const fetchImpl = async (url, options) => {
     calls.push({ url, options });
@@ -103,7 +119,7 @@ test("refresh uses one targeted POST and trusts only the backend completion and 
       ],
     }) };
   };
-  const result = await refreshEvidence(["QQQ", "SPY"], fetchImpl, "http://127.0.0.1:3100");
+  const result = await fetchEvidence(["QQQ", "SPY"], fetchImpl, "http://127.0.0.1:3100");
   assert.equal(calls.length, 1);
   assert.equal(calls[0].options.method, "POST");
   assert.equal(calls[0].url.pathname, "/api/evidence/refresh");
@@ -112,6 +128,7 @@ test("refresh uses one targeted POST and trusts only the backend completion and 
     { symbol: "QQQ", acquisitionOutcome: "FAILED", heldPrice: true },
     { symbol: "SPY", acquisitionOutcome: "ACQUIRED", heldPrice: false },
   ]);
+  assert.equal(result.wheelwrightOrigin, "http://127.0.0.1:3100");
   assert.deepEqual(parseRefreshResponse({ outcome: "NOT_COMPLETED", completed: false, perSymbol: [] }, ["QQQ"]),
     { outcome: "NOT_COMPLETED", completed: false, results: [] });
   assert.throws(() => parseRefreshResponse({ outcome: "ACQUIRED", perSymbol: [] }, ["QQQ"]),
@@ -120,7 +137,7 @@ test("refresh uses one targeted POST and trusts only the backend completion and 
     /omitted a requested symbol/);
 });
 
-test("refresh exit status makes shell && depend on all requested held prices", async () => {
+test("fetch exit status makes shell && depend on all requested held prices", async () => {
   let held = false;
   const server = createServer((request, reply) => {
     reply.setHeader("content-type", "application/json");
@@ -137,8 +154,8 @@ test("refresh exit status makes shell && depend on all requested held prices", a
   await once(server, "listening");
   try {
     const env = { ...process.env, WW_BASE_URL: `http://127.0.0.1:${server.address().port}` };
-    const invoke = async () => {
-      const child = spawn(process.execPath, [cli, "refresh", "QQQ", "SPY"], { env });
+    const invoke = async (options = []) => {
+      const child = spawn(process.execPath, [cli, "fetch", ...options, "QQQ", "SPY"], { env });
       let stdout = "", stderr = "";
       child.stdout.on("data", chunk => { stdout += chunk; });
       child.stderr.on("data", chunk => { stderr += chunk; });
@@ -147,16 +164,63 @@ test("refresh exit status makes shell && depend on all requested held prices", a
     };
     const absent = await invoke();
     assert.equal(absent.code, 1);
-    assert.match(absent.stderr, /without held prices for: SPY/);
+    assert.match(absent.stderr, /fetch completed; 1\/2 prices held; SPY has no local price stored/);
     assert.deepEqual(absent.stdout.trim().split("\n").map(JSON.parse).map(r => r.heldPrice), [true, false]);
+    assert.deepEqual(absent.stdout.trim().split("\n").map(JSON.parse).map(r => r.kind),
+      ["fetch-result/v1", "fetch-result/v1"]);
+    const quietAbsent = await invoke(["-q"]);
+    assert.equal(quietAbsent.code, 1);
+    assert.match(quietAbsent.stderr, /SPY has no local price stored/);
+    const verboseAbsent = await invoke(["-v"]);
+    assert.equal(verboseAbsent.code, 1);
+    assert.match(verboseAbsent.stderr, new RegExp(`^From http://127\\.0\\.0\\.1:${server.address().port}\\n`));
+    assert.match(verboseAbsent.stderr, /SPY  acquisition NO_USABLE_EVIDENCE  no local price stored/);
+    assert.match(verboseAbsent.stderr, /SPY has no local price stored/);
     held = true;
     const present = await invoke();
     assert.equal(present.code, 0);
     assert.equal(present.stderr, "");
     assert.deepEqual(present.stdout.trim().split("\n").map(JSON.parse).map(r => r.symbol), ["QQQ", "SPY"]);
+    const quiet = await invoke(["--quiet"]);
+    assert.equal(quiet.code, 0);
+    assert.equal(quiet.stderr, "");
+    assert.equal(quiet.stdout, present.stdout);
+    const verbose = await invoke(["--verbose"]);
+    assert.equal(verbose.code, 0);
+    assert.match(verbose.stderr, new RegExp(`^From http://127\\.0\\.0\\.1:${server.address().port}\\n`));
+    assert.match(verbose.stderr, /QQQ  acquisition FAILED\s+previous price retained/);
+    assert.match(verbose.stderr, /SPY  acquisition NO_USABLE_EVIDENCE\s+previous price retained/);
+    assert.match(verbose.stderr, /fetch complete: 2\/2 prices held/);
+    assert.doesNotMatch(verbose.stderr, /Tradier|749\.58|\/api\/evidence/);
+    assert.equal(verbose.stdout, present.stdout);
   } finally {
     server.close();
   }
+});
+
+test("fetch terminal status, quiet mode, preserved price notice, and pipe records", () => {
+  const result = { completed: true, results: [
+    { symbol: "QQQ", acquisitionOutcome: "FAILED", heldPrice: true },
+    { symbol: "SPY", acquisitionOutcome: "ACQUIRED", heldPrice: true },
+  ], wheelwrightOrigin: "http://localhost:3100" };
+  const terminal = presentFetchResult(result, false, true, true);
+  assert.equal(terminal.stdout, "");
+  assert.match(terminal.stderr, /^fetch complete: 2\/2 prices held\n/);
+  assert.match(terminal.stderr, /QQQ: acquisition FAILED; previous price retained/);
+  assert.deepEqual(presentFetchResult(result, true, true, true), { stdout: "", stderr: "" });
+  const piped = presentFetchResult(result, false, false, true);
+  assert.equal(piped.stdout.trim().split("\n").length, 2);
+  assert.deepEqual(piped.stdout.trim().split("\n").map(JSON.parse).map(r => r.heldPrice), [true, true]);
+  assert.match(piped.stderr, /fetch complete: 2\/2 prices held/);
+  const verbose = presentFetchResult(result, false, false, false, true);
+  assert.match(verbose.stderr, /^From http:\/\/localhost:3100\nQQQ  acquisition FAILED\s+previous price retained\n/);
+  assert.match(verbose.stderr, /SPY  acquisition ACQUIRED\n/);
+  assert.match(verbose.stderr, /fetch complete: 2\/2 prices held/);
+  assert.equal(verbose.stdout, piped.stdout);
+  assert.deepEqual(presentFetchResult({ completed: false, results: [] }, false, false, true),
+    { stdout: "", stderr: "" });
+  assert.deepEqual(presentFetchResult({ completed: false, results: [] }, false, false, true, true),
+    { stdout: "", stderr: "" });
 });
 
 test("numeric sorting, null placement, ties, and exact record preservation", () => {

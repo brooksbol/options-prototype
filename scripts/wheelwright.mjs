@@ -10,20 +10,17 @@ Use explicit symbols. Reading never silently acquires; acquisition never claims
 freshness or suitability. Pipe commands without a format flag.
 
 Working commands:
-  refresh SYMBOL...         Acquire evidence; succeed when all requested prices are held
+  fetch [-q | -v] SYMBOL...  Acquire evidence; succeed when all requested prices are held
   prices SYMBOL...          Inspect currently held underlying price evidence (read-only)
   sort --by FIELD           Reorder ww price records from stdin (price or symbol)
 
-Proposed, not executable:
-  fetch                     Draft only; inspect with 'ww fetch --help' or '--man'
-
 Example:
-  ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price
+  ww fetch QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price
 
 TTY output is for humans; pipe/redirect output is bounded JSON Lines.
 Results go to stdout; diagnostics go to stderr. Exit status controls &&.
-Use 'ww <command> --help' for command details and 'ww --man' for the
-current CLI contract. 'ww observed-prices' remains a prices alias.
+Use 'ww <command> --help' or '--man' for command details; 'ww --man'
+describes the current CLI. 'ww observed-prices' remains a prices alias.
 Backend: WW_BASE_URL (default http://localhost:3100).`;
 
 const SOURCE_HELP = `Usage: ww observed-prices [--] SYMBOL...
@@ -51,21 +48,7 @@ Backend: WW_BASE_URL (default http://localhost:3100).`;
 
 const PRICES_HELP = SOURCE_HELP.replaceAll("observed-prices", "prices");
 
-const FETCH_HELP = `Usage: ww fetch [--help | --man]
-
-PROPOSED / EXPERIMENTAL — fetch execution is not implemented.
-The current working acquisition command is: ww refresh SYMBOL...
-
-Proposed meaning: ask Wheelwright to acquire evidence for explicit symbols,
-then succeed only if the operation completed and every requested price is held.
-A failed attempt may leave an earlier price held. Success does not mean every
-symbol was newly acquired, fresh, or suitable for a trade. Prices are read
-separately with ww prices.
-
-Use 'ww fetch --man' for the full draft behavioral contract. Both discovery
-forms succeed without contacting the backend.`;
-
-const REFRESH_HELP = `Usage: ww refresh [--] SYMBOL...
+const FETCH_HELP = `Usage: ww fetch [-q | --quiet | -v | --verbose] [--] SYMBOL...
 
 Ask the existing Wheelwright backend to run targeted evidence acquisition for
 explicit symbols. This changes Wheelwright's evidence store. It is separate
@@ -81,13 +64,19 @@ Held does not mean newly acquired, fresh, independently timestamped as an
 underlying quote, or suitable for a trading decision. The exact held price
 and its evidence state are read with ww prices.
 
-Terminal stdout shows a small result table. Pipe/redirect stdout emits one
-JSON record per requested symbol after a completed operation. Diagnostics go
-to stderr; an incomplete operation emits no result records.
+On success, a terminal stderr receives a concise held-price completion count.
+-q/--quiet suppresses that status and nonfatal notices, not errors. When
+stdout is piped or redirected, it emits one bounded JSON Lines result per
+requested symbol after completion. An incomplete operation emits no records.
+Use -v/--verbose for each symbol's invocation acquisition outcome and held-price
+state on stderr. Its From line identifies the Wheelwright service endpoint
+consulted, not an upstream market-data provider. It does not report prices.
+Quiet and verbose cannot be combined.
 
 Example:
-  ww refresh QQQ && ww prices QQQ
+  ww fetch QQQ && ww prices QQQ
 
+Use 'ww fetch --man' for the full behavioral contract.
 Backend: WW_BASE_URL (default http://localhost:3100).`;
 
 const SORT_HELP = `Usage: ww sort --by FIELD [--descending]
@@ -124,31 +113,39 @@ export function parseArgs(args) {
   }
   if (args.length === 1 && args[0] === "--man") return { command: "root-man" };
   const [command, ...rest] = args;
-  if (command === "fetch") {
+  if (["prices", "observed-prices", "fetch"].includes(command)) {
     if (rest.length === 1 && ["-h", "--help"].includes(rest[0])) {
-      return { command: "help", help: FETCH_HELP };
-    }
-    if (rest.length === 1 && rest[0] === "--man") return { command: "fetch-man" };
-    usage("fetch is proposed, not implemented; use 'ww refresh SYMBOL...' for acquisition");
-  }
-  if (["prices", "observed-prices", "refresh"].includes(command)) {
-    if (rest.length === 1 && ["-h", "--help"].includes(rest[0])) {
-      return { command: "help", help: command === "refresh" ? REFRESH_HELP :
+      return { command: "help", help: command === "fetch" ? FETCH_HELP :
         command === "prices" ? PRICES_HELP : SOURCE_HELP };
     }
+    if (rest.length === 1 && rest[0] === "--man") {
+      return { command: "command-man", page: command === "observed-prices" ? "prices" : command };
+    }
     let operands = false;
+    let quiet = false;
+    let verbose = false;
     const symbols = [];
     for (const arg of rest) {
       if (!operands && arg === "--") { operands = true; continue; }
+      if (command === "fetch" && !operands && ["-q", "--quiet"].includes(arg)) {
+        quiet = true; continue;
+      }
+      if (command === "fetch" && !operands && ["-v", "--verbose"].includes(arg)) {
+        verbose = true; continue;
+      }
       if (!operands && arg.startsWith("-")) usage(`${command}: unknown option '${arg}'`);
       if (!arg.trim()) usage(`${command}: symbol must not be empty`);
       symbols.push(arg);
     }
     if (symbols.length === 0) usage(`${command}: at least one symbol is required`);
-    return { command, symbols: [...new Set(symbols.map(s => s.toUpperCase()))] };
+    if (command === "fetch" && quiet && verbose) usage("fetch: --quiet and --verbose cannot be combined");
+    const parsed = { command, symbols: [...new Set(symbols.map(s => s.toUpperCase()))] };
+    if (command === "fetch") { parsed.quiet = quiet; parsed.verbose = verbose; }
+    return parsed;
   }
   if (command === "sort") {
     if (rest.length === 1 && ["-h", "--help"].includes(rest[0])) return { command: "help", help: SORT_HELP };
+    if (rest.length === 1 && rest[0] === "--man") return { command: "command-man", page: "sort" };
     let by;
     let descending = false;
     for (let i = 0; i < rest.length; i++) {
@@ -280,7 +277,7 @@ export function parseRefreshResponse(data, requested) {
   return { completed: true, outcome: data.outcome, results };
 }
 
-export async function refreshEvidence(symbols, fetchImpl = fetch, base) {
+export async function fetchEvidence(symbols, fetchImpl = fetch, base) {
   const url = refreshUrl(symbols, base);
   let response;
   try { response = await fetchImpl(url, { method: "POST" }); }
@@ -289,7 +286,7 @@ export async function refreshEvidence(symbols, fetchImpl = fetch, base) {
   let data;
   try { data = await response.json(); }
   catch { throw new WwError("backend returned invalid JSON"); }
-  return parseRefreshResponse(data, symbols);
+  return { ...parseRefreshResponse(data, symbols), wheelwrightOrigin: url.origin };
 }
 
 export async function readObservedPrices(symbols, fetchImpl = fetch, base) {
@@ -368,6 +365,35 @@ function writeRecords(entries) {
   }
 }
 
+export function presentFetchResult(result, quiet, stdoutIsTTY, stderrIsTTY, verbose = false) {
+  if (!result.completed) return { stdout: "", stderr: "" };
+  const stdout = stdoutIsTTY ? "" : result.results.map(item =>
+    JSON.stringify({ kind: "fetch-result/v1", ...item })).join("\n") + "\n";
+  const held = result.results.filter(item => item.heldPrice);
+  if (verbose) {
+    if (!result.wheelwrightOrigin) throw new WwError("fetch response lacks Wheelwright endpoint context");
+    const symbolWidth = Math.max(...result.results.map(item => item.symbol.length));
+    const outcomeWidth = Math.max(...result.results.map(item => item.acquisitionOutcome.length));
+    const details = result.results.map(item => {
+      const qualification = !item.heldPrice ? "no local price stored" :
+        item.acquisitionOutcome === "ACQUIRED" ? "" :
+        item.acquisitionOutcome === "UNKNOWN" ? "local price stored" : "previous price retained";
+      return (`${item.symbol.padEnd(symbolWidth)}  acquisition ${item.acquisitionOutcome.padEnd(outcomeWidth)}` +
+        (qualification ? `  ${qualification}` : "")).trimEnd();
+    }).join("\n");
+    const summary = held.length === result.results.length
+      ? `\nfetch complete: ${held.length}/${result.results.length} prices held\n` : "\n";
+    return { stdout, stderr: `From ${result.wheelwrightOrigin}\n${details}${summary}` };
+  }
+  if (quiet || !stderrIsTTY || held.length !== result.results.length) {
+    return { stdout, stderr: "" };
+  }
+  const notices = result.results.filter(item => item.acquisitionOutcome !== "ACQUIRED").map(item =>
+    `ww: ${item.symbol}: acquisition ${item.acquisitionOutcome}; ${item.acquisitionOutcome === "UNKNOWN" ? "local price stored" : "previous price retained"}`);
+  return { stdout, stderr: `fetch complete: ${held.length}/${result.results.length} prices held\n` +
+    (notices.length ? `${notices.join("\n")}\n` : "") };
+}
+
 export async function main(args) {
   const parsed = parseArgs(args);
   if (parsed.command === "help") { process.stdout.write(`${parsed.help}\n`); return; }
@@ -376,22 +402,20 @@ export async function main(args) {
     process.stdout.write(manual);
     return;
   }
-  if (parsed.command === "fetch-man") {
-    const manual = await readFile(new URL("../docs/cli/ww-fetch-man-proposed.txt", import.meta.url), "utf8");
+  if (parsed.command === "command-man") {
+    const manual = await readFile(new URL(`../docs/cli/ww-${parsed.page}-man.txt`, import.meta.url), "utf8");
     process.stdout.write(manual);
     return;
   }
-  if (parsed.command === "refresh") {
-    const result = await refreshEvidence(parsed.symbols);
-    if (!result.completed) throw new WwError(`refresh did not complete (${result.outcome})`);
-    if (process.stdout.isTTY) {
-      process.stdout.write(`SYMBOL  HELD PRICE  ACQUISITION\n${result.results.map(item =>
-        `${item.symbol}  ${item.heldPrice ? "yes" : "no"}         ${item.acquisitionOutcome}`).join("\n")}\n`);
-    } else {
-      for (const item of result.results) process.stdout.write(`${JSON.stringify({ kind: "refresh-result/v1", ...item })}\n`);
-    }
+  if (parsed.command === "fetch") {
+    const result = await fetchEvidence(parsed.symbols);
+    const presentation = presentFetchResult(result, parsed.quiet, !!process.stdout.isTTY,
+      !!process.stderr.isTTY, parsed.verbose);
+    if (presentation.stdout) process.stdout.write(presentation.stdout);
+    if (presentation.stderr) process.stderr.write(presentation.stderr);
+    if (!result.completed) throw new WwError(`fetch did not complete (${result.outcome})`);
     const missing = result.results.filter(item => !item.heldPrice).map(item => item.symbol);
-    if (missing.length) throw new WwError(`refresh completed without held prices for: ${missing.join(", ")}`);
+    if (missing.length) throw new WwError(`fetch completed; ${result.results.length - missing.length}/${result.results.length} prices held; ${missing.join(", ")} ${missing.length === 1 ? "has" : "have"} no local price stored`);
     return;
   }
   if (parsed.command === "prices" || parsed.command === "observed-prices") {

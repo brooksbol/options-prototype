@@ -1,0 +1,46 @@
+WW-SORT(1)                  Wheelwright Manual                 WW-SORT(1)
+
+NAME
+    ww sort — reorder ww price-composition records
+
+SYNOPSIS
+    ww sort --by FIELD [--descending]
+    ww sort --help | -h | --man
+
+DESCRIPTION
+    Read the bounded ww price JSON Lines stream from stdin and emit the same
+    records in a different order. This is a record-preserving transform: it
+    does not change evidence, fill missing prices, or judge freshness,
+    opportunity quality, or attention priority.
+
+OPTIONS
+    --by FIELD
+        Required. Supported fields are price (numeric) and symbol (text).
+        Order is ascending by default.
+
+    --descending
+        Reverse the comparison direction. When sorting by price, missing
+        prices still sort last.
+
+OUTPUT
+    Direct terminal stdout shows the reordered price table. Pipe or redirect
+    stdout to emit the original JSON Lines records in the new order. Records
+    with equal field values retain input order. When sorting by price, a
+    missing value remains null and sorts last in either direction. Errors go
+    to stderr.
+
+    This command accepts the bounded ww price record type; it is not a
+    universal structured-record sorter. There are no file operands.
+
+EXIT STATUS
+    0   Input parsed and records were emitted successfully.
+    1   Malformed input or result-output failure.
+    2   Invalid usage or unsupported field.
+
+EXAMPLES
+    ww prices QQQ SPY XLE | ww sort --by price
+
+    ww prices QQQ SPY XLE | ww sort --by price --descending
+
+SEE ALSO
+    ww prices --man, ww --man

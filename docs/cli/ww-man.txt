@@ -13,47 +13,46 @@ DESCRIPTION
     Reading held evidence is separate from asking Wheelwright to acquire it.
 
 WORKING COMMANDS
-    refresh SYMBOL...
+    fetch [-q | -v] SYMBOL...
         Ask the existing backend to acquire evidence for explicit symbols.
         Exit 0 only after completed work with a held price for every requested
         symbol. A previously held price may survive a failed acquisition.
-        Run 'ww refresh --help' for the current contract.
+        Normal terminal status goes to stderr; -q/--quiet suppresses it.
+        -v/--verbose reports the Wheelwright endpoint contacted, invocation
+        outcome, and held state per symbol without displaying prices or
+        claiming upstream provider provenance.
+        Run 'ww fetch --help' or 'ww fetch --man' for the current contract.
 
     prices SYMBOL...
         Read the underlying prices Wheelwright currently holds, including
         explicit absence and acquisition state. This never acquires evidence.
-        Run 'ww prices --help' for timestamp and provenance limits.
+        Run 'ww prices --help' or 'ww prices --man' for evidence limits.
 
     sort --by FIELD [--descending]
         Read ww price composition records from stdin and emit those same
-        records ordered by numeric price or symbol. Missing prices sort last.
+        records ordered by numeric price or symbol. When sorting by price,
+        missing prices sort last.
         Price order is ascending unless --descending is given.
-        Run 'ww sort --help' for the bounded input format.
+        Run 'ww sort --help' or 'ww sort --man' for the bounded input format.
 
     observed-prices SYMBOL...
         Compatibility spelling for prices. The same read and output behavior
         applies; new examples use prices.
 
-PROPOSED COMMAND
-    fetch
-        Discovery only. 'ww fetch --help' and 'ww fetch --man' expose a draft
-        behavioral specification. Fetch execution is not implemented; use
-        ww refresh for working acquisition. Bare-fetch default context is
-        unresolved. The draft manual does not authorize its implementation.
-
 OUTPUT AND COMPOSITION
     Direct terminal output is human-oriented. When stdout is piped or
     redirected, prices and sort emit bounded JSON Lines price records;
-    refresh emits bounded per-symbol result records after completed work.
-    This is not a universal ww wire-format commitment. Command results go to
-    stdout. Errors and diagnostics go to stderr. Neither progress nor
+    fetch emits bounded per-symbol result records after completed work. Fetch
+    writes its concise human status to terminal stderr and leaves terminal
+    stdout empty. This is not a universal ww wire-format commitment. Results
+    go to stdout; status and diagnostics go to stderr. Neither progress nor
     decoration belongs in composition stdout.
 
     A useful composition is:
 
-        ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price
+        ww fetch QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price
 
-    The shell runs prices only if refresh returns success. The pipe then
+    The shell runs prices only if fetch returns success. The pipe then
     passes price records to sort, which orders them numerically. Fetching
     evidence does not itself display prices or judge whether they are timely
     enough for a purpose.
@@ -61,7 +60,7 @@ OUTPUT AND COMPOSITION
 EXIT STATUS
     0   Command succeeded under its documented contract.
     1   Backend, input-record, or evidence-operation failure.
-    2   Invalid usage, including an unavailable proposed command.
+    2   Invalid usage.
 
     Detailed backend outcomes are not encoded as a catalog of exit codes.
     See command help for the meaning of success and failure in each command.
@@ -75,12 +74,11 @@ EVIDENCE LIMITS
 DISCOVERY
     ww --help                  Short command list and example
     ww --man                   This current top-level manual
-    ww COMMAND --help          Command-specific help
-    ww fetch --man             Proposed fetch manual (not implemented)
+    ww COMMAND --help          Terse command-specific help
+    ww COMMAND --man           Current command-specific behavioral manual
 
 ENVIRONMENT
     WW_BASE_URL   Backend base URL; default http://localhost:3100
 
 SEE ALSO
-    ww refresh --help, ww prices --help, ww sort --help,
-    ww fetch --man
+    ww fetch --man, ww prices --man, ww sort --man

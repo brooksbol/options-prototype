@@ -1,0 +1,43 @@
+WW-PRICES(1)                Wheelwright Manual               WW-PRICES(1)
+
+NAME
+    ww prices — inspect held underlying price evidence
+
+SYNOPSIS
+    ww prices [--] SYMBOL...
+    ww prices --help | -h | --man
+
+DESCRIPTION
+    Read the prices Wheelwright currently holds for explicit symbols through
+    GET /api/evidence/quotes. This is read-only and never triggers acquisition.
+    A missing observation is absent, not zero. A failed later acquisition can
+    coexist with a preserved earlier price; both facts remain visible.
+
+OUTPUT
+    Direct terminal stdout shows a labeled table. Pipe or redirect stdout to
+    receive one bounded JSON Lines price record per symbol. Records preserve
+    price or null, prior close or null, acquisition status, last attempt,
+    failure count, and generation/publication context. Errors go to stderr.
+
+    The priceAssociatedChainAt field carries the backend timestamp associated
+    with the price through the primary option-chain row. It is not an
+    independently established underlying-quote acquisition time. generatedAt
+    is publication time, not quote acquisition time. Neither field establishes
+    actual quote age or a freshness verdict.
+
+    The JSON Lines shape is a bounded ww price-composition format, not a
+    permanent universal ww wire protocol.
+
+EXIT STATUS
+    0   The backend read and response parsing succeeded. Individual prices
+        may still be absent; absence is represented in the result.
+    1   Backend request, response, or result-output failure.
+    2   Invalid usage.
+
+EXAMPLES
+    ww prices QQQ SPY XLE
+
+    ww prices QQQ SPY XLE | ww sort --by price
+
+SEE ALSO
+    ww fetch --man, ww sort --man, ww --man
