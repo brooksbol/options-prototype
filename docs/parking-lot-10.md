@@ -248,13 +248,16 @@ No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel i
 
 ### Intake
 
-The Principal wants a first-class Wheelwright command-line interface named **`ww`**, intentionally complementary to the existing `tt` command. The central Product idea is a toolbox of small, stable, Wheelwright-aware Unix programs. **Humans and agents are equal consumers of the same tools.** Humans compose them into one-liners, aliases, shell scripts, cron jobs, and other reusable workflows; agents discover them through help/manual and input/output descriptions, then compose pipelines for questions no developer implemented as a named workflow. The Unix shell is the orchestration layer and practical SDK: **small tools + stable behavior + pipes + shell = open-ended Wheelwright workflows**. The idea is not to reproduce browser screens as subcommands or build a separate agent orchestration system.
+The Principal wants a first-class Wheelwright command-line interface named **`ww`**, intentionally complementary to the existing `tt` command. The central Product idea is a toolbox of small, stable, Wheelwright-aware Unix programs **designed for Unix composition**. **Humans and agents are equal consumers of the same tools.** Humans compose them into one-liners, aliases, shell scripts, cron jobs, and other reusable workflows; agents discover them through help/manual and input/output descriptions, then compose them for questions no developer implemented as a named workflow. **The primitive is the unit of Product capability; the workflow belongs to the composer.** The Unix shell is the orchestration language and practical SDK: pipes are central, alongside redirection, conditional execution, loops, variables, `find`, `xargs`, `watch`, scripts, and scheduling. The idea is not to reproduce browser screens as subcommands or build a separate agent orchestration system.
 
 Representative exploratory specimens:
 
-- `ww positions | ww expiring --within 14 | ww attention | ww table`
-- `find ~/Downloads -type f -name '*.csv' -mmin -5 -print0 | ww files | ww identify | ww validate | ww import`
-- `tt live --json | ww import`
+- `ww positions | ww expiring 14 | ww table`
+- `ww positions | ww expiring 14 | ww structure iron-condor | ww sort pnl | ww table`
+- `ww positions | ww expiring 14 | ww symbol XLE | ww inspect`
+- `find ~/Downloads -type f -name '*.csv' -mmin -10 -print0 | ww files | ww identify | ww table`
+- `~/bin/ww-morning` — an operator-owned script composed from `ww` tools, not a Wheelwright-built Morning Routine feature
+- `tt live --json | ww import` — a deliberately hard boundary example; current `tt live --json` is not an implemented command
 - `ww commands --json`
 - `ww help expiring`
 - `ww doctor --json`
@@ -266,13 +269,13 @@ These are **discovery specimens, not accepted syntax or implementation requireme
 - **Agent test:** Can an agent given the `ww` manual/help and shell access answer useful Wheelwright questions that were never implemented as named workflows by discovering and combining the small tools into sensible pipelines? It should not need a special agent API for each question.
 - **Human test:** After using `ww` for a month, has the operator accumulated useful one-liners, aliases, and shell scripts that Wheelwright's developers did not have to build as Product workflows?
 
-Both tests exercise the same toolbox. Stable behavior, discoverable inputs/outputs, and ordinary shell composition are the proposed source of value; a catalog of prebuilt workflows would not by itself validate the hypothesis. Read-only inspection, filtering, sorting, and presentation are the ordinary center of the idea. Commands that change durable Wheelwright state are important boundary cases, but they do not define the overall toolbox.
+Both tests exercise the same toolbox. Stable behavior, discoverable inputs/outputs, and ordinary shell composition are the proposed source of value; a catalog of prebuilt workflows would not by itself validate the hypothesis. Read-only inspection, filtering, sorting, and presentation are the ordinary center of the idea. Commands that change durable Wheelwright state are important boundary cases, but they do not define the overall toolbox. A concrete analogy is an agent safely composing `git fetch`, `git status`, and `git merge --ff-only` with the shell's `&&` sequencing; no dedicated repository-synchronization capability is needed.
 
 ### Trigger / observed opportunity
 
 The idea emerged while using the terse `tt live` operator workflow and exploring what a command-line Wheelwright could do better than a GUI-shaped CLI. The Principal specifically emphasized:
 
-- taking advantage of Unix pipes;
+- taking advantage of Unix composition, including pipes and shell control flow;
 - composing many small commands into interesting higher-order activities;
 - supporting intake pipes, including Fidelity CSV-derived portfolio updates;
 - leaving filesystem selection and other generic composition to Unix where useful;
@@ -284,13 +287,13 @@ A concrete motivating workflow is selecting recently downloaded brokerage CSVs w
 
 ### Why it might matter
 
-A composable CLI could provide a dense operator surface while also acting as a scriptable/agent-facing projection of the same Wheelwright semantics. Small orthogonal operators may allow useful activities to be synthesized rather than individually productized. If the stream contract is stable and machine-readable, the shell can become an integration/composition boundary without requiring a separate agent-specific SDK for every operation.
+A composable CLI could provide a dense operator surface while also acting as a scriptable/agent-facing projection of the same Wheelwright semantics. Small orthogonal operators may allow useful activities to be synthesized rather than individually productized. Stable, discoverable command behavior could let the shell serve as the integration/composition layer without requiring a separate agent-specific SDK for every operation.
 
 The idea may also reduce operator friction around current evidence intake while preserving the distinction between generic filesystem/process concerns and Wheelwright domain semantics.
 
 ### Emerging design hypotheses — not ratified
 
-- Treat **pipes as a primary interaction model**, not an output afterthought.
+- Treat **Unix shell composition as the primary interaction model**; pipes are central, but not the only means of composition.
 - Explore **sources → transforms/filters → sinks/views** rather than a large catalog of monolithic commands.
 - Let commands exchange stable structured Wheelwright records when piped; human terminal rendering may differ from machine/pipe representation.
 - Preserve explicit input/file boundaries and provenance; do not make concatenated CSV text the semantic intake model.
