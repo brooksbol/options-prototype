@@ -241,6 +241,7 @@ Durable evidence of how we arrived at the current state. A checkpoint is not aut
 | `32-parking-lot-reconciliation.md` | Ratified parking-lot disposition record |
 | `33-strategy-roadmap-checkpoint.md` | Ratified roadmap/operating-model baseline and normalization provenance (August 31, 2026) |
 | `70-bounded-option-obligation-continuity-checkpoint-2026-09-28.md` | Actual History evidence, rejected series-key claim, synthesis/falsification trail, ADR-022 ratification provenance, and independently rejected unratified Solution Design candidate; exact read-only resume state |
+| `72-pl-cli-bare-fetch-pre-implementation-checkpoint-2026-10-04.md` | `PL-CLI-01` bare-`ww fetch` pre-implementation authority boundary (baseline `d7e588d4`): accepted explicit-fetch semantics, bounded fetch acceptance evidence, authorized provisional bare-fetch selector (monitored UNION fixed ten-symbol seed), known monitored-membership API gap, and the acquisition-pressure hypothesis; recreated after a lost Codex snapshot |
 | `foundations/step4-conformance-assessment.md` | Retooling conformance checkpoint |
 
 ### E. Current Specialized Reference
