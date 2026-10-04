@@ -43,26 +43,27 @@ GDX   experimental-seed
 - **Order:** monitored first (declared order), then seed-only (seed order). Not a weighted score.
 - Selection diagnostics went to **stderr** only; machine **stdout** carried no selection prose.
 
-## Run 1 — cold start, `PROVIDER_UNAVAILABLE`
+## Run 1 — shortly after backend restart, `PROVIDER_UNAVAILABLE` (NORMAL startup state)
 
 - Command: `node scripts/wheelwright.mjs fetch -v`
 - Elapsed: ~1s. Exit status: **1**. stdout records: **0**.
 - stderr terminal line: `ww: fetch did not complete (PROVIDER_UNAVAILABLE)`.
-- Cause (grounded in source): `AcquisitionWorker.forceAcquireSymbols` returns `PROVIDER_UNAVAILABLE` immediately when `providerManager.acquisitionAuthorityEstablished()` is false (`"provider_unverified"`). On a freshly restarted backend during a session-blocked weekend, provider authority has not yet been established, because the normal (session-gated) scheduler has not run a verifying cycle. The first targeted acquisition after cold start therefore returns fast without acquiring.
+- Interpretation: this is **normal backend startup behavior**, not a defect, API gap, bug, or weekend-specific blocker. The backend takes a couple of minutes to come fully online and establish provider authority after a restart; a targeted acquisition issued before that is reported as `PROVIDER_UNAVAILABLE`. The CLI relayed the backend's outcome truthfully and exited nonzero. Preserved here only as observed startup-state evidence.
 - Contract preserved: noncompletion emitted **no** per-symbol certification and **no** stdout records.
 
-## Run 2 — warm, `NOT_COMPLETED` (timeout) with evidence nonetheless stored
+## Run 2 — provider authority established, `NOT_COMPLETED` (20s synchronous timeout too short)
 
-After an intervening single explicit `fetch QQQ` succeeded (`ACQUIRED`, 1/1 held, exit 0) — which established provider authority — the bare fetch was re-run:
+After the backend finished starting up and provider authority was established (confirmed by an intervening single explicit `fetch QQQ` succeeding: `ACQUIRED`, 1/1 held, exit 0), the bare fetch was re-run:
 
 - Command: `node scripts/wheelwright.mjs fetch -v`
 - Exit status: **1**. stdout records: **0**.
 - stderr terminal line: `ww: fetch did not complete (NOT_COMPLETED)`.
-- Cause (grounded in source): the backend bounds a single forced targeted acquisition at `FORCED_ACQUISITION_TIMEOUT_MS = 20_000` (20s). The 14-symbol full-option-chain acquisition did not finish within that single 20s bound, so `forceAcquireSymbols` returned `NOT_COMPLETED` and certified nothing per symbol. Exit 1; zero stdout records. Contract preserved.
+- Cause (grounded in source): the backend bounds a single synchronous forced targeted acquisition at `FORCED_ACQUISITION_TIMEOUT_MS = 20_000` (20s). The legitimate 14-symbol request did not finish within that single 20s bound, so `forceAcquireSymbols` returned `NOT_COMPLETED` and certified nothing per symbol. Exit 1; zero stdout records. Contract preserved.
+- Plain reading: **bare `ww fetch` correctly resolved 14 symbols, but the current 20-second forced-acquisition timeout was too short for that synchronous 14-symbol request.** This is a possible backend timeout/configuration limitation for a legitimate synchronous fetch workload — not a CLI defect and not evidence that the CLI should become asynchronous.
 
 ### Post-run stored-price state (read-only `ww prices`)
 
-Although the fetch operation reported `NOT_COMPLETED`, a subsequent read showed **held prices for all 14 symbols**:
+A subsequent read showed **held prices for all 14 symbols**:
 
 ```
 BN 36.92 · ETHA 20.11 · GDX 87.78 · GLD 380.14 · IWM 281.52 · QQQ 749.58 ·
@@ -72,18 +73,18 @@ USO 147.37 · XHB 96.70   (all status: ready)
 HELD PRICES: 14/14
 ```
 
-This is the designed orthogonality: **acquisition-operation completion and stored-price state are independent**. The backend acquisition thread kept working past the 20s forced-wait bound and ultimately stored prices for all 14 symbols; the CLI honestly refused to *certify* completion because the bounded operation returned `NOT_COMPLETED`. A later read is the correct way to observe the resulting held evidence. (These prices are weekend/sealed evidence; held ≠ fresh, newly acquired, independently quote-timestamped, or trade-suitable.)
+That all 14 prices were held afterward shows the requested acquisition was **viable and continued progressing** — the request was legitimate; the single synchronous bound was simply shorter than the work took. It is **not** evidence that `ww fetch` needs asynchronous/background/polling/eventual-completion semantics (none were requested). It also illustrates the designed orthogonality that acquisition-operation completion and stored-price state are independent facts; a later read is the correct way to observe held evidence. (These prices are weekend/sealed evidence; held ≠ fresh, newly acquired, independently quote-timestamped, or trade-suitable.)
 
 ## Honest findings
 
 1. **Selector works and is deterministic.** Monitored UNION seed, dedup of the USO overlap, provenance (monitored/seed/both), monitored-first ordering, stderr-only diagnostics — all exactly as specified.
-2. **Acquisition pressure is real and was surfaced, not hidden.** 14 symbols of full-chain acquisition exceed the backend's single 20s forced-acquisition bound, so bare fetch returns `NOT_COMPLETED` even when evidence is actually being stored. This is direct evidence for the acquisition-pressure hypothesis: *a symbol being worth observing does not imply a full option-chain acquisition should be forced for it under a single 20s bound.* The seed was **not** shrunk to hide this.
-3. **Cold-start provider authority is a precondition.** The first targeted acquisition after restart can return `PROVIDER_UNAVAILABLE` until provider authority is established; this affects explicit fetch too, not just bare fetch.
-4. **Contract preserved under failure.** Both failure modes produced exit 1, zero stdout records, and no false per-symbol certification.
+2. **The 20s synchronous forced-acquisition timeout was too short for the legitimate 14-symbol request.** Bare fetch correctly resolved 14 symbols; the backend's single 20s forced-acquisition bound (`FORCED_ACQUISITION_TIMEOUT_MS`) elapsed before the work finished, so it returned `NOT_COMPLETED`. All 14 prices were nonetheless held afterward, showing the request was viable and progressing. This is a possible **backend timeout/configuration limitation** for legitimate synchronous fetch workloads. It does **not** justify an acquisition-architecture redesign, and it does **not** imply the CLI should become asynchronous. The seed was not shrunk.
+3. **`PROVIDER_UNAVAILABLE` shortly after restart is normal startup state.** The backend takes a couple of minutes to establish provider authority after a restart; a targeted acquisition issued before then is reported as `PROVIDER_UNAVAILABLE`. Not a defect, gap, bug, or weekend-specific blocker. (It applies to explicit fetch too, not just bare fetch.)
+4. **Contract preserved under failure.** Both outcomes produced exit 1, zero stdout records, and no false per-symbol certification.
 5. **Resolved-empty invariant not exercised but guarded.** The fixed non-empty seed means the resolved set is never empty; the CLI still guards against POSTing a zero-symbol refresh (which the backend would treat as whole-cycle acquisition).
 
 ## Product acceptance question
 
 > Does an experienced operator look at this result and think, "Of course these are the symbols you'd fetch by default"?
 
-On the evidence: the *mechanism* is sound, but the *default set* is not yet obviously right. The seed deliberately includes awkward leveraged/sector entries (TQQQ, SOXL) and mixes them with the operator's five monitored positions; a 14-symbol full-chain fetch that cannot complete inside the 20s forced bound is itself a signal that "fetch everything worth glancing at" may be the wrong operation for a default. That is the intended falsification pressure, not a defect. The list was not made prettier before presenting this evidence.
+On the evidence: the *mechanism* is sound, but the *default set* is not yet obviously right. The seed deliberately includes awkward leveraged/sector entries (TQQQ, SOXL) and mixes them with the operator's five monitored positions, so an experienced operator would not yet say "of course." That is the intended falsification pressure on the default *selection*. (The 20s synchronous timeout is a separate backend-configuration observation about this fetch workload, not a judgment about which symbols belong in the default.) The list was not made prettier before presenting this evidence.
