@@ -236,3 +236,99 @@ COPX membership, URA call-away, and undefined intervention/eligibility/no-write 
 ### Explicitly not authorized
 
 No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel inference; no raw gate editor; no new Recommendation enum; no retrospective intent equivalence; no policy defaults; no generic workflow, policy, predicate, or ontology engine.
+
+
+---
+
+## `PL-CLI-01` — Wheelwright composable Unix CLI (`ww`)
+
+**Date:** October 3, 2026  
+**State:** INTAKE — Principal-selected durable capture of the composable command-line Wheelwright concept; strategic/architectural reconciliation, command grammar, schemas, and implementation are unresolved and not authorized by this record.  
+**Why-state:** Captured directly in this canonical intake; no standalone discovery artifact yet.
+
+### Intake
+
+The Principal wants a first-class Wheelwright command-line interface named **`ww`**, intentionally complementary to the existing `tt` command. The idea is not merely to reproduce browser screens as subcommands. The distinguishing Product hypothesis is a **Unix-composable Wheelwright vocabulary**: small domain-aware commands connected with shell pipes so the Principal, shell scripts, and agents can construct useful portfolio/evidence activities without Wheelwright having to predefine every workflow.
+
+Representative exploratory specimens:
+
+- `ww positions | ww expiring --within 14 | ww attention | ww table`
+- `find ~/Downloads -type f -name '*.csv' -mmin -5 -print0 | ww files | ww identify | ww validate | ww import`
+- `tt live --json | ww import`
+- `ww commands --json`
+- `ww help expiring`
+- `ww doctor --json`
+
+These are **discovery specimens, not accepted syntax or implementation requirements**.
+
+### Trigger / observed opportunity
+
+The idea emerged while using the terse `tt live` operator workflow and exploring what a command-line Wheelwright could do better than a GUI-shaped CLI. The Principal specifically emphasized:
+
+- taking advantage of Unix pipes;
+- composing many small commands into interesting higher-order activities;
+- supporting intake pipes, including Fidelity CSV-derived portfolio updates;
+- leaving filesystem selection and other generic composition to Unix where useful;
+- making the command language discoverable enough that agents can form valid commands and pipelines;
+- providing an agent-friendly man/help/schema surface;
+- supporting conventional configuration for hosts, provider/API keys or secret references, defaults, and environment-specific connection information.
+
+A concrete motivating workflow is selecting recently downloaded brokerage CSVs with ordinary Unix tools, preserving their individual identity/provenance through Wheelwright-aware identification/validation, and then explicitly importing accepted observations.
+
+### Why it might matter
+
+A composable CLI could provide a dense operator surface while also acting as a scriptable/agent-facing projection of the same Wheelwright semantics. Small orthogonal operators may allow useful activities to be synthesized rather than individually productized. If the stream contract is stable and machine-readable, the shell can become an integration/composition boundary without requiring a separate agent-specific SDK for every operation.
+
+The idea may also reduce operator friction around current evidence intake while preserving the distinction between generic filesystem/process concerns and Wheelwright domain semantics.
+
+### Emerging design hypotheses — not ratified
+
+- Treat **pipes as a primary interaction model**, not an output afterthought.
+- Explore **sources → transforms/filters → sinks/views** rather than a large catalog of monolithic commands.
+- Let commands exchange stable structured Wheelwright records when piped; human terminal rendering may differ from machine/pipe representation.
+- Preserve explicit input/file boundaries and provenance; do not make concatenated CSV text the semantic intake model.
+- Distinguish **interpret/validate without persistence** from **explicit durable import**.
+- Make command compatibility discoverable through metadata such as **ACCEPTS / EMITS**.
+- Make side effects discoverable, potentially distinguishing pure transforms, state reads, external acquisition, and durable mutation.
+- Make cold-start discovery possible through `ww --help`, `man ww`, command-specific help, machine-readable command catalogs, and schemas.
+- Use conventional configuration precedence (candidate shape: command-line override → environment → config file → built-in default), with secrets protected from accidental display.
+- Explore `ww doctor` / configuration introspection for human and agent environment/capability discovery.
+- Preserve the architectural distinction between **observable operator state** and **operational/diagnostic state**.
+- Keep recommendation/policy semantics distinct from observation/filtering semantics.
+- Do not resurrect process-oriented acquisition concepts such as “scan” merely because they make convenient CLI verbs; reconcile against the state-oriented Evidence Appliance model.
+- Convenience commands may eventually exist as sugar, but should not prematurely define the underlying compositional model.
+
+### Relationship to existing concerns
+
+- **`PL-OPS-CSV-01`:** `ww` intake composition may become one Product expression for reducing manual refresh friction, but this CLI idea is broader than CSV-count burden and does not supersede it.
+- **`PL-PORT-01`:** any import/persistence behavior must preserve authoritative portfolio-state, account-locality, evidence identity, and provenance semantics rather than inventing a parallel CLI portfolio model.
+- **Operator Console / `docs/26-operator-console-architecture.md`:** `ww` may project many of the same operator questions, but a CLI is not assumed to duplicate the Console's presentation model.
+- **State-Oriented Operator Console / Evidence Appliance:** the CLI should consume/project observable state and current evidence semantics rather than reintroducing client-owned acquisition lifecycle.
+- **`tt`:** the Principal sees `ww` as complementary to `tt`; the exact responsibility boundary is unresolved.
+- **Agent/server-side capability pressure:** agent composition is an explicit motivating consumer, but this intake does not create or authorize an AI agent, autonomous trading, or a separate agent SDK.
+- **Configuration/security:** hostnames, API/provider keys, secret references, and environment configuration must be reconciled with existing authentication, runtime-credential, and provider boundaries before design.
+
+### Unresolved questions
+
+- What is the smallest useful set of Wheelwright domain object types and orthogonal operators from which meaningful activities can be composed?
+- What is the pipe wire format and how are type, schema version, provenance, errors, and file boundaries represented?
+- Which operations are pure transformations, state reads, evidence acquisition requests, or durable mutations?
+- Where exactly is the `tt` / `ww` responsibility boundary?
+- Which current Wheelwright APIs/state owners can support the CLI without creating a second semantic implementation?
+- What should bare `ww` mean?
+- How should stdin, file-path streams, individual files, JSON, CSV, and future broker/provider inputs enter the same intake machinery?
+- What agent-discovery contract is sufficient?
+- What configuration belongs in a local config file versus environment variables, OS secret storage, server-side configuration, or authenticated remote context?
+- Is `ww` primarily a local client of a Wheelwright service, capable of local/offline transformations, or both?
+- Which high-level convenience commands should exist, and which should remain shell compositions?
+- What Product acceptance evidence would show that composition is genuinely more useful than a conventional monolithic CLI?
+
+### Explicitly not authorized
+
+This intake does **not** authorize CLI implementation; creation/publication of a Homebrew formula or other package; a final command grammar; a stable wire/schema contract; new backend APIs; changes to portfolio/evidence authority; automatic brokerage import; storage of brokerage credentials or API keys; direct trade submission/execution; autonomous agent action; recommendation-policy changes; replacement of `tt`; or duplication of Wheelwright domain semantics in a separate CLI implementation.
+
+### Intake disposition
+
+Full parking-lot-sequence inspection found adjacent ownership in `PL-OPS-CSV-01`, `PL-PORT-01`, Operator Console/state-oriented architecture, and agent/server-side capability pressure, but no existing `PL-*` identity owns the broader **Unix-composable Wheelwright command language for human, shell-script, and agent use**. The idea therefore receives new stable identity **`PL-CLI-01`**.
+
+Strategic and architectural reconciliation remain pending under `docs/foundations/idea-intake-reconciliation.md`. This record is intentionally **INTAKE**, not RECONCILED; no Reconciliation Completion Record is asserted yet.
