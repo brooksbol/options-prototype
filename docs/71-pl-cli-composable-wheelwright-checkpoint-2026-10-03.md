@@ -502,6 +502,8 @@ This reasoning arose from the CLI experiment but is broader than CLI presentatio
 
 **Subsequent decision:** The Principal selected Node.js as the durable `ww` implementation after this note. The canonical `PL-CLI-01` record carries that transition. Installation mechanics and the Product disposition of F1–F3 remain open.
 
+**Later reconsideration:** The Node selection recorded in `c96dc2c` was genuine. In light of the completed walking observation and further Product exploration, the Principal reopened the durable implementation/distribution gate. The canonical `PL-CLI-01` record preserves both the superseded decision and the current open gate. No replacement language has been selected; the Node specimen remains evidence of the command model.
+
 ---
 
 ## October 3 subsequent discovery — synchronization is an explicit primitive

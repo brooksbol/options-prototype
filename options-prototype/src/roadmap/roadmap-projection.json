@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-04T03:38:07.610Z",
+    "generatedAt": "2026-10-04T04:17:56.954Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -3949,6 +3949,34 @@
           "heading": "`PL-CLI-01` — October 3 provisional implementation-language decision gate",
           "level": 3,
           "content": "**Decision:** The first runnable `ww` slice may remain in its current Node.js implementation through the earliest useful Principal walking observation. Node.js is explicitly **provisional evidence-generation implementation**, not a durable technology-stack or distribution decision.\n\nThe Principal's Homebrew example was a forcing function against \"prototype forever,\" not a Product requirement that `ww` be distributed through Homebrew or as a native executable. Therefore the project will not rewrite the unobserved first slice merely to pre-commit to a hypothetical packaging model.\n\n**Required gate:** After the Principal observes the first runnable slice and **before adding a second `ww` capability or committing to a distributable packaging model**, make an explicit decision on the durable implementation/distribution model. At that gate, keeping Node.js and reimplementing the small accepted Product contract in Go are both legitimate candidates; Go is not preselected by this record. Python or other candidates may be considered if evidence warrants them.\n\nThe walking observation is Product evidence about the command model—Unix composition, TTY-adaptive presentation, record semantics, help/discoverability, and the shared-backend boundary. A later language port must re-verify implementation-sensitive behavior such as JSON number/null handling, record preservation, TTY detection, broken pipes, diagnostics, and exit status; Product acceptance does not transfer automatically between implementations.\n\n**Constraint:** Successful observation of the Node specimen must not silently ratify Node.js as the permanent `ww` implementation. Conversely, possible future native distribution must not trigger premature productionization before the first Product observation. No additional `ww` capability work proceeds past this gate without the explicit durable-language/distribution decision.\n\nThis decision does not authorize Homebrew packaging, a Go rewrite, a Python rewrite, slice two, or any broader PL-CLI-01 implementation.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` — October 3 walking observation and temporal-model candidate",
+          "level": 3,
+          "content": "The Principal observed the provisional Node specimen against the real local backend. `ww observed-prices ARKK BNO GDXJ | ww sort --by price --descending` reordered backend-alphabetized records into numeric price order (`GDXJ`, `ARKK`, `BNO`); direct TTY output rendered a table, while redirection produced clean JSON Lines preserving exact timestamps, acquisition facts, and publication context. The bounded experiment succeeded as a composition proof, **not** as acceptance of the present command name or TTY design. Product findings F1–F5: `observed-prices` is cumbersome/backend-shaped; TTY timestamps are operationally hostile; the table exposes too much metadata; the nonredundant composition works; exact provenance must remain in composition records. The language/distribution gate above remains open; no further capability or UX implementation is authorized by this observation alone.\n\nThe observation also exposed a **candidate temporal Product/architectural principle**, preserved with its why-state in Doc 71: market observations are temporally situated facts, not timeless current state; Wheelwright records what it knows and when/how it knows it, while fitness for a purpose is evaluated against policy and time/context. This refines the application of ratified `PRIN-ARCH-PERSIST-FACTS-DERIVE-TRUST` and ADR-015 but is **not itself ratified** or added to `docs/principles.md`. `PL-EVID-AGE` retains ownership of missing independent underlying-quote acquisition provenance. No universal durable `fresh` fact, CLI-side quote-age inference, refresh primitive, backend change, or new backlog identity is authorized here.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` — October 3 durable implementation-language decision",
+          "level": 3,
+          "content": "**Principal decision:** After the completed first-slice walking observation, the Principal selected **B — keep Node.js as the durable `ww` implementation**. This resolves the provisional language decision gate above; the existing Node specimen is the implementation starting point, not a disposable Go-port prototype. The decision accepts a Node runtime dependency for `ww`. It does not select an installation channel, packaging mechanics, or a Node version policy.\n\nThe first slice's observed composition behavior remains useful Product evidence, while F1–F3 remain UX findings rather than ratified replacement syntax or presentation. F4–F5 remain demonstrated composition and record-preservation constraints. Node selection does not itself authorize a command rename, a TTY redesign, a refresh primitive, a second CLI capability, Homebrew packaging, a backend change, or broader `PL-CLI-01` reconciliation. The uncommitted first-slice CLI files remain in-flight implementation work; preserve them while resolving the bounded Product changes.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` — October 3 durable implementation-language gate reopened",
+          "level": 3,
+          "content": "**Principal decision:** The earlier selection of Node.js as the durable `ww` implementation was a genuine Principal decision, recorded in commit `c96dc2c`. In light of the completed first-slice walking observation and further Product exploration, the Principal reconsidered it. **That Node decision is now superseded, not erased.** The durable implementation/distribution gate is open again; no replacement language or distribution model has been selected. The existing Node specimen remains preserved Product evidence, not a durable stack decision. Before adding another CLI capability, resolve this gate explicitly. This decision does not authorize a Go rewrite, refresh implementation, packaging work, backend change, or broader `PL-CLI-01` scope.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` — October 3 explicit synchronization direction",
+          "level": 3,
+          "content": "**Principal-originated Product direction, not implementation authorization:** Because Wheelwright's external market authority keeps changing, an explicit `ww refresh SYMBOL...` is a candidate foundational CLI primitive for requesting synchronization of a bounded symbol set. It is separate from a read such as candidate `ww prices SYMBOL...`: inspection must not secretly acquire, and acquisition must not imply that the resulting evidence is acceptable for a particular purpose. Ordinary shell sequencing (`ww refresh QQQ SPY XLE && ww prices QQQ SPY XLE`) lets the caller choose when to request acquisition and when to inspect held evidence; it does not require a combined `get-current-prices` workflow, `prices --ensure-fresh` flag, or agent-specific orchestration endpoint.\n\nThis is a proposed CLI consumer of the **existing** targeted `POST /api/evidence/refresh?symbol=...` capability owned by `PL-OPS-09`, not a new backend endpoint or a second acquisition authority. The existing `GET /api/evidence/quotes?symbol=...` remains the read. A refresh request may be blocked, fail, hit provider cache, or produce evidence still unsuitable for a caller's time-sensitive task. Before implementing shell `&&` semantics, define an exit-status contract against the endpoint's outcome and symbol-level evidence without turning request completion, generation advancement, or acquisition attempt into a false guarantee of newer or purpose-acceptable prices. Existing `PL-OPS-09` provider-stewardship and bounded operator-supplied-symbol constraints remain in force. The first two-primitive slice remains read-only; no refresh CLI code, backend change, automatic agent refresh policy, or freshness verdict is authorized by this direction. The linked Doc 71 preserves the motivating distinction and open design question.",
           "truncated": false,
           "tables": []
         }
@@ -8323,7 +8351,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 529
+      "sourceOrder": 533
     },
     {
       "plId": null,
@@ -8466,7 +8494,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 520
+      "sourceOrder": 524
     },
     {
       "plId": null,
@@ -8479,7 +8507,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 521
+      "sourceOrder": 525
     },
     {
       "plId": null,
@@ -8492,7 +8520,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 522
+      "sourceOrder": 526
     },
     {
       "plId": null,
@@ -8505,7 +8533,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 525
+      "sourceOrder": 529
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8531,7 +8559,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 523
+      "sourceOrder": 527
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8713,7 +8741,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 503
+      "sourceOrder": 507
     },
     {
       "plId": null,
@@ -8726,7 +8754,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 504
+      "sourceOrder": 508
     },
     {
       "plId": null,
@@ -8739,7 +8767,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 505
+      "sourceOrder": 509
     },
     {
       "plId": null,
@@ -8752,7 +8780,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 506
+      "sourceOrder": 510
     },
     {
       "plId": null,
@@ -8765,7 +8793,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 507
+      "sourceOrder": 511
     },
     {
       "plId": null,
@@ -8778,7 +8806,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 508
+      "sourceOrder": 512
     },
     {
       "plId": null,
@@ -8791,7 +8819,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 509
+      "sourceOrder": 513
     },
     {
       "plId": null,
@@ -8804,7 +8832,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 510
+      "sourceOrder": 514
     },
     {
       "plId": null,
@@ -8817,7 +8845,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 511
+      "sourceOrder": 515
     },
     {
       "plId": null,
@@ -8830,7 +8858,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 512
+      "sourceOrder": 516
     },
     {
       "plId": null,
@@ -8843,7 +8871,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 513
+      "sourceOrder": 517
     },
     {
       "plId": null,
@@ -8856,7 +8884,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 514
+      "sourceOrder": 518
     },
     {
       "plId": null,
@@ -8869,7 +8897,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 515
+      "sourceOrder": 519
     },
     {
       "plId": null,
@@ -8882,7 +8910,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 516
+      "sourceOrder": 520
     },
     {
       "plId": null,
@@ -8895,7 +8923,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 517
+      "sourceOrder": 521
     },
     {
       "plId": null,
@@ -8908,7 +8936,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 518
+      "sourceOrder": 522
     },
     {
       "plId": null,
@@ -8921,7 +8949,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 519
+      "sourceOrder": 523
     },
     {
       "plId": null,
@@ -8934,7 +8962,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 524
+      "sourceOrder": 528
     },
     {
       "plId": null,
@@ -8947,7 +8975,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 528
+      "sourceOrder": 532
     },
     {
       "plId": "PL-SEM-01",
@@ -9116,7 +9144,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 526
+      "sourceOrder": 530
     },
     {
       "plId": null,
@@ -9129,7 +9157,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 527
+      "sourceOrder": 531
     },
     {
       "plId": "PL-SETUP-01",
