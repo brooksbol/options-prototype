@@ -357,3 +357,19 @@ The Principal paused further exploration to preserve the developed state before 
 **Accepted boundary:** Direct TTY presentation may differ from pipe/redirect JSON Lines, while the facts remain the same. The line format is bounded to this first composition, not a universal `ww` protocol. The source exposes held price or explicit absence, the timestamp associated through the primary chain, acquisition status, last attempt, failure count, and publication context. `ww sort` preserves records and sorts numeric prices with missing prices last in both directions and deterministic ties. Neither command acquires evidence, infers quote age, assigns freshness/admissibility, ranks opportunity, recommends action, accesses SQLite, or changes the web client. No CLI-specific backend, v2 endpoint, backend repair, portfolio migration, or broader specimen catalog is authorized by this decision.
 
 **Known provenance gap and owner:** ADR-015 and `PL-EVID-AGE` already own the deferred independent underlying-quote acquisition provenance and stronger oldest-material-evidence-age concern. In the current quote endpoint, `observation.observedAt` comes from the primary chain row's `retrieved_at`, while the embedded underlying price can come from a cached quote. The CLI exercise adds second-client architectural evidence under that existing owner: a truthful primitive can expose a *chain-associated timestamp*, but cannot claim independent quote acquisition time or quote age. The CLI must not compensate for this backend deficiency. If a useful primitive cannot be built without doing so, implementation stops and reports the smallest shared-backend capability gap. This is evidence/enhancement pressure, not a new backlog identity or authorization to repair the backend.
+
+
+### `PL-CLI-01` — October 3 provisional implementation-language decision gate
+
+**Date:** October 3, 2026  
+**Decision:** The first runnable `ww` slice may remain in its current Node.js implementation through the earliest useful Principal walking observation. Node.js is explicitly **provisional evidence-generation implementation**, not a durable technology-stack or distribution decision.
+
+The Principal's Homebrew example was a forcing function against "prototype forever," not a Product requirement that `ww` be distributed through Homebrew or as a native executable. Therefore the project will not rewrite the unobserved first slice merely to pre-commit to a hypothetical packaging model.
+
+**Required gate:** After the Principal observes the first runnable slice and **before adding a second `ww` capability or committing to a distributable packaging model**, make an explicit decision on the durable implementation/distribution model. At that gate, keeping Node.js and reimplementing the small accepted Product contract in Go are both legitimate candidates; Go is not preselected by this record. Python or other candidates may be considered if evidence warrants them.
+
+The walking observation is Product evidence about the command model—Unix composition, TTY-adaptive presentation, record semantics, help/discoverability, and the shared-backend boundary. A later language port must re-verify implementation-sensitive behavior such as JSON number/null handling, record preservation, TTY detection, broken pipes, diagnostics, and exit status; Product acceptance does not transfer automatically between implementations.
+
+**Constraint:** Successful observation of the Node specimen must not silently ratify Node.js as the permanent `ww` implementation. Conversely, possible future native distribution must not trigger premature productionization before the first Product observation. No additional `ww` capability work proceeds past this gate without the explicit durable-language/distribution decision.
+
+This decision does not authorize Homebrew packaging, a Go rewrite, a Python rewrite, slice two, or any broader PL-CLI-01 implementation.
