@@ -248,7 +248,7 @@ No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel i
 
 ### Intake
 
-The Principal wants a first-class Wheelwright command-line interface named **`ww`**, intentionally complementary to the existing `tt` command. The idea is not merely to reproduce browser screens as subcommands. The distinguishing Product hypothesis is a **Unix-composable Wheelwright vocabulary**: small domain-aware commands connected with shell pipes so the Principal, shell scripts, and agents can construct useful portfolio/evidence activities without Wheelwright having to predefine every workflow.
+The Principal wants a first-class Wheelwright command-line interface named **`ww`**, intentionally complementary to the existing `tt` command. The central Product idea is a toolbox of small, stable, Wheelwright-aware Unix programs. **Humans and agents are equal consumers of the same tools.** Humans compose them into one-liners, aliases, shell scripts, cron jobs, and other reusable workflows; agents discover them through help/manual and input/output descriptions, then compose pipelines for questions no developer implemented as a named workflow. The Unix shell is the orchestration layer and practical SDK: **small tools + stable behavior + pipes + shell = open-ended Wheelwright workflows**. The idea is not to reproduce browser screens as subcommands or build a separate agent orchestration system.
 
 Representative exploratory specimens:
 
@@ -260,6 +260,13 @@ Representative exploratory specimens:
 - `ww doctor --json`
 
 These are **discovery specimens, not accepted syntax or implementation requirements**.
+
+### Primary Product tests
+
+- **Agent test:** Can an agent given the `ww` manual/help and shell access answer useful Wheelwright questions that were never implemented as named workflows by discovering and combining the small tools into sensible pipelines? It should not need a special agent API for each question.
+- **Human test:** After using `ww` for a month, has the operator accumulated useful one-liners, aliases, and shell scripts that Wheelwright's developers did not have to build as Product workflows?
+
+Both tests exercise the same toolbox. Stable behavior, discoverable inputs/outputs, and ordinary shell composition are the proposed source of value; a catalog of prebuilt workflows would not by itself validate the hypothesis. Read-only inspection, filtering, sorting, and presentation are the ordinary center of the idea. Commands that change durable Wheelwright state are important boundary cases, but they do not define the overall toolbox.
 
 ### Trigger / observed opportunity
 
