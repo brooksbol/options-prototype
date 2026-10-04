@@ -479,3 +479,23 @@ This document preserves enough why-state that future actors should not need the 
 - unresolved questions and explicit non-authorizations.
 
 Strategic and architectural reconciliation must still satisfy `docs/foundations/idea-intake-reconciliation.md`, including a durable Reconciliation Completion Record, before `PL-CLI-01` is labeled **RECONCILED**.
+
+---
+
+## October 3 post-observation note — temporal meaning of market evidence
+
+**Status:** Principal-originated candidate Product/architectural principle and experiment why-state; **not ratified** into `docs/principles.md`. The bounded first slice has separate implementation authority in the canonical `PL-CLI-01` item. This note neither reconciles the broader intake nor authorizes further CLI/backend work.
+
+The Principal's walking observation established that the real backend can serve `ww`, that `ww | ww` performs nontrivial numeric reordering, and that direct TTY, pipe, and redirect representations can preserve the same facts. The all-null `XLE SPY QQQ` observation and later held-price `ARKK BNO GDXJ` observation also made time/provenance impossible to treat as mere display decoration. The current TTY command name and metadata-heavy timestamp presentation remain Product findings, not accepted UX. See the canonical `PL-CLI-01` entry for F1–F5 and the still-open language gate.
+
+**Candidate principle, in the Principal's formulation:**
+
+> Market observations are temporally situated facts, not current state. Wheelwright records what it knows and when/how it knows it; consumers decide whether that knowledge is timely enough for their purpose.
+
+The market continues changing after an observation. A price value alone therefore does not establish what is true in the market at evaluation time. A record needs the subject/value, truthful observation or acquisition provenance when available, acquisition state, and publication context. These are distinct times and states. Exact provenance belongs in the composition record even when a human TTY presentation becomes concise.
+
+**Age and acceptability are distinct.** Age can be calculated only from a timestamp actually established for the named subject; a chain-associated timestamp does not establish underlying quote age. Acceptability is a time- and purpose-dependent judgment over evidence, policy, and context, not a timeless intrinsic property of a persisted price. The ratified `PRIN-ARCH-PERSIST-FACTS-DERIVE-TRUST` already forbids persisting a durable `fresh` label and requires trust derivation from facts and session context. This candidate makes the Product consequence of that rule explicit; it does not ban a context-specific, evaluated validity verdict at query or decision time.
+
+**Acquisition and inspection are distinct.** A future explicit refresh operation would mean an attempt to acquire newer knowledge, not a guarantee of a fresh price. A provider cache, delayed upstream observation, or failed attempt with a preserved prior price can leave the held value older than a particular purpose permits. Shell `&&` could sequence a separately authorized acquisition request and an inspection command, but request completion alone cannot imply an acceptable observation. The authorized `ww observed-prices` primitive remains read-only.
+
+This reasoning arose from the CLI experiment but is broader than CLI presentation. ADR-015 and `PL-EVID-AGE` already own the independent underlying-quote acquisition-provenance gap; this note is additional evidence under that owner, not a second backlog item or a CLI-side workaround. Ratification of the candidate as a distinct enduring principle, if warranted beyond the existing ratified principle, requires a separate explicit Principal decision. The durable-language/distribution gate remains undecided.
