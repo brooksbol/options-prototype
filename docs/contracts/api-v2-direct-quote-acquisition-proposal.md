@@ -32,6 +32,15 @@ The initial proposed security mechanism is TLS-protected HTTP Bearer credentials
 
 The backend owns policy. Active-session ordinary reuse uses the configured maximum successful-upstream-contact age (Product default **60 seconds**) and the usable-session/feed boundary. Completed-session ordinary reuse defaults **enabled**. Explicit ordinary off-hours contact defaults **enabled** when reuse does not qualify. `FORCE` bypasses reuse and requires actual contact if permitted. No request field changes age, session policy, provider, or batch size. Disabling off-hours contact applies to explicit `FORCE` too unless an independently ratified contact override exists; no such override is in this slice. Provider availability does not change reuse eligibility. These policy settings change fulfillment decisions, never observation facts or downstream admissibility. Backend evaluates per-subject reuse first, then SHOULD batch compatible unresolved provider work under Doc 77; grouping and count are not exposed.
 
+| Backend-owned acquisition parameter | Type / Product default | Externally observable rule |
+|---|---|---|
+| Active-session maximum contact age | Finite nonnegative duration / 60 seconds | Successful upstream receipt age ≤ effective value can qualify within the same usable regular/feed phase; zero disables positive-age reuse. |
+| Latest-completed-session reuse | Boolean / enabled | When disabled, held evidence remains held but cannot fulfill ordinary acquisition by this closed-period rule. |
+| Explicit off-hours provider contact | Boolean / enabled | When disabled, unresolved explicit requests, including `FORCE`, report `CONTACT_NOT_PERMITTED` without upstream contact. |
+| Compatible provider batch size | Positive integer / backend-selected provider-safe value | Transport grouping only; no public request-count or shared-success promise. |
+
+Deployment/operator configuration overrides these Product defaults. The only request-level semantic override in this slice is `FORCE`; it does not override a contact restriction. No configuration value changes canonical evidence facts, authority fencing, failure truth, or downstream admissibility. This contract does not select configuration property names or storage format.
+
 Wire evolution for this slice: clients must ignore unknown response object properties; adding optional response facts is compatible. Removing or changing a field's meaning, making an optional response field mandatory for client interpretation, adding outcome or problem codes, changing the price-bearing predicate, or changing completion/security semantics requires an explicit contract revision and client compatibility review. Requests reject unknown fields so clients cannot accidentally assume a new policy override. A new optional request field requires a ratified additive contract revision. This proposal defines no separate discovery or health endpoint; deployment readiness and provider availability remain distinct internally and in the result/error distinctions above.
 
 ## Acceptance specimens
