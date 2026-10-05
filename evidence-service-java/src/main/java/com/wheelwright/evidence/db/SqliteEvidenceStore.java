@@ -2846,4 +2846,109 @@ public class SqliteEvidenceStore implements AutoCloseable {
         String strategy, String evaluationState, String chainRetrievedAt, String observedAt,
         Double bestDelta, Double bestStrike, Double bestMid, Double bestSpreadPct,
         Integer bestOpenInterest, Integer bestVolume, Double bestYieldAnnual, String bestPosture) {}
+
+    // --- Canonical direct-quote evidence (API v2, migration 014) ------------------------
+    //
+    // DELIBERATELY ISOLATED from the v1 evidence model: these methods touch ONLY the
+    // direct_quote table. They never read/write evidence, symbol_resolution, snapshot_state,
+    // or spot_history, never advance the snapshot generation, and never make a symbol
+    // Decision-visible. A direct quote and a chain-embedded spot are distinct evidence
+    // claims (Doc 76 §21.6). Failed re-acquisition must simply not call setDirectQuote; the
+    // prior row is thereby preserved unchanged (failed-refresh-preserves-evidence).
+
+    /** A held direct-quote row (transport between the store and the v2 service). */
+    public record DirectQuoteRow(
+        String symbol, String observationId, String securityType, String factsJson,
+        String provider, String environment, String acquisitionId, String authorityEpoch,
+        String acquisitionPhase, String regularSessionDate, String feedIdentity,
+        String receivedAt, String committedAt) {}
+
+    /**
+     * Upsert ONE canonical direct-quote observation as the authoritative held evidence for
+     * its canonical symbol, superseding any prior row (observation identity is the stable
+     * observation_id, not numeric equality). Single-statement; the caller is responsible for
+     * fencing this mutation (see ProviderAuthorityManager.commitIfCurrent) so a superseded
+     * authority cannot commit.
+     */
+    public void setDirectQuote(DirectQuoteRow row) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("""
+                INSERT INTO direct_quote (symbol, observation_id, security_type, facts_json,
+                    provider, environment, acquisition_id, authority_epoch, acquisition_phase,
+                    regular_session_date, feed_identity, received_at, committed_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(symbol) DO UPDATE SET
+                    observation_id = excluded.observation_id,
+                    security_type = excluded.security_type,
+                    facts_json = excluded.facts_json,
+                    provider = excluded.provider,
+                    environment = excluded.environment,
+                    acquisition_id = excluded.acquisition_id,
+                    authority_epoch = excluded.authority_epoch,
+                    acquisition_phase = excluded.acquisition_phase,
+                    regular_session_date = excluded.regular_session_date,
+                    feed_identity = excluded.feed_identity,
+                    received_at = excluded.received_at,
+                    committed_at = excluded.committed_at
+            """)) {
+            ps.setString(1, row.symbol());
+            ps.setString(2, row.observationId());
+            ps.setString(3, row.securityType());
+            ps.setString(4, row.factsJson());
+            ps.setString(5, row.provider());
+            ps.setString(6, row.environment());
+            ps.setString(7, row.acquisitionId());
+            ps.setString(8, row.authorityEpoch());
+            ps.setString(9, row.acquisitionPhase());
+            ps.setString(10, row.regularSessionDate());
+            ps.setString(11, row.feedIdentity());
+            ps.setString(12, row.receivedAt());
+            ps.setString(13, row.committedAt());
+            ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Read the authoritative held direct-quote row for one canonical symbol, or null if none
+     * is held. This is the internal/domain held-quote read boundary used both to evaluate
+     * acquisition reuse and to verify the held-evidence postcondition before a
+     * NEWLY_ACQUIRED response (contract §19). No acquisition, no side effects.
+     */
+    public DirectQuoteRow getDirectQuote(String symbol) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("""
+                SELECT symbol, observation_id, security_type, facts_json, provider, environment,
+                    acquisition_id, authority_epoch, acquisition_phase, regular_session_date,
+                    feed_identity, received_at, committed_at
+                FROM direct_quote WHERE symbol = ?
+            """)) {
+            ps.setString(1, symbol);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                return new DirectQuoteRow(
+                    rs.getString("symbol"), rs.getString("observation_id"),
+                    rs.getString("security_type"), rs.getString("facts_json"),
+                    rs.getString("provider"), rs.getString("environment"),
+                    rs.getString("acquisition_id"), rs.getString("authority_epoch"),
+                    rs.getString("acquisition_phase"), rs.getString("regular_session_date"),
+                    rs.getString("feed_identity"), rs.getString("received_at"),
+                    rs.getString("committed_at"));
+            }
+        }
+    }
+
+    /** Remove all held direct-quote rows. Intended for test isolation / operational reset. */
+    public void clearDirectQuotes() throws SQLException {
+        try (Statement st = conn.createStatement()) {
+            st.executeUpdate("DELETE FROM direct_quote");
+        }
+    }
+
+    /** Read held direct-quote rows for several canonical symbols (symbol → row; absent → missing). */
+    public Map<String, DirectQuoteRow> getDirectQuotes(List<String> symbols) throws SQLException {
+        Map<String, DirectQuoteRow> out = new LinkedHashMap<>();
+        for (String symbol : symbols) {
+            DirectQuoteRow row = getDirectQuote(symbol);
+            if (row != null) out.put(symbol, row);
+        }
+        return out;
+    }
 }

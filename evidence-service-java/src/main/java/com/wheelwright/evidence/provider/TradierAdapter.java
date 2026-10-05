@@ -2,9 +2,11 @@ package com.wheelwright.evidence.provider;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -746,6 +748,174 @@ public class TradierAdapter {
     private String getNestedString(Map<String, Object> map, String outer, String inner) {
         Object val = map.get(outer + "_" + inner);
         return val instanceof String s ? s : null;
+    }
+
+    // --- API v2 direct-quote acquisition (PL-API-03) --------------------------------------
+    //
+    // A single multi-symbol direct-quote acquisition. Tradier's /markets/quotes accepts a
+    // comma-separated symbol list and returns quotes.quote as an OBJECT (one symbol) or ARRAY
+    // (many), plus quotes.unmatched_symbols for symbols it did not resolve. This method
+    // preserves ALL quote-family facts verbatim and nullably (absence is NEVER fabricated as
+    // zero), reconciled by requested symbol identity — never by response position. It does
+    // NOT touch the response cache, does NOT normalize into chain evidence, and performs no
+    // persistence. Pacing/429/credential handling flow through the shared httpRequest path.
+
+    /** One subject-verified raw quote (all facts nullable; absence preserved, never zeroed). */
+    public record RawQuoteFacts(
+            String symbol, String securityTypeRaw, String description, String exchange,
+            Double last, Long lastSize, String tradeDate,
+            Double bid, Long bidSize, String bidExchange, String bidDate,
+            Double ask, Long askSize, String askExchange, String askDate,
+            Double open, Double high, Double low, Double close, Double prevClose,
+            Long volume, Double change, Double changePercentage, Long averageVolume,
+            Double week52High, Double week52Low) {}
+
+    /** Result of one multi-symbol quote acquisition: matched facts + unmatched symbol set. */
+    public record QuotesResult(Map<String, RawQuoteFacts> bySymbol, Set<String> unmatched,
+                               String retrievedAt) {}
+
+    /**
+     * Acquire direct quotes for a batch of underlying symbols in one provider request.
+     * Reconciles by canonical uppercase symbol identity; a provider HTTP 200 does not imply
+     * every requested symbol matched (unmatched symbols are returned explicitly).
+     */
+    public QuotesResult getQuotes(List<String> symbols) throws Exception {
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new ProviderError("Tradier API key not configured", 503);
+        }
+        List<String> upper = new ArrayList<>();
+        for (String s : symbols) {
+            if (s != null && !s.isBlank()) upper.add(s.toUpperCase(Locale.ROOT));
+        }
+        String retrievedAt = Instant.now().toString();
+        if (upper.isEmpty()) {
+            return new QuotesResult(new LinkedHashMap<>(), new LinkedHashSet<>(), retrievedAt);
+        }
+        String joined = String.join(",", upper);
+        pacer.setOperationKind("quote");
+        String body = pacer.submit(() -> fetchQuotes(joined));
+        return parseQuotesResponse(body, upper, retrievedAt);
+    }
+
+    private String fetchQuotes(String joinedSymbols) throws IOException, InterruptedException {
+        String url = baseUrl + "/markets/quotes?symbols="
+            + URLEncoder.encode(joinedSymbols, StandardCharsets.UTF_8);
+        return httpRequest(url, "quote");
+    }
+
+    /** Parse quotes.quote (object or array) + quotes.unmatched_symbols, reconciled by symbol. */
+    QuotesResult parseQuotesResponse(String body, List<String> requested, String retrievedAt) {
+        Map<String, RawQuoteFacts> bySymbol = new LinkedHashMap<>();
+        Set<String> unmatched = new LinkedHashSet<>();
+        if (body != null) {
+            for (String objJson : extractQuoteObjects(body)) {
+                RawQuoteFacts facts = parseQuoteObject(objJson);
+                if (facts != null && facts.symbol() != null) {
+                    bySymbol.put(facts.symbol().toUpperCase(Locale.ROOT), facts);
+                }
+            }
+            unmatched.addAll(extractUnmatchedSymbols(body));
+        }
+        // Any requested symbol neither matched nor explicitly unmatched is treated as unmatched
+        // (reconcile by identity; never assume success for an absent subject).
+        for (String req : requested) {
+            if (!bySymbol.containsKey(req)) unmatched.add(req);
+        }
+        // A symbol that both matched and appears in unmatched is a match (defensive).
+        unmatched.removeAll(bySymbol.keySet());
+        return new QuotesResult(bySymbol, unmatched, retrievedAt);
+    }
+
+    /** Extract each JSON object under quotes.quote (object or array), as raw substrings. */
+    private List<String> extractQuoteObjects(String json) {
+        List<String> objects = new ArrayList<>();
+        int quotesIdx = json.indexOf("\"quote\"");
+        if (quotesIdx < 0) return objects;
+        int colon = json.indexOf(':', quotesIdx + "\"quote\"".length());
+        if (colon < 0) return objects;
+        int i = colon + 1;
+        while (i < json.length() && Character.isWhitespace(json.charAt(i))) i++;
+        if (i >= json.length()) return objects;
+        char c = json.charAt(i);
+        if (c == '{') {
+            String obj = sliceBalancedObject(json, i);
+            if (obj != null) objects.add(obj);
+        } else if (c == '[') {
+            int depth = 0;
+            int objStart = -1;
+            for (int k = i + 1; k < json.length(); k++) {
+                char ch = json.charAt(k);
+                if (ch == '{') {
+                    if (depth == 0) objStart = k;
+                    depth++;
+                } else if (ch == '}') {
+                    depth--;
+                    if (depth == 0 && objStart >= 0) {
+                        objects.add(json.substring(objStart, k + 1));
+                        objStart = -1;
+                    }
+                } else if (ch == ']' && depth == 0) {
+                    break;
+                }
+            }
+        }
+        return objects;
+    }
+
+    /** Slice a balanced {...} object starting at braceStart. */
+    private String sliceBalancedObject(String json, int braceStart) {
+        int depth = 0;
+        for (int k = braceStart; k < json.length(); k++) {
+            char ch = json.charAt(k);
+            if (ch == '{') depth++;
+            else if (ch == '}') {
+                depth--;
+                if (depth == 0) return json.substring(braceStart, k + 1);
+            }
+        }
+        return null;
+    }
+
+    /** Parse quotes.unmatched_symbols (comma-separated string) into uppercase symbols. */
+    private Set<String> extractUnmatchedSymbols(String json) {
+        Set<String> out = new LinkedHashSet<>();
+        String raw = extractQuotedString(json, "unmatched_symbols");
+        if (raw != null && !raw.isBlank()) {
+            for (String s : raw.split(",")) {
+                String t = s.trim();
+                if (!t.isEmpty()) out.add(t.toUpperCase(Locale.ROOT));
+            }
+        }
+        return out;
+    }
+
+    /** Parse one Tradier quote object into nullable raw facts (absence preserved). */
+    private RawQuoteFacts parseQuoteObject(String json) {
+        String symbol = extractQuotedString(json, "symbol");
+        return new RawQuoteFacts(
+            symbol,
+            extractQuotedString(json, "type"),
+            extractQuotedString(json, "description"),
+            extractQuotedString(json, "exch"),
+            extractNullableDouble(json, "last"), extractNullableLong(json, "last_volume"),
+            extractQuotedString(json, "trade_date"),
+            extractNullableDouble(json, "bid"), extractNullableLong(json, "bidsize"),
+            extractQuotedString(json, "bidexch"), extractQuotedString(json, "bid_date"),
+            extractNullableDouble(json, "ask"), extractNullableLong(json, "asksize"),
+            extractQuotedString(json, "askexch"), extractQuotedString(json, "ask_date"),
+            extractNullableDouble(json, "open"), extractNullableDouble(json, "high"),
+            extractNullableDouble(json, "low"), extractNullableDouble(json, "close"),
+            extractNullableDouble(json, "prevclose"),
+            extractNullableLong(json, "volume"),
+            extractNullableDouble(json, "change"), extractNullableDouble(json, "change_percentage"),
+            extractNullableLong(json, "average_volume"),
+            extractNullableDouble(json, "week_52_high"), extractNullableDouble(json, "week_52_low"));
+    }
+
+    /** Nullable long extractor (absence/null/garbage → null), mirroring extractNullableDouble. */
+    private Long extractNullableLong(String json, String key) {
+        Double d = extractNullableDouble(json, key);
+        return d == null ? null : d.longValue();
     }
 
     // --- Result types ---
