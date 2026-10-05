@@ -453,6 +453,24 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 
 **Boundaries and remaining decisions:** `fetch` actively synchronizes knowledge; reads inspect held evidence, and derivations evaluate it. Evidence commit may inherently update authoritative persistence, provenance, and publication; it does not implicitly change monitored declarations, held-expiration demand, or Decision workflow scope. The backend owns provider/admission, authority fencing, domain policy, and provenance; CLI and future web clients project/compose the same capabilities without reconstructing those rules. Whether named calendars, chains, and option contracts share the eventual `ww fetch` spelling, and the exact ordinary/force acceptance semantics, remain Product/design decisions. The current primary-chain-derived held price is not independent quote evidence; its authority must be reconciled before a future quote-observation capability can be designed. The investigation is consolidated in `docs/76-ww-fetch-api-v2-investigation-snapshot-2026-10-05.md`; the short provider reference is `docs/cli/tradier-market-data-capabilities-2026-10-05.md`. No CLI, API, persistence, scheduler, cache, or provider change is authorized by this decision.
 
+### `PL-CLI-01` — October 5 v2-native explicit direct-quote fetch migration
+
+**Date:** October 5, 2026
+**State:** Principal-authorized bounded CLI migration; implemented locally with deterministic verification, not independent Product acceptance or remote-main promotion.
+
+**Principal disposition:** Bare `ww fetch` is now a usage error requiring at least one explicit symbol, with no API/provider work. This supersedes the October 4 experimental default selector for the migrated command. Do not substitute seed-only behavior or another implicit selector. The reason is the hard migration boundary: fetch must have zero v1 dependencies, while the old monitored UNION seed selector depends on v1 monitored membership. Historical experimental acceptance remains provenance, not current executable semantics.
+
+**Implemented scope:** Explicit `ww fetch SYMBOL...` sends one `POST /v2/quotes` acquisition request with all normalized/deduplicated named subjects and `mode: ORDINARY`; `--force` sends `mode: FORCE`. The ratified/frozen API contract and accepted backend at `e3da44f63e8fa7681b9a5d6fd4f722fc3e2440a0` are unchanged. The CLI no longer reads monitored membership or drives v1 refresh, Decision enrollment, or option-chain traversal. Existing v1 backend consumers and independent `ww prices` behavior remain intact.
+
+**Outcome contract:** Exit 0 requires every subject fulfilled. NEWLY_ACQUIRED and REUSED remain distinct. Failed acquisition remains failure even with retained prior evidence. Mixed results preserve each subject's authoritative outcome, observation, provenance, and operation context in the existing JSON Lines convention, now `fetch-result/v2`. Request-wide failures produce diagnostics without subject records. Bare fetch uses the normal usage-error exit 2.
+
+**Engineering choices authorized by the Principal:** `WW_API_TOKEN` supplies an explicit Bearer credential; missing/invalid credentials fail before contact. `WW_BASE_URL` remains the endpoint convention. No anonymous fallback or trusted-local bypass; FORCE grants remain backend-owned. HTTPS is required outside loopback development, redirects and embedded URL credentials are rejected, and credential echoes are redacted. No automatic retries or batch splitting. Quiet/verbose, stdout/stderr separation, and 0/1/2 exit conventions are retained.
+
+**Discovery and evidence:** Current manuals are `docs/cli/ww-fetch-man.txt` and `docs/cli/ww-man.txt`. Deterministic tests: `node --test scripts/wheelwright.test.mjs scripts/ww-fetch.test.mjs`; terminal/shell acceptance: `node scripts/ww-fetch.acceptance.mjs`. Fixtures reject every route except the single v2 acquisition request, explicitly fencing off monitored reads, v1 refresh, chain/expiration traversal, and follow-up inspection. Tests cover request mapping, no-contact failures, auth and secret suppression, outcome truth, request-wide errors, malformed results, shell sequencing, and pipe closure. These are implementation evidence, not a claim of live-provider or independent acceptance.
+
+**Boundary:** Broader `PL-CLI-01` remains INTAKE. No `ww ls`, `ww show`, held-quote GET endpoint, selector, chain syntax, Decision migration, v1 removal, OAS change, Doc 79 reopening, or BUG-028 remediation. One local commit is authorized; pushing is explicitly prohibited pending review.
+
+
 ## `PL-OPS-10` — Optimize large targeted fetches
 
 **Date:** October 4, 2026 (intake)

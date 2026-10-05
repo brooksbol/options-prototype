@@ -10,21 +10,19 @@ Use explicit symbols. Reading never silently acquires; acquisition never claims
 freshness or suitability. Pipe commands without a format flag.
 
 Working commands:
-  fetch [-q | -v] [SYMBOL...] Acquire evidence; succeed when all requested prices are held.
-                            With no symbols, acquires the experimental default set
-                            (last declared monitored UNION a fixed research seed).
-                            Explicit symbols replace the default.
+  fetch [-q | -v] [--force] SYMBOL...  Acquire direct quotes for named subjects.
   prices SYMBOL...          Inspect currently held underlying price evidence (read-only)
   sort --by FIELD           Reorder ww price records from stdin (price or symbol)
 
 Example:
-  ww fetch QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price
+  ww fetch QQQ SPY XLE
 
 TTY output is for humans; pipe/redirect output is bounded JSON Lines.
 Results go to stdout; diagnostics go to stderr. Exit status controls &&.
 Use 'ww <command> --help' or '--man' for command details; 'ww --man'
 describes the current CLI. 'ww observed-prices' remains a prices alias.
-Backend: WW_BASE_URL (default http://localhost:3100).`;
+Backend: WW_BASE_URL (default http://localhost:3100).
+Fetch authentication: WW_API_TOKEN (Bearer credential).`;
 
 const SOURCE_HELP = `Usage: ww observed-prices [--] SYMBOL...
 
@@ -51,42 +49,35 @@ Backend: WW_BASE_URL (default http://localhost:3100).`;
 
 const PRICES_HELP = SOURCE_HELP.replaceAll("observed-prices", "prices");
 
-const FETCH_HELP = `Usage: ww fetch [-q | --quiet | -v | --verbose] [--] [SYMBOL...]
+const FETCH_HELP = `Usage: ww fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
 
-Ask the existing Wheelwright backend to run targeted evidence acquisition. With
-explicit symbols it acquires exactly those. With no symbols it acquires the
-current experimental default set: the last declared monitored symbols UNION a
-fixed experimental ten-symbol research seed (SPY QQQ IWM SLV GLD TQQQ USO SMH
-SOXL GDX). Explicit operands REPLACE the default; they are never added to it.
-The seed is experimental and provisional, not a live ranking, authoritative
-market policy, final default universe, watchlist, or recommendation. This
-changes Wheelwright's evidence store. It is separate from prices, which only
-reads held evidence.
+Acquire canonical direct quotes for explicit named subjects using Wheelwright
+API v2. One invocation sends one batch request. Bare fetch is a usage error.
+Symbols are uppercased and deduplicated in first-occurrence order.
 
-The backend reports whether the targeted operation completed and, for each
-symbol, its acquisition outcome and whether a price is held afterward. A
-preserved earlier price can be held after a failed acquisition. A completed
-attempt with no held price is not success. Exit status is zero only when the
-operation completed and every requested symbol has a held price.
+Ordinary acquisition may reuse eligible held evidence. --force requests an
+actual upstream acquisition attempt; the backend still owns authorization and
+contact restrictions. NEWLY_ACQUIRED and REUSED are distinct outcomes.
+A failed acquisition with a preserved earlier quote remains a failure.
+Exit zero only when every subject is fulfilled, never merely because prior
+quotes exist. Fetch does not certify freshness or trading suitability.
 
-Held does not mean newly acquired, fresh, independently timestamped as an
-underlying quote, or suitable for a trading decision. The exact held price
-and its evidence state are read with ww prices.
-
-On success, a terminal stderr receives a concise held-price completion count.
--q/--quiet suppresses that status and nonfatal notices, not errors. When
-stdout is piped or redirected, it emits one bounded JSON Lines result per
-requested symbol after completion. An incomplete operation emits no records.
-Use -v/--verbose for each symbol's invocation acquisition outcome and held-price
-state on stderr. Its From line identifies the Wheelwright service endpoint
-consulted, not an upstream market-data provider. It does not report prices.
-Quiet and verbose cannot be combined.
+Terminal stdout is empty; terminal stderr shows per-subject outcomes and a
+fulfillment count. Pipe/redirect stdout emits one fetch-result/v2 JSON Lines
+record per subject, retaining the backend observation, provenance, failure,
+and operation context. Request-wide errors emit diagnostics, no result records.
+-q/--quiet suppresses normal status, never failures or structured results.
+-v/--verbose includes the Wheelwright endpoint and operation correlation on
+stderr even when redirected. Quiet and verbose cannot be combined.
 
 Example:
-  ww fetch QQQ && ww prices QQQ
+  ww fetch SPY QQQ IWM
+  ww fetch SPY --force
 
-Use 'ww fetch --man' for the full behavioral contract.
-Backend: WW_BASE_URL (default http://localhost:3100).`;
+Backend: WW_BASE_URL (default http://localhost:3100).
+Authentication: WW_API_TOKEN, a configured Bearer credential. Missing credentials
+fail before contacting the backend. Use HTTPS outside loopback development.
+Use 'ww fetch --man' for the full behavioral contract.`;
 
 const SORT_HELP = `Usage: ww sort --by FIELD [--descending]
 
@@ -104,14 +95,6 @@ Example:
 
 const KIND = "observed-price/v1";
 const STATUSES = new Set(["ready", "failed", "pending", "absent", "expirations_known", "not_in_universe"]);
-
-// Fixed experimental research seed for bare `ww fetch` (PL-CLI-01 bare-fetch
-// experiment). Derived from dated September 23 options-volume research. It is
-// experimental and provisional: NOT a live ranking, authoritative market
-// representation, final default universe, watchlist, or recommendation. It
-// intentionally retains potentially awkward entries (TQQQ, SOXL) so the
-// experiment can falsify the default selection. Do not sanitize or shrink it.
-export const EXPERIMENTAL_SEED = ["SPY", "QQQ", "IWM", "SLV", "GLD", "TQQQ", "USO", "SMH", "SOXL", "GDX"];
 
 class WwError extends Error {
   constructor(message, code = 1) {
@@ -141,6 +124,7 @@ export function parseArgs(args) {
     let operands = false;
     let quiet = false;
     let verbose = false;
+    let force = false;
     const symbols = [];
     for (const arg of rest) {
       if (!operands && arg === "--") { operands = true; continue; }
@@ -150,22 +134,20 @@ export function parseArgs(args) {
       if (command === "fetch" && !operands && ["-v", "--verbose"].includes(arg)) {
         verbose = true; continue;
       }
+      if (command === "fetch" && !operands && arg === "--force") {
+        force = true; continue;
+      }
       if (!operands && arg.startsWith("-")) usage(`${command}: unknown option '${arg}'`);
       if (!arg.trim()) usage(`${command}: symbol must not be empty`);
       symbols.push(arg);
     }
-    // Bare `ww fetch` (no operands) is NOT a usage error: it requests the
-    // experimental default selector (last declared monitored symbols UNION the
-    // fixed experimental seed), resolved against the backend in main(). prices /
-    // observed-prices still require at least one explicit symbol.
-    if (symbols.length === 0 && command !== "fetch") usage(`${command}: at least one symbol is required`);
+    if (symbols.length === 0) usage(`${command}: at least one ${command === "fetch" ? "explicit " : ""}symbol is required`);
     if (command === "fetch" && quiet && verbose) usage("fetch: --quiet and --verbose cannot be combined");
     const parsed = { command, symbols: [...new Set(symbols.map(s => s.toUpperCase()))] };
     if (command === "fetch") {
       parsed.quiet = quiet;
       parsed.verbose = verbose;
-      // Explicit operands REPLACE the default; no operands selects the default.
-      parsed.useDefaultSelector = symbols.length === 0;
+      parsed.mode = force ? "FORCE" : "ORDINARY";
     }
     return parsed;
   }
@@ -267,117 +249,90 @@ export function quoteUrl(symbols, base = process.env.WW_BASE_URL ?? "http://loca
   return url;
 }
 
-export function refreshUrl(symbols, base = process.env.WW_BASE_URL ?? "http://localhost:3100") {
+const QUOTE_OUTCOMES = new Set([
+  "NEWLY_ACQUIRED", "REUSED", "UNMATCHED", "UNSUPPORTED_SUBJECT",
+  "UPSTREAM_UNAVAILABLE", "CONTACT_NOT_PERMITTED", "ADMISSION_REJECTED",
+  "UPSTREAM_FAILED", "INVALID_UPSTREAM_EVIDENCE", "AUTHORITY_SUPERSEDED", "ACCEPTANCE_FAILED",
+]);
+
+// Validate the response boundary, not acquisition policy: the backend owns all
+// reuse, provider, session, subject-verification, persistence and fencing rules.
+export function parseAcquisitionResponse(data, requested, mode) {
+  const invalid = () => { throw new WwError("backend returned an invalid v2 quote acquisition response"); };
+  if (!data || typeof data.requestId !== "string" || !data.requestId ||
+      data.mode !== mode || typeof data.startedAt !== "string" ||
+      typeof data.completedAt !== "string" || !Array.isArray(data.results) ||
+      data.results.length !== requested.length) invalid();
+  data.results.forEach((item, index) => {
+    if (!item || typeof item !== "object" || Array.isArray(item) || item.subject?.symbol !== requested[index] || !QUOTE_OUTCOMES.has(item.outcome) ||
+        typeof item.fulfilled !== "boolean" || typeof item.priorRetained !== "boolean" ||
+        !("observation" in item)) invalid();
+    const success = ["NEWLY_ACQUIRED", "REUSED"].includes(item.outcome);
+    if (item.fulfilled !== success || (mode === "FORCE" && item.outcome === "REUSED") ||
+        item.priorRetained !== (!success && item.observation !== null)) invalid();
+    if (success ? (item.observation === null || "failure" in item) :
+        (!item.failure || item.failure.code !== item.outcome || typeof item.failure.retryable !== "boolean")) invalid();
+    if (item.failure && "detail" in item.failure && typeof item.failure.detail !== "string") invalid();
+    if (item.observation !== null &&
+        (typeof item.observation !== "object" ||
+         item.observation.subject?.symbol !== item.subject.symbol ||
+         typeof item.observation.observationId !== "string" ||
+         !item.observation.facts || !item.observation.provenance)) invalid();
+  });
+  return data;
+}
+
+function redactCredential(value, token) {
+  // Include server-provided strings and structured records: even a broken server
+  // echoing a credential must not expose it through ww's streams.
+  return JSON.parse(JSON.stringify(value).replaceAll(token, "[REDACTED]"));
+}
+
+export async function fetchEvidence(symbols, {
+  mode = "ORDINARY", token = process.env.WW_API_TOKEN,
+  base = process.env.WW_BASE_URL ?? "http://localhost:3100", fetchImpl = fetch,
+} = {}) {
+  if (symbols.length === 0) usage("fetch: at least one explicit symbol is required");
+  if (typeof token !== "string" || !token.trim()) {
+    throw new WwError("fetch: WW_API_TOKEN is required (configured Wheelwright Bearer credential)");
+  }
+  if (!/^[A-Za-z0-9._~+\/-]+=*$/.test(token)) {
+    throw new WwError("fetch: WW_API_TOKEN must be a valid Bearer credential");
+  }
   let url;
-  try { url = new URL("/api/evidence/refresh", base); }
+  try { url = new URL("/v2/quotes", base); }
   catch { throw new WwError("WW_BASE_URL must be an HTTP(S) URL", 2); }
-  if (!["http:", "https:"].includes(url.protocol)) throw new WwError("WW_BASE_URL must be an HTTP(S) URL", 2);
-  for (const symbol of symbols) url.searchParams.append("symbol", symbol);
-  return url;
-}
-
-export function monitoredUrl(base = process.env.WW_BASE_URL ?? "http://localhost:3100") {
-  let url;
-  try { url = new URL("/api/evidence/monitored", base); }
-  catch { throw new WwError("WW_BASE_URL must be an HTTP(S) URL", 2); }
-  if (!["http:", "https:"].includes(url.protocol)) throw new WwError("WW_BASE_URL must be an HTTP(S) URL", 2);
-  return url;
-}
-
-export function parseMonitoredResponse(data) {
-  if (!data || typeof data !== "object" || !Array.isArray(data.symbols)) {
-    throw new WwError("backend returned an invalid monitored response");
+  if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) {
+    throw new WwError("WW_BASE_URL must be an HTTP(S) URL without embedded credentials", 2);
   }
-  const symbols = [];
-  for (const s of data.symbols) {
-    if (typeof s !== "string" || !s.trim()) throw new WwError("backend returned an invalid monitored symbol");
-    symbols.push(s.toUpperCase());
+  if (url.protocol === "http:" && !["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)) {
+    throw new WwError("fetch: WW_BASE_URL must use HTTPS outside loopback development", 2);
   }
-  return symbols;
-}
-
-export async function readMonitoredSymbols(fetchImpl = fetch, base) {
-  const url = monitoredUrl(base);
   let response;
-  try { response = await fetchImpl(url); }
-  catch (error) { throw new WwError(`backend request failed: ${error.message}`); }
-  if (!response.ok) throw new WwError(`backend returned HTTP ${response.status}`);
+  try {
+    response = await fetchImpl(url, {
+      method: "POST", redirect: "error",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ subjects: symbols.map(symbol => ({ symbol })), mode }),
+    });
+  } catch {
+    // Transport exception text may contain headers or credential-bearing URLs.
+    throw new WwError("fetch: Wheelwright request failed; check connectivity and WW_BASE_URL");
+  }
   let data;
-  try { data = await response.json(); }
-  catch { throw new WwError("backend returned invalid JSON"); }
-  return parseMonitoredResponse(data);
-}
-
-/**
- * Resolve the experimental default fetch selection: the UNION of last declared
- * monitored symbols and the fixed experimental seed, normalized (uppercase) and
- * deduplicated, with per-symbol selection provenance preserved.
- *
- * Returns { symbols, provenance } where provenance maps each resolved symbol to
- * "monitored", "experimental-seed", or "both". The symbol order is: monitored
- * symbols first (in the order the backend declared them), then seed-only symbols
- * (in fixed seed order), so the result is deterministic and the monitored
- * contribution is visible first. This is NOT a weighted relevance score.
- *
- * resolved empty != unresolved: this function returns whatever the inputs resolve
- * to. With the fixed non-empty seed the union is never empty, but the caller must
- * still treat a (hypothetical) empty resolved set as "acquire nothing", never as
- * a signal to run whole-cycle acquisition.
- */
-export function resolveFetchSelection(monitored, seed = EXPERIMENTAL_SEED) {
-  const provenance = new Map();
-  const order = [];
-  const seedSet = new Set(seed.map(s => s.toUpperCase()));
-  const add = (raw, reason) => {
-    const symbol = raw.toUpperCase();
-    if (!provenance.has(symbol)) { order.push(symbol); provenance.set(symbol, reason); }
-    else if (provenance.get(symbol) !== reason) provenance.set(symbol, "both");
-  };
-  for (const m of monitored) {
-    const symbol = m.toUpperCase();
-    add(symbol, seedSet.has(symbol) ? "both" : "monitored");
+  try { data = redactCredential(await response.json(), token); }
+  catch { throw new WwError("fetch: backend returned invalid JSON"); }
+  if (!response.ok) {
+    const code = typeof data?.code === "string" ? data.code : "REQUEST_FAILED";
+    const reason = typeof data?.detail === "string" ? data.detail :
+      typeof data?.title === "string" ? data.title : "Wheelwright could not complete the request";
+    const correlation = typeof data?.requestId === "string" ? ` (request ${data.requestId})` : "";
+    const params = Array.isArray(data?.invalidParams) ? data.invalidParams
+      .filter(p => typeof p?.name === "string" && typeof p?.reason === "string")
+      .map(p => `\n  ${p.name}: ${p.reason}`).join("") : "";
+    throw new WwError(`fetch: ${code}: ${reason}${correlation}${params}`);
   }
-  for (const s of seed) add(s, "experimental-seed");
-  return { symbols: order, provenance };
-}
-
-export function parseRefreshResponse(data, requested) {
-  if (!data || typeof data !== "object" || typeof data.outcome !== "string" ||
-      typeof data.completed !== "boolean" || !Array.isArray(data.perSymbol)) {
-    throw new WwError("backend returned an invalid refresh response");
-  }
-  if (!data.completed) {
-    if (data.perSymbol.length !== 0) throw new WwError("backend returned per-symbol results for incomplete refresh");
-    return { completed: false, outcome: data.outcome, results: [] };
-  }
-  if (data.outcome !== "ACQUIRED") throw new WwError("backend returned contradictory refresh completion");
-  const wanted = new Set(requested);
-  const seen = new Set();
-  const results = [];
-  for (const item of data.perSymbol) {
-    if (!item || typeof item.symbol !== "string" || !wanted.has(item.symbol) || seen.has(item.symbol) ||
-        typeof item.acquisitionOutcome !== "string" || !item.acquisitionOutcome ||
-        typeof item.heldPrice !== "boolean") {
-      throw new WwError("backend returned an invalid per-symbol refresh result");
-    }
-    seen.add(item.symbol);
-    results.push({ symbol: item.symbol, acquisitionOutcome: item.acquisitionOutcome,
-      heldPrice: item.heldPrice });
-  }
-  if (seen.size !== wanted.size) throw new WwError("backend refresh response omitted a requested symbol");
-  return { completed: true, outcome: data.outcome, results };
-}
-
-export async function fetchEvidence(symbols, fetchImpl = fetch, base) {
-  const url = refreshUrl(symbols, base);
-  let response;
-  try { response = await fetchImpl(url, { method: "POST" }); }
-  catch (error) { throw new WwError(`backend request failed: ${error.message}`); }
-  if (!response.ok) throw new WwError(`backend returned HTTP ${response.status}`);
-  let data;
-  try { data = await response.json(); }
-  catch { throw new WwError("backend returned invalid JSON"); }
-  return { ...parseRefreshResponse(data, symbols), wheelwrightOrigin: url.origin };
+  return { ...parseAcquisitionResponse(data, symbols, mode), wheelwrightOrigin: url.origin.replaceAll(token, "[REDACTED]") };
 }
 
 export async function readObservedPrices(symbols, fetchImpl = fetch, base) {
@@ -457,32 +412,26 @@ function writeRecords(entries) {
 }
 
 export function presentFetchResult(result, quiet, stdoutIsTTY, stderrIsTTY, verbose = false) {
-  if (!result.completed) return { stdout: "", stderr: "" };
-  const stdout = stdoutIsTTY ? "" : result.results.map(item =>
-    JSON.stringify({ kind: "fetch-result/v1", ...item })).join("\n") + "\n";
-  const held = result.results.filter(item => item.heldPrice);
-  if (verbose) {
-    if (!result.wheelwrightOrigin) throw new WwError("fetch response lacks Wheelwright endpoint context");
-    const symbolWidth = Math.max(...result.results.map(item => item.symbol.length));
-    const outcomeWidth = Math.max(...result.results.map(item => item.acquisitionOutcome.length));
-    const details = result.results.map(item => {
-      const qualification = !item.heldPrice ? "no local price stored" :
-        item.acquisitionOutcome === "ACQUIRED" ? "" :
-        item.acquisitionOutcome === "UNKNOWN" ? "local price stored" : "previous price retained";
-      return (`${item.symbol.padEnd(symbolWidth)}  acquisition ${item.acquisitionOutcome.padEnd(outcomeWidth)}` +
-        (qualification ? `  ${qualification}` : "")).trimEnd();
-    }).join("\n");
-    const summary = held.length === result.results.length
-      ? `\nfetch complete: ${held.length}/${result.results.length} prices held\n` : "\n";
-    return { stdout, stderr: `From ${result.wheelwrightOrigin}\n${details}${summary}` };
+  const { requestId, mode, startedAt, completedAt } = result;
+  const stdout = stdoutIsTTY ? "" : result.results.map(item => JSON.stringify({
+    ...item, kind: "fetch-result/v2", symbol: item.subject.symbol,
+    requestId, mode, startedAt, completedAt,
+  })).join("\n") + "\n";
+  const failures = result.results.filter(item => !item.fulfilled);
+  const describe = item => `${item.subject.symbol}: ${item.fulfilled ? "" : "FAILED "}${item.outcome}` +
+    (item.priorRetained ? "; prior quote retained (request unfulfilled)" : "") +
+    (item.failure?.detail ? `; ${item.failure.detail}` : "");
+  const visible = verbose || (!quiet && stderrIsTTY) ? result.results : failures;
+  const lines = visible.map(describe);
+  if (verbose) lines.unshift(`From ${result.wheelwrightOrigin}`, `Request ${requestId}; mode ${mode}`);
+  if (verbose || (!quiet && stderrIsTTY) || failures.length) {
+    const acquired = result.results.filter(item => item.outcome === "NEWLY_ACQUIRED").length;
+    const reused = result.results.filter(item => item.outcome === "REUSED").length;
+    lines.push(`fetch ${failures.length ? "failed" : "complete"}: ` +
+      `${result.results.length - failures.length}/${result.results.length} fulfilled; ` +
+      `${acquired} newly acquired, ${reused} reused, ${failures.length} failed`);
   }
-  if (quiet || !stderrIsTTY || held.length !== result.results.length) {
-    return { stdout, stderr: "" };
-  }
-  const notices = result.results.filter(item => item.acquisitionOutcome !== "ACQUIRED").map(item =>
-    `ww: ${item.symbol}: acquisition ${item.acquisitionOutcome}; ${item.acquisitionOutcome === "UNKNOWN" ? "local price stored" : "previous price retained"}`);
-  return { stdout, stderr: `fetch complete: ${held.length}/${result.results.length} prices held\n` +
-    (notices.length ? `${notices.join("\n")}\n` : "") };
+  return { stdout, stderr: lines.length ? lines.join("\n") + "\n" : "" };
 }
 
 export async function main(args) {
@@ -499,47 +448,12 @@ export async function main(args) {
     return;
   }
   if (parsed.command === "fetch") {
-    let symbols = parsed.symbols;
-    if (parsed.useDefaultSelector) {
-      // Resolve the experimental default: last declared monitored symbols UNION
-      // the fixed experimental seed. The monitored read is a required source; a
-      // failure to read it is NOT silently treated as an authoritative empty set
-      // (readMonitoredSymbols throws, aborting fetch, rather than resolving []).
-      const monitored = await readMonitoredSymbols();
-      const selection = resolveFetchSelection(monitored, EXPERIMENTAL_SEED);
-      symbols = selection.symbols;
-      // Human-readable selection diagnostics belong on stderr, and only when
-      // verbose. Machine stdout is never contaminated with selection prose.
-      if (parsed.verbose && !parsed.quiet) {
-        const width = symbols.length ? Math.max(...symbols.map(s => s.length)) : 0;
-        const lines = symbols.map(s => `${s.padEnd(width)}  ${selection.provenance.get(s)}`);
-        const counts = { monitored: 0, "experimental-seed": 0, both: 0 };
-        for (const s of symbols) counts[selection.provenance.get(s)]++;
-        process.stderr.write(
-          `Default selection: ${symbols.length} symbol(s) ` +
-          `(${monitored.length} monitored, ${EXPERIMENTAL_SEED.length} seed; ` +
-          `${counts.monitored} monitored-only, ${counts["experimental-seed"]} seed-only, ${counts.both} both)\n` +
-          (lines.length ? lines.join("\n") + "\n" : ""));
-      }
-      // resolved empty != unresolved: a resolved-empty default set acquires
-      // nothing. It must NEVER fall through to a no-symbol POST, which the backend
-      // treats as whole-cycle acquisition. (The fixed seed makes this unreachable
-      // in practice; the guard preserves the invariant regardless.)
-      if (symbols.length === 0) {
-        if (!parsed.quiet && process.stderr.isTTY) {
-          process.stderr.write("fetch complete: 0/0 prices held\n");
-        }
-        return;
-      }
-    }
-    const result = await fetchEvidence(symbols);
+    const result = await fetchEvidence(parsed.symbols, { mode: parsed.mode });
     const presentation = presentFetchResult(result, parsed.quiet, !!process.stdout.isTTY,
       !!process.stderr.isTTY, parsed.verbose);
     if (presentation.stdout) process.stdout.write(presentation.stdout);
     if (presentation.stderr) process.stderr.write(presentation.stderr);
-    if (!result.completed) throw new WwError(`fetch did not complete (${result.outcome})`);
-    const missing = result.results.filter(item => !item.heldPrice).map(item => item.symbol);
-    if (missing.length) throw new WwError(`fetch completed; ${result.results.length - missing.length}/${result.results.length} prices held; ${missing.join(", ")} ${missing.length === 1 ? "has" : "have"} no local price stored`);
+    if (result.results.some(item => !item.fulfilled)) process.exitCode = 1;
     return;
   }
   if (parsed.command === "prices" || parsed.command === "observed-prices") {
@@ -553,7 +467,7 @@ export async function main(args) {
 
 if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
   process.stdout.on("error", error => {
-    if (error.code === "EPIPE") process.exit(0);
+    if (error.code === "EPIPE") process.exit(process.exitCode ?? 0);
     process.stderr.write(`ww: ${error.message}\n`);
     process.exit(1);
   });

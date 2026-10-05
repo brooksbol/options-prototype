@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-05T17:44:50.877Z",
+    "generatedAt": "2026-10-05T20:52:04.330Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -40,8 +40,8 @@
       "comingSoonTotal": 5,
       "principleTotal": 9,
       "domainEntryTotal": 36,
-      "bugTotal": 27,
-      "logTotal": 87,
+      "bugTotal": 28,
+      "logTotal": 88,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 60
@@ -4054,6 +4054,13 @@
           "heading": "`PL-CLI-01` — October 5 Product decision on mature `fetch` meaning",
           "level": 3,
           "content": "**Principal-selected semantic boundary, not an implementation authorization:** `fetch` acquires a declared family of external market observations for named subjects. Unqualified `fetch SYMBOL` defaults to the direct quote-observation family for that security; it does not silently traverse additional evidence units selected by Wheelwright policy. A quote family may include more than last price (for example bid/ask, volume, source times, prior close, and instrument metadata where available). This Product meaning is provider-independent. It does not redefine the behavior or success contract of the currently executable experimental `ww fetch` slice.\n\n**Evidence-unit rule:** Explicitly identifying an underlying does not also request every related expiration and option contract. An expiration calendar, one identified underlying-plus-expiration chain, and one identified option-contract observation are distinct candidate observation families/subjects. A named chain can legitimately contain many contracts; cardinality within a declared evidence unit is different from hidden policy traversal across many separately addressable units. A complete Decision-eligible chain surface remains legitimate Product behavior under `PL-EVID-07`, but is an explicit higher-order acquisition workflow, not a consequence of unqualified `fetch SYMBOL`.\n\n**Acquisition policy refinement:** An ordinary fetch may reuse evidence that the backend judges acceptable for the declared observation family and request context. A separately selected force mode would require upstream reacquisition of that family; user-facing spelling, acceptance criteria, treatment of provider failure, and caching mechanics remain to be designed. This is distinct from current v1 targeted “force,” which bypasses scheduler due/session gates but may still hit the provider-response cache. Neither mode promises a new market value, universal freshness, or trading suitability.\n\n**Boundaries and remaining decisions:** `fetch` actively synchronizes knowledge; reads inspect held evidence, and derivations evaluate it. Evidence commit may inherently update authoritative persistence, provenance, and publication; it does not implicitly change monitored declarations, held-expiration demand, or Decision workflow scope. The backend owns provider/admission, authority fencing, domain policy, and provenance; CLI and future web clients project/compose the same capabilities without reconstructing those rules. Whether named calendars, chains, and option contracts share the eventual `ww fetch` spelling, and the exact ordinary/force acceptance semantics, remain Product/design decisions. The current primary-chain-derived held price is not independent quote evidence; its authority must be reconciled before a future quote-observation capability can be designed. The investigation is consolidated in `docs/76-ww-fetch-api-v2-investigation-snapshot-2026-10-05.md`; the short provider reference is `docs/cli/tradier-market-data-capabilities-2026-10-05.md`. No CLI, API, persistence, scheduler, cache, or provider change is authorized by this decision.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` — October 5 v2-native explicit direct-quote fetch migration",
+          "level": 3,
+          "content": "**Principal disposition:** Bare `ww fetch` is now a usage error requiring at least one explicit symbol, with no API/provider work. This supersedes the October 4 experimental default selector for the migrated command. Do not substitute seed-only behavior or another implicit selector. The reason is the hard migration boundary: fetch must have zero v1 dependencies, while the old monitored UNION seed selector depends on v1 monitored membership. Historical experimental acceptance remains provenance, not current executable semantics.\n\n**Implemented scope:** Explicit `ww fetch SYMBOL...` sends one `POST /v2/quotes` acquisition request with all normalized/deduplicated named subjects and `mode: ORDINARY`; `--force` sends `mode: FORCE`. The ratified/frozen API contract and accepted backend at `e3da44f63e8fa7681b9a5d6fd4f722fc3e2440a0` are unchanged. The CLI no longer reads monitored membership or drives v1 refresh, Decision enrollment, or option-chain traversal. Existing v1 backend consumers and independent `ww prices` behavior remain intact.\n\n**Outcome contract:** Exit 0 requires every subject fulfilled. NEWLY_ACQUIRED and REUSED remain distinct. Failed acquisition remains failure even with retained prior evidence. Mixed results preserve each subject's authoritative outcome, observation, provenance, and operation context in the existing JSON Lines convention, now `fetch-result/v2`. Request-wide failures produce diagnostics without subject records. Bare fetch uses the normal usage-error exit 2.\n\n**Engineering choices authorized by the Principal:** `WW_API_TOKEN` supplies an explicit Bearer credential; missing/invalid credentials fail before contact. `WW_BASE_URL` remains the endpoint convention. No anonymous fallback or trusted-local bypass; FORCE grants remain backend-owned. HTTPS is required outside loopback development, redirects and embedded URL credentials are rejected, and credential echoes are redacted. No automatic retries or batch splitting. Quiet/verbose, stdout/stderr separation, and 0/1/2 exit conventions are retained.\n\n**Discovery and evidence:** Current manuals are `docs/cli/ww-fetch-man.txt` and `docs/cli/ww-man.txt`. Deterministic tests: `node --test scripts/wheelwright.test.mjs scripts/ww-fetch.test.mjs`; terminal/shell acceptance: `node scripts/ww-fetch.acceptance.mjs`. Fixtures reject every route except the single v2 acquisition request, explicitly fencing off monitored reads, v1 refresh, chain/expiration traversal, and follow-up inspection. Tests cover request mapping, no-contact failures, auth and secret suppression, outcome truth, request-wide errors, malformed results, shell sequencing, and pipe closure. These are implementation evidence, not a claim of live-provider or independent acceptance.\n\n**Boundary:** Broader `PL-CLI-01` remains INTAKE. No `ww ls`, `ww show`, held-quote GET endpoint, selector, chain syntax, Decision migration, v1 removal, OAS change, Doc 79 reopening, or BUG-028 remediation. One local commit is authorized; pushing is explicitly prohibited pending review.",
           "truncated": false,
           "tables": []
         }
@@ -8335,6 +8342,88 @@
           "tables": []
         }
       ]
+    },
+    {
+      "id": "BUG-028",
+      "title": "Backend `gradlew clean test` exceeds the 60s feedback-loop SLO (~5× over: measured 301s vs SLO-BUILD-01 target of 60s), dominated by serial wall-clock `Thread.sleep` in acquisition/provider-lifecycle tests",
+      "area": "Engineering / backend test suite (`evidence-service-java`)",
+      "severity": "S3",
+      "status": "Open",
+      "recordFile": "BUG-028-gradlew-clean-test-exceeds-slo.md",
+      "provenance": "Discovered 2026-10-05 (SLO-BUILD-01 ratification)",
+      "recordTitle": "BUG-028 — Backend `gradlew clean test` exceeds the 60-second feedback-loop SLO (~5× over)",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "A full backend `./gradlew clean test` on the reference development machine\n(`docs/development-machine.md`: MacBook Air, Apple M1, 8 GB RAM) completes in\n**`real 301.12`** (~5 min 1 s), measured with `/usr/bin/time -p` under JDK 21\n(Temurin 21.0.11). `BUILD SUCCESSFUL`. This is ~5× the ratified objective.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "`SLO-BUILD-01` (`technology-quality-slo-build-test-v1.md`) ratifies that a clean\nbackend `gradlew clean test` completes in **≤ 60 seconds** wall-clock on the reference\nmachine. The observed 301 s violates that objective. The SLO exists to keep the inner\nEngineering Loop (`foundations/closed-loop-engineering.md`) cheap; a multi-minute clean\nsuite degrades the engineering learning rate the methodology optimizes for.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "- Timed clean run (observed, 2026-10-05): `./gradlew clean test` → `real 301.12`,\n  `user 1.07`, `sys 0.30`. The near-zero CPU time relative to wall-clock confirms the\n  suite is sleep/I/O-bound, not compute-bound.\n- Static measurement (observed): **63 `Thread.sleep(...)` calls totaling 232,007 ms\n  (~232 s, 77% of wall-clock)** across the wall-clock-based acquisition/provider\n  lifecycle integration tests.\n- Per-class attribution from JUnit XML reports (observed):\n  - `DegradedRecoveryWhileBlockedTest` — 149.76 s (19 tests)\n  - `AcquisitionWorkerTest` forced-acquisition cases — ~68 s\n  - `DegradedModeIntegrationTest` — 22.04 s (2 tests)\n  - remainder (~250 tests) — ~60 s combined\n- Configuration (observed): no `gradle.properties`; `build.gradle.kts` sets no\n  `maxParallelForks`.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Every clean verification cycle costs ~5 minutes, discouraging frequent full-suite runs\nand lengthening the Spec → Implement → Review → Refine loop. Severity **S3 (moderate)**:\nit degrades engineering feedback latency and the stated learning-rate target, but does\nnot corrupt evidence, accounting, or operator-facing correctness. No market/domain\nsemantics are wrong — only the feedback loop is slow.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "The suite is slow **by construction**: the acquisition/provider state-machine tests assert\non background-scheduler behavior over real wall-clock time and wait for it with fixed\n`Thread.sleep(...)` calls (up to 8,000–10,000 ms each). Two amplifiers:\n1. **No test parallelism** — single serial JVM fork makes all sleep time additive, even\n   though the tests are nearly idle on CPU and would parallelize well on the 8-core M1.\n2. **`@SpringBootTest` context loads** in several controller tests add fixed per-context\n   startup overhead on top of the sleeps (small relative to the sleeps).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "This record documents the SLO breach and its measured root cause. It does **not** author\nor authorize any remediation. Candidate directions exist (enable `maxParallelForks` after\nverifying SQLite/static-state fork-safety; replace wall-clock waits with an injectable\nclock / Awaitility polling; tag the time-based lifecycle tests and exclude them from the\ninner loop) but **filing does not authorize remediation** — that is a separate explicit\nPrincipal decision. Priority/sequencing is also a separate Principal decision; S3 is a\nconsequence classification only.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "A fix is complete when a clean `./gradlew clean test` on the reference machine completes\nin **≤ 60 s** wall-clock (per SLO-BUILD-01 measurement discipline: cold task graph,\n`/usr/bin/time -p` `real`, JDK 21), while the suite still verifies the same\nacquisition/provider-lifecycle semantics it does today (no loss of coverage or\ndeterminism, no newly flaky tests).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "_Empty while Open._",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "_Empty while Open._",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- `technology-quality-slo-build-test-v1.md` — `SLO-BUILD-01`, the objective this defect is\n  filed against (authority for the 60 s target and its measurement).\n- `technology-quality-fitness-controls-v1.md` §3 — trend/visibility operating principle\n  (why this is an objective, not a hard build gate).\n- `foundations/closed-loop-engineering.md` — Engineering Loop / learning-rate rationale.\n- `docs/development-machine.md` — reference environment the SLO and this measurement are\n  stated against.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
     }
   ],
   "log": [
@@ -8544,7 +8633,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 555
+      "sourceOrder": 556
     },
     {
       "plId": null,
@@ -8687,7 +8776,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 546
+      "sourceOrder": 547
     },
     {
       "plId": null,
@@ -8700,7 +8789,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 547
+      "sourceOrder": 548
     },
     {
       "plId": null,
@@ -8713,7 +8802,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 548
+      "sourceOrder": 549
     },
     {
       "plId": null,
@@ -8726,7 +8815,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 551
+      "sourceOrder": 552
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8752,7 +8841,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 549
+      "sourceOrder": 550
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8934,7 +9023,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 529
+      "sourceOrder": 530
     },
     {
       "plId": null,
@@ -8947,7 +9036,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 530
+      "sourceOrder": 531
     },
     {
       "plId": null,
@@ -8960,7 +9049,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 531
+      "sourceOrder": 532
     },
     {
       "plId": null,
@@ -8973,7 +9062,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 532
+      "sourceOrder": 533
     },
     {
       "plId": null,
@@ -8986,7 +9075,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 533
+      "sourceOrder": 534
     },
     {
       "plId": null,
@@ -8999,7 +9088,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 534
+      "sourceOrder": 535
     },
     {
       "plId": null,
@@ -9012,7 +9101,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 535
+      "sourceOrder": 536
     },
     {
       "plId": null,
@@ -9025,7 +9114,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 536
+      "sourceOrder": 537
     },
     {
       "plId": null,
@@ -9038,7 +9127,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 537
+      "sourceOrder": 538
     },
     {
       "plId": null,
@@ -9051,7 +9140,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 538
+      "sourceOrder": 539
     },
     {
       "plId": null,
@@ -9064,7 +9153,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 539
+      "sourceOrder": 540
     },
     {
       "plId": null,
@@ -9077,7 +9166,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 540
+      "sourceOrder": 541
     },
     {
       "plId": null,
@@ -9090,7 +9179,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 541
+      "sourceOrder": 542
     },
     {
       "plId": null,
@@ -9103,7 +9192,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 542
+      "sourceOrder": 543
     },
     {
       "plId": null,
@@ -9116,7 +9205,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 543
+      "sourceOrder": 544
     },
     {
       "plId": null,
@@ -9129,7 +9218,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 544
+      "sourceOrder": 545
     },
     {
       "plId": null,
@@ -9142,7 +9231,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 545
+      "sourceOrder": 546
     },
     {
       "plId": null,
@@ -9155,7 +9244,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 550
+      "sourceOrder": 551
     },
     {
       "plId": null,
@@ -9168,7 +9257,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 554
+      "sourceOrder": 555
     },
     {
       "plId": "PL-SEM-01",
@@ -9337,7 +9426,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 552
+      "sourceOrder": 553
     },
     {
       "plId": null,
@@ -9350,7 +9439,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 553
+      "sourceOrder": 554
     },
     {
       "plId": "PL-SETUP-01",
@@ -9441,6 +9530,19 @@
       "state": "INTAKE — near-term investigation; no optimization implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 519
+    },
+    {
+      "plId": "PL-CLI-01",
+      "bugId": null,
+      "title": "PL-CLI-01 — October 5 v2-native explicit direct-quote fetch migration",
+      "eventKind": "unclassified",
+      "establishesIntake": false,
+      "eventDateText": "October 5, 2026",
+      "eventDateIso": "2026-10-05",
+      "state": "Principal-authorized bounded CLI migration; implemented locally with deterministic verification, not independent Product acceptance or remote-main promotion.",
+      "headingLevel": 3,
+      "sourceFile": "parking-lot-10.md",
       "sourceOrder": 518
     },
     {
@@ -9454,7 +9556,7 @@
       "state": "INTAKE — durable identity established from OpenAPI/OAS investigation; strategic and architectural reconciliation remain unresolved; no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 519
+      "sourceOrder": 520
     },
     {
       "plId": "PL-API-03",
@@ -9467,7 +9569,7 @@
       "state": "INTAKE — first common direct-quote capability boundary Principal-selected; first HTTP/OAS contract proposed for ratification; no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 528
+      "sourceOrder": 529
     }
   ],
   "intakeDateUnknown": [

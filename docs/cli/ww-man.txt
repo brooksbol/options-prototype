@@ -13,22 +13,16 @@ DESCRIPTION
     Reading held evidence is separate from asking Wheelwright to acquire it.
 
 WORKING COMMANDS
-    fetch [-q | -v] [SYMBOL...]
-        Ask the existing backend to acquire evidence. With explicit symbols it
-        acquires exactly those. With no symbols it acquires the experimental
-        default set: the last declared monitored symbols UNION a fixed
-        ten-symbol research seed (SPY QQQ IWM SLV GLD TQQQ USO SMH SOXL GDX).
-        Explicit symbols REPLACE the default; they are not added to it. The
-        seed is experimental and provisional, not a live ranking, market
-        policy, final universe, watchlist, or recommendation.
-        Exit 0 only after completed work with a held price for every requested
-        symbol. A previously held price may survive a failed acquisition.
-        Normal terminal status goes to stderr; -q/--quiet suppresses it.
-        -v/--verbose reports the Wheelwright endpoint contacted, invocation
-        outcome, and held state per symbol without displaying prices or
-        claiming upstream provider provenance; for the default set it also
-        prints a per-symbol selection source (monitored/experimental-seed/both)
-        to stderr only.
+    fetch [-q | -v] [--force] SYMBOL...
+        Acquire canonical direct quotes for explicit named subjects through
+        API v2. Bare fetch is a usage error. One invocation is one batch request.
+        Ordinary fetch may reuse backend-eligible evidence; --force requests an
+        upstream acquisition attempt subject to backend authorization/policy.
+        Exit 0 only when every subject is fulfilled. A retained prior quote
+        does not turn failed acquisition into success. Outcomes distinguish
+        NEWLY_ACQUIRED, REUSED, and failures. Normal terminal status goes to
+        stderr; quiet suppresses normal status and verbose adds endpoint and
+        request context. Fetch does not display prices on the terminal.
         Run 'ww fetch --help' or 'ww fetch --man' for the current contract.
 
     prices SYMBOL...
@@ -56,14 +50,13 @@ OUTPUT AND COMPOSITION
     go to stdout; status and diagnostics go to stderr. Neither progress nor
     decoration belongs in composition stdout.
 
-    A useful composition is:
+    Fetch records contain the authoritative direct-quote observation:
 
-        ww fetch QQQ SPY XLE && ww prices QQQ SPY XLE | ww sort --by price
+        ww fetch SPY QQQ > quote-acquisition.jsonl
 
-    The shell runs prices only if fetch returns success. The pipe then
-    passes price records to sort, which orders them numerically. Fetching
-    evidence does not itself display prices or judge whether they are timely
-    enough for a purpose.
+    ww prices remains an independent v1 read of chain-associated price evidence;
+    it does not inspect the v2 direct quotes acquired by fetch. No v2 read command
+    is included in this slice.
 
 EXIT STATUS
     0   Command succeeded under its documented contract.
@@ -75,7 +68,7 @@ EXIT STATUS
 
 EVIDENCE LIMITS
     A held price is not a guaranteed current market price. The timestamp
-    associated with a price through the primary option chain is not an
+    associated with a price in ww prices through the primary option chain is not an
     independently established underlying-quote acquisition time. ww does
     not infer quote age, freshness, trade suitability, or recommendations.
 
@@ -87,6 +80,8 @@ DISCOVERY
 
 ENVIRONMENT
     WW_BASE_URL   Backend base URL; default http://localhost:3100
+    WW_API_TOKEN  Bearer credential required for fetch; never printed.
+                  Fetch requires HTTPS outside loopback development.
 
 SEE ALSO
     ww fetch --man, ww prices --man, ww sort --man

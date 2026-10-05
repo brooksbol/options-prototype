@@ -1,127 +1,116 @@
 WW-FETCH(1)                 Wheelwright Manual                WW-FETCH(1)
 
 NAME
-    ww fetch — request market observations for specified symbols
+    ww fetch — acquire canonical direct quotes for named subjects
 
 SYNOPSIS
-    ww fetch [-q | --quiet | -v | --verbose] [--] [SYMBOL...]
+    ww fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
 
 DESCRIPTION
-    Ask Wheelwright to acquire evidence, then report whether it holds a price
-    for every requested symbol.
+    Fetch satisfies a direct-quote acquisition request through Wheelwright
+    API v2. At least one explicit symbol is required. Bare fetch is a usage
+    error and performs no API or provider work. There is no default selector.
 
-    With explicit SYMBOL operands, fetch acquires exactly those symbols. With
-    no operands, fetch acquires the current experimental default set (see
-    EXPERIMENTAL DEFAULT SET). Explicit operands REPLACE the default; they are
-    never added to it.
+    Symbols are uppercased and deduplicated in first-occurrence order, retaining
+    the existing CLI operand convention. All subjects are submitted together
+    in one POST /v2/quotes request. The backend accepts at most 30 distinct
+    subjects; larger requests fail as a whole, without automatic splitting.
+    Malformed subjects are diagnosed by the backend. Unsupported well-formed
+    subjects receive independent per-subject outcomes.
 
-    Fetch updates Wheelwright's held knowledge. It does not display prices;
-    use ww prices for that. It does not guarantee a new observation, a current
-    market price, freshness, or suitability for a trading decision.
+    Ordinary fetch sends mode ORDINARY. The backend may reuse eligible held
+    evidence or acquire it upstream. --force sends mode FORCE, bypassing reuse
+    and requesting an actual upstream acquisition attempt. Backend authorization
+    and contact restrictions still apply. Fetch never retries automatically.
 
-    A failed acquisition attempt may leave an earlier price held. In that
-    case, fetch can succeed because its postcondition concerns held prices
-    after the completed operation, not whether every attempt acquired a new
-    value.
+    The backend owns reuse eligibility, session identity, provider compatibility,
+    contact policy, subject verification, persistence, authority fencing, and
+    acquisition truth. Fetch expresses intent and renders the returned facts.
+    It does not enroll subjects in Decision or traverse expirations or chains.
 
 OPTIONS
+    --force
+        Request FORCE acquisition. Requires backend quote.force authorization
+        in addition to quote.acquire. Prior evidence cannot satisfy FORCE.
+
     -q, --quiet
-        Suppress normal human status and nonfatal notices. Errors still appear
-        on stderr. Quiet does not change exit status or composition records.
+        Suppress normal human status. Failures still appear on stderr.
+        Structured result records and exit status are unchanged.
 
     -v, --verbose
-        On completed work, show each requested symbol's acquisition outcome
-        from this invocation and qualify its local price state when useful. Write
-        the detail to stderr, followed by the held-price summary on success.
-        From identifies the Wheelwright authority actually contacted by ww.
-        It does not identify Wheelwright's upstream market-data provider or
-        per-symbol evidence provenance. Verbose does not display prices.
-        Verbose and quiet are mutually exclusive.
+        Show all per-subject outcomes, Wheelwright endpoint, request correlation,
+        mode, and fulfillment count on stderr even when redirected.
+        Quiet and verbose are mutually exclusive. Verbose does not show prices.
 
     --
         End option parsing. Remaining arguments are symbol operands.
 
 OUTPUT
-    In default mode, on successful completion when stderr is a terminal,
-    write to stderr:
+    Terminal stdout is empty. Normal terminal stderr identifies every outcome:
 
-        fetch complete: 3/3 prices held
+        SPY: NEWLY_ACQUIRED
+        QQQ: REUSED
+        fetch complete: 2/2 fulfilled; 1 newly acquired, 1 reused, 0 failed
 
-    The count is held prices over distinct requested symbols. It is not a
-    count of newly acquired observations or successful provider attempts.
-    This is a completion summary, not an incremental progress meter.
+    NEWLY_ACQUIRED means the backend accepted authoritative quote evidence.
+    REUSED means existing evidence satisfied ORDINARY policy; it does not mean
+    a provider acquisition. Neither outcome certifies trading suitability.
 
-    If an acquisition attempt did not succeed but Wheelwright retains an
-    earlier price, normal terminal diagnostics identify that fact without
-    treating the price as newly acquired.
+    Any unfulfilled subject makes fetch fail, even if prior evidence remains:
 
-    Verbose mode writes its detail and successful summary to stderr even when
-    stderr is redirected. For a completed verbose fetch, it can show:
+        SPY: FAILED UPSTREAM_FAILED; prior quote retained (request unfulfilled)
+        fetch failed: 0/1 fulfilled; 0 newly acquired, 0 reused, 1 failed
 
-        From http://localhost:3100
-        QQQ  acquisition ACQUIRED
-        SPY  acquisition FAILED    previous price retained
-        XLE  acquisition ACQUIRED
-        fetch complete: 3/3 prices held
+    Safe backend failure detail may follow the outcome. Failures remain visible
+    under --quiet and when stderr is redirected. Mixed results retain each
+    subject's outcome; there is no overall success message for partial failure.
 
-    ACQUIRED is the backend's invocation acquisition outcome. It does not
-    independently certify a new underlying quote or a locally stored price.
-    If a completed result has no locally stored price, even ACQUIRED is
-    qualified with "no local price stored" and the command exits nonzero.
-    UNKNOWN with a locally stored price uses the neutral phrase "local price
-    stored"; it cannot establish that a previous price was retained.
+    Piped/redirected stdout emits one fetch-result/v2 JSON Lines record per
+    subject, including failures. Each record includes symbol, subject, outcome,
+    fulfilled, observation, priorRetained, optional failure, requestId, mode,
+    startedAt, and completedAt. Backend observations, facts, identity, provenance,
+    and original clocks are preserved. Missing quote facts are not synthesized.
+    Operation clocks are distinct from observation and source-event clocks.
+    Rich domain evidence justifies retaining the existing JSON Lines convention.
 
-    Direct terminal stdout is empty. When stdout is piped or redirected, it
-    carries bounded per-symbol JSON Lines records with acquisitionOutcome and
-    heldPrice as independent facts. Human status never contaminates those
-    records. An incomplete operation does not certify after-completion symbol
-    results and emits no composition records.
+    Request-wide errors emit stderr diagnostics with the backend code, safe
+    explanation, correlation, and validation details when supplied. They emit
+    no per-subject records. Transport and malformed-response errors also fail.
+    Credential values are redacted from server-provided output.
 
 EXIT STATUS
-    0   Operation completed and every requested symbol has a held price.
-    1   Operation failed, did not complete, or left a requested price absent.
-    2   Invalid command usage.
+    0   Every requested subject was fulfilled (NEWLY_ACQUIRED or REUSED).
+    1   Any subject unfulfilled, request/transport/response failure, or missing
+        or invalid Bearer credential.
+    2   Invalid command usage or invalid endpoint configuration.
 
-    Diagnostics identify affected symbols where the backend can establish
-    them. Exit status does not encode detailed backend acquisition outcomes.
+    Exit codes do not encode HTTP status codes or individual acquisition outcomes.
+
+ENVIRONMENT
+    WW_BASE_URL
+        Wheelwright endpoint; default http://localhost:3100. HTTPS is required
+        outside loopback development. Embedded URL credentials are rejected.
+        Redirects are rejected to avoid forwarding credentials elsewhere.
+
+    WW_API_TOKEN
+        Explicit Bearer credential configured for a Wheelwright principal.
+        Missing/empty credentials fail before contacting the backend. No anonymous
+        fallback, hard-coded token, or trusted-local bypass exists. The backend
+        checks quote.acquire and, for FORCE, quote.force. ww does not provision
+        tokens or infer grants, and never prints the credential.
 
 EXAMPLES
-    ww fetch QQQ SPY XLE && ww prices QQQ SPY XLE
+    ww fetch SPY
+    ww fetch SPY QQQ IWM
+    ww fetch SPY --force
+    ww fetch -v SPY QQQ
+    ww fetch -q SPY > quote-acquisition.jsonl
 
-    ww fetch -q QQQ SPY XLE && ww prices QQQ SPY XLE
-
-    ww fetch -v QQQ SPY XLE
-
-    A completed fetch with XLE absent exits nonzero and reports on stderr:
-
-        ww: fetch completed; 2/3 prices held; XLE has no local price stored
-
-EXPERIMENTAL DEFAULT SET
-    With no operands, bare ww fetch acquires the union of:
-
-        the last declared monitored symbols (read from the backend), and
-        a fixed experimental ten-symbol research seed:
-            SPY QQQ IWM SLV GLD TQQQ USO SMH SOXL GDX
-
-    The two sources are normalized and deduplicated, so a symbol present in
-    both is acquired once. Explicit operands REPLACE this default set.
-
-    This default is experimental and provisional. The seed derives from dated
-    September 23 options-volume research. It is NOT a live ranking, an
-    authoritative market-representation policy, a final default universe, a
-    watchlist, or a recommendation. It intentionally retains potentially
-    awkward entries (such as TQQQ and SOXL) so the default can be falsified by
-    observation.
-
-    The monitored symbols are the last declared monitored set. They are not a
-    statement of current exposure, holdings, portfolio, currently traded
-    symbols, or brokerage positions.
-
-    With -v/--verbose, a human-readable selection summary (per-symbol source:
-    monitored, experimental-seed, or both) is written to stderr only; machine
-    stdout is never contaminated with selection prose. If reading the
-    monitored set fails, fetch aborts (nonzero) rather than silently treating
-    the monitored source as empty, and makes no acquisition request.
+EVIDENCE LIMITS
+    ww prices remains an independent v1 read of chain-associated underlying
+    price evidence. It does not inspect the direct quotes acquired by v2 fetch.
+    There is no public v2 held-quote read command in this slice. Inspect the
+    fetch JSON Lines observation for this request's canonical direct quote.
 
 SEE ALSO
-    ww prices, ww sort
+    ww --man, ww prices --man
