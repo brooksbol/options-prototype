@@ -492,7 +492,7 @@ This establishes the composition boundary:
 
 > **Acquisition policy answers whether held evidence can satisfy an acquisition request. Consumer policy answers whether evidence can satisfy a domain decision.**
 
-The exact initial ordinary direct-quote acquisition-reuse criteria — including applicable age, session, environment, authority, field-completeness, and upstream-availability considerations — remain the next bounded semantic reconciliation problem.
+The initial ordinary direct-quote acquisition-reuse criteria were subsequently selected in §22. They do not alter this acquisition-reuse/evidence-admissibility boundary.
 
 ### 21.6 Legacy chain-derived held price is not canonical direct-quote evidence
 
@@ -522,7 +522,7 @@ This reconciliation selects semantic truth for canonical direct-quote evidence. 
 - Java classes;
 - quote batching implementation;
 - CLI output or exact `--force` syntax;
-- exact ordinary acquisition-reuse thresholds;
+- implementation or configuration representation of the selected ordinary acquisition-reuse policy;
 - changes to v1 chain/Decision behavior;
 - implementation.
 
@@ -531,3 +531,47 @@ CURRENT STATE: Canonical direct-quote subject/observation/provenance/acquisition
 DECISION REQUIRED: NO
 
 NEXT AUTHORIZED ACTION: Reconcile the single initial ordinary direct-quote acquisition-reuse policy from actual Wheelwright requirements, provider/session realities, and existing authority invariants. Do not introduce a generalized request-purpose policy framework absent demonstrated Product need.
+
+## 22. Principal reconciliation — initial direct-quote acquisition-reuse policy
+
+The Principal selected this policy on October 5, 2026, after the bounded ordinary-reuse investigation. Section 21's quote-evidence semantics and Doc 77's cross-cutting v2 guardrails remain fixed. This section selects **backend-owned configurable acquisition policy with Product defaults**, not runtime configuration syntax, request syntax, HTTP/OAS design, or implementation.
+
+### 22.1 Fixed semantics versus configurable policy
+
+The following are **fixed v2 semantic invariants**, never configuration or request-policy knobs: subject/observation/provenance/acquisition-result separation; observation truth versus request-fulfillment truth; acquisition reuse versus downstream evidence admissibility; distinct last/bid/ask/close/previous-close facts and their actual source times; no fabricated last, source time, canonical direct quote from legacy chain spot, or success from retained prior evidence after failed reacquisition; per-subject batch outcomes; actual upstream attempt for force; and unchanged Decision chain-bound consumption until separately reconciled. Section 21 provides their full authority and meaning. Configuration and request overrides MUST NOT weaken them.
+
+The initial **configurable acquisition-policy parameters** are maximum active-session contact age, completed-session reuse enablement, and explicit off-hours provider-contact enablement. Provider batch sizing and demonstrated provider/environment operational limits may also be configured beneath stable semantics. Effective policy follows **explicit permitted request override → deployment/operator configuration → Product-defined default**. Only overrides with demonstrated operator meaning are candidates for a client contract; force is the presently selected semantic example. No generic policy language, speculative request-purpose taxonomy, or automatic CLI flag per configuration value is selected. The backend owns the policy for all clients.
+
+### 22.2 Ordinary active-session reuse
+
+The initial Product default maximum successful-upstream-acquisition/receipt contact age is **60 seconds**. The Product selected this value independently; its coincidence with the existing Tradier adapter's 60-second quote-cache TTL confers no authority on that implementation TTL.
+
+During an active regular-observation phase, an ordinary request may be fulfilled from a backend-selected canonical held direct-quote observation only if its identity/provenance are unambiguous, it satisfies §21's direct-quote evidence criteria, it was successfully acquired after the applicable provider feed's regular-observation phase became usable, and its successful upstream acquisition/receipt age is within the configured maximum. A newly usable regular-observation boundary triggers reevaluation even when the prior observation is younger than the limit. Source trade/bid/ask, commit, cache, container, and generic quote times cannot substitute for the upstream acquisition/receipt clock. The contact-age parameter governs **acquisition reuse only**; it is not a universal freshness or downstream admissibility rule.
+
+### 22.3 Ordinary closed-session reuse
+
+Completed-session reuse is configurable and **enabled by Product default**. While the market remains closed, an observation actually acquired during the latest completed regular session may fulfill an ordinary request if it remains the backend-selected canonical held quote and no later session/feed-authority boundary makes selection invalid or ambiguous. This includes overnight, weekend, and holiday closure. No near-close acquisition requirement is imposed; an intraday last trade MUST NOT be labeled a closing price. All original field source times, acquisition/receipt time, provider, environment, and authority provenance remain intact. Wall-clock passage during the same closed period does not itself end this reuse eligibility. At the next usable regular-observation boundary, active-session policy governs instead.
+
+An observation first acquired through an explicit **off-hours** upstream request remains valid evidence with its true context, but it does not satisfy the specific “acquired during the latest completed regular session” reuse condition merely because its returned values may describe that session. This follows from the selected condition; no separate off-hours-observation reuse mode is selected. Disabling completed-session reuse prevents fulfillment through this rule but neither deletes nor invalidates held evidence.
+
+### 22.4 Explicit off-hours acquisition and force
+
+Explicit off-hours upstream contact is configurable and **enabled by Product default**. Routine/scheduled acquisition remains governed by its own session gate. For an explicit ordinary direct-quote request, resolve the subject set, evaluate ordinary reuse per subject, then attempt upstream acquisition for unresolved subjects when the effective provider-contact policy permits. A subject-verified acceptable response becomes new evidence with its actual provider facts, source times, acquisition time, environment, and provenance. An off-hours response is never represented as active regular-market evidence. If contact is disabled, blocked, unavailable, or fails, report the distinct non-fulfillment reason and retain prior evidence separately; exact HTTP/CLI grammar remains future work.
+
+Force bypasses acquisition reuse and requires an **actual upstream attempt**. It does not mean only “ignore the age limit” or “bypass scheduler gates.” If another selected provider-contact restriction blocks the attempt, force reports that restriction rather than succeeding from prior evidence. No additional request override of the off-hours contact restriction is selected here.
+
+Provider availability does not itself change reuse eligibility. An eligible held observation may be reused during an outage; an ineligible one does not become eligible because upstream is unavailable. Observation validity, ordinary acquisition-reuse eligibility, downstream evidence admissibility, and provider availability remain four distinct verdicts.
+
+### 22.5 Multi-subject execution and authority
+
+Doc 77's ratified rule is **determine semantic work first; batch compatible upstream work second**. After per-subject reuse evaluation, the backend SHOULD batch remaining compatible provider quote work when possible, including for an explicit or resolved default subject set. Configured/provider limits may require multiple requests. Transport grouping never changes evidence identity, authority fencing, stable API semantics, or independent per-subject outcomes. A provider HTTP 200 is not batch-wide evidence success; unmatched, missing, failed, retained-prior, newly acquired, reused, and no-evidence subjects remain distinct. Provider request count and batch shape are not stable client promises.
+
+### 22.6 Authority and next boundary
+
+These selected Product defaults are configurable acquisition-policy defaults; §21 and the fixed invariants above are not configurable. This reconciliation changes no current v1 behavior, Decision evidence contract, provider profile, runtime setting, CLI, or persistence. It authorizes no v2 route, method, OAS schema, storage design, Java class, speculative CLI policy flag, batching implementation, or Kiro handoff. The ordinary direct-quote acquisition/reuse semantics are sufficiently selected for the next v2 capability-boundary reconciliation; concrete contract and implementation design remain separate later work under Docs 77–78.
+
+CURRENT STATE: Canonical direct-quote evidence semantics and the initial session-aware ordinary acquisition-reuse policy are Principal-selected; the 60-second live contact-age default, completed-session reuse default, explicit off-hours contact default, force meaning, and Doc 77 batch-if-needed guardrail are established. No v2 implementation is authorized.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: Reconcile the first common v2 direct-quote capability boundary under the selected semantics and Docs 77–78 before HTTP/OAS design.
