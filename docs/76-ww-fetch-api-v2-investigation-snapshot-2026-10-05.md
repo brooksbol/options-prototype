@@ -1,10 +1,10 @@
 # WW Fetch / API v2 Investigation Snapshot — 2026-10-05
 
-Status: investigation snapshot; not Product ratification and not implementation authorization.
+Status: investigation snapshot, updated after the October 5 Principal Product decision. Canonical Product authority is `PL-CLI-01` in `docs/parking-lot-10.md`; this snapshot is not implementation authorization.
 
 Repository anchor at persistence: `main` = `2c49b26b209eb4cca1162e07d7dd0bc9677d68d0`.
 
-This snapshot records the state of the Principal/ChatGPT/Codex investigation into experimental `ww fetch`, provider acquisition behavior, the existing backend API boundary, and the emerging case for a capability-oriented API v2. It intentionally does not resolve the currently in-flight Codex investigation into the final semantic boundary of `ww fetch`.
+This snapshot records the Principal/ChatGPT/Codex investigation into experimental `ww fetch`, provider acquisition behavior, the existing backend API boundary, and the case for a capability-oriented API v2. Sections 1–19 preserve the investigation state before the Principal's subsequent Product decision; Section 20 records that decision and the remaining boundary.
 
 ## 1. Starting point: experimental `ww fetch`
 
@@ -391,8 +391,24 @@ This snapshot records evidence and emerging design direction. It does not author
 
 The concurrent unrelated investigation explains the dirty shared worktree observed during read-only Codex work. Its changes are not evidence of a problem in this investigation and must remain untouched.
 
-CURRENT STATE: PL-OPS-10 performance evidence has exposed a broader v1 API coupling; API-v2 semantic reconciliation is the emerging direction, with the `ww fetch` boundary currently under Codex investigation.
+## 20. Principal-selected fetch boundary and close of v1 archaeology
+
+The Principal selected the following **mature Product boundary**, recorded canonically under `PL-CLI-01` in `docs/parking-lot-10.md`:
+
+> `fetch` acquires a declared family of external market observations for named subjects. Unqualified `fetch SYMBOL` defaults to the direct quote-observation family. It does not silently traverse additional evidence units selected by Wheelwright policy.
+
+This is broader than “price only”: a quote observation may carry last, bid/ask, volume, source times, prior close, and instrument metadata where available. It is narrower than “all raw market data related to a symbol.” A named chain can legitimately contain many contracts; that **cardinality within an evidence unit** differs from silently discovering dates and traversing many policy-selected chain units. A complete 7–45 DTE Decision surface retains its accepted `PL-EVID-07` Product meaning and remains an explicit higher-order workflow. Whether named calendars, chains, and option-contract observations eventually share the CLI `fetch` spelling remains open.
+
+Acquisition, held-evidence read, and derivation are separate acts. An evidence commit may inherently persist provenance and cause publication; it does not silently change observation demand, monitoring declarations, held-expiration declarations, or Decision workflow scope. The CLI is a projection of common Wheelwright capabilities, not the definition of the API; web and future clients may project the same canonical evidence differently.
+
+The Principal also selected an acquisition-policy refinement: ordinary fetch **may reuse** evidence the backend judges acceptable for its declared family and context; an explicit force intention would **require upstream reacquisition** of that family. The proxy/cache analogy is useful for reasoning about reusable held evidence versus re-contacting the external authority, but HTTP cache freshness alone cannot confer Wheelwright domain acceptability. Syntax, acceptance criteria and failure semantics remain design questions. Current v1 targeted “force” bypasses due/session gates while still allowing response-cache hits; it is not the future force definition.
+
+The short [Tradier capability sheet](cli/tradier-market-data-capabilities-2026-10-05.md) is the last bounded provider inventory before v2 reconciliation. It distinguishes provider-native units from current Wheelwright evidence units. Official docs and the prior Production probe establish multi-symbol quote acquisition, while documented expirations and chains accept one underlying or one underlying-plus-expiration respectively. Provider batching remains below stable Wheelwright semantics.
+
+V1 acquisition archaeology is now sufficient for this boundary question. `PL-API-03` owns the common capability-oriented API intake; [Doc 77](77-api-v2-architectural-guardrails.md) carries the already ratified cross-cutting v2 guardrails, including authoritative OAS and security from inception. The first unresolved semantic pressure is canonical underlying-quote evidence: the current held price derives from a primary-chain row, so quote identity, time, provenance, failure retention, and relationship to chain-embedded spot must be reconciled before concrete v2 design. The existing experimental `ww fetch`, coherent v1 refresh, and `PL-API-02` state are unchanged by this decision.
+
+CURRENT STATE: `ww fetch` Product boundary selected under `PL-CLI-01`; v1 acquisition archaeology sufficient; `PL-API-03` remains INTAKE and Doc 77 guardrails are ratified; no v2 implementation authorized.
 
 DECISION REQUIRED: NO
 
-NEXT AUTHORIZED ACTION: Complete the read-only `ww fetch` semantic-boundary investigation, including current provider capability reality, before designing v2 API resources.
+NEXT AUTHORIZED ACTION: Reconcile `PL-API-03` around canonical underlying-quote evidence under the selected fetch boundary and Doc 77 guardrails.

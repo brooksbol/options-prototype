@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-04T20:21:42.035Z",
+    "generatedAt": "2026-10-05T16:22:33.381Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -32,7 +32,7 @@
         "experiment": 7
       },
       "arTotal": 18,
-      "plTotal": 72,
+      "plTotal": 74,
       "plWithExplicitRelationship": 8,
       "graduatedTotal": 29,
       "adrTotal": 22,
@@ -41,10 +41,10 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 27,
-      "logTotal": 85,
+      "logTotal": 87,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
-      "plWithoutIntakeDate": 58
+      "plWithoutIntakeDate": 60
     },
     "notes": []
   },
@@ -4049,6 +4049,13 @@
           "content": "After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap projection in sync) the Principal ran a substantial off-hours (Sunday) live shell gauntlet. Confirmed: the selector resolved 5 monitored (BN, ETHA, URA, USO, XHB) UNION the 10-symbol seed with USO as the single overlap → 14 distinct, provenance on stderr only, stdout uncontaminated; explicit operands bypass default resolution; normalization/dedupe, 0/1/2 exits, quiet/verbose, stdout/stderr separation, `&&`, redirection, and `ww fetch QQQ SPY XLE | head -1` (clean early close, no EPIPE) all behaved against the live backend. The bare 14-symbol fetch hit `NOT_COMPLETED` under the current 20s synchronous forced-acquisition bound while smaller explicit requests completed — empirical input to the timeout/configuration question only, not grounds for CLI asynchrony or acquisition redesign; `PROVIDER_UNAVAILABLE` right after restart is normal startup. The run also independently reproduced the CF01 adapter-friction pattern (`ww prices | jq | sort`) recorded in `docs/cli/ww-composition-friction-acceptance.md`, and reconfirmed that the human `ww prices` display is already a clean projection — useful evidence for a future `ww ls` decision. DECISION REQUIRED: NO. NEXT AUTHORIZED ACTION: NONE on fetch; the next work is a separate Product decision. `PL-CLI-01` broader catalog remains INTAKE.",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` — October 5 Product decision on mature `fetch` meaning",
+          "level": 3,
+          "content": "**Principal-selected semantic boundary, not an implementation authorization:** `fetch` acquires a declared family of external market observations for named subjects. Unqualified `fetch SYMBOL` defaults to the direct quote-observation family for that security; it does not silently traverse additional evidence units selected by Wheelwright policy. A quote family may include more than last price (for example bid/ask, volume, source times, prior close, and instrument metadata where available). This Product meaning is provider-independent. It does not redefine the behavior or success contract of the currently executable experimental `ww fetch` slice.\n\n**Evidence-unit rule:** Explicitly identifying an underlying does not also request every related expiration and option contract. An expiration calendar, one identified underlying-plus-expiration chain, and one identified option-contract observation are distinct candidate observation families/subjects. A named chain can legitimately contain many contracts; cardinality within a declared evidence unit is different from hidden policy traversal across many separately addressable units. A complete Decision-eligible chain surface remains legitimate Product behavior under `PL-EVID-07`, but is an explicit higher-order acquisition workflow, not a consequence of unqualified `fetch SYMBOL`.\n\n**Acquisition policy refinement:** An ordinary fetch may reuse evidence that the backend judges acceptable for the declared observation family and request context. A separately selected force mode would require upstream reacquisition of that family; user-facing spelling, acceptance criteria, treatment of provider failure, and caching mechanics remain to be designed. This is distinct from current v1 targeted “force,” which bypasses scheduler due/session gates but may still hit the provider-response cache. Neither mode promises a new market value, universal freshness, or trading suitability.\n\n**Boundaries and remaining decisions:** `fetch` actively synchronizes knowledge; reads inspect held evidence, and derivations evaluate it. Evidence commit may inherently update authoritative persistence, provenance, and publication; it does not implicitly change monitored declarations, held-expiration demand, or Decision workflow scope. The backend owns provider/admission, authority fencing, domain policy, and provenance; CLI and future web clients project/compose the same capabilities without reconstructing those rules. Whether named calendars, chains, and option contracts share the eventual `ww fetch` spelling, and the exact ordinary/force acceptance semantics, remain Product/design decisions. The current primary-chain-derived held price is not independent quote evidence; its authority must be reconciled before a future quote-observation capability can be designed. The investigation is consolidated in `docs/76-ww-fetch-api-v2-investigation-snapshot-2026-10-05.md`; the short provider reference is `docs/cli/tradier-market-data-capabilities-2026-10-05.md`. No CLI, API, persistence, scheduler, cache, or provider change is authorized by this decision.",
+          "truncated": false,
+          "tables": []
         }
       ]
     },
@@ -4066,7 +4073,103 @@
         {
           "heading": "",
           "level": 0,
-          "content": "**Priority:** Address soon (Principal direction; sequencing, not a selected technical remedy)\n\n\n**Discovery and Product aim.** Targeted acquisition currently submits one task to a single acquisition worker, loops requested symbols sequentially, and acquires eligible option-chain expirations per symbol. Provider requests are paced and blocking. The scheduler's existing “batch” is a selected group of work, not parallel provider acquisition. In the October 4 bare-fetch experiment, a legitimate 14-symbol request exceeded the 20-second forced-acquisition wait; acquisition continued, and all 14 prices were subsequently observed as held. A reasonably sized targeted fetch, including this experimental set, should be an ordinary synchronous `ww fetch` workload without the CLI compensating for avoidable backend latency. This observation does not establish which component dominates elapsed time and is not evidence for asynchronous CLI behavior.\n\n**Investigation.** Measure per-symbol acquisition time; provider request and eligible-expiration counts per symbol; provider request latency; RequestPacer admission delay and rate-limit contribution; serialization from the worker topology; and whether the provider actually supports useful multi-symbol or batch requests. Then evaluate independently: (1) safe bounded backend concurrency, (2) provider-native batching where supported, (3) reducing unnecessary acquisition work per symbol, and (4) fitting the synchronous completion bound to legitimate workloads. Select no remedy before the measurements. Preserve provider stewardship, acquisition authority/fencing, and the accepted `ww fetch` completion, per-symbol, and exit-status contract.\n\n**Reconciliation and boundary.** This is a distinct performance/capacity investigation of the shipped `PL-OPS-09` targeted path, exposed by the `PL-CLI-01` consumer; it is not a second acquisition capability, a defect finding that every timeout is false, or a new strategic Bet. No roadmap strategy change is indicated at intake. Architectural consequences of concurrency, batching, work reduction, or timeout adjustment remain open pending evidence. The intake is retained as `PL-OPS-10` so the near-term work is trackable separately from the shipped targeted-acquisition contract. The why-state is this record and the linked October 4 acceptance checkpoint. **Next authorized mode:** measured investigation only. No concurrency, provider, acquisition-scope, timeout, or CLI code change is authorized by this item.",
+          "content": "**Priority:** Address soon (Principal direction; sequencing, not a selected technical remedy)\n\n\n**Discovery and Product aim.** Targeted acquisition currently submits one task to a single acquisition worker, loops requested symbols sequentially, and acquires eligible option-chain expirations per symbol. Provider requests are paced and blocking. The scheduler's existing “batch” is a selected group of work, not parallel provider acquisition. In the October 4 bare-fetch experiment, a legitimate 14-symbol request exceeded the 20-second forced-acquisition wait; acquisition continued, and all 14 prices were subsequently observed as held. A reasonably sized targeted fetch, including this experimental set, should be an ordinary synchronous `ww fetch` workload without the CLI compensating for avoidable backend latency. This observation does not establish which component dominates elapsed time and is not evidence for asynchronous CLI behavior.\n\n**Investigation.** Measure per-symbol acquisition time; provider request and eligible-expiration counts per symbol; provider request latency; RequestPacer admission delay and rate-limit contribution; serialization from the worker topology; and whether the provider actually supports useful multi-symbol or batch requests. Then evaluate independently: (1) safe bounded backend concurrency, (2) provider-native batching where supported, (3) reducing unnecessary acquisition work per symbol, and (4) fitting the synchronous completion bound to legitimate workloads. Select no remedy before the measurements. Preserve provider stewardship, acquisition authority/fencing, and the accepted `ww fetch` completion, per-symbol, and exit-status contract.\n\n**Reconciliation and boundary.** This is a distinct performance/capacity investigation of the shipped `PL-OPS-09` targeted path, exposed by the `PL-CLI-01` consumer; it is not a second acquisition capability, a defect finding that every timeout is false, or a new strategic Bet. No roadmap strategy change is indicated at intake. Architectural consequences of concurrency, batching, work reduction, or timeout adjustment remain open pending evidence. The intake is retained as `PL-OPS-10` so the near-term work is trackable separately from the shipped targeted-acquisition contract. The why-state is this record and the linked October 4 acceptance checkpoint. **Next authorized mode:** measured investigation only. No concurrency, provider, acquisition-scope, timeout, or CLI code change is authorized by this item.\n\n**October 5 investigation disposition:** The regular-session 14-symbol specimen required 113 provider requests: 14 underlying quotes and 99 distinct chain requests (14 primary, 85 additional known eligible expirations; no expiration calls or duplicate chains). The targeted cycle took 58.99 s, including 39.40 s provider admission wait and 18.51 s HTTP; the request waited about 10 s behind scheduled acquisition and returned `NOT_COMPLETED` under the 20 s bound before all 14 eventually committed. The chain surface follows the accepted full 7–45 DTE Decision behavior, not an accidental provider-call explosion. The larger finding is API granularity: the CLI inherited a web-oriented full-surface orchestration whose scope exceeds the newly selected `fetch` meaning. Quote batching alone does not resolve this mismatch. V1 acquisition archaeology is sufficient for the next reconciliation; no further Deployment trace is required now. Preserve v1 behavior; use these findings as evidence for `PL-API-03`. No performance remedy is selected or authorized.\n\n\n---",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "PL-API-02",
+      "name": "Machine-readable HTTP contract and explicit API-boundary semantics",
+      "section": "Reconciliation / continuation record",
+      "description": "**Trigger / why-state:** October 5, 2026 repository investigation of OpenAPI Specification (OAS) feasibility against the current Spring Boot HTTP surface. No separate discovery artifact is required at intake; the findings below preserve the material why-state.",
+      "descriptionTruncated": false,
+      "state": "INTAKE — durable identity established from OpenAPI/OAS investigation; strategic and architectural reconciliation remain unresolved; no implementation authorized",
+      "sourceFile": "parking-lot-10.md",
+      "relatedLvtIds": [],
+      "relatedArIds": [],
+      "sections": [
+        {
+          "heading": "",
+          "level": 0,
+          "content": "**Trigger / why-state:** October 5, 2026 repository investigation of OpenAPI Specification (OAS) feasibility against the current Spring Boot HTTP surface. No separate discovery artifact is required at intake; the findings below preserve the material why-state.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intake",
+          "level": 3,
+          "content": "Investigation of adopting **OpenAPI Specification (OAS)** for Wheelwright exposed a broader architectural question than documentation tooling alone.\n\nThe current Java backend has roughly 30 mapped HTTP handlers across 16 controllers. A material portion of the response surface is weakly represented in Java method signatures: important endpoints return shapes such as `ResponseEntity<String>`, `ResponseEntity<?>`, and generic `Map<String,Object>` / `Map<String,Integer>`. Several of the richest payloads, including frozen evidence-publication behavior, are deliberately serialized or assembled outside a strongly typed response model.\n\nAs a result, simply adding Spring/OpenAPI introspection tooling would discover routes, verbs, parameters, and some typed request/response islands, but would not faithfully describe the schemas of the most important weakly typed responses. An automatically generated specification could therefore appear authoritative while representing those payloads only as `string`, wildcard/opaque, or free-form `object` schemas.\n\nThe durable concern is consequently not \"add Swagger.\" It is:\n\n> **Should Wheelwright establish a machine-readable HTTP API contract, and what relationship should that contract have to runtime response typing, deliberate hand serialization, frozen prose contracts, and conformance testing?**\n\nA coupled architectural question must be resolved rather than hidden by documentation tooling:\n\n> **For each weakly typed HTTP boundary, is the weak typing required by contract/serialization semantics, a justified implementation choice, or incidental architectural debt?**\n\nThe distinction matters. Deliberate hand serialization may be appropriate where exact publication semantics, null behavior, compatibility, ETag identity, or frozen-contract behavior require explicit control. Conversely, weak typing that spread to ordinary endpoints without such a requirement may leave API semantics implicit in imperative code and reduce compiler, framework, test, and tooling leverage.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Why this may matter",
+          "level": 3,
+          "content": "A faithful machine-readable contract could support API conformance testing, compatibility/diff checks, generated clients, mocks, agent/tool consumption, and navigable API documentation. More importantly, it could make externally observable HTTP semantics explicit rather than requiring reconstruction from controller signatures, serializers, tests, and prose.\n\nThe weak-boundary finding may independently indicate architectural debt, but this intake deliberately does **not** assume that typed DTOs are preferable everywhere. The purpose is to classify the boundary and preserve contract truth, not to optimize the codebase for a particular OpenAPI generator.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Existing authority / related concerns",
+          "level": 3,
+          "content": "- **`PL-API-01` — API Testability and Cacheability:** already Promoted/Closed (Aug 2026). Its principles graduated into publication invariants and `docs/contracts/evidence-snapshot-v1.md`. This new intake does not reopen or reuse that identity.\n- **`docs/contracts/evidence-snapshot-v1.md`:** frozen API contract and existing authoritative expression of important publication semantics. Any machine-readable representation must be reconciled with it rather than silently superseding it.\n- **Publication invariants / ETag and conditional HTTP behavior:** machine-readable contract work must preserve observable header/status/body semantics, including conditional responses where applicable.\n- **`PRIN-ARCH-VERSION-CONTROLLED-DEFINITION`:** Product definition is version-controlled. A repository-owned machine-readable API contract is potentially aligned with this principle, but alignment does not itself choose an implementation approach.\n- **`PRIN-ARCH-PERSIST-FACTS-DERIVE-TRUST` and deterministic/publication semantics:** API-schema work must not weaken evidence semantics merely to improve framework introspection.\n- Existing Spring Boot implementation and typed request/response islands are implementation evidence, not by themselves authority for the future contract model.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Unresolved questions",
+          "level": 3,
+          "content": "1. Should OpenAPI 3.1 become Wheelwright's machine-readable HTTP API contract, or is another/no machine-readable contract appropriate?\n2. If OAS is adopted, is the canonical direction contract-first/static, annotation-augmented runtime generation, a hybrid, or another model?\n3. What is the source-of-truth relationship among OAS, frozen prose contracts such as `evidence-snapshot-v1.md`, runtime serializers, and conformance tests?\n4. Which current `String`, wildcard, and generic-`Map` response boundaries are **contract-required**, **justified implementation choices**, or **incidental/accidental weak typing**?\n5. Should incidental weak boundaries migrate to explicit response models independently of OAS adoption?\n6. What automated conformance/compatibility checks are necessary to prevent a machine-readable contract from drifting from runtime behavior?\n7. What development/production exposure, if any, should interactive API documentation receive?\n8. Does this intake remain one concern through reconciliation, or should the weak-boundary classification become a child/separate PL after evidence establishes independent scope?",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Candidate directions — not authorized",
+          "level": 3,
+          "content": "Candidate directions include:\n\n- repository-owned OpenAPI 3.1 authored as an explicit contract and validated against the running application;\n- annotation/schema augmentation around deliberately hand-serialized endpoints without changing runtime serialization;\n- stronger typed response models for endpoints whose weak typing is incidental rather than semantically required;\n- a hybrid in which ordinary endpoints use typed models while exceptional frozen/publication endpoints retain deliberate serialization plus explicit contract schemas;\n- CI contract-conformance and compatibility/diff testing.\n\nThese are investigation/design candidates only. In particular, **\"refactor controllers so Swagger works\" is not an accepted objective or architectural direction.** Documentation/introspection tooling must not dictate runtime architecture without independent justification.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Parking-lot relationship / current disposition",
+          "level": 3,
+          "content": "This record establishes one canonical identity, **`PL-API-02`**, for the coupled machine-readable-contract / explicit-HTTP-boundary pressure. The weak-response-typing finding is preserved here as an unresolved architectural question rather than immediately creating a second PL. Reconciliation may split it later if evidence shows independently valuable scope.\n\n**Current state is INTAKE, not RECONCILED.** Strategic reconciliation against `docs/roadmap.md` and architectural reconciliation against `docs/architecture-roadmap.md`, governing architecture, ADRs, principles, and related contract authority have not yet been completed by this record.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Explicitly not authorized",
+          "level": 3,
+          "content": "This intake does **not** authorize adding springdoc/Swagger dependencies; creating or publishing `openapi.yaml`; exposing Swagger UI or API docs; changing production HTTP exposure; replacing or superseding `evidence-snapshot-v1.md`; converting `String`, wildcard, or `Map` responses to DTOs; changing serialization/null/ETag/compatibility semantics; altering endpoint behavior; or implementing contract-generation/conformance tooling.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Next authorized mode",
+          "level": 3,
+          "content": "**Strategic and architectural reconciliation / bounded investigation only.** Classify the existing weakly typed response boundaries by reason and contract significance, then evaluate machine-readable-contract approaches against the actual API semantics and governing authority. Implementation remains downstream of reconciliation, design, and explicit authorization.\n\n\n---",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "PL-API-03",
+      "name": "Common capability-oriented API boundary",
+      "section": "Reconciliation / continuation record",
+      "description": "**Trigger and scope.** The 14-symbol `ww fetch` specimen traversed the existing web-oriented targeted refresh, acquiring 99 option chains and 14 quotes even though the Principal-selected mature `fetch` meaning is direct quote observations by default. The 99 calls were the deliberate result of accepted full-surface behavior, not accidental duplication. The architectural concern is that today's HTTP operation combines narrow acquisition with full Decision-surface orchestration and publication.",
+      "descriptionTruncated": true,
+      "state": "INTAKE — durable identity for the common API-boundary concern; no v2 design or implementation authorized",
+      "sourceFile": "parking-lot-10.md",
+      "relatedLvtIds": [],
+      "relatedArIds": [],
+      "sections": [
+        {
+          "heading": "",
+          "level": 0,
+          "content": "**Trigger and scope.** The 14-symbol `ww fetch` specimen traversed the existing web-oriented targeted refresh, acquiring 99 option chains and 14 quotes even though the Principal-selected mature `fetch` meaning is direct quote observations by default. The 99 calls were the deliberate result of accepted full-surface behavior, not accidental duplication. The architectural concern is that today's HTTP operation combines narrow acquisition with full Decision-surface orchestration and publication. Preserve coherent v1 behavior while investigating one common capability model for CLI, later web-client migration, and future clients; do not create a CLI-only API or mechanically prepend a version label to current routes.\n\n**Questions for reconciliation.** What are the meaningful acquisition, declaration, read, derivation, and explicit orchestration capabilities? What is the canonical authoritative underlying-quote observation, given today's chain-derived held price and ADR-015 provenance boundary? Which side effects are inherent to evidence commit, and which require separate intent? How do ordinary evidence reuse and explicit upstream reacquisition coexist with provider stewardship and truthful per-subject outcomes? How can the web client reproduce its full-surface and visible-convergence behavior without owning Wheelwright domain policy? What security/authorization boundary applies to acquisition intents versus reads? How will the v2 OAS required by Doc 77 represent the selected semantics without dictating them, and how does that constraint relate to the broader `PL-API-02` typing concern?\n\n**Disposition and authority.** This is distinct from `PL-API-02`'s OAS/typing question and from `PL-OPS-10`'s performance remedy selection. It is enabling architecture pressure under the existing one-evidence-appliance/many-client direction; no new strategic Bet is asserted at intake. The Principal selected the `fetch` Product boundary under `PL-CLI-01` and ratified cross-cutting v2 guardrails in Doc 77. The next mode is strategic/architectural reconciliation and a Solution Overview centered first on canonical quote evidence. This intake authorizes no v2 routes, schema, persistence, CLI change, v1 behavior change, provider optimization, or implementation.",
           "truncated": false,
           "tables": []
         }
@@ -8441,7 +8544,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 544
+      "sourceOrder": 555
     },
     {
       "plId": null,
@@ -8584,7 +8687,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 535
+      "sourceOrder": 546
     },
     {
       "plId": null,
@@ -8597,7 +8700,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 536
+      "sourceOrder": 547
     },
     {
       "plId": null,
@@ -8610,7 +8713,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 537
+      "sourceOrder": 548
     },
     {
       "plId": null,
@@ -8623,7 +8726,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 540
+      "sourceOrder": 551
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8649,7 +8752,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 538
+      "sourceOrder": 549
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -8831,7 +8934,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 518
+      "sourceOrder": 529
     },
     {
       "plId": null,
@@ -8844,7 +8947,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 519
+      "sourceOrder": 530
     },
     {
       "plId": null,
@@ -8857,7 +8960,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 520
+      "sourceOrder": 531
     },
     {
       "plId": null,
@@ -8870,7 +8973,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 521
+      "sourceOrder": 532
     },
     {
       "plId": null,
@@ -8883,7 +8986,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 522
+      "sourceOrder": 533
     },
     {
       "plId": null,
@@ -8896,7 +8999,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 523
+      "sourceOrder": 534
     },
     {
       "plId": null,
@@ -8909,7 +9012,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 524
+      "sourceOrder": 535
     },
     {
       "plId": null,
@@ -8922,7 +9025,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 525
+      "sourceOrder": 536
     },
     {
       "plId": null,
@@ -8935,7 +9038,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 526
+      "sourceOrder": 537
     },
     {
       "plId": null,
@@ -8948,7 +9051,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 527
+      "sourceOrder": 538
     },
     {
       "plId": null,
@@ -8961,7 +9064,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 528
+      "sourceOrder": 539
     },
     {
       "plId": null,
@@ -8974,7 +9077,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 529
+      "sourceOrder": 540
     },
     {
       "plId": null,
@@ -8987,7 +9090,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 530
+      "sourceOrder": 541
     },
     {
       "plId": null,
@@ -9000,7 +9103,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 531
+      "sourceOrder": 542
     },
     {
       "plId": null,
@@ -9013,7 +9116,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 532
+      "sourceOrder": 543
     },
     {
       "plId": null,
@@ -9026,7 +9129,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 533
+      "sourceOrder": 544
     },
     {
       "plId": null,
@@ -9039,7 +9142,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 534
+      "sourceOrder": 545
     },
     {
       "plId": null,
@@ -9052,7 +9155,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 539
+      "sourceOrder": 550
     },
     {
       "plId": null,
@@ -9065,7 +9168,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 543
+      "sourceOrder": 554
     },
     {
       "plId": "PL-SEM-01",
@@ -9234,7 +9337,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 541
+      "sourceOrder": 552
     },
     {
       "plId": null,
@@ -9247,7 +9350,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 542
+      "sourceOrder": 553
     },
     {
       "plId": "PL-SETUP-01",
@@ -9338,10 +9441,38 @@
       "state": "INTAKE — near-term investigation; no optimization implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 517
+      "sourceOrder": 518
+    },
+    {
+      "plId": "PL-API-02",
+      "bugId": null,
+      "title": "PL-API-02 — Machine-readable HTTP contract and explicit API-boundary semantics",
+      "eventKind": "intake",
+      "establishesIntake": false,
+      "eventDateText": "October 5, 2026",
+      "eventDateIso": "2026-10-05",
+      "state": "INTAKE — durable identity established from OpenAPI/OAS investigation; strategic and architectural reconciliation remain unresolved; no implementation authorized",
+      "headingLevel": 2,
+      "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 519
+    },
+    {
+      "plId": "PL-API-03",
+      "bugId": null,
+      "title": "PL-API-03 — Common capability-oriented API boundary",
+      "eventKind": "intake",
+      "establishesIntake": false,
+      "eventDateText": "October 5, 2026",
+      "eventDateIso": "2026-10-05",
+      "state": "INTAKE — durable identity for the common API-boundary concern; no v2 design or implementation authorized",
+      "headingLevel": 2,
+      "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 528
     }
   ],
   "intakeDateUnknown": [
+    "PL-API-02",
+    "PL-API-03",
     "PL-ARCH-01",
     "PL-ARCH-02",
     "PL-ARCH-03",
