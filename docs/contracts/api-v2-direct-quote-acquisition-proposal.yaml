@@ -1,0 +1,370 @@
+openapi: 3.1.1
+info:
+  title: Wheelwright v2 direct-quote acquisition — PROPOSED
+  version: 0.1.0-proposal
+  description: >-
+    Proposal for Principal ratification only. One synchronous, subject-scoped
+    canonical direct-quote acquisition capability. Not implementation authority.
+servers:
+  - url: /
+paths:
+  /api/v2/quote-acquisitions:
+    post:
+      operationId: acquireDirectQuotes
+      summary: Synchronize canonical direct-quote evidence for named underlyings
+      description: >-
+        Returns only when every requested subject has a terminal result. HTTP 200
+        denotes a completed operation, not fulfillment of every subject. Repeating
+        ORDINARY reevaluates held-evidence reuse; repeating FORCE may cause another
+        upstream attempt. X-Request-Id correlates but does not deduplicate.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: X-Request-Id
+          in: header
+          required: false
+          description: Optional caller UUID for correlation only; generated if absent.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcquireQuotesRequest'
+      responses:
+        '200':
+          description: All subjects have terminal independent results; some or all may fail.
+          headers:
+            X-Request-Id:
+              required: true
+              schema: { type: string, format: uuid }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcquireQuotesResponse'
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '415': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+        '500': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Problem' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: >-
+        TLS-protected configured credential establishes caller identity. The
+        authenticated principal requires quote.acquire; FORCE additionally requires
+        quote.force. Deployed operation fails closed without approved configuration.
+  responses:
+    Problem:
+      description: Request-wide failure before trustworthy completed per-subject results.
+      headers:
+        X-Request-Id:
+          required: true
+          schema: { type: string, format: uuid }
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    AcquireQuotesRequest:
+      type: object
+      additionalProperties: false
+      required: [subjects]
+      properties:
+        subjects:
+          type: array
+          minItems: 1
+          maxItems: 30
+          description: >-
+            Distinct named US-listed underlying symbols. The server uppercases
+            symbols before duplicate detection and preserves request order in results.
+            Canonical duplicates make the entire request invalid (422).
+          items:
+            $ref: '#/components/schemas/RequestedSubject'
+        mode:
+          type: string
+          enum: [ORDINARY, FORCE]
+          default: ORDINARY
+          description: >-
+            ORDINARY may reuse eligible held evidence. FORCE bypasses reuse and
+            requires actual permitted upstream contact. This is acquisition intent,
+            not an observation fact or downstream admissibility verdict.
+    RequestedSubject:
+      type: object
+      additionalProperties: false
+      required: [symbol]
+      properties:
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 32
+          pattern: '^[A-Za-z^][A-Za-z0-9.^/_-]*$'
+          description: >-
+            Market symbol supplied by caller; canonical uppercase identity is used
+            for duplicate detection and returned in each result. Well-formed but
+            unsupported symbols receive a per-subject result.
+    AcquireQuotesResponse:
+      type: object
+      additionalProperties: true
+      required: [requestId, mode, startedAt, completedAt, results]
+      properties:
+        requestId:
+          type: string
+          format: uuid
+          description: Request correlation identity, not an idempotency key.
+        mode:
+          type: string
+          enum: [ORDINARY, FORCE]
+          description: Effective acquisition intent.
+        startedAt:
+          type: string
+          format: date-time
+          description: Wheelwright operation start instant, RFC 3339 UTC.
+        completedAt:
+          type: string
+          format: date-time
+          description: Wheelwright operation completion instant, RFC 3339 UTC.
+        results:
+          type: array
+          minItems: 1
+          maxItems: 30
+          description: Exactly one terminal result per canonical requested subject, in request order.
+          items:
+            $ref: '#/components/schemas/SubjectAcquisitionResult'
+    SubjectAcquisitionResult:
+      type: object
+      additionalProperties: true
+      required: [subject, outcome, fulfilled, observation, priorRetained]
+      properties:
+        subject:
+          $ref: '#/components/schemas/RequestedSubject'
+        outcome:
+          type: string
+          enum:
+            - NEWLY_ACQUIRED
+            - REUSED
+            - UNMATCHED
+            - UNSUPPORTED_SUBJECT
+            - UPSTREAM_UNAVAILABLE
+            - CONTACT_NOT_PERMITTED
+            - ADMISSION_REJECTED
+            - UPSTREAM_FAILED
+            - INVALID_UPSTREAM_EVIDENCE
+            - AUTHORITY_SUPERSEDED
+            - ACCEPTANCE_FAILED
+          description: >-
+            This request's terminal fulfillment outcome. NEWLY_ACQUIRED certifies
+            accepted authoritative held quote evidence visible before completion;
+            REUSED certifies ordinary-policy eligible held evidence.
+        fulfilled:
+          type: boolean
+          description: True exactly for NEWLY_ACQUIRED or REUSED.
+        observation:
+          oneOf:
+            - $ref: '#/components/schemas/QuoteObservation'
+            - type: 'null'
+          description: >-
+            Selected authoritative held canonical direct quote after this subject's
+            attempt; null means none. On failure it is retained prior evidence and
+            does not fulfill this request. Reuse preserves original identity/clocks.
+        priorRetained:
+          type: boolean
+          description: True exactly when an unfulfilled result has a non-null prior observation.
+        failure:
+          $ref: '#/components/schemas/SubjectFailure'
+          description: Required for unfulfilled results; absent for fulfilled results.
+      oneOf:
+        - required: [failure]
+          properties:
+            fulfilled: { const: false }
+            outcome:
+              enum: [UNMATCHED, UNSUPPORTED_SUBJECT, UPSTREAM_UNAVAILABLE,
+                     CONTACT_NOT_PERMITTED, ADMISSION_REJECTED, UPSTREAM_FAILED,
+                     INVALID_UPSTREAM_EVIDENCE, AUTHORITY_SUPERSEDED,
+                     ACCEPTANCE_FAILED]
+        - not: { required: [failure] }
+          properties:
+            fulfilled: { const: true }
+            priorRetained: { const: false }
+            outcome: { enum: [NEWLY_ACQUIRED, REUSED] }
+    SubjectFailure:
+      type: object
+      additionalProperties: true
+      required: [code, retryable]
+      properties:
+        code:
+          type: string
+          enum: [UNMATCHED, UNSUPPORTED_SUBJECT, UPSTREAM_UNAVAILABLE,
+                 CONTACT_NOT_PERMITTED, ADMISSION_REJECTED, UPSTREAM_FAILED,
+                 INVALID_UPSTREAM_EVIDENCE, AUTHORITY_SUPERSEDED,
+                 ACCEPTANCE_FAILED]
+          description: Must equal the enclosing result outcome.
+        retryable:
+          type: boolean
+          description: Another attempt might change this condition; no success promise.
+        detail:
+          type: string
+          description: Optional safe human-readable explanation; no credential or raw provider payload.
+    QuoteObservation:
+      type: object
+      additionalProperties: true
+      required: [observationId, subject, facts, provenance]
+      properties:
+        observationId:
+          type: string
+          format: uuid
+          description: Stable Wheelwright identity for this accepted direct-quote observation.
+        subject:
+          $ref: '#/components/schemas/ResolvedSubject'
+        facts:
+          $ref: '#/components/schemas/QuoteFacts'
+        provenance:
+          $ref: '#/components/schemas/QuoteProvenance'
+    ResolvedSubject:
+      type: object
+      additionalProperties: true
+      required: [symbol, securityType]
+      properties:
+        symbol:
+          type: string
+          description: Canonical uppercase Wheelwright underlying symbol.
+        securityType:
+          type: string
+          enum: [EQUITY, ETF, INDEX, OTHER_UNDERLYING]
+          description: Wheelwright-resolved security class; option contracts are excluded.
+    QuoteFacts:
+      type: object
+      additionalProperties: true
+      anyOf:
+        - required: [last]
+          properties:
+            last:
+              type: object
+              required: [price]
+              properties:
+                price: { type: number, exclusiveMinimum: 0 }
+        - required: [bid]
+          properties:
+            bid:
+              type: object
+              required: [price]
+              properties:
+                price: { type: number, exclusiveMinimum: 0 }
+        - required: [ask]
+          properties:
+            ask:
+              type: object
+              required: [price]
+              properties:
+                price: { type: number, exclusiveMinimum: 0 }
+        - required: [open]
+          properties:
+            open: { type: number, exclusiveMinimum: 0 }
+        - required: [high]
+          properties:
+            high: { type: number, exclusiveMinimum: 0 }
+        - required: [low]
+          properties:
+            low: { type: number, exclusiveMinimum: 0 }
+        - required: [close]
+          properties:
+            close: { type: number, exclusiveMinimum: 0 }
+      description: >-
+        Source-reported quote-family facts. Missing facts are omitted, never null,
+        synthesized, or relabeled. Previous close and metadata alone do not make
+        price-bearing direct-quote evidence.
+      properties:
+        description: { type: string, description: Provider-reported instrument description. }
+        exchange: { type: string, description: Provider-reported listing exchange. }
+        last: { $ref: '#/components/schemas/TradeFact' }
+        bid: { $ref: '#/components/schemas/SideFact' }
+        ask: { $ref: '#/components/schemas/SideFact' }
+        open: { $ref: '#/components/schemas/Price' }
+        high: { $ref: '#/components/schemas/Price' }
+        low: { $ref: '#/components/schemas/Price' }
+        close: { $ref: '#/components/schemas/Price' }
+        previousClose: { $ref: '#/components/schemas/Price' }
+        volume: { type: integer, minimum: 0, description: Provider-reported daily volume, if supplied. }
+        reportedChange: { type: number, description: Provider-reported price change, not Wheelwright-derived. }
+        reportedChangePercent: { type: number, description: Provider-reported change normalized to percentage points (1.5 means 1.5 percent), not Wheelwright-derived. }
+        averageVolume: { type: integer, minimum: 0, description: Provider-reported average daily volume. }
+        fiftyTwoWeekHigh: { $ref: '#/components/schemas/Price' }
+        fiftyTwoWeekLow: { $ref: '#/components/schemas/Price' }
+    Price:
+      type: number
+      minimum: 0
+      description: Nonnegative source-reported market price in the instrument's applicable unit.
+    TradeFact:
+      type: object
+      additionalProperties: true
+      required: [price]
+      properties:
+        price: { $ref: '#/components/schemas/Price' }
+        size: { type: integer, minimum: 0, description: Provider-reported last trade size. }
+        sourceEventAt: { type: string, format: date-time, description: Provider last-trade event instant, RFC 3339 UTC when known. }
+    SideFact:
+      type: object
+      additionalProperties: true
+      required: [price]
+      properties:
+        price: { $ref: '#/components/schemas/Price' }
+        size: { type: integer, minimum: 0, description: Provider-reported displayed side size. }
+        venue: { type: string, description: Provider-reported bid or ask exchange. }
+        sourceEventAt: { type: string, format: date-time, description: Provider side-specific event instant, RFC 3339 UTC when known. }
+    QuoteProvenance:
+      type: object
+      additionalProperties: true
+      required: [provider, environment, acquisitionId, authorityEpoch, acquisitionPhase, receivedAt, committedAt]
+      properties:
+        provider: { type: string, minLength: 1, description: Source provider identity, e.g. tradier. }
+        environment:
+          type: string
+          enum: [PRODUCTION, SANDBOX]
+          description: Provider data environment, not client deployment environment.
+        acquisitionId: { type: string, format: uuid, description: Wheelwright identity of the accepted upstream attempt. }
+        authorityEpoch: { type: string, minLength: 1, description: Opaque Wheelwright acquisition authority/fencing identity; no credential. }
+        acquisitionPhase:
+          type: string
+          enum: [REGULAR_USABLE, PRE_MARKET, POST_MARKET, CLOSED, UNKNOWN]
+          description: Wheelwright classification at upstream contact, not a provider event time or evidence-admissibility verdict.
+        regularSessionDate:
+          type: string
+          format: date
+          description: Applicable US regular-session calendar date when unambiguously known; absent otherwise.
+        feedIdentity:
+          type: string
+          description: Stable source-feed identity relevant to authority/reuse; absent only when source does not distinguish feeds.
+        receivedAt: { type: string, format: date-time, description: Wheelwright receipt instant of this subject's upstream evidence, RFC 3339 UTC. }
+        committedAt: { type: string, format: date-time, description: Wheelwright authoritative held-evidence acceptance instant, RFC 3339 UTC. }
+    Problem:
+      type: object
+      additionalProperties: true
+      required: [type, title, status, code, requestId]
+      properties:
+        type: { type: string, format: uri-reference, description: Stable problem-type identifier. }
+        title: { type: string, description: Stable short reason. }
+        status: { type: integer, enum: [400, 401, 403, 415, 422, 500, 503] }
+        detail: { type: string, description: Optional safe human-readable detail. }
+        instance: { type: string, format: uri-reference, description: Optional occurrence URI. }
+        code:
+          type: string
+          enum: [MALFORMED_REQUEST, UNAUTHENTICATED, FORBIDDEN,
+                 UNSUPPORTED_MEDIA_TYPE, INVALID_REQUEST, CAPABILITY_UNAVAILABLE,
+                 INTERNAL_ERROR]
+          description: Machine-readable request-wide failure code.
+        requestId: { type: string, format: uuid, description: Correlates logs and response; not an idempotency key. }
+        invalidParams:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [name, reason]
+            properties:
+              name: { type: string, description: JSON Pointer into request where applicable. }
+              reason: { type: string, description: Safe human-readable validation failure. }

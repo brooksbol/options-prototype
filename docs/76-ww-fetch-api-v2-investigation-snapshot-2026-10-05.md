@@ -576,9 +576,9 @@ DECISION REQUIRED: NO
 
 NEXT AUTHORIZED ACTION: Reconcile the first common v2 direct-quote capability boundary under the selected semantics and Docs 77–78 before HTTP/OAS design.
 
-## 23. First common direct-quote capability boundary — candidate for Principal reconciliation
+## 23. First common direct-quote capability boundary — Principal-selected
 
-**Status: proposed semantic capability boundary, not Principal-selected design or implementation authority.** This bounded reconciliation uses selected §§20–22 and Doc 77. It stops before HTTP methods/routes, OAS, storage, configuration syntax, CLI presentation, and implementation.
+**Status: Principal-selected semantic capability boundary; HTTP/OAS remains proposed.** The Principal selected Option A, including named-subject acquisition without monitoring/enrollment and synchronous `NEWLY_ACQUIRED` completion only after authoritative held-quote visibility. This selection uses §§20–22 and Doc 77 and authorizes contract proposal, not implementation.
 
 ### 23.1 Capability and subject
 
@@ -608,15 +608,10 @@ Authorization must distinguish evidence reads from acquisition intents, includin
 
 The boundary fails if one named quote request silently acquires policy-selected chains, if an unknown subject is auto-enrolled in ongoing demand, if provider batch HTTP 200 certifies all subjects, if a prior price certifies failed force, if a commit failure reports newly acquired evidence, or if a quote acquisition completion is not reflected by the authoritative quote read. It also fails if a quote field projection changes provider acquisition scope, or if CLI and web ordinary reuse differ by caller identity.
 
-**Principal decision requested:** select this semantic boundary, or revise the treatment of named subjects outside the current Decision universe and the completed-new-acquisition visibility requirement. The latter two are the materially new proposed consequences; §§21–22 and Doc 77 are already selected. HTTP/OAS, exact outcome vocabulary, durable representation, security mechanism, and operation timing remain later design work, not reasons to broaden this capability now.
+**Principal selection:** Option A. Named quote subjects MAY be acquired without joining observation demand, the Decision universe, or any other monitoring/enrollment set. Successful synchronous `NEWLY_ACQUIRED` completion certifies subject-verified canonical direct-quote evidence accepted under valid authority and visible through the common held-quote read boundary. This does not select a held-quote read endpoint. HTTP/OAS details remain proposed in the separate first-slice contract.
 
-CURRENT STATE: Canonical quote semantics, configured reuse policy, and Doc 77 batching are selected; this first common direct-quote capability boundary is proposed for Principal reconciliation only.
+CURRENT STATE: Canonical quote semantics, configured reuse policy, Doc 77 batching, and this first common direct-quote capability boundary are Principal-selected. The first HTTP/OAS slice remains proposed.
 
-DECISION REQUIRED: YES
+DECISION REQUIRED: NO
 
-OPTIONS:
-A — Select the subject-scoped direct-quote capability boundary above.
-B — Revise the named-subject or held-evidence visibility boundary before selection.
-C — Defer the direct-quote capability boundary.
-
-RECOMMENDED DEFAULT: A
+NEXT AUTHORIZED ACTION: Reconcile the proposed first HTTP/OAS slice under the selected capability boundary; do not implement before separate Principal ratification and handoff.
