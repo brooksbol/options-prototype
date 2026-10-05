@@ -458,3 +458,82 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 **Investigation.** Measure per-symbol acquisition time; provider request and eligible-expiration counts per symbol; provider request latency; RequestPacer admission delay and rate-limit contribution; serialization from the worker topology; and whether the provider actually supports useful multi-symbol or batch requests. Then evaluate independently: (1) safe bounded backend concurrency, (2) provider-native batching where supported, (3) reducing unnecessary acquisition work per symbol, and (4) fitting the synchronous completion bound to legitimate workloads. Select no remedy before the measurements. Preserve provider stewardship, acquisition authority/fencing, and the accepted `ww fetch` completion, per-symbol, and exit-status contract.
 
 **Reconciliation and boundary.** This is a distinct performance/capacity investigation of the shipped `PL-OPS-09` targeted path, exposed by the `PL-CLI-01` consumer; it is not a second acquisition capability, a defect finding that every timeout is false, or a new strategic Bet. No roadmap strategy change is indicated at intake. Architectural consequences of concurrency, batching, work reduction, or timeout adjustment remain open pending evidence. The intake is retained as `PL-OPS-10` so the near-term work is trackable separately from the shipped targeted-acquisition contract. The why-state is this record and the linked October 4 acceptance checkpoint. **Next authorized mode:** measured investigation only. No concurrency, provider, acquisition-scope, timeout, or CLI code change is authorized by this item.
+
+
+---
+
+## `PL-API-02` — Machine-readable HTTP contract and explicit API-boundary semantics
+
+**Date:** October 5, 2026  
+**State:** INTAKE — durable identity established from OpenAPI/OAS investigation; strategic and architectural reconciliation remain unresolved; no implementation authorized  
+**Trigger / why-state:** October 5, 2026 repository investigation of OpenAPI Specification (OAS) feasibility against the current Spring Boot HTTP surface. No separate discovery artifact is required at intake; the findings below preserve the material why-state.
+
+### Intake
+
+Investigation of adopting **OpenAPI Specification (OAS)** for Wheelwright exposed a broader architectural question than documentation tooling alone.
+
+The current Java backend has roughly 30 mapped HTTP handlers across 16 controllers. A material portion of the response surface is weakly represented in Java method signatures: important endpoints return shapes such as `ResponseEntity<String>`, `ResponseEntity<?>`, and generic `Map<String,Object>` / `Map<String,Integer>`. Several of the richest payloads, including frozen evidence-publication behavior, are deliberately serialized or assembled outside a strongly typed response model.
+
+As a result, simply adding Spring/OpenAPI introspection tooling would discover routes, verbs, parameters, and some typed request/response islands, but would not faithfully describe the schemas of the most important weakly typed responses. An automatically generated specification could therefore appear authoritative while representing those payloads only as `string`, wildcard/opaque, or free-form `object` schemas.
+
+The durable concern is consequently not "add Swagger." It is:
+
+> **Should Wheelwright establish a machine-readable HTTP API contract, and what relationship should that contract have to runtime response typing, deliberate hand serialization, frozen prose contracts, and conformance testing?**
+
+A coupled architectural question must be resolved rather than hidden by documentation tooling:
+
+> **For each weakly typed HTTP boundary, is the weak typing required by contract/serialization semantics, a justified implementation choice, or incidental architectural debt?**
+
+The distinction matters. Deliberate hand serialization may be appropriate where exact publication semantics, null behavior, compatibility, ETag identity, or frozen-contract behavior require explicit control. Conversely, weak typing that spread to ordinary endpoints without such a requirement may leave API semantics implicit in imperative code and reduce compiler, framework, test, and tooling leverage.
+
+### Why this may matter
+
+A faithful machine-readable contract could support API conformance testing, compatibility/diff checks, generated clients, mocks, agent/tool consumption, and navigable API documentation. More importantly, it could make externally observable HTTP semantics explicit rather than requiring reconstruction from controller signatures, serializers, tests, and prose.
+
+The weak-boundary finding may independently indicate architectural debt, but this intake deliberately does **not** assume that typed DTOs are preferable everywhere. The purpose is to classify the boundary and preserve contract truth, not to optimize the codebase for a particular OpenAPI generator.
+
+### Existing authority / related concerns
+
+- **`PL-API-01` — API Testability and Cacheability:** already Promoted/Closed (Aug 2026). Its principles graduated into publication invariants and `docs/contracts/evidence-snapshot-v1.md`. This new intake does not reopen or reuse that identity.
+- **`docs/contracts/evidence-snapshot-v1.md`:** frozen API contract and existing authoritative expression of important publication semantics. Any machine-readable representation must be reconciled with it rather than silently superseding it.
+- **Publication invariants / ETag and conditional HTTP behavior:** machine-readable contract work must preserve observable header/status/body semantics, including conditional responses where applicable.
+- **`PRIN-ARCH-VERSION-CONTROLLED-DEFINITION`:** Product definition is version-controlled. A repository-owned machine-readable API contract is potentially aligned with this principle, but alignment does not itself choose an implementation approach.
+- **`PRIN-ARCH-PERSIST-FACTS-DERIVE-TRUST` and deterministic/publication semantics:** API-schema work must not weaken evidence semantics merely to improve framework introspection.
+- Existing Spring Boot implementation and typed request/response islands are implementation evidence, not by themselves authority for the future contract model.
+
+### Unresolved questions
+
+1. Should OpenAPI 3.1 become Wheelwright's machine-readable HTTP API contract, or is another/no machine-readable contract appropriate?
+2. If OAS is adopted, is the canonical direction contract-first/static, annotation-augmented runtime generation, a hybrid, or another model?
+3. What is the source-of-truth relationship among OAS, frozen prose contracts such as `evidence-snapshot-v1.md`, runtime serializers, and conformance tests?
+4. Which current `String`, wildcard, and generic-`Map` response boundaries are **contract-required**, **justified implementation choices**, or **incidental/accidental weak typing**?
+5. Should incidental weak boundaries migrate to explicit response models independently of OAS adoption?
+6. What automated conformance/compatibility checks are necessary to prevent a machine-readable contract from drifting from runtime behavior?
+7. What development/production exposure, if any, should interactive API documentation receive?
+8. Does this intake remain one concern through reconciliation, or should the weak-boundary classification become a child/separate PL after evidence establishes independent scope?
+
+### Candidate directions — not authorized
+
+Candidate directions include:
+
+- repository-owned OpenAPI 3.1 authored as an explicit contract and validated against the running application;
+- annotation/schema augmentation around deliberately hand-serialized endpoints without changing runtime serialization;
+- stronger typed response models for endpoints whose weak typing is incidental rather than semantically required;
+- a hybrid in which ordinary endpoints use typed models while exceptional frozen/publication endpoints retain deliberate serialization plus explicit contract schemas;
+- CI contract-conformance and compatibility/diff testing.
+
+These are investigation/design candidates only. In particular, **"refactor controllers so Swagger works" is not an accepted objective or architectural direction.** Documentation/introspection tooling must not dictate runtime architecture without independent justification.
+
+### Parking-lot relationship / current disposition
+
+This record establishes one canonical identity, **`PL-API-02`**, for the coupled machine-readable-contract / explicit-HTTP-boundary pressure. The weak-response-typing finding is preserved here as an unresolved architectural question rather than immediately creating a second PL. Reconciliation may split it later if evidence shows independently valuable scope.
+
+**Current state is INTAKE, not RECONCILED.** Strategic reconciliation against `docs/roadmap.md` and architectural reconciliation against `docs/architecture-roadmap.md`, governing architecture, ADRs, principles, and related contract authority have not yet been completed by this record.
+
+### Explicitly not authorized
+
+This intake does **not** authorize adding springdoc/Swagger dependencies; creating or publishing `openapi.yaml`; exposing Swagger UI or API docs; changing production HTTP exposure; replacing or superseding `evidence-snapshot-v1.md`; converting `String`, wildcard, or `Map` responses to DTOs; changing serialization/null/ETag/compatibility semantics; altering endpoint behavior; or implementing contract-generation/conformance tooling.
+
+### Next authorized mode
+
+**Strategic and architectural reconciliation / bounded investigation only.** Classify the existing weakly typed response boundaries by reason and contract significance, then evaluate machine-readable-contract approaches against the actual API semantics and governing authority. Implementation remains downstream of reconciliation, design, and explicit authorization.
