@@ -69,6 +69,7 @@ public interface DirectQuoteSource {
             String acquisitionId,
             String authorityId,
             String authorityEpoch,
+            String logicalOperationId,
             QuoteProvenance.AcquisitionPhase acquisitionPhase,
             String regularSessionDate,
             String receivedAt,
@@ -87,6 +88,11 @@ public interface DirectQuoteSource {
         ADMISSION_REJECTED,
         /** Provider could not be contacted / transport failure. */
         UNAVAILABLE,
+        /**
+         * Effective off-hours contact policy forbade contact at the ACTUAL-contact boundary, so
+         * no HTTP send occurred (Doc 79 off-hours finding — check-at-contact).
+         */
+        CONTACT_NOT_PERMITTED,
         /** The upstream attempt failed for a provider-reported reason. */
         FAILED
     }

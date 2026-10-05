@@ -37,7 +37,10 @@ class DirectQuoteCorrelationTest {
         ProviderAuthority prod = new ProviderAuthority("prod", "production", adapter, cache, pacer);
         ProviderAuthorityManager manager = new ProviderAuthorityManager(prod, null, observer);
         manager.markSingleAuthorityActiveForLegacy();
-        return new Rig(new TradierDirectQuoteSource(manager), observer);
+        // Product-default policy (off-hours contact enabled) so the contact hook permits the
+        // (unroutable) send and the observer still records the correlated provider events.
+        QuoteAcquisitionPolicy policy = new QuoteAcquisitionPolicy(60, true, true);
+        return new Rig(new TradierDirectQuoteSource(manager, policy), observer);
     }
 
     private List<ObservationRecorder.Event> providerEvents(ObservationRecorder observer) {

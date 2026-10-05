@@ -93,14 +93,43 @@ public class V2QuotesController {
                     "not a valid UUID")));
         }
 
-        // 400 — body must be present and parse as the request schema. Unknown properties are
-        // rejected (AcquireQuotesRequest uses ignoreUnknown=false), surfaced as malformed.
+        // Body parse in two stages so JSON SYNTAX errors and SEMANTIC value errors map to the
+        // ratified codes (contract §21): malformed JSON → 400 MALFORMED_REQUEST; syntactically
+        // valid JSON carrying an unsupported semantic value (e.g. an unknown mode) → 422
+        // INVALID_REQUEST.
         if (rawBody == null || rawBody.length == 0) {
             return problem(ProblemCode.MALFORMED_REQUEST, requestId, "request body is required");
         }
+        // Stage 1 — structural parse. A failure here is genuinely malformed JSON (400).
+        com.fasterxml.jackson.databind.JsonNode root;
+        try {
+            root = mapper.readTree(rawBody);
+        } catch (Exception e) {
+            return problem(ProblemCode.MALFORMED_REQUEST, requestId,
+                "request body is not valid JSON");
+        }
+        if (root == null || root.isNull() || !root.isObject()) {
+            return problem(ProblemCode.MALFORMED_REQUEST, requestId,
+                "request body must be a JSON object");
+        }
+        // Stage 1b — semantic value check for `mode`: a present `mode` with an unsupported value
+        // is syntactically valid JSON but semantically invalid → 422 (NOT 400). This must be
+        // decided before binding, because the enum binder cannot distinguish a bad value from
+        // malformed syntax.
+        com.fasterxml.jackson.databind.JsonNode modeNode = root.get("mode");
+        if (modeNode != null && !modeNode.isNull()) {
+            if (!modeNode.isTextual() || !isSupportedMode(modeNode.asText())) {
+                return problem(ProblemCode.INVALID_REQUEST, requestId, "unsupported mode",
+                    List.of(new ProblemDetails.InvalidParam("/mode",
+                        "mode must be one of ORDINARY or FORCE")));
+            }
+        }
+        // Stage 2 — bind to the request schema. Unknown properties remain rejected
+        // (AcquireQuotesRequest uses ignoreUnknown=false) and surface as malformed (400), since
+        // an unknown field is a structural contract violation, not a bad value of a known field.
         AcquireQuotesRequest request;
         try {
-            request = mapper.readValue(rawBody, AcquireQuotesRequest.class);
+            request = mapper.treeToValue(root, AcquireQuotesRequest.class);
         } catch (Exception e) {
             return problem(ProblemCode.MALFORMED_REQUEST, requestId,
                 "request body is not valid JSON for this operation");
@@ -216,6 +245,14 @@ public class V2QuotesController {
             .header(REQUEST_ID_HEADER, requestId)
             .contentType(MediaType.APPLICATION_PROBLEM_JSON)
             .body(pd);
+    }
+
+    /** Whether a supplied mode string names a supported acquisition mode (case-sensitive, per OAS enum). */
+    private static boolean isSupportedMode(String value) {
+        for (AcquireQuotesRequest.Mode m : AcquireQuotesRequest.Mode.values()) {
+            if (m.name().equals(value)) return true;
+        }
+        return false;
     }
 
     private static boolean isJsonContentType(String contentType) {

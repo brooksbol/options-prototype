@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wheelwright.evidence.db.SqliteEvidenceStore;
 import com.wheelwright.evidence.provider.AcquisitionLease;
+import com.wheelwright.evidence.provider.ObservationRecorder;
 import com.wheelwright.evidence.provider.ProviderAuthorityManager;
 import org.springframework.stereotype.Service;
 
@@ -73,6 +74,59 @@ public class DirectQuoteService {
         }
     }
 
+    /**
+     * The active provider environment as the canonical {@link QuoteProvenance.Environment}, or
+     * null if the active authority cannot be read. Reuse requires held evidence to belong to
+     * this environment (Doc 79 I1 feed/environment boundary); a null here fails reuse closed.
+     */
+    private QuoteProvenance.Environment activeEnvironment() {
+        try {
+            return "production".equalsIgnoreCase(providerManager.active().environment())
+                ? QuoteProvenance.Environment.PRODUCTION
+                : QuoteProvenance.Environment.SANDBOX;
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * The active provider feed identity when the source distinguishes feeds, else null. The
+     * current backend models the feed boundary as the provider environment and does not
+     * subdivide a sub-feed identity, so this is null; it is preserved as a DISTINCT dimension
+     * (never collapsed into environment) so that if a feed identity ever becomes available it
+     * is enforced independently.
+     */
+    private String activeFeedIdentity() {
+        return null;
+    }
+
+    /**
+     * Whether a held observation's persisted environment/feed identity is compatible with the
+     * currently active provider feed (Doc 79 I1). Environment is always present and must match
+     * exactly — held SANDBOX evidence is never reusable while PRODUCTION is active, and vice
+     * versa. Feed identity is a DISTINCT dimension: when the held row carries a feed identity it
+     * must equal the active feed identity; when both are absent, the environment match is the
+     * established feed boundary. Fails closed when the active environment cannot be read, or when
+     * a required (non-null) feed identity cannot be matched.
+     */
+    private boolean feedCompatible(SqliteEvidenceStore.DirectQuoteRow prior) {
+        QuoteProvenance.Environment active = activeEnvironment();
+        if (active == null) return false; // cannot establish the active feed → fail closed
+        QuoteProvenance.Environment priorEnv;
+        try {
+            priorEnv = QuoteProvenance.Environment.valueOf(prior.environment());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return false; // held evidence with no/unknown environment is not provably compatible
+        }
+        if (priorEnv != active) return false; // incompatible provider environment/feed boundary
+        // Feed identity is a distinct sub-dimension. If the held row names one, it must match the
+        // active feed identity; both-absent is compatible under the environment boundary.
+        String priorFeed = prior.feedIdentity();
+        String activeFeed = activeFeedIdentity();
+        if (priorFeed == null && activeFeed == null) return true;
+        return priorFeed != null && priorFeed.equals(activeFeed);
+    }
+
     /** Thrown when the backend capability cannot start the operation (maps to 503). */
     public static class CapabilityUnavailableException extends RuntimeException {
         public CapabilityUnavailableException(String message) {
@@ -133,24 +187,19 @@ public class DirectQuoteService {
         Map<String, String> failureDetail = new LinkedHashMap<>();
 
         if (!needUpstream.isEmpty()) {
-            boolean offHours = !activeRegularPhaseNow;
-            boolean contactPermitted = !(offHours && !policy.offHoursContactEnabled());
-
-            if (!contactPermitted) {
-                // Effective policy prohibits provider contact (contract §13, §14): truthful
-                // non-fulfillment, prior retained separately. Applies to FORCE too. No provider
-                // work occurs.
-                for (String s : needUpstream) {
-                    upstreamOutcome.put(s, SubjectOutcome.CONTACT_NOT_PERMITTED);
-                    failureDetail.put(s, "off-hours provider contact is disabled by policy");
-                }
-            } else if (!source.contactAvailable()) {
-                // Provider authority not established — distinct from reuse eligibility.
+            if (!source.contactAvailable()) {
+                // Provider authority not established — distinct from reuse eligibility and from
+                // the off-hours contact policy. No provider work occurs.
                 for (String s : needUpstream) {
                     upstreamOutcome.put(s, SubjectOutcome.UPSTREAM_UNAVAILABLE);
                     failureDetail.put(s, "provider authority not established");
                 }
             } else {
+                // Off-hours contact policy is enforced at the ACTUAL-contact boundary inside the
+                // source's provider call (Doc 79 off-hours finding), NOT from this request-start
+                // phase — a request that begins in-session but whose actual contact lands
+                // off-hours must still be blocked when off-hours contact is disabled. The source
+                // returns CONTACT_NOT_PERMITTED per subject when it vetoes the send.
                 acquireUpstream(needUpstream, requestId, upstreamOutcome, newlyAcquired, failureDetail);
             }
         }
@@ -216,6 +265,10 @@ public class DirectQuoteService {
                     upstreamOutcome.put(canonical, SubjectOutcome.UPSTREAM_UNAVAILABLE);
                     failureDetail.put(canonical, u.detail());
                 }
+                case CONTACT_NOT_PERMITTED -> {
+                    upstreamOutcome.put(canonical, SubjectOutcome.CONTACT_NOT_PERMITTED);
+                    failureDetail.put(canonical, u.detail());
+                }
                 case FAILED -> {
                     upstreamOutcome.put(canonical, SubjectOutcome.UPSTREAM_FAILED);
                     failureDetail.put(canonical, u.detail());
@@ -225,6 +278,50 @@ public class DirectQuoteService {
                 case VERIFIED -> commitVerified(canonical, u,
                     upstreamOutcome, newlyAcquired, failureDetail);
             }
+
+            // Doc 79 I4: the SERVICE records the terminal logical outcome, because only the
+            // service knows the actual acceptance/commit verdict. It is correlated to the same
+            // request-scoped logicalOperationId the pacer transport events carry. (The source no
+            // longer emits a success-path terminal outcome.)
+            recordServiceTerminalOutcome(u, canonical, upstreamOutcome.get(canonical));
+        }
+    }
+
+    /**
+     * Record the per-subject terminal logical outcome on the authoritative observer, correlated
+     * to the request-scoped logical operation id carried from the source (Doc 79 I4). COMMITTED
+     * for a NEWLY_ACQUIRED subject; FENCED for AUTHORITY_SUPERSEDED; REJECTED for every other
+     * non-fulfilled provider/acceptance outcome. Transport-only conditions where no HTTP contact
+     * occurred (CONTACT_NOT_PERMITTED) and request-wide transport failures recorded by the source
+     * are not re-recorded here.
+     */
+    private void recordServiceTerminalOutcome(DirectQuoteSource.SubjectUpstream u,
+                                              String canonical, SubjectOutcome outcome) {
+        if (u.logicalOperationId() == null || outcome == null) return;
+        ObservationRecorder observer;
+        try {
+            observer = providerManager.observer();
+        } catch (RuntimeException e) {
+            return;
+        }
+        if (observer == null) return;
+        ObservationRecorder.LogicalOutcome logical = switch (outcome) {
+            case NEWLY_ACQUIRED -> ObservationRecorder.LogicalOutcome.ACQUISITION_COMMITTED;
+            case AUTHORITY_SUPERSEDED -> ObservationRecorder.LogicalOutcome.ACQUISITION_FENCED;
+            case INVALID_UPSTREAM_EVIDENCE, ACCEPTANCE_FAILED, UNMATCHED, UNSUPPORTED_SUBJECT ->
+                ObservationRecorder.LogicalOutcome.ACQUISITION_REJECTED;
+            // CONTACT_NOT_PERMITTED/ADMISSION_REJECTED/UPSTREAM_UNAVAILABLE/UPSTREAM_FAILED are
+            // transport/no-contact conditions; the source already recorded the transport-level
+            // outcome where applicable. Do not record a second (contradictory) terminal verdict.
+            default -> null;
+        };
+        if (logical == null) return;
+        long epoch = parseEpoch(u.authorityEpoch());
+        try {
+            observer.recordLogicalOutcome(u.logicalOperationId(), u.authorityId(), epoch,
+                canonical, ObservationRecorder.Purpose.ACTIVE_ACQUISITION, logical);
+        } catch (RuntimeException ignored) {
+            // observer faults must never affect acquisition
         }
     }
 
@@ -349,6 +446,13 @@ public class DirectQuoteService {
         if (priorSession == null || priorSession.isBlank()) {
             // Absent regular-session identity → fail closed for session-specific reuse (Doc 79
             // I1). Never guess a session date from receipt time.
+            return false;
+        }
+        // Provider environment / feed-identity boundary (Doc 79 I1): held evidence is reusable
+        // only when it belongs to the currently active provider feed. Applies to BOTH the active
+        // and completed-session branches below — SANDBOX evidence is never reused while
+        // PRODUCTION is active (and vice versa), regardless of session date or age.
+        if (!feedCompatible(prior)) {
             return false;
         }
 

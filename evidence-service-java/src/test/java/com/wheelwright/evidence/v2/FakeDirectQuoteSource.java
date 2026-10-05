@@ -69,7 +69,7 @@ public class FakeDirectQuoteSource implements DirectQuoteSource {
     public void verifiedWithEpoch(String symbol, RawQuote raw, String epoch) {
         programmed.put(symbol.toUpperCase(), new SubjectUpstream(
             UpstreamStatus.VERIFIED, raw, "tradier", QuoteProvenance.Environment.SANDBOX,
-            UUID.randomUUID().toString(), "sandbox", epoch,
+            UUID.randomUUID().toString(), "sandbox", epoch, "v2quote-test-fake",
             QuoteProvenance.AcquisitionPhase.REGULAR_USABLE, DEFAULT_SESSION_DATE,
             DEFAULT_RECEIVED_AT, null));
     }
@@ -97,7 +97,7 @@ public class FakeDirectQuoteSource implements DirectQuoteSource {
     private void program(String symbol, UpstreamStatus status, String detail) {
         programmed.put(symbol.toUpperCase(), new SubjectUpstream(
             status, null, "tradier", QuoteProvenance.Environment.SANDBOX,
-            UUID.randomUUID().toString(), "sandbox", "1",
+            UUID.randomUUID().toString(), "sandbox", "1", "v2quote-test-fake",
             QuoteProvenance.AcquisitionPhase.UNKNOWN, null, null, detail));
     }
 
@@ -118,7 +118,7 @@ public class FakeDirectQuoteSource implements DirectQuoteSource {
             // never assume success for an absent subject).
             bySubject.put(s, u != null ? u : new SubjectUpstream(
                 UpstreamStatus.UNMATCHED, null, "tradier", QuoteProvenance.Environment.SANDBOX,
-                UUID.randomUUID().toString(), "sandbox", "1",
+                UUID.randomUUID().toString(), "sandbox", "1", "v2quote-test-fake",
                 QuoteProvenance.AcquisitionPhase.UNKNOWN, null, DEFAULT_RECEIVED_AT,
                 "not returned by provider"));
         }

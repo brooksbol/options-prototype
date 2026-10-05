@@ -8,6 +8,7 @@ import com.wheelwright.evidence.provider.TradierAdapter;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -20,17 +21,26 @@ import java.util.UUID;
  * <p>It mints ONE acquisition lease off {@link ProviderAuthorityManager} (capturing the
  * current authority + fence epoch atomically), opens the pacer's {@code PurposeScope} so the
  * request correlation id and captured epoch travel onto the provider observer plane (Doc 79
- * I4), and issues one multi-symbol {@link TradierAdapter#getQuotes} call. It performs NO
- * persistence here — the fenced durable commit happens in {@link DirectQuoteService}. The
- * captured authority identity/epoch, the contact-time acquisition phase + regular-session date
- * (classified at the actual HTTP-send boundary — Doc 79 I2), and the receipt instant are
- * carried back per subject.
+ * I4), and issues one multi-symbol {@link TradierAdapter#getQuotes} call with a contact hook.
  *
- * <p>Subject verification is positive and fail-closed (Doc 79 I3): a subject is VERIFIED only
- * when the returned canonical symbol equals the requested canonical symbol AND the provider
- * security type maps to an allowed underlying type. Options, unknown, missing, or unrecognized
- * types are UNSUPPORTED; a symbol the provider did not return is UNMATCHED. There is no
- * {@code OTHER_UNDERLYING} fallback.
+ * <p><b>Actual-contact classification + off-hours gate (Doc 79 I2 / off-hours finding).</b> The
+ * contact hook runs at the real HTTP-send boundary inside the adapter. It classifies the
+ * acquisition phase + regular-session date from the ACTUAL contact instant, and — when
+ * off-hours contact is disabled by policy and the contact-time phase is not a usable regular
+ * phase — vetoes the send so no HTTP contact occurs. This enforces the policy against the phase
+ * that exists when contact would actually happen, with no intervening work before the send.
+ *
+ * <p><b>Terminal correlation (Doc 79 I4).</b> This source does NOT emit the terminal logical
+ * outcome for the success path: the terminal acquisition verdict is only known after the
+ * service accepts/commits. The source emits a terminal {@code ACQUISITION_REJECTED} only for a
+ * request-wide transport failure where no subject can reach the service; otherwise it carries
+ * the {@code logicalOperationId} back so the SERVICE records the per-subject terminal outcome
+ * after commit.
+ *
+ * <p>Subject verification is positive and fail-closed (Doc 79 I3): VERIFIED only when the
+ * returned canonical symbol equals the requested symbol AND the provider security type maps to
+ * an allowed underlying type; options/unknown/missing/unrecognized are UNSUPPORTED; a symbol
+ * the provider did not return is UNMATCHED. No {@code OTHER_UNDERLYING} fallback.
  *
  * <p>Deliberately does NOT reuse the v1 acquisition path: no chain acquisition, no
  * expirations, no observation-demand enrollment, no snapshot publication (contract §5, §25).
@@ -39,9 +49,12 @@ import java.util.UUID;
 public class TradierDirectQuoteSource implements DirectQuoteSource {
 
     private final ProviderAuthorityManager providerManager;
+    private final QuoteAcquisitionPolicy policy;
 
-    public TradierDirectQuoteSource(ProviderAuthorityManager providerManager) {
+    public TradierDirectQuoteSource(ProviderAuthorityManager providerManager,
+                                    QuoteAcquisitionPolicy policy) {
         this.providerManager = providerManager;
+        this.policy = policy;
     }
 
     @Override
@@ -69,19 +82,47 @@ public class TradierDirectQuoteSource implements DirectQuoteSource {
 
         // I4 correlation: open the pacer purpose scope so EVERY provider observer event this
         // acquisition causes carries the request-correlated logical operation id and the
-        // CAPTURED authority epoch — never the null-logical-id / epoch-zero default. The
-        // logical id embeds the request id so provider work is reconstructably attributable to
-        // the HTTP request while the acquisitionId remains a coexisting subordinate identity.
+        // CAPTURED authority epoch — never the null-logical-id / epoch-zero default.
         String logicalOperationId = "v2quote-" + safeRequestId(requestId) + "-" + acquisitionId;
         ObservationRecorder observer = providerManager.observer();
         lease.adapter().pacer().openPurposeScope(
             logicalOperationId, ObservationRecorder.Purpose.ACTIVE_ACQUISITION,
             String.join(",", subjects), acquisitionId, epoch);
 
+        // Contact-time phase/session, captured by the hook AT the actual send boundary. The hook
+        // also vetoes the send when off-hours contact is disabled for the contact-time phase.
+        QuoteProvenance.AcquisitionPhase[] contactPhase =
+            { QuoteProvenance.AcquisitionPhase.UNKNOWN };
+        String[] contactSessionDate = { null };
+        boolean offHoursContactEnabled = policy.offHoursContactEnabled();
+        TradierAdapter.ContactHook hook = contactAt -> {
+            QuoteProvenance.AcquisitionPhase phase =
+                DirectQuoteSessionIdentity.phaseAt(contactAt, realtime);
+            contactPhase[0] = phase;
+            contactSessionDate[0] = DirectQuoteSessionIdentity
+                .regularSessionDateAt(contactAt, realtime).map(LocalDate::toString).orElse(null);
+            // Off-hours gate AT CONTACT: if the contact-time phase is off-hours and off-hours
+            // contact is disabled, veto the send (no HTTP contact occurs).
+            return !contactVetoed(phase, offHoursContactEnabled);
+        };
+
         TradierAdapter.QuotesResult result;
         try {
-            result = lease.adapter().getQuotes(subjects);
+            result = lease.adapter().getQuotes(subjects, hook);
+        } catch (TradierAdapter.ContactBlockedException blocked) {
+            // Off-hours contact policy forbade the send at the actual-contact boundary. No HTTP
+            // contact occurred. This is a per-subject CONTACT_NOT_PERMITTED, not a transport
+            // failure; the terminal logical outcome is the service's to record.
+            lease.adapter().pacer().clearPurposeScope();
+            for (String s : subjects) {
+                bySubject.put(s, failure(UpstreamStatus.CONTACT_NOT_PERMITTED, provider, environment,
+                    acquisitionId, authorityId, authorityEpoch, logicalOperationId,
+                    "off-hours provider contact is disabled by policy at the contact boundary"));
+            }
+            return new BatchResult(bySubject);
         } catch (ProviderError pe) {
+            // A request-wide provider transport failure: no subject reaches the service, so the
+            // terminal rejected outcome is correctly recorded here (and only here).
             lease.adapter().pacer().clearPurposeScope();
             recordLogicalOutcome(observer, logicalOperationId, authorityId, epoch,
                 String.join(",", subjects), ObservationRecorder.LogicalOutcome.ACQUISITION_REJECTED);
@@ -90,7 +131,7 @@ public class TradierDirectQuoteSource implements DirectQuoteSource {
                 : UpstreamStatus.UNAVAILABLE;
             for (String s : subjects) {
                 bySubject.put(s, failure(status, provider, environment, acquisitionId,
-                    authorityId, authorityEpoch, safeDetail(pe)));
+                    authorityId, authorityEpoch, logicalOperationId, safeDetail(pe)));
             }
             return new BatchResult(bySubject);
         } catch (Exception e) {
@@ -99,74 +140,56 @@ public class TradierDirectQuoteSource implements DirectQuoteSource {
                 String.join(",", subjects), ObservationRecorder.LogicalOutcome.ACQUISITION_REJECTED);
             for (String s : subjects) {
                 bySubject.put(s, failure(UpstreamStatus.FAILED, provider, environment,
-                    acquisitionId, authorityId, authorityEpoch, safeDetail(e)));
+                    acquisitionId, authorityId, authorityEpoch, logicalOperationId, safeDetail(e)));
             }
             return new BatchResult(bySubject);
         } finally {
             lease.adapter().pacer().clearPurposeScope();
         }
 
-        // I2 temporal truth: classify acquisitionPhase + regularSessionDate from the ACTUAL
-        // upstream-contact instant captured inside the callable (bracketing the HTTP send),
-        // and record receivedAt from the distinct successful-payload-receipt instant. They
-        // describe different events and are not forced to agree.
-        Instant contactAt = parseInstant(result.contactAt());
-        QuoteProvenance.AcquisitionPhase phase = contactAt == null
-            ? QuoteProvenance.AcquisitionPhase.UNKNOWN
-            : DirectQuoteSessionIdentity.phaseAt(contactAt, realtime);
-        String regularSessionDate = contactAt == null ? null
-            : DirectQuoteSessionIdentity.regularSessionDateAt(contactAt, realtime)
-                .map(java.time.LocalDate::toString).orElse(null);
+        // I2 temporal truth: phase/session come from the hook (captured at the ACTUAL contact
+        // instant); receivedAt is the distinct successful-payload-receipt instant.
+        QuoteProvenance.AcquisitionPhase phase = contactPhase[0];
+        String regularSessionDate = contactSessionDate[0];
         String receivedAt = result.receivedAt();
 
-        boolean anyVerified = false;
         for (String s : subjects) {
             TradierAdapter.RawQuoteFacts raw = result.bySymbol().get(s);
             if (raw == null) {
-                // Not returned by an otherwise completed response → UNMATCHED (contract §16).
-                bySubject.put(s, new SubjectUpstream(
-                    UpstreamStatus.UNMATCHED, null, provider, environment,
-                    acquisitionId, authorityId, authorityEpoch, phase, regularSessionDate,
-                    receivedAt, "provider did not return a matching subject"));
+                bySubject.put(s, upstream(UpstreamStatus.UNMATCHED, null, provider, environment,
+                    acquisitionId, authorityId, authorityEpoch, logicalOperationId, phase,
+                    regularSessionDate, receivedAt, "provider did not return a matching subject"));
                 continue;
             }
-            // I3 positive subject verification. (a) returned canonical symbol must equal the
-            // requested canonical symbol; a mismatch fails that subject independently even under
-            // HTTP 200. (b) the provider security type must map to an allowed underlying type.
+            // I3 positive subject verification: returned symbol must equal the requested symbol,
+            // and the provider security type must map to an allowed underlying type.
             String returnedSymbol = raw.symbol() == null ? null : raw.symbol().toUpperCase(Locale.ROOT);
             if (returnedSymbol == null || !returnedSymbol.equals(s)) {
-                bySubject.put(s, new SubjectUpstream(
-                    UpstreamStatus.UNMATCHED, null, provider, environment,
-                    acquisitionId, authorityId, authorityEpoch, phase, regularSessionDate,
-                    receivedAt, "returned subject identity did not match requested subject"));
+                bySubject.put(s, upstream(UpstreamStatus.UNMATCHED, null, provider, environment,
+                    acquisitionId, authorityId, authorityEpoch, logicalOperationId, phase,
+                    regularSessionDate, receivedAt,
+                    "returned subject identity did not match requested subject"));
                 continue;
             }
             ResolvedSubject.SecurityType type = allowedUnderlyingType(raw.securityTypeRaw());
             if (type == null) {
-                // Unknown / missing / unrecognized / option / otherwise unsupported provider
-                // type FAILS CLOSED. No OTHER_UNDERLYING fallback (Doc 79 I3).
-                bySubject.put(s, new SubjectUpstream(
-                    UpstreamStatus.UNSUPPORTED, null, provider, environment,
-                    acquisitionId, authorityId, authorityEpoch, phase, regularSessionDate,
-                    receivedAt, "provider security type is not a supported underlying: "
+                bySubject.put(s, upstream(UpstreamStatus.UNSUPPORTED, null, provider, environment,
+                    acquisitionId, authorityId, authorityEpoch, logicalOperationId, phase,
+                    regularSessionDate, receivedAt,
+                    "provider security type is not a supported underlying: "
                         + describeType(raw.securityTypeRaw())));
                 continue;
             }
-            anyVerified = true;
-            bySubject.put(s, new SubjectUpstream(
-                UpstreamStatus.VERIFIED, toRawQuote(raw, type), provider, environment,
-                acquisitionId, authorityId, authorityEpoch, phase, regularSessionDate,
-                receivedAt, null));
+            bySubject.put(s, upstream(UpstreamStatus.VERIFIED, toRawQuote(raw, type), provider,
+                environment, acquisitionId, authorityId, authorityEpoch, logicalOperationId, phase,
+                regularSessionDate, receivedAt, null));
         }
 
-        // Transport-level logical outcome correlated to the request (subordinate to the pacer's
-        // per-HTTP transport records). COMMITTED/REJECTED evidence outcomes are recorded by the
-        // fenced commit path in the service; this records whether the batch yielded any
-        // verified subject at all, attributable to the request.
-        recordLogicalOutcome(observer, logicalOperationId, authorityId, epoch,
-            String.join(",", subjects),
-            anyVerified ? ObservationRecorder.LogicalOutcome.ACQUISITION_NO_USABLE_EVIDENCE
-                        : ObservationRecorder.LogicalOutcome.ACQUISITION_REJECTED);
+        // Doc 79 I4: the SOURCE no longer records a terminal logical outcome for a completed
+        // batch. The terminal acquisition verdict (COMMITTED / REJECTED / FENCED) is only known
+        // after the service accepts/commits each verified subject, so the service records it then
+        // (carrying the same logicalOperationId). The pacer has already recorded the per-HTTP
+        // transport START/COMPLETE events under this logical id.
         return new BatchResult(bySubject);
     }
 
@@ -186,14 +209,26 @@ public class TradierDirectQuoteSource implements DirectQuoteSource {
         return requestId == null || requestId.isBlank() ? "unknown" : requestId;
     }
 
+    private static SubjectUpstream upstream(UpstreamStatus status, RawQuote raw, String provider,
+                                            QuoteProvenance.Environment environment,
+                                            String acquisitionId, String authorityId,
+                                            String authorityEpoch, String logicalOperationId,
+                                            QuoteProvenance.AcquisitionPhase phase,
+                                            String regularSessionDate, String receivedAt,
+                                            String detail) {
+        return new SubjectUpstream(status, raw, provider, environment, acquisitionId, authorityId,
+            authorityEpoch, logicalOperationId, phase, regularSessionDate, receivedAt, detail);
+    }
+
     private static SubjectUpstream failure(UpstreamStatus status, String provider,
                                            QuoteProvenance.Environment environment,
                                            String acquisitionId, String authorityId,
-                                           String authorityEpoch, String detail) {
-        // A request-wide provider failure has no subject-verified contact facts: phase UNKNOWN,
-        // no regular-session date, no receipt instant.
+                                           String authorityEpoch, String logicalOperationId,
+                                           String detail) {
+        // A request-wide provider failure / blocked contact has no subject-verified contact
+        // facts: phase UNKNOWN, no regular-session date, no receipt instant.
         return new SubjectUpstream(status, null, provider, environment,
-            acquisitionId, authorityId, authorityEpoch,
+            acquisitionId, authorityId, authorityEpoch, logicalOperationId,
             QuoteProvenance.AcquisitionPhase.UNKNOWN, null, null, detail);
     }
 
@@ -223,6 +258,18 @@ public class TradierDirectQuoteSource implements DirectQuoteSource {
         return tradierType == null ? "(absent)" : tradierType;
     }
 
+    /**
+     * Whether the contact-boundary off-hours gate must VETO the send for the given contact-time
+     * phase and policy (Doc 79 off-hours finding). Off-hours = any phase other than a usable
+     * regular phase; when off-hours contact is disabled, such a contact is vetoed. Package-
+     * visible so the policy→gate wiring is deterministically testable.
+     */
+    static boolean contactVetoed(QuoteProvenance.AcquisitionPhase contactPhase,
+                                 boolean offHoursContactEnabled) {
+        boolean offHoursAtContact = contactPhase != QuoteProvenance.AcquisitionPhase.REGULAR_USABLE;
+        return offHoursAtContact && !offHoursContactEnabled;
+    }
+
     /** Map verified Tradier raw facts to the Wheelwright {@link RawQuote} with its resolved type. */
     private static RawQuote toRawQuote(TradierAdapter.RawQuoteFacts r, ResolvedSubject.SecurityType type) {
         return new RawQuote(
@@ -234,15 +281,6 @@ public class TradierDirectQuoteSource implements DirectQuoteSource {
             r.open(), r.high(), r.low(), r.close(), r.prevClose(),
             r.volume(), r.change(), r.changePercentage(), r.averageVolume(),
             r.week52High(), r.week52Low());
-    }
-
-    private static Instant parseInstant(String s) {
-        if (s == null) return null;
-        try {
-            return Instant.parse(s);
-        } catch (RuntimeException e) {
-            return null;
-        }
     }
 
     /** Safe detail: provider message only, never credentials or raw payload. */

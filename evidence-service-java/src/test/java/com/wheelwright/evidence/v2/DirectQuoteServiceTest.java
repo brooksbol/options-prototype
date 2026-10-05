@@ -50,7 +50,11 @@ class DirectQuoteServiceTest {
     // --- harness -----------------------------------------------------------------------
 
     private record Harness(DirectQuoteService service, SqliteEvidenceStore store,
-                           ProgrammableSource source) {}
+                           ProgrammableSource source, ProviderAuthorityManager manager) {}
+
+    private ProviderAuthorityManager managerOf(Harness h) {
+        return h.manager();
+    }
 
     private Harness harness(Instant now, long activeAgeSeconds, boolean completedReuse,
                             boolean offHours) throws SQLException {
@@ -60,7 +64,7 @@ class DirectQuoteServiceTest {
         QuoteAcquisitionPolicy policy = new QuoteAcquisitionPolicy(activeAgeSeconds, completedReuse, offHours);
         ProgrammableSource source = new ProgrammableSource();
         DirectQuoteService service = new DirectQuoteService(source, manager, store, policy, clock);
-        return new Harness(service, store, source);
+        return new Harness(service, store, source, manager);
     }
 
     /** A minimal real production (real-time) ProviderAuthorityManager, epoch 1. */
@@ -72,6 +76,37 @@ class DirectQuoteServiceTest {
         ProviderAuthorityManager m = new ProviderAuthorityManager(prod, null);
         m.markSingleAuthorityActiveForLegacy();
         return m;
+    }
+
+    /** A harness whose ACTIVE provider authority is SANDBOX (delayed), for feed-boundary tests. */
+    private Harness sandboxHarness(Instant now, long activeAgeSeconds, boolean completedReuse,
+                                   boolean offHours) throws SQLException {
+        SqliteEvidenceStore store = new SqliteEvidenceStore(":memory:");
+        Clock clock = Clock.fixed(now, ZoneOffset.UTC);
+        ResponseCache cache = new ResponseCache();
+        RequestPacer pacer = new RequestPacer(119, 200);
+        TradierAdapter adapter = new TradierAdapter("test-key", "https://sandbox.tradier.com/v1", cache, pacer);
+        ProviderAuthority sandbox = new ProviderAuthority("sandbox", "sandbox", adapter, cache, pacer);
+        ProviderAuthorityManager manager = new ProviderAuthorityManager(sandbox, null);
+        manager.markSingleAuthorityActiveForLegacy();
+        QuoteAcquisitionPolicy policy = new QuoteAcquisitionPolicy(activeAgeSeconds, completedReuse, offHours);
+        ProgrammableSource source = new ProgrammableSource();
+        DirectQuoteService service = new DirectQuoteService(source, manager, store, policy, clock);
+        return new Harness(service, store, source, manager);
+    }
+
+    /** Seed a held quote with an explicit environment (for feed-boundary reuse tests). */
+    private void seedHeldEnv(SqliteEvidenceStore store, String symbol, Instant now, long agoSeconds,
+                             QuoteProvenance.AcquisitionPhase phase, String sessionDate,
+                             String environment) throws Exception {
+        QuoteFacts facts = new QuoteFacts(null, null,
+            new QuoteFacts.TradeFact(100.0, null, null), null, null,
+            null, null, null, null, null, null, null, null, null, null, null);
+        String received = now.minusSeconds(agoSeconds).toString();
+        store.setDirectQuote(new SqliteEvidenceStore.DirectQuoteRow(
+            symbol, UUID.randomUUID().toString(), "ETF", mapper.writeValueAsString(facts),
+            "tradier", environment, UUID.randomUUID().toString(), "1",
+            phase.name(), sessionDate, null, received, received));
     }
 
     private static List<AcquireQuotesRequest.RequestedSubject> subjects(String... syms) {
@@ -270,6 +305,66 @@ class DirectQuoteServiceTest {
         assertThat(results.get(0).outcome()).isEqualTo(SubjectOutcome.UPSTREAM_UNAVAILABLE);
     }
 
+    // === PROVIDER ENVIRONMENT / FEED IDENTITY (Codex finding 2) ========================
+
+    @Test
+    @DisplayName("F2 same-session fresh SANDBOX evidence is NOT reused when active source is PRODUCTION")
+    void sandboxEvidenceNotReusedUnderProduction() throws Exception {
+        Harness h = harness(MON_ACTIVE, 60, true, true); // active = PRODUCTION
+        seedHeldEnv(h.store(), "SPY", MON_ACTIVE, 10,
+            QuoteProvenance.AcquisitionPhase.REGULAR_USABLE, "2026-10-05", "SANDBOX");
+        h.source().verified("SPY", rawLast(756.19));
+        var results = acquire(h, AcquireQuotesRequest.Mode.ORDINARY, "SPY");
+        assertThat(results.get(0).outcome()).isEqualTo(SubjectOutcome.NEWLY_ACQUIRED);
+    }
+
+    @Test
+    @DisplayName("F2 same-session fresh PRODUCTION evidence is NOT reused when active source is SANDBOX")
+    void productionEvidenceNotReusedUnderSandbox() throws Exception {
+        Harness h = sandboxHarness(MON_ACTIVE, 60, true, true); // active = SANDBOX
+        seedHeldEnv(h.store(), "SPY", MON_ACTIVE, 10,
+            QuoteProvenance.AcquisitionPhase.REGULAR_USABLE, "2026-10-05", "PRODUCTION");
+        h.source().verifiedAt("SPY", rawLast(756.19), QuoteProvenance.AcquisitionPhase.REGULAR_USABLE,
+            "2026-10-05", MON_ACTIVE.toString());
+        var results = acquire(h, AcquireQuotesRequest.Mode.ORDINARY, "SPY");
+        assertThat(results.get(0).outcome()).isEqualTo(SubjectOutcome.NEWLY_ACQUIRED);
+    }
+
+    @Test
+    @DisplayName("F2 compatible-environment evidence remains eligible when all other predicates pass")
+    void compatibleEnvironmentEvidenceReused() throws Exception {
+        Harness h = harness(MON_ACTIVE, 60, true, true); // active = PRODUCTION
+        seedHeldEnv(h.store(), "SPY", MON_ACTIVE, 10,
+            QuoteProvenance.AcquisitionPhase.REGULAR_USABLE, "2026-10-05", "PRODUCTION");
+        var results = acquire(h, AcquireQuotesRequest.Mode.ORDINARY, "SPY");
+        assertThat(results.get(0).outcome()).isEqualTo(SubjectOutcome.REUSED);
+        assertThat(h.source().batchCount()).isZero();
+    }
+
+    @Test
+    @DisplayName("F2 completed-session reuse also does NOT cross an incompatible environment/feed boundary")
+    void completedSessionReuseHonorsEnvironment() throws Exception {
+        // Closed period (Sunday night), active = PRODUCTION, but held evidence is SANDBOX.
+        Harness h = harness(SUNDAY_NIGHT, 60, true, true);
+        seedHeldEnv(h.store(), "SPY", SUNDAY_NIGHT, 200_000,
+            QuoteProvenance.AcquisitionPhase.REGULAR_USABLE, "2026-10-02", "SANDBOX");
+        h.source().verified("SPY", rawLast(756.19));
+        var results = acquire(h, AcquireQuotesRequest.Mode.ORDINARY, "SPY");
+        assertThat(results.get(0).outcome()).isEqualTo(SubjectOutcome.NEWLY_ACQUIRED);
+    }
+
+    @Test
+    @DisplayName("F2 absent/unknown held environment fails closed (not provably compatible)")
+    void absentEnvironmentFailsClosed() throws Exception {
+        Harness h = harness(MON_ACTIVE, 60, true, true);
+        // environment stored as an unrecognized value → cannot establish compatibility → no reuse.
+        seedHeldEnv(h.store(), "SPY", MON_ACTIVE, 10,
+            QuoteProvenance.AcquisitionPhase.REGULAR_USABLE, "2026-10-05", "unknown");
+        h.source().verified("SPY", rawLast(756.19));
+        var results = acquire(h, AcquireQuotesRequest.Mode.ORDINARY, "SPY");
+        assertThat(results.get(0).outcome()).isEqualTo(SubjectOutcome.NEWLY_ACQUIRED);
+    }
+
     // === TEMPORAL TRUTH (Doc 79 I2) ====================================================
 
     @Test
@@ -374,19 +469,21 @@ class DirectQuoteServiceTest {
     }
 
     @Test
-    @DisplayName("off-hours contact DISABLED → CONTACT_NOT_PERMITTED, no provider work (ORDINARY and FORCE)")
+    @DisplayName("off-hours contact DISABLED → CONTACT_NOT_PERMITTED relayed from source (ORDINARY and FORCE)")
     void offHoursContactDisabled() throws Exception {
+        // Off-hours enforcement now lives at the ACTUAL-contact boundary inside the source/
+        // adapter (Doc 79 off-hours finding). The source returns CONTACT_NOT_PERMITTED when its
+        // contact-time off-hours gate vetoes the send; the service relays that per subject. The
+        // "no HTTP contact" proof lives in DirectQuoteContactBoundaryTest (real adapter veto).
         Harness ordinary = harness(SUNDAY_NIGHT, 60, true, false);
-        ordinary.source().verifiedAt("SPY", rawLast(1.0), QuoteProvenance.AcquisitionPhase.CLOSED, null, SUNDAY_NIGHT.toString());
+        ordinary.source().contactNotPermitted("SPY");
         var r1 = acquire(ordinary, AcquireQuotesRequest.Mode.ORDINARY, "SPY");
         assertThat(r1.get(0).outcome()).isEqualTo(SubjectOutcome.CONTACT_NOT_PERMITTED);
-        assertThat(ordinary.source().batchCount()).isZero();
 
         Harness forced = harness(SUNDAY_NIGHT, 60, true, false);
-        forced.source().verifiedAt("SPY", rawLast(1.0), QuoteProvenance.AcquisitionPhase.CLOSED, null, SUNDAY_NIGHT.toString());
+        forced.source().contactNotPermitted("SPY");
         var r2 = acquire(forced, AcquireQuotesRequest.Mode.FORCE, "SPY");
         assertThat(r2.get(0).outcome()).isEqualTo(SubjectOutcome.CONTACT_NOT_PERMITTED);
-        assertThat(forced.source().batchCount()).isZero();
     }
 
     @Test
@@ -424,6 +521,91 @@ class DirectQuoteServiceTest {
         assertThat(results.get(0).outcome()).isEqualTo(SubjectOutcome.NEWLY_ACQUIRED);
     }
 
+    // === TERMINAL CORRELATION — SUCCESS PATH (Codex finding 4) =========================
+
+    @Test
+    @DisplayName("F4 successful NEWLY_ACQUIRED records a COMMITTED terminal outcome correlated to the request (not NO_USABLE_EVIDENCE)")
+    void successRecordsCommittedTerminalOutcome() throws Exception {
+        Harness h = harness(MON_ACTIVE, 60, true, true);
+        String logicalId = "v2quote-REQ-success-acq1";
+        h.source().verifiedWithLogicalId("SPY", rawLast(756.19),
+            QuoteProvenance.AcquisitionPhase.REGULAR_USABLE, "2026-10-05",
+            MON_ACTIVE.toString(), logicalId);
+        var results = h.service().acquire(subjects("SPY"), AcquireQuotesRequest.Mode.ORDINARY, "REQ-success");
+        assertThat(results.get(0).outcome()).isEqualTo(SubjectOutcome.NEWLY_ACQUIRED);
+
+        var events = observerEvents(h);
+        // The terminal logical outcome for this logical operation is COMMITTED, never
+        // NO_USABLE_EVIDENCE — reflecting ACTUAL service acceptance (Codex finding 4).
+        var terminal = events.stream()
+            .filter(e -> e.recordType().equals("LOGICAL_OUTCOME"))
+            .filter(e -> logicalId.equals(e.logicalOperationId()))
+            .toList();
+        assertThat(terminal).isNotEmpty();
+        assertThat(terminal).allSatisfy(e ->
+            assertThat(e.logicalOutcome()).isEqualTo("ACQUISITION_COMMITTED"));
+        assertThat(terminal).noneMatch(e -> e.logicalOutcome().equals("ACQUISITION_NO_USABLE_EVIDENCE"));
+        // Correlated to the request (the logical id embeds the request id) and committed to held
+        // state — the full chain is reconstructable.
+        assertThat(h.store().getDirectQuote("SPY")).isNotNull();
+    }
+
+    @Test
+    @DisplayName("F4 authority-superseded records a FENCED terminal outcome, never COMMITTED")
+    void supersededRecordsFencedTerminalOutcome() throws Exception {
+        Harness h = harness(MON_ACTIVE, 60, true, true);
+        String logicalId = "v2quote-REQ-superseded-acq1";
+        // Captured epoch "0" is stale vs the real manager (epoch 1) → commit fenced.
+        h.source().verifiedWithEpochAndLogicalId("SPY", rawLast(756.19),
+            QuoteProvenance.AcquisitionPhase.REGULAR_USABLE, "2026-10-05",
+            MON_ACTIVE.toString(), "0", logicalId);
+        var results = h.service().acquire(subjects("SPY"), AcquireQuotesRequest.Mode.ORDINARY, "REQ-superseded");
+        assertThat(results.get(0).outcome()).isEqualTo(SubjectOutcome.AUTHORITY_SUPERSEDED);
+
+        var terminal = observerEvents(h).stream()
+            .filter(e -> e.recordType().equals("LOGICAL_OUTCOME"))
+            .filter(e -> logicalId.equals(e.logicalOperationId()))
+            .toList();
+        assertThat(terminal).isNotEmpty();
+        assertThat(terminal).allSatisfy(e ->
+            assertThat(e.logicalOutcome()).isEqualTo("ACQUISITION_FENCED"));
+        assertThat(h.store().getDirectQuote("SPY")).isNull(); // nothing committed
+    }
+
+    @Test
+    @DisplayName("F4 mixed partial success: one COMMITTED and one REJECTED terminal outcome, both request-correlated")
+    void mixedPartialSuccessTerminalOutcomes() throws Exception {
+        Harness h = harness(MON_ACTIVE, 60, true, true);
+        String logicalId = "v2quote-REQ-mixed-acq1";
+        h.source().verifiedWithLogicalId("SPY", rawLast(756.19),
+            QuoteProvenance.AcquisitionPhase.REGULAR_USABLE, "2026-10-05", MON_ACTIVE.toString(), logicalId);
+        // QQQ returns metadata-only (no positive price) → INVALID_UPSTREAM_EVIDENCE → REJECTED.
+        h.source().verifiedWithLogicalId("QQQ", rawPrevCloseOnly(100.0),
+            QuoteProvenance.AcquisitionPhase.REGULAR_USABLE, "2026-10-05", MON_ACTIVE.toString(), logicalId);
+        var results = h.service().acquire(subjects("SPY", "QQQ"), AcquireQuotesRequest.Mode.ORDINARY, "REQ-mixed");
+        assertThat(results.get(0).outcome()).isEqualTo(SubjectOutcome.NEWLY_ACQUIRED);
+        assertThat(results.get(1).outcome()).isEqualTo(SubjectOutcome.INVALID_UPSTREAM_EVIDENCE);
+
+        var terminal = observerEvents(h).stream()
+            .filter(e -> e.recordType().equals("LOGICAL_OUTCOME"))
+            .filter(e -> logicalId.equals(e.logicalOperationId()))
+            .toList();
+        assertThat(terminal).extracting(com.wheelwright.evidence.provider.ObservationRecorder.Event::logicalOutcome)
+            .contains("ACQUISITION_COMMITTED", "ACQUISITION_REJECTED");
+    }
+
+    private List<com.wheelwright.evidence.provider.ObservationRecorder.Event> observerEvents(Harness h) {
+        // The service's provider manager owns the shared observer.
+        return managerOf(h).observer().page(0, 10_000).events();
+    }
+
+    private static DirectQuoteSource.RawQuote rawPrevCloseOnly(double prevClose) {
+        return new DirectQuoteSource.RawQuote(
+            ResolvedSubject.SecurityType.ETF, "desc", "ARCA",
+            null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, prevClose, null, null, null, null, null, null);
+    }
+
     // --- A programmable DirectQuoteSource that carries contact-time facts ---------------
 
     private static final class ProgrammableSource implements DirectQuoteSource {
@@ -442,14 +624,43 @@ class DirectQuoteServiceTest {
                         String sessionDate, String receivedAt) {
             programmed.put(symbol.toUpperCase(), new SubjectUpstream(
                 UpstreamStatus.VERIFIED, raw, "tradier", QuoteProvenance.Environment.PRODUCTION,
-                UUID.randomUUID().toString(), "prod", "1", phase, sessionDate, receivedAt, null));
+                UUID.randomUUID().toString(), "prod", "1", "v2quote-test-prog",
+                phase, sessionDate, receivedAt, null));
+        }
+
+        /** Verified with an explicit request-correlated logicalOperationId (for terminal-outcome tests). */
+        void verifiedWithLogicalId(String symbol, RawQuote raw, QuoteProvenance.AcquisitionPhase phase,
+                                   String sessionDate, String receivedAt, String logicalId) {
+            programmed.put(symbol.toUpperCase(), new SubjectUpstream(
+                UpstreamStatus.VERIFIED, raw, "tradier", QuoteProvenance.Environment.PRODUCTION,
+                UUID.randomUUID().toString(), "prod", "1", logicalId,
+                phase, sessionDate, receivedAt, null));
+        }
+
+        /** Verified with explicit captured epoch + logicalId (for fenced terminal-outcome tests). */
+        void verifiedWithEpochAndLogicalId(String symbol, RawQuote raw,
+                                           QuoteProvenance.AcquisitionPhase phase, String sessionDate,
+                                           String receivedAt, String epoch, String logicalId) {
+            programmed.put(symbol.toUpperCase(), new SubjectUpstream(
+                UpstreamStatus.VERIFIED, raw, "tradier", QuoteProvenance.Environment.PRODUCTION,
+                UUID.randomUUID().toString(), "prod", epoch, logicalId,
+                phase, sessionDate, receivedAt, null));
         }
 
         void failed(String symbol) {
             programmed.put(symbol.toUpperCase(), new SubjectUpstream(
                 UpstreamStatus.FAILED, null, "tradier", QuoteProvenance.Environment.PRODUCTION,
-                UUID.randomUUID().toString(), "prod", "1",
+                UUID.randomUUID().toString(), "prod", "1", "v2quote-test-prog",
                 QuoteProvenance.AcquisitionPhase.UNKNOWN, null, null, "provider failed"));
+        }
+
+        /** The outcome the real source returns when its contact-time off-hours gate vetoes the send. */
+        void contactNotPermitted(String symbol) {
+            programmed.put(symbol.toUpperCase(), new SubjectUpstream(
+                UpstreamStatus.CONTACT_NOT_PERMITTED, null, "tradier", QuoteProvenance.Environment.PRODUCTION,
+                UUID.randomUUID().toString(), "prod", "1", "v2quote-test-prog",
+                QuoteProvenance.AcquisitionPhase.UNKNOWN, null, null,
+                "off-hours provider contact disabled at contact boundary"));
         }
 
         int batchCount() { return batches.size(); }
@@ -464,7 +675,7 @@ class DirectQuoteServiceTest {
                 SubjectUpstream u = programmed.get(s.toUpperCase());
                 bySubject.put(s, u != null ? u : new SubjectUpstream(
                     UpstreamStatus.UNMATCHED, null, "tradier", QuoteProvenance.Environment.PRODUCTION,
-                    UUID.randomUUID().toString(), "prod", "1",
+                    UUID.randomUUID().toString(), "prod", "1", "v2quote-test-prog",
                     QuoteProvenance.AcquisitionPhase.UNKNOWN, null, null, "not returned"));
             }
             return new BatchResult(bySubject);

@@ -372,7 +372,37 @@ public class TradierAdapter {
         return httpRequest(url, "timesales");
     }
 
+    /**
+     * A hook invoked at the ACTUAL upstream-contact (HTTP-send) boundary, after request
+     * construction and immediately before {@code httpClient.send} (Doc 79 I2). It receives the
+     * contact instant and may veto the send: returning {@code false} aborts the request BEFORE
+     * any network contact occurs (used to enforce off-hours contact policy against the phase
+     * that exists when contact would actually happen — the check-at-contact / TOCTOU-safe
+     * requirement). The default hook ({@link #NO_CONTACT_HOOK}) always proceeds and ignores the
+     * instant, preserving existing v1 behavior.
+     */
+    @FunctionalInterface
+    public interface ContactHook {
+        /** @return true to proceed with the HTTP send; false to abort before contact. */
+        boolean onContact(Instant contactAt);
+    }
+
+    /** Default contact hook: always proceeds; used by all non-v2 callers (behavior unchanged). */
+    public static final ContactHook NO_CONTACT_HOOK = contactAt -> true;
+
+    /** Thrown when a {@link ContactHook} vetoes the send at the actual-contact boundary. */
+    public static final class ContactBlockedException extends IOException {
+        public ContactBlockedException(String message) {
+            super(message);
+        }
+    }
+
     private String httpRequest(String url, String endpointClass) throws IOException, InterruptedException {
+        return httpRequest(url, endpointClass, NO_CONTACT_HOOK, new Instant[1]);
+    }
+
+    private String httpRequest(String url, String endpointClass, ContactHook contactHook,
+                               Instant[] receivedOut) throws IOException, InterruptedException {
         if (apiKey == null || apiKey.isBlank()) {
             throw new ProviderError("Tradier API key not configured", 503);
         }
@@ -389,6 +419,15 @@ public class TradierAdapter {
             pacer.measurementRecorder().httpStarted(sequence, System.nanoTime(), endpointClass);
         }
 
+        // ACTUAL upstream-contact boundary (Doc 79 I2): capture the contact instant here, after
+        // request construction, immediately before the send — and let the hook veto the send so
+        // off-hours policy is enforced against the phase that exists AT CONTACT, with no
+        // intervening work between the policy check and the send (TOCTOU-safe).
+        Instant contactAt = Instant.now();
+        if (!contactHook.onContact(contactAt)) {
+            throw new ContactBlockedException("provider contact not permitted at contact boundary");
+        }
+
         HttpResponse<String> response;
         try {
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -398,6 +437,9 @@ public class TradierAdapter {
             }
             throw error;
         }
+        // Successful-payload-receipt boundary (Doc 79 I2): the DISTINCT later instant, captured
+        // immediately after the response returns — never forced to equal the contact instant.
+        if (receivedOut != null) receivedOut[0] = Instant.now();
 
         if (sequence != null) {
             pacer.measurementRecorder().httpCompleted(
@@ -794,6 +836,18 @@ public class TradierAdapter {
      * receipt (Doc 79 I2). These are observed on the paced dispatch thread, inside the callable.
      */
     public QuotesResult getQuotes(List<String> symbols) throws Exception {
+        return getQuotes(symbols, NO_CONTACT_HOOK);
+    }
+
+    /**
+     * Acquire direct quotes with a caller-supplied {@link ContactHook} evaluated at the ACTUAL
+     * upstream-contact (HTTP-send) boundary (Doc 79 I2 / off-hours finding). The direct-quote
+     * capability supplies a hook that (a) classifies/records the contact-time phase+session from
+     * the real contact instant and (b) vetoes the send when off-hours contact policy forbids it
+     * at that instant. {@code contactAt}/{@code receivedAt} are captured at the real send and
+     * response boundaries inside {@link #httpRequest}.
+     */
+    public QuotesResult getQuotes(List<String> symbols, ContactHook contactHook) throws Exception {
         if (apiKey == null || apiKey.isBlank()) {
             throw new ProviderError("Tradier API key not configured", 503);
         }
@@ -805,27 +859,49 @@ public class TradierAdapter {
             return new QuotesResult(new LinkedHashMap<>(), new LinkedHashSet<>(), null, null);
         }
         String joined = String.join(",", upper);
-        // Contact/receipt instants are captured INSIDE the callable (on the dispatch thread),
-        // bracketing the actual HTTP send, so they name the true provider-contact and
-        // payload-receipt events rather than any earlier queue/admission/observer moment.
+        // Contact/receipt instants are captured at the ACTUAL send/response boundaries inside
+        // httpRequest (not at callable entry), via these holders. The contactHook both records
+        // the contact instant into contact[0] and applies the off-hours gate — all AT the send
+        // boundary with no intervening work before the send (TOCTOU-safe).
         Instant[] contact = new Instant[1];
         Instant[] received = new Instant[1];
+        ContactHook capturingHook = contactAt -> {
+            contact[0] = contactAt;
+            return contactHook.onContact(contactAt);
+        };
         pacer.setOperationKind("quote");
-        String body = pacer.submit(() -> {
-            contact[0] = Instant.now();
-            String b = fetchQuotes(joined);
-            received[0] = Instant.now();
-            return b;
-        });
+        String body;
+        try {
+            body = pacer.submit(() -> fetchQuotes(joined, capturingHook, received));
+        } catch (java.util.concurrent.ExecutionException ee) {
+            // The pacer runs the callable on its dispatch thread and surfaces its failure wrapped
+            // in ExecutionException. Unwrap so callers see the true cause (ContactBlockedException
+            // for an off-hours veto, ProviderError for provider conditions, etc.) and can map it
+            // to the correct per-subject outcome rather than a generic failure.
+            Throwable cause = ee.getCause();
+            if (cause instanceof RuntimeException re) throw re;
+            if (cause instanceof IOException io) throw io;
+            if (cause instanceof InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                throw ie;
+            }
+            if (cause instanceof Exception ex) throw ex;
+            throw ee;
+        }
         String contactAt = contact[0] != null ? contact[0].toString() : null;
         String receivedAt = received[0] != null ? received[0].toString() : null;
         return parseQuotesResponse(body, upper, contactAt, receivedAt);
     }
 
     private String fetchQuotes(String joinedSymbols) throws IOException, InterruptedException {
+        return fetchQuotes(joinedSymbols, NO_CONTACT_HOOK, new Instant[1]);
+    }
+
+    private String fetchQuotes(String joinedSymbols, ContactHook contactHook, Instant[] receivedOut)
+            throws IOException, InterruptedException {
         String url = baseUrl + "/markets/quotes?symbols="
             + URLEncoder.encode(joinedSymbols, StandardCharsets.UTF_8);
-        return httpRequest(url, "quote");
+        return httpRequest(url, "quote", contactHook, receivedOut);
     }
 
     /**

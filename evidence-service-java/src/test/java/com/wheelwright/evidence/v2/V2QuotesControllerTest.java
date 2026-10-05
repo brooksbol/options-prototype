@@ -378,10 +378,12 @@ class V2QuotesControllerTest {
         MvcResult bad = postQuotes(AUTH_FULL, null, "{\"subjects\":[{\"symbol\":\"has space\"}]}");
         assertThat(bad.getResponse().getStatus()).isEqualTo(422);
 
-        // unknown mode value => malformed JSON (enum parse failure) => 400
+        // unknown mode value => syntactically valid JSON, semantically invalid => 422 (Codex
+        // finding 3): an unsupported enum value is INVALID_REQUEST, not MALFORMED_REQUEST.
         MvcResult badMode = postQuotes(AUTH_FULL, null,
             "{\"subjects\":[{\"symbol\":\"SPY\"}],\"mode\":\"SUPER\"}");
-        assertThat(badMode.getResponse().getStatus()).isEqualTo(400);
+        assertThat(badMode.getResponse().getStatus()).isEqualTo(422);
+        assertThat(json(badMode).get("code").asText()).isEqualTo("INVALID_REQUEST");
         assertThat(source.batchCount()).isZero();
     }
 
