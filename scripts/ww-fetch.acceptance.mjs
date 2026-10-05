@@ -7,15 +7,43 @@ const pty = new URL("./ww-acceptance-pty.py", import.meta.url).pathname;
 const f = await fixture();
 const env = { WW_BASE_URL: f.base, WW_API_TOKEN: TOKEN };
 let passed = 0;
-async function check(name, args, verify, tty = false) {
+function shellQuote(arg) {
+  return /^[A-Za-z0-9_./:-]+$/.test(arg) ? arg : "'" + arg.replaceAll("'", "'\\''") + "'";
+}
+
+function showResult(name, command, result, tty) {
+  // Print captured streams even on assertion failure, but redact before rendering.
+  const safe = text => text.replaceAll(TOKEN, "[REDACTED]");
+  const stream = text => text ? safe(text).replaceAll("\r\n", "\n") +
+    (text.endsWith("\n") ? "" : "\n") : "(empty)\n";
+  console.log(`\n--- ${name}${tty ? " (terminal)" : " (redirected)"} ---`);
+  console.log(`$ WW_BASE_URL=${f.base} ${safe(command)}`);
+  process.stdout.write(`stdout:\n${stream(result.stdout)}stderr:\n${stream(result.stderr)}`);
+  console.log(`exit: ${result.status}`);
+}
+
+async function check(name, args, verify, tty = false, shell = false) {
   const start = f.calls.length;
-  const raw = tty ? await capture([pty, ww, ...args], env, "python3") : await capture(args, env, ww);
+  const raw = tty ? await capture([pty, ww, ...args], env, "python3") :
+    shell ? await capture(["-c", args], env, "zsh") : await capture(args, env, ww);
   const r = tty ? JSON.parse(raw.stdout) : raw;
-  assert.ok(!r.stdout.includes(TOKEN) && !r.stderr.includes(TOKEN));
-  verify(r, f.calls.slice(start));
+  const command = shell ? `zsh -c ${shellQuote(args)}` : [ww, ...args].map(shellQuote).join(" ");
+  showResult(name, command, r, tty);
+  try {
+    assert.ok(!r.stdout.includes(TOKEN) && !r.stderr.includes(TOKEN), "credential leaked into CLI output");
+    verify(r, f.calls.slice(start));
+  } catch (error) {
+    console.log(`FAIL ${name}`);
+    // Assertion diagnostics may contain captured output; never echo a token there.
+    throw new Error(String(error.message).replaceAll(TOKEN, "[REDACTED]"));
+  }
   passed++;
   console.log(`PASS ${name}`);
 }
+
+console.log("Deterministic local v2 fixture; Bearer credential supplied privately.");
+console.log("Each case shows its command, captured streams, and exit status. No live provider work.");
+
 try {
   await check("TTY ORDINARY acquisition and reuse", ["fetch", "SPY", "QQQ"], r => {
     assert.equal(r.status, 0); assert.equal(r.stdout, "");
@@ -47,21 +75,24 @@ try {
   // Domain cap is 30 subjects. Test early pipe closure within the real cap.
   const symbols = Array.from({ length: 30 }, (_, i) => `S${i}`);
   const command = `set -o pipefail; '${ww}' fetch ${symbols.join(" ")} | head -1`;
-  let r = await capture(["-c", command], env, "zsh");
-  assert.equal(r.status, 0); assert.equal(r.stderr, "");
-  assert.equal(r.stdout.trim().split("\n").length, 1); passed++;
-  console.log("PASS batch piped to head closes cleanly");
+  await check("batch piped to head closes cleanly", command, r => {
+    assert.equal(r.status, 0); assert.equal(r.stderr, "");
+    assert.equal(r.stdout.trim().split("\n").length, 1);
+  }, false, true);
   f.state.outcomes = { S29: { outcome: "UPSTREAM_FAILED", retained: true } };
-  r = await capture(["-c", command], env, "zsh");
-  assert.equal(r.status, 1); assert.match(r.stderr, /S29: FAILED UPSTREAM_FAILED/); passed++;
-  console.log("PASS partial failure stays nonzero through head");
+  await check("partial failure stays nonzero through head", command, r => {
+    assert.equal(r.status, 1); assert.match(r.stderr, /S29: FAILED UPSTREAM_FAILED/);
+  }, false, true);
   f.state.outcomes = {};
-
-  r = await capture(["-c", `'${ww}' fetch SPY && printf completed`], env, "zsh");
-  assert.equal(r.status, 0); assert.ok(r.stdout.endsWith("completed")); passed++;
+  await check("successful fetch allows the next shell command",
+    `'${ww}' fetch SPY && printf completed`, r => {
+      assert.equal(r.status, 0); assert.ok(r.stdout.endsWith("completed"));
+    }, false, true);
   f.state.outcomes = { SPY: { outcome: "UPSTREAM_FAILED", retained: true } };
-  r = await capture(["-c", `'${ww}' fetch SPY && printf should-not-run`], env, "zsh");
-  assert.equal(r.status, 1); assert.ok(!r.stdout.includes("should-not-run")); passed++;
+  await check("failed fetch stops the next shell command",
+    `'${ww}' fetch SPY && printf should-not-run`, r => {
+      assert.equal(r.status, 1); assert.ok(!r.stdout.includes("should-not-run"));
+    }, false, true);
   assert.ok(f.calls.every(c => c.path === "/v2/quotes" && c.method === "POST"));
   console.log(`Result: ${passed} passed; zero legacy/chain requests.`);
 } finally { await f.close(); }
