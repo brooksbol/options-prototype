@@ -4,7 +4,7 @@ NAME
     ww ls quotes — discover held canonical direct-quote observations
 
 SYNOPSIS
-    ww ls quotes [-v | --verbose] [--tsv] [--jsonl]
+    ww ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
     ww ls --help | -h | --man
     ww ls quotes --help | -h | --man
 
@@ -30,10 +30,20 @@ OPTIONS
     --man
         Show this manual. Use alone after ls or ls quotes.
 
+    --type TYPE
+        Select EQUITY, ETF, INDEX or OTHER; exact uppercase values only.
+        Repeat for OR selection; duplicates are harmless. No selector lists
+        the complete inventory. Invalid/missing values exit 2 before credential
+        loading or HTTP. OTHER_UNDERLYING is not accepted as CLI input.
+        Selection follows validation of the complete response, so malformed
+        excluded rows still fail. The single bodyless authenticated GET
+        /v2/quotes has no query parameters.
+
     -v, --verbose
         Append OBSERVATION ID and COMMITTED AT (UTC) to the terminal table.
         Stderr reports From <Wheelwright origin>, Request <UUID>, and
-        ls quotes: <N> holdings. Does not change TSV/JSONL records.
+        ls quotes: <N> holdings, counting selected rows.
+        Does not change TSV/JSONL records.
 
     --tsv
         Accepted no-op for explicit spelling of the redirected TSV default.
@@ -46,14 +56,20 @@ OPTIONS
         environment, receivedAt, committedAt}. No envelope/acquisition facts.
 
     Repeated supported flags are idempotent and may occur in either order after
-    quotes. Bare ls, other resource families, symbol operands, quiet, filters,
+    quotes. Bare ls, other resource families, symbol operands, quiet, generic
+    filters,
     sorting and pagination options are usage errors before HTTP. Help/man must
     be standalone after ls or ls quotes, without execution flags/operands.
 
 OUTPUT
     Terminal stdout: Held canonical direct quotes, then columns SYMBOL, TYPE,
     RECEIVED AT (UTC), PROVIDER, ENVIRONMENT. Empty: No canonical direct quotes
-    held. followed by newline. No ordinary success stderr.
+    held. followed by newline. With --type and zero matches, exactly:
+    No canonical direct quotes match the selected types. followed by newline.
+    Both empty cases succeed. No ordinary success stderr.
+    Public types are EQUITY, ETF, INDEX and OTHER in every output surface;
+    accepted wire OTHER_UNDERLYING is rendered/selected as OTHER at the CLI.
+    Selected rows retain symbol order; no output format is otherwise changed.
 
     Redirected/piped default: headerless TSV, five fields in the same order,
     one LF-terminated row per holding. Empty TSV/JSONL is zero bytes.
@@ -82,6 +98,7 @@ EXIT STATUS
 EXAMPLES
     ww ls quotes
     ww ls quotes -v
+    ww ls quotes --type ETF --type INDEX
     ww ls quotes --tsv > /tmp/quotes.tsv
     ww ls quotes | cut -f1
     ww ls quotes | cut -f5 | sort | uniq -c

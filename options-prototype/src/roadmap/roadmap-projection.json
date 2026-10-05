@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-05T23:27:46.559Z",
+    "generatedAt": "2026-10-05T23:43:41.768Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,7 +41,7 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 28,
-      "logTotal": 90,
+      "logTotal": 91,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 60
@@ -4068,6 +4068,13 @@
           "heading": "`PL-CLI-01` — October 5 canonical held-quote discovery decisions and specification",
           "level": 3,
           "content": "**Principal decisions:** Initial command is `ww ls quotes`; bare `ww ls` remains usage exit 2 with no backend work. Redirected default is headerless five-field TSV; explicit --jsonl emits discovery-summary objects; -v/--verbose adds observation ID and commit time to human output and endpoint/request/count diagnostics to stderr without altering machine records. No quiet flag. Ordinary columns: SYMBOL, TYPE, RECEIVED AT (UTC), PROVIDER, ENVIRONMENT. Empty terminal: `No canonical direct quotes held.`; empty TSV/JSONL: zero records; exit 0. Ordering is canonical uppercase symbol ascending. No filters, pagination, projections, prices, or generic resource machinery.\n\n**Ratified meaning:** Discover subjects with current canonical direct-quote holdings and identify the selected current observation/source. Include unenrolled subjects, retained prior evidence, any age/reuse eligibility/persisted provider environment. Exclude membership/demand, legacy chain spots, chains/calendars, spot/quote/acquisition history, Decision records, failed attempts without accepted evidence, and freshness/admissibility/reuse/trading-suitability judgments. This is current holdings, not all persisted data. Detailed facts/deeper provenance and show remain deferred; bare fetch relevance selection is unchanged and deferred.\n\n**Ratified capability-specific invariant:** Held-evidence reads never acquire or revalidate evidence. `ww ls quotes` and its backing v2 capability cause no upstream provider contact. This is not a claim about every existing GET; historical read-through markets/timesales behavior remains intact.\n\n**Contract:** [api-v2-held-quotes-read.md](contracts/api-v2-held-quotes-read.md) specifies CLI grammar, streams, escaping, credentials/secrets, 0/1/2 exits, broken pipe, HTTP mapping, and LQ01–LQ28 acceptance. It links the authoritative extended OAS. No CLI runtime/manual command registration or private grant configuration changed during specification.\n\n**Reconciliation Completion Record:** Intake: existing PL-CLI-01, no new identity. Strategic disposition: strengthens existing CLI/operator access direction, no new Bet or roadmap/horizon change. Architectural disposition: realizes Doc 77 acquisition/read separation via the common PL-API-03 quote family, no new engine or generic registry. Parking-lot mapping: retain broader PL-CLI-01; this bounded discovery refinement is reconciled and specified, not implemented. Why-state: linked contract and October 5 journal entry. Next authorized mode: prepare bounded GET /v2/quotes + ww ls quotes implementation handoff after the completed Doc 78 specification self-review; runtime work requires that explicit handoff. No push authorized.\n\n\n**October 5 implementation continuation (Codex):** The Principal explicitly authorized Codex as implementation actor for the complete bounded GET /v2/quotes + ww ls quotes slice against local frozen specification `cccb5a565e433f29436bd090848740e39f803d6d`, replacing the prior handoff-only state for this task. Runtime and manual are now implemented locally; [focused implementation evidence](cli/ww-ls-acceptance-2026-10-05.md) records 71 Java tests, 28 Node tests, 10 fetch preservation specimens, actual HTTP/OAS validation, committed-row concurrency and zero causal provider contact. This is implementation verification, not Principal/manual acceptance or independent review. Broader PL-CLI-01 remains retained; show, bare fetch and other resource families remain deferred. One local implementation commit authorized; no push or operational grant migration. Next step is Principal manual acceptance against the frozen contract, before any separately authorized closeout/push.\n\n\n**October 5 Principal CLI follow-up:** The Principal explicitly requested an accepted no-op `--tsv` flag and matching documentation for `ww ls quotes`. This supplements only the CLI grammar at frozen cccb5a5: `ww ls quotes [-v | --verbose] [--tsv] [--jsonl]`. --tsv is idempotent and does not force TSV on a TTY or override --jsonl; all existing discovery fields, stream defaults, authorization, purity and HTTP/OAS semantics remain unchanged. Current help/manual document this convenience spelling. The original held-read contract/OAS is preserved as the frozen implementation baseline; this later Principal decision authorizes the additional CLI spelling without reopening that slice or broader Product scope. Changes are local, uncommitted, and no push is authorized.\n\n\n**October 5 Principal manual acceptance and closeout:** The Principal reported “manual acceptance PASS for ww ls quotes” and invoked the containing end-of-session protocol. The bounded canonical-held inventory is accepted, including the separately authorized no-op --tsv and help/manual corrections; broader PL-CLI-01 remains retained. Explicit private quote.read configuration was separately authorized, loaded after the Principal's backend restart, and verified without exposing credentials. Live verbose discovery returned 103 ordered holdings: 99 successfully acquired explicit file subjects plus four earlier observations, preserving original clocks; PBR.A UNMATCHED remained a fetch failure and produced no synthesized holding. Headerless redirected TSV was manually demonstrated. [Acceptance evidence](cli/ww-ls-acceptance-2026-10-05.md) distinguishes manual PASS, focused automated proof and operational follow-through. Closeout reconciles memory, verifies the current CLI, derives the projection and persists the workstream; no new Product/architecture scope, horizon move, show implementation or bare-fetch selection follows from acceptance.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` — October 5 bounded held-quote type selector amendment",
+          "level": 3,
+          "content": "**Principal decision / authorization:** Implement a tightly bounded client-side `ww ls quotes --type TYPE` selector on the accepted inventory at `711d4939cb836fa2d9d51bad4900cd03d65bde24`, with local commit and no push. This supersedes the initial CLI filtering exclusion only for this selector. Codex is explicitly tasked with implementation; no architecture or API redesign is authorized.\n\n**Contract:** Repeatable exact-uppercase `EQUITY`, `ETF`, `INDEX`, `OTHER`; OR semantics; duplicates harmless. Wire `OTHER_UNDERLYING` stays frozen and maps to public `OTHER` in CLI selection/table/TSV/JSONL. Invalid/missing values exit 2 before credentials/HTTP. Validate the complete GET response before selection; malformed excluded rows still fail. Preserve symbol order and output shapes; verbose counts selected holdings. Zero matches succeed with exact terminal message `No canonical direct quotes match the selected types.` and zero machine records. No selector retains complete inventory and original empty behavior with the explicitly required public OTHER presentation. Backing request remains one authenticated bodyless GET `/v2/quotes`, no query parameters.\n\n**Bounded implementation state:** CLI/parser/presentation and focused tests implemented; current [CLI contract](contracts/api-v2-held-quotes-read.md), help/manual and [acceptance evidence](cli/ww-ls-acceptance-2026-10-05.md) record the amendment. Focused verification passes; this is automated implementation evidence, not a new Principal manual PASS or independent reviewer disposition. HTTP/OAS/backend/persistence/auth/acquisition/fetch remain unchanged. Broader PL-CLI-01 and PL-API-03 disposition, Coming Soon and strategy remain unchanged; no generic filters, other families or BUG-028 work. Local persistence closes this task; no push authorized.",
           "truncated": false,
           "tables": []
         }
@@ -8647,7 +8654,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 558
+      "sourceOrder": 559
     },
     {
       "plId": null,
@@ -8790,7 +8797,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 549
+      "sourceOrder": 550
     },
     {
       "plId": null,
@@ -8803,7 +8810,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 550
+      "sourceOrder": 551
     },
     {
       "plId": null,
@@ -8816,7 +8823,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 551
+      "sourceOrder": 552
     },
     {
       "plId": null,
@@ -8829,7 +8836,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 554
+      "sourceOrder": 555
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -8855,7 +8862,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 552
+      "sourceOrder": 553
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -9037,7 +9044,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 532
+      "sourceOrder": 533
     },
     {
       "plId": null,
@@ -9050,7 +9057,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 533
+      "sourceOrder": 534
     },
     {
       "plId": null,
@@ -9063,7 +9070,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 534
+      "sourceOrder": 535
     },
     {
       "plId": null,
@@ -9076,7 +9083,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 535
+      "sourceOrder": 536
     },
     {
       "plId": null,
@@ -9089,7 +9096,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 536
+      "sourceOrder": 537
     },
     {
       "plId": null,
@@ -9102,7 +9109,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 537
+      "sourceOrder": 538
     },
     {
       "plId": null,
@@ -9115,7 +9122,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 538
+      "sourceOrder": 539
     },
     {
       "plId": null,
@@ -9128,7 +9135,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 539
+      "sourceOrder": 540
     },
     {
       "plId": null,
@@ -9141,7 +9148,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 540
+      "sourceOrder": 541
     },
     {
       "plId": null,
@@ -9154,7 +9161,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 541
+      "sourceOrder": 542
     },
     {
       "plId": null,
@@ -9167,7 +9174,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 542
+      "sourceOrder": 543
     },
     {
       "plId": null,
@@ -9180,7 +9187,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 543
+      "sourceOrder": 544
     },
     {
       "plId": null,
@@ -9193,7 +9200,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 544
+      "sourceOrder": 545
     },
     {
       "plId": null,
@@ -9206,7 +9213,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 545
+      "sourceOrder": 546
     },
     {
       "plId": null,
@@ -9219,7 +9226,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 546
+      "sourceOrder": 547
     },
     {
       "plId": null,
@@ -9232,7 +9239,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 547
+      "sourceOrder": 548
     },
     {
       "plId": null,
@@ -9245,7 +9252,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 548
+      "sourceOrder": 549
     },
     {
       "plId": null,
@@ -9258,7 +9265,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 553
+      "sourceOrder": 554
     },
     {
       "plId": null,
@@ -9271,7 +9278,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 557
+      "sourceOrder": 558
     },
     {
       "plId": "PL-SEM-01",
@@ -9440,7 +9447,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 555
+      "sourceOrder": 556
     },
     {
       "plId": null,
@@ -9453,7 +9460,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 556
+      "sourceOrder": 557
     },
     {
       "plId": "PL-SETUP-01",
@@ -9544,7 +9551,7 @@
       "state": "INTAKE — near-term investigation; no optimization implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 520
+      "sourceOrder": 521
     },
     {
       "plId": "PL-CLI-01",
@@ -9573,6 +9580,19 @@
       "sourceOrder": 519
     },
     {
+      "plId": "PL-CLI-01",
+      "bugId": null,
+      "title": "PL-CLI-01 — October 5 bounded held-quote type selector amendment",
+      "eventKind": "unclassified",
+      "establishesIntake": false,
+      "eventDateText": "October 5, 2026",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 520
+    },
+    {
       "plId": "PL-API-02",
       "bugId": null,
       "title": "PL-API-02 — Machine-readable HTTP contract and explicit API-boundary semantics",
@@ -9583,7 +9603,7 @@
       "state": "INTAKE — durable identity established from OpenAPI/OAS investigation; strategic and architectural reconciliation remain unresolved; no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 521
+      "sourceOrder": 522
     },
     {
       "plId": "PL-API-03",
@@ -9596,7 +9616,7 @@
       "state": "First POST direct-quote contract ratified and implemented on accepted main; bounded GET held-discovery Product contract ratified and specified, not implemented. Broader API capability work remains INTAKE; no runtime work authorized by this specification.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 530
+      "sourceOrder": 531
     },
     {
       "plId": "PL-API-03",
@@ -9609,7 +9629,7 @@
       "state": "RECONCILED — Principal-selected GET /v2/quotes contract specified; Doc 78 bounded ambiguity self-review complete; no Kiro/runtime implementation begun.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 531
+      "sourceOrder": 532
     }
   ],
   "intakeDateUnknown": [

@@ -13,11 +13,15 @@ DESCRIPTION
     Reading held evidence is separate from asking Wheelwright to acquire it.
 
 WORKING COMMANDS
-    ls quotes [-v | --verbose] [--tsv] [--jsonl]
+    ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
         Discover current canonical direct-quote holdings through provider-free
         API v2 GET. Requires quote.read. Terminal table; redirected headerless
         TSV; explicit --jsonl for discovery summaries. --tsv is an accepted
         no-op; it does not change terminal output or override --jsonl.
+        --type selects EQUITY, ETF, INDEX or OTHER (exact uppercase). Repeat
+        for OR selection; duplicates are harmless. Full response validation
+        precedes client-side selection; the GET has no query parameters.
+        Zero matches succeed; verbose counts selected rows.
         Bare ls is usage error.
         Run 'ww ls quotes --help' or 'ww ls quotes --man'.
 

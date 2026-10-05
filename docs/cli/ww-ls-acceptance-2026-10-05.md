@@ -154,3 +154,51 @@ change. show, bare fetch and PBR.A provider-notation investigation remain outsid
 this closed slice. BUG-028 and unrelated SLO work remain untouched. Required
 projection regeneration/freshness and focused closeout verification accompany
 persistence; final accepted-main synchronization is reported by the closeout actor.
+
+
+## Bounded client-side `--type` amendment — October 5
+
+The Principal explicitly authorized Codex to implement this selector against the
+accepted baseline `711d4939cb836fa2d9d51bad4900cd03d65bde24`, with local commit and
+no push. Bootstrap found clean matching main/origin after fetch; Gate Experiment
+001 remains staged/inactive. This section is automated implementation evidence;
+it does not claim another Principal manual PASS or independent actor review.
+
+`--type TYPE` accepts exactly EQUITY, ETF, INDEX, OTHER, repeatable with OR
+semantics and harmless duplicates. No normalization/aliases are accepted. Usage
+errors exit 2 before credential loading/HTTP. The full wire collection is still
+validated before presentation maps OTHER_UNDERLYING to OTHER and selects rows.
+This mapping applies to unselected discovery output too, including JSONL; the
+wire OAS/parser vocabulary is unchanged. Symbol order and table/TSV/JSONL shapes
+are preserved; verbose counts selected rows. Zero matches exit 0 with the exact
+terminal sentence `No canonical direct quotes match the selected types.` and
+zero TSV/JSONL records. Unselected empty inventory retains its original message.
+
+| Task criteria | Focused automated evidence in scripts/ww-ls.test.mjs |
+|---|---|
+| A | Original LQ15–23/Unix/private-credential fixtures retained; mixed full inventory without selectors |
+| B–E, L | Mixed ordered AAPL/EQUITY, BTC/OTHER_UNDERLYING, QQQ/ETF, SPX/INDEX, SPY/ETF; each public type, OR and duplicate equality; exact selected objects/order |
+| F–I | Missing/empty, BOND, etf, OTHER_UNDERLYING, missing second value and help mixtures exit 2, no HTTP/no records; unreadable private .env proves rejection before credential loading |
+| J | Nonempty inventory without matching type and empty inventory; PTY exact sentence, zero redirected TSV/JSONL bytes, exit 0; verbose zero count |
+| K | ETF/OTHER in ordinary/verbose PTY tables, default/explicit-no-op TSV and terminal/redirected JSONL; exact fields and selected counts |
+| M | Matching valid ETF plus excluded EQUITY with null observation ID or malformed commit clock, and invalid wire type; exit 1/no records in table/verbose/JSONL; excluded out-of-order subject also fails |
+| N | Each valid selector invocation asserts exactly one authenticated bodyless GET /v2/quotes, exact path with no query; fixture rejects other routes/methods |
+| O | Original validation/correlation/transport/escaping tests retained; authenticated errors and echoed-secret suppression checked with/without selector; 10,000-row selected and unselected head pipelines exit cleanly |
+
+Verification commands are the focused commands above, plus `node --check
+scripts/wheelwright.mjs`, OAS 3.1 validation via openapi-spec-validator, and
+`npm run generate:roadmap-projection` / `npm run check:roadmap-projection` from
+options-prototype. Results: **33 Node tests passed**, **10 fetch black-box
+specimens passed**. Focused Gradle verification succeeded with inputs up-to-date;
+the unchanged 71 Java specimens report zero failures/errors/skips. **62 real HTTP
+specimens** still validate against the unchanged GET OAS; OAS specification
+validation passed. Python validation used an isolated /tmp environment because
+system Python lacked PyYAML. No live provider, server restart or credential write.
+
+Final preservation review: backend/auth/persistence and OAS are byte-identical to
+the bootstrap baseline; CLI HTTP reader/validator, fetch runtime and other command
+branches are unchanged. Only bounded ls parsing/presentation/help and associated
+tests/manual/contract/evidence/project-state reconciliation change. BUG-028 is
+untouched. Projection is regenerated from the canonical PL-CLI-01 amendment and
+freshness verified; no strategy, horizon or broader capability graduation follows.
+Local persistence is authorized; no push is authorized.

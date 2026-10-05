@@ -10,6 +10,11 @@ const pty = new URL("./ww-acceptance-pty.py",import.meta.url).pathname;
 const item = (symbol="SPY") => ({observationId:"22222222-2222-4222-8222-222222222222",
   subject:{symbol,securityType:"ETF"},provenance:{provider:"tradier",environment:"SANDBOX",
   receivedAt:"2001-01-01T00:00:00.123456789Z",committedAt:"2001-01-01T00:00:01Z"}});
+const typedItem = (symbol, securityType) => ({...item(symbol),subject:{symbol,securityType}});
+const mixedItems = () => [typedItem("AAPL","EQUITY"),typedItem("BTC","OTHER_UNDERLYING"),
+  typedItem("QQQ","ETF"),typedItem("SPX","INDEX"),typedItem("SPY","ETF")];
+const cliItem = row => ({...row,subject:{...row.subject,
+  securityType:row.subject.securityType==="OTHER_UNDERLYING"?"OTHER":row.subject.securityType}});
 async function fixture(work) {
   const calls=[]; const state={status:200,body:{requestId:REQUEST_ID,items:[item("QQQ"),item()]}};
   const server=createServer(async(req,res)=>{
@@ -56,6 +61,89 @@ test("LQ19 empty all modes, verbose count and no machine bytes",async()=>fixture
     if(flags.includes("-v")||flags.includes("--verbose"))assert.match(r.stderr,/ls quotes: 0 holdings/);
   }
 }));
+test("type selection: complete default, all four values, OR, duplicates and ordered one-GET reads",async()=>fixture(async({state,run,calls})=>{
+  state.body.items=mixedItems();
+  const check=async(types,expected)=>{
+    const before=calls.length;
+    const r=await run(["ls","quotes",...types.flatMap(type=>["--type",type]),"--jsonl"]);
+    assert.equal(r.status,0);assert.equal(r.stderr,"");
+    assert.deepEqual(r.stdout.trim().split("\n").map(JSON.parse),expected.map(cliItem));
+    assert.equal(calls.length,before+1);
+    assert.deepEqual(calls.at(-1),{method:"GET",path:"/v2/quotes",auth:`Bearer ${TOKEN}`,body:""});
+    assert.ok(!r.stdout.includes("OTHER_UNDERLYING"));
+    return r.stdout;
+  };
+  await check([],state.body.items);
+  for(const [type,wire] of [["EQUITY","EQUITY"],["ETF","ETF"],["INDEX","INDEX"],["OTHER","OTHER_UNDERLYING"]])
+    await check([type],state.body.items.filter(row=>row.subject.securityType===wire));
+  await check(["INDEX","ETF"],state.body.items.filter(row=>["ETF","INDEX"].includes(row.subject.securityType)));
+  assert.equal(await check(["ETF","ETF"],[state.body.items[2],state.body.items[4]]),
+    await check(["ETF"],[state.body.items[2],state.body.items[4]]));
+}));
+test("type selection preserves terminal/verbose, TSV and JSONL surfaces and selected counts",async()=>fixture(async({state,run,terminal})=>{
+  state.body.items=mixedItems();
+  for(const type of ["ETF","OTHER"])for(const verbose of [[],["--verbose"]]){
+    const flags=["--type",type,...verbose];
+    const expected=state.body.items.map(cliItem).filter(row=>row.subject.securityType===type);
+    const t=await terminal(["ls","quotes",...flags]);assert.equal(t.status,0);
+    assert.match(t.stdout,/Held canonical direct quotes/);
+    assert.equal(t.stdout.includes("OBSERVATION ID"),!!verbose.length);
+    const symbols=t.stdout.split(/\r?\n/).slice(2).filter(Boolean).map(line=>line.split(/\s+/)[0]);
+    assert.deepEqual(symbols,expected.map(row=>row.subject.symbol));
+    assert.ok(!t.stdout.includes("OTHER_UNDERLYING"));
+    if(verbose.length)assert.match(t.stderr,new RegExp(`ls quotes: ${expected.length} holdings`));
+    else assert.equal(t.stderr,"");
+    for(const tsv of [[],["--tsv"]]){
+      const r=await run(["ls","quotes",...flags,...tsv]);assert.equal(r.status,0);
+      assert.equal(r.stdout,expected.map(row=>`${row.subject.symbol}\t${type}\t${row.provenance.receivedAt}\ttradier\tSANDBOX\n`).join(""));
+      if(verbose.length)assert.match(r.stderr,new RegExp(`ls quotes: ${expected.length} holdings`));
+      else assert.equal(r.stderr,"");
+    }
+    for(const output of [run,terminal]){
+      const r=await output(["ls","quotes","--jsonl",...flags]);assert.equal(r.status,0);
+      assert.deepEqual(r.stdout.trim().split(/\r?\n/).map(JSON.parse),expected);
+      if(verbose.length)assert.match(r.stderr,new RegExp(`ls quotes: ${expected.length} holdings`));
+    }
+  }
+}));
+test("type selection rejects invalid, missing, lowercase and backend values before HTTP",async()=>fixture(async({calls,run})=>{
+  for(const suffix of [["--type"],["--type","BOND"],["--type","etf"],["--type","OTHER_UNDERLYING"],
+    ["--type","--verbose"],["--type",""],["--type","ETF","--type"],["--type","ETF","--help"]]){
+    const r=await run(["ls","quotes",...suffix]);assert.equal(r.status,2,suffix.join(" "));
+    assert.equal(r.stdout,"");assert.ok(!r.stderr.includes(TOKEN));
+  }
+  assert.deepEqual(calls,[]);
+}));
+test("type selection zero matches succeeds in every surface, including empty inventory",async()=>fixture(async({state,run,terminal})=>{
+  for(const items of [[item()],[]]){
+    state.body.items=items;
+    for(const flags of [[],["--verbose"],["--tsv"],["--jsonl"],["--jsonl","--verbose"]]){
+      const args=["ls","quotes","--type","INDEX",...flags];
+      const r=await run(args);assert.equal(r.status,0);assert.equal(r.stdout,"");
+      const t=await terminal(args);assert.equal(t.status,0);
+      assert.equal(t.stdout,flags.includes("--jsonl")?"":"No canonical direct quotes match the selected types.\r\n");
+      for(const output of [r,t]){
+        if(flags.includes("--verbose"))assert.match(output.stderr,/ls quotes: 0 holdings/);
+        else assert.equal(output.stderr,"");
+      }
+    }
+  }
+}));
+test("type selection cannot hide malformed excluded evidence or invalid collection order",async()=>fixture(async({state,run,calls})=>{
+  const excluded=typedItem("AAPL","EQUITY");
+  for(const bad of [{...excluded,observationId:null},
+    {...excluded,provenance:{...excluded.provenance,committedAt:"invalid"}},
+    {...excluded,subject:{...excluded.subject,securityType:"OTHER"}}]){
+    state.body.items=[bad,item()];
+    for(const flags of [[],["--verbose"],["--jsonl"]]){
+      const r=await run(["ls","quotes","--type","ETF",...flags]);
+      assert.equal(r.status,1);assert.equal(r.stdout,"");assert.match(r.stderr,/invalid discovery response/);
+    }
+  }
+  state.body.items=[item(),excluded];
+  const r=await run(["ls","quotes","--type","ETF"]);
+  assert.equal(r.status,1);assert.equal(r.stdout,"");assert.equal(calls.length,10);
+}));
 test("LQ20 grammar and help reject before credentials/HTTP",async()=>fixture(async({calls,run})=>{
   for(const args of [["ls"],["ls","stocks"],["ls","quotes","SPY"],["ls","quotes","-q"],
     ["ls","quotes","--sort"],["ls","-v","quotes"],["ls","quotes","-v","--help"],["ls","other","--help"]]){
@@ -69,8 +157,10 @@ test("LQ20 grammar and help reject before credentials/HTTP",async()=>fixture(asy
 test("LQ21-22 request failures, redaction and redirect rejection",async()=>fixture(async({state,run,calls})=>{
   for(const status of [401,403,422,500,503]){
     state.status=status;state.body={code:"FAIL",detail:`secret ${TOKEN}\x1b[2J`,requestId:REQUEST_ID};
-    const r=await run(["ls","quotes","-v"]);assert.equal(r.status,1);assert.equal(r.stdout,"");
-    assert.ok(!r.stderr.includes(TOKEN));assert.ok(!r.stderr.includes("\x1b"));assert.match(r.stderr,/REDACTED/);
+    for(const selector of [[],["--type","ETF"]]){
+      const r=await run(["ls","quotes","-v",...selector]);assert.equal(r.status,1);assert.equal(r.stdout,"");
+      assert.ok(!r.stderr.includes(TOKEN));assert.ok(!r.stderr.includes("\x1b"));assert.match(r.stderr,/REDACTED/);
+    }
   }
   state.status=200;
   for(const body of ["{",{requestId:REQUEST_ID,items:[item(),item("QQQ")]},
@@ -101,8 +191,11 @@ test("configuration, transport, correlation and schema validation fail cleanly",
 });
 test("LQ23 large collection to head is a clean pipe, one GET only",async()=>fixture(async({state,env,calls})=>{
   state.body.items=Array.from({length:10000},(_,i)=>item(`S${String(i).padStart(5,"0")}`));
-  const r=await capture(["-c",'set -o pipefail; "$WW_TEST_CLI" ls quotes | head -1'],{...env,WW_TEST_CLI:ww},"zsh");
-  assert.equal(r.status,0);assert.equal(r.stderr,"");assert.equal(r.stdout.split("\n").length,2);assert.equal(calls.length,1);
+  for(const selector of [""," --type ETF"]){
+    const r=await capture(["-c",`set -o pipefail; "$WW_TEST_CLI" ls quotes${selector} | head -1`],{...env,WW_TEST_CLI:ww},"zsh");
+    assert.equal(r.status,0);assert.equal(r.stderr,"");assert.equal(r.stdout.split("\n").length,2);
+  }
+  assert.equal(calls.length,2);
 }));
 
 test("CF02-09,11-12 native Unix composition needs no adapter",async()=>fixture(async({env,calls})=>{
@@ -138,6 +231,10 @@ test("missing credentials, private .env and grammar before credential loading",a
     const missing=await run(["ls","quotes"]);assert.equal(missing.status,1);assert.equal(missing.stdout,"");assert.equal(calls.length,0);
     await mkdir(join(dir,".env")); // Reading this would fail: usage must still precede it.
     const invalid=await run(["ls"]);assert.equal(invalid.status,2);assert.equal(calls.length,0);
+    for(const value of [[],["BOND"],["etf"],["OTHER_UNDERLYING"]]){
+      const rejected=await run(["ls","quotes","--type",...value]);
+      assert.equal(rejected.status,2);assert.equal(rejected.stdout,"");assert.equal(calls.length,0);
+    }
     await rm(join(dir,".env"),{recursive:true});await writeFile(join(dir,".env"),`WW_API_TOKEN='${TOKEN}'\n`);
     const configured=await run(["ls","quotes"]);assert.equal(configured.status,0);assert.equal(calls.length,1);
     assert.ok(!configured.stdout.includes(TOKEN));assert.equal(configured.stderr,"");

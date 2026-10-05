@@ -4,6 +4,8 @@
 **Status:** Authoritative specification of Principal-ratified Product/capability decisions; specification complete, runtime implementation not authorized.
 **Authority:** `PL-CLI-01` and `PL-API-03` in `../parking-lot-10.md`; Doc 77 cross-cutting guardrails; Doc 78 handoff discipline. Principal selected command, output, permission, invariant, inventory meaning, ordering, empty behavior, and HTTP direction after the completed investigation at accepted-main `2982eb803205fb0121569307f374d81bb5e70b79`.
 **OAS:** [`api-v2-direct-quote-acquisition-proposal.yaml`](api-v2-direct-quote-acquisition-proposal.yaml), extended in place with GET. Its historical filename is retained to preserve existing references. The accepted POST operation and its schemas retain their semantics.
+**Current CLI amendments:** The accepted implementation/manual baseline and no-op `--tsv` follow-up are recorded in [acceptance evidence](../cli/ww-ls-acceptance-2026-10-05.md). The October 5 Principal-authorized `--type` amendment below supersedes only the original CLI filtering exclusion. HTTP/OAS semantics remain frozen. Original specification-phase status and handoff statements describe their historical phase.
+
 **Execution boundary:** This document specifies a future capability. It does not claim GET or `ls` exists, authorize runtime edits, grant credentials, or start Kiro implementation. The next authorized step after specification review is preparation of one bounded implementation handoff identifying this specification revision.
 
 ## 1. Product meaning and scoped invariant
@@ -95,12 +97,14 @@ Safe connection/transaction ownership is a required implementation mechanism, bu
 ## 6. CLI Product contract
 
 ```text
-ww ls quotes [-v | --verbose] [--jsonl]
+ww ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
 ww ls --help | -h | --man
 ww ls quotes --help | -h | --man
 ```
 
-The resource operand `quotes` precedes flags. Flags may appear in either order after it; repeated flags are idempotent. -v and --verbose are equivalent. Help/manual forms shown above are standalone and contact no backend. Bare `ww ls`, other families, symbol operands, unsupported options (including -q, --quiet, --force, filtering/sort flags), and unsupported mixtures with help/manual are usage errors before credential loading/HTTP. No implicit quote default or generic resource framework is selected.
+The resource operand `quotes` precedes flags. Flags may appear in either order after it; repeated flags are idempotent. -v and --verbose are equivalent. Help/manual forms shown above are standalone and contact no backend. Bare `ww ls`, other families, symbol operands, unsupported options (including -q, --quiet, --force, generic filtering/sort flags), and unsupported mixtures with help/manual are usage errors before credential loading/HTTP. No implicit quote default or generic resource framework is selected.
+
+**October 5 narrow CLI selector amendment (Principal decision):** `--type TYPE` is repeatable and accepts exactly `EQUITY`, `ETF`, `INDEX`, `OTHER`. Multiple selectors have OR semantics; duplicates are harmless. Missing, unsupported, lowercase, normalized/aliased or backend-specific `OTHER_UNDERLYING` input is usage exit 2 before credential loading or HTTP. No selector preserves the complete held inventory. The CLI maps validated wire `OTHER_UNDERLYING` to public `OTHER` for selection and all discovery output, including JSONL `subject.securityType`; the wire schema stays unchanged. Selection is client-side after retrieval and validation of the **complete** response, including excluded holdings, ordering and uniqueness. A malformed excluded holding fails visibly with exit 1 and no result records. Selected rows retain symbol order in ordinary/verbose tables, default redirected TSV and JSONL. Verbose counts the selected rows. Zero matches are exit 0: terminal stdout exactly `No canonical direct quotes match the selected types.` followed by newline; TSV/JSONL emit zero records. With no selector, the original empty-inventory message remains. The backing operation is unchanged: one authenticated bodyless GET `/v2/quotes`, no query parameters. No generic filters, projection, sorting, pagination, acquisition or additional resource family is introduced. The previously accepted no-op `--tsv` remains idempotent, preserving TTY behavior and JSONL precedence.
 
 One invocation performs one bodyless authenticated GET /v2/quotes, without query parameters, redirects, retries, follow-up inspection, or acquisition fallback. Validate the entire HTTP response before stdout output: status/content JSON, required fields/types/formats, correlation agreement, ordered unique subjects, and the complete parse. Invalid response is exit 1 with no result records. Ignore unknown response properties. Preserve the selected fields and original clocks; never evaluate freshness/reuse or repair evidence.
 
@@ -108,7 +112,7 @@ Terminal stdout (when stdout is a TTY and --jsonl is absent) is a table headed `
 
 Redirected/piped default stdout is **headerless TSV**, one holding per LF-terminated row, fields in order: symbol, securityType, receivedAt, provider, environment. No heading, status, blank row, ANSI, or decoration. Verbose does not alter TSV fields. Each cell escapes backslash as `\\`, tab as `\t`, CR as `\r`, LF as `\n`; ordinary symbols/times/types remain literal. This preserves one physical line per holding without discarding unusual source identity characters. Other C0 controls (U+0000–U+001F) and DEL (U+007F), including ESC, use literal `\u00XX` escapes with uppercase hex digits. Human cells use the same control-character escaping. No raw terminal control sequences are emitted.
 
---jsonl overrides TTY detection and emits one LF-terminated **HeldQuoteDiscoveryItem** JSON object per holding, exactly the item's defined discovery fields, including observationId and committedAt. No collection envelope, requestId duplication, kind tag, null substitutions, acquisition detail, or normal status records. Verbose does not alter JSONL. Empty TSV/JSONL stdout is zero bytes. Both formats preserve symbol order.
+--jsonl overrides TTY detection and emits one LF-terminated **HeldQuoteDiscoveryItem** JSON object per holding, exactly the item's defined discovery fields, including observationId and committedAt, with the CLI type mapping above. No collection envelope, requestId duplication, kind tag, null substitutions, acquisition detail, or normal status records. Verbose does not alter JSONL. Empty TSV/JSONL stdout is zero bytes. Both formats preserve symbol order.
 
 Normal nonverbose stderr is empty on success. Verbose stderr reports the immediate Wheelwright origin (not upstream provider identity), response request UUID, and holding count, including zero: `From <origin>`, `Request <uuid>`, `ls quotes: <N> holdings` (one line each). It never reports acquisition outcomes. Failures remain visible on stderr in every mode; safe problem code/detail/correlation may be shown. Do not print credentials, authorization headers, raw transport exception text, or untrusted control sequences. No quiet flag exists.
 
@@ -116,7 +120,7 @@ Use WW_BASE_URL (default http://localhost:3100) and the existing private WW_API_
 
 | Exit | Meaning |
 |---|---|
-| 0 | Complete read, response validation, and requested presentation succeeded; empty inventory also succeeds |
+| 0 | Complete read, response validation, and requested presentation succeeded; empty inventory and zero selector matches also succeed |
 | 1 | Missing/invalid credential, unauthorized caller, backend/transport/response failure, or output failure |
 | 2 | Invalid grammar/options/operands or invalid endpoint configuration; no HTTP |
 
@@ -158,6 +162,8 @@ These are future implementation acceptance obligations, not tests claimed passed
 | LQ28 | Omitted detail contains malformed source-event facts | Valid discovery columns still enumerate without parsing or repairing omitted detail; no anomaly remediation |
 
 Record applicable CF01–CF12 composition-friction evidence from ../cli/ww-composition-friction-acceptance.md with correctness and adapter requirement separately. cut, awk, rg, sort/uniq, tee, head, substitution, and redirection must consume promised TSV fields directly. Numeric-price cases are N/A because no price is promised; do not add one to make a test applicable. CF11 verifies complete **discovery-summary** JSONL; full quote facts remain outside this capability. CF12 forbids solving composition by inventing generic ww text utilities. Illustrative pipelines: `ww ls quotes | cut -f1`, `ww ls quotes | rg '^SPY\t'`, `ww ls quotes | cut -f5 | sort | uniq -c`, `ww ls quotes --jsonl | jq '.observationId'`.
+
+The narrow CLI amendment additionally requires the focused A–O selector specimens recorded in [acceptance evidence](../cli/ww-ls-acceptance-2026-10-05.md): all four public values, OR/duplicates, early usage rejection, all output surfaces, zero matches, selected counts/order, malformed excluded rows, unchanged one-GET behavior and error/credential/broken-pipe preservation. Original LQ01–LQ28 remain the HTTP and unselected CLI baseline.
 
 ## 8. Doc 78 ambiguity/falsification disposition
 

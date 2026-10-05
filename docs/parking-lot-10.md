@@ -500,6 +500,16 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 **October 5 Principal manual acceptance and closeout:** The Principal reported “manual acceptance PASS for ww ls quotes” and invoked the containing end-of-session protocol. The bounded canonical-held inventory is accepted, including the separately authorized no-op --tsv and help/manual corrections; broader PL-CLI-01 remains retained. Explicit private quote.read configuration was separately authorized, loaded after the Principal's backend restart, and verified without exposing credentials. Live verbose discovery returned 103 ordered holdings: 99 successfully acquired explicit file subjects plus four earlier observations, preserving original clocks; PBR.A UNMATCHED remained a fetch failure and produced no synthesized holding. Headerless redirected TSV was manually demonstrated. [Acceptance evidence](cli/ww-ls-acceptance-2026-10-05.md) distinguishes manual PASS, focused automated proof and operational follow-through. Closeout reconciles memory, verifies the current CLI, derives the projection and persists the workstream; no new Product/architecture scope, horizon move, show implementation or bare-fetch selection follows from acceptance.
 
 
+### `PL-CLI-01` — October 5 bounded held-quote type selector amendment
+
+**Date:** October 5, 2026
+**Principal decision / authorization:** Implement a tightly bounded client-side `ww ls quotes --type TYPE` selector on the accepted inventory at `711d4939cb836fa2d9d51bad4900cd03d65bde24`, with local commit and no push. This supersedes the initial CLI filtering exclusion only for this selector. Codex is explicitly tasked with implementation; no architecture or API redesign is authorized.
+
+**Contract:** Repeatable exact-uppercase `EQUITY`, `ETF`, `INDEX`, `OTHER`; OR semantics; duplicates harmless. Wire `OTHER_UNDERLYING` stays frozen and maps to public `OTHER` in CLI selection/table/TSV/JSONL. Invalid/missing values exit 2 before credentials/HTTP. Validate the complete GET response before selection; malformed excluded rows still fail. Preserve symbol order and output shapes; verbose counts selected holdings. Zero matches succeed with exact terminal message `No canonical direct quotes match the selected types.` and zero machine records. No selector retains complete inventory and original empty behavior with the explicitly required public OTHER presentation. Backing request remains one authenticated bodyless GET `/v2/quotes`, no query parameters.
+
+**Bounded implementation state:** CLI/parser/presentation and focused tests implemented; current [CLI contract](contracts/api-v2-held-quotes-read.md), help/manual and [acceptance evidence](cli/ww-ls-acceptance-2026-10-05.md) record the amendment. Focused verification passes; this is automated implementation evidence, not a new Principal manual PASS or independent reviewer disposition. HTTP/OAS/backend/persistence/auth/acquisition/fetch remain unchanged. Broader PL-CLI-01 and PL-API-03 disposition, Coming Soon and strategy remain unchanged; no generic filters, other families or BUG-028 work. Local persistence closes this task; no push authorized.
+
+
 ## `PL-OPS-10` — Optimize large targeted fetches
 
 **Date:** October 4, 2026 (intake)

@@ -12,7 +12,7 @@ freshness or suitability. Pipe commands without a format flag.
 Working commands:
   fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
       Acquire direct quotes for named subjects.
-  ls quotes [-v | --verbose] [--tsv] [--jsonl]
+  ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
       Discover canonical direct-quote holdings (provider-free).
   prices [--] SYMBOL...
       Inspect currently held underlying price evidence (read-only).
@@ -88,7 +88,7 @@ Authentication: WW_API_TOKEN, exported or in the repository private .env file.
 Explicit exports override the file. Missing credentials fail before backend contact. Use HTTPS outside loopback development.
 Use 'ww fetch --man' for the full behavioral contract.`;
 
-const LS_HELP = `Usage: ww ls quotes [-v | --verbose] [--tsv] [--jsonl]
+const LS_HELP = `Usage: ww ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
        ww ls --help | -h | --man
        ww ls quotes --help | -h | --man
 
@@ -96,8 +96,12 @@ Discover current canonical direct-quote holdings through GET /v2/quotes.
 Held-evidence reads never acquire or revalidate evidence; this command causes
 no upstream provider contact. Includes unenrolled, old, retained and sandbox
 holdings, without freshness, reuse, Decision or trading-suitability judgments.
-No symbol operands, other resource families, filters, pagination or quiet flag.
-Bare ls is a usage error. One invocation is one authenticated GET.
+--type selects EQUITY, ETF, INDEX or OTHER (exact uppercase values).
+Repeat --type for OR selection; duplicates are harmless. Selection is client-side
+after complete response validation; malformed excluded rows still fail.
+No selector lists all holdings. OTHER is the public CLI spelling.
+No symbol operands, other resource families, generic filters, pagination or quiet
+flag. Bare ls is a usage error. One authenticated bodyless GET, no query parameters.
 
 Terminal stdout: SYMBOL, TYPE, RECEIVED AT (UTC), PROVIDER, ENVIRONMENT.
 Redirected stdout: headerless TSV with those five fields. --tsv is an accepted
@@ -105,7 +109,9 @@ no-op: it does not force TSV on a terminal or override --jsonl. --jsonl explicit
 emits discovery-summary records including observation ID and commit time.
 -v/--verbose adds ID/commit columns on the terminal and endpoint/request/count
 on stderr; machine records are unchanged. Empty reads succeed with no machine
-records. Errors go to stderr; exit 0 success, 1 failure, 2 usage/configuration.
+records. Zero matches succeed; terminal: No canonical direct quotes match the selected types.
+Verbose counts selected holdings. Invalid/missing types fail before HTTP, exit 2.
+Errors go to stderr; exit 0 success, 1 failure, 2 usage/configuration.
 
 WW_BASE_URL defaults to http://localhost:3100; HTTPS outside loopback.
 WW_API_TOKEN uses the accepted exported/private .env Bearer convention.
@@ -129,6 +135,7 @@ Example:
 
 const KIND = "observed-price/v1";
 const STATUSES = new Set(["ready", "failed", "pending", "absent", "expirations_known", "not_in_universe"]);
+const CLI_QUOTE_TYPES = new Set(["EQUITY", "ETF", "INDEX", "OTHER"]);
 
 class WwError extends Error {
   constructor(message, code = 1) {
@@ -156,13 +163,21 @@ export function parseArgs(args) {
       return { command: "command-man", page: "ls" };
     if (rest[0] !== "quotes") usage("ls: resource 'quotes' is required");
     let verbose = false, jsonl = false;
-    for (const arg of rest.slice(1)) {
+    const types = new Set();
+    for (let index = 1; index < rest.length; index++) {
+      const arg = rest[index];
       if (["-v", "--verbose"].includes(arg)) verbose = true;
       else if (arg === "--jsonl") jsonl = true;
       else if (arg === "--tsv") continue; // Explicit no-op; retain default TTY/redirect behavior.
+      else if (arg === "--type") {
+        const type = rest[++index];
+        if (!CLI_QUOTE_TYPES.has(type))
+          usage("ls quotes: --type requires EQUITY, ETF, INDEX or OTHER");
+        types.add(type);
+      }
       else usage("ls quotes: unsupported argument; see ww ls quotes --help");
     }
-    return { command: "ls", verbose, jsonl };
+    return { command: "ls", verbose, jsonl, types: [...types] };
   }
   if (["prices", "observed-prices", "fetch"].includes(command)) {
     if (rest.length === 1 && ["-h", "--help"].includes(rest[0])) {
@@ -481,18 +496,22 @@ export async function readHeldQuotes({ token = process.env.WW_API_TOKEN,
   return { ...result, wheelwrightOrigin: url.origin.replaceAll(token, "[REDACTED]") };
 }
 
-export function presentHeldQuotes(result, { verbose = false, jsonl = false, tty = false } = {}) {
-  const rows = result.items.map(item => [item.subject.symbol, item.subject.securityType,
+export function presentHeldQuotes(result, { verbose = false, jsonl = false, tty = false, types = [] } = {}) {
+  // readHeldQuotes validates the complete wire collection before presentation/selection.
+  const items = result.items.map(item => ({ ...item, subject: { ...item.subject,
+    securityType: item.subject.securityType === "OTHER_UNDERLYING" ? "OTHER" : item.subject.securityType
+  } })).filter(item => !types.length || types.includes(item.subject.securityType));
+  const rows = items.map(item => [item.subject.symbol, item.subject.securityType,
     item.provenance.receivedAt, item.provenance.provider, item.provenance.environment]);
   let stdout;
-  if (jsonl) stdout = result.items.map(item => JSON.stringify(item) + "\n").join("");
+  if (jsonl) stdout = items.map(item => JSON.stringify(item) + "\n").join("");
   else if (!tty) stdout = rows.map(row => row.map(escapeDiscoveryCell).join("\t") + "\n").join("");
-  else if (!rows.length) stdout = "No canonical direct quotes held.\n";
+  else if (!rows.length) stdout = types.length ? "No canonical direct quotes match the selected types.\n" : "No canonical direct quotes held.\n";
   else {
     const headings = ["SYMBOL", "TYPE", "RECEIVED AT (UTC)", "PROVIDER", "ENVIRONMENT"];
     if (verbose) {
       headings.push("OBSERVATION ID", "COMMITTED AT (UTC)");
-      rows.forEach((row, index) => row.push(result.items[index].observationId, result.items[index].provenance.committedAt));
+      rows.forEach((row, index) => row.push(items[index].observationId, items[index].provenance.committedAt));
     }
     const escaped = rows.map(row => row.map(escapeDiscoveryCell));
     const widths = headings.map((heading, index) => escaped.reduce((width, row) => Math.max(width, row[index].length), heading.length));
