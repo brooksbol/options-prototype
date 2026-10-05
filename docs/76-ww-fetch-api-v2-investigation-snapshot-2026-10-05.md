@@ -412,3 +412,122 @@ CURRENT STATE: `ww fetch` Product boundary selected under `PL-CLI-01`; v1 acquis
 DECISION REQUIRED: NO
 
 NEXT AUTHORIZED ACTION: Reconcile `PL-API-03` around canonical underlying-quote evidence under the selected fetch boundary and Doc 77 guardrails.
+
+
+## 21. Principal reconciliation — canonical underlying-quote evidence
+
+A bounded Codex semantic reconciliation of canonical underlying-quote evidence was reviewed by the Principal on October 5, 2026. The Principal selected the following semantic decisions for `PL-API-03`. These decisions remain upstream of HTTP routes, OAS schemas, persistence design, and implementation.
+
+### 21.1 Separate subject, observation, provenance, and acquisition result
+
+V2 quote semantics MUST distinguish:
+
+- **quote subject** — the identified market-data security in the direct quote-observation family;
+- **quote observation** — one subject-verified bundle of direct quote facts reported by an external source;
+- **observation provenance** — source/environment/authority/acquisition context and the distinct times actually known for the observation and its fields;
+- **acquisition result** — what happened when Wheelwright attempted to satisfy an acquisition request.
+
+An observation is evidence of what a source reported. It is not itself a freshness/admissibility verdict and does not become a failed observation when a later acquisition attempt fails.
+
+Equal numeric values from separate upstream acquisitions do not make them the same observation.
+
+### 21.2 Successful direct quote and field truth
+
+A direct quote observation is successfully acquired when the provider returns a **subject-verified observation containing at least one direct market-price fact from the quote family**.
+
+`last` is NOT mandatory for observation success. A valid bid and/or ask may therefore constitute a direct quote observation even when `last` is absent.
+
+Direct facts retain their own meanings. In particular:
+
+- `last`, bid, ask, close, and previous close are distinct facts;
+- absence is distinct from zero;
+- a missing `last` MUST remain absent;
+- close MUST NOT be relabeled or substituted as `last`.
+
+Whether the facts present in a valid quote observation are sufficient for a downstream calculation or domain capability is that consumer's evidence-admissibility concern, not part of quote-observation identity or acquisition success.
+
+Provider-returned instrument metadata alone, without a direct market-price fact, does not constitute successful acquisition of a price-bearing direct quote observation.
+
+### 21.3 Time and provenance truth
+
+Field-specific source times MUST remain associated with the facts they describe where known. Trade, bid, and ask times MUST NOT be collapsed into one fictitious quote-bundle market timestamp.
+
+Wheelwright receipt time, commit time, and acquisition-result time are distinct from source market-event times. Missing source event time remains unknown; receipt/commit/container time MUST NOT be promoted into source observation time.
+
+A reused held observation retains its original evidentiary provenance and clocks. New upstream acquisition that returns unchanged numeric values is still a new acquisition/observation if accepted.
+
+The existing authority/fencing invariant remains applicable: a superseded acquisition authority cannot publish or commit its result as current-authority evidence. Retained prior evidence preserves the provenance/environment under which it was originally acquired.
+
+### 21.4 Acquisition-result truth and retained prior evidence
+
+Observation truth and request-fulfillment truth are separate.
+
+Therefore:
+
+- a successful new upstream quote may become new held evidence and yields a newly-acquired result;
+- a held observation may satisfy an ordinary acquisition request only when the direct-quote acquisition-reuse policy permits it;
+- explicit forced upstream reacquisition requires an actual upstream acquisition attempt rather than merely bypassing scheduler gates;
+- upstream failure with no held quote yields failure and no invented observation;
+- upstream failure while prior quote evidence exists leaves that prior observation unchanged and yields a truthful failed-reacquisition result with retained prior evidence;
+- batch acquisition MUST reconcile outcomes by requested subject identity, not HTTP status or response position.
+
+A retained prior observation does not convert a failed reacquisition into successful fulfillment.
+
+### 21.5 Acquisition reuse and evidence admissibility are different policy verdicts
+
+The earlier word **reuse** was overloaded during reconciliation. The selected vocabulary and boundary are:
+
+- **acquisition reuse** — whether a held direct-quote observation may satisfy a new direct-quote acquisition request without contacting the upstream provider;
+- **evidence admissibility** — whether a particular downstream capability/consumer may use an observation for its own domain purpose.
+
+These verdicts are independent even though they may inspect some of the same evidence properties.
+
+V2 initially defines **one ordinary direct-quote acquisition-reuse policy plus explicit forced upstream reacquisition**. The direct-quote acquisition capability MUST NOT vary its ordinary reuse semantics merely because the caller happens to be CLI, web, Decision, screening, or another imagined request purpose.
+
+Downstream capabilities independently define evidence-admissibility requirements when their Product semantics require them. A quote may be valid evidence yet inadmissible for a particular calculation; conversely, historical/replay behavior may intentionally consume evidence that would not satisfy a current ordinary acquisition request.
+
+No generalized request-purpose taxonomy is authorized absent demonstrated Product need.
+
+This establishes the composition boundary:
+
+> **Acquisition policy answers whether held evidence can satisfy an acquisition request. Consumer policy answers whether evidence can satisfy a domain decision.**
+
+The exact initial ordinary direct-quote acquisition-reuse criteria — including applicable age, session, environment, authority, field-completeness, and upstream-availability considerations — remain the next bounded semantic reconciliation problem.
+
+### 21.6 Legacy chain-derived held price is not canonical direct-quote evidence
+
+Current v1 chain-derived held-price state remains compatibility evidence with its honest, limited provenance.
+
+It MUST NOT be silently promoted into a canonical direct-quote observation and MUST NOT satisfy canonical direct-quote acquisition reuse unless independent direct-quote provenance can actually be recovered.
+
+A direct quote and a chain-embedded spot are distinct evidence claims even when their numeric values match. Chain acquisition time does not establish the age of its embedded quote.
+
+Both claims may coexist. Neither silently overwrites or timestamps the other.
+
+### 21.7 Existing Decision semantics remain unchanged
+
+Existing Decision behavior continues to consume its chain-bound spot under its current accepted contract until Decision's own evidence contract is explicitly reconciled.
+
+The canonical v2 direct-quote work does not silently substitute direct-quote evidence into Decision, alter Decision replay semantics, or reopen the accepted full 7–45 DTE Decision surface.
+
+Any future Decision change selecting direct-quote inputs requires its own explicit Product/evidence reconciliation.
+
+### 21.8 Authority boundary
+
+This reconciliation selects semantic truth for canonical direct-quote evidence. It does NOT yet select or authorize:
+
+- v2 routes or HTTP methods;
+- OAS schemas or JSON field names;
+- persistence tables/migrations;
+- Java classes;
+- quote batching implementation;
+- CLI output or exact `--force` syntax;
+- exact ordinary acquisition-reuse thresholds;
+- changes to v1 chain/Decision behavior;
+- implementation.
+
+CURRENT STATE: Canonical direct-quote subject/observation/provenance/acquisition-result semantics are Principal-selected; direct-quote success and legacy-chain/Decision boundaries are selected; acquisition reuse is explicitly separated from downstream evidence admissibility.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: Reconcile the single initial ordinary direct-quote acquisition-reuse policy from actual Wheelwright requirements, provider/session realities, and existing authority invariants. Do not introduce a generalized request-purpose policy framework absent demonstrated Product need.
