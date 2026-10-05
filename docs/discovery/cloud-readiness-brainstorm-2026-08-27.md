@@ -275,6 +275,36 @@ Wheelwright-specific/domain telemetry may matter more than generic CPU graphs, i
 - database size
 - Kreature observation activity
 
+#### October 5 observability refinement — exploratory, not selected architecture
+
+A later Principal/ChatGPT discussion recovered an older operational model: application code emits the operational facts it uniquely knows, while the deployment/runtime owns capture, storage, search, retention, reporting, and alert integration. Historically this could be application output redirected into files under `/var/log`, with Splunk or operations tooling tailing those files. For the accepted Render direction, the structurally simpler candidate is for the backend to emit to stdout/stderr and let the Render runtime capture those streams rather than making Wheelwright own log files, rotation, or retention.
+
+This suggests a useful boundary to evaluate:
+
+**telemetry semantics belong to Wheelwright; telemetry capture/storage mechanism belongs to deployment.**
+
+Consequences worth preserving for later cloud-readiness work:
+
+- Console/stdout/stderr is a candidate canonical backend logging sink across environments, not merely a Render-specific convenience. Local development can redirect or `tee` noisy DEBUG/TRACE output when needed.
+- A future conventional Linux/package deployment could route the same application output through systemd/journald or, if justified, into `/var/log/ww` without changing Wheelwright's telemetry semantics.
+- Render-native log capture/search should be evaluated before introducing a separate logging platform. Splunk, Loki, OpenSearch, or another aggregator should have to earn their operational complexity.
+- Domain operational measurements can initially be emitted as structured log events where Wheelwright knows the truth: request/operation correlation, acquisition identity, subject, outcome, reuse vs newly acquired, provider latency, admission wait, batch size, authority/fencing context, and similar facts.
+- A dedicated metrics pipeline should not be assumed merely because some structured events are numerical. Structured logs may be sufficient for early reporting/debugging/alert derivation; Prometheus or another metrics system should be introduced only when a demonstrated query, aggregation, retention, alerting, cost, or performance need justifies it.
+- Likewise, distributed tracing remains deferred until the architecture demonstrates a need; v2 request/operation correlation already creates a useful observability spine.
+- Logging/telemetry must continue to protect credentials and other secrets regardless of sink.
+- Operational alerting and operator/domain notifications remain different concerns even if both are eventually triggered from related semantic events.
+
+Open questions sharpened by this discussion:
+
+- What structured event vocabulary and minimum fields should Wheelwright standardize?
+- Which events belong at INFO/WARN/ERROR versus DEBUG/TRACE?
+- Should ordinary operational measurements remain logs, or which demonstrated use cases justify first-class metrics?
+- What retention/search/alert facilities does Render provide natively, and are they sufficient for the initial cloud posture?
+- Which alerts should derive from application semantic events versus platform health/resource signals?
+- Does any future audit/security event class require stronger durability or retention than ordinary application logs?
+
+This refinement records a design hypothesis and investigation agenda only. It does **not** select a logging library, wire format, metrics backend, log aggregator, retention policy, alerting product, `/var/log` layout, or implementation work.
+
 ### Notifications
 
 Candidate notification channels:
