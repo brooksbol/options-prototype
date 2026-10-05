@@ -4,7 +4,7 @@
 **Status:** Principal-ratified fitness-control set (graduation record)
 **Authority:** Category C — Canonical Project / Operational State (technology-quality fitness controls)
 **Governing authority:** `foundations/technology-quality-constitution-v1.md` (Article VI fitness-function lifecycle; Article VIII authority), `technology-quality-program-v1.md` (Workstream 9; deliverable #11)
-**Related:** `parking-lot.md` `PL-COHERE-01`, `foundations/multi-actor-repeatability-temporal-synchronization.md`, `docs/README.md`
+**Related:** `parking-lot.md` `PL-COHERE-01`, `foundations/multi-actor-repeatability-temporal-synchronization.md`, `docs/README.md`, `technology-quality-slo-build-test-v1.md` (`SLO-BUILD-01`)
 
 ---
 
