@@ -475,6 +475,22 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 **Boundary:** Broader `PL-CLI-01` remains INTAKE. No `ww ls`, `ww show`, held-quote GET endpoint, selector, chain syntax, Decision migration, v1 removal, OAS change, Doc 79 reopening, or BUG-028 remediation. One local commit is authorized; pushing is explicitly prohibited pending review.
 
 
+### `PL-CLI-01` — October 5 canonical held-quote discovery decisions and specification
+
+**Date:** October 5, 2026
+**State:** RECONCILED — Principal-ratified bounded Product contract; specification/OAS complete; no runtime implementation or push authorized.
+
+**Principal decisions:** Initial command is `ww ls quotes`; bare `ww ls` remains usage exit 2 with no backend work. Redirected default is headerless five-field TSV; explicit --jsonl emits discovery-summary objects; -v/--verbose adds observation ID and commit time to human output and endpoint/request/count diagnostics to stderr without altering machine records. No quiet flag. Ordinary columns: SYMBOL, TYPE, RECEIVED AT (UTC), PROVIDER, ENVIRONMENT. Empty terminal: `No canonical direct quotes held.`; empty TSV/JSONL: zero records; exit 0. Ordering is canonical uppercase symbol ascending. No filters, pagination, projections, prices, or generic resource machinery.
+
+**Ratified meaning:** Discover subjects with current canonical direct-quote holdings and identify the selected current observation/source. Include unenrolled subjects, retained prior evidence, any age/reuse eligibility/persisted provider environment. Exclude membership/demand, legacy chain spots, chains/calendars, spot/quote/acquisition history, Decision records, failed attempts without accepted evidence, and freshness/admissibility/reuse/trading-suitability judgments. This is current holdings, not all persisted data. Detailed facts/deeper provenance and show remain deferred; bare fetch relevance selection is unchanged and deferred.
+
+**Ratified capability-specific invariant:** Held-evidence reads never acquire or revalidate evidence. `ww ls quotes` and its backing v2 capability cause no upstream provider contact. This is not a claim about every existing GET; historical read-through markets/timesales behavior remains intact.
+
+**Contract:** [api-v2-held-quotes-read.md](contracts/api-v2-held-quotes-read.md) specifies CLI grammar, streams, escaping, credentials/secrets, 0/1/2 exits, broken pipe, HTTP mapping, and LQ01–LQ28 acceptance. It links the authoritative extended OAS. No CLI runtime/manual command registration or private grant configuration changed during specification.
+
+**Reconciliation Completion Record:** Intake: existing PL-CLI-01, no new identity. Strategic disposition: strengthens existing CLI/operator access direction, no new Bet or roadmap/horizon change. Architectural disposition: realizes Doc 77 acquisition/read separation via the common PL-API-03 quote family, no new engine or generic registry. Parking-lot mapping: retain broader PL-CLI-01; this bounded discovery refinement is reconciled and specified, not implemented. Why-state: linked contract and October 5 journal entry. Next authorized mode: prepare bounded GET /v2/quotes + ww ls quotes implementation handoff after the completed Doc 78 specification self-review; runtime work requires that explicit handoff. No push authorized.
+
+
 ## `PL-OPS-10` — Optimize large targeted fetches
 
 **Date:** October 4, 2026 (intake)
@@ -579,7 +595,7 @@ This intake does **not** authorize adding springdoc/Swagger dependencies; creati
 
 **Date:** October 5, 2026
 
-**State:** INTAKE — first common direct-quote capability boundary Principal-selected; first HTTP/OAS contract proposed for ratification; no implementation authorized
+**State:** First POST direct-quote contract ratified and implemented on accepted main; bounded GET held-discovery Product contract ratified and specified, not implemented. Broader API capability work remains INTAKE; no runtime work authorized by this specification.
 
 **Related:** `PL-CLI-01` (Principal-selected `fetch` Product meaning), `PL-OPS-09` (shipped shared targeted refresh), `PL-OPS-10` (measured acquisition pressure), `PL-EVID-07` (accepted full Decision surface), `PL-API-02` (separate machine-readable HTTP-contract concern), `docs/76-ww-fetch-api-v2-investigation-snapshot-2026-10-05.md` (investigation), `docs/77-api-v2-architectural-guardrails.md` (ratified v2 constraints), `docs/cli/tradier-market-data-capabilities-2026-10-05.md` (provider reference)
 
@@ -596,3 +612,21 @@ This intake does **not** authorize adding springdoc/Swagger dependencies; creati
 **Questions for later reconciliation.** What are the meaningful acquisition, declaration, read, derivation, and explicit orchestration capabilities beyond this first boundary? How can the web client reproduce full-surface and visible-convergence behavior without owning Wheelwright domain policy? The first proposed OAS addresses quote acquisition alone; broader `PL-API-02` typing and other capabilities remain separate.
 
 **Disposition and authority.** This is distinct from `PL-API-02`'s broader OAS/typing question and `PL-OPS-10`'s performance remedy selection. No new strategic Bet is asserted. The Principal selected the `fetch` Product boundary, Doc 76 §§21–23, and Doc 77 guardrails. The linked HTTP/OAS is a technical Solution Design **proposal**, not yet ratified. This intake authorizes no runtime code, persistence, CLI change, v1 behavior change, provider implementation, or Kiro handoff.
+
+
+### `PL-API-03` — October 5 current canonical held-quote read contract
+
+**Date:** October 5, 2026
+**State:** RECONCILED — Principal-selected GET /v2/quotes contract specified; Doc 78 bounded ambiguity self-review complete; no Kiro/runtime implementation begun.
+
+The earlier first-HTTP/OAS-proposal paragraphs above preserve the pre-ratification state. Current POST authority is the Principal-ratified acquisition contract and accepted implementation at bootstrap SYNC `2982eb803205fb0121569307f374d81bb5e70b79`. This refinement does not reopen or alter POST semantics.
+
+**Principal decisions:** GET /v2/quotes is a complete current canonical direct-quote-holdings inventory, independent of membership, age, reuse eligibility, and current active provider environment. Empty is 200/items []; deterministic uppercase symbol ascending; no acquisition/refresh, filters, pagination, sort/projection parameters, ETag or freshness evaluation. Cache-Control: private, no-store. POST's 30-subject limit does not govern GET. Bearer identity requires distinct quote.read; quote.acquire/quote.force never imply read. Actual credential/grant configuration is later operations work.
+
+**Invariant:** Held-evidence reads never acquire or revalidate evidence. `ww ls quotes` and its backing v2 capability cause no upstream provider contact. Historical v1 read-through GETs retain their separate semantics; this does not ratify a repository-wide GET-purity claim.
+
+**Authoritative specification:** [api-v2-held-quotes-read.md](contracts/api-v2-held-quotes-read.md) and the GET/schema additions to [the existing v2 OAS](contracts/api-v2-direct-quote-acquisition-proposal.yaml). Required discovery fields only: observationId, subject(symbol/securityType), provenance(provider/environment/receivedAt/committedAt). Clocks remain original receipt/commit instants. No acquisition outcomes, operation clocks, facts/deeper provenance, Decision state or generation. Errors use RFC 9457 with fixed status/code pairs. Failed/malformed enumeration cannot return empty/partial success. Unsupported query parameters are 422. Complete committed per-item consistency is required; collection-wide single-time snapshot isolation is not promised from the current shared JDBC connection. Mechanism remains engineering work subject to the observable contract.
+
+**Reconciliation Completion Record:** Intake: existing PL-API-03 with PL-CLI-01 consumer. Strategic disposition: common operator/client evidence access, no new Bet or roadmap/horizon change. Architectural disposition: bounded Doc 77 read/acquisition separation on the natural quote family, existing persistence/provenance vocabulary; no new architectural engine, provider machinery or registry. Parking-lot mapping: bounded held-read refinement reconciled/specification complete, broader PL-API-03 retained. Why-state: contract concurrency analysis and October 5 journal entry. Next authorized mode: prepare the bounded GET /v2/quotes plus ww ls quotes implementation handoff against the committed specification, not runtime execution. No push authorized.
+
+**Review disposition:** Single bounded Codex specification self-review found no remaining material Product/architecture ambiguity. Runtime/provider independence and committed-item consistency remain implementation acceptance obligations, not existing-runtime claims. Stop conditions and LQ01–LQ28 falsifiers are in the contract. No source-time anomaly or BUG-028 remediation, database migration, POST/v1/fetch change, show design or bare-fetch universe is authorized.

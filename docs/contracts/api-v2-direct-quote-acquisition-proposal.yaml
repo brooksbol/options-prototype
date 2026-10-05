@@ -1,14 +1,157 @@
 openapi: 3.1.1
 info:
-  title: Wheelwright v2 direct-quote acquisition — PROPOSED
-  version: 0.1.0-proposal
+  title: Wheelwright v2 canonical quotes — acquisition and held discovery
+  version: 0.2.0-contract
   description: >-
-    Proposal for Principal ratification only. One synchronous, subject-scoped
-    canonical direct-quote acquisition capability. Not implementation authority.
+    Authoritative specification: accepted synchronous POST acquisition plus the
+    Principal-selected GET held-discovery capability. GET is specified, not yet
+    implemented. The historical filename is retained. Not implementation authority.
 servers:
   - url: /
 paths:
   /v2/quotes:
+    get:
+      operationId: listHeldDirectQuotes
+      summary: Discover current canonical direct-quote holdings
+      description: 'Held-evidence reads never acquire or revalidate evidence. This GET causes no upstream
+        provider contact, acquisition, worker/enrollment/membership changes, Decision traversal, or freshness/reuse
+        evaluation. Enumerates all direct_quote holdings independently of membership, age, reuse eligibility
+        and active provider environment. One committed discovery item per canonical symbol, deterministic
+        uppercase ordinal symbol ascending, no history. No body/query parameters: any parameter presence or
+        nonempty body is 422. No limit, pagination, filtering, sort/projection parameters, ETag or 304; If-None-Match
+        is ignored. POST''s 30-subject cap does not apply. Entire result is materialized/validated/serialized
+        before success. Concurrent replacement can return old or new complete committed version, never both/torn/uncommitted;
+        continuously held subjects are included. Concurrent insert/remove may appear or be absent; no collection-wide
+        single-instant snapshot is promised. See api-v2-held-quotes-read.md for the normative enumeration
+        interval and CLI contract. Authenticate, authorize quote.read, then validate and enumerate. No automatic
+        read/acquire privilege inheritance.'
+      security:
+      - bearerAuth: []
+      x-required-grants:
+      - quote.read
+      x-unsupported-query-parameters: Any query parameter presence is INVALID_REQUEST/422, including empty
+        and repeated parameters.
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: false
+        description: Single optional UUID (hex 8-4-4-4-12, case insensitive), surrounding whitespace trimmed
+          and echoed. Absent/blank generates one. Multiple or nonblank invalid values are 422 after auth/authorization;
+          errors use a generated valid UUID. Correlation only, never idempotency.
+        schema:
+          type: string
+          pattern: '^\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\s*$'
+      responses:
+        '200':
+          description: Complete current canonical quote-holdings inventory, ordered by uppercase symbol; empty
+            items is successful. Complete committed items, no collection-wide single-instant snapshot guarantee.
+          headers:
+            X-Request-Id: &id001
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control: &id002
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeldQuotesReadResponse'
+              examples:
+                empty:
+                  value:
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    items: []
+        '401':
+          description: Missing or invalid Bearer credential.
+          headers:
+            X-Request-Id: *id001
+            Cache-Control: *id002
+            WWW-Authenticate:
+              required: true
+              schema:
+                type: string
+                const: Bearer
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuotesReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 401
+                    code:
+                      const: UNAUTHENTICATED
+        '403':
+          description: Authenticated principal lacks quote.read; acquire/force grants do not imply read.
+          headers:
+            X-Request-Id: *id001
+            Cache-Control: *id002
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuotesReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 403
+                    code:
+                      const: FORBIDDEN
+        '422':
+          description: Invalid correlation, any query parameter, or nonempty GET body.
+          headers:
+            X-Request-Id: *id001
+            Cache-Control: *id002
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuotesReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 422
+                    code:
+                      const: INVALID_REQUEST
+        '500':
+          description: Unexpected storage, enumeration, discovery mapping or serialization failure; never
+            partial inventory or empty substitution.
+          headers:
+            X-Request-Id: *id001
+            Cache-Control: *id002
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuotesReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 500
+                    code:
+                      const: INTERNAL_ERROR
+        '503':
+          description: 'Read cannot start: approved authentication or held storage unavailable. Provider outage
+            alone does not cause this error.'
+          headers:
+            X-Request-Id: *id001
+            Cache-Control: *id002
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuotesReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 503
+                    code:
+                      const: CAPABILITY_UNAVAILABLE
     post:
       operationId: acquireDirectQuotes
       summary: Synchronize canonical direct-quote evidence for named underlyings
@@ -58,8 +201,9 @@ components:
       scheme: bearer
       description: >-
         TLS-protected configured credential establishes caller identity. The
-        authenticated principal requires quote.acquire; FORCE additionally requires
-        quote.force. Deployed operation fails closed without approved configuration.
+        POST requires quote.acquire; FORCE additionally requires quote.force. GET
+        independently requires quote.read; acquire/force grants do not imply read.
+        Deployed operation fails closed without approved configuration.
   responses:
     Problem:
       description: Request-wide failure before trustworthy completed per-subject results.
@@ -368,3 +512,149 @@ components:
             properties:
               name: { type: string, description: JSON Pointer into request where applicable. }
               reason: { type: string, description: Safe human-readable validation failure. }
+    HeldQuotesReadResponse:
+      type: object
+      additionalProperties: true
+      required:
+      - requestId
+      - items
+      properties:
+        requestId:
+          type: string
+          format: uuid
+          description: This read request correlation, equal to X-Request-Id; not acquisition/observation identity.
+        items:
+          type: array
+          minItems: 0
+          description: Complete current holdings, one per subject, uppercase ordinal symbol ascending. No
+            maxItems, POST cap, silent truncation, history or continuation.
+          items:
+            $ref: '#/components/schemas/HeldQuoteDiscoveryItem'
+    HeldQuoteDiscoveryItem:
+      type: object
+      additionalProperties: true
+      required:
+      - observationId
+      - subject
+      - provenance
+      description: Bounded discovery summary. All defined fields required and non-null. No quote facts, acquisition
+        result, deeper provenance or state verdict.
+      properties:
+        observationId:
+          type: string
+          format: uuid
+          description: Original accepted observation identity. Reading preserves it; replacement selects a
+            different observation even if numeric facts match.
+        subject:
+          $ref: '#/components/schemas/HeldQuoteDiscoverySubject'
+        provenance:
+          $ref: '#/components/schemas/HeldQuoteDiscoveryProvenance'
+    HeldQuoteDiscoverySubject:
+      allOf:
+      - $ref: '#/components/schemas/ResolvedSubject'
+      - type: object
+        properties:
+          symbol:
+            type: string
+            minLength: 1
+            maxLength: 32
+            pattern: ^[A-Z^][A-Z0-9.^/_-]*$
+      description: Existing Wheelwright resolved underlying security vocabulary; canonical uppercase symbol.
+        No option contracts or membership requirement.
+    HeldQuoteDiscoveryProvenance:
+      type: object
+      additionalProperties: true
+      required:
+      - provider
+      - environment
+      - receivedAt
+      - committedAt
+      description: Only persisted source identity and distinct original receipt/commit clocks. No acquisition
+        ID, epoch, phase, session or feed detail.
+      properties:
+        provider:
+          type: string
+          minLength: 1
+          description: Persisted source provider identity, not Wheelwright endpoint.
+        environment:
+          type: string
+          enum:
+          - PRODUCTION
+          - SANDBOX
+          description: Persisted provider data environment, independent of current active authority or client
+            deployment.
+        receivedAt:
+          type: string
+          format: date-time
+          pattern: Z$
+          description: Original Wheelwright receipt instant of this accepted upstream subject evidence; not
+            a source market-event time. RFC 3339 UTC with Z; original stored instant and fractional precision,
+            never rewritten by read.
+        committedAt:
+          type: string
+          format: date-time
+          pattern: Z$
+          description: Original Wheelwright persistence-commit/authoritative acceptance instant; not source-event,
+            publication, read or operation time. RFC 3339 UTC with Z; original stored instant and fractional
+            precision, never rewritten by read.
+    HeldQuotesReadProblem:
+      allOf:
+      - $ref: '#/components/schemas/Problem'
+      description: RFC 9457 request-wide failure; no result data or partial inventory. Header/body requestId
+        agree. No Retry-After promise.
+      oneOf:
+      - type: object
+        properties:
+          status:
+            const: 401
+          code:
+            const: UNAUTHENTICATED
+          title:
+            const: Unauthenticated
+          type:
+            const: urn:wheelwright:problem:unauthenticated
+      - type: object
+        properties:
+          status:
+            const: 403
+          code:
+            const: FORBIDDEN
+          title:
+            const: Forbidden
+          type:
+            const: urn:wheelwright:problem:forbidden
+      - type: object
+        properties:
+          status:
+            const: 422
+          code:
+            const: INVALID_REQUEST
+          title:
+            const: Invalid request
+          type:
+            const: urn:wheelwright:problem:invalid_request
+          invalidParams:
+            type: array
+            minItems: 1
+        required:
+        - invalidParams
+      - type: object
+        properties:
+          status:
+            const: 500
+          code:
+            const: INTERNAL_ERROR
+          title:
+            const: Internal error
+          type:
+            const: urn:wheelwright:problem:internal_error
+      - type: object
+        properties:
+          status:
+            const: 503
+          code:
+            const: CAPABILITY_UNAVAILABLE
+          title:
+            const: Capability unavailable
+          type:
+            const: urn:wheelwright:problem:capability_unavailable
