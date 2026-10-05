@@ -42,7 +42,9 @@ For active-session ordinary reuse, eligibility requires both:
 - successful upstream-contact age within the configured threshold using non-truncated instant/duration comparison; and
 - agreement with the applicable session/feed identity boundary.
 
-For completed-session ordinary reuse, eligibility requires positive proof that the held observation belongs to the **latest completed regular trading session** under the applicable feed/session semantics. Merely being labeled regular-session evidence, or merely being old enough to predate closure, is insufficient.
+For completed-session ordinary reuse, eligibility requires positive proof that the held observation's persisted `regularSessionDate` equals the **latest completed regular trading session** under the applicable feed/session calendar semantics. The observation's session membership is established from the upstream-contact context and persisted as provenance; it is not inferred later from `receivedAt`, current wall-clock age, or Decision publication state. Merely being labeled regular-session evidence, or merely being old enough to predate closure, is insufficient.
+
+If the applicable regular-session identity cannot be established unambiguously, `regularSessionDate` is absent as the ratified OAS requires. Such an observation fails closed for completed-session reuse because the required session identity cannot be proven. Absence does not authorize guessing a date from receipt time.
 
 Provider availability does not redefine this eligibility.
 
@@ -50,17 +52,21 @@ A direct quote first acquired outside the latest completed regular session does 
 
 This invariant refines implementation truth only; it does not change the ratified reuse Product semantics.
 
-### I2 — Observation clocks and phase are assigned at the event boundary they describe
+### I2 — Contact, receipt, and commit are distinct temporal boundaries
 
-Temporal provenance must be derived from the actual event it names:
+Temporal provenance must be derived from the actual event it names and the ratified OAS meanings must not be collapsed:
 
-- `receivedAt` is the instant Wheelwright receives the successful upstream subject payload, after provider admission and HTTP completion;
-- acquisition phase/session context for the observation is classified at that receipt/contact context, not at request enqueue/start;
-- `committedAt` is assigned when the accepted observation becomes authoritative held evidence;
-- request `startedAt`/`completedAt` remain operation clocks and are not substitutes for observation clocks;
-- source event timestamps remain provider-reported field-specific clocks and are never synthesized from receipt/commit/request clocks.
+- **upstream contact** owns `acquisitionPhase` and the applicable `regularSessionDate` when that date is unambiguously known;
+- `receivedAt` is the later instant Wheelwright receives the successful upstream subject payload;
+- `committedAt` is the instant the accepted observation becomes authoritative held evidence;
+- request `startedAt`/`completedAt` remain operation clocks and are not substitutes for contact, receipt, or commit;
+- source event timestamps remain provider-reported field-specific clocks and are never synthesized from contact/receipt/commit/request clocks.
 
-Admission wait is therefore capable of crossing a session boundary without falsifying provenance: the resulting observation is classified by the boundary at which the upstream evidence was actually received.
+Provider admission occurs before upstream contact. Therefore phase/session classification must not be fixed at request enqueue or before admission. But receipt also must not overwrite contact classification.
+
+A boundary-crossing specimen is intentionally representable without contradiction: if upstream contact occurs immediately before regular close and the successful subject payload is received immediately after close, `acquisitionPhase` remains the classification at the pre-close contact and `receivedAt` records the post-close receipt instant. The values describe different facts and need not imply the same phase.
+
+For completed-session reuse, session membership follows the persisted `regularSessionDate` established from the upstream-contact context. `receivedAt` is not a second session-membership rule. If contact-context session identity was not unambiguously knowable and therefore `regularSessionDate` is absent, session-specific reuse fails closed rather than inferring membership from receipt time.
 
 ### I3 — Subject verification is positive and fail-closed
 
@@ -93,13 +99,14 @@ Correlation does not alter authority fencing: the captured authority epoch still
 
 The rejection does not presently require a new architecture:
 
-- `SessionClassifier` already computes canonical session dates, including prior completed trading sessions across weekends/holidays and provider-aware delay semantics. The v2 implementation should reuse or coherently derive from this authority rather than inventing a weaker `REGULAR_USABLE` flag.
+- Existing `SessionClassifier` / `SessionGate` code contains useful **calendar mechanics and terminology** for trading dates, weekends, holidays, early closes, provider delay, and canonical-session reasoning. Direct-quote reuse must not import the classifier's whole admissibility verdict or its `persistedSessionValid` dependency, because that predicate is coupled to complete published Decision-session state and named v2 quotes may exist without Decision enrollment.
+- The current calendar implementation is explicitly bounded to hard-coded 2026 holiday/early-close tables. That is not a sufficient long-lived direct-quote session-identity authority. A later implementation must use a calendar/session-identity mechanism capable of establishing the applicable regular-session date for the observation; if it cannot establish that identity unambiguously, the direct-quote model must preserve OAS truth by omitting `regularSessionDate` and failing closed for session-specific reuse rather than guessing.
 - `RequestPacer` already carries `PurposeScope` / `OperationContext` with logical operation id, purpose, subject, opaque provenance, and captured authority epoch. It captures caller context before crossing onto the dispatch thread.
-- `RequestPacer` resolves admission before beginning the provider observer operation, establishing an existing post-admission boundary suitable for truthful transport timing.
+- `RequestPacer` resolves admission before beginning the provider observer operation, establishing an existing post-admission **contact-start** boundary. That boundary is useful for `acquisitionPhase`/session classification; successful payload receipt remains a distinct later boundary for `receivedAt`.
 - `ProviderAuthorityManager.commitIfCurrent` already fences durable writes against the captured lease epoch and records store mutation against the lease logical operation.
-- Existing session/admissibility code already treats canonical session identity as stronger than wall-clock age alone.
+- Existing session/admissibility code demonstrates the architectural distinction between session identity and wall-clock age, but Decision publication validity is not a direct-quote reuse prerequisite.
 
-Therefore the first candidate's defects are presently classified as an inadequate implementation model / integration of established mechanisms, not evidence that the ratified v2 Product/API contract is unimplementable.
+Therefore the first candidate's defects are presently classified as an inadequate implementation model / integration of established mechanisms, not evidence that the ratified v2 Product/API contract is unimplementable. The exact reusable calendar/session-identity implementation seam remains an engineering question constrained by the fail-closed semantics above; it must not reintroduce Decision enrollment as a prerequisite.
 
 ## 5. Falsification matrix required before another candidate can be accepted
 
@@ -116,8 +123,9 @@ Any later authorized implementation candidate must survive counterexamples at th
 
 ### Temporal-truth falsifiers
 
-- Queue/admission waits across market open must yield receipt/phase provenance for the post-admission/post-response context, not the enqueue context.
-- Queue/admission waits across market close must likewise classify the received observation truthfully.
+- Queue/admission waits across market open must classify `acquisitionPhase`/`regularSessionDate` at upstream contact after admission, while `receivedAt` records the later successful payload receipt.
+- Contact-before-close / receipt-after-close must preserve pre-close contact classification and post-close `receivedAt`; completed-session reuse must use the persisted contact-context `regularSessionDate`, not infer a different session from receipt.
+- Contact-before-open / receipt-after-open must likewise preserve the distinct contact and receipt facts rather than laundering one boundary into the other.
 - A reused observation must preserve its original clocks and phase/session/feed provenance.
 - A failed reacquisition must not rewrite prior clocks.
 - Source event times must remain independent of receipt and commit times.
@@ -162,12 +170,12 @@ Before another implementation traversal is rational, the workflow must be able t
 2. **Why can the next traversal produce an outcome the previous one could not?**  
    A later implementation actor can be tested against falsifiers that directly attack the previously missing invariants rather than merely reproducing the first candidate's implementation-shaped tests.
 
-This satisfies the model-synthesis portion of the Death Spiral Avoidance Protocol. Independent falsification of this reconciliation remains required before implementation re-entry.
+This revision incorporates the first independent falsification of the model. The Death Spiral Avoidance Protocol still requires independent re-falsification of the revised contact/receipt/session-identity model before implementation re-entry.
 
 ---
 
-CURRENT STATE: Candidate `28df973` is rejected and unpushed. The ratified v2 direct-quote contract remains unchanged. Four missing implementation invariants have been synthesized and reconciled against existing backend mechanisms.
+CURRENT STATE: Candidate `28df973` is rejected and unpushed. The ratified v2 direct-quote contract remains unchanged. Four missing implementation invariants have been synthesized. After independent falsification, I1/I2 were revised to preserve distinct contact/receipt/commit semantics and to prevent direct-quote reuse from inheriting Decision publication validity.
 
 DECISION REQUIRED: NO
 
-NEXT AUTHORIZED ACTION: Independently falsify this implementation-invariant model against the ratified contract and existing backend semantics. Do not implement, patch, push, or issue a Kiro remediation prompt unless that falsification succeeds and implementation authority is separately established.
+NEXT AUTHORIZED ACTION: Independently re-falsify the revised implementation-invariant model, specifically the contact-before-close/receipt-after-close specimen, fail-closed absent session identity, and independence from Decision publication validity. Do not implement, patch, push, or issue a Kiro remediation prompt unless that falsification succeeds and implementation authority is separately established.
