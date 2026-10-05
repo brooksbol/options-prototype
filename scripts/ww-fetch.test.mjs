@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, mkdtemp, mkdir, copyFile, rm, realpath } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fetchEvidence, parseAcquisitionResponse, presentFetchResult } from "./wheelwright.mjs";
 import { TOKEN, REQUEST_ID, fixture, capture, acquisition } from "./ww-fetch-fixtures.mjs";
 const cli = new URL("./wheelwright.mjs", import.meta.url).pathname;
@@ -13,19 +15,27 @@ async function withFixture(work) {
 }
 
 test("bare fetch and missing credentials fail before any backend/provider request", async () => {
-  await withFixture(async (f, run) => {
-    for (const args of [["fetch"], ["fetch", "--force"], ["fetch", "-v"], ["fetch", "--"]]) {
-      const r = await run(args);
-      assert.equal(r.status, 2); assert.equal(r.stdout, "");
-      assert.match(r.stderr, /at least one explicit symbol/);
-    }
-    for (const token of ["", "   ", "bad\ncredential"]) {
-      const r = await run(["fetch", "SPY"], { WW_API_TOKEN: token });
-      assert.equal(r.status, 1); assert.equal(r.stdout, ""); assert.match(r.stderr, /WW_API_TOKEN/);
-      assert.ok(!r.stderr.includes(TOKEN));
-    }
-    assert.deepEqual(f.calls, []);
-  });
+  // Isolate credential discovery from the operator's real private .env.
+  const isolated = await mkdtemp(join(tmpdir(), "ww-no-credentials-"));
+  const isolatedCli = join(isolated, "scripts", "wheelwright.mjs");
+  await mkdir(join(isolated, "scripts"));
+  await copyFile(cli, isolatedCli);
+  const actualCli = await realpath(isolatedCli);
+  try {
+    await withFixture(async (f, run) => {
+      for (const args of [["fetch"], ["fetch", "--force"], ["fetch", "-v"], ["fetch", "--"]]) {
+        const r = await run(args);
+        assert.equal(r.status, 2); assert.equal(r.stdout, "");
+        assert.match(r.stderr, /at least one explicit symbol/);
+      }
+      for (const token of ["", "   ", "bad\ncredential"]) {
+        const r = await capture([actualCli, "fetch", "SPY"], { WW_BASE_URL: f.base, WW_API_TOKEN: token });
+        assert.equal(r.status, 1); assert.equal(r.stdout, ""); assert.match(r.stderr, /WW_API_TOKEN/);
+        assert.ok(!r.stderr.includes(TOKEN));
+      }
+      assert.deepEqual(f.calls, []);
+    });
+  } finally { await rm(isolated, { recursive: true, force: true }); }
 });
 
 test("explicit ORDINARY, batch, FORCE and normalized/deduplicated fetch send only one v2 request", async () => {
@@ -199,4 +209,37 @@ test("large and invalid requests stay one batch, with no CLI retries or splittin
     assert.equal(r.status, 1); assert.equal(f.calls.length, 2);
     assert.equal(f.calls[1].body.subjects[0].symbol, "BAD SYMBOL");
   });
+});
+
+test("private .env token loading is allowlisted, literal, and overridden by exports", async () => {
+  const { readApiToken } = await import("./wheelwright.mjs");
+  let reads = 0;
+  const file = async () => { reads++; return `TRADIER_API_KEY=not-a-ww-token\nWW_API_TOKEN="${TOKEN}"\n`; };
+  assert.equal(await readApiToken({}, file), TOKEN);
+  assert.equal(reads, 1);
+  assert.equal(await readApiToken({ WW_API_TOKEN: "exported" }, file), "exported");
+  assert.equal(await readApiToken({ WW_API_TOKEN: "" }, file), TOKEN);
+  assert.equal(reads, 2);
+  assert.equal(await readApiToken({}, async () => "TRADIER_API_KEY=only-provider\n"), undefined);
+  assert.equal(await readApiToken({}, async () => { throw Object.assign(new Error(), { code: "ENOENT" }); }), undefined);
+  await assert.rejects(readApiToken({}, async () => { throw new Error(TOKEN); }), error =>
+    /cannot read/.test(error.message) && !error.message.includes(TOKEN));
+  assert.equal(await readApiToken({}, async () => "WW_API_TOKEN=$(must-not-run)\n"), "$(must-not-run)");
+});
+
+test("ww fetch works with a private .env credential and no exported token", async () => {
+  const isolated = await mkdtemp(join(tmpdir(), "ww-file-credential-"));
+  try {
+    await mkdir(join(isolated, "scripts"));
+    await copyFile(cli, join(isolated, "scripts", "wheelwright.mjs"));
+    const actualCli = await realpath(join(isolated, "scripts", "wheelwright.mjs"));
+    const { writeFile } = await import("node:fs/promises");
+    await writeFile(join(isolated, ".env"), `WW_API_TOKEN='${TOKEN}'\n`, { mode: 0o600 });
+    await withFixture(async (f) => {
+      const r = await capture([actualCli, "fetch", "SPY"], { WW_API_TOKEN: "", WW_BASE_URL: f.base });
+      assert.equal(r.status, 0); assert.equal(f.calls.length, 1);
+      assert.equal(f.calls[0].authorization, `Bearer ${TOKEN}`);
+      assert.ok(!r.stdout.includes(TOKEN) && !r.stderr.includes(TOKEN));
+    });
+  } finally { await rm(isolated, { recursive: true, force: true }); }
 });

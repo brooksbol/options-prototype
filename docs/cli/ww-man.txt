@@ -80,7 +80,8 @@ DISCOVERY
 
 ENVIRONMENT
     WW_BASE_URL   Backend base URL; default http://localhost:3100
-    WW_API_TOKEN  Bearer credential required for fetch; never printed.
+    WW_API_TOKEN  Bearer credential for fetch, exported or in the private root
+                  .env file; nonempty exports take precedence; never printed.
                   Fetch requires HTTPS outside loopback development.
 
 SEE ALSO

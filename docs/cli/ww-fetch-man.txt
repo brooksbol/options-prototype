@@ -93,7 +93,10 @@ ENVIRONMENT
         Redirects are rejected to avoid forwarding credentials elsewhere.
 
     WW_API_TOKEN
-        Explicit Bearer credential configured for a Wheelwright principal.
+        Explicit Bearer credential configured for a Wheelwright principal,
+        exported or stored as WW_API_TOKEN in the repository private .env file.
+        Nonempty exported values override the file. Only this
+        one file key is read; shell substitutions are never executed.
         Missing/empty credentials fail before contacting the backend. No anonymous
         fallback, hard-coded token, or trusted-local bypass exists. The backend
         checks quote.acquire and, for FORCE, quote.force. ww does not provision

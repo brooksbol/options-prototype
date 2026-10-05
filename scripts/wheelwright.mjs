@@ -22,7 +22,7 @@ Results go to stdout; diagnostics go to stderr. Exit status controls &&.
 Use 'ww <command> --help' or '--man' for command details; 'ww --man'
 describes the current CLI. 'ww observed-prices' remains a prices alias.
 Backend: WW_BASE_URL (default http://localhost:3100).
-Fetch authentication: WW_API_TOKEN (Bearer credential).`;
+Fetch authentication: WW_API_TOKEN (exported or private .env Bearer credential).`;
 
 const SOURCE_HELP = `Usage: ww observed-prices [--] SYMBOL...
 
@@ -75,8 +75,8 @@ Example:
   ww fetch SPY --force
 
 Backend: WW_BASE_URL (default http://localhost:3100).
-Authentication: WW_API_TOKEN, a configured Bearer credential. Missing credentials
-fail before contacting the backend. Use HTTPS outside loopback development.
+Authentication: WW_API_TOKEN, exported or in the repository private .env file.
+Explicit exports override the file. Missing credentials fail before backend contact. Use HTTPS outside loopback development.
 Use 'ww fetch --man' for the full behavioral contract.`;
 
 const SORT_HELP = `Usage: ww sort --by FIELD [--descending]
@@ -288,6 +288,24 @@ function redactCredential(value, token) {
   return JSON.parse(JSON.stringify(value).replaceAll(token, "[REDACTED]"));
 }
 
+// Match the repository's private .env credential convention without executing
+// shell code or loading provider credentials. Nonempty exports override the file; help/usage paths never read it.
+export async function readApiToken(env = process.env, readFileImpl = readFile) {
+  if (env.WW_API_TOKEN?.trim()) return env.WW_API_TOKEN;
+  let contents;
+  try { contents = await readFileImpl(new URL("../.env", import.meta.url), "utf8"); }
+  catch (error) {
+    if (error.code === "ENOENT") return undefined;
+    throw new WwError("fetch: cannot read the private .env credential file");
+  }
+  const matches = [...contents.matchAll(/^\s*(?:export\s+)?WW_API_TOKEN\s*=\s*(.*?)\s*$/gm)];
+  if (!matches.length) return undefined;
+  let token = matches.at(-1)[1];
+  if ((token.startsWith('"') && token.endsWith('"')) ||
+      (token.startsWith("'") && token.endsWith("'"))) token = token.slice(1, -1);
+  return token;
+}
+
 export async function fetchEvidence(symbols, {
   mode = "ORDINARY", token = process.env.WW_API_TOKEN,
   base = process.env.WW_BASE_URL ?? "http://localhost:3100", fetchImpl = fetch,
@@ -448,7 +466,7 @@ export async function main(args) {
     return;
   }
   if (parsed.command === "fetch") {
-    const result = await fetchEvidence(parsed.symbols, { mode: parsed.mode });
+    const result = await fetchEvidence(parsed.symbols, { mode: parsed.mode, token: await readApiToken() });
     const presentation = presentFetchResult(result, parsed.quiet, !!process.stdout.isTTY,
       !!process.stderr.isTTY, parsed.verbose);
     if (presentation.stdout) process.stdout.write(presentation.stdout);
