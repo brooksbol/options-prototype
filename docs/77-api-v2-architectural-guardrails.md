@@ -194,7 +194,31 @@ Wheelwright may reuse familiar HTTP cache semantics in spirit when they faithful
 
 Exact acquisition-policy controls remain Product/API design work.
 
-## 20. Patterns not mandated by these guardrails
+## 20. Conventional HTTP/resource grammar
+
+API v2 SHOULD follow established, widely understood HTTP/REST conventions wherever those conventions accurately express Wheelwright semantics. Wheelwright-specific HTTP conventions SHOULD exist only where standard conventions are inadequate or would misrepresent the domain.
+
+Public URLs SHOULD be short, stable, human-readable, and resource-oriented. The URL names the Wheelwright domain resource rather than the internal capability implementation or a particular client's workflow.
+
+The default resource grammar is:
+
+- collection resources use plural domain nouns, for example `/v2/quotes`;
+- an instance resource, when one genuinely exists with stable identity, is subordinate to its collection, for example conceptually `/v2/quotes/{symbol}`;
+- singular resource names are reserved for resources that are inherently singleton in their context rather than used arbitrarily alongside plural collection names;
+- path hierarchy expresses genuine resource containment or relationship rather than procedural workflow or backend execution stages;
+- resource names SHOULD be nouns; standard HTTP methods SHOULD express operations when their defined semantics fit the Wheelwright capability;
+- query parameters SHOULD select, filter, sort, limit, or project resources rather than encode procedural actions;
+- structured request bodies carry operation input where appropriate, especially when POST semantics require more than collection selection;
+- redundant routing vocabulary such as `/api`, client names, provider names, implementation mechanisms, and action nouns SHOULD NOT appear in public paths without a demonstrated semantic or deployment need;
+- URLs SHOULD remain shallow unless deeper hierarchy represents a real domain relationship.
+
+This is a convention, not REST dogma. V2 MUST deviate when following the convention would make the HTTP contract misleading or fail to express a real Wheelwright domain operation. Such deviation should be deliberate and justified by the capability semantics rather than convenience or implementation shape.
+
+This convention complements rather than replaces the acquisition/read distinction. The same natural resource family may support different standard HTTP methods with different semantics when truthful: for example, a POST may acquire/revalidate quote evidence while a GET may read held quote evidence. This example does not by itself authorize either route.
+
+Client command vocabulary and HTTP vocabulary remain independent. A CLI verb such as `fetch` or `ls` may map naturally to conventional HTTP operations without requiring the API to expose the CLI command name. Likewise, anticipated client reuse is a useful pressure test but is not the justification for the resource grammar: the convention is selected because it is established, comprehensible, and compatible with one API serving many clients.
+
+## 21. Patterns not mandated by these guardrails
 
 V2 should not adopt architectural machinery merely because it is fashionable or because the API is new.
 
@@ -213,7 +237,7 @@ These guardrails do NOT mandate:
 
 Any such mechanism requires its own demonstrated Wheelwright need.
 
-## 21. Design review obligation
+## 22. Design review obligation
 
 A proposed v2 capability must be reviewable against the applicable guardrails before implementation authorization.
 
@@ -236,7 +260,7 @@ The review should be able to answer, as applicable:
 
 Not every question requires a unique field or mechanism on every capability. The obligation is that applicable cross-cutting semantics come from the common v2 grammar rather than being silently omitted or independently reinvented.
 
-## 22. Authority boundary
+## 23. Authority boundary
 
 These guardrails ARE selected architectural constraints for API v2.
 
