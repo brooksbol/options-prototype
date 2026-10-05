@@ -575,3 +575,48 @@ CURRENT STATE: Canonical direct-quote evidence semantics and the initial session
 DECISION REQUIRED: NO
 
 NEXT AUTHORIZED ACTION: Reconcile the first common v2 direct-quote capability boundary under the selected semantics and Docs 77–78 before HTTP/OAS design.
+
+## 23. First common direct-quote capability boundary — candidate for Principal reconciliation
+
+**Status: proposed semantic capability boundary, not Principal-selected design or implementation authority.** This bounded reconciliation uses selected §§20–22 and Doc 77. It stops before HTTP methods/routes, OAS, storage, configuration syntax, CLI presentation, and implementation.
+
+### 23.1 Capability and subject
+
+The proposed common capability is **synchronize canonical direct-quote evidence for a finite set of named underlying market-data subjects and report each subject's request-fulfillment outcome**. One named security/direct-quote family is the semantic work unit. Multiple subjects form one client operation without becoming one shared evidence or success unit. Wheelwright establishes canonical subject identity and verifies provider-returned subject/type; a provider symbol string alone does not define domain identity. An explicitly named subject need not be enrolled in the Decision universe or monitored-position set merely to acquire its quote. Provider support and subject validity can still produce truthful per-subject unsupported/unmatched outcomes.
+
+Subject-set selection precedes this capability. A client's explicit symbols or an independently governed default selector can supply the resolved set; the experimental bare-`ww fetch` selector is not ratified as a v2 default. Clients do not select provider calls, expiration policy, or acquisition machinery. The capability is common to CLI, web, and future clients and has no caller-specific ordinary-reuse semantics.
+
+The capability accepts ordinary acquisition intent or the selected explicit force intent. Ordinary intent applies §22's one configured reuse policy per subject. Force bypasses reuse and requires upstream contact, subject to truthful provider-contact restrictions. For subjects requiring upstream work, Doc 77 groups compatible work into provider batch(es) after semantic selection and per-subject reuse decisions; provider request count is not a capability promise.
+
+### 23.2 Semantic result and completion
+
+For each requested canonical subject, the operation distinguishes **this request's outcome** from **the selected held observation afterward**. Outcomes distinguish newly acquired and accepted evidence, eligible held evidence reused, upstream unavailable/admission-blocked/contact-policy-blocked, provider-unmatched or unsupported subject, invalid quote payload, failed upstream attempt, and failed acceptance/commit where those are real. Retained prior evidence is reported separately and cannot turn a failed forced or ordinary attempt into fulfillment. Provider HTTP success, batch membership, generation movement, and numeric price equality certify no subject by themselves. A valid quote may contain bid or ask without last under §21.
+
+A subject is certified **newly acquired** only when subject-verified evidence has passed authority fencing and is accepted into Wheelwright's authoritative held quote model, with its provenance available to a held-quote read. A provider response that could not be committed is not successful Wheelwright acquisition. A subject is certified **reused** only when the selected held observation satisfies §22 at the request's evaluation point; the original observation and clocks remain unchanged. A fully completed operation has a terminal, truthful result for every resolved requested subject. If bounded waiting ends while work may continue, completion and pending subjects remain explicit; no aggregate success or final per-subject postcondition is invented. This selects no synchronous timeout, asynchronous mechanism, or HTTP status.
+
+Operation/request correlation must connect subject outcomes to provider attempt(s), authority/fencing, and acceptance/publication consequences as Doc 77 requires. Repeating ordinary intent can reuse or contact upstream as policy and time evolve; repeating force can cause another upstream attempt. Neither is silently promised to be network-idempotent. Exact retry/deduplication mechanism belongs to later contract design.
+
+### 23.3 Neighbor capabilities and side effects
+
+**Held direct-quote inspection** is a separate read capability: it presents backend-selected held evidence and its provenance without external contact or changing acquisition policy. A downstream consumer's evidence-admissibility judgment is separate again. Provider availability and session posture are operational context, not quote facts. Projection or client display may select fields from canonical evidence but cannot change acquisition scope.
+
+Accepting a new quote inherently changes authoritative held quote evidence, provenance, and the quote-visible publication/read state. A successful completed acquisition must not depend on a later unrelated full-Decision publication to become observable as held quote evidence. The capability does not declare monitoring/observation demand, discover expirations, acquire chains/contracts, traverse the 7–45 DTE Decision surface, recompute Decision, change account/held-position state, or treat a quote as execution-admissible. Such behavior requires separate explicit capability/workflow intent. Existing v1 targeted refresh does register unknown subjects as observation demand and force full-surface publication; those are compatibility facts, not this proposed v2 boundary.
+
+Authorization must distinguish evidence reads from acquisition intents, including force, under Doc 77's common security boundary; this section selects no authentication mechanism or wire permission syntax. Backend ownership of provider choice, admission, canonical subject identity and held-evidence selection, fencing, persistence, and publication remains intact. The web client can request the same quote capability and separately invoke a governed full-Decision workflow where needed; it need not reconstruct expiration eligibility.
+
+### 23.4 Falsifiers and open decision
+
+The boundary fails if one named quote request silently acquires policy-selected chains, if an unknown subject is auto-enrolled in ongoing demand, if provider batch HTTP 200 certifies all subjects, if a prior price certifies failed force, if a commit failure reports newly acquired evidence, or if a quote acquisition completion is not reflected by the authoritative quote read. It also fails if a quote field projection changes provider acquisition scope, or if CLI and web ordinary reuse differ by caller identity.
+
+**Principal decision requested:** select this semantic boundary, or revise the treatment of named subjects outside the current Decision universe and the completed-new-acquisition visibility requirement. The latter two are the materially new proposed consequences; §§21–22 and Doc 77 are already selected. HTTP/OAS, exact outcome vocabulary, durable representation, security mechanism, and operation timing remain later design work, not reasons to broaden this capability now.
+
+CURRENT STATE: Canonical quote semantics, configured reuse policy, and Doc 77 batching are selected; this first common direct-quote capability boundary is proposed for Principal reconciliation only.
+
+DECISION REQUIRED: YES
+
+OPTIONS:
+A — Select the subject-scoped direct-quote capability boundary above.
+B — Revise the named-subject or held-evidence visibility boundary before selection.
+C — Defer the direct-quote capability boundary.
+
+RECOMMENDED DEFAULT: A
