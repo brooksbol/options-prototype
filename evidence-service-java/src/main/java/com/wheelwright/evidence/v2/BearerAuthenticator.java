@@ -36,6 +36,9 @@ public class BearerAuthenticator {
     /** The additional grant required when {@code mode=FORCE}. */
     public static final String GRANT_FORCE = "quote.force";
 
+    /** Independent held-evidence read grant; acquire/force never imply it. */
+    public static final String GRANT_READ = "quote.read";
+
     private final Map<String, Principal> byToken = new HashMap<>();
 
     public BearerAuthenticator(

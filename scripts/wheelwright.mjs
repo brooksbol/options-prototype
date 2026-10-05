@@ -11,13 +11,15 @@ freshness or suitability. Pipe commands without a format flag.
 
 Working commands:
   fetch [-q | -v] [--force] SYMBOL...  Acquire direct quotes for named subjects.
+  ls quotes [-v] [--jsonl]   Discover canonical direct-quote holdings (provider-free)
   prices SYMBOL...          Inspect currently held underlying price evidence (read-only)
   sort --by FIELD           Reorder ww price records from stdin (price or symbol)
 
 Example:
   ww fetch QQQ SPY XLE
 
-TTY output is for humans; pipe/redirect output is bounded JSON Lines.
+TTY output is for humans; ls quotes pipes headerless TSV (--jsonl for summaries).
+Other commands retain their documented bounded JSON Lines output.
 Results go to stdout; diagnostics go to stderr. Exit status controls &&.
 Use 'ww <command> --help' or '--man' for command details; 'ww --man'
 describes the current CLI. 'ww observed-prices' remains a prices alias.
@@ -79,6 +81,29 @@ Authentication: WW_API_TOKEN, exported or in the repository private .env file.
 Explicit exports override the file. Missing credentials fail before backend contact. Use HTTPS outside loopback development.
 Use 'ww fetch --man' for the full behavioral contract.`;
 
+const LS_HELP = `Usage: ww ls quotes [-v | --verbose] [--jsonl]
+       ww ls --help | -h | --man
+       ww ls quotes --help | -h | --man
+
+Discover current canonical direct-quote holdings through GET /v2/quotes.
+Held-evidence reads never acquire or revalidate evidence; this command causes
+no upstream provider contact. Includes unenrolled, old, retained and sandbox
+holdings, without freshness, reuse, Decision or trading-suitability judgments.
+No symbol operands, other resource families, filters, pagination or quiet flag.
+Bare ls is a usage error. One invocation is one authenticated GET.
+
+Terminal stdout: SYMBOL, TYPE, RECEIVED AT (UTC), PROVIDER, ENVIRONMENT.
+Redirected stdout: headerless TSV with those five fields. --jsonl explicitly
+emits discovery-summary records including observation ID and commit time.
+-v/--verbose adds ID/commit columns on the terminal and endpoint/request/count
+on stderr; machine records are unchanged. Empty reads succeed with no machine
+records. Errors go to stderr; exit 0 success, 1 failure, 2 usage/configuration.
+
+WW_BASE_URL defaults to http://localhost:3100; HTTPS outside loopback.
+WW_API_TOKEN uses the accepted exported/private .env Bearer convention.
+The backend requires quote.read independently of quote.acquire/quote.force.
+Use 'ww ls --man' for escaping, security and evidence limits.`;
+
 const SORT_HELP = `Usage: ww sort --by FIELD [--descending]
 
 Read the bounded ww price JSON Lines record stream from stdin and
@@ -113,6 +138,22 @@ export function parseArgs(args) {
   }
   if (args.length === 1 && args[0] === "--man") return { command: "root-man" };
   const [command, ...rest] = args;
+  if (command === "ls") {
+    const discovery = rest[0] === "quotes" ? rest.slice(1) :
+      (rest.length === 1 ? rest : []);
+    if (discovery.length === 1 && ["-h", "--help"].includes(discovery[0]))
+      return { command: "help", help: LS_HELP };
+    if (discovery.length === 1 && discovery[0] === "--man")
+      return { command: "command-man", page: "ls" };
+    if (rest[0] !== "quotes") usage("ls: resource 'quotes' is required");
+    let verbose = false, jsonl = false;
+    for (const arg of rest.slice(1)) {
+      if (["-v", "--verbose"].includes(arg)) verbose = true;
+      else if (arg === "--jsonl") jsonl = true;
+      else usage("ls quotes: unsupported argument; see ww ls quotes --help");
+    }
+    return { command: "ls", verbose, jsonl };
+  }
   if (["prices", "observed-prices", "fetch"].includes(command)) {
     if (rest.length === 1 && ["-h", "--help"].includes(rest[0])) {
       return { command: "help", help: command === "fetch" ? FETCH_HELP :
@@ -353,6 +394,105 @@ export async function fetchEvidence(symbols, {
   return { ...parseAcquisitionResponse(data, symbols, mode), wheelwrightOrigin: url.origin.replaceAll(token, "[REDACTED]") };
 }
 
+const DISCOVERY_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DISCOVERY_TYPES = new Set(["EQUITY", "ETF", "INDEX", "OTHER_UNDERLYING"]);
+const object = value => !!value && typeof value === "object" && !Array.isArray(value);
+
+function discoveryTime(value) {
+  if (typeof value !== "string") return false;
+  const parts = /^(\d{4})-(\d{2})-(\d{2})[Tt](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?Z$/.exec(value);
+  if (!parts) return false;
+  const [year, month, day, hour, minute, second] = parts.slice(1, 7).map(Number);
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return month >= 1 && month <= 12 && day >= 1 && day <= days[month - 1] &&
+    hour <= 23 && minute <= 59 && second <= 59;
+}
+
+export function parseHeldQuotesResponse(data, correlation) {
+  const invalid = () => { throw new WwError("ls quotes: backend returned an invalid discovery response"); };
+  if (!object(data) || typeof data.requestId !== "string" || !DISCOVERY_UUID.test(data.requestId) ||
+      data.requestId !== correlation || !Array.isArray(data.items)) invalid();
+  let previous;
+  const items = data.items.map(item => {
+    if (!object(item) || typeof item.observationId !== "string" || !DISCOVERY_UUID.test(item.observationId) ||
+        !object(item.subject) || typeof item.subject.symbol !== "string" ||
+        !/^[A-Z^][A-Z0-9.^/_-]{0,31}$/.test(item.subject.symbol) ||
+        !DISCOVERY_TYPES.has(item.subject.securityType) || !object(item.provenance) ||
+        typeof item.provenance.provider !== "string" || !item.provenance.provider.length ||
+        !["PRODUCTION", "SANDBOX"].includes(item.provenance.environment) ||
+        !discoveryTime(item.provenance.receivedAt) || !discoveryTime(item.provenance.committedAt) ||
+        (previous !== undefined && item.subject.symbol <= previous)) invalid();
+    previous = item.subject.symbol;
+    // Unknown additive data is ignored, never turned into incidental list output.
+    return { observationId: item.observationId,
+      subject: { symbol: item.subject.symbol, securityType: item.subject.securityType },
+      provenance: { provider: item.provenance.provider, environment: item.provenance.environment,
+        receivedAt: item.provenance.receivedAt, committedAt: item.provenance.committedAt } };
+  });
+  return { requestId: data.requestId, items };
+}
+
+export function escapeDiscoveryCell(value) {
+  return value.replace(/[\\\x00-\x1F\x7F]/g, character => {
+    const named = { "\\": "\\\\", "\t": "\\t", "\r": "\\r", "\n": "\\n" };
+    return named[character] ?? `\\u00${character.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0")}`;
+  });
+}
+
+export async function readHeldQuotes({ token = process.env.WW_API_TOKEN,
+  base = process.env.WW_BASE_URL ?? "http://localhost:3100", fetchImpl = fetch } = {}) {
+  if (typeof token !== "string" || !token.trim() || !/^[A-Za-z0-9._~+\/-]+=*$/.test(token))
+    throw new WwError("ls quotes: WW_API_TOKEN must be a configured valid Bearer credential");
+  let url;
+  try { url = new URL("/v2/quotes", base); }
+  catch { throw new WwError("WW_BASE_URL must be an HTTP(S) URL", 2); }
+  if (!["http:", "https:"].includes(url.protocol) || url.username || url.password)
+    throw new WwError("WW_BASE_URL must be an HTTP(S) URL without embedded credentials", 2);
+  if (url.protocol === "http:" && !["localhost", "127.0.0.1", "[::1]"].includes(url.hostname))
+    throw new WwError("ls quotes: WW_BASE_URL must use HTTPS outside loopback development", 2);
+  let response;
+  try { response = await fetchImpl(url, { method: "GET", redirect: "error",
+    headers: { Authorization: `Bearer ${token}` } }); }
+  catch { throw new WwError("ls quotes: Wheelwright request failed; check connectivity and WW_BASE_URL"); }
+  let data;
+  try { data = redactCredential(await response.json(), token); }
+  catch { throw new WwError("ls quotes: backend returned invalid JSON"); }
+  if (response.status !== 200) {
+    const code = typeof data?.code === "string" ? data.code : "REQUEST_FAILED";
+    const reason = typeof data?.detail === "string" ? data.detail :
+      typeof data?.title === "string" ? data.title : "Wheelwright could not complete the read";
+    const request = typeof data?.requestId === "string" ? ` (request ${data.requestId})` : "";
+    throw new WwError(escapeDiscoveryCell(`ls quotes: ${code}: ${reason}${request}`));
+  }
+  if (!/^application\/json(?:\s*;|$)/i.test(response.headers.get("content-type") ?? ""))
+    throw new WwError("ls quotes: backend returned an invalid discovery media type");
+  const result = parseHeldQuotesResponse(data, response.headers.get("x-request-id"));
+  return { ...result, wheelwrightOrigin: url.origin.replaceAll(token, "[REDACTED]") };
+}
+
+export function presentHeldQuotes(result, { verbose = false, jsonl = false, tty = false } = {}) {
+  const rows = result.items.map(item => [item.subject.symbol, item.subject.securityType,
+    item.provenance.receivedAt, item.provenance.provider, item.provenance.environment]);
+  let stdout;
+  if (jsonl) stdout = result.items.map(item => JSON.stringify(item) + "\n").join("");
+  else if (!tty) stdout = rows.map(row => row.map(escapeDiscoveryCell).join("\t") + "\n").join("");
+  else if (!rows.length) stdout = "No canonical direct quotes held.\n";
+  else {
+    const headings = ["SYMBOL", "TYPE", "RECEIVED AT (UTC)", "PROVIDER", "ENVIRONMENT"];
+    if (verbose) {
+      headings.push("OBSERVATION ID", "COMMITTED AT (UTC)");
+      rows.forEach((row, index) => row.push(result.items[index].observationId, result.items[index].provenance.committedAt));
+    }
+    const escaped = rows.map(row => row.map(escapeDiscoveryCell));
+    const widths = headings.map((heading, index) => escaped.reduce((width, row) => Math.max(width, row[index].length), heading.length));
+    const layout = row => row.map((cell, index) => cell.padEnd(widths[index])).join("  ").trimEnd();
+    stdout = "Held canonical direct quotes\n" + layout(headings) + "\n" + escaped.map(layout).join("\n") + "\n";
+  }
+  const stderr = verbose ? `From ${escapeDiscoveryCell(result.wheelwrightOrigin)}\nRequest ${result.requestId}\nls quotes: ${rows.length} holdings\n` : "";
+  return { stdout, stderr };
+}
+
 export async function readObservedPrices(symbols, fetchImpl = fetch, base) {
   const url = quoteUrl(symbols, base);
   let response;
@@ -463,6 +603,16 @@ export async function main(args) {
   if (parsed.command === "command-man") {
     const manual = await readFile(new URL(`../docs/cli/ww-${parsed.page}-man.txt`, import.meta.url), "utf8");
     process.stdout.write(manual);
+    return;
+  }
+  if (parsed.command === "ls") {
+    let token;
+    try { token = await readApiToken(); }
+    catch { throw new WwError("ls quotes: cannot read the private .env credential file"); }
+    const result = await readHeldQuotes({ token });
+    const presentation = presentHeldQuotes(result, { ...parsed, tty: !!process.stdout.isTTY });
+    if (presentation.stdout) process.stdout.write(presentation.stdout);
+    if (presentation.stderr) process.stderr.write(presentation.stderr);
     return;
   }
   if (parsed.command === "fetch") {

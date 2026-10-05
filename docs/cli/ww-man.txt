@@ -13,6 +13,12 @@ DESCRIPTION
     Reading held evidence is separate from asking Wheelwright to acquire it.
 
 WORKING COMMANDS
+    ls quotes [-v | --verbose] [--jsonl]
+        Discover current canonical direct-quote holdings through provider-free
+        API v2 GET. Requires quote.read. Terminal table; redirected headerless
+        TSV; explicit --jsonl for discovery summaries. Bare ls is usage error.
+        Run 'ww ls quotes --help' or 'ww ls quotes --man'.
+
     fetch [-q | -v] [--force] SYMBOL...
         Acquire canonical direct quotes for explicit named subjects through
         API v2. Bare fetch is a usage error. One invocation is one batch request.
@@ -55,8 +61,8 @@ OUTPUT AND COMPOSITION
         ww fetch SPY QQQ > quote-acquisition.jsonl
 
     ww prices remains an independent v1 read of chain-associated price evidence;
-    it does not inspect the v2 direct quotes acquired by fetch. No v2 read command
-    is included in this slice.
+    it does not inspect the v2 direct quotes acquired by fetch. Use ww ls quotes
+    for canonical direct-quote holdings; this lists discovery summaries only.
 
 EXIT STATUS
     0   Command succeeded under its documented contract.

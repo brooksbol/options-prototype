@@ -1,0 +1,80 @@
+WW-LS(1)                    Wheelwright Manual                   WW-LS(1)
+
+NAME
+    ww ls quotes — discover held canonical direct-quote observations
+
+SYNOPSIS
+    ww ls quotes [-v | --verbose] [--jsonl]
+    ww ls --help | -h | --man
+    ww ls quotes --help | -h | --man
+
+DESCRIPTION
+    One authenticated GET /v2/quotes inventories current canonical direct_quote
+    holdings in uppercase symbol ascending order. Includes unenrolled, old,
+    non-reusable, retained prior observations and any persisted environment.
+    One current observation per symbol; no history or failed-attempt records.
+
+    Held-evidence reads never acquire or revalidate evidence. This command and
+    its backing v2 capability cause no upstream provider contact. It does not
+    join Decision/universe/monitored membership, refresh, enroll, or acquire
+    chains/calendars. Legacy chain-associated prices are excluded.
+
+    Holdings imply no freshness, admissibility, reuse eligibility, membership,
+    or trading suitability. Receipt and commit clocks are not market-event
+    times. Detailed quote facts/deeper provenance are outside this command.
+
+OPTIONS
+    -v, --verbose
+        Append OBSERVATION ID and COMMITTED AT (UTC) to the terminal table.
+        Stderr reports From <Wheelwright origin>, Request <UUID>, and
+        ls quotes: <N> holdings. Does not change TSV/JSONL records.
+
+    --jsonl
+        Emit one discovery-summary JSON object per line, even on a terminal:
+        observationId; subject {symbol, securityType}; provenance {provider,
+        environment, receivedAt, committedAt}. No envelope/acquisition facts.
+
+    Repeated supported flags are idempotent and may occur in either order after
+    quotes. Bare ls, other resource families, symbol operands, quiet, filters,
+    sorting and pagination options are usage errors before HTTP. Help/man must
+    be standalone after ls or ls quotes, without execution flags/operands.
+
+OUTPUT
+    Terminal stdout: Held canonical direct quotes, then columns SYMBOL, TYPE,
+    RECEIVED AT (UTC), PROVIDER, ENVIRONMENT. Empty: No canonical direct quotes
+    held. followed by newline. No ordinary success stderr.
+
+    Redirected/piped default: headerless TSV, five fields in the same order,
+    one LF-terminated row per holding. Empty TSV/JSONL is zero bytes.
+    Backslash escapes as \\, tab as \t, CR as \r, LF as \n; other C0 and DEL
+    controls use \u00XX (uppercase hex). Human cells use these same escapes.
+    JSONL preserves values through JSON encoding. Timestamps retain stored
+    UTC Z spelling/fractional precision; no local-time conversion.
+
+AUTHENTICATION AND TRANSPORT
+    WW_BASE_URL defaults to http://localhost:3100. HTTPS is required outside
+    localhost/127.0.0.1/[::1]. Embedded URL credentials and redirects rejected.
+    WW_API_TOKEN is the existing Wheelwright Bearer credential: a nonempty
+    export overrides the literal key in private root .env. No shell evaluation
+    or provider-key loading. Requires explicit quote.read authorization;
+    quote.acquire and quote.force do not imply quote.read.
+    No retry/fallback. Credentials and raw transport exceptions are suppressed.
+
+EXIT STATUS
+    0   Complete validated inventory/presentation, including empty holdings.
+    1   Credential, authorization, backend, transport, response or output failure.
+    2   Invalid usage or endpoint configuration, before HTTP.
+    Broken stdout pipe terminates cleanly with existing status (normally 0),
+    without stack trace/EPIPE diagnostic or further requests. Other output
+    errors fail with exit 1. Failures produce stderr and no result records.
+
+EXAMPLES
+    ww ls quotes
+    ww ls quotes -v
+    ww ls quotes | cut -f1
+    ww ls quotes | cut -f5 | sort | uniq -c
+    ww ls quotes --jsonl > held-quotes.jsonl
+
+AUTHORITY
+    docs/contracts/api-v2-held-quotes-read.md
+    docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml

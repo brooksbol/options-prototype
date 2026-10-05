@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 public class SqliteEvidenceStore implements AutoCloseable {
 
     private final Connection conn;
+    private final String heldReadUrl;
+    private final boolean memoryDatabase;
     private int upstreamCalls = 0;
     private int cacheHits = 0;
     private String sessionDateOverride = null;
@@ -57,7 +59,13 @@ public class SqliteEvidenceStore implements AutoCloseable {
     private final ReentrantLock txLock = new ReentrantLock();
 
     public SqliteEvidenceStore(String dbPath) throws SQLException {
-        this.conn = DatabaseManager.open(dbPath);
+        // Give ephemeral stores a private shared-memory name so an independent reader
+        // can see committed rows without using the writer's transaction/autoCommit state.
+        this.memoryDatabase = dbPath.equals(":memory:") || dbPath.contains("mode=memory");
+        String actualPath = dbPath.equals(":memory:")
+                ? "file:ww-" + UUID.randomUUID() + "?mode=memory&cache=shared" : dbPath;
+        this.conn = DatabaseManager.open(actualPath);
+        this.heldReadUrl = conn.getMetaData().getURL();
     }
 
     /**
@@ -2932,6 +2940,54 @@ public class SqliteEvidenceStore implements AutoCloseable {
                     rs.getString("feed_identity"), rs.getString("received_at"),
                     rs.getString("committed_at"));
             }
+        }
+    }
+
+    /** Only the persisted columns needed by canonical held-quote discovery. */
+    public record HeldDirectQuoteRow(String observationId, String symbol, String securityType,
+                                     String provider, String environment,
+                                     String receivedAt, String committedAt) {}
+
+    /** Established inability to begin a held read, distinct from failure during enumeration. */
+    public static class HeldReadUnavailableException extends SQLException {
+        public HeldReadUnavailableException(SQLException cause) { super("held storage unavailable", cause); }
+    }
+
+    /**
+     * Enumerate committed holdings on an independent query-only connection. Never use the
+     * shared writer connection: another thread may have temporarily disabled autoCommit.
+     * No migrations, membership joins, facts JSON parsing, policy or provider access.
+     * SQLite may give this statement a stronger consistent cut than the public per-item
+     * guarantee; clients do not depend on a collection snapshot token or batch cut.
+     */
+    public List<HeldDirectQuoteRow> listHeldDirectQuotes() throws SQLException {
+        Connection reader;
+        try {
+            if (conn.isClosed()) throw new SQLException("store closed");
+            org.sqlite.SQLiteConfig config = new org.sqlite.SQLiteConfig();
+            // A named in-memory database cannot be opened using file READONLY flags.
+            // query_only below forbids mutations for both memory and file readers.
+            if (!memoryDatabase) config.setReadOnly(true);
+            reader = DriverManager.getConnection(heldReadUrl, config.toProperties());
+        } catch (SQLException e) {
+            throw new HeldReadUnavailableException(e);
+        }
+        try (reader; Statement settings = reader.createStatement()) {
+            settings.execute("PRAGMA query_only = ON");
+            List<HeldDirectQuoteRow> rows = new ArrayList<>();
+            try (PreparedStatement query = reader.prepareStatement("""
+                    SELECT observation_id, symbol, security_type, provider, environment,
+                           received_at, committed_at
+                    FROM direct_quote ORDER BY symbol COLLATE BINARY
+                    """); ResultSet rs = query.executeQuery()) {
+                while (rs.next()) {
+                    rows.add(new HeldDirectQuoteRow(rs.getString("observation_id"),
+                            rs.getString("symbol"), rs.getString("security_type"),
+                            rs.getString("provider"), rs.getString("environment"),
+                            rs.getString("received_at"), rs.getString("committed_at")));
+                }
+            }
+            return rows;
         }
     }
 
