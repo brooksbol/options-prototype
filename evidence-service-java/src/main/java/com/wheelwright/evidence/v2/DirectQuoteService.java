@@ -2,7 +2,6 @@ package com.wheelwright.evidence.v2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wheelwright.evidence.SessionGate;
 import com.wheelwright.evidence.db.SqliteEvidenceStore;
 import com.wheelwright.evidence.provider.AcquisitionLease;
 import com.wheelwright.evidence.provider.ProviderAuthorityManager;
@@ -39,7 +38,6 @@ public class DirectQuoteService {
     private final DirectQuoteSource source;
     private final ProviderAuthorityManager providerManager;
     private final SqliteEvidenceStore store;
-    private final SessionGate sessionGate;
     private final QuoteAcquisitionPolicy policy;
     private final Clock clock;
     private final ObjectMapper mapper = new ObjectMapper();
@@ -48,23 +46,31 @@ public class DirectQuoteService {
     public DirectQuoteService(DirectQuoteSource source,
                               ProviderAuthorityManager providerManager,
                               SqliteEvidenceStore store,
-                              SessionGate sessionGate,
                               QuoteAcquisitionPolicy policy) {
-        this(source, providerManager, store, sessionGate, policy, Clock.systemUTC());
+        this(source, providerManager, store, policy, Clock.systemUTC());
     }
 
     DirectQuoteService(DirectQuoteSource source,
                        ProviderAuthorityManager providerManager,
                        SqliteEvidenceStore store,
-                       SessionGate sessionGate,
                        QuoteAcquisitionPolicy policy,
                        Clock clock) {
         this.source = source;
         this.providerManager = providerManager;
         this.store = store;
-        this.sessionGate = sessionGate;
         this.policy = policy;
         this.clock = clock;
+    }
+
+    /** Whether the active provider feed is real-time (production) vs delayed (sandbox). */
+    private boolean realtimeFeed() {
+        try {
+            return "production".equalsIgnoreCase(providerManager.active().environment());
+        } catch (RuntimeException e) {
+            // Conservative: treat as delayed if the active authority cannot be read. This only
+            // shifts the regular-session window; it never redefines reuse eligibility.
+            return false;
+        }
     }
 
     /** Thrown when the backend capability cannot start the operation (maps to 503). */
@@ -85,11 +91,17 @@ public class DirectQuoteService {
      */
     public List<SubjectAcquisitionResult> acquire(
             List<AcquireQuotesRequest.RequestedSubject> orderedSubjects,
-            AcquireQuotesRequest.Mode mode) {
+            AcquireQuotesRequest.Mode mode,
+            String requestId) {
 
         Instant now = Instant.now(clock);
-        SessionGate.PostureDecision posture = sessionGate.getPosture(now);
-        boolean activeRegularPhase = posture.posture() == SessionGate.Posture.FULL;
+        boolean realtime = realtimeFeed();
+        // "Active regular phase now" for the OFF-HOURS CONTACT decision only — derived from the
+        // direct-quote trading calendar (Doc 79), NOT from SessionGate's Decision posture. This
+        // governs whether off-hours contact policy applies; it does NOT classify the eventual
+        // observation's phase (that is captured at the actual upstream contact — Doc 79 I2).
+        boolean activeRegularPhaseNow =
+            DirectQuoteSessionIdentity.phaseAt(now, realtime) == QuoteProvenance.AcquisitionPhase.REGULAR_USABLE;
 
         // Phase 1 — per-subject reuse evaluation (ORDINARY only). FORCE bypasses reuse entirely.
         // Prior held evidence is read once per subject and retained for both reuse and
@@ -106,7 +118,7 @@ public class DirectQuoteService {
 
             if (mode == AcquireQuotesRequest.Mode.ORDINARY
                     && prior != null
-                    && reuseEligible(prior, now, activeRegularPhase)) {
+                    && reuseEligible(prior, now, activeRegularPhaseNow, realtime)) {
                 decided.put(canonical, SubjectOutcome.REUSED);
                 reusedObservation.put(canonical, toObservation(prior));
             } else {
@@ -121,12 +133,13 @@ public class DirectQuoteService {
         Map<String, String> failureDetail = new LinkedHashMap<>();
 
         if (!needUpstream.isEmpty()) {
-            boolean offHours = !activeRegularPhase;
+            boolean offHours = !activeRegularPhaseNow;
             boolean contactPermitted = !(offHours && !policy.offHoursContactEnabled());
 
             if (!contactPermitted) {
                 // Effective policy prohibits provider contact (contract §13, §14): truthful
-                // non-fulfillment, prior retained separately. Applies to FORCE too.
+                // non-fulfillment, prior retained separately. Applies to FORCE too. No provider
+                // work occurs.
                 for (String s : needUpstream) {
                     upstreamOutcome.put(s, SubjectOutcome.CONTACT_NOT_PERMITTED);
                     failureDetail.put(s, "off-hours provider contact is disabled by policy");
@@ -138,7 +151,7 @@ public class DirectQuoteService {
                     failureDetail.put(s, "provider authority not established");
                 }
             } else {
-                acquireUpstream(needUpstream, now, posture, upstreamOutcome, newlyAcquired, failureDetail);
+                acquireUpstream(needUpstream, requestId, upstreamOutcome, newlyAcquired, failureDetail);
             }
         }
 
@@ -172,15 +185,12 @@ public class DirectQuoteService {
     }
 
     /** Perform the batched upstream acquisition, fence-commit, and held-state postcondition. */
-    private void acquireUpstream(List<String> needUpstream, Instant now,
-                                 SessionGate.PostureDecision posture,
+    private void acquireUpstream(List<String> needUpstream, String requestId,
                                  Map<String, SubjectOutcome> upstreamOutcome,
                                  Map<String, QuoteObservation> newlyAcquired,
                                  Map<String, String> failureDetail) {
 
-        DirectQuoteSource.BatchResult batch = source.acquire(needUpstream);
-        QuoteProvenance.AcquisitionPhase phase = phaseFor(posture);
-        String regularSessionDate = regularSessionDate(now, posture);
+        DirectQuoteSource.BatchResult batch = source.acquire(needUpstream, requestId);
 
         for (String canonical : needUpstream) {
             DirectQuoteSource.SubjectUpstream u = batch.bySubject().get(canonical);
@@ -210,7 +220,9 @@ public class DirectQuoteService {
                     upstreamOutcome.put(canonical, SubjectOutcome.UPSTREAM_FAILED);
                     failureDetail.put(canonical, u.detail());
                 }
-                case VERIFIED -> commitVerified(canonical, u, phase, regularSessionDate,
+                // Phase/session are carried on the SubjectUpstream, classified at the actual
+                // upstream-contact boundary (Doc 79 I2) — the service does not re-derive them.
+                case VERIFIED -> commitVerified(canonical, u,
                     upstreamOutcome, newlyAcquired, failureDetail);
             }
         }
@@ -221,7 +233,6 @@ public class DirectQuoteService {
      * visibility for one subject-verified upstream observation.
      */
     private void commitVerified(String canonical, DirectQuoteSource.SubjectUpstream u,
-                                QuoteProvenance.AcquisitionPhase phase, String regularSessionDate,
                                 Map<String, SubjectOutcome> upstreamOutcome,
                                 Map<String, QuoteObservation> newlyAcquired,
                                 Map<String, String> failureDetail) {
@@ -234,6 +245,11 @@ public class DirectQuoteService {
             return;
         }
 
+        // Phase + regularSessionDate were classified at the actual upstream-contact boundary and
+        // carried on the SubjectUpstream (Doc 79 I2). receivedAt is the payload-receipt instant.
+        // committedAt is captured now, at authoritative acceptance — a distinct third boundary.
+        QuoteProvenance.AcquisitionPhase phase = u.acquisitionPhase();
+        String regularSessionDate = u.regularSessionDate();
         String observationId = UUID.randomUUID().toString();
         String committedAt = Instant.now(clock).toString();
         ResolvedSubject resolved = new ResolvedSubject(canonical, u.rawQuote().securityType());
@@ -261,10 +277,14 @@ public class DirectQuoteService {
         // CONTACTED (carried on the upstream result as authorityEpoch). We commit against THAT
         // captured epoch: if an authority transition advanced the epoch between contact and
         // commit, commitIfCurrent returns false → AUTHORITY_SUPERSEDED. Using the contact-time
-        // epoch (not a fresh lease) is what makes the fence meaningful.
+        // epoch (not a fresh lease) is what makes the fence meaningful — fencing is NOT weakened
+        // for correlation (Doc 79 I4). The lease carries the captured authority id and the
+        // acquisition's operation id so the fenced store-mutation record is reconstructably
+        // attributable to this acquisition (subordinate to the request correlation id, which
+        // the provider observer events already carry via the opened PurposeScope).
         long capturedEpoch = parseEpoch(u.authorityEpoch());
         AcquisitionLease commitLease = new AcquisitionLease(
-            null, u.environment().name(), capturedEpoch, u.acquisitionId(),
+            u.authorityId(), u.environment().name(), capturedEpoch, u.acquisitionId(),
             u.acquisitionId(), null);
         boolean committed;
         try {
@@ -316,44 +336,51 @@ public class DirectQuoteService {
      * regular session to satisfy the request.
      */
     boolean reuseEligible(SqliteEvidenceStore.DirectQuoteRow prior, Instant now,
-                          boolean activeRegularPhase) {
-        if (activeRegularPhase) {
-            // Only a prior acquired during a usable regular phase can satisfy active-session
-            // reuse (a new usable regular/feed boundary requires reevaluation; off-hours
-            // evidence does not qualify as active regular-session evidence — contract §11/§12).
-            if (!QuoteProvenance.AcquisitionPhase.REGULAR_USABLE.name().equals(prior.acquisitionPhase())) {
-                return false;
+                          boolean activeRegularPhaseNow, boolean realtime) {
+        // A held observation is reusable only when its PERSISTED provenance positively
+        // establishes membership in the reuse boundary applicable NOW (Doc 79 I1). Session
+        // membership comes from the persisted contact-context regularSessionDate — never from
+        // receivedAt, wall-clock age, or Decision publication.
+        if (!QuoteProvenance.AcquisitionPhase.REGULAR_USABLE.name().equals(prior.acquisitionPhase())) {
+            // Only evidence acquired during a usable regular phase can satisfy either rule.
+            return false;
+        }
+        String priorSession = prior.regularSessionDate();
+        if (priorSession == null || priorSession.isBlank()) {
+            // Absent regular-session identity → fail closed for session-specific reuse (Doc 79
+            // I1). Never guess a session date from receipt time.
+            return false;
+        }
+
+        if (activeRegularPhaseNow) {
+            // Active-session reuse requires BOTH (a) session/feed identity agreement with the
+            // current regular session AND (b) successful-upstream-contact age within the
+            // configured threshold using PRECISE instant/duration comparison (no whole-second
+            // truncation). A new regular/feed boundary therefore disqualifies prior-boundary
+            // evidence even if its age is under the limit.
+            String currentSession = DirectQuoteSessionIdentity
+                .regularSessionDateAt(now, realtime).map(java.time.LocalDate::toString).orElse(null);
+            if (currentSession == null || !currentSession.equals(priorSession)) {
+                return false; // different (or unestablished) regular session → not reusable
             }
-            long ageLimit = policy.activeContactAgeSeconds();
-            if (ageLimit <= 0) return false; // zero disables positive-age reuse
+            Duration ageLimit = policy.activeContactAge();
+            if (ageLimit.isZero() || ageLimit.isNegative()) return false; // zero disables age reuse
             Instant received = parseInstant(prior.receivedAt());
             if (received == null) return false;
-            long ageSeconds = Duration.between(received, now).getSeconds();
-            return ageSeconds <= ageLimit;
+            Duration age = Duration.between(received, now);
+            if (age.isNegative()) return false; // future receipt is not reusable
+            return age.compareTo(ageLimit) <= 0; // precise: <= threshold, no truncation
         }
-        // Closed period: completed-session reuse. The prior must have been acquired during a
-        // regular session (REGULAR_USABLE); off-hours-acquired evidence does not satisfy the
-        // "acquired during the latest completed regular session" condition (contract §12).
+
+        // Closed period: completed-session reuse requires POSITIVE proof that the persisted
+        // regular-session date equals the LATEST COMPLETED regular trading session (Doc 79 I1).
+        // Merely predating closure, or being the newest held quote, is insufficient; a quote
+        // from two sessions ago, or one acquired after close, does not qualify. Provider
+        // availability is NOT consulted.
         if (!policy.completedSessionReuseEnabled()) return false;
-        return QuoteProvenance.AcquisitionPhase.REGULAR_USABLE.name().equals(prior.acquisitionPhase());
-    }
-
-    // --- Phase / session helpers --------------------------------------------------------
-
-    private QuoteProvenance.AcquisitionPhase phaseFor(SessionGate.PostureDecision posture) {
-        return switch (posture.posture()) {
-            case FULL -> QuoteProvenance.AcquisitionPhase.REGULAR_USABLE;
-            case EXPIRATIONS_ONLY -> QuoteProvenance.AcquisitionPhase.PRE_MARKET;
-            case BLOCKED -> QuoteProvenance.AcquisitionPhase.CLOSED;
-        };
-    }
-
-    private String regularSessionDate(Instant now, SessionGate.PostureDecision posture) {
-        // Known unambiguously only during the active regular phase.
-        if (posture.posture() != SessionGate.Posture.FULL) return null;
-        return now.atZone(java.time.ZoneOffset.UTC)
-            .withZoneSameInstant(java.time.ZoneId.of("America/New_York"))
-            .toLocalDate().toString();
+        String latestCompleted = DirectQuoteSessionIdentity
+            .latestCompletedRegularSessionDate(now, realtime).map(java.time.LocalDate::toString).orElse(null);
+        return latestCompleted != null && latestCompleted.equals(priorSession);
     }
 
     // --- Prior held evidence ------------------------------------------------------------

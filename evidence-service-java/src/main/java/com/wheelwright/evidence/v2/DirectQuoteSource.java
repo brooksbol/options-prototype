@@ -32,9 +32,13 @@ public interface DirectQuoteSource {
      * not be acquired.
      *
      * @param subjects canonical uppercase subjects requiring upstream acquisition
+     * @param requestId the HTTP request correlation id, carried end-to-end into provider
+     *                  observer context (Doc 79 I4) so provider work is reconstructably
+     *                  attributable to the request; subordinate ids (acquisitionId, lease
+     *                  logical id, measurement sequence) coexist and do not replace it
      * @return per-subject acquisition outcomes reconciled by identity
      */
-    BatchResult acquire(List<String> subjects);
+    BatchResult acquire(List<String> subjects, String requestId);
 
     /**
      * Per-subject upstream acquisition outcome, reconciled by canonical identity.
@@ -44,14 +48,29 @@ public interface DirectQuoteSource {
      */
     record BatchResult(Map<String, SubjectUpstream> bySubject) {}
 
-    /** What the upstream contact produced for one canonical subject. */
+    /**
+     * What the upstream contact produced for one canonical subject.
+     *
+     * <p>Temporal truth (Doc 79 I2): {@code acquisitionPhase} and {@code regularSessionDate}
+     * are classified at the ACTUAL upstream-contact (HTTP-send) boundary and carried here;
+     * {@code receivedAt} is the later successful-payload receipt instant. They describe
+     * different events and are not forced to agree. {@code regularSessionDate} is null when the
+     * contact had no unambiguous regular-session identity (fail closed).
+     *
+     * <p>Correlation (Doc 79 I4): {@code authorityId} and {@code authorityEpoch} are the
+     * captured authority identity/epoch of the authorizing lease, carried so the service can
+     * fence the commit against the contact-time epoch and attribute persistence to the request.
+     */
     record SubjectUpstream(
             UpstreamStatus status,
             RawQuote rawQuote,
             String provider,
             QuoteProvenance.Environment environment,
             String acquisitionId,
+            String authorityId,
             String authorityEpoch,
+            QuoteProvenance.AcquisitionPhase acquisitionPhase,
+            String regularSessionDate,
             String receivedAt,
             String detail
     ) {}

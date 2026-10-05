@@ -42,6 +42,16 @@ public class QuoteAcquisitionPolicy {
         return activeContactAgeSeconds;
     }
 
+    /**
+     * The active-session maximum successful-upstream-contact age as a precise {@link Duration}.
+     * Reuse eligibility compares against this with non-truncated instant/duration semantics
+     * (Doc 79 I1): the configured value is a whole-second Product parameter, but the comparison
+     * itself must not truncate the observation's sub-second age.
+     */
+    public java.time.Duration activeContactAge() {
+        return java.time.Duration.ofSeconds(activeContactAgeSeconds);
+    }
+
     public boolean completedSessionReuseEnabled() {
         return completedSessionReuseEnabled;
     }

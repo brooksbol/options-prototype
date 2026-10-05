@@ -187,7 +187,7 @@ public class V2QuotesController {
         String startedAt = Instant.now(clock).toString();
         List<SubjectAcquisitionResult> results;
         try {
-            results = service.acquire(canonical, mode);
+            results = service.acquire(canonical, mode, requestId);
         } catch (DirectQuoteService.CapabilityUnavailableException e) {
             return problem(ProblemCode.CAPABILITY_UNAVAILABLE, requestId, e.getMessage());
         } catch (RuntimeException e) {

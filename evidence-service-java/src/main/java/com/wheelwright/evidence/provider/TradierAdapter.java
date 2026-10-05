@@ -770,14 +770,28 @@ public class TradierAdapter {
             Long volume, Double change, Double changePercentage, Long averageVolume,
             Double week52High, Double week52Low) {}
 
-    /** Result of one multi-symbol quote acquisition: matched facts + unmatched symbol set. */
+    /**
+     * Result of one multi-symbol quote acquisition.
+     *
+     * <p>Temporal truth (Doc 79 I2): {@code contactAt} is captured inside the paced callable
+     * immediately before the actual HTTP send — NOT at method entry, enqueue, admission, or
+     * observer start — so phase/session classification reflects the true upstream-contact
+     * boundary. {@code receivedAt} is captured immediately after the successful response is
+     * received, so it reflects the distinct later payload-receipt boundary. The two instants
+     * are not forced to agree. Both are null for an empty request.
+     */
     public record QuotesResult(Map<String, RawQuoteFacts> bySymbol, Set<String> unmatched,
-                               String retrievedAt) {}
+                               String contactAt, String receivedAt) {}
 
     /**
      * Acquire direct quotes for a batch of underlying symbols in one provider request.
      * Reconciles by canonical uppercase symbol identity; a provider HTTP 200 does not imply
      * every requested symbol matched (unmatched symbols are returned explicitly).
+     *
+     * <p>Captures the actual upstream-contact instant (immediately before HTTP send) and the
+     * successful-payload-receipt instant (immediately after the response) so the direct-quote
+     * capability can classify phase/session from contact and record {@code receivedAt} from
+     * receipt (Doc 79 I2). These are observed on the paced dispatch thread, inside the callable.
      */
     public QuotesResult getQuotes(List<String> symbols) throws Exception {
         if (apiKey == null || apiKey.isBlank()) {
@@ -787,14 +801,25 @@ public class TradierAdapter {
         for (String s : symbols) {
             if (s != null && !s.isBlank()) upper.add(s.toUpperCase(Locale.ROOT));
         }
-        String retrievedAt = Instant.now().toString();
         if (upper.isEmpty()) {
-            return new QuotesResult(new LinkedHashMap<>(), new LinkedHashSet<>(), retrievedAt);
+            return new QuotesResult(new LinkedHashMap<>(), new LinkedHashSet<>(), null, null);
         }
         String joined = String.join(",", upper);
+        // Contact/receipt instants are captured INSIDE the callable (on the dispatch thread),
+        // bracketing the actual HTTP send, so they name the true provider-contact and
+        // payload-receipt events rather than any earlier queue/admission/observer moment.
+        Instant[] contact = new Instant[1];
+        Instant[] received = new Instant[1];
         pacer.setOperationKind("quote");
-        String body = pacer.submit(() -> fetchQuotes(joined));
-        return parseQuotesResponse(body, upper, retrievedAt);
+        String body = pacer.submit(() -> {
+            contact[0] = Instant.now();
+            String b = fetchQuotes(joined);
+            received[0] = Instant.now();
+            return b;
+        });
+        String contactAt = contact[0] != null ? contact[0].toString() : null;
+        String receivedAt = received[0] != null ? received[0].toString() : null;
+        return parseQuotesResponse(body, upper, contactAt, receivedAt);
     }
 
     private String fetchQuotes(String joinedSymbols) throws IOException, InterruptedException {
@@ -803,8 +828,14 @@ public class TradierAdapter {
         return httpRequest(url, "quote");
     }
 
-    /** Parse quotes.quote (object or array) + quotes.unmatched_symbols, reconciled by symbol. */
-    QuotesResult parseQuotesResponse(String body, List<String> requested, String retrievedAt) {
+    /**
+     * Parse quotes.quote (object or array) + quotes.unmatched_symbols, reconciled by symbol.
+     * Public so the v2 direct-quote capability's subject-verification regression can exercise
+     * the REAL provider normalization/type-mapping path (Doc 79 I3) rather than a pre-classified
+     * fake; it holds no secrets and performs no I/O.
+     */
+    public QuotesResult parseQuotesResponse(String body, List<String> requested,
+                                            String contactAt, String receivedAt) {
         Map<String, RawQuoteFacts> bySymbol = new LinkedHashMap<>();
         Set<String> unmatched = new LinkedHashSet<>();
         if (body != null) {
@@ -823,7 +854,7 @@ public class TradierAdapter {
         }
         // A symbol that both matched and appears in unmatched is a match (defensive).
         unmatched.removeAll(bySymbol.keySet());
-        return new QuotesResult(bySymbol, unmatched, retrievedAt);
+        return new QuotesResult(bySymbol, unmatched, contactAt, receivedAt);
     }
 
     /** Extract each JSON object under quotes.quote (object or array), as raw substrings. */

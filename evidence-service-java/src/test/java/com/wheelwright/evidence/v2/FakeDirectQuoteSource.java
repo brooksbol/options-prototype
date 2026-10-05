@@ -55,6 +55,13 @@ public class FakeDirectQuoteSource implements DirectQuoteSource {
 
     // --- programming helpers -----------------------------------------------------------
 
+    // Contact-time facts supplied by the fake (classified at contact in production). Default a
+    // REGULAR_USABLE phase with a fixed regular-session date so HTTP-level happy-path NEWLY/REUSE
+    // specimens are deterministic regardless of wall clock. Deterministic session/age/boundary
+    // specimens live in DirectQuoteServiceTest with fixed clocks against the real logic.
+    static final String DEFAULT_SESSION_DATE = "2026-10-05";
+    static final String DEFAULT_RECEIVED_AT = "2026-10-05T14:30:01Z";
+
     public void verified(String symbol, RawQuote raw) {
         verifiedWithEpoch(symbol, raw, "1"); // real manager starts at epoch 1 → commit is current
     }
@@ -62,7 +69,9 @@ public class FakeDirectQuoteSource implements DirectQuoteSource {
     public void verifiedWithEpoch(String symbol, RawQuote raw, String epoch) {
         programmed.put(symbol.toUpperCase(), new SubjectUpstream(
             UpstreamStatus.VERIFIED, raw, "tradier", QuoteProvenance.Environment.SANDBOX,
-            UUID.randomUUID().toString(), epoch, "2026-10-05T14:30:01Z", null));
+            UUID.randomUUID().toString(), "sandbox", epoch,
+            QuoteProvenance.AcquisitionPhase.REGULAR_USABLE, DEFAULT_SESSION_DATE,
+            DEFAULT_RECEIVED_AT, null));
     }
 
     public void unmatched(String symbol) {
@@ -88,7 +97,8 @@ public class FakeDirectQuoteSource implements DirectQuoteSource {
     private void program(String symbol, UpstreamStatus status, String detail) {
         programmed.put(symbol.toUpperCase(), new SubjectUpstream(
             status, null, "tradier", QuoteProvenance.Environment.SANDBOX,
-            UUID.randomUUID().toString(), "1", null, detail));
+            UUID.randomUUID().toString(), "sandbox", "1",
+            QuoteProvenance.AcquisitionPhase.UNKNOWN, null, null, detail));
     }
 
     // --- DirectQuoteSource -------------------------------------------------------------
@@ -99,7 +109,7 @@ public class FakeDirectQuoteSource implements DirectQuoteSource {
     }
 
     @Override
-    public BatchResult acquire(List<String> subjects) {
+    public BatchResult acquire(List<String> subjects, String requestId) {
         batches.add(List.copyOf(subjects));
         Map<String, SubjectUpstream> bySubject = new LinkedHashMap<>();
         for (String s : subjects) {
@@ -108,7 +118,8 @@ public class FakeDirectQuoteSource implements DirectQuoteSource {
             // never assume success for an absent subject).
             bySubject.put(s, u != null ? u : new SubjectUpstream(
                 UpstreamStatus.UNMATCHED, null, "tradier", QuoteProvenance.Environment.SANDBOX,
-                UUID.randomUUID().toString(), "1", "2026-10-05T14:30:01Z",
+                UUID.randomUUID().toString(), "sandbox", "1",
+                QuoteProvenance.AcquisitionPhase.UNKNOWN, null, DEFAULT_RECEIVED_AT,
                 "not returned by provider"));
         }
         return new BatchResult(bySubject);
