@@ -293,7 +293,51 @@ The investigation currently supports, but has not yet formally ratified, the fol
 
 These remain subject to the current fetch-boundary investigation and subsequent Principal reconciliation.
 
-## 15. Related but distinct API work
+
+## 15. Selected v2 design constraints: authoritative OAS and security plumbing
+
+Two additional architectural constraints have been selected for the fresh v2 boundary. These are design constraints for v2 reconciliation; they do not authorize implementation or select concrete mechanisms.
+
+### 15.1 Authoritative OpenAPI Specification
+
+API v2 MUST expose and maintain an OpenAPI Specification (OAS) as part of its authoritative interface contract.
+
+The specification must describe the actual runtime contract rather than being documentation generated as an afterthought. V2 API design must remain faithfully representable in OAS, including request and response schemas, status/error shapes, parameter semantics, optionality/nullability, and applicable security requirements.
+
+The intended design order remains:
+
+Product semantics -> capability boundaries -> HTTP semantics -> OAS representation -> implementation.
+
+OAS does not define the Wheelwright domain model and must not drive capability decomposition merely to suit tooling. It is the machine-readable representation of the API contract selected after the semantic boundary is understood.
+
+This constraint complements PL-API-02's machine-readable-contract concern while remaining distinct from the unresolved v2 capability-granularity work.
+
+### 15.2 Security designed in, enforcement deployment-aware
+
+API v2 MUST include a security boundary from inception rather than being designed as an unsecured API to be retrofitted during cloud migration.
+
+Security architecture and deployment-specific enforcement are distinct concerns.
+
+Conceptually, requests should pass through:
+
+request -> authentication/identity establishment -> authorization policy -> v2 capability.
+
+The capability layer should therefore be designed to receive an established caller identity/authority context rather than depending directly on a specific cloud provider's security mechanism.
+
+Because Wheelwright currently runs locally and the future Render/cloud identity mechanism is not yet available, localhost MAY use an explicitly configured trusted-local authentication mode. That mode should establish a well-known local principal through the same security boundary used by secured deployments rather than bypassing security plumbing entirely.
+
+Deployed environments MUST fail closed unless an approved authentication mechanism is configured.
+
+A generic production-capable `SECURITY=false` bypass is not the desired model. Local development bypass semantics should be explicit, environment-constrained, and incapable of silently becoming the deployed security posture.
+
+The production authentication mechanism is NOT selected by this constraint. Render-specific facilities may later supply or participate in identity/authentication, but v2 semantics should not depend on Render.
+
+Authorization boundaries should inform capability design where different capabilities may require different authority. OAS should represent the real secured API contract and applicable security requirements even while localhost satisfies that contract through its trusted-local identity mode.
+
+This pulls forward a security prerequisite previously associated with the cloud-migration Product work without requiring cloud migration itself to happen first.
+
+
+## 16. Related but distinct API work
 
 `PL-API-02` concerns machine-readable HTTP contracts and response-boundary typing. The persisted HTTP-boundary survey is adjacent evidence.
 
@@ -301,7 +345,7 @@ Capability granularity and v2 semantic boundaries are a separate architectural q
 
 Do not treat work on machine-readable contracts as having already selected v2 capability semantics.
 
-## 16. Deferred optimization findings
+## 17. Deferred optimization findings
 
 Quote batching remains a potentially useful transport optimization.
 
@@ -316,7 +360,7 @@ Therefore quote batching is recorded as feasible but is not the current architec
 
 Likewise, simply increasing the 20-second synchronous timeout is not supported as the next move. The timeout symptom exposed the broader semantic/API coupling and should not be papered over before the capability boundary is understood.
 
-## 17. Current interpretation
+## 18. Current interpretation
 
 The investigation has moved through these stages:
 
@@ -330,7 +374,7 @@ The investigation has moved through these stages:
 8. A semantic v2 is now being considered: `ww` first, web migration later, one API for many clients.
 9. Before v2 APIs are designed, the semantic boundary of `ww fetch` must be derived rigorously and tested against actual provider capabilities.
 
-## 18. Authority state
+## 19. Authority state
 
 This snapshot records evidence and emerging design direction. It does not authorize:
 
