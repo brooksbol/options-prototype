@@ -13,6 +13,16 @@ DESCRIPTION
     A missing observation is absent, not zero. A failed later acquisition can
     coexist with a preserved earlier price; both facts remain visible.
 
+OPTIONS
+    --
+        End option parsing. Remaining arguments are symbol operands.
+
+    -h, --help
+        Show command help. Use alone after prices (or observed-prices).
+
+    --man
+        Show this manual. Use alone after prices (or observed-prices).
+
 OUTPUT
     Direct terminal stdout shows a labeled table. Pipe or redirect stdout to
     receive one bounded JSON Lines price record per symbol. Records preserve

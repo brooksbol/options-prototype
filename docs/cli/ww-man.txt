@@ -13,13 +13,15 @@ DESCRIPTION
     Reading held evidence is separate from asking Wheelwright to acquire it.
 
 WORKING COMMANDS
-    ls quotes [-v | --verbose] [--jsonl]
+    ls quotes [-v | --verbose] [--tsv] [--jsonl]
         Discover current canonical direct-quote holdings through provider-free
         API v2 GET. Requires quote.read. Terminal table; redirected headerless
-        TSV; explicit --jsonl for discovery summaries. Bare ls is usage error.
+        TSV; explicit --jsonl for discovery summaries. --tsv is an accepted
+        no-op; it does not change terminal output or override --jsonl.
+        Bare ls is usage error.
         Run 'ww ls quotes --help' or 'ww ls quotes --man'.
 
-    fetch [-q | -v] [--force] SYMBOL...
+    fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
         Acquire canonical direct quotes for explicit named subjects through
         API v2. Bare fetch is a usage error. One invocation is one batch request.
         Ordinary fetch may reuse backend-eligible evidence; --force requests an
@@ -31,19 +33,19 @@ WORKING COMMANDS
         request context. Fetch does not display prices on the terminal.
         Run 'ww fetch --help' or 'ww fetch --man' for the current contract.
 
-    prices SYMBOL...
+    prices [--] SYMBOL...
         Read the underlying prices Wheelwright currently holds, including
         explicit absence and acquisition state. This never acquires evidence.
         Run 'ww prices --help' or 'ww prices --man' for evidence limits.
 
-    sort --by FIELD [--descending]
+    sort --by FIELD [--descending] [--]
         Read ww price composition records from stdin and emit those same
         records ordered by numeric price or symbol. When sorting by price,
         missing prices sort last.
         Price order is ascending unless --descending is given.
         Run 'ww sort --help' or 'ww sort --man' for the bounded input format.
 
-    observed-prices SYMBOL...
+    observed-prices [--] SYMBOL...
         Compatibility spelling for prices. The same read and output behavior
         applies; new examples use prices.
 
@@ -81,14 +83,21 @@ EVIDENCE LIMITS
 DISCOVERY
     ww --help                  Short command list and example
     ww --man                   This current top-level manual
-    ww COMMAND --help          Terse command-specific help
+    ww COMMAND --help | -h     Terse command-specific help
     ww COMMAND --man           Current command-specific behavioral manual
+    ww ls quotes --help | -h    Held-quote discovery help
+    ww ls quotes --man         Held-quote discovery manual
+
+    Help/man forms are standalone; do not combine them with execution options
+    or symbol operands. Execution flags belong to their documented command.
 
 ENVIRONMENT
     WW_BASE_URL   Backend base URL; default http://localhost:3100
-    WW_API_TOKEN  Bearer credential for fetch, exported or in the private root
-                  .env file; nonempty exports take precedence; never printed.
-                  Fetch requires HTTPS outside loopback development.
+    WW_API_TOKEN  Bearer credential for fetch and ls quotes, exported or in the
+                  private root .env; nonempty exports take precedence; never
+                  printed. Both require HTTPS outside loopback development.
+                  Fetch requires quote.acquire (+ quote.force for --force).
+                  ls quotes requires explicit quote.read independently.
 
 SEE ALSO
-    ww fetch --man, ww prices --man, ww sort --man
+    ww fetch --man, ww ls quotes --man, ww prices --man, ww sort --man

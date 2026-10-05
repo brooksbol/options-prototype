@@ -1,4 +1,4 @@
-# Held canonical quote inventory — implementation verification, October 5, 2026
+# Held canonical quote inventory — verification and manual acceptance, October 5, 2026
 
 Authority is the frozen `cccb5a565e433f29436bd090848740e39f803d6d`
 [held-read contract](../contracts/api-v2-held-quotes-read.md) and existing v2 OAS.
@@ -8,8 +8,9 @@ clean `main`, HEAD cccb5a5, origin/main 2982eb803205fb0121569307f374d81bb5e70b79
 one local unpushed specification commit. One implementation commit authorized;
 no push, runtime grant migration, server restart or live acquisition authorized.
 
-This is automated implementation evidence and readiness for Principal acceptance,
-not a claim of Principal acceptance, independent review, or completed closeout.
+The initial sections below record automated implementation evidence as of
+20dc5e8. The subsequent manual acceptance and operational follow-through are
+recorded in the final section; they do not imply independent multi-actor review.
 
 ## Implementation mechanics
 
@@ -114,3 +115,42 @@ functions are unchanged and its focused unit/black-box tests pass. Bare fetch,
 BUG-028, provider/scheduler policy, memberships, migrations and runtime grants are
 untouched. No material new Product/architecture decision or contract contradiction
 was found. Implementation is locally ready for manual acceptance; no push.
+
+
+## Principal manual acceptance and closeout — October 5
+
+The Principal explicitly reported **“manual acceptance PASS for ww ls quotes”**
+and invoked the containing end-of-session protocol. The accepted vertical slice
+is implementation commit `20dc5e80f8d9fd539a7c43649d2dba1aa6e87fea` over frozen
+specification cccb5a5, with the subsequently authorized CLI/help follow-ups.
+
+Operational follow-through was separately authorized: add explicit quote.read to
+the existing local CLI principal in private root .env, preserving quote.acquire
+and quote.force. The Principal restarted the backend. Authenticated GET/CLI then
+succeeded; credentials/file permissions were preserved and the private file stays
+Git-ignored. This is an explicit local grant, not implication from acquisition
+permissions, new authentication mechanics, or an operational migration of others.
+
+The Principal's live shell specimen submitted 100 named stocks in four explicit
+fetch batches (30/30/30/10). Ninety-nine were newly acquired; PBR.A was UNMATCHED.
+Fetch correctly failed that batch, xargs completed remaining batches and returned
+nonzero, and && therefore skipped ls. A separate verbose ls showed **103 sorted
+holdings**, including the 99 new observations and prior SPX/SPY/XLE/XLF with
+original receipt/commit clocks. No PBR.A holding was synthesized. A semicolon
+can run discovery after a failed fetch; no fetch outcome or exit semantics changed.
+This explicit file-driven fetch does not define the deferred bare-fetch universe.
+
+Default redirected TSV was manually demonstrated with /tmp/quotes.tsv. The
+Principal subsequently authorized an **accepted no-op --tsv** spelling; canonical
+PL-CLI-01 records this CLI-only amendment to the frozen baseline. The flag retains
+TTY tables, default redirected five-field TSV and --jsonl precedence, accepts
+repetition, and changes no HTTP/OAS behavior. Live checks verified all three
+presentations over 103 holdings. Help/man enumerate long/short flags, standalone
+help/man and current read authentication; the stale fetch-manual no-read statement
+is removed. Original frozen contract/OAS and backend POST/fetch behavior stay intact.
+
+Coming Soon and broader PL-CLI-01/PL-API-03 scope need no horizon or graduation
+change. show, bare fetch and PBR.A provider-notation investigation remain outside
+this closed slice. BUG-028 and unrelated SLO work remain untouched. Required
+projection regeneration/freshness and focused closeout verification accompany
+persistence; final accepted-main synchronization is reported by the closeout actor.

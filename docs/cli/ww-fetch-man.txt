@@ -5,6 +5,7 @@ NAME
 
 SYNOPSIS
     ww fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
+    ww fetch --help | -h | --man
 
 DESCRIPTION
     Fetch satisfies a direct-quote acquisition request through Wheelwright
@@ -29,6 +30,13 @@ DESCRIPTION
     It does not enroll subjects in Decision or traverse expirations or chains.
 
 OPTIONS
+    -h, --help
+        Show command help. Use alone after fetch, without execution flags
+        or symbol operands.
+
+    --man
+        Show this manual. Use alone after fetch.
+
     --force
         Request FORCE acquisition. Requires backend quote.force authorization
         in addition to quote.acquire. Prior evidence cannot satisfy FORCE.
@@ -112,8 +120,9 @@ EXAMPLES
 EVIDENCE LIMITS
     ww prices remains an independent v1 read of chain-associated underlying
     price evidence. It does not inspect the direct quotes acquired by v2 fetch.
-    There is no public v2 held-quote read command in this slice. Inspect the
-    fetch JSON Lines observation for this request's canonical direct quote.
+    ww ls quotes discovers current canonical v2 holdings without acquisition.
+    Its summaries omit detailed quote facts; inspect the fetch JSON Lines
+    observation for this acquisition request's canonical direct quote.
 
 SEE ALSO
-    ww --man, ww prices --man
+    ww --man, ww ls quotes --man, ww prices --man

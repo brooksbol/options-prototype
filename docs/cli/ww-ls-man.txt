@@ -4,7 +4,7 @@ NAME
     ww ls quotes — discover held canonical direct-quote observations
 
 SYNOPSIS
-    ww ls quotes [-v | --verbose] [--jsonl]
+    ww ls quotes [-v | --verbose] [--tsv] [--jsonl]
     ww ls --help | -h | --man
     ww ls quotes --help | -h | --man
 
@@ -24,10 +24,21 @@ DESCRIPTION
     times. Detailed quote facts/deeper provenance are outside this command.
 
 OPTIONS
+    -h, --help
+        Show discovery help. Use alone after ls or ls quotes.
+
+    --man
+        Show this manual. Use alone after ls or ls quotes.
+
     -v, --verbose
         Append OBSERVATION ID and COMMITTED AT (UTC) to the terminal table.
         Stderr reports From <Wheelwright origin>, Request <UUID>, and
         ls quotes: <N> holdings. Does not change TSV/JSONL records.
+
+    --tsv
+        Accepted no-op for explicit spelling of the redirected TSV default.
+        Does not force TSV on a terminal: TTY output remains a human table.
+        May be repeated or combined with --jsonl; JSONL still takes precedence.
 
     --jsonl
         Emit one discovery-summary JSON object per line, even on a terminal:
@@ -71,6 +82,7 @@ EXIT STATUS
 EXAMPLES
     ww ls quotes
     ww ls quotes -v
+    ww ls quotes --tsv > /tmp/quotes.tsv
     ww ls quotes | cut -f1
     ww ls quotes | cut -f5 | sort | uniq -c
     ww ls quotes --jsonl > held-quotes.jsonl

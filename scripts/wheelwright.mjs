@@ -3,17 +3,21 @@
 import { readFile } from "node:fs/promises";
 
 const ROOT_HELP = `Usage: ww <command> [options]
-       ww --help | --man
+       ww --help | -h | --man
 
 Small Wheelwright evidence tools for people, shells, and agents.
 Use explicit symbols. Reading never silently acquires; acquisition never claims
 freshness or suitability. Pipe commands without a format flag.
 
 Working commands:
-  fetch [-q | -v] [--force] SYMBOL...  Acquire direct quotes for named subjects.
-  ls quotes [-v] [--jsonl]   Discover canonical direct-quote holdings (provider-free)
-  prices SYMBOL...          Inspect currently held underlying price evidence (read-only)
-  sort --by FIELD           Reorder ww price records from stdin (price or symbol)
+  fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
+      Acquire direct quotes for named subjects.
+  ls quotes [-v | --verbose] [--tsv] [--jsonl]
+      Discover canonical direct-quote holdings (provider-free).
+  prices [--] SYMBOL...
+      Inspect currently held underlying price evidence (read-only).
+  sort --by FIELD [--descending] [--]
+      Reorder ww price records from stdin (price or symbol).
 
 Example:
   ww fetch QQQ SPY XLE
@@ -24,9 +28,11 @@ Results go to stdout; diagnostics go to stderr. Exit status controls &&.
 Use 'ww <command> --help' or '--man' for command details; 'ww --man'
 describes the current CLI. 'ww observed-prices' remains a prices alias.
 Backend: WW_BASE_URL (default http://localhost:3100).
-Fetch authentication: WW_API_TOKEN (exported or private .env Bearer credential).`;
+Fetch and ls quotes authentication: WW_API_TOKEN (exported or private .env).
+Fetch requires quote.acquire (+ quote.force for --force); ls quotes requires quote.read.`;
 
 const SOURCE_HELP = `Usage: ww observed-prices [--] SYMBOL...
+       ww observed-prices --help | -h | --man
 
 Read currently held underlying price evidence for explicit symbols from
 GET /api/evidence/quotes. This does not trigger acquisition. A missing price
@@ -52,6 +58,7 @@ Backend: WW_BASE_URL (default http://localhost:3100).`;
 const PRICES_HELP = SOURCE_HELP.replaceAll("observed-prices", "prices");
 
 const FETCH_HELP = `Usage: ww fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
+       ww fetch --help | -h | --man
 
 Acquire canonical direct quotes for explicit named subjects using Wheelwright
 API v2. One invocation sends one batch request. Bare fetch is a usage error.
@@ -81,7 +88,7 @@ Authentication: WW_API_TOKEN, exported or in the repository private .env file.
 Explicit exports override the file. Missing credentials fail before backend contact. Use HTTPS outside loopback development.
 Use 'ww fetch --man' for the full behavioral contract.`;
 
-const LS_HELP = `Usage: ww ls quotes [-v | --verbose] [--jsonl]
+const LS_HELP = `Usage: ww ls quotes [-v | --verbose] [--tsv] [--jsonl]
        ww ls --help | -h | --man
        ww ls quotes --help | -h | --man
 
@@ -93,7 +100,8 @@ No symbol operands, other resource families, filters, pagination or quiet flag.
 Bare ls is a usage error. One invocation is one authenticated GET.
 
 Terminal stdout: SYMBOL, TYPE, RECEIVED AT (UTC), PROVIDER, ENVIRONMENT.
-Redirected stdout: headerless TSV with those five fields. --jsonl explicitly
+Redirected stdout: headerless TSV with those five fields. --tsv is an accepted
+no-op: it does not force TSV on a terminal or override --jsonl. --jsonl explicitly
 emits discovery-summary records including observation ID and commit time.
 -v/--verbose adds ID/commit columns on the terminal and endpoint/request/count
 on stderr; machine records are unchanged. Empty reads succeed with no machine
@@ -104,7 +112,8 @@ WW_API_TOKEN uses the accepted exported/private .env Bearer convention.
 The backend requires quote.read independently of quote.acquire/quote.force.
 Use 'ww ls --man' for escaping, security and evidence limits.`;
 
-const SORT_HELP = `Usage: ww sort --by FIELD [--descending]
+const SORT_HELP = `Usage: ww sort --by FIELD [--descending] [--]
+       ww sort --help | -h | --man
 
 Read the bounded ww price JSON Lines record stream from stdin and
 emit the same records in a different order. Supported fields: price, symbol.
@@ -150,6 +159,7 @@ export function parseArgs(args) {
     for (const arg of rest.slice(1)) {
       if (["-v", "--verbose"].includes(arg)) verbose = true;
       else if (arg === "--jsonl") jsonl = true;
+      else if (arg === "--tsv") continue; // Explicit no-op; retain default TTY/redirect behavior.
       else usage("ls quotes: unsupported argument; see ww ls quotes --help");
     }
     return { command: "ls", verbose, jsonl };

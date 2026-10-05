@@ -60,7 +60,7 @@ test("argument parsing and help need no backend", () => {
   assert.equal(rootManual.status, 0);
   assert.match(rootManual.stdout, /WW\(1\)/);
   assert.match(rootManual.stdout, /WORKING COMMANDS/);
-  assert.match(rootManual.stdout, /fetch \[-q \| -v\] \[--force\] SYMBOL\.\.\./);
+  assert.match(rootManual.stdout, /fetch \[-q \| --quiet \| -v \| --verbose\] \[--force\] \[--\] SYMBOL\.\.\./);
   assert.doesNotMatch(rootManual.stdout, /refresh SYMBOL/);
   assert.match(rootManual.stdout, /EXIT STATUS/);
   assert.equal(rootManual.stderr, "");

@@ -4,7 +4,7 @@ NAME
     ww sort — reorder ww price-composition records
 
 SYNOPSIS
-    ww sort --by FIELD [--descending]
+    ww sort --by FIELD [--descending] [--]
     ww sort --help | -h | --man
 
 DESCRIPTION
@@ -14,6 +14,15 @@ DESCRIPTION
     opportunity quality, or attention priority.
 
 OPTIONS
+    -h, --help
+        Show command help. Use alone after sort.
+
+    --man
+        Show this manual. Use alone after sort.
+
+    --
+        Optional trailing end-of-options marker; no positional operands follow.
+
     --by FIELD
         Required. Supported fields are price (numeric) and symbol (text).
         Order is ascending by default.
