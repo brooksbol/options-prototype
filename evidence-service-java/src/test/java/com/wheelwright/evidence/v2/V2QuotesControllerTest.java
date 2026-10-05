@@ -397,6 +397,68 @@ class V2QuotesControllerTest {
     }
 
     @Test
+    @DisplayName("Wire type: a boolean symbol (coercion leak — true→\"true\" passes the pattern) is 422, never acquisition")
+    void booleanSymbolRejectedAsInvalidRequest() throws Exception {
+        // The demonstrated leak: Jackson coerces boolean true → "true", which matches the symbol
+        // pattern (leading letter) and would become a real acquisition subject. Pre-bind wire-
+        // type validation must reject it as 422 INVALID_REQUEST — not malformed JSON, and never
+        // reaching the provider.
+        MvcResult r = postQuotes(AUTH_FULL, null, "{\"subjects\":[{\"symbol\":true}]}");
+        assertThat(r.getResponse().getStatus()).isEqualTo(422);
+        assertThat(json(r).get("code").asText()).isEqualTo("INVALID_REQUEST");
+        assertThat(source.batchCount()).isZero();
+    }
+
+    @Test
+    @DisplayName("Wire type: numeric/decimal/array/object symbol all 422 INVALID_REQUEST, never coerced to intent")
+    void nonStringSymbolRejectedAsInvalidRequest() throws Exception {
+        String[] bodies = {
+            "{\"subjects\":[{\"symbol\":123}]}",
+            "{\"subjects\":[{\"symbol\":1.5}]}",
+            "{\"subjects\":[{\"symbol\":false}]}",
+            "{\"subjects\":[{\"symbol\":[\"SPY\"]}]}",
+            "{\"subjects\":[{\"symbol\":{\"x\":1}}]}"
+        };
+        for (String b : bodies) {
+            MvcResult r = postQuotes(AUTH_FULL, null, b);
+            assertThat(r.getResponse().getStatus()).as(b).isEqualTo(422);
+            assertThat(json(r).get("code").asText()).as(b).isEqualTo("INVALID_REQUEST");
+        }
+        assertThat(source.batchCount()).isZero();
+    }
+
+    @Test
+    @DisplayName("Wire type: non-array subjects, non-object subject, and non-string mode are 422 INVALID_REQUEST")
+    void nonConformingWireTypesAreInvalidRequest() throws Exception {
+        MvcResult notArray = postQuotes(AUTH_FULL, null, "{\"subjects\":\"SPY\"}");
+        assertThat(notArray.getResponse().getStatus()).isEqualTo(422);
+        assertThat(json(notArray).get("code").asText()).isEqualTo("INVALID_REQUEST");
+
+        MvcResult notObject = postQuotes(AUTH_FULL, null, "{\"subjects\":[\"SPY\"]}");
+        assertThat(notObject.getResponse().getStatus()).isEqualTo(422);
+        assertThat(json(notObject).get("code").asText()).isEqualTo("INVALID_REQUEST");
+
+        // A non-string mode is a wire-type violation → 422 (same code as a string-but-unsupported
+        // mode value); both are INVALID_REQUEST per the ratified status mapping.
+        MvcResult numericMode = postQuotes(AUTH_FULL, null,
+            "{\"subjects\":[{\"symbol\":\"SPY\"}],\"mode\":1}");
+        assertThat(numericMode.getResponse().getStatus()).isEqualTo(422);
+        assertThat(json(numericMode).get("code").asText()).isEqualTo("INVALID_REQUEST");
+
+        assertThat(source.batchCount()).isZero();
+    }
+
+    @Test
+    @DisplayName("Wire value: explicit {\"mode\": null} is rejected 422 (omission defaults ORDINARY; explicit null does not)")
+    void explicitNullModeRejected() throws Exception {
+        MvcResult r = postQuotes(AUTH_FULL, null,
+            "{\"subjects\":[{\"symbol\":\"SPY\"}],\"mode\":null}");
+        assertThat(r.getResponse().getStatus()).isEqualTo(422);
+        assertThat(json(r).get("code").asText()).isEqualTo("INVALID_REQUEST");
+        assertThat(source.batchCount()).isZero();
+    }
+
+    @Test
     @DisplayName("Specimen 18: duplicate canonical subject is 422 after case normalization, no provider work")
     void duplicateCanonicalSubject() throws Exception {
         MvcResult r = postQuotes(AUTH_FULL, null,

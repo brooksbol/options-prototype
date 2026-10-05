@@ -112,21 +112,36 @@ public class V2QuotesController {
             return problem(ProblemCode.MALFORMED_REQUEST, requestId,
                 "request body must be a JSON object");
         }
-        // Stage 1b — semantic value check for `mode`: a present `mode` with an unsupported value
-        // is syntactically valid JSON but semantically invalid → 422 (NOT 400). This must be
-        // decided before binding, because the enum binder cannot distinguish a bad value from
-        // malformed syntax.
-        com.fasterxml.jackson.databind.JsonNode modeNode = root.get("mode");
-        if (modeNode != null && !modeNode.isNull()) {
-            if (!modeNode.isTextual() || !isSupportedMode(modeNode.asText())) {
-                return problem(ProblemCode.INVALID_REQUEST, requestId, "unsupported mode",
-                    List.of(new ProblemDetails.InvalidParam("/mode",
-                        "mode must be one of ORDINARY or FORCE")));
-            }
+        // Stage 1b — WIRE-TYPE VALIDATION of supplied values, before any binding.
+        //
+        // Jackson's binder silently COERCES scalars (e.g. a boolean or number `symbol`/`mode`
+        // into a string), so a wrong-typed field could otherwise be laundered into valid
+        // acquisition intent. We therefore reject JSON whose supplied node types violate the
+        // ratified request schema (subjects: array of objects; symbol: string; mode: string)
+        // BEFORE binding. Per the ratified status mappings a wrong-typed subject/mode is an
+        // INVALID REQUEST → 422 INVALID_REQUEST (NOT 400); only unparseable JSON / a non-object
+        // body is 400 MALFORMED_REQUEST (handled above). Value violations on correctly-typed
+        // input (symbol pattern/length, cardinality, duplicates, unsupported mode enum value,
+        // explicit null mode) are likewise 422 and checked here or later.
+        List<ProblemDetails.InvalidParam> wireTypeViolations = validateWireTypes(root);
+        if (!wireTypeViolations.isEmpty()) {
+            return problem(ProblemCode.INVALID_REQUEST, requestId, "invalid request",
+                wireTypeViolations);
         }
-        // Stage 2 — bind to the request schema. Unknown properties remain rejected
-        // (AcquireQuotesRequest uses ignoreUnknown=false) and surface as malformed (400), since
-        // an unknown field is a structural contract violation, not a bad value of a known field.
+        // Stage 1c — `mode` VALUE check (on a correctly-typed string, or explicit null):
+        //   - explicit {"mode": null} is NOT omission and is invalid (omission defaults ORDINARY);
+        //   - a present string whose value is not a supported enum member is invalid.
+        // Both are 422 INVALID_REQUEST.
+        com.fasterxml.jackson.databind.JsonNode modeNode = root.get("mode");
+        if (modeNode != null && (modeNode.isNull() || !isSupportedMode(modeNode.asText()))) {
+            return problem(ProblemCode.INVALID_REQUEST, requestId, "unsupported mode",
+                List.of(new ProblemDetails.InvalidParam("/mode",
+                    "mode must be one of ORDINARY or FORCE")));
+        }
+        // Stage 2 — bind to the request schema. Supplied types are already proven to match the
+        // wire schema, so binding cannot coerce a wrong-typed field into intent. Unknown
+        // properties remain rejected (ignoreUnknown=false) and surface as malformed (400); any
+        // residual binding failure is a malformed-request condition.
         AcquireQuotesRequest request;
         try {
             request = mapper.treeToValue(root, AcquireQuotesRequest.class);
@@ -245,6 +260,57 @@ public class V2QuotesController {
             .header(REQUEST_ID_HEADER, requestId)
             .contentType(MediaType.APPLICATION_PROBLEM_JSON)
             .body(pd);
+    }
+
+    /**
+     * Validate the JSON TYPES of supplied request fields against the ratified wire schema,
+     * BEFORE binding, so Jackson's scalar→string coercion cannot launder a wrong-typed field
+     * into valid acquisition intent (e.g. a boolean {@code symbol} that would coerce to a
+     * pattern-passing string).
+     *
+     * <p>Returns the list of wire-type violations found (empty when every SUPPLIED node has a
+     * schema-conformant JSON type). These are {@code 422 INVALID_REQUEST} violations per the
+     * ratified status mappings — a wrong-typed subject/mode is an invalid request, not malformed
+     * JSON. This method checks only supplied-node TYPES (subjects: array; each subject: object;
+     * symbol: string; mode: string); presence/cardinality/pattern/duplicate/enum-value and the
+     * explicit-null-mode case are handled elsewhere, also as {@code 422}.
+     */
+    private List<ProblemDetails.InvalidParam> validateWireTypes(
+            com.fasterxml.jackson.databind.JsonNode root) {
+        List<ProblemDetails.InvalidParam> violations = new ArrayList<>();
+        // subjects: when supplied non-null, MUST be a JSON array (OAS: type array).
+        com.fasterxml.jackson.databind.JsonNode subjectsNode = root.get("subjects");
+        if (subjectsNode != null && !subjectsNode.isNull() && !subjectsNode.isArray()) {
+            violations.add(new ProblemDetails.InvalidParam("/subjects",
+                "subjects must be a JSON array"));
+            return violations; // cannot inspect items of a non-array
+        }
+        if (subjectsNode != null && subjectsNode.isArray()) {
+            for (int i = 0; i < subjectsNode.size(); i++) {
+                com.fasterxml.jackson.databind.JsonNode item = subjectsNode.get(i);
+                // Each subject MUST be a JSON object (OAS: RequestedSubject type object).
+                if (item == null || !item.isObject()) {
+                    violations.add(new ProblemDetails.InvalidParam("/subjects/" + i,
+                        "each subject must be a JSON object"));
+                    continue;
+                }
+                // symbol: when supplied non-null, MUST be a JSON string (OAS: type string). A
+                // number, boolean, array, or object symbol is a wire-type violation and must
+                // never be coerced to a string.
+                com.fasterxml.jackson.databind.JsonNode symbolNode = item.get("symbol");
+                if (symbolNode != null && !symbolNode.isNull() && !symbolNode.isTextual()) {
+                    violations.add(new ProblemDetails.InvalidParam("/subjects/" + i + "/symbol",
+                        "symbol must be a JSON string"));
+                }
+            }
+        }
+        // mode: when supplied non-null, MUST be a JSON string (OAS: type string enum). A
+        // non-string mode (e.g. a number/boolean/array) is a wire-type violation.
+        com.fasterxml.jackson.databind.JsonNode modeNode = root.get("mode");
+        if (modeNode != null && !modeNode.isNull() && !modeNode.isTextual()) {
+            violations.add(new ProblemDetails.InvalidParam("/mode", "mode must be a JSON string"));
+        }
+        return violations;
     }
 
     /** Whether a supplied mode string names a supported acquisition mode (case-sensitive, per OAS enum). */
