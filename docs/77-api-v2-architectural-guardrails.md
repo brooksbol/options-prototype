@@ -172,6 +172,18 @@ Higher-order Wheelwright workflows remain legitimate and may explicitly compose 
 
 Provider batching, caching, admission, and other transport optimizations belong below stable Wheelwright semantics.
 
+### Provider batching policy
+
+When one semantic acquisition operation requires upstream observations for multiple subjects, and the active provider can acquire those observations together without changing Wheelwright evidence identity, per-subject outcome truth, authority/fencing, or other capability semantics, v2 SHOULD batch the compatible upstream work rather than dispatch avoidable sequential provider requests.
+
+This policy applies regardless of how the subject set was selected. A bare client operation whose Product semantics resolve a default subject set and an explicit multi-subject operation are treated the same after semantic scope is resolved.
+
+Semantic work is determined before transport grouping. Reusable held evidence need not be included in an upstream batch; subjects requiring upstream acquisition may be grouped together. Provider request-size limits or other legitimate transport constraints may require more than one batch, so this is a **batch if needed** policy rather than a one-round-trip guarantee.
+
+Batch transport MUST NOT create a shared success boundary. Outcomes remain reconciled by requested subject/evidence identity, including partial success, unmatched subjects, retained prior evidence, and failures.
+
+The stable API and clients MUST NOT depend on a particular provider request count or batch shape. Batching is an execution policy beneath the canonical Wheelwright capability contract, not a new evidence unit or client-visible acquisition meaning.
+
 ## 19. Acquisition, reuse, read, derive, and presentation
 
 V2 MUST distinguish acquiring/revalidating external evidence from merely reading held evidence and from deriving interpretations from evidence.
