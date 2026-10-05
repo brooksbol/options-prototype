@@ -161,8 +161,9 @@ persistence; final accepted-main synchronization is reported by the closeout act
 The Principal explicitly authorized Codex to implement this selector against the
 accepted baseline `711d4939cb836fa2d9d51bad4900cd03d65bde24`, with local commit and
 no push. Bootstrap found clean matching main/origin after fetch; Gate Experiment
-001 remains staged/inactive. This section is automated implementation evidence;
-it does not claim another Principal manual PASS or independent actor review.
+001 remains staged/inactive. The automated implementation evidence below was
+followed by Principal acceptance PASS, recorded in the closeout section. No
+independent actor review is claimed.
 
 `--type TYPE` accepts exactly EQUITY, ETF, INDEX, OTHER, repeatable with OR
 semantics and harmless duplicates. No normalization/aliases are accepted. Usage
@@ -202,3 +203,34 @@ tests/manual/contract/evidence/project-state reconciliation change. BUG-028 is
 untouched. Projection is regenerated from the canonical PL-CLI-01 amendment and
 freshness verified; no strategy, horizon or broader capability graduation follows.
 Local persistence is authorized; no push is authorized.
+
+
+## Principal selector acceptance and end-of-session closeout
+
+The Principal reported **“acceptance PASSED; execute end of session protocol”**
+for implementation commit `9b4b8a1de5a665c74d7460d44159df99759ba5d9`.
+Immediately preceding acceptance, the Principal supplied this live composition
+specimen:
+
+```sh
+shasum -a 256 <(ww ls quotes --type ETF --type INDEX) <(ww ls quotes | awk -F '\t' '$2 == "ETF" || $2 == "INDEX"')
+```
+
+Both streams hashed to
+`4d906a8e60662d8c48c910480b369eeb9ab7bb00319e15e66ccf1dabd863d635`.
+This is Principal-supplied evidence of byte-for-byte equivalence between the OR
+selector and external filtering of complete default TSV, including row order.
+It complements the automated A–O specimens; it does not independently prove
+all negative cases or authorize another capability.
+
+Closeout began with a clean main one commit ahead of remotely refreshed origin,
+which remains `711d4939cb836fa2d9d51bad4900cd03d65bde24`. Acceptance is reconciled
+under PL-CLI-01 and journal why-state; broader backlog, Coming Soon, strategy and
+architecture remain unchanged. Roadmap is regenerated from canonical authority
+and checked for freshness. No runtime, backend/OAS, persistence, credentials,
+BUG-028 or other resource family is changed during closeout. The explicit local
+commit/no-push task restriction remains in force; accepted local main and remote
+main are reported separately in the final handoff.
+
+
+**Current closeout verification:** 33/33 focused Node tests passed again with zero failures/skips; syntax and diff checks passed. Roadmap projection was regenerated from the updated canonical acceptance state and freshness passed. Closeout changes only acceptance evidence, canonical PL-CLI-01 state, journal and derived projection; no runtime or unrelated changes. Local commit persists the accepted handoff without pushing.

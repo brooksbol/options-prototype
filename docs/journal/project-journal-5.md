@@ -1562,3 +1562,13 @@ Focused acceptance evidence covers A–O in docs/cli/ww-ls-acceptance-2026-10-05
 
 
 **Verification and closeout:** 33/33 focused Node tests and 10/10 fetch black-box specimens passed. Gradle focused verification succeeded with unchanged inputs up-to-date; the 71 Java specimens have zero failures/errors/skips. All 62 HTTP specimens match the unchanged GET OAS, and OAS 3.1 specification validation passed. GET reader, complete wire validator and fetch runtime compare byte-identical to bootstrap HEAD; backend/OAS/persistence/auth files are untouched. Projection regenerated and freshness passed; syntax/diff checks passed. Final remote fetch still matched bootstrap main before local commit. No unrelated state or secrets staged, no push performed.
+
+
+## October 5, 2026 — type selector Principal acceptance and session closeout
+
+The Principal reported “acceptance PASSED; execute end of session protocol” for local implementation `9b4b8a1de5a665c74d7460d44159df99759ba5d9`. The preceding live shell specimen compared `ww ls quotes --type ETF --type INDEX` with the complete TSV piped through an equivalent awk type predicate; both streams had SHA-256 `4d906a8e60662d8c48c910480b369eeb9ab7bb00319e15e66ccf1dabd863d635`. This supplies byte-equivalence and ordering evidence, while automated specimens cover the remaining bounded semantics and failure paths. Exact command and evidence distinction are in docs/cli/ww-ls-acceptance-2026-10-05.md.
+
+Closeout remotely refreshed origin/main at `711d4939cb836fa2d9d51bad4900cd03d65bde24`, found a clean local main one commit ahead and no unrelated in-flight work. Acceptance is absorbed into existing PL-CLI-01; the complete backlog disposition, broader PL-API-03, Coming Soon, strategy and architecture need no change. No new principle, intake, runtime grant or capability is inferred. Canonical parking-lot reconciliation requires projection regeneration/freshness; local acceptance persistence is carried by the authorized closeout. The explicit no-push task restriction remains in force, so final local accepted-main and remote-main identities are reported separately. BUG-028 remains untouched.
+
+
+**Current closeout verification:** 33/33 focused Node tests passed again with zero failures/skips; syntax and diff checks passed. Roadmap projection was regenerated from the updated canonical acceptance state and freshness passed. Closeout changes only acceptance evidence, canonical PL-CLI-01 state, journal and derived projection; no runtime or unrelated changes. Local commit persists the accepted handoff without pushing.
