@@ -152,7 +152,7 @@ The semantic intent would be:
 - use `ww` first to pressure-test those boundaries;
 - later migrate web workflows onto v2 compositions where appropriate.
 
-This is a semantic version boundary first. Concrete URI versioning such as `/api/v2` has not been selected.
+This was a semantic version boundary first; concrete URI versioning was not selected at this investigation point. Doc 77 §20 subsequently selected conventional public resource grammar, under which the first quote-acquisition proposal uses `POST /v2/quotes`.
 
 Candidate capability categories surfaced by the read-only API inventory:
 

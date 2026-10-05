@@ -8,7 +8,7 @@ info:
 servers:
   - url: /
 paths:
-  /api/v2/quote-acquisitions:
+  /v2/quotes:
     post:
       operationId: acquireDirectQuotes
       summary: Synchronize canonical direct-quote evidence for named underlyings
