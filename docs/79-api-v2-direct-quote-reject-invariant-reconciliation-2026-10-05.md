@@ -102,7 +102,7 @@ The rejection does not presently require a new architecture:
 - Existing `SessionClassifier` / `SessionGate` code contains useful **calendar mechanics and terminology** for trading dates, weekends, holidays, early closes, provider delay, and canonical-session reasoning. Direct-quote reuse must not import the classifier's whole admissibility verdict or its `persistedSessionValid` dependency, because that predicate is coupled to complete published Decision-session state and named v2 quotes may exist without Decision enrollment.
 - The current calendar implementation is explicitly bounded to hard-coded 2026 holiday/early-close tables. That is not a sufficient long-lived direct-quote session-identity authority. A later implementation must use a calendar/session-identity mechanism capable of establishing the applicable regular-session date for the observation; if it cannot establish that identity unambiguously, the direct-quote model must preserve OAS truth by omitting `regularSessionDate` and failing closed for session-specific reuse rather than guessing.
 - `RequestPacer` already carries `PurposeScope` / `OperationContext` with logical operation id, purpose, subject, opaque provenance, and captured authority epoch. It captures caller context before crossing onto the dispatch thread.
-- `RequestPacer` resolves admission before beginning the provider observer operation, establishing an existing post-admission **contact-start** boundary. That boundary is useful for `acquisitionPhase`/session classification; successful payload receipt remains a distinct later boundary for `receivedAt`.
+- `RequestPacer` resolves admission before beginning the provider observer operation, but **observer start is not upstream contact**. The observer begins before the paced callable dispatches; the adapter's actual HTTP-start/send boundary occurs later. `acquisitionPhase` / `regularSessionDate` must therefore be classified from the actual upstream-contact boundary at or immediately before HTTP send, not from observer start. Successful payload receipt remains a distinct later boundary for `receivedAt`.
 - `ProviderAuthorityManager.commitIfCurrent` already fences durable writes against the captured lease epoch and records store mutation against the lease logical operation.
 - Existing session/admissibility code demonstrates the architectural distinction between session identity and wall-clock age, but Decision publication validity is not a direct-quote reuse prerequisite.
 
@@ -126,6 +126,7 @@ Any later authorized implementation candidate must survive counterexamples at th
 - Queue/admission waits across market open must classify `acquisitionPhase`/`regularSessionDate` at upstream contact after admission, while `receivedAt` records the later successful payload receipt.
 - Contact-before-close / receipt-after-close must preserve pre-close contact classification and post-close `receivedAt`; completed-session reuse must use the persisted contact-context `regularSessionDate`, not infer a different session from receipt.
 - Contact-before-open / receipt-after-open must likewise preserve the distinct contact and receipt facts rather than laundering one boundary into the other.
+- Observer-start-before-boundary / actual-HTTP-contact-after-boundary must classify `acquisitionPhase` / `regularSessionDate` from the latter. Observer timing must never stand in for upstream contact.
 - A reused observation must preserve its original clocks and phase/session/feed provenance.
 - A failed reacquisition must not rewrite prior clocks.
 - Source event times must remain independent of receipt and commit times.
@@ -170,7 +171,7 @@ Before another implementation traversal is rational, the workflow must be able t
 2. **Why can the next traversal produce an outcome the previous one could not?**  
    A later implementation actor can be tested against falsifiers that directly attack the previously missing invariants rather than merely reproducing the first candidate's implementation-shaped tests.
 
-This revision incorporates the first independent falsification of the model. The Death Spiral Avoidance Protocol still requires independent re-falsification of the revised contact/receipt/session-identity model before implementation re-entry.
+This revision incorporates both independent falsification turns. The semantic model survived the second turn; the remaining observer-start-versus-HTTP-contact seam was corrected here. Per Principal direction, the recursive falsification loop stops at this point; any separately authorized implementation re-entry must test the explicit counterexamples in this document.
 
 ---
 
@@ -178,4 +179,4 @@ CURRENT STATE: Candidate `28df973` is rejected and unpushed. The ratified v2 dir
 
 DECISION REQUIRED: NO
 
-NEXT AUTHORIZED ACTION: Independently re-falsify the revised implementation-invariant model, specifically the contact-before-close/receipt-after-close specimen, fail-closed absent session identity, and independence from Decision publication validity. Do not implement, patch, push, or issue a Kiro remediation prompt unless that falsification succeeds and implementation authority is separately established.
+NEXT AUTHORIZED ACTION: The reconciliation/falsification loop is complete by Principal direction. If implementation remediation is separately authorized, provide Kiro a bounded correction directive against rejected candidate `28df973`, require regression tests for every recorded counterexample including observer-start-before-boundary / HTTP-contact-after-boundary, then perform one independent implementation acceptance review. Do not reopen Product/API semantics absent new evidence that requires a Principal decision.
