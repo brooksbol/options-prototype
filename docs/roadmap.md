@@ -36,6 +36,40 @@ Question-driven development works backward from the question: **question → att
 
 The north-star acceptance test is therefore not endpoint count, dashboard count, or command count. It is whether an important recurring question can be answered **correctly, reproducibly, and quickly** from governed evidence.
 
+## Trade Finder — Repertoire and Broker Handoff
+
+Question-driven Trade Finder should help the operator answer **where should I start looking?**, not attempt to replace the brokerage's trade-construction and execution tooling.
+
+The current boundary is:
+
+> **Wheelwright selects the opportunity; the brokerage shapes and executes the trade.**
+
+For Trade Finder, a useful result identifies the **underlying, familiar structure, approximate expiration/DTE neighborhood, and governed evidence for why that opportunity qualifies**. The brokerage can then take over for exact strike and width selection, POP/P50 tuning, exact credit/debit, exact maximum gain/loss, limit-price work, and execution. In the current workflow, tastytrade's curve and sliders are the model for that downstream tweaking experience. A useful handoff is therefore: **start here, then tweak in tastytrade**.
+
+Trade structures should be treated as a trader's **repertoire**, not as a demand to search every theoretically possible structure. The working analogy is a golfer's bag:
+
+- **Structure library** — all clubs that exist.
+- **Trader repertoire** — the clubs actually carried in the bag.
+- **Purpose/regime** — the shot the trader is trying to hit.
+- **Trade Finder** — which club to reach for and where to aim.
+- **Broker construction tools** — stance, clubface, and shot shaping.
+- **Brokerage execution** — actually hitting the shot.
+
+This means the repertoire is an input to Trade Finder selection. If the trader's current repertoire is CSP and 1×2 ratio spreads, Wheelwright should search for opportunities expressible through those structures rather than manufacture an unfamiliar structure merely because it is theoretically available.
+
+The first two canonical design specimens are:
+
+1. **Cash-secured put (CSP)** — the canonical single-leg specimen, useful for proving underlying selection, purpose/regime fit, capital constraints, liquidity, volatility/opportunity evidence, and expiration-neighborhood selection.
+2. **1×2 ratio spread** — the canonical unequal-quantity multi-leg specimen, useful for testing whether the same abstraction survives strike relationships, skew, multi-leg liquidity, payoff shape, and asymmetric/tail risk.
+
+The intended abstraction is therefore:
+
+> **underlying → repertoire structure → expiration neighborhood → why it qualifies → broker handoff**
+
+Wheelwright may acquire and evaluate enough option evidence to establish that the proposed starting point is real and viable, but it should not solve the brokerage's combinatorial strike/width optimization problem merely to reproduce tools the trader already uses effectively.
+
+This golf analogy is also intentionally retained as an explanatory model for teaching trading: traders commonly have go-to structures even when they know and use many, just as golfers carry a familiar set of clubs and select among them according to the shot.
+
 ## Lean Value Tree Vocabulary
 
 - **Vision** — durable product direction.
