@@ -18,6 +18,24 @@ Governing operating rule:
 
 > **Explore freely; reconcile before committing. Govern commitment, not curiosity.**
 
+## Current North Star — Question-Driven Design
+
+Wheelwright's current Product north star is **question-driven design**:
+
+> **The system becomes more capable as the operator's important unanswered-question list gets shorter.**
+
+The practical target is a governed question catalog expressed through the CLI as:
+
+> **\`ww run <question>\`**
+
+A named question is not automatically a new API resource, primitive command, or bespoke Product feature. It is a reusable, inspectable analytical/compositional capability that answers a legitimate operator question from Wheelwright-authorized evidence and capabilities, or truthfully reports that it cannot yet do so.
+
+Examples such as \`ww run movers\` and \`ww run volatility\` illustrate the intended shape: the library gives recurring questions stable names and governed implementations while the core CLI remains a small set of trustworthy evidence primitives.
+
+Question-driven development works backward from the question: **question → attempt with governed capabilities → friction or missing evidence → identify the smallest missing primitive/semantic/capability → Product decision where required → implement → run the question again.** Repeated usefulness may justify promotion of a proven concept into core governed vocabulary; it does not require premature promotion.
+
+The north-star acceptance test is therefore not endpoint count, dashboard count, or command count. It is whether an important recurring question can be answered **correctly, reproducibly, and quickly** from governed evidence.
+
 ## Lean Value Tree Vocabulary
 
 - **Vision** — durable product direction.
