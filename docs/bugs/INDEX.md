@@ -34,6 +34,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-026 | `deriveInventory` collapses genuinely-additive same-symbol share lots via MAX, under-counting ownership and producing a false over-encumbrance geometry warning (observed URA cause) | Portfolio / base-snapshot inventory derivation | Not established | Resolved | [record](BUG-026-derive-inventory-collapses-additive-share-lots.md) | Specimen investigation 2026-09-24 |
 | BUG-027 | Header Activity upload slot reverts to empty ("— ⬆") on remount despite durably-persisted Activity evidence, misrepresenting loaded state | Application Shell / Portfolio dropdown upload status | Not established | Resolved | [record](BUG-027-activity-upload-slot-status-ephemeral.md) | Specimen investigation 2026-09-24 |
 | BUG-028 | Backend `gradlew clean test` exceeds the 60s feedback-loop SLO (~5× over: measured 301s vs SLO-BUILD-01 target of 60s), dominated by serial wall-clock `Thread.sleep` in acquisition/provider-lifecycle tests | Engineering / backend test suite (`evidence-service-java`) | S3 | Open | [record](BUG-028-gradlew-clean-test-exceeds-slo.md) | Discovered 2026-10-05 (SLO-BUILD-01 ratification) |
+| BUG-029 | Tradier quote source-event timestamps can persist malformed non-time tokens | Backend / Tradier direct-quote normalization and canonical persistence | Not established | Open | [record](BUG-029-tradier-source-event-time-parser.md) | Bounded `ww show` contract review 2026-10-05 |
 
 ## Open-bug audit checkpoint (2026-09-22)
 
