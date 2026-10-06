@@ -20,7 +20,7 @@ const entries = [
  ...['open','high','low','close','previousClose'].map(name=>[name,`facts.${name}`,name==='previousClose'?'PREVIOUS CLOSE':name.toUpperCase(),`Reported ${name==='previousClose'?'previous close':name} price.`,priceMeaning+' No separate event time is supplied for this fact; do not substitute another price.']),
  ['volume','facts.volume','VOLUME','Provider-reported daily volume.','Nonnegative integer; period and unit conventions come from the source, not a Wheelwright estimate.'],
  ['reportedChange','facts.reportedChange','REPORTED CHANGE','Provider-reported absolute price change.','Signed applicable price units; not computed from last/previous close by Wheelwright.'],
- ['reportedChangePercent','facts.reportedChangePercent','CHANGE','Provider-reported percentage-point change.','Percentage points: 0.62 means +0.62%, not 62%. Never derived from another fact.'],
+ ['reportedChangePercent','facts.reportedChangePercent','CHANGE %','Provider-reported percentage-point change.','Percentage points: 0.62 means +0.62%, not 62%. Never derived from another fact.'],
  ['averageVolume','facts.averageVolume','AVERAGE VOLUME','Provider-reported average daily volume.','Nonnegative integer; averaging window is not independently established.'],
  ['fiftyTwoWeekHigh','facts.fiftyTwoWeekHigh','52 WEEK HIGH','Provider-reported 52-week high.',priceMeaning+' Source-defined range, not recomputed.'],
  ['fiftyTwoWeekLow','facts.fiftyTwoWeekLow','52 WEEK LOW','Provider-reported 52-week low.',priceMeaning+' Source-defined range, not recomputed.'],
@@ -37,7 +37,18 @@ const entries = [
  ['receivedAt','provenance.receivedAt','RECEIVED','Wheelwright evidence receipt time.',instantMeaning+' Not the market event time.'],
  ['committedAt','provenance.committedAt','COMMITTED','Canonical evidence acceptance time.',instantMeaning+' Not read/response time.'],
 ];
-export const SHOW_FIELDS = Object.freeze(entries.map(([name,path,heading,description,meaning])=>Object.freeze({name,path,heading,description,meaning:`${meaning} ${missing}`,extract:q=>path.split('.').reduce((v,k)=>v?.[k],q),kind:name.endsWith('At')?'instant':name==='reportedChangePercent'?'percent':'value'})));
+const prices = new Set(['last','bid','ask','open','high','low','close','previousClose','fiftyTwoWeekHigh','fiftyTwoWeekLow']);
+const integers = new Set(['lastSize','bidSize','askSize','volume','averageVolume']);
+export const SHOW_FIELDS = Object.freeze(entries.map(([name,path,heading,description,meaning]) => {
+ const kind = name.endsWith('At') ? 'instant' : name === 'regularSessionDate' ? 'date'
+  : name === 'reportedChangePercent' ? 'percent' : name === 'reportedChange' ? 'change'
+  : prices.has(name) ? 'price' : integers.has(name) ? 'integer' : 'value';
+ const valueType = ['percent','change','price','integer'].includes(kind) ? 'number'
+  : kind === 'instant' || kind === 'date' ? kind : 'text';
+ return Object.freeze({name,path,heading,description,
+  meaning: `${meaning} ${missing} Exact filter/sort type: ${valueType}.`,
+  extract:q=>path.split('.').reduce((v,k)=>v?.[k],q),kind,valueType});
+}));
 export const SHOW_FIELD_BY_NAME = new Map(SHOW_FIELDS.map(f=>[f.name,f]));
 export const SHOW_DEFAULT = ['symbol','type','last','reportedChangePercent','bid','ask','receivedAt','provider','environment'].map(n=>SHOW_FIELD_BY_NAME.get(n));
 export function showFieldManual() {return SHOW_FIELDS.map(f=>`${f.name}\n    ${f.description}\n    Source: ${f.path}. ${f.meaning}\n`).join('\n');}

@@ -12,8 +12,13 @@ import sys
 def main():
     out_master, out_slave = os.openpty()
     err_master, err_slave = os.openpty()
+    args = sys.argv[1:]
+    terminal_input = args[:1] == ["--stdin-tty"]
+    if terminal_input:
+        args = args[1:]
     process = subprocess.Popen(
-        sys.argv[1:], stdin=subprocess.DEVNULL, stdout=out_slave, stderr=err_slave
+        args, stdin=out_slave if terminal_input else subprocess.DEVNULL,
+        stdout=out_slave, stderr=err_slave
     )
     os.close(out_slave)
     os.close(err_slave)

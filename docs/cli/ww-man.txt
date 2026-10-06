@@ -13,15 +13,17 @@ DESCRIPTION
     Reading held evidence is separate from asking Wheelwright to acquire it.
 
 WORKING COMMANDS
-    show SUBJECT... [--quote] [--verbose] [--jsonl]
-    show SUBJECT... --only FIELD[,FIELD...]
+    show SUBJECT... | --quotes [OPTIONS]
     show --fields
-        Inspect complete canonical held direct quotes without acquisition.
-        Requires quote.read, except local --fields. Normal terminal table;
-        redirected headerless TSV; JSONL complete public observations.
-        Normalize uppercase, deduplicate and preserve first-occurrence order.
-        Successes may precede failures; any failed subject makes exit 1.
-        --only is exact ordered projection; never adds symbol implicitly.
+        Inspect canonical held quotes without acquisition. --quotes selects
+        the full held inventory; --where FIELD=VALUE filters exactly (AND).
+        --sort-by FIELD [--absolute] [--descending], then --limit N.
+        --all-fields selects every public field; --only is exact projection.
+        --table | --tsv | --jsonl choose explicit output; automatic terminal
+        human tables / redirected canonical TSV remain. --table preserves
+        human change colors through watch -c; NO_COLOR disables colors.
+        Strict full validation; partial query results identified, exit 1 on
+        any failure. Requires quote.read except local --fields discovery.
         Run 'ww show --help', 'ww show --fields', or 'ww show --man'.
 
     ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]

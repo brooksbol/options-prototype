@@ -1,7 +1,7 @@
 # Subject detail read contract — API v2 / `ww show`
 
 **Date:** October 5, 2026  
-**Status:** Principal-ratified Product/capability contract; REFROZEN after bounded multi-subject and field-discovery reconciliation. Decision-complete for resumed Solution Design. Runtime implementation remains unauthorized.
+**Status:** Principal-ratified Product/capability contract, amended October 5, 2026 for bounded collection inspection, exact filtering, ordering and human tables. The Principal explicitly authorized Product amendment, Solution Design, implementation, verification, documentation, commit and push for this slice. Earlier phase-specific execution statements below are historical; section 14 is the current CLI amendment.
 **Authority:** Principal decisions following bounded Codex review against clean synchronized main `3ac333e7fea79ccd249015cda9f552994c30184b`; Doc 77 API v2 guardrails; existing v2 direct-quote acquisition and held-discovery contracts; explicit Principal ratification of multi-subject recommendation A after thaw at `a5428dfd6c3766b5a0c4c97a6fbe101276079209`, and field-discovery Product authority at `5c3a5131850022ecf8f67b4ad6e41e10dbe82e21`.
 **Related:** `PL-CLI-01`, `PL-API-03`, `api-v2-held-quotes-read.md`, `api-v2-direct-quote-acquisition-proposal.md`.
 
@@ -281,3 +281,79 @@ CURRENT STATE: Principal-ratified multi-subject `ww show` Product/capability con
 DECISION REQUIRED: NO
 
 NEXT AUTHORIZED ACTION: Prepare the bounded implementation handoff against the refrozen Product contract and decision-complete Solution Design. Runtime implementation remains unauthorized.
+
+
+## 14. Question-driven held collection inspection — October 5, 2026
+
+**Authority:** Principal accepted the bounded investigation and explicitly authorized this slice through Product amendment, Solution Design, implementation, deterministic verification, documentation, commit and push. The Principal directed `--sort-by`, not `--by`, and delegated exact-match filter spelling to Product/Solution Design. This amendment supersedes conflicting CLI requirements in sections 1, 3, 5, 8 and 12 only to the extent stated here. The singular HTTP capability, strict complete decoding, read purity, projection vocabulary, field discovery, JSONL shape and unrelated semantics remain unchanged.
+
+### Operator question and specimens
+
+Positive: top 10 **held ETF quotes** by absolute provider-reported percentage move, retaining all public fields as a readable horizontal table:
+
+    ww show --quotes --where type=ETF --sort-by reportedChangePercent --absolute --descending --limit 10 --all-fields
+
+Negative: EQUITY observations do not match `type=ETF`; missing filter fields never match; malformed full observations fail even when excluded by a filter/projection; invalid operands/options fail before credentials/HTTP; inspection never acquires evidence. These specimens realize the Principal's explicit acceptance question and negative verification requirements, not a new trading interpretation.
+
+`reportedChangePercent` is still a provider-reported percentage-point fact. This command ranks currently held observations, including old/retained/foreign-environment observations. It does not certify a particular regular-session “today,” freshness, suitability, or market-wide completeness. A separate exact `regularSessionDate=YYYY-MM-DD` filter can select that stored date when present; it neither infers a date nor establishes a temporal interpretation of the change fact.
+
+### Complete invocation grammar
+
+    ww show SUBJECT... [--quote] [OPTIONS]
+    ww show --quotes [--quote] [OPTIONS]
+    ww show --fields
+    ww show --help | -h | --man
+
+Inspection options are position-independent before `--`:
+
+    --only FIELD[,FIELD...] | --all-fields
+    --where FIELD=VALUE               (repeatable, AND)
+    --sort-by FIELD [--absolute] [--descending]
+    --limit N
+    --table | --tsv | --jsonl
+    -v | --verbose
+
+`--quotes` resolves subjects through the complete held inventory in symbol order. Explicit subjects and `--quotes` conflict. Bare show remains exit 2. Explicit subject uppercase normalization, first-occurrence deduplication and order remain. `--quote` remains the existing facet and does not select a collection by itself. No implicit default collection exists.
+
+`--all-fields` selects every installed public registry field in registry order, including missing cells, as one observation per horizontal row. It conflicts with `--only` and `--verbose`. `--only` remains exact ordered projection, including repeated fields, without added symbol or sort/filter fields. Existing `--only --verbose` and `--only --jsonl` conflicts remain.
+
+Explicit formats are mutually exclusive; repetitions of the same format/boolean are idempotent. `--table` forces a horizontal human table even in a pipe. It conflicts with verbose's existing FIELD/VALUE layout. `--tsv` forces canonical headerless TSV even on a terminal. JSONL stays complete public nested observations. `--all-fields --jsonl` is redundant and valid. `--verbose --tsv` and `--verbose --jsonl` preserve existing complete machine output; default verbose TTY remains subject-labelled FIELD/VALUE tables. Without an explicit format, TTY detection remains authoritative.
+
+### Exact-match filter grammar
+
+The selected spelling is **`--where FIELD=VALUE`**, one shell argument split at the first `=`. FIELD is an installed public projection name. Repeat for conjunction (AND), never implicit OR. There are no operators, expressions, globbing, case folding, trimming, missing/null sentinels, ranges or regexes. An `=` inside VALUE is literal text; quote shell arguments containing spaces or shell metacharacters.
+
+Field types come from the same authoritative registry used for projection/catalog/manual: numeric, text, UTC instant or calendar date. Text matches exact case-sensitive canonical/public text, including public `type=OTHER`; `type=etf` is a valid text filter with no matches. Empty text matches a genuinely present empty string. Numeric literals use complete JSON-number syntax and exact mathematical decimal equality (`1`, `1.0`, `1e0` match the same value); strings are never coerced to numbers. UTC instant literals use the field's accepted canonical UTC syntax and exact instant equality including arbitrary fractional precision; calendar dates use valid YYYY-MM-DD. Invalid names, missing `=`, malformed numeric/time/date values fail exit 2 before credentials or HTTP. Missing fields never match, including an empty text VALUE. Full observation validation always precedes filtering.
+
+### Ordering, limiting and completion
+
+`--sort-by FIELD` takes one public field. Numeric fields compare exact decimal values; text fields compare ordinally without locale dependence; instants compare chronologically with full fractional precision; dates compare calendar order. Ascending is default. `--descending` reverses only the primary present-value comparison. `--absolute` is numeric-only and changes the key, not the signed stored/displayed value. Both modifiers require `--sort-by`. Equal keys retain selected-subject order; missing keys remain last in either direction.
+
+`--limit N` is a positive decimal integer (digits only, leading zeros permitted), with no silently inherited acquisition bound. It applies after full inspection, filtering and ordering, even without sorting. It limits emitted observations, not reads. Validate the entire invocation before loading credentials or making HTTP calls.
+
+Selection/inspection -> full validation -> filtering -> ordering -> limiting -> projection -> presentation. Collection inspection uses existing inventory plus instance reads, with no provider contact, retry, repair, fallback or cross-subject snapshot promise. Inventory failure is command-wide, no result output. Individual failures are identified independently, with exit 1 even if their hypothetical facts would not match a filter. Ranked/limited/filtered output covers successfully read observations and emits an explicit partial-results stderr summary when any selected subject fails. Unsorted existing explicit-subject show retains intentional streaming partial stdout. Buffered queries do not claim top N before every selected subject has been accounted for.
+
+Empty collection/zero matches succeeds with zero machine records; human output gives an explicit empty-result message. All-failure output has diagnostics but no successful table/header. Capacity failure must fail visibly, never return an implicitly truncated complete result.
+
+### Human values and table layout
+
+Human headers distinguish CHANGE % from REPORTED CHANGE. Positive reported changes carry `+`; negatives retain `-`; exact zero is `0`. Percentages append `%`, never multiply by 100. Prices/changes normally use at most two fractional digits, trimming unnecessary zeros; sub-cent magnitudes retain at least three significant digits. Very small/large values may use compact scientific notation; no nonzero value becomes apparent zero. Counts remain exact integers, and no currency or lot units are inferred. Rounding affects presentation only, never comparison/filtering or machine serialization. Verbose retains its full-value numeric/time inspection behavior, adding truthful change signs/percent units.
+
+Ordinary human instants use compact local time, including TZ. Complete horizontal tables show local date/year/seconds and UTC offset (no arbitrary subsecond spelling); verbose retains the complete local fraction as before. Calendar dates are never timezone-shifted. Horizontal complete tables use headers, aligned expandable columns and one successful observation per row, without clipping/omission or vertical fallback; `--table | less -S` is legitimate. TSV/JSONL preserve canonical numeric source lexemes and original timestamps with existing missing/escaping semantics.
+
+### Scope / acceptance boundary
+
+No new API/OAS/backend, evidence field, derived mover concept, provider policy, database mutation, generic analytics engine, join or market acquisition is authorized. Existing `ww sort` and `ls quotes` contracts remain unchanged. Deterministic coverage must attack collection selection/conflicts, all fields and all formats, exact typed filters and missing values, filter-sort-limit order, stable/absolute/missing/unprojected sorting, numeric fidelity/precision, local versus canonical time, strict validation, partial outcomes, preflight usage and compatibility. Principal manual acceptance and independent review remain separate from automated evidence.
+
+
+### Section 14 color amendment — Principal steering, October 5
+
+The Principal explicitly added human change-color semantics to this same authorized slice. Ordinary human text uses default terminal foreground. Only `reportedChange` and `reportedChangePercent` use SGR green (32) for positive values and red (31) for negative values; zero/missing remain uncolored. The exact canonical sign determines color, before human rounding. Restore default foreground (39) after each colored cell. Prices/counts/sizes/other facts are never sign-colored. Table padding/widths are computed without ANSI sequences; controls in evidence text remain escaped.
+
+Color is enabled in human presentation regardless of stdout TTY status once `--table` selects it. Automatic redirected TSV and all explicit TSV/JSONL remain ANSI-free. Nonempty NO_COLOR disables color even with --table; empty/unset NO_COLOR does not. TERM=dumb disables color. No palette, FORCE_COLOR handling, new color option or terminal framework is introduced. Verbose human tables retain their structure and the same change-only colors.
+
+Compatibility reference: `tt live` passes `color: !command.tsv` to its command-specific renderer, independent of TTY, TERM and NO_COLOR; README documents `watch -c` and tests prove color in redirected human output (including ignored NO_COLOR). It uses SGR 32/31 and restores white 37, with a final reset. There is no shared color helper. Show adopts its human-mode-over-TTY convention and green/red codes, restoring default foreground rather than forcing white, and adds the conventional nonempty NO_COLOR opt-out (https://no-color.org/). `tt live` itself is unchanged.
+
+    watch -c 'ww show --quotes --where type=ETF --sort-by reportedChangePercent --absolute --descending --limit 10 --all-fields --table'
+
+`watch -c` interprets ANSI; --table prevents watch's capture pipe from selecting machine TSV. For a horizontal pager use `less -SR` (S avoids wrapping, R renders ANSI colors); `less -S` alone retains the table but need not render colors. No color is inferred for machine output merely because watch is used.

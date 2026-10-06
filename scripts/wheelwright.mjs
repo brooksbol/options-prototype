@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { readFile } from "node:fs/promises";
-import { parseShow, showConfig, readHeldQuote, presentShow, presentFields } from "./ww-show.mjs";
+import { parseShow, showConfig, readHeldQuote, presentShow, presentShowRows, selectShowObservations, presentFields } from "./ww-show.mjs";
 
 const ROOT_HELP = `Usage: ww <command> [options]
        ww --help | -h | --man
@@ -15,8 +15,8 @@ Working commands:
       Acquire direct quotes for named subjects.
   ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
       Discover canonical direct-quote holdings (provider-free).
-  show SUBJECT... [--quote] [--verbose | --only FIELD[,FIELD...]] [--jsonl]
-      Inspect canonical held quotes; show --fields discovers projections locally.
+  show SUBJECT... | --quotes [projection/filter/order/format options]
+      Inspect held quotes; --where type=ETF filters; --fields discovers fields.
   prices [--] SYMBOL...
       Inspect currently held underlying price evidence (read-only).
   sort --by FIELD [--descending] [--]
@@ -121,22 +121,36 @@ WW_API_TOKEN uses the accepted exported/private .env Bearer convention.
 The backend requires quote.read independently of quote.acquire/quote.force.
 Use 'ww ls --man' for escaping, security and evidence limits.`;
 
-const SHOW_HELP = `Usage: ww show SUBJECT... [--quote] [-v | --verbose] [--jsonl]
-       ww show SUBJECT... --only FIELD[,FIELD...]
+const SHOW_HELP = `Usage: ww show SUBJECT... [--quote] [OPTIONS]
+       ww show --quotes [OPTIONS]
        ww show --fields
        ww show --help | -h | --man
 
 Read canonical held direct quotes only; never acquire or refresh.
-Options may appear before or after subjects. Uppercase, first-occurrence
-subject deduplication and input order; no inherited acquisition cap.
---only selects exactly the named fields in order; no implicit symbol.
---only cannot combine with --verbose or --jsonl.
---fields discovers the installed projection vocabulary locally, without subjects,
-credentials, HTTP or holdings. --man documents field semantics and units.
-Terminal: table. Redirected: headerless TSV. --jsonl: complete public observations.
-Independent failures go to stderr, exit 1; successful partial stdout is intentional.
-Bare subject and --quote are equivalent in this slice. Requires quote.read.
-WW_BASE_URL and WW_API_TOKEN follow the existing credential/HTTPS conventions.`;
+--quotes inspects the complete held inventory; conflicts with explicit subjects.
+Bare show is a usage error. Options may appear before/after subjects.
+--only FIELD[,FIELD...] selects exact ordered columns, no implicit symbol.
+--all-fields selects every public field as a wide horizontal table.
+--where FIELD=VALUE is repeatable exact matching (AND), using public fields.
+--sort-by FIELD orders ascending; --descending reverses present-value order.
+--absolute requires a numeric sort field; display retains original sign.
+--limit N is a positive integer, applied after full inspection/filter/sort.
+Ties retain selected subject order; missing sort values stay last.
+--table | --tsv | --jsonl are mutually exclusive explicit formats.
+Automatic output: human on TTY, canonical headerless TSV in a pipe.
+--table preserves a human table and change colors in a pipe (e.g. | less -SR).
+Use watch -c with --table for colored monitoring; NO_COLOR or TERM=dumb disables color.
+-v/--verbose retains complete FIELD/VALUE terminal detail and machine output.
+--only conflicts with --all-fields, --verbose and --jsonl.
+--all-fields conflicts with --verbose; --table conflicts with --verbose.
+--fields discovers installed vocabulary locally, without subjects/credentials/HTTP.
+--man documents exact typed filters, precision, field semantics and units.
+Subject failures go to stderr, exit 1; partial query results are identified.
+No regular-session “today”, freshness or market-wide completeness is inferred.
+
+Example: ww show --quotes --where type=ETF --sort-by reportedChangePercent
+             --absolute --descending --limit 10 --all-fields
+Requires quote.read; existing WW_BASE_URL / WW_API_TOKEN conventions apply.`;
 
 const SORT_HELP = `Usage: ww sort --by FIELD [--descending] [--]
        ww sort --help | -h | --man
@@ -671,20 +685,38 @@ export async function main(args) {
     catch (error) {
       if (error.code === 2) throw error;
       process.exitCode = 1;
-      for (const symbol of parsed.symbols) process.stderr.write(`${symbol}: show: credential/configuration unavailable; no read attempted\n`);
+      if (parsed.quotes) process.stderr.write("show: credential/configuration unavailable; no inventory read attempted\n");
+      else for (const symbol of parsed.symbols) process.stderr.write(`${symbol}: show: credential/configuration unavailable; no read attempted\n`);
       return;
     }
-    let header = true;
-    for (const symbol of parsed.symbols) {
+    const symbols = parsed.quotes
+      ? (await readHeldQuotes({ token: config.token, base: config.url.origin })).items.map(item => item.subject.symbol)
+      : parsed.symbols;
+    const buffered = parsed.quotes || parsed.where.length > 0 || parsed.sortBy !== undefined ||
+      parsed.limit !== undefined || parsed.allFields || parsed.format === "table";
+    const observations = [];
+    let header = true, failed = 0;
+    for (const symbol of symbols) {
       try {
         const result = await readHeldQuote(symbol, config);
-        const output = presentShow(result.observation, { ...parsed, tty: !!process.stdout.isTTY, header });
-        process.stdout.write(output); header = false;
+        if (buffered) observations.push(result.observation);
+        else {
+          process.stdout.write(presentShow(result.observation, { ...parsed, tty: !!process.stdout.isTTY, header }));
+          header = false;
+        }
         if (parsed.verbose) process.stderr.write(`From ${escapeDiscoveryCell(result.origin)}; ${symbol}; request ${result.requestId}\n`);
       } catch (error) {
+        failed++;
         process.exitCode = 1;
         process.stderr.write(`${symbol}: ${escapeDiscoveryCell(error.message)}\n`);
       }
+    }
+    if (buffered) {
+      if (failed) process.stderr.write(`show: partial results; filtering/ranking/limit cover only ${observations.length} successfully read observations of ${symbols.length} selected; ${failed} failed.\n`);
+      const selected = selectShowObservations(observations, parsed);
+      const emptyMessage = failed ? undefined : parsed.where.length
+        ? "No canonical direct quotes match the selected filters." : "No canonical direct quotes held.";
+      process.stdout.write(presentShowRows(selected, { ...parsed, tty: !!process.stdout.isTTY, emptyMessage }));
     }
     return;
   }

@@ -8,23 +8,58 @@ const TOKEN=/^(?:[A-Z]|_5E)(?:[A-Z0-9.-]|_(?:2F|5E|5F)){0,31}(?![\s\S])/;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\s\S])/i;
 export function encodePathSymbol(symbol){if(!full(SUBJECT,symbol))throw new ShowError('show: invalid canonical subject',2);const map={'/':'_2F','_':'_5F','^':'_5E'};return [...symbol].map(c=>map[c]??c).join('');}
 export function decodePathSymbol(token){if(!full(TOKEN,token))throw new ShowError('show: invalid path token',2);let out='';const map={'2F':'/','5F':'_','5E':'^'};for(let i=0;i<token.length;){if(token[i]==='_'){out+=map[token.slice(i+1,i+3)];i+=3;}else out+=token[i++];}if(encodePathSymbol(out)!==token)throw new ShowError('show: noncanonical path token',2);return out;}
-export function parseShow(args){
+export function parseShow(args) {
  if(args.length===1&&['--help','-h'].includes(args[0]))return {help:true};
  if(args.length===1&&args[0]==='--man')return {man:true};
  if(args.length===1&&args[0]==='--fields')return {fields:true};
- let operands=false,quote=false,verbose=false,jsonl=false,only;const symbols=[];
+ let operands=false,quote=false,quotes=false,verbose=false,allFields=false;
+ let format,only,sortBy,limit,absolute=false,descending=false;
+ const symbols=[],where=[];
  const usage=()=>{throw new ShowError('show: invalid usage; see ww show --help',2);};
- for(let i=0;i<args.length;i++){
-  const a=args[i];if(!operands&&a==='--'){operands=true;continue;}
-  if(!operands&&a==='--quote'){quote=true;continue;}
-  if(!operands&&['--verbose','-v'].includes(a)){verbose=true;continue;}
-  if(!operands&&a==='--jsonl'){jsonl=true;continue;}
-  if(!operands&&a==='--only'){if(only!==undefined)usage();const value=args[++i];if(typeof value!=='string')usage();only=value.split(',');if(only.some(f=>!SHOW_FIELD_BY_NAME.has(f)))usage();continue;}
-  if(!operands&&a.startsWith('-'))usage();
+ for(let i=0;i<args.length;i++) {
+  const a=args[i];
+  if(!operands&&a==='--'){operands=true;continue;}
+  if(!operands) {
+   if(a==='--quote'){quote=true;continue;}
+   if(a==='--quotes'){quotes=true;continue;}
+   if(['--verbose','-v'].includes(a)){verbose=true;continue;}
+   if(a==='--all-fields'){allFields=true;continue;}
+   if(a==='--absolute'){absolute=true;continue;}
+   if(a==='--descending'){descending=true;continue;}
+   if(['--table','--tsv','--jsonl'].includes(a)) {
+    const next=a.slice(2);if(format&&format!==next)usage();format=next;continue;
+   }
+   if(a==='--only') {
+    if(only!==undefined)usage();const value=args[++i];if(typeof value!=='string')usage();
+    only=value.split(',');if(only.some(f=>!SHOW_FIELD_BY_NAME.has(f)))usage();continue;
+   }
+   if(a==='--sort-by') {
+    if(sortBy!==undefined)usage();sortBy=args[++i];if(!SHOW_FIELD_BY_NAME.has(sortBy))usage();continue;
+   }
+   if(a==='--limit') {
+    if(limit!==undefined)usage();const value=args[++i];
+    if(!full(/^[0-9]+(?![\s\S])/,value)||BigInt(value)<=0n)usage();limit=BigInt(value);continue;
+   }
+   if(a==='--where') {
+    const value=args[++i];if(typeof value!=='string'||!value.includes('='))usage();
+    const equals=value.indexOf('='),field=SHOW_FIELD_BY_NAME.get(value.slice(0,equals));
+    if(!field)usage();const literal=value.slice(equals+1);
+    try {
+     if(field.valueType==='number'&&!full(/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?(?![\s\S])/,literal))usage();
+     if(field.valueType==='instant')time(literal);
+     if(field.valueType==='date')date(literal);
+    } catch {usage();}
+    where.push({field:field.name,value:literal});continue;
+   }
+   if(a.startsWith('-'))usage();
+  }
   if(!full(/^[A-Za-z^][A-Za-z0-9.^/_-]{0,31}(?![\s\S])/,a))usage();symbols.push(a.toUpperCase());
  }
- if(!symbols.length||only&&(verbose||jsonl))usage();
- return {symbols:[...new Set(symbols)],quote,verbose,jsonl,only};
+ if(quotes?symbols.length:!symbols.length)usage();
+ if(only&&(verbose||format==='jsonl'||allFields)||allFields&&verbose||format==='table'&&verbose)usage();
+ if((absolute||descending)&&!sortBy||absolute&&SHOW_FIELD_BY_NAME.get(sortBy).valueType!=='number')usage();
+ return {symbols:[...new Set(symbols)],quote,quotes,verbose,only,allFields,format,
+  jsonl:format==='jsonl',where,sortBy,absolute,descending,limit};
 }
 const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v)&&!JSON.isRawJSON(v);
 const escapeCell=s=>String(s).replace(/[\\\x00-\x1F\x7F]/g,c=>({'\\':'\\\\','\n':'\\n','\r':'\\r','\t':'\\t'}[c]??`\\u00${c.charCodeAt(0).toString(16).toUpperCase().padStart(2,'0')}`));
@@ -91,11 +126,128 @@ export async function readHeldQuote(symbol,{token,url},fetchImpl=fetch){
  try{return {observation:validateShowObservation(q,symbol),requestId:correlation,origin:target.origin.replaceAll(token,'[REDACTED]')};}catch{throw failure('invalid complete canonical observation');}
 }
 function localTime(v,verbose){const d=new Date(v),months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],pad=n=>String(n).padStart(2,'0');if(!verbose)return `${months[d.getMonth()]} ${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;const offset=-d.getTimezoneOffset(),fraction=/\.(\d+)Z$/.exec(v)?.[1];return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}${fraction?'.'+fraction:''} ${offset<0?'-':'+'}${pad(Math.floor(Math.abs(offset)/60))}:${pad(Math.abs(offset)%60)}`;}
-export function presentShow(q,{only,verbose=false,jsonl=false,tty=false,header=true}={}){
- if(jsonl)return JSON.stringify(q)+'\n';const fields=only?only.map(n=>SHOW_FIELD_BY_NAME.get(n)):verbose?SHOW_FIELDS:SHOW_DEFAULT;
- const cells=fields.map(f=>{const v=f.extract(q);if(v===undefined)return tty?'-':'';if(!tty)return escapeCell(JSON.isRawJSON(v)?v.rawJSON:v);if(f.kind==='instant')return localTime(v,verbose);if(JSON.isRawJSON(v)){const s=v.rawJSON;return f.kind==='percent'?`${numeric(v)?'+':''}${s}%`:s;}return escapeCell(v);});
- if(!tty)return cells.join('\t')+'\n';
- if(verbose)return `Subject ${escapeCell(q.subject.symbol)}\nFIELD                        VALUE\n`+fields.map((f,i)=>f.name.padEnd(28)+' '+cells[i]).join('\n')+'\n';
- const layout=row=>row.map((v,i)=>v.padEnd(Math.max(fields[i].heading.length,8))).join('  ').trimEnd();return (header?layout(fields.map(f=>f.heading))+'\n':'')+layout(cells)+'\n';
+// Decimal keys retain arbitrary source precision/exponents without binary conversion or huge expansion.
+function decimalParts(source) {
+ const m=/^(-?)(\d+)(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/.exec(source);
+ let digits=(m[2]+(m[3]??'')).replace(/^0+/,'');
+ if(!digits)return {sign:0,digits:'0',exponent:0n};
+ let exponent=BigInt(m[4]??'0')-BigInt((m[3]??'').length);
+ const trailing=/0+$/.exec(digits)?.[0].length??0;
+ if(trailing){digits=digits.slice(0,-trailing);exponent+=BigInt(trailing);}
+ return {sign:m[1]?-1:1,digits,exponent};
 }
+const ordinal=(a,b)=>a<b?-1:a>b?1:0;
+function compareDecimal(a,b,absolute=false) {
+ const as=absolute?Math.abs(a.sign):a.sign,bs=absolute?Math.abs(b.sign):b.sign;
+ if(as!==bs)return ordinal(as,bs);if(as===0)return 0;
+ const ao=BigInt(a.digits.length)+a.exponent,bo=BigInt(b.digits.length)+b.exponent;
+ const magnitude=ordinal(ao,bo)||ordinal(a.digits.padEnd(Math.max(a.digits.length,b.digits.length),'0'),b.digits.padEnd(Math.max(a.digits.length,b.digits.length),'0'));
+ return as*magnitude;
+}
+function instantParts(value) {
+ const [clock,fraction='']=value.slice(0,-1).toUpperCase().split('.');
+ return {clock,fraction:decimalParts('0.'+(fraction||'0'))};
+}
+function fieldKey(field,value) {
+ if(field.valueType==='number')return decimalParts(JSON.isRawJSON(value)?value.rawJSON:value);
+ if(field.valueType==='instant')return instantParts(value);
+ return value;
+}
+function compareKey(field,a,b,absolute=false) {
+ if(field.valueType==='number')return compareDecimal(a,b,absolute);
+ if(field.valueType==='instant')return ordinal(a.clock,b.clock)||compareDecimal(a.fraction,b.fraction);
+ return ordinal(a,b);
+}
+export function selectShowObservations(observations,{where=[],sortBy,absolute=false,descending=false,limit}={}) {
+ const filters=where.map(({field,value})=>{const f=SHOW_FIELD_BY_NAME.get(field);return {field:f,key:fieldKey(f,value)};});
+ let selected=observations.filter(q=>filters.every(({field,key})=>{
+  const value=field.extract(q);return value!==undefined&&compareKey(field,fieldKey(field,value),key)===0;
+ }));
+ if(sortBy) {
+  const field=SHOW_FIELD_BY_NAME.get(sortBy);
+  selected=selected.map((q,index)=>{const v=field.extract(q);return {q,index,key:v===undefined?undefined:fieldKey(field,v)};})
+   .sort((a,b)=>{
+    if(a.key===undefined||b.key===undefined)return a.key===b.key?a.index-b.index:a.key===undefined?1:-1;
+    return (descending?-1:1)*compareKey(field,a.key,b.key,absolute)||a.index-b.index;
+   }).map(entry=>entry.q);
+ }
+ return limit!==undefined&&limit<BigInt(selected.length)?selected.slice(0,Number(limit)):selected;
+}
+function plainDecimal({digits,exponent}) {
+ const position=BigInt(digits.length)+exponent;
+ if(position<=0n)return '0.'+'0'.repeat(Number(-position))+digits;
+ if(position>=BigInt(digits.length))return digits+'0'.repeat(Number(exponent));
+ return digits.slice(0,Number(position))+'.'+digits.slice(Number(position));
+}
+function scientificDecimal({digits,exponent}) {
+ const order=BigInt(digits.length)+exponent-1n;
+ return digits[0]+(digits.length>1?'.'+digits.slice(1):'')+'e'+(order>=0n?'+':'')+order;
+}
+function roundDecimal(parts,targetExponent) {
+ const cut=targetExponent-parts.exponent;
+ if(cut<=0n)return parts;
+ // The adaptive target always retains nonzero significant digits.
+ const keep=parts.digits.length-Number(cut);
+ let digits=parts.digits.slice(0,keep);
+ if(parts.digits[keep]>='5')digits=(BigInt(digits)+1n).toString();
+ return decimalParts((parts.sign<0?'-':'')+digits+'e'+targetExponent);
+}
+export function humanShowNumber(value,kind,verbose=false) {
+ const source=value.rawJSON,parts=decimalParts(source);
+ const signed=kind==='change'||kind==='percent',suffix=kind==='percent'?'%':'';
+ if(parts.sign===0)return '0'+suffix;
+ const prefix=parts.sign<0?'-':signed?'+':'';
+ if(verbose)return (parts.sign>0&&signed?'+':'')+source+suffix;
+ const order=BigInt(parts.digits.length)+parts.exponent-1n;
+ if(kind==='integer') {
+  const exact=order<=1000n?plainDecimal(parts):scientificDecimal(parts);
+  return prefix+exact+suffix;
+ }
+ const scientific=order>=18n||order < -6n;
+ const target=scientific||order < -2n?order-2n:-2n;
+ const rounded=roundDecimal(parts,target);
+ return prefix+(scientific?scientificDecimal(rounded):plainDecimal(rounded))+suffix;
+}
+function showFields({only,verbose,allFields}) {
+ return only?only.map(n=>SHOW_FIELD_BY_NAME.get(n)):verbose||allFields?SHOW_FIELDS:SHOW_DEFAULT;
+}
+function humanMode({format,tty=false}) {return format==='table'||format!=='tsv'&&format!=='jsonl'&&tty;}
+export function showColorEnabled(options,env=process.env) {
+ return humanMode(options)&&!env.NO_COLOR&&env.TERM!=='dumb';
+}
+function colorShowCell(q,field,text,color) {
+ if(!color||!['change','percent'].includes(field.kind))return text;
+ const value=field.extract(q);if(value===undefined)return text;
+ const sign=decimalParts(value.rawJSON).sign;
+ return sign?`\x1b[${sign>0?'32':'31'}m${text}\x1b[39m`:text;
+}
+function showCells(q,fields,{verbose=false,allFields=false},human) {
+ return fields.map(f=>{
+  const v=f.extract(q);if(v===undefined)return human?'-':'';
+  if(!human)return escapeCell(JSON.isRawJSON(v)?v.rawJSON:v);
+  if(f.kind==='instant') {
+   const local=localTime(v,verbose||allFields);
+   return allFields&&!verbose?local.replace(/(\d{2}:\d{2}:\d{2})\.\d+ /,'$1 '):local;
+  }
+  if(JSON.isRawJSON(v))return humanShowNumber(v,f.kind,verbose);
+  return escapeCell(v);
+ });
+}
+export function presentShowRows(observations,options={}) {
+ const {jsonl=false,format,verbose=false,header=true}=options;
+ if(jsonl||format==='jsonl')return observations.map(q=>JSON.stringify(q)+'\n').join('');
+ const fields=showFields(options),human=humanMode(options),color=showColorEnabled(options,options.env??process.env);
+ if(!observations.length)return human&&options.emptyMessage?options.emptyMessage+'\n':'';
+ const rows=observations.map(q=>showCells(q,fields,options,human));
+ if(!human)return rows.map(row=>row.join('\t')+'\n').join('');
+ if(verbose)return observations.map((q,i)=>`Subject ${escapeCell(q.subject.symbol)}\nFIELD                        VALUE\n`+fields.map((f,j)=>f.name.padEnd(28)+' '+colorShowCell(q,f,rows[i][j],color)).join('\n')+'\n').join('');
+ const widths=fields.map(f=>Math.max(f.heading.length,8));
+ for(const row of rows)row.forEach((v,i)=>widths[i]=Math.max(widths[i],v.length));
+ const layout=(row,q)=>row.map((v,i)=>{
+  const padded=q&&fields[i].valueType==='number'?v.padStart(widths[i]):v.padEnd(widths[i]);
+  return q?colorShowCell(q,fields[i],padded,color):padded;
+ }).join('  ').trimEnd();
+ return (header?layout(fields.map(f=>f.heading))+'\n':'')+rows.map((row,i)=>layout(row,observations[i])+'\n').join('');
+}
+export function presentShow(q,options={}) {return presentShowRows([q],options);}
 export function presentFields(tty=false){return (tty?'FIELD                        DESCRIPTION\n':'')+SHOW_FIELDS.map(f=>tty?f.name.padEnd(28)+' '+f.description:f.name+'\t'+f.description).join('\n')+'\n';}

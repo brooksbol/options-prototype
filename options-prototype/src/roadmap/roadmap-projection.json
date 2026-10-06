@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-06T04:04:04.147Z",
+    "generatedAt": "2026-10-06T04:37:40.025Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,7 +41,7 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 30,
-      "logTotal": 94,
+      "logTotal": 96,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 60
@@ -4205,6 +4205,20 @@
           "heading": "`PL-CLI-01` / `PL-API-03` — October 5 subject-show multi-subject ratification and resumed design",
           "level": 3,
           "content": "**Principal decision:** After thaw at `a5428dfd6c3766b5a0c4c97a6fbe101276079209`, the Principal explicitly ratified recommendation A and authorized refreeze plus resumed Solution Design. [The subject-show contract](contracts/api-v2-subject-show-held-quote.md) now requires one or more explicit subjects, uppercase normalization, first-occurrence deduplication and input order; independent successful stdout and identified stderr failures, exit 1 on any failure; intentional non-atomic partial stdout; one successful table/TSV row or complete JSONL observation per subject; and exact --only projection without an implicit symbol. No arbitrary fetch limit, HTTP-count requirement or batch capability is imposed. Existing single-subject semantics are preserved.\n\n**Reconciliation Completion Record:** Existing PL-CLI-01 with PL-API-03 capability mapping; no new intake identity, Bet, engine or horizon change. Broader items remain retained. The bounded Product contract is refrozen locally; [Solution Design](design/ww-show-held-quote-solution-design.md) resumes with sequential independent singular reads as a technical proposal. Shared encoded-slash transport scope remains a Solution Design decision, not a Product reopening. Next authorized mode is Solution Design; runtime, BUG-029 remediation, commit and push remain unauthorized. Earlier historical deferrals do not override this explicit bounded continuation.\n\n\n**October 5 field-discovery synchronization and design completion:** Origin/main advanced to `5c3a5131850022ecf8f67b4ad6e41e10dbe82e21` while local reconciliation was uncommitted. A named Git stash preserves that work; the fast-forward and explicit conflict reconciliation retain both the Principal-ratified multi-subject package and upstream section 6A. The one Product artifact is now coherently refrozen. `ww show --fields` is subject-free, local and registry-derived; registry, runtime catalog and ww-show(1) semantic documentation must move together. Help remains invocation guidance; experiments require accepted Product semantics before becoming public fields.\n\n**Current disposition:** Principal selected shared-connector encoded-solidus passthrough, conditional on real-container tests preserving existing-route interpretation/security and one-decode symbol data. No compensation via double encoding, exclusions, query alternatives or endpoint-specific parsing tricks. [Solution Design](design/ww-show-held-quote-solution-design.md) is decision-complete, including one registry for projection/discovery plus generated durable field semantics and synchronization acceptance. Scope-preserving documentation commit/push is explicitly authorized after checks under the Project-Memory Protocol; this supersedes the preceding documentation-persistence restriction only. No runtime/OAS implementation, market acquisition or BUG-029 remediation is authorized. Next mode: bounded implementation handoff; failed transport proof returns to Solution Design. No new Product decision, intake, Bet, horizon or engine change.\n\n\n**October 5 implementation transport stop:** The Principal authorized the bounded slice at synchronized 4ff8c7a. The first real-container gate falsified conditional transport A: encoded slash reaches the intended single symbol, but an actual existing Decision route now invokes storage for a path previously rejected by Tomcat. [BUG-030](bugs/BUG-030-shared-solidus-passthrough-route-regression.md) preserves the candidate regression and test. Implementation stops and returns to Solution Design without changing Product, production runtime/configuration/OAS, CLI, market evidence or BUG-029. No workaround is selected. Acceptance did not pass; no commit/push is performed. Broader PL-CLI-01/PL-API-03, horizons and strategy remain unchanged.\n\n\n**October 5 bounded Solution Design reconciliation after BUG-030:** The Principal selected A — return one layer to HTTP/OAS design, keeping Product frozen and clarifying that subject identity need not be slash data in a path variable. BUG-030 and its focused reproduction are preserved byte-for-byte in the worktree and a named recovery stash. [Transport reconciliation](design/ww-show-held-quote-transport-reconciliation.md) proposes fixed `GET /v2/quotes/observation?symbol=...`, selecting the current singular canonical observation by ordinary query identity under unchanged container defaults. Existing POST and no-query collection GET remain unchanged; no batch, codec, fallback, provider or new engine is introduced. Exact additive OAS/validation/preservation obligations are recorded, not implemented. No genuine Product/new architecture decision remains in this bounded realization; Principal acceptance of the reconciled design is required before a new runtime handoff. No commit/push or runtime changes in this turn; existing identities, horizons and BUG-029 remain unchanged.\n\n\n**October 5 Principal query rejection and path-codec design:** The Principal rejected the query endpoint and directed preservation of GET /v2/quotes/{symbol} with a transport-only reversible codec. [The updated design](design/ww-show-held-quote-transport-reconciliation.md) derives the complete codec from the accepted ASCII subject alphabet: slash _2F, underscore _5F, caret _5E; A–Z/digits/period/hyphen unchanged. Canonical path tokens are case-sensitive, uniquely encoded and decoded once; lengths are 1–32 canonical / 1–96 encoded. Codec tokens never enter persistence, public observation identity or provider APIs. All Product/output/HTTP-count behavior and container defaults remain unchanged. The rejected query proposal is recovery-stashed and retained in historical journal context. BUG-030/test remain byte-identical. No genuine codec choice remains; proposal awaits acceptance and bounded implementation handoff. No runtime/OAS changes, commit/push or BUG-029 work; canonical projection freshness follows this memory reconciliation without strategy/horizon changes.\n\n\n**October 5 accepted path-codec implementation continuation:** The Principal accepted the complete codec Solution Design and resumed the bounded slice, gate first. Real-container proof passes without changing connector defaults or existing Decision-route rejection/security; the rejected global passthrough remains BUG-030 evidence. GET /v2/quotes/{symbol} is now implemented with quote.read, strict full canonical decoding, independent committed-row query-only reads and no acquisition/provider/mutation path. Subject-first multi-subject ww show, exact --only, registry-derived local --fields, full JSONL, human/TSV/verbose output and generated durable man semantics are implemented. [Automated acceptance evidence](cli/ww-show-acceptance-2026-10-05.md) records focused API/WAL/transport/CLI/OAS/regression/projection checks. Principal manual acceptance and independent review are not asserted. Product decisions, broader intake items, strategy and horizons are unchanged. BUG-029 remains open and intentionally exposed as strict data-integrity failure; BUG-030 record/reproduction are preserved. Authorized closeout includes documentation/projection synchronization, bounded commit and push. Next action is Principal manual acceptance / independent review, not additional runtime expansion.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` / `PL-API-03` — October 5 question-driven held quote queries authorized",
+          "level": 3,
+          "content": "**Reconciliation Completion Record:** Existing PL-CLI-01, mapped to PL-API-03's accepted inventory/instance reads; no new intake identity, Bet, strategy/horizon change, engine, API/OAS/backend or acquisition semantics. The real top-movers pipeline revealed avoidable selection/ranking friction and automatic TSV mode, not a demonstrated bug. Product authority is [show contract section 14](contracts/api-v2-subject-show-held-quote.md); [Solution Design section 15](design/ww-show-held-quote-solution-design.md) selects repeatable exact `--where FIELD=VALUE` with AND semantics before implementation. Positive question is held ETF top 10 by absolute reported percentage move with all fields; excluded EQUITY/missing/malformed/preflight specimens follow the Principal's negative requirements. Temporal “today” is not inferred. Why-state is preserved in the journal. Next authorized mode: bounded CLI implementation and deterministic verification, then scope-preserving documentation, commit and push. Broader CLI/API work and unrelated bugs remain retained.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "`PL-CLI-01` / `PL-API-03` — October 5 held ETF queries implemented and verified",
+          "level": 3,
+          "content": "[Acceptance evidence](cli/ww-show-query-acceptance-2026-10-05.md) records 87/87 Node tests (63 ww, 24 tt compatibility), 10/10 deterministic fetch acceptance, registry/manual synchronization, OAS compatibility and the actual PTY watch -c color proof. The final direct question uses `ww show --quotes --where type=ETF --sort-by reportedChangePercent --absolute --descending --limit 10 --all-fields --table`; read-only live observation returned 10 signed movers in a 36-column horizontal table in ~0.74s, with machine formats canonical/color-free. Principal color steering is absorbed in Product section 14: only the two change fields green/red, default foreground elsewhere, nonempty NO_COLOR/TERM=dumb opt-outs; tt live remains unchanged. Sequential inventory/instance reads suffice at observed scale; no backend/API/OAS, provider, persisted-evidence or credential change. Existing strict validation and explicit-subject/only/fields/verbose semantics remain. No new defect was demonstrated; all unrelated bugs/work remain untouched. End-of-Workstream Memory Check preserves why-state and reconciles authority/docs/generated Roadmap; strategy/horizon/principles need no change. Scope-preserving commit/push is expressly authorized. Next observation boundary: Principal manual acceptance / independent review of this implemented slice; broader PL-CLI-01/PL-API-03 retained.",
           "truncated": false,
           "tables": []
         }
@@ -8804,7 +8818,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 563
+      "sourceOrder": 565
     },
     {
       "plId": null,
@@ -8947,7 +8961,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 551
+      "sourceOrder": 553
     },
     {
       "plId": null,
@@ -8960,7 +8974,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 552
+      "sourceOrder": 554
     },
     {
       "plId": null,
@@ -8973,7 +8987,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 553
+      "sourceOrder": 555
     },
     {
       "plId": null,
@@ -8986,7 +9000,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 556
+      "sourceOrder": 558
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -9012,7 +9026,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 554
+      "sourceOrder": 556
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -9194,7 +9208,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 534
+      "sourceOrder": 536
     },
     {
       "plId": null,
@@ -9207,7 +9221,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 535
+      "sourceOrder": 537
     },
     {
       "plId": null,
@@ -9220,7 +9234,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 536
+      "sourceOrder": 538
     },
     {
       "plId": null,
@@ -9233,7 +9247,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 537
+      "sourceOrder": 539
     },
     {
       "plId": null,
@@ -9246,7 +9260,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 538
+      "sourceOrder": 540
     },
     {
       "plId": null,
@@ -9259,7 +9273,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 539
+      "sourceOrder": 541
     },
     {
       "plId": null,
@@ -9272,7 +9286,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 540
+      "sourceOrder": 542
     },
     {
       "plId": null,
@@ -9285,7 +9299,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 541
+      "sourceOrder": 543
     },
     {
       "plId": null,
@@ -9298,7 +9312,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 542
+      "sourceOrder": 544
     },
     {
       "plId": null,
@@ -9311,7 +9325,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 543
+      "sourceOrder": 545
     },
     {
       "plId": null,
@@ -9324,7 +9338,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 544
+      "sourceOrder": 546
     },
     {
       "plId": null,
@@ -9337,7 +9351,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 545
+      "sourceOrder": 547
     },
     {
       "plId": null,
@@ -9350,7 +9364,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 546
+      "sourceOrder": 548
     },
     {
       "plId": null,
@@ -9363,7 +9377,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 547
+      "sourceOrder": 549
     },
     {
       "plId": null,
@@ -9376,7 +9390,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 548
+      "sourceOrder": 550
     },
     {
       "plId": null,
@@ -9389,7 +9403,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 549
+      "sourceOrder": 551
     },
     {
       "plId": null,
@@ -9402,7 +9416,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 550
+      "sourceOrder": 552
     },
     {
       "plId": null,
@@ -9415,7 +9429,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 555
+      "sourceOrder": 557
     },
     {
       "plId": null,
@@ -9428,7 +9442,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 562
+      "sourceOrder": 564
     },
     {
       "plId": "PL-SEM-01",
@@ -9597,7 +9611,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 557
+      "sourceOrder": 559
     },
     {
       "plId": null,
@@ -9610,7 +9624,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 558
+      "sourceOrder": 560
     },
     {
       "plId": "PL-SETUP-01",
@@ -9782,6 +9796,32 @@
       "sourceOrder": 532
     },
     {
+      "plId": "PL-CLI-01",
+      "bugId": null,
+      "title": "PL-CLI-01 / PL-API-03 — October 5 question-driven held quote queries authorized",
+      "eventKind": "unclassified",
+      "establishesIntake": false,
+      "eventDateText": "October 5, 2026",
+      "eventDateIso": "2026-10-05",
+      "state": "IMPLEMENTABLE — Principal accepted bounded collection inspection, horizontal all-fields tables, explicit formats, public-field sorting/absolute/direction/limit, truthful partial ranking and human formatting, and authorized exact generic filter grammar design plus implementation/verification/documentation/commit/push.",
+      "headingLevel": 3,
+      "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 534
+    },
+    {
+      "plId": "PL-CLI-01",
+      "bugId": null,
+      "title": "PL-CLI-01 / PL-API-03 — October 5 held ETF queries implemented and verified",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "October 5, 2026",
+      "eventDateIso": "2026-10-05",
+      "state": "IMPLEMENTED / VERIFIED — bounded Principal-authorized CLI amendment completed; automated and live held-read evidence, not Principal manual acceptance or independent review.",
+      "headingLevel": 3,
+      "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 535
+    },
+    {
       "plId": null,
       "bugId": "BUG-029",
       "title": "Principal authorization — 2026-10-05 — Bounded producer remediation (Codex)",
@@ -9792,7 +9832,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 559
+      "sourceOrder": 561
     },
     {
       "plId": null,
@@ -9805,7 +9845,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 560
+      "sourceOrder": 562
     },
     {
       "plId": null,
@@ -9818,7 +9858,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 561
+      "sourceOrder": 563
     }
   ],
   "intakeDateUnknown": [
