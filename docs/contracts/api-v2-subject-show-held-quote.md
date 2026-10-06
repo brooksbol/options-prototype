@@ -1,15 +1,25 @@
 # Subject detail read contract — API v2 / `ww show`
 
 **Date:** October 5, 2026  
-**Status:** Principal-ratified Product/capability contract; decision-complete for Solution Design. Runtime implementation is not authorized by this document.  
+**Status:** THAWED for bounded Product reconciliation. The previously ratified single-subject semantics remain authoritative except where multi-subject cardinality may require amendment. Solution Design and runtime implementation are paused pending refreeze.  
 **Authority:** Principal decisions following bounded Codex review against clean synchronized main `3ac333e7fea79ccd249015cda9f552994c30184b`; Doc 77 API v2 guardrails; existing v2 direct-quote acquisition and held-discovery contracts.  
 **Related:** `PL-CLI-01`, `PL-API-03`, `api-v2-held-quotes-read.md`, `api-v2-direct-quote-acquisition-proposal.md`.
 
 ## 1. Product meaning
 
-`ww show` is subject-first:
+`ww show` is subject-first. The previously frozen grammar was:
 
     ww show SUBJECT [facets] [projection] [presentation]
+
+A newly identified composition requirement has reopened subject cardinality. Product reconciliation must evaluate the generalized grammar:
+
+    ww show SUBJECT... [facets] [projection] [presentation]
+
+including natural shell composition such as:
+
+    cat symbols.txt | xargs ww show
+
+This thaw does not yet ratify multi-subject semantics; it records the Product-level omission that must be resolved before Solution Design continues.
 
 The CLI is Wheelwright domain-language porcelain and does not mirror backend resource taxonomy merely because the API is resource-oriented.
 
@@ -195,8 +205,30 @@ The malformed persisted source-event-time defect discovered during review is tra
 
 ---
 
-CURRENT STATE: Principal-ratified `ww show` / singular held-quote Product contract is decision-complete and frozen for Solution Design.
+## 13. Thaw notice — multi-subject cardinality
 
-DECISION REQUIRED: NO
+The Principal identified a Product-level omission during Solution Design: a subject-first command should be evaluated for natural multi-subject composition, including:
 
-NEXT AUTHORIZED ACTION: Solution Design for this bounded contract, preserving the frozen Product semantics above.
+    ww show SPY QQQ
+    cat symbols.txt | xargs ww show
+
+The artifact is therefore thawed before implementation. This is not a defect and does not authorize runtime work.
+
+All previously settled single-subject semantics remain the baseline and should not be reopened merely because cardinality is under review. In particular, held-evidence purity, strict decoding before projection, public field vocabulary, machine/human representation boundaries, authorization, and no hidden acquisition remain settled unless a demonstrated cardinality conflict requires a bounded amendment.
+
+Product reconciliation is limited to consequences introduced by one-or-more subjects, including:
+
+- accepted subject cardinality and any practical bound;
+- input ordering and duplicate-subject semantics;
+- mixed held/unheld/corrupt subject behavior and exit semantics;
+- row/output ordering and multi-subject presentation, including verbose behavior;
+- JSONL and TSV behavior across multiple subjects;
+- whether the Product contract requires any multi-subject HTTP capability or leaves HTTP realization entirely to Solution Design.
+
+The existing singular `GET /v2/quotes/{symbol}` section is retained as the previously ratified baseline, not as a decision that multi-subject CLI realization must perform one HTTP request per subject. Backend realization must not be changed until Product cardinality semantics are refrozen.
+
+CURRENT STATE: The `ww show` Product/capability contract is THAWED for bounded multi-subject cardinality reconciliation. Previously ratified single-subject semantics remain the authoritative baseline.
+
+DECISION REQUIRED: YES
+
+NEXT AUTHORIZED ACTION: Reconcile multi-subject Product semantics, amend this artifact narrowly, refreeze it, then resume Solution Design. Runtime implementation remains unauthorized.
