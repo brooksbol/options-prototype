@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-06T05:28:39.010Z",
+    "generatedAt": "2026-10-06T05:30:18.729Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -4218,7 +4218,7 @@
         {
           "heading": "`PL-CLI-01` / `PL-API-03` — October 5 held ETF queries implemented and verified",
           "level": 3,
-          "content": "[Acceptance evidence](cli/ww-show-query-acceptance-2026-10-05.md) records 87/87 Node tests (63 ww, 24 tt compatibility), 10/10 deterministic fetch acceptance, registry/manual synchronization, OAS compatibility and the actual PTY watch -c color proof. The final direct question uses `ww show --quotes --where type=ETF --sort-by reportedChangePercent --absolute --descending --limit 10 --all-fields --table`; read-only live observation returned 10 signed movers in a 36-column horizontal table in ~0.74s, with machine formats canonical/color-free. Principal color steering is absorbed in Product section 14: only the two change fields green/red, default foreground elsewhere, nonempty NO_COLOR/TERM=dumb opt-outs; tt live remains unchanged. Sequential inventory/instance reads suffice at observed scale; no backend/API/OAS, provider, persisted-evidence or credential change. Existing strict validation and explicit-subject/only/fields/verbose semantics remain. No new defect was demonstrated; all unrelated bugs/work remain untouched. End-of-Workstream Memory Check preserves why-state and reconciles authority/docs/generated Roadmap; strategy/horizon/principles need no change. Scope-preserving commit/push is expressly authorized. Next observation boundary: Principal manual acceptance / independent review of this implemented slice; broader PL-CLI-01/PL-API-03 retained.",
+          "content": "[Acceptance evidence](cli/ww-show-query-acceptance-2026-10-05.md) records 87/87 Node tests (63 ww, 24 tt compatibility), 10/10 deterministic fetch acceptance, registry/manual synchronization, OAS compatibility and the actual PTY watch -c color proof. The final direct question uses `ww show --quotes --where type=ETF --sort-by reportedChangePercent --absolute --descending --limit 10 --all-fields --table`; read-only live observation returned 10 signed movers in a 36-column horizontal table in ~0.74s, with machine formats canonical/color-free. Principal color steering is absorbed in Product section 14: only the two change fields green/red, default foreground elsewhere, nonempty NO_COLOR/TERM=dumb opt-outs; tt live remains unchanged. Sequential inventory/instance reads suffice at observed scale; no backend/API/OAS, provider, persisted-evidence or credential change. Existing strict validation and explicit-subject/only/fields/verbose semantics remain. No new defect was demonstrated; all unrelated bugs/work remain untouched. End-of-Workstream Memory Check preserves why-state and reconciles authority/docs/generated Roadmap; strategy/horizon/principles need no change. Scope-preserving commit/push is expressly authorized. Next observation boundary: independent review, if separately commissioned; broader PL-CLI-01/PL-API-03 retained.",
           "truncated": false,
           "tables": []
         },
@@ -4253,7 +4253,14 @@
         {
           "heading": "PL-CLI-01 / PL-API-03 — Principal monetary and table-style continuation — October 5, 2026",
           "level": 3,
-          "content": "Principal directed two-decimal human monetary amounts, stable categorical venue colors, yellow symbols, light-gray descriptions, orange LAST, distinct TYPE colors, alternating black/darkest nonblack gray (indexed 232) rows and first-40-character description excerpts with ... only when truncated. Current Product/Design/registry/manual and held-query evidence absorb these bounded human presentation amendments. Machines/verbose retain full canonical values/text; filter/ranking semantics remain canonical. NO_COLOR/TERM=dumb suppress all decoration; explicit table and watch -c -w retain it. No new PL/BUG identity, API/architecture/provider policy, priority or horizon. Automated verification is distinct from pending Principal visual acceptance of these additions.\n\n\nPrincipal screenshot feedback additionally authorizes brighter coral red (#ff5f5f, indexed 203) for negative change values only; all semantic scope, watch compatibility and canonical machine/opt-out boundaries remain. This is shade adjustment under the same bounded human presentation continuation, not a defect or additional capability.",
+          "content": "Principal directed two-decimal human monetary amounts, stable categorical venue colors, yellow symbols, light-gray descriptions, orange LAST, distinct TYPE colors, alternating black/darkest nonblack gray (indexed 232) rows and first-40-character description excerpts with ... only when truncated. Current Product/Design/registry/manual and held-query evidence absorb these bounded human presentation amendments. Machines/verbose retain full canonical values/text; filter/ranking semantics remain canonical. NO_COLOR/TERM=dumb suppress all decoration; explicit table and watch -c -w retain it. No new PL/BUG identity, API/architecture/provider policy, priority or horizon. Automated verification and the later visual acceptance are both recorded in the acceptance artifact.\n\n\nPrincipal screenshot feedback additionally authorizes brighter coral red (#ff5f5f, indexed 203) for negative change values only; all semantic scope, watch compatibility and canonical machine/opt-out boundaries remain. This is shade adjustment under the same bounded human presentation continuation, not a defect or additional capability.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-CLI-01 / PL-API-03 — Principal accepted current styled human table — October 5, 2026",
+          "level": 3,
+          "content": "After reviewing the latest Desktop screenshot, Principal accepted the current table styling, including brighter coral red (#ff5f5f, indexed 203) for negative change values. Current implementation is commit `506fd0a23a2d192950f9d15c0a81ab76365e6741`, already synchronized to `origin/main`; closeout records this acceptance and verifies the completed handoff. This closes the visual acceptance boundary for the authorized show-query/table slice. It does not assert regular-session “today,” market completeness, suitability, or independent review, and does not close broader PL-CLI-01/PL-API-03.",
           "truncated": false,
           "tables": []
         }
@@ -9080,7 +9087,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 579
+      "sourceOrder": 580
     },
     {
       "plId": null,
@@ -9223,7 +9230,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 558
+      "sourceOrder": 559
     },
     {
       "plId": null,
@@ -9236,7 +9243,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 559
+      "sourceOrder": 560
     },
     {
       "plId": null,
@@ -9249,7 +9256,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 560
+      "sourceOrder": 561
     },
     {
       "plId": null,
@@ -9262,7 +9269,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 563
+      "sourceOrder": 564
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -9288,7 +9295,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 561
+      "sourceOrder": 562
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -9470,7 +9477,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 541
+      "sourceOrder": 542
     },
     {
       "plId": null,
@@ -9483,7 +9490,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 542
+      "sourceOrder": 543
     },
     {
       "plId": null,
@@ -9496,7 +9503,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 543
+      "sourceOrder": 544
     },
     {
       "plId": null,
@@ -9509,7 +9516,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 544
+      "sourceOrder": 545
     },
     {
       "plId": null,
@@ -9522,7 +9529,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 545
+      "sourceOrder": 546
     },
     {
       "plId": null,
@@ -9535,7 +9542,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 546
+      "sourceOrder": 547
     },
     {
       "plId": null,
@@ -9548,7 +9555,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 547
+      "sourceOrder": 548
     },
     {
       "plId": null,
@@ -9561,7 +9568,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 548
+      "sourceOrder": 549
     },
     {
       "plId": null,
@@ -9574,7 +9581,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 549
+      "sourceOrder": 550
     },
     {
       "plId": null,
@@ -9587,7 +9594,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 550
+      "sourceOrder": 551
     },
     {
       "plId": null,
@@ -9600,7 +9607,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 551
+      "sourceOrder": 552
     },
     {
       "plId": null,
@@ -9613,7 +9620,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 552
+      "sourceOrder": 553
     },
     {
       "plId": null,
@@ -9626,7 +9633,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 553
+      "sourceOrder": 554
     },
     {
       "plId": null,
@@ -9639,7 +9646,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 554
+      "sourceOrder": 555
     },
     {
       "plId": null,
@@ -9652,7 +9659,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 555
+      "sourceOrder": 556
     },
     {
       "plId": null,
@@ -9665,7 +9672,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 556
+      "sourceOrder": 557
     },
     {
       "plId": null,
@@ -9678,7 +9685,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 557
+      "sourceOrder": 558
     },
     {
       "plId": null,
@@ -9691,7 +9698,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 562
+      "sourceOrder": 563
     },
     {
       "plId": null,
@@ -9704,7 +9711,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 578
+      "sourceOrder": 579
     },
     {
       "plId": "PL-SEM-01",
@@ -9873,7 +9880,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 564
+      "sourceOrder": 565
     },
     {
       "plId": null,
@@ -9886,7 +9893,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 565
+      "sourceOrder": 566
     },
     {
       "plId": "PL-SETUP-01",
@@ -10078,7 +10085,7 @@
       "establishesIntake": false,
       "eventDateText": "October 5, 2026",
       "eventDateIso": "2026-10-05",
-      "state": "IMPLEMENTED / VERIFIED — bounded Principal-authorized CLI amendment completed; automated and live held-read evidence, not Principal manual acceptance or independent review.",
+      "state": "IMPLEMENTED / VERIFIED / PRINCIPAL ACCEPTED — current bounded CLI/table presentation through `506fd0a23a2d192950f9d15c0a81ab76365e6741` was manually accepted after screenshot review; independent review is separate.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
       "sourceOrder": 535
@@ -10094,7 +10101,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 566
+      "sourceOrder": 567
     },
     {
       "plId": null,
@@ -10107,7 +10114,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 567
+      "sourceOrder": 568
     },
     {
       "plId": null,
@@ -10120,26 +10127,13 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 568
+      "sourceOrder": 569
     },
     {
       "plId": null,
       "bugId": "BUG-031",
       "title": "Principal authorization and resolution — 2026-10-05",
       "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 569
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Post-resolution validation — 2026-10-05",
-      "eventKind": "reconciliation",
       "establishesIntake": false,
       "eventDateText": "2026-10-05",
       "eventDateIso": "2026-10-05",
@@ -10151,6 +10145,19 @@
     {
       "plId": null,
       "bugId": "BUG-031",
+      "title": "Post-resolution validation — 2026-10-05",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 571
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
       "title": "Principal acceptance and closure — 2026-10-05",
       "eventKind": "remediation",
       "establishesIntake": false,
@@ -10159,7 +10166,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 571
+      "sourceOrder": 572
     },
     {
       "plId": null,
@@ -10172,7 +10179,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 572
+      "sourceOrder": 573
     },
     {
       "plId": null,
@@ -10185,7 +10192,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 573
+      "sourceOrder": 574
     },
     {
       "plId": null,
@@ -10198,7 +10205,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 574
+      "sourceOrder": 575
     },
     {
       "plId": null,
@@ -10211,7 +10218,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 575
+      "sourceOrder": 576
     },
     {
       "plId": null,
@@ -10224,7 +10231,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 576
+      "sourceOrder": 577
     },
     {
       "plId": null,
@@ -10237,7 +10244,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 577
+      "sourceOrder": 578
     }
   ],
   "intakeDateUnknown": [
