@@ -699,3 +699,8 @@ The earlier first-HTTP/OAS-proposal paragraphs above preserve the pre-ratificati
 ### PL-CLI-01 / PL-API-03 — Human-table manual acceptance continuation — October 5, 2026
 
 Principal manual use of the completed held ETF query at 4c2701e rejected timestamps and color scope. Canonical defects BUG-031/BUG-032 own those lifecycles; no new PL identity is created. Bounded remediation is Principal-authorized and deterministically verified; manual rerun remains outstanding. The same command/query primitives remain; DESCRIPTION-after-SYMBOL follows additional Principal direction. See current Product section 14 and the held-query acceptance continuation. No new API capability, engine, strategy or horizon decision.
+
+
+### PL-CLI-01 / PL-API-03 — Principal acceptance and session closeout — October 5, 2026
+
+Principal accepted the bounded held ETF show query/table slice at `1cd3444af40ad1ae1dafa2c9332ace30a0ba9f3d` following screenshot review under watch -c. This includes BUG-031/032 presentation remediation, DESCRIPTION-after-SYMBOL and final-12-character human observation/acquisition IDs. The canonical bug records and held-query acceptance artifact preserve exact evidence/epistemic boundaries. Principal invoked end-of-session protocol and authorized push. This closes this bounded slice, not broader PL-CLI-01/PL-API-03 or unrelated experimental bare-fetch acceptance. No new horizon, priority, API, architecture or provider policy follows.

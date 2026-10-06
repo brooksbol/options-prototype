@@ -1,6 +1,6 @@
 # Held ETF quote queries and human tables — October 5, 2026
 
-**Status:** Bounded human remediation verified following Principal manual rejection (see continuation below); original slice implemented and verified; automated verification and live held-read observation are evidence, not independent review or Principal manual acceptance.
+**Status:** Principal manually accepted the bounded held-query/human-table slice at runtime commit `1cd3444af40ad1ae1dafa2c9332ace30a0ba9f3d`; end-of-session closeout records the acceptance below. Automated/provider-free evidence remains distinct from Principal acceptance and independent review.
 **Baseline:** clean, remote-verified main `9370ca018b9878d9791e390d5a204ccb557d8178`; Gate Experiment 001 staged/inactive.
 **Authority:** Principal explicitly accepted the prior investigation and authorized Product amendment, Solution Design, implementation, verification, documentation, commit and push, then added semantic human colors as a continuation of the same scope. [Product section 14](../contracts/api-v2-subject-show-held-quote.md) and [Solution Design section 15](../design/ww-show-held-quote-solution-design.md) record exact grammar before implementation. No new API/backend or acquisition work.
 
@@ -114,3 +114,15 @@ ww show --quotes --where type=ETF \
 ```
 
 For a wide color-preserving pager, append `| less -SR`. For watch, retain `watch -c` with explicit `--table`. Nonempty NO_COLOR and TERM=dumb intentionally suppress ANSI, so ordinary text then follows terminal configuration.
+
+
+## Principal acceptance and end-of-session closeout — October 5, 2026
+
+The Principal explicitly said “accepted” after inspection of their Desktop screenshot `Screenshot 2026-10-05 at 10.51.17 PM.png`, then invoked the containing end-of-session protocol and authorized push. Accepted runtime is `1cd3444af40ad1ae1dafa2c9332ace30a0ba9f3d`, including the query/table implementation, BUG-031/032 remediation, DESCRIPTION immediately after SYMBOL and 12-character observation/acquisition ID suffixes in human horizontal tables. Full IDs remain in TSV/JSONL, verbose, canonical observations and filter/sort keys; suffixes are not guaranteed unique identities. The ID continuation passed 33/33 relevant show/query tests plus manual synchronization and Roadmap freshness checks.
+
+The screenshot showed ten ETF rows ordered by absolute reportedChangePercent under `watch -c`, compact local timestamps, description placement, shortened IDs, change-only green/red values and ordinary white content. Principal acceptance closes the previously outstanding visual rerun for this bounded slice. It does not establish a rigorous “of the day” interpretation, freshness, trading suitability, global market completeness or acceptance of unrelated experimental CLI work.
+
+Closeout began on clean, remote-synchronized main at the accepted runtime SHA; no unrelated in-flight files exist. Existing Product section 14 and Solution Design own the accepted behavior; BUG-031/032 retain canonical resolved lifecycles with Principal acceptance appended. No new bug, PL identity, Product/architecture decision, principle, priority or Coming Soon change is required. The earlier journal why-state already preserves the two rejected presentation assumptions, so no routine changelog entry is added there. Backend/API, strict persisted validation and acquisition paths remain unchanged. This closeout modifies documentation and regenerated Roadmap only, with no market acquisition.
+
+
+Closeout verification on the accepted runtime: **91/91** Node tests pass across show-query, show, ls, fetch, wheelwright and tastytrade (including ID suffix boundaries and actual watch -c). Registry/generated manual synchronization passes; all 33 local links in changed documents resolve; Roadmap projection was regenerated from changed canonical bug/backlog state and its freshness check passes; git diff checks pass. Runtime is unchanged during closeout, so no backend/provider suite or live acquisition is performed. Canonical acceptance plus regenerated projection are committed/pushed together; final synchronized SHA is reported after remote verification.

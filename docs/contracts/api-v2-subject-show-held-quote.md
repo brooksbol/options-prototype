@@ -364,3 +364,8 @@ Compatibility reference: `tt live` passes `color: !command.tsv` to its command-s
 ### Manual acceptance correction — October 5, 2026
 
 The Principal rejected the complete-table full-date exception and reported non-change text appearing green at `4c2701ed9a03df579fec3928ef060bd37173b1ab`, clarifying that their terminal default is green on black. These demonstrated presentation defects are [BUG-031](../bugs/BUG-031-show-complete-table-timestamps.md) and [BUG-032](../bugs/BUG-032-show-change-color-scope.md). The Principal explicitly authorized bounded remediation, verification, commit and push. Current presentation requirements above supersede the actor-authored all-fields timestamp exception and default-foreground assumption; detailed verbose and canonical machine values remain unchanged. The subsequent Principal direction places DESCRIPTION immediately right of SYMBOL; the public registry/catalog/manual order is synchronized, with no field additions or semantic changes and no change to default/exact projection.
+
+
+### Principal manual acceptance — October 5, 2026
+
+The Principal accepted section 14's implemented held-query/table slice at runtime `1cd3444af40ad1ae1dafa2c9332ace30a0ba9f3d` after screenshot inspection, including compact horizontal clocks, semantic change colors/white baseline, DESCRIPTION-after-SYMBOL and final-12-character human ID suffixes. This is actual Principal acceptance, distinct from prior automated evidence. The existing boundaries remain: canonical machine/verbose IDs and timestamps, governed exact projection/filter/order, strict held reads, no acquisition, no new temporal/trading meaning. End-of-session closeout is authorized, with no remaining decision for this slice.

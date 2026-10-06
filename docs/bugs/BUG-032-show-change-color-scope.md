@@ -47,6 +47,11 @@ Final Node suite: 90/90; local deterministic fetch acceptance: 10/10. Registry/m
 
 Regression coverage in `scripts/ww-show-query.test.mjs` proves every timestamp field's compact all-fields cell, original timestamp strings in TSV/JSONL, unchanged date/missing/evidence, exact signed color spans, white padding/following cells/next rows on an inherited-green model, uncolored ordinary prices/non-change negatives, visible alignment, opt-outs, automatic machine redirection and explicit piped table. An actual PTY watch -c run verifies white headings, two scoped positive values restored to white, and subsequent red negative values. Existing query/integrity suites remain applicable; see the bounded acceptance artifact for final suite/check counts.
 
+
+### Principal acceptance and closure — 2026-10-05
+
+Following the corrected human table and ID-width continuation at runtime commit `1cd3444af40ad1ae1dafa2c9332ace30a0ba9f3d`, the Principal inspected the 10:51:17 PM screenshot and explicitly accepted the slice. This closes the prior outstanding manual visual rerun; status remains Resolved. The screenshot review showed compact clocks, DESCRIPTION after SYMBOL, shortened IDs, ordinary white text and change-only red/green under watch -c. Earlier verification/pending statements remain dated history, superseded by this explicit acceptance. End-of-session protocol and push are authorized; no unrelated defect or architecture work is authorized.
+
 ## Related
 
 - [Current Product contract](../contracts/api-v2-subject-show-held-quote.md#14-question-driven-held-collection-inspection--october-5-2026)
