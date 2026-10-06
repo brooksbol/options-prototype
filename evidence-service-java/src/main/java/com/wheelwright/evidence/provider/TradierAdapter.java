@@ -1,5 +1,10 @@
 package com.wheelwright.evidence.provider;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -9,6 +14,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -24,6 +30,10 @@ import java.util.*;
  *   - Quotes are cached and reused across chain requests
  */
 public class TradierAdapter {
+
+    private static final ObjectMapper JSON = new ObjectMapper()
+        .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION)
+        .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
 
     private final String apiKey;
     private final String baseUrl;
@@ -566,7 +576,8 @@ public class TradierAdapter {
     }
 
     // --- Minimal JSON parsing helpers ---
-    // These handle the specific Tradier response shapes without a full JSON library dependency.
+    // Legacy numeric/chain scanners retain their existing behavior; string fields and
+    // direct quotes use the existing Jackson dependency for structural field boundaries.
 
     private List<String> extractDateArray(String json) {
         // Find "date" array: "date":["2026-07-24","2026-08-21"]
@@ -664,16 +675,45 @@ public class TradierAdapter {
     }
 
     private String extractQuotedString(String json, String key) {
-        String pattern = "\"" + key + "\"";
-        int idx = json.indexOf(pattern);
-        if (idx < 0) return null;
-        int colonIdx = json.indexOf(':', idx + pattern.length());
-        if (colonIdx < 0) return null;
-        int quoteStart = json.indexOf('"', colonIdx + 1);
-        if (quoteStart < 0) return null;
-        int quoteEnd = json.indexOf('"', quoteStart + 1);
-        if (quoteEnd < 0) return null;
-        return json.substring(quoteStart + 1, quoteEnd);
+        // Streaming structural lookup preserves the legacy numeric parser's independent
+        // behavior on malformed later numeric tokens. Only root members or the explicit
+        // single-quote envelope are eligible; values/nested namesakes are never keys.
+        try (JsonParser parser = JSON.createParser(json)) {
+            while (parser.nextToken() != null) {
+                if (parser.currentToken() != JsonToken.FIELD_NAME || !key.equals(parser.currentName())) continue;
+                var context = parser.getParsingContext();
+                boolean flat = context.getParent().inRoot();
+                // For FIELD_NAME, getCurrentName is the member being inspected;
+                // the parent object owns the enclosing field name.
+                boolean quoteEnvelope = "quote".equals(context.getParent().getCurrentName())
+                    && "quotes".equals(context.getParent().getParent().getCurrentName())
+                    && context.getParent().getParent().getParent().inRoot();
+                boolean unmatchedEnvelope = key.equals("unmatched_symbols")
+                    && "quotes".equals(context.getParent().getCurrentName())
+                    && context.getParent().getParent().inRoot();
+                if (flat || quoteEnvelope || unmatchedEnvelope) {
+                    return parser.nextToken() == JsonToken.VALUE_STRING ? parser.getText() : null;
+                }
+            }
+        } catch (IOException e) {
+            // Legacy string fields stay absent when their containing JSON is unparseable.
+        }
+        return null;
+    }
+
+    private static JsonNode readProviderJson(String json) {
+        try {
+            JsonNode node = JSON.readTree(json);
+            if (node == null) throw new IllegalArgumentException("empty Tradier JSON");
+            return node;
+        } catch (IOException e) {
+            throw new IllegalArgumentException("malformed Tradier JSON", e);
+        }
+    }
+
+    private static String quotedString(JsonNode object, String key) {
+        JsonNode value = object.get(key);
+        return value != null && value.isTextual() ? value.textValue() : null;
     }
 
     @SuppressWarnings("unchecked")
@@ -797,12 +837,13 @@ public class TradierAdapter {
     // A single multi-symbol direct-quote acquisition. Tradier's /markets/quotes accepts a
     // comma-separated symbol list and returns quotes.quote as an OBJECT (one symbol) or ARRAY
     // (many), plus quotes.unmatched_symbols for symbols it did not resolve. This method
-    // preserves ALL quote-family facts verbatim and nullably (absence is NEVER fabricated as
-    // zero), reconciled by requested symbol identity — never by response position. It does
+    // preserves distinct quote-family facts nullably, normalizing own-field event times to UTC
+    // (absence is NEVER fabricated as zero), reconciled by requested symbol identity rather
+    // than response position. It does
     // NOT touch the response cache, does NOT normalize into chain evidence, and performs no
     // persistence. Pacing/429/credential handling flow through the shared httpRequest path.
 
-    /** One subject-verified raw quote (all facts nullable; absence preserved, never zeroed). */
+    /** One subject-verified quote (nullable facts; event times normalized to canonical UTC). */
     public record RawQuoteFacts(
             String symbol, String securityTypeRaw, String description, String exchange,
             Double last, Long lastSize, String tradeDate,
@@ -915,13 +956,24 @@ public class TradierAdapter {
         Map<String, RawQuoteFacts> bySymbol = new LinkedHashMap<>();
         Set<String> unmatched = new LinkedHashSet<>();
         if (body != null) {
-            for (String objJson : extractQuoteObjects(body)) {
-                RawQuoteFacts facts = parseQuoteObject(objJson);
-                if (facts != null && facts.symbol() != null) {
+            JsonNode quotes = readProviderJson(body).path("quotes");
+            JsonNode quote = quotes.path("quote");
+            List<JsonNode> objects = new ArrayList<>();
+            if (quote.isObject()) objects.add(quote);
+            else if (quote.isArray()) quote.forEach(objects::add);
+            for (JsonNode object : objects) {
+                if (!object.isObject()) throw new IllegalArgumentException("invalid Tradier quote object");
+                RawQuoteFacts facts = parseQuoteObject(object);
+                if (facts.symbol() != null) {
                     bySymbol.put(facts.symbol().toUpperCase(Locale.ROOT), facts);
                 }
             }
-            unmatched.addAll(extractUnmatchedSymbols(body));
+            String rawUnmatched = quotedString(quotes, "unmatched_symbols");
+            if (rawUnmatched != null) {
+                for (String value : rawUnmatched.split(",")) {
+                    if (!value.isBlank()) unmatched.add(value.trim().toUpperCase(Locale.ROOT));
+                }
+            }
         }
         // Any requested symbol neither matched nor explicitly unmatched is treated as unmatched
         // (reconcile by identity; never assume success for an absent subject).
@@ -933,96 +985,62 @@ public class TradierAdapter {
         return new QuotesResult(bySymbol, unmatched, contactAt, receivedAt);
     }
 
-    /** Extract each JSON object under quotes.quote (object or array), as raw substrings. */
-    private List<String> extractQuoteObjects(String json) {
-        List<String> objects = new ArrayList<>();
-        int quotesIdx = json.indexOf("\"quote\"");
-        if (quotesIdx < 0) return objects;
-        int colon = json.indexOf(':', quotesIdx + "\"quote\"".length());
-        if (colon < 0) return objects;
-        int i = colon + 1;
-        while (i < json.length() && Character.isWhitespace(json.charAt(i))) i++;
-        if (i >= json.length()) return objects;
-        char c = json.charAt(i);
-        if (c == '{') {
-            String obj = sliceBalancedObject(json, i);
-            if (obj != null) objects.add(obj);
-        } else if (c == '[') {
-            int depth = 0;
-            int objStart = -1;
-            for (int k = i + 1; k < json.length(); k++) {
-                char ch = json.charAt(k);
-                if (ch == '{') {
-                    if (depth == 0) objStart = k;
-                    depth++;
-                } else if (ch == '}') {
-                    depth--;
-                    if (depth == 0 && objStart >= 0) {
-                        objects.add(json.substring(objStart, k + 1));
-                        objStart = -1;
-                    }
-                } else if (ch == ']' && depth == 0) {
-                    break;
-                }
-            }
-        }
-        return objects;
-    }
-
-    /** Slice a balanced {...} object starting at braceStart. */
-    private String sliceBalancedObject(String json, int braceStart) {
-        int depth = 0;
-        for (int k = braceStart; k < json.length(); k++) {
-            char ch = json.charAt(k);
-            if (ch == '{') depth++;
-            else if (ch == '}') {
-                depth--;
-                if (depth == 0) return json.substring(braceStart, k + 1);
-            }
-        }
-        return null;
-    }
-
-    /** Parse quotes.unmatched_symbols (comma-separated string) into uppercase symbols. */
-    private Set<String> extractUnmatchedSymbols(String json) {
-        Set<String> out = new LinkedHashSet<>();
-        String raw = extractQuotedString(json, "unmatched_symbols");
-        if (raw != null && !raw.isBlank()) {
-            for (String s : raw.split(",")) {
-                String t = s.trim();
-                if (!t.isEmpty()) out.add(t.toUpperCase(Locale.ROOT));
-            }
-        }
-        return out;
-    }
-
     /** Parse one Tradier quote object into nullable raw facts (absence preserved). */
-    private RawQuoteFacts parseQuoteObject(String json) {
-        String symbol = extractQuotedString(json, "symbol");
+    private RawQuoteFacts parseQuoteObject(JsonNode json) {
+        String symbol = quotedString(json, "symbol");
         return new RawQuoteFacts(
             symbol,
-            extractQuotedString(json, "type"),
-            extractQuotedString(json, "description"),
-            extractQuotedString(json, "exch"),
-            extractNullableDouble(json, "last"), extractNullableLong(json, "last_volume"),
-            extractQuotedString(json, "trade_date"),
-            extractNullableDouble(json, "bid"), extractNullableLong(json, "bidsize"),
-            extractQuotedString(json, "bidexch"), extractQuotedString(json, "bid_date"),
-            extractNullableDouble(json, "ask"), extractNullableLong(json, "asksize"),
-            extractQuotedString(json, "askexch"), extractQuotedString(json, "ask_date"),
-            extractNullableDouble(json, "open"), extractNullableDouble(json, "high"),
-            extractNullableDouble(json, "low"), extractNullableDouble(json, "close"),
-            extractNullableDouble(json, "prevclose"),
-            extractNullableLong(json, "volume"),
-            extractNullableDouble(json, "change"), extractNullableDouble(json, "change_percentage"),
-            extractNullableLong(json, "average_volume"),
-            extractNullableDouble(json, "week_52_high"), extractNullableDouble(json, "week_52_low"));
+            quotedString(json, "type"),
+            quotedString(json, "description"),
+            quotedString(json, "exch"),
+            quoteNumber(json, "last"), quoteLong(json, "last_volume"),
+            sourceEventTime(json, "trade_date"),
+            quoteNumber(json, "bid"), quoteLong(json, "bidsize"),
+            quotedString(json, "bidexch"), sourceEventTime(json, "bid_date"),
+            quoteNumber(json, "ask"), quoteLong(json, "asksize"),
+            quotedString(json, "askexch"), sourceEventTime(json, "ask_date"),
+            quoteNumber(json, "open"), quoteNumber(json, "high"),
+            quoteNumber(json, "low"), quoteNumber(json, "close"),
+            quoteNumber(json, "prevclose"),
+            quoteLong(json, "volume"),
+            quoteNumber(json, "change"), quoteNumber(json, "change_percentage"),
+            quoteLong(json, "average_volume"),
+            quoteNumber(json, "week_52_high"), quoteNumber(json, "week_52_low"));
     }
 
-    /** Nullable long extractor (absence/null/garbage → null), mirroring extractNullableDouble. */
-    private Long extractNullableLong(String json, String key) {
-        Double d = extractNullableDouble(json, key);
-        return d == null ? null : d.longValue();
+    private static Double quoteNumber(JsonNode object, String key) {
+        JsonNode value = object.get(key);
+        return value != null && value.isNumber() ? value.doubleValue() : null;
+    }
+
+    private static Long quoteLong(JsonNode object, String key) {
+        Double value = quoteNumber(object, key);
+        return value == null ? null : value.longValue();
+    }
+
+    /** Own-field event time only: Tradier epoch milliseconds or an explicit ISO offset time. */
+    private static String sourceEventTime(JsonNode object, String key) {
+        JsonNode value = object.get(key);
+        if (value == null || value.isNull()) return null;
+        try {
+            Instant instant;
+            if (value.isIntegralNumber() && value.canConvertToLong()) {
+                instant = Instant.ofEpochMilli(value.longValue());
+            } else if (value.isTextual()) {
+                instant = OffsetDateTime.parse(value.textValue()).toInstant();
+            } else {
+                throw new IllegalArgumentException("invalid timestamp type");
+            }
+            String canonical = instant.toString();
+            // The canonical contract uses a four-digit UTC calendar year.
+            if (!canonical.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}T.*Z")) {
+                throw new IllegalArgumentException("timestamp outside canonical range");
+            }
+            return canonical;
+        } catch (RuntimeException e) {
+            // A present malformed value is a provider failure, never valid/absent evidence.
+            throw new IllegalArgumentException("invalid Tradier source-event timestamp: " + key, e);
+        }
     }
 
     // --- Result types ---

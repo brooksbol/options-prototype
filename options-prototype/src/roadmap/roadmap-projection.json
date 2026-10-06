@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-06T03:42:58.358Z",
+    "generatedAt": "2026-10-06T03:55:59.749Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -8458,7 +8458,7 @@
       "title": "Tradier quote source-event timestamps can persist malformed non-time tokens",
       "area": "Backend / Tradier direct-quote normalization and canonical persistence",
       "severity": "Not established",
-      "status": "Open",
+      "status": "Resolved",
       "recordFile": "BUG-029-tradier-source-event-time-parser.md",
       "provenance": "Bounded `ww show` contract review 2026-10-05",
       "recordTitle": "BUG-029 — Tradier quote source-event timestamps can persist malformed non-time tokens",
@@ -8494,14 +8494,14 @@
         {
           "heading": "Diagnosis / root cause",
           "level": 2,
-          "content": "The bounded review established a likely concrete parser defect in the Tradier quoted-string extraction path: the extractor can advance to a later quoted token rather than proving that the requested JSON field's own value is a quoted string/date-time.\n\nThis record preserves that diagnosis but does not authorize a parser redesign or select a remediation.",
-          "truncated": false,
+          "content": "Confirmed by a failing production-parser regression on October 5, 2026, before production changes: `trade_date: 1757948508561` followed by `prevclose` returned `\"prevclose\"` instead of `2025-09-15T15:01:48.561Z`. The same mechanism returned `asksize` for numeric `bid_date` and `root_symbols` for numeric `ask_date`.\n\n`extractQuotedString` found the requested token with `indexOf`, found a subsequent colon, then searched anywhere after it for a quote. It never checked the intended value's type or boundary. Numeric/null/container values could therefore capture adjacent keys, and quoted values could be mistaken for keys. Escape handling and brace counting were also textual rather than JSON-aware.",
+          "truncated": true,
           "tables": []
         },
         {
           "heading": "Scope / non-goals",
           "level": 2,
-          "content": "This defect covers malformed direct-quote source-event timestamps produced/persisted through the Tradier normalization path.\n\nIt does not:\n- authorize remediation;\n- authorize mutation/repair of persisted rows;\n- authorize automatic substitution of receipt/commit/other timestamps;\n- redefine direct-quote acquisition semantics;\n- redefine `ww show`;\n- authorize provider fallback or provider abstraction work;\n- assert that all persisted observations are otherwise invalid.\n\nAlready-persisted malformed evidence must not be silently repaired by a read path. Whether affected observations are replaced through ordinary reacquisition after parser remediation is a separate execution/remediation decision.",
+          "content": "This defect covers malformed direct-quote source-event timestamps produced/persisted through the Tradier normalization path.\n\nIt does not:\n- grant continuing remediation authority by its existence;\n- authorize mutation/repair of persisted rows;\n- authorize automatic substitution of receipt/commit/other timestamps;\n- redefine direct-quote acquisition semantics;\n- redefine `ww show`;\n- authorize provider fallback or provider abstraction work;\n- assert that all persisted observations are otherwise invalid.\n\nAlready-persisted malformed evidence must not be silently repaired by a read path. Whether affected observations are replaced through ordinary reacquisition after parser remediation is a separate execution/remediation decision.",
           "truncated": false,
           "tables": []
         },
@@ -8515,15 +8515,22 @@
         {
           "heading": "Remediation history",
           "level": 2,
-          "content": "None. Filing does not authorize remediation.",
+          "content": "",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "2026-10-05 — Bounded producer remediation (Codex)",
+          "level": 3,
+          "content": "Principal explicitly authorized BUG-029 investigation, implementation, focused acceptance, canonical lifecycle update and commit/push from synchronized accepted `d47c3e3b6364ed8e5d12d70dc5faa851b819b2aa`. This authorization does not extend to persisted-row repair, market acquisition, BUG-028 or BUG-030.\n\nOnly production `TradierAdapter.java` changes:",
+          "truncated": true,
           "tables": []
         },
         {
           "heading": "Verification",
           "level": 2,
-          "content": "None yet.",
-          "truncated": false,
+          "content": "The original one-test reproduction failed before production edits with expected canonical timestamp versus actual `prevclose`. The remediated suite passes.\n\nNew focused coverage: `TradierSourceEventTimeTest` and `TradierTimestampAcquisitionTest` (11 tests). They cover independent last/bid/ask numeric and string times, epoch zero, absent/null times, reordered fields, nested namesakes, escaped quotes/braces, object/array provider shapes, adjacent observed keys, all shared string-field callers, ordinary quote facts and zero/absence, malformed present timestamps/JSON/duplicate keys, real source-to-canonical mapping and in-memory durable acceptance, malformed refresh retaining prior fixture evidence, and strict rejection of all three bad tokens on all three sides.",
+          "truncated": true,
           "tables": []
         },
         {
