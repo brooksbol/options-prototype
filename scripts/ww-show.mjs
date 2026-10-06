@@ -247,7 +247,7 @@ export function presentShowRows(observations,options={}) {
   const value=q?colorShowCell(q,fields[i],v,color):v;
   return q&&fields[i].valueType==='number'?padding+value:value+padding;
  }).join('  ').trimEnd();
- return ordinary((header?layout(fields.map(f=>f.heading))+'\n':'')+rows.map((row,i)=>layout(row,observations[i])+'\n').join(''));
+ return ordinary((header?layout(fields.map(f=>f.heading))+'\n':'')+rows.map((row,i)=>(color?'\x1b[37m':'')+layout(row,observations[i])+'\n').join(''));
 }
 export function presentShow(q,options={}) {return presentShowRows([q],options);}
 export function presentFields(tty=false){return (tty?'FIELD                        DESCRIPTION\n':'')+SHOW_FIELDS.map(f=>tty?f.name.padEnd(28)+' '+f.description:f.name+'\t'+f.description).join('\n')+'\n';}

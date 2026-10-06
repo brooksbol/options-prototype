@@ -180,7 +180,7 @@ test('human semantic colors decorate only change fields, preserve alignment and 
   assert.match(colored, /\x1b\[32m\+1.23%\x1b\[37m/);
   assert.match(colored, /\x1b\[31m-2.35\x1b\[37m/);
   assert.match(colored, /\x1b\[31m-2.35%\x1b\[37m/);
-  assert.doesNotMatch(colored.split('\n')[3], /\x1b\[/);
+  assert.doesNotMatch(colored.split('\n')[3], /\x1b\[(?:31|32)m/);
   assert.ok(!colored.includes('\x1b[32m12.35'));
   // Isolated renderer guard: even a negative non-change value is never sign-colored.
   // Canonical validation still rejects negative prices; this is not an admitted observation.
@@ -344,7 +344,7 @@ test('ANSI spans contain only signed change values; green-default terminal ordin
   // Right-aligned semantic values and subsequent cells occupy identical columns.
   assert.equal(lines[1].indexOf('12.35'), lines[2].indexOf('12.35'));
   assert.match(output, /\x1b\[37m  +12.35/); // immediately following price is white
-  assert.match(output, /\x1b\[37m  +12.3\nBBB/); // padding, separator, next row stay white
+  assert.match(output, /\x1b\[37m  +12.3\n\x1b\[37mBBB/); // padding, separator, next row stay white
 });
 
 test('complete registry puts description immediately after symbol without changing exact --only', () => {
@@ -376,3 +376,34 @@ test('human ID suffixes preserve full canonical machine, verbose and selection i
   assert.deepEqual(selectedSymbols([raw('AAA')], ['--quotes', '--where', 'observationId=' + full[0].slice(-12)]), []);
   assert.equal(JSON.stringify(q), before);
 });
+
+
+test('actual clipped watch -c -w keeps every row white before scoped changes', { timeout: 10000 }, async () => fixture(async ({ state, env, calls }) => {
+  for (const [symbol, change] of [['AAA', '1'], ['BBB', '-2'], ['CCC', '0']]) {
+    state.rows[symbol] = raw(symbol, 'ETF', change);
+    state.rows[symbol].facts.description = 'Long description that deliberately extends past the watch viewport';
+  }
+  const command = `${ww} show AAA BBB CCC --only symbol,reportedChange,reportedChangePercent,description --table`;
+  const result = JSON.parse((await capture([pty, '--stdin-tty', 'watch', '-c', '-w', '-t', '-n', '0.1', '-q', '1', command],
+    { ...env, COLUMNS: '60', LINES: '10' }, 'python3')).stdout);
+  assert.equal(result.status, 0); assert.equal(result.stderr, '');
+  const output = result.stdout;
+  // The clipped header and every clipped row cause watch 4.0.7 to reset its
+  // own ANSI state. Follow emitted foreground state at real visible symbols.
+  let foreground = 39, seen = [];
+  for (const part of output.split(/(\x1b\[[0-9;]*m)/)) {
+    if (part.startsWith('\x1b[')) {
+      for (const code of part.slice(2, -1).split(';').map(Number)) {
+        if (code === 0 || code === 39) foreground = 39;
+        else if (code >= 30 && code <= 37) foreground = code;
+      }
+    } else for (const symbol of ['AAA', 'BBB', 'CCC']) if (part.includes(symbol)) {
+      assert.equal(foreground, 37, symbol + ' must be white even after a clipped preceding line');
+      seen.push(symbol);
+    }
+  }
+  assert.deepEqual(seen, ['AAA', 'BBB', 'CCC']);
+  assert.match(output, /\x1b\[32m\+1\x1b\[37m/);
+  assert.match(output, /\x1b\[31m-2\x1b\[37m/);
+  assert.ok(calls.every(c => ['AAA', 'BBB', 'CCC'].some(s => c.path === '/v2/quotes/' + s)));
+}));

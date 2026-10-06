@@ -106,7 +106,9 @@ COLOR AND TERMINAL COMPOSITION
     red when negative. Zero/missing and all non-change fields use white (37),
     even when the terminal default is green. ANSI green/red (32/31) encloses
     only the semantic change value, then restores white (37) before padding.
-    Human output starts white and ends with reset (0) to restore the terminal.
+    Human output starts white; every horizontal row reasserts white, preserving
+    colors under watch -c -w when preceding lines are clipped. Output ends with
+    reset (0) to restore the terminal.
     Widths use plain values; padding stays outside colored spans. Human --table
     keeps color in pipes, following tt live's presentation-based convention. Nonempty
     NO_COLOR or TERM=dumb disables color, including --table; empty/unset

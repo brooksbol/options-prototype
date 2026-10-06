@@ -52,6 +52,21 @@ Regression coverage in `scripts/ww-show-query.test.mjs` proves every timestamp f
 
 Following the corrected human table and ID-width continuation at runtime commit `1cd3444af40ad1ae1dafa2c9332ace30a0ba9f3d`, the Principal inspected the 10:51:17 PM screenshot and explicitly accepted the slice. This closes the prior outstanding manual visual rerun; status remains Resolved. The screenshot review showed compact clocks, DESCRIPTION after SYMBOL, shortened IDs, ordinary white text and change-only red/green under watch -c. Earlier verification/pending statements remain dated history, superseded by this explicit acceptance. End-of-session protocol and push are authorized; no unrelated defect or architecture work is authorized.
 
+
+### Audit checkpoint — 2026-10-05 — Post-acceptance no-wrap compatibility failure
+
+After accepted-main session closeout `ec417f0faca3a63cb78e6e219246da304b47aa70`, Principal screenshot `Screenshot 2026-10-05 at 10.59.40 PM.png` showed ordinary row content green under `watch -c -w`. This is a new falsifier of the same ordinary-white color invariant, not a new capability or a duplicate defect identity. Earlier normal-table/watch -c acceptance remains true for its tested composition; it did not cover clipped no-wrap lines.
+
+Independent synthetic PTY reproduction and upstream procps-ng 4.0.7 source establish that watch's no-wrap branch discards overflow with `skiptoeol`, then resets its own ANSI state to default. The CLI asserted white only once at the beginning of the table. After a clipped header/row the next row therefore inherited watch's default foreground, which is green on the Principal's terminal, until another semantic change value restored white. This is external composition state reset, not a missing change-cell reset or whole-row sign decoration. Upstream evidence: https://gitlab.com/procps-ng/procps/-/raw/v4.0.7/src/watch.c (no-wrap clipping branch).
+
+### Principal authorization and resolution — 2026-10-05 — Self-contained row foreground
+
+Principal said “proceed” after the bounded diagnosis/remediation recommendation. Each colored horizontal human data row now begins with SGR 37, independently of prior rows. Existing output initialization keeps the header white; per-change restoration and final terminal reset remain. No newline/visible-width, projection, machine output, strict-validation, backend or query changes. No attempt to modify watch or change its clipping behavior. Status remains Resolved following the passing bounded regression.
+
+### Post-resolution validation — 2026-10-05 — Actual watch no-wrap regression
+
+New deterministic PTY test invokes the installed watch 4.0.7 with -c -w against only fixture held GETs. Both header and rows exceed a 60-column viewport. It tracks emitted SGR foreground at visible AAA/BBB/CCC symbols, verifies white after clipping, and checks scoped green positive/red negative values; zero retains ordinary white. Before production edits, the test failed with BBB foreground 39 rather than 37. After remediation it passes. The full existing show/query suite also verifies plain visible alignment, NO_COLOR/TERM=dumb, canonical color-free TSV/JSONL, automatic redirected machines, exact projection, filtering/ranking/limiting and original watch -c behavior. Final relevant CLI suite passes 92/92, including both actual watch compositions; show/query subset passes 34/34. Registry/manual, syntax, generated Roadmap freshness and diff checks pass. Principal visual rerun for this no-wrap continuation remains outstanding; no market acquisition.
+
 ## Related
 
 - [Current Product contract](../contracts/api-v2-subject-show-held-quote.md#14-question-driven-held-collection-inspection--october-5-2026)

@@ -249,3 +249,6 @@ Human rounding uses decimal digits, not binary floating point: at most two fract
 
 
 **ID-width continuation (Principal direction):** In the human non-verbose cell renderer, observationId/acquisitionId use their final 12 characters before width calculation. Keep full strings in canonical machine output, verbose, filter/sort keys and observations; suffixes do not establish uniqueness. No registry meaning/name, API or held-read change.
+
+
+**Post-acceptance no-wrap continuation:** BUG-032's ordinary-white invariant was falsified by watch 4.0.7 resetting its own ANSI state after clipped lines. Reassert SGR 37 at each horizontal data row's beginning when color is enabled; existing output initialization covers the header. All widths stay based on plain values, and disabled/machine modes receive no new escapes. Verify actual clipped headers/rows under watch -c -w with the existing PTY fixture harness, alongside original watch -c coverage. The Principal authorized this bounded continuation; no watch/API/provider changes.

@@ -126,3 +126,13 @@ Closeout began on clean, remote-synchronized main at the accepted runtime SHA; n
 
 
 Closeout verification on the accepted runtime: **91/91** Node tests pass across show-query, show, ls, fetch, wheelwright and tastytrade (including ID suffix boundaries and actual watch -c). Registry/generated manual synchronization passes; all 33 local links in changed documents resolve; Roadmap projection was regenerated from changed canonical bug/backlog state and its freshness check passes; git diff checks pass. Runtime is unchanged during closeout, so no backend/provider suite or live acquisition is performed. Canonical acceptance plus regenerated projection are committed/pushed together; final synchronized SHA is reported after remote verification.
+
+
+## Post-acceptance watch no-wrap continuation — October 5, 2026
+
+Principal reported the 10:59:40 PM screenshot: watch -c -w clipped the wide table, but ordinary text became green. Existing accepted watch -c composition did not test clipping. BUG-032 retains the same defect identity and records the new falsifier, source diagnosis, explicit “proceed” authorization and bounded fix. watch 4.0.7 resets its own foreground after clipping, so each colored horizontal data row must independently reassert white. This adds invisible SGR 37 only at row starts; semantic signed-value spans, canonical machines, query operations and strict reads remain unchanged. The new actual 60-column PTY watch -c -w test failed before production edits and passes after the fix; it checks white symbols after clipped headers/rows, green/red changes and zero, with fixture GETs only. No live acquisition or watch installation change.
+
+Manual rerun: retain your existing query with `watch -c -t -w -n 6`. No-wrap intentionally hides right-edge overflow; `--table | less -SR` still provides full horizontal inspection. Previous Principal acceptance remains dated evidence; this bounded no-wrap continuation awaits its own visual rerun.
+
+
+No-wrap continuation verification: **92/92** full relevant Node CLI tests pass; **34/34** show/query subset passes. Registry/manual synchronization, syntax, documentation links, regenerated Roadmap freshness and diff checks pass. Only one production line changes, adding the conditional white row prefix; no provider contact or runtime/watch installation change.

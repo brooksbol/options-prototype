@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-06T04:56:45.887Z",
+    "generatedAt": "2026-10-06T05:04:07.796Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,7 +41,7 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 32,
-      "logTotal": 102,
+      "logTotal": 105,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 60
@@ -8822,6 +8822,27 @@
           "tables": []
         },
         {
+          "heading": "Audit checkpoint — 2026-10-05 — Post-acceptance no-wrap compatibility failure",
+          "level": 3,
+          "content": "After accepted-main session closeout `ec417f0faca3a63cb78e6e219246da304b47aa70`, Principal screenshot `Screenshot 2026-10-05 at 10.59.40 PM.png` showed ordinary row content green under `watch -c -w`. This is a new falsifier of the same ordinary-white color invariant, not a new capability or a duplicate defect identity. Earlier normal-table/watch -c acceptance remains true for its tested composition; it did not cover clipped no-wrap lines.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Principal authorization and resolution — 2026-10-05 — Self-contained row foreground",
+          "level": 3,
+          "content": "Principal said “proceed” after the bounded diagnosis/remediation recommendation. Each colored horizontal human data row now begins with SGR 37, independently of prior rows. Existing output initialization keeps the header white; per-change restoration and final terminal reset remain. No newline/visible-width, projection, machine output, strict-validation, backend or query changes. No attempt to modify watch or change its clipping behavior. Status remains Resolved following the passing bounded regression.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Post-resolution validation — 2026-10-05 — Actual watch no-wrap regression",
+          "level": 3,
+          "content": "New deterministic PTY test invokes the installed watch 4.0.7 with -c -w against only fixture held GETs. Both header and rows exceed a 60-column viewport. It tracks emitted SGR foreground at visible AAA/BBB/CCC symbols, verifies white after clipping, and checks scoped green positive/red negative values; zero retains ordinary white. Before production edits, the test failed with BBB foreground 39 rather than 37. After remediation it passes. The full existing show/query suite also verifies plain visible alignment, NO_COLOR/TERM=dumb, canonical color-free TSV/JSONL, automatic redirected machines, exact projection, filtering/ranking/limiting and original watch -c behavior. Final relevant CLI suite passes 92/92, including both actual watch compositions; show/query subset passes 34/34. Registry/manual, syntax, generated Roadmap freshness and diff checks pass.",
+          "truncated": true,
+          "tables": []
+        },
+        {
           "heading": "Related",
           "level": 2,
           "content": "- [Current Product contract](../contracts/api-v2-subject-show-held-quote.md#14-question-driven-held-collection-inspection--october-5-2026)\n- [Solution Design](../design/ww-show-held-quote-solution-design.md)\n- [Acceptance evidence](../cli/ww-show-query-acceptance-2026-10-05.md)",
@@ -9038,7 +9059,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 573
+      "sourceOrder": 576
     },
     {
       "plId": null,
@@ -9662,7 +9683,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 572
+      "sourceOrder": 575
     },
     {
       "plId": "PL-SEM-01",
@@ -10157,6 +10178,45 @@
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
       "sourceOrder": 571
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
+      "title": "Audit checkpoint — 2026-10-05 — Post-acceptance no-wrap compatibility failure",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 572
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
+      "title": "Principal authorization and resolution — 2026-10-05 — Self-contained row foreground",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 573
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
+      "title": "Post-resolution validation — 2026-10-05 — Actual watch no-wrap regression",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 574
     }
   ],
   "intakeDateUnknown": [
