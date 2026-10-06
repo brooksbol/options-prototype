@@ -163,15 +163,18 @@ export function selectShowObservations(observations,{where=[],sortBy,absolute=fa
  let selected=observations.filter(q=>filters.every(({field,key})=>{
   const value=field.extract(q);return value!==undefined&&compareKey(field,fieldKey(field,value),key)===0;
  }));
- if(sortBy) {
-  const field=SHOW_FIELD_BY_NAME.get(sortBy);
-  selected=selected.map((q,index)=>{const v=field.extract(q);return {q,index,key:v===undefined?undefined:fieldKey(field,v)};})
-   .sort((a,b)=>{
-    if(a.key===undefined||b.key===undefined)return a.key===b.key?a.index-b.index:a.key===undefined?1:-1;
-    return (descending?-1:1)*compareKey(field,a.key,b.key,absolute)||a.index-b.index;
-   }).map(entry=>entry.q);
- }
- return limit!==undefined&&limit<BigInt(selected.length)?selected.slice(0,Number(limit)):selected;
+ const take=rows=>limit!==undefined&&limit<BigInt(rows.length)?rows.slice(0,Number(limit)):rows;
+ if(!sortBy)return take(selected);
+ const field=SHOW_FIELD_BY_NAME.get(sortBy);
+ const entries=selected.map((q,index)=>{const v=field.extract(q);return {q,index,key:v===undefined?undefined:fieldKey(field,v)};});
+ const compare=(a,b,magnitude=false)=>{
+  if(a.key===undefined||b.key===undefined)return a.key===b.key?a.index-b.index:a.key===undefined?1:-1;
+  return (descending?-1:1)*compareKey(field,a.key,b.key,magnitude)||a.index-b.index;
+ };
+ // Magnitude chooses bounded membership; output always orders canonical values.
+ if(absolute&&limit!==undefined)return take(entries.sort((a,b)=>compare(a,b,true)))
+  .sort((a,b)=>compare(a,b)).map(entry=>entry.q);
+ return take(entries.sort((a,b)=>compare(a,b))).map(entry=>entry.q);
 }
 function plainDecimal({digits,exponent}) {
  const position=BigInt(digits.length)+exponent;
@@ -186,17 +189,27 @@ function scientificDecimal({digits,exponent}) {
 function roundDecimal(parts,targetExponent) {
  const cut=targetExponent-parts.exponent;
  if(cut<=0n)return parts;
- // The adaptive target always retains nonzero significant digits.
+ if(cut>BigInt(parts.digits.length))return decimalParts('0');
  const keep=parts.digits.length-Number(cut);
- let digits=parts.digits.slice(0,keep);
+ let digits=parts.digits.slice(0,keep)||'0';
  if(parts.digits[keep]>='5')digits=(BigInt(digits)+1n).toString();
  return decimalParts((parts.sign<0?'-':'')+digits+'e'+targetExponent);
 }
 export function humanShowNumber(value,kind,verbose=false) {
  const source=value.rawJSON,parts=decimalParts(source);
  const signed=kind==='change'||kind==='percent',suffix=kind==='percent'?'%':'';
- if(parts.sign===0)return '0'+suffix;
  const prefix=parts.sign<0?'-':signed?'+':'';
+ if(!verbose&&['price','change'].includes(kind)) {
+  if(parts.sign===0)return '0.00';
+  const fixed=text=>{const [whole,fraction='']=text.split('.');return whole+'.'+fraction.padEnd(2,'0');};
+  const order=BigInt(parts.digits.length)+parts.exponent-1n;
+  if(order>=18n) {
+   const [coefficient,exponent]=scientificDecimal(roundDecimal(parts,order-2n)).split('e');
+   return prefix+fixed(coefficient)+'e'+exponent;
+  }
+  return prefix+fixed(plainDecimal(roundDecimal(parts,-2n)));
+ }
+ if(parts.sign===0)return '0'+suffix;
  if(verbose)return (parts.sign>0&&signed?'+':'')+source+suffix;
  const order=BigInt(parts.digits.length)+parts.exponent-1n;
  if(kind==='integer') {
@@ -215,18 +228,42 @@ function humanMode({format,tty=false}) {return format==='table'||format!=='tsv'&
 export function showColorEnabled(options,env=process.env) {
  return humanMode(options)&&!env.NO_COLOR&&env.TERM!=='dumb';
 }
-function colorShowCell(q,field,text,color) {
- if(!color||!['change','percent'].includes(field.kind))return text;
+function colorShowCell(q,field,text,color,verbose=false) {
+ if(!color)return text;
+ const venue=!verbose&&showVenue(q,field);
+ if(!verbose&&field.extract(q)!==undefined) {
+  const index=field.name==='symbol'?226:field.name==='description'?250:field.name==='last'?208
+   :field.name==='type'?TYPE_COLORS.get(field.extract(q)):undefined;
+  if(index!==undefined)return `\x1b[38;5;${index}m${text}\x1b[37m`;
+ }
+ if(venue)return `\x1b[38;5;${venue.color}m${text}\x1b[37m`;
+ if(!['change','percent'].includes(field.kind))return text;
  const value=field.extract(q);if(value===undefined)return text;
  const sign=decimalParts(value.rawJSON).sign;
- return sign?`\x1b[${sign>0?'32':'31'}m${text}\x1b[37m`:text;
+ return sign?`\x1b[${sign>0?'32':'38;5;203'}m${text}\x1b[37m`:text;
+}
+const TYPE_COLORS=new Map([['EQUITY',81],['ETF',219],['INDEX',179],['OTHER',245]]);
+// Provider-published underlying exchange codes, not OPRA option codes.
+// https://docs.tradier.com/docs/exchange-codes (verified October 5, 2026).
+const TRADIER_VENUE_LABELS=new Map(Object.entries({
+ A:['NYSE MKT',177],B:['NasdaqBX',111],C:['NSX',153],D:['FINRAADF',220],E:['SIPGen',75],F:['Funds/MM',183],
+ G:['Globex',69],I:['ISE',135],J:['Edge A',99],K:['Edge X',147],L:['LTSE',123],M:['Chicago',189],N:['NYSE',117],
+ P:['NYSEArca',45],Q:['Nasdaq',214],S:['NasSmall',171],T:['NasInt',159],U:['OTCBB',105],V:['OTCOther',51],
+ W:['CBOE',141],X:['NasPSX',39],Y:['BATS-Y',63],Z:['BATS',201]
+}).map(([code,[label,color]])=>[code,{label,color}]));
+function showVenue(q,field) {
+ return q.provenance.provider==='tradier'&&['bidVenue','askVenue','exchange'].includes(field.name)
+  ?TRADIER_VENUE_LABELS.get(field.extract(q)):undefined;
 }
 function showCells(q,fields,{verbose=false},human) {
  return fields.map(f=>{
   const v=f.extract(q);if(v===undefined)return human?'-':'';
   if(!human)return escapeCell(JSON.isRawJSON(v)?v.rawJSON:v);
   if(f.kind==='instant')return localTime(v,verbose);
+  if(!verbose&&f.name==='description'){const text=Array.from(escapeCell(v));return text.length>40?text.slice(0,40).join('')+'...':text.join('');}
   if(!verbose&&['observationId','acquisitionId'].includes(f.name))return v.slice(-12);
+  const venue=!verbose&&showVenue(q,f);
+  if(venue)return escapeCell(venue.label);
   if(JSON.isRawJSON(v))return humanShowNumber(v,f.kind,verbose);
   return escapeCell(v);
  });
@@ -239,15 +276,19 @@ export function presentShowRows(observations,options={}) {
  const rows=observations.map(q=>showCells(q,fields,options,human));
  if(!human)return rows.map(row=>row.join('\t')+'\n').join('');
  const ordinary=text=>color?`\x1b[37m${text}\x1b[0m`:text;
- if(verbose)return ordinary(observations.map((q,i)=>`Subject ${escapeCell(q.subject.symbol)}\nFIELD                        VALUE\n`+fields.map((f,j)=>f.name.padEnd(28)+' '+colorShowCell(q,f,rows[i][j],color)).join('\n')+'\n').join(''));
+ if(verbose)return ordinary(observations.map((q,i)=>`Subject ${escapeCell(q.subject.symbol)}\nFIELD                        VALUE\n`+fields.map((f,j)=>f.name.padEnd(28)+' '+colorShowCell(q,f,rows[i][j],color,true)).join('\n')+'\n').join(''));
  const widths=fields.map(f=>Math.max(f.heading.length,8));
  for(const row of rows)row.forEach((v,i)=>widths[i]=Math.max(widths[i],v.length));
- const layout=(row,q)=>row.map((v,i)=>{
+ const layout=(row,q)=>{const line=row.map((v,i)=>{
   const padding=' '.repeat(widths[i]-v.length);
   const value=q?colorShowCell(q,fields[i],v,color):v;
   return q&&fields[i].valueType==='number'?padding+value:value+padding;
- }).join('  ').trimEnd();
- return ordinary((header?layout(fields.map(f=>f.heading))+'\n':'')+rows.map((row,i)=>(color?'\x1b[37m':'')+layout(row,observations[i])+'\n').join(''));
+ }).join('  ');return q?line:line.trimEnd();};
+ const outputRows=rows.map((row,i)=>{
+  const background=i%2?'\x1b[48;5;232m':'\x1b[40m';
+  return (color?'\x1b[37m'+background:'')+layout(row,observations[i])+(color?'\x1b[49m':'')+'\n';
+ }).join('');
+ return ordinary((header?layout(fields.map(f=>f.heading))+'\n':'')+outputRows);
 }
 export function presentShow(q,options={}) {return presentShowRows([q],options);}
 export function presentFields(tty=false){return (tty?'FIELD                        DESCRIPTION\n':'')+SHOW_FIELDS.map(f=>tty?f.name.padEnd(28)+' '+f.description:f.name+'\t'+f.description).join('\n')+'\n';}

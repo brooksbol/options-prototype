@@ -1,22 +1,23 @@
 // The sole public show projection/catalog/semantic field registry. No I/O or client initialization.
 const priceMeaning = "Source-reported nonnegative price in the instrument's applicable unit; currency/lot conventions are not inferred.";
+const venuePresentation = " Human horizontal tables use provider-qualified compact labels (at most eight characters) for documented Tradier underlying exchange codes, with stable categorical colors when enabled. Unknown codes/other providers remain source text; verbose and machines retain raw codes. Filters/sorts use source text, never labels.";
 const sizeMeaning = "Source-reported size; provider unit conventions are preserved, not assumed to be shares or lots.";
 const instantMeaning = "Original RFC 3339 UTC instant. Terminal presentation uses local time; TSV/JSONL retain the original timestamp. Absence is not inferred from other clocks.";
 const missing = "Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.";
 const entries = [
  ['symbol','subject.symbol','SYMBOL','Canonical uppercase subject identity.','Identity is canonical, never the path-codec token.'],
- ['description','facts.description','DESCRIPTION','Provider-reported instrument description.','Optional source text, not a Wheelwright issuer lookup.'],
+ ['description','facts.description','DESCRIPTION','Provider-reported instrument description.','Optional source text, not a Wheelwright issuer lookup. Human horizontal tables truncate after 40 characters with ...; verbose and machines retain full text.'],
  ['type','subject.securityType','TYPE','Wheelwright security type.','Public EQUITY, ETF, INDEX, OTHER; wire OTHER_UNDERLYING maps to OTHER.'],
  ['last','facts.last.price','LAST','Last reported trade price.',priceMeaning],
  ['lastSize','facts.last.size','LAST SIZE','Last reported trade size.',sizeMeaning],
  ['lastSourceEventAt','facts.last.sourceEventAt','LAST SOURCE EVENT','Provider last-trade event time.',instantMeaning],
  ['bid','facts.bid.price','BID','Reported bid price.',priceMeaning],
  ['bidSize','facts.bid.size','BID SIZE','Reported displayed bid size.',sizeMeaning],
- ['bidVenue','facts.bid.venue','BID VENUE','Provider-reported bid venue.','Venue is optional source text, not independently resolved.'],
+ ['bidVenue','facts.bid.venue','BID VENUE','Provider-reported bid venue.','Venue is optional source text, not independently resolved.'+venuePresentation],
  ['bidSourceEventAt','facts.bid.sourceEventAt','BID SOURCE EVENT','Provider bid event time.',instantMeaning],
  ['ask','facts.ask.price','ASK','Reported ask price.',priceMeaning],
  ['askSize','facts.ask.size','ASK SIZE','Reported displayed ask size.',sizeMeaning],
- ['askVenue','facts.ask.venue','ASK VENUE','Provider-reported ask venue.','Venue is optional source text, not independently resolved.'],
+ ['askVenue','facts.ask.venue','ASK VENUE','Provider-reported ask venue.','Venue is optional source text, not independently resolved.'+venuePresentation],
  ['askSourceEventAt','facts.ask.sourceEventAt','ASK SOURCE EVENT','Provider ask event time.',instantMeaning],
  ...['open','high','low','close','previousClose'].map(name=>[name,`facts.${name}`,name==='previousClose'?'PREVIOUS CLOSE':name.toUpperCase(),`Reported ${name==='previousClose'?'previous close':name} price.`,priceMeaning+' No separate event time is supplied for this fact; do not substitute another price.']),
  ['volume','facts.volume','VOLUME','Provider-reported daily volume.','Nonnegative integer; period and unit conventions come from the source, not a Wheelwright estimate.'],
@@ -25,7 +26,7 @@ const entries = [
  ['averageVolume','facts.averageVolume','AVERAGE VOLUME','Provider-reported average daily volume.','Nonnegative integer; averaging window is not independently established.'],
  ['fiftyTwoWeekHigh','facts.fiftyTwoWeekHigh','52 WEEK HIGH','Provider-reported 52-week high.',priceMeaning+' Source-defined range, not recomputed.'],
  ['fiftyTwoWeekLow','facts.fiftyTwoWeekLow','52 WEEK LOW','Provider-reported 52-week low.',priceMeaning+' Source-defined range, not recomputed.'],
- ['exchange','facts.exchange','EXCHANGE','Provider-reported instrument exchange.','Optional source text; distinct from side-specific venues.'],
+ ['exchange','facts.exchange','EXCHANGE','Provider-reported instrument exchange.','Optional source text; distinct from side-specific venues.'+venuePresentation],
  ['observationId','observationId','OBSERVATION ID','Identity of the accepted observation.','UUID preserved from the canonical holding; distinct from HTTP correlation and acquisition identity.'],
  ['provider','provenance.provider','PROVIDER','Observation source provider.','Persisted source identity, independent of the currently active provider.'],
  ['environment','provenance.environment','ENVIRONMENT','Provider data environment.','PRODUCTION or SANDBOX; not CLI/server deployment environment.'],

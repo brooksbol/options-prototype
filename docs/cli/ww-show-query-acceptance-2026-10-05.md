@@ -136,3 +136,35 @@ Manual rerun: retain your existing query with `watch -c -t -w -n 6`. No-wrap int
 
 
 No-wrap continuation verification: **92/92** full relevant Node CLI tests pass; **34/34** show/query subset passes. Registry/manual synchronization, syntax, documentation links, regenerated Roadmap freshness and diff checks pass. Only one production line changes, adding the conditional white row prefix; no provider contact or runtime/watch installation change.
+
+
+## Principal-ratified existing-flag semantics amendment — October 5, 2026
+
+After viewing the 11:04:50 PM screenshot, the Principal clarified that the biggest movers should be selected by magnitude but displayed with gains above losses, most negative last. The earlier magnitude-interleaved ordering conformed to its accepted contract; this is a Product amendment, not a bug. Principal requested reassessment of existing flags rather than a new display-order flag, then ratified option A: sort-by chooses the field for both stages, absolute affects bounded membership ranking only, descending applies to ranking and canonical signed output order, and limit selects N before that final order. Without limit/with an oversized limit, all matches survive and absolute has no observable effect. Missing-last and original-subject-order ties remain in both stages. Formats share final row order and preserve values.
+
+Example: -20%, +12%, -11%, +3% with absolute/descending/limit 3 now emits +12%, -11%, -20%. The unchanged ETF command expresses this directly. Production computes exact keys/original indices once, ranks absolute entries when bounded, takes N and orders retained entries canonically; ordinary nonabsolute sorting and unsorted limiting remain compatible. No API, provider, field, derived value, acquisition or new temporal interpretation. Prior acceptance remains dated evidence of the prior meaning; visual acceptance of this new ordering is separate.
+
+Two new acceptance tests failed against the old ordering before production edits, then passed: exact membership and signed order in both directions, unlimited/oversized cases, stable cutoff/output ties, missing-last, beyond-Number precision, filtered collection population, unprojected sort key and identical horizontal table/TSV/JSONL order. Show/query subset passes 36/36, including strict-validation/partial-result and actual watch color regressions.
+
+
+## Principal human venue-code labels — October 5, 2026
+
+While the ratified ordering amendment was in progress, Principal asked for understandable bid/ask venue and exchange labels no longer than eight characters. Before design/implementation, inspected Tradier's official [Exchange Codes](https://docs.tradier.com/docs/exchange-codes) and [Quotes](https://docs.tradier.com/docs/quotes) documentation: exch is instrument exchange; bidexch/askexch identify side exchanges. The separate OPRA table has different meanings and is not used for underlying observations. A provider-qualified CLI presentation map expands the 23 documented underlying codes; examples P -> NYSEArca, Q -> Nasdaq, Z -> BATS. It follows the provider's published nomenclature, not inferred current venue membership or a newly resolved market identity.
+
+Labels apply only to nonverbose human horizontal tables; the subsequent Principal categorical-color direction below supersedes their initial ordinary-white style. Unknown codes and other providers stay source text; missing cells stay missing. Verbose, TSV/JSONL, exact filters/sorts and canonical observations retain the original codes; aliases are not public fields or filter values. Field registry meaning/generated manual are synchronized. Two new deterministic tests failed against raw human codes before production edits and pass after: common P/Z/Q cells across projections, source immutability, ANSI scope/alignment, machine/verbose fidelity, canonical filter semantics, unknown/missing/provider fallback and <=8-character labels for all 23 published codes. This is authorized presentation behavior, not a defect record or API/provider change.
+
+
+## Principal monetary and human-table style continuations — October 5, 2026
+
+Principal directed prices/absolute change amounts to exactly two decimals, distinct known venue colors, yellow symbols, light-gray descriptions, orange LAST, separate TYPE colors, alternating full-width black/dark-gray rows, and descriptions truncated to first 40 characters plus ... when longer. After twice rejecting lighter backgrounds, the alternate gray is indexed 232 (#080808). Product/Design/manual/registry absorb these explicit directions. Sub-cent money can display signed 0.00; percentages remain adaptive. These amend presentation, not bugs, canonical values, field vocabulary or temporal semantics.
+
+Deterministic coverage verifies decimal half-away-from-zero rounding/trailing zeros for every price/change field; source sign/color preservation; full canonical machines/verbose; provider-qualified <=8-character labels and 23 distinct scoped venue colors; yellow/gray/orange and all four TYPE colors; 40-character description boundary/Unicode/full machine text; black/232 full-row stripes; white before padding, background reset before newline; ANSI-free opt-outs/machines; and actual PTY watch -c -w categorical/stripe/change compatibility. Every style is presentation-only; exact canonical filters/sort/two-stage membership/output behavior and strict malformed-evidence handling stay governed.
+
+This continuation is implementation/automated verification evidence. Prior Principal acceptance at 1cd3444 remains dated evidence of its then-current contract; visual acceptance of these later amendments is not claimed. No market acquisition or provider contact is performed.
+
+
+Final continuation verification: **103/103** relevant Node tests pass, including **45/45** show/query tests and actual clipped watch proofs. Registry-generated manual, JavaScript syntax, 36 changed-document local links, regenerated Roadmap synchronization and git diff checks pass. Read-only held ETF acceptance returns 10 rows, empty stderr, five black/five indexed-232 stripes and the requested symbol/description/LAST/ETF foregrounds with NO_COLOR unset; the environment's NO_COLOR=1 correctly yields decoration-free output otherwise. No acquisition performed.
+
+Principal's latest Desktop screenshot (11:26:27 PM) demonstrates the changed signed ordering and current yellow/gray/orange/categorical styles under watch -c -w across 90 rows. Principal considers negative red too dark; actor agrees and recommends brighter coral. Principal subsequently authorized brighter coral red (#ff5f5f, indexed 203) for both negative change fields; tests verify its value-only scope and actual watch composition. The screenshot is observation/feedback, not blanket acceptance of all amendments.
+
+Final brighter-red rerun: 103/103 relevant tests still pass, including actual watch -c -w value-scope proofs; registry/manual, syntax, generated Roadmap and diff checks pass. Held ETF command emits brighter indexed-203 negative change spans and no old SGR31 spans, with empty stderr. Read-only; no acquisition.

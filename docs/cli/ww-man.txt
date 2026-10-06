@@ -17,7 +17,9 @@ WORKING COMMANDS
     show --fields
         Inspect canonical held quotes without acquisition. --quotes selects
         the full held inventory; --where FIELD=VALUE filters exactly (AND).
-        --sort-by FIELD [--absolute] [--descending], then --limit N.
+        --sort-by FIELD [--absolute] [--descending] with --limit N selects
+        ranked rows, then orders retained rows by the canonical field.
+        --absolute affects bounded selection, not signed output ordering.
         --all-fields selects every public field; --only is exact projection.
         --table | --tsv | --jsonl choose explicit output; automatic terminal
         human tables / redirected canonical TSV remain. --table preserves

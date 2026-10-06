@@ -52,21 +52,24 @@ SELECTION AND PROJECTION
 
 ORDERING AND LIMIT
     --sort-by FIELD
-        One public field; numeric exact decimal, text ordinal, instant
-        chronological (full fraction), calendar date calendar ordering.
+        One public field for selection ranking and final output order; numeric
+        exact decimal, text ordinal, instant chronological (full fraction), calendar date calendar ordering.
         Ascending default; sorting does not add the key to --only output.
     --absolute
-        Numeric sort only; requires --sort-by. Compare magnitude, preserve the
-        signed stored/displayed value. No derived public field is created.
+        Numeric field only; requires --sort-by. Use magnitude as the ranking
+        key to choose which rows survive --limit. Final output always orders
+        canonical signed values; stored/displayed values remain unchanged.
+        Without --limit, --absolute has no observable effect. No derived field.
     --descending
-        Requires --sort-by; reverse primary ordering only. Missing stays last.
+        Requires --sort-by; prefer larger ranking keys, then display retained
+        canonical values descending. Missing stays last in both stages.
     --limit N
         Positive decimal integer, digits only (leading zeros permitted).
-        Applied after full inspection -> filter -> sort, then projection and
-        presentation. Limits output, never silently limits reads. Invalid N
-        fails before credentials/HTTP. Without sort, retain selected order.
-    Ties preserve selected-subject order. Missing sort keys stay last in both
-    directions. Filters and sort keys use canonical values before rounding.
+        Full inspection -> filter -> rank -> limit -> canonical output order
+        -> projection -> presentation. Limits output, never limits reads.
+        Invalid N fails before credentials/HTTP. Without sort, retain selected order.
+    Both ranking and output ties preserve original selected-subject order.
+    Missing sort keys stay last in both directions. Filters and sort keys use canonical values before rounding.
 
 PRESENTATION
     --table | --tsv | --jsonl
@@ -81,38 +84,50 @@ PRESENTATION
         machine formats. Conflicts with --only, --all-fields and --table.
     Ordinary human columns: SYMBOL TYPE LAST CHANGE % BID ASK RECEIVED PROVIDER
     ENVIRONMENT. CHANGE % is reportedChangePercent, in percentage points.
-    Both reportedChange fields have + for positive, - for negative, zero 0;
+    Both reportedChange fields have + for positive, - for negative;
     percentages append % without multiplying canonical values by 100.
-    Human prices/changes use at most two fractional digits normally, trimming
-    trailing zeros; sub-cent values retain at least three significant digits.
-    Extreme magnitudes use compact scientific notation, never apparent zero
-    for nonzero evidence. Counts are exact integers. No currency/lot unit is
-    inferred. Verbose preserves exact numeric spelling with change signs/%.
+    Human horizontal-table prices and absolute changes use exactly two decimal
+    places, including trailing zeros (decimal rounding, half away from zero).
+    Sub-cent amounts can display 0.00; change signs/colors use canonical sign.
+    Percentage changes keep adaptive precision and never apparent nonzero zero.
+    Extreme large amounts use scientific notation with two coefficient decimals.
+    Counts stay exact integers. No currency/lot unit or dollar symbol is inferred.
+    Verbose preserves exact numeric spelling with change signs/%.
     Human instants use local timezone (including TZ): compact ordinary clocks;
     all horizontal tables use MMM d HH:mm (e.g. Oct 5 18:00); verbose retains
     full date/year/seconds/offset and available fractions. regularSessionDate
     is never timezone-shifted.
-    Tables have headers, aligned expandable columns, no clipping or omitted
-    fields. Complete registry order starts SYMBOL, DESCRIPTION, TYPE.
-    All-fields is intentionally wide; use a horizontal pager.
+    Tables have headers, aligned expandable columns and no omitted fields;
+    only the authorized description/ID display excerpts shorten source text. Complete registry order starts SYMBOL, DESCRIPTION, TYPE.
+    All-fields is intentionally wide; use a horizontal pager. Descriptions
+    longer than 40 characters show their first 40 characters followed by ...;
+    verbose, TSV and JSONL retain full description text.
     Horizontal human tables show the last 12 characters of observationId and
     acquisitionId (display suffixes, not guaranteed unique). Verbose, TSV and
     JSONL retain full IDs; filtering/sorting always use canonical full IDs.
+    Tradier bidVenue/askVenue/exchange codes use short human labels (<=8
+    characters), e.g. P=NYSEArca, Q=Nasdaq, Z=BATS. Unknown codes and other
+    providers retain raw text. Verbose/TSV/JSONL and filters/sorts use raw codes.
     Missing human cells are '-'. Empty human results are explicit messages.
     All-failure invocations have diagnostics and no successful table/header.
 
 COLOR AND TERMINAL COMPOSITION
-    Only reportedChange and reportedChangePercent are green when positive,
-    red when negative. Zero/missing and all non-change fields use white (37),
-    even when the terminal default is green. ANSI green/red (32/31) encloses
-    only the semantic change value, then restores white (37) before padding.
-    Human output starts white; every horizontal row reasserts white, preserving
-    colors under watch -c -w when preceding lines are clipped. Output ends with
-    reset (0) to restore the terminal.
-    Widths use plain values; padding stays outside colored spans. Human --table
-    keeps color in pipes, following tt live's presentation-based convention. Nonempty
-    NO_COLOR or TERM=dumb disables color, including --table; empty/unset
-    NO_COLOR does not. No palette or FORCE_COLOR mode.
+    Only reportedChange and reportedChangePercent use sign-based green (32)
+    when positive, brighter coral red (38;5;203, #ff5f5f) when negative; zero/missing changes stay white.
+    Symbols are yellow, descriptions light gray, LAST orange. TYPE values
+    EQUITY/ETF/INDEX/OTHER each have distinct fixed colors. Each known Tradier
+    venue label has its own stable categorical color across bid/ask/exchange.
+    Other fields and unknown venue codes stay white, including on terminals
+    whose default foreground is green. Every colored value restores white
+    (37) immediately before padding/separators; numeric signs never color rows.
+    Observation backgrounds alternate black and darkest nonblack gray
+    (ANSI indexed 232, #080808), across the full row including final padding.
+    Each row reasserts white and its background; background resets before LF.
+    Header is not striped. Output ends with reset (0) to restore the terminal.
+    Widths use plain values; padding stays outside foreground-colored spans.
+    Human --table keeps colors/backgrounds in pipes and watch -c -w.
+    Nonempty NO_COLOR or TERM=dumb disables all ANSI, including --table;
+    empty/unset NO_COLOR does not. No user-configurable palette or FORCE_COLOR.
     TSV/JSONL and automatic machine redirection NEVER contain ANSI decoration.
     watch -c 'ww show SPY --table' interprets colors from watch's capture pipe.
     Use --table | less -SR for colors with horizontal scrolling (S = no wrap,
@@ -175,7 +190,7 @@ symbol
 
 description
     Provider-reported instrument description.
-    Source: facts.description. Optional source text, not a Wheelwright issuer lookup. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values. Exact filter/sort type: text.
+    Source: facts.description. Optional source text, not a Wheelwright issuer lookup. Human horizontal tables truncate after 40 characters with ...; verbose and machines retain full text. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values. Exact filter/sort type: text.
 
 type
     Wheelwright security type.
@@ -203,7 +218,7 @@ bidSize
 
 bidVenue
     Provider-reported bid venue.
-    Source: facts.bid.venue. Venue is optional source text, not independently resolved. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values. Exact filter/sort type: text.
+    Source: facts.bid.venue. Venue is optional source text, not independently resolved. Human horizontal tables use provider-qualified compact labels (at most eight characters) for documented Tradier underlying exchange codes, with stable categorical colors when enabled. Unknown codes/other providers remain source text; verbose and machines retain raw codes. Filters/sorts use source text, never labels. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values. Exact filter/sort type: text.
 
 bidSourceEventAt
     Provider bid event time.
@@ -219,7 +234,7 @@ askSize
 
 askVenue
     Provider-reported ask venue.
-    Source: facts.ask.venue. Venue is optional source text, not independently resolved. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values. Exact filter/sort type: text.
+    Source: facts.ask.venue. Venue is optional source text, not independently resolved. Human horizontal tables use provider-qualified compact labels (at most eight characters) for documented Tradier underlying exchange codes, with stable categorical colors when enabled. Unknown codes/other providers remain source text; verbose and machines retain raw codes. Filters/sorts use source text, never labels. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values. Exact filter/sort type: text.
 
 askSourceEventAt
     Provider ask event time.
@@ -271,7 +286,7 @@ fiftyTwoWeekLow
 
 exchange
     Provider-reported instrument exchange.
-    Source: facts.exchange. Optional source text; distinct from side-specific venues. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values. Exact filter/sort type: text.
+    Source: facts.exchange. Optional source text; distinct from side-specific venues. Human horizontal tables use provider-qualified compact labels (at most eight characters) for documented Tradier underlying exchange codes, with stable categorical colors when enabled. Unknown codes/other providers remain source text; verbose and machines retain raw codes. Filters/sorts use source text, never labels. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values. Exact filter/sort type: text.
 
 observationId
     Identity of the accepted observation.

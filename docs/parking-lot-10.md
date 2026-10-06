@@ -704,3 +704,21 @@ Principal manual use of the completed held ETF query at 4c2701e rejected timesta
 ### PL-CLI-01 / PL-API-03 — Principal acceptance and session closeout — October 5, 2026
 
 Principal accepted the bounded held ETF show query/table slice at `1cd3444af40ad1ae1dafa2c9332ace30a0ba9f3d` following screenshot review under watch -c. This includes BUG-031/032 presentation remediation, DESCRIPTION-after-SYMBOL and final-12-character human observation/acquisition IDs. The canonical bug records and held-query acceptance artifact preserve exact evidence/epistemic boundaries. Principal invoked end-of-session protocol and authorized push. This closes this bounded slice, not broader PL-CLI-01/PL-API-03 or unrelated experimental bare-fetch acceptance. No new horizon, priority, API, architecture or provider policy follows.
+
+
+### PL-CLI-01 / PL-API-03 — Principal-ratified selection/output-order amendment — October 5, 2026
+
+Principal clarified “biggest movers” as magnitude-selected membership followed by signed output order, requested reassessment of existing flags, and ratified option A. Current Product section 14 and Solution Design absorb the change: sort-by field for both stages; absolute modifies bounded selection; descending governs both; limit before canonical output ordering. No new option or field/API/provider interpretation. This supersedes magnitude-interleaved output and absolute ordering without a limit, including machine row order. Prior conforming behavior is not a bug; no new PL/BUG identity. The unchanged acceptance command is rerun through deterministic fixtures; current verification lives in the held-query acceptance continuation. Broader CLI/API backlog, priority and horizons remain unchanged.
+
+
+### PL-CLI-01 / PL-API-03 — Principal human venue-code labels — October 5, 2026
+
+During the ranking/output-order amendment Principal requested readable venue/exchange codes <=8 characters. Current Product/Design govern provider-qualified human-only labels verified against Tradier's official underlying-code table; machines/verbose, canonical codes and filter/sort semantics remain unchanged. Unknown codes/other providers remain original text. This is bounded presentation continuation within the same held-inspection work, with no new PL/BUG identity, API capability, horizon, priority or provider policy. Registry/catalog/manual and acceptance evidence remain synchronized.
+
+
+### PL-CLI-01 / PL-API-03 — Principal monetary and table-style continuation — October 5, 2026
+
+Principal directed two-decimal human monetary amounts, stable categorical venue colors, yellow symbols, light-gray descriptions, orange LAST, distinct TYPE colors, alternating black/darkest nonblack gray (indexed 232) rows and first-40-character description excerpts with ... only when truncated. Current Product/Design/registry/manual and held-query evidence absorb these bounded human presentation amendments. Machines/verbose retain full canonical values/text; filter/ranking semantics remain canonical. NO_COLOR/TERM=dumb suppress all decoration; explicit table and watch -c -w retain it. No new PL/BUG identity, API/architecture/provider policy, priority or horizon. Automated verification is distinct from pending Principal visual acceptance of these additions.
+
+
+Principal screenshot feedback additionally authorizes brighter coral red (#ff5f5f, indexed 203) for negative change values only; all semantic scope, watch compatibility and canonical machine/opt-out boundaries remain. This is shade adjustment under the same bounded human presentation continuation, not a defect or additional capability.

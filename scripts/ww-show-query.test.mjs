@@ -13,6 +13,18 @@ const ww = new URL('./ww', import.meta.url).pathname;
 const pty = new URL('./ww-acceptance-pty.py', import.meta.url).pathname;
 const number = s => JSON.rawJSON(s);
 const strip = s => s.replace(/\x1b\[[0-9;]*m/g, '');
+const foregroundAfter = (foreground, sequence) => {
+  const codes = sequence.slice(2, -1).split(';').map(Number);
+  for (let i = 0; i < codes.length; i++) {
+    const code = codes[i];
+    if ((code === 38 || code === 48) && codes[i + 1] === 5) {
+      if (code === 38) foreground = codes[i + 2];
+      i += 2;
+    } else if (code === 0 || code === 39) foreground = 39;
+    else if (code >= 30 && code <= 37) foreground = code;
+  }
+  return foreground;
+};
 const raw = (symbol, type = 'ETF', change = '1') => ({
   observationId: '22222222-2222-4222-8222-222222222222', subject: { symbol, securityType: type },
   facts: { last: { price: number('12.3456') }, bid: { price: number('12.3') },
@@ -95,32 +107,32 @@ test('query grammar, typed exact filters and all conflicts fail before HTTP', as
   assert.equal(noCredential.status, 2); assert.deepEqual(calls, []);
 }));
 
-test('primary question: complete collection, filter before absolute sort before limit, stable ties', async () => fixture(async ({ run, calls }) => {
+test('primary question: complete collection, magnitude selection before signed output order, stable cutoff ties', async () => fixture(async ({ run, calls }) => {
   const r = await run(['--quotes', '--where', 'type=ETF', '--sort-by', 'reportedChangePercent',
     '--absolute', '--descending', '--limit', '2', '--all-fields', '--table']);
   assert.equal(r.status, 0); assert.equal(r.stderr, '');
   const lines = strip(r.stdout).trimEnd().split('\n');
-  assert.equal(lines.length, 3); assert.deepEqual(lines.slice(1).map(s => s.split(/\s+/)[0]), ['BBB', 'DDD']);
+  assert.equal(lines.length, 3); assert.deepEqual(lines.slice(1).map(s => s.split(/\s+/)[0]), ['DDD', 'BBB']);
   assert.ok(!r.stdout.includes('FIELD                        VALUE'));
   const headings = lines[0].split(/\s{2,}/).map(s => s.trim());
   assert.deepEqual(headings, SHOW_FIELDS.map(f => f.heading));
   assert.equal(headings.length, 36);
   assert.deepEqual(calls.map(c => c.path), ['/v2/quotes', ...['AAA', 'BBB', 'CCC', 'DDD', 'EEE'].map(s => '/v2/quotes/' + s)]);
   assert.ok(calls.every(c => c.method === 'GET' && c.body === ''));
-  assert.match(r.stdout, /\x1b\[31m\s*-12%/); assert.match(r.stdout, /\x1b\[32m\s*\+12%/);
+  assert.match(r.stdout, /\x1b\[38;5;203m\s*-12%/); assert.match(r.stdout, /\x1b\[32m\s*\+12%/);
 }));
 
 test('public sorting asc/desc, unprojected key, missing last, ties and limit-only', async () => fixture(async ({ state, run }) => {
   delete state.rows.EEE.facts.reportedChangePercent;
   for (const [flags, expected] of [[[], ['BBB', 'CCC', 'DDD', 'EEE']],
     [['--descending'], ['DDD', 'CCC', 'BBB', 'EEE']],
-    [['--absolute'], ['CCC', 'BBB', 'DDD', 'EEE']],
-    [['--absolute', '--descending'], ['BBB', 'DDD', 'CCC', 'EEE']]]) {
+    [['--absolute'], ['BBB', 'CCC', 'DDD', 'EEE']],
+    [['--absolute', '--descending'], ['DDD', 'CCC', 'BBB', 'EEE']]]) {
     const r = await run(['--quotes', '--where', 'type=ETF', '--sort-by', 'reportedChangePercent', ...flags, '--only', 'symbol']);
     assert.equal(r.status, 0); assert.equal(r.stdout, expected.join('\n') + '\n');
   }
   assert.equal((await run(['--quotes', '--limit', '2', '--only', 'symbol'])).stdout, 'AAA\nBBB\n');
-  assert.equal((await run(['DDD', 'BBB', '--sort-by', 'reportedChangePercent', '--absolute', '--only', 'symbol'])).stdout, 'DDD\nBBB\n');
+  assert.equal((await run(['DDD', 'BBB', '--sort-by', 'reportedChangePercent', '--absolute', '--only', 'symbol'])).stdout, 'BBB\nDDD\n');
 }));
 
 test('exact numeric equality/order beyond Number precision and extreme exponents', () => {
@@ -156,11 +168,14 @@ test('instant equality and chronological order preserve sub-millisecond precisio
   assert.deepEqual(selectedSymbols([c, a, b], ['--quotes', '--sort-by', 'symbol', '--descending']), ['CCC', 'BBB', 'AAA']);
 });
 
-test('human adaptive decimal precision/signs, exact zero, extreme values and exact counts', () => {
-  for (const [source, expected] of [['12.3456', '12.35'], ['12.30000', '12.3'], ['0.000123456', '0.000123'],
-    ['0.0099999', '0.01'], ['1e-1000000', '1e-1000000'], ['1e1000000', '1e+1000000'],
-    ['0', '0'], ['-0', '0'], ['999.9999', '1000']])
+test('human fixed monetary decimals, adaptive percentages, signs and exact counts', () => {
+  for (const [source, expected] of [['12.3456', '12.35'], ['12.30000', '12.30'], ['0.000123456', '0.00'],
+    ['0.0099999', '0.01'], ['0.005', '0.01'], ['0.004999999', '0.00'], ['1e-1000000', '0.00'],
+    ['1e1000000', '1.00e+1000000'], ['0', '0.00'], ['-0', '0.00'], ['999.9999', '1000.00']])
     assert.equal(humanShowNumber(number(source), 'price'), expected);
+  assert.equal(humanShowNumber(number('-0.005'), 'change'), '-0.01');
+  assert.equal(humanShowNumber(number('0.00001'), 'change'), '+0.00');
+  assert.equal(humanShowNumber(number('0.000123456'), 'percent'), '+0.000123%');
   assert.equal(humanShowNumber(number('1.2345'), 'change'), '+1.23');
   assert.equal(humanShowNumber(number('-1.2345'), 'percent'), '-1.23%');
   assert.equal(humanShowNumber(number('0'), 'percent'), '0%');
@@ -175,18 +190,18 @@ test('human semantic colors decorate only change fields, preserve alignment and 
   const plain = presentShowRows(rows, { ...opts, env: { NO_COLOR: '1' } });
   assert.equal(strip(colored), plain);
   assert.equal((colored.match(/\x1b\[32m/g) ?? []).length, 2);
-  assert.equal((colored.match(/\x1b\[31m/g) ?? []).length, 2);
+  assert.equal((colored.match(/\x1b\[38;5;203m/g) ?? []).length, 2);
   assert.match(colored, /\x1b\[32m\+1.23\x1b\[37m/);
   assert.match(colored, /\x1b\[32m\+1.23%\x1b\[37m/);
-  assert.match(colored, /\x1b\[31m-2.35\x1b\[37m/);
-  assert.match(colored, /\x1b\[31m-2.35%\x1b\[37m/);
-  assert.doesNotMatch(colored.split('\n')[3], /\x1b\[(?:31|32)m/);
+  assert.match(colored, /\x1b\[38;5;203m-2.35\x1b\[37m/);
+  assert.match(colored, /\x1b\[38;5;203m-2.35%\x1b\[37m/);
+  assert.doesNotMatch(colored.split('\n')[3], /\x1b\[(?:38;5;203|32)m/);
   assert.ok(!colored.includes('\x1b[32m12.35'));
   // Isolated renderer guard: even a negative non-change value is never sign-colored.
   // Canonical validation still rejects negative prices; this is not an admitted observation.
   rows[0].facts.last.price = number('-12.3456');
   const guarded = presentShowRows([rows[0]], { ...opts, only: ['last'] });
-  assert.doesNotMatch(guarded, /\x1b\[(?:31|32)m/); assert.match(guarded, /-12.35/);
+  assert.doesNotMatch(guarded, /\x1b\[(?:38;5;203|32)m/); assert.match(guarded, /-12.35/);
   for (const env of [{ NO_COLOR: '1' }, { NO_COLOR: '0' }, { TERM: 'dumb' }]) {
     assert.equal(showColorEnabled(opts, env), false);
     assert.doesNotMatch(presentShowRows(rows, { ...opts, env }), /\x1b\[/);
@@ -199,7 +214,7 @@ test('human semantic colors decorate only change fields, preserve alignment and 
 test('explicit formats across TTY/pipe; all fields remain horizontal, canonical and ANSI-free machines', async () => fixture(async ({ run, terminal }) => {
   const args = ['BBB', '--all-fields'];
   const pipedTable = await run([...args, '--table']);
-  assert.match(pipedTable.stdout, /\x1b\[31m/); assert.equal(strip(pipedTable.stdout).trimEnd().split('\n').length, 2);
+  assert.match(pipedTable.stdout, /\x1b\[38;5;203m/); assert.equal(strip(pipedTable.stdout).trimEnd().split('\n').length, 2);
   assert.equal(strip(pipedTable.stdout), strip((await terminal(args)).stdout).replaceAll('\r\n', '\n'));
   const auto = await run(args); assert.doesNotMatch(auto.stdout, /\x1b\[/);
   assert.equal(auto.stdout.split('\n')[0].split('\t').length, 36);
@@ -278,9 +293,9 @@ test('actual watch -c preserves piped --table positive/negative change colors', 
   const r = JSON.parse((await capture([pty, '--stdin-tty', 'watch', '-c', '-t', '-n', '0.1', '-q', '1', command],
     { ...env, COLUMNS: '120', LINES: '24' }, 'python3')).stdout);
   assert.equal(r.status, 0, JSON.stringify(r)); assert.equal(r.stderr, '');
-  assert.match(r.stdout, /\x1b\[32m/); assert.match(r.stdout, /\x1b\[31m/);
+  assert.match(r.stdout, /\x1b\[32m/); assert.match(r.stdout, /\x1b\[38;5;203m/);
   assert.match(r.stdout, /\x1b\[37mSYMBOL/);
-  assert.match(r.stdout, /\x1b\[32m\+1\x1b\[37m +\x1b\[32m\+1%\x1b\[37m/);
+  assert.match(r.stdout, /\x1b\[32m(?:\x1b\[(?:40|48;5;232)m)*\+1\.00\x1b\[37m(?:\x1b\[(?:40|48;5;232)m)* +\x1b\[32m(?:\x1b\[(?:40|48;5;232)m)*\+1%(?:\x1b\[[0-9;]*m)*\x1b\[37m/);
   assert.ok(calls.length >= 2); assert.ok(calls.every(c => c.path === '/v2/quotes/BBB'));
 }));
 
@@ -323,28 +338,32 @@ test('ANSI spans contain only signed change values; green-default terminal ordin
   const output = presentShowRows(rows, options);
   assert.ok(output.startsWith('\x1b[37m'));
   assert.ok(output.endsWith('\x1b[0m'));
-  const spans = [...output.matchAll(/\x1b\[(31|32)m([^\x1b]*)\x1b\[37m/g)];
-  assert.deepEqual(spans.map(m => [m[1], m[2]]), [['32', '+1'], ['32', '+1%'], ['31', '-12'], ['31', '-12%']]);
+  const spans = [...output.matchAll(/\x1b\[(38;5;203|32)m([^\x1b]*)\x1b\[37m/g)];
+  assert.deepEqual(spans.map(m => [m[1], m[2]]), [['32', '+1.00'], ['32', '+1%'], ['38;5;203', '-12.00'], ['38;5;203', '-12%']]);
   // Track foreground state rather than merely stripping ANSI. Inherit green
   // initially, like the Principal's terminal; every non-value character is white.
   let foreground = 32, plain = '', coloredValues = [];
   for (const chunk of output.split(/(\x1b\[[0-9;]*m)/)) {
-    if (chunk.startsWith('\x1b[')) foreground = Number(chunk.slice(2, -1));
+    if (chunk.startsWith('\x1b[')) {
+      foreground = foregroundAfter(foreground, chunk);
+    }
     else if (chunk) {
       plain += chunk;
-      if (foreground === 31 || foreground === 32) {
-        assert.match(chunk, /^[+-]\d+(?:%?)$/);
+      if (foreground === 203 || foreground === 32) {
+        assert.match(chunk, /^[+-]\d+(?:\.\d+)?%?$/);
         coloredValues.push(chunk);
-      } else assert.equal(foreground, 37, JSON.stringify(chunk));
+      } else if (foreground === 226) assert.match(chunk, /^(AAA|BBB|CCC)$/);
+      else if (foreground === 208) assert.equal(chunk, '12.35');
+      else assert.equal(foreground, 37, JSON.stringify(chunk));
     }
   }
-  assert.deepEqual(coloredValues, ['+1', '+1%', '-12', '-12%']);
+  assert.deepEqual(coloredValues, ['+1.00', '+1%', '-12.00', '-12%']);
   assert.equal(plain, presentShowRows(rows, { ...options, env: { NO_COLOR: '1' } }));
   const lines = plain.trimEnd().split('\n');
   // Right-aligned semantic values and subsequent cells occupy identical columns.
   assert.equal(lines[1].indexOf('12.35'), lines[2].indexOf('12.35'));
-  assert.match(output, /\x1b\[37m  +12.35/); // immediately following price is white
-  assert.match(output, /\x1b\[37m  +12.3\n\x1b\[37mBBB/); // padding, separator, next row stay white
+  assert.match(output, /\x1b\[37m  +\x1b\[38;5;208m12.35\x1b\[37m/); // following LAST is explicitly orange; padding is white
+  assert.match(output, /\x1b\[37m  +12.30 *\x1b\[49m\n\x1b\[37m\x1b\[48;5;232m\x1b\[38;5;226mBBB/); // padding, separator, next row stay white
 });
 
 test('complete registry puts description immediately after symbol without changing exact --only', () => {
@@ -378,7 +397,7 @@ test('human ID suffixes preserve full canonical machine, verbose and selection i
 });
 
 
-test('actual clipped watch -c -w keeps every row white before scoped changes', { timeout: 10000 }, async () => fixture(async ({ state, env, calls }) => {
+test('actual clipped watch -c -w restores row foreground and scoped yellow symbols/changes', { timeout: 10000 }, async () => fixture(async ({ state, env, calls }) => {
   for (const [symbol, change] of [['AAA', '1'], ['BBB', '-2'], ['CCC', '0']]) {
     state.rows[symbol] = raw(symbol, 'ETF', change);
     state.rows[symbol].facts.description = 'Long description that deliberately extends past the watch viewport';
@@ -393,17 +412,218 @@ test('actual clipped watch -c -w keeps every row white before scoped changes', {
   let foreground = 39, seen = [];
   for (const part of output.split(/(\x1b\[[0-9;]*m)/)) {
     if (part.startsWith('\x1b[')) {
-      for (const code of part.slice(2, -1).split(';').map(Number)) {
-        if (code === 0 || code === 39) foreground = 39;
-        else if (code >= 30 && code <= 37) foreground = code;
-      }
+      foreground = foregroundAfter(foreground, part);
     } else for (const symbol of ['AAA', 'BBB', 'CCC']) if (part.includes(symbol)) {
-      assert.equal(foreground, 37, symbol + ' must be white even after a clipped preceding line');
+      assert.equal(foreground, 226, symbol + ' must be yellow even after a clipped preceding line');
       seen.push(symbol);
     }
   }
   assert.deepEqual(seen, ['AAA', 'BBB', 'CCC']);
-  assert.match(output, /\x1b\[32m\+1\x1b\[37m/);
-  assert.match(output, /\x1b\[31m-2\x1b\[37m/);
+  assert.match(output, /\x1b\[32m(?:\x1b\[(?:40|48;5;232)m)*\+1\.00\x1b\[37m/);
+  assert.match(output, /\x1b\[38;5;203m(?:\x1b\[(?:40|48;5;232)m)*-2\.00\x1b\[37m/);
   assert.ok(calls.every(c => ['AAA', 'BBB', 'CCC'].some(s => c.path === '/v2/quotes/' + s)));
 }));
+
+
+test('absolute ranks limit membership then signed order; directions, no limit, ties, missing and exact keys', () => {
+  const rows = [raw('AAA', 'ETF', '-20'), raw('BBB', 'ETF', '12'), raw('CCC', 'ETF', '-11'),
+    raw('DDD', 'ETF', '3'), raw('EEE', 'ETF', '0'), raw('FFF', 'ETF', '-11'), raw('GGG', 'ETF', '1'), raw('HHH')];
+  delete rows.at(-1).facts.reportedChangePercent;
+  const args = ['--quotes', '--sort-by', 'reportedChangePercent', '--absolute'];
+  assert.deepEqual(selectedSymbols(rows, [...args, '--descending', '--limit', '3']), ['BBB', 'CCC', 'AAA']);
+  assert.deepEqual(selectedSymbols(rows, [...args, '--descending', '--limit', '4']), ['BBB', 'CCC', 'FFF', 'AAA']);
+  assert.deepEqual(selectedSymbols(rows, [...args, '--limit', '3']), ['EEE', 'GGG', 'DDD']);
+  const negatives = [raw('AAA', 'ETF', '-2'), raw('BBB', 'ETF', '-1'), raw('CCC', 'ETF', '3')];
+  assert.deepEqual(selectedSymbols(negatives, [...args, '--limit', '2']), ['AAA', 'BBB']);
+  for (const direction of [[], ['--descending']]) {
+    const canonical = selectedSymbols(rows, ['--quotes', '--sort-by', 'reportedChangePercent', ...direction]);
+    assert.deepEqual(selectedSymbols(rows, [...args, ...direction]), canonical);
+    assert.deepEqual(selectedSymbols(rows, [...args, ...direction, '--limit', '99']), canonical);
+    assert.equal(canonical.at(-1), 'HHH');
+  }
+  const precise = [raw('AAA', 'ETF', '-9007199254740993'), raw('BBB', 'ETF', '9007199254740992'), raw('CCC', 'ETF', '1')];
+  assert.deepEqual(selectedSymbols(precise, [...args, '--descending', '--limit', '1']), ['AAA']);
+  assert.deepEqual(selectedSymbols(precise, [...args, '--descending', '--limit', '2']), ['BBB', 'AAA']);
+});
+
+test('same magnitude-selected signed output order in human, TSV and JSONL with an unprojected sort key', async () => fixture(async ({ state, run, calls }) => {
+  state.rows.AAA = raw('AAA', 'EQUITY', '999');
+  state.rows.BBB = raw('BBB', 'ETF', '-20'); state.rows.CCC = raw('CCC', 'ETF', '12');
+  state.rows.DDD = raw('DDD', 'ETF', '-11'); state.rows.EEE = raw('EEE', 'ETF', '3');
+  const args = ['--quotes', '--where', 'type=ETF', '--sort-by', 'reportedChangePercent', '--absolute', '--descending', '--limit', '3'];
+  assert.equal((await run([...args, '--only', 'symbol', '--tsv'])).stdout, 'CCC\nDDD\nBBB\n');
+  const table = await run([...args, '--all-fields', '--table']); assert.equal(table.status, 0);
+  assert.deepEqual(strip(table.stdout).trimEnd().split('\n').slice(1).map(row => row.split(/\s+/)[0]), ['CCC', 'DDD', 'BBB']);
+  const jsonl = await run([...args, '--jsonl']); assert.equal(jsonl.status, 0);
+  assert.deepEqual(jsonl.stdout.trim().split('\n').map(line => JSON.parse(line).facts.reportedChangePercent), [12, -11, -20]);
+  assert.doesNotMatch(jsonl.stdout, /\x1b\[/);
+  assert.equal(calls.length, 18); // all five observations inspected in each invocation
+}));
+
+
+test('short Tradier venue labels are human-only; raw codes still govern machines, verbose and filters', () => {
+  const q = valid(raw('AAA')); q.facts.bid.venue = 'P';
+  q.facts.ask = { price: number('12.4'), venue: 'Z' }; q.facts.exchange = 'Q';
+  const before = JSON.stringify(q), only = ['bidVenue', 'askVenue', 'exchange'];
+  const options = { only, format: 'table', env: { NO_COLOR: '1' } };
+  assert.deepEqual(presentShow(q, options).trimEnd().split('\n')[1].split(/\s{2,}/), ['NYSEArca', 'BATS', 'Nasdaq']);
+  const all = presentShow(q, { allFields: true, format: 'table', env: { NO_COLOR: '1' } });
+  for (const text of ['NYSEArca', 'BATS', 'Nasdaq']) assert.ok(all.includes(text));
+  const colored = presentShow(q, { ...options, env: { TERM: 'xterm' } });
+  assert.equal(strip(colored), presentShow(q, options));
+  assert.doesNotMatch(colored, /\x1b\[(?:38;5;203|32)m/);
+  assert.equal(presentShow(q, { only, format: 'tsv' }), 'P\tZ\tQ\n');
+  assert.equal(presentShow(q, { only }), 'P\tZ\tQ\n');
+  assert.equal(presentShow(q, { format: 'jsonl' }), before + '\n');
+  const verbose = presentShow(q, { tty: true, verbose: true, env: { NO_COLOR: '1' } });
+  assert.match(verbose, /bidVenue +P\n/); assert.match(verbose, /askVenue +Z\n/); assert.match(verbose, /exchange +Q\n/);
+  const source = raw('AAA'); source.facts.exchange = 'Q';
+  assert.deepEqual(selectedSymbols([source], ['--quotes', '--where', 'exchange=Q']), ['AAA']);
+  assert.deepEqual(selectedSymbols([source], ['--quotes', '--where', 'exchange=Nasdaq']), []);
+  assert.equal(JSON.stringify(q), before);
+  q.facts.bid.venue = '?'; delete q.facts.ask.venue;
+  assert.deepEqual(presentShow(q, options).trimEnd().split('\n')[1].split(/\s{2,}/), ['?', '-', 'Nasdaq']);
+  q.provenance.provider = 'other-provider'; q.facts.bid.venue = 'P'; q.facts.ask.venue = 'Z';
+  assert.deepEqual(presentShow(q, options).trimEnd().split('\n')[1].split(/\s{2,}/), ['P', 'Z', 'Q']);
+});
+
+test('all documented Tradier underlying exchange codes have labels at most eight characters', () => {
+  const q = valid(raw('AAA'));
+  for (const code of 'ABCDEFGHIJKLMNPQSTUVWXYZ'.replace('H', '')) {
+    q.facts.exchange = code;
+    const label = presentShow(q, { only: ['exchange'], format: 'table', env: { NO_COLOR: '1' } }).trimEnd().split('\n')[1];
+    assert.ok(label.length <= 8, code + ': ' + label); assert.notEqual(label, code, code);
+  }
+});
+
+
+test('every monetary field has two human decimals while canonical machine and verbose values stay exact', () => {
+  const source = raw('AAA');
+  for (const name of ['open', 'high', 'low', 'close', 'previousClose', 'fiftyTwoWeekHigh', 'fiftyTwoWeekLow']) source.facts[name] = number('1.2');
+  source.facts.ask = { price: number('0.0001') }; source.facts.reportedChange = number('2');
+  const q = valid(source), before = JSON.stringify(q);
+  const fields = SHOW_FIELDS.filter(f => ['price', 'change'].includes(f.kind));
+  assert.equal(fields.length, 11);
+  const options = { only: fields.map(f => f.name), format: 'table', env: { NO_COLOR: '1' } };
+  const cells = presentShow(q, options).trimEnd().split('\n')[1].trim().split(/\s{2,}/);
+  assert.equal(cells.length, 11);
+  for (const cell of cells) assert.match(cell, /^[+-]?\d+\.\d{2}$/);
+  const machine = presentShow(q, { ...options, format: 'tsv' }).trim().split('\t');
+  assert.deepEqual(machine, fields.map(f => f.extract(q).rawJSON));
+  assert.equal(presentShow(q, { format: 'jsonl' }), before + '\n');
+  assert.match(presentShow(q, { tty: true, verbose: true, env: { NO_COLOR: '1' } }), /ask +0.0001\n/);
+  assert.equal(JSON.stringify(q), before);
+});
+
+
+test('each known venue label has its own stable scoped color, consistent across all three fields', () => {
+  const q = valid(raw('AAA')); q.facts.ask = { price: number('12.4') };
+  const options = { only: ['bidVenue', 'askVenue', 'exchange', 'last'], format: 'table', env: { TERM: 'xterm-256color' } };
+  const colors = new Set();
+  for (const code of 'ABCDEFGHIJKLMNPQSTUVWXYZ'.replace('H', '')) {
+    q.facts.bid.venue = code; q.facts.ask.venue = code; q.facts.exchange = code;
+    const output = presentShow(q, options), spans = [...output.matchAll(/\x1b\[38;5;(\d+)m([^\x1b]+)\x1b\[37m/g)].filter(span => span[1] !== '208');
+    assert.equal(spans.length, 3, code);
+    assert.equal(new Set(spans.map(s => s[1])).size, 1);
+    assert.equal(new Set(spans.map(s => s[2])).size, 1);
+    assert.ok(spans[0][2].length <= 8); assert.ok(!spans[0][2].endsWith(' '));
+    colors.add(spans[0][1]);
+    assert.equal(strip(output), presentShow(q, { ...options, env: { NO_COLOR: '1' } }));
+    assert.doesNotMatch(output, /\x1b\[(?:38;5;203|32)m/); // venue colors are categorical, not change-sign colors
+    assert.match(output, /\x1b\[37m +\x1b\[38;5;208m12.35\x1b\[37m/); // following LAST is orange, padding stays white
+  }
+  assert.equal(colors.size, 23);
+  for (const env of [{ NO_COLOR: '1' }, { TERM: 'dumb' }]) assert.doesNotMatch(presentShow(q, { ...options, env }), /\x1b\[/);
+  for (const format of ['tsv', 'jsonl']) assert.doesNotMatch(presentShow(q, { ...options, only: undefined, format }), /\x1b\[/);
+  assert.doesNotMatch(presentShow(q, { ...options, format: undefined, tty: false }), /\x1b\[/);
+  assert.doesNotMatch(presentShow(q, { tty: true, verbose: true, env: options.env }), /\x1b\[38;5;/);
+  q.facts.bid.venue = '?'; q.facts.ask.venue = '?'; q.facts.exchange = '?';
+  assert.doesNotMatch(presentShow(q, { ...options, only: ['bidVenue', 'askVenue', 'exchange'] }), /\x1b\[38;5;/);
+  q.provenance.provider = 'other-provider'; q.facts.bid.venue = 'P'; q.facts.ask.venue = 'Z'; q.facts.exchange = 'Q';
+  assert.doesNotMatch(presentShow(q, { ...options, only: ['bidVenue', 'askVenue', 'exchange'] }), /\x1b\[38;5;/);
+});
+
+test('actual clipped watch preserves the human venue colors and restores white afterward', { timeout: 10000 }, async () => fixture(async ({ state, env }) => {
+  state.rows.BBB.facts.bid.venue = 'P'; state.rows.BBB.facts.ask = { price: number('12.4'), venue: 'Z' };
+  state.rows.BBB.facts.exchange = 'Q'; state.rows.BBB.facts.description = 'Long description that deliberately extends past the viewport';
+  const command = `${ww} show BBB --only symbol,bidVenue,askVenue,exchange,description --table`;
+  const result = JSON.parse((await capture([pty, '--stdin-tty', 'watch', '-c', '-w', '-t', '-n', '0.1', '-q', '1', command],
+    { ...env, COLUMNS: '65', LINES: '10' }, 'python3')).stdout);
+  assert.equal(result.status, 0); assert.equal(result.stderr, '');
+  for (const [color, label] of [[45, 'NYSEArca'], [201, 'BATS'], [214, 'Nasdaq']])
+    assert.match(result.stdout, new RegExp('\\x1b\\[38;5;' + color + 'm(?:\\x1b\\[(?:40|48;5;232)m)*' + label + '\\x1b\\[37m'));
+}));
+
+
+test('horizontal rows alternate full-width black/dark-gray backgrounds without color or machine leakage', () => {
+  const rows = [valid(raw('AAA', 'ETF', '1')), valid(raw('BBB', 'ETF', '-2')), valid(raw('CCC', 'ETF', '0'))];
+  rows.forEach(q => { q.facts.bid.venue = 'P'; q.facts.description = 'Fund'; });
+  const options = { only: ['symbol', 'bidVenue', 'reportedChangePercent', 'last', 'description'], format: 'table', env: { TERM: 'xterm-256color' } };
+  const output = presentShowRows(rows, options), lines = output.split('\n');
+  assert.doesNotMatch(lines[0], /\x1b\[(?:40|48;5;232)m/); // header is not an observation stripe
+  for (const [index, background] of [[1, '\x1b[40m'], [2, '\x1b[48;5;232m'], [3, '\x1b[40m']]) {
+    assert.ok(lines[index].startsWith('\x1b[37m' + background));
+    assert.ok(lines[index].endsWith('   \x1b[49m')); // include last-cell padding, restore background before LF
+  }
+  assert.equal(new Set(lines.slice(1, 4).map(line => strip(line).length)).size, 1);
+  assert.equal(strip(output), presentShowRows(rows, { ...options, env: { NO_COLOR: '1' } }));
+  assert.match(output, /\x1b\[38;5;45mNYSEArca\x1b\[37m/);
+  assert.match(output, /\x1b\[32m\+1%(?:\x1b\[[0-9;]*m)*\x1b\[37m/); assert.match(output, /\x1b\[38;5;203m-2%\x1b\[37m/);
+  assert.ok(output.endsWith('\x1b[0m'));
+  for (const env of [{ NO_COLOR: '1' }, { TERM: 'dumb' }]) assert.doesNotMatch(presentShowRows(rows, { ...options, env }), /\x1b\[/);
+  for (const format of ['tsv', 'jsonl']) assert.doesNotMatch(presentShowRows(rows, { ...options, only: undefined, format }), /\x1b\[/);
+  assert.doesNotMatch(presentShowRows(rows, { ...options, format: undefined, tty: false }), /\x1b\[/);
+});
+
+test('actual clipped watch retains alternating backgrounds and venue foreground colors', { timeout: 10000 }, async () => fixture(async ({ state, env }) => {
+  for (const [symbol, venue] of [['AAA', 'P'], ['BBB', 'Q'], ['CCC', 'Z']]) {
+    state.rows[symbol] = raw(symbol); state.rows[symbol].facts.bid.venue = venue;
+    state.rows[symbol].facts.description = 'Long description that deliberately extends past the viewport';
+  }
+  const command = `${ww} show AAA BBB CCC --only symbol,bidVenue,description --table`;
+  const result = JSON.parse((await capture([pty, '--stdin-tty', 'watch', '-c', '-w', '-t', '-n', '0.1', '-q', '1', command],
+    { ...env, COLUMNS: '55', LINES: '10' }, 'python3')).stdout);
+  assert.equal(result.status, 0); assert.equal(result.stderr, '');
+  assert.match(result.stdout, /\x1b\[40m/); assert.match(result.stdout, /\x1b\[48;5;232m/);
+  for (const color of [45, 214, 201]) assert.ok(result.stdout.includes('\x1b[38;5;' + color + 'm'));
+}));
+
+
+test('table styles scope symbol, description, LAST and each TYPE value without changing widths or machine facts', () => {
+  const palette = { EQUITY: 81, ETF: 219, INDEX: 179, OTHER: 245 };
+  assert.equal(new Set(Object.values(palette)).size, 4);
+  for (const [type, color] of Object.entries(palette)) {
+    const q = valid(raw('AAA', type === 'OTHER' ? 'OTHER_UNDERLYING' : type)); q.facts.description = 'Example fund';
+    const options = { only: ['symbol', 'description', 'type', 'last', 'bid'], format: 'table', env: { TERM: 'xterm-256color' } };
+    const output = presentShow(q, options);
+    for (const [index, value] of [[226, 'AAA'], [250, 'Example fund'], [color, type], [208, '12.35']])
+      assert.ok(output.includes(`\x1b[38;5;${index}m${value}\x1b[37m`));
+    assert.doesNotMatch(output, /\x1b\[(?:38;5;203|32)m/);
+    assert.equal(strip(output), presentShow(q, { ...options, env: { NO_COLOR: '1' } }));
+    for (const env of [{ NO_COLOR: '1' }, { TERM: 'dumb' }]) assert.doesNotMatch(presentShow(q, { ...options, env }), /\x1b\[/);
+    for (const format of ['tsv', 'jsonl']) assert.doesNotMatch(presentShow(q, { ...options, only: undefined, format }), /\x1b\[/);
+    assert.doesNotMatch(presentShow(q, { ...options, format: undefined, tty: false }), /\x1b\[/);
+    assert.doesNotMatch(presentShow(q, { tty: true, verbose: true, env: options.env }), /\x1b\[38;5;/);
+    delete q.facts.last;
+    assert.doesNotMatch(presentShow(q, { ...options, only: ['last'] }), /\x1b\[38;5;208m/);
+  }
+});
+
+test('horizontal descriptions truncate after 40 Unicode characters plus ellipsis; machines and verbose retain full text', () => {
+  const q = valid(raw('AAA'));
+  const options = { only: ['description'], format: 'table', env: { NO_COLOR: '1' } };
+  for (const length of [0, 39, 40, 41, 80]) {
+    q.facts.description = 'x'.repeat(length);
+    const shown = presentShow(q, options).split('\n')[1].trimEnd();
+    assert.equal(shown, length > 40 ? 'x'.repeat(40) + '...' : q.facts.description);
+    assert.equal(presentShow(q, { ...options, format: 'tsv' }), q.facts.description + '\n');
+    assert.equal(JSON.parse(presentShow(q, { format: 'jsonl' })).facts.description, q.facts.description);
+    assert.ok(presentShow(q, { tty: true, verbose: true, env: options.env }).includes('description                  ' + q.facts.description + '\n'));
+  }
+  q.facts.description = '😀'.repeat(41);
+  assert.equal(presentShow(q, options).split('\n')[1].trimEnd(), '😀'.repeat(40) + '...');
+  const colored = presentShow(q, { ...options, env: { TERM: 'xterm-256color' } });
+  assert.ok(colored.includes('\x1b[38;5;250m' + '😀'.repeat(40) + '...\x1b[37m'));
+  delete q.facts.description;
+  assert.equal(presentShow(q, options).split('\n')[1].trimEnd(), '-');
+});

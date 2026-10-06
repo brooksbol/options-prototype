@@ -133,8 +133,10 @@ Bare show is a usage error. Options may appear before/after subjects.
 --all-fields selects every public field as a wide horizontal table.
 --where FIELD=VALUE is repeatable exact matching (AND), using public fields.
 --sort-by FIELD orders ascending; --descending reverses present-value order.
---absolute requires a numeric sort field; display retains original sign.
---limit N is a positive integer, applied after full inspection/filter/sort.
+--absolute requires a numeric sort field; magnitude ranks --limit membership.
+Selected rows are ordered by canonical signed values in every output format.
+Without --limit, --absolute has no effect. --descending governs both stages.
+--limit N is a positive integer; inspect/filter/rank/limit/order before output.
 Ties retain selected subject order; missing sort values stay last.
 --table | --tsv | --jsonl are mutually exclusive explicit formats.
 Automatic output: human on TTY, canonical headerless TSV in a pipe.
