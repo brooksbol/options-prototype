@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-06T03:55:59.749Z",
+    "generatedAt": "2026-10-06T04:02:33.376Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -8530,6 +8530,13 @@
           "heading": "Verification",
           "level": 2,
           "content": "The original one-test reproduction failed before production edits with expected canonical timestamp versus actual `prevclose`. The remediated suite passes.\n\nNew focused coverage: `TradierSourceEventTimeTest` and `TradierTimestampAcquisitionTest` (11 tests). They cover independent last/bid/ask numeric and string times, epoch zero, absent/null times, reordered fields, nested namesakes, escaped quotes/braces, object/array provider shapes, adjacent observed keys, all shared string-field callers, ordinary quote facts and zero/absence, malformed present timestamps/JSON/duplicate keys, real source-to-canonical mapping and in-memory durable acceptance, malformed refresh retaining prior fixture evidence, and strict rejection of all three bad tokens on all three sides.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "2026-10-05 — Principal normal reacquisition and live strict-read confirmation",
+          "level": 3,
+          "content": "After remediation commit `4fd3ad1ed8eae4e7e9fa79fbdcdf32ae404b5caa`, Principal supplied the successful transcript of:\n\n```sh\nww ls quotes | cut -f1 | xargs -n 30 ww fetch --force\n```\n\nSix 30-subject batches and one 24-subject batch reported **204/204 NEWLY_ACQUIRED, zero reused, zero failed**. This was Principal-performed normal acquisition, not an agent repair/migration or automated acceptance acquisition.\n\nCodex then performed provider-free read verification only. `ww show SPY --jsonl` returned exit 0 and observation `62b3011e-3f90-41f9-9ece-9c39e779bcec`, with `last.sourceEventAt = 2026-10-06T00:00:00.004Z` and independent bid/ask event times `2026-10-05T23:59:58Z`. A fresh `ww ls quotes` inventory followed by `ww show --jsonl` for all inventoried symbols returned **204/204 complete strict-read successes**, exit 0, empty stderr and exact inventory order/identity.",
           "truncated": true,
           "tables": []
         },

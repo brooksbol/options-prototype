@@ -130,6 +130,20 @@ git diff --check
 
 OAS checks use an isolated temporary Python environment with PyYAML/jsonschema/openapi-spec-validator. Documentation links/status/index consistency and generated projection freshness checked. No new Product/architecture decision or strategy/horizon change arises. Existing implementation acceptance documents remain dated provenance of their own earlier scopes; their historical BUG-029-open statements are superseded by this canonical resolution.
 
+### 2026-10-05 — Principal normal reacquisition and live strict-read confirmation
+
+After remediation commit `4fd3ad1ed8eae4e7e9fa79fbdcdf32ae404b5caa`, Principal supplied the successful transcript of:
+
+```sh
+ww ls quotes | cut -f1 | xargs -n 30 ww fetch --force
+```
+
+Six 30-subject batches and one 24-subject batch reported **204/204 NEWLY_ACQUIRED, zero reused, zero failed**. This was Principal-performed normal acquisition, not an agent repair/migration or automated acceptance acquisition.
+
+Codex then performed provider-free read verification only. `ww show SPY --jsonl` returned exit 0 and observation `62b3011e-3f90-41f9-9ece-9c39e779bcec`, with `last.sourceEventAt = 2026-10-06T00:00:00.004Z` and independent bid/ask event times `2026-10-05T23:59:58Z`. A fresh `ww ls quotes` inventory followed by `ww show --jsonl` for all inventoried symbols returned **204/204 complete strict-read successes**, exit 0, empty stderr and exact inventory order/identity.
+
+The previously malformed current holdings have therefore been replaced through ordinary acquisition and the newly held observations pass strict reads. This does not claim that historical evidence was rewritten or repaired. Codex performed no market acquisition, database mutation or runtime restart. These are Principal-reported reacquisition results plus independently observed read verification; no additional Product acceptance declaration is inferred.
+
 ## Related
 
 - `docs/contracts/api-v2-subject-show-held-quote.md` — strict detail-read contract; must fail rather than conceal malformed canonical detail.
