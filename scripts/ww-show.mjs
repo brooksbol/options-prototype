@@ -226,6 +226,7 @@ function showCells(q,fields,{verbose=false},human) {
   const v=f.extract(q);if(v===undefined)return human?'-':'';
   if(!human)return escapeCell(JSON.isRawJSON(v)?v.rawJSON:v);
   if(f.kind==='instant')return localTime(v,verbose);
+  if(!verbose&&['observationId','acquisitionId'].includes(f.name))return v.slice(-12);
   if(JSON.isRawJSON(v))return humanShowNumber(v,f.kind,verbose);
   return escapeCell(v);
  });

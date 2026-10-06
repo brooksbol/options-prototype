@@ -337,6 +337,8 @@ Empty collection/zero matches succeeds with zero machine records; human output g
 
 ### Human values and table layout
 
+Principal presentation continuation: horizontal human tables render `observationId` and `acquisitionId` as their last 12 characters. These are display suffixes, not new identities or guaranteed unique keys. Canonical filtering/ordering, TSV/JSONL, and verbose retain full IDs. This applies to automatic terminal tables and explicit `--table`, including exact projections.
+
 Human headers distinguish CHANGE % from REPORTED CHANGE. Positive reported changes carry `+`; negatives retain `-`; exact zero is `0`. Percentages append `%`, never multiply by 100. Prices/changes normally use at most two fractional digits, trimming unnecessary zeros; sub-cent magnitudes retain at least three significant digits. Very small/large values may use compact scientific notation; no nonzero value becomes apparent zero. Counts remain exact integers, and no currency or lot units are inferred. Rounding affects presentation only, never comparison/filtering or machine serialization. Verbose retains its full-value numeric/time inspection behavior, adding truthful change signs/percent units.
 
 Every human horizontal-table instant uses compact local time, including TZ, e.g. `Oct 5 18:00`, in ordinary, exact-projection and all-fields tables. Verbose retains full local date/year/seconds, fraction and offset as before. Calendar dates are never timezone-shifted. Horizontal complete tables use headers, aligned expandable columns and one successful observation per row, without clipping/omission or vertical fallback; `--table | less -S` is legitimate. TSV/JSONL preserve canonical numeric source lexemes and original timestamps with existing missing/escaping semantics.

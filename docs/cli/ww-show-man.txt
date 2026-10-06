@@ -95,6 +95,9 @@ PRESENTATION
     Tables have headers, aligned expandable columns, no clipping or omitted
     fields. Complete registry order starts SYMBOL, DESCRIPTION, TYPE.
     All-fields is intentionally wide; use a horizontal pager.
+    Horizontal human tables show the last 12 characters of observationId and
+    acquisitionId (display suffixes, not guaranteed unique). Verbose, TSV and
+    JSONL retain full IDs; filtering/sorting always use canonical full IDs.
     Missing human cells are '-'. Empty human results are explicit messages.
     All-failure invocations have diagnostics and no successful table/header.
 

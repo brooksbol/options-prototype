@@ -354,3 +354,25 @@ test('complete registry puts description immediately after symbol without changi
   assert.deepEqual(all.split('\n')[0].split(/\s{2,}/).slice(0, 3), ['SYMBOL', 'DESCRIPTION', 'TYPE']);
   assert.equal(presentShow(q, { only: ['type', 'symbol', 'description'], format: 'tsv' }), 'ETF\tAAA\tExample ETF\n');
 });
+
+
+test('human ID suffixes preserve full canonical machine, verbose and selection identities', () => {
+  const q = valid(raw('AAA')), before = JSON.stringify(q);
+  const only = ['observationId', 'acquisitionId'];
+  const full = [q.observationId, q.provenance.acquisitionId];
+  for (const mode of [{ tty: true }, { format: 'table' }]) {
+    const output = presentShow(q, { ...mode, only, env: { NO_COLOR: '1' } });
+    assert.deepEqual(output.trimEnd().split('\n')[1].split(/\s{2,}/), full.map(id => id.slice(-12)));
+    const complete = presentShow(q, { ...mode, allFields: true, env: { NO_COLOR: '1' } });
+    for (const id of full) { assert.ok(complete.includes(id.slice(-12))); assert.ok(!complete.includes(id)); }
+  }
+  assert.equal(presentShow(q, { only, format: 'tsv' }), full.join('\t') + '\n');
+  assert.equal(presentShow(q, { only }), full.join('\t') + '\n');
+  for (const id of full) {
+    assert.ok(presentShow(q, { format: 'jsonl' }).includes(id));
+    assert.ok(presentShow(q, { tty: true, verbose: true, env: { NO_COLOR: '1' } }).includes(id));
+  }
+  assert.deepEqual(selectedSymbols([raw('AAA')], ['--quotes', '--where', 'observationId=' + full[0]]), ['AAA']);
+  assert.deepEqual(selectedSymbols([raw('AAA')], ['--quotes', '--where', 'observationId=' + full[0].slice(-12)]), []);
+  assert.equal(JSON.stringify(q), before);
+});

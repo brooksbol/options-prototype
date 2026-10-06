@@ -246,3 +246,6 @@ Human rounding uses decimal digits, not binary floating point: at most two fract
 
 
 **Manual acceptance remediation (October 5):** BUG-031 removes `allFields` from the detailed-clock branch: only verbose selects full clocks; every horizontal table uses existing compact localTime. BUG-032 moves ANSI decoration inside independently calculated padding and adopts tt live's white baseline/value restoration/final reset. Strict decoder, held GETs, query operations, canonical machine values and color-disable policy are unchanged. Principal-requested DESCRIPTION placement is represented by moving that entry immediately after SYMBOL in the sole registry; regenerate the semantic manual and synchronize Product vocabulary. Default and exact --only projections retain their established order.
+
+
+**ID-width continuation (Principal direction):** In the human non-verbose cell renderer, observationId/acquisitionId use their final 12 characters before width calculation. Keep full strings in canonical machine output, verbose, filter/sort keys and observations; suffixes do not establish uniqueness. No registry meaning/name, API or held-read change.
