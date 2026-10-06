@@ -3,7 +3,7 @@
 **Date:** October 6, 2026  
 **Status:** Product discovery checkpoint — Category D provenance, not ratified Product authority and not implementation authority  
 **Scope:** Operator-first discovery for governed capital action surfaces, position management, regime-relative work, operator profile, and cash-side sister question  
-**Related:** `docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md`, `docs/58-wheelwright-semantic-model-v1.md`, `docs/67-unresolved-predicate-resolution-model-architecture-reconciliation-2026-09-26.md`, `docs/69-assignment-centric-wheel-v1-operating-program.md`, `docs/roadmap.md`, `docs/77-api-v2-architectural-guardrails.md`, `docs/78-api-v2-design-implementation-handoff-checkpoint-2026-10-05.md`
+**Related:** `docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md`, `docs/58-wheelwright-semantic-model-v1.md`, `docs/59-practitioner-strategy-semantic-falsification-2026-09-24.md`, `docs/62b-mandate-program-return-disposition-capital-allocation-discovery-2026-09-25.md`, `docs/67-unresolved-predicate-resolution-model-architecture-reconciliation-2026-09-26.md`, `docs/69-assignment-centric-wheel-v1-operating-program.md`, `docs/foundations/regime-objective-function.md`, `docs/foundations/portfolio-capital.md`, `docs/foundations/options-domain-reference.md`, `docs/roadmap.md`, `docs/77-api-v2-architectural-guardrails.md`, `docs/78-api-v2-design-implementation-handoff-checkpoint-2026-10-05.md`
 
 ---
 
@@ -158,7 +158,9 @@ rather than silently omit a highly relevant blocked action.
 
 At the same time, **BUY SHARES** may be available and may change the subsequent action surface by taking the holding from 99 to 100 shares.
 
-The quantity constraint itself is not necessarily new semantics. The operator-first discovery is the importance of projecting the blocker and the action that can alter the feasible action set.
+The quantity constraint itself is not new semantic territory: existing Assignment-Centric Wheel and options-domain work already distinguish quantity, coverage, encumbrance, and contract deliverables. The operator-first discovery is the importance of projecting the blocker and the action that can alter the feasible action set.
+
+The 100-share example is deliberately limited to an ordinary unadjusted equity/ETF contract. Adjusted contracts can have different deliverables, so the Product must not universalize `100 shares` where actual contract terms say otherwise.
 
 ---
 
@@ -415,11 +417,67 @@ The important Product requirement discovered here is stronger operator agency:
 - explain why another action could be right;
 - preserve unresolved evidence, policy, or authority rather than manufacture a winner.
 
-Independent review should determine whether this is already adequately supported by the existing Alternative / Counterfactual Consequence / Recommendation semantics or requires a Product boundary change.
+Independent review found this boundary semantically compatible with existing Alternative / Counterfactual Consequence / Recommendation and operator-disposition distinctions. The new pressure is primarily operator-facing projection, not a new recommendation primitive. Doc 58 remains specialized semantic reference rather than ratified v2 implementation authority.
+
+The no-mandated-winner constraint remains essential: multiple alternatives can be legitimate when governance supplies no deciding rule. A truthful surface may therefore establish consequences and leave the choice with the operator.
 
 ---
 
-## 18. What this checkpoint deliberately does not decide
+## 18. Intermediate Codex reconciliation
+
+Independent adversarial review found that most of this checkpoint **strengthens or projects existing authority rather than introducing new semantic primitives**.
+
+Existing work already supports:
+
+- capital stock/capacity being distinct from production flow;
+- premium or roll credit being insufficient as an economic verdict;
+- lifecycle consequences extending through appreciation/erosion, encumbrance, liquidity, optionality, and resulting holdings;
+- Alternatives, including HOLD-like non-intervention, being distinct from Recommendation, operator selection, contemplated Action, execution, and outcome;
+- quantified governed scopes rather than account or ticker rows being the universal decision subject;
+- quantity/coverage feasibility and actual contract deliverables;
+- operator agency and transparent policy/evidence/consequence reasoning;
+- one account containing multiple governed scopes or Programs without inferring membership from account, symbol, or trade geometry.
+
+The genuinely new Product pressure is:
+
+> **Make that reasoning legible as an operator journey: expose relevant alternatives, feasibility and blockers, consequences, and a recommendation only when governed rules establish one.**
+
+The review also sharpened a non-canonical distinction ladder that must not be collapsed merely for presentation convenience:
+
+- infeasible;
+- policy prohibited or policy undefined;
+- authority missing;
+- evidence insufficient;
+- feasible but unattractive;
+- legitimate alternative;
+- governed recommendation.
+
+These are **not** established as seven Product statuses or an enum. They are falsifiers for any design that merely shows/hides actions or turns every action surface into a ranked winner.
+
+The review confirmed that deterministic governed recommendation is compatible with the existing Wheelwright boundary provided that:
+
+> **Wheelwright recommends only when applicable governed semantics establish a recommendation; otherwise multiple legitimate alternatives may remain without a mandated winner.**
+
+The operator retains selection and brokerage retains execution.
+
+The review also confirmed that treasury/capital purposes are already known concerns but no accepted general priority resolver follows from them. A local holding regime and a larger liquidity/withdrawal obligation can both be relevant without this checkpoint deciding which prevails.
+
+---
+
+## 19. Smallest unresolved Product questions after review
+
+The intermediate review reduced the next discovery boundary to four questions:
+
+1. **Subject and scope** — What identified holding and governed quantity is the first shares question about? How should the 150/100 SPY split expose separate decision contexts inside one account and symbol?
+2. **Choice-set promise** — Which relevant blocked actions should be shown, and how should infeasibility, policy, authority, and evidence limitations be distinguished? Can multiple actions remain legitimate without a single recommendation?
+3. **Governing comparison** — How should Product express that local regime objectives, portfolio/treasury needs, and operator profile can pull in different directions without prematurely inventing a priority mechanism?
+4. **Temporal answer** — Confirm that position-management stances are current, revisable answers with their own facts and reasons, rather than predictions, terminal states, or rewrites of prior Decisions.
+
+Exact action words remain exploratory. Cash-side modeling remains deferred; the observed broker balance distinctions are compatibility constraints, not a selected ontology.
+
+---
+
+## 20. What this checkpoint deliberately does not decide
 
 This checkpoint does **not** decide:
 
@@ -445,7 +503,7 @@ This checkpoint does **not** decide:
 
 ---
 
-## 19. Review questions for the intermediate Codex pass
+## 21. Review questions used for the intermediate Codex pass
 
 The intermediate review should test:
 
@@ -461,11 +519,11 @@ The intermediate review should test:
 
 ---
 
-## 20. Disposition
+## 22. Disposition
 
 This checkpoint records discovery evidence so it can be reviewed from repository state rather than reconstructed from conversation.
 
-The strongest current working formulation is:
+After the intermediate review, the strongest current working formulation is:
 
 > **The operator asks how to get the most work out of identified capital. Regime defines the job. Current evidence and constraints establish the feasible action surface. Operator profile can influence how legitimate choices are managed. Wheelwright should expose actions, blockers, consequences, alternatives, and limitations, and may recommend only where governed Product semantics establish a recommendation. The answer is temporal: while capital remains under management, circumstances can change and the question can be asked again.**
 
