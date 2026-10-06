@@ -5,6 +5,7 @@ const instantMeaning = "Original RFC 3339 UTC instant. Terminal presentation use
 const missing = "Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.";
 const entries = [
  ['symbol','subject.symbol','SYMBOL','Canonical uppercase subject identity.','Identity is canonical, never the path-codec token.'],
+ ['description','facts.description','DESCRIPTION','Provider-reported instrument description.','Optional source text, not a Wheelwright issuer lookup.'],
  ['type','subject.securityType','TYPE','Wheelwright security type.','Public EQUITY, ETF, INDEX, OTHER; wire OTHER_UNDERLYING maps to OTHER.'],
  ['last','facts.last.price','LAST','Last reported trade price.',priceMeaning],
  ['lastSize','facts.last.size','LAST SIZE','Last reported trade size.',sizeMeaning],
@@ -24,7 +25,6 @@ const entries = [
  ['averageVolume','facts.averageVolume','AVERAGE VOLUME','Provider-reported average daily volume.','Nonnegative integer; averaging window is not independently established.'],
  ['fiftyTwoWeekHigh','facts.fiftyTwoWeekHigh','52 WEEK HIGH','Provider-reported 52-week high.',priceMeaning+' Source-defined range, not recomputed.'],
  ['fiftyTwoWeekLow','facts.fiftyTwoWeekLow','52 WEEK LOW','Provider-reported 52-week low.',priceMeaning+' Source-defined range, not recomputed.'],
- ['description','facts.description','DESCRIPTION','Provider-reported instrument description.','Optional source text, not a Wheelwright issuer lookup.'],
  ['exchange','facts.exchange','EXCHANGE','Provider-reported instrument exchange.','Optional source text; distinct from side-specific venues.'],
  ['observationId','observationId','OBSERVATION ID','Identity of the accepted observation.','UUID preserved from the canonical holding; distinct from HTTP correlation and acquisition identity.'],
  ['provider','provenance.provider','PROVIDER','Observation source provider.','Persisted source identity, independent of the currently active provider.'],

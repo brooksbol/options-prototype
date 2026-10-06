@@ -176,17 +176,17 @@ test('human semantic colors decorate only change fields, preserve alignment and 
   assert.equal(strip(colored), plain);
   assert.equal((colored.match(/\x1b\[32m/g) ?? []).length, 2);
   assert.equal((colored.match(/\x1b\[31m/g) ?? []).length, 2);
-  assert.match(colored, /\x1b\[32m\s*\+1.23\x1b\[39m/);
-  assert.match(colored, /\x1b\[32m\s*\+1.23%\x1b\[39m/);
-  assert.match(colored, /\x1b\[31m\s*-2.35\x1b\[39m/);
-  assert.match(colored, /\x1b\[31m\s*-2.35%\x1b\[39m/);
+  assert.match(colored, /\x1b\[32m\+1.23\x1b\[37m/);
+  assert.match(colored, /\x1b\[32m\+1.23%\x1b\[37m/);
+  assert.match(colored, /\x1b\[31m-2.35\x1b\[37m/);
+  assert.match(colored, /\x1b\[31m-2.35%\x1b\[37m/);
   assert.doesNotMatch(colored.split('\n')[3], /\x1b\[/);
   assert.ok(!colored.includes('\x1b[32m12.35'));
   // Isolated renderer guard: even a negative non-change value is never sign-colored.
   // Canonical validation still rejects negative prices; this is not an admitted observation.
   rows[0].facts.last.price = number('-12.3456');
   const guarded = presentShowRows([rows[0]], { ...opts, only: ['last'] });
-  assert.doesNotMatch(guarded, /\x1b\[/); assert.match(guarded, /-12.35/);
+  assert.doesNotMatch(guarded, /\x1b\[(?:31|32)m/); assert.match(guarded, /-12.35/);
   for (const env of [{ NO_COLOR: '1' }, { NO_COLOR: '0' }, { TERM: 'dumb' }]) {
     assert.equal(showColorEnabled(opts, env), false);
     assert.doesNotMatch(presentShowRows(rows, { ...opts, env }), /\x1b\[/);
@@ -212,7 +212,7 @@ test('explicit formats across TTY/pipe; all fields remain horizontal, canonical 
   }
   const noColor = await run([...args, '--table'], { NO_COLOR: '1' }); assert.doesNotMatch(noColor.stdout, /\x1b\[/);
   const dumb = await run([...args, '--table'], { TERM: 'dumb' }); assert.doesNotMatch(dumb.stdout, /\x1b\[/);
-  assert.match(strip(pipedTable.stdout), /2026-10-05 22:01:25 -06:00/);
+  assert.match(strip(pipedTable.stdout), /Oct 5 22:01/);
   assert.ok(!strip(pipedTable.stdout).includes('.123456789123'));
 }));
 
@@ -279,5 +279,78 @@ test('actual watch -c preserves piped --table positive/negative change colors', 
     { ...env, COLUMNS: '120', LINES: '24' }, 'python3')).stdout);
   assert.equal(r.status, 0, JSON.stringify(r)); assert.equal(r.stderr, '');
   assert.match(r.stdout, /\x1b\[32m/); assert.match(r.stdout, /\x1b\[31m/);
+  assert.match(r.stdout, /\x1b\[37mSYMBOL/);
+  assert.match(r.stdout, /\x1b\[32m\+1\x1b\[37m +\x1b\[32m\+1%\x1b\[37m/);
   assert.ok(calls.length >= 2); assert.ok(calls.every(c => c.path === '/v2/quotes/BBB'));
 }));
+
+
+test('all-fields timestamps share compact local clocks; canonical machines and calendar date unchanged', () => {
+  const source = raw('AAA');
+  source.facts.last.sourceEventAt = '2026-10-06T00:00:01Z';
+  source.facts.bid.sourceEventAt = '2026-10-06T04:01:23.123456789Z';
+  source.facts.ask = { price: number('12.4'), sourceEventAt: '2026-10-06T04:02:59Z' };
+  source.provenance.regularSessionDate = '2026-10-05';
+  const q = valid(source), before = JSON.stringify(q), old = process.env.TZ;
+  try {
+    process.env.TZ = 'America/Denver';
+    const expected = ['Oct 5 18:00', 'Oct 5 22:01', 'Oct 5 22:02', 'Oct 5 22:01', 'Oct 5 22:01'];
+    const instants = SHOW_FIELDS.filter(f => f.kind === 'instant');
+    assert.equal(instants.length, 5);
+    const all = presentShow(q, { allFields: true, format: 'table', env: { NO_COLOR: '1' } });
+    instants.forEach((f, i) => {
+      const cell = presentShow(q, { only: [f.name], format: 'table', env: { NO_COLOR: '1' } }).trimEnd().split('\n')[1];
+      assert.equal(cell, expected[i]);
+      const [heading, row] = all.split('\n'), start = heading.indexOf(f.heading);
+      assert.equal(row.slice(start, start + Math.max(f.heading.length, 8, expected[i].length)).trim(), expected[i]);
+      const column = SHOW_FIELDS.indexOf(f);
+      const tsv = presentShow(q, { allFields: true, format: 'tsv' }).trimEnd().split('\t');
+      assert.equal(tsv[column], f.extract(q));
+      assert.equal(f.extract(JSON.parse(presentShow(q, { format: 'jsonl' }))), f.extract(q));
+    });
+    assert.doesNotMatch(all, /-06:00|T04:|\.123456789/);
+    assert.match(all, /2026-10-05/); // calendar date is not an instant
+    delete q.facts.bid.sourceEventAt;
+    assert.equal(presentShow(q, { only: ['bidSourceEventAt'], format: 'table', env: { NO_COLOR: '1' } }).trimEnd().split('\n')[1], '-');
+    q.facts.bid.sourceEventAt = source.facts.bid.sourceEventAt;
+    assert.equal(JSON.stringify(q), before);
+  } finally { if (old === undefined) delete process.env.TZ; else process.env.TZ = old; }
+});
+
+test('ANSI spans contain only signed change values; green-default terminal ordinary content is white', () => {
+  const rows = [valid(raw('AAA', 'ETF', '1')), valid(raw('BBB', 'ETF', '-12')), valid(raw('CCC', 'ETF', '0'))];
+  const options = { format: 'table', only: ['symbol', 'reportedChange', 'last', 'reportedChangePercent', 'bid'], env: { TERM: 'xterm' } };
+  const output = presentShowRows(rows, options);
+  assert.ok(output.startsWith('\x1b[37m'));
+  assert.ok(output.endsWith('\x1b[0m'));
+  const spans = [...output.matchAll(/\x1b\[(31|32)m([^\x1b]*)\x1b\[37m/g)];
+  assert.deepEqual(spans.map(m => [m[1], m[2]]), [['32', '+1'], ['32', '+1%'], ['31', '-12'], ['31', '-12%']]);
+  // Track foreground state rather than merely stripping ANSI. Inherit green
+  // initially, like the Principal's terminal; every non-value character is white.
+  let foreground = 32, plain = '', coloredValues = [];
+  for (const chunk of output.split(/(\x1b\[[0-9;]*m)/)) {
+    if (chunk.startsWith('\x1b[')) foreground = Number(chunk.slice(2, -1));
+    else if (chunk) {
+      plain += chunk;
+      if (foreground === 31 || foreground === 32) {
+        assert.match(chunk, /^[+-]\d+(?:%?)$/);
+        coloredValues.push(chunk);
+      } else assert.equal(foreground, 37, JSON.stringify(chunk));
+    }
+  }
+  assert.deepEqual(coloredValues, ['+1', '+1%', '-12', '-12%']);
+  assert.equal(plain, presentShowRows(rows, { ...options, env: { NO_COLOR: '1' } }));
+  const lines = plain.trimEnd().split('\n');
+  // Right-aligned semantic values and subsequent cells occupy identical columns.
+  assert.equal(lines[1].indexOf('12.35'), lines[2].indexOf('12.35'));
+  assert.match(output, /\x1b\[37m  +12.35/); // immediately following price is white
+  assert.match(output, /\x1b\[37m  +12.3\nBBB/); // padding, separator, next row stay white
+});
+
+test('complete registry puts description immediately after symbol without changing exact --only', () => {
+  assert.deepEqual(SHOW_FIELDS.slice(0, 2).map(f => f.name), ['symbol', 'description']);
+  const q = valid(raw('AAA')); q.facts.description = 'Example ETF';
+  const all = presentShow(q, { allFields: true, format: 'table', env: { NO_COLOR: '1' } });
+  assert.deepEqual(all.split('\n')[0].split(/\s{2,}/).slice(0, 3), ['SYMBOL', 'DESCRIPTION', 'TYPE']);
+  assert.equal(presentShow(q, { only: ['type', 'symbol', 'description'], format: 'tsv' }), 'ETF\tAAA\tExample ETF\n');
+});

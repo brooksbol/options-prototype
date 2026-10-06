@@ -132,12 +132,12 @@ Public projection names are flat camelCase. `bid`, `ask`, and `last` mean their 
 
 The bounded public vocabulary is:
 
-    symbol,type,last,lastSize,lastSourceEventAt,
+    symbol,description,type,last,lastSize,lastSourceEventAt,
     bid,bidSize,bidVenue,bidSourceEventAt,
     ask,askSize,askVenue,askSourceEventAt,
     open,high,low,close,previousClose,volume,
     reportedChange,reportedChangePercent,averageVolume,
-    fiftyTwoWeekHigh,fiftyTwoWeekLow,description,exchange,
+    fiftyTwoWeekHigh,fiftyTwoWeekLow,exchange,
     observationId,provider,environment,acquisitionId,authorityEpoch,
     acquisitionPhase,regularSessionDate,feedIdentity,receivedAt,committedAt
 
@@ -315,7 +315,7 @@ Inspection options are position-independent before `--`:
 
 `--quotes` resolves subjects through the complete held inventory in symbol order. Explicit subjects and `--quotes` conflict. Bare show remains exit 2. Explicit subject uppercase normalization, first-occurrence deduplication and order remain. `--quote` remains the existing facet and does not select a collection by itself. No implicit default collection exists.
 
-`--all-fields` selects every installed public registry field in registry order, including missing cells, as one observation per horizontal row. It conflicts with `--only` and `--verbose`. `--only` remains exact ordered projection, including repeated fields, without added symbol or sort/filter fields. Existing `--only --verbose` and `--only --jsonl` conflicts remain.
+`--all-fields` selects every installed public registry field in registry order (SYMBOL, DESCRIPTION, then TYPE and remaining fields), including missing cells, as one observation per horizontal row. It conflicts with `--only` and `--verbose`. `--only` remains exact ordered projection, including repeated fields, without added symbol or sort/filter fields. Existing `--only --verbose` and `--only --jsonl` conflicts remain.
 
 Explicit formats are mutually exclusive; repetitions of the same format/boolean are idempotent. `--table` forces a horizontal human table even in a pipe. It conflicts with verbose's existing FIELD/VALUE layout. `--tsv` forces canonical headerless TSV even on a terminal. JSONL stays complete public nested observations. `--all-fields --jsonl` is redundant and valid. `--verbose --tsv` and `--verbose --jsonl` preserve existing complete machine output; default verbose TTY remains subject-labelled FIELD/VALUE tables. Without an explicit format, TTY detection remains authoritative.
 
@@ -339,7 +339,7 @@ Empty collection/zero matches succeeds with zero machine records; human output g
 
 Human headers distinguish CHANGE % from REPORTED CHANGE. Positive reported changes carry `+`; negatives retain `-`; exact zero is `0`. Percentages append `%`, never multiply by 100. Prices/changes normally use at most two fractional digits, trimming unnecessary zeros; sub-cent magnitudes retain at least three significant digits. Very small/large values may use compact scientific notation; no nonzero value becomes apparent zero. Counts remain exact integers, and no currency or lot units are inferred. Rounding affects presentation only, never comparison/filtering or machine serialization. Verbose retains its full-value numeric/time inspection behavior, adding truthful change signs/percent units.
 
-Ordinary human instants use compact local time, including TZ. Complete horizontal tables show local date/year/seconds and UTC offset (no arbitrary subsecond spelling); verbose retains the complete local fraction as before. Calendar dates are never timezone-shifted. Horizontal complete tables use headers, aligned expandable columns and one successful observation per row, without clipping/omission or vertical fallback; `--table | less -S` is legitimate. TSV/JSONL preserve canonical numeric source lexemes and original timestamps with existing missing/escaping semantics.
+Every human horizontal-table instant uses compact local time, including TZ, e.g. `Oct 5 18:00`, in ordinary, exact-projection and all-fields tables. Verbose retains full local date/year/seconds, fraction and offset as before. Calendar dates are never timezone-shifted. Horizontal complete tables use headers, aligned expandable columns and one successful observation per row, without clipping/omission or vertical fallback; `--table | less -S` is legitimate. TSV/JSONL preserve canonical numeric source lexemes and original timestamps with existing missing/escaping semantics.
 
 ### Scope / acceptance boundary
 
@@ -348,12 +348,17 @@ No new API/OAS/backend, evidence field, derived mover concept, provider policy, 
 
 ### Section 14 color amendment — Principal steering, October 5
 
-The Principal explicitly added human change-color semantics to this same authorized slice. Ordinary human text uses default terminal foreground. Only `reportedChange` and `reportedChangePercent` use SGR green (32) for positive values and red (31) for negative values; zero/missing remain uncolored. The exact canonical sign determines color, before human rounding. Restore default foreground (39) after each colored cell. Prices/counts/sizes/other facts are never sign-colored. Table padding/widths are computed without ANSI sequences; controls in evidence text remain escaped.
+The Principal explicitly added human change-color semantics to this same authorized slice. Ordinary colored human text uses explicit white (SGR 37), including on terminals whose default foreground is green. Only `reportedChange` and `reportedChangePercent` use SGR green (32) for positive values and red (31) for negative values; zero/missing retain ordinary white. The exact canonical sign determines color, before human rounding. Restore white (37) immediately after each semantic change value, before padding/separators. Initialize human output to white and finish with a full reset (0), restoring the caller’s terminal default. Prices/counts/sizes/other facts are never sign-colored. Table padding/widths are computed without ANSI sequences; controls in evidence text remain escaped.
 
 Color is enabled in human presentation regardless of stdout TTY status once `--table` selects it. Automatic redirected TSV and all explicit TSV/JSONL remain ANSI-free. Nonempty NO_COLOR disables color even with --table; empty/unset NO_COLOR does not. TERM=dumb disables color. No palette, FORCE_COLOR handling, new color option or terminal framework is introduced. Verbose human tables retain their structure and the same change-only colors.
 
-Compatibility reference: `tt live` passes `color: !command.tsv` to its command-specific renderer, independent of TTY, TERM and NO_COLOR; README documents `watch -c` and tests prove color in redirected human output (including ignored NO_COLOR). It uses SGR 32/31 and restores white 37, with a final reset. There is no shared color helper. Show adopts its human-mode-over-TTY convention and green/red codes, restoring default foreground rather than forcing white, and adds the conventional nonempty NO_COLOR opt-out (https://no-color.org/). `tt live` itself is unchanged.
+Compatibility reference: `tt live` passes `color: !command.tsv` to its command-specific renderer, independent of TTY, TERM and NO_COLOR; README documents `watch -c` and tests prove color in redirected human output (including ignored NO_COLOR). It uses SGR 32/31 and restores white 37, with a final reset. There is no shared color helper. Show adopts its human-mode-over-TTY convention and green/red codes, restoring white after semantic change values and resetting at the end, and adds the conventional nonempty NO_COLOR opt-out (https://no-color.org/). `tt live` itself is unchanged.
 
     watch -c 'ww show --quotes --where type=ETF --sort-by reportedChangePercent --absolute --descending --limit 10 --all-fields --table'
 
 `watch -c` interprets ANSI; --table prevents watch's capture pipe from selecting machine TSV. For a horizontal pager use `less -SR` (S avoids wrapping, R renders ANSI colors); `less -S` alone retains the table but need not render colors. No color is inferred for machine output merely because watch is used.
+
+
+### Manual acceptance correction — October 5, 2026
+
+The Principal rejected the complete-table full-date exception and reported non-change text appearing green at `4c2701ed9a03df579fec3928ef060bd37173b1ab`, clarifying that their terminal default is green on black. These demonstrated presentation defects are [BUG-031](../bugs/BUG-031-show-complete-table-timestamps.md) and [BUG-032](../bugs/BUG-032-show-change-color-scope.md). The Principal explicitly authorized bounded remediation, verification, commit and push. Current presentation requirements above supersede the actor-authored all-fields timestamp exception and default-foreground assumption; detailed verbose and canonical machine values remain unchanged. The subsequent Principal direction places DESCRIPTION immediately right of SYMBOL; the public registry/catalog/manual order is synchronized, with no field additions or semantic changes and no change to default/exact projection.

@@ -219,16 +219,13 @@ function colorShowCell(q,field,text,color) {
  if(!color||!['change','percent'].includes(field.kind))return text;
  const value=field.extract(q);if(value===undefined)return text;
  const sign=decimalParts(value.rawJSON).sign;
- return sign?`\x1b[${sign>0?'32':'31'}m${text}\x1b[39m`:text;
+ return sign?`\x1b[${sign>0?'32':'31'}m${text}\x1b[37m`:text;
 }
-function showCells(q,fields,{verbose=false,allFields=false},human) {
+function showCells(q,fields,{verbose=false},human) {
  return fields.map(f=>{
   const v=f.extract(q);if(v===undefined)return human?'-':'';
   if(!human)return escapeCell(JSON.isRawJSON(v)?v.rawJSON:v);
-  if(f.kind==='instant') {
-   const local=localTime(v,verbose||allFields);
-   return allFields&&!verbose?local.replace(/(\d{2}:\d{2}:\d{2})\.\d+ /,'$1 '):local;
-  }
+  if(f.kind==='instant')return localTime(v,verbose);
   if(JSON.isRawJSON(v))return humanShowNumber(v,f.kind,verbose);
   return escapeCell(v);
  });
@@ -240,14 +237,16 @@ export function presentShowRows(observations,options={}) {
  if(!observations.length)return human&&options.emptyMessage?options.emptyMessage+'\n':'';
  const rows=observations.map(q=>showCells(q,fields,options,human));
  if(!human)return rows.map(row=>row.join('\t')+'\n').join('');
- if(verbose)return observations.map((q,i)=>`Subject ${escapeCell(q.subject.symbol)}\nFIELD                        VALUE\n`+fields.map((f,j)=>f.name.padEnd(28)+' '+colorShowCell(q,f,rows[i][j],color)).join('\n')+'\n').join('');
+ const ordinary=text=>color?`\x1b[37m${text}\x1b[0m`:text;
+ if(verbose)return ordinary(observations.map((q,i)=>`Subject ${escapeCell(q.subject.symbol)}\nFIELD                        VALUE\n`+fields.map((f,j)=>f.name.padEnd(28)+' '+colorShowCell(q,f,rows[i][j],color)).join('\n')+'\n').join(''));
  const widths=fields.map(f=>Math.max(f.heading.length,8));
  for(const row of rows)row.forEach((v,i)=>widths[i]=Math.max(widths[i],v.length));
  const layout=(row,q)=>row.map((v,i)=>{
-  const padded=q&&fields[i].valueType==='number'?v.padStart(widths[i]):v.padEnd(widths[i]);
-  return q?colorShowCell(q,fields[i],padded,color):padded;
+  const padding=' '.repeat(widths[i]-v.length);
+  const value=q?colorShowCell(q,fields[i],v,color):v;
+  return q&&fields[i].valueType==='number'?padding+value:value+padding;
  }).join('  ').trimEnd();
- return (header?layout(fields.map(f=>f.heading))+'\n':'')+rows.map((row,i)=>layout(row,observations[i])+'\n').join('');
+ return ordinary((header?layout(fields.map(f=>f.heading))+'\n':'')+rows.map((row,i)=>layout(row,observations[i])+'\n').join(''));
 }
 export function presentShow(q,options={}) {return presentShowRows([q],options);}
 export function presentFields(tty=false){return (tty?'FIELD                        DESCRIPTION\n':'')+SHOW_FIELDS.map(f=>tty?f.name.padEnd(28)+' '+f.description:f.name+'\t'+f.description).join('\n')+'\n';}

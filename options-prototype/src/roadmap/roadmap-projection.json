@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-06T04:37:40.025Z",
+    "generatedAt": "2026-10-06T04:49:15.082Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -40,8 +40,8 @@
       "comingSoonTotal": 5,
       "principleTotal": 9,
       "domainEntryTotal": 36,
-      "bugTotal": 30,
-      "logTotal": 96,
+      "bugTotal": 32,
+      "logTotal": 100,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 60
@@ -4219,6 +4219,13 @@
           "heading": "`PL-CLI-01` / `PL-API-03` — October 5 held ETF queries implemented and verified",
           "level": 3,
           "content": "[Acceptance evidence](cli/ww-show-query-acceptance-2026-10-05.md) records 87/87 Node tests (63 ww, 24 tt compatibility), 10/10 deterministic fetch acceptance, registry/manual synchronization, OAS compatibility and the actual PTY watch -c color proof. The final direct question uses `ww show --quotes --where type=ETF --sort-by reportedChangePercent --absolute --descending --limit 10 --all-fields --table`; read-only live observation returned 10 signed movers in a 36-column horizontal table in ~0.74s, with machine formats canonical/color-free. Principal color steering is absorbed in Product section 14: only the two change fields green/red, default foreground elsewhere, nonempty NO_COLOR/TERM=dumb opt-outs; tt live remains unchanged. Sequential inventory/instance reads suffice at observed scale; no backend/API/OAS, provider, persisted-evidence or credential change. Existing strict validation and explicit-subject/only/fields/verbose semantics remain. No new defect was demonstrated; all unrelated bugs/work remain untouched. End-of-Workstream Memory Check preserves why-state and reconciles authority/docs/generated Roadmap; strategy/horizon/principles need no change. Scope-preserving commit/push is expressly authorized. Next observation boundary: Principal manual acceptance / independent review of this implemented slice; broader PL-CLI-01/PL-API-03 retained.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-CLI-01 / PL-API-03 — Human-table manual acceptance continuation — October 5, 2026",
+          "level": 3,
+          "content": "Principal manual use of the completed held ETF query at 4c2701e rejected timestamps and color scope. Canonical defects BUG-031/BUG-032 own those lifecycles; no new PL identity is created. Bounded remediation is Principal-authorized and deterministically verified; manual rerun remains outstanding. The same command/query primitives remain; DESCRIPTION-after-SYMBOL follows additional Principal direction. See current Product section 14 and the held-query acceptance continuation. No new API capability, engine, strategy or horizon decision.",
           "truncated": false,
           "tables": []
         }
@@ -8609,6 +8616,198 @@
           "tables": []
         }
       ]
+    },
+    {
+      "id": "BUG-031",
+      "title": "Complete human tables select verbose timestamp rendering",
+      "area": "CLI / ww show human presentation",
+      "severity": "Not established",
+      "status": "Resolved",
+      "recordFile": "BUG-031-show-complete-table-timestamps.md",
+      "provenance": "Principal manual acceptance 2026-10-05",
+      "recordTitle": "BUG-031 — Complete human tables select verbose timestamp rendering",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "The Principal manually ran the held ETF ranking/all-fields/table command at `4c2701ed9a03df579fec3928ef060bd37173b1ab`. LAST SOURCE EVENT, BID SOURCE EVENT, ASK SOURCE EVENT, RECEIVED and COMMITTED showed full numeric date/seconds/offset, such as `2026-10-05 18:00:01 -06:00`, instead of compact human-local clocks.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Human horizontal tables must use compact local timestamps, consistently for every instant-valued public field. The original accepted contract gives `Oct 5 17:35` as an example. The actor-authored section 14/full-date exception narrowed that intent incorrectly; Principal manual acceptance explicitly rejected it. Verbose detail remains detailed; machine timestamps remain canonical.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Principal-reported manual failure is distinct from independently observed source/test evidence. Before production edits, the amended regression suite produced 13 passes and 5 failures: compact clocks, semantic ANSI scopes/white baseline, and the separately requested description placement did not satisfy the corrected acceptance. After the bounded fix the query suite passed 18/18. The tests assert actual presentation and canonical values, not only absence of ANSI after stripping.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Human complete-table inspection fails accepted readability/color semantics. No evidence mutation or machine-value corruption is demonstrated. Severity is not established.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "`showCells` passed `verbose || allFields` to `localTime`, then removed fractional seconds for all-fields. Thus complete tables took the verbose branch even though ordinary tables used the intended compact renderer.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Bounded display-only remediation explicitly authorized by the Principal. No acquisition, provider interpretation, temporal/session inference, public field additions, query redesign or backend/API change. The separate DESCRIPTION-after-SYMBOL direction is a governed presentation/order amendment, not a third bug.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Remove allFields from clock-format selection: only verbose selects detailed clocks. All five instant fields share the existing compact local renderer. Calendar dates and missing values retain their representation. Existing exact projection, filtering, stable ordering, magnitude ordering, limiting, partial results, strict validation, machine fidelity and terminal composition remain compatible.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Principal authorization and resolution — 2026-10-05",
+          "level": 3,
+          "content": "Principal authorized investigation, narrowly scoped remediation, canonical defect records, deterministic verification, commit and push. Remove allFields from clock-format selection: only verbose selects detailed clocks. All five instant fields share the existing compact local renderer. Calendar dates and missing values retain their representation. Product, Solution Design and manual are reconciled with the explicit manual correction. This record does not claim Principal rerun acceptance; the exact command remains in the acceptance evidence artifact.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Post-resolution validation — 2026-10-05",
+          "level": 3,
+          "content": "Final Node suite: 90/90; local deterministic fetch acceptance: 10/10. Registry/manual and syntax checks, existing detail OAS 25 specimens / 7 statuses and collection OAS 62 specimens, generated Roadmap freshness and diff checks pass. A held-only operational rerun returned 10 rows, 36 columns, compact clocks and 20 whitespace-free change spans; no market acquisition. Principal visual rerun remains outstanding.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- [Current Product contract](../contracts/api-v2-subject-show-held-quote.md#14-question-driven-held-collection-inspection--october-5-2026)\n- [Solution Design](../design/ww-show-held-quote-solution-design.md)\n- [Acceptance evidence](../cli/ww-show-query-acceptance-2026-10-05.md)",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-032",
+      "title": "Human change-cell decoration includes padding and restores green terminal default",
+      "area": "CLI / ww show human presentation",
+      "severity": "Not established",
+      "status": "Resolved",
+      "recordFile": "BUG-032-show-change-color-scope.md",
+      "provenance": "Principal manual acceptance 2026-10-05",
+      "recordTitle": "BUG-032 — Human change-cell decoration includes padding and restores green terminal default",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "The Principal reported non-change text appearing green in the complete human table at `4c2701ed9a03df579fec3928ef060bd37173b1ab`, and clarified that their default terminal foreground is green on black. Source inspection independently demonstrated change spans containing leading column padding.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Only semantic rendered reportedChange/reportedChangePercent values receive green/red sign coloring. Ordinary text, zero/missing, padding, separators, following cells and rows stay white. Color escapes must not contribute to visible width; explicit piped human mode keeps color while canonical machines never contain ANSI.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Principal-reported manual failure is distinct from independently observed source/test evidence. Before production edits, the amended regression suite produced 13 passes and 5 failures: compact clocks, semantic ANSI scopes/white baseline, and the separately requested description placement did not satisfy the corrected acceptance. After the bounded fix the query suite passed 18/18. The tests assert actual presentation and canonical values, not only absence of ANSI after stripping.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Human complete-table inspection fails accepted readability/color semantics. No evidence mutation or machine-value corruption is demonstrated. Severity is not established.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "The table padded numeric cells before colorShowCell decorated the entire padded string. It restored SGR 39, which correctly ends explicit green/red but restores the user's green default; no explicit white baseline existed. There is no demonstrated whole-row green decoration or missing ANSI terminator. The combination violates value-only scope and fails the intended white ordinary text on this terminal. tt live already establishes white 37, scoped values and final reset 0 as the applicable repository convention.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Bounded display-only remediation explicitly authorized by the Principal. No acquisition, provider interpretation, temporal/session inference, public field additions, query redesign or backend/API change. The separate DESCRIPTION-after-SYMBOL direction is a governed presentation/order amendment, not a third bug.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Calculate widths from plain text, decorate only the semantic value, then attach plain padding. Initialize human output to white 37, restore white immediately after each signed change value and finish with reset 0. Keep NO_COLOR/TERM=dumb disabling all ANSI; machines bypass human decoration. Existing exact projection, filtering, stable ordering, magnitude ordering, limiting, partial results, strict validation, machine fidelity and terminal composition remain compatible.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Principal authorization and resolution — 2026-10-05",
+          "level": 3,
+          "content": "Principal authorized investigation, narrowly scoped remediation, canonical defect records, deterministic verification, commit and push. Calculate widths from plain text, decorate only the semantic value, then attach plain padding. Initialize human output to white 37, restore white immediately after each signed change value and finish with reset 0. Keep NO_COLOR/TERM=dumb disabling all ANSI; machines bypass human decoration. Product, Solution Design and manual are reconciled with the explicit manual correction. This record does not claim Principal rerun acceptance; the exact command remains in the acceptance evidence artifact.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Post-resolution validation — 2026-10-05",
+          "level": 3,
+          "content": "Final Node suite: 90/90; local deterministic fetch acceptance: 10/10. Registry/manual and syntax checks, existing detail OAS 25 specimens / 7 statuses and collection OAS 62 specimens, generated Roadmap freshness and diff checks pass. A held-only operational rerun returned 10 rows, 36 columns, compact clocks and 20 whitespace-free change spans; no market acquisition. Principal visual rerun remains outstanding.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- [Current Product contract](../contracts/api-v2-subject-show-held-quote.md#14-question-driven-held-collection-inspection--october-5-2026)\n- [Solution Design](../design/ww-show-held-quote-solution-design.md)\n- [Acceptance evidence](../cli/ww-show-query-acceptance-2026-10-05.md)",
+          "truncated": false,
+          "tables": []
+        }
+      ]
     }
   ],
   "log": [
@@ -8818,7 +9017,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 565
+      "sourceOrder": 570
     },
     {
       "plId": null,
@@ -8961,7 +9160,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 553
+      "sourceOrder": 554
     },
     {
       "plId": null,
@@ -8974,7 +9173,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 554
+      "sourceOrder": 555
     },
     {
       "plId": null,
@@ -8987,7 +9186,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 555
+      "sourceOrder": 556
     },
     {
       "plId": null,
@@ -9000,7 +9199,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 558
+      "sourceOrder": 559
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -9026,7 +9225,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 556
+      "sourceOrder": 557
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -9208,7 +9407,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 536
+      "sourceOrder": 537
     },
     {
       "plId": null,
@@ -9221,7 +9420,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 537
+      "sourceOrder": 538
     },
     {
       "plId": null,
@@ -9234,7 +9433,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 538
+      "sourceOrder": 539
     },
     {
       "plId": null,
@@ -9247,7 +9446,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 539
+      "sourceOrder": 540
     },
     {
       "plId": null,
@@ -9260,7 +9459,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 540
+      "sourceOrder": 541
     },
     {
       "plId": null,
@@ -9273,7 +9472,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 541
+      "sourceOrder": 542
     },
     {
       "plId": null,
@@ -9286,7 +9485,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 542
+      "sourceOrder": 543
     },
     {
       "plId": null,
@@ -9299,7 +9498,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 543
+      "sourceOrder": 544
     },
     {
       "plId": null,
@@ -9312,7 +9511,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 544
+      "sourceOrder": 545
     },
     {
       "plId": null,
@@ -9325,7 +9524,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 545
+      "sourceOrder": 546
     },
     {
       "plId": null,
@@ -9338,7 +9537,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 546
+      "sourceOrder": 547
     },
     {
       "plId": null,
@@ -9351,7 +9550,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 547
+      "sourceOrder": 548
     },
     {
       "plId": null,
@@ -9364,7 +9563,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 548
+      "sourceOrder": 549
     },
     {
       "plId": null,
@@ -9377,7 +9576,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 549
+      "sourceOrder": 550
     },
     {
       "plId": null,
@@ -9390,7 +9589,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 550
+      "sourceOrder": 551
     },
     {
       "plId": null,
@@ -9403,7 +9602,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 551
+      "sourceOrder": 552
     },
     {
       "plId": null,
@@ -9416,7 +9615,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 552
+      "sourceOrder": 553
     },
     {
       "plId": null,
@@ -9429,7 +9628,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 557
+      "sourceOrder": 558
     },
     {
       "plId": null,
@@ -9442,7 +9641,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 564
+      "sourceOrder": 569
     },
     {
       "plId": "PL-SEM-01",
@@ -9611,7 +9810,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 559
+      "sourceOrder": 560
     },
     {
       "plId": null,
@@ -9624,7 +9823,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 560
+      "sourceOrder": 561
     },
     {
       "plId": "PL-SETUP-01",
@@ -9832,7 +10031,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 561
+      "sourceOrder": 562
     },
     {
       "plId": null,
@@ -9845,7 +10044,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 562
+      "sourceOrder": 563
     },
     {
       "plId": null,
@@ -9858,7 +10057,59 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 563
+      "sourceOrder": 564
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
+      "title": "Principal authorization and resolution — 2026-10-05",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 565
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
+      "title": "Post-resolution validation — 2026-10-05",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 566
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
+      "title": "Principal authorization and resolution — 2026-10-05",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 567
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
+      "title": "Post-resolution validation — 2026-10-05",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 568
     }
   ],
   "intakeDateUnknown": [

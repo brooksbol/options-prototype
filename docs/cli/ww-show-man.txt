@@ -89,19 +89,23 @@ PRESENTATION
     for nonzero evidence. Counts are exact integers. No currency/lot unit is
     inferred. Verbose preserves exact numeric spelling with change signs/%.
     Human instants use local timezone (including TZ): compact ordinary clocks;
-    complete horizontal tables add year/date/seconds/offset; verbose retains
-    available fractions. regularSessionDate is never timezone-shifted.
+    all horizontal tables use MMM d HH:mm (e.g. Oct 5 18:00); verbose retains
+    full date/year/seconds/offset and available fractions. regularSessionDate
+    is never timezone-shifted.
     Tables have headers, aligned expandable columns, no clipping or omitted
-    fields. All-fields is intentionally wide; use a horizontal pager.
+    fields. Complete registry order starts SYMBOL, DESCRIPTION, TYPE.
+    All-fields is intentionally wide; use a horizontal pager.
     Missing human cells are '-'. Empty human results are explicit messages.
     All-failure invocations have diagnostics and no successful table/header.
 
 COLOR AND TERMINAL COMPOSITION
     Only reportedChange and reportedChangePercent are green when positive,
-    red when negative. Zero/missing and all non-change fields use default
-    foreground. ANSI green/red (32/31), restore default foreground (39).
-    Widths/padding are calculated before decoration. Human --table keeps color
-    in pipes, following tt live's presentation-based convention. Nonempty
+    red when negative. Zero/missing and all non-change fields use white (37),
+    even when the terminal default is green. ANSI green/red (32/31) encloses
+    only the semantic change value, then restores white (37) before padding.
+    Human output starts white and ends with reset (0) to restore the terminal.
+    Widths use plain values; padding stays outside colored spans. Human --table
+    keeps color in pipes, following tt live's presentation-based convention. Nonempty
     NO_COLOR or TERM=dumb disables color, including --table; empty/unset
     NO_COLOR does not. No palette or FORCE_COLOR mode.
     TSV/JSONL and automatic machine redirection NEVER contain ANSI decoration.
@@ -163,6 +167,10 @@ PUBLIC FIELDS (generated from the authoritative projection registry)
 symbol
     Canonical uppercase subject identity.
     Source: subject.symbol. Identity is canonical, never the path-codec token. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values. Exact filter/sort type: text.
+
+description
+    Provider-reported instrument description.
+    Source: facts.description. Optional source text, not a Wheelwright issuer lookup. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values. Exact filter/sort type: text.
 
 type
     Wheelwright security type.
@@ -255,10 +263,6 @@ fiftyTwoWeekHigh
 fiftyTwoWeekLow
     Provider-reported 52-week low.
     Source: facts.fiftyTwoWeekLow. Source-reported nonnegative price in the instrument's applicable unit; currency/lot conventions are not inferred. Source-defined range, not recomputed. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values. Exact filter/sort type: number.
-
-description
-    Provider-reported instrument description.
-    Source: facts.description. Optional source text, not a Wheelwright issuer lookup. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values. Exact filter/sort type: text.
 
 exchange
     Provider-reported instrument exchange.

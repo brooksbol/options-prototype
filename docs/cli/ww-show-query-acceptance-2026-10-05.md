@@ -1,6 +1,6 @@
 # Held ETF quote queries and human tables — October 5, 2026
 
-**Status:** Implemented and verified for the Principal-authorized bounded CLI slice; automated verification and live held-read observation are evidence, not independent review or Principal manual acceptance.
+**Status:** Bounded human remediation verified following Principal manual rejection (see continuation below); original slice implemented and verified; automated verification and live held-read observation are evidence, not independent review or Principal manual acceptance.
 **Baseline:** clean, remote-verified main `9370ca018b9878d9791e390d5a204ccb557d8178`; Gate Experiment 001 staged/inactive.
 **Authority:** Principal explicitly accepted the prior investigation and authorized Product amendment, Solution Design, implementation, verification, documentation, commit and push, then added semantic human colors as a continuation of the same scope. [Product section 14](../contracts/api-v2-subject-show-held-quote.md) and [Solution Design section 15](../design/ww-show-held-quote-solution-design.md) record exact grammar before implementation. No new API/backend or acquisition work.
 
@@ -88,3 +88,29 @@ These are held facts at observation time, not session/date certification or ongo
 ## Closeout / remaining boundary
 
 Existing PL-CLI-01/PL-API-03 state, journal why-state, authority index, command manuals and generated Roadmap are reconciled together. No new intake, Bet, horizon, engine, principle, bug or API/OAS change. Coming Soon remains truthful and unchanged. BUG-028/030 and all unrelated work remain untouched. The Principal authorized commit/push for this slice; completion does not imply manual acceptance or independent reviewer disposition.
+
+
+## Manual rejection and bounded remediation — October 5, 2026
+
+Principal manual acceptance at `4c2701ed9a03df579fec3928ef060bd37173b1ab` rejected complete-table verbose clocks and green non-change text; their terminal default is green. The preceding results document the original implementation and do not establish satisfaction of these two human requirements. Current authoritative defect lifecycles are [BUG-031](../bugs/BUG-031-show-complete-table-timestamps.md) and [BUG-032](../bugs/BUG-032-show-change-color-scope.md).
+
+Correction: every horizontal-table timestamp uses existing compact local `Oct 5 18:00` formatting; verbose's detailed clocks remain. ANSI 32/31 surrounds only signed semantic change values; baseline and immediate restoration are white 37, including padding/separators/following cells/rows, with final reset 0 to restore the user's terminal. NO_COLOR and TERM=dumb disable all ANSI. TSV/JSONL and automatic machine redirection stay canonical and color-free. Only display code changes; strict persisted validation and query operations are unchanged.
+
+Principal also directed DESCRIPTION immediately right of SYMBOL. The sole public registry is reordered SYMBOL, DESCRIPTION, TYPE, then remaining fields; Product vocabulary, --fields and generated manual stay synchronized. Complete TSV follows that governed registry order; ordinary nine-column output and exact --only order are unchanged. No public field semantics or JSONL shape changes.
+
+Three additional regression tests plus strengthened existing assertions cover all five actual all-fields timestamp cells, canonical machine strings/calendar dates/missing values, semantic-only ANSI spans, inherited-green ordinary-white state, padding/separators/following prices/next rows, alignment, description placement and actual watch -c scope. Baseline before production edits: 13/18 pass, five failed corrected assertions. After remediation: 18/18 query tests pass. This is automated verification, not a claim of Principal manual rerun acceptance.
+
+
+Final verification: **90/90** Node tests across show-query, show, ls, fetch, wheelwright and tastytrade. One initial concurrent run reported 89/90 with the unchanged legacy sort broken-pipe assertion; its isolated rerun passed 5/5 and the complete rerun passed 90/90. No unrelated remediation or established new defect follows from that transient test result. Deterministic local fetch acceptance **10/10** (zero legacy/chain requests), registry/manual check, JS syntax checks, existing detail OAS **25 specimens / 7 statuses**, collection OAS **62 specimens**, Roadmap regeneration/freshness and diff checks pass. OAS validation reused existing backend specimens; backend/runtime/OAS source remains untouched.
+
+Held-only operational probe of the exact manual command returned exit 0, empty stderr, 10 rows and 36 columns. First-row clocks: LAST SOURCE EVENT `Oct 5 18:00`, BID/ASK SOURCE EVENT `Oct 5 17:59`, RECEIVED/COMMITTED `Oct 5 22:01`; headings start SYMBOL, DESCRIPTION, TYPE. All 20 change spans were whitespace-free. This is provider-free read observation, not acquisition or Principal visual acceptance. Coming Soon and Priority require no change; no new Product/architecture decision arises.
+
+Manual rerun:
+
+```sh
+ww show --quotes --where type=ETF \
+  --sort-by reportedChangePercent --absolute --descending \
+  --limit 10 --all-fields --table
+```
+
+For a wide color-preserving pager, append `| less -SR`. For watch, retain `watch -c` with explicit `--table`. Nonempty NO_COLOR and TERM=dumb intentionally suppress ANSI, so ordinary text then follows terminal configuration.

@@ -36,6 +36,8 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-028 | Backend `gradlew clean test` exceeds the 60s feedback-loop SLO (~5× over: measured 301s vs SLO-BUILD-01 target of 60s), dominated by serial wall-clock `Thread.sleep` in acquisition/provider-lifecycle tests | Engineering / backend test suite (`evidence-service-java`) | S3 | Open | [record](BUG-028-gradlew-clean-test-exceeds-slo.md) | Discovered 2026-10-05 (SLO-BUILD-01 ratification) |
 | BUG-029 | Tradier quote source-event timestamps can persist malformed non-time tokens | Backend / Tradier direct-quote normalization and canonical persistence | Not established | Resolved | [record](BUG-029-tradier-source-event-time-parser.md) | Bounded `ww show` contract review 2026-10-05 |
 | BUG-030 | Candidate shared encoded-solidus passthrough changes existing route interpretation | Backend / candidate shared Tomcat transport | Not established | Open | [record](BUG-030-shared-solidus-passthrough-route-regression.md) | ww show real-container transport gate 2026-10-05 |
+| BUG-031 | Complete human tables select verbose timestamp rendering | CLI / ww show human presentation | Not established | Resolved | [record](BUG-031-show-complete-table-timestamps.md) | Principal manual acceptance 2026-10-05 |
+| BUG-032 | Human change-cell decoration includes padding and restores green terminal default | CLI / ww show human presentation | Not established | Resolved | [record](BUG-032-show-change-color-scope.md) | Principal manual acceptance 2026-10-05 |
 
 ## Open-bug audit checkpoint (2026-09-22)
 
