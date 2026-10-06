@@ -1572,3 +1572,24 @@ Closeout remotely refreshed origin/main at `711d4939cb836fa2d9d51bad4900cd03d65b
 
 
 **Current closeout verification:** 33/33 focused Node tests passed again with zero failures/skips; syntax and diff checks passed. Roadmap projection was regenerated from the updated canonical acceptance state and freshness passed. Closeout changes only acceptance evidence, canonical PL-CLI-01 state, journal and derived projection; no runtime or unrelated changes. Local commit persists the accepted handoff without pushing.
+
+
+## October 5, 2026 — subject-show multi-subject ratification and Product refreeze
+
+The Principal explicitly ratified Codex recommendation A after the bounded thaw at a5428df: show is inspection, not a transaction. Suppressing nine valid observations because a tenth subject is absent would undermine shell composition. Success records therefore remain useful under final exit 1, and partial stdout is intentional even when a downstream consumer has already consumed it. Exit 0 accounts successfully for every requested distinct subject, subject to established clean broken-pipe behavior. No projection implicitly adds symbol; callers needing identity must request it.
+
+The local contract records uppercase first-occurrence deduplication, input order, no inherited 30-subject cap, per-success table/TSV/JSONL presentation, identified stderr failures, and no Product HTTP-count/batch requirement. All settled single-subject semantics remain frozen. No additional Product exploration is needed. Solution Design resumes with a sequential singular-GET realization, strict per-observation validation and ordered incremental output; this technical proposal does not authorize runtime work. The existing slash-containing-symbol transport scope is a remaining Solution Design decision. BUG-029 remains open and unmodified; no market evidence was acquired.
+
+This is a scope-preserving reconciliation under PL-CLI-01/PL-API-03, with no strategy/horizon/engine change. Canonical parking-lot memory triggers derived projection regeneration and freshness verification. Documentation is local and uncommitted; no commit or push is authorized.
+
+
+## October 5, 2026 — field-discovery authority synchronized; subject-show design completed
+
+The Principal directed preservation of uncommitted Product/design reconciliation while syncing new GitHub authority `5c3a5131850022ecf8f67b4ad6e41e10dbe82e21`. Codex preserved the full local work in a named stash, fast-forwarded main and reconciled the contract conflict explicitly. Upstream field-discovery section 6A is retained together with the ratified multi-subject package and intentional partial stdout. One refrozen contract now governs both; no settled semantics were reopened.
+
+The design’s side-effect-free authoritative public field registry now drives --only validation/rendering and subject-free --fields name/description discovery. Durable ww-show(1) field semantics are generated from the same registry metadata and checked for freshness, with authored command guidance kept separate. Acceptance must prove inventory, descriptions and semantic documentation synchronization, plus absence of credentials/configuration/client/provider initialization for discovery. Experimental script values still require Product acceptance before registering.
+
+The Principal also selected transport A: shared-connector encoded-solidus passthrough, exactly one decode, with bounded real-container proof of existing-route interpretation and security preservation. That proof remains an implementation acceptance gate, not an unresolved Principal choice or an existing conformance claim. If it fails, return to Solution Design without prohibited workarounds. Product and Solution Design have no remaining material decision; stop at implementation handoff. Documentation-only commit/push after checks is authorized by this task and the Project-Memory Protocol; runtime/OAS changes, market acquisition and BUG-029 remediation remain prohibited. Existing PL-CLI-01/PL-API-03 continuation and derived projection are reconciled without a new strategic disposition.
+
+
+**Documentation verification:** Upstream section 6A compares byte-identical after reconciliation; contract/design consistency, local link checks and tracked diff whitespace checks passed. Canonical projection regenerated with 74 retained PL identities, unchanged horizons/strategy, and freshness passed; it includes the already filed BUG-029 index without modifying that defect. A fresh fetch still matches synchronized main at 5c3a513 before persistence. Only the contract, bounded Solution Design, documentation index, canonical journal/parking-lot memory and derived projection are included. No runtime/OAS file, credential, holding or bug record changed. The pre-sync named stash remains a recovery copy of the earlier local work.

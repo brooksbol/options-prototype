@@ -1,17 +1,13 @@
 # Subject detail read contract — API v2 / `ww show`
 
 **Date:** October 5, 2026  
-**Status:** THAWED for bounded Product reconciliation. The previously ratified single-subject semantics remain authoritative except where multi-subject cardinality may require amendment. Solution Design and runtime implementation are paused pending refreeze.  
-**Authority:** Principal decisions following bounded Codex review against clean synchronized main `3ac333e7fea79ccd249015cda9f552994c30184b`; Doc 77 API v2 guardrails; existing v2 direct-quote acquisition and held-discovery contracts.  
+**Status:** Principal-ratified Product/capability contract; REFROZEN after bounded multi-subject and field-discovery reconciliation. Decision-complete for resumed Solution Design. Runtime implementation remains unauthorized.
+**Authority:** Principal decisions following bounded Codex review against clean synchronized main `3ac333e7fea79ccd249015cda9f552994c30184b`; Doc 77 API v2 guardrails; existing v2 direct-quote acquisition and held-discovery contracts; explicit Principal ratification of multi-subject recommendation A after thaw at `a5428dfd6c3766b5a0c4c97a6fbe101276079209`, and field-discovery Product authority at `5c3a5131850022ecf8f67b4ad6e41e10dbe82e21`.
 **Related:** `PL-CLI-01`, `PL-API-03`, `api-v2-held-quotes-read.md`, `api-v2-direct-quote-acquisition-proposal.md`.
 
 ## 1. Product meaning
 
-`ww show` is subject-first. The previously frozen grammar was:
-
-    ww show SUBJECT [facets] [projection] [presentation]
-
-A newly identified composition requirement has reopened subject cardinality. Product reconciliation must evaluate the generalized grammar:
+`ww show` is subject-first. The ratified grammar is:
 
     ww show SUBJECT... [facets] [projection] [presentation]
 
@@ -19,7 +15,7 @@ including natural shell composition such as:
 
     cat symbols.txt | xargs ww show
 
-This thaw does not yet ratify multi-subject semantics; it records the Product-level omission that must be resolved before Solution Design continues.
+For evidence inspection, one or more explicit subjects are required. The separate local discovery invocation `ww show --fields` needs no subject (section 6A). Normalize valid subjects to uppercase, deduplicate by first occurrence, and preserve that input order. No arbitrary 30-subject limit is inherited from acquisition. Any later practical bound must be explicit and reconciled rather than silently capping or truncating successful output.
 
 The CLI is Wheelwright domain-language porcelain and does not mirror backend resource taxonomy merely because the API is resource-oriented.
 
@@ -35,7 +31,7 @@ Bare subject view and explicit `--quote` have equivalent evidence content becaus
 
 A held quote remains readable when old, unenrolled, non-reusable for acquisition, from a persisted provider environment, or retained after failed reacquisition. Failed acquisition without a canonical holding creates nothing to show. Legacy chain-derived spot is never substituted.
 
-## 2. Backing singular capability
+## 2. Backing singular capability and HTTP realization boundary
 
 The backing resource is:
 
@@ -55,9 +51,11 @@ It is an authenticated, authorized, bodyless held-evidence read using `quote.rea
 
 Strict decoding validates the complete persisted canonical observation before any CLI projection. Malformed required fields or malformed present optional fields fail the read. The reader does not substitute defaults, drop malformed fields, repair values, or fabricate timestamps/facts.
 
+This singular resource remains the accepted capability baseline. Product does not prescribe how many HTTP requests realize a multi-subject invocation and does not require a batch HTTP capability. Solution Design selects the smallest coherent realization while preserving the per-subject outcomes and honest completion below. A singular request-wide 500 fails that subject's inspection; it does not invalidate successful inspections of other subjects.
+
 ## 3. Default subject projection
 
-Interactive terminal output is a one-row table with headers. The selected default columns and order are:
+Interactive terminal output is a table with headers once and one row per successful distinct subject, in first-occurrence input order. The selected default columns and order are:
 
     SYMBOL  TYPE  LAST  CHANGE  BID  ASK  RECEIVED  PROVIDER  ENVIRONMENT
 
@@ -102,6 +100,8 @@ The current canonical public inventory includes subject identity; last/bid/ask p
 
 No field-specific timestamp may be invented where the canonical model lacks one. Last has no venue field. Acquisition phase is not freshness/admissibility. Missing feed identity is not reconstructed.
 
+Across multiple subjects the complete public details remain grouped and clearly identified by subject, in first-occurrence input order, preserving tabular grammar. Failed subjects have diagnostics rather than successful detail groups.
+
 ## 6. Ordered projection: `--only`
 
 `--only` is the public field-projection primitive.
@@ -119,6 +119,14 @@ Examples:
     ww show --only symbol,last,bid,ask,receivedAt SPY
 
 The first two are intentionally different projections. Option placement does not change semantics; `--only ... SPY` and `SPY --only ...` are equivalent.
+
+`--only` never silently adds `symbol` or another identity field, including for multiple subjects:
+
+    ww show SPY QQQ --only bid,ask
+
+emits exactly two projected columns per successful subject. A caller wanting identity requests it explicitly:
+
+    ww show SPY QQQ --only symbol,bid,ask
 
 Public projection names are flat camelCase. `bid`, `ask`, and `last` mean their prices. Nested canonical paths are not the CLI projection grammar.
 
@@ -169,6 +177,8 @@ This does not require every future derived or experimental value to become a `sh
 
 `--verbose` does not cause JSONL to expose implementation-only state.
 
+For multiple subjects, JSONL emits one complete successful public observation per LF-terminated line, in first-occurrence input order. Subject failures are identified on stderr; they do not create an alternate JSONL failure/envelope schema or placeholder observation.
+
 ## 8. Argument ordering and usage
 
 Ordinary options are position-independent when ordering has no semantic meaning. Therefore these are equivalent:
@@ -182,15 +192,21 @@ The comma-bounded `--only` argument removes the variable-length positional ambig
 
 Syntactically invalid CLI subjects are local usage errors, exit 2, before credentials or HTTP. Valid-but-unheld subjects reach the API and produce the 404 held-resource result.
 
+Validate the complete operand/option grammar before credentials or HTTP, including later operands. Bare `show` remains usage exit 2 with no implicit selector. In evidence-inspection mode, options apply to the invocation’s distinct subject set. The separate `ww show --fields` discovery form bypasses the inspection subject requirement and evidence/client dependencies.
+
 ## 9. Exit behavior
 
 Existing Wheelwright convention remains:
 
-- `0`: successful complete read.
+- `0`: every requested distinct subject was successfully inspected and its requested presentation completed; or the local field-discovery presentation completed successfully.
 - `1`: authentication, authorization, backend, transport, response, data-integrity, or output failure.
 - `2`: usage/configuration error.
 
 A normal clean broken stdout pipe retains the established CLI convention.
+
+Mixed outcomes are independent subject inspections, not an all-or-nothing transaction. Emit successful observations, diagnose failed subjects individually on stderr, and exit 1 if any requested distinct subject fails. A valid-but-unheld subject and a corrupt holding each produce no success row or observation for that subject. Command-wide failures remain operational failures, never silent omission or complete success.
+
+**Partial stdout is intentional even when the final exit status is 1.** Successful rows may already have been consumed downstream before another subject fails. Output is not atomic and previously emitted successes are not retracted. Strict validation is complete per observation before that observation is output; this does not require buffering/suppressing all subjects until the invocation succeeds. Every requested distinct subject must be accounted for as success or identified failure; unresolved/truncated subjects cannot disappear behind exit 0.
 
 ## 10. Machine missing-value semantics
 
@@ -220,6 +236,14 @@ Implementation must prove at minimum:
 14. Zero causal provider/source/worker contact and zero evidence mutation on all singular-read paths.
 15. Safe symbol path encoding/routing, including accepted symbols containing `/`.
 16. Existing POST, fetch, `ls quotes`, and `ls quotes --type` contracts remain unchanged except any bounded CLI retrofit needed to preserve public `OTHER`.
+17. Multi-subject uppercase normalization, first-occurrence deduplication and input/output order, without inheriting acquisition's 30-subject cap.
+18. Mixed held/unheld/corrupt inspections emit successes and identified stderr failures with exit 1; all-success returns 0 and all-failure emits no successful stdout records.
+19. Partial stdout remains intentional under exit 1, including successful rows consumed before a later failure; no invocation-wide output atomicity claim.
+20. Headers once for the normal terminal table, one successful TSV row/JSONL observation per distinct successful subject, and clearly identified verbose subject groups.
+21. Multi-subject `--only` outputs exactly the named fields in the named order, without implicitly appending symbol.
+22. `ww show --fields` succeeds without subjects, credentials, HTTP, holdings or provider contact and discovers every installed public projection field with a concise description.
+23. Projection validation/rendering and runtime discovery derive from one authoritative public field registry, with no separately maintained catalog.
+24. Registry, runtime catalog and `ww-show(1)` field semantics stay synchronized when public fields are added, removed, renamed or semantically changed; help retains its separate concise invocation role. Experimental/derived script values do not enter the vocabulary without accepted Product semantics.
 
 ## 12. Explicit non-scope
 
@@ -229,31 +253,31 @@ The malformed persisted source-event-time defect discovered during review is tra
 
 ---
 
-## 13. Thaw notice — multi-subject cardinality
+## 13. Multi-subject ratification and refreeze
 
 The Principal identified a Product-level omission during Solution Design: a subject-first command should be evaluated for natural multi-subject composition, including:
 
     ww show SPY QQQ
     cat symbols.txt | xargs ww show
 
-The artifact is therefore thawed before implementation. This is not a defect and does not authorize runtime work.
+Commit `a5428dfd6c3766b5a0c4c97a6fbe101276079209` thawed the artifact before implementation. The omission was a Product reconciliation concern, not a defect.
 
-All previously settled single-subject semantics remain the baseline and should not be reopened merely because cardinality is under review. In particular, held-evidence purity, strict decoding before projection, public field vocabulary, machine/human representation boundaries, authorization, and no hidden acquisition remain settled unless a demonstrated cardinality conflict requires a bounded amendment.
+The reconciliation preserved all previously settled single-subject semantics, including held-evidence purity, strict decoding before projection, public field vocabulary, machine/human representation boundaries, authorization, and no hidden acquisition.
 
-Product reconciliation is limited to consequences introduced by one-or-more subjects, including:
+Following bounded Codex reconciliation, the Principal explicitly ratified recommendation A, with intentional partial stdout made explicit. The accepted package is:
 
-- accepted subject cardinality and any practical bound;
-- input ordering and duplicate-subject semantics;
-- mixed held/unheld/corrupt subject behavior and exit semantics;
-- row/output ordering and multi-subject presentation, including verbose behavior;
-- JSONL and TSV behavior across multiple subjects;
-- whether the Product contract requires any multi-subject HTTP capability or leaves HTTP realization entirely to Solution Design;
-- multi-subject interaction with the discoverable public projection catalog, without weakening the registry/man-page synchronization invariant.
+- One or more explicit subjects; no arbitrary acquisition-limit inheritance.
+- Uppercase normalization, first-occurrence deduplication and input order.
+- Independent subject outcomes: successful stdout, identified failures on stderr, exit 1 if any subject fails.
+- Intentional non-atomic stdout; already consumed successful rows remain useful under final exit 1.
+- One normal/TSV row or complete JSONL observation per successful distinct subject; verbose detail grouped and identified by subject.
+- Exact `--only` projection without an implicitly added symbol.
+- No Product requirement about HTTP request count or a batch capability; realization belongs to Solution Design.
 
-The existing singular `GET /v2/quotes/{symbol}` section is retained as the previously ratified baseline, not as a decision that multi-subject CLI realization must perform one HTTP request per subject. Backend realization must not be changed until Product cardinality semantics are refrozen.
+The Principal’s field-discovery addition at `5c3a5131850022ecf8f67b4ad6e41e10dbe82e21` is preserved in section 6A. The catalog is independent of subject cardinality and held evidence; it discovers the same public vocabulary used by every subject’s projection. The Product contract is refrozen coherently with both additions. All other settled single-subject semantics remain authoritative. Solution Design resumes; runtime implementation and BUG-029 remediation remain unauthorized. No further Product exploration is required by this refreeze.
 
-CURRENT STATE: The `ww show` Product/capability contract is THAWED for bounded multi-subject cardinality reconciliation. Previously ratified single-subject semantics remain the authoritative baseline.
+CURRENT STATE: Principal-ratified multi-subject `ww show` Product/capability contract is refrozen and decision-complete for Solution Design.
 
-DECISION REQUIRED: YES
+DECISION REQUIRED: NO
 
-NEXT AUTHORIZED ACTION: Reconcile multi-subject Product semantics, amend this artifact narrowly, refreeze it, then resume Solution Design. Runtime implementation remains unauthorized.
+NEXT AUTHORIZED ACTION: Prepare the bounded implementation handoff against the refrozen Product contract and decision-complete Solution Design. Runtime implementation remains unauthorized.
