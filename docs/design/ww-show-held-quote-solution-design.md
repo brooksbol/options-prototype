@@ -1,13 +1,15 @@
-# First subject show / held quote — Solution Design proposal
+# First subject show / held quote — accepted Solution Design
 
 Date: October 5, 2026.
-Status: **RESUMED Solution Design proposal following Principal multi-subject, field-discovery and transport selections. Not implementation authority.**
-Baseline: synchronized main/origin/main `5c3a5131850022ecf8f67b4ad6e41e10dbe82e21`, preserving the earlier uncommitted multi-subject reconciliation. Product refreeze includes both Principal-selected A and the new field-discovery authority. No runtime implementation has begun.
+Status: **ACCEPTED Solution Design; Principal-authorized bounded implementation verified. Product remains frozen.**
+Baseline: synchronized main/origin/main `4ff8c7a3d0a8f69330ee4ba1aa55c6d08e07c137`, with the BUG-030 reproduction and local reconciliation preserved. The Principal authorized bounded transport reconciliation after the first implementation gate failed.
 Product authority: [frozen contract](../contracts/api-v2-subject-show-held-quote.md).
 Architectural authority: [Doc 77](../77-api-v2-architectural-guardrails.md), existing acquisition/held-discovery contracts and OAS.
 Defect boundary: [BUG-029](../bugs/BUG-029-tradier-source-event-time-parser.md), open; no remediation.
 
-The Principal authorized Solution Design and conditionally permitted design documentation. The Project-Memory Protocol distinguishes Design from Decision and permits the appropriate bounded reference home for durable learning. This document records a proposal without making new Product decisions or modifying runtime, grants or OAS. The separate contract amendment records the Principal’s explicit ratification; canonical memory and derived projection follow that documentation change. The Principal now explicitly authorizes commit/push of the reconciled documentation after checks, under the Project-Memory Protocol’s scope-preserving persistence rule. Runtime/OAS implementation and BUG-029 remediation remain unauthorized. Shared-connector transport option A is selected conditionally on bounded real-container preservation proof; no selection remains outstanding.
+The following paragraph preserves the pre-handoff design authority state. Current implementation authority and verification are recorded in section 14.
+
+The Principal authorized Solution Design and conditionally permitted design documentation. The Project-Memory Protocol distinguishes Design from Decision and permits the appropriate bounded reference home for durable learning. This document records a proposal without making new Product decisions or modifying runtime, grants or OAS. The separate contract amendment records the Principal’s explicit ratification; canonical memory and derived projection follow that documentation change. Earlier documentation persistence authority belonged to the completed refreeze work. The current turn preserves uncommitted gate evidence and records only the authorized bounded Solution Design reconciliation. Shared passthrough is rejected by BUG-030; the subsequent query proposal is explicitly rejected by the Principal. No runtime implementation resumes until the reconciled design is accepted; BUG-029 remediation remains unauthorized.
 
 ## 1. Existing components and proposed responsibility path
 
@@ -25,28 +27,17 @@ Absent row becomes 404, never an acquisition attempt. Strict decoder failure bec
 
 Reuse the controller's safe ProblemDetails serialization, Bearer challenge and correlation conventions. Add `NOT_FOUND(404, "Not found")` to the runtime error vocabulary; existing endpoints do not begin returning it. Detail: `No canonical direct quote is held for <SYMBOL>.` No SQL/raw evidence/exception messages enter diagnostics.
 
-Authenticate and authorize before validating subject/body/query or revealing existence. Validate UUID correlation exactly as collection GET. Reject every query parameter and any nonempty body with 422, using safe `invalidParams` (`path.symbol`, `query.<name>`, `body`, `X-Request-Id`). Content-Type alone is not a request body requirement.
+Authenticate and authorize before validating subject/body/query or revealing existence. Validate UUID correlation exactly as collection GET. Reject invalid canonical path-codec tokens, every query parameter and any nonempty body with 422, using safe `invalidParams` (`path.symbol`, `query.<name>`, `body`, `X-Request-Id`). Decode the validated bound path token exactly once through the codec after auth and before canonical store lookup; never apply URLDecoder to it. Content-Type alone is not a request body requirement.
 
 The dependency graph must exclude `DirectQuoteService`, `DirectQuoteSource`, adapter, worker, scheduler, provider manager, calendar, enrollment, Decision and reuse-policy dependencies. Strict schema checks are representation checks, not market/reuse checks.
 
-## 2. Resource routing and selected conditional transport design
+## 2. Resource routing and canonical path-symbol codec
 
-Public route: `GET /v2/quotes/{symbol}`. Canonicalize validated ASCII symbols to uppercase; request schema accepts `[A-Za-z^][A-Za-z0-9.^/_-]*`, length 1–32. Persisted/response symbol must satisfy the corresponding uppercase grammar and equal the requested canonical subject.
+Retain `GET /v2/quotes/{symbol}` with unchanged shared connector/container defaults. The path parameter is a transport token for canonical identity, not a persisted/provider identity. Copy canonical A–Z, digits, period and hyphen; encode slash `_2F`, underscore `_5F`, caret `_5E`. Only those uppercase escapes are legal, and tokens are not recursively decoded. Ordinary SPY remains `/v2/quotes/SPY`; BRK/B becomes `/v2/quotes/BRK_2FB`; literal BRK_2FB becomes `/v2/quotes/BRK_5F2FB`.
 
-CLI path construction encodes the entire symbol as one URI component, e.g. `BRK/B` -> `BRK%2FB`; no query substitution, double encoding or decode-until-valid behavior.
+Canonical input is `[A-Z^][A-Z0-9.^/_-]{0,31}`. Canonical path grammar is `^(?:[A-Z]|_5E)(?:[A-Z0-9.-]|_(?:2F|5E|5F)){0,31}$`, encoded length 1–96. The CLI owns encoding after existing normalization/dedup; the authenticated API boundary owns once-only codec decoding before lookup. The complete alphabet analysis, inverse rules/proof, OAS delta and real-container acceptance are in [transport reconciliation](ww-show-held-quote-transport-reconciliation.md). No global codec, URI-decoding workaround, query route, symbol exclusion or provider namespace is added.
 
-Installed Tomcat is 10.1.36; its Connector initializes `encodedSolidusHandling` to REJECT. No project override exists. Therefore normal `%2F` cannot reach Spring under the current transport defaults. MockMvc is insufficient proof.
-
-Principal-selected A: configure the shared Tomcat connector’s encoded-solidus **passthrough**, preserving the encoded slash inside one path segment for Spring’s parsed-path routing, then use `@GetMapping("/v2/quotes/{symbol}")`. CLI encodes the complete symbol as one segment. Obtain the decoded PathVariable exactly once; never apply URLDecoder again. Validate its complete canonical subject syntax before SQL.
-
-The conditional acceptance boundary is shared routing and security preservation, not a custom singular-endpoint parser. Prove correctly encoded solidus reaches the application as symbol data without becoming a separator, and prove existing routes retain their interpretation and security behavior. Double encoding, query-route alternatives, symbol exclusions, catch-all routes and endpoint-specific parsing tricks are prohibited compensations. This server-wide setting also interacts with encoded percent handling; test that interaction rather than assume it safe. If standard connector/Spring routing cannot preserve the boundary reliably, stop and return to Solution Design. Do not implement a compensating workaround or switch transport choices without a new Principal disposition.
-
-Official references:
-- [Tomcat 10.1.36 Connector source](https://raw.githubusercontent.com/apache/tomcat/10.1.36/java/org/apache/catalina/connector/Connector.java), default REJECT and configurable handling.
-- [Tomcat connector reference](https://tomcat.apache.org/tomcat-10.1-doc/config/http.html), reject/decode/passthrough behavior.
-- [Spring 6.2 request mapping](https://docs.spring.io/spring-framework/reference/6.2/web/webmvc/mvc-controller/ann-requestmapping.html).
-
-Do not claim this candidate has been end-to-end proven. Under the selected conditional design, real HTTP acceptance must exercise `%2F`, `%2f`, leading/trailing/repeated slash within otherwise valid symbols, `/./` and `/../` inside symbol data, `%25`, double encoding, raw semicolon, `%3B`, backslash, invalid percent transport syntax, and non-show paths. Transport-invalid HTTP may be rejected by the container; valid HTTP reaching the capability receives its specified Problem response.
+The Principal rejected the query alternative. BUG-030 and its original reproduction remain intact, and runtime stays paused until the revised codec design is accepted and a bounded handoff is authorized. Product semantics and original resource shape are unchanged.
 
 ## 3. Independent persisted read
 
@@ -94,9 +85,10 @@ An affected real holding fails 500 even when default/only output excludes its ti
 
 ## 6. Bounded OAS amendment
 
-Extend the existing authoritative quote OAS with only `/v2/quotes/{symbol}` GET, `operationId: readHeldDirectQuote`, Bearer security and `x-required-grants: [quote.read]`.
+After acceptance, extend the existing authoritative quote OAS with only `/v2/quotes/{symbol}` GET, `operationId: readHeldDirectQuote`, Bearer security and `x-required-grants: [quote.read]`.
 
-Path parameter: required string, length 1–32, input symbol pattern above, simple scalar serialization, encoded slash data explicitly documented. X-Request-Id uses the established correlation header rules. No body/query/projection parameters. Successful response is directly `$ref: QuoteObservation`, no wrapper/requestId/operation clocks. Correlation is in the header.
+Path parameter symbol: required scalar with the bounded EncodedQuoteSymbol schema from [transport reconciliation](ww-show-held-quote-transport-reconciliation.md), length 1–96 and canonical token pattern. It represents a decoded canonical identity of length 1–32; do not reuse raw RequestedSubject bounds/pattern as encoded syntax. Simple serialization, explode false; ordinary URI processing is separate from the once-only codec. No query/body/projection parameters. X-Request-Id uses established semantics; successful response is the complete canonical QuoteObservation without wrapper or transport identity fields.
+
 
 | Status | Schema/vocabulary |
 |---|---|
@@ -112,7 +104,7 @@ Every response requires correlation and private,no-store headers. Ignore If-None
 
 Add a bounded `HeldQuoteReadProblem` schema with explicit status/code/title pair constraints and the established structural fields. Existing Problem/HeldQuotesReadProblem enums exclude 404; do not extend accepted POST/collection schemas to advertise new responses. Reuse their property schemas where possible without composing a restrictive schema that inadvertently prohibits 404. Preserve all existing operations/components semantically and verify the parsed baseline diff.
 
-No OAS mutation is made by this design document. The selected transport profile must pass its real-container preservation gate before the singular route is accepted; no OAS or runtime amendment is authorized in this documentation turn.
+No OAS mutation is made by this design document. The unchanged-default transport must pass its real-container codec binding and existing-route preservation gate before acceptance; no OAS or runtime amendment is made in this design turn.
 
 ## 7. CLI parser and HTTP client
 
@@ -124,7 +116,7 @@ Exactly one --only consumes exactly the next argv item, split on commas. Reject 
 
 All seven original examples and their multi-subject equivalents parse directly. In evidence-read mode, missing subjects, any invalid operand, malformed projection, or conflicting options reject the entire invocation locally with exit 2; no partial HTTP work starts. The selected facet/projection/presentation applies to every distinct subject. Existing hand parser does not naturally accept `--only=bid,ask`; this design does not add that spelling. Existing fetch/ls/sort branches remain unchanged.
 
-`readHeldQuote(symbol, {token, base, fetchImpl})` does exactly one bodyless GET to the encoded instance route, rejecting redirects with no retries/fallback. Reuse credential loader and accepted URL/TLS/loopback/secret handling. Validate response status/media type, complete JSON, UUID response correlation, requested canonical subject, every required and present optional observation field before presentation. Generate no request or observation resource. Header request ID is not compared with observationId, nor expected inside the success body.
+`readHeldQuote(symbol, {token, base, fetchImpl})` does exactly one bodyless GET to the instance route, constructing the single segment from the encoded canonical subject token through ordinary URI serialization, rejecting redirects with no retries/fallback. Reuse credential loader and accepted URL/TLS/loopback/secret handling. Validate response status/media type, complete JSON, UUID response correlation, requested canonical subject, every required and present optional observation field before presentation. Generate no request or observation resource. Header request ID is not compared with observationId, nor expected inside the success body.
 
 The smallest multi-subject realization is a sequential loop over the normalized distinct subjects, using one singular GET per subject and shared invocation configuration/credentials. No batch endpoint, concurrency pool, retry or collection selection is needed. This request-count choice is Solution Design, not Product semantics. Each independent GET observes its own committed row version; no cross-subject snapshot is promised.
 
@@ -184,7 +176,7 @@ Reuse clean stdout EPIPE termination and other output-failure exit 1 behavior. H
 
 ## 10. Acceptance architecture and ordered slices
 
-1. **Transport/OAS boundary under selected conditional A.** Real embedded-container fixture, no production startup/provider. Prove slash/encoding/request validation and existing-route preservation; freeze additive OAS/prose with no POST/collection redesign. Failure returns to design, not a narrower symbol grammar.
+1. **Reconciled transport/OAS boundary after design acceptance.** Real embedded-container fixture, no production startup/provider. Prove path-codec bijection/collision freedom, once-only binding/decoding and existing-route preservation under unchanged connector defaults; freeze additive OAS/prose with no POST/collection redesign. Failure returns to design, not a narrower symbol grammar.
 2. **Store + decoder.** Unit fixtures for every known field/type/null/date/domain/predicate; real WAL rollback/concurrent row replacements where each version has different facts, IDs and all provenance values. Prove one committed version; separate opening and post-start failures. These can be accepted independently without a CLI.
 3. **Singular HTTP.** Full Spring/controller tests, valid/unheld/corrupt/security/correlation/body/query/cache cases. Fail-fast source/adapter/worker spies and state comparisons on every path. OAS specimen validation with format assertions. Never substitute collection test fixtures that intentionally lack valid full observations for positive show fixtures.
 4. **CLI registry/discovery + show.** First accept registry/catalog/manual synchronization and subject-free --fields isolation independently of backend implementation: no token/config loader, HTTP or provider access even with unavailable holdings/backend; complete name/description equality, projection validator parity, generated manual freshness and semantic-metadata mutation detection. Then accept evidence-read behavior: Parser permutations and negative pre-credential tests, complete response validation, exact registry/order, local-time/DST and absence/zero fixtures, TSV escaping/trailing empties, JSONL public types, numeric fidelity, response failures and broken pipes. Singular-route HTTP fixture proves one GET per distinct subject in input order and rejects POST/v1/collection/redirect/fallback calls. Cover uppercase first-occurrence dedup, more than 30 subjects, mixed success/404/500/transport/malformed-response outcomes, all-failure zero stdout, exact projection without symbol, and one JSONL record per success. A gated fixture lets a downstream consumer receive the first successful row before releasing a later failure; prove final exit 1 and retained partial stdout. PTY and shell composition cover cut/awk/rg/redirection/tee/head and && failure behavior.
@@ -196,16 +188,34 @@ The individual slice acceptances are engineering evidence, not Principal Product
 
 Structurally enforce: read-only independent connection; one row/one version; complete strict validation before projection; no provider dependencies; no identity/clocks minted; absence distinct from corruption; API canonical versus ww public vocabulary; one singular GET per distinct inspected subject in this realization; subject-free discovery bypasses evidence/configuration/client initialization; one registry drives projection/catalog/manual field semantics; independent outcomes and intentional partial stdout; exact ordered projection without appended identity; no machine formatting through human placeholders; no mutable shared mapper coercion/defaults.
 
-Concrete risks: existing malformed holdings fail correctly; encoded-slash transport changes affect shared ingress; runtime lossless-number support must be checked; local timezone/DST must be tested without changing canonical strings; verbose output must never clip; extension data must not become an internal-state dump; shared-memory test behavior must not be mistaken for real WAL proof.
+Concrete risks: existing malformed holdings fail correctly; cross-language codec parity, malformed token rejection and once-only binding must be proved without shared ingress changes; runtime lossless-number support must be checked; local timezone/DST must be tested without changing canonical strings; verbose output must never clip; extension data must not become an internal-state dump; shared-memory test behavior must not be mistaken for real WAL proof.
 
-No genuine Product or Solution Design decision remains after the Principal’s selections. Conditional real-container transport proof is an implementation acceptance obligation, not an outstanding selection or a claim that proof already exists. Failure of that proof returns to Solution Design rather than narrowing Product semantics.
+The original shared transport selection failed its conditional acceptance gate. The Principal selected bounded reconciliation, and later rejected its query representation; the current design retains the instance path using the explicitly directed reversible codec. No new Product choice or cross-cutting architectural machinery is required; design acceptance remains the boundary before resuming runtime work. Future codec-binding/preservation proof is still an implementation obligation, not an existing conformance claim.
 
-No new demonstrated bug was discovered. Numeric and routing issues here are realization constraints for an unimplemented capability, not new defect records. BUG-029 remains open and unchanged.
+At the pre-implementation design stage, no new demonstrated bug had been discovered. Numeric and routing issues at that stage were realization constraints for an unimplemented capability, not new defect records. BUG-029 remains open and unchanged.
 
 Stop for BUG-029 remediation, BUG-028/build-performance work, future facets, Decision/market/position/provider/streaming/agent design, generic query frameworks, unrelated dirty state, or inability to satisfy exact encoding/committed-read/fidelity constraints. Do not narrow semantics to manufacture a pass.
 
-CURRENT STATE: Product is coherently refrozen with multi-subject inspection and subject-free field discovery. Solution Design is decision-complete for implementation handoff under Principal-selected conditional transport A. Runtime/OAS implementation has not begun and is not authorized by this document.
+## 12. Implementation gate falsification — October 5
+
+The Principal authorized the bounded implementation at synchronized `4ff8c7a3d0a8f69330ee4ba1aa55c6d08e07c137`. The first real-container transport gate passed slash-as-one-symbol/one-decode binding but failed existing-route preservation: the actual GovernedDecisionController receives `A/B` from `/api/governed-decision/A%2FB` under passthrough, whereas the baseline container rejects it without controller/storage contact. Canonical evidence is [BUG-030](../bugs/BUG-030-shared-solidus-passthrough-route-regression.md) and the referenced focused test. No production configuration/runtime/OAS/CLI changes were made. No workaround was attempted.
+
+The earlier decision-complete claim was conditional on preservation proof; that condition is now falsified for the candidate. Implementation stops and returns to Solution Design under the explicit handoff stop rule. All nontransport Product decisions remain frozen. No new architecture is selected by this finding.
+
+## 13. Bounded reconciliation following Principal path-codec direction
+
+The Principal rejected the query representation and directed retention of `/v2/quotes/{symbol}` through reversible subject transport encoding. [The completed codec reconciliation](ww-show-held-quote-transport-reconciliation.md) specifies the complete accepted alphabet, `_2F`/`_5F`/`_5E` escape table, one canonical representation, strict nonrecursive decoding, URI-layer distinction, exact OAS and acceptance changes. The previous query proposal is preserved in the append-only journal and recovery stash as rejected reasoning, not an active API direction. No Product artifact, runtime or authoritative OAS was changed. BUG-030 and its real-container reproduction remain byte-identical.
+
+## 14. Accepted codec handoff and implementation verification — October 5
+
+The Principal explicitly accepted the complete path-symbol codec and authorized resumption of the bounded implementation, beginning with the real-container preservation gate. That gate passes with Tomcat encoded-solidus handling still `reject`: SPY, BRK/B, literal BRK_2FB and ^SPX arrive at the quote reader as their exact canonical identities. Invalid/noncanonical tokens fail; raw encoded solidus on the actual existing governed-decision route remains container-rejected without storage dispatch. No global connector change or query endpoint is introduced.
+
+The implemented vertical slice follows this design: independent query-only single-row store read, explicit strict persisted decoder, authenticated quote.read instance controller, additive OAS, sequential independent multi-subject CLI reads, complete response validation before projection, lossless machine numbers, one projection/discovery/semantic registry and generated man-page field block. The CLI uses a bounded source-lexeme JSON reader rather than ordinary JSON.parse binding: duplicate keys fail and numeric precision never passes through JavaScript Number. This realization preserves the already-selected strictness/fidelity seam and requires no Product change.
+
+[Implementation acceptance evidence](../cli/ww-show-acceptance-2026-10-05.md) records passing focused Java, real SQLite/WAL, real-container, CLI/terminal/shell, OAS and registry/manual checks. This is automated engineering verification, not an independent review or a claimed Principal manual acceptance. Product remains byte-identical to the synchronized baseline. BUG-029 remains open; affected holdings deliberately fail detail decoding even for projections that omit the malformed field. BUG-030 and its original negative-candidate test remain byte-identical, with an explicit separate reproduction task that intentionally fails. Broader PL-CLI-01/PL-API-03 scope and horizons are unchanged.
+
+CURRENT STATE: Accepted path-codec Solution Design implemented and verified for the bounded held-quote show slice.
 
 DECISION REQUIRED: NO
 
-NEXT AUTHORIZED ACTION: Prepare the bounded implementation handoff against this refrozen contract and decision-complete design. Runtime work requires separate explicit authorization; its first transport acceptance gate must prove shared-route interpretation/security preservation.
+NEXT AUTHORIZED ACTION: Principal manual acceptance / independent review of the synchronized bounded implementation; no additional runtime scope implied.

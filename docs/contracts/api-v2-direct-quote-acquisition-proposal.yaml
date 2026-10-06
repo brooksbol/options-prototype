@@ -1,11 +1,12 @@
 openapi: 3.1.1
 info:
-  title: Wheelwright v2 canonical quotes — acquisition and held discovery
-  version: 0.2.0-contract
+  title: Wheelwright v2 canonical quotes — acquisition, held discovery and detail
+  version: 0.3.0-contract
   description: >-
     Authoritative specification: accepted synchronous POST acquisition plus the
-    Principal-selected GET held-discovery capability. GET is specified, not yet
-    implemented. The historical filename is retained. Not implementation authority.
+    Principal-selected GET held-discovery and canonical path-token instance-read
+    capabilities. The historical filename is retained. Implementation authority
+    comes from the separately accepted Product contract and bounded handoff.
 servers:
   - url: /
 paths:
@@ -194,6 +195,227 @@ paths:
         '422': { $ref: '#/components/responses/Problem' }
         '500': { $ref: '#/components/responses/Problem' }
         '503': { $ref: '#/components/responses/Problem' }
+  /v2/quotes/{symbol}:
+    get:
+      operationId: readHeldDirectQuote
+      summary: Read one complete committed canonical held direct-quote observation
+      description: "Pure held-evidence read using quote.read; never acquire, refresh, contact providers/workers,\
+        \ evaluate acquisition reuse, mutate evidence or substitute legacy evidence. Decode the canonical\
+        \ path-symbol token exactly once after authentication/authorization, before independent committed-row\
+        \ lookup. Complete strict persisted validation precedes response/projection; malformed present optional\
+        \ fields are INTERNAL_ERROR, not repaired or dropped. Valid unheld canonical subject is NOT_FOUND.\
+        \ Preserves original identity, facts and provenance. Query parameters/nonempty body are INVALID_REQUEST.\
+        \ No history, ETag, 304, redirect or fallback; If-None-Match is ignored. Standard container defaults\
+        \ remain unchanged. Canonical subject length is 1\u201332; encoded token length is 1\u201396. See\
+        \ ww-show-held-quote-transport-reconciliation.md for normative codec rules."
+      security:
+      - bearerAuth: []
+      x-required-grants:
+      - quote.read
+      x-unsupported-query-parameters: Any query parameter presence is INVALID_REQUEST/422, including empty
+        and repeated parameters.
+      parameters:
+      - name: symbol
+        in: path
+        required: true
+        style: simple
+        explode: false
+        description: Canonical path-symbol transport token, not persisted/provider identity. SPY -> SPY;
+          BRK/B -> BRK_2FB; literal BRK_2FB -> BRK_5F2FB; ^SPX -> _5ESPX. No other or unnecessary/lowercase
+          escape is accepted; do not recursively decode output or URLDecode a bound token. Returned subject.symbol
+          is canonical decoded identity.
+        schema:
+          $ref: '#/components/schemas/EncodedQuoteSymbol'
+        examples:
+          ordinary:
+            value: SPY
+          slash:
+            value: BRK_2FB
+          literalUnderscore:
+            value: BRK_5F2FB
+          caret:
+            value: _5ESPX
+      - name: X-Request-Id
+        in: header
+        required: false
+        description: Single optional UUID (hex 8-4-4-4-12, case insensitive), surrounding whitespace trimmed
+          and echoed. Absent/blank generates one. Multiple or nonblank invalid values are 422 after auth/authorization;
+          errors use a generated valid UUID. Correlation only, never idempotency.
+        schema:
+          type: string
+          pattern: ^\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\s*$
+      responses:
+        '200':
+          description: Complete canonical observation from one committed current holding, preserving identity/facts/provenance;
+            not acquisition or a freshness judgment.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteObservation'
+        '401':
+          description: Missing or invalid Bearer credential.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+            WWW-Authenticate:
+              required: true
+              schema:
+                type: string
+                const: Bearer
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 401
+                    code:
+                      const: UNAUTHENTICATED
+        '403':
+          description: Authenticated principal lacks quote.read; acquire/force grants do not imply read.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 403
+                    code:
+                      const: FORBIDDEN
+        '404':
+          description: Valid decoded canonical subject has no canonical direct quote held; not a claim that
+            the market symbol does not exist.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 404
+                    code:
+                      const: NOT_FOUND
+        '422':
+          description: Invalid path codec token, correlation, any query parameter or nonempty body. Validation
+            occurs after authentication/quote.read.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 422
+                    code:
+                      const: INVALID_REQUEST
+        '500':
+          description: Malformed persisted complete canonical observation or post-start storage/serialization
+            failure; no defaults, repairs, dropped facts or partial observation.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 500
+                    code:
+                      const: INTERNAL_ERROR
+        '503':
+          description: 'Read cannot start: approved authentication or held storage unavailable. Provider
+            outage alone does not cause this error.'
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 503
+                    code:
+                      const: CAPABILITY_UNAVAILABLE
 components:
   securitySchemes:
     bearerAuth:
@@ -623,6 +845,145 @@ components:
             const: Forbidden
           type:
             const: urn:wheelwright:problem:forbidden
+      - type: object
+        properties:
+          status:
+            const: 422
+          code:
+            const: INVALID_REQUEST
+          title:
+            const: Invalid request
+          type:
+            const: urn:wheelwright:problem:invalid_request
+          invalidParams:
+            type: array
+            minItems: 1
+        required:
+        - invalidParams
+      - type: object
+        properties:
+          status:
+            const: 500
+          code:
+            const: INTERNAL_ERROR
+          title:
+            const: Internal error
+          type:
+            const: urn:wheelwright:problem:internal_error
+      - type: object
+        properties:
+          status:
+            const: 503
+          code:
+            const: CAPABILITY_UNAVAILABLE
+          title:
+            const: Capability unavailable
+          type:
+            const: urn:wheelwright:problem:capability_unavailable
+    EncodedQuoteSymbol:
+      type: string
+      minLength: 1
+      maxLength: 96
+      pattern: ^(?:[A-Z]|_5E)(?:[A-Z0-9.-]|_(?:2F|5E|5F)){0,31}(?![\s\S])
+      description: 'Canonical transport only: copy uppercase letters/digits/period/hyphen; slash _2F, underscore
+        _5F, caret _5E. Exactly one representation and one decoding, no repairs or unnecessary/lowercase escapes.
+        Decoded identity matches [A-Z^][A-Z0-9.^/_-]{0,31} and remains the persisted/returned/provider symbol.
+        No connector change.'
+    HeldQuoteReadProblem:
+      type: object
+      additionalProperties: true
+      required:
+      - type
+      - title
+      - status
+      - code
+      - requestId
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: Stable problem-type identifier.
+        title:
+          type: string
+          description: Stable short reason.
+        status:
+          type: integer
+          enum:
+          - 401
+          - 403
+          - 404
+          - 422
+          - 500
+          - 503
+        detail:
+          type: string
+          description: Optional safe human-readable detail.
+        instance:
+          type: string
+          format: uri-reference
+          description: Optional occurrence URI.
+        code:
+          type: string
+          enum:
+          - UNAUTHENTICATED
+          - FORBIDDEN
+          - NOT_FOUND
+          - INVALID_REQUEST
+          - INTERNAL_ERROR
+          - CAPABILITY_UNAVAILABLE
+          description: Machine-readable request-wide failure code.
+        requestId:
+          type: string
+          format: uuid
+          description: Correlates logs and response; not an idempotency key.
+        invalidParams:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - name
+            - reason
+            properties:
+              name:
+                type: string
+                description: JSON Pointer into request where applicable.
+              reason:
+                type: string
+                description: Safe human-readable validation failure.
+      description: RFC 9457 singular held-read failure. Header/body requestId agree; no result data. NOT_FOUND
+        detail states no canonical direct quote is held for decoded canonical subject.
+      oneOf:
+      - type: object
+        properties:
+          status:
+            const: 401
+          code:
+            const: UNAUTHENTICATED
+          title:
+            const: Unauthenticated
+          type:
+            const: urn:wheelwright:problem:unauthenticated
+      - type: object
+        properties:
+          status:
+            const: 403
+          code:
+            const: FORBIDDEN
+          title:
+            const: Forbidden
+          type:
+            const: urn:wheelwright:problem:forbidden
+      - type: object
+        properties:
+          status:
+            const: 404
+          code:
+            const: NOT_FOUND
+          title:
+            const: Not found
+          type:
+            const: urn:wheelwright:problem:not_found
       - type: object
         properties:
           status:

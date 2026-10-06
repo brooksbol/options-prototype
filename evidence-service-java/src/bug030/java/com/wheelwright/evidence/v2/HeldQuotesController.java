@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -82,60 +81,6 @@ public class HeldQuotesController {
         } catch (Exception e) {
             // Do not log SQL, raw data or exception messages; request correlation is sufficient.
             LOG.warn("Held quote read failed request {}", id);
-            return problem(ProblemCode.INTERNAL_ERROR, id, "held quote read failed", null);
-        }
-    }
-
-    @GetMapping("/v2/quotes/{symbol}")
-    public ResponseEntity<String> show(@PathVariable("symbol") String pathSymbol,
-            @RequestBody(required = false) byte[] body, HttpServletRequest request) {
-        List<String> ids = Collections.list(request.getHeaders("X-Request-Id"));
-        String supplied = ids.size() == 1 ? ids.getFirst().trim() : "";
-        boolean invalidId = ids.size() > 1 ||
-                (!supplied.isEmpty() && !HeldQuoteDiscoveryItem.validUuid(supplied));
-        String id = !invalidId && !supplied.isEmpty() ? supplied : UUID.randomUUID().toString();
-        LOG.debug("Held quote detail request {}", id);
-        if (!authenticator.configured())
-            return problem(ProblemCode.CAPABILITY_UNAVAILABLE, id, "authentication is not configured", null);
-        var principal = authenticator.authenticate(request.getHeader("Authorization"));
-        if (principal.isEmpty())
-            return problem(ProblemCode.UNAUTHENTICATED, id, "missing or invalid Bearer credential", null);
-        if (!principal.get().hasGrant(BearerAuthenticator.GRANT_READ))
-            return problem(ProblemCode.FORBIDDEN, id, "caller lacks quote.read", null);
-
-        List<ProblemDetails.InvalidParam> invalid = new ArrayList<>();
-        if (invalidId) invalid.add(new ProblemDetails.InvalidParam("X-Request-Id", "must be a single UUID"));
-        // Decode query names ourselves; servlet parameter APIs can also parse form bodies.
-        String query = request.getQueryString();
-        if (query != null && !query.isEmpty()) {
-            var names = new java.util.LinkedHashSet<String>();
-            for (String parameter : query.split("&", -1)) {
-                String name = parameter.split("=", 2)[0];
-                try { name = java.net.URLDecoder.decode(name, java.nio.charset.StandardCharsets.UTF_8); }
-                catch (IllegalArgumentException e) { name = "<invalid-encoding>"; }
-                names.add(name);
-            }
-            for (String name : names)
-                invalid.add(new ProblemDetails.InvalidParam("query." + name, "query parameters are unsupported"));
-        }
-        if (body != null && body.length > 0)
-            invalid.add(new ProblemDetails.InvalidParam("body", "GET body is unsupported"));
-        String symbol = null;
-        try { symbol = PathSymbolCodec.decode(pathSymbol); }
-        catch (IllegalArgumentException e) { invalid.add(new ProblemDetails.InvalidParam("path.symbol", "must be a canonical path-symbol token")); }
-        if (!invalid.isEmpty()) return problem(ProblemCode.INVALID_REQUEST, id, "invalid read request", invalid);
-
-        try {
-            var row = store.readHeldDirectQuote(symbol);
-            if (row.isEmpty()) return problem(ProblemCode.NOT_FOUND, id,
-                "No canonical direct quote is held for " + symbol + ".", null);
-            var observation = StrictHeldQuoteDecoder.decode(row.get(), symbol);
-            return response(200, id, MediaType.APPLICATION_JSON, mapper.writeValueAsString(observation));
-        } catch (SqliteEvidenceStore.HeldReadUnavailableException e) {
-            LOG.warn("Held quote detail unavailable request {}", id);
-            return problem(ProblemCode.CAPABILITY_UNAVAILABLE, id, "held storage unavailable", null);
-        } catch (Exception e) {
-            LOG.warn("Held quote detail failed request {}", id);
             return problem(ProblemCode.INTERNAL_ERROR, id, "held quote read failed", null);
         }
     }

@@ -1,0 +1,220 @@
+WW-SHOW(1)                 Wheelwright                 WW-SHOW(1)
+
+NAME
+    ww-show - inspect canonical held direct-quote observations
+
+SYNOPSIS
+    ww show SUBJECT... [--quote] [-v | --verbose] [--jsonl]
+    ww show SUBJECT... --only FIELD[,FIELD...]
+    ww show --fields
+    ww show --help | -h | --man
+
+SEMANTICS
+    Bare subject and --quote inspect the same held direct quote in this slice.
+    No acquisition, refresh, provider contact, reuse-eligibility evaluation,
+    legacy chain-derived price substitution or evidence mutation occurs.
+    Old, unenrolled, currently non-reusable and retained prior holdings are
+    readable if their complete canonical representation is valid.
+    Absence is not an invalid market symbol. Malformed held evidence fails in
+    full even if --only excludes its malformed field. No repair is attempted.
+
+SUBJECTS AND OPTIONS
+    Input is canonical identity, such as BRK/B, never a transport token.
+    Normalize uppercase, deduplicate by first occurrence and preserve input
+    order. At least one subject for inspection; no inherited 30-subject cap.
+    Boolean options and the one comma-separated --only argument may occur
+    before or after subjects. -- ends option parsing. --only cannot combine
+    with --verbose or --jsonl. Unknown/empty/invalid fields and subjects fail
+    before credentials or HTTP. --fields is a separate subject-free invocation.
+
+STREAMS AND COMPLETION
+    Terminal default columns: SYMBOL TYPE LAST CHANGE BID ASK RECEIVED PROVIDER
+    ENVIRONMENT. CHANGE is reportedChangePercent in percentage points.
+    Human instants use local timezone (including TZ). Missing cells are '-'.
+    --verbose uses identified subject FIELD/VALUE tables without clipping.
+    Redirected output is headerless TSV in selected order; absent values leave
+    empty cells including trailing cells. Controls/backslashes are escaped.
+    --only selects exactly its named ordered columns, never adding symbol.
+    JSONL emits one complete public nested observation per successful subject;
+    unknown additive/internal backend fields are not published incidentally.
+    Canonical numbers and timestamp strings remain machine values. No null,
+    empty string or zero is fabricated for an absent field.
+    Failures are independent stderr diagnostics, not stdout failure records.
+    Success rows may already have been consumed before later failure: partial
+    stdout under exit 1 is intentional. All distinct requested subjects must
+    be accounted for. Exit 0 is complete success; 1 operational/subject/output
+    failure; 2 usage/configuration. Clean EPIPE retains existing convention.
+
+DISCOVERY AND DOCUMENTATION
+    --help explains invocation. --fields is the installed name/description
+    catalog (table on terminal, headerless TSV when redirected), without any
+    credentials, HTTP, evidence or provider. This manual explains semantics.
+    The same authoritative registry drives projection validation/rendering,
+    runtime discovery and this generated semantic field reference. Accepted
+    public field changes update all three together. Experimental script values
+    are not automatically public show fields; Product acceptance is required.
+
+SECURITY AND HTTP
+    WW_BASE_URL defaults to http://localhost:3100; HTTPS required outside
+    loopback. WW_API_TOKEN is exported or read literally from private .env.
+    quote.read is independent of acquisition grants. One sequential bodyless
+    GET per distinct subject, no redirect, retry, acquisition or fallback.
+    API instance path uses a transport-only reversible codec: slash _2F,
+    underscore _5F, caret _5E; other accepted canonical characters unchanged.
+    BRK/B and literal BRK_2FB remain distinct. API decoding occurs once.
+    Observation/acquisition identity is distinct from request correlation.
+
+EXAMPLES
+    ww show SPY QQQ
+    ww show --quote SPY --only symbol,bid,ask
+    ww show SPY QQQ --only bid,ask
+    cat symbols.txt | xargs ww show
+    ww show --fields
+    ww show SPY --jsonl
+
+PUBLIC FIELDS (generated from the authoritative projection registry)
+symbol
+    Canonical uppercase subject identity.
+    Source: subject.symbol. Identity is canonical, never the path-codec token. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+type
+    Wheelwright security type.
+    Source: subject.securityType. Public EQUITY, ETF, INDEX, OTHER; wire OTHER_UNDERLYING maps to OTHER. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+last
+    Last reported trade price.
+    Source: facts.last.price. Source-reported nonnegative price in the instrument's applicable unit; currency/lot conventions are not inferred. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+lastSize
+    Last reported trade size.
+    Source: facts.last.size. Source-reported size; provider unit conventions are preserved, not assumed to be shares or lots. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+lastSourceEventAt
+    Provider last-trade event time.
+    Source: facts.last.sourceEventAt. Original RFC 3339 UTC instant. Terminal presentation uses local time; TSV/JSONL retain the original timestamp. Absence is not inferred from other clocks. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+bid
+    Reported bid price.
+    Source: facts.bid.price. Source-reported nonnegative price in the instrument's applicable unit; currency/lot conventions are not inferred. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+bidSize
+    Reported displayed bid size.
+    Source: facts.bid.size. Source-reported size; provider unit conventions are preserved, not assumed to be shares or lots. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+bidVenue
+    Provider-reported bid venue.
+    Source: facts.bid.venue. Venue is optional source text, not independently resolved. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+bidSourceEventAt
+    Provider bid event time.
+    Source: facts.bid.sourceEventAt. Original RFC 3339 UTC instant. Terminal presentation uses local time; TSV/JSONL retain the original timestamp. Absence is not inferred from other clocks. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+ask
+    Reported ask price.
+    Source: facts.ask.price. Source-reported nonnegative price in the instrument's applicable unit; currency/lot conventions are not inferred. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+askSize
+    Reported displayed ask size.
+    Source: facts.ask.size. Source-reported size; provider unit conventions are preserved, not assumed to be shares or lots. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+askVenue
+    Provider-reported ask venue.
+    Source: facts.ask.venue. Venue is optional source text, not independently resolved. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+askSourceEventAt
+    Provider ask event time.
+    Source: facts.ask.sourceEventAt. Original RFC 3339 UTC instant. Terminal presentation uses local time; TSV/JSONL retain the original timestamp. Absence is not inferred from other clocks. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+open
+    Reported open price.
+    Source: facts.open. Source-reported nonnegative price in the instrument's applicable unit; currency/lot conventions are not inferred. No separate event time is supplied for this fact; do not substitute another price. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+high
+    Reported high price.
+    Source: facts.high. Source-reported nonnegative price in the instrument's applicable unit; currency/lot conventions are not inferred. No separate event time is supplied for this fact; do not substitute another price. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+low
+    Reported low price.
+    Source: facts.low. Source-reported nonnegative price in the instrument's applicable unit; currency/lot conventions are not inferred. No separate event time is supplied for this fact; do not substitute another price. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+close
+    Reported close price.
+    Source: facts.close. Source-reported nonnegative price in the instrument's applicable unit; currency/lot conventions are not inferred. No separate event time is supplied for this fact; do not substitute another price. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+previousClose
+    Reported previous close price.
+    Source: facts.previousClose. Source-reported nonnegative price in the instrument's applicable unit; currency/lot conventions are not inferred. No separate event time is supplied for this fact; do not substitute another price. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+volume
+    Provider-reported daily volume.
+    Source: facts.volume. Nonnegative integer; period and unit conventions come from the source, not a Wheelwright estimate. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+reportedChange
+    Provider-reported absolute price change.
+    Source: facts.reportedChange. Signed applicable price units; not computed from last/previous close by Wheelwright. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+reportedChangePercent
+    Provider-reported percentage-point change.
+    Source: facts.reportedChangePercent. Percentage points: 0.62 means +0.62%, not 62%. Never derived from another fact. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+averageVolume
+    Provider-reported average daily volume.
+    Source: facts.averageVolume. Nonnegative integer; averaging window is not independently established. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+fiftyTwoWeekHigh
+    Provider-reported 52-week high.
+    Source: facts.fiftyTwoWeekHigh. Source-reported nonnegative price in the instrument's applicable unit; currency/lot conventions are not inferred. Source-defined range, not recomputed. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+fiftyTwoWeekLow
+    Provider-reported 52-week low.
+    Source: facts.fiftyTwoWeekLow. Source-reported nonnegative price in the instrument's applicable unit; currency/lot conventions are not inferred. Source-defined range, not recomputed. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+description
+    Provider-reported instrument description.
+    Source: facts.description. Optional source text, not a Wheelwright issuer lookup. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+exchange
+    Provider-reported instrument exchange.
+    Source: facts.exchange. Optional source text; distinct from side-specific venues. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+observationId
+    Identity of the accepted observation.
+    Source: observationId. UUID preserved from the canonical holding; distinct from HTTP correlation and acquisition identity. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+provider
+    Observation source provider.
+    Source: provenance.provider. Persisted source identity, independent of the currently active provider. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+environment
+    Provider data environment.
+    Source: provenance.environment. PRODUCTION or SANDBOX; not CLI/server deployment environment. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+acquisitionId
+    Accepted upstream attempt identity.
+    Source: provenance.acquisitionId. Persisted UUID; the held read creates no acquisition. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+authorityEpoch
+    Acquisition authority/fencing identity.
+    Source: provenance.authorityEpoch. Opaque persisted authority value, not a credential or current eligibility decision. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+acquisitionPhase
+    Session classification at upstream contact.
+    Source: provenance.acquisitionPhase. REGULAR_USABLE, PRE_MARKET, POST_MARKET, CLOSED or UNKNOWN; not freshness, suitability or a source event time. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+regularSessionDate
+    Applicable US regular-session date.
+    Source: provenance.regularSessionDate. Optional canonical calendar date; never timezone-shifted or reconstructed. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+feedIdentity
+    Persisted source-feed identity.
+    Source: provenance.feedIdentity. Optional source identity; do not invent a regular-session/feed label when absent. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+receivedAt
+    Wheelwright evidence receipt time.
+    Source: provenance.receivedAt. Original RFC 3339 UTC instant. Terminal presentation uses local time; TSV/JSONL retain the original timestamp. Absence is not inferred from other clocks. Not the market event time. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+committedAt
+    Canonical evidence acceptance time.
+    Source: provenance.committedAt. Original RFC 3339 UTC instant. Terminal presentation uses local time; TSV/JSONL retain the original timestamp. Absence is not inferred from other clocks. Not read/response time. Absent optional evidence is '-' on a terminal, an empty TSV cell, and omitted in JSONL. Genuine zero and empty source strings remain values.
+
+END PUBLIC FIELDS

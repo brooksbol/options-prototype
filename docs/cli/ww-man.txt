@@ -13,6 +13,17 @@ DESCRIPTION
     Reading held evidence is separate from asking Wheelwright to acquire it.
 
 WORKING COMMANDS
+    show SUBJECT... [--quote] [--verbose] [--jsonl]
+    show SUBJECT... --only FIELD[,FIELD...]
+    show --fields
+        Inspect complete canonical held direct quotes without acquisition.
+        Requires quote.read, except local --fields. Normal terminal table;
+        redirected headerless TSV; JSONL complete public observations.
+        Normalize uppercase, deduplicate and preserve first-occurrence order.
+        Successes may precede failures; any failed subject makes exit 1.
+        --only is exact ordered projection; never adds symbol implicitly.
+        Run 'ww show --help', 'ww show --fields', or 'ww show --man'.
+
     ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
         Discover current canonical direct-quote holdings through provider-free
         API v2 GET. Requires quote.read. Terminal table; redirected headerless
@@ -68,7 +79,7 @@ OUTPUT AND COMPOSITION
 
     ww prices remains an independent v1 read of chain-associated price evidence;
     it does not inspect the v2 direct quotes acquired by fetch. Use ww ls quotes
-    for canonical direct-quote holdings; this lists discovery summaries only.
+    for canonical direct-quote holdings; this lists discovery summaries only. Use ww show for complete held quotes.
 
 EXIT STATUS
     0   Command succeeded under its documented contract.
@@ -97,11 +108,11 @@ DISCOVERY
 
 ENVIRONMENT
     WW_BASE_URL   Backend base URL; default http://localhost:3100
-    WW_API_TOKEN  Bearer credential for fetch and ls quotes, exported or in the
+    WW_API_TOKEN  Bearer credential for fetch, ls quotes and show, exported or in the
                   private root .env; nonempty exports take precedence; never
-                  printed. Both require HTTPS outside loopback development.
+                  printed. These require HTTPS outside loopback development.
                   Fetch requires quote.acquire (+ quote.force for --force).
-                  ls quotes requires explicit quote.read independently.
+                  ls quotes and show require explicit quote.read independently.
 
 SEE ALSO
-    ww fetch --man, ww ls quotes --man, ww prices --man, ww sort --man
+    ww show --man, ww fetch --man, ww ls quotes --man, ww prices --man, ww sort --man

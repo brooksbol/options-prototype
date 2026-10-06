@@ -35,6 +35,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-027 | Header Activity upload slot reverts to empty ("— ⬆") on remount despite durably-persisted Activity evidence, misrepresenting loaded state | Application Shell / Portfolio dropdown upload status | Not established | Resolved | [record](BUG-027-activity-upload-slot-status-ephemeral.md) | Specimen investigation 2026-09-24 |
 | BUG-028 | Backend `gradlew clean test` exceeds the 60s feedback-loop SLO (~5× over: measured 301s vs SLO-BUILD-01 target of 60s), dominated by serial wall-clock `Thread.sleep` in acquisition/provider-lifecycle tests | Engineering / backend test suite (`evidence-service-java`) | S3 | Open | [record](BUG-028-gradlew-clean-test-exceeds-slo.md) | Discovered 2026-10-05 (SLO-BUILD-01 ratification) |
 | BUG-029 | Tradier quote source-event timestamps can persist malformed non-time tokens | Backend / Tradier direct-quote normalization and canonical persistence | Not established | Open | [record](BUG-029-tradier-source-event-time-parser.md) | Bounded `ww show` contract review 2026-10-05 |
+| BUG-030 | Candidate shared encoded-solidus passthrough changes existing route interpretation | Backend / candidate shared Tomcat transport | Not established | Open | [record](BUG-030-shared-solidus-passthrough-route-regression.md) | ww show real-container transport gate 2026-10-05 |
 
 ## Open-bug audit checkpoint (2026-09-22)
 

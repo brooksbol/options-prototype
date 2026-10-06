@@ -20,6 +20,8 @@ test("bare fetch and missing credentials fail before any backend/provider reques
   const isolatedCli = join(isolated, "scripts", "wheelwright.mjs");
   await mkdir(join(isolated, "scripts"));
   await copyFile(cli, isolatedCli);
+  for (const module of ["ww-show.mjs", "ww-show-fields.mjs"])
+    await copyFile(new URL(module, import.meta.url), join(isolated, "scripts", module));
   const actualCli = await realpath(isolatedCli);
   try {
     await withFixture(async (f, run) => {
@@ -232,6 +234,8 @@ test("ww fetch works with a private .env credential and no exported token", asyn
   try {
     await mkdir(join(isolated, "scripts"));
     await copyFile(cli, join(isolated, "scripts", "wheelwright.mjs"));
+    for (const module of ["ww-show.mjs", "ww-show-fields.mjs"])
+      await copyFile(new URL(module, import.meta.url), join(isolated, "scripts", module));
     const actualCli = await realpath(join(isolated, "scripts", "wheelwright.mjs"));
     const { writeFile } = await import("node:fs/promises");
     await writeFile(join(isolated, ".env"), `WW_API_TOKEN='${TOKEN}'\n`, { mode: 0o600 });
@@ -242,4 +246,15 @@ test("ww fetch works with a private .env credential and no exported token", asyn
       assert.ok(!r.stdout.includes(TOKEN) && !r.stderr.includes(TOKEN));
     });
   } finally { await rm(isolated, { recursive: true, force: true }); }
+});
+
+
+test("public fetch presentation maps OTHER without changing canonical acquisition evidence", () => {
+  const r=acquisition(["SPY"]);
+  r.results[0].subject.securityType="OTHER_UNDERLYING";
+  r.results[0].observation.subject.securityType="OTHER_UNDERLYING";
+  const record=JSON.parse(presentFetchResult(r,false,false,false).stdout);
+  assert.equal(record.subject.securityType,"OTHER");
+  assert.equal(record.observation.subject.securityType,"OTHER");
+  assert.equal(r.results[0].observation.subject.securityType,"OTHER_UNDERLYING");
 });

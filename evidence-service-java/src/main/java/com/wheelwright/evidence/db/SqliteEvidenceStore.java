@@ -2991,6 +2991,44 @@ public class SqliteEvidenceStore implements AutoCloseable {
         }
     }
 
+    /** One complete committed row on an independently owned query-only connection. */
+    public Optional<DirectQuoteRow> readHeldDirectQuote(String canonicalSymbol) throws SQLException {
+        Connection reader;
+        try {
+            if (conn.isClosed()) throw new SQLException("store closed");
+            org.sqlite.SQLiteConfig config = new org.sqlite.SQLiteConfig();
+            if (!memoryDatabase) config.setReadOnly(true);
+            reader = DriverManager.getConnection(heldReadUrl, config.toProperties());
+        } catch (SQLException e) { throw new HeldReadUnavailableException(e); }
+        try (reader; Statement settings = reader.createStatement()) {
+            settings.execute("PRAGMA query_only = ON");
+            try (PreparedStatement ps = reader.prepareStatement("""
+                SELECT symbol, observation_id, security_type, facts_json, provider, environment,
+                    acquisition_id, authority_epoch, acquisition_phase, regular_session_date,
+                    feed_identity, received_at, committed_at
+                FROM direct_quote WHERE symbol = ?
+                """)) {
+                ps.setString(1, canonicalSymbol);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) return Optional.empty();
+                    return Optional.of(new DirectQuoteRow(heldText(rs, "symbol"), heldText(rs, "observation_id"),
+                        heldText(rs, "security_type"), heldText(rs, "facts_json"), heldText(rs, "provider"),
+                        heldText(rs, "environment"), heldText(rs, "acquisition_id"), heldText(rs, "authority_epoch"),
+                        heldText(rs, "acquisition_phase"), heldText(rs, "regular_session_date"), heldText(rs, "feed_identity"),
+                        heldText(rs, "received_at"), heldText(rs, "committed_at")));
+                }
+            }
+        }
+    }
+
+    // SQLite has dynamic storage classes. Do not coerce a BLOB/numeric value into
+    // apparently canonical text merely because this row's declared affinity is TEXT.
+    private static String heldText(ResultSet row, String column) throws SQLException {
+        Object value = row.getObject(column);
+        if (value == null || value instanceof String) return (String) value;
+        throw new SQLException("invalid held representation storage class");
+    }
+
     /** Remove all held direct-quote rows. Intended for test isolation / operational reset. */
     public void clearDirectQuotes() throws SQLException {
         try (Statement st = conn.createStatement()) {

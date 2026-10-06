@@ -13,6 +13,7 @@ public enum ProblemCode {
     UNSUPPORTED_MEDIA_TYPE(415, "Unsupported media type"),
     INVALID_REQUEST(422, "Invalid request"),
     CAPABILITY_UNAVAILABLE(503, "Capability unavailable"),
+    NOT_FOUND(404, "Not found"),
     INTERNAL_ERROR(500, "Internal error");
 
     private final int status;

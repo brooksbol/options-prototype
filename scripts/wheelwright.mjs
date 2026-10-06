@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { readFile } from "node:fs/promises";
+import { parseShow, showConfig, readHeldQuote, presentShow, presentFields } from "./ww-show.mjs";
 
 const ROOT_HELP = `Usage: ww <command> [options]
        ww --help | -h | --man
@@ -14,6 +15,8 @@ Working commands:
       Acquire direct quotes for named subjects.
   ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
       Discover canonical direct-quote holdings (provider-free).
+  show SUBJECT... [--quote] [--verbose | --only FIELD[,FIELD...]] [--jsonl]
+      Inspect canonical held quotes; show --fields discovers projections locally.
   prices [--] SYMBOL...
       Inspect currently held underlying price evidence (read-only).
   sort --by FIELD [--descending] [--]
@@ -28,8 +31,8 @@ Results go to stdout; diagnostics go to stderr. Exit status controls &&.
 Use 'ww <command> --help' or '--man' for command details; 'ww --man'
 describes the current CLI. 'ww observed-prices' remains a prices alias.
 Backend: WW_BASE_URL (default http://localhost:3100).
-Fetch and ls quotes authentication: WW_API_TOKEN (exported or private .env).
-Fetch requires quote.acquire (+ quote.force for --force); ls quotes requires quote.read.`;
+Fetch, ls quotes and show authentication: WW_API_TOKEN (exported or private .env).
+Fetch requires quote.acquire (+ quote.force for --force); ls quotes and show require quote.read.`;
 
 const SOURCE_HELP = `Usage: ww observed-prices [--] SYMBOL...
        ww observed-prices --help | -h | --man
@@ -118,6 +121,23 @@ WW_API_TOKEN uses the accepted exported/private .env Bearer convention.
 The backend requires quote.read independently of quote.acquire/quote.force.
 Use 'ww ls --man' for escaping, security and evidence limits.`;
 
+const SHOW_HELP = `Usage: ww show SUBJECT... [--quote] [-v | --verbose] [--jsonl]
+       ww show SUBJECT... --only FIELD[,FIELD...]
+       ww show --fields
+       ww show --help | -h | --man
+
+Read canonical held direct quotes only; never acquire or refresh.
+Options may appear before or after subjects. Uppercase, first-occurrence
+subject deduplication and input order; no inherited acquisition cap.
+--only selects exactly the named fields in order; no implicit symbol.
+--only cannot combine with --verbose or --jsonl.
+--fields discovers the installed projection vocabulary locally, without subjects,
+credentials, HTTP or holdings. --man documents field semantics and units.
+Terminal: table. Redirected: headerless TSV. --jsonl: complete public observations.
+Independent failures go to stderr, exit 1; successful partial stdout is intentional.
+Bare subject and --quote are equivalent in this slice. Requires quote.read.
+WW_BASE_URL and WW_API_TOKEN follow the existing credential/HTTPS conventions.`;
+
 const SORT_HELP = `Usage: ww sort --by FIELD [--descending] [--]
        ww sort --help | -h | --man
 
@@ -154,6 +174,12 @@ export function parseArgs(args) {
   }
   if (args.length === 1 && args[0] === "--man") return { command: "root-man" };
   const [command, ...rest] = args;
+  if (command === "show") {
+    const parsed = parseShow(rest);
+    if (parsed.help) return { command: "help", help: SHOW_HELP };
+    if (parsed.man) return { command: "command-man", page: "show" };
+    return { command: "show", ...parsed };
+  }
   if (command === "ls") {
     const discovery = rest[0] === "quotes" ? rest.slice(1) :
       (rest.length === 1 ? rest : []);
@@ -601,7 +627,11 @@ function writeRecords(entries) {
 export function presentFetchResult(result, quiet, stdoutIsTTY, stderrIsTTY, verbose = false) {
   const { requestId, mode, startedAt, completedAt } = result;
   const stdout = stdoutIsTTY ? "" : result.results.map(item => JSON.stringify({
-    ...item, kind: "fetch-result/v2", symbol: item.subject.symbol,
+    ...item,
+    subject: { ...item.subject, securityType: item.subject.securityType === "OTHER_UNDERLYING" ? "OTHER" : item.subject.securityType },
+    ...(item.observation ? { observation: { ...item.observation, subject: { ...item.observation.subject,
+      securityType: item.observation.subject.securityType === "OTHER_UNDERLYING" ? "OTHER" : item.observation.subject.securityType } } } : {}),
+    kind: "fetch-result/v2", symbol: item.subject.symbol,
     requestId, mode, startedAt, completedAt,
   })).join("\n") + "\n";
   const failures = result.results.filter(item => !item.fulfilled);
@@ -632,6 +662,30 @@ export async function main(args) {
   if (parsed.command === "command-man") {
     const manual = await readFile(new URL(`../docs/cli/ww-${parsed.page}-man.txt`, import.meta.url), "utf8");
     process.stdout.write(manual);
+    return;
+  }
+  if (parsed.command === "show") {
+    if (parsed.fields) { process.stdout.write(presentFields(!!process.stdout.isTTY)); return; }
+    let config;
+    try { config = showConfig(await readApiToken()); }
+    catch (error) {
+      if (error.code === 2) throw error;
+      process.exitCode = 1;
+      for (const symbol of parsed.symbols) process.stderr.write(`${symbol}: show: credential/configuration unavailable; no read attempted\n`);
+      return;
+    }
+    let header = true;
+    for (const symbol of parsed.symbols) {
+      try {
+        const result = await readHeldQuote(symbol, config);
+        const output = presentShow(result.observation, { ...parsed, tty: !!process.stdout.isTTY, header });
+        process.stdout.write(output); header = false;
+        if (parsed.verbose) process.stderr.write(`From ${escapeDiscoveryCell(result.origin)}; ${symbol}; request ${result.requestId}\n`);
+      } catch (error) {
+        process.exitCode = 1;
+        process.stderr.write(`${symbol}: ${escapeDiscoveryCell(error.message)}\n`);
+      }
+    }
     return;
   }
   if (parsed.command === "ls") {
