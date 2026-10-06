@@ -70,6 +70,27 @@ Wheelwright may acquire and evaluate enough option evidence to establish that th
 
 This golf analogy is also intentionally retained as an explanatory model for teaching trading: traders commonly have go-to structures even when they know and use many, just as golfers carry a familiar set of clubs and select among them according to the shot.
 
+The analogy extends beyond the structure repertoire:
+
+- **The market is the course** — the trader does not control it; the task is to play the conditions that exist.
+- **Market conditions are playing conditions** — volatility, liquidity, trend, event risk, and other context are analogous to wind, temperature, firmness, wetness, or other conditions that change which shots make sense.
+- **The structure is the club** — CSP, 1×2 ratio spread, iron condor, and other familiar structures are tools selected from the trader's bag.
+- **Exact strike/width selection is shot shaping** — once the club is selected, brokerage tools are used to tune trajectory, distance, probability, payoff shape, and execution parameters.
+- **Rules and operational constraints are course rules** — market hours, account permissions, buying power, settlement behavior, expiration calendars, liquidity constraints, and instrument-specific rules can change what is feasible without changing the trader's repertoire.
+- **Timing and surrounding participants matter** — tee time, pace of play, and who is behind you are useful analogies for the fact that timing, crowding, market participation, and execution conditions can affect how a trade should be approached even when the underlying setup is unchanged.
+
+The teaching formulation is:
+
+> **Good golf is not finding the universally best club. It is recognizing the shot, selecting a club you know how to use, and executing it within the conditions and rules of the course.**
+
+Trading is analogous:
+
+> **Recognize the opportunity, choose a structure from your bag, shape the trade for the conditions, and execute it within the constraints of the market and account.**
+
+The product boundary follows naturally:
+
+> **Wheelwright is the caddie and course book. The brokerage is where the trader addresses the ball. The trader remains the golfer.**
+
 ## Lean Value Tree Vocabulary
 
 - **Vision** — durable product direction.
