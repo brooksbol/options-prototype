@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-06T04:02:33.376Z",
+    "generatedAt": "2026-10-06T04:04:04.147Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,7 +41,7 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 30,
-      "logTotal": 91,
+      "logTotal": 94,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 60
@@ -8520,7 +8520,7 @@
           "tables": []
         },
         {
-          "heading": "2026-10-05 — Bounded producer remediation (Codex)",
+          "heading": "Principal authorization — 2026-10-05 — Bounded producer remediation (Codex)",
           "level": 3,
           "content": "Principal explicitly authorized BUG-029 investigation, implementation, focused acceptance, canonical lifecycle update and commit/push from synchronized accepted `d47c3e3b6364ed8e5d12d70dc5faa851b819b2aa`. This authorization does not extend to persisted-row repair, market acquisition, BUG-028 or BUG-030.\n\nOnly production `TradierAdapter.java` changes:",
           "truncated": true,
@@ -8534,9 +8534,16 @@
           "tables": []
         },
         {
-          "heading": "2026-10-05 — Principal normal reacquisition and live strict-read confirmation",
+          "heading": "Post-resolution validation — 2026-10-05 — Principal normal reacquisition and live strict-read confirmation",
           "level": 3,
           "content": "After remediation commit `4fd3ad1ed8eae4e7e9fa79fbdcdf32ae404b5caa`, Principal supplied the successful transcript of:\n\n```sh\nww ls quotes | cut -f1 | xargs -n 30 ww fetch --force\n```\n\nSix 30-subject batches and one 24-subject batch reported **204/204 NEWLY_ACQUIRED, zero reused, zero failed**. This was Principal-performed normal acquisition, not an agent repair/migration or automated acceptance acquisition.\n\nCodex then performed provider-free read verification only. `ww show SPY --jsonl` returned exit 0 and observation `62b3011e-3f90-41f9-9ece-9c39e779bcec`, with `last.sourceEventAt = 2026-10-06T00:00:00.004Z` and independent bid/ask event times `2026-10-05T23:59:58Z`. A fresh `ww ls quotes` inventory followed by `ww show --jsonl` for all inventoried symbols returned **204/204 complete strict-read successes**, exit 0, empty stderr and exact inventory order/identity.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Audit checkpoint — 2026-10-05 — BUG-029 end-of-session closeout",
+          "level": 3,
+          "content": "Principal invoked the containing end-of-session protocol and explicitly authorized push. Closeout reacquired clean, synchronized `main` at `dd9630ebe29214168c71ec470cc3476ff28466a9`. The canonical defect record/index already preserve the root cause, bounded producer fix, focused automated evidence and Principal normal reacquisition with 204/204 independently verified strict reads. The authorization and post-resolution validation headings are aligned with the existing governed bug-event vocabulary so their dated history derives into the Roadmap Log without inventing acceptance or duplicating a parking-lot identity.",
           "truncated": true,
           "tables": []
         },
@@ -8797,7 +8804,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 560
+      "sourceOrder": 563
     },
     {
       "plId": null,
@@ -9421,7 +9428,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 559
+      "sourceOrder": 562
     },
     {
       "plId": "PL-SEM-01",
@@ -9773,6 +9780,45 @@
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
       "sourceOrder": 532
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-029",
+      "title": "Principal authorization — 2026-10-05 — Bounded producer remediation (Codex)",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
+      "sourceOrder": 559
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-029",
+      "title": "Post-resolution validation — 2026-10-05 — Principal normal reacquisition and live strict-read confirmation",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
+      "sourceOrder": 560
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-029",
+      "title": "Audit checkpoint — 2026-10-05 — BUG-029 end-of-session closeout",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
+      "sourceOrder": 561
     }
   ],
   "intakeDateUnknown": [

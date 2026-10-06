@@ -82,7 +82,7 @@ An eventual authorized remediation must demonstrate at minimum:
 
 ## Remediation history
 
-### 2026-10-05 — Bounded producer remediation (Codex)
+### Principal authorization — 2026-10-05 — Bounded producer remediation (Codex)
 
 Principal explicitly authorized BUG-029 investigation, implementation, focused acceptance, canonical lifecycle update and commit/push from synchronized accepted `d47c3e3b6364ed8e5d12d70dc5faa851b819b2aa`. This authorization does not extend to persisted-row repair, market acquisition, BUG-028 or BUG-030.
 
@@ -130,7 +130,7 @@ git diff --check
 
 OAS checks use an isolated temporary Python environment with PyYAML/jsonschema/openapi-spec-validator. Documentation links/status/index consistency and generated projection freshness checked. No new Product/architecture decision or strategy/horizon change arises. Existing implementation acceptance documents remain dated provenance of their own earlier scopes; their historical BUG-029-open statements are superseded by this canonical resolution.
 
-### 2026-10-05 — Principal normal reacquisition and live strict-read confirmation
+### Post-resolution validation — 2026-10-05 — Principal normal reacquisition and live strict-read confirmation
 
 After remediation commit `4fd3ad1ed8eae4e7e9fa79fbdcdf32ae404b5caa`, Principal supplied the successful transcript of:
 
@@ -143,6 +143,14 @@ Six 30-subject batches and one 24-subject batch reported **204/204 NEWLY_ACQUIRE
 Codex then performed provider-free read verification only. `ww show SPY --jsonl` returned exit 0 and observation `62b3011e-3f90-41f9-9ece-9c39e779bcec`, with `last.sourceEventAt = 2026-10-06T00:00:00.004Z` and independent bid/ask event times `2026-10-05T23:59:58Z`. A fresh `ww ls quotes` inventory followed by `ww show --jsonl` for all inventoried symbols returned **204/204 complete strict-read successes**, exit 0, empty stderr and exact inventory order/identity.
 
 The previously malformed current holdings have therefore been replaced through ordinary acquisition and the newly held observations pass strict reads. This does not claim that historical evidence was rewritten or repaired. Codex performed no market acquisition, database mutation or runtime restart. These are Principal-reported reacquisition results plus independently observed read verification; no additional Product acceptance declaration is inferred.
+
+### Audit checkpoint — 2026-10-05 — BUG-029 end-of-session closeout
+
+Principal invoked the containing end-of-session protocol and explicitly authorized push. Closeout reacquired clean, synchronized `main` at `dd9630ebe29214168c71ec470cc3476ff28466a9`. The canonical defect record/index already preserve the root cause, bounded producer fix, focused automated evidence and Principal normal reacquisition with 204/204 independently verified strict reads. The authorization and post-resolution validation headings are aligned with the existing governed bug-event vocabulary so their dated history derives into the Roadmap Log without inventing acceptance or duplicating a parking-lot identity.
+
+End-of-Workstream Memory Check: no new Product/architecture decision, principle, intake identity, strategy/horizon change or journal why-state is needed; broader PL-CLI-01/PL-API-03 remains retained. BUG-028 and BUG-030 remain open and untouched. No unrelated in-flight work exists in this checkout. Historical implementation evidence retains its original epistemic status; this record is the current BUG-029 lifecycle authority.
+
+Only documentation/projection closeout changes occur. Registry/manual synchronization, defect links/status/index consistency, derived Roadmap freshness and diff checks pass. The earlier 161 Java / 48 CLI / 10 deterministic acceptance results remain applicable because runtime and tests are unchanged since verification. No market acquisition, persisted-evidence repair or runtime restart occurs during closeout. Canonical record and regenerated projection are persisted together, followed by accepted-main synchronization and final SYNC reporting.
 
 ## Related
 
