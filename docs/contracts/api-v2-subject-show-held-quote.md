@@ -137,6 +137,30 @@ Unknown fields, an empty projection, malformed comma lists, or other invalid pro
 
 `--only` with `--verbose` is contradictory and is a usage error, exit 2.
 
+## 6A. Projection discovery and documentation synchronization
+
+The public `--only` vocabulary is intentionally extensible without changing the core `show` command grammar. Wheelwright therefore exposes a first-class discovery surface:
+
+    ww show --fields
+
+`ww show --fields` lists the complete public field vocabulary supported by the installed `ww` version, with concise human-readable descriptions sufficient to identify each field. It is useful to both humans and agents and does not require a subject operand, credentials, HTTP, held evidence, or provider contact.
+
+The field catalog is derived from the same authoritative public projection registry used to validate and render `--only`; it is not a separately maintained list. The catalog must therefore remain mechanically consistent with accepted `--only` field names.
+
+The `ww-show(1)` man page is the durable semantic documentation for the command. It explains the meaning and correct use of public fields beyond the concise runtime catalog, including units, evidence/source semantics, temporal meaning, missing-value behavior, and material caveats where applicable. The man page is intended to be useful to both human operators and agents that need more than capability discovery.
+
+The three surfaces move together:
+
+> **Adding, removing, renaming, or semantically changing a public `ww show --only` field requires the authoritative projection registry, `ww show --fields`, and `ww-show(1)` documentation to be updated together.**
+
+This does not require every future derived or experimental value to become a `show` field. Scripts remain a proving/composition layer; a value becomes part of the public `show` vocabulary only after its Product semantics are explicitly accepted.
+
+`--help`, `--fields`, and `ww-show(1)` have distinct roles:
+
+- `--help`: invocation grammar and concise option guidance.
+- `--fields`: runtime discovery of the installed public projection vocabulary.
+- `ww-show(1)`: durable semantic meaning and correct-use guidance.
+
 ## 7. JSONL presentation
 
 `--jsonl` is the complete structured public canonical observation presentation. Machine timestamps, nullability/omission, numerics, and structure follow the public serialization contract rather than terminal placeholders.
@@ -223,7 +247,8 @@ Product reconciliation is limited to consequences introduced by one-or-more subj
 - mixed held/unheld/corrupt subject behavior and exit semantics;
 - row/output ordering and multi-subject presentation, including verbose behavior;
 - JSONL and TSV behavior across multiple subjects;
-- whether the Product contract requires any multi-subject HTTP capability or leaves HTTP realization entirely to Solution Design.
+- whether the Product contract requires any multi-subject HTTP capability or leaves HTTP realization entirely to Solution Design;
+- multi-subject interaction with the discoverable public projection catalog, without weakening the registry/man-page synchronization invariant.
 
 The existing singular `GET /v2/quotes/{symbol}` section is retained as the previously ratified baseline, not as a decision that multi-subject CLI realization must perform one HTTP request per subject. Backend realization must not be changed until Product cardinality semantics are refrozen.
 
