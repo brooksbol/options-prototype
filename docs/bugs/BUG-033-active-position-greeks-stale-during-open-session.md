@@ -49,29 +49,34 @@ The operator's live risk picture is wrong. A buy-write whose true short-call del
 
 ## Diagnosis / root cause
 
-**Established by code trace (one live-DB disambiguation remaining).** The initial "separate acquisition paths for spot vs. Greeks" hypothesis is **refuted at the provider level and refined**: Greeks and spot are *co-persisted on the same chain evidence row, per expiration*. The staleness arises from a **per-expiration freshness divergence** combined with the absence of any held-position freshness guarantee.
+**Established by code trace.** The defect is localized to the scheduler admission gate. The initial "separate acquisition paths for spot vs. Greeks" hypothesis is refuted (Greeks and spot are co-persisted on the same chain row per expiration), and an earlier draft of this record wrongly stated that "held positions get no acquisition priority that protects their own expiration." That is **incorrect**: a held-expiration acquisition mechanism provably exists (migration 007). The real, narrower defect is a distinction between **held-expiration acquisition** and **held-expiration freshness at the scheduler admission gate**.
+
+> **Held expirations are acquisition obligations, but they are not freshness obligations at the scheduler admission gate.**
 
 Mechanism:
 
 1. **Greeks and spot are co-sourced per chain, per expiration.** `TradierAdapter.getOptionsChain` requests `/markets/options/chains?...&greeks=true` and stamps the underlying price onto that chain row at the chain's `retrievedAt` (`TradierAdapter.java` ~110–156, ~361–366; `normalizeChain` ~549–573). Greeks are not independently timestamped from spot *within a given chain row*.
 
-2. **But the operator's displayed spot and Greeks come from DIFFERENT chain rows keyed by DIFFERENT expirations.**
-   - **Quote Freshness / spot** is read from the chain row for the symbol's **`primary_expiration`**: `getQuoteObservations` sets both `price` and `observedAt` from that row (`SqliteEvidenceStore.java` ~1152–1197), served as `observation.observedAt`.
-   - **Greek Age / Greeks** are looked up from the durable chain cache record keyed by the **position's OWN held expiration** (`contract-greek-lookup.ts` `lookupContractGreeksWithAge` ~104–125), with age taken from that record's authoritative `evidenceProvenance.acquiredAtMs`.
-   - When the held expiration ≠ `primary_expiration` (or its chain row is simply older), **spot stays fresh via the primary-expiration chain while the held-expiration chain — carrying the Greeks — ages silently.** `OperatorConsole.tsx` ~505, ~556–576 computes the two columns from these two distinct sources, honestly.
+2. **Displayed spot and Greeks come from DIFFERENT chain rows keyed by DIFFERENT expirations.**
+   - **Quote Freshness / spot** is read from the chain row for the symbol's **`primary_expiration`**: `getQuoteObservations` sets both `price` and `observedAt` from that row (`SqliteEvidenceStore.java` ~1152–1197).
+   - **Greek Age / Greeks** are looked up from the durable chain cache record keyed by the **position's OWN held expiration** (`contract-greek-lookup.ts` `lookupContractGreeksWithAge` ~104–125), age from that record's authoritative `evidenceProvenance.acquiredAtMs`.
+   - `OperatorConsole.tsx` (~505, ~556–576) computes the two columns from these two distinct sources, **honestly**. The frontend is correct and is not the defect.
 
-3. **Held positions get no acquisition priority that protects their own expiration.** The scheduler universe is the ~1286-symbol `symbol_resolution` set, not the operator's portfolio. The only portfolio-awareness is a "monitored" overlay (`monitored_at`) that **explicitly does not change recommendation class** (`SqliteEvidenceStore.java` ~1502–1505) and whose due test uses `newestChainAge`, not the held expiration's age (~1495). Final ordering is a breadth-first/stale-frontier sweep across A/B (~1600–1631).
+3. **A held-expiration ACQUISITION mechanism exists and works.** The frontend extracts the exact held `(symbol, expiration)` pairs and POSTs them to `/api/evidence/observe` (`use-observations.ts` `extractHeldExpirations` / `ensureObservable`), explicitly so the backend "keeps their chains refreshed even below the 7-45 DTE window." The backend persists them (`held_expiration` table, migration 007; `SqliteEvidenceStore.setHeldExpirations` ~423) and, **once a symbol is being serviced**, unions the held expirations into the fetched set (`AcquisitionWorker.acquireAllEligibleChains` ~1662–1690, `store.getHeldExpirations(symbol)` at ~1676). `HeldExpirationAcquisitionTest` proves the worker fetches a held 3-DTE chain that ordinary 7–45 DTE eligibility would exclude, and excludes an unheld sub-window expiration. So once IBIT is dispatched, its held 2026-10-09 chain **is** fetched correctly.
 
-4. **The policy change that lets non-primary held expirations age silently.** The blanket multi-DTE "surface obligation" that previously forced every eligible 7–45 DTE expiration to refresh on a ~25-min target was **removed** (`SqliteEvidenceStore.java` ~1483–1491, "The blanket multi-DTE 25-min SURFACE obligation is REMOVED"). The scheduler's own comment (~1420–1432) warns this leaves non-primary eligible chains "aging silently." A held non-primary expiration therefore has no service obligation tied to its own age.
+4. **But the SCHEDULER ADMISSION gate ignores held-expiration age.** `getPrioritizedWorkQueue` decides whether a symbol needs service at all using only the symbol's **`newestChainAge`**: `primaryDue = newestChainAge >= config.chainFreshnessTargetMs()` and `monitoredDue = isMonitored && newestChainAge >= config.monitoredFreshnessTargetMs()` (`SqliteEvidenceStore.java` ~1489–1497). The `held_expiration` table is **never consulted** in this admission decision. The monitored overlay also does not change recommendation class (~1502–1505). Consequently, **if any IBIT chain (e.g. a different/primary expiration) was recently acquired, `newestChainAge` is small and IBIT is excluded from the work queue** — so the servicing step in point 3 that would refresh the held 2026-10-09 chain never runs, and that held chain ages indefinitely.
 
-5. **Why the forced update fixed it.** `POST /api/evidence/refresh?symbol=...` → `AcquisitionWorker.forceAcquireSymbols` re-observes the exact symbol regardless of freshness and bypassing both the due gate and the session gate, through the identical provider/persistence path. This re-stamps the held expiration's chain record, so `chainAcquiredAtMs` jumped to ~2 min and Delta corrected 0.83 → 0.37.
+5. **Why the forced update fixed it.** `POST /api/evidence/refresh?symbol=...` → `AcquisitionWorker.forceAcquireSymbols` re-observes the exact symbol **regardless of freshness**, bypassing the symbol-level admission gate (and the session gate), through the identical provider/persistence path. It therefore reaches the point-3 held-expiration servicing, re-stamps the held chain, and Delta corrected 0.83 → 0.37. This behavior is exactly what the admission-gate diagnosis predicts.
 
-**Owner of the freshness responsibility:** the backend acquisition scheduler (`SqliteEvidenceStore.getPrioritizedWorkQueue` driven by `AcquisitionWorker`). The frontend only reports ages honestly; it does not create the staleness. Per Authority-Before-Consumers, the repair belongs at the scheduler/freshness authority, not in the Operator Console.
+6. **The removed multi-DTE surface obligation is historical context, not the fix.** The blanket "refresh every eligible 7–45 DTE expiration on a ~25-min target" obligation was removed (`SqliteEvidenceStore.java` ~1483–1491). It *happened* to mask this failure by keeping non-primary chains fresh, but restoring it is **not** the conceptual fix — it would refresh many chains the operator does not hold. The correct, tighter invariant is below.
 
-**Remaining unverified (requires live-DB / runtime inspection, not source):**
-- Whether this IBIT buy-write's held expiration (2026-10-09) equaled the symbol's `primary_expiration` at defect time. If NOT primary → cause is the removed multi-DTE surface obligation (point 4) directly. If it WAS primary → cause is point 3 (the symbol was simply out-competed in the universe-wide breadth sweep / not "due" by `newestChainAge`), or a frontend durable-cache record stale relative to the quote-path read. Disambiguating requires inspecting `evidence` rows (per-expiration chain `retrieved_at` for IBIT) and the frontend durable-cache record.
-- The configured values of `SchedulerConfig.monitoredFreshnessTargetMs()` / `chainFreshnessTargetMs()` (how often a monitored symbol *should* refresh) were not read.
-- Whether this position's symbol was actually POSTed to `/api/evidence/observe` (registered "monitored") during the session.
+**The invariant the fix must satisfy:**
+
+> **Every currently-held `(symbol, expiration)` must independently satisfy the active-position freshness target at the scheduler admission gate** — i.e. a held expiration's own chain age (not the symbol's `newestChainAge`, and not only `primary_expiration`) must be able to make the symbol due for service during an open session.
+
+**Owner of the fix:** the backend scheduler admission logic, `SqliteEvidenceStore.getPrioritizedWorkQueue` (the due decision must incorporate held-expiration age). The acquisition/servicing side (point 3) already does the right thing once admitted. The frontend reports ages honestly and needs no change. Per Authority-Before-Consumers, the repair belongs at the scheduler, not the console.
+
+**Useful (but no longer necessary) incident evidence from the live DB:** confirming that at defect time IBIT held a ~1-day-old 2026-10-09 chain row while a *different* IBIT chain row was fresh (small `newestChainAge`) would directly exhibit the suppression. This is corroborating evidence; the source trace already explains how the code permits exactly this state. The configured values of `chainFreshnessTargetMs()` / `monitoredFreshnessTargetMs()` and whether the symbol was registered monitored remain unread but are not required to localize the defect.
 
 ## Scope / non-goals
 
@@ -83,9 +88,11 @@ Mechanism:
 
 (To be confirmed with the Principal; provisional, derived from the observed failure and code trace.)
 
-- During an open session, the chain row carrying an active position's **held expiration** (not merely the symbol's `primary_expiration`) is refreshed within a defined freshness bound appropriate to active-position risk, rather than aging to ~1 day. The fix addresses per-held-expiration freshness, not just symbol-level or primary-expiration freshness.
-- Displayed Greeks for an active position are co-temporal with the displayed spot such that Delta and Gamma are mutually consistent for the current moneyness.
-- The fix lives at the acquisition/freshness authority (scheduler), not as consumer-side compensation in the Operator Console. The frontend's honest two-column (Greek Age vs Quote Freshness) reporting is correct and should be preserved.
+- During an open session, the scheduler admission gate (`getPrioritizedWorkQueue`) makes a symbol due for service when **any currently-held `(symbol, expiration)`'s own chain age** exceeds the active-position freshness target — independent of the symbol's `newestChainAge` and independent of `primary_expiration`. A fresh unrelated/primary chain must not suppress servicing of a stale held expiration.
+- The fix is scoped to the admission gate, **not** a restoration of the blanket multi-DTE surface obligation (that would refresh unheld chains the operator does not care about).
+- The held-expiration acquisition/servicing path (`AcquisitionWorker.acquireAllEligibleChains`, migration 007) is unchanged — it already fetches the held expiration correctly once the symbol is admitted.
+- Displayed Greeks for an active position end up co-temporal with the displayed spot such that Delta and Gamma are mutually consistent for the current moneyness.
+- The fix lives at the scheduler (backend), not as consumer-side compensation in the Operator Console. The frontend's honest two-column (Greek Age vs Quote Freshness) reporting is correct and must be preserved.
 
 ## Remediation history
 
@@ -105,8 +112,11 @@ Empty while Open.
 
 ### Key code locations (from 2026-10-07 trace)
 
-- `evidence-service-java/.../db/SqliteEvidenceStore.java` — `getPrioritizedWorkQueue` (no held-expiration priority; removed multi-DTE surface obligation ~1483–1491) and `getQuoteObservations` (spot/`observedAt` from `primary_expiration` chain row ~1152–1197).
-- `options-prototype/src/write-desk/contract-greek-lookup.ts` — `lookupContractGreeksWithAge` derives Greek Age from the held-expiration chain cache record's provenance (the divergent timestamp source).
+- `evidence-service-java/.../db/SqliteEvidenceStore.java` — **the defect's owner:** `getPrioritizedWorkQueue` admission gate uses only `newestChainAge` for `primaryDue`/`monitoredDue` (~1489–1497), never consulting `held_expiration`; removed multi-DTE surface obligation (~1483–1491); `getQuoteObservations` (spot/`observedAt` from `primary_expiration` chain row ~1152–1197); `setHeldExpirations`/`getHeldExpirations` (~423–462).
+- `evidence-service-java/.../AcquisitionWorker.java` — `acquireAllEligibleChains` unions held expirations into the fetched set **after** admission (`store.getHeldExpirations(symbol)` ~1676); `forceAcquireSymbols` bypasses the admission gate (explains the forced-update correction).
+- `evidence-service-java/.../ObserveController.java` — `/api/evidence/observe` accepts and persists the `heldExpirations` overlay (present-vs-omitted lifecycle contract ~60–142).
+- `options-prototype/src/evidence/use-observations.ts` — `extractHeldExpirations` / `ensureObservable` POST the exact held `(symbol, expiration)` pairs so held chains stay refreshed below the 7–45 DTE window.
+- `evidence-service-java/.../HeldExpirationAcquisitionTest.java` — proves the worker fetches a held sub-window chain and excludes an unheld one (acquisition side is correct).
+- `options-prototype/src/write-desk/contract-greek-lookup.ts` — `lookupContractGreeksWithAge` derives Greek Age from the held-expiration chain cache record's provenance.
 - `options-prototype/src/components/OperatorConsole.tsx` — computes/renders Greek Age vs Quote Freshness from the two distinct sources (CSV header ~505; columns ~556–576).
 - `evidence-service-java/.../provider/TradierAdapter.java` — Greeks (`chains?...&greeks=true`) and spot co-persisted on one chain row per expiration (`getOptionsChain` ~110–156).
-- `evidence-service-java/.../AcquisitionWorker.java` — `forceAcquireSymbols` (forced refresh bypassing due + session gates) explains the forced-update correction.
