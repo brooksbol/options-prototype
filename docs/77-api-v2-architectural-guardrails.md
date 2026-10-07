@@ -31,6 +31,7 @@ Accordingly:
 - `ww`, the web client, and future clients consume the same backend-owned state and business capabilities and may differ only in interaction and presentation;
 - a backend-held external-state snapshot is an observation with explicit provenance and temporal meaning, not a claim that Wheelwright supersedes the external system as the source of reality;
 - v1 client-side topology, browser-held portfolio state, and browser-side business logic are architectural debt/lessons, **not assumptions to inherit into v2**. Reuse requires independent v2 justification.
+- client-side caching of Wheelwright domain representations is limited to standard HTTP caching semantics. Such caches MAY reuse backend representations according to the HTTP contract but MUST NOT become an independent Wheelwright state store, reconciliation authority, persistence boundary, or business-logic substrate. Ordinary client configuration, presentation preferences, and a source artifact awaiting explicit submission are outside this restriction so long as they do not become authoritative Wheelwright state.
 
 This mandate selects the v2 authority/placement boundary. It does NOT by itself select a storage technology, persistence schema, intake mechanism, resource/route shape, OAS schema, snapshot retention policy, or implementation decomposition.
 
