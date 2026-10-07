@@ -530,3 +530,300 @@ After the intermediate review, the strongest current working formulation is:
 The cash-side sister question remains intentionally parked for a later operator-first pass.
 
 No implementation authority is created by this checkpoint.
+
+
+---
+
+## 23. Principal closure of call-side primitive discovery
+
+**Principal disposition:** On October 6, 2026, after the final adversarial closure review, the Principal explicitly ratified **closure of call-side primitive discovery**.
+
+This disposition is deliberately narrow.
+
+It means:
+
+> **Within the declared call-side Growth Wheel discovery scope, no materially different operator recommendation or decision boundary was found that requires a new Product primitive.**
+
+It does **not** mean:
+
+- Growth Wheel call policy is complete;
+- any particular call-entry, roll, profit-taking, defense, surrender, or exit rule is ratified;
+- every call-side action surface has a single winner;
+- a usable evaluator exists;
+- implementation is authorized;
+- the exploratory action vocabulary is canonical;
+- put-side or cash-side primitive discovery is complete.
+
+The closure review found that the challenged call-side cases can be explained using existing distinctions among:
+
+- governed scope and quantity;
+- current economic state;
+- option obligation and actual contract terms;
+- consequences and resulting position;
+- policy, constraint, and preference;
+- evidence and epistemic state;
+- feasibility and execution state;
+- action / non-intervention;
+- outcome stance;
+- completed outcome.
+
+Call-side primitive discovery is therefore closed so Product discovery can move deliberately to the put side.
+
+### 23.1 Governing comparison: complete resulting economic state
+
+The strongest repaired call-side comparison is:
+
+> **Evaluate each governed alternative by the complete resulting economic state of the identified governed quantity from the current decision boundary.**
+
+Do not rank alternatives primarily by:
+
+- transaction debit or credit;
+- isolated option profit or loss;
+- historical share gain;
+- a strategy label;
+- one metric such as delta, POP, DTE, premium, or exit reliability.
+
+Material consequences can include:
+
+- ownership retained or surrendered;
+- remaining or replacement obligations;
+- cash and funding consequences;
+- residual downside and upside exposure;
+- surrender economics;
+- distributions;
+- duration and timing;
+- settlement and outcome uncertainty;
+- governed quantity and actual contract deliverable;
+- execution/manageability;
+- future action space.
+
+Historical facts can still be legitimate policy inputs when governance explicitly references them. A profit-taking rule, for example, can depend on opening credit. The constraint is narrower:
+
+> **Historical P/L does not independently establish the current economic recommendation.**
+
+### 23.2 Roll reasoning
+
+The closure review preserves these call-side distinctions:
+
+- A roll closes the existing obligation and assumes a replacement obligation.
+- Net roll credit/debit is insufficient to establish desirability.
+- The replacement obligation receives no exemption from ordinary obligation scrutiny merely because it is part of a roll.
+- Both economic components should be visible, followed by evaluation of the **whole resulting alternative**.
+- An acceptable current obligation can still be replaced if a materially preferable governed alternative exists.
+- Improvement does not itself justify churn; execution cost, duration, attention burden, new obligation consequences, and unresolved preference can leave alternatives incomparable.
+
+A replacement may legitimately be governed differently from a standalone fresh entry only where explicit policy establishes that contextual distinction. “It is a roll” does not create that policy.
+
+### 23.3 BUY TO CLOSE reasoning
+
+BUY TO CLOSE is understood as purchasing removal of the present obligation and restoring unencumbered ownership on the retained quantity.
+
+A large displayed BTC debit does not, by itself, establish that BTC is economically expensive relative to assignment or rolling. For an in-the-money call, much of the debit may be intrinsic value corresponding to value that remains in the retained shares.
+
+Therefore:
+
+> **Compare the resulting position, funding consequence, residual exposure, and future choices—not the debit label alone.**
+
+Funding remains a separate feasibility concern. An economically preferred BTC can still be unavailable because sufficient usable cash is absent.
+
+### 23.4 Review rules, exit rules, and governed thresholds
+
+A threshold's meaning comes from its governing policy, not from the metric name.
+
+Examples:
+
+- a call-delta threshold can be defined to trigger **review**;
+- a governed P50 profit-taking rule can be defined to trigger or recommend **exit**;
+- a governed 0DTE rule can be defined to require or prefer closure before expiration uncertainty.
+
+The closure review therefore rejects a universal rule that every threshold means “reconsider only.”
+
+Instead:
+
+> **Evidence establishes whether the governed condition is satisfied; policy establishes what consequence follows.**
+
+P50 itself remains undefined here. A 50%-premium-capture rule and a modeled probability of reaching 50% profit are different concepts and must not be conflated.
+
+No Growth Wheel P50, delta-management, or mandatory 0DTE rule is ratified by this closure.
+
+### 23.5 Time, early assignment, and outcome pending
+
+Nominal time-to-expiration does not guarantee ownership duration. Early exercise can occur before expiration.
+
+Conversely, governed exit policy can deliberately reduce exposure to early-assignment or expiration uncertainty when an exit condition is satisfied.
+
+That mitigation is not a guarantee:
+
+- execution can fail;
+- markets can be unavailable;
+- assignment may already have occurred;
+- authoritative confirmation can lag the economic event.
+
+The call-side journey therefore preserves a materially important boundary where:
+
+> **the ordinary intervention window can be closed while the final economic outcome is not yet authoritatively reconciled.**
+
+ALLOW EXPIRATION and ALLOW ASSIGNMENT must not be projected as completed transitions before authoritative evidence establishes the outcome.
+
+Once authoritative evidence establishes assignment, the prior BTC/ROLL surface for that obligation is no longer actionable.
+
+### 23.6 Intervention versus outcome stance
+
+Final review did not find a specimen requiring ALLOW ASSIGNMENT or ALLOW EXPIRATION to be independent brokerage actions.
+
+It did find a Product distinction that must survive:
+
+> **What intervention is chosen now, versus which possible outcomes are acceptable or preferred over the governing horizon?**
+
+For example, Product may eventually project:
+
+> **LEAVE ALONE** — assignment acceptable if it occurs before the next review boundary.
+
+or:
+
+> **LEAVE ALONE** — retention remains preferred; reevaluate if assignment exposure materially changes.
+
+This closure does not canonize that exact projection or vocabulary. It records only that action/non-intervention and outcome stance are distinct concerns.
+
+### 23.7 Feasibility, blockers, and failed execution
+
+The closure review preserves the distinction between economic preference and current executability.
+
+Examples include:
+
+- insufficient usable cash;
+- market halt;
+- option market unavailable;
+- execution conditions outside governed limits;
+- broker rejection;
+- settlement/funding unavailable;
+- a working order already exists;
+- an intended exit cannot be completed.
+
+A desired or required action can therefore remain visible as:
+
+> **preferred/required — execution blocked**
+
+rather than being silently rewritten as a recommendation to continue exposure.
+
+A feasible alternative is not economically superior merely because the preferred action is blocked.
+
+### 23.8 Governed quantity, coverage, and actual contract terms
+
+Ticker and account identity do not establish the decision subject.
+
+The governed subject can be a quantified inventory block associated with a specific obligation.
+
+The prior falsifier remains important:
+
+- 250 SPY shares in one account;
+- 150 governed BUY AND HOLD;
+- 100 governed GROWTH WHEEL;
+- one short call associated with the Growth Wheel quantity.
+
+Other shares in the account cannot silently become Growth Wheel inventory merely because brokerage-level coverage could exist.
+
+Coverage and governance permission are therefore separate claims.
+
+Likewise, the ordinary 100-share contract convention cannot be universalized.
+
+Corporate actions such as splits, reverse splits, and special distributions can produce adjusted contracts with nonstandard deliverables. Actual contract economics can require:
+
+- share components;
+- cash components;
+- actual strike/payment terms;
+- multiplier or pricing terms;
+- settlement terms.
+
+The governing requirement is:
+
+> **Reason from the actual contractual obligation and authoritative governed quantity, not a universal “one call equals 100 current shares” assumption.**
+
+This closure does not design corporate-action ingestion or adjustment handling.
+
+### 23.9 Complete-position reasoning under decline and liquidation
+
+A profitable short-call leg does not establish that the governed position improved.
+
+A substantial underlying decline can make the option cheap to close while the combined governed position has deteriorated materially.
+
+The action surface must therefore be able to distinguish:
+
+- ownership remains desirable and the obligation should remain;
+- ownership remains desirable and unencumbered ownership is preferable;
+- ownership remains desirable but a replacement obligation is preferable;
+- ownership itself should be reduced or ended;
+- no governed winner can be established.
+
+LIQUIDATE remains semantically distinct from contractual assignment.
+
+With an existing short call, ending ownership exposure requires reasoning about the **whole resulting position**, including any residual obligation. Brokerage mechanics are therefore consequential evidence even though brokerage execution remains outside Wheelwright's role.
+
+### 23.10 Strongest surviving candidate rules
+
+The final closure review leaves the following as the strongest call-side candidate rules for later policy work:
+
+1. A management trigger has the consequence its governed policy defines; a review trigger does not automatically imply intervention.
+2. A governed exit rule can legitimately require stronger action than a review rule.
+3. Evaluate both components of a roll, then evaluate the complete resulting alternative.
+4. A replacement obligation receives no exemption from ordinary obligation scrutiny merely because it is part of a roll.
+5. Evaluate complete resulting economic positions from the current decision boundary.
+6. Feasibility constrains current actionability but does not rewrite economic preference.
+7. Retention preference can have limits; tolerating call-away does not establish underlying undesirability.
+8. A governed recommendation to continue exposure requires an appropriate horizon and acceptable continuing consequences.
+9. Time-to-expiration does not itself bound ownership duration where early exercise is possible.
+10. Governed exit policy can mitigate, but not guarantee elimination of, assignment/expiration uncertainty.
+11. Actual contract terms and deliverables govern coverage reasoning.
+12. Symbol/account identity does not establish governed inventory scope.
+13. An acceptable current obligation can still be replaced when another attainable resulting state is materially preferable under governed semantics.
+14. A completed economic transition changes the available action surface.
+15. Isolated option profit does not establish complete-position improvement.
+16. Execution inability is a blocker, not evidence that another action is economically superior.
+
+These remain **candidate call-side policy material**, not ratified Growth Wheel policy.
+
+### 23.11 Policy questions intentionally left open
+
+Call-side primitive closure leaves policy discovery to determine, among other things:
+
+- adequate compensation for assuming a short-call obligation;
+- acceptable surrender economics;
+- defense limits;
+- retention versus assignment preferences;
+- duration and operator-attention preferences;
+- exact management/review triggers;
+- exact P50 or other profit-taking semantics;
+- 0DTE exit behavior;
+- what degree of improvement justifies intervention;
+- conflict precedence among applicable rules;
+- partial-quantity reduction/association treatment;
+- search scope required before claiming no acceptable replacement exists.
+
+These are Product/policy questions. Their existence is not evidence of a missing call-side primitive.
+
+### 23.12 Closure criterion satisfied
+
+The final adversarial review attempted to produce a materially different call-side recommendation that the discovered primitives could not explain.
+
+It did not find one within the declared scope.
+
+The remaining attacks reduced to:
+
+- missing or unratified policy;
+- evidence requirements;
+- execution blockers;
+- epistemic state;
+- consequence modeling;
+- actual contract terms;
+- implementation concerns;
+- or Product problems outside the declared call-side scope.
+
+Therefore the Principal ratifies:
+
+> **CALL-SIDE PRIMITIVE DISCOVERY CLOSED.**
+
+This is a Product-discovery closure disposition only.
+
+No implementation authority is created.
+
+The next authorized discovery scope is the **put side**, using the same operator-first and falsification method before the later cash-side pass.
