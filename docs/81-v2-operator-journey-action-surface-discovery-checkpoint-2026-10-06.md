@@ -2048,3 +2048,131 @@ The next authorized action in the Principal-established progression is:
 > **Begin bounded WW command + BE-resource discovery for MVP 1.**
 
 No command/resource discovery or implementation is performed by this ratification step.
+
+
+---
+
+## 29. MVP 1 governed-evaluation technology direction — Principal-ratified
+
+**Date:** 2026-10-07
+
+**Status:** Principal-ratified MVP 1 technology direction. This section constrains implementation technology selection; it does not authorize implementation, ratify Growth Wheel call-entry policy, choose command/resource boundaries, or determine authoritative evaluation placement.
+
+### 29.1 Technology decision
+
+For MVP 1, governed evaluation will initially use:
+
+> **Direct, typed, deterministic functions with explicit, versioned policy.**
+
+A general rules engine, external policy-expression runtime, DMN runtime, or custom policy DSL is not required for MVP 1.
+
+“Policy Engine” names a responsibility and does not require a rules-engine technology.
+
+This decision does not authorize hard-coding unratified Product judgments. Preserve the distinction between:
+
+> **policy implemented in code**
+
+and:
+
+> **policy concealed in code.**
+
+### 29.2 Product semantics remain authoritative
+
+The ratified MVP 1 Solution Overview and seven-capability Product decomposition remain authoritative over implementation structure.
+
+The seven capabilities do not imply seven evaluator functions or any other one-to-one software decomposition.
+
+Direct functions are an implementation technology choice, not a replacement semantic architecture.
+
+### 29.3 Mechanics and policy remain distinct
+
+Established mechanics and supported Product behavior can be implemented directly in deterministic code.
+
+Examples include established distinctions such as:
+
+- a contemplated obligation depends on its actual contractual deliverable and contemplated quantity;
+- missing quote evidence does not erase independently established ownership;
+- unsupported evaluation differs from mechanical infeasibility;
+- undefined preference policy cannot generate a winner.
+
+Variable governed preferences remain explicit policy even when represented in the same programming language as mechanics.
+
+Future policy concerning compensation, surrender constraints, duration preferences, or other governed preference must be Principal-ratified before it can become authoritative behavior.
+
+Using code rather than an external rules language does not reduce policy provenance requirements.
+
+### 29.4 Required evaluation discipline
+
+Direct deterministic evaluation must preserve, as applicable:
+
+- which established mechanic or ratified policy supports a finding;
+- which evidence and governed context the finding consumed;
+- why evaluation is blocked, incomplete, prohibited, unresolved, or preferred;
+- which independent findings remain established;
+- compatible subject, quantity, temporal basis, and assumptions when findings compose;
+- sufficient version identity to reproduce the effective governed behavior.
+
+Explanations should project evaluated findings and their dependencies. A separate explanation path must not independently invent why an alternative appeared or why a preference was established.
+
+The exact replay/versioning mechanism is not selected by this decision.
+
+### 29.5 Choice presentation is not a Boolean policy filter
+
+Implementation must preserve the Product distinction among:
+
+1. whether Wheelwright supports understanding an alternative;
+2. whether that alternative is relevant and attainable for the evidenced subject;
+3. whether applicable policy permits, prohibits, or prefers it.
+
+These findings must not collapse into a single Boolean filter that silently removes blocked, unsupported, or incompletely evaluated alternatives when their explanation is materially useful.
+
+### 29.6 COTS due-diligence disposition
+
+An isolated comparison of direct Java functions, CEL Java, and embedded Apache KIE DMN established that all three approaches can represent the bounded tested semantics, including partial findings and concurrent limitations.
+
+The experiment used synthetic policy to test representation. It did not ratify Growth Wheel policy or establish full economic correctness, evidence lineage, temporal reconciliation, production performance, or authoring/editor usability.
+
+The important conclusion is not that CEL or DMN are incapable. It is that neither currently supplies an MVP 1 requirement whose demonstrated value justifies another evaluation boundary.
+
+### 29.7 Reconsideration triggers
+
+External policy technology remains an open future option.
+
+**Reconsider CEL** when independently authored or independently versioned policy expressions over a sufficiently stable fact vocabulary become a demonstrated Product/operating requirement.
+
+**Reconsider DMN/FEEL** when Principal or reviewer use demonstrates that decision tables or explicit decision dependency graphs materially improve policy authoring, inspection, verification, or change management.
+
+Revisit broader rules engines such as Drools or policy systems such as OPA only when demonstrated rule interaction, distributed policy, or multi-runtime requirements justify their additional execution semantics.
+
+Do not create a custom Wheelwright policy DSL until repeated policy-authoring specimens establish a need that simpler approaches cannot express or review adequately.
+
+These are reconsideration triggers, not commitments to future adoption.
+
+### 29.8 Evaluation placement remains unresolved
+
+Choosing direct deterministic functions does not determine whether authoritative evaluation belongs in the backend, client, or another existing architectural boundary.
+
+The CLI must not casually reconstruct authoritative governed findings from raw evidence merely because direct functions make doing so technically easy.
+
+Evaluation placement remains to be settled by subsequent command/resource discovery and existing repository authority.
+
+### 29.9 Architectural non-goals
+
+This decision does not:
+
+- authorize MVP 1 implementation;
+- ratify Growth Wheel call-entry recommendation policy;
+- choose Java versus TypeScript for authoritative evaluation;
+- determine backend versus client evaluation ownership;
+- define evaluator/function boundaries;
+- define command names;
+- define backend resources or endpoints;
+- define schemas or persistence;
+- create a generalized rules abstraction;
+- create an interchangeable evaluator-engine framework.
+
+### 29.10 Next authorized action
+
+With the MVP 1 Solution Overview, capability decomposition, and initial evaluation-technology direction now ratified, the next authorized action remains:
+
+> **Begin bounded WW command + BE-resource discovery for MVP 1.**
