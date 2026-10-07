@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-07T19:24:25.397Z",
+    "generatedAt": "2026-10-07T19:30:28.402Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -8881,18 +8881,18 @@
     },
     {
       "id": "BUG-033",
-      "title": "Active-position Greeks go stale (≈1 day old) during an open session while spot stays fresh (IBIT buy-write: Delta 0.83 stale vs 0.37 forced). Established architectural gap: the scheduler admission gate (`getPrioritizedWorkQueue`) gates on symbol `newestChainAge` and ignores held-expiration age, so a fresh primary/unrelated chain can suppress admission. NOT established: that this gap alone caused the ~1-day incident (needs live-DB evidence; admission suppression only lasts one freshness-target window).",
+      "title": "Active-position held-expiration option-chain evidence (and its Greeks) went ≈1 day stale during an open session while underlying fields stayed fresh (IBIT buy-write: Delta 0.83 stale → 0.37 after forced refresh at ~unchanged spot). Established architectural gap: scheduler admission (`getPrioritizedWorkQueue`) uses symbol-level `newestChainAge` and does not independently consult held-expiration age. NOT established: the incident root cause (admission suppression only lasts one freshness-target window; forced-refresh success does not distinguish mechanisms). Earlier internal-Greek-incoherence / normalization-validation / co-temporality / upside-cap / assignment-proximity claims retracted. Principal stopping decision 2026-10-07: preserve findings, keep Open, no further work today.",
       "area": "Backend / scheduler held-expiration admission freshness ↔ Operator Console Greeks",
       "severity": "Not established",
       "status": "Open",
       "recordFile": "BUG-033-active-position-greeks-stale-during-open-session.md",
       "provenance": "Operator observation 2026-10-07",
-      "recordTitle": "BUG-033 — Active-position Greeks go stale (≈1 day old) during an open session, misrepresenting live risk",
+      "recordTitle": "BUG-033 — Active-position Greeks go stale (≈1 day old) during an open session",
       "sections": [
         {
-          "heading": "Observed failure",
+          "heading": "Observed failure (established observations)",
           "level": 2,
-          "content": "On 2026-10-07, during an open session, an active position (IBIT buy-write, short the 2026-10-09 47.5 call) was presented with a **Greek Age of `1d`** while every co-displayed quote/spot field was current (Today's G/L, spot). The day-old Greek bundle produced an internally incoherent and materially misleading risk reading:\n\nNormal (stale) export — IBIT:\n\n\nA slightly-OTM, near-ATM call with ~2 DTE cannot carry a 0.83 delta. The 0.83 is a capture-time value from ~1 day earlier when the option was higher/ITM. The displayed Gamma (near-ATM shape) and Delta (fairly-ITM shape) **disagree with each other**, confirming the bundle is not co-temporal with the live spot. The stale bid/ask (1.39/1.42) was likewise ~1 day old.\n\nForced-update export — same IBIT position, essentially unchanged spot:",
+          "content": "On 2026-10-07, during an open session, an active position (IBIT buy-write, short the 2026-10-09 47.5 call) was displayed with a **Greek Age of ≈1 day** while co-displayed underlying/current-position fields (spot, Today's G/L) were current.\n\nNormal (stale) export — IBIT, approximately:\n\n\nA forced refresh shortly afterward, with the underlying spot essentially unchanged (≈47.18), produced approximately:\n\n\n**What this establishes, and only this:** stale option-chain evidence (the held expiration's chain, carrying its Greeks and option bid/ask) was displayed alongside fresher current-position/underlying information; a forced refresh replaced that stale chain evidence with materially different current evidence, at an essentially unchanged underlying spot. No further mathematical or temporal meaning is inferred from these numbers than the evidence supports. In particular:",
           "truncated": true,
           "tables": [
             {
@@ -8903,15 +8903,15 @@
               "rows": [
                 [
                   "Spot",
-                  "47.13 (OTM: strike 47.5 > spot)"
+                  "47.13"
                 ],
                 [
                   "Moneyness",
-                  "−0.8%"
+                  "−0.8% (strike 47.5 > spot)"
                 ],
                 [
                   "Delta",
-                  "**0.83**"
+                  "0.83"
                 ],
                 [
                   "Gamma",
@@ -8927,7 +8927,7 @@
                 ],
                 [
                   "Greek Age",
-                  "**1d**"
+                  "≈1d"
                 ],
                 [
                   "Quote Freshness",
@@ -8947,7 +8947,7 @@
                 ],
                 [
                   "Delta",
-                  "**0.37**"
+                  "0.37"
                 ],
                 [
                   "Gamma",
@@ -8963,7 +8963,7 @@
                 ],
                 [
                   "Greek Age",
-                  "**2m**"
+                  "≈2m"
                 ]
               ]
             }
@@ -8972,35 +8972,63 @@
         {
           "heading": "Intended semantics violated",
           "level": 2,
-          "content": "- **Session awareness is correctness** (`foundations/evidence-appliance.md`): during an open session, evidence for active positions *can and does* change. Serving a day-old Greek bundle while the session is open contradicts the appliance's obligation to maintain a current authoritative model of the opportunity/position environment.\n- **Persist facts; derive trust** (project identity principle 3): freshness/staleness is derived at query time. The system *did* derive and display `Greek Age: 1d`, but tolerating that age on an active position during an open session is an acquisition-coverage failure, not merely a labeling one.\n- **Tiered acquisition freshness** (`foundations/acquisition-scheduler-policy.md`): Class A (ready symbols with qualifying puts) targets ≤15 min chain age.",
+          "content": "- **Session awareness is correctness** (`foundations/evidence-appliance.md`): during an open session, evidence for active positions can and does change. Displaying day-old held-chain evidence alongside fresher underlying fields contradicts the appliance's obligation to maintain a current authoritative model of the position environment.\n- **Persist facts; derive trust** (project identity principle 3): freshness/staleness is derived at query time.",
           "truncated": true,
           "tables": []
         },
         {
           "heading": "Consequence",
           "level": 2,
-          "content": "The operator's live risk picture is wrong. A buy-write whose true short-call delta is ~0.37 was presented as ~0.83, overstating directional exposure / assignment proximity on an active position two days from expiration. For a decision-support appliance, a stale-but-confidently-presented Greek on an *open* position is a correctness failure in the primary risk signal. Severity not established pending Principal classification; the Principal has characterized a 1d Greek age on an active position during an open session as \"unacceptable.\"\n\nTwo framing findings from the original 2026-10-07 analysis, preserved so they are not lost:",
+          "content": "The operator's live risk picture was wrong for this position: the stale export showed a short-call Delta of ≈0.83 versus the refreshed ≈0.37. For a decision-support appliance, stale-but-confidently-displayed Greeks on an open position are a correctness failure in the primary risk signal. Severity remains **Not established** (no Principal classification); the Principal has characterized a ≈1-day Greek age on an active position during an open session as unacceptable.\n\nWhy this matters at the **complete buy-write position** level (long shares + short call), not as an isolated call-leg number:",
           "truncated": true,
           "tables": []
         },
         {
-          "heading": "Diagnosis / root cause",
+          "heading": "Diagnosis — established architecture findings vs. unresolved causality",
           "level": 2,
-          "content": "**Partially established. Distinguish two separate claims:**\n\n- **(A) Established architectural gap (by code trace):** the scheduler admission gate does not treat a held expiration's own chain age as a freshness obligation. This is a real defect in `getPrioritizedWorkQueue` and is proven below from source.\n- **(B) NOT established — the incident root cause:** that gap (A) alone does **not** explain the observed ~1-day staleness, and it is not proven to be the mechanism that produced this specific incident. The admission gate suppresses servicing only until the applicable freshness target elapses (`monitoredFreshnessTargetMs`, default believed ~15 min but **unconfirmed**); after that, ordinary admission should fire and servicing should attempt the held chain. Day-long staleness therefore requires an **additional, undemonstrated mechanism** — e.g.",
+          "content": "",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Established code/architecture findings (by source inspection)",
+          "level": 3,
+          "content": "1. **A held-expiration acquisition mechanism exists.** The frontend extracts the exact held `(symbol, expiration)` pairs and POSTs them to `/api/evidence/observe` (`use-observations.ts` `extractHeldExpirations` / `ensureObservable`), so the backend can keep held chains refreshed even below the 7–45 DTE eligibility window. The backend persists them (`held_expiration` table, migration 007; `SqliteEvidenceStore.setHeldExpirations`).\n\n2. **Held expirations can be added to the acquisition set after a symbol is admitted for servicing.** Once a symbol is being serviced, `AcquisitionWorker.acquireAllEligibleChains` unions the held expirations into the fetched set (`store.getHeldExpirations(symbol)` ~1676). `HeldExpirationAcquisitionTest` demonstrates the worker fetching a held sub-7-DTE chain that ordinary eligibility would exclude, and excluding an unheld sub-window expiration.",
           "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Independently valid architectural invariant (distinct from incident causality)",
+          "level": 3,
+          "content": "> A held `(symbol, expiration)`'s own chain age should be able to make a symbol due for service during an open session, rather than relying solely on symbol-level `newestChainAge`.\n\nThis is retained as a valid architectural observation about gap (6). It is **not** asserted as the incident root cause, and it does **not** by itself define remediation scope. No fix is designed here.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Unresolved incident causality (NOT established)",
+          "level": 3,
+          "content": "**The actual mechanism that allowed the IBIT held expiration to remain ≈1 day stale is not established.** Known possibilities, none promoted to fact:\n\n- repeated failure of the held secondary-chain acquisition while other IBIT acquisition succeeded;\n- held demand not present/persisted at the relevant time;\n- the held expiration not appearing in the provider-listed expiration set;\n- some other scheduler/session/runtime condition;\n- a combination of mechanisms.\n\nThese are not investigated in this traversal (Principal stopping decision below).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Future investigation guidance (not performed today)",
+          "level": 2,
+          "content": "- A fresh primary row beside a stale held row, **by itself**, would not distinguish admission suppression from successful primary acquisition followed by failed held acquisition.\n- Decisive future investigation would require **chronology** plus **held-demand / provider-listing / runtime** evidence (not a single snapshot).\n- Today's post-forced-refresh DB state may be **insufficient** to reconstruct the historical incident, since the forced refresh already overwrote the stale held chain.\n- Supporting unknowns to resolve if/when investigation is authorized: configured `monitoredFreshnessTargetMs()` / `chainFreshnessTargetMs()` values; whether this symbol's held demand was POSTed and persisted during the session; whether 2026-10-09 appeared in the provider-listed expirations; whether `acquireAllEligibleChains` logged any non-primary (held) commit failures for IBIT.",
+          "truncated": false,
           "tables": []
         },
         {
           "heading": "Scope / non-goals",
           "level": 2,
-          "content": "- Covers: staleness of the Greek+quote bundle for **active/held positions** during an **open session**, and the acquisition-coverage/freshness authority responsible for refreshing it.\n- Does not cover: Greek math/normalization correctness (demonstrated sound by the forced update), nor the zero-vs-absent Delta presentation ambiguity (BUG-011), nor general multi-source temporal composition (BUG-004) except as cross-linked context.\n- **Filing does not authorize remediation.** Root-cause investigation and any fix require separate explicit Principal authorization.",
+          "content": "- Covers: staleness of held-position option-chain evidence (and its Greeks) during an open session, and the acquisition/freshness authority responsible for refreshing it.\n- Does **not** cover: Greek math/normalization correctness (**not** established sound by this incident — not in scope either way); the zero-vs-absent Delta presentation ambiguity (BUG-011); general multi-source temporal composition (BUG-004) except as cross-linked context.\n- **Filing does not authorize remediation.** Any root-cause investigation or fix requires separate explicit Principal authorization.",
           "truncated": false,
           "tables": []
         },
         {
           "heading": "Acceptance criteria",
           "level": 2,
-          "content": "(To be confirmed with the Principal; provisional, derived from the observed failure and code trace. **Remediation scope cannot be finalized until claim (B) — the incident root cause — is resolved; see Diagnosis.**)\n\n- **Precondition:** the incident root cause (claim B) is established — i.e. it is demonstrated whether the ~1-day staleness arose from admission suppression, from held-chain acquisition/listing failure, from missing/absent held demand, or from another mechanism. The fix is scoped to the demonstrated cause, not assumed to be the admission gate.\n- During an open session, no currently-held `(symbol, expiration)` carries a Greek bundle older than a defined active-position freshness target.",
+          "content": "(Provisional; to be confirmed with the Principal. **Remediation scope cannot be finalized until the incident causality is established.**)\n\n- **Precondition:** the incident mechanism is demonstrated (admission suppression vs. held-chain acquisition/listing failure vs. missing held demand vs. another condition vs. a combination). The eventual fix is scoped to the demonstrated cause, not assumed to be the admission gap.\n- During an open session, no currently-held `(symbol, expiration)` carries option-chain evidence older than a defined active-position freshness target. Whatever the mechanism, the end state is a held expiration whose chain is refreshed within that bound.\n- The fix lives at the backend evidence/acquisition authority, not as consumer-side compensation in the Operator Console.",
           "truncated": true,
           "tables": []
         },
@@ -9019,16 +9047,23 @@
           "tables": []
         },
         {
+          "heading": "Lifecycle / Log",
+          "level": 2,
+          "content": "- **2026-10-07 — Investigation findings captured; Principal stopping decision.** The Principal directed the team to (1) preserve the accumulated investigation findings with correct epistemic status, (2) leave **BUG-033 Open**, and (3) perform **no further investigation or remediation today**. This record was reconciled accordingly: the established observations and architecture findings are retained; the scheduler-admission gap is kept as an independently valid architectural finding but is **not** asserted as the incident root cause; incident causality is marked unresolved; and the earlier unsupported claims (internal Delta/Gamma incoherence; forced refresh validating Greek normalization; generic co-temporality; delta establishing upside-cap or assignment proximity) were corrected/retracted.",
+          "truncated": true,
+          "tables": []
+        },
+        {
           "heading": "Related",
           "level": 2,
-          "content": "- **BUG-004** — Console composes temporally incompatible evidence into an apparently-coherent view (closest conceptual cousin: temporal coherence of composed evidence; here spot and Greeks are co-displayed from different-age chain rows).\n- **BUG-011** — Provider-reported exact-zero Delta rendered indistinguishably from absent Delta (adjacent Greeks-presentation defect, distinct cause).\n- `foundations/evidence-appliance.md` — session awareness as correctness; sealed vs. live evidence.\n- `foundations/acquisition-scheduler-policy.md` — tiered A/B/C/D freshness targets; the multi-DTE surface obligation whose removal is implicated here.\n- Authority-Before-Consumers rule (`.kiro/steering/development-workflow.md`) — repair stale authoritative facts upstream, not in consumers.",
+          "content": "- **BUG-004** — Console composes temporally incompatible evidence into an apparently-coherent view (conceptual cousin: temporal coherence of composed evidence; here day-old held-chain evidence is co-displayed with fresher underlying fields).\n- **BUG-011** — Provider-reported exact-zero Delta rendered indistinguishably from absent Delta (adjacent Greeks-presentation defect, distinct cause).\n- `foundations/evidence-appliance.md` — session awareness as correctness; sealed vs. live evidence.\n- `foundations/acquisition-scheduler-policy.md` — tiered A/B/C/D freshness targets; the multi-DTE surface obligation whose removal is context here.\n- Authority-Before-Consumers rule (`.kiro/steering/development-workflow.md`) — repair stale authoritative facts upstream, not in consumers.",
           "truncated": false,
           "tables": []
         },
         {
-          "heading": "Key code locations (from 2026-10-07 trace)",
+          "heading": "Key code locations (from 2026-10-07 trace; descriptive, not causal attributions)",
           "level": 3,
-          "content": "- `evidence-service-java/.../db/SqliteEvidenceStore.java` — **the defect's owner:** `getPrioritizedWorkQueue` admission gate uses only `newestChainAge` for `primaryDue`/`monitoredDue` (~1489–1497), never consulting `held_expiration`; removed multi-DTE surface obligation (~1483–1491); `getQuoteObservations` (spot/`observedAt` from `primary_expiration` chain row ~1152–1197); `setHeldExpirations`/`getHeldExpirations` (~423–462).\n- `evidence-service-java/.../AcquisitionWorker.java` — `acquireAllEligibleChains` unions held expirations into the fetched set **after** admission (`store.getHeldExpirations(symbol)` ~1676); `forceAcquireSymbols` bypasses the admission gate (explains the forced-update correction).\n- `evidence-service-java/.../ObserveController.java` — `/api/evidence/observe` accepts and persists the `heldExpirations` overlay (present-vs-omitted lifecycle contract ~60–142).\n-",
+          "content": "- `evidence-service-java/.../db/SqliteEvidenceStore.java` — `getPrioritizedWorkQueue` admission gate uses symbol-level `newestChainAge` for `primaryDue`/`monitoredDue` (~1489–1497) and does not independently consult `held_expiration`; removed multi-DTE surface obligation (~1483–1491); `getQuoteObservations` (spot/`observedAt` from `primary_expiration` chain row ~1152–1197); `setHeldExpirations`/`getHeldExpirations` (~423–462).",
           "truncated": true,
           "tables": []
         }

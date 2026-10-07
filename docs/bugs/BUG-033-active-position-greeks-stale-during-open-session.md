@@ -1,114 +1,127 @@
-# BUG-033 — Active-position Greeks go stale (≈1 day old) during an open session, misrepresenting live risk
+# BUG-033 — Active-position Greeks go stale (≈1 day old) during an open session
 
 - **Status:** Open
 - **Severity:** Not established
 - **Area:** Backend / evidence acquisition coverage + freshness for held (active) positions ↔ Operator Console Greeks presentation
 - **Provenance:** Operator observation 2026-10-07 (IBIT buy-write), two Principal-provided position exports (normal vs. forced update)
 
-## Observed failure
+> **Epistemic structure of this record.** This record deliberately separates: (1) **established observations** (what the exports showed), (2) **established code/architecture findings** (what source inspection proves), (3) an **unresolved incident-causality** question, (4) **future-investigation guidance**, and (5) the **Principal stopping decision**. Earlier drafts conflated these — successively overclaiming the scheduler-admission gap as the complete incident cause and adding unsupported temporal and economic interpretations. This version supersedes those claims; where older wording contradicts the boundaries below, the boundaries below govern.
 
-On 2026-10-07, during an open session, an active position (IBIT buy-write, short the 2026-10-09 47.5 call) was presented with a **Greek Age of `1d`** while every co-displayed quote/spot field was current (Today's G/L, spot). The day-old Greek bundle produced an internally incoherent and materially misleading risk reading:
+## Observed failure (established observations)
 
-Normal (stale) export — IBIT:
+On 2026-10-07, during an open session, an active position (IBIT buy-write, short the 2026-10-09 47.5 call) was displayed with a **Greek Age of ≈1 day** while co-displayed underlying/current-position fields (spot, Today's G/L) were current.
+
+Normal (stale) export — IBIT, approximately:
 
 | Field | Value |
 |-------|-------|
-| Spot | 47.13 (OTM: strike 47.5 > spot) |
-| Moneyness | −0.8% |
-| Delta | **0.83** |
+| Spot | 47.13 |
+| Moneyness | −0.8% (strike 47.5 > spot) |
+| Delta | 0.83 |
 | Gamma | 0.1583 |
 | Theta | −0.0640 |
 | Bid/Ask | 1.39 / 1.42 |
-| Greek Age | **1d** |
+| Greek Age | ≈1d |
 | Quote Freshness | 9m |
 
-A slightly-OTM, near-ATM call with ~2 DTE cannot carry a 0.83 delta. The 0.83 is a capture-time value from ~1 day earlier when the option was higher/ITM. The displayed Gamma (near-ATM shape) and Delta (fairly-ITM shape) **disagree with each other**, confirming the bundle is not co-temporal with the live spot. The stale bid/ask (1.39/1.42) was likewise ~1 day old.
-
-Forced-update export — same IBIT position, essentially unchanged spot:
+A forced refresh shortly afterward, with the underlying spot essentially unchanged (≈47.18), produced approximately:
 
 | Field | Value |
 |-------|-------|
 | Spot | 47.18 |
-| Delta | **0.37** |
+| Delta | 0.37 |
 | Gamma | 0.3101 |
 | Theta | −0.1162 |
 | Bid/Ask | 0.36 / 0.37 |
-| Greek Age | **2m** |
+| Greek Age | ≈2m |
 
-With a fresh Greek bundle, Delta reads 0.37 — the expected magnitude for a slightly-OTM near-ATM 2-DTE call. The forced update producing correct values demonstrates the **Greek computation/normalization path is sound**; the defect is that the normal acquisition cadence allowed an active position's Greek+quote bundle to age ≈1 day during a live session.
+**What this establishes, and only this:** stale option-chain evidence (the held expiration's chain, carrying its Greeks and option bid/ask) was displayed alongside fresher current-position/underlying information; a forced refresh replaced that stale chain evidence with materially different current evidence, at an essentially unchanged underlying spot. No further mathematical or temporal meaning is inferred from these numbers than the evidence supports. In particular:
+
+- The individual Greeks are **not** asserted to have been captured at different instants from one another; the established mismatch is between the day-old held-expiration chain and the fresher displayed underlying/current-position fields.
+- The gamma difference (0.1583 stale → 0.3101 refreshed) is **qualitatively compatible** with the stale call having previously been farther in-the-money; it is **not** evidence of internal Greek incoherence and is **not** used to prove anything beyond "the chain evidence was older."
+- A successful forced refresh establishes **changed** evidence. It does **not** by itself validate the Greek mathematics/normalization, nor prove synchronized observation with every co-displayed field.
 
 ## Intended semantics violated
 
-- **Session awareness is correctness** (`foundations/evidence-appliance.md`): during an open session, evidence for active positions *can and does* change. Serving a day-old Greek bundle while the session is open contradicts the appliance's obligation to maintain a current authoritative model of the opportunity/position environment.
-- **Persist facts; derive trust** (project identity principle 3): freshness/staleness is derived at query time. The system *did* derive and display `Greek Age: 1d`, but tolerating that age on an active position during an open session is an acquisition-coverage failure, not merely a labeling one.
-- **Tiered acquisition freshness** (`foundations/acquisition-scheduler-policy.md`): Class A (ready symbols with qualifying puts) targets ≤15 min chain age. An active held position carrying a ~1-day-old Greek bundle during an open session indicates held/active-position symbols are not receiving acquisition freshness commensurate with their risk significance.
+- **Session awareness is correctness** (`foundations/evidence-appliance.md`): during an open session, evidence for active positions can and does change. Displaying day-old held-chain evidence alongside fresher underlying fields contradicts the appliance's obligation to maintain a current authoritative model of the position environment.
+- **Persist facts; derive trust** (project identity principle 3): freshness/staleness is derived at query time. The system did derive and display `Greek Age ≈1d` honestly; the failure is that an active position's held-expiration chain was allowed to reach ≈1 day old during a live session.
+- **Active-position freshness commensurate with risk** (`foundations/acquisition-scheduler-policy.md`): an active held position carrying ≈1-day-old chain evidence during an open session indicates held-position evidence was not refreshed commensurately with its risk significance.
 
 ## Consequence
 
-The operator's live risk picture is wrong. A buy-write whose true short-call delta is ~0.37 was presented as ~0.83, overstating directional exposure / assignment proximity on an active position two days from expiration. For a decision-support appliance, a stale-but-confidently-presented Greek on an *open* position is a correctness failure in the primary risk signal. Severity not established pending Principal classification; the Principal has characterized a 1d Greek age on an active position during an open session as "unacceptable."
+The operator's live risk picture was wrong for this position: the stale export showed a short-call Delta of ≈0.83 versus the refreshed ≈0.37. For a decision-support appliance, stale-but-confidently-displayed Greeks on an open position are a correctness failure in the primary risk signal. Severity remains **Not established** (no Principal classification); the Principal has characterized a ≈1-day Greek age on an active position during an open session as unacceptable.
 
-Two framing findings from the original 2026-10-07 analysis, preserved so they are not lost:
+Why this matters at the **complete buy-write position** level (long shares + short call), not as an isolated call-leg number:
 
-- **Temporal incoherence within the co-displayed Greek set.** The stale row's Delta (ITM-shaped, 0.83) and Gamma (near-ATM-shaped, 0.1583) were mutually inconsistent — a 0.83-delta call should carry *lower* gamma than a near-ATM call, not higher. The two greeks disagreeing with each other is itself the tell that the bundle was not co-temporal with the live spot. This is the active-position analogue of BUG-004 (temporally incompatible evidence composed into an apparently-coherent view): here the incoherence is *within* one position's own greek row.
-- **Economic-exposure reading, not an isolated leg.** The misstatement matters because it misrepresents the **buy-write's governed economic position** (long shares + short call) near expiration, not merely a single greek value. An inflated short-call delta understates how much of the upside is already capped / overstates assignment proximity, which is exactly the information the operator uses to decide whether both resolution outcomes remain acceptable. The defect's harm is economic, consistent with the Options Domain Competence contract (reason from the complete position, not an isolated metric).
+- An **inflated** short-call delta makes the long-stock/short-call position appear **less net bullish**, because a larger short-call delta implies a larger offset against the long shares.
+- *Illustration only (not incident evidence unless the exact position quantity warrants it):* for one standard covered call against 100 shares, a displayed call delta of ≈0.83 implies a net position delta of ≈+17, whereas ≈0.37 implies ≈+63. This is explanatory arithmetic to show the direction and size of the distortion, not a measurement of this specific position.
+- Bounds on interpretation: Delta does **not** by itself establish how much upside is already capped (the option contract's strike defines the cap), and Delta does **not** by itself establish assignment proximity.
+- Broader domain finding (preserved): stale Greeks can materially distort the operator's understanding of the governed economic position near expiration, consistent with the Options Domain Competence contract (reason from the complete position, not an isolated metric).
 
-## Diagnosis / root cause
+## Diagnosis — established architecture findings vs. unresolved causality
 
-**Partially established. Distinguish two separate claims:**
+### Established code/architecture findings (by source inspection)
 
-- **(A) Established architectural gap (by code trace):** the scheduler admission gate does not treat a held expiration's own chain age as a freshness obligation. This is a real defect in `getPrioritizedWorkQueue` and is proven below from source.
-- **(B) NOT established — the incident root cause:** that gap (A) alone does **not** explain the observed ~1-day staleness, and it is not proven to be the mechanism that produced this specific incident. The admission gate suppresses servicing only until the applicable freshness target elapses (`monitoredFreshnessTargetMs`, default believed ~15 min but **unconfirmed**); after that, ordinary admission should fire and servicing should attempt the held chain. Day-long staleness therefore requires an **additional, undemonstrated mechanism** — e.g. repeated held-chain acquisition failures, held demand never actually POSTed/persisted for this symbol, the held expiration absent from the provider's listed expirations, session-gating across the interval, or something else. The forced-refresh success is **consistent with** (A) but does not distinguish it from a servicing/acquisition-failure explanation. **The incident root cause is open.**
+1. **A held-expiration acquisition mechanism exists.** The frontend extracts the exact held `(symbol, expiration)` pairs and POSTs them to `/api/evidence/observe` (`use-observations.ts` `extractHeldExpirations` / `ensureObservable`), so the backend can keep held chains refreshed even below the 7–45 DTE eligibility window. The backend persists them (`held_expiration` table, migration 007; `SqliteEvidenceStore.setHeldExpirations`).
 
-The initial "separate acquisition paths for spot vs. Greeks" hypothesis is refuted (Greeks and spot are co-persisted on the same chain row per expiration), and an earlier draft of this record wrongly stated both that "held positions get no acquisition priority that protects their own expiration" (false — a held-expiration acquisition mechanism exists, migration 007) and that the held chain "ages indefinitely" / the admission gap is the established incident cause (overreach — see (B)).
+2. **Held expirations can be added to the acquisition set after a symbol is admitted for servicing.** Once a symbol is being serviced, `AcquisitionWorker.acquireAllEligibleChains` unions the held expirations into the fetched set (`store.getHeldExpirations(symbol)` ~1676). `HeldExpirationAcquisitionTest` demonstrates the worker fetching a held sub-7-DTE chain that ordinary eligibility would exclude, and excluding an unheld sub-window expiration.
 
-> **Established distinction:** held expirations are acquisition obligations, but they are not freshness obligations at the scheduler admission gate. **Not established:** that this distinction is what produced the observed ~1-day incident.
+3. **Held-chain acquisition is conditional on provider listing.** The overlay only fetches an expiration the provider actually lists (`if (known.contains(h))` ~1680); a held expiration the provider omits is silently not fetched.
 
-Mechanism (what the source shows):
+4. **Non-primary acquisition/commit failures can be non-fatal.** Failures on individual non-primary expirations are logged and skipped while other acquisition for the symbol succeeds. So "once a symbol is dispatched, its held chain is necessarily fetched and committed" is **not** an unconditional guarantee.
 
-1. **Greeks and spot are co-sourced per chain, per expiration.** `TradierAdapter.getOptionsChain` requests `/markets/options/chains?...&greeks=true` and stamps the underlying price onto that chain row at the chain's `retrievedAt` (`TradierAdapter.java` ~110–156, ~361–366; `normalizeChain` ~549–573). Greeks are not independently timestamped from spot *within a given chain row*.
+5. **Scheduler admission ignores held-expiration age.** `getPrioritizedWorkQueue` decides whether a symbol needs service using symbol-level `newestChainAge` via the normal and monitored freshness tests (`primaryDue = newestChainAge >= config.chainFreshnessTargetMs()`; `monitoredDue = isMonitored && newestChainAge >= config.monitoredFreshnessTargetMs()`, ~1489–1497). The `held_expiration` table is **not** independently consulted in this admission decision, and the monitored overlay does not change recommendation class (~1502–1505).
 
-2. **Displayed spot and Greeks come from DIFFERENT chain rows keyed by DIFFERENT expirations.**
-   - **Quote Freshness / spot** is read from the chain row for the symbol's **`primary_expiration`**: `getQuoteObservations` sets both `price` and `observedAt` from that row (`SqliteEvidenceStore.java` ~1152–1197).
-   - **Greek Age / Greeks** are looked up from the durable chain cache record keyed by the **position's OWN held expiration** (`contract-greek-lookup.ts` `lookupContractGreeksWithAge` ~104–125), age from that record's authoritative `evidenceProvenance.acquiredAtMs`.
-   - `OperatorConsole.tsx` (~505, ~556–576) computes the two columns from these two distinct sources, **honestly**. The frontend is correct and is not the defect.
+6. **Therefore there is a real architectural gap:** a stale held expiration is not itself an independent scheduler-admission freshness obligation. **This gap is established independently of whether it caused the observed ≈1-day incident.**
 
-3. **A held-expiration ACQUISITION mechanism exists.** The frontend extracts the exact held `(symbol, expiration)` pairs and POSTs them to `/api/evidence/observe` (`use-observations.ts` `extractHeldExpirations` / `ensureObservable`), explicitly so the backend "keeps their chains refreshed even below the 7-45 DTE window." The backend persists them (`held_expiration` table, migration 007; `SqliteEvidenceStore.setHeldExpirations` ~423) and, **once a symbol is being serviced**, unions the held expirations into the fetched set (`AcquisitionWorker.acquireAllEligibleChains` ~1662–1690, `store.getHeldExpirations(symbol)` at ~1676). `HeldExpirationAcquisitionTest` proves the worker fetches a held 3-DTE chain that ordinary 7–45 DTE eligibility would exclude. **Two caveats bound this (do not overstate it):** (i) the overlay only fetches an expiration the provider actually **lists** (`if (known.contains(h))` ~1680), so a held expiration the provider omits is silently not fetched; (ii) non-primary chain commits are **non-fatal** ("Failures on individual (non-primary) expirations are non-fatal — logged, skipped"). So "once dispatched, the held chain is fetched correctly" is **not** an unconditional guarantee, and "the servicing side needs no change" is an **unproven incident claim**, not an established fact.
+7. **The gap alone cannot explain ≈1 day of staleness.** A fresh primary or unrelated chain keeps `newestChainAge` small and can suppress admission **only until the relevant symbol-level freshness threshold expires**. After that, ordinary admission should fire. A single suppression window does not account for ≈1 day.
 
-4. **Established gap: the SCHEDULER ADMISSION gate ignores held-expiration age.** `getPrioritizedWorkQueue` decides whether a symbol needs service using only the symbol's **`newestChainAge`**: `primaryDue = newestChainAge >= config.chainFreshnessTargetMs()` and `monitoredDue = isMonitored && newestChainAge >= config.monitoredFreshnessTargetMs()` (`SqliteEvidenceStore.java` ~1489–1497). The `held_expiration` table is **never consulted** in this admission decision; the monitored overlay does not change recommendation class (~1502–1505). Consequently a recently-acquired primary/unrelated IBIT chain keeps `newestChainAge` small and can **suppress admission for the duration of the freshness target** even while the held 2026-10-09 chain is stale. This is the real architectural gap (claim A). It does **not** by itself explain staleness beyond one freshness-target window (claim B remains open).
+8. **Forced refresh does not identify the cause.** `POST /api/evidence/refresh?symbol=...` → `AcquisitionWorker.forceAcquireSymbols` re-observes the exact symbol regardless of freshness, bypassing ordinary admission (and the session gate), through the same provider/persistence path. Its success re-stamped the held chain, but is **consistent with multiple causal explanations** and does not establish which one occurred.
 
-5. **Why the forced update fixed it — and what it does NOT prove.** `POST /api/evidence/refresh?symbol=...` → `AcquisitionWorker.forceAcquireSymbols` re-observes the exact symbol **regardless of freshness**, bypassing the admission gate and session gate, through the identical provider/persistence path. It re-stamped the held chain and Delta corrected 0.83 → 0.37. This is **consistent with** both the admission-gap explanation (A) and a servicing/acquisition-failure explanation; it does **not** distinguish them. Forced-refresh success is not evidence that the admission gap alone caused the incident.
+9. **Removed multi-DTE surface obligation is context, not a confirmed remedy.** The blanket "refresh every eligible 7–45 DTE expiration on a ~25-min target" obligation was removed (`SqliteEvidenceStore.java` ~1483–1491). Its removal may be relevant context, but **restoring blanket multi-DTE refresh is not established as the correct remedy** (it would refresh many chains the operator does not hold).
 
-6. **The removed multi-DTE surface obligation is historical context, not the fix.** The blanket "refresh every eligible 7–45 DTE expiration on a ~25-min target" obligation was removed (`SqliteEvidenceStore.java` ~1483–1491). It *happened* to mask the (A) gap by keeping non-primary chains fresh, but restoring it is **not** the conceptual fix — it would refresh many chains the operator does not hold.
+Also noted from the trace (not causal claims): displayed spot/Quote-Freshness is sourced from the chain row for the symbol's `primary_expiration` (`getQuoteObservations`), while Greek Age is derived from the held-expiration chain cache record's provenance (`contract-greek-lookup.ts`); the frontend reports the two ages honestly from these distinct sources. Chain and quote are obtained via separate provider requests/caches — co-persistence of spot onto a chain row is **not** promoted to co-temporality of every co-displayed field.
 
-**The invariant a fix for gap (A) must satisfy:**
+### Independently valid architectural invariant (distinct from incident causality)
 
-> **Every currently-held `(symbol, expiration)` must independently satisfy the active-position freshness target at the scheduler admission gate** — a held expiration's own chain age (not the symbol's `newestChainAge`, and not only `primary_expiration`) must be able to make the symbol due for service during an open session.
+> A held `(symbol, expiration)`'s own chain age should be able to make a symbol due for service during an open session, rather than relying solely on symbol-level `newestChainAge`.
 
-**Owner of the (A) fix:** `SqliteEvidenceStore.getPrioritizedWorkQueue` (the due decision must incorporate held-expiration age). The frontend reports ages honestly and needs no change. Per Authority-Before-Consumers, the admission repair belongs at the scheduler, not the console.
+This is retained as a valid architectural observation about gap (6). It is **not** asserted as the incident root cause, and it does **not** by itself define remediation scope. No fix is designed here.
 
-**What remains open before remediation can be correctly scoped (claim B):**
-- **Live-DB incident evidence is NECESSARY, not optional:** confirm whether at defect time IBIT held a ~1-day-old 2026-10-09 chain row while a *different* IBIT chain row was fresh (which would implicate the admission gap), versus the held chain simply never acquiring successfully (which would implicate servicing/provider listing). These point to different fixes.
-- Confirm the configured `monitoredFreshnessTargetMs()` / `chainFreshnessTargetMs()` values (how long suppression can actually last).
-- Confirm this symbol's held demand was actually POSTed and persisted in `held_expiration` during the session, and that 2026-10-09 appeared in the provider's listed expirations.
-- Whether `acquireAllEligibleChains` logged any non-primary (held) commit failures for IBIT.
+### Unresolved incident causality (NOT established)
 
-Until (B) is resolved, the fix must not be scoped to the admission gate alone on the assumption that servicing is correct.
+**The actual mechanism that allowed the IBIT held expiration to remain ≈1 day stale is not established.** Known possibilities, none promoted to fact:
+
+- repeated failure of the held secondary-chain acquisition while other IBIT acquisition succeeded;
+- held demand not present/persisted at the relevant time;
+- the held expiration not appearing in the provider-listed expiration set;
+- some other scheduler/session/runtime condition;
+- a combination of mechanisms.
+
+These are not investigated in this traversal (Principal stopping decision below).
+
+## Future investigation guidance (not performed today)
+
+- A fresh primary row beside a stale held row, **by itself**, would not distinguish admission suppression from successful primary acquisition followed by failed held acquisition.
+- Decisive future investigation would require **chronology** plus **held-demand / provider-listing / runtime** evidence (not a single snapshot).
+- Today's post-forced-refresh DB state may be **insufficient** to reconstruct the historical incident, since the forced refresh already overwrote the stale held chain.
+- Supporting unknowns to resolve if/when investigation is authorized: configured `monitoredFreshnessTargetMs()` / `chainFreshnessTargetMs()` values; whether this symbol's held demand was POSTed and persisted during the session; whether 2026-10-09 appeared in the provider-listed expirations; whether `acquireAllEligibleChains` logged any non-primary (held) commit failures for IBIT.
 
 ## Scope / non-goals
 
-- Covers: staleness of the Greek+quote bundle for **active/held positions** during an **open session**, and the acquisition-coverage/freshness authority responsible for refreshing it.
-- Does not cover: Greek math/normalization correctness (demonstrated sound by the forced update), nor the zero-vs-absent Delta presentation ambiguity (BUG-011), nor general multi-source temporal composition (BUG-004) except as cross-linked context.
-- **Filing does not authorize remediation.** Root-cause investigation and any fix require separate explicit Principal authorization.
+- Covers: staleness of held-position option-chain evidence (and its Greeks) during an open session, and the acquisition/freshness authority responsible for refreshing it.
+- Does **not** cover: Greek math/normalization correctness (**not** established sound by this incident — not in scope either way); the zero-vs-absent Delta presentation ambiguity (BUG-011); general multi-source temporal composition (BUG-004) except as cross-linked context.
+- **Filing does not authorize remediation.** Any root-cause investigation or fix requires separate explicit Principal authorization.
 
 ## Acceptance criteria
 
-(To be confirmed with the Principal; provisional, derived from the observed failure and code trace. **Remediation scope cannot be finalized until claim (B) — the incident root cause — is resolved; see Diagnosis.**)
+(Provisional; to be confirmed with the Principal. **Remediation scope cannot be finalized until the incident causality is established.**)
 
-- **Precondition:** the incident root cause (claim B) is established — i.e. it is demonstrated whether the ~1-day staleness arose from admission suppression, from held-chain acquisition/listing failure, from missing/absent held demand, or from another mechanism. The fix is scoped to the demonstrated cause, not assumed to be the admission gate.
-- During an open session, no currently-held `(symbol, expiration)` carries a Greek bundle older than a defined active-position freshness target. Whatever the mechanism, the end state is a held expiration whose chain is refreshed within bound.
-- **If (and only if) gap (A) is the demonstrated cause:** the admission gate (`getPrioritizedWorkQueue`) makes a symbol due when any held `(symbol, expiration)`'s own chain age exceeds the target, independent of `newestChainAge` and `primary_expiration`; the fix is **not** a restoration of the blanket multi-DTE surface obligation.
-- Displayed Greeks for an active position end up co-temporal with the displayed spot such that Delta and Gamma are mutually consistent for the current moneyness (resolves the temporal-incoherence finding).
+- **Precondition:** the incident mechanism is demonstrated (admission suppression vs. held-chain acquisition/listing failure vs. missing held demand vs. another condition vs. a combination). The eventual fix is scoped to the demonstrated cause, not assumed to be the admission gap.
+- During an open session, no currently-held `(symbol, expiration)` carries option-chain evidence older than a defined active-position freshness target. Whatever the mechanism, the end state is a held expiration whose chain is refreshed within that bound.
 - The fix lives at the backend evidence/acquisition authority, not as consumer-side compensation in the Operator Console. The frontend's honest two-column (Greek Age vs Quote Freshness) reporting is correct and must be preserved.
+
+> Deliberately **not** acceptance conditions: "Greek math/normalization validated"; "Delta and Gamma mutually consistent for current moneyness" (that framing was an unsupported interpretation and is retracted); any generic co-temporality requirement across all co-displayed fields unless and until the system's authoritative temporal contract actually establishes one.
 
 ## Remediation history
 
@@ -118,21 +131,25 @@ Empty while Open.
 
 Empty while Open.
 
+## Lifecycle / Log
+
+- **2026-10-07 — Investigation findings captured; Principal stopping decision.** The Principal directed the team to (1) preserve the accumulated investigation findings with correct epistemic status, (2) leave **BUG-033 Open**, and (3) perform **no further investigation or remediation today**. This record was reconciled accordingly: the established observations and architecture findings are retained; the scheduler-admission gap is kept as an independently valid architectural finding but is **not** asserted as the incident root cause; incident causality is marked unresolved; and the earlier unsupported claims (internal Delta/Gamma incoherence; forced refresh validating Greek normalization; generic co-temporality; delta establishing upside-cap or assignment proximity) were corrected/retracted. **This is a stopping-point / sequencing decision only** — not a resolution, not a deferral of the defect, not a severity decision, not acceptance of any proposed fix, and not authorization to remediate.
+
 ## Related
 
-- **BUG-004** — Console composes temporally incompatible evidence into an apparently-coherent view (closest conceptual cousin: temporal coherence of composed evidence; here spot and Greeks are co-displayed from different-age chain rows).
+- **BUG-004** — Console composes temporally incompatible evidence into an apparently-coherent view (conceptual cousin: temporal coherence of composed evidence; here day-old held-chain evidence is co-displayed with fresher underlying fields).
 - **BUG-011** — Provider-reported exact-zero Delta rendered indistinguishably from absent Delta (adjacent Greeks-presentation defect, distinct cause).
 - `foundations/evidence-appliance.md` — session awareness as correctness; sealed vs. live evidence.
-- `foundations/acquisition-scheduler-policy.md` — tiered A/B/C/D freshness targets; the multi-DTE surface obligation whose removal is implicated here.
+- `foundations/acquisition-scheduler-policy.md` — tiered A/B/C/D freshness targets; the multi-DTE surface obligation whose removal is context here.
 - Authority-Before-Consumers rule (`.kiro/steering/development-workflow.md`) — repair stale authoritative facts upstream, not in consumers.
 
-### Key code locations (from 2026-10-07 trace)
+### Key code locations (from 2026-10-07 trace; descriptive, not causal attributions)
 
-- `evidence-service-java/.../db/SqliteEvidenceStore.java` — **the defect's owner:** `getPrioritizedWorkQueue` admission gate uses only `newestChainAge` for `primaryDue`/`monitoredDue` (~1489–1497), never consulting `held_expiration`; removed multi-DTE surface obligation (~1483–1491); `getQuoteObservations` (spot/`observedAt` from `primary_expiration` chain row ~1152–1197); `setHeldExpirations`/`getHeldExpirations` (~423–462).
-- `evidence-service-java/.../AcquisitionWorker.java` — `acquireAllEligibleChains` unions held expirations into the fetched set **after** admission (`store.getHeldExpirations(symbol)` ~1676); `forceAcquireSymbols` bypasses the admission gate (explains the forced-update correction).
+- `evidence-service-java/.../db/SqliteEvidenceStore.java` — `getPrioritizedWorkQueue` admission gate uses symbol-level `newestChainAge` for `primaryDue`/`monitoredDue` (~1489–1497) and does not independently consult `held_expiration`; removed multi-DTE surface obligation (~1483–1491); `getQuoteObservations` (spot/`observedAt` from `primary_expiration` chain row ~1152–1197); `setHeldExpirations`/`getHeldExpirations` (~423–462). (Site of the established architectural gap; **not** asserted as the established incident owner.)
+- `evidence-service-java/.../AcquisitionWorker.java` — `acquireAllEligibleChains` unions held expirations into the fetched set after admission (`store.getHeldExpirations(symbol)` ~1676; provider-listed guard ~1680; non-primary failures non-fatal); `forceAcquireSymbols` bypasses ordinary admission.
 - `evidence-service-java/.../ObserveController.java` — `/api/evidence/observe` accepts and persists the `heldExpirations` overlay (present-vs-omitted lifecycle contract ~60–142).
-- `options-prototype/src/evidence/use-observations.ts` — `extractHeldExpirations` / `ensureObservable` POST the exact held `(symbol, expiration)` pairs so held chains stay refreshed below the 7–45 DTE window.
-- `evidence-service-java/.../HeldExpirationAcquisitionTest.java` — proves the worker fetches a held sub-window chain and excludes an unheld one (acquisition side is correct).
-- `options-prototype/src/write-desk/contract-greek-lookup.ts` — `lookupContractGreeksWithAge` derives Greek Age from the held-expiration chain cache record's provenance.
+- `options-prototype/src/evidence/use-observations.ts` — `extractHeldExpirations` / `ensureObservable` POST the exact held `(symbol, expiration)` pairs.
+- `evidence-service-java/.../HeldExpirationAcquisitionTest.java` — demonstrates held sub-window fetch and unheld exclusion.
+- `options-prototype/src/write-desk/contract-greek-lookup.ts` — derives Greek Age from the held-expiration chain cache record's provenance.
 - `options-prototype/src/components/OperatorConsole.tsx` — computes/renders Greek Age vs Quote Freshness from the two distinct sources (CSV header ~505; columns ~556–576).
-- `evidence-service-java/.../provider/TradierAdapter.java` — Greeks (`chains?...&greeks=true`) and spot co-persisted on one chain row per expiration (`getOptionsChain` ~110–156).
+- `evidence-service-java/.../provider/TradierAdapter.java` — chain-with-greeks request and underlying spot stamped onto the chain row per expiration (`getOptionsChain` ~110–156); chain and quote use separate requests/caches.
