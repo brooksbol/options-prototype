@@ -1232,3 +1232,230 @@ The next authorized discovery scope is the **cash side**, using the same operato
 > **How do I get the most work out of this cash?**
 
 Cash-side discovery must not assume that “work” means maximum deployment, maximum yield, maximum premium, or mandatory option activity. Cash can have governed jobs including availability, withdrawal support, obligation/collateral support, acquisition readiness, opportunity response, and other capital purposes that remain to be exercised through the operator journey.
+
+
+---
+
+## 25. End-of-session checkpoint — cash-side discovery in progress
+
+**Date:** 2026-10-06
+
+**Status:** cash-side primitive discovery is **OPEN**. This section is a restart checkpoint only. It does not close cash-side discovery, ratify cash policy, or create implementation authority.
+
+### 25.1 Durable state entering the cash pass
+
+The Principal has ratified closure of both:
+
+- call-side primitive discovery; and
+- put-side primitive discovery.
+
+GitHub issue #34 remains the open cross-cutting concern for Wheel lifecycle history, tracking, reporting, and historical evidence used by governed policy.
+
+The authorized cash-side operator question is:
+
+> **How do I get the most work out of this cash?**
+
+Cash-side discovery must not assume that productive cash means maximum deployment, maximum yield, maximum premium, or mandatory option activity.
+
+### 25.2 Starting cash specimen
+
+The first specimen used $100,000 with no selected instrument and no initial contractual encumbrance:
+
+- $30,000 must support a withdrawal in ten days;
+- $50,000 must remain capable of funding a permitted acquisition during that period;
+- the remaining $20,000 has no immediate commitment, while the operator values retaining future choices;
+- earning an acceptable return is desirable wherever consistent with those purposes.
+
+The first repair is:
+
+> **Cash can be mechanically unencumbered while already committed to a governed purpose.**
+
+“No existing obligation” does not mean “available for any new obligation.”
+
+Availability is purpose-relative:
+
+> **Available for what proposed use, in what amount, by when, and without defeating which surviving commitments?**
+
+### 25.3 Overlapping purposes and concurrent demand
+
+Cash purposes are not necessarily exclusive buckets.
+
+A governed quantity can coherently support overlapping concerns such as:
+
+- withdrawal readiness;
+- acquisition readiness;
+- obligation/collateral support;
+- opportunity readiness;
+- return-seeking.
+
+Labels do not create duplicate capacity.
+
+The important falsifier is concurrent demand:
+
+> **Can the same capital satisfy every obligation/capability that may require it under the proposed resulting state?**
+
+Purposes must neither be summed automatically nor allowed to reuse the same dollars for incompatible simultaneous requirements.
+
+Return-seeking is cross-cutting. Cash can earn return while performing another governed job when the resulting state preserves the required capabilities and other applicable constraints.
+
+Low earnings do not establish poor productivity. High earnings do not establish successful performance.
+
+### 25.4 Purpose-relative availability and evidence
+
+“AVAILABLE CASH” must not mean universal deployability.
+
+A displayed balance does not establish usable funding for a withdrawal, acquisition, obligation, or other proposed use.
+
+Where evidence is insufficient, the truthful finding is:
+
+> **Availability for this use is not established.**
+
+It must not be silently treated as either fully available or zero.
+
+Likewise, an instrument labeled or treated colloquially as a cash substitute does not inherit every cash capability merely from the label. Relevant conversion, settlement, withdrawal, collateral/support, timing, risk, and execution consequences require appropriate evidence.
+
+### 25.5 Preserving capability can itself be productive work
+
+Withdrawal reserve and acquisition readiness can be economically purposeful before any transaction occurs.
+
+An alternative offering higher return can be inadmissible if it defeats a required capability or horizon.
+
+Conversely:
+
+> **Reserved cash need not remain idle.**
+
+Return-seeking can be permissible when the alternative preserves the governed capability, timing, acceptable risk, and other constraints.
+
+Acquisition readiness is similarly horizon-dependent. Preserving the ability to act can be productive without predicting that an opportunity will occur.
+
+### 25.6 Obligation support and brokerage permission
+
+When an existing obligation requires support, distinguish at least:
+
+1. the cash can support the existing obligation;
+2. brokerage mechanics permit some other use of that cash;
+3. that other use preserves the complete governed position.
+
+The second does not establish the third.
+
+Retiring an obligation does not automatically make its former support capital universally deployable. Other purposes can survive.
+
+### 25.7 Changing the job of cash
+
+The second cash pass exercised changes to governed purpose.
+
+A central surviving distinction is:
+
+> **Release from one commitment is not assignment to another purpose.**
+
+If a withdrawal is canceled by appropriate authority, the old purpose can cease. That does not automatically authorize a new deployment.
+
+Likewise, a purpose can cease before an instrument has been converted, liquidation has settled, collateral has been released, or other evidence establishes usability for the proposed next purpose.
+
+Preserve the distinction among:
+
+- governance/purpose transition;
+- economic/execution transition;
+- evidenced availability for the proposed use.
+
+### 25.8 Expired and conditional purposes
+
+A purpose reaching its horizon does not imply indefinite continuation or automatic redeployment.
+
+A legitimate result can be:
+
+> **Purpose expired; subsequent use unresolved.**
+
+Where release is conditional, the release condition requires appropriate evidence.
+
+The familiar rule survives:
+
+> **Evidence establishes whether the governed condition is satisfied; policy establishes what consequence follows.**
+
+### 25.9 Same instrument, different job; different instrument, same job
+
+A particularly strong cash-side falsifier is:
+
+> **If Wheelwright infers the job of cash from the instrument holding it, the model is wrong.**
+
+The same dollars in the same money-market or cash-like position can have materially different governed purposes.
+
+Conversely, changing instruments does not necessarily change the governed job if the required capability remains preserved.
+
+Therefore distinguish:
+
+> **Change how the capital performs its job**
+
+from:
+
+> **Change the job itself.**
+
+Return enhancement can sometimes be a better way to perform the same governed cash purpose rather than a reallocation.
+
+### 25.10 Partial release and quantity
+
+Purpose transitions can apply to only part of a governed quantity.
+
+If $10,000 of a $30,000 withdrawal reserve is released:
+
+- $20,000 can remain committed to withdrawal capability;
+- $10,000 is released from that purpose.
+
+The released $10,000 is not thereby universally free; overlapping surviving purposes can still apply.
+
+Governed quantity remains the decision subject rather than named buckets.
+
+### 25.11 Emerging cash-side structure
+
+The current discovery suggests the following exploratory structure:
+
+- **PURPOSE** — what capability must this governed quantity provide?
+- **QUANTITY** — how much capital does that capability require, considering concurrent demands rather than labels?
+- **HORIZON** — when must the capability exist?
+- **CURRENT STATE** — what does the capital currently own, support, or owe?
+- **AVAILABILITY FOR PROPOSED USE** — can this quantity take on the proposed use without defeating surviving purposes?
+- **TRANSITION** — has a purpose, obligation, or economic state actually changed enough to alter that availability?
+- **EVIDENCE** — is that conclusion established?
+
+This is discovery language, not a canonical schema or implementation design.
+
+Return is evaluated inside the governing constraints rather than assumed to outrank them.
+
+### 25.12 Strongest current candidate rule
+
+The strongest current cash-side candidate rule is:
+
+> **Capital becomes available for another use only to the extent that the proposed use preserves all surviving governed capabilities, or authoritative governance has released or changed those capabilities, and any necessary economic transition is sufficiently evidenced.**
+
+This remains a discovery hypothesis, not ratified cash policy.
+
+### 25.13 Current primitive finding
+
+No new cash-specific Product primitive has yet been demonstrated.
+
+The exercised specimens remain explainable through existing concepts including:
+
+- purpose/governance;
+- governed quantity;
+- timing/horizon;
+- obligation;
+- feasibility;
+- execution state;
+- evidence;
+- complete resulting consequences;
+- operator preference;
+- and cross-cutting lifecycle history where historical commitments or attribution matter.
+
+The cash-specific discovery so far is primarily their operator-facing application.
+
+### 25.14 Exact restart point
+
+Cash-side discovery stops here for the session.
+
+The next authorized action is:
+
+> **Falsify cash-purpose transitions against partial release, conditional release, expired purposes, overlapping surviving commitments, replacement instruments, and incomplete economic transitions before moving to cash deployment alternatives.**
+
+Do not begin by selecting instruments or maximizing yield.
+
+Cash-side primitive discovery remains **OPEN**.
