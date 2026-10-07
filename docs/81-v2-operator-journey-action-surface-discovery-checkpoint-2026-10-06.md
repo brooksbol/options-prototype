@@ -827,3 +827,408 @@ This is a Product-discovery closure disposition only.
 No implementation authority is created.
 
 The next authorized discovery scope is the **put side**, using the same operator-first and falsification method before the later cash-side pass.
+
+
+---
+
+## 24. Principal-ratified put-side primitive-discovery closure
+
+**Principal disposition:** bounded put-side primitive discovery is closed after the initial acquisition pass, Principal corrections, adversarial Codex review, reconciliation, and final closure review.
+
+This section records the closure evidence. It does **not** ratify Growth Wheel put policy, acquisition thresholds, discount definitions, ladder construction, P50 behavior, 0DTE behavior, directional-forecast use, replacement rules, quantity targets, lifecycle accounting, or implementation.
+
+### 24.1 Closure scope
+
+The bounded question was:
+
+> **Can a materially different Growth Wheel put-side operator recommendation or decision boundary be produced, within the declared acquisition scope, that requires a new put-specific Product primitive?**
+
+The reviewed journey covered:
+
+- immediate ownership;
+- contingent acquisition through a short put;
+- continued absence / patience;
+- working discounted acquisition orders;
+- BUY-WRITE as immediate ownership plus a call obligation;
+- existing-put management;
+- BTC;
+- replacement/ROLL alternatives;
+- BTC + BUY SHARES;
+- BTC + BUY-WRITE;
+- assignment outcome stance;
+- partial execution and failed composed actions;
+- quantity changes and contract granularity;
+- sequential and simultaneous acquisition ladders;
+- P50/profit-taking and exit reliability;
+- 0DTE alternatives and authority conflicts;
+- operator directional belief versus Growth Wheel ownership preference;
+- historical evidence dependencies;
+- actual contract terms and adjusted deliverables.
+
+No reviewed specimen required a new put-specific Product primitive.
+
+### 24.2 Acquisition surface is broader than a three-action triad
+
+BUY SHARES, SELL PUT, and LEAVE ALONE remain useful first comparisons, but they are not an exhaustive acquisition surface.
+
+Where materially relevant, the operator surface can also include:
+
+- a working discounted acquisition order;
+- BUY-WRITE;
+- partial purchase;
+- mixed paths across different governed quantities;
+- composed actions that retire an existing obligation before direct acquisition.
+
+These are operator permutations and action compositions explainable through existing semantics. Their existence does not require a new put-specific primitive.
+
+### 24.3 Immediate ownership, contingent acquisition, and continued absence
+
+The reviewed Product distinction survives:
+
+- **BUY SHARES** seeks ownership now and immediate upside/downside participation without a new put obligation.
+- **SELL PUT** creates a present short-put liability and contingent acquisition exposure. Funding/collateral can be encumbered now even though shares are not yet owned.
+- **LEAVE ALONE** creates neither ownership nor a new acquisition obligation and accepts continued absence over the governing horizon.
+- **BUY-WRITE** seeks ownership now while simultaneously accepting a separately scrutinized short-call obligation.
+
+A short put must not be projected as unencumbered cash or as owned inventory.
+
+Acquisition intent does not privilege puts merely because the capital is governed by Growth Wheel.
+
+### 24.4 Price willingness is not unconditional acquisition authority
+
+The review exposed an important operator-facing distinction:
+
+> **Willingness to buy at a stated price is not necessarily willingness to accept every condition under which acquisition could occur.**
+
+For example:
+
+> “I would buy at $680 after reviewing why it got there.”
+
+does not by itself authorize either:
+
+- an ordinary live $680 acquisition order that can execute without that later review; or
+- a $680 short put whose contractual acquisition consequences persist through its governed horizon.
+
+Existing conditional governance, action, execution, and outcome semantics explain this distinction. No new primitive is required.
+
+### 24.5 Discounted acquisition order versus short put
+
+The conversational shorthand:
+
+> **“The difference is premium.”**
+
+is useful for exposing compensation, but it is not a complete economic comparison.
+
+A working acquisition order and a short put can differ materially in:
+
+- acquisition timing and triggering conditions;
+- ability to withdraw or revise;
+- funding and encumbrance;
+- duration of obligation;
+- ownership participation;
+- execution/resolution uncertainty;
+- retirement/closing consequences;
+- assignment mechanics.
+
+Premium is therefore properly treated as compensation offered for accepting the put's contractual consequences, not as proof that the put dominates a discounted acquisition order.
+
+Neither price contact nor ITM status establishes completed acquisition.
+
+### 24.6 Complete resulting-state reasoning for existing puts
+
+The call-side requirement to compare complete resulting economic states survives on the put side.
+
+An existing-put surface can include, when admissible:
+
+- LEAVE ALONE;
+- BTC;
+- ROLL / replacement;
+- BTC + BUY SHARES;
+- BTC + BUY-WRITE;
+- non-intervention with an explicit assignment outcome stance.
+
+A large BTC debit does not independently establish economic disadvantage. Intrinsic value can correspond to value retained or acquired through another leg of the resulting position.
+
+Likewise, intended action composition is not completed state.
+
+Examples:
+
+- if BTC fails but a share purchase executes, the surviving put must remain in the actual exposure;
+- buying shares while a put survives can create additional contingent acquisition;
+- that additional exposure is legitimate only if governance permits it and must not be silently described as exact target restoration.
+
+A replacement obligation must be independently scrutinized. “ROLL DOWN” is not the universal replacement shape; same-strike or higher-strike replacement can be legitimate under different governed acquisition preferences.
+
+### 24.7 Assignment can be productive without being automatically desirable
+
+Put assignment can accomplish an intended capital-form transition:
+
+> **cash + acquisition obligation → shares**
+
+Therefore:
+
+- an ITM put is not inherently a deteriorating Product state;
+- a large unrealized option loss can coexist with approaching a desired acquisition;
+- a profitable put can coexist with failure to restore desired ownership.
+
+Assignment remains productive only while the resulting acquisition is acceptable under current governance.
+
+Isolated option P/L does not establish progress toward the ownership objective.
+
+### 24.8 Growth Wheel ownership preference is not a market forecast
+
+The Principal clarified:
+
+> **Growth Wheel supplies a share-retention / ownership preference. It supplies no implied bullish or bearish market bias.**
+
+An operator may state a directional belief. Wheelwright may preserve that assertion and explain consequences associated with choices made under it.
+
+Under current policy-over-prediction authority, the belief itself does not automatically become deployment authority or an observed future fact.
+
+For example:
+
+> “I think the market will continue lower.”
+
+is materially different from an admissible governed preference such as:
+
+> “For this horizon, I prefer continued nonownership over acquisition above $660.”
+
+The former is a belief/forecast. The latter can be an operator preference if applicable governance admits it.
+
+Management intensity does not encode market direction.
+
+This closure does not authorize forecast-driven deployment policy.
+
+### 24.9 Discount remains an unresolved policy boundary
+
+No universal definition of acquisition “discount” was established.
+
+Potential references can include, when precisely defined and relevant:
+
+- current spot;
+- prior call-away price;
+- acquisition price or brokerage basis;
+- a Wheel-economic analytical measure;
+- standard deviation or another defined dispersion measure;
+- delta;
+- technical reference levels;
+- volatility conditions;
+- an operator-selected price or valuation reference.
+
+These answer different questions and do not independently establish the correct acquisition level.
+
+Historical references such as prior call-away price remain evidence until governance gives them decision significance.
+
+Wheelwright's Product role remains to make choices, evidence, assumptions, and consequences clear without pretending to predict future market direction.
+
+An unresolved winner is not a primitive failure.
+
+### 24.10 P50, exit reliability, and acquisition purpose
+
+P50 requires precise semantics. A profit-taking rule based on opening credit is distinct from a modeled probability measure.
+
+Where a governed profit-taking condition exists:
+
+- opening economics can be historical policy input;
+- current executable closing economics are current evidence;
+- exit reliability can affect feasibility and attainable economics;
+- closing the put removes the current acquisition obligation.
+
+Therefore reaching a marked profit threshold does not by itself answer whether acquisition intent continues, whether direct ownership is now preferred, whether a replacement obligation is justified, or whether execution is attainable.
+
+A required/preferred exit can remain **execution blocked**. Failed execution must not be silently rewritten as a recommendation to continue the obligation.
+
+No Growth Wheel put-side P50 policy is ratified here.
+
+### 24.11 0DTE is a decision boundary, not an automatic close
+
+At a 0DTE put boundary, materially different alternatives can include:
+
+- LEAVE ALONE with an explicit outcome stance;
+- ROLL / replace, including but not limited to a lower strike;
+- BTC;
+- BTC + BUY SHARES;
+- BTC + BUY-WRITE.
+
+A mandatory-close policy can conflict with desired assignment. A review-only policy cannot be treated as mandatory closure.
+
+Where applicable authority does not resolve the conflict, Wheelwright must preserve the authority gap rather than manufacture a winner.
+
+Early assignment and final assignment/expiration outcomes require appropriate evidence. A desired outcome must not be projected as completed before authoritative evidence establishes it.
+
+No universal Growth Wheel 0DTE put rule is ratified here.
+
+### 24.12 Sequential rolls, multi-lot ladders, and governed quantity
+
+Different governed quantities can carry different acquisition terms while sharing the same Growth Wheel regime.
+
+For example, a 300-share desired inventory can coherently include separate contingent acquisition quantities at different strikes.
+
+The review preserves the distinction between:
+
+- **sequential replacement**, where one governed acquisition obligation is replaced over time; and
+- **simultaneous multi-lot ladders**, where multiple governed quantities carry concurrent acquisition obligations.
+
+These arrangements have materially different aggregate exposure.
+
+Product reasoning must preserve, as applicable:
+
+- quantity already owned;
+- quantity contingently obligated;
+- quantity still desired but uncommitted;
+- actual contractual deliverable;
+- aggregate funding/encumbrance;
+- surviving obligations after partial acquisition or early assignment.
+
+For example:
+
+> **100 owned + 100 contingent + 100 uncommitted**
+
+is neither 300 owned nor automatically 300 fully funded.
+
+A partial share fill while a full contract remains outstanding can create potential ownership beyond the originally intended quantity.
+
+Actual deliverable, exercise payment, multiplier/pricing, settlement terms, and authoritative governed quantity control. The ordinary 100-share convention cannot be universalized.
+
+### 24.13 Repeated rolling neither proves improvement nor pathology
+
+A sequence of lower replacement strikes can represent:
+
+- changing acquisition terms in response to observed conditions;
+- an admissible operator preference;
+- an explicitly governed acquisition ladder;
+- retirement of an increasingly undesirable obligation;
+- or repeated deferral that fails the ownership objective.
+
+The sequence itself establishes none of these interpretations.
+
+A lower contractual purchase price if assigned does not prove a better acquisition strategy.
+
+Closing cost, replacement liability, duration, attention, funding, compensation, ownership delay, and other complete-state consequences remain relevant under applicable governance.
+
+No psychological diagnosis or universal rolling prohibition is established.
+
+### 24.14 Lifecycle history remains upstream and cross-cutting
+
+GitHub issue #34 records the open cross-cutting concern:
+
+> **Any Wheel requires durable lifecycle history because current brokerage state alone is insufficient for truthful tracking/reporting and for governed policies that explicitly depend on historical economic facts.**
+
+This concern subsumes call- and put-specific governance design.
+
+Put-side review confirmed examples where history can matter:
+
+- profit-taking relative to opening credit;
+- a policy that explicitly references prior call-away price;
+- cumulative Wheel reporting;
+- any future rule limiting cumulative deferral or repeated-roll cost;
+- replay/reconciliation of earlier recommendations;
+- continuity of reacquired shares with an earlier governed Wheel lifecycle.
+
+History is evidence, not automatically policy.
+
+Current-state recommendations do not require lifetime reconstruction unless the applicable conclusion depends on historical facts.
+
+This closure does not select a lifecycle identity model, accounting formula, event model, persistence design, or implementation.
+
+### 24.15 Strongest surviving candidate rules
+
+The final put-side closure leaves the following as strong candidate material for later policy work:
+
+1. Acquisition intent does not privilege a short put over immediate purchase, BUY-WRITE, a relevant working acquisition order, or patience.
+2. A short put creates present liability/exposure and contingent acquisition, not ownership or unencumbered cash.
+3. Compare put-side alternatives through complete resulting economic states.
+4. Retiring an acquisition obligation and abandoning acquisition intent are distinct decisions.
+5. BTC + BUY SHARES is materially different from BTC alone.
+6. BTC + BUY-WRITE is materially different when immediate ownership plus a call obligation is admissible.
+7. A replacement put receives no exemption from ordinary obligation scrutiny merely because it is part of a roll.
+8. Assignment can be a productive acquisition transition only while the resulting acquisition remains acceptable.
+9. Isolated option P/L does not establish progress toward desired ownership.
+10. A governed profit-taking condition requires defined semantics and attainable-exit evidence; closure also changes the acquisition state.
+11. 0DTE has the consequence its governing policy defines; it does not imply universal closure.
+12. Growth Wheel ownership preference supplies no bullish or bearish forecast.
+13. Operator directional belief does not automatically authorize forecast-driven Wheelwright deployment recommendations.
+14. Repeated rolling establishes neither improvement nor pathology without governed comparison of resulting states.
+15. Different governed quantities can carry different put strikes while sharing one regime.
+16. Sequential replacement and simultaneous multi-lot ladders must not be conflated.
+17. No universal acquisition-discount reference is established.
+18. Historical evidence becomes decision-significant only through applicable governance.
+19. A discounted acquisition order is a useful counterfactual where its execution path materially differs from a put.
+20. Price willingness does not automatically establish acceptance of every acquisition condition or contractual consequence.
+21. Intended composed actions must not be projected as completed when execution is partial, failed, pending, or otherwise unreconciled.
+22. Actual contract terms and authoritative governed quantity control acquisition exposure.
+
+These remain **candidate put-side policy material**, not ratified Growth Wheel policy.
+
+### 24.16 Policy questions intentionally left open
+
+Put-side primitive closure intentionally leaves policy work to determine, among other things:
+
+- what constitutes an acceptable acquisition discount;
+- which reference, if any, defines discount;
+- adequate compensation for assuming a put obligation;
+- ownership urgency;
+- acceptable acquisition conditions;
+- target versus maximum quantity;
+- partial-quantity treatment;
+- ladder permissions and construction;
+- replacement-put selection;
+- exact P50/profit-taking semantics;
+- exact 0DTE behavior;
+- exit-reliability requirements;
+- conflict precedence;
+- degree of improvement required to justify intervention;
+- admissible role of operator preferences;
+- historical references that governance makes decision-significant;
+- when direct purchase or BUY-WRITE should outrank contingent acquisition;
+- treatment of working acquisition orders;
+- treatment of incomplete composed execution.
+
+These are Product/policy questions. Their existence is not evidence of a missing put-side primitive.
+
+### 24.17 Final closure specimens
+
+The final closure account explicitly preserves five high-value falsifiers:
+
+1. **Conditional willingness** — “buy at $680 after review” versus a live automatic acquisition order versus a contractual put.
+2. **Partial completion** — partial share purchase while a full put survives, or failed BTC with successful purchase.
+3. **Changed quantity/governance** — desired quantity reduced below a whole surviving contract, or acquisition permission removed while the obligation remains.
+4. **Conflicting exit authority** — desired assignment versus mandatory close, including both successful and blocked execution.
+5. **History-dependent policy** — opening-credit exit or prior-call-away constraint with sufficient, missing, or corrected historical evidence.
+
+All five are explainable through existing action, governance, quantity, evidence, execution, outcome, and cross-cutting history distinctions.
+
+### 24.18 Closure criterion satisfied
+
+The adversarial review attempted to produce a materially different put-side recommendation or operator decision boundary that the discovered primitives could not explain.
+
+It did not find one within the declared Growth Wheel acquisition scope.
+
+The remaining attacks reduce to:
+
+- missing or unratified policy;
+- unresolved operator preference;
+- evidence requirements;
+- execution state or blockers;
+- partial/incomplete action completion;
+- governed quantity;
+- actual contract terms;
+- authority/precedence conflicts;
+- cross-cutting lifecycle history;
+- or implementation concerns outside the declared discovery scope.
+
+Therefore the Principal ratifies:
+
+> **PUT-SIDE PRIMITIVE DISCOVERY CLOSED.**
+
+This is a Product-discovery closure disposition only.
+
+No Growth Wheel put policy is ratified.
+
+No implementation authority is created.
+
+The next authorized discovery scope is the **cash side**, using the same operator-first and falsification method around the question:
+
+> **How do I get the most work out of this cash?**
+
+Cash-side discovery must not assume that “work” means maximum deployment, maximum yield, maximum premium, or mandatory option activity. Cash can have governed jobs including availability, withdrawal support, obligation/collateral support, acquisition readiness, opportunity response, and other capital purposes that remain to be exercised through the operator journey.
