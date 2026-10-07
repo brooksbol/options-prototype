@@ -38,7 +38,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-030 | Candidate shared encoded-solidus passthrough changes existing route interpretation | Backend / candidate shared Tomcat transport | Not established | Open | [record](BUG-030-shared-solidus-passthrough-route-regression.md) | ww show real-container transport gate 2026-10-05 |
 | BUG-031 | Complete human tables select verbose timestamp rendering | CLI / ww show human presentation | Not established | Resolved | [record](BUG-031-show-complete-table-timestamps.md) | Principal manual acceptance 2026-10-05 |
 | BUG-032 | Human change-cell decoration includes padding and restores green terminal default | CLI / ww show human presentation | Not established | Resolved | [record](BUG-032-show-change-color-scope.md) | Principal manual acceptance 2026-10-05 |
-| BUG-033 | Active-position Greeks go stale (≈1 day old) during an open session, misrepresenting live risk (IBIT buy-write: Delta 0.83 stale vs 0.37 forced) | Backend / active-position acquisition coverage + freshness ↔ Operator Console Greeks | Not established | Open | [record](BUG-033-active-position-greeks-stale-during-open-session.md) | Operator observation 2026-10-07 |
+| BUG-033 | Active-position Greeks go stale (≈1 day old) during an open session while spot stays fresh: held-expiration chain row has no freshness obligation after multi-DTE surface obligation removal, so Greek Age diverges from Quote Freshness (IBIT buy-write: Delta 0.83 stale vs 0.37 forced) | Backend / scheduler held-expiration freshness ↔ Operator Console Greeks | Not established | Open | [record](BUG-033-active-position-greeks-stale-during-open-session.md) | Operator observation 2026-10-07 |
 
 ## Open-bug audit checkpoint (2026-09-22)
 
