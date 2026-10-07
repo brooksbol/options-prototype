@@ -22,6 +22,14 @@ Your implementation orientation does not itself create implementation authority.
 
 GitHub is durable project truth. Conversation and actor prose are reasoning evidence, not execution authorization.
 
+## Mandatory API v2 authority boundary
+
+For any API v2 work, read `docs/77-api-v2-architectural-guardrails.md` before making state-ownership, business-logic, evaluation-placement, client/backend, or resource-boundary decisions.
+
+The Principal mandate is non-negotiable: **backend owns state and business logic; clients own presentation.** External systems remain the ultimate origin of their own state; Wheelwright backend owns the authoritative provenance-bearing observations/snapshots it uses plus Wheelwright-owned governance, policy, derived state, and business logic. No authoritative v2 Product behavior may depend on state or business logic existing only in a browser, CLI, or other client.
+
+Do not inherit v1 client-side state, browser evaluation, topology, or other architectural debt into v2 merely because it exists. V1 is evidence and a source of lessons; v2 reuse requires independent justification against current v2 authority.
+
 ## Authority discipline
 
 Keep two questions separate:
