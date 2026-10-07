@@ -1905,3 +1905,146 @@ The Principal ratifies this clarified MVP 1 Solution Overview and authorizes the
 Capability derivation should begin from required Product conclusions and identify their evidence/policy dependencies, possible findings, and which independent conclusions survive when a dependency is unavailable.
 
 Do not select command names or backend resource boundaries during that derivation.
+
+
+---
+
+## 28. MVP 1 minimum-capability decomposition — Principal-ratified
+
+**Date:** 2026-10-07
+
+**Status:** Principal-ratified bounded Product capability decomposition for MVP 1. This section does not prescribe commands, backend resources, services, components, schemas, API contracts, or implementation.
+
+### 28.1 Ratified capability set
+
+The Principal ratifies seven minimum Product capabilities required by the accepted MVP 1 Solution Overview:
+
+1. **Establish governed subject** — establish independently supportable findings concerning account identity, underlying, quantity, ownership, and applicable Growth Wheel association/context.
+2. **Establish unencumbered availability** — establish the claims relevant to whether the governed quantity is available for the bounded call-entry comparison, while preserving partial findings when claim coverage is incomplete.
+3. **Establish contract semantics and support** — establish contract identity and terms, contemplated option quantity, compatibility with the identified subject, and which conclusions MVP 1 supports evaluating.
+4. **Establish contemplated-action feasibility** — establish whether the contemplated action's preconditions are satisfied for the identified governed quantity under the evidenced conditions. This is scoped feasibility, not guaranteed execution, brokerage-wide capacity, or policy admissibility.
+5. **Establish RETAIN UNENCUMBERED consequences** — establish supported consequences of retaining the same established starting quantity without adding the contemplated call obligation.
+6. **Establish SELL SHORT CALL consequences** — establish supported consequences of the contemplated identified call position using the same established starting state and explicit contemplated contract quantity.
+7. **Establish preference status** — establish whether applicable governance and policy prefer an alternative, prohibit an alternative, permit alternatives without preference, or cannot establish a winner, while preserving the precise causes and simultaneous limitations.
+
+No missing eighth capability was demonstrated by adversarial review.
+
+### 28.2 Capabilities are not binary gates
+
+Each capability is an operator/Product question containing independently supportable conclusions, not an indivisible success/failure gate.
+
+Examples include:
+
+- a Growth Wheel association can be known while current ownership is not established;
+- ownership can be established while governance is unresolved;
+- known absence of an option obligation can survive missing working-order coverage while overall unencumbered availability remains unestablished;
+- contract terms can be established while subject compatibility remains unresolved;
+- contractual consequences can be established while quote-dependent execution economics are not;
+- policy status can be known while other evidence limitations remain.
+
+Failure to establish one conclusion must not erase independently established findings.
+
+### 28.3 Conclusion-specific dependencies
+
+Dependencies attach to the specific conclusion being asserted rather than indiscriminately to the enclosing capability.
+
+Therefore:
+
+- contractual assignment mechanics do not require an option quote;
+- indicative option economics can be evidenced while governance is missing;
+- physical ownership and an observed conflicting claim can be established while the governed subject remains unresolved;
+- known undefined policy can be one established reason for no preference even when additional economic evidence is missing.
+
+Preference output must preserve multiple applicable limitations where they coexist. One known limitation must not hide another.
+
+There is no global evidence-sufficiency gate for this MVP.
+
+### 28.4 Contract identity, compatibility, support, and quantity
+
+Keep distinct:
+
+1. what the identified contract is and which contractual terms are established;
+2. whether those actual terms are compatible with the identified subject;
+3. whether MVP 1 supports evaluating the required conclusions for that contract;
+4. how many contracts are contemplated.
+
+A fully understood contract can be inconsistent with the subject.
+
+A subject-compatible adjusted or otherwise unsupported contract can produce **unsupported evaluation** rather than infeasibility.
+
+Missing contractual terms can prevent establishing compatibility.
+
+Feasibility and consequences must use the same explicit contemplated option quantity.
+
+### 28.5 Scoped feasibility and policy admissibility
+
+Feasibility remains scoped to the identified governed quantity and contemplated action.
+
+For the ordinary one-contract specimen, 99 identified governed shares cannot support that contemplated covered call. Wheelwright must not silently appropriate another share elsewhere in the account merely because brokerage-wide coverage might differ.
+
+Keep separate:
+
+- physical/mechanical feasibility under evidenced conditions;
+- applicable policy admissibility;
+- applicable policy preference;
+- actual execution.
+
+A physically feasible call can be prohibited by applicable policy.
+
+A policy-preferred alternative can be execution-blocked.
+
+Neither finding alone establishes an immediately actionable recommendation.
+
+### 28.6 Coherent composition boundary
+
+Separately valid findings must not be combined into an incoherent comparison.
+
+Composed conclusions require compatible:
+
+- subject binding;
+- governed quantity;
+- contemplated option quantity;
+- temporal evidence;
+- material assumptions.
+
+For example, ownership evidence establishing 100 shares before a sale must not be combined naively with later order evidence showing no remaining sale order after that order filled to infer 100 currently unencumbered shares.
+
+This is existing evidence-reconciliation discipline, not a new Product capability or a requirement to solve lifecycle history in MVP 1.
+
+RETAIN UNENCUMBERED and SELL SHORT CALL consequences must be compared from the same established starting position and explicit assumptions. If evidence bases differ materially, that difference must be qualified rather than hidden.
+
+### 28.7 Surviving decomposition rules
+
+The following survive adversarial review:
+
+- capability relationships form a dependency graph rather than a fixed processing pipeline;
+- RETAIN and SELL consequence questions remain independently useful;
+- evidence sufficiency is conclusion-specific;
+- unsupported evaluation is distinct from infeasibility;
+- no governed preference is distinct from affirmative preference for retention;
+- limits and explanations derive from conclusion dependencies;
+- generic Strategy, Alternative, Recommendation, or Evidence capabilities are not required by this MVP;
+- evidence acquisition, identification, and assessment remain dependencies of Product conclusions even though no separate evidence-sufficiency capability is introduced.
+
+### 28.8 Architectural non-implication
+
+The number seven has no architectural significance beyond this bounded Product decomposition.
+
+It does not imply:
+
+- seven WW commands;
+- seven backend resources;
+- seven endpoints;
+- seven services;
+- seven components;
+- seven schemas.
+
+Those surfaces remain undiscovered.
+
+### 28.9 Next authorized action
+
+The next authorized action in the Principal-established progression is:
+
+> **Begin bounded WW command + BE-resource discovery for MVP 1.**
+
+No command/resource discovery or implementation is performed by this ratification step.
