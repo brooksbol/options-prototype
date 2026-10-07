@@ -1459,3 +1459,225 @@ The next authorized action is:
 Do not begin by selecting instruments or maximizing yield.
 
 Cash-side primitive discovery remains **OPEN**.
+
+
+---
+
+## 26. Cash-side primitive-discovery closure
+
+**Date:** 2026-10-07
+
+**Status:** Principal-ratified Product-discovery closure disposition only. This section does not ratify cash policy, strategy coverage, multi-objective precedence, lifecycle-history architecture, or implementation authority.
+
+### 26.1 Closure statement
+
+After operator-journey falsification, scope reconciliation, and adversarial review, the Principal ratifies:
+
+> **CASH-SIDE PRIMITIVE DISCOVERY CLOSED.**
+
+The bounded closure claim is:
+
+> **No materially different cash-side operator recommendation or decision boundary found within the declared Product scope requires a new cash-specific Product primitive.**
+
+The exercised cash cases remain explainable through existing distinctions including purpose/objective, governed quantity, horizon, obligations, evidence sufficiency, feasibility, execution/settlement state, alternatives, complete resulting consequences, operator preferences, and cross-cutting lifecycle history where applicable.
+
+This closure does not establish that cash policy is complete or that every cash use is supported.
+
+### 26.2 HITL, recommendation, warning, and enforcement boundary
+
+The reconciled owner-operator boundary is:
+
+> **The HITL controls their capital and accepts the consequences. Wheelwright governs what it can truthfully recommend.**
+
+Wheelwright does not create a superior authority over the operator's capital. The operator can revise a previously stated purpose or choose differently from a Wheelwright recommendation.
+
+Preserve four distinct findings:
+
+1. **Wheelwright informative warning** — a consequence, incompatibility, or material tradeoff established by the evidence under stated assumptions.
+2. **Wheelwright recommendation** — a policy-supported preference among evaluated alternatives.
+3. **HITL judgment** — the operator's action or non-action, potentially incorporating broader context outside Wheelwright's scope.
+4. **Brokerage/execution enforcement** — actual order, funding, collateral, settlement, margin, account, and other mechanical constraints.
+
+Therefore:
+
+> **Wheelwright warning is not brokerage prohibition.**
+
+and:
+
+> **Brokerage permission is not Wheelwright recommendation.**
+
+Brokerage balances and related account facts are evidence. Their source authority can establish appropriate factual conclusions without establishing Product desirability, purpose, or Program membership.
+
+### 26.3 Repaired availability wording
+
+The earlier candidate wording in §25.12 is narrowed for this closure.
+
+Under the currently stated plan, Wheelwright can establish availability for a proposed use when the proposed use preserves surviving requirements—or the operator has revised those requirements—and necessary funding, execution, settlement, and evidence conditions are established.
+
+This describes a Wheelwright conclusion. It is not permission Wheelwright grants the operator.
+
+Likewise:
+
+> **Release from one purpose does not establish that other requirements or obligations have ceased.**
+
+Purpose transition, economic/execution transition, and evidenced availability remain distinct.
+
+### 26.4 Evidence-bounded observation loop
+
+The operator does not need to report an explicit `I choose A` event to Wheelwright.
+
+The repaired operating loop is:
+
+> **maintained evidence and known context → state-change preparation → activity outside Wheelwright → reevaluation when relevant evidence, context, or time changes**
+
+Prices, rates, time, settlement status, evidence freshness, policy, and known operator context can change while holdings remain identical. Wheelwright therefore does not become inert merely because no portfolio transaction occurred.
+
+At the state-change-preparation boundary, Wheelwright should expose materially relevant supported alternatives within its scope, explain their criteria and consequences plainly, and recommend when applicable policy and evidence establish a preference.
+
+The HITL may then act, not act, choose another supported alternative, or act for reasons outside Wheelwright's domain. Wheelwright later reasons from the evidence it actually has.
+
+### 26.5 Recommendation history is not economic history
+
+Dispensing with a mandatory explicit HITL choice event does not eliminate history requirements.
+
+Keep separate:
+
+- recommendation provenance — what Wheelwright concluded using which evidence and policy;
+- economic history — transactions, assignments, distributions, rolls, capital changes, and other economic events;
+- operator disposition — where explicitly recorded, whether a recommendation was followed, deferred, or departed from.
+
+A later endpoint state must not be used to invent unobserved intermediate history.
+
+GitHub issue #34 remains the open cross-cutting concern for lifecycle history, tracking, reporting, and policy-dependent historical evidence.
+
+### 26.6 Cash economics
+
+Cash must not be treated as economically inert.
+
+A truthful general formulation is:
+
+> **An identified cash or cash-like holding may earn a return, including zero, while also providing liquidity, optionality, and potentially collateral utility.**
+
+Those capabilities depend on the actual holding, account treatment, horizon, and evidence.
+
+Low return alone does not establish that cash should be redeployed. High return alone does not establish that a replacement is superior.
+
+Wheelwright is not a general valuation, NPV, or household capital-allocation appliance. It does not need to request or derive a discount rate merely because cash exists.
+
+Where an appropriately qualified operator-supplied comparison reference already exists, Wheelwright may make a modest comparison such as observing that a cash holding's return is below that reference. It must not manufacture valuation loss, attainable counterfactual return, or deployment pressure from the comparison.
+
+### 26.7 Product scope: brokerage financing versus the operator's debt surface
+
+General household debt and financing optimization are outside the declared Wheelwright Product scope.
+
+Wheelwright does not need to discover or optimize the operator's mortgage, HELOC, vehicle debt, real-estate financing, or other external debt surface.
+
+Brokerage financing remains part of complete-state economics when material. Margin debit, margin interest, collateral treatment, and related brokerage consequences can therefore belong in an in-scope comparison.
+
+This is a scope boundary, not a new cash primitive.
+
+### 26.8 Future-event evidence is not present funding
+
+Wheelwright is constrained to what known evidence establishes.
+
+A pending transfer or other future event may be relevant evidence without becoming present usable cash.
+
+Wheelwright must not fill a current funding gap with a pro forma expectation merely because an inflow is anticipated.
+
+Preserve exactly what the evidence establishes about amount, timing, status, settlement, and usability.
+
+### 26.9 Multi-objective requests and sparse supported-strategy coverage
+
+Operator objectives need not be mutually exclusive.
+
+A legitimate request can be:
+
+> **I want capital-protected growth along with cash flow to meet my stated monthly income obligation.**
+
+Wheelwright need not already possess one supported strategy satisfying every requested capability.
+
+Early strategy coverage can be intentionally sparse. Wheelwright should present the materially distinct supported choices it can establish, explain what each accomplishes and sacrifices, and be explicit about uncovered requirements.
+
+A supported-strategy gap must not be converted into an impossibility claim.
+
+Keep distinct:
+
+- unsupported by Wheelwright's current strategy coverage;
+- insufficiently evidenced;
+- infeasible under the evidenced state;
+- incompatible with another stated requirement.
+
+Therefore:
+
+> **Incomplete strategy coverage is acceptable; hidden incompleteness is not.**
+
+Expanding supported strategy coverage can enrich the action surface over time without creating a new cash-specific primitive.
+
+The adjacent growth/capital-protection taxonomy remains discovery work. This closure does not ratify a Capital Protection regime, Hedged Equity family, collar policy, or multi-objective precedence rule.
+
+### 26.10 Underlying-specific acquisition
+
+Available cash does not imply a particular underlying or equity exposure.
+
+An acquisition question becomes specific only when evidence/operator intent establishes it, for example:
+
+> **I am willing to acquire XYZ, but only below $X.**
+
+That intent can make direct acquisition, a relevant working acquisition order, SELL PUT, patience, staged/partial acquisition where supported, or other materially distinct paths relevant.
+
+Price willingness does not establish acceptance of every acquisition condition or contractual consequence.
+
+This reuses the closed put-side distinctions and does not reopen put-side primitive discovery.
+
+### 26.11 Closure qualifications
+
+Three qualifications explicitly survive closure:
+
+1. **Brokerage financing remains part of complete-state economics.** Margin debit, interest, collateral, and related consequences belong in comparisons where material; household debt optimization does not.
+2. **Supported-strategy gaps are distinct from impossibility.** “Wheelwright cannot establish a supported choice satisfying all stated requirements” must not become “no such strategy exists.”
+3. **Future-event evidence is not present funding.** A pending transfer or expected event can be relevant evidence without becoming usable cash.
+
+The warning/recommendation/HITL/enforcement distinctions and the repaired evidence-observation loop also survive as part of the durable closure account.
+
+### 26.12 What closure does not decide
+
+Cash-side primitive closure does **not** ratify:
+
+- a cash policy;
+- a cash optimizer;
+- mandatory deployment;
+- a universal yield or return objective;
+- a hurdle-rate or discount-rate model;
+- valuation or NPV machinery;
+- a canonical cash-purpose schema;
+- a canonical strategy matrix;
+- multi-objective precedence;
+- complete strategy coverage;
+- a Capital Protection taxonomy;
+- lifecycle-history architecture or accounting formulas;
+- persistence, API, or implementation design.
+
+Issue #34 remains open.
+
+### 26.13 Closure criterion satisfied
+
+The cash-side discovery attempted to produce materially different operator recommendation or decision boundaries that existing Product distinctions could not explain.
+
+After adversarial review and Principal scope reconciliation, the remaining attacks reduce to:
+
+- existing purpose/objective and quantity distinctions;
+- timing/horizon and evidence sufficiency;
+- obligations and brokerage-state economics;
+- execution/settlement facts;
+- supported-strategy coverage;
+- operator preferences and broader out-of-scope context;
+- complete consequence comparison;
+- cross-cutting lifecycle history;
+- unratified policy;
+- or matters explicitly outside Wheelwright's declared Product scope.
+
+No new cash-specific Product primitive was demonstrated.
+
+Therefore the Principal ratifies the bounded cash-side primitive-discovery closure.
+
+This is Product-discovery closure only. Policy, supported-strategy expansion, multi-objective precedence, lifecycle-history work, and implementation remain open.
