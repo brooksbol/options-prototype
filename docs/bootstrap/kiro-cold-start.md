@@ -30,6 +30,8 @@ The Principal mandate is non-negotiable: **backend owns state and business logic
 
 Do not inherit v1 client-side state, browser evaluation, topology, or other architectural debt into v2 merely because it exists. V1 is evidence and a source of lessons; v2 reuse requires independent justification against current v2 authority.
 
+For v2, client-side caching of Wheelwright domain representations is constrained to standard HTTP caching semantics. Client caches must never become independent Wheelwright state, reconciliation, persistence, or business-logic authority. Ordinary client configuration/presentation preferences and source files awaiting explicit submission remain permissible but non-authoritative.
+
 ## Authority discipline
 
 Keep two questions separate:
