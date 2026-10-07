@@ -16,6 +16,24 @@ V2 capability design should proceed in this order:
 
 **Product semantics -> capability boundaries -> HTTP semantics -> OAS representation -> implementation.**
 
+## V2 backend authority mandate
+
+**Principal mandate:** API v2 MUST preserve a strict authority boundary: **backend owns state and business logic; clients own presentation.**
+
+External systems remain the ultimate origin of their own state. A brokerage, for example, owns the brokerage reality. Wheelwright backend owns the authoritative, provenance-bearing observation/snapshot of that external state that Wheelwright uses, together with Wheelwright-owned governance, policy, derived state, and authoritative business logic.
+
+Accordingly:
+
+- clients MAY initiate requests, submit/import source evidence, select subjects, and render/project backend results;
+- clients MUST NOT be the authoritative or sole durable store for Wheelwright state or external-state observations used by authoritative Wheelwright behavior;
+- clients MUST NOT independently own or reproduce authoritative Wheelwright business logic, evidence reconciliation, governance evaluation, availability determination, or governed comparisons;
+- authoritative Product behavior MUST NOT depend on state or business logic that exists only in a browser, CLI, or other client;
+- `ww`, the web client, and future clients consume the same backend-owned state and business capabilities and may differ only in interaction and presentation;
+- a backend-held external-state snapshot is an observation with explicit provenance and temporal meaning, not a claim that Wheelwright supersedes the external system as the source of reality;
+- v1 client-side topology, browser-held portfolio state, and browser-side business logic are architectural debt/lessons, **not assumptions to inherit into v2**. Reuse requires independent v2 justification.
+
+This mandate selects the v2 authority/placement boundary. It does NOT by itself select a storage technology, persistence schema, intake mechanism, resource/route shape, OAS schema, snapshot retention policy, or implementation decomposition.
+
 ## 2. Authoritative machine-readable contract
 
 API v2 MUST expose and maintain an authoritative OpenAPI Specification (OAS).
