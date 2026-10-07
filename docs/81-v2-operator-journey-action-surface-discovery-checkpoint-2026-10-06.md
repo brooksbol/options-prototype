@@ -2176,3 +2176,118 @@ This decision does not:
 With the MVP 1 Solution Overview, capability decomposition, and initial evaluation-technology direction now ratified, the next authorized action remains:
 
 > **Begin bounded WW command + BE-resource discovery for MVP 1.**
+
+
+---
+
+## 30. MVP 1 bounded backend capability milestone — Principal-accepted
+
+**Date:** 2026-10-07
+
+**Status:** Principal-accepted bounded capability proposal and design-falsification milestone. This section resolves the MVP 1 backend/client placement question under the Principal-mandated API v2 architecture and authorizes the next bounded command/resource discovery step. It does not select REST resource families, WW commands, HTTP methods, schemas, storage representation, retention mechanisms, or implementation.
+
+### 30.1 Governing placement and authority
+
+API v2 is governed by the Principal mandate in Doc 77:
+
+> **Backend owns state and business logic; clients own presentation.**
+
+External systems remain the ultimate origin of their own state. For brokerage reality, the brokerage is the origin authority; Wheelwright backend owns the authoritative provenance-bearing observations/snapshots it admits and uses, together with Wheelwright-owned governance, policy, derived state, and authoritative business logic.
+
+For MVP 1, authoritative governed evaluation therefore executes within the backend authority boundary. This later Principal mandate resolves the placement question left open in §29.8 without changing §29's selected direct, typed, deterministic evaluation technology.
+
+Client-side caching of Wheelwright domain representations is limited to standard HTTP caching semantics. A client cache is a cache of backend representations, not an independent Wheelwright state store, reconciliation authority, persistence boundary, or business-logic substrate. Ordinary client configuration, presentation preferences, and a source artifact awaiting explicit submission remain permissible so long as they do not become authoritative Wheelwright state.
+
+HTTP cache freshness and evidence fitness are separate meanings. A response may be HTTP-fresh while containing older evidence whose Product limitations the backend has already established. HTTP freshness does not establish current ownership, trading suitability, or continued applicability of an earlier comparison.
+
+### 30.2 Five minimum backend information responsibilities
+
+MVP 1 requires five backend-owned information responsibilities. These describe semantic responsibilities, not tables, schemas, services, endpoints, or one-to-one resources.
+
+1. **Brokerage observations** — admitted ownership, obligations, orders, and relevant restrictions; accepted account attribution; source meaning, coverage, temporal meaning, and transformation provenance. Missing coverage remains explicit.
+2. **Governed share subject** — identifiable account-local share quantity, underlying, explicit Growth Wheel association, applicable governance, and sufficient provenance/version to establish the association. Aggregate brokerage ownership remains separate.
+3. **Identified contract evidence** — contract identity, established contractual terms, actual deliverable, payment/multiplier, exercise/settlement semantics, subject compatibility, and supported-evaluation boundaries.
+4. **Market observations** — identified underlying and option observations supporting contemplated economics, with provenance and temporal qualifications.
+5. **Effective governed behavior** — established mechanics, applicable versioned policy, and support definitions used by authoritative evaluation, with sufficient identity/content to reproduce effective behavior. Undefined Growth Wheel call-entry preference policy remains explicitly undefined.
+
+The contemplated contract quantity is request intent, not brokerage state. Likewise, a request to compare a share quantity does not create ownership or governance.
+
+### 30.3 Four externally meaningful capability boundaries
+
+The accepted bounded proposal identifies four externally meaningful capability boundaries. They are not yet four REST resource families, endpoints, or commands.
+
+1. **Brokerage-evidence intake and inspection** — accept evidence under established account-attribution authority; admit supported observations; retain them behind the backend authority boundary; expose what is established and what remains uncovered. Intake does not establish governance.
+2. **Governed share-subject establishment and inspection** — establish explicit quantity-scoped governance through an authorized governance act and resolve/explain existing associations without ticker/account fallback. Governance does not establish current ownership.
+3. **Contract and market-evidence access** — establish or inspect contract facts and held market observations while preserving the distinction among contract semantics, evidence acquisition, and held evidence inspection. This capability boundary does not imply a combined persisted contract-and-market object.
+4. **Bounded call-entry comparison** — authoritative backend composition of the seven ratified Product capabilities for RETAIN UNENCUMBERED versus SELL SHORT CALL using an operator-identified contract and contemplated quantity.
+
+The comparison is the one new primary MVP 1 operator capability. Availability, feasibility, consequences, and preference are backend-derived findings and are not independently maintained state merely because the backend computes them. MVP 1 does not justify standalone Availability, Feasibility, Consequence, Preference, generic Strategy/Recommendation, or seven-capability resources; this is not a permanent prohibition against a later independently useful capability.
+
+### 30.4 Comparison request and evaluation basis
+
+The client identifies the question and contemplated action; it does not supply authoritative answers.
+
+Conceptually, a comparison request identifies the intended account/governed share subject, the identified option contract, and the contemplated contract quantity. The backend establishes ownership, governance, availability, contract semantics, evidence fitness, feasibility, consequences, and policy status from backend-owned state and behavior.
+
+The comparison MUST bind one **recoverable and coherent evaluation basis**. Recoverability alone is insufficient. Re-running against fixed but temporally incompatible evidence can reproduce an unjustified conclusion. The backend therefore owns both evidence selection and coherence assessment across subject binding, governed quantity, contemplated quantity, temporal evidence, mechanics, policy, and material assumptions.
+
+Replacement observations arriving during evaluation must not cause different branches of one comparison to consume incompatible bases. Different evidence units may legitimately have different observation times; the requirement is conclusion-relative composability, not one universal timestamp.
+
+Reproduction must be able to recover the consumed evidence and effective governed behavior rather than silently reevaluating against whatever is newest. This milestone does not select the persistence or replay mechanism and does not require every comparison to become an existing Lifecycle Decision record.
+
+### 30.5 Acquisition and comparison remain separate
+
+The initial bounded comparison derives from admitted/held backend inputs. It does not silently:
+
+- import brokerage evidence;
+- alter governance;
+- search an option chain;
+- choose another call;
+- broaden market acquisition beyond explicit semantics.
+
+A supplied artifact remains a legitimate intake path. Once admitted, its supported observations belong to the backend authority boundary and must be recoverable without the originating client. This does not require permanent retention of every raw source artifact, a general brokerage-state platform, or lifecycle reconstruction. Exact retention remains downstream design work subject to provenance/reproduction obligations.
+
+If future comparison behavior performs evidence acquisition or revalidation, that behavior must be explicit under Doc 77 acquisition semantics rather than hidden inside comparison.
+
+### 30.6 Partial findings versus operation failure
+
+A valid comparison may remain incomplete while preserving independently supported findings. Missing working-order coverage, missing quote evidence, or undefined policy can limit specific conclusions without making the whole operation fail.
+
+Operation-level failure remains distinct for conditions such as uninterpretable/invalid request input, unauthorized access, or inability to execute the capability at all. Product incompleteness must not masquerade as transport/operation failure, and operation failure must not masquerade as a legitimate unresolved Product conclusion.
+
+### 30.7 Accepted design-falsification obligations
+
+The Principal accepts the bounded proposal after five design attacks. These are acceptance obligations, not executable verification claims:
+
+1. **CLI versus web:** presentation may differ, but the same request, applicable caller context, and evaluation basis must preserve the same authoritative findings and qualifications. Clients may not independently recompute or hide authoritative semantics.
+2. **Fresh client:** clearing browser/client-local state must not destroy brokerage observations, governance, or other authoritative Wheelwright state. A fresh client recovers from the backend.
+3. **Concurrent observation replacement:** one comparison must not drift across incompatible predecessor/successor observations; fixed revisions remain subject to backend coherence assessment.
+4. **Missing working-order coverage:** preserve established ownership/obligation findings while withholding overall unencumbered availability. Do not infer absence and do not globally fail independent findings.
+5. **HTTP-only client caching:** correct Product behavior must not require client-side observation merging, local policy reevaluation, or non-HTTP domain-state persistence.
+
+A surviving client cache cannot reconstruct authoritative Wheelwright state after backend loss merely because it contains old representations.
+
+### 30.8 Boundedness and non-goals
+
+This milestone does not require:
+
+- a complete brokerage-state platform;
+- general lifecycle reconstruction;
+- autonomous contract discovery or ranking;
+- seven backend resources/endpoints;
+- standalone availability/feasibility/consequence/preference resources;
+- a combined contract-and-market persisted object;
+- client-side evaluation or reconciliation;
+- a client database;
+- a generic recommendation or rules engine;
+- HTTP method, URI, schema, OAS, table, storage, or implementation selection.
+
+Existing v1 implementation is reuse evidence and a source of failure lessons, not v2 architectural authority. Existing v2 quote resources may be reused where their actual contracts satisfy the required meaning; existing governance infrastructure may be reused where its actual semantics establish the required Growth Wheel quantity-scoped association. Neither is assumed merely because it exists.
+
+### 30.9 Next authorized action
+
+The next authorized step in the Principal-established progression is:
+
+> **Derive the smallest operator invocation and natural backend resource identities for the bounded call-entry comparison and its necessary evidence/governance support surfaces.**
+
+Begin from operator questions and stable domain identity. Do not select HTTP methods, wire schemas, persistence structures, or implementation during this step.
