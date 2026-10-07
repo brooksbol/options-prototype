@@ -1681,3 +1681,227 @@ No new cash-specific Product primitive was demonstrated.
 Therefore the Principal ratifies the bounded cash-side primitive-discovery closure.
 
 This is Product-discovery closure only. Policy, supported-strategy expansion, multi-objective precedence, lifecycle-history work, and implementation remain open.
+
+
+---
+
+## 27. MVP 1 bounded call-entry comparison — Principal-ratified Solution Overview
+
+**Date:** 2026-10-07
+
+**Status:** Principal-ratified Product Solution Overview. This section authorizes derivation of the minimum capabilities required by this MVP. It does not authorize command/API design, backend resource contracts, schemas, implementation, autonomous contract search, or Growth Wheel call-entry recommendation policy.
+
+### 27.1 Development progression
+
+The Principal establishes the Product-development sequence:
+
+> **Questions → Capabilities → WW commands and BE resources → Working software → Acceptance tests**
+
+MVP work should proceed as a thin vertical slice through that progression rather than horizontally designing generalized lower layers first.
+
+### 27.2 MVP 1 Product question and comparison boundary
+
+For an identified governed quantity of Growth Wheel shares:
+
+> **Should I retain these shares unencumbered, or sell this identified short call against them?**
+
+MVP 1 compares only:
+
+- **RETAIN UNENCUMBERED**
+- **SELL SHORT CALL** using an operator-identified contract.
+
+It does not claim to answer every way to “get the most work” from the shares. Liquidation, acquisition, other strategies, autonomous call discovery, and existing-call management are outside this comparison.
+
+The first executable milestone is a bounded, evidence-backed comparison, not a recommendation whose policy remains undefined.
+
+### 27.3 Decision subject
+
+The decision subject is:
+
+> **identified account + underlying + governed quantity + applicable Growth Wheel context**
+
+Ticker, account type, ownership quantity, prior Wheel activity, or option-chain availability alone does not establish Growth Wheel membership or the governed quantity.
+
+The initial specimen may fix these facts for observation. Product behavior must preserve uncertainty when they are not established.
+
+### 27.4 Unencumbered availability requires positive evidence
+
+Absence of an observed conflicting claim is not sufficient to establish absence of conflicting claims.
+
+Before presenting RETAIN UNENCUMBERED versus a new covered call as immediately available choices, Wheelwright needs evidence sufficient for the bounded claim that the governed quantity is unencumbered for this comparison.
+
+Relevant claims can include, where applicable and evidenced:
+
+- an existing short call;
+- a working share-sale order;
+- a working option order involving the quantity;
+- quantity separately governed for another purpose;
+- material brokerage restrictions affecting the contemplated action.
+
+If ownership and governance are established but conflicting-claim coverage is incomplete, preserve those established conclusions and report:
+
+> **Unencumbered availability is not established.**
+
+If a short call or other conflicting claim is established, continuing ownership is not equivalent to RETAIN UNENCUMBERED. The MVP entry comparison is withheld rather than misrepresenting the current state.
+
+This is an evidence boundary, not lifecycle reconstruction.
+
+### 27.5 Operator-identified contract and search meaning
+
+MVP 1 does not autonomously select, rank, optimize, or search for the call contract.
+
+The operator identifies the contract to compare, or identifies it through another surface whose selection semantics are independently established.
+
+The supported completeness claim is only:
+
+> **Wheelwright compared the identified contract with retaining the governed shares unencumbered.**
+
+MVP 1 does not establish “best available call,” “only acceptable call,” representative-call status, or search completeness.
+
+Autonomous candidate discovery is a later Product slice.
+
+### 27.6 Contract support and validation
+
+Contract validation is semantic, not ticker matching.
+
+For the identified contract, Wheelwright must establish the contractual terms necessary for supported conclusions, including as applicable:
+
+- actual deliverable and required quantity;
+- settlement form;
+- payment/multiplier terms;
+- exercise style;
+- material lifecycle consequences.
+
+MVP 1 may deliberately support only ordinary contracts.
+
+An adjusted or otherwise unsupported contract produces **unsupported evaluation**, not a false claim that the contract is inconsistent merely because Wheelwright does not support it.
+
+Missing market evidence can block execution-economics conclusions while leaving independently established contractual consequences explainable.
+
+### 27.7 Choice consequences
+
+For **RETAIN UNENCUMBERED**, where unencumbered availability is established, Wheelwright explains continued ownership and upside/downside exposure without adding the contemplated call obligation. This is not a claim that the economic state is frozen.
+
+For **SELL SHORT CALL**, Wheelwright explains the complete contemplated position rather than premium in isolation, including as supported:
+
+- affected governed quantity;
+- exact contract;
+- strike and expiration;
+- proposed or indicative execution economics;
+- compensation if executed on those terms;
+- obligation created;
+- ownership/upside consequences;
+- assignment and expiration consequences;
+- material costs or funding effects where established;
+- conclusion-relevant evidence qualifications.
+
+Indicative premium is not guaranteed execution or guaranteed profit.
+
+### 27.8 Feasibility and preference remain independent
+
+A feasibility finding concerns whether preconditions for the contemplated action are established under the evidenced conditions. It does not guarantee execution.
+
+Preference is separate.
+
+Possible no-winner causes must remain distinguishable, including:
+
+- applicable governance cannot be established;
+- known applicable policy is undefined;
+- sufficient policy exists but deciding evidence is missing;
+- applicable policy permits alternatives without establishing a preference.
+
+Likewise, preserve the distinction among:
+
+- policy prohibiting the call;
+- policy preferring retention;
+- policy failing to establish a preference.
+
+Undefined recommendation authority for SELL SHORT CALL does not make RETAIN UNENCUMBERED the default recommendation.
+
+For the first executable milestone, where applicable call-entry policy remains undefined, a successful result can be:
+
+> **NO GOVERNED PREFERENCE ESTABLISHED**
+
+with the precise reason stated.
+
+### 27.9 Conclusion-specific evidence behavior
+
+Evidence sufficiency is conclusion-specific.
+
+Each conclusion stands or falls on its own dependencies. Failure to establish one conclusion must not erase independently established conclusions.
+
+Examples:
+
+- ownership may be established while Growth Wheel association is not;
+- ownership and governance may be established while unencumbered availability is not;
+- subject and availability may be established while option quote evidence is inadequate;
+- contractual consequences may be established while execution economics are not;
+- feasibility may be established while preference remains unresolved.
+
+Evidence must be evaluated according to its applicable semantics. Age alone does not automatically invalidate evidence.
+
+### 27.10 Choice-first operator result
+
+The Product result is choice-first and should make the bounded comparison visible.
+
+Conceptually it contains:
+
+1. the identified governed subject;
+2. the bounded comparison;
+3. RETAIN UNENCUMBERED consequences where established;
+4. SELL SHORT CALL consequences for the identified contract where supported;
+5. preference status and its precise cause;
+6. conclusion-relevant limits and unsupported scope.
+
+Supporting data follows the choices.
+
+This is not a ratified CLI or response schema.
+
+### 27.11 MVP acceptance surface
+
+The accepted Product acceptance cases include:
+
+1. **100 governed, available shares + sufficient evidence + identified supported call + policy undefined** → complete comparison; no governed preference established.
+2. **99 governed shares** → short-call alternative unavailable for the established ordinary 100-share deliverable; no silent borrowing of other governed shares.
+3. **More shares owned than governed** → evaluate only the identified governed quantity.
+4. **Conflicting claim established** → explain the claim; do not treat the quantity as unencumbered.
+5. **Conflicting-claim coverage incomplete** → preserve ownership/governance conclusions; unencumbered availability is not established.
+6. **Ownership established, governance missing** → preserve ownership; do not infer Growth Wheel membership.
+7. **Option evidence inadequate** → preserve independent subject/availability/contract conclusions; withhold only dependent execution-economics conclusions.
+8. **Identified contract inconsistent with the subject** → explain the inconsistency.
+9. **Adjusted or otherwise unsupported contract** → unsupported evaluation rather than false inconsistency.
+10. **Indicative economics with execution uncertainty** → do not present proposed premium as executed or guaranteed.
+11. **Policy undefined** → no governed preference established; neither choice wins by default.
+
+Autonomous-search completeness is not an MVP 1 acceptance concern because autonomous contract discovery is outside MVP 1.
+
+A later recommendation-capable milestone must also survive identical market evidence under materially changed applicable governance without leaking hidden ranking policy or context.
+
+### 27.12 Explicit non-goals
+
+MVP 1 does not establish:
+
+- autonomous call search or candidate selection;
+- “best call” selection;
+- strike or expiration optimization;
+- generalized option ranking;
+- liquidation comparison;
+- existing-call management or rolling;
+- put acquisition;
+- cash allocation;
+- generalized strategy selection;
+- lifecycle reconstruction unless a required conclusion actually depends on history;
+- Growth Wheel call-entry recommendation policy;
+- a generalized recommendation engine.
+
+This Solution Overview does not select WW command names, command decomposition, backend resource boundaries, API contracts, persistence, schemas, or implementation architecture.
+
+### 27.13 Next authorized action
+
+The Principal ratifies this clarified MVP 1 Solution Overview and authorizes the next step in the established progression:
+
+> **Derive only the minimum capabilities required to satisfy this accepted Solution Overview.**
+
+Capability derivation should begin from required Product conclusions and identify their evidence/policy dependencies, possible findings, and which independent conclusions survive when a dependency is unavailable.
+
+Do not select command names or backend resource boundaries during that derivation.
