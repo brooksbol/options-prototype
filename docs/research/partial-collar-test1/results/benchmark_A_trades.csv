@@ -1,0 +1,2 @@
+date,signal_date,previous_state,new_state,trigger,sleeve,action,execution_price,shares_traded,cash_before,cash_after,shares_before,shares_after,settlement_receivable,dividend_receivable,portfolio_value_at_open,commission,signal_drawdown,signal_price5,signal_rvx5,signal_sma50,signal_sma200,signal_close,signal_rvx,actual_before,actual_after
+2005-06-10,,UNINITIALIZED,S0:F0,initial_allocation,core,BUY,62.4812258,1600,100000,22.0387834,0,1600,0,0,99942.04,8,,,,,,,,0shares,1600shares

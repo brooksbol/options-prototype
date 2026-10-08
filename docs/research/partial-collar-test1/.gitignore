@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+.env*
+creds*
+results/logs/
+data/raw/
+data/normalized/

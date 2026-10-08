@@ -727,3 +727,20 @@ Principal screenshot feedback additionally authorizes brighter coral red (#ff5f5
 ### PL-CLI-01 / PL-API-03 — Principal accepted current styled human table — October 5, 2026
 
 After reviewing the latest Desktop screenshot, Principal accepted the current table styling, including brighter coral red (#ff5f5f, indexed 203) for negative change values. Current implementation is commit `506fd0a23a2d192950f9d15c0a81ab76365e6741`, already synchronized to `origin/main`; closeout records this acceptance and verifies the completed handoff. This closes the visual acceptance boundary for the authorized show-query/table slice. It does not assert regular-session “today,” market completeness, suitability, or independent review, and does not close broader PL-CLI-01/PL-API-03.
+
+---
+
+## `PL-STRAT-01` Refinement — Partial Collar Protected Growth Test 1 — October 8, 2026
+
+**Date:** October 8, 2026
+
+**State:** RECONCILED — authorized bounded research experiment; no strategy admission, live trading policy, or options implementation.
+
+Principal supplied a complete handoff to implement a local Python falsification of IWM slow/fast tactical liquidation and restoration, preserving a 100-share core and two 100-share tactical sleeves under $100,000 capital. Test 1 excludes options pricing; Tests 2–6 require later evaluation/review. Refinement retained under existing strategy-expansion identity, related `PL-EVID-01`; no new ID. Strategic disposition: evidence for `LVT-BET-STRATEGIES`, `LVT-BET-CONSEQUENCE-ENVELOPE`, `LVT-BET-LIFECYCLE-POLICY`, no roadmap change. Architectural disposition: isolated research instrument, no architecture or operational-acquisition ownership change. Decomposition/explicit provisional state resolutions, chronology, matrix, provenance and authority are recorded in `docs/research/partial-collar-test1/METHOD.md` (Reconciliation Completion Record). Why-state/results: same directory. Next authorized mode: implement/run/persist Test 1 research per handoff; no automatic Test 2.
+
+### `PL-STRAT-01` — Test 1 experiment disposition — October 8, 2026
+
+**Date:** October 8, 2026
+**State:** IMPLEMENTED — research harness and evidence only; findings await Principal evaluation; no strategy admission or automatic Test 2.
+
+Implementation and bounded research evidence are complete in `docs/research/partial-collar-test1/REPORT.md`: 291 baseline configurations, seven historical windows, chronology/walk-forward, paired costs/conflicts/cash sensitivities, data provenance, full local logs, 22 tests and independent accounting replay. Research recommendation **FAIL** against joint targets; no strategy admission or Principal acceptance follows. ThetaData authentication/limited historical coverage verified; longer primary dataset uses explicit Yahoo/FRED/Cboe provenance. Current research head: findings awaiting Principal evaluation; no automatic Test 2 or slow-grid optimization. Existing separate v2 workflow heads remain untouched.

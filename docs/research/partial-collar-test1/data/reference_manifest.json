@@ -1,0 +1,22 @@
+{
+  "retrieved_utc": "2026-10-08T21:38:45.196680+00:00",
+  "cutoff": "2026-10-07",
+  "files": {
+    "iwm.json": {
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/IWM?period1=946684800&period2=1791417600&interval=1d&events=div%2Csplits",
+      "sha256": "ff4abc606aa9049d2d062797802272be3a8d5a6db27e8000a7bc83033f440ef5",
+      "bytes": 719715
+    },
+    "rvx_fred.csv": {
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=RVXCLS",
+      "sha256": "08203edcb4124b08f69a8bd5e03ae8615da6051aa9e82df5a16cd43557e6add2",
+      "bytes": 99917
+    },
+    "rvx_cboe.csv": {
+      "url": "https://cdn.cboe.com/api/global/us_indices/daily_prices/RVX_History.csv",
+      "sha256": "361183fc15cc4e19db63e39b36ea0e20b5002c60bfb028e1031eb2e63b71c808",
+      "bytes": 218611
+    }
+  },
+  "theta_status": "Main Yahoo/FRED/Cboe captures preserve longer history; local Theta email/password authentication later verified. See theta_availability.json and theta_comparison.json."
+}

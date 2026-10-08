@@ -1,0 +1,23 @@
+{
+  "iwm_start": "2000-05-26",
+  "iwm_end": "2026-10-07",
+  "iwm_sessions": 6630,
+  "rvx_start": "2004-01-02",
+  "simulation_start": "2005-06-10",
+  "missing_iwm_sessions": 0,
+  "off_calendar_iwm": 0,
+  "missing_rvx_after_simulation_start": 2,
+  "missing_rvx_dates": [
+    "2005-10-10",
+    "2005-11-11"
+  ],
+  "dividend_events": 107,
+  "split_events": 1,
+  "max_adjustment_ratio_error": 1.2542423823980187e-06,
+  "rvx_cboe_fred_overlap": 4286,
+  "rvx_max_source_disagreement": 0.0,
+  "rvx_disagree_gt_0_02": 0,
+  "timestamp_zone": "America/New_York",
+  "calendar": "XNYS exchange_calendars4.5.6 with explicit Carter closure2025-01-09",
+  "normalized_sha256": "8f17eefcb78e8d52cbadf9d5d1cd25cdddb3a54d03e36dbd1b022b842ed0fa74"
+}

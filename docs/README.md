@@ -300,6 +300,7 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `engineering-spikes/*` | API feasibility assessments |
 | `design/ww-show-held-quote-solution-design.md` | Bounded Solution Design for multi-subject show/local field discovery and the authorized collection/filter/order/horizontal-table extension (§15); accepted reversible path-symbol codec preserved; linked verification evidence. |
 | `design/ww-show-held-quote-transport-reconciliation.md` | Bounded HTTP/OAS reconciliation: unchanged instance-resource route with a canonical reversible path-symbol codec, unchanged container/old operations, exact additive OAS delta and passing accepted-implementation transport preservation proof. |
+| `research/partial-collar-test1/` | Principal-commissioned Partial Collar Protected Growth Test 1 research harness, candidate state resolutions, IWM/RVX provenance, matrix/chronology/stress/cost evidence and falsification report under `PL-STRAT-01`; no strategy admission, options pricing or live execution authority. |
 | `discovery/*` | Design notes and vocabulary exploration |
 | `reference-data/*` | Real options chain fixture |
 

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-07T19:30:28.402Z",
+    "generatedAt": "2026-10-08T21:59:25.712Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,7 +41,7 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 33,
-      "logTotal": 105,
+      "logTotal": 107,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 60
@@ -4260,7 +4260,7 @@
         {
           "heading": "PL-CLI-01 / PL-API-03 — Principal accepted current styled human table — October 5, 2026",
           "level": 3,
-          "content": "After reviewing the latest Desktop screenshot, Principal accepted the current table styling, including brighter coral red (#ff5f5f, indexed 203) for negative change values. Current implementation is commit `506fd0a23a2d192950f9d15c0a81ab76365e6741`, already synchronized to `origin/main`; closeout records this acceptance and verifies the completed handoff. This closes the visual acceptance boundary for the authorized show-query/table slice. It does not assert regular-session “today,” market completeness, suitability, or independent review, and does not close broader PL-CLI-01/PL-API-03.",
+          "content": "After reviewing the latest Desktop screenshot, Principal accepted the current table styling, including brighter coral red (#ff5f5f, indexed 203) for negative change values. Current implementation is commit `506fd0a23a2d192950f9d15c0a81ab76365e6741`, already synchronized to `origin/main`; closeout records this acceptance and verifies the completed handoff. This closes the visual acceptance boundary for the authorized show-query/table slice. It does not assert regular-session “today,” market completeness, suitability, or independent review, and does not close broader PL-CLI-01/PL-API-03.\n\n---",
           "truncated": false,
           "tables": []
         }
@@ -9277,7 +9277,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 580
+      "sourceOrder": 582
     },
     {
       "plId": null,
@@ -9420,7 +9420,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 559
+      "sourceOrder": 561
     },
     {
       "plId": null,
@@ -9433,7 +9433,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 560
+      "sourceOrder": 562
     },
     {
       "plId": null,
@@ -9446,7 +9446,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 561
+      "sourceOrder": 563
     },
     {
       "plId": null,
@@ -9459,7 +9459,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 564
+      "sourceOrder": 566
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -9485,7 +9485,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 562
+      "sourceOrder": 564
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -9667,7 +9667,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 542
+      "sourceOrder": 544
     },
     {
       "plId": null,
@@ -9680,7 +9680,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 543
+      "sourceOrder": 545
     },
     {
       "plId": null,
@@ -9693,7 +9693,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 544
+      "sourceOrder": 546
     },
     {
       "plId": null,
@@ -9706,7 +9706,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 545
+      "sourceOrder": 547
     },
     {
       "plId": null,
@@ -9719,7 +9719,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 546
+      "sourceOrder": 548
     },
     {
       "plId": null,
@@ -9732,7 +9732,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 547
+      "sourceOrder": 549
     },
     {
       "plId": null,
@@ -9745,7 +9745,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 548
+      "sourceOrder": 550
     },
     {
       "plId": null,
@@ -9758,7 +9758,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 549
+      "sourceOrder": 551
     },
     {
       "plId": null,
@@ -9771,7 +9771,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 550
+      "sourceOrder": 552
     },
     {
       "plId": null,
@@ -9784,7 +9784,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 551
+      "sourceOrder": 553
     },
     {
       "plId": null,
@@ -9797,7 +9797,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 552
+      "sourceOrder": 554
     },
     {
       "plId": null,
@@ -9810,7 +9810,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 553
+      "sourceOrder": 555
     },
     {
       "plId": null,
@@ -9823,7 +9823,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 554
+      "sourceOrder": 556
     },
     {
       "plId": null,
@@ -9836,7 +9836,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 555
+      "sourceOrder": 557
     },
     {
       "plId": null,
@@ -9849,7 +9849,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 556
+      "sourceOrder": 558
     },
     {
       "plId": null,
@@ -9862,7 +9862,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 557
+      "sourceOrder": 559
     },
     {
       "plId": null,
@@ -9875,7 +9875,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 558
+      "sourceOrder": 560
     },
     {
       "plId": null,
@@ -9888,7 +9888,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 563
+      "sourceOrder": 565
     },
     {
       "plId": null,
@@ -9901,7 +9901,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 579
+      "sourceOrder": 581
     },
     {
       "plId": "PL-SEM-01",
@@ -10070,7 +10070,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 565
+      "sourceOrder": 567
     },
     {
       "plId": null,
@@ -10083,7 +10083,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 566
+      "sourceOrder": 568
     },
     {
       "plId": "PL-SETUP-01",
@@ -10291,7 +10291,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 567
+      "sourceOrder": 569
     },
     {
       "plId": null,
@@ -10304,7 +10304,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 568
+      "sourceOrder": 570
     },
     {
       "plId": null,
@@ -10317,39 +10317,13 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 569
+      "sourceOrder": 571
     },
     {
       "plId": null,
       "bugId": "BUG-031",
       "title": "Principal authorization and resolution — 2026-10-05",
       "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 570
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Post-resolution validation — 2026-10-05",
-      "eventKind": "reconciliation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 571
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Principal acceptance and closure — 2026-10-05",
-      "eventKind": "remediation",
       "establishesIntake": false,
       "eventDateText": "2026-10-05",
       "eventDateIso": "2026-10-05",
@@ -10360,20 +10334,7 @@
     },
     {
       "plId": null,
-      "bugId": "BUG-032",
-      "title": "Principal authorization and resolution — 2026-10-05",
-      "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 573
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-032",
+      "bugId": "BUG-031",
       "title": "Post-resolution validation — 2026-10-05",
       "eventKind": "reconciliation",
       "establishesIntake": false,
@@ -10381,14 +10342,27 @@
       "eventDateIso": "2026-10-05",
       "state": null,
       "headingLevel": 3,
-      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 573
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
+      "title": "Principal acceptance and closure — 2026-10-05",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
       "sourceOrder": 574
     },
     {
       "plId": null,
       "bugId": "BUG-032",
-      "title": "Principal acceptance and closure — 2026-10-05",
-      "eventKind": "remediation",
+      "title": "Principal authorization and resolution — 2026-10-05",
+      "eventKind": "implementation",
       "establishesIntake": false,
       "eventDateText": "2026-10-05",
       "eventDateIso": "2026-10-05",
@@ -10400,7 +10374,7 @@
     {
       "plId": null,
       "bugId": "BUG-032",
-      "title": "Audit checkpoint — 2026-10-05 — Post-acceptance no-wrap compatibility failure",
+      "title": "Post-resolution validation — 2026-10-05",
       "eventKind": "reconciliation",
       "establishesIntake": false,
       "eventDateText": "2026-10-05",
@@ -10413,6 +10387,32 @@
     {
       "plId": null,
       "bugId": "BUG-032",
+      "title": "Principal acceptance and closure — 2026-10-05",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 577
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
+      "title": "Audit checkpoint — 2026-10-05 — Post-acceptance no-wrap compatibility failure",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 578
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
       "title": "Principal authorization and resolution — 2026-10-05 — Self-contained row foreground",
       "eventKind": "implementation",
       "establishesIntake": false,
@@ -10421,7 +10421,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 577
+      "sourceOrder": 579
     },
     {
       "plId": null,
@@ -10434,7 +10434,33 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 578
+      "sourceOrder": 580
+    },
+    {
+      "plId": "PL-STRAT-01",
+      "bugId": null,
+      "title": "PL-STRAT-01 Refinement — Partial Collar Protected Growth Test 1 — October 8, 2026",
+      "eventKind": "refinement",
+      "establishesIntake": false,
+      "eventDateText": "October 8, 2026",
+      "eventDateIso": "2026-10-08",
+      "state": "RECONCILED — authorized bounded research experiment; no strategy admission, live trading policy, or options implementation.",
+      "headingLevel": 2,
+      "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 542
+    },
+    {
+      "plId": "PL-STRAT-01",
+      "bugId": null,
+      "title": "PL-STRAT-01 — Test 1 experiment disposition — October 8, 2026",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "October 8, 2026",
+      "eventDateIso": "2026-10-08",
+      "state": "IMPLEMENTED — research harness and evidence only; findings await Principal evaluation; no strategy admission or automatic Test 2.",
+      "headingLevel": 3,
+      "sourceFile": "parking-lot-10.md",
+      "sourceOrder": 543
     }
   ],
   "intakeDateUnknown": [

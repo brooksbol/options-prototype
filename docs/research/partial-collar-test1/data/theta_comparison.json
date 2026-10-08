@@ -1,0 +1,20 @@
+{
+  "iwm": {
+    "matched_sessions": 841,
+    "max_abs_close_difference": 1.4599999985875911e-05,
+    "differences_gt_0_02": 0,
+    "max_relative_difference": 5.517554435372381e-08,
+    "off_reference_dates": [],
+    "theta_first": "2023-06-01",
+    "theta_last": "2026-10-07"
+  },
+  "rvx": {
+    "matched_sessions": 692,
+    "max_abs_close_difference": 0.0,
+    "differences_gt_0_02": 0,
+    "max_relative_difference": 0.0,
+    "off_reference_dates": [],
+    "theta_first": "2024-01-02",
+    "theta_last": "2026-10-07"
+  }
+}

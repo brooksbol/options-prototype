@@ -1,0 +1,505 @@
+{
+  "retrieved_utc": "2026-10-08T21:51:58.102891+00:00",
+  "coverage_request": [
+    "2023-06-01",
+    "2026-10-07"
+  ],
+  "files": {
+    "IWM_202306.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20230601&end_date=20230630&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "85a249b34a9d8575736d5bba5bc0ae64022e233e9c5c8aebaee591ddb844684f"
+    },
+    "IWM_202307.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20230701&end_date=20230731&format=json",
+      "status": null,
+      "rows": 20,
+      "sha256": "807c05e4264924700a9a206b219c7fe668a25cff6d38af23b97448fe5153e916"
+    },
+    "IWM_202308.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20230801&end_date=20230831&format=json",
+      "status": null,
+      "rows": 23,
+      "sha256": "e127cdca0c5520d5982e6235db3c38828906ed742f5c0b76537f0e0eb75b9af2"
+    },
+    "IWM_202309.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20230901&end_date=20230930&format=json",
+      "status": null,
+      "rows": 20,
+      "sha256": "c5d73365561eeac98421a16936d5a6cd234be23ced46f9767612e893ce3dfac4"
+    },
+    "IWM_202310.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20231001&end_date=20231031&format=json",
+      "status": null,
+      "rows": 22,
+      "sha256": "3712a85a8b9a3c6b710522a5ef14510c8e3c6e91febd1934c152ab6363bf30ae"
+    },
+    "IWM_202311.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20231101&end_date=20231130&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "758a18e6bc028e4f1dd39ecbe6f258f342fc2d986b9b58e2f7118f48e1f0800f"
+    },
+    "IWM_202312.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20231201&end_date=20231231&format=json",
+      "status": null,
+      "rows": 20,
+      "sha256": "c8f061212d0379bfce8c5604ae41c49356e8ee51915d03b6b71054b6f63273a5"
+    },
+    "IWM_202401.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20240101&end_date=20240131&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "5374d14318f78a8d270723afbeee4ee6a108728b55af4416687355829cd691a7"
+    },
+    "IWM_202402.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20240201&end_date=20240229&format=json",
+      "status": null,
+      "rows": 20,
+      "sha256": "6cef66f82876a5e2dbd46ff72cdf9e6619552f593ec743f2f22d5c6b8a5ace83"
+    },
+    "IWM_202403.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20240301&end_date=20240331&format=json",
+      "status": null,
+      "rows": 20,
+      "sha256": "ba0ff3f6ac157a315db3a8aef183f16875a5d24b75e52045f2168615ab76d378"
+    },
+    "IWM_202404.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20240401&end_date=20240430&format=json",
+      "status": null,
+      "rows": 22,
+      "sha256": "c733087fd5a3d9849d14bf1b1c6f435db5d1aa503505a4afa3e28079b2f21928"
+    },
+    "IWM_202405.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20240501&end_date=20240531&format=json",
+      "status": null,
+      "rows": 22,
+      "sha256": "33c5ac0398ad22399e82139e21f698f966fa6a27eefb9b75c5c38a58519a68eb"
+    },
+    "IWM_202406.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20240601&end_date=20240630&format=json",
+      "status": null,
+      "rows": 19,
+      "sha256": "0b6740c1f9acc0fe81506071f5dcefa36c28c9ac6ccdd92011c63bcc221f3f45"
+    },
+    "IWM_202407.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20240701&end_date=20240731&format=json",
+      "status": null,
+      "rows": 22,
+      "sha256": "3ecae2275108472e4326646b3728fef0620f8de5c89689c2f7f6fc8ccc4601a6"
+    },
+    "IWM_202408.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20240801&end_date=20240831&format=json",
+      "status": null,
+      "rows": 22,
+      "sha256": "046adf69195417f54e4304b41545f0dab3076220356e35d14b1ae41e9fbf1bf8"
+    },
+    "IWM_202409.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20240901&end_date=20240930&format=json",
+      "status": null,
+      "rows": 20,
+      "sha256": "90cbfee57a72d03e378a3b5f15338c81a2960ff68e6c78b75aa96fff30483e61"
+    },
+    "IWM_202410.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20241001&end_date=20241031&format=json",
+      "status": null,
+      "rows": 23,
+      "sha256": "572545e16aaf52bfac4f6657488df0a7aa47e496ff45caaf72a381fd84f5f6dc"
+    },
+    "IWM_202411.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20241101&end_date=20241130&format=json",
+      "status": null,
+      "rows": 20,
+      "sha256": "f6eb4a5626817418104b16f80f9b4059c7e88aa29c4fbbfe8eba77ea30b7ff34"
+    },
+    "IWM_202412.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20241201&end_date=20241231&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "0e75d03caed88ab5f5fcbd638977f264485b066bd4e36e8f0bf89e213ab569d7"
+    },
+    "IWM_202501.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20250101&end_date=20250131&format=json",
+      "status": null,
+      "rows": 20,
+      "sha256": "0720cd24ca3865671995683bc3f307b63fb678974f76066f8c767c1b4f5eb8aa"
+    },
+    "IWM_202502.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20250201&end_date=20250228&format=json",
+      "status": null,
+      "rows": 19,
+      "sha256": "703352b483a8142c3513bd6a4fb1afbe270626f64b277d45638b63dc7cef0b90"
+    },
+    "IWM_202503.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20250301&end_date=20250331&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "36c564627d92ed2eea6c7daa81423a5298dc7efef6705265eeef1dffaa45f98d"
+    },
+    "IWM_202504.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20250401&end_date=20250430&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "adf511eab85e6d1a0136156c37beb6d927ed048c7a2139bd72f3727c2ea6a140"
+    },
+    "IWM_202505.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20250501&end_date=20250531&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "51a6ba35df5df39be26cd244618f1e2844e2724524ecae2f0fff69b5f6d59ab3"
+    },
+    "IWM_202506.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20250601&end_date=20250630&format=json",
+      "status": null,
+      "rows": 20,
+      "sha256": "61cb60c51e813c03f8714bc80d12defee94fb0b5b7241643b61d14f7ed055bca"
+    },
+    "IWM_202507.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20250701&end_date=20250731&format=json",
+      "status": null,
+      "rows": 22,
+      "sha256": "0065879c8677481ec5ca2504269d5f02076d6a87ba075181a956dc7b75744962"
+    },
+    "IWM_202508.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20250801&end_date=20250831&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "38c1fa998e34897f813b74c71fe59b369c67bf5ec0c99835a168c50759b025f6"
+    },
+    "IWM_202509.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20250901&end_date=20250930&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "241ecb602a8d16bc654909cdeb83d404128a5b8acbf396fe2b8d6b9c87dfe49f"
+    },
+    "IWM_202510.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20251001&end_date=20251031&format=json",
+      "status": null,
+      "rows": 23,
+      "sha256": "2baae1b9d14ed805261ab61610ce90adc0844c92af5d064559a848b3e759bb52"
+    },
+    "IWM_202511.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20251101&end_date=20251130&format=json",
+      "status": null,
+      "rows": 19,
+      "sha256": "2df5bac38377ddfda3e9b2c036b146a71b2d3af3a93b8f787091c6816199e4fd"
+    },
+    "IWM_202512.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20251201&end_date=20251231&format=json",
+      "status": null,
+      "rows": 22,
+      "sha256": "aebc82ee647d8daff99b81a77f6d5614025e0c034cd24fb7ca8391013f24b6f4"
+    },
+    "IWM_202601.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20260101&end_date=20260131&format=json",
+      "status": null,
+      "rows": 20,
+      "sha256": "5d6bc25113dd5bba0cffc77a1426bebdd1e0eaac031e9accdf15d505352b19ca"
+    },
+    "IWM_202602.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20260201&end_date=20260228&format=json",
+      "status": null,
+      "rows": 19,
+      "sha256": "71c6b42a783a454eacd556b53e1aaf788813ea2bb578ec6dd358105bcde3b7e0"
+    },
+    "IWM_202603.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20260301&end_date=20260331&format=json",
+      "status": null,
+      "rows": 22,
+      "sha256": "4a869f5d603b48d7e490703e2ea92cbead146b430be0e77aa548c327d6002c0d"
+    },
+    "IWM_202604.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20260401&end_date=20260430&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "7244bfdbd050d1a6482abfb635a90cec546b09e494da08e518840052c3c46054"
+    },
+    "IWM_202605.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20260501&end_date=20260531&format=json",
+      "status": null,
+      "rows": 20,
+      "sha256": "2e5b2b0091507a0837f7f5496e8c08497d10f172c212fc8d717ff6eb54c15c58"
+    },
+    "IWM_202606.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20260601&end_date=20260630&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "60ff2c23c69fce8375bdff2141565038b46c7fdb968b76ef7eaf3a411db7875c"
+    },
+    "IWM_202607.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20260701&end_date=20260731&format=json",
+      "status": null,
+      "rows": 22,
+      "sha256": "71de9b6c2d5c52547f9e61206c4dc7645b3867a5827e06bd07a369c7b4b3ec07"
+    },
+    "IWM_202608.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20260801&end_date=20260831&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "ab9f423c5071da33bdb8f1e04c18538e944c920d310eb60a135ecae4428ed82c"
+    },
+    "IWM_202609.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20260901&end_date=20260930&format=json",
+      "status": null,
+      "rows": 21,
+      "sha256": "8daae41a906763767b786d5e286b3b7affb5684ad44b06e1b8fb2b5e05d82bd4"
+    },
+    "IWM_202610.json": {
+      "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=IWM&start_date=20261001&end_date=20261007&format=json",
+      "status": null,
+      "rows": 5,
+      "sha256": "de0292d7a4cf96bf493d6eaf26be83ac69da50478c3aebfc39de0e0912a91653"
+    },
+    "RVX_202306.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20230601&end_date=20230630&format=json",
+      "status": 403,
+      "rows": 0,
+      "sha256": "ee9f2daaa178ed1fc80b639cca12eaa7d2167aa357ef11e703d0ce816dea71f8"
+    },
+    "RVX_202307.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20230701&end_date=20230731&format=json",
+      "status": 403,
+      "rows": 0,
+      "sha256": "ee9f2daaa178ed1fc80b639cca12eaa7d2167aa357ef11e703d0ce816dea71f8"
+    },
+    "RVX_202308.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20230801&end_date=20230831&format=json",
+      "status": 403,
+      "rows": 0,
+      "sha256": "ee9f2daaa178ed1fc80b639cca12eaa7d2167aa357ef11e703d0ce816dea71f8"
+    },
+    "RVX_202309.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20230901&end_date=20230930&format=json",
+      "status": 403,
+      "rows": 0,
+      "sha256": "ee9f2daaa178ed1fc80b639cca12eaa7d2167aa357ef11e703d0ce816dea71f8"
+    },
+    "RVX_202310.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20231001&end_date=20231031&format=json",
+      "status": 403,
+      "rows": 0,
+      "sha256": "ee9f2daaa178ed1fc80b639cca12eaa7d2167aa357ef11e703d0ce816dea71f8"
+    },
+    "RVX_202311.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20231101&end_date=20231130&format=json",
+      "status": 403,
+      "rows": 0,
+      "sha256": "ee9f2daaa178ed1fc80b639cca12eaa7d2167aa357ef11e703d0ce816dea71f8"
+    },
+    "RVX_202312.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20231201&end_date=20231231&format=json",
+      "status": 403,
+      "rows": 0,
+      "sha256": "ee9f2daaa178ed1fc80b639cca12eaa7d2167aa357ef11e703d0ce816dea71f8"
+    },
+    "RVX_202401.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20240101&end_date=20240131&format=json",
+      "status": 200,
+      "rows": 21,
+      "sha256": "a9a128f141238569f25f8f253faa62af7e9ccd70071db4c8255daf2e3ad716e5"
+    },
+    "RVX_202402.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20240201&end_date=20240229&format=json",
+      "status": 200,
+      "rows": 20,
+      "sha256": "149ef44644482fd89b7629bef0ca33d9c31537f7bffebe78b95313a906620ff9"
+    },
+    "RVX_202403.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20240301&end_date=20240331&format=json",
+      "status": 200,
+      "rows": 20,
+      "sha256": "64a77ec816dc0dd8a124dda8049bd270e15bd487e63a0822e674aa96f5e6927d"
+    },
+    "RVX_202404.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20240401&end_date=20240430&format=json",
+      "status": 200,
+      "rows": 20,
+      "sha256": "70f3afd1c305cc6894bf1ffb9626d2ff49a324effec2336c6f329815ea4a4fd2"
+    },
+    "RVX_202405.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20240501&end_date=20240531&format=json",
+      "status": 200,
+      "rows": 22,
+      "sha256": "f5e4faf0e70a975e731df3482d248d0af9c1e719f51b5ad627a17691d7bcd595"
+    },
+    "RVX_202406.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20240601&end_date=20240630&format=json",
+      "status": 200,
+      "rows": 19,
+      "sha256": "81ee363f51d24fdf71a2882b8fc69a766f25a16cadd8a60cb230b2cad2211659"
+    },
+    "RVX_202407.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20240701&end_date=20240731&format=json",
+      "status": 200,
+      "rows": 22,
+      "sha256": "76d91cf96fbb12fde4842dfd7fbf553b484cee42ec3755282242c6250db35840"
+    },
+    "RVX_202408.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20240801&end_date=20240831&format=json",
+      "status": 200,
+      "rows": 22,
+      "sha256": "b18c37ba5d8fcbfe09cdeceefda9ab7cf161e689aab20846a847d1799bc2e1ef"
+    },
+    "RVX_202409.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20240901&end_date=20240930&format=json",
+      "status": 200,
+      "rows": 20,
+      "sha256": "576016a541c1000fb562f739ec1175d043cfcfab0f9c81a2de43ce77f4493571"
+    },
+    "RVX_202410.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20241001&end_date=20241031&format=json",
+      "status": 200,
+      "rows": 23,
+      "sha256": "4f99f85ffcec9d5de64f9ebe35025cf583f4bb78b2b7be315a73abcec537acdf"
+    },
+    "RVX_202411.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20241101&end_date=20241130&format=json",
+      "status": 200,
+      "rows": 20,
+      "sha256": "4390000a72b7797de99c8aa977d651c4888a7b5daa22f890c781cacd94e88436"
+    },
+    "RVX_202412.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20241201&end_date=20241231&format=json",
+      "status": 200,
+      "rows": 21,
+      "sha256": "ad5919cfffb90e907b9f6e86d34557cf98dbe4b7f683b5bb4137696dfa11611f"
+    },
+    "RVX_202501.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20250101&end_date=20250131&format=json",
+      "status": 200,
+      "rows": 20,
+      "sha256": "7fd840eb785a327037661d0723dd087111bbc416775cf90aed77e61338fe2c85"
+    },
+    "RVX_202502.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20250201&end_date=20250228&format=json",
+      "status": 200,
+      "rows": 19,
+      "sha256": "ddae3908b1a1a1105b52d1123f85ad339524c31a7315871294774f8e90a2a109"
+    },
+    "RVX_202503.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20250301&end_date=20250331&format=json",
+      "status": 200,
+      "rows": 21,
+      "sha256": "b3b37de1f334d88fe56d33ba3b0e825234cabe3685fa91ab3815e982949a0fe3"
+    },
+    "RVX_202504.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20250401&end_date=20250430&format=json",
+      "status": 200,
+      "rows": 21,
+      "sha256": "c4d9fbb679f5467939238ae9e1f487038cb35b097b8bf6e3f57161299dd06de9"
+    },
+    "RVX_202505.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20250501&end_date=20250531&format=json",
+      "status": 200,
+      "rows": 21,
+      "sha256": "693c35447568aada72935b7f9d03e88fb9b2580a16154fe061c372892583cd9f"
+    },
+    "RVX_202506.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20250601&end_date=20250630&format=json",
+      "status": 200,
+      "rows": 20,
+      "sha256": "a21596b4d51b285da9c99b0a51edaac3df6313f9ad9a80df455795c2f76aea15"
+    },
+    "RVX_202507.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20250701&end_date=20250731&format=json",
+      "status": 200,
+      "rows": 22,
+      "sha256": "d73c13406c81c242d585916825ad76d9091c4eb9ecef379e2291ed3869640b28"
+    },
+    "RVX_202508.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20250801&end_date=20250831&format=json",
+      "status": 200,
+      "rows": 21,
+      "sha256": "f03fcc19302eca7c8e3b1563d54f2da489d70eb9d0095c1d882ee37986d39fc1"
+    },
+    "RVX_202509.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20250901&end_date=20250930&format=json",
+      "status": 200,
+      "rows": 21,
+      "sha256": "76574c00a579f4e08a8da22c25c75847d8d07713254daab9d4d0c5cabfdc2c0f"
+    },
+    "RVX_202510.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20251001&end_date=20251031&format=json",
+      "status": 200,
+      "rows": 23,
+      "sha256": "a0d0c471e0ddad258b6366b27b6140a968d0b3c65ba2b4fa6a4cff204db25646"
+    },
+    "RVX_202511.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20251101&end_date=20251130&format=json",
+      "status": 200,
+      "rows": 19,
+      "sha256": "1bbda9d8915f5697109ac5eeca87802f858e8b2753d37480fe94d9708851963f"
+    },
+    "RVX_202512.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20251201&end_date=20251231&format=json",
+      "status": 200,
+      "rows": 22,
+      "sha256": "c5934efa8b4690901e4dffb04b8f2f27dc4f0d8aa9ce503844c7650a91096980"
+    },
+    "RVX_202601.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20260101&end_date=20260131&format=json",
+      "status": 200,
+      "rows": 20,
+      "sha256": "0259d49e37a0ba2ecc944099a0c09effc1a4ebcbadf035e4bb62c0eb77b5113d"
+    },
+    "RVX_202602.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20260201&end_date=20260228&format=json",
+      "status": 200,
+      "rows": 19,
+      "sha256": "7ac18de9788f2b951ae31a3a17544ea1f2a959616e6e47e23e792921b941a36c"
+    },
+    "RVX_202603.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20260301&end_date=20260331&format=json",
+      "status": 200,
+      "rows": 22,
+      "sha256": "11a102a0096bc55f73399ffba579566d8c9bcef2cbfce0a6242de7312456d921"
+    },
+    "RVX_202604.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20260401&end_date=20260430&format=json",
+      "status": 200,
+      "rows": 21,
+      "sha256": "ce765325a0d28469a99f5b7794767914eab5eb6f5f2fd5ec7d6da6f894241f30"
+    },
+    "RVX_202605.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20260501&end_date=20260531&format=json",
+      "status": 200,
+      "rows": 20,
+      "sha256": "1325dc141bda630fcc83cd05adcae7e78be1b8fb02b1449a877569cca2aff76a"
+    },
+    "RVX_202606.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20260601&end_date=20260630&format=json",
+      "status": 200,
+      "rows": 21,
+      "sha256": "9e0c2c58ba387161c1d3f5cabfdcc05511e12e2bd606385e3001c0fa873452b6"
+    },
+    "RVX_202607.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20260701&end_date=20260731&format=json",
+      "status": 200,
+      "rows": 22,
+      "sha256": "3dc4e7c41b0bfac0ade8764c5fbf3528e25b16739e0494a5dd374443a967e215"
+    },
+    "RVX_202608.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20260801&end_date=20260831&format=json",
+      "status": 200,
+      "rows": 21,
+      "sha256": "696edb74ebb6b6c33287f27b1f18a242a49b4bb0496a986606638effc6c43d9d"
+    },
+    "RVX_202609.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20260901&end_date=20260930&format=json",
+      "status": 200,
+      "rows": 21,
+      "sha256": "aa4018eb2a36256a005ec079bdb0876597125b6d60c710e5251c4908b37292f3"
+    },
+    "RVX_202610.json": {
+      "url": "http://127.0.0.1:25503/v3/index/history/eod?symbol=RVX&start_date=20261001&end_date=20261007&format=json",
+      "status": 200,
+      "rows": 5,
+      "sha256": "c5ac72afb41dfeed9ea8f5357dab0dc215e4514277947504d7a4280316c89e4e"
+    }
+  },
+  "rows": {
+    "IWM": 841,
+    "RVX": 692
+  }
+}
