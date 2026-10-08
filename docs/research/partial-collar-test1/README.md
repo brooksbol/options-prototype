@@ -2,6 +2,8 @@
 
 Isolated, options-free state-machine falsification research. Authorized by the Principal handoff 2026-10-08, under `PL-STRAT-01`. No production Wheelwright behavior changes. [METHOD.md](METHOD.md) defines candidate resolutions and predeclared grid; [DATA.md](DATA.md) distinguishes executable prices, signals and provider evidence; [REPORT.md](REPORT.md) reports measured findings.
 
+**Principal disposition (October 8, 2026):** FAIL accepted for the tested tactical candidate; broader strategy remains unproven. No further implementation or Test 2 authorized. [Principal review](PRINCIPAL-REVIEW.md) preserves the accepted scope, preliminary interpretation and unresolved diagnostic questions.
+
 ## Reproduce
 
 Python 3.9+, tested on macOS arm 64/Python 3.9.6. All dependencies pinned in `requirements-lock.txt`.

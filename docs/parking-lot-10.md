@@ -744,3 +744,10 @@ Principal supplied a complete handoff to implement a local Python falsification 
 **State:** IMPLEMENTED — research harness and evidence only; findings await Principal evaluation; no strategy admission or automatic Test 2.
 
 Implementation and bounded research evidence are complete in `docs/research/partial-collar-test1/REPORT.md`: 291 baseline configurations, seven historical windows, chronology/walk-forward, paired costs/conflicts/cash sensitivities, data provenance, full local logs, 22 tests and independent accounting replay. Research recommendation **FAIL** against joint targets; no strategy admission or Principal acceptance follows. ThetaData authentication/limited historical coverage verified; longer primary dataset uses explicit Yahoo/FRED/Cboe provenance. Current research head: findings awaiting Principal evaluation; no automatic Test 2 or slow-grid optimization. Existing separate v2 workflow heads remain untouched.
+
+### `PL-STRAT-01` — Principal accepts Test 1 FAIL; successor implementation held — October 8, 2026
+
+**Date:** October 8, 2026
+**State:** RECONCILED — Principal accepts FAIL for the tested tactical candidate; broader strategy remains unproven; no further implementation or Test 2 authorized.
+
+Principal accepted the combined-objective failure: full-period drawdown 15.23% versus matched passive 15.22%, ending value $154,259 versus $175,429 (approximately 12.1% shortfall). The local 2020 fast-engine benefit does not establish complete-cycle portfolio improvement. This disposition supersedes the preceding awaiting-evaluation research head and consumes the completed Test 1 implementation scope; it does not reject untested collar economics or ratify an architecture revision. The Principal's intended next step is evidence inspection to distinguish defective parameterization, defective transition policy and fundamental weakness in tactical share recycling. Those explanations remain unresolved, with no successor experiment authorized. Accepted scope and preliminary interpretation: `docs/research/partial-collar-test1/PRINCIPAL-REVIEW.md`. Existing separate workflow heads and product horizons remain unchanged.
