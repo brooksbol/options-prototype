@@ -1099,3 +1099,24 @@ Closure executes the Principal's renewed explicit direction after the outstandin
 
 **Provenance:** Principal-directed follow-up after Kiro's post-ratification interpretation and ChatGPT reconciliation; `docs/principles.md` (`PRIN-ARCH-BACKEND-AUTHORITY`), Doc 77 v2 backend mandate, Doc 68 delivery-surface working intent, `docs/foundations/evidence-appliance.md`, and Kiro's incomplete `CONV-WEB` assessment.
 
+
+
+---
+
+## CONV-WEB — Principal-Accepted Rewrite Plan Intake Disposition (October 11, 2026)
+
+**Status: RECEIVED IN SUMMARY; COMPLETE SOURCE ARTIFACT PENDING. REQUIRES RECONCILIATION; NOT RATIFIED.**
+
+**Principal direction:** Accept Kiro's high-level Wheelwright web-client rewrite proposal for durable intake under the existing `PL-CONV-01 / CONV-WEB` concern. Do not create a new `PL-*` identity, roadmap Bet or implementation commitment.
+
+**Source qualification:** The current conversation contains Kiro's narrative *summary* of a reviewable rewrite-plan artifact, but **not the complete plan text or an accessible canonical file**. Search of available conversation/Library files did not locate the exact plan. This entry therefore preserves the summary and provenance only; it does not falsely claim the complete source has been archived. Once the full artifact is supplied or placed at a verifiable repository path, preserve it intact as a linked supporting discovery document, and reconcile this summary against it before accepting plan details.
+
+**Kiro-reported proposal:** A backend-capability-led strangler reconstruction rather than a mechanical v1 endpoint port. Keep operational v1 Web untouched until replacement capabilities are verified and Principal-accepted. Proposed plan structure includes: Phase 0 reconciliation and inventory/OAS verification; Phase 1 authenticated v2 client spine using existing reads; Phase 2 backend evidence projection; Phase 3 backend recommendation/explanation capability, requiring extraction and Principal reconciliation of Product semantics (funnel, WAIT, affordability, admissibility); later presentation reconstruction, parity verification and explicit v1 retirement gate. Kiro describes “six phases” while also referring to “Phases 4–6”; **phase numbering/count must be checked against the actual artifact** rather than normalized here. Estimates remain preliminary multi-month planning bands, backend capability development the likely critical path.
+
+**Architectural reconciliation:** Ratified `PRIN-ARCH-BACKEND-AUTHORITY` fixes responsibility allocation: authoritative domain state, evidence and decision semantics belong to backend; presentation and interaction belong to clients. This does not ratify Kiro's claim that a wholesale React rewrite is necessary. Reusable presentation components and incremental reconstruction remain legitimate. Existing `CONV-WEB` findings, Doc 77 and Evidence Appliance govern. No new strategic Bet is established; cross-client backend capabilities should be shared where meaning and evidence warrant.
+
+**Why-state / unresolved decisions:** Preserve current Cash Deployment behavior while removing browser-owned authoritative decision logic in the target architecture. Product capability semantics, exact v2 contract boundaries, verification of current frontend dependencies and complete OAS, existing parking-lot/roadmap overlap, relative sequencing against the Principal-selected six-step `PL-CONV-01` plan, and parity/retirement gates remain OPEN. The complete plan artifact is required before full reconciliation or effort commitment.
+
+**Operational and execution boundary:** V1 Web remains active Cash Deployment software; accepted `tt live` remains monitoring software. No forced cutover, no client rewrite, no API expansion, no code/test/schema change, no migration or deployment is authorized. The existing Step 3 multi-broker Account milestone remains current and is not reordered by this intake.
+
+**Next authorized action:** Obtain the complete Kiro plan artifact, persist it intact as supporting evidence, link it here, and perform bounded strategic/architectural reconciliation. Do not mark `CONV-WEB` reconciled or ratified before that.
