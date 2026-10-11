@@ -69,7 +69,7 @@ const sampleTrade = (underlying, expiry, strikes, fillPrices, mids, target, stop
     { id: `${underlying}-stop`, status: "Received", "order-type": "Stop Limit", price: String(stop),
       "price-effect": "Debit", legs: legs(false) }] };
   const quotes = symbols.map((symbol, i) => ({ symbol, bid: String(mids[i] - 0.01),
-    ask: String(mids[i] + 0.01), mid: String(mids[i]), "updated-at": "2026-10-01T00:00:00.000Z" }));
+    ask: String(mids[i] + 0.01), delta: "0.2", mid: String(mids[i]), "updated-at": "2026-10-01T00:00:00.000Z" }));
   return { holdings, opening, closing, quotes };
 };
 
@@ -81,8 +81,6 @@ const liveEvidence = { account: "5WX01234", holdings: [...ewz.holdings, ...xle.h
   orders: [ewz.opening, xle.opening, ...ewz.closing.orders, ...xle.closing.orders],
   complexOrders: [ewz.closing, xle.closing],
   quotes: [...ewz.quotes, ...xle.quotes],
-  greeks: [...ewz.holdings, ...xle.holdings].map(({ symbol }) => ({
-    symbol, delta: 0.2, updatedAt: Date.parse("2026-10-01T00:00:00.000Z") })),
   now: new Date("2026-10-01T02:00:00.000Z") };
 
 test("live summarizes two complete trades from fills and leg mids without historical order noise", () => {
@@ -122,33 +120,33 @@ test("live colors complete economic segments and returns to white before DTE", (
 });
 
 test("direction uses all held leg deltas in its own underlying and colors each label", () => {
-  const greeks = liveEvidence.greeks.map((item) => ({ ...item,
+  const quotes = liveEvidence.quotes.map((item) => ({ ...item,
     delta: item.symbol === ewz.holdings[0].symbol || item.symbol === xle.holdings[1].symbol ?
       0.31 : item.delta }));
-  const colored = renderLive({ ...liveEvidence, greeks, color: true });
+  const colored = renderLive({ ...liveEvidence, quotes, color: true });
   assert.match(colored, /EWZ\s+Iron Condor\s+\x1b\[32mBULLISH\s*\x1b\[37m/);
   assert.match(colored, /XLE\s+Iron Condor\s+\x1b\[31mBEARISH\s*\x1b\[37m/);
-  const missing = renderLive({ ...liveEvidence, greeks: greeks.slice(1) });
+  const missing = renderLive({ ...liveEvidence, quotes: quotes.map((q, i) => i === 0 ? { ...q, delta: undefined } : q) });
   assert.match(missing, /EWZ\s+Iron Condor\s+—\s+1/);
   assert.match(missing, /XLE\s+Iron Condor\s+BEARISH\s+1/);
-  const stale = greeks.map((item) => ({ ...item,
-    updatedAt: Date.parse("2026-09-29T00:00:00.000Z") }));
-  assert.match(renderLive({ ...liveEvidence, greeks: stale }), /EWZ\s+Iron Condor\s+—\s+1/);
+  const stale = quotes.map((item) => ({ ...item,
+    "updated-at": "2026-09-29T00:00:00.000Z" }));
+  assert.match(renderLive({ ...liveEvidence, quotes: stale }), /EWZ\s+Iron Condor\s+—\s+1/);
 });
 
 test("direction deadband includes ±10 share equivalents per condor", () => {
-  const longPutBoundary = liveEvidence.greeks.map((item) => ({ ...item,
+  const longPutBoundary = liveEvidence.quotes.map((item) => ({ ...item,
     delta: item.symbol === ewz.holdings[0].symbol ? 0.3 : 0.2 }));
-  const shortPutBoundary = liveEvidence.greeks.map((item) => ({ ...item,
+  const shortPutBoundary = liveEvidence.quotes.map((item) => ({ ...item,
     delta: item.symbol === ewz.holdings[1].symbol ? 0.3 : 0.2 }));
-  assert.match(renderLive({ ...liveEvidence, greeks: longPutBoundary }), /EWZ\s+Iron Condor\s+NEUTRAL/);
-  assert.match(renderLive({ ...liveEvidence, greeks: shortPutBoundary }), /EWZ\s+Iron Condor\s+NEUTRAL/);
+  assert.match(renderLive({ ...liveEvidence, quotes: longPutBoundary }), /EWZ\s+Iron Condor\s+NEUTRAL/);
+  assert.match(renderLive({ ...liveEvidence, quotes: shortPutBoundary }), /EWZ\s+Iron Condor\s+NEUTRAL/);
   const outsidePositive = longPutBoundary.map((item) => ({ ...item,
     delta: item.symbol === ewz.holdings[0].symbol ? 0.301 : item.delta }));
   const outsideNegative = shortPutBoundary.map((item) => ({ ...item,
     delta: item.symbol === ewz.holdings[1].symbol ? 0.301 : item.delta }));
-  assert.match(renderLive({ ...liveEvidence, greeks: outsidePositive }), /EWZ\s+Iron Condor\s+BULLISH/);
-  assert.match(renderLive({ ...liveEvidence, greeks: outsideNegative }), /EWZ\s+Iron Condor\s+BEARISH/);
+  assert.match(renderLive({ ...liveEvidence, quotes: outsidePositive }), /EWZ\s+Iron Condor\s+BULLISH/);
+  assert.match(renderLive({ ...liveEvidence, quotes: outsideNegative }), /EWZ\s+Iron Condor\s+BEARISH/);
 });
 
 test("P/L Day uses its own sign and withholds incomplete or stale evidence", () => {
@@ -160,7 +158,7 @@ test("P/L Day uses its own sign and withholds incomplete or stale evidence", () 
     { ...item, "average-daily-market-close-price": undefined } : item);
   assert.match(renderLive({ ...liveEvidence, holdings: missingHoldings }), /EWZ\s+Iron Condor\s+NEUTRAL\s+1\s+—\s+\+\$9/);
   const staleQuotes = liveEvidence.quotes.map((quote) => ({ ...quote, "updated-at": "2026-09-29T00:00:00.000Z" }));
-  assert.match(renderLive({ ...liveEvidence, quotes: staleQuotes }), /XLE\s+Iron Condor\s+NEUTRAL\s+1\s+—\s+—/);
+  assert.match(renderLive({ ...liveEvidence, quotes: staleQuotes }), /XLE\s+Iron Condor\s+—\s+1\s+—\s+—/);
 });
 
 test("QUOTE shows EOD only with broker session close and post-close leg quotes", () => {
@@ -248,13 +246,13 @@ test("live uses only allowlisted reads, one token, and sanitizes API errors", as
   const code = await main(["live"], { env, out: (s) => output.push(s), now: () => liveEvidence.now,
     fetchImpl });
   assert.equal(code, 0);
-  assert.deepEqual(calls.map(({ options }) => options.method), ["POST", ...Array(14).fill("GET")]);
+  assert.deepEqual(calls.map(({ options }) => options.method), ["POST", ...Array(6).fill("GET")]);
   assert.ok(calls.every(({ url, options }) => url.startsWith(PRODUCTION_BASE_URL) &&
     options.redirect === "error" && /^[^/]+\/[^/]+$/.test(options.headers["User-Agent"])));
   assert.ok(calls.slice(1).every(({ options }) => options.headers.Authorization === "Bearer access-marker"));
   assert.doesNotMatch(output.join("\n"), /access-marker|secret-marker|refresh-marker/);
   assert.match(output[0], /EWZ.*\+\$9/);
-  assert.match(output[0], /EWZ\s+Iron Condor\s+—\s+1/);
+  assert.match(output[0], /EWZ\s+Iron Condor\s+\x1b\[33mNEUTRAL/);
   assert.match(output[0], /\x1b\[32m\+\$9/);
   const ttyOutput = [];
   assert.equal(await main(["live"], { env, out: (s) => ttyOutput.push(s), now: () => liveEvidence.now,
@@ -449,4 +447,59 @@ test("sh launcher works from another directory and forwards exit status", () => 
   const invalid = spawnSync(launcher, ["wat"], { cwd: "/", encoding: "utf8" });
   assert.equal(invalid.status, 2);
   assert.match(invalid.stderr, /Unknown command/);
+});
+
+const fridaySession = { state: "Closed", "previous-session": {
+  "open-at": "2026-10-09T13:30:00Z", "close-at": "2026-10-09T20:00:00Z",
+}, "next-session": { "open-at": "2026-10-12T13:30:00Z" } };
+const sundayEvidence = { ...liveEvidence, now: new Date("2026-10-11T14:00:00Z"),
+  session: fridaySession,
+  quotes: liveEvidence.quotes.map((q) => ({ ...q, "updated-at": "2026-10-09T20:00:00Z" })) };
+
+test("Sunday retains Friday economics, direction and colors with a dated quote label", () => {
+  const output = renderLive({ ...sundayEvidence, color: true });
+  assert.match(output, /\x1b\[33mNEUTRAL/);
+  assert.match(output, /\x1b\[32m\+\$9/);
+  assert.match(output, /\x1b\[31m−\$13/);
+  assert.match(output, /\x1b\[31m0\.31/);
+  assert.match(output, /Fri, 10\/09 \(42h\)/);
+  assert.doesNotMatch(output, /quotes stale|\bEOD\b/);
+  const tsv = renderLive({ ...sundayEvidence, format: "tsv", color: true });
+  assert.doesNotMatch(tsv, /\x1b\[/);
+  assert.match(tsv, /NEUTRAL\t1\t\+\$1\t−\$13/);
+});
+
+test("closed-session retention rejects an older leg or missing delta and requires broker context", () => {
+  const quotes = sundayEvidence.quotes.map((q, i) => i === 0 ?
+    { ...q, "updated-at": "2026-10-08T20:00:00Z" } : q);
+  assert.match(renderLive({ ...sundayEvidence, quotes }), /EWZ.*—\s+—\s+0\.42 CR\s+—.*quotes stale/);
+  const missingDeltas = sundayEvidence.quotes.map((g, i) => i === 0 ?
+    { ...g, delta: undefined } : g);
+  assert.match(renderLive({ ...sundayEvidence, quotes: missingDeltas }), /EWZ\s+Iron Condor\s+—/);
+  assert.match(renderLive({ ...sundayEvidence, session: undefined }), /quotes stale/);
+  assert.match(renderLive({ ...sundayEvidence, session: { ...fridaySession, state: "Open" } }), /quotes stale/);
+});
+
+test("Friday values survive Saturday, Monday preopen and holidays but expire once trading resumes", () => {
+  for (const now of [new Date("2026-10-10T14:00:00Z"), new Date("2026-10-12T12:00:00Z")]) {
+    assert.doesNotMatch(renderLive({ ...sundayEvidence, now }), /quotes stale/);
+  }
+  assert.match(renderLive({ ...sundayEvidence, now: new Date("2026-10-12T14:00:00Z") }), /quotes stale/);
+  const session = { ...fridaySession, "previous-session": {
+    "open-at": "2026-10-08T13:30:00Z", "close-at": "2026-10-08T17:00:00Z",
+  } };
+  const quotes = sundayEvidence.quotes.map((q) => ({ ...q, "updated-at": "2026-10-08T17:00:00Z" }));
+  assert.match(renderLive({ ...sundayEvidence, session, quotes }), /Thu, 10\/08/);
+});
+
+test("direction handles signed REST delta strings and leaves malformed delta unknown", () => {
+  const quotes = liveEvidence.quotes.map((quote, i) => ({ ...quote,
+    delta: ["-0.3", "-0.2", "0.4", "0.2", -0.2, -0.3, 0.2, 0.4][i] }));
+  const output = renderLive({ ...liveEvidence, quotes });
+  assert.match(output, /EWZ\s+Iron Condor\s+BEARISH/);
+  assert.match(output, /XLE\s+Iron Condor\s+BULLISH/);
+  for (const delta of [null, "", "NaN", "Infinity", "1.1", true]) {
+    const invalid = quotes.map((q, i) => i === 0 ? { ...q, delta } : q);
+    assert.match(renderLive({ ...liveEvidence, quotes: invalid }), /EWZ\s+Iron Condor\s+—\s+1\s+\$0\s+\+\$9/);
+  }
 });

@@ -40,6 +40,8 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-032 | Human change-cell decoration includes padding and restores green terminal default | CLI / ww show human presentation | Not established | Resolved | [record](BUG-032-show-change-color-scope.md) | Principal manual acceptance 2026-10-05 |
 | BUG-033 | Active-position held-expiration option-chain evidence (and its Greeks) went ≈1 day stale during an open session while underlying fields stayed fresh (IBIT buy-write: Delta 0.83 stale → 0.37 after forced refresh at ~unchanged spot). Established architectural gap: scheduler admission (`getPrioritizedWorkQueue`) uses symbol-level `newestChainAge` and does not independently consult held-expiration age. NOT established: the incident root cause (admission suppression only lasts one freshness-target window; forced-refresh success does not distinguish mechanisms). Earlier internal-Greek-incoherence / normalization-validation / co-temporality / upside-cap / assignment-proximity claims retracted. Principal stopping decision 2026-10-07: preserve findings, keep Open, no further work today. | Backend / scheduler held-expiration admission freshness ↔ Operator Console Greeks | Not established | Open | [record](BUG-033-active-position-greeks-stale-during-open-session.md) | Operator observation 2026-10-07 |
 
+| BUG-034 | tt live suppresses last-session values while markets are closed | CLI / tt live | Not established | Resolved | [record](BUG-034-tt-live-closed-session-values.md) | Principal observation 2026-10-11 |
+
 ## Open-bug audit checkpoint (2026-09-22)
 
 Independent current-main audit/reverification reconciled the previously 18 Open records:
