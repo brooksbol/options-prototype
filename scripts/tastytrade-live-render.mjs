@@ -33,7 +33,7 @@ function wrap(text, width) {
 export function renderPanel({ accountLabel, positions }, { color = false, columns = 157, ascii = false } = {}) {
   const limit = Number.isInteger(columns) && columns > 1 ? columns - 1 : 156;
   const mono = (s) => ascii ? s.replaceAll("—", "--").replaceAll("−", "-") : s;
-  const ink = (s, code) => color && code ? `\x1b[${code}m${s}\x1b[37m` : s;
+  const ink = (s, code) => color && code ? `\x1b[${code}m${s}\x1b[97m` : s;
   const rows = positions.map((p) => ({
     SYMBOL: p.symbol, PAYOFF: silhouette(p, { ascii }).text, EXP: new Set(positions.map(p => p.expiry.slice(0,4))).size > 1 ? p.expiry.slice(0,10) : p.expiry.slice(5, 10).replace("-", "/"), QTY: String(p.quantity),
     DTE: String(p.dte), EXIT: `${p.p50 ? "P50" : "LIMIT"}:${p.transition ? "T" : "B"}`,
@@ -64,18 +64,15 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
     const p = r.p;
     lines.push(keys.map((k) => {
       const value = mono(r[k]);
-      const code = k === "P/L" || k === "PROG" ? p.pnl === null || p.pnl === 0 ? null : p.pnl > 0 ? "32" : "31" :
-        k === "SPOT" ? p.spot.stale ? p.spot.value === null ? "90" : "33" : "96" :
-        k === "QUOTE" ? p.optionEvidence.stale || p.spot.stale || p.optionEvidence.retained || p.spot.retained ? "33" : null :
-        k === "EXIT" && p.transition ? "33" : value === mono("—") ? "90" : null;
+      const code = k === "P/L" || k === "PROG" ? p.pnl === null || p.pnl === 0 ? null : p.pnl > 0 ? "92" : "91" :
+        k === "SPOT" ? p.spot.stale ? p.spot.value === null ? "37" : "93" : "96" :
+        k === "QUOTE" ? p.optionEvidence.stale || p.spot.stale || p.optionEvidence.retained || p.spot.retained ? "93" : null :
+        k === "EXIT" && p.transition ? "93" : value === mono("—") ? "37" : null;
       const decorated = k === "PAYOFF" ? silhouette(p, { ascii, color }).text : ink(value,code);
       return pad(decorated,widths[k],numeric.has(k));
     }).join("  ").trimEnd());
   }
-  lines.push(...wrap(`PAYOFF: expiration shape, not current P/L; ${ascii ? "U" : "≠"} unequal wings; [compressed] unresolved at this width; [?terms] unverified.`,limit));
-  lines.push(...wrap("OPEN/NOW/TARGET: credit/closing debit per unit; P/L gross, leg-mid estimate. SPOT: tastytrade equity mid.",limit));
-  lines.push(...wrap("B: broker limit; T: exit transition (tt positions); ~: mid at/below target, still held. O/S: options/spot; r: retained session; !: stale.",limit));
   if (positions.length === 0) lines.push("No live trades.");
   const output = lines.join("\n");
-  return color ? `\n\x1b[37m${output}\x1b[0m\n` : `\n${output}\n`;
+  return color ? `\n\x1b[97m${output}\x1b[0m\n` : `\n${output}\n`;
 }

@@ -28,7 +28,7 @@ test("approved graphic is line-based with proportional strikes and the same obse
 test("semantic colors are independent of current P/L; ANSI stripping preserves all cells",()=>{
   const p=position(); p.pnl=-18; const plain=silhouette(p), colored=silhouette(p,{color:true});
   assert.equal(strip(colored.text),plain.text);
-  for(const code of ["2;31","33","32","96"])assert.ok(colored.text.includes(`\x1b[${code}m`));
+  for(const code of ["91","93","92","96"])assert.ok(colored.text.includes(`\x1b[${code}m`));
   const out=renderLive({...evidence,color:true}); assert.match(out,/PAYOFF/);
   assert.ok(out.split("\n").every(l=>cellWidth(l)<157));
 });

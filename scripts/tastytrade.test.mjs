@@ -151,13 +151,13 @@ test("live uses only allowlisted reads, one token, and sanitizes API errors", as
   assert.doesNotMatch(output.join("\n"), /access-marker|secret-marker|refresh-marker/);
   assert.match(output[0], /EWZ.*\+\$9/);
   assert.match(output[0], /P50:B/);
-  assert.match(output[0], /\x1b\[32m\+\$9/);
+  assert.match(output[0], /\x1b\[92m\+\$9/);
   const ttyOutput = [];
   assert.equal(await main(["live"], { env, out: (s) => ttyOutput.push(s), now: () => liveEvidence.now,
     fetchImpl }), 0);
-  assert.match(ttyOutput[0], /^\n\x1b\[37m/);
-  assert.match(ttyOutput[0], /\x1b\[32m\+\$9\x1b\[37m/);
-  assert.match(ttyOutput[0], /\x1b\[31m−\$13\x1b\[37m/);
+  assert.match(ttyOutput[0], /^\n\x1b\[97m/);
+  assert.match(ttyOutput[0], /\x1b\[92m\+\$9\x1b\[97m/);
+  assert.match(ttyOutput[0], /\x1b\[91m−\$13\x1b\[97m/);
   assert.match(ttyOutput[0], /\x1b\[0m\n$/);
   const noColorOutput = [];
   assert.equal(await main(["live"], { env: { ...env, NO_COLOR: "1" },

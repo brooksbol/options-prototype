@@ -15,8 +15,9 @@ test("approved columns align, financial values right-align, static references st
   const [_,header,row] = lines(plain);
   assert.equal(row.indexOf("0.42")+4,header.indexOf("OPEN")+4);
   assert.match(row,/P50:B\s+0.42\s+0.33\s+0.21\s+\+\$9\s+\+43%\s+39.60\s+O:2h S:1m/);
-  assert.equal(strip(colored),plain); assert.match(colored,/\x1b\[32m\+\$9\x1b\[37m/);
-  assert.doesNotMatch(colored,/\x1b\[32m0\.21/);
+  assert.equal(strip(colored),plain); assert.match(colored,/\x1b\[92m\+\$9\x1b\[97m/);
+  assert.doesNotMatch(colored,/\x1b\[92m0\.21/);
+  assert.equal(lines(plain).length,4); // Account, headings, two positions; no bottom legend.
   assert.match(plain,/Account XXXX1234/); assert.doesNotMatch(plain,/5WX01234/);
 });
 
