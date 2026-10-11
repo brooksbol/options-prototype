@@ -1,4 +1,6 @@
 // Operator-facing projection of a uniquely evidenced live trade. Broker reads stay in tastytrade.mjs.
+import { usableEvidence, retainedSessionLabel } from "./tastytrade-freshness.mjs";
+
 export class LiveError extends Error {}
 
 function fail(reason) { throw new LiveError(`Live: ${reason}; use tt positions for broker evidence`); }
@@ -115,8 +117,9 @@ function matchingExit(complexOrders, orders, held) {
   return candidates[0];
 }
 
-function quoteEconomics(quotes, held, now) {
+function quoteEconomics(quotes, held, now, session) {
   let closeDebit = 0; let dayGain = 0; let dayReferenceComplete = true; let oldest = Infinity;
+  let stale = false;
   for (const leg of held) {
     const matches = quotes.filter((quote) => quote?.symbol === leg.symbol);
     if (matches.length !== 1) fail("quote evidence missing or duplicated");
@@ -131,10 +134,11 @@ function quoteEconomics(quotes, held, now) {
       dayGain += (leg.direction === "Long" ? 1 : -1) * (mid - reference) * leg.quantity * leg.multiplier;
     } else dayReferenceComplete = false;
     oldest = Math.min(oldest, at);
+    stale ||= !usableEvidence(at, now, session);
   }
   if (closeDebit < -0.000001) fail("indicative package value is inconsistent");
   return { closeDebit: Math.max(0, closeDebit), dayGain: dayReferenceComplete ? dayGain : null, oldest,
-    stale: now.getTime() - oldest > 12 * 60 * 60 * 1000 };
+    stale };
 }
 
 function colorSegment(state, words, color) {
@@ -143,15 +147,18 @@ function colorSegment(state, words, color) {
 
 // Delta is the signed, share-equivalent exposure to this trade's own underlying.
 // Ten share equivalents per condor is the explicit display-only neutral band.
-function directionFor(held, greeks, quantity, now) {
+function directionFor(held, quotes, quantity, now, session) {
   let net = 0;
   for (const leg of held) {
-    const matches = greeks.filter((item) => item?.symbol === leg.symbol);
+    const matches = quotes.filter((item) => item?.symbol === leg.symbol);
     if (matches.length !== 1) return "—";
-    const { delta, updatedAt } = matches[0];
+    const rawDelta = matches[0].delta;
+    const delta = (typeof rawDelta === "number" || typeof rawDelta === "string") &&
+      /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/.test(String(rawDelta)) ? Number(rawDelta) : NaN;
+    const updatedAt = Date.parse(matches[0]["updated-at"]);
     if (typeof delta !== "number" || !Number.isFinite(delta) || Math.abs(delta) > 1 ||
         typeof updatedAt !== "number" || !Number.isFinite(updatedAt) ||
-        updatedAt > now.getTime() + 60_000 || now.getTime() - updatedAt > 12 * 60 * 60 * 1000) return "—";
+        !usableEvidence(updatedAt, now, session)) return "—";
     net += (leg.direction === "Long" ? 1 : -1) * delta * leg.multiplier * leg.quantity;
   }
   const neutralLimit = 10 * quantity;
@@ -175,7 +182,9 @@ function quoteAge(milliseconds) {
   return minutes < 60 ? `${minutes}m` : `${Math.round(minutes / 60)}h`;
 }
 
-function quoteLabel(market, now, sessionCloseAt) {
+function quoteLabel(market, now, sessionCloseAt, session) {
+  const retained = !market.stale && retainedSessionLabel(market.oldest, now, session);
+  if (retained) return `${retained} (${quoteAge(now.getTime() - market.oldest)})`;
   const close = typeof sessionCloseAt === "string" ? Date.parse(sessionCloseAt) : NaN;
   // EOD means every leg was quoted after the broker's session close, not merely that its quote is old.
   return Number.isFinite(close) && dayInNewYork(now) === dayInNewYork(new Date(close)) &&
@@ -183,10 +192,10 @@ function quoteLabel(market, now, sessionCloseAt) {
     "EOD" : quoteAge(now.getTime() - market.oldest);
 }
 
-export function renderLive({ account, holdings, orders, complexOrders, quotes, greeks = [], now,
-  sessionCloseAt, color = false, format = "table" }) {
+export function renderLive({ account, holdings, orders, complexOrders, quotes, now,
+  sessionCloseAt, session, color = false, format = "table" }) {
   if (!Array.isArray(holdings) || !Array.isArray(orders) || !Array.isArray(complexOrders) ||
-      !Array.isArray(quotes) || !Array.isArray(greeks) ||
+      !Array.isArray(quotes) ||
       !(now instanceof Date) || !Number.isFinite(now.getTime()) ||
       !["table", "tsv"].includes(format)) {
     fail("broker evidence malformed");
@@ -216,7 +225,7 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, g
       return { ...leg, multiplier: trade.multiplier,
         dayClose: position?.["average-daily-market-close-price"] ?? position?.["close-price"] };
     });
-    const market = quoteEconomics(quotes, heldWithDayClose, now);
+    const market = quoteEconomics(quotes, heldWithDayClose, now, session);
     const days = Math.round((dayInNewYork(now) - dayInNewYork(new Date(openedAt))) / 86_400_000);
     if (openedAt > now.getTime() || days < 0) fail("opening fill time is after the observation");
     const dte = Math.max(0, Math.round((dayInNewYork(new Date(trade.expiry)) - dayInNewYork(now)) / 86_400_000));
@@ -242,10 +251,10 @@ export function renderLive({ account, holdings, orders, complexOrders, quotes, g
     }
     const dayGain = market.stale || market.dayGain === null ? "—" :
       Math.abs(market.dayGain) < 0.005 ? "$0" : signedDollars(market.dayGain);
-    const direction = directionFor(heldWithDayClose, greeks, trade.quantity, now);
+    const direction = directionFor(heldWithDayClose, quotes, trade.quantity, now, session);
     rows.push([accountLabel, trade.symbol, trade.label, direction, String(trade.quantity), dayGain, sinceEntry,
       `${midpointPrice(credit)} CR`, market.stale ? "—" : midpointPrice(market.closeDebit), targetClose,
-      progress, opened, String(dte), quoteLabel(market, now, sessionCloseAt), note]);
+      progress, opened, String(dte), quoteLabel(market, now, sessionCloseAt, session), note]);
   }
   const headers = ["ACCOUNT", "SYMBOL", "STRUCTURE", "DIRECTION", "QTY", "P/L DAY", "TOTAL G/L",
     "OPENED@", "CURRENT", "TARGET CLOSE@", "PROGRESS", "OPENED", "DTE", "QUOTE"];

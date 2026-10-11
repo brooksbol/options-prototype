@@ -3,7 +3,6 @@
 import { readFileSync } from "node:fs";
 import { parseEnv } from "node:util";
 import { LiveError, maskAccount, renderLive } from "./tastytrade-live.mjs";
-import { readHeldGreeks } from "./tastytrade-greeks.mjs";
 
 // This experimental CLI has only allowlisted broker reads and no broker-write capability.
 export const PRODUCTION_BASE_URL = "https://api.tastyworks.com";
@@ -44,7 +43,10 @@ Positions and orders are separate broker evidence; no protection verdict is infe
 const LIVE_HELP = `Usage: tt live [--account <account-number>] [--tsv]
 
 Show an indicative, read-only live-trade summary for one production account.
-Direction uses current held-leg delta; missing Greeks show —.
+Direction sums signed held-leg delta from the same quotes; missing delta shows —.
+While the market is closed, latest-session quotes remain usable.
+QUOTE dates retained observations (not official closing prints); P/L DAY
+uses the broker daily-close reference for those observations.
 If you have one accessible account, it is selected automatically.
 With multiple accounts, specify --account <account-number>.
 Use --tsv for tab-separated, uncolored output suitable for redirection.
@@ -320,8 +322,7 @@ export function renderComplexOrders(account, result, retrievedAt) {
 }
 
 export async function main(argv = process.argv.slice(2), { env = process.env, readFile = readFileSync,
-  fetchImpl = fetch, out = console.log, err = console.error, now = () => new Date(),
-  WebSocketImpl = WebSocket } = {}) {
+  fetchImpl = fetch, out = console.log, err = console.error, now = () => new Date() } = {}) {
   try {
     const command = parseCommand(argv);
     if (command.kind === "help") { out(command.text); return 0; }
@@ -356,22 +357,16 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
           const symbols = [...new Set(holdings.map((item) => item.symbol))];
           if (symbols.length > 100) throw new CliError("Live: more than 100 held symbols; use tt positions");
           const quotes = await brokerGet(fetchImpl, "equity-option-quotes", undefined, token)(symbols);
-          // Greek acquisition is optional: it must never hide an otherwise evidenced live trade.
-          let greeks = [];
-          try {
-            greeks = await readHeldGreeks({ symbols,
-              loadInstrument: (symbol) => brokerGet(fetchImpl, "equity-option-instrument", symbol, token)(),
-              loadQuoteToken: () => brokerGet(fetchImpl, "quote-token", undefined, token)(),
-              WebSocketImpl, now: now() });
-          } catch { /* Unknown direction is shown explicitly. */ }
-          // Session context enriches the quote label; a failed session read leaves its age visible.
+          // Broker session context preserves closed-session quotes and their deltas.
           let sessionCloseAt;
+          let session;
           try {
-            const session = await brokerGet(fetchImpl, "equity-session", undefined, token)();
-            sessionCloseAt = session?.data?.["close-at"];
+            const response = await brokerGet(fetchImpl, "equity-session", undefined, token)();
+            session = response?.data;
+            sessionCloseAt = session?.["close-at"];
           } catch { /* Quote age remains available. */ }
           out(renderLive({ account, holdings, orders: orders.items, complexOrders: complex.items,
-            quotes: quotes?.data?.items, greeks, now: now(), sessionCloseAt,
+            quotes: quotes?.data?.items, now: now(), sessionCloseAt, session,
             color: !command.tsv,
             format: command.tsv ? "tsv" : "table" }));
         }

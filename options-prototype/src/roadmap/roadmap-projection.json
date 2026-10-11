@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-11T18:32:43.275Z",
+    "generatedAt": "2026-10-11T18:50:59.413Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -40,7 +40,7 @@
       "comingSoonTotal": 5,
       "principleTotal": 9,
       "domainEntryTotal": 36,
-      "bugTotal": 33,
+      "bugTotal": 34,
       "logTotal": 109,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
@@ -9065,6 +9065,74 @@
           "level": 3,
           "content": "- `evidence-service-java/.../db/SqliteEvidenceStore.java` — `getPrioritizedWorkQueue` admission gate uses symbol-level `newestChainAge` for `primaryDue`/`monitoredDue` (~1489–1497) and does not independently consult `held_expiration`; removed multi-DTE surface obligation (~1483–1491); `getQuoteObservations` (spot/`observedAt` from `primary_expiration` chain row ~1152–1197); `setHeldExpirations`/`getHeldExpirations` (~423–462).",
           "truncated": true,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-034",
+      "title": "tt live suppresses last-session values while markets are closed",
+      "area": "CLI / tt live",
+      "severity": "Not established",
+      "status": "Resolved",
+      "recordFile": "BUG-034-tt-live-closed-session-values.md",
+      "provenance": "Principal observation 2026-10-11",
+      "recordTitle": "BUG-034 — tt live suppresses last-session values while markets are closed",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Sunday EWZ and XLE rows showed 42h quote ages, blank CURRENT, P/L DAY,\nTOTAL G/L and DIRECTION, and `quotes stale` progress. Economic colors disappeared.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "The Principal confirmed that tt live should remain useful on Sundays using Friday's\navailable session evidence and corresponding colors, with honest observation dates.\nLatest quotes are not promoted into official closing prints.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Quote valuation and direction used a 12-hour wall-clock limit without considering\nmarket closures. Direction also depended on a separate optional DXLink snapshot,\nalthough the existing REST option quote response already contains signed `delta`\nfor every observed leg. Incomplete streaming acquisition therefore hid direction\nunnecessarily. Actual REST payload inspection confirmed eight populated deltas.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Read-only tt companion only. No Wheelwright acquisition, policy, trading, account\nor position persistence change. Missing broker evidence remains unknown.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Retain latest completed-session evidence during broker-confirmed closure, date it,\npreserve sign/direction colors and color-free TSV, and reject older-session evidence.\nResume ordinary freshness once a newer session opens. Missing session context\nretains the original age-based behavior.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "October 11: shared broker-session freshness logic covers valuations and direction.\nThe existing session read supplies current/previous/next session times, without\nweekday-only calendar or holiday guesses. Direction now sums quote.delta × signed\nheld quantity × multiplier using the same quotes and timestamps as valuation.\nThe tt live streaming token/instrument/WebSocket acquisition is removed. The\nexisting neutral band and direction colors remain. Missing or malformed delta\nleaves direction unknown without hiding valid economics. CLI help explains the\nretained observation date and broker daily-close reference.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Deterministic tests cover Sunday values/colors/direction, Saturday and Monday preopen,\nholiday/short-session context, older legs, missing/open session context, resumed\ntrading, signed REST delta strings/numbers, missing/malformed delta, and TSV fidelity.\nThe CLI allowlisted-read test rejects any additional streaming/instrument requests.\nRead-only production Sunday verification returned EWZ CURRENT 0.60 / TOTAL G/L\n-$18 and XLE CURRENT 0.41 / TOTAL G/L -$23, dated `Fri, 10/09 (42h)` with economic\ncolors. Both normal human-table and TSV production reads returned NEUTRAL for\nEWZ and XLE, calculated from the returned REST deltas. All 30 relevant tests pass;\nRoadmap generation/check and git diff --check pass. Principal manual acceptance\nremains separate.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- `scripts/tastytrade-freshness.mjs`\n- `scripts/tastytrade-live.mjs`\n- `scripts/tastytrade.mjs`\n- [Broker session response contract](https://developer.tastytrade.com/reference/market-sessions/getMarketTimeEquitiesSessionsCurrent/)",
+          "truncated": false,
           "tables": []
         }
       ]
