@@ -40,13 +40,19 @@ If you have one accessible account, it is selected automatically.
 With multiple accounts, specify --account <account-number>.
 Positions and orders are separate broker evidence; no protection verdict is inferred.`;
 
-const LIVE_HELP = `Usage: tt live [--account <account-number>] [--tsv]
+const LIVE_HELP = `Usage: tt live [--account <account-number>] [--tsv] [--width <columns>] [--no-color] [--ascii]
 
 Show an indicative, read-only live-trade summary for one production account.
 Direction sums signed held-leg delta from the same quotes; missing delta shows —.
 While the market is closed, latest-session quotes remain usable.
 QUOTE dates retained observations (not official closing prints); P/L DAY
 uses the broker daily-close reference for those observations.
+Human output is a compact instrument panel. SPOT uses broker equity mid,
+with independently validated bid/ask and quote-update timestamp; no last/close fallback.
+O/S are option/spot evidence; r means retained session observation; ! means stale.
+PROG is signed gross progress to the verified broker limit; ~ never means execution.
+Use --width to override terminal width, --no-color for monochrome, --ascii for ASCII.
+NO_COLOR or TERM=dumb disables color. Narrow views omit optional reference columns.
 If you have one accessible account, it is selected automatically.
 With multiple accounts, specify --account <account-number>.
 Use --tsv for tab-separated, uncolored output suitable for redirection.
@@ -74,14 +80,19 @@ export function parseCommand(argv) {
     if (argv.length === 2 && ["-h", "--help"].includes(argv[1])) return { kind: "help", text: help };
     if (argv.length === 1) return { kind };
     if (kind === "live") {
-      let account; let tsv = false;
+      let account; let tsv = false; let width; let noColor = false; let ascii = false;
       for (let index = 1; index < argv.length; index++) {
         if (argv[index] === "--tsv" && !tsv) tsv = true;
+        else if (argv[index] === "--no-color" && !noColor) noColor = true;
+        else if (argv[index] === "--ascii" && !ascii) ascii = true;
+        else if (argv[index] === "--width" && width === undefined && /^\d+$/.test(argv[index + 1] ?? "") &&
+          Number(argv[index + 1]) >= 20 && Number(argv[index + 1]) <= 1000) width = Number(argv[++index]);
         else if (argv[index] === "--account" && !account &&
             /^[A-Za-z0-9]+$/.test(argv[index + 1] ?? "")) account = argv[++index];
         else throw new CliError(`Invalid live arguments.\n${LIVE_HELP}`, 2);
       }
-      return { kind, ...(account ? { account } : {}), ...(tsv ? { tsv } : {}) };
+      return { kind, ...(account ? { account } : {}), ...(tsv ? { tsv } : {}), ...(width ? { width } : {}),
+        ...(noColor ? { noColor } : {}), ...(ascii ? { ascii } : {}) };
     }
     if (argv.length !== 3 || argv[1] !== "--account" || !/^[A-Za-z0-9]+$/.test(argv[2])) {
       throw new CliError(`Invalid ${kind} arguments.\n${help}`, 2);
@@ -157,21 +168,21 @@ function brokerGet(fetchImpl, resource, account, token) {
     path = `/instruments/equity-options/${encodeURIComponent(account)}`;
   } else if (["positions", "complex-orders", "orders"].includes(resource) && /^[A-Za-z0-9]+$/.test(account)) {
     path = `/accounts/${encodeURIComponent(account)}/${resource}`;
-  } else if (resource === "equity-option-quotes") {
+  } else if (["equity-option-quotes", "equity-quotes"].includes(resource)) {
     path = "/market-data/by-type";
   } else throw new CliError("Unsupported broker read");
   return (argument) => request(fetchImpl,
     ["complex-orders", "orders"].includes(resource) ? `${path}?page-offset=${argument}&per-page=${PAGE_SIZE}` :
-      resource === "equity-option-quotes" && Array.isArray(argument) && argument.length > 0 && argument.length <= 100 &&
+      ["equity-option-quotes", "equity-quotes"].includes(resource) && Array.isArray(argument) && argument.length > 0 && argument.length <= 100 &&
         argument.every((symbol) => typeof symbol === "string" && /^[A-Za-z0-9 .]+$/.test(symbol)) ?
-        `${path}?${argument.map((symbol) => `equity-option[]=${encodeURIComponent(symbol)}`).join("&")}` :
-      resource === "equity-option-quotes" ? (() => { throw new CliError("Unsupported quote request"); })() : path,
+        `${path}?${argument.map((symbol) => `${resource === "equity-quotes" ? "equity" : "equity-option"}[]=${encodeURIComponent(symbol)}`).join("&")}` :
+      ["equity-option-quotes", "equity-quotes"].includes(resource) ? (() => { throw new CliError("Unsupported quote request"); })() : path,
     { method: "GET", headers: { Authorization: `Bearer ${token}` } },
     resource === "accounts" ? "Accounts" : resource === "equity-session" ? "Equity session" :
       resource === "quote-token" ? "Quote token" :
       resource === "equity-option-instrument" ? "Option instrument" :
       resource === "positions" ? "Positions" :
-      resource === "orders" ? "Orders" : resource === "equity-option-quotes" ? "Quotes" : "Complex orders");
+      resource === "orders" ? "Orders" : ["equity-option-quotes", "equity-quotes"].includes(resource) ? "Quotes" : "Complex orders");
 }
 
 function safeField(value, fallback = "—") {
@@ -322,7 +333,7 @@ export function renderComplexOrders(account, result, retrievedAt) {
 }
 
 export async function main(argv = process.argv.slice(2), { env = process.env, readFile = readFileSync,
-  fetchImpl = fetch, out = console.log, err = console.error, now = () => new Date() } = {}) {
+  fetchImpl = fetch, out = console.log, err = console.error, now = () => new Date(), terminalColumns = () => process.stdout.columns } = {}) {
   try {
     const command = parseCommand(argv);
     if (command.kind === "help") { out(command.text); return 0; }
@@ -357,6 +368,16 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
           const symbols = [...new Set(holdings.map((item) => item.symbol))];
           if (symbols.length > 100) throw new CliError("Live: more than 100 held symbols; use tt positions");
           const quotes = await brokerGet(fetchImpl, "equity-option-quotes", undefined, token)(symbols);
+          let spotQuotes = [];
+          if (!command.tsv) {
+            const roots = [...new Set(holdings.map((item) => item["underlying-symbol"]))];
+            for (let offset = 0; offset < roots.length; offset += 100) {
+              try {
+                const result = await brokerGet(fetchImpl, "equity-quotes", undefined, token)(roots.slice(offset, offset + 100));
+                if (Array.isArray(result?.data?.items)) spotQuotes.push(...result.data.items);
+              } catch { /* Spot unavailable: never hide otherwise valid option economics. */ }
+            }
+          }
           // Broker session context preserves closed-session quotes and their deltas.
           let sessionCloseAt;
           let session;
@@ -366,8 +387,10 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
             sessionCloseAt = session?.["close-at"];
           } catch { /* Quote age remains available. */ }
           out(renderLive({ account, holdings, orders: orders.items, complexOrders: complex.items,
-            quotes: quotes?.data?.items, now: now(), sessionCloseAt, session,
-            color: !command.tsv,
+            quotes: quotes?.data?.items, spotQuotes, now: now(), sessionCloseAt, session,
+            columns: command.width ?? terminalColumns() ?? (/^\d+$/.test(env.COLUMNS ?? "") ? Number(env.COLUMNS) : 157),
+            ascii: command.ascii || env.TERM === "dumb",
+            color: !command.tsv && !command.noColor && !env.NO_COLOR && env.TERM !== "dumb",
             format: command.tsv ? "tsv" : "table" }));
         }
       }
