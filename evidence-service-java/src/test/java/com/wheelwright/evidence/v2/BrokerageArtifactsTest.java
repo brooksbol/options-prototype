@@ -74,7 +74,7 @@ class BrokerageArtifactsTest {
     @Test void contentApiReturnsOriginalBytesAndWrongAccountCannotRetrieve() throws Exception {
         var mvc = MockMvcBuilders.standaloneSetup(new ArtifactsController(artifacts,
                 auth("read=reader:account.artifacts.read:pts|account.artifacts.read:sawdust,write=writer:account.artifacts.write:pts,other=other:account.artifacts.read:sawdust"), mapper)).build();
-        byte[] original = bytes("malformed\r\n");
+        byte[] original = bytes(PositionsTest.csv("A1,Test,ETFs,SPY,shares,not-a-number,50000,20,Cash\n", "Oct-05-2026"));
         var response = mvc.perform(post("/v2/artifacts?accountId="+pts).header("Authorization", "Bearer write")
                 .header("Content-Disposition", "attachment; filename*=UTF-8''source%20%281%29.csv").header("X-Brokerage-File-Type", "POSITIONS")
                 .contentType("text/csv").content(original)).andReturn().getResponse();

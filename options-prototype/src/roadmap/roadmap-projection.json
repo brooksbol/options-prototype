@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-11T22:32:39.149Z",
+    "generatedAt": "2026-10-11T22:39:41.687Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,7 +41,7 @@
       "principleTotal": 9,
       "domainEntryTotal": 36,
       "bugTotal": 36,
-      "logTotal": 110,
+      "logTotal": 111,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 61
@@ -9248,9 +9248,9 @@
       "title": "Unknown mixed-artifact source scope permits cross-Account original-byte disclosure",
       "area": "Backend / v2 artifact content authorization",
       "severity": "S2",
-      "status": "Open",
+      "status": "Resolved",
       "recordFile": "BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "provenance": "Codex synthetic MockMvc falsifier; candidate independently rejected 2026-10-11",
+      "provenance": "Principal-authorized correction; independently verified and resolved 2026-10-11",
       "recordTitle": "BUG-036 — Unknown mixed-artifact source scope permits cross-Account original-byte disclosure",
       "sections": [
         {
@@ -9342,6 +9342,27 @@
           "level": 2,
           "content": "- `PL-CONV-01` — tt/ww convergence and User authorization reconciliation.\n- `BUG-035` — separate human-facing account-number masking defect.\n- `docs/77-api-v2-architectural-guardrails.md` — governing authorization and source-retention boundaries.",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Principal acceptance / closure — October 11, 2026",
+          "level": 2,
+          "content": "The Principal explicitly renewed the bounded remediation and closure instruction: “reopen the session. address the remaining issues and close bug 36”. This supersedes the earlier no-retry closeout boundary. The earlier reported acceptance and subsequent independent rejection remain preserved above. Closure follows the renewed Principal direction and independent verification of the corrected candidate; no new manual operator acceptance run or Kiro review is claimed.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Correction and candidate identity",
+          "level": 3,
+          "content": "The original-content gate now requires an explicitly established `BrokerageArtifacts.SourceScope` and every represented Account's artifact-read grant. Unknown, incomplete, malformed or unmapped source scope returns the existing 403 response. Strict UTF-8 and the existing CSV tokenizer inspect supported Fidelity envelopes independently of financial admission. Original bytes remain immutable and retained; known rejected imports remain retrievable when complete source scope and grants are established. The shared non-Positions admission guard rejects unknown or mixed scope after retention, preserving target-only processing semantics.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Verification and disposition",
+          "level": 3,
+          "content": "- Author verification: **24 focused backend tests passed** across original-source authorization, brokerage artifacts, Accounts, Users and Positions; **nine CLI regressions passed** for Accounts, Positions and synchronization. The exact previously rejected padded-marker case failed before the marker-precedence correction and passes afterward.\n- Independent verification: a separate read-only Codex agent verified the archive and all four file hashes, ran the **24 focused backend tests**, and ran **three additional adversarial tests covering ten summary specimens**, all passing. The exact padded-B2 original now establishes both Account scopes, rejects mixed semantic admission, returns **403** to the A-only reader and returns exact bytes to the fully authorized reader.",
+          "truncated": true,
           "tables": []
         }
       ]
@@ -9554,7 +9575,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 610
+      "sourceOrder": 612
     },
     {
       "plId": null,
@@ -9697,7 +9718,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 588
+      "sourceOrder": 589
     },
     {
       "plId": null,
@@ -9710,7 +9731,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 589
+      "sourceOrder": 590
     },
     {
       "plId": null,
@@ -9723,7 +9744,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 590
+      "sourceOrder": 591
     },
     {
       "plId": null,
@@ -9736,7 +9757,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 593
+      "sourceOrder": 594
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -9762,7 +9783,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 591
+      "sourceOrder": 592
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -9944,7 +9965,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 571
+      "sourceOrder": 572
     },
     {
       "plId": null,
@@ -9957,7 +9978,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 572
+      "sourceOrder": 573
     },
     {
       "plId": null,
@@ -9970,7 +9991,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 573
+      "sourceOrder": 574
     },
     {
       "plId": null,
@@ -9983,7 +10004,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 574
+      "sourceOrder": 575
     },
     {
       "plId": null,
@@ -9996,7 +10017,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 575
+      "sourceOrder": 576
     },
     {
       "plId": null,
@@ -10009,7 +10030,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 576
+      "sourceOrder": 577
     },
     {
       "plId": null,
@@ -10022,7 +10043,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 577
+      "sourceOrder": 578
     },
     {
       "plId": null,
@@ -10035,7 +10056,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 578
+      "sourceOrder": 579
     },
     {
       "plId": null,
@@ -10048,7 +10069,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 579
+      "sourceOrder": 580
     },
     {
       "plId": null,
@@ -10061,7 +10082,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 580
+      "sourceOrder": 581
     },
     {
       "plId": null,
@@ -10074,7 +10095,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 581
+      "sourceOrder": 582
     },
     {
       "plId": null,
@@ -10087,7 +10108,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 582
+      "sourceOrder": 583
     },
     {
       "plId": null,
@@ -10100,7 +10121,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 583
+      "sourceOrder": 584
     },
     {
       "plId": null,
@@ -10113,7 +10134,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 584
+      "sourceOrder": 585
     },
     {
       "plId": null,
@@ -10126,7 +10147,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 585
+      "sourceOrder": 586
     },
     {
       "plId": null,
@@ -10139,7 +10160,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 586
+      "sourceOrder": 587
     },
     {
       "plId": null,
@@ -10152,7 +10173,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 587
+      "sourceOrder": 588
     },
     {
       "plId": null,
@@ -10165,7 +10186,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 592
+      "sourceOrder": 593
     },
     {
       "plId": null,
@@ -10178,7 +10199,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 609
+      "sourceOrder": 611
     },
     {
       "plId": "PL-SEM-01",
@@ -10347,7 +10368,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 594
+      "sourceOrder": 595
     },
     {
       "plId": null,
@@ -10360,7 +10381,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 595
+      "sourceOrder": 596
     },
     {
       "plId": "PL-SETUP-01",
@@ -10568,7 +10589,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 596
+      "sourceOrder": 597
     },
     {
       "plId": null,
@@ -10581,7 +10602,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 597
+      "sourceOrder": 598
     },
     {
       "plId": null,
@@ -10594,26 +10615,13 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 598
+      "sourceOrder": 599
     },
     {
       "plId": null,
       "bugId": "BUG-031",
       "title": "Principal authorization and resolution — 2026-10-05",
       "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 599
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Post-resolution validation — 2026-10-05",
-      "eventKind": "reconciliation",
       "establishesIntake": false,
       "eventDateText": "2026-10-05",
       "eventDateIso": "2026-10-05",
@@ -10625,6 +10633,19 @@
     {
       "plId": null,
       "bugId": "BUG-031",
+      "title": "Post-resolution validation — 2026-10-05",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 601
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
       "title": "Principal acceptance and closure — 2026-10-05",
       "eventKind": "remediation",
       "establishesIntake": false,
@@ -10633,7 +10654,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 601
+      "sourceOrder": 602
     },
     {
       "plId": null,
@@ -10646,7 +10667,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 602
+      "sourceOrder": 603
     },
     {
       "plId": null,
@@ -10659,7 +10680,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 603
+      "sourceOrder": 604
     },
     {
       "plId": null,
@@ -10672,7 +10693,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 604
+      "sourceOrder": 605
     },
     {
       "plId": null,
@@ -10685,7 +10706,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 605
+      "sourceOrder": 606
     },
     {
       "plId": null,
@@ -10698,7 +10719,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 606
+      "sourceOrder": 607
     },
     {
       "plId": null,
@@ -10711,7 +10732,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 607
+      "sourceOrder": 608
     },
     {
       "plId": "PL-STRAT-01",
@@ -10776,7 +10797,20 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 608
+      "sourceOrder": 609
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-036",
+      "title": "Principal acceptance / closure — October 11, 2026",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "October 11, 2026",
+      "eventDateIso": "2026-10-11",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
+      "sourceOrder": 610
     }
   ],
   "intakeDateUnknown": [

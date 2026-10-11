@@ -109,7 +109,9 @@ public class ArtifactsController {
     private static void noBody(byte[] body) { if (body != null && body.length > 0) throw new IllegalArgumentException("body unsupported"); }
     private void sourceAuthority(String owner, String filename, byte[] bytes, String grant, HttpServletRequest request) throws Exception {
         var principal = auth.authenticate(request.getHeader("Authorization")).orElseThrow();
-        for (String scope : artifacts.sourceScopes(owner, filename, bytes))
+        var source = artifacts.sourceScopes(owner, filename, bytes);
+        if (!source.established()) throw new SourceForbidden();
+        for (String scope : source.accountIds())
             if (!principal.hasGrant("account.artifacts." + grant + ":" + scope)) throw new SourceForbidden();
     }
 }

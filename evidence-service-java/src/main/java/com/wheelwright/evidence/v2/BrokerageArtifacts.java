@@ -49,27 +49,111 @@ public class BrokerageArtifacts {
     public String brokerAccount(String account)throws SQLException {
         return accounts.get(account).map(a->a.brokerAssociation().accountNumber()).orElse(null);
     }
-    /** Original files may contain several accounts; raw-byte access requires every source account. */
-    public Set<String> sourceScopes(String owner, String filename, byte[] bytes) throws Exception {
-        var brokerIds = new HashSet<String>();
-        String text = new String(bytes, StandardCharsets.UTF_8).replaceFirst("^\uFEFF", "");
-        if (text.startsWith("Account number,") || text.startsWith("\"Account number\",")) {
-            // Security scope screening only, before retention. Do not run semantic CSV parsing
-            // here: malformed source must still survive the subsequent processing failure.
-            var identities = java.util.regex.Pattern.compile("(?m)^\\\"?\\s*([A-Z0-9]+)\\s*\\\"?,").matcher(text);
-            while (identities.find()) brokerIds.add(identities.group(1));
+    /** Completeness is independent of semantic processing success and Account grants. */
+    public record SourceScope(boolean established, Set<String> accountIds) {
+        public SourceScope { accountIds = Set.copyOf(accountIds); }
+        static SourceScope unknown() { return new SourceScope(false, Set.of()); }
+    }
+    /** Inspect retained bytes on every disclosure; never infer single-owner scope from silence. */
+    public SourceScope sourceScopes(String owner, String filename, byte[] bytes) throws SQLException {
+        Set<String> brokerIds;
+        try {
+            String text = StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(bytes)).toString();
+            brokerIds = sourceBrokerIds(filename, FidelityPositions.csv(text.replaceFirst("^\\uFEFF", "")));
+        } catch (CharacterCodingException | IllegalArgumentException e) {
+            return SourceScope.unknown();
         }
-        var summary = java.util.regex.Pattern.compile("Fidelity Investments - Option Summary ([A-Z0-9]+)").matcher(text);
-        while (summary.find()) brokerIds.add(summary.group(1));
-        var named = java.util.regex.Pattern.compile("(?:History|Balances)_for_Account_([A-Z0-9]+)").matcher(filename);
-        if (named.find()) brokerIds.add(named.group(1));
+        if (brokerIds.isEmpty()) return SourceScope.unknown();
         var scopes = new HashSet<String>(); scopes.add(owner);
         try (var c = DriverManager.getConnection(url); var q = c.prepareStatement("SELECT account_id FROM brokerage_account WHERE broker_account=?")) {
             for (String brokerId : brokerIds) {
-                q.setString(1, brokerId); try (var rs = q.executeQuery()) { scopes.add(rs.next() ? rs.getString(1) : "<unregistered-source-account>"); }
+                q.setString(1, brokerId);
+                try (var rs = q.executeQuery()) {
+                    if (!rs.next()) return SourceScope.unknown();
+                    scopes.add(rs.getString(1));
+                }
             }
         }
-        return Set.copyOf(scopes);
+        return new SourceScope(true, scopes);
+    }
+    private static final List<String> POSITION_COLUMNS = List.of("Account number", "Account name", "Investment type",
+            "Symbol", "Description", "Quantity", "Current value", "Total gain/loss dollar", "Type");
+    private static final List<String> SUMMARY_COLUMNS = List.of("Symbol", "Strategy", "Expiration & Strike", "Quantity");
+    private static final List<String> ACTIVITY_COLUMNS = List.of("Run Date", "Action", "Symbol", "Amount ($)");
+    private static final List<String> BALANCE_COLUMNS = List.of("Balance", "Day change");
+    private static final java.util.regex.Pattern SUMMARY_ACCOUNT = java.util.regex.Pattern.compile("Fidelity Investments - Option Summary ([A-Z0-9]+)");
+    private static final java.util.regex.Pattern NAMED_ACCOUNT = java.util.regex.Pattern.compile("(History|Balances)_for_Account_([A-Z0-9]+)(?:[- (].*)?\\.csv");
+
+    /** Only the existing Fidelity envelopes establish attribution; values are not financially parsed. */
+    private static Set<String> sourceBrokerIds(String filename, List<List<String>> rows) {
+        int first = 0;
+        while (first < rows.size() && rows.get(first).stream().allMatch(String::isBlank)) first++;
+        if (first == rows.size()) return Set.of();
+        var initial = rows.get(first).stream().map(String::trim).toList();
+        var ids = new HashSet<String>();
+        boolean positions = initial.containsAll(POSITION_COLUMNS);
+        boolean summary = summaryAccount(initial) != null;
+        var named = NAMED_ACCOUNT.matcher(filename);
+        boolean activity = initial.containsAll(ACTIVITY_COLUMNS);
+        boolean balances = initial.containsAll(BALANCE_COLUMNS);
+        if (!positions && !summary) {
+            if (initial.contains("Account number") || !named.matches() || !(activity && named.group(1).equals("History") || balances && named.group(1).equals("Balances")))
+                return Set.of();
+            ids.add(named.group(2));
+        }
+        List<String> header = summary ? null : initial;
+        if (header != null && new HashSet<>(header).size() != header.size()) return Set.of();
+        boolean footer = false, sawHeader = !summary;
+        for (int i = summary ? first : first + 1; i < rows.size(); i++) {
+            var row = rows.get(i);
+            if (row.stream().allMatch(String::isBlank)) continue;
+            // Provenance markers take precedence over data, metadata and footer shapes.
+            // Padding or quoting must never turn another Account section into ordinary data.
+            if (row.stream().anyMatch(value -> value.contains("Fidelity Investments - Option Summary"))) {
+                String sectionAccount = summaryAccount(row);
+                if (!summary || footer || sectionAccount == null) return Set.of();
+                ids.add(sectionAccount);
+                continue;
+            }
+            if (row.size() == 1) {
+                String value = row.getFirst().trim();
+                if (summary && !footer && value.startsWith("Quote data as of ")) continue;
+                if (sourceFooter(value)) { footer = true; continue; }
+                return Set.of();
+            }
+            if (footer) return Set.of(); // Never ignore trailing Account rows after a disclaimer.
+            var labels = row.stream().map(String::trim).toList();
+            if (summary && labels.containsAll(SUMMARY_COLUMNS)) {
+                if (new HashSet<>(labels).size() != labels.size() || labels.contains("Account number")) return Set.of();
+                header = labels; sawHeader = true; continue;
+            }
+            if (header == null || row.size() < header.size()
+                    || row.subList(header.size(), row.size()).stream().anyMatch(v -> !v.isBlank())) return Set.of();
+            if (positions) {
+                String account = row.get(header.indexOf("Account number")).trim();
+                if (!account.matches("[A-Z0-9]+")) return Set.of();
+                ids.add(account);
+            }
+        }
+        return sawHeader ? Set.copyOf(ids) : Set.of();
+    }
+    private static String summaryAccount(List<String> row) {
+        var values = row.stream().filter(value -> !value.isBlank()).map(String::trim).toList();
+        if (values.size() != 1) return null;
+        var section = SUMMARY_ACCOUNT.matcher(values.getFirst());
+        return section.matches() ? section.group(1) : null;
+    }
+    private static boolean sourceFooter(String value) {
+        // Existing Fidelity export footers; an arbitrary unclassified record is not a footer.
+        return List.of("Date downloaded ", "The data and information in this spreadsheet ",
+                "informational purposes only,", "recommendation for any security or insurance product ",
+                "exported and is subject to change.", "purposes. For more information on the data ",
+                "Brokerage services are provided by Fidelity ", "Financial Services LLC",
+                "Fidelity Insurance Agency, Inc.,", "*Options trading entails ",
+                "Your positions, whenever possible,", "There are additional costs associated with option strategies ",
+                "*Option Summary does not exclude wash sales ", "Fidelity Brokerage Services LLC,")
+                .stream().anyMatch(value::startsWith);
     }
     public static String sha(byte[] bytes) {
         try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)); }
@@ -126,7 +210,8 @@ public class BrokerageArtifacts {
             } else {
                 // Only Positions currently has row-level multi-account attribution.
                 // Preserve other mixed originals, but never admit unscoped rows.
-                if (!sourceScopes(account, filename, content(account, id).orElseThrow()).equals(Set.of(account)))
+                var scope = sourceScopes(account, filename, content(account, id).orElseThrow());
+                if (!scope.established() || !scope.accountIds().equals(Set.of(account)))
                     throw new IllegalArgumentException("unsupported mixed-account row attribution");
                 result = admitRows(account, id, filename, type, text);
             }

@@ -1,6 +1,6 @@
 # BUG-036 — Unknown mixed-artifact source scope permits cross-Account original-byte disclosure
 
-- **Status:** Open
+- **Status:** Resolved
 - **Severity:** S2
 - **Area:** Backend / v2 brokerage artifact original-content authorization
 - **Provenance:** Codex independent adversarial User-isolation review, October 11, 2026, under PL-CONV-01; synthetic in-memory MockMvc counterexample
@@ -100,3 +100,24 @@ The reviewer returned **REJECT** for frozen candidate SHA-256 `4af26d8653ab3cc76
 - `PL-CONV-01` — tt/ww convergence and User authorization reconciliation.
 - `BUG-035` — separate human-facing account-number masking defect.
 - `docs/77-api-v2-architectural-guardrails.md` — governing authorization and source-retention boundaries.
+
+
+## Principal acceptance / closure — October 11, 2026
+
+The Principal explicitly renewed the bounded remediation and closure instruction: “reopen the session. address the remaining issues and close bug 36”. This supersedes the earlier no-retry closeout boundary. The earlier reported acceptance and subsequent independent rejection remain preserved above. Closure follows the renewed Principal direction and independent verification of the corrected candidate; no new manual operator acceptance run or Kiro review is claimed.
+
+### Correction and candidate identity
+
+The original-content gate now requires an explicitly established `BrokerageArtifacts.SourceScope` and every represented Account's artifact-read grant. Unknown, incomplete, malformed or unmapped source scope returns the existing 403 response. Strict UTF-8 and the existing CSV tokenizer inspect supported Fidelity envelopes independently of financial admission. Original bytes remain immutable and retained; known rejected imports remain retrievable when complete source scope and grants are established. The shared non-Positions admission guard rejects unknown or mixed scope after retention, preserving target-only processing semantics.
+
+The remaining Option Summary bypass is corrected by recognizing Account provenance markers before ordinary data, quote metadata and footer classification. A complete marker with only empty surrounding fields contributes its Account regardless of padding, quoting or column placement. Ambiguous markers, nonempty companion fields and markers after a footer make scope unknown and disclosure fails closed. No schema migration, artifact rewriting, API change, grant change or ingestion redesign is introduced.
+
+Frozen corrected candidate: base `d41d98511dfbf855b4a42944526c475ae98ee03f`, archive SHA-256 `629c883af6d7a9a325a7bafb776a820a7b2e9c8bc1311227a8b8c66c37190684`. All four source/test hashes were verified against the frozen manifest by the independent reviewer and remained unchanged through closeout. Relevant code: `BrokerageArtifacts.sourceScopes`, `sourceBrokerIds`, `summaryAccount`, the non-Positions `process` guard, and `ArtifactsController.sourceAuthority`. Committed regressions: `OriginalSourceAuthorizationTest` and the corrected established-scope rejected-import fixture in `BrokerageArtifactsTest`.
+
+### Verification and disposition
+
+- Author verification: **24 focused backend tests passed** across original-source authorization, brokerage artifacts, Accounts, Users and Positions; **nine CLI regressions passed** for Accounts, Positions and synchronization. The exact previously rejected padded-marker case failed before the marker-precedence correction and passes afterward.
+- Independent verification: a separate read-only Codex agent verified the archive and all four file hashes, ran the **24 focused backend tests**, and ran **three additional adversarial tests covering ten summary specimens**, all passing. The exact padded-B2 original now establishes both Account scopes, rejects mixed semantic admission, returns **403** to the A-only reader and returns exact bytes to the fully authorized reader. Shifted/padded/quoted sections preserve scope; unregistered Accounts, conflicting markers, multiline metadata/footer markers, malformed suffixes and sections after a footer fail closed, including for administrators. Single-Account and BOM/CRLF mixed originals preserve authorized retrieval. Reviewer disposition: **ACCEPT**. This is independent Codex verification, not Kiro verification.
+- Repeated read-only compatibility survey: **315 retained Fidelity originals**, comprising 100 Activity, 93 Balances, 94 Option Summary and 28 Positions. All Activity, Balances and Option Summary originals plus 24 Positions originals establish mapped scope (**311 total**). Four Positions originals remain denied for unregistered source Accounts, matching prior eligibility. **Zero payload hash mismatches**. The independent reviewer did not repeat this survey or the CLI checks.
+
+**Disposition: Resolved.** The demonstrated disclosure paths are corrected and independently verified under the Principal's renewed closure instruction. No production exploitation is established. No live backend deployment/restart or production mutation occurred; repository resolution does not claim that a running service has received the correction. BUG-035 remains Open and unscheduled. v1 Web, accepted tt live, Account identities, authentication and User–Account grants remain unchanged.
