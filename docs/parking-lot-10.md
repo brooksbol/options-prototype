@@ -852,3 +852,21 @@ ChatGPT recommended C as a *recommendation only*. **The Principal has not select
 | Date | Milestone |
 |---|---|
 | 2026-10-11 | Principal requested durable preservation of the **undecided** Position-first vs Account-first (or parallel bounded inquiry) entry-point choice under `PL-CONV-01`. |
+
+
+---
+
+## PL-CONV-01 Ratification Checkpoint — Account identity and operator confidentiality (October 11, 2026)
+
+**Principal-ratified bounded invariants; implementation NOT authorized.** Authoritative text: `docs/77-api-v2-architectural-guardrails.md`, section “Account identity, operator nicknames and account-number confidentiality — Principal ratification, October 11, 2026.”
+
+- One randomly generated, immutable, globally unique canonical Account GUID; standard unprefixed UUID is the intended representation. Existing `acct_`-prefixed random identifiers conform semantically but differ in representation; migration deferred, not authorized.
+- Operators interact only with human-friendly nicknames (e.g. `pts`, `sawdust`); clients use backend-authoritative alias discovery and never require operator GUID entry.
+- Actual broker account numbers are sensitive, broker-scoped attributes, excluded from Wheelwright API URIs; full payload disclosure requires appropriate authority (exact disclosure capability unresolved). Default human/TSV output masks them, at most last four visible.
+- **BUG-035** records the demonstrated default `ww ls accounts` full-number disclosure. Filing and this ratification do not authorize correction.
+- Brokerage resource modeling, multi-broker admission, Position occurrence, and Account/Position convergence sequencing remain open. **The Principal has not selected A/B/C.**
+- The User-isolation/admin exception remains **explicitly parked, not ratified by this checkpoint**; existing User–Account grants are unchanged.
+
+**Why-state:** Principal clarified the original GUID requirement and rejected treating the incidental `acct_` prefix as Product authority; Codex independently found nickname-only interaction substantially implemented, prefix representation non-blocking, and default masking a material deviation. The ratification preserves the intended semantics while declining an unnecessary immediate identity migration.
+
+**Next mode:** Further bounded read-only convergence discovery; no implementation, API, schema, CLI, test or migration authority follows from this checkpoint.
