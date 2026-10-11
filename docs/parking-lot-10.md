@@ -1077,3 +1077,25 @@ Closure executes the Principal's renewed explicit direction after the outstandin
 **Open scope:** `CONV-WEB` migration remains incomplete planning evidence; `CONV-UX` tt motif remains selected; the Principal-approved six-step `PL-CONV-01` delivery order is unchanged. No independent Product Principle was ratified, and Doc 68's other candidate constraints remain unpromoted. The overall `PL-CONV-01` intake is not declared RECONCILED by this checkpoint.
 
 **Persistence:** Principal's explicit ratification recorded in canonical `docs/principles.md` and this existing intake. No additional ADR, roadmap Bet or parallel principle registry was created.
+
+
+---
+
+## PL-CONV-01 Follow-up Consequence — Backend Authority Closes Allocation Debate (October 11, 2026)
+
+**Status: PERSISTED INTERPRETIVE CONSEQUENCE of ratified `PRIN-ARCH-BACKEND-AUTHORITY`; not a new principle, new architecture decision, or implementation authorization.** Canonical principle remains in `docs/principles.md`. This record refines existing `PL-CONV-01` / `CONV-WEB` / `CONV-UX` why-state.
+
+**Trigger / Kiro's conclusion.** After ratification, Kiro observed that the principle is dispositive about **responsibility allocation**, converting formerly case-by-case frontend-versus-backend arguments into an architectural PASS/FAIL constraint. Authoritative business state, domain semantics, business rules, governance evaluation and recommendation/decision logic belong to the **backend**; clients own presentation, interaction and non-authoritative projections. Given equivalent evidence and governance, clients must receive equivalent domain conclusions. The v1 browser's IndexedDB compute substrate and client-side recommendation engines therefore cannot be carried forward as authoritative v2 client capabilities. Their current location is nonconforming to the *target* Wheelwright-wide principle, while accepted transitional v1 operation remains protected.
+
+**Crucial distinction — allocation settled, capability definition open.** The principle answers **where** responsibility belongs; it does **not** establish **what** the replacement v2 capabilities mean, which operator outcomes they must preserve, how cash-deployment funnels, WAIT decisions and affordability semantics are defined, their OAS/resource boundaries, or the migration sequence. Those remain bounded Product/architecture reconciliation requiring actual Operator evidence and Principal authority. Actors must not invent Product outcomes while extracting behavior from the existing browser implementation.
+
+**CONV-WEB consequence.** Reframe the question from “How do we repoint/migrate the web frontend to v2?” to “Which current web Product capabilities must become backend-owned, what Product meaning must be preserved, and which presentation assets are reusable?” Kiro characterized the destination as “rewrite, not migration” because the browser-owned evidence/decision substrate cannot be moved forward. **Qualification:** This is Kiro's architectural interpretation, *not* Principal ratification of a wholesale React rewrite or specific migration technique. Existing React presentation components, interactions and visualizations may be reused; incremental replacement remains possible. Backend authority dictates destination responsibility, not whether code is rewritten, extracted or incrementally replaced.
+
+**CONV-UX / multi-client consequence.** `tt`, `ww` and Web may present the same backend findings differently, with the accepted `tt live` motif guiding converged CLI presentation. They may not independently implement contradictory domain judgments. Apply interface substitution, fresh-client operation and deterministic-equivalence attacks proportionately as design checks.
+
+**Delivery/operations.** Existing v1 Web remains the Principal's operational Cash Deployment client and accepted standalone `tt live` remains the Position monitor until replacements demonstrate equivalent accepted capabilities. No immediate cutover, FE rewrite, v2 API expansion, or client disruption follows from this record. The Principal-selected six-step `PL-CONV-01` sequence remains unchanged; `CONV-WEB` capability mapping and sequencing remain OPEN. This checkpoint is not a Reconciliation Completion Record for the overall intake.
+
+**Governance effect.** Do not reopen the settled allocation question during routine design. Future proposals must show conformance to `PRIN-ARCH-BACKEND-AUTHORITY` and concentrate review on capability semantics, evidence, governance, API boundaries, UX and demonstrable working software. Any genuine challenge to the principle requires explicit Principal reconsideration rather than quiet implementation drift.
+
+**Provenance:** Principal-directed follow-up after Kiro's post-ratification interpretation and ChatGPT reconciliation; `docs/principles.md` (`PRIN-ARCH-BACKEND-AUTHORITY`), Doc 77 v2 backend mandate, Doc 68 delivery-surface working intent, `docs/foundations/evidence-appliance.md`, and Kiro's incomplete `CONV-WEB` assessment.
+
