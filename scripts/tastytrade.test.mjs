@@ -48,155 +48,66 @@ test("help and invalid arguments finish before credentials or HTTP", async () =>
     { kind: "live", account: "5WX01234", tsv: true });
 });
 
-const sampleTrade = (underlying, expiry, strikes, fillPrices, mids, target, stop) => {
-  const symbols = strikes.map(([kind, strike]) =>
-    `${underlying}  ${expiry}${kind}${String(Math.round(strike * 1000)).padStart(8, "0")}`);
-  const directions = ["Long", "Short", "Short", "Long"];
-  const holdings = symbols.map((symbol, i) => ({ "account-number": "5WX01234", symbol,
-    "underlying-symbol": underlying, "instrument-type": "Equity Option", quantity: "1",
-    "quantity-direction": directions[i], multiplier: "100",
-    "average-daily-market-close-price": String(mids[i] + (underlying === "XLE" && i === 2 ? 0.01 : 0)),
-    "expires-at": `20${expiry.slice(0, 2)}-${expiry.slice(2, 4)}-${expiry.slice(4, 6)}T21:00:00.000Z` }));
-  const legs = (opening) => symbols.map((symbol, i) => ({ symbol, quantity: "1",
-    action: opening ? (directions[i] === "Long" ? "Buy to Open" : "Sell to Open") :
-      (directions[i] === "Long" ? "Sell to Close" : "Buy to Close"),
-    ...(opening ? { fills: [{ quantity: "1", "fill-price": String(fillPrices[i]),
-      "filled-at": "2026-09-30T16:50:00.000Z" }] } : {}) }));
-  const opening = { id: `${underlying}-open`, status: "Filled", legs: legs(true) };
-  const closing = { id: `${underlying}-bracket`, type: "OCO", orders: [
-    { id: `${underlying}-target`, status: "Received", "order-type": "Limit", price: String(target),
-      "price-effect": "Debit", legs: legs(false) },
-    { id: `${underlying}-stop`, status: "Received", "order-type": "Stop Limit", price: String(stop),
-      "price-effect": "Debit", legs: legs(false) }] };
-  const quotes = symbols.map((symbol, i) => ({ symbol, bid: String(mids[i] - 0.01),
-    ask: String(mids[i] + 0.01), delta: "0.2", mid: String(mids[i]), "updated-at": "2026-10-01T00:00:00.000Z" }));
-  return { holdings, opening, closing, quotes };
-};
-
-const ewz = sampleTrade("EWZ", "261120", [["P", 31], ["P", 32], ["C", 42], ["C", 43]],
-  [0.52, 0.71, 1.11, 0.88], [0.45, 0.65, 0.75, 0.62], 0.21, 0.53);
-const xle = sampleTrade("XLE", "261016", [["P", 59], ["P", 59.5], ["C", 64.5], ["C", 65]],
-  [0.32, 0.40, 0.45, 0.35], [0.36, 0.50, 0.52, 0.35], 0.09, 0.24);
-const liveEvidence = { account: "5WX01234", holdings: [...ewz.holdings, ...xle.holdings],
-  orders: [ewz.opening, xle.opening, ...ewz.closing.orders, ...xle.closing.orders],
-  complexOrders: [ewz.closing, xle.closing],
-  quotes: [...ewz.quotes, ...xle.quotes],
-  now: new Date("2026-10-01T02:00:00.000Z") };
-
-test("live summarizes two complete trades from fills and leg mids without historical order noise", () => {
-  const oldRejected = { id: "old", type: "OCO", orders: [{ ...ewz.closing.orders[0], status: "Rejected" }] };
-  const output = renderLive({ ...liveEvidence, complexOrders: [...liveEvidence.complexOrders, oldRejected] });
-  assert.match(output, /^\nACCOUNT\s+SYMBOL\s+STRUCTURE\s+DIRECTION\s+QTY\s+P\/L DAY\s+TOTAL G\/L\s+OPENED@\s+CURRENT\s+TARGET CLOSE@\s+PROGRESS\s+OPENED\s+DTE\s+QUOTE/);
-  assert.match(output, /XXXX1234\s+EWZ\s+Iron Condor\s+NEUTRAL\s+1\s+\$0\s+\+\$9\s+0\.42 CR\s+0\.33\s+50% @ 0\.21 or exp 11\/20\s+0\.12 above target\s+09\/30 \(0 days\)\s+51\s+2h/);
-  assert.match(output, /XXXX1234\s+XLE\s+Iron Condor\s+NEUTRAL\s+1\s+\+\$1\s+−\$13\s+0\.18 CR\s+0\.31\s+50% @ 0\.09 or exp 10\/16\s+0\.22 above target\s+09\/30 \(0 days\)\s+16\s+2h/);
-  assert.match(output, /2h\n$/);
-  const [header, ewzRow, xleRow] = output.split("\n").slice(1, 4);
-  for (const [heading, ewzValue, xleValue] of [["ACCOUNT", "XXXX1234", "XXXX1234"],
-    ["SYMBOL", "EWZ", "XLE"], ["STRUCTURE", "Iron Condor", "Iron Condor"],
-    ["DIRECTION", "NEUTRAL", "NEUTRAL"],
-    ["P/L DAY", "$0", "+$1"],
-    ["TOTAL G/L", "+$9", "−$13"],
-    ["OPENED@", "0.42 CR", "0.18 CR"], ["CURRENT", "0.33", "0.31"],
-    ["TARGET CLOSE@", "50% @ 0.21", "50% @ 0.09"],
-    ["PROGRESS", "0.12 above target", "0.22 above target"], ["OPENED ", "09/30", "09/30"]]) {
-    assert.equal(ewzRow.indexOf(ewzValue), header.indexOf(heading));
-    assert.equal(xleRow.indexOf(xleValue), header.indexOf(heading));
+import { sampleTrade, ewz, xle, liveEvidence } from "./tastytrade-fixtures.mjs";
+import { projectLive } from "./tastytrade-live-domain.mjs";
+test("domain preserves opening fills, leg-mid valuation, gross dollars and calendar DTE", () => {
+  const { positions: [e,x] } = projectLive(liveEvidence);
+  for (const [p,c,n,t,g,d] of [[e,.42,.33,.21,9,51],[x,.18,.31,.09,-13,16]]) {
+    for (const [actual,expected] of [[p.credit,c],[p.market.closeDebit,n],[p.target,t],[p.pnl,g]])
+      assert.ok(Math.abs(actual-expected) < 1e-8);
+    assert.equal(p.dte,d); assert.equal(p.p50,true);
   }
-  assert.doesNotMatch(output, /exits received|exit states|Received/);
-  assert.doesNotMatch(output, /tastytrade production|live trades:|market quotes|5WX01234|indicative close|leg quotes:/);
-  assert.doesNotMatch(output, /Rejected|#old|protected|winner|loser|\bSTATE\b/i);
 });
 
-test("live colors complete economic segments and returns to white before DTE", () => {
-  const plain = renderLive(liveEvidence);
-  const colored = renderLive({ ...liveEvidence, color: true });
-  assert.doesNotMatch(plain, /\x1b\[/);
-  assert.match(colored, /^\n\x1b\[37mACCOUNT/);
-  assert.match(colored, /\$0\s+\x1b\[32m\+\$9\s*\x1b\[37m\s+0\.42 CR\s+\x1b\[32m0\.33\s+50% @ 0\.21 or exp 11\/20\s+0\.12 above target\s*\x1b\[37m/);
-  assert.match(colored, /\x1b\[32m\+\$1\s*\x1b\[37m\s+\x1b\[31m−\$13\s*\x1b\[37m\s+0\.18 CR\s+\x1b\[31m0\.31\s+50% @ 0\.09 or exp 10\/16\s+0\.22 above target\s*\x1b\[37m/);
-  assert.match(colored, /2h\x1b\[0m\n$/);
-  assert.match(colored, /\x1b\[33mNEUTRAL\s*\x1b\[37m/);
-  assert.equal(colored.replace(/\x1b\[(?:31|32|33|37|0)m/g, ""), plain);
+test("multiple opening fills are weighted and quantity/multiplier scale gross dollars", () => {
+  const holdings = liveEvidence.holdings.map(h => ({...h,quantity:"2",multiplier:"50"}));
+  const change = o => ({...o,legs:o.legs.map(l => ({...l,quantity:"2",...(l.fills ? {
+    fills:[{...l.fills[0],quantity:"1"},{...l.fills[0],quantity:"1"}] } : {})}))});
+  const p=projectLive({...liveEvidence,holdings,orders:liveEvidence.orders.map(change),
+    complexOrders:liveEvidence.complexOrders.map(g=>({...g,orders:g.orders.map(change)}))}).positions[0];
+  assert.ok(Math.abs(p.credit-.42)<1e-8); assert.ok(Math.abs(p.pnl-9)<1e-8);
 });
 
-test("direction uses all held leg deltas in its own underlying and colors each label", () => {
-  const quotes = liveEvidence.quotes.map((item) => ({ ...item,
-    delta: item.symbol === ewz.holdings[0].symbol || item.symbol === xle.holdings[1].symbol ?
-      0.31 : item.delta }));
-  const colored = renderLive({ ...liveEvidence, quotes, color: true });
-  assert.match(colored, /EWZ\s+Iron Condor\s+\x1b\[32mBULLISH\s*\x1b\[37m/);
-  assert.match(colored, /XLE\s+Iron Condor\s+\x1b\[31mBEARISH\s*\x1b\[37m/);
-  const missing = renderLive({ ...liveEvidence, quotes: quotes.map((q, i) => i === 0 ? { ...q, delta: undefined } : q) });
-  assert.match(missing, /EWZ\s+Iron Condor\s+—\s+1/);
-  assert.match(missing, /XLE\s+Iron Condor\s+BEARISH\s+1/);
-  const stale = quotes.map((item) => ({ ...item,
-    "updated-at": "2026-09-29T00:00:00.000Z" }));
-  assert.match(renderLive({ ...liveEvidence, quotes: stale }), /EWZ\s+Iron Condor\s+—\s+1/);
+test("ambiguous history, unsupported holdings, missing quotes and inconsistent exits fail closed", () => {
+  assert.throws(()=>projectLive({...liveEvidence,orders:[...liveEvidence.orders,{...ewz.opening,id:"duplicate"}]}),/opening trade linkage/);
+  assert.throws(()=>projectLive({...liveEvidence,holdings:liveEvidence.holdings.slice(1)}),/unsupported or ambiguous/);
+  assert.throws(()=>projectLive({...liveEvidence,quotes:liveEvidence.quotes.slice(1)}),/quote evidence missing/);
+  assert.throws(()=>projectLive({...liveEvidence,orders:[...liveEvidence.orders,{...ewz.closing.orders[0],id:"other"}]}),/additional or missing/);
+  const broken={...ewz.opening,legs:ewz.opening.legs.map(l=>({...l,fills:[{...l.fills[0],quantity:"2"}]}))};
+  assert.throws(()=>projectLive({...liveEvidence,orders:[broken,...liveEvidence.orders.slice(1)]}),/fill quantity/);
 });
 
-test("direction deadband includes ±10 share equivalents per condor", () => {
-  const longPutBoundary = liveEvidence.quotes.map((item) => ({ ...item,
-    delta: item.symbol === ewz.holdings[0].symbol ? 0.3 : 0.2 }));
-  const shortPutBoundary = liveEvidence.quotes.map((item) => ({ ...item,
-    delta: item.symbol === ewz.holdings[1].symbol ? 0.3 : 0.2 }));
-  assert.match(renderLive({ ...liveEvidence, quotes: longPutBoundary }), /EWZ\s+Iron Condor\s+NEUTRAL/);
-  assert.match(renderLive({ ...liveEvidence, quotes: shortPutBoundary }), /EWZ\s+Iron Condor\s+NEUTRAL/);
-  const outsidePositive = longPutBoundary.map((item) => ({ ...item,
-    delta: item.symbol === ewz.holdings[0].symbol ? 0.301 : item.delta }));
-  const outsideNegative = shortPutBoundary.map((item) => ({ ...item,
-    delta: item.symbol === ewz.holdings[1].symbol ? 0.301 : item.delta }));
-  assert.match(renderLive({ ...liveEvidence, quotes: outsidePositive }), /EWZ\s+Iron Condor\s+BULLISH/);
-  assert.match(renderLive({ ...liveEvidence, quotes: outsideNegative }), /EWZ\s+Iron Condor\s+BEARISH/);
+test("missing daily reference affects only legacy daily P/L", () => {
+  const holdings=liveEvidence.holdings.map((h,i)=>i===0?{...h,"average-daily-market-close-price":undefined}:h);
+  const p=projectLive({...liveEvidence,holdings});
+  assert.equal(p.rows[0][5],"—"); assert.ok(Math.abs(p.positions[0].pnl-9)<1e-8);
 });
 
-test("P/L Day uses its own sign and withholds incomplete or stale evidence", () => {
-  const losingHoldings = liveEvidence.holdings.map((item) => item.symbol === ewz.holdings[0].symbol ?
-    { ...item, "average-daily-market-close-price": "0.47" } : item);
-  const colored = renderLive({ ...liveEvidence, holdings: losingHoldings, color: true });
-  assert.match(colored, /EWZ\s+Iron Condor\s+\x1b\[33mNEUTRAL\s*\x1b\[37m\s+1\s+\x1b\[31m−\$2\s*\x1b\[37m\s+\x1b\[32m\+\$9/);
-  const missingHoldings = liveEvidence.holdings.map((item) => item.symbol === ewz.holdings[0].symbol ?
-    { ...item, "average-daily-market-close-price": undefined } : item);
-  assert.match(renderLive({ ...liveEvidence, holdings: missingHoldings }), /EWZ\s+Iron Condor\s+NEUTRAL\s+1\s+—\s+\+\$9/);
-  const staleQuotes = liveEvidence.quotes.map((quote) => ({ ...quote, "updated-at": "2026-09-29T00:00:00.000Z" }));
-  assert.match(renderLive({ ...liveEvidence, quotes: staleQuotes }), /XLE\s+Iron Condor\s+—\s+1\s+—\s+—/);
+test("legacy direction uses signed REST deltas and preserves its neutral deadband", () => {
+  const quotes=liveEvidence.quotes.map((q,i)=>({...q,delta:["-0.3","-0.2","0.4","0.2",-.2,-.3,.2,.4][i]}));
+  assert.deepEqual(projectLive({...liveEvidence,quotes}).rows.map(r=>r[3]),["BEARISH","BULLISH"]);
+  for(const delta of [null,"","NaN","Infinity","1.1",true]) {
+    assert.equal(projectLive({...liveEvidence,quotes:quotes.map((q,i)=>i===0?{...q,delta}:q)}).rows[0][3],"—");
+  }
+  for(const delta of [.3,.301]) {
+    const q=liveEvidence.quotes.map((q,i)=>i===0?{...q,delta}:q);
+    assert.equal(projectLive({...liveEvidence,quotes:q}).rows[0][3],delta===.3?"NEUTRAL":"BULLISH");
+  }
 });
 
-test("QUOTE shows EOD only with broker session close and post-close leg quotes", () => {
-  const quotes = liveEvidence.quotes.map((quote) => ({ ...quote,
-    "updated-at": "2026-09-30T20:01:00.000Z" }));
-  const now = new Date("2026-09-30T20:20:00.000Z");
-  const close = "2026-09-30T20:00:00.000Z";
-  assert.match(renderLive({ ...liveEvidence, quotes, now, sessionCloseAt: close }), /EOD\n$/);
-  assert.match(renderLive({ ...liveEvidence, quotes, now }), /19m\n$/);
-  const beforeClose = quotes.map((quote) => ({ ...quote, "updated-at": "2026-09-30T19:59:00.000Z" }));
-  assert.match(renderLive({ ...liveEvidence, quotes: beforeClose, now, sessionCloseAt: close }), /21m\n$/);
+test("legacy EOD label still requires post-close observations", () => {
+  const quotes=liveEvidence.quotes.map(q=>({...q,"updated-at":"2026-09-30T20:01:00Z"}));
+  const now=new Date("2026-09-30T20:20:00Z");
+  assert.equal(projectLive({...liveEvidence,quotes,now,sessionCloseAt:"2026-09-30T20:00:00Z"}).rows[0][13],"EOD");
+  assert.equal(projectLive({...liveEvidence,quotes,now}).rows[0][13],"19m");
 });
 
-test("a midpoint below target reports the gap without claiming a closing fill", () => {
-  const quotes = liveEvidence.quotes.map((quote) => quote.symbol === xle.holdings[2].symbol ?
-    { ...quote, bid: "0.28", ask: "0.30", mid: "0.29" } : quote);
-  const output = renderLive({ ...liveEvidence, quotes });
-  assert.match(output, /XLE.*\+\$10.*0\.08\s+50% @ 0\.09 or exp 10\/16\s+0\.01 below target; still held/);
-  assert.doesNotMatch(output, /target reached|closed/);
-});
-
-test("an exit transition still appears in the optional NOTE column", () => {
-  const target = { ...ewz.closing.orders[0], status: "Contingent" };
-  const output = renderLive({ ...liveEvidence,
-    orders: liveEvidence.orders.map((order) => order.id === target.id ? target : order),
-    complexOrders: [{ ...ewz.closing, orders: [target, ewz.closing.orders[1]] }, xle.closing] });
-  assert.match(output, /QUOTE\s+NOTE\s*\n/);
-  assert.match(output, /EWZ.*exit transition: target Contingent, stop Received/);
-});
-
-test("OPENED counts elapsed New York calendar days from executed opening fills", () => {
-  const nextDay = renderLive({ ...liveEvidence, now: new Date("2026-10-01T04:01:00.000Z") });
-  assert.match(nextDay, /EWZ\s+Iron Condor\s+NEUTRAL\s+1\s+\$0\s+\+\$9.*\s+09\/30 \(1 day\)\s+50\s+4h/);
-  assert.match(nextDay, /XLE\s+Iron Condor\s+NEUTRAL\s+1\s+\+\$1\s+−\$13.*\s+09\/30 \(1 day\)\s+15\s+4h/);
-  const missingFillTime = { ...ewz.opening, legs: ewz.opening.legs.map((leg) => ({ ...leg,
-    fills: leg.fills.map(({ "filled-at": _at, ...fill }) => fill) })) };
-  assert.throws(() => renderLive({ ...liveEvidence,
-    orders: [missingFillTime, ...liveEvidence.orders.slice(1)] }), /opening fill evidence malformed/);
+test("target crossing stays indicative and progress is not clamped", () => {
+  const quotes=liveEvidence.quotes.map(q=>q.symbol===xle.holdings[2].symbol?{...q,bid:"0.28",ask:"0.30",mid:"0.29"}:q);
+  const p=projectLive({...liveEvidence,quotes});
+  assert.ok(p.positions[1].progress>1); assert.match(p.rows[1][10],/below target; still held/);
+  assert.ok(projectLive(liveEvidence).positions[1].progress<0);
+  assert.doesNotMatch(renderLive({...liveEvidence,quotes}),/target reached|closed/);
 });
 
 test("explicit TSV output has real tabs, no padding or ANSI, and a header with zero trades", () => {
@@ -212,20 +123,6 @@ test("explicit TSV output has real tabs, no padding or ANSI, and a header with z
   assert.doesNotMatch(tsv, /\x1b\[|5WX01234|  +/);
   assert.equal(renderLive({ account: "5WX01234", holdings: [], orders: [], complexOrders: [],
     quotes: [], now: liveEvidence.now, format: "tsv" }), lines[0]);
-});
-
-test("live declines ambiguous opening evidence and withholds color for stale quotes", () => {
-  assert.throws(() => renderLive({ ...liveEvidence, orders: [...liveEvidence.orders, { ...ewz.opening, id: "duplicate" }] }),
-    /opening trade linkage is missing or ambiguous/);
-  assert.throws(() => renderLive({ ...liveEvidence, orders: [...liveEvidence.orders,
-    { ...ewz.closing.orders[0], id: "other-current-close" }] }),
-    /additional or missing current closing orders/);
-  const stale = liveEvidence.quotes.map((quote) => ({ ...quote, "updated-at": "2026-09-29T00:00:00.000Z" }));
-  const output = renderLive({ ...liveEvidence, quotes: stale });
-  assert.match(output, /—\s+—\s+0\.42 CR\s+—\s+50% @ 0\.21 or exp 11\/20\s+quotes stale/);
-  assert.doesNotMatch(output, /GREEN|RED|above target/);
-  assert.throws(() => renderLive({ ...liveEvidence, quotes: liveEvidence.quotes.slice(1) }),
-    /quote evidence missing or duplicated/);
 });
 
 test("live uses only allowlisted reads, one token, and sanitizes API errors", async () => {
@@ -246,26 +143,26 @@ test("live uses only allowlisted reads, one token, and sanitizes API errors", as
   const code = await main(["live"], { env, out: (s) => output.push(s), now: () => liveEvidence.now,
     fetchImpl });
   assert.equal(code, 0);
-  assert.deepEqual(calls.map(({ options }) => options.method), ["POST", ...Array(6).fill("GET")]);
+  assert.deepEqual(calls.map(({ options }) => options.method), ["POST", ...Array(7).fill("GET")]);
   assert.ok(calls.every(({ url, options }) => url.startsWith(PRODUCTION_BASE_URL) &&
     options.redirect === "error" && /^[^/]+\/[^/]+$/.test(options.headers["User-Agent"])));
   assert.ok(calls.slice(1).every(({ options }) => options.headers.Authorization === "Bearer access-marker"));
   assert.doesNotMatch(output.join("\n"), /access-marker|secret-marker|refresh-marker/);
   assert.match(output[0], /EWZ.*\+\$9/);
-  assert.match(output[0], /EWZ\s+Iron Condor\s+\x1b\[33mNEUTRAL/);
+  assert.match(output[0], /P50:B/);
   assert.match(output[0], /\x1b\[32m\+\$9/);
   const ttyOutput = [];
   assert.equal(await main(["live"], { env, out: (s) => ttyOutput.push(s), now: () => liveEvidence.now,
     fetchImpl }), 0);
   assert.match(ttyOutput[0], /^\n\x1b\[37m/);
-  assert.match(ttyOutput[0], /\$0\s+\x1b\[32m\+\$9\s*\x1b\[37m\s+0\.42 CR\s+\x1b\[32m0\.33/);
-  assert.match(ttyOutput[0], /\x1b\[32m\+\$1\s*\x1b\[37m\s+\x1b\[31m−\$13\s*\x1b\[37m\s+0\.18 CR\s+\x1b\[31m0\.31/);
+  assert.match(ttyOutput[0], /\x1b\[32m\+\$9\x1b\[37m/);
+  assert.match(ttyOutput[0], /\x1b\[31m−\$13\x1b\[37m/);
   assert.match(ttyOutput[0], /\x1b\[0m\n$/);
   const noColorOutput = [];
   assert.equal(await main(["live"], { env: { ...env, NO_COLOR: "1" },
     out: (s) => noColorOutput.push(s), now: () => liveEvidence.now,
     fetchImpl }), 0);
-  assert.match(noColorOutput[0], /\x1b\[32m\+\$9/);
+  assert.doesNotMatch(noColorOutput[0], /\x1b\[/);
   assert.match(noColorOutput[0], /\+\$9.*−\$13/s);
   const tsvOutput = [];
   assert.equal(await main(["live", "--tsv"], { env, out: (s) => tsvOutput.push(s),
@@ -456,50 +353,23 @@ const sundayEvidence = { ...liveEvidence, now: new Date("2026-10-11T14:00:00Z"),
   session: fridaySession,
   quotes: liveEvidence.quotes.map((q) => ({ ...q, "updated-at": "2026-10-09T20:00:00Z" })) };
 
-test("Sunday retains Friday economics, direction and colors with a dated quote label", () => {
-  const output = renderLive({ ...sundayEvidence, color: true });
-  assert.match(output, /\x1b\[33mNEUTRAL/);
-  assert.match(output, /\x1b\[32m\+\$9/);
-  assert.match(output, /\x1b\[31m−\$13/);
-  assert.match(output, /\x1b\[31m0\.31/);
-  assert.match(output, /Fri, 10\/09 \(42h\)/);
-  assert.doesNotMatch(output, /quotes stale|\bEOD\b/);
-  const tsv = renderLive({ ...sundayEvidence, format: "tsv", color: true });
-  assert.doesNotMatch(tsv, /\x1b\[/);
-  assert.match(tsv, /NEUTRAL\t1\t\+\$1\t−\$13/);
+test("Sunday retains previous-session economics, direction and dated TSV labels",()=>{
+  const p=projectLive(sundayEvidence);
+  assert.equal(p.rows[0][3],"NEUTRAL"); assert.equal(p.rows[0][6],"+$9");
+  assert.equal(p.positions[0].optionEvidence.label,"10/09r");
+  assert.match(renderLive({...sundayEvidence,format:"tsv"}),/Fri, 10\/09 \(42h\)/);
 });
-
-test("closed-session retention rejects an older leg or missing delta and requires broker context", () => {
-  const quotes = sundayEvidence.quotes.map((q, i) => i === 0 ?
-    { ...q, "updated-at": "2026-10-08T20:00:00Z" } : q);
-  assert.match(renderLive({ ...sundayEvidence, quotes }), /EWZ.*—\s+—\s+0\.42 CR\s+—.*quotes stale/);
-  const missingDeltas = sundayEvidence.quotes.map((g, i) => i === 0 ?
-    { ...g, delta: undefined } : g);
-  assert.match(renderLive({ ...sundayEvidence, quotes: missingDeltas }), /EWZ\s+Iron Condor\s+—/);
-  assert.match(renderLive({ ...sundayEvidence, session: undefined }), /quotes stale/);
-  assert.match(renderLive({ ...sundayEvidence, session: { ...fridaySession, state: "Open" } }), /quotes stale/);
+test("retention rejects older legs and missing/open session context",()=>{
+  const quotes=sundayEvidence.quotes.map((q,i)=>i===0?{...q,"updated-at":"2026-10-08T20:00:00Z"}:q);
+  assert.equal(projectLive({...sundayEvidence,quotes}).positions[0].pnl,null);
+  for(const session of [undefined,{...fridaySession,state:"Open"}])
+    assert.equal(projectLive({...sundayEvidence,session}).positions[0].pnl,null);
 });
-
-test("Friday values survive Saturday, Monday preopen and holidays but expire once trading resumes", () => {
-  for (const now of [new Date("2026-10-10T14:00:00Z"), new Date("2026-10-12T12:00:00Z")]) {
-    assert.doesNotMatch(renderLive({ ...sundayEvidence, now }), /quotes stale/);
-  }
-  assert.match(renderLive({ ...sundayEvidence, now: new Date("2026-10-12T14:00:00Z") }), /quotes stale/);
-  const session = { ...fridaySession, "previous-session": {
-    "open-at": "2026-10-08T13:30:00Z", "close-at": "2026-10-08T17:00:00Z",
-  } };
-  const quotes = sundayEvidence.quotes.map((q) => ({ ...q, "updated-at": "2026-10-08T17:00:00Z" }));
-  assert.match(renderLive({ ...sundayEvidence, session, quotes }), /Thu, 10\/08/);
-});
-
-test("direction handles signed REST delta strings and leaves malformed delta unknown", () => {
-  const quotes = liveEvidence.quotes.map((quote, i) => ({ ...quote,
-    delta: ["-0.3", "-0.2", "0.4", "0.2", -0.2, -0.3, 0.2, 0.4][i] }));
-  const output = renderLive({ ...liveEvidence, quotes });
-  assert.match(output, /EWZ\s+Iron Condor\s+BEARISH/);
-  assert.match(output, /XLE\s+Iron Condor\s+BULLISH/);
-  for (const delta of [null, "", "NaN", "Infinity", "1.1", true]) {
-    const invalid = quotes.map((q, i) => i === 0 ? { ...q, delta } : q);
-    assert.match(renderLive({ ...liveEvidence, quotes: invalid }), /EWZ\s+Iron Condor\s+—\s+1\s+\$0\s+\+\$9/);
-  }
+test("Saturday, Monday preopen and shortened holiday session retain evidence; resumed session does not",()=>{
+  for(const now of [new Date("2026-10-10T14:00:00Z"),new Date("2026-10-12T12:00:00Z")])
+    assert.notEqual(projectLive({...sundayEvidence,now}).positions[0].pnl,null);
+  assert.equal(projectLive({...sundayEvidence,now:new Date("2026-10-12T14:00:00Z")}).positions[0].pnl,null);
+  const session={...fridaySession,"previous-session":{"open-at":"2026-10-08T13:30:00Z","close-at":"2026-10-08T17:00:00Z"}};
+  const quotes=sundayEvidence.quotes.map(q=>({...q,"updated-at":"2026-10-08T17:00:00Z"}));
+  assert.equal(projectLive({...sundayEvidence,session,quotes}).positions[0].optionEvidence.label,"10/08r");
 });
