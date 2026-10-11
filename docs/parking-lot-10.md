@@ -870,3 +870,34 @@ ChatGPT recommended C as a *recommendation only*. **The Principal has not select
 **Why-state:** Principal clarified the original GUID requirement and rejected treating the incidental `acct_` prefix as Product authority; Codex independently found nickname-only interaction substantially implemented, prefix representation non-blocking, and default masking a material deviation. The ratification preserves the intended semantics while declining an unnecessary immediate identity migration.
 
 **Next mode:** Further bounded read-only convergence discovery; no implementation, API, schema, CLI, test or migration authority follows from this checkpoint.
+
+
+---
+
+## PL-CONV-01 Open Reconciliation Issues — CLI Motif and Web FE Migration (October 11, 2026)
+
+**Status: OPEN — two distinct reconciliation issues under existing `PL-CONV-01`.** These are not defects, separate `PL-*` identities, implementation authorization, or completed strategic/architectural reconciliation. Neither selects Account-first versus Position-first sequencing.
+
+### CONV-UX — Converged CLI presentation motif
+
+**Principal direction / evidence:** The Principal selected the **accepted `tt live` terminal UX motif** as the Product design baseline for the converged CLI, supported by an October 11 operator screenshot of the compact XLE/EWZ scan. Preserve compact scanning, semantically meaningful color, payoff/range/spot/span/exit-profit/P&L/quote visual primitives where relevant, high information density, and low cognitive load. This is an accepted Product direction, not permission to mechanically apply payoff charts to every command or rewrite either CLI.
+
+**Open reconciliation:** Determine how `tt` and `ww` command presentations inherit this motif while consuming shared backend-owned facts and governed conclusions. Preserve existing accepted `tt live` behavior and accepted `ww` operating-loop functionality. Distinguish common visual language from command-specific information architecture, and identify the smallest operator-observable prototypes needed for Principal/Operator feedback.
+
+**Unresolved:** command-by-command UX mapping, progressive disclosure, compatible terminal/pipe output, and whether/when any changes are justified. No UI changes or CLI merge authorized.
+
+### CONV-WEB — Existing Wheelwright web frontend to v2 backend migration
+
+**Trigger:** Principal commissioned Kiro to estimate the work required to migrate the existing Wheelwright web frontend from its v1 backend/client-owned domain behavior to the authoritative v2 backend. **Kiro's estimate has not yet been provided in this reconciliation thread and is not assessed or accepted here.**
+
+**Open reconciliation:** Recover Kiro's actual estimate and evidence. Inventory web Product behaviors, current frontend-owned state/business logic, available v2 equivalents, genuinely missing backend capabilities, migration dependencies, incremental cutover feasibility, acceptance preservation, effort and risk. Compare these gaps with those exposed by `tt` convergence to identify shared backend capabilities and avoid parallel business authorities. Ratified Doc 77 mandates backend-owned state/business logic and client-owned presentation; v1 topology is evidence, not an architecture to copy into v2.
+
+**Unresolved:** Kiro estimate, factual capability parity, bounded migration strategy, sequence and economic cost. No FE migration, v2 API expansion, rewrite or implementation authorized.
+
+### Disposition and authority
+
+Both issues remain **OPEN for discovery and reconciliation** under `PL-CONV-01`. The CLI motif is Principal-selected Product direction; web migration is an investigation pending Kiro evidence. Do not promote either into a ratified implementation plan or declare a Reconciliation Completion Record. Existing `PL-CONV-01` Account/Position entry-point choice remains **UNDECIDED**.
+
+| Date | Milestone |
+|---|---|
+| 2026-10-11 | Principal requested both CONV-UX (converged CLI `tt live` motif) and CONV-WEB (web FE → v2 BE migration estimate) be durably preserved as open reconciliation issues. |
