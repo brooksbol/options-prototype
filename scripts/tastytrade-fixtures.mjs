@@ -33,4 +33,3 @@ export const liveEvidence = { account: "5WX01234", holdings: [...ewz.holdings, .
   complexOrders: [ewz.closing, xle.closing],
   quotes: [...ewz.quotes, ...xle.quotes],
   now: new Date("2026-10-01T02:00:00.000Z") };
-
