@@ -1103,7 +1103,11 @@ Closure executes the Principal's renewed explicit direction after the outstandin
 
 ---
 
-## CONV-WEB — Principal-Accepted Rewrite Plan Intake Disposition (October 11, 2026)
+## CONV-WEB — Principal-Accepted Rewrite Plan Intake Disposition
+
+**Complete source artifact subsequently archived:** `docs/discovery/conv-web-kiro-rewrite-plan-2026-10-11.md` (Kiro's verbatim original; source artifact ID `fa531a6c-0101-4214-bb06-afb9c386dadd`; source baseline `beaea80`). This supersedes the earlier *full artifact pending* qualification only. The proposal remains **RECEIVED — REQUIRES FULL 4AM CONSENSUS AND EXPLICIT PRINCIPAL APPROVAL — NOT RATIFIED**. No further design progression, roadmap promotion, implementation, or v1 cutover is authorized by archival.
+
+ (October 11, 2026)
 
 **Status: RECEIVED IN SUMMARY; COMPLETE SOURCE ARTIFACT PENDING. REQUIRES RECONCILIATION; NOT RATIFIED.**
 
