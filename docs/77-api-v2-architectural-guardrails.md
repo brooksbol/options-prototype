@@ -80,6 +80,18 @@ Authentication tokens identify a User with a stable, immutable backend-generated
 
 First-class User resources are `GET /v2/users` (administrator-only discovery), `GET /v2/users/{userId}` (administrator-only inspection) and `GET /v2/me` (the authenticated User’s own identity). Administrative privilege must be explicitly established and enforced by the backend. A User name, Account access or knowing a User ID implies no administrative authority. Administrator-only identity inspection does not automatically confer financial Account access. Independent resource identities and semantic URI hierarchy remain; aliases serve operator-friendly resolution only. This bounded implementation adds no User-management CRUD or general permissions framework.
 
+### Account information isolation and administrative financial access — Principal ratification, October 11, 2026
+
+**Principal-selected Model A (explicit Account grants).** Private Account-related information is inaccessible by default. Authentication establishes a User; backend authorization requires the appropriate explicit User–Account capability grant for every Account-related read or mutation. This applies to Accounts, Positions, balances, orders, executions, retained evidence and artifacts, and future objectives, Program associations, evaluations and recommendations. Knowing a GUID or nickname, changing an Account filter, or client-side hiding does not grant authority. Collections must restrict to authorized scope; instance operations enforce object-level grants.
+
+**Intentional sharing and administrative exception:** Multiple Users may access the same Account only when each has explicit backend grants for the relevant capabilities. An administrator may access another User's financial Account data only with appropriate Account grants. `users.admin` alone authorizes User inspection, **not** financial Account inspection. No blanket financial-administrator bypass is selected; broad financial-admin Models B/C are deferred pending demonstrated Product need. Ownership and access remain distinct.
+
+**Original brokerage artifacts fail closed:** Disclosure of original source bytes requires established and sufficient authority for **every represented source Account**. Unknown, incomplete or unrecognized source scope is **not** evidence of owner-only scope and must not authorize original-byte retrieval. Rejected semantic processing does not relax disclosure rules. **BUG-036** documents a synthetic counterexample in which an unrecognized leading-space mixed-account header led to unauthorized original-byte disclosure. The defect remains Open; this ratification does not authorize its remediation.
+
+**Authentication technology:** Continue existing controlled-local Bearer authentication while suitable. For exposed interactive deployment, prefer established off-the-shelf OIDC-compatible authentication and standard framework validation, mapping validated external issuer/subject identity to stable Wheelwright User identity while preserving backend Account grants. No vendor, production flow, custom IAM framework or implementation is selected by this ratification.
+
+**Scope:** This section ratifies Product/security behavior and Model A, not a new Account ownership schema, new permission framework, or changes to current User/Account IDs. Further API capabilities inherit the boundary but must define their own required read/write grants when introduced. No code, API, schema, security configuration, migration, bug fix or test modification is authorized solely by this document.
+
 ## 3. Security from inception
 
 API v2 MUST include a security boundary from inception.
