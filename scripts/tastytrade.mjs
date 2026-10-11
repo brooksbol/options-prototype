@@ -42,24 +42,23 @@ Positions and orders are separate broker evidence; no protection verdict is infe
 
 const LIVE_HELP = `Usage: tt live [--account <account-number>] [--tsv] [--width <columns>] [--no-color] [--ascii]
 
-Show an indicative, read-only live-trade summary for one production account.
-Direction sums signed held-leg delta from the same quotes; missing delta shows —.
-While the market is closed, latest-session quotes remain usable.
-TSV dates retained observations (not official closing prints); P/L DAY
-uses the broker daily-close reference for those observations.
-Human output is a compact instrument panel. SPOT uses broker equity mid,
-with independently validated bid/ask and quote-update timestamp; no last/close fallback.
-QUOTE is a plain age in s, m or h: the oldest option/spot evidence displayed.
-Freshness is checked independently; QUOTE color flags stale/degraded evidence.
-SPOT is just the observed price; PAYOFF spot markers are always cyan, independent of freshness.
-EXIT P50 (or a shared Pxx) heads the broker-target track; mixed objectives use
-EXIT Pxx with per-row objective labels. All targets are verified broker limits.
-The track shows a
-signed progress fraction: (OPEN-NOW)/(OPEN-TARGET). T flags an order transition.
-A red left diamond marks negative progress; green marks the observed target.
-A right arrow distinguishes progress above 100%.
-~ means a threshold is observed while still held, never execution.
-EXIT DTE shows centered --: no declared time-exit rule exists in current tt evidence.
+Show an indicative, read-only position scan for one production account.
+Human columns: SYMBOL, PAYOFF, RANGE, SPOT, SPAN, EXIT PROFIT, P/L, QUOTE.
+PAYOFF is the expiration shape; its spot marker is always cyan.
+RANGE is the verified short-strike maximum-profit interval, not breakevens.
+SPOT is broker equity mid, never last/close. Its color compares the same snapshot's
+midpoint to its validated dated final previous close: green up, red down, white flat,
+yellow unknown. Market closure and quote age do not determine this color.
+SPAN runs from the final opening fill to expiration using New York calendar dates;
+remaining DTE is embedded on the right. No time-exit threshold is currently declared.
+EXIT PROFIT shows each verified broker objective and signed progress:
+(OPEN-NOW)/(OPEN-TARGET). Negative progress uses a left diamond;
+green and ~ mean an observed target while still held, never execution. T is a transition.
+P/L is gross dollars for the full held quantity and multiplier, before fees.
+QUOTE is the oldest displayed option/spot age in s, m or h, with no coded suffixes.
+Weekend latest-session valuation remains eligible; it is not an official close.
+Use --tsv for unchanged detailed opening credit, current closing debit, target,
+quantity, expiration/DTE and legacy day-P/L/direction evidence.
 Use --width to override terminal width, --no-color for monochrome, --ascii for ASCII.
 NO_COLOR or TERM=dumb disables color. Narrow views omit optional reference columns.
 If you have one accessible account, it is selected automatically.

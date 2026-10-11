@@ -28,7 +28,7 @@ test("approved graphic is line-based with proportional strikes and the same obse
 test("semantic colors are independent of current P/L; ANSI stripping preserves all cells",()=>{
   const p=position(); p.pnl=-18; const plain=silhouette(p), colored=silhouette(p,{color:true});
   assert.equal(strip(colored.text),plain.text);
-  for(const code of ["91","93","92","96"])assert.ok(colored.text.includes(`\x1b[${code}m`));
+  for(const code of ["2;91","93","92","96"])assert.ok(colored.text.includes(`\x1b[${code}m`));
   const out=renderLive({...evidence,color:true}); assert.match(out,/PAYOFF/);
   assert.ok(out.split("\n").every(l=>cellWidth(l)<157));
 });
@@ -68,7 +68,7 @@ test("missing spot has no marker; stale and retained observed spot markers stay 
     quotes:evidence.quotes.map(q=>({...q,"updated-at":"2026-10-09T20:00:00Z"})),
     spotQuotes:[{...spot,"updated-at":"2026-10-09T20:00:00Z"}]};
   const r=projectLive(retained).positions[0];assert.equal(r.spot.retained,true);
-  assert.match(silhouette(r).text,/▼/);assert.match(renderLive(retained),/39.60\s+42h/);
+  assert.match(silhouette(r).text,/▼/);assert.match(renderLive(retained),/39.60.*42h$/m);
 });
 
 test("unverified, adjusted, contradictory and duplicate terms withhold geometry only",()=>{
@@ -92,7 +92,7 @@ test("ASCII remains a line silhouette and target/spot alignment is stable across
     const ls=strip(renderLive({...data,columns,color:true})).trim().split("\n");
     const rows=ls.filter(l=>/^T\d+\s/.test(l));assert.equal(rows.length,20);
     assert.ok(rows.every(r=>r.indexOf("▼")===rows[0].indexOf("▼")));
-    assert.ok(rows.every(r=>r.indexOf("0.21")===rows[0].indexOf("0.21")));
+    assert.ok(rows.every(r=>r.indexOf("P50")===rows[0].indexOf("P50")));
     assert.ok(ls.every(l=>cellWidth(l)<columns));assert.ok(ls.length<=26);
     const header=ls[1], start=rows[0].indexOf("___");
     assert.equal(header.indexOf("PAYOFF"),8+Math.floor((31-6)/2));

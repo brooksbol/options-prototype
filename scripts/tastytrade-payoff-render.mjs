@@ -22,11 +22,11 @@ export function silhouette(position, { width = 31, ascii = false, color = false 
     const x = lo+(hi-lo)*i/(count-1);
     if (i === putSlope) return {char:ascii?"/":"╱",code:"93"};
     if (i === callSlope) return {char:ascii?"\\":"╲",code:"93"};
-    if (x<a) return {char:"_",code:profile.leftTail<0?"91":"97"};
+    if (x<a) return {char:"_",code:profile.leftTail<0?"2;91":"97"};
     if (x<b) return {char:i<putSlope?"_":ascii?"-":"‾",code:"93"};
     if (x<=c) return {char:ascii?"-":"‾",code:"92"};
     if (x<=d) return {char:i<callSlope?ascii?"-":"‾":"_",code:"93"};
-    return {char:"_",code:profile.rightTail<0?"91":"97"};
+    return {char:"_",code:profile.rightTail<0?"2;91":"97"};
   });
   let markerIndex = null;
   if (Number.isFinite(position.spot.value)) {

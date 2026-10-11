@@ -245,12 +245,16 @@ export function projectLive({ account, holdings, orders, complexOrders, quotes, 
     const direction = directionFor(heldWithDayClose, quotes, trade.quantity, now, session);
     const underlying = items[0]["underlying-symbol"];
     const spot = spotEvidence(underlying, spotQuotes, now, session);
+    const payoff = payoffProfile(trade, instruments, credit, underlying);
+    const openingDte = Math.round((dayInNewYork(new Date(trade.expiry)) -
+      dayInNewYork(new Date(openedAt))) / 86_400_000);
+    const lifespan = openingDte < 0 ? null : { openingDte, remainingDte: dte,
+      elapsedDays: openingDte - dte, progress: openingDte === 0 ? 1 : (openingDte - dte) / openingDte };
     positions.push({ symbol: trade.symbol, underlying, expiry: trade.expiry, quantity: trade.quantity,
       multiplier: trade.multiplier, credit, target, market, spot, dte, openedAt,
       // No declared time-exit policy exists in current tt evidence. Never infer it from orders.
-      timeExit: { objectiveDte: null, openingDte: Math.round((dayInNewYork(new Date(trade.expiry)) -
-        dayInNewYork(new Date(openedAt))) / 86_400_000), progress: null },
-      payoff: payoffProfile(trade, instruments, credit, underlying),
+      timeExit: { objectiveDte: null, openingDte, progress: null },
+      lifespan, payoff, range: payoff ? { lower: payoff.strikes[1], upper: payoff.strikes[2] } : null,
       pnl: market.stale ? null : (credit - market.closeDebit) * trade.multiplier * trade.quantity,
       progress: market.stale ? null : (credit - market.closeDebit) / (credit - target),
       p50: Math.abs(target - credit / 2) <= 1e-8,
@@ -273,7 +277,7 @@ export function evidenceStatus(at, now, session, stale = !usableEvidence(at, now
 }
 
 function spotEvidence(symbol, quotes, now, session) {
-  const missing = { value: null, label: "—", stale: true, retained: false };
+  const missing = { value: null, label: "—", stale: true, retained: false, movement: "unknown", comparison: null };
   if (!Array.isArray(quotes)) return missing;
   const matches = quotes.filter((q) => q?.symbol === symbol && q?.["instrument-type"] === "Equity");
   if (matches.length !== 1) return missing;
@@ -282,7 +286,35 @@ function spotEvidence(symbol, quotes, now, session) {
   const at = typeof q["updated-at"] === "string" ? Date.parse(q["updated-at"]) : NaN;
   if (![bid, ask, mid, at].every(Number.isFinite) || bid > ask || mid <= 0 ||
       mid < bid - 1e-6 || mid > ask + 1e-6 || at > now.getTime() + 60_000) return missing;
-  return { value: mid, bid, ask, source: "tastytrade equity mid", ...evidenceStatus(at, now, session) };
+  return { value: mid, bid, ask, source: "tastytrade equity mid", ...spotMovement(q, mid, at, now, session), ...evidenceStatus(at, now, session) };
+}
+
+// Price movement is relative to the dated final prior close on the SAME broker
+// snapshot, never to option delta, wall-clock age, session state or a substituted spot.
+function spotMovement(quote, mid, at, now, session) {
+  const unknown = { movement: "unknown", comparison: null };
+  const date = value => {
+    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return NaN;
+    const time = Date.parse(`${value}T00:00:00Z`);
+    return Number.isFinite(time) && new Date(time).toISOString().slice(0,10) === value ? time : NaN;
+  };
+  const summaryDay = date(quote["summary-date"]), previousDay = date(quote["prev-close-date"]);
+  const previousClose = decimal(quote["prev-close"]);
+  if (!(previousClose > 0) || quote["prev-close-price-type"] !== "Final" ||
+      !Number.isFinite(summaryDay) || !Number.isFinite(previousDay) || previousDay >= summaryDay) return unknown;
+  const observationDay = dayInNewYork(new Date(at));
+  const completed = completedSession(session, now);
+  const nextOpen = Date.parse(session?.["next-session"]?.["open-at"]);
+  // Broker refreshes can be stamped after midnight while the snapshot explicitly
+  // belongs to the latest completed session. Require that broker session linkage.
+  const sameSession = summaryDay === observationDay || completed &&
+    summaryDay === dayInNewYork(new Date(completed.close)) && at >= completed.open &&
+    at <= now.getTime() + 60_000 && (!Number.isFinite(nextOpen) || at < nextOpen);
+  if (summaryDay > observationDay || !sameSession) return unknown;
+  const change = mid - previousClose;
+  return { movement: Math.abs(change) < 1e-8 ? "unchanged" : change > 0 ? "up" : "down",
+    comparison: { price: previousClose, date: quote["prev-close-date"],
+      summaryDate: quote["summary-date"], source: "tastytrade prev-close", priceType: "Final", change } };
 }
 
 // Geometry is authorized only by verified standard share-deliverable contract terms.
