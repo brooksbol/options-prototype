@@ -51,7 +51,7 @@ Human output is a compact instrument panel. SPOT uses broker equity mid,
 with independently validated bid/ask and quote-update timestamp; no last/close fallback.
 QUOTE is a plain age in s, m or h: the oldest option/spot evidence displayed.
 Freshness is checked independently; QUOTE color flags stale/degraded evidence.
-SPOT is just the observed price; a stale observed spot marker is amber, usable is cyan.
+SPOT is just the observed price; PAYOFF spot markers are always cyan, independent of freshness.
 EXIT P50 (or a shared Pxx) heads the broker-target track; mixed objectives use
 EXIT Pxx with per-row objective labels. All targets are verified broker limits.
 The track shows a

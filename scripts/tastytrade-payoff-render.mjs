@@ -32,7 +32,7 @@ export function silhouette(position, { width = 31, ascii = false, color = false 
   if (Number.isFinite(position.spot.value)) {
     const value = position.spot.value;
     markerIndex = value<lo ? 0 : value>hi ? count-1 : index(value);
-    cells[markerIndex] = {char: value<lo ? ascii?"<":"←" : value>hi ? ascii?">":"→" : ascii?"v":"▼",code:position.spot.stale?"93":"96"};
+    cells[markerIndex] = {char: value<lo ? ascii?"<":"←" : value>hi ? ascii?">":"→" : ascii?"v":"▼",code:"96"};
   }
   const prefix = profile.unequal ? ascii ? "U" : "≠" : " ";
   return { text: ink(prefix,profile.unequal?"93":null)+cells.map(c=>ink(c.char,c.code)).join(""),

@@ -57,11 +57,11 @@ test("off-chart spot uses outward arrows; spot in the loss tail stays proportion
   assert.ok(s.markerIndex>s.breaks[3]);assert.doesNotMatch(s.text,/→/);
 });
 
-test("missing spot has no marker; stale observed spot is amber and retained usable spot is cyan",()=>{
+test("missing spot has no marker; stale and retained observed spot markers stay cyan",()=>{
   const p=position();
   assert.doesNotMatch(silhouette({...p,spot:{value:null,stale:true}}).text,/▼|←|→/);
   const stale={...p,spot:{value:39.6,stale:true}};
-  assert.match(silhouette(stale,{color:true}).text,/\x1b\[93m▼/);
+  assert.match(silhouette(stale,{color:true}).text,/\x1b\[96m▼/);
   assert.equal(silhouette(stale).markerIndex,silhouette(p).markerIndex);
   const session={state:"Closed","previous-session":{"open-at":"2026-10-09T13:30:00Z","close-at":"2026-10-09T20:00:00Z"},"next-session":{"open-at":"2026-10-12T13:30:00Z"}};
   const retained={...evidence,session,now:new Date("2026-10-11T14:00:00Z"),
