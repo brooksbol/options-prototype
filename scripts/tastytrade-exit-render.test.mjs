@@ -19,8 +19,8 @@ test('profit track uses verified opening/target/leg-mid economics, not credit ca
     assert.ok(out.includes(`${progress < 0 ? '−' : '+'}${Math.round(Math.abs(progress)*100)}%${progress >= 1 ? '~' : ''}`));
     const track = exitTrack(p.progress).split(' ')[0];
     const marker = progress < 0 ? '←' : progress > 1 ? '→' : progress >= 1 ? '◆' : '●';
-    assert.equal(track.indexOf(marker),Math.round(Math.max(0,Math.min(1,progress))*8));
-    assert.equal(cellWidth(track),9);
+    assert.equal(track.indexOf(marker),Math.round(Math.max(0,Math.min(1,progress))*10));
+    assert.equal(cellWidth(track),11);
     assert.doesNotMatch(out,/executed|completed|filled/i);
   }
   // Capturing 25% of credit is halfway to a P50 exit.
@@ -50,7 +50,7 @@ test('stale options suppress the progress marker even if spot is valid', () => {
   const quotes=evidence.quotes.map(q=>({...q,'updated-at':'2026-09-30T12:00:00Z'}));
   const spotQuotes=[{symbol:'EWZ','instrument-type':'Equity',bid:'39.59',ask:'39.61',mid:'39.60','updated-at':'2026-10-01T01:59:50Z'}];
   const out=renderLive({...evidence,quotes,spotQuotes});
-  assert.match(out,/EWZ.*P50:B\s+—\s+— no rule.*39.60\s+O:14h! S:10s/);
+  assert.match(out,/EWZ.*—\s+— no rule.*39.60\s+10s\s+14h/);
   assert.doesNotMatch(out,/●|◆/);
 });
 
@@ -71,16 +71,16 @@ test('mixed broker targets use generic EXIT Pxx heading and exact per-row object
   const data={...evidence,orders:evidence.orders.map(o=>o.id===target.id?target:o),
     complexOrders:evidence.complexOrders.map(o=>o.id===ewz.closing.id?{...o,orders:[target,ewz.closing.orders[1]]}:o)};
   const out=renderLive(data);
-  assert.match(out,/EXIT Pxx\s+EXIT DTE/); assert.match(out,/EWZ.*P60:B/); assert.match(out,/XLE.*P50:B/);
+  assert.match(out,/EXIT Pxx\s+EXIT DTE/); assert.match(out,/EWZ.*P60\s/); assert.match(out,/XLE.*P50\s/);
   const rows=out.split('\n').filter(l=>/^(EWZ|XLE)\s/.test(l));
   assert.equal(rows[0].indexOf('─'),rows[1].indexOf('←'));
 });
 
-test('QUOTE elapsed ages use seconds, minutes, hours and independent evidence flags', () => {
+test('QUOTE elapsed ages use plain seconds, minutes and hours', () => {
   for(const [ms,label] of [[0,'0s'],[10000,'10s'],[59999,'59s'],[60000,'1m'],[600000,'10m'],[3599999,'59m'],[3600000,'1h'],[36000000,'10h']])
     assert.equal(observationAge({ageMs:ms}),label);
-  assert.equal(observationAge({ageMs:36000000,retained:true}),'10hr');
-  assert.equal(observationAge({ageMs:36000000,stale:true}),'10h!');
+  assert.equal(observationAge({ageMs:36000000,retained:true}),'10h');
+  assert.equal(observationAge({ageMs:36000000,stale:true}),'10h');
   assert.equal(observationAge({}),'—');
 });
 
@@ -91,12 +91,28 @@ test('twenty mixed progress rows keep track and numeric percentage alignment at 
     const plain=renderPanel(p,{columns,ascii}), colored=renderPanel(p,{columns,ascii,color:true});
     assert.equal(strip(colored),plain); assert.doesNotMatch(plain,/[\u2580-\u259f]/);
     const rows=plain.trim().split('\n');
-    assert.equal(rows.length,22); assert.match(rows[1],/PAYOFF.*EXIT Pxx.*EXIT DTE/);
+    assert.equal(rows.length,22); assert.match(rows[1],/PAYOFF.*EXIT P50.*EXIT DTE/);
     assert.ok(rows.every(l=>cellWidth(l)<columns));
-    const matches=rows.slice(2).map(l=>[...l.matchAll(/([─●◆←→o*<>\-]{9})\s+([+−\-]\d+%~?)/g)].at(-1));
+    const matches=rows.slice(2).map(l=>[...l.matchAll(/([─●◆←→o*<>\-]{11})\s+([+−\-]\d+%~?)/g)].at(-1));
     assert.ok(matches.every(m=>m));
     assert.equal(new Set(matches.map(m=>m.index)).size,1);
     assert.equal(new Set(matches.map(m=>m.index+m[0].length)).size,1);
     if(ascii) assert.doesNotMatch(plain,/[^\x00-\x7f]/);
   }
+});
+
+test('QUOTE is a plain option age; spot age and retained provenance remain separate', () => {
+  const session={state:'Closed','previous-session':{'open-at':'2026-10-09T13:30:00Z','close-at':'2026-10-09T20:00:00Z'},'next-session':{'open-at':'2026-10-12T13:30:00Z'}};
+  const quotes=evidence.quotes.map(q=>({...q,'updated-at':'2026-10-09T20:00:00Z'}));
+  const spotQuotes=[{symbol:'EWZ','instrument-type':'Equity',bid:'39.59',ask:'39.61',mid:'39.60','updated-at':'2026-10-09T19:50:00Z'}];
+  const data={...evidence,session,quotes,spotQuotes,now:new Date('2026-10-11T14:00:00Z')};
+  for(const ascii of [false,true]) {
+    const out=renderLive({...data,ascii});
+    const rows=out.split('\n').filter(l=>/^(EWZ|XLE)\s/.test(l));
+    assert.match(out,/EXIT P50/); assert.doesNotMatch(out,/P50:B|O:|S:/);
+    assert.ok(rows.every(l=>/^\d+[smh]$/.test(l.trim().split(/\s+/).at(-1))));
+    assert.match(rows[0],/0.33r/); assert.match(rows[0],/39.60\s+42hr\s+42h$/);
+  }
+  for(const [progress,track] of [[0,'●──────────'],[.4,'────●──────'],[.5,'─────●─────'],[.9,'─────────●─'],[1,'──────────◆']])
+    assert.ok(exitTrack(progress).startsWith(track));
 });

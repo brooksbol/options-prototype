@@ -11,10 +11,10 @@ const lines = s => strip(s).trim().split("\n");
 
 test("approved columns align, financial values right-align, static references stay neutral",()=>{
   const plain=output(), colored=output({color:true});
-  assert.deepEqual(lines(plain)[1].trim().split(/\s+/),["SYMBOL","PAYOFF","EXP","QTY","DTE","EXIT","Pxx","EXIT","DTE","OPEN","NOW","TARGET","P/L","SPOT","QUOTE"]);
+  assert.deepEqual(lines(plain)[1].trim().split(/\s+/),["SYMBOL","PAYOFF","EXP","QTY","DTE","EXIT","P50","EXIT","DTE","OPEN","NOW","TARGET","P/L","SPOT","QUOTE"]);
   const [_,header,row] = lines(plain);
   assert.equal(row.indexOf("0.42")+4,header.indexOf("OPEN")+4);
-  assert.match(row,/P50:B\s+───●─────\s+\+43%\s+— no rule\s+0.42\s+0.33\s+0.21\s+\+\$9\s+39.60\s+O:2h S:1m/);
+  assert.match(row,/────●──────\s+\+43%\s+— no rule\s+0.42\s+0.33\s+0.21\s+\+\$9\s+39.60\s+1m\s+2h/);
   assert.equal(strip(colored),plain); assert.match(colored,/\x1b\[92m\+\$9\x1b\[97m/);
   assert.doesNotMatch(colored,/\x1b\[92m0\.21/);
   assert.equal(lines(plain).length,4); // Account, headings, two positions; no bottom legend.
@@ -59,24 +59,24 @@ test("spot requires a unique equity midpoint inside validated bid/ask and an obs
 
 test("stale spot does not hide option economics; stale options do not hide spot",()=>{
   let out=output({spotQuotes:[spot("EWZ","2026-09-30T12:00:00Z")]});
-  assert.match(out,/EWZ.*\+\$9.*39.60!.*O:2h S:14h!/);
+  assert.match(out,/EWZ.*\+\$9.*39.60\s+14h!\s+2h/);
   const quotes=evidence.quotes.map(q=>({...q,"updated-at":"2026-09-30T12:00:00Z"}));
-  out=output({quotes}); assert.match(out,/EWZ.*P50:B\s+—\s+— no rule\s+0.42\s+—\s+0.21\s+—\s+39.60\s+O:14h! S:1m/);
+  out=output({quotes}); assert.match(out,/EWZ.*—\s+— no rule\s+0.42\s+—!\s+0.21\s+—\s+39.60\s+1m\s+14h/);
 });
 
-test("retained options and spot are independently dated, including immediately after close",()=>{
+test("retained options and spot carry independent ages, including immediately after close",()=>{
   const session={state:"Closed","previous-session":{"open-at":"2026-10-09T13:30:00Z","close-at":"2026-10-09T20:00:00Z"},"next-session":{"open-at":"2026-10-12T13:30:00Z"}};
   const quotes=evidence.quotes.map(q=>({...q,"updated-at":"2026-10-09T20:00:00Z"}));
   for(const now of [new Date("2026-10-11T14:00:00Z"),new Date("2026-10-09T20:01:00Z")]) {
     const out=output({session,quotes,now,spotQuotes:[spot("EWZ","2026-10-09T20:00:00Z")]});
-    assert.match(out,now.getUTCDay()===0 ? /39.60\s+O:42hr S:42hr/ : /39.60\s+O:1mr S:1mr/); assert.doesNotMatch(out,/official|live quote/);
+    assert.match(out,now.getUTCDay()===0 ? /39.60\s+42hr\s+42h/ : /39.60\s+1mr\s+1m/); assert.doesNotMatch(out,/official|live quote/);
   }
 });
 
-test("arbitrary targets are LIMIT:B, transitions T, midpoint crossing marked still held",()=>{
+test("arbitrary targets are LIMIT, transitions T, midpoint crossing marked still held",()=>{
   const target={...ewz.closing.orders[0],price:"0.20",status:"Contingent"};
   const data={...evidence,orders:evidence.orders.map(o=>o.id===target.id?target:o),complexOrders:[{...ewz.closing,orders:[target,ewz.closing.orders[1]]},xle.closing]};
-  assert.match(renderLive(data),/EWZ.*LIMIT:T/);
+  assert.match(renderLive(data),/EWZ.*LIMIT.* T/);
   assert.match(renderLive({...data,format:"tsv"}),/exit transition: target Contingent, stop Received/);
   const quotes=evidence.quotes.map(q=>q.symbol===xle.holdings[2].symbol?{...q,bid:"0.28",ask:"0.30",mid:"0.29"}:q);
   assert.match(output({quotes}),/XLE.*\+111%~/); assert.match(output(),/XLE.*−144%/);
@@ -114,6 +114,6 @@ test("acquisition requests broker equity mid separately; TSV makes no new reads;
     });
     assert.equal(code,0,errors.join()); assert.equal(calls.some(u=>u.includes("equity[]=")),!tsv);
     assert.doesNotMatch(out[0],/\x1b\[/);
-    if(!tsv)assert.match(out[0],fail?/S:—/:/39.60/);
+    if(!tsv)assert.match(out[0],fail?/—\s+—\s+2h/:/39.60/);
   }
 });

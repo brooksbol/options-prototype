@@ -65,7 +65,7 @@ test("missing/stale spot removes marker; valid retained observation supplies mar
     quotes:evidence.quotes.map(q=>({...q,"updated-at":"2026-10-09T20:00:00Z"})),
     spotQuotes:[{...spot,"updated-at":"2026-10-09T20:00:00Z"}]};
   const r=projectLive(retained).positions[0];assert.equal(r.spot.retained,true);
-  assert.match(silhouette(r).text,/▼/);assert.match(renderLive(retained),/O:42hr S:42hr/);
+  assert.match(silhouette(r).text,/▼/);assert.match(renderLive(retained),/39.60\s+42hr\s+42h/);
 });
 
 test("unverified, adjusted, contradictory and duplicate terms withhold geometry only",()=>{

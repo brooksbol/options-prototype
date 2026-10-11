@@ -33,7 +33,7 @@ function wrap(text, width) {
 const progressPercent = (progress, ascii = false) =>
   `${progress >= 0 ? "+" : ascii ? "-" : "−"}${Math.round(Math.abs(progress) * 100)}%${progress >= 1 - 1e-8 ? "~" : ""}`;
 // Rendering bounds only the marker; the signed economic percentage remains unbounded.
-export function exitTrack(progress, { width = 9, percentWidth = 6, ascii = false, color = false } = {}) {
+export function exitTrack(progress, { width = 11, percentWidth = 6, ascii = false, color = false } = {}) {
   if (!Number.isFinite(progress)) {
     const missing = ascii ? "--" : "—";
     return color ? `\x1b[37m${missing}\x1b[97m` : missing;
@@ -51,33 +51,46 @@ export function observationAge(evidence) {
   if (!Number.isFinite(evidence.ageMs)) return "—";
   const seconds = Math.max(0, Math.floor(evidence.ageMs / 1000));
   const age = seconds < 60 ? `${seconds}s` : seconds < 3600 ? `${Math.floor(seconds / 60)}m` : `${Math.floor(seconds / 3600)}h`;
-  return `${age}${evidence.retained ? "r" : ""}${evidence.stale ? "!" : ""}`;
+  return age;
 }
-function profitLabel(p) {
+function profitObjective(p) {
   if (!p.targetOrder || !Number.isFinite(p.target)) return "—";
   // Only exact integer credit-capture objectives get Pxx labels; TARGET retains exact price evidence.
   const percent = p.profitCapture * 100;
   const objective = p.p50 ? "P50" : Number.isFinite(percent) && Math.abs(percent - Math.round(percent)) < 1e-8 ?
     `P${Math.round(percent)}` : "LIMIT";
-  return `${objective}:${p.transition ? "T" : "B"}`;
+  return objective;
 }
 export function renderPanel({ accountLabel, positions }, { color = false, columns = 157, ascii = false } = {}) {
   const limit = Number.isInteger(columns) && columns > 1 ? columns - 1 : 156;
   const mono = (s) => ascii ? s.replaceAll("—", "--").replaceAll("−", "-") : s;
   const ink = (s, code) => color && code ? `\x1b[${code}m${s}\x1b[97m` : s;
   const exitOptions = { ascii, percentWidth: Math.max(6, ...positions.filter(p => Number.isFinite(p.progress)).map(p => cellWidth(progressPercent(p.progress, ascii)))) };
+  const objectives = positions.map(profitObjective);
+  const sharedObjective = objectives.length > 0 && objectives[0] !== "—" && objectives[0] !== "LIMIT" &&
+    objectives.every(v => v === objectives[0]);
+  const profitHeading = sharedObjective ? `EXIT ${objectives[0]}` : "EXIT Pxx";
+  const objectiveWidth = Math.max(3, ...objectives.map(cellWidth));
+  const spotWidth = Math.max(8, ...positions.map(p => p.spot.value === null ? 1 : cellWidth(spotPrice(p.spot.value))));
+  const spotAge = p => p.spot.value === null ? "—" :
+    `${observationAge(p.spot)}${p.spot.stale ? "!" : p.spot.retained ? "r" : ""}`;
+  const spotAgeWidth = Math.max(5, ...positions.map(p => cellWidth(mono(spotAge(p)))));
+  const profitCell = (p, colored = false) => {
+    const prefix = sharedObjective ? "" : `${pad(mono(profitObjective(p)), objectiveWidth)} `;
+    return `${prefix}${exitTrack(p.targetOrder ? p.progress : null, { ...exitOptions, color: colored })}${p.transition ? colored ? ink(" T", "93") : " T" : ""}`;
+  };
   const rows = positions.map((p) => ({
     SYMBOL: p.symbol, PAYOFF: silhouette(p, { ascii }).text, EXP: new Set(positions.map(p => p.expiry.slice(0,4))).size > 1 ? p.expiry.slice(0,10) : p.expiry.slice(5, 10).replace("-", "/"), QTY: String(p.quantity),
     DTE: String(p.dte),
-    "EXIT Pxx": `${pad(mono(profitLabel(p)), 7)} ${exitTrack(p.targetOrder ? p.progress : null, exitOptions)}`,
+    [profitHeading]: profitCell(p),
     "EXIT DTE": "— no rule",
-    OPEN: price(p.credit), NOW: p.market.stale ? "—" : price(p.market.closeDebit), TARGET: price(p.target),
+    OPEN: price(p.credit), NOW: `${p.market.stale ? "—" : price(p.market.closeDebit)}${p.market.stale ? "!" : p.optionEvidence.retained ? "r" : " "}`, TARGET: price(p.target),
     "P/L": p.pnl === null ? "—" : dollars(p.pnl),
-    SPOT: p.spot.value === null ? "—" : `${spotPrice(p.spot.value)}${p.spot.stale ? "!" : ""}`,
-    QUOTE: `O:${observationAge(p.optionEvidence)} S:${observationAge(p.spot)}`, p,
+    SPOT: `${pad(p.spot.value === null ? mono("—") : spotPrice(p.spot.value), spotWidth, true)} ${pad(mono(spotAge(p)), spotAgeWidth, true)}`,
+    QUOTE: observationAge(p.optionEvidence), p,
   }));
-  const specs = [["SYMBOL",6],["PAYOFF",31],["EXP",5],["QTY",3],["DTE",3],["EXIT Pxx",24],["EXIT DTE",10],
-    ["OPEN",5],["NOW",5],["TARGET",6],["P/L",8],["SPOT",8],["QUOTE",18]];
+  const specs = [["SYMBOL",6],["PAYOFF",31],["EXP",5],["QTY",3],["DTE",3],[profitHeading,18],["EXIT DTE",10],
+    ["OPEN",5],["NOW",5],["TARGET",6],["P/L",8],["SPOT",spotWidth + 1 + spotAgeWidth],["QUOTE",5]];
   const widths = Object.fromEntries(specs.map(([k,w]) => [k,Math.max(w,...rows.map((r) => cellWidth(mono(r[k]))))]));
   const size = (keys) => keys.reduce((n,k) => n + widths[k], 0) + (keys.length - 1) * 2;
   let keys = specs.map(([k]) => k);
@@ -87,22 +100,22 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
     keys = keys.filter((key) => key !== k); compact = true;
   }
   if (size(keys) > limit) return wrap(`Terminal too narrow: ${positions.length} positions not displayed; use --tsv.`, limit).join("\n") + "\n";
-  const numeric = new Set(["QTY","DTE","OPEN","NOW","TARGET","P/L","SPOT"]);
+  const numeric = new Set(["QTY","DTE","OPEN","NOW","TARGET","P/L","SPOT","QUOTE"]);
   const years = [...new Set(positions.map(p => p.expiry.slice(0,4)))];
   const heading = `Account ${accountLabel}${years.length === 1 ? ` | EXP ${years[0]}` : ""}${compact ? " | narrow view" : ""}`;
   const header = keys.map((k) => k === "PAYOFF" ? pad(" ".repeat(Math.floor((widths[k] - 6)/2)) + k, widths[k]) :
-    pad(k,widths[k],numeric.has(k))).join("  ").trimEnd();
+    k === "NOW" ? pad(k,widths[k] - 1,true) + " " : pad(k,widths[k],numeric.has(k))).join("  ").trimEnd();
   const lines = [...wrap(heading,limit), header];
   for (const r of rows) {
     const p = r.p;
     lines.push(keys.map((k) => {
       const value = mono(r[k]);
       const code = k === "P/L" ? p.pnl === null || p.pnl === 0 ? null : p.pnl > 0 ? "92" : "91" :
+        k === "NOW" && (p.market.stale || p.optionEvidence.retained) ? "93" :
         k === "SPOT" ? p.spot.stale ? p.spot.value === null ? "37" : "93" : "96" :
-        k === "QUOTE" ? p.optionEvidence.stale || p.spot.stale || p.optionEvidence.retained || p.spot.retained ? "93" : null :
+        k === "QUOTE" ? p.optionEvidence.stale || p.optionEvidence.retained ? "93" : null :
         k === "EXIT DTE" || value === mono("—") ? "37" : null;
-      const decorated = k === "PAYOFF" ? silhouette(p, { ascii, color }).text : k === "EXIT Pxx" ?
-        `${ink(pad(mono(profitLabel(p)), 7), p.transition ? "93" : profitLabel(p) === "—" ? "37" : null)} ${exitTrack(p.targetOrder ? p.progress : null, { ...exitOptions, color })}` : ink(value,code);
+      const decorated = k === "PAYOFF" ? silhouette(p, { ascii, color }).text : k === profitHeading ? profitCell(p, color) : ink(value,code);
       return pad(decorated,widths[k],numeric.has(k));
     }).join("  ").trimEnd());
   }

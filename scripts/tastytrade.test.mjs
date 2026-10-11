@@ -150,7 +150,7 @@ test("live uses only allowlisted reads, one token, and sanitizes API errors", as
   assert.ok(calls.slice(1).every(({ options }) => options.headers.Authorization === "Bearer access-marker"));
   assert.doesNotMatch(output.join("\n"), /access-marker|secret-marker|refresh-marker/);
   assert.match(output[0], /EWZ.*\+\$9/);
-  assert.match(output[0], /P50:B/);
+  assert.match(output[0], /EXIT P50/);
   assert.match(output[0], /\x1b\[92m\+\$9/);
   const ttyOutput = [];
   assert.equal(await main(["live"], { env, out: (s) => ttyOutput.push(s), now: () => liveEvidence.now,
