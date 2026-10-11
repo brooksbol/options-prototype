@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-11T18:50:59.413Z",
+    "generatedAt": "2026-10-11T22:32:39.149Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -32,19 +32,19 @@
         "experiment": 7
       },
       "arTotal": 18,
-      "plTotal": 74,
-      "plWithExplicitRelationship": 8,
+      "plTotal": 75,
+      "plWithExplicitRelationship": 9,
       "graduatedTotal": 29,
       "adrTotal": 22,
       "priorityTotal": 10,
       "comingSoonTotal": 5,
       "principleTotal": 9,
       "domainEntryTotal": 36,
-      "bugTotal": 34,
-      "logTotal": 109,
+      "bugTotal": 36,
+      "logTotal": 110,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
-      "plWithoutIntakeDate": 60
+      "plWithoutIntakeDate": 61
     },
     "notes": []
   },
@@ -4261,6 +4261,30 @@
           "heading": "PL-CLI-01 / PL-API-03 — Principal accepted current styled human table — October 5, 2026",
           "level": 3,
           "content": "After reviewing the latest Desktop screenshot, Principal accepted the current table styling, including brighter coral red (#ff5f5f, indexed 203) for negative change values. Current implementation is commit `506fd0a23a2d192950f9d15c0a81ab76365e6741`, already synchronized to `origin/main`; closeout records this acceptance and verifies the completed handoff. This closes the visual acceptance boundary for the authorized show-query/table slice. It does not assert regular-session “today,” market completeness, suitability, or independent review, and does not close broader PL-CLI-01/PL-API-03.\n\n---",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "PL-CONV-01",
+      "name": "tt / ww v2 Position and Governance Convergence (October 11, 2026)",
+      "section": "Reconciliation / continuation record",
+      "description": "**Discovery / trigger.** Two independently accepted Wheelwright workstreams have converged: (1) `tt live`'s broker-connected, low-cognitive-load position scan (accepted `9793eddc5abdc979e5d9c3b05d61715d62d4edef`), and (2) `ww` v2's backend-retained brokerage artifacts, account authorization, and Position inspection (accepted `8c7105fbeed5aec9aa30b42ec219fd371b7f088c`). These commit IDs are historical acceptance anchors, not substitutes for verifying current code. Both are evolutionary implementations of **one Wheelwright Product**, not two permanent decision authorities.",
+      "descriptionTruncated": true,
+      "state": "INTAKE — bounded read-only discovery selected by Principal; strategic/architectural reconciliation and completion record pending. **Canonical identity:** `PL-CONV-01`. This is one cross-implementation convergence concern, not a new Product, defect, or implementation package.",
+      "sourceFile": "parking-lot-10.md",
+      "relatedLvtIds": [],
+      "relatedArIds": [
+        "AR1",
+        "AR2",
+        "AR3"
+      ],
+      "sections": [
+        {
+          "heading": "",
+          "level": 0,
+          "content": "**Discovery / trigger.** Two independently accepted Wheelwright workstreams have converged: (1) `tt live`'s broker-connected, low-cognitive-load position scan (accepted `9793eddc5abdc979e5d9c3b05d61715d62d4edef`), and (2) `ww` v2's backend-retained brokerage artifacts, account authorization, and Position inspection (accepted `8c7105fbeed5aec9aa30b42ec219fd371b7f088c`). These commit IDs are historical acceptance anchors, not substitutes for verifying current code. Both are evolutionary implementations of **one Wheelwright Product**, not two permanent decision authorities. The ratified v2 rule remains **backend owns state and business logic; clients own presentation** (Doc 77). Brokerages remain the source of their own reported state.\n\n**Question / smallest falsifier.** Can the current v2 backend faithfully establish the *same managed economic Position* that `tt` recognizes for the historical October 11 XLE short iron condor, with four constituent contracts, stable grouping/identity, and no duplicated inventory or invented grouping authority? A four-leg geometric match is a hypothesis, not proof of one managed Position. If this fails, characterize the missing evidence, semantics, and ownership before contemplating governance or implementation.\n\n**Historical XLE specimen (not live market truth).** XLE Oct 16 2026; long put 59, short put 59.50, short call 64.50, long call 65; quantity 1; opening credit 0.18; P50 closing target 0.09; indicative closing debit 0.41; indicative P/L -$23; observed underlying midpoint 65.18; DTE 5; maximum-profit range 59.50–64.50. Reported profit-taking limit and stop-limit orders are instructions, not fills. No authoritative DTE exit rule is established. Recover exact source evidence rather than promoting these handoff observations to current broker fact.\n\n**Bounded discovery questions.** For Position identity/constituents, contract rights/deliverables/multipliers, opening fills/economics, P50 objective and provenance, working-order versus execution state, timestamps and market evidence age, explicit Operating Program membership and policy applicability, and reconsideration assessment: compare what `tt` actually establishes with what v2 actually establishes. Classify each as **Implemented / Derivable / Missing / Semantically unresolved** (overlap allowed). Distinguish missing source evidence, domain representation, and API projection; name authority and the smallest plausible remedy. Establish whether a single authoritative backend reconsideration finding could be consumed by both CLIs without changing accepted `tt live` UX.\n\n**Candidate decision vocabulary only.** `HOLD` = affirmative governed basis for no intervention; `ALERT` = applicable governed reconsideration condition; `UNRESOLVED` = evidence/governance/applicability insufficient. These are *not ratified enums or implemented behavior*. Condition reached ≠ reconsideration warranted ≠ preferred action. No alert detected ≠ HOLD; ALERT ≠ close/roll; UNRESOLVED ≠ ALERT. Different explicit Operating Programs may yield different valid assessments.\n\n**Existing homes / no duplicate authority.** Cross-reference `PL-CLI-01` (operator CLI), `PL-API-03` (shared v2 API capabilities), `PL-DEC-BEH` (precommitted lifecycle/behavioral discipline), `PL-ARCH-06` (historical recommendation ownership question), and relevant Position/portfolio, governance, and semantic-model intake. Governed by Doc 77, Docs 80–82, ADR-019/020, `docs/roadmap.md`, `docs/architecture-roadmap.md`, and `foundations/idea-intake-reconciliation.md`. The accepted tt UX and ww Account operating loop remain accepted independently of this discovery.\n\n**Reconciliation status.** Preliminary strategic fit: existing question-driven Product, trustability, and governed lifecycle/attention direction; **no new Bet asserted**. Preliminary architectural fit: AR1 authoritative state, AR2 attention, AR3 governed alternatives, plus ratified v2 backend ownership; **no new architecture direction asserted**. These are intake hypotheses, *not* a Reconciliation Completion Record. Full strategy/architecture reconciliation, any mappings/merges, and why-state disposition remain to be established against current evidence. Preserve the two October 11 handoffs as conversational provenance until a justified durable discovery/checkpoint artifact captures verified findings.\n\n**Explicit exclusions / authority.** **Read-only discovery only.** No CLI merge, tastytrade acquisition migration, new API/resource/schema, Position grouping mutation, HOLD/ALERT implementation, recommendation engine, policy DSL, automatic trading, tests, commits for implementation, or alteration of accepted `tt live` UX. This intake-record persistence is documentation only and grants no further execution authority.\n\n**Next investigation:** Produce an evidence-grounded **XLE Convergence Matrix**, then identify the minimum semantic/evidence gaps and any actual Principal decision required before design. Do not claim RECONCILED until the mandated Reconciliation Completion Record is durably exposed.",
           "truncated": false,
           "tables": []
         }
@@ -9136,6 +9160,191 @@
           "tables": []
         }
       ]
+    },
+    {
+      "id": "BUG-035",
+      "title": "ww ls accounts exposes full brokerage account numbers by default",
+      "area": "CLI / ww Account discovery",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-035-ww-accounts-exposes-full-broker-account-numbers.md",
+      "provenance": "Principal / Codex review 2026-10-11",
+      "recordTitle": "BUG-035 — ww ls accounts exposes full brokerage account numbers by default",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "The default `ww ls accounts` human table and redirected TSV output render complete brokerage account numbers instead of masking them. Codex reproduced full-number rendering in a synthetic in-memory probe and inspected the rendering path. This record does not claim a live deployed-session reproduction.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Principal's October 11 Account confidentiality requirement: operator-facing Account presentations mask brokerage account numbers by default (normally exposing at most the final four characters). The operator uses Account nicknames such as `pts` and `sawdust`, never brokerage numbers or canonical GUIDs for ordinary account selection. This is a presentation-disclosure requirement distinct from canonical URI confidentiality and backend authorization.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "- Codex October 11 read-only review reports default table and redirected TSV expose the full brokerage number; synthetic in-memory probe reproduced rendering.\n- Implementation: `scripts/ww-accounts.mjs` Account presentation, around lines 43–46 in reviewed baseline.\n- Source: `evidence-service-java/src/main/java/com/wheelwright/evidence/v2/AccountsController.java` and `docs/contracts/api-v2-account-evidence.json` currently expose `brokerAssociation.accountNumber` to authorized Account-metadata readers.\n- Accepted Account operating loop: `docs/cli/ww-account-evidence.md`. Review baseline remote main `1118d732c573c71f79cdb1db1b82c8decc5dced5`.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Unnecessary exposure of sensitive account numbers in ordinary terminal output and redirected files. The backend's authorized payload disclosure is a distinct, unresolved question; this finding does not establish cross-user authorization bypass.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "CLI projects the full `brokerAssociation.accountNumber` value without default masking. The precise rendering branch and output-mode coverage require confirmation during remediation.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "This bug concerns ordinary CLI human/TSV presentation. Do not silently change canonical Account IDs, nickname resolution, brokerage bindings, Account authorization, API disclosure policy, raw broker evidence or machine-readable output contracts under this bug. API full-number disclosure scope remains a separate PL-CONV-01 design question. Filing does not authorize remediation.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "- Ordinary `ww ls accounts` human presentation and redirected TSV do not disclose full brokerage account numbers; at most the last four characters are visible by default.\n- Preserve nickname-based account selection and backend-authoritative resolution.\n- Any explicit unmasked/machine-use behavior requires separate Product/security authority and tests; do not infer permission from the existing payload.\n- Verify masking for short, absent and malformed values without leaking them.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None; Open.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Codex synthetic reproduction and source inspection establish the reported failure; no remediation verification.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- `PL-CONV-01` — tt / ww v2 convergence and Account identity/disclosure reconciliation.\n- `docs/77-api-v2-architectural-guardrails.md` — backend identity and authorization boundaries.\n- `docs/cli/ww-account-evidence.md` — accepted Account operating loop.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-036",
+      "title": "Unknown mixed-artifact source scope permits cross-Account original-byte disclosure",
+      "area": "Backend / v2 artifact content authorization",
+      "severity": "S2",
+      "status": "Open",
+      "recordFile": "BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
+      "provenance": "Codex synthetic MockMvc falsifier; candidate independently rejected 2026-10-11",
+      "recordTitle": "BUG-036 — Unknown mixed-artifact source scope permits cross-Account original-byte disclosure",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "A retained original brokerage CSV containing rows for Account A and Account B can be retrieved in full by a User holding only Account A's artifact-read capability when source-scope detection fails to recognize an unexpected but plausible header. Semantic import is rejected, yet original-byte retrieval returns HTTP 200 and includes Account B's private data.\n\nThis is a demonstrated synthetic authorization-bypass specimen, **not** a verified production disclosure incident.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Backend Account authorization must not disclose private evidence from an Account for which the authenticated User lacks the necessary capability. An original artifact containing multiple Accounts requires established and authorized scope for every represented Account. Failure to establish the source scope must fail closed, not be interpreted as owner-only permission. Rejection of semantic processing does not make retained original bytes safe to disclose.\n\nDoc 77 already establishes backend User–Account authorization, and source-account restrictions for original multi-account artifact access. The broader User-isolation/admin Model A invariant was subsequently ratified in Doc 77 on October 11; the original defect finding did not depend on that later ratification.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Codex executed a synthetic test with existing application classes and MockMvc against an in-memory database:\n\n1. Writer uploaded a mixed-account CSV to Account A, containing synthetic private data for Accounts A and B.\n2. Header began with a leading space: ` Account number,Account name`.\n3. Source detection did not recognize the exact expected prefix; processing returned `REJECTED`, preserving the original bytes.\n4. A distinct reader with only Account A's artifact-read permission requested original content.\n5. Original content was returned **HTTP 200**, including synthetic Account B data, despite no Account B grant.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Cross-Account disclosure of retained private brokerage source data despite backend Account-grant isolation. Classified **S2 (major)** as a security confidentiality violation with a concrete synthetic bypass. Severity is not a remediation priority or claim of production exploitation.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Unknown/unrecognized source-envelope detection returns an owner-only scope, conflating **scope not established** with **known single-owner source**. Original-byte retrieval relies on that assertion. Semantic processing rejection does not prevent content access.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "This defect is the fail-open source-scope/original-content authorization boundary, not the separate `ww ls accounts` masking defect (BUG-035), general identity-provider selection, broad administrator roles, or a generalized CSV parsing redesign. Preserve retained originals and admission failure semantics; determine authorized source scope independently of whether semantic processing succeeded.\n\nFiling does **not** authorize remediation, code changes, new tests, schema changes, or commits beyond this defect record.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "- If the complete source-account scope of an original artifact cannot be established, original-byte retrieval does not disclose it to a caller whose authority cannot be proven sufficient.\n- Every represented source Account requires appropriate authorization for full original-byte retrieval; owner-only access cannot substitute for missing cross-Account authority.\n- Reproduce the leading-space mixed-account header specimen and verify the unauthorized reader cannot retrieve Account B's original bytes.\n- Preserve authorized retrieval for established single-Account sources and established fully authorized mixed-Account sources.\n- Preserve source retention and prior admitted evidence on rejected processing; do not conflate processing success with disclosure authority.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Principal acceptance and independent rejection — October 11, 2026",
+          "level": 3,
+          "content": "The Principal authorized Codex to implement the accepted design as a deliberate exception to the usual Architect/Implementation Engineer separation, then reported **acceptance PASSED** and invoked end-of-session closeout. Independent verification subsequently rejected the candidate as recorded below; author tests are not independent review.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "October 11, 2026 — Author regression and retained-format verification",
+          "level": 3,
+          "content": "22 focused backend tests pass across original-source authorization, brokerage artifacts, Accounts, Users and Positions; nine existing CLI Account/Position/sync regressions pass. Tests cover the exact leading-space counterexample, unknown/partial scope, unregistered source Accounts, malformed quoting/UTF-8, known single/mixed scope, administrator non-bypass, retry/duplicate filename attempts, and exact-byte authorized retrieval despite rejected semantic processing. The former arbitrary-malformed-content retrieval fixture now uses a rejected financial value with established source scope.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "October 11, 2026 — Independent verification REJECT",
+          "level": 3,
+          "content": "A separate read-only verification agent verified the frozen archive hash and all four candidate source/test hashes. Its isolated run of the same 22 focused backend tests passed. An additional in-memory MockMvc adversarial probe then demonstrated that a padded second Option Summary Account section is treated as an ordinary table row, omitting that Account from established scope:\n\n```csv\nFidelity Investments - Option Summary A1\nSymbol,Strategy,Expiration & Strike,Quantity\nSPY,Other,Shares,1\nFidelity Investments - Option Summary B2,,,\nQQQ,PRIVATE-B,Shares,25\n```",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- `PL-CONV-01` — tt/ww convergence and User authorization reconciliation.\n- `BUG-035` — separate human-facing account-number masking defect.\n- `docs/77-api-v2-architectural-guardrails.md` — governing authorization and source-retention boundaries.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
     }
   ],
   "log": [
@@ -9345,7 +9554,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 586
+      "sourceOrder": 610
     },
     {
       "plId": null,
@@ -9488,7 +9697,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 565
+      "sourceOrder": 588
     },
     {
       "plId": null,
@@ -9501,7 +9710,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 566
+      "sourceOrder": 589
     },
     {
       "plId": null,
@@ -9514,7 +9723,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 567
+      "sourceOrder": 590
     },
     {
       "plId": null,
@@ -9527,7 +9736,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 570
+      "sourceOrder": 593
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -9553,7 +9762,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 568
+      "sourceOrder": 591
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -9735,7 +9944,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 548
+      "sourceOrder": 571
     },
     {
       "plId": null,
@@ -9748,7 +9957,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 549
+      "sourceOrder": 572
     },
     {
       "plId": null,
@@ -9761,7 +9970,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 550
+      "sourceOrder": 573
     },
     {
       "plId": null,
@@ -9774,7 +9983,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 551
+      "sourceOrder": 574
     },
     {
       "plId": null,
@@ -9787,7 +9996,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 552
+      "sourceOrder": 575
     },
     {
       "plId": null,
@@ -9800,7 +10009,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 553
+      "sourceOrder": 576
     },
     {
       "plId": null,
@@ -9813,7 +10022,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 554
+      "sourceOrder": 577
     },
     {
       "plId": null,
@@ -9826,7 +10035,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 555
+      "sourceOrder": 578
     },
     {
       "plId": null,
@@ -9839,7 +10048,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 556
+      "sourceOrder": 579
     },
     {
       "plId": null,
@@ -9852,7 +10061,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 557
+      "sourceOrder": 580
     },
     {
       "plId": null,
@@ -9865,7 +10074,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 558
+      "sourceOrder": 581
     },
     {
       "plId": null,
@@ -9878,7 +10087,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 559
+      "sourceOrder": 582
     },
     {
       "plId": null,
@@ -9891,7 +10100,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 560
+      "sourceOrder": 583
     },
     {
       "plId": null,
@@ -9904,7 +10113,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 561
+      "sourceOrder": 584
     },
     {
       "plId": null,
@@ -9917,7 +10126,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 562
+      "sourceOrder": 585
     },
     {
       "plId": null,
@@ -9930,7 +10139,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 563
+      "sourceOrder": 586
     },
     {
       "plId": null,
@@ -9943,7 +10152,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 564
+      "sourceOrder": 587
     },
     {
       "plId": null,
@@ -9956,7 +10165,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 569
+      "sourceOrder": 592
     },
     {
       "plId": null,
@@ -9969,7 +10178,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 585
+      "sourceOrder": 609
     },
     {
       "plId": "PL-SEM-01",
@@ -10138,7 +10347,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 571
+      "sourceOrder": 594
     },
     {
       "plId": null,
@@ -10151,7 +10360,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 572
+      "sourceOrder": 595
     },
     {
       "plId": "PL-SETUP-01",
@@ -10359,7 +10568,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 573
+      "sourceOrder": 596
     },
     {
       "plId": null,
@@ -10372,7 +10581,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 574
+      "sourceOrder": 597
     },
     {
       "plId": null,
@@ -10385,7 +10594,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 575
+      "sourceOrder": 598
     },
     {
       "plId": null,
@@ -10398,7 +10607,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 576
+      "sourceOrder": 599
     },
     {
       "plId": null,
@@ -10411,7 +10620,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 577
+      "sourceOrder": 600
     },
     {
       "plId": null,
@@ -10424,7 +10633,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 578
+      "sourceOrder": 601
     },
     {
       "plId": null,
@@ -10437,7 +10646,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 579
+      "sourceOrder": 602
     },
     {
       "plId": null,
@@ -10450,7 +10659,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 580
+      "sourceOrder": 603
     },
     {
       "plId": null,
@@ -10463,7 +10672,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 581
+      "sourceOrder": 604
     },
     {
       "plId": null,
@@ -10476,7 +10685,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 582
+      "sourceOrder": 605
     },
     {
       "plId": null,
@@ -10489,7 +10698,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 583
+      "sourceOrder": 606
     },
     {
       "plId": null,
@@ -10502,7 +10711,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 584
+      "sourceOrder": 607
     },
     {
       "plId": "PL-STRAT-01",
@@ -10555,6 +10764,19 @@
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
       "sourceOrder": 547
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-036",
+      "title": "Principal acceptance and independent rejection — October 11, 2026",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "October 11, 2026",
+      "eventDateIso": "2026-10-11",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
+      "sourceOrder": 608
     }
   ],
   "intakeDateUnknown": [
@@ -10570,6 +10792,7 @@
     "PL-CLEANUP",
     "PL-CLI-01",
     "PL-COHERE-01",
+    "PL-CONV-01",
     "PL-DEC-BEH",
     "PL-DEC-RES-01",
     "PL-DEPLOY",

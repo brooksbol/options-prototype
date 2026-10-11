@@ -15,7 +15,7 @@ This is a demonstrated synthetic authorization-bypass specimen, **not** a verifi
 
 Backend Account authorization must not disclose private evidence from an Account for which the authenticated User lacks the necessary capability. An original artifact containing multiple Accounts requires established and authorized scope for every represented Account. Failure to establish the source scope must fail closed, not be interpreted as owner-only permission. Rejection of semantic processing does not make retained original bytes safe to disclose.
 
-Doc 77 already establishes backend User–Account authorization, and source-account restrictions for original multi-account artifact access. The Principal's proposed broader User-isolation/admin exception remains **unratified**; this bug does not depend on ratifying it.
+Doc 77 already establishes backend User–Account authorization, and source-account restrictions for original multi-account artifact access. The broader User-isolation/admin Model A invariant was subsequently ratified in Doc 77 on October 11; the original defect finding did not depend on that later ratification.
 
 ## Evidence
 
@@ -59,11 +59,41 @@ Filing does **not** authorize remediation, code changes, new tests, schema chang
 
 ## Remediation history
 
-None; Open.
+### Principal acceptance and independent rejection — October 11, 2026
+
+The Principal authorized Codex to implement the accepted design as a deliberate exception to the usual Architect/Implementation Engineer separation, then reported **acceptance PASSED** and invoked end-of-session closeout. Independent verification subsequently rejected the candidate as recorded below; author tests are not independent review.
+
+`BrokerageArtifacts.SourceScope` now distinguishes established Account scope from unknown/incomplete scope. Strict UTF-8 decoding and the existing CSV tokenizer inspect supported Fidelity source envelopes independently of financial/date parsing. Original-content retrieval denies unestablished scope with the existing 403 response and requires exact artifact-read grants for every established source Account. The shared non-Positions admission check also rejects unestablished scope after retention. No schema migration or source rewriting is required; retained bytes are inspected on retrieval.
+
+A header-trimming-only patch was rejected because it would leave the unknown-to-owner fallback intact. Blocking every rejected import was rejected because semantic processing failure does not imply incomplete source attribution. Filename/type alone cannot rescue an unknown envelope.
+
+The subsequently rejected code candidate is anchored to base `dada93a4d71ed9d867b042e2199991fa82d23fe6`, archive SHA-256 `4af26d8653ab3cc7672ee37970384757ec54c08bd71d6edb525337e02dfc7f68`. Subsequent accepted-main synchronization changed convergence documentation only; candidate source/test hashes remained identical. Closeout persistence does not deploy or restart the running backend.
 
 ## Verification
 
-Codex synthetic in-memory MockMvc counterexample as reported. No fix or post-fix verification.
+### October 11, 2026 — Author regression and retained-format verification
+
+22 focused backend tests pass across original-source authorization, brokerage artifacts, Accounts, Users and Positions; nine existing CLI Account/Position/sync regressions pass. Tests cover the exact leading-space counterexample, unknown/partial scope, unregistered source Accounts, malformed quoting/UTF-8, known single/mixed scope, administrator non-bypass, retry/duplicate filename attempts, and exact-byte authorized retrieval despite rejected semantic processing. The former arbitrary-malformed-content retrieval fixture now uses a rejected financial value with established source scope.
+
+Read-only inspection of all 315 retained Fidelity originals establishes 311 fully mapped source scopes: 100 Activity, 93 Balances, 94 Option Summary and 24 Positions. Four additional Positions originals contain unregistered source Accounts and remain denied, matching the previous source-account checks. All 315 stored payload hashes match. No retained evidence, Account binding, User grant, configuration or live service was changed. No production exploitation is asserted.
+
+### October 11, 2026 — Independent verification REJECT
+
+A separate read-only verification agent verified the frozen archive hash and all four candidate source/test hashes. Its isolated run of the same 22 focused backend tests passed. An additional in-memory MockMvc adversarial probe then demonstrated that a padded second Option Summary Account section is treated as an ordinary table row, omitting that Account from established scope:
+
+```csv
+Fidelity Investments - Option Summary A1
+Symbol,Strategy,Expiration & Strike,Quantity
+SPY,Other,Shares,1
+Fidelity Investments - Option Summary B2,,,
+QQQ,PRIVATE-B,Shares,25
+```
+
+Both Accounts were registered. A writer uploaded to Account A; a distinct reader had only Account A's artifact-read grant. Executed result: `established=true containsB=false processing=ACCEPTED http=200 privateDisclosed=true`. The independent expected-403 assertion failed with actual HTTP 200. The original 22 tests remain passing; they do not cover this padded section. The classifier recognizes summary Account markers only in single-field rows; the padded B2 marker passes the ordinary-row width check. No production incident is asserted.
+
+The reviewer returned **REJECT** for frozen candidate SHA-256 `4af26d8653ab3cc7672ee37970384757ec54c08bd71d6edb525337e02dfc7f68`, stopped upon the counterexample and made no workspace or production changes. It did not independently repeat the retained-population or CLI checks. This was a separate Codex verification agent, not Kiro verification.
+
+**Disposition:** The Principal's earlier reported acceptance is preserved as evidence, but the subsequent independent rejection means the correction does not satisfy acceptance criteria. BUG-036 remains **Open**. No rejected source is committed/deployed; the frozen archive and uncommitted candidate remain preserved locally. End-of-session persistence is documentation/projection only. No further fix, retry, or Step 3 advancement is authorized by this closeout.
 
 ## Related
 

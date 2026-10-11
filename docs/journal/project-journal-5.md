@@ -1724,3 +1724,10 @@ The important distinction learned during iteration is that price movement, evide
 SPAN starts at the verified opening fill and ends at expiration, not an invented D21 objective. There is still no authoritative DTE management condition for these positions, so no threshold tick is shown. Indicative midpoint reaching a profit limit remains distinct from execution. This work changes neither broker orders nor Wheelwright v2 Position, and the standalone companion boundary remains intact.
 
 67 focused tests pass, including twenty-position terminal alignment and weekend regressions; five TSV scenarios match the pre-iteration baseline byte-for-byte. Detailed contracts and acceptance are in `cli/tt-live-panel.md`. Parking-lot, strategy, architecture and Coming Soon horizons require no change; no new governed capability or follow-on implementation is authorized. Closeout preserves unrelated local research artifacts.
+
+
+## October 11, 2026 — BUG-036 candidate acceptance followed by independent falsification
+
+The Principal deliberately selected Codex for both bounded design and implementation while preserving independent verification. After 22 backend and nine CLI checks passed, the Principal reported acceptance and invoked closeout. A separate read-only verification agent then reproduced cross-Account disclosure through a padded Option Summary Account marker omitted from scope; the same original 22 tests still passed. This distinguishes a missing adversarial case from a regression in previously passing tests, and shows that explicit completeness alone is insufficient when a recognized structure can silently become an ordinary data row.
+
+The canonical BUG-036 record preserves the exact specimen, candidate hash and REJECT disposition. No replacement design is promoted or authorized; no further patch was attempted. BUG-036 remains Open, rejected source remains local, and documentation-only closeout preserves the unchanged convergence sequence and active trading tools. Principal acceptance is recorded without falsely claiming independent acceptance or production deployment.
