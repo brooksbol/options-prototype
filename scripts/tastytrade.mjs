@@ -162,6 +162,7 @@ function brokerGet(fetchImpl, resource, account, token) {
   let path;
   if (resource === "accounts") path = "/customers/me/accounts";
   else if (resource === "equity-session") path = "/market-time/equities/sessions/current";
+  else if (resource === "option-instruments") path = "/instruments/equity-options";
   else if (resource === "quote-token") path = "/api-quote-tokens";
   else if (resource === "equity-option-instrument" && typeof account === "string" &&
            /^[A-Za-z0-9.]+\s+\d{6}[CP]\d{8}$/.test(account)) {
@@ -173,14 +174,14 @@ function brokerGet(fetchImpl, resource, account, token) {
   } else throw new CliError("Unsupported broker read");
   return (argument) => request(fetchImpl,
     ["complex-orders", "orders"].includes(resource) ? `${path}?page-offset=${argument}&per-page=${PAGE_SIZE}` :
-      ["equity-option-quotes", "equity-quotes"].includes(resource) && Array.isArray(argument) && argument.length > 0 && argument.length <= 100 &&
+      ["equity-option-quotes", "equity-quotes", "option-instruments"].includes(resource) && Array.isArray(argument) && argument.length > 0 && argument.length <= 100 &&
         argument.every((symbol) => typeof symbol === "string" && /^[A-Za-z0-9 .]+$/.test(symbol)) ?
-        `${path}?${argument.map((symbol) => `${resource === "equity-quotes" ? "equity" : "equity-option"}[]=${encodeURIComponent(symbol)}`).join("&")}` :
-      ["equity-option-quotes", "equity-quotes"].includes(resource) ? (() => { throw new CliError("Unsupported quote request"); })() : path,
+        `${path}?${argument.map((symbol) => `${resource === "option-instruments" ? "symbol" : resource === "equity-quotes" ? "equity" : "equity-option"}[]=${encodeURIComponent(symbol)}`).join("&")}` :
+      ["equity-option-quotes", "equity-quotes", "option-instruments"].includes(resource) ? (() => { throw new CliError("Unsupported quote request"); })() : path,
     { method: "GET", headers: { Authorization: `Bearer ${token}` } },
     resource === "accounts" ? "Accounts" : resource === "equity-session" ? "Equity session" :
       resource === "quote-token" ? "Quote token" :
-      resource === "equity-option-instrument" ? "Option instrument" :
+      ["equity-option-instrument", "option-instruments"].includes(resource) ? "Option instrument" :
       resource === "positions" ? "Positions" :
       resource === "orders" ? "Orders" : ["equity-option-quotes", "equity-quotes"].includes(resource) ? "Quotes" : "Complex orders");
 }
@@ -378,6 +379,22 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
               } catch { /* Spot unavailable: never hide otherwise valid option economics. */ }
             }
           }
+          let instruments = [];
+          if (!command.tsv) {
+            try {
+              const result = await brokerGet(fetchImpl, "option-instruments", undefined, token)(symbols);
+              if (Array.isArray(result?.data?.items)) instruments = result.data.items;
+            } catch {
+              // Some production accounts reject the batch route. Existing single-contract
+              // reads remain bounded to four concurrent requests and fail independently.
+              for (let offset = 0; offset < symbols.length; offset += 4) {
+                const results = await Promise.allSettled(symbols.slice(offset, offset + 4).map(symbol =>
+                  brokerGet(fetchImpl, "equity-option-instrument", symbol, token)()));
+                for (const result of results) if (result.status === "fulfilled" && result.value?.data)
+                  instruments.push(result.value.data);
+              }
+            }
+          }
           // Broker session context preserves closed-session quotes and their deltas.
           let sessionCloseAt;
           let session;
@@ -387,7 +404,7 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
             sessionCloseAt = session?.["close-at"];
           } catch { /* Quote age remains available. */ }
           out(renderLive({ account, holdings, orders: orders.items, complexOrders: complex.items,
-            quotes: quotes?.data?.items, spotQuotes, now: now(), sessionCloseAt, session,
+            quotes: quotes?.data?.items, spotQuotes, instruments, now: now(), sessionCloseAt, session,
             columns: command.width ?? terminalColumns() ?? (/^\d+$/.test(env.COLUMNS ?? "") ? Number(env.COLUMNS) : 157),
             ascii: command.ascii || env.TERM === "dumb",
             color: !command.tsv && !command.noColor && !env.NO_COLOR && env.TERM !== "dumb",

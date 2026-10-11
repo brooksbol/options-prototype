@@ -138,12 +138,13 @@ test("live uses only allowlisted reads, one token, and sanitizes API errors", as
       if (url.includes("/market-data/by-type?")) return reply(200, { data: { items: liveEvidence.quotes } });
       if (url.endsWith("/market-time/equities/sessions/current")) return reply(200,
         { data: { "close-at": "2026-10-01T20:00:00.000Z" } });
+      if (url.includes("/instruments/equity-options?")) return reply(200, { data: { items: [] } });
       throw Error("unexpected endpoint");
     };
   const code = await main(["live"], { env, out: (s) => output.push(s), now: () => liveEvidence.now,
     fetchImpl });
   assert.equal(code, 0);
-  assert.deepEqual(calls.map(({ options }) => options.method), ["POST", ...Array(7).fill("GET")]);
+  assert.deepEqual(calls.map(({ options }) => options.method), ["POST", ...Array(8).fill("GET")]);
   assert.ok(calls.every(({ url, options }) => url.startsWith(PRODUCTION_BASE_URL) &&
     options.redirect === "error" && /^[^/]+\/[^/]+$/.test(options.headers["User-Agent"])));
   assert.ok(calls.slice(1).every(({ options }) => options.headers.Authorization === "Bearer access-marker"));
