@@ -940,3 +940,47 @@ Both issues remain **OPEN for discovery and reconciliation** under `PL-CONV-01`.
 - **Intake disposition:** existing `PL-CONV-01` retained; work ordered, not marked RECONCILED. No Reconciliation Completion Record is asserted for the entire intake.
 
 **NEXT AUTHORIZED MODE:** Step 1 ratification recorded; prepare the bounded BUG-036 remediation decision surface/design under Step 2. **Do not implement BUG-036 without separate Principal authorization.**
+
+
+---
+
+## CONV-WEB — Kiro Migration Estimate Intake (October 11, 2026)
+
+**Status: INCOMPLETE / PLANNING EVIDENCE ONLY.** This refines the existing open `CONV-WEB` issue under `PL-CONV-01`, not a new `PL-*` identity, migration commitment, accepted estimate, or implementation authorization.
+
+### Source and method
+
+The Principal supplied Kiro's read-only assessment of moving the existing Wheelwright v1 React web frontend to the authoritative v2 backend. Kiro reports bootstrapping through `docs/README.md`, `KNOWN-FAILURE-MODES.md` and Doc 77, inspecting current FE network usage, client-side business logic and actual Java `/v2/*` routes. Kiro **did not run builds/tests, inspect full v2 OAS schemas, or complete the full parking-lot/roadmap reconciliation**. No independent verification of its estimates is claimed.
+
+### Kiro's findings (reported, not independently verified here)
+
+- **V1 web topology:** Browser polls `GET /api/evidence/snapshot` with ETag/304 roughly every 30 seconds, ingests raw `symbols[]/chains[]` into IndexedDB `DurableMarketCache`, and runs `recommendPuts`, `recommendCalls`, `recommendBuyWrites` and brief/neighborhood construction in the client. Other reported dependencies include `/api/evidence/quotes`, `/api/status`, `/api/markets`, and governed-decision/history/production endpoints. Approximately 20 modules make ad-hoc `fetch()` calls. Snapshot payload consumption is largely typed as `any`. Distinguish market-evidence snapshots from separate PortfolioSnapshot representations.
+- **V2 currently implemented:** OAS-governed, Bearer-authenticated `/v2/*` capabilities for direct quote acquisition and held reads, Users/`me`, Accounts, Positions and artifacts/imports. The current v2 surface does **not** provide equivalents for the web's full evidence-snapshot consumption, client-side recommendation engines, or all governed decision/history/production capabilities. Doc 77 forbids simply reproducing browser-owned authoritative domain logic in v2 clients.
+- **Core architectural conclusion:** Full web migration is **not a transport-only port**; it requires backend-owned evidence projection, recommendation/decision semantics, session/admissibility and other domain capabilities before the v1 browser shadow store and client engines can be retired.
+
+### Effort estimates — Kiro estimates only
+
+| Scope | Estimate | Qualification |
+|---|---|---|
+| Repoint bounded existing v2 reads (quotes, positions, accounts) behind an authenticated FE client | **~1–2 weeks** | Technically possible; does not replace v1's decision capabilities or retire v1. |
+| Cross-cutting FE integration (centralized client, typing, polling/errors/partial success, tests) | **~2–4 weeks distributed across slices** | May overlap the above; **not** a separately validated additive schedule. |
+| Full FE migration and v1 retirement | **Multi-month program** | Dominated by missing backend Product/domain capabilities; uncertainty high. |
+
+Kiro cites FE ad-hoc network usage, four independent ETag pollers, shadow cache, client-side recommendations and a large contract-coupled test suite as migration pressure. These are *reported code-inspection observations*, not benchmarked effort or completed design.
+
+### Principal-facing reconciliation disposition
+
+**ACCEPT AS PROVISIONAL PLANNING INPUT; DO NOT START MIGRATION.** A low-effort read-path repoint is not automatically a useful Product milestone and may introduce regression risk to an actively used client. Prefer building backend capabilities that serve multiple operator interfaces (tt, ww, web) over three isolated client migrations. This is a ChatGPT synthesis, **not** a ratified migration architecture or Principal acceptance of the estimates.
+
+**Operational restriction remains governing:** v1 Web is the active Cash Deployment / opportunity-selection client (including the anticipated heavy October 12 trading session); accepted `tt live` remains the Position monitoring client. Do not disrupt, rewrite, force-cutover or assume v2 parity. `CONV-UX` remains a separate open presentation issue. The Principal-selected `PL-CONV-01` sequence (Model A ratification → BUG-036 → multi-broker Account → XLE occurrence → tastytrade evidence → reconsideration) is **unchanged**.
+
+### Unresolved / completion conditions
+
+1. Independently verify Kiro's FE dependency inventory and v2 capability/contract mapping, including full OAS schemas and current main.
+2. Reconcile against the entire existing parking-lot/roadmap authority to avoid duplicate ownership.
+3. Establish actual capability parity, operator value and minimum incremental cutover candidates, not merely endpoint parity.
+4. Assess backend shared capability dependencies across tt and web; distinguish reused capabilities from new domain obligations.
+5. Validate effort bands with bounded design and tests before treating them as schedule commitments.
+6. Define operational regression/acceptance gates for Cash Deployment and eventual v1 retirement.
+
+**Next authorized mode:** Further read-only reconciliation when selected. No FE/BE implementation, new API resource, migration, commit for implementation, or v1 retirement authorized by this intake.
