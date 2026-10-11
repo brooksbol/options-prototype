@@ -1,6 +1,6 @@
 # tt live position scan
 
-Principal-approved October 11, 2026 UX iteration. Baseline main `4e99899`; PRs #35, #36, #37 and #38 verified merged. This standalone tastytrade companion does not modify Wheelwright v2 Position, schemas, REST resources, broker orders or management rules. Principal's no-task-branches workflow remains in effect; unrelated work stays untouched.
+Principal acceptance **PASSED** on October 11, 2026 for implementation `dba303c150e1fc27d119f1ee811bd88737f4b16c` (accepted on main). Baseline main `4e99899`; PRs #35, #36, #37 and #38 verified merged. This standalone tastytrade companion does not modify Wheelwright v2 Position, schemas, REST resources, broker orders or management rules. Principal's no-task-branches workflow remains in effect; unrelated work stays untouched.
 
 ## Human display contract
 
@@ -64,3 +64,9 @@ Trading recognition, fill reconstruction, quantity/multiplier, valuation, target
 ## Verification
 
 Relevant Node suite: 67 tests. Added coverage includes fractional/unequal RANGE, unknown terms, movement references and invalid dates, retained-Friday/Sunday color invariance, overnight snapshot linkage, lifespan opening/midlife/near-expiry/expiry/same-day/missing/DST cases, mixed P20/P50/P80/LIMIT targets, gross P/L and neutral displayed zero, and twenty varied lifespans/objectives at 157/189 columns in Unicode/ANSI/monochrome/ASCII. Existing narrow, weekend, PAYOFF and acquisition regressions remain. Configured DTE-policy scenarios remain explicitly unsupported and are not claimed as passing capabilities.
+
+## Accepted closeout — October 11, 2026
+
+The Principal explicitly reported “acceptance PASSED” after the revised panel was presented and directed end-of-session closeout. This is Product acceptance of the bounded tt live iteration, separate from automated verification; no independent-review disposition is inferred. All 67 relevant Node tests pass. Normal, retained-weekend, stale, empty and broker-order-transition TSV scenarios were compared byte-for-byte against baseline `4e99899` and are identical. No new task branch or PR was created. The implementation is on main; unrelated research files remain untouched.
+
+Remaining domain limitation: configured DTE-exit objectives are unsupported, so SPAN has no threshold tick. Adding that capability requires separate authority and evidence; acceptance does not authorize new management rules or automatic trading. No further tt live implementation is pending under this workstream.

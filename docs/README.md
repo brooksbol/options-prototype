@@ -259,6 +259,7 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 
 | Document | Subject |
 |----------|---------|
+| `cli/tt-live-panel.md` | Principal-accepted October 11 tt live scan: PAYOFF/RANGE/SPOT, holding-lifespan SPAN, per-row profit objectives, compact evidence age, unchanged broker economics/TSV and deferred DTE-policy support. Standalone tastytrade companion; separate from Wheelwright v2 Position. |
 | `cli/ww-man.txt` | Current `ww(1)` top-level command, composition, and discovery reference; available through `ww --man` |
 | `cli/ww-show-man.txt` | Current subject-first held-quote inspection, account Position inspection, output/projection and durable registry-generated public field semantics; available through `ww show --man`. |
 | `cli/ww-account-evidence.md` | Implemented October 11 account sync/Position slice: executable setup, immutable source retention, evidence boundaries, live verification and limitations; Principal acceptance separate. |
