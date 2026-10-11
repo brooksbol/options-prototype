@@ -984,3 +984,47 @@ Kiro cites FE ad-hoc network usage, four independent ETag pollers, shadow cache,
 6. Define operational regression/acceptance gates for Cash Deployment and eventual v1 retirement.
 
 **Next authorized mode:** Further read-only reconciliation when selected. No FE/BE implementation, new API resource, migration, commit for implementation, or v1 retirement authorized by this intake.
+
+
+---
+
+## PL-CONV-01 Historical-Invariant Conformance Overlay (October 11, 2026)
+
+**Status: PRINCIPAL-ACCEPTED RECONCILIATION CONSTRAINTS; not a new ratification of Product Principles or implementation authorization.** This overlays the existing Principal-selected six-step sequence and operational restrictions; it does not replace or reorder them. Source authority must be reacquired from the cited documents, not inferred from this summary.
+
+### Governing historical authority and epistemic status
+
+- **Ratified enduring principles:** `docs/principles.md` (canonical register) and originating `docs/foundations/retooling-charter.md`, `policy-over-prediction.md`, `evidence-appliance.md`, `epistemic-precision.md`. Apply policy over prediction; backend evidence appliance; persist facts/derive trust; failed refresh preserves successful evidence; session-aware validity and sealing; deterministic recommendations; single acquisition authority; version-controlled Product definition; evidence-proportionate precision.
+- **Ratified v2 guardrails:** `docs/77-api-v2-architectural-guardrails.md`. Backend owns authoritative domain state/business logic; clients present. Security from inception, explicit provenance/time, stable identity, repeatability, honest partial success/completion, compatibility, read/acquire/derive separation, and bounded side effects. Model A and fail-closed original-artifact disclosure are already ratified there.
+- **Ratified technology methodology:** `docs/foundations/technology-quality-constitution-v1.md`. Responsibility/state ownership is intentional; complexity is earned; evidence informs while Principal authority governs; verify/migrate/restore proportionately.
+- **Governing operator UX:** `docs/foundations/operational-surface-design.md`. Impatient mode delivers decision-relevant consequence first; reflective mode exposes evidence/decomposition on demand; **compression over concealment**; dense, legible, low-friction scan. Principal-selected accepted `tt live` motif is the converged CLI presentation baseline (`CONV-UX`), not permission to copy each widget into every command.
+- **Working, NOT promoted Product Principles:** `docs/68-product-architecture-fundamental-constraints-working-intent-2026-09-27.md` (operator authority, domain language, minimum necessary operator authority, Program cardinality, delivery-surface independence, Incognito Test). These are valuable falsification lenses but `docs/principles.md` explicitly excludes them from the ratified Product Principles register. Do not silently promote.
+- **3AM and evidence discipline:** `docs/foundations/three-actor-model.md` and applicable bootstrap/decision-surface protocols. Principal supplies direction and actual operator experience; Codex challenges architecture; Kiro ordinarily implements; ChatGPT reconciles material questions without recursive review loops. Accepted implementation is evidence, not self-ratifying architecture.
+
+### Conformance constraints on selected six-step delivery sequence
+
+| Step | Working outcome / boundary | Required invariant attack / stopping condition |
+|---|---|---|
+| **1. Model A** — COMPLETE | Explicit backend User–Account grants; administrator User inspection grants no financial access. COTS/OIDC may replace local credentials later without changing domain grants. | Ratification recorded in Doc 77. No IAM platform or broad financial-admin capability invented. |
+| **2. BUG-036** — IN PROGRESS | Fail-closed original-byte access when complete source-Account scope is unestablished; preserve exact retained bytes, retries, previous successful evidence and authorized known single/mixed retrieval. | Synthetic cross-Account bypass denied; positive cases and existing Fidelity workflow verified; no ingestion redesign. BUG-036 remains Open until independent verification and Principal acceptance. |
+| **3. Multi-broker Account** — NEXT | `ww ls accounts` can show authorized Fidelity and tastytrade Accounts with nicknames, explicit broker association and masked sensitive account numbers. Canonical GUID remains stable; no operator GUID entry. | Distinct broker/account attribution and grants; Fidelity unchanged; no invented Brokerage REST resource. This is a short enabling milestone, not the trading-domain payoff. BUG-035 remains Open until separately scheduled. |
+| **4. XLE occurrence** — PLANNED DISCOVERY | Distinguish observed four-leg inventory, supported economic occurrence/opening economics, and unknown close/reopen or partial-reduction continuity. | No grouping or Program authority inferred from geometry; no exhausted-occurrence credit attribution; missing history stays unknown; no universal lifecycle ontology required. |
+| **5. tastytrade evidence** — FUTURE | `ww show positions --account <nickname>` can inspect actual backend-retained tastytrade holdings, contract semantics and temporal/provenance-qualified evidence. | Backend acquisition authority; failed refresh preserves last success; repeatability; quote/package coherence; do not transplant `tt` opening matcher unchanged; no false lifecycle claim. Bounded explicit acquisition may precede full always-on operation without creating a permanent second authority. |
+| **6. Governed reconsideration** — FUTURE DISCOVERY | One backend-owned, explainable, reproducible attention assessment under explicitly applicable Program/policy; clients display rather than manufacture conclusions. | Separate condition reached, reconsideration warranted, preferred alternative, and execution; no automatic trading, prediction, inferred intent or premature HOLD/ALERT API enums. |
+
+**Operator-visible trajectory:** secure artifact access → two brokerages in `ww ls accounts` → evidence-grounded XLE identity → actual tastytrade Positions in backend `ww` → shared governed attention result. At each slice ask: *what new operator capability works, what evidence demonstrates it, and what remains honestly unresolved?* Do not stop at architecture prose or mere endpoint parity.
+
+### Operational and sequencing restrictions reaffirmed
+
+- Existing **v1 Web** remains the active Cash Deployment/opportunity-selection client, particularly for the anticipated October 12 trading session, until equivalent v2 capabilities are demonstrated and Principal-accepted. No disruptive change, forced cutover or premature web migration.
+- Accepted standalone **`tt live`** remains operational for monitoring; preserve its visual/economic semantics and low-cognitive-load UX. Converged CLI follows its motif, not necessarily identical command vocabulary. `CONV-UX` and `CONV-WEB` remain open reconciliation concerns.
+- Preserve brokerage source truth versus retained observation, source artifact versus admission, holding versus managed occurrence, working order versus fill, objective versus governing policy, market quote versus executable price, and historic versus current evidence.
+- No split-brain evidence acquisition or parallel authoritative decision policy after convergence; do not disrupt accepted transitional clients before a verified replacement exists.
+- No broad OAuth/IAM redesign, universal Position ontology, general rules engine, unearned REST resources, speculative enterprise features, or automatic execution.
+- The Principal-selected step order is binding for this plan, but **each implementation/migration/remediation requires separate explicit authorization**. This overlay is documentation/reconciliation only; no code, tests, schema, CLI, API, or deployment mutation is authorized.
+- Kiro's `CONV-WEB` estimate remains incomplete planning evidence, not a schedule commitment. Do not prioritize a low-value mechanical FE read-path swap solely because it is easy.
+- Stop bounded review once demonstrated correctness and operator outcome are sufficiently established; defer non-blocking theoretical concerns rather than restarting 3AM cycles.
+
+**Historical reconciliation conclusion:** No discovered ratified invariant requires changing the approved sequence. The historical Evidence Appliance conception constrains v2 to be more than a passive brokerage API facade. The accepted `tt live` UX and active v1 Web Cash Deployment client remain protected Product assets. These seven thematic constraints are a synthesis, **not seven newly ratified principles**.
+
+**Next authorized action:** Complete and independently verify the already-in-progress BUG-036 correction; obtain Principal acceptance before closure. Then begin the bounded Step 3 multi-broker Account design and operator-visible acceptance, without skipping Step 4 before Step 5.
