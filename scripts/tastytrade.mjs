@@ -49,15 +49,17 @@ TSV dates retained observations (not official closing prints); P/L DAY
 uses the broker daily-close reference for those observations.
 Human output is a compact instrument panel. SPOT uses broker equity mid,
 with independently validated bid/ask and quote-update timestamp; no last/close fallback.
-QUOTE is the plain option-package age in s, m or h; SPOT includes its own age.
-r on NOW or the spot age means retained session evidence; ! means stale.
+QUOTE is a plain age in s, m or h: the oldest option/spot evidence displayed.
+Freshness is checked independently; QUOTE color flags stale/degraded evidence.
+SPOT is just the observed price; a stale observed spot marker is amber, usable is cyan.
 EXIT P50 (or a shared Pxx) heads the broker-target track; mixed objectives use
 EXIT Pxx with per-row objective labels. All targets are verified broker limits.
 The track shows a
 signed progress fraction: (OPEN-NOW)/(OPEN-TARGET). T flags an order transition.
-Outward arrows mark progress below 0% or above 100%; a diamond marks the threshold.
+A red left diamond marks negative progress; green marks the observed target.
+A right arrow distinguishes progress above 100%.
 ~ means a threshold is observed while still held, never execution.
-EXIT DTE is unavailable: no declared time-exit rule exists in current tt evidence.
+EXIT DTE shows centered --: no declared time-exit rule exists in current tt evidence.
 Use --width to override terminal width, --no-color for monochrome, --ascii for ASCII.
 NO_COLOR or TERM=dumb disables color. Narrow views omit optional reference columns.
 If you have one accessible account, it is selected automatically.

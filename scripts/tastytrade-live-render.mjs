@@ -41,7 +41,7 @@ export function exitTrack(progress, { width = 11, percentWidth = 6, ascii = fals
   const reached = progress >= 1 - 1e-8;
   const track = Array(width).fill(ascii ? "-" : "─");
   const index = Math.round(Math.max(0, Math.min(1, progress)) * (width - 1));
-  const marker = progress < 0 ? (ascii ? "<" : "←") : progress > 1 + 1e-8 ? (ascii ? ">" : "→") : reached ? (ascii ? "*" : "◆") : (ascii ? "o" : "●");
+  const marker = progress < 0 ? (ascii ? "*" : "◆") : progress > 1 + 1e-8 ? (ascii ? ">" : "→") : reached ? (ascii ? "*" : "◆") : (ascii ? "o" : "●");
   const code = progress < 0 ? "91" : reached ? "92" : progress >= .9 ? "93" : "96";
   track[index] = color ? `\x1b[${code}m${marker}\x1b[97m` : marker;
   const percent = progressPercent(progress, ascii).padStart(percentWidth);
@@ -71,10 +71,10 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
     objectives.every(v => v === objectives[0]);
   const profitHeading = sharedObjective ? `EXIT ${objectives[0]}` : "EXIT Pxx";
   const objectiveWidth = Math.max(3, ...objectives.map(cellWidth));
-  const spotWidth = Math.max(8, ...positions.map(p => p.spot.value === null ? 1 : cellWidth(spotPrice(p.spot.value))));
-  const spotAge = p => p.spot.value === null ? "—" :
-    `${observationAge(p.spot)}${p.spot.stale ? "!" : p.spot.retained ? "r" : ""}`;
-  const spotAgeWidth = Math.max(5, ...positions.map(p => cellWidth(mono(spotAge(p)))));
+  // One conservative age for all displayed price evidence; freshness is still
+  // evaluated independently in the domain. No per-value age/flag clutter.
+  const rowAge = p => observationAge({ ageMs: Math.max(...[p.optionEvidence.ageMs,
+    ...(p.spot.value === null ? [] : [p.spot.ageMs])].filter(Number.isFinite)) });
   const profitCell = (p, colored = false) => {
     const prefix = sharedObjective ? "" : `${pad(mono(profitObjective(p)), objectiveWidth)} `;
     return `${prefix}${exitTrack(p.targetOrder ? p.progress : null, { ...exitOptions, color: colored })}${p.transition ? colored ? ink(" T", "93") : " T" : ""}`;
@@ -83,14 +83,14 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
     SYMBOL: p.symbol, PAYOFF: silhouette(p, { ascii }).text, EXP: new Set(positions.map(p => p.expiry.slice(0,4))).size > 1 ? p.expiry.slice(0,10) : p.expiry.slice(5, 10).replace("-", "/"), QTY: String(p.quantity),
     DTE: String(p.dte),
     [profitHeading]: profitCell(p),
-    "EXIT DTE": "— no rule",
-    OPEN: price(p.credit), NOW: `${p.market.stale ? "—" : price(p.market.closeDebit)}${p.market.stale ? "!" : p.optionEvidence.retained ? "r" : " "}`, TARGET: price(p.target),
+    "EXIT DTE": "--",
+    OPEN: price(p.credit), NOW: p.market.stale ? "—" : price(p.market.closeDebit), TARGET: price(p.target),
     "P/L": p.pnl === null ? "—" : dollars(p.pnl),
-    SPOT: `${pad(p.spot.value === null ? mono("—") : spotPrice(p.spot.value), spotWidth, true)} ${pad(mono(spotAge(p)), spotAgeWidth, true)}`,
-    QUOTE: observationAge(p.optionEvidence), p,
+    SPOT: p.spot.value === null ? "—" : spotPrice(p.spot.value),
+    QUOTE: rowAge(p), p,
   }));
   const specs = [["SYMBOL",6],["PAYOFF",31],["EXP",5],["QTY",3],["DTE",3],[profitHeading,18],["EXIT DTE",10],
-    ["OPEN",5],["NOW",5],["TARGET",6],["P/L",8],["SPOT",spotWidth + 1 + spotAgeWidth],["QUOTE",5]];
+    ["OPEN",5],["NOW",5],["TARGET",6],["P/L",8],["SPOT",8],["QUOTE",5]];
   const widths = Object.fromEntries(specs.map(([k,w]) => [k,Math.max(w,...rows.map((r) => cellWidth(mono(r[k]))))]));
   const size = (keys) => keys.reduce((n,k) => n + widths[k], 0) + (keys.length - 1) * 2;
   let keys = specs.map(([k]) => k);
@@ -103,20 +103,19 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
   const numeric = new Set(["QTY","DTE","OPEN","NOW","TARGET","P/L","SPOT","QUOTE"]);
   const years = [...new Set(positions.map(p => p.expiry.slice(0,4)))];
   const heading = `Account ${accountLabel}${years.length === 1 ? ` | EXP ${years[0]}` : ""}${compact ? " | narrow view" : ""}`;
-  const header = keys.map((k) => k === "PAYOFF" ? pad(" ".repeat(Math.floor((widths[k] - 6)/2)) + k, widths[k]) :
-    k === "NOW" ? pad(k,widths[k] - 1,true) + " " : pad(k,widths[k],numeric.has(k))).join("  ").trimEnd();
+  const header = keys.map((k) => k === "EXIT DTE" ? pad(" ".repeat(Math.floor((widths[k] - 8)/2)) + k,widths[k]) : k === "PAYOFF" ? pad(" ".repeat(Math.floor((widths[k] - 6)/2)) + k, widths[k]) :
+    pad(k,widths[k],numeric.has(k))).join("  ").trimEnd();
   const lines = [...wrap(heading,limit), header];
   for (const r of rows) {
     const p = r.p;
     lines.push(keys.map((k) => {
       const value = mono(r[k]);
       const code = k === "P/L" ? p.pnl === null || p.pnl === 0 ? null : p.pnl > 0 ? "92" : "91" :
-        k === "NOW" && (p.market.stale || p.optionEvidence.retained) ? "93" :
         k === "SPOT" ? p.spot.stale ? p.spot.value === null ? "37" : "93" : "96" :
-        k === "QUOTE" ? p.optionEvidence.stale || p.optionEvidence.retained ? "93" : null :
+        k === "QUOTE" ? p.optionEvidence.stale || p.spot.stale || p.optionEvidence.retained || p.spot.retained ? "93" : null :
         k === "EXIT DTE" || value === mono("—") ? "37" : null;
       const decorated = k === "PAYOFF" ? silhouette(p, { ascii, color }).text : k === profitHeading ? profitCell(p, color) : ink(value,code);
-      return pad(decorated,widths[k],numeric.has(k));
+      return k === "EXIT DTE" ? pad(" ".repeat(Math.floor((widths[k] - 2)/2)) + decorated, widths[k]) : pad(decorated,widths[k],numeric.has(k));
     }).join("  ").trimEnd());
   }
   if (positions.length === 0) lines.push("No live trades.");

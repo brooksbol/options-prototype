@@ -57,15 +57,18 @@ test("off-chart spot uses outward arrows; spot in the loss tail stays proportion
   assert.ok(s.markerIndex>s.breaks[3]);assert.doesNotMatch(s.text,/→/);
 });
 
-test("missing/stale spot removes marker; valid retained observation supplies marker",()=>{
-  const p=position();for(const spot of [{value:null,stale:true},{value:39.6,stale:true}])
-    assert.doesNotMatch(silhouette({...p,spot}).text,/▼|←|→/);
+test("missing spot has no marker; stale observed spot is amber and retained usable spot is cyan",()=>{
+  const p=position();
+  assert.doesNotMatch(silhouette({...p,spot:{value:null,stale:true}}).text,/▼|←|→/);
+  const stale={...p,spot:{value:39.6,stale:true}};
+  assert.match(silhouette(stale,{color:true}).text,/\x1b\[93m▼/);
+  assert.equal(silhouette(stale).markerIndex,silhouette(p).markerIndex);
   const session={state:"Closed","previous-session":{"open-at":"2026-10-09T13:30:00Z","close-at":"2026-10-09T20:00:00Z"},"next-session":{"open-at":"2026-10-12T13:30:00Z"}};
   const retained={...evidence,session,now:new Date("2026-10-11T14:00:00Z"),
     quotes:evidence.quotes.map(q=>({...q,"updated-at":"2026-10-09T20:00:00Z"})),
     spotQuotes:[{...spot,"updated-at":"2026-10-09T20:00:00Z"}]};
   const r=projectLive(retained).positions[0];assert.equal(r.spot.retained,true);
-  assert.match(silhouette(r).text,/▼/);assert.match(renderLive(retained),/39.60\s+42hr\s+42h/);
+  assert.match(silhouette(r).text,/▼/);assert.match(renderLive(retained),/39.60\s+42h/);
 });
 
 test("unverified, adjusted, contradictory and duplicate terms withhold geometry only",()=>{
@@ -123,5 +126,20 @@ test("batch-instrument rejection uses bounded existing single-contract reads; TS
     assert.equal(code,0);assert.equal(calls.filter(u=>u.includes('/instruments/equity-options/')).length,tsv?0:8);
     assert.ok(maxActive<=4);if(!tsv)assert.match(out[0],/╱.*▼.*╲/);
     else assert.doesNotMatch(out[0],/╱|▼|PAYOFF/);
+  }
+});
+
+test("PAYOFF uses a single rising/falling outline stroke and the observed triangle",()=>{
+  const p=position();
+  for(const strikes of [[31,32,42,43],[30,32,42,43]]) {
+    p.payoff={...p.payoff,strikes};
+    const s=silhouette(p);
+    assert.equal((s.text.match(/╱/g)||[]).length,1);
+    assert.equal((s.text.match(/╲/g)||[]).length,1);
+    assert.equal((s.text.match(/▼/g)||[]).length,1);
+    assert.equal(s.text.indexOf("╱"),1+Math.round(((strikes[0]+strikes[1])/2-s.lo)/(s.hi-s.lo)*29));
+    assert.equal(s.text.indexOf("╲"),1+Math.round(((strikes[2]+strikes[3])/2-s.lo)/(s.hi-s.lo)*29));
+    assert.equal(cellWidth(s.text),31);
+    assert.doesNotMatch(s.text,/╱╱|╲╲/);
   }
 });

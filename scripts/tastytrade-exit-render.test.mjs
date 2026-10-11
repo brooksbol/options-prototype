@@ -18,7 +18,7 @@ test('profit track uses verified opening/target/leg-mid economics, not credit ca
     const out = renderLive(valued(progress));
     assert.ok(out.includes(`${progress < 0 ? '−' : '+'}${Math.round(Math.abs(progress)*100)}%${progress >= 1 ? '~' : ''}`));
     const track = exitTrack(p.progress).split(' ')[0];
-    const marker = progress < 0 ? '←' : progress > 1 ? '→' : progress >= 1 ? '◆' : '●';
+    const marker = progress < 0 ? '◆' : progress > 1 ? '→' : progress >= 1 ? '◆' : '●';
     assert.equal(track.indexOf(marker),Math.round(Math.max(0,Math.min(1,progress))*10));
     assert.equal(cellWidth(track),11);
     assert.doesNotMatch(out,/executed|completed|filled/i);
@@ -42,7 +42,7 @@ test('marker/percentage colors distinguish adverse, current, approaching and obs
 test('missing profit evidence is unavailable; existing acquisition remains fail closed', () => {
   const projection=projectLive(evidence); projection.positions[0].targetOrder=null;
   const row=renderPanel(projection).split('\n').find(l=>l.startsWith('EWZ'));
-  assert.match(row,/51\s+—\s+—\s+— no rule/); assert.doesNotMatch(row,/●|◆/);
+  assert.match(row,/51\s+—\s+—\s+--/); assert.doesNotMatch(row,/●|◆/);
   assert.throws(()=>projectLive({...evidence,complexOrders:[]}),/target\/stop order linkage/);
 });
 
@@ -50,7 +50,7 @@ test('stale options suppress the progress marker even if spot is valid', () => {
   const quotes=evidence.quotes.map(q=>({...q,'updated-at':'2026-09-30T12:00:00Z'}));
   const spotQuotes=[{symbol:'EWZ','instrument-type':'Equity',bid:'39.59',ask:'39.61',mid:'39.60','updated-at':'2026-10-01T01:59:50Z'}];
   const out=renderLive({...evidence,quotes,spotQuotes});
-  assert.match(out,/EWZ.*—\s+— no rule.*39.60\s+10s\s+14h/);
+  assert.match(out,/EWZ.*—\s+--.*39.60\s+14h/);
   assert.doesNotMatch(out,/●|◆/);
 });
 
@@ -60,7 +60,7 @@ test('DTE exit is explicitly undeclared; verified opening DTE follows New York c
   assert.deepEqual(p.positions.map(p=>p.timeExit),[
     {objectiveDte:null,openingDte:51,progress:null}, {objectiveDte:null,openingDte:16,progress:null}]);
   const out=renderPanel(p,{color:true});
-  assert.equal((out.match(/\x1b\[37m— no rule/g)||[]).length,2);
+  assert.equal((out.match(/\x1b\[37m--/g)||[]).length,2);
   assert.doesNotMatch(out,/D21|D0|EXIT D51/);
   // Expiration and broker stop orders never supply a time-exit objective.
   assert.ok(p.positions.every(p=>p.stopOrder && p.expiry && p.timeExit.objectiveDte===null));
@@ -73,7 +73,7 @@ test('mixed broker targets use generic EXIT Pxx heading and exact per-row object
   const out=renderLive(data);
   assert.match(out,/EXIT Pxx\s+EXIT DTE/); assert.match(out,/EWZ.*P60\s/); assert.match(out,/XLE.*P50\s/);
   const rows=out.split('\n').filter(l=>/^(EWZ|XLE)\s/.test(l));
-  assert.equal(rows[0].indexOf('─'),rows[1].indexOf('←'));
+  assert.equal(rows[0].indexOf('─'),rows[1].indexOf('◆'));
 });
 
 test('QUOTE elapsed ages use plain seconds, minutes and hours', () => {
@@ -101,7 +101,7 @@ test('twenty mixed progress rows keep track and numeric percentage alignment at 
   }
 });
 
-test('QUOTE is a plain option age; spot age and retained provenance remain separate', () => {
+test('QUOTE alone shows conservative row age; no per-price age or flag clutter', () => {
   const session={state:'Closed','previous-session':{'open-at':'2026-10-09T13:30:00Z','close-at':'2026-10-09T20:00:00Z'},'next-session':{'open-at':'2026-10-12T13:30:00Z'}};
   const quotes=evidence.quotes.map(q=>({...q,'updated-at':'2026-10-09T20:00:00Z'}));
   const spotQuotes=[{symbol:'EWZ','instrument-type':'Equity',bid:'39.59',ask:'39.61',mid:'39.60','updated-at':'2026-10-09T19:50:00Z'}];
@@ -111,8 +111,17 @@ test('QUOTE is a plain option age; spot age and retained provenance remain separ
     const rows=out.split('\n').filter(l=>/^(EWZ|XLE)\s/.test(l));
     assert.match(out,/EXIT P50/); assert.doesNotMatch(out,/P50:B|O:|S:/);
     assert.ok(rows.every(l=>/^\d+[smh]$/.test(l.trim().split(/\s+/).at(-1))));
-    assert.match(rows[0],/0.33r/); assert.match(rows[0],/39.60\s+42hr\s+42h$/);
+    assert.doesNotMatch(rows[0],/0.33r|42hr|!|O:|S:/); assert.match(rows[0],/39.60\s+42h$/);
   }
   for(const [progress,track] of [[0,'●──────────'],[.4,'────●──────'],[.5,'─────●─────'],[.9,'─────────●─'],[1,'──────────◆']])
     assert.ok(exitTrack(progress).startsWith(track));
+});
+
+test('unavailable DTE is centered -- and adverse progress uses the requested left diamond',()=>{
+  const out=renderLive(evidence), lines=out.trim().split('\n');
+  const header=lines[1];
+  for(const row of lines.slice(2)) assert.equal(row.indexOf('--'),header.indexOf('EXIT DTE')+3);
+  assert.ok(exitTrack(-.86).startsWith('◆──────────'));
+  assert.match(exitTrack(-.86),/−86%/);
+  assert.doesNotMatch(out,/no rule|←|O:|S:/);
 });
