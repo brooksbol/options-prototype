@@ -33,6 +33,14 @@ Do not inherit v1 client-side state, browser evaluation, topology, or other arch
 
 For v2, client-side caching of Wheelwright domain representations is constrained to standard HTTP caching semantics. Client caches must never become independent Wheelwright state, reconciliation, persistence, or business-logic authority. Ordinary client configuration/presentation preferences and source files awaiting explicit submission remain permissible but non-authoritative.
 
+## Principal operator acceptance — zero configuration burden
+
+**Principal requirement (October 11, 2026; Step 3 / BUG-035 acceptance rejection):** A candidate is **not ready for Principal operator acceptance** if its acceptance instructions require the Principal to set or unset environment variables, select internal service URLs/ports, type GUIDs, alter configuration files, or perform manual backend wiring. In particular, instructions such as `export WW_BASE_URL=...` are **not acceptable** as Principal acceptance procedures.
+
+The actor/engineering harness must arrange an isolated, correctly targeted candidate and verify its identity **before** inviting the Principal to exercise ordinary Product commands (for example `ww ls accounts`). It must prevent accidental targeting of the operational backend without shifting that burden to the Operator. Preserve live v1 Web and `tt live` and avoid unintended deployment or mutation.
+
+Internal automated tests and engineer diagnostics may use environment variables; **Principal-facing acceptance may not require them**. Independent reviewer ACCEPT and green tests do not override an Operator rejection of an unusable acceptance path. A rejection of the acceptance procedure is not necessarily a rejection of implementation correctness; report these separately. This rule is a human-facing acceptance constraint, **not** an authorization to change code, deploy services, or retry after REJECT. Follow existing execution authority for any correction.
+
 ## Authority discipline
 
 Keep review disposition separate from workflow authority.
