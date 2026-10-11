@@ -12,17 +12,17 @@ alongside its credential. Explicit exports override saved configuration.
 This development slice uses port 3101; ordinary operator commands need no
 per-command connection setup once that address is saved.
 
-Implemented bounded slice, October 11, 2026. Principal Product acceptance is separate from the automated/live verification below.
+Implemented and Principal-accepted bounded slice, October 11, 2026. Principal explicitly reported **acceptance PASSED** after inspecting Account discovery, synchronization and Sawdust Position output. Automated verification and Principal acceptance are separate evidence; no independent review is claimed.
 
 ```sh
 ww sync account pts
 ww show positions --account pts --verbose
 ```
 
-The CLI defaults to `http://localhost:3100`. The verified development instance uses port 3101 and durable backend database `data/positions-v2.sqlite3`, preserving the pre-existing service on 3100. To use that running instance:
+The CLI defaults to `http://localhost:3100` when no address is configured. The verified development instance uses port 3101 and durable backend database `data/positions-v2.sqlite3`, preserving the pre-existing service on 3100. Its address is now saved in the private repository configuration, so the accepted operator journey uses only:
 
 ```sh
-export WW_BASE_URL=http://localhost:3101
+ww ls accounts
 ww sync account pts
 ww show positions --account pts --verbose
 ```
