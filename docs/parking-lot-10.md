@@ -821,3 +821,34 @@ Closeout preserves existing PL identities, broader workflow heads, horizons and 
 | Date | Event |
 |---|---|
 | 2026-10-11 | Principal initiated `PL-CONV-01` as the canonical intake stream for tt / ww v2 convergence, using the historical XLE four-leg iron condor as the first falsification specimen. Discovery only; no implementation authority. |
+
+
+---
+
+## PL-CONV-01 Milestone — Competing Entry Points (October 11, 2026)
+
+**Status: UNDECIDED.** This is a decision checkpoint within existing `PL-CONV-01`, not a new intake identity, ratified sequencing decision, architecture change, or implementation authorization.
+
+**Context.** After the independent Codex adversarial XLE review (PARTIALLY SUPPORTED), the Principal identified two legitimate and potentially independent starting points for convergence:
+
+| Entry point | Origin | First bounded question | Demonstrated pressure |
+|---|---|---|---|
+| **Position refinement** | Codex's XLE review | Which economic occurrence do observed holdings and opening economics belong to? | Existing v2 multileg grouping does not establish continuity; synthetic tt close/reopen counterexample misattributes opening credit; cross-leg quote-age eligibility is not package coherence. |
+| **Account refinement** | Principal's multi-brokerage proposal and subsequent implementation inspection | How does an Account belong to a Brokerage, and how are external account references scoped? | V2 Account has stable canonical identity and a broker-association projection, but AccountDirectory currently hard-codes FIDELITY and persistence does not independently store brokerage identity. |
+
+**Shared direction, not opposing outcomes.** Both serve the same Wheelwright Product and ratified v2 backend-ownership mandate. Account refinement concerns source attribution across Fidelity CSV and tastytrade live API; Position refinement concerns truthful economic occurrence attribution. Neither automatically resolves the other, and their implementation dependency/order is **not established**.
+
+**Options explicitly left open:**
+- **A — Account-first:** establish brokerage-aware Account identity and attribution, then return to XLE occurrence.
+- **B — Position-first:** establish XLE economic occurrence identity first.
+- **C — Independent bounded investigations:** investigate both separately, then reconcile shared requirements before choosing design/sequence.
+
+ChatGPT recommended C as a *recommendation only*. **The Principal has not selected A, B, or C.** Do not interpret this checkpoint, the recommendation, or the mere existence of two entry points as sequencing authorization.
+
+**Evidence/authority qualification.** Codex's XLE findings include synthetic falsifiers, not proof of actual XLE close/reopen or live order state. The Account finding is based on inspected current `AccountDirectory.java` and migration `016_canonical_account_identity.sql`. Accepted tt and ww work remain accepted; the general convergence hypothesis remains partially supported, not established. This milestone does not claim the full intake reconciliation completion record.
+
+**Next mode:** Hold the sequencing choice open for Principal deliberation; further read-only analysis is permissible within `PL-CONV-01`. No schema, code, API, CLI, policy, test, or implementation changes are authorized by this record.
+
+| Date | Milestone |
+|---|---|
+| 2026-10-11 | Principal requested durable preservation of the **undecided** Position-first vs Account-first (or parallel bounded inquiry) entry-point choice under `PL-CONV-01`. |
