@@ -4,12 +4,17 @@ NAME
     ww-show - inspect and query canonical held direct-quote observations
 
 SYNOPSIS
+    ww show positions --account ACCOUNT [--verbose | --jsonl | --table]
     ww show SUBJECT... [--quote] [OPTIONS]
     ww show --quotes [OPTIONS]
     ww show --fields
     ww show --help | -h | --man
 
 SEMANTICS
+    The positions subject reads the account-scoped backend Position capability.
+    It does not run the quote query grammar below. See 'ww show positions --help'
+    and docs/cli/ww-account-evidence.md for snapshot identity and evidence limits.
+
     Read held complete canonical observations only. Never acquire, refresh,
     contact providers, evaluate reuse/freshness, repair evidence, or substitute
     legacy chain prices. Old, unenrolled, non-reusable and retained holdings

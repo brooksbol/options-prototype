@@ -32,7 +32,7 @@ class HeldQuoteCodecTransportTest {
     @Import({GovernedDecisionController.class, HeldQuotesController.class})
     static class Fixture {
         @Bean SqliteEvidenceStore store() { return mock(SqliteEvidenceStore.class); }
-        @Bean BearerAuthenticator auth() { return new BearerAuthenticator("read=reader:quote.read"); }
+        @Bean BearerAuthenticator auth() { return TestAuthentication.auth("read=reader:quote.read"); }
         @Bean WebServerFactoryCustomizer<TomcatServletWebServerFactory> transport(
                 @Value("${probe.passthrough:false}") boolean passthrough) {
             return factory -> {

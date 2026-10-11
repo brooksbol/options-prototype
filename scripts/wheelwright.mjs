@@ -2,6 +2,9 @@
 
 import { readFile } from "node:fs/promises";
 import { parseShow, showConfig, readHeldQuote, presentShow, presentShowRows, selectShowObservations, presentFields } from "./ww-show.mjs";
+import { parsePositions, readPositions, renderPositions, POSITIONS_HELP } from "./ww-positions.mjs";
+import { resolveAccount, readAccounts, renderAccounts, ACCOUNTS_HELP } from "./ww-accounts.mjs";
+import { parseSync, syncAccount, SYNC_HELP } from "./ww-sync.mjs";
 
 const ROOT_HELP = `Usage: ww <command> [options]
        ww --help | -h | --man
@@ -11,6 +14,12 @@ Use explicit symbols. Reading never silently acquires; acquisition never claims
 freshness or suitability. Pipe commands without a format flag.
 
 Working commands:
+  ls accounts [--table | --tsv | --jsonl]
+      Find account aliases before syncing or inspecting Positions.
+  sync account ACCOUNT
+      Synchronize supported Downloads CSVs with backend artifact/evidence retention.
+  show positions --account ACCOUNT [--verbose | --jsonl | --table]
+      Inspect backend Positions, constituents, qualifications and source provenance.
   fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
       Acquire direct quotes for named subjects.
   ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
@@ -32,7 +41,8 @@ Use 'ww <command> --help' or '--man' for command details; 'ww --man'
 describes the current CLI. 'ww observed-prices' remains a prices alias.
 Backend: WW_BASE_URL (default http://localhost:3100).
 Fetch, ls quotes and show authentication: WW_API_TOKEN (exported or private .env).
-Fetch requires quote.acquire (+ quote.force for --force); ls quotes and show require quote.read.`;
+Fetch requires quote.acquire (+ quote.force for --force); quote inspection requires quote.read.
+Positions and sync require their exact account-scoped grants; see command help.`;
 
 const SOURCE_HELP = `Usage: ww observed-prices [--] SYMBOL...
        ww observed-prices --help | -h | --man
@@ -92,8 +102,12 @@ Explicit exports override the file. Missing credentials fail before backend cont
 Use 'ww fetch --man' for the full behavioral contract.`;
 
 const LS_HELP = `Usage: ww ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
+       ww ls accounts [--table | --tsv | --jsonl]
        ww ls --help | -h | --man
        ww ls quotes --help | -h | --man
+
+Use 'ww ls accounts' to find accounts before syncing or inspecting Positions.
+Use 'ww ls accounts --help' for examples.
 
 Discover current canonical direct-quote holdings through GET /v2/quotes.
 Held-evidence reads never acquire or revalidate evidence; this command causes
@@ -122,9 +136,13 @@ The backend requires quote.read independently of quote.acquire/quote.force.
 Use 'ww ls --man' for escaping, security and evidence limits.`;
 
 const SHOW_HELP = `Usage: ww show SUBJECT... [--quote] [OPTIONS]
+       ww show positions --account ACCOUNT [--verbose | --jsonl | --table]
        ww show --quotes [OPTIONS]
        ww show --fields
        ww show --help | -h | --man
+
+Accounts: use 'ww ls accounts' to find account aliases.
+Positions: 'ww show positions --help' describes backend account evidence inspection.
 
 Read canonical held direct quotes only; never acquire or refresh.
 --quotes inspects the complete held inventory; conflicts with explicit subjects.
@@ -190,20 +208,35 @@ export function parseArgs(args) {
   }
   if (args.length === 1 && args[0] === "--man") return { command: "root-man" };
   const [command, ...rest] = args;
+  if (command === "sync") {
+    const parsed = parseSync(rest);
+    return parsed.help ? { command: "help", help: SYNC_HELP } : { command: "sync-account", ...parsed };
+  }
   if (command === "show") {
+    if (rest[0] === "accounts") usage("show accounts: use 'ww ls accounts' to list your accounts");
+    if (rest[0] === "positions") {
+      const parsed = parsePositions(rest.slice(1));
+      return parsed.help ? { command: "help", help: POSITIONS_HELP } : { command: "show-positions", ...parsed };
+    }
     const parsed = parseShow(rest);
     if (parsed.help) return { command: "help", help: SHOW_HELP };
     if (parsed.man) return { command: "command-man", page: "show" };
     return { command: "show", ...parsed };
   }
   if (command === "ls") {
+    if (rest[0] === "accounts") {
+      const options=rest.slice(1);
+      if(options.length===1&&["--help","-h"].includes(options[0]))return {command:"help",help:ACCOUNTS_HELP};
+      if(options.length>1||options.some(arg=>!["--table","--tsv","--jsonl"].includes(arg)))usage("ls accounts: see ww ls accounts --help");
+      return {command:"ls-accounts",format:options[0]?.slice(2)};
+    }
     const discovery = rest[0] === "quotes" ? rest.slice(1) :
       (rest.length === 1 ? rest : []);
     if (discovery.length === 1 && ["-h", "--help"].includes(discovery[0]))
       return { command: "help", help: LS_HELP };
     if (discovery.length === 1 && discovery[0] === "--man")
       return { command: "command-man", page: "ls" };
-    if (rest[0] !== "quotes") usage("ls: resource 'quotes' is required");
+    if (rest[0] !== "quotes") usage("ls: choose 'accounts' or 'quotes'");
     let verbose = false, jsonl = false;
     const types = new Set();
     for (let index = 1; index < rest.length; index++) {
@@ -398,20 +431,26 @@ function redactCredential(value, token) {
 
 // Match the repository's private .env credential convention without executing
 // shell code or loading provider credentials. Nonempty exports override the file; help/usage paths never read it.
-export async function readApiToken(env = process.env, readFileImpl = readFile) {
-  if (env.WW_API_TOKEN?.trim()) return env.WW_API_TOKEN;
+async function readPrivateSetting(name, env, readFileImpl) {
+  if (env[name]?.trim()) return env[name];
   let contents;
   try { contents = await readFileImpl(new URL("../.env", import.meta.url), "utf8"); }
   catch (error) {
     if (error.code === "ENOENT") return undefined;
-    throw new WwError("fetch: cannot read the private .env credential file");
+    throw new WwError("cannot read the private .env configuration file");
   }
-  const matches = [...contents.matchAll(/^\s*(?:export\s+)?WW_API_TOKEN\s*=\s*(.*?)\s*$/gm)];
+  const matches = [...contents.matchAll(new RegExp(`^\\s*(?:export\\s+)?${name}\\s*=\\s*(.*?)\\s*$`, 'gm'))];
   if (!matches.length) return undefined;
   let token = matches.at(-1)[1];
   if ((token.startsWith('"') && token.endsWith('"')) ||
       (token.startsWith("'") && token.endsWith("'"))) token = token.slice(1, -1);
   return token;
+}
+export async function readApiToken(env = process.env, readFileImpl = readFile) {
+  return readPrivateSetting('WW_API_TOKEN',env,readFileImpl);
+}
+export async function readBackendBase(env = process.env, readFileImpl = readFile) {
+  return (await readPrivateSetting('WW_BASE_URL',env,readFileImpl)) || 'http://localhost:3100';
 }
 
 export async function fetchEvidence(symbols, {
@@ -669,6 +708,27 @@ export function presentFetchResult(result, quiet, stdoutIsTTY, stderrIsTTY, verb
 
 export async function main(args) {
   const parsed = parseArgs(args);
+  const usesBackend=['ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices'].includes(parsed.command)&&!parsed.fields;
+  const base=usesBackend?await readBackendBase():undefined;
+  if (parsed.command === "ls-accounts") {
+    const accounts=await readAccounts(await readApiToken(),{base});
+    process.stdout.write(renderAccounts(accounts,{format:parsed.format,tty:!!process.stdout.isTTY}));
+    return;
+  }
+  if (parsed.command === "sync-account") {
+    const result = await syncAccount(parsed.account, await readApiToken(),{base});
+    if (!result.complete) process.exitCode = 1;
+    return;
+  }
+  if (parsed.command === "show-positions") {
+    let token;
+    try { token = await readApiToken(); }
+    catch { throw new WwError("show positions: cannot read private credential configuration"); }
+    const account = await resolveAccount(parsed.account, token,{base});
+    const result = await readPositions(account.id, token,{base});
+    process.stdout.write(renderPositions(result, { ...parsed, accountLabel: account.alias, tty: !!process.stdout.isTTY }));
+    return;
+  }
   if (parsed.command === "help") { process.stdout.write(`${parsed.help}\n`); return; }
   if (parsed.command === "root-man") {
     const manual = await readFile(new URL("../docs/cli/ww-man.txt", import.meta.url), "utf8");
@@ -683,7 +743,7 @@ export async function main(args) {
   if (parsed.command === "show") {
     if (parsed.fields) { process.stdout.write(presentFields(!!process.stdout.isTTY)); return; }
     let config;
-    try { config = showConfig(await readApiToken()); }
+    try { config = showConfig(await readApiToken(),base); }
     catch (error) {
       if (error.code === 2) throw error;
       process.exitCode = 1;
@@ -726,14 +786,14 @@ export async function main(args) {
     let token;
     try { token = await readApiToken(); }
     catch { throw new WwError("ls quotes: cannot read the private .env credential file"); }
-    const result = await readHeldQuotes({ token });
+    const result = await readHeldQuotes({ token,base });
     const presentation = presentHeldQuotes(result, { ...parsed, tty: !!process.stdout.isTTY });
     if (presentation.stdout) process.stdout.write(presentation.stdout);
     if (presentation.stderr) process.stderr.write(presentation.stderr);
     return;
   }
   if (parsed.command === "fetch") {
-    const result = await fetchEvidence(parsed.symbols, { mode: parsed.mode, token: await readApiToken() });
+    const result = await fetchEvidence(parsed.symbols, { mode: parsed.mode, token: await readApiToken(),base });
     const presentation = presentFetchResult(result, parsed.quiet, !!process.stdout.isTTY,
       !!process.stderr.isTTY, parsed.verbose);
     if (presentation.stdout) process.stdout.write(presentation.stdout);
@@ -742,7 +802,7 @@ export async function main(args) {
     return;
   }
   if (parsed.command === "prices" || parsed.command === "observed-prices") {
-    const records = await readObservedPrices(parsed.symbols);
+    const records = await readObservedPrices(parsed.symbols,fetch,base);
     writeRecords(records.map((record, index) => ({ record, line: JSON.stringify(record), index })));
     return;
   }

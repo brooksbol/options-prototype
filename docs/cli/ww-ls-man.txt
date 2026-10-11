@@ -1,14 +1,23 @@
 WW-LS(1)                    Wheelwright Manual                   WW-LS(1)
 
 NAME
-    ww ls quotes — discover held canonical direct-quote observations
+    ww ls — discover authorized accounts or held direct-quote observations
 
 SYNOPSIS
+    ww ls accounts [--table | --tsv | --jsonl]
     ww ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
     ww ls --help | -h | --man
     ww ls quotes --help | -h | --man
 
 DESCRIPTION
+    'ww ls accounts' lists authorized Account aliases, display names, broker
+    associations and immutable IDs using GET /v2/accounts. Start here before
+    'ww sync account pts' or 'ww show positions --account pts --verbose'.
+    Terminal output is a table; redirected output is headerless TSV.
+    --table forces the table; --tsv forces TSV; --jsonl emits one Account per
+    line. See 'ww ls accounts --help' for examples.
+
+    For 'ww ls quotes':
     One authenticated GET /v2/quotes inventories current canonical direct_quote
     holdings in uppercase symbol ascending order. Includes unenrolled, old,
     non-reusable, retained prior observations and any persisted environment.

@@ -20,7 +20,7 @@ test("bare fetch and missing credentials fail before any backend/provider reques
   const isolatedCli = join(isolated, "scripts", "wheelwright.mjs");
   await mkdir(join(isolated, "scripts"));
   await copyFile(cli, isolatedCli);
-  for (const module of ["ww-show.mjs", "ww-show-fields.mjs"])
+  for (const module of ["ww-show.mjs", "ww-show-fields.mjs", "ww-positions.mjs", "ww-sync.mjs", "ww-accounts.mjs"])
     await copyFile(new URL(module, import.meta.url), join(isolated, "scripts", module));
   const actualCli = await realpath(isolatedCli);
   try {
@@ -234,18 +234,28 @@ test("ww fetch works with a private .env credential and no exported token", asyn
   try {
     await mkdir(join(isolated, "scripts"));
     await copyFile(cli, join(isolated, "scripts", "wheelwright.mjs"));
-    for (const module of ["ww-show.mjs", "ww-show-fields.mjs"])
+    for (const module of ["ww-show.mjs", "ww-show-fields.mjs", "ww-positions.mjs", "ww-sync.mjs", "ww-accounts.mjs"])
       await copyFile(new URL(module, import.meta.url), join(isolated, "scripts", module));
     const actualCli = await realpath(join(isolated, "scripts", "wheelwright.mjs"));
     const { writeFile } = await import("node:fs/promises");
     await writeFile(join(isolated, ".env"), `WW_API_TOKEN='${TOKEN}'\n`, { mode: 0o600 });
     await withFixture(async (f) => {
-      const r = await capture([actualCli, "fetch", "SPY"], { WW_API_TOKEN: "", WW_BASE_URL: f.base });
+      await writeFile(join(isolated, ".env"), `WW_API_TOKEN='${TOKEN}'\nWW_BASE_URL='${f.base}'\n`, { mode: 0o600 });
+      const r = await capture([actualCli, "fetch", "SPY"], { WW_API_TOKEN: "", WW_BASE_URL: "" });
       assert.equal(r.status, 0); assert.equal(f.calls.length, 1);
       assert.equal(f.calls[0].authorization, `Bearer ${TOKEN}`);
       assert.ok(!r.stdout.includes(TOKEN) && !r.stderr.includes(TOKEN));
     });
   } finally { await rm(isolated, { recursive: true, force: true }); }
+});
+
+test('saved backend address is literal, exported address wins, missing file keeps default',async()=>{
+  const {readBackendBase}=await import('./wheelwright.mjs');
+  const file=async()=>`TRADIER_BASE_URL=https://provider.invalid\nWW_BASE_URL="http://localhost:3101"\n`;
+  assert.equal(await readBackendBase({},file),'http://localhost:3101');
+  assert.equal(await readBackendBase({WW_BASE_URL:'http://localhost:3200'},()=>{throw new Error('must not read');}),'http://localhost:3200');
+  assert.equal(await readBackendBase({},async()=>{throw Object.assign(new Error(),{code:'ENOENT'});}),'http://localhost:3100');
+  assert.equal(await readBackendBase({},async()=> 'WW_BASE_URL=$(must-not-run)\n'),'$(must-not-run)');
 });
 
 

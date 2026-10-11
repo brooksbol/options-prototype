@@ -201,7 +201,7 @@ class HeldQuotesControllerTest {
     @Test void unavailableAndEnumerationFailureAreNotEmpty() throws Exception {
         var failing=mock(SqliteEvidenceStore.class);
         when(failing.listHeldDirectQuotes()).thenThrow(new SQLException("private-storage-message"));
-        var standalone=MockMvcBuilders.standaloneSetup(new HeldQuotesController(failing,new BearerAuthenticator("read=ro:quote.read"),mapper)).build();
+        var standalone=MockMvcBuilders.standaloneSetup(new HeldQuotesController(failing,TestAuthentication.auth("read=ro:quote.read"),mapper)).build();
         var r=standalone.perform(get("/v2/quotes").header("Authorization","Bearer read")).andReturn();
         problem(r,500,"INTERNAL_ERROR"); assertThat(r.getResponse().getContentAsString()).doesNotContain("private-storage-message");
         doReturn(new AbstractList<SqliteEvidenceStore.HeldDirectQuoteRow>() {
@@ -215,7 +215,7 @@ class HeldQuotesControllerTest {
         problem(standalone.perform(get("/v2/quotes").header("Authorization","Bearer read")).andReturn(),500,"INTERNAL_ERROR");
         doThrow(new SqliteEvidenceStore.HeldReadUnavailableException(new SQLException())).when(failing).listHeldDirectQuotes();
         problem(standalone.perform(get("/v2/quotes").header("Authorization","Bearer read")).andReturn(),503,"CAPABILITY_UNAVAILABLE");
-        var noAuth=MockMvcBuilders.standaloneSetup(new HeldQuotesController(failing,new BearerAuthenticator(""),mapper)).build();
+        var noAuth=MockMvcBuilders.standaloneSetup(new HeldQuotesController(failing,TestAuthentication.auth(""),mapper)).build();
         problem(noAuth.perform(get("/v2/quotes")).andReturn(),503,"CAPABILITY_UNAVAILABLE");
     }
     void specimens(MvcResult... results) throws Exception {
