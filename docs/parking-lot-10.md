@@ -901,3 +901,42 @@ Both issues remain **OPEN for discovery and reconciliation** under `PL-CONV-01`.
 | Date | Milestone |
 |---|---|
 | 2026-10-11 | Principal requested both CONV-UX (converged CLI `tt live` motif) and CONV-WEB (web FE → v2 BE migration estimate) be durably preserved as open reconciliation issues. |
+
+
+---
+
+## PL-CONV-01 Principal-Selected Sequence and Operational Restrictions (October 11, 2026)
+
+**Status: PRINCIPAL-SELECTED SEQUENCE; bounded implementation authorization remains separate.** This supersedes the earlier UNDECIDED A/B/C *sequencing* checkpoint only. It does not erase the historical uncertainty or imply completion of any work.
+
+### Work sequence (selected in this order)
+
+| Order | Work | Mode / next gate |
+|---|---|---|
+| **1** | Ratify Model A User–Account authorization and fail-closed source-disclosure invariant | **RATIFIED** in `docs/77-api-v2-architectural-guardrails.md`, October 11 section. This is an architecture/Product decision, not implementation. |
+| **2** | Correct **BUG-036** unknown mixed-artifact source-scope original-byte disclosure | Bounded defect remediation, independently verified; **not yet authorized to implement**. Preserve retained evidence and Account grants. |
+| **3** | Establish multi-broker Account representation | 3AM design/reconciliation first, then separately authorized implementation. Prove Fidelity and tastytrade attribution, stable GUID identity, nickname resolution and User–Account access without destabilizing Fidelity. |
+| **4** | Reconcile XLE economic occurrence identity | Bounded historical-evidence discovery; distinguish unchanged position, close/reopen and partial reduction. No invented lifecycle linkage. |
+| **5** | Admit tastytrade Position evidence into the v2 backend | Future bounded design/implementation after prerequisite evidence/identity decisions. No automatic broker migration inferred. |
+| **6** | Establish shared governed reconsideration capability | Product discovery and governance design first; no premature HOLD/ALERT enums or recommendation engine. |
+
+**Principal sequencing choice:** Account-side work precedes XLE occurrence work for this planned progression. The earlier A/B/C exploration remains historical why-state, but the choice is **no longer undecided**. This is commitment/sequence, not permission for every implementation step. Ordinary actor review must not silently reorder or expand this plan.
+
+### Operational continuity and execution restrictions (Principal direction)
+
+1. **Protect active trading:** The existing Wheelwright **v1 Web** client remains the operational Cash Deployment / trading opportunity-selection interface until v2 has demonstrated and been accepted for equivalent capabilities. The Principal expects a heavy trading session October 12, 2026; do not disrupt v1 immediately before or during it.
+2. **Preserve tt:** Accepted standalone `tt live` remains the operational active-Position monitoring interface. Preserve its accepted compact scan, economic visual semantics and behavior. The converged CLI UX adopts the accepted `tt` visual/interaction motif; `CONV-UX` remains open for command-specific reconciliation. No rewrite or CLI merge authorized.
+3. **No forced cutover:** Do not migrate live Cash Deployment to v2, break the v1 client, migrate tastytrade acquisition, or assume v2 feature parity before evidence and Principal acceptance.
+4. **Security defects remain separate:** `BUG-035` (full account numbers in `ww ls accounts`) remains Open and **unscheduled**; `BUG-036` is the next planned remediation but is **not yet authorized for code changes**. Neither may be fixed opportunistically as part of documentation, design, or unrelated convergence work.
+5. **Authorization and safety:** Doc 77 Model A and fail-closed original-artifact disclosure are ratified. Existing backend User–Account grants must not be bypassed. No broad financial-admin bypass, custom IAM platform, or premature OIDC vendor selection. Local Bearer mode may continue during controlled development.
+6. **Work mode gates:** Read-only discovery and design may proceed within selected scope. Source edits, API/schema changes, migrations, tests, implementation branches, commits/pushes for implementation, and remediation require the applicable distinct Principal authorization. Do not interpret this sequence as blanket permission.
+7. **Other open work:** `CONV-WEB` remains open pending Kiro's actual web FE → v2 BE migration estimate; it does not authorize web migration or supersede the v1 continuity requirement. The first XLE specimen remains historical, not live pricing or order-state authority. No automatic trading.
+
+### Reconciliation / provenance
+
+- **Strategic fit:** existing question-driven Wheelwright and trustability direction; no new Bet or roadmap edit selected by this sequencing decision.
+- **Architectural fit:** Doc 77 backend ownership and explicit Account authorization; Account/Position convergence remains subject to bounded evidence-driven design, not a new ratified overall target schema.
+- **Why-state:** Principal acts as both Product authority and current operator; protecting v1 Cash Deployment and accepted `tt live` during active trading is an explicit operational constraint. Codex's XLE occurrence falsifier and BUG-036 source-disclosure falsifier motivate the selected order without demanding universal ontology or IAM redesign.
+- **Intake disposition:** existing `PL-CONV-01` retained; work ordered, not marked RECONCILED. No Reconciliation Completion Record is asserted for the entire intake.
+
+**NEXT AUTHORIZED MODE:** Step 1 ratification recorded; prepare the bounded BUG-036 remediation decision surface/design under Step 2. **Do not implement BUG-036 without separate Principal authorization.**
