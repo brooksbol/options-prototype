@@ -45,12 +45,16 @@ const LIVE_HELP = `Usage: tt live [--account <account-number>] [--tsv] [--width 
 Show an indicative, read-only live-trade summary for one production account.
 Direction sums signed held-leg delta from the same quotes; missing delta shows —.
 While the market is closed, latest-session quotes remain usable.
-QUOTE dates retained observations (not official closing prints); P/L DAY
+TSV dates retained observations (not official closing prints); P/L DAY
 uses the broker daily-close reference for those observations.
 Human output is a compact instrument panel. SPOT uses broker equity mid,
 with independently validated bid/ask and quote-update timestamp; no last/close fallback.
-O/S are option/spot evidence; r means retained session observation; ! means stale.
-PROG is signed gross progress to the verified broker limit; ~ never means execution.
+QUOTE shows independent O/S ages in s, m or h; r means retained session; ! means stale.
+EXIT Pxx shows each broker target (P50:B, other exact Pxx:B, or LIMIT:B) and a
+signed progress track: (OPEN-NOW)/(OPEN-TARGET). T flags an order transition.
+Outward arrows mark progress below 0% or above 100%; a diamond marks the threshold.
+~ means a threshold is observed while still held, never execution.
+EXIT DTE is unavailable: no declared time-exit rule exists in current tt evidence.
 Use --width to override terminal width, --no-color for monochrome, --ascii for ASCII.
 NO_COLOR or TERM=dumb disables color. Narrow views omit optional reference columns.
 If you have one accessible account, it is selected automatically.

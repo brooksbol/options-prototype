@@ -247,10 +247,14 @@ export function projectLive({ account, holdings, orders, complexOrders, quotes, 
     const spot = spotEvidence(underlying, spotQuotes, now, session);
     positions.push({ symbol: trade.symbol, underlying, expiry: trade.expiry, quantity: trade.quantity,
       multiplier: trade.multiplier, credit, target, market, spot, dte, openedAt,
+      // No declared time-exit policy exists in current tt evidence. Never infer it from orders.
+      timeExit: { objectiveDte: null, openingDte: Math.round((dayInNewYork(new Date(trade.expiry)) -
+        dayInNewYork(new Date(openedAt))) / 86_400_000), progress: null },
       payoff: payoffProfile(trade, instruments, credit, underlying),
       pnl: market.stale ? null : (credit - market.closeDebit) * trade.multiplier * trade.quantity,
       progress: market.stale ? null : (credit - market.closeDebit) / (credit - target),
       p50: Math.abs(target - credit / 2) <= 1e-8,
+      profitCapture: (credit - target) / credit,
       transition: Boolean(note), note, targetOrder: exit.target, stopOrder: exit.stop,
       optionEvidence: evidenceStatus(market.oldest, now, session, market.stale) });
     rows.push([accountLabel, trade.symbol, trade.label, direction, String(trade.quantity), dayGain, sinceEntry,
@@ -264,7 +268,7 @@ export function evidenceStatus(at, now, session, stale = !usableEvidence(at, now
   const completed = completedSession(session, now);
   const retained = !stale && completed && at >= completed.open &&
     dayInNewYork(new Date(at)) === dayInNewYork(new Date(completed.close));
-  return { at, stale, retained: Boolean(retained),
+  return { at, ageMs: Math.max(0, now.getTime() - at), stale, retained: Boolean(retained),
     label: retained ? `${monthDayInNewYork(new Date(at))}r` : `${quoteAge(now.getTime() - at)}${stale ? "!" : ""}` };
 }
 

@@ -11,10 +11,10 @@ const lines = s => strip(s).trim().split("\n");
 
 test("approved columns align, financial values right-align, static references stay neutral",()=>{
   const plain=output(), colored=output({color:true});
-  assert.deepEqual(lines(plain)[1].trim().split(/\s+/),["SYMBOL","PAYOFF","EXP","QTY","DTE","EXIT","OPEN","NOW","TARGET","P/L","PROG","SPOT","QUOTE"]);
+  assert.deepEqual(lines(plain)[1].trim().split(/\s+/),["SYMBOL","PAYOFF","EXP","QTY","DTE","EXIT","Pxx","EXIT","DTE","OPEN","NOW","TARGET","P/L","SPOT","QUOTE"]);
   const [_,header,row] = lines(plain);
   assert.equal(row.indexOf("0.42")+4,header.indexOf("OPEN")+4);
-  assert.match(row,/P50:B\s+0.42\s+0.33\s+0.21\s+\+\$9\s+\+43%\s+39.60\s+O:2h S:1m/);
+  assert.match(row,/P50:B\s+───●─────\s+\+43%\s+— no rule\s+0.42\s+0.33\s+0.21\s+\+\$9\s+39.60\s+O:2h S:1m/);
   assert.equal(strip(colored),plain); assert.match(colored,/\x1b\[92m\+\$9\x1b\[97m/);
   assert.doesNotMatch(colored,/\x1b\[92m0\.21/);
   assert.equal(lines(plain).length,4); // Account, headings, two positions; no bottom legend.
@@ -61,7 +61,7 @@ test("stale spot does not hide option economics; stale options do not hide spot"
   let out=output({spotQuotes:[spot("EWZ","2026-09-30T12:00:00Z")]});
   assert.match(out,/EWZ.*\+\$9.*39.60!.*O:2h S:14h!/);
   const quotes=evidence.quotes.map(q=>({...q,"updated-at":"2026-09-30T12:00:00Z"}));
-  out=output({quotes}); assert.match(out,/EWZ.*0.42\s+—\s+0.21\s+—\s+—\s+39.60\s+O:14h! S:1m/);
+  out=output({quotes}); assert.match(out,/EWZ.*P50:B\s+—\s+— no rule\s+0.42\s+—\s+0.21\s+—\s+39.60\s+O:14h! S:1m/);
 });
 
 test("retained options and spot are independently dated, including immediately after close",()=>{
@@ -69,7 +69,7 @@ test("retained options and spot are independently dated, including immediately a
   const quotes=evidence.quotes.map(q=>({...q,"updated-at":"2026-10-09T20:00:00Z"}));
   for(const now of [new Date("2026-10-11T14:00:00Z"),new Date("2026-10-09T20:01:00Z")]) {
     const out=output({session,quotes,now,spotQuotes:[spot("EWZ","2026-10-09T20:00:00Z")]});
-    assert.match(out,/39.60\s+O:10\/09r S:10\/09r/); assert.doesNotMatch(out,/official|live quote/);
+    assert.match(out,now.getUTCDay()===0 ? /39.60\s+O:42hr S:42hr/ : /39.60\s+O:1mr S:1mr/); assert.doesNotMatch(out,/official|live quote/);
   }
 });
 

@@ -65,7 +65,7 @@ test("missing/stale spot removes marker; valid retained observation supplies mar
     quotes:evidence.quotes.map(q=>({...q,"updated-at":"2026-10-09T20:00:00Z"})),
     spotQuotes:[{...spot,"updated-at":"2026-10-09T20:00:00Z"}]};
   const r=projectLive(retained).positions[0];assert.equal(r.spot.retained,true);
-  assert.match(silhouette(r).text,/▼/);assert.match(renderLive(retained),/O:10\/09r S:10\/09r/);
+  assert.match(silhouette(r).text,/▼/);assert.match(renderLive(retained),/O:42hr S:42hr/);
 });
 
 test("unverified, adjusted, contradictory and duplicate terms withhold geometry only",()=>{
@@ -92,8 +92,8 @@ test("ASCII remains a line silhouette and target/spot alignment is stable across
     assert.ok(rows.every(r=>r.indexOf("0.21")===rows[0].indexOf("0.21")));
     assert.ok(ls.every(l=>cellWidth(l)<columns));assert.ok(ls.length<=26);
     const header=ls[1], start=rows[0].indexOf("___");
-    assert.equal(header.indexOf("PAYOFF"),10+Math.floor((31-6)/2));
-    assert.ok(start>=10);
+    assert.equal(header.indexOf("PAYOFF"),8+Math.floor((31-6)/2));
+    assert.ok(start>=8);
   }
 });
 
