@@ -1,15 +1,36 @@
 openapi: 3.1.1
 info:
-  title: Wheelwright v2 canonical quotes — acquisition, held discovery and detail
-  version: 0.3.0-contract
+  title: Wheelwright v2 canonical evidence — quotes and accounts
+  version: 0.5.0-contract
   description: >-
     Authoritative specification: accepted synchronous POST acquisition plus the
     Principal-selected GET held-discovery and canonical path-token instance-read
-    capabilities. The historical filename is retained. Implementation authority
+    capabilities, plus canonical User/Account discovery, self identity, artifact resources and Position collections.
+    The historical filename is retained. Implementation authority
     comes from the separately accepted Product contract and bounded handoff.
 servers:
   - url: /
 paths:
+  /v2/users:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1users'
+  /v2/users/{userId}:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1users~1{userId}'
+  /v2/me:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1me'
+  /v2/positions:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1positions'
+  /v2/artifacts:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1artifacts'
+  /v2/artifacts/{artifactId}:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1artifacts~1{artifactId}'
+  /v2/artifacts/{artifactId}/content:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1artifacts~1{artifactId}~1content'
+  /v2/artifacts/{artifactId}/imports:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1artifacts~1{artifactId}~1imports'
+  /v2/accounts:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1accounts'
+  /v2/accounts/{accountId}:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1accounts~1{accountId}'
   /v2/quotes:
     get:
       operationId: listHeldDirectQuotes
@@ -422,7 +443,9 @@ components:
       type: http
       scheme: bearer
       description: >-
-        TLS-protected configured credential establishes caller identity. The
+        TLS-protected configured credential identifies a persisted immutable User.
+        Backend User state authorizes many-to-many Account access and explicit
+        administrator privileges independently of IDs, aliases and credentials. The
         POST requires quote.acquire; FORCE additionally requires quote.force. GET
         independently requires quote.read; acquire/force grants do not imply read.
         Deployed operation fails closed without approved configuration.

@@ -9,24 +9,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Bearer-to-principal authentication + grant authorization for API v2 (contract §22).
- *
- * <p>The ratified OAS advertises Bearer authentication only. A TLS-protected configured
- * credential establishes a caller identity (principal). Authorization is separate:
- * acquisition requires the {@code quote.acquire} grant; {@code FORCE} additionally requires
- * {@code quote.force}.
- *
- * <p>Configuration format (property {@code wheelwright.v2.auth.tokens}): a comma-separated
- * list of {@code token=principal:grant1|grant2} entries. For example:
- * {@code wheelwright.v2.auth.tokens=sekret=cli:quote.acquire|quote.force,ro=web:quote.acquire}.
- * This representation is a mechanical engineering choice; it selects no cloud identity
- * provider and advertises no bypass. There is NO trusted-local or anonymous mode.
- *
- * <p><b>Fail closed.</b> When no token configuration is present the authenticator rejects
- * every credential ({@link #configured()} is false), so a deployed operation cannot run with
- * an open or anonymous security posture (contract §22). Callers must surface
- * {@code CAPABILITY_UNAVAILABLE} / {@code UNAUTHENTICATED} rather than proceeding.
+/** Bearer credentials identify immutable Users. Permissions come from backend User state.
+ * Server bootstrap format: token=user-ID-or-bootstrap-subject:explicit-permissions.
+ * Bootstrap subjects are server-only registration keys, never Account identity or REST IDs.
+ * Multiple credentials for one User have the same permissions. No anonymous/local bypass.
  */
 @Component
 public class BearerAuthenticator {
@@ -39,10 +25,15 @@ public class BearerAuthenticator {
     /** Independent held-evidence read grant; acquire/force never imply it. */
     public static final String GRANT_READ = "quote.read";
 
-    private final Map<String, Principal> byToken = new HashMap<>();
+    private final Map<String, String> byToken = new HashMap<>();
+    private final UserDirectory users;
 
-    public BearerAuthenticator(
-            @Value("${wheelwright.v2.auth.tokens:}") String tokenConfig) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public BearerAuthenticator(UserDirectory users,
+            @Value("${wheelwright.v2.auth.tokens:}") String tokenConfig) throws java.sql.SQLException {
+        this.users=users;
+        var credentials=new HashMap<String,String>();
+        var permissions=new HashMap<String,Set<String>>();
         if (tokenConfig != null && !tokenConfig.isBlank()) {
             for (String entry : tokenConfig.split(",")) {
                 String trimmed = entry.trim();
@@ -61,10 +52,20 @@ public class BearerAuthenticator {
                     }
                 }
                 if (!token.isEmpty() && !name.isEmpty()) {
-                    byToken.put(token, new Principal(name, Set.copyOf(grants)));
+                    String prior=credentials.put(token,name);
+                    if(prior!=null&&!prior.equals(name))throw new IllegalArgumentException("credential maps to multiple Users");
+                    permissions.computeIfAbsent(name,k->new LinkedHashSet<>()).addAll(grants);
                 }
             }
         }
+        // Permission configuration belongs to a User, not to an individual credential.
+        var effective=new HashMap<String,Set<String>>();
+        for(var subject:permissions.entrySet()) {
+            String userId=users.bootstrap(subject.getKey(),subject.getValue());
+            effective.computeIfAbsent(userId,k->new LinkedHashSet<>()).addAll(subject.getValue());
+            for(var credential:credentials.entrySet())if(credential.getValue().equals(subject.getKey()))byToken.put(credential.getKey(),userId);
+        }
+        for(var entry:effective.entrySet())users.bootstrap(entry.getKey(),entry.getValue());
     }
 
     /**
@@ -88,11 +89,14 @@ public class BearerAuthenticator {
         }
         String token = authorizationHeader.substring(prefix.length()).trim();
         if (token.isEmpty()) return Optional.empty();
-        return Optional.ofNullable(byToken.get(token));
+        String userId=byToken.get(token);
+        if(userId==null)return Optional.empty();
+        try { return users.grants(userId).map(grants->new Principal(userId,grants)); }
+        catch(java.sql.SQLException e){return Optional.empty();} // Authorization storage failure closes access.
     }
 
     /** An authenticated caller identity and its grants. */
-    public record Principal(String name, Set<String> grants) {
+    public record Principal(String userId, Set<String> grants) {
         public boolean hasGrant(String grant) {
             return grants.contains(grant);
         }

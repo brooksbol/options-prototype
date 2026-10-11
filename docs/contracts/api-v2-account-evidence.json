@@ -1,0 +1,1713 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Wheelwright v2 account evidence and Positions",
+    "version": "0.3.0",
+    "description": "Bounded source retention, exact-row evidence admission and Position reads. No sophisticated historical reconciliation or recommendations. Canonical opaque resource identities, Account discovery and authorized-scope collections; persistence structure does not determine URI hierarchy. First-class User identity, authenticated self inspection and explicitly administrator-only User discovery; fixed many-to-many User\u2013Account authorization."
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/v2/positions": {
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string"
+          },
+          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+        }
+      ],
+      "get": {
+        "operationId": "readAccountPositions",
+        "summary": "readAccountPositions",
+        "description": "Pure committed backend snapshot read. Latest export date then admission time. No provider contact, lifecycle inference, body, pagination or acquisition. Position identity denotes observed contract/custody inventory or explicit snapshot association, not lifecycle continuity. Constituents appear exactly once. Missing fields remain null. Bid/ask and per-option broker margin requirements may use an accepted same-day Option Summary; each carries separate artifact/row provenance. Strategy rows never count inventory. Option Greeks, allocation, close policy and working orders remain unknown. Date-only evidence does not establish current executable prices or adjusted deliverables. Original bytes resolve through artifactId. Collections include only backend-authorized Account scope. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.positions.read:{accountId}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized committed backend resource collection or metadata.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^acct_[a-f0-9]{32}$"
+            },
+            "description": "Immutable backend Account ID; aliases are rejected. GET narrows authorized scope; POST selects the owning Account."
+          }
+        ]
+      }
+    },
+    "/v2/artifacts": {
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string"
+          },
+          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+        }
+      ],
+      "get": {
+        "operationId": "listAccountArtifacts",
+        "summary": "listAccountArtifacts",
+        "description": "Complete account-scoped artifact inventory with every recorded import attempt, ordered by receipt. No body or provider contact. Processing ACCEPTED does not establish continuous history; historyCoverage is UNKNOWN. Collections include only backend-authorized Account scope. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.artifacts.read:{accountId}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Completed operation; processing status and history coverage remain separate.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactInventory"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^acct_[a-f0-9]{32}$"
+            },
+            "description": "Immutable backend Account ID; aliases are rejected. GET narrows authorized scope; POST selects the owning Account."
+          }
+        ]
+      },
+      "post": {
+        "operationId": "retainAndProcessAccountArtifact",
+        "summary": "retainAndProcessAccountArtifact",
+        "description": "Transactionally retain exact bytes and original filename before parsing. Same account/hash reuses generated immutable artifact identity; every upload records a filename/processing attempt. REJECTED processing is HTTP 200, source survives and prior admitted evidence remains. Positions admit snapshots. Other files admit source-row observations; History appends/matches exact row occurrences without deleting prior observations. Corrections, lifecycle projection and continuous-history coverage are unresolved. Interrupted calls may leave PENDING; inspect inventory then retry retained processing. File-type/source-period interpretations are bounded; filename account attribution is qualified when History/Balances omit account ID. Content/admission deduplicates; import-attempt identities do not. Import requires artifact write authority for the target Account only. Exact mixed-account originals are retained privately. Positions processing admits only target-account rows and does not grant access to other Accounts. Formats without supported row-level Account attribution are retained with REJECTED processing rather than admitting mixed rows. Complete original-file retrieval separately requires artifact read authority for every source Account; unregistered source scopes deny retrieval. Collections include only backend-authorized Account scope. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.artifacts.write:{accountId}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Completed operation; processing status and history coverage remain separate.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessedArtifact"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^acct_[a-f0-9]{32}$"
+            },
+            "description": "Immutable backend Account ID; aliases are rejected. GET narrows authorized scope; POST selects the owning Account."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/csv": {
+              "schema": {
+                "type": "string",
+                "format": "binary",
+                "description": "Exact UTF-8 CSV bytes, 1..16MiB."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/artifacts/{artifactId}": {
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string"
+          },
+          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+        },
+        {
+          "name": "artifactId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "readAccountArtifact",
+        "summary": "readAccountArtifact",
+        "description": "Immutable artifact metadata and append-only processing-attempt history. No query/body. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.artifacts.read:{accountId}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Completed operation; processing status and history coverage remain separate.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Artifact"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
+      }
+    },
+    "/v2/artifacts/{artifactId}/content": {
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string"
+          },
+          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+        },
+        {
+          "name": "artifactId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "retrieveAccountArtifactBytes",
+        "summary": "retrieveAccountArtifactBytes",
+        "description": "Exact original bytes, including BOM/line endings. Content-Disposition attachment. No query/body. Original sources containing multiple accounts require the corresponding artifact grant for every source account; unregistered source scopes are denied. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.artifacts.read:{accountId}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Completed operation; processing status and history coverage remain separate.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
+      }
+    },
+    "/v2/artifacts/{artifactId}/imports": {
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string"
+          },
+          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+        },
+        {
+          "name": "artifactId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "retryRetainedArtifactProcessing",
+        "summary": "retryRetainedArtifactProcessing",
+        "description": "Append a processing attempt from retained bytes and most recent recorded filename/type. No body/query/reupload. Exact source/evidence identities make admission repeatable; prior statuses and source remain retained. Import requires artifact write authority for the target Account only. Exact mixed-account originals are retained privately. Positions processing admits only target-account rows and does not grant access to other Accounts. Formats without supported row-level Account attribution are retained with REJECTED processing rather than admitting mixed rows. Complete original-file retrieval separately requires artifact read authority for every source Account; unregistered source scopes deny retrieval. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.artifacts.write:{accountId}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Completed operation; processing status and history coverage remain separate.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessedArtifact"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
+      }
+    },
+    "/v2/accounts": {
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "listAccounts",
+        "summary": "listAccounts",
+        "description": "Backend-generated immutable Account identity, mutable alias/display metadata and broker association. Authentication identifies caller; exact account.read:ID grants determine visibility. List filters to authorized Accounts; possessing an ID grants no authority. No query/body. CLI aliases resolve through this discovery, never through REST path interchangeability. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.read:{accountId} (list filters each Account independently)"
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized committed backend resource collection or metadata.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountInventory"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
+      }
+    },
+    "/v2/accounts/{accountId}": {
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          }
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "readAccount",
+        "summary": "readAccount",
+        "description": "Backend-generated immutable Account identity, mutable alias/display metadata and broker association. Authentication identifies caller; exact account.read:ID grants determine visibility. List filters to authorized Accounts; possessing an ID grants no authority. No query/body. CLI aliases resolve through this discovery, never through REST path interchangeability. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.read:{accountId} (list filters each Account independently)"
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized committed backend resource collection or metadata.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
+      }
+    },
+    "/v2/users": {
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "listUsers",
+        "summary": "listUsers",
+        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Requires explicitly backend-established users.admin, including inspection of one\u2019s own User through /users/{userId}. User names and Account access imply no administrator privilege. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "users.admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized committed backend resource collection or metadata.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserInventory"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
+      }
+    },
+    "/v2/users/{userId}": {
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^usr_[a-f0-9]{32}$"
+          }
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "readUser",
+        "summary": "readUser",
+        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Requires explicitly backend-established users.admin, including inspection of one\u2019s own User through /users/{userId}. User names and Account access imply no administrator privilege. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "users.admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized committed backend resource collection or metadata.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
+      }
+    },
+    "/v2/me": {
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "readCurrentUser",
+        "summary": "readCurrentUser",
+        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Returns only the authenticated User; arbitrary headers, Account selection or client filtering cannot select a different identity. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [],
+        "responses": {
+          "200": {
+            "description": "Authorized committed backend resource collection or metadata.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Bearer credentials identify a stable immutable User. Committed backend User state authorizes resource access; IDs and client filters confer no authority. users.admin is an explicit backend privilege, not implied by Account access."
+      }
+    },
+    "schemas": {
+      "Constituent": {
+        "type": "object",
+        "properties": {
+          "holdingId": {
+            "type": "string"
+          },
+          "contract": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "custody": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "openPl": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "marketValue": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "bid": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ask": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "expiration": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sourceRows": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "required": [
+          "holdingId",
+          "contract",
+          "description",
+          "kind",
+          "custody",
+          "quantity",
+          "openPl",
+          "marketValue",
+          "bid",
+          "ask",
+          "expiration",
+          "sourceRows"
+        ]
+      },
+      "Position": {
+        "type": "object",
+        "properties": {
+          "positionId": {
+            "type": "string",
+            "pattern": "^position-[a-f0-9]{24}$"
+          },
+          "label": {
+            "type": "string"
+          },
+          "identityBasis": {
+            "enum": [
+              "OBSERVED_CONTRACT_AND_CUSTODY",
+              "EXPLICIT_SNAPSHOT_ASSOCIATION"
+            ]
+          },
+          "program": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "associationAuthority": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "openPl": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "marketValue": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "shareEquivalentDelta": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "constituents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "holding": {
+                  "$ref": "#/components/schemas/Constituent"
+                },
+                "dte": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "shareEquivalentDelta": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "state": {
+                  "type": "string"
+                },
+                "capitalRequirement": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "marketEvidence": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "artifactId",
+                        "sourceFile",
+                        "sourceSha256",
+                        "evidenceDate",
+                        "sourceRows"
+                      ],
+                      "properties": {
+                        "artifactId": {
+                          "type": "string"
+                        },
+                        "sourceFile": {
+                          "type": "string"
+                        },
+                        "sourceSha256": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "evidenceDate": {
+                          "type": "string",
+                          "format": "date"
+                        },
+                        "sourceRows": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "holding",
+                "dte",
+                "shareEquivalentDelta",
+                "state",
+                "capitalRequirement",
+                "marketEvidence"
+              ]
+            }
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "capitalRequirement": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "positionId",
+          "label",
+          "identityBasis",
+          "program",
+          "associationAuthority",
+          "openPl",
+          "marketValue",
+          "shareEquivalentDelta",
+          "constituents",
+          "qualifications",
+          "capitalRequirement"
+        ]
+      },
+      "Attempt": {
+        "type": "object",
+        "properties": {
+          "importId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "originalFilename": {
+            "type": "string"
+          },
+          "fileType": {
+            "enum": [
+              "POSITIONS",
+              "BALANCES",
+              "ACTIVITY",
+              "OPTION_SUMMARY"
+            ]
+          },
+          "importedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "ACCEPTED",
+              "REJECTED"
+            ]
+          },
+          "result": {
+            "type": "string"
+          },
+          "sourcePeriod": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "startDate",
+                  "endDate",
+                  "meaning"
+                ],
+                "properties": {
+                  "startDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "endDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "meaning": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "required": [
+          "importId",
+          "originalFilename",
+          "fileType",
+          "importedAt",
+          "status",
+          "result",
+          "sourcePeriod"
+        ]
+      },
+      "Artifact": {
+        "type": "object",
+        "properties": {
+          "artifactId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "contentType": {
+            "const": "text/csv"
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 16777216
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "imports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Attempt"
+            }
+          },
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          }
+        },
+        "required": [
+          "artifactId",
+          "accountId",
+          "sha256",
+          "contentType",
+          "sizeBytes",
+          "receivedAt",
+          "imports"
+        ]
+      },
+      "PositionRead": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "type": "string"
+          },
+          "evidenceDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sourceFile": {
+            "type": "string"
+          },
+          "sourceSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "artifactId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evaluatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "excludedNonPositionRows": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Position"
+            }
+          },
+          "workingOrderCoverage": {
+            "const": "UNKNOWN"
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          }
+        },
+        "required": [
+          "requestId",
+          "accountId",
+          "accountName",
+          "snapshotId",
+          "evidenceDate",
+          "recordedAt",
+          "sourceFile",
+          "sourceSha256",
+          "artifactId",
+          "evaluatedAt",
+          "excludedNonPositionRows",
+          "positions",
+          "workingOrderCoverage",
+          "qualifications"
+        ]
+      },
+      "ArtifactInventory": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "brokerAccount": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "historyCoverage": {
+            "const": "UNKNOWN"
+          },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Artifact"
+            }
+          },
+          "accountId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^acct_[a-f0-9]{32}$"
+          }
+        },
+        "required": [
+          "requestId",
+          "accountId",
+          "brokerAccount",
+          "historyCoverage",
+          "artifacts"
+        ]
+      },
+      "ProcessedArtifact": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "artifactId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "importId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "newlyPersisted": {
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "ACCEPTED",
+              "REJECTED"
+            ]
+          },
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "requestId",
+          "artifactId",
+          "importId",
+          "newlyPersisted",
+          "status",
+          "result"
+        ]
+      },
+      "PositionCollection": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "snapshots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PositionRead"
+            }
+          }
+        },
+        "required": [
+          "requestId",
+          "snapshots"
+        ],
+        "description": "Positions with their account relationship and account snapshot evidence context; a constituent is counted once within its account."
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          },
+          "alias": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,31}$"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "brokerAssociation": {
+            "type": "object",
+            "properties": {
+              "broker": {
+                "const": "FIDELITY"
+              },
+              "accountNumber": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "broker",
+              "accountNumber"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "alias",
+          "displayName",
+          "brokerAssociation"
+        ]
+      },
+      "AccountInventory": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            }
+          }
+        },
+        "required": [
+          "requestId",
+          "accounts"
+        ]
+      },
+      "AccountDetail": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          }
+        },
+        "required": [
+          "requestId",
+          "account"
+        ]
+      },
+      "UserAccountAccess": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          },
+          "metadataRead": {
+            "type": "boolean"
+          },
+          "positionsRead": {
+            "type": "boolean"
+          },
+          "artifactsRead": {
+            "type": "boolean"
+          },
+          "artifactsWrite": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "accountId",
+          "metadataRead",
+          "positionsRead",
+          "artifactsRead",
+          "artifactsWrite"
+        ],
+        "description": "One explicitly established backend User\u2013Account relationship; multiple Users may access one Account and one User may access multiple Accounts."
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^usr_[a-f0-9]{32}$"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "administrator": {
+            "type": "boolean"
+          },
+          "accountAccess": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserAccountAccess"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "displayName",
+          "administrator",
+          "accountAccess"
+        ],
+        "description": "Stable backend-generated User identity, independent of Account IDs and credential rotation. No credential or bootstrap subject is exposed. Administrator privilege enables User inspection only; Account capabilities remain separately authorized."
+      },
+      "UserInventory": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          }
+        },
+        "required": [
+          "requestId",
+          "users"
+        ]
+      },
+      "UserDetail": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "required": [
+          "requestId",
+          "user"
+        ]
+      }
+    },
+    "responses": {
+      "Problem401": {
+        "description": "Request-wide 401 Problem; no account data exposed before authorization.",
+        "headers": {
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "private, no-store"
+            }
+          },
+          "WWW-Authenticate": {
+            "required": true,
+            "schema": {
+              "const": "Bearer"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem403": {
+        "description": "Request-wide 403 Problem; no account data exposed before authorization.",
+        "headers": {
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "private, no-store"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem404": {
+        "description": "Request-wide 404 Problem; no account data exposed before authorization.",
+        "headers": {
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "private, no-store"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem422": {
+        "description": "Request-wide 422 Problem; no account data exposed before authorization.",
+        "headers": {
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "private, no-store"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem500": {
+        "description": "Request-wide 500 Problem; no account data exposed before authorization.",
+        "headers": {
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "private, no-store"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem503": {
+        "description": "Request-wide 503 Problem; no account data exposed before authorization.",
+        "headers": {
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "private, no-store"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    }
+  }
+}

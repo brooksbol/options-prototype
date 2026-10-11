@@ -36,6 +36,16 @@ tasks.withType<Test> {
 }
 
 // Multi-expiration surface analysis (experimental spike)
+tasks.register<JavaExec>("importPositions") {
+    mainClass.set("com.wheelwright.evidence.v2.ImportPositionSnapshot")
+    classpath = sourceSets["main"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("positionDb") as? String,
+        project.findProperty("positionAccount") as? String,
+        project.findProperty("positionBrokerAccount") as? String,
+        project.findProperty("positionCsv") as? String,
+        project.findProperty("positionAssociations") as? String)
+}
+
 tasks.register<JavaExec>("analyzeSurface") {
     mainClass.set("com.wheelwright.evidence.MultiExpirationSurfaceAnalysis")
     classpath = sourceSets["main"].runtimeClasspath

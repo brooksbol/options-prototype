@@ -13,6 +13,30 @@ DESCRIPTION
     Reading held evidence is separate from asking Wheelwright to acquire it.
 
 WORKING COMMANDS
+    ls accounts [--table | --tsv | --jsonl]
+        List accounts you can access, with their aliases, names, broker
+        associations and immutable IDs. Start with 'ww ls accounts', then
+        'ww sync account pts' or 'ww show positions --account pts --verbose'.
+        Terminal table; redirected headerless TSV; --jsonl emits one Account
+        per line. --table preserves the table when redirected.
+        Run 'ww ls accounts --help' for examples.
+
+    sync account ACCOUNT
+        Scan ~/Downloads, identify supported account-attributed Fidelity CSVs,
+        compare SHA-256 with the backend inventory, and process unseen content
+        sequentially oldest first. Stop on failure; retained failures retry
+        without duplicate upload. No local manifest/database. SYNC COMPLETE
+        means discovered content processed, not continuous brokerage history.
+        See 'ww sync --help' and docs/cli/ww-account-evidence.md.
+
+    show positions --account ACCOUNT [--verbose | --jsonl | --table]
+        Read backend-held Position snapshots with explicit evidence gaps.
+        --verbose includes constituents, provenance and separate close/order
+        sections; it requests terminal layout even when redirected. Default
+        redirected output is one complete JSONL backend read representation.
+        Friendly aliases resolve through backend Account discovery.
+        Requires account.read:ID and account.positions.read:ID. See 'ww show positions --help'.
+
     show SUBJECT... | --quotes [OPTIONS]
     show --fields
         Inspect canonical held quotes without acquisition. --quotes selects

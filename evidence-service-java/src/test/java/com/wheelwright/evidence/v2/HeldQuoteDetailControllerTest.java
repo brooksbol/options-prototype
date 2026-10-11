@@ -47,7 +47,7 @@ class HeldQuoteDetailControllerTest {
  @Test void unavailableStorageAndAuthConfigurationAre503() throws Exception {
   var unavailable=mock(SqliteEvidenceStore.class);
   when(unavailable.readHeldDirectQuote(anyString())).thenThrow(new SqliteEvidenceStore.HeldReadUnavailableException(new java.sql.SQLException("secret")));
-  for(var auth:List.of(new BearerAuthenticator("read=reader:quote.read"),new BearerAuthenticator(""))){
+  for(var auth:List.of(TestAuthentication.auth("read=reader:quote.read"),TestAuthentication.auth(""))){
    var standalone=org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup(new HeldQuotesController(unavailable,auth,JSON)).build();
    var r=standalone.perform(get("/v2/quotes/SPY").header("Authorization","Bearer read")).andReturn().getResponse();assertThat(r.getStatus()).isEqualTo(503);assertThat(r.getContentAsString()).doesNotContain("secret");specimens.add(Map.of("status",503,"payload",JSON.readTree(r.getContentAsString())));
   }

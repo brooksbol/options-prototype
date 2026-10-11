@@ -89,3 +89,8 @@ CURRENT STATE: The first v2 direct-quote HTTP/OAS slice at `POST /v2/quotes` is 
 DECISION REQUIRED: NO
 
 NEXT AUTHORIZED ACTION: Prepare the explicit Doc 78 Kiro implementation handoff against this ratified contract and OAS. Kiro implements the selected contract and stops rather than making Product or architectural decisions.
+
+
+### October 11, 2026 — User identity clarification
+
+The credential-to-principal boundary now resolves to a persisted, immutable opaque User ID (`usr_…`). Authentication never selects Account identity. Existing quote grants remain independent backend User capabilities. Account access is explicitly many-to-many and keyed by canonical Account IDs, independently of User identity, aliases or URI layout. `/v2/me` reads the authenticated User; `/v2/users` and `/v2/users/{userId}` require explicitly backend-established administrator authority. Administrator status does not itself grant Account evidence access. The common OAS references the implemented identity/account-evidence fragment. This supersedes any interpretation of a configured principal as an Account, without changing accepted quote request/response or acquisition/read semantics.
