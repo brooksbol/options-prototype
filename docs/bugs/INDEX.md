@@ -44,6 +44,8 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 
 | BUG-035 | ww ls accounts exposes full brokerage account numbers by default | CLI / ww Account discovery | Not established | Open | [record](BUG-035-ww-accounts-exposes-full-broker-account-numbers.md) | Principal / Codex review 2026-10-11 |
 
+| BUG-036 | Unknown mixed-artifact source scope permits cross-Account original-byte disclosure | Backend / v2 artifact content authorization | S2 | Open | [record](BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md) | Codex synthetic MockMvc falsifier 2026-10-11 |
+
 ## Open-bug audit checkpoint (2026-09-22)
 
 Independent current-main audit/reverification reconciled the previously 18 Open records:
