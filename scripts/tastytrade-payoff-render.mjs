@@ -28,7 +28,7 @@ export function silhouette(position, { width = 31, ascii = false, color = false 
     markerIndex = value<lo ? 0 : value>hi ? count-1 : index(value);
     cells[markerIndex] = {char: value<lo ? ascii?"<":"←" : value>hi ? ascii?">":"→" : ascii?"v":"▼",code:"96"};
   }
-  const prefix = profile.unequal ? "=" : " ";
+  const prefix = profile.unequal ? ascii ? "U" : "≠" : " ";
   return { text: ink(prefix,profile.unequal?"33":null)+cells.map(c=>ink(c.char,c.code)).join(""),
     breaks, markerIndex, lo, hi };
 }

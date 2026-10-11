@@ -35,7 +35,7 @@ test("semantic colors are independent of current P/L; ANSI stripping preserves a
 
 test("unequal wing widths keep their scale and explicitly label shape rather than dollar height",()=>{
   const p=position(); p.payoff={strikes:[30,32,42,43],leftTail:-1.58,rightTail:-.58,unequal:true,maximumProfit:.42};
-  const s=silhouette(p);assert.ok(s.text.startsWith("="));
+  const s=silhouette(p);assert.ok(s.text.startsWith("≠"));
   const [a,b,c,d]=s.breaks;assert.ok((b-a)>(d-c));
   assert.ok(Math.abs((b-a)/(d-c)-2)<=1);
 });

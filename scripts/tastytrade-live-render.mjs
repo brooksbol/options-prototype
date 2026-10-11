@@ -72,7 +72,7 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
       return pad(decorated,widths[k],numeric.has(k));
     }).join("  ").trimEnd());
   }
-  lines.push(...wrap("PAYOFF: expiration shape, not current P/L; = unequal wings; [compressed] unresolved at this width; [?terms] unverified.",limit));
+  lines.push(...wrap(`PAYOFF: expiration shape, not current P/L; ${ascii ? "U" : "≠"} unequal wings; [compressed] unresolved at this width; [?terms] unverified.`,limit));
   lines.push(...wrap("OPEN/NOW/TARGET: credit/closing debit per unit; P/L gross, leg-mid estimate. SPOT: tastytrade equity mid.",limit));
   lines.push(...wrap("B: broker limit; T: exit transition (tt positions); ~: mid at/below target, still held. O/S: options/spot; r: retained session; !: stale.",limit));
   if (positions.length === 0) lines.push("No live trades.");
