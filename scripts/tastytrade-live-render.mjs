@@ -1,4 +1,5 @@
 // Terminal projection only. No broker reads, recognition, valuation or management decisions.
+import { silhouette } from "./tastytrade-payoff-render.mjs";
 import { stripVTControlCharacters } from "node:util";
 const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
 export function cellWidth(text) {
@@ -34,7 +35,7 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
   const mono = (s) => ascii ? s.replaceAll("—", "--").replaceAll("−", "-") : s;
   const ink = (s, code) => color && code ? `\x1b[${code}m${s}\x1b[37m` : s;
   const rows = positions.map((p) => ({
-    SYMBOL: p.symbol, PAYOFF: "—", EXP: new Set(positions.map(p => p.expiry.slice(0,4))).size > 1 ? p.expiry.slice(0,10) : p.expiry.slice(5, 10).replace("-", "/"), QTY: String(p.quantity),
+    SYMBOL: p.symbol, PAYOFF: silhouette(p, { ascii }).text, EXP: new Set(positions.map(p => p.expiry.slice(0,4))).size > 1 ? p.expiry.slice(0,10) : p.expiry.slice(5, 10).replace("-", "/"), QTY: String(p.quantity),
     DTE: String(p.dte), EXIT: `${p.p50 ? "P50" : "LIMIT"}:${p.transition ? "T" : "B"}`,
     OPEN: price(p.credit), NOW: p.market.stale ? "—" : price(p.market.closeDebit), TARGET: price(p.target),
     "P/L": p.pnl === null ? "—" : dollars(p.pnl),
@@ -67,10 +68,11 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
         k === "SPOT" ? p.spot.stale ? p.spot.value === null ? "90" : "33" : "96" :
         k === "QUOTE" ? p.optionEvidence.stale || p.spot.stale || p.optionEvidence.retained || p.spot.retained ? "33" : null :
         k === "EXIT" && p.transition ? "33" : value === mono("—") ? "90" : null;
-      const decorated = ink(value,code);
+      const decorated = k === "PAYOFF" ? silhouette(p, { ascii, color }).text : ink(value,code);
       return pad(decorated,widths[k],numeric.has(k));
     }).join("  ").trimEnd());
   }
+  lines.push(...wrap(`PAYOFF: expiration shape, not current P/L; ${ascii ? "U" : "≠"} unequal wings; [compressed] unresolved at this width; [?terms] unverified.`,limit));
   lines.push(...wrap("OPEN/NOW/TARGET: credit/closing debit per unit; P/L gross, leg-mid estimate. SPOT: tastytrade equity mid.",limit));
   lines.push(...wrap("B: broker limit; T: exit transition (tt positions); ~: mid at/below target, still held. O/S: options/spot; r: retained session; !: stale.",limit));
   if (positions.length === 0) lines.push("No live trades.");

@@ -105,6 +105,7 @@ test("acquisition requests broker equity mid separately; TSV makes no new reads;
         else if(url.includes("/orders?")) body={data:{items:evidence.orders},pagination:{"page-offset":0,"total-pages":1,"total-items":evidence.orders.length}};
         else if(url.includes("equity-option[]=")) body={data:{items:evidence.quotes}};
         else if(url.includes("equity[]=")) {if(fail)throw Error("no spot");body={data:{items:[spot()]}};}
+        else if(url.includes("/instruments/equity-options?")) body={data:{items:[]}};
         else if(url.endsWith("/sessions/current")) body={data:{state:"Open"}};
         else throw Error("unexpected");
         return {ok:true,json:async()=>body};

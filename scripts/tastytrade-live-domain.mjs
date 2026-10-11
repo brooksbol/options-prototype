@@ -183,7 +183,7 @@ function quoteLabel(market, now, sessionCloseAt, session) {
     "EOD" : quoteAge(now.getTime() - market.oldest);
 }
 
-export function projectLive({ account, holdings, orders, complexOrders, quotes, spotQuotes = [], now,
+export function projectLive({ account, holdings, orders, complexOrders, quotes, spotQuotes = [], instruments = [], now,
   sessionCloseAt, session, color = false, format = "table" }) {
   if (!Array.isArray(holdings) || !Array.isArray(orders) || !Array.isArray(complexOrders) ||
       !Array.isArray(quotes) ||
@@ -247,6 +247,7 @@ export function projectLive({ account, holdings, orders, complexOrders, quotes, 
     const spot = spotEvidence(underlying, spotQuotes, now, session);
     positions.push({ symbol: trade.symbol, underlying, expiry: trade.expiry, quantity: trade.quantity,
       multiplier: trade.multiplier, credit, target, market, spot, dte, openedAt,
+      payoff: payoffProfile(trade, instruments, credit, underlying),
       pnl: market.stale ? null : (credit - market.closeDebit) * trade.multiplier * trade.quantity,
       progress: market.stale ? null : (credit - market.closeDebit) / (credit - target),
       p50: Math.abs(target - credit / 2) <= 1e-8,
@@ -278,4 +279,31 @@ function spotEvidence(symbol, quotes, now, session) {
   if (![bid, ask, mid, at].every(Number.isFinite) || bid > ask || mid <= 0 ||
       mid < bid - 1e-6 || mid > ask + 1e-6 || at > now.getTime() + 60_000) return missing;
   return { value: mid, bid, ask, source: "tastytrade equity mid", ...evidenceStatus(at, now, session) };
+}
+
+// Geometry is authorized only by verified standard share-deliverable contract terms.
+// This validation limits the graphic; it does not widen or change live recognition.
+function payoffProfile(trade, instruments, credit, underlying) {
+  if (!Array.isArray(instruments) || trade.multiplier !== 100) return null;
+  const normalize = s => typeof s === "string" ? s.replace(/\s+/g," ") : "";
+  const parsed = [];
+  for (const leg of trade.legs) {
+    const m = /^([A-Za-z0-9.]+)\s+(\d{6})([CP])(\d{8})$/.exec(leg.symbol);
+    const matches = instruments.filter(i => normalize(i?.symbol) === normalize(leg.symbol));
+    if (matches.length !== 1 || !m) return null;
+    const i = matches[0], strike = Number(m[4]) / 1000;
+    const date = `20${m[2].slice(0,2)}-${m[2].slice(2,4)}-${m[2].slice(4,6)}`;
+    if (i["option-chain-type"] !== "Standard" || decimal(i["shares-per-contract"]) !== 100 ||
+        i["instrument-type"] !== "Equity Option" || i["underlying-symbol"] !== underlying ||
+        m[1] !== underlying || i["option-type"] !== m[3] || decimal(i["strike-price"]) !== strike ||
+        i["expiration-date"] !== date || date !== trade.expiry.slice(0,10)) return null;
+    parsed.push({ right: m[3], strike });
+  }
+  const puts = parsed.filter(l=>l.right==="P").map(l=>l.strike).sort((a,b)=>a-b);
+  const calls = parsed.filter(l=>l.right==="C").map(l=>l.strike).sort((a,b)=>a-b);
+  const strikes = [...puts,...calls];
+  if (!strikes.every((v,i)=>Number.isFinite(v) && v>0 && (i===0 || v>strikes[i-1]))) return null;
+  const putWidth = puts[1]-puts[0], callWidth = calls[1]-calls[0];
+  return { strikes, leftTail: credit-putWidth, rightTail: credit-callWidth,
+    unequal: Math.abs(putWidth-callWidth)>1e-8, maximumProfit: credit };
 }

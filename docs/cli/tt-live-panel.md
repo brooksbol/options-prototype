@@ -20,10 +20,22 @@ Default width comes from stdout, then COLUMNS, then 157; `--width 20..1000` over
 
 ANSI is excluded from cell counts; combining sequences and wide graphemes are measured. Apple Terminal ambiguous-width line glyphs are treated as one cell. `--no-color`, nonempty NO_COLOR or TERM=dumb disables color; `--ascii` (also TERM=dumb) provides ASCII. Normal human output continues emitting ANSI through pipes for watch -c. Static economics remain neutral; current P/L/progress use sign colors, evidence uses amber/gray. No whole-row coloring or bullish/bearish desirability colors.
 
-TSV retains the existing schema, ordering, optional NOTE, calculations and quote-label semantics. It acquires no new spot evidence. PAYOFF is reserved for the subsequent silhouette PR; block-height rendering was explicitly rejected by the Principal.
+TSV retains the existing schema, ordering, optional NOTE, calculations and quote-label semantics. It acquires no new spot evidence. PAYOFF uses the approved line silhouette; block-height rendering was explicitly rejected by the Principal.
 
 ## Verification
 
 Compact-panel tests cover 20 rows at 157/189 columns; numeric alignment; 100/80/20-column fallbacks; ANSI/Unicode widths; ASCII/monochrome; spot validation; both mixed-freshness directions; retained observations; target notation and non-clamped progress. Domain tests preserve fills, quantity/multiplier, gross valuation, fail-closed behavior, legacy direction and calendar conventions. TSV was compared byte-for-byte to PR 1 for normal, retained, stale, empty and transitional-order specimens.
 
 Provider capability: https://developer.tastytrade.com/reference/market-data/getMarketDataByType/
+
+## PAYOFF geometry
+
+The trading projection verifies every leg against broker instrument terms: Standard chain, 100 deliverable shares, 100 holding multiplier, matching underlying, right, strike and expiration. No adjusted-contract support is inferred. Missing or conflicting terms produce `IC [?terms]`; existing recognition failures still abort the whole command. Terms use the existing broker batch instrument lookup with a four-concurrent single-contract fallback if the batch route fails. TSV makes neither instrument nor underlying reads. Production verification found batch HTTP 403 and successful single-contract reads.
+
+The 31-cell allocation reserves one indicator cell and uses a 30-cell linear plot spanning long-put strike minus 10% of outer strike range through long-call strike plus 10%. Every strike and valid spot uses that same axis. Strike locations round to the nearest cell; maximum coordinate error is half a cell. Wings/plateau narrower than one cell, or collapsed rounded boundaries, yield `IC [compressed]` rather than enlarged wings. Exact contract strikes remain in `tt positions` broker evidence.
+
+Tails use `_`, slopes `╱`/`╲`, plateau `‾`; ASCII uses `_`, `/`, `\`, `-`. A wing's occupied cells follow its actual span; repeated slope strokes indicate a longer wing. Unequal wing widths retain their horizontal proportions and carry a `≠` prefix (ASCII `U`). One-row tail levels communicate regions, not equal dollar loss: numerical economics remain separate. Dim red applies to negative expiration tails, amber to slopes, green to the maximum-profit plateau, cyan to the valid midpoint marker. No current-profit inference comes from the plateau. The graphic remains available when option quotes go stale because it describes expiration shape.
+
+Spot uses the exact validated observation shown in SPOT. Fresh or eligible retained spot positions `▼` (ASCII `v`); stale/missing spot supplies no marker. Spot beyond the plotting interval uses an outward arrow (ASCII `<`/`>`), never a silently clamped location. Spot outside the long strikes but inside the interval remains proportionally positioned on its loss tail.
+
+Final verification: 45/45 relevant Node tests pass, including proportional and unequal/narrow wings, missing/stale/retained spot, off-chart arrows, unsupported terms, bounded instrument fallback, twenty aligned graphics, semantic colors and no block characters. Read-only production Sunday output draws verified EWZ/XLE shapes while independently showing stale underlying records and retained option economics. Apple Terminal visual acceptance remains separate from deterministic cell and PTY checks.
