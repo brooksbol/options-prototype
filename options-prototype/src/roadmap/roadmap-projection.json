@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-12T05:23:00.877Z",
+    "generatedAt": "2026-10-12T15:57:21.441Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -40,7 +40,7 @@
       "comingSoonTotal": 5,
       "principleTotal": 10,
       "domainEntryTotal": 36,
-      "bugTotal": 38,
+      "bugTotal": 39,
       "logTotal": 115,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
@@ -4084,6 +4084,144 @@
           "content": "**Product intent:** A low-cognitive-load, no-argument `ww pull` refreshes every applicable configured and authorized Wheelwright evidence source and reports honest per-source outcomes. Existing lower-level `ww` commands remain first-class for operators, scripts, and agents. `ww pull` is convenient orchestration, not a new acquisition capability.\n\n**Proposed architectural fitness test:** Implement `ww pull` **solely by referring to and composing existing public `ww` commands**, with no new domain logic. Ideally it is a minimal shell wrapper or equivalent command-level composition. It must not call internal Java classes, inspect SQLite directly, contact brokerage/provider APIs, or duplicate authorization, financial calculations, evidence admission, or acquisition logic. The test is of the accepted Unix-composability thesis: *the primitive is the capability; the workflow belongs to the composer*.\n\n**Scope to reconcile when resumed:** Fidelity Account CSV sync, backend-owned tastytrade Account holdings acquisition (only once Step 5 is accepted), and configured market quote/chain refresh where an existing public capability and authorized scope exist. Whether all market evidence belongs in the first default and how backend-discovered scope maps to locally available Fidelity exports remain **open**, not silently chosen. No hard-coded nicknames, symbols, or universe. Preserve v1 Web and standalone `tt live`.\n\n**Falsifiers:** (1) wrapper requires modifying primitive internals; (2) cannot discover authorized applicable Accounts or market subjects without hard-coding; (3) requires broader grants than the composed operations; (4) cannot report partial/failed/pending outcomes honestly; (5) repeats create duplicate or unintended mutations; (6) wrapper must implement brokerage, financial, or authorization semantics. A failure is evidence of a missing or inadequate lower-level public primitive, **not permission to hide domain logic in `ww pull`**.\n\n**Candidate acceptance:** Ordinary `ww pull` needs no arguments, GUIDs, environment variables or manual backend wiring. It composes only authorized existing public operations, preserves last good evidence on failure, distinguishes successful/no-op/failed/incomplete work per source, and never claims universal freshness or completion without evidence. Lower-level commands remain usable unchanged. Engineering and Principal acceptance remain separate.\n\n**Next authorized mode:** Bounded read-only reconciliation and a small composition experiment proposal when the Principal resumes this item. **No implementation, mutation, deployment, or default-source selection authorized by this note.**",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "PL-CLI-01 — Twelve-question public CLI composability fitness probe (October 11–12, 2026)",
+          "level": 3,
+          "content": "**Measured result:** Questions 1–6 and 8 were answered; question 7 was partial due to evidence gaps. Question 9 was the first hard CLI surface block. Questions 10–12 remained unanswered for distinct reasons (authorization/evidence, occurrence attribution, governance/orders). Complexity order is the experimenter's chosen sequence, not a universal capability ranking.\n\n**Composability findings:** Public `ww` handles Wheelwright authentication, authorized Account aliases, retained holdings and provenance; ordinary Unix primitives suffice for filtering, sorting, counting, grouping and *explicitly labeled arithmetic on reported facts*. Cross-Account reads require a shell loop; Position JSON field discovery lags quote discovery; brokerage-specific contract-root parsing is cumbersome and must not silently normalize adjusted roots such as `ETHA1`. Potential remedies require their own bounded reconciliation, not automatic implementation.\n\n**Authority and semantic guardrail:** Unix composition cannot establish managed grouping, economic-occurrence continuity, contract deliverables, coherent valuation, brokerage order state, Program applicability or management decisions. Correct `quote.read` denial is a functioning authorization boundary, not a defect. Reported market-value/P&L subtotals are partial observations, **not** NAV, executable close proceeds or authoritative portfolio valuation. Preserve snapshot dates and receipt/observation distinctions; no silent brokerage refresh occurred.\n\n**Relevance to proposed `ww pull`:** This validates public **read** composability, not acquisition composition. The separately captured no-argument `ww pull` experiment remains unimplemented and must test discovery, grants, retries, partial completion, idempotence and backend ownership without introducing new financial semantics. This fitness evidence creates no new PL identity, implementation backlog, or permission to change API/CLI.\n\n**Next mode:** None from this completed read-only probe. Retain as falsification/fitness evidence under `PL-CLI-01`; any future history-query, field-discovery or `ww pull` work requires existing intake reconciliation and separate authorization.",
+          "truncated": false,
+          "tables": [
+            {
+              "header": [
+                "#",
+                "Operator question",
+                "Observed result",
+                "Classification"
+              ],
+              "rows": [
+                [
+                  "1",
+                  "Which Accounts can I inspect?",
+                  "`pts`, `sawdust`, `tt1`; brokerage identities available.",
+                  "Answered"
+                ],
+                [
+                  "2",
+                  "How many holdings does each report?",
+                  "PTS 25, Sawdust 7, tt1 8; distinct holding IDs counted.",
+                  "Answered"
+                ],
+                [
+                  "3",
+                  "Which tt1 contracts and signed quantities?",
+                  "Four EWZ November 20 and four XLE October 16 contracts, each +1 or −1.",
+                  "Answered"
+                ],
+                [
+                  "4",
+                  "Which short options expire within seven days, sorted across Accounts?",
+                  "Nine series / 13 contracts across all three Accounts; October 16, DTE 4.",
+                  "Answered"
+                ],
+                [
+                  "5",
+                  "Short contracts grouped by Account, root and expiry?",
+                  "PTS 9, Sawdust 4, tt1 4; contract-string parsing friction. Inventory counts, not managed Position/risk conclusions.",
+                  "Answered with friction"
+                ],
+                [
+                  "6",
+                  "Three most negative reported holding P/L figures; how much missing?",
+                  "PTS GDXJ −1,317.24; DRAM −868.00; URA −826.91. Nine holdings lack P/L; ranking covers known figures only.",
+                  "Answered within coverage"
+                ],
+                [
+                  "7",
+                  "Account market-value and P/L totals?",
+                  "PTS reported-value subtotal 80,369.60 and known P/L subtotal −2,258.01 (one P/L missing); Sawdust 8,768.67 and −970.57; all eight tt1 values unknown.",
+                  "Partial: not authoritative NAV or complete cross-Account valuation"
+                ],
+                [
+                  "8",
+                  "What source evidence and observation times support the answers?",
+                  "Fidelity source dates October 11; tastytrade receipt October 12 05:17:03 UTC. Files, hashes, timestamps exposed; receipt is not necessarily brokerage observation time.",
+                  "Answered with temporal qualification"
+                ],
+                [
+                  "**9**",
+                  "**What changed since the preceding holdings observation?**",
+                  "No inspected Position history/as-of selector; `--history` usage error, exit 2. Does not prove backend lacks retained historical evidence.",
+                  "**First hard public CLI gap**"
+                ],
+                [
+                  "10",
+                  "Does coherent current XLE market evidence establish short-strike breach?",
+                  "`ww show XLE --jsonl` FORBIDDEN (no `quote.read`); `ww prices XLE` null, `not_in_universe`.",
+                  "Authorization/evidence boundary, not missing implementation"
+                ],
+                [
+                  "11",
+                  "Which opening belongs to surviving XLE inventory; what economics apply?",
+                  "Opening attribution unresolved; XLE P/L and market values null.",
+                  "Missing occurrence evidence/domain capability"
+                ],
+                [
+                  "12",
+                  "Which managed Positions warrant attention under Programs and working exits?",
+                  "Program associations null, order coverage UNKNOWN, no governed attention conclusion.",
+                  "Missing governance/order capability"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "PL-CLI-01 — Proposed remediation direction from twelve-question fitness probe (October 12, 2026)",
+          "level": 3,
+          "content": "**Priority and bounded rationale**\n\n\n**Delivery sequence to investigate, not authorize:** (1) bounded history feasibility; (2) small Position field-discovery improvement if justified; (3) established contract-field projection; (4) historical read/observation selection after its backend evidence semantics are verified. History feasibility precedes selecting `--as-of`, snapshot IDs, or any public CLI grammar. Start with retrieving **two identified holdings observations** and compare exact contract identities and reported quantities using Unix tools; no financial `what changed?` engine is justified for the first slice. A backend-retained record is not automatically an available or sufficient historical public read.\n\n**Defer:** Multi-Account convenience command: the shell loop worked, so require repeated operator friction before adding it; preserve per-Account failures. Do not conflate this with the separately preserved `ww pull` acquisition-composition experiment.\n\n**Separate concerns, not CLI ergonomic defects:** Question 10's `quote.read` denial is an authorization outcome, not permission to broaden grants. Question 11 needs opening-anchored occurrence evidence and backend semantics. Question 12 needs working-order evidence, Program applicability and governed reconsideration. These remain under their applicable existing convergence/intake authorities.\n\n**Acceptance/falsification basis:** Reuse all twelve operator questions, including those correctly left unanswered. Score *answerability* (complete/qualified/unsupported) separately from *composition friction* (easy/cumbersome/blocked); distinguish missing public capability, missing evidence, missing domain semantics and denied authority. Shell/`jq`/`sort` may filter, count, sort and explicitly label arithmetic on reported facts but must not infer managed grouping, lifecycle continuity, coherent prices or governance conclusions.\n\n**Next permitted mode:** Bounded read-only reconciliation/feasibility under existing intake and authority; no code, schema, CLI, grants, or deployment changes authorized by this note.",
+          "truncated": false,
+          "tables": [
+            {
+              "header": [
+                "Priority",
+                "Proposal",
+                "Demonstrated pressure",
+                "Constraint"
+              ],
+              "rows": [
+                [
+                  "1",
+                  "**Historical Position inspection**",
+                  "Question 9 cannot retrieve a preceding observation through inspected public Position commands.",
+                  "First determine what retained backend snapshots can actually establish. Expose identifiable observation boundaries and provenance; do not equate snapshot differences with trades, fills, assignments, or occurrence continuity."
+                ],
+                [
+                  "2",
+                  "**Position field discovery**",
+                  "Repeated `jq` schema inspection; unlike quotes, Position fields lack convenient discovery.",
+                  "Follow existing quote-field discovery conventions, including types, units, null meanings, temporal qualification and public field semantics."
+                ],
+                [
+                  "3",
+                  "**Structured contract fields**",
+                  "Questions 4–5 required brokerage-specific string parsing; adjusted `ETHA1` root could be misinterpreted.",
+                  "Backend-project established option root, expiration, put/call right and strike; distinguish adjusted root from underlying identity, and keep unknown multiplier/deliverable unknown."
+                ],
+                [
+                  "4",
+                  "**Account and observation context in composed output**",
+                  "Cross-Account loops must manually reattach Account and snapshot provenance to rows.",
+                  "Preserve Account/snapshot identity through filtering without duplicating authoritative business state in CLI."
+                ],
+                [
+                  "5",
+                  "**Explicit financial coverage metadata**",
+                  "Question 7 subtotals omit unknown values and risk being misread as complete valuation.",
+                  "Surface currency/unit, coverage and missing-value qualifications; do not manufacture NAV or executable portfolio valuation."
+                ]
+              ]
+            }
+          ]
         }
       ]
     },
@@ -9537,6 +9675,158 @@
           "tables": []
         }
       ]
+    },
+    {
+      "id": "BUG-039",
+      "title": "Buy-Write table admits an economically impossible candidate: underlying price paired with a chain whose contracts cannot belong to it; no coherence/moneyness guard (observed DXJ: price 60.78, strike 170, delta 0.8032, ~$13 premium, ACTIONABLE)",
+      "area": "Write Desk (Deployment) / buy-write evidence coherence ↔ upstream price↔chain binding",
+      "severity": "S2",
+      "status": "Open",
+      "recordFile": "BUG-039-buywrite-underlying-chain-mispairing-economically-impossible-candidate.md",
+      "provenance": "Principal observation 2026-10-12",
+      "recordTitle": "BUG-039 — Buy-Write table admits an economically impossible candidate: underlying price paired with a chain whose contracts cannot belong to it; no coherence/moneyness guard",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "The Deployment page buy-write table presented a DXJ candidate that is internally impossible for a covered-call / buy-write and was nonetheless ranked **ACTIONABLE**:\n\n\nA 170 strike against a $60.78 underlying is ≈180% out of the money. A call that far OTM cannot carry ~$13 of premium and cannot have ~0.80 delta — those three option attributes (strike, premium, delta) describe a deep-in-the-money contract on a materially higher-priced instrument, not a DXJ call. The row is internally contradictory in three independent places: strike vs underlying price, premium vs strike, and delta vs strike.\n\nThis is an **observed Deployment surface defect** (operator-visible row + CSV export), reproduced from the running recommendation path on 2026-10-12. No live brokerage order resulted; this is a decision-support-integrity defect.",
+          "truncated": false,
+          "tables": [
+            {
+              "header": [
+                "Field",
+                "Value"
+              ],
+              "rows": [
+                [
+                  "Symbol",
+                  "DXJ"
+                ],
+                [
+                  "Price (underlying)",
+                  "60.78"
+                ],
+                [
+                  "Strike",
+                  "170"
+                ],
+                [
+                  "Delta",
+                  "0.8032"
+                ],
+                [
+                  "Bid / Ask",
+                  "11.5 / 14.5"
+                ],
+                [
+                  "Spread%",
+                  "23.08"
+                ],
+                [
+                  "Yield%",
+                  "200.18"
+                ],
+                [
+                  "Apprec",
+                  "109.22"
+                ],
+                [
+                  "If Called%",
+                  "201.09"
+                ],
+                [
+                  "Posture",
+                  "ACTIONABLE"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Precisely scoped:\n\n- **Not the defect:** the economics arithmetic. The derived numbers are faithful computations over the inputs the engine was given — `appreciation = 170 − 60.78 = 109.22`; `mid = 13.0`; `If Called% = (13.0 + 109.22)/60.78 × 100 = 201.09`; `Yield% = 13.0/60.78 × 365/39 × 100 = 200.18`. All match the displayed values exactly. `computeBuyWriteEconomics` did its job.\n- **Not the defect:** retention or eligibility of individual evidence records.\n- **The actual defect:** the recommendation path composes an underlying price with an option chain **without establishing that the chain's contracts describe the same instrument/price as the stamped underlying**, and no sanity guard rejects an economically impossible pairing. An incoherent (underlyingPrice, strike, delta, premium) tuple is presented as a confident, actionable buy-write candidate.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Evidence / diagnosis",
+          "level": 2,
+          "content": "Forensic trace of the recommendation path (read-only; no fix applied):",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "1. The price↔chain join (frontend)",
+          "level": 3,
+          "content": "`options-prototype/src/write-desk/recommend-buy-writes.ts` (~lines 420–422): both the underlying price and the contracts are read from a single cached chain record selected only by cache key `(provider, environment, \"chain\", symbol, expiration)`:\n\n```ts\nconst calls = chainRecord.payload.calls ?? [];\nconst underlyingPrice = chainRecord.payload.underlying?.price ?? 0;\n```\n\nThere is **no check** that `chainRecord.payload.underlying.symbol` equals the symbol the record was fetched under, and no check that the contracts' strikes/deltas are economically consistent with that price. The strike is read directly (`c.strike`); there is no OCC parsing and no integer-thousandths scaling on this path, so a strike-scaling decode bug is **not** the mechanism — `170` is a literal value in the chain payload.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "2. The upstream authority that binds price to chain (backend)",
+          "level": 3,
+          "content": "`evidence-service-java/.../provider/TradierAdapter.java`, `getOptionsChain(symbol, expiration)` (~lines 109–157): fetches the chain for `symbol`, then reads a **separately cached** quote keyed by `symbol.toUpperCase()` and stamps that quote's `price` onto the chain's `underlying` via `normalizeChain(...)`. `normalizeChain` reads `strike` as a raw provider decimal. Neither call validates that the stamped price and the contract set describe the same instrument. This is the authoritative pairing point and is where the mispairing must be diagnosed (either a wrong/stale symbol-keyed quote stamped onto the DXJ chain, or the DXJ chain payload itself carrying another instrument's contracts).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "3. Why the validity filters did not reject it",
+          "level": 3,
+          "content": "`recommend-buy-writes.ts` (~lines 448–450) carries only two contract-validity guards:\n\n```ts\nc.delta <= 1.0 &&                                 // reject corrupt delta\n!(c.strike > underlyingPrice && c.delta > 0.95)   // reject OTM call w/ delta > 0.95\n```\n\nThe DXJ contract slips between them: delta 0.8032 ≤ 1.0, and 0.8032 is not > 0.95 — so the OTM-high-delta rejector does not fire, even though a 0.80-delta call struck ≈180% above spot is precisely the contradiction that rejector exists to catch. There is **no moneyness / strike-distance sanity guard**. `moneyness()` exists in `domain/calculations.ts` but is not consulted here. The strategy-fitness filter (`strike > underlyingPrice`, ~line 537) *requires* the strike above price, so a 170 strike is not merely tolerated — it is actively selected as \"positive appreciation.\"",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "4. Why posture is ACTIONABLE, not WIDE_SPREAD",
+          "level": 3,
+          "content": "Posture (`execution-assessment.ts`, `execution-policy.ts`) is a pure execution-quality verdict and encodes no economic-coherence check. Spread = (14.5 − 11.5)/13.0 = 23%, far below the `hardExcludeSpreadPercent = 80` hard-no floor, so the row is not WIDE_SPREAD. `assessExecution` then weights spread at only 0.40 (gentle linear degradation), while the $11.5 bid scores 100 on the premium component and OI/volume are adequate; the weighted composite clears `actionableFloor = 65` → **ACTIONABLE**. (WIDE_SPREAD rows elsewhere in the same export genuinely exceed 80% spread; they are not \"similar\" to this 23% row.)",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "An operator assessing deployment candidates was shown a confident, top-posture buy-write whose underlying and option legs cannot belong to the same instrument, with yield and if-called figures (~200%) that are artifacts of the mispairing. Because the Deployment surface is decision support that feeds Broker Handoff, a plausibly-rendered but economically impossible ACTIONABLE candidate is a materially misleading operator-facing consequence (S2). No prediction or execution occurred; the integrity failure is in presenting incoherent composed evidence as actionable.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Diagnosis only. Remediation is **not** authorized or prescribed here. The authoritative question — whether DXJ's chain record carries a wrong/stale symbol-keyed quote price (backend quote↔chain binding) or the chain payload itself contains another instrument's contracts (normalization/provider mispairing) — must be answered at the upstream authority before any guard is designed. Per \"Authority Before Consumers,\" a frontend moneyness/coherence guard would mask the symptom and must not substitute for repairing the incorrect authoritative pairing. Candidate approaches (subject-equality validation at the join, a moneyness sanity gate, backend symbol-coherence assertion in `normalizeChain`/`getOptionsChain`) are design decisions for later.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Not separately enumerated beyond the scoped defect statement (remediation deferred). A correction is complete only when the authoritative price↔chain pairing is proven correct in the live appliance for the specimen, not merely when a downstream guard hides the row.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "None. Reproduction is from the operator-observed Deployment buy-write table and its CSV export (`wheelwright-buy-writes-2026-10-12`), 2026-10-12.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- **BUG-004** — same evidence-coherence failure class (incompatible evidence composed into an apparently-coherent, confident view); BUG-004 is temporal, this is price↔chain subject coherence.\n- **BUG-011** — provider greek evidence integrity (zero vs absent delta); adjacent evidence-validity context.\n- **BUG-033** — stale held-expiration chain Greeks beside fresh underlying; adjacent composition-coherence context.\n- Development workflow rule \"Authority Before Consumers\" (`.kiro/steering`): repair the incorrect authoritative fact rather than compensating in the consumer.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
     }
   ],
   "log": [
@@ -9746,7 +10036,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 629
+      "sourceOrder": 632
     },
     {
       "plId": null,
@@ -9889,7 +10179,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 603
+      "sourceOrder": 606
     },
     {
       "plId": null,
@@ -9902,7 +10192,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 604
+      "sourceOrder": 607
     },
     {
       "plId": null,
@@ -9915,7 +10205,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 605
+      "sourceOrder": 608
     },
     {
       "plId": null,
@@ -9928,7 +10218,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 608
+      "sourceOrder": 611
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -9954,7 +10244,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 606
+      "sourceOrder": 609
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -10136,7 +10426,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 586
+      "sourceOrder": 589
     },
     {
       "plId": null,
@@ -10149,7 +10439,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 587
+      "sourceOrder": 590
     },
     {
       "plId": null,
@@ -10162,7 +10452,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 588
+      "sourceOrder": 591
     },
     {
       "plId": null,
@@ -10175,7 +10465,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 589
+      "sourceOrder": 592
     },
     {
       "plId": null,
@@ -10188,7 +10478,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 590
+      "sourceOrder": 593
     },
     {
       "plId": null,
@@ -10201,7 +10491,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 591
+      "sourceOrder": 594
     },
     {
       "plId": null,
@@ -10214,7 +10504,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 592
+      "sourceOrder": 595
     },
     {
       "plId": null,
@@ -10227,7 +10517,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 593
+      "sourceOrder": 596
     },
     {
       "plId": null,
@@ -10240,7 +10530,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 594
+      "sourceOrder": 597
     },
     {
       "plId": null,
@@ -10253,7 +10543,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 595
+      "sourceOrder": 598
     },
     {
       "plId": null,
@@ -10266,7 +10556,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 596
+      "sourceOrder": 599
     },
     {
       "plId": null,
@@ -10279,7 +10569,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 597
+      "sourceOrder": 600
     },
     {
       "plId": null,
@@ -10292,7 +10582,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 598
+      "sourceOrder": 601
     },
     {
       "plId": null,
@@ -10305,7 +10595,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 599
+      "sourceOrder": 602
     },
     {
       "plId": null,
@@ -10318,7 +10608,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 600
+      "sourceOrder": 603
     },
     {
       "plId": null,
@@ -10331,7 +10621,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 601
+      "sourceOrder": 604
     },
     {
       "plId": null,
@@ -10344,7 +10634,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 602
+      "sourceOrder": 605
     },
     {
       "plId": null,
@@ -10357,7 +10647,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 607
+      "sourceOrder": 610
     },
     {
       "plId": null,
@@ -10370,7 +10660,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 628
+      "sourceOrder": 631
     },
     {
       "plId": "PL-SEM-01",
@@ -10539,7 +10829,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 609
+      "sourceOrder": 612
     },
     {
       "plId": null,
@@ -10552,7 +10842,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 610
+      "sourceOrder": 613
     },
     {
       "plId": "PL-SETUP-01",
@@ -10643,7 +10933,7 @@
       "state": "INTAKE — near-term investigation; no optimization implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 522
+      "sourceOrder": 524
     },
     {
       "plId": "PL-CLI-01",
@@ -10695,7 +10985,7 @@
       "state": "INTAKE — durable identity established from OpenAPI/OAS investigation; strategic and architectural reconciliation remain unresolved; no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 523
+      "sourceOrder": 525
     },
     {
       "plId": "PL-API-03",
@@ -10708,7 +10998,7 @@
       "state": "First POST direct-quote contract ratified and implemented on accepted main; bounded GET held-discovery Product contract ratified and specified, not implemented. Broader API capability work remains INTAKE; no runtime work authorized by this specification.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 532
+      "sourceOrder": 534
     },
     {
       "plId": "PL-API-03",
@@ -10721,7 +11011,7 @@
       "state": "RECONCILED — Principal-selected GET /v2/quotes contract specified; Doc 78 bounded ambiguity self-review complete; no Kiro/runtime implementation begun.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 533
+      "sourceOrder": 535
     },
     {
       "plId": "PL-CLI-01",
@@ -10734,7 +11024,7 @@
       "state": "IMPLEMENTABLE — Principal accepted bounded collection inspection, horizontal all-fields tables, explicit formats, public-field sorting/absolute/direction/limit, truthful partial ranking and human formatting, and authorized exact generic filter grammar design plus implementation/verification/documentation/commit/push.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 535
+      "sourceOrder": 537
     },
     {
       "plId": "PL-CLI-01",
@@ -10747,7 +11037,7 @@
       "state": "IMPLEMENTED / VERIFIED / PRINCIPAL ACCEPTED — current bounded CLI/table presentation through `506fd0a23a2d192950f9d15c0a81ab76365e6741` was manually accepted after screenshot review; independent review is separate.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 536
+      "sourceOrder": 538
     },
     {
       "plId": null,
@@ -10760,7 +11050,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 611
+      "sourceOrder": 614
     },
     {
       "plId": null,
@@ -10773,7 +11063,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 612
+      "sourceOrder": 615
     },
     {
       "plId": null,
@@ -10786,49 +11076,49 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 613
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Principal authorization and resolution — 2026-10-05",
-      "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 614
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Post-resolution validation — 2026-10-05",
-      "eventKind": "reconciliation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 615
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Principal acceptance and closure — 2026-10-05",
-      "eventKind": "remediation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
       "sourceOrder": 616
     },
     {
       "plId": null,
+      "bugId": "BUG-031",
+      "title": "Principal authorization and resolution — 2026-10-05",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 617
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
+      "title": "Post-resolution validation — 2026-10-05",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 618
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
+      "title": "Principal acceptance and closure — 2026-10-05",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 619
+    },
+    {
+      "plId": null,
       "bugId": "BUG-032",
       "title": "Principal authorization and resolution — 2026-10-05",
       "eventKind": "implementation",
@@ -10838,7 +11128,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 617
+      "sourceOrder": 620
     },
     {
       "plId": null,
@@ -10851,7 +11141,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 618
+      "sourceOrder": 621
     },
     {
       "plId": null,
@@ -10864,7 +11154,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 619
+      "sourceOrder": 622
     },
     {
       "plId": null,
@@ -10877,7 +11167,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 620
+      "sourceOrder": 623
     },
     {
       "plId": null,
@@ -10890,7 +11180,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 621
+      "sourceOrder": 624
     },
     {
       "plId": null,
@@ -10903,7 +11193,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 622
+      "sourceOrder": 625
     },
     {
       "plId": "PL-STRAT-01",
@@ -10916,7 +11206,7 @@
       "state": "RECONCILED — authorized bounded research experiment; no strategy admission, live trading policy, or options implementation.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 543
+      "sourceOrder": 545
     },
     {
       "plId": "PL-STRAT-01",
@@ -10929,7 +11219,7 @@
       "state": "IMPLEMENTED — research harness and evidence only; findings await Principal evaluation; no strategy admission or automatic Test 2.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 544
+      "sourceOrder": 546
     },
     {
       "plId": "PL-STRAT-01",
@@ -10942,7 +11232,7 @@
       "state": "RECONCILED — Principal accepts FAIL for the tested tactical candidate; broader strategy remains unproven; no further implementation or Test 2 authorized.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 545
+      "sourceOrder": 547
     },
     {
       "plId": null,
@@ -10955,7 +11245,7 @@
       "state": "ACCEPTED — Principal explicitly reported acceptance PASSED for the bounded Account discovery, CSV synchronization and Position inspection slice.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 548
+      "sourceOrder": 550
     },
     {
       "plId": "PL-CONV-01",
@@ -10968,7 +11258,7 @@
       "state": "IMPLEMENTED — R2 independently verified, deployed and Principal functionally/visually accepted; Step 6 unstarted and unauthorized.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 585
+      "sourceOrder": 588
     },
     {
       "plId": null,
@@ -10981,7 +11271,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-035-ww-accounts-exposes-full-broker-account-numbers.md",
-      "sourceOrder": 623
+      "sourceOrder": 626
     },
     {
       "plId": null,
@@ -10994,7 +11284,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 624
+      "sourceOrder": 627
     },
     {
       "plId": null,
@@ -11007,7 +11297,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 625
+      "sourceOrder": 628
     },
     {
       "plId": null,
@@ -11020,7 +11310,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-037-tastytrade-json-incomplete-source-scope.md",
-      "sourceOrder": 626
+      "sourceOrder": 629
     },
     {
       "plId": null,
@@ -11033,7 +11323,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-038-tastytrade-body-timeout.md",
-      "sourceOrder": 627
+      "sourceOrder": 630
     }
   ],
   "intakeDateUnknown": [

@@ -49,6 +49,8 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-037 | Tastytrade JSON scope ignores content outside inventory items | Backend / v2 original-byte disclosure | S2 | Resolved | [record](BUG-037-tastytrade-json-incomplete-source-scope.md) | R2 independently verified; deployed and Principal accepted |
 | BUG-038 | Tastytrade response-body acquisition deadline incomplete | Backend / v2 acquisition transport | S2 | Resolved | [record](BUG-038-tastytrade-body-timeout.md) | R2 independently verified; deployed and Principal accepted |
 
+| BUG-039 | Buy-Write table admits an economically impossible candidate: underlying price paired with a chain whose contracts cannot belong to it; no coherence/moneyness guard (observed DXJ: price 60.78, strike 170, delta 0.8032, ~$13 premium, ACTIONABLE) | Write Desk (Deployment) / buy-write evidence coherence ↔ upstream price↔chain binding | S2 | Open | [record](BUG-039-buywrite-underlying-chain-mispairing-economically-impossible-candidate.md) | Principal observation 2026-10-12 |
+
 ## Open-bug audit checkpoint (2026-09-22)
 
 Independent current-main audit/reverification reconciled the previously 18 Open records:
