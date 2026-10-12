@@ -555,6 +555,30 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 
 **Next mode:** None from this completed read-only probe. Retain as falsification/fitness evidence under `PL-CLI-01`; any future history-query, field-discovery or `ww pull` work requires existing intake reconciliation and separate authorization.
 
+### PL-CLI-01 — Proposed remediation direction from twelve-question fitness probe (October 12, 2026)
+
+**Status:** Principal-directed persistence of Codex's recommendations and ChatGPT reconciliation. **Proposed direction only**: no Product design ratification, API contract, implementation, authorization, new PL identity or change to existing sequence. Grounding: the immediately preceding twelve-question public `ww`/Unix composition experiment.
+
+**Priority and bounded rationale**
+
+| Priority | Proposal | Demonstrated pressure | Constraint |
+|---|---|---|---|
+| 1 | **Historical Position inspection** | Question 9 cannot retrieve a preceding observation through inspected public Position commands. | First determine what retained backend snapshots can actually establish. Expose identifiable observation boundaries and provenance; do not equate snapshot differences with trades, fills, assignments, or occurrence continuity. |
+| 2 | **Position field discovery** | Repeated `jq` schema inspection; unlike quotes, Position fields lack convenient discovery. | Follow existing quote-field discovery conventions, including types, units, null meanings, temporal qualification and public field semantics. |
+| 3 | **Structured contract fields** | Questions 4–5 required brokerage-specific string parsing; adjusted `ETHA1` root could be misinterpreted. | Backend-project established option root, expiration, put/call right and strike; distinguish adjusted root from underlying identity, and keep unknown multiplier/deliverable unknown. |
+| 4 | **Account and observation context in composed output** | Cross-Account loops must manually reattach Account and snapshot provenance to rows. | Preserve Account/snapshot identity through filtering without duplicating authoritative business state in CLI. |
+| 5 | **Explicit financial coverage metadata** | Question 7 subtotals omit unknown values and risk being misread as complete valuation. | Surface currency/unit, coverage and missing-value qualifications; do not manufacture NAV or executable portfolio valuation. |
+
+**Delivery sequence to investigate, not authorize:** (1) bounded history feasibility; (2) small Position field-discovery improvement if justified; (3) established contract-field projection; (4) historical read/observation selection after its backend evidence semantics are verified. History feasibility precedes selecting `--as-of`, snapshot IDs, or any public CLI grammar. Start with retrieving **two identified holdings observations** and compare exact contract identities and reported quantities using Unix tools; no financial `what changed?` engine is justified for the first slice. A backend-retained record is not automatically an available or sufficient historical public read.
+
+**Defer:** Multi-Account convenience command: the shell loop worked, so require repeated operator friction before adding it; preserve per-Account failures. Do not conflate this with the separately preserved `ww pull` acquisition-composition experiment.
+
+**Separate concerns, not CLI ergonomic defects:** Question 10's `quote.read` denial is an authorization outcome, not permission to broaden grants. Question 11 needs opening-anchored occurrence evidence and backend semantics. Question 12 needs working-order evidence, Program applicability and governed reconsideration. These remain under their applicable existing convergence/intake authorities.
+
+**Acceptance/falsification basis:** Reuse all twelve operator questions, including those correctly left unanswered. Score *answerability* (complete/qualified/unsupported) separately from *composition friction* (easy/cumbersome/blocked); distinguish missing public capability, missing evidence, missing domain semantics and denied authority. Shell/`jq`/`sort` may filter, count, sort and explicitly label arithmetic on reported facts but must not infer managed grouping, lifecycle continuity, coherent prices or governance conclusions.
+
+**Next permitted mode:** Bounded read-only reconciliation/feasibility under existing intake and authority; no code, schema, CLI, grants, or deployment changes authorized by this note.
+
 ## `PL-OPS-10` — Optimize large targeted fetches
 
 **Date:** October 4, 2026 (intake)
