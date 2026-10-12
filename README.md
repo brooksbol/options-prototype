@@ -1,14 +1,5 @@
 # Options Prototype
 
-> ## ⚠️ AI / WHEELWRIGHT WORK — START AT `docs/README.md`
->
-> **`docs/README.md` is Wheelwright's documentation authority and bootstrap root.**
->
-> Before substantive Wheelwright reasoning, review, implementation, reconciliation, or other outcome-bearing work, **stop here and begin with [`docs/README.md`](docs/README.md)**. Follow the current authority/bootstrap routing defined there.
->
-> **Do not use this root README's project overview, active-investigation notes, or Documentation Roadmap as a substitute bootstrap path.** This file is the repository/project overview; it does not own the AI authority-acquisition sequence.
-
-
 > A spec-driven prototype exploring whether an options income strategy can be engineered as a closed-loop financial control system.
 
 This repository serves two purposes:
@@ -46,8 +37,6 @@ Before doing new optimization work, read:
 Current governing position: **Herbie has not yet been identified.** August 31 measurement established that the old provider path materially underutilized Tradier's documented Production market-data allowance while due WIP persisted. A bounded after-hours experiment then demonstrated a strictly single-flight, 119-entry trailing-60-second controller operating without fixed inter-request sleep at 119.72 actual HTTP starts/minute for one hour: 7,200/7,200 HTTP 200, zero 429s, stable provider latency, and no durable-state interference.
 
 This is a machine-level finding, not a system-constraint declaration. The next discriminating work is a regular-session evaluation of what the new admission behavior does to WIP age/depth, Decision coverage, evidence freshness, publication cadence, quota waits, and scheduler handoff behavior.
-
-Kiro steering points to the same active evidence checkpoint via `.kiro/steering/current-investigation.md`.
 
 ---
 
