@@ -1124,3 +1124,50 @@ Closure executes the Principal's renewed explicit direction after the outstandin
 **Operational and execution boundary:** V1 Web remains active Cash Deployment software; accepted `tt live` remains monitoring software. No forced cutover, no client rewrite, no API expansion, no code/test/schema change, no migration or deployment is authorized. The existing Step 3 multi-broker Account milestone remains current and is not reordered by this intake.
 
 **Next authorized action:** Obtain the complete Kiro plan artifact, persist it intact as supporting evidence, link it here, and perform bounded strategic/architectural reconciliation. Do not mark `CONV-WEB` reconciled or ratified before that.
+
+
+---
+
+## PL-CONV-01 Step 3 — Authorized Multi-Broker Account and BUG-035 Candidate (October 11, 2026)
+
+**Current state: IMPLEMENTATION CANDIDATE independently ACCEPT; Principal acceptance pending.** The Principal accepted the bounded Step 3 design and explicitly authorized implementation including separate BUG-035 remediation, designating Codex Implementation Engineer for this milestone. Actual tastytrade nickname selected by the Principal: `tt1`. This supersedes earlier unscheduled/no-implementation statements for this bounded work only. BUG-035 remains Open until its own verification and acceptance; BUG-036 remains Resolved and protected.
+
+**Bounded reconciliation completion record:** Intake `PL-CONV-01`, Step 3 only. Strategic disposition: strengthens existing broker-derived truth/trustability direction; no roadmap Bet/horizon change. Architectural disposition: refines AR1 through persisted brokerage-qualified Account association under `PRIN-ARCH-BACKEND-AUTHORITY`; existing canonical identity, grants and resources reused. Parking-lot mapping: retain `PL-CONV-01`; reference independent `BUG-035` without duplicating defect identity. Why-state/design/verification: `docs/design/pl-conv-01-step3-candidate.md`. Next authorized mode: Principal operator acceptance of the independently verified frozen candidate. This does not declare the entire convergence intake RECONCILED or Step 3 COMPLETE.
+
+Candidate behavior: Fidelity and tastytrade Accounts coexist behind authorized `/v2/accounts` discovery; native references are scoped by brokerage without canonical ID migration; Fidelity admission/disclosure remains Fidelity-qualified; ordinary Account presentation masks numbers. No `/v2/brokerages`, tastytrade Position acquisition, authentication redesign, Web change or tt live change.
+
+Operational scope: the running preview uses a migrated **copy** of retained data, with real privately verified tastytrade reference and explicit metadata-only grant for `tt1`. No operational database migration, registration, retained-evidence processing, service restart or deployment was performed. Existing services and unrelated research remain protected. Main independently advanced during implementation for CONV-WEB documentation only; all frozen candidate source hashes remained unchanged.
+
+| Date | Event |
+|---|---|
+| 2026-10-11 | Principal authorized bounded PL-CONV-01 Step 3 implementation and separately tracked BUG-035 remediation; Codex submitted a frozen candidate for independent verification and operator acceptance. |
+
+The six-step sequence remains unchanged. Step 4 XLE reconciliation and Step 5 tastytrade Position admission are not implemented or newly authorized here.
+
+Independent disposition: **ACCEPT** for frozen Step 3 and separately for BUG-035 correction; 260 backend tests (258 candidate plus two independent), 14 CLI tests and 21 independent actual CLI processes pass. Read-only retained verification confirms 315 originals with zero hash/FK violations and existing identities/grants/evidence/snapshots intact. Principal acceptance remains pending; BUG-035 is still Open. Exact frozen identity and report are in the linked candidate record.
+
+### Step 3 Principal acceptance — REJECTED
+
+The Principal rejected the submitted acceptance procedure: **no environment variables allowed in acceptance testing**. Acceptance must use ordinary installed `ww` commands under normal configuration. The preview-only variable-based procedure is withdrawn; independent ACCEPT/test evidence does not override this Product rejection. Step 3 remains unaccepted, BUG-035 remains Open, and operational deployment/restart remains unperformed and outside automatic authorization. No implementation retry is inferred.
+
+### Step3 authorized operational deployment — ABORT / recovery
+
+The Principal authorized the bounded deployment/recovery plan with acceptance-before-commit. Preflight established candidate/recovery artifacts, captured effective configuration, privately reverified the native tastytrade reference and rehearsed full application behavior on disposable copies. The deployment then aborted at the final post-shutdown SQLite backup, before018/registration/grant mutation. The accepted pre-Step-3 recovery executable restored normal v2 service; no database restore/schema reversal was necessary. Existing identities/grants/snapshots and all315 previous originals remain intact. Recovery Fidelity smoke admitted one new History input, bringing originals to316; zero hash/FK violations, Position reads25/seven, four unknown originals denied. Protected v1/tt paths remain unchanged. Candidate identity, recovery hash and incident detail are in `docs/design/pl-conv-01-step3-candidate.md`. Step3 remains unaccepted, BUG035 Open, no retry/commit/push/Step4 performed; no acceptance invitation is issued.
+
+
+### Step3 authorized deployment retry — operational candidate available
+
+On October11,2026 the Principal accepted the reproduced WAL backup correction/rehearsal and separately selected Option A for one retry. Fresh preflight and verified recovery copies passed; final backup succeeded; migration018 applied once; real tastytrade Account `tt1` registered with only intended Account-read access and existing grants preserved. Frozen candidate is now operational through ordinary installed `ww`. All eight CLI presentation/workflow smoke scenarios passed,316 originals/hash/FK/identity/snapshot checks passed, BUG036 fail-closed disclosure verified, protected v1/tt paths unchanged, no acquisition cycles, no rollback. Exact release identity/recovery/evidence is in `docs/design/pl-conv-01-step3-candidate.md`. This supersedes prior undeployed state. **Principal acceptance pending; BUG035 Open; no commit/push or Step4.**
+
+| Date | Event |
+|---|---|
+| 2026-10-11 | Principal-authorized Step3 deployment retry succeeded; multi-broker Account candidate available through ordinary installed ww for Operator acceptance, without connection overrides. |
+
+
+### Step3 Principal acceptance — COMPLETE (October 11, 2026)
+
+The Principal supplied ordinary installed CLI output: authorized Fidelity pts/sawdust and tastytrade tt1, four masked presentation modes,25/seven Fidelity Positions with provenance,245 already processed Fidelity exports and zero sync work/failures, and expected unsupported TT sync before scanning. He explicitly selected A accepting Step3 and the separate BUG035 correction. **Step3 complete/accepted; BUG035 Resolved in its canonical record.** Source identity and operational release remain unchanged. The larger PL-CONV-01 intake is ongoing; Step4 XLE remains next/planned, with no implementation authorization created by this acceptance. No tastytrade Position support or protected-client migration is claimed.
+
+| Date | Event |
+|---|---|
+| 2026-10-11 | Principal explicitly accepted operational PL-CONV-01 Step3 after ordinary installed CLI testing without configuration overrides; separate BUG035 disposition is owned by its canonical defect record. |

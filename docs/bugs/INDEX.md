@@ -42,7 +42,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 
 | BUG-034 | tt live suppresses last-session values while markets are closed | CLI / tt live | Not established | Resolved | [record](BUG-034-tt-live-closed-session-values.md) | Principal observation 2026-10-11 |
 
-| BUG-035 | ww ls accounts exposes full brokerage account numbers by default | CLI / ww Account discovery | Not established | Open | [record](BUG-035-ww-accounts-exposes-full-broker-account-numbers.md) | Principal / Codex review 2026-10-11 |
+| BUG-035 | ww ls accounts exposes full brokerage account numbers by default | CLI / ww Account discovery | Not established | Resolved | [record](BUG-035-ww-accounts-exposes-full-broker-account-numbers.md) | Principal / Codex review 2026-10-11 |
 
 | BUG-036 | Unknown mixed-artifact source scope permits cross-Account original-byte disclosure | Backend / v2 artifact content authorization | S2 | Resolved | [record](BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md) | Principal-authorized correction; independently verified and resolved 2026-10-11 |
 

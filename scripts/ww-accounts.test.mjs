@@ -31,7 +31,7 @@ test('account discovery dispatch, authorized inventory, empty scope and safe pre
   };
   assert.deepEqual(await readAccounts('credential',{fetchImpl}),[account]);
   assert.match(renderAccounts([account],{tty:true}),/ALIAS\s+NAME\s+BROKER/);
-  assert.equal(renderAccounts([account]),`pts\tPersonal\\u000aTreasury\tFIDELITY\tA1\t${id}\n`);
+  assert.equal(renderAccounts([account]),`pts\tPersonal\\u000aTreasury\tFIDELITY\t****\t${id}\n`);
   assert.deepEqual(JSON.parse(renderAccounts([account],{format:'jsonl'})),account);
   visible=[];
   assert.deepEqual(await readAccounts('credential',{fetchImpl}),[]);

@@ -14,7 +14,7 @@ final class TestAuthentication {
             try(var c=DatabaseManager.open(path.toString())) {
                 url=c.getMetaData().getURL();
                 var ids=Pattern.compile("account(?:\\.[a-z]+)*:(acct_[a-f0-9]{32})").matcher(config);int i=0;
-                while(ids.find())try(var q=c.prepareStatement("INSERT OR IGNORE INTO brokerage_account VALUES (?,?,?,?,?)")) {
+                while(ids.find())try(var q=c.prepareStatement("INSERT OR IGNORE INTO brokerage_account VALUES (?,?,?,?,?,'FIDELITY')")) {
                     String id=ids.group(1);q.setString(1,id);q.setString(2,"fixture-"+(i++));q.setString(3,"Test account");q.setString(4,"TEST"+i);q.setString(5,id);q.executeUpdate();
                 }
             }

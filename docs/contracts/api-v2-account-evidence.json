@@ -1404,7 +1404,7 @@
             "type": "object",
             "properties": {
               "broker": {
-                "const": "FIDELITY"
+                "enum": ["FIDELITY", "TASTYTRADE"]
               },
               "accountNumber": {
                 "type": "string"

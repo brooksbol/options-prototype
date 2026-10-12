@@ -56,6 +56,8 @@ public class BrokerageArtifacts {
     }
     /** Inspect retained bytes on every disclosure; never infer single-owner scope from silence. */
     public SourceScope sourceScopes(String owner, String filename, byte[] bytes) throws SQLException {
+        if (!accounts.get(owner).map(a -> a.brokerAssociation().broker().equals("FIDELITY")).orElse(false))
+            return SourceScope.unknown();
         Set<String> brokerIds;
         try {
             String text = StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
@@ -66,7 +68,7 @@ public class BrokerageArtifacts {
         }
         if (brokerIds.isEmpty()) return SourceScope.unknown();
         var scopes = new HashSet<String>(); scopes.add(owner);
-        try (var c = DriverManager.getConnection(url); var q = c.prepareStatement("SELECT account_id FROM brokerage_account WHERE broker_account=?")) {
+        try (var c = DriverManager.getConnection(url); var q = c.prepareStatement("SELECT account_id FROM brokerage_account WHERE broker='FIDELITY' AND broker_account=?")) {
             for (String brokerId : brokerIds) {
                 q.setString(1, brokerId);
                 try (var rs = q.executeQuery()) {
@@ -199,6 +201,8 @@ public class BrokerageArtifacts {
         }
         String status = "ACCEPTED", result;
         try {
+            if (!accounts.get(account).map(a -> a.brokerAssociation().broker().equals("FIDELITY")).orElse(false))
+                throw new IllegalArgumentException("unsupported brokerage evidence processing");
             var decoder = StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT);
             String text = decoder.decode(ByteBuffer.wrap(content(account, id).orElseThrow())).toString();
             if (type.equals("POSITIONS")) {

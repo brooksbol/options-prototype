@@ -19,29 +19,38 @@ public class AccountDirectory {
         for (String spec : accounts.split(",")) if (!spec.isBlank()) {
             var parts = spec.trim().split("=", -1);
             if (parts.length != 2) throw new IllegalArgumentException("invalid backend account configuration");
-            bind(parts[0], parts[1]);
+            var association = parts[1].split(":", -1);
+            if (association.length == 1) bind(parts[0], association[0]);
+            else if (association.length == 2) bind(parts[0], association[0], association[1]);
+            else throw new IllegalArgumentException("invalid backend account configuration");
         }
     }
     public AccountDirectory(String url) { this.url = url; }
     public String bind(String alias, String brokerAccount) throws SQLException {
+        return bind(alias, "FIDELITY", brokerAccount);
+    }
+    public String bind(String alias, String broker, String brokerAccount) throws SQLException {
         validAlias(alias);
-        if (!brokerAccount.matches("[A-Z0-9]+")) throw new IllegalArgumentException("invalid broker identity");
+        if (!Set.of("FIDELITY", "TASTYTRADE").contains(broker == null ? "" : broker) || brokerAccount == null ||
+                !brokerAccount.matches(broker.equals("FIDELITY") ? "[A-Z0-9]+" : "[A-Za-z0-9]+"))
+            throw new IllegalArgumentException("invalid broker identity");
         try (var c = DriverManager.getConnection(url)) {
-            try (var q = c.prepareStatement("SELECT account_id, broker_account FROM brokerage_account WHERE alias=?")) {
+            try (var q = c.prepareStatement("SELECT account_id, broker, broker_account FROM brokerage_account WHERE alias=?")) {
                 q.setString(1,alias);
                 try(var rs=q.executeQuery()){if(rs.next()) {
-                    if(!brokerAccount.equals(rs.getString("broker_account")))throw new IllegalArgumentException("conflicting account binding");
+                    if(!broker.equals(rs.getString("broker")) || !brokerAccount.equals(rs.getString("broker_account")))throw new IllegalArgumentException("conflicting account binding");
                     return rs.getString("account_id");
                 }}
             }
             // Startup registration cannot overwrite a backend alias rename. A stale
             // bootstrap alias for the same broker association still finds the same ID.
-            try(var q=c.prepareStatement("SELECT account_id FROM brokerage_account WHERE broker_account=?")) {
-                q.setString(1,brokerAccount);try(var rs=q.executeQuery()){if(rs.next())return rs.getString(1);}
+            try(var q=c.prepareStatement("SELECT account_id FROM brokerage_account WHERE broker=? AND broker_account=?")) {
+                q.setString(1,broker);q.setString(2,brokerAccount);try(var rs=q.executeQuery()){if(rs.next())return rs.getString(1);}
             }
             String id = "acct_" + UUID.randomUUID().toString().replace("-", "");
-            try (var q = c.prepareStatement("INSERT INTO brokerage_account VALUES (?, ?, ?, ?, ?)")) {
+            try (var q = c.prepareStatement("INSERT INTO brokerage_account (account_id,alias,display_name,broker_account,identity_namespace,broker) VALUES (?, ?, ?, ?, ?, ?)")) {
                 q.setString(1,id); q.setString(2,alias); q.setString(3,alias); q.setString(4,brokerAccount); q.setString(5,id);
+                q.setString(6,broker);
                 q.executeUpdate();
             }
             return id;
@@ -63,7 +72,7 @@ public class AccountDirectory {
         var result=new ArrayList<Account>();
         try (var c=DriverManager.getConnection(url); var q=c.prepareStatement("SELECT * FROM brokerage_account ORDER BY alias"); var rs=q.executeQuery()) {
             while(rs.next()) result.add(new Account(rs.getString("account_id"),rs.getString("alias"),rs.getString("display_name"),
-                    new BrokerAssociation("FIDELITY",rs.getString("broker_account"))));
+                    new BrokerAssociation(rs.getString("broker"),rs.getString("broker_account"))));
         }
         return List.copyOf(result);
     }

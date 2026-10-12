@@ -30,6 +30,7 @@ class AccountsTest {
                 q.execute("DROP TABLE v2_user_account");
                 q.execute("DROP TABLE v2_user");
                 q.execute("DELETE FROM _migrations WHERE id='017_user_account_authority.sql'");
+                q.execute("DELETE FROM _migrations WHERE id='018_broker_scoped_accounts.sql'");
                 q.execute("DROP TABLE brokerage_account");
                 q.execute("CREATE TABLE brokerage_account(account TEXT PRIMARY KEY,broker_account TEXT NOT NULL UNIQUE)");
                 q.execute("INSERT INTO brokerage_account VALUES ('pts','A1')");

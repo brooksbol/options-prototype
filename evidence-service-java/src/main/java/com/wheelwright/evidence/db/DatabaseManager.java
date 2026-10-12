@@ -99,6 +99,7 @@ public class DatabaseManager {
         files.add("015_account_position_snapshot.sql");
         files.add("016_canonical_account_identity.sql");
         files.add("017_user_account_authority.sql");
+        files.add("018_broker_scoped_accounts.sql");
         for (String f : known) {
             if (DatabaseManager.class.getClassLoader().getResource(MIGRATIONS_PATH + f) != null) {
                 files.add(f);

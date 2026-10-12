@@ -83,6 +83,8 @@ export async function artifactRequest(account, suffix, token, {base, fetchImpl=f
 export async function syncAccount(account, token, { directory=join(homedir(), 'Downloads'), base,
     fetchImpl=fetch, out=s=>process.stdout.write(s) }={}) {
   const resolved = await resolveAccount(account,token,{base,fetchImpl});
+  if (resolved.brokerAssociation.broker !== 'FIDELITY')
+    throw new ShowError('sync: brokerage synchronization is not supported for this Account yet; Fidelity CSV accounts only. Run ww ls accounts to choose an Account.');
   account = resolved.id;
   const inventory = await artifactRequest(account, '', token, {base,fetchImpl});
   if (inventory.accountId !== account || !/^[A-Z0-9]+$/.test(inventory.brokerAccount ?? '') || !Array.isArray(inventory.artifacts))

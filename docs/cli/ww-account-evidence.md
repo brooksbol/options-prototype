@@ -77,3 +77,32 @@ Configured capabilities are admitted to backend User state. Multiple configured 
 `GET /v2/me` returns the authenticated User with ID, display name, explicit administrator flag and Account capabilities. `GET /v2/users` and `GET /v2/users/{userId}` require `users.admin`, explicitly granted by backend configuration/state; that capability does not imply Account evidence permissions. A User named admin is unprivileged unless explicitly granted. Account aliases remain CLI discovery conveniences. There are no User create/update/delete endpoints. User IDs survive Account renames, credential rotation and backend restart.
 
 User amendment verification: 246 backend v2/database tests and 87 relevant CLI tests pass. Live `/v2/me` returns the persisted non-admin User with two explicit Account relationships; `/v2/users` denies discovery with 403. The existing commands still yield zero uploads and 25 Positions. User migration preserves exact original bytes, all snapshots/constituent identities and retained history. Administrator-only list/detail routes are verified with persisted backend Users in HTTP tests, without granting administrator privilege to the live operator implicitly.
+
+
+## PL-CONV-01 Step 3 accepted delivery — October 11, 2026
+
+The accepted implementation persists brokerage association independently of the native
+reference. Backend private bootstrap accepts `alias=FIDELITY:reference` and
+`alias=TASTYTRADE:reference`; existing `alias=reference` remains Fidelity.
+References retain exact case and leading zeros. Registration is idempotent by
+brokerage/reference pair. Nicknames are globally unique backend metadata; stale
+bootstrap names do not undo persisted renames. This adds no registration API.
+
+Ordinary Account tables and redirected TSV mask native numbers (BUG-035).
+Short or malformed values expose no suffix. Explicit JSONL and existing API
+payloads are unchanged; permanent full-number disclosure policy remains open.
+For tastytrade Accounts, `ww sync account <nickname>` explains that Fidelity
+CSV synchronization is the only supported capability before scanning Downloads.
+Backend processing independently rejects non-Fidelity admission after retaining
+source bytes. No tastytrade Position evidence support is claimed.
+
+Migration 018 preserves canonical Account IDs, inventory namespaces, grants and
+all existing evidence/snapshots while replacing native-reference global uniqueness
+with `(broker, broker_account)` uniqueness. Fidelity source-scope lookup is
+explicitly Fidelity-qualified and preserves BUG-036 fail-closed disclosure.
+
+The Principal accepted the operational delivery after ordinary installed CLI tests
+without connection overrides. Fidelity pts/sawdust and tastytrade tt1 are
+authorized and discoverable; BUG-035 is Resolved. See
+[`pl-conv-01-step3-candidate.md`](../design/pl-conv-01-step3-candidate.md) for
+frozen identity, independent verification, deployment/recovery and Operator acceptance.

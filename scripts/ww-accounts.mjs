@@ -24,7 +24,7 @@ export async function readAccounts(token,{base=process.env.WW_BASE_URL,fetchImpl
 export async function resolveAccount(alias,token,options={}) {
   const accounts=await readAccounts(token,options);
   const account=accounts.find(a=>a.alias===alias);
-  if(!account)throw new ShowError('account discovery: alias unavailable in authorized account scope');
+  if(!account)throw new ShowError('account discovery: nickname unavailable in authorized account scope; run ww ls accounts');
   return account;
 }
 
@@ -43,10 +43,14 @@ Use --table to keep the table when redirecting, or --jsonl for one Account per l
 export function renderAccounts(accounts,{format,tty=false}={}) {
   if(format==='jsonl')return accounts.map(a=>JSON.stringify(a)+'\n').join('');
   const clean=value=>String(value).replace(/[\x00-\x1f\x7f-\x9f]/g,c=>`\\u${c.charCodeAt(0).toString(16).padStart(4,'0')}`);
-  const rows=accounts.map(a=>[a.alias,a.displayName,a.brokerAssociation.broker,a.brokerAssociation.accountNumber,a.id].map(clean));
+  const rows=accounts.map(a=>[a.alias,a.displayName,a.brokerAssociation?.broker ?? '—',maskAccountNumber(a.brokerAssociation?.accountNumber),a.id].map(clean));
   if(format==='tsv'||(!format&&!tty))return rows.map(row=>row.join('\t')+'\n').join('');
   if(!rows.length)return 'No accounts available.\n';
   const headers=['ALIAS','NAME','BROKER','BROKER ACCOUNT','ID'];
   const widths=headers.map((h,i)=>Math.max(h.length,...rows.map(row=>row[i].length)));
   return [headers,...rows].map(row=>row.map((cell,i)=>i===row.length-1?cell:cell.padEnd(widths[i])).join('  ')).join('\n')+'\n';
+}
+// Short or unrecognized values have no safely disclosable suffix.
+export function maskAccountNumber(value) {
+  return typeof value === 'string' && /^[A-Za-z0-9]{5,}$/.test(value) ? `****${value.slice(-4)}` : '****';
 }
