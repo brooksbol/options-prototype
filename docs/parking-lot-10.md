@@ -526,6 +526,35 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 
 **Next authorized mode:** Bounded read-only reconciliation and a small composition experiment proposal when the Principal resumes this item. **No implementation, mutation, deployment, or default-source selection authorized by this note.**
 
+### PL-CLI-01 — Twelve-question public CLI composability fitness probe (October 11–12, 2026)
+
+**Status:** Principal-requested empirical evidence preservation; **read-only experiment, not new command authorization**. Operator questions were answered using only installed `ww` commands plus shell, `jq` and `sort`. No acquisition, direct HTTP/API access, database queries, or source-code inspection. The test probes *answerability* separately from *composition friction* and from evidence, authorization and backend-domain boundaries.
+
+| # | Operator question | Observed result | Classification |
+|---|---|---|---|
+| 1 | Which Accounts can I inspect? | `pts`, `sawdust`, `tt1`; brokerage identities available. | Answered |
+| 2 | How many holdings does each report? | PTS 25, Sawdust 7, tt1 8; distinct holding IDs counted. | Answered |
+| 3 | Which tt1 contracts and signed quantities? | Four EWZ November 20 and four XLE October 16 contracts, each +1 or −1. | Answered |
+| 4 | Which short options expire within seven days, sorted across Accounts? | Nine series / 13 contracts across all three Accounts; October 16, DTE 4. | Answered |
+| 5 | Short contracts grouped by Account, root and expiry? | PTS 9, Sawdust 4, tt1 4; contract-string parsing friction. Inventory counts, not managed Position/risk conclusions. | Answered with friction |
+| 6 | Three most negative reported holding P/L figures; how much missing? | PTS GDXJ −1,317.24; DRAM −868.00; URA −826.91. Nine holdings lack P/L; ranking covers known figures only. | Answered within coverage |
+| 7 | Account market-value and P/L totals? | PTS reported-value subtotal 80,369.60 and known P/L subtotal −2,258.01 (one P/L missing); Sawdust 8,768.67 and −970.57; all eight tt1 values unknown. | Partial: not authoritative NAV or complete cross-Account valuation |
+| 8 | What source evidence and observation times support the answers? | Fidelity source dates October 11; tastytrade receipt October 12 05:17:03 UTC. Files, hashes, timestamps exposed; receipt is not necessarily brokerage observation time. | Answered with temporal qualification |
+| **9** | **What changed since the preceding holdings observation?** | No inspected Position history/as-of selector; `--history` usage error, exit 2. Does not prove backend lacks retained historical evidence. | **First hard public CLI gap** |
+| 10 | Does coherent current XLE market evidence establish short-strike breach? | `ww show XLE --jsonl` FORBIDDEN (no `quote.read`); `ww prices XLE` null, `not_in_universe`. | Authorization/evidence boundary, not missing implementation |
+| 11 | Which opening belongs to surviving XLE inventory; what economics apply? | Opening attribution unresolved; XLE P/L and market values null. | Missing occurrence evidence/domain capability |
+| 12 | Which managed Positions warrant attention under Programs and working exits? | Program associations null, order coverage UNKNOWN, no governed attention conclusion. | Missing governance/order capability |
+
+**Measured result:** Questions 1–6 and 8 were answered; question 7 was partial due to evidence gaps. Question 9 was the first hard CLI surface block. Questions 10–12 remained unanswered for distinct reasons (authorization/evidence, occurrence attribution, governance/orders). Complexity order is the experimenter's chosen sequence, not a universal capability ranking.
+
+**Composability findings:** Public `ww` handles Wheelwright authentication, authorized Account aliases, retained holdings and provenance; ordinary Unix primitives suffice for filtering, sorting, counting, grouping and *explicitly labeled arithmetic on reported facts*. Cross-Account reads require a shell loop; Position JSON field discovery lags quote discovery; brokerage-specific contract-root parsing is cumbersome and must not silently normalize adjusted roots such as `ETHA1`. Potential remedies require their own bounded reconciliation, not automatic implementation.
+
+**Authority and semantic guardrail:** Unix composition cannot establish managed grouping, economic-occurrence continuity, contract deliverables, coherent valuation, brokerage order state, Program applicability or management decisions. Correct `quote.read` denial is a functioning authorization boundary, not a defect. Reported market-value/P&L subtotals are partial observations, **not** NAV, executable close proceeds or authoritative portfolio valuation. Preserve snapshot dates and receipt/observation distinctions; no silent brokerage refresh occurred.
+
+**Relevance to proposed `ww pull`:** This validates public **read** composability, not acquisition composition. The separately captured no-argument `ww pull` experiment remains unimplemented and must test discovery, grants, retries, partial completion, idempotence and backend ownership without introducing new financial semantics. This fitness evidence creates no new PL identity, implementation backlog, or permission to change API/CLI.
+
+**Next mode:** None from this completed read-only probe. Retain as falsification/fitness evidence under `PL-CLI-01`; any future history-query, field-discovery or `ww pull` work requires existing intake reconciliation and separate authorization.
+
 ## `PL-OPS-10` — Optimize large targeted fetches
 
 **Date:** October 4, 2026 (intake)
