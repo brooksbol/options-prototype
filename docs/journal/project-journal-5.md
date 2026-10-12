@@ -1772,3 +1772,10 @@ The Principal supplied the complete ordinary installed CLI acceptance output and
 Accepted delivery committed/pushed at `1425024b5f215adcb0eed88bf668d8cf3bb5a0ac` before the Principal invoked session closeout. He admired the “simple beauty” of ordinary `ww ls accounts` showing three familiar nicknames across Fidelity/tastytrade with masked references. This is direct Operator Product evidence of a useful low-cognitive-load capability, not ratification of a new principle or a claim of tastytrade Position support.
 
 End-of-session read-only checks confirm unchanged accepted source/release identity, the intended operational candidate, ordinary masked discovery and retained recovery executable/final backup. Roadmap is fresh; Coming Soon remains accurate. Step3 complete, BUG035/BUG036 Resolved; Step4 remains planned and unstarted. Unrelated untracked research and private recovery inputs are preserved. Detailed cold-resume state is in `docs/design/pl-conv-01-step3-candidate.md`.
+
+
+## October 11, 2026 — Account discovery adopts the tt terminal motif
+
+The Principal selected the accepted tt live palette as the starting point for ww ls accounts, then refined the observed result: technical IDs should recede in dark gray and BROKER should carry branded colors. The accepted mapping is cyan aliases, bright white headings/details, dark gray IDs (256-color index 240), Fidelity green and tastytrade red. Broker colors are categorical identity rather than economic/status judgments; this is a command-specific extension of the tt motif, not a new principle or backend rule.
+
+The Principal explicitly approved the result and requested inspection of the latest Desktop screenshot (October 11, 2026 at 6:23:02 PM). Codex confirmed alignment, masking and the selected palette in that image. All 21 focused CLI tests and installed PTY/pipe probes pass; machine formats remain ANSI-free and color opt-outs are supported. This is actual Principal visual acceptance, not independent-review evidence. The bounded Account slice closes; broader CONV-UX remains open, and Step4 XLE stays planned/unstarted. No backend restart, deployment or data mutation is needed.

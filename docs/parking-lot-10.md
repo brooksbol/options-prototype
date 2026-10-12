@@ -886,6 +886,36 @@ ChatGPT recommended C as a *recommendation only*. **The Principal has not select
 
 **Unresolved:** command-by-command UX mapping, progressive disclosure, compatible terminal/pipe output, and whether/when any changes are justified. No UI changes or CLI merge authorized.
 
+#### CONV-UX — Account table palette selected and implemented (October 11, 2026)
+
+The Principal selected Option A following analysis of the actual `tt live`
+renderer: cyan Account aliases (96), bright white headings/details (97), initially
+normal white technical IDs (37). After Operator inspection, the Principal directed
+dark gray IDs (256-color index 240) and branded BROKER colors: Fidelity green (32),
+tastytrade red (91), unknown brokers neutral. These are terminal approximations
+and categorical brokerage identity, not economic/status colors. No backgrounds. This is a
+bounded presentation extension of the tt motif, not a brokerage classification
+or new backend business rule. The selection authorizes this Account-table slice;
+it does not authorize broader CLI convergence or changes to tt live.
+
+Implemented in `ww ls accounts` with `--no-color`, `NO_COLOR` (including empty),
+and `TERM=dumb` opt-outs. Explicit `--table` retains color through pipes;
+default redirected TSV and explicit TSV/JSONL remain uncolored. Existing
+Account masking, fields, ordering, discovery and grants are preserved.
+All 21 focused Account/confidentiality/dispatch/sync/Position tests pass.
+Installed CLI probes establish identical PTY/piped-table color output,
+unchanged visible alignment after ANSI removal, and ANSI-free default redirected
+TSV. The Principal subsequently approved the result and directed inspection of
+the latest Desktop screenshot (October 11, 2026, 6:23:02 PM). Codex inspected it:
+cyan aliases, Fidelity green/tastytrade red, dark gray IDs, aligned columns and
+masked references match the selected presentation. **Current state: Account color
+slice COMPLETE / PRINCIPAL ACCEPTED.** No independent review is claimed; broader
+CONV-UX remains open. No backend deployment or restart was required.
+
+| Date | Event |
+|---|---|
+| 2026-10-11 | Principal visually accepted the bounded CONV-UX ww ls accounts palette after dark-gray ID and branded-broker refinements. |
+
 ### CONV-WEB — Existing Wheelwright web frontend to v2 backend migration
 
 **Trigger:** Principal commissioned Kiro to estimate the work required to migrate the existing Wheelwright web frontend from its v1 backend/client-owned domain behavior to the authoritative v2 backend. **Kiro's estimate has not yet been provided in this reconciliation thread and is not assessed or accepted here.**

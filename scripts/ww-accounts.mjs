@@ -1,5 +1,7 @@
 import {ShowError,showConfig} from './ww-show.mjs';
 export const canonicalAccountId = id => /^acct_[a-f0-9]{32}$/.test(id ?? '');
+// Terminal brand approximations; categorical identity, not economic/status signals.
+const brokerInk=new Map([['FIDELITY','32'],['TASTYTRADE','91']]);
 /** Friendly-name discovery only; REST requests never substitute aliases for IDs. */
 export async function readAccounts(token,{base=process.env.WW_BASE_URL,fetchImpl=fetch}={}) {
   const {url}=showConfig(token,base);
@@ -28,7 +30,7 @@ export async function resolveAccount(alias,token,options={}) {
   return account;
 }
 
-export const ACCOUNTS_HELP = `Usage: ww ls accounts [--table | --tsv | --jsonl]
+export const ACCOUNTS_HELP = `Usage: ww ls accounts [--table | --tsv | --jsonl] [--no-color]
 
 List the accounts you can access, including the alias used in other commands.
 
@@ -38,9 +40,12 @@ Examples:
   ww show positions --account pts --verbose
 
 Terminal output is a table; redirected output is headerless TSV.
-Use --table to keep the table when redirecting, or --jsonl for one Account per line.`;
+Use --table to keep the colored table when redirecting, or --jsonl for one Account per line.
+Tables use cyan aliases, branded brokers (Fidelity green, tastytrade red),
+bright white details and dark gray IDs.
+--no-color, NO_COLOR or TERM=dumb disables color. TSV and JSONL are uncolored.`;
 
-export function renderAccounts(accounts,{format,tty=false}={}) {
+export function renderAccounts(accounts,{format,tty=false,noColor=false,env=process.env}={}) {
   if(format==='jsonl')return accounts.map(a=>JSON.stringify(a)+'\n').join('');
   const clean=value=>String(value).replace(/[\x00-\x1f\x7f-\x9f]/g,c=>`\\u${c.charCodeAt(0).toString(16).padStart(4,'0')}`);
   const rows=accounts.map(a=>[a.alias,a.displayName,a.brokerAssociation?.broker ?? '—',maskAccountNumber(a.brokerAssociation?.accountNumber),a.id].map(clean));
@@ -48,7 +53,14 @@ export function renderAccounts(accounts,{format,tty=false}={}) {
   if(!rows.length)return 'No accounts available.\n';
   const headers=['ALIAS','NAME','BROKER','BROKER ACCOUNT','ID'];
   const widths=headers.map((h,i)=>Math.max(h.length,...rows.map(row=>row[i].length)));
-  return [headers,...rows].map(row=>row.map((cell,i)=>i===row.length-1?cell:cell.padEnd(widths[i])).join('  ')).join('\n')+'\n';
+  const color=!noColor&&!Object.hasOwn(env,'NO_COLOR')&&env.TERM!=='dumb';
+  const layout=(row,header=false)=>row.map((cell,i)=>{
+    const code=header?null:i===0?'96':i===2?brokerInk.get(cell):i===4?'38;5;240':null;
+    const value=color&&code?`\x1b[${code}m${cell}\x1b[97m`:cell;
+    return value+(i===row.length-1?'':' '.repeat(widths[i]-cell.length));
+  }).join('  ');
+  return [layout(headers,true),...rows.map(row=>layout(row))]
+    .map(line=>color?`\x1b[97m${line}\x1b[0m`:line).join('\n')+'\n';
 }
 // Short or unrecognized values have no safely disclosable suffix.
 export function maskAccountNumber(value) {

@@ -227,8 +227,9 @@ export function parseArgs(args) {
     if (rest[0] === "accounts") {
       const options=rest.slice(1);
       if(options.length===1&&["--help","-h"].includes(options[0]))return {command:"help",help:ACCOUNTS_HELP};
-      if(options.length>1||options.some(arg=>!["--table","--tsv","--jsonl"].includes(arg)))usage("ls accounts: see ww ls accounts --help");
-      return {command:"ls-accounts",format:options[0]?.slice(2)};
+      const formats=options.filter(arg=>["--table","--tsv","--jsonl"].includes(arg));
+      if(new Set(options).size!==options.length||formats.length>1||options.some(arg=>!["--table","--tsv","--jsonl","--no-color"].includes(arg)))usage("ls accounts: see ww ls accounts --help");
+      return {command:"ls-accounts",format:formats[0]?.slice(2),...(options.includes('--no-color')?{noColor:true}:{})};
     }
     const discovery = rest[0] === "quotes" ? rest.slice(1) :
       (rest.length === 1 ? rest : []);
@@ -712,7 +713,7 @@ export async function main(args) {
   const base=usesBackend?await readBackendBase():undefined;
   if (parsed.command === "ls-accounts") {
     const accounts=await readAccounts(await readApiToken(),{base});
-    process.stdout.write(renderAccounts(accounts,{format:parsed.format,tty:!!process.stdout.isTTY}));
+    process.stdout.write(renderAccounts(accounts,{format:parsed.format,tty:!!process.stdout.isTTY,noColor:parsed.noColor}));
     return;
   }
   if (parsed.command === "sync-account") {

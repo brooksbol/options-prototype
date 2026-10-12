@@ -7,6 +7,22 @@ Account discovery reads the backend's existing authorized collection; it does
 not acquire brokerage evidence. `ww show accounts` directs operators to
 `ww ls accounts`. Use `ww show -- accounts` for a literal quote symbol.
 
+CONV-UX Account colors accepted (October 11, 2026): the Principal selected cyan
+aliases (ANSI 96), bright white headings/details (97), and dark gray IDs
+(256-color index 240). BROKER uses terminal brand approximations: Fidelity green
+(32), tastytrade red (91); unknown brokers stay neutral. These categorical colors
+identify the brokerage, not financial or operational status. This extends the
+accepted `tt live` motif. Human tables have no row backgrounds;
+each accent restores bright white and each line resets terminal attributes.
+`ww ls accounts --no-color`, `NO_COLOR` (including an empty value), or
+`TERM=dumb` disables color. Explicit `--table` preserves color through pipes;
+redirected default TSV, explicit TSV and JSONL remain ANSI-free. Masking and
+backend authorization are unchanged. All 21 focused CLI checks and installed
+PTY/pipe probes pass. The Principal approved the rendered result; Codex inspected
+the Desktop screenshot dated October 11, 2026 at 6:23:02 PM and confirmed the
+palette, alignment and masking. This is Principal visual acceptance, not an
+independent-review disposition.
+
 The CLI reads its saved `WW_BASE_URL` from the private repository `.env`,
 alongside its credential. Explicit exports override saved configuration.
 This development slice uses port 3101; ordinary operator commands need no
