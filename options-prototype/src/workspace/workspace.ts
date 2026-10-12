@@ -91,6 +91,21 @@ export interface Workspace {
   // Buy-write candidates table show count (null = "-" = all / unlimited)
   writeDeskBuyWriteShowCount: number | null;
 
+  // Buy-write candidates table DTE / capital bounds (mirror puts; null = no bound).
+  // Capital dimension for buy-writes is capitalRequired (underlyingPrice × 100).
+  writeDeskBuyWriteDteMin: number | null;
+  writeDeskBuyWriteDteMax: number | null;
+  writeDeskBuyWriteCapitalMin: number | null;
+  writeDeskBuyWriteCapitalMax: number | null;
+
+  // Covered-call candidates table filters. Calls monetize already-held shares, so
+  // they carry no cash-outlay (capital) and no affordability dimension — only the
+  // honest subset applies: symbol / DTE / show. (empty = no filter; null = no bound)
+  writeDeskCallSymbol: string;
+  writeDeskCallDteMin: number | null;
+  writeDeskCallDteMax: number | null;
+  writeDeskCallShowCount: number | null;
+
   // Deployment table sort state
   writeDeskPutSortKey: string;
   writeDeskPutSortDir: string;
@@ -155,6 +170,14 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskPutCapitalMax: null,
   writeDeskBuyWriteSymbol: "",
   writeDeskBuyWriteShowCount: null,
+  writeDeskBuyWriteDteMin: null,
+  writeDeskBuyWriteDteMax: null,
+  writeDeskBuyWriteCapitalMin: null,
+  writeDeskBuyWriteCapitalMax: null,
+  writeDeskCallSymbol: "",
+  writeDeskCallDteMin: null,
+  writeDeskCallDteMax: null,
+  writeDeskCallShowCount: null,
   writeDeskPutSortKey: "rank",
   writeDeskPutSortDir: "asc",
   writeDeskCallSortKey: "rank",

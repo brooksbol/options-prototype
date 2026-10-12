@@ -1799,3 +1799,26 @@ The timeout remedy must cancel the upstream exchange, not merely release the cal
 The independent frozen-executable review found two concrete boundary failures: JSON disclosure scope omitted foreign content outside data.items, and the request timeout left body reception unbounded. R2 repairs were local; holdings admission remains independent of original-byte disclosure, and cancellation was proved at the peer socket rather than merely by caller return. Kiro's first recovery probe failed because its own single-threaded server blocked recovery connections; corrected raw-socket observations passed. Preserving that distinction avoids promoting a harness defect into another architecture cycle.
 
 After explicit technical acceptance and separately authorized deployment, engineering rehearsed migration and018 recovery on copies before cutover. The Principal's ordinary installed commands acquired eight actual EWZ/XLE holdings, then he supplied a terminal screenshot and explicitly accepted functionality and colors. The useful Product increment is broker-observed inventory with honest unknown economics, rather than deferring all inventory until lifecycle reconstruction is solved. Current XLE geometry still does not prove September30 continuity; retained receipt UTC date and calendar DTE do not rewrite historical observation dates. BUG037/038 are Resolved; accepted v1/tt/Fidelity workflows remain protected. Step6 remains unstarted and requires separate authority. Delivery/recovery/verification evidence is in the Step5 design closeout.
+
+
+---
+
+## 2026-10-11 — Deployment table filter parity: Covered Calls + Buy-Writes brought toward the Puts filter set (Kiro)
+
+**Actor:** Kiro (repository-resident implementation partner).
+**Mode:** Authorized bounded presentation-layer feature. Principal selected the narrow option (C) from a reconciled punch list, then accepted the operator-visible result in the browser. This entry preserves the one piece of why-state worth keeping; the change itself is ordinary UI work and did not warrant a `BUG-*` or ADR.
+**Scope:** Frontend only — `options-prototype/src/components/WriteDesk.tsx`, `options-prototype/src/workspace/workspace.ts`, and a new pure predicate module `src/write-desk/table-filter-predicates.ts` with tests. No backend, no evidence, no acquisition, no Decision re-run, no snapshot-contract change. Iron Condors was explicitly excluded (Principal confirmed it is a frozen Exit Reliability v0 research viewport, not a v1 strategy).
+
+### What changed
+
+- **Covered Calls** gained a table filter strip (Symbol, DTE min/max, Show) applied to both the "Available now" and "If assigned" populations, with a combined "Showing N of M" count and a filtered-empty state.
+- **Buy-Writes** gained DTE min/max and Capital min/max (over `capitalRequired`), joining its existing Symbol/Affordable/Show; its symbol-only match was promoted to a full symbol+DTE+capital predicate mirroring the Puts filter.
+- **Puts** untouched (option C excluded the shared-component refactor). The two new predicates were extracted into a pure, unit-tested module rather than left as inline closures.
+
+### Why-state worth preserving (the economic-honesty asymmetry)
+
+Covered Calls intentionally do **not** get Capital or Affordable filters, and this is deliberate, not an oversight. A covered call monetizes already-held shares: there is no cash outlay (unlike a CSP's collateral `cashRequired` or a buy-write's share-purchase `capitalRequired`) and `CallCandidate` carries no `affordable` field. Adding those two controls to the Calls table would reproduce the inert-control anti-pattern already visible in the Iron Condors "IV Rank" filter (a control with no backing field). The honest subset for calls is Symbol + DTE + Show. A future actor who notices the Calls table "is missing" Capital/Affordable should not add them to achieve cosmetic parity — the asymmetry reflects real options economics (keep Mechanics/Evidence/Policy distinct; represent the environment, not the machinery).
+
+### Verification
+
+`npm run build` (tsc + vite) green; 17 new predicate tests pass; full suite 2184 pass. The 3 failing `tests/roadmap/RoadmapView.test.tsx` cases are pre-existing on clean `main` (a date-drift / stale-projection assertion unrelated to this work — confirmed by re-running with these edits stashed out), not a regression from this change. Roadmap projection regeneration was not required: the generator consumes only `docs/*.md` authorities, none of which this change touched.

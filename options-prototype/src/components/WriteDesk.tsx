@@ -42,6 +42,7 @@ import type { PortfolioSnapshot } from "../write-desk/types";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import { showCountInputValue, parseShowCountInput, applyShowCount, displayedCount } from "./showCountFilter";
 import { useMultiColumnSort } from "../write-desk/use-multi-column-sort";
+import { parseSymbolTerms, callRowMatches, buyWriteRowMatches } from "../write-desk/table-filter-predicates";
 import { AgeCell } from "../write-desk/AgeCell";
 import { formatAcquisitionAge, provenanceFromPublished, type EvidenceProvenance } from "../write-desk/evidence-provenance";
 import { downloadTableCsv, RAW_GREEK_IV_COLUMNS } from "../write-desk/table-csv-export";
@@ -177,15 +178,39 @@ export function Deployment() {
       (putSymbolTerms.length === 0 || putSymbolTerms.some(t => c.symbol.toUpperCase().includes(t))),
     [putDteMin, putDteMax, putCapitalMin, putCapitalMax, putSymbolTerms]
   );
+  // Buy-write table DTE / capital bounds (mirror puts). Capital dimension for
+  // buy-writes is capitalRequired (underlyingPrice × 100 — the share purchase cost).
+  const [buyWriteDteMin, setBuyWriteDteMin] = useState<number | null>(() => loadWorkspace().writeDeskBuyWriteDteMin);
+  const [buyWriteDteMax, setBuyWriteDteMax] = useState<number | null>(() => loadWorkspace().writeDeskBuyWriteDteMax);
+  const [buyWriteCapitalMin, setBuyWriteCapitalMin] = useState<number | null>(() => loadWorkspace().writeDeskBuyWriteCapitalMin);
+  const [buyWriteCapitalMax, setBuyWriteCapitalMax] = useState<number | null>(() => loadWorkspace().writeDeskBuyWriteCapitalMax);
   // Buy-write symbol filter terms (mirror puts: comma/space separated, case-insensitive substring)
-  const buyWriteSymbolTerms = useMemo(
-    () => buyWriteSymbolFilter.split(/[\s,]+/).map(t => t.trim().toUpperCase()).filter(Boolean),
-    [buyWriteSymbolFilter]
-  );
-  const buyWriteMatchesSymbol = useCallback(
+  const buyWriteSymbolTerms = useMemo(() => parseSymbolTerms(buyWriteSymbolFilter), [buyWriteSymbolFilter]);
+  // Shared predicate so the control-count and table-render blocks never diverge
+  // (mirror putRowMatchesFilters: symbol + DTE + capital).
+  const buyWriteRowMatchesFilters = useCallback(
     (c: BuyWriteCandidate) =>
-      buyWriteSymbolTerms.length === 0 || buyWriteSymbolTerms.some(t => c.symbol.toUpperCase().includes(t)),
-    [buyWriteSymbolTerms]
+      buyWriteRowMatches(c, {
+        symbolTerms: buyWriteSymbolTerms,
+        dteMin: buyWriteDteMin,
+        dteMax: buyWriteDteMax,
+        capitalMin: buyWriteCapitalMin,
+        capitalMax: buyWriteCapitalMax,
+      }),
+    [buyWriteDteMin, buyWriteDteMax, buyWriteCapitalMin, buyWriteCapitalMax, buyWriteSymbolTerms]
+  );
+  // Covered-call table filters (honest subset: symbol / DTE / show). Calls monetize
+  // already-held shares — no cash outlay, no affordability dimension. The predicate
+  // operates on symbol + dte, which both ExecutableCallRow and ContingentCallRow carry.
+  const [callSymbolFilter, setCallSymbolFilter] = useState<string>(() => loadWorkspace().writeDeskCallSymbol);
+  const [callDteMin, setCallDteMin] = useState<number | null>(() => loadWorkspace().writeDeskCallDteMin);
+  const [callDteMax, setCallDteMax] = useState<number | null>(() => loadWorkspace().writeDeskCallDteMax);
+  const [callShowCount, setCallShowCount] = useState<number | null>(() => loadWorkspace().writeDeskCallShowCount);
+  const callSymbolTerms = useMemo(() => parseSymbolTerms(callSymbolFilter), [callSymbolFilter]);
+  const callRowMatchesFilters = useCallback(
+    (c: { symbol: string; dte: number }) =>
+      callRowMatches(c, { symbolTerms: callSymbolTerms, dteMin: callDteMin, dteMax: callDteMax }),
+    [callDteMin, callDteMax, callSymbolTerms]
   );
   const [putsCollapsed, setPutsCollapsed] = useState(() => loadWorkspace().writeDeskPutsCollapsed);
   const [callsCollapsed, setCallsCollapsed] = useState(() => loadWorkspace().writeDeskCallsCollapsed);
@@ -1071,30 +1096,101 @@ export function Deployment() {
 
           <div style={{ display: callsCollapsed ? 'none' : undefined }}>
             {(callCandidates.length > 0 || callWaitCandidates.length > 0 || contingentCallRows.length > 0) ? (
+              (() => {
+                // Covered-call filters (honest subset: symbol / DTE / show). Calls monetize
+                // held shares — no cash outlay, so no Capital or Affordable filter applies.
+                // The predicate works on symbol + dte, carried by both executable call
+                // candidates and contingent ("if assigned") rows.
+                const availableAll = [...callCandidates, ...callWaitCandidates];
+                const availableFiltered = applyShowCount(availableAll.filter(callRowMatchesFilters), callShowCount);
+                const contingentFiltered = applyShowCount(contingentCallRows.filter(callRowMatchesFilters), callShowCount);
+                const totalShown = availableFiltered.length + contingentFiltered.length;
+                const totalAll = availableAll.length + contingentCallRows.length;
+                return (
               <>
+                <div className="wd-unified-controls">
+                  <div className="wd-table-controls">
+                    <label className="wd-control">
+                      Symbol
+                      <input
+                        type="text"
+                        value={callSymbolFilter}
+                        placeholder="e.g. SPY, QQQ"
+                        onChange={(e) => { const next = e.target.value; setCallSymbolFilter(next); updateWorkspace({ writeDeskCallSymbol: next }); }}
+                        className="wd-control-text"
+                        style={{ width: "96px" }}
+                      />
+                      {callSymbolFilter && (
+                        <button
+                          type="button"
+                          className="wd-sort-reset"
+                          style={{ marginLeft: "4px" }}
+                          onClick={() => { setCallSymbolFilter(""); updateWorkspace({ writeDeskCallSymbol: "" }); }}
+                          title="Clear symbol filter"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </label>
+                    <label className="wd-control">
+                      DTE min
+                      <input
+                        type="number"
+                        min={0}
+                        value={callDteMin ?? ""}
+                        placeholder="—"
+                        onChange={(e) => { const raw = e.target.value.trim(); const next = raw === "" ? null : Math.max(0, parseInt(raw, 10) || 0); setCallDteMin(next); updateWorkspace({ writeDeskCallDteMin: next }); }}
+                        className="wd-control-spinner"
+                      />
+                    </label>
+                    <label className="wd-control">
+                      DTE max
+                      <input
+                        type="number"
+                        min={0}
+                        value={callDteMax ?? ""}
+                        placeholder="—"
+                        onChange={(e) => { const raw = e.target.value.trim(); const next = raw === "" ? null : Math.max(0, parseInt(raw, 10) || 0); setCallDteMax(next); updateWorkspace({ writeDeskCallDteMax: next }); }}
+                        className="wd-control-spinner"
+                      />
+                    </label>
+                    <label className="wd-control">
+                      Show
+                      <input type="text" inputMode="numeric" value={showCountInputValue(callShowCount)} onChange={(e) => { const v = parseShowCountInput(e.target.value, universeSymbols.length); setCallShowCount(v); updateWorkspace({ writeDeskCallShowCount: v }); }} className="wd-control-spinner" title="Rows to show. '-' = all" />
+                    </label>
+                    <span className="wd-table-showing">Showing {totalShown} of {totalAll}</span>
+                  </div>
+                </div>
                 {/* Available now — executable calls */}
-                {(callCandidates.length > 0 || callWaitCandidates.length > 0) && (
+                {availableFiltered.length > 0 && (
                   <>
                     <div className="wd-call-group-label">Available now</div>
                     <CallCandidateTable
-                      candidates={[...callCandidates, ...callWaitCandidates]}
+                      candidates={availableFiltered}
                       selectedRow={selectedCallCandidate}
                       onSelect={(row) => { selectDrawerCandidate("call", { call: row }); }}
                     />
                   </>
                 )}
                 {/* If assigned — contingent calls */}
-                {contingentCallRows.length > 0 && (
+                {contingentFiltered.length > 0 && (
                   <>
                     <div className="wd-call-group-label wd-call-group-contingent">If assigned</div>
                     <ContingentCallTable
-                      rows={contingentCallRows}
+                      rows={contingentFiltered}
                       selectedRow={selectedCallCandidate}
                       onSelect={(row) => { selectDrawerCandidate("call", { call: row }); }}
                     />
                   </>
                 )}
+                {totalShown === 0 && (
+                  <div className="wd-no-trade">
+                    <p>No covered-call candidates match the current filters.</p>
+                  </div>
+                )}
               </>
+                );
+              })()
             ) : (
               <div className="wd-no-trade">
                 <p>{deriveCallEmptyStateMsg(snapshot, scanTimestamp, evidenceMeta)}</p>
@@ -1183,18 +1279,64 @@ export function Deployment() {
                         </button>
                       )}
                     </label>
+                    <label className="wd-control">
+                      DTE min
+                      <input
+                        type="number"
+                        min={0}
+                        value={buyWriteDteMin ?? ""}
+                        placeholder="—"
+                        onChange={(e) => { const raw = e.target.value.trim(); const next = raw === "" ? null : Math.max(0, parseInt(raw, 10) || 0); setBuyWriteDteMin(next); updateWorkspace({ writeDeskBuyWriteDteMin: next }); }}
+                        className="wd-control-spinner"
+                      />
+                    </label>
+                    <label className="wd-control">
+                      DTE max
+                      <input
+                        type="number"
+                        min={0}
+                        value={buyWriteDteMax ?? ""}
+                        placeholder="—"
+                        onChange={(e) => { const raw = e.target.value.trim(); const next = raw === "" ? null : Math.max(0, parseInt(raw, 10) || 0); setBuyWriteDteMax(next); updateWorkspace({ writeDeskBuyWriteDteMax: next }); }}
+                        className="wd-control-spinner"
+                      />
+                    </label>
+                    <label className="wd-control">
+                      Capital min
+                      <input
+                        type="number"
+                        min={0}
+                        step={100}
+                        value={buyWriteCapitalMin ?? ""}
+                        placeholder="—"
+                        onChange={(e) => { const raw = e.target.value.trim(); const next = raw === "" ? null : Math.max(0, parseFloat(raw) || 0); setBuyWriteCapitalMin(next); updateWorkspace({ writeDeskBuyWriteCapitalMin: next }); }}
+                        className="wd-control-spinner"
+                      />
+                    </label>
+                    <label className="wd-control">
+                      Capital max
+                      <input
+                        type="number"
+                        min={0}
+                        step={100}
+                        value={buyWriteCapitalMax ?? ""}
+                        placeholder="—"
+                        onChange={(e) => { const raw = e.target.value.trim(); const next = raw === "" ? null : Math.max(0, parseFloat(raw) || 0); setBuyWriteCapitalMax(next); updateWorkspace({ writeDeskBuyWriteCapitalMax: next }); }}
+                        className="wd-control-spinner"
+                      />
+                    </label>
                     {(() => {
                       const allBW = [...buyWriteCandidates, ...buyWriteWaitCandidates, ...(showWideSpread ? buyWriteWideSpreadCandidates : [])];
                       let filtered = showAffordableOnly ? allBW.filter(c => c.affordable) : allBW;
                       if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
-                      filtered = filtered.filter(buyWriteMatchesSymbol);
+                      filtered = filtered.filter(buyWriteRowMatchesFilters);
                       const displayed = displayedCount(filtered.length, buyWriteShowCount);
                       return <span className="wd-table-showing">Showing {displayed} of {allBW.length}</span>;
                     })()}
                   </div>
                 </div>
                 <BuyWriteCandidateTable
-                  candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates, ...(showWideSpread ? buyWriteWideSpreadCandidates : [])].filter(buyWriteMatchesSymbol)}
+                  candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates, ...(showWideSpread ? buyWriteWideSpreadCandidates : [])].filter(buyWriteRowMatchesFilters)}
                   selectedCandidate={selectedBuyWriteCandidate}
                   showAffordableOnly={showAffordableOnly}
                   showDanger={showDanger}
