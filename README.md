@@ -1,350 +1,113 @@
-# Options Prototype
+# Wheelwright
 
-> A spec-driven prototype exploring whether an options income strategy can be engineered as a closed-loop financial control system.
+**Evidence-driven decision support for options-income trading.** Wheelwright explores how to turn brokerage observations, market evidence, explicit policy and operator judgment into inspectable, repeatable decisions. It is **not an automated trading bot**: brokerage order construction and execution remain under the operator's control.
 
-This repository serves two purposes:
+The repository also serves as a working experiment in specification-driven engineering: working software produces evidence, evidence changes our understanding, and accepted decisions shape the next iteration.
 
-1. Explore a financial engineering hypothesis using working software.
-2. Demonstrate an AI-assisted, spec-driven engineering methodology centered on organizational learning.
+## What works today
 
-The objective is **not** to build a trading bot.
+Wheelwright has multiple **distinct operational surfaces**. They are not interchangeable, and the v2 transition is not complete.
 
-The objective is to build an observable system that continuously produces evidence.
+| Surface | Current role | Evidence / limitations |
+|---|---|---|
+| **v1 Web** (React/Vite + Java evidence service) | **Operational Cash Deployment and opportunity-selection system of record**; put, call and buy-write recommendations, Write Desk, briefs and production views | Retains historical v1 browser-owned decision logic and evidence cache. Protected transitional software; no forced cutover. |
+| **v2 backend + `ww` CLI** | Operational held-evidence and Account inspection, Fidelity CSV synchronization, Position snapshot inspection, direct-quote acquisition/read and query commands | Backend-authoritative v2 resources, Account-specific grants and evidence provenance. Positions are historical observations unless explicitly qualified otherwise. |
+| **`tt positions` / `tt live`** | Standalone, read-only tastytrade API companion for broker positions and recognizable live-trade monitoring | Transitional companion, **not** v2 Position admission. Broker observations and indicative calculations are not execution or governed advice. |
 
----
+**Accepted multi-broker Account discovery:** `ww ls accounts` shows authorized Fidelity and tastytrade Accounts using operator-selected aliases (`pts`, `sawdust`, `tt1` in the current operator setup) and masked native account numbers. Account identity, nickname resolution and User–Account grants are backend-owned.
 
-# Project Status
+**Work in progress:** The bounded Step 5 effort to acquire and retain tastytrade holdings **through the v2 backend** is authorized but **not yet accepted or deployed**. Do not assume `ww show positions --account tt1` already returns tastytrade holdings. XLE occurrence attribution and shared governed reconsideration are separate, later capabilities. The proposed v2 Web reconstruction remains under reconciliation and requires explicit Principal approval.
 
-| Component | Status |
-|-----------|--------|
-| Frontend (options-prototype) | ✅ Operational — puts, calls, buy-writes |
-| Java backend (evidence-service-java) | ✅ Operational — live-market acceptance recorded August 3, 2026 |
-| Migration status | Complete — Java is the sole evidence backend |
-| Architecture documentation | ✅ Ratified |
-| Behavioral invariants | ✅ Ratified (18 total) |
-| Snapshot contract v1 | ✅ Frozen |
-| Calls (Horizon A) | ✅ Restored — cache-based call recommendations |
-| Multi-expiration evidence | ✅ Full eligible 7–45 DTE acquisition |
-| Cloud deployment | 📋 Accepted architecture — post-retooling |
+See [the convergence intake](docs/parking-lot-10.md) and [the roadmap](docs/roadmap.md) for current dispositions; this README is an overview, not the project-state ledger.
 
-## Active Investigation — Constraint Identification
+## Architecture at a glance
 
-Before doing new optimization work, read:
+- **Brokerage sources** supply observations, not Wheelwright policy or decisions. Fidelity evidence currently enters v2 through CSVs; standalone `tt` reads tastytrade through its API. Backend-owned tastytrade acquisition is under development.
+- **Authoritative v2 backend** owns durable evidence, Account/Position semantics, authorization, acquisition, business rules, policy and decision logic. Clients own interaction and presentation. Equivalent evidence and governance should yield equivalent domain conclusions across clients.
+- **Evidence first:** retain provenance and distinguish source observation, acquisition, recording and inspection. Missing lifecycle history does not establish continuity, a working order, executable pricing or a management objective.
+- **Operational separation:** v1 Web and v2 use separate Java services and SQLite files. The existing v1 Web workflow remains protected until an accepted replacement exists.
 
-1. **`docs/39-constraint-identification-restart-plan.md`** — governing TOC discipline and original restart prescription.
-2. **`docs/40-provider-admission-controller-findings-2026-08-31.md`** — latest measured evidence and Kiro handoff.
+The governing architecture is documented in [principles](docs/principles.md), [API v2 guardrails](docs/77-api-v2-architectural-guardrails.md) and the [Evidence Appliance foundation](docs/foundations/evidence-appliance.md). Existing v1 client-side business logic is transitional debt, **not** a precedent for new v2 clients.
 
-Current governing position: **Herbie has not yet been identified.** August 31 measurement established that the old provider path materially underutilized Tradier's documented Production market-data allowance while due WIP persisted. A bounded after-hours experiment then demonstrated a strictly single-flight, 119-entry trailing-60-second controller operating without fixed inter-request sleep at 119.72 actual HTTP starts/minute for one hour: 7,200/7,200 HTTP 200, zero 429s, stable provider latency, and no durable-state interference.
+## Everyday commands
 
-This is a machine-level finding, not a system-constraint declaration. The next discriminating work is a regular-session evaluation of what the new admission behavior does to WIP age/depth, Decision coverage, evidence freshness, publication cadence, quota waits, and scheduler handoff behavior.
+The installed `ww` CLI is intended to be used with familiar aliases, not internal Account IDs:
 
----
+    ww ls accounts
+    ww show positions --account pts
+    ww show positions --account sawdust
+    ww sync account pts
+    ww show SPY
+    ww ls quotes
 
-# Local Development
+`ww sync account pts` scans supported Fidelity CSV exports. It does not imply complete brokerage lifecycle coverage. At the current accepted baseline, `ww sync account tt1` reports that tastytrade synchronization is not yet supported; the authorized Step 5 work aims to change this.
 
-## tastytrade read-only CLI (exploratory)
+The standalone tastytrade companion provides:
 
-`tt` is a small, **read-only production** tastytrade utility. It lists accessible accounts, shows broker positions alongside complex orders, and provides a concise live-trade view for clean, recognizable trades. It only exchanges OAuth credentials and calls allowlisted account, position, order, complex-order, and batched equity-option quote GET endpoints at `https://api.tastyworks.com`. It cannot submit, edit, or cancel an order, and it does not use the Wheelwright evidence service or change trading policy. Positions and complex-order child statuses are separate broker facts, not a claim that a position is protected.
+    tt accounts
+    tt positions
+    tt live
+    tt live --tsv
 
-From the repository root, install the thin shell launcher once on your local PATH (this machine already has `~/.local/bin` on PATH):
+`tt live` uses the accepted compact **Ten-Second Read** layout:
 
-```bash
-ln -s "$(pwd)/scripts/tt" "$HOME/.local/bin/tt"
-```
+    SYMBOL | PAYOFF | RANGE | SPOT | SPAN | EXIT PROFIT | P/L | QUOTE
 
-Supply **production** OAuth credentials through exported environment variables or the Git-ignored root `.env`. The file may contain `TASTYTRADE_CLIENT_ID=`, `TASTYTRADE_CLIENT_SECRET=`, and `TASTYTRADE_REFRESH_TOKEN=` with the production values after each `=`. Keep it private (`chmod 600 .env`); do not commit, share, or print it. `tt` reads only these three values after validating a broker command. Exported values take precedence over `.env` values. Help and invalid commands do not read credentials or access the network.
+It summarizes supported recognizable trades using qualified broker evidence. Incomplete or ambiguous history must not become invented economic or management facts. See [tt live display contract](docs/cli/tt-live-panel.md) for current meanings, limitations and colors; do not rely on older column descriptions.
 
-```bash
-tt
-tt --help
-tt accounts
-tt positions
-tt positions --account 5WX01234  # Use this form if you have multiple accounts
-tt live
-tt live --account 5WX01234       # Use this form if you have multiple accounts
-tt live --tsv > foo.tsv           # Explicit tab-separated export; no terminal colors
-```
+For command options and output contracts, consult [the ww manual](docs/cli/ww-man.txt), [Account and Position guidance](docs/cli/ww-account-evidence.md) and the relevant CLI help. Human terminal output may be colored; explicit machine formats remain suitable for scripts.
 
-Expected output shape (illustrative account values):
+## Local development
 
-```text
-tastytrade production: authenticated
-accounts: 1
-5WX01234  Individual  owner
-```
+**Requirements:** Java 21, Node.js and npm, the Gradle wrapper, and appropriate private credentials for the services you intend to run. Never commit credentials, brokerage account numbers or token material.
 
-`tt positions` selects the sole accessible account automatically, or requires `--account` when there are multiple accounts. It shows positions and each returned complex order and child status, with explicit complex-order pagination completeness. Zero results are explicit; incomplete retrieval exits nonzero. Run credential-free unit tests with `node --test scripts/tastytrade.test.mjs`. See the [current tastytrade OAuth guide](https://developer.tastytrade.com/docs/authentication/oauth2/) for credential setup. Sandbox and production OAuth credentials are separate.
+The existing **v1 development** topology is:
 
-`tt live` applies the same account selection rule. Its first supported trade shape is a clean, four-leg short iron condor with a unique filled opening order and matching target/stop children. It derives opening credit from executed leg fills and an **indicative** closing debit from timestamped leg quote mids. Its aligned columns show a masked account number, symbol, `DIRECTION`, trade quantity, indicative `TOTAL G/L` since entry, active objective, the executed opening fill date in New York time (`OPENED`, MM/DD), elapsed New York calendar days since that fill (`DAYS`, opening day is 0), DTE, and the age of the oldest leg quote for that trade (`QUOTE`). `DIRECTION` sums signed, current tastytrade leg deltas in the trade’s own underlying (not beta-weighted delta): within 10 share equivalents per condor is `NEUTRAL`, above +10 is `BULLISH`, below −10 is `BEARISH`. Missing or older-than-12-hour Greeks show `—` rather than a guessed direction. Dollar gain/loss uses the contract multiplier and excludes fees. GREEN target progress measures movement from entry credit toward the identified profit-taking close debit; RED shows the indicative debit gap above its target. The terminal table has a blank line before and after it. The human-readable table colors `BULLISH` green, `NEUTRAL` yellow, and `BEARISH` red, alongside the existing green/red economic segments, including when piped to a color-aware display such as `watch -c`; ordinary redirection preserves those ANSI colors. Use `--tsv` for tab-delimited, uncolored rows with the same display values and no extra blank lines. Routine order status and unrelated cancelled/rejected history stay out of the operator view, while an order transition can surface when it changes the story. Quotes older than 12 hours suppress economic color. Unsupported or ambiguous holdings, incomplete paginated evidence, and missing quotes fail safely without a partial trade summary. Use `tt positions` for the underlying broker evidence. This view does not establish that a trade is safe, protected, or compliant with Wheelwright policy.
+| Component | Typical local port | Data |
+|---|---:|---|
+| Java v1 evidence backend | 3100 | `data/evidence.sqlite3` |
+| Vite v1 frontend | 5173 | Browser presentation and transitional client-side state |
+| Java v2 evidence backend | 3101 | `data/positions-v2.sqlite3` |
 
-### Ten-Second Read
+Ports and paths describe the accepted local setup, not universal deployment defaults. Do not point experimental work at operational databases without authorization. The repository's `scripts/dev.sh` controls the **v1** development stack; do not use it to restart the v2 service.
 
-The product concept behind `tt live` is the **Ten-Second Read**: within roughly ten seconds, the operator should be able to look at the live account and understand what recognizable trades exist, how each is doing, what managed objective matters, and whether time or evidence freshness requires attention. The operator should not have to regroup legs, reconstruct entry economics, calculate package economics, inspect routine order plumbing, or manually compare current value to the active objective.
+For a manual v1 development session, from separate terminals:
 
-The view is intentionally operator-shaped rather than broker-shaped. Its core questions are: What trade is this? Is it currently doing well or badly relative to entry? By roughly how much? Where is it relative to the current managed objective? Is time becoming important? Is the valuation evidence fresh enough for an indicative read? Is there an exceptional condition that needs attention?
+    cd evidence-service-java
+    ./gradlew bootRun
 
-For live trades, **GREEN/RED is live-state vocabulary**: GREEN means the trade is economically better than entry under the current indicative valuation; RED means it is economically worse. This is since-entry state, not P/L Day. **Winner/loser is terminal vocabulary** reserved for completed trades. If evidence cannot establish live state truthfully, the view should prefer unknown/failure over fabricated certainty.
+    cd options-prototype
+    npm run dev
 
-`OBJECTIVE` translates the active management objective into operator language. For a GREEN short-premium trade, progress toward a profit-taking close may be useful (for example, `43% to target (0.21)`). RED does not require a symmetrical percentage; a statement such as `off target (0.09) by 0.22` can be more useful. The relevant objective is the actual managed objective, not necessarily the theoretical expiration maximum.
+The v1 frontend proxies `/api/*` to the v1 backend. Market acquisition needs the relevant provider configuration; an otherwise running service does not guarantee fresh market evidence.
 
-`OPENED`, `DAYS`, and `DTE` answer different time questions: when the trade began, how long it has been live, and how much expiration time remains. `QUOTE` compresses timestamp provenance into the age of the oldest quote supporting the indicative package valuation. Routine OCO/OTOCO state and normal child-order plumbing stay out of the Ten-Second Read unless they materially change the story or create an exception.
+**Tests:**
 
-Recognition is deliberately **happy-path first and fail-closed**. When broker evidence cleanly supports a recognizable live-trade story, summarize it. When grouping, lifecycle, or economics are ambiguous, do not invent a story; use `tt positions` for the lower-level evidence. Partial closes, scale-ins, rolls, assignment, adjusted contracts, reused contracts, ambiguous grouping, calendars/diagonals, covered-call provenance, and exhaustive tastytrade structure reconstruction are known deferred cases rather than prerequisites for making the clean case useful.
+    cd evidence-service-java && ./gradlew test
+    cd options-prototype && npx vitest run
 
-`tt` and Wheelwright are intended to **augment tastytrade, not replace it**. tastytrade remains the trading workstation for chains, curves, order construction, detailed inspection, adjustment, submission, and broker-native state. Wheelwright remains decision-support. `tt positions` is the tastytrade/API evidence companion; `tt live` is the bridge from that evidence into the operator's mental model. A useful guardrail is: if this tooling is rebuilding tastytrade, something has probably gone wrong; if it is translating between tastytrade and the operator's established decision/management model, it is probably in the right territory.
+Use the appropriate focused CLI/backend tests for the component being changed. Operational acceptance and visual acceptance are distinct from automated tests.
 
+**Host availability matters:** scheduled market acquisition requires an awake, running host during the relevant market window. Display sleep is different from system sleep. Investigate host suspension when acquisition gaps appear. See the [current architecture](docs/07-architecture-current.md) and service-specific operating documentation for details.
 
-## Quick Start
+## Repository map
 
-```bash
-# Start the Java backend
-cd evidence-service-java
-export TRADIER_API_KEY=<your-key>
-./gradlew bootRun
-
-# In another terminal: start the frontend
-cd options-prototype
-npm run dev
-```
-
-| Service | Port | Purpose |
-|---------|------|---------|
-| evidence-service-java | 3100 | Backend evidence appliance |
-| options-prototype | 5173 | Frontend (Vite dev server) |
-
-The frontend proxies `/api/*` requests to the backend at `localhost:3100` automatically.
-
-**Requirements:**
-- JDK 21 LTS (Temurin recommended)
-- Node.js (via nvm)
-- `TRADIER_API_KEY` environment variable
-
-## Host Execution Requirement
-
-A Wheelwright evidence-service host must remain continuously executing during time-sensitive acquisition windows.
-
-The evidence service is an always-on appliance, not a tool invoked on demand. Its scheduler performs session-aware acquisition (Phase 1 expiration preparation, Phase 2 delay-window work, Phase 3 opening burst) according to market-session time boundaries. If the host suspends during these windows, scheduled work cannot fire and the operator arrives to find an unprepared board rather than mature evidence.
-
-**Local appliance (development laptop):**
-- System sleep during acquisition windows is not acceptable. Display sleep is fine.
-- macOS: enable "Prevent automatic sleeping on power adapter when the display is off" in System Settings → Energy. Alternatively, `caffeinate -s` provides process-bound sleep prevention.
-- Other hosts: equivalent mechanism to prevent OS suspension while the JVM is running.
-
-**Cloud appliance:**
-- Same invariant applies. Avoid scale-to-zero or platform suspension across acquisition windows.
-- The evidence service must execute continuously from at least 09:00 ET through 16:15 ET on trading days.
-
-**Diagnostic rule:** A running Wheelwright process does not prove continuous acquisition execution. If unexplained scheduler gaps are observed (e.g., expected work not performed on time), check host sleep/suspension history (`pmset -g log` on macOS) before diagnosing an application scheduling defect. Monday August 24, 2026 established this rule empirically: a 13-minute Phase 3 delay was caused entirely by macOS Maintenance Sleep, not by any Wheelwright defect.
-
----
-
-# Development Philosophy
-
-This repository intentionally follows a spec-driven engineering process.
-
-```
-Question
-    ↓
-Learning
-    ↓
-Knowledge
-    ↓
-Specification
-    ↓
-Working Software
-    ↓
-Evidence
-    ↓
-Learning
-```
-
-Working software is not the final objective.
-
-Working software is the mechanism by which architectural hypotheses are tested and organizational learning is accelerated.
-
----
-
-# Repository Structure
-
-```
-README.md                         Repository entry point
-
-docs/
-    foundations/                   Constitutional architecture documents
-    contracts/                    Versioned API contracts
-    journal/                      Append-only project journal
-    ...                           Architecture, design, and analysis docs
-
-evidence-service-java/            Java backend (Spring Boot, Java 21, SQLite)
-    src/main/java/                Application: worker, scheduler, controllers, store
-    src/test/java/                JUnit 5 tests
-    build.gradle.kts              Gradle build (Kotlin DSL, Java 21 toolchain)
-    gradlew                       Gradle Wrapper (canonical build entry point)
-
-data/                             Wheelwright-owned durable assets
-    seeds/                        Canonical universe seed CSV
-    evidence.sqlite3              Runtime evidence store (not tracked in Git)
-
-options-prototype/                React frontend (Vite, TypeScript)
-    src/                          Components, recommendation engines, domain logic
-    tests/                        Vitest frontend tests
-
-scripts/
-    dev.sh                        Starts Java Evidence Appliance + Vite frontend
-```
-
----
-
-# Documentation Roadmap
-
-Recommended reading order:
-
-1. `docs/foundations/evidence-appliance.md` — System identity
-2. `docs/foundations/system-goal-hierarchy.md` — Goal hierarchy; machinery → widgets → decision quality → productive capital → household mission
-3. `docs/foundations/retooling-charter.md` — Migration governance
-4. `docs/07-architecture-current.md` — Current architecture
-5. `docs/foundations/backend-behavioral-invariants.md` — 18 ratified invariants
-6. `docs/contracts/evidence-snapshot-v1.md` — Frozen API contract
-7. `docs/foundations/closed-loop-engineering.md` — Engineering methodology
-8. `docs/00-project-charter.md` — Original vision
-
-`docs/foundations/system-goal-hierarchy.md` is a recurring orientation document, not merely bootstrap material. Revisit it before major new initiatives or local optimization work to restore the relationship between the immediate technical problem and the higher-level system goal.
-
-For current active work after completing the authority reading order, read `docs/39-constraint-identification-restart-plan.md` followed by `docs/40-provider-admission-controller-findings-2026-08-31.md` before proposing optimization changes.
-
----
-
-# Clean Laptop Bootstrap
-
-Verified on:
-
-- macOS 26.5.1
-- Apple Silicon (arm64)
-
-## 1. Install Xcode Command Line Tools
-
-```bash
-xcode-select --install
-```
-
-## 2. Install Homebrew
-
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-eval "$(brew --prefix homebrew shellenv)"
-```
-
-## 3. Install nvm and Node.js
-
-```bash
-brew install nvm
-mkdir -p ~/.nvm
-```
-
-Add to `~/.zshrc`:
-
-```bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$(brew --prefix nvm)/nvm.sh" ] && . "$(brew --prefix nvm)/nvm.sh"
-[ -s "$(brew --prefix nvm)/etc/bash_completion.d/nvm" ] && . "$(brew --prefix nvm)/etc/bash_completion.d/nvm"
-```
-
-```bash
-source ~/.zshrc
-nvm install --lts
-nvm alias default 'lts/*'
-```
-
-## 4. Install Java 21 LTS
-
-```bash
-brew install --cask temurin@21
-```
-
-Add to `~/.zshrc`:
-
-```bash
-export JAVA_HOME=$(/usr/libexec/java_home -v 21)
-export PATH="$JAVA_HOME/bin:$PATH"
-```
-
-```bash
-source ~/.zshrc
-```
-
-## 5. Verify Toolchain
-
-```bash
-git --version        # 2.50+
-node --version       # v24.x
-npm --version        # 11.x
-java -version        # Temurin 21.x
-./gradlew --version  # Gradle 9.x (from evidence-service-java/)
-```
-
----
-
-# Running Tests
-
-```bash
-# Java backend
-cd evidence-service-java && ./gradlew clean test
-
-# Frontend
-cd options-prototype && npx vitest run
-```
-
-Both suites must pass before merging to main.
-
----
-
-# Current Scope
-
-The system currently implements:
-
-- **Evidence Appliance** — background acquisition (self-scheduling, session-aware, tiered A/B/C/D freshness, bounded recovery probes for prior-epoch failures, full 7–45 DTE multi-expiration acquisition)
-- **Durable SQLite persistence** — failed-refresh preservation, generation tracking, restart recovery
-- **Snapshot publication** — ETag/conditional HTTP (304), coherent evidence snapshots
-- **Selective quote observations** — `GET /api/evidence/quotes?symbol=...` for lightweight per-symbol price projection
-- **Operator Console** (home surface) — expiration-native DTE ladder with d3-hierarchy treemap, moneyness visualization (OTM/ATM/ITM + signed %), position-detail modal with progressive learning
-- **Position Monitoring** — Portfolio + Evidence composition producing moneyness, DTE, capital, and full observation provenance
-- **Put recommendations** (Wheelwright) — deterministic, cache-backed, zero provider calls
-- **Call recommendations** (Horizon A) — inventory-driven, cache-backed, for held unencumbered shares
-- **Buy-write recommendations** — share-acquisition + covered-call composite candidates, affordability-gated
-- **Write Desk** — collapsible put/call/buy-write sections, sortable tables, policy controls, cross-entry composition
-- **Recommendation Brief** — put, buy-write, and covered-call drawers with decision summary, evidence, neighborhood, governance
-- **Broker handoff** — Fidelity trade link construction (cash-secured puts and covered calls; buy-write handoff deferred)
-- **Production accounting** — backend-authoritative monthly reconciliation from Fidelity Activity History
-- **Market session model** — 6-state classification, trading calendar, sealed evidence semantics
-- **Instrument governance** — product structure classification, leveraged/inverse detection
-- **Instrument Catalog** and Description Library (1,280 tickers with domain-specific descriptions)
-- **Position economics** — Fidelity CSV basis data preserved in portfolio snapshot
-
-Out of scope:
-
-- Brokerage API integration (automated trading)
-- Multi-user access
-- Prediction models
-- Portfolio optimization
-
----
-
-# Evidence Appliance Vision
-
-Wheelwright is an always-on evidence appliance for policy-governed options-income decision support. The backend continuously maintains an authoritative model of the options opportunity environment. Consumers apply operator-configured policy, determine recommendation state, explain it, and support — but do not perform — execution.
-
-The system is governed by ratified architectural principles documented in `docs/foundations/`.
-
----
-
-# GitHub SSH Setup
-
-```bash
-ssh-keygen -t ed25519 -C "your-email@example.com"
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519
-cat ~/.ssh/id_ed25519.pub
-# Add to GitHub → Settings → SSH and GPG Keys → New SSH Key
-ssh -T git@github.com
-```
+| Path | Purpose |
+|---|---|
+| `AGENTS.md` | **AI-agent entry point**; agent cold-start routing belongs here, not in this README |
+| `docs/README.md` | Documentation authority and index |
+| `docs/principles.md`, `docs/foundations/` | Governing principles and architectural foundations |
+| `docs/contracts/` | API and evidence contracts |
+| `docs/parking-lot*.md`, `docs/roadmap.md` | Canonical intake, reconciliation and strategic direction |
+| `docs/bugs/` | Authoritative defect records |
+| `docs/journal/` | Project history and decision provenance |
+| `evidence-service-java/` | Java/Spring evidence backend, v1 and v2 capabilities |
+| `options-prototype/` | React/Vite v1 Web frontend |
+| `scripts/` | CLI entry points and local development tools |
+| `data/` | Local evidence databases and supporting assets (not all tracked) |
+
+## Documentation and project history
+
+Start with [the documentation guide](docs/README.md) to explore the current system, [the roadmap](docs/roadmap.md) for direction, and [the project journal](docs/journal/project-journal.md) for historical learning. Historical constraint-identification experiments and the earlier provider-admission investigation remain in [Doc 39](docs/39-constraint-identification-restart-plan.md) and [Doc 40](docs/40-provider-admission-controller-findings-2026-08-31.md); they are **not** presented here as the current active investigation.
+
+The product goal remains a trustworthy, observable system that improves trading decisions while keeping the operator in control. Accepted software and evidence, not aspirational architecture, determine what Wheelwright can claim today.
