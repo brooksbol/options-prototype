@@ -916,6 +916,67 @@ CONV-UX remains open. No backend deployment or restart was required.
 |---|---|
 | 2026-10-11 | Principal visually accepted the bounded CONV-UX ww ls accounts palette after dark-gray ID and branded-broker refinements. |
 
+#### CONV-UX — Standing color standard for future ww changes (October 11, 2026)
+
+**Principal direction:** Record the accepted color standards in GitHub and make
+sure future `ww` changes adhere to them. This note is the durable Product
+direction under existing `PL-CONV-01 / CONV-UX`; it creates no new principle,
+intake identity or permission to rewrite commands.
+
+Use the accepted `tt live` semantic palette and the Principal-accepted
+`ww ls accounts` extension as the default for new or changed human presentations:
+
+| Role | Terminal color / SGR | Meaning |
+|---|---|---|
+| Ordinary text and headings | Bright white `97` | Neutral baseline, explicitly established rather than inherited from terminal defaults |
+| Operator-facing Account aliases | Cyan `96` | Usable nickname / primary selection handle |
+| Technical Account IDs | Dark gray `38;5;240` | De-emphasized technical identity |
+| Fidelity BROKER cells | Green `32` | Brokerage brand identity only |
+| tastytrade BROKER cells | Red `91` | Brokerage brand identity only |
+| Unknown broker | Bright white `97` | Neutral fallback; do not invent a brand mapping |
+| Positive/negative economics or observed movement | Green `92` / red `91` | Existing evidence-backed tt semantics; do not color arbitrary numbers by sign |
+| Uncertainty, degraded evidence, approaching target or transition | Amber `93` | Only where the command has an established corresponding meaning |
+| Current location / ordinary progress | Cyan `96` | Existing tt marker/progress semantics |
+| Unavailable value | Normal white `37` | Existing tt absence treatment; keep absence distinct from zero |
+| Maximum-loss payoff tails | Dim red `2;91` | Existing tt payoff semantics only |
+
+Colors identify a field's role or established state, not decoration. Brokerage
+brand colors do not imply profit/loss, danger or health. Do not mechanically
+transfer payoff/progress/status meanings into unrelated commands. Exact basic
+ANSI shades depend on the terminal palette; broker colors are terminal brand
+approximations.
+
+**Required presentation discipline:**
+
+- Restore bright white after each accent; reset attributes after output so
+  colors cannot leak into adjacent cells, padding, later rows or the shell.
+- Use sparse cell-level accents with no new whole-row colors, backgrounds,
+  blinking or rainbow category palettes unless separately reconciled with the
+  Principal. Preserve masking and control-character escaping.
+- Measure/pad visible content without counting ANSI sequences. Color and
+  monochrome output must have identical visible values, order and alignment.
+- Keep machine formats ANSI-free. Preserve each command's accepted terminal/
+  redirected-output contract; explicit human tables may retain color in pipes
+  for `watch -c` and `less -SR`.
+- Honor `NO_COLOR` and `TERM=dumb`; preserve/provide `--no-color` where supported
+  by the command. For the Account slice, even empty `NO_COLOR` disables ANSI.
+- For a presentation change, check actual terminal and pipe behavior, opt-outs,
+  ANSI-free machine output, reset boundaries, alignment and confidentiality.
+  Technical checks do not substitute for Principal visual acceptance.
+
+**Existing accepted differences:** `ww show` currently has separately accepted
+256-color categorical accents, normal-white restoration and alternating row
+backgrounds (see `docs/cli/ww-show-query-acceptance-2026-10-05.md`). They are
+documented existing behavior, not a template for expanding exceptions. This
+note does not authorize silently changing that accepted command or `tt live`.
+When touching such a presentation, explicitly reconcile the affected difference
+against this baseline; do not claim all existing ww output already conforms.
+
+**Completion check:** Future ww presentation work must identify the applicable
+mapping above, verify conformance and preserve any command-specific accepted
+exception explicitly. A new color meaning or departure requires Principal
+reconciliation rather than an actor silently choosing a new palette.
+
 ### CONV-WEB — Existing Wheelwright web frontend to v2 backend migration
 
 **Trigger:** Principal commissioned Kiro to estimate the work required to migrate the existing Wheelwright web frontend from its v1 backend/client-owned domain behavior to the authoritative v2 backend. **Kiro's estimate has not yet been provided in this reconciliation thread and is not assessed or accepted here.**

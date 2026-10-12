@@ -13,7 +13,7 @@ DESCRIPTION
     Reading held evidence is separate from asking Wheelwright to acquire it.
 
 WORKING COMMANDS
-    ls accounts [--table | --tsv | --jsonl]
+    ls accounts [--table | --tsv | --jsonl] [--no-color]
         List accounts you can access, with their aliases, names, broker
         associations and immutable IDs. Start with 'ww ls accounts', then
         'ww sync account pts' or 'ww show positions --account pts --verbose'.
@@ -91,6 +91,20 @@ WORKING COMMANDS
     observed-prices [--] SYMBOL...
         Compatibility spelling for prices. The same read and output behavior
         applies; new examples use prices.
+
+COLOR CONVENTIONS
+    New or changed human presentations follow the accepted tt live motif:
+    bright white ordinary text, sparse semantic accents, and dark gray
+    technical Account IDs. Account aliases are cyan; BROKER labels use
+    Fidelity green and tastytrade red as brand identity, not status.
+    Restore neutral foreground after accents and reset output attributes.
+    Machine output stays ANSI-free; honor NO_COLOR and TERM=dumb.
+    Account tables also support --no-color, including with --table in pipes.
+    Future presentation changes must verify visible alignment, reset behavior,
+    opt-outs, machine fidelity and masking, then obtain visual acceptance.
+    Existing accepted command-specific palettes remain separately governed.
+    Full mappings and the existing ww show exception are recorded under
+    CONV-UX in docs/parking-lot-10.md (Standing color standard for future ww changes).
 
 OUTPUT AND COMPOSITION
     Direct terminal output is human-oriented. When stdout is piped or
