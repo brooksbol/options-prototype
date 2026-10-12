@@ -1765,3 +1765,10 @@ Fresh preflight preserved effective configuration/eight Account capabilities and
 ## October 11, 2026 — Principal accepts operational Step3 and BUG035 correction
 
 The Principal supplied the complete ordinary installed CLI acceptance output and explicitly selected A accepting Step3 plus the independently tracked BUG035 correction. Fidelity and tastytrade tt1 coexist with masked references; Fidelity Position snapshots remain25/seven, sync has245 already processed exports and zero work/failures, TT sync stops with expected unsupported guidance. This is actual Operator acceptance after successful operational deployment, rather than preview or test evidence. BUG035 is Resolved with its own regression/independent/Operator provenance; BUG036 remains protected. Accepted frozen source is unchanged; bounded closeout preserves unrelated research and private recovery data. Step4 remains planned and is not started by this acceptance.
+
+
+## October 11, 2026 — Step3 session closeout and direct Product feedback
+
+Accepted delivery committed/pushed at `1425024b5f215adcb0eed88bf668d8cf3bb5a0ac` before the Principal invoked session closeout. He admired the “simple beauty” of ordinary `ww ls accounts` showing three familiar nicknames across Fidelity/tastytrade with masked references. This is direct Operator Product evidence of a useful low-cognitive-load capability, not ratification of a new principle or a claim of tastytrade Position support.
+
+End-of-session read-only checks confirm unchanged accepted source/release identity, the intended operational candidate, ordinary masked discovery and retained recovery executable/final backup. Roadmap is fresh; Coming Soon remains accurate. Step3 complete, BUG035/BUG036 Resolved; Step4 remains planned and unstarted. Unrelated untracked research and private recovery inputs are preserved. Detailed cold-resume state is in `docs/design/pl-conv-01-step3-candidate.md`.

@@ -212,3 +212,14 @@ The Principal ran the ordinary installed acceptance commands without environment
 The Principal explicitly selected **A — Accept Step3 and the BUG035 correction**. Step3 is accepted and its bounded milestone complete; BUG035 is independently Resolved in its canonical record/index. BUG036 remains Resolved/protected. The larger PL-CONV-01 intake remains ongoing; Step4 XLE is next in the approved sequence but is not implemented or newly authorized by acceptance. Tastytrade Position evidence remains unsupported.
 
 Closeout persists only the accepted source/API/tests and scope-preserving documentation/projection. Accepted source files remain identical to the independently reviewed archive; no operational restart or data mutation is required for this closeout. Complete private recovery configuration, final backup and release hashes remain outside Git. Full original Account references and credentials are excluded from reports/commits.
+
+
+## End-of-session handoff — October 11, 2026
+
+Accepted implementation and scope-preserving reconciliation were committed/pushed as `1425024b5f215adcb0eed88bf668d8cf3bb5a0ac`; local/remote main equality was independently verified. The Principal then invoked the End-of-Session Protocol. Read-only closeout confirmed all13 frozen source hashes, the running candidate process/release hash, ordinary masked three-Account discovery, recovery executable identity and final pre-migration backup hash. Roadmap freshness and diff checks pass; no full application regression campaign was repeated after documentation-only changes.
+
+**Resume:** Step3 accepted/complete and operational; BUG035 Resolved; BUG036 Resolved/protected. Step4 XLE economic-occurrence reconciliation remains the next selected milestone, planned with no new implementation authorization. Full-number API disclosure policy, tastytrade Position admission (Step5), governed reconsideration (Step6), CONV-WEB planning and broader CLI presentation convergence remain deferred in their existing authority; this closeout resolves none of them. Private startup configuration/recovery inputs remain under the local release directory. No operational restart, migration, acquisition or Account/grant change was performed during closeout.
+
+Unrelated untracked research `docs/research/partial-collar-test1 2/` and `docs/research/partial-collar-test1.zip` remain untouched and excluded from commits. Coming Soon horizons require no change: Account discovery enables the larger Position-attention/reconsideration objective without completing it.
+
+The Principal's post-acceptance reaction to ordinary `ww ls accounts` was to admire its “simple beauty.” This is direct Product feedback supporting the usefulness of three familiar nicknames, correct brokerage attribution and masked references through one ordinary command; it creates no new principle or implementation scope.
