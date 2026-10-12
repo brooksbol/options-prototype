@@ -4,14 +4,6 @@
 
 This directory contains the architectural documentation for the Wheelwright Evidence Appliance.
 
-> # ⚠️ BEFORE YOU DO ANYTHING: READ THE KNOWN FAILURE MODES
->
-> **Wheelwright has already paid for a set of recurring operating-model mistakes. Do not rediscover them.**
->
-> **[READ \`KNOWN-FAILURE-MODES.md\` BEFORE CONSEQUENTIAL WORK](KNOWN-FAILURE-MODES.md)**
->
-> It is the short cold-start failure checksum: invented Product outcomes, late Principal observation, Codex→Kiro patch loops, manufactured retry authority, premature multi-actor convergence, in-flight-state damage, interruption mistakes, deterministic state left to probabilistic judgment, and other demonstrated failures. It summarizes evidence; it does not create execution authority.
-
 ## Parking-Lot Continuation Rule — August 29, 2026
 
 The canonical parking lot may span physical continuation files. `docs/parking-lot.md`, `docs/parking-lot-2.md`, and any later numbered continuations are **one logical Category C backlog**. Every cold start, scan, search, backlog review, and reconciliation must inspect the complete `docs/parking-lot*.md` sequence. File boundaries are pagination only; stable IDs, governance, and dispositions are global.
@@ -59,13 +51,13 @@ Documents are classified by the *type* of authority they carry, not merely by im
 
 `foundations/shared-execution-contract.md` is **suspended as a runtime execution-control mechanism**. Its useful semantic guidance remains available, but actor-readable prose is not proof of consequential execution authority.
 
-For outcome-bearing work, every AI actor must reacquire current repository authority, applicable task/experiment state, and the applicable authoritative transition mechanism before claiming that a consequential action is permitted. Conversation, technical reasoning, recommendations, prompts, and review dispositions are not authoritative execution state.
+For outcome-bearing work, current repository authority, applicable task/experiment state, and the applicable authoritative transition mechanism govern whether a consequential action is permitted. Conversation, technical reasoning, recommendations, prompts, and review dispositions are not authoritative execution state.
 
 `foundations/principal-decision-surface.md` is the ratified human-factors and presentation convention for Principal-facing outcome-bearing replies. Its fixed decision surface makes authority state conspicuous; it does **not** itself grant or enforce authority.
 
 Gate Experiment 001 remains a staged capability-boundary experiment until its durable state says otherwise. Observed BUG-021 conversational-containment failures must not be represented as failure of an activated Gate experiment.
 
-Every AI actor cold start must read the suspended-contract compatibility bridge, the Principal Decision Surface, the applicable actor bootstrap, and current task/experiment state before substantive outcome-bearing reasoning or execution.
+Agent cold-start routing and mandatory reading obligations are maintained in `AGENTS.md` in this directory, reached from the repository-root `AGENTS.md`.
 
 ## Product and Architectural Principles Routing — September 27, 2026
 
@@ -77,9 +69,9 @@ The register also owns the lightweight meanings of **Solution Overview** (Produc
 
 ## Reading Paths
 
-### Minimum Safe Bootstrap (7 documents)
+### Foundational Reading Path (7 references)
 
-Read these before doing any Wheelwright work. Produces safe operating competence in 30–60 minutes.
+A foundational orientation to the system and its documentation authority. Mandatory **agent** cold-start routing lives in `AGENTS.md`.
 
 | # | Document | Why |
 |---|----------|-----|
@@ -93,9 +85,9 @@ Read these before doing any Wheelwright work. Produces safe operating competence
 
 **When this is insufficient:** If you're touching architecture, designing a new subsystem, or need to understand *why* something is the way it is — continue to the comprehensive path.
 
-### Comprehensive Architectural Orientation (13 documents)
+### Comprehensive Architectural Orientation
 
-Everything in the bootstrap, plus:
+Additional architecture references beyond the foundational reading path:
 
 | # | Document | Why |
 |---|----------|-----|
@@ -130,27 +122,6 @@ Read these when designing or reviewing implementation structure, evaluating tech
 | `foundations/technology-quality-constitution-v1.md` | Ratified technology-quality principles, day-to-day architecture practice, operating model, and version-one baseline authorization |
 | `technology-quality-program-v1.md` | Principal-ratified and mandated technology-quality program: backlog/journal reconciliation, untouched baseline, balanced scorecard, technology-optimization roadmap, interventions, fitness controls, and steady-state operation |
 | `technology-quality-fitness-controls-v1.md` | Ratified fitness-control set: three-layer quality model, strict Sonar profile, ArchUnit invariant mechanism, trend-over-gates principle, and open Principal decisions |
-
-### AI Actor Cold-Start Bootstrap
-
-For a completely new ChatGPT thread, Kiro session, or Codex session starting from scratch. A one-line instruction such as "Bootstrap yourself for Wheelwright from GitHub" should lead an actor here.
-
-| Document | Actor | Role |
-|----------|-------|------|
-| `bootstrap/chatgpt-cold-start.md` | ChatGPT | Reasoning/synthesis/challenge actor bootstrap |
-| `bootstrap/kiro-cold-start.md` | Kiro | Repository-resident architecture/implementation actor bootstrap |
-| `bootstrap/codex-cold-start.md` | Codex | Independent adversarial reviewer/falsifier bootstrap |
-| `bootstrap/end-of-session-protocol.md` | Shared | **Containing session-closeout protocol. Principal command “execute end of session protocol” means execute closeout now through memory reconciliation, verification, persistence, accepted-main synchronization, and final SYNC; do not stop for an intermediate plan/confirmation.** |
-| `bootstrap/project-memory-protocol.md` | Shared | Documentation diligence / project-memory synchronization protocol |
-| `foundations/shared-execution-contract.md` | Shared | **Suspended runtime-control contract and compatibility bridge; semantic guidance only, not execution authority** |
-| `foundations/principal-decision-surface.md` | Shared | **Ratified Principal-facing decision grammar and authority/reasoning distinction; human-factors control, not enforcement** |
-| `foundations/multi-actor-repeatability-temporal-synchronization.md` | Shared | Ratified temporal synchronization, convergence, and scoped execution-ownership methodology |
-| `foundations/death-spiral-avoidance-protocol.md` | Shared | **Ratified cross-actor death-spiral avoidance: no repeated consequential traversal without new decision-relevant state; escalate abstraction rather than prompt verbosity.** |
-| `foundations/idea-intake-reconciliation.md` | Shared | Mandatory methodology whenever a material new idea is being considered or handed off |
-
-**Lookup path:** Actor finds `docs/README.md` → reads `KNOWN-FAILURE-MODES.md` → reads this section → follows the suspended-contract compatibility bridge → reads the Principal Decision Surface → follows actor-specific bootstrap → acquires current task/experiment state → follows shared project-memory and task-relevant authority → begins substantive work. For a material new idea, the actor must also follow `foundations/idea-intake-reconciliation.md`.
-
----
 
 ## Complete Document Index
 
