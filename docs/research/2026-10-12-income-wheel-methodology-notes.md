@@ -39,3 +39,5 @@ Status: Non-authoritative research record. Not ratified Wheelwright policy or pe
 - Future work: establish TOS/TW methods and corporate-action handling; test incremental predictive value of IV metrics out of sample; reconcile quota across account sources.
 
 Provenance: October 12, 2026 user / ChatGPT / Codex research conversation. Snapshot figures require source validation before trading.
+
+Related capability analysis: [October Income Wheel CLI capability-gap survey](../discovery/ww-income-wheel-capability-gap-survey-2026-10-12.md). This link does not ratify the research findings or authorize implementation.
