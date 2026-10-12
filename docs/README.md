@@ -154,6 +154,8 @@ For a completely new ChatGPT thread, Kiro session, or Codex session starting fro
 
 ## Complete Document Index
 
+**Navigation only:** Entries identify document authority and purpose, not live acceptance or execution permission. For current milestone and defect disposition, consult the complete parking-lot, journal and bug records. Historical acceptance checkpoints retain their original scope; do not read their snapshot statuses as today's operational state. For v2 work, start with the ratified `principles.md` and `77-api-v2-architectural-guardrails.md`, then the current v2 OAS/Account/Position references and relevant canonical intake.
+
 ### A. Governing / Current System Definition
 
 Documents a reader should use to answer: *What is Wheelwright now?* This is a deliberately small set. These win when other documents conflict with them.
@@ -179,7 +181,8 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 
 | Document | Substatus |
 |----------|-----------|
-| `07c-adrs.md` | Ratified decisions (ADR-001 through ADR-022, append-only) |
+| `principles.md` | Canonical register of ratified Product, architectural/build and epistemic principles, including backend authority |
+| `07c-adrs.md` | Ratified architectural decisions (append-only; see current register) |
 | `08-adr-backend-evidence-service.md` | Ratified decision (backend extraction) |
 | `09-backend-evidence-service-design.md` | Ratified design; §3 and §10 are Historical |
 | `09a-backend-diagrams.md` | Ratified design; diagram 6 is Historical |
@@ -195,25 +198,25 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/retooling-charter.md` | Ratified migration governance |
 | `foundations/backend-behavioral-invariants.md` | Ratified invariant catalog |
 | `foundations/closed-loop-engineering.md` | Ratified methodology |
-| `foundations/shared-execution-contract.md` | Principal-ratified historical execution semantics; **runtime-control claim suspended**; current compatibility bridge |
-| `foundations/principal-decision-surface.md` | Principal-ratified decision-surface and authority/reasoning distinction; human-factors convention, not enforcement |
-| `foundations/options-domain-competence-contract.md` | Principal-ratified options domain-competence methodology; mandatory before dependent options design, implementation, review, or acceptance |
-| `discovery/pass-zero-v1-class-geometry-method-2026-10-01.md` | Principal-adopted Pass 0 v1 research methodology: complete frozen Pass −1 class denominator, dated class-specific geometry and evidence states, ancillary replay reference evidence; no specimen selection or eligibility |
+| `foundations/shared-execution-contract.md` | Historical execution semantics; runtime control suspended; compatibility bridge only |
+| `foundations/principal-decision-surface.md` | Ratified Principal-facing decision format; does not grant execution authority |
+| `foundations/options-domain-competence-contract.md` | Ratified options-domain competence methodology |
+| `discovery/pass-zero-v1-class-geometry-method-2026-10-01.md` | Principal-adopted Pass 0 research method; no specimen eligibility decision |
 | `foundations/three-actor-model.md` | Ratified methodology |
 | `foundations/architectural-evolution-methodology.md` | Ratified methodology |
-| `foundations/strategy-architecture-reconciliation.md` | Ratified methodology (strategic roadmap ↔ architecture roadmap reconciliation, exploration freedom, and evidence-driven course correction) |
-| `foundations/idea-intake-reconciliation.md` | Ratified methodology (material idea discovery → canonical intake → strategic/architectural reconciliation → why-state → decomposition/authorization) |
-| `foundations/technology-quality-constitution-v1.md` | Ratified methodology (technology-quality constitution, operating model, day-to-day architecture practice, and baseline authorization) |
-| `foundations/multi-actor-repeatability-temporal-synchronization.md` | Ratified methodology (temporal synchronization, convergence, and scoped execution ownership extending project memory) |
-| `foundations/death-spiral-avoidance-protocol.md` | Ratified methodology (cross-actor death-spiral detection, abstraction escalation, and re-entry discipline) |
+| `foundations/strategy-architecture-reconciliation.md` | Ratified strategy/architecture reconciliation method |
+| `foundations/idea-intake-reconciliation.md` | Ratified material-idea intake and reconciliation pipeline |
+| `foundations/technology-quality-constitution-v1.md` | Ratified engineering-quality and architecture practice |
+| `foundations/multi-actor-repeatability-temporal-synchronization.md` | Ratified actor synchronization and scoped execution methodology |
+| `foundations/death-spiral-avoidance-protocol.md` | Ratified repeat-work and escalation discipline |
 | `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
-| `67-unresolved-predicate-resolution-model-architecture-reconciliation-2026-09-26.md` | Principal-ratified bounded semantic contract for governed Recommendation `UNRESOLVED` predicate results, resolution admissibility, and replay; canonical decision ADR-021 |
-| `69-assignment-centric-wheel-v1-operating-program.md` | Principal-ratified bounded Product authority for the first real Wheel Operating Program/configuration; stable identity `assignment-centric-wheel`, configuration v1; membership non-implications and current Doc 65 rule boundary |
-| `77-api-v2-architectural-guardrails.md` | Principal-ratified API v2 cross-cutting architectural guardrails: one API/many clients, authoritative OAS, security from inception, uniform errors/correlation/time/provenance/identity, repeatability, partial success, honest completion, collection/projection/evolution/operational-state conventions, upstream-pressure semantics, bounded composition, acquisition/reuse/read/derive separation, and batch-compatible-provider-work-after-semantic-selection policy |
-| `contracts/api-v2-held-quotes-read.md` | **Authoritative specification of Principal-ratified held-quote discovery decisions** — GET /v2/quotes, independent quote.read, ww ls quotes TSV/JSONL contract, scoped provider-free invariant, committed-item concurrency semantics, acceptance and completed Doc 78 specification self-review; no runtime implementation authority. |
-| `contracts/api-v2-subject-show-held-quote.md` | **Principal-ratified Product/capability contract with authorized question-driven CLI amendment (§14)** — explicit subjects/held collection, exact typed filtering, public-field/absolute sorting, limiting, all-fields horizontal tables and semantic change colors; existing pure held reads, exact projection, field discovery and machine fidelity preserved. Implementation/verification/commit/push authorized for the bounded amendment. |
-| `cli/ww-ls-acceptance-2026-10-05.md` | Bounded Codex implementation evidence for GET /v2/quotes and ww ls quotes against frozen cccb5a5: independent quote.read, query-only committed-row inventory, zero causal provider-contact tests, CLI TSV/JSONL/PTY/composition and POST/fetch preservation. Principal manual acceptance PASS (October 5); live 103-holding discovery, explicit private quote.read setup, subsequent authorized no-op --tsv/help follow-ups and closeout evidence. Original frozen HTTP/OAS baseline remains unchanged; bounded client-side --type amendment and focused A–O evidence are recorded there. |
-| `07c-adrs.md` — ADR-022 | Principal-ratified whole-quantity opening-anchored short-option cohort and conditional evidence-authority contract; no technical Solution Design or implementation authorization |
+| `67-unresolved-predicate-resolution-model-architecture-reconciliation-2026-09-26.md` | Ratified bounded `UNRESOLVED` predicate semantics (ADR-021) |
+| `69-assignment-centric-wheel-v1-operating-program.md` | Ratified first Wheel Operating Program/configuration |
+| `77-api-v2-architectural-guardrails.md` | Ratified API v2 authority, OAS, security, evidence and acquisition/read boundaries |
+| `contracts/api-v2-held-quotes-read.md` | Ratified held-quote discovery and pure-read contract |
+| `contracts/api-v2-subject-show-held-quote.md` | Ratified held-quote inspection and query contract; see source for amendment history |
+| `cli/ww-ls-acceptance-2026-10-05.md` | October 5 held-quote CLI verification and Principal acceptance evidence |
+| `07c-adrs.md` — ADR-022 | Bounded opening-anchored short-option continuity precedent; see decision for scope |
 | `bootstrap/end-of-session-protocol.md` | Ratified methodology (containing session-closeout process; canonical invocation: “execute end of session protocol”) |
 | `bootstrap/project-memory-protocol.md` | Ratified methodology (documentation diligence / project memory) |
 | `foundations/parking-lot-continuation-governance.md` | Ratified methodology (one logical parking lot across physical continuation files) |
@@ -232,7 +235,7 @@ Authoritative for their specific project concern. Not system-definition document
 | `parking-lot.md` + numbered continuations | One canonical backlog and material-idea intake registry expressed across physical pages |
 | `journal/project-journal.md` + numbered continuations (`-2`, `-3`, `-4`, …) | One canonical chronology expressed across physical continuation files |
 | `bugs/INDEX.md` + `bugs/BUG-*.md` records | The one canonical defect corpus and discovery index (`BUG-NNN` records) — sole defect system of record |
-| `contracts/evidence-snapshot-v1.md` | Frozen API contract (v1) |
+| `contracts/evidence-snapshot-v1.md` | Frozen v1 snapshot contract; v1 Web remains operational |
 
 ### D. Reconciliation / Checkpoint Artifacts
 
@@ -245,27 +248,29 @@ Durable evidence of how we arrived at the current state. A checkpoint is not aut
 | `32-parking-lot-reconciliation.md` | Ratified parking-lot disposition record |
 | `33-strategy-roadmap-checkpoint.md` | Ratified roadmap/operating-model baseline and normalization provenance (August 31, 2026) |
 | `70-bounded-option-obligation-continuity-checkpoint-2026-09-28.md` | Actual History evidence, rejected series-key claim, synthesis/falsification trail, ADR-022 ratification provenance, and independently rejected unratified Solution Design candidate; exact read-only resume state |
-| `74-pl-cli-bare-fetch-experimental-acceptance-2026-10-04.md` | `PL-CLI-01` bare-`ww fetch` **experimental acceptance** snapshot: Principal-run live Sunday shell gauntlet + deterministic suite (15/15, 30/0/0, projection in sync), confirmed selector/provenance/explicit-replaces-default, the 20s synchronous-bound `NOT_COMPLETED` observation (timeout/config question only), reproduced CF01 friction, and explicit non-ratifications. Disposition: stop touching the slice. |
-| `78-api-v2-design-implementation-handoff-checkpoint-2026-10-05.md` | V2 pre-Codex checkpoint: Kiro reserved as implementation actor after ambiguity-eliminating specification/OAS and Codex falsification; persists incremental rigor and the unratified principle candidate that observed `ww` pressure + natural resource granularity + composability/extensibility should replace architecture by future prediction |
-| `79-api-v2-direct-quote-reject-invariant-reconciliation-2026-10-05.md` | Death-Spiral-Avoidance reconciliation after independent rejection of local v2 quote candidate `28df973`: synthesizes reuse-identity, temporal-truth, positive subject-verification, and end-to-end correlation implementation invariants plus required falsifiers; contract unchanged; no retry/implementation authority |
-| `80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md` | Product/architecture checkpoint for question-driven v2 lifecycle semantics: bounded ontology reconciliation, holding/acquisition/intervention separation, lifecycle-vs-evaluation dual model, same-Wheel/different-governance falsification pair, governed qualitative projection, bounded-claim completeness, and the next `What are my moves with this call?` answer-inventory/evidence-design slice; no implementation authority |
-| `81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md` | Product discovery checkpoint for the operator-first `How do I get the most work out of these shares?` journey: regime-relative work, action surfaces and blockers, 99-share feasibility specimen, position-management vocabulary, temporal answers, operator profile, lifecycle consequences, separately governed quantities, and the parked cash-side sister question; exploratory vocabulary only, no ratification or implementation authority |
-| `72-pl-cli-bare-fetch-pre-implementation-checkpoint-2026-10-04.md` | `PL-CLI-01` bare-`ww fetch` pre-implementation authority boundary (baseline `d7e588d4`): accepted explicit-fetch semantics, bounded fetch acceptance evidence, authorized provisional bare-fetch selector (monitored UNION fixed ten-symbol seed), known monitored-membership API gap, and the acquisition-pressure hypothesis; recreated after a lost Codex snapshot |
+| `74-pl-cli-bare-fetch-experimental-acceptance-2026-10-04.md` | Historical bare-fetch experiment acceptance; not a production default |
+| `78-api-v2-design-implementation-handoff-checkpoint-2026-10-05.md` | Historical v2 design/implementation handoff and candidate principles |
+| `79-api-v2-direct-quote-reject-invariant-reconciliation-2026-10-05.md` | Rejected quote candidate and corrective invariant evidence; no retry authority |
+| `80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md` | V2 lifecycle Product/architecture discovery; no implementation authority |
+| `81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md` | Operator-journey discovery and unresolved management semantics |
+| `72-pl-cli-bare-fetch-pre-implementation-checkpoint-2026-10-04.md` | Historical bare-fetch implementation checkpoint |
 | `foundations/step4-conformance-assessment.md` | Retooling conformance checkpoint |
 
 ### E. Current Specialized Reference
+
+For currently accepted v2 behavior, consult the v2 OAS and implementation-linked CLI references below. An October 5 candidate's historical status does not supersede later Principal acceptance; check canonical closeout records for the latest disposition.
 
 Useful and correct within their bounded subject. Non-governing outside that scope.
 
 | Document | Subject |
 |----------|---------|
-| `cli/tt-live-panel.md` | Principal-accepted October 11 tt live scan: PAYOFF/RANGE/SPOT, holding-lifespan SPAN, per-row profit objectives, compact evidence age, unchanged broker economics/TSV and deferred DTE-policy support. Standalone tastytrade companion; separate from Wheelwright v2 Position. |
-| `cli/ww-man.txt` | Current `ww(1)` top-level command, composition, and discovery reference; available through `ww --man` |
-| `cli/ww-show-man.txt` | Current subject-first held-quote inspection, account Position inspection, output/projection and durable registry-generated public field semantics; available through `ww show --man`. |
-| `cli/ww-account-evidence.md` | Implemented October 11 account sync/Position slice: executable setup, immutable source retention, evidence boundaries, live verification and limitations; Principal acceptance separate. |
-| `contracts/api-v2-account-evidence.json` | Implemented User/self identity, administrator-only User inspection, Account discovery, artifact inventory/upload/metadata/content/reprocessing and Position-read OpenAPI fragment, referenced by the common v2 OAS; no broader ledger or lifecycle API. |
-| `cli/ww-show-query-acceptance-2026-10-05.md` | Bounded collection/filter/order/all-fields/format/color verification: exact typed --where, --sort-by and absolute ranking, honest partial results, 36-column tables, canonical TSV/JSONL, tt live compatibility reference and actual watch -c proof; BUG-031/032 manual-rejection remediation, DESCRIPTION-after-SYMBOL and ID suffixes; Principal manual acceptance and session closeout at 1cd3444, followed by bounded clipped watch -c -w color compatibility and the Principal-ratified magnitude-selection/signed-output amendment and short provider-qualified venue labels, fixed two-decimal monetary presentation, categorical styles/alternating backgrounds and description excerpts; automated/live evidence distinguished from acceptance and independent review. |
-| `cli/ww-show-acceptance-2026-10-05.md` | Bounded automated implementation evidence for codec/real-container preservation, strict held read, multi-subject output and registry/catalog/manual synchronization; Principal manual acceptance pending. |
+| `cli/tt-live-panel.md` | Accepted standalone `tt live` operator scan and semantic display contract |
+| `cli/ww-man.txt` | Current top-level `ww` command reference and terminal conventions |
+| `cli/ww-show-man.txt` | Current `ww show` command reference (quotes and Positions) |
+| `cli/ww-account-evidence.md` | Fidelity Account sync and Position evidence operator reference; later multi-broker acceptance is recorded separately |
+| `contracts/api-v2-account-evidence.json` | Current v2 Account, User, artifact and Position OpenAPI fragment |
+| `cli/ww-show-query-acceptance-2026-10-05.md` | Held-quote query/table verification and accepted visual amendments |
+| `cli/ww-show-acceptance-2026-10-05.md` | Historical held-quote candidate verification; check later closeout for current acceptance |
 | `cli/ww-fetch-man.txt` | Current v2-native explicit-symbol `ww fetch(1)` behavior, ORDINARY/FORCE intent, Bearer configuration, and truthful fulfillment; available through `ww fetch --man` |
 | `cli/ww-fetch-acceptance-2026-10-04.md` | Bounded deterministic and real-backend `ww fetch` acceptance evidence; candidate, not Product acceptance |
 | `cli/ww-composition-friction-acceptance.md` | **Explicit CF01–CF12 composition-friction acceptance specimens**: numeric sort, cut, awk, state counts, grep/rg, tee, head, command substitution, redirection, absence semantics, explicit rich serialization, and no generic-utility reinvention; records correctness separately from adapter friction so actors do not infer the Unix gauntlet |
@@ -275,7 +280,7 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `foundations/options-domain-reference.md` | **Options domain reference** — durable operational options economics (economic model, lifecycle/structure matrices, semantic specimens, focused depth, external grounding). Companion to the Category B options competence contract; authoritative for externally-grounded mechanics, non-authoritative for policy. `02-domain.md` is subordinate to it for lifecycle economics. |
 | `discovery/pass-one-specimen-selection-bounded-pilot-2026-10-01.md` | Bounded Tradier contrast pilot testing specimen inputs and exact-root geometry; exploratory evidence, no specimen rule |
 | `discovery/pass-one-coordinate-history-comparison-2026-10-01.md` | Predeclared price-relative versus RV20/40/60 specimen-coordinate comparison across two expirations; exploratory evidence, no selector rule |
-| `cli/ww-bare-fetch-experiment-2026-10-04.md` | **Bare `ww fetch` real experiment evidence** — captured result of the provisional default selector (monitored UNION fixed seed) against the live local backend: deterministic 14-symbol resolution with provenance, cold-start `PROVIDER_UNAVAILABLE`, 14-symbol `NOT_COMPLETED` under the 20s forced-acquisition bound, and 14/14 held prices nonetheless. Experimental evidence, not a Product acceptance decision or ratified default. |
+| `cli/ww-bare-fetch-experiment-2026-10-04.md` | Historical bare-fetch experiment; not a ratified default |
 | `02-domain.md` | **Early-slice mixed domain-knowledge / calculation / data-contract artifact** (historically named “domain”; not the canonical integrated Wheelwright domain model). Subordinate to `foundations/options-domain-reference.md` for options lifecycle economics; A-5 "held to expiration / no early close" is superseded by shipped BTS/HOLD-CLOSE behavior. |
 | `58-wheelwright-semantic-model-v1.md` | **Wheelwright Semantic Model v1.4 draft** — bounded Category E integration/review target for ontology + operational domain-model semantics (identity/scope, portfolio topology, state/event/transition/program, assertions/authority/provenance, time, intent/policy, Alternatives/consequences, capability/executability, decision semantics, accounting relationships). Canonical intake `PL-SEM-01`; not ratified architecture or implementation authority. |
 | `73-bare-fetch-architecture-api-bug-survey-2026-10-04.md` | **Bare `ww fetch` architecture / API / bug survey** — companion to the `PL-CLI-01` bare-fetch experiment; classifies findings into architecture/authority gaps, API/capability gaps, and demonstrated bugs/contract defects, each with evidence and smallest correction. Investigative reference, not defect authority (defects belong in `docs/bugs/`). |
@@ -301,7 +306,7 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `velvet-rope/*` | Universe admission domain model (dormant) |
 | `universe/*` | Candidate universe design (dormant) |
 | `engineering-spikes/*` | API feasibility assessments |
-| `design/pl-conv-01-step3-candidate.md` | Accepted multi-broker Account delivery / BUG-035 correction; frozen identity, independent verification, operational deployment/recovery and explicit Principal acceptance. |
+| `design/pl-conv-01-step3-candidate.md` | Accepted multi-broker Account and BUG-035 delivery, recovery and closeout evidence |
 | `design/ww-show-held-quote-solution-design.md` | Bounded Solution Design for multi-subject show/local field discovery and the authorized collection/filter/order/horizontal-table extension (§15); accepted reversible path-symbol codec preserved; linked verification evidence. |
 | `design/ww-show-held-quote-transport-reconciliation.md` | Bounded HTTP/OAS reconciliation: unchanged instance-resource route with a canonical reversible path-symbol codec, unchanged container/old operations, exact additive OAS delta and passing accepted-implementation transport preservation proof. |
 | `research/partial-collar-test1/` | Principal-commissioned Partial Collar Protected Growth Test 1 research harness, candidate state resolutions, IWM/RVX provenance, matrix/chronology/stress/cost evidence and falsification report under `PL-STRAT-01`; no strategy admission, options pricing or live execution authority. |
