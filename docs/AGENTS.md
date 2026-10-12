@@ -4,6 +4,22 @@ This file applies to agents working in `docs/`. The repository root [AGENTS.md](
 
 ## Required cold start
 
+### Minimum Safe Bootstrap (7 references — mandatory)
+
+Before any consequential Wheelwright work, agents **must read all seven references** below. This obligation applies in addition to the routing and actor-specific requirements that follow; it is not optional orientation or a task-dependent selection. Paths are relative to `docs/` unless stated otherwise.
+
+| # | Document | Required context |
+|---|----------|------------------|
+| 1 | `README.md` | Documentation authority, index, and A–F precedence model. |
+| 2 | `KNOWN-FAILURE-MODES.md` | Failure checksum and demonstrated operating-model mistakes. |
+| 3 | `foundations/evidence-appliance.md` | Governing Evidence Appliance foundation and system identity. |
+| 4 | `07-architecture-current.md` | Current architecture, engines, boundaries, and surfaces. |
+| 5 | `07c-adrs.md` | Complete architectural decision register and constraints. |
+| 6 | Complete `parking-lot*.md` sequence | Current project state: read the original and every numbered continuation as one logical backlog. |
+| 7 | `principles.md` | Canonical Principles register, ratified principles, and candidate boundary. |
+
+### Routing and current state
+
 For any consequential Wheelwright reasoning, review, implementation, reconciliation, or other outcome-bearing work:
 
 1. Begin with the root `AGENTS.md`, then read `docs/README.md` as the authoritative documentation guide, index, and A–F authority model.

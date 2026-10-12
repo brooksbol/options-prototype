@@ -14,7 +14,7 @@ Before consequential reasoning, review, design, implementation, reconciliation, 
 4. Acquire current task and experiment state, complete parking-lot and journal continuation context where required, applicable principles/decisions/contracts, and authorization boundaries.
 5. Verify repository synchronization and protect in-flight and unrelated work before any permitted mutation.
 
-Do not treat a prompt, previous session, local checkout, this entry file, or a convenient summary as independent authority. Principal authorization and repository execution gates still govern changes. If authority conflicts or is missing, follow the resolution procedure in `docs/README.md`.
+Do not treat a prompt, previous session, local checkout, this entry file, or a convenient summary as independent authority. Principal authorization and repository execution gates still govern changes. Apply the documented authority precedence in `docs/README.md` to conflicts. Escalate unresolved conflicts or missing authority to the Principal before proceeding with the affected consequential work.
 
 ## Separation of audiences
 

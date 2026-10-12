@@ -71,7 +71,7 @@ The register also owns the lightweight meanings of **Solution Overview** (Produc
 
 ### Foundational Reading Path (7 references)
 
-A foundational orientation to the system and its documentation authority. Mandatory **agent** cold-start routing lives in `AGENTS.md`.
+A foundational orientation to the system and its documentation authority. For agents, all seven references are mandatory under the **Minimum Safe Bootstrap** in [AGENTS.md](AGENTS.md#minimum-safe-bootstrap-7-references--mandatory), which also owns cold-start routing and additional requirements.
 
 | # | Document | Why |
 |---|----------|-----|
@@ -152,7 +152,6 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 
 | Document | Substatus |
 |----------|-----------|
-| `principles.md` | Canonical register of ratified Product, architectural/build and epistemic principles, including backend authority |
 | `07c-adrs.md` | Ratified architectural decisions (append-only; see current register) |
 | `08-adr-backend-evidence-service.md` | Ratified decision (backend extraction) |
 | `09-backend-evidence-service-design.md` | Ratified design; §3 and §10 are Historical |
@@ -199,6 +198,7 @@ Authoritative for their specific project concern. Not system-definition document
 
 | Document | Domain |
 |----------|--------|
+| `principles.md` | Canonical register of ratified Product, architectural/build and epistemic principles, including backend authority |
 | `roadmap.md` | Current strategic roadmap (Vision → Goals → Bets → Initiatives) |
 | `architecture-roadmap.md` | Current architecture-roadmap pressure and intended structural evolution |
 | `technology-quality-program-v1.md` | Principal-ratified and mandated technology-quality program state and execution plan |
