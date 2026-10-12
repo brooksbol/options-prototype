@@ -1,20 +1,26 @@
-# Wheelwright Agent Entry Point
+# Wheelwright — Agent Entry Point
 
-This file is a discovery adapter for AI coding agents. It is not an independent source of Wheelwright project authority, execution permission, architecture, Product meaning, or bootstrap requirements.
+**Agents start here.** The root `README.md` is for humans: project overview, setup, and operator/developer guidance. Do not use it as an agent bootstrap or substitute for project authority.
 
-## Start Here
+This file is the canonical *entry point* for AI actors, not a new or competing source of Wheelwright Product meaning, governance, execution permission, or architecture. The authoritative documentation and bootstrap rules remain in `docs/README.md`.
 
-For any Wheelwright reasoning, review, implementation, reconciliation, or other outcome-bearing work:
+## Mandatory cold start
 
-1. Read `docs/README.md`. It is Wheelwright's documentation authority and bootstrap root.
-2. Follow the current AI Actor Cold-Start Bootstrap routing defined there.
-3. Follow the actor-specific bootstrap when one applies.
-4. Acquire the current task/experiment state and task-relevant authority before consequential work.
+Before consequential reasoning, review, design, implementation, reconciliation, or execution:
 
-Do not substitute this file, repository conventions, conversational context, actor memory, or filename familiarity for the authority/bootstrap routing in `docs/README.md`.
+1. Read `docs/README.md` in full as the documentation authority and bootstrap root.
+2. Follow its current **AI Actor Cold-Start Bootstrap** routing and required known-failure-modes reading.
+3. Follow the actor-specific bootstrap (Codex, Kiro, or other actor) when applicable.
+4. Acquire current task and experiment state, complete parking-lot and journal continuation context where required, applicable principles/decisions/contracts, and authorization boundaries.
+5. Verify repository synchronization and protect in-flight and unrelated work before any permitted mutation.
 
-A conventional agent entry point may help you discover Wheelwright's governed bootstrap. It does not create or duplicate that bootstrap.
+Do not treat a prompt, previous session, local checkout, this entry file, or a convenient summary as independent authority. Principal authorization and repository execution gates still govern changes. If authority conflicts or is missing, follow the resolution procedure in `docs/README.md`.
 
-## Human Repository Overview
+## Separation of audiences
 
-The root `README.md` remains the repository/project overview and developer entry point. Its existing AI bootstrap redirect is retained as a fallback during this discovery-adapter phase.
+- `AGENTS.md`: entry and routing instructions for AI actors.
+- `docs/README.md`: authoritative documentation map, governance, and detailed actor bootstrap.
+- `docs/bootstrap/`: actor-specific and specialized bootstrap procedures.
+- Root `README.md`: human-oriented project and developer documentation; no agent cold-start instructions.
+
+Keep this entry concise. Maintain substantive governance in its established authoritative location rather than duplicating or weakening it here.
