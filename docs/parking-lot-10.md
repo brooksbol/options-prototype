@@ -510,6 +510,22 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 **Bounded implementation state:** CLI/parser/presentation and focused tests implemented; current [CLI contract](contracts/api-v2-held-quotes-read.md), help/manual and [acceptance evidence](cli/ww-ls-acceptance-2026-10-05.md) record the amendment. Focused verification passes. The Principal subsequently reported “acceptance PASSED” for implementation `9b4b8a1de5a665c74d7460d44159df99759ba5d9` and invoked end-of-session closeout. The supplied live ETF OR INDEX selector and equivalent awk-filtered complete TSV had identical SHA-256 hashes; full specimen is recorded in the linked acceptance evidence. This is Principal acceptance plus automated evidence, not independent reviewer disposition. HTTP/OAS/backend/persistence/auth/acquisition/fetch remain unchanged. Broader PL-CLI-01 and PL-API-03 disposition, Coming Soon and strategy remain unchanged; no generic filters, other families or BUG-028 work. Local persistence closes this task; no push authorized.
 
 
+### PL-CLI-01 — Proposed no-argument `ww pull` composition fitness experiment (October 11, 2026)
+
+**Status:** Principal-requested durable intake for later return; **not ratified as a command contract and not implementation authorization**. The Principal expects to want this soon. Preserve under existing `PL-CLI-01`, not a new initiative.
+
+**Product intent:** A low-cognitive-load, no-argument `ww pull` refreshes every applicable configured and authorized Wheelwright evidence source and reports honest per-source outcomes. Existing lower-level `ww` commands remain first-class for operators, scripts, and agents. `ww pull` is convenient orchestration, not a new acquisition capability.
+
+**Proposed architectural fitness test:** Implement `ww pull` **solely by referring to and composing existing public `ww` commands**, with no new domain logic. Ideally it is a minimal shell wrapper or equivalent command-level composition. It must not call internal Java classes, inspect SQLite directly, contact brokerage/provider APIs, or duplicate authorization, financial calculations, evidence admission, or acquisition logic. The test is of the accepted Unix-composability thesis: *the primitive is the capability; the workflow belongs to the composer*.
+
+**Scope to reconcile when resumed:** Fidelity Account CSV sync, backend-owned tastytrade Account holdings acquisition (only once Step 5 is accepted), and configured market quote/chain refresh where an existing public capability and authorized scope exist. Whether all market evidence belongs in the first default and how backend-discovered scope maps to locally available Fidelity exports remain **open**, not silently chosen. No hard-coded nicknames, symbols, or universe. Preserve v1 Web and standalone `tt live`.
+
+**Falsifiers:** (1) wrapper requires modifying primitive internals; (2) cannot discover authorized applicable Accounts or market subjects without hard-coding; (3) requires broader grants than the composed operations; (4) cannot report partial/failed/pending outcomes honestly; (5) repeats create duplicate or unintended mutations; (6) wrapper must implement brokerage, financial, or authorization semantics. A failure is evidence of a missing or inadequate lower-level public primitive, **not permission to hide domain logic in `ww pull`**.
+
+**Candidate acceptance:** Ordinary `ww pull` needs no arguments, GUIDs, environment variables or manual backend wiring. It composes only authorized existing public operations, preserves last good evidence on failure, distinguishes successful/no-op/failed/incomplete work per source, and never claims universal freshness or completion without evidence. Lower-level commands remain usable unchanged. Engineering and Principal acceptance remain separate.
+
+**Next authorized mode:** Bounded read-only reconciliation and a small composition experiment proposal when the Principal resumes this item. **No implementation, mutation, deployment, or default-source selection authorized by this note.**
+
 ## `PL-OPS-10` — Optimize large targeted fetches
 
 **Date:** October 4, 2026 (intake)
