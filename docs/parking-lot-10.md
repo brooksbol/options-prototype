@@ -812,7 +812,7 @@ Closeout preserves existing PL identities, broader workflow heads, horizons and 
 
 ## `PL-CONV-01` — tt / ww v2 Position and Governance Convergence (October 11, 2026)
 
-**State:** INTAKE — bounded read-only discovery selected by Principal; strategic/architectural reconciliation and completion record pending. **Canonical identity:** `PL-CONV-01`. This is one cross-implementation convergence concern, not a new Product, defect, or implementation package.
+**State:** ONGOING — Steps 1–5 accepted in their bounded scope; Step 5 R2 deployed and functionally/visually accepted. Step 6 remains unstarted and unauthorized; overall convergence reconciliation remains open. **Canonical identity:** `PL-CONV-01`. This is one cross-implementation convergence concern, not a new Product, defect, or implementation package.
 
 **Discovery / trigger.** Two independently accepted Wheelwright workstreams have converged: (1) `tt live`'s broker-connected, low-cognitive-load position scan (accepted `9793eddc5abdc979e5d9c3b05d61715d62d4edef`), and (2) `ww` v2's backend-retained brokerage artifacts, account authorization, and Position inspection (accepted `8c7105fbeed5aec9aa30b42ec219fd371b7f088c`). These commit IDs are historical acceptance anchors, not substitutes for verifying current code. Both are evolutionary implementations of **one Wheelwright Product**, not two permanent decision authorities. The ratified v2 rule remains **backend owns state and business logic; clients own presentation** (Doc 77). Brokerages remain the source of their own reported state.
 
@@ -1291,7 +1291,10 @@ Codex prepared an isolated **implementation candidate**, documented in [Step 5 c
 The independent Kiro review reproduced both rejected-candidate failures against its frozen executable: BUG-037 incomplete JSON original-source scope and BUG-038 unbounded response-body consumption/held acquisition monitor. Fidelity BUG-036, response-size rejection, failed-refresh snapshot preservation and Account authorization remain protected. The Principal accepted both findings and selected correction option A: bounded complete-envelope scope classification, whole-operation deadline/cancellation and focused regressions; separately identified candidate, no deployment/commit/push. R2 is in `candidate-r2` on verified main `994a387`; original candidate/submission remain frozen. Candidate details and verification are in `design/pl-conv-01-step5-candidate.md`; defect lifecycle belongs exclusively to the two new bug records. R2 independent and Product acceptance remain pending. Step 6 remains unstarted; no broader architecture or presentation work is authorized.
 
 
-### PL-CONV-01 Step 5 R2 — independently verified, deployed and Principal accepted
+### `PL-CONV-01` Step 5 R2 — independently verified, deployed and Principal accepted
+
+**Date:** October 11, 2026
+**State:** IMPLEMENTED — R2 independently verified, deployed and Principal functionally/visually accepted; Step 6 unstarted and unauthorized.
 
 **Current milestone state (October 11, 2026 America/Denver): Steps1–5 complete in their accepted scope; Step6 shared governed reconsideration remains unstarted and unauthorized.** The overall convergence intake and CONV-WEB remain ongoing. Step4 accepted the bounded occurrence design; Step5 deliberately admits observed holdings without requiring attribution. This checkpoint supersedes earlier pending/no-deployment milestone statements, preserving their historical sequence.
 

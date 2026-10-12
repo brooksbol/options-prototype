@@ -24,5 +24,5 @@ Principal explicitly authorized R2. `TastytradeClient` now waits on JDK asynchro
 PL-CONV-01; BUG-036 (accepted Fidelity protection preserved); `../design/pl-conv-01-step5-candidate.md`; original frozen submission and review artifacts under `/Users/bollich/.local/share/wheelwright/pl-conv-01-step5/`.
 
 
-## Closure — October 11, 2026 (America/Denver)
+## Principal acceptance / closure — October 11, 2026 (America/Denver)
 Kiro independently ACCEPTED frozen R2 JAR SHA-256 `33d5e3360c697db8863eafc4bc173452b2c8f4c9a49f9e60318386e9026d15e4`. Complete-envelope fail-closed disclosure, valid-byte access, admission/disclosure separation, whole-body deadline, socket cancellation, released monitor, snapshot preservation and subsequent acquisition recovery passed. Fidelity protection remains preserved; the corrected raw-socket reviewer harness and the exact executed-versus-reused regression evidence are documented in the Step5 design closeout. The Principal accepted the independent report, authorized deployment, successfully exercised ordinary installed ww acquisition/read commands, supplied the color screenshot and explicitly selected A accepting functionality/presentation. This defect is **Resolved**, not merely candidate-remediated. No live incident is inferred from the synthetic original failure.
