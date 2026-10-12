@@ -220,7 +220,7 @@ test("CF02-09,11-12 native Unix composition needs no adapter",async()=>fixture(a
   }finally{await rm(dir,{recursive:true,force:true});}
 }));
 
-test("missing credentials, private .env and grammar before credential loading",async()=>fixture(async({env,calls})=>{
+test("missing credentials, private .ww.env and grammar before credential loading",async()=>fixture(async({env,calls})=>{
   const {mkdtemp,mkdir,copyFile,writeFile,rm,realpath}=await import("node:fs/promises");
   const {tmpdir}=await import("node:os");const {join}=await import("node:path");
   const dir=await mkdtemp(join(tmpdir(),"ww-ls-private-"));
@@ -231,13 +231,13 @@ test("missing credentials, private .env and grammar before credential loading",a
     const actual=await realpath(isolated);
     const run=args=>capture([actual,...args],{...env,WW_API_TOKEN:""});
     const missing=await run(["ls","quotes"]);assert.equal(missing.status,1);assert.equal(missing.stdout,"");assert.equal(calls.length,0);
-    await mkdir(join(dir,".env")); // Reading this would fail: usage must still precede it.
+    await mkdir(join(dir,".ww.env")); // Reading this would fail: usage must still precede it.
     const invalid=await run(["ls"]);assert.equal(invalid.status,2);assert.equal(calls.length,0);
     for(const value of [[],["BOND"],["etf"],["OTHER_UNDERLYING"]]){
       const rejected=await run(["ls","quotes","--type",...value]);
       assert.equal(rejected.status,2);assert.equal(rejected.stdout,"");assert.equal(calls.length,0);
     }
-    await rm(join(dir,".env"),{recursive:true});await writeFile(join(dir,".env"),`WW_API_TOKEN='${TOKEN}'\n`);
+    await rm(join(dir,".ww.env"),{recursive:true});await writeFile(join(dir,".ww.env"),`WW_API_TOKEN='${TOKEN}'\n`);
     const configured=await run(["ls","quotes"]);assert.equal(configured.status,0);assert.equal(calls.length,1);
     assert.ok(!configured.stdout.includes(TOKEN));assert.equal(configured.stderr,"");
   }finally{await rm(dir,{recursive:true,force:true});}

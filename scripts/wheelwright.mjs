@@ -6,6 +6,9 @@ import { parsePositions, readPositions, renderPositions, POSITIONS_HELP } from "
 import { resolveAccount, readAccounts, renderAccounts, ACCOUNTS_HELP } from "./ww-accounts.mjs";
 import { parseSync, syncAccount, SYNC_HELP } from "./ww-sync.mjs";
 
+// The converged client never loads or forwards inherited brokerage integration secrets.
+for (const name of Object.keys(process.env)) if (name.startsWith('TASTYTRADE_')) delete process.env[name];
+
 const ROOT_HELP = `Usage: ww <command> [options]
        ww --help | -h | --man
 
@@ -17,7 +20,7 @@ Working commands:
   ls accounts [--table | --tsv | --jsonl]
       Find account aliases before syncing or inspecting Positions.
   sync account ACCOUNT
-      Synchronize supported Downloads CSVs with backend artifact/evidence retention.
+      Acquire tastytrade holdings through the backend, or synchronize Fidelity CSVs.
   show positions --account ACCOUNT [--verbose | --jsonl | --table]
       Inspect backend Positions, constituents, qualifications and source provenance.
   fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
@@ -40,7 +43,7 @@ Results go to stdout; diagnostics go to stderr. Exit status controls &&.
 Use 'ww <command> --help' or '--man' for command details; 'ww --man'
 describes the current CLI. 'ww observed-prices' remains a prices alias.
 Backend: WW_BASE_URL (default http://localhost:3100).
-Fetch, ls quotes and show authentication: WW_API_TOKEN (exported or private .env).
+Fetch, ls quotes and show authentication: WW_API_TOKEN (exported or private .ww.env).
 Fetch requires quote.acquire (+ quote.force for --force); quote inspection requires quote.read.
 Positions and sync require their exact account-scoped grants; see command help.`;
 
@@ -97,7 +100,7 @@ Example:
   ww fetch SPY --force
 
 Backend: WW_BASE_URL (default http://localhost:3100).
-Authentication: WW_API_TOKEN, exported or in the repository private .env file.
+Authentication: WW_API_TOKEN, exported or in the repository private .ww.env file.
 Explicit exports override the file. Missing credentials fail before backend contact. Use HTTPS outside loopback development.
 Use 'ww fetch --man' for the full behavioral contract.`;
 
@@ -131,7 +134,7 @@ Verbose counts selected holdings. Invalid/missing types fail before HTTP, exit 2
 Errors go to stderr; exit 0 success, 1 failure, 2 usage/configuration.
 
 WW_BASE_URL defaults to http://localhost:3100; HTTPS outside loopback.
-WW_API_TOKEN uses the accepted exported/private .env Bearer convention.
+WW_API_TOKEN uses the accepted exported/private .ww.env Bearer convention.
 The backend requires quote.read independently of quote.acquire/quote.force.
 Use 'ww ls --man' for escaping, security and evidence limits.`;
 
@@ -430,15 +433,20 @@ function redactCredential(value, token) {
   return JSON.parse(JSON.stringify(value).replaceAll(token, "[REDACTED]"));
 }
 
-// Match the repository's private .env credential convention without executing
-// shell code or loading provider credentials. Nonempty exports override the file; help/usage paths never read it.
+// Dedicated Wheelwright configuration: never read the brokerage .env, execute
+// shell code or load provider credentials. Nonempty exports override the file; help/usage paths never read it.
 async function readPrivateSetting(name, env, readFileImpl) {
   if (env[name]?.trim()) return env[name];
   let contents;
-  try { contents = await readFileImpl(new URL("../.env", import.meta.url), "utf8"); }
+  try { contents = await readFileImpl(new URL("../.ww.env", import.meta.url), "utf8"); }
   catch (error) {
     if (error.code === "ENOENT") return undefined;
-    throw new WwError("cannot read the private .env configuration file");
+    throw new WwError("cannot read the private .ww.env configuration file");
+  }
+  for (const line of contents.split(/\r?\n/)) {
+    if (!line.trim() || line.trimStart().startsWith('#')) continue;
+    if (!/^\s*(?:export\s+)?WW_(?:API_TOKEN|BASE_URL)\s*=/.test(line))
+      throw new WwError("private .ww.env must contain only Wheelwright settings");
   }
   const matches = [...contents.matchAll(new RegExp(`^\\s*(?:export\\s+)?${name}\\s*=\\s*(.*?)\\s*$`, 'gm'))];
   if (!matches.length) return undefined;
@@ -786,7 +794,7 @@ export async function main(args) {
   if (parsed.command === "ls") {
     let token;
     try { token = await readApiToken(); }
-    catch { throw new WwError("ls quotes: cannot read the private .env credential file"); }
+    catch { throw new WwError("ls quotes: cannot read the private .ww.env credential file"); }
     const result = await readHeldQuotes({ token,base });
     const presentation = presentHeldQuotes(result, { ...parsed, tty: !!process.stdout.isTTY });
     if (presentation.stdout) process.stdout.write(presentation.stdout);

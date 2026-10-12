@@ -102,7 +102,7 @@ ENVIRONMENT
 
     WW_API_TOKEN
         Explicit Bearer credential configured for a Wheelwright principal,
-        exported or stored as WW_API_TOKEN in the repository private .env file.
+        exported or stored as WW_API_TOKEN in the repository private .ww.env file.
         Nonempty exported values override the file. Only this
         one file key is read; shell substitutions are never executed.
         Missing/empty credentials fail before contacting the backend. No anonymous

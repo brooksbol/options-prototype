@@ -29,15 +29,20 @@ test('BUG-035 does not expand or redefine existing explicit JSONL payload',()=>{
   const a=account('TASTYTRADE','0000123459');
   assert.deepEqual(JSON.parse(renderAccounts([a],{format:'jsonl'})),a);
 });
-test('tastytrade nickname resolves through backend but sync stops before artifact reads or Downloads scanning',async()=>{
+test('tastytrade sync requests only backend acquisition without scanning Downloads or artifacts',async()=>{
   const paths=[];
-  const fetchImpl=async url=>{
-    paths.push(url.pathname);assert.equal(url.pathname,'/v2/accounts');
-    return new Response(JSON.stringify({requestId,accounts:[account('TASTYTRADE','0000123459')]}),
-      {headers:{'Content-Type':'application/json','X-Request-Id':requestId}});
+  const fetchImpl=async (url,options)=>{
+    paths.push(url.pathname);assert.equal(options.headers.Authorization,'Bearer credential');
+    let data;
+    if(url.pathname==='/v2/accounts')data={requestId,accounts:[account('TASTYTRADE','0000123459')]};
+    else {
+      assert.equal(url.pathname,'/v2/position-acquisitions');assert.equal(url.searchParams.get('accountId'),id);assert.equal(options.method,'POST');assert.equal(options.body,undefined);
+      data={requestId,accountId:id,acquisitionId:requestId,status:'ACCEPTED',artifactId:'artifact',snapshotId:'snapshot',startedAt:'2026-10-11T12:00:00Z',receivedAt:'2026-10-11T12:00:01Z',completedAt:'2026-10-11T12:00:01Z',result:'Retained holdings; occurrence unresolved.'};
+    }
+    return new Response(JSON.stringify(data),{headers:{'Content-Type':'application/json','X-Request-Id':requestId}});
   };
   assert.equal((await resolveAccount('tt1','credential',{fetchImpl})).id,id);
-  await assert.rejects(syncAccount('tt1','credential',{fetchImpl,directory:'/nonexistent-downloads'}),/not supported.*Fidelity CSV/);
+  assert.equal((await syncAccount('tt1','credential',{fetchImpl,directory:'/nonexistent-downloads',out:()=>{}})).complete,true);
   await assert.rejects(resolveAccount('missing','credential',{fetchImpl}),/run ww ls accounts/);
-  assert.deepEqual(paths,['/v2/accounts','/v2/accounts','/v2/accounts']);
+  assert.deepEqual(paths,['/v2/accounts','/v2/accounts','/v2/position-acquisitions','/v2/accounts']);
 });

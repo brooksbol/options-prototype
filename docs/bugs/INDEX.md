@@ -46,6 +46,9 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 
 | BUG-036 | Unknown mixed-artifact source scope permits cross-Account original-byte disclosure | Backend / v2 artifact content authorization | S2 | Resolved | [record](BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md) | Principal-authorized correction; independently verified and resolved 2026-10-11 |
 
+| BUG-037 | Tastytrade JSON scope ignores content outside inventory items | Backend / v2 original-byte disclosure | S2 | Resolved | [record](BUG-037-tastytrade-json-incomplete-source-scope.md) | R2 independently verified; deployed and Principal accepted |
+| BUG-038 | Tastytrade response-body acquisition deadline incomplete | Backend / v2 acquisition transport | S2 | Resolved | [record](BUG-038-tastytrade-body-timeout.md) | R2 independently verified; deployed and Principal accepted |
+
 ## Open-bug audit checkpoint (2026-09-22)
 
 Independent current-main audit/reverification reconciled the previously 18 Open records:

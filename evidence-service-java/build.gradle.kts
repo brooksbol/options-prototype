@@ -71,3 +71,11 @@ tasks.register<Test>("reproduceRejectedSolidusTransport") {
     classpath = bug030.output + sourceSets["test"].runtimeClasspath
     include("**/HeldQuoteTransportPreservationTest.class")
 }
+
+// Isolated Principal-facing visual preview: test-only backend, synthetic provider, disposable DB.
+tasks.register<JavaExec>("step5Preview") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.Step5Preview")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("previewReady") as? String)
+}

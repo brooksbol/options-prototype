@@ -15,6 +15,7 @@ public class ArtifactsController {
     public ArtifactsController(BrokerageArtifacts artifacts, BearerAuthenticator auth, ObjectMapper mapper) {
         this.artifacts = artifacts; this.auth = auth; this.mapper = mapper;
     }
+    private record Content(byte[] bytes,String contentType) {}
     @FunctionalInterface private interface Work { Object run(String id, String account) throws Exception; }
     private static final class SourceForbidden extends RuntimeException {}
     private ResponseEntity<?> handle(String account, String artifact, String grant, HttpServletRequest request, Work work) throws Exception {
@@ -38,9 +39,9 @@ public class ArtifactsController {
             if (account != null && artifacts.brokerAccount(account) == null) return problem(ProblemCode.NOT_FOUND, id, "backend account binding not configured");
             Object value = work.run(id,account);
             if (value == null) return problem(ProblemCode.NOT_FOUND, id, "artifact not found in this account");
-            if (value instanceof byte[] bytes) return ResponseEntity.ok().header("X-Request-Id", id)
+            if (value instanceof Content content) return ResponseEntity.ok().header("X-Request-Id", id)
                     .header("Cache-Control", "private, no-store").header("Content-Disposition", "attachment")
-                    .contentType(MediaType.parseMediaType("text/csv")).body(bytes);
+                    .contentType(MediaType.parseMediaType(content.contentType())).body(content.bytes());
             return ResponseEntity.ok().header("X-Request-Id", id).header("Cache-Control", "private, no-store")
                     .contentType(MediaType.APPLICATION_JSON).body(mapper.writeValueAsString(value));
         } catch (SourceForbidden e) { return problem(ProblemCode.FORBIDDEN, id, "caller lacks authority for every account in original source"); }
@@ -79,7 +80,7 @@ public class ArtifactsController {
             var metadata=artifacts.metadata(account,artifact).orElseThrow();
             var bytes=artifacts.content(account,artifact).orElseThrow();
             sourceAuthority(account,metadata.imports().getFirst().originalFilename(),bytes,"read",request);
-            return bytes;
+            return new Content(bytes,metadata.contentType());
         });
     }
     @PostMapping

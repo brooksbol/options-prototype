@@ -1,0 +1,42 @@
+{
+  "data": {
+    "items": [
+      {
+        "account-number": "TTTEST01",
+        "symbol": "XLE   261016P00059000",
+        "instrument-type": "Equity Option",
+        "quantity": "1",
+        "quantity-direction": "Long",
+        "underlying-symbol": "XLE",
+        "expires-at": "2026-10-16T20:00:00Z"
+      },
+      {
+        "account-number": "TTTEST01",
+        "symbol": "XLE   261016P00059500",
+        "instrument-type": "Equity Option",
+        "quantity": "1",
+        "quantity-direction": "Short",
+        "underlying-symbol": "XLE",
+        "expires-at": "2026-10-16T20:00:00Z"
+      },
+      {
+        "account-number": "TTTEST01",
+        "symbol": "XLE   261016C00064500",
+        "instrument-type": "Equity Option",
+        "quantity": "1",
+        "quantity-direction": "Short",
+        "underlying-symbol": "XLE",
+        "expires-at": "2026-10-16T20:00:00Z"
+      },
+      {
+        "account-number": "TTTEST01",
+        "symbol": "XLE   261016C00065000",
+        "instrument-type": "Equity Option",
+        "quantity": "1",
+        "quantity-direction": "Long",
+        "underlying-symbol": "XLE",
+        "expires-at": "2026-10-16T20:00:00Z"
+      }
+    ]
+  }
+}

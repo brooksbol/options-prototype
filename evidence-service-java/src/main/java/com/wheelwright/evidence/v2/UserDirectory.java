@@ -10,7 +10,7 @@ import java.util.*;
 @Component
 public class UserDirectory {
     public static final String ADMIN="users.admin";
-    public record AccountAccess(String accountId,boolean metadataRead,boolean positionsRead,boolean artifactsRead,boolean artifactsWrite) {}
+    public record AccountAccess(String accountId,boolean metadataRead,boolean positionsRead,boolean artifactsRead,boolean artifactsWrite,boolean positionsAcquire) {}
     public record User(String id,String displayName,boolean administrator,List<AccountAccess> accountAccess) {}
     private final String url;
     @Autowired
@@ -31,7 +31,7 @@ public class UserDirectory {
         for(String g:grants) {
             if(Set.of(ADMIN,"quote.read","quote.acquire","quote.force").contains(g))continue;
             int colon=g.indexOf(':');
-            if(colon<0||!Set.of("account.read","account.positions.read","account.artifacts.read","account.artifacts.write").contains(g.substring(0,colon))||!AccountDirectory.validId(g.substring(colon+1)))
+            if(colon<0||!Set.of("account.read","account.positions.read","account.artifacts.read","account.artifacts.write","account.positions.acquire").contains(g.substring(0,colon))||!AccountDirectory.validId(g.substring(colon+1)))
                 throw new IllegalArgumentException("unsupported backend User permission");
             access.computeIfAbsent(g.substring(colon+1),k->new HashSet<>()).add(g.substring(0,colon));
         }
@@ -53,10 +53,10 @@ public class UserDirectory {
                     q.setBoolean(1,grants.contains(ADMIN));q.setBoolean(2,grants.contains("quote.read"));q.setBoolean(3,grants.contains("quote.acquire"));q.setBoolean(4,grants.contains("quote.force"));q.setString(5,id);q.executeUpdate();
                 }
                 try(var q=c.prepareStatement("DELETE FROM v2_user_account WHERE user_id=?")){q.setString(1,id);q.executeUpdate();}
-                try(var q=c.prepareStatement("INSERT INTO v2_user_account VALUES (?,?,?,?,?,?)")) {
+                try(var q=c.prepareStatement("INSERT INTO v2_user_account (user_id,account_id,metadata_read,positions_read,artifacts_read,artifacts_write,positions_acquire) VALUES (?,?,?,?,?,?,?)")) {
                     for(var a:access.entrySet()) {
                         q.setString(1,id);q.setString(2,a.getKey());q.setBoolean(3,a.getValue().contains("account.read"));q.setBoolean(4,a.getValue().contains("account.positions.read"));
-                        q.setBoolean(5,a.getValue().contains("account.artifacts.read"));q.setBoolean(6,a.getValue().contains("account.artifacts.write"));q.executeUpdate();
+                        q.setBoolean(5,a.getValue().contains("account.artifacts.read"));q.setBoolean(6,a.getValue().contains("account.artifacts.write"));q.setBoolean(7,a.getValue().contains("account.positions.acquire"));q.executeUpdate();
                     }
                 }
                 c.commit();return id;
@@ -70,7 +70,7 @@ public class UserDirectory {
                 if(!rs.next())return Optional.empty();
                 var access=new ArrayList<AccountAccess>();
                 try(var a=c.prepareStatement("SELECT * FROM v2_user_account WHERE user_id=? ORDER BY account_id")) {
-                    a.setString(1,id);try(var rows=a.executeQuery()){while(rows.next())access.add(new AccountAccess(rows.getString("account_id"),rows.getBoolean("metadata_read"),rows.getBoolean("positions_read"),rows.getBoolean("artifacts_read"),rows.getBoolean("artifacts_write")));}
+                    a.setString(1,id);try(var rows=a.executeQuery()){while(rows.next())access.add(new AccountAccess(rows.getString("account_id"),rows.getBoolean("metadata_read"),rows.getBoolean("positions_read"),rows.getBoolean("artifacts_read"),rows.getBoolean("artifacts_write"),rows.getBoolean("positions_acquire")));}
                 }
                 return Optional.of(new User(id,rs.getString("display_name"),rs.getBoolean("administrator"),List.copyOf(access)));
             }
@@ -103,6 +103,7 @@ public class UserDirectory {
                     if(rs.getBoolean("positions_read"))result.add("account.positions.read:"+account);
                     if(rs.getBoolean("artifacts_read"))result.add("account.artifacts.read:"+account);
                     if(rs.getBoolean("artifacts_write"))result.add("account.artifacts.write:"+account);
+                    if(rs.getBoolean("positions_acquire"))result.add("account.positions.acquire:"+account);
                 }}
             }
             return Optional.of(Set.copyOf(result));

@@ -22,6 +22,9 @@ WORKING COMMANDS
         Run 'ww ls accounts --help' for examples.
 
     sync account ACCOUNT
+        tastytrade: backend-owned API holdings acquisition; requires explicit
+        account.positions.acquire:ID. No brokerage credentials in this client.
+        Position reads never contact a brokerage.
         Scan ~/Downloads, identify supported account-attributed Fidelity CSVs,
         compare SHA-256 with the backend inventory, and process unseen content
         sequentially oldest first. Stop on failure; retained failures retry
@@ -29,7 +32,7 @@ WORKING COMMANDS
         means discovered content processed, not continuous brokerage history.
         See 'ww sync --help' and docs/cli/ww-account-evidence.md.
 
-    show positions --account ACCOUNT [--verbose | --jsonl | --table]
+    show positions --account ACCOUNT [--verbose | --jsonl | --table] [--no-color]
         Read backend-held Position snapshots with explicit evidence gaps.
         --verbose includes constituents, provenance and separate close/order
         sections; it requests terminal layout even when redirected. Default
@@ -151,7 +154,7 @@ DISCOVERY
 ENVIRONMENT
     WW_BASE_URL   Backend base URL; default http://localhost:3100
     WW_API_TOKEN  Bearer credential for fetch, ls quotes and show, exported or in the
-                  private root .env; nonempty exports take precedence; never
+                  private root .ww.env; nonempty exports take precedence; never
                   printed. These require HTTPS outside loopback development.
                   Fetch requires quote.acquire (+ quote.force for --force).
                   ls quotes and show require explicit quote.read independently.

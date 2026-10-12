@@ -7,11 +7,12 @@ import { ShowError, showConfig } from './ww-show.mjs';
 
 export const SYNC_HELP = `Usage: ww sync account ACCOUNT
 
-Update an account from Fidelity CSV downloads in ~/Downloads.
+Update retained Account evidence: Fidelity CSV downloads or backend tastytrade API acquisition.
 
 Examples:
   ww sync account pts
   ww sync account sawdust
+  ww sync account tt1
 
 Download your brokerage CSVs, then run this command. Wheelwright finds
 supported files for the account, skips files already saved, and processes
@@ -81,8 +82,17 @@ export async function artifactRequest(account, suffix, token, {base, fetchImpl=f
   return data;
 }
 export async function syncAccount(account, token, { directory=join(homedir(), 'Downloads'), base,
-    fetchImpl=fetch, out=s=>process.stdout.write(s) }={}) {
+    fetchImpl=fetch, out=s=>process.stdout.write(s), tty=!!process.stdout.isTTY, env=process.env }={}) {
   const resolved = await resolveAccount(account,token,{base,fetchImpl});
+  if (resolved.brokerAssociation.broker === 'TASTYTRADE') {
+    const result = await acquireHoldings(resolved.id,token,{base,fetchImpl});
+    const color=tty&&!Object.hasOwn(env,'NO_COLOR')&&env.TERM!=='dumb';
+    const ink=(value,code)=>color?`\x1b[${code}m${value}\x1b[97m`:value;
+    const lines=[`${ink('tastytrade','91')} holdings acquisition: ${ink(result.status,result.status==='ACCEPTED'?'96':'93')}`,
+      result.result,`Observation: ${result.receivedAt??ink('unavailable','37')}; request ${result.requestId}`];
+    out(lines.map(line=>color?`\x1b[97m${line}\x1b[0m`:line).join('\n')+'\n');
+    return {uploaded:0,processed:result.status==='ACCEPTED'?1:0,failed:result.status==='ACCEPTED'?0:1,pending:0,complete:result.status==='ACCEPTED'};
+  }
   if (resolved.brokerAssociation.broker !== 'FIDELITY')
     throw new ShowError('sync: brokerage synchronization is not supported for this Account yet; Fidelity CSV accounts only. Run ww ls accounts to choose an Account.');
   account = resolved.id;
@@ -144,4 +154,30 @@ export async function syncAccount(account, token, { directory=join(homedir(), 'D
   out(failed || remaining ? 'SYNC INCOMPLETE\n' : 'SYNC COMPLETE: every eligible discovered content artifact durably persisted and processed.\n');
   out('COVERAGE UNKNOWN: file processing does not establish continuous brokerage history. Exact activity-row matching preserves prior observations; corrections/lifecycle continuity remain unresolved.\n');
   return {uploaded,processed,failed,pending:remaining,complete:!failed&&!remaining};
+}
+
+/** Explicit backend acquisition; no brokerage credentials or local acquisition cache. */
+export async function acquireHoldings(account,token,{base,fetchImpl=fetch}={}) {
+  if(!canonicalAccountId(account))throw new ShowError('sync: canonical Account ID required');
+  const {url}=showConfig(token,base);
+  let response;
+  try {response=await fetchImpl(new URL(`/v2/position-acquisitions?accountId=${encodeURIComponent(account)}`,url),
+    {method:'POST',redirect:'error',headers:{Authorization:`Bearer ${token}`}});}
+  catch {throw new ShowError('sync: Wheelwright request failed; inspect retained evidence');}
+  let text;try{text=await response.text();}catch{throw new ShowError('sync: truncated acquisition response');}
+  if(text.includes(token))throw new ShowError('sync: response contains credential');
+  const id=response.headers.get('x-request-id');
+  let data;try{data=JSON.parse(text);}catch{throw new ShowError('sync: invalid backend JSON');}
+  if(!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(id??'')||data.requestId!==id)
+    throw new ShowError('sync: invalid response correlation');
+  if(response.status!==200)throw new ShowError(`sync: backend status ${response.status} (request ${id})`);
+  if(!/^application\/json(?:;|$)/i.test(response.headers.get('content-type')??'')||data.accountId!==account||
+    !['ACCEPTED','REJECTED','FAILED'].includes(data.status)||typeof data.result!=='string'||
+    typeof data.acquisitionId!=='string'||typeof data.startedAt!=='string'||typeof data.completedAt!=='string')
+    throw new ShowError('sync: invalid acquisition representation');
+  const timestamp=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(s)&&Number.isFinite(Date.parse(s));
+  if(!timestamp(data.startedAt)||!timestamp(data.completedAt)||data.receivedAt!==null&&!timestamp(data.receivedAt)||
+     data.status==='ACCEPTED'&&(typeof data.artifactId!=='string'||typeof data.snapshotId!=='string'||data.receivedAt===null))
+    throw new ShowError('sync: invalid acquisition provenance');
+  return {...data,result:safe(data.result)};
 }

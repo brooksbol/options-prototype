@@ -172,7 +172,7 @@ ARGUMENTS, DISCOVERY AND SECURITY
     Accepted public field changes keep these synchronized. Scripts remain the
     proving/composition layer for unaccepted derived analytics and joins.
     WW_BASE_URL defaults http://localhost:3100; HTTPS outside loopback.
-    WW_API_TOKEN export or literal private .env; independent quote.read grant.
+    WW_API_TOKEN export or literal private .ww.env; independent quote.read grant.
     Existing transport-only path codec: slash _2F, underscore _5F, caret _5E,
     exactly one decode. BRK/B and literal BRK_2FB remain distinct. No credentials
     or raw transport exceptions in diagnostics; request and evidence IDs differ.

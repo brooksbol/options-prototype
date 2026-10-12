@@ -2,8 +2,8 @@
   "openapi": "3.1.1",
   "info": {
     "title": "Wheelwright v2 account evidence and Positions",
-    "version": "0.3.0",
-    "description": "Bounded source retention, exact-row evidence admission and Position reads. No sophisticated historical reconciliation or recommendations. Canonical opaque resource identities, Account discovery and authorized-scope collections; persistence structure does not determine URI hierarchy. First-class User identity, authenticated self inspection and explicitly administrator-only User discovery; fixed many-to-many User\u2013Account authorization."
+    "version": "0.4.0",
+    "description": "Bounded source retention, exact-row evidence admission and Position reads. No sophisticated historical reconciliation or recommendations. Canonical opaque resource identities, Account discovery and authorized-scope collections; persistence structure does not determine URI hierarchy. First-class User identity, authenticated self inspection and explicitly administrator-only User discovery; fixed many-to-many User–Account authorization."
   },
   "servers": [
     {
@@ -25,7 +25,7 @@
       "get": {
         "operationId": "readAccountPositions",
         "summary": "readAccountPositions",
-        "description": "Pure committed backend snapshot read. Latest export date then admission time. No provider contact, lifecycle inference, body, pagination or acquisition. Position identity denotes observed contract/custody inventory or explicit snapshot association, not lifecycle continuity. Constituents appear exactly once. Missing fields remain null. Bid/ask and per-option broker margin requirements may use an accepted same-day Option Summary; each carries separate artifact/row provenance. Strategy rows never count inventory. Option Greeks, allocation, close policy and working orders remain unknown. Date-only evidence does not establish current executable prices or adjusted deliverables. Original bytes resolve through artifactId. Collections include only backend-authorized Account scope. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "description": "Pure committed backend snapshot read. Latest export date then admission time. No provider contact, lifecycle inference, body, pagination or acquisition. Position identity denotes observed contract/custody inventory or explicit snapshot association, not lifecycle continuity. Constituents appear exactly once. Missing fields remain null. Bid/ask and per-option broker margin requirements may use an accepted same-day Option Summary; each carries separate artifact/row provenance. Strategy rows never count inventory. Option Greeks, allocation, close policy and working orders remain unknown. Date-only evidence does not establish current executable prices or adjusted deliverables. Original bytes resolve through artifactId. Collections include only backend-authorized Account scope. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. Tastytrade API holdings carry additive observation provenance and have no inferred opening economics, grouping, Program or orders. No retained CSV market enrichment is applied to tastytrade observations.",
         "security": [
           {
             "bearerAuth": []
@@ -392,6 +392,12 @@
                   "type": "string",
                   "format": "binary"
                 }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
               }
             }
           },
@@ -439,7 +445,7 @@
       "post": {
         "operationId": "retryRetainedArtifactProcessing",
         "summary": "retryRetainedArtifactProcessing",
-        "description": "Append a processing attempt from retained bytes and most recent recorded filename/type. No body/query/reupload. Exact source/evidence identities make admission repeatable; prior statuses and source remain retained. Import requires artifact write authority for the target Account only. Exact mixed-account originals are retained privately. Positions processing admits only target-account rows and does not grant access to other Accounts. Formats without supported row-level Account attribution are retained with REJECTED processing rather than admitting mixed rows. Complete original-file retrieval separately requires artifact read authority for every source Account; unregistered source scopes deny retrieval. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "description": "Append a processing attempt from retained bytes and most recent recorded filename/type. No body/query/reupload. Exact source/evidence identities make admission repeatable; prior statuses and source remain retained. Import requires artifact write authority for the target Account only. Exact mixed-account originals are retained privately. Positions processing admits only target-account rows and does not grant access to other Accounts. Formats without supported row-level Account attribution are retained with REJECTED processing rather than admitting mixed rows. Complete original-file retrieval separately requires artifact read authority for every source Account; unregistered source scopes deny retrieval. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. This CSV processing capability does not replay tastytrade API acquisition artifacts or contact a brokerage. API acquisition attempts remain inspectable as retained artifact imports; resynchronization is an explicitly authorized new acquisition.",
         "security": [
           {
             "bearerAuth": []
@@ -658,7 +664,7 @@
       "get": {
         "operationId": "listUsers",
         "summary": "listUsers",
-        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Requires explicitly backend-established users.admin, including inspection of one\u2019s own User through /users/{userId}. User names and Account access imply no administrator privilege. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User–Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Requires explicitly backend-established users.admin, including inspection of one’s own User through /users/{userId}. User names and Account access imply no administrator privilege. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
         "security": [
           {
             "bearerAuth": []
@@ -737,7 +743,7 @@
       "get": {
         "operationId": "readUser",
         "summary": "readUser",
-        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Requires explicitly backend-established users.admin, including inspection of one\u2019s own User through /users/{userId}. User names and Account access imply no administrator privilege. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User–Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Requires explicitly backend-established users.admin, including inspection of one’s own User through /users/{userId}. User names and Account access imply no administrator privilege. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
         "security": [
           {
             "bearerAuth": []
@@ -807,7 +813,7 @@
       "get": {
         "operationId": "readCurrentUser",
         "summary": "readCurrentUser",
-        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Returns only the authenticated User; arbitrary headers, Account selection or client filtering cannot select a different identity. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User–Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Returns only the authenticated User; arbitrary headers, Account selection or client filtering cannot select a different identity. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
         "security": [
           {
             "bearerAuth": []
@@ -836,6 +842,87 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
+      }
+    },
+    "/v2/position-acquisitions": {
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string"
+          },
+          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+        }
+      ],
+      "post": {
+        "operationId": "acquireAccountPositions",
+        "summary": "Acquire one complete tastytrade Account holdings observation",
+        "description": "Explicit backend-only OAuth and holdings acquisition. Exactly one canonical accountId selector, no request body or other query. Authentication then exact Account acquisition authority before source/storage access. Account reads, artifact writes, quote acquisition and ID possession do not grant acquisition. Unconfigured provider or unsupported brokerage is 503. No orders/history/quotes/scheduler. Successful JSON bodies pass credential-safety checks before immutable exact-byte retention. Interpretation is all-or-nothing; accepted snapshot and attempt outcome commit together. Failed refresh preserves previous evidence and its clock. Pagination requiring more than one page is retained/rejected rather than misreported as complete. OAuth responses, headers and upstream errors are not retained or disclosed. Every response has X-Request-Id and private,no-store.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.positions.acquire:{accountId}"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^acct_[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Completed synchronous attempt, including controlled FAILED or REJECTED outcomes. Only ACCEPTED advances the retained holdings observation.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionAcquisition"
                 }
               }
             }
@@ -1227,7 +1314,8 @@
           },
           "evidenceDate": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "description": "Fidelity export day, or UTC backend receipt day for tastytrade. Not an opening or broker event timestamp."
           },
           "recordedAt": {
             "type": "string",
@@ -1272,6 +1360,16 @@
           "accountId": {
             "type": "string",
             "pattern": "^acct_[a-f0-9]{32}$"
+          },
+          "observation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HoldingsObservation"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -1404,7 +1502,10 @@
             "type": "object",
             "properties": {
               "broker": {
-                "enum": ["FIDELITY", "TASTYTRADE"]
+                "enum": [
+                  "FIDELITY",
+                  "TASTYTRADE"
+                ]
               },
               "accountNumber": {
                 "type": "string"
@@ -1476,6 +1577,10 @@
           },
           "artifactsWrite": {
             "type": "boolean"
+          },
+          "positionsAcquire": {
+            "type": "boolean",
+            "description": "Explicit Account acquisition capability; independent of metadata, Position reads, artifacts and quotes. Defaults false on migration."
           }
         },
         "required": [
@@ -1483,9 +1588,10 @@
           "metadataRead",
           "positionsRead",
           "artifactsRead",
-          "artifactsWrite"
+          "artifactsWrite",
+          "positionsAcquire"
         ],
-        "description": "One explicitly established backend User\u2013Account relationship; multiple Users may access one Account and one User may access multiple Accounts."
+        "description": "One explicitly established backend User–Account relationship; multiple Users may access one Account and one User may access multiple Accounts."
       },
       "User": {
         "type": "object",
@@ -1548,6 +1654,111 @@
         "required": [
           "requestId",
           "user"
+        ]
+      },
+      "HoldingsObservation": {
+        "type": "object",
+        "properties": {
+          "broker": {
+            "const": "TASTYTRADE"
+          },
+          "environment": {
+            "const": "PRODUCTION"
+          },
+          "acquisitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "interpretationVersion": {
+            "const": "tastytrade-holdings-v1"
+          },
+          "sourceScope": {
+            "const": "REQUESTED_ACCOUNT_FULL_HOLDINGS"
+          }
+        },
+        "required": [
+          "broker",
+          "environment",
+          "acquisitionId",
+          "startedAt",
+          "receivedAt",
+          "interpretationVersion",
+          "sourceScope"
+        ],
+        "description": "Backend request/receipt interval, not a package valuation clock or atomic brokerage event timestamp. No history-completeness claim."
+      },
+      "PositionAcquisition": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          },
+          "acquisitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "enum": [
+              "ACCEPTED",
+              "REJECTED",
+              "FAILED"
+            ]
+          },
+          "artifactId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "snapshotId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "receivedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "requestId",
+          "accountId",
+          "acquisitionId",
+          "status",
+          "artifactId",
+          "snapshotId",
+          "startedAt",
+          "receivedAt",
+          "completedAt",
+          "result"
         ]
       }
     },

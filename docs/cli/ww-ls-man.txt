@@ -91,7 +91,7 @@ AUTHENTICATION AND TRANSPORT
     WW_BASE_URL defaults to http://localhost:3100. HTTPS is required outside
     localhost/127.0.0.1/[::1]. Embedded URL credentials and redirects rejected.
     WW_API_TOKEN is the existing Wheelwright Bearer credential: a nonempty
-    export overrides the literal key in private root .env. No shell evaluation
+    export overrides the literal key in private root .ww.env. No shell evaluation
     or provider-key loading. Requires explicit quote.read authorization;
     quote.acquire and quote.force do not imply quote.read.
     No retry/fallback. Credentials and raw transport exceptions are suppressed.

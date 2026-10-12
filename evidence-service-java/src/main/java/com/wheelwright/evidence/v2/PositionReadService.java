@@ -24,22 +24,28 @@ public class PositionReadService {
         try (var c = DriverManager.getConnection(url)) {
             c.setAutoCommit(false);
             try {
-                try (var q = c.prepareStatement("SELECT payload_json FROM account_position_snapshot WHERE account=? LIMIT 1")) {
-                    q.setString(1, snapshot.account());
-                    try (var rs = q.executeQuery()) {
-                        if (rs.next() && !mapper.readValue(rs.getString(1), PositionSnapshot.class).brokerAccount().equals(snapshot.brokerAccount()))
-                            throw new IllegalArgumentException("account alias already bound to another broker account");
-                    }
-                }
-                int changed;
-                try (var q = c.prepareStatement("INSERT OR IGNORE INTO account_position_snapshot VALUES (?, ?, ?, ?, ?)")) {
-                    q.setString(1, snapshot.account()); q.setString(2, snapshot.snapshotId());
-                    q.setString(3, snapshot.evidenceDate()); q.setString(4, snapshot.recordedAt());
-                    q.setString(5, mapper.writeValueAsString(snapshot)); changed = q.executeUpdate();
-                }
-                c.commit(); return changed != 0;
+                boolean changed = admit(c, snapshot);
+                c.commit(); return changed;
             } catch (Exception e) { c.rollback(); throw e; }
         }
+    }
+    /** Caller owns the transaction, allowing snapshot and acquisition outcome to commit together. */
+    boolean admit(Connection c, PositionSnapshot snapshot) throws Exception {
+        if (!AccountDirectory.validId(snapshot.account())) throw new IllegalArgumentException("canonical Account ID required");
+        try (var q = c.prepareStatement("SELECT payload_json FROM account_position_snapshot WHERE account=? LIMIT 1")) {
+            q.setString(1, snapshot.account());
+            try (var rs = q.executeQuery()) {
+                if (rs.next() && !mapper.readValue(rs.getString(1), PositionSnapshot.class).brokerAccount().equals(snapshot.brokerAccount()))
+                    throw new IllegalArgumentException("account alias already bound to another broker account");
+            }
+        }
+        int changed;
+        try (var q = c.prepareStatement("INSERT OR IGNORE INTO account_position_snapshot VALUES (?, ?, ?, ?, ?)")) {
+            q.setString(1, snapshot.account()); q.setString(2, snapshot.snapshotId());
+            q.setString(3, snapshot.evidenceDate()); q.setString(4, snapshot.recordedAt());
+            q.setString(5, mapper.writeValueAsString(snapshot)); changed = q.executeUpdate();
+        }
+        return changed != 0;
     }
     public Optional<PositionSnapshot.Read> read(String account, String requestId, Instant now) throws Exception {
         try (var c = DriverManager.getConnection(url)) {
@@ -50,7 +56,7 @@ public class PositionReadService {
                 try (var rs = q.executeQuery()) {
                     if (!rs.next()) return Optional.empty();
                     var snapshot = mapper.readValue(rs.getString(1), PositionSnapshot.class);
-                    return Optional.of(project(snapshot, requestId, now, PositionMarketEvidence.read(c, snapshot, mapper)));
+                    return Optional.of(project(snapshot, requestId, now, snapshot.observation() == null ? PositionMarketEvidence.read(c, snapshot, mapper) : Map.of()));
                 }
             }
         }
@@ -75,13 +81,17 @@ public class PositionReadService {
             throw new IllegalArgumentException("conflicting Position identity");
         return new PositionSnapshot.Read(requestId, s.account(), s.accountName(), s.snapshotId(),
                 s.evidenceDate(), s.recordedAt(), s.sourceFile(), s.sourceSha256(), s.artifactId(), now.toString(),
-                s.excludedNonPositionRows(), List.copyOf(positions), "UNKNOWN", List.of(
+                s.excludedNonPositionRows(), List.copyOf(positions), "UNKNOWN", s.observation() != null ? List.of(
+                "Retained tastytrade holdings observation; request start and response receipt bound acquisition, not atomic broker event time or live state.",
+                "JSON sourceRows are one-based data.items indices. Evidence date is the UTC receipt date, not an opening or event date.",
+                "Occurrence continuity and opening economics unresolved. Working orders, Program membership and executable valuation unknown. No geometry-based grouping.",
+                "Quantity and contract identity are observed facts; no complete transaction-history claim.") : List.of(
                 "Historical broker snapshot, not live account state. Export date precision is one day; no lifecycle events are inferred.",
                 "Position identity names observed contract/custody inventory or an explicit snapshot-bound association; it does not establish lifecycle continuity.",
                 "Bid/ask and option margin requirements use an accepted same-day Option Summary only, with separate row provenance; date precision does not establish current executable prices. Strategy presentation never counts inventory.",
                 "Option Greeks, capital allocation, close policy and working orders are unavailable. Margin requirements are broker-reported quantities, not market value, allocation or deployable capital.",
                 "Market value and open P/L are broker-reported, not executable close proceeds. No account NAV or deployable-capital claim.",
-                "Program membership is unknown unless explicitly associated in this snapshot. No association is inherited from a symbol or earlier snapshot."));
+                "Program membership is unknown unless explicitly associated in this snapshot. No association is inherited from a symbol or earlier snapshot."), s.observation());
     }
     private static PositionSnapshot.Position position(String id, String label, String basis, String program,
             String authority, List<PositionSnapshot.Constituent> holdings, Instant now, Map<String, PositionMarketEvidence.Facts> market) {

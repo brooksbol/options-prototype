@@ -7,7 +7,13 @@ import java.util.List;
 public record PositionSnapshot(String account, String brokerAccount, String accountName,
         String snapshotId, String evidenceDate, String recordedAt, String sourceFile,
         String sourceSha256, String artifactId, List<Constituent> holdings,
-        List<Association> associations, int excludedNonPositionRows) {
+        List<Association> associations, int excludedNonPositionRows, Observation observation) {
+    public record Observation(String broker, String environment, String acquisitionId, String startedAt,
+            String receivedAt, String interpretationVersion, String sourceScope) {}
+    public PositionSnapshot(String account,String brokerAccount,String accountName,String snapshotId,String evidenceDate,String recordedAt,
+            String sourceFile,String sourceSha256,String artifactId,List<Constituent> holdings,List<Association> associations,int excludedNonPositionRows) {
+        this(account,brokerAccount,accountName,snapshotId,evidenceDate,recordedAt,sourceFile,sourceSha256,artifactId,holdings,associations,excludedNonPositionRows,null);
+    }
     public record Constituent(String holdingId, String contract, String description, String kind,
             String custody, BigDecimal quantity, BigDecimal openPl, BigDecimal marketValue,
             BigDecimal bid, BigDecimal ask, String expiration, List<Integer> sourceRows) {}
@@ -23,5 +29,5 @@ public record PositionSnapshot(String account, String brokerAccount, String acco
     public record Read(String requestId, String accountId, String accountName, String snapshotId,
             String evidenceDate, String recordedAt, String sourceFile, String sourceSha256, String artifactId,
             String evaluatedAt, int excludedNonPositionRows, List<Position> positions,
-            String workingOrderCoverage, List<String> qualifications) {}
+            String workingOrderCoverage, List<String> qualifications, Observation observation) {}
 }

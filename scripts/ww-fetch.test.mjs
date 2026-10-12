@@ -15,7 +15,7 @@ async function withFixture(work) {
 }
 
 test("bare fetch and missing credentials fail before any backend/provider request", async () => {
-  // Isolate credential discovery from the operator's real private .env.
+  // Isolate credential discovery from the operator's real private .ww.env.
   const isolated = await mkdtemp(join(tmpdir(), "ww-no-credentials-"));
   const isolatedCli = join(isolated, "scripts", "wheelwright.mjs");
   await mkdir(join(isolated, "scripts"));
@@ -213,23 +213,23 @@ test("large and invalid requests stay one batch, with no CLI retries or splittin
   });
 });
 
-test("private .env token loading is allowlisted, literal, and overridden by exports", async () => {
+test("private .ww.env token loading is allowlisted, literal, and overridden by exports", async () => {
   const { readApiToken } = await import("./wheelwright.mjs");
   let reads = 0;
-  const file = async () => { reads++; return `TRADIER_API_KEY=not-a-ww-token\nWW_API_TOKEN="${TOKEN}"\n`; };
+  const file = async () => { reads++; return `WW_API_TOKEN="${TOKEN}"\n`; };
   assert.equal(await readApiToken({}, file), TOKEN);
   assert.equal(reads, 1);
   assert.equal(await readApiToken({ WW_API_TOKEN: "exported" }, file), "exported");
   assert.equal(await readApiToken({ WW_API_TOKEN: "" }, file), TOKEN);
   assert.equal(reads, 2);
-  assert.equal(await readApiToken({}, async () => "TRADIER_API_KEY=only-provider\n"), undefined);
+  await assert.rejects(readApiToken({}, async () => "TASTYTRADE_REFRESH_TOKEN=must-not-load\n"), /only Wheelwright/);
   assert.equal(await readApiToken({}, async () => { throw Object.assign(new Error(), { code: "ENOENT" }); }), undefined);
   await assert.rejects(readApiToken({}, async () => { throw new Error(TOKEN); }), error =>
     /cannot read/.test(error.message) && !error.message.includes(TOKEN));
   assert.equal(await readApiToken({}, async () => "WW_API_TOKEN=$(must-not-run)\n"), "$(must-not-run)");
 });
 
-test("ww fetch works with a private .env credential and no exported token", async () => {
+test("ww fetch works with a private .ww.env credential and no exported token", async () => {
   const isolated = await mkdtemp(join(tmpdir(), "ww-file-credential-"));
   try {
     await mkdir(join(isolated, "scripts"));
@@ -238,9 +238,9 @@ test("ww fetch works with a private .env credential and no exported token", asyn
       await copyFile(new URL(module, import.meta.url), join(isolated, "scripts", module));
     const actualCli = await realpath(join(isolated, "scripts", "wheelwright.mjs"));
     const { writeFile } = await import("node:fs/promises");
-    await writeFile(join(isolated, ".env"), `WW_API_TOKEN='${TOKEN}'\n`, { mode: 0o600 });
+    await writeFile(join(isolated, ".ww.env"), `WW_API_TOKEN='${TOKEN}'\n`, { mode: 0o600 });
     await withFixture(async (f) => {
-      await writeFile(join(isolated, ".env"), `WW_API_TOKEN='${TOKEN}'\nWW_BASE_URL='${f.base}'\n`, { mode: 0o600 });
+      await writeFile(join(isolated, ".ww.env"), `WW_API_TOKEN='${TOKEN}'\nWW_BASE_URL='${f.base}'\n`, { mode: 0o600 });
       const r = await capture([actualCli, "fetch", "SPY"], { WW_API_TOKEN: "", WW_BASE_URL: "" });
       assert.equal(r.status, 0); assert.equal(f.calls.length, 1);
       assert.equal(f.calls[0].authorization, `Bearer ${TOKEN}`);
@@ -251,7 +251,7 @@ test("ww fetch works with a private .env credential and no exported token", asyn
 
 test('saved backend address is literal, exported address wins, missing file keeps default',async()=>{
   const {readBackendBase}=await import('./wheelwright.mjs');
-  const file=async()=>`TRADIER_BASE_URL=https://provider.invalid\nWW_BASE_URL="http://localhost:3101"\n`;
+  const file=async()=>`WW_BASE_URL="http://localhost:3101"\n`;
   assert.equal(await readBackendBase({},file),'http://localhost:3101');
   assert.equal(await readBackendBase({WW_BASE_URL:'http://localhost:3200'},()=>{throw new Error('must not read');}),'http://localhost:3200');
   assert.equal(await readBackendBase({},async()=>{throw Object.assign(new Error(),{code:'ENOENT'});}),'http://localhost:3100');

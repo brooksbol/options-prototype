@@ -7,4 +7,6 @@ case $self in
 esac
 self=$(realpath "$self") || exit 1
 script_dir=$(CDPATH= cd "$(dirname "$self")" && pwd -P) || exit 1
+# Never pass transitional tt brokerage configuration to the converged client.
+unset TASTYTRADE_CLIENT_ID TASTYTRADE_CLIENT_SECRET TASTYTRADE_REFRESH_TOKEN TASTYTRADE_ACCESS_TOKEN
 exec node "$script_dir/wheelwright.mjs" "$@"

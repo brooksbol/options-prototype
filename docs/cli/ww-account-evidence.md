@@ -23,10 +23,29 @@ the Desktop screenshot dated October 11, 2026 at 6:23:02 PM and confirmed the
 palette, alignment and masking. This is Principal visual acceptance, not an
 independent-review disposition.
 
-The CLI reads its saved `WW_BASE_URL` from the private repository `.env`,
-alongside its credential. Explicit exports override saved configuration.
-This development slice uses port 3101; ordinary operator commands need no
-per-command connection setup once that address is saved.
+Step 5 accepted configuration uses a dedicated private `.ww.env` alongside the ww client
+containing only `WW_API_TOKEN` and `WW_BASE_URL`. It never reads the transitional
+brokerage `.env`. Nonempty explicit Wheelwright exports still override this file.
+Engineering provisions this configuration during an authorized deployment; no
+standalone tt credentials were removed or relocated. Backend private configuration is provisioned separately.
+
+For tastytrade, `ww sync account tt1` invokes authenticated backend acquisition
+at `POST /v2/position-acquisitions?accountId=ID`. The backend alone exchanges
+OAuth tokens, acquires and retains JSON, and admits a complete holdings snapshot.
+The independent `account.positions.acquire:ID` grant is required; ordinary read,
+artifact-write and quote-acquisition permissions do not imply it. Fidelity keeps
+its existing CSV path. `ww show positions --account tt1` remains a retained-state
+read. No historical CSV operational import is introduced for tastytrade.
+
+Position tables now use standing CONV-UX colors, with signed quantities visible
+for standalone holdings. `--no-color`, `NO_COLOR` and `TERM=dumb` suppress ANSI;
+JSONL is always ANSI-free. Quote-table colors and `tt live` are unchanged.
+Step 5 R2 passed independent verification and was deployed and explicitly accepted
+functionally and visually by the Principal on October 11, 2026. The ordinary
+`ww sync account tt1` / `ww show positions --account tt1` journey displayed eight
+actual holdings, with unsupported lifecycle/economic claims withheld. See
+[delivery and recovery evidence](../design/pl-conv-01-step5-candidate.md).
+The following Fidelity acceptance history remains applicable to its CSV path.
 
 Implemented and Principal-accepted bounded slice, October 11, 2026. Principal explicitly reported **acceptance PASSED** after inspecting Account discovery, synchronization and Sawdust Position output. Automated verification and Principal acceptance are separate evidence; no independent review is claimed.
 
@@ -43,7 +62,7 @@ ww sync account pts
 ww show positions --account pts --verbose
 ```
 
-Backend setup uses the existing Bearer configuration (`WHEELWRIGHT_V2_AUTH_TOKENS` / `wheelwright.v2.auth.tokens`) plus explicit account aliases (`WHEELWRIGHT_V2_ACCOUNTS` / `wheelwright.v2.accounts`, comma-separated `alias=brokerAccount`). Account bindings persist and cannot silently change. The backend generates persistent opaque `acct_` IDs. Required exact grants use those IDs: `account.read:ID`, `account.positions.read:ID`, `account.artifacts.read:ID`, and `account.artifacts.write:ID`. The CLI resolves friendly aliases through authorized `GET /v2/accounts` discovery; aliases are never accepted as REST IDs. Account metadata includes ID, alias, display name and broker association. Administrative backend alias renames preserve IDs, grants, artifacts and Position references. Binding a known alias to another broker account is rejected. Quote grants imply none of these. Never put actual credentials in command arguments or Git. `WW_API_TOKEN` follows existing exported/private `.env` discovery.
+Backend setup uses the existing Bearer configuration (`WHEELWRIGHT_V2_AUTH_TOKENS` / `wheelwright.v2.auth.tokens`) plus explicit account aliases (`WHEELWRIGHT_V2_ACCOUNTS` / `wheelwright.v2.accounts`, comma-separated `alias=brokerAccount`). Account bindings persist and cannot silently change. The backend generates persistent opaque `acct_` IDs. Required exact grants use those IDs: `account.read:ID`, `account.positions.read:ID`, `account.artifacts.read:ID`, and `account.artifacts.write:ID`. The CLI resolves friendly aliases through authorized `GET /v2/accounts` discovery; aliases are never accepted as REST IDs. Account metadata includes ID, alias, display name and broker association. Administrative backend alias renames preserve IDs, grants, artifacts and Position references. Binding a known alias to another broker account is rejected. Quote grants imply none of these. Never put actual credentials in command arguments or Git. `WW_API_TOKEN` follows explicit Wheelwright exports or the dedicated private `.ww.env`; brokerage `.env` is not read by ww.
 
 Sync scans regular `.csv` files directly in `~/Downloads`, including Positions, Option Summary, History and Balances exports attributed to the selected backend account. Other CSVs/accounts are ignored. Positions and Option Summary contain broker identity; current History/Balances attribution relies on the original account-number filename and remains qualified. Broker download timestamps with an explicit ET zone determine submission order when supported; otherwise filesystem modification time is a visibly reported fallback. Exact duplicate contents are one artifact, independently of names. Files are read into invocation memory; no client database or manifest is written. A retained failed artifact can be retried even if its original local file has moved.
 

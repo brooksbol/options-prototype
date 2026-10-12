@@ -56,7 +56,19 @@ public class BrokerageArtifacts {
     }
     /** Inspect retained bytes on every disclosure; never infer single-owner scope from silence. */
     public SourceScope sourceScopes(String owner, String filename, byte[] bytes) throws SQLException {
-        if (!accounts.get(owner).map(a -> a.brokerAssociation().broker().equals("FIDELITY")).orElse(false))
+        var sourceAccount=accounts.get(owner);
+        if(sourceAccount.isPresent()&&sourceAccount.get().brokerAssociation().broker().equals("TASTYTRADE")) {
+            String hash;
+            try {hash=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));}
+            catch(Exception e){return SourceScope.unknown();}
+            // Scope for empty inventory requires backend acquisition provenance, not silence in content.
+            try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT 1 FROM brokerage_position_acquisition a JOIN brokerage_artifact b ON a.account=b.account AND a.artifact_id=b.artifact_id WHERE a.account=? AND b.sha256=? LIMIT 1")) {
+                q.setString(1,owner);q.setString(2,hash);
+                try(var rs=q.executeQuery()) {if(rs.next()&&TastytradeHoldings.sourceAccount(bytes,sourceAccount.get().brokerAssociation().accountNumber()))return new SourceScope(true,Set.of(owner));}
+            }
+            return SourceScope.unknown();
+        }
+        if (!sourceAccount.map(a -> a.brokerAssociation().broker().equals("FIDELITY")).orElse(false))
             return SourceScope.unknown();
         Set<String> brokerIds;
         try {

@@ -6,3 +6,6 @@ coverage/
 .env
 .env.*.backup
 .scannerwork/
+
+# Wheelwright-only client configuration
+.ww.env

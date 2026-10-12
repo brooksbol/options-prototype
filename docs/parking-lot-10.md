@@ -1278,3 +1278,25 @@ The Principal supplied ordinary installed CLI output: authorized Fidelity pts/sa
 | Date | Event |
 |---|---|
 | 2026-10-11 | Principal explicitly accepted operational PL-CONV-01 Step3 after ordinary installed CLI testing without configuration overrides; separate BUG035 disposition is owned by its canonical defect record. |
+
+### PL-CONV-01 Steps 4–5 — Principal reconciliation and authorized candidate, October 11, 2026
+
+Step 4 bounded discovery/design accepted in the Principal's supplied reconciliation: observed holdings remain independently reportable; occurrence-dependent opening economics require supported attribution. No universal lifecycle or new Position aggregate is justified. Step 5 API-first holdings admission was subsequently explicitly authorized, with backend-exclusive tastytrade OAuth credentials, separate ww configuration, exact Account acquisition permission, JSON retention, atomic snapshots and standing CONV-UX presentation.
+
+Codex prepared an isolated **implementation candidate**, documented in [Step 5 candidate evidence](design/pl-conv-01-step5-candidate.md). Existing operational checkout, v1 Web, tt live, brokerage credentials, grants and databases remain untouched. Synthetic provider verification is distinct from live acquisition and Principal acceptance. Step 5 is not deployed or Principal-accepted; independent review, visual acceptance and separately authorized live deployment/acceptance remain pending. Step 6 remains later work.
+
+
+### Step 5 independent rejection and authorized R2 correction — October 11, 2026
+
+The independent Kiro review reproduced both rejected-candidate failures against its frozen executable: BUG-037 incomplete JSON original-source scope and BUG-038 unbounded response-body consumption/held acquisition monitor. Fidelity BUG-036, response-size rejection, failed-refresh snapshot preservation and Account authorization remain protected. The Principal accepted both findings and selected correction option A: bounded complete-envelope scope classification, whole-operation deadline/cancellation and focused regressions; separately identified candidate, no deployment/commit/push. R2 is in `candidate-r2` on verified main `994a387`; original candidate/submission remain frozen. Candidate details and verification are in `design/pl-conv-01-step5-candidate.md`; defect lifecycle belongs exclusively to the two new bug records. R2 independent and Product acceptance remain pending. Step 6 remains unstarted; no broader architecture or presentation work is authorized.
+
+
+### PL-CONV-01 Step 5 R2 — independently verified, deployed and Principal accepted
+
+**Current milestone state (October 11, 2026 America/Denver): Steps1–5 complete in their accepted scope; Step6 shared governed reconsideration remains unstarted and unauthorized.** The overall convergence intake and CONV-WEB remain ongoing. Step4 accepted the bounded occurrence design; Step5 deliberately admits observed holdings without requiring attribution. This checkpoint supersedes earlier pending/no-deployment milestone statements, preserving their historical sequence.
+
+Kiro independently ACCEPTED exact R2 after the two bounded corrections. BUG-037/038 are Resolved in their canonical records. The Principal accepted technical verification and separately selected deployment A. Copy-based migration019 and018 recovery rehearsals passed before live cutover; exact frozen R2 now serves backend-owned tastytrade OAuth acquisition, retention, atomic holdings snapshots and retained-state Position reads. Full existing grants were preserved with tt1 Position read/acquire added; ww uses separate Wheelwright-only configuration and tt live remains unchanged. Fidelity25/7 evidence and v1 Web are protected.
+
+The Principal ran ordinary `ww ls accounts`, `ww sync account tt1`, `ww show positions --account tt1`, supplied the terminal color screenshot, then explicitly selected A accepting functionality and presentation. Eight actual EWZ/XLE holdings were displayed with provenance and unsupported economics/order/Program claims withheld. This acceptance does not establish historical XLE continuity or authorize Step6, occurrence attribution, valuation, working orders, scheduling or broader client migration. Exact identities, tests, corrected independent harness setup, protected-state checks and recovery inputs: [Step5 closeout](design/pl-conv-01-step5-candidate.md).
+
+Bounded reconciliation completion: existing PL-CONV-01 Step5 only; strategic direction unchanged, no new Bet; architecture implements PRIN-ARCH-BACKEND-AUTHORITY and existing Evidence Appliance semantics without new Position aggregate/connector/secrets framework. Next milestone remains separately governed; no implementation authorization for Step6 is inferred.

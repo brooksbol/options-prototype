@@ -39,7 +39,7 @@ class BrokerScopedMigrationTest {
     Map<String,List<List<String>>> contents(Connection c) throws Exception {
         var result=new TreeMap<String,List<List<String>>>();
         for(String table:TABLES) {
-            String columns=table.equals("brokerage_account") ? "account_id,alias,display_name,broker_account,identity_namespace" : "*";
+            String columns=table.equals("brokerage_account") ? "account_id,alias,display_name,broker_account,identity_namespace" : table.equals("v2_user_account") ? "user_id,account_id,metadata_read,positions_read,artifacts_read,artifacts_write" : "*";
             var rows=new ArrayList<List<String>>();
             try(var q=c.createStatement();var rs=q.executeQuery("SELECT "+columns+" FROM "+table+" ORDER BY 1,2")) {
                 while(rs.next()) {
