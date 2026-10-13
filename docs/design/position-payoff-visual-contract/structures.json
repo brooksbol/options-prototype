@@ -1,0 +1,198 @@
+{
+  "schemaVersion": "POSITION_PAYOFF_VISUAL_REFERENCE_V1",
+  "source": {
+    "kind": "Principal-supplied tastytrade dropdown screenshot",
+    "date": "2026-10-13",
+    "sourceStatus": "CONVERSATION_ATTACHMENT_NOT_YET_COMMITTED",
+    "scope": "schematic visual taxonomy only"
+  },
+  "axis": {
+    "x": "underlying price increasing left to right",
+    "y": "position payoff increasing bottom to top",
+    "evaluation": "explicit common horizon required"
+  },
+  "families": [
+    {
+      "label": "Option",
+      "id": "single-option",
+      "shape": "variant-dependent",
+      "status": "REFERENCE",
+      "visualAuthority": "schematic reference only",
+      "recognitionAuthority": "BACKEND_ONLY"
+    },
+    {
+      "label": "Covered",
+      "id": "covered-family",
+      "shape": "variant-dependent",
+      "status": "REFERENCE",
+      "visualAuthority": "schematic reference only",
+      "recognitionAuthority": "BACKEND_ONLY"
+    },
+    {
+      "label": "Vertical",
+      "id": "two-strike-spread",
+      "shape": "two plateaus joined by a slope for same-expiration verticals",
+      "status": "REFERENCE",
+      "visualAuthority": "schematic reference only",
+      "recognitionAuthority": "BACKEND_ONLY"
+    },
+    {
+      "label": "Calendar",
+      "id": "calendar",
+      "shape": "time-dependent; no unique expiration line",
+      "status": "REFERENCE",
+      "visualAuthority": "schematic reference only",
+      "recognitionAuthority": "BACKEND_ONLY"
+    },
+    {
+      "label": "Butterfly",
+      "id": "butterfly",
+      "shape": "central peak or valley with outside regions for verified equal-expiry structures",
+      "status": "REFERENCE",
+      "visualAuthority": "schematic reference only",
+      "recognitionAuthority": "BACKEND_ONLY"
+    },
+    {
+      "label": "Ratio Spread",
+      "id": "ratio-spread",
+      "shape": "asymmetric slope/tail depending on ratios and rights",
+      "status": "REFERENCE",
+      "visualAuthority": "schematic reference only",
+      "recognitionAuthority": "BACKEND_ONLY"
+    },
+    {
+      "label": "Strangle",
+      "id": "strangle",
+      "shape": "two strike kinks with central region; tails variant-dependent",
+      "status": "REFERENCE",
+      "visualAuthority": "schematic reference only",
+      "recognitionAuthority": "BACKEND_ONLY"
+    },
+    {
+      "label": "Straddle",
+      "id": "straddle",
+      "shape": "shared strike kink; tails variant-dependent",
+      "status": "REFERENCE",
+      "visualAuthority": "schematic reference only",
+      "recognitionAuthority": "BACKEND_ONLY"
+    },
+    {
+      "label": "Iron Condor",
+      "id": "iron-condor",
+      "shape": "two wings and middle plateau, variant-dependent inversion",
+      "status": "ACCEPTED_IC_ONLY",
+      "visualAuthority": "accepted tt live IC only; dropdown is reference",
+      "recognitionAuthority": "BACKEND_ONLY"
+    },
+    {
+      "label": "Jade Lizard",
+      "id": "jade-lizard",
+      "shape": "asymmetric put plus call spread; terms determine tails",
+      "status": "REFERENCE",
+      "visualAuthority": "schematic reference only",
+      "recognitionAuthority": "BACKEND_ONLY"
+    },
+    {
+      "label": "Stock",
+      "id": "stock",
+      "shape": "linear long or short",
+      "status": "REFERENCE",
+      "visualAuthority": "schematic reference only",
+      "recognitionAuthority": "BACKEND_ONLY"
+    }
+  ],
+  "proposedVariants": [
+    {
+      "id": "covered-call",
+      "family": "Covered",
+      "status": "PROPOSED",
+      "legs": [
+        "long shares",
+        "short call"
+      ],
+      "horizon": "short-call expiration",
+      "slopeRegions": [
+        {
+          "domain": "below short-call strike",
+          "slopeSign": 1
+        },
+        {
+          "domain": "above short-call strike",
+          "slopeSign": 0
+        }
+      ],
+      "notes": "coverage requires verified quantities/deliverables"
+    },
+    {
+      "id": "cash-secured-put",
+      "family": "Option",
+      "status": "PROPOSED",
+      "legs": [
+        "short put",
+        "cash collateral"
+      ],
+      "horizon": "put expiration",
+      "slopeRegions": [
+        {
+          "domain": "below put strike",
+          "slopeSign": 1
+        },
+        {
+          "domain": "above put strike",
+          "slopeSign": 0
+        }
+      ],
+      "notes": "cash-secured classification requires verified Account capacity; collateral does not change payoff shape"
+    },
+    {
+      "id": "long-stock",
+      "family": "Stock",
+      "status": "PROPOSED",
+      "legs": [
+        "long shares"
+      ],
+      "horizon": "selected observation/evaluation",
+      "slopeRegions": [
+        {
+          "domain": "all prices",
+          "slopeSign": 1
+        }
+      ]
+    },
+    {
+      "id": "iron-condor",
+      "family": "Iron Condor",
+      "status": "ACCEPTED_IC_ONLY",
+      "legs": [
+        "long put",
+        "short put",
+        "short call",
+        "long call"
+      ],
+      "horizon": "common expiration",
+      "slopeRegions": [
+        {
+          "domain": "below long put",
+          "slopeSign": 0
+        },
+        {
+          "domain": "long put to short put",
+          "slopeSign": 1
+        },
+        {
+          "domain": "short put to short call",
+          "slopeSign": 0
+        },
+        {
+          "domain": "short call to long call",
+          "slopeSign": -1
+        },
+        {
+          "domain": "above long call",
+          "slopeSign": 0
+        }
+      ]
+    }
+  ],
+  "unavailableRule": "Do not synthesize payoff geometry or economics from unknown membership, deliverables, or incompatible expirations."
+}
