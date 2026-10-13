@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-13T20:46:43.335Z",
+    "generatedAt": "2026-10-13T20:52:49.000Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -9985,6 +9985,13 @@
           "heading": "Verification",
           "level": 2,
           "content": "October 13, 2026: 69/69 `scripts/tastytrade*.test.mjs` tests pass. New regressions use observed UNG quotes with explicitly synthetic opening/exit/account evidence, prove identical unaffected projections, Unicode/ASCII/color output, canonical TSV, stale inconsistent quotes, valid zero debit and preserved missing/malformed quote rejection.\n\nInstalled `tt live --no-color` successfully returned UNG, EWZ and XLE. UNG retained opening-day SPAN, LIMIT objective, spot and payoff, with unavailable P/L and exit progress; EWZ/XLE retained numeric economics. Engineering-observed installed behavior is established; independent reviewer and Principal Product acceptance are not claimed. Ordinary `tt live` is available without configuration.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Session closeout — October 13, 2026",
+          "level": 2,
+          "content": "Fix and reconciliation persisted on main as `f6e84102973c6c73bb3586f63e43d0c915a30a68`; installed tt resolves directly to the corrected checkout. Principal invoked end-of-session closeout without an explicit Product acceptance verdict. Status Resolved records demonstrated technical remediation, not inferred Principal acceptance. Independent review was not commissioned/performed. Remaining observation: ordinary `tt live` by the Principal. No additional implementation, architectural decision, horizon change or operational action follows from closeout.",
           "truncated": false,
           "tables": []
         },

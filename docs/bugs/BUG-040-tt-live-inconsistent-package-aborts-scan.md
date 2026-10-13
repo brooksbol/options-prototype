@@ -57,6 +57,10 @@ October 13, 2026: 69/69 `scripts/tastytrade*.test.mjs` tests pass. New regressio
 
 Installed `tt live --no-color` successfully returned UNG, EWZ and XLE. UNG retained opening-day SPAN, LIMIT objective, spot and payoff, with unavailable P/L and exit progress; EWZ/XLE retained numeric economics. Engineering-observed installed behavior is established; independent reviewer and Principal Product acceptance are not claimed. Ordinary `tt live` is available without configuration.
 
+## Session closeout — October 13, 2026
+
+Fix and reconciliation persisted on main as `f6e84102973c6c73bb3586f63e43d0c915a30a68`; installed tt resolves directly to the corrected checkout. Principal invoked end-of-session closeout without an explicit Product acceptance verdict. Status Resolved records demonstrated technical remediation, not inferred Principal acceptance. Independent review was not commissioned/performed. Remaining observation: ordinary `tt live` by the Principal. No additional implementation, architectural decision, horizon change or operational action follows from closeout.
+
 ## Related
 
 - [Accepted terminal contract](../cli/tt-live-panel.md)
