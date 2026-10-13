@@ -1,0 +1,60 @@
+PL-CLI-01 INDEPENDENT VERIFICATION — ACCEPT
+Candidate: PL-CLI-01-history-49431da31685
+Baseline and remote main (checked at start and end): a7702f58227d4266c8367e40cb28a4420b565ba5
+JAR SHA-256: 6c963b632a37df96fbd97e4e16466beda625a710fbbbe028abf19b125bd2a3ca
+Patch SHA-256: 49431da3168544585572c2b1fa57bcc02aea5046c5b417f6b35c826a6aca4b0c
+
+Integrity: All 182 SHA256SUMS entries, 1147 SOURCE.SHA256 entries, 1147 archive files, 15 changed-file hashes/modes and manifest digest fields verified. Remote baseline archived independently into reviewer scratch; frozen patch applied there; resulting 1147 hashes exactly match frozen source. Patch scope exactly matches manifest changedFiles. No main drift. Rechecked all frozen checksums after verification. The unpacked candidate source contains 517 pre-existing unmanifested preview settings/build/cache files; none was executed or used. Used archive CLI and production classes/libraries extracted from verified frozen JAR. No production compilation or JAR rebuild.
+
+Execution: 33 focused existing backend tests, 3 reviewer-authored falsifiers, 16 focused CLI tests, public ww/Unix specimen, real-container invalid-query matrix and PTY checks. All passed. Existing tests were compiled and executed independently against frozen production classes; prior author reports were not treated as executed evidence. Two initial reviewer test setup errors used unsupported underscore broker IDs; corrected reviewer-only synthetic IDs before behavioral assertions. Candidate unchanged.
+
+A1 PASS complete authorized admitted catalog.
+A2 PASS Account/date/recordedAt/snapshot-ID deterministic ordering and tie breaks.
+A3 PASS known empty Account returns 200 empty catalog.
+A4 PASS failed/rejected tastytrade acquisitions and rejected Fidelity admission add no observation.
+A5 PASS identical tastytrade acquisitions have distinct snapshot IDs.
+A6 PASS payload budget returns 503; independently 10000 entries succeed and 10001 return whole-request 503.
+B1 PASS exact selected retained inventory.
+B2 PASS both snapshots independently retrieved.
+B3 PASS later admissions preserve earlier inventory.
+B4 PASS valid empty selected snapshot returns one empty Position read.
+B5 PASS absent selected snapshot returns 404.
+B6 PASS latest default unchanged.
+C1 PASS unauthorized catalog denied.
+C2 PASS foreign snapshot cannot be selected through authorized Account.
+C3 PASS foreign and absent snapshots yield identical status, problem bytes and headers with fixed request correlation.
+C4 PASS users.admin alone grants no Account access.
+C5 PASS historical read does not confer original-content access.
+C6 PASS Fidelity BUG-036 and tastytrade whole-envelope original disclosure regressions.
+D1 PASS Fidelity date has DAY precision and export-day meaning.
+D2 PASS tastytrade timestamps retain acquisition/receipt qualifications.
+D3 PASS emitted catalog disclaims brokerage chronology.
+D4 PASS historical DTE changes at inspection time with explicit INSPECTION_TIME basis.
+D5 PASS later same-date Fidelity enrichment has separate artifact/row provenance.
+D6 PASS adjusted ETHA1 identity retained exactly.
+D7 PASS signed quantities and 200.123456789012 precision preserved.
+D8 PASS snapshot associations allocate each constituent once.
+D9 PASS emitted read/catalog qualifications disclaim lifecycle/continuity inference.
+E1 PASS default GET /v2/positions compatibility.
+E2 PASS observation catalog public GET.
+E3 PASS exact snapshot public GET contains exactly selected observation.
+E4 PASS invalid, blank, repeated, incompatible query forms and GET bodies; CLI usage exits.
+E5 PASS public ww ls position-observations --account pts.
+E6 PASS public ww show positions --account pts --snapshot exact-ID.
+E7 PASS catalog JSONL/13-column TSV identity and provenance; selected JSONL exact decimal tokens.
+E8 PASS machine output ANSI-free, including with terminal stdout.
+E9 PASS NO_COLOR, TERM=dumb, --no-color; colored baseline remains colored.
+E10 PASS PTY full snapshot IDs, aligned numeric cells, readable qualifications; verbose footer alone is not a defect.
+E11 PASS no added OAuth/provider requests during reads in counted loopback acquisition fixture; preview has no provider beans.
+
+Public Unix specimen: independently invoked archive ww to discover the two observations, selected exact IDs, retrieved JSONL, used jq for contract/custody/kind/signed quantity, sort and diff. Preserved complete read envelopes and separate provenance files under unix/. ETHA 200.123456789012 -> 66; SPY short put -2 -> -1; ARKK short put earlier-only; adjusted ETHA1 short call -2 later-only. These are inventory differences, not inferred trades, assignments, executions or lifecycle continuity.
+
+Scope: additive historical discovery/selection and temporal context, existing latest reads, Account authorization/disclosure, relevant CLI presentation and composition. Source inspection informed tests; no specimen marked PASS solely from code inspection. The author-reported 816-test campaign and Principal preview were not counted as independent verification.
+
+Findings: No demonstrated implementation blocker or directly affected regression. Acceptance traceability gap: baseline PL-CLI-01 says proposed direction; Principal supplied October 12 explicit design acceptance and subsequent implementation authorization during this review. Record remains stale; no repository repair performed. Candidate review ACCEPT is not Principal functional/visual acceptance or deployment authority.
+
+Safety/cleanup: candidate, operational checkout/services/databases/credentials/grants/installed ww and retained operational evidence untouched. Reviewer files outside both trees. Reviewer loopback preview stopped. No provider contact, commit, push, deployment or Step 6 work.
+
+CURRENT STATE: Independent verification ACCEPT; Principal functional/visual acceptance pending; operational ww unchanged.
+DECISION REQUIRED: NO
+NEXT AUTHORIZED ACTION: Return this report to ChatGPT for reconciliation.

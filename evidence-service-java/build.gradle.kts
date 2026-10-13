@@ -79,3 +79,11 @@ tasks.register<JavaExec>("step5Preview") {
     classpath = sourceSets["test"].runtimeClasspath
     args = listOfNotNull(project.findProperty("previewReady") as? String)
 }
+
+// Isolated retained-history preview; only test classes, no provider or operational state.
+tasks.register<JavaExec>("positionHistoryPreview") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.PositionHistoryPreview")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("previewReady") as? String)
+}

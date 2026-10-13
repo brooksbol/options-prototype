@@ -61,6 +61,9 @@ class TastytradeAcquisitionTest {
             assertThat(artifacts.metadata(account,artifact).orElseThrow().contentType()).isEqualTo("application/json");
             // Same content is a new observation, not invented inventory change or duplicate artifacts.
             var repeat=service.acquire(account,"repeat");assertThat(repeat.artifactId()).isEqualTo(artifact);assertThat(repeat.snapshotId()).isNotEqualTo(snapshot);
+            assertThat(positions.observations(Set.of(account),"catalog")).hasSize(2);
+            assertThat(positions.read(account,snapshot,"historical",Instant.now()).orElseThrow().positions()).isEqualTo(
+                positions.read(account,repeat.snapshotId(),"historical",Instant.now()).orElseThrow().positions());
             snapshot=repeat.snapshotId();
             body=new String(body,StandardCharsets.UTF_8).replace("TTTEST01","OTHERACCOUNT").getBytes(StandardCharsets.UTF_8);
             var rejected=service.acquire(account,"mismatch");assertThat(rejected.status()).isEqualTo("REJECTED");
@@ -69,6 +72,7 @@ class TastytradeAcquisitionTest {
             status=500;body=("{\"error\":\""+TOKEN+"\"}").getBytes(StandardCharsets.UTF_8);
             assertThat(service.acquire(account,"failed").status()).isEqualTo("FAILED");
             assertThat(positions.read(account,"read",Instant.now()).orElseThrow().snapshotId()).isEqualTo(snapshot);
+            assertThat(positions.observations(Set.of(account),"catalog")).hasSize(2);
             var inventory=mapper.writeValueAsString(artifacts.inventory(account,"read"));
             assertThat(inventory).doesNotContain(SECRET,REFRESH,TOKEN);
             try(var q=store.getConnection().createStatement();var rs=q.executeQuery("SELECT count(*) FROM brokerage_artifact")){assertThat(rs.getInt(1)).isEqualTo(2);}
@@ -76,6 +80,11 @@ class TastytradeAcquisitionTest {
             status=200;body="{\"data\":{\"items\":[]}}".getBytes(StandardCharsets.UTF_8);
             var empty=service.acquire(account,"empty");assertThat(empty.status()).isEqualTo("ACCEPTED");
             assertThat(positions.read(account,"read",Instant.now()).orElseThrow().positions()).isEmpty();
+            var catalog=positions.observations(Set.of(account),"catalog");
+            assertThat(catalog).hasSize(3);
+            assertThat(catalog).allSatisfy(s->{assertThat(s.observationContext().broker()).isEqualTo("TASTYTRADE");assertThat(s.observationContext().evidenceDateBasis()).isEqualTo("BACKEND_RECEIPT_UTC_DATE");assertThat(s.evidenceDate()).isEqualTo(s.observation().receivedAt().substring(0,10));assertThat(s.recordedAt()).isEqualTo(s.observation().receivedAt());});
+            assertThat(catalog).filteredOn(s->s.snapshotId().equals(empty.snapshotId())).singleElement().satisfies(s->assertThat(s.holdingCount()).isZero());
+            assertThat(positions.read(account,snapshot,"historical-after-empty",Instant.now()).orElseThrow().positions()).hasSize(4);
             assertThat(artifacts.sourceScopes(account,"tastytrade-positions.json",body).established()).isTrue();
         }
         try(var store=new SqliteEvidenceStore(file)){assertThat(new PositionReadService(store,mapper).read(account,"restart",Instant.now()).orElseThrow().positions()).isEmpty();}
@@ -144,7 +153,9 @@ class TastytradeAcquisitionTest {
             assertThat(response.getStatus()).isEqualTo(200);assertThat(response.getContentAsString()).doesNotContain(SECRET,REFRESH,TOKEN);
             assertThat(mvc.perform(get("/v2/positions").param("accountId",id).header("Authorization","Bearer acquirer")).andReturn().getResponse().getStatus()).isEqualTo(403);
             assertThat(mvc.perform(get("/v2/positions").param("accountId",id).header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(200);
-            assertThat(requests.get()).isEqualTo(1);
+            String selected=mapper.readTree(response.getContentAsString()).path("snapshotId").asText();
+            for(String query:List.of("&view=observations","&snapshotId="+selected))assertThat(mvc.perform(get("/v2/positions?accountId="+id+query).header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(200);
+            assertThat(requests.get()).isEqualTo(1);assertThat(oauth.get()).isEqualTo(1);
             String artifact=mapper.readTree(response.getContentAsString()).path("artifactId").asText();
             assertThat(mvc.perform(get("/v2/artifacts/"+artifact+"/content").header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(403);
             users.bootstrap("reader",Set.of("account.artifacts.read:"+id));

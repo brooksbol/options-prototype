@@ -11,6 +11,7 @@ import java.util.*;
 @RestController
 public class PositionsController {
     public record CollectionRead(String requestId,List<PositionSnapshot.Read> snapshots) {}
+    public record ObservationCollection(String requestId,List<PositionSnapshot.ObservationSummary> observations) {}
     private final AccountDirectory accounts;
     private final PositionReadService service;
     private final BearerAuthenticator auth;
@@ -20,6 +21,7 @@ public class PositionsController {
     }
     @GetMapping("/v2/positions")
     public ResponseEntity<String> read(@RequestParam(required=false) String accountId,
+            @RequestParam(required=false) String view, @RequestParam(required=false) String snapshotId,
             @RequestBody(required = false) byte[] body, HttpServletRequest request) throws Exception {
         var ids = Collections.list(request.getHeaders("X-Request-Id"));
         String supplied = ids.size() == 1 ? ids.getFirst().trim() : "";
@@ -28,19 +30,31 @@ public class PositionsController {
         if (!auth.configured()) return problem(ProblemCode.CAPABILITY_UNAVAILABLE, id, "authentication is not configured", null);
         var caller = auth.authenticate(request.getHeader("Authorization"));
         if (caller.isEmpty()) return problem(ProblemCode.UNAUTHENTICATED, id, "missing or invalid Bearer credential", null);
-        if (accountId != null && !caller.get().hasGrant("account.positions.read:" + accountId))
+        if (accountId != null && !accountId.isBlank() && request.getParameterValues("accountId").length == 1 && !caller.get().hasGrant("account.positions.read:" + accountId))
             return problem(ProblemCode.FORBIDDEN, id, "caller lacks account-scoped Position read authority", null);
         var invalid = new ArrayList<ProblemDetails.InvalidParam>();
         if (badId) invalid.add(new ProblemDetails.InvalidParam("X-Request-Id", "must be a single UUID"));
         if (accountId != null && !AccountDirectory.validId(accountId)) invalid.add(new ProblemDetails.InvalidParam("accountId", "canonical Account ID required"));
         if (body != null && body.length > 0) invalid.add(new ProblemDetails.InvalidParam("body", "GET body unsupported"));
-        if (!Collections.list(request.getParameterNames()).stream().allMatch("accountId"::equals) || request.getParameterValues("accountId") != null && request.getParameterValues("accountId").length != 1)
-            invalid.add(new ProblemDetails.InvalidParam("query", "only a single optional accountId filter supported"));
+        if (view != null && !view.equals("observations")) invalid.add(new ProblemDetails.InvalidParam("view", "only observations is supported"));
+        if (snapshotId != null && (snapshotId.isBlank() || accountId == null || view != null))
+            invalid.add(new ProblemDetails.InvalidParam("snapshotId", "nonblank exact snapshotId requires accountId and excludes view"));
+        for (String name : Collections.list(request.getParameterNames()))
+            if (!Set.of("accountId", "view", "snapshotId").contains(name) || request.getParameterValues(name).length != 1)
+                invalid.add(new ProblemDetails.InvalidParam(name, "unknown or repeated query parameter"));
         if (!invalid.isEmpty()) return problem(ProblemCode.INVALID_REQUEST, id, "invalid read request", invalid);
         try {
+            if (view != null) {
+                var authorized = new HashSet<String>();
+                if (accountId != null) {
+                    if (accounts.get(accountId).isEmpty()) return problem(ProblemCode.NOT_FOUND, id, "Account not found", null);
+                    authorized.add(accountId);
+                } else for (var a : accounts.list()) if (caller.get().hasGrant("account.positions.read:" + a.id())) authorized.add(a.id());
+                return response(200, id, MediaType.APPLICATION_JSON, new ObservationCollection(id, service.observations(authorized, id)));
+            }
             var snapshots=new ArrayList<PositionSnapshot.Read>();
             if(accountId!=null) {
-                var result=service.read(accountId,id,Instant.now());
+                var result=snapshotId == null ? service.read(accountId,id,Instant.now()) : service.read(accountId,snapshotId,id,Instant.now());
                 if(result.isEmpty())return problem(ProblemCode.NOT_FOUND,id,"no admitted Position snapshot for this account",null);
                 snapshots.add(result.get());
             } else {

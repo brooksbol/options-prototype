@@ -242,6 +242,19 @@ No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel i
 
 ## `PL-CLI-01` — Wheelwright composable Unix CLI (`ww`)
 
+### PL-CLI-01 — October 12, 2026 accepted historical observations and remaining Account-value gap
+
+**Current bounded state: ACCEPTED / operational.** Principal accepted historical observation discovery and explicit snapshot selection, including authorized compact presentation remediation after rejecting the original default footer. The broader CLI stream remains ongoing. This supersedes proposed/history-unavailable status only for explicit retained inventory discovery/selection, not economic continuity, automatic predecessor selection or portfolio-value history.
+
+**Accepted delivery:** existing GET /v2/positions adds view=observations and Account-scoped snapshotId selection. Public commands are ww ls position-observations --account ACCOUNT and ww show positions --account ACCOUNT --snapshot ID. Latest reads, Model A, original-artifact restrictions, retained identities/provenance and qualified clocks remain. No migration/acquisition/reconciliation engine; INSPECTION_TIME is not historical evaluation replay. Default human output is compact; full detail is opt-in; machine contracts are unchanged. Independent technical ACCEPT for the original frozen candidate and final Principal acceptance of the presentation correction are distinct evidence. See [accepted contract, evidence and recovery](design/pl-cli-01-historical-position-candidate.md).
+
+| Date | Governed event |
+|---|---|
+| 2026-10-12 | Principal accepted bounded historical Position observation discovery/selection and compact presentation; ordinary installed commands verified. Broader CLI value-history gap remains open; Step6 stays unauthorized. |
+
+**Remaining gap, not new authorization:** The requested public ww/Unix PTS portfolio-value-history graph cannot yet be produced from this inventory projection. Whether retained balances already supply the required series and whether the smallest missing capability is projection or additional backend semantics remain UNVERIFIED. Codex's discovery omitted the existing v1 Console CSV as a meaningful operator prototype. Preserve its richer financial/freshness/unencumbered-share specimen and trace its authoritative inputs before declaring platform absence or inventing a new valuation framework. Capital/current value in that export is not automatically Account NAV. No new PL identity, Product measure, policy, horizon or implementation is established by this gap report.
+
+
 ### PL-CLI-01 / CONV-UX — Unix command usability and independent Product review (Principal direction, October 12, 2026)
 
 **Status:** Standing usability guidance and independent-review expectation; **not** implementation or deployment authorization. Applies to human-facing `ww` commands and directly affected CLI review specimens. Preserve backend/API semantic completeness and machine contracts.

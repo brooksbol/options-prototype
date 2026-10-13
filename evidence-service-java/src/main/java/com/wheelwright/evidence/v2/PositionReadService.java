@@ -48,18 +48,50 @@ public class PositionReadService {
         return changed != 0;
     }
     public Optional<PositionSnapshot.Read> read(String account, String requestId, Instant now) throws Exception {
+        return read(account, null, requestId, now);
+    }
+    public Optional<PositionSnapshot.Read> read(String account, String snapshotId, String requestId, Instant now) throws Exception {
         try (var c = DriverManager.getConnection(url)) {
             try (var p = c.createStatement()) { p.execute("PRAGMA query_only=ON"); }
             c.setAutoCommit(false);
-            try (var q = c.prepareStatement("SELECT payload_json FROM account_position_snapshot WHERE account=? ORDER BY evidence_date DESC, recorded_at DESC, snapshot_id DESC LIMIT 1")) {
+            try (var q = c.prepareStatement(snapshotId == null ? "SELECT payload_json FROM account_position_snapshot WHERE account=? ORDER BY evidence_date DESC, recorded_at DESC, snapshot_id DESC LIMIT 1"
+                    : "SELECT payload_json FROM account_position_snapshot WHERE account=? AND snapshot_id=?")) {
                 q.setString(1, account);
+                if (snapshotId != null) q.setString(2, snapshotId);
                 try (var rs = q.executeQuery()) {
                     if (!rs.next()) return Optional.empty();
                     var snapshot = mapper.readValue(rs.getString(1), PositionSnapshot.class);
+                    if (!account.equals(snapshot.account()) || snapshotId != null && !snapshotId.equals(snapshot.snapshotId()))
+                        throw new IllegalArgumentException("inconsistent retained snapshot identity");
                     return Optional.of(project(snapshot, requestId, now, snapshot.observation() == null ? PositionMarketEvidence.read(c, snapshot, mapper) : Map.of()));
                 }
             }
         }
+    }
+    /** One complete committed read view. Metadata only; no market enrichment or provider dependency. */
+    public List<PositionSnapshot.ObservationSummary> observations(Set<String> authorizedAccounts, String requestId) throws Exception {
+        var result = new ArrayList<PositionSnapshot.ObservationSummary>();
+        long sourceBytes = 0; // Engineering memory budget; exceeding it fails the whole read, never truncates.
+
+        if (authorizedAccounts.isEmpty()) return List.of();
+        try (var c = DriverManager.getConnection(url)) {
+            try (var p = c.createStatement()) { p.execute("PRAGMA query_only=ON"); }
+            c.setAutoCommit(false);
+            try (var q = c.prepareStatement("SELECT length(CAST(payload_json AS BLOB)) AS payload_bytes, payload_json FROM account_position_snapshot WHERE account=? ORDER BY evidence_date DESC, recorded_at DESC, snapshot_id DESC")) {
+                for (String account : new TreeSet<>(authorizedAccounts)) {
+                    q.setString(1, account);
+                    try (var rs = q.executeQuery()) { while (rs.next()) {
+                        sourceBytes += rs.getLong("payload_bytes");
+                        if (sourceBytes > 32L * 1024 * 1024 || result.size() >= 10000)
+                            throw new SQLException("complete catalog exceeds response capacity");
+                        var snapshot = mapper.readValue(rs.getString("payload_json"), PositionSnapshot.class);
+                        if (!account.equals(snapshot.account())) throw new IllegalStateException("snapshot Account mismatch");
+                        result.add(PositionSnapshot.ObservationSummary.of(snapshot, requestId));
+                    } }
+                }
+            }
+        }
+        return List.copyOf(result);
     }
     public static PositionSnapshot.Read project(PositionSnapshot s, String requestId, Instant now) {
         return project(s, requestId, now, Map.of());
@@ -79,19 +111,23 @@ public class PositionReadService {
                     "OBSERVED_CONTRACT_AND_CUSTODY", null, null, List.of(h), now, market));
         if (positions.stream().map(PositionSnapshot.Position::positionId).distinct().count() != positions.size())
             throw new IllegalArgumentException("conflicting Position identity");
-        return new PositionSnapshot.Read(requestId, s.account(), s.accountName(), s.snapshotId(),
-                s.evidenceDate(), s.recordedAt(), s.sourceFile(), s.sourceSha256(), s.artifactId(), now.toString(),
-                s.excludedNonPositionRows(), List.copyOf(positions), "UNKNOWN", s.observation() != null ? List.of(
+        var qualifications = new ArrayList<>(PositionSnapshot.observationQualifications(s));
+        qualifications.addAll(s.observation() != null ? List.of(
+                "Historical inventory projected at inspection time: DTE uses evaluatedAt, not historical evaluation replay.",
                 "Retained tastytrade holdings observation; request start and response receipt bound acquisition, not atomic broker event time or live state.",
                 "JSON sourceRows are one-based data.items indices. Evidence date is the UTC receipt date, not an opening or event date.",
                 "Occurrence continuity and opening economics unresolved. Working orders, Program membership and executable valuation unknown. No geometry-based grouping.",
                 "Quantity and contract identity are observed facts; no complete transaction-history claim.") : List.of(
+                "Historical inventory projected at inspection time: DTE uses evaluatedAt. Fidelity enrichment may use subsequently retained same-export-date evidence with separate provenance; no historical knowledge replay or historical valuation capability.",
                 "Historical broker snapshot, not live account state. Export date precision is one day; no lifecycle events are inferred.",
                 "Position identity names observed contract/custody inventory or an explicit snapshot-bound association; it does not establish lifecycle continuity.",
                 "Bid/ask and option margin requirements use an accepted same-day Option Summary only, with separate row provenance; date precision does not establish current executable prices. Strategy presentation never counts inventory.",
                 "Option Greeks, capital allocation, close policy and working orders are unavailable. Margin requirements are broker-reported quantities, not market value, allocation or deployable capital.",
                 "Market value and open P/L are broker-reported, not executable close proceeds. No account NAV or deployable-capital claim.",
-                "Program membership is unknown unless explicitly associated in this snapshot. No association is inherited from a symbol or earlier snapshot."), s.observation());
+                "Program membership is unknown unless explicitly associated in this snapshot. No association is inherited from a symbol or earlier snapshot."));
+        return new PositionSnapshot.Read(requestId, s.account(), s.accountName(), s.snapshotId(),
+                s.evidenceDate(), s.recordedAt(), s.sourceFile(), s.sourceSha256(), s.artifactId(), now.toString(),
+                s.excludedNonPositionRows(), List.copyOf(positions), "UNKNOWN", List.copyOf(qualifications), s.observation(), PositionSnapshot.context(s), "INSPECTION_TIME");
     }
     private static PositionSnapshot.Position position(String id, String label, String basis, String program,
             String authority, List<PositionSnapshot.Constituent> holdings, Instant now, Map<String, PositionMarketEvidence.Facts> market) {

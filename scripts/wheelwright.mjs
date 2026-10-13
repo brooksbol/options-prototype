@@ -2,7 +2,7 @@
 
 import { readFile } from "node:fs/promises";
 import { parseShow, showConfig, readHeldQuote, presentShow, presentShowRows, selectShowObservations, presentFields } from "./ww-show.mjs";
-import { parsePositions, readPositions, renderPositions, POSITIONS_HELP } from "./ww-positions.mjs";
+import { parsePositions, readPositions, renderPositions, POSITIONS_HELP, parseObservations, readObservations, renderObservations, OBSERVATIONS_HELP } from "./ww-positions.mjs";
 import { resolveAccount, readAccounts, renderAccounts, ACCOUNTS_HELP } from "./ww-accounts.mjs";
 import { parseSync, syncAccount, SYNC_HELP } from "./ww-sync.mjs";
 
@@ -19,9 +19,11 @@ freshness or suitability. Pipe commands without a format flag.
 Working commands:
   ls accounts [--table | --tsv | --jsonl]
       Find account aliases before syncing or inspecting Positions.
+  ls position-observations --account ACCOUNT [--table | --tsv | --jsonl] [--verbose]
+      Discover retained Position observations; display order is not brokerage chronology.
   sync account ACCOUNT
       Acquire tastytrade holdings through the backend, or synchronize Fidelity CSVs.
-  show positions --account ACCOUNT [--verbose | --jsonl | --table]
+  show positions --account ACCOUNT [--snapshot SNAPSHOT_ID] [--verbose | --jsonl | --table]
       Inspect backend Positions, constituents, qualifications and source provenance.
   fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
       Acquire direct quotes for named subjects.
@@ -106,11 +108,13 @@ Use 'ww fetch --man' for the full behavioral contract.`;
 
 const LS_HELP = `Usage: ww ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
        ww ls accounts [--table | --tsv | --jsonl]
+       ww ls position-observations --account ACCOUNT [--table | --tsv | --jsonl] [--verbose] [--no-color]
        ww ls --help | -h | --man
        ww ls quotes --help | -h | --man
 
 Use 'ww ls accounts' to find accounts before syncing or inspecting Positions.
 Use 'ww ls accounts --help' for examples.
+Use 'ww ls position-observations --help' for retained Position inventory discovery.
 
 Discover current canonical direct-quote holdings through GET /v2/quotes.
 Held-evidence reads never acquire or revalidate evidence; this command causes
@@ -227,6 +231,10 @@ export function parseArgs(args) {
     return { command: "show", ...parsed };
   }
   if (command === "ls") {
+    if (rest[0] === "position-observations") {
+      const parsed=parseObservations(rest.slice(1));
+      return parsed.help ? {command:"help",help:OBSERVATIONS_HELP} : {command:"ls-position-observations",...parsed};
+    }
     if (rest[0] === "accounts") {
       const options=rest.slice(1);
       if(options.length===1&&["--help","-h"].includes(options[0]))return {command:"help",help:ACCOUNTS_HELP};
@@ -240,7 +248,7 @@ export function parseArgs(args) {
       return { command: "help", help: LS_HELP };
     if (discovery.length === 1 && discovery[0] === "--man")
       return { command: "command-man", page: "ls" };
-    if (rest[0] !== "quotes") usage("ls: choose 'accounts' or 'quotes'");
+    if (rest[0] !== "quotes") usage("ls: choose 'accounts', 'position-observations' or 'quotes'");
     let verbose = false, jsonl = false;
     const types = new Set();
     for (let index = 1; index < rest.length; index++) {
@@ -717,8 +725,15 @@ export function presentFetchResult(result, quiet, stdoutIsTTY, stderrIsTTY, verb
 
 export async function main(args) {
   const parsed = parseArgs(args);
-  const usesBackend=['ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices'].includes(parsed.command)&&!parsed.fields;
+  const usesBackend=['ls-position-observations','ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices'].includes(parsed.command)&&!parsed.fields;
   const base=usesBackend?await readBackendBase():undefined;
+  if (parsed.command === "ls-position-observations") {
+    const token=await readApiToken();
+    const account=await resolveAccount(parsed.account,token,{base});
+    const observations=await readObservations(account.id,token,{base});
+    process.stdout.write(renderObservations(observations,{...parsed,accountLabel:account.alias,tty:!!process.stdout.isTTY}));
+    return;
+  }
   if (parsed.command === "ls-accounts") {
     const accounts=await readAccounts(await readApiToken(),{base});
     process.stdout.write(renderAccounts(accounts,{format:parsed.format,tty:!!process.stdout.isTTY,noColor:parsed.noColor}));
@@ -734,7 +749,7 @@ export async function main(args) {
     try { token = await readApiToken(); }
     catch { throw new WwError("show positions: cannot read private credential configuration"); }
     const account = await resolveAccount(parsed.account, token,{base});
-    const result = await readPositions(account.id, token,{base});
+    const result = await readPositions(account.id, token,{base,snapshotId:parsed.snapshotId});
     process.stdout.write(renderPositions(result, { ...parsed, accountLabel: account.alias, tty: !!process.stdout.isTTY }));
     return;
   }

@@ -161,3 +161,35 @@ ENVIRONMENT
 
 SEE ALSO
     ww show --man, ww fetch --man, ww ls quotes --man, ww prices --man, ww sort --man
+
+HISTORICAL POSITION OBSERVATIONS
+    ww ls position-observations --account pts [--table | --tsv | --jsonl] [--verbose] [--no-color]
+    ww show positions --account pts --snapshot SNAPSHOT_ID [--verbose | --jsonl | --table] [--no-color]
+    Listing is complete retained admitted evidence, not complete brokerage history.
+    Full opaque snapshot IDs select exact Account-local observations. No prefixes,
+    as-of, automatic predecessor or lifecycle inference. Default show is unchanged.
+    Listing defaults to aligned terminal tables and headerless redirected TSV.
+    JSONL emits one complete summary per line. Verbose implies table and conflicts
+    with TSV/JSONL. Empty catalog emits no machine records and exits 0.
+    TSV: accountId, snapshotId, broker, evidenceDate, evidenceDateBasis,
+    evidenceDatePrecision, holdingCount, recordedAt, acquisitionStartedAt,
+    acquisitionReceivedAt, artifactId, sourceFile, sourceSha256. Null cells empty;
+    backslash/tab/CR/LF are escaped. Machine output has no ANSI.
+    Display order is not brokerage chronology. Fidelity date precision is one day;
+    tastytrade date is UTC receipt day, not broker event time. Selected inventory
+    is projected at inspection time: DTE and later same-day Fidelity enrichment
+    do not replay historical knowledge. Separate market source provenance remains.
+    Reads require existing Account Position-read grants and never acquire.
+    Usage exits 2; transport/backend failure exits 1 with stderr diagnostics.
+    Original artifact access requires separate authority.
+
+HUMAN POSITION OUTPUT
+    Default terminal output and --table show a compact reported-inventory heading
+    and aligned records. Custody distinguishes otherwise identical symbols.
+    DTE(today) uses the inspection date in New York; ? means unavailable/unknown.
+    Signed quantities and adjusted roots are preserved. Past-expiry uncertainty
+    remains in the affected record. Evidence dates are observations, not events.
+    --verbose includes full snapshot IDs, provenance, acquisition/evaluation clocks,
+    additional projected fields and complete qualifications. --jsonl retains the
+    complete backend representation. Discovery retains full snapshot IDs in its
+    table; its detailed provenance and qualifications are opt-in with --verbose.

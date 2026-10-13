@@ -64,16 +64,31 @@ test('CONV-UX accents preserve visible layout; all color suppression modes and J
   const opts={format:'table',accountLabel:'tt1',env:{TERM:'xterm-256color'}};
   const colored=renderPositions(s,opts),plain=renderPositions(s,{...opts,noColor:true});
   assert.equal(colored.replace(/\x1b\[[0-9;]*m/g,''),plain);
-  for(const marker of ['\x1b[97m','\x1b[96mtt1','\x1b[91mtastytrade','\x1b[93mcoverage unknown','\x1b[37m?','\x1b[0m'])assert.ok(colored.includes(marker));
+  for(const marker of ['\x1b[97m','\x1b[96mtt1','\x1b[91mtastytrade','\x1b[37m?','\x1b[0m'])assert.ok(colored.includes(marker));
   for(const extra of [{noColor:true},{env:{NO_COLOR:'',TERM:'xterm'}},{env:{TERM:'dumb'}},{format:'jsonl'}])assert.ok(!renderPositions(s,{...opts,...extra}).includes('\x1b'));
-  assert.ok(plain.includes('opening attribution unresolved'));
+  assert.ok(!plain.includes('opening attribution unresolved'));
+  assert.ok(renderPositions(s,{...opts,verbose:true,noColor:true}).includes('opening attribution unresolved'));
   assert.deepEqual(parsePositions(['--account','tt1','--no-color']),{account:'tt1',verbose:false,format:undefined,noColor:true});
 });
 test('actual tastytrade Java projection exposes independent contracts with quantities, without occurrence inference',async()=>{
   const data=parseShowJson(await readFile(new URL('../evidence-service-java/build/tastytrade-position-read-specimen.json',import.meta.url),'utf8'));
   validatePositions(data,data.accountId,data.requestId);
   const output=renderPositions(data,{format:'table',accountLabel:'tt1',noColor:true});
-  assert.equal(data.positions.length,4);assert.match(output,/tastytrade snapshot/);assert.match(output,/XLE\s+261016P00059000\s+1/);assert.match(output,/XLE\s+261016P00059500\s+-1/);
+  assert.equal(data.positions.length,4);assert.match(output,/tastytrade inventory/);assert.match(output,/XLE\s+261016P00059000\s+1/);assert.match(output,/XLE\s+261016P00059500\s+-1/);
   for(const p of data.positions){assert.equal(p.openPl,null);assert.equal(p.program,null);assert.equal(p.constituents.length,1);}
-  assert.match(output,/opening attribution unresolved/);assert.ok(!output.includes('0.18'));
+  assert.ok(!output.includes('opening attribution unresolved'));assert.match(renderPositions(data,{verbose:true,noColor:true}),/opening attribution unresolved/);assert.ok(!output.includes('0.18'));
+});
+
+test('default human output is inventory records only; detail and machine evidence remain available',()=>{
+ const s=specimen();s.positions[1].constituents[0].holding.quantity=parseShowJson('200.123456789012');
+ const out=renderPositions(s,{format:'table',accountLabel:'pts',noColor:true});
+ assert.equal(out.trimEnd().split('\n').length,s.positions.length+2);
+ assert.match(out,/pts — Fidelity inventory 2026-10-11/);assert.match(out,/DTE\(today\)/);assert.match(out,/200\.123456789012/);
+ for(const prose of ['WORKING BROKERAGE ORDERS','Evidence:','Snapshot:','Historical snapshot','Close terms:','Program:'])assert.ok(!out.includes(prose));
+ assert.match(out,/CUSTODY/);assert.match(out,/Cash/);
+ assert.equal(renderPositions(s,{format:'jsonl'}),JSON.stringify(s)+'\n');
+ const detail=renderPositions(s,{verbose:true,noColor:true});assert.ok(detail.includes(s.snapshotId));assert.ok(detail.includes(s.sourceSha256));assert.ok(detail.includes(s.qualifications[0]));
+ assert.equal(renderPositions({...s,positions:[]},{format:'table',accountLabel:'pts',noColor:true}).trimEnd().split('\n').length,2);
+ s.positions[1].constituents[0].state='LONG reported; past expiry, resolution unknown';
+ assert.match(renderPositions(s,{format:'table',noColor:true}),/past expiry, resolution unknown/);
 });

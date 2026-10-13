@@ -3,7 +3,7 @@
   "info": {
     "title": "Wheelwright v2 account evidence and Positions",
     "version": "0.4.0",
-    "description": "Bounded source retention, exact-row evidence admission and Position reads. No sophisticated historical reconciliation or recommendations. Canonical opaque resource identities, Account discovery and authorized-scope collections; persistence structure does not determine URI hierarchy. First-class User identity, authenticated self inspection and explicitly administrator-only User discovery; fixed many-to-many User–Account authorization."
+    "description": "Bounded source retention, exact-row evidence admission and Position reads. No sophisticated historical reconciliation or recommendations. Canonical opaque resource identities, Account discovery and authorized-scope collections; persistence structure does not determine URI hierarchy. First-class User identity, authenticated self inspection and explicitly administrator-only User discovery; fixed many-to-many User\u2013Account authorization."
   },
   "servers": [
     {
@@ -25,7 +25,7 @@
       "get": {
         "operationId": "readAccountPositions",
         "summary": "readAccountPositions",
-        "description": "Pure committed backend snapshot read. Latest export date then admission time. No provider contact, lifecycle inference, body, pagination or acquisition. Position identity denotes observed contract/custody inventory or explicit snapshot association, not lifecycle continuity. Constituents appear exactly once. Missing fields remain null. Bid/ask and per-option broker margin requirements may use an accepted same-day Option Summary; each carries separate artifact/row provenance. Strategy rows never count inventory. Option Greeks, allocation, close policy and working orders remain unknown. Date-only evidence does not establish current executable prices or adjusted deliverables. Original bytes resolve through artifactId. Collections include only backend-authorized Account scope. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. Tastytrade API holdings carry additive observation provenance and have no inferred opening economics, grouping, Program or orders. No retained CSV market enrichment is applied to tastytrade observations.",
+        "description": "Pure committed backend snapshot read. Latest export date then admission time. No provider contact, lifecycle inference, body, pagination or acquisition. Position identity denotes observed contract/custody inventory or explicit snapshot association, not lifecycle continuity. Constituents appear exactly once. Missing fields remain null. Bid/ask and per-option broker margin requirements may use an accepted same-day Option Summary; each carries separate artifact/row provenance. Strategy rows never count inventory. Option Greeks, allocation, close policy and working orders remain unknown. Date-only evidence does not establish current executable prices or adjusted deliverables. Original bytes resolve through artifactId. Collections include only backend-authorized Account scope. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. Tastytrade API holdings carry additive observation provenance and have no inferred opening economics, grouping, Program or orders. No retained CSV market enrichment is applied to tastytrade observations. Three request forms only: absent view/snapshotId preserves latest selection; view=observations returns PositionObservationCollection; accountId plus snapshotId returns one exact selected PositionRead in PositionCollection. Each parameter occurs at most once. Unknown, blank, repeated or incompatible parameters and GET bodies are 422 after authentication and explicit Account authorization. Catalog known authorized Account with no observations is 200 empty. Missing selected snapshot, including an ID belonging to another Account, is 404 without global lookup. Catalog order is accountId ASC, evidenceDate DESC, recordedAt DESC, snapshotId DESC using binary text ordering, not established brokerage chronology. Catalog is complete within one committed read view; capacity failure is 503, never a truncated success. Inspection-time projection is not historical knowledge replay; later same-day Fidelity enrichment remains separately attributed.",
         "security": [
           {
             "bearerAuth": []
@@ -55,7 +55,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PositionCollection"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/PositionCollection"
+                    },
+                    {
+                      "$ref": "#/components/schemas/PositionObservationCollection"
+                    }
+                  ]
                 }
               }
             }
@@ -89,6 +96,28 @@
               "pattern": "^acct_[a-f0-9]{32}$"
             },
             "description": "Immutable backend Account ID; aliases are rejected. GET narrows authorized scope; POST selects the owning Account."
+          },
+          {
+            "name": "view",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "observations"
+              ]
+            },
+            "description": "Complete authorized retained observation catalog. Optional accountId narrows scope. Cannot combine with snapshotId."
+          },
+          {
+            "name": "snapshotId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Nonblank exact opaque identity within required accountId. Cannot combine with view. No global lookup."
           }
         ]
       }
@@ -664,7 +693,7 @@
       "get": {
         "operationId": "listUsers",
         "summary": "listUsers",
-        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User–Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Requires explicitly backend-established users.admin, including inspection of one’s own User through /users/{userId}. User names and Account access imply no administrator privilege. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Requires explicitly backend-established users.admin, including inspection of one\u2019s own User through /users/{userId}. User names and Account access imply no administrator privilege. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
         "security": [
           {
             "bearerAuth": []
@@ -743,7 +772,7 @@
       "get": {
         "operationId": "readUser",
         "summary": "readUser",
-        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User–Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Requires explicitly backend-established users.admin, including inspection of one’s own User through /users/{userId}. User names and Account access imply no administrator privilege. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Requires explicitly backend-established users.admin, including inspection of one\u2019s own User through /users/{userId}. User names and Account access imply no administrator privilege. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
         "security": [
           {
             "bearerAuth": []
@@ -813,7 +842,7 @@
       "get": {
         "operationId": "readCurrentUser",
         "summary": "readCurrentUser",
-        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User–Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Returns only the authenticated User; arbitrary headers, Account selection or client filtering cannot select a different identity. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Returns only the authenticated User; arbitrary headers, Account selection or client filtering cannot select a different identity. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
         "security": [
           {
             "bearerAuth": []
@@ -1037,7 +1066,7 @@
         "properties": {
           "positionId": {
             "type": "string",
-            "pattern": "^position-[a-f0-9]{24}$"
+            "pattern": "^position-(?:[a-f0-9]{24}|[a-f0-9]{64})$"
           },
           "label": {
             "type": "string"
@@ -1370,6 +1399,13 @@
                 "type": "null"
               }
             ]
+          },
+          "observationContext": {
+            "$ref": "#/components/schemas/PositionObservationContext"
+          },
+          "evaluationBasis": {
+            "const": "INSPECTION_TIME",
+            "description": "Derived fields use evaluatedAt over retained inventory; no historical knowledge or evaluation replay."
           }
         },
         "required": [
@@ -1591,7 +1627,7 @@
           "artifactsWrite",
           "positionsAcquire"
         ],
-        "description": "One explicitly established backend User–Account relationship; multiple Users may access one Account and one User may access multiple Accounts."
+        "description": "One explicitly established backend User\u2013Account relationship; multiple Users may access one Account and one User may access multiple Accounts."
       },
       "User": {
         "type": "object",
@@ -1760,6 +1796,148 @@
           "completedAt",
           "result"
         ]
+      },
+      "PositionObservationContext": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "broker",
+              "evidenceDateBasis",
+              "evidenceDatePrecision"
+            ],
+            "properties": {
+              "broker": {
+                "const": "FIDELITY"
+              },
+              "evidenceDateBasis": {
+                "const": "FIDELITY_EXPORT_DATE"
+              },
+              "evidenceDatePrecision": {
+                "const": "DAY"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "broker",
+              "evidenceDateBasis",
+              "evidenceDatePrecision"
+            ],
+            "properties": {
+              "broker": {
+                "const": "TASTYTRADE"
+              },
+              "evidenceDateBasis": {
+                "const": "BACKEND_RECEIPT_UTC_DATE"
+              },
+              "evidenceDatePrecision": {
+                "const": "DAY"
+              }
+            }
+          }
+        ],
+        "description": "Date-field interpretation only; no exact broker observation, event time or intraday chronology."
+      },
+      "PositionObservationSummary": {
+        "type": "object",
+        "required": [
+          "requestId",
+          "accountId",
+          "accountName",
+          "snapshotId",
+          "evidenceDate",
+          "recordedAt",
+          "sourceFile",
+          "sourceSha256",
+          "artifactId",
+          "holdingCount",
+          "observation",
+          "observationContext",
+          "qualifications"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "type": "string"
+          },
+          "evidenceDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Fidelity export day, or UTC backend receipt day for tastytrade. Not an opening or broker event timestamp."
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sourceFile": {
+            "type": "string"
+          },
+          "sourceSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "artifactId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "holdingCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "observation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HoldingsObservation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observationContext": {
+            "$ref": "#/components/schemas/PositionObservationContext"
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PositionObservationCollection": {
+        "type": "object",
+        "required": [
+          "requestId",
+          "observations"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "observations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PositionObservationSummary"
+            }
+          }
+        },
+        "description": "All retained admitted observations in authorized scope, exactly once. Empty success; no brokerage-history completeness claim."
       }
     },
     "responses": {

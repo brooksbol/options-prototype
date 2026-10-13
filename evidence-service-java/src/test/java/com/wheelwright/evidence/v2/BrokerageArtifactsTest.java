@@ -91,6 +91,7 @@ class BrokerageArtifactsTest {
         String body = PositionsTest.BODY + "A1,Test PTS,ETFs,ETHA,Adjusted shares,66,3600,-5,Cash\n" +
                 "A1,Test PTS,Options,-ETHA1261016C20.5,Adjusted call,-2,-16,120,Cash\n";
         artifacts.ingest(pts, "positions.csv", "POSITIONS", bytes(PositionsTest.csv(body, "Oct-05-2026")), "id");
+        var beforeEnrichment=positions.read(pts,"id",PositionsTest.NOW).orElseThrow();
         String summary = "Fidelity Investments - Option Summary A1\nQuote data as of 10/05/2026.\n" +
                 "Symbol,Description,Strategy,Expiration & Strike,Quantity,Bid,Ask,Margin requirements\n" +
                 "SPY,SPY,Covered Call,Shares,100,499.50,500.00,0\n" +
@@ -111,6 +112,13 @@ class BrokerageArtifactsTest {
         assertThat(adjusted.constituents().getFirst().marketEvidence().artifactId()).isEqualTo(source.artifactId());
         assertThat(adjusted.constituents().getFirst().holding().bid()).isNull();
         assertThat(adjusted.program()).isNull();
+        var selected=positions.read(pts,beforeEnrichment.snapshotId(),"selected",PositionsTest.NOW.plusSeconds(86400)).orElseThrow();
+        assertThat(selected.snapshotId()).isEqualTo(beforeEnrichment.snapshotId());
+        assertThat(selected.positions().getLast().constituents().getFirst().holding().quantity()).isEqualByComparingTo(beforeEnrichment.positions().getLast().constituents().getFirst().holding().quantity());
+        assertThat(beforeEnrichment.positions().getLast().constituents().getFirst().marketEvidence()).isNull();
+        assertThat(selected.positions().getLast().constituents().getFirst().marketEvidence().artifactId()).isEqualTo(source.artifactId());
+        assertThat(selected.positions().getLast().constituents().getFirst().dte()).isEqualTo(4);
+        assertThat(selected.qualifications().toString()).contains("subsequently retained","no historical knowledge replay");
         var old = summary.replace("10/05/2026", "10/04/2026").replace("499.50", "1.00");
         artifacts.ingest(pts, "older-summary.csv", "OPTION_SUMMARY", bytes(old), "id");
         assertThat(positions.read(pts, "id", PositionsTest.NOW).orElseThrow().positions().getFirst().constituents().getFirst().holding().bid()).isEqualByComparingTo("499.50");
