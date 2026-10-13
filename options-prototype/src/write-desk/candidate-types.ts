@@ -10,6 +10,7 @@ import type { ExecutionAssessment, ActionPosture } from "./execution-assessment"
 import type { PositionEconomics } from "./types";
 import type { EvidenceProvenance } from "./evidence-provenance";
 import type { RawExportGreeks } from "./option-greeks";
+import type { MarketMetrics } from "./market-metrics";
 
 export type GovernanceStatus = "authorized" | "danger" | "review" | "unknown";
 
@@ -63,6 +64,12 @@ export interface PutCandidate {
    * governance, admissibility, or selection.
    */
   exportGreeks?: RawExportGreeks;
+  /**
+   * Per-underlying volatility metrics (tastytrade /market-metrics), attached
+   * AFTER recommendation for display + CSV export ONLY. INTERIM v1, observational.
+   * NEVER an input to rank, posture, governance, admissibility, or selection.
+   */
+  marketMetrics?: MarketMetrics;
 }
 
 export interface CallCandidate {
@@ -118,6 +125,12 @@ export interface CallCandidate {
    * zero and absence verbatim. NEVER an input to rank/posture/governance/selection.
    */
   exportGreeks?: RawExportGreeks;
+  /**
+   * Per-underlying volatility metrics (tastytrade /market-metrics), attached
+   * AFTER recommendation for display + CSV export ONLY. INTERIM v1, observational.
+   * NEVER an input to rank/posture/governance/selection.
+   */
+  marketMetrics?: MarketMetrics;
 }
 
 export interface CallInventoryItem {

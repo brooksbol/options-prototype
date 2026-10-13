@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-10-12T16:43:36.790283Z",
+  "universe_total": 1313,
+  "symbols_present": 1308,
+  "symbols_missing": 5,
+  "ivrank_present_symbols": 990,
+  "ivrank_null_among_present": 318,
+  "field_present_counts": {
+    "implied-volatility-index-rank": 990,
+    "implied-volatility-index-rank-source": 990,
+    "tos-implied-volatility-index-rank": 988,
+    "tw-implied-volatility-index-rank": 934,
+    "implied-volatility-percentile": 934,
+    "implied-volatility-index": 950,
+    "historical-volatility-30-day": 183,
+    "iv-hv-30-day-difference": 183,
+    "implied-volatility-updated-at": 990
+  },
+  "missing_symbols_sample": [
+    "JJETF",
+    "DAGXF",
+    "OLOXF",
+    "BWVTF",
+    "IGX"
+  ]
+}

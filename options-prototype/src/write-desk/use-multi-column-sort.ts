@@ -65,6 +65,13 @@ function extractValue(item: Record<string, unknown>, key: string): unknown {
       | undefined;
     return prov && prov.kind === "chain-acquired" ? prov.acquiredAtMs : undefined;
   }
+  if (key === "ivRank") {
+    // INTERIM v1 observational IV Rank (tastytrade /market-metrics), nested under
+    // `marketMetrics`. Provider 0..1 scale is fine for ordering; absence → undefined
+    // so compareValues pins unknowns last. Never a recommendation input.
+    const mm = item.marketMetrics as { ivRank?: number | null } | undefined;
+    return mm && typeof mm.ivRank === "number" ? mm.ivRank : undefined;
+  }
   return item[key];
 }
 

@@ -20,8 +20,9 @@ import type { RecommendationPolicy } from "../write-desk/recommend";
 import { loadWorkspace, updateWorkspace } from "../workspace/workspace";
 import { showCountInputValue, parseShowCountInput, applyShowCount, displayedCount } from "./showCountFilter";
 import { useMultiColumnSort, type SortDir } from "../write-desk/use-multi-column-sort";
-import { downloadTableCsv, RAW_GREEK_IV_COLUMNS } from "../write-desk/table-csv-export";
+import { downloadTableCsv, RAW_GREEK_IV_COLUMNS, MARKET_METRICS_COLUMNS } from "../write-desk/table-csv-export";
 import { sanitizeGreeks, formatGreek, type RawExportGreeks } from "../write-desk/option-greeks";
+import type { MarketMetrics } from "../write-desk/market-metrics";
 import { AgeCell } from "../write-desk/AgeCell";
 import { formatAcquisitionAge, type EvidenceProvenance } from "../write-desk/evidence-provenance";
 import { CrossEntryRefreshButton } from "../write-desk/CrossEntryRefreshButton";
@@ -30,7 +31,7 @@ import { selectRefreshTopSymbols, REFRESH_TOP_N } from "../write-desk/refresh-to
 
 // --- Sortable Table (delegates to shared multi-column hook) ---
 
-function useCrossEntrySortable(items: CrossEntryRow[], defaultKey: string = "productionV0", defaultDir: SortDir = "desc", onSortChange?: (key: string, dir: SortDir) => void) {
+function useCrossEntrySortable<T extends CrossEntryRow>(items: T[], defaultKey: string = "productionV0", defaultDir: SortDir = "desc", onSortChange?: (key: string, dir: SortDir) => void) {
   const { sorted, handleSort: multiHandleSort, indicator, isDefaultOrder, primaryKey } = useMultiColumnSort(
     items,
     [{ key: defaultKey, dir: defaultDir }],
@@ -67,21 +68,44 @@ interface CrossEntryStripProps {
 // originalPut / originalBuyWrite). Presentation semantics: exact-zero/absence →
 // "—" (the raw values are preserved in the CSV, not here). Rho and
 // greeksUpdatedAt are deliberately CSV-only.
-const CROSS_ENTRY_GREEK_IV_HEADERS = (
-  <>
-    <th className="wd-greek-head wd-greek-first" title="Gamma (Δ change per $1 underlying move)">Γ</th>
-    <th className="wd-greek-head" title="Theta (option value change per calendar day)">Θ</th>
-    <th className="wd-greek-head" title="Vega (value change per 1 IV point)">Vega</th>
-    <th className="wd-greek-head wd-greek-iv" title="Mid IV — Tradier midpoint-derived implied volatility">Mid IV</th>
-    <th className="wd-greek-head wd-greek-iv wd-greek-last" title="SMV — ORATS smoothed/surface volatility">SMV</th>
-  </>
-);
+// IV Rank (tastytrade /market-metrics) is colocated with the other volatility
+// metrics (right of Mid IV / SMV), sortable per the table's handler. INTERIM v1,
+// observational only; resolved from the row's originating candidate.
+function crossEntryGreekIvHeaders(
+  handleSort: (key: string, e?: React.MouseEvent) => void,
+  indicator: (key: string) => string,
+) {
+  return (
+    <>
+      <th className="wd-greek-head wd-greek-first" title="Gamma (Δ change per $1 underlying move)">Γ</th>
+      <th className="wd-greek-head" title="Theta (option value change per calendar day)">Θ</th>
+      <th className="wd-greek-head" title="Vega (value change per 1 IV point)">Vega</th>
+      <th className="wd-greek-head wd-greek-iv" title="Mid IV — Tradier midpoint-derived implied volatility">Mid IV</th>
+      <th className="wd-greek-head wd-greek-iv" title="SMV — ORATS smoothed/surface volatility">SMV</th>
+      <th className="wd-greek-head wd-greek-iv wd-greek-last wd-sortable" onClick={(e) => handleSort("ivRank", e)} title="Underlying IV Rank (tastytrade /market-metrics), 0–100. Observational only — not a recommendation input. '—' when not served.">IV Rank{indicator("ivRank")}</th>
+    </>
+  );
+}
 
 function crossEntryPresentIv(v: number | null | undefined): string {
   return v != null && Number.isFinite(v) && v !== 0 ? v.toFixed(4) : "—";
 }
 
-function CrossEntryGreekIvCells({ greeks }: { greeks?: RawExportGreeks }) {
+function crossEntryIvRank(metrics?: MarketMetrics): string {
+  const v = metrics?.ivRank;
+  return v != null && Number.isFinite(v) ? (v * 100).toFixed(1) : "—";
+}
+
+function crossEntryIvRankTitle(metrics?: MarketMetrics): string {
+  return metrics
+    ? [
+        metrics.ivRankSource ? `source: ${metrics.ivRankSource}` : null,
+        metrics.ivUpdatedAt ? `as of ${metrics.ivUpdatedAt}` : null,
+      ].filter(Boolean).join(" · ") || "IV Rank (tastytrade market-metrics)"
+    : "IV Rank not served for this underlying";
+}
+
+function CrossEntryGreekIvCells({ greeks, metrics }: { greeks?: RawExportGreeks; metrics?: MarketMetrics }) {
   const g = sanitizeGreeks(greeks ?? {});
   return (
     <>
@@ -89,7 +113,8 @@ function CrossEntryGreekIvCells({ greeks }: { greeks?: RawExportGreeks }) {
       <td className="wd-greek-cell">{formatGreek(g.theta)}</td>
       <td className="wd-greek-cell">{formatGreek(g.vega)}</td>
       <td className="wd-greek-cell wd-greek-iv">{crossEntryPresentIv(greeks?.midIv)}</td>
-      <td className="wd-greek-cell wd-greek-iv wd-greek-last">{crossEntryPresentIv(greeks?.smvVol)}</td>
+      <td className="wd-greek-cell wd-greek-iv">{crossEntryPresentIv(greeks?.smvVol)}</td>
+      <td className="wd-greek-cell wd-greek-iv wd-greek-last wd-ivrank-cell" title={crossEntryIvRankTitle(metrics)}>{crossEntryIvRank(metrics)}</td>
     </>
   );
 }
@@ -101,9 +126,15 @@ export function CrossEntryStrip({
   onSelectBuyWrite,
   onRefreshTopOpportunities,
 }: CrossEntryStripProps) {
-  // Full eligible population (composition + eligibility filtering, no display cap)
+  // Full eligible population (composition + eligibility filtering, no display cap).
+  // INTERIM v1: attach observational IV Rank (tastytrade /market-metrics) from each
+  // row's originating candidate so it colocates with the volatility block, sorts via
+  // the shared `ivRank` key, and exports. Never a recommendation input.
   const allRows = useMemo(
-    () => buildCrossEntryRows(putCandidates, buyWriteCandidates),
+    () => buildCrossEntryRows(putCandidates, buyWriteCandidates).map((r) => ({
+      ...r,
+      marketMetrics: (r.originalPut ?? r.originalBuyWrite)?.marketMetrics,
+    })),
     [putCandidates, buyWriteCandidates]
   );
 
@@ -293,6 +324,10 @@ export function CrossEntryStrip({
                   return orig && col.format ? col.format(orig) : "";
                 },
               })),
+              // INTERIM v1 per-underlying volatility metrics (tastytrade). The row
+              // carries `marketMetrics` (attached from the originating candidate), so
+              // these columns read it directly — raw provider values, verbatim.
+              ...MARKET_METRICS_COLUMNS,
             ],
             `wheelwright-cross-entry-${new Date().toISOString().slice(0, 10)}.csv`
           );
@@ -325,7 +360,7 @@ export function CrossEntryStrip({
             <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("appreciationToStrikeDollars", e)} title="Appreciation to strike — signed dollar move (per-share × 100) the underlying must make from spot to reach the strike, with the % in parentheses. Buy-Write: headroom to the capped-upside strike. CSP: (negative) distance down to the OTM put strike.">Appr→Strike{indicator("appreciationToStrikeDollars")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
-            {CROSS_ENTRY_GREEK_IV_HEADERS}
+            {crossEntryGreekIvHeaders(handleSort, indicator)}
             <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("mid", e)}>Mid{indicator("mid")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("ask", e)}>Ask{indicator("ask")}</th>
@@ -367,7 +402,7 @@ export function CrossEntryStrip({
               <td>${row.strike.toFixed(2)}</td>
               <td className={row.appreciationToStrikeDollars < 0 ? "wd-negative-value" : ""}>{row.appreciationToStrikeDollars >= 0 ? "+" : "−"}${Math.abs(row.appreciationToStrikeDollars).toFixed(0)} ({row.appreciationToStrikePct >= 0 ? "+" : "−"}{Math.abs(row.appreciationToStrikePct).toFixed(1)}%)</td>
               <td>{row.delta.toFixed(2)}</td>
-              <CrossEntryGreekIvCells greeks={(row.originalPut ?? row.originalBuyWrite)?.exportGreeks} />
+              <CrossEntryGreekIvCells greeks={(row.originalPut ?? row.originalBuyWrite)?.exportGreeks} metrics={row.marketMetrics} />
               <td>${row.bid.toFixed(2)}</td>
               <td>${row.mid.toFixed(2)}</td>
               <td>${row.ask.toFixed(2)}</td>

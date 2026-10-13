@@ -34,6 +34,42 @@ export const RAW_GREEK_IV_COLUMNS: CsvColumn[] = [
   { key: "raw_greeksUpdatedAt", label: "greeksUpdatedAt", format: (r) => rawTimestampCell(r) },
 ];
 
+/**
+ * INTERIM v1 per-underlying volatility metrics (tastytrade /market-metrics) CSV
+ * columns. Reads each row's `marketMetrics` (a MarketMetrics attached to the
+ * candidate for display/export only). RAW provider values are emitted VERBATIM:
+ * the 0..1 IV-rank/percentile scale is NOT converted here (presentation layer
+ * does ×100 for the screen; the CSV preserves the provider scale). Absence →
+ * empty, never 0; a provider exact 0 is emitted as "0". The two methodologies
+ * (tos/tw) are DISTINCT columns and are never averaged or substituted.
+ * OBSERVATIONAL ONLY — never a recommendation input.
+ */
+export const MARKET_METRICS_COLUMNS: CsvColumn[] = [
+  { key: "mm_ivRank", label: "ivRank", format: (r) => metricNumCell(r, "ivRank") },
+  { key: "mm_ivRankSource", label: "ivRankSource", format: (r) => metricStrCell(r, "ivRankSource") },
+  { key: "mm_ivRankTos", label: "ivRankTos", format: (r) => metricNumCell(r, "ivRankTos") },
+  { key: "mm_ivRankTw", label: "ivRankTw", format: (r) => metricNumCell(r, "ivRankTw") },
+  { key: "mm_ivPercentile", label: "ivPercentile", format: (r) => metricNumCell(r, "ivPercentile") },
+  { key: "mm_ivIndex", label: "ivIndex", format: (r) => metricNumCell(r, "ivIndex") },
+  { key: "mm_hv30", label: "historicalVolatility30", format: (r) => metricNumCell(r, "historicalVolatility30") },
+  { key: "mm_ivHv30Diff", label: "ivHv30Difference", format: (r) => metricNumCell(r, "ivHv30Difference") },
+  { key: "mm_ivUpdatedAt", label: "ivUpdatedAt", format: (r) => metricStrCell(r, "ivUpdatedAt") },
+];
+
+function metricNumCell(row: Record<string, unknown>, field: string): string {
+  const m = row["marketMetrics"] as Record<string, unknown> | undefined;
+  if (!m) return "";
+  const v = m[field];
+  return typeof v === "number" && Number.isFinite(v) ? String(v) : "";
+}
+
+function metricStrCell(row: Record<string, unknown>, field: string): string {
+  const m = row["marketMetrics"] as Record<string, unknown> | undefined;
+  if (!m) return "";
+  const v = m[field];
+  return typeof v === "string" ? v : "";
+}
+
 function rawGreekCell(row: Record<string, unknown>, field: string): string {
   const g = row["exportGreeks"] as Record<string, unknown> | undefined;
   if (!g) return "";

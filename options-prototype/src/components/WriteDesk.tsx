@@ -45,7 +45,9 @@ import { useMultiColumnSort } from "../write-desk/use-multi-column-sort";
 import { parseSymbolTerms, callRowMatches, buyWriteRowMatches } from "../write-desk/table-filter-predicates";
 import { AgeCell } from "../write-desk/AgeCell";
 import { formatAcquisitionAge, provenanceFromPublished, type EvidenceProvenance } from "../write-desk/evidence-provenance";
-import { downloadTableCsv, RAW_GREEK_IV_COLUMNS } from "../write-desk/table-csv-export";
+import { downloadTableCsv, RAW_GREEK_IV_COLUMNS, MARKET_METRICS_COLUMNS } from "../write-desk/table-csv-export";
+import { useMarketMetrics } from "../write-desk/use-market-metrics";
+import type { MarketMetrics } from "../write-desk/market-metrics";
 import { sanitizeGreeks, formatGreek, type RawExportGreeks } from "../write-desk/option-greeks";
 import { useSectionOrder } from "../hooks/useSectionOrder";
 import "../write-desk.css";
@@ -238,6 +240,42 @@ export function Deployment() {
   const localUniverse = useMemo(() => loadCandidateUniverseWithDescriptor(), []);
   const [backendSymbols, setBackendSymbols] = useState<string[] | null>(null);
   const universeSymbols = backendSymbols ?? localUniverse.symbols;
+
+  // INTERIM v1 OBSERVATIONAL IV Rank evidence (tastytrade /market-metrics).
+  // Fetch per-underlying metrics for the symbols currently represented across the
+  // Deployment candidate groups, then attach to candidates at render time (NOT in
+  // the recommendation engines). These values are display/CSV only and NEVER
+  // affect eligibility, posture, ranking, capital, or execution. Demo mode makes
+  // no requests. Absence renders "—"; freshness is governed by each metric's
+  // provider `ivUpdatedAt`, not by request success.
+  const metricsSymbols = useMemo(() => {
+    const set = new Set<string>();
+    for (const c of putCandidates) set.add(c.symbol.toUpperCase());
+    for (const c of putWaitCandidates) set.add(c.symbol.toUpperCase());
+    for (const c of putWideSpreadCandidates) set.add(c.symbol.toUpperCase());
+    for (const c of callCandidates) set.add(c.symbol.toUpperCase());
+    for (const c of callWaitCandidates) set.add(c.symbol.toUpperCase());
+    for (const c of buyWriteCandidates) set.add(c.symbol.toUpperCase());
+    for (const c of buyWriteWaitCandidates) set.add(c.symbol.toUpperCase());
+    for (const c of buyWriteWideSpreadCandidates) set.add(c.symbol.toUpperCase());
+    return Array.from(set).sort();
+  }, [putCandidates, putWaitCandidates, putWideSpreadCandidates, callCandidates, callWaitCandidates, buyWriteCandidates, buyWriteWaitCandidates, buyWriteWideSpreadCandidates]);
+  const marketMetricsMap = useMarketMetrics(metricsSymbols, source !== "demo");
+
+  // Enrich candidates with their underlying's IV Rank metrics ONCE, at the source,
+  // so every consumer (the Put/Call/BuyWrite tables AND the Cross-Entry "Cash
+  // Deployment" surface, which reads metrics off originalPut/originalBuyWrite) sees
+  // the same attached evidence. Attaching only at individual table render sites left
+  // Cross-Entry's originating candidates un-enriched (IV Rank blank there). Pure
+  // display/export enrichment — never mutates the recommendation inputs.
+  const putCandidatesWithMetrics = useMemo(
+    () => putCandidates.map((c) => ({ ...c, marketMetrics: marketMetricsMap.get(c.symbol.toUpperCase()) })),
+    [putCandidates, marketMetricsMap],
+  );
+  const buyWriteCandidatesWithMetrics = useMemo(
+    () => buyWriteCandidates.map((c) => ({ ...c, marketMetrics: marketMetricsMap.get(c.symbol.toUpperCase()) })),
+    [buyWriteCandidates, marketMetricsMap],
+  );
 
   // Opportunity-history: persistent last-seen map for cross-poll cadence dedup.
   // One instance across the component lifetime so unchanged-evidence re-evaluations
@@ -888,8 +926,8 @@ export function Deployment() {
           </div>
           <div style={{ display: crossEntryCollapsed ? 'none' : undefined }}>
             <CrossEntryStrip
-              putCandidates={putCandidates}
-              buyWriteCandidates={buyWriteCandidates}
+              putCandidates={putCandidatesWithMetrics}
+              buyWriteCandidates={buyWriteCandidatesWithMetrics}
               policy={policy}
               onSelectPut={(c) => { selectDrawerCandidate("put", { put: c }); }}
               onSelectBuyWrite={(c) => { selectDrawerCandidate("buywrite", { buyWrite: c }); }}
@@ -1052,7 +1090,7 @@ export function Deployment() {
               let filtered = showAffordableOnly ? allRows.filter((c) => c.affordable) : allRows;
               if (!showDanger) filtered = filtered.filter(c => c.governance.status !== "danger");
               filtered = filtered.filter(putRowMatchesFilters);
-              const displayed = applyShowCount(filtered, showCount).map((c, i) => ({ ...c, rank: i + 1 }));
+              const displayed = applyShowCount(filtered, showCount).map((c, i) => ({ ...c, rank: i + 1, marketMetrics: marketMetricsMap.get(c.symbol.toUpperCase()) }));
               return <PutCandidateTable candidates={displayed} selectedSymbol={selectedCandidate?.symbol ?? null} selectedStrike={selectedCandidate?.strike ?? null} onSelect={(c, pos) => { selectDrawerCandidate("put", { put: c, putPos: pos }); }} />;
             })()
           ) : (
@@ -1102,7 +1140,8 @@ export function Deployment() {
                 // The predicate works on symbol + dte, carried by both executable call
                 // candidates and contingent ("if assigned") rows.
                 const availableAll = [...callCandidates, ...callWaitCandidates];
-                const availableFiltered = applyShowCount(availableAll.filter(callRowMatchesFilters), callShowCount);
+                const availableFiltered = applyShowCount(availableAll.filter(callRowMatchesFilters), callShowCount)
+                  .map((c) => ({ ...c, marketMetrics: marketMetricsMap.get(c.symbol.toUpperCase()) }));
                 const contingentFiltered = applyShowCount(contingentCallRows.filter(callRowMatchesFilters), callShowCount);
                 const totalShown = availableFiltered.length + contingentFiltered.length;
                 const totalAll = availableAll.length + contingentCallRows.length;
@@ -1336,7 +1375,7 @@ export function Deployment() {
                   </div>
                 </div>
                 <BuyWriteCandidateTable
-                  candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates, ...(showWideSpread ? buyWriteWideSpreadCandidates : [])].filter(buyWriteRowMatchesFilters)}
+                  candidates={[...buyWriteCandidates, ...buyWriteWaitCandidates, ...(showWideSpread ? buyWriteWideSpreadCandidates : [])].filter(buyWriteRowMatchesFilters).map((c) => ({ ...c, marketMetrics: marketMetricsMap.get(c.symbol.toUpperCase()) }))}
                   selectedCandidate={selectedBuyWriteCandidate}
                   showAffordableOnly={showAffordableOnly}
                   showDanger={showDanger}
@@ -1423,15 +1462,24 @@ function useSortableTable<T>(items: T[], defaultKey: string = "rank", defaultDir
 // which preserves the raw provider observation verbatim (raw 0 stays 0, absence
 // stays empty). Rho and greeksUpdatedAt are deliberately CSV-only. Delta keeps
 // its existing dedicated column; these five are the added visible evidence.
-const GREEK_IV_HEADER_CELLS = (
-  <>
-    <th className="wd-greek-head wd-greek-first" title="Gamma (Δ change per $1 underlying move)">Γ</th>
-    <th className="wd-greek-head" title="Theta (option value change per calendar day)">Θ</th>
-    <th className="wd-greek-head" title="Vega (value change per 1 IV point)">Vega</th>
-    <th className="wd-greek-head wd-greek-iv" title="Mid IV — Tradier midpoint-derived implied volatility">Mid IV</th>
-    <th className="wd-greek-head wd-greek-iv wd-greek-last" title="SMV — ORATS smoothed/surface volatility">SMV</th>
-  </>
-);
+// IV Rank is colocated here with the other volatility metrics (right of Mid IV /
+// SMV). It is sortable per-table, so the header block is a function receiving the
+// table's sort handler + indicator. INTERIM v1, observational only.
+function greekIvHeaderCells(
+  handleSort: (key: string, e?: React.MouseEvent) => void,
+  indicator: (key: string) => string,
+) {
+  return (
+    <>
+      <th className="wd-greek-head wd-greek-first" title="Gamma (Δ change per $1 underlying move)">Γ</th>
+      <th className="wd-greek-head" title="Theta (option value change per calendar day)">Θ</th>
+      <th className="wd-greek-head" title="Vega (value change per 1 IV point)">Vega</th>
+      <th className="wd-greek-head wd-greek-iv" title="Mid IV — Tradier midpoint-derived implied volatility">Mid IV</th>
+      <th className="wd-greek-head wd-greek-iv" title="SMV — ORATS smoothed/surface volatility">SMV</th>
+      <th className="wd-greek-head wd-greek-iv wd-greek-last wd-sortable" onClick={(e) => handleSort("ivRank", e)} title="Underlying IV Rank (tastytrade /market-metrics), 0–100. Observational only — not a recommendation input. '—' when not served.">IV Rank{indicator("ivRank")}</th>
+    </>
+  );
+}
 
 /** Present an IV value with presentation semantics: finite & nonzero → 4-dp
  * decimal; else em dash (matches the Greek unavailable treatment).
@@ -1440,7 +1488,29 @@ function presentIv(v: number | null | undefined): string {
   return v != null && Number.isFinite(v) && v !== 0 ? v.toFixed(4) : "—";
 }
 
-function GreekIvCells({ greeks }: { greeks?: RawExportGreeks }) {
+/**
+ * INTERIM v1 observational IV Rank cell content (tastytrade /market-metrics).
+ * Headline rank on the operator's 0..100 scale (provider serves 0..1). Absence →
+ * "—" (never 0). Tooltip discloses the methodology source and provider observation
+ * time so freshness is read from the data, not the request. This value never
+ * affects recommendation eligibility, posture, ranking, capital, or execution.
+ * Rendered as the trailing cell of the colocated Greek/IV volatility block.
+ */
+function ivRankTitle(metrics?: MarketMetrics): string {
+  return metrics
+    ? [
+        metrics.ivRankSource ? `source: ${metrics.ivRankSource}` : null,
+        metrics.ivUpdatedAt ? `as of ${metrics.ivUpdatedAt}` : null,
+      ].filter(Boolean).join(" · ") || "IV Rank (tastytrade market-metrics)"
+    : "IV Rank not served for this underlying";
+}
+
+function ivRankDisplay(metrics?: MarketMetrics): string {
+  const v = metrics?.ivRank;
+  return v != null && Number.isFinite(v) ? (v * 100).toFixed(1) : "—";
+}
+
+function GreekIvCells({ greeks, metrics }: { greeks?: RawExportGreeks; metrics?: MarketMetrics }) {
   const g = sanitizeGreeks(greeks ?? {});
   return (
     <>
@@ -1448,7 +1518,8 @@ function GreekIvCells({ greeks }: { greeks?: RawExportGreeks }) {
       <td className="wd-greek-cell">{formatGreek(g.theta)}</td>
       <td className="wd-greek-cell">{formatGreek(g.vega)}</td>
       <td className="wd-greek-cell wd-greek-iv">{presentIv(greeks?.midIv)}</td>
-      <td className="wd-greek-cell wd-greek-iv wd-greek-last">{presentIv(greeks?.smvVol)}</td>
+      <td className="wd-greek-cell wd-greek-iv">{presentIv(greeks?.smvVol)}</td>
+      <td className="wd-greek-cell wd-greek-iv wd-greek-last wd-ivrank-cell" title={ivRankTitle(metrics)}>{ivRankDisplay(metrics)}</td>
     </>
   );
 }
@@ -1477,6 +1548,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
     cashRequired: "Cash Required",
     cashRemaining: "Cash Remaining",
     assessment: "Exec",
+    ivRank: "IV Rank",
     age: "Age",
   };
 
@@ -1501,6 +1573,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
           { key: "assessment", label: "Exec" }, { key: "posture", label: "Posture" },
           { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
           ...RAW_GREEK_IV_COLUMNS,
+          ...MARKET_METRICS_COLUMNS,
         ],
         `wheelwright-puts-${new Date().toISOString().slice(0, 10)}.csv`
       ); }} title="Download as CSV">⬇ CSV</button>
@@ -1513,7 +1586,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
           <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
-          {GREEK_IV_HEADER_CELLS}
+          {greekIvHeaderCells(handleSort, indicator)}
           <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("ask", e)}>Ask{indicator("ask")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("spreadPercent", e)}>Spread{indicator("spreadPercent")}</th>
@@ -1541,7 +1614,7 @@ function PutCandidateTable({ candidates, selectedSymbol, selectedStrike, onSelec
             <td>{c.dte}</td>
             <td>${c.strike}</td>
             <td>{Math.abs(c.delta).toFixed(2)}</td>
-            <GreekIvCells greeks={c.exportGreeks} />
+            <GreekIvCells greeks={c.exportGreeks} metrics={c.marketMetrics} />
             <td>${c.bid.toFixed(2)}</td>
             <td>${c.ask.toFixed(2)}</td>
             <td className={c.spreadPercent > 15 ? "wd-warn-value" : ""}>{c.spreadPercent.toFixed(0)}%</td>
@@ -1588,6 +1661,7 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
         { key: "selectionBasis", label: "Select" },
         { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
         ...RAW_GREEK_IV_COLUMNS,
+        ...MARKET_METRICS_COLUMNS,
       ],
       `wheelwright-calls-${new Date().toISOString().slice(0, 10)}.csv`
     ); }} title="Download as CSV">⬇ CSV</button>
@@ -1600,7 +1674,7 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
           <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
-          {GREEK_IV_HEADER_CELLS}
+          {greekIvHeaderCells(handleSort, indicator)}
           <th className="wd-sortable" onClick={(e) => handleSort("underlyingPrice", e)} title="Current underlying (spot) price from the evidence snapshot">Spot{indicator("underlyingPrice")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("basisPerShare", e)} title="Broker-reported average cost per share (stock/accounting basis)">Basis{indicator("basisPerShare")}</th>
           <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
@@ -1632,7 +1706,7 @@ function CallCandidateTable({ candidates, selectedRow, onSelect }: { candidates:
             <td>{c.dte}</td>
             <td>${c.strike}</td>
             <td>{c.delta.toFixed(2)}</td>
-            <GreekIvCells greeks={c.exportGreeks} />
+            <GreekIvCells greeks={c.exportGreeks} metrics={c.marketMetrics} />
             <td>${c.underlyingPrice.toFixed(2)}</td>
             <td>{c.basisPerShare != null ? `$${c.basisPerShare.toFixed(2)}` : "—"}</td>
             <td>${c.bid.toFixed(2)}</td>
@@ -1936,6 +2010,7 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
     totalReturnIfCalledPercent: "If Called",
     appreciationPerShare: "Apprec",
     assessment: "Exec",
+    ivRank: "IV Rank",
     age: "Age",
   };
 
@@ -1961,6 +2036,7 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
           { key: "cashRemaining", label: "Remaining" }, { key: "assessment", label: "Exec" }, { key: "posture", label: "Posture" },
           { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
           ...RAW_GREEK_IV_COLUMNS,
+          ...MARKET_METRICS_COLUMNS,
         ],
         `wheelwright-buy-writes-${new Date().toISOString().slice(0, 10)}.csv`
       ); }} title="Download as CSV">⬇ CSV</button>
@@ -1974,7 +2050,7 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
             <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
-            {GREEK_IV_HEADER_CELLS}
+            {greekIvHeaderCells(handleSort, indicator)}
             <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("ask", e)}>Ask{indicator("ask")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("spreadPercent", e)}>Spread{indicator("spreadPercent")}</th>
@@ -2009,7 +2085,7 @@ function BuyWriteCandidateTable({ candidates, selectedCandidate, showAffordableO
               <td>{c.dte}</td>
               <td className={!c.strikeAbovePrice ? "wd-warn-value" : ""}>${c.strike}</td>
               <td>{c.delta.toFixed(2)}</td>
-              <GreekIvCells greeks={c.exportGreeks} />
+              <GreekIvCells greeks={c.exportGreeks} metrics={c.marketMetrics} />
               <td>${c.bid.toFixed(2)}</td>
               <td>${c.ask.toFixed(2)}</td>
               <td className={c.spreadPercent > 15 ? "wd-warn-value" : ""}>{c.spreadPercent.toFixed(0)}%</td>

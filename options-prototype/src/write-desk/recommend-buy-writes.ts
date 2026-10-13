@@ -158,6 +158,12 @@ export interface BuyWriteCandidate {
    * zero and absence verbatim. NEVER an input to rank/posture/governance/selection.
    */
   exportGreeks?: import("./option-greeks").RawExportGreeks;
+  /**
+   * Per-underlying volatility metrics (tastytrade /market-metrics), attached
+   * AFTER recommendation for display + CSV export ONLY. INTERIM v1, observational.
+   * NEVER an input to rank/posture/governance/selection.
+   */
+  marketMetrics?: import("./market-metrics").MarketMetrics;
 }
 
 // --- Result ---

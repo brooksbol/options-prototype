@@ -36,20 +36,28 @@ public class TastytradeClient {
     }
     public boolean configured(){return !clientId.isBlank()&&!clientSecret.isBlank()&&!refreshToken.isBlank();}
     private static String encode(String value){return URLEncoder.encode(value,StandardCharsets.UTF_8);}
+
+    /** Fresh OAuth access token via refresh-token exchange. No durable cache; the
+     * token is scoped to a single acquisition and is passed to the secret-exclusion
+     * screen so it can never survive into a retained artifact or diagnostic. */
+    private String accessToken(long expires) throws Exception {
+        String form="grant_type=refresh_token&client_id="+encode(clientId)+"&client_secret="+encode(clientSecret)+"&refresh_token="+encode(refreshToken);
+        var oauth=HttpRequest.newBuilder(base.resolve("/oauth/token")).timeout(Duration.ofSeconds(10))
+                .header("Content-Type","application/x-www-form-urlencoded").header("Accept","application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(form)).build();
+        var tokenReply=receive(oauth,65536,expires);
+        if(tokenReply.statusCode()!=200)throw new IllegalStateException();
+        var tokenJson=TastytradeHoldings.document(tokenReply.body());
+        var tokenField=tokenJson.get("access_token");
+        if(tokenField==null||!tokenField.isTextual()||!tokenField.asText().matches("[A-Za-z0-9._~+/-]{1,16384}={0,2}"))throw new IllegalStateException();
+        return tokenField.asText();
+    }
+
     public byte[] holdings(String account) throws Exception {
         if(!configured()||!account.matches("[A-Za-z0-9]+"))throw new IllegalStateException("brokerage acquisition unavailable");
         long expires=System.nanoTime()+deadline.toNanos();
         try {
-            String form="grant_type=refresh_token&client_id="+encode(clientId)+"&client_secret="+encode(clientSecret)+"&refresh_token="+encode(refreshToken);
-            var oauth=HttpRequest.newBuilder(base.resolve("/oauth/token")).timeout(Duration.ofSeconds(10))
-                    .header("Content-Type","application/x-www-form-urlencoded").header("Accept","application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(form)).build();
-            var tokenReply=receive(oauth,65536,expires);
-            if(tokenReply.statusCode()!=200)throw new IllegalStateException();
-            var tokenJson=TastytradeHoldings.document(tokenReply.body());
-            var tokenField=tokenJson.get("access_token");
-            if(tokenField==null||!tokenField.isTextual()||!tokenField.asText().matches("[A-Za-z0-9._~+/-]{1,16384}={0,2}"))throw new IllegalStateException();
-            String token=tokenField.asText();
+            String token=accessToken(expires);
             var request=HttpRequest.newBuilder(base.resolve("/accounts/"+account+"/positions")).timeout(Duration.ofSeconds(10))
                     .header("Accept","application/json").header("Authorization","Bearer "+token).GET().build();
             var reply=receive(request,BrokerageArtifacts.MAX_BYTES,expires);
@@ -61,6 +69,39 @@ public class TastytradeClient {
             return bytes;
         }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("brokerage acquisition unavailable");}
         catch(Exception e){throw new IllegalStateException("brokerage acquisition unavailable");}
+    }
+
+    /** Read-only per-underlying volatility metrics (tastytrade {@code /market-metrics}).
+     *
+     * <p>INTERIM v1 market-data read. Deliberately SEPARATE from {@link #holdings} and
+     * equally hardened: fresh single-use OAuth token, redirects disabled, one bounded
+     * monotonic deadline covering OAuth + the metrics GET through complete body
+     * consumption, bounded body, and the same secret-exclusion screen before any bytes
+     * are returned. This widens the client to market data (the holdings path's narrow
+     * "positions only" contract is left untouched).
+     *
+     * @param symbols underlying symbols; each must match {@code [A-Z][A-Z0-9.]*}. The
+     *                caller is responsible for batching to a safe URL length.
+     * @return raw response bytes (JSON), suitable for {@link MarketMetrics#parse}.
+     */
+    public byte[] marketMetrics(List<String> symbols) throws Exception {
+        if(!configured())throw new IllegalStateException("market-metrics acquisition unavailable");
+        if(symbols==null||symbols.isEmpty())throw new IllegalStateException("market-metrics acquisition unavailable");
+        for(String s:symbols)if(s==null||!s.matches("[A-Z][A-Z0-9.]{0,9}"))throw new IllegalStateException("market-metrics acquisition unavailable");
+        long expires=System.nanoTime()+deadline.toNanos();
+        try {
+            String token=accessToken(expires);
+            String query=String.join(",",symbols.stream().map(TastytradeClient::encode).toList());
+            var request=HttpRequest.newBuilder(base.resolve("/market-metrics?symbols="+query)).timeout(Duration.ofSeconds(10))
+                    .header("Accept","application/json").header("Authorization","Bearer "+token).GET().build();
+            var reply=receive(request,BrokerageArtifacts.MAX_BYTES,expires);
+            if(reply.statusCode()!=200||!reply.headers().firstValue("Content-Type").orElse("").matches("(?i)application/json(?:\\s*;.*)?"))throw new IllegalStateException();
+            byte[] bytes=reply.body(); String content=new String(bytes,StandardCharsets.UTF_8);
+            for(String secret:List.of(clientId,clientSecret,refreshToken,token))if(content.contains(secret))throw new IllegalStateException();
+            if(!safeDocument(TastytradeHoldings.document(bytes),List.of(clientId,clientSecret,refreshToken,token)))throw new IllegalStateException();
+            return bytes;
+        }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("market-metrics acquisition unavailable");}
+        catch(Exception e){throw new IllegalStateException("market-metrics acquisition unavailable");}
     }
     private static boolean safeDocument(com.fasterxml.jackson.databind.JsonNode node,List<String> secrets) {
         if(node==null)return false;
