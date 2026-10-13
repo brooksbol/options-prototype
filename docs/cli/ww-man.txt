@@ -193,3 +193,17 @@ HUMAN POSITION OUTPUT
     additional projected fields and complete qualifications. --jsonl retains the
     complete backend representation. Discovery retains full snapshot IDs in its
     table; its detailed provenance and qualifications are opt-in with --verbose.
+
+PORTFOLIO CAPITAL OBSERVATIONS (candidate)
+    ww ls portfolio-capital-observations --account pts [--tsv | --table | --jsonl]
+    Pure retained Fidelity read; existing Account metadata/artifact grants. The
+    ratified v1 measure is Total Account Value minus aggregate short-option MTM.
+    Unique identical reported export-minute pairs are composites, not atomic
+    observations. Other Balance rows preserve ? with explicit status. No nearest
+    or same-day joining, zero fallback, daily collapse or interpolated values.
+    Piped default is TSV: exportMinute, portfolioCapital, status, totalAccountValue,
+    shortOptionMtm, balancesArtifactId, optionSummaryArtifactIds. --jsonl preserves
+    both hashes, export/quote/receipt dates, minute precision and source rows.
+    Example (ordinary presentation; no financial logic in awk):
+      ww ls portfolio-capital-observations --account pts | sort -k1,1 |
+        awk -v columns=2 -v title='PTS — Portfolio Capital History' -f scripts/unicode-observations.awk

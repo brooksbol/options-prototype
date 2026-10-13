@@ -2,7 +2,7 @@
   "openapi": "3.1.1",
   "info": {
     "title": "Wheelwright v2 account evidence and Positions",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "description": "Bounded source retention, exact-row evidence admission and Position reads. No sophisticated historical reconciliation or recommendations. Canonical opaque resource identities, Account discovery and authorized-scope collections; persistence structure does not determine URI hierarchy. First-class User identity, authenticated self inspection and explicitly administrator-only User discovery; fixed many-to-many User\u2013Account authorization."
   },
   "servers": [
@@ -976,6 +976,87 @@
           }
         }
       }
+    },
+    "/v2/portfolio-capital-observations": {
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string"
+          },
+          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+        }
+      ],
+      "get": {
+        "operationId": "readPortfolioCapitalObservations",
+        "summary": "Read retained Fidelity Portfolio Capital export-minute composites",
+        "description": "Pure read of accepted retained originals in one committed inventory. Required canonical accountId and existing account.artifacts.read grant; CLI resolves nicknames with account.read. Every original must have established single requested Account source scope, with existing original-disclosure protections, else whole read is 403. One row per admitted Balances artifact; unique identical reported export-minute Option Summary produces Portfolio Capital = Total Account Value minus aggregate short-option MTM. This is a two-source composite, not an atomic brokerage observation. No same-day/nearest/predecessor pairing, daily collapse, interpolation, historical knowledge replay or NAV claim. Missing, malformed, ambiguous or unmatched required values remain null with explicit row status. Complete parsed Summary without short options establishes zero; missing MTM never does. ExportedAt has MINUTE precision in America/New_York, independently of quoteDate and receipt time. Every row preserves both source hashes/IDs/rows. Duplicate timestamps retain all Balance rows with AMBIGUOUS_EXPORT_MINUTE. Response order exportMinute ASC NULLS LAST then artifactId ASC. Coverage remains UNKNOWN. Complete collection with 10000 artifact/32MiB input limit; capacity or hash failure returns 503 without partial output. Only accountId is allowed, exactly once; all other/repeated/blank params and nonempty GET bodies are 422 after authentication and applicable Account authorization. Non-Fidelity Account is 422. Known authorized empty Account returns 200 empty.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.artifacts.read:{accountId}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete retained export-minute composite inventory; null values are uncomputed.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapitalObservationCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        },
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^acct_[a-f0-9]{32}$"
+            }
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -1938,6 +2019,185 @@
           }
         },
         "description": "All retained admitted observations in authorized scope, exactly once. Empty success; no brokerage-history completeness claim."
+      },
+      "CapitalSource": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactId",
+          "sha256",
+          "receivedAt",
+          "fileType",
+          "exportedAt",
+          "timestampPrecision",
+          "quoteDate",
+          "sourceRows"
+        ],
+        "properties": {
+          "artifactId": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fileType": {
+            "enum": [
+              "BALANCES",
+              "OPTION_SUMMARY"
+            ]
+          },
+          "exportedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "timestampPrecision": {
+            "const": "MINUTE"
+          },
+          "quoteDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sourceRows": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      },
+      "CapitalObservation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "accountId",
+          "evidenceDate",
+          "exportMinute",
+          "status",
+          "portfolioCapital",
+          "totalAccountValue",
+          "shortOptionMtm",
+          "balances",
+          "optionSummaries",
+          "qualifications"
+        ],
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "evidenceDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "exportMinute": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "enum": [
+              "COMPOSITE",
+              "UNMATCHED_EXPORT_MINUTE",
+              "AMBIGUOUS_EXPORT_MINUTE",
+              "INSUFFICIENT_SOURCE_EVIDENCE"
+            ]
+          },
+          "portfolioCapital": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "totalAccountValue": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "shortOptionMtm": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "balances": {
+            "$ref": "#/components/schemas/CapitalSource"
+          },
+          "optionSummaries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CapitalSource"
+            }
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CapitalObservationCollection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "accountId",
+          "measure",
+          "formula",
+          "pairingBasis",
+          "historyCoverage",
+          "balanceArtifacts",
+          "optionSummaryArtifacts",
+          "observations"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "measure": {
+            "const": "PORTFOLIO_CAPITAL_V1"
+          },
+          "formula": {
+            "const": "totalAccountValue - shortOptionMtm"
+          },
+          "pairingBasis": {
+            "const": "UNIQUE_IDENTICAL_EXPORT_MINUTE_COMPOSITE"
+          },
+          "historyCoverage": {
+            "const": "UNKNOWN"
+          },
+          "balanceArtifacts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "optionSummaryArtifacts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "observations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CapitalObservation"
+            }
+          }
+        }
       }
     },
     "responses": {

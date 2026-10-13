@@ -277,7 +277,8 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `velvet-rope/*` | Universe admission domain model (dormant) |
 | `universe/*` | Candidate universe design (dormant) |
 | `engineering-spikes/*` | API feasibility assessments |
-| `design/pl-cli-01-historical-position-candidate.md` | Accepted historical Position catalog/selection, compact CLI, verification/deployment/recovery and unresolved Account-value-history gap |
+| `design/pl-cli-01-historical-position-candidate.md` | Accepted historical Position catalog/selection, compact CLI, verification/deployment/recovery and provenance of the later bounded Portfolio Capital delivery |
+| `design/pl-cli-01-portfolio-capital-history.md` | Principal-accepted isolated PTS Portfolio Capital Unicode graph: retained source coverage, 44 composites/29 gaps, public read/Unix composition, frozen verification and unperformed deployment |
 | `design/pl-conv-01-step5-candidate.md` | Accepted/deployed API-first tastytrade holdings R2; independent verification, Principal functional/visual acceptance and recovery provenance |
 | `design/pl-conv-01-step3-candidate.md` | Accepted multi-broker Account and BUG-035 delivery, recovery and closeout evidence |
 | `design/ww-show-held-quote-solution-design.md` | Bounded Solution Design for multi-subject show/local field discovery and the authorized collection/filter/order/horizontal-table extension (§15); accepted reversible path-symbol codec preserved; linked verification evidence. |

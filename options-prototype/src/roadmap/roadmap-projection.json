@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-13T04:18:57.991Z",
+    "generatedAt": "2026-10-13T15:46:16.569Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -3878,7 +3878,7 @@
         {
           "heading": "PL-CLI-01 — October 12, 2026 accepted historical observations and remaining Account-value gap",
           "level": 3,
-          "content": "**Current bounded state: ACCEPTED / operational.** Principal accepted historical observation discovery and explicit snapshot selection, including authorized compact presentation remediation after rejecting the original default footer. The broader CLI stream remains ongoing. This supersedes proposed/history-unavailable status only for explicit retained inventory discovery/selection, not economic continuity, automatic predecessor selection or portfolio-value history.\n\n**Accepted delivery:** existing GET /v2/positions adds view=observations and Account-scoped snapshotId selection. Public commands are ww ls position-observations --account ACCOUNT and ww show positions --account ACCOUNT --snapshot ID. Latest reads, Model A, original-artifact restrictions, retained identities/provenance and qualified clocks remain. No migration/acquisition/reconciliation engine; INSPECTION_TIME is not historical evaluation replay. Default human output is compact; full detail is opt-in; machine contracts are unchanged. Independent technical ACCEPT for the original frozen candidate and final Principal acceptance of the presentation correction are distinct evidence. See [accepted contract, evidence and recovery](design/pl-cli-01-historical-position-candidate.md).\n\n\n**Remaining gap, not new authorization:** The requested public ww/Unix PTS portfolio-value-history graph cannot yet be produced from this inventory projection. Whether retained balances already supply the required series and whether the smallest missing capability is projection or additional backend semantics remain UNVERIFIED. Codex's discovery omitted the existing v1 Console CSV as a meaningful operator prototype. Preserve its richer financial/freshness/unencumbered-share specimen and trace its authoritative inputs before declaring platform absence or inventing a new valuation framework. Capital/current value in that export is not automatically Account NAV. No new PL identity, Product measure, policy, horizon or implementation is established by this gap report.",
+          "content": "**Current bounded state: ACCEPTED / operational.** Principal accepted historical observation discovery and explicit snapshot selection, including authorized compact presentation remediation after rejecting the original default footer. The broader CLI stream remains ongoing. This supersedes proposed/history-unavailable status only for explicit retained inventory discovery/selection, not economic continuity, automatic predecessor selection or portfolio-value history.\n\n**Accepted delivery:** existing GET /v2/positions adds view=observations and Account-scoped snapshotId selection. Public commands are ww ls position-observations --account ACCOUNT and ww show positions --account ACCOUNT --snapshot ID. Latest reads, Model A, original-artifact restrictions, retained identities/provenance and qualified clocks remain. No migration/acquisition/reconciliation engine; INSPECTION_TIME is not historical evaluation replay. Default human output is compact; full detail is opt-in; machine contracts are unchanged. Independent technical ACCEPT for the original frozen candidate and final Principal acceptance of the presentation correction are distinct evidence. See [accepted contract, evidence and recovery](design/pl-cli-01-historical-position-candidate.md).\n\n\n**October 12 gap report — superseded in bounded scope on October 13:** Position inventory alone did not supply the requested PTS value graph; retained-balance sufficiency was then unverified and discovery omitted the v1 prototype. The later explicitly authorized and Principal-accepted Portfolio Capital delivery below verifies retained sources and closes the requested bounded text graph. The original discovery omission remains provenance, not a current claim that no graph exists.",
           "truncated": false,
           "tables": [
             {
@@ -3890,6 +3890,26 @@
                 [
                   "2026-10-12",
                   "Principal accepted bounded historical Position observation discovery/selection and compact presentation; ordinary installed commands verified. Broader CLI value-history gap remains open; Step6 stays unauthorized."
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "PL-CLI-01 — Principal accepts bounded PTS Portfolio Capital history graph — October 13, 2026",
+          "level": 3,
+          "content": "**Current bounded state: ACCEPTED isolated delivery; not operationally deployed.** The Principal inspected the actual output and said “that's good enough for now. accepted”, then invoked end-of-session closeout. The [accepted record](design/pl-cli-01-portfolio-capital-history.md) preserves the working pipeline, frozen identity, verification, source coverage and exact operational boundary. No independent review of this candidate was commissioned or performed; direct Principal acceptance is recorded separately from author tests.\n\nActual retained PTS evidence: 73 Balances artifacts across 38 export days (July 10–October 11) and 74 Option Summaries. The existing ratified `Total Account Value − aggregate short-option MTM` calculation yields 44 unique matching-export-minute **two-source composites** across 28 dates (July 27–September 28); 29 other Balance observations remain visible unknown/unmatched gaps. Matching minutes do not assert atomic brokerage observations. No nearest/day pairing, daily collapse, import-date substitution, missing-as-zero, interpolation or legacy-seed attribution. Complete structured provenance remains available.\n\nSmallest added backend read: `GET /v2/portfolio-capital-observations?accountId=ID`, projected by `ww ls portfolio-capital-observations --account pts`; ordinary `sort | awk` draws the Unicode graph. Existing Account discovery/artifact grants and original-source disclosure protections remain; no grant broadening, persistence redesign, acquisition or new financial model. The candidate's private retained-copy demo requires no Operator GUID/configuration/credentials. Installed ww/services/evidence remain unchanged; source acceptance/persistence does not authorize deployment.\n\n\n**Bounded reconciliation completion:** Existing PL-CLI-01 consumer; PL-PROD-VALUE supplies the ratified measure and PL-PORT-01/CAPGRAPH retain broader durability concerns. No new identity, Bet, horizon, principle, engine or architecture decision. The requested working graph is delivered; broader CLI, complete capital history and v1 trajectory restoration remain open. PL-CONV-01 Step6 remains unstarted/unauthorized. Next authorized mode for this session is scope-preserving closeout persistence and synchronization only.",
+          "truncated": false,
+          "tables": [
+            {
+              "header": [
+                "Date",
+                "Governed event"
+              ],
+              "rows": [
+                [
+                  "2026-10-13",
+                  "Principal accepted the bounded real-evidence PTS Portfolio Capital Unicode graph, including 44 calculated composites and 29 explicit gaps, and invoked session closeout; operational deployment remains unperformed."
                 ]
               ]
             }
@@ -10063,7 +10083,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 636
+      "sourceOrder": 637
     },
     {
       "plId": null,
@@ -10206,7 +10226,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 610
+      "sourceOrder": 611
     },
     {
       "plId": null,
@@ -10219,7 +10239,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 611
+      "sourceOrder": 612
     },
     {
       "plId": null,
@@ -10232,7 +10252,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 612
+      "sourceOrder": 613
     },
     {
       "plId": null,
@@ -10245,7 +10265,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 615
+      "sourceOrder": 616
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -10271,7 +10291,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 613
+      "sourceOrder": 614
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -10453,7 +10473,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 593
+      "sourceOrder": 594
     },
     {
       "plId": null,
@@ -10466,7 +10486,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 594
+      "sourceOrder": 595
     },
     {
       "plId": null,
@@ -10479,7 +10499,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 595
+      "sourceOrder": 596
     },
     {
       "plId": null,
@@ -10492,7 +10512,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 596
+      "sourceOrder": 597
     },
     {
       "plId": null,
@@ -10505,7 +10525,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 597
+      "sourceOrder": 598
     },
     {
       "plId": null,
@@ -10518,7 +10538,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 598
+      "sourceOrder": 599
     },
     {
       "plId": null,
@@ -10531,7 +10551,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 599
+      "sourceOrder": 600
     },
     {
       "plId": null,
@@ -10544,7 +10564,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 600
+      "sourceOrder": 601
     },
     {
       "plId": null,
@@ -10557,7 +10577,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 601
+      "sourceOrder": 602
     },
     {
       "plId": null,
@@ -10570,7 +10590,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 602
+      "sourceOrder": 603
     },
     {
       "plId": null,
@@ -10583,7 +10603,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 603
+      "sourceOrder": 604
     },
     {
       "plId": null,
@@ -10596,7 +10616,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 604
+      "sourceOrder": 605
     },
     {
       "plId": null,
@@ -10609,7 +10629,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 605
+      "sourceOrder": 606
     },
     {
       "plId": null,
@@ -10622,7 +10642,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 606
+      "sourceOrder": 607
     },
     {
       "plId": null,
@@ -10635,7 +10655,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 607
+      "sourceOrder": 608
     },
     {
       "plId": null,
@@ -10648,7 +10668,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 608
+      "sourceOrder": 609
     },
     {
       "plId": null,
@@ -10661,7 +10681,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 609
+      "sourceOrder": 610
     },
     {
       "plId": null,
@@ -10674,7 +10694,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 614
+      "sourceOrder": 615
     },
     {
       "plId": null,
@@ -10687,7 +10707,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 635
+      "sourceOrder": 636
     },
     {
       "plId": "PL-SEM-01",
@@ -10856,7 +10876,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 616
+      "sourceOrder": 617
     },
     {
       "plId": null,
@@ -10869,7 +10889,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 617
+      "sourceOrder": 618
     },
     {
       "plId": "PL-SETUP-01",
@@ -10908,7 +10928,7 @@
       "state": "INTAKE — Principal-selected durable capture of the composable command-line Wheelwright concept; strategic/architectural reconciliation, command grammar, schemas, and implementation are unresolved and not authorized by this record.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 495
+      "sourceOrder": 496
     },
     {
       "plId": "PL-CLI-01",
@@ -10921,7 +10941,7 @@
       "state": "Bounded first slice authorized for implementation; broader `PL-CLI-01` remains INTAKE.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 506
+      "sourceOrder": 507
     },
     {
       "plId": "PL-CLI-01",
@@ -10934,7 +10954,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 507
+      "sourceOrder": 508
     },
     {
       "plId": "PL-CLI-01",
@@ -10947,7 +10967,7 @@
       "state": "Bounded bare-fetch experiment authorized for implementation; broader `PL-CLI-01` remains INTAKE.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 517
+      "sourceOrder": 518
     },
     {
       "plId": "PL-OPS-10",
@@ -10960,7 +10980,7 @@
       "state": "INTAKE — near-term investigation; no optimization implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 527
+      "sourceOrder": 528
     },
     {
       "plId": "PL-CLI-01",
@@ -10973,7 +10993,7 @@
       "state": "Principal-authorized bounded CLI migration; implemented locally with deterministic verification, not independent Product acceptance or remote-main promotion.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 521
+      "sourceOrder": 522
     },
     {
       "plId": "PL-CLI-01",
@@ -10986,7 +11006,7 @@
       "state": "RECONCILED — Principal-ratified bounded Product contract; specification/OAS complete; no runtime implementation or push authorized.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 522
+      "sourceOrder": 523
     },
     {
       "plId": "PL-CLI-01",
@@ -10999,7 +11019,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 523
+      "sourceOrder": 524
     },
     {
       "plId": "PL-API-02",
@@ -11012,7 +11032,7 @@
       "state": "INTAKE — durable identity established from OpenAPI/OAS investigation; strategic and architectural reconciliation remain unresolved; no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 528
+      "sourceOrder": 529
     },
     {
       "plId": "PL-API-03",
@@ -11025,7 +11045,7 @@
       "state": "First POST direct-quote contract ratified and implemented on accepted main; bounded GET held-discovery Product contract ratified and specified, not implemented. Broader API capability work remains INTAKE; no runtime work authorized by this specification.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 537
+      "sourceOrder": 538
     },
     {
       "plId": "PL-API-03",
@@ -11038,7 +11058,7 @@
       "state": "RECONCILED — Principal-selected GET /v2/quotes contract specified; Doc 78 bounded ambiguity self-review complete; no Kiro/runtime implementation begun.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 538
+      "sourceOrder": 539
     },
     {
       "plId": "PL-CLI-01",
@@ -11051,7 +11071,7 @@
       "state": "IMPLEMENTABLE — Principal accepted bounded collection inspection, horizontal all-fields tables, explicit formats, public-field sorting/absolute/direction/limit, truthful partial ranking and human formatting, and authorized exact generic filter grammar design plus implementation/verification/documentation/commit/push.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 540
+      "sourceOrder": 541
     },
     {
       "plId": "PL-CLI-01",
@@ -11064,7 +11084,7 @@
       "state": "IMPLEMENTED / VERIFIED / PRINCIPAL ACCEPTED — current bounded CLI/table presentation through `506fd0a23a2d192950f9d15c0a81ab76365e6741` was manually accepted after screenshot review; independent review is separate.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 541
+      "sourceOrder": 542
     },
     {
       "plId": null,
@@ -11077,7 +11097,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 618
+      "sourceOrder": 619
     },
     {
       "plId": null,
@@ -11090,7 +11110,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 619
+      "sourceOrder": 620
     },
     {
       "plId": null,
@@ -11103,26 +11123,13 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 620
+      "sourceOrder": 621
     },
     {
       "plId": null,
       "bugId": "BUG-031",
       "title": "Principal authorization and resolution — 2026-10-05",
       "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 621
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Post-resolution validation — 2026-10-05",
-      "eventKind": "reconciliation",
       "establishesIntake": false,
       "eventDateText": "2026-10-05",
       "eventDateIso": "2026-10-05",
@@ -11134,6 +11141,19 @@
     {
       "plId": null,
       "bugId": "BUG-031",
+      "title": "Post-resolution validation — 2026-10-05",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 623
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
       "title": "Principal acceptance and closure — 2026-10-05",
       "eventKind": "remediation",
       "establishesIntake": false,
@@ -11142,7 +11162,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 623
+      "sourceOrder": 624
     },
     {
       "plId": null,
@@ -11155,7 +11175,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 624
+      "sourceOrder": 625
     },
     {
       "plId": null,
@@ -11168,7 +11188,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 625
+      "sourceOrder": 626
     },
     {
       "plId": null,
@@ -11181,7 +11201,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 626
+      "sourceOrder": 627
     },
     {
       "plId": null,
@@ -11194,7 +11214,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 627
+      "sourceOrder": 628
     },
     {
       "plId": null,
@@ -11207,7 +11227,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 628
+      "sourceOrder": 629
     },
     {
       "plId": null,
@@ -11220,7 +11240,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 629
+      "sourceOrder": 630
     },
     {
       "plId": "PL-STRAT-01",
@@ -11233,7 +11253,7 @@
       "state": "RECONCILED — authorized bounded research experiment; no strategy admission, live trading policy, or options implementation.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 548
+      "sourceOrder": 549
     },
     {
       "plId": "PL-STRAT-01",
@@ -11246,7 +11266,7 @@
       "state": "IMPLEMENTED — research harness and evidence only; findings await Principal evaluation; no strategy admission or automatic Test 2.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 549
+      "sourceOrder": 550
     },
     {
       "plId": "PL-STRAT-01",
@@ -11259,7 +11279,7 @@
       "state": "RECONCILED — Principal accepts FAIL for the tested tactical candidate; broader strategy remains unproven; no further implementation or Test 2 authorized.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 550
+      "sourceOrder": 551
     },
     {
       "plId": null,
@@ -11272,7 +11292,7 @@
       "state": "ACCEPTED — Principal explicitly reported acceptance PASSED for the bounded Account discovery, CSV synchronization and Position inspection slice.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 553
+      "sourceOrder": 554
     },
     {
       "plId": "PL-CONV-01",
@@ -11285,7 +11305,7 @@
       "state": "IMPLEMENTED — R2 independently verified, deployed and Principal functionally/visually accepted; Step 6 unstarted and unauthorized.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 591
+      "sourceOrder": 592
     },
     {
       "plId": null,
@@ -11298,7 +11318,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-035-ww-accounts-exposes-full-broker-account-numbers.md",
-      "sourceOrder": 630
+      "sourceOrder": 631
     },
     {
       "plId": null,
@@ -11311,7 +11331,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 631
+      "sourceOrder": 632
     },
     {
       "plId": null,
@@ -11324,7 +11344,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 632
+      "sourceOrder": 633
     },
     {
       "plId": null,
@@ -11337,7 +11357,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-037-tastytrade-json-incomplete-source-scope.md",
-      "sourceOrder": 633
+      "sourceOrder": 634
     },
     {
       "plId": null,
@@ -11350,7 +11370,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-038-tastytrade-body-timeout.md",
-      "sourceOrder": 634
+      "sourceOrder": 635
     }
   ],
   "intakeDateUnknown": [

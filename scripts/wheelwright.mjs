@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { parseCapital,readCapital,renderCapital,CAPITAL_HELP } from "./ww-capital.mjs";
 import { readFile } from "node:fs/promises";
 import { parseShow, showConfig, readHeldQuote, presentShow, presentShowRows, selectShowObservations, presentFields } from "./ww-show.mjs";
 import { parsePositions, readPositions, renderPositions, POSITIONS_HELP, parseObservations, readObservations, renderObservations, OBSERVATIONS_HELP } from "./ww-positions.mjs";
@@ -19,6 +20,8 @@ freshness or suitability. Pipe commands without a format flag.
 Working commands:
   ls accounts [--table | --tsv | --jsonl]
       Find account aliases before syncing or inspecting Positions.
+  ls portfolio-capital-observations --account ACCOUNT [--tsv | --table | --jsonl]
+      Read retained Fidelity Portfolio Capital export-minute composites.
   ls position-observations --account ACCOUNT [--table | --tsv | --jsonl] [--verbose]
       Discover retained Position observations; display order is not brokerage chronology.
   sync account ACCOUNT
@@ -231,6 +234,10 @@ export function parseArgs(args) {
     return { command: "show", ...parsed };
   }
   if (command === "ls") {
+    if(rest[0]==='portfolio-capital-observations') {
+      const parsed=parseCapital(rest.slice(1));
+      return parsed.help?{command:'help',help:CAPITAL_HELP}:{command:'ls-capital',...parsed};
+    }
     if (rest[0] === "position-observations") {
       const parsed=parseObservations(rest.slice(1));
       return parsed.help ? {command:"help",help:OBSERVATIONS_HELP} : {command:"ls-position-observations",...parsed};
@@ -725,8 +732,14 @@ export function presentFetchResult(result, quiet, stdoutIsTTY, stderrIsTTY, verb
 
 export async function main(args) {
   const parsed = parseArgs(args);
-  const usesBackend=['ls-position-observations','ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices'].includes(parsed.command)&&!parsed.fields;
+  const usesBackend=['ls-capital','ls-position-observations','ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices'].includes(parsed.command)&&!parsed.fields;
   const base=usesBackend?await readBackendBase():undefined;
+  if(parsed.command==='ls-capital') {
+    const token=await readApiToken(),account=await resolveAccount(parsed.account,token,{base});
+    const data=await readCapital(account.id,token,{base});
+    process.stdout.write(renderCapital(data,{...parsed,accountLabel:account.alias,tty:!!process.stdout.isTTY}));
+    return;
+  }
   if (parsed.command === "ls-position-observations") {
     const token=await readApiToken();
     const account=await resolveAccount(parsed.account,token,{base});

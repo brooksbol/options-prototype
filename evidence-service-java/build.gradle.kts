@@ -87,3 +87,11 @@ tasks.register<JavaExec>("positionHistoryPreview") {
     classpath = sourceSets["test"].runtimeClasspath
     args = listOfNotNull(project.findProperty("previewReady") as? String)
 }
+
+// Candidate-only retained Portfolio Capital preview; no acquisition beans.
+tasks.register<JavaExec>("capitalHistoryPreview") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.CapitalHistoryPreview")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("previewReady") as? String)
+}

@@ -19,6 +19,8 @@ paths:
     $ref: 'api-v2-account-evidence.json#/paths/~1v2~1me'
   /v2/position-acquisitions:
     $ref: 'api-v2-account-evidence.json#/paths/~1v2~1position-acquisitions'
+  /v2/portfolio-capital-observations:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1portfolio-capital-observations'
   /v2/positions:
     $ref: 'api-v2-account-evidence.json#/paths/~1v2~1positions'
   /v2/artifacts:

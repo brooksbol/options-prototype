@@ -252,7 +252,21 @@ No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel i
 |---|---|
 | 2026-10-12 | Principal accepted bounded historical Position observation discovery/selection and compact presentation; ordinary installed commands verified. Broader CLI value-history gap remains open; Step6 stays unauthorized. |
 
-**Remaining gap, not new authorization:** The requested public ww/Unix PTS portfolio-value-history graph cannot yet be produced from this inventory projection. Whether retained balances already supply the required series and whether the smallest missing capability is projection or additional backend semantics remain UNVERIFIED. Codex's discovery omitted the existing v1 Console CSV as a meaningful operator prototype. Preserve its richer financial/freshness/unencumbered-share specimen and trace its authoritative inputs before declaring platform absence or inventing a new valuation framework. Capital/current value in that export is not automatically Account NAV. No new PL identity, Product measure, policy, horizon or implementation is established by this gap report.
+**October 12 gap report — superseded in bounded scope on October 13:** Position inventory alone did not supply the requested PTS value graph; retained-balance sufficiency was then unverified and discovery omitted the v1 prototype. The later explicitly authorized and Principal-accepted Portfolio Capital delivery below verifies retained sources and closes the requested bounded text graph. The original discovery omission remains provenance, not a current claim that no graph exists.
+
+### PL-CLI-01 — Principal accepts bounded PTS Portfolio Capital history graph — October 13, 2026
+
+**Current bounded state: ACCEPTED isolated delivery; not operationally deployed.** The Principal inspected the actual output and said “that's good enough for now. accepted”, then invoked end-of-session closeout. The [accepted record](design/pl-cli-01-portfolio-capital-history.md) preserves the working pipeline, frozen identity, verification, source coverage and exact operational boundary. No independent review of this candidate was commissioned or performed; direct Principal acceptance is recorded separately from author tests.
+
+Actual retained PTS evidence: 73 Balances artifacts across 38 export days (July 10–October 11) and 74 Option Summaries. The existing ratified `Total Account Value − aggregate short-option MTM` calculation yields 44 unique matching-export-minute **two-source composites** across 28 dates (July 27–September 28); 29 other Balance observations remain visible unknown/unmatched gaps. Matching minutes do not assert atomic brokerage observations. No nearest/day pairing, daily collapse, import-date substitution, missing-as-zero, interpolation or legacy-seed attribution. Complete structured provenance remains available.
+
+Smallest added backend read: `GET /v2/portfolio-capital-observations?accountId=ID`, projected by `ww ls portfolio-capital-observations --account pts`; ordinary `sort | awk` draws the Unicode graph. Existing Account discovery/artifact grants and original-source disclosure protections remain; no grant broadening, persistence redesign, acquisition or new financial model. The candidate's private retained-copy demo requires no Operator GUID/configuration/credentials. Installed ww/services/evidence remain unchanged; source acceptance/persistence does not authorize deployment.
+
+| Date | Governed event |
+|---|---|
+| 2026-10-13 | Principal accepted the bounded real-evidence PTS Portfolio Capital Unicode graph, including 44 calculated composites and 29 explicit gaps, and invoked session closeout; operational deployment remains unperformed. |
+
+**Bounded reconciliation completion:** Existing PL-CLI-01 consumer; PL-PROD-VALUE supplies the ratified measure and PL-PORT-01/CAPGRAPH retain broader durability concerns. No new identity, Bet, horizon, principle, engine or architecture decision. The requested working graph is delivered; broader CLI, complete capital history and v1 trajectory restoration remain open. PL-CONV-01 Step6 remains unstarted/unauthorized. Next authorized mode for this session is scope-preserving closeout persistence and synchronization only.
 
 
 ### PL-CLI-01 / CONV-UX — Unix command usability and independent Product review (Principal direction, October 12, 2026)

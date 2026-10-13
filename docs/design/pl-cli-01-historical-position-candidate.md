@@ -1,6 +1,6 @@
 # PL-CLI-01 — Accepted historical Position observation reads
 
-**State:** Principal accepted the bounded capability and compact presentation on October 12, 2026. Broader PL-CLI-01 remains ongoing; portfolio-value-history discovery remains unresolved. PL-CONV-01 Step 6 remains unstarted and unauthorized.
+**State:** Principal accepted the bounded capability and compact presentation on October 12, 2026. Broader PL-CLI-01 remains ongoing. The subsequent bounded Portfolio Capital graph was Principal-accepted on October 13 in an isolated delivery; see [accepted graph record](pl-cli-01-portfolio-capital-history.md). PL-CONV-01 Step 6 remains unstarted and unauthorized.
 
 ## Accepted public contract
 
@@ -45,6 +45,8 @@ The exact verified JAR is installed on existing v2 port3101 at `~/.local/share/w
 Accepted compact client is now installed at `~/.local/share/wheelwright/pl-cli-01-history/operational-ux-a1fc0e47b678/client/scripts/ww`; ordinary installed discovery, historical selection and compact tt1 output passed. This client promotion used unchanged Wheelwright-only configuration and no backend restart. The parent CLI remains available at the prior historical release path. Existing operational database backup is `operational-49431da31685/pre-deployment.sqlite3`; prior accepted Step5 executable/environment and recovery rehearsal inputs remain private under their existing release. Recovery of this presentation uses the saved prior ww symlink target; it does not require restoring a database. Backend recovery requires separately authorized stop/start with the verified previous binary/environment, preserving current evidence; do not restore old copies over a running service. Credentials, private transcripts, database copies and binary releases remain outside Git.
 
 ## Unresolved gap: PTS portfolio value history
+
+**Subsequent bounded resolution — October 13, 2026:** The [Principal-accepted real-evidence Portfolio Capital text graph](pl-cli-01-portfolio-capital-history.md) supersedes the unverified retention/no-graph state below. It computes 44 matching-export-minute composites and preserves 29 explicit gaps; complete history remains unresolved and operational deployment is unperformed. The following text records the October 12 discovery boundary.
 
 The Principal requested a text graph of PTS portfolio value history using public ww and Unix primitives. Current reads expose holdings observations, not an authoritative Account-value series; excluding cash/non-position rows prevents presenting their sum as complete portfolio value. This establishes a public-capability limitation, not absence of retained balance/value evidence elsewhere.
 
