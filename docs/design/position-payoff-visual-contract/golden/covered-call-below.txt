@@ -1,0 +1,2 @@
+ACCOUNT  SYMBOL  PAYOFF                           RANGE   SPOT
+pts      URA     ____╱‾‾‾‾‾▼‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ≤43     42.00
