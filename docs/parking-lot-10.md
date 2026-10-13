@@ -242,6 +242,19 @@ No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel i
 
 ## `PL-CLI-01` — Wheelwright composable Unix CLI (`ww`)
 
+### PL-CLI-01 / CONV-UX — Unix command usability and independent Product review (Principal direction, October 12, 2026)
+
+**Status:** Standing usability guidance and independent-review expectation; **not** implementation or deployment authorization. Applies to human-facing `ww` commands and directly affected CLI review specimens. Preserve backend/API semantic completeness and machine contracts.
+
+> **Unix commands, not War and Peace.** Default `ww` stdout is requested data, not an explanatory essay.
+
+- **Default human output:** concise, scannable records with only the context necessary to interpret them correctly (e.g., Account, snapshot date, unknown markers). No recurring multi-paragraph epistemic/legal-style disclaimers, even when each statement is technically true. Do not mechanically add a one-line disclaimer if the heading/fields already communicate the limitation.
+- **Progressive disclosure:** full qualifications, provenance, limitations and semantics remain available via `--verbose`, `--help`/`--man`, and structured `--jsonl` as appropriate. A quiet human view must never falsify meaning, conceal a material hazard, or silently upgrade uncertainty into certainty.
+- **Unix discipline:** predictable stdout and exit codes, ANSI-free machine output, errors to stderr, stable formatting and minimal ceremony; commands should compose naturally with shell tools. Human table alignment and CONV-UX color rules still apply.
+- **Independent Product judgment:** reviewers must evaluate **usability as well as correctness**, including whether an experienced Unix operator can understand and use the default command without unnecessary reading. A technically passing implementation can still have a Product usability finding. Do not suppress that finding merely because the verbose presentation follows an accepted technical specification. Distinguish such a finding from a security/semantic regression and return it for Principal disposition rather than silently redesigning the candidate.
+- **Concrete falsifier:** The PL-CLI-01 historical Position preview printed three inventory rows followed by approximately fifteen lines of repetitive qualifications. The independent technical review called the footer acceptable and was explicitly instructed not to challenge length. This is a **review-process blind spot**, not a newly demonstrated financial-domain defect. Default Position output should be compact; preserve complete machine evidence and opt-in detail.
+- **Boundary:** Do not change the frozen historical Position candidate or operational `ww` under this documentation-only guidance. Before operational acceptance, reconcile the usability correction as a bounded presentation change with separate implementation/review authority; do not reopen snapshot persistence, Account authorization or historical semantics.
+
 ### PL-CLI-01 — Platform leverage and declining marginal capability cost (Principal direction, October 12, 2026)
 
 **Status:** Working Product/development guideline and why-state, **not** a newly ratified Product Principle, architecture mandate, implementation authorization or new intake. Preserve under existing PL-CLI-01 and consider in later strategic/architectural reconciliation.
