@@ -4,6 +4,10 @@
 
 This file is the canonical *entry point* for AI actors, not a new or competing source of Wheelwright Product meaning, governance, execution permission, or architecture. The authoritative documentation model remains in `docs/README.md`; detailed agent cold-start routing is in `docs/AGENTS.md`.
 
+## Product-first proof obligation
+
+Before proposing a new solution, recover the closest accepted working Product precedent and applicable architectural invariants. Use RECOVER → REUSE → COMPOSE → EXTEND → INVENT. Proof begins with the Product outcome and continues through architecture, design, implementation and delivery; an actor's declaration of compliance is not proof. Read `docs/mandates/product-first-continuous-engineering-2026-10-13.md` and the applicable fitness controls during bootstrap. This instruction is mandatory context, not a new approval ceremony or an execution grant. See `docs/AGENTS.md` for evidence obligations and the limits of current enforcement.
+
 ## Mandatory cold start
 
 Before consequential reasoning, review, design, implementation, reconciliation, or execution:
