@@ -1,6 +1,6 @@
 # Position payoff visual contract — Product reference and falsification specimens
 
-Status: **Product-design reference and executable specimen proposals**, October 13, 2026. The accepted iron-condor `tt live` presentation is the only approved scaled terminal payoff implementation. Other structure shapes are **reference/proposed**, not approved scaled renderings or implemented v2 recognizers.
+Status: **Product-design reference and executable specimen proposals**, October 13, 2026. Principal accepted the schematic rising-then-flat shape for covered calls and cash-secured puts, with restrained color differentiation. The accepted iron-condor `tt live` presentation remains the only approved scaled terminal payoff implementation. Other structure shapes are **reference/proposed**, not approved scaled renderings or implemented v2 recognizers.
 
 ## Source and meaning
 
@@ -22,6 +22,10 @@ Backend owns recognized construction, Account-bound constituent membership, actu
 - **Calendar/diagonal**: different expirations mean no single exact expiration-payoff polyline without a declared horizon and a valuation assumption for the unexpired leg. Do not render a falsely precise expiration silhouette.
 - **Ratios and uncovered structures**: reflect unbounded tails when applicable; never cap them for visual symmetry.
 - **Iron condor**: reuse the accepted four-strike renderer only after backend terms and membership are established. Preserve compressed/unknown fallback and actual strike proportionality.
+
+## Principal Product decision — October 13, 2026
+
+The Principal approved the **rising-then-flat expiration-payoff silhouette** for both covered calls and cash-secured puts, and requested judicious color to distinguish them. This accepts the *shape*, not an exact ANSI palette, precise strike-to-cell placement, or a full nine-column terminal specimen. Use a restrained, accessible, structure-specific accent or label; never rely on color alone to distinguish the two. Preserve semantic colors for positive/negative economics, spot, and unavailable evidence, and preserve meaningful monochrome/ASCII behavior. Exact color mappings and scaled spot/strike placement remain proposed pending a working terminal specimen. No color is allowed to imply a difference in payoff economics that is not present.
 
 ## Fixtures and proof status
 
