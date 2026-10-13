@@ -4,9 +4,9 @@ This file applies to agents working in `docs/`. The repository root [AGENTS.md](
 
 ## Required cold start
 
-### Minimum Safe Bootstrap (7 references — mandatory)
+### Minimum Safe Bootstrap — bounded orientation
 
-Before any consequential Wheelwright work, agents **must read all seven references** below. This obligation applies in addition to the routing and actor-specific requirements that follow; it is not optional orientation or a task-dependent selection. Paths are relative to `docs/` unless stated otherwise.
+At cold start, acquire the compact authority and architecture orientation below. **Scan/index** large registries and continuation sequences for coverage; **read in full only task-relevant sections**. Do not confuse the ability to locate durable knowledge with loading every historical record into context. A plain `bootstrap` with no task must finish without exhaustive backlog or journal reading. Before consequential task work, retrieve relevant sections and evidence. Paths are relative to `docs/`.
 
 | # | Document | Required context |
 |---|----------|------------------|
@@ -14,8 +14,8 @@ Before any consequential Wheelwright work, agents **must read all seven referenc
 | 2 | `KNOWN-FAILURE-MODES.md` | Failure checksum and demonstrated operating-model mistakes. |
 | 3 | `foundations/evidence-appliance.md` | Governing Evidence Appliance foundation and system identity. |
 | 4 | `07-architecture-current.md` | Current architecture, engines, boundaries, and surfaces. |
-| 5 | `07c-adrs.md` | Complete architectural decision register and constraints. |
-| 6 | Complete `parking-lot*.md` sequence | Current project state: read the original and every numbered continuation as one logical backlog. |
+| 5 | `07c-adrs.md` | Inspect the register/index and read foundational plus task-relevant decisions; do not load unrelated ADR text at untasked bootstrap. |
+| 6 | Complete `parking-lot*.md` sequence | Enumerate every continuation and inspect headings/IDs/current-state matches across all files; read full entries only for the active task or a specific backlog inquiry. |
 | 7 | `principles.md` | Canonical Principles register, ratified principles, and candidate boundary. |
 
 ### Product-first proof routing — mandatory
@@ -33,10 +33,12 @@ For any consequential Wheelwright reasoning, review, implementation, reconciliat
 5. Follow the applicable actor-specific cold-start bootstrap below.
 6. Reacquire current task and experiment state, task-relevant authority, and the applicable authoritative transition mechanism before claiming an action is permitted. Conversation, prompts, recommendations, and review dispositions are not authoritative execution state.
 7. Follow `bootstrap/project-memory-protocol.md`, `foundations/multi-actor-repeatability-temporal-synchronization.md`, and `foundations/death-spiral-avoidance-protocol.md` as applicable.
-8. For a material new idea, follow `foundations/idea-intake-reconciliation.md`; inspect **all** `parking-lot*.md` continuations. For chronological or topical project history, inspect all `journal/project-journal*.md` continuations.
+8. For a material new idea, follow `foundations/idea-intake-reconciliation.md`; search/index **all** `parking-lot*.md` continuations and read the matching full entries. For chronological or topical project history, search/index all `journal/project-journal*.md` continuations and read the relevant spans. Complete sequence coverage is mandatory; complete sequential reading is not.
 9. Retrieve applicable ratified principles from `principles.md`, task-specific contracts/ADRs, and current implementation evidence. Verify remote/local synchronization, protect in-flight changes, and respect Principal authorization and current experiment gates.
 
 Gate Experiment 001 is staged until its durable state establishes otherwise; do not claim activation or mutation authority from conversational summaries.
+
+**Bootstrap completion:** Verify remote/local SHA and tree, recover authority hierarchy, Product-first mandate, fitness-function route, actor role, safety boundaries, and how to find task state. With no task supplied, report ready for questions and stop. Do not claim a historical authorization is currently active merely because it appears in a journal or backlog: reconcile against the latest explicit stop/termination and canonical task state. If contradictory, report current state as unverified, never as active. Bootstrap does not itself resume a terminated workstream. Do not require full reading of all historical continuations to mark orientation complete.
 
 ## Actor-specific cold starts
 
