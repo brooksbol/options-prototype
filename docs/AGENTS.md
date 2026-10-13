@@ -18,6 +18,10 @@ Before any consequential Wheelwright work, agents **must read all seven referenc
 | 6 | Complete `parking-lot*.md` sequence | Current project state: read the original and every numbered continuation as one logical backlog. |
 | 7 | `principles.md` | Canonical Principles register, ratified principles, and candidate boundary. |
 
+### Product-first proof routing — mandatory
+
+Read `mandates/product-first-continuous-engineering-2026-10-13.md` and `technology-quality-fitness-controls-v1.md` during bootstrap. For each outcome-bearing task, recover the closest accepted Product behavior and relevant ratified invariants, ADRs, contracts and fitness functions before proposing new architecture. Identify concrete reuse, a falsifiable capability gap for each new abstraction, and an early runnable operator specimen. Carry those claims and their evidence through design, implementation and delivery. This is a lightweight proof obligation, not a new Principal approval stage. Agent attestations are insufficient; independent falsification and executable checks must verify claims where possible. Current repository instructions alone do not implement an unskippable enforcement substrate; do not claim otherwise.
+
 ### Routing and current state
 
 For any consequential Wheelwright reasoning, review, implementation, reconciliation, or other outcome-bearing work:
