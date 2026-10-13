@@ -1,0 +1,25 @@
+# Schematic transcription — NOT approved scaled terminal goldens
+# x increases left to right; visual lines are conceptual, not strike-scaled.
+# The dropdown's iconography varies with its Short/Long and Call/Put selectors.
+# DO NOT compare these literal glyphs as a pixel-perfect tastytrade screenshot.
+
+Option         variant-dependent single slope
+Covered        variant-dependent covered slope / plateau
+Vertical       ___╱‾‾‾  OR  ‾‾‾╲___  (depending on long/short, put/call)
+Calendar       curved, horizon-dependent; no canonical expiration polyline
+Butterfly      ___╱╲___  OR  ‾‾‾╲╱‾‾‾
+Ratio Spread   asymmetric kink and tail; exact direction depends on legs
+Strangle       two-sided kinks, variable tails
+Straddle       one central kink, variable tails
+Iron Condor    ___╱‾‾‾╲___  (accepted tt live positive-plateau variant)
+Jade Lizard    asymmetric put exposure + call spread
+Stock          ╱ (long)  OR  ╲ (short)
+
+# Proposed variant geometry (not Product-accepted exact terminal glyphs):
+Covered Call   ╱‾‾‾‾  (rising below short call strike, capped above)
+CSP            ╱‾‾‾‾  (rising below put strike, capped above)
+Long Shares    ╱       (rising everywhere)
+
+# Real accepted IC renderer and actual golden expectations live in:
+# scripts/tastytrade-payoff-render.mjs
+# scripts/tastytrade-payoff-render.test.mjs
