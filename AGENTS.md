@@ -15,7 +15,7 @@ Before consequential reasoning, review, design, implementation, reconciliation, 
 1. Read `docs/AGENTS.md` for mandatory cold-start routing, known-failure-modes reading, and shared actor protocols.
 2. Read `docs/README.md` as the authoritative documentation guide and A–F authority model.
 3. Follow the actor-specific bootstrap (Codex, Kiro, or other actor) referenced by `docs/AGENTS.md`.
-4. Acquire current task and experiment state, complete parking-lot and journal continuation context where required, applicable principles/decisions/contracts, and authorization boundaries.
+4. Acquire current task and experiment state where a task exists, index complete parking-lot/journal continuation sets without exhaustively reading unrelated history, and retrieve applicable principles/decisions/contracts and authorization boundaries. An untasked `bootstrap` must finish after bounded orientation and must not infer that historical workstream authority remains active.
 5. Verify repository synchronization and protect in-flight and unrelated work before any permitted mutation.
 
 Do not treat a prompt, previous session, local checkout, this entry file, or a convenient summary as independent authority. Principal authorization and repository execution gates still govern changes. Apply the documented authority precedence in `docs/README.md` to conflicts. Escalate unresolved conflicts or missing authority to the Principal before proceeding with the affected consequential work.
