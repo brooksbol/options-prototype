@@ -11,3 +11,5 @@ Backend contract prerequisites: verified Account-bound membership, share/option 
 Golden files are literal output specimens for human review. Do not modify them to make a failing implementation pass without an explicit Product-design decision. An eventual renderer should be tested with actual backend semantic fixtures and independently reviewed against these strings, including width, Unicode display cells, ANSI/no-color and spot clipping. These specimens are not a substitute for that test.
 
 Original reference screenshot: `tastytrade-strategy-reference.png` (binary not yet present); source SHA-256 `6f55f3f61e5c9b1dfadfc906857eab8369e4c488e5f0d8be7c9038e4d2778f90`. Preserve original bytes, not a recreated illustration.
+
+Principal accepted the covered-call/CSP rising-then-flat **shape** on October 13, 2026 and requested restrained color differentiation. The literal goldens remain proposed **exact layouts** (spot cell, width, placement, palette and nine-column integration not yet accepted). Color must not be the sole structure identifier; retain no-color readability and established semantic coloring.
