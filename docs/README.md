@@ -6,13 +6,13 @@ This directory contains the architectural documentation for the Wheelwright Evid
 
 ## Parking-Lot Continuation Rule — August 29, 2026
 
-The canonical parking lot may span physical continuation files. `docs/parking-lot.md`, `docs/parking-lot-2.md`, and any later numbered continuations are **one logical Category C backlog**. Every cold start, scan, search, backlog review, and reconciliation must inspect the complete `docs/parking-lot*.md` sequence. File boundaries are pagination only; stable IDs, governance, and dispositions are global.
+The canonical parking lot may span physical continuation files. `docs/parking-lot.md`, `docs/parking-lot-2.md`, and any later numbered continuations are **one logical Category C backlog**. Every cold start, scan, search, backlog review, and reconciliation must cover the complete `docs/parking-lot*.md` sequence through enumeration/index or targeted search; full reading is required only for relevant entries. An untasked cold start must not load the entire backlog. File boundaries are pagination only; stable IDs, governance, and dispositions are global.
 
 > **Authority note:** This continuation rule amends all references below that say only `parking-lot.md`; they mean the complete continuation sequence.
 
 ## Project-Journal Continuation Rule — September 3, 2026
 
-The canonical project journal may span physical continuation files. `docs/journal/project-journal.md`, `docs/journal/project-journal-2.md`, `docs/journal/project-journal-3.md`, `docs/journal/project-journal-4.md`, and any later numbered continuations are **one logical Category C chronology**. Topical journal retrieval, context reconstruction, and chronological review must inspect the complete `docs/journal/project-journal*.md` sequence. File boundaries are pagination only; later continuations do not have lesser authority or durability.
+The canonical project journal may span physical continuation files. `docs/journal/project-journal.md`, `docs/journal/project-journal-2.md`, `docs/journal/project-journal-3.md`, `docs/journal/project-journal-4.md`, and any later numbered continuations are **one logical Category C chronology**. Topical journal retrieval, context reconstruction, and chronological review must cover the complete `docs/journal/project-journal*.md` sequence through enumeration/index or targeted search and read relevant spans, not automatically load every page. File boundaries are pagination only; later continuations do not have lesser authority or durability.
 
 > **Authority note:** References below to the project journal mean the complete continuation sequence.
 
@@ -71,7 +71,7 @@ The register also owns the lightweight meanings of **Solution Overview** (Produc
 
 ### Foundational Reading Path (7 references)
 
-A foundational orientation to the system and its documentation authority. For agents, all seven references are mandatory under the **Minimum Safe Bootstrap** in [AGENTS.md](AGENTS.md#minimum-safe-bootstrap-7-references--mandatory), which also owns cold-start routing and additional requirements.
+A foundational orientation to the system and its documentation authority. For agents, the seven orientation sources are covered through bounded reading/indexing under the **Minimum Safe Bootstrap** in [AGENTS.md](AGENTS.md#minimum-safe-bootstrap--bounded-orientation), which also owns cold-start routing and additional requirements.
 
 | # | Document | Why |
 |---|----------|-----|
@@ -80,7 +80,7 @@ A foundational orientation to the system and its documentation authority. For ag
 | 3 | `foundations/evidence-appliance.md` | What Wheelwright is. System identity. |
 | 4 | `07-architecture-current.md` | Current system. Four Engines. Boundaries. Surfaces. |
 | 5 | `07c-adrs.md` | Decisions that constrain changes. ADR-001 through ADR-022 (append-only). |
-| 6 | Complete `parking-lot*.md` sequence | What is active, deferred, and resolved. Read the original plus every numbered continuation. |
+| 6 | Complete `parking-lot*.md` sequence | What is active, deferred, and resolved. Index all continuations; read matching entries when relevant. |
 | 7 | `principles.md` | Canonical register of ratified Product, Architectural/build, and Epistemic principles; candidate boundary and solution-artifact meanings. |
 
 **When this is insufficient:** If you're touching architecture, designing a new subsystem, or need to understand *why* something is the way it is — continue to the comprehensive path.
