@@ -89,3 +89,9 @@ External grounding: tastytrade's [market-data schema](https://developer.tastytra
 ### Verification and disposition
 
 All 72 `scripts/tastytrade*.test.mjs` tests pass. Installed `tt live --no-color` returned UNG `LIMIT ... +74%` and `+$5.19`; EWZ/XLE retained their numeric economics. This is engineering-observed installed behavior. Independent review and Principal Product acceptance have not been performed or inferred. BUG-040 remains technically Resolved with this supplemental correction; the earlier missing-data observation is retained above as provenance.
+
+### Follow-up session closeout — October 13, 2026
+
+Implementation, regression evidence, terminal reference and derived Roadmap were persisted as `bd86c2d4a195d7de6f84065276dabcfbdad6e118`. The Principal then invoked end-of-session closeout without an explicit Product acceptance verdict. During closeout, remote main had advanced through `552e3d9d41ae86c369343570936bd697eeb6eadb` with two documentation-only clarifications: standalone tt UX reuse does not transfer domain authority into v2, and the proposed corresponding fitness specimen is not an enforced gate. These changes were inspected and fast-forwarded into the clean checkout; they neither change this standalone fix nor authorize migration.
+
+The End-of-Workstream Memory Check found no new principle, ADR, backlog item, capability horizon or operational change. The follow-up why-state is preserved in the journal; this record remains the sole defect authority. Code is unchanged since the 72 passing tests and installed observation, so closeout does not repeat broker reads or code tests. Required Roadmap regeneration/freshness verification and deliberate commit/push complete the durable handoff. Independent review and Principal Product acceptance remain unclaimed. No other workstream is resumed.
