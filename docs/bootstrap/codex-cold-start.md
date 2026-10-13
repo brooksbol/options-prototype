@@ -25,7 +25,7 @@ Mandatory: read `docs/mandates/product-first-continuous-engineering-2026-10-13.m
 2. Read `docs/README.md` and task-relevant governing authority.
 3. Read `docs/foundations/principal-decision-surface.md` before outcome-bearing review.
 4. If `docs/experiments/ww-gate-experiment-001.md` exists, read it and its state record before outcome-bearing review. The experiment document is staged design until authoritative durable state says it has started.
-5. Acquire active task state and recorded context before review. Conversation is not authoritative execution state.
+5. For an actual task, acquire its canonical active state and relevant recorded context before review. For an untasked `bootstrap`, learn the state-retrieval route and stop after bounded orientation. Historical workstream delegation is not evidence that work remains active after a Principal termination; conflicting state must be reported as unresolved. Conversation is not independent execution authority.
 
 ## Mandatory API v2 authority boundary
 
