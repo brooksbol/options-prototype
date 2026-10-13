@@ -159,6 +159,12 @@ What graduation *requires* to become durable, and what remains a further decisio
 
 ---
 
+## Proposed fitness specimen: presentation versus backend authority (October 13, 2026)
+
+This applies the existing ratified `PRIN-ARCH-BACKEND-AUTHORITY`, not a new principle. Accepted standalone `tt live` provides UX evidence, not a v2 domain-ownership precedent. For `ww show positions`, verify that the CLI renders backend-provided managed membership, contract terms and financial results, including unknowns, without recomputing authoritative semantics or acquiring brokerage evidence directly. Vary backend facts independently of client inputs and check that displayed conclusions follow backend claims. Include incomplete/conflicting evidence and constituent fallback. Preserve the accepted terminal visual grammar. Inspect client dependencies for illicit reuse of standalone domain computations.
+
+These are falsifiable fitness proposals, not implemented checks or ratified hard gates. Use the existing structural/behavioral fitness infrastructure and independent design judgment; do not create a parallel governance process. The standalone prototype is not thereby required to migrate to v2.
+
 ## 8. Further Principal decisions actually required
 
 1. **Composition boundary definition** — what is Wheelwright's ratified composition/wiring boundary (currently informally: `*Config` classes + `EvidenceServiceApplication`)? Required before R5 can be ratified as an invariant.
