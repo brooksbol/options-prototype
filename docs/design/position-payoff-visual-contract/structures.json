@@ -121,7 +121,9 @@
           "slopeSign": 0
         }
       ],
-      "notes": "coverage requires verified quantities/deliverables"
+      "notes": "coverage requires verified quantities/deliverables",
+      "shapeAcceptance": "PRINCIPAL_ACCEPTED_SCHEMATIC",
+      "colorAcceptance": "DIRECTION_ACCEPTED_PALETTE_PENDING"
     },
     {
       "id": "cash-secured-put",
@@ -142,7 +144,9 @@
           "slopeSign": 0
         }
       ],
-      "notes": "cash-secured classification requires verified Account capacity; collateral does not change payoff shape"
+      "notes": "cash-secured classification requires verified Account capacity; collateral does not change payoff shape",
+      "shapeAcceptance": "PRINCIPAL_ACCEPTED_SCHEMATIC",
+      "colorAcceptance": "DIRECTION_ACCEPTED_PALETTE_PENDING"
     },
     {
       "id": "long-stock",
@@ -194,5 +198,13 @@
       ]
     }
   ],
-  "unavailableRule": "Do not synthesize payoff geometry or economics from unknown membership, deliverables, or incompatible expirations."
+  "unavailableRule": "Do not synthesize payoff geometry or economics from unknown membership, deliverables, or incompatible expirations.",
+  "productDecisions": [
+    {
+      "date": "2026-10-13",
+      "decision": "Covered call and cash-secured put rising-then-flat expiration-payoff shapes accepted; judicious color differentiation requested.",
+      "scope": "SCHEMATIC_SHAPE_ONLY",
+      "colorPolicy": "Restrained structure-specific accent; not color-only identity; preserve existing financial semantics; exact ANSI palette not yet accepted."
+    }
+  ]
 }
