@@ -70,3 +70,8 @@ Relevant Node suite: 67 tests. Added coverage includes fractional/unequal RANGE,
 The Principal explicitly reported “acceptance PASSED” after the revised panel was presented and directed end-of-session closeout. This is Product acceptance of the bounded tt live iteration, separate from automated verification; no independent-review disposition is inferred. All 67 relevant Node tests pass. Normal, retained-weekend, stale, empty and broker-order-transition TSV scenarios were compared byte-for-byte against baseline `4e99899` and are identical. No new task branch or PR was created. The implementation is on main; unrelated research files remain untouched.
 
 Remaining domain limitation: configured DTE-exit objectives are unsupported, so SPAN has no threshold tick. Adding that capability requires separate authority and evidence; acceptance does not authorize new management rules or automatic trading. No further tt live implementation is pending under this workstream.
+
+
+## October 13, 2026 — BUG-040 valuation isolation
+
+Individually valid option quotes whose summed midpoint implies a negative package closing debit no longer abort the scan. The affected row retains independent fields and its verified exit objective; closing debit, P/L, daily P/L and exit progress are unavailable. QUOTE uses existing amber treatment; TSV progress says `valuation unavailable`. Unrelated rows remain visible, zero is not invented, and existing missing/malformed quote and holding/order ambiguity checks remain fail closed. This amends the earlier whole-command valuation rejection behavior only. See the canonical BUG-040 record for evidence and verification; independent review and Principal acceptance are not inferred.

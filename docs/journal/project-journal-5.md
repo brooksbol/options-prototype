@@ -1897,3 +1897,10 @@ The frozen candidate remains PL-CLI-01-capital-c32edbd248a0. Operational service
 ## October 13, 2026 — PL-CONV-01 continuous engineering recovery authority
 
 Principal pulls the escape handle after rejected R1/R2 and procedural stopping without operational delivery. Canonical bounded outcome-level authorization and limits are recorded in parking-lot-10.md under PL-CONV-01 Increment A. The task-specific delegation permits ordinary isolated corrections and new frozen submissions after rejection; rejected identities stay rejected. Recover/reuse architectural precedents and falsify the complete observed transition model before another implementation. Operational installation remains unchanged and separately gated. Only this minimum authority recording is authorized for Git persistence; source candidates remain uncommitted. No new intake identity or activated execution controller.
+
+
+## October 13, 2026 — BUG-040 tt live valuation failure isolated
+
+Principal reported a previously working scan failing and expressly directed filing and correction. Read-only broker reproduction showed UNG leg midpoints summing to a -0.020 indicative closing debit, while EWZ and XLE had positive values. The existing guard treated unusable package valuation as a reason to suppress all independently supported rows. The upstream reason for those quotes remains unestablished.
+
+Codex implemented the bounded correction by reusing existing unavailable-value projection/rendering; no new Position/service/model, acquisition or order-lifecycle machinery. This applies the existing domain competence rule: missing closing-price evidence withholds dependent conclusions, not independent facts. Valuation consistency remains separate from freshness. Canonical identity and evidence are BUG-040, not a new PL item. 69 tests passed and installed tt live displayed all three rows with UNG economics unavailable. No independent review or Principal acceptance is claimed. No service/database/broker operation changed. Ordinary installed tt live is the Principal observation path; scope-preserving persistence and Roadmap synchronization follow the authorized-work memory protocol.

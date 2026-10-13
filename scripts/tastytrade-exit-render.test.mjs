@@ -3,7 +3,55 @@ import assert from 'node:assert/strict';
 import { stripVTControlCharacters as strip } from 'node:util';
 import { projectLive, renderLive } from './tastytrade-live.mjs';
 import { renderPanel, exitTrack, observationAge, cellWidth } from './tastytrade-live-render.mjs';
-import { liveEvidence as evidence, ewz } from './tastytrade-fixtures.mjs';
+import { liveEvidence as evidence, ewz, sampleTrade } from './tastytrade-fixtures.mjs';
+
+// BUG-040: observed UNG bid/ask/mid values, with synthetic account/opening/exit evidence.
+const ung = sampleTrade('UNG', '261127', [['P',8.5],['P',9],['C',13],['C',13.5]],
+  [.1,.2,.3,.2], [.06,.075,.31,.345], .1, .3);
+const inconsistentPackage = { ...evidence,
+  holdings: [...ung.holdings,...evidence.holdings],
+  orders: [ung.opening,...ung.closing.orders,...evidence.orders],
+  complexOrders: [ung.closing,...evidence.complexOrders],
+  quotes: [...ung.quotes.map((q,i)=>({...q,bid:String([0,.01,.17,.27][i]),
+    ask:String([.12,.14,.45,.42][i])})),...evidence.quotes] };
+
+test('BUG-040: inconsistent package midpoint withholds dependent values without hiding holdings',()=>{
+  const baseline=projectLive(evidence), p=projectLive(inconsistentPackage);
+  assert.deepEqual(p.positions.slice(1),baseline.positions);
+  assert.deepEqual(p.rows.slice(1),baseline.rows);
+  const first=p.positions[0];
+  assert.equal(first.symbol,'UNG'); assert.equal(first.market.closeDebit,null);
+  assert.equal(first.market.dayGain,null); assert.equal(first.pnl,null); assert.equal(first.progress,null);
+  assert.equal(first.credit,.2); assert.equal(first.target,.1);
+  assert.equal(first.market.stale,false);
+  assert.deepEqual(p.rows[0].slice(5,7),['—','—']); assert.equal(p.rows[0][8],'—');
+  assert.equal(p.rows[0][10],'valuation unavailable');
+  for(const ascii of [false,true]) for(const color of [false,true]) {
+    const output=renderLive({...inconsistentPackage,ascii,color});
+    const lines=strip(output).split('\n').filter(l=>/^(UNG|EWZ|XLE)\s/.test(l));
+    assert.equal(lines.length,3);
+    const unknown=ascii?'--':'—';
+    assert.ok(lines[0].includes(`P50 ${unknown}`));
+    assert.doesNotMatch(lines[0],/\$|%~|NaN|Infinity/);
+    if(color) assert.match(output.split('\n').find(l=>l.startsWith('UNG')),/\x1b\[93m/);
+  }
+  const tsv=renderLive({...inconsistentPackage,format:'tsv',color:true});
+  assert.equal(tsv.split('\n').length,4); assert.doesNotMatch(tsv,/\x1b/);
+  assert.match(tsv,/valuation unavailable/);
+});
+
+test('BUG-040: stale inconsistent package remains visible; zero debit remains a supported value',()=>{
+  const stale={...inconsistentPackage,quotes:inconsistentPackage.quotes.map(q=>({...q,
+    'updated-at':'2026-09-01T00:00:00Z'}))};
+  assert.equal(projectLive(stale).positions.length,3);
+  const zero={...inconsistentPackage,quotes:inconsistentPackage.quotes.map(q=>q.symbol===ung.holdings[2].symbol?
+    {...q,mid:'0.33'}:q)};
+  const p=projectLive(zero).positions[0];
+  assert.ok(Math.abs(p.market.closeDebit)<1e-12); assert.ok(p.pnl>0); assert.ok(p.progress>=1);
+  assert.throws(()=>projectLive({...inconsistentPackage,quotes:inconsistentPackage.quotes.slice(1)}),/quote evidence missing/);
+  const malformed={...inconsistentPackage,quotes:inconsistentPackage.quotes.map((q,i)=>i===0?{...q,bid:'0.2'}:q)};
+  assert.throws(()=>projectLive(malformed),/quote evidence malformed/);
+});
 
 const valued = progress => ({ ...evidence, quotes: evidence.quotes.map(q => {
   if (q.symbol !== ewz.holdings[2].symbol) return q;

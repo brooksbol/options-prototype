@@ -136,8 +136,11 @@ function quoteEconomics(quotes, held, now, session) {
     oldest = Math.min(oldest, at);
     stale ||= !usableEvidence(at, now, session);
   }
-  if (closeDebit < -0.000001) fail("indicative package value is inconsistent");
-  return { closeDebit: Math.max(0, closeDebit), dayGain: dayReferenceComplete ? dayGain : null, oldest,
+  // Individually valid leg quotes can imply an unusable package midpoint.
+  // Withhold valuation, not independently established holdings or other rows.
+  const valuationUsable = closeDebit >= -0.000001;
+  return { closeDebit: valuationUsable ? Math.max(0, closeDebit) : null,
+    dayGain: valuationUsable && dayReferenceComplete ? dayGain : null, oldest,
     stale };
 }
 
@@ -217,19 +220,20 @@ export function projectLive({ account, holdings, orders, complexOrders, quotes, 
         dayClose: position?.["average-daily-market-close-price"] ?? position?.["close-price"] };
     });
     const market = quoteEconomics(quotes, heldWithDayClose, now, session);
+    const valuationUnavailable = market.stale || market.closeDebit === null;
     const days = Math.round((dayInNewYork(now) - dayInNewYork(new Date(openedAt))) / 86_400_000);
     if (openedAt > now.getTime() || days < 0) fail("opening fill time is after the observation");
     const dte = Math.max(0, Math.round((dayInNewYork(new Date(trade.expiry)) - dayInNewYork(now)) / 86_400_000));
     let sinceEntry;
-    if (market.stale) {
+    if (valuationUnavailable) {
       sinceEntry = "—";
     } else {
       const difference = credit - market.closeDebit;
       sinceEntry = Math.abs(difference) < 0.000001 ? "$0" :
         signedDollars(difference * trade.multiplier * trade.quantity);
     }
-    const gap = market.closeDebit - target;
-    const progress = market.stale ? "quotes stale" : Math.abs(gap) < 0.000001 ?
+    const gap = market.closeDebit === null ? null : market.closeDebit - target;
+    const progress = market.closeDebit === null ? "valuation unavailable" : market.stale ? "quotes stale" : Math.abs(gap) < 0.000001 ?
       "at target; still held" : gap < 0 ?
         `${midpointPrice(-gap)} below target; still held` : `${midpointPrice(gap)} above target`;
     const targetClose = `${Math.round(100 * (credit - target) / credit)}% @ ${midpointPrice(target)} or exp ${
@@ -255,14 +259,14 @@ export function projectLive({ account, holdings, orders, complexOrders, quotes, 
       // No declared time-exit policy exists in current tt evidence. Never infer it from orders.
       timeExit: { objectiveDte: null, openingDte, progress: null },
       lifespan, payoff, range: payoff ? { lower: payoff.strikes[1], upper: payoff.strikes[2] } : null,
-      pnl: market.stale ? null : (credit - market.closeDebit) * trade.multiplier * trade.quantity,
-      progress: market.stale ? null : (credit - market.closeDebit) / (credit - target),
+      pnl: valuationUnavailable ? null : (credit - market.closeDebit) * trade.multiplier * trade.quantity,
+      progress: valuationUnavailable ? null : (credit - market.closeDebit) / (credit - target),
       p50: Math.abs(target - credit / 2) <= 1e-8,
       profitCapture: (credit - target) / credit,
       transition: Boolean(note), note, targetOrder: exit.target, stopOrder: exit.stop,
       optionEvidence: evidenceStatus(market.oldest, now, session, market.stale) });
     rows.push([accountLabel, trade.symbol, trade.label, direction, String(trade.quantity), dayGain, sinceEntry,
-      `${midpointPrice(credit)} CR`, market.stale ? "—" : midpointPrice(market.closeDebit), targetClose,
+      `${midpointPrice(credit)} CR`, valuationUnavailable ? "—" : midpointPrice(market.closeDebit), targetClose,
       progress, opened, String(dte), quoteLabel(market, now, sessionCloseAt, session), note]);
   }
   return { accountLabel, rows, positions };

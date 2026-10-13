@@ -118,7 +118,7 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
       const value=mono(r[k]);
       const code=k === "P/L" ? displayedPnl(p) === null || displayedPnl(p) === 0 ? null : displayedPnl(p)>0 ? "92" : "91" :
         k === "SPOT" ? ({up:"92",down:"91",unchanged:"97",unknown:"93"}[p.spot.movement] ?? "93") :
-        k === "QUOTE" ? p.optionEvidence.stale || p.spot.stale || p.optionEvidence.retained || p.spot.retained ? "93" : null :
+        k === "QUOTE" ? p.market.closeDebit === null || p.optionEvidence.stale || p.spot.stale || p.optionEvidence.retained || p.spot.retained ? "93" : null :
         value === mono("—") ? "37" : null;
       const decorated=k === "PAYOFF" ? silhouette(p,{ascii,color}).text : k === "EXIT PROFIT" ? profitCell(p,color) : ink(value,code);
       return pad(decorated,widths[k],numeric.has(k));
