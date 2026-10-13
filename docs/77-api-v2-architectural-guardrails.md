@@ -12,6 +12,13 @@ They exist so v2 pays the architectural cost once rather than accumulating clien
 
 API v2 is a general Wheelwright API: **one API, many clients**. `ww`, the web client, and future clients may project and present the same canonical capabilities differently. No client's workflow or presentation grammar defines the API's domain model.
 
+### Canonical domain facade / de-multiplexing identity — Principal clarification, October 13, 2026
+
+Wheelwright v2 is a **layered, brokerage-agnostic facade and de-multiplexing boundary**: heterogeneous broker APIs, CSV sources, identifiers, vocabularies and observation conventions are normalized and reconciled into a coherent **Wheelwright domain model** consumed by many Wheelwright tools. The canonical domain model and the tools that operate on it are the Product's enduring intellectual property; provider adapters, ingestion workflows and transport are supporting implementation mechanisms. Domain equivalence must be supported by evidence, never manufactured by suppressing meaningful broker differences.
+
+**Design domain first.** The public API exposes Wheelwright Accounts, Positions, Quotes and other justified domain resources, with coherent collection/instance identities and reusable domain semantics. It must not be organized around the acquisition steps necessary for one screen or one provider. A proposed API resource must explain its domain identity and independently useful meaning, not merely its usefulness to one CLI column. This clarification reinforces the existing backend-authority, single-acquisition-authority and conventional-HTTP guardrails; it does not create a new Position ontology or silently change current routes.
+
+
 V2 capability design should proceed in this order:
 
 **Product semantics -> capability boundaries -> HTTP semantics -> OAS representation -> implementation.**
@@ -254,6 +261,10 @@ The stable API and clients MUST NOT depend on a particular provider request coun
 
 ## 19. Acquisition, reuse, read, derive, and presentation
 
+**Read-through facade default for ordinary domain reads — Principal clarification, October 13, 2026.** Clients request domain representations through GET and need not orchestrate brokerage acquisition, CSV import discovery, reconciliation or cache refresh to obtain a Position view. The backend may serve retained evidence or, under its separately authorized and bounded evidence policy, retrieve/admit new upstream observations while satisfying a GET. Such incidental internal persistence does not by itself make GET an unsafe client-requested mutation. GET MUST NOT initiate a trade, cancellation, broker instruction or other unsafe action on the client's behalf. Layer transparency does not imply guaranteed fresh brokerage evidence, a provider network call on every GET, or unlimited blocking latency. Source coverage, clocks, provenance, retained/stale status, upstream failure and independently unknown domain conclusions remain explicit.
+
+Existing explicit acquisition endpoints and provider/session controls remain implemented contracts until separately reviewed. This read-through default **does not authorize** silently adding provider calls, expanding credentials or grants, changing GET latency/failure contracts, altering existing POST behavior, or bypassing evidence admission. A proposed read-through implementation must demonstrate bounded execution, authorization, source capabilities, fallback and compatibility before deployment. Where an acquisition request is genuinely a separately valued Product resource, it may be exposed with coherent identity and lifecycle; for the `ww show positions` monitoring Product, acquisition is internal machinery, not a client-facing Product resource.
+
 V2 MUST distinguish acquiring/revalidating external evidence from merely reading held evidence and from deriving interpretations from evidence.
 
 An acquisition request may be satisfied by reusable held evidence when the capability's acquisition policy permits it; **acquisition does not necessarily mean a provider network call**.
@@ -263,6 +274,10 @@ Wheelwright may reuse familiar HTTP cache semantics in spirit when they faithful
 Exact acquisition-policy controls remain Product/API design work.
 
 ## 20. Conventional HTTP/resource grammar
+
+**Uniform Interface and Layered System clarification — Principal, October 13, 2026.** The client should not need to distinguish a retained SQLite observation, upstream broker response or newly admitted CSV to use a Wheelwright domain resource. GET collection resources support search/filter/selection; query parameters may select documented projections. A projection is a representation of canonical domain facts, not an authorization to create client-specific domain authority. POST to a domain collection normally creates an instance of that same collection's resource type, with a coherent instance identity where one exists; the identity of the authorized initiating client is independent of the resource semantics. Standard HTTP also permits other POST semantics, but departures from the collection-create convention require an explicit domain rationale. Do not conflate an audit-record collection with a different operation/request collection just because both involve acquisition.
+
+HTTP outcomes follow actual operation semantics: `201 Created` for completed creation (normally with a `Location`), `202 Accepted` for accepted but incomplete processing, and ordinary `200 OK` for successful GET representations. Neither POST nor provider communication implies asynchronous processing by itself. Preserve the common Problem/error contract. Backend evidence read-through caching is separate from HTTP response caching: use standard `Cache-Control`, `ETag`, conditional requests and `Vary` when appropriate, without exposing sensitive Account data through shared caches or making clients independent reconciliation authorities. Initial private Account financial responses may remain `private, no-store` while the backend retains evidence.
 
 API v2 SHOULD follow established, widely understood HTTP/REST conventions wherever those conventions accurately express Wheelwright semantics. Wheelwright-specific HTTP conventions SHOULD exist only where standard conventions are inadequate or would misrepresent the domain.
 
