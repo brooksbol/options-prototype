@@ -4,6 +4,12 @@
 >
 > This is a cold-start failure checksum, not a new source of execution authority. Each item summarizes demonstrated operating-model evidence. Follow the linked governing authority and current task/experiment state for actual permissions and transitions.
 
+### October 12 recurrence: Product precedent ignored
+
+The historical Position CLI passed technical reviews but failed Principal usability acceptance: default inventory output buried a small table under repeated qualifications. Existing tt live presentation and the requirements below already provided the correct direction. For future operator-facing changes, inspect accepted working precedents, confirm a sample default output with the Principal, and exercise an early terminal specimen before extensive tests. Independent review must evaluate usability, not just contract conformance.
+
+Before claiming a missing public capability, trace relevant v1 Console and CSV behavior to authoritative evidence and test existing ww/Unix composition. Do not assume Console Capital or Current value is Account NAV. This is application of the existing rules, not a new permission gate.
+
 ## Before consequential work
 
 If what you are about to do resembles any item below, **stop and reacquire the governing state before crossing the boundary**.
