@@ -1,7 +1,7 @@
 # API v2 domain facade and REST resource-model reconciliation
 
 **Date:** October 13, 2026
-**Status:** PRINCIPAL EXPLANATION RECORDED; RECONCILIATION PROPOSED, NOT RATIFIED.
+**Status:** PRINCIPAL CLARIFICATION INCORPORATED INTO RATIFIED V2 GUARDRAILS (October 13, 2026); the Codex-specific design disposition and API implementation remain pending review.
 **Scope:** Architectural review of `ww show positions` proposal. No API contract, code, permission, migration, or operational authorization.
 
 ## Principal's architectural intent (October 13 conversation)
@@ -26,7 +26,7 @@ The Principal emphasizes standard REST **Uniform Interface**, **Layered System**
 | `docs/77-api-v2-architectural-guardrails.md` §§3, 5, 13, 19, 20 | **Largely aligned.** §20 already favors domain nouns, shallow collection/instance URIs, projections, and omitting action nouns. §13 separates acquisition scope from representation projection. |
 | Guardrails §19 and §20 example: acquisition/read distinction; optional POST to reacquire quote evidence | **Needs explicit reconciliation.** Existing text can be read as assuming the public client orchestrates acquisition. The Principal's new clarification prefers read-through GET for ordinary domain reads and rejects acquisition workflow as a Product concept for `ww show positions`. This does **not** by itself deprecate existing endpoints or prohibit genuinely Product-facing acquisition resources in other contexts. |
 | `docs/07-architecture-current.md` existing self-scheduling worker, refresh endpoint and legacy browser paths | **Distinguish historical/current implementation from v2 target.** Do not silently erase accepted v1 behavior or pretend the legacy routes already implement the new facade. |
-| `docs/README.md` authority hierarchy | This document is a design-review reconciliation proposal. It does not amend Category A/B ratification by implication. |
+| `docs/README.md` authority hierarchy | The Principal authorized the targeted clarification of the ratified API v2 guardrails on October 13. See `docs/77-api-v2-architectural-guardrails.md` §§1, 19–20 for governing language. This document remains the review trace and does not itself authorize implementation. |
 
 ## Concrete consequence for Codex's October 13 proposal
 
