@@ -1,0 +1,2 @@
+ACCOUNT  SYMBOL  PAYOFF                           RANGE   SPOT
+pts      ARKK    ____╱‾‾▼‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ≥90     88.00
