@@ -238,3 +238,10 @@ This methodology does not require options, AI, or any specific technology. It ap
 - The artifacts generate evidence that feeds back into all three roles
 
 The roles need not be filled by different people. They describe different cognitive modes. The discipline is in not conflating them — particularly in not allowing implementation urgency to override architectural coherence or architectural elegance to override Principal-determined direction.
+
+
+## Continuous proof-carrying engineering — October 13, 2026 reconciliation
+
+Apply the outcome-level delegation in `principal-decision-surface.md`. The engineering owner carries a bounded Product outcome through ordinary corrections, tests, independent falsification and compatibility rehearsal. Independent reviewers invalidate frozen candidates, not the Principal's continuing workstream delegation. Preserve separation of implementer and reviewer for each submission even when the Principal assigns actor roles differently from the defaults. Product intent, genuine scope/meaning choices and consequential operational authority remain Principal-owned. Repeated related falsifiers invoke the Death Spiral Avoidance Protocol's invariant synthesis; routine defects do not make the Principal a continue button.
+
+Proof begins in Product/architecture/design, using existing ratified principles, ADRs, precedents and fitness controls. New abstractions require a falsifiable capability gap. Implementers cannot waive proof or self-certify independent acceptance. Existing staged gate research is not active enforcement; demonstrate actual substrate controls separately without inventing another governance framework.

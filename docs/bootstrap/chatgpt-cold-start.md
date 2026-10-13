@@ -117,3 +117,9 @@ Before substantive work, report compactly:
 - unresolved mandatory authority/context references, if any.
 
 Do not turn bootstrap recital into evidence that a consequential transition is permitted.
+
+## Continuous engineering authority — October 13, 2026 reconciliation
+
+Apply the outcome-level delegation section in `foundations/principal-decision-surface.md`. Independent REJECT freezes the submitted candidate, not an explicitly authorized Product workstream. Inspect current recorded scope and actual enforced controls; if continuous bounded engineering is delegated, correct ordinary defects in a new isolated identity and obtain independent review without another Principal decision. If only one attempt was authorized, do not invent continuation. Repeated semantic failures require invariant synthesis, not repeated narrow patches. Preserve rejection history, proof obligations and reserved operational boundaries. Reviewer and implementer remain independent for the same submission; the Principal may explicitly assign Codex the implementation role, with a separate reviewer.
+
+Before implementation recover authoritative guardrails and working Product precedents; use RECOVER → REUSE → COMPOSE → EXTEND → INVENT. Require a specific gap and falsifier for new abstractions, reuse existing fitness controls, and report whether checks are actually enforced. Actor memory or a prose checklist is not enforcement. Do not activate staged experiments or waive proof. Product delivery means ordinary installed behavior accepted by the Principal, not candidate tests or review acceptance.

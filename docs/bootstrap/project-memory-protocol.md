@@ -363,7 +363,7 @@ Do not commit without Principal authorization. Requests to investigate, analyze,
 
 **Authorized-work closeout rule:** explicit Principal authorization to execute a work item also authorizes the ordinary, scope-preserving reconciliation and durable persistence required to bring that same work item through the applicable End-of-Workstream Memory Check, including commit/push of reconciliation-only changes. This is continuation of the authorized work, not a new work item and not a reuse of stale permission.
 
-That carried closeout authority ends at the work item's established scope. Stop and return to the Principal when reconciliation would introduce or ratify a new Product/architecture decision, broaden scope, start another work item, resolve genuinely ambiguous meaning, retry rejected/consumed implementation authority, or otherwise cross a consequential boundary not already established by the authorized work. An explicit Principal limitation on persistence or reconciliation also controls.
+That carried closeout authority ends at the work item's established scope. Stop and return to the Principal when reconciliation would introduce or ratify a new Product/architecture decision, broaden scope, start another work item, resolve genuinely ambiguous meaning, retry an attempt when no active outcome-level delegation covers correction, or otherwise cross a consequential boundary not already established by the authorized work. An explicit Principal limitation on persistence or reconciliation also controls.
 
 ---
 

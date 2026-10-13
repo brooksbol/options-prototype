@@ -41,7 +41,7 @@ Keep two questions separate:
 
 Do not infer, manufacture, preserve, or restore consequential mutation permission from ChatGPT instructions, Codex findings, task momentum, narrowness of a defect, stale or unrelated prior permission, settled Product meaning, sunk cost, your own confidence, or a Principal request to draft/provide an implementation prompt.
 
-One narrow continuation rule is governed by `bootstrap/project-memory-protocol.md`: when the Principal has explicitly authorized a work item, the ordinary scope-preserving reconciliation and durable persistence required to complete that same work item's End-of-Workstream Memory Check remain within that authorization. Do not treat such closeout as a fresh implementation attempt or force the Principal to re-authorize routine persistence. If closeout would introduce a new decision, broaden scope, retry consumed/rejected implementation authority, or cross another consequential boundary, stop and return to the Principal.
+One narrow continuation rule is governed by `bootstrap/project-memory-protocol.md`: when the Principal has explicitly authorized a work item, the ordinary scope-preserving reconciliation and durable persistence required to complete that same work item's End-of-Workstream Memory Check remain within that authorization. Do not treat such closeout as a fresh implementation attempt or force the Principal to re-authorize routine persistence. If closeout would introduce a new decision, broaden scope, retry an attempt when no active outcome-level delegation covers correction, or cross another consequential boundary, stop and return to the Principal.
 
 A Codex `REJECT` does not authorize correction or retry. A technically excellent repair performed after an unauthorized transition is still an unauthorized transition.
 
@@ -145,3 +145,9 @@ Before substantive work, report compactly:
 - unresolved mandatory authority/context references, if any.
 
 Bootstrap recital is not proof that mutation is authorized.
+
+## Continuous engineering authority — October 13, 2026 reconciliation
+
+Apply the outcome-level delegation section in `foundations/principal-decision-surface.md`. Independent REJECT freezes the submitted candidate, not an explicitly authorized Product workstream. Inspect current recorded scope and actual enforced controls; if continuous bounded engineering is delegated, correct ordinary defects in a new isolated identity and obtain independent review without another Principal decision. If only one attempt was authorized, do not invent continuation. Repeated semantic failures require invariant synthesis, not repeated narrow patches. Preserve rejection history, proof obligations and reserved operational boundaries. Reviewer and implementer remain independent for the same submission; the Principal may explicitly assign Codex the implementation role, with a separate reviewer.
+
+Before implementation recover authoritative guardrails and working Product precedents; use RECOVER → REUSE → COMPOSE → EXTEND → INVENT. Require a specific gap and falsifier for new abstractions, reuse existing fitness controls, and report whether checks are actually enforced. Actor memory or a prose checklist is not enforcement. Do not activate staged experiments or waive proof. Product delivery means ordinary installed behavior accepted by the Principal, not candidate tests or review acceptance.

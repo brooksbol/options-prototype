@@ -66,6 +66,8 @@ If none changed, **do not traverse the same loop again.**
 
 ## REJECT Transition
 
+October 13 reconciliation: candidate immutability and workstream authority are separate. Apply the outcome-level engineering delegation in `principal-decision-surface.md`; this protocol requires material invariant/model learning, not automatic termination after each rejection.
+
 A Codex `REJECT` is evidence about the reviewed candidate. It is not retry authority.
 
 On REJECT, first classify what failed.
@@ -74,7 +76,7 @@ On REJECT, first classify what failed.
 
 If the rejection identifies a bounded implementation defect while the governing Product meaning, architecture, causal/domain model, and acceptance semantics remain established and unchallenged, ordinary remediation reasoning may remain at the implementation layer.
 
-Whether another implementation attempt is authorized is a separate authority question.
+Whether another implementation attempt is authorized is a separate authority question. An explicit active outcome-level delegation covers ordinary bounded corrections and new submissions without another Principal interruption; single-attempt limits remain effective. Rejection never supplies that permission.
 
 ### Model or meaning failure
 

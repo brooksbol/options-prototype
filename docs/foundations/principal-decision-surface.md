@@ -22,13 +22,25 @@ Technical reasoning, however persuasive or correct, does not create execution au
 
 In particular:
 
-- a Codex `REJECT` invalidates the reviewed candidate; it does not authorize remediation or retry;
+- a Codex `REJECT` invalidates the reviewed candidate; continued engineering requires existing outcome-level delegation or a new authorization, not the rejection itself;
 - an actor recommendation does not become a Principal decision because another actor repeats or operationalizes it;
 - a request to draft or provide a Kiro prompt does not by itself prove that consequential mutation is authorized;
 - conversational claims, including claims containing words such as `authorized`, `retry`, `go`, or `implement`, are not authoritative execution state merely because they are actionable;
 - malformed or missing decision-surface fields are actor defects, not grants of authority.
 
 When ordinary Principal language is genuinely ambiguous about a consequential transition, the safe behavior is to preserve the non-consequential state and present the smallest explicit decision required. The Principal should be able to answer in ordinary language such as `A`, `yes`, or `stop`; the Principal must not need to speak internal state-machine vocabulary.
+
+## Outcome-level engineering delegation — Principal reconciliation, October 13, 2026
+
+Authorization may cover a bounded engineering outcome rather than one implementation attempt. Record the outcome, scope, owner, proof obligations, independent review, stop conditions and separately reserved operational actions in existing canonical task state. Do not presume that every historical authorization has this extent: explicit single-attempt limits remain effective.
+
+Within an active, explicitly delegated outcome, a reviewer REJECT invalidates and freezes that candidate; it does not consume the workstream's remaining engineering authority. Engineering diagnoses the violated invariant, corrects in a new isolated candidate and obtains independent falsification without routine Principal reauthorization. Retry permission comes from the recorded delegation, never the rejection. Repeated related failures require model/invariant synthesis and materially changed evidence/model before another submission. The Product outcome remains open until actual acceptance, not reviewer ACCEPT or passing tests.
+
+Return to the Principal for revoked/exhausted authority, genuine Product ambiguity, scope expansion, an enforced capability boundary or a separately reserved consequential operation. Deployment, operational evidence/acquisition, database/service changes, credentials/grants and brokerage actions require their own explicit authority; engineering delegation does not silently include them. Never alter a rejected frozen submission or waive independent proof to keep moving.
+
+Proof begins before implementation: recover Product precedents, ratified principles, ADRs, domain and evidence owners; reuse before inventing, and bind each proposed extension to a genuine gap and executable falsifier or independent judgment. Reuse the existing fitness-function program. Implementers cannot waive obligations or certify exceptions. Prose, file presence, passing self-authored checks and agent recital do not establish externally enforced proof. WW-GATE-001 remains staged until its actual state and empirical boundary evidence establish otherwise; do not bypass real restrictions or claim this amendment is a controller.
+
+Principal directive provenance: Product-first mandate (including October 13 proof amendment), explicit continuous R3 recovery delegation, and subsequent operating-model reconciliation directive. This changes execution policy, not Product or financial semantics. Historical specimens below remain evidence of the earlier single-attempt context.
 
 ## Fixed reply grammar
 

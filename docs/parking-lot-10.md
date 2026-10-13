@@ -1461,3 +1461,8 @@ Proof/reuse index: docs/mandates/product-first-continuous-engineering-2026-10-13
 | Date | Event |
 |---|---|
 | 2026-10-13 | Principal explicitly authorizes continuous bounded PL-CONV-01 Increment A engineering recovery, independent falsification and disposable compatibility rehearsal; operational promotion remains separately gated. |
+
+
+### PL-CONV-01 — operating instruction reconciliation, October 13, 2026
+
+Principal directed correction of existing operating instructions, not a parallel methodology. Principal Decision Surface now distinguishes immutable rejected candidates from active bounded outcome-level engineering delegation. Actor bootstraps, Three-Actor Model, Death Spiral Avoidance, suspended bridge, memory protocol and failure checksum align. Explicit single-attempt limits and separately reserved operational/financial boundaries remain effective. Independent review found no safety erosion and one stale Kiro closeout clause, corrected before persistence. These instruction changes are policy, not technical enforcement; WW-GATE-001 remains staged. Existing fitness controls and independent falsification remain required; no implementer waiver or claim of enforced proof. R3 engineering continues under the already recorded delegation.

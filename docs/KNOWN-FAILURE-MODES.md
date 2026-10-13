@@ -48,7 +48,7 @@ Ask whether the rejection exposes a local defect or demonstrates that the implem
 
 A rejection invalidates the reviewed candidate. It does not manufacture another implementation attempt.
 
-Recommendations, technical tractability, sunk cost, prompts, and conversational momentum do not create retry authority.
+Recommendations, technical tractability, sunk cost, prompts, and conversational momentum do not create retry authority. October 13 reconciliation: explicitly recorded continuous outcome-level engineering delegation does cover ordinary correction and new immutable submissions; rejection does not consume that delegation. Do not turn a candidate rejection into a manufactured Principal reauthorization gate. Apply `foundations/principal-decision-surface.md`.
 
 **Evidence / authority:** `foundations/principal-decision-surface.md`; `WARNING-operating-model-reality-report-FINAL.md`.
 
