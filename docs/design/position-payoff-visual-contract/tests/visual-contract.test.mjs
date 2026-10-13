@@ -29,3 +29,17 @@ test('the contract disallows fabricating geometry for unsupported evidence',()=>
   assert.match(model.unavailableRule,/Do not synthesize/);
   assert.equal(model.source.sourceStatus,'CONVERSATION_ATTACHMENT_NOT_YET_COMMITTED');
 });
+
+test('proposed covered-call/CSP terminal goldens have exactly 31 plot cells and one spot marker',()=>{
+  for (const name of ['covered-call-below','covered-call-above','cash-secured-put-below','cash-secured-put-above']) {
+    const s=readFileSync(new URL('../golden/'+name+'.txt',import.meta.url),'utf8');
+    const rows=s.trimEnd().split('\n');
+    assert.equal(rows.length,2,name);
+    assert.match(rows[0],/^ACCOUNT  SYMBOL  PAYOFF/);
+    const match=rows[1].match(/____╱[‾▼]+/u);
+    assert.ok(match,name);
+    assert.equal(Array.from(match[0]).length,31,name);
+    assert.equal(Array.from(match[0]).filter(x=>x==='▼').length,1,name);
+    assert.equal(Array.from(match[0]).filter(x=>x==='╱').length,1,name);
+  }
+});
