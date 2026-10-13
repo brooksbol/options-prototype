@@ -2,6 +2,10 @@
 
 Principal acceptance **PASSED** on October 11, 2026 for implementation `dba303c150e1fc27d119f1ee811bd88737f4b16c` (accepted on main). Baseline main `4e99899`; PRs #35, #36, #37 and #38 verified merged. This standalone tastytrade companion does not modify Wheelwright v2 Position, schemas, REST resources, broker orders or management rules. Principal's no-task-branches workflow remains in effect; unrelated work stays untouched.
 
+## Architectural reuse boundary
+
+`tt live` is an accepted standalone UX prototype, not an authoritative v2 Position client. Its local financial computations are transitional implementation details. Reuse its accepted terminal presentation, not its authority allocation. Under ratified `PRIN-ARCH-BACKEND-AUTHORITY` (`docs/principles.md`), production `ww show positions` must consume backend-established membership, contract terms and financial conclusions; the CLI owns presentation and must preserve unknowns instead of inventing domain facts. This clarification does not require migrating the standalone prototype.
+
 ## Human display contract
 
 `SYMBOL | PAYOFF | RANGE | SPOT | SPAN | EXIT PROFIT | P/L | QUOTE`
