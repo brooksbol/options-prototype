@@ -15,6 +15,64 @@ const inconsistentPackage = { ...evidence,
   quotes: [...ung.quotes.map((q,i)=>({...q,bid:String([0,.01,.17,.27][i]),
     ask:String([.12,.14,.45,.42][i])})),...evidence.quotes] };
 
+// October 13 broker quote snapshot: the short-call mark differs from its mid.
+// Opening/target prices match the reported 0.09 credit / 0.02 limit; IDs remain synthetic.
+const markedUng = sampleTrade('UNG', '261127', [['P',8.5],['P',9],['C',13],['C',13.5]],
+  [.1,.2,.19,.2], [.06,.075,.31,.345], .02, .3);
+const brokerMarkedPackage = { ...inconsistentPackage,
+  orders: [markedUng.opening,...markedUng.closing.orders,...evidence.orders],
+  complexOrders: [markedUng.closing,...evidence.complexOrders],
+  quotes: inconsistentPackage.quotes.map((q,i)=>i<4 ?
+    {...q,mark:String([.06,.075,.368142454,.345][i])} : q) };
+
+test('negative midpoint recovers whole-package broker mark P/L and exit progress',()=>{
+  const p=projectLive(brokerMarkedPackage), first=p.positions[0];
+  assert.deepEqual(p.positions.slice(1),projectLive(evidence).positions);
+  assert.deepEqual(p.rows.slice(1),projectLive(evidence).rows);
+  assert.equal(first.market.valuationSource,'broker mark');
+  assert.ok(Math.abs(first.market.closeDebit-.038142454)<1e-12);
+  assert.ok(Math.abs(first.pnl-5.1857546)<1e-9);
+  assert.ok(Math.abs(first.progress-.7408220857142857)<1e-12);
+  assert.ok(Math.abs(first.market.dayGain+5.8142454)<1e-9);
+  assert.equal(first.transition,false);
+  for(const ascii of [false,true]) for(const color of [false,true]) {
+    const out=renderLive({...brokerMarkedPackage,ascii,color});
+    const row=strip(out).split('\n').find(l=>l.startsWith('UNG'));
+    assert.match(row,/LIMIT.*\+74%.*\+\$5\.19/);
+    assert.doesNotMatch(row,/74%~|executed|filled|NaN|Infinity/);
+  }
+  const tsv=renderLive({...brokerMarkedPackage,format:'tsv'});
+  assert.match(tsv,/NOTE\n/);
+  assert.match(tsv,/broker mark valuation; negative package midpoint/);
+  assert.doesNotMatch(tsv,/valuation unavailable/);
+});
+
+test('mark recovery requires every leg and a nonnegative package; no mixed-source fallback',()=>{
+  for(const invalid of [undefined,null,'bad','-0.1','0.9']) {
+    const data={...brokerMarkedPackage,quotes:brokerMarkedPackage.quotes.map((q,i)=>i===0?{...q,mark:invalid}:q)};
+    const p=projectLive(data).positions[0];
+    assert.equal(p.market.closeDebit,null); assert.equal(p.pnl,null); assert.equal(p.progress,null);
+  }
+  const negative={...brokerMarkedPackage,quotes:brokerMarkedPackage.quotes.map(q=>({...q,mark:q.mid}))};
+  assert.equal(projectLive(negative).positions[0].pnl,null);
+  // For coherent midpoints the accepted valuation wins even when marks differ.
+  const positive={...brokerMarkedPackage,quotes:brokerMarkedPackage.quotes.map((q,i)=>i===2?{...q,mid:'0.36'}:q)};
+  const p=projectLive(positive).positions[0];
+  assert.equal(p.market.valuationSource,'midpoint');
+  assert.ok(Math.abs(p.market.closeDebit-.03)<1e-12);
+  assert.equal(p.note,'');
+});
+
+test('broker marks obey existing stale and retained-session rules',()=>{
+  const stale={...brokerMarkedPackage,quotes:brokerMarkedPackage.quotes.map(q=>({...q,'updated-at':'2026-09-01T00:00:00Z'}))};
+  const p=projectLive(stale).positions[0];
+  assert.equal(p.market.valuationSource,'broker mark'); assert.equal(p.pnl,null); assert.equal(p.progress,null);
+  const session={state:'Closed','previous-session':{'open-at':'2026-10-09T13:30:00Z','close-at':'2026-10-09T20:00:00Z'},'next-session':{'open-at':'2026-10-12T13:30:00Z'}};
+  const retained={...brokerMarkedPackage,session,now:new Date('2026-10-11T14:00:00Z'),
+    quotes:brokerMarkedPackage.quotes.map(q=>({...q,'updated-at':'2026-10-09T20:00:00Z'}))};
+  assert.ok(Math.abs(projectLive(retained).positions[0].pnl-5.1857546)<1e-9);
+});
+
 test('BUG-040: inconsistent package midpoint withholds dependent values without hiding holdings',()=>{
   const baseline=projectLive(evidence), p=projectLive(inconsistentPackage);
   assert.deepEqual(p.positions.slice(1),baseline.positions);

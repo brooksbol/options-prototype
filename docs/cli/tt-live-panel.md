@@ -16,7 +16,7 @@ One row per recognized position, no blank rows between positions and no bottom l
 | SPOT | Broker equity midpoint, validated against bid/ask and quote-update timestamp | `—` if missing, duplicated or invalid; yellow if a valid price lacks reliable comparison evidence |
 | SPAN | New York calendar-day progress from verified final opening fill to expiration, plus remaining DTE on the right | Defensive unknown track if lifespan cannot be established; missing/malformed opening fills continue to fail recognition closed |
 | EXIT PROFIT | Each row's exact recognizable Pxx objective, or LIMIT, and signed progress to the verified broker limit | Verified objective survives stale options, but its progress track is unavailable; missing target linkage still fails closed |
-| P/L | Gross `(opening credit - closing debit) × quantity × multiplier`, before fees | `—` when valuation is unusable |
+| P/L | Gross `(opening credit - closing debit) × quantity × multiplier`, before fees; complete valid broker marks recover a negative package midpoint (see follow-up below) | `—` when valuation is unusable |
 | QUOTE | Oldest age among option-leg quotes and the displayed underlying observation, plain seconds/minutes/hours | `—` if no timestamp; degraded evidence retains the existing amber treatment |
 
 RANGE uses compact full strike precision (`32–42`, `59.5–64.5`, `125.125–137.5`). It remains available when valid geometry is compressed, but is withheld for unsupported or unverified deliverables. Prices and financial values are never silently truncated. P/L rounds to cents for display and uses neutral zero, green positive and red negative; domain accounting is unchanged.
@@ -75,3 +75,9 @@ Remaining domain limitation: configured DTE-exit objectives are unsupported, so 
 ## October 13, 2026 — BUG-040 valuation isolation
 
 Individually valid option quotes whose summed midpoint implies a negative package closing debit no longer abort the scan. The affected row retains independent fields and its verified exit objective; closing debit, P/L, daily P/L and exit progress are unavailable. QUOTE uses existing amber treatment; TSV progress says `valuation unavailable`. Unrelated rows remain visible, zero is not invented, and existing missing/malformed quote and holding/order ambiguity checks remain fail closed. This amends the earlier whole-command valuation rejection behavior only. See the canonical BUG-040 record for evidence and verification; independent review and Principal acceptance are not inferred.
+
+### October 13 follow-up — available broker marks restore numbers
+
+When a package midpoint is negative, the same response's broker marks now recover valuation if every leg's mark is finite, nonnegative and inside its bid/ask, and the resulting signed package value is nonnegative within existing tolerance. The entire package switches source together, including daily P/L. Coherent midpoint packages retain their accepted behavior. Missing or unusable marks still withhold dependent values; stale/retained-session rules still apply. This is indicative valuation, never a fill or execution claim.
+
+The compact panel is unchanged; QUOTE remains amber for this fallback. TSV NOTE identifies `broker mark valuation; negative package midpoint`; the NOTE is independent of the broker-transition `T`. At the observed UNG snapshot, `0.09` opening credit, `0.02` limit and `0.038142454` mark closing value produce `+74%` progress and `+$5.19` gross P/L. Ordinary installed `tt live` was verified with those values; 72 tastytrade tests pass. See BUG-040 for evidence, authority and limitations. The historical isolation-only behavior above is superseded by this bounded recovery.

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-13T20:52:49.000Z",
+    "generatedAt": "2026-10-13T21:04:29.585Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -9999,6 +9999,27 @@
           "heading": "Related",
           "level": 2,
           "content": "- [Accepted terminal contract](../cli/tt-live-panel.md)\n- [Domain competence contract](../foundations/options-domain-competence-contract.md)\n- `scripts/tastytrade-live-domain.mjs`\n- `scripts/tastytrade-live-render.mjs`\n- `scripts/tastytrade-exit-render.test.mjs`",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "October 13 follow-up — recover available broker mark valuation",
+          "level": 2,
+          "content": "The Principal reported that UNG PROFIT and P/L were still missing and explicitly instructed Codex to fix it. The initial correction preserved the scan but unnecessarily withheld available valuation evidence. Its prior completion and no-further-work statements above describe that earlier closeout, not this new instruction.\n\nRead-only broker reproduction at approximately 21:01 UTC showed the same four midpoints (`0.060`, `0.075`, `0.310`, `0.345`) and separate marks (`0.060`, `0.075`, `0.368142454`, `0.345`). The short-call mark differs from its midpoint. The whole-package mark closing value is `0.075 + 0.368142454 - 0.060 - 0.345 = 0.038142454`. Actual opening credit is `0.09`, limit is `0.02`, quantity one and multiplier 100. Derived gross P/L is `5.1857546` dollars; progress toward the limit is about `74.0822%`.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Bounded correction and proof",
+          "level": 3,
+          "content": "- Product specimen: ordinary installed `tt live` shows UNG numeric P/L and exit progress, alongside EWZ/XLE, using available broker valuation evidence. Reuse the accepted panel, package recognition, opening fills, limit linkage and existing freshness rules.\n- Capability gap: the previous implementation discarded the separate mark evidence when package midpoints were negative. Extend the existing valuation function; no new abstraction or rendering system.\n- For a negative synthetic midpoint only, use all four broker marks when every mark is finite, nonnegative and within its leg's bid/ask, and their signed package sum is nonnegative within existing tolerance. Never mix midpoint and mark sources across legs. Daily P/L uses the same selected package source.\n- Missing, malformed, out-of-spread or still-negative mark packages retain unavailable dependent values.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Verification and disposition",
+          "level": 3,
+          "content": "All 72 `scripts/tastytrade*.test.mjs` tests pass. Installed `tt live --no-color` returned UNG `LIMIT ... +74%` and `+$5.19`; EWZ/XLE retained their numeric economics. This is engineering-observed installed behavior. Independent review and Principal Product acceptance have not been performed or inferred. BUG-040 remains technically Resolved with this supplemental correction; the earlier missing-data observation is retained above as provenance.",
           "truncated": false,
           "tables": []
         }

@@ -68,3 +68,24 @@ Fix and reconciliation persisted on main as `f6e84102973c6c73bb3586f63e43d0c915a
 - `scripts/tastytrade-live-domain.mjs`
 - `scripts/tastytrade-live-render.mjs`
 - `scripts/tastytrade-exit-render.test.mjs`
+
+## October 13 follow-up — recover available broker mark valuation
+
+The Principal reported that UNG PROFIT and P/L were still missing and explicitly instructed Codex to fix it. The initial correction preserved the scan but unnecessarily withheld available valuation evidence. Its prior completion and no-further-work statements above describe that earlier closeout, not this new instruction.
+
+Read-only broker reproduction at approximately 21:01 UTC showed the same four midpoints (`0.060`, `0.075`, `0.310`, `0.345`) and separate marks (`0.060`, `0.075`, `0.368142454`, `0.345`). The short-call mark differs from its midpoint. The whole-package mark closing value is `0.075 + 0.368142454 - 0.060 - 0.345 = 0.038142454`. Actual opening credit is `0.09`, limit is `0.02`, quantity one and multiplier 100. Derived gross P/L is `5.1857546` dollars; progress toward the limit is about `74.0822%`.
+
+External grounding: tastytrade's [market-data schema](https://developer.tastytrade.com/reference/market-data/getMarketDataByType/) distinguishes `mid` (bid/ask midpoint) from `mark` (price used for valuation). Neither is execution evidence. The response already supplies both; no acquisition, service, persistence or brokerage-action change is needed.
+
+### Bounded correction and proof
+
+- Product specimen: ordinary installed `tt live` shows UNG numeric P/L and exit progress, alongside EWZ/XLE, using available broker valuation evidence. Reuse the accepted panel, package recognition, opening fills, limit linkage and existing freshness rules.
+- Capability gap: the previous implementation discarded the separate mark evidence when package midpoints were negative. Extend the existing valuation function; no new abstraction or rendering system.
+- For a negative synthetic midpoint only, use all four broker marks when every mark is finite, nonnegative and within its leg's bid/ask, and their signed package sum is nonnegative within existing tolerance. Never mix midpoint and mark sources across legs. Daily P/L uses the same selected package source.
+- Missing, malformed, out-of-spread or still-negative mark packages retain unavailable dependent values. Coherent midpoint valuations, valid zero, stale/retained-session rules, quantity/multiplier scaling and unrelated rows retain their prior behavior.
+- The domain records the selected valuation source. Mark fallback retains amber QUOTE treatment and adds a TSV NOTE identifying `broker mark valuation; negative package midpoint`. A valuation note does not create the broker-order transition marker `T`.
+- Falsifiers: observed four-leg snapshot and reported opening/limit prices; malformed/incomplete/negative mark packages; coherent midpoint priority; stale/retained marks; unchanged unrelated projections; Unicode/ASCII/color output and TSV source disclosure. These are executable regression checks, not externally enforced proof or independent review.
+
+### Verification and disposition
+
+All 72 `scripts/tastytrade*.test.mjs` tests pass. Installed `tt live --no-color` returned UNG `LIMIT ... +74%` and `+$5.19`; EWZ/XLE retained their numeric economics. This is engineering-observed installed behavior. Independent review and Principal Product acceptance have not been performed or inferred. BUG-040 remains technically Resolved with this supplemental correction; the earlier missing-data observation is retained above as provenance.

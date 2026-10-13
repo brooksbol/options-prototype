@@ -55,7 +55,8 @@ EXIT PROFIT shows each verified broker objective and signed progress:
 (OPEN-NOW)/(OPEN-TARGET). Negative progress uses a left diamond;
 green and ~ mean an observed target while still held, never execution. T is a transition.
 P/L is gross dollars for the full held quantity and multiplier, before fees.
-An inconsistent package midpoint withholds its valuation and exit progress, not its row.
+A negative package midpoint uses complete valid broker marks when available;
+otherwise valuation and exit progress are unavailable. TSV NOTE identifies mark use.
 QUOTE is the oldest displayed option/spot age in s, m or h, with no coded suffixes.
 Weekend latest-session valuation remains eligible; it is not an official close.
 Use --tsv for unchanged detailed opening credit, current closing debit, target,

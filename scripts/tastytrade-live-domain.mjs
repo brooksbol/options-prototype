@@ -119,6 +119,7 @@ function matchingExit(complexOrders, orders, held) {
 
 function quoteEconomics(quotes, held, now, session) {
   let closeDebit = 0; let dayGain = 0; let dayReferenceComplete = true; let oldest = Infinity;
+  let markDebit = 0; let markDayGain = 0; let marksComplete = true;
   let stale = false;
   for (const leg of held) {
     const matches = quotes.filter((quote) => quote?.symbol === leg.symbol);
@@ -129,19 +130,28 @@ function quoteEconomics(quotes, held, now, session) {
     if (![bid, ask, mid, at].every(Number.isFinite) || bid > ask || mid < bid - 0.000001 ||
         mid > ask + 0.000001 || at > now.getTime() + 60_000) fail("quote evidence malformed");
     closeDebit += (leg.direction === "Short" ? 1 : -1) * mid;
+    const mark = decimal(quote.mark);
+    const markValid = Number.isFinite(mark) && mark >= bid - 0.000001 && mark <= ask + 0.000001;
+    marksComplete &&= markValid;
+    if (markValid) markDebit += (leg.direction === "Short" ? 1 : -1) * mark;
     const reference = decimal(leg.dayClose);
     if (Number.isFinite(reference)) {
       dayGain += (leg.direction === "Long" ? 1 : -1) * (mid - reference) * leg.quantity * leg.multiplier;
+      if (markValid) markDayGain += (leg.direction === "Long" ? 1 : -1) * (mark - reference) * leg.quantity * leg.multiplier;
     } else dayReferenceComplete = false;
     oldest = Math.min(oldest, at);
     stale ||= !usableEvidence(at, now, session);
   }
-  // Individually valid leg quotes can imply an unusable package midpoint.
-  // Withhold valuation, not independently established holdings or other rows.
+  // A negative synthetic midpoint is not a usable closing debit. The same broker
+  // response may still supply a complete, valid mark valuation. Switch the whole
+  // package (including daily P/L), never mix marks and midpoints across legs.
+  const useMarks = closeDebit < -0.000001 && marksComplete &&
+    Number.isFinite(markDebit) && markDebit >= -0.000001;
+  if (useMarks) { closeDebit = markDebit; dayGain = markDayGain; }
   const valuationUsable = closeDebit >= -0.000001;
   return { closeDebit: valuationUsable ? Math.max(0, closeDebit) : null,
     dayGain: valuationUsable && dayReferenceComplete ? dayGain : null, oldest,
-    stale };
+    stale, valuationSource: useMarks ? "broker mark" : "midpoint" };
 }
 
 // Delta is the signed, share-equivalent exposure to this trade's own underlying.
@@ -240,9 +250,13 @@ export function projectLive({ account, holdings, orders, complexOrders, quotes, 
       monthDayInNewYork(new Date(trade.expiry))}`;
     const opened = `${monthDayInNewYork(new Date(openedAt))} (${days} ${days === 1 ? "day" : "days"})`;
     const transition = new Set(["Contingent", "Cancel Requested", "Replace Requested"]);
+    const exitTransition = transition.has(exit.target.status) || transition.has(exit.stop.status);
     let note = "";
-    if (transition.has(exit.target.status) || transition.has(exit.stop.status)) {
+    if (exitTransition) {
       note = `exit transition: target ${exit.target.status}, stop ${exit.stop.status}`;
+    }
+    if (market.valuationSource === "broker mark") {
+      note += `${note ? "; " : ""}broker mark valuation; negative package midpoint`;
     }
     const dayGain = market.stale || market.dayGain === null ? "—" :
       Math.abs(market.dayGain) < 0.005 ? "$0" : signedDollars(market.dayGain);
@@ -263,7 +277,7 @@ export function projectLive({ account, holdings, orders, complexOrders, quotes, 
       progress: valuationUnavailable ? null : (credit - market.closeDebit) / (credit - target),
       p50: Math.abs(target - credit / 2) <= 1e-8,
       profitCapture: (credit - target) / credit,
-      transition: Boolean(note), note, targetOrder: exit.target, stopOrder: exit.stop,
+      transition: exitTransition, note, targetOrder: exit.target, stopOrder: exit.stop,
       optionEvidence: evidenceStatus(market.oldest, now, session, market.stale) });
     rows.push([accountLabel, trade.symbol, trade.label, direction, String(trade.quantity), dayGain, sinceEntry,
       `${midpointPrice(credit)} CR`, valuationUnavailable ? "—" : midpointPrice(market.closeDebit), targetClose,
