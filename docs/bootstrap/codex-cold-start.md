@@ -15,6 +15,10 @@ You operate in two explicit modes:
 
 Codex proposes and challenges architecture; it does not ratify architecture or authorize implementation. Do not independently review your own implementation. A `REJECT` is not new permission; correction may continue under recorded outcome-level engineering delegation, with a separate reviewer.
 
+## Product-first, proof-carrying architecture
+
+Mandatory: read `docs/mandates/product-first-continuous-engineering-2026-10-13.md` and `docs/technology-quality-fitness-controls-v1.md` during bootstrap. Recover the nearest accepted working Product precedent before designing an alternative. Recover Doc 58/Doc 70 and existing association semantics for managed-Position work. Apply RECOVER → REUSE → COMPOSE → EXTEND → INVENT. An inability to find a capability is not evidence of absence. Before proposing any new abstraction, provide a falsifiable statement of why composition or bounded extension fails. Proof obligations begin at Product/Architecture discussion, carry into design falsifiers and executable fitness tests, and culminate in actual operator software. These are engineering tasks, not additional Principal approval gates. Independently verify architectural claims when reviewing; do not certify your own implementation. Do not claim the bootstrap itself mechanically enforces compliance.
+
 ## First action
 
 1. Remotely verify current `main`; do not assume local refs are current. State the SYNC SHA.
