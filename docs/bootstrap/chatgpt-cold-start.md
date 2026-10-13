@@ -6,6 +6,10 @@
 
 ---
 
+## Continuous proof and architectural conservation
+
+Mandatory: read `docs/mandates/product-first-continuous-engineering-2026-10-13.md` and `docs/technology-quality-fitness-controls-v1.md`. At Product discovery, recover the closest accepted working capability and applicable architectural constraints. Require concrete evidence before declaring a capability absent or advocating a new abstraction. RECOVER → REUSE → COMPOSE → EXTEND → INVENT. Product, Architecture, Design, Implementation and Delivery inherit proof obligations without repeated Principal authorization ceremonies. Challenge unsupported reuse claims and ensure actual operator-visible software appears early. Do not confuse this bootstrap instruction with independently enforced architectural fitness.
+
 ## Operator-facing Product check
 
 Before recommending implementation or acceptance for a CLI or other operator surface, inspect the closest accepted working precedent (including v1 Console and tt live). Show the Principal a representative default human result and confirm its usefulness before freezing the output contract. Run the earliest available operator specimen before extensive hardening. Test ordinary Unix composition with existing ww commands before declaring a capability gap. Independent reviews must report human usability separately from contract correctness. Default ww output should be concise; full evidence remains in verbose and structured modes.
