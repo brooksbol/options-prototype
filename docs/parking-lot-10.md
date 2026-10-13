@@ -242,6 +242,24 @@ No evaluator/schema/API/UI implementation; no setup wizard; no automatic Wheel i
 
 ## `PL-CLI-01` — Wheelwright composable Unix CLI (`ww`)
 
+### PL-CLI-01 — Platform leverage and declining marginal capability cost (Principal direction, October 12, 2026)
+
+**Status:** Working Product/development guideline and why-state, **not** a newly ratified Product Principle, architecture mandate, implementation authorization or new intake. Preserve under existing PL-CLI-01 and consider in later strategic/architectural reconciliation.
+
+> **Optimize Wheelwright development for the declining marginal cost of adding trustworthy capabilities.**
+
+**Generalized platform thesis:** Adding a new capability should not automatically require changing the system's architecture. A mature platform provides reusable, authoritative primitives that can be composed into new capabilities. The measure of progress is not simply the number of features, commands, or design milestones, but how quickly and reliably a new useful operator question or domain concept can be supported without bespoke infrastructure.
+
+**Internal network effect:** Even with one or two human users, public `ww` commands and backend capabilities form a network of composable affordances. A new trustworthy primitive creates possible relationships with existing primitives; the value of each capability includes the other questions and workflows it enables. Prefer a small, coherent public vocabulary with strong machine-readable semantics over a growing collection of bespoke commands. Track meaningful operator questions answerable per primitive and the effort needed to add the next verified capability; these are candidate fitness measures, not ratified KPIs.
+
+**Intent-first extension contract (working hypothesis):** The Principal should eventually be able to ask, for example, *“Figure out how ratio spreads work and encode them as a type in ww.”* A capable agent first checks existing governed domain primitives, composes a correct definition if supported, verifies positive/negative specimens and demonstrates the public entry point. Otherwise it returns specific missing primitives, evidence or decisions and the smallest necessary architecture/design/implementation cycle. The desired operator outcomes are **DONE — working verified capability, see its public entry point**, or **BLOCKED — exact missing prerequisites**. These outcomes are aspirations for an authorized workflow, **not permission to bypass existing implementation, review, deployment or Principal acceptance gates**.
+
+**Development discipline:** Default to *“Can existing capabilities already do this?”* before starting a new software lifecycle. Use existing public commands, Unix composition and backend domain facts; do not move financial calculations, authorization, governance, evidence admission or semantic inference into CLI/agent glue. Introduce new foundational primitives when a real falsifier demonstrates they are needed. Distinguish an actual missing domain primitive from unavailable evidence, authorization denial, a defect, or merely inconvenient composition. Preserve applicable review and governance, but avoid repeating feasibility, design or acceptance-planning rounds once their questions are settled.
+
+**Human-interface hypothesis:** Large sortable v1 tables may be transitional analytical workbenches, analogous to an IDE displaced by intent-driven agent development. In v2, question-driven interaction may become primary while tables remain useful for comparison, audit, evidence inspection and bulk allocation. This is **unratified Product discovery**, not authority to remove v1 surfaces or rewrite CONV-WEB. Evaluate by operator decision quality, effort and evidence visibility, not feature-by-feature table parity.
+
+**Falsification direction:** Test whether an agent can add a new supported domain type or answer a new recurring operator question through existing backend/CLI primitives with truthful evidence and less bespoke implementation. If not, report the missing foundational capability rather than fabricate semantics or create a generalized rules engine prematurely. The twelve-question `ww` Unix experiment and historical observation public-read gap are concrete early specimens.
+
 **Date:** October 3, 2026
 **State:** INTAKE — Principal-selected durable capture of the composable command-line Wheelwright concept; strategic/architectural reconciliation, command grammar, schemas, and implementation are unresolved and not authorized by this record.  
 **Why-state:** `docs/71-pl-cli-composable-wheelwright-checkpoint-2026-10-03.md` preserves the materially developed exploration, composition-specimen catalog, conversation/CLI responsibility boundary, selected first thin-slice learning specimen, and backend-contract/versioning learning rule. The canonical identity remains this parking-lot item.
