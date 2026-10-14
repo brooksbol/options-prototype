@@ -1,0 +1,16 @@
+{
+  "base": "94e08ad70879f985ff33a208ed20c57faa989411",
+  "status": "unaccepted fresh WW presentation draft; not abandoned Increment A/R3; inactive recovery artifact",
+  "paths": {
+    "scripts/tastytrade-live-render.mjs": "5b885c290555320e42277a424f5157836e57e44d69e5914850efdecc681dd96b",
+    "scripts/wheelwright.mjs": "5e8218c5f2486778ce02a3dc24577dcfb38fa2effc41ed857ee546dc0e3be04b",
+    "scripts/ww-positions.mjs": "bacda9cc49269a5e0682a32eac141d0e1974bc858e9fd70484f3305f55ad8826",
+    "scripts/ww-positions.test.mjs": "1c4b631f8f0060aa05d96c0456fd7183aa8f5d2bf96e2378efbf60e61ff83ab0",
+    "scripts/ww-position-api-boundary.test.mjs": "82e94b8f01424e867c091aa7c054367ea7b2123ef8e5233838bdc23a8ffb68b6"
+  },
+  "patchSha256": "235e1e345a814aba47c0578c9e22714299e8a65855969db1877747a9692ac811",
+  "verification": "13 targeted tests:11 passed,2 presentation failures against accepted October14 TT layout; no acceptance or repair claimed",
+  "patchFile": "implementation.patch.gz",
+  "compression": "gzip",
+  "compressedSha256": "16d9b605761404e901fac1e5584f1dc954d8b3694321bb57a465dd97e0fdfa81"
+}

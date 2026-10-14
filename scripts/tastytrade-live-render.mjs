@@ -45,6 +45,7 @@ export function exitTrack(position, { ascii = false, color = false, leftStopWidt
   const valid=n=>Number.isFinite(n)&&n>0;
   const ink=(s,c)=>color?`\x1b[${c}m${s}\x1b[97m`:s;
   const line=ascii?'-':'─',bar=ascii?'|':'│';
+  const noProtectiveExit=position?.protectiveExitEvidence?.state==='absent'&&!position?.stopOrder&&!objectives.stopThreshold&&!valid(loss);
   const at=Number.isFinite(pnl)?economicSlot(pnl,objectives):null;
   const beyondStop=Number.isFinite(pnl)&&valid(loss)&&pnl < -loss-1e-8;
   const drawAt=beyondStop?null:at;
@@ -53,7 +54,7 @@ export function exitTrack(position, { ascii = false, color = false, leftStopWidt
   const overflow=beyondStop?ink(ascii?'*':'◆','96')+directionArrow:'  ';
   const trackCells=Array.from({length:9},(_,i)=>{
     const scaled=i<4?valid(loss):valid(profit),landmark=[0,4,8].includes(i);
-    const base=i===4?bar:landmark&&scaled?bar:scaled?line:'.';
+    const base=i===0&&noProtectiveExit?(ascii?'!':'☠︎'):i===4?bar:landmark&&scaled?bar:scaled?line:'.';
     const code=i===4?'97':i<4?'91':'92';
     const filler=i===4?(valid(profit)?line:'.'):scaled?line:'.';
     const fillerCode=i===4?'92':code;

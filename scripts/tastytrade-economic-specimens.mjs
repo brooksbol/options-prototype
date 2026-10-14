@@ -6,9 +6,13 @@ import {projectLive} from './tastytrade-live.mjs';
 import {renderPanel,exitTrack} from './tastytrade-live-render.mjs';
 const fixture=JSON.parse(readFileSync(new URL('./fixtures/tt-live-economic-observed.json',import.meta.url)));
 export const observedEvidence = () => ({...structuredClone(fixture),now:new Date(fixture.now)});
-export function specimens({showPnl=false,ascii=false,color=false,scenarios=false}={}) {
- const projection=projectLive(observedEvidence());
- if(!scenarios)return `Captured read-only broker evidence: ${fixture.now}\n`+renderPanel(projection,{showPnl,ascii,color,columns:157});
+export function specimens({showPnl=false,ascii=false,color=false,scenarios=false,noExits=false}={}) {
+ const evidence=observedEvidence();
+ if(noExits)for(const o of [...evidence.orders,...evidence.complexOrders.flatMap(g=>g.orders??[])]){
+  if(o.status!=='Filled'&&o.legs?.some(l=>l.symbol.startsWith('XLE ')&&/to Close$/.test(l.action)))o.status='Cancelled';
+ }
+ const projection=projectLive(evidence);
+ if(!scenarios)return `${noExits?"Hypothetical XLE exit cancellation applied to historical evidence: ":"Captured read-only broker evidence: "}${fixture.now}\n`+renderPanel(projection,{showPnl,ascii,color,columns:157});
  // Explicit hypothetical states on XLF's verified $5 profit / $1 loss scale.
  // This grid exercises presentation; the observed panel above remains unaltered.
  const xlf=projection.positions.find(p=>p.symbol==='XLF');
@@ -32,12 +36,13 @@ export function specimens({showPnl=false,ascii=false,color=false,scenarios=false
 }
 const args=process.argv.slice(2);
 if(process.argv[1]===fileURLToPath(import.meta.url)) {
- const options={showPnl:args.includes('--with-pnl'),ascii:args.includes('--ascii'),color:args.includes('--color'),scenarios:args.includes('--scenarios')};
+ const options={showPnl:args.includes('--with-pnl'),ascii:args.includes('--ascii'),color:args.includes('--color'),scenarios:args.includes('--scenarios'),noExits:args.includes('--no-exits')};
  if(args.includes('--write')){
   const directory=new URL('../docs/design/tt-live-economic-story/specimens/',import.meta.url);mkdirSync(directory,{recursive:true});
-  for(const showPnl of [true,false])for(const ascii of [true,false])for(const color of [true,false])for(const scenarios of [true,false]){
-   const name=`${scenarios?'scenarios':'observed'}-${showPnl?'A-with-pnl':'B-without-pnl'}-${ascii?'ascii':'unicode'}.${color?'ansi':'txt'}`;
-   writeFileSync(new URL(name,directory),specimens({showPnl,ascii,color,scenarios}));
+  for(const showPnl of [true,false])for(const ascii of [true,false])for(const color of [true,false])for(const mode of ["observed","scenarios","no-exits"]){
+   const scenarios=mode==="scenarios",noExits=mode==="no-exits";
+   const name=`${mode}-${showPnl?'A-with-pnl':'B-without-pnl'}-${ascii?'ascii':'unicode'}.${color?'ansi':'txt'}`;
+   writeFileSync(new URL(name,directory),specimens({showPnl,ascii,color,scenarios,noExits}));
   }
  }else process.stdout.write(specimens(options));
 }

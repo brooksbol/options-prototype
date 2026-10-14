@@ -218,3 +218,36 @@ test('nonnegative stop hook is proportional and never overwrites references or c
  }
  for(const target of [null,0,NaN])assert.doesNotMatch(exitTrack(story(1,{economicObjectives:{targetGrossProfit:target,stopThreshold:{grossPnl:3}}})),/↩/);
 });
+
+function cancelXleExitEvidence(){
+ const e=observed();
+ for(const o of [...e.orders,...e.complexOrders.flatMap(g=>g.orders??[])]){
+  if(o.status!=='Filled'&&o.legs?.some(l=>l.symbol.startsWith('XLE ')))o.status='Cancelled';
+ }
+ return e;
+}
+test('confirmed cancelled protective exits show red text skull, preserving open position and economic unknowns',()=>{
+ const e=cancelXleExitEvidence(),projection=projectLive(e),p=projection.positions.find(p=>p.symbol==='XLE');
+ assert.equal(p.status,'recognized');assert.ok(p.pnl<0);assert.equal(p.protectiveExitEvidence.state,'absent');assert.equal(p.stopOrder,null);assert.equal(p.targetOrder,null);
+ assert.equal(p.economicObjectives.adverseExitLoss,null);assert.equal(p.economicObjectives.targetGrossProfit,null);
+ for(const ascii of [false,true]){
+  const text=exitTrack(p,{ascii}),colored=exitTrack(p,{ascii,color:true}),cells=text.replaceAll('\uFE0E','');
+  assert.equal(cells[2],ascii?'!':'☠');assert.equal(cells[14],ascii?'|':'│');assert.ok(cells.indexOf(ascii?'*':'◆')<14);
+  assert.equal(cellWidth(text),ascii?31:30);assert.equal(strip(colored),text);assert.ok(colored.includes(`\x1b[91m${ascii?'!':'☠︎'}\x1b[97m`));assert.doesNotMatch(text,/∞/);
+  const panel=renderPanel(projection,{columns:166,ascii,color:true});assert.ok(panel.split('\n').every(l=>cellWidth(l)<166));
+ }
+ assert.equal(cellWidth('☠\uFE0E'),1);
+ const tsv=renderLive({...e,format:'tsv'});assert.doesNotMatch(tsv,/☠|!/);assert.equal(tsv.split('\n')[0],readFileSync(new URL('./fixtures/tt-live-economic-baseline.tsv',import.meta.url),'utf8').split('\n')[0]);
+});
+test('a profit limit alone still has no protective stop; gain-side or transitioning stops do not get a skull',()=>{
+ const e=cancelXleExitEvidence();for(const o of [...e.orders,...e.complexOrders.flatMap(g=>g.orders??[])])if(o.legs?.some(l=>l.symbol.startsWith('XLE '))&&o['order-type']==='Limit'&&o.status!=='Filled')o.status='Received';
+ const xle=projectLive(e).positions.find(p=>p.symbol==='XLE');assert.ok(xle.targetOrder);assert.equal(xle.protectiveExitEvidence.state,'absent');assert.match(exitTrack(xle),/☠/);assert.ok(exitTrack(xle).endsWith('$9'));
+ const ung=projectLive(observed()).positions.find(p=>p.symbol==='UNG');assert.equal(ung.economicObjectives.adverseExitLoss,null);assert.equal(ung.protectiveExitEvidence.state,'present');assert.doesNotMatch(exitTrack(ung),/☠/);
+ const pending=observed();for(const o of [...pending.orders,...pending.complexOrders.flatMap(g=>g.orders??[])])if(o['order-type']==='Stop Limit'&&o.legs?.some(l=>l.symbol.startsWith('XLE ')))o.status='Cancel Requested';
+ const transitioning=projectLive(pending).positions.find(p=>p.symbol==='XLE');assert.equal(transitioning.protectiveExitEvidence.state,'present');assert.doesNotMatch(exitTrack(transitioning),/☠/);
+});
+test('ambiguous or missing protection evidence never masquerades as confirmed absence',()=>{
+ const e=observed(),stop=e.orders.find(o=>o['order-type']==='Stop Limit'&&o.legs?.some(l=>l.symbol.startsWith('XLE ')));stop['stop-trigger']='0.25';
+ const p=projectLive(e).positions.find(p=>p.symbol==='XLE');assert.equal(p.protectiveExitEvidence.state,'unavailable');assert.doesNotMatch(exitTrack(p),/☠/);
+ assert.doesNotMatch(exitTrack(story(-1,{economicObjectives:{targetGrossProfit:5,adverseExitLoss:null}})),/☠/);
+});

@@ -237,6 +237,9 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 |----------|---------|
 | `cli/tt-live-panel.md` | Qualified Principal-accepted TT Live economic-state baseline; experimental movement/provisional stop semantics excluded |
 | `design/tt-live-economic-story/README.md` | Current economic-state visual contract, acceptance scope, evidence/unknowns, specimens, open investigations and WW reuse boundary |
+| `design/ww-position-scan-v2-capability-gaps-2026-10-13.md` | Unaccepted fresh WW Position capability checkpoint; runtime draft now inactive recovery material |
+| `design/ww-show-positions-v2-architectural-proposal-2026-10-13.md` | Revised WW Position v2 proposal awaiting Principal architectural review; no implementation acceptance |
+| `design/ww-position-scan-draft-recovery-2026-10-14/README.md` | Inactive orphaned draft source patch, reconstruction/hash evidence and cleanup disposition |
 | `cli/ww-man.txt` | Current top-level `ww` command reference and terminal conventions |
 | `cli/ww-show-man.txt` | Current `ww show` command reference (quotes and Positions) |
 | `cli/ww-account-evidence.md` | Fidelity Account sync and Position evidence operator reference; later multi-broker acceptance is recorded separately |

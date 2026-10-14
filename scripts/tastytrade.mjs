@@ -70,6 +70,9 @@ in domain/details/TSV. Recent movement arrows remain experimental.
 Maximum expiration profit remains detailed evidence, not the right endpoint.
 Threshold results never imply guaranteed execution or effective protection.
 Dotted open halves have no verified distance scale; the diamond there shows sign only.
+Bright-red ☠︎ (ASCII !) means a held position has no active protective stop order in
+reconciled broker evidence; ambiguous/missing evidence never gets a skull.
+It does not mean unlimited loss, inevitable loss, or guaranteed protection otherwise.
 Adjacent green right / red left arrow compares dated option prior closes; r means
 retained completed-session change. Missing/incomparable/noisy evidence has no arrow.
 Profit overflow clamps; adverse overflow places the diamond outside the boundary.

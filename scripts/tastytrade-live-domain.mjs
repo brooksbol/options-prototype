@@ -428,6 +428,8 @@ export function projectLive({ account, holdings, orders, complexOrders, quotes, 
         elapsedDays: openingDte - dte, progress: openingDte === 0 ? 1 : (openingDte - dte) / openingDte };
       positions.push({ strategy: trade.label, status: "recognized", issues, symbol: trade.symbol, underlying, expiry: trade.expiry, quantity: trade.quantity,
         multiplier: trade.multiplier, credit, target, market, spot, dte, openedAt,
+        protectiveExitEvidence: { state: !managementVerified ? "unavailable" : exit.stop ? "present" : "absent",
+          source: "reconciled current broker closing orders" },
         economicObjectives: economicObjectives({ credit, target, stopOrder: exit.stop, quantity: trade.quantity, multiplier: trade.multiplier }),
         recentMovement: recentEconomicMovement({ legs: heldWithDayClose, quotes, orders, openedAt, market, now, session }),
         // Principal-approved convention is manual intent, never an executable time-exit order.

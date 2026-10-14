@@ -45,3 +45,14 @@ Run `node --test scripts/*.test.mjs docs/design/position-payoff-visual-contract/
 ## Architectural reuse boundary
 
 TT Live is the flagship standalone interaction prototype. Reuse its accepted presentation and evidence-validity distinctions in WW, while production backend authority remains responsible for recognition, membership, terms, financial conclusions and management evidence. Do not transfer TT's transitional financial calculations or promote experimental/provisional features as accepted WW semantics. This work authorizes no backend migration or production WW implementation.
+
+
+## Accepted no-protective-exit marker — October 14 follow-up
+
+Principal reported cancelling XLE exit orders and proposed a bright-red skull because dots alone did not communicate “position still open, no active protective exit.” Principal-accepted refinement: **☠︎** (U+2620 + FE0E, single-cell text presentation; ASCII **!**) replaces the leftmost dotted cell only when current reconciled broker closing-order evidence confirms **no active protective stop order**. The open held position, cyan economic observation, white zero reference, valid profit target and dotted unscaled halves remain. No stop/loss denominator is fabricated.
+
+An active profit-taking limit alone does not establish a protective stop. A gain-side Stop Limit such as UNG's remains a present stop and does not get a skull merely because no adverse-loss denominator exists. Cancel Requested/Replace Requested retain present/transition evidence until cancellation is confirmed. Ambiguous, inconsistent or unavailable management evidence does **not** establish absence and keeps the existing unknown rendering/diagnostic. This is an additive domain evidence distinction, not inference from a null normalization denominator.
+
+The skull means absent protective-stop order in the supported reconciled evidence, not unlimited loss, inevitable loss, trade invalidity or evidence of broker trigger/activation behavior. Present orders still do not guarantee protection or execution. −∞ was explicitly rejected as an incorrect mathematical claim for a defined-risk spread. Existing experimental movement and provisional stop/↩︎ semantics remain unchanged.
+
+The Principal visually accepted this glyph (“looks good”) and explicitly authorized its push on October 14. It extends the qualified economic-state baseline; experimental movement and provisional broker stop/↩︎ semantics remain excluded. Text selector requests terminal text presentation; tests establish one-cell measurement and Principal Terminal observation establishes the reviewed appearance. New deterministic no-exits specimens simulate cancellation on sanitized historical XLE evidence; they are not current brokerage facts. No orders are modified by implementation or tests.

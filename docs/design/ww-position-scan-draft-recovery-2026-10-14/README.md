@@ -1,0 +1,11 @@
+# Orphaned WW Position presentation draft — recovery only
+
+**Disposition: preserved, inactive and unaccepted.** On October14 the Principal identified the originating session as gone and requested identification and a clean working tree, explicitly prohibiting stash. This is the **fresh October13 WW draft**, not the previously deleted abandoned Increment A/R3 implementation. No Git stash or task branch was created.
+
+The dirty tree held Account-scoped/authorized-collection WW Position presentation changes, optional ACCOUNT/heading/narrow-view shared-renderer extensions, corresponding tests, two architecture/capability proposals and their journal/intake records. The latest durable directive held implementation at architectural review. Two of13 targeted tests fail against the accepted October14 TT labels/default P/L; backend capabilities remain missing. This code must not be treated as completed or deployed functionality.
+
+`implementation.patch.gz` preserves the four modified runtime/test files and the previously untracked API-boundary test. `manifest.json` names the exact original base and SHA-256 of each resulting source file. The gzip-compressed patch is non-executable documentation recovery material, deliberately outside runtime module imports/test discovery. The original proposal documents and journal/intake evidence are retained separately with review-pending status. Runtime WW remains at accepted main; no unreviewed adapter is promoted.
+
+For an explicitly authorized future investigation, first decompress with `gzip -dc /absolute/path/to/implementation.patch.gz > /tmp/ww-position-draft.patch`. Apply that patch in a separate disposable checkout at the manifest base, not blindly over current main: `git apply --check /tmp/ww-position-draft.patch`, then `git apply /tmp/ww-position-draft.patch`. Verify reconstructed file hashes against the manifest. Restoration is not implementation, deployment or Product acceptance authority. New TT changes may require deliberate rebasing; no such repair was performed during cleanup.
+
+This durable recovery artifact replaces the orphaned working changes without losing their bytes. Do not confuse preservation with ratification. No backend/OAS/broker/service/database/grant changes are present.
