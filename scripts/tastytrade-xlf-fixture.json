@@ -1,0 +1,233 @@
+{
+  "account": "TEST1234",
+  "holdings": [
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "XLF   261127P00052000",
+      "underlying-symbol": "XLF",
+      "quantity": 1,
+      "quantity-direction": "Long",
+      "multiplier": "100.0",
+      "expires-at": "2026-11-27T18:15:00.000Z",
+      "average-daily-market-close-price": "0.49"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "XLF   261127P00052500",
+      "underlying-symbol": "XLF",
+      "quantity": 1,
+      "quantity-direction": "Short",
+      "multiplier": "100.0",
+      "expires-at": "2026-11-27T18:15:00.000Z",
+      "average-daily-market-close-price": "0.58"
+    }
+  ],
+  "orders": [
+    {
+      "status": "Live",
+      "order-type": "Limit",
+      "price": "0.04",
+      "price-effect": "Debit",
+      "id": "xlf-target",
+      "legs": [
+        {
+          "symbol": "XLF   261127P00052000",
+          "action": "Sell to Close",
+          "quantity": 1,
+          "fills": []
+        },
+        {
+          "symbol": "XLF   261127P00052500",
+          "action": "Buy to Close",
+          "quantity": 1,
+          "fills": []
+        }
+      ],
+      "time-in-force": "GTD",
+      "gtc-date": "2026-11-06",
+      "received-at": "2026-10-14T18:12:28.837+00:00",
+      "size": 1,
+      "complex-order-id": "xlf-group"
+    },
+    {
+      "status": "Live",
+      "order-type": "Stop Limit",
+      "price": "0.1",
+      "price-effect": "Debit",
+      "stop-trigger": "0.1",
+      "id": "xlf-stop",
+      "legs": [
+        {
+          "symbol": "XLF   261127P00052000",
+          "action": "Sell to Close",
+          "quantity": 1,
+          "fills": []
+        },
+        {
+          "symbol": "XLF   261127P00052500",
+          "action": "Buy to Close",
+          "quantity": 1,
+          "fills": []
+        }
+      ],
+      "time-in-force": "GTC",
+      "received-at": "2026-10-14T18:12:28.844+00:00",
+      "size": 1,
+      "complex-order-id": "xlf-group"
+    },
+    {
+      "status": "Filled",
+      "order-type": "Limit",
+      "price": "0.08",
+      "price-effect": "Credit",
+      "id": "xlf-open",
+      "legs": [
+        {
+          "symbol": "XLF   261127P00052000",
+          "action": "Buy to Open",
+          "quantity": 1,
+          "fills": [
+            {
+              "quantity": 1,
+              "fill-price": "0.49",
+              "filled-at": "2026-10-14T18:12:29.664+00:00"
+            }
+          ]
+        },
+        {
+          "symbol": "XLF   261127P00052500",
+          "action": "Sell to Open",
+          "quantity": 1,
+          "fills": [
+            {
+              "quantity": 1,
+              "fill-price": "0.58",
+              "filled-at": "2026-10-14T18:12:29.664+00:00"
+            }
+          ]
+        }
+      ],
+      "time-in-force": "Day",
+      "received-at": "2026-10-14T18:12:28.830+00:00",
+      "size": 1,
+      "complex-order-id": "xlf-group"
+    }
+  ],
+  "complexOrders": [
+    {
+      "id": "xlf-group",
+      "type": "OTOCO",
+      "orders": [
+        {
+          "status": "Live",
+          "order-type": "Limit",
+          "price": "0.04",
+          "price-effect": "Debit",
+          "id": "xlf-target",
+          "legs": [
+            {
+              "symbol": "XLF   261127P00052000",
+              "action": "Sell to Close",
+              "quantity": 1,
+              "fills": []
+            },
+            {
+              "symbol": "XLF   261127P00052500",
+              "action": "Buy to Close",
+              "quantity": 1,
+              "fills": []
+            }
+          ],
+          "time-in-force": "GTD",
+          "gtc-date": "2026-11-06",
+          "received-at": "2026-10-14T18:12:28.837+00:00",
+          "size": 1,
+          "complex-order-id": "xlf-group"
+        },
+        {
+          "status": "Live",
+          "order-type": "Stop Limit",
+          "price": "0.1",
+          "price-effect": "Debit",
+          "stop-trigger": "0.1",
+          "id": "xlf-stop",
+          "legs": [
+            {
+              "symbol": "XLF   261127P00052000",
+              "action": "Sell to Close",
+              "quantity": 1,
+              "fills": []
+            },
+            {
+              "symbol": "XLF   261127P00052500",
+              "action": "Buy to Close",
+              "quantity": 1,
+              "fills": []
+            }
+          ],
+          "time-in-force": "GTC",
+          "received-at": "2026-10-14T18:12:28.844+00:00",
+          "size": 1,
+          "complex-order-id": "xlf-group"
+        }
+      ]
+    }
+  ],
+  "quotes": [
+    {
+      "symbol": "XLF   261127P00052500",
+      "bid": "0.53",
+      "ask": "0.63",
+      "mid": "0.58",
+      "mark": "0.58",
+      "delta": "-0.279458002",
+      "updated-at": "2026-10-14T18:16:05.955Z"
+    },
+    {
+      "symbol": "XLF   261127P00052000",
+      "bid": "0.48",
+      "ask": "0.5",
+      "mid": "0.49",
+      "mark": "0.49",
+      "delta": "-0.238685359",
+      "updated-at": "2026-10-14T18:16:05.984Z"
+    }
+  ],
+  "instruments": [
+    {
+      "symbol": "XLF   261127P00052000",
+      "instrument-type": "Equity Option",
+      "underlying-symbol": "XLF",
+      "option-chain-type": "Standard",
+      "shares-per-contract": 100,
+      "option-type": "P",
+      "strike-price": "52.0",
+      "expiration-date": "2026-11-27"
+    },
+    {
+      "symbol": "XLF   261127P00052500",
+      "instrument-type": "Equity Option",
+      "underlying-symbol": "XLF",
+      "option-chain-type": "Standard",
+      "shares-per-contract": 100,
+      "option-type": "P",
+      "strike-price": "52.5",
+      "expiration-date": "2026-11-27"
+    }
+  ],
+  "now": "2026-10-14T18:17:00Z",
+  "entryReferences": [
+    {
+      "symbol": "XLF",
+      "openedAt": 1792001549664,
+      "value": 54.215,
+      "barStart": 1792001460000,
+      "barEnd": 1792001520000,
+      "periodMs": 60000,
+      "source": "tastytrade DXLink completed pre-entry 1m candle",
+      "priceType": "trade candle close"
+    }
+  ]
+}

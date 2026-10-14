@@ -68,13 +68,21 @@ test("multiple opening fills are weighted and quantity/multiplier scale gross do
   assert.ok(Math.abs(p.credit-.42)<1e-8); assert.ok(Math.abs(p.pnl-9)<1e-8);
 });
 
-test("ambiguous history, unsupported holdings, missing quotes and inconsistent exits fail closed", () => {
-  assert.throws(()=>projectLive({...liveEvidence,orders:[...liveEvidence.orders,{...ewz.opening,id:"duplicate"}]}),/opening trade linkage/);
-  assert.throws(()=>projectLive({...liveEvidence,holdings:liveEvidence.holdings.slice(1)}),/unsupported or ambiguous/);
-  assert.throws(()=>projectLive({...liveEvidence,quotes:liveEvidence.quotes.slice(1)}),/quote evidence missing/);
-  assert.throws(()=>projectLive({...liveEvidence,orders:[...liveEvidence.orders,{...ewz.closing.orders[0],id:"other"}]}),/additional or missing/);
-  const broken={...ewz.opening,legs:ewz.opening.legs.map(l=>({...l,fills:[{...l.fills[0],quantity:"2"}]}))};
-  assert.throws(()=>projectLive({...liveEvidence,orders:[broken,...liveEvidence.orders.slice(1)]}),/fill quantity/);
+test("ambiguous evidence withholds dependent claims without hiding unrelated trades", () => {
+  const variants = [
+    [{...liveEvidence,orders:[...liveEvidence.orders,{...ewz.opening,id:"duplicate"}]}, /opening trade linkage/],
+    [{...liveEvidence,holdings:liveEvidence.holdings.slice(1)}, /ambiguous/],
+    [{...liveEvidence,quotes:liveEvidence.quotes.slice(1)}, /quote evidence missing/],
+    [{...liveEvidence,orders:[...liveEvidence.orders,{...ewz.closing.orders[0],id:"other"}]}, /additional or missing/],
+    [{...liveEvidence,orders:[{...ewz.opening,legs:ewz.opening.legs.map(l=>({...l,fills:[{...l.fills[0],quantity:"2"}]}))},...liveEvidence.orders.slice(1)]}, /fill quantity/]
+  ];
+  for (const [data, reason] of variants) {
+    const p=projectLive(data);
+    assert.match(p.positions[0].issues.join("; "),reason);
+    assert.deepEqual(p.positions[1],projectLive(liveEvidence).positions[1]);
+    if (/closing|missing current/.test(p.positions[0].issues.join(" "))) assert.equal(p.positions[0].targetOrder,null);
+    else assert.equal(p.positions[0].pnl,null);
+  }
 });
 
 test("missing daily reference affects only legacy daily P/L", () => {

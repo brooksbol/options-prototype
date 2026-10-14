@@ -106,9 +106,9 @@ test('BUG-040: stale inconsistent package remains visible; zero debit remains a 
     {...q,mid:'0.33'}:q)};
   const p=projectLive(zero).positions[0];
   assert.ok(Math.abs(p.market.closeDebit)<1e-12); assert.ok(p.pnl>0); assert.ok(p.progress>=1);
-  assert.throws(()=>projectLive({...inconsistentPackage,quotes:inconsistentPackage.quotes.slice(1)}),/quote evidence missing/);
+  assert.match(projectLive({...inconsistentPackage,quotes:inconsistentPackage.quotes.slice(1)}).positions[0].issues.join(" "),/quote evidence missing/);
   const malformed={...inconsistentPackage,quotes:inconsistentPackage.quotes.map((q,i)=>i===0?{...q,bid:'0.2'}:q)};
-  assert.throws(()=>projectLive(malformed),/quote evidence malformed/);
+  assert.match(projectLive(malformed).positions[0].issues.join(" "),/quote evidence malformed/);
 });
 
 const valued = progress => ({ ...evidence, quotes: evidence.quotes.map(q => {
@@ -149,7 +149,7 @@ test('missing profit evidence is unavailable; existing acquisition remains fail 
   const projection=projectLive(evidence); projection.positions[0].targetOrder=null;
   const row=renderPanel(projection).split('\n').find(l=>l.startsWith('EWZ'));
   assert.match(row,/51d\s+—\s+—/); assert.doesNotMatch(row,/51d\s+[─●◆]/);
-  assert.throws(()=>projectLive({...evidence,complexOrders:[]}),/target\/stop order linkage/);
+  assert.match(projectLive({...evidence,complexOrders:[]}).positions[0].issues.join(" "),/target\/stop order linkage/);
 });
 
 test('stale options suppress the progress marker even if spot is valid', () => {

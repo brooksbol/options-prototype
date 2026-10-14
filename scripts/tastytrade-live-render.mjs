@@ -55,14 +55,16 @@ export function observationAge(evidence) {
 function profitObjective(p) {
   if (!p.targetOrder || !Number.isFinite(p.target)) return "—";
   // Only exact integer credit-capture objectives get Pxx labels; TARGET retains exact price evidence.
+  if (!Number.isFinite(p.profitCapture)) return "LIMIT";
   const percent = p.profitCapture * 100;
   const objective = Number.isFinite(percent) && Math.abs(percent - Math.round(percent)) < 1e-8 ?
     `P${Math.round(percent)}` : "LIMIT";
   return objective;
 }
 // The domain supplies calendar-day progress. This function only projects it.
-export function spanTrack(position, { width = 11, dteWidth = 3, ascii = false } = {}) {
+export function spanTrack(position, { width = 11, dteWidth = 3, ascii = false, color = false } = {}) {
   const { lifespan, dte } = position;
+  if (position.manualExit && lifespan) return manualSpan(position, { width, dteWidth, ascii, color });
   const remaining = Number.isInteger(dte) && dte >= 0 ? String(dte) : ascii ? "--" : "—";
   let track;
   if (!lifespan || !Number.isFinite(lifespan.progress)) {
@@ -78,9 +80,28 @@ export function spanTrack(position, { width = 11, dteWidth = 3, ascii = false } 
   return `${track}${pad(remaining,dteWidth,true)}d`;
 }
 
+// Eleven logical time slots. Co-cell markers concatenate in current/M/expiration
+// order rather than moving a checkpoint or silently erasing it.
+function manualSpan(position, { width, dteWidth, ascii, color }) {
+  const { lifespan, manualExit: m, dte } = position;
+  const index = p => Math.round(Math.max(0,Math.min(1,p))*(width-1));
+  const slots = Array.from({length:width},()=>[]);
+  const ink = (s,code) => color ? `\x1b[${code}m${s}\x1b[97m` : s;
+  const code = m.state === "DUE" ? "93" : m.state === "PAST DUE" ? "91" : "97";
+  slots[index(lifespan.progress)].push(ascii ? "o" : "●");
+  slots[index(m.progress)].push(ink("M",code));
+  slots[width-1].push(ascii ? "*" : "◆");
+  const track = slots.map(s=>s.length?s.join(""):ascii?"-":"─").join("");
+  const flag = m.state === "DUE" ? "!" : m.state === "PAST DUE" ? ">" : "";
+  // xDTE stays exact despite terminal-cell quantization; e means the order expired,
+  // not that the manual action executed. Current target status is a separate field.
+  const label = `M${m.checkpointDte}${flag}${m.active ? "" : "e"}`;
+  return `${track}${pad(String(dte),dteWidth,true)}d ${ink(label,code)}`;
+}
+
 export function renderPanel({ accountLabel, positions }, { color = false, columns = 157, ascii = false } = {}) {
   const limit = Number.isInteger(columns) && columns > 1 ? columns - 1 : 156;
-  const mono = s => ascii ? s.replaceAll("—","--").replaceAll("−","-").replaceAll("–","-") : s;
+  const mono = s => ascii ? s.replaceAll("—","--").replaceAll("−","-").replaceAll("–","-").replaceAll("≥",">=").replaceAll("≤","<=") : s;
   const ink = (s,code) => color && code ? `\x1b[${code}m${s}\x1b[97m` : s;
   const exitOptions = { ascii, percentWidth: Math.max(6,...positions.filter(p=>Number.isFinite(p.progress)).map(p=>cellWidth(progressPercent(p.progress,ascii)))) };
   const objectiveWidth = Math.max(3,...positions.map(p=>cellWidth(mono(profitObjective(p)))));
@@ -91,8 +112,10 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
     exitTrack(p.targetOrder ? p.progress : null,{...exitOptions,color:colored})}${
     p.transition ? colored ? ink(" T","93") : " T" : ""}`;
   const displayedPnl = p => p.pnl === null ? null : Math.sign(p.pnl) * Math.round(Math.abs(p.pnl)*100)/100;
-  const rows = positions.map(p=>({ SYMBOL:p.symbol, PAYOFF:silhouette(p,{ascii}).text,
-    RANGE:p.range ? `${p.range.lower}–${p.range.upper}` : "—",
+  const payoff = (p, colored = false) => Object.hasOwn(p, "payoffUnavailableLabel") && !p.payoff ?
+    ink(mono(p.payoffUnavailableLabel), colored ? "37" : null) : silhouette(p,{ascii,color:colored}).text;
+  const rows = positions.map(p=>({ SYMBOL:p.symbol, PAYOFF:payoff(p),
+    RANGE:p.rangeLabel ?? (p.range ? `${p.range.lower}–${p.range.upper}` : "—"),
     SPOT:p.spot.value === null ? "—" : spotPrice(p.spot.value),
     SPAN:spanTrack(p,{ascii,dteWidth}), "EXIT PROFIT":profitCell(p),
     "P/L":p.pnl === null ? "—" : dollars(displayedPnl(p)), QUOTE:rowAge(p), p }));
@@ -120,11 +143,14 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
         k === "SPOT" ? ({up:"92",down:"91",unchanged:"97",unknown:"93"}[p.spot.movement] ?? "93") :
         k === "QUOTE" ? p.market.closeDebit === null || p.market.valuationSource === "broker mark" || p.optionEvidence.stale || p.spot.stale || p.optionEvidence.retained || p.spot.retained ? "93" : null :
         value === mono("—") ? "37" : null;
-      const decorated=k === "PAYOFF" ? silhouette(p,{ascii,color}).text : k === "EXIT PROFIT" ? profitCell(p,color) : ink(value,code);
+      const decorated=k === "PAYOFF" ? payoff(p,color) : k === "EXIT PROFIT" ? profitCell(p,color) : k === "SPAN" ? spanTrack(p,{ascii,dteWidth,color}) : ink(value,code);
       return pad(decorated,widths[k],numeric.has(k));
     })));
   }
   if(positions.length===0)lines.push("No live trades.");
+  for (const p of positions) for (const issue of p.issues ?? []) {
+    lines.push(...wrap(`${p.symbol}: ${p.status === "recognized" ? issue : `${p.status}: ${issue}`}`, limit));
+  }
   const output=lines.join("\n");
   return color ? `\n\x1b[97m${output}\x1b[0m\n` : `\n${output}\n`;
 }

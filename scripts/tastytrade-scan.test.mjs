@@ -115,7 +115,8 @@ test('SPAN explicitly handles same-day holding and New York dates across midnigh
 
 test('missing opening evidence fails closed; renderer cannot invent a lifespan or DTE objective',()=>{
   const missing=openingAt(undefined);
-  assert.throws(()=>projectLive(missing),/opening fill evidence malformed/);
+  assert.match(projectLive(missing).positions[0].issues.join(" "),/opening fill evidence malformed/);
+  assert.equal(projectLive(missing).positions[0].lifespan,null);
   const p=projectLive(evidence).positions[0];
   assert.equal(spanTrack({...p,lifespan:null}).trim(),'—      51d');
   assert.equal(p.timeExit.objectiveDte,null);assert.ok(p.stopOrder);

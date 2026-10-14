@@ -2,7 +2,9 @@
 
 import { readFileSync } from "node:fs";
 import { parseEnv } from "node:util";
-import { LiveError, maskAccount, renderLive } from "./tastytrade-live.mjs";
+import { LiveError, maskAccount, renderLive, projectLive } from "./tastytrade-live.mjs";
+
+import { readEntryReferences } from "./tastytrade-entry-reference.mjs";
 
 // This experimental CLI has only allowlisted broker reads and no broker-write capability.
 export const PRODUCTION_BASE_URL = "https://api.tastyworks.com";
@@ -45,12 +47,16 @@ const LIVE_HELP = `Usage: tt live [--account <account-number>] [--tsv] [--width 
 Show an indicative, read-only position scan for one production account.
 Human columns: SYMBOL, PAYOFF, RANGE, SPOT, SPAN, EXIT PROFIT, P/L, QUOTE.
 PAYOFF is the expiration shape; its spot marker is always cyan.
-RANGE is the verified short-strike maximum-profit interval, not breakevens.
+Supported credit strategies: Iron Condor, Bull Put Credit Spread, Bear Call Credit Spread.
+RANGE is the verified expiration maximum-profit interval (IC) or half-line (vertical), not breakevens.
 SPOT is broker equity mid, never last/close. Its color compares the same snapshot's
 midpoint to its validated dated final previous close: green up, red down, white flat,
 yellow unknown. Market closure and quote age do not determine this color.
 SPAN runs from the final opening fill to expiration using New York calendar dates;
-remaining DTE is embedded on the right. No time-exit threshold is currently declared.
+remaining DTE is embedded on the right. Verified profit target + GTD automatically
+establishes the Principal's manual checkpoint MxDTE: M, M! due, M> past due;
+suffix e means the linked target expired, not a closing trade. GTD expires an order,
+never executes a time-based exit. Co-cell age/M/expiration markers share a slot.
 EXIT PROFIT shows each verified broker objective and signed progress:
 (OPEN-NOW)/(OPEN-TARGET). Negative progress uses a left diamond;
 green and ~ mean an observed target while still held, never execution. T is a transition.
@@ -66,7 +72,9 @@ NO_COLOR or TERM=dumb disables color. Narrow views omit optional reference colum
 If you have one accessible account, it is selected automatically.
 With multiple accounts, specify --account <account-number>.
 Use --tsv for tab-separated, uncolored output suitable for redirection.
-Unsupported or ambiguous holdings are not guessed; use tt positions for broker evidence.`;
+Target-only, target/stop and no closing orders are supported where linkage is clear.
+Unsupported/ambiguous groups and unavailable evidence are explicit; other rows remain visible.
+Use tt positions for broker leg and order evidence.`;
 
 class CliError extends Error {
   constructor(message, exitCode = 1) {
@@ -376,9 +384,9 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
         } else {
           const orders = await readOrders(brokerGet(fetchImpl, "orders", account, token));
           const complex = await readComplexOrders(brokerGet(fetchImpl, "complex-orders", account, token));
-          const symbols = [...new Set(holdings.map((item) => item.symbol))];
+          const symbols = [...new Set(holdings.filter(item => item["instrument-type"] === "Equity Option").map(item => item.symbol))];
           if (symbols.length > 100) throw new CliError("Live: more than 100 held symbols; use tt positions");
-          const quotes = await brokerGet(fetchImpl, "equity-option-quotes", undefined, token)(symbols);
+          const quotes = symbols.length ? await brokerGet(fetchImpl, "equity-option-quotes", undefined, token)(symbols) : { data: { items: [] } };
           let spotQuotes = [];
           if (!command.tsv) {
             const roots = [...new Set(holdings.map((item) => item["underlying-symbol"]))];
@@ -390,7 +398,7 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
             }
           }
           let instruments = [];
-          if (!command.tsv) {
+          if (!command.tsv && symbols.length) {
             try {
               const result = await brokerGet(fetchImpl, "option-instruments", undefined, token)(symbols);
               if (Array.isArray(result?.data?.items)) instruments = result.data.items;
@@ -413,12 +421,21 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
             session = response?.data;
             sessionCloseAt = session?.["close-at"];
           } catch { /* Quote age remains available. */ }
-          out(renderLive({ account, holdings, orders: orders.items, complexOrders: complex.items,
+          const evidence = { account, holdings, orders: orders.items, complexOrders: complex.items,
             quotes: quotes?.data?.items, spotQuotes, instruments, now: now(), sessionCloseAt, session,
             columns: command.width ?? terminalColumns() ?? (/^\d+$/.test(env.COLUMNS ?? "") ? Number(env.COLUMNS) : 157),
             ascii: command.ascii || env.TERM === "dumb",
             color: !command.tsv && !command.noColor && !env.NO_COLOR && env.TERM !== "dumb",
-            format: command.tsv ? "tsv" : "table" }));
+            format: command.tsv ? "tsv" : "table" };
+          if (!command.tsv) {
+            const positions = projectLive(evidence).positions;
+            const requests = positions.filter(p => p.status === "recognized" && p.openedAt !== null &&
+              ["Bull Put Credit Spread", "Bear Call Credit Spread"].includes(p.strategy))
+              .map(p => ({ symbol: p.underlying, openedAt: p.openedAt }));
+            evidence.entryReferences = await readEntryReferences({ requests, now: evidence.now,
+              loadQuoteToken: () => brokerGet(fetchImpl, "quote-token", undefined, token)() });
+          }
+          out(renderLive(evidence));
         }
       }
     }

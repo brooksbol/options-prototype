@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-13T21:17:57.518Z",
+    "generatedAt": "2026-10-14T18:51:55.238Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -40,7 +40,7 @@
       "comingSoonTotal": 5,
       "principleTotal": 10,
       "domainEntryTotal": 36,
-      "bugTotal": 40,
+      "bugTotal": 41,
       "logTotal": 115,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
@@ -10027,6 +10027,187 @@
           "heading": "Follow-up session closeout — October 13, 2026",
           "level": 3,
           "content": "Implementation, regression evidence, terminal reference and derived Roadmap were persisted as `bd86c2d4a195d7de6f84065276dabcfbdad6e118`. The Principal then invoked end-of-session closeout without an explicit Product acceptance verdict. During closeout, remote main had advanced through `552e3d9d41ae86c369343570936bd697eeb6eadb` with two documentation-only clarifications: standalone tt UX reuse does not transfer domain authority into v2, and the proposed corresponding fitness specimen is not an enforced gate. These changes were inspected and fast-forwarded into the clean checkout; they neither change this standalone fix nor authorize migration.",
+          "truncated": true,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-041",
+      "title": "Credit vertical holding aborts the entire tt live scan",
+      "area": "CLI / tt live",
+      "severity": "Not established",
+      "status": "Resolved",
+      "recordFile": "BUG-041-tt-live-credit-vertical-aborts-scan.md",
+      "provenance": "Principal report and authorized correction 2026-10-14; installed verification",
+      "recordTitle": "BUG-041 — Credit vertical holding aborts the entire tt live scan",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Immediately after opening an XLF short put vertical, installed `tt live` returned:\n\n```text\nLive: unsupported or ambiguous held trade; use tt positions for broker evidence\n```\n\nRead-only reproduction confirmed the failure on October 14, 2026 around 18:16 UTC. Installed `/Users/bollich/.local/bin/tt` resolves to this checkout's `scripts/tt`, invoking `scripts/tastytrade.mjs`. Baseline main and fetched origin/main were `6f5d7064be20102c99708923cc6931a48ae61bf9`. Existing unrelated working-tree changes were preserved; no task branch was created.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "A recognized bull put credit spread must appear alongside existing iron condors in the accepted compact scan. Unsupported membership, unavailable financial evidence and ambiguous management must remain explicit without suppressing unrelated independently supported holdings. Missing evidence cannot establish financial or execution conclusions.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Observed XLF November 27, 2026 expiry (`expires-at` 18:15 UTC), quantity one per leg, holding multiplier 100:\n\n\nThe filled trigger belongs to an OTOCO; exact held contract/action/quantity linkage independently matches the filled order. The submitted trigger limit was $0.08 Credit; verified fills establish **$0.09 credit**, not $0.08. Broker instrument reads verify Standard equity options, 100 shares per contract, matching root, right, strikes and expiration.\n\nActual current management is **both** a live $0.04 Debit Limit (GTD November 6) and a live $0.10 Debit Stop Limit, trigger $0.10 (GTC). Broad-order and complex-order reads reconcile. The earlier cancelled OTOCO ($0.11 opening limit, $0.05 target, $0.17 stop limit/$0.13 trigger) is not current management. Neither broker order is changed by this work.",
+          "truncated": true,
+          "tables": [
+            {
+              "header": [
+                "Leg",
+                "Opening action",
+                "Fill",
+                "Fill time UTC"
+              ],
+              "rows": [
+                [
+                  "$52 put",
+                  "Buy to Open",
+                  "$0.49",
+                  "October 14, 18:12:29.664"
+                ],
+                [
+                  "$52.50 put",
+                  "Sell to Open",
+                  "$0.58",
+                  "October 14, 18:12:29.664"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "The new two-leg holding hid all four positions, including the three previously supported iron condors (UNG, EWZ, XLE).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Pipeline inspection:\n\n\n`sameLegs`, opening-fill weighting, midpoint validation, broker-mark fallback, calendar/freshness logic and lifespan/profit tracks need no separate vertical algorithm. The IC's four strikes remain strategy-specific, not a general cardinality requirement.",
+          "truncated": false,
+          "tables": [
+            {
+              "header": [
+                "Stage",
+                "Existing capability / failure",
+                "Correction"
+              ],
+              "rows": [
+                [
+                  "Broker acquisition",
+                  "Existing read-only complete holdings and paginated orders; instrument/spot reads and freshness fallback",
+                  "Reused read-only allowlist; option quote/instrument reads exclude unsupported non-option symbols"
+                ],
+                [
+                  "Grouping",
+                  "One underlying/expiration group; no unique decomposition of overlapping packages",
+                  "Preserved conservative grouping; explicit ambiguous row rather than guessed membership"
+                ],
+                [
+                  "`recognizeHeldTrade`",
+                  "Four-leg guard rejected XLF before recognition; call/put pairing and uniqueness assumed four",
+                  "Validated two-leg put/call credit orientations and existing four-leg IC; cross-check contract identity against holding root/expiry"
+                ],
+                [
+                  "Opening linkage / `openingCredit`",
+                  "Exact leg/action/quantity matching and weighted fills already generic",
+                  "Reused; negative/zero opening credit never labeled a credit spread; incomplete evidence withholds dependent claims"
+                ],
+                [
+                  "`matchingExit`",
+                  "Required exactly one current OCO/OTOCO target-and-stop pair",
+                  "Added target-only and no-current-order cases; retained strict reconciliation, rejects partial/duplicate/contradictory linkage"
+                ],
+                [
+                  "`quoteEconomics` / delta",
+                  "Generic leg loops, freshness and whole-package mark fallback",
+                  "Reused; scoped missing/malformed valuation cannot hide other positions; exposed numeric net delta"
+                ],
+                [
+                  "`payoffProfile`",
+                  "Four ordered strikes and two wing widths assumed IC",
+                  "Added verified standard vertical width, breakeven and tail economics"
+                ],
+                [
+                  "`projectLive`",
+                  "Any recognition/financial/order exception aborted the scan",
+                  "Scoped known evidence failures; distinguishes unsupported strategy, ambiguous holdings, malformed broker evidence and recognized holdings with unavailable financial/management claims"
+                ],
+                [
+                  "Renderer",
+                  "Four-strike IC silhouette and finite RANGE assumed",
+                  "Extended existing Unicode/ASCII line grammar for rising/falling verticals; RANGE becomes a maximum-profit half-line; explicit scoped diagnostics survive narrow views"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Standalone transitional tastytrade companion only. No Wheelwright v2 Position authority/admission changes, backend migration, database/service change, deployment or brokerage execution capability. No order submission, cancellation, replacement or alteration. Existing renderer work for a separate ww workstream remains uncommitted and is excluded from this commit.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "- IC, bull put credit and bear call credit recognized only with compatible quantities/multipliers, valid matching identities/expiry/root, distinct strikes and correct rights/orientation.\n- Debit/reversed packages, overlapping identities and uncertain group decomposition never gain valid credit-spread claims.\n- Opening credit comes from verified fills. Gross P/L uses credit minus indicative closing debit, times quantity/multiplier.\n- Standard expiration assertions require Standard 100-share instrument evidence and multiplier 100. Vertical credit must be positive and less than width. Max profit = credit × 100 × quantity; max loss = (width − credit) × 100 × quantity. Bull put breakeven = short put − credit; bear call breakeven = short call + credit.\n- Target-only, verified target/stop and no orders supported. No target, stop or time-exit objective is invented.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "October 14, 2026: bounded extension of existing recognition, projection and Unicode renderer. XLF shows `___╱‾‾‾` orientation with the existing cyan price indicator; bear calls reverse it. RANGE is `≥52.5` for XLF, not an invented condor interval or breakeven. Actual $0.04 target renders LIMIT because capture is 55.56%, not exact P50. Existing TSV conservatively retains its rounded `56% @ 0.04` wording/semantics. Missing credit with an actual limit renders LIMIT, never invented P0.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "195/195 deterministic tastytrade tests pass: `node --test scripts/tastytrade*.test.mjs`. Fixtures require no live broker access. Coverage includes both verticals, unchanged ICs, IC/IC/vertical/IC ordering, fill weighting, quantity scaling, P/L, standard max profit/loss/breakevens, delta, target-only/target-stop/no orders, duplicate/partial/contradictory exits, malformed holdings/identities/expiries/multipliers, reversed/debit packages, incomplete/stale/duplicated/malformed quotes, negative midpoint with and without broker marks, nonstandard deliverables, Unicode/ASCII strike geometry/spot/colors, terminal widths, unavailable representations, account masking and unchanged TSV headers/IC values.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Remaining limitations",
+          "level": 2,
+          "content": "Grouping remains conservative by underlying/expiration. Multiple same-expiry packages, ratios, partial closes and adjusted contracts are not reconstructed into invented trades. Standard payoff economics are unavailable without validated deliverables. A uniquely reconciled surviving Stop Limit is independently reportable without a profit target; other unsupported exit structures remain management-unavailable. The approved manual GTD convention below is supported; other configured time-exit policies remain unavailable. Midpoints/marks remain indicative, freshness scoped, fees excluded. Existing TSV does not add max-profit/loss/breakeven columns; these remain verified domain projections and documented invariants. Unsupported non-option holdings without option expiration remain explicit; they are not submitted to equity-option quote routes.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- [TT Live panel contract](../cli/tt-live-panel.md)\n- [BUG-040 valuation isolation/fallback](BUG-040-tt-live-inconsistent-package-aborts-scan.md)\n- [Options domain competence contract](../foundations/options-domain-competence-contract.md)\n- [Product-first mandate](../mandates/product-first-continuous-engineering-2026-10-13.md)",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Principal amendments — October 14, 2026",
+          "level": 2,
+          "content": "**Explicit Product decision: Pxx + GTD = Manual xDTE Exit.** Automatically apply to every supported strategy using verified opening fills/current profit-target limit and broker `time-in-force`/`gtc-date`; no per-position confirmation. XLF's actual order has size1, exact closing legs, Live Debit Limit $0.04, GTD `2026-11-06`, linked OTOCO. Observed opening credit $0.09 implies55.555…% (LIMIT); November27−November6=21 New York calendar days (M21). GTD expires the target order; it does not execute a DTE/time-based exit. The Principal hopes its expiration notification will prompt manual evaluation/closing; **alert delivery is unverified**. The Principal directed that design docs about actual broker alert behavior be updated only after observation. No automated close or persistent rule was added.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Final engineering verification and closeout — October 14, 2026",
+          "level": 2,
+          "content": "Exact scoped candidate: **303/303 scripts tests passed**, including195/195 tastytrade tests. Existing sanitized generated Java specimens were supplied to the isolated candidate's tests; no Java/backend changes were needed.24 baseline/current IC output comparisons were byte-identical across terminal/TSV, Unicode/ASCII, color/no-color, ordinary/stale/empty scenarios. Existing non-GTD IC scale and SPAN remained unchanged.",
           "truncated": true,
           "tables": []
         }

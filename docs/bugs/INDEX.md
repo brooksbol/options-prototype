@@ -52,6 +52,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-039 | Buy-Write table admits an economically impossible candidate: underlying price paired with a chain whose contracts cannot belong to it; no coherence/moneyness guard (observed DXJ: price 60.78, strike 170, delta 0.8032, ~$13 premium, ACTIONABLE) | Write Desk (Deployment) / buy-write evidence coherence ↔ upstream price↔chain binding | S2 | Open | [record](BUG-039-buywrite-underlying-chain-mispairing-economically-impossible-candidate.md) | Principal observation 2026-10-12 |
 
 | BUG-040 | Inconsistent package midpoint aborts the entire tt live scan | CLI / tt live | Not established | Resolved | [record](BUG-040-tt-live-inconsistent-package-aborts-scan.md) | Principal report and authorized correction 2026-10-13; installed verification |
+| BUG-041 | Credit vertical holding aborts the entire tt live scan | CLI / tt live | Not established | Resolved | [record](BUG-041-tt-live-credit-vertical-aborts-scan.md) | Principal report and authorized correction 2026-10-14; installed verification |
 
 ## Open-bug audit checkpoint (2026-09-22)
 
